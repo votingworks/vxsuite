@@ -62,7 +62,9 @@ test('invalidates the USB drive status query when the sequence advances', async 
   // A sequence ahead of the caller's `lastSeq` means a change occurred.
   change.resolve(1);
   await waitFor(() =>
-    expect(invalidateSpy).toHaveBeenCalledWith(USB_DRIVE_STATUS_QUERY_KEY)
+    expect(invalidateSpy).toHaveBeenCalledWith({
+      queryKey: USB_DRIVE_STATUS_QUERY_KEY,
+    })
   );
   // The next poll advances its cursor to the observed sequence.
   await waitFor(() =>

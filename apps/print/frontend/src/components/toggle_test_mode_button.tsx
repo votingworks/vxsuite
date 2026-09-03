@@ -19,10 +19,10 @@ export function ToggleTestModeButton(): JSX.Element | null {
   const [flowState, setFlowState] = useState<'none' | 'confirmation'>('none');
 
   const disabled =
-    testModeQuery.isLoading ||
-    ballotPrintCountsQuery.isLoading ||
-    hasTestBallotsQuery.isLoading ||
-    setTestModeMutation.isLoading;
+    testModeQuery.isPending ||
+    ballotPrintCountsQuery.isPending ||
+    hasTestBallotsQuery.isPending ||
+    setTestModeMutation.isPending;
   const isTestMode = testModeQuery.data ?? false;
   const isTestModeAvailable = hasTestBallotsQuery.data ?? false;
 
@@ -107,7 +107,7 @@ export function ToggleTestModeButton(): JSX.Element | null {
               </Button>
               <Button
                 onPress={() => setFlowState('none')}
-                disabled={setTestModeMutation.isLoading}
+                disabled={setTestModeMutation.isPending}
               >
                 Cancel
               </Button>

@@ -202,7 +202,6 @@ function EditPrecinctForm(): JSX.Element | null {
 
         <Redirect
           to={
-            // @coverage-defer
             savedPrecinct
               ? precinctRoutes.view(precinctId).path
               : precinctRoutes.root.path

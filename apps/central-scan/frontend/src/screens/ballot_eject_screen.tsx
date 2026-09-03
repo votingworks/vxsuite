@@ -79,7 +79,7 @@ export function BallotEjectScreen({
   const acceptSheetMutation = acceptSheet.useMutation();
   const rejectSheetMutation = rejectSheet.useMutation();
   const isSheetActionInProgress =
-    acceptSheetMutation.isLoading || rejectSheetMutation.isLoading;
+    acceptSheetMutation.isPending || rejectSheetMutation.isPending;
 
   if (!getSheetForReviewQuery.isSuccess || !systemSettingsQuery.isSuccess) {
     return null;

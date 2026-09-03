@@ -113,9 +113,9 @@ export function PollingPlaceForm(
   );
 
   const someMutationIsLoading =
-    setPlaceMutation.isLoading ||
-    setPlaceMutation.isLoading ||
-    deletePlaceMutation.isLoading;
+    setPlaceMutation.isPending ||
+    setPlaceMutation.isPending ||
+    deletePlaceMutation.isPending;
 
   const errorMessage = (() => {
     if (!setPlaceMutation.data?.isErr()) return undefined;

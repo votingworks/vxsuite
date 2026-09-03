@@ -41,11 +41,11 @@ export const getElectricalTestingStatuses = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () => apiClient.getElectricalTestingStatuses(),
-      { refetchInterval: 1000 }
-    );
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getElectricalTestingStatuses(),
+      refetchInterval: 1000,
+    });
   },
 } as const;
 
@@ -56,16 +56,16 @@ export const setCardReaderTaskRunning = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(
-      (running: boolean) => apiClient.setCardReaderTaskRunning({ running }),
-      {
-        onSuccess: async () => {
-          await queryClient.invalidateQueries(
-            getElectricalTestingStatuses.queryKey()
-          );
-        },
-      }
-    );
+    return useMutation({
+      mutationFn: (running: boolean) =>
+        apiClient.setCardReaderTaskRunning({ running }),
+
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: getElectricalTestingStatuses.queryKey(),
+        });
+      },
+    });
   },
 } as const;
 
@@ -76,16 +76,16 @@ export const setPaperHandlerTaskRunning = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(
-      (running: boolean) => apiClient.setPaperHandlerTaskRunning({ running }),
-      {
-        onSuccess: async () => {
-          await queryClient.invalidateQueries(
-            getElectricalTestingStatuses.queryKey()
-          );
-        },
-      }
-    );
+    return useMutation({
+      mutationFn: (running: boolean) =>
+        apiClient.setPaperHandlerTaskRunning({ running }),
+
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: getElectricalTestingStatuses.queryKey(),
+        });
+      },
+    });
   },
 } as const;
 
@@ -96,16 +96,16 @@ export const setUsbDriveTaskRunning = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(
-      (running: boolean) => apiClient.setUsbDriveTaskRunning({ running }),
-      {
-        onSuccess: async () => {
-          await queryClient.invalidateQueries(
-            getElectricalTestingStatuses.queryKey()
-          );
-        },
-      }
-    );
+    return useMutation({
+      mutationFn: (running: boolean) =>
+        apiClient.setUsbDriveTaskRunning({ running }),
+
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: getElectricalTestingStatuses.queryKey(),
+        });
+      },
+    });
   },
 } as const;
 
@@ -115,7 +115,9 @@ export const getCpuMetrics = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getCpuMetrics(), {
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getCpuMetrics(),
       refetchInterval: 15_000,
     });
   },
@@ -129,10 +131,10 @@ export const generateSignedHashValidationQrCodeValue = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () => apiClient.generateSignedHashValidationQrCodeValue(),
-      { cacheTime: 0 }
-    );
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.generateSignedHashValidationQrCodeValue(),
+      gcTime: 0,
+    });
   },
 } as const;

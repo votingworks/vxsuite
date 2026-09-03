@@ -53,7 +53,7 @@ export function ExportVoterActivityModal({
       );
     }
 
-    case 'loading':
+    case 'pending':
       return <Modal content={<Loading>Exporting Voter History</Loading>} />;
 
     case 'success':

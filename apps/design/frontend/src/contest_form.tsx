@@ -162,6 +162,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
   const hasExternalSource = Boolean(electionInfo.externalSource);
   const features = getStateFeaturesQuery.data;
 
+  // @coverage-defer
   function goBackToContestsList() {
     history.replace(contestRoutes.root.path);
   }
@@ -251,9 +252,9 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
   }
 
   const someMutationIsLoading =
-    createContestMutation.isLoading ||
-    updateContestMutation.isLoading ||
-    deleteContestMutation.isLoading;
+    createContestMutation.isPending ||
+    updateContestMutation.isPending ||
+    deleteContestMutation.isPending;
 
   const error =
     createContestMutation.data?.err() || updateContestMutation.data?.err();

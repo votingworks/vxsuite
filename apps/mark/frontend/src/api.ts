@@ -15,6 +15,7 @@ import {
   USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
   createSystemCallApi,
   createUiStringsApi,
+  asMutationFn,
 } from '@votingworks/ui';
 import { DiagnosticType } from '@votingworks/types';
 
@@ -49,8 +50,11 @@ export const getUsbDriveStatus = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getUsbDriveStatus(), {
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getUsbDriveStatus(),
       refetchInterval: USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
+
       structuralSharing(oldData, newData) {
         if (!oldData) {
           return newData;
@@ -68,9 +72,13 @@ export const ejectUsbDrive = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.ejectUsbDrive, {
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.ejectUsbDrive),
+
       async onSuccess() {
-        await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
+        await queryClient.invalidateQueries({
+          queryKey: getUsbDriveStatus.queryKey(),
+        });
       },
     });
   },
@@ -82,8 +90,11 @@ export const getPrinterStatus = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getPrinterStatus(), {
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getPrinterStatus(),
       refetchInterval: PRINTER_STATUS_POLLING_INTERVAL_MS,
+
       structuralSharing(oldData, newData) {
         if (!oldData) {
           return newData;
@@ -103,13 +114,11 @@ export const getAccessibleControllerConnected = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () => apiClient.getAccessibleControllerConnected(),
-      {
-        refetchInterval: INTERNAL_HARDWARE_POLLING_INTERVAL_MS,
-      }
-    );
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getAccessibleControllerConnected(),
+      refetchInterval: INTERNAL_HARDWARE_POLLING_INTERVAL_MS,
+    });
   },
 } as const;
 
@@ -119,7 +128,9 @@ export const getPatInputConnected = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getPatInputConnected(), {
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getPatInputConnected(),
       refetchInterval: INTERNAL_HARDWARE_POLLING_INTERVAL_MS,
     });
   },
@@ -131,7 +142,9 @@ export const getBarcodeConnected = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getBarcodeConnected(), {
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getBarcodeConnected(),
       refetchInterval: INTERNAL_HARDWARE_POLLING_INTERVAL_MS,
     });
   },
@@ -145,13 +158,11 @@ export const getMostRecentBarcodeScan = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () => apiClient.getMostRecentBarcodeScan(),
-      {
-        refetchInterval: BARCODE_SCAN_POLLING_INTERVAL_MS,
-      }
-    );
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getMostRecentBarcodeScan(),
+      refetchInterval: BARCODE_SCAN_POLLING_INTERVAL_MS,
+    });
   },
 } as const;
 
@@ -159,11 +170,13 @@ export const clearLastBarcodeScan = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.clearLastBarcodeScan, {
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.clearLastBarcodeScan),
+
       async onSuccess() {
-        await queryClient.invalidateQueries(
-          getMostRecentBarcodeScan.queryKey()
-        );
+        await queryClient.invalidateQueries({
+          queryKey: getMostRecentBarcodeScan.queryKey(),
+        });
       },
     });
   },
@@ -175,7 +188,10 @@ export const getMachineConfig = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getMachineConfig());
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getMachineConfig(),
+    });
   },
 } as const;
 
@@ -185,7 +201,10 @@ export const getElectionRecord = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getElectionRecord());
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getElectionRecord(),
+    });
   },
 } as const;
 
@@ -195,7 +214,10 @@ export const getSystemSettings = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getSystemSettings());
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getSystemSettings(),
+    });
   },
 } as const;
 
@@ -205,7 +227,10 @@ export const getElectionState = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getElectionState());
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getElectionState(),
+    });
   },
 } as const;
 
@@ -215,7 +240,9 @@ export const getAuthStatus = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), {
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getAuthStatus(),
       refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
     });
   },
@@ -225,11 +252,15 @@ export const checkPin = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.checkPin, {
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.checkPin),
+
       async onSuccess() {
         // Because we poll auth status with high frequency, this invalidation isn't strictly
         // necessary
-        await queryClient.invalidateQueries(getAuthStatus.queryKey());
+        await queryClient.invalidateQueries({
+          queryKey: getAuthStatus.queryKey(),
+        });
       },
     });
   },
@@ -239,11 +270,15 @@ export const logOut = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.logOut, {
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.logOut),
+
       async onSuccess() {
         // Because we poll auth status with high frequency, this invalidation isn't strictly
         // necessary
-        await queryClient.invalidateQueries(getAuthStatus.queryKey());
+        await queryClient.invalidateQueries({
+          queryKey: getAuthStatus.queryKey(),
+        });
       },
     });
   },
@@ -254,11 +289,15 @@ export const updateSessionExpiry = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.updateSessionExpiry, {
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.updateSessionExpiry),
+
       async onSuccess() {
         // Because we poll auth status with high frequency, this invalidation isn't strictly
         // necessary
-        await queryClient.invalidateQueries(getAuthStatus.queryKey());
+        await queryClient.invalidateQueries({
+          queryKey: getAuthStatus.queryKey(),
+        });
       },
     });
   },
@@ -268,11 +307,15 @@ export const startCardlessVoterSession = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.startCardlessVoterSession, {
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.startCardlessVoterSession),
+
       async onSuccess() {
         // Because we poll auth status with high frequency, this invalidation isn't strictly
         // necessary
-        await queryClient.invalidateQueries(getAuthStatus.queryKey());
+        await queryClient.invalidateQueries({
+          queryKey: getAuthStatus.queryKey(),
+        });
       },
     });
   },
@@ -282,11 +325,15 @@ export const updateCardlessVoterBallotStyle = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.updateCardlessVoterBallotStyle, {
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.updateCardlessVoterBallotStyle),
+
       async onSuccess() {
         // Because we poll auth status with high frequency, this invalidation isn't strictly
         // necessary
-        await queryClient.invalidateQueries(getAuthStatus.queryKey());
+        await queryClient.invalidateQueries({
+          queryKey: getAuthStatus.queryKey(),
+        });
       },
     });
   },
@@ -296,11 +343,15 @@ export const endCardlessVoterSession = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.endCardlessVoterSession, {
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.endCardlessVoterSession),
+
       async onSuccess() {
         // Because we poll auth status with high frequency, this invalidation isn't strictly
         // necessary
-        await queryClient.invalidateQueries(getAuthStatus.queryKey());
+        await queryClient.invalidateQueries({
+          queryKey: getAuthStatus.queryKey(),
+        });
       },
     });
   },
@@ -312,7 +363,10 @@ export const getPrintCalibration = {
   queryKey: (): QueryKey => ['getPrintCalibration'],
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getPrintCalibration());
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getPrintCalibration(),
+    });
   },
 } as const;
 
@@ -322,9 +376,13 @@ export const setPrintCalibration = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
 
-    return useMutation(apiClient.setPrintCalibration, {
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.setPrintCalibration),
+
       async onSuccess() {
-        await queryClient.invalidateQueries(getPrintCalibration.queryKey());
+        await queryClient.invalidateQueries({
+          queryKey: getPrintCalibration.queryKey(),
+        });
       },
     });
   },
@@ -334,11 +392,19 @@ export const configureElectionPackageFromUsb = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(() => apiClient.configureElectionPackageFromUsb(), {
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.configureElectionPackageFromUsb),
+
       async onSuccess() {
-        await queryClient.invalidateQueries(getElectionRecord.queryKey());
-        await queryClient.invalidateQueries(getSystemSettings.queryKey());
-        await queryClient.invalidateQueries(getElectionState.queryKey());
+        await queryClient.invalidateQueries({
+          queryKey: getElectionRecord.queryKey(),
+        });
+        await queryClient.invalidateQueries({
+          queryKey: getSystemSettings.queryKey(),
+        });
+        await queryClient.invalidateQueries({
+          queryKey: getElectionState.queryKey(),
+        });
         await uiStringsApi.onMachineConfigurationChange(queryClient);
       },
     });
@@ -349,13 +415,23 @@ export const unconfigureMachine = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(() => apiClient.unconfigureMachine(), {
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.unconfigureMachine),
+
       // [TODO] Update this to clear all query data, to match other VxSuite apps.
       async onSuccess() {
-        await queryClient.invalidateQueries(getElectionRecord.queryKey());
-        await queryClient.invalidateQueries(getSystemSettings.queryKey());
-        await queryClient.invalidateQueries(getElectionState.queryKey());
-        await queryClient.invalidateQueries(['getUsbPortStatus']);
+        await queryClient.invalidateQueries({
+          queryKey: getElectionRecord.queryKey(),
+        });
+        await queryClient.invalidateQueries({
+          queryKey: getSystemSettings.queryKey(),
+        });
+        await queryClient.invalidateQueries({
+          queryKey: getElectionState.queryKey(),
+        });
+        await queryClient.invalidateQueries({
+          queryKey: ['getUsbPortStatus'],
+        });
         await uiStringsApi.onMachineConfigurationChange(queryClient);
       },
     });
@@ -366,9 +442,13 @@ export const setPollsState = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.setPollsState, {
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.setPollsState),
+
       async onSuccess() {
-        await queryClient.invalidateQueries(getElectionState.queryKey());
+        await queryClient.invalidateQueries({
+          queryKey: getElectionState.queryKey(),
+        });
       },
     });
   },
@@ -378,9 +458,13 @@ export const printBallot = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.printBallot, {
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.printBallot),
+
       async onSuccess() {
-        await queryClient.invalidateQueries(getElectionState.queryKey());
+        await queryClient.invalidateQueries({
+          queryKey: getElectionState.queryKey(),
+        });
       },
     });
   },
@@ -390,9 +474,13 @@ export const printBlankBallot = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.printBlankBallot, {
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.printBlankBallot),
+
       async onSuccess() {
-        await queryClient.invalidateQueries(getElectionState.queryKey());
+        await queryClient.invalidateQueries({
+          queryKey: getElectionState.queryKey(),
+        });
       },
     });
   },
@@ -402,9 +490,13 @@ export const setTestMode = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.setTestMode, {
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.setTestMode),
+
       async onSuccess() {
-        await queryClient.invalidateQueries(getElectionState.queryKey());
+        await queryClient.invalidateQueries({
+          queryKey: getElectionState.queryKey(),
+        });
       },
     });
   },
@@ -414,9 +506,13 @@ export const setPollingPlaceId = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.setPollingPlaceId, {
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.setPollingPlaceId),
+
       async onSuccess() {
-        await queryClient.invalidateQueries(getElectionState.queryKey());
+        await queryClient.invalidateQueries({
+          queryKey: getElectionState.queryKey(),
+        });
       },
     });
   },
@@ -425,14 +521,18 @@ export const setPollingPlaceId = {
 export const playSound = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.playSound);
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.playSound),
+    });
   },
 } as const;
 
 export const printTestDeck = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.printTestDeck);
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.printTestDeck),
+    });
   },
 } as const;
 
@@ -442,7 +542,10 @@ export const getDiskSpaceSummary = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getDiskSpaceSummary(), {
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getDiskSpaceSummary(),
+
       // disk space availability could change between queries for a variety
       // reasons, so always treat it as stale
       staleTime: 0,
@@ -456,9 +559,11 @@ export const getMostRecentDiagnostic = {
   },
   useQuery(diagnosticType: DiagnosticType) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(diagnosticType), () =>
-      apiClient.getMostRecentDiagnostic({ diagnosticType })
-    );
+    return useQuery({
+      queryKey: this.queryKey(diagnosticType),
+
+      queryFn: () => apiClient.getMostRecentDiagnostic({ diagnosticType }),
+    });
   },
 } as const;
 
@@ -466,11 +571,18 @@ export const addDiagnosticRecord = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.addDiagnosticRecord, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (
+        input: Parameters<typeof apiClient.addDiagnosticRecord>[0]
+      ) => apiClient.addDiagnosticRecord(input),
+
       async onSuccess(_, input) {
-        await queryClient.invalidateQueries(
-          getMostRecentDiagnostic.queryKey(input.type)
-        );
+        await queryClient.invalidateQueries({
+          queryKey: getMostRecentDiagnostic.queryKey(input.type),
+        });
       },
     });
   },
@@ -479,14 +591,18 @@ export const addDiagnosticRecord = {
 export const saveReadinessReport = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.saveReadinessReport);
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.saveReadinessReport),
+    });
   },
 } as const;
 
 export const printTestPage = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.printTestPage);
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.printTestPage),
+    });
   },
 } as const;
 
@@ -494,11 +610,15 @@ export const logUpsDiagnosticOutcome = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.logUpsDiagnosticOutcome, {
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.logUpsDiagnosticOutcome),
+
       async onSuccess() {
-        await queryClient.invalidateQueries(
-          getMostRecentDiagnostic.queryKey('uninterruptible-power-supply')
-        );
+        await queryClient.invalidateQueries({
+          queryKey: getMostRecentDiagnostic.queryKey(
+            'uninterruptible-power-supply'
+          ),
+        });
       },
     });
   },

@@ -170,7 +170,7 @@ const BUTTON_ICON_AND_TEXT: Record<ExtendedUsbDriveStatus, [IconName, string]> =
 
 function UsbControllerButton({ status }: { status: UsbDriveStatus }) {
   const ejectUsbMutation = ejectUsbDrive.useMutation();
-  const isEjecting = ejectUsbMutation.isLoading;
+  const isEjecting = ejectUsbMutation.isPending;
   // @coverage-defer
   const extendedUsbDriveStatus: ExtendedUsbDriveStatus = isEjecting
     ? 'ejecting'

@@ -21,7 +21,7 @@ function renderButton(
 
   vi.mocked(api.endCardlessVoterSession.useMutation).mockReturnValue({
     mutate: mockMutate,
-    isLoading: isMutationInProgress,
+    isPending: isMutationInProgress,
   } as unknown as ReturnType<typeof api.endCardlessVoterSession.useMutation>);
 
   return {

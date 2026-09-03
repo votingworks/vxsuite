@@ -5,7 +5,7 @@ import {
   QueryKey,
   UseQueryOptions,
   UseQueryResult,
-  hashQueryKey,
+  hashKey,
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
@@ -89,10 +89,13 @@ export function usePollingQuery<T>(
   queryKey: QueryKey,
   queryFn: QueryFunction<T>,
   refetchInterval: PollingInterval<T>,
-  options: Omit<UseQueryOptions<T>, 'refetchInterval'> = {}
+  options: Omit<
+    UseQueryOptions<T>,
+    'refetchInterval' | 'queryKey' | 'queryFn'
+  > = {}
 ): UseQueryResult<T> {
   const queryClient = useQueryClient();
-  const queryHash = hashQueryKey(queryKey);
+  const queryHash = hashKey(queryKey);
   const enabled = options.enabled !== false;
   const [isLeader, setIsLeader] = useState(false);
 
@@ -101,8 +104,17 @@ export function usePollingQuery<T>(
     [queryClient, queryHash, enabled]
   );
 
-  return useQuery(queryKey, queryFn, {
+  return useQuery({
     ...options,
-    refetchInterval: isLeader ? refetchInterval : undefined,
+    queryKey,
+    queryFn,
+    // react-query v5 hands the whole `Query` to a `refetchInterval` callback,
+    // but `PollingInterval` is defined in terms of the query's data, so unwrap
+    // it here rather than pushing the change onto every caller.
+    refetchInterval: !isLeader
+      ? undefined
+      : typeof refetchInterval === 'function'
+      ? (query) => refetchInterval(query.state.data)
+      : refetchInterval,
   });
 }

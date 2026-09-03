@@ -942,7 +942,7 @@ export function SystemSettingsForm({
             type="submit"
             variant="primary"
             icon="Done"
-            disabled={updateSystemSettingsMutation.isLoading}
+            disabled={updateSystemSettingsMutation.isPending}
           >
             Save
           </Button>

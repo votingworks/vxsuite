@@ -282,8 +282,7 @@ function LoadElectionModalForm({
       }
       actions={
         <React.Fragment>
-          {loadElectionMutation.isLoading ? (
-            // @coverage-defer
+          {loadElectionMutation.isPending ? (
             <LoadingButton variant="primary">Loading Election…</LoadingButton>
           ) : (
             <Button
@@ -294,7 +293,7 @@ function LoadElectionModalForm({
               Load Election
             </Button>
           )}
-          <Button disabled={loadElectionMutation.isLoading} onPress={onClose}>
+          <Button disabled={loadElectionMutation.isPending} onPress={onClose}>
             Cancel
           </Button>
         </React.Fragment>

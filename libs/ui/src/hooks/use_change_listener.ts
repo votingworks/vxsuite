@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import type { UseQueryResult } from '@tanstack/react-query';
 import { deepEqual } from '@votingworks/basics';
 
 /**
@@ -51,6 +50,19 @@ export type UseChangeListenerDataSelector<Data, SelectedData> = (
 ) => SelectedData;
 
 /**
+ * The slice of a react-query result {@link useQueryChangeListener} needs.
+ *
+ * Written as a discriminated union rather than `UseQueryResult` so that
+ * `Data` infers as the success-case type (v5's `UseQueryResult` would infer
+ * `Data | undefined`), and so the type survives crossing the package
+ * boundary, where `@tanstack/react-query` resolves through a different
+ * `exports` condition.
+ */
+export type QueryChangeListenerQuery<Data> =
+  | { isSuccess: false; data?: Data }
+  | { isSuccess: true; data: Data };
+
+/**
  * Registers a handler that will be called whenever the result of a useQuery
  * hook changes (based on a deep equality check with an optional selector).
  *
@@ -66,7 +78,7 @@ export type UseChangeListenerDataSelector<Data, SelectedData> = (
  * - Redirecting to a new URL when a background task is complete
  */
 export function useQueryChangeListener<Data, SelectedData = Data>(
-  query: UseQueryResult<Data>,
+  query: QueryChangeListenerQuery<Data>,
   options: {
     select?: UseChangeListenerDataSelector<Data, SelectedData>;
     onChange: UseChangeListenerChangeHandler<SelectedData>;

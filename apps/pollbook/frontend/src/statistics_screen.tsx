@@ -235,7 +235,7 @@ export function GeneralElectionStatistics(): JSX.Element {
             disabled={
               !isPrinterAttached ||
               // @coverage-defer
-              printGeneralStatisticsSummaryReceiptMutation.isLoading
+              printGeneralStatisticsSummaryReceiptMutation.isPending
             }
             icon="Print"
             style={{
@@ -371,7 +371,7 @@ export function PrimaryElectionStatistics(): JSX.Element {
           disabled={
             !isPrinterAttached ||
             // @coverage-defer
-            printPrimaryStatisticsSummaryReceiptMutation.isLoading
+            printPrimaryStatisticsSummaryReceiptMutation.isPending
           }
           icon="Print"
           style={{

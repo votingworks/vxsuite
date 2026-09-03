@@ -1,3 +1,4 @@
+import { asMutationFn } from '@votingworks/ui';
 import React from 'react';
 import {
   Api,
@@ -18,7 +19,6 @@ import {
   BallotStyleId,
   BallotType,
   ElectionId,
-  ElectionSerializationFormat,
   PollingPlaceType,
   PrecinctSelection,
   TtsEditKey,
@@ -82,11 +82,11 @@ export function createQueryClient(): QueryClient {
         // In test, we only want to refetch when we explicitly invalidate. In
         // dev/prod, it's fine to refetch more aggressively.
         refetchOnMount: process.env.NODE_ENV !== 'test',
-        useErrorBoundary: true,
+        throwOnError: true,
       },
       mutations: {
         retry: false,
-        useErrorBoundary: true,
+        throwOnError: true,
       },
     },
   });
@@ -98,7 +98,10 @@ export const getUser = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getUser());
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getUser(),
+    });
   },
 } as const;
 
@@ -108,7 +111,10 @@ export const listJurisdictions = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.listJurisdictions());
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.listJurisdictions(),
+    });
   },
 } as const;
 
@@ -118,7 +124,10 @@ export const listElections = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.listElections());
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.listElections(),
+    });
   },
 } as const;
 
@@ -128,9 +137,11 @@ export const getElectionInfo = {
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(id), () =>
-      apiClient.getElectionInfo({ electionId: id })
-    );
+    return useQuery({
+      queryKey: this.queryKey(id),
+
+      queryFn: () => apiClient.getElectionInfo({ electionId: id }),
+    });
   },
 } as const;
 
@@ -140,14 +151,12 @@ export const getLiveReportsSummary = {
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(id),
-      () => apiClient.getLiveReportsSummary({ electionId: id }),
-      {
-        refetchInterval: VXQR_REFETCH_INTERVAL_MS,
-        staleTime: 0,
-      }
-    );
+    return useQuery({
+      queryKey: this.queryKey(id),
+      queryFn: () => apiClient.getLiveReportsSummary({ electionId: id }),
+      refetchInterval: VXQR_REFETCH_INTERVAL_MS,
+      staleTime: 0,
+    });
   },
 } as const;
 
@@ -157,15 +166,19 @@ export const getLiveReportsActivityLog = {
   },
   useQuery(id: ElectionId, votingGroup?: PollingPlaceType) {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(id, votingGroup),
-      () =>
+    return useQuery({
+      queryKey: this.queryKey(id, votingGroup),
+
+      queryFn: () =>
         apiClient.getLiveReportsActivityLog({
           electionId: id,
           ...(votingGroup ? { votingGroup } : {}),
         }),
-      { refetchInterval: VXQR_REFETCH_INTERVAL_MS, staleTime: 0, cacheTime: 0 }
-    );
+
+      refetchInterval: VXQR_REFETCH_INTERVAL_MS,
+      staleTime: 0,
+      gcTime: 0,
+    });
   },
 } as const;
 
@@ -184,15 +197,19 @@ export const getLiveResultsReports = {
   },
   useQuery(id: ElectionId, precinctSelection: PrecinctSelection) {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(id, precinctSelection),
-      () =>
+    return useQuery({
+      queryKey: this.queryKey(id, precinctSelection),
+
+      queryFn: () =>
         apiClient.getLiveResultsReports({
           electionId: id,
           precinctSelection,
         }),
-      { refetchInterval: VXQR_REFETCH_INTERVAL_MS, staleTime: 0, cacheTime: 0 }
-    );
+
+      refetchInterval: VXQR_REFETCH_INTERVAL_MS,
+      staleTime: 0,
+      gcTime: 0,
+    });
   },
 } as const;
 
@@ -200,14 +217,21 @@ export const deleteQuickReportingResults = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.deleteQuickReportingResults, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (
+        input: Parameters<typeof apiClient.deleteQuickReportingResults>[0]
+      ) => apiClient.deleteQuickReportingResults(input),
+
       async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(
-          getLiveResultsReports.queryKey(electionId)
-        );
-        await queryClient.invalidateQueries(
-          getLiveReportsSummary.queryKey(electionId)
-        );
+        await queryClient.invalidateQueries({
+          queryKey: getLiveResultsReports.queryKey(electionId),
+        });
+        await queryClient.invalidateQueries({
+          queryKey: getLiveReportsSummary.queryKey(electionId),
+        });
       },
     });
   },
@@ -219,9 +243,11 @@ export const listDistricts = {
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(id), () =>
-      apiClient.listDistricts({ electionId: id })
-    );
+    return useQuery({
+      queryKey: this.queryKey(id),
+
+      queryFn: () => apiClient.listDistricts({ electionId: id }),
+    });
   },
 } as const;
 
@@ -231,9 +257,11 @@ export const listPrecincts = {
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(id), () =>
-      apiClient.listPrecincts({ electionId: id })
-    );
+    return useQuery({
+      queryKey: this.queryKey(id),
+
+      queryFn: () => apiClient.listPrecincts({ electionId: id }),
+    });
   },
 } as const;
 
@@ -243,9 +271,11 @@ export const listPollingPlaces = {
   },
   useQuery(electionId: string) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(electionId), () =>
-      apiClient.listPollingPlaces({ electionId })
-    );
+    return useQuery({
+      queryKey: this.queryKey(electionId),
+
+      queryFn: () => apiClient.listPollingPlaces({ electionId }),
+    });
   },
 } as const;
 
@@ -255,9 +285,11 @@ export const getRegisteredVoterCounts = {
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(id), () =>
-      apiClient.getRegisteredVoterCounts({ electionId: id })
-    );
+    return useQuery({
+      queryKey: this.queryKey(id),
+
+      queryFn: () => apiClient.getRegisteredVoterCounts({ electionId: id }),
+    });
   },
 } as const;
 
@@ -267,9 +299,11 @@ export const listBallotStyles = {
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(id), () =>
-      apiClient.listBallotStyles({ electionId: id })
-    );
+    return useQuery({
+      queryKey: this.queryKey(id),
+
+      queryFn: () => apiClient.listBallotStyles({ electionId: id }),
+    });
   },
 } as const;
 
@@ -279,9 +313,11 @@ export const listParties = {
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(id), () =>
-      apiClient.listParties({ electionId: id })
-    );
+    return useQuery({
+      queryKey: this.queryKey(id),
+
+      queryFn: () => apiClient.listParties({ electionId: id }),
+    });
   },
 } as const;
 
@@ -291,9 +327,11 @@ export const listContests = {
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(id), () =>
-      apiClient.listContests({ electionId: id })
-    );
+    return useQuery({
+      queryKey: this.queryKey(id),
+
+      queryFn: () => apiClient.listContests({ electionId: id }),
+    });
   },
 } as const;
 
@@ -303,9 +341,11 @@ export const getBallotLayoutSettings = {
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(id), () =>
-      apiClient.getBallotLayoutSettings({ electionId: id })
-    );
+    return useQuery({
+      queryKey: this.queryKey(id),
+
+      queryFn: () => apiClient.getBallotLayoutSettings({ electionId: id }),
+    });
   },
 } as const;
 
@@ -315,9 +355,11 @@ export const getSystemSettings = {
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(id), () =>
-      apiClient.getSystemSettings({ electionId: id })
-    );
+    return useQuery({
+      queryKey: this.queryKey(id),
+
+      queryFn: () => apiClient.getSystemSettings({ electionId: id }),
+    });
   },
 } as const;
 
@@ -327,9 +369,11 @@ export const getBallotTemplate = {
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(id), () =>
-      apiClient.getBallotTemplate({ electionId: id })
-    );
+    return useQuery({
+      queryKey: this.queryKey(id),
+
+      queryFn: () => apiClient.getBallotTemplate({ electionId: id }),
+    });
   },
 } as const;
 
@@ -344,11 +388,11 @@ export const ttsEditsGet = {
   },
   useQuery(params: TtsEditKey, opts: { enabled?: boolean } = {}) {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(params),
-      () => apiClient.ttsEditsGet(params),
-      opts
-    );
+    return useQuery({
+      queryKey: this.queryKey(params),
+      queryFn: () => apiClient.ttsEditsGet(params),
+      ...opts,
+    });
   },
 } as const;
 
@@ -357,9 +401,17 @@ export const ttsEditsSet = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
 
-    return useMutation(apiClient.ttsEditsSet, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (input: Parameters<typeof apiClient.ttsEditsSet>[0]) =>
+        apiClient.ttsEditsSet(input),
+
       onSuccess: (_, params) =>
-        queryClient.invalidateQueries(ttsEditsGet.queryKey(params)),
+        queryClient.invalidateQueries({
+          queryKey: ttsEditsGet.queryKey(params),
+        }),
     });
   },
 } as const;
@@ -371,9 +423,11 @@ export const ttsStringDefaults = {
 
   useQuery(electionId: string) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(electionId), () =>
-      apiClient.ttsStringDefaults({ electionId })
-    );
+    return useQuery({
+      queryKey: this.queryKey(electionId),
+
+      queryFn: () => apiClient.ttsStringDefaults({ electionId }),
+    });
   },
 } as const;
 
@@ -383,9 +437,11 @@ export const ttsSynthesizeFromText = {
   },
   useQuery(input: { languageCode: string; text: string }) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(input), () =>
-      apiClient.ttsSynthesizeFromText(input)
-    );
+    return useQuery({
+      queryKey: this.queryKey(input),
+
+      queryFn: () => apiClient.ttsSynthesizeFromText(input),
+    });
   },
 } as const;
 
@@ -394,18 +450,36 @@ async function invalidateElectionQueries(
   electionId: ElectionId
 ) {
   await Promise.all([
-    queryClient.invalidateQueries(listElections.queryKey()),
-    queryClient.invalidateQueries(getElectionInfo.queryKey(electionId)),
-    queryClient.invalidateQueries(listDistricts.queryKey(electionId)),
-    queryClient.invalidateQueries(listPrecincts.queryKey(electionId)),
-    queryClient.invalidateQueries(listPollingPlaces.queryKey(electionId)),
-    queryClient.invalidateQueries(
-      getRegisteredVoterCounts.queryKey(electionId)
-    ),
-    queryClient.invalidateQueries(listBallotStyles.queryKey(electionId)),
-    queryClient.invalidateQueries(listParties.queryKey(electionId)),
-    queryClient.invalidateQueries(listContests.queryKey(electionId)),
-    queryClient.invalidateQueries(ttsStringDefaults.queryKey(electionId)),
+    queryClient.invalidateQueries({
+      queryKey: listElections.queryKey(),
+    }),
+    queryClient.invalidateQueries({
+      queryKey: getElectionInfo.queryKey(electionId),
+    }),
+    queryClient.invalidateQueries({
+      queryKey: listDistricts.queryKey(electionId),
+    }),
+    queryClient.invalidateQueries({
+      queryKey: listPrecincts.queryKey(electionId),
+    }),
+    queryClient.invalidateQueries({
+      queryKey: listPollingPlaces.queryKey(electionId),
+    }),
+    queryClient.invalidateQueries({
+      queryKey: getRegisteredVoterCounts.queryKey(electionId),
+    }),
+    queryClient.invalidateQueries({
+      queryKey: listBallotStyles.queryKey(electionId),
+    }),
+    queryClient.invalidateQueries({
+      queryKey: listParties.queryKey(electionId),
+    }),
+    queryClient.invalidateQueries({
+      queryKey: listContests.queryKey(electionId),
+    }),
+    queryClient.invalidateQueries({
+      queryKey: ttsStringDefaults.queryKey(electionId),
+    }),
   ]);
 }
 
@@ -413,20 +487,21 @@ export const loadElection = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(
-      (input: { upload: ElectionUpload; jurisdictionId: string }) =>
+    return useMutation({
+      mutationFn: (input: { upload: ElectionUpload; jurisdictionId: string }) =>
         apiClient.loadElection({
           ...input,
           newId: generateId(),
         }),
-      {
-        async onSuccess(result) {
-          if (result.isOk()) {
-            await queryClient.invalidateQueries(listElections.queryKey());
-          }
-        },
-      }
-    );
+
+      async onSuccess(result) {
+        if (result.isOk()) {
+          await queryClient.invalidateQueries({
+            queryKey: listElections.queryKey(),
+          });
+        }
+      },
+    });
   },
 } as const;
 
@@ -434,15 +509,15 @@ export const createElection = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(
-      (input: { id: ElectionId; jurisdictionId: string }) =>
-        apiClient.createElection(input),
-      {
-        async onSuccess() {
-          await queryClient.invalidateQueries(listElections.queryKey());
-        },
-      }
-    );
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.createElection),
+
+      async onSuccess() {
+        await queryClient.invalidateQueries({
+          queryKey: listElections.queryKey(),
+        });
+      },
+    });
   },
 } as const;
 
@@ -450,19 +525,20 @@ export const cloneElection = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(
-      (input: { id: ElectionId; jurisdictionId: string }) =>
+    return useMutation({
+      mutationFn: (input: { id: ElectionId; jurisdictionId: string }) =>
         apiClient.cloneElection({
           electionId: input.id,
           destElectionId: generateId(),
           destJurisdictionId: input.jurisdictionId,
         }),
-      {
-        async onSuccess() {
-          await queryClient.invalidateQueries(listElections.queryKey());
-        },
-      }
-    );
+
+      async onSuccess() {
+        await queryClient.invalidateQueries({
+          queryKey: listElections.queryKey(),
+        });
+      },
+    });
   },
 } as const;
 
@@ -470,7 +546,13 @@ export const updateElectionInfo = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.updateElectionInfo, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (input: Parameters<typeof apiClient.updateElectionInfo>[0]) =>
+        apiClient.updateElectionInfo(input),
+
       async onSuccess(result, { electionId }) {
         if (result.isOk()) {
           await invalidateElectionQueries(queryClient, electionId);
@@ -484,7 +566,13 @@ export const updateDistricts = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.updateDistricts, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (input: Parameters<typeof apiClient.updateDistricts>[0]) =>
+        apiClient.updateDistricts(input),
+
       async onSuccess(result, { electionId }) {
         if (result.isOk()) {
           await invalidateElectionQueries(queryClient, electionId);
@@ -498,11 +586,19 @@ export const createPrecinct = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.createPrecinct, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (input: Parameters<typeof apiClient.createPrecinct>[0]) =>
+        apiClient.createPrecinct(input),
+
       async onSuccess(result, { electionId }) {
         if (result.isOk()) {
           await invalidateElectionQueries(queryClient, electionId);
-          await queryClient.refetchQueries(listPrecincts.queryKey(electionId));
+          await queryClient.refetchQueries({
+            queryKey: listPrecincts.queryKey(electionId),
+          });
         }
       },
     });
@@ -513,7 +609,13 @@ export const updatePrecinct = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.updatePrecinct, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (input: Parameters<typeof apiClient.updatePrecinct>[0]) =>
+        apiClient.updatePrecinct(input),
+
       async onSuccess(result, { electionId }) {
         if (result.isOk()) {
           await invalidateElectionQueries(queryClient, electionId);
@@ -527,7 +629,13 @@ export const deletePrecinct = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.deletePrecinct, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (input: Parameters<typeof apiClient.deletePrecinct>[0]) =>
+        apiClient.deletePrecinct(input),
+
       async onSuccess(_, { electionId }) {
         await invalidateElectionQueries(queryClient, electionId);
       },
@@ -539,7 +647,13 @@ export const setPollingPlace = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.setPollingPlace, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (input: Parameters<typeof apiClient.setPollingPlace>[0]) =>
+        apiClient.setPollingPlace(input),
+
       async onSuccess(result, { electionId }) {
         if (result.isOk()) {
           await invalidateElectionQueries(queryClient, electionId);
@@ -553,7 +667,13 @@ export const deletePollingPlace = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.deletePollingPlace, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (input: Parameters<typeof apiClient.deletePollingPlace>[0]) =>
+        apiClient.deletePollingPlace(input),
+
       async onSuccess(_, { electionId }) {
         await invalidateElectionQueries(queryClient, electionId);
       },
@@ -565,7 +685,13 @@ export const updateParties = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.updateParties, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (input: Parameters<typeof apiClient.updateParties>[0]) =>
+        apiClient.updateParties(input),
+
       async onSuccess(result, { electionId }) {
         if (result.isOk()) {
           await invalidateElectionQueries(queryClient, electionId);
@@ -579,12 +705,20 @@ export const createContest = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.createContest, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (input: Parameters<typeof apiClient.createContest>[0]) =>
+        apiClient.createContest(input),
+
       async onSuccess(result, { electionId }) {
         // @coverage-defer
         if (result.isOk()) {
           await invalidateElectionQueries(queryClient, electionId);
-          await queryClient.refetchQueries(listContests.queryKey(electionId));
+          await queryClient.refetchQueries({
+            queryKey: listContests.queryKey(electionId),
+          });
         }
       },
     });
@@ -595,7 +729,13 @@ export const updateContest = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.updateContest, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (input: Parameters<typeof apiClient.updateContest>[0]) =>
+        apiClient.updateContest(input),
+
       async onSuccess(result, { electionId }) {
         if (result.isOk()) {
           await invalidateElectionQueries(queryClient, electionId);
@@ -609,7 +749,13 @@ export const reorderContests = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.reorderContests, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (input: Parameters<typeof apiClient.reorderContests>[0]) =>
+        apiClient.reorderContests(input),
+
       async onSuccess(_, { electionId }) {
         await invalidateElectionQueries(queryClient, electionId);
       },
@@ -621,7 +767,13 @@ export const deleteContest = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.deleteContest, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (input: Parameters<typeof apiClient.deleteContest>[0]) =>
+        apiClient.deleteContest(input),
+
       async onSuccess(_, { electionId }) {
         await invalidateElectionQueries(queryClient, electionId);
       },
@@ -633,11 +785,18 @@ export const updateBallotLayoutSettings = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.updateBallotLayoutSettings, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (
+        input: Parameters<typeof apiClient.updateBallotLayoutSettings>[0]
+      ) => apiClient.updateBallotLayoutSettings(input),
+
       async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(
-          getBallotLayoutSettings.queryKey(electionId)
-        );
+        await queryClient.invalidateQueries({
+          queryKey: getBallotLayoutSettings.queryKey(electionId),
+        });
       },
     });
   },
@@ -647,11 +806,18 @@ export const updateSystemSettings = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.updateSystemSettings, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (
+        input: Parameters<typeof apiClient.updateSystemSettings>[0]
+      ) => apiClient.updateSystemSettings(input),
+
       async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(
-          getSystemSettings.queryKey(electionId)
-        );
+        await queryClient.invalidateQueries({
+          queryKey: getSystemSettings.queryKey(electionId),
+        });
       },
     });
   },
@@ -661,9 +827,12 @@ export const deleteElection = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.deleteElection, {
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.deleteElection),
+
       async onSuccess() {
-        await queryClient.invalidateQueries(listElections.queryKey(), {
+        await queryClient.invalidateQueries({
+          queryKey: listElections.queryKey(),
           // Ensure list of elections is refetched in the background so it's
           // fresh when we redirect to elections list
           refetchType: 'all',
@@ -679,22 +848,22 @@ export const getLatestExportQaRun = {
   },
   useQuery(electionId: ElectionId, options?: { isExportInProgress?: boolean }) {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(electionId),
-      async () =>
+    return useQuery({
+      queryKey: this.queryKey(electionId),
+
+      queryFn: async () =>
         (await apiClient.getLatestExportQaRun({ electionId })) ?? null,
-      {
-        // Poll while any QA run is in progress, or while an export is in
-        // progress (since a new QA run will be created when the export
-        // completes)
-        refetchInterval: (latestQaRun) =>
-          latestQaRun?.status === 'pending' ||
-          latestQaRun?.status === 'in_progress' ||
-          options?.isExportInProgress
-            ? BACKGROUND_TASK_POLLING_INTERVAL_MS
-            : 0,
-      }
-    );
+
+      // Poll while any QA run is in progress, or while an export is in
+      // progress (since a new QA run will be created when the export
+      // completes)
+      refetchInterval: ({ state: { data: latestQaRun } }) =>
+        latestQaRun?.status === 'pending' ||
+        latestQaRun?.status === 'in_progress' ||
+        options?.isExportInProgress
+          ? BACKGROUND_TASK_POLLING_INTERVAL_MS
+          : 0,
+    });
   },
 } as const;
 
@@ -704,9 +873,11 @@ export const getBallotsApprovedAt = {
   },
   useQuery(electionId: ElectionId) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(electionId), () =>
-      apiClient.getBallotsApprovedAt({ electionId })
-    );
+    return useQuery({
+      queryKey: this.queryKey(electionId),
+
+      queryFn: () => apiClient.getBallotsApprovedAt({ electionId }),
+    });
   },
 } as const;
 
@@ -714,11 +885,17 @@ export const approveBallots = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.approveBallots, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (input: Parameters<typeof apiClient.approveBallots>[0]) =>
+        apiClient.approveBallots(input),
+
       async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(
-          getBallotsApprovedAt.queryKey(electionId)
-        );
+        await queryClient.invalidateQueries({
+          queryKey: getBallotsApprovedAt.queryKey(electionId),
+        });
       },
     });
   },
@@ -730,9 +907,11 @@ export const getBallotsFinalizedAt = {
   },
   useQuery(electionId: ElectionId) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(electionId), () =>
-      apiClient.getBallotsFinalizedAt({ electionId })
-    );
+    return useQuery({
+      queryKey: this.queryKey(electionId),
+
+      queryFn: () => apiClient.getBallotsFinalizedAt({ electionId }),
+    });
   },
 } as const;
 
@@ -740,18 +919,24 @@ export const finalizeBallots = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.finalizeBallots, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (input: Parameters<typeof apiClient.finalizeBallots>[0]) =>
+        apiClient.finalizeBallots(input),
+
       async onSuccess(_, { electionId }) {
         await Promise.all([
-          queryClient.invalidateQueries(
-            getBallotsApprovedAt.queryKey(electionId)
-          ),
-          queryClient.invalidateQueries(
-            getBallotsFinalizedAt.queryKey(electionId)
-          ),
-          queryClient.invalidateQueries(
-            getLatestExportQaRun.queryKey(electionId)
-          ),
+          queryClient.invalidateQueries({
+            queryKey: getBallotsApprovedAt.queryKey(electionId),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: getBallotsFinalizedAt.queryKey(electionId),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: getLatestExportQaRun.queryKey(electionId),
+          }),
         ]);
       },
     });
@@ -762,18 +947,24 @@ export const unfinalizeBallots = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.unfinalizeBallots, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (input: Parameters<typeof apiClient.unfinalizeBallots>[0]) =>
+        apiClient.unfinalizeBallots(input),
+
       async onSuccess(_, { electionId }) {
         await Promise.all([
-          queryClient.invalidateQueries(
-            getBallotsApprovedAt.queryKey(electionId)
-          ),
-          queryClient.invalidateQueries(
-            getBallotsFinalizedAt.queryKey(electionId)
-          ),
-          queryClient.invalidateQueries(
-            getLatestExportQaRun.queryKey(electionId)
-          ),
+          queryClient.invalidateQueries({
+            queryKey: getBallotsApprovedAt.queryKey(electionId),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: getBallotsFinalizedAt.queryKey(electionId),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: getLatestExportQaRun.queryKey(electionId),
+          }),
         ]);
       },
     });
@@ -795,12 +986,12 @@ export const getBallotPreviewPdf = {
   },
   useQuery(input: GetBallotPreviewInput) {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(input),
-      () => apiClient.getBallotPreviewPdf(input),
-      // Never cache PDFs, that way we don't have to worry about invalidating them
-      { staleTime: 0, cacheTime: 0 }
-    );
+    return useQuery({
+      queryKey: this.queryKey(input),
+      queryFn: () => apiClient.getBallotPreviewPdf(input),
+      staleTime: 0,
+      gcTime: 0,
+    });
   },
 } as const;
 
@@ -810,17 +1001,16 @@ export const getElectionPackage = {
   },
   useQuery(electionId: ElectionId) {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(electionId),
-      () => apiClient.getElectionPackage({ electionId }),
-      {
-        // Poll if an export is in progress
-        refetchInterval: (result) =>
-          result?.task && !result.task.completedAt
-            ? BACKGROUND_TASK_POLLING_INTERVAL_MS
-            : 0,
-      }
-    );
+    return useQuery({
+      queryKey: this.queryKey(electionId),
+      queryFn: () => apiClient.getElectionPackage({ electionId }),
+
+      // Poll if an export is in progress
+      refetchInterval: ({ state: { data: result } }) =>
+        result?.task && !result.task.completedAt
+          ? BACKGROUND_TASK_POLLING_INTERVAL_MS
+          : 0,
+    });
   },
 } as const;
 
@@ -829,11 +1019,18 @@ export const exportElectionPackage = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
 
-    return useMutation(apiClient.exportElectionPackage, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (
+        input: Parameters<typeof apiClient.exportElectionPackage>[0]
+      ) => apiClient.exportElectionPackage(input),
+
       async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(
-          getElectionPackage.queryKey(electionId)
-        );
+        await queryClient.invalidateQueries({
+          queryKey: getElectionPackage.queryKey(electionId),
+        });
       },
     });
   },
@@ -845,17 +1042,16 @@ export const getTestDecks = {
   },
   useQuery(electionId: ElectionId) {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(electionId),
-      () => apiClient.getTestDecks({ electionId }),
-      {
-        // Poll if an export is in progress
-        refetchInterval: (result) =>
-          result?.task && !result.task.completedAt
-            ? BACKGROUND_TASK_POLLING_INTERVAL_MS
-            : 0,
-      }
-    );
+    return useQuery({
+      queryKey: this.queryKey(electionId),
+      queryFn: () => apiClient.getTestDecks({ electionId }),
+
+      // Poll if an export is in progress
+      refetchInterval: ({ state: { data: result } }) =>
+        result?.task && !result.task.completedAt
+          ? BACKGROUND_TASK_POLLING_INTERVAL_MS
+          : 0,
+    });
   },
 } as const;
 
@@ -864,19 +1060,19 @@ export const exportTestDecks = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
 
-    return useMutation(
-      (input: {
-        electionId: ElectionId;
-        electionSerializationFormat: ElectionSerializationFormat;
-      }) => apiClient.exportTestDecks(input),
-      {
-        async onSuccess(_, { electionId }) {
-          await queryClient.invalidateQueries(
-            getTestDecks.queryKey(electionId)
-          );
-        },
-      }
-    );
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (input: Parameters<typeof apiClient.exportTestDecks>[0]) =>
+        apiClient.exportTestDecks(input),
+
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries({
+          queryKey: getTestDecks.queryKey(electionId),
+        });
+      },
+    });
   },
 } as const;
 
@@ -884,11 +1080,17 @@ export const setBallotTemplate = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.setBallotTemplate, {
+    return useMutation({
+      // Annotated explicitly: alongside an `onSuccess` that uses its
+      // parameters, inference pins the variables type before resolving
+      // `asMutationFn`.
+      mutationFn: (input: Parameters<typeof apiClient.setBallotTemplate>[0]) =>
+        apiClient.setBallotTemplate(input),
+
       async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(
-          getBallotTemplate.queryKey(electionId)
-        );
+        await queryClient.invalidateQueries({
+          queryKey: getBallotTemplate.queryKey(electionId),
+        });
       },
     });
   },
@@ -900,7 +1102,10 @@ export const getUserFeatures = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getUserFeatures());
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getUserFeatures(),
+    });
   },
 } as const;
 
@@ -910,7 +1115,10 @@ export const getResultsReportingUrl = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getResultsReportingUrl());
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getResultsReportingUrl(),
+    });
   },
 } as const;
 
@@ -920,23 +1128,29 @@ export const getStateFeatures = {
   },
   useQuery(electionId: ElectionId) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(electionId), () =>
-      apiClient.getStateFeatures({ electionId })
-    );
+    return useQuery({
+      queryKey: this.queryKey(electionId),
+
+      queryFn: () => apiClient.getStateFeatures({ electionId }),
+    });
   },
 } as const;
 
 export const convertMsResults = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.convertMsResults);
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.convertMsResults),
+    });
   },
 } as const;
 
 export const decryptCvrBallotAuditIds = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.decryptCvrBallotAuditIds);
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.decryptCvrBallotAuditIds),
+    });
   },
 } as const;
 
@@ -946,6 +1160,9 @@ export const getBaseUrl = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getBaseUrl());
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getBaseUrl(),
+    });
   },
 } as const;

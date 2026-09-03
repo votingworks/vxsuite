@@ -44,7 +44,7 @@ export function TestDeckScreen({
   const precincts = electionDefinition?.election.precincts ?? [];
 
   const isPrinterConnected = printerStatusQuery.data.connected;
-  const printingInProgress = printTestDeckMutation.isLoading;
+  const printingInProgress = printTestDeckMutation.isPending;
   const isPrintingDisabled = printingInProgress || !isPrinterConnected;
 
   const printingProgressIndicator = (

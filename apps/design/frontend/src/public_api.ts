@@ -1,3 +1,4 @@
+import { asMutationFn } from '@votingworks/ui';
 import React from 'react';
 import * as grout from '@votingworks/grout';
 import type { UnauthenticatedApi } from '@votingworks/design-backend';
@@ -25,6 +26,8 @@ export function useUnauthenticatedApiClient(): UnauthenticatedApiClient {
 export const processQrCodeReport = {
   useMutation() {
     const apiClient = useUnauthenticatedApiClient();
-    return useMutation(apiClient.processQrCodeReport);
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.processQrCodeReport),
+    });
   },
 } as const;

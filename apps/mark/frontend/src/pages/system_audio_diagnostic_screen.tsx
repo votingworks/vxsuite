@@ -38,8 +38,7 @@ export function SystemAudioDiagnosticScreen({
       <Main flexColumn padded>
         <H2>System Audio Test</H2>
         <P>Press the button below to play audio through the system speakers.</P>
-        {playSoundMutation.isLoading ? (
-          // @coverage-defer
+        {playSoundMutation.isPending ? (
           <Button
             disabled
             icon="SoundOn"

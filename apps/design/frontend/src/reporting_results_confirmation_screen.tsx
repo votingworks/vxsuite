@@ -483,7 +483,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
   const {
     mutate: processQrCodeReportMutate,
     data: reportResult,
-    isLoading,
+    isPending,
     error,
   } = processQrCodeReport.useMutation();
 
@@ -549,7 +549,7 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
     );
   }
 
-  if (isLoading || !reportResult) {
+  if (isPending || !reportResult) {
     return (
       <ResultsScreen screenTitle="Sending Report">
         <Main centerChild>

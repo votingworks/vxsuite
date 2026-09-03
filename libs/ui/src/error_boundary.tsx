@@ -26,7 +26,7 @@ interface State {
  * try/catch.
  *
  * The one exception is errors that occur in react-query hooks, which may be
- * propagated to the error boundary using the `useErrorBoundary` setting.
+ * propagated to the error boundary using the `throwOnError` setting.
  */
 export class ErrorBoundary extends React.Component<Props, State> {
   constructor(props: Props) {

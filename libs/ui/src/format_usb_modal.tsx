@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Result, throwIllegalValue } from '@votingworks/basics';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
-import { UseMutationResult } from '@tanstack/react-query';
 import { Button } from './button.js';
 import { Modal } from './modal.js';
 import { Font, P } from './typography.js';
@@ -128,14 +127,21 @@ export function FormatUsbModal({
   }
 }
 
+/**
+ * The slice of a react-query mutation result this component actually uses.
+ *
+ * Depending on the shape rather than `UseMutationResult` keeps this prop
+ * usable across the package boundary: `libs/ui` and its consumers resolve
+ * `@tanstack/react-query` through different `exports` conditions, which
+ * yields two unrelated copies of that type.
+ */
+export interface FormatUsbDriveMutation {
+  mutateAsync: () => Promise<Result<void, Error>>;
+}
+
 export interface FormatUsbButtonProps {
   usbDriveStatus: UsbDriveStatus;
-  formatUsbDriveMutation: UseMutationResult<
-    Result<void, Error>,
-    unknown,
-    void,
-    unknown
-  >;
+  formatUsbDriveMutation: FormatUsbDriveMutation;
 }
 
 export function FormatUsbButton(props: FormatUsbButtonProps): JSX.Element {

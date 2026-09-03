@@ -82,7 +82,7 @@ export function DiagnosticsScreen(): JSX.Element {
             upsSectionAdditionalContents={
               <UpsDiagnosticModalButton
                 logOutcome={logUpsDiagnosticOutcomeMutation.mutate}
-                isLoading={logUpsDiagnosticOutcomeMutation.isLoading}
+                isLoading={logUpsDiagnosticOutcomeMutation.isPending}
               />
             }
             electionDefinition={electionDefinition}

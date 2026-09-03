@@ -123,7 +123,7 @@ export function DiagnosticsScreen({
           <P>
             <Button
               disabled={
-                beginScannerDiagnosticMutation.isLoading ||
+                beginScannerDiagnosticMutation.isPending ||
                 scannerStatus.state !== 'paused'
               }
               onPress={() => beginScannerDiagnosticMutation.mutate()}
@@ -152,7 +152,7 @@ export function DiagnosticsScreen({
         mostRecentUpsDiagnostic={mostRecentUpsDiagnosticQuery.data ?? undefined}
         upsSectionAdditionalContents={
           <UpsDiagnosticModalButton
-            isLoading={logUpsDiagnosticOutcomeMutation.isLoading}
+            isLoading={logUpsDiagnosticOutcomeMutation.isPending}
             logOutcome={logUpsDiagnosticOutcomeMutation.mutate}
           />
         }

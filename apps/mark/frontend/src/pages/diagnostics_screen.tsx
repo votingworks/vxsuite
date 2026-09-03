@@ -156,7 +156,7 @@ export function DiagnosticsScreen({
               mostRecentUpsDiagnostic={mostRecentUpsDiagnostic}
               upsSectionAdditionalContents={
                 <UpsDiagnosticModalButton
-                  isLoading={logUpsDiagnosticOutcomeMutation.isLoading}
+                  isLoading={logUpsDiagnosticOutcomeMutation.isPending}
                   logOutcome={logUpsDiagnosticOutcomeMutation.mutate}
                 />
               }

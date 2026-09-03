@@ -166,7 +166,7 @@ export function BallotsStatus(): React.ReactNode {
             icon="Done"
             color="primary"
             fill="outlined"
-            disabled={finalizeBallotsMutation.isLoading}
+            disabled={finalizeBallotsMutation.isPending}
             onPress={() => setIsConfirmingFinalize(true)}
           >
             Finalize Ballots

@@ -28,13 +28,13 @@ export function ConfirmRemoveAllManualTalliesModal({
             icon="Delete"
             variant="danger"
             onPress={onConfirm}
-            disabled={deleteAllManualTalliesMutation.isLoading}
+            disabled={deleteAllManualTalliesMutation.isPending}
           >
             Remove All Manual Tallies
           </Button>
           <Button
             onPress={onClose}
-            disabled={deleteAllManualTalliesMutation.isLoading}
+            disabled={deleteAllManualTalliesMutation.isPending}
           >
             Cancel
           </Button>

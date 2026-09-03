@@ -10,6 +10,7 @@ import type { HWTA } from '@votingworks/scan-backend';
 import {
   createSystemCallApi,
   QUERY_CLIENT_DEFAULT_OPTIONS,
+  asMutationFn,
 } from '@votingworks/ui';
 import React from 'react';
 import * as appApi from '../api.js';
@@ -42,11 +43,11 @@ export const getElectricalTestingStatuses = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () => apiClient.getElectricalTestingStatuses(),
-      { refetchInterval: 200 }
-    );
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getElectricalTestingStatuses(),
+      refetchInterval: 200,
+    });
   },
 } as const;
 
@@ -57,16 +58,16 @@ export const setCardReaderTaskRunning = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(
-      (running: boolean) => apiClient.setCardReaderTaskRunning({ running }),
-      {
-        onSuccess: async () => {
-          await queryClient.invalidateQueries(
-            getElectricalTestingStatuses.queryKey()
-          );
-        },
-      }
-    );
+    return useMutation({
+      mutationFn: (running: boolean) =>
+        apiClient.setCardReaderTaskRunning({ running }),
+
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: getElectricalTestingStatuses.queryKey(),
+        });
+      },
+    });
   },
 } as const;
 
@@ -77,16 +78,16 @@ export const setPrinterTaskRunning = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(
-      (running: boolean) => apiClient.setPrinterTaskRunning({ running }),
-      {
-        onSuccess: async () => {
-          await queryClient.invalidateQueries(
-            getElectricalTestingStatuses.queryKey()
-          );
-        },
-      }
-    );
+    return useMutation({
+      mutationFn: (running: boolean) =>
+        apiClient.setPrinterTaskRunning({ running }),
+
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: getElectricalTestingStatuses.queryKey(),
+        });
+      },
+    });
   },
 } as const;
 
@@ -97,16 +98,16 @@ export const setScannerTaskRunning = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(
-      (running: boolean) => apiClient.setScannerTaskRunning({ running }),
-      {
-        onSuccess: async () => {
-          await queryClient.invalidateQueries(
-            getElectricalTestingStatuses.queryKey()
-          );
-        },
-      }
-    );
+    return useMutation({
+      mutationFn: (running: boolean) =>
+        apiClient.setScannerTaskRunning({ running }),
+
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: getElectricalTestingStatuses.queryKey(),
+        });
+      },
+    });
   },
 } as const;
 
@@ -117,16 +118,16 @@ export const setScannerTaskMode = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(
-      (mode: HWTA.ScanningMode) => apiClient.setScannerTaskMode({ mode }),
-      {
-        onSuccess: async () => {
-          await queryClient.invalidateQueries(
-            getElectricalTestingStatuses.queryKey()
-          );
-        },
-      }
-    );
+    return useMutation({
+      mutationFn: (mode: HWTA.ScanningMode) =>
+        apiClient.setScannerTaskMode({ mode }),
+
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: getElectricalTestingStatuses.queryKey(),
+        });
+      },
+    });
   },
 } as const;
 
@@ -137,11 +138,13 @@ export const resetLastPrintedAt = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(() => apiClient.resetLastPrintedAt(), {
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.resetLastPrintedAt),
+
       onSuccess: async () => {
-        await queryClient.invalidateQueries(
-          getElectricalTestingStatuses.queryKey()
-        );
+        await queryClient.invalidateQueries({
+          queryKey: getElectricalTestingStatuses.queryKey(),
+        });
       },
     });
   },
@@ -154,16 +157,16 @@ export const setUsbDriveTaskRunning = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(
-      (running: boolean) => apiClient.setUsbDriveTaskRunning({ running }),
-      {
-        onSuccess: async () => {
-          await queryClient.invalidateQueries(
-            getElectricalTestingStatuses.queryKey()
-          );
-        },
-      }
-    );
+    return useMutation({
+      mutationFn: (running: boolean) =>
+        apiClient.setUsbDriveTaskRunning({ running }),
+
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: getElectricalTestingStatuses.queryKey(),
+        });
+      },
+    });
   },
 } as const;
 
@@ -175,27 +178,29 @@ export const getCurrentScanningSessionData = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(
-      getCurrentScanningSessionData.queryKey(),
-      () => apiClient.getCurrentScanningSessionData(),
-      { refetchInterval: 500 }
-    );
+    return useQuery({
+      queryKey: getCurrentScanningSessionData.queryKey(),
+      queryFn: () => apiClient.getCurrentScanningSessionData(),
+      refetchInterval: 500,
+    });
   },
 } as const;
 
 export const resetScanningSession = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(() => apiClient.resetScanningSession());
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.resetScanningSession),
+    });
   },
 } as const;
 
 export const setVolume = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation((volumePct: number) =>
-      apiClient.setVolume({ volumePct })
-    );
+    return useMutation({
+      mutationFn: (volumePct: number) => apiClient.setVolume({ volumePct }),
+    });
   },
 } as const;
 
@@ -209,7 +214,9 @@ export const getCpuMetrics = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getCpuMetrics(), {
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getCpuMetrics(),
       refetchInterval: 15_000,
     });
   },
@@ -221,10 +228,10 @@ export const generateSignedHashValidationQrCodeValue = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () => apiClient.generateSignedHashValidationQrCodeValue(),
-      { cacheTime: 0 }
-    );
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.generateSignedHashValidationQrCodeValue(),
+      gcTime: 0,
+    });
   },
 } as const;

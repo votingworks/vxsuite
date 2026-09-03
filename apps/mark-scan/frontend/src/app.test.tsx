@@ -48,6 +48,14 @@ test('will throw an error when using default api', async () => {
       codeVersion: '3.14',
     },
   });
+  // The default API client talks to Node's `fetch`, which rejects the relative
+  // URL Grout builds. Failing deterministically instead keeps every query's
+  // rejection inside react-query, rather than surfacing as an unhandled error
+  // once the error boundary has torn the tree down.
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(() => Promise.reject(new Error('network disabled in tests')))
+  );
 
   await suppressingConsoleOutput(async () => {
     render(<App />);

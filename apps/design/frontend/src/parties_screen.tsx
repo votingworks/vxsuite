@@ -171,7 +171,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
   const ballotsFinalized = !!ballotsFinalizedAtQuery.data;
   const hasExternalSource = Boolean(getElectionInfoQuery.data.externalSource);
   const savedParties = savedPartiesQuery.data;
-  const updating = updatePartiesMutation.isLoading;
+  const updating = updatePartiesMutation.isPending;
   const disabled = ballotsFinalized || !editing || updating;
 
   function reset() {

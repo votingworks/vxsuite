@@ -185,9 +185,9 @@ export function ElectionsScreen({
   );
 
   const anyMutationIsLoading =
-    loadElectionMutation.isLoading ||
-    createElectionMutation.isLoading ||
-    cloneElectionMutation.isLoading;
+    loadElectionMutation.isPending ||
+    createElectionMutation.isPending ||
+    cloneElectionMutation.isPending;
 
   return (
     <NavScreen>

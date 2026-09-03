@@ -26,7 +26,7 @@ export function shouldRetry(failedRetryCount: number, error: unknown): boolean {
 /**
  * Recommended default options for react-query query clients
  */
-export const QUERY_CLIENT_DEFAULT_OPTIONS: DefaultOptions = {
+export const QUERY_CLIENT_DEFAULT_OPTIONS = {
   queries: {
     // Since our backend is always local, we don't want react-query to "pause"
     // when it can't detect a network connection.
@@ -45,7 +45,7 @@ export const QUERY_CLIENT_DEFAULT_OPTIONS: DefaultOptions = {
     // If a query fails with an unexpected error, throw it during the render
     // phase so it will propagate up to the nearest error boundary. Consumers
     // are responsible for defining a global error boundary.
-    useErrorBoundary: true,
+    throwOnError: true,
 
     // react-query's default method here, `replaceEqualDeep`, does not consider
     // two objects equal unless they both have the same plain object prototype.
@@ -56,16 +56,49 @@ export const QUERY_CLIENT_DEFAULT_OPTIONS: DefaultOptions = {
   mutations: {
     networkMode: 'always',
     retry: shouldRetry,
-    useErrorBoundary: true,
+    throwOnError: true,
   },
-};
+} satisfies DefaultOptions;
 const clientQueries = QUERY_CLIENT_DEFAULT_OPTIONS.queries as object;
 
-export const NETWORKED_QUERY_CLIENT_DEFAULT_OPTIONS: DefaultOptions = {
+export const NETWORKED_QUERY_CLIENT_DEFAULT_OPTIONS = {
   ...QUERY_CLIENT_DEFAULT_OPTIONS,
   queries: {
     ...clientQueries,
     // For queries related to network status, we want to reset to default behavior for staleTime as the backend state could change without a mutation from the frontend (e.g. if the host machine goes offline).
     staleTime: 0,
   },
-};
+} satisfies DefaultOptions;
+
+/**
+ * The single input a mutation takes, derived from the wrapped function's
+ * parameter tuple. Grout types its client methods as rest tuples (`[]`,
+ * `[input: I]` or `[input?: I]`), which react-query cannot infer a variables
+ * type from, so collapse them to one parameter.
+ */
+type MutationInput<F> = F extends (...args: infer A) => unknown
+  ? A extends []
+    ? void
+    : A extends [infer I]
+    ? I
+    : A extends [(infer I)?]
+    ? I | undefined
+    : never
+  : never;
+
+/**
+ * Adapts an API method for use as a react-query `mutationFn`.
+ *
+ * react-query v5 calls `mutationFn(variables, context)`. Passing an API method
+ * straight through would forward that context into the call - and for a Grout
+ * client that means it reaches the RPC boundary - so pass only the variables,
+ * and nothing at all for a mutation that takes no input.
+ */
+export function asMutationFn<F extends (...args: never[]) => Promise<unknown>>(
+  fn: F
+): (input: MutationInput<F>) => ReturnType<F> {
+  return (input) =>
+    input === undefined
+      ? (fn as unknown as () => ReturnType<F>)()
+      : (fn as unknown as (i: unknown) => ReturnType<F>)(input);
+}

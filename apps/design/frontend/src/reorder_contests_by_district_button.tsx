@@ -183,7 +183,7 @@ export function ReorderContestsByDistrictButton({
         <ReorderContestsByDistrictModal
           contests={contests}
           districts={districts}
-          isSaving={reorderContestsMutation.isLoading}
+          isSaving={reorderContestsMutation.isPending}
           onClose={() => setShowDistrictReorderModal(false)}
           onSave={(reorderedContests) => {
             reorderContestsMutation.mutate(

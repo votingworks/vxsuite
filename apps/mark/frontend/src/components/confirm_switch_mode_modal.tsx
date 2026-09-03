@@ -33,7 +33,7 @@ export function ConfirmSwitchModeModal({
                 }
               );
             }}
-            disabled={setTestModeMutation.isLoading}
+            disabled={setTestModeMutation.isPending}
             variant={isTestMode ? 'primary' : 'danger'}
             icon={isTestMode ? undefined : 'Danger'}
           >{`Switch to ${

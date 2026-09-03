@@ -31,13 +31,13 @@ function CloneElectionModalForm({
       actions={
         <React.Fragment>
           <Button
-            disabled={cloneMutation.isLoading}
+            disabled={cloneMutation.isPending}
             onPress={() => cloneElection(jurisdictionId)}
             variant="primary"
           >
             Confirm
           </Button>
-          <Button disabled={cloneMutation.isLoading} onPress={onClose}>
+          <Button disabled={cloneMutation.isPending} onPress={onClose}>
             Cancel
           </Button>
         </React.Fragment>
@@ -58,7 +58,7 @@ function CloneElectionModalForm({
             }))}
             value={jurisdictionId}
             onChange={(value) => setJurisdictionId(assertDefined(value))}
-            disabled={cloneMutation.isLoading}
+            disabled={cloneMutation.isPending}
             menuPortalTarget={document.body}
           />
         </React.Fragment>
@@ -134,7 +134,7 @@ export function CloneElectionButton(
           aria-label={buttonLabel}
           disabled={
             Boolean(election.externalSource) ||
-            cloneMutation.isLoading ||
+            cloneMutation.isPending ||
             modalActive
           }
           icon="Copy"

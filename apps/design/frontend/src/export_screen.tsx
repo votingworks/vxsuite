@@ -218,7 +218,7 @@ export function ExportScreen(): JSX.Element | null {
                 <Button
                   variant="primary"
                   onPress={onPressExportTestDecks}
-                  disabled={exportTestDecksMutation.isLoading}
+                  disabled={exportTestDecksMutation.isPending}
                 >
                   Export Test Decks
                 </Button>
@@ -233,7 +233,7 @@ export function ExportScreen(): JSX.Element | null {
               <Button
                 onPress={onPressExportElectionPackage}
                 variant="primary"
-                disabled={exportElectionPackageMutation.isLoading}
+                disabled={exportElectionPackageMutation.isPending}
               >
                 Export Election Package and Ballots
               </Button>
@@ -305,7 +305,7 @@ export function ExportScreen(): JSX.Element | null {
               type="text"
               value={ballotAuditIdSecretKey ?? ''}
               onChange={(e) => setBallotAuditIdSecretKey(e.target.value)}
-              disabled={decryptCvrBallotAuditIdsMutation.isLoading}
+              disabled={decryptCvrBallotAuditIdsMutation.isPending}
             />
           </InputGroup>
           <P style={{ marginTop: '0.5rem' }}>
@@ -314,7 +314,7 @@ export function ExportScreen(): JSX.Element | null {
               onChange={onSelectCvrsToDecrypt}
               disabled={
                 !ballotAuditIdSecretKey ||
-                decryptCvrBallotAuditIdsMutation.isLoading
+                decryptCvrBallotAuditIdsMutation.isPending
               }
             >
               Select CVR Export Zip File

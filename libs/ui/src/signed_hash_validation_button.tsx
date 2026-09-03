@@ -43,13 +43,13 @@ function SignedHashValidationModal({
   apiClient,
   onClose,
 }: SignedHashValidationModalProps): JSX.Element | null {
-  const query = useQuery(
-    ['generateSignedHashValidationQrCodeValue'],
-    () => apiClient.generateSignedHashValidationQrCodeValue(),
-    { cacheTime: 0 } // Always generate a fresh QR code value
-  );
+  const query = useQuery({
+    queryKey: ['generateSignedHashValidationQrCodeValue'],
+    queryFn: () => apiClient.generateSignedHashValidationQrCodeValue(),
+    gcTime: 0,
+  });
 
-  if (query.isLoading) {
+  if (query.isPending) {
     return (
       <Modal
         title="Signed Hash Validation"

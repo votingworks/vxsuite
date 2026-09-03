@@ -41,7 +41,7 @@
     ]
   },
   "dependencies": {
-    "@tanstack/react-query": "4.32.1",
+    "@tanstack/react-query": "5.102.8",
     "@votingworks/basics": "workspace:*",
     "@votingworks/dev-dock-frontend": "workspace:*",
     "@votingworks/grout": "workspace:*",

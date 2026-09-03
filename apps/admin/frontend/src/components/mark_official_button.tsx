@@ -82,7 +82,7 @@ export function MarkResultsOfficialButton(): JSX.Element {
                 icon="Done"
                 variant="primary"
                 onPress={markOfficial}
-                disabled={markResultsOfficialMutation.isLoading}
+                disabled={markResultsOfficialMutation.isPending}
               >
                 Mark Election Results as Official
               </Button>
@@ -142,7 +142,7 @@ export function RevertResultsToUnofficialButton(): JSX.Element {
                 icon="Undo"
                 variant="danger"
                 onPress={revertToUnofficial}
-                disabled={revertResultsToUnofficialMutation.isLoading}
+                disabled={revertResultsToUnofficialMutation.isPending}
               >
                 Revert Election Results to Unofficial
               </Button>

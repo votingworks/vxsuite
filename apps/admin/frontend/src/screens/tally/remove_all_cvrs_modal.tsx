@@ -67,13 +67,13 @@ export function RemoveAllCvrsModal({
               variant="danger"
               // @coverage-defer
               onPress={() => removeCvrs()}
-              disabled={clearCastVoteRecordFilesMutation.isLoading}
+              disabled={clearCastVoteRecordFilesMutation.isPending}
             >
               Remove All CVRs
             </Button>
             <Button
               onPress={onClose}
-              disabled={clearCastVoteRecordFilesMutation.isLoading}
+              disabled={clearCastVoteRecordFilesMutation.isPending}
             >
               Cancel
             </Button>
@@ -100,13 +100,13 @@ export function RemoveAllCvrsModal({
             icon="Trash"
             variant="danger"
             onPress={removeManualResults}
-            disabled={deleteAllManualResultsMutation.isLoading}
+            disabled={deleteAllManualResultsMutation.isPending}
           >
             Remove All Manual Tallies
           </Button>
           <Button
             onPress={onClose}
-            disabled={deleteAllManualResultsMutation.isLoading}
+            disabled={deleteAllManualResultsMutation.isPending}
           >
             Cancel
           </Button>

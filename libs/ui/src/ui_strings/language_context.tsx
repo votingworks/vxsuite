@@ -79,10 +79,10 @@ export function UiStringsLoader(): React.ReactNode {
     'LanguageContext required for UiStringsLoader'
   );
   const languageCode = context.currentLanguageCode;
-  const { data, isLoading } = context.api.getUiStrings.useQuery(languageCode);
+  const { data, isPending } = context.api.getUiStrings.useQuery(languageCode);
 
   React.useEffect(() => {
-    if (!languageCode || isLoading) {
+    if (!languageCode || isPending) {
       return;
     }
 
@@ -97,7 +97,7 @@ export function UiStringsLoader(): React.ReactNode {
     i18next.addResourceBundle(languageCode, DEFAULT_I18NEXT_NAMESPACE, {
       ...data,
     });
-  }, [data, isLoading, languageCode]);
+  }, [data, isPending, languageCode]);
 
   return null;
 }

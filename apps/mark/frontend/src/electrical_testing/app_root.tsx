@@ -269,11 +269,11 @@ export function AppRoot(): JSX.Element {
               <Button
                 onPress={() => printTestPageMutation.mutate()}
                 disabled={
-                  printTestPageMutation.isLoading ||
+                  printTestPageMutation.isPending ||
                   !getPrinterStatusQuery.data?.connected
                 }
               >
-                {printTestPageMutation.isLoading
+                {printTestPageMutation.isPending
                   ? 'Printing...'
                   : 'Print Test Page'}
               </Button>

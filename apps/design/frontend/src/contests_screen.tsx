@@ -226,7 +226,7 @@ function Content(): JSX.Element | null {
                   onPress={() => onSaveReorderedContests(reorderedContests)}
                   variant="primary"
                   icon="Done"
-                  disabled={reorderContestsMutation.isLoading}
+                  disabled={reorderContestsMutation.isPending}
                 >
                   Save
                 </Button>
@@ -378,7 +378,6 @@ function EditContestForm(): JSX.Element | null {
 
         <Redirect
           to={
-            // @coverage-defer
             savedContest
               ? contestRoutes.view(contestId).path
               : contestRoutes.root.path

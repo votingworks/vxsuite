@@ -134,10 +134,10 @@ function SelectElectionPackage({
               {potentialElectionPackageFiles.map((file) => (
                 <ButtonRow
                   key={file.name}
-                  aria-disabled={configureMutation.isLoading}
+                  aria-disabled={configureMutation.isPending}
                   onClick={() => {
                     // @coverage-defer
-                    if (configureMutation.isLoading) return;
+                    if (configureMutation.isPending) return;
                     setSource({ type: 'menu', filePath: file.path });
                     configureMutation.mutate({ electionFilePath: file.path });
                   }}
@@ -147,7 +147,7 @@ function SelectElectionPackage({
                     {DateTime.fromJSDate(file.ctime).toFormat(TIME_FORMAT)}
                   </td>
                   <LoadingIndicator>
-                    {configureMutation.isLoading &&
+                    {configureMutation.isPending &&
                       source?.type === 'menu' &&
                       source.filePath === file.path && (
                         <span>
@@ -162,11 +162,11 @@ function SelectElectionPackage({
           </Table>
         )}
         <div>
-          {configureMutation.isLoading && source?.type === 'file-picker' ? (
+          {configureMutation.isPending && source?.type === 'file-picker' ? (
             <LoadingButton>Loading...</LoadingButton>
           ) : (
             <Button
-              disabled={configureMutation.isLoading}
+              disabled={configureMutation.isPending}
               onPress={onSelectOtherFile}
             >
               Select Other File...

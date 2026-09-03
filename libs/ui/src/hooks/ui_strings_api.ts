@@ -1,16 +1,25 @@
 import * as batcher from '@yornaath/batshit';
 
-import {
-  QueryClient,
-  QueryKey,
-  useQueries,
-  useQuery,
-} from '@tanstack/react-query';
+import { QueryKey, useQueries, useQuery } from '@tanstack/react-query';
 import type { UiStringsApiMethods } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
 import { assertDefined } from '@votingworks/basics';
 
 export type UiStringsApiClient = grout.Client<grout.Api<UiStringsApiMethods>>;
+
+/**
+ * The slice of `QueryClient` this API actually uses.
+ *
+ * `QueryClient` is a class with a `#private` field, so it is nominally typed.
+ * `libs/ui` and its consumers resolve `@tanstack/react-query` through
+ * different `exports` conditions (`require` vs `import`), which yields two
+ * unrelated `QueryClient` types and makes the nominal check fail at the
+ * package boundary. Depending on the structural shape instead sidesteps that,
+ * and documents exactly what this function needs.
+ */
+export interface QueryClientLike {
+  invalidateQueries(filters: { queryKey: QueryKey }): Promise<void>;
+}
 
 function createReactQueryApi(getApiClient: () => UiStringsApiClient) {
   function createBatchAudioClipsClient(params: {
@@ -66,9 +75,11 @@ function createReactQueryApi(getApiClient: () => UiStringsApiClient) {
           languageCode: params.languageCode,
         });
 
-        return useQuery(this.getQueryKey(params), () =>
-          batchClient.fetch({ id: params.id })
-        );
+        return useQuery({
+          queryKey: this.getQueryKey(params),
+
+          queryFn: () => batchClient.fetch({ id: params.id }),
+        });
       },
     },
 
@@ -80,9 +91,11 @@ function createReactQueryApi(getApiClient: () => UiStringsApiClient) {
       useQuery() {
         const apiClient = getApiClient();
 
-        return useQuery(this.getQueryKey(), () =>
-          apiClient.getAvailableLanguages()
-        );
+        return useQuery({
+          queryKey: this.getQueryKey(),
+
+          queryFn: () => apiClient.getAvailableLanguages(),
+        });
       },
     },
 
@@ -96,9 +109,11 @@ function createReactQueryApi(getApiClient: () => UiStringsApiClient) {
       useQuery(languageCode: string) {
         const apiClient = getApiClient();
 
-        return useQuery(this.getQueryKey(languageCode), () =>
-          apiClient.getUiStrings({ languageCode })
-        );
+        return useQuery({
+          queryKey: this.getQueryKey(languageCode),
+
+          queryFn: () => apiClient.getUiStrings({ languageCode }),
+        });
       },
     },
 
@@ -135,14 +150,20 @@ function createReactQueryApi(getApiClient: () => UiStringsApiClient) {
     },
 
     async onMachineConfigurationChange(
-      queryClient: QueryClient
+      queryClient: QueryClientLike
     ): Promise<void> {
-      await queryClient.invalidateQueries(
-        this.getAvailableLanguages.getQueryKey()
-      );
-      await queryClient.invalidateQueries([this.getUiStrings.queryKeyPrefix]);
-      await queryClient.invalidateQueries([this.getAudioIds.queryKeyPrefix]);
-      await queryClient.invalidateQueries([this.getAudioClip.queryKeyPrefix]);
+      await queryClient.invalidateQueries({
+        queryKey: this.getAvailableLanguages.getQueryKey(),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: [this.getUiStrings.queryKeyPrefix],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: [this.getAudioIds.queryKeyPrefix],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: [this.getAudioClip.queryKeyPrefix],
+      });
     },
   };
 }

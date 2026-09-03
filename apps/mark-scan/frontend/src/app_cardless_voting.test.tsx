@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, test, vi } from 'vitest';
+import { notifyManager } from '@tanstack/react-query';
 import {
   electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneralDefinition,
@@ -16,6 +17,21 @@ import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
 import { getMockInterpretation } from '../test/helpers/interpretation.js';
 
 let apiMock: ApiMock;
+
+// This flow asserts on a refetch that only happens once react-query delivers
+// its notifications asynchronously, so opt out of the synchronous scheduler
+// `setupTests` installs for the rest of the suite.
+beforeEach(() => {
+  notifyManager.setScheduler((cb) => {
+    setTimeout(cb, 0);
+  });
+});
+afterEach(() => {
+  // Flush notifications still queued on the timer before restoring the
+  // synchronous scheduler, so none fire against a torn-down tree.
+  vi.runOnlyPendingTimers();
+  notifyManager.setScheduler((cb) => cb());
+});
 
 beforeEach(() => {
   vi.useFakeTimers({

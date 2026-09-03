@@ -156,7 +156,7 @@ export function ElectionManagerScreen({
   const ballotMode = (
     <SegmentedButton
       disabled={
-        setTestModeMutation.isLoading ||
+        setTestModeMutation.isPending ||
         isCvrSyncRequired ||
         disableConfiguration
       }
@@ -180,7 +180,7 @@ export function ElectionManagerScreen({
   const ballotCastingModeButton = systemSettings.enableEarlyVoting ? (
     <SegmentedButton
       disabled={
-        setBallotCastingModeMutation.isLoading ||
+        setBallotCastingModeMutation.isPending ||
         disableConfiguration ||
         (pollsState !== 'polls_closed_initial' && pollsState !== 'polls_paused')
       }
@@ -376,13 +376,13 @@ export function ElectionManagerScreen({
                   onPress={switchMode}
                   variant={isTestMode ? 'primary' : 'danger'}
                   icon={isTestMode ? undefined : 'Danger'}
-                  disabled={setTestModeMutation.isLoading}
+                  disabled={setTestModeMutation.isPending}
                 >
                   Switch to {isTestMode ? 'Official' : 'Test'} Ballot Mode
                 </Button>
                 <Button
                   onPress={() => setIsConfirmingBallotModeSwitch(false)}
-                  disabled={setTestModeMutation.isLoading}
+                  disabled={setTestModeMutation.isPending}
                 >
                   Cancel
                 </Button>

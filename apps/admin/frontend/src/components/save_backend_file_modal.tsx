@@ -101,7 +101,7 @@ export function SaveBackendFileModal({
     }
   }
 
-  if (saveFileStatus === 'loading') {
+  if (saveFileStatus === 'pending') {
     return (
       <Modal
         centerContent

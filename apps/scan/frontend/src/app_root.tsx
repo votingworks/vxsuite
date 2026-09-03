@@ -77,7 +77,7 @@ export function AppRoot(): JSX.Element | null {
     // we poll more frequently when a scan is in progress so we can find out
     // promptly when it's done. Experimentally, 100ms hit a sweet spot between
     // finding out quickly and adding too much overhead.
-    refetchInterval: (status) =>
+    refetchInterval: ({ state: { data: status } }) =>
       status?.state === 'scanning'
         ? POLLING_INTERVAL_FOR_SCANNER_STATUS_WHILE_SCANNING_MS
         : POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,

@@ -568,7 +568,7 @@ export const LabelButton = styled.label`
  * the variant or other styles from the original button.
  *
  * Example usage:
- *  {someMutation.isLoading ? (
+ *  {someMutation.isPending ? (
  *    <LoadingButton variant="primary">Saving...</LoadingButton>
  *  ) : (
  *    <Button variant="primary" onPress={someMutation.mutate}>Save</Button>

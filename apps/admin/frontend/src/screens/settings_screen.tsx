@@ -85,7 +85,7 @@ export function SettingsScreen(): JSX.Element | null {
                 onPress={() =>
                   setMachineModeMutation.mutate({ mode: 'client' })
                 }
-                disabled={setMachineModeMutation.isLoading}
+                disabled={setMachineModeMutation.isPending}
               >
                 Switch to Adjudication Station Mode
               </Button>

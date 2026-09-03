@@ -68,7 +68,7 @@ function LiveResultsQrDisplay({
   });
   const [currentQrIndex, setCurrentQrIndex] = useState(0);
 
-  if (urlsQuery.isLoading) {
+  if (urlsQuery.isPending) {
     return <P>Generating QR code...</P>;
   }
 

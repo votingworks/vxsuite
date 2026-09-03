@@ -14,7 +14,7 @@ export function RemoveImportModal(props: RemoveImportModalProps): JSX.Element {
   const { cvrImport, close } = props;
 
   const mutation = api.deleteCvrFile.useMutation();
-  const deleting = mutation.status === 'loading';
+  const deleting = mutation.status === 'pending';
 
   function remove() {
     mutation.mutate({ fileId: cvrImport.id }, { onSuccess: close });

@@ -148,7 +148,7 @@ export function AnomalyAlertScreen({
             <Button
               variant="primary"
               onPress={handleDismiss}
-              disabled={dismissAnomalyMutation.isLoading}
+              disabled={dismissAnomalyMutation.isPending}
             >
               Dismiss
             </Button>

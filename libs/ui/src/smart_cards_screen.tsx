@@ -14,6 +14,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { styled } from './styled.js';
+import { asMutationFn } from './react_query.js';
 import { Callout } from './callout.js';
 import { H1, H2, H3, P } from './typography.js';
 import { Button } from './button.js';
@@ -329,13 +330,15 @@ export function CardDetailsAndActions({
   const [confirmSystemAdminCardAction, setConfirmSystemAdminCardAction] =
     useState<ConfirmSystemAdminCardAction>();
 
-  const programCardMutation = useMutation(
-    (input: {
+  const programCardMutation = useMutation({
+    mutationFn: (input: {
       userRole: 'system_administrator' | 'election_manager' | 'poll_worker';
-    }) => apiClient.programCard(input)
-  );
+    }) => apiClient.programCard(input),
+  });
 
-  const unprogramCardMutation = useMutation(() => apiClient.unprogramCard());
+  const unprogramCardMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.unprogramCard),
+  });
 
   function programCard(role: CardRole) {
     assert(role !== 'vendor');
@@ -425,7 +428,7 @@ export function CardDetailsAndActions({
   const createElectionCardsDisabled = !election;
 
   const actionInProgress =
-    unprogramCardMutation.isLoading || programCardMutation.isLoading;
+    unprogramCardMutation.isPending || programCardMutation.isPending;
 
   return (
     <React.Fragment>

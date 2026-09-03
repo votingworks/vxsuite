@@ -75,5 +75,7 @@ test('unconfigureMachine', async () => {
   expect(mockOnConfigurationChange).toHaveBeenCalled();
   // USB ports may have been re-enabled on the backend, so the cached status
   // must be invalidated for the UI to reflect it.
-  expect(invalidateQueries).toHaveBeenCalledWith(['getUsbPortStatus']);
+  expect(invalidateQueries).toHaveBeenCalledWith({
+    queryKey: ['getUsbPortStatus'],
+  });
 });

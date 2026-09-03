@@ -9,6 +9,7 @@ import {
 } from '@tanstack/react-query';
 import type { SystemCallApiMethods } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
+import { asMutationFn } from './react_query.js';
 
 export const BATTERY_POLLING_INTERVAL_GROUT = 3000;
 export const AUDIO_INFO_POLLING_INTERVAL_MS = 1000;
@@ -31,31 +32,41 @@ function createReactQueryApi(getApiClient: () => SystemCallApiClient) {
     powerDown: {
       useMutation: () => {
         const apiClient = getApiClient();
-        return useMutation(async(apiClient.powerDown));
+        return useMutation({
+          mutationFn: async(apiClient.powerDown),
+        });
       },
     },
     reboot: {
       useMutation: () => {
         const apiClient = getApiClient();
-        return useMutation(async(apiClient.reboot));
+        return useMutation({
+          mutationFn: async(apiClient.reboot),
+        });
       },
     },
     setClock: {
       useMutation: () => {
         const apiClient = getApiClient();
-        return useMutation(apiClient.setClock);
+        return useMutation({
+          mutationFn: asMutationFn(apiClient.setClock),
+        });
       },
     },
     exportLogsToUsb: {
       useMutation: () => {
         const apiClient = getApiClient();
-        return useMutation(apiClient.exportLogsToUsb);
+        return useMutation({
+          mutationFn: asMutationFn(apiClient.exportLogsToUsb),
+        });
       },
     },
     getBatteryInfo: {
       useQuery() {
         const apiClient = getApiClient();
-        return useQuery(['getBatteryInfo'], () => apiClient.getBatteryInfo(), {
+        return useQuery({
+          queryKey: ['getBatteryInfo'],
+          queryFn: () => apiClient.getBatteryInfo(),
           refetchInterval: BATTERY_POLLING_INTERVAL_GROUT,
         });
       },
@@ -63,7 +74,9 @@ function createReactQueryApi(getApiClient: () => SystemCallApiClient) {
     getAudioInfo: {
       useQuery() {
         const apiClient = getApiClient();
-        return useQuery(['getAudioInfo'], () => apiClient.getAudioInfo(), {
+        return useQuery({
+          queryKey: ['getAudioInfo'],
+          queryFn: () => apiClient.getAudioInfo(),
           refetchInterval: AUDIO_INFO_POLLING_INTERVAL_MS,
         });
       },
@@ -71,18 +84,24 @@ function createReactQueryApi(getApiClient: () => SystemCallApiClient) {
     getUsbPortStatus: {
       useQuery() {
         const apiClient = getApiClient();
-        return useQuery(getUsbPortStatusQueryKey, () =>
-          apiClient.getUsbPortStatus()
-        );
+        return useQuery({
+          queryKey: getUsbPortStatusQueryKey,
+
+          queryFn: () => apiClient.getUsbPortStatus(),
+        });
       },
     },
     toggleUsbPorts: {
       useMutation() {
         const apiClient = getApiClient();
         const queryClient = useQueryClient();
-        return useMutation(apiClient.toggleUsbPorts, {
+        return useMutation({
+          mutationFn: asMutationFn(apiClient.toggleUsbPorts),
+
           async onSuccess() {
-            await queryClient.invalidateQueries(getUsbPortStatusQueryKey);
+            await queryClient.invalidateQueries({
+              queryKey: getUsbPortStatusQueryKey,
+            });
           },
         });
       },
@@ -90,11 +109,11 @@ function createReactQueryApi(getApiClient: () => SystemCallApiClient) {
     getDiskSpaceSummary: {
       useQuery() {
         const apiClient = getApiClient();
-        return useQuery(
-          ['getDiskSpaceSummary'],
-          () => apiClient.getDiskSpaceSummary(),
-          { refetchInterval: DISK_SPACE_POLLING_INTERVAL_MS }
-        );
+        return useQuery({
+          queryKey: ['getDiskSpaceSummary'],
+          queryFn: () => apiClient.getDiskSpaceSummary(),
+          refetchInterval: DISK_SPACE_POLLING_INTERVAL_MS,
+        });
       },
     },
   };

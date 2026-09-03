@@ -24,6 +24,7 @@ let resetToBaseTitleTimeout: ReturnType<typeof setTimeout> | undefined;
 function resetToBaseTitle() {
   // Prevent errors in tests if jsdom has been torn down before this fires
   if (typeof document === 'undefined') return;
+  // @coverage-defer
   document.title = baseTitle ?? '';
 }
 

@@ -92,8 +92,8 @@ export function ProofingStatus(): React.ReactNode {
   const qaComplete = latestQaRun?.status === 'success';
   const qaIncompleteOrFailed = latestQaRun && !qaComplete;
 
-  const approving = approve.isLoading;
-  const unfinalizing = unfinalize.isLoading;
+  const approving = approve.isPending;
+  const unfinalizing = unfinalize.isPending;
   const approveDisabled = approving || exporting || hasError || unfinalizing;
   const approved = !!approvedAt.data;
   const finalized = !!finalizedAt.data;

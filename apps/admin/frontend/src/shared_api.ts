@@ -11,6 +11,7 @@ import * as grout from '@votingworks/grout';
 import {
   QUERY_CLIENT_DEFAULT_OPTIONS,
   createSystemCallApi,
+  asMutationFn,
 } from '@votingworks/ui';
 import { getAuthStatus, getUsbDriveStatus } from './api.js';
 
@@ -61,7 +62,10 @@ export const getMachineMode = {
   },
   useQuery() {
     const apiClient = useSharedApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getMachineMode());
+    return useQuery({
+      queryKey: this.queryKey(),
+      queryFn: () => apiClient.getMachineMode(),
+    });
   },
 } as const;
 
@@ -71,9 +75,11 @@ export const isMultiStationAdjudicationEnabled = {
   },
   useQuery() {
     const apiClient = useSharedApiClient();
-    return useQuery(this.queryKey(), () =>
-      apiClient.isMultiStationAdjudicationEnabled()
-    );
+    return useQuery({
+      queryKey: this.queryKey(),
+
+      queryFn: () => apiClient.isMultiStationAdjudicationEnabled(),
+    });
   },
 } as const;
 
@@ -81,9 +87,13 @@ export const sharedLogOut = {
   useMutation() {
     const apiClient = useSharedApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.logOut, {
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.logOut),
+
       async onSuccess() {
-        await queryClient.invalidateQueries(getAuthStatus.queryKey());
+        await queryClient.invalidateQueries({
+          queryKey: getAuthStatus.queryKey(),
+        });
       },
     });
   },
@@ -93,10 +103,14 @@ export const sharedEjectUsbDrive = {
   useMutation() {
     const apiClient = useSharedApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.ejectUsbDrive, {
+    return useMutation({
+      mutationFn: asMutationFn(apiClient.ejectUsbDrive),
+
       // @coverage-exclude: query invalidation
       async onSuccess() {
-        await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
+        await queryClient.invalidateQueries({
+          queryKey: getUsbDriveStatus.queryKey(),
+        });
       },
     });
   },

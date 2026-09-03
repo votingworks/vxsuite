@@ -58,7 +58,7 @@ function TestScanModal({
           }
         />
       );
-    case 'loading':
+    case 'pending':
       return (
         <Modal
           centerContent

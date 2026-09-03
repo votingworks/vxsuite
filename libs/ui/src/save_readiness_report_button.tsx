@@ -1,22 +1,31 @@
 import React, { useState } from 'react';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import path from 'node:path';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ExportDataResult } from '@votingworks/backend';
-import { UseMutationResult } from '@tanstack/react-query';
 import { Button } from './button.js';
 import { Modal } from './modal.js';
 import { P, Font } from './typography.js';
 import { Loading } from './loading.js';
 
+/**
+ * The slice of a react-query mutation result this component actually uses.
+ *
+ * Depending on the shape rather than `UseMutationResult` keeps this prop
+ * usable across the package boundary: `libs/ui` and its consumers resolve
+ * `@tanstack/react-query` through different `exports` conditions, which
+ * yields two unrelated copies of that type.
+ */
+export interface SaveReadinessReportMutation {
+  status: 'idle' | 'pending' | 'success' | 'error';
+  data?: ExportDataResult;
+  mutate: () => void;
+  reset: () => void;
+}
+
 export interface SaveReadinessReportProps {
   usbDriveStatus: UsbDriveStatus;
-  saveReadinessReportMutation: UseMutationResult<
-    ExportDataResult,
-    unknown,
-    void,
-    unknown
-  >;
+  saveReadinessReportMutation: SaveReadinessReportMutation;
   usbImage?: React.ReactNode;
 }
 
@@ -80,10 +89,10 @@ function SaveReadinessReportModal({
         />
       );
 
-    case 'loading':
+    case 'pending':
       return <Modal content={<Loading>Saving Report</Loading>} />;
     case 'success': {
-      const exportResult = saveReadinessReportMutation.data;
+      const exportResult = assertDefined(saveReadinessReportMutation.data);
       if (exportResult.isErr()) {
         const error = exportResult.err();
         return (

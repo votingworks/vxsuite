@@ -128,7 +128,7 @@ function ConfirmUndoCheckInModal({
               );
             }}
             disabled={
-              reason.trim() === '' || undoVoterCheckInMutation.isLoading
+              reason.trim() === '' || undoVoterCheckInMutation.isPending
             }
           >
             Undo Check-In

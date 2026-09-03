@@ -267,9 +267,9 @@ export function SupportHomeScreen({
   );
 
   const anyMutationIsLoading =
-    createElectionMutation.isLoading ||
-    loadElectionMutation.isLoading ||
-    cloneElectionMutation.isLoading;
+    createElectionMutation.isPending ||
+    loadElectionMutation.isPending ||
+    cloneElectionMutation.isPending;
 
   return (
     <NavScreen>

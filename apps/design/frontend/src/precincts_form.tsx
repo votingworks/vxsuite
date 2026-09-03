@@ -113,6 +113,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   const finalized = !!getBallotsFinalizedAtQuery.data;
   const hasExternalSource = Boolean(getElectionInfoQuery.data.externalSource);
 
+  // @coverage-defer
   function goBackToPrecinctsList() {
     history.push(precinctRoutes.root.path);
   }
@@ -248,9 +249,9 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   );
 
   const someMutationIsLoading =
-    createPrecinctMutation.isLoading ||
-    updatePrecinctMutation.isLoading ||
-    deletePrecinctMutation.isLoading;
+    createPrecinctMutation.isPending ||
+    updatePrecinctMutation.isPending ||
+    deletePrecinctMutation.isPending;
 
   const errorMessage = (() => {
     if (

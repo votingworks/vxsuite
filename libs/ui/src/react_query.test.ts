@@ -14,9 +14,7 @@ test('Relevant settings are consistent for queries and mutations', () => {
 
   expect(querySettings.networkMode).toEqual(mutationSettings.networkMode);
   expect(querySettings.retry).toEqual(mutationSettings.retry);
-  expect(querySettings.useErrorBoundary).toEqual(
-    mutationSettings.useErrorBoundary
-  );
+  expect(querySettings.throwOnError).toEqual(mutationSettings.throwOnError);
 });
 
 test('Custom retry function', () => {

@@ -141,6 +141,9 @@ test('says the ballot sheet is overvoted if it is', async () => {
 
   apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
+  await vi.waitFor(() => {
+    expect(screen.getButton('Tabulate Ballot')).toBeEnabled();
+  });
 
   apiMock.expectAcceptSheet();
   userEvent.click(screen.getByText('Tabulate Ballot'));
@@ -228,6 +231,9 @@ test('says the ballot sheet is undervoted if it is', async () => {
 
   apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
+  await vi.waitFor(() => {
+    expect(screen.getButton('Tabulate Ballot')).toBeEnabled();
+  });
 
   apiMock.expectAcceptSheet();
   userEvent.click(screen.getByText('Tabulate Ballot'));
@@ -272,6 +278,9 @@ test('says the ballot sheet is blank if it is', async () => {
 
   apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
+  await vi.waitFor(() => {
+    expect(screen.getButton('Tabulate Ballot')).toBeEnabled();
+  });
 
   apiMock.expectAcceptSheet();
   userEvent.click(screen.getByText('Tabulate Ballot'));
@@ -300,6 +309,9 @@ test('says the ballot sheet has crossover voting if it does', async () => {
 
   apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
+  await vi.waitFor(() => {
+    expect(screen.getButton('Tabulate Ballot')).toBeEnabled();
+  });
 
   apiMock.expectAcceptSheet();
   userEvent.click(screen.getByText('Tabulate Ballot'));

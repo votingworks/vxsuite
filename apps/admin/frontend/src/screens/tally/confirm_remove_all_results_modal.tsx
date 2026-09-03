@@ -20,8 +20,8 @@ export function ConfirmRemoveAllResultsModal({
   }
 
   const isAnyMutationLoading =
-    clearCastVoteRecordFilesMutation.isLoading ||
-    deleteAllManualTalliesMutation.isLoading;
+    clearCastVoteRecordFilesMutation.isPending ||
+    deleteAllManualTalliesMutation.isPending;
 
   return (
     <Modal

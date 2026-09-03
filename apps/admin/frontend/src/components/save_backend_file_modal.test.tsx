@@ -91,7 +91,7 @@ test('happy usb path - save to default location', async () => {
 test('renders saving modal when mutation is loading', () => {
   renderInAppContext(
     <SaveBackendFileModal
-      saveFileStatus="loading"
+      saveFileStatus="pending"
       saveFile={vi.fn()}
       saveFileResult={undefined}
       resetSaveFileResult={vi.fn()}

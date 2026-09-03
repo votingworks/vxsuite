@@ -499,8 +499,7 @@ function DeleteReportsModal({
   return (
     <Modal
       content={
-        // @coverage-exclude: mutation loading state is transient
-        deleteMutation.isLoading ? (
+        deleteMutation.isPending ? (
           <Icons.Loading />
         ) : (
           <React.Fragment>
@@ -512,8 +511,7 @@ function DeleteReportsModal({
         )
       }
       actions={
-        // @coverage-exclude: mutation loading state is transient
-        deleteMutation.isLoading ? (
+        deleteMutation.isPending ? (
           <Button onPress={onClose} variant="secondary">
             Cancel
           </Button>
@@ -530,10 +528,7 @@ function DeleteReportsModal({
           </React.Fragment>
         )
       }
-      onOverlayClick={
-        // @coverage-exclude: mutation loading state is transient
-        deleteMutation.isLoading ? undefined : onClose
-      }
+      onOverlayClick={deleteMutation.isPending ? undefined : onClose}
     />
   );
 }

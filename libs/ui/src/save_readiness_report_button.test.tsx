@@ -13,7 +13,7 @@ import {
 } from './save_readiness_report_button.js';
 
 import { render, screen } from '../test/react_testing_library.js';
-import { QUERY_CLIENT_DEFAULT_OPTIONS } from './react_query.js';
+import { QUERY_CLIENT_DEFAULT_OPTIONS, asMutationFn } from './react_query.js';
 import { mockUsbDriveStatus } from './test-utils/mock_usb_drive.js';
 
 const mockMutate = vi
@@ -28,7 +28,9 @@ function MockComponent({
   usbDriveStatus,
   usbImage,
 }: Omit<SaveReadinessReportProps, 'saveReadinessReportMutation'>): JSX.Element {
-  const mutation = useMutation(mockMutate);
+  const mutation = useMutation({
+    mutationFn: asMutationFn(mockMutate),
+  });
   return (
     <SaveReadinessReportButton
       saveReadinessReportMutation={mutation}

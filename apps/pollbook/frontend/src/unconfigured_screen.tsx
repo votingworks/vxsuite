@@ -94,7 +94,7 @@ export function UnconfiguredSystemAdminScreen(): JSX.Element {
   const [isLoadingFromNetwork, setIsLoadingFromNetwork] = useState(false);
   const [hadConfigurationError, setHadConfigurationError] = useState(false);
 
-  if (getDevicesQuery.isLoading || !getElectionQuery.isSuccess) {
+  if (getDevicesQuery.isPending || !getElectionQuery.isSuccess) {
     return <Loading />;
   }
   const electionResult = getElectionQuery.data;

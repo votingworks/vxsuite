@@ -12,7 +12,7 @@ import { userEvent } from './user_event.js';
 import { render, screen } from '../test/react_testing_library.js';
 import { FormatUsbButton, FormatUsbButtonProps } from './format_usb_modal.js';
 import { mockUsbDriveStatus } from './test-utils/mock_usb_drive.js';
-import { QUERY_CLIENT_DEFAULT_OPTIONS } from './react_query.js';
+import { QUERY_CLIENT_DEFAULT_OPTIONS, asMutationFn } from './react_query.js';
 
 const mockMutate = vi
   .fn<() => Promise<Result<void, Error>>>()
@@ -25,7 +25,9 @@ const queryClient = new QueryClient({
 function MockComponent({
   usbDriveStatus,
 }: Omit<FormatUsbButtonProps, 'formatUsbDriveMutation'>): JSX.Element {
-  const mutation = useMutation(mockMutate);
+  const mutation = useMutation({
+    mutationFn: asMutationFn(mockMutate),
+  });
 
   return (
     <FormatUsbButton
@@ -45,13 +47,15 @@ function ControlledMockComponent({
   const [usbDriveStatus, setUsbDriveStatus] = React.useState<UsbDriveStatus>(
     initialUsbDriveStatus
   );
-  const mutation = useMutation(
-    vi.fn<() => Promise<Result<void, Error>>>().mockImplementation(() => {
-      // Simulate drive status going to no_drive mid-format (the flicker bug)
-      act(() => setUsbDriveStatus(mockUsbDriveStatus('no_drive')));
-      return Promise.resolve(ok());
-    })
-  );
+  const mutation = useMutation({
+    mutationFn: vi
+      .fn<() => Promise<Result<void, Error>>>()
+      .mockImplementation(() => {
+        // Simulate drive status going to no_drive mid-format (the flicker bug)
+        act(() => setUsbDriveStatus(mockUsbDriveStatus('no_drive')));
+        return Promise.resolve(ok());
+      }),
+  });
 
   return (
     <FormatUsbButton
@@ -148,7 +152,9 @@ test('error during formatting', async () => {
     .mockResolvedValue(err(new Error('disk write failed')));
 
   function ErrorMockComponent(): JSX.Element {
-    const mutation = useMutation(failMutate);
+    const mutation = useMutation({
+      mutationFn: asMutationFn(failMutate),
+    });
     return (
       <FormatUsbButton
         usbDriveStatus={mockUsbDriveStatus('error')}

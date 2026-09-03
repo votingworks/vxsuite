@@ -33,5 +33,7 @@ export function useAlarm(enableAlarm: boolean): void {
  */
 function usePlayAlarm() {
   const client = api.useApiClient();
-  return useMutation(() => client.playSound({ name: 'alarm' }));
+  return useMutation({
+    mutationFn: () => client.playSound({ name: 'alarm' }),
+  });
 }

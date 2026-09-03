@@ -66,7 +66,7 @@ root.render(
                 <div>
                   <ReactQueryDevtools
                     initialIsOpen={false}
-                    position="top-left"
+                    buttonPosition="top-left"
                   />
                 </div>
               )}

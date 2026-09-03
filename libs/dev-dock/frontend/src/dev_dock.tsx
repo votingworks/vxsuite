@@ -1,5 +1,6 @@
 import React, { RefObject, useEffect, useRef, useState } from 'react';
 import {
+  QueryCache,
   QueryClient,
   QueryClientProvider,
   useMutation,
@@ -45,7 +46,13 @@ import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
-import { Button, Modal, P, VxThemeProvider } from '@votingworks/ui';
+import {
+  Button,
+  Modal,
+  P,
+  VxThemeProvider,
+  asMutationFn,
+} from '@votingworks/ui';
 import { UsbDriveIcon } from './usb_drive_icon.js';
 import { Colors } from './colors.js';
 import { FujitsuPrinterMockControl } from './fujitsu_printer_mock.js';
@@ -91,11 +98,11 @@ const AVAILABLE_ELECTIONS_POLLING_INTERVAL_MS = 5000;
  */
 function useElectionQuery() {
   const apiClient = useApiClient();
-  return useQuery(
-    ['getElection'],
+  return useQuery({
+    queryKey: ['getElection'],
     // @coverage-defer
-    async () => (await apiClient.getElection()) ?? null
-  );
+    queryFn: async () => (await apiClient.getElection()) ?? null,
+  });
 }
 
 function ElectionControl(): JSX.Element | null {
@@ -103,15 +110,20 @@ function ElectionControl(): JSX.Element | null {
   const apiClient = useApiClient();
   const getElectionQuery = useElectionQuery();
   // Polled so that a fresh VxDesign export shows up without reloading the app.
-  const availableElectionsQuery = useQuery(
-    ['getAvailableElections'],
+  const availableElectionsQuery = useQuery({
+    queryKey: ['getAvailableElections'],
     // @coverage-defer
-    async () => (await apiClient.getAvailableElections()) ?? null,
-    { refetchInterval: AVAILABLE_ELECTIONS_POLLING_INTERVAL_MS }
-  );
+    queryFn: async () => (await apiClient.getAvailableElections()) ?? null,
+    refetchInterval: AVAILABLE_ELECTIONS_POLLING_INTERVAL_MS,
+  });
   const availableElections = availableElectionsQuery.data || [];
-  const setElectionMutation = useMutation(apiClient.setElection, {
-    onSuccess: async () => await queryClient.invalidateQueries(['getElection']),
+  const setElectionMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.setElection),
+
+    onSuccess: async () =>
+      await queryClient.invalidateQueries({
+        queryKey: ['getElection'],
+      }),
   });
 
   if (!getElectionQuery.isSuccess) return <ElectionControlSelect />;
@@ -243,18 +255,26 @@ const ROLES = [
 function SmartCardMockControls() {
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
-  const getCardStatusQuery = useQuery(
-    ['getCardStatus'],
+  const getCardStatusQuery = useQuery({
+    queryKey: ['getCardStatus'],
     // @coverage-defer
-    async () => (await apiClient.getCardStatus()) ?? null
-  );
-  const insertCardMutation = useMutation(apiClient.insertCard, {
-    onSuccess: async () =>
-      await queryClient.invalidateQueries(['getCardStatus']),
+    queryFn: async () => (await apiClient.getCardStatus()) ?? null,
   });
-  const removeCardMutation = useMutation(apiClient.removeCard, {
+  const insertCardMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.insertCard),
+
     onSuccess: async () =>
-      await queryClient.invalidateQueries(['getCardStatus']),
+      await queryClient.invalidateQueries({
+        queryKey: ['getCardStatus'],
+      }),
+  });
+  const removeCardMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.removeCard),
+
+    onSuccess: async () =>
+      await queryClient.invalidateQueries({
+        queryKey: ['getCardStatus'],
+      }),
   });
 
   const cardStatus = getCardStatusQuery.data;
@@ -369,20 +389,34 @@ const UsbDriveDevLabel = styled.div`
 function UsbDriveMockControls() {
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
-  const getUsbDriveStatusQuery = useQuery(['getUsbDriveStatus'], () =>
-    apiClient.getUsbDriveStatus()
-  );
-  const insertUsbDriveMutation = useMutation(apiClient.insertUsbDrive, {
-    onSuccess: async () =>
-      await queryClient.invalidateQueries(['getUsbDriveStatus']),
+  const getUsbDriveStatusQuery = useQuery({
+    queryKey: ['getUsbDriveStatus'],
+
+    queryFn: () => apiClient.getUsbDriveStatus(),
   });
-  const removeUsbDriveMutation = useMutation(apiClient.removeUsbDrive, {
+  const insertUsbDriveMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.insertUsbDrive),
+
     onSuccess: async () =>
-      await queryClient.invalidateQueries(['getUsbDriveStatus']),
+      await queryClient.invalidateQueries({
+        queryKey: ['getUsbDriveStatus'],
+      }),
   });
-  const clearUsbDriveMutation = useMutation(apiClient.clearUsbDrive, {
+  const removeUsbDriveMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.removeUsbDrive),
+
     onSuccess: async () =>
-      await queryClient.invalidateQueries(['getUsbDriveStatus']),
+      await queryClient.invalidateQueries({
+        queryKey: ['getUsbDriveStatus'],
+      }),
+  });
+  const clearUsbDriveMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.clearUsbDrive),
+
+    onSuccess: async () =>
+      await queryClient.invalidateQueries({
+        queryKey: ['getUsbDriveStatus'],
+      }),
   });
 
   const [isUsbDriveRecentlyCleared, setIsUsbDriveRecentlyCleared] =
@@ -483,9 +517,9 @@ function ScreenshotControls({
   containerRef: RefObject<HTMLDivElement>;
 }) {
   const apiClient = useApiClient();
-  const saveScreenshotForAppMutation = useMutation(
-    apiClient.saveScreenshotForApp
-  );
+  const saveScreenshotForAppMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.saveScreenshotForApp),
+  });
 
   const [screenshotToSave, setScreenshotToSave] =
     useState<ScreenshotToSaveProps>();
@@ -619,16 +653,26 @@ const IconButton = styled.button<{ isActive: boolean }>`
 function PrinterMockControl() {
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
-  const getPrinterStatusQuery = useQuery(['getPrinterStatus'], () =>
-    apiClient.getPrinterStatus()
-  );
-  const connectPrinterMutation = useMutation(apiClient.connectPrinter, {
-    onSuccess: async () =>
-      await queryClient.invalidateQueries(['getPrinterStatus']),
+  const getPrinterStatusQuery = useQuery({
+    queryKey: ['getPrinterStatus'],
+
+    queryFn: () => apiClient.getPrinterStatus(),
   });
-  const disconnectPrinterMutation = useMutation(apiClient.disconnectPrinter, {
+  const connectPrinterMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.connectPrinter),
+
     onSuccess: async () =>
-      await queryClient.invalidateQueries(['getPrinterStatus']),
+      await queryClient.invalidateQueries({
+        queryKey: ['getPrinterStatus'],
+      }),
+  });
+  const disconnectPrinterMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.disconnectPrinter),
+
+    onSuccess: async () =>
+      await queryClient.invalidateQueries({
+        queryKey: ['getPrinterStatus'],
+      }),
   });
 
   const status = getPrinterStatusQuery.data ?? undefined;
@@ -669,10 +713,13 @@ function QuickConfigureButton(): JSX.Element {
   const apiClient = useApiClient();
   const [error, setError] = useState<string>();
   const getElectionQuery = useElectionQuery();
-  const quickConfigureMutation = useMutation(apiClient.quickConfigure, {
+  const quickConfigureMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.quickConfigure),
+
     onSuccess: () => {
       window.location.reload();
     },
+
     onError: (mutationError) => setError(extractErrorMessage(mutationError)),
   });
 
@@ -684,8 +731,8 @@ function QuickConfigureButton(): JSX.Element {
 
   return (
     <IconButton
-      isActive={quickConfigureMutation.isLoading}
-      disabled={!isElectionPackageSelected || quickConfigureMutation.isLoading}
+      isActive={quickConfigureMutation.isPending}
+      disabled={!isElectionPackageSelected || quickConfigureMutation.isPending}
       onClick={() => {
         setError(undefined);
         quickConfigureMutation.mutate();
@@ -710,32 +757,35 @@ function QuickConfigureButton(): JSX.Element {
 function HardwareMockControls() {
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
-  const getHardwareMockStatusQuery = useQuery(
-    ['getHardwareMockStatus'],
-    () => apiClient.getHardwareMockStatus(),
-    { refetchInterval: 1000 }
-  );
-  const setBarcodeConnectedMutation = useMutation(
-    apiClient.setBarcodeConnected,
-    {
-      onSuccess: async () =>
-        await queryClient.invalidateQueries(['getHardwareMockStatus']),
-    }
-  );
-  const setPatInputConnectedMutation = useMutation(
-    apiClient.setPatInputConnected,
-    {
-      onSuccess: async () =>
-        await queryClient.invalidateQueries(['getHardwareMockStatus']),
-    }
-  );
-  const setAccessibleConnectedMutation = useMutation(
-    apiClient.setAccessibleControllerConnected,
-    {
-      onSuccess: async () =>
-        await queryClient.invalidateQueries(['getHardwareMockStatus']),
-    }
-  );
+  const getHardwareMockStatusQuery = useQuery({
+    queryKey: ['getHardwareMockStatus'],
+    queryFn: () => apiClient.getHardwareMockStatus(),
+    refetchInterval: 1000,
+  });
+  const setBarcodeConnectedMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.setBarcodeConnected),
+
+    onSuccess: async () =>
+      await queryClient.invalidateQueries({
+        queryKey: ['getHardwareMockStatus'],
+      }),
+  });
+  const setPatInputConnectedMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.setPatInputConnected),
+
+    onSuccess: async () =>
+      await queryClient.invalidateQueries({
+        queryKey: ['getHardwareMockStatus'],
+      }),
+  });
+  const setAccessibleConnectedMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.setAccessibleControllerConnected),
+
+    onSuccess: async () =>
+      await queryClient.invalidateQueries({
+        queryKey: ['getHardwareMockStatus'],
+      }),
+  });
   const isXkeysMockEnabled = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.USE_MOCK_XKEYS
   );
@@ -848,29 +898,42 @@ const BatchScannerControls = styled.div`
 function BatchScannerMockControl() {
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
-  const getStatusQuery = useQuery(
-    ['batchScannerGetStatus'],
-    () => apiClient.batchScannerGetStatus(),
-    { refetchInterval: 1000 }
-  );
-  const loadBallotsMutation = useMutation(apiClient.batchScannerLoadBallots, {
-    onSuccess: async () =>
-      await queryClient.invalidateQueries(['batchScannerGetStatus']),
+  const getStatusQuery = useQuery({
+    queryKey: ['batchScannerGetStatus'],
+    queryFn: () => apiClient.batchScannerGetStatus(),
+    refetchInterval: 1000,
   });
-  const clearBallotsMutation = useMutation(apiClient.batchScannerClearBallots, {
+  const loadBallotsMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.batchScannerLoadBallots),
+
     onSuccess: async () =>
-      await queryClient.invalidateQueries(['batchScannerGetStatus']),
+      await queryClient.invalidateQueries({
+        queryKey: ['batchScannerGetStatus'],
+      }),
   });
-  const setErrorQueuedMutation = useMutation(
-    apiClient.batchScannerSetErrorQueued,
-    {
-      onSuccess: async () =>
-        await queryClient.invalidateQueries(['batchScannerGetStatus']),
-    }
-  );
-  const setCopiesMutation = useMutation(apiClient.batchScannerSetCopies, {
+  const clearBallotsMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.batchScannerClearBallots),
+
     onSuccess: async () =>
-      await queryClient.invalidateQueries(['batchScannerGetStatus']),
+      await queryClient.invalidateQueries({
+        queryKey: ['batchScannerGetStatus'],
+      }),
+  });
+  const setErrorQueuedMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.batchScannerSetErrorQueued),
+
+    onSuccess: async () =>
+      await queryClient.invalidateQueries({
+        queryKey: ['batchScannerGetStatus'],
+      }),
+  });
+  const setCopiesMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.batchScannerSetCopies),
+
+    onSuccess: async () =>
+      await queryClient.invalidateQueries({
+        queryKey: ['batchScannerGetStatus'],
+      }),
   });
   const [copies, setCopies] = useState(1);
 
@@ -898,10 +961,9 @@ function BatchScannerMockControl() {
               loadBallotsMutation.mutate({ paths: dialogResult.filePaths });
             }
           }}
-          disabled={loadBallotsMutation.isLoading}
+          disabled={loadBallotsMutation.isPending}
         >
-          {/* @coverage-defer */}
-          {loadBallotsMutation.isLoading ? 'Loading...' : 'Load Ballots'}
+          {loadBallotsMutation.isPending ? 'Loading...' : 'Load Ballots'}
         </ScannerButton>
         ×
         <CopiesInput
@@ -931,7 +993,7 @@ function BatchScannerMockControl() {
           onClick={() =>
             setErrorQueuedMutation.mutate({ errorQueued: !errorQueued })
           }
-          disabled={setErrorQueuedMutation.isLoading}
+          disabled={setErrorQueuedMutation.isPending}
         >
           {errorQueued ? 'Cancel Error' : 'Queue Error'}
         </ScannerButton>
@@ -943,35 +1005,42 @@ function BatchScannerMockControl() {
 function PdiScannerMockControl() {
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
-  const getStatusQuery = useQuery(
-    ['pdiScannerGetStatus'],
-    () => apiClient.pdiScannerGetStatus(),
-    { refetchInterval: 500 }
-  );
-  const insertSheetMutation = useMutation(apiClient.pdiScannerInsertSheets, {
-    onSuccess: async () =>
-      await queryClient.invalidateQueries(['pdiScannerGetStatus']),
+  const getStatusQuery = useQuery({
+    queryKey: ['pdiScannerGetStatus'],
+    queryFn: () => apiClient.pdiScannerGetStatus(),
+    refetchInterval: 500,
   });
-  const removeSheetMutation = useMutation(apiClient.pdiScannerRemoveSheet);
-  const clearSheetQueueMutation = useMutation(
-    apiClient.pdiScannerClearSheetQueue,
-    {
-      onSuccess: async () =>
-        await queryClient.invalidateQueries(['pdiScannerGetStatus']),
-    }
-  );
+  const insertSheetMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.pdiScannerInsertSheets),
+
+    onSuccess: async () =>
+      await queryClient.invalidateQueries({
+        queryKey: ['pdiScannerGetStatus'],
+      }),
+  });
+  const removeSheetMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.pdiScannerRemoveSheet),
+  });
+  const clearSheetQueueMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.pdiScannerClearSheetQueue),
+
+    onSuccess: async () =>
+      await queryClient.invalidateQueries({
+        queryKey: ['pdiScannerGetStatus'],
+      }),
+  });
 
   const { sheetStatus, queue } = getStatusQuery.data ?? {};
   const canInsert =
     sheetStatus === 'noSheetEnabled' &&
     !queue &&
-    !insertSheetMutation.isLoading;
+    !insertSheetMutation.isPending;
   const canClear =
     queue &&
     queue.total > 1 &&
-    !insertSheetMutation.isLoading &&
-    !removeSheetMutation.isLoading &&
-    !clearSheetQueueMutation.isLoading;
+    !insertSheetMutation.isPending &&
+    !removeSheetMutation.isPending &&
+    !clearSheetQueueMutation.isPending;
 
   async function onInsertBallot() {
     const dialogResult = await assertDefined(window.kiosk).showOpenDialog({
@@ -995,14 +1064,13 @@ function PdiScannerMockControl() {
       {sheetStatus === 'sheetHeldInFront' ? (
         <ScannerButton
           onClick={() => removeSheetMutation.mutate()}
-          disabled={removeSheetMutation.isLoading}
+          disabled={removeSheetMutation.isPending}
         >
           Remove Ballot
         </ScannerButton>
       ) : (
         <ScannerButton onClick={onInsertBallot} disabled={!canInsert}>
-          {/* @coverage-defer */}
-          {insertSheetMutation.isLoading ? 'Loading...' : 'Insert Ballot'}
+          {insertSheetMutation.isPending ? 'Loading...' : 'Insert Ballot'}
         </ScannerButton>
       )}
       <ScannerButton
@@ -1225,8 +1293,13 @@ function DockSideControl({ side }: { side: DevDockSide }): JSX.Element {
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const setDockSideMutation = useMutation(apiClient.setDockSide, {
-    onSuccess: async () => await queryClient.invalidateQueries(['getDockSide']),
+  const setDockSideMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.setDockSide),
+
+    onSuccess: async () =>
+      await queryClient.invalidateQueries({
+        queryKey: ['getDockSide'],
+      }),
   });
 
   function onSelectSide(newSide: DevDockSide) {
@@ -1264,25 +1337,25 @@ function DockSideControl({ side }: { side: DevDockSide }): JSX.Element {
   );
 }
 
+// @coverage-defer
+function logDevDockError(error: unknown) {
+  // eslint-disable-next-line no-console
+  console.error('Dev Dock error:', error);
+}
+
 function createQueryClient() {
   return new QueryClient({
+    // react-query v5 removed per-query `onError`; a `QueryCache` callback is
+    // the supported way to observe every query error.
+    queryCache: new QueryCache({ onError: logDevDockError }),
     defaultOptions: {
       queries: {
         networkMode: 'always',
         staleTime: Infinity,
-        // @coverage-defer
-        onError: (error) => {
-          // eslint-disable-next-line no-console
-          console.error('Dev Dock error:', error);
-        },
       },
       mutations: {
         networkMode: 'always',
-        // @coverage-defer
-        onError: (error) => {
-          // eslint-disable-next-line no-console
-          console.error('Dev Dock error:', error);
-        },
+        onError: logDevDockError,
       },
     },
   });
@@ -1295,12 +1368,16 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
 
   const apiClient = useApiClient();
 
-  const getMockSpecQuery = useQuery(['getMockSpec'], () =>
-    apiClient.getMockSpec()
-  );
-  const getDockSideQuery = useQuery(['getDockSide'], () =>
-    apiClient.getDockSide()
-  );
+  const getMockSpecQuery = useQuery({
+    queryKey: ['getMockSpec'],
+
+    queryFn: () => apiClient.getMockSpec(),
+  });
+  const getDockSideQuery = useQuery({
+    queryKey: ['getDockSide'],
+
+    queryFn: () => apiClient.getDockSide(),
+  });
 
   function onKeyDown(event: KeyboardEvent): void {
     // @coverage-defer

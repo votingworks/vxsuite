@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { mockUsbDriveStatus } from '@votingworks/ui';
+import { mockUsbDriveStatus, asMutationFn } from '@votingworks/ui';
 import type { ExportDataResult } from '@votingworks/admin-backend';
 import { ok } from '@votingworks/basics';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
@@ -8,7 +8,10 @@ import { act } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import { screen, within } from '../../../test/react_testing_library.js';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
+import {
+  ApiMock,
+  createApiMock,
+} from '../../../test/helpers/mock_api_client.js';
 import { ExportFileButton } from './export_file_button.js';
 import { generateReportFilename } from '../../utils/reporting.js';
 
@@ -48,7 +51,9 @@ function TestComponent({
   echo: string;
   disabled?: boolean;
 } & { disabled?: boolean }): JSX.Element {
-  const mockMutation = useMutation(vitestMockMutate);
+  const mockMutation = useMutation({
+    mutationFn: asMutationFn(vitestMockMutate),
+  });
 
   return (
     <ExportFileButton

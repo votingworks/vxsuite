@@ -53,7 +53,7 @@ export function ExportReportModal({
       );
     }
 
-    case 'loading':
+    case 'pending':
       return <Modal content={<Loading>Exporting Report</Loading>} />;
 
     case 'success':

@@ -120,7 +120,7 @@ export function useCvrImporter(): CvrImporter {
     return { state: 'loading' };
   }
 
-  if (importMutation.status === 'loading') {
+  if (importMutation.status === 'pending') {
     return {
       state: 'importing',
       electionDefinition,

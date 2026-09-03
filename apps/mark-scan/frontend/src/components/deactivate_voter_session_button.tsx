@@ -27,7 +27,7 @@ export function ResetVoterSessionButton(props: Props): React.ReactNode {
 
   return (
     <Button
-      disabled={endSessionMutation.isLoading}
+      disabled={endSessionMutation.isPending}
       icon={icon}
       variant={variant}
       onPress={endSessionMutation.mutate}

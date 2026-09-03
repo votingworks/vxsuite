@@ -36,8 +36,7 @@ export function ConvertResultsScreen(): JSX.Element | null {
           2. Upload the tally report CSV file below to convert it to SEMS
           format.
         </P>
-        {convertMsResultsMutation.isLoading ? (
-          // @coverage-defer
+        {convertMsResultsMutation.isPending ? (
           <LoadingButton variant="primary">Converting Results…</LoadingButton>
         ) : (
           <FileInputButton

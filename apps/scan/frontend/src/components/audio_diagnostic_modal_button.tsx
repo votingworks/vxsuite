@@ -14,7 +14,7 @@ export function AudioDiagnosticModal(
   const playSound = api.playSound.useMutation().mutate;
   React.useEffect(() => playSound({ name: 'success' }), [playSound]);
 
-  const { isLoading, mutate: logOutcome } =
+  const { isPending, mutate: logOutcome } =
     api.logAudioDiagnosticOutcome.useMutation();
 
   function onConfirm(outcome: DiagnosticOutcome) {
@@ -27,14 +27,14 @@ export function AudioDiagnosticModal(
       actions={
         <React.Fragment>
           <Button
-            disabled={isLoading}
+            disabled={isPending}
             onPress={onConfirm}
             value="pass"
             variant="primary"
           >
             Yes
           </Button>
-          <Button disabled={isLoading} onPress={onConfirm} value="fail">
+          <Button disabled={isPending} onPress={onConfirm} value="fail">
             No
           </Button>
         </React.Fragment>

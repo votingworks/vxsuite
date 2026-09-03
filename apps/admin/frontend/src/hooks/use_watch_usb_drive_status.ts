@@ -41,7 +41,9 @@ export function useWatchUsbDriveStatus(): UseQueryResult<UsbDriveStatus> {
           }
           if (seq !== lastSeq) {
             lastSeq = seq;
-            await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
+            await queryClient.invalidateQueries({
+              queryKey: getUsbDriveStatus.queryKey(),
+            });
           }
         } catch {
           // Back off before retrying so a persistent failure (e.g. the backend

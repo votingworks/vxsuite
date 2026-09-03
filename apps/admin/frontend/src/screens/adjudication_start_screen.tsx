@@ -441,7 +441,7 @@ function MultiStationCard(): JSX.Element {
                 setAdjudicationEnabledMutation.mutate({ enabled: !isEnabled })
               }
               disabled={
-                setAdjudicationEnabledMutation.isLoading ||
+                setAdjudicationEnabledMutation.isPending ||
                 multipleHostsDetected
               }
               variant={isEnabled ? 'neutral' : 'secondary'}

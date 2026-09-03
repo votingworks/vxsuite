@@ -236,11 +236,11 @@ importers:
   apps/admin/frontend:
     dependencies:
       '@tanstack/react-query':
-        specifier: 4.32.1
-        version: 4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
       '@tanstack/react-query-devtools':
-        specifier: 4.32.1
-        version: 4.32.1(@tanstack/react-query@4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(@tanstack/react-query@5.102.8(react@18.3.1))(react@18.3.1)
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
@@ -644,8 +644,8 @@ importers:
   apps/central-scan/frontend:
     dependencies:
       '@tanstack/react-query':
-        specifier: 4.32.1
-        version: 4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
@@ -1022,8 +1022,8 @@ importers:
         specifier: ^8.51.0
         version: 8.51.0
       '@tanstack/react-query':
-        specifier: 4.32.1
-        version: 4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
       '@tiptap/extension-bold':
         specifier: ^3.18.0
         version: 3.18.0(@tiptap/core@3.18.0(@tiptap/pm@3.18.0))
@@ -1378,8 +1378,8 @@ importers:
         specifier: ^4.5.0
         version: 4.5.0(react@18.3.1)
       '@tanstack/react-query':
-        specifier: 4.32.1
-        version: 4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
@@ -1747,8 +1747,8 @@ importers:
         specifier: ^4.5.0
         version: 4.5.0(react@18.3.1)
       '@tanstack/react-query':
-        specifier: 4.32.1
-        version: 4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
@@ -2137,8 +2137,8 @@ importers:
   apps/pollbook/frontend:
     dependencies:
       '@tanstack/react-query':
-        specifier: 4.32.1
-        version: 4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
@@ -2457,8 +2457,8 @@ importers:
   apps/print/frontend:
     dependencies:
       '@tanstack/react-query':
-        specifier: 4.32.1
-        version: 4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
@@ -2808,8 +2808,8 @@ importers:
   apps/scan/frontend:
     dependencies:
       '@tanstack/react-query':
-        specifier: 4.32.1
-        version: 4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
@@ -3764,8 +3764,8 @@ importers:
         specifier: 3.5.0
         version: 3.5.0(patch_hash=032ae55c6a44387cf033d69474e0a2e1cde9e7cd37dfc5c2a8159e32e1202ef3)(@fortawesome/fontawesome-svg-core@6.7.2)(react@18.3.1)
       '@tanstack/react-query-devtools':
-        specifier: 4.32.1
-        version: 4.32.1(@tanstack/react-query@4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(@tanstack/react-query@5.102.8(react@18.3.1))(react@18.3.1)
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../basics
@@ -3786,8 +3786,8 @@ importers:
         version: link:../../utils
     devDependencies:
       '@tanstack/react-query':
-        specifier: 4.32.1
-        version: 4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
       '@testing-library/dom':
         specifier: ^10.4.1
         version: 10.4.1
@@ -4650,8 +4650,8 @@ importers:
         version: 1.4.0(react@18.3.1)
     devDependencies:
       '@tanstack/react-query':
-        specifier: 4.32.1
-        version: 4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
       '@testing-library/dom':
         specifier: ^10.4.1
         version: 10.4.1
@@ -5337,8 +5337,8 @@ importers:
         specifier: 10.5.10
         version: 10.5.10(@types/react-dom@18.3.0)(@types/react@18.3.3)(esbuild@0.28.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@3.29.5)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))(typescript@7.0.2)(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@tanstack/react-query':
-        specifier: 4.32.1
-        version: 4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
       '@testing-library/jest-dom':
         specifier: ^5.17.0
         version: 5.17.0
@@ -8344,31 +8344,22 @@ packages:
     resolution: {integrity: sha512-4BAffykYOgO+5nzBWYwE3W90sBgLJoUPRWWcL8wlyiM8IB8ipJz3UMJ9KXQd1RKQXpKp8Tutn80HZtWsu2u76w==}
     engines: {node: '>=10'}
 
-  '@tanstack/match-sorter-utils@8.8.4':
-    resolution: {integrity: sha512-rKH8LjZiszWEvmi01NR72QWZ8m4xmXre0OOwlRGnjU01Eqz/QnN+cqpty2PJ0efHblq09+KilvyR7lsbzmXVEw==}
-    engines: {node: '>=12'}
+  '@tanstack/query-core@5.102.8':
+    resolution: {integrity: sha512-ZNjkJ33CqvPNec/6lZBnHqLc3EVGPZ9ySLhYahU9TcuRFdmwXewuj0c4hwSWcGHqEUwcSrKeZ+oGcvPBqXcQcg==}
 
-  '@tanstack/query-core@4.32.1':
-    resolution: {integrity: sha512-VEAGHboOFWN/bvf/7cCoeLQfld0AA8n0V/kfc77W+FvxnnSwJufEh6gfjqpX5bRE/DEYfYDYdNtuL3KM+lIs8Q==}
+  '@tanstack/query-devtools@5.102.8':
+    resolution: {integrity: sha512-ZgeMKuF5d/zOE+tgWm3cSbD6Zcbr6IugVsnbHzUcSismqLZDSUPBKM6ILUxExgwe6rPAOox2x5bA5T+PSOQG0Q==}
 
-  '@tanstack/react-query-devtools@4.32.1':
-    resolution: {integrity: sha512-/ZgxCfGXLIXUvaIRzrNCP+C4iv1bIleNzXCjGKFZ4qKEifnv5A/SpWE2dG4SBjqXVlIkMAP82lesfoHcsOm+zg==}
+  '@tanstack/react-query-devtools@5.102.8':
+    resolution: {integrity: sha512-QKb7A44BZOU7nxsGA4gFN1fofjYovar5O0T83Ff4Y+2eRq09RGFrAzzutVdF/6/emfSaMDohp6e759BjB3fxEw==}
     peerDependencies:
-      '@tanstack/react-query': 4.32.1
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+      '@tanstack/react-query': ^5.102.8
+      react: ^18 || ^19
 
-  '@tanstack/react-query@4.32.1':
-    resolution: {integrity: sha512-lPTfOq6bR6DorPaS018gTMd3zs8r06tlERiVY6BRP9SnDkkl4ckqeANava/jPLWrSZP+EA15loQUTmvZs6k2GA==}
+  '@tanstack/react-query@5.102.8':
+    resolution: {integrity: sha512-TYBea4OuXWD7MhaSHq069TWbFe7rcwWN6kzT7JF0OKi1K6c1gTv2IzD6A6ExJsCMozdkqBWeuIUZmu4KQg0O5A==}
     peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-      react-native: '*'
-    peerDependenciesMeta:
-      react-dom:
-        optional: true
-      react-native:
-        optional: true
+      react: ^18 || ^19
 
   '@testing-library/dom@10.4.1':
     resolution: {integrity: sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg==}
@@ -9923,10 +9914,6 @@ packages:
   cookie@0.5.0:
     resolution: {integrity: sha512-YZ3GUyn/o8gfKJlnlX7g7xq4gyO6OSuhGPKaaGssGB2qgDUS0gPgtTvoyZLTt9Ab6dC4hfc9dV5arkvc/OCmrw==}
     engines: {node: '>= 0.6'}
-
-  copy-anything@3.0.5:
-    resolution: {integrity: sha512-yCEafptTtb4bk7GLEQoM8KVJpxAfdBJYaXyzQEgQQQgYrZiDp8SJmGKlYza6CYjEDNstAdNdKA3UuoULlEbS6w==}
-    engines: {node: '>=12.13'}
 
   copyfiles@2.4.1:
     resolution: {integrity: sha512-fereAvAvxDrQDOXybk3Qu3dPbOoKoysFMWtkY3mv5BsL8//OSZVL5DCLYqgRfY5cWirgRzlC+WSrxp6Bo3eNZg==}
@@ -11517,10 +11504,6 @@ packages:
   is-weakset@2.0.4:
     resolution: {integrity: sha512-mfcwb6IzQyOKTs84CQMrOwW4gQcaTOAWJ0zzJCl2WSPDrWk/OzDaImWFH3djXhb24g4eudZfLRozAvPGw4d9hQ==}
     engines: {node: '>= 0.4'}
-
-  is-what@4.1.15:
-    resolution: {integrity: sha512-uKua1wfy3Yt+YqsD6mTUEa2zSi3G1oPlqTflgaPJ7z63vUGN5pxFpnQfeSLMFnJDEsdvOtkp1rUWkYjB4YfhgA==}
-    engines: {node: '>=12.13'}
 
   is-whitespace@0.3.0:
     resolution: {integrity: sha512-RydPhl4S6JwAyj0JJjshWJEFG6hNye3pZFBRZaTUfZFwGHxzppNaNOVgQuS/E/SlhrApuMXrpnK1EEIXfdo3Dg==}
@@ -13132,9 +13115,6 @@ packages:
   rematrix@0.2.2:
     resolution: {integrity: sha512-agFFS3RzrLXJl5LY5xg/xYyXvUuVAnkhgKO7RaO9J1Ssth6yvbO+PIiV67V59MB5NCdAK2flvGvNT4mdKVniFA==}
 
-  remove-accents@0.4.2:
-    resolution: {integrity: sha512-7pXIJqJOq5tFgG1A2Zxti3Ht8jJF337m4sowbuHsW30ZnkQFnDzy9qBNhgzX8ZLW4+UBcXiiR7SwR6pokHsxiA==}
-
   remove-trailing-separator@1.1.0:
     resolution: {integrity: sha512-/hS+Y0u3aOfIETiaiirUFwDBDzmXPvO+jAfKTitUngIPzdKc6Z0LoFjM/CK5PL4C+eKwHohlHAb6H0VFfmmUsw==}
 
@@ -13673,10 +13653,6 @@ packages:
 
   stylis@4.2.0:
     resolution: {integrity: sha512-Orov6g6BB1sDfYgzWfTHDOxamtX1bE/zo104Dh9e6fqJ3PooipYyfJ0pUmrZO2wAvO8YbEyeFrkV91XTsGMSrw==}
-
-  superjson@1.13.1:
-    resolution: {integrity: sha512-AVH2eknm9DEd3qvxM4Sq+LTCkSXE2ssfh1t11MHMXyYXFQyQ1HLgVvV+guLTsaQnJU3gnaVo34TohHPulY/wLg==}
-    engines: {node: '>=10'}
 
   supports-color@5.5.0:
     resolution: {integrity: sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==}
@@ -17395,28 +17371,20 @@ snapshots:
     dependencies:
       defer-to-connect: 2.0.1
 
-  '@tanstack/match-sorter-utils@8.8.4':
-    dependencies:
-      remove-accents: 0.4.2
+  '@tanstack/query-core@5.102.8': {}
 
-  '@tanstack/query-core@4.32.1': {}
+  '@tanstack/query-devtools@5.102.8': {}
 
-  '@tanstack/react-query-devtools@4.32.1(@tanstack/react-query@4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query-devtools@5.102.8(@tanstack/react-query@5.102.8(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@tanstack/match-sorter-utils': 8.8.4
-      '@tanstack/react-query': 4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@tanstack/query-devtools': 5.102.8
+      '@tanstack/react-query': 5.102.8(react@18.3.1)
       react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      superjson: 1.13.1
-      use-sync-external-store: 1.6.0(react@18.3.1)
 
-  '@tanstack/react-query@4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query@5.102.8(react@18.3.1)':
     dependencies:
-      '@tanstack/query-core': 4.32.1
+      '@tanstack/query-core': 5.102.8
       react: 18.3.1
-      use-sync-external-store: 1.6.0(react@18.3.1)
-    optionalDependencies:
-      react-dom: 18.3.1(react@18.3.1)
 
   '@testing-library/dom@10.4.1':
     dependencies:
@@ -19136,10 +19104,6 @@ snapshots:
   cookie-signature@1.0.6: {}
 
   cookie@0.5.0: {}
-
-  copy-anything@3.0.5:
-    dependencies:
-      is-what: 4.1.15
 
   copyfiles@2.4.1:
     dependencies:
@@ -21028,8 +20992,6 @@ snapshots:
     dependencies:
       call-bound: 1.0.4
       get-intrinsic: 1.3.0
-
-  is-what@4.1.15: {}
 
   is-whitespace@0.3.0: {}
 
@@ -23003,8 +22965,6 @@ snapshots:
 
   rematrix@0.2.2: {}
 
-  remove-accents@0.4.2: {}
-
   remove-trailing-separator@1.1.0: {}
 
   replace-ext@2.0.0: {}
@@ -23676,10 +23636,6 @@ snapshots:
       - supports-color
 
   stylis@4.2.0: {}
-
-  superjson@1.13.1:
-    dependencies:
-      copy-anything: 3.0.5
 
   supports-color@5.5.0:
     dependencies:

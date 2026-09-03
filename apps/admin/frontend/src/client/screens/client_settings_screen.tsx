@@ -108,7 +108,7 @@ export function ClientSettingsScreen(): JSX.Element | null {
           <P>
             <Button
               onPress={() => setMachineModeMutation.mutate({ mode: 'host' })}
-              disabled={setMachineModeMutation.isLoading}
+              disabled={setMachineModeMutation.isPending}
             >
               Switch to Host Mode
             </Button>

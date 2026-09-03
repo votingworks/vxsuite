@@ -165,7 +165,7 @@ function ElectionInfoForm({
 
   // Elections with an external source cannot have certain fields edited
   const hasExternalSource = Boolean(savedElectionInfo.externalSource);
-  const disabled = updateElectionInfoMutation.isLoading || !isEditing;
+  const disabled = updateElectionInfoMutation.isPending || !isEditing;
 
   return (
     <Form
@@ -360,7 +360,7 @@ function ElectionInfoForm({
               type="submit"
               variant="primary"
               icon="Done"
-              disabled={updateElectionInfoMutation.isLoading}
+              disabled={updateElectionInfoMutation.isPending}
             >
               Save
             </Button>
@@ -377,7 +377,7 @@ function ElectionInfoForm({
         )}
 
         <Button
-          disabled={deleteElectionMutation.isLoading}
+          disabled={deleteElectionMutation.isPending}
           icon="Delete"
           fill="outlined"
           onPress={onDeletePress}

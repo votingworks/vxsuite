@@ -15,7 +15,7 @@ export function SaveBallotAuditIdSecretKeyButton(): JSX.Element {
   return (
     <React.Fragment>
       <Button
-        disabled={saveBallotAuditIdSecretKeyMutation.isLoading}
+        disabled={saveBallotAuditIdSecretKeyMutation.isPending}
         onPress={() => saveBallotAuditIdSecretKeyMutation.mutate()}
       >
         Save Ballot Audit ID Secret Key

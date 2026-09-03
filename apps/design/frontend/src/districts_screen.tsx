@@ -195,7 +195,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
     {}
   );
   const ballotsFinalized = !!ballotsFinalizedAtQuery.data;
-  const updating = updateDistrictsMutation.isLoading;
+  const updating = updateDistrictsMutation.isPending;
   const disabled = ballotsFinalized || !editing || updating;
   const hasExternalSource = Boolean(electionInfoQuery.data.externalSource);
 

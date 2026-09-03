@@ -1,3 +1,4 @@
+import { asMutationFn } from '@votingworks/ui';
 import type { PrinterStatus } from '@votingworks/fujitsu-thermal-printer';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import styled from 'styled-components';
@@ -92,17 +93,18 @@ const SELECT_ID = 'fujitsu-printer-status-select';
 function PrinterStatusSelect(): JSX.Element {
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
-  const getFujitsuPrinterStatusQuery = useQuery(
-    ['getFujitsuPrinterStatus'],
-    () => apiClient.getFujitsuPrinterStatus()
-  );
-  const setFujitsuPrinterStatusMutation = useMutation(
-    apiClient.setFujitsuPrinterStatus,
-    {
-      onSuccess: async () =>
-        await queryClient.invalidateQueries(['getFujitsuPrinterStatus']),
-    }
-  );
+  const getFujitsuPrinterStatusQuery = useQuery({
+    queryKey: ['getFujitsuPrinterStatus'],
+    queryFn: () => apiClient.getFujitsuPrinterStatus(),
+  });
+  const setFujitsuPrinterStatusMutation = useMutation({
+    mutationFn: asMutationFn(apiClient.setFujitsuPrinterStatus),
+
+    onSuccess: async () =>
+      await queryClient.invalidateQueries({
+        queryKey: ['getFujitsuPrinterStatus'],
+      }),
+  });
 
   const status = getFujitsuPrinterStatusQuery.data ?? undefined;
 

@@ -141,13 +141,13 @@ function RemoveManualTallyModal({
             icon="Delete"
             variant="danger"
             onPress={onConfirm}
-            disabled={deleteManualTallyMutation.isLoading}
+            disabled={deleteManualTallyMutation.isPending}
           >
             Remove Manual Tallies
           </Button>
           <Button
             onPress={onClose}
-            disabled={deleteManualTallyMutation.isLoading}
+            disabled={deleteManualTallyMutation.isPending}
           >
             Cancel
           </Button>

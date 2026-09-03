@@ -47,7 +47,7 @@ export function ToggleTestModeButton(): JSX.Element | null {
   return (
     <React.Fragment>
       <SegmentedButton
-        disabled={setTestModeMutation.isLoading || !canUnconfigure}
+        disabled={setTestModeMutation.isPending || !canUnconfigure}
         label="Ballot Mode"
         hideLabel
         onChange={() => {
@@ -89,7 +89,7 @@ export function ToggleTestModeButton(): JSX.Element | null {
                 data-testid="confirm-toggle"
                 variant="primary"
                 onPress={toggleTestMode}
-                disabled={setTestModeMutation.isLoading}
+                disabled={setTestModeMutation.isPending}
               >
                 {isTestMode
                   ? 'Switch to Official Ballot Mode'
@@ -97,7 +97,7 @@ export function ToggleTestModeButton(): JSX.Element | null {
               </Button>
               <Button
                 onPress={resetFlowState}
-                disabled={setTestModeMutation.isLoading}
+                disabled={setTestModeMutation.isPending}
               >
                 Cancel
               </Button>

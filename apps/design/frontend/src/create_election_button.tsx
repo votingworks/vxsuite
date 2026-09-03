@@ -26,13 +26,13 @@ function CreateElectionModalForm({
       actions={
         <React.Fragment>
           <Button
-            disabled={createElectionMutation.isLoading}
+            disabled={createElectionMutation.isPending}
             onPress={() => createElection(jurisdictionId)}
             variant="primary"
           >
             Confirm
           </Button>
-          <Button disabled={createElectionMutation.isLoading} onPress={onClose}>
+          <Button disabled={createElectionMutation.isPending} onPress={onClose}>
             Cancel
           </Button>
         </React.Fragment>
@@ -49,7 +49,7 @@ function CreateElectionModalForm({
             }))}
             value={jurisdictionId}
             onChange={(value) => setJurisdictionId(assertDefined(value))}
-            disabled={createElectionMutation.isLoading}
+            disabled={createElectionMutation.isPending}
             menuPortalTarget={document.body}
           />
         </React.Fragment>

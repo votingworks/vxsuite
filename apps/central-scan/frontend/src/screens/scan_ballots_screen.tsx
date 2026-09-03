@@ -316,7 +316,7 @@ export function ScanBallotsScreen({
                                     batchId: batch.id,
                                   })
                                 }
-                                disabled={retrySendMutation.isLoading}
+                                disabled={retrySendMutation.isPending}
                               >
                                 Retry
                               </Button>
@@ -326,7 +326,7 @@ export function ScanBallotsScreen({
                                 onPress={() =>
                                   resendMutation.mutate({ batchId: batch.id })
                                 }
-                                disabled={resendMutation.isLoading}
+                                disabled={resendMutation.isPending}
                               >
                                 Resend
                               </Button>

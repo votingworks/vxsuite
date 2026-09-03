@@ -189,13 +189,13 @@ function EditorImpl(
 
   const defaultValue = savedEdit?.text || original;
 
-  const { data: audioDataUrl, isLoading: audioLoading } =
+  const { data: audioDataUrl, isPending: audioLoading } =
     api.ttsSynthesizeFromText.useQuery({
       languageCode,
       text: defaultValue,
     });
 
-  const { mutate: save, isLoading: saving } = api.ttsEditsSet.useMutation();
+  const { mutate: save, isPending: saving } = api.ttsEditsSet.useMutation();
 
   function onSubmit(event: React.FormEvent) {
     event.stopPropagation();

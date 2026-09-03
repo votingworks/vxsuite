@@ -184,7 +184,7 @@ export function NavScreenLite({ children }: NavScreenLiteProps): JSX.Element {
                 usbDriveStatus={usbDriveStatus}
                 // @coverage-defer
                 onEject={() => ejectUsbDriveMutation.mutate()}
-                isEjecting={ejectUsbDriveMutation.isLoading}
+                isEjecting={ejectUsbDriveMutation.isPending}
               />
               <LockMachineButton onLock={() => logOutMutation.mutate()} />
             </ToolbarButtons>
