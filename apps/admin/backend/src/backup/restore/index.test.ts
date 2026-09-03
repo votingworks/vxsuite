@@ -42,8 +42,10 @@ import {
   ADMIN_WORKSPACE_DATABASE_NAME,
   createWorkspace,
   openWorkspace,
-  RESTORE_IN_PROGRESS_MARKER_FILENAME,
+  getRestoreInProgressMarkerPath,
+  getWorkspaceControlPath,
   Workspace,
+  WORKSPACE_CONTROL_DIRECTORY_NAME,
 } from '../../util/workspace.js';
 import { createBackup } from '../create/index.js';
 import { Backup } from '../backup.js';
@@ -125,13 +127,15 @@ function restorable(workspacePath: string): Workspace {
 }
 
 /**
- * Lists everything in a workspace, ignoring the database's sidecar files since
- * those come and go as the database is opened and closed.
+ * Lists a workspace's data, ignoring the database's sidecar files since those
+ * come and go as the database is opened and closed, and the control directory
+ * since it holds settings rather than data.
  */
 function listWorkspace(workspacePath: string): string[] {
   return readdirSync(workspacePath, { recursive: true })
     .map(String)
     .filter((name) => !name.startsWith(`${ADMIN_WORKSPACE_DATABASE_NAME}-`))
+    .filter((name) => !name.startsWith(WORKSPACE_CONTROL_DIRECTORY_NAME))
     .sort();
 }
 
@@ -965,7 +969,7 @@ test('an interrupted restore can be recovered by restoring again', async () => {
 
   // Simulate a crash after the database was copied but before the restore
   // finished: the workspace looks configured, but the marker is still there.
-  const markerPath = join(workspacePath, RESTORE_IN_PROGRESS_MARKER_FILENAME);
+  const markerPath = getRestoreInProgressMarkerPath(workspacePath);
   await writeFile(markerPath, '');
 
   // The configured election is half-restored debris, not data to protect, so
@@ -1263,7 +1267,8 @@ test('restore refuses while a write transaction is open on the workspace', async
 test('restore refuses a write in progress even in a workspace an interrupted restore left', async () => {
   const backup = await makeBackup();
   const workspacePath = makeUnconfiguredWorkspacePath();
-  await writeFile(join(workspacePath, RESTORE_IN_PROGRESS_MARKER_FILENAME), '');
+  await mkdir(getWorkspaceControlPath(workspacePath), { recursive: true });
+  await writeFile(getRestoreInProgressMarkerPath(workspacePath), '');
   const workspace = restorable(workspacePath);
 
   // Recovering an interrupted restore is no reason to cut off a write that is
@@ -1304,5 +1309,36 @@ test('restore refuses a workspace belonging to a client machine', async () => {
 
   // Restoring would have emptied the workspace, taking the mode with it and
   // silently turning a client machine into a host one.
+  expect(listWorkspace(workspacePath)).toEqual(contentsBefore);
+});
+
+test('restore refuses a manifest naming a file in the control directory', async () => {
+  const backup = await makeBackup();
+  const workspacePath = makeUnconfiguredWorkspacePath();
+  const contentsBefore = listWorkspace(workspacePath);
+
+  // A backup never holds settings, so one claiming to is not one this software
+  // made — and restoring it would switch the machine's mode.
+  await rewriteManifest(backup, (manifest) => ({
+    ...manifest,
+    files: [
+      { ...manifest.files[0]!, path: 'workspace/control/machine_mode' },
+      ...manifest.files.slice(1),
+    ],
+  }));
+
+  expect(
+    (
+      await restoreBackup({
+        backup: backup.path,
+        workspace: restorable(workspacePath),
+        logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+      })
+    ).err()
+  ).toMatchObject({
+    type: 'backup-verification-failed',
+    message: expect.stringContaining('control directory'),
+  });
+
   expect(listWorkspace(workspacePath)).toEqual(contentsBefore);
 });

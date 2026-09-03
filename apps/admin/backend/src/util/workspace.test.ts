@@ -1,7 +1,17 @@
 import { beforeEach, expect, test, vi } from 'vitest';
+import { mkdirSync, readdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
-import { createWorkspace, createClientWorkspace } from './workspace.js';
+import {
+  createWorkspace,
+  createClientWorkspace,
+  emptyWorkspaceData,
+  getRestoreInProgressMarkerPath,
+  getWorkspaceControlPath,
+  hasInterruptedRestore,
+  WORKSPACE_CONTROL_DIRECTORY_NAME,
+} from './workspace.js';
 import { Store } from '../store.js';
 import { ClientStore } from '../client_store.js';
 
@@ -44,4 +54,31 @@ test('createClientWorkspace', async () => {
   await expect(workspace.getDiskSpaceSummary()).resolves.toEqual(
     expect.objectContaining({ available: expect.any(Number) })
   );
+});
+
+test('emptying a workspace removes its data and marker but keeps its control files', async () => {
+  const dir = makeTemporaryDirectory();
+  {
+    using workspace = createWorkspace(dir, mockBaseLogger({ fn: vi.fn }));
+    writeFileSync(join(dir, 'ballot-images', 'ballot.jpg'), 'image');
+    expect(workspace).toBeDefined();
+  }
+  mkdirSync(getWorkspaceControlPath(dir));
+  writeFileSync(join(getWorkspaceControlPath(dir), 'machine_mode'), 'client');
+  writeFileSync(getRestoreInProgressMarkerPath(dir), '');
+
+  await emptyWorkspaceData(dir);
+
+  expect(readdirSync(dir)).toEqual([WORKSPACE_CONTROL_DIRECTORY_NAME]);
+  expect(readdirSync(getWorkspaceControlPath(dir))).toEqual(['machine_mode']);
+  expect(hasInterruptedRestore(dir)).toEqual(false);
+});
+
+test('emptying a workspace that has no control directory leaves it empty', async () => {
+  const dir = makeTemporaryDirectory();
+  writeFileSync(join(dir, 'data.db'), 'stale');
+
+  await emptyWorkspaceData(dir);
+
+  expect(readdirSync(dir)).toEqual([]);
 });

@@ -8,6 +8,7 @@ import {
 import { AuthenticatedBackup } from '../authenticated_backup.js';
 import { Backup } from '../backup.js';
 import { BACKUP_WORKSPACE_DIR, BackupManifest } from '../backup_manifest.js';
+import { WORKSPACE_CONTROL_DIRECTORY_NAME } from '../../util/workspace.js';
 import { RestoreError } from './types.js';
 
 /**
@@ -114,6 +115,7 @@ export async function vetManifest(
   }
 
   const workspacePrefix = `${BACKUP_WORKSPACE_DIR}/`;
+  const controlPrefix = `${workspacePrefix}${WORKSPACE_CONTROL_DIRECTORY_NAME}/`;
   for (const file of manifest.files) {
     // The manifest is the signed statement of what the backup holds, so an
     // entry this software does not know how to restore means the backup cannot
@@ -122,6 +124,15 @@ export async function vetManifest(
       return err({
         type: 'backup-verification-failed',
         message: `Manifest names a file this software does not know how to restore: ${file.path}`,
+      });
+    }
+
+    // A backup holds a machine's data, never its settings: restoring one must
+    // not switch the machine's mode or leave it looking mid-restore.
+    if (file.path.startsWith(controlPrefix)) {
+      return err({
+        type: 'backup-verification-failed',
+        message: `Manifest names a file in the workspace's control directory, which a backup never holds: ${file.path}`,
       });
     }
   }
