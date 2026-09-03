@@ -38,30 +38,30 @@ interface GenerateDocumentationFileArguments {
   app?: string;
   model?: string;
 }
-const args: GenerateDocumentationFileArguments = yargs(
-  process.argv.slice(2)
-).options({
-  output: {
-    type: 'string',
-    alias: 'o',
-    description: 'Path to write output file to',
-  },
-  format: {
-    choices: ['cdf', 'markdown'] as const,
-    alias: 'f',
-    default: 'markdown',
-  },
-  app: {
-    type: 'string',
-    description:
-      'When writing in the CDF format you must specify which frontend app to build the documentation for.',
-  },
-  model: {
-    type: 'string',
-    description:
-      'When writing in the CDF format you must specify a model name such as VxAdmin 1.0 .',
-  },
-}).argv as GenerateDocumentationFileArguments;
+const args: GenerateDocumentationFileArguments = yargs(process.argv.slice(2))
+  .strict()
+  .options({
+    output: {
+      type: 'string',
+      alias: 'o',
+      description: 'Path to write output file to',
+    },
+    format: {
+      choices: ['cdf', 'markdown'] as const,
+      alias: 'f',
+      default: 'markdown',
+    },
+    app: {
+      type: 'string',
+      description:
+        'When writing in the CDF format you must specify which frontend app to build the documentation for.',
+    },
+    model: {
+      type: 'string',
+      description:
+        'When writing in the CDF format you must specify a model name such as VxAdmin 1.0 .',
+    },
+  }).argv as GenerateDocumentationFileArguments;
 
 function validateAppInput(name?: string): AppName {
   if (name === undefined) {
