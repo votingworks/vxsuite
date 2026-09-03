@@ -1,10 +1,11 @@
-import { rm, writeFile } from 'node:fs/promises';
-import { emptydir } from 'fs-extra';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { err, iter, ok, Result } from '@votingworks/basics';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
 import { Logger, LogEventId } from '@votingworks/logging';
 import {
+  emptyWorkspaceData,
   getRestoreInProgressMarkerPath,
+  getWorkspaceControlPath,
   hasInterruptedRestore,
   Workspace,
 } from '../../util/workspace.js';
@@ -93,11 +94,12 @@ export async function checkWorkspaceHasSufficientSpace({
 }
 
 /**
- * Takes ownership of the workspace: empties it so the restore starts from a
- * clean slate, and drops the in-progress marker.
+ * Takes ownership of the workspace: empties its data so the restore starts from
+ * a clean slate, and drops the in-progress marker.
  */
 export async function claimWorkspace(workspacePath: string): Promise<void> {
-  await emptydir(workspacePath);
+  await emptyWorkspaceData(workspacePath);
+  await mkdir(getWorkspaceControlPath(workspacePath), { recursive: true });
   await writeFile(getRestoreInProgressMarkerPath(workspacePath), '');
 }
 
@@ -108,7 +110,7 @@ export async function claimWorkspace(workspacePath: string): Promise<void> {
 export async function abandonFailedRestore(
   workspacePath: string
 ): Promise<void> {
-  await emptydir(workspacePath);
+  await emptyWorkspaceData(workspacePath);
 }
 
 /**
