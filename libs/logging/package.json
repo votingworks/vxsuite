@@ -24,7 +24,7 @@
     "lint:self": "pnpm type-check && eslint --cache .",
     "test": "pnpm -w vx-task build $npm_package_name && TZ=America/Anchorage vitest",
     "test:run": "pnpm -w vx-task test:run $npm_package_name",
-    "test:run:self": "TZ=America/Anchorage vitest run && pnpm build:generate-typescript-types --check && pnpm build:generate-rust-types --check",
+    "test:run:self": "pnpm build:generate-typescript-types --check && pnpm build:generate-rust-types --check && TZ=America/Anchorage vitest run",
     "type-check": "tsc --build"
   },
   "dependencies": {

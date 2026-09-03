@@ -106,13 +106,15 @@ function* generateLogEventIdEnum(config: LoggingConfig): Generator<string> {
   yield 'derive_display!(EventId);';
 }
 
-const argv: GenerateTypesArgs = yargs(process.argv.slice(2)).options({
-  check: {
-    type: 'boolean',
-    description:
-      'Check that generated output equals the existing file on disk. Does not overwrite existing file.',
-  },
-}).argv as GenerateTypesArgs;
+const argv: GenerateTypesArgs = yargs(process.argv.slice(2))
+  .strict()
+  .options({
+    check: {
+      type: 'boolean',
+      description:
+        'Check that generated output equals the existing file on disk. Does not overwrite existing file.',
+    },
+  }).argv as GenerateTypesArgs;
 
 async function main(): Promise<void> {
   const { check } = argv;
