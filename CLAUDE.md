@@ -620,3 +620,15 @@ When creating PRs, use the repo template at `.github/pull_request_template.md`.
   VxMarkScan must use `appStrings` from `@votingworks/ui` (defined in
   `libs/ui/src/ui_strings/app_strings.tsx`) to support internationalization.
   Never hardcode voter-facing strings directly in components.
+
+## Comments
+
+Do NOT write code comments. Make the code self-documenting.
+
+Exceptions can be made for:
+
+- Magic constants
+- Required doc strings. Still be extremely concise in these cases.
+
+Do flag to engineers in Claude console output points of complexity that may
+merit a human-written comment.
