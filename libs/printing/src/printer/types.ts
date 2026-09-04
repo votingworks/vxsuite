@@ -1,4 +1,8 @@
-import { HmpbBallotPaperSize, PrinterStatus } from '@votingworks/types';
+import {
+  HmpbBallotPaperSize,
+  PrinterStatus,
+  PrintJobId,
+} from '@votingworks/types';
 
 export enum PrintSides {
   /**
@@ -38,7 +42,7 @@ export type PrintProps = PrintOptions & {
     | AsyncIterable<Uint8Array>;
 };
 
-export type PrintFunction = (props: PrintProps) => Promise<void>;
+export type PrintFunction = (props: PrintProps) => Promise<PrintJobId>;
 
 export interface Printer {
   status: () => Promise<PrinterStatus>;

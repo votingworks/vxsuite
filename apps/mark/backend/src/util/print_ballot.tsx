@@ -17,6 +17,7 @@ import {
   Election,
   getBallotStyle,
   getContests,
+  PrintJobId,
 } from '@votingworks/types';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import {
@@ -50,7 +51,7 @@ export interface PrintBallotProps extends ClientParams {
 
 type PrintBlankBallotProps = Omit<PrintBallotProps, 'votes' | 'languageCode'>;
 
-export async function printBallot(p: PrintBallotProps): Promise<void> {
+export async function printBallot(p: PrintBallotProps): Promise<PrintJobId> {
   const { printer, store, precinctId, ballotStyleId, votes, languageCode } = p;
 
   const systemSettings = assertDefined(store.getSystemSettings());
@@ -231,7 +232,7 @@ function getBaseBallotPdf(
   return { election, baseBallotPdf };
 }
 
-async function printBubbleBallot(p: PrintBallotProps): Promise<void> {
+async function printBubbleBallot(p: PrintBallotProps): Promise<PrintJobId> {
   const { election, baseBallotPdf } = getBaseBallotPdf(
     p.store,
     p.ballotStyleId,
@@ -255,7 +256,7 @@ async function printBubbleBallot(p: PrintBallotProps): Promise<void> {
 
 export async function printBlankBallot(
   p: PrintBlankBallotProps
-): Promise<void> {
+): Promise<PrintJobId> {
   const { election, baseBallotPdf } = getBaseBallotPdf(
     p.store,
     p.ballotStyleId,
@@ -269,7 +270,7 @@ export async function printBlankBallot(
   });
 }
 
-async function printMarkOverlay(p: PrintBallotProps): Promise<void> {
+async function printMarkOverlay(p: PrintBallotProps): Promise<PrintJobId> {
   const { electionDefinition } = assertDefined(p.store.getElectionRecord());
   const { election } = electionDefinition;
 

@@ -108,8 +108,7 @@ export function detectPrinter(logger: BaseLogger): Printer {
             assertDefined(getPrinterConfig(printerDevice.uri))
           )
         : {};
-      // the job id is not yet consumed; CUPS-side job tracking will use it
-      await printData({ ...props, raw: { ...printerOptions, ...raw } });
+      return printData({ ...props, raw: { ...printerOptions, ...raw } });
     },
   };
 }

@@ -3,6 +3,7 @@ import {
   PrinterConfig,
   PrinterRichStatus,
   PrinterStatus,
+  PrintJobId,
 } from '@votingworks/types';
 
 export const MOCK_MARKER_INFO: IppMarkerInfo = {
@@ -35,4 +36,16 @@ export function getMockConnectedPrinterStatus(
     connected: true,
     config,
   };
+}
+
+/**
+ * Mock printers have no CUPS queue to assign job ids, so they mint their own.
+ * Ids are unique within a process, which is all any caller relies on.
+ */
+let nextMockJobId = 1;
+
+export function createMockJobId(): PrintJobId {
+  const jobId = nextMockJobId;
+  nextMockJobId += 1;
+  return jobId;
 }

@@ -13,10 +13,10 @@ import {
 import { Optional, assert, iter } from '@votingworks/basics';
 import { writeFile } from 'node:fs/promises';
 import { PDFDocument } from 'pdf-lib';
-import { PrinterConfig, PrinterStatus } from '@votingworks/types';
+import { PrinterConfig, PrinterStatus, PrintJobId } from '@votingworks/types';
 import { getMockStateRootDir } from '@votingworks/utils';
 import { PrintProps, PrintSides, Printer } from '../types';
-import { getMockConnectedPrinterStatus } from './fixtures';
+import { createMockJobId, getMockConnectedPrinterStatus } from './fixtures';
 
 export const MOCK_PRINTER_STATE_FILENAME = 'state.json';
 // libs/printing/src/printer/mocks/ is 5 levels below the repo root
@@ -128,7 +128,7 @@ export class MockFilePrinter implements Printer {
     return Promise.resolve(readFromMockFile());
   }
 
-  async print(props: PrintProps): Promise<void> {
+  async print(props: PrintProps): Promise<PrintJobId> {
     const status = readFromMockFile();
     if (!status.connected) {
       throw new Error('cannot print without printer connected');
@@ -160,13 +160,14 @@ export class MockFilePrinter implements Printer {
         }
         const modifiedBytes = await pdf.save();
         await writeFile(filename, modifiedBytes);
-        return;
+        return createMockJobId();
       } catch {
         // Data is not a valid PDF, write as-is
       }
     }
 
     await writeFile(filename, data);
+    return createMockJobId();
   }
 }
 
