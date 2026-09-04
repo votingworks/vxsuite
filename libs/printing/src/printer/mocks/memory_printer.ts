@@ -66,7 +66,6 @@ export function createMockPrinterHandler(): MemoryPrinterHandler {
       mockPrinterState.status = getMockConnectedPrinterStatus(config);
     },
 
-    // @coverage-defer
     disconnectPrinter() {
       mockPrinterState.status = {
         connected: false,
@@ -82,7 +81,6 @@ export function createMockPrinterHandler(): MemoryPrinterHandler {
       return printJobHistory.at(-1)?.filename;
     },
 
-    // @coverage-defer
     cleanup() {
       for (const printJob of mockPrinterState.printJobHistory) {
         rmSync(printJob.filename);
