@@ -308,7 +308,7 @@ exports[`VX BMD interpretation > extracts votes encoded in a QR code 1`] = `
 ]
 `;
 
-exports[`VX BMD interpretation > handles a ballot with placement 'bottom' and rotation 'inverted' 1`] = `
+exports[`VX BMD interpretation > handles a ballot with placement bottom and rotation inverted 1`] = `
 [
   {
     "adjudicationInfo": {
@@ -462,7 +462,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'bottom' and ro
 ]
 `;
 
-exports[`VX BMD interpretation > handles a ballot with placement 'bottom' and rotation 'none' 1`] = `
+exports[`VX BMD interpretation > handles a ballot with placement bottom and rotation none 1`] = `
 [
   {
     "adjudicationInfo": {
@@ -616,7 +616,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'bottom' and ro
 ]
 `;
 
-exports[`VX BMD interpretation > handles a ballot with placement 'middle' and rotation 'inverted' 1`] = `
+exports[`VX BMD interpretation > handles a ballot with placement middle and rotation inverted 1`] = `
 [
   {
     "adjudicationInfo": {
@@ -770,7 +770,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'middle' and ro
 ]
 `;
 
-exports[`VX BMD interpretation > handles a ballot with placement 'middle' and rotation 'none' 1`] = `
+exports[`VX BMD interpretation > handles a ballot with placement middle and rotation none 1`] = `
 [
   {
     "adjudicationInfo": {
@@ -924,7 +924,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'middle' and ro
 ]
 `;
 
-exports[`VX BMD interpretation > handles a ballot with placement 'top' and rotation 'inverted' 1`] = `
+exports[`VX BMD interpretation > handles a ballot with placement top and rotation inverted 1`] = `
 [
   {
     "adjudicationInfo": {
@@ -1078,7 +1078,7 @@ exports[`VX BMD interpretation > handles a ballot with placement 'top' and rotat
 ]
 `;
 
-exports[`VX BMD interpretation > handles a ballot with placement 'top' and rotation 'none' 1`] = `
+exports[`VX BMD interpretation > handles a ballot with placement top and rotation none 1`] = `
 [
   {
     "adjudicationInfo": {

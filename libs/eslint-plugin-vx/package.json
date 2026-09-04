@@ -57,11 +57,11 @@
     "@types/node": "24.13.3",
     "@types/react": "18.3.3",
     "@typescript-eslint/rule-tester": "8.67.0",
-    "@vitest/coverage-istanbul": "^4.1.6",
+    "@vitest/coverage-istanbul": "5.0.0",
     "@votingworks/coverage-check": "workspace:*",
     "eslint": "9.39.5",
     "react": "18.3.1",
-    "vitest": "^4.1.6"
+    "vitest": "5.0.0"
   },
   "packageManager": "pnpm@10.34.5"
 }

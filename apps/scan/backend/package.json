@@ -72,7 +72,7 @@
     "@types/luxon": "^3.0.0",
     "@types/node": "24.13.3",
     "@types/tmp": "0.2.4",
-    "@vitest/coverage-istanbul": "^4.1.6",
+    "@vitest/coverage-istanbul": "5.0.0",
     "@votingworks/coverage-check": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/hmpb": "workspace:*",
@@ -80,7 +80,7 @@
     "eslint-plugin-vx": "workspace:*",
     "jest-image-snapshot": "^6.4.0",
     "sort-package-json": "^1.50.0",
-    "vitest": "^4.1.6",
+    "vitest": "5.0.0",
     "wait-for-expect": "^3.0.2"
   },
   "packageManager": "pnpm@10.34.5"

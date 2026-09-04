@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Default system settings for 'DEMO' - If a change is intentional, update snapshot 1`] = `
+exports[`Default system settings for DEMO - If a change is intentional, update snapshot 1`] = `
 {
   "adminAdjudicationReasons": [
     "Overvote",
@@ -41,7 +41,7 @@ exports[`Default system settings for 'DEMO' - If a change is intentional, update
 }
 `;
 
-exports[`Default system settings for 'MI' - If a change is intentional, update snapshot 1`] = `
+exports[`Default system settings for MI - If a change is intentional, update snapshot 1`] = `
 {
   "adminAdjudicationReasons": [
     "Overvote",
@@ -80,7 +80,7 @@ exports[`Default system settings for 'MI' - If a change is intentional, update s
 }
 `;
 
-exports[`Default system settings for 'MS' - If a change is intentional, update snapshot 1`] = `
+exports[`Default system settings for MS - If a change is intentional, update snapshot 1`] = `
 {
   "adminAdjudicationReasons": [],
   "auth": {
@@ -121,7 +121,7 @@ exports[`Default system settings for 'MS' - If a change is intentional, update s
 }
 `;
 
-exports[`Default system settings for 'NH' - If a change is intentional, update snapshot 1`] = `
+exports[`Default system settings for NH - If a change is intentional, update snapshot 1`] = `
 {
   "adminAdjudicationReasons": [],
   "allowOfficialBallotsInTestMode": true,
@@ -156,7 +156,7 @@ exports[`Default system settings for 'NH' - If a change is intentional, update s
 }
 `;
 
-exports[`Default system settings for 'SLI' - If a change is intentional, update snapshot 1`] = `
+exports[`Default system settings for SLI - If a change is intentional, update snapshot 1`] = `
 {
   "adminAdjudicationReasons": [],
   "auth": {

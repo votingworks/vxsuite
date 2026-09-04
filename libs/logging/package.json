@@ -42,7 +42,7 @@
     "@types/kiosk-browser": "workspace:*",
     "@types/node": "24.13.3",
     "@types/yargs": "17.0.22",
-    "@vitest/coverage-istanbul": "^4.1.6",
+    "@vitest/coverage-istanbul": "5.0.0",
     "@votingworks/coverage-check": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
@@ -51,7 +51,7 @@
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
     "sort-package-json": "^1.50.0",
-    "vitest": "^4.1.6"
+    "vitest": "5.0.0"
   },
   "packageManager": "pnpm@10.34.5"
 }

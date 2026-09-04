@@ -24,13 +24,13 @@
   },
   "devDependencies": {
     "@types/node": "24.13.3",
-    "@vitest/coverage-istanbul": "^4.1.6",
+    "@vitest/coverage-istanbul": "5.0.0",
     "@votingworks/coverage-check": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "prettier": "3.0.3",
     "sort-package-json": "^1.50.0",
     "typescript": "npm:@typescript/typescript6@6.0.2",
-    "vitest": "^4.1.6"
+    "vitest": "5.0.0"
   },
   "packageManager": "pnpm@10.34.5"
 }
