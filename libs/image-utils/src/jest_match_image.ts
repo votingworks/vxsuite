@@ -112,3 +112,13 @@ export async function toMatchImage(
     pass,
   };
 }
+
+declare module 'vitest' {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface Matchers<R, T> {
+    toMatchImage(
+      expected: ImageData,
+      options?: ToMatchImageOptions
+    ): Promise<void>;
+  }
+}

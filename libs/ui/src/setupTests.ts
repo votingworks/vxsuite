@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { afterAll, beforeAll, beforeEach, expect, vi } from 'vitest';
 import matchers from '@testing-library/jest-dom/matchers';
 import { cleanup, configure } from '@testing-library/react';
@@ -7,10 +5,8 @@ import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import {
-  ToMatchPdfSnapshotOptions,
-  buildToMatchPdfSnapshot,
-} from '@votingworks/image-utils';
+import { buildToMatchPdfSnapshot } from '@votingworks/image-utils';
+import type { TestingLibraryMatchers } from '@testing-library/jest-dom/matchers';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
 import {
   buildToHaveStyleRule,
@@ -18,37 +14,24 @@ import {
 } from 'vitest-styled-components';
 
 declare module 'vitest' {
-  // vitest own `Assertion<T>` extends both `JestAssertion<T>` and
-  // `ChaiMockAssertion`, which have non-identical `lastReturnedWith` /
-  // `nthReturnedWith` signatures. Any declaration-merge into `Assertion`
-  // triggers TypeScript to re-validate the merged interface and surface that
-  // conflict (TS2320). Override the conflicting members here with a
-  // signature compatible with both so the merge resolves cleanly.
-  interface Assertion<T = any> {
-    toHaveStyleRule: ToHaveStyleRuleMatchers['toHaveStyleRule'];
-    lastReturnedWith<E = any>(value?: E): void;
-    nthReturnedWith<E = any>(n: number, value?: E): void;
-  }
-  interface AsymmetricMatchersContaining {
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars,
+     @typescript-eslint/no-explicit-any */
+  interface Matchers<R, T> extends TestingLibraryMatchers<any, R> {
     toHaveStyleRule: ToHaveStyleRuleMatchers['toHaveStyleRule'];
   }
 }
 
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace jest {
-    interface Matchers<R> {
-      toMatchPdfSnapshot(options?: ToMatchPdfSnapshotOptions): Promise<R>;
-    }
-  }
-}
+// `expect.extend` only accepts matchers whose arguments are `unknown[]`.
+type MatcherImplementations = Parameters<typeof expect.extend>[0];
 
-expect.extend({ toHaveStyleRule: buildToHaveStyleRule(expect) });
-expect.extend(matchers);
-expect.extend({
+const customMatchers = {
+  toHaveStyleRule: buildToHaveStyleRule(expect),
   toMatchImageSnapshot,
-  toMatchPdfSnapshot: buildToMatchPdfSnapshot(expect as any),
-});
+  toMatchPdfSnapshot: buildToMatchPdfSnapshot(expect),
+} as const;
+
+expect.extend(matchers as unknown as MatcherImplementations);
+expect.extend(customMatchers as unknown as MatcherImplementations);
 
 beforeEach(cleanup);
 
