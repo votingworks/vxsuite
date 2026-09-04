@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { afterAll, beforeEach, expect, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import type { TestingLibraryMatchers } from '@testing-library/jest-dom/matchers';
 import { cleanup, configure } from '@testing-library/react';
 import '@votingworks/fixtures/vitest-setup';
 import '@votingworks/image-utils/vitest-setup';
@@ -11,21 +9,8 @@ import {
 } from 'vitest-styled-components';
 
 declare module 'vitest' {
-  // vitest own `Assertion<T>` extends both `JestAssertion<T>` and
-  // `ChaiMockAssertion`, which have non-identical `lastReturnedWith` /
-  // `nthReturnedWith` signatures. Any declaration-merge into `Assertion`
-  // triggers TypeScript to re-validate the merged interface and surface that
-  // conflict (TS2320). Override the conflicting members here with a
-  // signature compatible with both so the merge resolves cleanly.
-  interface Assertion<T = any> extends TestingLibraryMatchers<any, T> {
-    toHaveStyleRule: ToHaveStyleRuleMatchers['toHaveStyleRule'];
-    lastReturnedWith<E = any>(value?: E): void;
-    nthReturnedWith<E = any>(n: number, value?: E): void;
-  }
-  interface AsymmetricMatchersContaining extends TestingLibraryMatchers<
-    any,
-    any
-  > {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface Matchers<R, T> {
     toHaveStyleRule: ToHaveStyleRuleMatchers['toHaveStyleRule'];
   }
 }

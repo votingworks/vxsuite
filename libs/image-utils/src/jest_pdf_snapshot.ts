@@ -27,11 +27,8 @@ export interface ToMatchPdfSnapshotOptions {
  */
 export function buildToMatchPdfSnapshot(
   expect: typeof vitest.expect
-): (
-  received: string | Uint8Array,
-  options?: ToMatchPdfSnapshotOptions
-) => Promise<jest.CustomMatcherResult> {
-  return async (received, options = {}) => {
+): vitest.Matcher<vitest.MatcherState, [options?: ToMatchPdfSnapshotOptions]> {
+  return async (received: string | Uint8Array, options = {}) => {
     const pdfContents =
       typeof received === 'string'
         ? Uint8Array.from(await readFile(received))
