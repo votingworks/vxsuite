@@ -53,13 +53,13 @@
     "@types/node": "24.13.3",
     "@types/tmp": "0.2.4",
     "@types/yargs": "17.0.22",
-    "@vitest/coverage-istanbul": "^4.1.6",
+    "@vitest/coverage-istanbul": "5.0.0",
     "@votingworks/coverage-check": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "tmp": "^0.2.6",
-    "vitest": "^4.1.6"
+    "vitest": "5.0.0"
   },
   "packageManager": "pnpm@10.34.5"
 }

@@ -40,6 +40,11 @@ peerDependencyRules:
 # malicious releases (24h).
 minimumReleaseAge: 1440
 
+# Exempt from the delay above: pinned exactly and released more often than daily.
+minimumReleaseAgeExclude:
+  - vitest
+  - '@vitest/*'
+
 # Only direct dependencies may use exotic sources (git repos, tarball URLs);
 # transitive deps must resolve from the registry. We have no exotic deps, so
 # this is purely preventative.
