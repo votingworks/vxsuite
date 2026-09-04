@@ -46,7 +46,7 @@
     "@types/node": "24.13.3",
     "@types/react": "18.3.3",
     "@types/styled-components": "^5.1.26",
-    "@vitest/coverage-istanbul": "^4.1.11",
+    "@vitest/coverage-istanbul": "5.0.2",
     "@votingworks/auth": "workspace:*",
     "@votingworks/coverage-check": "workspace:*",
     "@votingworks/fujitsu-thermal-printer": "workspace:*",
@@ -58,7 +58,7 @@
     "react": "18.3.1",
     "sort-package-json": "^1.50.0",
     "styled-components": "^5.3.11",
-    "vitest": "^4.1.11"
+    "vitest": "5.0.2"
   },
   "peerDependencies": {
     "@tanstack/react-query": "4.32.1",
