@@ -13,7 +13,7 @@ export default defineConfig({
         'src/**/*.d.ts',
         'src/index.tsx',
         '**/*.test.{ts,tsx}',
-        'src/stubs',
+        'src/stubs/**',
       ],
     },
     alias: [
