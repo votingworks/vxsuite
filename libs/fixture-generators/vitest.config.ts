@@ -7,8 +7,8 @@ export default defineConfig({
     coverage: {
       exclude: [
         '**/index.ts',
-        'src/generate-election',
-        'src/generate-election-package',
+        'src/generate-election/**',
+        'src/generate-election-package/**',
         '**/*.test.ts',
       ],
     },

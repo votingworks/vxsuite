@@ -8,7 +8,7 @@ export default defineConfig({
 
     coverage: {
       exclude: [
-        'src/config',
+        'src/config/**',
         'src/polyfills.ts',
         'src/**/*.d.ts',
         'src/index.tsx',
