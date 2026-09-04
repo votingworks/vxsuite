@@ -13,9 +13,23 @@ import { rootDebug } from '../utils/debug.js';
 
 const debug = rootDebug.extend('status');
 
-interface IppAttributes {
+export interface IppAttributes {
   [attribute: string]: string | string[] | number | number[];
 }
+
+/**
+ * A parsed `ipptool` response. `statusLine` is exposed raw rather than as a
+ * bare status code so callers can decide how strict to be: the printer status
+ * path treats anything but success as a fault, while job queries expect
+ * `client-error-not-found` for jobs that have aged out of CUPS's history.
+ */
+export interface IpptoolResponse {
+  statusLine: string;
+  attributes: IppAttributes;
+}
+
+export const IPPTOOL_SUCCESS_STATUS_LINE =
+  'status-code = successful-ok (successful-ok)';
 
 export const IPP_ATTRIBUTES_TO_QUERY = [
   'printer-state',
@@ -54,7 +68,10 @@ export const IPP_QUERY = `{
  *          printer-state (enum) = stopped
  *          printer-state-reasons (1setOf keyword) = media-empty-error,media-needed-error,media-empty-error
  */
-function parseIpptoolOutput(output: string): IppAttributes {
+export function parseIpptoolOutput(
+  output: string,
+  { allowFailureStatus }: { allowFailureStatus?: boolean } = {}
+): IpptoolResponse {
   const allLines = output.split('\n');
   assert(allLines.length > 0, 'ipptool output is empty');
 
@@ -65,10 +82,13 @@ function parseIpptoolOutput(output: string): IppAttributes {
   const statusLine = responseLines.shift();
   const characterSetLine = responseLines.shift();
   const languageLine = responseLines.shift();
-  assert(
-    statusLine === 'status-code = successful-ok (successful-ok)',
-    `Unsuccessful ipptool response: ${statusLine ?? '<empty>'}`
-  );
+  assert(statusLine !== undefined, 'Unsuccessful ipptool response: <empty>');
+  if (!allowFailureStatus) {
+    assert(
+      statusLine === IPPTOOL_SUCCESS_STATUS_LINE,
+      `Unsuccessful ipptool response: ${statusLine}`
+    );
+  }
   assert(
     characterSetLine === 'attributes-charset (charset) = utf-8',
     'Invalid character set line'
@@ -78,11 +98,21 @@ function parseIpptoolOutput(output: string): IppAttributes {
     'Invalid default language line'
   );
 
-  const lineRegex = /^(.+) \((.+)\) = (.+)$/;
+  // This regex must allow properties with no values. A query for job status
+  // will return `job-printer-state-message (textWithoutLanguage) =` when the job
+  // is a success.
+  const lineRegex = /^(.+) \((.+)\) =(?: (.*))?$/;
   const attributes = responseLines.reduce<IppAttributes>((attrs, line) => {
     const matches = lineRegex.exec(line);
     assert(matches, `Unable to parse ipptool output line: ${line}`);
     const [, attribute, type, value] = matches;
+    if (value === undefined) {
+      assert(
+        type === 'textWithoutLanguage' || type === 'nameWithoutLanguage',
+        `Unexpected undefined value in line: ${line}`
+      );
+      return { ...attrs, [attribute]: '' };
+    }
     switch (type) {
       case 'keyword':
       case 'enum':
@@ -107,7 +137,7 @@ function parseIpptoolOutput(output: string): IppAttributes {
         throw new Error(`Unsupported IPP attribute type: ${type}`);
     }
   }, {});
-  return attributes;
+  return { statusLine, attributes };
 }
 
 /**
@@ -144,7 +174,7 @@ async function getPrinterIppAttributes(
   debug('ipptool stdout:\n%s', stdout);
   debug('ipptool stderr:\n%s', stderr);
 
-  const attributes = parseIpptoolOutput(stdout);
+  const { attributes } = parseIpptoolOutput(stdout);
   debug('parsed ipptool attributes: %O', attributes);
   return attributes;
 }
