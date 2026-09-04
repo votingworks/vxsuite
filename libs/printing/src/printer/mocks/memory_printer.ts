@@ -1,9 +1,9 @@
 import { tmpName } from 'tmp-promise';
 import { writeFile } from 'node:fs/promises';
 import { rmSync } from 'node:fs';
-import { PrinterConfig, PrinterStatus } from '@votingworks/types';
+import { PrinterConfig, PrinterStatus, PrintJobId } from '@votingworks/types';
 import { MockPrintJob, PrintProps, Printer } from '../types';
-import { getMockConnectedPrinterStatus } from './fixtures';
+import { createMockJobId, getMockConnectedPrinterStatus } from './fixtures';
 
 /**
  * A mock of the UsbDrive interface. See createMockUsbDrive for details.
@@ -34,7 +34,7 @@ export function createMockPrinterHandler(): MemoryPrinterHandler {
     printJobHistory: [],
   };
 
-  async function mockPrint(props: PrintProps): Promise<void> {
+  async function mockPrint(props: PrintProps): Promise<PrintJobId> {
     if (!mockPrinterState.status.connected) {
       throw new Error('cannot print without printer connected');
     }
@@ -52,6 +52,8 @@ export function createMockPrinterHandler(): MemoryPrinterHandler {
       filename,
       options,
     });
+
+    return createMockJobId();
   }
 
   const printer: Printer = {
