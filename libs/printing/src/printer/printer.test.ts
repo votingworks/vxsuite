@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
+import { err, ok } from '@votingworks/basics';
 import { mockFunction } from '@votingworks/test-utils';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import {
@@ -59,19 +60,32 @@ vi.mock(
 );
 
 const mockPrintData = mockFunction('mockPrintData');
+const mockCancelAllJobs = mockFunction('cancelAllJobs');
 vi.mock(
   import('./print.js'),
   async (importActual): Promise<typeof import('./print')> => ({
     ...(await importActual()),
     print: (props) => mockPrintData(props),
+    cancelAllJobs: () => mockCancelAllJobs(),
   })
 );
+
+vi.mock(import('./job_monitor.js'), async (importActual) => ({
+  ...(await importActual()),
+  startPrintJobMonitor: vi.fn(({ jobId, jobs }) => {
+    jobs.set(jobId, { outcome: 'in-progress' });
+    return { stop: vi.fn() };
+  }),
+}));
+
+const MOCK_JOB_ID = 1;
 
 beforeEach(() => {
   mockConfigurePrinter.reset();
   mockGetConnectedDeviceUris.reset();
   mockGetPrinterRichStatus.reset();
   mockPrintData.reset();
+  mockCancelAllJobs.reset();
   isDeviceAttachedMock.mockReturnValue(true);
 });
 
@@ -80,6 +94,7 @@ afterEach(() => {
   mockGetConnectedDeviceUris.assertComplete();
   mockGetPrinterRichStatus.assertComplete();
   mockPrintData.assertComplete();
+  mockCancelAllJobs.assertComplete();
 });
 
 test('status and configuration', async () => {
@@ -125,7 +140,7 @@ test('status and configuration', async () => {
 
   mockPrintData
     .expectCallWith({ data: Buffer.of(), raw: {} })
-    .returns(undefined);
+    .returns(MOCK_JOB_ID);
   await printer.print({ data: Buffer.of() });
 
   // supported printer does not configure again
@@ -154,6 +169,7 @@ test('status and configuration', async () => {
   // printer detached is registered when isDeviceAttached shows it is gone
   mockGetConnectedDeviceUris.expectCallWith().returns([]);
   isDeviceAttachedMock.mockReturnValue(false);
+  mockCancelAllJobs.expectCallWith().returns(undefined);
   expect(await printer.status()).toEqual({ connected: false });
   expect(logger.log).toHaveBeenCalledTimes(2);
   expect(logger.log).toHaveBeenLastCalledWith(
@@ -240,7 +256,7 @@ describe('printer-specific print options', () => {
         data: Buffer.of(),
         raw: { 'pdftops-renderer': 'pdftops' },
       })
-      .returns(undefined);
+      .returns(MOCK_JOB_ID);
     await printer.print({ data: Buffer.of() });
   });
 
@@ -256,7 +272,7 @@ describe('printer-specific print options', () => {
 
     mockPrintData
       .expectCallWith({ data: Buffer.of(), raw: {} })
-      .returns(undefined);
+      .returns(MOCK_JOB_ID);
     await printer.print({ data: Buffer.of() });
   });
 
@@ -275,7 +291,7 @@ describe('printer-specific print options', () => {
         data: Buffer.of(),
         raw: { InputSlot: 'M404_Tray2' },
       })
-      .returns(undefined);
+      .returns(MOCK_JOB_ID);
     await printer.print({ data: Buffer.of() });
   });
 
@@ -284,7 +300,7 @@ describe('printer-specific print options', () => {
 
     mockPrintData
       .expectCallWith({ data: Buffer.of(), raw: {} })
-      .returns(undefined);
+      .returns(MOCK_JOB_ID);
     await printer.print({ data: Buffer.of() });
   });
 
@@ -303,10 +319,33 @@ describe('printer-specific print options', () => {
         data: Buffer.of(),
         raw: { 'pdftops-renderer': 'gs' },
       })
-      .returns(undefined);
+      .returns(MOCK_JOB_ID);
     await printer.print({
       data: Buffer.of(),
       raw: { 'pdftops-renderer': 'gs' },
     });
   });
+});
+
+test('job status tracking', async () => {
+  const printer = detectPrinter(mockBaseLogger({ fn: vi.fn }));
+
+  const uri = `${CITIZEN_E351_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
+  mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
+  mockConfigurePrinter
+    .expectCallWith({ uri, config: CITIZEN_E351_PRINTER_CONFIG })
+    .returns(undefined);
+  await printer.status();
+
+  expect(printer.getJobStatus(MOCK_JOB_ID)).toEqual(err(expect.any(Error)));
+
+  mockPrintData
+    .expectCallWith({ data: Buffer.of(), raw: {} })
+    .returns(MOCK_JOB_ID);
+  const jobId = await printer.print({ data: Buffer.of() });
+
+  expect(printer.getJobStatus(jobId)).toEqual(ok({ outcome: 'in-progress' }));
+
+  mockCancelAllJobs.expectCallWith().returns(undefined);
+  await printer.clearJobQueue();
 });
