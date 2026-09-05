@@ -10,10 +10,15 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { Optional, assert, iter } from '@votingworks/basics';
+import { Optional, Result, assert, err, iter, ok } from '@votingworks/basics';
 import { writeFile } from 'node:fs/promises';
 import { PDFDocument } from 'pdf-lib';
-import { PrinterConfig, PrinterStatus, PrintJobId } from '@votingworks/types';
+import {
+  PrinterConfig,
+  PrinterStatus,
+  PrintJobId,
+  PrintJobStatus,
+} from '@votingworks/types';
 import { getMockStateRootDir } from '@votingworks/utils';
 import { PrintProps, PrintSides, Printer } from '../types';
 import { createMockJobId, getMockConnectedPrinterStatus } from './fixtures';
@@ -124,8 +129,21 @@ function readFromMockFile(): MockStateFileContents {
 }
 
 export class MockFilePrinter implements Printer {
+  private readonly jobs = new Map<PrintJobId, PrintJobStatus>();
+
   status(): Promise<PrinterStatus> {
     return Promise.resolve(readFromMockFile());
+  }
+
+  getJobStatus(jobId: PrintJobId): Result<PrintJobStatus, Error> {
+    const status = this.jobs.get(jobId);
+    return status
+      ? ok(status)
+      : err(new Error(`no status tracked for print job ${jobId}`));
+  }
+
+  clearJobQueue(): Promise<void> {
+    return Promise.resolve();
   }
 
   async print(props: PrintProps): Promise<PrintJobId> {
@@ -160,14 +178,20 @@ export class MockFilePrinter implements Printer {
         }
         const modifiedBytes = await pdf.save();
         await writeFile(filename, modifiedBytes);
-        return createMockJobId();
+        return this.trackCompletedJob();
       } catch {
         // Data is not a valid PDF, write as-is
       }
     }
 
     await writeFile(filename, data);
-    return createMockJobId();
+    return this.trackCompletedJob();
+  }
+
+  private trackCompletedJob(): PrintJobId {
+    const jobId = createMockJobId();
+    this.jobs.set(jobId, { outcome: 'sent-to-printer' });
+    return jobId;
   }
 }
 

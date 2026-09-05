@@ -1,7 +1,13 @@
+import { err, ok } from '@votingworks/basics';
 import { tmpName } from 'tmp-promise';
 import { writeFile } from 'node:fs/promises';
 import { rmSync } from 'node:fs';
-import { PrinterConfig, PrinterStatus, PrintJobId } from '@votingworks/types';
+import {
+  PrinterConfig,
+  PrinterStatus,
+  PrintJobId,
+  PrintJobStatus,
+} from '@votingworks/types';
 import { MockPrintJob, PrintProps, Printer } from '../types';
 import { createMockJobId, getMockConnectedPrinterStatus } from './fixtures';
 
@@ -13,6 +19,7 @@ export interface MemoryPrinterHandler {
   connectPrinter(config: PrinterConfig): void;
   disconnectPrinter(): void;
   getPrintJobHistory(): MockPrintJob[];
+  setJobStatus(jobId: PrintJobId, status: PrintJobStatus): void;
   getLastPrintPath(): string | undefined;
   cleanup(): void;
 }
@@ -20,6 +27,7 @@ export interface MemoryPrinterHandler {
 interface MockPrinterState {
   status: PrinterStatus;
   printJobHistory: MockPrintJob[];
+  jobs: Map<PrintJobId, PrintJobStatus>;
 }
 
 /**
@@ -32,6 +40,7 @@ export function createMockPrinterHandler(): MemoryPrinterHandler {
       connected: false,
     },
     printJobHistory: [],
+    jobs: new Map(),
   };
 
   async function mockPrint(props: PrintProps): Promise<PrintJobId> {
@@ -53,12 +62,21 @@ export function createMockPrinterHandler(): MemoryPrinterHandler {
       options,
     });
 
-    return createMockJobId();
+    const jobId = createMockJobId();
+    mockPrinterState.jobs.set(jobId, { outcome: 'sent-to-printer' });
+    return jobId;
   }
 
   const printer: Printer = {
     status: () => Promise.resolve(mockPrinterState.status),
     print: mockPrint,
+    getJobStatus: (jobId) => {
+      const status = mockPrinterState.jobs.get(jobId);
+      return status
+        ? ok(status)
+        : err(new Error(`no status tracked for print job ${jobId}`));
+    },
+    clearJobQueue: () => Promise.resolve(),
   } satisfies Printer;
 
   return {
@@ -77,6 +95,10 @@ export function createMockPrinterHandler(): MemoryPrinterHandler {
 
     getPrintJobHistory() {
       return mockPrinterState.printJobHistory;
+    },
+
+    setJobStatus(jobId: PrintJobId, status: PrintJobStatus) {
+      mockPrinterState.jobs.set(jobId, status);
     },
 
     getLastPrintPath() {

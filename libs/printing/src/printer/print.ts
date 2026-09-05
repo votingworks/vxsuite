@@ -1,9 +1,9 @@
-import { assert } from '@votingworks/basics';
+import { Result, assert, err, ok } from '@votingworks/basics';
 import { PrintJobId, safeParseInt } from '@votingworks/types';
 import { rootDebug } from '../utils/debug';
 import { PrintProps, PrintSides } from './types';
 import { DEFAULT_MANAGED_PRINTER_NAME } from './configure';
-import { exec } from '../utils/exec';
+import { ExecError, exec } from '../utils/exec';
 
 const debug = rootDebug.extend('status');
 
@@ -51,8 +51,12 @@ export async function print({
   return safeParseInt(jobIdMatch[1]).unsafeUnwrap();
 }
 
-export async function cancelAllJobs(): Promise<void> {
+export async function cancelAllJobs(): Promise<Result<void, ExecError>> {
   const cancelArgs = ['-a', DEFAULT_MANAGED_PRINTER_NAME];
   debug('cancelling all jobs: args=%o', cancelArgs);
-  (await exec('cancel', cancelArgs)).unsafeUnwrap();
+  const cancelResult = await exec('cancel', cancelArgs);
+  if (cancelResult.isErr()) {
+    return err(cancelResult.err());
+  }
+  return ok();
 }
