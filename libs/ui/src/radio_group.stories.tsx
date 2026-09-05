@@ -3,7 +3,7 @@ import type { Meta } from '@storybook/react-vite' with {
   'resolution-mode': 'import',
 };
 
-import { RadioGroup as Component, RadioGroupProps } from '.';
+import { RadioGroup as Component, RadioGroupProps } from './index.js';
 
 const initialArgs: Partial<RadioGroupProps<string>> = {
   label: 'Favourite Thing:',

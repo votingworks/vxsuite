@@ -6,7 +6,7 @@ import {
   CandidateGroupWriteIns,
   WriteInEntry,
 } from '@votingworks/ui';
-import { renderToPdf } from './render';
+import { renderToPdf } from './render.js';
 
 vi.mock(import('@votingworks/types'), async (importActual) => {
   const original = await importActual();

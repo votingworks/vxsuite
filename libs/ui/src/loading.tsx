@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { ProgressEllipsis } from './progress_ellipsis';
+import { styled } from './styled.js';
+import { ProgressEllipsis } from './progress_ellipsis.js';
 
 export const FULLSCREEN_LOADING_DELAY_MS = 200;
 

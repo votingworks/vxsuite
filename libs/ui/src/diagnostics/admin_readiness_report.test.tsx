@@ -2,8 +2,8 @@ import { test } from 'vitest';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { IppMarkerInfo, PrinterConfig } from '@votingworks/types';
-import { AdminReadinessReport } from './admin_readiness_report';
-import { render, screen } from '../../test/react_testing_library';
+import { AdminReadinessReport } from './admin_readiness_report.js';
+import { render, screen } from '../../test/react_testing_library.js';
 
 const electionTwoPartyPrimaryDefinition =
   readElectionTwoPartyPrimaryDefinition();

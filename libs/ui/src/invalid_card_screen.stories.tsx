@@ -1,7 +1,7 @@
 import type { Meta } from '@storybook/react-vite' with {
   'resolution-mode': 'import',
 };
-import { InvalidCardScreen, Props } from './invalid_card_screen';
+import { InvalidCardScreen, Props } from './invalid_card_screen.js';
 
 const args: Props = {
   reasonAndContext: {

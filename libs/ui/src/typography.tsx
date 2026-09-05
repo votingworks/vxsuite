@@ -1,7 +1,7 @@
 import React from 'react';
-import styled, { css } from 'styled-components';
-
+import { css } from 'styled-components';
 import { SizeTheme } from '@votingworks/types';
+import { styled } from './styled.js';
 
 export type Align = 'left' | 'center' | 'right';
 type HeadingType = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';

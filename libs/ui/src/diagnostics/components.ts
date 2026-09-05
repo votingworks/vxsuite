@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import { styled } from '../styled.js';
 
 export const ReportContents = styled.section`
   display: flex;

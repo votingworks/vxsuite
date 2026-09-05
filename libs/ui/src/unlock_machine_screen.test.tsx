@@ -1,15 +1,15 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { DateTime } from 'luxon';
-import userEvent from '@testing-library/user-event';
 import {
   mockSystemAdministratorUser,
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import { DippedSmartCardAuth } from '@votingworks/types';
+import { userEvent } from './user_event.js';
 
-import { act, render, screen, waitFor } from '../test/react_testing_library';
-import { UnlockMachineScreen } from './unlock_machine_screen';
-import { PinLength } from './utils/pin_length';
+import { act, render, screen, waitFor } from '../test/react_testing_library.js';
+import { UnlockMachineScreen } from './unlock_machine_screen.js';
+import { PinLength } from './utils/pin_length.js';
 
 beforeEach(() => {
   vi.useFakeTimers({

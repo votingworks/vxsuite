@@ -1,6 +1,7 @@
 import { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { strict as assert } from 'node:assert';
-import { createRule } from '../util';
+import * as path from 'node:path';
+import { createRule, isExportedSubpath } from '../util';
 
 const VOTINGWORKS_WORKSPACE_PREFIX = '@votingworks';
 
@@ -38,18 +39,27 @@ const rule: TSESLint.RuleModule<
           const folders = importSource.split('/');
           if (folders.length > 2) {
             const packageName = `${folders[0]}/${folders[1]}`;
-            context.report({
-              node,
-              messageId: 'noImportSubfolders',
-              suggest: [
-                {
-                  messageId: 'importEntryPoint',
-                  data: { packageName },
-                  fix: (fixer) =>
-                    fixer.replaceText(node.source, `'${packageName}'`),
-                },
-              ],
-            });
+            // A subpath the package declares in its `exports` map is public
+            // API, not internals: node resolves it and the package owns it.
+            const isPublicSubpath = isExportedSubpath(
+              path.dirname(context.getFilename()),
+              packageName,
+              `./${folders.slice(2).join('/')}`
+            );
+            if (!isPublicSubpath) {
+              context.report({
+                node,
+                messageId: 'noImportSubfolders',
+                suggest: [
+                  {
+                    messageId: 'importEntryPoint',
+                    data: { packageName },
+                    fix: (fixer) =>
+                      fixer.replaceText(node.source, `'${packageName}'`),
+                  },
+                ],
+              });
+            }
           }
         }
       },

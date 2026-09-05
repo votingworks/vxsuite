@@ -1,11 +1,11 @@
 import { describe, test } from 'vitest';
-import { expectTextWithIcon } from '../../test/expect_text_with_icon';
-import { render, screen } from '../../test/react_testing_library';
+import { expectTextWithIcon } from '../../test/expect_text_with_icon.js';
+import { render, screen } from '../../test/react_testing_library.js';
 import {
   MarkScanDeviceDiagnosticSection,
   MarkScanDeviceDiagnosticSectionProps,
-} from './mark_scan_device_diagnostic_section';
-import { DiagnosticSectionTitle } from './types';
+} from './mark_scan_device_diagnostic_section.js';
+import { DiagnosticSectionTitle } from './types.js';
 
 function renderComponent(
   props: Partial<MarkScanDeviceDiagnosticSectionProps> = {}

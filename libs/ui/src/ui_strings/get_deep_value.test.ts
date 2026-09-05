@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { getDeepValue } from './get_deep_value';
+import { getDeepValue } from './get_deep_value.js';
 
 test('returns the value at a nested key path', () => {
   const object = { contestTitle: { contest1: ['audio1', 'audio2'] } } as const;

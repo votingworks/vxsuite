@@ -5,7 +5,7 @@ import type { Meta } from '@storybook/react-vite' with {
 import {
   CalibrationInsertSingleSheetIllustration,
   CalibrationInsertDoubleSheetIllustration,
-} from './scanner_calibration_images';
+} from './scanner_calibration_images.js';
 
 function ScannerCalibrationImages(): JSX.Element {
   return (

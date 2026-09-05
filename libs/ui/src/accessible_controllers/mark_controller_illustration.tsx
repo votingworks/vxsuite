@@ -1,5 +1,5 @@
-import { Keybinding } from '../keybindings';
-import { MarkControllerButton } from './types';
+import { Keybinding } from '../keybindings.js';
+import { MarkControllerButton } from './types.js';
 
 interface MarkControllerIllustrationProps {
   highlight?: MarkControllerButton;

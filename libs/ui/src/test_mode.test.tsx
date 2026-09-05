@@ -1,11 +1,11 @@
 import { expect, test } from 'vitest';
-import { render, screen } from '../test/react_testing_library';
-import { TestModeBanner } from './test_mode';
+import { render, screen } from '../test/react_testing_library.js';
+import { TestModeBanner } from './test_mode.js';
 import {
   DesktopPalette,
   makeTheme,
   TouchscreenPalette,
-} from './themes/make_theme';
+} from './themes/make_theme.js';
 
 test('TestModeBanner touch locks to medium size and contrast', () => {
   const mediumTheme = makeTheme({

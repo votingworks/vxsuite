@@ -1,12 +1,12 @@
 import { beforeEach, expect, test } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { sleep } from '@votingworks/basics';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 
 import { SignedHashValidationQrCodeValue } from '@votingworks/types';
-import { newTestContext } from '../test/test_context';
-import { SignedHashValidationButton } from './signed_hash_validation_button';
+import { userEvent } from './user_event.js';
+import { newTestContext } from '../test/test_context.js';
+import { SignedHashValidationButton } from './signed_hash_validation_button.js';
 
 const { mockApiClient, render } = newTestContext();
 

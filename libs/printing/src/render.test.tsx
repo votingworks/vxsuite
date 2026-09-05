@@ -17,8 +17,8 @@ import { parsePdf } from '@votingworks/image-utils';
 import { writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
 import { err, iter } from '@votingworks/basics';
-import styled from 'styled-components';
-import { PAPER_DIMENSIONS, RenderSpec, renderToPdf } from './render';
+import { styled } from '../test/styled.js';
+import { PAPER_DIMENSIONS, RenderSpec, renderToPdf } from './render.js';
 
 vi.mock(import('@votingworks/types'), async (importActual) => {
   const original = await importActual();

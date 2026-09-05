@@ -1,13 +1,13 @@
 import { test } from 'vitest';
 import { format } from '@votingworks/utils';
-import { H1 } from '..';
+import { H1 } from '../index.js';
 import {
   act,
   render as renderWithoutContext,
   screen,
-} from '../../test/react_testing_library';
-import { newTestContext } from '../../test/test_context';
-import { DateString } from './date_string';
+} from '../../test/react_testing_library.js';
+import { newTestContext } from '../../test/test_context.js';
+import { DateString } from './date_string.js';
 
 const TEST_DATE = new Date('2023/10/12');
 const ENGLISH_FORMAT = format.localeLongDate(TEST_DATE, 'en');

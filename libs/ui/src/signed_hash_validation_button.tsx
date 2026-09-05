@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { assert } from '@votingworks/basics';
 import { SignedHashValidationQrCodeValue } from '@votingworks/types';
 
 import { DateTime } from 'luxon';
-import { Button } from './button';
-import { Icons } from './icons';
-import { Modal } from './modal';
-import { QrCode } from './qrcode';
-import { Caption, Font, P } from './typography';
+import { styled } from './styled.js';
+import { Button } from './button.js';
+import { Icons } from './icons.js';
+import { Modal } from './modal.js';
+import { QrCode } from './qrcode.js';
+import { Caption, Font, P } from './typography.js';
 
 const Content = styled.div`
   display: flex;

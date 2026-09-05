@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest';
 import { UiTheme } from '@votingworks/types';
 import { ThemeConsumer } from 'styled-components';
-import userEvent from '@testing-library/user-event';
-import { render, screen } from '../../test/react_testing_library';
-import { ColorSettings } from './color_settings';
-import { H1 } from '../typography';
+import { userEvent } from '../user_event.js';
+import { render, screen } from '../../test/react_testing_library.js';
+import { ColorSettings } from './color_settings.js';
+import { H1 } from '../typography.js';
 
 test('renders with default color options', () => {
   render(<ColorSettings />, {

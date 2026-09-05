@@ -1,9 +1,9 @@
 import { expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
-import { screen, within } from '../test/react_testing_library';
-import { newTestContext } from '../test/test_context';
-import { BatteryLowAlert } from './battery_low_alert';
-import { BATTERY_POLLING_INTERVAL_GROUT } from '.';
+import { userEvent } from './user_event.js';
+import { screen, within } from '../test/react_testing_library.js';
+import { newTestContext } from '../test/test_context.js';
+import { BatteryLowAlert } from './battery_low_alert.js';
+import { BATTERY_POLLING_INTERVAL_GROUT } from './index.js';
 
 vi.useFakeTimers({
   shouldAdvanceTime: true,
