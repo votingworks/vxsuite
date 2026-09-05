@@ -158,7 +158,7 @@ test('fails fast if the job id cannot be parsed from lp output', async () => {
 test('cancels all queued jobs', async () => {
   vi.mocked(exec).mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
 
-  await cancelAllJobs();
+  void (await cancelAllJobs());
 
   expect(exec).toHaveBeenCalledWith('cancel', [
     '-a',
