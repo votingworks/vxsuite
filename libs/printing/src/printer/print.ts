@@ -50,3 +50,9 @@ export async function print({
   assert(jobIdMatch, `unable to parse job id from lp output: ${stdout}`);
   return safeParseInt(jobIdMatch[1]).unsafeUnwrap();
 }
+
+export async function cancelAllJobs(): Promise<void> {
+  const cancelArgs = ['-a', DEFAULT_MANAGED_PRINTER_NAME];
+  debug('cancelling all jobs: args=%o', cancelArgs);
+  (await exec('cancel', cancelArgs)).unsafeUnwrap();
+}
