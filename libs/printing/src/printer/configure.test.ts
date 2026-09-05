@@ -36,5 +36,7 @@ test('calls lpadmin with expected args', async () => {
     '-P',
     getPpdPath(config),
     '-E',
+    '-o',
+    'printer-error-policy=abort-job',
   ]);
 });
