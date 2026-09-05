@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest';
+import { err } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
@@ -59,4 +60,33 @@ test('memory printer', async () => {
   printerHandler.cleanup();
   expect(existsSync(printJob1.filename)).toEqual(false);
   expect(existsSync(printJob2.filename)).toEqual(false);
+});
+
+test('tracks job status and lets tests override it', async () => {
+  const printerHandler = createMockPrinterHandler();
+  const { printer } = printerHandler;
+  printerHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
+
+  const jobId = await printer.print({ data: Buffer.from('print') });
+  expect(printer.getJobStatus(jobId).unsafeUnwrap()).toEqual({
+    outcome: 'sent-to-printer',
+  });
+
+  expect(printer.getJobStatus(jobId + 1000)).toEqual(err(expect.any(Error)));
+
+  printerHandler.setJobStatus(jobId, {
+    outcome: 'failed',
+    reason: 'Unable to send data to printer.',
+  });
+  expect(printer.getJobStatus(jobId).unsafeUnwrap()).toEqual({
+    outcome: 'failed',
+    reason: 'Unable to send data to printer.',
+  });
+
+  printerHandler.cleanup();
+});
+
+test('clearing the job queue is a no-op', async () => {
+  const { printer } = createMockPrinterHandler();
+  await expect(printer.clearJobQueue()).resolves.toBeUndefined();
 });
