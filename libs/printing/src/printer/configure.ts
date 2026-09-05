@@ -24,7 +24,11 @@ export async function configurePrinter({
     uri,
     '-P',
     getPpdPath(config),
-    '-E', // immediately enable the printer
+    '-E',
+    // Abort failed jobs so they don't get retried 5 minutes later, possibly resulting
+    // in unexpectedly printing a ballot
+    '-o',
+    'printer-error-policy=abort-job',
   ];
 
   debug('configuring printer with lpadmin: args=%o', lpadminConfigureArgs);
