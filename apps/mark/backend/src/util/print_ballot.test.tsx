@@ -22,6 +22,7 @@ import {
   type SheetPositions,
   type SystemSettings,
   type UiStringsPackage,
+  type Vote,
   type VotesDict,
 } from '@votingworks/types';
 import { getPdfPageCount } from '@votingworks/image-utils/pdf';
@@ -44,7 +45,12 @@ import type {
   CandidateOrderingsStore,
   UiStringsStore,
 } from '@votingworks/backend';
-import { assertDefined, find, ok } from '@votingworks/basics';
+import {
+  assertDefined,
+  find,
+  ok,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import { mockConstructor } from '@votingworks/test-utils';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import { makeDerivedStraightPartyVotesExplicit } from '@votingworks/utils';
@@ -330,9 +336,25 @@ describe(`printMode === "summary"`, () => {
       )
     );
 
+    function firstVoteFor(contestId: string): Vote {
+      const contest = assertDefined(
+        allContests.find((c) => c.id === contestId)
+      );
+      switch (contest.type) {
+        case 'candidate':
+          return contest.candidates.slice(0, 1);
+        case 'yesno':
+          return [contest.options[0].id];
+        case 'straight-party':
+          return [contest.optionIds[0]!];
+        default:
+          return throwIllegalValue(contest);
+      }
+    }
+
     const mockVotes: VotesDict = {
-      [page1ContestIds[0]!]: ['vote-1'],
-      [page2ContestIds[0]!]: ['vote-2'],
+      [page1ContestIds[0]!]: firstVoteFor(page1ContestIds[0]!),
+      [page2ContestIds[0]!]: firstVoteFor(page2ContestIds[0]!),
     };
 
     // Mock filterVotesForContests to track calls and return filtered votes
