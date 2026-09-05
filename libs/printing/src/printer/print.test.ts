@@ -2,7 +2,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { ok } from '@votingworks/basics';
 import { exec } from '../utils/exec.js';
 import { DEFAULT_MANAGED_PRINTER_NAME } from './configure.js';
-import { print } from './print.js';
+import { cancelAllJobs, print } from './print.js';
 import { PrintSides } from './types.js';
 
 vi.mock('../utils/exec');
@@ -153,4 +153,15 @@ test('fails fast if the job id cannot be parsed from lp output', async () => {
   await expect(print({ data: Uint8Array.of(0xca, 0xfe) })).rejects.toThrow(
     'unable to parse job id from lp output: something unexpected'
   );
+});
+
+test('cancels all queued jobs', async () => {
+  vi.mocked(exec).mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
+
+  await cancelAllJobs();
+
+  expect(exec).toHaveBeenCalledWith('cancel', [
+    '-a',
+    DEFAULT_MANAGED_PRINTER_NAME,
+  ]);
 });
