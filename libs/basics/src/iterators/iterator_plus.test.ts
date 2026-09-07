@@ -135,7 +135,7 @@ test('zip preserves arity of arbitrary length iterables', () => {
 });
 
 test('zip length mismatch', () => {
-  expect(() => iter([1]).zip([]).toArray()).toThrowError(
+  expect(() => iter([1]).zip([]).toArray()).toThrow(
     'not all iterables are the same length'
   );
 });
@@ -556,7 +556,7 @@ test('partition', () => {
 });
 
 test('windows', () => {
-  expect(() => iter([]).windows(0)).toThrowError();
+  expect(() => iter([]).windows(0)).toThrow();
   expect(iter([]).windows(2).toArray()).toEqual([]);
   expect(iter([1]).windows(2).toArray()).toEqual([]);
   expect(iter([1, 2]).windows(2).toArray()).toEqual([[1, 2]]);
@@ -614,9 +614,7 @@ test('reduce', () => {
 test('single ownership', () => {
   const it = iter([1, 2, 3]);
   expect(it.toArray()).toEqual([1, 2, 3]);
-  expect(() => it.toArray()).toThrowError(
-    'inner iterable has already been taken'
-  );
+  expect(() => it.toArray()).toThrow('inner iterable has already been taken');
 });
 
 test('cycle', () => {

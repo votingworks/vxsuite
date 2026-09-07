@@ -25,6 +25,45 @@ export type AsyncZipElements<
 };
 
 /**
+ * Produces tuple types of an arbitrary number of elements.
+ */
+export type TupleOf<
+  N extends number,
+  T = undefined,
+  Acc extends T[] = [],
+> = Acc['length'] extends N ? Acc : TupleOf<N, T, [...Acc, T]>;
+
+/**
+ * Produces a union of tuple types up to an arbitrary number of elements.
+ */
+export type TupleUpTo<N extends number, T, Rest extends T[] = [T]> = N extends 0
+  ? []
+  : Rest | (Rest['length'] extends N ? never : TupleUpTo<N, T, [...Rest, T]>);
+
+/**
+ * `iter::chunks` return type based on chunk size.
+ */
+export type Chunk<N extends number, T> = number extends N
+  ? T[]
+  : TupleUpTo<N, T>;
+
+/**
+ * `iter::chunksExact` return type based on chunk size.
+ */
+export type ExactChunk<N extends number, T> = number extends N
+  ? T[]
+  : TupleOf<N, T>;
+
+/**
+ * `iter::windows` return type based on window size.
+ */
+export type Window<N extends number, T> = number extends N
+  ? T[]
+  : N extends 0
+  ? never
+  : TupleOf<N, T>;
+
+/**
  * An iterable with a number of convenience methods for chaining. Many methods are
  * lazy and return a new `IteratorPlus`, but some are eager and return a concrete
  * value.
@@ -47,109 +86,16 @@ export interface IteratorPlus<T> extends Iterable<T> {
   chain<U>(other: Iterable<U>): IteratorPlus<T | U>;
 
   /**
-   * Yields tuples of one element at a time.
-   *
-   * @example
-   *
-   * ```ts
-   * expect(iter([1, 2, 3]).chunks(1).toArray()).toEqual([[1], [2], [3]]);
-   * ```
-   */
-  chunks(chunkSize: 1): IteratorPlus<[T]>;
-
-  /**
-   * Yields 2-element tuples, plus a 1-element tuple if there is a final
-   * element.
-   *
-   * @example
-   *
-   * ```ts
-   * expect(iter([1, 2, 3]).chunks(2).toArray()).toEqual([[1, 2], [3]]);
-   * ```
-   */
-  chunks(chunkSize: 2): IteratorPlus<[T] | [T, T]>;
-
-  /**
-   * Yields 3-element tuples, plus a 1- or 2-element tuple if there are
-   * remaining elements.
-   *
-   * @example
-   *
-   * ```ts
-   * expect(naturals().take(10).chunks(3).toArray()).toEqual([
-   *   [1, 2, 3],
-   *   [4, 5, 6],
-   *   [7, 8, 9],
-   *   [10],
-   * ]);
-   * ```
-   */
-  chunks(chunkSize: 3): IteratorPlus<[T] | [T, T] | [T, T, T]>;
-
-  /**
-   * Yields 4-element tuples, plus a 1-3-element tuple if there are remaining
-   * elements.
-   *
-   * @example
-   *
-   * ```ts
-   * expect(naturals().take(10).chunks(4).toArray()).toEqual([
-   *   [1, 2, 3, 4],
-   *   [5, 6, 7, 8],
-   *   [9, 10],
-   * ]);
-   * ```
-   */
-  chunks(chunkSize: 4): IteratorPlus<[T] | [T, T] | [T, T, T] | [T, T, T, T]>;
-
-  /**
    * Yields arrays of {@link groupSize} elements, plus a smaller array if there
    * are remaining elements.
    */
-  chunks(chunkSize: number): IteratorPlus<T[]>;
-
-  /**
-   * Yields tuples of one element at a time.
-   */
-  chunksExact(chunkSize: 1): IteratorPlus<[T]>;
-
-  /**
-   * Yields 2-element tuples, throwing an error if the iterator has an odd
-   * number of elements.
-   *
-   * @example
-   *
-   * ```ts
-   * const pairs = iter([1, 2, 3, 4]).chunksExact(2);
-   * assert.deepStrictEqual([...pairs], [[1, 2], [3, 4]]);
-   * ```
-   */
-  chunksExact(chunkSize: 2): IteratorPlus<[T, T]>;
-
-  /**
-   * Yields 3-element tuples, throwing an error if the iterator has a number of
-   * elements that is not a multiple of 3.
-   *
-   * @example
-   *
-   * ```ts
-   * const triples = iter([1, 2, 3, 4, 5, 6]).chunksExact(3);
-   * assert.deepStrictEqual([...triples], [[1, 2, 3], [4, 5, 6]]);
-   * ```
-   */
-  chunksExact(chunkSize: 3): IteratorPlus<[T, T, T]>;
-
-  /**
-   * Yields 4-element tuples, throwing an error if the iterator has a number of
-   * elements that is not a multiple of 4.
-   */
-  chunksExact(chunkSize: 4): IteratorPlus<[T, T, T, T]>;
+  chunks<N extends number>(chunkSize: N): IteratorPlus<Chunk<N, T>>;
 
   /**
    * Yields arrays of {@link groupSize} elements, throwing an error if the iterator has a number of
    * elements that is not a multiple of {@link groupSize}.
    */
-  chunksExact(chunkSize: number): IteratorPlus<T[]>;
+  chunksExact<N extends number>(chunkSize: N): IteratorPlus<ExactChunk<N, T>>;
 
   /**
    * Counts the number of elements in `this`. Consumes the entire contained
@@ -614,72 +560,9 @@ export interface IteratorPlus<T> extends Iterable<T> {
   toString(separator?: string): string;
 
   /**
-   * Throws an error because `groupSize` must be greater than 0.
-   */
-  windows(groupSize: 0): never;
-
-  /**
-   * Yields elements from `this` as 1-element tuples.
-   *
-   * @example
-   *
-   * ```ts
-   * expect(iter([1, 2, 3]).windows(1).toArray()).toEqual([[1], [2], [3]]);
-   * ```
-   */
-  windows(groupSize: 1): IteratorPlus<[T]>;
-
-  /**
-   * Yields tuples of two elements at a time.
-   *
-   * @example
-   *
-   * ```ts
-   * expect(iter([1, 2, 3]).windows(2).toArray()).toEqual([[1, 2], [2, 3]]);
-   * ```
-   */
-  windows(groupSize: 2): IteratorPlus<[T, T]>;
-
-  /**
-   * Yields tuples of three elements at a time.
-   *
-   * @example
-   *
-   * ```ts
-   * expect(iter([1, 2, 3]).windows(3).toArray()).toEqual([[1, 2, 3]]);
-   * expect(iter([1, 2, 3, 4]).windows(3).toArray()).toEqual([[1, 2, 3], [2, 3, 4]]);
-   * ```
-   */
-  windows(groupSize: 3): IteratorPlus<[T, T, T]>;
-
-  /**
-   * Yields tuples of four elements at a time.
-   *
-   * @example
-   *
-   * ```ts
-   * expect(iter([1, 2, 3]).windows(4).toArray()).toEqual([]);
-   * expect(
-   *   naturals()
-   *     .windows(4)
-   *     .take(2)
-   *     .toArray()
-   * ).toEqual([
-   *   [1, 2, 3, 4],
-   *   [2, 3, 4, 5]
-   * ]);
-   */
-  windows(groupSize: 4): IteratorPlus<[T, T, T, T]>;
-
-  /**
-   * Yields tuples of five elements at a time.
-   */
-  windows(groupSize: 5): IteratorPlus<[T, T, T, T, T]>;
-
-  /**
    * Yields tuples of elements at a time.
    */
-  windows(groupSize: number): IteratorPlus<T[]>;
+  windows<N extends number>(groupSize: N): IteratorPlus<Window<N, T>>;
 
   /**
    * Yields tuples pairing each element of `this` with the corresponding element
@@ -746,13 +629,8 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
   chain<U>(other: AsyncIterable<U>): AsyncIteratorPlus<T | U>;
 
   /**
-   * Yields tuples of one element at a time.
-   */
-  chunks(chunkSize: 1): AsyncIteratorPlus<[T]>;
-
-  /**
-   * Yields 2-element tuples, plus a 1-element tuple if there is a final
-   * element.
+   * Yields arrays of {@link chunkSize} elements, plus a smaller array if there
+   * are remaining elements.
    *
    * @example
    *
@@ -763,74 +641,15 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * }
    * ```
    */
-  chunks(chunkSize: 2): AsyncIteratorPlus<[T] | [T, T]>;
-
-  /**
-   * Yields 3-element tuples, plus a 1- or 2-element tuple if there are
-   * remaining elements.
-   */
-  chunks(chunkSize: 3): AsyncIteratorPlus<[T] | [T, T] | [T, T, T]>;
-
-  /**
-   * Yields 4-element tuples, plus a 1-3-element tuple if there are remaining
-   * elements.
-   */
-  chunks(
-    groupSize: 4
-  ): AsyncIteratorPlus<[T] | [T, T] | [T, T, T] | [T, T, T, T]>;
-
-  /**
-   * Yields arrays of {@link groupSize} elements, plus a smaller array if there
-   * are remaining elements.
-   */
-  chunks(chunkSize: number): AsyncIteratorPlus<T[]>;
-
-  /**
-   * Yields tuples of one element at a time.
-   */
-  chunksExact(chunkSize: 1): AsyncIteratorPlus<[T]>;
-
-  /**
-   * Yields 2-element tuples, throwing an error if the iterator has an odd
-   * number of elements.
-   *
-   * @example
-   *
-   * ```ts
-   * const linePairs = lines(process.stdin).chunksExact(2);
-   * for await (const [first, second] of linePairs) {
-   *   …
-   * }
-   * ```
-   */
-  chunksExact(chunkSize: 2): AsyncIteratorPlus<[T, T]>;
-
-  /**
-   * Yields 3-element tuples, throwing an error if the iterator has a number of
-   * elements that is not a multiple of 3.
-   *
-   * @example
-   *
-   * ```ts
-   * const lineTriples = lines(process.stdin).chunksExact(3);
-   * for await (const [first, second, third] of lineTriples) {
-   *   …
-   * }
-   * ```
-   */
-  chunksExact(chunkSize: 3): AsyncIteratorPlus<[T, T, T]>;
-
-  /**
-   * Yields 4-element tuples, throwing an error if the iterator has a number of
-   * elements that is not a multiple of 4.
-   */
-  chunksExact(chunkSize: 4): AsyncIteratorPlus<[T, T, T, T]>;
+  chunks<N extends number>(chunkSize: N): AsyncIteratorPlus<Chunk<N, T>>;
 
   /**
    * Yields arrays of {@link groupSize} elements, throwing an error if the iterator has a number of
    * elements that is not a multiple of {@link groupSize}.
    */
-  chunksExact(chunkSize: number): AsyncIteratorPlus<T[]>;
+  chunksExact<N extends number>(
+    chunkSize: N
+  ): AsyncIteratorPlus<ExactChunk<N, T>>;
 
   /**
    * Counts the number of elements in `this`. Consumes the entire contained iterable.
@@ -1287,23 +1106,7 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
   toString(separator?: string): Promise<string>;
 
   /**
-   * Throws an error because `groupSize` must be greater than 0.
-   */
-  windows(groupSize: 0): never;
-
-  /**
-   * Yields elements from `this` as 1-element tuples.
-   *
-   * @example
-   *
-   * ```ts
-   * const linesAsTuples = await lines(process.stdin).windows(1).toArray();
-   * ```
-   */
-  windows(groupSize: 1): AsyncIteratorPlus<[T]>;
-
-  /**
-   * Yields tuples of two elements at a time.
+   * Yields tuples of {@link groupSize} elements at a time.
    *
    * @example
    *
@@ -1322,27 +1125,7 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * }
    * ```
    */
-  windows(groupSize: 2): AsyncIteratorPlus<[T, T]>;
-
-  /**
-   * Yields tuples of three elements at a time.
-   */
-  windows(groupSize: 3): AsyncIteratorPlus<[T, T, T]>;
-
-  /**
-   * Yields tuples of four elements at a time.
-   */
-  windows(groupSize: 4): AsyncIteratorPlus<[T, T, T, T]>;
-
-  /**
-   * Yields tuples of five elements at a time.
-   */
-  windows(groupSize: 5): AsyncIteratorPlus<[T, T, T, T, T]>;
-
-  /**
-   * Yields tuples of elements at a time.
-   */
-  windows(groupSize: number): AsyncIteratorPlus<T[]>;
+  windows<N extends number>(groupSize: N): AsyncIteratorPlus<Window<N, T>>;
 
   /**
    * Yields tuples pairing each element of `this` with the corresponding element

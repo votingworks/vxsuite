@@ -1,6 +1,12 @@
 import { assert } from '../assert';
 import { MaybePromise, Optional } from '../types';
-import { AsyncIteratorPlus, AsyncZipElements } from './types';
+import {
+  AsyncIteratorPlus,
+  AsyncZipElements,
+  Chunk,
+  ExactChunk,
+  Window,
+} from './types';
 
 /**
  * A wrapper around {@link AsyncIterable} that provides additional methods.
@@ -58,14 +64,7 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     );
   }
 
-  chunks(groupSize: 1): AsyncIteratorPlus<[T]>;
-  chunks(groupSize: 2): AsyncIteratorPlus<[T] | [T, T]>;
-  chunks(groupSize: 3): AsyncIteratorPlus<[T] | [T, T] | [T, T, T]>;
-  chunks(
-    groupSize: 4
-  ): AsyncIteratorPlus<[T] | [T, T] | [T, T, T] | [T, T, T, T]>;
-  chunks(groupSize: number): AsyncIteratorPlus<T[]>;
-  chunks(groupSize: number): AsyncIteratorPlus<T[]> {
+  chunks<N extends number>(groupSize: N): AsyncIteratorPlus<Chunk<N, T>> {
     assert(
       groupSize > 0 && Math.floor(groupSize) === groupSize,
       'groupSize must be an integer greater than 0'
@@ -74,8 +73,8 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     const iterator = iterable[Symbol.asyncIterator]();
     let group: T[] = [];
 
-    const result: AsyncIterableIterator<T[]> = {
-      [Symbol.asyncIterator](): AsyncIterableIterator<T[]> {
+    const result: AsyncIterableIterator<Chunk<N, T>> = {
+      [Symbol.asyncIterator](): AsyncIterableIterator<Chunk<N, T>> {
         return result;
       },
       async next() {
@@ -91,19 +90,16 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
         }
         const value = group;
         group = [];
-        return { value, done: false };
+        return { value: value as Chunk<N, T>, done: false };
       },
     };
 
     return new AsyncIteratorPlusImpl(result);
   }
 
-  chunksExact(chunkSize: 1): AsyncIteratorPlus<[T]>;
-  chunksExact(chunkSize: 2): AsyncIteratorPlus<[T, T]>;
-  chunksExact(chunkSize: 3): AsyncIteratorPlus<[T, T, T]>;
-  chunksExact(chunkSize: 4): AsyncIteratorPlus<[T, T, T, T]>;
-  chunksExact(chunkSize: number): AsyncIteratorPlus<T[]>;
-  chunksExact(chunkSize: number): AsyncIteratorPlus<T[]> {
+  chunksExact<N extends number>(
+    chunkSize: N
+  ): AsyncIteratorPlus<ExactChunk<N, T>> {
     assert(
       chunkSize > 0 && Math.floor(chunkSize) === chunkSize,
       'groupSize must be an integer greater than 0'
@@ -111,8 +107,8 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     const iterable = this.intoInner();
     const iterator = iterable[Symbol.asyncIterator]();
 
-    const result: AsyncIterableIterator<T[]> = {
-      [Symbol.asyncIterator](): AsyncIterableIterator<T[]> {
+    const result: AsyncIterableIterator<ExactChunk<N, T>> = {
+      [Symbol.asyncIterator](): AsyncIterableIterator<ExactChunk<N, T>> {
         return result;
       },
       async next() {
@@ -130,7 +126,7 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
         if (chunk.length !== chunkSize) {
           throw new Error('Chunk size is not a multiple of the iterator size');
         }
-        return { value: chunk, done: false };
+        return { value: chunk as ExactChunk<N, T>, done: false };
       },
     };
 
@@ -488,26 +484,19 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     return this.join(separator);
   }
 
-  windows(groupSize: 0): never;
-  windows(groupSize: 1): AsyncIteratorPlus<[T]>;
-  windows(groupSize: 2): AsyncIteratorPlus<[T, T]>;
-  windows(groupSize: 3): AsyncIteratorPlus<[T, T, T]>;
-  windows(groupSize: 4): AsyncIteratorPlus<[T, T, T, T]>;
-  windows(groupSize: 5): AsyncIteratorPlus<[T, T, T, T, T]>;
-  windows(groupSize: number): AsyncIteratorPlus<T[]>;
-  windows(groupSize: number): AsyncIteratorPlus<T[]> {
+  windows<N extends number>(groupSize: N): AsyncIteratorPlus<Window<N, T>> {
     if (groupSize <= 0) {
       throw new Error('groupSize must be greater than 0');
     }
 
     const iterable = this.intoInner();
     return new AsyncIteratorPlusImpl(
-      (async function* gen(): AsyncIterableIterator<T[]> {
+      (async function* gen(): AsyncIterableIterator<Window<N, T>> {
         const window: T[] = [];
         for await (const value of iterable) {
           window.push(value);
           if (window.length === groupSize) {
-            yield window.slice();
+            yield window.slice() as Window<N, T>;
             window.shift();
           }
         }
