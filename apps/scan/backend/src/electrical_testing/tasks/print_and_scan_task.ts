@@ -4,7 +4,6 @@ import {
 } from '@votingworks/ballot-interpreter';
 import {
   extractErrorMessage,
-  ok,
   sleep,
   throwIllegalValue,
 } from '@votingworks/basics';
@@ -246,8 +245,7 @@ export async function runPrintAndScanTask({
             'Printing…'
           );
 
-          const result =
-            (await printer.printImageData(printerTestImage)) ?? ok();
+          const result = await printer.printImageData(printerTestImage);
 
           if (result.isOk()) {
             printerTask.setState({ lastPrintedAt: DateTime.now() });
