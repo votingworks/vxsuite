@@ -2,8 +2,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import {
   MinimalWebUsbDevice,
   PaperHandlerDriver,
-  imageDataToBinaryBitmap,
-  chunkBinaryBitmap,
+  imageDataToPaperHandlerChunks,
   VERTICAL_DOTS_IN_CHUNK,
   getPaperHandlerDriver,
   PaperHandlerStatus,
@@ -53,12 +52,7 @@ test('print ballot', async () => {
 
   // Nonsensical test data but it's enough to make the assertions we need.
   // This data shouldn't be treated as a realistic representation
-  vi.mocked(imageDataToBinaryBitmap).mockReturnValue({
-    width: 2,
-    height: 2,
-    data: [true, false],
-  });
-  vi.mocked(chunkBinaryBitmap).mockReturnValue([
+  vi.mocked(imageDataToPaperHandlerChunks).mockReturnValue([
     {
       width: 0,
       data: Buffer.of(),
@@ -78,8 +72,7 @@ test('print ballot', async () => {
 
   // Setup and data conversion functions that are called no matter what
   expect(driver.enablePrint).toHaveBeenCalledTimes(1);
-  expect(imageDataToBinaryBitmap).toHaveBeenCalled();
-  expect(chunkBinaryBitmap).toHaveBeenCalled();
+  expect(imageDataToPaperHandlerChunks).toHaveBeenCalled();
 
   // Assert because the test data includes an empty chunk
   expect(driver.setRelativeVerticalPrintPosition).toHaveBeenCalledTimes(1);

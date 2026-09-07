@@ -4,9 +4,8 @@ import makeDebug from 'debug';
 import {
   PaperHandlerDriverInterface,
   VERTICAL_DOTS_IN_CHUNK,
-  chunkBinaryBitmap,
   getPaperHandlerDriver,
-  imageDataToBinaryBitmap,
+  imageDataToPaperHandlerChunks,
   isPaperAnywhere,
   isMockPaperHandler,
   ScanDirection,
@@ -69,8 +68,7 @@ export async function printBallotChunks(
     return;
   }
 
-  const ballotBinaryBitmap = imageDataToBinaryBitmap(page);
-  const customChunkedBitmaps = chunkBinaryBitmap(ballotBinaryBitmap);
+  const customChunkedBitmaps = imageDataToPaperHandlerChunks(page);
 
   await enablePrintPromise;
   let dotsSkipped = 0;
