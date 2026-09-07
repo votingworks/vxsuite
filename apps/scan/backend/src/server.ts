@@ -18,10 +18,7 @@ import {
   isFeatureFlagEnabled,
   isIntegrationTest,
 } from '@votingworks/utils';
-import {
-  FujitsuThermalPrinterInterface,
-  getFujitsuThermalPrinter,
-} from '@votingworks/fujitsu-thermal-printer';
+import { FujitsuThermalPrinterInterface } from '@votingworks/fujitsu-thermal-printer';
 import { buildApi, buildApp } from './app.js';
 import { PORT } from './globals.js';
 import { Workspace } from './util/workspace.js';
@@ -38,7 +35,7 @@ export interface StartOptions {
   logger: Logger;
   port?: number | string;
   usbDrive?: UsbDrive;
-  printer?: FujitsuThermalPrinterInterface;
+  printer: FujitsuThermalPrinterInterface;
   audioPlayer?: AudioPlayerInterface;
 }
 
@@ -55,7 +52,6 @@ export async function start({
 }: StartOptions): Promise<void> {
   const stopDetectingDevices = detectDevices({ logger });
   const resolvedUsbDrive = usbDrive ?? detectUsbDriveFromEnv({ logger });
-  const resolvedPrinter = printer ?? getFujitsuThermalPrinter(logger);
 
   // TODO: We can likely consolidate on the file-based mock scanner in all
   // cases — the branching here isn't known to be required.
@@ -98,7 +94,7 @@ export async function start({
     machine: precinctScannerStateMachine,
     workspace,
     usbDrive: resolvedUsbDrive,
-    printer: resolvedPrinter,
+    printer,
     logger,
   };
   const api = buildApi(context);

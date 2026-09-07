@@ -18,6 +18,7 @@ import {
 } from '@votingworks/backend';
 import { mockConstructor } from '@votingworks/test-utils';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import { MockFileFujitsuPrinter } from '@votingworks/fujitsu-thermal-printer';
 import { buildApp } from './app.js';
 import { PORT } from './globals.js';
 import { start } from './server.js';
@@ -80,6 +81,7 @@ test('start passes context to `buildApp`', async () => {
     auth: buildMockInsertedSmartCardAuth(vi.fn),
     workspace,
     logger,
+    printer: new MockFileFujitsuPrinter(logger),
   });
 
   expect(buildAppMock.mock.lastCall?.[0]).toEqual({
@@ -150,6 +152,7 @@ test.each([
       auth: buildMockInsertedSmartCardAuth(vi.fn),
       workspace,
       logger,
+      printer: new MockFileFujitsuPrinter(logger),
     });
 
     const mockAudioPlayer = mockAudioPlayerClass.mock.results[0].value;
@@ -171,6 +174,7 @@ test('logs device attach/unattach events', async () => {
     auth: buildMockInsertedSmartCardAuth(vi.fn),
     workspace,
     logger,
+    printer: new MockFileFujitsuPrinter(logger),
   });
 
   testDetectDevices(logger, expect);
