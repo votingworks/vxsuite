@@ -2063,12 +2063,10 @@ export class Store implements BaseStore {
     electionId,
     election,
     filter,
-    cvrId,
   }: {
     electionId: Id;
     election: Election;
     filter: Tabulation.Filter;
-    cvrId?: Id;
   }): Generator<Tabulation.CastVoteRecord> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
       election,
@@ -2095,9 +2093,8 @@ export class Store implements BaseStore {
           cvrs.election_id = ballot_styles.election_id and
           cvrs.ballot_style_group_id = ballot_styles.group_id
         where ${whereParts.join(' and ')}
-        ${cvrId ? `and cvrs.id = ?` : ''}
   `,
-      ...(cvrId ? [...params, cvrId] : params)
+      ...params
     ) as Iterable<
       StoreCastVoteRecordAttributes & {
         cardType: 'bmd' | 'hmpb';
@@ -3013,13 +3010,8 @@ export class Store implements BaseStore {
       selectParts.push('cvrs.ballot_style_group_id as ballotStyleGroupId');
     }
 
-    if (groupBy.groupByParty) {
-      if (isCombinedBallotPrimary(election)) {
-        selectParts.push('cvrs.votes as votes');
-        selectParts.push('cvrs.adjudicated_votes as adjudicatedVotes');
-      } else {
-        selectParts.push('ballot_styles.party_id as partyId');
-      }
+    if (groupBy.groupByParty && !isCombinedBallotPrimary(election)) {
+      selectParts.push('ballot_styles.party_id as partyId');
     }
 
     if (groupBy.groupByBatch) {
@@ -3047,6 +3039,8 @@ export class Store implements BaseStore {
       `
           select
             ${selectParts.map((line) => `${line},`).join('\n')}
+            cvrs.votes as votes,
+            cvrs.adjudicated_votes as adjudicatedVotes,
             write_ins.contest_id as contestId,
             write_ins.cvr_id as cvrId,
             write_ins.official_candidate_id as officialCandidateId,
@@ -3068,25 +3062,23 @@ export class Store implements BaseStore {
         `,
       ...params
     ) as Iterable<
-      WriteInForTally &
+      Omit<WriteInForTally, 'votes'> &
         Partial<StoreCastVoteRecordAttributes> & {
-          votes: string | null;
+          votes: string;
           adjudicatedVotes: string | null;
         }
     >) {
+      const votes = this.applyAdjudicatedVotes({
+        votesString: row.votes,
+        adjudicatedVotesString: row.adjudicatedVotes,
+      });
       const groupSpecifier: Tabulation.GroupSpecifier = {
         ballotStyleGroupId: groupBy.groupByBallotStyle
           ? row.ballotStyleGroupId
           : undefined,
         partyId: groupBy.groupByParty
           ? isCombinedBallotPrimary(election)
-            ? inferPartyFromVotes(
-                election,
-                this.applyAdjudicatedVotes({
-                  votesString: assertDefined(row.votes),
-                  adjudicatedVotesString: row.adjudicatedVotes,
-                })
-              )
+            ? inferPartyFromVotes(election, votes)
             : assertDefined(row.partyId)
           : undefined,
         batchId: groupBy.groupByBatch ? row.batchId : undefined,
@@ -3108,6 +3100,7 @@ export class Store implements BaseStore {
         ...groupSpecifier,
         contestId: row.contestId,
         cvrId: row.cvrId,
+        votes,
         isInvalid: row.isInvalid,
         isUnmarked: row.isUnmarked,
         officialCandidateId: row.officialCandidateId,
