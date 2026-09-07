@@ -44,20 +44,23 @@ function* trimAndChunkImageData(imageData: ImageData): Generator<ImageData> {
   let chunkStartY = 0;
   while (chunkStartY < imageData.height) {
     debug(`trimming and chunking image data at y=${chunkStartY}`);
-    const trimmedData: number[] = [];
     const chunkEndY = Math.min(
       imageData.height,
       chunkStartY + DRIVER_BIT_IMAGE_MAX_HEIGHT
+    );
+    const trimmedData = new Uint8ClampedArray(
+      (chunkEndY - chunkStartY) * PAGE_DOTS_WIDTH * IMAGE_DATA_BYTES_PER_PIXEL
     );
 
     for (let y = chunkStartY; y < chunkEndY; y += 1) {
       const pixelStart = y * imageData.width + trimLeft;
       const pixelEnd = pixelStart + PAGE_DOTS_WIDTH;
-      trimmedData.push(
-        ...imageData.data.slice(
+      trimmedData.set(
+        imageData.data.subarray(
           pixelStart * IMAGE_DATA_BYTES_PER_PIXEL,
           pixelEnd * IMAGE_DATA_BYTES_PER_PIXEL
-        )
+        ),
+        (y - chunkStartY) * PAGE_DOTS_WIDTH * IMAGE_DATA_BYTES_PER_PIXEL
       );
     }
 
@@ -65,10 +68,10 @@ function* trimAndChunkImageData(imageData: ImageData): Generator<ImageData> {
       ...imageData,
       height: chunkEndY - chunkStartY,
       width: PAGE_DOTS_WIDTH,
-      data: new Uint8ClampedArray(trimmedData),
+      data: trimmedData,
     };
 
-    chunkStartY += DRIVER_BIT_IMAGE_MAX_HEIGHT;
+    chunkStartY = chunkEndY;
   }
 }
 
