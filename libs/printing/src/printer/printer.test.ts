@@ -17,6 +17,7 @@ import {
   HP_M404_PRINTER_CONFIG,
 } from './index.js';
 import { MockFilePrinter } from './mocks/file_printer.js';
+import { startPrintJobMonitor } from './job_monitor.js';
 
 const featureFlagMock = getFeatureFlagMock();
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
@@ -346,6 +347,11 @@ test('job status tracking', async () => {
   const jobId = await printer.print({ data: Buffer.of() });
 
   expect(printer.getJobStatus(jobId)).toEqual(ok({ outcome: 'in-progress' }));
+
+  // the monitor stops tracking the job once its retention window elapses
+  const [monitorContext] = vi.mocked(startPrintJobMonitor).mock.calls[0];
+  monitorContext.clearStatus();
+  expect(printer.getJobStatus(jobId)).toEqual(err(expect.any(Error)));
 
   mockCancelAllJobs.expectCallWith().returns(ok());
   await printer.clearJobQueue();
