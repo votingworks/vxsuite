@@ -4,10 +4,10 @@ import {
 } from '@votingworks/ballot-interpreter';
 import {
   extractErrorMessage,
-  ok,
   sleep,
   throwIllegalValue,
 } from '@votingworks/basics';
+import { PAGE_DOTS_WIDTH } from '@votingworks/fujitsu-thermal-printer';
 import { LogEventId } from '@votingworks/logging';
 import { ScannerEvent } from '@votingworks/pdi-scanner';
 import { mapSheet, SheetOf } from '@votingworks/types';
@@ -34,7 +34,7 @@ export const DELAY_AFTER_ACCEPT_MS = 2_500;
 export const DELAY_AFTER_SCANNER_ERROR_MS = 5_000;
 
 function createPrinterTestImage(): ImageData {
-  const canvas = createCanvas(200, 50);
+  const canvas = createCanvas(PAGE_DOTS_WIDTH, 50);
   const ctx = canvas.getContext('2d');
 
   ctx.fillStyle = '#fff';
@@ -246,8 +246,7 @@ export async function runPrintAndScanTask({
             'Printing…'
           );
 
-          const result =
-            (await printer.printImageData(printerTestImage)) ?? ok();
+          const result = await printer.printImageData(printerTestImage);
 
           if (result.isOk()) {
             printerTask.setState({ lastPrintedAt: DateTime.now() });

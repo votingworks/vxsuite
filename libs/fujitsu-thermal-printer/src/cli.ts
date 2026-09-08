@@ -9,6 +9,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import { FujitsuThermalPrinter } from './printer';
+import { PAGE_DOTS_WIDTH } from './printing';
 
 /**
  * Command line interface for interacting with the paper handler driver.
@@ -32,7 +33,9 @@ function printUsage() {
   console.log(`    status (get printer status)`);
   console.log(`    poll (poll printer status)`);
   console.log(`    print-fixture (print example report)`);
-  console.log(`    print <path> (print from file, 8.5in wide PDF or image)`);
+  console.log(
+    `    print <path> (print from file, 8.5in wide PDF or ${PAGE_DOTS_WIDTH}px wide image)`
+  );
   console.log(`    advance <millimeters> (move the paper forward)`);
 }
 

@@ -1,7 +1,6 @@
 import { IteratorPlus, Result, assert, iter, ok } from '@votingworks/basics';
 import {
   createImageData,
-  getImageChannelCount,
   ImageData,
   pdfToImages,
 } from '@votingworks/image-utils';
@@ -27,48 +26,66 @@ const debug = rootDebug.extend('printing');
 // 1 byte = 1 millimeter
 const BYTES_PER_BIT_IMAGE_ROW = 212;
 const DRIVER_BIT_IMAGE_MAX_HEIGHT = 800;
-const PAGE_DOTS_WIDTH = BYTES_PER_BIT_IMAGE_ROW * BITS_PER_BYTE;
+/**
+ * Width in dots of the printer's printable area. Image data printed via
+ * {@link printImageData} must be exactly this wide.
+ */
+export const PAGE_DOTS_WIDTH = BYTES_PER_BIT_IMAGE_ROW * BITS_PER_BYTE;
 const IMAGE_DATA_BYTES_PER_PIXEL = 4;
 const LETTER_WIDTH_INCHES = 8.5;
 const PRINTING_DPI = 200;
 
 /**
- * Chunks an image assuming it is 8.5" wide (i.e. 1700px).
+ * Trims a page rendered at 8.5" wide (i.e. 1700px) to the printer's printable
+ * width, centering the printable area.
  */
-// @coverage-defer
-function* trimAndChunkImageData(imageData: ImageData): Generator<ImageData> {
+export function trimImageDataToPageWidth(imageData: ImageData): ImageData {
   assert(imageData.width === LETTER_WIDTH_INCHES * PRINTING_DPI);
+  debug('trimming image data to page width');
 
   const trimLeft = (imageData.width - PAGE_DOTS_WIDTH) / 2;
+  const trimmedImageData = createImageData(PAGE_DOTS_WIDTH, imageData.height);
 
+  for (let y = 0; y < imageData.height; y += 1) {
+    const pixelStart = y * imageData.width + trimLeft;
+    const pixelEnd = pixelStart + PAGE_DOTS_WIDTH;
+    trimmedImageData.data.set(
+      imageData.data.subarray(
+        pixelStart * IMAGE_DATA_BYTES_PER_PIXEL,
+        pixelEnd * IMAGE_DATA_BYTES_PER_PIXEL
+      ),
+      y * PAGE_DOTS_WIDTH * IMAGE_DATA_BYTES_PER_PIXEL
+    );
+  }
+
+  return trimmedImageData;
+}
+
+/**
+ * Splits page-width image data into chunks the driver can accept.
+ */
+export function* chunkImageData(imageData: ImageData): Generator<ImageData> {
+  assert(imageData.width === PAGE_DOTS_WIDTH);
+
+  const bytesPerRow = PAGE_DOTS_WIDTH * IMAGE_DATA_BYTES_PER_PIXEL;
   let chunkStartY = 0;
   while (chunkStartY < imageData.height) {
-    debug(`trimming and chunking image data at y=${chunkStartY}`);
-    const trimmedData: number[] = [];
+    debug(`chunking image data at y=${chunkStartY}`);
     const chunkEndY = Math.min(
       imageData.height,
       chunkStartY + DRIVER_BIT_IMAGE_MAX_HEIGHT
     );
 
-    for (let y = chunkStartY; y < chunkEndY; y += 1) {
-      const pixelStart = y * imageData.width + trimLeft;
-      const pixelEnd = pixelStart + PAGE_DOTS_WIDTH;
-      trimmedData.push(
-        ...imageData.data.slice(
-          pixelStart * IMAGE_DATA_BYTES_PER_PIXEL,
-          pixelEnd * IMAGE_DATA_BYTES_PER_PIXEL
-        )
-      );
-    }
+    yield createImageData(
+      imageData.data.subarray(
+        chunkStartY * bytesPerRow,
+        chunkEndY * bytesPerRow
+      ),
+      PAGE_DOTS_WIDTH,
+      chunkEndY - chunkStartY
+    );
 
-    yield {
-      ...imageData,
-      height: chunkEndY - chunkStartY,
-      width: PAGE_DOTS_WIDTH,
-      data: new Uint8ClampedArray(trimmedData),
-    };
-
-    chunkStartY += DRIVER_BIT_IMAGE_MAX_HEIGHT;
+    chunkStartY = chunkEndY;
   }
 }
 
@@ -260,7 +277,7 @@ export async function printPageBitImage(
 }
 
 /**
- * Prints an image assuming it is 8.5" wide (i.e. 1700px).
+ * Prints page-width image data ({@link PAGE_DOTS_WIDTH}).
  */
 // @coverage-defer
 async function printImageDataInternal(
@@ -269,15 +286,15 @@ async function printImageDataInternal(
 ): Promise<Result<void, RawPrinterStatus>> {
   return await printPageBitImage(
     driver,
-    iter(trimAndChunkImageData(imageData))
-      .map(imageDataToBinaryBitmap)
+    iter(chunkImageData(imageData))
+      .map((chunk) => imageDataToBinaryBitmap(chunk))
       .map(bitmapToBitImage)
       .map(compressBitImage)
   );
 }
 
 /**
- * Prints an image assuming it is less than or equal to 8.5" wide (i.e. 1700px).
+ * Prints an image that is exactly {@link PAGE_DOTS_WIDTH} dots wide.
  */
 // @coverage-defer
 export async function printImageData(
@@ -285,42 +302,14 @@ export async function printImageData(
   imageData: ImageData
 ): Promise<Result<void, RawPrinterStatus>> {
   assert(
-    imageData.width <= LETTER_WIDTH_INCHES * PRINTING_DPI,
-    `Image width exceeds maximum allowed: ${imageData.width} > ${
-      LETTER_WIDTH_INCHES * PRINTING_DPI
-    }`
+    imageData.width === PAGE_DOTS_WIDTH,
+    `Image width must be ${PAGE_DOTS_WIDTH}, got ${imageData.width}`
   );
-
-  let paddedImageData: ImageData;
-  if (imageData.width === LETTER_WIDTH_INCHES * PRINTING_DPI) {
-    paddedImageData = imageData;
-  } else {
-    paddedImageData = createImageData(
-      LETTER_WIDTH_INCHES * PRINTING_DPI,
-      imageData.height
-    );
-
-    // fill with white
-    paddedImageData.data.fill(255);
-
-    // copy the image data one row at a time
-    const channelCount = getImageChannelCount(paddedImageData);
-    let src = 0;
-    let dst = 0;
-    for (let y = 0; y < imageData.height; y += 1) {
-      paddedImageData.data.set(
-        imageData.data.subarray(src, src + imageData.width * channelCount),
-        dst
-      );
-      src += imageData.width * channelCount;
-      dst += paddedImageData.width * channelCount;
-    }
-  }
 
   debug(
     `printing image with dimensions: ${imageData.width} x ${imageData.height}`
   );
-  const printPageResult = await printImageDataInternal(driver, paddedImageData);
+  const printPageResult = await printImageDataInternal(driver, imageData);
   await driver.setReplyParameter(IDLE_REPLY_PARAMETER);
   return printPageResult;
 }
@@ -339,7 +328,10 @@ export async function printPdf(
   for await (const { page, pageNumber, pageCount } of pdfImages) {
     debug(`printing page ${pageNumber} of ${pageCount}...`);
     debug(`page dimensions: ${page.width} x ${page.height}`);
-    const printPageResult = await printImageDataInternal(driver, page);
+    const printPageResult = await printImageDataInternal(
+      driver,
+      trimImageDataToPageWidth(page)
+    );
     if (printPageResult.isErr()) {
       await driver.setReplyParameter(IDLE_REPLY_PARAMETER);
       return printPageResult;
