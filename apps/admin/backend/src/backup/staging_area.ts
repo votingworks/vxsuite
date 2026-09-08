@@ -215,9 +215,12 @@ export class BackupStagingArea {
    * to the staging area will be deleted.
    */
   async cleanup(): Promise<void> {
-    await rm(this.stagingAreaPath, { recursive: true, force: true });
-    this.preparedPaths.clear();
-    this.readyFiles.clear();
-    await this.lock.release();
+    try {
+      await rm(this.stagingAreaPath, { recursive: true, force: true });
+      this.preparedPaths.clear();
+      this.readyFiles.clear();
+    } finally {
+      await this.lock.release();
+    }
   }
 }

@@ -93,6 +93,23 @@ test('a lock that fails for any other reason is not reported as busy', async () 
   ).rejects.toThrow('ENOENT');
 });
 
+test('a staging area that cannot be cleaned up releases its lock', async () => {
+  const workspacePath = makeTemporaryDirectory();
+  const stagingArea = (
+    await BackupStagingArea.inWorkspace(workspacePath)
+  ).unsafeUnwrap();
+  const error: NodeJS.ErrnoException = new Error('input/output error');
+  error.code = 'EIO';
+  vi.mocked(rm).mockRejectedValueOnce(error);
+
+  await expect(stagingArea.cleanup()).rejects.toThrow('input/output error');
+
+  const lock = await tryLockFileExclusive(
+    BackupStagingArea.lockPathIn(workspacePath)
+  );
+  await lock.unsafeUnwrap().release();
+});
+
 test('a staging area that cannot be created releases its lock', async () => {
   const workspacePath = makeTemporaryDirectory();
   const error: NodeJS.ErrnoException = new Error('input/output error');
