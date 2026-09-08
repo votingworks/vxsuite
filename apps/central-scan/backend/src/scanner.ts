@@ -418,7 +418,6 @@ function buildMachine({
         on: {
           ACCEPT_SHEET: {
             target: 'scanningSheet',
-            // @coverage-defer
             actions: (context) =>
               store.adjudicateSheet(assertDefined(context.sheetIdToReview)),
           },

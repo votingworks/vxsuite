@@ -337,7 +337,6 @@ function buildApi({
     },
 
     async continueScanning(input: { forceAccept: boolean }): Promise<void> {
-      // @coverage-defer
       if (input.forceAccept) {
         machine.acceptSheet();
       } else {

@@ -6,6 +6,7 @@ import {
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 import {
+  AdjudicationReason,
   asSheet,
   BatchInfo,
   DEFAULT_SYSTEM_SETTINGS,
@@ -237,6 +238,60 @@ test('scanBatch with streaked page', async () => {
 
     // no adjudication should be needed
     expect(workspace.store.getNextAdjudicationSheet()).toBeUndefined();
+  });
+});
+
+test('accepting a sheet that needs review keeps it and continues scanning', async () => {
+  const { electionDefinition } = vxFamousNamesFixtures;
+  const [frontImageData, backImageData] = asSheet(
+    await iter(
+      pdfToImages(
+        Uint8Array.from(await readFile(vxFamousNamesFixtures.blankBallotPath)),
+        { scale: 200 / 72 }
+      )
+    )
+      .map(({ page }) => page)
+      .toArray()
+  );
+  const frontPath = makeTemporaryPath();
+  const backPath = makeTemporaryPath();
+  await writeImageData(frontPath, frontImageData);
+  await writeImageData(backPath, backImageData);
+
+  await withApp(async ({ auth, apiClient, scanner, workspace }) => {
+    mockElectionManagerAuth(auth, electionDefinition);
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
+      jurisdiction,
+      electionPackageHash: 'test-election-package-hash',
+    });
+    workspace.store.setSystemSettings({
+      ...DEFAULT_SYSTEM_SETTINGS,
+      centralScanAdjudicationReasons: [AdjudicationReason.BlankBallot],
+    });
+    await apiClient.setTestMode({ testMode: true });
+    await apiClient.setPollingPlaceId({ id: 'central-scanning' });
+
+    scanner.withNextScannerSession().sheet({ frontPath, backPath }).end();
+
+    await apiClient.scanBatch();
+    await waitForStatus(apiClient, { state: 'needsReview' });
+    expect(workspace.store.getNextAdjudicationSheet()?.pages[0]).toMatchObject({
+      adjudicationInfo: expect.objectContaining({
+        enabledReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
+      }),
+    });
+    expect((await apiClient.getStatus()).adjudicationsRemaining).toEqual(1);
+
+    await apiClient.continueScanning({ forceAccept: true });
+    await waitForStatus(apiClient, { state: 'idle' });
+
+    const status = await apiClient.getStatus();
+    expect(status.adjudicationsRemaining).toEqual(0);
+    expect(status.batches).toEqual([
+      expect.objectContaining({ count: 1, endedAt: expect.any(String) }),
+    ]);
+    expect(workspace.store.getBallotsCounted()).toEqual(1);
   });
 });
 

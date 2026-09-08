@@ -25,7 +25,6 @@ export function logScanBatchContinueSuccess(
 ): Promise<void> {
   return logger.logAsCurrentRole(LogEventId.ScanBatchContinue, {
     disposition: 'success',
-    // @coverage-defer
     message: forceAccept
       ? 'Sheet tabulated with warnings and scanning of batch continued.'
       : 'User indicated removing the sheet from tabulation and scanning continued without sheet.',
