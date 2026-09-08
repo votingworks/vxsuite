@@ -22,7 +22,10 @@ import {
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { makeMockScanner } from '../test/util/mocks.js';
 import { Api, buildCentralScannerApp } from './app.js';
-import { Importer } from './importer.js';
+import {
+  BatchScannerStateMachine,
+  createBatchScannerStateMachine,
+} from './scanner.js';
 import { start } from './server.js';
 import { createWorkspace, Workspace } from './util/workspace.js';
 import { buildMockLogger } from '../test/helpers/setup_app.js';
@@ -32,6 +35,7 @@ let auth: DippedSmartCardAuthApi;
 let server: Server;
 let workspace: Workspace;
 let logger: Logger;
+let machine: BatchScannerStateMachine;
 
 beforeEach(async () => {
   const port = await getPort();
@@ -42,6 +46,7 @@ beforeEach(async () => {
   );
   logger = buildMockLogger(auth, workspace);
   const scanner = makeMockScanner();
+  machine = createBatchScannerStateMachine({ workspace, scanner, logger });
 
   apiClient = grout.createClient({
     baseUrl: `http://localhost:${port}/api`,
@@ -51,7 +56,7 @@ beforeEach(async () => {
       auth,
       usbDrive: createMockUsbDrive().usbDrive,
       scanner,
-      importer: new Importer({ workspace, scanner, logger }),
+      machine,
       workspace,
       logger,
     }),
@@ -62,6 +67,7 @@ beforeEach(async () => {
 });
 
 afterEach(() => {
+  machine.stop();
   server.close();
 });
 

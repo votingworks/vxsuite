@@ -20,7 +20,7 @@ import {
   useDevDockRouter,
 } from '@votingworks/dev-dock-backend';
 import { getScanWorkspace, PORT } from './globals.js';
-import { Importer } from './importer.js';
+import { createBatchScannerStateMachine } from './scanner.js';
 import { FujitsuScanner, ScannerMode } from './fujitsu_scanner.js';
 import { MockBatchScanner } from './mock_batch_scanner.js';
 import { createWorkspace, Workspace } from './util/workspace.js';
@@ -33,7 +33,6 @@ import { startCvrSync } from './cvr_sync.js';
 export interface StartOptions {
   port: number | string;
   usbDrive: UsbDrive;
-  importer: Importer;
   app: Application;
   logger: BaseLogger;
   workspace: Workspace;
@@ -47,7 +46,6 @@ export function start({
   // @coverage-defer
   port = PORT,
   usbDrive,
-  importer,
   app,
   // @coverage-defer
   logger: baseLogger = new BaseLogger(LogSource.VxCentralScanService),
@@ -125,20 +123,18 @@ export function start({
       mockBatchScanner ??
       new FujitsuScanner({ mode: ScannerMode.Gray, logger });
 
-    const resolvedImporter =
-      importer ??
-      new Importer({
-        scanner: resolvedBatchScanner,
-        workspace: resolvedWorkspace,
-        logger,
-      });
+    const machine = createBatchScannerStateMachine({
+      scanner: resolvedBatchScanner,
+      workspace: resolvedWorkspace,
+      logger,
+    });
 
     const resolvedUsbDrive = usbDrive ?? detectUsbDriveFromEnv({ logger });
 
     resolvedApp = buildCentralScannerApp({
       auth,
       scanner: resolvedBatchScanner,
-      importer: resolvedImporter,
+      machine,
       logger,
       usbDrive: resolvedUsbDrive,
       workspace: resolvedWorkspace,

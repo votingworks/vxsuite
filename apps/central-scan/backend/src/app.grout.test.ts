@@ -305,23 +305,41 @@ test('clearing scanning data', async () => {
     store.setScannerBackedUp(true);
     await apiClient.clearBallotData();
     expect(store.getBallotsCounted()).toEqual(0);
-    expect(logger.log).toHaveBeenNthCalledWith(
-      5,
-      LogEventId.ClearingBallotData,
-      'unknown',
-      {
-        message: 'Removing all ballot data...',
-      }
-    );
-    expect(logger.log).toHaveBeenNthCalledWith(
-      6,
-      LogEventId.ClearedBallotData,
-      'unknown',
-      {
-        disposition: 'success',
-        message: 'Successfully cleared all ballot data.',
-      }
-    );
+    const clearLogs = vi
+      .mocked(logger.log)
+      .mock.calls.filter(([eventId]) =>
+        [LogEventId.ClearingBallotData, LogEventId.ClearedBallotData].includes(
+          eventId
+        )
+      );
+    expect(clearLogs).toEqual([
+      [
+        LogEventId.ClearingBallotData,
+        'unknown',
+        { message: 'Removing all ballot data...' },
+      ],
+      [
+        LogEventId.ClearedBallotData,
+        'unknown',
+        {
+          disposition: 'success',
+          message: 'Successfully cleared all ballot data.',
+        },
+      ],
+      [
+        LogEventId.ClearingBallotData,
+        'unknown',
+        { message: 'Removing all ballot data...' },
+      ],
+      [
+        LogEventId.ClearedBallotData,
+        'unknown',
+        {
+          disposition: 'success',
+          message: 'Successfully cleared all ballot data.',
+        },
+      ],
+    ]);
   });
 });
 

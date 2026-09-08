@@ -31,7 +31,7 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { readFile } from 'node:fs/promises';
 import { loadImageMetadata } from '@votingworks/image-utils';
-import { Importer } from './importer.js';
+import { BatchScannerStateMachine } from './scanner.js';
 import { Workspace } from './util/workspace.js';
 import {
   BallotImage,
@@ -42,12 +42,7 @@ import {
 import { isCentralScanNetworkingEnabled } from './networking_config.js';
 import { getMachineConfig } from './machine_config.js';
 import { constructAuthMachineState } from './util/auth.js';
-import {
-  logBatchStartFailure,
-  logBatchStartSuccess,
-  logScanBatchContinueFailure,
-  logScanBatchContinueSuccess,
-} from './util/logging.js';
+import { logScanBatchContinueSuccess } from './util/logging.js';
 import { saveReadinessReport } from './readiness_report.js';
 import { performScanDiagnostic, ScanDiagnosticOutcome } from './diagnostic.js';
 import { BatchScanner } from './fujitsu_scanner.js';
@@ -56,7 +51,7 @@ export interface AppOptions {
   auth: DippedSmartCardAuthApi;
   allowedExportPatterns?: string[];
   scanner: BatchScanner;
-  importer: Importer;
+  machine: BatchScannerStateMachine;
   workspace: Workspace;
   logger: Logger;
   usbDrive: UsbDrive;
@@ -68,7 +63,7 @@ function buildApi({
   logger,
   usbDrive,
   scanner,
-  importer,
+  machine,
 }: Exclude<AppOptions, 'allowedExportPatterns'>) {
   const { store } = workspace;
 
@@ -278,19 +273,17 @@ function buildApi({
     },
 
     getStatus(): ScanStatus {
-      return importer.getStatus();
+      return {
+        ...machine.status(),
+        isScannerAttached: scanner.isAttached(),
+        adjudicationsRemaining: store.adjudicationsRemaining(),
+        batches: store.getBatches(),
+        canUnconfigure: store.getCanUnconfigure(),
+      };
     },
 
-    async scanBatch(): Promise<void> {
-      try {
-        const batchId = await importer.startImport();
-        await logBatchStartSuccess(logger, batchId);
-      } catch (error) {
-        // @coverage-defer
-        assert(error instanceof Error);
-        // @coverage-defer
-        await logBatchStartFailure(logger, error);
-      }
+    scanBatch(): void {
+      machine.startBatch();
     },
 
     async getNextReviewSheet(): Promise<{
@@ -344,16 +337,13 @@ function buildApi({
     },
 
     async continueScanning(input: { forceAccept: boolean }): Promise<void> {
-      try {
-        const { forceAccept } = input;
-        importer.continueImport(input);
-        await logScanBatchContinueSuccess(logger, forceAccept);
-      } catch (error) {
-        // @coverage-defer
-        assert(error instanceof Error);
-        // @coverage-defer
-        await logScanBatchContinueFailure(logger, error);
+      // @coverage-defer
+      if (input.forceAccept) {
+        machine.acceptSheet();
+      } else {
+        machine.rejectSheet();
       }
+      await logScanBatchContinueSuccess(logger, input.forceAccept);
     },
 
     async unconfigure(
@@ -418,7 +408,7 @@ function buildApi({
     saveReadinessReport() {
       return saveReadinessReport({
         workspace,
-        isScannerAttached: importer.getStatus().isScannerAttached,
+        isScannerAttached: scanner.isAttached(),
         usbDrive,
         logger,
       });
@@ -501,13 +491,13 @@ function buildApi({
 export type Api = ReturnType<typeof buildApi>;
 
 /**
- * Builds an express application, using `store` and `importer` to do the heavy
- * lifting.
+ * Builds an express application, using `workspace` and `machine` to do the
+ * heavy lifting.
  */
 export function buildCentralScannerApp({
   auth,
   scanner,
-  importer,
+  machine,
   workspace,
   logger,
   usbDrive,
@@ -519,7 +509,7 @@ export function buildCentralScannerApp({
     logger,
     usbDrive,
     scanner,
-    importer,
+    machine,
   });
   app.use('/api', grout.buildRouter(api, express));
 

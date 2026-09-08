@@ -582,6 +582,9 @@ importers:
       tmp:
         specifier: ^0.2.6
         version: 0.2.7
+      xstate:
+        specifier: ^4.33.0
+        version: 4.33.0
       zod:
         specifier: 4.4.3
         version: 4.4.3

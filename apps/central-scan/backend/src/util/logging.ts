@@ -33,17 +33,6 @@ export function logScanBatchContinueSuccess(
   });
 }
 
-// @coverage-defer
-export function logScanBatchContinueFailure(
-  logger: Logger,
-  error: Error
-): Promise<void> {
-  return logger.logAsCurrentRole(LogEventId.ScanBatchContinue, {
-    disposition: 'failure',
-    message: `User attempt to continue scanning failed: ${error.message}`,
-  });
-}
-
 export function logBatchStartSuccess(
   logger: Logger,
   batchId: BatchInfo['id']
@@ -55,14 +44,13 @@ export function logBatchStartSuccess(
   });
 }
 
-// @coverage-defer
 export function logBatchStartFailure(
   logger: Logger,
-  error: Error
+  errorMessage: string
 ): Promise<void> {
   return logger.logAsCurrentRole(LogEventId.ScanBatchInit, {
     disposition: 'failure',
-    message: `User attempt to start scanning failed: ${error.message}`,
+    message: `User attempt to start scanning failed: ${errorMessage}`,
   });
 }
 
