@@ -301,7 +301,12 @@ export function convertMsElection(
     switch (contestType) {
       // Candidate contest
       case '0': {
-        const [, contestTitle, termDescription] = contestText.split(/\\n/);
+        const contestTextElementsReversed = contestText.split(/\\n/).reverse();
+        const [, termDescription, ...contestTitleElementsReversed] =
+          contestTextElementsReversed;
+        const contestTitle = [...contestTitleElementsReversed]
+          .reverse()
+          .join(' · ');
 
         const candidates = candidateRows.map(
           (candidateRow): Candidate => ({
