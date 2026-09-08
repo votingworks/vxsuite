@@ -17,6 +17,7 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import { LogEventId } from '@votingworks/logging';
 import { readFile } from 'node:fs/promises';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth.js';
@@ -258,7 +259,7 @@ test('accepting a sheet that needs review keeps it and continues scanning', asyn
   await writeImageData(frontPath, frontImageData);
   await writeImageData(backPath, backImageData);
 
-  await withApp(async ({ auth, apiClient, scanner, workspace }) => {
+  await withApp(async ({ auth, apiClient, scanner, workspace, logger }) => {
     mockElectionManagerAuth(auth, electionDefinition);
     workspace.store.setElectionAndJurisdiction({
       electionData: electionDefinition.electionData,
@@ -282,6 +283,17 @@ test('accepting a sheet that needs review keeps it and continues scanning', asyn
       }),
     });
     expect((await apiClient.getStatus()).adjudicationsRemaining).toEqual(1);
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.ScannerEvent,
+      'system',
+      expect.objectContaining({
+        message: expect.stringMatching(
+          /^Event: done\.invoke\..*interpretingSheet/
+        ),
+        eventObject: expect.stringContaining('"reasons":["BlankBallot"]'),
+      }),
+      expect.any(Function)
+    );
 
     await apiClient.continueScanning({ forceAccept: true });
     await waitForStatus(apiClient, { state: 'idle' });

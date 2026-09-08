@@ -42,7 +42,6 @@ import {
 import { isCentralScanNetworkingEnabled } from './networking_config.js';
 import { getMachineConfig } from './machine_config.js';
 import { constructAuthMachineState } from './util/auth.js';
-import { logScanBatchContinueSuccess } from './util/logging.js';
 import { saveReadinessReport } from './readiness_report.js';
 import { performScanDiagnostic, ScanDiagnosticOutcome } from './diagnostic.js';
 import { BatchScanner } from './fujitsu_scanner.js';
@@ -336,13 +335,12 @@ function buildApi({
       };
     },
 
-    async continueScanning(input: { forceAccept: boolean }): Promise<void> {
+    continueScanning(input: { forceAccept: boolean }): void {
       if (input.forceAccept) {
         machine.acceptSheet();
       } else {
         machine.rejectSheet();
       }
-      await logScanBatchContinueSuccess(logger, input.forceAccept);
     },
 
     async unconfigure(

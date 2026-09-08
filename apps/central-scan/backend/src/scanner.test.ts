@@ -9,7 +9,11 @@ import {
   mockLogger,
   MockLogger,
 } from '@votingworks/logging';
-import { anyPollingPlace } from '@votingworks/types';
+import {
+  AdjudicationReason,
+  AdjudicationReasonInfo,
+  anyPollingPlace,
+} from '@votingworks/types';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { createWorkspace, Workspace } from './util/workspace.js';
@@ -17,6 +21,7 @@ import { makeMockScanner } from '../test/util/mocks.js';
 import { BatchScanner } from './fujitsu_scanner.js';
 import {
   BatchScannerStateMachine,
+  cleanLogData,
   createBatchScannerStateMachine,
 } from './scanner.js';
 import { BatchScannerMachineStatus } from './types.js';
@@ -64,16 +69,15 @@ function configureElection(workspace: Workspace): void {
   workspace.store.setPollingPlaceId(anyPollingPlace(election).id);
 }
 
-function expectBatchStartFailure(logger: MockLogger, message: string) {
-  return vi.waitFor(() =>
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.ScanBatchInit,
-      'unknown',
-      {
-        disposition: 'failure',
-        message: `User attempt to start scanning failed: ${message}`,
-      }
-    )
+function expectErrorEventLogged(logger: MockLogger, message: string): void {
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.ScannerEvent,
+    'system',
+    expect.objectContaining({
+      message: expect.stringMatching(/^Event: error\.platform/),
+      eventObject: expect.stringContaining(message),
+    }),
+    expect.any(Function)
   );
 }
 
@@ -98,13 +102,25 @@ test('an empty batch is finished and cleaned up', async () => {
   expect(
     existsSync(join(workspace.ballotImagesPath, `batch-${batch.id}`))
   ).toEqual(false);
+  expect(logger.log).toHaveBeenCalledWith(LogEventId.ScannerEvent, 'unknown', {
+    message: 'Event: START_BATCH',
+    eventObject: '{"type":"START_BATCH"}',
+  });
   expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScanBatchInit,
+    LogEventId.ScannerStateChanged,
+    'system',
+    expect.objectContaining({
+      changedFields: expect.stringContaining(`"batchId":"${batch.id}"`),
+    }),
+    expect.any(Function)
+  );
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.ScannerBatchStarted,
     'unknown',
     expect.objectContaining({ disposition: 'success', batchId: batch.id })
   );
   expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScanBatchComplete,
+    LogEventId.ScannerBatchEnded,
     'unknown',
     expect.objectContaining({
       disposition: 'success',
@@ -125,7 +141,21 @@ test('a batch whose scanner session fails to open is cleaned up', async () => {
   machine.startBatch();
   await waitForStatus(machine, { state: 'idle', error: 'scanner unavailable' });
   expect(workspace.store.getBatches()).toHaveLength(0);
-  await expectBatchStartFailure(logger, 'scanner unavailable');
+  expectErrorEventLogged(logger, 'scanner unavailable');
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.ScannerBatchStarted,
+    'unknown',
+    {
+      disposition: 'failure',
+      message: 'User attempt to start scanning failed: scanner unavailable',
+      batchId: expect.any(String),
+    }
+  );
+  expect(logger.log).not.toHaveBeenCalledWith(
+    LogEventId.ScannerBatchStarted,
+    'unknown',
+    expect.objectContaining({ disposition: 'success' })
+  );
 });
 
 test('a scanner error finishes the batch with the error', async () => {
@@ -146,19 +176,15 @@ test('a scanner error finishes the batch with the error', async () => {
     batchId: batch.id,
     error: 'paper jam',
   });
+  expectErrorEventLogged(logger, 'paper jam');
   expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScannerEvent,
-    'system',
-    expect.objectContaining({
-      message: expect.stringMatching(/^Event: error\.platform/),
-      eventObject: expect.stringContaining('paper jam'),
-    }),
-    expect.any(Function)
-  );
-  expect(logger.log).not.toHaveBeenCalledWith(
-    LogEventId.ScanBatchComplete,
-    expect.anything(),
-    expect.anything()
+    LogEventId.ScannerBatchEnded,
+    'unknown',
+    {
+      disposition: 'failure',
+      message: 'Processing sheet failed: paper jam',
+      batchId: batch.id,
+    }
   );
 
   scanner.withNextScannerSession().end();
@@ -176,7 +202,7 @@ test('a scanner error finishes the batch with the error', async () => {
 
 test('a sheet that fails to import finishes the batch with the error', async () => {
   const scanner = makeMockScanner();
-  const { machine, workspace } = await setup(scanner);
+  const { machine, workspace, logger } = await setup(scanner);
   configureElection(workspace);
 
   scanner
@@ -200,6 +226,11 @@ test('a sheet that fails to import finishes the batch with the error', async () 
     batchId: batch.id,
     error: expect.any(String),
   });
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.ScannerBatchEnded,
+    'unknown',
+    expect.objectContaining({ disposition: 'failure', batchId: batch.id })
+  );
 });
 
 test('a failure while finishing the batch is reported', async () => {
@@ -218,7 +249,7 @@ test('a failure while finishing the batch is reported', async () => {
 test('is disconnected while the scanner is detached and no batch is in progress', async () => {
   const scanner = makeMockScanner();
   const isAttached = vi.spyOn(scanner, 'isAttached').mockReturnValue(false);
-  const { machine, workspace } = await setup(scanner);
+  const { machine, workspace, logger } = await setup(scanner);
   configureElection(workspace);
 
   expect(machine.status()).toEqual({ state: 'disconnected' });
@@ -235,4 +266,37 @@ test('is disconnected while the scanner is detached and no batch is in progress'
 
   isAttached.mockReturnValue(false);
   await waitForStatus(machine, { state: 'disconnected' });
+
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.ScannerStateChanged,
+    'system',
+    expect.objectContaining({ message: 'Transitioned to: "disconnected"' }),
+    expect.any(Function)
+  );
+});
+
+test('cleanLogData keeps only adjudication reason types and hides large values', () => {
+  const overvote: AdjudicationReasonInfo = {
+    type: AdjudicationReason.Overvote,
+    contestId: 'contest-1',
+    optionIds: ['option-1', 'option-2'],
+    expected: 1,
+  };
+  const cleaned = JSON.parse(
+    JSON.stringify(
+      {
+        data: { type: 'NeedsReviewSheet', reasons: [overvote] },
+        batchContext: { control: { scanSheet: 'fn' }, imageDirectory: '/tmp' },
+        error: new Error('paper jam'),
+        scannedSheet: undefined,
+      },
+      cleanLogData
+    )
+  );
+  expect(cleaned).toEqual({
+    data: { type: 'NeedsReviewSheet', reasons: ['Overvote'] },
+    batchContext: { control: '[hidden]', imageDirectory: '/tmp' },
+    error: { message: 'paper jam', stack: expect.any(String) },
+    scannedSheet: 'undefined',
+  });
 });

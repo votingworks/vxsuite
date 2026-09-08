@@ -4,6 +4,7 @@ import {
   extractErrorMessage,
 } from '@votingworks/basics';
 import {
+  AdjudicationReasonInfo,
   DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
   Id,
   mapSheet,
@@ -41,13 +42,6 @@ import {
   describeValidationError,
   validateSheetInterpretation,
 } from './validation.js';
-import {
-  logBatchComplete,
-  logBatchStartFailure,
-  logBatchStartSuccess,
-  logScanSheetSuccess,
-  logSheetAdjudicationInfo,
-} from './util/logging.js';
 import { BatchScannerMachineStatus } from './types.js';
 
 const debug = makeDebug('scan:state-machine');
@@ -162,12 +156,22 @@ function buildMachine({
         // If the imprinter is attached, imprint an ID prefixed by the batch ID
         imprintIdPrefix: hasImprinter ? batchId : undefined,
       });
-      void logBatchStartSuccess(logger, batchId);
+      void logger.logAsCurrentRole(LogEventId.ScannerBatchStarted, {
+        disposition: 'success',
+        message: `User has begun scanning a new batch with ID: ${batchId}`,
+        batchId,
+      });
       return { control, imageDirectory };
     } catch (error) {
       store.deleteBatch(batchId);
       await fsExtra.remove(imageDirectory);
-      void logBatchStartFailure(logger, extractErrorMessage(error));
+      void logger.logAsCurrentRole(LogEventId.ScannerBatchStarted, {
+        disposition: 'failure',
+        message: `User attempt to start scanning failed: ${extractErrorMessage(
+          error
+        )}`,
+        batchId,
+      });
       throw error;
     }
   }
@@ -273,8 +277,6 @@ function buildMachine({
       pages,
       ({ interpretation }) => interpretation
     );
-    await logSheetAdjudicationInfo(logger, interpretations);
-    await logScanSheetSuccess(logger, store.getBatch(batchId));
 
     debug(
       'imported sheet %o for batch %s in %dms',
@@ -301,11 +303,24 @@ function buildMachine({
     debug('finishing batch %s', batchId);
 
     store.finishBatch({ batchId, error: error?.message });
-    if (!error) {
-      await logBatchComplete(logger, store.getBatch(batchId));
-    }
     await control.endBatch();
     await fsExtra.remove(imageDirectory);
+    if (error) {
+      await logger.logAsCurrentRole(LogEventId.ScannerBatchEnded, {
+        disposition: 'failure',
+        message: `Processing sheet failed: ${error.message}`,
+        batchId,
+      });
+    } else {
+      const batch = store.getBatch(batchId);
+      await logger.logAsCurrentRole(LogEventId.ScannerBatchEnded, {
+        disposition: 'success',
+        message: `Scanning batch ${batch.id} successfully completed scanning ${batch.count} sheets.`,
+        batchId: batch.id,
+        sheetCount: batch.count,
+        scanningEndedAt: batch.endedAt,
+      });
+    }
   }
 
   const clearBatch = assign<Context, Event>({
@@ -447,21 +462,19 @@ function isEventUserAction(event: EventObject): boolean {
   return ['START_BATCH', 'ACCEPT_SHEET', 'REJECT_SHEET'].includes(event.type);
 }
 
-function cleanLogData(key: string, value: unknown): unknown {
+export function cleanLogData(key: string, value: unknown): unknown {
   if (value === undefined) {
     return 'undefined';
   }
   if (value instanceof Error) {
     return { ...value, message: value.message, stack: value.stack };
   }
-  if (
-    [
-      // Protect voter privacy
-      'reasons',
-      // Hide large values
-      'control',
-    ].includes(key)
-  ) {
+  // Protect voter privacy
+  if (key === 'reasons') {
+    return (value as AdjudicationReasonInfo[]).map((reason) => reason.type);
+  }
+  // Hide large values
+  if (key === 'control') {
     return '[hidden]';
   }
   return value;

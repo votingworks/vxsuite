@@ -685,36 +685,6 @@ eventType = "user-action"
 documentationMessage = "User has completed deleting a scanning batch. Number of ballots in batch specified by keep `numberOfBallotsInBatch`. Batch ID specified by `batchId`."
 restrictInDocumentationToApps = ["vx-central-scan"]
 
-[Events.ScanBatchInit]
-eventId = "scan-batch-init"
-eventType = "user-action"
-documentationMessage = "The user has begun scanning a new batch of ballots. Success or failure of beginning the process of scanning indicated by disposition. Batch ID for next scanned batch indicated in batchId."
-restrictInDocumentationToApps = ["vx-central-scan"]
-
-[Events.ScanSheetComplete]
-eventId = "scan-sheet-complete"
-eventType = "user-action"
-documentationMessage = "A single sheet in a batch has completed scanning. Success or failure of the scanning indicated by disposition. Ballots rejected due to being unreadable, configured for the wrong election, needed resolution, etc. marked as `failure`. Current batch specified by `batchId` and sheet in batch specified by `sheetCount`."
-restrictInDocumentationToApps = ["vx-central-scan"]
-
-[Events.ScanBatchComplete]
-eventId = "scan-batch-complete"
-eventType = "user-action"
-documentationMessage = "A batch of scanned sheets has finished scanning. Success or failure indicated by disposition."
-restrictInDocumentationToApps = ["vx-central-scan"]
-
-[Events.ScanBatchContinue]
-eventId = "scan-batch-continue"
-eventType = "user-action"
-documentationMessage = "Scanning continued by user after errors and/or warning stopped scanning. Log will indicate if the sheet was tabulated with warnings, or if the user indicated removing the ballot in order to continue scanning."
-restrictInDocumentationToApps = ["vx-central-scan"]
-
-[Events.ScanAdjudicationInfo]
-eventId = "scan-adjudication-info"
-eventType = "application-status"
-documentationMessage = "Information about a ballot sheet that needs adjudication from the user. The possible unresolvable errors are InvalidTestModePage when a test mode ballot is seen when scanning in live mode or vice versa, InvalidBallotHashPage when a sheet for the wrong election is seen, InvalidPrecinctPage when a sheet for an invalid precinct is seen, UnreadablePage for a sheet that is unrecognizable as either a HMPB or BMD ballot, and BlankPage for a blank sheet. Warnings that the user can choose to tabulate with a ballot include MarginalMark, Overvote, Undervote, and BlankBallot (a ballot where there are no votes for any contest)."
-restrictInDocumentationToApps = ["vx-central-scan"]
-
 [Events.FujitsuScanInit]
 eventId = "fujitsu-scan-init"
 eventType = "application-action"
@@ -818,26 +788,26 @@ restrictInDocumentationToApps = ["vx-mark", "vx-scan", "vx-mark-scan"]
 [Events.ScannerBatchStarted]
 eventId = "scanner-batch-started"
 eventType = "system-action"
-documentationMessage = "The precinct scanner has started a new batch."
-restrictInDocumentationToApps = ["vx-scan"]
+documentationMessage = "The scanner has started a new batch."
+restrictInDocumentationToApps = ["vx-scan", "vx-central-scan"]
 
 [Events.ScannerBatchEnded]
 eventId = "scanner-batch-ended"
 eventType = "system-action"
-documentationMessage = "The precinct scanner has ended the current batch."
-restrictInDocumentationToApps = ["vx-scan"]
+documentationMessage = "The scanner has ended the current batch."
+restrictInDocumentationToApps = ["vx-scan", "vx-central-scan"]
 
 [Events.ScannerEvent]
 eventId = "scanner-state-machine-event"
 eventType = "application-action"
-documentationMessage = "Precinct scanner state machine received an event."
-restrictInDocumentationToApps = ["vx-scan"]
+documentationMessage = "Scanner state machine received an event."
+restrictInDocumentationToApps = ["vx-scan", "vx-central-scan"]
 
 [Events.ScannerStateChanged]
 eventId = "scanner-state-machine-transition"
 eventType = "application-status"
-documentationMessage = "Precinct scanner state machine transitioned states."
-restrictInDocumentationToApps = ["vx-scan"]
+documentationMessage = "Scanner state machine transitioned states."
+restrictInDocumentationToApps = ["vx-scan", "vx-central-scan"]
 
 [Events.SoundToggled]
 eventId = "sound-toggled"
