@@ -95,3 +95,27 @@ test('convert election with precinct splits', async () => {
   await expectValidElection(election);
   expect(election).toMatchSnapshot();
 });
+
+test('convert election with districts that share a label', async () => {
+  const election = convertMsElection(
+    'election-id-5',
+    readFixture('ms-sems-election-general-10.csv').replaceAll(
+      /Election Commissioner [0-9]+/g,
+      'Election Commissioner'
+    ),
+    readFixture('ms-sems-election-candidates-general-10.csv')
+  );
+  await expectValidElection(election);
+
+  const districtNames = election.districts.map((district) => district.name);
+  expect(districtNames).toEqual([
+    'United States',
+    'US House Of Representatives',
+    'Supreme Court Justice',
+    'Election Commissioner (575000501)',
+    'Election Commissioner (575000503)',
+    'Election Commissioner (575000505)',
+    'School Board District 3',
+    'School Board District 4',
+  ]);
+});

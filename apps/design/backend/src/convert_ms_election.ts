@@ -162,10 +162,22 @@ export function convertMsElection(
   );
 
   // Section 2 is one row per district: 2, PARENT_DISTRICT, DISTRICT_ID, DISTRICT_LABEL
-  const districts: District[] = sectionRows(2).map((row) => {
+  const districtRows = sectionRows(2).map((row) => {
     const [, , id, label] = row;
-    return { id: uniqueId(id), name: label };
+    return { id, label };
   });
+  const duplicateLabels = new Set(
+    groupBy(districtRows, ({ label }) => label)
+      .filter(([, rows]) => rows.length > 1)
+      .map(([label]) => label)
+  );
+  const districts: District[] = districtRows.map(({ id, label }) => ({
+    id: uniqueId(id),
+    // SEMS allows duplicate district labels, but VxDesign requires district
+    // names within an election to be unique, so qualify duplicates with
+    // district IDs
+    name: duplicateLabels.has(label) ? `${label} (${id})` : label,
+  }));
 
   // Section 3 is one row per polling location: 3, REGION_ID, LOCATION_ID, LOCATION_LABEL
   // Skip it
