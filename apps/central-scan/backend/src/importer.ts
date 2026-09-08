@@ -82,27 +82,6 @@ export class Importer {
     this.logger = logger;
   }
 
-  /**
-   * Sets the election information used to encode and decode ballots.
-   */
-  configure(
-    electionDefinition: ElectionDefinition,
-    jurisdiction: string,
-    electionPackageHash: string
-  ): void {
-    this.workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
-      jurisdiction,
-      electionPackageHash,
-    });
-  }
-
-  async setTestMode(testMode: boolean): Promise<void> {
-    debug('setting test mode to %s', testMode);
-    await this.doZero();
-    this.workspace.store.setTestMode(testMode);
-  }
-
   private async sheetAdded(
     sheetInfo: ScannedSheetInfo,
     batchId: string
@@ -482,20 +461,6 @@ export class Importer {
   }
 
   /**
-   * Reset all the data, both in the store and the ballot images.
-   */
-  async doZero(): Promise<void> {
-    await this.logger.logAsCurrentRole(LogEventId.ClearingBallotData, {
-      message: `Removing all ballot data...`,
-    });
-    this.workspace.resetElectionSession();
-    await this.logger.logAsCurrentRole(LogEventId.ClearedBallotData, {
-      disposition: 'success',
-      message: 'Successfully cleared all ballot data.',
-    });
-  }
-
-  /**
    * Get current batch and adjudication info.
    */
   getStatus(): ScanStatus {
@@ -506,14 +471,6 @@ export class Importer {
       batches: this.workspace.store.getBatches(),
       canUnconfigure: this.workspace.store.getCanUnconfigure(),
     };
-  }
-
-  /**
-   * Resets all data like `doZero`, removes election info, and stops importing.
-   */
-  async unconfigure(): Promise<void> {
-    await this.doZero();
-    this.workspace.store.reset(); // destroy all data
   }
 
   private getElectionDefinition(): ElectionDefinition {

@@ -72,6 +72,17 @@ function buildApi({
 }: Exclude<AppOptions, 'allowedExportPatterns'>) {
   const { store } = workspace;
 
+  async function clearAllBallotData(): Promise<void> {
+    await logger.logAsCurrentRole(LogEventId.ClearingBallotData, {
+      message: `Removing all ballot data...`,
+    });
+    workspace.resetElectionSession();
+    await logger.logAsCurrentRole(LogEventId.ClearedBallotData, {
+      disposition: 'success',
+      message: 'Successfully cleared all ballot data.',
+    });
+  }
+
   return grout.createApi({
     getAuthStatus() {
       return auth.getAuthStatus(constructAuthMachineState(workspace));
@@ -113,7 +124,8 @@ function buildApi({
       await logger.logAsCurrentRole(LogEventId.TogglingTestMode, {
         message: `Toggling to ${testMode ? 'Test' : 'Official'} Ballot Mode...`,
       });
-      await importer.setTestMode(testMode);
+      await clearAllBallotData();
+      store.setTestMode(testMode);
       await logger.logAsCurrentRole(LogEventId.ToggledTestMode, {
         disposition: 'success',
         message: `Successfully toggled to ${
@@ -209,11 +221,11 @@ function buildApi({
       const { electionDefinition, systemSettings } = electionPackage;
       assert(systemSettings);
 
-      importer.configure(
-        electionDefinition,
-        authStatus.user.jurisdiction,
-        electionPackageHash
-      );
+      store.setElectionAndJurisdiction({
+        electionData: electionDefinition.electionData,
+        jurisdiction: authStatus.user.jurisdiction,
+        electionPackageHash,
+      });
       store.setSystemSettings(systemSettings);
 
       const absenteePollingPlaces = assertDefined(
@@ -352,7 +364,8 @@ function buildApi({
       // frontend should only allow this call if the machine can be unconfigured
       assert(store.getCanUnconfigure() || input.ignoreBackupRequirement);
 
-      await importer.unconfigure();
+      await clearAllBallotData();
+      store.reset(); // destroy all data
       await logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
         disposition: 'success',
         message:
@@ -364,7 +377,7 @@ function buildApi({
       // frontend should only allow this call if the machine can be unconfigured
       assert(store.getCanUnconfigure());
 
-      await importer.doZero();
+      await clearAllBallotData();
     },
 
     async exportCastVoteRecordsToUsbDrive(): Promise<

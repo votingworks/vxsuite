@@ -48,11 +48,11 @@ test('scanBatch with multiple sheets', async () => {
   };
   await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
-    importer.configure(
-      electionDefinition,
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
       jurisdiction,
-      'test-election-package-hash'
-    );
+      electionPackageHash: 'test-election-package-hash',
+    });
     workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setTestMode({ testMode: true });
     // The scanned ballot is for precinct '23', which is covered by
@@ -91,11 +91,11 @@ test('continueScanning after invalid ballot', async () => {
   const bmdFixture = await generateBmdBallotFixture();
   await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
-    importer.configure(
-      electionDefinition,
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
       jurisdiction,
-      'test-election-package-hash'
-    );
+      electionPackageHash: 'test-election-package-hash',
+    });
     workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setTestMode({ testMode: true });
     await apiClient.setPollingPlaceId({ id: 'central-scanning' });
@@ -185,11 +185,11 @@ test('scanBatch with streaked page', async () => {
   // try with vertical streak detection enabled
   await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
-    importer.configure(
-      electionDefinition,
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
       jurisdiction,
-      'test-election-package-hash'
-    );
+      electionPackageHash: 'test-election-package-hash',
+    });
     workspace.store.setSystemSettings({
       ...DEFAULT_SYSTEM_SETTINGS,
       // enable vertical streak detection
@@ -217,11 +217,11 @@ test('scanBatch with streaked page', async () => {
   // try again with vertical streak detection disabled
   await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
-    importer.configure(
-      electionDefinition,
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
       jurisdiction,
-      'test-election-package-hash'
-    );
+      electionPackageHash: 'test-election-package-hash',
+    });
     workspace.store.setSystemSettings({
       ...DEFAULT_SYSTEM_SETTINGS,
       // disable vertical streak detection
@@ -252,11 +252,11 @@ test('rejects ballots whose precinct is not in the selected polling place', asyn
 
   await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
     mockElectionManagerAuth(auth, bmdFixture.electionDefinition);
-    importer.configure(
-      bmdFixture.electionDefinition,
+    workspace.store.setElectionAndJurisdiction({
+      electionData: bmdFixture.electionDefinition.electionData,
       jurisdiction,
-      'test-election-package-hash'
-    );
+      electionPackageHash: 'test-election-package-hash',
+    });
     workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setTestMode({ testMode: true });
     await apiClient.setPollingPlaceId({ id: '20-polling-place' });

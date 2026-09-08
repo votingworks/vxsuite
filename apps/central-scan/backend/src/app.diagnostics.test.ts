@@ -82,13 +82,13 @@ const jurisdiction = TEST_JURISDICTION;
 test('save readiness report', async () => {
   const electionDefinition = readElectionTwoPartyPrimaryDefinition();
   await withApp(
-    async ({ apiClient, mockUsbDrive, scanner, auth, logger, importer }) => {
+    async ({ apiClient, mockUsbDrive, scanner, auth, logger, workspace }) => {
       mockSystemAdministratorAuth(auth);
-      importer.configure(
-        electionDefinition,
+      workspace.store.setElectionAndJurisdiction({
+        electionData: electionDefinition.electionData,
         jurisdiction,
-        'test-election-package-hash'
-      );
+        electionPackageHash: 'test-election-package-hash',
+      });
 
       // mock a successful scan diagnostic
       vi.useFakeTimers();

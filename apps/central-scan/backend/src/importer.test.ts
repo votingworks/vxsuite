@@ -15,6 +15,14 @@ import { BatchControl, BatchScanner } from './fujitsu_scanner.js';
 const electionDefinition = readElectionGeneralDefinition();
 const { election } = electionDefinition;
 
+function configureElection(workspace: Workspace): void {
+  workspace.store.setElectionAndJurisdiction({
+    electionData: electionDefinition.electionData,
+    jurisdiction: 'test-jurisdiction',
+    electionPackageHash: 'test-hash',
+  });
+}
+
 function setupImporter(): {
   importer: Importer;
   workspace: Workspace;
@@ -51,7 +59,7 @@ test('no election is configured', async () => {
 
 test('startImport rejects concurrent calls', async () => {
   const { importer, scanner, workspace } = setupImporter();
-  importer.configure(electionDefinition, 'test-jurisdiction', 'test-hash');
+  configureElection(workspace);
   workspace.store.setPollingPlaceId(anyPollingPlace(election).id);
 
   scanner.withNextScannerSession().end();
@@ -94,7 +102,7 @@ test('finishBatch clears currentBatch before async cleanup to prevent concurrent
     scanner,
     logger: mockLogger({ fn: vi.fn }),
   });
-  importer.configure(electionDefinition, 'test-jurisdiction', 'test-hash');
+  configureElection(workspace);
   workspace.store.setPollingPlaceId(anyPollingPlace(election).id);
 
   await importer.startImport();
@@ -128,7 +136,7 @@ test('finishBatch clears currentBatch before async cleanup to prevent concurrent
 
 test('startImport cleans up batch on failure after addBatch', async () => {
   const { importer, workspace, scanner } = setupImporter();
-  importer.configure(electionDefinition, 'test-jurisdiction', 'test-hash');
+  configureElection(workspace);
   workspace.store.setPollingPlaceId(anyPollingPlace(election).id);
 
   // Make scanSheets throw to simulate a failure after addBatch but before
