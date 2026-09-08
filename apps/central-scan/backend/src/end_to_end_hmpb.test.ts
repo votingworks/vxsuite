@@ -213,7 +213,6 @@ test('ballots printed with invalid scale are rejected', async () => {
       const status = await apiClient.getStatus();
       expect(status.batches.length).toEqual(1);
       expect(status.batches[0].count).toEqual(1);
-      expect(status.adjudicationsRemaining).toEqual(1);
 
       // Reject the ballot
       await apiClient.continueScanning({ forceAccept: false });

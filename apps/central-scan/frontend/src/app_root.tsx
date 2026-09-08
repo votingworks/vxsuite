@@ -193,8 +193,7 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
   // A polling place must be selected before scanning.
   const isPollingPlaceUnconfigured = !pollingPlaceIdQuery.data;
 
-  // @coverage-defer
-  if (status.adjudicationsRemaining > 0) {
+  if (status.state === 'needsReview') {
     return (
       <AppContext.Provider value={currentContext}>
         <BallotEjectScreen isTestMode={isTestMode} />

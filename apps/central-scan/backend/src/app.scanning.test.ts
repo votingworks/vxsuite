@@ -72,7 +72,6 @@ test('scanBatch with multiple sheets', async () => {
     await waitForStatus(apiClient, { state: 'idle' });
 
     const status = await apiClient.getStatus();
-    expect(status.adjudicationsRemaining).toEqual(0);
     expect(status.canUnconfigure).toEqual(true);
     expect(status.batches.length).toEqual(1);
     expect(status.batches[0]).toEqual<BatchInfo>({
@@ -117,7 +116,6 @@ test('continueScanning after invalid ballot', async () => {
     await waitForStatus(apiClient, { state: 'needsReview' });
     {
       const status = await apiClient.getStatus();
-      expect(status.adjudicationsRemaining).toEqual(1);
       expect(status.canUnconfigure).toEqual(true);
       expect(status.batches.length).toEqual(1);
       expect(status.batches[0]).toEqual<BatchInfo>({
@@ -134,7 +132,6 @@ test('continueScanning after invalid ballot', async () => {
     await waitForStatus(apiClient, { state: 'idle' });
     {
       const status = await apiClient.getStatus();
-      expect(status.adjudicationsRemaining).toEqual(0);
       expect(status.canUnconfigure).toEqual(true);
       expect(status.batches.length).toEqual(1);
       expect(status.batches[0]).toEqual<BatchInfo>({
@@ -282,7 +279,6 @@ test('accepting a sheet that needs review keeps it and continues scanning', asyn
         enabledReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
       }),
     });
-    expect((await apiClient.getStatus()).adjudicationsRemaining).toEqual(1);
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.ScannerEvent,
       'system',
@@ -299,7 +295,6 @@ test('accepting a sheet that needs review keeps it and continues scanning', asyn
     await waitForStatus(apiClient, { state: 'idle' });
 
     const status = await apiClient.getStatus();
-    expect(status.adjudicationsRemaining).toEqual(0);
     expect(status.batches).toEqual([
       expect.objectContaining({ count: 1, endedAt: expect.any(String) }),
     ]);

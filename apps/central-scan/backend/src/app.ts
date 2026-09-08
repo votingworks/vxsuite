@@ -274,7 +274,6 @@ function buildApi({
     getStatus(): ScanStatus {
       return {
         ...machine.status(),
-        adjudicationsRemaining: store.adjudicationsRemaining(),
         batches: store.getBatches(),
         canUnconfigure: store.getCanUnconfigure(),
       };

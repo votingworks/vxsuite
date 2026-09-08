@@ -223,16 +223,6 @@ export function ScanBallotsScreen({
     });
   }
 
-  let exportButtonTitle;
-  // @coverage-defer
-  if (status.adjudicationsRemaining > 0) {
-    exportButtonTitle =
-      'You cannot save results until all sheets have been adjudicated.';
-  } else if (status.batches.length === 0) {
-    exportButtonTitle =
-      'You cannot save results until you have scanned at least one sheet.';
-  }
-
   return (
     <NavigationScreen title="Scan Ballots">
       <Content>
@@ -265,10 +255,7 @@ export function ScanBallotsScreen({
           <TopBarActions>
             <Button
               onPress={() => setIsExportingCvrs(true)}
-              disabled={
-                status.adjudicationsRemaining > 0 || status.batches.length === 0
-              }
-              nonAccessibleTitle={exportButtonTitle}
+              disabled={status.batches.length === 0}
               icon="Export"
               color="primary"
             >

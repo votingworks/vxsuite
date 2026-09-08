@@ -971,21 +971,6 @@ export class Store {
   }
 
   /**
-   * Counts sheets awaiting adjudication.
-   */
-  adjudicationsRemaining(): number {
-    const { remaining } = this.client.one(`
-        select count(*) as remaining
-        from sheets
-        where
-          requires_adjudication = 1
-          and deleted_at is null
-          and finished_adjudication_at is null
-      `) as { remaining: number };
-    return remaining;
-  }
-
-  /**
    * Yields all scanned sheets that were accepted and should be tabulated
    */
   *forEachAcceptedSheet(): Generator<AcceptedSheet> {

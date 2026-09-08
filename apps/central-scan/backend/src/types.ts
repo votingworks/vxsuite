@@ -12,7 +12,6 @@ export type BatchScannerMachineStatus =
   | { state: 'needsReview'; batchId: Id };
 
 export type ScanStatus = BatchScannerMachineStatus & {
-  adjudicationsRemaining: number;
   batches: BatchInfo[];
   canUnconfigure: boolean;
 };
