@@ -301,7 +301,7 @@ export async function runPrintAndScanTask({
     await logger.logAsCurrentRole(LogEventId.BackgroundTaskStatus, {
       message: `Printing ${testPdfBytes.length} bytes`,
     });
-    await printBallotChunks(driver, testPdfBytes, {});
+    await printBallotChunks(driver, testPdfBytes);
     // Disable print mode to prepare to scan.
     await driver.disablePrint();
     if ((await errorIfPaperJam()).isErr()) {
