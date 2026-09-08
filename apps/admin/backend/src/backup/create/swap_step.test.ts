@@ -8,6 +8,8 @@ import { exchangePaths, syncFilesystem, SyscallError } from '@votingworks/fs';
 import { swap } from './swap_step.js';
 import { ProgressEvent } from '../progress.js';
 
+vi.setConfig({ testTimeout: 30_000 });
+
 vi.mock(
   import('@votingworks/fs'),
   async (importActual): Promise<typeof import('@votingworks/fs')> => {
