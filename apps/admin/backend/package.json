@@ -83,7 +83,6 @@
     "@votingworks/test-utils": "workspace:*",
     "csv-parse": "^5.5.0",
     "esbuild": "0.28.1",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "jest-image-snapshot": "^6.4.0",
     "lodash.set": "^4.3.2",

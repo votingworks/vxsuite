@@ -2,8 +2,8 @@ import type { Meta, StoryFn } from '@storybook/react-vite' with {
   'resolution-mode': 'import',
 };
 
-import styled from 'styled-components';
-import { QrCode, QrCodeProps } from './qrcode';
+import { styled } from './styled.js';
+import { QrCode, QrCodeProps } from './qrcode.js';
 
 const initialProps: QrCodeProps = {
   value: 'https://youtu.be/dQw4w9WgXcQ',

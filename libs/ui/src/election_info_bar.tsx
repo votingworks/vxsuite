@@ -1,11 +1,11 @@
 import React from 'react';
 import { ElectionDefinition, formatElectionHashes } from '@votingworks/types';
-import styled from 'styled-components';
 import { assertDefined } from '@votingworks/basics';
-import { Seal } from './seal';
-import { Caption, Font } from './typography';
-import { LabelledText } from './labelled_text';
-import { electionStrings, PollingPlaceName } from './ui_strings';
+import { styled } from './styled.js';
+import { Seal } from './seal.js';
+import { Caption, Font } from './typography.js';
+import { LabelledText } from './labelled_text.js';
+import { electionStrings, PollingPlaceName } from './ui_strings/index.js';
 
 export const InfoBar = styled.div`
   align-content: flex-end;

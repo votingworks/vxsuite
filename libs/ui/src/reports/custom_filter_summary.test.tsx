@@ -4,9 +4,9 @@ import {
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { BallotStyleGroupId } from '@votingworks/types';
-import { render, screen } from '../../test/react_testing_library';
-import { CustomFilterSummary } from './custom_filter_summary';
-import { mockScannerBatches } from '../../test/fixtures';
+import { render, screen } from '../../test/react_testing_library.js';
+import { CustomFilterSummary } from './custom_filter_summary.js';
+import { mockScannerBatches } from '../../test/fixtures.js';
 
 const electionDefinition =
   electionFamousNames2021Fixtures.readElectionDefinition();

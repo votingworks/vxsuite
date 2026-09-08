@@ -1,6 +1,6 @@
 import { format } from '@votingworks/utils';
-import { useLanguageContext } from './language_context';
-import { FontProps } from '../typography';
+import { useLanguageContext } from './language_context.js';
+import { FontProps } from '../typography.js';
 
 export interface DateStringProps extends FontProps {
   value: Date;

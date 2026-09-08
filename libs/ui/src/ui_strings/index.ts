@@ -1,19 +1,19 @@
-export * from './app_strings';
-export * from './audio_only';
-export * from './date_string';
-export * from './election_strings';
-export * from './headphone_calibration_button';
-export * from './language_override';
+export * from './app_strings.js';
+export * from './audio_only.js';
+export * from './date_string.js';
+export * from './election_strings.js';
+export * from './headphone_calibration_button.js';
+export * from './language_override.js';
 export {
   useLanguageContext,
   BackendLanguageContextProvider,
-} from './language_context';
-export * from './number_string';
-export * from './read_on_idle';
-export * from './read_on_load';
-export * from './toggle_audio_button';
-export { useScreenReaderActive } from './ui_string_screen_reader';
-export * from './ui_strings_context';
-export * from './ui_string';
-export * from './utils';
-export * from './with_alt_audio';
+} from './language_context.js';
+export * from './number_string.js';
+export * from './read_on_idle.js';
+export * from './read_on_load.js';
+export * from './toggle_audio_button.js';
+export { useScreenReaderActive } from './ui_string_screen_reader.js';
+export * from './ui_strings_context.js';
+export * from './ui_string.js';
+export * from './utils.js';
+export * from './with_alt_audio.js';

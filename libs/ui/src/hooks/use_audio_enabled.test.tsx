@@ -4,8 +4,8 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { act } from 'react';
-import { useAudioEnabled } from './use_audio_enabled';
-import { newTestContext } from '../../test/test_context';
+import { useAudioEnabled } from './use_audio_enabled.js';
+import { newTestContext } from '../../test/test_context.js';
 
 test('returns false when audio context is absent', () => {
   const { result } = renderHookWithoutContext(() => useAudioEnabled());

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import React from 'react';
 import { render as renderWithoutTheme } from '@testing-library/react';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen } from '../test/react_testing_library.js';
 
 import {
   Caption,
@@ -14,8 +14,8 @@ import {
   H6,
   P,
   RichText,
-} from './typography';
-import { makeTheme } from './themes/make_theme';
+} from './typography.js';
+import { makeTheme } from './themes/make_theme.js';
 
 for (const Component of [Caption, Font, P]) {
   test(`renders <${Component.name}>`, () => {

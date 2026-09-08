@@ -2,12 +2,12 @@ import { test } from 'vitest';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { assertDefined } from '@votingworks/basics';
-import { PrintReadinessReport } from './print_readiness_report';
-import { render, screen } from '../../test/react_testing_library';
+import { PrintReadinessReport } from './print_readiness_report.js';
+import { render, screen } from '../../test/react_testing_library.js';
 import {
   MOCK_MARKER_INFO,
   MOCK_PRINTER_CONFIG,
-} from './admin_readiness_report.test';
+} from './admin_readiness_report.test.js';
 
 const electionDef = readElectionTwoPartyPrimaryDefinition();
 const { election } = electionDef;

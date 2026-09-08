@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import { styled } from './styled.js';
 
 export const ButtonList = styled.p`
   column-gap: 1rem;

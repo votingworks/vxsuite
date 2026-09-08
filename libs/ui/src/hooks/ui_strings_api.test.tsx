@@ -3,8 +3,8 @@ import { UiStringAudioClips } from '@votingworks/types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { act } from 'react';
 import { TestLanguageCode } from '@votingworks/test-utils';
-import { renderHook, waitFor } from '../../test/react_testing_library';
-import { createUiStringsApi, UiStringsApiClient } from './ui_strings_api';
+import { renderHook, waitFor } from '../../test/react_testing_library.js';
+import { createUiStringsApi, UiStringsApiClient } from './ui_strings_api.js';
 
 const queryClient = new QueryClient();
 function QueryWrapper(props: { children: React.ReactNode }) {

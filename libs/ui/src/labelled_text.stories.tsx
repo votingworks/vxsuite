@@ -2,7 +2,7 @@ import type { Meta } from '@storybook/react-vite' with {
   'resolution-mode': 'import',
 };
 
-import { LabelledText, LabelledTextProps } from './labelled_text';
+import { LabelledText, LabelledTextProps } from './labelled_text.js';
 
 const initialArgs: LabelledTextProps = {
   children: 'Main text',

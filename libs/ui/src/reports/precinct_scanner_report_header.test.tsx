@@ -6,8 +6,8 @@ import {
 import { anyPollingPlace, formatElectionHashes } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
-import { render, screen } from '../../test/react_testing_library';
-import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
+import { render, screen } from '../../test/react_testing_library.js';
+import { PrecinctScannerReportHeader } from './precinct_scanner_report_header.js';
 
 const pollsTransitionedTime = new Date('2022-10-31T16:23:00.000').getTime();
 const reportPrintedTime = new Date('2022-10-31T16:24:00.000').getTime();

@@ -2,8 +2,8 @@ import { describe, expect, test, vi } from 'vitest';
 import React from 'react';
 import { ColorMode, SizeMode } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
-import userEvent from '@testing-library/user-event';
-import { fireEvent, render, screen } from '../test/react_testing_library';
+import { userEvent } from './user_event.js';
+import { fireEvent, render, screen } from '../test/react_testing_library.js';
 import {
   BUTTON_VARIANTS,
   Button,
@@ -11,9 +11,9 @@ import {
   ButtonFill,
   LabelButton,
   LoadingButton,
-} from './button';
-import { makeTheme } from './themes/make_theme';
-import { Icons } from './icons';
+} from './button.js';
+import { makeTheme } from './themes/make_theme.js';
+import { Icons } from './icons.js';
 
 function createTouchStartEventProperties(x: number, y: number) {
   return { touches: [{ clientX: x, clientY: y }] };

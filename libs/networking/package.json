@@ -45,7 +45,6 @@
     "@votingworks/coverage-check": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "esbuild": "0.28.1",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "lint-staged": "11.0.0",
     "sort-package-json": "^1.50.0",

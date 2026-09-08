@@ -1,14 +1,17 @@
 /*
  * Initial settings copied from https://github.com/i18next/i18next-parser#options
  *
- * This config is plain CommonJS (not TypeScript) on purpose: i18next-parser
+ * This config is plain JavaScript (not TypeScript) on purpose: i18next-parser
  * transpiles a `.ts` config to a temporary `i18next-parser.config.ts.bundle.mjs`
  * and then deletes it, which races (ENOENT on rmSync) when multiple packages
  * build `@votingworks/ui` concurrently during a monorepo build. A `.js` config
- * is loaded directly, with no temp file to collide on.
+ * is loaded directly, with no temp file to collide on. It is ESM because this
+ * package is `"type": "module"`, and i18next-parser loads the config with
+ * `import()`; note it looks for `.js`/`.mjs`/`.ts`/`.json`/`.yaml` and would not
+ * find a `.cjs` file.
  */
 
-module.exports = {
+export default {
   contextSeparator: '_',
   // Key separator used in your translation keys
 

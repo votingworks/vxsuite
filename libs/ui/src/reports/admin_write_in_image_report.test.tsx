@@ -1,14 +1,14 @@
 import { expect, test, vi } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { screen } from '@testing-library/react';
-import { render } from '../../test/react_testing_library';
+import { render } from '../../test/react_testing_library.js';
 import {
   AdminContestWriteIns,
   AdminWriteInImageReport,
   AdminWriteInImageReportProps,
   CandidateGroupWriteIns,
-} from './admin_write_in_image_report';
-import { WriteInEntry } from './precinct_scanner_write_in_image_report';
+} from './admin_write_in_image_report.js';
+import { WriteInEntry } from './precinct_scanner_write_in_image_report.js';
 
 vi.mock(import('@votingworks/types'), async (importActual) => {
   const original = await importActual();

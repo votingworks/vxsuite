@@ -1,12 +1,12 @@
 import { expect, test } from 'vitest';
 import { throwIllegalValue } from '@votingworks/basics';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen } from '../test/react_testing_library.js';
 
 import {
   NetworkIndicatorStatus,
   NetworkStatusIndicator,
-} from './network_status_indicator';
-import { makeTheme } from './themes/make_theme';
+} from './network_status_indicator.js';
+import { makeTheme } from './themes/make_theme.js';
 
 const THEME = makeTheme({ colorMode: 'desktop', sizeMode: 'desktop' });
 const DANGER_COLOR = THEME.colors.inverseDangerAccent;

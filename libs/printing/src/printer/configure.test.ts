@@ -1,8 +1,8 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { ok } from '@votingworks/basics';
-import { HP_4001_PRINTER_CONFIG, getPpdPath } from '.';
-import { exec } from '../utils/exec';
-import { DEFAULT_MANAGED_PRINTER_NAME, configurePrinter } from './configure';
+import { HP_4001_PRINTER_CONFIG, getPpdPath } from './index.js';
+import { exec } from '../utils/exec.js';
+import { DEFAULT_MANAGED_PRINTER_NAME, configurePrinter } from './configure.js';
 
 vi.mock('../utils/exec');
 

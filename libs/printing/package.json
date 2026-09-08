@@ -4,8 +4,18 @@
   "private": true,
   "description": "Backend rendering, printing, and printer management",
   "license": "GPL-3.0-only",
-  "main": "build/index.js",
-  "types": "build/index.d.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "default": "./build/index.js"
+    },
+    "./browser": {
+      "types": "./build/browser.d.ts",
+      "default": "./build/browser.js"
+    },
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
     "build:self": "tsc --build tsconfig.build.json",
@@ -54,7 +64,6 @@
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "esbuild": "0.28.1",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "jest-image-snapshot": "^6.4.0",
     "sort-package-json": "^1.50.0",

@@ -1,6 +1,6 @@
-import { AudioOnly, LanguageOverride } from '../../ui_strings';
-import { useCurrentLanguage } from '../../hooks/use_current_language';
-import { Key } from '../common';
+import { AudioOnly, LanguageOverride } from '../../ui_strings/index.js';
+import { useCurrentLanguage } from '../../hooks/use_current_language.js';
+import { Key } from '../common.js';
 
 export interface KeyGroupAudioLabelProps {
   keys: Key[];

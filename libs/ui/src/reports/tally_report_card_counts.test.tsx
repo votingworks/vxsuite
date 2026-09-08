@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest';
 import { within } from '@testing-library/react';
-import { render, screen } from '../../test/react_testing_library';
+import { render, screen } from '../../test/react_testing_library.js';
 
-import { TallyReportCardCounts } from './tally_report_card_counts';
+import { TallyReportCardCounts } from './tally_report_card_counts.js';
 
 test('all counts, multiple sheets', () => {
   render(

@@ -1,7 +1,7 @@
 import type { BatteryInfo } from '@votingworks/backend';
 import { format } from '@votingworks/utils';
-import { H2, P } from '../typography';
-import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
+import { H2, P } from '../typography.js';
+import { InfoIcon, SuccessIcon, WarningIcon } from './icons.js';
 
 function warnOnBatteryInfo({ discharging, level }: BatteryInfo): boolean {
   return discharging && level < 0.1;

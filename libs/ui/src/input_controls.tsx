@@ -1,9 +1,9 @@
 // @coverage-defer-file
 import { DateTime } from 'luxon';
 import React from 'react';
-import styled from 'styled-components';
-import { CounterButton } from './counter_button';
-import { useKeyPressTracking } from './hooks/use_key_press_tracking';
+import { styled } from './styled.js';
+import { CounterButton } from './counter_button.js';
+import { useKeyPressTracking } from './hooks/use_key_press_tracking.js';
 
 const Column = styled.div`
   display: flex;

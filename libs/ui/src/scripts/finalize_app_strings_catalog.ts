@@ -6,11 +6,14 @@ import {
   safeParseJson,
 } from '@votingworks/types';
 import path from 'node:path';
-import { generateNumberStringsCatalog } from '../src/ui_strings/number_strings';
+import { generateNumberStringsCatalog } from '../ui_strings/number_strings.js';
 
+// This module is run from its compiled location (`build/scripts/`) — the
+// `scripts/finalize-app-strings-catalog` launcher imports it from there — and it
+// rewrites a checked-in source file, so the path points back into `src/`.
 const APP_STRINGS_CATALOG_FILE_PATH = path.join(
-  __dirname,
-  '../src/ui_strings/app_strings_catalog/latest.json'
+  import.meta.dirname,
+  '../../src/ui_strings/app_strings_catalog/latest.json'
 );
 
 function addNumberStrings(

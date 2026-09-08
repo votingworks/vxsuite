@@ -2,21 +2,21 @@ import React from 'react';
 
 import { Optional, assertDefined } from '@votingworks/basics';
 
-import { useAudioContext } from './audio_context';
-import { getDeepValue } from './get_deep_value';
-import { ClipParams, PlayAudioClips } from './play_audio_clips';
-import { useCurrentLanguage } from '../hooks/use_current_language';
-import { UiStringAudioDataAttributeName } from './with_audio';
+import { useAudioContext } from './audio_context.js';
+import { getDeepValue } from './get_deep_value.js';
+import { ClipParams, PlayAudioClips } from './play_audio_clips.js';
+import { useCurrentLanguage } from '../hooks/use_current_language.js';
+import { UiStringAudioDataAttributeName } from './with_audio.js';
 import {
   RATE_CHANGE_FEEDBACK_STRING_KEYS,
   VOLUME_CHANGE_FEEDBACK_STRING_KEYS,
-} from './app_strings';
+} from './app_strings.js';
 import {
   AudioVolume,
   getDecreasedVolume,
   getIncreasedVolume,
-} from './audio_volume';
-import { PLAYBACK_RATES, PlaybackRate } from './audio_playback_rate';
+} from './audio_volume.js';
+import { PLAYBACK_RATES, PlaybackRate } from './audio_playback_rate.js';
 
 const EMPTY_CLIP_QUEUE: ClipParams[] = [];
 

@@ -2,9 +2,9 @@ import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { HP_4001_PRINTER_CONFIG, PrintSides } from '..';
-import { createMockPrinterHandler } from './memory_printer';
-import { MOCK_PRINTER_RICH_STATUS } from './fixtures';
+import { HP_4001_PRINTER_CONFIG, PrintSides } from '../index.js';
+import { createMockPrinterHandler } from './memory_printer.js';
+import { MOCK_PRINTER_RICH_STATUS } from './fixtures.js';
 
 test('memory printer', async () => {
   const printerHandler = createMockPrinterHandler();

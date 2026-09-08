@@ -1,8 +1,8 @@
 import type * as vitest from 'vitest';
 import { within } from '@testing-library/react';
 import { assertDefined } from '@votingworks/basics';
-import { VxScreen } from '../themes/render_with_themes';
-import { DiagnosticSectionTitle } from './types';
+import { VxScreen } from '../themes/render_with_themes.js';
+import { DiagnosticSectionTitle } from './types.js';
 
 function expectTextInSection(
   expect: typeof vitest.expect,

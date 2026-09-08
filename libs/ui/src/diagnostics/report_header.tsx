@@ -1,9 +1,9 @@
-import styled from 'styled-components';
 import React from 'react';
 import { DateTime } from 'luxon';
 import { formatFullDateTimeZone } from '@votingworks/utils';
-import { LogoMark } from '../logo_mark';
-import { P, H1, Font } from '../typography';
+import { styled } from '../styled.js';
+import { LogoMark } from '../logo_mark.js';
+import { P, H1, Font } from '../typography.js';
 
 export interface ReadinessReportHeaderMetadata {
   label: string;

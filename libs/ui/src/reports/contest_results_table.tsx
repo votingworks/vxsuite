@@ -1,4 +1,3 @@
-import styled from 'styled-components';
 import pluralize from 'pluralize';
 
 import {
@@ -9,9 +8,10 @@ import {
 } from '@votingworks/types';
 import { format, getTallyReportCandidateRows } from '@votingworks/utils';
 import { throwIllegalValue, assert, Optional, find } from '@votingworks/basics';
+import { styled } from '../styled.js';
 
-import { ReportTable } from './layout';
-import { Font } from '../typography';
+import { ReportTable } from './layout.js';
+import { Font } from '../typography.js';
 
 const DistrictName = styled.p`
   margin-bottom: 0;

@@ -1,15 +1,15 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
 import { mockKiosk } from '@votingworks/test-utils';
 import { isVxDev } from '@votingworks/utils';
+import { userEvent } from './user_event.js';
 import {
   screen,
   waitForElementToBeRemoved,
-} from '../test/react_testing_library';
+} from '../test/react_testing_library.js';
 
-import { SystemAdministratorScreenContents } from './system_administrator_screen_contents';
-import { newTestContext } from '../test/test_context';
-import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
+import { SystemAdministratorScreenContents } from './system_administrator_screen_contents.js';
+import { newTestContext } from '../test/test_context.js';
+import { mockUsbDriveStatus } from './test-utils/mock_usb_drive.js';
 
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),

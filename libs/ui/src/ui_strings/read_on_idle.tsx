@@ -1,8 +1,8 @@
 import React from 'react';
 import { assertDefined } from '@votingworks/basics';
-import { AudioOnly } from './audio_only';
-import { useAudioContext } from './audio_context';
-import { useScreenReaderActive } from './ui_string_screen_reader';
+import { AudioOnly } from './audio_only.js';
+import { useAudioContext } from './audio_context.js';
+import { useScreenReaderActive } from './ui_string_screen_reader.js';
 
 export interface ReadOnIdleProps {
   children: React.ReactNode;

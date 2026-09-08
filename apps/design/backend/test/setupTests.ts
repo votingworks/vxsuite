@@ -7,7 +7,7 @@ import {
   buildToMatchPdfSnapshot,
   ToMatchPdfSnapshotOptions,
 } from '@votingworks/image-utils';
-import { cleanupCachedBrowser } from '@votingworks/printing';
+import { cleanupCachedBrowser } from '@votingworks/printing/browser';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
 
 afterAll(async () => {

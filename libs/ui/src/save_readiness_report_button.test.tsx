@@ -1,5 +1,4 @@
 import { test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
 import { deferred, err, ok } from '@votingworks/basics';
 import { ExportDataResult } from '@votingworks/backend';
 import {
@@ -7,14 +6,15 @@ import {
   QueryClientProvider,
   useMutation,
 } from '@tanstack/react-query';
+import { userEvent } from './user_event.js';
 import {
   SaveReadinessReportButton,
   SaveReadinessReportProps,
-} from './save_readiness_report_button';
+} from './save_readiness_report_button.js';
 
-import { render, screen } from '../test/react_testing_library';
-import { QUERY_CLIENT_DEFAULT_OPTIONS } from './react_query';
-import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
+import { render, screen } from '../test/react_testing_library.js';
+import { QUERY_CLIENT_DEFAULT_OPTIONS } from './react_query.js';
+import { mockUsbDriveStatus } from './test-utils/mock_usb_drive.js';
 
 const mockMutate = vi
   .fn<() => Promise<ExportDataResult>>()

@@ -15,12 +15,12 @@ import { writeFile } from 'node:fs/promises';
 import { PDFDocument } from 'pdf-lib';
 import { PrinterConfig, PrinterStatus } from '@votingworks/types';
 import { getMockStateRootDir } from '@votingworks/utils';
-import { PrintProps, PrintSides, Printer } from '../types';
-import { getMockConnectedPrinterStatus } from './fixtures';
+import { PrintProps, PrintSides, Printer } from '../types.js';
+import { getMockConnectedPrinterStatus } from './fixtures.js';
 
 export const MOCK_PRINTER_STATE_FILENAME = 'state.json';
 // libs/printing/src/printer/mocks/ is 5 levels below the repo root
-const REPO_ROOT = join(__dirname, '../../../../..');
+const REPO_ROOT = join(import.meta.dirname, '../../../../..');
 export const MOCK_HP_PRINTER_DIR = join(
   getMockStateRootDir(REPO_ROOT),
   'hp-printer'

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { format } from '@votingworks/utils';
 import { Optional, iter } from '@votingworks/basics';
-import { Modal } from './modal';
-import { useSystemCallApi } from './system_call_api';
-import { Button } from './button';
-import { P } from './typography';
-import { Icons } from './icons';
+import { Modal } from './modal.js';
+import { useSystemCallApi } from './system_call_api.js';
+import { Button } from './button.js';
+import { P } from './typography.js';
+import { Icons } from './icons.js';
 
 const WARNING_THRESHOLDS: number[] = [0.05, 0.1];
 

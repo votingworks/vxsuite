@@ -1,4 +1,4 @@
-import { Keybinding } from '../../keybindings';
+import { Keybinding } from '../../keybindings.js';
 
 export const behaviorToKeypressMap = {
   Move: Keybinding.PAT_MOVE,

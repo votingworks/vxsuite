@@ -1,10 +1,10 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 
-import { fireEvent, render, screen } from '../test/react_testing_library';
+import { fireEvent, render, screen } from '../test/react_testing_library.js';
 import {
   DEFAULT_MIN_TOUCH_DURATION_MS,
   MinTouchDurationGuard,
-} from './min_touch_duration_guard';
+} from './min_touch_duration_guard.js';
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });

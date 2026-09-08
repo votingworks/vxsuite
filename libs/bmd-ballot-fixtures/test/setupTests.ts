@@ -3,8 +3,8 @@ import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
+import { cleanupCachedBrowser } from '@votingworks/printing/browser';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
-import { cleanupCachedBrowser } from '@votingworks/printing';
 
 afterAll(async () => {
   await cleanupCachedBrowser();

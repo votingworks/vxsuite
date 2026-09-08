@@ -1,7 +1,7 @@
 import { afterEach, expect, test, vi } from 'vitest';
-import { act, render, screen } from '../test/react_testing_library';
+import { act, render, screen } from '../test/react_testing_library.js';
 
-import { FULLSCREEN_LOADING_DELAY_MS, Loading } from './loading';
+import { FULLSCREEN_LOADING_DELAY_MS, Loading } from './loading.js';
 
 afterEach(() => {
   vi.useRealTimers();

@@ -229,9 +229,7 @@ export function getTypeName(type: ts.Type): string | undefined {
   );
 }
 
-function* allDeclaredTypes(
-  node: ts.TypeNode
-): Generator<ts.TypeNode> {
+function* allDeclaredTypes(node: ts.TypeNode): Generator<ts.TypeNode> {
   yield node;
 
   switch (node.kind) {
@@ -306,3 +304,5 @@ export function containsNamedType(
 
   return false;
 }
+
+export * from './workspace_package';

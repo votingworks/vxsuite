@@ -3,7 +3,7 @@ import {
   MAXIMUM_SUPPORTED_NUMBER_FOR_TTS,
   generateNumberStringsCatalog,
   getI18nKeyForNumber,
-} from './number_strings';
+} from './number_strings.js';
 
 test('generates entries up to maximum supported number', () => {
   const maxNumber = MAXIMUM_SUPPORTED_NUMBER_FOR_TTS;

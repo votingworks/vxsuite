@@ -6,7 +6,7 @@ import {
   find,
   throwIllegalValue,
 } from '@votingworks/basics';
-import styled, { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from 'styled-components';
 import {
   combineCardCounts,
   determinePartyId,
@@ -20,22 +20,23 @@ import {
   getScannedBallotCountForSheet,
 } from '@votingworks/utils';
 import React from 'react';
-import { printedReportThemeFn, PrintedReport, reportColors } from './layout';
-import { LogoMark } from '../logo_mark';
-import { CustomFilterSummary } from './custom_filter_summary';
+import { styled } from '../styled.js';
+import { printedReportThemeFn, PrintedReport, reportColors } from './layout.js';
+import { LogoMark } from '../logo_mark.js';
+import { CustomFilterSummary } from './custom_filter_summary.js';
 import {
   getBatchLabel,
   getScannerLabel,
   LabeledScannerBatch,
   prefixedTitle,
-} from './utils';
+} from './utils.js';
 import {
   ReportElectionInfo,
   ReportHeader,
   ReportTitle,
   TestModeReportBanner,
-} from './report_header';
-import { ReportGeneratedMetadata } from './report_generated_metadata';
+} from './report_header.js';
+import { ReportGeneratedMetadata } from './report_generated_metadata.js';
 
 export const ATTRIBUTE_COLUMNS = [
   'precinct',

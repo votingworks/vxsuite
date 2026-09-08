@@ -1,16 +1,16 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import React from 'react';
-import userEvent from '@testing-library/user-event';
-import { render, screen, within } from '../test/react_testing_library';
-import { Modal, ModalWidth } from './modal';
-import { Button } from './button';
-import { ReadOnLoad, ReadOnLoadProps } from './ui_strings/read_on_load';
-import { UiStringsAudioContextProvider } from './ui_strings/audio_context';
+import { userEvent } from './user_event.js';
+import { render, screen, within } from '../test/react_testing_library.js';
+import { Modal, ModalWidth } from './modal.js';
+import { Button } from './button.js';
+import { ReadOnLoad, ReadOnLoadProps } from './ui_strings/read_on_load.js';
+import { UiStringsAudioContextProvider } from './ui_strings/audio_context.js';
 import {
   UiStringsReactQueryApi,
   createUiStringsApi,
-} from './hooks/ui_strings_api';
-import { FocusableAudio, FocusableAudioProps } from './focusable_audio';
+} from './hooks/ui_strings_api.js';
+import { FocusableAudio, FocusableAudioProps } from './focusable_audio.js';
 
 vi.mock(import('./ui_strings/read_on_load.js'), async (importActual) => ({
   ...(await importActual()),

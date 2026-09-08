@@ -3,7 +3,7 @@ import type { Meta } from '@storybook/react-vite' with {
 };
 import { ColorPalette } from '@votingworks/types';
 import { groupBy } from '@votingworks/basics';
-import { DesktopPalette, TouchscreenPalette } from './make_theme';
+import { DesktopPalette, TouchscreenPalette } from './make_theme.js';
 
 const palettes = {
   desktop: DesktopPalette,

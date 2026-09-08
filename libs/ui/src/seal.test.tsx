@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { readElectionGeneral } from '@votingworks/fixtures';
-import { render, screen } from '../test/react_testing_library';
-import { Seal } from './seal';
+import { render, screen } from '../test/react_testing_library.js';
+import { Seal } from './seal.js';
 
 const electionGeneral = readElectionGeneral();
 

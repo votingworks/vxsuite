@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 import { useState } from 'react';
-import useInterval from 'use-interval';
+import { useInterval } from 'use-interval';
 
 /**
  * React hook to get a current-to-the-second date.

@@ -4,7 +4,7 @@ import {
   getPpdPath,
   HP_4001_PRINTER_CONFIG,
   HP_M404_PRINTER_CONFIG,
-} from '../src/printer/supported';
+} from '../printer/supported.js';
 
 /**
  * Derives the HP LaserJet Pro M404 PPD from the generic PPD and writes it to

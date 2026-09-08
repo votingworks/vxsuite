@@ -2,11 +2,11 @@ import { expect, test, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { TestLanguageCode } from '@votingworks/test-utils';
-import { createUiStringsApi } from './ui_strings_api';
-import { useAvailableLanguages } from './use_available_languages';
-import { UiStringsContextProvider } from '../ui_strings';
-import { DEFAULT_LANGUAGE_CODE } from '../ui_strings/language_context';
-import { renderHook, waitFor } from '../../test/react_testing_library';
+import { createUiStringsApi } from './ui_strings_api.js';
+import { useAvailableLanguages } from './use_available_languages.js';
+import { UiStringsContextProvider } from '../ui_strings/index.js';
+import { DEFAULT_LANGUAGE_CODE } from '../ui_strings/language_context.js';
+import { renderHook, waitFor } from '../../test/react_testing_library.js';
 
 const { ENGLISH, SPANISH } = TestLanguageCode;
 

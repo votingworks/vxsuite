@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useIsPatDeviceConnected } from './pat_device_context';
+import { useIsPatDeviceConnected } from './pat_device_context.js';
 
 interface AssistiveTechInstructionsProps {
   controllerString: React.ReactNode;

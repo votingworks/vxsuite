@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
-import { render } from '../test/react_testing_library';
+import { render } from '../test/react_testing_library.js';
 
-import { Screen } from './screen';
+import { Screen } from './screen.js';
 
 describe('renders Screen', () => {
   test('with defaults', () => {

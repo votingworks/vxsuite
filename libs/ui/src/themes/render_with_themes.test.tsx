@@ -6,11 +6,11 @@ import {
   makeRender,
   vxTestingLibraryScreen,
   vxTestingLibraryWithinFn,
-} from './render_with_themes';
-import { H1, P } from '../typography';
-import { makeTheme } from './make_theme';
-import { Button } from '../button';
-import { Icons } from '../icons';
+} from './render_with_themes.js';
+import { H1, P } from '../typography.js';
+import { makeTheme } from './make_theme.js';
+import { Button } from '../button.js';
+import { Icons } from '../icons.js';
 
 const onTestFinishedSpy = vi.fn(onTestFinished);
 const renderWithThemes = makeRender(onTestFinishedSpy);

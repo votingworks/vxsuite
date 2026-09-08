@@ -1,6 +1,7 @@
-import styled, { keyframes } from 'styled-components';
+import { keyframes } from 'styled-components';
+import { styled } from './styled.js';
 
-import { Svg } from './svg';
+import { Svg } from './svg.js';
 
 // HACK: The content was originally drawn on a 512x512 canvas, but had a lot
 // of empty room on the x-axis - the viewBox width has been reduced to 395 to

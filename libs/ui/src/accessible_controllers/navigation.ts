@@ -1,4 +1,4 @@
-import { FOCUSABLE_AUDIO_CLASS_NAME } from '../focusable_audio';
+import { FOCUSABLE_AUDIO_CLASS_NAME } from '../focusable_audio.js';
 
 export enum PageNavigationButtonId {
   NEXT = 'next',

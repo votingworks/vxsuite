@@ -4,10 +4,10 @@ import path from 'node:path';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ExportDataResult } from '@votingworks/backend';
 import { UseMutationResult } from '@tanstack/react-query';
-import { Button } from './button';
-import { Modal } from './modal';
-import { P, Font } from './typography';
-import { Loading } from './loading';
+import { Button } from './button.js';
+import { Modal } from './modal.js';
+import { P, Font } from './typography.js';
+import { Loading } from './loading.js';
 
 export interface SaveReadinessReportProps {
   usbDriveStatus: UsbDriveStatus;

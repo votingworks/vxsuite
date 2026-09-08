@@ -2,14 +2,14 @@ import { expect, test } from 'vitest';
 import { act } from 'react';
 
 import { TestLanguageCode } from '@votingworks/test-utils';
-import { UiStringAudioDataAttributeName, WithAudio } from './with_audio';
+import { UiStringAudioDataAttributeName, WithAudio } from './with_audio.js';
 import {
   render as renderWithoutContext,
   screen,
   waitFor,
-} from '../../test/react_testing_library';
-import { newTestContext } from '../../test/test_context';
-import { LanguageOverride } from './language_override';
+} from '../../test/react_testing_library.js';
+import { newTestContext } from '../../test/test_context.js';
+import { LanguageOverride } from './language_override.js';
 
 const { ENGLISH, SPANISH } = TestLanguageCode;
 

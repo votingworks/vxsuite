@@ -3,13 +3,13 @@ import type { Meta, StoryFn } from '@storybook/react-vite' with {
 };
 
 import { LoremIpsum } from 'lorem-ipsum';
-import styled from 'styled-components';
+import { styled } from './styled.js';
 import {
   WithScrollButtons,
   WithScrollButtonsProps,
-} from './with_scroll_buttons';
-import { H1 } from './typography';
-import { Card } from './card';
+} from './with_scroll_buttons.js';
+import { H1 } from './typography.js';
+import { Card } from './card.js';
 
 const loremIpsum = new LoremIpsum();
 

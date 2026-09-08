@@ -19,15 +19,15 @@ import {
   electionFamousNames2021Fixtures,
   readElectionGeneral,
 } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
-import { screen, within } from '../test/react_testing_library';
-import { newTestContext } from '../test/test_context';
+import { userEvent } from './user_event.js';
+import { screen, within } from '../test/react_testing_library.js';
+import { newTestContext } from '../test/test_context.js';
 import {
   CardProgrammingApiClient,
   SmartCardsScreen,
   SmartCardsScreenProps,
-} from './smart_cards_screen';
-import { VxRenderOptions } from './themes/render_with_themes';
+} from './smart_cards_screen.js';
+import { VxRenderOptions } from './themes/render_with_themes.js';
 
 vi.useFakeTimers({ shouldAdvanceTime: true });
 

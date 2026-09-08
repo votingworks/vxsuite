@@ -1,4 +1,4 @@
-import { Icons } from '../icons';
+import { Icons } from '../icons.js';
 
 export function SuccessIcon(): JSX.Element {
   return <Icons.Checkbox color="success" />;

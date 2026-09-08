@@ -1,8 +1,8 @@
 import type { PrinterStatus } from '@votingworks/fujitsu-thermal-printer';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { DiagnosticRecord } from '@votingworks/types';
-import { H2, P } from '../typography';
-import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
+import { H2, P } from '../typography.js';
+import { InfoIcon, SuccessIcon, WarningIcon } from './icons.js';
 
 export interface ThermalPrinterSectionProps {
   printerStatus: PrinterStatus;

@@ -1,5 +1,5 @@
 import { assert } from '@votingworks/basics';
-import styled from 'styled-components';
+import { styled } from './styled.js';
 
 const ProgressBarContainer = styled.div`
   background-color: ${(p) => p.theme.colors.containerLow};

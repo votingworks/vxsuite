@@ -1,12 +1,12 @@
-import { Button } from './button';
-import { Main } from './main';
-import { Screen } from './screen';
+import { Button } from './button.js';
+import { Main } from './main.js';
+import { Screen } from './screen.js';
 import {
   SignedHashValidationApiClient,
   SignedHashValidationButton,
-} from './signed_hash_validation_button';
-import { P } from './typography';
-import { UnconfigureMachineButton } from './unconfigure_machine_button';
+} from './signed_hash_validation_button.js';
+import { P } from './typography.js';
+import { UnconfigureMachineButton } from './unconfigure_machine_button.js';
 
 interface VendorScreenApiClient extends SignedHashValidationApiClient {
   rebootToVendorMenu: () => Promise<void>;

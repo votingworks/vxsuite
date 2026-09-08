@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import {
   NumberInput as Component,
   NumberInputProps as Props,
-} from './number_input';
+} from './number_input.js';
 
 const initialProps: Props = {
   id: 'number-input-story',

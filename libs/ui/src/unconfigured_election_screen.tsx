@@ -2,9 +2,9 @@ import { ElectionPackageConfigurationError } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { systemLimitViolationToString } from '@votingworks/utils';
-import { FullScreenIconWrapper, Icons } from './icons';
-import { UsbDriveImage } from './usb_drive_image';
-import { FullScreenMessage } from './full_screen_message';
+import { FullScreenIconWrapper, Icons } from './icons.js';
+import { UsbDriveImage } from './usb_drive_image.js';
+import { FullScreenMessage } from './full_screen_message.js';
 
 export interface UnconfiguredElectionScreenProps {
   usbDriveStatus: UsbDriveStatus;

@@ -1,15 +1,15 @@
 import { expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
-import { render, screen } from '../test/react_testing_library';
+import { userEvent } from './user_event.js';
+import { render, screen } from '../test/react_testing_library.js';
 
-import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
+import { mockUsbDriveStatus } from './test-utils/mock_usb_drive.js';
 import {
   BatteryStatus,
   DateTimeDisplay,
   LockMachineButton,
   Toolbar,
   UsbEjectButton,
-} from './toolbar';
+} from './toolbar.js';
 
 vi.useFakeTimers({
   shouldAdvanceTime: true,

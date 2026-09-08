@@ -8,7 +8,7 @@ import {
   PrecinctScannerWriteInImageReport,
 } from '@votingworks/ui';
 import { anyPollingPlace } from '@votingworks/types';
-import { PAPER_DIMENSIONS, renderToPdf } from './render';
+import { PAPER_DIMENSIONS, renderToPdf } from './render.js';
 
 vi.mock(import('@votingworks/types'), async (importActual) => {
   const original = await importActual();

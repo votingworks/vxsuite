@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
-import { render, screen } from '../../../test/react_testing_library';
-import { PatIntroductionStep } from './pat_introduction_step';
+import { userEvent } from '../../user_event.js';
+import { render, screen } from '../../../test/react_testing_library.js';
+import { PatIntroductionStep } from './pat_introduction_step.js';
 
 test('calls provided onStepCompleted fn when valid input is pressed', () => {
   const onStepCompleted = vi.fn();

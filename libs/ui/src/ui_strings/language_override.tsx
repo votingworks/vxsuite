@@ -3,7 +3,7 @@ import {
   LanguageContext,
   useLanguageContext,
   UiStringsLoader,
-} from './language_context';
+} from './language_context.js';
 
 export interface LanguageOverrideProps {
   children: React.ReactNode;

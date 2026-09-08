@@ -5,7 +5,7 @@ import type { Meta } from '@storybook/react-vite' with {
 import {
   CheckboxGroupProps,
   CheckboxGroup as Component,
-} from './checkbox_group';
+} from './checkbox_group.js';
 
 const meta: Meta<typeof Component> = {
   title: 'libs-ui/CheckboxGroup',

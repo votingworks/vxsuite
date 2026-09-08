@@ -6,10 +6,10 @@ import {
   Parties,
   PollingPlace,
 } from '@votingworks/types';
-import { CandidatePartyList, PollingPlaceName } from './utils';
-import { newTestContext } from '../../test/test_context';
-import { H1 } from '..';
-import { screen } from '../../test/react_testing_library';
+import { CandidatePartyList, PollingPlaceName } from './utils.js';
+import { newTestContext } from '../../test/test_context.js';
+import { H1 } from '../index.js';
+import { screen } from '../../test/react_testing_library.js';
 
 const ELECTION_PARTIES: Readonly<Parties> = [
   {

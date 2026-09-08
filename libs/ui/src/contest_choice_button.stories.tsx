@@ -6,7 +6,7 @@ import type { Meta } from '@storybook/react-vite' with {
 import {
   ContestChoiceButton as Component,
   ContestChoiceButtonProps as Props,
-} from './contest_choice_button';
+} from './contest_choice_button.js';
 
 const initialProps: Props<string> = {
   onPress: () => undefined,

@@ -1,6 +1,6 @@
-import styled from 'styled-components';
 import { Rect } from '@votingworks/types';
-import { DesktopPalette } from './themes/make_theme';
+import { styled } from './styled.js';
+import { DesktopPalette } from './themes/make_theme.js';
 
 type HighlightVariant = 'warning' | 'primary';
 

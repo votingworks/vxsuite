@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest';
 import React from 'react';
-import { act, renderHook } from '../../test/react_testing_library';
+import { act, renderHook } from '../../test/react_testing_library.js';
 import {
   PatDeviceContextProvider,
   useIsPatDeviceConnected,
-} from './pat_device_context';
+} from './pat_device_context.js';
 
 test('useIsPatDeviceConnected - exposes context value when present', () => {
   let setIsPatDeviceConnected: (isConnected: boolean) => void | undefined;

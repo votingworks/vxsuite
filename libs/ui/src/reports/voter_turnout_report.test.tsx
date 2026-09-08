@@ -5,8 +5,8 @@ import {
 } from '@votingworks/fixtures';
 import { Tabulation } from '@votingworks/types';
 import { screen, within } from '@testing-library/react';
-import { render } from '../../test/react_testing_library';
-import { VoterTurnoutReport } from './voter_turnout_report';
+import { render } from '../../test/react_testing_library.js';
+import { VoterTurnoutReport } from './voter_turnout_report.js';
 
 const electionDefinition = readElectionTwoPartyPrimaryDefinition();
 

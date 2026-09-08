@@ -1,4 +1,4 @@
-import { Browser, Page, chromium } from 'playwright';
+import { Browser, Page } from 'playwright';
 import ReactDom from 'react-dom/server';
 import React from 'react';
 
@@ -11,6 +11,7 @@ import {
   FONT_AWESOME_STYLES,
 } from '@votingworks/ui';
 import { err, ok, Result } from '@votingworks/basics';
+import { getOrCreateCachedBrowser } from './browser.js';
 
 const PLAYWRIGHT_PIXELS_PER_INCH = 96;
 const MAX_HTML_CHARACTERS = 10_000_000;
@@ -20,8 +21,6 @@ const MAX_HTML_CHARACTERS = 10_000_000;
 // with Chromium 140). Pad the measured height so content sized to fit a
 // single roll page isn't split onto a second page.
 const CONTENT_HEIGHT_PADDING_PX = 8;
-
-let cachedBrowser: Browser | undefined;
 
 export type PdfError = 'content-too-large';
 
@@ -53,7 +52,6 @@ export const DEFAULT_MARGIN_DIMENSIONS: MarginDimensions = {
   left: 0.5,
 } as const;
 
-// @coverage-defer
 function inchesToText(inches: number): string {
   return `${inches}in`;
 }
@@ -71,29 +69,6 @@ function getContentHeight(page: Page): Promise<number> {
     ).getBoundingClientRect();
     return rect.height + rect.top;
   });
-}
-
-export async function launchBrowser(): Promise<Browser> {
-  return await chromium.launch({
-    // Font hinting (https://fonts.google.com/knowledge/glossary/hinting) is on by default, but
-    // causes fonts to render awkwardly at higher resolutions, so we disable it
-    args: ['--font-render-hinting=none'],
-  });
-}
-
-// @coverage-exclude: cleanup function for vitest
-export async function cleanupCachedBrowser(): Promise<void> {
-  if (cachedBrowser) {
-    await cachedBrowser.close();
-  }
-  cachedBrowser = undefined;
-}
-
-async function getOrCreateCachedBrowser(): Promise<Browser> {
-  if (!cachedBrowser || !cachedBrowser.isConnected()) {
-    cachedBrowser = await launchBrowser();
-  }
-  return cachedBrowser;
 }
 
 function renderAndExtractStyles(element: JSX.Element) {
@@ -165,9 +140,7 @@ export async function renderToPdf(
         {/* Initial report ported from VxAdmin, thus `desktop` theme to match styles */}
         {/* TODO: Migrate older prints to print theme. */}
         <VxThemeProvider
-          // @coverage-defer
           colorMode={usePrintTheme ? 'print' : 'desktop'}
-          // @coverage-defer
           sizeMode={usePrintTheme ? 'print' : 'desktop'}
           screenType="builtIn"
         >
@@ -222,9 +195,7 @@ export async function renderToPdf(
       verticalMargin;
 
     const headerHtml =
-      // @coverage-defer
       headerTemplate &&
-      // @coverage-defer
       (() => {
         const {
           elementHtml: headerElementHtml,
@@ -247,14 +218,12 @@ export async function renderToPdf(
         );
       })();
 
-    // @coverage-defer
     buffers.push(
       Uint8Array.from(
         await page.pdf({
           path: outputPath,
           width: inchesToText(width),
           height: inchesToText(
-            // @coverage-defer
             /* if printing on a roll remove any unneeded height but never be smaller than a standard page */
             isLetterRoll
               ? Math.min(
@@ -278,9 +247,7 @@ export async function renderToPdf(
     );
   }
 
-  // @coverage-defer
   await context.close();
 
-  // @coverage-defer
   return ok(Array.isArray(spec) ? buffers : buffers[0]);
 }

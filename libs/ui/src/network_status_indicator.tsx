@@ -1,5 +1,5 @@
-import styled from 'styled-components';
-import { Icons } from './icons';
+import { styled } from './styled.js';
+import { Icons } from './icons.js';
 
 /**
  * The network statuses a machine's toolbar indicator can display, grouped by

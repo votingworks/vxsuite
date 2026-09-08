@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { render, screen } from '../../test/react_testing_library';
-import { ReadinessReportHeader } from './report_header';
+import { render, screen } from '../../test/react_testing_library.js';
+import { ReadinessReportHeader } from './report_header.js';
 
 test('ReadinessReportHeader', () => {
   const machineType = 'VxMock';

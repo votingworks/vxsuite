@@ -5,12 +5,12 @@ import {
   PrinterRichStatus,
   PrinterStatus,
 } from '@votingworks/types';
-import { render, screen } from '../../test/react_testing_library';
+import { render, screen } from '../../test/react_testing_library.js';
 import {
   PrinterSection,
   parseHighestPriorityIppPrinterStateReason,
-} from './printer_section';
-import { expectTextWithIcon } from '../../test/expect_text_with_icon';
+} from './printer_section.js';
+import { expectTextWithIcon } from '../../test/expect_text_with_icon.js';
 
 export const MOCK_PRINTER_CONFIG: PrinterConfig = {
   label: '',

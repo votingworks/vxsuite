@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen } from '../test/react_testing_library.js';
 import {
   BallotImage,
   HIGHLIGHT_PRIMARY_BACKGROUND,
   HIGHLIGHT_WARNING_BACKGROUND,
-} from './ballot_image';
+} from './ballot_image.js';
 
 const BALLOT_BOUNDS = { x: 0, y: 0, width: 1700, height: 2200 } as const;
 const IMAGE_URL = 'data:image/png;base64,';

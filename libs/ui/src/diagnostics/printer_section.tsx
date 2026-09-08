@@ -5,8 +5,8 @@ import {
 } from '@votingworks/types';
 import React from 'react';
 import { Optional, assert, throwIllegalValue } from '@votingworks/basics';
-import { H2, P } from '../typography';
-import { InfoIcon, LoadingIcon, SuccessIcon, WarningIcon } from './icons';
+import { H2, P } from '../typography.js';
+import { InfoIcon, LoadingIcon, SuccessIcon, WarningIcon } from './icons.js';
 
 /**
  * IPP printer-state-reasons explain what's going on with a printer in detail.

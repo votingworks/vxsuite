@@ -5,8 +5,14 @@
   "description": "Generic UI components for VotingWorks UIs",
   "license": "GPL-3.0-only",
   "author": "VotingWorks <eng@voting.works>",
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "default": "./build/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "build"
   ],
@@ -100,7 +106,6 @@
     "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",
     "esbuild": "0.28.1",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-storybook": "10.5.10",
     "eslint-plugin-vx": "workspace:*",
     "events": "3.3.0",

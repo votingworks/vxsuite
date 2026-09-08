@@ -1,9 +1,9 @@
 import { BatchInfo, Tabulation } from '@votingworks/types';
 import { formatFullDateTimeZone } from '@votingworks/utils';
 import { DateTime } from 'luxon';
-import styled from 'styled-components';
-import { TD, TH } from '../table';
-import { ReportTable } from './layout';
+import { styled } from '../styled.js';
+import { TD, TH } from '../table.js';
+import { ReportTable } from './layout.js';
 
 const Container = styled.div`
   margin-top: 1.5em;

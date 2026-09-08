@@ -2,8 +2,8 @@ import { tmpName } from 'tmp-promise';
 import { writeFile } from 'node:fs/promises';
 import { rmSync } from 'node:fs';
 import { PrinterConfig, PrinterStatus } from '@votingworks/types';
-import { MockPrintJob, PrintProps, Printer } from '../types';
-import { getMockConnectedPrinterStatus } from './fixtures';
+import { MockPrintJob, PrintProps, Printer } from '../types.js';
+import { getMockConnectedPrinterStatus } from './fixtures.js';
 
 /**
  * A mock of the UsbDrive interface. See createMockUsbDrive for details.
@@ -66,7 +66,6 @@ export function createMockPrinterHandler(): MemoryPrinterHandler {
       mockPrinterState.status = getMockConnectedPrinterStatus(config);
     },
 
-    // @coverage-defer
     disconnectPrinter() {
       mockPrinterState.status = {
         connected: false,
@@ -82,7 +81,6 @@ export function createMockPrinterHandler(): MemoryPrinterHandler {
       return printJobHistory.at(-1)?.filename;
     },
 
-    // @coverage-defer
     cleanup() {
       for (const printJob of mockPrinterState.printJobHistory) {
         rmSync(printJob.filename);

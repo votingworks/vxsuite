@@ -1,12 +1,12 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { mockKiosk, suppressingConsoleOutput } from '@votingworks/test-utils';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
-import { render, screen } from '../test/react_testing_library';
+import { render, screen } from '../test/react_testing_library.js';
 import {
   AppErrorBoundary,
   ErrorBoundary,
   TestErrorBoundary,
-} from './error_boundary';
+} from './error_boundary.js';
 
 function ThrowError({ error }: { error?: unknown }): JSX.Element {
   throw error ?? new Error('Whoa!');

@@ -1,7 +1,7 @@
 import { test } from 'vitest';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { render, screen } from '../test/react_testing_library';
-import { BigMetric } from './big_metric';
+import { render, screen } from '../test/react_testing_library.js';
+import { BigMetric } from './big_metric.js';
 
 test('renders label and formatted value', () => {
   render(<BigMetric label="Number of Machines" value={2} />);

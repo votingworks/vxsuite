@@ -1,9 +1,9 @@
 import { DiagnosticRecord, DiagnosticType } from '@votingworks/types';
 import React from 'react';
 import { assert } from '@votingworks/basics';
-import { H2, P } from '../typography';
-import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
-import { DiagnosticSectionTitle } from './types';
+import { H2, P } from '../typography.js';
+import { InfoIcon, SuccessIcon, WarningIcon } from './icons.js';
+import { DiagnosticSectionTitle } from './types.js';
 
 export interface MarkScanDeviceDiagnosticSectionProps {
   isDeviceConnected?: boolean;

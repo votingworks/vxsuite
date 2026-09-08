@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { assert } from '@votingworks/basics';
 
-import { QUERY_CLIENT_DEFAULT_OPTIONS, shouldRetry } from './react_query';
+import { QUERY_CLIENT_DEFAULT_OPTIONS, shouldRetry } from './react_query.js';
 
 test('Relevant settings are consistent for queries and mutations', () => {
   const querySettings = QUERY_CLIENT_DEFAULT_OPTIONS.queries;

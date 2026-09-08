@@ -3,8 +3,8 @@ import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { assertDefined } from '@votingworks/basics';
 import { getFeatureFlagMock } from '@votingworks/utils';
-import { ScanReadinessReport } from '.';
-import { render, screen } from '../../test/react_testing_library';
+import { ScanReadinessReport } from './index.js';
+import { render, screen } from '../../test/react_testing_library.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 vi.mock(import('@votingworks/utils'), async (importActual) => ({

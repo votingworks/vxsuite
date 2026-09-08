@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { afterAll, beforeAll, beforeEach, expect, vi } from 'vitest';
-import matchers from '@testing-library/jest-dom/matchers';
+import matchers from '@testing-library/jest-dom/matchers.js';
 import { cleanup, configure } from '@testing-library/react';
 import {
   clearTemporaryRootDir,

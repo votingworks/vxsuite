@@ -11,6 +11,7 @@ export default defineConfig({
         'src/stubs/*',
         'src/test-utils/*',
         'src/diagnostics/types.ts',
+        'src/scripts/**',
         'src/reports/index.ts',
         'src/diagnostics/test_utils.ts',
         '**/*.stories.ts',

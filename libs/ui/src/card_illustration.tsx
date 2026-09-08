@@ -1,5 +1,5 @@
-import styled from 'styled-components';
-import { SmartCardChipImage } from './smart_card_images';
+import { styled } from './styled.js';
+import { SmartCardChipImage } from './smart_card_images.js';
 
 const CardIllustrationContainer = styled.div<{
   inserted?: boolean;

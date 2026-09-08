@@ -8,11 +8,11 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { assertDefined } from '@votingworks/basics';
-import { render, screen } from '../../test/react_testing_library';
+import { render, screen } from '../../test/react_testing_library.js';
 import {
   ContestWriteIns,
   PrecinctScannerWriteInImageReport,
-} from './precinct_scanner_write_in_image_report';
+} from './precinct_scanner_write_in_image_report.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 vi.mock(import('@votingworks/utils'), async (importActual) => ({

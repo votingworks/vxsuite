@@ -3,7 +3,7 @@ import { act, render, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import { deferred } from '@votingworks/basics';
-import { PollingInterval, usePollingQuery } from './use_polling_query';
+import { PollingInterval, usePollingQuery } from './use_polling_query.js';
 
 vi.useFakeTimers({
   shouldAdvanceTime: true,

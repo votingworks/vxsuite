@@ -1,6 +1,6 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import { act, renderHook } from '../../test/react_testing_library';
-import { useNow } from './use_now';
+import { act, renderHook } from '../../test/react_testing_library.js';
+import { useNow } from './use_now.js';
 
 beforeEach(() => {
   vi.useFakeTimers({

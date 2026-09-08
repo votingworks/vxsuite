@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
-import { Breadcrumbs } from './breadcrumbs';
-import { render, screen } from '../test/react_testing_library';
+import { Breadcrumbs } from './breadcrumbs.js';
+import { render, screen } from '../test/react_testing_library.js';
 
 describe('Breadcrumbs', () => {
   test('shows a sequence of links to the parent routes, plus the current title', () => {

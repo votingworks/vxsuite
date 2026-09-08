@@ -3,7 +3,7 @@ import React from 'react';
 import {
   DEFAULT_LANGUAGE_CODE,
   useFrontendLanguageContext,
-} from '../ui_strings/language_context';
+} from '../ui_strings/language_context.js';
 
 export interface LanguageControls {
   reset: () => void;

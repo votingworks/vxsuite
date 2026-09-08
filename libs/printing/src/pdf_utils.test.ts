@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { PDFDocument } from 'pdf-lib';
-import { getPdfPageCount } from './pdf_utils';
+import { getPdfPageCount } from './pdf_utils.js';
 
 describe('getPdfPageCount', () => {
   test('returns 1 for a single-page PDF', async () => {

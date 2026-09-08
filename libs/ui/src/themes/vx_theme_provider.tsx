@@ -3,7 +3,7 @@ import { ThemeProvider } from 'styled-components';
 
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 
-import { makeTheme } from './make_theme';
+import { makeTheme } from './make_theme.js';
 
 export interface VxThemeProviderProps {
   children: React.ReactNode;

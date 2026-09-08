@@ -1,18 +1,18 @@
 import { expect, test } from 'vitest';
-import userEvent from '@testing-library/user-event';
 import React from 'react';
+import { userEvent } from './user_event.js';
 import {
   fireEvent,
   render,
   screen,
   within,
-} from '../test/react_testing_library';
+} from '../test/react_testing_library.js';
 import {
   SearchSelect,
   SearchSelectProps,
   SearchSelectSingleProps,
-} from './search_select';
-import { makeTheme } from './themes/make_theme';
+} from './search_select.js';
+import { makeTheme } from './themes/make_theme.js';
 
 const options = [
   { value: 'apple', label: 'Apple' },

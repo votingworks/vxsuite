@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { UiStringsReactQueryApi } from '../hooks/ui_strings_api';
-import { FrontendLanguageContextProvider } from './language_context';
-import { UiStringsAudioContextProvider } from './audio_context';
-import { UiStringScreenReader } from './ui_string_screen_reader';
-import { KeyboardShortcutHandlers } from './keyboard_shortcut_handlers';
+import { UiStringsReactQueryApi } from '../hooks/ui_strings_api.js';
+import { FrontendLanguageContextProvider } from './language_context.js';
+import { UiStringsAudioContextProvider } from './audio_context.js';
+import { UiStringScreenReader } from './ui_string_screen_reader.js';
+import { KeyboardShortcutHandlers } from './keyboard_shortcut_handlers.js';
 
 export interface UiStringsContextProviderProps {
   api: UiStringsReactQueryApi;

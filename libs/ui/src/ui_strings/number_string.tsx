@@ -1,13 +1,13 @@
 import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-import { useLanguageContext } from './language_context';
-import { Font, FontProps } from '../typography';
-import { WithAudio } from './with_audio';
+import { useLanguageContext } from './language_context.js';
+import { Font, FontProps } from '../typography.js';
+import { WithAudio } from './with_audio.js';
 import {
   MAXIMUM_SUPPORTED_NUMBER_FOR_TTS,
   getI18nKeyForNumber,
-} from './number_strings';
-import { useAudioContext } from './audio_context';
+} from './number_strings.js';
+import { useAudioContext } from './audio_context.js';
 
 export interface NumberStringProps extends FontProps {
   value: number;

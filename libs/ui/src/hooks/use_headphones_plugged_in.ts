@@ -3,7 +3,7 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { assertDefined } from '@votingworks/basics';
-import { useSystemCallApi } from '../system_call_api';
+import { useSystemCallApi } from '../system_call_api.js';
 
 function useOptionalSystemCallApi() {
   try {

@@ -1,6 +1,7 @@
 import { SizeMode } from '@votingworks/types';
 import React from 'react';
-import styled, { DefaultTheme } from 'styled-components';
+import { DefaultTheme } from 'styled-components';
+import { styled } from './styled.js';
 
 export interface ListProps {
   children: React.ReactNode;

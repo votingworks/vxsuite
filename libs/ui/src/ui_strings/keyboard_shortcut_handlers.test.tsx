@@ -1,16 +1,16 @@
 import { expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
 import { AudioControls } from '@votingworks/types';
 import {
   advancePromises,
   mockUseAudioControls,
   TestLanguageCode,
 } from '@votingworks/test-utils';
-import { newTestContext } from '../../test/test_context';
-import { KeyboardShortcutHandlers } from './keyboard_shortcut_handlers';
-import { act, render, screen, waitFor } from '../../test/react_testing_library';
-import { useCurrentLanguage } from '../hooks/use_current_language';
-import { Keybinding } from '..';
+import { userEvent } from '../user_event.js';
+import { newTestContext } from '../../test/test_context.js';
+import { KeyboardShortcutHandlers } from './keyboard_shortcut_handlers.js';
+import { act, render, screen, waitFor } from '../../test/react_testing_library.js';
+import { useCurrentLanguage } from '../hooks/use_current_language.js';
+import { Keybinding } from '../index.js';
 
 const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = TestLanguageCode;
 const audioControls: AudioControls = mockUseAudioControls(vi.fn);
