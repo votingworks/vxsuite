@@ -1,18 +1,25 @@
-import { ScanStatus } from '@votingworks/central-scan-backend';
+import {
+  BatchScannerMachineStatus,
+  ScanStatus,
+} from '@votingworks/central-scan-backend';
 import { BatchInfo } from '@votingworks/types';
 
 export const DEFAULT_STATUS: ScanStatus = {
+  state: 'idle',
   isScannerAttached: true,
-  ongoingBatchId: undefined,
   adjudicationsRemaining: 0,
   canUnconfigure: true,
   batches: [],
 };
 
-export function mockStatus(status: Partial<ScanStatus> = {}): ScanStatus {
+export function mockStatus(
+  status: Partial<Omit<ScanStatus, 'state'>> = {},
+  machineStatus: BatchScannerMachineStatus = { state: 'idle' }
+): ScanStatus {
   return {
     ...DEFAULT_STATUS,
     ...status,
+    ...machineStatus,
   };
 }
 

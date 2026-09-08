@@ -227,14 +227,16 @@ test('shows scanned ballot count', () => {
 });
 
 test('shows whether a batch is scanning', () => {
-  const status: ScanStatus = mockStatus({
-    ongoingBatchId: 'a',
-    batches: [
-      mockBatch({
-        endedAt: undefined,
-      }),
-    ],
-  });
+  const status: ScanStatus = mockStatus(
+    {
+      batches: [
+        mockBatch({
+          endedAt: undefined,
+        }),
+      ],
+    },
+    { state: 'scanning', batchId: 'a' }
+  );
   renderScreen({ status });
   screen.getByText('Scanning…');
   for (const deleteButton of screen.getAllButtons('Delete')) {
@@ -280,15 +282,18 @@ test('Delete All Batches button', async () => {
 
 describe('Scan Ballots Button', () => {
   test('disabled when no scanner is attached', () => {
-    renderScreen({ status: mockStatus({ isScannerAttached: false }) });
+    renderScreen({
+      status: mockStatus(
+        { isScannerAttached: false },
+        { state: 'disconnected' }
+      ),
+    });
     expect(screen.getButton('No Scanner')).toBeDisabled();
   });
 
   test('disabled when there is an ongoing batch', () => {
     renderScreen({
-      status: mockStatus({
-        ongoingBatchId: 'a',
-      }),
+      status: mockStatus({}, { state: 'scanning', batchId: 'a' }),
     });
     expect(screen.getButton('Scan New Batch')).toBeDisabled();
   });
