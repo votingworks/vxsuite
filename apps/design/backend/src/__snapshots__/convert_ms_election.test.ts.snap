@@ -48,7 +48,7 @@ exports[`convert election with ballot measures 1`] = `
       "partyId": undefined,
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "President",
+      "title": "United States · President",
       "type": "candidate",
     },
     {
@@ -90,7 +90,7 @@ exports[`convert election with ballot measures 1`] = `
       "partyId": undefined,
       "seats": 1,
       "termDescription": "6 YEAR TERM",
-      "title": "Senate ",
+      "title": "United States · Senate ",
       "type": "candidate",
     },
     {
@@ -122,7 +122,7 @@ exports[`convert election with ballot measures 1`] = `
       "partyId": undefined,
       "seats": 1,
       "termDescription": "2 YEAR TERM",
-      "title": "1st Congressional District",
+      "title": "US House Of Rep 01 · 1st Congressional District",
       "type": "candidate",
     },
     {
@@ -154,7 +154,7 @@ exports[`convert election with ballot measures 1`] = `
       "partyId": undefined,
       "seats": 1,
       "termDescription": "8 YEAR TERM",
-      "title": "Supreme Court District 3(Northern) Position 3",
+      "title": "Northern District · Supreme Court District 3(Northern) Position 3",
       "type": "candidate",
     },
     {
@@ -174,7 +174,7 @@ exports[`convert election with ballot measures 1`] = `
       "partyId": undefined,
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Election Commissioner  01",
+      "title": "Election Commissioner 01 · Election Commissioner  01",
       "type": "candidate",
     },
     {
@@ -202,7 +202,7 @@ exports[`convert election with ballot measures 1`] = `
       "partyId": undefined,
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Election Commissioner 02",
+      "title": "Election Commissioner 02 · Election Commissioner 02",
       "type": "candidate",
     },
     {
@@ -222,7 +222,7 @@ exports[`convert election with ballot measures 1`] = `
       "partyId": undefined,
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Election Commissioner 03",
+      "title": "Election Commissioner 03 · Election Commissioner 03",
       "type": "candidate",
     },
     {
@@ -250,7 +250,7 @@ exports[`convert election with ballot measures 1`] = `
       "partyId": undefined,
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Election Commissioner 04",
+      "title": "Election Commissioner 04 · Election Commissioner 04",
       "type": "candidate",
     },
     {
@@ -280,7 +280,7 @@ exports[`convert election with ballot measures 1`] = `
       "partyId": undefined,
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Election Commissioner 05",
+      "title": "Election Commissioner 05 · Election Commissioner 05",
       "type": "candidate",
     },
     {
@@ -300,7 +300,7 @@ exports[`convert election with ballot measures 1`] = `
       "partyId": undefined,
       "seats": 1,
       "termDescription": "6 YEAR TERM",
-      "title": "School Board 05",
+      "title": "School Board District 5 · School Board 05",
       "type": "candidate",
     },
     {
@@ -701,7 +701,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Governor",
+      "title": "State Of Mississippi · Governor",
       "type": "candidate",
     },
     {
@@ -723,7 +723,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Lieutenant Governor",
+      "title": "State Of Mississippi · Lieutenant Governor",
       "type": "candidate",
     },
     {
@@ -745,7 +745,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Secretary Of State",
+      "title": "State Of Mississippi · Secretary Of State",
       "type": "candidate",
     },
     {
@@ -767,7 +767,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Attorney General",
+      "title": "State Of Mississippi · Attorney General",
       "type": "candidate",
     },
     {
@@ -789,7 +789,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "State Auditor",
+      "title": "State Of Mississippi · State Auditor",
       "type": "candidate",
     },
     {
@@ -811,7 +811,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "State Treasurer",
+      "title": "State Of Mississippi · State Treasurer",
       "type": "candidate",
     },
     {
@@ -853,7 +853,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Commissioner Of Agriculture & Commerce",
+      "title": "State Of Mississippi · Commissioner Of Agriculture & Commerce",
       "type": "candidate",
     },
     {
@@ -875,7 +875,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Commissioner Of Insurance",
+      "title": "State Of Mississippi · Commissioner Of Insurance",
       "type": "candidate",
     },
     {
@@ -897,7 +897,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Central District",
+      "title": "Public Service Commissioner · Central District",
       "type": "candidate",
     },
     {
@@ -919,7 +919,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Central District",
+      "title": "Transportation Commissioner · Central District",
       "type": "candidate",
     },
     {
@@ -941,7 +941,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "District 09",
+      "title": "District Attorney 09 · District 09",
       "type": "candidate",
     },
     {
@@ -973,7 +973,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "District 55",
+      "title": "State House Of Rep 55 · District 55",
       "type": "candidate",
     },
     {
@@ -1005,7 +1005,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "District 85",
+      "title": "State House Of Rep 85 · District 85",
       "type": "candidate",
     },
     {
@@ -1027,7 +1027,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "County Prosecuting Attorney",
+      "title": "Lincoln County · County Prosecuting Attorney",
       "type": "candidate",
     },
     {
@@ -1059,7 +1059,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Tax Collector",
+      "title": "Lincoln County · Tax Collector",
       "type": "candidate",
     },
     {
@@ -1091,7 +1091,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Supervisor",
+      "title": "Supervisor District 2 · Supervisor",
       "type": "candidate",
     },
     {
@@ -1123,7 +1123,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Supervisor",
+      "title": "Supervisor District 3 · Supervisor",
       "type": "candidate",
     },
     {
@@ -1145,7 +1145,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Justice Court Judge",
+      "title": "JCJ District Central · Justice Court Judge",
       "type": "candidate",
     },
     {
@@ -1187,7 +1187,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Governor",
+      "title": "State Of Mississippi · Governor",
       "type": "candidate",
     },
     {
@@ -1229,7 +1229,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Lieutenant Governor",
+      "title": "State Of Mississippi · Lieutenant Governor",
       "type": "candidate",
     },
     {
@@ -1251,7 +1251,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Secretary Of State",
+      "title": "State Of Mississippi · Secretary Of State",
       "type": "candidate",
     },
     {
@@ -1273,7 +1273,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Attorney General",
+      "title": "State Of Mississippi · Attorney General",
       "type": "candidate",
     },
     {
@@ -1295,7 +1295,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "State Treasurer",
+      "title": "State Of Mississippi · State Treasurer",
       "type": "candidate",
     },
     {
@@ -1317,7 +1317,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Commissioner Of Agriculture & Commerce",
+      "title": "State Of Mississippi · Commissioner Of Agriculture & Commerce",
       "type": "candidate",
     },
     {
@@ -1349,7 +1349,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Commissioner Of Insurance",
+      "title": "State Of Mississippi · Commissioner Of Insurance",
       "type": "candidate",
     },
     {
@@ -1371,7 +1371,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "State Auditor",
+      "title": "State Of Mississippi · State Auditor",
       "type": "candidate",
     },
     {
@@ -1393,7 +1393,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Central District",
+      "title": "Public Service Commissioner · Central District",
       "type": "candidate",
     },
     {
@@ -1415,7 +1415,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Central District",
+      "title": "Transportation Commissioner · Central District",
       "type": "candidate",
     },
     {
@@ -1437,7 +1437,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "District 23",
+      "title": "State Senate 23 · District 23",
       "type": "candidate",
     },
     {
@@ -1459,7 +1459,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "District 54",
+      "title": "State House Of Rep 54 · District 54",
       "type": "candidate",
     },
     {
@@ -1481,7 +1481,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Chancery Clerk",
+      "title": "Lincoln County · Chancery Clerk",
       "type": "candidate",
     },
     {
@@ -1503,7 +1503,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Circuit Clerk",
+      "title": "Lincoln County · Circuit Clerk",
       "type": "candidate",
     },
     {
@@ -1525,7 +1525,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "County Prosecuting Attorney",
+      "title": "Lincoln County · County Prosecuting Attorney",
       "type": "candidate",
     },
     {
@@ -1547,7 +1547,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Tax Assessor",
+      "title": "Lincoln County · Tax Assessor",
       "type": "candidate",
     },
     {
@@ -1579,7 +1579,7 @@ exports[`convert election with precinct splits 1`] = `
       "partyId": "election-id-4_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Supervisor",
+      "title": "Supervisor District 1 · Supervisor",
       "type": "candidate",
     },
   ],
@@ -2467,7 +2467,7 @@ exports[`convert general election 1`] = `
       "partyId": undefined,
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "President",
+      "title": "United States · President",
       "type": "candidate",
     },
     {
@@ -2499,7 +2499,7 @@ exports[`convert general election 1`] = `
       "partyId": undefined,
       "seats": 1,
       "termDescription": "6 YEAR TERM",
-      "title": "Senate",
+      "title": "United States · Senate",
       "type": "candidate",
     },
     {
@@ -2531,7 +2531,7 @@ exports[`convert general election 1`] = `
       "partyId": undefined,
       "seats": 1,
       "termDescription": "2 YEAR TERM",
-      "title": "1st Congressional District",
+      "title": "US House Of Rep 01 · 1st Congressional District",
       "type": "candidate",
     },
     {
@@ -2551,7 +2551,7 @@ exports[`convert general election 1`] = `
       "partyId": undefined,
       "seats": 1,
       "termDescription": "8 YEAR TERM",
-      "title": "Supreme Court District 3(Northern) Position 1",
+      "title": "Northern District · Supreme Court District 3(Northern) Position 1",
       "type": "candidate",
     },
     {
@@ -2571,7 +2571,7 @@ exports[`convert general election 1`] = `
       "partyId": undefined,
       "seats": 1,
       "termDescription": "8 YEAR TERM",
-      "title": "Supreme Court District 3(Northern) Position 2",
+      "title": "Northern District · Supreme Court District 3(Northern) Position 2",
       "type": "candidate",
     },
     {
@@ -2593,7 +2593,7 @@ exports[`convert general election 1`] = `
       "partyId": undefined,
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Election Commissioner  01",
+      "title": "Election Commissioner 01 · Election Commissioner  01",
       "type": "candidate",
     },
     {
@@ -2615,7 +2615,7 @@ exports[`convert general election 1`] = `
       "partyId": undefined,
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Election Commissioner 03",
+      "title": "Election Commissioner 03 · Election Commissioner 03",
       "type": "candidate",
     },
     {
@@ -2637,7 +2637,7 @@ exports[`convert general election 1`] = `
       "partyId": undefined,
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Election Commissioner 05",
+      "title": "Election Commissioner 05 · Election Commissioner 05",
       "type": "candidate",
     },
     {
@@ -2669,7 +2669,7 @@ exports[`convert general election 1`] = `
       "partyId": undefined,
       "seats": 1,
       "termDescription": "6 YEAR TERM",
-      "title": "School Board District 3 Member",
+      "title": "School Board District 3 · School Board District 3 Member",
       "type": "candidate",
     },
     {
@@ -2701,7 +2701,7 @@ exports[`convert general election 1`] = `
       "partyId": undefined,
       "seats": 1,
       "termDescription": "6 YEAR TERM",
-      "title": "School Board District 4 Member",
+      "title": "School Board District 4 · School Board District 4 Member",
       "type": "candidate",
     },
   ],
@@ -3014,7 +3014,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Governor",
+      "title": "State Of Mississippi · Governor",
       "type": "candidate",
     },
     {
@@ -3036,7 +3036,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Lieutenant Governor",
+      "title": "State Of Mississippi · Lieutenant Governor",
       "type": "candidate",
     },
     {
@@ -3058,7 +3058,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Secretary Of State",
+      "title": "State Of Mississippi · Secretary Of State",
       "type": "candidate",
     },
     {
@@ -3080,7 +3080,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Attorney General",
+      "title": "State Of Mississippi · Attorney General",
       "type": "candidate",
     },
     {
@@ -3102,7 +3102,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "State Auditor",
+      "title": "State Of Mississippi · State Auditor",
       "type": "candidate",
     },
     {
@@ -3124,7 +3124,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "State Treasurer",
+      "title": "State Of Mississippi · State Treasurer",
       "type": "candidate",
     },
     {
@@ -3166,7 +3166,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Commissioner Of Agriculture & Commerce",
+      "title": "State Of Mississippi · Commissioner Of Agriculture & Commerce",
       "type": "candidate",
     },
     {
@@ -3188,7 +3188,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Commissioner Of Insurance",
+      "title": "State Of Mississippi · Commissioner Of Insurance",
       "type": "candidate",
     },
     {
@@ -3220,7 +3220,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "District 11",
+      "title": "District Attorney 11 · District 11",
       "type": "candidate",
     },
     {
@@ -3242,7 +3242,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "District 11",
+      "title": "State Senate 11 · District 11",
       "type": "candidate",
     },
     {
@@ -3264,7 +3264,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "District 09",
+      "title": "State House Of Rep 09 · District 09",
       "type": "candidate",
     },
     {
@@ -3306,7 +3306,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Sheriff",
+      "title": "Quitman · Sheriff",
       "type": "candidate",
     },
     {
@@ -3338,7 +3338,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Chancery Clerk",
+      "title": "Quitman · Chancery Clerk",
       "type": "candidate",
     },
     {
@@ -3370,7 +3370,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Circuit Clerk",
+      "title": "Quitman · Circuit Clerk",
       "type": "candidate",
     },
     {
@@ -3392,7 +3392,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Tax Collector Assessor",
+      "title": "Quitman · Tax Collector Assessor",
       "type": "candidate",
     },
     {
@@ -3424,7 +3424,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Coroner",
+      "title": "Quitman · Coroner",
       "type": "candidate",
     },
     {
@@ -3446,7 +3446,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "County Prosecuting Attorney",
+      "title": "Quitman · County Prosecuting Attorney",
       "type": "candidate",
     },
     {
@@ -3498,7 +3498,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Supervisor District 1",
+      "title": "Supervisor 1 · Supervisor District 1",
       "type": "candidate",
     },
     {
@@ -3520,7 +3520,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Supervisor District 2",
+      "title": "Supervisor 2 · Supervisor District 2",
       "type": "candidate",
     },
     {
@@ -3552,7 +3552,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Supervisors",
+      "title": "Supervisor 3 · Supervisors",
       "type": "candidate",
     },
     {
@@ -3594,7 +3594,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Supervisor District 4",
+      "title": "Supervisor 4 · Supervisor District 4",
       "type": "candidate",
     },
     {
@@ -3626,7 +3626,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Supervisor District 5",
+      "title": "Supervisor 5 · Supervisor District 5",
       "type": "candidate",
     },
     {
@@ -3648,7 +3648,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Justice Court Judge",
+      "title": "Justice Court Judge 1 · Justice Court Judge",
       "type": "candidate",
     },
     {
@@ -3680,7 +3680,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Justice Court Judge  District 2",
+      "title": "Justice Court Judge  2 · Justice Court Judge  District 2",
       "type": "candidate",
     },
     {
@@ -3702,7 +3702,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Constable District 1",
+      "title": "Constable  1 · Constable District 1",
       "type": "candidate",
     },
     {
@@ -3724,7 +3724,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_2",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Constable",
+      "title": "Constable 2 · Constable",
       "type": "candidate",
     },
     {
@@ -3766,7 +3766,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Governor",
+      "title": "State Of Mississippi · Governor",
       "type": "candidate",
     },
     {
@@ -3808,7 +3808,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Lieutenant Governor",
+      "title": "State Of Mississippi · Lieutenant Governor",
       "type": "candidate",
     },
     {
@@ -3830,7 +3830,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Secretary Of State",
+      "title": "State Of Mississippi · Secretary Of State",
       "type": "candidate",
     },
     {
@@ -3852,7 +3852,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Attorney General",
+      "title": "State Of Mississippi · Attorney General",
       "type": "candidate",
     },
     {
@@ -3874,7 +3874,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "State Treasurer",
+      "title": "State Of Mississippi · State Treasurer",
       "type": "candidate",
     },
     {
@@ -3896,7 +3896,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Commissioner Of Agriculture & Commerce",
+      "title": "State Of Mississippi · Commissioner Of Agriculture & Commerce",
       "type": "candidate",
     },
     {
@@ -3928,7 +3928,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Commissioner Of Insurance",
+      "title": "State Of Mississippi · Commissioner Of Insurance",
       "type": "candidate",
     },
     {
@@ -3950,7 +3950,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "State Auditor",
+      "title": "State Of Mississippi · State Auditor",
       "type": "candidate",
     },
     {
@@ -3982,7 +3982,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Northern District",
+      "title": "Public Service Commissioner · Northern District",
       "type": "candidate",
     },
     {
@@ -4004,7 +4004,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "Northern District",
+      "title": "Transportation Commissioner · Northern District",
       "type": "candidate",
     },
     {
@@ -4026,7 +4026,7 @@ exports[`convert primary election 1`] = `
       "partyId": "election-id-2_3",
       "seats": 1,
       "termDescription": "4 YEAR TERM",
-      "title": "District 09",
+      "title": "State House Of Rep 09 · District 09",
       "type": "candidate",
     },
   ],
