@@ -279,7 +279,7 @@ export function ScanBallotsScreen({
               disabled={
                 isScanning || statusIsStale || isPollingPlaceUnconfigured
               }
-              isScannerAttached={status.isScannerAttached}
+              isScannerAttached={status.state !== 'disconnected'}
             />
           </TopBarActions>
         </TopBar>

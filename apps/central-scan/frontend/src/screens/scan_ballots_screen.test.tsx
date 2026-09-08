@@ -283,10 +283,7 @@ test('Delete All Batches button', async () => {
 describe('Scan Ballots Button', () => {
   test('disabled when no scanner is attached', () => {
     renderScreen({
-      status: mockStatus(
-        { isScannerAttached: false },
-        { state: 'disconnected' }
-      ),
+      status: mockStatus({}, { state: 'disconnected' }),
     });
     expect(screen.getButton('No Scanner')).toBeDisabled();
   });

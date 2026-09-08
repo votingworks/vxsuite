@@ -20,19 +20,20 @@ afterEach(() => {
 });
 
 test('disabled behavior', async () => {
-  apiMock.setStatus(mockStatus({ isScannerAttached: true }));
+  apiMock.setStatus(mockStatus({}, { state: 'idle' }));
   renderInAppContext(<TestScanButton />, { apiMock });
-  const button = await screen.findButton('Perform Test Scan');
-  expect(button).toBeEnabled();
+  const button = screen.getButton('Perform Test Scan');
+  expect(button).toBeDisabled();
+  await vi.waitFor(() => {
+    expect(button).toBeEnabled();
+  });
 
-  apiMock.setStatus(
-    mockStatus({ isScannerAttached: false }, { state: 'disconnected' })
-  );
+  apiMock.setStatus(mockStatus({}, { state: 'disconnected' }));
   await vi.waitFor(() => {
     expect(button).toBeDisabled();
   });
 
-  apiMock.setStatus(mockStatus({ isScannerAttached: true }));
+  apiMock.setStatus(mockStatus({}, { state: 'idle' }));
   await vi.waitFor(() => {
     expect(button).toBeEnabled();
   });
@@ -40,9 +41,7 @@ test('disabled behavior', async () => {
   userEvent.click(button);
   await screen.findButton('Scan');
 
-  apiMock.setStatus(
-    mockStatus({ isScannerAttached: false }, { state: 'disconnected' })
-  );
+  apiMock.setStatus(mockStatus({}, { state: 'disconnected' }));
   await vi.waitFor(() => {
     expect(screen.queryButton('Scan')).not.toBeInTheDocument();
   });
@@ -50,7 +49,7 @@ test('disabled behavior', async () => {
 });
 
 test('happy path', async () => {
-  apiMock.setStatus(mockStatus({ isScannerAttached: true }));
+  apiMock.setStatus(mockStatus({}, { state: 'idle' }));
   renderInAppContext(<TestScanButton />, { apiMock });
   const button = await screen.findButton('Perform Test Scan');
   userEvent.click(button);
@@ -66,7 +65,7 @@ test('happy path', async () => {
 });
 
 test('fail because no paper', async () => {
-  apiMock.setStatus(mockStatus({ isScannerAttached: true }));
+  apiMock.setStatus(mockStatus({}, { state: 'idle' }));
   renderInAppContext(<TestScanButton />, { apiMock });
   const button = await screen.findButton('Perform Test Scan');
   userEvent.click(button);
@@ -77,7 +76,7 @@ test('fail because no paper', async () => {
 });
 
 test('fail because no bad image', async () => {
-  apiMock.setStatus(mockStatus({ isScannerAttached: true }));
+  apiMock.setStatus(mockStatus({}, { state: 'idle' }));
   renderInAppContext(<TestScanButton />, { apiMock });
   const button = await screen.findButton('Perform Test Scan');
   userEvent.click(button);
