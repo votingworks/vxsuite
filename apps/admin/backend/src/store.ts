@@ -247,16 +247,6 @@ export class Store implements BaseStore {
   }
 
   /**
-   * Whether this store is partway through a write. A CVR import holds its
-   * transaction open across awaits for the whole import, so this is how an
-   * operation that would disturb the database — backing it up, or replacing it
-   * with a restore — tells that it has to wait.
-   */
-  isInTransaction(): boolean {
-    return this.client.isInTransaction();
-  }
-
-  /**
    * Writes a snapshot of this store's database to `path`, which must not
    * already name a file. Taken over this store's own connection, so writes
    * made through it while the snapshot runs are part of the snapshot rather
