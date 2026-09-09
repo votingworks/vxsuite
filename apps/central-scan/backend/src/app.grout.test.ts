@@ -172,7 +172,7 @@ test('unconfigure', async () => {
     await apiClient.setTestMode({ testMode: false });
 
     const batchId = store.addBatch();
-    store.addSheet(electionDefinition.election, uuid(), batchId, sheet);
+    store.addSheet(uuid(), batchId, sheet);
     store.finishBatch({ batchId });
     expect(store.getBallotsCounted()).toEqual(1);
 
@@ -211,7 +211,7 @@ test('unconfigure w/ ignoreBackupRequirement', async () => {
     await apiClient.setTestMode({ testMode: false });
 
     const batchId = store.addBatch();
-    store.addSheet(electionDefinition.election, uuid(), batchId, sheet);
+    store.addSheet(uuid(), batchId, sheet);
     store.finishBatch({ batchId });
     expect(store.getBallotsCounted()).toEqual(1);
 
@@ -235,7 +235,7 @@ test('retrySendBatchToAdmin clears a batch send failure', async () => {
     store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
 
     const batchId = store.addBatch();
-    store.addSheet(electionDefinition.election, uuid(), batchId, sheet);
+    store.addSheet(uuid(), batchId, sheet);
     store.finishBatch({ batchId });
     store.setBatchSendToAdminError(batchId, 'sending failed');
     expect(store.getBatch(batchId).sendToAdminError).toEqual('sending failed');
@@ -261,7 +261,7 @@ test('resendBatchToAdmin queues a sent batch to be sent again', async () => {
     store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
 
     const batchId = store.addBatch();
-    store.addSheet(electionDefinition.election, uuid(), batchId, sheet);
+    store.addSheet(uuid(), batchId, sheet);
     store.finishBatch({ batchId });
     store.setBatchSentToAdmin(batchId);
     expect(store.getNextBatchToSendToAdmin()).toBeUndefined();
@@ -292,7 +292,7 @@ test('clearing scanning data', async () => {
     await apiClient.setTestMode({ testMode: false });
 
     const batchId = store.addBatch();
-    store.addSheet(electionDefinition.election, uuid(), batchId, sheet);
+    store.addSheet(uuid(), batchId, sheet);
     store.finishBatch({ batchId });
     expect(store.getBallotsCounted()).toEqual(1);
 
@@ -361,7 +361,7 @@ test('getting / setting test mode', async () => {
     expect(await apiClient.getTestMode()).toEqual(false);
 
     const batchId = store.addBatch();
-    store.addSheet(electionDefinition.election, uuid(), batchId, sheet);
+    store.addSheet(uuid(), batchId, sheet);
     store.finishBatch({ batchId });
     expect(store.getBallotsCounted()).toEqual(1);
 
@@ -638,7 +638,7 @@ test('getSheetForReview returns interpretation and image data for uninterpretabl
 
     const batchId = workspace.store.addBatch();
     const sheetId = uuid();
-    workspace.store.addSheet(electionDefinition.election, sheetId, batchId, [
+    workspace.store.addSheet(sheetId, batchId, [
       { imagePath: frontImagePath, interpretation: { type: 'BlankPage' } },
       { imagePath: backImagePath, interpretation: { type: 'BlankPage' } },
     ]);
@@ -720,7 +720,7 @@ test('getSheetForReview returns interpretation, image data, and layouts for inte
     const backPage = buildHmpbPage(2);
 
     const sheetId = uuid();
-    workspace.store.addSheet(electionDefinition.election, sheetId, batchId, [
+    workspace.store.addSheet(sheetId, batchId, [
       { imagePath: frontImagePath, interpretation: frontPage },
       { imagePath: backImagePath, interpretation: backPage },
     ]);

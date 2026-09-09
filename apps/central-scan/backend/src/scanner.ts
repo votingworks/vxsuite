@@ -278,12 +278,11 @@ function buildMachine({
     ) {
       pages = [pages[1], pages[0]];
     }
-    store.addSheet(election, sheetId, batchId, pages, sheet.ballotAuditId);
-
-    const interpretations = mapSheet(
-      pages,
-      ({ interpretation }) => interpretation
+    const sheetInterpretation = combinePageInterpretationsForSheet(
+      mapSheet(pages, ({ interpretation }) => interpretation),
+      election
     );
+    store.addSheet(sheetId, batchId, pages, sheet.ballotAuditId);
 
     debug(
       'imported sheet %o for batch %s in %dms',
@@ -291,13 +290,7 @@ function buildMachine({
       batchId,
       Date.now() - start
     );
-    return {
-      sheetId,
-      interpretation: combinePageInterpretationsForSheet(
-        interpretations,
-        election
-      ),
-    };
+    return { sheetId, interpretation: sheetInterpretation };
   }
 
   async function finishBatch({
@@ -456,11 +449,7 @@ function buildMachine({
 
       sheetNeedsReview: {
         on: {
-          ACCEPT_SHEET: {
-            target: 'scanningSheet',
-            actions: (context) =>
-              store.adjudicateSheet(assertDefined(context.sheetIdToReview)),
-          },
+          ACCEPT_SHEET: 'scanningSheet',
           REJECT_SHEET: {
             target: 'scanningSheet',
             actions: (context) =>

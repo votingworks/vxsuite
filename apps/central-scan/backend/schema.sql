@@ -51,12 +51,6 @@ create table sheets (
   front_interpretation_json text not null,
   back_interpretation_json text not null,
 
-  -- Did this sheet require adjudication? This value should never be updated.
-  requires_adjudication integer,
-
-  -- When adjudication is finished, this value is updated to now.
-  finished_adjudication_at text,
-
   created_at text default current_timestamp not null,
   deleted_at text,
 

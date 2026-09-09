@@ -25,7 +25,6 @@ import {
   DiagnosticType,
   ElectionKey,
   constructElectionKey,
-  Election,
 } from '@votingworks/types';
 import {
   assert,
@@ -34,7 +33,6 @@ import {
   find,
   Optional,
 } from '@votingworks/basics';
-import makeDebug from 'debug';
 import { DateTime } from 'luxon';
 import { dirname, join } from 'node:path';
 import { randomUUID as uuid } from 'node:crypto';
@@ -52,11 +50,8 @@ import {
   updateCastVoteRecordHashes,
 } from '@votingworks/auth';
 import { BaseLogger } from '@votingworks/logging';
-import { combinePageInterpretationsForSheet } from '@votingworks/ballot-interpreter';
 import { normalizeAndJoin } from './util/path.js';
 import { NetworkConnectionInfo } from './types.js';
-
-const debug = makeDebug('scan:store');
 
 const SchemaPath = join(import.meta.dirname, '../schema.sql');
 
@@ -69,8 +64,6 @@ const getSheetsBaseQuery = `
     back_interpretation_json as backInterpretationJson,
     front_image_path as frontImagePath,
     back_image_path as backImagePath,
-    requires_adjudication as requiresAdjudication,
-    finished_adjudication_at as finishedAdjudicationAt,
     sheets.deleted_at as deletedAt,
     row_number() over (partition by batches.id order by sheets.created_at) indexInBatch
   from sheets left join batches on
@@ -85,8 +78,6 @@ interface SheetRow {
   backInterpretationJson: string;
   frontImagePath: string;
   backImagePath: string;
-  requiresAdjudication: 0 | 1;
-  finishedAdjudicationAt: Iso8601Timestamp | null;
   deletedAt: Iso8601Timestamp | null;
   indexInBatch: number;
 }
@@ -120,15 +111,6 @@ function sheetRowToRejectedSheet(row: SheetRow): RejectedSheet {
 }
 
 function sheetRowToSheet(row: SheetRow): Sheet {
-  // The central scanner UX guarantees this condition. Sheets requiring review have to be accepted
-  // or rejected before a batch is considered complete. And if someone shuts the machine down
-  // mid-adjudication, on boot, incomplete batches are cleaned up.
-  assert(
-    row.requiresAdjudication === 0 ||
-      row.finishedAdjudicationAt !== null ||
-      row.deletedAt !== null,
-    'Every sheet requiring review should have been either accepted or rejected'
-  );
   return row.deletedAt === null
     ? sheetRowToAcceptedSheet(row)
     : sheetRowToRejectedSheet(row);
@@ -630,18 +612,11 @@ export class Store {
    * Adds a sheet to an existing batch.
    */
   addSheet(
-    election: Election,
     sheetId: string,
     batchId: string,
     [front, back]: SheetOf<PageInterpretationWithFiles>,
     ballotAuditId?: string
   ): void {
-    const requiresAdjudication =
-      combinePageInterpretationsForSheet(
-        [front.interpretation, back.interpretation],
-        election
-      ).type !== 'ValidSheet';
-
     this.client.run(
       `insert into sheets (
           id,
@@ -650,11 +625,9 @@ export class Store {
           front_image_path,
           front_interpretation_json,
           back_image_path,
-          back_interpretation_json,
-          requires_adjudication,
-          finished_adjudication_at
+          back_interpretation_json
         ) values (
-          ?, ?, ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?
         )`,
       sheetId,
       batchId,
@@ -662,9 +635,7 @@ export class Store {
       front.imagePath,
       JSON.stringify(front.interpretation),
       back.imagePath,
-      JSON.stringify(back.interpretation),
-      requiresAdjudication ? 1 : 0,
-      requiresAdjudication ? null : DateTime.now().toISOTime()
+      JSON.stringify(back.interpretation)
     );
   }
 
@@ -737,24 +708,6 @@ export class Store {
       JSON.parse(row.frontInterpretationJson),
       JSON.parse(row.backInterpretationJson),
     ];
-  }
-
-  adjudicateSheet(sheetId: string): boolean {
-    debug('finishing adjudication for sheet %s', sheetId);
-
-    this.client.run(
-      `
-      update
-        sheets
-      set
-        finished_adjudication_at = ?
-      where id = ?
-    `,
-      new Date().toISOString(),
-      sheetId
-    );
-
-    return true;
   }
 
   /**
@@ -962,8 +915,7 @@ export class Store {
     const sql = `${getSheetsBaseQuery}
       where
         batches.deleted_at is null and
-        sheets.deleted_at is null and
-        (requires_adjudication = 0 or finished_adjudication_at is not null)
+        sheets.deleted_at is null
       order by sheets.created_at
     `;
     for (const row of this.client.each(sql) as Iterable<SheetRow>) {

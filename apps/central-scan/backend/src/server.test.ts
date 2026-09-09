@@ -75,7 +75,7 @@ test('logs when sheet counts are present at startup', () => {
   expect(workspace.store.getBallotsCounted()).toEqual(0);
   // Create a batch and add a sheet to it
   const batchId = workspace.store.addBatch();
-  workspace.store.addSheet(electionDefinition.election, uuid(), batchId, [
+  workspace.store.addSheet(uuid(), batchId, [
     {
       imagePath: '/tmp/front-page.png',
       interpretation: {
