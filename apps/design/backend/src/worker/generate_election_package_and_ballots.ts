@@ -333,6 +333,11 @@ async function generate(
     }
   });
 
+  allBallotProps = allBallotProps.map((p) => ({
+    ...p,
+    watermark: 'PROOF',
+  }));
+
   // If we're exporting ballots with ballot audit IDs...
   if (numAuditIdBallots) {
     // Turn on the system setting so VxScan knows to expect ballot audit IDs.

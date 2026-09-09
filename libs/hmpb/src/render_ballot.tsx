@@ -824,7 +824,7 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
     iter(ballotProps)
       .zip(layoutPaths)
       .map(([props, layoutPath]) => async (renderer: Renderer) => {
-        const document = await renderer.documentFromPath(layoutPath);
+        // const document = await renderer.documentFromPath(layoutPath);
 
         // No need to throw on failed single-file cleanup. Scratch directories
         // are expected to be cleaned up after each run. If failures pile up for
@@ -834,14 +834,12 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
           console.error(`cleanup failed for temp layout ${layoutPath}:`, error);
         });
 
-        const pdf = await renderBallotPdfWithMetadataQrCode(
-          props,
-          document,
-          electionDefinition,
-          electionSerializationOptions.version
-        );
+        const pdf = await renderBallotPreviewToPdf(renderer, template, props);
 
-        return writeScratchFile(scratchDir, { data: pdf, extension: 'pdf' });
+        return writeScratchFile(scratchDir, {
+          data: pdf.unsafeUnwrap(),
+          extension: 'pdf',
+        });
       })
       .toArray(),
 
