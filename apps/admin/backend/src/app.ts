@@ -1,4 +1,3 @@
-import micromatch from 'micromatch';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   Admin,
@@ -40,7 +39,7 @@ import { randomUUID } from 'node:crypto';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { rm } from 'node:fs/promises';
 import { pipeline } from 'node:stream/promises';
-import path, { join } from 'node:path';
+import path, { join, matchesGlob, normalize } from 'node:path';
 import {
   ELECTION_PACKAGE_FOLDER,
   generateElectionBasedSubfolderName,
@@ -587,8 +586,8 @@ function buildApi({
       // A check for defense-in-depth
       assert(
         getNodeEnv() === 'production' && !isIntegrationTest()
-          ? micromatch.isMatch(
-              input.electionFilePath,
+          ? matchesGlob(
+              normalize(input.electionFilePath),
               REAL_USB_DRIVE_GLOB_PATTERN
             )
           : true,
