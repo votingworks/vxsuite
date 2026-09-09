@@ -7,7 +7,7 @@ import {
   assertDefined,
   extractErrorMessage,
 } from '@votingworks/basics';
-import { Election, Id, safeParseInt } from '@votingworks/types';
+import { Id, safeParseInt } from '@votingworks/types';
 
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { getScanWorkspace } from '../globals.js';
@@ -40,12 +40,7 @@ function parseCommandLineArgs(args: readonly string[]): CopyBatchInput {
   return { batchName, numCopies };
 }
 
-function copySheet(
-  store: Store,
-  election: Election,
-  sheet: AcceptedSheet,
-  newBatchId: Id
-): void {
+function copySheet(store: Store, sheet: AcceptedSheet, newBatchId: Id): void {
   const newSheetId = uuid();
   const newSheet: AcceptedSheet = {
     ...sheet,
@@ -64,7 +59,7 @@ function copySheet(
   fs.copyFileSync(sheet.frontImagePath, newSheet.frontImagePath);
   fs.copyFileSync(sheet.backImagePath, newSheet.backImagePath);
 
-  store.addSheet(election, newSheetId, newSheet.batchId, [
+  store.addSheet(newSheetId, newSheet.batchId, [
     {
       imagePath: newSheet.frontImagePath,
       interpretation: newSheet.interpretation[0],
@@ -102,17 +97,12 @@ function copyBatch({ batchName, numCopies }: CopyBatchInput): void {
     new BaseLogger(LogSource.VxDevelopmentScript)
   );
 
-  const { election } = assertDefined(
-    store.getElectionRecord(),
-    'Store must be configured with an election'
-  ).electionDefinition;
-
   const sheets = getAcceptedSheetsInBatch(store, batchName);
 
   for (let i = 0; i < numCopies; i += 1) {
     const newBatchId = store.addBatch();
     for (const sheet of sheets) {
-      copySheet(store, election, sheet, newBatchId);
+      copySheet(store, sheet, newBatchId);
     }
     store.finishBatch({ batchId: newBatchId });
   }

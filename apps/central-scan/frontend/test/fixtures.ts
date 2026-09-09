@@ -6,8 +6,6 @@ import { BatchInfo } from '@votingworks/types';
 
 export const DEFAULT_STATUS: ScanStatus = {
   state: 'idle',
-  isScannerAttached: true,
-  adjudicationsRemaining: 0,
   canUnconfigure: true,
   batches: [],
 };

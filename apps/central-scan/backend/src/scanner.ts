@@ -278,12 +278,11 @@ function buildMachine({
     ) {
       pages = [pages[1], pages[0]];
     }
-    store.addSheet(election, sheetId, batchId, pages, sheet.ballotAuditId);
-
-    const interpretations = mapSheet(
-      pages,
-      ({ interpretation }) => interpretation
+    const sheetInterpretation = combinePageInterpretationsForSheet(
+      mapSheet(pages, ({ interpretation }) => interpretation),
+      election
     );
+    store.addSheet(sheetId, batchId, pages, sheet.ballotAuditId);
 
     debug(
       'imported sheet %o for batch %s in %dms',
@@ -291,13 +290,7 @@ function buildMachine({
       batchId,
       Date.now() - start
     );
-    return {
-      sheetId,
-      interpretation: combinePageInterpretationsForSheet(
-        interpretations,
-        election
-      ),
-    };
+    return { sheetId, interpretation: sheetInterpretation };
   }
 
   async function finishBatch({
@@ -456,11 +449,7 @@ function buildMachine({
 
       sheetNeedsReview: {
         on: {
-          ACCEPT_SHEET: {
-            target: 'scanningSheet',
-            actions: (context) =>
-              store.adjudicateSheet(assertDefined(context.sheetIdToReview)),
-          },
+          ACCEPT_SHEET: 'scanningSheet',
           REJECT_SHEET: {
             target: 'scanningSheet',
             actions: (context) =>
@@ -594,7 +583,7 @@ export function createBatchScannerStateMachine({
   return {
     status(): BatchScannerMachineStatus {
       const { state } = machineService;
-      const { batchId, error } = state.context;
+      const { batchId, sheetIdToReview, error } = state.context;
       // We use state.matches as recommended by the XState docs. This allows
       // us to add new substates to a state without breaking these checks.
       if (state.matches('disconnected')) {
@@ -614,7 +603,11 @@ export function createBatchScannerStateMachine({
         return { state: 'scanning', batchId: assertDefined(batchId) };
       }
       if (state.matches('sheetNeedsReview')) {
-        return { state: 'needsReview', batchId: assertDefined(batchId) };
+        return {
+          state: 'needsReview',
+          batchId: assertDefined(batchId),
+          sheetId: assertDefined(sheetIdToReview),
+        };
       }
       // @coverage-exclude
       throw new Error(`Unexpected state: ${JSON.stringify(state.value)}`);

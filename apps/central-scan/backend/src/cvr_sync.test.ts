@@ -157,12 +157,7 @@ function addFinishedBatch(store: Store, sheetCount = 1): string {
       copyPage(sheet[0], 0),
       copyPage(sheet[1], 1),
     ];
-    store.addSheet(
-      vxFamousNamesFixtures.electionDefinition.election,
-      uuid(),
-      batchId,
-      sheetCopy
-    );
+    store.addSheet(uuid(), batchId, sheetCopy);
   }
   store.finishBatch({ batchId });
   return batchId;

@@ -2,6 +2,7 @@ import {
   AdjudicationReason,
   ContestId,
   formatBallotHash,
+  Id,
   mapSheet,
 } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/basics';
@@ -23,9 +24,10 @@ import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context.js';
 import { Header } from '../navigation_screen.js';
 import {
-  continueScanning,
-  getNextReviewSheet,
+  acceptSheet,
+  getSheetForReview,
   getSystemSettings,
+  rejectSheet,
 } from '../api.js';
 
 const AdjudicationHeader = styled(Header)`
@@ -54,6 +56,7 @@ const BallotImagesContainer = styled.div`
 
 interface Props {
   isTestMode: boolean;
+  sheetId: Id;
 }
 
 interface EjectInformation {
@@ -63,31 +66,27 @@ interface EjectInformation {
   highlightedContestIds?: Set<ContestId>;
 }
 
-export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
+export function BallotEjectScreen({
+  isTestMode,
+  sheetId,
+}: Props): JSX.Element | null {
   const { auth, electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth));
 
   const systemSettingsQuery = getSystemSettings.useQuery();
-  const getNextReviewSheetQuery = getNextReviewSheet.useQuery();
-  const continueScanningMutation = continueScanning.useMutation();
+  const getSheetForReviewQuery = getSheetForReview.useQuery(sheetId);
+  const acceptSheetMutation = acceptSheet.useMutation();
+  const rejectSheetMutation = rejectSheet.useMutation();
+  const isSheetActionInProgress =
+    acceptSheetMutation.isLoading || rejectSheetMutation.isLoading;
 
-  function removeBallotAndContinueScanning() {
-    continueScanningMutation.mutate({ forceAccept: false });
-  }
-
-  function acceptBallotAndContinueScanning() {
-    continueScanningMutation.mutate({ forceAccept: true });
-  }
-
-  const reviewInfo = getNextReviewSheetQuery.data;
-
-  if (!reviewInfo || !systemSettingsQuery.isSuccess) {
+  if (!getSheetForReviewQuery.isSuccess || !systemSettingsQuery.isSuccess) {
     return null;
   }
 
   const { disallowCastingOvervotes } = systemSettingsQuery.data;
-  const { sheetInterpretation } = reviewInfo;
+  const { sheetInterpretation, images } = getSheetForReviewQuery.data;
 
   const unreadableEjectInfo: EjectInformation = {
     header: 'Unreadable',
@@ -305,7 +304,8 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
               <P>
                 <Button
                   variant="primary"
-                  onPress={removeBallotAndContinueScanning}
+                  onPress={() => rejectSheetMutation.mutate()}
+                  disabled={isSheetActionInProgress}
                   style={{ width: '100%', marginTop: '0.5rem' }}
                 >
                   Confirm Ballot Removed
@@ -314,7 +314,8 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
               <P>
                 <Button
                   variant="primary"
-                  onPress={acceptBallotAndContinueScanning}
+                  onPress={() => acceptSheetMutation.mutate()}
+                  disabled={isSheetActionInProgress}
                   style={{ width: '100%' }}
                 >
                   Tabulate Ballot
@@ -324,7 +325,8 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
           ) : (
             <Button
               variant="primary"
-              onPress={removeBallotAndContinueScanning}
+              onPress={() => rejectSheetMutation.mutate()}
+              disabled={isSheetActionInProgress}
               style={{ marginTop: '0.5rem', width: '100%' }}
             >
               Confirm Ballot Removed
@@ -332,7 +334,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
           )}
         </AdjudicationExplanation>
         <BallotImagesContainer>
-          {mapSheet(reviewInfo.images, (pageImage, side) => {
+          {mapSheet(images, (pageImage, side) => {
             const highlights = pageImage.layout?.contests
               .filter(
                 (contestLayout) =>

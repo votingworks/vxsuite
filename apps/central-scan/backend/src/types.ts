@@ -9,11 +9,9 @@ export type BatchScannerMachineStatus =
   | { state: 'idle'; error?: string }
   | { state: 'disconnected' }
   | { state: 'scanning'; batchId: Id }
-  | { state: 'needsReview'; batchId: Id };
+  | { state: 'needsReview'; batchId: Id; sheetId: Id };
 
 export type ScanStatus = BatchScannerMachineStatus & {
-  isScannerAttached: boolean;
-  adjudicationsRemaining: number;
   batches: BatchInfo[];
   canUnconfigure: boolean;
 };

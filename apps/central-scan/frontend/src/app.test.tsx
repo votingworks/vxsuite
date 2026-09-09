@@ -9,6 +9,7 @@ import {
   mockVendorUser,
 } from '@votingworks/test-utils';
 import {
+  AdjudicationReason,
   DEFAULT_SYSTEM_SETTINGS,
   constructElectionKey,
   ElectionDefinition,
@@ -118,6 +119,58 @@ test('clicking Scan Batch will scan a batch', async () => {
   apiMock.expectScanBatch();
   userEvent.click(screen.getButton('Scan New Batch'));
   await screen.findByText('Scan New Batch'); // wait for button to reset
+});
+
+test('shows the ballot eject screen while a sheet needs review', async () => {
+  const images = [
+    {
+      imageUrl: 'mock-front-image',
+      ballotBounds: { x: 0, y: 0, width: 1700, height: 2200 },
+    },
+    {
+      imageUrl: 'mock-back-image',
+      ballotBounds: { x: 0, y: 0, width: 1700, height: 2200 },
+    },
+  ] as const;
+  apiMock.expectGetTestMode(true);
+  apiMock.expectGetElectionRecord(electionDefinition);
+  apiMock.setStatus(
+    mockStatus(
+      {},
+      { state: 'needsReview', batchId: 'batch-id', sheetId: 'sheet-id' }
+    )
+  );
+  apiMock.expectGetSheetForReview('sheet-id', {
+    sheetInterpretation: { type: 'InvalidSheet', reason: { type: 'unknown' } },
+    images: [...images],
+  });
+
+  render(<App apiClient={apiMock.apiClient} />);
+  await authenticateAsElectionManager(
+    electionDefinition,
+    'VxCentralScan Locked',
+    'Unreadable'
+  );
+
+  apiMock.setStatus(
+    mockStatus(
+      {},
+      { state: 'needsReview', batchId: 'batch-id', sheetId: 'sheet-id-2' }
+    )
+  );
+  apiMock.expectGetSheetForReview('sheet-id-2', {
+    sheetInterpretation: {
+      type: 'NeedsReviewSheet',
+      reasons: [{ type: AdjudicationReason.BlankBallot }],
+    },
+    images: [...images],
+  });
+  await screen.findByRole('heading', { name: 'Blank Ballot' });
+
+  apiMock.expectRejectSheet();
+  userEvent.click(screen.getButton('Confirm Ballot Removed'));
+  apiMock.setStatus(mockStatus());
+  await screen.findByText('Scan New Batch');
 });
 
 test('clicking "Save CVRs" shows modal and makes a request to export', async () => {
