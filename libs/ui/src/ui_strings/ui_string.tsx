@@ -1,7 +1,7 @@
 import React from 'react';
 import { Trans } from 'react-i18next';
 
-import sanitizeHtml from 'sanitize-html';
+import { sanitizeRichTextHtml } from '@votingworks/utils';
 import { ReactUiString } from './types.js';
 import { useLanguageContext } from './language_context.js';
 import { WithAudio } from './with_audio.js';
@@ -58,15 +58,6 @@ interface UiRichTextStringProps {
   uiStringSubKey?: string;
 }
 
-const sanitizeOptions: sanitizeHtml.IOptions = {
-  allowedTags: [...sanitizeHtml.defaults.allowedTags, 'img'],
-  allowedAttributes: {
-    ...sanitizeHtml.defaults.allowedAttributes,
-    img: ['src', 'alt'],
-  },
-  allowedSchemes: ['data'],
-};
-
 /**
  * Renders the UI string for the given key as rich text (i.e. rendering the
  * string as HTML). The translations for the string should all have fully formed
@@ -89,7 +80,7 @@ export function UiRichTextString(props: UiRichTextStringProps): JSX.Element {
         <div
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
-            __html: sanitizeHtml(children, sanitizeOptions),
+            __html: sanitizeRichTextHtml(children),
           }}
         />
       </WithAudio>
@@ -109,7 +100,7 @@ export function UiRichTextString(props: UiRichTextStringProps): JSX.Element {
       <div
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
-          __html: sanitizeHtml(translatedString, sanitizeOptions),
+          __html: sanitizeRichTextHtml(translatedString),
         }}
       />
     </WithAudio>

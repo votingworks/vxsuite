@@ -24,6 +24,7 @@ export * from './mutex';
 export * from './perf';
 export * from './polls';
 export * from './precinct_selection';
+export * from './rich_text';
 export * from './structural_sharing';
 export * from './sqlite';
 export * from './system_limits';

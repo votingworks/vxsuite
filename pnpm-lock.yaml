@@ -5351,9 +5351,6 @@ importers:
       react-select:
         specifier: ^5.7.4
         version: 5.7.4(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      sanitize-html:
-        specifier: ^2.17.7
-        version: 2.17.7
       use-interval:
         specifier: 1.4.0
         version: 1.4.0(react@18.3.1)
@@ -5421,9 +5418,6 @@ importers:
       '@types/react-router-dom':
         specifier: ^5.3.3
         version: 5.3.3
-      '@types/sanitize-html':
-        specifier: ^2.13.0
-        version: 2.13.0
       '@types/styled-components':
         specifier: ^5.1.26
         version: 5.1.26
@@ -5620,6 +5614,9 @@ importers:
       readline:
         specifier: ^1.3.0
         version: 1.3.0
+      sanitize-html:
+        specifier: ^2.17.7
+        version: 2.17.7
       tmp:
         specifier: ^0.2.6
         version: 0.2.7
@@ -5645,6 +5642,9 @@ importers:
       '@types/randombytes':
         specifier: ^2.0.0
         version: 2.0.0
+      '@types/sanitize-html':
+        specifier: ^2.13.0
+        version: 2.13.0
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
