@@ -474,10 +474,9 @@ export class Store {
         sheets.deleted_at is null
       where
         batches.deleted_at is null
-    `) as { ballotsCounted: number } | undefined;
+    `) as { ballotsCounted: number };
 
-    // @coverage-defer
-    return row?.ballotsCounted ?? 0;
+    return row.ballotsCounted;
   }
 
   /**
