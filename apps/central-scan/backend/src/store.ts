@@ -478,18 +478,6 @@ export class Store {
   }
 
   /**
-   * Returns the id of the an unfinished batch if there is one
-   */
-  // @coverage-defer
-  getOngoingBatchId(): Optional<string> {
-    const ongoingBatchRow = this.client.one(
-      'select id from batches where ended_at is null'
-    ) as { id: string } | undefined;
-
-    return ongoingBatchRow?.id;
-  }
-
-  /**
    * Records that batches have been backed up.
    */
   setScannerBackedUp(backedUp = true): void {
