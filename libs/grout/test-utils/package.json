@@ -29,13 +29,13 @@
     "@votingworks/test-utils": "workspace:*"
   },
   "devDependencies": {
-    "@vitest/coverage-istanbul": "^4.1.6",
+    "@vitest/coverage-istanbul": "5.0.0",
     "@votingworks/coverage-check": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "expect-type": "^0.15.0",
     "sort-package-json": "^1.50.0",
-    "vitest": "^4.1.6"
+    "vitest": "5.0.0"
   },
   "peerDependencies": {
     "@votingworks/grout": "workspace:*"

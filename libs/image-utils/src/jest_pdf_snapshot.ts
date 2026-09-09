@@ -1,4 +1,5 @@
 import type * as vitest from 'vitest';
+import type { MatchImageSnapshotOptions } from 'jest-image-snapshot';
 import { readFile } from 'node:fs/promises';
 import { pdfToImages } from './pdf_to_images';
 import { toImageBuffer } from './image_data';
@@ -27,11 +28,8 @@ export interface ToMatchPdfSnapshotOptions {
  */
 export function buildToMatchPdfSnapshot(
   expect: typeof vitest.expect
-): (
-  received: string | Uint8Array,
-  options?: ToMatchPdfSnapshotOptions
-) => Promise<jest.CustomMatcherResult> {
-  return async (received, options = {}) => {
+): vitest.Matcher<vitest.MatcherState, [options?: ToMatchPdfSnapshotOptions]> {
+  return async (received: string | Uint8Array, options = {}) => {
     const pdfContents =
       typeof received === 'string'
         ? Uint8Array.from(await readFile(received))
@@ -53,4 +51,13 @@ export function buildToMatchPdfSnapshot(
       message: () => '',
     };
   };
+}
+
+declare module 'vitest' {
+  // `jest-image-snapshot` only declares its matcher on Jest's `jest.Matchers`.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface Matchers<R, T> {
+    toMatchImageSnapshot(options?: MatchImageSnapshotOptions): R;
+    toMatchPdfSnapshot(options?: ToMatchPdfSnapshotOptions): Promise<void>;
+  }
 }

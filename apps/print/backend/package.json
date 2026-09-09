@@ -54,7 +54,7 @@
     "helmet": "^8.1.0",
     "react": "18.3.1",
     "styled-components": "^5.3.11",
-    "vitest": "^4.1.6",
+    "vitest": "5.0.0",
     "zod": "4.4.3"
   },
   "devDependencies": {
@@ -65,7 +65,7 @@
     "@types/node": "24.13.3",
     "@types/react": "18.3.3",
     "@types/styled-components": "^5.1.26",
-    "@vitest/coverage-istanbul": "^4.1.6",
+    "@vitest/coverage-istanbul": "5.0.0",
     "@votingworks/coverage-check": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/image-utils": "workspace:*",

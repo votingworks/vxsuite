@@ -59,3 +59,6 @@ name different machines (defaults to `default`):
 ```sh
 BENCH_ENV=ci-x86 pnpm benchmark
 ```
+
+`pnpm benchmark:compare` needs a baseline recorded on the same machine, so run
+`pnpm benchmark` there first.

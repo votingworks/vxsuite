@@ -36,12 +36,11 @@
     "stylelint-config-standard": "^34.0.0",
     "turbo": "2.10.5",
     "typescript": "npm:@typescript/typescript6@6.0.2",
-    "vitest": "^4.1.6"
+    "vitest": "5.0.0"
   },
   "packageManager": "pnpm@10.34.5",
   "pnpm": {
     "overrides": {
-      "@babel/traverse": "7.23.2",
       "brace-expansion@1": "^1.1.13",
       "brace-expansion@2": "^2.0.2",
       "canvas": "3.2.3",
