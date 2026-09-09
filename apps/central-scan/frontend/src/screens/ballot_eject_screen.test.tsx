@@ -1,4 +1,5 @@
-import { afterEach, beforeEach, expect, test } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { deferred } from '@votingworks/basics';
 import {
   AdjudicationReason,
   BallotPageMetadata,
@@ -521,4 +522,40 @@ test('ballot from a precinct not in the selected polling place', async () => {
 
   apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
+});
+
+test('disables the buttons while a sheet action is in progress', async () => {
+  apiMock.expectGetSheetForReview(
+    SHEET_ID,
+    buildSheetForReview({
+      type: 'NeedsReviewSheet',
+      reasons: [{ type: AdjudicationReason.BlankBallot }],
+    })
+  );
+
+  renderInAppContext(<BallotEjectScreen isTestMode sheetId={SHEET_ID} />, {
+    apiMock,
+  });
+
+  await screen.findByText('Blank Ballot');
+  const rejectButton = screen.getButton('Confirm Ballot Removed');
+  const acceptButton = screen.getButton('Tabulate Ballot');
+  expect(rejectButton).toBeEnabled();
+  expect(acceptButton).toBeEnabled();
+
+  const rejectSheetResult = deferred<void>();
+  apiMock.apiClient.rejectSheet
+    .expectCallWith()
+    .returns(rejectSheetResult.promise);
+  userEvent.click(rejectButton);
+  await vi.waitFor(() => {
+    expect(rejectButton).toBeDisabled();
+  });
+  expect(acceptButton).toBeDisabled();
+
+  rejectSheetResult.resolve();
+  await vi.waitFor(() => {
+    expect(rejectButton).toBeEnabled();
+  });
+  expect(acceptButton).toBeEnabled();
 });

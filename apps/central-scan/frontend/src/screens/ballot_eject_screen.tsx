@@ -78,6 +78,8 @@ export function BallotEjectScreen({
   const getSheetForReviewQuery = getSheetForReview.useQuery(sheetId);
   const acceptSheetMutation = acceptSheet.useMutation();
   const rejectSheetMutation = rejectSheet.useMutation();
+  const isSheetActionInProgress =
+    acceptSheetMutation.isLoading || rejectSheetMutation.isLoading;
 
   if (!getSheetForReviewQuery.isSuccess || !systemSettingsQuery.isSuccess) {
     return null;
@@ -303,6 +305,7 @@ export function BallotEjectScreen({
                 <Button
                   variant="primary"
                   onPress={() => rejectSheetMutation.mutate()}
+                  disabled={isSheetActionInProgress}
                   style={{ width: '100%', marginTop: '0.5rem' }}
                 >
                   Confirm Ballot Removed
@@ -312,6 +315,7 @@ export function BallotEjectScreen({
                 <Button
                   variant="primary"
                   onPress={() => acceptSheetMutation.mutate()}
+                  disabled={isSheetActionInProgress}
                   style={{ width: '100%' }}
                 >
                   Tabulate Ballot
@@ -322,6 +326,7 @@ export function BallotEjectScreen({
             <Button
               variant="primary"
               onPress={() => rejectSheetMutation.mutate()}
+              disabled={isSheetActionInProgress}
               style={{ marginTop: '0.5rem', width: '100%' }}
             >
               Confirm Ballot Removed
