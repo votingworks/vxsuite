@@ -11,9 +11,6 @@ import {
   PageInterpretation,
   PageInterpretationSchema,
   PageInterpretationWithFiles,
-  PollsState as PollsStateType,
-  PollsStateSchema,
-  safeParse,
   safeParseElectionDefinition,
   safeParseJson,
   SheetOf,
@@ -398,43 +395,6 @@ export class Store {
   }
 
   /**
-   * Gets the current polls state (open, paused, closed initial, or closed final)
-   */
-  getPollsState(): PollsStateType {
-    const electionRow = this.client.one(
-      'select polls_state as rawPollsState from election'
-    ) as { rawPollsState: string } | undefined;
-
-    if (!electionRow) {
-      // we will not skip the check by default once an election is defined
-      return 'polls_closed_initial';
-    }
-
-    const pollsStateParseResult = safeParse(
-      PollsStateSchema,
-      electionRow.rawPollsState
-    );
-
-    // @coverage-defer
-    if (pollsStateParseResult.isErr()) {
-      throw new Error('Unable to parse stored polls state.');
-    }
-
-    return pollsStateParseResult.ok();
-  }
-
-  /**
-   * Sets the current polls state
-   */
-  setPollsState(pollsState: PollsStateType): void {
-    if (!this.hasElection()) {
-      throw new Error('Cannot set polls state without an election.');
-    }
-
-    this.client.run('update election set polls_state = ?', pollsState);
-  }
-
-  /**
    * Adds a batch and returns its id.
    */
   addBatch(): string {
@@ -667,8 +627,6 @@ export class Store {
     // @coverage-defer
     if (this.hasElection()) {
       this.client.transaction(() => {
-        this.setPollsState('polls_closed_initial');
-
         // Delete batches, which will cascade delete sheets
         this.client.run('delete from batches');
         // Reset auto-incrementing key on "batches" table

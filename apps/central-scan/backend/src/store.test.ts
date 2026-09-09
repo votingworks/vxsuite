@@ -121,24 +121,6 @@ test('get/set test mode', () => {
   expect(store.getTestMode()).toEqual(true);
 });
 
-test('get/set polls state', () => {
-  const store = Store.memoryStore();
-
-  // Before setting an election
-  expect(store.getPollsState()).toEqual('polls_closed_initial');
-  expect(() => store.setPollsState('polls_open')).toThrowError();
-
-  store.setElectionAndJurisdiction({
-    electionData,
-    jurisdiction,
-    electionPackageHash,
-  });
-
-  // After setting an election
-  store.setPollsState('polls_open');
-  expect(store.getPollsState()).toEqual('polls_open');
-});
-
 test('get/set scanner as backed up', () => {
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({
@@ -820,8 +802,6 @@ test('resetElectionSession', () => {
   });
   store.setPollingPlaceId(anyPollingPlace(election).id);
 
-  store.setPollsState('polls_open');
-
   store.addBatch();
   store.addBatch();
   expect(
@@ -836,7 +816,6 @@ test('resetElectionSession', () => {
   store.resetElectionSession();
 
   // resetElectionSession should reset election session state
-  expect(store.getPollsState()).toEqual('polls_closed_initial');
   expect(store.getScannerBackupTimestamp()).toBeFalsy();
 
   // resetElectionSession should clear all batches
