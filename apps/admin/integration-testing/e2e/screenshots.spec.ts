@@ -596,6 +596,15 @@ test('results', async ({ page }, testInfo) => {
   await page.getByText('Cvrs17').waitFor();
   await screenshot('tally-screen-with-cvrs');
 
+  await page.getByRole('button', { name: /North Lincoln/ }).click();
+  await page.getByRole('button', { name: 'Close Panel' }).waitFor();
+  await screenshot('tally-screen-location-cvrs-panel');
+  await screenshotWithLocatorHighlight(
+    page.getByRole('button', { name: /^Remove CVR File From/ }),
+    'tally-screen-location-cvrs-panel-remove-highlighted'
+  );
+  await page.getByRole('button', { name: 'Close Panel' }).click();
+
   // Full election tally report
   await page.getByText('Reports').click();
   await page.getByText('Unofficial Tally Reports').waitFor();
