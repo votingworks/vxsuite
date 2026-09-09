@@ -1,5 +1,5 @@
 import { Mocked, vi } from 'vitest';
-import { MinimalWebUsbDevice } from '../src/driver/minimal_web_usb_device';
+import { MinimalWebUsbDevice } from '../src/driver/minimal_web_usb_device.js';
 
 export function mockMinimalWebUsbDevice(): Mocked<MinimalWebUsbDevice> {
   return {
