@@ -8,8 +8,8 @@ import { safeParseInt } from '@votingworks/types';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
-import { FujitsuThermalPrinter } from './printer';
-import { PAGE_DOTS_WIDTH } from './printing';
+import { FujitsuThermalPrinter } from './printer.js';
+import { PAGE_DOTS_WIDTH } from './printing.js';
 
 /**
  * Command line interface for interacting with the paper handler driver.
@@ -55,7 +55,7 @@ async function printFromFile(printer: FujitsuThermalPrinter, path: string) {
 
 // @coverage-defer
 const fixturePath = join(
-  __dirname,
+  import.meta.dirname,
   '../test/fixtures/tally-report-single-page.pdf'
 );
 

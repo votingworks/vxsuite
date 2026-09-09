@@ -10,8 +10,8 @@ import {
   packBitsCompression,
   PAGE_DOTS_WIDTH,
   trimImageDataToPageWidth,
-} from './printing';
-import { getFujitsuThermalPrinter } from './printer';
+} from './printing.js';
+import { getFujitsuThermalPrinter } from './printer.js';
 import {
   CONFIGURATION_NUMBER,
   INTERFACE_NUMBER,
@@ -19,8 +19,8 @@ import {
   PRODUCT_ID,
   RawPrinterStatus,
   VENDOR_ID,
-} from './driver';
-import { mockMinimalWebUsbDevice } from '../test/mock_minimal_web_usb_device';
+} from './driver/index.js';
+import { mockMinimalWebUsbDevice } from '../test/mock_minimal_web_usb_device.js';
 
 const LETTER_DOTS_WIDTH = 8.5 * 200;
 const BYTES_PER_PIXEL = 4;

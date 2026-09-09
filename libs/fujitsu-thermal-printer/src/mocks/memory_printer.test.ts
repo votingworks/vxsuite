@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { err, ok } from '@votingworks/basics';
 import { existsSync, readFileSync } from 'node:fs';
-import { createMockFujitsuPrinterHandler } from './memory_printer';
-import { PrinterStatus } from '../types';
+import { createMockFujitsuPrinterHandler } from './memory_printer.js';
+import { PrinterStatus } from '../types.js';
 
 test('status management', async () => {
   const printerHandler = createMockFujitsuPrinterHandler();
