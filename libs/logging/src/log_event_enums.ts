@@ -165,11 +165,6 @@ export enum LogEventId {
   ClearedBallotData = 'clear-ballot-data-complete',
   DeleteScanBatchInit = 'delete-cvr-batch-init',
   DeleteScanBatchComplete = 'delete-cvr-batch-complete',
-  ScanBatchInit = 'scan-batch-init',
-  ScanSheetComplete = 'scan-sheet-complete',
-  ScanBatchComplete = 'scan-batch-complete',
-  ScanBatchContinue = 'scan-batch-continue',
-  ScanAdjudicationInfo = 'scan-adjudication-info',
   FujitsuScanInit = 'fujitsu-scan-init',
   FujitsuScanImageScanned = 'fujitsu-scan-sheet-scanned',
   FujitsuScanBatchComplete = 'fujitsu-scan-batch-complete',
@@ -962,46 +957,6 @@ const DeleteScanBatchComplete: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxCentralScan],
 };
 
-const ScanBatchInit: LogDetails = {
-  eventId: LogEventId.ScanBatchInit,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'The user has begun scanning a new batch of ballots. Success or failure of beginning the process of scanning indicated by disposition. Batch ID for next scanned batch indicated in batchId.',
-  restrictInDocumentationToApps: [AppName.VxCentralScan],
-};
-
-const ScanSheetComplete: LogDetails = {
-  eventId: LogEventId.ScanSheetComplete,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'A single sheet in a batch has completed scanning. Success or failure of the scanning indicated by disposition. Ballots rejected due to being unreadable, configured for the wrong election, needed resolution, etc. marked as `failure`. Current batch specified by `batchId` and sheet in batch specified by `sheetCount`.',
-  restrictInDocumentationToApps: [AppName.VxCentralScan],
-};
-
-const ScanBatchComplete: LogDetails = {
-  eventId: LogEventId.ScanBatchComplete,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'A batch of scanned sheets has finished scanning. Success or failure indicated by disposition.',
-  restrictInDocumentationToApps: [AppName.VxCentralScan],
-};
-
-const ScanBatchContinue: LogDetails = {
-  eventId: LogEventId.ScanBatchContinue,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'Scanning continued by user after errors and/or warning stopped scanning. Log will indicate if the sheet was tabulated with warnings, or if the user indicated removing the ballot in order to continue scanning.',
-  restrictInDocumentationToApps: [AppName.VxCentralScan],
-};
-
-const ScanAdjudicationInfo: LogDetails = {
-  eventId: LogEventId.ScanAdjudicationInfo,
-  eventType: LogEventType.ApplicationStatus,
-  documentationMessage:
-    'Information about a ballot sheet that needs adjudication from the user. The possible unresolvable errors are InvalidTestModePage when a test mode ballot is seen when scanning in live mode or vice versa, InvalidBallotHashPage when a sheet for the wrong election is seen, InvalidPrecinctPage when a sheet for an invalid precinct is seen, UnreadablePage for a sheet that is unrecognizable as either a HMPB or BMD ballot, and BlankPage for a blank sheet. Warnings that the user can choose to tabulate with a ballot include MarginalMark, Overvote, Undervote, and BlankBallot (a ballot where there are no votes for any contest).',
-  restrictInDocumentationToApps: [AppName.VxCentralScan],
-};
-
 const FujitsuScanInit: LogDetails = {
   eventId: LogEventId.FujitsuScanInit,
   eventType: LogEventType.ApplicationAction,
@@ -1150,29 +1105,29 @@ const PollingPlaceChanged: LogDetails = {
 const ScannerBatchStarted: LogDetails = {
   eventId: LogEventId.ScannerBatchStarted,
   eventType: LogEventType.SystemAction,
-  documentationMessage: 'The precinct scanner has started a new batch.',
-  restrictInDocumentationToApps: [AppName.VxScan],
+  documentationMessage: 'The scanner has started a new batch.',
+  restrictInDocumentationToApps: [AppName.VxScan, AppName.VxCentralScan],
 };
 
 const ScannerBatchEnded: LogDetails = {
   eventId: LogEventId.ScannerBatchEnded,
   eventType: LogEventType.SystemAction,
-  documentationMessage: 'The precinct scanner has ended the current batch.',
-  restrictInDocumentationToApps: [AppName.VxScan],
+  documentationMessage: 'The scanner has ended the current batch.',
+  restrictInDocumentationToApps: [AppName.VxScan, AppName.VxCentralScan],
 };
 
 const ScannerEvent: LogDetails = {
   eventId: LogEventId.ScannerEvent,
   eventType: LogEventType.ApplicationAction,
-  documentationMessage: 'Precinct scanner state machine received an event.',
-  restrictInDocumentationToApps: [AppName.VxScan],
+  documentationMessage: 'Scanner state machine received an event.',
+  restrictInDocumentationToApps: [AppName.VxScan, AppName.VxCentralScan],
 };
 
 const ScannerStateChanged: LogDetails = {
   eventId: LogEventId.ScannerStateChanged,
   eventType: LogEventType.ApplicationStatus,
-  documentationMessage: 'Precinct scanner state machine transitioned states.',
-  restrictInDocumentationToApps: [AppName.VxScan],
+  documentationMessage: 'Scanner state machine transitioned states.',
+  restrictInDocumentationToApps: [AppName.VxScan, AppName.VxCentralScan],
 };
 
 const SoundToggled: LogDetails = {
@@ -1811,16 +1766,6 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return DeleteScanBatchInit;
     case LogEventId.DeleteScanBatchComplete:
       return DeleteScanBatchComplete;
-    case LogEventId.ScanBatchInit:
-      return ScanBatchInit;
-    case LogEventId.ScanSheetComplete:
-      return ScanSheetComplete;
-    case LogEventId.ScanBatchComplete:
-      return ScanBatchComplete;
-    case LogEventId.ScanBatchContinue:
-      return ScanBatchContinue;
-    case LogEventId.ScanAdjudicationInfo:
-      return ScanAdjudicationInfo;
     case LogEventId.FujitsuScanInit:
       return FujitsuScanInit;
     case LogEventId.FujitsuScanImageScanned:

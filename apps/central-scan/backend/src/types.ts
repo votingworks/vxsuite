@@ -1,19 +1,22 @@
-import { BallotPageLayout, BatchInfo, Rect } from '@votingworks/types';
+import { BallotPageLayout, BatchInfo, Id, Rect } from '@votingworks/types';
 
 export interface MachineConfig {
   machineId: string;
   codeVersion: string;
 }
 
-export type ScanState = 'idle' | 'scanning' | 'adjudication';
+export type BatchScannerMachineStatus =
+  | { state: 'idle'; error?: string }
+  | { state: 'disconnected' }
+  | { state: 'scanning'; batchId: Id }
+  | { state: 'needsReview'; batchId: Id };
 
-export interface ScanStatus {
+export type ScanStatus = BatchScannerMachineStatus & {
   isScannerAttached: boolean;
-  ongoingBatchId?: BatchInfo['id'];
   adjudicationsRemaining: number;
   batches: BatchInfo[];
   canUnconfigure: boolean;
-}
+};
 
 export interface BallotImage {
   imageUrl: string;

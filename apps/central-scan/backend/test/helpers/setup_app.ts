@@ -1,4 +1,4 @@
-import { Mocked, vi } from 'vitest';
+import { expect, Mocked, vi } from 'vitest';
 import { Application } from 'express';
 import {
   LogSource,
@@ -18,7 +18,11 @@ import getPort from 'get-port';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { Workspace, createWorkspace } from '../../src/util/workspace.js';
 import { MockScanner, makeMockScanner } from '../util/mocks.js';
-import { Importer } from '../../src/importer.js';
+import {
+  BatchScannerStateMachine,
+  createBatchScannerStateMachine,
+} from '../../src/scanner.js';
+import { ScanStatus } from '../../src/types.js';
 import { Api } from '../../src/index.js';
 import { buildCentralScannerApp } from '../../src/app.js';
 import { start } from '../../src/server.js';
@@ -42,7 +46,7 @@ export async function withApp(
     workspace: Workspace;
     scanner: MockScanner;
     mockUsbDrive: MockUsbDrive;
-    importer: Importer;
+    machine: BatchScannerStateMachine;
     app: Application;
     logger: Logger;
     apiClient: grout.Client<Api>;
@@ -58,14 +62,18 @@ export async function withApp(
   );
   const logger = buildMockLogger(auth, workspace);
   const scanner = makeMockScanner();
-  const importer = new Importer({ workspace, scanner, logger });
+  const machine = createBatchScannerStateMachine({
+    workspace,
+    scanner,
+    logger,
+  });
   const mockUsbDrive = createMockUsbDrive();
   const app = buildCentralScannerApp({
     auth,
     usbDrive: mockUsbDrive.usbDrive,
     allowedExportPatterns: ['/tmp/**'],
     scanner,
-    importer,
+    machine,
     workspace,
     logger,
   });
@@ -87,16 +95,29 @@ export async function withApp(
       store: workspace.store,
       scanner,
       mockUsbDrive,
-      importer,
+      machine,
       app,
       logger,
       apiClient,
       server,
     });
   } finally {
+    machine.stop();
     await new Promise<void>((resolve, reject) => {
       server.close((error) => (error ? reject(error) : resolve()));
     });
     workspace.reset();
   }
+}
+
+export async function waitForStatus(
+  apiClient: grout.Client<Api>,
+  status: Pick<ScanStatus, 'state'> & Partial<ScanStatus>
+): Promise<void> {
+  await vi.waitFor(
+    async () => {
+      expect(await apiClient.getStatus()).toMatchObject(status);
+    },
+    { timeout: 10_000 }
+  );
 }

@@ -15,7 +15,7 @@ import * as fsExtra from 'fs-extra';
 import { expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth.js';
 import { generateBmdBallotFixture } from '../test/helpers/ballots.js';
-import { withApp } from '../test/helpers/setup_app.js';
+import { waitForStatus, withApp } from '../test/helpers/setup_app.js';
 import { ScannedSheetInfo } from './fujitsu_scanner.js';
 
 // we need more time for ballot interpretation
@@ -38,7 +38,7 @@ test('going through the whole process works - BMD', async () => {
   );
 
   await withApp(
-    async ({ apiClient, auth, scanner, importer, mockUsbDrive, workspace }) => {
+    async ({ apiClient, auth, scanner, mockUsbDrive, workspace }) => {
       mockElectionManagerAuth(auth, electionDefinition);
       mockUsbDrive.insertUsbDrive(
         await mockElectionPackageFileTree(
@@ -62,7 +62,7 @@ test('going through the whole process works - BMD', async () => {
         scanner.withNextScannerSession().sheet(scannedBallot).end();
         await apiClient.scanBatch();
 
-        await importer.waitForEndOfBatchOrScanningPause();
+        await waitForStatus(apiClient, { state: 'idle' });
 
         // check the status
         const status = await apiClient.getStatus();

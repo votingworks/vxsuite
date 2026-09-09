@@ -410,26 +410,6 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** User has completed deleting a scanning batch. Number of ballots in batch specified by keep `numberOfBallotsInBatch`. Batch ID specified by `batchId`.
 **Machines:** vx-central-scan
-### scan-batch-init
-**Type:** [user-action](#user-action)
-**Description:** The user has begun scanning a new batch of ballots. Success or failure of beginning the process of scanning indicated by disposition. Batch ID for next scanned batch indicated in batchId.
-**Machines:** vx-central-scan
-### scan-sheet-complete
-**Type:** [user-action](#user-action)
-**Description:** A single sheet in a batch has completed scanning. Success or failure of the scanning indicated by disposition. Ballots rejected due to being unreadable, configured for the wrong election, needed resolution, etc. marked as `failure`. Current batch specified by `batchId` and sheet in batch specified by `sheetCount`.
-**Machines:** vx-central-scan
-### scan-batch-complete
-**Type:** [user-action](#user-action)
-**Description:** A batch of scanned sheets has finished scanning. Success or failure indicated by disposition.
-**Machines:** vx-central-scan
-### scan-batch-continue
-**Type:** [user-action](#user-action)
-**Description:** Scanning continued by user after errors and/or warning stopped scanning. Log will indicate if the sheet was tabulated with warnings, or if the user indicated removing the ballot in order to continue scanning.
-**Machines:** vx-central-scan
-### scan-adjudication-info
-**Type:** [application-status](#application-status)
-**Description:** Information about a ballot sheet that needs adjudication from the user. The possible unresolvable errors are InvalidTestModePage when a test mode ballot is seen when scanning in live mode or vice versa, InvalidBallotHashPage when a sheet for the wrong election is seen, InvalidPrecinctPage when a sheet for an invalid precinct is seen, UnreadablePage for a sheet that is unrecognizable as either a HMPB or BMD ballot, and BlankPage for a blank sheet. Warnings that the user can choose to tabulate with a ballot include MarginalMark, Overvote, Undervote, and BlankBallot (a ballot where there are no votes for any contest).
-**Machines:** vx-central-scan
 ### fujitsu-scan-init
 **Type:** [application-action](#application-action)
 **Description:** Application is initiating a new scanning batch on the fujitsu scanner.
@@ -496,20 +476,20 @@ IDs are logged with each log to identify the log being written.
 **Machines:** vx-mark, vx-scan, vx-mark-scan
 ### scanner-batch-started
 **Type:** [system-action](#system-action)
-**Description:** The precinct scanner has started a new batch.
-**Machines:** vx-scan
+**Description:** The scanner has started a new batch.
+**Machines:** vx-scan, vx-central-scan
 ### scanner-batch-ended
 **Type:** [system-action](#system-action)
-**Description:** The precinct scanner has ended the current batch.
-**Machines:** vx-scan
+**Description:** The scanner has ended the current batch.
+**Machines:** vx-scan, vx-central-scan
 ### scanner-state-machine-event
 **Type:** [application-action](#application-action)
-**Description:** Precinct scanner state machine received an event.
-**Machines:** vx-scan
+**Description:** Scanner state machine received an event.
+**Machines:** vx-scan, vx-central-scan
 ### scanner-state-machine-transition
 **Type:** [application-status](#application-status)
-**Description:** Precinct scanner state machine transitioned states.
-**Machines:** vx-scan
+**Description:** Scanner state machine transitioned states.
+**Machines:** vx-scan, vx-central-scan
 ### sound-toggled
 **Type:** [application-status](#application-status)
 **Description:** Sounds on the precinct scanner were toggled on or off as indicated.

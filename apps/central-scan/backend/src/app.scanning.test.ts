@@ -6,6 +6,7 @@ import {
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 import {
+  AdjudicationReason,
   asSheet,
   BatchInfo,
   DEFAULT_SYSTEM_SETTINGS,
@@ -16,11 +17,12 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import { LogEventId } from '@votingworks/logging';
 import { readFile } from 'node:fs/promises';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth.js';
 import { generateBmdBallotFixture } from '../test/helpers/ballots.js';
-import { withApp } from '../test/helpers/setup_app.js';
+import { waitForStatus, withApp } from '../test/helpers/setup_app.js';
 import { ScannedSheetInfo } from './fujitsu_scanner.js';
 
 const jurisdiction = TEST_JURISDICTION;
@@ -46,13 +48,13 @@ test('scanBatch with multiple sheets', async () => {
     frontPath: bmdFixture.sheet[0],
     backPath: bmdFixture.sheet[1],
   };
-  await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
+  await withApp(async ({ auth, apiClient, scanner, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
-    importer.configure(
-      electionDefinition,
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
       jurisdiction,
-      'test-election-package-hash'
-    );
+      electionPackageHash: 'test-election-package-hash',
+    });
     workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setTestMode({ testMode: true });
     // The scanned ballot is for precinct '23', which is covered by
@@ -67,7 +69,7 @@ test('scanBatch with multiple sheets', async () => {
       .end();
 
     await apiClient.scanBatch();
-    await importer.waitForEndOfBatchOrScanningPause();
+    await waitForStatus(apiClient, { state: 'idle' });
 
     const status = await apiClient.getStatus();
     expect(status.adjudicationsRemaining).toEqual(0);
@@ -89,13 +91,13 @@ test('continueScanning after invalid ballot', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const bmdFixture = await generateBmdBallotFixture();
-  await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
+  await withApp(async ({ auth, apiClient, scanner, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
-    importer.configure(
-      electionDefinition,
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
       jurisdiction,
-      'test-election-package-hash'
-    );
+      electionPackageHash: 'test-election-package-hash',
+    });
     workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setTestMode({ testMode: true });
     await apiClient.setPollingPlaceId({ id: 'central-scanning' });
@@ -112,7 +114,7 @@ test('continueScanning after invalid ballot', async () => {
       .end();
 
     await apiClient.scanBatch();
-    await importer.waitForEndOfBatchOrScanningPause();
+    await waitForStatus(apiClient, { state: 'needsReview' });
     {
       const status = await apiClient.getStatus();
       expect(status.adjudicationsRemaining).toEqual(1);
@@ -129,7 +131,7 @@ test('continueScanning after invalid ballot', async () => {
       });
     }
     await apiClient.continueScanning({ forceAccept: false });
-    await importer.waitForEndOfBatchOrScanningPause();
+    await waitForStatus(apiClient, { state: 'idle' });
     {
       const status = await apiClient.getStatus();
       expect(status.adjudicationsRemaining).toEqual(0);
@@ -183,13 +185,13 @@ test('scanBatch with streaked page', async () => {
   };
 
   // try with vertical streak detection enabled
-  await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
+  await withApp(async ({ auth, apiClient, scanner, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
-    importer.configure(
-      electionDefinition,
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
       jurisdiction,
-      'test-election-package-hash'
-    );
+      electionPackageHash: 'test-election-package-hash',
+    });
     workspace.store.setSystemSettings({
       ...DEFAULT_SYSTEM_SETTINGS,
       // enable vertical streak detection
@@ -201,7 +203,7 @@ test('scanBatch with streaked page', async () => {
     scanner.withNextScannerSession().sheet(scannedBallot).end();
 
     await apiClient.scanBatch();
-    await importer.waitForEndOfBatchOrScanningPause();
+    await waitForStatus(apiClient, { state: 'needsReview' });
 
     const nextAdjudicationSheet = workspace.store.getNextAdjudicationSheet();
 
@@ -215,13 +217,13 @@ test('scanBatch with streaked page', async () => {
   });
 
   // try again with vertical streak detection disabled
-  await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
+  await withApp(async ({ auth, apiClient, scanner, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
-    importer.configure(
-      electionDefinition,
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
       jurisdiction,
-      'test-election-package-hash'
-    );
+      electionPackageHash: 'test-election-package-hash',
+    });
     workspace.store.setSystemSettings({
       ...DEFAULT_SYSTEM_SETTINGS,
       // disable vertical streak detection
@@ -233,10 +235,75 @@ test('scanBatch with streaked page', async () => {
     scanner.withNextScannerSession().sheet(scannedBallot).end();
 
     await apiClient.scanBatch();
-    await importer.waitForEndOfBatchOrScanningPause();
+    await waitForStatus(apiClient, { state: 'idle' });
 
     // no adjudication should be needed
     expect(workspace.store.getNextAdjudicationSheet()).toBeUndefined();
+  });
+});
+
+test('accepting a sheet that needs review keeps it and continues scanning', async () => {
+  const { electionDefinition } = vxFamousNamesFixtures;
+  const [frontImageData, backImageData] = asSheet(
+    await iter(
+      pdfToImages(
+        Uint8Array.from(await readFile(vxFamousNamesFixtures.blankBallotPath)),
+        { scale: 200 / 72 }
+      )
+    )
+      .map(({ page }) => page)
+      .toArray()
+  );
+  const frontPath = makeTemporaryPath();
+  const backPath = makeTemporaryPath();
+  await writeImageData(frontPath, frontImageData);
+  await writeImageData(backPath, backImageData);
+
+  await withApp(async ({ auth, apiClient, scanner, workspace, logger }) => {
+    mockElectionManagerAuth(auth, electionDefinition);
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
+      jurisdiction,
+      electionPackageHash: 'test-election-package-hash',
+    });
+    workspace.store.setSystemSettings({
+      ...DEFAULT_SYSTEM_SETTINGS,
+      centralScanAdjudicationReasons: [AdjudicationReason.BlankBallot],
+    });
+    await apiClient.setTestMode({ testMode: true });
+    await apiClient.setPollingPlaceId({ id: 'central-scanning' });
+
+    scanner.withNextScannerSession().sheet({ frontPath, backPath }).end();
+
+    await apiClient.scanBatch();
+    await waitForStatus(apiClient, { state: 'needsReview' });
+    expect(workspace.store.getNextAdjudicationSheet()?.pages[0]).toMatchObject({
+      adjudicationInfo: expect.objectContaining({
+        enabledReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
+      }),
+    });
+    expect((await apiClient.getStatus()).adjudicationsRemaining).toEqual(1);
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.ScannerEvent,
+      'system',
+      expect.objectContaining({
+        message: expect.stringMatching(
+          /^Event: done\.invoke\..*interpretingSheet/
+        ),
+        eventObject: expect.stringContaining('"reasons":["BlankBallot"]'),
+      }),
+      expect.any(Function)
+    );
+
+    await apiClient.continueScanning({ forceAccept: true });
+    await waitForStatus(apiClient, { state: 'idle' });
+
+    const status = await apiClient.getStatus();
+    expect(status.adjudicationsRemaining).toEqual(0);
+    expect(status.batches).toEqual([
+      expect.objectContaining({ count: 1, endedAt: expect.any(String) }),
+    ]);
+    expect(workspace.store.getBallotsCounted()).toEqual(1);
   });
 });
 
@@ -250,13 +317,13 @@ test('rejects ballots whose precinct is not in the selected polling place', asyn
     backPath: bmdFixture.sheet[1],
   };
 
-  await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
+  await withApp(async ({ auth, apiClient, scanner, workspace }) => {
     mockElectionManagerAuth(auth, bmdFixture.electionDefinition);
-    importer.configure(
-      bmdFixture.electionDefinition,
+    workspace.store.setElectionAndJurisdiction({
+      electionData: bmdFixture.electionDefinition.electionData,
       jurisdiction,
-      'test-election-package-hash'
-    );
+      electionPackageHash: 'test-election-package-hash',
+    });
     workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setTestMode({ testMode: true });
     await apiClient.setPollingPlaceId({ id: '20-polling-place' });
@@ -264,7 +331,7 @@ test('rejects ballots whose precinct is not in the selected polling place', asyn
     scanner.withNextScannerSession().sheet(scannedBallot).end();
 
     await apiClient.scanBatch();
-    await importer.waitForEndOfBatchOrScanningPause();
+    await waitForStatus(apiClient, { state: 'needsReview' });
 
     const nextAdjudicationSheet = workspace.store.getNextAdjudicationSheet();
     expect(nextAdjudicationSheet?.pages[0]).toMatchObject({

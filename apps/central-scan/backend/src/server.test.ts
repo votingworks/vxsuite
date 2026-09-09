@@ -1,4 +1,4 @@
-import { expect, test, vi } from 'vitest';
+import { expect, onTestFinished, test, vi } from 'vitest';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { randomUUID as uuid } from 'node:crypto';
 import {
@@ -14,7 +14,7 @@ import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { createWorkspace } from './util/workspace.js';
 import { buildMockLogger } from '../test/helpers/setup_app.js';
 import { makeMockScanner } from '../test/util/mocks.js';
-import { Importer } from './importer.js';
+import { createBatchScannerStateMachine } from './scanner.js';
 import { buildCentralScannerApp } from './app.js';
 import { start } from './server.js';
 
@@ -27,14 +27,19 @@ test('logs device attach/un-attach events', () => {
   const logger = buildMockLogger(auth, workspace);
   const { usbDrive } = createMockUsbDrive();
   const scanner = makeMockScanner();
-  const importer = new Importer({ workspace, logger, scanner });
+  const machine = createBatchScannerStateMachine({
+    workspace,
+    logger,
+    scanner,
+  });
+  onTestFinished(() => machine.stop());
   const app = buildCentralScannerApp({
     auth,
     workspace,
     logger,
     usbDrive,
     scanner,
-    importer,
+    machine,
   });
 
   // don't actually listen
@@ -89,14 +94,19 @@ test('logs when sheet counts are present at startup', () => {
   const logger = buildMockLogger(auth, workspace);
   const { usbDrive } = createMockUsbDrive();
   const scanner = makeMockScanner();
-  const importer = new Importer({ workspace, logger, scanner });
+  const machine = createBatchScannerStateMachine({
+    workspace,
+    logger,
+    scanner,
+  });
+  onTestFinished(() => machine.stop());
   const app = buildCentralScannerApp({
     auth,
     workspace,
     logger,
     usbDrive,
     scanner,
-    importer,
+    machine,
   });
 
   // don't actually listen
@@ -129,14 +139,19 @@ test('logs when sheet counts are not present at startup', () => {
   const logger = buildMockLogger(auth, workspace);
   const { usbDrive } = createMockUsbDrive();
   const scanner = makeMockScanner();
-  const importer = new Importer({ workspace, logger, scanner });
+  const machine = createBatchScannerStateMachine({
+    workspace,
+    logger,
+    scanner,
+  });
+  onTestFinished(() => machine.stop());
   const app = buildCentralScannerApp({
     auth,
     workspace,
     logger,
     usbDrive,
     scanner,
-    importer,
+    machine,
   });
 
   // don't actually listen

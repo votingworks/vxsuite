@@ -313,16 +313,6 @@ pub enum EventId {
     DeleteScanBatchInit,
     #[serde(rename = "delete-cvr-batch-complete")]
     DeleteScanBatchComplete,
-    #[serde(rename = "scan-batch-init")]
-    ScanBatchInit,
-    #[serde(rename = "scan-sheet-complete")]
-    ScanSheetComplete,
-    #[serde(rename = "scan-batch-complete")]
-    ScanBatchComplete,
-    #[serde(rename = "scan-batch-continue")]
-    ScanBatchContinue,
-    #[serde(rename = "scan-adjudication-info")]
-    ScanAdjudicationInfo,
     #[serde(rename = "fujitsu-scan-init")]
     FujitsuScanInit,
     #[serde(rename = "fujitsu-scan-sheet-scanned")]

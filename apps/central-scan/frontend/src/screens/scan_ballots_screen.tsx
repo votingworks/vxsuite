@@ -193,8 +193,8 @@ export function ScanBallotsScreen({
   statusIsStale,
   isPollingPlaceUnconfigured,
 }: ScanBallotsScreenProps): JSX.Element {
-  const isScanning = !!status.ongoingBatchId;
-  const { batches } = status;
+  const { batches, state } = status;
+  const isScanning = state === 'scanning';
   const batchCount = batches.length;
 
   const ballotCount = iter(batches)

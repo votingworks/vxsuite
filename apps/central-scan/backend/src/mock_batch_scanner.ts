@@ -19,10 +19,10 @@ export interface MockBatchScannerApi {
 /**
  * A mock batch scanner for dev-dock use. PDFs loaded via the dev dock are
  * converted to image pairs and written to {@link imageDir}, then enqueued.
- * When "Scan New Batch" is clicked, the importer calls `scanSheets()`, which
- * returns sheets from the queue. Sheets remain in the queue across scans so
- * the same ballots can be scanned repeatedly. Use `clearSheets()` to reset
- * and clean up temporary files.
+ * When "Scan New Batch" is clicked, the scanner state machine calls
+ * `scanSheets()`, which returns sheets from the queue. Sheets remain in the
+ * queue across scans so the same ballots can be scanned repeatedly. Use
+ * `clearSheets()` to reset and clean up temporary files.
  *
  * `setCopies(n)` scales the stack: each queued sheet is scanned `n` times,
  * simulating a larger stack (and therefore a longer scanning window, e.g. to

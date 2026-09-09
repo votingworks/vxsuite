@@ -635,63 +635,37 @@ export class Store {
     batchId: string,
     [front, back]: SheetOf<PageInterpretationWithFiles>,
     ballotAuditId?: string
-  ): string {
-    try {
-      const requiresAdjudication =
-        combinePageInterpretationsForSheet(
-          [front.interpretation, back.interpretation],
-          election
-        ).type !== 'ValidSheet';
+  ): void {
+    const requiresAdjudication =
+      combinePageInterpretationsForSheet(
+        [front.interpretation, back.interpretation],
+        election
+      ).type !== 'ValidSheet';
 
-      this.client.run(
-        `insert into sheets (
-            id,
-            batch_id,
-            ballot_audit_id,
-            front_image_path,
-            front_interpretation_json,
-            back_image_path,
-            back_interpretation_json,
-            requires_adjudication,
-            finished_adjudication_at
-          ) values (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?
-          )`,
-        sheetId,
-        batchId,
-        ballotAuditId || null,
-        front.imagePath,
-        JSON.stringify(front.interpretation),
-        back.imagePath,
-        // @coverage-defer
-        JSON.stringify(back.interpretation ?? {}),
-        requiresAdjudication ? 1 : 0,
-        requiresAdjudication ? null : DateTime.now().toISOTime()
-      );
-    } catch (error) {
-      // @coverage-defer
-      debug(
-        'sheet insert failed; maybe a duplicate? filenames=[%s, %s]',
-        front.imagePath,
-        back.imagePath
-      );
-
-      // @coverage-defer
-      const row = this.client.one(
-        'select id from sheets where front_image_path = ?',
-        front.imagePath
-      ) as { id: string } | undefined;
-
-      // @coverage-defer
-      if (row) {
-        return row.id;
-      }
-
-      // @coverage-defer
-      throw error;
-    }
-
-    return sheetId;
+    this.client.run(
+      `insert into sheets (
+          id,
+          batch_id,
+          ballot_audit_id,
+          front_image_path,
+          front_interpretation_json,
+          back_image_path,
+          back_interpretation_json,
+          requires_adjudication,
+          finished_adjudication_at
+        ) values (
+          ?, ?, ?, ?, ?, ?, ?, ?, ?
+        )`,
+      sheetId,
+      batchId,
+      ballotAuditId || null,
+      front.imagePath,
+      JSON.stringify(front.interpretation),
+      back.imagePath,
+      JSON.stringify(back.interpretation),
+      requiresAdjudication ? 1 : 0,
+      requiresAdjudication ? null : DateTime.now().toISOTime()
+    );
   }
 
   /**
