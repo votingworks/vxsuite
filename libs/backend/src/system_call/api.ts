@@ -19,6 +19,12 @@ import {
 } from './usb_port_status.js';
 import { getNodeEnv } from '../globals.js';
 
+// Work around "The inferred type of 'createReactQueryApi' cannot be named …"
+// errors in `libs/ui/src/system_call_api.tsx`.
+export type { AudioInfo } from './get_audio_info.js';
+export type { SetClockParams, setClock } from './set_clock.js';
+export type { UsbPortAction, UsbPortStatus } from './usb_port_status.js';
+
 function buildApi({
   usbDrive,
   logger,

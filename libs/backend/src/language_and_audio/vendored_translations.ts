@@ -5,7 +5,7 @@ import {
   LanguageCode,
 } from '@votingworks/types';
 
-import vendoredTranslations from './vendored_translations.json';
+import vendoredTranslations from './vendored_translations.json' with { type: 'json' };
 
 /**
  * A mapping of non-English language codes to translations of English text.
