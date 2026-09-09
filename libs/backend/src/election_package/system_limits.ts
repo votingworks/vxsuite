@@ -14,7 +14,7 @@ import {
 import {
   extractElectionStrings,
   stripImagesFromRichText,
-} from '../language_and_audio';
+} from '../language_and_audio/index.js';
 
 /**
  * Validates an {@link ElectionDefinition} against system limits, returning the first violation if

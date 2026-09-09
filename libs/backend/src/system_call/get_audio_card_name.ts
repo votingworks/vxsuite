@@ -4,8 +4,8 @@ import { assertDefined, err, ok, Result, sleep } from '@votingworks/basics';
 import { safeParse, safeParseJson } from '@votingworks/types';
 
 import { LogEventId, Logger } from '@votingworks/logging';
-import { type NODE_ENV } from '../globals';
-import { pactl } from './pulse_audio';
+import { type NODE_ENV } from '../globals.js';
+import { pactl } from './pulse_audio.js';
 
 const PactlListCardsSchema = z.array(z.object({ name: z.string() }));
 
