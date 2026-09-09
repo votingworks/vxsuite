@@ -126,7 +126,7 @@
     "tmp": "^0.2.6",
     "util": "^0.12.4",
     "vite": "8.0.16",
-    "vitest": "^4.1.6",
+    "vitest": "^4.1.11",
     "vitest-styled-components": "^1.0.0"
   },
   "peerDependencies": {

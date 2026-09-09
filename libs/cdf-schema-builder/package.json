@@ -38,7 +38,7 @@
     "@votingworks/coverage-check": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "sort-package-json": "^1.50.0",
-    "vitest": "^4.1.6"
+    "vitest": "^4.1.11"
   },
   "publishConfig": {
     "access": "public"

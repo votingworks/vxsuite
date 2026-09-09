@@ -74,7 +74,7 @@
     "sort-package-json": "^1.50.0",
     "util": "^0.12.4",
     "vite": "8.0.16",
-    "vitest": "^4.1.6"
+    "vitest": "^4.1.11"
   },
   "packageManager": "pnpm@10.34.5"
 }
