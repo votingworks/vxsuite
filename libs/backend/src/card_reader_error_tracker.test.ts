@@ -3,7 +3,7 @@ import { CardStatus } from '@votingworks/auth';
 import {
   CARD_READER_GRACE_PERIOD_MS,
   CardReaderErrorTracker,
-} from './card_reader_error_tracker';
+} from './card_reader_error_tracker.js';
 
 let tracker: CardReaderErrorTracker;
 

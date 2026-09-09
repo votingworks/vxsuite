@@ -37,15 +37,18 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 
-import { TEST_OTHER_REPORT_TYPE } from './build_report_metadata';
+import { TEST_OTHER_REPORT_TYPE } from './build_report_metadata.js';
 import {
   ReferencedFile,
   ReferencedFiles,
   referencedImageFile,
   referencedLayoutFile,
-} from './referenced_files';
-import { getImageHash, getLayoutHash } from './build_cast_vote_record';
-import { CastVoteRecordFileSource, directoryFileSource } from './file_source';
+} from './referenced_files.js';
+import { getImageHash, getLayoutHash } from './build_cast_vote_record.js';
+import {
+  CastVoteRecordFileSource,
+  directoryFileSource,
+} from './file_source.js';
 
 /**
  * A parsed cast vote record and references to its image/layout files

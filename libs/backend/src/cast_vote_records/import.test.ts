@@ -16,13 +16,13 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 
-import { getImageHash } from './build_cast_vote_record';
-import { TEST_OTHER_REPORT_TYPE } from './build_report_metadata';
-import { isTestReport, readCastVoteRecordExport } from './import';
+import { getImageHash } from './build_cast_vote_record.js';
+import { TEST_OTHER_REPORT_TYPE } from './build_report_metadata.js';
+import { isTestReport, readCastVoteRecordExport } from './import.js';
 import {
   CastVoteRecordExportModifications,
   modifyCastVoteRecordExport,
-} from './test_utils';
+} from './test_utils.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

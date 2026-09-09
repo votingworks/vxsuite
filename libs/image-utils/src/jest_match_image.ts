@@ -4,7 +4,7 @@ import { format } from '@votingworks/utils';
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import pixelmatch from 'pixelmatch';
-import { writeImageData } from './image_data';
+import { writeImageData } from './image_data.js';
 
 /**
  * Options for the `toMatchImage` custom Jest matcher.

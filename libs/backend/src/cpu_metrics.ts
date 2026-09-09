@@ -3,7 +3,7 @@ import { safeParseInt, safeParseNumber } from '@votingworks/types';
 import { extractErrorMessage, lines, Optional } from '@votingworks/basics';
 import { BaseLogger, LogEventId } from '@votingworks/logging';
 import { format } from '@votingworks/utils';
-import { execFile } from './exec';
+import { execFile } from './exec.js';
 
 // Temperature validation constants
 const MIN_REALISTIC_TEMP_C = 0;

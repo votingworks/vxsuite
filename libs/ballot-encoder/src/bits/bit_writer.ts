@@ -1,8 +1,8 @@
 import { iter } from '@votingworks/basics';
-import { BitCursor } from './bit_cursor';
-import { Encoding, Utf8Encoding } from './encoding';
-import { Uint1, Uint8, Uint8Size } from './types';
-import { makeMasks, sizeof, toUint8 } from './utils';
+import { BitCursor } from './bit_cursor.js';
+import { Encoding, Utf8Encoding } from './encoding.js';
+import { Uint1, Uint8, Uint8Size } from './types.js';
+import { makeMasks, sizeof, toUint8 } from './utils.js';
 
 /**
  * Writes structured data into a `Uint8Array`. Data is written in little-endian

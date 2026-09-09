@@ -13,8 +13,8 @@ import {
 } from '@votingworks/types';
 
 import { format } from '@votingworks/utils';
-import { GoogleCloudTranslator } from './translator';
-import { setUiString } from './utils';
+import { GoogleCloudTranslator } from './translator.js';
+import { setUiString } from './utils.js';
 
 interface ElectionString {
   stringKey: ElectionStringKey | [ElectionStringKey, string];

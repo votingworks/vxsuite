@@ -3,8 +3,8 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import { LogEventId, mockLogger } from '@votingworks/logging';
 
-import { getAudioCardName } from './get_audio_card_name';
-import { pactl } from './pulse_audio';
+import { getAudioCardName } from './get_audio_card_name.js';
+import { pactl } from './pulse_audio.js';
 
 vi.mock('./pulse_audio.js');
 

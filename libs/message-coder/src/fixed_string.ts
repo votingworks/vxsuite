@@ -5,7 +5,7 @@ import {
   toBitLength,
   toBitOffset,
   toByteOffset,
-} from './bits';
+} from './bits.js';
 import {
   BitLength,
   BitOffset,
@@ -14,7 +14,7 @@ import {
   CoderError,
   DecodeResult,
   EncodeResult,
-} from './types';
+} from './types.js';
 
 /**
  * Represents a string of fixed length.

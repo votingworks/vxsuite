@@ -2,12 +2,12 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import { err, ok } from '@votingworks/basics';
-import { pactl } from './pulse_audio';
+import { pactl } from './pulse_audio.js';
 import {
   AudioCardProfile,
   setAudioCardProfile,
   SetAudioCardProfileResult,
-} from './set_audio_card_profile';
+} from './set_audio_card_profile.js';
 
 vi.mock(import('./pulse_audio.js'));
 const mockPactl = vi.mocked(pactl);

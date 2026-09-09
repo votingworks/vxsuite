@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { sampleBallotImages } from '@votingworks/fixtures';
 import { createImageData } from 'canvas';
 import { basename } from 'node:path';
-import { crop } from './crop';
+import { crop } from './crop.js';
 
 test('matching images', async () => {
   const image = createImageData(1, 1);
@@ -51,7 +51,7 @@ test('mismatching images with diff path', async () => {
     height: 100,
   });
 
-  const diffPath = `/tmp/${basename(__filename)}.${currentTestName?.replace(
+  const diffPath = `/tmp/${basename(import.meta.filename)}.${currentTestName?.replace(
     /[^a-z0-9]+/g,
     '-'
   )}-diff.png`;

@@ -1,8 +1,8 @@
 import { Result, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { BaseCoder } from './base_coder';
-import { LiteralCoder } from './literal_coder';
-import { PaddingCoder } from './padding_coder';
+import { BaseCoder } from './base_coder.js';
+import { LiteralCoder } from './literal_coder.js';
+import { PaddingCoder } from './padding_coder.js';
 import {
   BitLength,
   BitOffset,
@@ -10,7 +10,7 @@ import {
   CoderError,
   DecodeResult,
   EncodeResult,
-} from './types';
+} from './types.js';
 
 /**
  * Parts of a message coder.

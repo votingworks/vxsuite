@@ -3,7 +3,7 @@ import { assertDefined, iter } from '@votingworks/basics';
 import {
   parseVendoredTranslations,
   VendoredTranslations,
-} from './vendored_translations';
+} from './vendored_translations.js';
 
 /**
  * Interpolation tags (`<1>`, `</1>`) are consumed by the `Trans` component. A

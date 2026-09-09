@@ -4,7 +4,7 @@ import * as fs from 'node:fs';
 import path from 'node:path';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { isNonExistentFileOrDirectoryError } from '@votingworks/basics';
-import { directoryFileSource, inMemoryFileSource } from './file_source';
+import { directoryFileSource, inMemoryFileSource } from './file_source.js';
 
 test('directoryFileSource reads files relative to the directory', async () => {
   const directoryPath = makeTemporaryDirectory();
