@@ -24,7 +24,7 @@ export const CUPS_SCHEDULER_IPP_URI = `ipp://localhost:631/printers/${DEFAULT_MA
 const RELATIVE_PATH_TO_IPP_QUERIES = './ipp_queries';
 
 export const GET_JOB_ATTRIBUTES_QUERY_PATH = join(
-  __dirname,
+  import.meta.dirname,
   RELATIVE_PATH_TO_IPP_QUERIES,
   'get-job-attributes.ipp'
 );
