@@ -77,7 +77,7 @@ export interface FujitsuThermalPrinterDriverInterface {
   setPrintQuality(printQuality: PrintQuality): Promise<void>;
   getStatus(): Promise<RawPrinterStatus>;
   setReplyParameter(parameter: Uint8): Promise<void>;
-  printBitImage(bitImage: CompressedBitImage): void;
+  printBitImage(bitImage: CompressedBitImage): Promise<void>;
   feedForward(dots: number): Promise<void>;
 }
 

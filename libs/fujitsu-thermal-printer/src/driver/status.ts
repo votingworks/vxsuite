@@ -38,7 +38,6 @@ export function isInconsistentStatus(status: RawPrinterStatus): boolean {
   );
 }
 
-// @coverage-defer
 export function isPrinterStopped(status: RawPrinterStatus): boolean {
   return (
     isErrorStatus(status) || status.isPaperCoverOpen || status.isPaperAtEnd
