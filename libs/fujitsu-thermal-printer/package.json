@@ -46,7 +46,7 @@
     "esbuild": "0.28.1",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
-    "vitest": "^4.1.6"
+    "vitest": "^4.1.11"
   },
   "packageManager": "pnpm@10.34.5"
 }

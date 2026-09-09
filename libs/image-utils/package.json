@@ -43,7 +43,7 @@
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
-    "vitest": "^4.1.6"
+    "vitest": "^4.1.11"
   },
   "packageManager": "pnpm@10.34.5"
 }

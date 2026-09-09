@@ -29,7 +29,7 @@
     "@types/node": "24.13.3",
     "@vitest/coverage-istanbul": "^4.1.6",
     "sort-package-json": "^1.50.0",
-    "vitest": "^4.1.6"
+    "vitest": "^4.1.11"
   },
   "packageManager": "pnpm@10.34.5"
 }

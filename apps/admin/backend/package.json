@@ -85,7 +85,7 @@
     "jest-image-snapshot": "^6.4.0",
     "lodash.set": "^4.3.2",
     "sort-package-json": "^1.50.0",
-    "vitest": "^4.1.6"
+    "vitest": "^4.1.11"
   },
   "packageManager": "pnpm@10.34.5"
 }

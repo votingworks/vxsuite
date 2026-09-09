@@ -31,7 +31,7 @@
     "@votingworks/types": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "tmp": "^0.2.6",
-    "vitest": "^4.1.6"
+    "vitest": "^4.1.11"
   },
   "napi": {
     "binaryName": "logging-utils",

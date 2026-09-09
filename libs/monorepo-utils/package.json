@@ -30,7 +30,7 @@
     "prettier": "3.0.3",
     "sort-package-json": "^1.50.0",
     "typescript": "npm:@typescript/typescript6@6.0.2",
-    "vitest": "^4.1.6"
+    "vitest": "^4.1.11"
   },
   "packageManager": "pnpm@10.34.5"
 }

@@ -36,7 +36,7 @@
     "@votingworks/fixtures": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "tmp": "^0.2.6",
-    "vitest": "^4.1.6"
+    "vitest": "^4.1.11"
   },
   "packageManager": "pnpm@10.34.5"
 }

@@ -70,8 +70,8 @@ importers:
         specifier: npm:@typescript/typescript6@6.0.2
         version: '@typescript/typescript6@6.0.2'
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/admin/backend:
     dependencies:
@@ -201,7 +201,7 @@ importers:
         version: link:../../../libs/@types/zip-stream
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../../../libs/coverage-check
@@ -230,8 +230,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/admin/frontend:
     dependencies:
@@ -391,7 +391,7 @@ importers:
         version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/admin-backend':
         specifier: workspace:*
         version: link:../backend
@@ -435,8 +435,8 @@ importers:
         specifier: 8.0.16
         version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/admin/frontend/prodserver:
     dependencies:
@@ -612,7 +612,7 @@ importers:
         version: 0.2.4
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/bmd-ballot-fixtures':
         specifier: workspace:*
         version: link:../../../libs/bmd-ballot-fixtures
@@ -638,8 +638,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/central-scan/frontend:
     dependencies:
@@ -751,7 +751,7 @@ importers:
         version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
@@ -798,8 +798,8 @@ importers:
         specifier: 8.0.16
         version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/central-scan/frontend/prodserver:
     dependencies:
@@ -972,7 +972,7 @@ importers:
         version: 0.2.4
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/ballot-interpreter':
         specifier: workspace:*
         version: link:../../../libs/ballot-interpreter
@@ -1004,8 +1004,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/design/frontend:
     dependencies:
@@ -1177,7 +1177,7 @@ importers:
         version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../../../libs/coverage-check
@@ -1218,8 +1218,8 @@ importers:
         specifier: 8.0.16
         version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/mark-scan/backend:
     dependencies:
@@ -1334,7 +1334,7 @@ importers:
         version: 0.2.4
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../../../libs/coverage-check
@@ -1360,8 +1360,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/mark-scan/frontend:
     dependencies:
@@ -1506,7 +1506,7 @@ importers:
         version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
@@ -1541,8 +1541,8 @@ importers:
         specifier: 8.0.16
         version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/mark-scan/frontend/prodserver:
     dependencies:
@@ -1703,7 +1703,7 @@ importers:
         version: 0.2.4
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../../../libs/coverage-check
@@ -1729,8 +1729,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/mark/frontend:
     dependencies:
@@ -1872,7 +1872,7 @@ importers:
         version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
@@ -1907,8 +1907,8 @@ importers:
         specifier: 8.0.16
         version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/mark/frontend/prodserver:
     dependencies:
@@ -2058,8 +2058,8 @@ importers:
         specifier: ^5.3.11
         version: 5.3.11(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       zod:
         specifier: 4.4.3
         version: 4.4.3
@@ -2093,7 +2093,7 @@ importers:
         version: 17.0.22
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../../../libs/coverage-check
@@ -2265,7 +2265,7 @@ importers:
         version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
@@ -2306,8 +2306,8 @@ importers:
         specifier: 8.0.16
         version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/pollbook/frontend/prodserver:
     dependencies:
@@ -2387,8 +2387,8 @@ importers:
         specifier: ^5.3.11
         version: 5.3.11(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       zod:
         specifier: 4.4.3
         version: 4.4.3
@@ -2416,7 +2416,7 @@ importers:
         version: 5.1.26
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../../../libs/coverage-check
@@ -2552,7 +2552,7 @@ importers:
         version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
@@ -2587,8 +2587,8 @@ importers:
         specifier: 8.0.16
         version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/print/frontend/prodserver:
     dependencies:
@@ -2767,7 +2767,7 @@ importers:
         version: 0.2.4
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../../../libs/coverage-check
@@ -2790,8 +2790,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       wait-for-expect:
         specifier: ^3.0.2
         version: 3.0.2
@@ -2921,7 +2921,7 @@ importers:
         version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
@@ -2965,8 +2965,8 @@ importers:
         specifier: 8.0.16
         version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/scan/frontend/prodserver:
     dependencies:
@@ -3033,7 +3033,7 @@ importers:
         version: 24.13.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../libs/basics
@@ -3047,8 +3047,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
     devDependencies:
       '@votingworks/coverage-check':
         specifier: workspace:*
@@ -3138,7 +3138,7 @@ importers:
         version: 17.0.22
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -3161,8 +3161,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       wait-for-expect:
         specifier: ^3.0.2
         version: 3.0.2
@@ -3256,7 +3256,7 @@ importers:
         version: 2.10.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -3282,8 +3282,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/ballot-encoder:
     dependencies:
@@ -3302,7 +3302,7 @@ importers:
         version: 0.0.35
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -3319,8 +3319,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/ballot-interpreter:
     dependencies:
@@ -3387,7 +3387,7 @@ importers:
         version: 0.2.4
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/bmd-ballot-fixtures':
         specifier: workspace:*
         version: link:../bmd-ballot-fixtures
@@ -3422,8 +3422,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/basics:
     dependencies:
@@ -3442,7 +3442,7 @@ importers:
         version: 24.13.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -3456,8 +3456,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/bmd-ballot-fixtures:
     dependencies:
@@ -3500,7 +3500,7 @@ importers:
         version: 18.3.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -3526,8 +3526,8 @@ importers:
         specifier: ^0.12.4
         version: 0.12.4
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/cdf-schema-builder:
     dependencies:
@@ -3555,7 +3555,7 @@ importers:
         version: 24.13.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -3566,8 +3566,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/coverage-check:
     dependencies:
@@ -3583,13 +3583,13 @@ importers:
         version: 24.13.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/custom-paper-handler:
     dependencies:
@@ -3632,7 +3632,7 @@ importers:
         version: 1.0.8
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -3646,8 +3646,8 @@ importers:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/db:
     dependencies:
@@ -3681,7 +3681,7 @@ importers:
         version: 0.2.4
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -3695,8 +3695,8 @@ importers:
         specifier: ^0.2.6
         version: 0.2.7
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/dev-dock/backend:
     dependencies:
@@ -3745,7 +3745,7 @@ importers:
         version: 24.13.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../../coverage-check
@@ -3771,8 +3771,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/dev-dock/frontend:
     dependencies:
@@ -3839,7 +3839,7 @@ importers:
         version: 5.14.9
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/auth':
         specifier: workspace:*
         version: link:../../auth
@@ -3874,8 +3874,8 @@ importers:
         specifier: ^5.3.11
         version: 5.3.11(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/eslint-plugin-vx:
     dependencies:
@@ -3893,7 +3893,7 @@ importers:
         version: 8.67.0(@typescript/typescript6@6.0.2)(eslint@9.39.5)
       '@vitest/eslint-plugin':
         specifier: ^1.6.27
-        version: 1.6.27(@typescript-eslint/eslint-plugin@8.67.0(@typescript-eslint/parser@8.67.0(@typescript/typescript6@6.0.2)(eslint@9.39.5))(@typescript/typescript6@6.0.2)(eslint@9.39.5))(@typescript/typescript6@6.0.2)(eslint@9.39.5)(vitest@4.1.6)
+        version: 1.6.27(@typescript-eslint/eslint-plugin@8.67.0(@typescript-eslint/parser@8.67.0(@typescript/typescript6@6.0.2)(eslint@9.39.5))(@typescript/typescript6@6.0.2)(eslint@9.39.5))(@typescript/typescript6@6.0.2)(eslint@9.39.5)(vitest@4.1.11)
       comment-parser:
         specifier: ^1.4.0
         version: 1.4.0
@@ -3948,7 +3948,7 @@ importers:
         version: 8.67.0(@typescript/typescript6@6.0.2)(eslint@9.39.5)
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -3959,8 +3959,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/fixture-generators:
     dependencies:
@@ -4027,7 +4027,7 @@ importers:
         version: 17.0.22
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -4041,8 +4041,8 @@ importers:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/fixtures:
     dependencies:
@@ -4064,7 +4064,7 @@ importers:
         version: 24.13.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -4075,8 +4075,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/fs:
     dependencies:
@@ -4116,7 +4116,7 @@ importers:
         version: 0.2.4
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -4142,8 +4142,8 @@ importers:
         specifier: ^0.2.6
         version: 0.2.7
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/fujitsu-thermal-printer:
     dependencies:
@@ -4189,7 +4189,7 @@ importers:
         version: 1.0.8
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -4203,8 +4203,8 @@ importers:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/grout:
     dependencies:
@@ -4232,7 +4232,7 @@ importers:
         version: 3.2.0
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -4249,8 +4249,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       wait-for-expect:
         specifier: ^3.0.2
         version: 3.0.2
@@ -4263,7 +4263,7 @@ importers:
     devDependencies:
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../../coverage-check
@@ -4280,8 +4280,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/hmpb:
     dependencies:
@@ -4366,7 +4366,7 @@ importers:
         version: 0.2.4
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -4398,8 +4398,8 @@ importers:
         specifier: 8.0.16
         version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/image-utils:
     dependencies:
@@ -4451,7 +4451,7 @@ importers:
         version: 0.2.4
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -4471,8 +4471,8 @@ importers:
         specifier: 2.23.2
         version: 2.23.2
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/integration-test-utils:
     dependencies:
@@ -4524,7 +4524,7 @@ importers:
         version: 0.2.4
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -4535,8 +4535,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/logging:
     dependencies:
@@ -4579,7 +4579,7 @@ importers:
         version: 17.0.22
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -4605,8 +4605,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/logging-utils:
     devDependencies:
@@ -4618,7 +4618,7 @@ importers:
         version: 0.2.4
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -4641,8 +4641,8 @@ importers:
         specifier: ^0.2.6
         version: 0.2.7
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/mark-flow-ui:
     dependencies:
@@ -4709,7 +4709,7 @@ importers:
         version: 5.14.9
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -4771,8 +4771,8 @@ importers:
         specifier: 8.0.16
         version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/message-coder:
     dependencies:
@@ -4785,7 +4785,7 @@ importers:
         version: 24.13.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -4796,8 +4796,8 @@ importers:
         specifier: 2.23.2
         version: 2.23.2
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/monorepo-utils:
     dependencies:
@@ -4810,7 +4810,7 @@ importers:
         version: 24.13.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -4827,8 +4827,8 @@ importers:
         specifier: npm:@typescript/typescript6@6.0.2
         version: '@typescript/typescript6@6.0.2'
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/networking:
     dependencies:
@@ -4859,7 +4859,7 @@ importers:
         version: 24.13.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -4879,8 +4879,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/pdi-scanner:
     dependencies:
@@ -4911,7 +4911,7 @@ importers:
         version: 24.13.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -4922,8 +4922,8 @@ importers:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/printing:
     dependencies:
@@ -5002,7 +5002,7 @@ importers:
         version: 0.2.4
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/ballot-encoder':
         specifier: workspace:*
         version: link:../ballot-encoder
@@ -5028,8 +5028,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/test-decks:
     dependencies:
@@ -5081,7 +5081,7 @@ importers:
         version: 5.1.26
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -5107,8 +5107,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/test-utils:
     dependencies:
@@ -5160,7 +5160,7 @@ importers:
         version: link:../@types/zip-stream
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -5171,8 +5171,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/types:
     dependencies:
@@ -5209,7 +5209,7 @@ importers:
         version: 18.3.3
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/cdf-schema-builder':
         specifier: workspace:*
         version: link:../cdf-schema-builder
@@ -5241,8 +5241,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/ui:
     dependencies:
@@ -5420,7 +5420,7 @@ importers:
         version: 0.2.4
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -5512,8 +5512,8 @@ importers:
         specifier: 8.0.16
         version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       vitest-styled-components:
         specifier: ^1.0.0
         version: 1.0.0(styled-components@5.3.11(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1))
@@ -5559,7 +5559,7 @@ importers:
         version: 0.2.4
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -5576,8 +5576,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/utils:
     dependencies:
@@ -5638,7 +5638,7 @@ importers:
         version: 17.0.22
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
-        version: 4.1.6(vitest@4.1.6)
+        version: 4.1.6(vitest@4.1.11)
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../coverage-check
@@ -5661,8 +5661,8 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vitest:
-        specifier: ^4.1.6
-        version: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        specifier: ^4.1.11
+        version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   script:
     dependencies:
@@ -9206,11 +9206,11 @@ packages:
   '@vitest/expect@3.2.4':
     resolution: {integrity: sha512-Io0yyORnB6sikFlt8QW5K7slY4OjqNX9jmJQ02QDda8lyM6B5oNgVWoSoKPac8/kgnCUzuHQKrSLtu/uOqqrig==}
 
-  '@vitest/expect@4.1.6':
-    resolution: {integrity: sha512-7EHDquPthALSV0jhhjgEW8FXaviMx7rSqu8W6oqCoAuOhKov814P99QDV1pxMA3QPv21YudvJngIhjrNI4opLg==}
+  '@vitest/expect@4.1.11':
+    resolution: {integrity: sha512-VX2x5vNJXET47KAFzwERI+KRMtTTCSWTfSMKsW7JsUsXV4psq++e3DvZpuTDOpHcxytiDs6p2nhVb2tVDiiUYw==}
 
-  '@vitest/mocker@4.1.6':
-    resolution: {integrity: sha512-MCFc63czMjEInOlcY2cpQCvCN+KgbAn+60xu9cMgP4sKaLC5JNAKw7JH8QdAnoAC88hW1IiSNZ+GgVXlN1UcMQ==}
+  '@vitest/mocker@4.1.11':
+    resolution: {integrity: sha512-2XJVD55d1o5AZous5CCGKS74g/riOj9odEt2bQpCVZeblHyHdnMeFl4jl0XjU21stf4mbjUkew2eXQZt65g5CQ==}
     peerDependencies:
       msw: ^2.4.9
       vite: ^6.0.0 || ^7.0.0 || ^8.0.0
@@ -9223,26 +9223,26 @@ packages:
   '@vitest/pretty-format@3.2.4':
     resolution: {integrity: sha512-IVNZik8IVRJRTr9fxlitMKeJeXFFFN0JaB9PHPGQ8NKQbGpfjlTx9zO4RefN8gp7eqjNy8nyK3NZmBzOPeIxtA==}
 
-  '@vitest/pretty-format@4.1.6':
-    resolution: {integrity: sha512-h5SxD/IzNhZYnrSZRsUZQIC+vD0GY8cUvq0iwsmkFKixRCKLLWqCXa/FIQ4S1R+sI+PGoojkHsdNrbZiM9Qpgw==}
+  '@vitest/pretty-format@4.1.11':
+    resolution: {integrity: sha512-yiZzPbGTS9Sr/JpFl8zHrcIkAofNbFV6k21vIgQN/cY/oxZeXhJv5sc/MBJ5jFKWmWs+oJHw0UXLZjmf931+Vw==}
 
-  '@vitest/runner@4.1.6':
-    resolution: {integrity: sha512-nOPCmn2+yD0ZNmKdsXGv/UxMMWbMuKeD6GyYncNwdkYDxpQvrPSKYj2rWuDjC2Y4b6w6hjip5dBKFzEUuZe3vA==}
+  '@vitest/runner@4.1.11':
+    resolution: {integrity: sha512-LztvUgdwMNJMIkj3hQnnxiC2Xy1zNxq928W/xhjCLaNCzqTZOudjwbQf6v9IntZGPw132i2Lq2rgTRZHD3JHNw==}
 
-  '@vitest/snapshot@4.1.6':
-    resolution: {integrity: sha512-YhsdE6xAVfTDmzjxL2ZDUvjj+ZsgyOKe+TdQzqkD72wIOmHka8NuGQ6NpTNZv9D2Z63fbwWKJPeVpEw4EQgYxw==}
+  '@vitest/snapshot@4.1.11':
+    resolution: {integrity: sha512-pN7ikn1ON7h8ee4gIAp4AzyK+zBtJPzVbqOgu5LCEh4VaJVbPQcgYQYJIMGQPXVeJJq1fnfazis7a5pFNPahog==}
 
   '@vitest/spy@3.2.4':
     resolution: {integrity: sha512-vAfasCOe6AIK70iP5UD11Ac4siNUNJ9i/9PZ3NKx07sG6sUxeag1LWdNrMWeKKYBLlzuK+Gn65Yd5nyL6ds+nw==}
 
-  '@vitest/spy@4.1.6':
-    resolution: {integrity: sha512-JFKxMx6udhwKh/Ldo270e17QX710vgunMkuPAvXjHSvC6oqLWAHhVhjg/I71q0u0CBSErIODV1Kjv0FQNSWjdg==}
+  '@vitest/spy@4.1.11':
+    resolution: {integrity: sha512-apNa/prQy2qCeywhnixOHPRCgGNhvg7T4Dapfl1GahLp/R+uhBm5cPyFoNVyqsNd2h1nJxL6BqqdIjiABL60YA==}
 
   '@vitest/utils@3.2.4':
     resolution: {integrity: sha512-fB2V0JFrQSMsCo9HiSq3Ezpdv4iYaXRG1Sx8edX3MwxfyNn83mKiGzOcH+Fkxt4MHxr3y42fQi1oeAInqgX2QA==}
 
-  '@vitest/utils@4.1.6':
-    resolution: {integrity: sha512-FxIY+U81R3LGKCxaHHFRQ5+g6/iRgGLmeHWdp2Amj4ljQRrEIWHmZyDfDYBRZlpyqA7qKxtS9DD1dhk8RnRIVQ==}
+  '@vitest/utils@4.1.11':
+    resolution: {integrity: sha512-zTCVGpyFsGWBhllOyKlTw/vnr6D9qxsfSDyfbyZmTyjHw5N/VuvzHpHoQjm2ZJzn4RJgx5w4r7V0er69CmLgPQ==}
 
   '@webcontainer/env@1.1.1':
     resolution: {integrity: sha512-6aN99yL695Hi9SuIk1oC88l9o0gmxL1nGWWQ/kNy81HigJ0FoaoTXpytCj6ItzgyCEwA9kF1wixsTuv5cjsgng==}
@@ -14028,20 +14028,20 @@ packages:
     peerDependencies:
       styled-components: '>= 5'
 
-  vitest@4.1.6:
-    resolution: {integrity: sha512-6lvjbS3p9b4CrdCmguzbh2/4uoXhGE2q71R4OX5sqF9R1bo9Xd6fGrMAfvp5wnCzlBnFVdCOp6onuTQVbo8iUQ==}
+  vitest@4.1.11:
+    resolution: {integrity: sha512-fhACrNXUidIbGSBr5FlbuBkO7VWC1ZyLl0DO4CU2DrQoAPxX84Ysxs+HeGQpii5lZWV1Q4gBZTTu49mF+A6Edw==}
     engines: {node: ^20.0.0 || ^22.0.0 || >=24.0.0}
     hasBin: true
     peerDependencies:
       '@edge-runtime/vm': '*'
       '@opentelemetry/api': ^1.9.0
       '@types/node': ^20.0.0 || ^22.0.0 || >=24.0.0
-      '@vitest/browser-playwright': 4.1.6
-      '@vitest/browser-preview': 4.1.6
-      '@vitest/browser-webdriverio': 4.1.6
-      '@vitest/coverage-istanbul': 4.1.6
-      '@vitest/coverage-v8': 4.1.6
-      '@vitest/ui': 4.1.6
+      '@vitest/browser-playwright': 4.1.11
+      '@vitest/browser-preview': 4.1.11
+      '@vitest/browser-webdriverio': 4.1.11
+      '@vitest/coverage-istanbul': 4.1.11
+      '@vitest/coverage-v8': 4.1.11
+      '@vitest/ui': 4.1.11
       happy-dom: '*'
       jsdom: '*'
       vite: ^6.0.0 || ^7.0.0 || ^8.0.0
@@ -18154,7 +18154,7 @@ snapshots:
       '@rolldown/pluginutils': 1.0.1
       vite: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
 
-  '@vitest/coverage-istanbul@4.1.6(vitest@4.1.6)':
+  '@vitest/coverage-istanbul@4.1.6(vitest@4.1.11)':
     dependencies:
       '@babel/core': 7.29.7
       '@istanbuljs/schema': 0.1.6
@@ -18166,11 +18166,11 @@ snapshots:
       magicast: 0.5.3
       obug: 2.1.1
       tinyrainbow: 3.1.0
-      vitest: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+      vitest: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/eslint-plugin@1.6.27(@typescript-eslint/eslint-plugin@8.67.0(@typescript-eslint/parser@8.67.0(@typescript/typescript6@6.0.2)(eslint@9.39.5))(@typescript/typescript6@6.0.2)(eslint@9.39.5))(@typescript/typescript6@6.0.2)(eslint@9.39.5)(vitest@4.1.6)':
+  '@vitest/eslint-plugin@1.6.27(@typescript-eslint/eslint-plugin@8.67.0(@typescript-eslint/parser@8.67.0(@typescript/typescript6@6.0.2)(eslint@9.39.5))(@typescript/typescript6@6.0.2)(eslint@9.39.5))(@typescript/typescript6@6.0.2)(eslint@9.39.5)(vitest@4.1.11)':
     dependencies:
       '@typescript-eslint/scope-manager': 8.67.0
       '@typescript-eslint/utils': 8.67.0(@typescript/typescript6@6.0.2)(eslint@9.39.5)
@@ -18178,7 +18178,7 @@ snapshots:
     optionalDependencies:
       '@typescript-eslint/eslint-plugin': 8.67.0(@typescript-eslint/parser@8.67.0(@typescript/typescript6@6.0.2)(eslint@9.39.5))(@typescript/typescript6@6.0.2)(eslint@9.39.5)
       typescript: '@typescript/typescript6@6.0.2'
-      vitest: 4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+      vitest: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
     transitivePeerDependencies:
       - supports-color
 
@@ -18190,18 +18190,18 @@ snapshots:
       chai: 5.3.3
       tinyrainbow: 2.0.0
 
-  '@vitest/expect@4.1.6':
+  '@vitest/expect@4.1.11':
     dependencies:
       '@standard-schema/spec': 1.1.0
       '@types/chai': 5.2.3
-      '@vitest/spy': 4.1.6
-      '@vitest/utils': 4.1.6
+      '@vitest/spy': 4.1.11
+      '@vitest/utils': 4.1.11
       chai: 6.2.2
       tinyrainbow: 3.1.0
 
-  '@vitest/mocker@4.1.6(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))':
+  '@vitest/mocker@4.1.11(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))':
     dependencies:
-      '@vitest/spy': 4.1.6
+      '@vitest/spy': 4.1.11
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
@@ -18211,19 +18211,19 @@ snapshots:
     dependencies:
       tinyrainbow: 2.0.0
 
-  '@vitest/pretty-format@4.1.6':
+  '@vitest/pretty-format@4.1.11':
     dependencies:
       tinyrainbow: 3.1.0
 
-  '@vitest/runner@4.1.6':
+  '@vitest/runner@4.1.11':
     dependencies:
-      '@vitest/utils': 4.1.6
+      '@vitest/utils': 4.1.11
       pathe: 2.0.3
 
-  '@vitest/snapshot@4.1.6':
+  '@vitest/snapshot@4.1.11':
     dependencies:
-      '@vitest/pretty-format': 4.1.6
-      '@vitest/utils': 4.1.6
+      '@vitest/pretty-format': 4.1.11
+      '@vitest/utils': 4.1.11
       magic-string: 0.30.21
       pathe: 2.0.3
 
@@ -18231,7 +18231,7 @@ snapshots:
     dependencies:
       tinyspy: 4.0.4
 
-  '@vitest/spy@4.1.6': {}
+  '@vitest/spy@4.1.11': {}
 
   '@vitest/utils@3.2.4':
     dependencies:
@@ -18239,9 +18239,9 @@ snapshots:
       loupe: 3.2.1
       tinyrainbow: 2.0.0
 
-  '@vitest/utils@4.1.6':
+  '@vitest/utils@4.1.11':
     dependencies:
-      '@vitest/pretty-format': 4.1.6
+      '@vitest/pretty-format': 4.1.11
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.0
 
@@ -23939,15 +23939,15 @@ snapshots:
       css-tree: 3.1.0
       styled-components: 5.3.11(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
 
-  vitest@4.1.6(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)):
+  vitest@4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)):
     dependencies:
-      '@vitest/expect': 4.1.6
-      '@vitest/mocker': 4.1.6(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
-      '@vitest/pretty-format': 4.1.6
-      '@vitest/runner': 4.1.6
-      '@vitest/snapshot': 4.1.6
-      '@vitest/spy': 4.1.6
-      '@vitest/utils': 4.1.6
+      '@vitest/expect': 4.1.11
+      '@vitest/mocker': 4.1.11(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+      '@vitest/pretty-format': 4.1.11
+      '@vitest/runner': 4.1.11
+      '@vitest/snapshot': 4.1.11
+      '@vitest/spy': 4.1.11
+      '@vitest/utils': 4.1.11
       es-module-lexer: 2.1.0
       expect-type: 1.3.0
       magic-string: 0.30.21
@@ -23964,7 +23964,7 @@ snapshots:
     optionalDependencies:
       '@opentelemetry/api': 1.9.0
       '@types/node': 24.13.3
-      '@vitest/coverage-istanbul': 4.1.6(vitest@4.1.6)
+      '@vitest/coverage-istanbul': 4.1.6(vitest@4.1.11)
       jsdom: 20.0.1(canvas@3.2.3)
     transitivePeerDependencies:
       - msw
