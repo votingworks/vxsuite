@@ -43,7 +43,7 @@ function createMockContext(): WorkerContext {
     },
     fileStorageClient: {
       readFile: vi.fn(),
-      writeFile: vi.fn(),
+      streamFile: vi.fn(),
     },
     speechSynthesizer: mockSynthesizer,
     translator: mockTranslator,

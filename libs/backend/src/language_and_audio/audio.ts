@@ -32,7 +32,7 @@ export function generateAudioIdsAndClips(ctx: {
   emitProgress?: (progress: number, total: number) => void;
 }): {
   uiStringAudioIds: UiStringAudioIdsPackage;
-  uiStringAudioClips: NodeJS.ReadableStream;
+  uiStringAudioClips: Readable;
 } {
   const audioIds: UiStringAudioIdsPackage = {};
   /**

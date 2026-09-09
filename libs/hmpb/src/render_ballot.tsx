@@ -906,6 +906,13 @@ export async function layOutMinimalBallotsToCreateElectionDefinition<
   return electionDefinition;
 }
 
+export function randomScratchFilePath(
+  dir: ScratchDir,
+  cfg: { extension: string }
+): string {
+  return path.join(dir.path, `${randomUUID()}.${cfg.extension}`);
+}
+
 /**
  * Writes to a new file in the given scratch dir and returns the resulting
  * file path.
@@ -917,7 +924,7 @@ async function writeScratchFile(
     extension: string;
   }
 ): Promise<string> {
-  const filePath = path.join(dir.path, `${randomUUID()}.${p.extension}`);
+  const filePath = randomScratchFilePath(dir, p);
   await fs.writeFile(filePath, p.data);
 
   return filePath;
