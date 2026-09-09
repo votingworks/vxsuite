@@ -24,9 +24,10 @@ import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context.js';
 import { Header } from '../navigation_screen.js';
 import {
-  continueScanning,
+  acceptSheet,
   getSheetForReview,
   getSystemSettings,
+  rejectSheet,
 } from '../api.js';
 
 const AdjudicationHeader = styled(Header)`
@@ -75,15 +76,8 @@ export function BallotEjectScreen({
 
   const systemSettingsQuery = getSystemSettings.useQuery();
   const getSheetForReviewQuery = getSheetForReview.useQuery(sheetId);
-  const continueScanningMutation = continueScanning.useMutation();
-
-  function removeBallotAndContinueScanning() {
-    continueScanningMutation.mutate({ forceAccept: false });
-  }
-
-  function acceptBallotAndContinueScanning() {
-    continueScanningMutation.mutate({ forceAccept: true });
-  }
+  const acceptSheetMutation = acceptSheet.useMutation();
+  const rejectSheetMutation = rejectSheet.useMutation();
 
   if (!getSheetForReviewQuery.isSuccess || !systemSettingsQuery.isSuccess) {
     return null;
@@ -308,7 +302,7 @@ export function BallotEjectScreen({
               <P>
                 <Button
                   variant="primary"
-                  onPress={removeBallotAndContinueScanning}
+                  onPress={() => rejectSheetMutation.mutate()}
                   style={{ width: '100%', marginTop: '0.5rem' }}
                 >
                   Confirm Ballot Removed
@@ -317,7 +311,7 @@ export function BallotEjectScreen({
               <P>
                 <Button
                   variant="primary"
-                  onPress={acceptBallotAndContinueScanning}
+                  onPress={() => acceptSheetMutation.mutate()}
                   style={{ width: '100%' }}
                 >
                   Tabulate Ballot
@@ -327,7 +321,7 @@ export function BallotEjectScreen({
           ) : (
             <Button
               variant="primary"
-              onPress={removeBallotAndContinueScanning}
+              onPress={() => rejectSheetMutation.mutate()}
               style={{ marginTop: '0.5rem', width: '100%' }}
             >
               Confirm Ballot Removed

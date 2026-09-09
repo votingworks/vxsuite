@@ -174,8 +174,12 @@ export function createApiMock(
         .resolves(sheetForReview);
     },
 
-    expectContinueScanning(input: { forceAccept: boolean }) {
-      apiClient.continueScanning.expectCallWith(input).resolves();
+    expectAcceptSheet() {
+      apiClient.acceptSheet.expectCallWith().resolves();
+    },
+
+    expectRejectSheet() {
+      apiClient.rejectSheet.expectCallWith().resolves();
     },
 
     expectExportCastVoteRecords() {

@@ -106,7 +106,7 @@ test('says the sheet is unreadable if it is', async () => {
     'Confirm Ballot Removed'
   );
 
-  apiMock.expectContinueScanning({ forceAccept: false });
+  apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });
 
@@ -138,10 +138,10 @@ test('says the ballot sheet is overvoted if it is', async () => {
     'Remove the ballot for manual adjudication or choose to tabulate it anyway.'
   );
 
-  apiMock.expectContinueScanning({ forceAccept: false });
+  apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 
-  apiMock.expectContinueScanning({ forceAccept: true });
+  apiMock.expectAcceptSheet();
   userEvent.click(screen.getByText('Tabulate Ballot'));
 });
 
@@ -186,7 +186,7 @@ test('renders both ballot images with highlights on overvoted contests', async (
   // Back image has no highlights
   expect(ballotImages[1].querySelector('div')).not.toBeInTheDocument();
 
-  apiMock.expectContinueScanning({ forceAccept: false });
+  apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });
 
@@ -225,10 +225,10 @@ test('says the ballot sheet is undervoted if it is', async () => {
   const ballotImages = screen.getAllByRole('img', { name: /ballot/i });
   expect(ballotImages[0].querySelectorAll('div')).toHaveLength(1);
 
-  apiMock.expectContinueScanning({ forceAccept: false });
+  apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 
-  apiMock.expectContinueScanning({ forceAccept: true });
+  apiMock.expectAcceptSheet();
   userEvent.click(screen.getByText('Tabulate Ballot'));
 });
 
@@ -269,10 +269,10 @@ test('says the ballot sheet is blank if it is', async () => {
   const ballotImages = screen.getAllByRole('img', { name: /ballot/i });
   expect(ballotImages[0].querySelector('div')).not.toBeInTheDocument();
 
-  apiMock.expectContinueScanning({ forceAccept: false });
+  apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 
-  apiMock.expectContinueScanning({ forceAccept: true });
+  apiMock.expectAcceptSheet();
   userEvent.click(screen.getByText('Tabulate Ballot'));
 });
 
@@ -297,10 +297,10 @@ test('says the ballot sheet has crossover voting if it does', async () => {
     'Remove the ballot for manual adjudication or choose to tabulate it anyway.'
   );
 
-  apiMock.expectContinueScanning({ forceAccept: false });
+  apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 
-  apiMock.expectContinueScanning({ forceAccept: true });
+  apiMock.expectAcceptSheet();
   userEvent.click(screen.getByText('Tabulate Ballot'));
 });
 
@@ -326,7 +326,7 @@ test('calls out official ballot sheets in test mode', async () => {
     'Confirm Ballot Removed'
   );
 
-  apiMock.expectContinueScanning({ forceAccept: false });
+  apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });
 
@@ -353,7 +353,7 @@ test('calls out test ballot sheets in live mode', async () => {
     'Confirm Ballot Removed'
   );
 
-  apiMock.expectContinueScanning({ forceAccept: false });
+  apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });
 
@@ -384,7 +384,7 @@ test('shows invalid election screen when appropriate', async () => {
 
   expect(screen.queryAllByText('Tabulate Ballot').length).toEqual(0);
 
-  apiMock.expectContinueScanning({ forceAccept: false });
+  apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });
 
@@ -421,7 +421,7 @@ test('does not allow tabulating the overvote if disallowCastingOvervotes is set'
 
   expect(screen.queryByText('Tabulate Ballot')).not.toBeInTheDocument();
 
-  apiMock.expectContinueScanning({ forceAccept: false });
+  apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });
 
@@ -447,7 +447,7 @@ test('says the scanner needs cleaning if a streak is detected', async () => {
     'Confirm Ballot Removed'
   );
 
-  apiMock.expectContinueScanning({ forceAccept: false });
+  apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });
 
@@ -472,7 +472,7 @@ test('falls through to "Unreadable" for an UnreadablePage with an unrecognized r
     'Confirm Ballot Removed'
   );
 
-  apiMock.expectContinueScanning({ forceAccept: false });
+  apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });
 
@@ -496,7 +496,7 @@ test('ballot with invalid scale', async () => {
     'Confirm Ballot Removed'
   );
 
-  apiMock.expectContinueScanning({ forceAccept: false });
+  apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });
 
@@ -519,6 +519,6 @@ test('ballot from a precinct not in the selected polling place', async () => {
   );
   expect(screen.queryAllByText('Tabulate Ballot').length).toEqual(0);
 
-  apiMock.expectContinueScanning({ forceAccept: false });
+  apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
 });

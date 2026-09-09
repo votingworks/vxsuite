@@ -302,11 +302,23 @@ export const scanBatch = {
   },
 } as const;
 
-export const continueScanning = {
+export const acceptSheet = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.continueScanning, {
+    return useMutation(apiClient.acceptSheet, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const rejectSheet = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.rejectSheet, {
       async onSuccess() {
         await queryClient.invalidateQueries(getStatus.queryKey());
       },

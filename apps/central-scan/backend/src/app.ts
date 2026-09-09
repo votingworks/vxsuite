@@ -328,12 +328,12 @@ function buildApi({
       };
     },
 
-    continueScanning(input: { forceAccept: boolean }): void {
-      if (input.forceAccept) {
-        machine.acceptSheet();
-      } else {
-        machine.rejectSheet();
-      }
+    acceptSheet(): void {
+      machine.acceptSheet();
+    },
+
+    rejectSheet(): void {
+      machine.rejectSheet();
     },
 
     async unconfigure(

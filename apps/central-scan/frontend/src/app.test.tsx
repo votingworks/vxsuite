@@ -167,7 +167,7 @@ test('shows the ballot eject screen while a sheet needs review', async () => {
   });
   await screen.findByRole('heading', { name: 'Blank Ballot' });
 
-  apiMock.expectContinueScanning({ forceAccept: false });
+  apiMock.expectRejectSheet();
   userEvent.click(screen.getButton('Confirm Ballot Removed'));
   apiMock.setStatus(mockStatus());
   await screen.findByText('Scan New Batch');

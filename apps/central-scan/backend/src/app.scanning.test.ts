@@ -96,7 +96,7 @@ test('scanBatch with multiple sheets', async () => {
   });
 });
 
-test('continueScanning after invalid ballot', async () => {
+test('rejectSheet after invalid ballot', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const bmdFixture = await generateBmdBallotFixture();
@@ -147,7 +147,7 @@ test('continueScanning after invalid ballot', async () => {
         pollingPlaceId: 'central-scanning',
       });
     }
-    await apiClient.continueScanning({ forceAccept: false });
+    await apiClient.rejectSheet();
     await waitForStatus(apiClient, { state: 'idle' });
     {
       const status = await apiClient.getStatus();
@@ -342,7 +342,7 @@ test('accepting a sheet that needs review keeps it and continues scanning', asyn
       expect.any(Function)
     );
 
-    await apiClient.continueScanning({ forceAccept: true });
+    await apiClient.acceptSheet();
     await waitForStatus(apiClient, { state: 'idle' });
 
     const status = await apiClient.getStatus();
