@@ -1,14 +1,10 @@
 // eslint-disable-next-line max-classes-per-file
-import { Buffer } from 'node:buffer';
 import { createReadStream } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Readable } from 'node:stream';
-import {
-  GetObjectCommand,
-  PutObjectCommand,
-  S3Client,
-} from '@aws-sdk/client-s3';
+import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
 import { getSignedUrl as s3GetSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { assertDefined, err, ok, Result } from '@votingworks/basics';
 
@@ -23,10 +19,9 @@ export interface FileStorageClient {
   readFile: (
     filePath: string
   ) => Promise<Result<Readable, FileStorageClientError>>;
-  writeFile: (
-    filePath: string,
-    contents: Buffer
-  ) => Promise<Result<void, FileStorageClientError>>;
+
+  streamFile: (filePath: string, contents: Readable) => Promise<void>;
+
   getSignedUrl?: (
     filePath: string,
     expiresInSeconds?: number
@@ -60,20 +55,17 @@ export class S3FileStorageClient {
   }
 
   // @coverage-defer
-  async writeFile(
-    filePath: string,
-    contents: Buffer
-  ): Promise<Result<void, FileStorageClientError>> {
-    // [TODO] Use @aws-sdk/lib-storage/Upload instead, to enable multipart
-    // uploads > 5GB.
-    await this.s3Client.send(
-      new PutObjectCommand({
+  async streamFile(filePath: string, contents: Readable): Promise<void> {
+    const upload = new Upload({
+      client: this.s3Client,
+      params: {
         Bucket: process.env.AWS_S3_BUCKET_NAME,
         Key: filePath,
         Body: contents,
-      })
-    );
-    return ok();
+      },
+    });
+
+    await upload.done();
   }
 
   async getSignedUrl(
@@ -115,13 +107,9 @@ export class LocalFileStorageClient {
   }
 
   // @coverage-defer
-  async writeFile(
-    filePath: string,
-    contents: Buffer
-  ): Promise<Result<void, FileStorageClientError>> {
+  async streamFile(filePath: string, contents: Readable): Promise<void> {
     const completeFilePath = path.join(this.root, filePath);
     await fs.mkdir(path.dirname(completeFilePath), { recursive: true });
     await fs.writeFile(completeFilePath, contents);
-    return ok();
   }
 }

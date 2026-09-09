@@ -1,8 +1,6 @@
-import JsZip from 'jszip';
 import * as os from 'node:os';
 import * as fs from 'node:fs/promises';
-import { createReadStream } from 'node:fs';
-import { Buffer } from 'node:buffer';
+import { createReadStream, createWriteStream } from 'node:fs';
 import {
   ElectionSerializationFormat,
   ElectionPackageFileName,
@@ -29,10 +27,12 @@ import {
   ScratchDir,
   RendererPool,
   BallotTemplateId,
+  randomScratchFilePath,
 } from '@votingworks/hmpb';
 import {
   generateAudioIdsAndClips,
   getAllStringsForElectionPackage,
+  HashingPassthrough,
 } from '@votingworks/backend';
 import {
   extractErrorMessage,
@@ -44,6 +44,7 @@ import {
 import z from 'zod/v4';
 import { Readable } from 'node:stream';
 import { createHash, randomUUID as uuid } from 'node:crypto';
+import { pipeline } from 'node:stream/promises';
 import { EmitProgressFunction, WorkerContext } from './context.js';
 import {
   addPollingPlacesForExport,
@@ -62,26 +63,9 @@ import { baseUrl } from '../globals.js';
 import { QaConfig } from '../qa_config.js';
 import { Store } from '../store.js';
 import { rootDebug } from '../debug.js';
+import { Archiver } from './zip.js';
 
 const debug = rootDebug.extend('export-qa');
-
-// Fixed date for ZIP entries to make archive output deterministic.
-const FIXED_ZIP_DATE = new Date('2024-01-01T00:00:00Z');
-
-/**
- * Creates a JsZip instance whose `.file()` method defaults to a fixed
- * timestamp, producing deterministic ZIP output across runs.
- */
-function createDeterministicZip(): JsZip {
-  const zip = new JsZip();
-  const originalFile = zip.file.bind(zip);
-  zip.file = ((name: string, data: unknown, opts?: JsZip.JSZipFileOptions) =>
-    originalFile(name, data as never, {
-      date: FIXED_ZIP_DATE,
-      ...(opts ?? {}),
-    })) as typeof zip.file;
-  return zip;
-}
 
 export interface GenerateElectionPackageAndBallotsPayload {
   electionId: ElectionId;
@@ -217,7 +201,7 @@ async function triggerCircleCiQaBuild(params: {
 function generateEncodedBallots(p: {
   ballotProps: BaseBallotProps[];
   ballotPaths: string[];
-}): NodeJS.ReadableStream {
+}): Readable {
   return Readable.from(
     (async function* generateJsonLines() {
       for (const [props, path] of iter(p.ballotProps).zip(p.ballotPaths)) {
@@ -275,17 +259,16 @@ async function generate(
   let { systemSettings } = electionRecord;
   const { compact } = await store.getBallotLayoutSettings(electionId);
 
-  const officialBallotsZip = createDeterministicZip();
-  const sampleBallotsZip = createDeterministicZip();
-  const testBallotsZip = createDeterministicZip();
-  const electionPackageZip = createDeterministicZip();
+  const officialBallotsZip = new Archiver();
+  const sampleBallotsZip = new Archiver();
+  const testBallotsZip = new Archiver();
+  const electionPackageZip = new Archiver();
 
   // Make election package
   const metadata: ElectionPackageMetadata = LATEST_METADATA;
-  electionPackageZip.file(
-    ElectionPackageFileName.METADATA,
-    JSON.stringify(metadata, null, 2)
-  );
+  electionPackageZip.addEntry(JSON.stringify(metadata, null, 2), {
+    name: ElectionPackageFileName.METADATA,
+  });
 
   const jurisdiction = await store.getJurisdiction(jurisdictionId);
   const election = addPollingPlacesForExport(
@@ -302,10 +285,9 @@ async function generate(
       ballotLanguageConfigs
     );
 
-  electionPackageZip.file(
-    ElectionPackageFileName.APP_STRINGS,
-    JSON.stringify(appStrings, null, 2)
-  );
+  electionPackageZip.addEntry(JSON.stringify(appStrings, null, 2), {
+    name: ElectionPackageFileName.APP_STRINGS,
+  });
   const ballotStrings = mergeUiStrings(electionStrings, hmpbStrings);
 
   const formattedElection = formatElectionForExport(election, ballotStrings);
@@ -380,22 +362,19 @@ async function generate(
   // eslint-disable-next-line no-console
   await rendererPool.close().catch(console.error);
 
-  electionPackageZip.file(
-    ElectionPackageFileName.ELECTION,
-    electionDefinition.electionData
-  );
+  electionPackageZip.addEntry(electionDefinition.electionData, {
+    name: ElectionPackageFileName.ELECTION,
+  });
 
-  electionPackageZip.file(
-    ElectionPackageFileName.SYSTEM_SETTINGS,
-    JSON.stringify(systemSettings, null, 2)
-  );
+  electionPackageZip.addEntry(JSON.stringify(systemSettings, null, 2), {
+    name: ElectionPackageFileName.SYSTEM_SETTINGS,
+  });
 
   const registeredVoterCounts =
     await store.getRegisteredVoterCounts(electionId);
-  electionPackageZip.file(
-    ElectionPackageFileName.REGISTERED_VOTER_COUNTS,
-    JSON.stringify(registeredVoterCounts, null, 2)
-  );
+  electionPackageZip.addEntry(JSON.stringify(registeredVoterCounts, null, 2), {
+    name: ElectionPackageFileName.REGISTERED_VOTER_COUNTS,
+  });
 
   if (shouldExportAudio) {
     const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips({
@@ -406,14 +385,12 @@ async function generate(
       emitProgress: (progress, total) =>
         emitProgress('Generating audio', progress, total),
     });
-    electionPackageZip.file(
-      ElectionPackageFileName.AUDIO_IDS,
-      JSON.stringify(uiStringAudioIds, null, 2)
-    );
-    electionPackageZip.file(
-      ElectionPackageFileName.AUDIO_CLIPS,
-      uiStringAudioClips
-    );
+    electionPackageZip.addEntry(JSON.stringify(uiStringAudioIds, null, 2), {
+      name: ElectionPackageFileName.AUDIO_IDS,
+    });
+    electionPackageZip.addEntry(uiStringAudioClips, {
+      name: ElectionPackageFileName.AUDIO_CLIPS,
+    });
   }
 
   await normalizeBallots({ ballotPaths, ballotTemplateId });
@@ -422,7 +399,9 @@ async function generate(
     ballotProps: allBallotProps,
     ballotPaths,
   });
-  electionPackageZip.file(ElectionPackageFileName.BALLOTS, encodedBallots);
+  electionPackageZip.addEntry(encodedBallots, {
+    name: ElectionPackageFileName.BALLOTS,
+  });
 
   // Add ballots to ZIP files, grouped by ballot type:
   for (const [props, ballotPath] of iter(allBallotProps).zip(ballotPaths)) {
@@ -431,17 +410,15 @@ async function generate(
 
     switch (ballotMode) {
       case 'official':
-        // [TODO] Create lazy file streams to avoid opening all files at once,
-        // or switch to zip library better suited for streaming from file.
-        officialBallotsZip.file(fileName, createReadStream(ballotPath));
+        officialBallotsZip.addEntryFromPath(ballotPath, { name: fileName });
         break;
 
       case 'sample':
-        sampleBallotsZip.file(fileName, createReadStream(ballotPath));
+        sampleBallotsZip.addEntryFromPath(ballotPath, { name: fileName });
         break;
 
       case 'test':
-        testBallotsZip.file(fileName, createReadStream(ballotPath));
+        testBallotsZip.addEntryFromPath(ballotPath, { name: fileName });
         break;
 
       default: {
@@ -451,10 +428,14 @@ async function generate(
   }
 
   const calibrationSheetFilename = 'VxScan-calibration-sheet.pdf';
-  officialBallotsZip.file(calibrationSheetFilename, calibrationSheetPdf);
+  officialBallotsZip.addEntry(calibrationSheetPdf, {
+    name: calibrationSheetFilename,
+  });
 
   if (shouldExportTestBallots) {
-    testBallotsZip.file(calibrationSheetFilename, calibrationSheetPdf);
+    testBallotsZip.addEntry(calibrationSheetPdf, {
+      name: calibrationSheetFilename,
+    });
   }
 
   const ballotHash = formatBallotHash(electionDefinition.ballotHash);
@@ -466,28 +447,26 @@ async function generate(
   ] = await Promise.all([
     writeElectionZip(ctx, electionDefinition, {
       jurisdictionId,
+      scratchDir,
       zip: electionPackageZip,
     }),
 
-    writeBallotsZip(ctx, {
+    writeZipFile(ctx, officialBallotsZip.finalize(), {
       jurisdictionId,
       name: `official-ballots-${ballotHash}.zip`,
-      zip: officialBallotsZip,
     }),
 
     shouldExportSampleBallots
-      ? writeBallotsZip(ctx, {
+      ? writeZipFile(ctx, sampleBallotsZip.finalize(), {
           jurisdictionId,
           name: `sample-ballots-${ballotHash}.zip`,
-          zip: sampleBallotsZip,
         })
       : undefined,
 
     shouldExportTestBallots
-      ? writeBallotsZip(ctx, {
+      ? writeZipFile(ctx, testBallotsZip.finalize(), {
           jurisdictionId,
           name: `test-ballots-${ballotHash}.zip`,
-          zip: testBallotsZip,
         })
       : undefined,
   ]);
@@ -540,44 +519,24 @@ async function normalizeBallots(p: {
   await Promise.all(Array.from({ length: os.availableParallelism() }, worker));
 }
 
-async function writeBallotsZip(
-  ctx: WorkerContext,
-  p: { jurisdictionId: string; name: string; zip: JsZip }
-) {
-  const contents = await p.zip.generateAsync({
-    type: 'nodebuffer',
-    streamFiles: true,
-  });
-
-  return writeZipFile(ctx, contents, {
-    jurisdictionId: p.jurisdictionId,
-    name: p.name,
-  });
-}
-
 async function writeElectionZip(
   ctx: WorkerContext,
   electionDefinition: ElectionDefinition,
-  p: { jurisdictionId: string; zip: JsZip }
+  p: { jurisdictionId: string; scratchDir: ScratchDir; zip: Archiver }
 ) {
-  // [TODO] Generate a stream instead and pipe to S3.
-  const electionPackageZipContents = await p.zip.generateAsync({
-    type: 'nodebuffer',
-    streamFiles: true,
-  });
+  const scratchPath = randomScratchFilePath(p.scratchDir, { extension: 'zip' });
 
-  // [TODO] Use streaming hasher to avoid limit errors when hashing large
-  // election packages.
-  const electionPackageHash = createHash('sha256')
-    .update(electionPackageZipContents)
-    .digest('hex');
+  const contentStream = p.zip.finalize();
+  const hashingStream = new HashingPassthrough(createHash('sha256'));
+  await pipeline(contentStream, hashingStream, createWriteStream(scratchPath));
 
+  const electionPackageHash = hashingStream.digest('hex');
   const combinedHash = formatElectionHashes(
     electionDefinition.ballotHash,
     electionPackageHash
   );
 
-  return writeZipFile(ctx, electionPackageZipContents, {
+  return writeZipFile(ctx, createReadStream(scratchPath), {
     jurisdictionId: p.jurisdictionId,
     name: `election-package-${combinedHash}.zip`,
   });
@@ -585,12 +544,11 @@ async function writeElectionZip(
 
 async function writeZipFile(
   ctx: WorkerContext,
-  contents: Buffer,
+  contents: Readable,
   p: { jurisdictionId: string; name: string }
 ) {
   const relativePath = `${p.jurisdictionId}/${p.name}`;
-  const result = await ctx.fileStorageClient.writeFile(relativePath, contents);
-  result.unsafeUnwrap();
+  await ctx.fileStorageClient.streamFile(relativePath, contents);
 
   return `/files/${relativePath}`;
 }

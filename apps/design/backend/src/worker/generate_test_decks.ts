@@ -18,7 +18,6 @@ import {
   ScratchDir,
 } from '@votingworks/hmpb';
 import { iter } from '@votingworks/basics';
-import JsZip from 'jszip';
 import path from 'node:path';
 import z from 'zod/v4';
 import {
@@ -36,6 +35,7 @@ import {
   createPrecinctTestDeck,
   createTestDeckTallyReports,
 } from '../test_decks.js';
+import { Archiver } from './zip.js';
 
 export interface GenerateTestDecksPayload {
   electionId: ElectionId;
@@ -136,7 +136,7 @@ async function generate(
     .map(([props, layoutPath]) => ({ props, layoutPath }))
     .toArray();
 
-  const zip = new JsZip();
+  const zip = new Archiver();
 
   // Generate HMPB test deck ballot specs
   const precinctHmpbBallotSpecs: Array<[Precinct, TestDeckBallot[]]> =
@@ -195,7 +195,7 @@ async function generate(
     // @coverage-exclude-else
     if (testDeckPdf) {
       const fileName = `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`;
-      zip.file(fileName, testDeckPdf);
+      zip.addEntry(testDeckPdf, { name: fileName });
     }
   }
 
@@ -221,7 +221,7 @@ async function generate(
         ' ',
         '_'
       )}-summary-ballots.pdf`;
-      zip.file(summaryFileName, summaryBallotPdf);
+      zip.addEntry(summaryBallotPdf, { name: summaryFileName });
     }
   }
 
@@ -231,18 +231,16 @@ async function generate(
   });
 
   for (const [fileName, report] of tallyReports) {
-    zip.file(fileName, report);
+    zip.addEntry(report, { name: fileName });
   }
-  const zipContents = await zip.generateAsync({ type: 'nodebuffer' });
   const zipFilename = `test-decks-${formatBallotHash(
     electionDefinition.ballotHash
   )}.zip`;
 
-  const writeResult = await fileStorageClient.writeFile(
+  await fileStorageClient.streamFile(
     path.join(jurisdictionId, zipFilename),
-    zipContents
+    zip.finalize()
   );
-  writeResult.unsafeUnwrap();
   const testDecksUrl = `/files/${jurisdictionId}/${zipFilename}`;
 
   await store.setTestDecksUrl({

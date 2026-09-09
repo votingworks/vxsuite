@@ -34,6 +34,7 @@ import { onTestFinished, vi } from 'vitest';
 import { join } from 'node:path';
 import { readFileSync } from 'node:fs';
 import { stringify } from 'csv-stringify/sync';
+import { buffer } from 'node:stream/consumers';
 import type { Api, UnauthenticatedApi } from '../src/app.js';
 import { buildApp } from '../src/app.js';
 import { Auth0ClientInterface } from '../src/auth0_client.js';
@@ -98,12 +99,8 @@ export class MockFileStorageClient implements FileStorageClient {
     return Promise.resolve(ok(Readable.from(file)));
   }
 
-  writeFile(
-    filePath: string,
-    contents: Buffer
-  ): Promise<Result<void, FileStorageClientError>> {
-    this.mockFiles[filePath] = contents;
-    return Promise.resolve(ok());
+  async streamFile(filePath: string, contents: Readable): Promise<void> {
+    this.mockFiles[filePath] = await buffer(contents);
   }
 }
 
