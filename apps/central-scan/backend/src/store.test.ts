@@ -121,29 +121,6 @@ test('get/set test mode', () => {
   expect(store.getTestMode()).toEqual(true);
 });
 
-test('get/set is sounds muted mode', () => {
-  const store = Store.memoryStore();
-
-  // Before setting an election
-  expect(store.getIsSoundMuted()).toEqual(false);
-  expect(() => store.setIsSoundMuted(true)).toThrowError();
-
-  store.setElectionAndJurisdiction({
-    electionData,
-    jurisdiction,
-    electionPackageHash,
-  });
-
-  // After setting an election
-  expect(store.getIsSoundMuted()).toEqual(false);
-
-  store.setIsSoundMuted(true);
-  expect(store.getIsSoundMuted()).toEqual(true);
-
-  store.setIsSoundMuted(false);
-  expect(store.getIsSoundMuted()).toEqual(false);
-});
-
 test('get/set polls state', () => {
   const store = Store.memoryStore();
 

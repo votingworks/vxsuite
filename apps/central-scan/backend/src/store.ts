@@ -383,36 +383,6 @@ export class Store {
     this.client.run('update election set is_test_mode = ?', testMode ? 1 : 0);
   }
 
-  /**
-   * Gets whether sound is muted.
-   */
-  getIsSoundMuted(): boolean {
-    const electionRow = this.client.one(
-      'select is_sound_muted as isSoundMuted from election'
-    ) as { isSoundMuted: number } | undefined;
-
-    if (!electionRow) {
-      // we will not mute sounds by default once an election is defined
-      return false;
-    }
-
-    return Boolean(electionRow.isSoundMuted);
-  }
-
-  /**
-   * Sets whether sound is muted.
-   */
-  setIsSoundMuted(isSoundMuted: boolean): void {
-    if (!this.hasElection()) {
-      throw new Error('Cannot set sounds to muted without an election.');
-    }
-
-    this.client.run(
-      'update election set is_sound_muted = ?',
-      isSoundMuted ? 1 : 0
-    );
-  }
-
   getBallotPaperSizeForElection(): HmpbBallotPaperSize {
     const electionRecord = this.getElectionRecord();
     return (
