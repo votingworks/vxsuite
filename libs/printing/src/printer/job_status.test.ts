@@ -6,8 +6,8 @@ import {
   GET_JOB_ATTRIBUTES_QUERY_PATH,
   classifyJobState,
   queryJobStatus,
-} from './job_status';
-import { exec } from '../utils/exec';
+} from './job_status.js';
+import { exec } from '../utils/exec.js';
 
 vi.mock('../utils/exec', async () => ({
   ...(await vi.importActual('../utils/exec')),

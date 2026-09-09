@@ -6,10 +6,10 @@ import {
   PrintJobOutcome,
   PrintJobStatus,
 } from '@votingworks/types';
-import { exec } from '../utils/exec';
-import { rootDebug } from '../utils/debug';
-import { DEFAULT_MANAGED_PRINTER_NAME } from './configure';
-import { IPPTOOL_SUCCESS_STATUS_LINE, parseIpptoolOutput } from './status';
+import { exec } from '../utils/exec.js';
+import { rootDebug } from '../utils/debug.js';
+import { DEFAULT_MANAGED_PRINTER_NAME } from './configure.js';
+import { IPPTOOL_SUCCESS_STATUS_LINE, parseIpptoolOutput } from './status.js';
 
 const debug = rootDebug.extend('job-status');
 
