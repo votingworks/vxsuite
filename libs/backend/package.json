@@ -39,7 +39,6 @@
     "dotenv": "16.3.1",
     "dotenv-expand": "9.0.0",
     "luxon": "^3.0.0",
-    "micromatch": "^4.0.8",
     "node-html-parser": "^6.1.13",
     "readline": "^1.3.0",
     "stream-chopper": "^3.0.1",
@@ -51,7 +50,6 @@
   "devDependencies": {
     "@types/lodash.set": "^4.3.7",
     "@types/luxon": "^3.0.0",
-    "@types/micromatch": "^4.0.10",
     "@types/node": "24.13.3",
     "@types/stream-chopper": "workspace:*",
     "@types/tmp": "0.2.4",

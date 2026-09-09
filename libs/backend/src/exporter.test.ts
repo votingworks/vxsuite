@@ -68,6 +68,20 @@ test('exportData disallowed path', async () => {
   ).toMatch(/Path is not allowed/);
 });
 
+test('exportData path escaping the allowed patterns with ..', async () => {
+  expect(
+    (await exporter.exportData('/tmp/../etc/passwd', 'bar')).err()?.message
+  ).toMatch(/Path is not allowed/);
+});
+
+test('exportData path whose .. segments resolve back inside an allowed pattern', async () => {
+  const tmpDir = makeTemporaryDirectory();
+  const path = join(tmpDir, 'subdir', '..', 'test.txt');
+  const result = await exporter.exportData(path, 'bar');
+  expect(result).toEqual(ok([join(tmpDir, 'test.txt')]));
+  expect(await readFile(join(tmpDir, 'test.txt'), 'utf-8')).toEqual('bar');
+});
+
 test('exportData with iterable', async () => {
   const tmpDir = makeTemporaryDirectory();
   const path = join(tmpDir, 'test.txt');

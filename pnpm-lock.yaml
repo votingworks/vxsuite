@@ -141,9 +141,6 @@ importers:
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
-      micromatch:
-        specifier: ^4.0.8
-        version: 4.0.8
       object-hash:
         specifier: ^3.0.0
         version: 3.0.0
@@ -184,9 +181,6 @@ importers:
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
-      '@types/micromatch':
-        specifier: ^4.0.10
-        version: 4.0.10
       '@types/node':
         specifier: 24.13.3
         version: 24.13.3
@@ -3220,9 +3214,6 @@ importers:
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
-      micromatch:
-        specifier: ^4.0.8
-        version: 4.0.8
       node-html-parser:
         specifier: ^6.1.13
         version: 6.1.13
@@ -3251,9 +3242,6 @@ importers:
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
-      '@types/micromatch':
-        specifier: ^4.0.10
-        version: 4.0.10
       '@types/node':
         specifier: 24.13.3
         version: 24.13.3
@@ -4110,9 +4098,6 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
-      micromatch:
-        specifier: ^4.0.8
-        version: 4.0.8
       zod:
         specifier: 4.4.3
         version: 4.4.3
@@ -8584,9 +8569,6 @@ packages:
   '@types/body-parser@1.19.2':
     resolution: {integrity: sha512-ALYone6pm6QmwZoAgeyNksccT9Q4AWZQ6PvfwR37GT6r6FWUPguq6sUmNGSMV2Wr761oQoBxwGGa6DR5o1DC9g==}
 
-  '@types/braces@3.0.1':
-    resolution: {integrity: sha512-+euflG6ygo4bn0JHtn4pYqcXwRtLvElQ7/nnjDu7iYG56H0+OhCd7d6Ug0IE3WcFpZozBKW2+80FUbv5QGk5AQ==}
-
   '@types/cacheable-request@6.0.3':
     resolution: {integrity: sha512-IQ3EbTzGxIigb1I3qPZc1rWJnH0BmSKv5QYTalEwweFvyBDLSAe24zP0le/hyi7ecGfZVlIVAg4BZqb8WBwKqw==}
 
@@ -8715,9 +8697,6 @@ packages:
 
   '@types/mdx@2.0.3':
     resolution: {integrity: sha512-IgHxcT3RC8LzFLhKwP3gbMPeaK7BM9eBH46OdapPA7yvuIUJ8H6zHZV53J8hGZcTSnt95jANt+rTBNUUc22ACQ==}
-
-  '@types/micromatch@4.0.10':
-    resolution: {integrity: sha512-5jOhFDElqr4DKTrTEbnW8DZ4Hz5LRUEmyrGpCMrD/NphYv3nUnaF08xmSLx1rGGnyEs/kFnhiw6dCgcDqMr5PQ==}
 
   '@types/mime@2.0.3':
     resolution: {integrity: sha512-Jus9s4CDbqwocc5pOAnh8ShfrnMcPHuJYzVcSUU7lrh8Ni5HuIqX3oilL86p3dlTrk0LzHRCgA/GQ7uNCw6l2Q==}
@@ -17541,8 +17520,6 @@ snapshots:
       '@types/connect': 3.4.36
       '@types/node': 24.13.3
 
-  '@types/braces@3.0.1': {}
-
   '@types/cacheable-request@6.0.3':
     dependencies:
       '@types/http-cache-semantics': 4.0.4
@@ -17701,10 +17678,6 @@ snapshots:
   '@types/mdurl@2.0.0': {}
 
   '@types/mdx@2.0.3': {}
-
-  '@types/micromatch@4.0.10':
-    dependencies:
-      '@types/braces': 3.0.1
 
   '@types/mime@2.0.3': {}
 

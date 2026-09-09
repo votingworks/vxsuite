@@ -1,8 +1,7 @@
 import { err, ok, Result } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { any } from 'micromatch';
-import { isAbsolute, join, normalize, parse } from 'node:path';
+import { isAbsolute, join, matchesGlob, normalize, parse } from 'node:path';
 import { Readable } from 'node:stream';
 import { createReadStream, lstatSync } from 'node:fs';
 import { ExportDataError as BaseExportDataError } from '@votingworks/types';
@@ -211,7 +210,11 @@ export class Exporter {
 
     const normalizedPath = normalize(path);
 
-    if (!any(normalizedPath, this.allowedExportPatterns)) {
+    if (
+      !this.allowedExportPatterns.some((pattern) =>
+        matchesGlob(normalizedPath, pattern)
+      )
+    ) {
       return err({
         type: 'permission-denied',
         message: `Path is not allowed: ${path}`,
