@@ -5,14 +5,12 @@ import {
   anyPollingPlace,
   BallotMetadata,
   BallotType,
-  CandidateContest,
   DEFAULT_SYSTEM_SETTINGS,
   InterpretedHmpbPage,
   mapSheet,
   PageInterpretationWithFiles,
   SheetOf,
   TEST_JURISDICTION,
-  YesNoContest,
 } from '@votingworks/types';
 import { sleep } from '@votingworks/basics';
 import { AcceptedSheet, RejectedSheet } from '@votingworks/backend';
@@ -445,114 +443,6 @@ test('canUnconfigure not in test mode', async () => {
   expect(store.getCanUnconfigure()).toEqual(true);
 });
 
-test('adjudication', () => {
-  const candidateContests = election.contests.filter(
-    (contest): contest is CandidateContest => contest.type === 'candidate'
-  );
-  const yesnoContests = election.contests.filter(
-    (contest): contest is YesNoContest => contest.type === 'yesno'
-  );
-
-  const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData,
-    jurisdiction,
-    electionPackageHash,
-  });
-  store.setPollingPlaceId(anyPollingPlace(election).id);
-  function mockPage(i: 0 | 1): PageInterpretationWithFiles {
-    const metadata: BallotMetadata = {
-      ballotHash,
-      ballotStyleId: '12',
-      precinctId: '23',
-      isTestMode: false,
-      ballotType: BallotType.Precinct,
-    };
-    return {
-      imagePath: i === 0 ? '/front.png' : '/back.png',
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        votes: {},
-        markInfo: {
-          ballotSize: { width: 800, height: 1000 },
-          marks: [
-            {
-              type: 'candidate',
-              contestId: candidateContests[i].id,
-              optionId: candidateContests[i].candidates[0].id,
-              score: 0.06, // marginal
-              scoredOffset: { x: 0, y: 0 },
-              bounds: zeroRect,
-              target: {
-                bounds: zeroRect,
-                inner: zeroRect,
-              },
-            },
-            ...(yesnoContests[i]
-              ? ([
-                  {
-                    type: 'yesno',
-                    contestId: yesnoContests[i].id,
-                    optionId: yesnoContests[i].options[0].id,
-                    score: 1, // definite
-                    scoredOffset: { x: 0, y: 0 },
-                    bounds: zeroRect,
-                    target: {
-                      bounds: zeroRect,
-                      inner: zeroRect,
-                    },
-                  },
-                ] as const)
-              : []),
-          ],
-        },
-        metadata: {
-          ...metadata,
-          pageNumber: 1,
-        },
-        adjudicationInfo: {
-          requiresAdjudication: true,
-          enabledReasons: [AdjudicationReason.MarginalMark],
-          enabledReasonInfos: [
-            {
-              type: AdjudicationReason.MarginalMark,
-              contestId: candidateContests[i].id,
-              optionId: candidateContests[i].candidates[0].id,
-            },
-            {
-              type: AdjudicationReason.Undervote,
-              contestId: candidateContests[i].id,
-              expected: 1,
-              optionIds: [],
-            },
-          ],
-          ignoredReasonInfos: [],
-        },
-        layout: {
-          pageSize: { width: 0, height: 0 },
-          metadata: {
-            ...metadata,
-            pageNumber: 1,
-          },
-          contests: [],
-        },
-      },
-    };
-  }
-  const batchId = store.addBatch();
-  const ballotId = uuid();
-  store.addSheet(ballotId, batchId, [mockPage(0), mockPage(1)]);
-  expect(store.getSheetInterpretation(ballotId)).toEqual([
-    mockPage(0).interpretation,
-    mockPage(1).interpretation,
-  ]);
-
-  store.finishBatch({ batchId });
-
-  // cleaning up batches now should have no impact
-  store.cleanupIncompleteBatches();
-});
-
 const metadata: BallotMetadata = {
   ballotHash,
   ballotStyleId: '12',
@@ -666,6 +556,9 @@ test('iterating over sheets', () => {
   };
   expect(Array.from(store.forEachAcceptedSheet())).toEqual([expectedSheet1]);
   expect(Array.from(store.forEachSheet())).toEqual([expectedSheet1]);
+  expect(store.getSheetInterpretation(sheet1Id)).toEqual(
+    expectedSheet1.interpretation
+  );
 
   // Add and retrieve a rejected sheet
   const sheet2Id = uuid();
