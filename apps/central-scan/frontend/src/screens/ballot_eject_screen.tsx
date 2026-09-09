@@ -2,6 +2,7 @@ import {
   AdjudicationReason,
   ContestId,
   formatBallotHash,
+  Id,
   mapSheet,
 } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/basics';
@@ -24,7 +25,7 @@ import { AppContext } from '../contexts/app_context.js';
 import { Header } from '../navigation_screen.js';
 import {
   continueScanning,
-  getNextReviewSheet,
+  getSheetForReview,
   getSystemSettings,
 } from '../api.js';
 
@@ -54,6 +55,7 @@ const BallotImagesContainer = styled.div`
 
 interface Props {
   isTestMode: boolean;
+  sheetId: Id;
 }
 
 interface EjectInformation {
@@ -63,13 +65,16 @@ interface EjectInformation {
   highlightedContestIds?: Set<ContestId>;
 }
 
-export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
+export function BallotEjectScreen({
+  isTestMode,
+  sheetId,
+}: Props): JSX.Element | null {
   const { auth, electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth));
 
   const systemSettingsQuery = getSystemSettings.useQuery();
-  const getNextReviewSheetQuery = getNextReviewSheet.useQuery();
+  const getSheetForReviewQuery = getSheetForReview.useQuery(sheetId);
   const continueScanningMutation = continueScanning.useMutation();
 
   function removeBallotAndContinueScanning() {
@@ -80,14 +85,12 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
     continueScanningMutation.mutate({ forceAccept: true });
   }
 
-  const reviewInfo = getNextReviewSheetQuery.data;
-
-  if (!reviewInfo || !systemSettingsQuery.isSuccess) {
+  if (!getSheetForReviewQuery.isSuccess || !systemSettingsQuery.isSuccess) {
     return null;
   }
 
   const { disallowCastingOvervotes } = systemSettingsQuery.data;
-  const { sheetInterpretation } = reviewInfo;
+  const { sheetInterpretation, images } = getSheetForReviewQuery.data;
 
   const unreadableEjectInfo: EjectInformation = {
     header: 'Unreadable',
@@ -332,7 +335,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
           )}
         </AdjudicationExplanation>
         <BallotImagesContainer>
-          {mapSheet(reviewInfo.images, (pageImage, side) => {
+          {mapSheet(images, (pageImage, side) => {
             const highlights = pageImage.layout?.contests
               .filter(
                 (contestLayout) =>

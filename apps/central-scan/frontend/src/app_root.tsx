@@ -196,7 +196,7 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
   if (status.state === 'needsReview') {
     return (
       <AppContext.Provider value={currentContext}>
-        <BallotEjectScreen isTestMode={isTestMode} />
+        <BallotEjectScreen isTestMode={isTestMode} sheetId={status.sheetId} />
       </AppContext.Provider>
     );
   }

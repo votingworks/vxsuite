@@ -543,9 +543,10 @@ test('adjudication', () => {
   const ballotId = uuid();
   store.addSheet(election, ballotId, batchId, [mockPage(0), mockPage(1)]);
 
-  // check the review paths
-  const reviewSheet = store.getNextAdjudicationSheet();
-  expect(reviewSheet?.id).toEqual(ballotId);
+  expect(store.getSheetInterpretation(ballotId)).toEqual([
+    mockPage(0).interpretation,
+    mockPage(1).interpretation,
+  ]);
 
   store.finishBatch({ batchId });
 

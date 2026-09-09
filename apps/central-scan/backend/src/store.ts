@@ -716,42 +716,27 @@ export class Store {
     return normalizeAndJoin(dirname(this.getDbPath()), row.imagePath);
   }
 
-  getNextAdjudicationSheet():
-    | { id: string; pages: SheetOf<PageInterpretation> }
-    | undefined {
-    const row = this.client.one(
-      `
-      select
-        id,
-        front_interpretation_json as frontInterpretationJson,
-        back_interpretation_json as backInterpretationJson
-      from sheets
-      where
-        requires_adjudication = 1 and
-        finished_adjudication_at is null and
-        deleted_at is null
-      order by created_at asc
-      limit 1
-      `
-    ) as
-      | {
-          id: string;
-          frontInterpretationJson: string;
-          backInterpretationJson: string;
-        }
-      | undefined;
+  getSheetInterpretation(sheetId: string): SheetOf<PageInterpretation> {
+    const row = assertDefined(
+      this.client.one(
+        `
+        select
+          front_interpretation_json as frontInterpretationJson,
+          back_interpretation_json as backInterpretationJson
+        from sheets
+        where id = ?
+        `,
+        sheetId
+      )
+    ) as {
+      frontInterpretationJson: string;
+      backInterpretationJson: string;
+    };
 
-    if (row) {
-      debug('got next review sheet requiring adjudication (id=%s)', row.id);
-      return {
-        id: row.id,
-        pages: [
-          JSON.parse(row.frontInterpretationJson),
-          JSON.parse(row.backInterpretationJson),
-        ],
-      };
-    }
-    debug('no review sheets requiring adjudication');
+    return [
+      JSON.parse(row.frontInterpretationJson),
+      JSON.parse(row.backInterpretationJson),
+    ];
   }
 
   adjudicateSheet(sheetId: string): boolean {

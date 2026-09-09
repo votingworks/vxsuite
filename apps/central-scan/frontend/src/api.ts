@@ -16,6 +16,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import * as grout from '@votingworks/grout';
+import { Id } from '@votingworks/types';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -204,20 +205,16 @@ export const getMostRecentUpsDiagnostic = {
   },
 } as const;
 
-export const getNextReviewSheet = {
-  queryKey(): QueryKey {
-    return ['getNextReviewSheet'];
+export const getSheetForReview = {
+  queryKey(sheetId: Id): QueryKey {
+    return ['getSheetForReview', sheetId];
   },
 
-  useQuery() {
+  useQuery(sheetId: Id) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getNextReviewSheet(), {
-      // Always refetch - using cached data could result in flashes of old data or even blank
-      // screens, as getNextReviewSheet intentionally returns null when there are no sheets left to
-      // review
-      cacheTime: 0,
-      staleTime: 0,
-    });
+    return useQuery(this.queryKey(sheetId), () =>
+      apiClient.getSheetForReview({ sheetId })
+    );
   },
 } as const;
 
@@ -312,7 +309,6 @@ export const continueScanning = {
     return useMutation(apiClient.continueScanning, {
       async onSuccess() {
         await queryClient.invalidateQueries(getStatus.queryKey());
-        await queryClient.invalidateQueries(getNextReviewSheet.queryKey());
       },
     });
   },

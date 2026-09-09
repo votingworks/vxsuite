@@ -13,6 +13,7 @@ import {
   DiagnosticRecord,
   DippedSmartCardAuth,
   ElectionDefinition,
+  Id,
   SystemSettings,
 } from '@votingworks/types';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -162,14 +163,15 @@ export function createApiMock(
       apiClient.scanBatch.expectCallWith().resolves();
     },
 
-    expectGetNextReviewSheet(
-      reviewSheetInfo?: Awaited<
-        ReturnType<(typeof apiClient)['getNextReviewSheet']>
+    expectGetSheetForReview(
+      sheetId: Id,
+      sheetForReview: Awaited<
+        ReturnType<(typeof apiClient)['getSheetForReview']>
       >
     ) {
-      apiClient.getNextReviewSheet
-        .expectRepeatedCallsWith()
-        .resolves(reviewSheetInfo ?? null);
+      apiClient.getSheetForReview
+        .expectRepeatedCallsWith({ sheetId })
+        .resolves(sheetForReview);
     },
 
     expectContinueScanning(input: { forceAccept: boolean }) {

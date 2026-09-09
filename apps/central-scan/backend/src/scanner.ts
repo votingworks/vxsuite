@@ -594,7 +594,7 @@ export function createBatchScannerStateMachine({
   return {
     status(): BatchScannerMachineStatus {
       const { state } = machineService;
-      const { batchId, error } = state.context;
+      const { batchId, sheetIdToReview, error } = state.context;
       // We use state.matches as recommended by the XState docs. This allows
       // us to add new substates to a state without breaking these checks.
       if (state.matches('disconnected')) {
@@ -614,7 +614,11 @@ export function createBatchScannerStateMachine({
         return { state: 'scanning', batchId: assertDefined(batchId) };
       }
       if (state.matches('sheetNeedsReview')) {
-        return { state: 'needsReview', batchId: assertDefined(batchId) };
+        return {
+          state: 'needsReview',
+          batchId: assertDefined(batchId),
+          sheetId: assertDefined(sheetIdToReview),
+        };
       }
       // @coverage-exclude
       throw new Error(`Unexpected state: ${JSON.stringify(state.value)}`);

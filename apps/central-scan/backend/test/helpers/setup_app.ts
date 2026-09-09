@@ -110,13 +110,15 @@ export async function withApp(
   }
 }
 
-export async function waitForStatus(
+export function waitForStatus<State extends ScanStatus['state']>(
   apiClient: grout.Client<Api>,
-  status: Pick<ScanStatus, 'state'> & Partial<ScanStatus>
-): Promise<void> {
-  await vi.waitFor(
+  status: { state: State } & Partial<ScanStatus>
+): Promise<Extract<ScanStatus, { state: State }>> {
+  return vi.waitFor(
     async () => {
-      expect(await apiClient.getStatus()).toMatchObject(status);
+      const currentStatus = await apiClient.getStatus();
+      expect(currentStatus).toMatchObject(status);
+      return currentStatus as Extract<ScanStatus, { state: State }>;
     },
     { timeout: 10_000 }
   );

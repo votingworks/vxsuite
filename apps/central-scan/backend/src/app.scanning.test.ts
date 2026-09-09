@@ -27,6 +27,16 @@ import { ScannedSheetInfo } from './fujitsu_scanner.js';
 
 const jurisdiction = TEST_JURISDICTION;
 
+const ANY_BALLOT_IMAGE = {
+  imageUrl: expect.stringMatching(/^data:image\//),
+  ballotBounds: {
+    x: 0,
+    y: 0,
+    width: expect.any(Number),
+    height: expect.any(Number),
+  },
+} as const;
+
 vi.setConfig({ testTimeout: 20000 });
 
 const featureFlagMock = getFeatureFlagMock();
@@ -113,7 +123,16 @@ test('continueScanning after invalid ballot', async () => {
       .end();
 
     await apiClient.scanBatch();
-    await waitForStatus(apiClient, { state: 'needsReview' });
+    const { sheetId } = await waitForStatus(apiClient, {
+      state: 'needsReview',
+    });
+    expect(await apiClient.getSheetForReview({ sheetId })).toEqual({
+      sheetInterpretation: {
+        type: 'InvalidSheet',
+        reason: { type: 'unreadable' },
+      },
+      images: [ANY_BALLOT_IMAGE, ANY_BALLOT_IMAGE],
+    });
     {
       const status = await apiClient.getStatus();
       expect(status.canUnconfigure).toEqual(true);
@@ -200,14 +219,19 @@ test('scanBatch with streaked page', async () => {
     scanner.withNextScannerSession().sheet(scannedBallot).end();
 
     await apiClient.scanBatch();
-    await waitForStatus(apiClient, { state: 'needsReview' });
-
-    const nextAdjudicationSheet = workspace.store.getNextAdjudicationSheet();
+    const { sheetId } = await waitForStatus(apiClient, {
+      state: 'needsReview',
+    });
+    expect(
+      (await apiClient.getSheetForReview({ sheetId })).sheetInterpretation
+    ).toEqual({
+      type: 'InvalidSheet',
+      reason: { type: 'vertical_streaks_detected' },
+    });
 
     // adjudication should be needed because of the vertical streak
-    expect(nextAdjudicationSheet?.pages[0]).toMatchObject<
-      Partial<PageInterpretation>
-    >({
+    const [frontPage] = workspace.store.getSheetInterpretation(sheetId);
+    expect(frontPage).toMatchObject<Partial<PageInterpretation>>({
       type: 'UnreadablePage',
       reason: 'verticalStreaksDetected',
     });
@@ -235,7 +259,7 @@ test('scanBatch with streaked page', async () => {
     await waitForStatus(apiClient, { state: 'idle' });
 
     // no adjudication should be needed
-    expect(workspace.store.getNextAdjudicationSheet()).toBeUndefined();
+    expect(workspace.store.getBallotsCounted()).toEqual(1);
   });
 });
 
@@ -273,11 +297,28 @@ test('accepting a sheet that needs review keeps it and continues scanning', asyn
     scanner.withNextScannerSession().sheet({ frontPath, backPath }).end();
 
     await apiClient.scanBatch();
-    await waitForStatus(apiClient, { state: 'needsReview' });
-    expect(workspace.store.getNextAdjudicationSheet()?.pages[0]).toMatchObject({
-      adjudicationInfo: expect.objectContaining({
-        enabledReasonInfos: [{ type: AdjudicationReason.BlankBallot }],
-      }),
+    const { sheetId } = await waitForStatus(apiClient, {
+      state: 'needsReview',
+    });
+    expect(await apiClient.getSheetForReview({ sheetId })).toEqual({
+      sheetInterpretation: {
+        type: 'NeedsReviewSheet',
+        reasons: [{ type: AdjudicationReason.BlankBallot }],
+      },
+      images: [
+        {
+          ...ANY_BALLOT_IMAGE,
+          layout: expect.objectContaining({
+            metadata: expect.objectContaining({ pageNumber: 1 }),
+          }),
+        },
+        {
+          ...ANY_BALLOT_IMAGE,
+          layout: expect.objectContaining({
+            metadata: expect.objectContaining({ pageNumber: 2 }),
+          }),
+        },
+      ],
     });
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.ScannerEvent,
@@ -287,6 +328,16 @@ test('accepting a sheet that needs review keeps it and continues scanning', asyn
           /^Event: done\.invoke\..*interpretingSheet/
         ),
         eventObject: expect.stringContaining('"reasons":["BlankBallot"]'),
+      }),
+      expect.any(Function)
+    );
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.ScannerStateChanged,
+      'system',
+      expect.objectContaining({
+        changedFields: expect.stringContaining(
+          `"sheetIdToReview":"${sheetId}"`
+        ),
       }),
       expect.any(Function)
     );
@@ -326,10 +377,18 @@ test('rejects ballots whose precinct is not in the selected polling place', asyn
     scanner.withNextScannerSession().sheet(scannedBallot).end();
 
     await apiClient.scanBatch();
-    await waitForStatus(apiClient, { state: 'needsReview' });
+    const { sheetId } = await waitForStatus(apiClient, {
+      state: 'needsReview',
+    });
+    expect(
+      (await apiClient.getSheetForReview({ sheetId })).sheetInterpretation
+    ).toEqual({
+      type: 'InvalidSheet',
+      reason: { type: 'invalid_precinct' },
+    });
 
-    const nextAdjudicationSheet = workspace.store.getNextAdjudicationSheet();
-    expect(nextAdjudicationSheet?.pages[0]).toMatchObject({
+    const [frontPage] = workspace.store.getSheetInterpretation(sheetId);
+    expect(frontPage).toMatchObject({
       type: 'InvalidPrecinctPage',
       metadata: expect.objectContaining({ precinctId: '23' }),
     });

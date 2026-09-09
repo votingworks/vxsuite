@@ -18,8 +18,10 @@ import { createApiMock, ApiMock } from '../../test/api.js';
 
 let apiMock: ApiMock;
 
-type NextReviewSheet = Awaited<
-  ReturnType<(typeof apiMock.apiClient)['getNextReviewSheet']>
+const SHEET_ID = 'sheet-id';
+
+type SheetForReview = Awaited<
+  ReturnType<(typeof apiMock.apiClient)['getSheetForReview']>
 >;
 
 function buildHmpMetadataWithPage(pageNumber: number): BallotPageMetadata {
@@ -33,10 +35,10 @@ function buildHmpMetadataWithPage(pageNumber: number): BallotPageMetadata {
   };
 }
 
-function buildNextReviewSheet(
+function buildSheetForReview(
   sheetInterpretation: SheetInterpretation,
   contestIdsBySide: SheetOf<readonly string[]> = [[], []]
-): NextReviewSheet {
+): SheetForReview {
   function buildImage(pageNumber: number, contestIds: readonly string[]) {
     return {
       imageUrl: `mock-${pageNumber === 1 ? 'front' : 'back'}-image`,
@@ -81,14 +83,17 @@ afterEach(() => {
 });
 
 test('says the sheet is unreadable if it is', async () => {
-  apiMock.expectGetNextReviewSheet(
-    buildNextReviewSheet({
+  apiMock.expectGetSheetForReview(
+    SHEET_ID,
+    buildSheetForReview({
       type: 'InvalidSheet',
       reason: { type: 'unknown' },
     })
   );
 
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
+  renderInAppContext(<BallotEjectScreen isTestMode sheetId={SHEET_ID} />, {
+    apiMock,
+  });
 
   await screen.findByText('Unreadable');
   screen.getByText(
@@ -106,8 +111,9 @@ test('says the sheet is unreadable if it is', async () => {
 });
 
 test('says the ballot sheet is overvoted if it is', async () => {
-  apiMock.expectGetNextReviewSheet(
-    buildNextReviewSheet({
+  apiMock.expectGetSheetForReview(
+    SHEET_ID,
+    buildSheetForReview({
       type: 'NeedsReviewSheet',
       reasons: [
         {
@@ -120,7 +126,9 @@ test('says the ballot sheet is overvoted if it is', async () => {
     })
   );
 
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
+  renderInAppContext(<BallotEjectScreen isTestMode sheetId={SHEET_ID} />, {
+    apiMock,
+  });
 
   await screen.findByText('Overvote');
   screen.getByText(
@@ -138,8 +146,9 @@ test('says the ballot sheet is overvoted if it is', async () => {
 });
 
 test('renders both ballot images with highlights on overvoted contests', async () => {
-  apiMock.expectGetNextReviewSheet(
-    buildNextReviewSheet(
+  apiMock.expectGetSheetForReview(
+    SHEET_ID,
+    buildSheetForReview(
       {
         type: 'NeedsReviewSheet',
         reasons: [
@@ -155,7 +164,9 @@ test('renders both ballot images with highlights on overvoted contests', async (
     )
   );
 
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
+  renderInAppContext(<BallotEjectScreen isTestMode sheetId={SHEET_ID} />, {
+    apiMock,
+  });
 
   await screen.findByText('Overvote');
 
@@ -180,8 +191,9 @@ test('renders both ballot images with highlights on overvoted contests', async (
 });
 
 test('says the ballot sheet is undervoted if it is', async () => {
-  apiMock.expectGetNextReviewSheet(
-    buildNextReviewSheet(
+  apiMock.expectGetSheetForReview(
+    SHEET_ID,
+    buildSheetForReview(
       {
         type: 'NeedsReviewSheet',
         reasons: [
@@ -197,7 +209,9 @@ test('says the ballot sheet is undervoted if it is', async () => {
     )
   );
 
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
+  renderInAppContext(<BallotEjectScreen isTestMode sheetId={SHEET_ID} />, {
+    apiMock,
+  });
 
   await screen.findByText('Undervote');
   screen.getByText(
@@ -219,8 +233,9 @@ test('says the ballot sheet is undervoted if it is', async () => {
 });
 
 test('says the ballot sheet is blank if it is', async () => {
-  apiMock.expectGetNextReviewSheet(
-    buildNextReviewSheet(
+  apiMock.expectGetSheetForReview(
+    SHEET_ID,
+    buildSheetForReview(
       {
         type: 'NeedsReviewSheet',
         reasons: [
@@ -237,7 +252,9 @@ test('says the ballot sheet is blank if it is', async () => {
     )
   );
 
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
+  renderInAppContext(<BallotEjectScreen isTestMode sheetId={SHEET_ID} />, {
+    apiMock,
+  });
 
   await screen.findByText('Blank Ballot');
   screen.getByText(
@@ -260,14 +277,17 @@ test('says the ballot sheet is blank if it is', async () => {
 });
 
 test('says the ballot sheet has crossover voting if it does', async () => {
-  apiMock.expectGetNextReviewSheet(
-    buildNextReviewSheet({
+  apiMock.expectGetSheetForReview(
+    SHEET_ID,
+    buildSheetForReview({
       type: 'NeedsReviewSheet',
       reasons: [{ type: AdjudicationReason.CrossoverVoting }],
     })
   );
 
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
+  renderInAppContext(<BallotEjectScreen isTestMode sheetId={SHEET_ID} />, {
+    apiMock,
+  });
 
   await screen.findByText('Crossover Voting');
   screen.getByText(
@@ -285,14 +305,17 @@ test('says the ballot sheet has crossover voting if it does', async () => {
 });
 
 test('calls out official ballot sheets in test mode', async () => {
-  apiMock.expectGetNextReviewSheet(
-    buildNextReviewSheet({
+  apiMock.expectGetSheetForReview(
+    SHEET_ID,
+    buildSheetForReview({
       type: 'InvalidSheet',
       reason: { type: 'invalid_test_mode' },
     })
   );
 
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
+  renderInAppContext(<BallotEjectScreen isTestMode sheetId={SHEET_ID} />, {
+    apiMock,
+  });
 
   await screen.findByText('Official Ballot');
   screen.getByText(
@@ -308,14 +331,18 @@ test('calls out official ballot sheets in test mode', async () => {
 });
 
 test('calls out test ballot sheets in live mode', async () => {
-  apiMock.expectGetNextReviewSheet(
-    buildNextReviewSheet({
+  apiMock.expectGetSheetForReview(
+    SHEET_ID,
+    buildSheetForReview({
       type: 'InvalidSheet',
       reason: { type: 'invalid_test_mode' },
     })
   );
 
-  renderInAppContext(<BallotEjectScreen isTestMode={false} />, { apiMock });
+  renderInAppContext(
+    <BallotEjectScreen isTestMode={false} sheetId={SHEET_ID} />,
+    { apiMock }
+  );
 
   await screen.findByText('Test Ballot');
   screen.getByText(
@@ -331,8 +358,9 @@ test('calls out test ballot sheets in live mode', async () => {
 });
 
 test('shows invalid election screen when appropriate', async () => {
-  apiMock.expectGetNextReviewSheet(
-    buildNextReviewSheet({
+  apiMock.expectGetSheetForReview(
+    SHEET_ID,
+    buildSheetForReview({
       type: 'InvalidSheet',
       reason: {
         type: 'invalid_ballot_hash',
@@ -341,7 +369,10 @@ test('shows invalid election screen when appropriate', async () => {
     })
   );
 
-  renderInAppContext(<BallotEjectScreen isTestMode={false} />, { apiMock });
+  renderInAppContext(
+    <BallotEjectScreen isTestMode={false} sheetId={SHEET_ID} />,
+    { apiMock }
+  );
 
   await screen.findByText('Wrong Election');
   screen.getByText('Ballot Election ID');
@@ -364,8 +395,9 @@ test('does not allow tabulating the overvote if disallowCastingOvervotes is set'
     ...DEFAULT_SYSTEM_SETTINGS,
     disallowCastingOvervotes: true,
   });
-  apiMock.expectGetNextReviewSheet(
-    buildNextReviewSheet({
+  apiMock.expectGetSheetForReview(
+    SHEET_ID,
+    buildSheetForReview({
       type: 'NeedsReviewSheet',
       reasons: [
         {
@@ -378,7 +410,9 @@ test('does not allow tabulating the overvote if disallowCastingOvervotes is set'
     })
   );
 
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
+  renderInAppContext(<BallotEjectScreen isTestMode sheetId={SHEET_ID} />, {
+    apiMock,
+  });
 
   await screen.findByText('Overvote');
   screen.getByText(
@@ -392,14 +426,17 @@ test('does not allow tabulating the overvote if disallowCastingOvervotes is set'
 });
 
 test('says the scanner needs cleaning if a streak is detected', async () => {
-  apiMock.expectGetNextReviewSheet(
-    buildNextReviewSheet({
+  apiMock.expectGetSheetForReview(
+    SHEET_ID,
+    buildSheetForReview({
       type: 'InvalidSheet',
       reason: { type: 'vertical_streaks_detected' },
     })
   );
 
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
+  renderInAppContext(<BallotEjectScreen isTestMode sheetId={SHEET_ID} />, {
+    apiMock,
+  });
 
   await screen.findByText('Streak Detected');
   screen.getByText(
@@ -415,14 +452,17 @@ test('says the scanner needs cleaning if a streak is detected', async () => {
 });
 
 test('falls through to "Unreadable" for an UnreadablePage with an unrecognized reason', async () => {
-  apiMock.expectGetNextReviewSheet(
-    buildNextReviewSheet({
+  apiMock.expectGetSheetForReview(
+    SHEET_ID,
+    buildSheetForReview({
       type: 'InvalidSheet',
       reason: { type: 'unreadable' },
     })
   );
 
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
+  renderInAppContext(<BallotEjectScreen isTestMode sheetId={SHEET_ID} />, {
+    apiMock,
+  });
 
   await screen.findByText('Unreadable');
   screen.getByText(
@@ -437,14 +477,17 @@ test('falls through to "Unreadable" for an UnreadablePage with an unrecognized r
 });
 
 test('ballot with invalid scale', async () => {
-  apiMock.expectGetNextReviewSheet(
-    buildNextReviewSheet({
+  apiMock.expectGetSheetForReview(
+    SHEET_ID,
+    buildSheetForReview({
       type: 'InvalidSheet',
       reason: { type: 'invalid_scale' },
     })
   );
 
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
+  renderInAppContext(<BallotEjectScreen isTestMode sheetId={SHEET_ID} />, {
+    apiMock,
+  });
 
   await screen.findByText('Invalid Scale');
   screen.getByText('The last scanned ballot was printed at an invalid scale.');
@@ -458,14 +501,17 @@ test('ballot with invalid scale', async () => {
 });
 
 test('ballot from a precinct not in the selected polling place', async () => {
-  apiMock.expectGetNextReviewSheet(
-    buildNextReviewSheet({
+  apiMock.expectGetSheetForReview(
+    SHEET_ID,
+    buildSheetForReview({
       type: 'InvalidSheet',
       reason: { type: 'invalid_precinct' },
     })
   );
 
-  renderInAppContext(<BallotEjectScreen isTestMode />, { apiMock });
+  renderInAppContext(<BallotEjectScreen isTestMode sheetId={SHEET_ID} />, {
+    apiMock,
+  });
 
   await screen.findByText('Wrong Precinct');
   screen.getByText(

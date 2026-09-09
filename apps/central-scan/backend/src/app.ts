@@ -283,29 +283,24 @@ function buildApi({
       machine.startBatch();
     },
 
-    async getNextReviewSheet(): Promise<{
+    async getSheetForReview(input: { sheetId: string }): Promise<{
       sheetInterpretation: SheetInterpretation;
       images: SheetOf<BallotImage>;
-    } | null> {
-      const sheet = store.getNextAdjudicationSheet();
-
-      if (!sheet) {
-        return null;
-      }
-
+    }> {
       const { election } = assertDefined(
         store.getElectionRecord()
       ).electionDefinition;
+      const pageInterpretations = store.getSheetInterpretation(input.sheetId);
       const sheetInterpretation = combinePageInterpretationsForSheet(
-        sheet.pages,
+        pageInterpretations,
         election
       );
 
       const images = await mapSheet(
-        sheet.pages,
+        pageInterpretations,
         async (interpretation, side): Promise<BallotImage> => {
           const imagePath = assertDefined(
-            store.getBallotImagePath(sheet.id, side)
+            store.getBallotImagePath(input.sheetId, side)
           );
           const imageBuffer = await readFile(imagePath);
           const metadata = (

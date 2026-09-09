@@ -624,13 +624,7 @@ test('configure with invalid file', async () => {
   });
 });
 
-test('get next sheet returns null when no adjudication sheet', async () => {
-  await withApp(async ({ apiClient }) => {
-    expect(await apiClient.getNextReviewSheet()).toBeNull();
-  });
-});
-
-test('getNextReviewSheet returns interpretation and image data for uninterpretable sheets', async () => {
+test('getSheetForReview returns interpretation and image data for uninterpretable sheets', async () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
@@ -643,20 +637,20 @@ test('getNextReviewSheet returns interpretation and image data for uninterpretab
     store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
 
     const batchId = workspace.store.addBatch();
-    workspace.store.addSheet(electionDefinition.election, uuid(), batchId, [
+    const sheetId = uuid();
+    workspace.store.addSheet(electionDefinition.election, sheetId, batchId, [
       { imagePath: frontImagePath, interpretation: { type: 'BlankPage' } },
       { imagePath: backImagePath, interpretation: { type: 'BlankPage' } },
     ]);
     workspace.store.finishBatch({ batchId });
 
-    const result = await apiClient.getNextReviewSheet();
-    expect(result).toBeDefined();
-    expect(result!.sheetInterpretation).toEqual({
+    const result = await apiClient.getSheetForReview({ sheetId });
+    expect(result.sheetInterpretation).toEqual({
       type: 'InvalidSheet',
       reason: { type: 'unknown' },
     });
 
-    const [frontImage, backImage] = result!.images;
+    const [frontImage, backImage] = result.images;
     for (const image of [frontImage, backImage]) {
       expect(image).toMatchObject({
         imageUrl: expect.stringMatching(/^data:image\//),
@@ -673,7 +667,7 @@ test('getNextReviewSheet returns interpretation and image data for uninterpretab
   });
 });
 
-test('getNextReviewSheet returns interpretation, image data, and layouts for interpretable sheets', async () => {
+test('getSheetForReview returns interpretation, image data, and layouts for interpretable sheets', async () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
@@ -725,18 +719,19 @@ test('getNextReviewSheet returns interpretation, image data, and layouts for int
     const frontPage = buildHmpbPage(1, [overvoteReason]);
     const backPage = buildHmpbPage(2);
 
-    workspace.store.addSheet(electionDefinition.election, uuid(), batchId, [
+    const sheetId = uuid();
+    workspace.store.addSheet(electionDefinition.election, sheetId, batchId, [
       { imagePath: frontImagePath, interpretation: frontPage },
       { imagePath: backImagePath, interpretation: backPage },
     ]);
     workspace.store.finishBatch({ batchId });
 
-    const result = await apiClient.getNextReviewSheet();
-    expect(result!.sheetInterpretation).toEqual({
+    const result = await apiClient.getSheetForReview({ sheetId });
+    expect(result.sheetInterpretation).toEqual({
       type: 'NeedsReviewSheet',
       reasons: [overvoteReason],
     });
-    const [frontImage, backImage] = result!.images;
+    const [frontImage, backImage] = result.images;
     expect(frontImage.layout).toEqual(frontPage.layout);
     expect(backImage.layout).toEqual(backPage.layout);
   });
