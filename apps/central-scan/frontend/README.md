@@ -38,12 +38,3 @@ This enables a "Batch Scanner" control in the dev dock where you can load ballot
 PDFs or images (JPG/PNG). Loaded ballots persist across scans — click "Clear" in
 the dev dock to reset. Each click of "Scan New Batch" in the main UI will scan
 all loaded ballots.
-
-### Testing Adjudication
-
-To force `requires_adjudication` of ballots, run this in
-`apps/central-scan/backend`:
-
-```
-sqlite3 dev-workspace/ballots.db 'update sheets set requires_adjudication = 1;'
-```
