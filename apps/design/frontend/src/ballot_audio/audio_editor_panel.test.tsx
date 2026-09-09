@@ -9,7 +9,10 @@ import {
   MockApiClient,
   provideApi,
 } from '../../test/api_helpers.js';
-import { AudioEditorPanel, AudioEditorPanelProps } from './audio_editor_panel.js';
+import {
+  AudioEditorPanel,
+  AudioEditorPanelProps,
+} from './audio_editor_panel.js';
 import { render, screen } from '../../test/react_testing_library.js';
 
 vi.mock('./audio_editor.js');
@@ -45,10 +48,10 @@ test('renders editor, along with a preview of the original text', () => {
   screen.getByTestId(EDITOR_TEST_ID);
 });
 
-test('renders contest descriptions using original, unstripped HTML', async () => {
+test('renders contest descriptions as rich text', async () => {
   const mockContest: Partial<YesNoContest> = {
     id: 'contest-1',
-    description: '<p data-testid="preview">Do you agree?<p>',
+    description: '<p>Do you agree?<p>',
     type: 'yesno',
   };
 
@@ -72,9 +75,7 @@ test('renders contest descriptions using original, unstripped HTML', async () =>
     ttsDefault,
   });
 
-  expect(await screen.findByTestId('preview')).toHaveTextContent(
-    'Do you agree?'
-  );
+  expect((await screen.findByText('Do you agree?')).tagName).toEqual('P');
   mockApi.assertComplete();
   screen.getByTestId(EDITOR_TEST_ID);
 });

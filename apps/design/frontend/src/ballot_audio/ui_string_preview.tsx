@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 import { ElectionStringKey } from '@votingworks/types';
 import { DesktopPalette, richTextStyles } from '@votingworks/ui';
+import { sanitizeRichTextHtml } from '@votingworks/utils';
 
 import { cssThemedScrollbars } from '../scrollbars.js';
 
@@ -58,7 +59,9 @@ export function UiStringPreview(props: UiStringPreviewProps): JSX.Element {
   if (stringKey === ElectionStringKey.CONTEST_DESCRIPTION) {
     return (
       <Container>
-        <ContestDescription dangerouslySetInnerHTML={{ __html: text }} />
+        <ContestDescription
+          dangerouslySetInnerHTML={{ __html: sanitizeRichTextHtml(text) }}
+        />
       </Container>
     );
   }
