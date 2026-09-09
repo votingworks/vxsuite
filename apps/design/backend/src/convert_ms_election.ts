@@ -182,7 +182,6 @@ export function convertMsElection(
   // Section 3 is one row per polling location: 3, REGION_ID, LOCATION_ID, LOCATION_LABEL
   // Skip it
 
-  // Section 4 is one row per precinct/split: 4, LOCATION_ID, PRECINCT_ID, SPLIT_ID, PRECINCT_LABEL, NUM_REG_VOTERS, BALLOT_STYLE
   // Section 5 is one row mapping which splits have which districts: 5, SPLIT_ID, DISTRICT_ID
   const splitsToDistricts = new Map(
     groupBy(sectionRows(5), ([, splitId]) => splitId).map(([splitId, rows]) => [
@@ -191,9 +190,10 @@ export function convertMsElection(
     ])
   );
 
+  // Section 4 is one row per precinct/split: 4, LOCATION_ID, PRECINCT_ID, SPLIT_ID, PRECINCT_LABEL, NUM_REG_VOTERS, BALLOT_STYLE
   const precinctEntries = sectionRows(4).map((row) => {
-    const [, , precinctId, splitId, precinctLabel] = row;
-    return { precinctId, splitId, precinctLabel };
+    const [, , precinctId, splitId, precinctLabel, , ballotStyleId] = row;
+    return { precinctId, splitId, precinctLabel, ballotStyleId };
   });
   const precincts: Precinct[] = groupBy(
     precinctEntries,
@@ -217,9 +217,9 @@ export function convertMsElection(
     }
     return {
       ...base,
-      splits: rows.map((row, i) => ({
+      splits: rows.map((row) => ({
         id: uniqueId(row.splitId),
-        name: `${row.precinctLabel} - Split #${i + 1}`,
+        name: `${row.precinctLabel} - Ballot Style ${row.ballotStyleId}`,
         districtIds: [...assertDefined(splitsToDistricts.get(row.splitId))],
       })),
     };

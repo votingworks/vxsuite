@@ -1788,7 +1788,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_575002145",
-          "name": "Martinez - Split #1",
+          "name": "Martinez - Ballot Style 11D",
         },
         {
           "districtIds": [
@@ -1802,7 +1802,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_4185",
-          "name": "Martinez - Split #2",
+          "name": "Martinez - Ballot Style 24D",
         },
       ],
     },
@@ -1837,7 +1837,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_4188",
-          "name": "Torres Foundation - Split #1",
+          "name": "Torres Foundation - Ballot Style 10D",
         },
         {
           "districtIds": [
@@ -1851,7 +1851,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_775000257",
-          "name": "Torres Foundation - Split #2",
+          "name": "Torres Foundation - Ballot Style 16R",
         },
         {
           "districtIds": [
@@ -1865,7 +1865,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_775003812",
-          "name": "Torres Foundation - Split #3",
+          "name": "Torres Foundation - Ballot Style 23D",
         },
       ],
     },
@@ -1901,7 +1901,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_4202",
-          "name": "Victory Kings - Split #1",
+          "name": "Victory Kings - Ballot Style 10D",
         },
         {
           "districtIds": [
@@ -1915,7 +1915,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_4197",
-          "name": "Victory Kings - Split #2",
+          "name": "Victory Kings - Ballot Style 16R",
         },
         {
           "districtIds": [
@@ -1929,7 +1929,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_575000628",
-          "name": "Victory Kings - Split #3",
+          "name": "Victory Kings - Ballot Style 23D",
         },
       ],
     },
@@ -2007,7 +2007,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_575002151",
-          "name": "Trinity Indiana - Split #1",
+          "name": "Trinity Indiana - Ballot Style 15R",
         },
         {
           "districtIds": [
@@ -2022,7 +2022,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_775003836",
-          "name": "Trinity Indiana - Split #2",
+          "name": "Trinity Indiana - Ballot Style 18R",
         },
         {
           "districtIds": [
@@ -2036,7 +2036,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_4265",
-          "name": "Trinity Indiana - Split #3",
+          "name": "Trinity Indiana - Ballot Style 22D",
         },
       ],
     },
@@ -2071,7 +2071,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_4230",
-          "name": "Peaceful Rest - Split #1",
+          "name": "Peaceful Rest - Ballot Style 15R",
         },
         {
           "districtIds": [
@@ -2086,7 +2086,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_4228",
-          "name": "Peaceful Rest - Split #2",
+          "name": "Peaceful Rest - Ballot Style 18R",
         },
       ],
     },
@@ -2120,7 +2120,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_575000622",
-          "name": "Faith - Split #1",
+          "name": "Faith - Ballot Style 12D",
         },
         {
           "districtIds": [
@@ -2133,7 +2133,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_4231",
-          "name": "Faith - Split #2",
+          "name": "Faith - Ballot Style 14R",
         },
       ],
     },
@@ -2152,7 +2152,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_4242",
-          "name": "Harmony - Split #1",
+          "name": "Harmony - Ballot Style 12D",
         },
         {
           "districtIds": [
@@ -2165,7 +2165,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_775003857",
-          "name": "Harmony - Split #2",
+          "name": "Harmony - Ballot Style 14R",
         },
       ],
     },
@@ -2197,7 +2197,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_4249",
-          "name": "Moose Lodge - Split #1",
+          "name": "Moose Lodge - Ballot Style 14R",
         },
         {
           "districtIds": [
@@ -2211,7 +2211,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_4251",
-          "name": "Moose Lodge - Split #2",
+          "name": "Moose Lodge - Ballot Style 17R",
         },
       ],
     },
@@ -2230,7 +2230,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_4263",
-          "name": "Trinity Old 27 - Split #1",
+          "name": "Trinity Old 27 - Ballot Style 14R",
         },
         {
           "districtIds": [
@@ -2244,7 +2244,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_775003854",
-          "name": "Trinity Old 27 - Split #2",
+          "name": "Trinity Old 27 - Ballot Style 17R",
         },
         {
           "districtIds": [
@@ -2257,7 +2257,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_4181",
-          "name": "Trinity Old 27 - Split #3",
+          "name": "Trinity Old 27 - Ballot Style 1R",
         },
       ],
     },
@@ -2289,7 +2289,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_4264",
-          "name": "River Rd Fire - Split #1",
+          "name": "River Rd Fire - Ballot Style 14R",
         },
         {
           "districtIds": [
@@ -2302,7 +2302,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_4253",
-          "name": "River Rd Fire - Split #2",
+          "name": "River Rd Fire - Ballot Style 1R",
         },
       ],
     },
@@ -2321,7 +2321,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_4272",
-          "name": "Riverside Chapel - Split #1",
+          "name": "Riverside Chapel - Ballot Style 14R",
         },
         {
           "districtIds": [
@@ -2334,7 +2334,7 @@ exports[`convert election with precinct splits 1`] = `
             "election-id-4_575001708",
           ],
           "id": "election-id-4_575000615",
-          "name": "Riverside Chapel - Split #2",
+          "name": "Riverside Chapel - Ballot Style 1R",
         },
       ],
     },
