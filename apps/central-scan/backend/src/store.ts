@@ -662,8 +662,7 @@ export class Store {
       front.imagePath,
       JSON.stringify(front.interpretation),
       back.imagePath,
-      // @coverage-defer
-      JSON.stringify(back.interpretation ?? {}),
+      JSON.stringify(back.interpretation),
       requiresAdjudication ? 1 : 0,
       requiresAdjudication ? null : DateTime.now().toISOTime()
     );
