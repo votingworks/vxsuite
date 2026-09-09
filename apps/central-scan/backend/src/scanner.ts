@@ -27,9 +27,10 @@ import { loadImageData } from '@votingworks/image-utils';
 import {
   assign,
   createMachine,
+  DoneInvokeEvent,
   EventObject,
   interpret,
-  Interpreter,
+  InterpreterFrom,
   sendParent,
 } from 'xstate';
 import {
@@ -65,6 +66,10 @@ type Event =
   | { type: 'REJECT_SHEET' }
   | { type: 'SCANNER_CONNECTED' }
   | { type: 'SCANNER_DISCONNECTED' };
+
+type DoneEvent<F extends (...args: never[]) => Promise<unknown>> =
+  DoneInvokeEvent<Awaited<ReturnType<F>>>;
+type ErrorEvent = DoneInvokeEvent<Error>;
 
 interface Delays {
   DELAY_SCANNER_CONNECTION_POLLING_INTERVAL: number;
@@ -117,7 +122,9 @@ function buildMachine({
               src: queryFn,
               onDone: {
                 target: 'waiting',
-                actions: sendParent((_, event) => event.data),
+                actions: sendParent(
+                  (_, event: DoneEvent<typeof queryFn>) => event.data
+                ),
               },
             },
           },
@@ -367,12 +374,17 @@ function buildMachine({
           onDone: {
             target: 'scanningSheet',
             actions: assign({
-              batchContext: (_context, event) => event.data,
+              batchContext: (
+                _context,
+                event: DoneEvent<typeof startScanningBatch>
+              ) => event.data,
             }),
           },
           onError: {
             target: 'idle',
-            actions: assign({ error: (_context, event) => event.data }),
+            actions: assign({
+              error: (_context, event: ErrorEvent) => event.data,
+            }),
           },
         },
       },
@@ -387,17 +399,23 @@ function buildMachine({
             assertDefined(context.batchContext).control.scanSheet(),
           onDone: [
             {
-              cond: (_context, event) => event.data !== undefined,
+              cond: (_context, event: DoneEvent<BatchControl['scanSheet']>) =>
+                event.data !== undefined,
               target: 'interpretingSheet',
               actions: assign({
-                scannedSheet: (_context, event) => event.data,
+                scannedSheet: (
+                  _context,
+                  event: DoneEvent<BatchControl['scanSheet']>
+                ) => event.data,
               }),
             },
             { target: 'finishingBatch' },
           ],
           onError: {
             target: 'finishingBatch',
-            actions: assign({ error: (_context, event) => event.data }),
+            actions: assign({
+              error: (_context, event: ErrorEvent) => event.data,
+            }),
           },
         },
       },
@@ -411,20 +429,27 @@ function buildMachine({
             ),
           onDone: [
             {
-              cond: (_context, event) =>
-                event.data.interpretation.type === 'ValidSheet',
+              cond: (
+                _context,
+                event: DoneEvent<typeof interpretAndSaveSheet>
+              ) => event.data.interpretation.type === 'ValidSheet',
               target: 'scanningSheet',
             },
             {
               target: 'sheetNeedsReview',
               actions: assign({
-                sheetIdToReview: (_context, event) => event.data.sheetId,
+                sheetIdToReview: (
+                  _context,
+                  event: DoneEvent<typeof interpretAndSaveSheet>
+                ) => event.data.sheetId,
               }),
             },
           ],
           onError: {
             target: 'finishingBatch',
-            actions: assign({ error: (_context, event) => event.data }),
+            actions: assign({
+              error: (_context, event: ErrorEvent) => event.data,
+            }),
           },
         },
       },
@@ -450,7 +475,9 @@ function buildMachine({
           onDone: 'idle',
           onError: {
             target: 'idle',
-            actions: assign({ error: (_context, event) => event.data }),
+            actions: assign({
+              error: (_context, event: ErrorEvent) => event.data,
+            }),
           },
         },
       },
@@ -481,8 +508,7 @@ export function cleanLogData(key: string, value: unknown): unknown {
 }
 
 function setupLogging(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  machineService: Interpreter<Context, any, Event, any, any>,
+  machineService: InterpreterFrom<typeof buildMachine>,
   logger: Logger
 ) {
   machineService
