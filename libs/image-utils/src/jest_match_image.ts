@@ -1,10 +1,10 @@
-import { ImageData } from 'canvas';
 import { assert } from '@votingworks/basics';
+import { RgbaImageData } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import pixelmatch from 'pixelmatch';
-import { writeImageData } from './image_data';
+import { createImageData, writeImageData } from './image_data';
 
 /**
  * Options for the `toMatchImage` custom Jest matcher.
@@ -30,7 +30,12 @@ export interface ToMatchImageOptions {
  *
  * @see https://en.wikipedia.org/wiki/Bit_blit
  */
-function bitblt(src: ImageData, dst: ImageData, dx: number, dy: number): void {
+function bitblt(
+  src: RgbaImageData,
+  dst: RgbaImageData,
+  dx: number,
+  dy: number
+): void {
   const channels = 4;
   const srcData = src.data;
   const dstData = dst.data;
@@ -56,18 +61,18 @@ function bitblt(src: ImageData, dst: ImageData, dx: number, dy: number): void {
 }
 
 /**
- * Custom matcher to compare two `ImageData` instances.
+ * Custom matcher to compare two `RgbaImageData` instances.
  */
 export async function toMatchImage(
-  received: ImageData,
-  expected: ImageData,
+  received: RgbaImageData,
+  expected: RgbaImageData,
   options: ToMatchImageOptions = {}
 ): Promise<jest.CustomMatcherResult> {
   assert(
     options.failureThreshold === undefined ||
       (options.failureThreshold >= 0 && options.failureThreshold <= 1)
   );
-  const diffImg = new ImageData(received.width, received.height);
+  const diffImg = createImageData(received.width, received.height);
   const diff = pixelmatch(
     received.data,
     expected.data,
@@ -98,7 +103,7 @@ export async function toMatchImage(
     };
   }
 
-  const compositeImg = new ImageData(3 * received.width, received.height);
+  const compositeImg = createImageData(3 * received.width, received.height);
 
   bitblt(received, compositeImg, 0, 0);
   bitblt(diffImg, compositeImg, received.width, 0);

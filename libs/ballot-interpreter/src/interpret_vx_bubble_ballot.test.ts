@@ -28,7 +28,7 @@ import {
   PageInterpretation,
   InterpretedHmpbPage,
   SheetOf,
-  ImageData,
+  RgbaImageData,
   BaseBallotProps,
   ElectionDefinition,
   getBallotStyle,
@@ -234,7 +234,12 @@ describe('HMPB - VX Famous Names', () => {
     context.fillStyle = 'black';
     // Make a giant vertical streak that will trigger the cumulative streak threshold
     context.fillRect(canvas.width / 2, 0, 6, canvas.height);
-    const streakImage = context.getImageData(0, 0, canvas.width, canvas.height);
+    const streakImage = context.getImageData(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    ) as RgbaImageData;
 
     const [frontResult, backResult] = await interpretSheet(
       {
@@ -257,7 +262,7 @@ describe('HMPB - VX Famous Names', () => {
 });
 
 function snapshotWriteInCrops(
-  sheetImages: SheetOf<ImageData>,
+  sheetImages: SheetOf<RgbaImageData>,
   sheetInterpretations: SheetOf<InterpretedHmpbPage>
 ) {
   for (const [pageImage, interpretation] of iter(sheetImages).zip(
@@ -300,7 +305,7 @@ function snapshotWriteInCrops(
 }
 
 function snapshotCandidateOptionCrops(
-  sheetImages: SheetOf<ImageData>,
+  sheetImages: SheetOf<RgbaImageData>,
   sheetInterpretations: SheetOf<InterpretedHmpbPage>
 ) {
   for (const [pageImage, interpretation] of iter(sheetImages).zip(
@@ -343,7 +348,7 @@ function snapshotCandidateOptionCrops(
 }
 
 function snapshotBallotMeasureCrops(
-  sheetImages: SheetOf<ImageData>,
+  sheetImages: SheetOf<RgbaImageData>,
   sheetInterpretations: SheetOf<InterpretedHmpbPage>
 ) {
   for (const [pageImage, interpretation] of iter(sheetImages).zip(

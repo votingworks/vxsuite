@@ -4,6 +4,8 @@ import { Size } from '@votingworks/types';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { expect, test } from 'vitest';
+import { ImageData } from 'canvas';
+import { isRgba } from './image_data';
 import {
   PdfPage,
   getPdfPageCount,
@@ -18,7 +20,7 @@ async function readMsBallotPdf(): Promise<Uint8Array> {
 }
 
 function assertHasPageCountAndSize(
-  pages: PdfPage[],
+  pages: ReadonlyArray<PdfPage<ImageData>>,
   { pageCount, size }: { pageCount: number; size: Size }
 ): void {
   expect(pages).toHaveLength(pageCount);
@@ -87,4 +89,20 @@ test('parsePdf', async () => {
 test('getPdfPageCount', async () => {
   const pageCount = await getPdfPageCount(await readMsBallotPdf());
   expect(pageCount).toEqual(6);
+});
+
+test('can generate grayscale images', async () => {
+  const pages = await iter(
+    pdfToImages(await readMsBallotPdf(), { color: 'gray' })
+  ).toArray();
+
+  assertHasPageCountAndSize(pages, {
+    pageCount: 6,
+    size: { width: 612, height: 792 },
+  });
+
+  for (const { page } of pages) {
+    expect(isRgba(page)).toEqual(false);
+    expect(page.data).toHaveLength(page.width * page.height);
+  }
 });

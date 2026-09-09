@@ -21,7 +21,10 @@ import {
 } from '@votingworks/fujitsu-thermal-printer';
 import * as grout from '@votingworks/grout';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
-import { ImageData, RGBA_CHANNEL_COUNT } from '@votingworks/image-utils';
+import {
+  createGrayImageData,
+  RGBA_CHANNEL_COUNT,
+} from '@votingworks/image-utils';
 import { Logger, mockBaseLogger } from '@votingworks/logging';
 import {
   Listener,
@@ -31,7 +34,12 @@ import {
   ScannerStatus,
   mockScannerStatus,
 } from '@votingworks/pdi-scanner';
-import { mapSheet, SheetOf } from '@votingworks/types';
+import {
+  GrayImageData,
+  mapSheet,
+  RgbaImageData,
+  SheetOf,
+} from '@votingworks/types';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { Application } from 'express';
 import { readFile } from 'node:fs/promises';
@@ -114,7 +122,7 @@ export function createMockPdiScannerClient(): MockPdiScannerClient {
 export async function simulateScan(
   apiClient: grout.Client<Api>,
   mockScanner: MockPdiScannerClient,
-  images: SheetOf<ImageData>,
+  images: SheetOf<GrayImageData>,
   ballotsCounted = 0
 ): Promise<void> {
   mockScanner.emitEvent({ event: 'scanStart' });
@@ -228,15 +236,21 @@ export const POLLING_PLACE_ID_COMPETE_BMD =
  * the real PDI scanner client emits. See `libs/pdi-scanner/src/ts/scanner_client.ts`.
  * Assumes the RGBA image was actually expanded from a grayscale image originally.
  */
-function toGrayscaleImageData({ width, height, data }: ImageData): ImageData {
+function toGrayscaleImageData({
+  width,
+  height,
+  data,
+}: RgbaImageData): GrayImageData {
   const pixels = new Uint8ClampedArray(width * height);
   for (let i = 0; i < pixels.length; i += 1) {
     pixels[i] = data[i * RGBA_CHANNEL_COUNT];
   }
-  return { width, height, data: pixels };
+  return createGrayImageData(pixels, width, height);
 }
 
-function toGrayscaleSheet(sheet: SheetOf<ImageData>): SheetOf<ImageData> {
+export function toGrayscaleSheet(
+  sheet: SheetOf<RgbaImageData>
+): SheetOf<GrayImageData> {
   return mapSheet(sheet, toGrayscaleImageData);
 }
 
@@ -274,7 +288,12 @@ export const ballotImages = {
           Math.round((canvas.width - page.width) / 2),
           Math.round((canvas.height - page.height) / 2)
         );
-        return ctx.getImageData(0, 0, canvas.width, canvas.height);
+        return ctx.getImageData(
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        ) as RgbaImageData;
       })
     );
   },
@@ -309,7 +328,7 @@ export const ballotImages = {
       await sampleBallotImages.blankPage.asImageData(),
       await sampleBallotImages.blankPage.asImageData(),
     ]),
-} satisfies Record<string, () => Promise<SheetOf<ImageData>>>;
+} satisfies Record<string, () => Promise<SheetOf<GrayImageData>>>;
 
 export async function scanBallot(
   mockScanner: MockPdiScannerClient,
@@ -319,7 +338,7 @@ export async function scanBallot(
   initialBallotsCounted: number,
   options: {
     waitForContinuousExportToUsbDrive?: boolean;
-    ballotImages?: SheetOf<ImageData>;
+    ballotImages?: SheetOf<GrayImageData>;
   } = {}
 ): Promise<void> {
   clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);

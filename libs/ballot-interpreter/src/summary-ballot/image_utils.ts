@@ -6,7 +6,7 @@
 
 import { Optional } from '@votingworks/basics';
 import { RGBA_CHANNEL_COUNT } from '@votingworks/image-utils';
-import { ImageData } from '@votingworks/types';
+import { RgbaImageData } from '@votingworks/types';
 
 export interface Inset {
   top: number;
@@ -35,7 +35,7 @@ export const CROP_BORDERS_THRESHOLD_RATIO: number = 0.1;
  * given threshold.
  */
 export function findScannedDocumentInset(
-  image: ImageData,
+  image: RgbaImageData,
   threshold: number
 ): Optional<Inset> {
   const { width, height } = image;

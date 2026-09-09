@@ -2,15 +2,12 @@
 import { assert, unique } from '@votingworks/basics';
 import {
   ElectionDefinition,
+  RgbaImageData,
   SheetOf,
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { mkdir, readFile, readdir } from 'node:fs/promises';
-import {
-  ImageData,
-  loadImageData,
-  writeImageData,
-} from '@votingworks/image-utils';
+import { loadImageData, writeImageData } from '@votingworks/image-utils';
 import { basename, join } from 'node:path';
 import { CanvasRenderingContext2D, createCanvas } from 'canvas';
 import { fileSync } from 'tmp';
@@ -92,9 +89,9 @@ function fillTextWithBackground({
 
 function annotateBallotImageScores(
   scoreType: 'marks' | 'write-ins',
-  ballotImage: ImageData,
+  ballotImage: RgbaImageData,
   interpretation: InterpretedBallotPage
-): ImageData {
+): RgbaImageData {
   const canvas = createCanvas(ballotImage.width, ballotImage.height);
   const context = canvas.getContext('2d');
   context.imageSmoothingEnabled = false;
@@ -164,7 +161,12 @@ function annotateBallotImageScores(
     }
   }
 
-  return context.getImageData(0, 0, canvas.width, canvas.height);
+  return context.getImageData(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  ) as RgbaImageData;
 }
 
 async function generateScoringReport(

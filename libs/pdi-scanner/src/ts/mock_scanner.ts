@@ -5,7 +5,7 @@ import {
   Assigner,
   PropertyAssigner,
 } from 'xstate';
-import { SheetOf, ImageData } from '@votingworks/types';
+import { SheetOf, GrayImageData } from '@votingworks/types';
 import { assertDefined, err, ok, sleep } from '@votingworks/basics';
 import makeDebug from 'debug';
 import {
@@ -101,7 +101,7 @@ export const mockScannerStatus = {
 } satisfies Record<string, ScannerStatus>;
 
 interface MachineContext {
-  scanImages?: SheetOf<ImageData>;
+  scanImages?: SheetOf<GrayImageData>;
 }
 
 type MachineEvent =
@@ -110,7 +110,7 @@ type MachineEvent =
   | { type: 'ENABLE_SCANNING' }
   | { type: 'DISABLE_SCANNING' }
   | { type: 'EJECT_DOCUMENT'; motion: EjectMotion }
-  | { type: 'INSERT_SHEET'; images: SheetOf<ImageData> }
+  | { type: 'INSERT_SHEET'; images: SheetOf<GrayImageData> }
   | { type: 'REMOVE_SHEET' };
 
 function assign(
@@ -137,7 +137,7 @@ export type MockSheetStatus =
  */
 export interface MockScanner {
   client: ScannerClient;
-  insertSheet(images: SheetOf<ImageData>): void;
+  insertSheet(images: SheetOf<GrayImageData>): void;
   removeSheet(): void;
   getSheetStatus(): MockSheetStatus;
   cleanup(): Promise<void>;
@@ -431,7 +431,7 @@ export function createMockPdiScanner(
   return {
     client,
 
-    insertSheet(images: SheetOf<ImageData>) {
+    insertSheet(images: SheetOf<GrayImageData>) {
       mockScanner.send({ type: 'INSERT_SHEET', images });
     },
 

@@ -6,4 +6,4 @@ export * from './jest_pdf_snapshot';
 export * from './overlay';
 export * from './test_utils';
 export * from './types';
-export { createImageData, ImageData } from 'canvas';
+export { ImageData } from 'canvas';

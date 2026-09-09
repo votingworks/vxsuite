@@ -1,5 +1,4 @@
-import { ImageData } from '@votingworks/image-utils';
-import { mapSheet, SheetOf } from '@votingworks/types';
+import { ImageData, mapSheet, SheetOf } from '@votingworks/types';
 import { time } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { join } from 'node:path';

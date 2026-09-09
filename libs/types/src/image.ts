@@ -10,3 +10,11 @@ export const ImageDataSchema: z.ZodSchema<ImageData> = z.object({
   height: z.number().nonnegative(),
   data: z.instanceof(Uint8ClampedArray),
 });
+
+export const RgbaImageData = ImageDataSchema.brand('RgbaImageData');
+
+export interface RgbaImageData extends z.infer<typeof RgbaImageData> {}
+
+export const GrayImageData = ImageDataSchema.brand('GrayImageData');
+
+export interface GrayImageData extends z.infer<typeof GrayImageData> {}

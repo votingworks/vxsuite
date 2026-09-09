@@ -5,7 +5,7 @@ import {
 } from '@votingworks/fixtures';
 import { deferred } from '@votingworks/basics';
 import { mockBaseLogger, mockLogger } from '@votingworks/logging';
-import { createImageData } from 'canvas';
+import { createImageData } from '@votingworks/image-utils';
 import { anyPollingPlace } from '@votingworks/types';
 import { Importer } from './importer.js';
 import { createWorkspace, Workspace } from './util/workspace.js';

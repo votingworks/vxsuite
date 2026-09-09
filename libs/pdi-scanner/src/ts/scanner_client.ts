@@ -9,9 +9,9 @@ import {
   ok,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { ImageData } from '@votingworks/image-utils';
 import { Buffer } from 'node:buffer';
-import { SheetOf } from '@votingworks/types';
+import { GrayImageData, SheetOf } from '@votingworks/types';
+import { createGrayImageData } from '@votingworks/image-utils';
 import makeDebug from 'debug';
 
 const debug = makeDebug('pdi-scanner');
@@ -130,7 +130,7 @@ export type ScannerEvent =
   | { event: 'scanStart' }
   | {
       event: 'scanComplete';
-      images: SheetOf<ImageData>;
+      images: SheetOf<GrayImageData>;
     }
   | { event: 'coverOpen' }
   | { event: 'coverClosed' }
@@ -254,7 +254,7 @@ function isResponse(message: PdictlMessage): message is PdictlResponse {
  * scanned page images. The image data is a zero-copy view over the payload's
  * memory.
  */
-function parseScanCompletePayload(payload: Buffer): SheetOf<ImageData> {
+function parseScanCompletePayload(payload: Buffer): SheetOf<GrayImageData> {
   let offset = 0;
   function readImage() {
     const width = payload.readUInt32LE(offset);
@@ -266,18 +266,9 @@ function parseScanCompletePayload(payload: Buffer): SheetOf<ImageData> {
       byteLength
     );
     offset += IMAGE_DIMENSIONS_LENGTH + byteLength;
-    return {
-      width,
-      height,
-      data,
-
-      // Define `toJSON` such that `JSON.stringify` does not try to
-      // serialize all the bytes in `data` as an array of numbers.
-      // eslint-disable-next-line vx/gts-identifiers
-      toJSON: () => `[ImageData ${width}x${height}]`,
-    };
+    return createGrayImageData(data, width, height);
   }
-  const images: SheetOf<ImageData> = [readImage(), readImage()];
+  const images: SheetOf<GrayImageData> = [readImage(), readImage()];
   assert(
     offset === payload.length,
     `scanComplete payload length mismatch: expected ${offset}, got ${payload.length}`

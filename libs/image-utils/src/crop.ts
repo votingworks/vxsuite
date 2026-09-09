@@ -1,23 +1,19 @@
-import { assert } from '@votingworks/basics';
-import { Rect } from '@votingworks/types';
-import { createImageData, ImageData } from 'canvas';
-import { RGBA_CHANNEL_COUNT, isRgba } from './image_data';
+import { Rect, RgbaImageData } from '@votingworks/types';
+import { createImageData, RGBA_CHANNEL_COUNT } from './image_data';
 
 /**
  * Returns a new image cropped to the specified bounds.
  */
-export function crop(imageData: ImageData, bounds: Rect): ImageData {
+export function crop(imageData: RgbaImageData, bounds: Rect): RgbaImageData {
   const { data: src, width: srcWidth } = imageData;
-  assert(isRgba(imageData), 'Image must be RGBA');
-  const dst = new Uint8ClampedArray(
-    bounds.width * bounds.height * RGBA_CHANNEL_COUNT
-  );
   const {
     x: srcOffsetX,
     y: srcOffsetY,
     width: dstWidth,
     height: dstHeight,
   } = bounds;
+  const dstImageData = createImageData(dstWidth, dstHeight);
+  const dst = dstImageData.data;
 
   for (let y = 0; y < dstHeight; y += 1) {
     const srcOffset = (srcOffsetY + y) * srcWidth + srcOffsetX;
@@ -31,5 +27,5 @@ export function crop(imageData: ImageData, bounds: Rect): ImageData {
     );
   }
 
-  return createImageData(dst, dstWidth, dstHeight);
+  return dstImageData;
 }

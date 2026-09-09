@@ -4,11 +4,8 @@ import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import {
-  ImageData,
-  toMatchImage,
-  ToMatchImageOptions,
-} from '@votingworks/image-utils';
+import { toMatchImage, ToMatchImageOptions } from '@votingworks/image-utils';
+import { RgbaImageData } from '@votingworks/types';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -16,7 +13,7 @@ declare global {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     interface Matchers<R> {
       toMatchImage(
-        expected: ImageData,
+        expected: RgbaImageData,
         options?: ToMatchImageOptions
       ): Promise<void>;
     }

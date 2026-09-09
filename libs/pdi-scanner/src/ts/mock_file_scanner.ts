@@ -1,10 +1,6 @@
 import { iter } from '@votingworks/basics';
-import {
-  ImageData,
-  RGBA_CHANNEL_COUNT,
-  pdfToImages,
-} from '@votingworks/image-utils';
-import { asSheet, SheetOf } from '@votingworks/types';
+import { createGrayImageData, pdfToImages } from '@votingworks/image-utils';
+import { asSheet, GrayImageData, SheetOf } from '@votingworks/types';
 import {
   existsSync,
   mkdirSync,
@@ -30,48 +26,12 @@ const MOCK_STATE_DIR = join(
 );
 const COMMAND_FILE = join(MOCK_STATE_DIR, 'command.json');
 
-/**
- * Reshapes RGBA image data into the grayscale (one byte per pixel) image data
- * the real scanner client emits (see `scanner_client.ts`), so that mock scans
- * exercise the same downstream image handling as real hardware.
- */
-function toGrayscaleImageData({ width, height, data }: ImageData): ImageData {
-  const pixels = new Uint8ClampedArray(width * height);
-  for (let i = 0; i < pixels.length; i += 1) {
-    pixels[i] = data[i * RGBA_CHANNEL_COUNT] as number;
-  }
-  return grayscaleImageData(width, height, pixels);
-}
-
-function blankGrayscalePage(width: number, height: number): ImageData {
-  return grayscaleImageData(
+function blankGrayscalePage(width: number, height: number): GrayImageData {
+  return createGrayImageData(
+    new Uint8ClampedArray(width * height).fill(0xff),
     width,
-    height,
-    new Uint8ClampedArray(width * height).fill(0xff)
+    height
   );
-}
-
-interface LoggableImageData extends ImageData {
-  toJSON(): string;
-}
-
-function grayscaleImageData(
-  width: number,
-  height: number,
-  data: Uint8ClampedArray
-): ImageData {
-  const image: LoggableImageData = {
-    width,
-    height,
-    data,
-
-    // Define `toJSON` such that `JSON.stringify` does not try to serialize
-    // all the bytes in `data` as an array of numbers, matching the real
-    // scanner client (see `scanner_client.ts`).
-    // eslint-disable-next-line vx/gts-identifiers
-    toJSON: () => `[ImageData ${width}x${height}]`,
-  };
-  return image;
 }
 
 type Command =
@@ -166,14 +126,13 @@ export function createMockFilePdiScanner(): MockScanner {
           }, 50);
         });
         for await (const sheet of iter(
-          pdfToImages(pdfData, { scale: 200 / 72 })
+          pdfToImages(pdfData, { scale: 200 / 72, color: 'gray' })
         )
-          .map(({ page }: { page: ImageData }) => toGrayscaleImageData(page))
           .chunks(2)
-          .map((pages: [ImageData] | [ImageData, ImageData]) => {
-            const front = pages[0];
+          .map((pages) => {
+            const front = pages[0].page;
             const back =
-              pages[1] ?? blankGrayscalePage(front.width, front.height);
+              pages[1]?.page ?? blankGrayscalePage(front.width, front.height);
             return asSheet([front, back]);
           })) {
           inner.insertSheet(sheet);
@@ -194,7 +153,7 @@ export function createMockFilePdiScanner(): MockScanner {
     get client() {
       return inner.client;
     },
-    insertSheet(images: SheetOf<ImageData>): void {
+    insertSheet(images: SheetOf<GrayImageData>): void {
       inner.insertSheet(images);
     },
     removeSheet(): void {

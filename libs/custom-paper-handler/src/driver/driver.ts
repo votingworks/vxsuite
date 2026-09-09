@@ -18,12 +18,12 @@ import {
   oneOf,
 } from '@votingworks/message-coder';
 import {
+  createGrayImageData,
   createImageData,
   crop,
-  ImageData,
   writeImageData,
 } from '@votingworks/image-utils';
-import { Rect } from '@votingworks/types';
+import { GrayImageData, Rect } from '@votingworks/types';
 import { Mutex } from '@votingworks/utils';
 import {
   assertNumberIsInRangeInclusive,
@@ -540,7 +540,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     return this.syncScannerConfig();
   }
 
-  async scan(): Promise<ImageData> {
+  async scan(): Promise<GrayImageData> {
     const result = await this.genericLock.withLock(async () => {
       await this.transferOutGeneric(ScanCommand, undefined);
       debug('STARTING SCAN');
@@ -611,7 +611,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
       );
     }
     const imageBuf = Buffer.concat(result.imageData);
-    return createImageData(
+    return createGrayImageData(
       Uint8ClampedArray.from(imageBuf),
       result.width,
       imageBuf.byteLength / result.width

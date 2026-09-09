@@ -3,7 +3,8 @@ import { expect, Mocked, test, vi } from 'vitest';
 import { Device, findByIds, WebUSBDevice } from 'usb';
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import { readFileSync } from 'node:fs';
-import { createImageData, ImageData } from '@votingworks/image-utils';
+import { createImageData } from '@votingworks/image-utils';
+import { RgbaImageData } from '@votingworks/types';
 import { assertDefined, iter, ok } from '@votingworks/basics';
 import {
   BYTES_PER_BIT_IMAGE_ROW,
@@ -46,7 +47,7 @@ function imageDataWithRowMarkers(width: number, height: number) {
   return createImageData(data, width, height);
 }
 
-function pixelAt(imageData: ImageData, x: number, y: number) {
+function pixelAt(imageData: RgbaImageData, x: number, y: number) {
   const offset = (y * imageData.width + x) * BYTES_PER_PIXEL;
   return [
     imageData.data[offset],
@@ -117,17 +118,22 @@ test('chunkImageData requires page-width image data', () => {
   ).toThrow();
 });
 
-function whiteImage(width: number, height: number): ImageData {
+function whiteImage(width: number, height: number): RgbaImageData {
   const imageData = createImageData(width, height);
   imageData.data.fill(255);
   return imageData;
 }
 
-function paintGray(imageData: ImageData, x: number, y: number, gray: number) {
+function paintGray(
+  imageData: RgbaImageData,
+  x: number,
+  y: number,
+  gray: number
+) {
   imageData.data.set([gray, gray, gray, 255], (y * imageData.width + x) * 4);
 }
 
-function paintBlack(imageData: ImageData, x: number, y: number) {
+function paintBlack(imageData: RgbaImageData, x: number, y: number) {
   paintGray(imageData, x, y, 0);
 }
 

@@ -5,17 +5,10 @@ import {
   ok,
   Result,
 } from '@votingworks/basics';
+import { GrayImageData, RgbaImageData } from '@votingworks/types';
 import { time } from '@votingworks/utils';
 import { Buffer } from 'node:buffer';
-import {
-  loadImage as canvasLoadImage,
-  createCanvas,
-  createImageData,
-  Image,
-  ImageData,
-  JpegConfig,
-  PngConfig,
-} from 'canvas';
+import * as canvas from 'canvas';
 import makeDebug from 'debug';
 import { open, writeFile } from 'node:fs/promises';
 
@@ -30,28 +23,144 @@ const debug = makeDebug('image-utils');
 export const RGBA_CHANNEL_COUNT = 4;
 
 /**
+ * Summarize pixel buffers rather than serializing them.
+ */
+function withCompactJson<T extends canvas.ImageData>(image: T): T {
+  return Object.defineProperty(image, 'toJSON', {
+    value: () => `[ImageData ${image.width}x${image.height}]`,
+  });
+}
+
+/**
+ * Allocates RGBA pixel data of the given dimensions.
+ */
+export function createImageData(width: number, height: number): RgbaImageData;
+
+/**
+ * Wraps existing RGBA pixel data of the givevn dimensions.
+ */
+export function createImageData(
+  data: Uint8ClampedArray,
+  width: number,
+  height: number
+): RgbaImageData;
+
+/**
+ * Creates RGBA (four bytes per pixel) image data.
+ */
+export function createImageData(
+  widthOrData: number | Uint8ClampedArray,
+  heightOrWidth: number,
+  undefinedOrHeight?: number
+): RgbaImageData {
+  if (
+    typeof widthOrData === 'number' &&
+    typeof undefinedOrHeight === 'undefined'
+  ) {
+    const width = widthOrData;
+    const height = heightOrWidth;
+    return withCompactJson(
+      canvas.createImageData(width, height)
+    ) as RgbaImageData;
+  }
+
+  if (
+    typeof widthOrData === 'object' &&
+    typeof undefinedOrHeight === 'number'
+  ) {
+    const data = widthOrData;
+    const width = heightOrWidth;
+    const height = undefinedOrHeight;
+    assert(data.length === width * height * RGBA_CHANNEL_COUNT);
+    return withCompactJson(
+      canvas.createImageData(data, width, height)
+    ) as RgbaImageData;
+  }
+
+  // @coverage-exclude
+  throw new Error('unexpected arguments');
+}
+
+/**
+ * Allocates grayscale pixel data of the given dimensions.
+ */
+export function createGrayImageData(
+  width: number,
+  height: number
+): GrayImageData;
+
+/**
+ * Wraps existing grayscale pixel data of the given dimensions.
+ */
+export function createGrayImageData(
+  data: Uint8ClampedArray,
+  width: number,
+  height: number
+): GrayImageData;
+
+/**
+ * Creates grayscale image data.
+ */
+export function createGrayImageData(
+  widthOrData: number | Uint8ClampedArray,
+  heightOrWidth: number,
+  undefinedOrHeight?: number
+): GrayImageData {
+  if (
+    typeof widthOrData === 'number' &&
+    typeof undefinedOrHeight === 'undefined'
+  ) {
+    const width = widthOrData;
+    const height = heightOrWidth;
+    return withCompactJson(
+      canvas.createImageData(
+        new Uint8ClampedArray(width * height),
+        width,
+        height
+      )
+    ) as GrayImageData;
+  }
+
+  if (
+    typeof widthOrData === 'object' &&
+    typeof undefinedOrHeight === 'number'
+  ) {
+    const data = widthOrData;
+    const width = heightOrWidth;
+    const height = undefinedOrHeight;
+    assert(data.length === width * height);
+    return withCompactJson(
+      canvas.createImageData(data, width, height)
+    ) as GrayImageData;
+  }
+
+  // @coverage-exclude
+  throw new Error('unexpected arguments');
+}
+
+/**
  * Ensures the image data is an instance of ImageData.
  */
-export function ensureImageData(imageData: ImageData): ImageData {
-  if (imageData instanceof ImageData) {
+export function ensureImageData(imageData: canvas.ImageData): canvas.ImageData {
+  if (imageData instanceof canvas.ImageData) {
     return imageData;
   }
 
   const { data, width, height } = imageData;
-  return createImageData(data, width, height);
+  return canvas.createImageData(data, width, height);
 }
 
 /**
  * Determines the number of channels in an image.
  */
-export function getImageChannelCount(image: ImageData): int {
+export function getImageChannelCount(image: canvas.ImageData): int {
   return assertInteger(image.data.length / image.width / image.height);
 }
 
 /**
  * Determines whether the image is RGBA.
  */
-export function isRgba(image: ImageData): boolean {
+export function isRgba(image: canvas.ImageData): image is RgbaImageData {
   return getImageChannelCount(image) === RGBA_CHANNEL_COUNT;
 }
 
@@ -60,10 +169,12 @@ export function isRgba(image: ImageData): boolean {
  */
 export async function loadImageData(
   pathOrData: string | Buffer
-): Promise<Result<ImageData, { type: 'invalid-image-file'; message: string }>> {
-  let image: Image;
+): Promise<
+  Result<RgbaImageData, { type: 'invalid-image-file'; message: string }>
+> {
+  let image: canvas.Image;
   try {
-    image = await canvasLoadImage(pathOrData);
+    image = await canvas.loadImage(pathOrData);
   } catch (error) {
     // canvasLoadImage will fail on a corrupted image or a file that isn't an image
     return err({
@@ -71,10 +182,15 @@ export async function loadImageData(
       message: extractErrorMessage(error),
     });
   }
-  const canvas = createCanvas(image.width, image.height);
-  const context = canvas.getContext('2d');
-  context.drawImage(image, 0, 0);
-  const imageData = context.getImageData(0, 0, image.width, image.height);
+  const cvs = canvas.createCanvas(image.width, image.height);
+  const ctx = cvs.getContext('2d');
+  ctx.drawImage(image, 0, 0);
+  const imageData = ctx.getImageData(
+    0,
+    0,
+    image.width,
+    image.height
+  ) as RgbaImageData;
   return ok(imageData);
 }
 
@@ -239,7 +355,7 @@ export function fromGrayScale(
   pixels: ArrayLike<u8>,
   width: usize,
   height: usize
-): ImageData {
+): RgbaImageData {
   assert(width > 0 && Number.isInteger(width), 'Invalid width');
   assert(height > 0 && Number.isInteger(height), 'Invalid height');
   assert(pixels.length === width * height, 'Invalid pixel count');
@@ -265,30 +381,70 @@ export function fromGrayScale(
   return createImageData(imageDataBuffer, width, height);
 }
 
-function createCanvasWithImageData(imageData: ImageData) {
+/**
+ * Converts 8-bit sRGB color values to an 8-bit grayscale value.
+ */
+export function rgbToGrayscale(r: number, g: number, b: number): number {
+  return 0.299 * r + 0.587 * g + 0.114 * b;
+}
+
+/**
+ * Converts RGBA pixel data to a grayscale image. Ignores the alpha channel.
+ */
+export function toGrayScale(
+  pixels: ArrayLike<u8>,
+  width: usize,
+  height: usize
+): GrayImageData {
+  assert(width > 0 && Number.isInteger(width), 'Invalid width');
+  assert(height > 0 && Number.isInteger(height), 'Invalid height');
+  assert(
+    pixels.length === width * height * RGBA_CHANNEL_COUNT,
+    'Invalid pixel count'
+  );
+
+  const imageData = createGrayImageData(width, height);
+  const dstData = imageData.data;
+
+  for (
+    let srcOffset = 0, dstOffset = 0;
+    srcOffset < pixels.length;
+    srcOffset += RGBA_CHANNEL_COUNT, dstOffset += 1
+  ) {
+    dstData[dstOffset] = rgbToGrayscale(
+      pixels[srcOffset] as number,
+      pixels[srcOffset + 1] as number,
+      pixels[srcOffset + 2] as number
+    );
+  }
+
+  return imageData;
+}
+
+function createCanvasWithImageData(imageData: canvas.ImageData) {
   assert(
     isRgba(imageData),
     `Expected RGBA image data, got ${getImageChannelCount(
       imageData
     )} channel(s)`
   );
-  const canvas = createCanvas(imageData.width, imageData.height);
-  const context = canvas.getContext('2d');
-  context.putImageData(ensureImageData(imageData), 0, 0);
-  return canvas;
+  const cvs = canvas.createCanvas(imageData.width, imageData.height);
+  const ctx = cvs.getContext('2d');
+  ctx.putImageData(ensureImageData(imageData), 0, 0);
+  return cvs;
 }
 
 /**
  * Creates a data URL from image data.
  */
 export function toDataUrl(
-  image: ImageData,
+  image: canvas.ImageData,
   mimeType: 'image/png' | 'image/jpeg'
 ): string {
-  const canvas = createCanvasWithImageData(image);
+  const cvs = createCanvasWithImageData(image);
   return mimeType === 'image/jpeg'
-    ? canvas.toDataURL(mimeType)
-    : canvas.toDataURL(mimeType);
+    ? cvs.toDataURL(mimeType)
+    : cvs.toDataURL(mimeType);
 }
 
 /**
@@ -296,16 +452,16 @@ export function toDataUrl(
  */
 export async function writeImageData(
   path: string,
-  imageData: ImageData
+  imageData: canvas.ImageData
 ): Promise<void> {
   const timer = time(
     debug,
     `writeImageData: ${path} (${imageData.width}×${imageData.height})`
   );
-  const canvas = createCanvasWithImageData(imageData);
+  const cvs = createCanvasWithImageData(imageData);
   const encoded = /\.png$/i.test(path)
-    ? canvas.toBuffer('image/png')
-    : canvas.toBuffer('image/jpeg');
+    ? cvs.toBuffer('image/png')
+    : cvs.toBuffer('image/jpeg');
   await writeFile(path, encoded);
   timer.end();
 }
@@ -317,9 +473,9 @@ export async function writeImageData(
  * tasks in parallel, such as encoding the image data.
  */
 export async function encodeImageData(
-  imageData: ImageData,
+  imageData: canvas.ImageData,
   mimeType: 'image/png',
-  pngConfig?: PngConfig
+  pngConfig?: canvas.PngConfig
 ): Promise<Buffer>;
 
 /**
@@ -329,9 +485,9 @@ export async function encodeImageData(
  * tasks in parallel, such as encoding the image data.
  */
 export async function encodeImageData(
-  imageData: ImageData,
+  imageData: canvas.ImageData,
   mimeType: 'image/jpeg',
-  pngConfig?: JpegConfig
+  pngConfig?: canvas.JpegConfig
 ): Promise<Buffer>;
 
 /**
@@ -341,26 +497,26 @@ export async function encodeImageData(
  * tasks in parallel, such as encoding the image data.
  */
 export async function encodeImageData(
-  imageData: ImageData,
+  imageData: canvas.ImageData,
   mimeType: 'image/png' | 'image/jpeg',
-  config?: PngConfig | JpegConfig
+  config?: canvas.PngConfig | canvas.JpegConfig
 ): Promise<Buffer> {
   const timer = time(debug, `writeImageDataToBuffer: ${mimeType}`);
-  const canvas = createCanvasWithImageData(imageData);
+  const cvs = createCanvasWithImageData(imageData);
   const encoded = await new Promise<Buffer>((resolve, reject) => {
     if (mimeType === 'image/png') {
-      canvas.toBuffer(
+      cvs.toBuffer(
         // @coverage-exclude
         (error, buffer) => (error ? reject(error) : resolve(buffer)),
         mimeType,
-        config as PngConfig
+        config as canvas.PngConfig
       );
     } else {
-      canvas.toBuffer(
+      cvs.toBuffer(
         // @coverage-exclude
         (error, buffer) => (error ? reject(error) : resolve(buffer)),
         mimeType,
-        config as JpegConfig
+        config as canvas.JpegConfig
       );
     }
   });
@@ -372,12 +528,12 @@ export async function encodeImageData(
  * Converts an ImageData to an image Buffer.
  */
 export function toImageBuffer(
-  imageData: ImageData,
+  imageData: canvas.ImageData,
   mimeType: 'image/png' | 'image/jpeg' = 'image/png'
 ): Buffer {
-  const canvas = createCanvasWithImageData(imageData);
+  const cvs = createCanvasWithImageData(imageData);
   // Help TS match the union type branches to overloaded function signatures
   return mimeType === 'image/png'
-    ? canvas.toBuffer(mimeType)
-    : canvas.toBuffer(mimeType);
+    ? cvs.toBuffer(mimeType)
+    : cvs.toBuffer(mimeType);
 }

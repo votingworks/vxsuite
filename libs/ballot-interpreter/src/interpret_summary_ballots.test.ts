@@ -30,9 +30,10 @@ import {
   getBallotStyle,
   getContests,
   mapSheet,
+  RgbaImageData,
   vote,
 } from '@votingworks/types';
-import { createCanvas, ImageData } from 'canvas';
+import { createCanvas } from 'canvas';
 import { assert } from 'node:console';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { loadImageMetadata, toImageBuffer } from '@votingworks/image-utils';
@@ -58,7 +59,7 @@ describe('adjudication reporting', () => {
 
   async function renderBmdSummaryBallotPage(
     votes: VotesDict
-  ): Promise<ImageData> {
+  ): Promise<RgbaImageData> {
     const validBmdSheet = asSheet(
       await pdfToPageImages(
         await renderBmdBallotFixture({
@@ -344,9 +345,9 @@ describe('VX BMD interpretation', () => {
   const ballotStyleId: BallotStyleId = DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID;
   const precinctId: PrecinctId = DEFAULT_FAMOUS_NAMES_PRECINCT_ID;
 
-  let bmdSummaryBallotPage: ImageData;
-  let bmdBlankPage: ImageData;
-  let validBmdSheet: SheetOf<ImageData>;
+  let bmdSummaryBallotPage: RgbaImageData;
+  let bmdBlankPage: RgbaImageData;
+  let validBmdSheet: SheetOf<RgbaImageData>;
 
   beforeAll(async () => {
     validBmdSheet = asSheet(
@@ -459,7 +460,12 @@ describe('VX BMD interpretation', () => {
         context.fillStyle = 'black';
         context.fillRect(0, 0, canvas.width, canvas.height);
         context.putImageData(imageData, 25, 250);
-        return context.getImageData(0, 0, canvas.width, canvas.height);
+        return context.getImageData(
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        ) as RgbaImageData;
       }
     );
 
@@ -594,7 +600,7 @@ describe('VX BMD interpretation', () => {
         0,
         canvas.width,
         canvas.height
-      );
+      ) as RgbaImageData;
 
       switch (rotation) {
         case 'inverted': {

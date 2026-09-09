@@ -1,4 +1,5 @@
 import { beforeAll, expect, test } from 'vitest';
+import { createCanvas } from 'canvas';
 import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import { assert, err } from '@votingworks/basics';
 import {
@@ -6,23 +7,22 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   sampleBallotImages,
 } from '@votingworks/fixtures';
-import { SheetOf, asSheet, vote } from '@votingworks/types';
+import { RgbaImageData, SheetOf, asSheet, vote } from '@votingworks/types';
 import {
   renderBmdBallotFixture,
   DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
   DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
   DEFAULT_FAMOUS_NAMES_VOTES,
 } from '@votingworks/bmd-ballot-fixtures';
-import { ImageData, createCanvas } from 'canvas';
+import { createImageData } from '@votingworks/image-utils';
 import { InterpretResult, interpret } from './interpret.js';
 import { pdfToPageImages } from '../../test/helpers/interpretation.js';
 
-let famousNamesBmdBallot: SheetOf<ImageData>;
-let famousNamesBmdBallotUpsideDown: SheetOf<ImageData>;
+let famousNamesBmdBallot: SheetOf<RgbaImageData>;
+let famousNamesBmdBallotUpsideDown: SheetOf<RgbaImageData>;
 
-function copyImageData(imageData: ImageData): ImageData {
-  // Create a new canvas element
-  const newImageData = new ImageData(imageData.width, imageData.height);
+function copyImageData(imageData: RgbaImageData): RgbaImageData {
+  const newImageData = createImageData(imageData.width, imageData.height);
   newImageData.data.set(imageData.data.slice());
   return newImageData;
 }
@@ -186,7 +186,7 @@ test('happy path: back, front upside down', async () => {
 });
 
 test('votes not found', async () => {
-  const card: SheetOf<ImageData> = [
+  const card: SheetOf<RgbaImageData> = [
     await sampleBallotImages.blankPage.asImageData(),
     await sampleBallotImages.blankPage.asImageData(),
   ];
@@ -204,7 +204,7 @@ test('votes not found', async () => {
 
 test('multiple QR codes', async () => {
   const [page1] = famousNamesBmdBallot;
-  const card: SheetOf<ImageData> = [page1, page1];
+  const card: SheetOf<RgbaImageData> = [page1, page1];
   const result = await interpret(
     electionFamousNames2021Fixtures.readElectionDefinition(),
     card

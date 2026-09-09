@@ -6,7 +6,7 @@ import {
   renderBmdBallotFixture,
 } from '@votingworks/bmd-ballot-fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
-import { ImageData, pdfToImages } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
   DEFAULT_MARK_THRESHOLDS,
@@ -15,6 +15,7 @@ import {
   InterpretedHmpbPage,
   SheetOf,
   asSheet,
+  RgbaImageData,
 } from '@votingworks/types';
 import { assert } from 'node:console';
 import * as fs from 'node:fs/promises';
@@ -29,10 +30,10 @@ if (process.env.CI) {
 const { electionDefinition } = vxFamousNamesFixtures;
 
 let ballotImages: {
-  overvoteBallot: SheetOf<ImageData>;
-  normalBallot: SheetOf<ImageData>;
-  normalBmdBallot: SheetOf<ImageData>;
-  undervoteBmdBallot: SheetOf<ImageData>;
+  overvoteBallot: SheetOf<RgbaImageData>;
+  normalBallot: SheetOf<RgbaImageData>;
+  normalBmdBallot: SheetOf<RgbaImageData>;
+  undervoteBmdBallot: SheetOf<RgbaImageData>;
 };
 let ballotImagesPath!: string;
 

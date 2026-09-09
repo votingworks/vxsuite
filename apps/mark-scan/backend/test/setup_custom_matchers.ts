@@ -1,11 +1,11 @@
 import { expect } from 'vitest';
 import {
-  ImageData,
   ToMatchImageOptions,
   ToMatchPdfSnapshotOptions,
   toMatchImage,
   buildToMatchPdfSnapshot,
 } from '@votingworks/image-utils';
+import { RgbaImageData } from '@votingworks/types';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
 import { setGracefulCleanup } from 'tmp';
 
@@ -18,7 +18,7 @@ declare global {
     interface Matchers<R> {
       toMatchPdfSnapshot(options?: ToMatchPdfSnapshotOptions): Promise<R>;
       toMatchImage(
-        expected: ImageData,
+        expected: RgbaImageData,
         options?: ToMatchImageOptions
       ): Promise<R>;
     }

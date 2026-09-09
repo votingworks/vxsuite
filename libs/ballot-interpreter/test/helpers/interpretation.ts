@@ -5,10 +5,11 @@ import {
   unique,
 } from '@votingworks/basics';
 import { voteToOptionId } from '@votingworks/hmpb';
-import { ImageData, pdfToImages } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils';
 import {
   ContestId,
   GridPosition,
+  RgbaImageData,
   UnmarkedWriteIn,
   Vote,
   VotesDict,
@@ -17,7 +18,7 @@ import { readFileSync } from 'node:fs';
 
 export function pdfToPageImages(
   pdf: Uint8Array | string
-): AsyncIteratorPlus<ImageData> {
+): AsyncIteratorPlus<RgbaImageData> {
   const pdfData =
     typeof pdf === 'string' ? Uint8Array.from(readFileSync(pdf)) : pdf;
   return iter(pdfToImages(pdfData, { scale: 200 / 72 })).map(

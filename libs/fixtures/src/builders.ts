@@ -3,8 +3,8 @@ import {
   Election,
   ElectionDefinition,
   ElectionPackage,
-  ImageData,
   LATEST_METADATA,
+  RgbaImageData,
   safeParseElection,
   safeParseElectionDefinition,
   SystemSettings,
@@ -71,9 +71,9 @@ export interface ElectionFixture extends FileFixture {
  */
 export interface ImageFixture extends FileFixture {
   /**
-   * Returns the image as an ImageData object.
+   * Returns the image as an RgbaImageData object.
    */
-  asImageData(): Promise<ImageData>;
+  asImageData(): Promise<RgbaImageData>;
 }
 
 /**
@@ -187,12 +187,12 @@ export function image(path: string): ImageFixture {
   const inner = file(path);
   return {
     ...inner,
-    async asImageData(): Promise<ImageData> {
+    async asImageData(): Promise<RgbaImageData> {
       const img = await loadImage(realPath);
       const canvas = createCanvas(img.width, img.height);
       const context = canvas.getContext('2d');
       context.drawImage(img, 0, 0);
-      return context.getImageData(0, 0, img.width, img.height);
+      return context.getImageData(0, 0, img.width, img.height) as RgbaImageData;
     },
   };
 }

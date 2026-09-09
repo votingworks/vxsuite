@@ -14,6 +14,7 @@ import {
   pollingPlaceFromElection,
   pollingPlacePrecinctIds,
   SheetOf,
+  RgbaImageData,
 } from '@votingworks/types';
 import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
@@ -21,7 +22,6 @@ import { join } from 'node:path';
 import { randomUUID as uuid } from 'node:crypto';
 import { interpretSheetAndSaveImages } from '@votingworks/ballot-interpreter';
 import { LogEventId, Logger } from '@votingworks/logging';
-import { ImageData } from 'canvas';
 import { loadImageData } from '@votingworks/image-utils';
 import {
   BatchControl,
@@ -139,8 +139,8 @@ export class Importer {
 
   async importSheet(
     batchId: string,
-    frontInputImageData: ImageData,
-    backInputImageData: ImageData,
+    frontInputImageData: RgbaImageData,
+    backInputImageData: RgbaImageData,
     ballotAuditId?: string
   ): Promise<string> {
     let sheetId: string = uuid();
@@ -219,7 +219,7 @@ export class Importer {
   private async interpretSheet(
     electionDefinition: ElectionDefinition,
     sheetId: string,
-    [frontImageData, backImageData]: SheetOf<ImageData>
+    [frontImageData, backImageData]: SheetOf<RgbaImageData>
   ): Promise<SheetOf<PageInterpretationWithFiles>> {
     const { store } = this.workspace;
     const {

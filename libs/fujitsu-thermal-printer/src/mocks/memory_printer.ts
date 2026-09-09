@@ -1,5 +1,6 @@
 import { err, ok } from '@votingworks/basics';
-import { ImageData, writeImageData } from '@votingworks/image-utils';
+import { writeImageData } from '@votingworks/image-utils';
+import { RgbaImageData } from '@votingworks/types';
 import { rmSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { tmpName } from 'tmp-promise';
@@ -56,7 +57,7 @@ export function createMockFujitsuPrinterHandler(): MemoryFujitsuPrinterHandler {
 
   // @coverage-defer
   async function mockPrintImageData(
-    imageData: ImageData
+    imageData: RgbaImageData
   ): Promise<PrintResult> {
     if (mockPrinterState.status.state !== 'idle') {
       return err(mockPrinterState.status);

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
-import { ImageData, createImageData } from 'canvas';
+import { ImageData } from 'canvas';
 import fc from 'fast-check';
 import { writeFile } from 'node:fs/promises';
 import { makeTemporaryFile } from '@votingworks/fixtures';
@@ -9,6 +9,8 @@ import { err, ok, MaybePromise } from '@votingworks/basics';
 import { arbitraryImageData } from '../test/arbitraries';
 import {
   RGBA_CHANNEL_COUNT,
+  createGrayImageData,
+  createImageData,
   encodeImageData,
   ensureImageData,
   fromGrayScale,
@@ -16,11 +18,45 @@ import {
   isRgba,
   loadImageData,
   loadImageMetadata,
+  rgbToGrayscale,
   toDataUrl,
+  toGrayScale,
   toImageBuffer,
   writeImageData,
 } from './image_data';
 
+test('createGrayImageData with dimensions', () => {
+  const image = createGrayImageData(3, 2);
+  expect(image).toBeInstanceOf(ImageData);
+  expect({ width: image.width, height: image.height }).toEqual({
+    width: 3,
+    height: 2,
+  });
+  expect([...image.data]).toEqual([0, 0, 0, 0, 0, 0]);
+});
+
+test('createGrayImageData with pixels', () => {
+  const pixels = Uint8ClampedArray.of(1, 2, 3, 4, 5, 6);
+  const image = createGrayImageData(pixels, 3, 2);
+  expect(image).toBeInstanceOf(ImageData);
+  expect({ width: image.width, height: image.height }).toEqual({
+    width: 3,
+    height: 2,
+  });
+  // the pixels are wrapped, not copied
+  pixels[0] = 9;
+  expect(image.data[0]).toEqual(9);
+});
+
+test.each([
+  ['createImageData', createImageData(3, 2)],
+  ['createGrayImageData', createGrayImageData(3, 2)],
+] as const)('%s serializes compactly', (_name, image) => {
+  expect(JSON.stringify(image)).toEqual('"[ImageData 3x2]"');
+
+  // the compact `toJSON` is non-enumerable, so equality checks ignore it
+  expect(Object.keys(image)).not.toContain('toJSON');
+});
 test('channels', () => {
   const rgbaImage = createImageData(1, 1);
   expect(getImageChannelCount(rgbaImage)).toEqual(RGBA_CHANNEL_COUNT);
@@ -88,6 +124,82 @@ test('fromGrayScale', () => {
       }
     )
   );
+});
+
+test('toGrayScale', () => {
+  expect(() => toGrayScale(Buffer.alloc(RGBA_CHANNEL_COUNT), 0, 1)).toThrow(
+    'Invalid width'
+  );
+  expect(() => toGrayScale(Buffer.alloc(RGBA_CHANNEL_COUNT), 1, 0)).toThrow(
+    'Invalid height'
+  );
+  expect(() => toGrayScale(Buffer.alloc(RGBA_CHANNEL_COUNT), 1, 2)).toThrow(
+    'Invalid pixel count'
+  );
+
+  // accepts a Buffer
+  expect(
+    getImageChannelCount(toGrayScale(Buffer.of(1, 2, 3, 0xff), 1, 1))
+  ).toEqual(1);
+
+  // accepts a Uint8ClampedArray
+  expect(
+    getImageChannelCount(toGrayScale(Uint8ClampedArray.of(1, 2, 3, 0xff), 1, 1))
+  ).toEqual(1);
+
+  // accepts a number[]
+  expect(getImageChannelCount(toGrayScale([1, 2, 3, 0xff], 1, 1))).toEqual(1);
+
+  // ignores the alpha channel
+  expect(toGrayScale([9, 9, 9, 0x00], 1, 1).data).toEqual(
+    toGrayScale([9, 9, 9, 0xff], 1, 1).data
+  );
+
+  fc.assert(
+    fc.property(
+      fc
+        .tuple(fc.integer({ min: 1, max: 10 }), fc.integer({ min: 1, max: 10 }))
+        .chain(([width, height]) =>
+          fc.tuple(
+            fc.array(fc.integer({ min: 0, max: 0xff }), {
+              minLength: width * height * RGBA_CHANNEL_COUNT,
+              maxLength: width * height * RGBA_CHANNEL_COUNT,
+            }),
+            fc.constant(width),
+            fc.constant(height)
+          )
+        ),
+      ([pixels, width, height]) => {
+        const imageData = toGrayScale(pixels, width, height);
+        expect({
+          width: imageData.width,
+          height: imageData.height,
+          dataLength: imageData.data.length,
+        }).toEqual({ width, height, dataLength: width * height });
+
+        for (let i = 0; i < width * height; i += 1) {
+          const offset = i * RGBA_CHANNEL_COUNT;
+          expect(imageData.data[i]).toEqual(
+            Uint8ClampedArray.of(
+              rgbToGrayscale(
+                pixels[offset] as number,
+                pixels[offset + 1] as number,
+                pixels[offset + 2] as number
+              )
+            )[0]
+          );
+        }
+      }
+    )
+  );
+});
+
+test('rgbToGrayscale', () => {
+  expect(rgbToGrayscale(0, 0, 0)).toEqual(0);
+  expect(rgbToGrayscale(0xff, 0xff, 0xff)).toEqual(0xff);
+  expect(rgbToGrayscale(0xff, 0, 0)).toBeCloseTo(0.299 * 0xff);
+  expect(rgbToGrayscale(0, 0xff, 0)).toBeCloseTo(0.587 * 0xff);
+  expect(rgbToGrayscale(0, 0, 0xff)).toBeCloseTo(0.114 * 0xff);
 });
 
 test('loadImage/writeImageData', async () => {

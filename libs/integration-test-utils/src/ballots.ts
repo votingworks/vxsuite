@@ -19,9 +19,9 @@ import {
   getContests,
   LATEST_SOFTWARE_VERSION,
   straightPartyNotYetImplemented,
+  RgbaImageData,
 } from '@votingworks/types';
 import {
-  ImageData,
   createImageData,
   pdfToImages,
   writeImageData,
@@ -104,7 +104,8 @@ export function withOvervote(
   const current = votes[contest.id] as CandidateContest['candidates'];
   const currentIds = new Set(current.map((c) => c.id));
   const extra = contest.candidates.find((c) => !currentIds.has(c.id));
-  if (!extra) throw new Error(`No extra candidate to overvote in ${contest.id}`);
+  if (!extra)
+    throw new Error(`No extra candidate to overvote in ${contest.id}`);
   return { ...votes, [contest.id]: [...current, extra] };
 }
 
@@ -219,7 +220,7 @@ export async function renderMarkedBallot(
  * a folded-over ("dog-eared") corner that obscures the timing marks there.
  * Equal-length legs give a natural 45° fold line. */
 function drawFoldedCorner(
-  image: ImageData,
+  image: RgbaImageData,
   corner: 'top-left' | 'top-right'
 ): void {
   const { width, data } = image;
@@ -249,7 +250,7 @@ export async function renderFoldedCornerSheet(
   const pdfBytes = new Uint8Array(readFileSync(ballotPdfPath));
   // Rasterize at roughly the scanner's 200 DPI. Only the front and back are
   // needed, so stop after two pages.
-  const pageImages: ImageData[] = [];
+  const pageImages: RgbaImageData[] = [];
   for await (const { page } of pdfToImages(pdfBytes, { scale: 200 / 72 })) {
     pageImages.push(page);
     if (pageImages.length === 2) break;

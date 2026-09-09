@@ -28,10 +28,11 @@ import {
   LanguageCode,
   LATEST_SOFTWARE_VERSION,
   VotesDict,
+  RgbaImageData,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import makeDebug from 'debug';
-import { ImageData, pdfToImages } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils';
 import { createTestVotes, markBallotDocument } from './mark_ballot.js';
 import {
   allBaseBallotProps,
@@ -244,10 +245,10 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
         };
       });
 
-      let blankBallotPageImages: Optional<ImageData[]>;
-      let markedBallotPageImages: Optional<ImageData[]>;
-      let blankOfficialBallotPageImages: Optional<ImageData[]>;
-      let markedOfficialBallotPageImages: Optional<ImageData[]>;
+      let blankBallotPageImages: Optional<RgbaImageData[]>;
+      let markedBallotPageImages: Optional<RgbaImageData[]>;
+      let blankOfficialBallotPageImages: Optional<RgbaImageData[]>;
+      let markedOfficialBallotPageImages: Optional<RgbaImageData[]>;
       // @coverage-defer
       if (generatePageImages) {
         [

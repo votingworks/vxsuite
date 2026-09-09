@@ -1,8 +1,7 @@
 import { assert } from '@votingworks/basics';
-import { Rect } from '@votingworks/types';
-import { createImageData, ImageData } from 'canvas';
+import { Rect, RgbaImageData } from '@votingworks/types';
 import fc from 'fast-check';
-import { int, RGBA_CHANNEL_COUNT } from '../src/index';
+import { createImageData, int, RGBA_CHANNEL_COUNT } from '../src/index';
 import { assertInteger } from '../src/numeric';
 
 /**
@@ -15,13 +14,13 @@ export interface ArbitraryImageDataOptions {
 }
 
 /**
- * Builds an arbitrary `ImageData` object based on the given parameters.
+ * Builds an arbitrary `RgbaImageData` object based on the given parameters.
  */
 export function arbitraryImageData({
   width: arbitraryWidth = fc.integer({ min: 1, max: 20 }),
   height: arbitraryHeight = fc.integer({ min: 1, max: 20 }),
   pixels: arbitraryPixels = fc.integer({ min: 0, max: 255 }),
-}: ArbitraryImageDataOptions = {}): fc.Arbitrary<ImageData> {
+}: ArbitraryImageDataOptions = {}): fc.Arbitrary<RgbaImageData> {
   return fc
     .record({
       width:

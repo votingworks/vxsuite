@@ -1,4 +1,3 @@
-import { ImageData } from 'canvas';
 import { Result, err, ok } from '@votingworks/basics';
 import {
   SummaryBallotPageMetadata,
@@ -6,6 +5,7 @@ import {
   SheetOf,
   VotesDict,
   mapSheet,
+  RgbaImageData,
 } from '@votingworks/types';
 import {
   BALLOT_HASH_ENCODING_LENGTH,
@@ -25,8 +25,8 @@ import { otsu } from './otsu.js';
 export interface Interpretation {
   metadata: SummaryBallotPageMetadata;
   votes: VotesDict;
-  summaryBallotImage: ImageData;
-  blankPageImage: ImageData;
+  summaryBallotImage: RgbaImageData;
+  blankPageImage: RgbaImageData;
 }
 
 export type InterpretError =
@@ -51,7 +51,7 @@ export type InterpretResult = Result<Interpretation, InterpretError>;
  */
 export async function interpret(
   electionDefinition: ElectionDefinition,
-  card: SheetOf<ImageData>
+  card: SheetOf<RgbaImageData>
 ): Promise<InterpretResult> {
   const croppedCard = mapSheet(card, (imageData) => {
     const threshold = otsu(imageData.data);

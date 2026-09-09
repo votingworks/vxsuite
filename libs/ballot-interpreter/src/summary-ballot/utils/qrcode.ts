@@ -1,8 +1,8 @@
 import { ScanOptions, scanGrayscale } from 'zedbar';
 import { decode as quircDecode, QRCode } from 'node-quirc';
 import { isVxBallot } from '@votingworks/ballot-encoder';
-import { ImageData, RGBA_CHANNEL_COUNT, crop } from '@votingworks/image-utils';
-import { Rect, Size } from '@votingworks/types';
+import { RGBA_CHANNEL_COUNT, crop } from '@votingworks/image-utils';
+import { Rect, RgbaImageData, Size } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import makeDebug from 'debug';
 import { Optional, Result, err, ok, assertDefined } from '@votingworks/basics';
@@ -115,14 +115,14 @@ export function* getSearchAreas(
  * Detects QR codes in a ballot image.
  */
 export async function detect(
-  imageData: ImageData
+  imageData: RgbaImageData
 ): Promise<Optional<DetectedQrCode>> {
   debug('detect: checking %dˣ%d image', imageData.width, imageData.height);
 
   const detectors = [
     {
       name: 'zedbar',
-      detect: ({ data, width, height }: ImageData): Buffer[] => {
+      detect: ({ data, width, height }: RgbaImageData): Buffer[] => {
         const grayscale = rgbaToGrayscale(data, width, height);
         const options = new ScanOptions();
         options.symbologies = ['QR-Code'];
@@ -138,8 +138,10 @@ export async function detect(
     },
     {
       name: 'quirc',
-      detect: async (croppedImage: ImageData): Promise<Buffer[]> => {
-        const results = await quircDecode(croppedImage as globalThis.ImageData);
+      detect: async (croppedImage: RgbaImageData): Promise<Buffer[]> => {
+        const results = await quircDecode(
+          croppedImage as unknown as globalThis.ImageData
+        );
         return results
           .filter((result): result is QRCode => !('err' in result))
           .map((result) => result.data);
@@ -207,7 +209,7 @@ export type DetectQrCodeError = { type: 'blank-page' } | { type: 'no-qr-code' };
 export type QrCodePageResult = Result<DetectedQrCode, DetectQrCodeError>;
 
 export async function detectInBallot(
-  imageData: ImageData
+  imageData: RgbaImageData
 ): Promise<QrCodePageResult> {
   let foundDarkRegion = false;
   let darkestRegionStats: Stats | undefined;

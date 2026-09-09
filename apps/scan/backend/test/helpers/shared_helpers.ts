@@ -23,10 +23,11 @@ import {
   asSheet,
   constructElectionKey,
   pollingPlaceFromElection,
+  RgbaImageData,
 } from '@votingworks/types';
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { mockLogger, LogSource, MockLogger } from '@votingworks/logging';
-import { pdfToImages, ImageData } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils';
 
 import { Api } from '../../src/app.js';
 import {
@@ -175,7 +176,7 @@ export function createPrecinctScannerStateMachineMock(): Mocked<PrecinctScannerS
 export async function pdfToImageSheet(
   pdf: Uint8Array,
   { scale = 200 / 72 }: { scale?: number } = {}
-): Promise<SheetOf<ImageData>> {
+): Promise<SheetOf<RgbaImageData>> {
   return asSheet(
     await iter(pdfToImages(pdf, { scale }))
       .map(({ page }) => page)

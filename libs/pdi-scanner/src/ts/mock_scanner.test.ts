@@ -1,6 +1,6 @@
 import { afterAll, beforeEach, describe, expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
-import { createImageData } from '@votingworks/image-utils';
+import { createGrayImageData } from '@votingworks/image-utils';
 import { asSheet } from '@votingworks/types';
 import { backendWaitFor, mockFunction } from '@votingworks/test-utils';
 import {
@@ -10,8 +10,8 @@ import {
 } from './mock_scanner.js';
 
 const mockSheetImageDatas = asSheet([
-  createImageData(Uint8ClampedArray.from([0, 1, 0, 1]), 2, 2),
-  createImageData(Uint8ClampedArray.from([1, 0, 1, 0]), 2, 2),
+  createGrayImageData(Uint8ClampedArray.from([0, 1, 0, 1]), 2, 2),
+  createGrayImageData(Uint8ClampedArray.from([1, 0, 1, 0]), 2, 2),
 ]);
 
 async function insertAndScanSheet(mockScanner: MockScanner) {

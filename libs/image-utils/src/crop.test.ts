@@ -1,19 +1,18 @@
 import { expect, test } from 'vitest';
-import { Rect } from '@votingworks/types';
-import { createImageData, ImageData } from 'canvas';
+import { Rect, RgbaImageData } from '@votingworks/types';
 import fc from 'fast-check';
 import { arbitraryImageData, arbitraryRect } from '../test/arbitraries';
 import { crop } from './crop';
+import { createImageData, RGBA_CHANNEL_COUNT } from './image_data';
 import { int } from './types';
-import { RGBA_CHANNEL_COUNT } from './index';
 
 /**
  * A slow-but-accurate implementation of `crop` to compare against.
  */
 function cropReferenceImplementation(
-  { data: src, width: srcWidth }: ImageData,
+  { data: src, width: srcWidth }: RgbaImageData,
   bounds: Rect
-): ImageData {
+): RgbaImageData {
   const dst = new Uint8ClampedArray(
     bounds.width * bounds.height * RGBA_CHANNEL_COUNT
   );

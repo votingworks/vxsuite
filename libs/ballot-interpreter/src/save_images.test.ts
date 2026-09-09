@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { createImageData, ImageData } from '@votingworks/image-utils';
-import { SheetOf } from '@votingworks/types';
+import { createImageData } from '@votingworks/image-utils';
+import { RgbaImageData, SheetOf } from '@votingworks/types';
 import { join } from 'node:path';
 import { tmpDir } from '../test/helpers/tmp.js';
 import { saveSheetImages } from './save_images.js';
@@ -8,7 +8,7 @@ import { saveSheetImages } from './save_images.js';
 test('saveSheetImages', async () => {
   const sheetId = 'sheetId';
   const ballotImagesPath = tmpDir();
-  const images: SheetOf<ImageData> = [
+  const images: SheetOf<RgbaImageData> = [
     createImageData(1, 1),
     createImageData(1, 1),
   ];
