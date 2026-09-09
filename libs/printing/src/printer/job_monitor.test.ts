@@ -8,8 +8,8 @@ import {
   MAX_CONSECUTIVE_QUERY_FAILURES,
   TERMINAL_STATUS_RETENTION_MS,
   startPrintJobMonitor,
-} from './job_monitor';
-import { queryJobStatus } from './job_status';
+} from './job_monitor.js';
+import { queryJobStatus } from './job_status.js';
 
 vi.mock(import('./job_status.js'), async (importActual) => ({
   ...(await importActual()),
