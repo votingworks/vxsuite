@@ -5,8 +5,6 @@ create table election (
   election_package_hash text not null,
   jurisdiction text not null,
   is_test_mode integer not null default true,
-  polls_state text not null default 'polls_closed_initial',
-  is_sound_muted integer not null default false,
   polling_place_id text,
   scanner_backed_up_at text,
   created_at text not null default current_timestamp

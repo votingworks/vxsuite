@@ -119,47 +119,6 @@ test('get/set test mode', () => {
   expect(store.getTestMode()).toEqual(true);
 });
 
-test('get/set is sounds muted mode', () => {
-  const store = Store.memoryStore();
-
-  // Before setting an election
-  expect(store.getIsSoundMuted()).toEqual(false);
-  expect(() => store.setIsSoundMuted(true)).toThrowError();
-
-  store.setElectionAndJurisdiction({
-    electionData,
-    jurisdiction,
-    electionPackageHash,
-  });
-
-  // After setting an election
-  expect(store.getIsSoundMuted()).toEqual(false);
-
-  store.setIsSoundMuted(true);
-  expect(store.getIsSoundMuted()).toEqual(true);
-
-  store.setIsSoundMuted(false);
-  expect(store.getIsSoundMuted()).toEqual(false);
-});
-
-test('get/set polls state', () => {
-  const store = Store.memoryStore();
-
-  // Before setting an election
-  expect(store.getPollsState()).toEqual('polls_closed_initial');
-  expect(() => store.setPollsState('polls_open')).toThrowError();
-
-  store.setElectionAndJurisdiction({
-    electionData,
-    jurisdiction,
-    electionPackageHash,
-  });
-
-  // After setting an election
-  store.setPollsState('polls_open');
-  expect(store.getPollsState()).toEqual('polls_open');
-});
-
 test('get/set scanner as backed up', () => {
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({
@@ -712,8 +671,6 @@ test('resetElectionSession', () => {
   });
   store.setPollingPlaceId(anyPollingPlace(election).id);
 
-  store.setPollsState('polls_open');
-
   store.addBatch();
   store.addBatch();
   expect(
@@ -728,7 +685,6 @@ test('resetElectionSession', () => {
   store.resetElectionSession();
 
   // resetElectionSession should reset election session state
-  expect(store.getPollsState()).toEqual('polls_closed_initial');
   expect(store.getScannerBackupTimestamp()).toBeFalsy();
 
   // resetElectionSession should clear all batches
@@ -825,14 +781,13 @@ test('getBallotsCounted', () => {
   expect(store.getBallotsCounted()).toEqual(1);
 });
 
-test('systemSettings can set/get/delete', () => {
+test('systemSettings can set/get', () => {
   const store = Store.memoryStore();
+  expect(store.getSystemSettings()).toBeUndefined();
   const systemSettings = DEFAULT_SYSTEM_SETTINGS;
   store.setSystemSettings(systemSettings);
   const systemSettingsInStore = store.getSystemSettings();
   expect(systemSettingsInStore).toEqual(DEFAULT_SYSTEM_SETTINGS);
-  store.deleteSystemSettings();
-  expect(store.getSystemSettings()).toBeUndefined();
 });
 
 test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRecordHashes', () => {

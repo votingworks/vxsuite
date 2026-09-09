@@ -11,9 +11,6 @@ import {
   PageInterpretation,
   PageInterpretationSchema,
   PageInterpretationWithFiles,
-  PollsState as PollsStateType,
-  PollsStateSchema,
-  safeParse,
   safeParseElectionDefinition,
   safeParseJson,
   SheetOf,
@@ -307,13 +304,6 @@ export class Store {
   }
 
   /**
-   * Deletes system settings
-   */
-  deleteSystemSettings(): void {
-    this.client.run('delete from system_settings');
-  }
-
-  /**
    * Stores the system settings.
    */
   setSystemSettings(systemSettings: SystemSettings): void {
@@ -365,36 +355,6 @@ export class Store {
     this.client.run('update election set is_test_mode = ?', testMode ? 1 : 0);
   }
 
-  /**
-   * Gets whether sound is muted.
-   */
-  getIsSoundMuted(): boolean {
-    const electionRow = this.client.one(
-      'select is_sound_muted as isSoundMuted from election'
-    ) as { isSoundMuted: number } | undefined;
-
-    if (!electionRow) {
-      // we will not mute sounds by default once an election is defined
-      return false;
-    }
-
-    return Boolean(electionRow.isSoundMuted);
-  }
-
-  /**
-   * Sets whether sound is muted.
-   */
-  setIsSoundMuted(isSoundMuted: boolean): void {
-    if (!this.hasElection()) {
-      throw new Error('Cannot set sounds to muted without an election.');
-    }
-
-    this.client.run(
-      'update election set is_sound_muted = ?',
-      isSoundMuted ? 1 : 0
-    );
-  }
-
   getBallotPaperSizeForElection(): HmpbBallotPaperSize {
     const electionRecord = this.getElectionRecord();
     return (
@@ -407,43 +367,6 @@ export class Store {
   getAdjudicationReasons(): readonly AdjudicationReason[] {
     return assertDefined(this.getSystemSettings())
       .centralScanAdjudicationReasons;
-  }
-
-  /**
-   * Gets the current polls state (open, paused, closed initial, or closed final)
-   */
-  getPollsState(): PollsStateType {
-    const electionRow = this.client.one(
-      'select polls_state as rawPollsState from election'
-    ) as { rawPollsState: string } | undefined;
-
-    if (!electionRow) {
-      // we will not skip the check by default once an election is defined
-      return 'polls_closed_initial';
-    }
-
-    const pollsStateParseResult = safeParse(
-      PollsStateSchema,
-      electionRow.rawPollsState
-    );
-
-    // @coverage-defer
-    if (pollsStateParseResult.isErr()) {
-      throw new Error('Unable to parse stored polls state.');
-    }
-
-    return pollsStateParseResult.ok();
-  }
-
-  /**
-   * Sets the current polls state
-   */
-  setPollsState(pollsState: PollsStateType): void {
-    if (!this.hasElection()) {
-      throw new Error('Cannot set polls state without an election.');
-    }
-
-    this.client.run('update election set polls_state = ?', pollsState);
   }
 
   /**
@@ -521,10 +444,9 @@ export class Store {
         sheets.deleted_at is null
       where
         batches.deleted_at is null
-    `) as { ballotsCounted: number } | undefined;
+    `) as { ballotsCounted: number };
 
-    // @coverage-defer
-    return row?.ballotsCounted ?? 0;
+    return row.ballotsCounted;
   }
 
   /**
@@ -585,17 +507,6 @@ export class Store {
     return scannerBackedUpAt >= DateTime.max(...cvrsLastUpdatedDates);
   }
 
-  // @coverage-defer
-  addBallotCard(batchId: string): string {
-    const id = uuid();
-    this.client.run(
-      'insert into ballot_cards (id, batch_id) values (?, ?)',
-      id,
-      batchId
-    );
-    return id;
-  }
-
   /**
    * Adds a sheet to an existing batch.
    */
@@ -641,8 +552,6 @@ export class Store {
     // @coverage-defer
     if (this.hasElection()) {
       this.client.transaction(() => {
-        this.setPollsState('polls_closed_initial');
-
         // Delete batches, which will cascade delete sheets
         this.client.run('delete from batches');
         // Reset auto-incrementing key on "batches" table
