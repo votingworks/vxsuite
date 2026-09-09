@@ -322,13 +322,6 @@ export class Store {
   }
 
   /**
-   * Deletes system settings
-   */
-  deleteSystemSettings(): void {
-    this.client.run('delete from system_settings');
-  }
-
-  /**
    * Stores the system settings.
    */
   setSystemSettings(systemSettings: SystemSettings): void {

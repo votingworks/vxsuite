@@ -911,14 +911,13 @@ test('getBallotsCounted', () => {
   expect(store.getBallotsCounted()).toEqual(1);
 });
 
-test('systemSettings can set/get/delete', () => {
+test('systemSettings can set/get', () => {
   const store = Store.memoryStore();
+  expect(store.getSystemSettings()).toBeUndefined();
   const systemSettings = DEFAULT_SYSTEM_SETTINGS;
   store.setSystemSettings(systemSettings);
   const systemSettingsInStore = store.getSystemSettings();
   expect(systemSettingsInStore).toEqual(DEFAULT_SYSTEM_SETTINGS);
-  store.deleteSystemSettings();
-  expect(store.getSystemSettings()).toBeUndefined();
 });
 
 test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRecordHashes', () => {
