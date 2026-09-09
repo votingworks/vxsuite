@@ -10,7 +10,7 @@ import {
 } from '@votingworks/backend';
 import { interpretSheetAndSaveImages } from '@votingworks/ballot-interpreter';
 import { type MarginalMark } from '@votingworks/hmpb';
-import { pdfToImages, type ImageData } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
   anyPollingPlace,
@@ -31,6 +31,7 @@ import {
   SheetOf,
   unsafeParse,
   VotesDict,
+  RgbaImageData,
 } from '@votingworks/types';
 import { createHash, randomUUID } from 'node:crypto';
 import { Buffer } from 'node:buffer';
@@ -99,7 +100,7 @@ async function renderInterpretAndWriteCvr({
   castVoteRecordDirectory: string;
 }): Promise<CVR.CVR> {
   const pdfBytes = new Uint8Array(await fs.readFile(pdfPath));
-  const pageImages: ImageData[] = [];
+  const pageImages: RgbaImageData[] = [];
   for await (const { page } of pdfToImages(pdfBytes, { scale: 200 / 72 })) {
     pageImages.push(page);
     if (pageImages.length === 2) break;
@@ -111,7 +112,7 @@ async function renderInterpretAndWriteCvr({
     pageImages.length === 2,
     `expected a 2-page (single-sheet) ballot, got ${pageImages.length} page(s)`
   );
-  const sheet: SheetOf<ImageData> = [
+  const sheet: SheetOf<RgbaImageData> = [
     assertDefined(pageImages[0]),
     assertDefined(pageImages[1]),
   ];

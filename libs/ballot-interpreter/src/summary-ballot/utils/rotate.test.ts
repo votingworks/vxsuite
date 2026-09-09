@@ -1,7 +1,7 @@
 import { test } from 'vitest';
 import { assert } from '@votingworks/basics';
 import { sampleBallotImages } from '@votingworks/fixtures';
-import { ImageData } from 'canvas';
+import { createImageData } from '@votingworks/image-utils';
 import { rotateImageData180 } from './rotate.js';
 
 test('can rotate real life ImageData as expected', async () => {
@@ -24,14 +24,14 @@ test('can rotate real life ImageData as expected', async () => {
 });
 
 test('can rotate simple ImageData as expected', () => {
-  const sampleImageData = new ImageData(2, 2);
+  const sampleImageData = createImageData(2, 2);
   // Make the first pixel red
   sampleImageData.data[0] = 255;
   sampleImageData.data[1] = 0;
   sampleImageData.data[2] = 0;
   sampleImageData.data[3] = 255;
 
-  const expectedRotatedImageData = new ImageData(2, 2);
+  const expectedRotatedImageData = createImageData(2, 2);
   // After a 180 degree rotation the first pixel should be the bottom right pixel
   // which corresponds to the data indexes beginning at 3*4 = 12
   expectedRotatedImageData.data[12] = 255;

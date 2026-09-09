@@ -31,7 +31,11 @@ import { decryptAes256 } from '@votingworks/auth';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { LogEventId } from '@votingworks/logging';
-import { scanBallot, withApp } from '../test/helpers/scanner_helpers.js';
+import {
+  scanBallot,
+  toGrayscaleSheet,
+  withApp,
+} from '../test/helpers/scanner_helpers.js';
 import {
   configureApp,
   pdfToImageSheet,
@@ -420,7 +424,7 @@ test('audit ballot IDs', async () => {
     );
   const ballotPdf = fs.readFileSync(ballotPaths[0]);
   await rendererPool.close();
-  const ballotImages = await pdfToImageSheet(ballotPdf);
+  const ballotImages = toGrayscaleSheet(await pdfToImageSheet(ballotPdf));
 
   await withApp(
     async ({

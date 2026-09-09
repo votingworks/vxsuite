@@ -11,6 +11,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import {
   POLLING_PLACE_ID_COMPLETE_HMPB,
   simulateScan,
+  toGrayscaleSheet,
   withApp,
 } from '../test/helpers/scanner_helpers.js';
 import { configureApp, waitForStatus } from '../test/helpers/shared_helpers.js';
@@ -35,27 +36,29 @@ beforeEach(() => {
 });
 
 test('scanBatch with streaked page', async () => {
-  const [frontImageData, backImageData] = asSheet(
-    await iter(
-      pdfToImages(
-        Uint8Array.from(await readFile(vxFamousNamesFixtures.markedBallotPath)),
-        { scale: 200 / 72 }
+  const [frontImageData, backImageData] = toGrayscaleSheet(
+    asSheet(
+      await iter(
+        pdfToImages(
+          Uint8Array.from(
+            await readFile(vxFamousNamesFixtures.markedBallotPath)
+          ),
+          { scale: 200 / 72 }
+        )
       )
+        .take(2)
+        .map(({ page }) => page)
+        .toArray()
     )
-      .map(({ page }) => page)
-      .toArray()
   );
 
   // add a vertical streak
   for (
-    let offset = 500;
+    let offset = 125;
     offset < frontImageData.data.length;
-    offset += frontImageData.width * 4
+    offset += frontImageData.width
   ) {
     frontImageData.data[offset] = 0;
-    frontImageData.data[offset + 1] = 0;
-    frontImageData.data[offset + 2] = 0;
-    frontImageData.data[offset + 3] = 255;
   }
 
   // try with vertical streak detection enabled

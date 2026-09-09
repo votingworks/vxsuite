@@ -5,8 +5,8 @@ import {
   ok,
   Result,
 } from '@votingworks/basics';
-import { ImageData } from '@votingworks/image-utils';
 import { LogEventId, Logger } from '@votingworks/logging';
+import { RgbaImageData } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -153,7 +153,7 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
   }
 
   // @coverage-defer
-  async printImageData(imageData: ImageData): Promise<PrintResult> {
+  async printImageData(imageData: RgbaImageData): Promise<PrintResult> {
     assert(this.driver);
     await this.logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
       message: 'Initiating print',

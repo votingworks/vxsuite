@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { ImageData, writeImageData } from '@votingworks/image-utils';
+import { createImageData, writeImageData } from '@votingworks/image-utils';
 
 import { PaperHandlerStatus } from './coders.js';
 import {
@@ -143,9 +143,10 @@ test('presentPaper()', async () => {
 describe('print and scan', () => {
   const mockDriver = new MockPaperHandlerDriver();
 
-  const mockPageContents = new ImageData(
+  const mockPageContents = createImageData(
     new Uint8ClampedArray([1, 2, 3, 4]),
-    2
+    1,
+    1
   );
 
   test('scan only', async () => {

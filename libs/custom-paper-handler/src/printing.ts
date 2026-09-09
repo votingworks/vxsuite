@@ -1,7 +1,7 @@
 // @coverage-defer-file
 import { assert, iter } from '@votingworks/basics';
 import { BITS_PER_BYTE } from '@votingworks/message-coder';
-import { ImageData } from '@votingworks/image-utils';
+import { RgbaImageData } from '@votingworks/types';
 import { BitArray, bitArrayToByte, Uint8Max } from './bits.js';
 import { PaperHandlerBitmap } from './driver/coders.js';
 
@@ -46,14 +46,16 @@ function rgbToBinary(r: number, g: number, b: number): boolean {
   return rgbToGrayscale(r, g, b) < GRAYSCALE_WHITE_THRESHOLD;
 }
 
-export function imageDataToBinaryBitmap(imageData: ImageData): BinaryBitmap {
+export function imageDataToBinaryBitmap(
+  imageData: RgbaImageData
+): BinaryBitmap {
   const data: boolean[] = [];
 
   let r = 0;
   let g = 0;
   let b = 0;
   imageData.data.forEach((element, index) => {
-    // ImageData.data is in RGBA format. Map RBG values to grayscale.
+    // RgbaImageData.data is in RGBA format. Map RBG values to grayscale.
     // eslint-disable-next-line default-case
     switch (index % 4) {
       case 0:

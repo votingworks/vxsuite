@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { sampleBallotImages } from '@votingworks/fixtures';
-import { createImageData } from 'canvas';
 import { basename } from 'node:path';
+import { createImageData } from './image_data';
 import { crop } from './crop';
 
 test('matching images', async () => {

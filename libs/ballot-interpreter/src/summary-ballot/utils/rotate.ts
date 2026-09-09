@@ -1,8 +1,8 @@
-import { ImageData } from 'canvas';
+import { RgbaImageData } from '@votingworks/types';
 /**
  * Rotate an image 180 degrees in place.
  */
-export function rotateImageData180(imageData: ImageData): void {
+export function rotateImageData180(imageData: RgbaImageData): void {
   const { data } = imageData;
   const channels = 4;
 

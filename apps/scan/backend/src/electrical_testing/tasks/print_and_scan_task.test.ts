@@ -1,4 +1,5 @@
-import { createImageData } from 'canvas';
+import { createGrayImageData } from '@votingworks/image-utils';
+import { GrayImageData, SheetOf } from '@votingworks/types';
 import { afterEach, beforeEach, expect, vi } from 'vitest';
 import {
   BooleanEnvironmentVariableName,
@@ -12,6 +13,10 @@ import {
 } from './print_and_scan_task.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
+
+function mockScanImages(): SheetOf<GrayImageData> {
+  return [createGrayImageData(1, 1), createGrayImageData(1, 1)];
+}
 
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
@@ -64,7 +69,7 @@ test.electrical(
 
     onScannerEvent({
       event: 'scanComplete',
-      images: [createImageData(1, 1), createImageData(1, 1)],
+      images: mockScanImages(),
     });
 
     // Wait long enough that we eject the paper.
@@ -135,7 +140,7 @@ test.electrical(
 
     onScannerEvent({
       event: 'scanComplete',
-      images: [createImageData(1, 1), createImageData(1, 1)],
+      images: mockScanImages(),
     });
 
     await vi.advanceTimersByTimeAsync(DELAY_AFTER_ACCEPT_MS);
@@ -168,7 +173,7 @@ test.electrical(
     // analysis try/catch path. The task should continue without crashing.
     onScannerEvent({
       event: 'scanComplete',
-      images: [createImageData(1, 1), createImageData(1, 1)],
+      images: mockScanImages(),
     });
 
     await vi.advanceTimersByTimeAsync(DELAY_AFTER_ACCEPT_MS);
@@ -208,7 +213,7 @@ test.electrical(
 
     onScannerEvent({
       event: 'scanComplete',
-      images: [createImageData(1, 1), createImageData(1, 1)],
+      images: mockScanImages(),
     });
 
     await vi.advanceTimersByTimeAsync(DELAY_AFTER_ACCEPT_MS);
@@ -239,7 +244,7 @@ test.electrical(
 
     onScannerEvent({
       event: 'scanComplete',
-      images: [createImageData(1, 1), createImageData(1, 1)],
+      images: mockScanImages(),
     });
 
     // Wait until the scanComplete handler is fully done before setting up the

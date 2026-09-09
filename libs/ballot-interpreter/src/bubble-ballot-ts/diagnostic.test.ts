@@ -1,7 +1,11 @@
 import { expect, test } from 'vitest';
 import { join } from 'node:path';
-import { ImageData } from 'canvas';
-import { loadImageData, RGBA_CHANNEL_COUNT } from '@votingworks/image-utils';
+import { GrayImageData, RgbaImageData } from '@votingworks/types';
+import {
+  createGrayImageData,
+  loadImageData,
+  RGBA_CHANNEL_COUNT,
+} from '@votingworks/image-utils';
 import {
   runBlankPaperDiagnostic,
   runBlankPaperDiagnosticFromImage,
@@ -21,12 +25,16 @@ const streakedImagePath = join(
  * that scanner clients emit. Assumes the RGBA image was actually expanded from
  * a grayscale image originally.
  */
-function toGrayscaleImageData({ width, height, data }: ImageData): ImageData {
+function toGrayscaleImageData({
+  width,
+  height,
+  data,
+}: RgbaImageData): GrayImageData {
   const pixels = new Uint8ClampedArray(width * height);
   for (let i = 0; i < pixels.length; i += 1) {
     pixels[i] = data[i * RGBA_CHANNEL_COUNT] as number;
   }
-  return { width, height, data: pixels };
+  return createGrayImageData(pixels, width, height);
 }
 
 test('runBlankPaperDiagnostic can pass', async () => {

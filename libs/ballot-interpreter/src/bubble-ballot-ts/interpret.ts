@@ -1,8 +1,8 @@
 import { assert, err, ok } from '@votingworks/basics';
 import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
-import { ImageData } from 'canvas';
 import {
   ElectionDefinition,
+  ImageData,
   SheetOf,
   DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
   DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,

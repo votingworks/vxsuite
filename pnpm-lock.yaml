@@ -567,9 +567,6 @@ importers:
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../../../libs/utils
-      canvas:
-        specifier: 3.2.3
-        version: 3.2.3
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)

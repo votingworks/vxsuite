@@ -2,8 +2,11 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   sampleBallotImages,
 } from '@votingworks/fixtures';
-import { DEFAULT_MARK_THRESHOLDS, SheetOf } from '@votingworks/types';
-import { ImageData } from 'canvas';
+import {
+  DEFAULT_MARK_THRESHOLDS,
+  SheetOf,
+  RgbaImageData,
+} from '@votingworks/types';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { interpretSheet } from './interpret.js';
 import { normalizeBallotMode } from './validation.js';
@@ -15,7 +18,7 @@ beforeEach(() => {
 });
 
 test('blank sheet of paper', async () => {
-  const sheet: SheetOf<ImageData> = [
+  const sheet: SheetOf<RgbaImageData> = [
     await sampleBallotImages.blankPage.asImageData(),
     await sampleBallotImages.blankPage.asImageData(),
   ];

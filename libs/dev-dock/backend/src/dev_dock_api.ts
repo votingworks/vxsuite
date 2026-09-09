@@ -21,6 +21,7 @@ import {
   asSheet,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageFileName,
+  GrayImageData,
   PrinterConfig,
   PrinterStatus,
   safeParseElectionDefinition,
@@ -60,9 +61,9 @@ import { getMockFilePrinterHandler } from '@votingworks/printing';
 import { writeFile } from 'node:fs/promises';
 import { MockScanner, MockSheetStatus } from '@votingworks/pdi-scanner';
 import {
+  createGrayImageData,
   createImageData,
   getPdfPageCount,
-  ImageData,
   loadImageMetadata,
   pdfToImages,
   writeImageData,
@@ -345,7 +346,7 @@ export interface PdiScannerStatus {
 }
 
 interface PdiScannerSheetQueueState {
-  sheetIterator: AsyncIterator<SheetOf<ImageData>>;
+  sheetIterator: AsyncIterator<SheetOf<GrayImageData>>;
   totalSheets: number;
   sheetsInserted: number;
   timeoutId: ReturnType<typeof setTimeout>;
@@ -627,11 +628,16 @@ function buildApi(
       const pdfData = Uint8Array.from(fs.readFileSync(input.path));
       const pageCount = await getPdfPageCount(Uint8Array.from(pdfData));
       const totalSheets = Math.ceil(pageCount / 2);
-      const sheetIterator = iter(pdfToImages(pdfData, { scale: 200 / 72 }))
+      const sheetIterator = iter(
+        pdfToImages(pdfData, { scale: 200 / 72, color: 'gray' })
+      )
         .map(({ page }) => page)
         .chunks(2)
         .map(([front, back]) =>
-          asSheet([front, back ?? createImageData(front.width, front.height)])
+          asSheet([
+            front,
+            back ?? createGrayImageData(front.width, front.height),
+          ])
         )
         [Symbol.asyncIterator]();
 

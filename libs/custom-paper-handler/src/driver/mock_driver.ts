@@ -3,9 +3,9 @@ import { CoderError } from '@votingworks/message-coder';
 import makeDebug from 'debug';
 import {
   BLANK_PAGE_IMAGE_DATA,
-  ImageData,
   writeImageData,
 } from '@votingworks/image-utils';
+import { RgbaImageData } from '@votingworks/types';
 import {
   PaperHandlerStatus,
   PrinterStatusRealTimeExchangeResponse,
@@ -80,7 +80,7 @@ export type MockPaperHandlerStatus = keyof typeof MOCK_STATUSES_DEFINITIONS;
 export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
   private statusRef: PaperHandlerStatus = defaultPaperHandlerStatus();
   private mockStatus: MockPaperHandlerStatus = 'noPaper';
-  private mockPaperContents?: ImageData;
+  private mockPaperContents?: RgbaImageData;
   private coverOpen = false;
 
   constructor() {
@@ -207,7 +207,7 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
     return Promise.resolve(true);
   }
 
-  scan(): Promise<ImageData> {
+  scan(): Promise<RgbaImageData> {
     // @coverage-defer
     return Promise.resolve(this.mockPaperContents || BLANK_PAGE_IMAGE_DATA);
   }
@@ -346,7 +346,7 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
     };
   }
 
-  setMockPaperContents(contents?: ImageData): void {
+  setMockPaperContents(contents?: RgbaImageData): void {
     this.mockPaperContents = contents;
   }
 

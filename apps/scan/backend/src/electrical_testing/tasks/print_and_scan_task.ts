@@ -10,8 +10,8 @@ import {
 import { PAGE_DOTS_WIDTH } from '@votingworks/fujitsu-thermal-printer';
 import { LogEventId } from '@votingworks/logging';
 import { ScannerEvent } from '@votingworks/pdi-scanner';
-import { mapSheet, SheetOf } from '@votingworks/types';
-import { createCanvas, ImageData } from 'canvas';
+import { mapSheet, RgbaImageData, SheetOf } from '@votingworks/types';
+import { createCanvas } from 'canvas';
 import { DateTime } from 'luxon';
 import { mkdir, unlink } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -33,7 +33,7 @@ export const PRINT_INTERVAL_SECONDS = 5 * 60;
 export const DELAY_AFTER_ACCEPT_MS = 2_500;
 export const DELAY_AFTER_SCANNER_ERROR_MS = 5_000;
 
-function createPrinterTestImage(): ImageData {
+function createPrinterTestImage(): RgbaImageData {
   const canvas = createCanvas(PAGE_DOTS_WIDTH, 50);
   const ctx = canvas.getContext('2d');
 
@@ -44,7 +44,7 @@ function createPrinterTestImage(): ImageData {
   ctx.font = '20px Arial';
   ctx.fillText('Testing printer', 25, 25);
 
-  return ctx.getImageData(0, 0, canvas.width, canvas.height);
+  return ctx.getImageData(0, 0, canvas.width, canvas.height) as RgbaImageData;
 }
 
 export async function runPrintAndScanTask({

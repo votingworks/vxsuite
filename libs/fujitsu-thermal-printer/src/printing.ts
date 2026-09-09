@@ -1,9 +1,10 @@
 import { IteratorPlus, Result, assert, iter, ok } from '@votingworks/basics';
 import {
   createImageData,
-  ImageData,
   pdfToImages,
+  rgbToGrayscale,
 } from '@votingworks/image-utils';
+import { RgbaImageData } from '@votingworks/types';
 import { BITS_PER_BYTE } from '@votingworks/message-coder';
 import { readFileSync } from 'node:fs';
 import {
@@ -38,7 +39,9 @@ const PRINTING_DPI = 200;
  * Trims a page rendered at 8.5" wide (i.e. 1700px) to the printer's printable
  * width, centering the printable area.
  */
-export function trimImageDataToPageWidth(imageData: ImageData): ImageData {
+export function trimImageDataToPageWidth(
+  imageData: RgbaImageData
+): RgbaImageData {
   assert(imageData.width === LETTER_WIDTH_INCHES * PRINTING_DPI);
   debug('trimming image data to page width');
 
@@ -63,7 +66,9 @@ export function trimImageDataToPageWidth(imageData: ImageData): ImageData {
 /**
  * Splits page-width image data into chunks the driver can accept.
  */
-export function* chunkImageData(imageData: ImageData): Generator<ImageData> {
+export function* chunkImageData(
+  imageData: RgbaImageData
+): Generator<RgbaImageData> {
   assert(imageData.width === PAGE_DOTS_WIDTH);
 
   const bytesPerRow = PAGE_DOTS_WIDTH * IMAGE_DATA_BYTES_PER_PIXEL;
@@ -89,19 +94,6 @@ export function* chunkImageData(imageData: ImageData): Generator<ImageData> {
 }
 
 /**
- * Converts 8-bit sRGB color values to an 8-bit grayscale value without gamma
- * correction.
- *
- * @param r Red color value from 0 - 255
- * @param g Green color value from 0 - 255
- * @param b Blue color value from 0 - 255
- * @returns Grayscale color value from 0 - 255
- */
-export function rgbToGrayscale(r: number, g: number, b: number): number {
-  return 0.299 * r + 0.587 * g + 0.114 * b;
-}
-
-/**
  * Below this value, we consider the grayscale to be black. Otherwise, white.
  */
 const GRAYSCALE_WHITE_THRESHOLD = 230;
@@ -111,7 +103,7 @@ const GRAYSCALE_WHITE_THRESHOLD = 230;
  * 1 = black.
  */
 export function imageDataToBitImage(
-  imageData: ImageData
+  imageData: RgbaImageData
 ): UncompressedBitImage {
   assert(
     imageData.width === PAGE_DOTS_WIDTH,
@@ -285,7 +277,7 @@ export async function printPageBitImage(
  */
 async function printImageDataInternal(
   driver: FujitsuThermalPrinterDriverInterface,
-  imageData: ImageData
+  imageData: RgbaImageData
 ): Promise<Result<void, RawPrinterStatus>> {
   return await printPageBitImage(
     driver,
@@ -300,7 +292,7 @@ async function printImageDataInternal(
  */
 export async function printImageData(
   driver: FujitsuThermalPrinterDriverInterface,
-  imageData: ImageData
+  imageData: RgbaImageData
 ): Promise<Result<void, RawPrinterStatus>> {
   assert(
     imageData.width === PAGE_DOTS_WIDTH,

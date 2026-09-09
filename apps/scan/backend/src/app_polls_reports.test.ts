@@ -36,6 +36,7 @@ import type { Store } from './store.js';
 import {
   POLLING_PLACE_ID_COMPETE_BMD,
   scanBallot,
+  toGrayscaleSheet,
   withApp,
 } from '../test/helpers/scanner_helpers.js';
 import { getScannerResults } from './util/results.js';
@@ -335,34 +336,38 @@ test('polls closed report shows correct sheet counts for multi-page BMD ballots'
       const ballotAuditId = 'test-multi-page-audit-id';
 
       // Render and scan page 1
-      const page1Images = await pdfToImageSheet(
-        await renderBmdBallotFixture({
-          electionDefinition,
-          ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
-          precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
-          votes: DEFAULT_FAMOUS_NAMES_VOTES,
-          pageNumber: 1,
-          totalPages: 2,
-          ballotAuditId,
-          contestIdsForPage: page1ContestIds,
-        })
+      const page1Images = toGrayscaleSheet(
+        await pdfToImageSheet(
+          await renderBmdBallotFixture({
+            electionDefinition,
+            ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+            precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+            votes: DEFAULT_FAMOUS_NAMES_VOTES,
+            pageNumber: 1,
+            totalPages: 2,
+            ballotAuditId,
+            contestIdsForPage: page1ContestIds,
+          })
+        )
       );
       await scanBallot(mockScanner, clock, apiClient, workspace.store, 0, {
         ballotImages: page1Images,
       });
 
       // Render and scan page 2
-      const page2Images = await pdfToImageSheet(
-        await renderBmdBallotFixture({
-          electionDefinition,
-          ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
-          precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
-          votes: DEFAULT_FAMOUS_NAMES_VOTES,
-          pageNumber: 2,
-          totalPages: 2,
-          ballotAuditId,
-          contestIdsForPage: page2ContestIds,
-        })
+      const page2Images = toGrayscaleSheet(
+        await pdfToImageSheet(
+          await renderBmdBallotFixture({
+            electionDefinition,
+            ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+            precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+            votes: DEFAULT_FAMOUS_NAMES_VOTES,
+            pageNumber: 2,
+            totalPages: 2,
+            ballotAuditId,
+            contestIdsForPage: page2ContestIds,
+          })
+        )
       );
       await scanBallot(mockScanner, clock, apiClient, workspace.store, 1, {
         ballotImages: page2Images,

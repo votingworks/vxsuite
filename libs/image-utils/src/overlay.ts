@@ -1,12 +1,16 @@
 // @coverage-exclude-file: tested externally at point of usage
-import { createCanvas, ImageData } from 'canvas';
+import { createCanvas } from 'canvas';
+import { RgbaImageData } from '@votingworks/types';
 
 /**
  * Creates a new image consisting of {@link overlay} drawn on top of
  * {@link base}. Assumes the overlay image already has the necessary
  * transparency where needed.
  */
-export function overlayImages(base: ImageData, overlay: ImageData): ImageData {
+export function overlayImages(
+  base: RgbaImageData,
+  overlay: RgbaImageData
+): RgbaImageData {
   const overlayCanvas = createCanvas(base.width, base.height);
   const overlayCtx = overlayCanvas.getContext('2d');
   overlayCtx.putImageData(overlay, 0, 0);
@@ -17,5 +21,5 @@ export function overlayImages(base: ImageData, overlay: ImageData): ImageData {
   baseCtx.putImageData(base, 0, 0);
   baseCtx.drawImage(overlayCanvas, 0, 0);
 
-  return baseCtx.getImageData(0, 0, base.width, base.height);
+  return baseCtx.getImageData(0, 0, base.width, base.height) as RgbaImageData;
 }

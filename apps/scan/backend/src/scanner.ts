@@ -27,6 +27,7 @@ import {
   pollingPlacePrecinctIds,
   pollingPlaceFromElection,
   Election,
+  GrayImageData,
 } from '@votingworks/types';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { time, Timer } from '@votingworks/utils';
@@ -170,18 +171,14 @@ export function cleanLogData(key: string, value: unknown): unknown {
   if (value === undefined) {
     return 'undefined';
   }
+  // @coverage-exclude: should be unreachable due to `createImageData`'s
+  // `toJSON` override, but kept here just in case something sneaks through
   if (value instanceof ImageData) {
     return {
       width: value.width,
       height: value.height,
       data: value.data.length,
     };
-  }
-  // Grayscale scan images from the scanner client are plain objects, not
-  // `ImageData` instances, so catch their pixel buffers directly rather than
-  // serializing millions of bytes as JSON numbers.
-  if (value instanceof Uint8ClampedArray) {
-    return `[${value.length} bytes]`;
   }
   if (value instanceof Error) {
     return { ...value, message: value.message, stack: value.stack };
@@ -211,7 +208,7 @@ let scanAndInterpretTimer: Timer | undefined;
 
 async function interpretSheet(
   workspace: Workspace,
-  scanImages: SheetOf<ImageData>
+  scanImages: SheetOf<GrayImageData>
 ): Promise<InterpretationResult> {
   const sheetId = uuid();
   const { store } = workspace;
@@ -276,7 +273,7 @@ function anyFrontSensorCovered(status: ScannerStatus): boolean {
   );
 }
 
-async function runScannerDiagnostic(scanImages: SheetOf<ImageData>) {
+async function runScannerDiagnostic(scanImages: SheetOf<GrayImageData>) {
   const [frontPassed, backPassed] = await mapSheet(scanImages, (image) =>
     runBlankPaperDiagnosticFromImage(image)
   );
@@ -286,7 +283,7 @@ async function runScannerDiagnostic(scanImages: SheetOf<ImageData>) {
 export const RESET_COOLDOWN_MS = 30_000;
 
 interface Context {
-  scanImages?: SheetOf<ImageData>;
+  scanImages?: SheetOf<GrayImageData>;
   interpretation?: InterpretationResult;
   error?: ScannerError | PrecinctScannerError | Error;
   rootListenerRef?: ActorRef<Event>;

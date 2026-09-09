@@ -39,6 +39,8 @@ import {
   VotesDict,
   WriteInAreaStatus,
   WriteInId,
+  ImageData,
+  RgbaImageData,
 } from '@votingworks/types';
 import {
   allContestOptions,
@@ -46,7 +48,6 @@ import {
   electionHasBallotPositions,
   time,
 } from '@votingworks/utils';
-import { ImageData } from 'canvas';
 import makeDebug from 'debug';
 import { join } from 'node:path';
 import {
@@ -600,7 +601,7 @@ async function interpretHmpb(
  * already RGBA, or converts from grayscale if needed. The summary ballot
  * interpreter assumes RGBA layout for pixel operations (crop, rotate, etc.).
  */
-function ensureRgba(image: ImageData): ImageData {
+function ensureRgba(image: ImageData): RgbaImageData {
   if (isRgba(image)) return image;
   // @coverage-defer
   return fromGrayScale(image.data, image.width, image.height);

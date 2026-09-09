@@ -1,12 +1,14 @@
 import { createCanvas } from '@napi-rs/canvas';
 import { Buffer } from 'node:buffer';
-import { CanvasGradient, CanvasPattern, ImageData } from 'canvas';
+import { CanvasGradient, CanvasPattern } from 'canvas';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
+import { GrayImageData, RgbaImageData } from '@votingworks/types';
+import { createImageData, toGrayScale } from './image_data';
 
 /**
  * A page of a PDF document.
  */
-export interface PdfPage {
+export interface PdfPage<ImageData = RgbaImageData> {
   readonly pageNumber: number;
   readonly pageCount: number;
   readonly page: ImageData;
@@ -15,6 +17,7 @@ export interface PdfPage {
 /** Options for {@link pdfToImages}. */
 export interface PdfToImagesOptions {
   background?: string | CanvasGradient | CanvasPattern;
+  color?: 'rgba' | 'gray';
 
   /** @default 1 */
   scale?: number;
@@ -24,17 +27,42 @@ export interface PdfToImagesOptions {
  * Renders PDF pages as images. This function consumes the data source, leaving
  * the caller with an empty `Uint8Array` when this function resolves. Be sure to
  * clone the data if you need it afterward.
- *
- * Rendering uses `@napi-rs/canvas` rather than `canvas` because that's the
- * canvas implementation pdfjs supports in Node.js — rendering to a
- * node-canvas context silently produces blank pages. The resulting pixels are
- * returned as node-canvas `ImageData` to match the rest of this library.
+ */
+export function pdfToImages(
+  pdfBytes: Uint8Array,
+  opts: PdfToImagesOptions & { color: 'rgba' }
+): AsyncIterable<PdfPage<RgbaImageData>>;
+
+/**
+ * Renders PDF pages as images. This function consumes the data source, leaving
+ * the caller with an empty `Uint8Array` when this function resolves. Be sure to
+ * clone the data if you need it afterward.
+ */
+export function pdfToImages(
+  pdfBytes: Uint8Array,
+  opts: PdfToImagesOptions & { color: 'gray' }
+): AsyncIterable<PdfPage<GrayImageData>>;
+
+/**
+ * Renders PDF pages as images. This function consumes the data source, leaving
+ * the caller with an empty `Uint8Array` when this function resolves. Be sure to
+ * clone the data if you need it afterward.
+ */
+export function pdfToImages(
+  pdfBytes: Uint8Array,
+  opts?: PdfToImagesOptions
+): AsyncIterable<PdfPage>;
+
+/**
+ * Renders PDF pages as images. This function consumes the data source, leaving
+ * the caller with an empty `Uint8Array` when this function resolves. Be sure to
+ * clone the data if you need it afterward.
  */
 export async function* pdfToImages(
   pdfBytes: Uint8Array,
   opts: PdfToImagesOptions = {}
-): AsyncIterable<PdfPage> {
-  const { background, scale = 1 } = opts;
+): AsyncIterable<PdfPage<RgbaImageData | GrayImageData>> {
+  const { background, color, scale = 1 } = opts;
   const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
   const canvas = createCanvas(0, 0);
   const context = canvas.getContext('2d');
@@ -78,7 +106,10 @@ export async function* pdfToImages(
     yield {
       pageCount: pdf.numPages,
       pageNumber: i,
-      page: new ImageData(data, width, height),
+      page:
+        color === 'gray'
+          ? toGrayScale(data, width, height)
+          : createImageData(data, width, height),
     };
   }
 }

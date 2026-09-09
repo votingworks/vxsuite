@@ -1,5 +1,6 @@
 import { Optional, assert, err, iter, ok, sleep } from '@votingworks/basics';
-import { ImageData, writeImageData } from '@votingworks/image-utils';
+import { writeImageData } from '@votingworks/image-utils';
+import { RgbaImageData } from '@votingworks/types';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { Buffer } from 'node:buffer';
 import {
@@ -168,7 +169,7 @@ export class MockFileFujitsuPrinter implements FujitsuThermalPrinterInterface {
   }
 
   // @coverage-defer
-  async printImageData(imageData: ImageData): Promise<PrintResult> {
+  async printImageData(imageData: RgbaImageData): Promise<PrintResult> {
     return this.mockPrintJob((filename) =>
       writeImageData(`${filename}.png`, imageData)
     );

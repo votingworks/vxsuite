@@ -11,7 +11,9 @@ import {
   BallotPageLayout,
   BallotStyleId,
   BallotType,
+  ImageData,
   PageInterpretationWithFiles,
+  RgbaImageData,
   SheetOf,
   TEST_JURISDICTION,
   VotesDict,
@@ -401,8 +403,13 @@ function addHmpbSheet(
 }
 
 test('extracts HMPB write-ins as image entries', async () => {
+  const mockImage: ImageData = {
+    width: 850,
+    height: 1100,
+    data: new Uint8ClampedArray(0),
+  };
   vi.mocked(loadImageData).mockResolvedValueOnce(
-    ok({ width: 850, height: 1100, data: new Uint8ClampedArray(0) })
+    ok(mockImage as RgbaImageData)
   );
 
   const store = createStore();

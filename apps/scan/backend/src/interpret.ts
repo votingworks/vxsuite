@@ -6,11 +6,11 @@ import {
 import { ok, Result } from '@votingworks/basics';
 import {
   mapSheet,
+  ImageData,
   SheetInterpretationWithPages,
   SheetOf,
 } from '@votingworks/types';
 import { time } from '@votingworks/utils';
-import { ImageData } from 'canvas';
 import { rootDebug } from './util/debug.js';
 
 export async function interpret(
