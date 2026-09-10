@@ -345,12 +345,23 @@ need to do so.
 
 When writing a new feature, consider Rust if:
 
-- it's performance-critical.
+- it's performance-critical or operates over a lot of data/many elements.
 - there is better tooling (i.e. crates) for it than in TypeScript.
 - it is not a web app (though it can be a library used by a web app).
 
-It's likely that most new code should be TypeScript at this point, but there are
-good reasons to choose Rust. If you're not sure, ask in the
+You should be careful to avoid serializing large amounts of data over the
+bridge, i.e. data that must be marshalled to JSON and back. Passing typed arrays
+like `Uint8Array` and `Buffer` is zero-copy using `napi-rs` and is very fast.
+Passing file paths and reading from disk is another good way to help take JS out
+of the loop and avoid bridging costs.
+
+Rust is not magically faster—it just does less useless work. You can often bring
+your JS version close to a naive Rust port by similarly avoiding useless work on
+the JS side. If you need it to be faster still, Rust will let you do that more
+easily.
+
+Most new code should be TypeScript, but there are good reasons to choose Rust.
+If you're not sure, ask in the
 [#vxsuite-prodeng](https://votingworks.slack.com/archives/CEL6D3GAD) channel on
 Slack or ask in a
 [new issue](https://github.com/votingworks/vxsuite/issues/new).
