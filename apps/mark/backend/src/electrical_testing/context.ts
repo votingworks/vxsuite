@@ -1,5 +1,10 @@
 import { Card } from '@votingworks/auth';
-import { CardReaderErrorTracker, TaskController } from '@votingworks/backend';
+import {
+  BarcodeReaderErrorTracker,
+  CardReaderErrorTracker,
+  ExternalPrinterErrorTracker,
+  TaskController,
+} from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { Printer } from '@votingworks/printing';
@@ -10,7 +15,9 @@ import { Player as AudioPlayer } from '../audio/player.js';
 export interface ServerContext {
   audioPlayer?: AudioPlayer;
   card: Card;
+  barcodeReaderErrorTracker: BarcodeReaderErrorTracker;
   cardReaderErrorTracker: CardReaderErrorTracker;
+  externalPrinterErrorTracker: ExternalPrinterErrorTracker;
   cardTask: TaskController<void, string>;
   usbDriveTask: TaskController<void, string>;
   printerTask: TaskController<void, string>;
