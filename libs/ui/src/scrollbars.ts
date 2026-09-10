@@ -1,20 +1,20 @@
-import { DesktopPalette } from '@votingworks/ui';
 import { css } from 'styled-components';
+import { DesktopPalette } from './themes/make_theme.js';
 
 const colorBg = 'transparent';
 const colorThumb = DesktopPalette.Gray10;
 const colorThumbHover = DesktopPalette.Gray40;
-const thicknessRem = 0.45;
+export const SCROLLBAR_THICKNESS_REM = 0.45;
 
 export const cssThemedScrollbars = css`
   scrollbar-track-color: ${colorBg};
   scrollbar-color: ${colorThumb};
-  scrollbar-width: ${thicknessRem}rem;
+  scrollbar-width: ${SCROLLBAR_THICKNESS_REM}rem;
   scroll-behavior: smooth;
 
   ::-webkit-scrollbar {
-    height: ${thicknessRem}rem;
-    width: ${thicknessRem}rem;
+    height: ${SCROLLBAR_THICKNESS_REM}rem;
+    width: ${SCROLLBAR_THICKNESS_REM}rem;
   }
 
   ::-webkit-scrollbar-track {
