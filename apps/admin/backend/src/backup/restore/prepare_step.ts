@@ -1,13 +1,14 @@
-import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir } from 'node:fs/promises';
 import { err, iter, ok, Result } from '@votingworks/basics';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
 import { Logger, LogEventId } from '@votingworks/logging';
 import {
+  clearRestoreState,
   emptyWorkspaceData,
-  getRestoreInProgressMarkerPath,
+  getRestoreState,
   getWorkspaceControlPath,
-  hasInterruptedRestore,
   openWorkspaceStoreIfPresent,
+  setRestoreState,
 } from '../../util/workspace.js';
 import { BackupManifest } from '../backup_manifest.js';
 import { checkWorkspaceIsHostMode } from '../host_mode.js';
@@ -17,8 +18,8 @@ const DEFAULT_MIN_AVAILABLE_STORAGE_BYTES = 50_000_000; // 50 MB
 
 /**
  * Checks that the workspace is one a restore may take over: a host machine's,
- * and either unconfigured or left behind by an interrupted restore (per the
- * marker), in which case the restore is what recovers it. A workspace with no
+ * and either unconfigured or left behind by an interrupted restore (per its
+ * restore state), in which case the restore is what recovers it. A workspace with no
  * database yet is unconfigured; one with a database is asked, and left as it
  * was.
  */
@@ -31,7 +32,7 @@ export async function checkWorkspaceIsRestorable(
     return hostModeResult;
   }
 
-  if (hasInterruptedRestore(workspacePath)) {
+  if (getRestoreState(workspacePath) === 'running') {
     await logger.logAsCurrentRole(LogEventId.BackupRestoreInterrupted, {
       message:
         'Restoring over a workspace an earlier restore left unfinished; ' +
@@ -84,12 +85,12 @@ export async function checkWorkspaceHasSufficientSpace({
 
 /**
  * Takes ownership of the workspace: empties its data so the restore starts from
- * a clean slate, and drops the in-progress marker.
+ * a clean slate, and marks the restore as running.
  */
 export async function claimWorkspace(workspacePath: string): Promise<void> {
   await emptyWorkspaceData(workspacePath);
   await mkdir(getWorkspaceControlPath(workspacePath), { recursive: true });
-  await writeFile(getRestoreInProgressMarkerPath(workspacePath), '');
+  setRestoreState(workspacePath, 'running');
 }
 
 /**
@@ -103,8 +104,8 @@ export async function abandonFailedRestore(
 }
 
 /**
- * Removes the in-progress marker, declaring the restore complete.
+ * Clears the workspace's restore state, declaring the restore complete.
  */
-export async function completeRestore(workspacePath: string): Promise<void> {
-  await rm(getRestoreInProgressMarkerPath(workspacePath), { force: true });
+export function completeRestore(workspacePath: string): void {
+  clearRestoreState(workspacePath);
 }

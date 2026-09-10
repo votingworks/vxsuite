@@ -1,7 +1,15 @@
-import { existsSync, statSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { readdir, rm } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { ensureDirSync } from 'fs-extra';
+import { isNonExistentFileOrDirectoryError } from '@votingworks/basics';
 import { getDiskSpaceSummaries, getNodeEnv } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import { BaseLogger, LogEventId } from '@votingworks/logging';
@@ -30,36 +38,73 @@ export function getWorkspaceControlPath(workspacePath: string): string {
 }
 
 /**
- * Dropped into a workspace's control directory while a restore is running and
- * removed only once it succeeds. Its presence afterwards means a restore was
- * interrupted partway through, so the workspace's data is nothing worth
- * keeping.
+ * Workspace restore state information stored outside the db. `scheduled` means
+ * the next boot should start in restore mode. `running` is written while a
+ * restore is running, so finding it in a workspace on startup means the
+ * workspace is from a failed restore and can be cleaned up.
  */
-export const RESTORE_IN_PROGRESS_MARKER_FILENAME = 'restore-in-progress';
+export type RestoreState = 'scheduled' | 'running';
+
+const RESTORE_STATE_FILENAME = 'restore_state';
 
 /**
- * Path of the marker described by {@link RESTORE_IN_PROGRESS_MARKER_FILENAME}.
+ * Path of the file holding the workspace's {@link RestoreState}.
  */
-export function getRestoreInProgressMarkerPath(workspacePath: string): string {
-  return join(
-    getWorkspaceControlPath(workspacePath),
-    RESTORE_IN_PROGRESS_MARKER_FILENAME
-  );
+export function getRestoreStatePath(workspacePath: string): string {
+  return join(getWorkspaceControlPath(workspacePath), RESTORE_STATE_FILENAME);
 }
 
 /**
- * Whether a restore was interrupted, implying the workspace data is incomplete.
+ * Returns the workspace's {@link RestoreState}, or `undefined` if it has none.
  */
-export function hasInterruptedRestore(workspacePath: string): boolean {
-  return existsSync(getRestoreInProgressMarkerPath(workspacePath));
+export function getRestoreState(
+  workspacePath: string
+): RestoreState | undefined {
+  let contents: string;
+  try {
+    contents = readFileSync(getRestoreStatePath(workspacePath), 'utf-8');
+  } catch (error) {
+    if (isNonExistentFileOrDirectoryError(error)) {
+      return undefined;
+    }
+    throw error;
+  }
+
+  switch (contents.trim()) {
+    case 'scheduled':
+      return 'scheduled';
+    case 'running':
+      return 'running';
+    default:
+      return undefined;
+  }
+}
+
+/**
+ * Sets the workspace's {@link RestoreState}.
+ */
+export function setRestoreState(
+  workspacePath: string,
+  state: RestoreState
+): void {
+  const path = getRestoreStatePath(workspacePath);
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, state, 'utf-8');
+}
+
+/**
+ * Leaves the workspace with no {@link RestoreState}.
+ */
+export function clearRestoreState(workspacePath: string): void {
+  rmSync(getRestoreStatePath(workspacePath), { force: true });
 }
 
 /**
  * Empties a workspace of its data, i.e. everything but the control directory,
- * and takes the restore-in-progress marker off, since empty data is not
- * half-restored data. What remains is an unconfigured workspace that has kept
- * its settings. Used to clear a workspace before a restore fills it and to
- * discard what a failed or interrupted restore left behind.
+ * and clears its restore state, since empty data is not half-restored data.
+ * What remains is an unconfigured workspace that has kept its settings. Used to
+ * clear a workspace before a restore fills it and to discard what a failed or
+ * interrupted restore left behind.
  */
 export async function emptyWorkspaceData(workspacePath: string): Promise<void> {
   const resolvedPath = resolve(workspacePath);
@@ -72,8 +117,8 @@ export async function emptyWorkspaceData(workspacePath: string): Promise<void> {
       )
   );
 
-  // Last, so the marker never comes off while anything it describes remains.
-  await rm(getRestoreInProgressMarkerPath(workspacePath), { force: true });
+  // Last, so the state never comes off while anything it describes remains.
+  clearRestoreState(workspacePath);
 }
 
 /**

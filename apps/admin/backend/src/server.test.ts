@@ -26,14 +26,13 @@ import { createMockPrinterHandler } from '@votingworks/printing';
 import * as grout from '@votingworks/grout';
 import { start } from './server.js';
 import { FileBackedMachineModeController } from './machine_mode.js';
-import { FileBackedBootIntentController } from './boot_intent.js';
 import type { RestoreApi } from './restore_app.js';
 import {
   ADMIN_WORKSPACE_DATABASE_NAME,
   createWorkspace,
-  getRestoreInProgressMarkerPath,
+  getRestoreState,
   getWorkspaceControlPath,
-  hasInterruptedRestore,
+  setRestoreState,
 } from './util/workspace.js';
 import { importCastVoteRecords } from './cast_vote_records.js';
 import { startHostNetworking, startClientNetworking } from './networking.js';
@@ -156,7 +155,7 @@ test('discards a workspace an interrupted restore left behind', async () => {
   // Writing the mode creates the control directory, whose files are settings
   // rather than half-restored data and so must survive the discard.
   FileBackedMachineModeController.forWorkspace(workspacePath).set('host');
-  writeFileSync(getRestoreInProgressMarkerPath(workspacePath), '');
+  setRestoreState(workspacePath, 'running');
   writeFileSync(join(workspacePath, 'half-copied-file'), 'partial');
 
   const startedServer = await start({ logger, workspacePath });
@@ -167,7 +166,7 @@ test('discards a workspace an interrupted restore left behind', async () => {
     { message: expect.stringContaining(workspacePath) }
   );
   expect(readdirSync(workspacePath)).not.toContain('half-copied-file');
-  expect(hasInterruptedRestore(workspacePath)).toEqual(false);
+  expect(getRestoreState(workspacePath)).toBeUndefined();
   expect(
     existsSync(join(getWorkspaceControlPath(workspacePath), 'machine_mode'))
   ).toEqual(true);
@@ -402,7 +401,7 @@ test('starts in restore mode when the last boot asked for it, and only then', as
   );
   const usbPlatform = new SimulatedUsbPlatform(makeTemporaryDirectory());
   const multiUsbDrive = detectMultiUsbDrive({ logger, platform: usbPlatform });
-  FileBackedBootIntentController.forWorkspace(workspacePath).request('restore');
+  setRestoreState(workspacePath, 'scheduled');
 
   server = await suppressingConsoleOutput(() =>
     start({ logger, workspacePath, multiUsbDrive, port: 0 })
@@ -419,10 +418,8 @@ test('starts in restore mode when the last boot asked for it, and only then', as
     { message: expect.stringContaining(workspacePath) }
   );
 
-  // Spent by the taking: the next boot is an ordinary one.
-  expect(
-    FileBackedBootIntentController.forWorkspace(workspacePath).take()
-  ).toBeUndefined();
+  // Spent by the reading: the next boot is an ordinary one.
+  expect(getRestoreState(workspacePath)).toBeUndefined();
 
   // Restore mode serves no workspace: it opened no database.
   expect(
@@ -437,7 +434,7 @@ test('ignores a request for restore mode when backup and restore are not enabled
   const usbPlatform = new SimulatedUsbPlatform(makeTemporaryDirectory());
   const multiUsbDrive = detectMultiUsbDrive({ logger, platform: usbPlatform });
   const { printer } = createMockPrinterHandler();
-  FileBackedBootIntentController.forWorkspace(workspacePath).request('restore');
+  setRestoreState(workspacePath, 'scheduled');
 
   server = await suppressingConsoleOutput(() =>
     start({ logger, workspacePath, multiUsbDrive, printer, port: 0 })
@@ -461,7 +458,5 @@ test('ignores a request for restore mode when backup and restore are not enabled
   expect(
     existsSync(join(workspacePath, ADMIN_WORKSPACE_DATABASE_NAME))
   ).toEqual(true);
-  expect(
-    FileBackedBootIntentController.forWorkspace(workspacePath).take()
-  ).toBeUndefined();
+  expect(getRestoreState(workspacePath)).toBeUndefined();
 });

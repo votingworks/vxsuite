@@ -35,7 +35,8 @@ import {
   createWorkspace,
   createClientWorkspace,
   emptyWorkspaceData,
-  hasInterruptedRestore,
+  clearRestoreState,
+  getRestoreState,
   resolveWorkspacePath,
 } from './util/workspace.js';
 import { buildApp } from './app.js';
@@ -52,10 +53,6 @@ import {
   FileBackedMachineModeController,
   MachineModeController,
 } from './machine_mode.js';
-import {
-  BootIntentController,
-  FileBackedBootIntentController,
-} from './boot_intent.js';
 
 const debug = rootDebug.extend('server');
 
@@ -115,7 +112,6 @@ export interface StartOptions {
   multiUsbDrive?: MultiUsbDrive;
   printer?: Printer;
   machineMode?: MachineModeController;
-  bootIntent?: BootIntentController;
 }
 
 /**
@@ -135,28 +131,15 @@ export async function start(options: StartOptions = {}): Promise<Server> {
   const workspacePath =
     options.workspacePath ?? resolveWorkspacePath(baseLogger);
 
-  const bootIntent =
-    options.bootIntent ??
-    FileBackedBootIntentController.forWorkspace(workspacePath);
   const machineMode =
     options.machineMode ??
     FileBackedMachineModeController.forWorkspace(workspacePath);
-  const intent = bootIntent.take();
+  const restoreState = getRestoreState(workspacePath);
   const isRestoreEnabled = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE
   );
-  if (intent === 'restore' && !isRestoreEnabled) {
-    baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
-      message:
-        'Restore mode was asked for on the last boot, but backup and restore ' +
-        'are not enabled; starting normally.',
-      disposition: 'failure',
-    });
-  }
-  const appMode: AppMode =
-    intent === 'restore' && isRestoreEnabled ? 'restore' : machineMode.get();
 
-  if (hasInterruptedRestore(workspacePath)) {
+  if (restoreState === 'running') {
     await emptyWorkspaceData(workspacePath);
     baseLogger.log(LogEventId.BackupRestoreInterrupted, 'system', {
       message:
@@ -164,6 +147,24 @@ export async function start(options: StartOptions = {}): Promise<Server> {
         `discarded what it left behind and starting unconfigured.`,
     });
   }
+
+  if (restoreState === 'scheduled') {
+    clearRestoreState(workspacePath);
+
+    if (!isRestoreEnabled) {
+      baseLogger.log(LogEventId.WorkspaceConfigurationMessage, 'system', {
+        message:
+          'Restore mode was asked for on the last boot, but backup and ' +
+          'restore are not enabled; starting normally.',
+        disposition: 'failure',
+      });
+    }
+  }
+
+  const appMode: AppMode =
+    restoreState === 'scheduled' && isRestoreEnabled
+      ? 'restore'
+      : machineMode.get();
 
   let app;
 
@@ -222,7 +223,6 @@ export async function start(options: StartOptions = {}): Promise<Server> {
         printer,
         workspace,
         machineMode,
-        bootIntent,
       });
 
       // Log election results data check at startup

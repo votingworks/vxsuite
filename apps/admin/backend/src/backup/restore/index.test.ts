@@ -41,7 +41,8 @@ import {
   ADMIN_WORKSPACE_DATABASE_NAME,
   createWorkspace,
   openWorkspace,
-  getRestoreInProgressMarkerPath,
+  getRestoreStatePath,
+  setRestoreState,
   WORKSPACE_CONTROL_DIRECTORY_NAME,
 } from '../../util/workspace.js';
 import { createBackup } from '../create/index.js';
@@ -952,9 +953,9 @@ test('an interrupted restore can be recovered by restoring again', async () => {
   ).toEqual(ok());
 
   // Simulate a crash after the database was copied but before the restore
-  // finished: the workspace looks configured, but the marker is still there.
-  const markerPath = getRestoreInProgressMarkerPath(workspacePath);
-  await writeFile(markerPath, '');
+  // finished: the workspace looks configured, but it is still marked running.
+  const restoreStatePath = getRestoreStatePath(workspacePath);
+  setRestoreState(workspacePath, 'running');
 
   // The configured election is half-restored debris, not data to protect, so
   // this must restore rather than refuse — refusing would leave the operator
@@ -975,7 +976,7 @@ test('an interrupted restore can be recovered by restoring again', async () => {
     })
   );
 
-  await expect(exists(markerPath)).resolves.toBeFalsy();
+  await expect(exists(restoreStatePath)).resolves.toBeFalsy();
   using workspace = openWorkspace(
     workspacePath,
     mockLogger({ fn: vi.fn, role: 'system_administrator' })

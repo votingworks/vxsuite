@@ -127,7 +127,7 @@ async function tryRestoreBackup(
       return verifyResult;
     }
 
-    // Flushed before the marker comes off: removing the marker declares the
+    // Flushed before the restore state is cleared: clearing it declares the
     // restore complete, which must not happen while the restored files live
     // only in the page cache.
     onProgressEvent?.({ type: 'flushing_workspace' });
@@ -136,7 +136,7 @@ async function tryRestoreBackup(
     return flushResult;
   } finally {
     if (succeeded) {
-      await completeRestore(workspacePath);
+      completeRestore(workspacePath);
     } else {
       await abandonFailedRestore(workspacePath);
     }

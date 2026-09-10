@@ -1,5 +1,5 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import { mkdirSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
@@ -7,10 +7,12 @@ import {
   createWorkspace,
   createClientWorkspace,
   emptyWorkspaceData,
-  getRestoreInProgressMarkerPath,
+  clearRestoreState,
+  getRestoreState,
+  getRestoreStatePath,
   getWorkspaceControlPath,
-  hasInterruptedRestore,
   openWorkspaceStoreIfPresent,
+  setRestoreState,
   WORKSPACE_CONTROL_DIRECTORY_NAME,
 } from './workspace.js';
 import { Store } from '../store.js';
@@ -57,7 +59,7 @@ test('createClientWorkspace', async () => {
   );
 });
 
-test('emptying a workspace removes its data and marker but keeps its control files', async () => {
+test('emptying a workspace removes its data and restore state but keeps its control files', async () => {
   const dir = makeTemporaryDirectory();
   {
     using workspace = createWorkspace(dir, mockBaseLogger({ fn: vi.fn }));
@@ -66,13 +68,65 @@ test('emptying a workspace removes its data and marker but keeps its control fil
   }
   mkdirSync(getWorkspaceControlPath(dir));
   writeFileSync(join(getWorkspaceControlPath(dir), 'machine_mode'), 'client');
-  writeFileSync(getRestoreInProgressMarkerPath(dir), '');
+  setRestoreState(dir, 'running');
 
   await emptyWorkspaceData(dir);
 
   expect(readdirSync(dir)).toEqual([WORKSPACE_CONTROL_DIRECTORY_NAME]);
   expect(readdirSync(getWorkspaceControlPath(dir))).toEqual(['machine_mode']);
-  expect(hasInterruptedRestore(dir)).toEqual(false);
+  expect(getRestoreState(dir)).toBeUndefined();
+});
+
+test('a workspace has no restore state until one is set', () => {
+  const dir = makeTemporaryDirectory();
+  expect(getRestoreState(dir)).toBeUndefined();
+});
+
+test.each(['scheduled', 'running'] as const)(
+  'restore state round-trips through the control directory: %s',
+  (state) => {
+    const dir = makeTemporaryDirectory();
+
+    setRestoreState(dir, state);
+
+    expect(getRestoreState(dir)).toEqual(state);
+    expect(readdirSync(getWorkspaceControlPath(dir))).toEqual([
+      'restore_state',
+    ]);
+  }
+);
+
+test('clearing restore state takes the file away', () => {
+  const dir = makeTemporaryDirectory();
+  setRestoreState(dir, 'running');
+
+  clearRestoreState(dir);
+
+  expect(getRestoreState(dir)).toBeUndefined();
+  expect(existsSync(getRestoreStatePath(dir))).toEqual(false);
+});
+
+test('surrounding whitespace does not change a restore state', () => {
+  const dir = makeTemporaryDirectory();
+  mkdirSync(getWorkspaceControlPath(dir));
+  writeFileSync(getRestoreStatePath(dir), '  scheduled\n');
+
+  expect(getRestoreState(dir)).toEqual('scheduled');
+});
+
+test('contents that are not a restore state mean none', () => {
+  const dir = makeTemporaryDirectory();
+  mkdirSync(getWorkspaceControlPath(dir));
+  writeFileSync(getRestoreStatePath(dir), 'reboot');
+
+  expect(getRestoreState(dir)).toBeUndefined();
+});
+
+test('reading restore state fails if the file is there but cannot be read', () => {
+  const dir = makeTemporaryDirectory();
+  mkdirSync(getRestoreStatePath(dir), { recursive: true });
+
+  expect(() => getRestoreState(dir)).toThrow();
 });
 
 test('emptying a workspace that has no control directory leaves it empty', async () => {

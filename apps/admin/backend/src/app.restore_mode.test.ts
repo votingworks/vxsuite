@@ -11,6 +11,7 @@ import {
   configureMachine,
   mockSystemAdministratorAuth,
 } from '../test/app.js';
+import { getRestoreState } from './util/workspace.js';
 
 vi.setConfig({ testTimeout: 30_000 });
 
@@ -41,11 +42,11 @@ test('a host describes itself as one', async () => {
 });
 
 test('scheduling restore mode asks the next boot to start there', async () => {
-  const { apiClient, bootIntentController, logger } = env;
+  const { apiClient, logger, workspace } = env;
 
   await apiClient.scheduleRestoreMode();
 
-  expect(bootIntentController.take()).toEqual('restore');
+  expect(getRestoreState(workspace.path)).toEqual('scheduled');
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.AdminRestoreModeScheduled,
     'system_administrator',
@@ -54,7 +55,7 @@ test('scheduling restore mode asks the next boot to start there', async () => {
 });
 
 test('restore mode cannot be scheduled while an election is configured', async () => {
-  const { apiClient, auth, bootIntentController } = env;
+  const { apiClient, auth, workspace } = env;
   await configureMachine(apiClient, auth, readElectionGeneralDefinition());
 
   await suppressingConsoleOutput(() =>
@@ -62,11 +63,11 @@ test('restore mode cannot be scheduled while an election is configured', async (
       'Cannot restore while an election is configured.'
     )
   );
-  expect(bootIntentController.take()).toBeUndefined();
+  expect(getRestoreState(workspace.path)).toBeUndefined();
 });
 
 test('restore mode cannot be scheduled from a client', async () => {
-  const { apiClient, bootIntentController } = env;
+  const { apiClient, workspace } = env;
   await apiClient.setMachineMode({ mode: 'client' });
 
   await suppressingConsoleOutput(() =>
@@ -74,11 +75,11 @@ test('restore mode cannot be scheduled from a client', async () => {
       'Only a host can be restored.'
     )
   );
-  expect(bootIntentController.take()).toBeUndefined();
+  expect(getRestoreState(workspace.path)).toBeUndefined();
 });
 
 test('restore mode cannot be scheduled unless backup and restore are enabled', async () => {
-  const { apiClient, bootIntentController } = env;
+  const { apiClient, workspace } = env;
   featureFlagMock.resetFeatureFlags();
 
   await suppressingConsoleOutput(() =>
@@ -86,5 +87,5 @@ test('restore mode cannot be scheduled unless backup and restore are enabled', a
       'Backup and restore are not enabled.'
     )
   );
-  expect(bootIntentController.take()).toBeUndefined();
+  expect(getRestoreState(workspace.path)).toBeUndefined();
 });
