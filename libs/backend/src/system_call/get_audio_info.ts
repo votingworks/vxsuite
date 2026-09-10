@@ -1,8 +1,8 @@
 import { LogEventId, Logger } from '@votingworks/logging';
 import { isIntegrationTest } from '@votingworks/utils';
 import { z } from 'zod/v4';
-import { execFile } from '../exec';
-import { type NODE_ENV } from '../globals';
+import { execFile } from '../exec.js';
+import { type NODE_ENV } from '../globals.js';
 
 /** System audio info. */
 export interface AudioInfo {

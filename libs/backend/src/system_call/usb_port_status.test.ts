@@ -1,8 +1,8 @@
 import { beforeEach, expect, test, vi, Mock } from 'vitest';
 
 import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
-import { execFile } from '../exec';
-import { getUsbPortStatus, toggleUsbPorts } from './usb_port_status';
+import { execFile } from '../exec.js';
+import { getUsbPortStatus, toggleUsbPorts } from './usb_port_status.js';
 
 vi.mock(import('../exec.js'));
 

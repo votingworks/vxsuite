@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { usb } from 'usb';
-import { isDeviceAttached } from './is_device_attached';
+import { isDeviceAttached } from './is_device_attached.js';
 
 vi.mock(import('usb'), async (importActual): Promise<typeof import('usb')> => {
   const actual = await importActual();

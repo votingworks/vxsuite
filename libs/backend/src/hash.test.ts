@@ -6,7 +6,7 @@ import { pipeline } from 'node:stream/promises';
 import { makeTemporaryFile } from '@votingworks/fixtures';
 import { createWriteStream, readFileSync, WriteStream } from 'node:fs';
 import { buffer } from 'node:stream/consumers';
-import { HashingPassthrough } from './hash';
+import { HashingPassthrough } from './hash.js';
 
 test('HashingPassthrough - matches regular hasher output', async () => {
   const phrase = Buffer.of(0xca, 0xfe);
