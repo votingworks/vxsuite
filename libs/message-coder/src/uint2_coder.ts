@@ -1,7 +1,7 @@
 import { Result, err, ok, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { BaseCoder } from './base_coder';
-import { BITS_PER_BYTE, toByteOffset } from './bits';
+import { BaseCoder } from './base_coder.js';
+import { BITS_PER_BYTE, toByteOffset } from './bits.js';
 import {
   BitLength,
   BitOffset,
@@ -10,8 +10,8 @@ import {
   DecodeResult,
   EncodeResult,
   Uint2,
-} from './types';
-import { defaultEnumValue, validateEnumValue } from './uint_coder';
+} from './types.js';
+import { defaultEnumValue, validateEnumValue } from './uint_coder.js';
 
 /**
  * Coder for a uint2, aka a 2-bit unsigned integer.
