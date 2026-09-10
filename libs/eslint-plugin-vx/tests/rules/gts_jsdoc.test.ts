@@ -62,6 +62,18 @@ ruleTester.run('gts-jsdoc', rule, {
       const two = 2;
       export { one as ONE, two as TWO };
     `,
+    `
+      import { UsbPortAction } from './usb_port_status.js';
+      export type { UsbPortAction } from './usb_port_status.js';
+    `,
+    `
+      import { UsbPortAction } from './usb_port_status.js';
+      export { UsbPortAction };
+    `,
+    `
+      const one = 1;
+      export { one } from './usb_port_status.js';
+    `,
   ],
   invalid: [
     {
