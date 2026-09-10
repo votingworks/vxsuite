@@ -87,6 +87,10 @@ const rule: TSESLint.RuleModule<
         // @coverage-defer
         if (variable) {
           for (const def of variable.defs) {
+            if (def.type === TSESLint.Scope.DefinitionType.ImportBinding) {
+              continue;
+            }
+
             checkHasJsDoc(def.node);
           }
         }
@@ -110,7 +114,7 @@ const rule: TSESLint.RuleModule<
           }
         } else if (node.declaration) {
           checkHasJsDoc(node.declaration);
-        } else {
+        } else if (!node.source) {
           for (const specifier of node.specifiers) {
             checkHasJsDoc(specifier.local);
           }
