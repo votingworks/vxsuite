@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, test } from 'vitest';
 import {
   makeTemporaryDirectory,
@@ -7,6 +8,7 @@ import {
 } from '@votingworks/fixtures';
 import { FileBackedMachineModeController } from './machine_mode.js';
 import { MachineMode } from './types.js';
+import { getWorkspaceControlPath } from './util/workspace.js';
 
 describe('FileBackedMachineModeController::get', () => {
   test('returns host when no mode file exists', () => {
@@ -84,5 +86,26 @@ describe('FileBackedMachineModeController::set', () => {
     const controller = new FileBackedMachineModeController(filePath);
     controller.set('#!/usr/bin/env bash\nreboot' as unknown as MachineMode);
     expect(readFileSync(filePath, 'utf-8')).toEqual('host');
+  });
+});
+
+describe('FileBackedMachineModeController::forWorkspace', () => {
+  test('keeps the mode in the control directory, creating it as needed', () => {
+    const workspacePath = makeTemporaryDirectory();
+    const controller =
+      FileBackedMachineModeController.forWorkspace(workspacePath);
+    expect(controller.get()).toEqual('host');
+
+    controller.set('client');
+
+    expect(
+      readFileSync(
+        join(getWorkspaceControlPath(workspacePath), 'machine_mode'),
+        'utf-8'
+      )
+    ).toEqual('client');
+    expect(
+      FileBackedMachineModeController.forWorkspace(workspacePath).get()
+    ).toEqual('client');
   });
 });

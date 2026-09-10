@@ -34,6 +34,13 @@ export type { ExportDataResult, ExportDataError } from '@votingworks/backend';
 export type MachineMode = 'host' | 'client';
 
 /**
+ * What this VxAdmin process is running as: its machine mode, or restore mode
+ * for the one boot that asked for it. Restore mode serves no election data;
+ * it exists to restore a backup into a workspace nothing is using.
+ */
+export type AppMode = MachineMode | 'restore';
+
+/**
  * The role a machine plays on the network: a VxAdmin host or client, or a
  * networked central scanner.
  */

@@ -41,6 +41,8 @@ import { rm } from 'node:fs/promises';
 import { pipeline } from 'node:stream/promises';
 import path, { join, matchesGlob, normalize } from 'node:path';
 import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
   ELECTION_PACKAGE_FOLDER,
   generateElectionBasedSubfolderName,
   generateFilenameForElectionPackage,
@@ -90,13 +92,14 @@ import {
   CastVoteRecordVoteInfo,
   AdjudicatedCvr,
   AdjudicationError,
+  AppMode,
   MachineMode,
   MachineRecord,
   BallotAdjudicationQueueMetadata,
   BallotAdjudicationData,
   BallotImages,
 } from './types.js';
-import { Workspace } from './util/workspace.js';
+import { setRestoreState, Workspace } from './util/workspace.js';
 import { getMachineConfig } from './machine_config.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
 import { MachineModeController } from './machine_mode.js';
@@ -280,6 +283,10 @@ function buildApi({
   return grout.createApi({
     getMachineConfig,
 
+    getAppMode(): AppMode {
+      return 'host';
+    },
+
     getMachineMode(): MachineMode {
       return machineMode.get();
     },
@@ -304,6 +311,26 @@ function buildApi({
         message: `Machine mode changed to ${newMachineMode}.`,
         disposition: 'success',
         newMode: newMachineMode,
+      });
+    },
+
+    async scheduleRestoreMode(): Promise<void> {
+      assert(
+        isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE
+        ),
+        'Backup and restore are not enabled.'
+      );
+      assert(
+        store.getCurrentElectionId() === undefined,
+        'Cannot restore while an election is configured.'
+      );
+      assert(machineMode.get() === 'host', 'Only a host can be restored.');
+
+      setRestoreState(workspace.path, 'scheduled');
+      await logger.logAsCurrentRole(LogEventId.AdminRestoreModeScheduled, {
+        message: 'Machine will start in restore mode on its next boot.',
+        disposition: 'success',
       });
     },
 

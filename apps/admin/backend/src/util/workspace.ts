@@ -1,6 +1,15 @@
-import { existsSync, statSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
+import { readdir, rm } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
 import { ensureDirSync } from 'fs-extra';
+import { isNonExistentFileOrDirectoryError } from '@votingworks/basics';
 import { getDiskSpaceSummaries, getNodeEnv } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import { BaseLogger, LogEventId } from '@votingworks/logging';
@@ -13,24 +22,103 @@ import { ClientStore } from '../client_store.js';
 export const ADMIN_WORKSPACE_DATABASE_NAME = 'data.db';
 
 /**
- * Dropped into a workspace while a restore is running and removed only once it
- * succeeds. Its presence afterwards means a restore was interrupted partway
- * through, so the workspace holds nothing worth keeping.
+ * Subdirectory of a workspace for the files that describe the machine rather
+ * than hold its data: which mode it is in, whether a restore is underway. Kept
+ * apart from the data so that emptying the data, which a restore does and
+ * which recovering from an interrupted one does, leaves them alone. See
+ * {@link emptyWorkspaceData}.
  */
-export const RESTORE_IN_PROGRESS_MARKER_FILENAME = 'restore-in-progress';
+export const WORKSPACE_CONTROL_DIRECTORY_NAME = 'control';
 
 /**
- * Path of the marker described by {@link RESTORE_IN_PROGRESS_MARKER_FILENAME}.
+ * Path of the directory described by {@link WORKSPACE_CONTROL_DIRECTORY_NAME}.
  */
-export function getRestoreInProgressMarkerPath(workspacePath: string): string {
-  return join(resolve(workspacePath), RESTORE_IN_PROGRESS_MARKER_FILENAME);
+export function getWorkspaceControlPath(workspacePath: string): string {
+  return join(resolve(workspacePath), WORKSPACE_CONTROL_DIRECTORY_NAME);
 }
 
 /**
- * Whether a restore was interrupted, implying the workspace data is incomplete.
+ * Workspace restore state information stored outside the db. `scheduled` means
+ * the next boot should start in restore mode. `running` is written while a
+ * restore is running, so finding it in a workspace on startup means the
+ * workspace is from a failed restore and can be cleaned up.
  */
-export function hasInterruptedRestore(workspacePath: string): boolean {
-  return existsSync(getRestoreInProgressMarkerPath(workspacePath));
+export type RestoreState = 'scheduled' | 'running';
+
+const RESTORE_STATE_FILENAME = 'restore_state';
+
+/**
+ * Path of the file holding the workspace's {@link RestoreState}.
+ */
+export function getRestoreStatePath(workspacePath: string): string {
+  return join(getWorkspaceControlPath(workspacePath), RESTORE_STATE_FILENAME);
+}
+
+/**
+ * Returns the workspace's {@link RestoreState}, or `undefined` if it has none.
+ */
+export function getRestoreState(
+  workspacePath: string
+): RestoreState | undefined {
+  let contents: string;
+  try {
+    contents = readFileSync(getRestoreStatePath(workspacePath), 'utf-8');
+  } catch (error) {
+    if (isNonExistentFileOrDirectoryError(error)) {
+      return undefined;
+    }
+    throw error;
+  }
+
+  switch (contents.trim()) {
+    case 'scheduled':
+      return 'scheduled';
+    case 'running':
+      return 'running';
+    default:
+      return undefined;
+  }
+}
+
+/**
+ * Sets the workspace's {@link RestoreState}.
+ */
+export function setRestoreState(
+  workspacePath: string,
+  state: RestoreState
+): void {
+  const path = getRestoreStatePath(workspacePath);
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, state, 'utf-8');
+}
+
+/**
+ * Leaves the workspace with no {@link RestoreState}.
+ */
+export function clearRestoreState(workspacePath: string): void {
+  rmSync(getRestoreStatePath(workspacePath), { force: true });
+}
+
+/**
+ * Empties a workspace of its data, i.e. everything but the control directory,
+ * and clears its restore state, since empty data is not half-restored data.
+ * What remains is an unconfigured workspace that has kept its settings. Used to
+ * clear a workspace before a restore fills it and to discard what a failed or
+ * interrupted restore left behind.
+ */
+export async function emptyWorkspaceData(workspacePath: string): Promise<void> {
+  const resolvedPath = resolve(workspacePath);
+  const entries = await readdir(resolvedPath);
+  await Promise.all(
+    entries
+      .filter((entry) => entry !== WORKSPACE_CONTROL_DIRECTORY_NAME)
+      .map((entry) =>
+        rm(join(resolvedPath, entry), { recursive: true, force: true })
+      )
+  );
+
+  // Last, so the state never comes off while anything it describes remains.
+  clearRestoreState(workspacePath);
 }
 
 /**
@@ -132,6 +220,28 @@ export function openWorkspace(root: string, logger: BaseLogger): Workspace {
       store.close();
     },
   };
+}
+
+/**
+ * Opens a workspace's store if the workspace has a database, and creates nothing
+ * where there is none: for looking at what a workspace holds while leaving it
+ * as it is.
+ */
+export function openWorkspaceStoreIfPresent(
+  root: string,
+  logger: BaseLogger
+): Store | undefined {
+  const paths = workspacePaths(root);
+  if (!existsSync(paths.db)) {
+    return undefined;
+  }
+
+  return Store.fileStore(
+    paths.db,
+    paths.ballotImages,
+    paths.electionPackages,
+    logger
+  );
 }
 
 /**

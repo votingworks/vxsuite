@@ -32,6 +32,7 @@ import {
   detectMultiUsbDrive,
   SimulatedUsbPlatform,
   UsbDiskDevPathSchema,
+  UsbDriveFilesystemType,
   UsbDriveStatus,
 } from '@votingworks/usb-drive';
 import { writeFileSync } from 'node:fs';
@@ -163,17 +164,19 @@ export function buildMockLogger(
 export const devsdb = UsbDiskDevPathSchema.parse('/dev/sdb');
 
 /**
- * Creates a FAT32 mock USB drive, attaches it, and waits until the app has
- * detected and auto-mounted it. Detection and mounting happen asynchronously
- * (via a file watcher on the {@link SimulatedUsbPlatform} state), so callers
- * must await this before exercising APIs that write to or read from the drive.
+ * Creates a mock USB drive (FAT32 by default, `ext4` for backup drives),
+ * attaches it, and waits until the app has detected and auto-mounted it.
+ * Detection and mounting happen asynchronously (via a file watcher on the
+ * {@link SimulatedUsbPlatform} state), so callers must await this before
+ * exercising APIs that write to or read from the drive.
  */
 export async function attachUsbDrive(
   apiClient: { getUsbDriveStatus: () => Promise<UsbDriveStatus> },
   usbPlatform: SimulatedUsbPlatform,
-  contents?: MockFileTree
+  contents?: MockFileTree,
+  fstype: UsbDriveFilesystemType = 'fat32'
 ): Promise<void> {
-  usbPlatform.createDrive({ diskPath: devsdb, fstype: 'fat32', contents });
+  usbPlatform.createDrive({ diskPath: devsdb, fstype, contents });
   usbPlatform.insertDrive(devsdb);
   await vi.waitFor(
     async () => {
