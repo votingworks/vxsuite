@@ -85,6 +85,8 @@ export * from './set_clock.js';
 export * from './smart_cards_screen.js';
 export * from './tabbed_section/index.js';
 export * from './table.js';
+export * from './table_card.js';
+export * from './scrollbars.js';
 export * from './test_mode.js';
 export * from './themes/make_theme.js';
 export * from './themes/render_with_themes.js';

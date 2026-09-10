@@ -40,7 +40,7 @@ export function ScanBallotsScreen({
           </Callout>
         )}
         <TopBar>
-          <BatchSummaryStats status={status} />
+          <BatchSummaryStats status={status} showEmptyState />
           <ScanButton
             /* disable scan button while status query is refetching to avoid double clicks */
             disabled={isScanning || statusIsStale || isPollingPlaceUnconfigured}

@@ -42,15 +42,17 @@ function Stat({
 
 export function BatchSummaryStats({
   status,
+  showEmptyState,
 }: {
   status: ScanStatus;
+  showEmptyState?: boolean;
 }): JSX.Element {
   const { batches } = status;
   const sheetCount = iter(batches)
     .map((b) => b.count)
     .sum();
 
-  if (batches.length === 0) {
+  if (batches.length === 0 && showEmptyState) {
     return (
       <P>
         <Icons.Info /> No ballots have been scanned

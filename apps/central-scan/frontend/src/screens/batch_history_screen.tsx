@@ -2,16 +2,14 @@ import React, { useState } from 'react';
 import {
   Button,
   Callout,
-  DesktopPalette,
-  Font,
   Icons,
   Loading,
   Modal,
   P,
   TD,
-  Table,
+  TableCard,
 } from '@votingworks/ui';
-import { BatchInfo, UiTheme } from '@votingworks/types';
+import { BatchInfo } from '@votingworks/types';
 import styled from 'styled-components';
 import type {
   NetworkConnectionInfo,
@@ -46,80 +44,22 @@ const TopBar = styled.div`
   }
 `;
 
-const HEADER_LINE_HEIGHT_REM = 1;
-const HEADER_PADDING_Y_REM = 0.5;
-const HEADER_CONTENT_REM = HEADER_LINE_HEIGHT_REM + 2 * HEADER_PADDING_Y_REM;
-
-function headerHeightRem(theme: UiTheme): number {
-  return HEADER_CONTENT_REM + theme.sizes.bordersRem.hairline;
-}
-
-const TableCard = styled.div`
-  border: ${(p) =>
-    `${p.theme.sizes.bordersRem.thin}rem solid ${p.theme.colors.outline}`};
-  border-radius: 0.5rem;
-  overflow-y: auto;
+const BatchTableCard = styled(TableCard)`
   flex: 1;
-  min-height: 0;
-  background: linear-gradient(
-    to bottom,
-    ${(p) => p.theme.colors.container} 0,
-    ${(p) => p.theme.colors.container} ${HEADER_CONTENT_REM}rem,
-    ${(p) => p.theme.colors.outline} ${HEADER_CONTENT_REM}rem,
-    ${(p) => p.theme.colors.outline} ${(p) => headerHeightRem(p.theme)}rem,
-    ${(p) => p.theme.colors.background} ${(p) => headerHeightRem(p.theme)}rem
-  );
-
-  ::-webkit-scrollbar {
-    width: 0.45rem;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: transparent;
-    margin-top: ${(p) => headerHeightRem(p.theme)}rem;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: ${DesktopPalette.Gray10};
-    border-radius: 100vw;
-
-    :hover {
-      background: ${DesktopPalette.Gray40};
-    }
-  }
-`;
-
-const BatchTable = styled(Table)`
-  border-collapse: separate;
-  border-spacing: 0;
-
-  td {
-    padding: 0.25rem 1rem;
-    border-bottom: none;
-  }
-
-  th {
-    padding: ${HEADER_PADDING_Y_REM}rem 1rem;
-    line-height: ${HEADER_LINE_HEIGHT_REM}rem;
-    background-color: ${(p) => p.theme.colors.container};
-    border-top: none;
-    border-bottom: ${(p) =>
-      `${p.theme.sizes.bordersRem.hairline}rem solid ${p.theme.colors.outline}`};
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
-  }
-
-  tr:nth-child(even) {
-    background-color: ${(p) => p.theme.colors.containerLow};
-  }
 `;
 
 const SyncStatus = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
+
+  button {
+    padding: 0.5rem 0.75rem;
+  }
+`;
+
+const SyncLabel = styled.span`
+  min-width: 8ch;
 `;
 
 const Actions = styled.div`
@@ -155,18 +95,22 @@ function SendingPausedCallout({
     case 'online-results-official':
       return (
         <Callout color="warning" icon="Warning">
-          VxAdmin ({connection.hostMachineId}) has marked its results official
-          and is not accepting batches. Batches will not be sent to VxAdmin.
+          <div>
+            <strong>Sync Stopped:</strong> VxAdmin ({connection.hostMachineId})
+            has marked its results official.
+          </div>
         </Callout>
       );
     case 'online-invalid-mode':
       return (
         <Callout color="warning" icon="Warning">
-          VxAdmin ({connection.hostMachineId}) is tabulating{' '}
-          {connection.hostCvrFileMode} results, but this machine is in{' '}
-          {connection.hostCvrFileMode === 'official' ? 'test' : 'official'}{' '}
-          ballot mode. Batches will not be sent to VxAdmin until the modes
-          match.
+          <div>
+            <strong>Sync Stopped:</strong> VxAdmin ({connection.hostMachineId})
+            is tabulating {connection.hostCvrFileMode} ballots, but this machine
+            is scanning{' '}
+            {connection.hostCvrFileMode === 'official' ? 'test' : 'official'}{' '}
+            ballots.
+          </div>
         </Callout>
       );
     default:
@@ -184,7 +128,7 @@ function getBatchSendState(batch: BatchInfo): BatchSendState {
   if (batch.sentToAdminAt) {
     if (batch.removedFromAdminAt) {
       return {
-        icon: <Icons.Warning color="warning" />,
+        icon: <Icons.Cancel color="warning" />,
         label: 'Removed',
         action: 'resend',
       };
@@ -237,75 +181,57 @@ export function BatchHistoryScreen({
   return (
     <NavigationScreen title="Batch History">
       <Content>
+        <TopBar>
+          <BatchSummaryStats status={status} />
+          <ActionsStack>
+            <Button
+              onPress={() => setIsExportingCvrs(true)}
+              icon="Export"
+              fill="tinted"
+              color="primary"
+              disabled={batches.length === 0}
+            >
+              Save CVRs
+            </Button>
+            <Button
+              icon="Delete"
+              // color="danger"
+              fill="tinted"
+              disabled={batches.length === 0 || isScanning}
+              onPress={() => setDeleteBallotDataFlowState('confirmation')}
+            >
+              Delete All Batches
+            </Button>
+          </ActionsStack>
+        </TopBar>
         {isNetworkingEnabled && networkStatus && (
           <SendingPausedCallout connection={networkStatus.connection} />
         )}
-        <TopBar>
-          <BatchSummaryStats status={status} />
-          {batches.length > 0 && (
-            <ActionsStack>
-              <Button
-                onPress={() => setIsExportingCvrs(true)}
-                icon="Export"
-                fill="tinted"
-                color="primary"
-              >
-                Save CVRs
-              </Button>
-              <Button
-                icon="Delete"
-                color="danger"
-                fill="tinted"
-                disabled={isScanning}
-                onPress={() => setDeleteBallotDataFlowState('confirmation')}
-              >
-                Delete All Batches
-              </Button>
-            </ActionsStack>
-          )}
-        </TopBar>
         {batches.length > 0 && (
-          <TableCard>
-            <BatchTable>
-              <thead>
-                <tr>
-                  <th>Batch</th>
-                  <th>Sheets</th>
-                  <th>Scanned At</th>
-                  {isNetworkingEnabled && <th>VxAdmin Sync</th>}
-                  <th>&nbsp;</th>
-                </tr>
-              </thead>
-              <tbody>
-                {batches.map((batch) => {
-                  const sendState = isNetworkingEnabled
-                    ? getBatchSendState(batch)
-                    : undefined;
-                  const timestamp = batch.endedAt ?? batch.startedAt;
-                  return (
-                    <tr key={batch.id}>
-                      <TD nowrap>{batch.label}</TD>
-                      <td>{format.count(batch.count)}</td>
-                      <TD nowrap>
-                        {isScanning && !batch.endedAt ? (
-                          <Font weight="bold">
-                            <Icons.Loading /> Scanning…
-                          </Font>
-                        ) : (
-                          format.localeShortDateAndTime(new Date(timestamp))
-                        )}
-                      </TD>
-                      {sendState && (
-                        <TD>
-                          <SyncStatus>
-                            {sendState.icon}
-                            <span>{sendState.label}</span>
-                          </SyncStatus>
-                        </TD>
-                      )}
-                      <TD narrow>
-                        <Actions>
-                          {sendState?.action === 'retry' && (
+          <BatchTableCard>
+            <thead>
+              <tr>
+                {isNetworkingEnabled && <th>VxAdmin&nbsp;Sync</th>}
+                <th>Batch</th>
+                <th>Sheets</th>
+                <th>Scanned At</th>
+                <th>&nbsp;</th>
+              </tr>
+            </thead>
+            <tbody>
+              {batches.map((batch) => {
+                const sendState = isNetworkingEnabled
+                  ? getBatchSendState(batch)
+                  : undefined;
+                const timestamp = batch.endedAt ?? batch.startedAt;
+                return (
+                  <tr key={batch.id}>
+                    {sendState && (
+                      <TD>
+                        <SyncStatus>
+                          {sendState.icon}
+                          <SyncLabel>{sendState.label}</SyncLabel>
+                          {sendState.action === 'retry' && (
                             <Button
                               icon="Redo"
                               fill="transparent"
@@ -319,7 +245,7 @@ export function BatchHistoryScreen({
                               Retry
                             </Button>
                           )}
-                          {sendState?.action === 'resend' && (
+                          {sendState.action === 'resend' && (
                             <Button
                               icon="Redo"
                               fill="transparent"
@@ -331,24 +257,39 @@ export function BatchHistoryScreen({
                               Resend
                             </Button>
                           )}
-                          <Button
-                            icon="Delete"
-                            fill="transparent"
-                            color="danger"
-                            onPress={() => setPendingDeleteBatch(batch)}
-                            style={{ flexWrap: 'nowrap' }}
-                            disabled={isScanning}
-                          >
-                            Delete
-                          </Button>
-                        </Actions>
+                        </SyncStatus>
                       </TD>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </BatchTable>
-          </TableCard>
+                    )}
+                    <TD nowrap>{batch.label}</TD>
+                    <TD>{format.count(batch.count)}</TD>
+                    <TD nowrap>
+                      {isScanning && !batch.endedAt ? (
+                        <SyncStatus>
+                          <Icons.Loading /> Scanning…
+                        </SyncStatus>
+                      ) : (
+                        format.localeShortDateAndTime(new Date(timestamp))
+                      )}
+                    </TD>
+                    <TD narrow>
+                      <Actions>
+                        <Button
+                          icon="Delete"
+                          fill="transparent"
+                          // color="danger"
+                          onPress={() => setPendingDeleteBatch(batch)}
+                          style={{ flexWrap: 'nowrap' }}
+                          disabled={isScanning}
+                        >
+                          Delete
+                        </Button>
+                      </Actions>
+                    </TD>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </BatchTableCard>
         )}
       </Content>
       {pendingDeleteBatch && (

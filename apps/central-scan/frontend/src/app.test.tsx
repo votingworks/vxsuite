@@ -199,6 +199,9 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
   userEvent.click(screen.getByText('Close'));
 
   expect(screen.queryByRole('alertdialog')).toEqual(null);
+
+  userEvent.click(screen.getButton('Scan Ballots'));
+  await screen.findByRole('heading', { name: 'Scan Ballots' });
 });
 
 test('configuring election from usb election package works end to end', async () => {

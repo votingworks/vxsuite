@@ -43,12 +43,15 @@ function getBatchRows() {
   return screen.getAllByRole('row').slice(1);
 }
 
+const SYNC_COLUMN_HEADER = /VxAdmin\sSync/;
+
 test('null state', () => {
   renderScreen();
-  screen.getByText('No ballots have been scanned');
+  expect(screen.getByTestId('total-batches')).toHaveTextContent('0');
+  expect(screen.getByTestId('total-sheets')).toHaveTextContent('0');
   expect(screen.queryByRole('table')).not.toBeInTheDocument();
-  expect(screen.queryButton('Save CVRs')).not.toBeInTheDocument();
-  expect(screen.queryButton('Delete All Batches')).not.toBeInTheDocument();
+  expect(screen.getButton('Save CVRs')).toBeDisabled();
+  expect(screen.getButton('Delete All Batches')).toBeDisabled();
 });
 
 test('shows totals and a row for each batch', () => {
@@ -66,19 +69,21 @@ test('shows totals and a row for each batch', () => {
   renderScreen({ status });
   expect(screen.getByTestId('total-batches')).toHaveTextContent('2');
   expect(screen.getByTestId('total-sheets')).toHaveTextContent('4');
+  expect(screen.getButton('Save CVRs')).toBeEnabled();
+  expect(screen.getButton('Delete All Batches')).toBeEnabled();
 
   screen.getByRole('columnheader', { name: 'Batch' });
   screen.getByRole('columnheader', { name: 'Sheets' });
-  screen.getByRole('columnheader', { name: 'Timestamp' });
+  screen.getByRole('columnheader', { name: 'Scanned At' });
   expect(
-    screen.queryByRole('columnheader', { name: 'VxAdmin Sync' })
+    screen.queryByRole('columnheader', { name: SYNC_COLUMN_HEADER })
   ).not.toBeInTheDocument();
 
   const rows = getBatchRows();
   expect(rows).toHaveLength(2);
   within(rows[0]).getByText('Batch 1');
   within(rows[0]).getByText('1');
-  within(rows[0]).getByText('2026-08-25 10:05:00');
+  within(rows[0]).getByText('8/25/2026, 10:05 AM');
   within(rows[1]).getByText('Batch 2');
   within(rows[1]).getByText('3');
 });
@@ -96,7 +101,7 @@ test('shows a VxAdmin sync column when networking is enabled', async () => {
     ],
   });
   renderScreen({ status });
-  await screen.findByRole('columnheader', { name: 'VxAdmin Sync' });
+  await screen.findByRole('columnheader', { name: SYNC_COLUMN_HEADER });
   const rows = getBatchRows();
   within(rows[0]).getByText('Sent');
   expect(within(rows[0]).queryByText('Not sent')).not.toBeInTheDocument();
@@ -116,7 +121,7 @@ test('shows a failed batch with a retry button', async () => {
     ],
   });
   renderScreen({ status });
-  await screen.findByText('Send failed');
+  await screen.findByText('Failed');
   const [row] = getBatchRows();
 
   apiMock.apiClient.retrySendBatchToAdmin
@@ -141,8 +146,8 @@ test('shows a batch waiting to retry as sending', async () => {
   renderScreen({ status });
   await screen.findByText('Sending…');
   const rows = getBatchRows();
-  expect(rows[0]).toHaveTextContent('Sending…');
-  expect(rows[1]).toHaveTextContent('Not sent');
+  within(rows[0]).getByText('Sending…');
+  within(rows[1]).getByText('Not sent');
 });
 
 test('shows a batch removed from VxAdmin with a resend button', async () => {
@@ -164,11 +169,11 @@ test('shows a batch removed from VxAdmin with a resend button', async () => {
     ],
   });
   renderScreen({ status });
-  await screen.findByText('Removed from VxAdmin');
+  await screen.findByText('Removed');
   const rows = getBatchRows();
   within(rows[0]).getByText('Sent');
   expect(within(rows[0]).queryButton('Resend')).not.toBeInTheDocument();
-  within(rows[1]).getByText('Removed from VxAdmin');
+  within(rows[1]).getByText('Removed');
   expect(within(rows[1]).queryByText('Sent')).not.toBeInTheDocument();
 
   apiMock.apiClient.resendBatchToAdmin
@@ -182,12 +187,12 @@ test.each([
   {
     hostCvrFileMode: 'official' as const,
     expectedText:
-      /is tabulating official results, but this machine is in test ballot mode/,
+      /is tabulating official ballots, but this machine is scanning test ballots/,
   },
   {
     hostCvrFileMode: 'test' as const,
     expectedText:
-      /is tabulating test results, but this machine is in official ballot mode/,
+      /is tabulating test ballots, but this machine is scanning official ballots/,
   },
 ])(
   'warns when VxAdmin is locked to $hostCvrFileMode mode',
@@ -221,7 +226,7 @@ test('hides the VxAdmin sync column when networking is disabled', () => {
   });
   renderScreen({ status });
   expect(
-    screen.queryByRole('columnheader', { name: 'VxAdmin Sync' })
+    screen.queryByRole('columnheader', { name: SYNC_COLUMN_HEADER })
   ).not.toBeInTheDocument();
   expect(screen.queryByText('Not sent')).not.toBeInTheDocument();
 });
