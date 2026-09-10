@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import { test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { sleep } from '@votingworks/basics';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
@@ -117,9 +117,10 @@ test('screenshots', async ({ page }, testInfo) => {
     await devDockClient.batchScannerLoadBallots({ paths });
     await page.getByRole('button', { name: 'Scan New Batch' }).click();
     expectedSheets += paths.length;
-    await page
-      .getByText(`Total Sheets: ${expectedSheets}`)
-      .waitFor({ timeout: 60000 });
+    await expect(page.getByTestId('total-sheets')).toHaveText(
+      String(expectedSheets),
+      { timeout: 60000 }
+    );
   }
 
   // Unconfigured: insert election manager card.
@@ -218,6 +219,11 @@ test('screenshots', async ({ page }, testInfo) => {
   await scanCountedBatch(Array.from({ length: 6 }, () => fullPdf));
   await screenshot('scan-ballots-with-batches');
 
+  await page.getByRole('button', { name: 'Batch History' }).click();
+  await page.getByRole('heading', { name: 'Batch History' }).waitFor();
+  await screenshot('batch-history');
+  await page.getByRole('button', { name: 'Scan Ballots' }).click();
+
   // Adjudication: scan one batch of problem ballots and capture each eject
   // state. Each "Confirm Ballot Removed" advances to the next review sheet.
   // The order the scanner surfaces them in isn't guaranteed, so detect which
@@ -272,9 +278,8 @@ test('screenshots', async ({ page }, testInfo) => {
   }
 
   // Back on Scan Ballots with batches present: highlight Save CVRs.
-  await page.getByText('No ballots have been scanned').waitFor({
-    state: 'hidden',
-  });
+  await page.getByRole('button', { name: 'Scan New Batch' }).waitFor();
+  await page.getByRole('button', { name: 'Batch History' }).click();
   await screenshotWithButtonHighlight(
     'Save CVRs',
     'scan-ballots-save-cvrs-button'

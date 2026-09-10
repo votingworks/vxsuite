@@ -185,6 +185,8 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
   render(<App apiClient={apiMock.apiClient} />);
   await authenticateAsElectionManager(electionDefinition);
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
+  userEvent.click(screen.getButton('Batch History'));
+  await screen.findByRole('heading', { name: 'Batch History' });
 
   // wait for the config to load
   const saveButton = screen.getButton('Save CVRs');

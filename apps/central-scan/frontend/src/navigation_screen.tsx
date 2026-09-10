@@ -65,6 +65,7 @@ const SYSTEM_ADMIN_NAV_ITEMS = [
 
 const ELECTION_MANAGER_NAV_ITEMS = [
   { label: 'Scan Ballots', routerPath: '/scan' },
+  { label: 'Batch History', routerPath: '/batch-history' },
   { label: 'Settings', routerPath: '/settings' },
   { label: 'Diagnostics', routerPath: '/hardware-diagnostics' },
 ] as const;
