@@ -51,11 +51,19 @@ const mockGoogleCloudTextToSpeechClient: MinimalGoogleCloudTextToSpeechClient =
     synthesizeSpeech(input: {
       input: { text: string };
     }): Promise<[{ audioContent: string | Uint8Array }, undefined, undefined]> {
+      const encodedContent = new TextEncoder().encode(
+        mockCloudSynthesizedSpeech(input.input.text)
+      );
+
+      // Pad the backing buffer to make sure downstream consumers are only using
+      // the specified Uint8Array range.
+      const buffer = new ArrayBuffer(encodedContent.byteLength + 20);
+      const view = new Uint8Array(buffer, 10, encodedContent.byteLength);
+      view.set(encodedContent);
+
       return Promise.resolve([
         {
-          audioContent: new TextEncoder().encode(
-            mockCloudSynthesizedSpeech(input.input.text)
-          ),
+          audioContent: view,
         },
         undefined,
         undefined,
