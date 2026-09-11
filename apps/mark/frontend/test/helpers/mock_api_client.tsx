@@ -19,6 +19,7 @@ import {
   SystemSettings,
   PrinterStatus,
   PrinterConfig,
+  PrintJobId,
   constructElectionKey,
   DiagnosticRecord,
   DiagnosticType,
@@ -38,6 +39,8 @@ import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockMachineConfig } from './mock_machine_config.js';
 import { initialElectionState } from '../../src/app_root.js';
 import { ApiProvider } from '../../src/api_provider.js';
+
+export const MOCK_PRINT_JOB_ID: PrintJobId = 1;
 
 // the below is copied from libs/printing to avoid importing a backend package
 export const MOCK_PRINTER_CONFIG: PrinterConfig = {
@@ -339,7 +342,7 @@ export function createApiMock() {
           languageCode: 'en',
           ...input,
         })
-        .resolves();
+        .resolves(MOCK_PRINT_JOB_ID);
     },
 
     setDiskSpaceSummary(summary?: DiskSpaceSummary) {

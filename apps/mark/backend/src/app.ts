@@ -22,6 +22,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   PollsState,
   PrinterStatus,
+  PrintJobId,
   DiagnosticRecord,
   DiagnosticType,
   DiagnosticOutcome,
@@ -378,16 +379,17 @@ export function buildApi(ctx: Context) {
 
     ...systemCallApi,
 
-    async printBallot(input: PrintBallotProps) {
-      await printBallot({
+    async printBallot(input: PrintBallotProps): Promise<PrintJobId> {
+      const jobId = await printBallot({
         store,
         printer,
         ...input,
       });
       store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
+      return jobId;
     },
 
-    async printBlankBallot(input: PrintBlankBallotProps) {
+    async printBlankBallot(input: PrintBlankBallotProps): Promise<PrintJobId> {
       const systemSettings =
         // @coverage-defer
         store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
@@ -400,7 +402,7 @@ export function buildApi(ctx: Context) {
         ballotStyleId: input.ballotStyleId,
         precinctId: input.precinctId,
       });
-      await printBlankBallot({
+      const jobId = await printBlankBallot({
         store,
         printer,
         ...input,
@@ -412,6 +414,7 @@ export function buildApi(ctx: Context) {
         ballotStyleId: input.ballotStyleId,
         precinctId: input.precinctId,
       });
+      return jobId;
     },
 
     async printTestDeck({

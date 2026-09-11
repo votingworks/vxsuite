@@ -42,7 +42,11 @@ import {
 } from './poll_worker_screen.js';
 import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals.js';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config.js';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  ApiMock,
+  createApiMock,
+  MOCK_PRINT_JOB_ID,
+} from '../../test/helpers/mock_api_client.js';
 import { ApiProvider } from '../api_provider.js';
 
 const MOCK_SECTION_SESSION_START_ID = 'MockSectionSessionStart';
@@ -235,7 +239,7 @@ test('prints a blank ballot for the selected ballot style', async () => {
       precinctId: MOCK_BALLOT_STYLE_PRECINCT_ID,
       ballotStyleId: MOCK_BALLOT_STYLE_ID,
     })
-    .resolves();
+    .resolves(MOCK_PRINT_JOB_ID);
 
   renderScreen();
 
@@ -327,7 +331,7 @@ test('prints a blank ballot in the language chosen from the dropdown', async () 
       precinctId: MOCK_BALLOT_STYLE_PRECINCT_ID,
       ballotStyleId: spanishBallotStyle.id,
     })
-    .resolves();
+    .resolves(MOCK_PRINT_JOB_ID);
 
   renderScreen(
     {},
@@ -367,7 +371,7 @@ test('prints in the default language when the dropdown is left unchanged', async
       precinctId: MOCK_BALLOT_STYLE_PRECINCT_ID,
       ballotStyleId: englishBallotStyle.id,
     })
-    .resolves();
+    .resolves(MOCK_PRINT_JOB_ID);
 
   renderScreen(
     {},
