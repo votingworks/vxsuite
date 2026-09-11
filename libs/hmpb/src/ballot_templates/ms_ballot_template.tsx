@@ -183,6 +183,7 @@ export function Footer({
         ballotStyleId={ballotStyleId}
         precinctId={precinctId}
         electionTitleOverride={electionTitleOverride}
+        ballotIdentifierSize="medium"
       />
     </div>
   );

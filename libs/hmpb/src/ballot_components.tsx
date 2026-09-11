@@ -655,25 +655,40 @@ export function FooterMetadata({
   ballotStyleId,
   precinctId,
   electionTitleOverride,
+  ballotIdentifierSize = 'small',
 }: {
   election: Election;
   ballotStyleId: BallotStyleId;
   precinctId: PrecinctId;
   electionTitleOverride?: React.ReactNode;
+  ballotIdentifierSize?: 'small' | 'medium';
 }): JSX.Element {
   const party = getPartyForBallotStyle({ election, ballotStyleId });
+  const ballotIdentifierStyling: Record<
+    typeof ballotIdentifierSize,
+    { fontSize: string; marginBottom: string }
+  > = {
+    small: { fontSize: '8pt', marginBottom: '0' },
+    medium: { fontSize: '10pt', marginBottom: '0.025in' },
+  };
 
   const languageCode = primaryLanguageCode(
     assertDefined(getBallotStyle({ election, ballotStyleId }))
   );
-  const languageText = unique([languageCode, 'en'])
-    .map((code) =>
-      format.languageDisplayName({
-        languageCode: code,
-        displayLanguageCode: 'en',
-      })
-    )
-    .join(' / ');
+  const electionLanguageCodes = unique(
+    election.ballotStyles.flatMap((style) => style.languages)
+  );
+  const languageText =
+    electionLanguageCodes.length > 1
+      ? unique([languageCode, 'en'])
+          .map((code) =>
+            format.languageDisplayName({
+              languageCode: code,
+              displayLanguageCode: 'en',
+            })
+          )
+          .join(' / ')
+      : undefined;
 
   return (
     <InEnglish>
@@ -682,6 +697,7 @@ export function FooterMetadata({
           fontSize: '8pt',
           display: 'flex',
           justifyContent: 'space-between',
+          alignItems: 'center',
           gap: '0.5rem',
           borderWidth: '1px',
           marginTop: '0.325rem',
@@ -698,20 +714,21 @@ export function FooterMetadata({
           {electionStrings.jurisdictionName(election.jurisdiction)},{' '}
           {electionStrings.stateName(election)}
         </div>
-        <div>
+        <div style={ballotIdentifierStyling[ballotIdentifierSize]}>
           <PrecinctOrSplitName
             election={election}
             precinctId={precinctId}
             ballotStyleId={ballotStyleId}
-          />{' '}
-          &bull;
+          />
           {party && (
             <React.Fragment>
               {' '}
-              {electionStrings.partyName(party)} &bull;
+              &bull; {electionStrings.partyName(party)}
             </React.Fragment>
-          )}{' '}
-          {languageText}
+          )}
+          {languageText && (
+            <React.Fragment> &bull; {languageText}</React.Fragment>
+          )}
         </div>
       </div>
     </InEnglish>
