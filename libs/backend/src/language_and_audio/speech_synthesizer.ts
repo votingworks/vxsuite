@@ -125,7 +125,11 @@ export class GoogleCloudSpeechSynthesizer implements SpeechSynthesizer {
 
     assert(response.audioContent instanceof Uint8Array);
 
-    return Buffer.from(response.audioContent.buffer).toString('base64');
+    return Buffer.from(
+      response.audioContent.buffer,
+      response.audioContent.byteOffset,
+      response.audioContent.byteLength
+    ).toString('base64');
   }
 
   /* istanbul ignore next */
