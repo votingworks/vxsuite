@@ -462,6 +462,8 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
                     throwIllegalValue(user, 'role');
                   }
                 }
+              } else if (!deepEqual(currentAuthStatus.user, user)) {
+                return { status: 'logged_out', reason: 'no_card' };
               }
               return currentAuthStatus;
             }
