@@ -18,7 +18,7 @@
   },
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
-    "build:self": "tsc --build tsconfig.build.json",
+    "build:self": "tsc --build tsconfig.build.json && cp -R ./src/printer/ipp_queries ./build/printer/",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
     "generate-m404-ppd": "./scripts/generate-m404-ppd",

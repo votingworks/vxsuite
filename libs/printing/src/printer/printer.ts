@@ -1,6 +1,7 @@
 import { isDeviceAttached, type Device } from '@votingworks/backend';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, err, ok } from '@votingworks/basics';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
+import { PrintJobId, PrintJobStatus } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -9,16 +10,18 @@ import { rootDebug } from '../utils/debug.js';
 import { getConnectedDeviceUris } from './device_uri.js';
 import { configurePrinter } from './configure.js';
 import { Printer } from './types.js';
-import { print as printData } from './print.js';
+import { cancelAllJobs, print as printData } from './print.js';
 import { getPrinterConfig, getPrinterSpecificOptions } from './supported.js';
 import { MockFilePrinter } from './mocks/file_printer.js';
 import { CUPS_DEFAULT_IPP_URI, getPrinterRichStatus } from './status.js';
+import { startPrintJobMonitor } from './job_monitor.js';
 
 const debug = rootDebug.extend('manager');
 
 interface PrinterDevice {
   uri?: string;
   lastPrint: number;
+  jobs: Map<PrintJobId, PrintJobStatus>;
 }
 
 export function detectPrinter(logger: BaseLogger): Printer {
@@ -27,7 +30,7 @@ export function detectPrinter(logger: BaseLogger): Printer {
     return new MockFilePrinter();
   }
 
-  const printerDevice: PrinterDevice = { lastPrint: 0 };
+  const printerDevice: PrinterDevice = { lastPrint: 0, jobs: new Map() };
 
   return {
     status: async () => {
@@ -64,6 +67,13 @@ export function detectPrinter(logger: BaseLogger): Printer {
             uri: printerDevice.uri,
           });
           printerDevice.uri = undefined;
+          const cancelResult = await cancelAllJobs();
+          if (cancelResult.isErr()) {
+            debug(
+              'failed to clear the print queue on disconnect: %s',
+              cancelResult.err().stderr.trim()
+            );
+          }
         }
       }
 
@@ -108,7 +118,28 @@ export function detectPrinter(logger: BaseLogger): Printer {
             assertDefined(getPrinterConfig(printerDevice.uri))
           )
         : {};
-      return printData({ ...props, raw: { ...printerOptions, ...raw } });
+      const jobId = await printData({
+        ...props,
+        raw: { ...printerOptions, ...raw },
+      });
+      startPrintJobMonitor({
+        jobId,
+        setStatus: (status) => printerDevice.jobs.set(jobId, status),
+        clearStatus: () => printerDevice.jobs.delete(jobId),
+        logger,
+      });
+      return jobId;
+    },
+
+    getJobStatus: (jobId) => {
+      const status = printerDevice.jobs.get(jobId);
+      return status
+        ? ok(status)
+        : err(new Error(`no status tracked for print job ${jobId}`));
+    },
+
+    clearJobQueue: async () => {
+      (await cancelAllJobs()).unsafeUnwrap();
     },
   };
 }
