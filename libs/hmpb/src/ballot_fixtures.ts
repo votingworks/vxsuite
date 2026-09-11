@@ -824,9 +824,10 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
   const uocavaBlankBallotPath = join(dir, 'uocava-blank-ballot.pdf');
 
   const baseElection = readElectionGeneral();
-  // Rename contests so the NH state template's isFederalOfficeContest matcher
-  // picks them up for FOO ballots.
+  let subheadingAddedToBallotMeasure = false;
   const contests = baseElection.contests.map((contest) => {
+    // Rename contests so the NH state template's isFederalOfficeContest
+    // matcher picks them up for FOO ballots.
     if (contest.title === 'President and Vice-President') {
       // eslint-disable-next-line no-param-reassign
       contest = {
@@ -843,7 +844,20 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
         title: 'Representative in Congress, District 6',
       };
     }
+
+    // Add a subheading to one ballot measure
+    if (contest.id === '102') {
+      assert(contest.type === 'yesno');
+      subheadingAddedToBallotMeasure = true;
+      return {
+        ...contest,
+        description:
+          '<h3>Question Required by HB 1234, Chapter 56</h3>' +
+          `<p>${contest.description}</p>`,
+      };
+    }
     if (contest.type !== 'candidate') return contest;
+
     // Rearrange candidates so we get at least one per column (Dem, Rep, single
     // Other) so the layout matches what a real NH ballot would have.
     const democraticPartyId = assertDefined(
@@ -865,12 +879,15 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
         }
         return candidate;
       });
+
     return {
       ...contest,
       allowWriteIns: true,
       candidates: trimmedCandidates,
     };
   });
+  assert(subheadingAddedToBallotMeasure);
+
   // Rotate candidates for one contest to make sure the template uses the
   // specified candidate order within each party
   const cityCouncilContest = find(
@@ -881,6 +898,7 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
   const rotatedCityCouncilCandidates = [1, 0, 3, 2, 4].map((index) =>
     assertDefined(cityCouncilContest.candidates[index])
   );
+
   const election: Election = {
     ...baseElection,
     contests,

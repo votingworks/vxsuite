@@ -43,10 +43,29 @@ function contestInfo(title: string, candidateNames: string[], seats = 1) {
   };
 }
 
+const QUESTIONARY_HEADER =
+  'QUESTIONS RELATING TO CONSTITUTIONAL AMENDMENTS PROPOSED BY THE 2026 GENERAL COURT';
+
+function question(html: string) {
+  return {
+    Title: '',
+    Question: html,
+    Yes: { OX: 0, OY: 0 },
+    No: { OX: 0, OY: 0 },
+  };
+}
+
+function questionary(
+  questions: Array<ReturnType<typeof question>>
+): NhBallotStyle['AVSInterface']['Questionary'] {
+  return { Header: QUESTIONARY_HEADER, Questions: questions };
+}
+
 function makeBallotStyle(
   ward: number | string,
   party: string,
-  contests: NhBallotStyle['AVSInterface']['Candidates']
+  contests: NhBallotStyle['AVSInterface']['Candidates'],
+  questionaryInfo?: NhBallotStyle['AVSInterface']['Questionary']
 ): NhBallotStyle {
   return {
     fileType: '',
@@ -66,6 +85,7 @@ function makeBallotStyle(
         BallotSize: '8.5x11',
       },
       Candidates: contests,
+      Questionary: questionaryInfo,
     },
   };
 }
@@ -447,5 +467,140 @@ test('throws when source files disagree on the relative order of two contests', 
 
   expect(() => convertNhElection([ward1, ward2], testSignatureImage)).toThrow(
     /Cycle detected/
+  );
+});
+
+test('converts questions, numbering them and hoisting their headings', () => {
+  const town = makeBallotStyle(
+    '',
+    '',
+    [contestInfo('For Governor', ['Gina'])],
+    questionary([
+      question(
+        '<p style="font-size:10pt;margin-left:20px;">1. ' +
+          '<span style="mso-fareast-font-family:&quot;Times New Roman&quot;;">' +
+          '“Are you in favor of amending article 71?” CACR 13</span>' +
+          '<o:p></o:p>&nbsp;</p>'
+      ),
+      question(
+        '<p style="text-align:center;">  \n   <strong>&nbsp; </strong>' +
+          '<span style="font-size:14px;"><strong>STATUTORY QUESTION REQUIRED BY ' +
+          'HB 1300, CHAPTER 324, 2026</strong></span>  \n  </p>' +
+          '<p style="font-size:10pt;">2. "Shall the City limit property tax growth?”</p>'
+      ),
+    ])
+  );
+
+  const election = convertNhElection([town], testSignatureImage);
+
+  // Questions follow the offices, in question order
+  expect(election.contests.map((contest) => contest.title)).toEqual([
+    'For Governor',
+    'Constitutional Amendment 1',
+    'Constitutional Amendment 2',
+  ]);
+  const questions = election.contests.filter(
+    (contest) => contest.type === 'yesno'
+  );
+  expect(questions.map((contest) => contest.description)).toEqual([
+    '<p>“Are you in favor of amending article 71?” CACR 13</p>',
+    '<h3>STATUTORY QUESTION REQUIRED BY HB 1300, CHAPTER 324, 2026</h3>' +
+      '<p>"Shall the City limit property tax growth?”</p>',
+  ]);
+  expect(
+    questions.map((contest) => contest.options.map((option) => option.label))
+  ).toEqual([
+    ['Yes', 'No'],
+    ['Yes', 'No'],
+  ]);
+  expect(contestTitlesForWard(election, 'Sample City')).toEqual([
+    'For Governor',
+    'Constitutional Amendment 1',
+    'Constitutional Amendment 2',
+  ]);
+});
+
+test('splits a question into separate districts when wards have differing text', () => {
+  const sharedQuestion = question('<p>1. Are you in favor of CACR 13?</p>');
+  const ward1 = makeBallotStyle(
+    1,
+    '',
+    [governor()],
+    questionary([
+      sharedQuestion,
+      question('<p>2. Shall Ward 1 limit property tax growth?</p>'),
+    ])
+  );
+  const ward2 = makeBallotStyle(
+    2,
+    '',
+    [governor()],
+    questionary([
+      sharedQuestion,
+      question('<p>2. Shall Ward 2 limit property tax growth?</p>'),
+    ])
+  );
+
+  const election = convertNhElection([ward1, ward2], testSignatureImage);
+
+  function districtNameFor(contestId: string): string {
+    return assertDefined(
+      election.districts.find(
+        (district) =>
+          district.id ===
+          assertDefined(election.contests.find((c) => c.id === contestId))
+            .districtId
+      )
+    ).name;
+  }
+  const questions = election.contests.filter(
+    (contest) => contest.type === 'yesno'
+  );
+  expect(
+    questions.map((contest) => [contest.title, districtNameFor(contest.id)])
+  ).toEqual([
+    ['Constitutional Amendment 1', 'Constitutional Amendment 1'],
+    ['Constitutional Amendment 2', 'Ward 1'],
+    ['Constitutional Amendment 2', 'Ward 2'],
+  ]);
+  expect(contestTitlesForWard(election, 'Ward 1')).toEqual([
+    'For Governor',
+    'Constitutional Amendment 1',
+    'Constitutional Amendment 2',
+  ]);
+});
+
+test('throws when a question is missing its number', () => {
+  const town = makeBallotStyle(
+    '',
+    '',
+    [governor()],
+    questionary([question('<p>Are you in favor of CACR 13?</p>')])
+  );
+  expect(() => convertNhElection([town], testSignatureImage)).toThrow(
+    /Question is missing its number/
+  );
+});
+
+test('throws when a question has an unsupported title', () => {
+  const town = makeBallotStyle('', '', [governor()], {
+    Header: QUESTIONARY_HEADER,
+    Questions: {
+      ...question('<p>1. Are you in favor of CACR 13?</p>'),
+      Title: 'Amendment Question',
+    },
+  });
+  expect(() => convertNhElection([town], testSignatureImage)).toThrow(
+    /Unsupported question Title: Amendment Question/
+  );
+});
+
+test('throws when the questionary header is worded unexpectedly', () => {
+  const town = makeBallotStyle('', '', [governor()], {
+    Header: 'QUESTIONS PROPOSED BY THE 2026 GENERAL COURT',
+    Questions: [question('<p>1. Are you in favor of CACR 13?</p>')],
+  });
+  expect(() => convertNhElection([town], testSignatureImage)).toThrow(
+    /Unsupported questionary header/
   );
 });

@@ -11,6 +11,7 @@ export type {
   NhStateBallotVariant,
 } from './nh_state_ballot_template.js';
 export { NhStateSpotColors } from './nh_state_primary_ballot_template.js';
+export { nhBallotMeasureContestSectionHeader } from './nh_state_general_ballot_template.js';
 
 /**
  * All ballot templates, indexed by ID.

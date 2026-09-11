@@ -2,6 +2,7 @@ import React from 'react';
 import { Buffer } from 'node:buffer';
 import {
   assertDefined,
+  DateWithoutTime,
   err,
   find,
   groupBy,
@@ -21,6 +22,7 @@ import {
   ContestId,
   Election,
   getBallotStyle,
+  getContests,
   getOrderedCandidatesForContestInBallotStyle,
   Party,
   straightPartyNotYetImplemented,
@@ -616,12 +618,23 @@ function CandidateContest({
   );
 }
 
-function BallotMeasureContestSectionHeader() {
+export function nhBallotMeasureContestSectionHeader(
+  electionDate: DateWithoutTime
+): string {
+  return `QUESTIONS RELATING TO CONSTITUTIONAL AMENDMENTS PROPOSED BY THE ${electionDate
+    .toISOString()
+    .slice(0, 4)} GENERAL COURT`;
+}
+
+function BallotMeasureContestSectionHeader({
+  election,
+}: {
+  election: Election;
+}) {
   return (
-    <div style={{ textAlign: 'center' }}>
-      <h2>Constitutional Amendment Questions</h2>
-      <h3>Constitutional Amendments Proposed by the General Court </h3>
-    </div>
+    <h4 style={{ textAlign: 'center' }}>
+      {nhBallotMeasureContestSectionHeader(election.date)}
+    </h4>
   );
 }
 
@@ -695,6 +708,7 @@ export async function BallotPageContent(
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
+
   // One section for candidate contests, one for ballot measures.
   const contestSections = iter(contests)
     .partition((contest) => contest.type === 'candidate')
@@ -707,7 +721,7 @@ export async function BallotPageContent(
 
   while (contestSections.length > 0 && heightUsed < dimensions.height) {
     const section = assertDefined(contestSections.shift());
-    const contestElements = section.map((contest, index) => {
+    const contestElements = section.map((contest) => {
       // @coverage-exclude
       if (contest.type === 'straight-party') {
         return straightPartyNotYetImplemented();
@@ -723,7 +737,11 @@ export async function BallotPageContent(
         <BallotMeasureContest
           key={contest.id}
           contest={contest}
-          contestNumber={index + 1}
+          contestNumber={
+            getContests({ election, ballotStyle })
+              .filter((c) => c.type === 'yesno')
+              .indexOf(contest) + 1
+          }
         />
       );
     });
@@ -731,7 +749,7 @@ export async function BallotPageContent(
       section[0].type === 'candidate' ? (
         <CandidateContestSectionHeader />
       ) : (
-        <BallotMeasureContestSectionHeader />
+        <BallotMeasureContestSectionHeader election={election} />
       );
     contestElements.unshift(sectionHeader);
     const contestMeasurements = await scratchpad.measureElements(
