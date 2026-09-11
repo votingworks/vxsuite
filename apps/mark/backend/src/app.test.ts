@@ -450,7 +450,9 @@ test('usbDrive', async () => {
 });
 
 async function expectElectionState(expected: Partial<ElectionState>) {
-  expect(await apiClient.getElectionState()).toMatchObject(expected);
+  await vi.waitFor(async () => {
+    expect(await apiClient.getElectionState()).toMatchObject(expected);
+  });
 }
 
 async function configureMachine(
