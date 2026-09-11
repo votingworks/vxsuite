@@ -3,6 +3,7 @@ import {
   PrinterConfig,
   PrinterRichStatus,
   PrinterStatus,
+  PrintJobId,
 } from '@votingworks/types';
 
 export const MOCK_MARKER_INFO: IppMarkerInfo = {
@@ -35,4 +36,12 @@ export function getMockConnectedPrinterStatus(
     connected: true,
     config,
   };
+}
+
+let nextMockJobId = 1;
+
+export function createMockJobId(): PrintJobId {
+  const jobId = nextMockJobId;
+  nextMockJobId += 1;
+  return jobId;
 }

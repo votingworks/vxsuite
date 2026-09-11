@@ -107,3 +107,37 @@ export interface PrinterRichStatus {
   stateReasons: IppPrinterStateReason[];
   markerInfos: IppMarkerInfo[];
 }
+
+/**
+ * The id CUPS assigned to a submitted print job, unique per queue. Can be used
+ * to query the job's status on the CUPS server.
+ */
+export type PrintJobId = number;
+
+/**
+ * IPP `job-state` prop identifies the basic status of a print job.
+ * https://datatracker.ietf.org/doc/html/rfc2911#section-4.3.7
+ */
+export type IppJobState =
+  | 'pending'
+  | 'pending-held'
+  | 'processing'
+  | 'processing-stopped'
+  | 'canceled'
+  | 'aborted'
+  | 'completed';
+
+/**
+ * What a print job means to the application, derived from {@link IppJobState}.
+ * `sent-to-printer` means CUPS finished transferring the job to the printer.
+ * It does not mean the pages have physically printed.
+ */
+export type PrintJobOutcome = 'in-progress' | 'sent-to-printer' | 'failed';
+
+/**
+ * The status of a print job as tracked by `libs/printing`.
+ */
+export interface PrintJobStatus {
+  outcome: PrintJobOutcome;
+  reason?: string;
+}

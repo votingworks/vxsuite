@@ -1,17 +1,11 @@
 import { assert } from '@votingworks/basics';
-import { safeParseInt } from '@votingworks/types';
+import { PrintJobId, safeParseInt } from '@votingworks/types';
 import { rootDebug } from '../utils/debug.js';
 import { PrintProps, PrintSides } from './types.js';
 import { DEFAULT_MANAGED_PRINTER_NAME } from './configure.js';
 import { exec } from '../utils/exec.js';
 
 const debug = rootDebug.extend('status');
-
-/**
- * The id CUPS assigned to a submitted print job, unique per queue. Can be used
- * to query the job's status on the CUPS server.
- */
-export type PrintJobId = number;
 
 // `lp` reports the assigned job id on stdout, e.g. "request id is
 // VxPrinter-42 (1 file(s))". The sentence is localized but the
@@ -55,4 +49,10 @@ export async function print({
   const jobIdMatch = stdout.match(LP_REQUEST_ID_PATTERN);
   assert(jobIdMatch, `unable to parse job id from lp output: ${stdout}`);
   return safeParseInt(jobIdMatch[1]).unsafeUnwrap();
+}
+
+export async function cancelAllJobs(): Promise<void> {
+  const cancelArgs = ['-a', DEFAULT_MANAGED_PRINTER_NAME];
+  debug('cancelling all jobs: args=%o', cancelArgs);
+  (await exec('cancel', cancelArgs)).unsafeUnwrap();
 }

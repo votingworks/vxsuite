@@ -253,7 +253,7 @@ test('throws error if ipptool output cannot be parsed', async () => {
     ],
     [
       mockIpptoolStdout({ 'printer-state': '(enum) = ' }),
-      'Unable to parse ipptool output line: printer-state (enum) =',
+      'Unexpected undefined value in line: printer-state (enum) =',
     ],
     [
       mockIpptoolStdout({ 'printer-state': '(badType) = idle' }),
