@@ -12,6 +12,7 @@ import {
 } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { renderToPdf } from '@votingworks/printing';
+import { isBarcodeDeviceConnected } from './devices.js';
 import { ServerContext } from './context.js';
 import { getMachineConfig } from '../machine_config.js';
 import { TestPrintPage } from './test_print_page.js';
@@ -28,6 +29,7 @@ function resultToString(result: Result<unknown, unknown>): string {
 
 export async function runCardReadAndUsbDriveWriteTask({
   card,
+  barcodeReaderErrorTracker,
   cardReaderErrorTracker,
   usbDrive,
   cardTask,
@@ -54,6 +56,10 @@ export async function runCardReadAndUsbDriveWriteTask({
       cardTask.waitUntilIsRunning(),
       usbDriveTask.waitUntilIsRunning(),
     ]);
+
+    barcodeReaderErrorTracker.update({
+      connected: isBarcodeDeviceConnected(),
+    });
 
     if (cardTask.isRunning()) {
       const cardStatus = await card.getCardStatus();
@@ -136,6 +142,7 @@ export async function sendTestPrint(
 export async function runPrinterTestTask({
   printer,
   printerTask,
+  externalPrinterErrorTracker,
   logger,
   workspace,
 }: ServerContext): Promise<void> {
@@ -155,6 +162,10 @@ export async function runPrinterTestTask({
     }
 
     await printerTask.waitUntilIsRunning();
+
+    externalPrinterErrorTracker.update({
+      connected: (await printer.status()).connected,
+    });
 
     const now = Date.now();
     const timeSinceLastPrint = (now - lastPrintTime) / 1000;

@@ -6,7 +6,9 @@ import {
   Logger,
 } from '@votingworks/logging';
 import {
+  BarcodeReaderErrorTracker,
   CardReaderErrorTracker,
+  ExternalPrinterErrorTracker,
   getNodeEnv,
   handleUncaughtExceptions,
   loadEnvVarsFromDotenvFiles,
@@ -90,7 +92,9 @@ async function main(): Promise<number> {
     startElectricalTestingServer({
       audioPlayer,
       card,
+      barcodeReaderErrorTracker: new BarcodeReaderErrorTracker(),
       cardReaderErrorTracker: new CardReaderErrorTracker(),
+      externalPrinterErrorTracker: new ExternalPrinterErrorTracker(),
       cardTask: TaskController.started(),
       usbDriveTask: TaskController.started(),
       printerTask: TaskController.started(),

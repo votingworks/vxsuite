@@ -1,9 +1,12 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { CardStatus } from '@votingworks/auth';
+
 import {
-  CARD_READER_GRACE_PERIOD_MS,
+  BarcodeReaderErrorTracker,
   CardReaderErrorTracker,
-} from './card_reader_error_tracker.js';
+  ExternalPrinterErrorTracker,
+  GRACE_PERIOD_MS,
+} from './device_error_trackers.js';
 
 let tracker: CardReaderErrorTracker;
 
@@ -13,7 +16,7 @@ beforeEach(() => {
 });
 
 function advancePastGracePeriod(): void {
-  vi.advanceTimersByTime(CARD_READER_GRACE_PERIOD_MS);
+  vi.advanceTimersByTime(GRACE_PERIOD_MS);
 }
 
 test.each<{
@@ -32,22 +35,57 @@ test.each<{
     shouldCardReaderBeConsideredHealthy: true,
   },
   {
-    description: 'one no_card_reader',
-    cardStatusSequence: ['grace_period_complete', 'no_card_reader'],
+    description: 'one no_card_reader after reader registers',
+    cardStatusSequence: ['grace_period_complete', 'ready', 'no_card_reader'],
     shouldCardReaderBeConsideredHealthy: true,
   },
   {
-    description: 'two no_card_reader',
+    description: 'two no_card_reader after reader registers',
     cardStatusSequence: [
       'grace_period_complete',
+      'ready',
       'no_card_reader',
       'no_card_reader',
     ],
     shouldCardReaderBeConsideredHealthy: true,
   },
   {
-    description: 'three no_card_reader, threshold hit',
+    description: 'three no_card_reader after reader registers, threshold hit',
     cardStatusSequence: [
+      'grace_period_complete',
+      'ready',
+      'no_card_reader',
+      'no_card_reader',
+      'no_card_reader',
+    ],
+    shouldCardReaderBeConsideredHealthy: false,
+  },
+  {
+    description:
+      'no_card signifies that reader has registered and tracking can begin',
+    cardStatusSequence: [
+      'grace_period_complete',
+      'no_card',
+      'no_card_reader',
+      'no_card_reader',
+      'no_card_reader',
+    ],
+    shouldCardReaderBeConsideredHealthy: false,
+  },
+  {
+    description: 'reader never registers, so tracking never starts',
+    cardStatusSequence: [
+      'grace_period_complete',
+      'no_card_reader',
+      'no_card_reader',
+      'no_card_reader',
+    ],
+    shouldCardReaderBeConsideredHealthy: true,
+  },
+  {
+    description: 'reader registering during grace period counts',
+    cardStatusSequence: [
+      'ready',
       'grace_period_complete',
       'no_card_reader',
       'no_card_reader',
@@ -58,6 +96,7 @@ test.each<{
   {
     description: 'threshold hit before grace period',
     cardStatusSequence: [
+      'ready',
       'no_card_reader',
       'no_card_reader',
       'no_card_reader',
@@ -69,6 +108,7 @@ test.each<{
     description: 'no_card not inherently a problem',
     cardStatusSequence: [
       'grace_period_complete',
+      'ready',
       'no_card',
       'no_card',
       'no_card',
@@ -79,6 +119,7 @@ test.each<{
     description: 'no_card a problem if preceded by no_card_reader',
     cardStatusSequence: [
       'grace_period_complete',
+      'ready',
       'no_card_reader',
       'no_card',
       'no_card',
@@ -86,7 +127,29 @@ test.each<{
     shouldCardReaderBeConsideredHealthy: false,
   },
   {
-    description: 'realistic starting sequence',
+    description: 'card_error and unknown_error continue an error streak',
+    cardStatusSequence: [
+      'grace_period_complete',
+      'ready',
+      'no_card_reader',
+      'card_error',
+      'unknown_error',
+    ],
+    shouldCardReaderBeConsideredHealthy: false,
+  },
+  {
+    description: 'card_error and unknown_error not inherently a problem',
+    cardStatusSequence: [
+      'grace_period_complete',
+      'card_error',
+      'unknown_error',
+      'card_error',
+      'unknown_error',
+    ],
+    shouldCardReaderBeConsideredHealthy: true,
+  },
+  {
+    description: 'realistic starting sequence without a card inserted',
     cardStatusSequence: [
       'no_card_reader',
       'no_card',
@@ -99,11 +162,14 @@ test.each<{
     shouldCardReaderBeConsideredHealthy: true,
   },
   {
-    description: 'ready resets tracking',
+    description: 'realistic starting sequence with a card inserted',
     cardStatusSequence: [
+      'no_card_reader',
+      'ready',
+      'ready',
       'grace_period_complete',
-      'no_card_reader',
-      'no_card_reader',
+      'ready',
+      'ready',
       'ready',
     ],
     shouldCardReaderBeConsideredHealthy: true,
@@ -112,6 +178,18 @@ test.each<{
     description: 'ready resets tracking',
     cardStatusSequence: [
       'grace_period_complete',
+      'ready',
+      'no_card_reader',
+      'no_card_reader',
+      'ready',
+    ],
+    shouldCardReaderBeConsideredHealthy: true,
+  },
+  {
+    description: 'ready resets tracking multiple times',
+    cardStatusSequence: [
+      'grace_period_complete',
+      'ready',
       'no_card_reader',
       'no_card_reader',
       'ready',
@@ -125,19 +203,9 @@ test.each<{
       'ready resets tracking but threshold can still be hit after reset',
     cardStatusSequence: [
       'grace_period_complete',
-      'no_card_reader',
-      'no_card_reader',
       'ready',
       'no_card_reader',
       'no_card_reader',
-      'no_card_reader',
-    ],
-    shouldCardReaderBeConsideredHealthy: false,
-  },
-  {
-    description: 'transition from healthy to unhealthy',
-    cardStatusSequence: [
-      'grace_period_complete',
       'ready',
       'no_card_reader',
       'no_card_reader',
@@ -163,3 +231,29 @@ test.each<{
     }
   }
 );
+
+test('Device names in assertion messages', () => {
+  const trackersAndDeviceNames = [
+    [new BarcodeReaderErrorTracker(), 'Barcode reader'],
+    [new CardReaderErrorTracker(), 'Card reader'],
+    [new ExternalPrinterErrorTracker(), 'External printer'],
+  ] as const;
+
+  for (const [deviceTracker, deviceName] of trackersAndDeviceNames) {
+    advancePastGracePeriod();
+    if (deviceName === 'Card reader') {
+      deviceTracker.update({ status: 'ready' });
+      deviceTracker.update({ status: 'no_card_reader' });
+      deviceTracker.update({ status: 'no_card_reader' });
+      deviceTracker.update({ status: 'no_card_reader' });
+    } else {
+      deviceTracker.update({ connected: true });
+      deviceTracker.update({ connected: false });
+      deviceTracker.update({ connected: false });
+      deviceTracker.update({ connected: false });
+    }
+    expect(() => deviceTracker.assertHealthy()).toThrow(
+      `${deviceName} failed 3 consecutive health checks`
+    );
+  }
+});

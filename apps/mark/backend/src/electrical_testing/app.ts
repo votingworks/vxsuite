@@ -12,27 +12,12 @@ import {
   SignedHashValidationQrCodeValue,
 } from '@votingworks/types';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
-import * as hid from 'node-hid';
 import express, { Application } from 'express';
+import { isBarcodeDeviceConnected } from './devices.js';
 import { ServerContext } from './context.js';
 import { getMachineConfig } from '../machine_config.js';
 import { sendTestPrint } from './background.js';
 import { SoundName } from '../audio/player.js';
-
-// Honeywell CM4680SR (AKA Metrologic Instruments CM4680SR):
-const BARCODE_SCANNER_VENDOR_ID = 0x0c2e;
-const BARCODE_SCANNER_PRODUCT_ID = 0x10d3;
-
-/**
- * Check if the barcode scanner hardware is connected by looking for the USB device.
- */
-function isBarcodeDeviceConnected(): boolean {
-  const devices = hid.devices(
-    BARCODE_SCANNER_VENDOR_ID,
-    BARCODE_SCANNER_PRODUCT_ID
-  );
-  return devices.length > 0;
-}
 
 export interface BarcodeStatus {
   connected: boolean;
@@ -49,7 +34,9 @@ function buildApi({
   usbDrive,
   logger,
   cardTask,
+  barcodeReaderErrorTracker,
   cardReaderErrorTracker,
+  externalPrinterErrorTracker,
   usbDriveTask,
   printer,
   printerTask,
@@ -75,7 +62,9 @@ function buildApi({
 
   return grout.createApi({
     async getElectricalTestingStatuses() {
+      barcodeReaderErrorTracker.assertHealthy();
       cardReaderErrorTracker.assertHealthy();
+      externalPrinterErrorTracker.assertHealthy();
 
       const messages = store.getElectricalTestingStatusMessages();
       const cardMessage = messages.find(
