@@ -1,5 +1,5 @@
-import { afterAll, beforeAll, beforeEach, expect, vi } from 'vitest';
-import matchers from '@testing-library/jest-dom/matchers';
+import { afterAll, beforeAll, beforeEach, vi } from 'vitest';
+import '@testing-library/jest-dom/vitest';
 
 import {
   clearTemporaryRootDir,
@@ -8,8 +8,6 @@ import {
 
 import { TextEncoder } from 'node:util';
 import { makeIdFactory } from './id_helpers.js';
-
-expect.extend(matchers);
 
 // Deterministic ID generation
 const idFactory = makeIdFactory();

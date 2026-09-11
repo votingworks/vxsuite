@@ -1,13 +1,11 @@
 // https://til.hashrocket.com/posts/hzqwty5ykx-create-react-app-has-a-default-test-setup-file
 
-import { afterAll, afterEach, beforeEach, expect, vi } from 'vitest';
-import matchers from '@testing-library/jest-dom/matchers';
+import { afterAll, afterEach, beforeEach, vi } from 'vitest';
+import '@testing-library/jest-dom/vitest';
 import fetchMock from 'fetch-mock';
 import { TextDecoder, TextEncoder } from 'node:util';
 import { cleanup, configure } from '../test/react_testing_library.js';
 import './polyfills.js';
-
-expect.extend(matchers);
 
 configure({ asyncUtilTimeout: 5_000 });
 

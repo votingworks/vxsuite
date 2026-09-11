@@ -339,8 +339,8 @@ importers:
         specifier: ^10.4.1
         version: 10.4.1
       '@testing-library/jest-dom':
-        specifier: ^5.17.0
-        version: 5.17.0
+        specifier: ^6.9.1
+        version: 6.9.1
       '@testing-library/react':
         specifier: ^16.3.3
         version: 16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -386,9 +386,6 @@ importers:
       '@types/styled-components':
         specifier: ^5.1.26
         version: 5.1.26
-      '@types/testing-library__jest-dom':
-        specifier: ^5.14.9
-        version: 5.14.9
       '@vitejs/plugin-react':
         specifier: ^6.1.1
         version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
@@ -705,8 +702,8 @@ importers:
         specifier: ^10.4.1
         version: 10.4.1
       '@testing-library/jest-dom':
-        specifier: ^5.17.0
-        version: 5.17.0
+        specifier: ^6.9.1
+        version: 6.9.1
       '@testing-library/react':
         specifier: ^16.3.3
         version: 16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -740,9 +737,6 @@ importers:
       '@types/styled-components':
         specifier: ^5.1.26
         version: 5.1.26
-      '@types/testing-library__jest-dom':
-        specifier: ^5.14.9
-        version: 5.14.9
       '@vitejs/plugin-react':
         specifier: ^6.1.1
         version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
@@ -1140,8 +1134,8 @@ importers:
         specifier: ^10.4.1
         version: 10.4.1
       '@testing-library/jest-dom':
-        specifier: ^5.17.0
-        version: 5.17.0
+        specifier: ^6.9.1
+        version: 6.9.1
       '@testing-library/react':
         specifier: ^16.3.3
         version: 16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1172,9 +1166,6 @@ importers:
       '@types/styled-components':
         specifier: ^5.1.26
         version: 5.1.26
-      '@types/testing-library__jest-dom':
-        specifier: ^5.14.9
-        version: 5.14.9
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -1463,8 +1454,8 @@ importers:
         specifier: ^10.4.1
         version: 10.4.1
       '@testing-library/jest-dom':
-        specifier: ^5.17.0
-        version: 5.17.0
+        specifier: ^6.9.1
+        version: 6.9.1
       '@testing-library/react':
         specifier: ^16.3.3
         version: 16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1504,9 +1495,6 @@ importers:
       '@types/styled-components':
         specifier: ^5.1.26
         version: 5.1.26
-      '@types/testing-library__jest-dom':
-        specifier: ^5.14.9
-        version: 5.14.9
       '@vitejs/plugin-react':
         specifier: ^6.1.1
         version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
@@ -1832,8 +1820,8 @@ importers:
         specifier: ^10.4.1
         version: 10.4.1
       '@testing-library/jest-dom':
-        specifier: ^5.17.0
-        version: 5.17.0
+        specifier: ^6.9.1
+        version: 6.9.1
       '@testing-library/react':
         specifier: ^16.3.3
         version: 16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1870,9 +1858,6 @@ importers:
       '@types/styled-components':
         specifier: ^5.1.26
         version: 5.1.26
-      '@types/testing-library__jest-dom':
-        specifier: ^5.14.9
-        version: 5.14.9
       '@vitejs/plugin-react':
         specifier: ^6.1.1
         version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
@@ -2225,8 +2210,8 @@ importers:
         specifier: ^10.4.1
         version: 10.4.1
       '@testing-library/jest-dom':
-        specifier: ^5.17.0
-        version: 5.17.0
+        specifier: ^6.9.1
+        version: 6.9.1
       '@testing-library/react':
         specifier: ^16.3.3
         version: 16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2260,9 +2245,6 @@ importers:
       '@types/styled-components':
         specifier: ^5.1.26
         version: 5.1.26
-      '@types/testing-library__jest-dom':
-        specifier: ^5.14.9
-        version: 5.14.9
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -2521,8 +2503,8 @@ importers:
         specifier: ^10.4.1
         version: 10.4.1
       '@testing-library/jest-dom':
-        specifier: ^5.17.0
-        version: 5.17.0
+        specifier: ^6.9.1
+        version: 6.9.1
       '@testing-library/react':
         specifier: ^16.3.3
         version: 16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2550,9 +2532,6 @@ importers:
       '@types/styled-components':
         specifier: ^5.1.26
         version: 5.1.26
-      '@types/testing-library__jest-dom':
-        specifier: ^5.14.9
-        version: 5.14.9
       '@vitejs/plugin-react':
         specifier: ^6.1.1
         version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
@@ -2878,8 +2857,8 @@ importers:
         specifier: ^10.4.1
         version: 10.4.1
       '@testing-library/jest-dom':
-        specifier: ^5.17.0
-        version: 5.17.0
+        specifier: ^6.9.1
+        version: 6.9.1
       '@testing-library/react':
         specifier: ^16.3.3
         version: 16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2919,9 +2898,6 @@ importers:
       '@types/styled-components':
         specifier: ^5.1.26
         version: 5.1.26
-      '@types/testing-library__jest-dom':
-        specifier: ^5.14.9
-        version: 5.14.9
       '@vitejs/plugin-react':
         specifier: ^6.1.1
         version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
@@ -3783,8 +3759,8 @@ importers:
         specifier: ^10.4.1
         version: 10.4.1
       '@testing-library/jest-dom':
-        specifier: ^5.17.0
-        version: 5.17.0
+        specifier: ^6.9.1
+        version: 6.9.1
       '@testing-library/react':
         specifier: ^16.3.3
         version: 16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3806,9 +3782,6 @@ importers:
       '@types/styled-components':
         specifier: ^5.1.26
         version: 5.1.26
-      '@types/testing-library__jest-dom':
-        specifier: ^5.14.9
-        version: 5.14.9
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.11)
@@ -4644,8 +4617,8 @@ importers:
         specifier: ^10.4.1
         version: 10.4.1
       '@testing-library/jest-dom':
-        specifier: ^5.17.0
-        version: 5.17.0
+        specifier: ^6.9.1
+        version: 6.9.1
       '@testing-library/react':
         specifier: ^16.3.3
         version: 16.3.3(@testing-library/dom@10.4.1)(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4673,9 +4646,6 @@ importers:
       '@types/styled-components':
         specifier: ^5.1.26
         version: 5.1.26
-      '@types/testing-library__jest-dom':
-        specifier: ^5.14.9
-        version: 5.14.9
       '@vitest/coverage-istanbul':
         specifier: ^4.1.6
         version: 4.1.6(vitest@4.1.11)
@@ -5328,8 +5298,8 @@ importers:
         specifier: 4.32.1
         version: 4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@testing-library/jest-dom':
-        specifier: ^5.17.0
-        version: 5.17.0
+        specifier: ^6.9.1
+        version: 6.9.1
       '@testing-library/user-event':
         specifier: ^13.5.0
         version: 13.5.0(@testing-library/dom@10.4.1)
@@ -5381,9 +5351,6 @@ importers:
       '@types/styled-components':
         specifier: ^5.1.26
         version: 5.1.26
-      '@types/testing-library__jest-dom':
-        specifier: ^5.14.9
-        version: 5.14.9
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -8359,10 +8326,6 @@ packages:
     resolution: {integrity: sha512-o4PXJQidqJl82ckFaXUeoAW+XysPLauYI43Abki5hABd853iMhitooc6znOnczgbTYmEP6U6/y1ZyKAIsvMKGg==}
     engines: {node: '>=18'}
 
-  '@testing-library/jest-dom@5.17.0':
-    resolution: {integrity: sha512-ynmNeT7asXyH3aSVv4vvX4Rb+0qjOhdNHnO/3vuZNqPmhDpV/+rCSGwQ7bLcmU2cJ4dvoheIO85LQj0IbJHEtg==}
-    engines: {node: '>=8', npm: '>=6', yarn: '>=1'}
-
   '@testing-library/jest-dom@6.9.1':
     resolution: {integrity: sha512-zIcONa+hVtVSSep9UT3jZ5rizo2BsxgyDYU7WFD5eICBE7no3881HGeb/QkGfsJs6JTkY1aQhT7rIPC7e+0nnA==}
     engines: {node: '>=14', npm: '>=6', yarn: '>=1'}
@@ -8794,9 +8757,6 @@ packages:
 
   '@types/tedious@4.0.14':
     resolution: {integrity: sha512-KHPsfX/FoVbUGbyYvk1q9MMQHLPeRZhRJZdO45Q4YjvFkv4hMNghCWTvy7rdKessBsmtz4euWCWAB6/tVpI1Iw==}
-
-  '@types/testing-library__jest-dom@5.14.9':
-    resolution: {integrity: sha512-FSYhIjFlfOpGSRyVoMBMuS3ws5ehFQODymf3vlI7U1K8c7PHwWwFY7VREfmsuzHSOnoKs/9/Y983ayOs7eRzqw==}
 
   '@types/text-encoding@0.0.35':
     resolution: {integrity: sha512-jfo/A88XIiAweUa8np+1mPbm3h2w0s425YrI8t3wk5QxhH6UI7w517MboNVnGDeMSuoFwA8Rwmklno+FicvV4g==}
@@ -9690,10 +9650,6 @@ packages:
   chai@6.2.2:
     resolution: {integrity: sha512-NUPRluOfOiTKBKvWPtSD4PhFvWCqOi0BGStNWs57X9js7XGTprSmFoz5F0tWhR4WPjNeR9jXqdC7/UpSJTnlRg==}
     engines: {node: '>=18'}
-
-  chalk@3.0.0:
-    resolution: {integrity: sha512-4D3B6Wf41KOYRFdszmDqMCGq5VV/uMAB273JILmO+3jAlh8X4qDtdtgCR3fxtbLEMzSx22QdhnDcJvu2u1fVwg==}
-    engines: {node: '>=8'}
 
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
@@ -17380,18 +17336,6 @@ snapshots:
       picocolors: 1.1.1
       pretty-format: 27.5.1
 
-  '@testing-library/jest-dom@5.17.0':
-    dependencies:
-      '@adobe/css-tools': 4.4.2
-      '@babel/runtime': 7.29.7
-      '@types/testing-library__jest-dom': 5.14.9
-      aria-query: 5.3.2
-      chalk: 3.0.0
-      css.escape: 1.5.1
-      dom-accessibility-api: 0.5.16
-      lodash: 4.17.21
-      redent: 3.0.0
-
   '@testing-library/jest-dom@6.9.1':
     dependencies:
       '@adobe/css-tools': 4.4.2
@@ -17882,10 +17826,6 @@ snapshots:
   '@types/tedious@4.0.14':
     dependencies:
       '@types/node': 24.13.3
-
-  '@types/testing-library__jest-dom@5.14.9':
-    dependencies:
-      '@types/jest': 29.5.3
 
   '@types/text-encoding@0.0.35': {}
 
@@ -18812,11 +18752,6 @@ snapshots:
       pathval: 2.0.1
 
   chai@6.2.2: {}
-
-  chalk@3.0.0:
-    dependencies:
-      ansi-styles: 4.3.0
-      supports-color: 7.2.0
 
   chalk@4.1.2:
     dependencies:
