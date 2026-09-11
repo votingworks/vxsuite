@@ -72,6 +72,7 @@ import { setUpBarcodeActivation } from './barcodes/activation.js';
 import { Player as AudioPlayer, SoundName } from './audio/player.js';
 import { saveReadinessReport } from './readiness_report.js';
 import { printTestPage } from './util/print_test_page.js';
+import { startPrintJobMonitor } from './util/print_job_monitor.js';
 import { getCurrentTime } from './util/get_current_time.js';
 
 const TEST_UPS_USER_PASS_REASON = 'UPS connected and fully charged per user.';
@@ -392,7 +393,16 @@ export function buildApi(ctx: Context) {
         printer,
         ...input,
       });
-      store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
+      startPrintJobMonitor({
+        jobId,
+        printer,
+        onSettled: (status) => {
+          if (status.outcome === 'sent-to-printer') {
+            store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
+          }
+          return Promise.resolve();
+        },
+      });
       return jobId;
     },
 
@@ -414,12 +424,24 @@ export function buildApi(ctx: Context) {
         printer,
         ...input,
       });
-      store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
-      await logger.logAsCurrentRole(LogEventId.PrinterPrintComplete, {
-        message: 'Blank ballot printed',
-        disposition: 'success',
-        ballotStyleId: input.ballotStyleId,
-        precinctId: input.precinctId,
+      startPrintJobMonitor({
+        jobId,
+        printer,
+        onSettled: async (status) => {
+          const sentToPrinter = status.outcome === 'sent-to-printer';
+          if (sentToPrinter) {
+            store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
+          }
+          await logger.logAsCurrentRole(LogEventId.PrinterPrintComplete, {
+            message: sentToPrinter
+              ? 'Blank ballot printed'
+              : 'Blank ballot failed to print',
+            disposition: sentToPrinter ? 'success' : 'failure',
+            ballotStyleId: input.ballotStyleId,
+            precinctId: input.precinctId,
+            ...(status.reason ? { reason: status.reason } : {}),
+          });
+        },
       });
       return jobId;
     },
