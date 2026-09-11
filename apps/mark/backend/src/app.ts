@@ -23,6 +23,7 @@ import {
   PollsState,
   PrinterStatus,
   PrintJobId,
+  PrintJobStatus,
   DiagnosticRecord,
   DiagnosticType,
   DiagnosticOutcome,
@@ -202,6 +203,12 @@ export function buildApi(ctx: Context) {
 
     getPrinterStatus(): Promise<PrinterStatus> {
       return printer.status();
+    },
+
+    getPrintJobStatus(input: {
+      jobId: PrintJobId;
+    }): Result<PrintJobStatus, Error> {
+      return printer.getJobStatus(input.jobId);
     },
 
     getBarcodeConnected(): boolean {

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { assertDefined, err } from '@votingworks/basics';
+import { assertDefined, err, ok } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   electionGeneralFixtures,
@@ -672,6 +672,25 @@ test('printer status', async () => {
   expect(await apiClient.getPrinterStatus()).toEqual<PrinterStatus>({
     connected: false,
   });
+});
+
+test('print job status', async () => {
+  expect(await apiClient.getPrintJobStatus({ jobId: 1 })).toEqual(
+    err(expect.any(Error))
+  );
+
+  mockPrinterHandler.setJobStatus(1, { outcome: 'in-progress' });
+  expect(await apiClient.getPrintJobStatus({ jobId: 1 })).toEqual(
+    ok({ outcome: 'in-progress' })
+  );
+
+  mockPrinterHandler.setJobStatus(1, {
+    outcome: 'failed',
+    reason: 'Unable to send data to printer.',
+  });
+  expect(await apiClient.getPrintJobStatus({ jobId: 1 })).toEqual(
+    ok({ outcome: 'failed', reason: 'Unable to send data to printer.' })
+  );
 });
 
 test('printing ballots', async () => {
