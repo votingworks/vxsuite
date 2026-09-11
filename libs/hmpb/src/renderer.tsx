@@ -59,19 +59,11 @@ export function createDocument(pageHandle: PageHandle) {
 
           node.innerHTML = content;
 
-          // After we set the innerHTML, we need to wait for the DOM to finish
-          // updating with the new content.
-
-          // requestAnimationFrame will call the supplied callback before the
-          // next repaint, so we call it twice to wait for exactly one repaint
-          // to occur.
-          const repaintPromise = new Promise<void>((resolve) => {
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => {
-                resolve();
-              });
-            });
-          });
+          // Reading layout forces a synchronous reflow of the new content,
+          // which is all getBoundingClientRect and page.pdf need. Waiting for
+          // a repaint via requestAnimationFrame only added idle frames.
+          node.getBoundingClientRect();
+          const fontsPromise = document.fonts.ready;
           // We also wait for all images to load.
           const imagesLoadPromise = Promise.all(
             Array.from(node.querySelectorAll('img')).map((img) => {
@@ -85,7 +77,7 @@ export function createDocument(pageHandle: PageHandle) {
             })
           );
 
-          return Promise.all([repaintPromise, imagesLoadPromise]);
+          return Promise.all([fontsPromise, imagesLoadPromise]);
         },
         [selector, htmlContent]
       );
