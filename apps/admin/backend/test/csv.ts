@@ -1,3 +1,4 @@
+import { assertDefined } from '@votingworks/basics';
 import { generateFileTimeSuffix } from '@votingworks/utils';
 import { parse } from 'csv-parse/sync';
 
@@ -9,11 +10,14 @@ export function parseCsv(fileContents: string): {
   headers: string[];
   rows: Array<{ [header: string]: string }>;
 } {
-  const [title, electionId] = parse(fileContents, { to: 1 })[0];
+  const first = assertDefined(parse(fileContents, { to: 1 })[0]);
+  const title = assertDefined(first[0]);
+  const electionId = assertDefined(first[1]);
   const ballotHash = electionId.replace('Election ID: ', '');
+
   return {
     metadata: { title, ballotHash },
-    headers: parse(fileContents, { fromLine: 2, to: 1 })[0],
+    headers: assertDefined(parse(fileContents, { fromLine: 2, to: 1 })[0]),
     rows: parse(fileContents, { fromLine: 2, columns: true }),
   };
 }
