@@ -37,6 +37,7 @@ import {
 import z from 'zod/v4';
 import { Readable } from 'node:stream';
 import { randomUUID as uuid } from 'node:crypto';
+import { asBoolean } from '@votingworks/utils';
 import { EmitProgressFunction, WorkerContext } from './context';
 import {
   addPollingPlacesForExport,
@@ -311,6 +312,14 @@ export async function generateElectionPackageAndBallots(
       }
     }
   });
+
+  // Skip absentee ballots for now to avoid bubble position mismatches between
+  // precinct and absentee ballots in certain languages
+  if (asBoolean(process.env['SKIP_ABSENTEE_BALLOTS'])) {
+    allBallotProps = allBallotProps.filter(
+      (props) => props.ballotType === BallotType.Precinct
+    );
+  }
 
   // If we're exporting ballots with ballot audit IDs...
   if (numAuditIdBallots) {
