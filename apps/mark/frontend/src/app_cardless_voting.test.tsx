@@ -160,21 +160,19 @@ test('poll worker selects ballot style, voter votes', async () => {
   userEvent.click(screen.getByText(/Print My ballot/i));
   screen.getByText(/Printing Your Ballot/i);
 
-  // Reset ballot
-  await advanceTimersAndPromises();
-
-  // Expire timeout for display of "Printing Ballot" screen
-  await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
-
-  // Reset Ballot is called
+  // Reset Ballot is called once the job reaches the printer
   // Show Verify and Scan Instructions
-  screen.getByText('You’re Almost Done');
+  await screen.findByText('You’re Almost Done');
   expect(
     screen.queryByText('3. Return the card to a poll worker.')
   ).toBeFalsy();
 
   // Wait for timeout to return to Insert Card screen
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
+  // The instructions timeout is armed by an effect that flushes at the end of
+  // the first advance, so a second advance is needed to fire it.
+  await advanceTimersAndPromises(GLOBALS.BALLOT_INSTRUCTIONS_TIMEOUT_SECONDS);
+  await advanceTimersAndPromises(GLOBALS.BALLOT_INSTRUCTIONS_TIMEOUT_SECONDS);
   await advanceTimersAndPromises(GLOBALS.BALLOT_INSTRUCTIONS_TIMEOUT_SECONDS);
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
@@ -222,6 +220,7 @@ test('poll worker card insertion during printing does not cause duplicate print'
     votes: { [presidentContest.id]: [presidentContest.candidates[0]] },
   });
   apiMock.expectGetElectionState({ ballotsPrintedCount: 1 });
+  apiMock.setPrintJobStatus({ outcome: 'in-progress' });
   userEvent.click(screen.getByText(/Print My ballot/i));
   await screen.findByText(/Printing Your Ballot/i);
 
@@ -239,11 +238,14 @@ test('poll worker card insertion during printing does not cause duplicate print'
   // The print screen is shown again but no second printBallot call is made
   await screen.findByText(/Printing Your Ballot/i);
 
-  // Normal session end after print timeout
-  await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
-  screen.getByText('You’re Almost Done');
+  // Normal session end once the job reaches the printer
+  apiMock.setPrintJobStatus({ outcome: 'sent-to-printer' });
+  await screen.findByText('You’re Almost Done');
 
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
+  // The instructions timeout is armed by an effect that flushes at the end of
+  // the first advance, so a second advance is needed to fire it.
+  await advanceTimersAndPromises(GLOBALS.BALLOT_INSTRUCTIONS_TIMEOUT_SECONDS);
   await advanceTimersAndPromises(GLOBALS.BALLOT_INSTRUCTIONS_TIMEOUT_SECONDS);
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');

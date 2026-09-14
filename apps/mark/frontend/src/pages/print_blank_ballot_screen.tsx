@@ -7,6 +7,7 @@ import {
   getConfiguredPrecinctsAndSplits,
   LanguageCode,
   PrecinctId,
+  PrintJobId,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import {
@@ -32,8 +33,8 @@ import {
 
 import styled from 'styled-components';
 
-import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals.js';
-import { printBlankBallot } from '../api.js';
+import { getPrintJobStatus, printBlankBallot } from '../api.js';
+import { getPrintOutcome } from '../utils/print_outcome.js';
 
 const Contents = styled.div`
   display: flex;
@@ -64,19 +65,16 @@ export function PrintBlankBallotScreen({
   const { BallotStyleSelect } = pollWorkerComponents;
   const printBlankBallotMutation = printBlankBallot.useMutation();
 
-  const [printStatus, setPrintStatus] = React.useState<
-    'idle' | 'printing' | 'printed'
-  >('idle');
+  const [jobId, setJobId] = React.useState<PrintJobId>();
+
+  const printJobStatusQuery = getPrintJobStatus.useQuery(jobId);
+
   const [selection, setSelection] = React.useState<{
     precinctId: PrecinctId;
     ballotStyleId: BallotStyleId;
   }>();
   const [selectedLanguage, setSelectedLanguage] =
     React.useState<LanguageCode>();
-  const printTimer = React.useRef(0);
-
-  React.useEffect(() => () => clearTimeout(printTimer.current), []);
-
   // Language is encoded in the ballot style ID, so the languages a ballot style
   // is available in are the ones whose language-specific variant exists in its
   // group.
@@ -94,11 +92,10 @@ export function PrintBlankBallotScreen({
 
   const startPrint = React.useCallback(
     (precinctId: PrecinctId, ballotStyleId: BallotStyleId) => {
-      printBlankBallotMutation.mutate({ precinctId, ballotStyleId });
-      setPrintStatus('printing');
-      printTimer.current = window.setTimeout(() => {
-        setPrintStatus('printed');
-      }, BALLOT_PRINTING_TIMEOUT_SECONDS * 1000);
+      printBlankBallotMutation.mutate(
+        { precinctId, ballotStyleId },
+        { onSuccess: setJobId }
+      );
     },
     [printBlankBallotMutation]
   );
@@ -128,6 +125,15 @@ export function PrintBlankBallotScreen({
     startPrint(precinctId, resolvedBallotStyleId);
   }, [election, selectedLanguage, selection, showLanguagePicker, startPrint]);
 
+  const hasStartedPrint =
+    printBlankBallotMutation.isLoading || jobId !== undefined;
+  const jobStatusResult = printJobStatusQuery.data;
+  const jobStatus = jobStatusResult?.ok();
+
+  const printOutcome = hasStartedPrint
+    ? getPrintOutcome(jobStatusResult)
+    : undefined;
+
   return (
     <Screen>
       {!isLiveMode && <TestModeBanner />}
@@ -141,7 +147,7 @@ export function PrintBlankBallotScreen({
           <BallotStyleSelect
             election={election}
             onSelect={onChooseBallotStyle}
-            disabled={printStatus !== 'idle'}
+            disabled={hasStartedPrint}
             selectedBallotStyleId={selection?.ballotStyleId}
             configuredPrecinctsAndSplits={getConfiguredPrecinctsAndSplits({
               election,
@@ -165,27 +171,39 @@ export function PrintBlankBallotScreen({
                   }
                 }}
                 style={{ width: '100%' }}
-                disabled={printStatus !== 'idle'}
+                disabled={hasStartedPrint}
               />
             </React.Fragment>
           )}
           <Button
             variant="primary"
             onPress={onPrint}
-            disabled={printStatus !== 'idle'}
+            disabled={hasStartedPrint}
           >
             Print Ballot
           </Button>
         </Contents>
       </Main>
-      {printStatus === 'printing' && (
+      {printOutcome === 'in-progress' && (
         <Modal centerContent content={<Loading>Printing Ballot</Loading>} />
       )}
-      {printStatus === 'printed' && (
+      {printOutcome === 'sent-to-printer' && (
         <Modal
           title="Ballot Printed"
           content={<P>Remove the printed ballot from the printer.</P>}
-          actions={<Button onPress={() => setPrintStatus('idle')}>Done</Button>}
+          actions={<Button onPress={() => setJobId(undefined)}>Done</Button>}
+        />
+      )}
+      {printOutcome === 'failed' && (
+        <Modal
+          title="Ballot Not Printed"
+          content={
+            <React.Fragment>
+              <P>The ballot was not sent to the printer.</P>
+              {jobStatus?.reason && <P>{jobStatus.reason}</P>}
+            </React.Fragment>
+          }
+          actions={<Button onPress={() => setJobId(undefined)}>Close</Button>}
         />
       )}
       <ElectionInfoBar

@@ -20,6 +20,7 @@ import {
   PrinterStatus,
   PrinterConfig,
   PrintJobId,
+  PrintJobStatus,
   constructElectionKey,
   DiagnosticRecord,
   DiagnosticType,
@@ -66,6 +67,7 @@ type MockApiClient = Omit<
   | 'getBarcodeConnected'
   | 'getPatInputConnected'
   | 'getDiskSpaceSummary'
+  | 'getPrintJobStatus'
 > & {
   // Because these are polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
@@ -76,6 +78,7 @@ type MockApiClient = Omit<
   getBarcodeConnected: Mock;
   getPatInputConnected: Mock;
   getDiskSpaceSummary: Mock;
+  getPrintJobStatus: Mock;
 };
 
 function createMockApiClient(): MockApiClient {
@@ -106,6 +109,11 @@ function createMockApiClient(): MockApiClient {
   (mockApiClient.getDiskSpaceSummary as unknown as Mock) = vi.fn(() =>
     Promise.resolve({ total: 3, used: 2, available: 1 })
   );
+  // Polled while a print job is in flight. Jobs succeed unless a test says
+  // otherwise, so most tests need not set this up.
+  (mockApiClient.getPrintJobStatus as unknown as Mock) = vi.fn(() =>
+    Promise.resolve(ok({ outcome: 'sent-to-printer' }))
+  );
   return mockApiClient as unknown as MockApiClient;
 }
 
@@ -134,6 +142,12 @@ export function createApiMock() {
         config: MOCK_PRINTER_CONFIG,
         ...printerStatus,
       })
+    );
+  }
+
+  function setPrintJobStatus(printJobStatus: PrintJobStatus): void {
+    mockApiClient.getPrintJobStatus.mockImplementation(() =>
+      Promise.resolve(ok(printJobStatus))
     );
   }
 
@@ -169,6 +183,8 @@ export function createApiMock() {
     mockApiClient,
 
     setPrinterStatus,
+
+    setPrintJobStatus,
 
     setUsbDriveStatus,
 

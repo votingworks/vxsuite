@@ -8,6 +8,7 @@ import {
   ElectionDefinition,
   PartyId,
   PrecinctId,
+  PrintJobId,
   VotesDict,
 } from '@votingworks/types';
 import { MachineConfig } from '@votingworks/mark-backend';
@@ -29,6 +30,8 @@ export function render(
     isCardlessVoter = false,
     isLiveMode = false,
     machineConfig = mockMachineConfig(),
+    hasPrintedBallot = false,
+    printJobId,
     precinctId,
     resetBallot = vi.fn(),
     selectedPartyId,
@@ -45,6 +48,8 @@ export function render(
     isCardlessVoter?: boolean;
     isLiveMode?: boolean;
     machineConfig?: MachineConfig;
+    hasPrintedBallot?: boolean;
+    printJobId?: PrintJobId;
     precinctId?: PrecinctId;
     resetBallot?(): void;
     selectedPartyId?: PartyId;
@@ -65,8 +70,10 @@ export function render(
           isLiveMode,
           machineConfig,
           endVoterSession,
-          hasPrintedBallot: false,
+          hasPrintedBallot,
           setHasPrintedBallot: () => undefined,
+          printJobId,
+          setPrintJobId: () => undefined,
           precinctId,
           resetBallot,
           selectedPartyId,

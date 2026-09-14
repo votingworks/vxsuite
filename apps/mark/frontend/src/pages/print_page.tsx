@@ -1,10 +1,10 @@
-import { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useState } from 'react';
 import { PrintPage as MarkFlowPrintPage } from '@votingworks/mark-flow-ui';
 import { assert } from '@votingworks/basics';
-import { useCurrentLanguage } from '@votingworks/ui';
+import { Button, Modal, P, useCurrentLanguage } from '@votingworks/ui';
 import { BallotContext } from '../contexts/ballot_context.js';
-import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals.js';
-import { printBallot } from '../api.js';
+import { getPrintJobStatus, printBallot } from '../api.js';
+import { getPrintOutcome } from '../utils/print_outcome.js';
 
 export function PrintPage(): JSX.Element {
   const {
@@ -14,11 +14,14 @@ export function PrintPage(): JSX.Element {
     resetBallot,
     hasPrintedBallot,
     setHasPrintedBallot,
+    printJobId,
+    setPrintJobId,
   } = useContext(BallotContext);
   const languageCode = useCurrentLanguage();
   const printBallotMutation = printBallot.useMutation();
 
-  const printerTimer = useRef(0);
+  const [failureDismissed, setFailureDismissed] = useState(false);
+  const printJobStatusQuery = getPrintJobStatus.useQuery(printJobId);
 
   function print() {
     // We track the printed ballot state to avoid re-printing in the case where
@@ -30,26 +33,49 @@ export function PrintPage(): JSX.Element {
       assert(ballotStyleId !== undefined);
       assert(precinctId !== undefined);
       setHasPrintedBallot();
-      printBallotMutation.mutate({
-        languageCode,
-        precinctId,
-        ballotStyleId,
-        votes,
-      });
+      printBallotMutation.mutate(
+        {
+          languageCode,
+          precinctId,
+          ballotStyleId,
+          votes,
+        },
+        { onSuccess: setPrintJobId }
+      );
     }
-
-    printerTimer.current = window.setTimeout(() => {
-      resetBallot(true);
-    }, BALLOT_PRINTING_TIMEOUT_SECONDS * 1000);
   }
 
-  // Make sure we clean up any pending timeout on unmount
-  useEffect(
-    () => () => {
-      clearTimeout(printerTimer.current);
-    },
-    []
-  );
+  const jobStatus = printJobStatusQuery.data?.ok();
+  const printOutcome =
+    printJobId === undefined
+      ? undefined
+      : getPrintOutcome(printJobStatusQuery.data);
+  const sentToPrinter = printOutcome === 'sent-to-printer';
+  const failed = printOutcome === 'failed';
 
-  return <MarkFlowPrintPage print={print} />;
+  React.useEffect(() => {
+    if (sentToPrinter) {
+      resetBallot(true);
+    }
+  }, [sentToPrinter, resetBallot]);
+
+  return (
+    <React.Fragment>
+      <MarkFlowPrintPage print={print} />
+      {failed && !failureDismissed && (
+        <Modal
+          title="Ballot Not Printed"
+          content={
+            <React.Fragment>
+              <P>The ballot was not sent to the printer. Ask for help.</P>
+              {jobStatus?.reason && <P>{jobStatus.reason}</P>}
+            </React.Fragment>
+          }
+          actions={
+            <Button onPress={() => setFailureDismissed(true)}>Close</Button>
+          }
+        />
+      )}
+    </React.Fragment>
+  );
 }
