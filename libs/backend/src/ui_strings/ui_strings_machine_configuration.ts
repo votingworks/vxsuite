@@ -1,5 +1,6 @@
 // @coverage-exclude-file: tested via VxSuite apps
 import { BaseLogger } from '@votingworks/logging';
+import { assert } from '@votingworks/basics';
 import {
   ElectionPackageZip,
   ParsedElectionPackage,
@@ -64,6 +65,11 @@ export async function configureUiStringAudioClipsStreaming(p: {
   zip: ElectionPackageZip;
   store: UiStringsStore;
 }): Promise<void> {
+  assert(
+    p.store.inTransaction(),
+    'transaction required when importing audio clips'
+  );
+
   const configuredLanguages = new Set(p.store.getLanguages());
 
   for await (const clip of streamElectionPackageAudioClips(p.zip)) {
