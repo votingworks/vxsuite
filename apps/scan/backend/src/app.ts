@@ -186,37 +186,44 @@ export function buildApi({
       const { electionDefinition, systemSettings } = electionPackage;
       assert(systemSettings);
 
-      await store.withTransaction(async () => {
-        store.setElectionAndJurisdiction({
-          electionData: electionDefinition.electionData,
-          jurisdiction: authStatus.user.jurisdiction,
-          electionPackageHash,
-        });
+      try {
+        // [TODO] Cancel the transaction if the user logs out while configuring,
+        // since large packages can take a while to import.
+        await store.withTransaction(async () => {
+          store.setElectionAndJurisdiction({
+            electionData: electionDefinition.electionData,
+            jurisdiction: authStatus.user.jurisdiction,
+            electionPackageHash,
+          });
 
-        if (electionDefinition.election.pollingPlaces?.length === 1) {
-          workspace.store.setPollingPlaceId(
-            electionDefinition.election.pollingPlaces[0].id
+          if (electionDefinition.election.pollingPlaces?.length === 1) {
+            workspace.store.setPollingPlaceId(
+              electionDefinition.election.pollingPlaces[0].id
+            );
+          }
+
+          store.setSystemSettings(systemSettings);
+          if (systemSettings.precinctScanEnableBallotAuditIds) {
+            store.setBallotAuditIdSecretKey(await generateRandomAes256Key());
+          }
+
+          configureUiStrings({
+            electionPackage,
+            logger,
+            store: workspace.store.getUiStringsStore(),
+          });
+
+          await withElectionPackageZip(filePath, (zip) =>
+            configureUiStringAudioClipsStreaming({
+              zip,
+              store: store.getUiStringsStore(),
+            })
           );
-        }
-
-        store.setSystemSettings(systemSettings);
-        if (systemSettings.precinctScanEnableBallotAuditIds) {
-          store.setBallotAuditIdSecretKey(await generateRandomAes256Key());
-        }
-
-        configureUiStrings({
-          electionPackage,
-          logger,
-          store: workspace.store.getUiStringsStore(),
         });
-
-        await withElectionPackageZip(filePath, (zip) =>
-          configureUiStringAudioClipsStreaming({
-            zip,
-            store: store.getUiStringsStore(),
-          })
-        );
-      });
+      } catch (error) {
+        workspace.reset();
+        throw error;
+      }
 
       await audioPlayer.setIsScreenReaderEnabled(
         !systemSettings.precinctScanDisableScreenReaderAudio
