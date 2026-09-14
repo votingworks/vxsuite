@@ -1,32 +1,63 @@
 import { expect, test } from 'vitest';
-import { assertDefined } from '@votingworks/basics';
-import { parseVendoredTranslations } from './vendored_translations';
+import { assertDefined, iter } from '@votingworks/basics';
+import { LanguageCode } from '@votingworks/types';
+import {
+  parseVendoredTranslations,
+  VendoredTranslations,
+} from './vendored_translations';
 
-function areSetsEqual<T>(set1: Set<T>, set2: Set<T>): boolean {
-  if (set1.size !== set2.size) {
-    return false;
-  }
-
-  for (const item of set1) {
-    if (!set2.has(item)) {
-      return false;
-    }
-  }
-
-  return true;
+function eachTranslation(
+  vendoredTranslations: VendoredTranslations
+): Array<
+  readonly [languageCode: string, englishText: string, translation: string]
+> {
+  return iter(Object.entries(vendoredTranslations))
+    .flatMap(([languageCode, translations]) =>
+      Object.entries(translations ?? {}).map(
+        ([englishText, translation]) =>
+          [languageCode, englishText, translation] as const
+      )
+    )
+    .toArray();
 }
 
-test('vendored_translations.json', () => {
+function nonEmptyLanguages(
+  vendoredTranslations: VendoredTranslations
+): Array<[languageCode: string, keys: Set<string>]> {
+  return Object.entries(vendoredTranslations)
+    .map(([languageCode, translations]): [string, Set<string>] => [
+      languageCode,
+      new Set(Object.keys(translations ?? {})),
+    ])
+    .filter(([, keys]) => keys.size > 0);
+}
+
+/**
+ * Spanish is the reference key set: it is the oldest vendored language and the
+ * one every other language was originally translated alongside. A language may
+ * vendor additional strings (newer app strings that the reference set predates),
+ * but it may not be missing any of the reference strings, so that no language
+ * silently falls back to the cloud translation for a string the others vendor.
+ */
+test('every language covers the reference (Spanish) key set', () => {
   const vendoredTranslations = parseVendoredTranslations();
-  const keySetsForEachLanguage: Array<Set<string>> = [];
+  const referenceKeys = new Set(
+    Object.keys(assertDefined(vendoredTranslations[LanguageCode.SPANISH]))
+  );
+  expect(referenceKeys.size).toBeGreaterThan(0);
 
-  for (const translations of Object.values(vendoredTranslations)) {
-    if (!translations || Object.keys(translations).length === 0) continue;
-    keySetsForEachLanguage.push(new Set(Object.keys(translations)));
-  }
+  const languagesMissingReferenceKeys = nonEmptyLanguages(vendoredTranslations)
+    .map(([languageCode, keys]) => ({
+      languageCode,
+      missing: [...referenceKeys].filter((key) => !keys.has(key)),
+    }))
+    .filter(({ missing }) => missing.length > 0);
+  expect(languagesMissingReferenceKeys).toEqual([]);
+});
 
-  const firstKeySet = keySetsForEachLanguage[0];
-  for (const keySet of keySetsForEachLanguage) {
-    expect(areSetsEqual(assertDefined(firstKeySet), keySet)).toEqual(true);
-  }
+test('no translation is empty', () => {
+  const emptyTranslations = eachTranslation(parseVendoredTranslations())
+    .filter(([, , translation]) => translation.trim() === '')
+    .map(([languageCode, englishText]) => `${languageCode}: ${englishText}`);
+  expect(emptyTranslations).toEqual([]);
 });
