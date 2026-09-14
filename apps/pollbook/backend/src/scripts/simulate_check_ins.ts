@@ -1,4 +1,5 @@
 import { sleep } from '@votingworks/basics';
+import { randomInt } from 'node:crypto';
 import * as grout from '@votingworks/grout';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
@@ -201,11 +202,11 @@ async function checkInAllVotersOnCurrentMachine(
       }
 
       if (slow !== undefined) {
-        const startInt = safeParseInt(slow.split('-')[0]).unsafeUnwrap() * 1000;
-        const endInt = safeParseInt(slow.split('-')[1]).unsafeUnwrap() * 1000;
-        const delay =
-          Math.floor(Math.random() * startInt) + (endInt - startInt); // Random delay between 4 and 8 seconds
-        await sleep(delay);
+        const [start, end] = slow.split('-');
+        const startInt = safeParseInt(start).unsafeUnwrap();
+        const endInt = safeParseInt(end).unsafeUnwrap();
+        const delay = randomInt(startInt, endInt);
+        await sleep(delay * 1000);
       }
     }
 

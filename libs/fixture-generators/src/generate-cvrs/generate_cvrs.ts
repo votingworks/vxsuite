@@ -1,4 +1,4 @@
-import { randomUUID as uuid } from 'node:crypto';
+import { randomInt, randomUUID as uuid } from 'node:crypto';
 import {
   buildCVRContestsFromVotes,
   buildCvrImageData,
@@ -77,7 +77,7 @@ function getCandidateOptionsForContest(
   if (contest.allowWriteIns) {
     const combinations = generateCombinations(candidates, numSeats - 1);
     const writeInCandidate: Candidate = {
-      id: `write-in-${Math.floor(Math.random() * numSeats)}`,
+      id: `write-in-${randomInt(0, numSeats)}`,
       name: 'Mock Write-In',
       isWriteIn: true,
     };

@@ -1,6 +1,5 @@
 import {
   assert,
-  assertDefined,
   Deferred,
   deferred,
   extractErrorMessage,
@@ -11,6 +10,7 @@ import {
 } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 import makeDebug from 'debug';
+import { randomElement } from '@votingworks/utils';
 import {
   UsbDiskDevPath,
   UsbDriveFilesystemType,
@@ -40,7 +40,7 @@ function generateVxUsbLabel(previousLabel?: string): string {
   const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let label = 'VxUSB-';
   for (let i = 0; i < 5; i += 1) {
-    label += assertDefined(CHARS[Math.floor(Math.random() * CHARS.length)]);
+    label += randomElement(CHARS);
   }
   return label;
 }

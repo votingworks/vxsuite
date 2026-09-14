@@ -109,8 +109,8 @@ function generateMockImages(sheetId: string): SheetOf<string> {
     path.join(tempDirectoryPath, `${sheetId}-front.jpg`),
     path.join(tempDirectoryPath, `${sheetId}-back.jpg`),
   ];
-  fs.writeFileSync(imagePaths[0], Math.random().toString());
-  fs.writeFileSync(imagePaths[1], Math.random().toString());
+  fs.writeFileSync(imagePaths[0], `${sheetId}-front`);
+  fs.writeFileSync(imagePaths[1], `${sheetId}-back`);
   return imagePaths;
 }
 

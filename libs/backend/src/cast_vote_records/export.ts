@@ -44,6 +44,7 @@ import {
   generateCastVoteRecordExportDirectoryName,
   generateElectionBasedSubfolderName,
   getCastVoteRecordExportSubDirectoryNames,
+  randomElement,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 
@@ -654,9 +655,7 @@ async function randomlyUpdateCreationTimestamps(
 
   const oneOrTwo = crypto.randomInt(1, 3);
   for (let i = 0; i < oneOrTwo; i += 1) {
-    const randomSubDirectoryName = assertDefined(
-      subDirectoryNames[crypto.randomInt(0, subDirectoryNames.length)]
-    );
+    const randomSubDirectoryName = randomElement(subDirectoryNames);
     const subDirectoryPath = path.join(
       exportDirectoryPath,
       randomSubDirectoryName
@@ -763,9 +762,10 @@ export async function exportCastVoteRecordsToUsbDrive(
     // creation. If we always did one or the other, the last voter's cast vote record would be
     // identifiable, as either the first or the last cast vote record among the cluster of cast
     // vote records with the latest creation timestamps.
-    const whenToShuffleRelativeToCastVoteRecordCreation = assertDefined(
-      (['before', 'after'] as const)[crypto.randomInt(0, 2)]
-    );
+    const whenToShuffleRelativeToCastVoteRecordCreation = randomElement([
+      'before',
+      'after',
+    ] as const);
     if (
       isCreationTimestampShufflingNecessary &&
       whenToShuffleRelativeToCastVoteRecordCreation === 'before'

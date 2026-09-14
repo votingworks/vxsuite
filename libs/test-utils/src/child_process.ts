@@ -169,12 +169,15 @@ export interface MockChildProcess extends ChildProcess {
   stderr: MockReadable;
 }
 
+let nextMockPid = 1;
+
 /**
  * Creates a mock child process with mock streams.
  */
 export function mockChildProcess(): MockChildProcess {
+  nextMockPid += 1;
   const result: Partial<ChildProcess> = {
-    pid: Math.floor(Math.random() * 10_000),
+    pid: nextMockPid,
     stdin: mockWritable(),
     stdout: mockReadable(),
     stderr: mockReadable(),

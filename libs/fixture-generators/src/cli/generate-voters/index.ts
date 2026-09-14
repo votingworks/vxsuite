@@ -1,7 +1,8 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { safeParseInt } from '@votingworks/types';
 import fs from 'node:fs';
+import { randomInt } from 'node:crypto';
 import { assertDefined } from '@votingworks/basics';
+import { randomElement } from '@votingworks/utils';
 import { stringify } from 'csv-stringify/sync';
 
 interface IO {
@@ -343,20 +344,14 @@ const citiesInNh = [
 
 const parties = ['UND', 'DEM', 'REP'];
 
-function getRandomElement(arr: string[]): string {
-  return arr[Math.floor(Math.random() * arr.length)]!;
-}
-
 /* return an empty string half of the time at random, and a random element from the array the other half */
 function sometimesGetRandomElement(arr: string[]): string {
-  return Math.random() < 0.5
-    ? ''
-    : arr[Math.floor(Math.random() * arr.length)]!;
+  return randomInt(0, 2) === 0 ? '' : randomElement(arr);
 }
 
 // Helper function: returns a random integer between min and max (inclusive)
-function randomInt(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+function randomIntInclusive(min: number, max: number): number {
+  return randomInt(min, max + 1);
 }
 
 // Helper function: generate a low and high range based on side (ODD, EVEN, or ALL)
@@ -364,8 +359,8 @@ function generateRangeForSide(side: 'ODD' | 'EVEN' | 'ALL'): {
   low: number;
   high: number;
 } {
-  let low = randomInt(1, 20);
-  const increment = randomInt(2, 50);
+  let low = randomIntInclusive(1, 20);
+  const increment = randomIntInclusive(2, 50);
   if (side === 'ODD' || side === 'EVEN') {
     // Adjust low to have proper parity.
     if (
@@ -389,7 +384,7 @@ function generateRangeForSide(side: 'ODD' | 'EVEN' | 'ALL'): {
 }
 
 function getRandomCity(): { city: string; zip: string } {
-  return citiesInNh[Math.floor(Math.random() * citiesInNh.length)]!;
+  return randomElement(citiesInNh);
 }
 
 interface StreetMapping {
@@ -409,11 +404,11 @@ function generateStreetMappings(
 ): StreetMapping[] {
   const mappings: StreetMapping[] = [];
   for (const street of streetNames) {
-    const option = randomInt(1, 4);
+    const option = randomIntInclusive(1, 4);
     const district =
       mode === 'town'
         ? '00'
-        : randomInt(1, numPrecincts || 1)
+        : randomIntInclusive(1, numPrecincts || 1)
             .toString()
             .padStart(2, '0');
     if (option === 3) {
@@ -435,7 +430,7 @@ function generateStreetMappings(
 
 // Helper: generate a valid street number within mapping's range and parity.
 function getValidStreetNumber(mapping: StreetMapping): number {
-  let num = randomInt(mapping.low, mapping.high);
+  let num = randomIntInclusive(mapping.low, mapping.high);
   if (mapping.side === 'ODD' && num % 2 === 0) {
     num = num < mapping.high ? num + 1 : num - 1;
   } else if (mapping.side === 'EVEN' && num % 2 !== 0) {
@@ -450,15 +445,15 @@ function generateVoter(
   mappings: StreetMapping[],
   mode: 'town' | 'city'
 ): Record<string, string> {
-  const mapping = mappings[randomInt(0, mappings.length - 1)]!;
+  const mapping = randomElement(mappings);
   const streetNumber = getValidStreetNumber(mapping);
-  const shouldIncludeMailingAddress = Math.random() < 0.2;
+  const shouldIncludeMailingAddress = randomInt(0, 5) === 0;
   const mailingCity = getRandomCity();
   const baseVoter: Record<string, string> = {
     'Voter ID': id.toString(),
-    'Last Name': getRandomElement(lastNames).toUpperCase(),
+    'Last Name': randomElement(lastNames).toUpperCase(),
     Suffix: sometimesGetRandomElement(nameSuffixes).toUpperCase(),
-    'First Name': getRandomElement(firstNames).toUpperCase(),
+    'First Name': randomElement(firstNames).toUpperCase(),
     'Middle Name': sometimesGetRandomElement(firstNames).toUpperCase(),
     'Street Number': streetNumber.toString(),
     'Address Suffix': sometimesGetRandomElement(addressSuffixes).toUpperCase(),
@@ -475,7 +470,7 @@ function generateVoter(
     'Postal Zip 5': mapping.zip,
     'Zip +4': '',
     'Mailing Street Number': shouldIncludeMailingAddress
-      ? randomInt(1, 100).toString()
+      ? randomIntInclusive(1, 100).toString()
       : '',
     'Mailing Suffix': shouldIncludeMailingAddress
       ? sometimesGetRandomElement(addressSuffixes).toUpperCase()
@@ -484,7 +479,7 @@ function generateVoter(
       ? sometimesGetRandomElement(houseFranctionNumbers).toUpperCase()
       : '',
     'Mailing Street Name': shouldIncludeMailingAddress
-      ? getRandomElement(streetNames).toUpperCase()
+      ? randomElement(streetNames).toUpperCase()
       : '',
     'Mailing Apartment / Unit Number': shouldIncludeMailingAddress
       ? sometimesGetRandomElement(apartmentUnitNumbers).toUpperCase()
@@ -497,7 +492,7 @@ function generateVoter(
     'Mailing State': shouldIncludeMailingAddress ? 'NH' : '',
     'Mailing Zip 5': shouldIncludeMailingAddress ? mailingCity.zip : '',
     'Mailing Zip +4': shouldIncludeMailingAddress ? '' : '',
-    Party: getRandomElement(parties),
+    Party: randomElement(parties),
   };
 
   // Add either District or Ward column based on mode
