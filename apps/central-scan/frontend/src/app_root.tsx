@@ -20,6 +20,7 @@ import { assert } from '@votingworks/basics';
 import { AppContext, AppContextInterface } from './contexts/app_context.js';
 
 import { ScanBallotsScreen } from './screens/scan_ballots_screen.js';
+import { BatchHistoryScreen } from './screens/batch_history_screen.js';
 import { BallotEjectScreen } from './screens/ballot_eject_screen.js';
 import { SettingsScreen } from './screens/settings_screen.js';
 
@@ -211,6 +212,9 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
             statusIsStale={statusQuery.isStale}
             isPollingPlaceUnconfigured={isPollingPlaceUnconfigured}
           />
+        </Route>
+        <Route path="/batch-history">
+          <BatchHistoryScreen status={status} />
         </Route>
         <Route path="/settings">
           <SettingsScreen
