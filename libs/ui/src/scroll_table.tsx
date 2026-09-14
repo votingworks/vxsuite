@@ -67,6 +67,7 @@ const Body = styled.div.attrs({ role: 'rowgroup' })`
    * layout. To work around this, we cause an imperceptible layout change using
    * a keyframe animation triggered by the scrollability of the body. */
   animation: ${keyframes`from, to { padding-right: 0.001px; }`} linear both;
+  /* stylelint-disable-next-line property-no-unknown */
   animation-timeline: scroll(self);
 
   ${cssThemedScrollbars}
