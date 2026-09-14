@@ -7,6 +7,7 @@ export enum LanguageCode {
   CHINESE_SIMPLIFIED = 'zh-Hans',
   CHINESE_TRADITIONAL = 'zh-Hant',
   ENGLISH = 'en',
+  RUSSIAN = 'ru',
   SPANISH = 'es-US',
 }
 

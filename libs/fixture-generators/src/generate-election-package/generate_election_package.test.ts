@@ -25,6 +25,7 @@ import {
   hmpbStringsCatalog,
   layOutMinimalBallotsToCreateElectionDefinition,
 } from '@votingworks/hmpb';
+import { MULTI_LANGUAGE_FIXTURE_LANGUAGE_CODES } from './generate_election_package.js';
 import { GoogleCloudTranslatorWithElectionCache } from './translator_with_election_cache.js';
 
 vi.setConfig({
@@ -77,7 +78,7 @@ describe('fixtures are up to date - run `pnpm generate-election-packages` if thi
           hmpbStringsCatalog,
           getBallotLanguageConfigs(
             isMultiLanguage
-              ? Object.values(LanguageCode)
+              ? MULTI_LANGUAGE_FIXTURE_LANGUAGE_CODES
               : [LanguageCode.ENGLISH]
           )
         );

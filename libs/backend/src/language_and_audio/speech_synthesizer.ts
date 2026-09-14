@@ -34,6 +34,10 @@ export const GoogleCloudVoices: Record<
     name: 'cmn-CN-Wavenet-B',
   },
   [LanguageCode.ENGLISH]: { languageCode: 'en-US', name: 'en-US-Neural2-J' },
+  [LanguageCode.RUSSIAN]: {
+    languageCode: 'ru-RU',
+    name: 'ru-RU-Wavenet-D',
+  },
   [LanguageCode.SPANISH]: { languageCode: 'es-US', name: 'es-US-Neural2-B' },
 };
 

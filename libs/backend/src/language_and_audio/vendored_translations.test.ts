@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
-import { assertDefined, iter } from '@votingworks/basics';
+import { iter } from '@votingworks/basics';
+import { LanguageCode } from '@votingworks/types';
 import {
   parseVendoredTranslations,
   VendoredTranslations,
@@ -37,32 +38,38 @@ function eachTranslation(
     .toArray();
 }
 
-function areSetsEqual<T>(set1: Set<T>, set2: Set<T>): boolean {
-  if (set1.size !== set2.size) {
-    return false;
-  }
-
-  for (const item of set1) {
-    if (!set2.has(item)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-test('vendored_translations.json', () => {
+/**
+ * Spanish is the reference key set: it is the oldest vendored language and the
+ * one every other language was originally translated alongside. A language may
+ * vendor additional strings (newer app strings that the reference set predates),
+ * but it may not be missing any of the reference strings, so that no language
+ * silently falls back to the cloud translation for a string the others vendor.
+ */
+test('every language covers the reference (Spanish) key set', () => {
   const vendoredTranslations = parseVendoredTranslations();
-  const keySetsForEachLanguage: Array<Set<string>> = Object.values(
+  const referenceKeys = new Set(
+    Object.keys(vendoredTranslations[LanguageCode.SPANISH])
+  );
+  expect(referenceKeys.size).toBeGreaterThan(0);
+
+  for (const [languageCode, translations] of Object.entries(
     vendoredTranslations
-  )
-    .map(Object.keys)
-    .map((keys) => new Set(keys))
+  )) {
+    const keys = new Set(Object.keys(translations));
     // Ignore languages that don't have vendored translations yet.
-    .filter((keySet) => keySet.size > 0);
-  const firstKeySet = keySetsForEachLanguage[0];
-  for (const keySet of keySetsForEachLanguage) {
-    expect(areSetsEqual(assertDefined(firstKeySet), keySet)).toEqual(true);
+    if (keys.size === 0) continue;
+    const missing = [...referenceKeys].filter((key) => !keys.has(key));
+    expect(missing, `${languageCode} is missing reference keys`).toEqual([]);
+  }
+});
+
+test('no translation is empty', () => {
+  for (const [languageCode, englishText, translation] of eachTranslation(
+    parseVendoredTranslations()
+  )) {
+    expect(translation.trim(), `${languageCode}: ${englishText}`).not.toEqual(
+      ''
+    );
   }
 });
 

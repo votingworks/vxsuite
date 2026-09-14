@@ -20,6 +20,7 @@ const VendoredTranslationsSchema: z.ZodSchema<VendoredTranslations> = z.object({
   [LanguageCode.BENGALI]: z.record(z.string(), z.string()),
   [LanguageCode.CHINESE_SIMPLIFIED]: z.record(z.string(), z.string()),
   [LanguageCode.CHINESE_TRADITIONAL]: z.record(z.string(), z.string()),
+  [LanguageCode.RUSSIAN]: z.record(z.string(), z.string()),
   [LanguageCode.SPANISH]: z.record(z.string(), z.string()),
 });
 

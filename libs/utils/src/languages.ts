@@ -10,6 +10,7 @@ export function languageSort(
     LanguageCode.BENGALI,
     LanguageCode.CHINESE_SIMPLIFIED,
     LanguageCode.CHINESE_TRADITIONAL,
+    LanguageCode.RUSSIAN,
     LanguageCode.SPANISH,
   ];
   const indexA = languageOrder.indexOf(languageA);

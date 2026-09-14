@@ -43,5 +43,6 @@ export const MULTI_LANGUAGE_UI_STRINGS: Record<
     LanguageCode.CHINESE_TRADITIONAL
   ),
   [LanguageCode.ENGLISH]: ballotLanguageNames(LanguageCode.ENGLISH),
+  [LanguageCode.RUSSIAN]: ballotLanguageNames(LanguageCode.RUSSIAN),
   [LanguageCode.SPANISH]: ballotLanguageNames(LanguageCode.SPANISH),
 };

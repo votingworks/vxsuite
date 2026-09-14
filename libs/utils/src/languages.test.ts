@@ -11,6 +11,7 @@ test('languageSort', () => {
     LanguageCode.CHINESE_SIMPLIFIED,
     LanguageCode.ARABIC,
     LanguageCode.BENGALI,
+    LanguageCode.RUSSIAN,
   ];
 
   assert(
@@ -26,6 +27,7 @@ test('languageSort', () => {
     LanguageCode.BENGALI,
     LanguageCode.CHINESE_SIMPLIFIED,
     LanguageCode.CHINESE_TRADITIONAL,
+    LanguageCode.RUSSIAN,
     LanguageCode.SPANISH,
   ]);
 });

@@ -343,6 +343,7 @@ function ElectionInfoForm({
                   label: 'Chinese (Traditional)',
                   value: LanguageCode.CHINESE_TRADITIONAL,
                 },
+                { label: 'Russian', value: LanguageCode.RUSSIAN },
                 { label: 'Spanish', value: LanguageCode.SPANISH },
               ]}
             />

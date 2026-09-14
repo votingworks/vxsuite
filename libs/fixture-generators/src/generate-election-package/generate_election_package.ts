@@ -34,6 +34,21 @@ const FIXTURES_FILE_DATE = new Date('2024-12-01T00:00:00Z');
 tmp.setGracefulCleanup();
 
 /**
+ * The languages baked into the multi-language fixture election packages. Fixed
+ * rather than derived from `LanguageCode` so that adding a language to the
+ * product does not change the fixtures (and every ballot hash derived from
+ * them).
+ */
+export const MULTI_LANGUAGE_FIXTURE_LANGUAGE_CODES: LanguageCode[] = [
+  LanguageCode.ARABIC,
+  LanguageCode.BENGALI,
+  LanguageCode.CHINESE_SIMPLIFIED,
+  LanguageCode.CHINESE_TRADITIONAL,
+  LanguageCode.ENGLISH,
+  LanguageCode.SPANISH,
+];
+
+/**
  * Generates an election with mock content based on the given parameters.
  */
 export async function generateElectionPackage(
@@ -52,7 +67,9 @@ export async function generateElectionPackage(
   );
 
   const ballotLanguageConfigs = getBallotLanguageConfigs(
-    isMultiLanguage ? Object.values(LanguageCode) : [LanguageCode.ENGLISH]
+    isMultiLanguage
+      ? MULTI_LANGUAGE_FIXTURE_LANGUAGE_CODES
+      : [LanguageCode.ENGLISH]
   );
   const translator = new GoogleCloudTranslatorWithElectionCache({
     priorElectionPackage,

@@ -63,6 +63,7 @@ const vendoredTranslations: VendoredTranslations = {
   [LanguageCode.BENGALI]: {},
   [LanguageCode.CHINESE_SIMPLIFIED]: {},
   [LanguageCode.CHINESE_TRADITIONAL]: {},
+  [LanguageCode.RUSSIAN]: {},
   [LanguageCode.SPANISH]: {},
 };
 

@@ -225,6 +225,7 @@ test('GoogleCloudTranslatorWithDbCache vendored translations', async () => {
     [LanguageCode.BENGALI]: {},
     [LanguageCode.CHINESE_SIMPLIFIED]: {},
     [LanguageCode.CHINESE_TRADITIONAL]: {},
+    [LanguageCode.RUSSIAN]: {},
     [LanguageCode.SPANISH]: {
       'Do you like apples?': 'A vendored Spanish translation',
     },

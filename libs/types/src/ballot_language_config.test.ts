@@ -52,6 +52,7 @@ test('getBallotLanguageConfigs', () => {
       { languages: [LanguageCode.CHINESE_SIMPLIFIED] },
       { languages: [LanguageCode.CHINESE_TRADITIONAL] },
       { languages: [LanguageCode.ENGLISH] },
+      { languages: [LanguageCode.RUSSIAN] },
       { languages: [LanguageCode.SPANISH] },
     ].sort(sortFn)
   );
