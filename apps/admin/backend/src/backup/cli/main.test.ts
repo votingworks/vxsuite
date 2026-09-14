@@ -31,7 +31,9 @@ import {
 import { CANCELLED_EXIT_CODE, main } from './main.js';
 import { createWorkspace, Workspace } from '../../util/workspace.js';
 
-vi.setConfig({ testTimeout: 30_000 });
+vi.mock(import('@votingworks/fs'), async () =>
+  (await import('../../../test/mock_fs.js')).mockFs()
+);
 
 interface RunResult {
   code: number;

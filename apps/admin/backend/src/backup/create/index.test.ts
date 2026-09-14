@@ -23,7 +23,9 @@ import { writeManifest } from './manifest_step.js';
 import { swap } from './swap_step.js';
 import { BackupManifestStructSchema } from '../backup_manifest.js';
 
-vi.setConfig({ testTimeout: 30_000 });
+vi.mock(import('@votingworks/fs'), async () =>
+  (await import('../../../test/mock_fs.js')).mockFs()
+);
 
 vi.mock(
   import('@votingworks/backend'),
