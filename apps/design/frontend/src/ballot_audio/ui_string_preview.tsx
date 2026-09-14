@@ -1,9 +1,11 @@
 import styled from 'styled-components';
 
 import { ElectionStringKey } from '@votingworks/types';
-import { DesktopPalette, richTextStyles } from '@votingworks/ui';
-
-import { cssThemedScrollbars } from '../scrollbars.js';
+import {
+  cssThemedScrollbars,
+  DesktopPalette,
+  richTextStyles,
+} from '@votingworks/ui';
 
 const Container = styled.div`
   display: flex;

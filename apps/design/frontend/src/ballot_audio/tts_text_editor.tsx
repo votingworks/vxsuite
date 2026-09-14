@@ -3,10 +3,16 @@ import styled from 'styled-components';
 
 import { assertDefined } from '@votingworks/basics';
 import { TtsEdit } from '@votingworks/types';
-import { Icons, Button, DesktopPalette, Caption, Font } from '@votingworks/ui';
+import {
+  Icons,
+  Button,
+  cssThemedScrollbars,
+  DesktopPalette,
+  Caption,
+  Font,
+} from '@votingworks/ui';
 
 import * as api from '../api.js';
-import { cssThemedScrollbars } from '../scrollbars.js';
 
 const Container = styled.div`
   display: grid;

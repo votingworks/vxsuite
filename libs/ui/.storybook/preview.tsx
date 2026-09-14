@@ -168,6 +168,7 @@ export const decorators: DecoratorFunction[] = [
           defaultColorMode={globals.colorMode}
           defaultSizeMode={globals.sizeMode}
           screenType={globals.screenType}
+          showScrollBars={context.parameters['showScrollBars'] === true}
         >
           <StoryWrapper context={context}>
             <Story />
