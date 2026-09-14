@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import pluralize from 'pluralize';
 import {
   Button,
   Callout,
@@ -29,9 +28,6 @@ import {
   resendBatchToAdmin,
   retrySendBatchToAdmin,
 } from '../api.js';
-
-pluralize.addIrregularRule('requires', 'require');
-pluralize.addIrregularRule('has', 'have');
 
 function z2(number: number) {
   return number.toString().padStart(2, '0');
