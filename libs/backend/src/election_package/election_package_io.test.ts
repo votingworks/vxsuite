@@ -568,47 +568,11 @@ function ballotsZip(ballots: EncodedBallotEntry[]): ElectionPackageZip {
   );
 }
 
-test('streamElectionPackageBallots streams small ballots in a single batch', async () => {
+test('streamElectionPackageBallots streams small ballots line by line', async () => {
   const ballots = range(0, 501).map(makeTestBallot);
 
-  const batches = await iter(
-    streamElectionPackageBallots(ballotsZip(ballots))
-  ).toArray();
-
-  expect(batches.map((batch) => batch.length)).toEqual([501]);
-  expect(batches.flat()).toEqual(ballots);
-});
-
-test('streamElectionPackageBallots flushes a batch per ballot when each exceeds the batch size', async () => {
-  // ~9MB encoded ballots: each line alone exceeds the 8MB batch cap
-  const ballots = range(0, 2).map((index) => ({
-    ...makeTestBallot(index),
-    encodedBallot: 'x'.repeat(9 * 1024 * 1024),
-  }));
-
-  const batchLengths = await iter(
-    streamElectionPackageBallots(ballotsZip(ballots))
-  )
-    .map((batch) => batch.length)
-    .toArray();
-
-  expect(batchLengths).toEqual([1, 1]);
-});
-
-test('streamElectionPackageBallots caps batches by size for large ballots', async () => {
-  // ~5MB encoded ballots: an 8MB batch cap flushes after every two
-  const ballots = range(0, 3).map((index) => ({
-    ...makeTestBallot(index),
-    encodedBallot: 'x'.repeat(5 * 1024 * 1024),
-  }));
-
-  const batchLengths = await iter(
-    streamElectionPackageBallots(ballotsZip(ballots))
-  )
-    .map((batch) => batch.length)
-    .toArray();
-
-  expect(batchLengths).toEqual([2, 1]);
+  const streamOutput = iter(streamElectionPackageBallots(ballotsZip(ballots)));
+  expect(await streamOutput.toArray()).toEqual(ballots);
 });
 
 test('streamElectionPackageAudioClips streams clips and skips blank lines', async () => {
@@ -626,7 +590,7 @@ test('streamElectionPackageAudioClips streams clips and skips blank lines', asyn
     )
   ).toArray();
 
-  expect(clips.flat()).toEqual(audioClips);
+  expect(clips).toEqual(audioClips);
 });
 
 test('streamElectionPackageBallots yields nothing for a package without ballots', async () => {
