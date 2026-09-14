@@ -1,5 +1,5 @@
+import { randomInt } from 'node:crypto';
 import {
-  assertDefined,
   DateWithoutTime,
   mergeObjects,
   range,
@@ -19,20 +19,17 @@ import {
   pollingPlacesGenerateFromPrecincts,
 } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
+import { randomElement } from '@votingworks/utils';
 import { defaultConfig, GenerateElectionConfig } from './config.js';
 import { ballotMeasureText, seal, words } from './source_text.js';
 
 const generateId = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12);
 
-function chooseRandom<T>(array: T[]): T {
-  return assertDefined(array[Math.floor(Math.random() * array.length)]);
-}
-
 function chooseRandomSubset<T>(array: T[]): T[] {
-  const numItems = Math.floor(Math.random() * array.length);
+  const numItems = array.length === 0 ? 0 : randomInt(0, array.length);
   const result = new Set<T>();
   while (result.size < numItems) {
-    result.add(chooseRandom(array));
+    result.add(randomElement(array));
   }
   return Array.from(result);
 }
@@ -40,7 +37,7 @@ function chooseRandomSubset<T>(array: T[]): T[] {
 function randomString(maxLength: number, sourceWords: string[]): string {
   let result = `${maxLength}:`;
   while (result.length < maxLength) {
-    result += ` ${chooseRandom(sourceWords)}`;
+    result += ` ${randomElement(sourceWords)}`;
   }
   return result.slice(0, maxLength);
 }
@@ -119,10 +116,10 @@ export function generateElection(
   function generateContest(index: number): Contest {
     const baseContest = {
       id: `contest-${index}`,
-      districtId: chooseRandom(districts).id,
+      districtId: randomElement(districts).id,
       title: randomString(maxStringLengths.contestTitle, words.offices),
     } as const;
-    if (Math.random() < 0.5) {
+    if (randomInt(0, 2) === 0) {
       return {
         ...baseContest,
         type: 'candidate',
@@ -135,7 +132,7 @@ export function generateElection(
           (canididateIndex) => ({
             id: `${baseContest.id}-candidate-${canididateIndex}`,
             name: randomString(maxStringLengths.candidateName, words.people),
-            partyId: chooseRandom(parties).id,
+            partyId: randomElement(parties).id,
           })
         ),
         allowWriteIns: true,

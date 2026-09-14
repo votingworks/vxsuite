@@ -1,6 +1,7 @@
 import { execFile } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
 import { assert, assertDefined, sleep } from '@votingworks/basics';
+import { shuffle } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import { AvahiService, hasOnlineInterface } from '@votingworks/networking';
 import { rootDebug } from './debug.js';
@@ -116,11 +117,7 @@ export function fetchEventsFromConnectedPollbooks({
               myMachineInformation.machineId
         );
         if (pollbookQueue.length === 0) {
-          // Shuffle pollbookNames
-          pollbookQueue = pollbookNamesToVisit
-            .map((name) => ({ name, sort: Math.random() }))
-            .sort((a, b) => a.sort - b.sort)
-            .map(({ name }) => name);
+          pollbookQueue = shuffle(pollbookNamesToVisit);
         }
 
         // Select up to NETWORK_GOSSIP_BRANCHING_FACTOR pollbooks from the queue

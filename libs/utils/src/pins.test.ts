@@ -1,7 +1,6 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import fc from 'fast-check';
-import randomBytes from 'randombytes';
-import { Buffer } from 'node:buffer';
+import { randomInt } from 'node:crypto';
 
 import { isFeatureFlagEnabled } from './features';
 import {
@@ -16,7 +15,10 @@ vi.mock('./features', async () => ({
   isFeatureFlagEnabled: vi.fn(),
 }));
 
-vi.mock('randombytes', () => ({ default: vi.fn() }));
+vi.mock('node:crypto', async () => ({
+  ...(await vi.importActual('node:crypto')),
+  randomInt: vi.fn(),
+}));
 
 const WEAK_PIN_EXAMPLES: string[] = [
   '000000',
@@ -46,25 +48,26 @@ const WEAK_PIN_EXAMPLES: string[] = [
   '200200',
 ];
 
-function setMockRandomBytesResultOnce(pin: string) {
-  const pinAsByteArray = Buffer.from(
-    pin.split('').map((char) => Number.parseInt(char, 10))
-  );
-  vi.mocked(randomBytes).mockImplementationOnce(() => pinAsByteArray);
+function setMockPinOnce(pin: string) {
+  for (const char of pin) {
+    vi.mocked(randomInt).mockImplementationOnce(
+      () => Number.parseInt(char, 10) as never
+    );
+  }
 }
 
 beforeEach(() => {
   vi.mocked(isFeatureFlagEnabled).mockImplementation(() => false);
-  vi.mocked(randomBytes).mockReset();
+  vi.mocked(randomInt).mockReset();
 });
 
 test('generatePin defaults to MIN_PIN_LENGTH', () => {
-  setMockRandomBytesResultOnce('1029384756');
+  setMockPinOnce('1029384756');
   expect(generatePin()).toHaveLength(MIN_PIN_LENGTH);
 });
 
 test('generatePin generates PINs of specified length', () => {
-  setMockRandomBytesResultOnce('1020304050');
+  setMockPinOnce('1020304050');
   expect(generatePin(7)).toEqual('1020304');
 });
 
@@ -95,22 +98,22 @@ test('generatePIN generates PINs with all zeros when all-zero smart card PIN gen
 test('generatePin returns first non-weak random PIN', () => {
   const nonWeakPin = '551028';
 
-  setMockRandomBytesResultOnce(nonWeakPin);
+  setMockPinOnce(nonWeakPin);
   for (const weakPin of WEAK_PIN_EXAMPLES) {
-    setMockRandomBytesResultOnce(weakPin);
+    setMockPinOnce(weakPin);
   }
 
   expect(generatePin()).toEqual(nonWeakPin);
-  expect(vi.mocked(randomBytes)).toBeCalledTimes(1);
+  expect(vi.mocked(randomInt)).toBeCalledTimes(MIN_PIN_LENGTH);
 });
 
 test('generatePin skips weak PINs', () => {
   const nonWeakPin = '223344';
 
   for (const weakPin of WEAK_PIN_EXAMPLES) {
-    setMockRandomBytesResultOnce(weakPin);
+    setMockPinOnce(weakPin);
   }
-  setMockRandomBytesResultOnce(nonWeakPin);
+  setMockPinOnce(nonWeakPin);
 
   expect(generatePin()).toEqual(nonWeakPin);
 });

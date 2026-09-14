@@ -1,4 +1,4 @@
-import randomBytes from 'randombytes';
+import { randomInt } from 'node:crypto';
 import { BooleanEnvironmentVariableName } from './environment_variable';
 import { isFeatureFlagEnabled } from './features';
 
@@ -45,11 +45,9 @@ const SEQUENTIAL_DIGIT_SUBSTRINGS: string[] = ((): string[] => {
 })();
 
 function newRandomPin(length: number): string {
-  const bytes = randomBytes(length);
   let pin = '';
   for (let i = 0; i < length; i += 1) {
-    const nextDigit = (bytes[i] as number) % 10;
-    pin += `${nextDigit}`;
+    pin += `${randomInt(0, 10)}`;
   }
   return pin;
 }

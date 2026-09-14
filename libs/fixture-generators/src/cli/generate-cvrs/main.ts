@@ -6,7 +6,7 @@ import {
   anyPollingPlace,
 } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
-import { assert, assertDefined, iter } from '@votingworks/basics';
+import { assertDefined, iter } from '@votingworks/basics';
 import {
   CastVoteRecordToExport,
   writeCastVoteRecordExport,
@@ -17,7 +17,8 @@ import yargs from 'yargs/yargs';
 import { encodeImageData, createImageData } from '@votingworks/image-utils';
 import { basename, join, parse } from 'node:path';
 import { prepareSignatureFile } from '@votingworks/auth';
-import { createHash } from 'node:crypto';
+import { createHash, randomInt } from 'node:crypto';
+import { randomElement } from '@votingworks/utils';
 import {
   generateBallotPageLayouts,
   generateCvrs,
@@ -177,7 +178,7 @@ export async function main(
     );
     // Remove random entries from the CVR list until the desired number of ballots is reached
     while (numBallots < castVoteRecords.length) {
-      const i = Math.floor(Math.random() * castVoteRecords.length);
+      const i = randomInt(0, castVoteRecords.length);
       castVoteRecords.splice(i, 1);
     }
   }
@@ -185,9 +186,7 @@ export async function main(
   let ballotId = castVoteRecords.length;
   // Duplicate random ballots until the desired number of ballots is reached.
   while (numBallots > castVoteRecords.length) {
-    const i = Math.floor(Math.random() * uniqueCastVoteRecordCount);
-    const castVoteRecord = castVoteRecords[i];
-    assert(castVoteRecord);
+    const castVoteRecord = randomElement(castVoteRecords);
 
     // we need each cast vote record to have a unique id
     const newCastVoteRecord = replaceUniqueId(
