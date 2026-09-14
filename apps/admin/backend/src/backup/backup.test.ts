@@ -6,6 +6,10 @@ import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { makeBackup, mockDiskSpace } from '../../test/backup.js';
 import { Backup } from './backup.js';
 
+vi.mock(import('@votingworks/fs'), async () =>
+  (await import('../../test/mock_fs.js')).mockFs()
+);
+
 vi.mock(
   import('@votingworks/backend'),
   async (importActual): Promise<typeof import('@votingworks/backend')> => {

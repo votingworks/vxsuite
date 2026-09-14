@@ -8,19 +8,11 @@ import { exchangePaths, syncFilesystem, SyscallError } from '@votingworks/fs';
 import { swap } from './swap_step.js';
 import { ProgressEvent } from '../progress.js';
 
-vi.setConfig({ testTimeout: 30_000 });
-
-vi.mock(
-  import('@votingworks/fs'),
-  async (importActual): Promise<typeof import('@votingworks/fs')> => {
-    const actual = await importActual();
-    return {
-      ...actual,
-      exchangePaths: vi.fn(actual.exchangePaths),
-      syncFilesystem: vi.fn(actual.syncFilesystem),
-    };
-  }
-);
+vi.mock(import('@votingworks/fs'), async () => {
+  const { mockFs } = await import('../../../test/mock_fs.js');
+  const fs = await mockFs();
+  return { ...fs, exchangePaths: vi.fn(fs.exchangePaths) };
+});
 
 function makeBackupDirectory(path: string, contents: string): string {
   mkdirSync(path, { recursive: true });

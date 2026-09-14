@@ -57,8 +57,6 @@ import {
 import { restoreBackup } from './index.js';
 import { ProgressEvent } from '../progress.js';
 
-vi.setConfig({ testTimeout: 30_000 });
-
 vi.mock(
   import('@votingworks/backend'),
   async (importActual): Promise<typeof import('@votingworks/backend')> => {
@@ -70,15 +68,8 @@ vi.mock(
   }
 );
 
-vi.mock(
-  import('@votingworks/fs'),
-  async (importActual): Promise<typeof import('@votingworks/fs')> => {
-    const actual = await importActual();
-    return {
-      ...actual,
-      syncFilesystem: vi.fn(actual.syncFilesystem),
-    };
-  }
+vi.mock(import('@votingworks/fs'), async () =>
+  (await import('../../../test/mock_fs.js')).mockFs()
 );
 
 beforeEach(() => {
