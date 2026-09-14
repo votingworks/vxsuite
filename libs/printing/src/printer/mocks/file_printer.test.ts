@@ -7,7 +7,7 @@ import {
   readdirSync,
   writeFileSync,
 } from 'node:fs';
-import { sleep } from '@votingworks/basics';
+import { err, sleep } from '@votingworks/basics';
 import { PDFDocument } from 'pdf-lib';
 import { PrinterStatus } from '@votingworks/types';
 import {
@@ -164,4 +164,22 @@ test('trimOldPrints removes oldest files when over 100', () => {
   getMockFilePrinterHandler();
 
   expect(readdirSync(MOCK_PRINTER_OUTPUT_DIR)).toHaveLength(100);
+});
+
+test('tracks each print as sent to the printer', async () => {
+  const filePrinter = new MockFilePrinter();
+  getMockFilePrinterHandler().connectPrinter(HP_4001_PRINTER_CONFIG);
+
+  const jobId = await filePrinter.print({ data: Buffer.from('test') });
+
+  expect(filePrinter.getJobStatus(jobId).unsafeUnwrap()).toEqual({
+    outcome: 'sent-to-printer',
+  });
+  expect(filePrinter.getJobStatus(jobId + 1000)).toEqual(
+    err(expect.any(Error))
+  );
+});
+
+test('clearing the job queue is a no-op', async () => {
+  await expect(new MockFilePrinter().clearJobQueue()).resolves.toBeUndefined();
 });

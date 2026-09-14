@@ -1,7 +1,9 @@
+import { Result } from '@votingworks/basics';
 import {
   HmpbBallotPaperSize,
   PrinterStatus,
   PrintJobId,
+  PrintJobStatus,
 } from '@votingworks/types';
 
 export enum PrintSides {
@@ -47,6 +49,8 @@ export type PrintFunction = (props: PrintProps) => Promise<PrintJobId>;
 export interface Printer {
   status: () => Promise<PrinterStatus>;
   print: PrintFunction;
+  getJobStatus: (jobId: PrintJobId) => Result<PrintJobStatus, Error>;
+  clearJobQueue: () => Promise<void>;
 }
 
 export interface MockPrintJob {

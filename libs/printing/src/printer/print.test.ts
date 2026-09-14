@@ -1,6 +1,6 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import { ok } from '@votingworks/basics';
-import { exec } from '../utils/exec.js';
+import { err, ok } from '@votingworks/basics';
+import { ExecError, exec } from '../utils/exec.js';
 import { DEFAULT_MANAGED_PRINTER_NAME } from './configure.js';
 import { cancelAllJobs, print } from './print.js';
 import { PrintSides } from './types.js';
@@ -158,10 +158,23 @@ test('fails fast if the job id cannot be parsed from lp output', async () => {
 test('cancels all queued jobs', async () => {
   vi.mocked(exec).mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
 
-  await cancelAllJobs();
+  expect(await cancelAllJobs()).toEqual(ok());
 
   expect(exec).toHaveBeenCalledWith('cancel', [
     '-a',
     DEFAULT_MANAGED_PRINTER_NAME,
   ]);
+});
+
+test('returns an error when cancelling fails', async () => {
+  const execError: ExecError = {
+    code: 1,
+    signal: null,
+    stdout: '',
+    stderr: 'cancel: Error - unknown destination "VxPrinter".\n',
+    cmd: 'cancel',
+  };
+  vi.mocked(exec).mockResolvedValueOnce(err(execError));
+
+  expect(await cancelAllJobs()).toEqual(err(execError));
 });

@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
+import { err, ok } from '@votingworks/basics';
 import { mockFunction } from '@votingworks/test-utils';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import {
@@ -16,6 +17,7 @@ import {
   HP_M404_PRINTER_CONFIG,
 } from './index.js';
 import { MockFilePrinter } from './mocks/file_printer.js';
+import { startPrintJobMonitor } from './job_monitor.js';
 
 const featureFlagMock = getFeatureFlagMock();
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
@@ -59,19 +61,32 @@ vi.mock(
 );
 
 const mockPrintData = mockFunction('mockPrintData');
+const mockCancelAllJobs = mockFunction('cancelAllJobs');
 vi.mock(
   import('./print.js'),
   async (importActual): Promise<typeof import('./print.js')> => ({
     ...(await importActual()),
     print: (props) => mockPrintData(props),
+    cancelAllJobs: () => mockCancelAllJobs(),
   })
 );
+
+vi.mock(import('./job_monitor.js'), async (importActual) => ({
+  ...(await importActual()),
+  startPrintJobMonitor: vi.fn(({ setStatus }) => {
+    setStatus({ outcome: 'in-progress' });
+    return { stop: vi.fn() };
+  }),
+}));
+
+const MOCK_JOB_ID = 1;
 
 beforeEach(() => {
   mockConfigurePrinter.reset();
   mockGetConnectedDeviceUris.reset();
   mockGetPrinterRichStatus.reset();
   mockPrintData.reset();
+  mockCancelAllJobs.reset();
   isDeviceAttachedMock.mockReturnValue(true);
 });
 
@@ -80,6 +95,7 @@ afterEach(() => {
   mockGetConnectedDeviceUris.assertComplete();
   mockGetPrinterRichStatus.assertComplete();
   mockPrintData.assertComplete();
+  mockCancelAllJobs.assertComplete();
 });
 
 test('status and configuration', async () => {
@@ -125,7 +141,7 @@ test('status and configuration', async () => {
 
   mockPrintData
     .expectCallWith({ data: Buffer.of(), raw: {} })
-    .returns(undefined);
+    .returns(MOCK_JOB_ID);
   await printer.print({ data: Buffer.of() });
 
   // supported printer does not configure again
@@ -154,6 +170,7 @@ test('status and configuration', async () => {
   // printer detached is registered when isDeviceAttached shows it is gone
   mockGetConnectedDeviceUris.expectCallWith().returns([]);
   isDeviceAttachedMock.mockReturnValue(false);
+  mockCancelAllJobs.expectCallWith().returns(ok());
   expect(await printer.status()).toEqual({ connected: false });
   expect(logger.log).toHaveBeenCalledTimes(2);
   expect(logger.log).toHaveBeenLastCalledWith(
@@ -240,7 +257,7 @@ describe('printer-specific print options', () => {
         data: Buffer.of(),
         raw: { 'pdftops-renderer': 'pdftops' },
       })
-      .returns(undefined);
+      .returns(MOCK_JOB_ID);
     await printer.print({ data: Buffer.of() });
   });
 
@@ -256,7 +273,7 @@ describe('printer-specific print options', () => {
 
     mockPrintData
       .expectCallWith({ data: Buffer.of(), raw: {} })
-      .returns(undefined);
+      .returns(MOCK_JOB_ID);
     await printer.print({ data: Buffer.of() });
   });
 
@@ -275,7 +292,7 @@ describe('printer-specific print options', () => {
         data: Buffer.of(),
         raw: { InputSlot: 'M404_Tray2' },
       })
-      .returns(undefined);
+      .returns(MOCK_JOB_ID);
     await printer.print({ data: Buffer.of() });
   });
 
@@ -284,7 +301,7 @@ describe('printer-specific print options', () => {
 
     mockPrintData
       .expectCallWith({ data: Buffer.of(), raw: {} })
-      .returns(undefined);
+      .returns(MOCK_JOB_ID);
     await printer.print({ data: Buffer.of() });
   });
 
@@ -303,10 +320,68 @@ describe('printer-specific print options', () => {
         data: Buffer.of(),
         raw: { 'pdftops-renderer': 'gs' },
       })
-      .returns(undefined);
+      .returns(MOCK_JOB_ID);
     await printer.print({
       data: Buffer.of(),
       raw: { 'pdftops-renderer': 'gs' },
     });
   });
+});
+
+test('job status tracking', async () => {
+  const printer = detectPrinter(mockBaseLogger({ fn: vi.fn }));
+
+  const uri = `${HP_4001_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
+  mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
+  mockConfigurePrinter
+    .expectCallWith({ uri, config: HP_4001_PRINTER_CONFIG })
+    .returns(undefined);
+  mockGetPrinterRichStatus.expectCallWith().returns(undefined);
+  await printer.status();
+
+  expect(printer.getJobStatus(MOCK_JOB_ID)).toEqual(err(expect.any(Error)));
+
+  mockPrintData
+    .expectCallWith({ data: Buffer.of(), raw: {} })
+    .returns(MOCK_JOB_ID);
+  const jobId = await printer.print({ data: Buffer.of() });
+
+  expect(printer.getJobStatus(jobId)).toEqual(ok({ outcome: 'in-progress' }));
+
+  // the monitor stops tracking the job once its retention window elapses
+  const [monitorContext] = vi.mocked(startPrintJobMonitor).mock.calls[0];
+  monitorContext.clearStatus();
+  expect(printer.getJobStatus(jobId)).toEqual(err(expect.any(Error)));
+
+  mockCancelAllJobs.expectCallWith().returns(ok());
+  await printer.clearJobQueue();
+});
+
+test('still reports the disconnect when clearing the queue fails', async () => {
+  const printer = detectPrinter(mockBaseLogger({ fn: vi.fn }));
+
+  const uri = `${HP_4001_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
+  mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
+  mockConfigurePrinter
+    .expectCallWith({ uri, config: HP_4001_PRINTER_CONFIG })
+    .returns(undefined);
+  mockGetPrinterRichStatus.expectCallWith().returns(undefined);
+  expect(await printer.status()).toEqual({
+    connected: true,
+    config: HP_4001_PRINTER_CONFIG,
+  });
+
+  mockGetConnectedDeviceUris.expectCallWith().returns([]);
+  isDeviceAttachedMock.mockReturnValue(false);
+  mockCancelAllJobs.expectCallWith().returns(
+    err({
+      code: 1,
+      signal: null,
+      stdout: '',
+      stderr: 'cancel: Error - unknown destination "VxPrinter".\n',
+      cmd: 'cancel',
+    })
+  );
+
+  expect(await printer.status()).toEqual({ connected: false });
 });
