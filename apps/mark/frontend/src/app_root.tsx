@@ -11,6 +11,7 @@ import {
   BallotStyleId,
   InsertedSmartCardAuth,
   PrinterStatus,
+  PrintJobId,
 } from '@votingworks/types';
 
 import { useHistory } from 'react-router-dom';
@@ -84,6 +85,7 @@ export interface VotingState {
   showingPatCalibration?: boolean;
   isPatCalibrationComplete?: boolean;
   hasPrintedBallot?: boolean;
+  printJobId?: PrintJobId;
 }
 
 export const blankBallotVotes: VotesDict = {};
@@ -102,6 +104,7 @@ const initialVotingState: Readonly<VotingState> = {
   showingPatCalibration: undefined,
   isPatCalibrationComplete: undefined,
   hasPrintedBallot: undefined,
+  printJobId: undefined,
 };
 
 // Sets State. All side effects done outside: storage, fetching, etc
@@ -112,7 +115,8 @@ type VotingAction =
   | { type: 'selectParty'; partyId: PartyId }
   | { type: 'showPatCalibration' }
   | { type: 'completePatCalibration' }
-  | { type: 'setHasPrintedBallot' };
+  | { type: 'setHasPrintedBallot' }
+  | { type: 'setPrintJobId'; printJobId: PrintJobId };
 
 function votingStateReducer(
   state: VotingState,
@@ -159,6 +163,8 @@ function votingStateReducer(
       };
     case 'setHasPrintedBallot':
       return { ...state, hasPrintedBallot: true };
+    case 'setPrintJobId':
+      return { ...state, printJobId: action.printJobId };
     default: {
       throwIllegalValue(action);
     }
@@ -178,6 +184,7 @@ export function AppRoot(): JSX.Element | null {
     showingPatCalibration,
     isPatCalibrationComplete,
     hasPrintedBallot,
+    printJobId,
   } = votingState;
 
   const history = useHistory();
@@ -307,6 +314,10 @@ export function AppRoot(): JSX.Element | null {
       onSessionEnd,
     ]
   );
+
+  const setPrintJobId = useCallback((newPrintJobId: PrintJobId) => {
+    dispatchVotingState({ type: 'setPrintJobId', printJobId: newPrintJobId });
+  }, []);
 
   const setHasPrintedBallot = useCallback(() => {
     dispatchVotingState({ type: 'setHasPrintedBallot' });
@@ -644,6 +655,8 @@ export function AppRoot(): JSX.Element | null {
               selectedPartyId,
               selectParty,
               setHasPrintedBallot,
+              printJobId,
+              setPrintJobId,
               updateVote,
               votes: votes ?? blankBallotVotes,
             }}
