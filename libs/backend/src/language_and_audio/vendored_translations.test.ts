@@ -46,18 +46,18 @@ test('every language covers the reference (Spanish) key set', () => {
   );
   expect(referenceKeys.size).toBeGreaterThan(0);
 
-  for (const [languageCode, keys] of nonEmptyLanguages(vendoredTranslations)) {
-    const missing = [...referenceKeys].filter((key) => !keys.has(key));
-    expect(missing, `${languageCode} is missing reference keys`).toEqual([]);
-  }
+  const languagesMissingReferenceKeys = nonEmptyLanguages(vendoredTranslations)
+    .map(([languageCode, keys]) => ({
+      languageCode,
+      missing: [...referenceKeys].filter((key) => !keys.has(key)),
+    }))
+    .filter(({ missing }) => missing.length > 0);
+  expect(languagesMissingReferenceKeys).toEqual([]);
 });
 
 test('no translation is empty', () => {
-  for (const [languageCode, englishText, translation] of eachTranslation(
-    parseVendoredTranslations()
-  )) {
-    expect(translation.trim(), `${languageCode}: ${englishText}`).not.toEqual(
-      ''
-    );
-  }
+  const emptyTranslations = eachTranslation(parseVendoredTranslations())
+    .filter(([, , translation]) => translation.trim() === '')
+    .map(([languageCode, englishText]) => `${languageCode}: ${englishText}`);
+  expect(emptyTranslations).toEqual([]);
 });
