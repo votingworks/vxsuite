@@ -4,7 +4,7 @@ import {
 } from '@votingworks/fixtures';
 import { RgbaImageData } from '@votingworks/types';
 import { afterAll, beforeAll, expect } from 'vitest';
-import { toMatchImage, ToMatchImageOptions } from '../src';
+import { toMatchImage, ToMatchImageOptions } from '../src/index.js';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

@@ -6,7 +6,7 @@ import { writeFile } from 'node:fs/promises';
 import { makeTemporaryFile } from '@votingworks/fixtures';
 import { randomFillSync } from 'node:crypto';
 import { err, ok, MaybePromise } from '@votingworks/basics';
-import { arbitraryImageData } from '../test/arbitraries';
+import { arbitraryImageData } from '../test/arbitraries.js';
 import {
   RGBA_CHANNEL_COUNT,
   createGrayImageData,
@@ -23,7 +23,7 @@ import {
   toGrayScale,
   toImageBuffer,
   writeImageData,
-} from './image_data';
+} from './image_data.js';
 
 test('createGrayImageData with dimensions', () => {
   const image = createGrayImageData(3, 2);

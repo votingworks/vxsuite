@@ -1,7 +1,7 @@
 import type * as vitest from 'vitest';
 import { readFile } from 'node:fs/promises';
-import { pdfToImages } from './pdf_to_images';
-import { toImageBuffer } from './image_data';
+import { pdfToImages } from './pdf_to_images.js';
+import { toImageBuffer } from './image_data.js';
 
 /**
  * Options for `toMatchPdfSnapshot`.

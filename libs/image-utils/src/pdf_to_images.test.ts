@@ -5,17 +5,17 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { expect, test } from 'vitest';
 import { ImageData } from 'canvas';
-import { isRgba } from './image_data';
+import { isRgba } from './image_data.js';
 import {
   PdfPage,
   getPdfPageCount,
   parsePdf,
   pdfToImages,
-} from './pdf_to_images';
+} from './pdf_to_images.js';
 
 async function readMsBallotPdf(): Promise<Uint8Array> {
   return Uint8Array.from(
-    await readFile(join(__dirname, '../test/fixtures/ms-ballot.pdf'))
+    await readFile(join(import.meta.dirname, '../test/fixtures/ms-ballot.pdf'))
   );
 }
 
