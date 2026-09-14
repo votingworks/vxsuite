@@ -2,13 +2,11 @@ import React, { useState } from 'react';
 import {
   Button,
   Callout,
-  Font,
   Icons,
   Loading,
   Modal,
   P,
-  TD,
-  Table,
+  ScrollTable,
 } from '@votingworks/ui';
 import { BatchInfo } from '@votingworks/types';
 import styled from 'styled-components';
@@ -20,6 +18,7 @@ import { format } from '@votingworks/utils';
 import { DeleteBatchModal } from '../components/delete_batch_modal.js';
 import { NavigationScreen } from '../navigation_screen.js';
 import { ExportResultsModal } from '../components/export_results_modal.js';
+import { BatchSummaryStats } from '../components/batch_summary_stats.js';
 import {
   clearBallotData,
   getNetworkStatus,
@@ -27,56 +26,29 @@ import {
   retrySendBatchToAdmin,
 } from '../api.js';
 
-function z2(number: number) {
-  return number.toString().padStart(2, '0');
-}
-
-function shortDateTime(iso8601Timestamp: string) {
-  const d = new Date(iso8601Timestamp);
-  return `${d.getFullYear()}-${z2(d.getMonth() + 1)}-${z2(
-    d.getDate()
-  )} ${d.getHours()}:${z2(d.getMinutes())}:${z2(d.getSeconds())}`;
-}
-
-// Wide enough for a full timestamp on one line so the column doesn't resize
-// when a batch flips from "Not sent" to its sent time; longer status text
-// wraps rather than widening the table.
-const SentAtCell = styled(TD)`
-  width: 10rem;
-  white-space: normal;
-`;
-
-const Timestamp = styled.span`
-  white-space: nowrap;
-`;
-
-// Always wide enough for a send action (Retry/Resend) beside Delete, so the
-// column doesn't resize when one appears.
-const ActionsCell = styled(TD)`
-  min-width: 12.25rem;
-`;
-
-const Actions = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.25rem;
-`;
-
 const Content = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  height: 100%;
 `;
 
-const TopBar = styled.div`
+const BatchTable = styled(ScrollTable)`
+  flex: 1;
+
+  ${ScrollTable.Cell} {
+    padding: 0.25rem 0.75rem;
+  }
+
+  button {
+    padding: 0.5rem 0.75rem;
+  }
+`;
+
+const TextWithIcon = styled.div`
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-`;
-
-const DeleteAllWrapper = styled.div`
-  display: flex;
-  justify-content: flex-end;
+  gap: 0.5rem;
 `;
 
 export interface BatchHistoryScreenProps {
@@ -96,18 +68,22 @@ function SendingPausedCallout({
     case 'online-results-official':
       return (
         <Callout color="warning" icon="Warning">
-          VxAdmin ({connection.hostMachineId}) has marked its results official
-          and is not accepting batches. Batches will not be sent to VxAdmin.
+          <div>
+            <strong>Sync Stopped:</strong> VxAdmin ({connection.hostMachineId})
+            has marked its results official.
+          </div>
         </Callout>
       );
     case 'online-invalid-mode':
       return (
         <Callout color="warning" icon="Warning">
-          VxAdmin ({connection.hostMachineId}) is tabulating{' '}
-          {connection.hostCvrFileMode} results, but this machine is in{' '}
-          {connection.hostCvrFileMode === 'official' ? 'test' : 'official'}{' '}
-          ballot mode. Batches will not be sent to VxAdmin until the modes
-          match.
+          <div>
+            <strong>Sync Stopped:</strong> VxAdmin ({connection.hostMachineId})
+            is tabulating {connection.hostCvrFileMode} ballots, but this machine
+            is scanning{' '}
+            {connection.hostCvrFileMode === 'official' ? 'test' : 'official'}{' '}
+            ballots.
+          </div>
         </Callout>
       );
     default:
@@ -116,9 +92,8 @@ function SendingPausedCallout({
 }
 
 interface BatchSendState {
-  /** What the "Sent At" cell shows. */
-  contents: JSX.Element;
-  /** An operator action offered beside Delete, if any. */
+  icon: JSX.Element;
+  label: string;
   action?: 'retry' | 'resend';
 }
 
@@ -126,40 +101,26 @@ function getBatchSendState(batch: BatchInfo): BatchSendState {
   if (batch.sentToAdminAt) {
     if (batch.removedFromAdminAt) {
       return {
-        contents: (
-          <React.Fragment>
-            <Icons.Warning color="warning" /> Removed from VxAdmin
-          </React.Fragment>
-        ),
+        icon: <Icons.Cancel color="warning" />,
+        label: 'Removed',
         action: 'resend',
       };
     }
-    return {
-      contents: <Timestamp>{shortDateTime(batch.sentToAdminAt)}</Timestamp>,
-    };
+    return { icon: <Icons.Done color="primary" />, label: 'Sent' };
   }
   if (batch.sendToAdminError) {
     return {
-      contents: (
-        <React.Fragment>
-          <Icons.Danger color="danger" /> Send failed
-        </React.Fragment>
-      ),
+      icon: <Icons.Danger color="danger" />,
+      label: 'Failed',
       action: 'retry',
     };
   }
   // Covers the attempt in flight and any wait to retry after a transient
   // failure, so the cell doesn't flicker between attempts.
   if (batch.isSendingToAdmin) {
-    return {
-      contents: (
-        <Font weight="bold">
-          <Icons.Loading /> Sending…
-        </Font>
-      ),
-    };
+    return { icon: <Icons.Loading />, label: 'Sending…' };
   }
-  return { contents: <Font weight="light">Not sent</Font> };
+  return { icon: <Icons.Circle />, label: 'Not sent' };
 }
 
 export function BatchHistoryScreen({
@@ -167,7 +128,6 @@ export function BatchHistoryScreen({
 }: BatchHistoryScreenProps): JSX.Element {
   const { batches, state } = status;
   const isScanning = state === 'scanning';
-  const batchCount = batches.length;
 
   const [isExportingCvrs, setIsExportingCvrs] = useState(false);
   const [pendingDeleteBatch, setPendingDeleteBatch] = useState<BatchInfo>();
@@ -184,6 +144,7 @@ export function BatchHistoryScreen({
   function resetDeleteBallotDataFlow() {
     setDeleteBallotDataFlowState(undefined);
   }
+
   function deleteBallotData() {
     setDeleteBallotDataFlowState('deleting');
     clearBallotDataMutation.mutate(undefined, {
@@ -194,114 +155,117 @@ export function BatchHistoryScreen({
   return (
     <NavigationScreen title="Batch History">
       <Content>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <BatchSummaryStats status={status} />
+          <div
+            style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}
+          >
+            <Button
+              onPress={() => setIsExportingCvrs(true)}
+              icon="Export"
+              fill="tinted"
+              color="primary"
+              disabled={batches.length === 0}
+            >
+              Save CVRs
+            </Button>
+            <Button
+              icon="Delete"
+              fill="tinted"
+              disabled={batches.length === 0 || isScanning}
+              onPress={() => setDeleteBallotDataFlowState('confirmation')}
+            >
+              Delete All Batches
+            </Button>
+          </div>
+        </div>
         {isNetworkingEnabled && networkStatus && (
           <SendingPausedCallout connection={networkStatus.connection} />
         )}
-        <TopBar>
-          <Button
-            onPress={() => setIsExportingCvrs(true)}
-            disabled={status.batches.length === 0}
-            icon="Export"
-            color="primary"
-          >
-            Save CVRs
-          </Button>
-        </TopBar>
-        {batchCount ? (
-          <React.Fragment>
-            <div>
-              <Table>
-                <thead>
-                  <tr>
-                    <th>Batch Name</th>
-                    <th>Sheet Count</th>
-                    <th>Started At</th>
-                    <th>Finished At</th>
-                    {isNetworkingEnabled && <th>Sent At</th>}
-                    <th>&nbsp;</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {batches.map((batch) => {
-                    const sendState = isNetworkingEnabled
-                      ? getBatchSendState(batch)
-                      : undefined;
-                    return (
-                      <tr key={batch.id}>
-                        <TD nowrap>{batch.label}</TD>
-                        <td>{format.count(batch.count)}</td>
-                        <TD nowrap>{shortDateTime(batch.startedAt)}</TD>
-                        <TD nowrap>
-                          {/* @coverage-defer */}
-                          {isScanning && !batch.endedAt ? (
-                            <Font weight="bold">
-                              <Icons.Loading /> Scanning…
-                            </Font>
-                          ) : batch.endedAt ? (
-                            shortDateTime(batch.endedAt)
-                          ) : null}
-                        </TD>
-                        {sendState && (
-                          <SentAtCell>{sendState.contents}</SentAtCell>
+        {batches.length > 0 && (
+          <BatchTable>
+            <ScrollTable.Header>
+              <ScrollTable.Column>Batch</ScrollTable.Column>
+              <ScrollTable.Column>Sheets</ScrollTable.Column>
+              <ScrollTable.Column>Scanned At</ScrollTable.Column>
+              {isNetworkingEnabled && (
+                <ScrollTable.Column>VxAdmin&nbsp;Sync</ScrollTable.Column>
+              )}
+              <ScrollTable.Column width="min-content">
+                &nbsp;
+              </ScrollTable.Column>
+            </ScrollTable.Header>
+            <ScrollTable.Body>
+              {batches.map((batch) => {
+                const sendState = getBatchSendState(batch);
+                return (
+                  <ScrollTable.Row key={batch.id}>
+                    <ScrollTable.Cell>{batch.label}</ScrollTable.Cell>
+                    <ScrollTable.Cell>
+                      {format.count(batch.count)}
+                    </ScrollTable.Cell>
+                    <ScrollTable.Cell>
+                      {isScanning && !batch.endedAt ? (
+                        <TextWithIcon>
+                          <Icons.Loading /> Scanning…
+                        </TextWithIcon>
+                      ) : (
+                        batch.endedAt &&
+                        format.localeShortDateAndTime(new Date(batch.endedAt))
+                      )}
+                    </ScrollTable.Cell>
+                    {isNetworkingEnabled && (
+                      <ScrollTable.Cell>
+                        <TextWithIcon style={{ width: '6.5rem' }}>
+                          {sendState.icon}
+                          {sendState.label}
+                        </TextWithIcon>
+                        {sendState.action === 'retry' && (
+                          <Button
+                            icon="Redo"
+                            fill="outlined"
+                            onPress={() =>
+                              retrySendMutation.mutate({
+                                batchId: batch.id,
+                              })
+                            }
+                            disabled={retrySendMutation.isLoading}
+                          >
+                            Retry
+                          </Button>
                         )}
-                        <ActionsCell narrow>
-                          <Actions>
-                            {sendState?.action === 'retry' && (
-                              <Button
-                                onPress={() =>
-                                  retrySendMutation.mutate({
-                                    batchId: batch.id,
-                                  })
-                                }
-                                disabled={retrySendMutation.isLoading}
-                              >
-                                Retry
-                              </Button>
-                            )}
-                            {sendState?.action === 'resend' && (
-                              <Button
-                                onPress={() =>
-                                  resendMutation.mutate({ batchId: batch.id })
-                                }
-                                disabled={resendMutation.isLoading}
-                              >
-                                Resend
-                              </Button>
-                            )}
-                            <Button
-                              icon="Delete"
-                              fill="transparent"
-                              color="danger"
-                              // @coverage-defer
-                              onPress={() => setPendingDeleteBatch(batch)}
-                              style={{ flexWrap: 'nowrap' }}
-                              disabled={isScanning}
-                            >
-                              Delete
-                            </Button>
-                          </Actions>
-                        </ActionsCell>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </Table>
-            </div>
-            <DeleteAllWrapper>
-              <Button
-                icon="Delete"
-                color="danger"
-                disabled={isScanning}
-                onPress={() => setDeleteBallotDataFlowState('confirmation')}
-              >
-                Delete All Batches
-              </Button>
-            </DeleteAllWrapper>
-          </React.Fragment>
-        ) : null}
+                        {sendState.action === 'resend' && (
+                          <Button
+                            icon="Redo"
+                            fill="outlined"
+                            onPress={() =>
+                              resendMutation.mutate({ batchId: batch.id })
+                            }
+                            disabled={resendMutation.isLoading}
+                          >
+                            Resend
+                          </Button>
+                        )}
+                      </ScrollTable.Cell>
+                    )}
+                    <ScrollTable.Cell>
+                      <Button
+                        icon="Delete"
+                        fill="transparent"
+                        onPress={() => setPendingDeleteBatch(batch)}
+                        disabled={isScanning}
+                      >
+                        Delete
+                      </Button>
+                    </ScrollTable.Cell>
+                  </ScrollTable.Row>
+                );
+              })}
+            </ScrollTable.Body>
+          </BatchTable>
+        )}
       </Content>
       {pendingDeleteBatch && (
-        // @coverage-defer
         <DeleteBatchModal
           batchId={pendingDeleteBatch.id}
           batchLabel={pendingDeleteBatch.label}

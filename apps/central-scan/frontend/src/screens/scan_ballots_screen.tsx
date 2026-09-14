@@ -1,10 +1,9 @@
-import { Callout, Font, Icons, P } from '@votingworks/ui';
+import { Callout } from '@votingworks/ui';
 import styled from 'styled-components';
-import { iter } from '@votingworks/basics';
 import type { ScanStatus } from '@votingworks/central-scan-backend';
-import { format } from '@votingworks/utils';
 import { NavigationScreen } from '../navigation_screen.js';
 import { ScanButton } from '../components/scan_button.js';
+import { BatchSummaryStats } from '../components/batch_summary_stats.js';
 
 const Content = styled.div`
   display: flex;
@@ -14,26 +13,8 @@ const Content = styled.div`
 
 const TopBar = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const TopBarStats = styled(Callout)`
-  div {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    gap: 2rem;
-  }
-
-  p {
-    margin-bottom: 0;
-  }
-`;
-
-const TopBarActions = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  align-items: flex-start;
+  gap: 1rem;
 `;
 
 export interface ScanBallotsScreenProps {
@@ -47,13 +28,7 @@ export function ScanBallotsScreen({
   statusIsStale,
   isPollingPlaceUnconfigured,
 }: ScanBallotsScreenProps): JSX.Element {
-  const { batches, state } = status;
-  const isScanning = state === 'scanning';
-  const batchCount = batches.length;
-
-  const ballotCount = iter(batches)
-    .map((b) => b.count)
-    .sum();
+  const isScanning = status.state === 'scanning';
 
   return (
     <NavigationScreen title="Scan Ballots">
@@ -65,31 +40,12 @@ export function ScanBallotsScreen({
           </Callout>
         )}
         <TopBar>
-          {batchCount ? (
-            <TopBarStats color="neutral" style={{ gap: '3rem' }}>
-              <P>
-                <Font weight="bold">Total Batches:</Font>{' '}
-                {format.count(batchCount)}
-              </P>
-              <P>
-                <Font weight="bold">Total Sheets:</Font>{' '}
-                {format.count(ballotCount)}
-              </P>
-            </TopBarStats>
-          ) : (
-            <P>
-              <Icons.Info /> No ballots have been scanned
-            </P>
-          )}
-          <TopBarActions>
-            <ScanButton
-              /* disable scan button while status query is refetching to avoid double clicks */
-              disabled={
-                isScanning || statusIsStale || isPollingPlaceUnconfigured
-              }
-              isScannerAttached={status.state !== 'disconnected'}
-            />
-          </TopBarActions>
+          <BatchSummaryStats status={status} />
+          <ScanButton
+            /* disable scan button while status query is refetching to avoid double clicks */
+            disabled={isScanning || statusIsStale || isPollingPlaceUnconfigured}
+            isScannerAttached={status.state !== 'disconnected'}
+          />
         </TopBar>
       </Content>
     </NavigationScreen>

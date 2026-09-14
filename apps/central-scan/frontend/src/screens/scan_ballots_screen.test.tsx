@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
-import { hasTextAcrossElements } from '@votingworks/test-utils';
 import type { ScanStatus } from '@votingworks/central-scan-backend';
 import { screen } from '../../test/react_testing_library.js';
 import {
@@ -31,15 +30,17 @@ function renderScreen(props?: Partial<ScanBallotsScreenProps>) {
     { apiMock }
   );
 }
+
 test('warns and disables scanning when a polling place needs to be selected', () => {
   renderScreen({ isPollingPlaceUnconfigured: true });
   screen.getByText(/No polling place selected/);
   expect(screen.getButton('Scan New Batch')).toBeDisabled();
 });
 
-test('null state', () => {
+test('shows zero counts when nothing has been scanned', () => {
   renderScreen();
-  screen.getByText('No ballots have been scanned');
+  expect(screen.getByTestId('total-batches')).toHaveTextContent('0');
+  expect(screen.getByTestId('total-sheets')).toHaveTextContent('0');
 });
 
 test('shows scanned ballot count', () => {
@@ -56,8 +57,8 @@ test('shows scanned ballot count', () => {
     ],
   });
   renderScreen({ status });
-  screen.getByText(hasTextAcrossElements('Total Sheets: 4'));
-  screen.getByText(hasTextAcrossElements('Total Batches: 2'));
+  expect(screen.getByTestId('total-batches')).toHaveTextContent('2');
+  expect(screen.getByTestId('total-sheets')).toHaveTextContent('4');
 });
 
 describe('Scan Ballots Button', () => {
