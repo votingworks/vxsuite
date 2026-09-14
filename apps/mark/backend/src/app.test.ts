@@ -17,6 +17,7 @@ import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   safeParseSystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
+  TEST_JURISDICTION,
   safeParseJson,
   SystemSettings,
   SystemSettingsSchema,
@@ -743,6 +744,35 @@ test('printing ballots', async () => {
   });
 });
 
+test('a ballot that fails to print does not increment the printed count', async () => {
+  const clearJobQueue = vi.spyOn(mockPrinterHandler.printer, 'clearJobQueue');
+  const electionDefinition = electionGeneralDefinition;
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
+  await configureMachine(
+    mockUsbDrive,
+    electionDefinition,
+    electionGeneralFixtures.uiStrings
+  );
+
+  await expectElectionState({ ballotsPrintedCount: 0 });
+
+  const jobId = await apiClient.printBallot({
+    precinctId: '21',
+    ballotStyleId: electionDefinition.election.ballotStyles[0].id,
+    votes: generateMockVotes(electionDefinition.election),
+    languageCode: 'en',
+  });
+  mockPrinterHandler.setJobStatus(jobId, {
+    outcome: 'failed',
+    reason: 'Unable to send data to printer.',
+  });
+
+  await vi.waitFor(() => {
+    expect(clearJobQueue).toHaveBeenCalled();
+  });
+  await expectElectionState({ ballotsPrintedCount: 0 });
+});
+
 test('printing a blank ballot prints the pre-rendered base ballot PDF', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
@@ -812,6 +842,56 @@ test('printing a blank ballot prints the pre-rendered base ballot PDF', async ()
       precinctId: '23',
     })
   );
+});
+
+test('a blank ballot that fails to print does not increment the printed count', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+
+  const ballots: EncodedBallotEntry[] = [
+    {
+      ballotStyleId: '1',
+      precinctId: '23',
+      ballotType: BallotType.Precinct,
+      ballotMode: 'test',
+      encodedBallot: Buffer.from('mock-blank-ballot-pdf-data').toString(
+        'base64'
+      ),
+    },
+  ];
+
+  const { store } = workspace;
+  store.setElectionAndJurisdiction({
+    electionData: electionDefinition.electionData,
+    jurisdiction: TEST_JURISDICTION,
+    electionPackageHash: 'test-hash',
+  });
+  store.setSystemSettings({
+    ...DEFAULT_SYSTEM_SETTINGS,
+    allowPrintingBlankBallotsFromVxMark: true,
+  });
+  for (const ballot of ballots) {
+    store.addBallot(ballot);
+  }
+  mockNoCard();
+
+  const clearJobQueue = vi.spyOn(mockPrinterHandler.printer, 'clearJobQueue');
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
+  await expectElectionState({ ballotsPrintedCount: 0 });
+
+  const jobId = await apiClient.printBlankBallot({
+    ballotStyleId: '1',
+    precinctId: '23',
+  });
+  mockPrinterHandler.setJobStatus(jobId, {
+    outcome: 'failed',
+    reason: 'Unable to send data to printer.',
+  });
+
+  await vi.waitFor(() => {
+    expect(clearJobQueue).toHaveBeenCalled();
+  });
+  await expectElectionState({ ballotsPrintedCount: 0 });
 });
 
 test('printing a blank ballot throws when no ballot PDF is available', async () => {
