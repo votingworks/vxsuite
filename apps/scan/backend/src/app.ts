@@ -209,20 +209,14 @@ export function buildApi({
           logger,
           store: workspace.store.getUiStringsStore(),
         });
-      });
 
-      try {
-        await withElectionPackageZip(filePath, (electionPackageZip) =>
+        await withElectionPackageZip(filePath, (zip) =>
           configureUiStringAudioClipsStreaming({
-            electionPackageZip,
-            store: workspace.store.getUiStringsStore(),
-            withTransaction: (fn) => store.withTransaction(fn),
+            zip,
+            store: store.getUiStringsStore(),
           })
         );
-      } catch (error) {
-        workspace.reset();
-        throw error;
-      }
+      });
 
       await audioPlayer.setIsScreenReaderEnabled(
         !systemSettings.precinctScanDisableScreenReaderAudio

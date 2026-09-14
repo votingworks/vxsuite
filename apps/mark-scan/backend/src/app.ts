@@ -190,7 +190,7 @@ export function buildApi(
       const { electionDefinition, systemSettings } = electionPackage;
       assert(systemSettings);
 
-      workspace.store.withTransaction(() => {
+      await workspace.store.withTransaction(async () => {
         workspace.store.setElectionAndJurisdiction({
           electionData: electionDefinition.electionData,
           jurisdiction: authStatus.user.jurisdiction,
@@ -209,20 +209,14 @@ export function buildApi(
           logger,
           store: workspace.store.getUiStringsStore(),
         });
-      });
 
-      try {
-        await withElectionPackageZip(filePath, (electionPackageZip) =>
+        await withElectionPackageZip(filePath, (zip) =>
           configureUiStringAudioClipsStreaming({
-            electionPackageZip,
+            zip,
             store: workspace.store.getUiStringsStore(),
-            withTransaction: (fn) => workspace.store.withTransaction(fn),
           })
         );
-      } catch (error) {
-        workspace.store.reset();
-        throw error;
-      }
+      });
 
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
         message: `Machine configured for election with hash: ${electionDefinition.ballotHash}`,

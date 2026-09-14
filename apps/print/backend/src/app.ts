@@ -194,38 +194,28 @@ export function buildApi(ctx: AppContext) {
       const { electionDefinition, systemSettings } = electionPackage;
       assert(systemSettings);
 
-      // Stream the serialized ballots (potentially GBs) into the store in
-      // batches rather than holding them all in memory. The ballots table is
-      // independent of the election record, so a failed or empty import is
-      // cleaned up here without ever leaving the machine configured.
-      store.deleteBallots();
-      let ballotCount = 0;
-      try {
-        await withElectionPackageZip(filePath, async (electionPackageZip) => {
-          for await (const ballots of streamElectionPackageBallots(
-            electionPackageZip
-          )) {
-            store.addBallots(ballots);
-            ballotCount += ballots.length;
+      return store.withTransaction(async () => {
+        let ballotCount = 0;
+
+        await withElectionPackageZip(filePath, async (zip) => {
+          for await (const ballot of streamElectionPackageBallots(zip)) {
+            store.addBallot(ballot);
+            ballotCount += 1;
           }
         });
-      } catch (error) {
-        store.deleteBallots();
-        throw error;
-      }
-      if (ballotCount === 0) {
-        const noBallotsError: ElectionPackageConfigurationError = {
-          type: 'no_ballots',
-        };
-        await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
-          disposition: 'failure',
-          message: 'Error configuring machine.',
-          errorDetails: JSON.stringify(noBallotsError),
-        });
-        return err(noBallotsError);
-      }
 
-      store.withTransaction(() => {
+        if (ballotCount === 0) {
+          const noBallotsError: ElectionPackageConfigurationError = {
+            type: 'no_ballots',
+          };
+          await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
+            disposition: 'failure',
+            message: 'Error configuring machine.',
+            errorDetails: JSON.stringify(noBallotsError),
+          });
+          return err(noBallotsError);
+        }
+
         store.setElectionAndJurisdiction({
           electionData: electionDefinition.electionData,
           jurisdiction: authStatus.user.jurisdiction,
@@ -238,15 +228,15 @@ export function buildApi(ctx: AppContext) {
             electionDefinition.election.pollingPlaces[0].id
           );
         }
-      });
 
-      await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
-        message: `Machine configured for election with hash: ${electionDefinition.ballotHash}`,
-        disposition: 'success',
-        ballotHash: electionDefinition.ballotHash,
-      });
+        await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
+          message: `Machine configured for election with hash: ${electionDefinition.ballotHash}`,
+          disposition: 'success',
+          ballotHash: electionDefinition.ballotHash,
+        });
 
-      return ok(electionDefinition);
+        return ok(electionDefinition);
+      });
     },
 
     getElectionRecord(): ElectionRecord | null {
