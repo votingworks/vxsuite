@@ -321,6 +321,8 @@ export function buildApi(ctx: Context) {
       // Ballots and audio clips are both streamed from the package, so open it
       // once and stream both entries over the same open file.
       await withElectionPackageZip(filePath, async (zip) => {
+        // [TODO] Cancel the transaction if the user logs out while configuring,
+        // since large packages can take a while to import.
         await workspace.store.withTransaction(async () => {
           workspace.store.setElectionAndJurisdiction({
             electionData: electionDefinition.electionData,

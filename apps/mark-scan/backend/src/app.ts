@@ -190,6 +190,8 @@ export function buildApi(
       const { electionDefinition, systemSettings } = electionPackage;
       assert(systemSettings);
 
+      // [TODO] Cancel the transaction if the user logs out while configuring,
+      // since large packages can take a while to import.
       await workspace.store.withTransaction(async () => {
         workspace.store.setElectionAndJurisdiction({
           electionData: electionDefinition.electionData,
