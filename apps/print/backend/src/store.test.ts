@@ -66,25 +66,21 @@ test('hasTestBallots', () => {
 
   expect(store.hasTestBallots()).toEqual(false);
 
-  store.addBallots([
-    {
-      ballotStyleId: '1M',
-      precinctId: 'precinct-1',
-      ballotType: BallotType.Precinct,
-      ballotMode: 'official',
-      encodedBallot: Buffer.from('official-pdf').toString('base64'),
-    },
-  ]);
+  store.addBallot({
+    ballotStyleId: '1M',
+    precinctId: 'precinct-1',
+    ballotType: BallotType.Precinct,
+    ballotMode: 'official',
+    encodedBallot: Buffer.from('official-pdf').toString('base64'),
+  });
   expect(store.hasTestBallots()).toEqual(false);
 
-  store.addBallots([
-    {
-      ballotStyleId: '1M',
-      precinctId: 'precinct-1',
-      ballotType: BallotType.Precinct,
-      ballotMode: 'test',
-      encodedBallot: Buffer.from('test-pdf').toString('base64'),
-    },
-  ]);
+  store.addBallot({
+    ballotStyleId: '1M',
+    precinctId: 'precinct-1',
+    ballotType: BallotType.Precinct,
+    ballotMode: 'test',
+    encodedBallot: Buffer.from('test-pdf').toString('base64'),
+  });
   expect(store.hasTestBallots()).toEqual(true);
 });
