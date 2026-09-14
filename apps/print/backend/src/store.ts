@@ -83,14 +83,18 @@ export class Store {
 
   /**
    * Runs the given function in a transaction. If the function throws an error,
-   * the transaction is rolled back. Otherwise, the transaction is committed.
+   * or the optional {@link shouldCommit} returns `false`, the transaction is
+   * rolled back. Otherwise, the transaction is committed.
    *
    * Returns the result of the function.
    */
-  withTransaction<T>(fn: () => Promise<T>): Promise<T>;
-  withTransaction<T>(fn: () => T): T;
-  withTransaction<T>(fn: () => T): T {
-    return this.client.transaction(() => fn());
+  withTransaction<T>(
+    fn: () => Promise<T>,
+    shouldCommit?: (res: T) => boolean
+  ): Promise<T>;
+  withTransaction<T>(fn: () => T, shouldCommit?: (res: T) => boolean): T;
+  withTransaction<T>(fn: () => T, shouldCommit?: (res: T) => boolean): T {
+    return this.client.transaction(() => fn(), shouldCommit);
   }
 
   /**

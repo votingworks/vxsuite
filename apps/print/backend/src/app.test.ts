@@ -326,6 +326,10 @@ test('configureElectionPackageFromUsb returns no_ballots error when election pac
     expect.anything(),
     expect.objectContaining({ disposition: 'failure' })
   );
+
+  // Machine should remain unconfigured:
+  expect(workspace.store.getElectionRecord()).toBeUndefined();
+  expect(workspace.store.getSystemSettings()).toBeUndefined();
 });
 
 test('configureElectionPackageFromUsb cleans up when ballot streaming fails', async () => {
