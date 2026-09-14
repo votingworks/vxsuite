@@ -212,8 +212,8 @@ importers:
         specifier: workspace:*
         version: link:../../../libs/test-utils
       csv-parse:
-        specifier: ^5.5.0
-        version: 5.5.0
+        specifier: ^7.0.2
+        version: 7.0.2
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
@@ -916,8 +916,8 @@ importers:
         specifier: 4.17.0
         version: 4.17.0
       csv-parse:
-        specifier: ^5.5.0
-        version: 5.5.0
+        specifier: ^7.0.2
+        version: 7.0.2
       csv-stringify:
         specifier: ^6.4.0
         version: 6.4.0
@@ -2031,8 +2031,8 @@ importers:
         specifier: 3.2.3
         version: 3.2.3
       csv-parse:
-        specifier: ^5.5.0
-        version: 5.5.0
+        specifier: ^7.0.2
+        version: 7.0.2
       csv-stringify:
         specifier: ^6.4.0
         version: 6.4.0
@@ -10030,8 +10030,8 @@ packages:
   csstype@3.1.2:
     resolution: {integrity: sha512-I7K1Uu0MBPzaFKg4nI5Q7Vs2t+3gWWW648spaF+Rg7pI9ds18Ugn+lvg4SHczUdKlHI5LWBXyqfS8+DufyBsgQ==}
 
-  csv-parse@5.5.0:
-    resolution: {integrity: sha512-RxruSK3M4XgzcD7Trm2wEN+SJ26ChIb903+IWxNOcB5q4jT2Cs+hFr6QP39J05EohshRFEvyzEBoZ/466S2sbw==}
+  csv-parse@7.0.2:
+    resolution: {integrity: sha512-uKZghv9UmPkMVLYy//KZ9HFAIJsl7wkhoEdIL0+rhuSY9pZQlhaeGEDPIe+/w7eh81MOql8Q/9+inAGWG6ZHYA==}
 
   csv-stringify@6.4.0:
     resolution: {integrity: sha512-HQsw0QXiN5fdlO+R8/JzCZnR3Fqp8E87YVnhHlaPtNGJjt6ffbV0LpOkieIb1x6V1+xt878IYq77SpXHWAqKkA==}
@@ -19264,7 +19264,7 @@ snapshots:
 
   csstype@3.1.2: {}
 
-  csv-parse@5.5.0: {}
+  csv-parse@7.0.2: {}
 
   csv-stringify@6.4.0: {}
 

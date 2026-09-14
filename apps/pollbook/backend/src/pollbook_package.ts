@@ -126,13 +126,28 @@ function getInternalPrecinctId(
   return precinctId;
 }
 
+interface StreetInfoCsvRow extends ValidStreetInfo {
+  postalCity?: string;
+  ward?: string;
+  district?: string;
+}
+
+interface VoterCsvRow extends Voter {
+  zip5?: string;
+  mailingCity?: string;
+  mailingTown?: string;
+  postalCity?: string;
+  ward?: string;
+  district?: string;
+}
+
 export function parseValidStreetsFromCsvString(
   csvString: string,
   election: Election
 ): ValidStreetInfo[] {
   const externalPrecinctIdMapping =
     getExternalPrecinctIdMappingFromElection(election);
-  return parse(csvString, {
+  return parse<ValidStreetInfo, StreetInfoCsvRow>(csvString, {
     columns: (header) => header.map(toCamelCase),
     skipEmptyLines: true,
     onRecord: (record): ValidStreetInfo | null => {
@@ -166,7 +181,7 @@ export function parseVotersFromCsvString(
 ): Voter[] {
   const externalPrecinctIdMapping =
     getExternalPrecinctIdMappingFromElection(election);
-  let voters: Voter[] = parse(csvString, {
+  let voters: Voter[] = parse<Voter, VoterCsvRow>(csvString, {
     columns: (header) => header.map(toCamelCase),
     skipEmptyLines: true,
     onRecord: (record): Voter | null => {

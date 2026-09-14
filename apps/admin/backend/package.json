@@ -79,7 +79,7 @@
     "@votingworks/coverage-check": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
-    "csv-parse": "^5.5.0",
+    "csv-parse": "^7.0.2",
     "esbuild": "0.28.1",
     "eslint-plugin-vx": "workspace:*",
     "jest-image-snapshot": "^6.4.0",
