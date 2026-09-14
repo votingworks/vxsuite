@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { PollingPlace } from '@votingworks/types';
+import { PollingPlace, VotesDict } from '@votingworks/types';
 import { find } from '@votingworks/basics';
 import { render, screen } from '../test/react_testing_library.js';
 import * as GLOBALS from './config/globals.js';
@@ -308,4 +308,51 @@ test('in multi-precinct location, poll worker must select a precinct first', asy
   await findByTextWithMarkup('Number of contests on your ballot: 20');
   screen.getByText('Center Springfield');
   userEvent.click(screen.getByText('Start Voting'));
+});
+
+test('a failed print ends the voter session', async () => {
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetElectionRecord(electionDefinition);
+  apiMock.expectGetElectionState({
+    pollingPlaceId,
+    pollsState: 'polls_open',
+  });
+  render(<App apiClient={apiMock.mockApiClient} />);
+
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId: '12',
+    precinctId,
+  });
+
+  userEvent.click(await screen.findByText('Start Voting'));
+
+  for (const { title } of voterContests) {
+    await screen.findByRole('heading', { name: title });
+    if (title === presidentContest.title) {
+      userEvent.click(screen.getByText(presidentContest.candidates[0].name));
+    }
+    userEvent.click(screen.getByText('Next'));
+  }
+
+  const votes: VotesDict = {
+    [presidentContest.id]: [presidentContest.candidates[0]],
+  };
+
+  apiMock.expectPrintBallot({ ballotStyleId: '12', precinctId, votes });
+  apiMock.expectGetElectionState({ ballotsPrintedCount: 0 });
+  apiMock.setPrintJobStatus({
+    outcome: 'failed',
+    reason: 'Unable to send data to printer.',
+  });
+  userEvent.click(await screen.findByText(/Print My ballot/i));
+
+  await screen.findByText(/Printing Your Ballot/i);
+  await screen.findByText('Ballot Not Printed');
+
+  apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
+  userEvent.click(screen.getByText('Close'));
+
+  apiMock.setAuthStatusLoggedOut();
+  await screen.findByText('Insert Card');
 });

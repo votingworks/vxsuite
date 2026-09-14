@@ -22,37 +22,48 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-function renderPrintPage() {
-  return renderWithBallotContext(provideApi(apiMock, <PrintPage />), {
+function renderPrintPage({
+  endVoterSession = vi.fn().mockResolvedValue(undefined),
+  resetBallot = vi.fn(),
+} = {}) {
+  renderWithBallotContext(provideApi(apiMock, <PrintPage />), {
     ballotStyleId: '12',
     precinctId: '23',
     hasPrintedBallot: true,
     printJobId: MOCK_PRINT_JOB_ID,
+    endVoterSession,
+    resetBallot,
   });
+  return { endVoterSession, resetBallot };
 }
 
-test('shows a dismissible failure modal when the ballot is not sent to the printer', async () => {
+test('shows the failure modal over the printing screen', async () => {
   apiMock.setPrintJobStatus({
     outcome: 'failed',
     reason: 'Unable to send data to printer.',
   });
   renderPrintPage();
 
+  await screen.findByText(/Printing Your Ballot/i);
   await screen.findByText('Ballot Not Printed');
-  screen.getByText('Unable to send data to printer.');
-
-  userEvent.click(screen.getByText('Close'));
-  await waitFor(() => {
-    expect(screen.queryByText('Ballot Not Printed')).toBeNull();
-  });
 });
 
-test('omits the reason when the failure has none', async () => {
+test('closing the failure modal ends the voter session', async () => {
   apiMock.setPrintJobStatus({ outcome: 'failed' });
-  renderPrintPage();
+  const { endVoterSession, resetBallot } = renderPrintPage();
 
   await screen.findByText('Ballot Not Printed');
-  screen.getByText('The ballot was not sent to the printer. Ask for help.');
+  screen.getByText(
+    'The ballot was not sent to the printer. Ask for a poll worker for help.'
+  );
+
+  userEvent.click(screen.getByText('Close'));
+
+  await waitFor(() => {
+    expect(endVoterSession).toHaveBeenCalledTimes(1);
+  });
+  expect(resetBallot).toHaveBeenCalledTimes(1);
+  expect(resetBallot).toHaveBeenCalledWith();
 });
 
 test('shows no failure modal while the job is in progress', async () => {

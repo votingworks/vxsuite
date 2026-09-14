@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { PrintPage as MarkFlowPrintPage } from '@votingworks/mark-flow-ui';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { Button, Modal, P, useCurrentLanguage } from '@votingworks/ui';
 import { BallotContext } from '../contexts/ballot_context.js';
 import { getPrintJobStatus, printBallot } from '../api.js';
@@ -10,6 +11,7 @@ export function PrintPage(): JSX.Element {
     ballotStyleId,
     precinctId,
     votes,
+    endVoterSession,
     resetBallot,
     hasPrintedBallot,
     setHasPrintedBallot,
@@ -17,9 +19,10 @@ export function PrintPage(): JSX.Element {
     setPrintJobId,
   } = useContext(BallotContext);
   const languageCode = useCurrentLanguage();
+  const queryClient = useQueryClient();
   const printBallotMutation = printBallot.useMutation();
+  const [isEndingSession, setIsEndingSession] = useState(false);
 
-  const [failureDismissed, setFailureDismissed] = useState(false);
   const printJobStatusQuery = getPrintJobStatus.useQuery(printJobId);
 
   function print() {
@@ -59,20 +62,34 @@ export function PrintPage(): JSX.Element {
     }
   }, [sentToPrinter, resetBallot]);
 
+  // End the voter session to be sure we do not allow a duplicate ballot print.
+  async function endSessionAfterFailure() {
+    setIsEndingSession(true);
+    // CUPS reuses job numbers, so drop this job's terminal status rather than
+    // let a later session read it back from the cache.
+    queryClient.removeQueries(
+      getPrintJobStatus.queryKey(assertDefined(printJobId))
+    );
+    await endVoterSession();
+    resetBallot();
+  }
+
   return (
     <React.Fragment>
       <MarkFlowPrintPage print={print} />
-      {failed && !failureDismissed && (
+      {failed && (
         <Modal
           title="Ballot Not Printed"
           content={
-            <React.Fragment>
-              <P>The ballot was not sent to the printer. Ask for help.</P>
-              {jobStatus?.reason && <P>{jobStatus.reason}</P>}
-            </React.Fragment>
+            <P>
+              The ballot was not sent to the printer. Ask for a poll worker for
+              help.
+            </P>
           }
           actions={
-            <Button onPress={() => setFailureDismissed(true)}>Close</Button>
+            <Button disabled={isEndingSession} onPress={endSessionAfterFailure}>
+              Close
+            </Button>
           }
         />
       )}
