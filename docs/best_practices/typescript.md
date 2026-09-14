@@ -10,6 +10,13 @@ as of November 21, 2024. A link to the guide as of that date is kept
 [here](https://github.com/google/styleguide/blob/4153bf1f8c172fcb58593193238b0a928e58e61e/tsguide.html)
 for reference.
 
+A general note about what follows: some of the best practices below are in
+service of reducing memory usage and improving the performance of JS code. These
+are good things to do and to keep in mind, but [consider using Rust](./rust.md)
+for processing "large" amounts of data, even things like single images if you're
+processing pixel-by-pixel. It's much faster and more memory-efficient than JS
+and is often nicer too.
+
 ### Feature Flags
 
 Feature flags are defined in the `libs/utils` project
@@ -23,6 +30,9 @@ project or root level. To generate a `.env.local` file properly run the
 `pnpm configure-vxdev-env` command BEFORE running the update code program.
 
 ### Use `zod` for validating/parsing JSON data
+
+_(NOTE: Using `zod` has a potentially large performance impact. Measure it if
+the data you're working with would be bigger than a few tens of kilobytes.)_
 
 [`zod`](https://github.com/colinhacks/zod) allows you to build a schema that
 describes an object's structure:
@@ -55,58 +65,18 @@ if (parsed.isOk()) {
 > **Note:** If you already have an `unknown` object from JSON, parse it with
 > `safeParse` e.g. `safeParse(Point2dSchema, obj)`.
 
-The type of `parsed.ok()` in the example above will be
-`{ x: number; y: number }`. Not bad, but not as descriptive as we'd like. Use
-this instead to get a more descriptive name:
+Use `z.infer` to make a TS type for a schema without having to duplicate its
+properties.
 
 ```ts
-import { z, ZodSchema } from 'zod/v4';
+import { z } from 'zod/v4';
 
-interface Point2d {
-  readonly x: number;
-  readonly y: number;
-}
-
-const Point2dSchema: ZodSchema<Point2d> = z.object({
+const Point2dSchema = z.object({
   x: z.number(),
   y: z.number(),
 });
-```
 
-Now `parsed.ok()` will have type `Point2d`, which is functionally equivalent but
-easier to work with. TypeScript will report an error if the types get out of
-sync.
-
-### Use immutability when feasible
-
-**Example: `readonly` interface properties**
-
-If you don't need to be able to assign to a property, make it `readonly`.
-
-```ts
-interface Point2d {
-  readonly x: number;
-  readonly y: number;
-}
-```
-
-**Example: Use `const` instead of `let` (and never use `var`)**
-
-This should be enforced by eslint when a variable is never reassigned. This
-doesn't mean you should _never_ use `let`, just that a `const` version might be
-better. If it's better to use `let`, that's fine. There's almost no reason to
-use `var`, though.
-
-**Example: Update objects and arrays with rest values**
-
-Rather than assigning to an object property, consider building a new object:
-
-```ts
-// NOT PREFERRED: toggle test mode by mutating `settings`
-settings.testMode = !settings.testMode;
-
-// PREFERRED: toggle test mode by creating a new object
-settings = { ...settings, testMode: !settings.testMode };
+interface Point2d extends z.infer<typeof Point2dSchema> {}
 ```
 
 ### Avoid operations that consume a lot of memory
@@ -128,61 +98,100 @@ async function parseFile(path: string) {
 }
 ```
 
-**Example: `JSON.stringify`**
+**Example: `JSON.parse` & `JSON.stringify`**
 
-This function serializes an object into a string. If you're serializing a large
-object, this function is not great because it requires you to load all of the
-data to serialize at once. Instead, consider using `jsonStream` from
-`@votingworks/utils`:
+These functions require having both a potentially large string and the
+marshalled objects in memory at the same time. For JSON that could be really
+large, consider using `.jsonl` (or a non-JSON format) and reading/writing the
+file one line at a time with `fs.createReadStream`/`fs.createWriteStream` as
+above.
 
-```ts
-import { jsonStream } from '@votingworks/utils';
-import { createWriteStream } from 'node:fs';
-import { Readable } from 'node:stream';
+### Don't use unnecessarily slow collection APIs
 
-function* generateLargeArray() {
-  for (let i = 0; i < 1_000_000_000; i++) {
-    yield i;
-  }
-}
+#### Best practice: favor `Array` over `Iterable` for function parameters
 
-Readable.from(jsonStream({ foo: [1, 2, 3], bar: generateLargeArray() })).pipe(
-  createWriteStream('output.json')
-);
-```
+If you're writing a function that takes a collection it should generally be an
+array or `Map` or `Set` as appropriate. Consider using the read-only variants of
+these types when using them in function parameters to discourage mutating them,
+though there are good reasons to mutate arguments sometimes.
 
-**Best practice: do not require `Array` when an `Iterable` will do**
-
-If you're writing a function that takes an array, consider making it take an
-`Iterable` instead. This allows the caller to pass in an array, but also allows
-them to pass in a generator, the result of an `iter` chain, or any other
-iterable data structure. This is especially important when the function is
-called with a large amount of data, because it allows the caller to avoid
-allocating a large array in memory.
+Do not use `Iterable` or `AsyncIterable` unless the data is actually lazy,
+streamed, or unbounded. This exception is about avoiding excessive memory use.
 
 ```ts
-// BAD: this function requires an array
-function sumArray(arr: number[]): number {
-  return arr.reduce((a, b) => a + b, 0);
+// BAD: the generic JS iterable protocol is much slower than arrays
+function doSomethingWithIterable(arr: Iterable<number>): void {
+  // …
 }
 
-// GOOD: this function requires an iterable
-function sumIterable(iterable: Iterable<number>): number {
-  return iter(iterable).sum();
+// GOOD: this function accepts a read-only array
+function doSomethingWithArray(arr: readonly number[]): void {
+  // …
 }
 
 // GOOD: this function is not well suited to taking an iterable because it
 // requires random access. However, it does not require mutability so it can
-// take a readonly array.
+// take a read-only array. Uses `assertDefined` rather than a cast as a
+// defensive move, but only because it's O(1) and doesn't really affect
+// performance.
 function pickRandom<T>(array: readonly T[]): T {
-  return array[Math.floor(Math.random() * array.length)];
+  return assertDefined(array[Math.floor(Math.random() * array.length)]);
+}
+```
+
+#### Best practice: pick the right iteration method
+
+There are four main methods of iteration used in vxsuite:
+
+1. JS `for-of` loops. Sometimes fast and efficient for `Array`, but only if V8
+   chooses to optimize it.
+2. JS collection methods like `.map`/`.filter`/`.reduce`. Ergonomic but so-so on
+   speed and memory.
+3. JS `for(;;)` loops. Predictably fast and efficient but less ergonomic.
+4. `iter` helper in `libs/basics`. Ergonomic and great for async iteration but
+   often much slower.
+
+If performance is important, `for(;;)` loops are the most consistently fast. JS
+`for-of` loops are typically slower for `Array`, and slower still in the generic
+`Iterator` case. JS collection methods like `.map`/`.filter`/`.reduce` are
+ergonomic but allocate intermediate arrays in method chains. `iter` can beat JS
+collection methods on memory allocation. `iter` also gives an even more
+extensive chaining API and works with async iteration, but it uses the JS
+iterable APIs and is usually quite slow. Choosing `iter` vs `for await-of` for
+async iteration is a matter of taste.
+
+This gap in performance is much more pronounced with typed arrays like
+`Uint8Array`. Iterating over them should essentially _always_ be done with
+`for(;;)` loops.
+
+```ts
+// BAD: iterating over large arrays this way is _very_ slow
+iter(cvrs)
+  .filter(({ ballotStyleId }) => ballotStyleId === '1')
+  .map(({ overvotes }) => overvotes)
+  .sum();
+
+// OK: array methods are slower than indexed access but often convenient,
+// but this version allocates 2 arrays the length of `cvrs`
+cvrs
+  .filter(({ ballotStyleId }) => ballotStyleId === '1')
+  .map(({ overvotes }) => overvotes)
+  .reduce((a, b) => a + b, 0);
+
+// GOOD: use array indexed access; the main downside being the cast
+let sum = 0;
+for (let i = 0; i < cvrs.length; i += 1) {
+  const { ballotStyleId, overvotes } = cvrs[i] as CastVoteRecord;
+  if (ballotStyleId === '1') {
+    sum += overvotes;
+  }
 }
 ```
 
 ### Avoid exceptions when possible
 
 If you expect a situation to happen and you expect to handle it specifically,
-it's not an exception. Use `Result` from `@votingworks/types` to represent a
+it's not an exception. Use `Result` from `@votingworks/basics` to represent a
 result that could fail. For example, `safeParseJson<T>` returns a
 `Result<T, SyntaxError | ZodError>` that represents either a successfully-parsed
 object _or_ a parse error of some kind. And (bonus!) the error is typed, whereas
@@ -190,7 +199,7 @@ it would not be in a `catch` clause. Here's how to make your own fail-able
 function:
 
 ```ts
-import { err, ok, Result } from '@votingworks/types';
+import { err, ok, Result } from '@votingworks/basics';
 
 class DivideByZeroError extends Error {}
 
@@ -217,56 +226,21 @@ if (result.isErr()) {
 }
 ```
 
-### Use the `debug` package
+### Logging. Do it
 
-In development and production scenarios, debug logs are sometimes the best we
-have to figure out what's going wrong. We use the
-[`debug`](https://www.npmjs.com/package/debug) package to log interesting events
-and data to get a sense of what happened. Use it to tell a story: what happened
-and why? Don't just log when things go wrong; log all the time!
-
-#### Naming
-
-Typically you'll name things with two levels of namespace, i.e. `app:scope`.
-Sometimes more specificity is needed, i.e. `app:scope-outer:scope-inner`. Here's
-an example:
+Use `@votingworks/logging` to log user actions and important events.
 
 ```ts
-// libs/math/geometry.ts
-import makeDebug from 'debug'
-
-const debug = makeDebug('math:geometry')
-
-export function angleBetweenVectors(v1: Vector, v2: Vector): number {
-  debug('computing angle between v1 ({x:%d, y:%d}) & v2 ({x:%d, y:%d})', v1.x, v1.y, v2.x, v2.y)
-  const result = …
-  debug('computed angle: %d', result)
-  return result
-}
+await logger.logAsCurrentRole(LogEventId.UsbDriveFormatted, {
+  disposition: 'success',
+  message: `USB drive successfully formatted with a single ${
+    fstype === 'ext4' ? 'ext4' : 'FAT32'
+  } volume named "${label}".`,
+});
 ```
 
-#### Logging in frontends
-
-By default nothing is logged to the terminal. If you run your tests/server/etc
-with `DEBUG` set to the right value, you'll get logging. Example:
-
-```sh
-# log from the geometry module
-DEBUG=math:geometry pnpm start
-# log from the whole math library
-DEBUG=math:* pnpm start
-# log everything
-DEBUG=* pnpm start
-# log everything except the math library
-DEBUG=*,-math:* pnpm start
-```
-
-#### Logging in tests
-
-You may want to enable logging even after starting a `test:watch` session. To
-log in a single test file, add this above all the other code in the file:
-
-```ts
-import { enable } from 'debug';
-enable('math:*'); // or whatever globs you want
-```
+Note that these logs can be exported by election administrators and viewed, so
+we usually don't include _everything_. For debugging at development time, we use
+the [`debug`](https://www.npmjs.com/package/debug) package. Note that both
+loggers eagerly evaluate their arguments regardless of the current log level
+set, so keep the operations to generate the log arguments cheap.
