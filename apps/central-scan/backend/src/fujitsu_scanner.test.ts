@@ -4,13 +4,13 @@ import { HmpbBallotPaperSize } from '@votingworks/types';
 import { ChildProcess } from 'node:child_process';
 import { Device, isDeviceAttached } from '@votingworks/backend';
 import { sleep } from '@votingworks/basics';
+import { mockChildProcess } from '@votingworks/test-utils';
 import {
   EXPECTED_IMPRINTER_UNATTACHED_ERROR,
   FUJITSU_VENDOR_ID,
   FujitsuScanner,
   ScannerMode,
 } from './fujitsu_scanner.js';
-import { makeMockChildProcess } from '../test/util/mocks.js';
 import { streamExecFile } from './exec.js';
 
 vi.mock(import('@votingworks/backend'), async (importActual) => ({
@@ -31,7 +31,7 @@ const exec = streamExecFile as unknown as MockedFunction<
 >;
 
 test('fujitsu scanner calls scanimage with fujitsu device type', async () => {
-  const scanimage = makeMockChildProcess();
+  const scanimage = mockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });
@@ -63,7 +63,7 @@ test('fujitsu scanner calls scanimage with fujitsu device type', async () => {
 });
 
 test('fujitsu scanner returns ballot audit id on scans when imprinting', async () => {
-  const scanimage = makeMockChildProcess();
+  const scanimage = mockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });
@@ -96,7 +96,7 @@ test('fujitsu scanner returns ballot audit id on scans when imprinting', async (
 });
 
 test('fujitsu scanner can scans with expected params on letter size election', () => {
-  const scanimage = makeMockChildProcess();
+  const scanimage = mockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });
@@ -125,7 +125,7 @@ test('fujitsu scanner can scans with expected params on letter size election', (
 });
 
 test('fujitsu scanner can scan with expected params on legal size election', () => {
-  const scanimage = makeMockChildProcess();
+  const scanimage = mockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });
@@ -154,7 +154,7 @@ test('fujitsu scanner can scan with expected params on legal size election', () 
 });
 
 test('fujitsu scanner can scan with expected params on 22" size election', () => {
-  const scanimage = makeMockChildProcess();
+  const scanimage = mockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });
@@ -183,7 +183,7 @@ test('fujitsu scanner can scan with expected params on 22" size election', () =>
 });
 
 test('fujitsu scanner does not specify a mode by default', () => {
-  const scanimage = makeMockChildProcess();
+  const scanimage = mockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });
@@ -206,7 +206,7 @@ test('fujitsu scanner does not specify a mode by default', () => {
 });
 
 test('fujitsu scanner does not imprint by default', () => {
-  const scanimage = makeMockChildProcess();
+  const scanimage = mockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });
@@ -233,7 +233,7 @@ test('fujitsu scanner does not imprint by default', () => {
 });
 
 test('fujitsu scanner does imprint as expected when given an imprint ID prefix', () => {
-  const scanimage = makeMockChildProcess();
+  const scanimage = mockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });
@@ -264,7 +264,7 @@ test('fujitsu scanner does imprint as expected when given an imprint ID prefix',
 });
 
 test('fujitsu scanner shortens UUID imprint prefix to first and last segments when it exceeds the limit', () => {
-  const scanimage = makeMockChildProcess();
+  const scanimage = mockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });
@@ -291,7 +291,7 @@ test('fujitsu scanner shortens UUID imprint prefix to first and last segments wh
 });
 
 test('fujitsu scanner passes through imprint prefix unchanged when it has no hyphens', () => {
-  const scanimage = makeMockChildProcess();
+  const scanimage = mockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });
@@ -314,7 +314,7 @@ test('fujitsu scanner passes through imprint prefix unchanged when it has no hyp
 });
 
 test('fujitsu scanner truncates imprint prefix to fit within endorser string limit', () => {
-  const scanimage = makeMockChildProcess();
+  const scanimage = mockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });
@@ -339,7 +339,7 @@ test('fujitsu scanner truncates imprint prefix to fit within endorser string lim
 });
 
 test('fujitsu scanner can scan with lineart mode', () => {
-  const scanimage = makeMockChildProcess();
+  const scanimage = mockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
     mode: ScannerMode.Lineart,
@@ -363,7 +363,7 @@ test('fujitsu scanner can scan with lineart mode', () => {
 });
 
 test('fujitsu scanner can scan with gray mode', () => {
-  const scanimage = makeMockChildProcess();
+  const scanimage = mockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
     mode: ScannerMode.Gray,
@@ -387,7 +387,7 @@ test('fujitsu scanner can scan with gray mode', () => {
 });
 
 test('fujitsu scanner can scan with color mode', () => {
-  const scanimage = makeMockChildProcess();
+  const scanimage = mockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
     mode: ScannerMode.Color,
@@ -411,7 +411,7 @@ test('fujitsu scanner can scan with color mode', () => {
 });
 
 test('fujitsu scanner requests two images at a time from scanimage', async () => {
-  const scanimage = makeMockChildProcess();
+  const scanimage = mockChildProcess();
   const stdinWrite = vi.spyOn(scanimage.stdin, 'write');
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
@@ -448,7 +448,7 @@ test('fujitsu scanner requests two images at a time from scanimage', async () =>
 });
 
 test('fujitsu scanner ends the scanimage process on generator return', async () => {
-  const scanimage = makeMockChildProcess();
+  const scanimage = mockChildProcess();
   const stdinEnd = vi.spyOn(scanimage.stdin, 'end');
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
@@ -469,7 +469,7 @@ test('fujitsu scanner ends the scanimage process on generator return', async () 
 });
 
 test('fujitsu scanner fails if scanSheet fails', async () => {
-  const scanimage = makeMockChildProcess();
+  const scanimage = mockChildProcess();
   exec.mockReturnValueOnce(scanimage);
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
@@ -511,7 +511,7 @@ test('attached based on detected USB devices', () => {
 });
 
 test('fujitsu scanner calls scanimage to determine if imprinter is attached', async () => {
-  const scanimage = makeMockChildProcess();
+  const scanimage = mockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });
@@ -523,7 +523,7 @@ test('fujitsu scanner calls scanimage to determine if imprinter is attached', as
 });
 
 test('fujitsu scanner calls scanimage to determine if imprinter is attached handles unattached state as expected', async () => {
-  const scanimage = makeMockChildProcess();
+  const scanimage = mockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new BaseLogger(LogSource.VxScanService),
   });

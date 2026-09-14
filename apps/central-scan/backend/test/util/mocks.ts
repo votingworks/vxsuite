@@ -1,12 +1,4 @@
-import {
-  MockReadable,
-  mockReadable,
-  MockWritable,
-  mockWritable,
-} from '@votingworks/test-utils';
 import { Optional, throwIllegalValue } from '@votingworks/basics';
-import { ChildProcess } from 'node:child_process';
-import { EventEmitter } from 'node:events';
 import {
   BatchControl,
   BatchScanner,
@@ -144,24 +136,4 @@ export function makeMockScanner(): MockScanner {
       return nextScannerSession;
     },
   };
-}
-
-export interface MockChildProcess extends ChildProcess {
-  stdin: MockWritable;
-  stdout: MockReadable;
-  stderr: MockReadable;
-}
-
-/**
- * Creates a mock child process with mock streams.
- */
-export function makeMockChildProcess(): MockChildProcess {
-  const result: Partial<ChildProcess> = {
-    pid: Math.floor(Math.random() * 10_000),
-    stdin: mockWritable(),
-    stdout: mockReadable(),
-    stderr: mockReadable(),
-  };
-
-  return Object.assign(new EventEmitter(), result) as MockChildProcess;
 }
