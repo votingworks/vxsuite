@@ -1,4 +1,5 @@
 import React from 'react';
+import { keyframes } from 'styled-components';
 import { assert } from '@votingworks/basics';
 import { cssThemedScrollbars, SCROLLBAR_THICKNESS_REM } from './scrollbars.js';
 import { styled } from './styled.js';
@@ -60,6 +61,13 @@ const Body = styled.div.attrs({ role: 'rowgroup' })`
   grid-auto-rows: max-content;
   align-content: start;
   overflow: hidden auto;
+
+  /* Chromium temporarily leaves a ghost scrollbar gutter after a row is removed
+   * and the scrollbar hides, because it doesn't immediately recalculate the grid
+   * layout. To work around this, we cause an imperceptible layout change using
+   * a keyframe animation triggered by the scrollability of the body. */
+  animation: ${keyframes`from, to { padding-right: 0.001px; }`} linear both;
+  animation-timeline: scroll(self);
 
   ${cssThemedScrollbars}
 `;

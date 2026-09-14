@@ -1,21 +1,21 @@
 import type { Meta } from '@storybook/react-vite' with {
   'resolution-mode': 'import',
 };
-
 import { range } from '@votingworks/basics';
-import { ScrollTable as Component } from './scroll_table.js';
+import { ScrollTable as Component, ScrollTableProps } from './scroll_table.js';
 
-const ROW_COUNT = 20;
-
-const meta: Meta<typeof Component> = {
+const meta: Meta<ScrollTableProps & { numRows: number }> = {
   title: 'libs-ui/ScrollTable',
   component: Component,
   parameters: { showScrollBars: true },
+  args: {
+    numRows: 20,
+  },
 };
 
 export default meta;
 
-export function ScrollTable(): JSX.Element {
+export function ScrollTable({ numRows }: { numRows: number }): JSX.Element {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '24rem' }}>
       <Component style={{ flex: 1 }}>
@@ -26,7 +26,7 @@ export function ScrollTable(): JSX.Element {
           <Component.Column width="20rem">Scanned At</Component.Column>
         </Component.Header>
         <Component.Body>
-          {range(1, ROW_COUNT + 1).map((n) => (
+          {range(0, numRows).map((n) => (
             <Component.Row key={n}>
               <Component.Cell>
                 {n % 3 === 0 ? 'Not sent' : 'Sent'}
