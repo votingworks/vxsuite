@@ -14,7 +14,9 @@ export function randomElement<T>(array: ArrayLike<T>): T {
 
 /**
  * Returns a new array with the elements of `array` in a cryptographically
- * secure random order.
+ * secure and balanced random order.
+ *
+ * @see https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
  */
 export function shuffle<T>(array: readonly T[]): T[] {
   const result = [...array];
