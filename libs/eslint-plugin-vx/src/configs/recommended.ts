@@ -248,6 +248,15 @@ export default function buildRecommended(
               'print',
             ]
           : ['error', 'Buffer'],
+        'no-restricted-properties': [
+          'error',
+          {
+            object: 'Math',
+            property: 'random',
+            message:
+              'Math.random is not cryptographically secure. Use randomInt from node:crypto, or randomElement/shuffle from @votingworks/utils.',
+          },
+        ],
         'no-restricted-syntax': 'off',
         'no-return-await': 'off',
         'no-underscore-dangle': [
