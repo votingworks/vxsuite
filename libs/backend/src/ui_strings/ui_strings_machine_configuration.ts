@@ -1,5 +1,6 @@
 // @coverage-exclude-file: tested via VxSuite apps
 import { BaseLogger } from '@votingworks/logging';
+import { assert } from '@votingworks/basics';
 import {
   ElectionPackageZip,
   ParsedElectionPackage,
@@ -56,30 +57,23 @@ export function configureUiStrings(input: ElectionPackageProcessorInput): void {
 
 /**
  * Streams the audio clips in the given election package zip into the provided
- * store in size-capped batches, so that the full set (potentially GBs) is
- * never held in memory. Only clips for languages already configured in the
- * store (see {@link configureUiStrings}) are loaded, and each batch is
- * inserted within `withTransaction`.
+ * store, one at a time, so that the full set (potentially GBs) is never held in
+ * memory. Only clips for languages already configured in the store (see
+ * {@link configureUiStrings}) are loaded.
  */
-export async function configureUiStringAudioClipsStreaming({
-  electionPackageZip,
-  store,
-  withTransaction,
-}: {
-  electionPackageZip: ElectionPackageZip;
+export async function configureUiStringAudioClipsStreaming(p: {
+  zip: ElectionPackageZip;
   store: UiStringsStore;
-  withTransaction: (fn: () => void) => void;
 }): Promise<void> {
-  const configuredLanguages = new Set(store.getLanguages());
-  for await (const clips of streamElectionPackageAudioClips(
-    electionPackageZip
-  )) {
-    withTransaction(() => {
-      for (const clip of clips) {
-        if (configuredLanguages.has(clip.languageCode)) {
-          store.setAudioClip(clip);
-        }
-      }
-    });
+  assert(
+    p.store.inTransaction(),
+    'transaction required when importing audio clips'
+  );
+
+  const configuredLanguages = new Set(p.store.getLanguages());
+
+  for await (const clip of streamElectionPackageAudioClips(p.zip)) {
+    if (!configuredLanguages.has(clip.languageCode)) continue;
+    p.store.setAudioClip(clip);
   }
 }

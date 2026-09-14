@@ -31,6 +31,8 @@ export interface UiStringsStore {
 
   getUiStringAudioIds(languageCode: string): UiStringAudioIds | null;
 
+  inTransaction(): boolean;
+
   setAudioClip(input: UiStringAudioClip): void;
 
   setUiStringAudioIds(input: {
@@ -154,6 +156,10 @@ export function createUiStringStore(dbClient: DbClient): UiStringsStore {
       }
 
       return safeParseJson(row.data, UiStringAudioIdsSchema).unsafeUnwrap();
+    },
+
+    inTransaction() {
+      return dbClient.isInTransaction();
     },
 
     setAudioClip(input) {

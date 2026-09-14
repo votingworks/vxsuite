@@ -3,7 +3,6 @@ import { Buffer } from 'node:buffer';
 import {
   safeParseSystemSettings,
   TEST_JURISDICTION,
-  EncodedBallotEntry,
   BallotType,
 } from '@votingworks/types';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
@@ -98,32 +97,27 @@ test('get/set/delete ballots', () => {
   const mockBallotPdf3Base64 =
     Buffer.from(mockBallotPdfData3).toString('base64');
 
-  const ballots: EncodedBallotEntry[] = [
-    {
-      ballotStyleId: '1M',
-      precinctId: 'precinct-1',
-      ballotType: BallotType.Precinct,
-      ballotMode: 'official',
-      encodedBallot: mockBallotPdf1Base64,
-    },
-    {
-      ballotStyleId: '2F',
-      precinctId: 'precinct-2',
-      ballotType: BallotType.Precinct,
-      ballotMode: 'test',
-      encodedBallot: mockBallotPdf2Base64,
-    },
-    {
-      ballotStyleId: '2F',
-      precinctId: 'precinct-2',
-      ballotType: BallotType.Absentee,
-      ballotMode: 'test',
-      encodedBallot: mockBallotPdf3Base64,
-    },
-  ];
-
-  // Store ballots
-  store.addBallots(ballots);
+  store.addBallot({
+    ballotStyleId: '1M',
+    precinctId: 'precinct-1',
+    ballotType: BallotType.Precinct,
+    ballotMode: 'official',
+    encodedBallot: mockBallotPdf1Base64,
+  });
+  store.addBallot({
+    ballotStyleId: '2F',
+    precinctId: 'precinct-2',
+    ballotType: BallotType.Precinct,
+    ballotMode: 'test',
+    encodedBallot: mockBallotPdf2Base64,
+  });
+  store.addBallot({
+    ballotStyleId: '2F',
+    precinctId: 'precinct-2',
+    ballotType: BallotType.Absentee,
+    ballotMode: 'test',
+    encodedBallot: mockBallotPdf3Base64,
+  });
 
   // Retrieve and verify ballots
   const retrievedBallot1 = store.getBallot({
@@ -174,17 +168,6 @@ test('get/set/delete ballots', () => {
     isLiveMode: true, // this is 'test' mode, so should not match 'official'
   });
   expect(wrongMode2).toBeUndefined();
-
-  // Delete all ballots
-  store.deleteBallots();
-
-  // Verify deletion - trying to get a ballot should return null/undefined
-  const deletedBallot = store.getBallot({
-    ballotStyleId: '1M',
-    precinctId: 'precinct-1',
-    isLiveMode: true,
-  });
-  expect(deletedBallot).toBeUndefined();
 });
 
 test('hasTestBallots', () => {
@@ -194,27 +177,23 @@ test('hasTestBallots', () => {
   expect(store.hasTestBallots()).toEqual(false);
 
   // Only official ballots.
-  store.addBallots([
-    {
-      ballotStyleId: '1M',
-      precinctId: 'precinct-1',
-      ballotType: BallotType.Precinct,
-      ballotMode: 'official',
-      encodedBallot: Buffer.from('official-pdf').toString('base64'),
-    },
-  ]);
+  store.addBallot({
+    ballotStyleId: '1M',
+    precinctId: 'precinct-1',
+    ballotType: BallotType.Precinct,
+    ballotMode: 'official',
+    encodedBallot: Buffer.from('official-pdf').toString('base64'),
+  });
   expect(store.hasTestBallots()).toEqual(false);
 
   // Test ballots present.
-  store.addBallots([
-    {
-      ballotStyleId: '1M',
-      precinctId: 'precinct-1',
-      ballotType: BallotType.Precinct,
-      ballotMode: 'test',
-      encodedBallot: Buffer.from('test-pdf').toString('base64'),
-    },
-  ]);
+  store.addBallot({
+    ballotStyleId: '1M',
+    precinctId: 'precinct-1',
+    ballotType: BallotType.Precinct,
+    ballotMode: 'test',
+    encodedBallot: Buffer.from('test-pdf').toString('base64'),
+  });
   expect(store.hasTestBallots()).toEqual(true);
 });
 

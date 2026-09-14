@@ -320,30 +320,20 @@ export function buildApi(ctx: Context) {
 
       // Ballots and audio clips are both streamed from the package, so open it
       // once and stream both entries over the same open file.
-      await withElectionPackageZip(filePath, async (electionPackageZip) => {
-        // Stream the serialized ballots (potentially GBs, and optional in the
-        // package) into the store in batches rather than holding them all in
-        // memory. The ballots table is independent of the election record, so
-        // a failed import is cleaned up without leaving the machine configured.
-        workspace.store.deleteBallots();
-        try {
-          for await (const ballots of streamElectionPackageBallots(
-            electionPackageZip
-          )) {
-            workspace.store.addBallots(ballots);
-          }
-        } catch (error) {
-          workspace.store.deleteBallots();
-          throw error;
-        }
-
-        workspace.store.withTransaction(() => {
+      await withElectionPackageZip(filePath, async (zip) => {
+        // [TODO] Cancel the transaction if the user logs out while configuring,
+        // since large packages can take a while to import.
+        await workspace.store.withTransaction(async () => {
           workspace.store.setElectionAndJurisdiction({
             electionData: electionDefinition.electionData,
             jurisdiction: authStatus.user.jurisdiction,
             electionPackageHash,
           });
           workspace.store.setSystemSettings(systemSettings);
+
+          for await (const ballot of streamElectionPackageBallots(zip)) {
+            store.addBallot(ballot);
+          }
 
           // The machine defaults to test mode, but if test mode isn't available
           // for this election package (no test ballots for a print flow that
@@ -364,18 +354,12 @@ export function buildApi(ctx: Context) {
             logger,
             store: workspace.store.getUiStringsStore(),
           });
-        });
 
-        try {
           await configureUiStringAudioClipsStreaming({
-            electionPackageZip,
-            store: workspace.store.getUiStringsStore(),
-            withTransaction: (fn) => workspace.store.withTransaction(fn),
+            zip,
+            store: store.getUiStringsStore(),
           });
-        } catch (error) {
-          workspace.store.reset();
-          throw error;
-        }
+        });
       });
 
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {

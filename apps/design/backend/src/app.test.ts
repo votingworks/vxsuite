@@ -329,10 +329,7 @@ function readBallotsFromElectionPackage(
 ): Promise<EncodedBallotEntry[]> {
   return withElectionPackageZip(
     makeTemporaryFile({ content: electionPackageContents }),
-    (electionPackageZip) =>
-      iter(streamElectionPackageBallots(electionPackageZip))
-        .flatMap((batch) => batch)
-        .toArray()
+    (zip) => iter(streamElectionPackageBallots(zip)).toArray()
   );
 }
 
@@ -341,10 +338,7 @@ function readAudioClipsFromElectionPackage(
 ): Promise<UiStringAudioClip[]> {
   return withElectionPackageZip(
     makeTemporaryFile({ content: electionPackageContents }),
-    (electionPackageZip) =>
-      iter(streamElectionPackageAudioClips(electionPackageZip))
-        .flatMap((batch) => batch)
-        .toArray()
+    (zip) => iter(streamElectionPackageAudioClips(zip)).toArray()
   );
 }
 

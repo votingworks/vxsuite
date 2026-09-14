@@ -83,14 +83,18 @@ export class Store {
 
   /**
    * Runs the given function in a transaction. If the function throws an error,
-   * the transaction is rolled back. Otherwise, the transaction is committed.
+   * or the optional {@link shouldCommit} returns `false`, the transaction is
+   * rolled back. Otherwise, the transaction is committed.
    *
    * Returns the result of the function.
    */
-  withTransaction<T>(fn: () => Promise<T>): Promise<T>;
-  withTransaction<T>(fn: () => T): T;
-  withTransaction<T>(fn: () => T): T {
-    return this.client.transaction(() => fn());
+  withTransaction<T>(
+    fn: () => Promise<T>,
+    shouldCommit?: (res: T) => boolean
+  ): Promise<T>;
+  withTransaction<T>(fn: () => T, shouldCommit?: (res: T) => boolean): T;
+  withTransaction<T>(fn: () => T, shouldCommit?: (res: T) => boolean): T {
+    return this.client.transaction(() => fn(), shouldCommit);
   }
 
   /**
@@ -242,17 +246,10 @@ export class Store {
   }
 
   /**
-   * Deletes all stored ballots.
+   * Adds an encoded ballot for printing.
    */
-  deleteBallots(): void {
-    this.client.run('delete from ballots');
-  }
-
-  /**
-   * Appends encoded ballots for printing.
-   */
-  addBallots(ballots: EncodedBallotEntry[]): void {
-    const insert = this.client.prepare(
+  addBallot(ballot: EncodedBallotEntry): void {
+    this.client.run(
       `
       insert into ballots (
         ballot_style_id,
@@ -261,21 +258,13 @@ export class Store {
         ballot_mode,
         encoded_ballot
       ) values (?, ?, ?, ?, ?)
-      `
+      `,
+      ballot.ballotStyleId,
+      ballot.precinctId,
+      ballot.ballotType,
+      ballot.ballotMode,
+      ballot.encodedBallot
     );
-
-    this.withTransaction(() => {
-      for (const ballot of ballots) {
-        this.client.run(
-          insert,
-          ballot.ballotStyleId,
-          ballot.precinctId,
-          ballot.ballotType,
-          ballot.ballotMode,
-          ballot.encodedBallot
-        );
-      }
-    });
   }
 
   getBallotPrintCounts({

@@ -380,10 +380,10 @@ export class Store {
   }
 
   /**
-   * Appends encoded ballots for printing.
+   * Adds an encoded ballot for printing.
    */
-  addBallots(ballots: EncodedBallotEntry[]): void {
-    const insert = this.client.prepare(
+  addBallot(ballot: EncodedBallotEntry): void {
+    this.client.run(
       `
       insert into ballots (
         ballot_style_id,
@@ -392,28 +392,14 @@ export class Store {
         ballot_mode,
         encoded_ballot
       ) values (?, ?, ?, ?, ?)
-      `
+      `,
+
+      ballot.ballotStyleId,
+      ballot.precinctId,
+      ballot.ballotType,
+      ballot.ballotMode,
+      ballot.encodedBallot
     );
-
-    this.withTransaction(() => {
-      for (const ballot of ballots) {
-        this.client.run(
-          insert,
-          ballot.ballotStyleId,
-          ballot.precinctId,
-          ballot.ballotType,
-          ballot.ballotMode,
-          ballot.encodedBallot
-        );
-      }
-    });
-  }
-
-  /**
-   * Deletes all stored ballots.
-   */
-  deleteBallots(): void {
-    this.client.run('delete from ballots');
   }
 
   /**

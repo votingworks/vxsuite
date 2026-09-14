@@ -397,51 +397,30 @@ export async function readElectionPackageFromFile(
   }
 }
 
-// JSONL entries can be MBs each, so batches are capped by size rather than
-// count — the peak memory of streaming is roughly one batch
-const STREAM_BATCH_MAX_CHARS = 8 * 1024 * 1024;
-
 /**
- * Streams a JSONL entry from an election package zip, yielding parsed batches
- * capped at roughly {@link STREAM_BATCH_MAX_CHARS} of JSONL, so that the full
- * entry contents are never held in memory. Blank lines are skipped.
+ * Streams a JSONL entry from an election package zip, one line at a time so
+ * that the full entry contents are never held in memory. Blank lines are
+ * skipped.
  *
  * Intended as a second pass after the package has been read and validated;
  * parse errors are unexpected at that point and throw.
  */
-export async function* streamElectionPackageJsonlEntry<T>(
+async function* streamElectionPackageJsonlEntry<T>(
   electionPackageZip: ElectionPackageZip,
   entryName: string,
   schema: z.ZodType<T>
-): AsyncIterable<T[]> {
+): AsyncIterable<T> {
   if (!electionPackageZip.hasEntry(entryName)) return;
 
   const entryStream = await electionPackageZip.openEntryStream(entryName);
   const fileLines = readline.createInterface(entryStream);
+
   try {
-    let batch: T[] = [];
-    let batchChars = 0;
     for await (const line of fileLines) {
       if (line.trim().length === 0) continue;
-      batch.push(safeParseJson(line, schema).unsafeUnwrap());
-      batchChars += line.length;
-      if (batchChars >= STREAM_BATCH_MAX_CHARS) {
-        yield batch;
-        batch = [];
-        batchChars = 0;
-      }
-    }
-    if (batch.length > 0) {
-      yield batch;
+      yield safeParseJson(line, schema).unsafeUnwrap();
     }
   } finally {
-    // Tear down the underlying entry stream on ANY exit — a mid-stream parse
-    // throw (invalid line), an early caller `break`, or normal completion.
-    // Without this the readline input is left open when the generator throws;
-    // when the surrounding zip is then closed the abandoned stream can emit an
-    // 'error' with no listener — an intermittent unhandled rejection that fails
-    // the run (surfaced by scan-backend's "invalid audio clip" test). Destroying
-    // an already-ended stream is a no-op, so the happy path is unaffected.
     fileLines.close();
     // @coverage-defer
     // The interface type is NodeJS.ReadableStream (no `destroy`), but the
@@ -461,7 +440,7 @@ export async function* streamElectionPackageJsonlEntry<T>(
  */
 export function streamElectionPackageBallots(
   electionPackageZip: ElectionPackageZip
-): AsyncIterable<EncodedBallotEntry[]> {
+): AsyncIterable<EncodedBallotEntry> {
   return streamElectionPackageJsonlEntry(
     electionPackageZip,
     ElectionPackageFileName.BALLOTS,
@@ -470,18 +449,18 @@ export function streamElectionPackageBallots(
 }
 
 /**
- * Streams the UI string audio clips in an election package zip from disk in
- * size-capped batches, so that the full set is never held in memory. Returns
- * the total number of clips streamed (0 if the package has no audio clips
- * file). Clips are not filtered by language; callers should filter against
- * their configured languages.
+ * Streams the UI string audio clips in an election package zip from disk, one
+ * at a time, so that the full set is never held in memory.
+ *
+ * Clips are not filtered by language; callers should filter against their
+ * configured languages.
  *
  * Intended as a second pass after the package has been read and validated;
  * parse errors are unexpected at that point and throw.
  */
 export function streamElectionPackageAudioClips(
   electionPackageZip: ElectionPackageZip
-): AsyncIterable<UiStringAudioClip[]> {
+): AsyncIterable<UiStringAudioClip> {
   return streamElectionPackageJsonlEntry(
     electionPackageZip,
     ElectionPackageFileName.AUDIO_CLIPS,
