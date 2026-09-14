@@ -4,6 +4,11 @@ import {
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import { cleanupCachedBrowser } from '@votingworks/printing/browser';
+import { setGracefulCleanup } from 'tmp';
+import '@votingworks/image-utils/vitest-setup';
+
+// ensure tmp files are cleaned up
+setGracefulCleanup();
 
 afterAll(async () => {
   await cleanupCachedBrowser();

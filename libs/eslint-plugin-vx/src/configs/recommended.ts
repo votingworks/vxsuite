@@ -218,6 +218,7 @@ export default function buildRecommended(
               '**/*.stories.tsx',
               '**/test_utils.ts',
               '**/test_utils.tsx',
+              '**/vitest_setup.ts',
               '**/*.bench.ts',
             ],
           },
@@ -370,8 +371,13 @@ export default function buildRecommended(
         'vx/no-esm-workspace-import-in-test-setup': [
           'error',
           {
-            // Only loads `playwright`, nothing we actually mock.
-            allow: ['@votingworks/printing/browser'],
+            allow: [
+              // Only loads `playwright`, nothing we actually mock.
+              '@votingworks/printing/browser',
+              // Registers the shared image matchers; its dependency graph
+              // stays mockable from the test file.
+              '@votingworks/image-utils/vitest-setup',
+            ],
           },
         ],
       },

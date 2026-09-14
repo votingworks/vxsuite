@@ -1,32 +1,27 @@
 import { expect } from 'vitest';
-import {
-  ToMatchImageOptions,
-  ToMatchPdfSnapshotOptions,
-  toMatchImage,
-  buildToMatchPdfSnapshot,
-} from '@votingworks/image-utils';
-import { RgbaImageData } from '@votingworks/types';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
-import { setGracefulCleanup } from 'tmp';
-
-// ensure tmp files are cleaned up
-setGracefulCleanup();
+import { RgbaImageData } from '@votingworks/types';
+import { toMatchImage, ToMatchImageOptions } from './jest_match_image.js';
+import {
+  buildToMatchPdfSnapshot,
+  ToMatchPdfSnapshotOptions,
+} from './jest_pdf_snapshot.js';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace jest {
     interface Matchers<R> {
-      toMatchPdfSnapshot(options?: ToMatchPdfSnapshotOptions): Promise<R>;
       toMatchImage(
         expected: RgbaImageData,
         options?: ToMatchImageOptions
       ): Promise<R>;
+      toMatchPdfSnapshot(options?: ToMatchPdfSnapshotOptions): Promise<R>;
     }
   }
 }
 
 expect.extend({
+  toMatchImage,
   toMatchImageSnapshot,
   toMatchPdfSnapshot: buildToMatchPdfSnapshot(expect),
-  toMatchImage,
 });

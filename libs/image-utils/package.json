@@ -10,6 +10,10 @@
       "types": "./build/index.d.ts",
       "default": "./build/index.js"
     },
+    "./vitest-setup": {
+      "types": "./build/vitest_setup.d.ts",
+      "default": "./build/vitest_setup.js"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {

@@ -3,11 +3,7 @@ import { defineConfig } from '../../../vitest.config.shared.mjs';
 
 export default defineConfig({
   test: {
-    setupFiles: [
-      './test/set_env_vars.ts',
-      './test/setup_custom_matchers.ts',
-      './test/setupTests.ts',
-    ],
+    setupFiles: ['./test/set_env_vars.ts', './test/setupTests.ts'],
     coverage: {
       exclude: [
         '**/node_modules/**',

@@ -5,6 +5,7 @@ import {
 } from '@votingworks/fixtures';
 import { cleanupCachedBrowser } from '@votingworks/printing/browser';
 import { cleanupTestSuiteTmpFiles } from './cleanup.js';
+import '@votingworks/image-utils/vitest-setup';
 
 afterAll(async () => {
   cleanupTestSuiteTmpFiles();
