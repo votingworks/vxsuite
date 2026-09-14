@@ -42,11 +42,14 @@
   "pnpm": {
     "overrides": {
       "@babel/traverse": "7.23.2",
+      "@vitest/eslint-plugin>@typescript-eslint/scope-manager": "8.70.0",
       "brace-expansion@1": "^1.1.13",
       "brace-expansion@2": "^2.0.2",
       "canvas": "3.2.3",
+      "eslint-plugin-storybook>@typescript-eslint/types": "8.70.0",
       "graceful-fs": "^4.2.9",
       "nan": "^2.28.0",
+      "postcss-styled-syntax>@typescript-eslint/typescript-estree": "8.70.0",
       "typescript": "npm:@typescript/typescript6@6.0.2"
     },
     "peerDependencyRules": {
