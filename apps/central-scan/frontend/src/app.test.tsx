@@ -185,6 +185,8 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
   render(<App apiClient={apiMock.apiClient} />);
   await authenticateAsElectionManager(electionDefinition);
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
+  userEvent.click(screen.getButton('Batch History'));
+  await screen.findByRole('heading', { name: 'Batch History' });
 
   // wait for the config to load
   const saveButton = screen.getButton('Save CVRs');
@@ -197,6 +199,39 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
   userEvent.click(screen.getByText('Close'));
 
   expect(screen.queryByRole('alertdialog')).toEqual(null);
+
+  userEvent.click(screen.getButton('Scan Ballots'));
+  await screen.findByRole('heading', { name: 'Scan Ballots' });
+});
+
+test('deleting a batch removes it from the table', async () => {
+  apiMock.expectGetTestMode(true);
+  apiMock.expectGetElectionRecord(electionDefinition);
+  const batch1 = mockBatch({ id: 'a', label: 'Batch 1' });
+  const batch2 = mockBatch({ id: 'b', label: 'Batch 2' });
+  apiMock.setStatus(mockStatus({ batches: [batch1, batch2] }));
+
+  render(<App apiClient={apiMock.apiClient} />);
+  await authenticateAsElectionManager(electionDefinition);
+  userEvent.click(screen.getButton('Batch History'));
+  await screen.findByRole('heading', { name: 'Batch History' });
+  await screen.findByText('Batch 2');
+
+  userEvent.click(screen.getAllButtons('Delete')[1]);
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', { name: 'Delete ‘Batch 2’' });
+
+  apiMock.expectDeleteBatch({ batchId: 'b' });
+  apiMock.setStatus(mockStatus({ batches: [batch1] }));
+  userEvent.click(within(modal).getButton('Delete Batch'));
+
+  await vi.waitFor(() =>
+    expect(screen.queryByText('Batch 2')).not.toBeInTheDocument()
+  );
+  screen.getByText('Batch 1');
+
+  userEvent.click(screen.getButton('Scan Ballots'));
+  await screen.findByRole('heading', { name: 'Scan Ballots' });
 });
 
 test('configuring election from usb election package works end to end', async () => {
@@ -215,7 +250,7 @@ test('configuring election from usb election package works end to end', async ()
   expectConfigureFromElectionPackageOnUsbDrive();
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
 
-  await screen.findByText('No ballots have been scanned');
+  await screen.findByRole('heading', { name: 'Scan Ballots' });
 
   screen.getByText('General Election');
   screen.getByText(/Franklin County/);

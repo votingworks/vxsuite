@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import { test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { sleep } from '@votingworks/basics';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
@@ -117,9 +117,10 @@ test('screenshots', async ({ page }, testInfo) => {
     await devDockClient.batchScannerLoadBallots({ paths });
     await page.getByRole('button', { name: 'Scan New Batch' }).click();
     expectedSheets += paths.length;
-    await page
-      .getByText(`Total Sheets: ${expectedSheets}`)
-      .waitFor({ timeout: 60000 });
+    await expect(page.getByTestId('total-sheets')).toHaveText(
+      String(expectedSheets),
+      { timeout: 60000 }
+    );
   }
 
   // Unconfigured: insert election manager card.
@@ -150,7 +151,7 @@ test('screenshots', async ({ page }, testInfo) => {
   );
   await page.getByText(/Configuring VxCentralScan/).waitFor();
   await screenshot('configuring');
-  await page.getByText('No ballots have been scanned').waitFor();
+  await page.getByRole('heading', { name: 'Scan Ballots' }).waitFor();
 
   // Scan Ballots screen immediately after configuring, while still in test
   // mode (the switch to official mode happens below). Capture it plain, then
@@ -200,12 +201,8 @@ test('screenshots', async ({ page }, testInfo) => {
 
   // Empty Scan Ballots screen and its call-to-action highlights.
   await page.getByRole('button', { name: 'Scan Ballots' }).click();
-  await page.getByText('No ballots have been scanned').waitFor();
+  await page.getByRole('heading', { name: 'Scan Ballots' }).waitFor();
   await screenshot('scan-ballots-empty');
-  await screenshotWithLocatorHighlight(
-    page.getByText('No ballots have been scanned'),
-    'scan-ballots-empty-no-ballots-highlight'
-  );
   await screenshotWithButtonHighlight(
     'Scan New Batch',
     'scan-ballots-empty-scan-new-batch-button'
@@ -217,6 +214,11 @@ test('screenshots', async ({ page }, testInfo) => {
   await scanCountedBatch(Array.from({ length: 18 }, () => fullPdf));
   await scanCountedBatch(Array.from({ length: 6 }, () => fullPdf));
   await screenshot('scan-ballots-with-batches');
+
+  await page.getByRole('button', { name: 'Batch History' }).click();
+  await page.getByRole('heading', { name: 'Batch History' }).waitFor();
+  await screenshot('batch-history');
+  await page.getByRole('button', { name: 'Scan Ballots' }).click();
 
   // Adjudication: scan one batch of problem ballots and capture each eject
   // state. Each "Confirm Ballot Removed" advances to the next review sheet.
@@ -271,10 +273,9 @@ test('screenshots', async ({ page }, testInfo) => {
       .waitFor({ state: 'hidden', timeout: 60000 });
   }
 
-  // Back on Scan Ballots with batches present: highlight Save CVRs.
-  await page.getByText('No ballots have been scanned').waitFor({
-    state: 'hidden',
-  });
+  // Back on Batch History with batches present: highlight Save CVRs.
+  await page.getByRole('button', { name: 'Scan New Batch' }).waitFor();
+  await page.getByRole('button', { name: 'Batch History' }).click();
   await screenshotWithButtonHighlight(
     'Save CVRs',
     'scan-ballots-save-cvrs-button'

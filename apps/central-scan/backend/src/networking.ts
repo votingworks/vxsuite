@@ -189,7 +189,7 @@ export function startScannerNetworking({
         );
         for (const batch of removedBatches) {
           logger.log(LogEventId.CentralScanNetworkStatus, 'system', {
-            message: `${batch.label} was sent to VxAdmin ${hostMachineId}, but the host no longer holds its cast vote records. It can be sent again from the Scan Ballots screen.`,
+            message: `${batch.label} was sent to VxAdmin ${hostMachineId}, but the host no longer holds its cast vote records. It can be sent again from the Batch History screen.`,
             disposition: 'failure',
             batchId: batch.id,
             hostMachineId,
