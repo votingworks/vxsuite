@@ -17,7 +17,6 @@ const frontend = {
     'stylelint --quiet --fix',
     'eslint --cache --quiet --fix',
   ],
-  '*.css': ['stylelint --config .stylelintrc-css.js --fix'],
 };
 
 module.exports = {
