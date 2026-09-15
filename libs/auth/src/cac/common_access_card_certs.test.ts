@@ -5,7 +5,7 @@ import {
   parseCardDetailsFromCert,
   parseCert,
   parseCommonAccessCardFields,
-} from './common_access_card_certs';
+} from './common_access_card_certs.js';
 
 test('parseCommonAccessCardFields', () => {
   expect(
@@ -26,7 +26,9 @@ test('parseCommonAccessCardFields', () => {
 
 test('parseCert', async () => {
   expect(
-    await parseCert(await readFile(join(__dirname, './cac-dev-cert.pem')))
+    await parseCert(
+      await readFile(join(import.meta.dirname, './cac-dev-cert.pem'))
+    )
   ).toEqual({
     commonAccessCardId: '1404921289',
     givenName: 'MICHAEL',
@@ -38,7 +40,7 @@ test('parseCert', async () => {
 test('parseCardDetailsFromCert', async () => {
   expect(
     await parseCardDetailsFromCert(
-      await readFile(join(__dirname, './cac-dev-cert.pem'))
+      await readFile(join(import.meta.dirname, './cac-dev-cert.pem'))
     )
   ).toEqual({
     commonAccessCardId: '1404921289',

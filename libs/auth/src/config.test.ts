@@ -12,7 +12,7 @@ import {
   SignedHashValidationConfig,
   SignedQuickResultsReportingConfig,
   getVxCertAuthorityCertPath,
-} from './config';
+} from './config.js';
 
 vi.mock(
   '@votingworks/utils',

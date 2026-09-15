@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
-require('./sign_message').main();
+import { main } from '../../build/intermediate-scripts/sign_message.js';
+
+main();

@@ -1,8 +1,8 @@
 import { Result } from '@votingworks/basics';
 import { Byte, Id } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
-import { ResponseApduError } from '../apdu';
-import { BaseCard, PinProtectedCard, StatefulCard } from '../card';
+import { ResponseApduError } from '../apdu.js';
+import { BaseCard, PinProtectedCard, StatefulCard } from '../card.js';
 
 /**
  * Details about a Common Access Card.

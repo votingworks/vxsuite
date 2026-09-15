@@ -4,7 +4,6 @@ import * as fs from 'node:fs';
 import path from 'node:path';
 import { createInterface } from 'node:readline/promises';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import waitForExpect from 'wait-for-expect';
 import {
   electionFamousNames2021Fixtures,
   makeTemporaryDirectory,
@@ -28,25 +27,25 @@ import {
   MockCardReader,
   TestFileSetId,
   TestJavaCard,
-} from '../test/utils';
+} from '../test/utils.js';
 import {
   CardCommand,
   constructTlv,
   ResponseApduError,
   SELECT,
   STATUS_WORD,
-} from './apdu';
-import { CardDetails, CheckPinResponse, ProgrammableCard } from './card';
-import { CardReader } from './card_reader';
-import { CardType } from './certs';
-import { JavaCardConfig } from './config';
+} from './apdu.js';
+import { CardDetails, CheckPinResponse, ProgrammableCard } from './card.js';
+import { CardReader } from './card_reader.js';
+import { CardType } from './certs.js';
+import { JavaCardConfig } from './config.js';
 import {
   certDerToPem,
   createCert,
   openssl,
   PUBLIC_KEY_IN_DER_FORMAT_HEADER,
   publicKeyDerToPem,
-} from './cryptography';
+} from './cryptography.js';
 import {
   CARD_IDENTITY_CERT,
   CARD_VX_CERT,
@@ -58,7 +57,7 @@ import {
   OPEN_FIPS_201_AID,
   PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT,
   PUK,
-} from './java_card';
+} from './java_card.js';
 import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
@@ -68,17 +67,17 @@ import {
   PUT_DATA,
   RESET_RETRY_COUNTER,
   VERIFY,
-} from './piv';
+} from './piv.js';
 
 vi.mock('node:readline/promises');
 vi.mock('./card_reader');
 vi.mock(
   './cryptography',
-  async (importActual): Promise<typeof import('./cryptography')> => ({
+  async (importActual): Promise<typeof import('./cryptography.js')> => ({
     // We use real cryptographic commands in these tests to ensure end-to-end correctness, the one
     // exception being commands for cert creation since two cert creation commands with the exact
     // same inputs won't necessarily generate the same outputs, making assertions difficult
-    ...(await importActual<typeof import('./cryptography')>()),
+    ...(await importActual<typeof import('./cryptography.js')>()),
     createCert: vi.fn(),
   })
 );
@@ -792,14 +791,14 @@ test.each<{
     }
 
     mockCardReader.setReaderStatus('ready');
-    await waitForExpect(async () => {
-      // This might fail if the test keys and certs are outdated (e.g. if the election key changes).
-      // Run ./scripts/generate-test-keys-and-certs to update them.
-      expect(await javaCard.getCardStatus()).toEqual({
+    // This might fail if the test keys and certs are outdated (e.g. if the election key changes).
+    // Run ./scripts/generate-test-keys-and-certs to update them.
+    await expect
+      .poll(() => javaCard.getCardStatus())
+      .toEqual({
         status: 'ready',
         cardDetails: expectedCardDetails,
       });
-    });
   }
 );
 
@@ -1546,12 +1545,12 @@ test('TOCTOU regression test: Card validation stashes the identity cert for use 
   mockCardGetNumRemainingPinAttemptsRequest(MAX_NUM_INCORRECT_PIN_ATTEMPTS);
 
   mockCardReader.setReaderStatus('ready');
-  await waitForExpect(async () => {
-    expect(await javaCard.getCardStatus()).toEqual({
+  await expect
+    .poll(() => javaCard.getCardStatus())
+    .toEqual({
       status: 'ready',
       cardDetails: { user: systemAdministratorUser },
     });
-  });
   mockCardReader.transmit.assertComplete();
 
   // No card identity cert retrieval is mocked. If checkPin re-fetched the cert from the card

@@ -4,19 +4,18 @@ import { Byte } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
-import waitForExpect from 'wait-for-expect';
 import { mockConstructor } from '@votingworks/test-utils';
-import { MockCardReader, getTestFilePath } from '../../test/utils';
+import { MockCardReader, getTestFilePath } from '../../test/utils.js';
 import {
   CardCommand,
   ResponseApduError,
   SELECT,
   STATUS_WORD,
   constructTlv,
-} from '../apdu';
-import { CheckPinResponse } from '../card';
-import { CardReader } from '../card_reader';
-import { certDerToPem, certPemToDer, createCert } from '../cryptography';
+} from '../apdu.js';
+import { CheckPinResponse } from '../card.js';
+import { CardReader } from '../card_reader.js';
+import { certDerToPem, certPemToDer, createCert } from '../cryptography.js';
 import {
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
   GENERATE_ASYMMETRIC_KEY_PAIR,
@@ -24,29 +23,31 @@ import {
   PUT_DATA,
   VERIFY,
   construct8BytePinBuffer,
-} from '../piv';
+} from '../piv.js';
 import {
   CARD_DOD_CERT,
   COMMON_ACCESS_CARD_AID,
   CommonAccessCard,
   buildGenerateSignatureCardCommand,
-} from './common_access_card';
+} from './common_access_card.js';
 
 vi.mock('../card_reader');
 vi.mock(
   '../cryptography',
-  async (importActual): Promise<typeof import('../cryptography')> => ({
+  async (importActual): Promise<typeof import('../cryptography.js')> => ({
     // We use real cryptographic commands in these tests to ensure end-to-end correctness, the one
     // exception being commands for cert creation since two cert creation commands with the exact
     // same inputs won't necessarily generate the same outputs, making assertions difficult
-    ...(await importActual<typeof import('../cryptography')>()),
+    ...(await importActual<typeof import('../cryptography.js')>()),
     createCert: vi.fn(),
   })
 );
 
-const DEV_CERT_PEM = fs.readFileSync(join(__dirname, './cac-dev-cert.pem'));
+const DEV_CERT_PEM = fs.readFileSync(
+  join(import.meta.dirname, './cac-dev-cert.pem')
+);
 const CERTIFYING_PRIVATE_KEY_PATH = join(
-  __dirname,
+  import.meta.dirname,
   '../../certs/dev/vx-cert-authority-cert.pem'
 );
 
@@ -218,9 +219,9 @@ test('cardStatus', async () => {
     await certPemToDer(DEV_CERT_PEM)
   );
   mockCardReader.setReaderStatus('ready');
-  await waitForExpect(async () => {
-    expect((await cac.getCardStatus()).status).toEqual('ready');
-  });
+  await expect
+    .poll(() => cac.getCardStatus())
+    .toMatchObject({ status: 'ready' });
 
   // remove the cert and make sure we are back to ready
   mockCardReader.setReaderStatus('no_card');
@@ -230,9 +231,9 @@ test('cardStatus', async () => {
   mockCardGetCertificateRequest(CARD_DOD_CERT.OBJECT_ID, new Error('no cert'));
 
   mockCardReader.setReaderStatus('ready');
-  await waitForExpect(async () => {
-    expect((await cac.getCardStatus()).status).toEqual('ready');
-  });
+  await expect
+    .poll(() => cac.getCardStatus())
+    .toMatchObject({ status: 'ready' });
 });
 
 test('checkPin: success', async () => {

@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
-require('./src/mock_card').main(process.argv.slice(2));
+import { main } from '../build/scripts/mock_card.js';
+
+main(process.argv.slice(2));

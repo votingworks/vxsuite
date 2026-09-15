@@ -12,7 +12,7 @@ import {
   areSystemAdministratorCardDetails,
   areVendorCardDetails,
   CardDetails,
-} from './card';
+} from './card.js';
 
 const vendorUser = mockVendorUser();
 const systemAdministratorUser = mockSystemAdministratorUser();

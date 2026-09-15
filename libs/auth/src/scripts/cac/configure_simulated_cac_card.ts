@@ -3,35 +3,35 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { extractErrorMessage, lines } from '@votingworks/basics';
 import { Byte } from '@votingworks/types';
+import { getRequiredEnvVar } from '@votingworks/utils';
 
-import { CommandApdu, constructTlv } from '../../src/apdu';
+import { CommandApdu, constructTlv } from '../../apdu.js';
 import {
-  constructJavaCardConfigForVxProgramming,
-  JavaCardConfig,
-} from '../../src/config';
-import {
-  CARD_IDENTITY_CERT,
-  CARD_VX_CERT,
-  DEFAULT_PIN,
-  GENERIC_STORAGE_SPACE,
-  JavaCard,
   MAX_NUM_INCORRECT_PIN_ATTEMPTS,
   OPEN_FIPS_201_AID,
-  PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT,
   PUK,
-} from '../../src/java_card';
+} from '../../java_card.js';
 import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
-} from '../../src/piv';
-import { runCommand } from '../../src/shell';
-import { waitForReadyCardStatus } from './utils';
+} from '../../piv.js';
+import { runCommand } from '../../shell.js';
+import { waitForReadyCardStatus } from '../utils.js';
+
+import {
+  CARD_DOD_CERT,
+  CommonAccessCard,
+  DEFAULT_PIN,
+} from '../../cac/index.js';
 
 const APPLET_PATH = path.join(
-  __dirname,
-  '../../applets/OpenFIPS201-v1.10.2-with-vx-mods.cap'
+  import.meta.dirname,
+  '../../../applets/OpenFIPS201-v1.10.2-with-vx-mods.cap'
 );
-const GLOBAL_PLATFORM_JAR_FILE_PATH = path.join(__dirname, '../gp.jar');
+const GLOBAL_PLATFORM_JAR_FILE_PATH = path.join(
+  import.meta.dirname,
+  '../../gp.jar'
+);
 
 /**
  * CHANGE REFERENCE DATA ADMIN is an OpenFIPS201-specific extension of the PIV-standard CHANGE
@@ -73,6 +73,11 @@ const PUT_DATA_ADMIN = {
   KEY_ATTRIBUTE_NONE: 0x00,
 } as const;
 
+const vxCertAuthorityCertPath = getRequiredEnvVar(
+  'VX_CERT_AUTHORITY_CERT_PATH'
+);
+const vxPrivateKeyPath = getRequiredEnvVar('VX_PRIVATE_KEY_PATH');
+
 function sectionLog(symbol: string, message: string): void {
   console.log('-'.repeat(3 + message.length));
   console.log(`${symbol} ${message}`);
@@ -89,18 +94,6 @@ function checkForScriptDependencies(): void {
       'Missing script dependencies; install using `make install-script-dependencies` in libs/auth'
     );
   }
-}
-
-interface ScriptEnvVars {
-  javaCardConfig: JavaCardConfig;
-  workingDirectory?: string;
-}
-
-function readScriptEnvVars(): ScriptEnvVars {
-  return {
-    javaCardConfig: constructJavaCardConfigForVxProgramming(), // Uses env vars
-    workingDirectory: process.env['WORKING_DIRECTORY'],
-  };
 }
 
 async function installApplet(): Promise<void> {
@@ -141,7 +134,7 @@ function configureKeySlotCommandApdu(
         ),
         constructTlv(
           PUT_DATA_ADMIN.KEY_MECHANISM_TAG,
-          Buffer.of(CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER.ECC256)
+          Buffer.of(CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER.RSA2048)
         ),
         constructTlv(
           PUT_DATA_ADMIN.KEY_ROLE_TAG,
@@ -180,7 +173,11 @@ function configureDataObjectSlotCommandApdu(objectId: Buffer): CommandApdu {
 }
 
 async function runAppletConfigurationCommands(): Promise<void> {
-  sectionLog('🔧', 'Running applet configuration commands...');
+  const cardPin = process.env['CARD_PIN'] || DEFAULT_PIN;
+  sectionLog(
+    '🔧',
+    `Running applet configuration commands, with PIN ${cardPin}...`
+  );
 
   const apdus = [
     // Set PIN
@@ -189,7 +186,7 @@ async function runAppletConfigurationCommands(): Promise<void> {
       ins: CHANGE_REFERENCE_DATA_ADMIN.INS,
       p1: CHANGE_REFERENCE_DATA_ADMIN.P1,
       p2: CHANGE_REFERENCE_DATA_ADMIN.P2_PIN,
-      data: construct8BytePinBuffer(DEFAULT_PIN),
+      data: construct8BytePinBuffer(cardPin),
     }),
 
     // Set PUK
@@ -221,25 +218,14 @@ async function runAppletConfigurationCommands(): Promise<void> {
 
     // Configure key slots
     configureKeySlotCommandApdu(
-      CARD_VX_CERT.PRIVATE_KEY_ID,
+      CARD_DOD_CERT.PRIVATE_KEY_ID,
       // This doesn't mean that the private key itself can be accessed, just that it can always be
       // used for signing operations, without a PIN
       PUT_DATA_ADMIN.ACCESS_MODE_ALWAYS
     ),
-    configureKeySlotCommandApdu(
-      CARD_IDENTITY_CERT.PRIVATE_KEY_ID,
-      PUT_DATA_ADMIN.ACCESS_MODE_PIN_GATED
-    ),
 
     // Configure data object slots
-    configureDataObjectSlotCommandApdu(CARD_VX_CERT.OBJECT_ID),
-    configureDataObjectSlotCommandApdu(CARD_IDENTITY_CERT.OBJECT_ID),
-    configureDataObjectSlotCommandApdu(
-      PROGRAMMING_MACHINE_CERT_AUTHORITY_CERT.OBJECT_ID
-    ),
-    ...GENERIC_STORAGE_SPACE.OBJECT_IDS.map((objectId) =>
-      configureDataObjectSlotCommandApdu(objectId)
-    ),
+    configureDataObjectSlotCommandApdu(CARD_DOD_CERT.OBJECT_ID), // configureDataObjectSlotCommandApdu(CARD_VX_CERT.OBJECT_ID),
   ];
 
   const apduStrings = apdus.map((apdu) => apdu.asHexString(':'));
@@ -274,27 +260,32 @@ async function runAppletConfigurationCommands(): Promise<void> {
   }
 }
 
-async function createAndStoreCardVxCert({
-  javaCardConfig,
-  workingDirectory,
-}: ScriptEnvVars): Promise<void> {
-  sectionLog('🔏', 'Creating and storing card VotingWorks cert...');
-
-  const card = new JavaCard(javaCardConfig);
+async function createAndStoreCardVxCert(commonName: string): Promise<void> {
+  sectionLog(
+    '🔏',
+    `Creating and storing simulated CAC cert for ${commonName} ...`
+  );
+  const card = new CommonAccessCard({ certPath: vxCertAuthorityCertPath });
   await waitForReadyCardStatus(card);
-  await card.createAndStoreCardVxCert({ workingDirectory });
+  await card.createAndStoreCert(
+    {
+      source: 'file',
+      path: vxPrivateKeyPath,
+    },
+    commonName
+  );
 }
 
 /**
- * An initial Java Card configuration script to be run at a VotingWorks facility
+ * Create a mock Common Access Card for use with RAVE.
  */
 export async function main(): Promise<void> {
   try {
+    const commonName = getRequiredEnvVar('CERT_COMMON_NAME');
     checkForScriptDependencies();
-    const scriptEnvVars = readScriptEnvVars();
     await installApplet();
     await runAppletConfigurationCommands();
-    await createAndStoreCardVxCert(scriptEnvVars);
+    await createAndStoreCardVxCert(commonName);
     sectionLog('✅', 'Done!');
     process.exit(0); // Smart card scripts require an explicit exit or else they hang
   } catch (error) {

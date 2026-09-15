@@ -2,13 +2,13 @@ import { expect, test } from 'vitest';
 import { Readable } from 'node:stream';
 import { DEV_MACHINE_ID, TEST_JURISDICTION } from '@votingworks/types';
 
-import { getTestFilePath } from '../test/utils';
+import { getTestFilePath } from '../test/utils.js';
 import {
   CERT_EXPIRY_IN_DAYS,
   constructCardCertSubject,
   constructMachineCertSubject,
   parseCert,
-} from './certs';
+} from './certs.js';
 import {
   createCert,
   decryptAes256,
@@ -19,7 +19,7 @@ import {
   signMessage,
   verifyFirstCertWasSignedBySecondCert,
   verifySignature,
-} from './cryptography';
+} from './cryptography.js';
 
 /**
  * Whereas cryptography.test.ts focuses on code coverage, cryptography.end_to_end.test.ts uses no

@@ -12,7 +12,7 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 
-import { getTestFilePath } from '../test/utils';
+import { getTestFilePath } from '../test/utils.js';
 import {
   ArtifactToExport,
   ArtifactToImport,
@@ -20,9 +20,9 @@ import {
   prepareSignatureFile,
   SIGNATURE_FILE_EXTENSION,
   VXADMIN_BACKUP_MANIFEST_FILE_NAME,
-} from './artifact_authentication';
-import { MachineCustomCertFields } from './certs';
-import { ArtifactAuthenticationConfig } from './config';
+} from './artifact_authentication.js';
+import { MachineCustomCertFields } from './certs.js';
+import { ArtifactAuthenticationConfig } from './config.js';
 
 vi.mock(
   '@votingworks/types',

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS } from '@votingworks/types';
 
-import { computeSessionEndTime, SessionConfig } from './sessions';
+import { computeSessionEndTime, SessionConfig } from './sessions.js';
 
 test('computeSessionEndTime with default config params', () => {
   const defaultSessionConfig: SessionConfig = {

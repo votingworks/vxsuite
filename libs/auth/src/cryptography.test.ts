@@ -26,7 +26,7 @@ import {
   signMessageHelper,
   SignMessageInput,
   SignMessageInputExcludingMessage,
-} from './cryptography';
+} from './cryptography.js';
 
 vi.mock('node:child_process');
 vi.mock('tmp');

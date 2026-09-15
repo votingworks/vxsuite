@@ -1,14 +1,14 @@
 import { expect, test } from 'vitest';
 import { DEV_MACHINE_ID, formatElectionHashes } from '@votingworks/types';
 
-import { getTestFilePath } from '../test/utils';
-import { SignedHashValidationConfig } from './config';
+import { getTestFilePath } from '../test/utils.js';
+import { SignedHashValidationConfig } from './config.js';
 import {
   ElectionRecord,
   generateSignedHashValidationQrCodeValue,
   SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR,
   SIGNED_HASH_VALIDATION_QR_CODE_VALUE_SEPARATOR,
-} from './signed_hash_validation';
+} from './signed_hash_validation.js';
 
 const mockBallotHash = 'ballot-hash';
 const softwareVersion = 'software-version';

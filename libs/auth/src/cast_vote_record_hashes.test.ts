@@ -18,7 +18,7 @@ import {
   readableFileFromData,
   readableFileFromDisk,
   updateCastVoteRecordHashes,
-} from './cast_vote_record_hashes';
+} from './cast_vote_record_hashes.js';
 
 function sha256(data: string): string {
   return createHash('sha256').update(data).digest('hex');

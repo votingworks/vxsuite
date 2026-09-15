@@ -3132,9 +3132,6 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils
-      esbuild-runner:
-        specifier: 2.2.2
-        version: 2.2.2(esbuild@0.28.1)
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -3147,9 +3144,6 @@ importers:
       vitest:
         specifier: ^4.1.11
         version: 4.1.11(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@4.1.6)(jsdom@20.0.1(canvas@3.2.3))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
-      wait-for-expect:
-        specifier: ^3.0.2
-        version: 3.0.2
 
   libs/backend:
     dependencies:

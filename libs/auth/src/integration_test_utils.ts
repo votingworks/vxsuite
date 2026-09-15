@@ -1,6 +1,6 @@
 import { Election, TEST_JURISDICTION } from '@votingworks/types';
 
-import { mockCard } from './mock_file_card';
+import { mockCard } from './mock_file_card.js';
 
 /**
  * The default PIN used in integration tests

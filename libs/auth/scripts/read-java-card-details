@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
-require('./src/read_java_card_details').main();
+import { main } from '../build/scripts/read_java_card_details.js';
+
+main();

@@ -7,9 +7,9 @@ import {
   extractPublicKeyFromCert,
   signMessage,
   verifySignature,
-} from '../../src/cryptography';
-import { FileKey } from '../../src/keys';
-import { constructPrefixedMessage } from '../../src/signatures';
+} from '../cryptography.js';
+import { FileKey } from '../keys.js';
+import { constructPrefixedMessage } from '../signatures.js';
 
 interface CommandLineArgs {
   privateKeyPath: string;
@@ -94,7 +94,7 @@ async function generateMachineLabelQrCodeContents({
   });
 
   const certPath = path.join(
-    __dirname,
+    import.meta.dirname,
     '../../certs/prod/vx-label-qr-codes-cert-authority-cert.pem'
   );
   const publicKey = await extractPublicKeyFromCert(certPath);
