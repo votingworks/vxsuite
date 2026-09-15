@@ -298,6 +298,9 @@ export function BallotPageFrame({
               )}
             </div>
             <Footer
+              jurisdictionName={electionStrings.jurisdictionName(
+                election.jurisdiction
+              )}
               pageNumber={pageNumber}
               totalPages={totalPages}
               ballotMode={ballotMode}

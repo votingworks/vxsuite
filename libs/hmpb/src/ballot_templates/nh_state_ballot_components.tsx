@@ -344,24 +344,30 @@ const arrowNextPage = (
 );
 
 export function Footer({
+  jurisdictionName,
   pageNumber,
   totalPages,
   ballotMode,
   isHandCount,
   variant,
 }: {
+  jurisdictionName?: JSX.Element;
   pageNumber: number;
   totalPages?: number;
   ballotMode: BallotMode;
   isHandCount?: boolean;
   variant?: NhStateBallotVariant;
 }): JSX.Element {
+  const showJurisdictionName =
+    jurisdictionName !== undefined && !isHandCount && pageNumber % 2 === 0;
   return (
     <div
       style={{
+        position: 'relative',
         display: 'flex',
         alignItems: 'center',
         gap: '1rem',
+        minHeight: showJurisdictionName ? '0.6in' : undefined,
       }}
     >
       <div
@@ -403,6 +409,23 @@ export function Footer({
         >
           <div>VOTE BOTH SIDES</div>
           {arrowNextPage}
+        </div>
+      )}
+      {showJurisdictionName && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            left: 0,
+            height: '0.6in',
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+            textTransform: 'uppercase',
+          }}
+        >
+          <h5>{jurisdictionName}</h5>
         </div>
       )}
     </div>
