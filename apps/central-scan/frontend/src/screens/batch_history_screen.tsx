@@ -163,15 +163,13 @@ export function BatchHistoryScreen({
             <Button
               onPress={() => setIsExportingCvrs(true)}
               icon="Export"
-              fill="tinted"
-              color="primary"
+              variant="primary"
               disabled={batches.length === 0}
             >
               Save CVRs
             </Button>
             <Button
               icon="Delete"
-              fill="tinted"
               disabled={batches.length === 0 || isScanning}
               onPress={() => setDeleteBallotDataFlowState('confirmation')}
             >
@@ -216,7 +214,7 @@ export function BatchHistoryScreen({
                     </ScrollTable.Cell>
                     {isNetworkingEnabled && (
                       <ScrollTable.Cell>
-                        <TextWithIcon style={{ width: '6.5rem' }}>
+                        <TextWithIcon style={{ width: '7rem' }}>
                           {sendState.icon}
                           {sendState.label}
                         </TextWithIcon>
