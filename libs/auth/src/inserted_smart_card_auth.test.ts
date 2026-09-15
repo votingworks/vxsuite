@@ -427,6 +427,87 @@ test('Login and logout using card without PIN', async () => {
   );
 });
 
+test('Card swapped during PIN entry restarts auth for the card actually present', async () => {
+  const auth = new InsertedSmartCardAuth({
+    card: mockCard,
+    config: defaultConfig,
+    logger: mockLogger,
+  });
+
+  mockCardStatus({
+    status: 'ready',
+    cardDetails: { user: systemAdministratorUser },
+  });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'checking_pin',
+    user: systemAdministratorUser,
+  });
+
+  mockCardStatus({
+    status: 'ready',
+    cardDetails: { user: electionManagerUser },
+  });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'logged_out',
+    reason: 'no_card',
+  });
+  expect(mockLogger.log).toHaveBeenCalledTimes(1);
+  expect(mockLogger.log).toHaveBeenNthCalledWith(
+    1,
+    LogEventId.AuthPinEntry,
+    'system_administrator',
+    {
+      disposition: LogDispositionStandardTypes.Failure,
+      message: 'User canceled PIN entry.',
+    }
+  );
+
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'checking_pin',
+    user: electionManagerUser,
+  });
+  mockCard.checkPin.expectCallWith(pin).resolves({ response: 'correct' });
+  await auth.checkPin(defaultMachineState, { pin });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'logged_in',
+    user: electionManagerUser,
+    sessionExpiresAt: expect.any(Date),
+  });
+});
+
+test('Card swapped while logged in logs the original user out', async () => {
+  const auth = new InsertedSmartCardAuth({
+    card: mockCard,
+    config: defaultConfig,
+    logger: mockLogger,
+  });
+  await logInAsElectionManager(auth);
+
+  mockCardStatus({
+    status: 'ready',
+    cardDetails: { user: systemAdministratorUser },
+  });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'logged_out',
+    reason: 'no_card',
+  });
+  expect(mockLogger.log).toHaveBeenCalledTimes(1);
+  expect(mockLogger.log).toHaveBeenNthCalledWith(
+    1,
+    LogEventId.AuthLogout,
+    'election_manager',
+    {
+      disposition: LogDispositionStandardTypes.Success,
+      message: 'User logged out.',
+      reason: 'no_card',
+    }
+  );
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'checking_pin',
+    user: systemAdministratorUser,
+  });
+});
+
 test('Card lockout', async () => {
   const auth = new InsertedSmartCardAuth({
     card: mockCard,

@@ -435,6 +435,54 @@ test.each<{
   }
 );
 
+test('Card swapped during PIN entry restarts auth for the card actually present', async () => {
+  const auth = new DippedSmartCardAuth({
+    card: mockCard,
+    config: defaultConfig,
+    logger: mockLogger,
+  });
+
+  mockCardStatus({
+    status: 'ready',
+    cardDetails: { user: systemAdministratorUser },
+  });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'checking_pin',
+    user: systemAdministratorUser,
+  });
+
+  mockCardStatus({
+    status: 'ready',
+    cardDetails: { user: electionManagerUser },
+  });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'logged_out',
+    reason: 'machine_locked',
+  });
+  expect(mockLogger.log).toHaveBeenCalledTimes(1);
+  expect(mockLogger.log).toHaveBeenNthCalledWith(
+    1,
+    LogEventId.AuthPinEntry,
+    'system_administrator',
+    {
+      disposition: LogDispositionStandardTypes.Failure,
+      message: 'User canceled PIN entry.',
+    }
+  );
+
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'checking_pin',
+    user: electionManagerUser,
+  });
+  mockCard.checkPin.expectCallWith(pin).resolves({ response: 'correct' });
+  await auth.checkPin(defaultMachineState, { pin });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'remove_card',
+    user: electionManagerUser,
+    sessionExpiresAt: expect.any(Date),
+  });
+});
+
 test('Card lockout', async () => {
   const auth = new DippedSmartCardAuth({
     card: mockCard,

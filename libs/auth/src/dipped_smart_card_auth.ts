@@ -537,7 +537,14 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
           }
 
           case 'checking_pin': {
-            if (action.cardStatus.status === 'no_card') {
+            if (
+              action.cardStatus.status === 'no_card' ||
+              (action.cardStatus.status === 'ready' &&
+                !deepEqual(
+                  action.cardStatus.cardDetails.user,
+                  currentAuthStatus.user
+                ))
+            ) {
               return { status: 'logged_out', reason: 'machine_locked' };
             }
             return currentAuthStatus;
