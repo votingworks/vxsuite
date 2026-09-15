@@ -13,7 +13,7 @@ import { join } from 'node:path';
 import zlib from 'node:zlib';
 import { makeTemporaryFile } from '@votingworks/fixtures';
 import { assert, expect, test, vi } from 'vitest';
-import { convertVxLogToCdf } from '..';
+import { convertVxLogToCdf } from '../index.js';
 
 type Format = 'compressed' | 'uncompressed';
 
@@ -239,7 +239,7 @@ testFormats('malformed logs are logged [$0]', async (fmt) => {
 
 testFormats('with real log file [$0]', async (fmt) => {
   const logFile = await readFile(
-    join(__dirname, 'fixtures/samplelog.log'),
+    join(import.meta.dirname, 'fixtures/samplelog.log'),
     'utf8'
   );
   const logger = mockLogger({ source: LogSource.VxAdminFrontend, fn: vi.fn });
