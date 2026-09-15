@@ -35,8 +35,8 @@
   "dependencies": {
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^9.39.5",
-    "@typescript-eslint/parser": "8.67.0",
-    "@typescript-eslint/utils": "8.67.0",
+    "@typescript-eslint/parser": "8.70.0",
+    "@typescript-eslint/utils": "8.70.0",
     "@vitest/eslint-plugin": "^1.6.27",
     "comment-parser": "^1.4.0",
     "eslint-config-airbnb": "^19.0.4",
@@ -51,12 +51,12 @@
     "eslint-plugin-react-hooks": "^7",
     "globals": "^17.4.0",
     "typescript": "npm:@typescript/typescript6@6.0.2",
-    "typescript-eslint": "8.67.0"
+    "typescript-eslint": "8.70.0"
   },
   "devDependencies": {
     "@types/node": "24.13.3",
     "@types/react": "18.3.3",
-    "@typescript-eslint/rule-tester": "8.67.0",
+    "@typescript-eslint/rule-tester": "8.70.0",
     "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/coverage-check": "workspace:*",
     "eslint": "9.39.5",
