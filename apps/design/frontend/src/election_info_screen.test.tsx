@@ -25,7 +25,12 @@ import {
   electionInfoFromRecord,
   generalElectionRecord,
 } from '../test/fixtures.js';
-import { render, screen, waitFor, within } from '../test/react_testing_library.js';
+import {
+  render,
+  screen,
+  waitFor,
+  within,
+} from '../test/react_testing_library.js';
 import { withRoute } from '../test/routing_helpers.js';
 import { ElectionInfoScreen } from './election_info_screen.js';
 import { routes } from './routes.js';

@@ -49,9 +49,9 @@ function cardColors(
 const StyledContainer = styled.div<{ color?: CardColor }>`
   background-color: ${(p) => cardColors(p.theme, p.color).background};
   border: ${(p) =>
-      p.theme.sizeMode === 'desktop'
-        ? p.theme.sizes.bordersRem.thin
-        : p.theme.sizes.bordersRem.hairline}rem
+    p.theme.sizeMode === 'desktop'
+      ? p.theme.sizes.bordersRem.thin
+      : p.theme.sizes.bordersRem.hairline}rem
     solid ${(p) => cardColors(p.theme, p.color).border};
   border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
   min-width: fit-content;

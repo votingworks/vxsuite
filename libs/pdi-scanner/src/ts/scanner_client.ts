@@ -159,10 +159,7 @@ export type Listener = (event: ScannerEvent) => void;
  * Which direction to eject the document, and whether to hold it there.
  */
 export type EjectMotion =
-  | 'toRear'
-  | 'toFront'
-  | 'toFrontAndHold'
-  | 'toFrontAndRescan';
+  'toRear' | 'toFront' | 'toFrontAndHold' | 'toFrontAndRescan';
 
 /**
  * Whether the calibration operation will use a single piece of paper or two pieces of paper.

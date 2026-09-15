@@ -46,8 +46,7 @@ export interface AvailableBackup {
  * Why the backups on the inserted USB drive could not be listed.
  */
 export type ListAvailableBackupsError =
-  | ListBackupsError
-  | { type: 'no-usb-drive'; message: string };
+  ListBackupsError | { type: 'no-usb-drive'; message: string };
 
 /**
  * Where the restore stands. Progress arrives through this rather than through
@@ -64,8 +63,7 @@ export type RestoreStatus =
  * reports, or that one is already running.
  */
 export type RestoreModeError =
-  | RestoreError
-  | { type: 'restore-in-progress'; message: string };
+  RestoreError | { type: 'restore-in-progress'; message: string };
 
 function buildRestoreApi({
   auth,

@@ -12,8 +12,7 @@ import { WORKSPACE } from './globals.js';
 
 // TODO: Properly enumerate error cases with FileStorageClientError type
 export type FileStorageClientError =
-  | { type: 'undefined-body' }
-  | { type: 'unknown-error' };
+  { type: 'undefined-body' } | { type: 'unknown-error' };
 
 export interface FileStorageClient {
   readFile: (

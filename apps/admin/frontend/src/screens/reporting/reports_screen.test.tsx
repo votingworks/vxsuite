@@ -9,9 +9,15 @@ import {
   ElectionDefinition,
   SystemSettings,
 } from '@votingworks/types';
-import { isVoterTurnoutReportEnabled, ReportsScreen } from './reports_screen.js';
+import {
+  isVoterTurnoutReportEnabled,
+  ReportsScreen,
+} from './reports_screen.js';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
+import {
+  ApiMock,
+  createApiMock,
+} from '../../../test/helpers/mock_api_client.js';
 import { screen } from '../../../test/react_testing_library.js';
 
 let apiMock: ApiMock;

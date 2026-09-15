@@ -20,9 +20,7 @@ import { NameInputGroup } from './name_input_group.js';
 import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals.js';
 
 type UpdateNameFlowState =
-  | { step: 'update' }
-  | { step: 'printing' }
-  | { step: 'success'; voter: Voter };
+  { step: 'update' } | { step: 'printing' } | { step: 'success'; voter: Voter };
 
 function createBlankName(): VoterNameChangeRequest {
   return {

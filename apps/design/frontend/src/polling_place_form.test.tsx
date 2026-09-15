@@ -17,7 +17,12 @@ import {
   provideApi,
 } from '../test/api_helpers.js';
 import { makeIdFactory } from '../test/id_helpers.js';
-import { render, screen, waitFor, within } from '../test/react_testing_library.js';
+import {
+  render,
+  screen,
+  waitFor,
+  within,
+} from '../test/react_testing_library.js';
 import { PollingPlaceForm } from './polling_place_form.js';
 import { AudioLinkButton } from './ballot_audio/audio_link_button.js';
 import { routes } from './routes.js';

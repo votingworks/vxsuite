@@ -17,7 +17,11 @@ import {
 import { LogoMark } from '../logo_mark.js';
 import { Font, P } from '../typography.js';
 import { PrintedReport, printedReportThemeFn } from './layout.js';
-import { ReportElectionInfo, ReportHeader, ReportTitle } from './report_header.js';
+import {
+  ReportElectionInfo,
+  ReportHeader,
+  ReportTitle,
+} from './report_header.js';
 import { ReportGeneratedMetadata } from './report_generated_metadata.js';
 import { prefixedTitle } from './utils.js';
 import { WriteInEntry } from './precinct_scanner_write_in_image_report.js';

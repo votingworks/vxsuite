@@ -13,7 +13,10 @@ import {
 } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { render as testRender, RenderResult } from './react_testing_library.js';
-import { AppContext, AppContextInterface } from '../src/contexts/app_context.js';
+import {
+  AppContext,
+  AppContextInterface,
+} from '../src/contexts/app_context.js';
 import {
   ApiClient as ClientApiClient,
   ApiClientContext as ClientApiClientContext,

@@ -150,9 +150,8 @@ export function VoterRegistrationScreen(): JSX.Element | null {
     clearTimeout(timeoutIdForFlowStateReset);
     setFlowState({ step: 'register' });
   }, [timeoutIdForFlowStateReset]);
-  const [voter, setVoter] = useState<VoterRegistrationRequest>(
-    createBlankVoter()
-  );
+  const [voter, setVoter] =
+    useState<VoterRegistrationRequest>(createBlankVoter());
 
   const isAddressValid = !(voter.city === '' || voter.zipCode === '');
 

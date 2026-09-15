@@ -5,8 +5,7 @@ import { deferred } from '@votingworks/basics';
  * signal that the duration was exceeded before it resolved.
  */
 export type TimeoutResult<T> =
-  | { type: 'success'; value: T }
-  | { type: 'timeout' };
+  { type: 'success'; value: T } | { type: 'timeout' };
 
 /**
  * Waits until a promise resolves or a specified duration is exceeded,

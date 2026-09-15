@@ -40,8 +40,7 @@ const EnteredCode = styled.div`
 `;
 
 type CheckingPinAuth =
-  | DippedSmartCardAuth.CheckingPin
-  | InsertedSmartCardAuth.CheckingPin;
+  DippedSmartCardAuth.CheckingPin | InsertedSmartCardAuth.CheckingPin;
 
 export interface UnlockMachineScreenProps {
   auth: CheckingPinAuth;

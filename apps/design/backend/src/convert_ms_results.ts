@@ -49,7 +49,9 @@ export type AllPrecinctsTallyReportRow = {
 };
 
 export type AllPrecinctsTallyReportRowWithManualTallies = {
-  [K in (typeof ALL_PRECINCTS_TALLY_REPORT_COLUMNS_WITH_MANUAL_TALLIES)[number]['key']]: string;
+  [
+    K in (typeof ALL_PRECINCTS_TALLY_REPORT_COLUMNS_WITH_MANUAL_TALLIES)[number]['key']
+  ]: string;
 };
 
 export const SEMS_RESULTS_COLUMNS = [
@@ -192,17 +194,15 @@ export function convertMsResults(
       isWriteIn(row) ? Tabulation.GENERIC_WRITE_IN_ID : row.selectionId,
     ]
   )
-    .map(
-      ([[, , selectionId], rowGroup]): AllPrecinctsTallyReportRow => ({
-        ...assertDefined(rowGroup[0]),
-        selectionId,
-        totalVotes: String(
-          iter(rowGroup)
-            .map((row) => safeParseInt(row.totalVotes).unsafeUnwrap())
-            .sum()
-        ),
-      })
-    )
+    .map(([[, , selectionId], rowGroup]): AllPrecinctsTallyReportRow => ({
+      ...assertDefined(rowGroup[0]),
+      selectionId,
+      totalVotes: String(
+        iter(rowGroup)
+          .map((row) => safeParseInt(row.totalVotes).unsafeUnwrap())
+          .sum()
+      ),
+    }))
     // Convert to SemsResultsRow
     .map((row): SemsResultsRow => {
       const contest = find(election.contests, (c) => c.id === row.contestId);

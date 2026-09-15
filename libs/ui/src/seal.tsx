@@ -28,8 +28,8 @@ const SealImage = styled.img<{ binarize?: boolean; inverse?: boolean }>`
     p.inverse
       ? p.theme.colors.onInverse
       : DARK_COLOR_MODES.has(p.theme.colorMode)
-      ? p.theme.colors.inverseBackground
-      : p.theme.colors.background};
+        ? p.theme.colors.inverseBackground
+        : p.theme.colors.background};
   border-radius: 50%;
   box-sizing: border-box;
 `;

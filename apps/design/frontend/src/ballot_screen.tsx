@@ -326,16 +326,14 @@ export function BallotScreen(): JSX.Element | null {
     printIframeRef.current?.contentWindow?.print();
   }
 
-  if (
-    !(
-      getElectionInfoQuery.isSuccess &&
-      listPrecinctsQuery.isSuccess &&
-      listBallotStylesQuery.isSuccess &&
-      listPartiesQuery.isSuccess &&
-      getBallotLayoutSettingsQuery.isSuccess &&
-      getBallotTemplateQuery.isSuccess
-    )
-  ) {
+  if (!(
+    getElectionInfoQuery.isSuccess &&
+    listPrecinctsQuery.isSuccess &&
+    listBallotStylesQuery.isSuccess &&
+    listPartiesQuery.isSuccess &&
+    getBallotLayoutSettingsQuery.isSuccess &&
+    getBallotTemplateQuery.isSuccess
+  )) {
     return null; // Initial loading state
   }
 

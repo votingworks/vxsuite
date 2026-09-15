@@ -1265,9 +1265,8 @@ test('mock batch scanner - load image files as front/back pairs', async () => {
   // Create two small test images in the batch scanner's image dir
   const img1 = join(mockBatchScanner.imageDir, 'front.jpg');
   const img2 = join(mockBatchScanner.imageDir, 'back.jpg');
-  const { createImageData, writeImageData } = await import(
-    '@votingworks/image-utils'
-  );
+  const { createImageData, writeImageData } =
+    await import('@votingworks/image-utils');
   await writeImageData(img1, createImageData(10, 10));
   await writeImageData(img2, createImageData(10, 10));
 
@@ -1284,9 +1283,8 @@ test('mock batch scanner - odd image gets a blank back', async () => {
   const { apiClient } = setup({ mockBatchScanner }, devDockDir);
 
   const img = join(mockBatchScanner.imageDir, 'single.jpg');
-  const { createImageData, writeImageData } = await import(
-    '@votingworks/image-utils'
-  );
+  const { createImageData, writeImageData } =
+    await import('@votingworks/image-utils');
   await writeImageData(img, createImageData(10, 10));
 
   await apiClient.batchScannerLoadBallots({ paths: [img] });

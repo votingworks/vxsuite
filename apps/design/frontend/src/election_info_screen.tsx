@@ -235,8 +235,8 @@ function ElectionInfoForm({
             electionInfo.type === 'general'
               ? 'general'
               : electionInfo.isMiCombinedBallotPrimary
-              ? 'open-primary'
-              : 'closed-primary'
+                ? 'open-primary'
+                : 'closed-primary'
           }
           onChange={(option) =>
             setElectionInfo({

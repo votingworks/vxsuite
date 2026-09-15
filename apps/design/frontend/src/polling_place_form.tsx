@@ -243,8 +243,8 @@ export function PollingPlaceForm(
                     allSelected
                       ? 'Checkbox'
                       : precinctIds.length > 0
-                      ? 'CheckboxPartial'
-                      : 'Square'
+                        ? 'CheckboxPartial'
+                        : 'Square'
                   }
                   onPress={allSelected ? clearAllPrecincts : selectAllPrecincts}
                   variant="primary"

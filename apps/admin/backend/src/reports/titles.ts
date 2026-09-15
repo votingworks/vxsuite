@@ -18,14 +18,14 @@ const MANUAL_BATCH_REPORT_LABEL = 'Manual Tallies';
 function isCompoundFilter(filter: Admin.FrontendReportingFilter): boolean {
   return Boolean(
     (filter.partyIds && filter.partyIds.length > 1) ||
-      (filter.ballotStyleGroupIds && filter.ballotStyleGroupIds.length > 1) ||
-      (filter.precinctIds && filter.precinctIds.length > 1) ||
-      (filter.batchIds && filter.batchIds.length > 1) ||
-      (filter.scannerIds && filter.scannerIds.length > 1) ||
-      (filter.votingMethods && filter.votingMethods.length > 1) ||
-      (filter.adjudicationFlags && filter.adjudicationFlags.length > 1) ||
-      (filter.districtIds && filter.districtIds.length > 1) ||
-      (filter.pollingPlaceIds && filter.pollingPlaceIds.length > 1)
+    (filter.ballotStyleGroupIds && filter.ballotStyleGroupIds.length > 1) ||
+    (filter.precinctIds && filter.precinctIds.length > 1) ||
+    (filter.batchIds && filter.batchIds.length > 1) ||
+    (filter.scannerIds && filter.scannerIds.length > 1) ||
+    (filter.votingMethods && filter.votingMethods.length > 1) ||
+    (filter.adjudicationFlags && filter.adjudicationFlags.length > 1) ||
+    (filter.districtIds && filter.districtIds.length > 1) ||
+    (filter.pollingPlaceIds && filter.pollingPlaceIds.length > 1)
   );
 }
 

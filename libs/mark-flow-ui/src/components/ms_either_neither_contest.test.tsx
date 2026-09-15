@@ -7,7 +7,12 @@ import {
   mergeMsEitherNeitherContests,
 } from '../utils/ms_either_neither_contests.js';
 import { MsEitherNeitherContest } from './ms_either_neither_contest.js';
-import { act, render, screen, within } from '../../test/react_testing_library.js';
+import {
+  act,
+  render,
+  screen,
+  within,
+} from '../../test/react_testing_library.js';
 
 const electionWithMsEitherNeither = readElectionWithMsEitherNeither();
 const contests = mergeMsEitherNeitherContests(

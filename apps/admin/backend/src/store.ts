@@ -899,7 +899,7 @@ export class Store implements BaseStore {
       electionId,
       contest.id,
       contest.districtId,
-      contest.type === 'candidate' ? contest.partyId ?? null : null,
+      contest.type === 'candidate' ? (contest.partyId ?? null) : null,
       sortIndex
     );
   }
@@ -1493,16 +1493,14 @@ export class Store implements BaseStore {
     if (existingCvr) {
       // Existing cast vote records are expected, but existing cast vote records
       // with new data indicate a bad or inappropriately manipulated file
-      if (
-        !(
-          existingCvr.ballotStyleGroupId === cvr.ballotStyleGroupId &&
-          existingCvr.ballotType === cvr.votingMethod &&
-          existingCvr.batchId === cvr.batchId &&
-          existingCvr.precinctId === cvr.precinctId &&
-          existingCvr.sheetNumber === cvrSheetNumber &&
-          existingCvr.votes === serializedVotes
-        )
-      ) {
+      if (!(
+        existingCvr.ballotStyleGroupId === cvr.ballotStyleGroupId &&
+        existingCvr.ballotType === cvr.votingMethod &&
+        existingCvr.batchId === cvr.batchId &&
+        existingCvr.precinctId === cvr.precinctId &&
+        existingCvr.sheetNumber === cvrSheetNumber &&
+        existingCvr.votes === serializedVotes
+      )) {
         return err({
           type: 'ballot-id-already-exists-with-different-data',
         });
@@ -2113,7 +2111,7 @@ export class Store implements BaseStore {
       });
       const partyId = isCombinedBallotPrimary(election)
         ? inferPartyFromVotes(election, votes)
-        : row.partyId ?? undefined;
+        : (row.partyId ?? undefined);
       yield {
         ballotStyleGroupId: row.ballotStyleGroupId,
         partyId,
@@ -2243,7 +2241,7 @@ export class Store implements BaseStore {
           ? row.ballotStyleGroupId
           : undefined,
         // @coverage-exclude: edge case coverage needed for bad party grouping in general election
-        partyId: groupBy.groupByParty ? row.partyId ?? undefined : undefined,
+        partyId: groupBy.groupByParty ? (row.partyId ?? undefined) : undefined,
         batchId: groupBy.groupByBatch ? row.batchId : undefined,
         batchDate: groupBy.groupByBatchDate ? row.batchDate : undefined,
         scannerId: groupBy.groupByScanner ? row.scannerId : undefined,

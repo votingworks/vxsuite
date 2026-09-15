@@ -17,9 +17,8 @@ type PlayAudioClipProps = ClipParams & {
 function PlayAudioClip(props: PlayAudioClipProps) {
   const { audioId, languageCode, onDone } = props;
   const [audioPlayer, setAudioPlayer] = React.useState<AudioPlayer>();
-  const { api, output, playbackRate, webAudioContext } = assertDefined(
-    useAudioContext()
-  );
+  const { api, output, playbackRate, webAudioContext } =
+    assertDefined(useAudioContext());
 
   const { data: clip, isSuccess: hasClipLoaded } = api.getAudioClip.useQuery({
     id: audioId,

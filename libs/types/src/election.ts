@@ -744,8 +744,7 @@ export interface PollingPlace {
  * - `partial`: The polling places only covers the specified splits.
  */
 export type PollingPlacePrecinct =
-  | { type: 'whole' }
-  | { type: 'partial'; splitIds: string[] };
+  { type: 'whole' } | { type: 'partial'; splitIds: string[] };
 
 export type PollingPlaceType = (typeof POLLING_PLACE_TYPES)[number];
 
@@ -1166,9 +1165,7 @@ export const StraightPartyContestOptionSchema: z.ZodSchema<StraightPartyContestO
   });
 
 export type ContestOption =
-  | CandidateContestOption
-  | YesNoContestOption
-  | StraightPartyContestOption;
+  CandidateContestOption | YesNoContestOption | StraightPartyContestOption;
 export const ContestOptionSchema: z.ZodSchema<ContestOption> = z.union([
   CandidateContestOptionSchema,
   YesNoContestOptionSchema,

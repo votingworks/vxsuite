@@ -19,7 +19,10 @@ import {
   MockApiClient,
   provideApi,
 } from '../test/api_helpers.js';
-import { electionInfoFromElection, makeElectionRecord } from '../test/fixtures.js';
+import {
+  electionInfoFromElection,
+  makeElectionRecord,
+} from '../test/fixtures.js';
 import { render, screen, waitFor } from '../test/react_testing_library.js';
 import {
   reorderContestsByDistrict,

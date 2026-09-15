@@ -1,6 +1,9 @@
 import { expect, test } from 'vitest';
 import { render, screen } from '../../test/react_testing_library.js';
-import { createApiMock, provideApi } from '../../test/helpers/mock_api_client.js';
+import {
+  createApiMock,
+  provideApi,
+} from '../../test/helpers/mock_api_client.js';
 import { InternalConnectionProblemScreen } from './internal_connection_problem_screen.js';
 
 function renderWithProviders(child: React.ReactElement) {

@@ -34,7 +34,9 @@ import { InchDimensions, PrintCalibration } from './types.js';
 import { voteMatchesGridPosition } from './vote_matching.js';
 import { drawWriteInText } from './write_in_text.js';
 
-const robotoBoldTtf = fs.readFileSync(`${import.meta.dirname}/fonts/Roboto-Bold.ttf`);
+const robotoBoldTtf = fs.readFileSync(
+  `${import.meta.dirname}/fonts/Roboto-Bold.ttf`
+);
 
 // NOTE: All values used in this module are in PDF user space `pt` units.
 
@@ -296,8 +298,7 @@ function bubbleMark(page: PDFPage, originTopLeft: [number, number]): void {
 }
 
 type MarkInfo =
-  | { writeInName?: undefined }
-  | { writeInArea: Rect; writeInName: string };
+  { writeInName?: undefined } | { writeInArea: Rect; writeInName: string };
 
 /**
  * Determines if this grid position should be marked based on the votes.

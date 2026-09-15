@@ -23,15 +23,15 @@ This rule is from
 Examples of **incorrect** code for this rule:
 
 ```ts
-import type { Foo } from './foo'
-export type { Bar } from './bar'
+import type { Foo } from './foo';
+export type { Bar } from './bar';
 ```
 
 Examples of **correct** code for this rule:
 
 ```ts
-import { Foo } from './foo'
-export { Bar } from './bar'
+import { Foo } from './foo';
+export { Bar } from './bar';
 ```
 
 ## Rule Options
@@ -53,9 +53,9 @@ apps to account for this.
 Examples of **correct** code for this rule, when `allowReexport` is `true`:
 
 ```ts
-export type { Foo } from './Foo'
-export type * as Utils from './utils'
+export type { Foo } from './Foo';
+export type * as Utils from './utils';
 
-import type { Bar } from './Bar'
-export type { Bar }
+import type { Bar } from './Bar';
+export type { Bar };
 ```

@@ -10,20 +10,20 @@ every incorrect use. Care must still be taken.
 Examples of **incorrect** code for this rule:
 
 ```ts
-arr.sort()
-arr.prop.sort()
-arrs[0].sort()
+arr.sort();
+arr.prop.sort();
+arrs[0].sort();
 ```
 
 Examples of **correct** code for this rule:
 
 ```ts
 // preferred array-copy technique
-;[...arr].sort()
+[...arr].sort();
 
 // alternative array-copy technique
-Array.from(arr.prop).sort()
+Array.from(arr.prop).sort();
 
 // non-idiomatic array-copy technique
-arrs[0].slice().sort()
+arrs[0].slice().sort();
 ```

@@ -20,9 +20,7 @@ import { changeVoterMailingAddress } from './api.js';
 import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals.js';
 
 type UpdateMailingAddressFlowState =
-  | { step: 'update' }
-  | { step: 'printing' }
-  | { step: 'success' };
+  { step: 'update' } | { step: 'printing' } | { step: 'success' };
 
 export interface VoterMailingAddressChangeRequest {
   mailingStreetNumber: string;

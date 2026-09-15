@@ -36,7 +36,10 @@ import {
 
 import { render } from '../../test/test_utils.js';
 
-import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen.js';
+import {
+  PollWorkerScreen,
+  PollworkerScreenProps,
+} from './poll_worker_screen.js';
 import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals.js';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config.js';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';

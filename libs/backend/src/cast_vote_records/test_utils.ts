@@ -222,17 +222,15 @@ export async function writeCastVoteRecordExport({
     ];
     return {
       scannerId,
-      batches: batchIds.map(
-        (batchId, index): BatchInfo => ({
-          id: batchId,
-          batchNumber: index + 1,
-          label: batchId,
-          startedAt: new Date().toISOString(),
-          count: scannerCastVoteRecords.filter((cvr) => cvr.BatchId === batchId)
-            .length,
-          pollingPlaceId,
-        })
-      ),
+      batches: batchIds.map((batchId, index): BatchInfo => ({
+        id: batchId,
+        batchNumber: index + 1,
+        label: batchId,
+        startedAt: new Date().toISOString(),
+        count: scannerCastVoteRecords.filter((cvr) => cvr.BatchId === batchId)
+          .length,
+        pollingPlaceId,
+      })),
     };
   });
 

@@ -1,6 +1,8 @@
 ---
 name: mutation-test
-description: Introduce an intentional bug in source code to verify a test catches it, then revert the bug.
+description:
+  Introduce an intentional bug in source code to verify a test catches it, then
+  revert the bug.
 ---
 
 # Mutation Test
@@ -12,11 +14,12 @@ reverting the mutation.
 ## Steps
 
 1. **Identify the source code to mutate.** Ask the user which code to mutate, or
-   infer from context (e.g. the test file being discussed). Read the source file.
+   infer from context (e.g. the test file being discussed). Read the source
+   file.
 
-2. **For new tests, verify the test passes first.** If the test was just
-   written (not modifying an existing test), run it once to confirm it passes
-   before introducing a mutation.
+2. **For new tests, verify the test passes first.** If the test was just written
+   (not modifying an existing test), run it once to confirm it passes before
+   introducing a mutation.
 
 3. **Introduce a small, targeted bug.** Examples:
    - Off-by-one error (e.g. change `range(0, n)` to `range(0, n - 1)`)

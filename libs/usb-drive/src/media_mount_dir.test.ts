@@ -25,8 +25,11 @@ test('RESOLVED_MEDIA_MOUNT_DIR returns the realpath of /media/vx', async () => {
     };
   });
 
-  const { MEDIA_MOUNT_DIR, RESOLVED_MEDIA_MOUNT_DIR, REAL_USB_DRIVE_GLOB_PATTERN } =
-    await importMediaMountDir();
+  const {
+    MEDIA_MOUNT_DIR,
+    RESOLVED_MEDIA_MOUNT_DIR,
+    REAL_USB_DRIVE_GLOB_PATTERN,
+  } = await importMediaMountDir();
 
   expect(MEDIA_MOUNT_DIR).toEqual('/media/vx');
   expect(RESOLVED_MEDIA_MOUNT_DIR).toEqual('/var/vx/usb-drives');
@@ -44,8 +47,11 @@ test('RESOLVED_MEDIA_MOUNT_DIR falls back to the literal path when realpathSync 
     };
   });
 
-  const { MEDIA_MOUNT_DIR, RESOLVED_MEDIA_MOUNT_DIR, REAL_USB_DRIVE_GLOB_PATTERN } =
-    await importMediaMountDir();
+  const {
+    MEDIA_MOUNT_DIR,
+    RESOLVED_MEDIA_MOUNT_DIR,
+    REAL_USB_DRIVE_GLOB_PATTERN,
+  } = await importMediaMountDir();
 
   expect(RESOLVED_MEDIA_MOUNT_DIR).toEqual(MEDIA_MOUNT_DIR);
   expect(REAL_USB_DRIVE_GLOB_PATTERN).toEqual('/media/vx/**/*');

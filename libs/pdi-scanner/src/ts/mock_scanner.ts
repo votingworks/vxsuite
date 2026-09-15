@@ -126,10 +126,7 @@ function assign(
  * scanner.
  */
 export type MockSheetStatus =
-  | 'noSheetEnabled'
-  | 'noSheetDisabled'
-  | 'sheetInserted'
-  | 'sheetHeldInFront';
+  'noSheetEnabled' | 'noSheetDisabled' | 'sheetInserted' | 'sheetHeldInFront';
 
 /**
  * Mock PDI scanner. Provides a mock {@link ScannerClient} and methods for

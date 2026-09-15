@@ -89,8 +89,8 @@ function SortHeaderButton(
         direction === 'asc'
           ? 'SortUp'
           : direction === 'desc'
-          ? 'SortDown'
-          : 'Sort'
+            ? 'SortDown'
+            : 'Sort'
       }
       {...rest}
     />

@@ -18,9 +18,7 @@ import { assert, assertDefined } from '@votingworks/basics';
 const debug = makeDebug('translation');
 
 type TranslationSource =
-  | 'Vendored translations'
-  | 'Cached translations'
-  | 'New cloud translations';
+  'Vendored translations' | 'Cached translations' | 'New cloud translations';
 
 interface TranslationsCache {
   [code: string]: { [englishText: string]: string };

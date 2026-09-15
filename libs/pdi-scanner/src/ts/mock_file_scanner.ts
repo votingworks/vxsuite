@@ -35,9 +35,7 @@ function blankGrayscalePage(width: number, height: number): GrayImageData {
 }
 
 type Command =
-  | { type: 'insert'; path: string }
-  | { type: 'remove' }
-  | { type: 'none' };
+  { type: 'insert'; path: string } | { type: 'remove' } | { type: 'none' };
 
 function writeCommand(command: Command): void {
   mkdirSync(MOCK_STATE_DIR, { recursive: true });

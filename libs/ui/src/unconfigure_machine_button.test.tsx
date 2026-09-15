@@ -1,7 +1,12 @@
 import { expect, test, vi } from 'vitest';
 import { sleep } from '@votingworks/basics';
 import { userEvent } from './user_event.js';
-import { render, screen, waitFor, within } from '../test/react_testing_library.js';
+import {
+  render,
+  screen,
+  waitFor,
+  within,
+} from '../test/react_testing_library.js';
 
 import {
   MIN_TIME_TO_UNCONFIGURE_MACHINE_MS,

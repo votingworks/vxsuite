@@ -38,8 +38,7 @@ export interface MissingCargoBinaryOutputIssue {
 }
 
 export type ValidationIssue =
-  | UntrackedCargoPathDependencyIssue
-  | MissingCargoBinaryOutputIssue;
+  UntrackedCargoPathDependencyIssue | MissingCargoBinaryOutputIssue;
 
 const CARGO_DEP_SECTIONS = [
   'dependencies',

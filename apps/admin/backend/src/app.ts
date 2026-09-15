@@ -788,8 +788,7 @@ function buildApi({
       const usbDriveStatus = await usbDriveAdapter.status();
 
       const listResult:
-        | ListCastVoteRecordExportsInDirectory
-        | Err<'no-usb-drive'> =
+        ListCastVoteRecordExportsInDirectory | Err<'no-usb-drive'> =
         usbDriveStatus.status === 'mounted'
           ? await listCastVoteRecordExportsInDirectory(
               join(

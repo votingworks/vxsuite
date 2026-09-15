@@ -10,8 +10,8 @@ export function UsbDriveIcon({
   const stroke = disabled
     ? Colors.DISABLED
     : isInserted
-    ? Colors.ACTIVE
-    : Colors.TEXT;
+      ? Colors.ACTIVE
+      : Colors.TEXT;
   const fill = 'none'; // Not using fill currently
   return (
     <svg

@@ -123,23 +123,24 @@ interface SearchSelectBaseProps<T = string> {
   noOptionsMessage?: () => React.ReactNode;
 }
 
-export interface SearchSelectMultiProps<T = string>
-  extends SearchSelectBaseProps<T> {
+export interface SearchSelectMultiProps<
+  T = string,
+> extends SearchSelectBaseProps<T> {
   isMulti: true;
   value: T[];
   onChange: (values: T[]) => void;
 }
 
-export interface SearchSelectSingleProps<T = string>
-  extends SearchSelectBaseProps<T> {
+export interface SearchSelectSingleProps<
+  T = string,
+> extends SearchSelectBaseProps<T> {
   isMulti?: false;
   value?: T;
   onChange: (value?: T) => void;
 }
 
 export type SearchSelectProps<T = string> =
-  | SearchSelectSingleProps<T>
-  | SearchSelectMultiProps<T>;
+  SearchSelectSingleProps<T> | SearchSelectMultiProps<T>;
 
 function findOption<T = string>(
   options: Array<SelectOption<T>>,
@@ -184,8 +185,8 @@ export function SearchSelect<T = string>({
         Array.isArray(value)
           ? value.map((v) => findOption(options, v))
           : value !== undefined
-          ? findOption(options, value)
-          : null
+            ? findOption(options, value)
+            : null
       }
       onBlur={onBlur}
       onChange={
@@ -223,10 +224,10 @@ export function SearchSelect<T = string>({
           backgroundColor: style?.backgroundColor
             ? style.backgroundColor
             : state.isDisabled
-            ? theme.colors.container
-            : state.isFocused
-            ? theme.colors.background
-            : theme.colors.containerLow,
+              ? theme.colors.container
+              : state.isFocused
+                ? theme.colors.background
+                : theme.colors.containerLow,
           padding: '0.25rem',
           outline: state.isFocused ? `var(--focus-outline)` : undefined,
         }),
@@ -292,8 +293,8 @@ export function SearchSelect<T = string>({
           backgroundColor: state.isSelected
             ? theme.colors.primaryContainer
             : state.isFocused
-            ? theme.colors.container
-            : theme.colors.background,
+              ? theme.colors.container
+              : theme.colors.background,
           color: theme.colors.onBackground,
           cursor: 'pointer',
           borderBottom:

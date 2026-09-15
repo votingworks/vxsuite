@@ -54,7 +54,8 @@ const svgDropShadow = css`
 `;
 
 const htmlInsetShadow = css`
-  box-shadow: inset 0.1rem -0.2rem 0.2rem 0.1rem ${(p) => rgba(p.theme.colors.onBackground, 0.25)};
+  box-shadow: inset 0.1rem -0.2rem 0.2rem 0.1rem
+    ${(p) => rgba(p.theme.colors.onBackground, 0.25)};
 `;
 
 const borderMachineFrame = css`

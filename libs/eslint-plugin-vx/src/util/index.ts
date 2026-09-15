@@ -61,10 +61,10 @@ export function getCollectionType(
   return typeName === 'Array' || typeName === 'ReadonlyArray'
     ? 'array'
     : typeName === 'Set' || typeName === 'ReadonlySet'
-    ? 'set'
-    : typeName === 'Map' || typeName === 'ReadonlyMap'
-    ? 'map'
-    : undefined;
+      ? 'set'
+      : typeName === 'Map' || typeName === 'ReadonlyMap'
+        ? 'map'
+        : undefined;
 }
 
 /**

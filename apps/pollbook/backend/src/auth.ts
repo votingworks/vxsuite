@@ -18,7 +18,7 @@ export function constructAuthMachineState(
   // @coverage-defer
   const jurisdiction = isIntegrationTest()
     ? TEST_JURISDICTION
-    : process.env.VX_MACHINE_JURISDICTION ?? DEV_JURISDICTION;
+    : (process.env.VX_MACHINE_JURISDICTION ?? DEV_JURISDICTION);
 
   return {
     ...DEFAULT_SYSTEM_SETTINGS['auth'],

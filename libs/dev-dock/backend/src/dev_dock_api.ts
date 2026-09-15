@@ -203,19 +203,18 @@ export interface MockSpec {
   quickConfigure?: QuickConfigureApi;
 }
 
-interface SerializableMockSpec
-  extends Omit<
-    MockSpec,
-    | 'mockPdiScanner'
-    | 'mockBatchScanner'
-    | 'setBarcodeConnected'
-    | 'setAccessibleControllerConnected'
-    | 'setPatInputConnected'
-    | 'getBarcodeConnected'
-    | 'getAccessibleControllerConnected'
-    | 'getPatInputConnected'
-    | 'quickConfigure'
-  > {
+interface SerializableMockSpec extends Omit<
+  MockSpec,
+  | 'mockPdiScanner'
+  | 'mockBatchScanner'
+  | 'setBarcodeConnected'
+  | 'setAccessibleControllerConnected'
+  | 'setPatInputConnected'
+  | 'getBarcodeConnected'
+  | 'getAccessibleControllerConnected'
+  | 'getPatInputConnected'
+  | 'quickConfigure'
+> {
   mockPdiScanner?: boolean;
   mockBatchScanner?: boolean;
   hasBarcodeMock?: boolean;

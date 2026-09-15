@@ -162,8 +162,7 @@ function buildCandidateContest(
 }
 
 type ReportContest =
-  | ResultsReporting.BallotMeasureContest
-  | ResultsReporting.CandidateContest;
+  ResultsReporting.BallotMeasureContest | ResultsReporting.CandidateContest;
 
 function buildContests(
   election: Election,
@@ -271,14 +270,12 @@ export function buildElectionResultsReport({
         Type: ResultsReporting.ReportingUnitType.County,
         ComposingGpUnitIds: election.districts.map(getDistrictId),
       },
-      ...election.districts.map(
-        (district): ResultsReporting.ReportingUnit => ({
-          '@type': 'ElectionResults.ReportingUnit',
-          '@id': getDistrictId(district),
-          Name: asInternationalizedText(district.name),
-          Type: ResultsReporting.ReportingUnitType.Other,
-        })
-      ),
+      ...election.districts.map((district): ResultsReporting.ReportingUnit => ({
+        '@type': 'ElectionResults.ReportingUnit',
+        '@id': getDistrictId(district),
+        Name: asInternationalizedText(district.name),
+        Type: ResultsReporting.ReportingUnitType.Other,
+      })),
     ],
   };
 }

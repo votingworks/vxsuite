@@ -38,11 +38,8 @@ export { renderNhStateRovForm } from './nh_state_rov_form.js';
  */
 export type BallotTemplateId = keyof typeof ballotTemplates;
 
-type BallotTemplateProps<Template> = Template extends BallotPageTemplate<
-  infer Props
->
-  ? Props
-  : never;
+type BallotTemplateProps<Template> =
+  Template extends BallotPageTemplate<infer Props> ? Props : never;
 
 /**
  * The union of possible props types across all ballot templates.

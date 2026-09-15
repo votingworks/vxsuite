@@ -349,13 +349,11 @@ export function NavScreen({
   const getMachineInfoQuery = getPollbookConfigurationInformation.useQuery();
   const getAuthStatusQuery = getAuthStatus.useQuery();
 
-  if (
-    !(
-      getElectionQuery.isSuccess &&
-      getMachineInfoQuery.isSuccess &&
-      getAuthStatusQuery.isSuccess
-    )
-  ) {
+  if (!(
+    getElectionQuery.isSuccess &&
+    getMachineInfoQuery.isSuccess &&
+    getAuthStatusQuery.isSuccess
+  )) {
     return null;
   }
 

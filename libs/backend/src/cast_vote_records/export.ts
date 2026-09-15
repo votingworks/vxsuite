@@ -442,8 +442,7 @@ export async function buildCastVoteRecordFiles(
   );
   const castVoteRecordId = castVoteRecord.UniqueId;
   const castVoteRecordReport:
-    | CVR.CastVoteRecordReport
-    | CastVoteRecordReportWithoutMetadata = {
+    CVR.CastVoteRecordReport | CastVoteRecordReportWithoutMetadata = {
     ...(castVoteRecordReportMetadata ?? {}),
     CVR: [castVoteRecord],
   };

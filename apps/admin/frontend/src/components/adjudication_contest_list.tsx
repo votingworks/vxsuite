@@ -599,8 +599,8 @@ function BlankBallotCallout({
           ballotHasAnyAdjudicatedVote
             ? 'neutral'
             : !isBallotResolved
-            ? 'warning'
-            : 'primary'
+              ? 'warning'
+              : 'primary'
         }
       >
         <CalloutContent>

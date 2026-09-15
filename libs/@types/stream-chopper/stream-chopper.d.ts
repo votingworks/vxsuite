@@ -101,7 +101,7 @@ declare class StreamChopper extends Writable {
    *
    * If the optional time argument is provided, this value is used as the new
    * time. This is equivalent to calling:
-   * 
+   *
    * ```ts
    * chopper.time = time
    * chopper.resetTimer()

@@ -88,16 +88,16 @@ for (const Heading of [H1, H2, H3, H4, H5, H6]) {
       Heading === H1
         ? headingsRem.h1
         : Heading === H2
-        ? headingsRem.h2
-        : Heading === H3
-        ? headingsRem.h3
-        : Heading === H4
-        ? headingsRem.h4
-        : Heading === H5
-        ? headingsRem.h5
-        : Heading === H6
-        ? headingsRem.h6
-        : 0;
+          ? headingsRem.h2
+          : Heading === H3
+            ? headingsRem.h3
+            : Heading === H4
+              ? headingsRem.h4
+              : Heading === H5
+                ? headingsRem.h5
+                : Heading === H6
+                  ? headingsRem.h6
+                  : 0;
 
     const regularHeading = screen.getByText('regular heading');
     expect(regularHeading).toHaveStyle({

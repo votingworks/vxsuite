@@ -15,5 +15,4 @@ type ReactUiStringFragment = React.ReactNode | Record<string, unknown>;
  * ```
  */
 export type ReactUiString =
-  | ReactUiStringFragment
-  | readonly ReactUiStringFragment[];
+  ReactUiStringFragment | readonly ReactUiStringFragment[];

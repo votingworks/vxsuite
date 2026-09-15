@@ -49,8 +49,8 @@ function NetworkStatusIndicator(): JSX.Element | null {
   const status: HostNetworkIndicatorStatus = !isOnline
     ? 'no-network'
     : multipleHostsDetected
-    ? 'error'
-    : 'connected';
+      ? 'error'
+      : 'connected';
   return <NetworkStatusIndicatorView isHost status={status} />;
 }
 

@@ -314,9 +314,10 @@ export function UiStringScreenReader(
         return [];
       }
 
-      return matchingAudioIds.map(
-        (audioId): ClipParams => ({ audioId, languageCode })
-      );
+      return matchingAudioIds.map((audioId): ClipParams => ({
+        audioId,
+        languageCode,
+      }));
     });
   }
 

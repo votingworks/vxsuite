@@ -10,8 +10,7 @@ import {
  * A warning about a generated ballot count report to be shown to the user.
  */
 export type BallotCountReportWarning =
-  | { type: 'no-reports-match-filter' }
-  | { type: PdfError };
+  { type: 'no-reports-match-filter' } | { type: PdfError };
 
 /**
  * Defines the warnings that should be presented to the user for a given

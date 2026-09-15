@@ -3,7 +3,9 @@
 This rule is from
 [Google TypeScript Style Guide section "Identifiers"](https://google.github.io/styleguide/tsguide.html#identifiers):
 
-> CONSTANT_CASE indicates that a value is intended to not be changed, and may be used for values that can technically be modified (i.e. values that are not deeply frozen) to indicate to users that they must not be modified.
+> CONSTANT_CASE indicates that a value is intended to not be changed, and may be
+> used for values that can technically be modified (i.e. values that are not
+> deeply frozen) to indicate to users that they must not be modified.
 
 ## Rule Details
 

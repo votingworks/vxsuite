@@ -16,7 +16,10 @@ import {
 import { assert, assertDefined } from '@votingworks/basics';
 import { WriteInForTally, WriteInTally } from '../types.js';
 import { Store } from '../store.js';
-import { extractWriteInSummary, tabulateManualResults } from './manual_results.js';
+import {
+  extractWriteInSummary,
+  tabulateManualResults,
+} from './manual_results.js';
 import { rootDebug } from '../util/debug.js';
 
 const debug = rootDebug.extend('write-ins-tabulation');

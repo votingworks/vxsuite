@@ -20,8 +20,8 @@ export type AsyncZipElements<
   -readonly [K in keyof Others]: Others[K] extends AsyncIterable<infer E>
     ? E
     : Others[K] extends Iterable<infer E>
-    ? E
-    : never;
+      ? E
+      : never;
 };
 
 /**
@@ -60,8 +60,8 @@ export type ExactChunk<N extends number, T> = number extends N
 export type Window<N extends number, T> = number extends N
   ? T[]
   : N extends 0
-  ? never
-  : TupleOf<N, T>;
+    ? never
+    : TupleOf<N, T>;
 
 /**
  * An iterable with a number of convenience methods for chaining. Many methods are

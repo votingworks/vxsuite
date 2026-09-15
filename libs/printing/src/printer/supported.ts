@@ -20,7 +20,11 @@ export const SUPPORTED_PRINTER_CONFIGS = safeParse(
   z.array(PrinterConfigSchema),
   safeParseJson(
     readFileSync(
-      join(import.meta.dirname, RELATIVE_PATH_TO_SUPPORTED_PRINTERS, 'configs.json'),
+      join(
+        import.meta.dirname,
+        RELATIVE_PATH_TO_SUPPORTED_PRINTERS,
+        'configs.json'
+      ),
       'utf8'
     )
   ).unsafeUnwrap()

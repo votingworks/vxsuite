@@ -93,8 +93,7 @@ interface VendorCardCustomCertFields extends BaseCardCustomCertFields {
   cardType: 'vendor';
 }
 
-interface SystemAdministratorCardCustomCertFields
-  extends BaseCardCustomCertFields {
+interface SystemAdministratorCardCustomCertFields extends BaseCardCustomCertFields {
   cardType: 'system-administrator';
 }
 
@@ -329,8 +328,7 @@ export function certDetailsToCardDetails(
  */
 export function certDetailsToCardDetails(
   cardIdentityCertDetails:
-    | SystemAdministratorCardCustomCertFields
-    | ElectionCardCustomCertFields,
+    SystemAdministratorCardCustomCertFields | ElectionCardCustomCertFields,
   programmingMachineCertAuthorityCertDetails: MachineCustomCertFields
 ): ProgrammedCardDetails;
 

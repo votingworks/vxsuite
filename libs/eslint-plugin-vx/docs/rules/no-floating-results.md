@@ -11,25 +11,25 @@ that produced the `Result`.
 Examples of **incorrect** code for this rule:
 
 ```ts
-ok(0)
-err('fail')
-getSomethingReturningResult()
+ok(0);
+err('fail');
+getSomethingReturningResult();
 ```
 
 Examples of **correct** code for this rule:
 
 ```ts
 // assign to a variable to use later
-const result = ok(0)
+const result = ok(0);
 
 // throw on failure, essentially an assertion
-err('fail').unsafeUnwrap()
+err('fail').unsafeUnwrap();
 
 // optionally get the value ignoring the error
-getSomethingReturningResult().ok()
+getSomethingReturningResult().ok();
 
 // check for success/failure
-getSomethingReturningResult().isOk()
+getSomethingReturningResult().isOk();
 ```
 
 ## Rule Options
@@ -49,7 +49,7 @@ tests.
 Examples of **correct** code for this rule, when `ignoreVoid` is `true`:
 
 ```ts
-void ok(0)
-void err('fail')
-void getSomethingReturningResult()
+void ok(0);
+void err('fail');
+void getSomethingReturningResult();
 ```

@@ -142,6 +142,6 @@ export function lines(
   return typeof iterable === 'string' || Buffer.isBuffer(iterable)
     ? linesSync([iterable.toString()])
     : Symbol.iterator in iterable
-    ? linesSync(iterable)
-    : linesAsync(iterable);
+      ? linesSync(iterable)
+      : linesAsync(iterable);
 }

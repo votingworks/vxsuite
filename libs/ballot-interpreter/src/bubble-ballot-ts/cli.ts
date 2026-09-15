@@ -152,14 +152,14 @@ function prettyPrintInterpretation({
         // @coverage-defer
         contest.type === 'candidate'
           ? gridPosition.type === 'option'
-            ? candidate?.name ?? gridPosition.optionId
+            ? (candidate?.name ?? gridPosition.optionId)
             : `Write-In #${gridPosition.writeInIndex + 1}`
           : contest.type === 'yesno'
-          ? gridPosition.type === 'option' &&
-            gridPosition.optionId === contest.options[0].id
-            ? contest.options[0].label
-            : contest.options[1].label
-          : 'Unknown';
+            ? gridPosition.type === 'option' &&
+              gridPosition.optionId === contest.options[0].id
+              ? contest.options[0].label
+              : contest.options[1].label
+            : 'Unknown';
 
       stdout.write(
         `${
@@ -167,10 +167,10 @@ function prettyPrintInterpretation({
           !scoredMark
             ? ' '
             : scoredMark.fillScore < markThresholds.marginal
-            ? '⬜️'
-            : scoredMark.fillScore < markThresholds.definite
-            ? '❓'
-            : '✅'
+              ? '⬜️'
+              : scoredMark.fillScore < markThresholds.definite
+                ? '❓'
+                : '✅'
         } ${
           // @coverage-defer
           scoredMark

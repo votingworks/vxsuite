@@ -2,8 +2,10 @@ import { styled } from './styled.js';
 import { IconName, Icons } from './icons.js';
 import { Card, CardProps } from './card.js';
 
-export interface CalloutProps
-  extends Pick<CardProps, 'color' | 'className' | 'style' | 'children'> {
+export interface CalloutProps extends Pick<
+  CardProps,
+  'color' | 'className' | 'style' | 'children'
+> {
   icon?: IconName | JSX.Element;
 }
 

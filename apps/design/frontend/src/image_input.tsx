@@ -74,8 +74,10 @@ function sanitizeSvg(svg: string): string {
   });
 }
 
-interface ImageInputButtonProps
-  extends Pick<FileInputButtonProps, 'disabled' | 'buttonProps' | 'children'> {
+interface ImageInputButtonProps extends Pick<
+  FileInputButtonProps,
+  'disabled' | 'buttonProps' | 'children'
+> {
   onChange: (svgImage: string) => void;
   onError: (error: Error) => void;
   required?: boolean;

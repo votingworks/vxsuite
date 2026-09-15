@@ -1,7 +1,11 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
-import { createWorkspace, getScanWorkspace, resolveWorkspace } from './workspace.js';
+import {
+  createWorkspace,
+  getScanWorkspace,
+  resolveWorkspace,
+} from './workspace.js';
 import { Store } from '../store.js';
 
 beforeEach(() => {

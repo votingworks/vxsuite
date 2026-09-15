@@ -4,7 +4,10 @@ import { styled } from '../../styled.js';
 import { P, Font } from '../../typography.js';
 import { Icons } from '../../icons.js';
 import { Button } from '../../button.js';
-import { ReadOnLoad as BaseReadOnLoad, appStrings } from '../../ui_strings/index.js';
+import {
+  ReadOnLoad as BaseReadOnLoad,
+  appStrings,
+} from '../../ui_strings/index.js';
 import { PatIntroductionStep } from './pat_introduction_step.js';
 import { IdentifyInputStep } from './identify_input_step.js';
 

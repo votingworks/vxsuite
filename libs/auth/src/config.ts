@@ -87,8 +87,7 @@ interface VxCardProgrammingConfig {
  * Config params for card programming, by a VxAdmin, VxPollBook, or VotingWorks directly
  */
 export type CardProgrammingConfig =
-  | MachineCardProgrammingConfig
-  | VxCardProgrammingConfig;
+  MachineCardProgrammingConfig | VxCardProgrammingConfig;
 
 /**
  * Config params for the Java Card implementation of the card API

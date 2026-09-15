@@ -9,7 +9,11 @@ import {
   MockApiClient,
   provideApi,
 } from '../test/api_helpers.js';
-import { ContestList, ContestListProps, ReorderParams } from './contest_list.js';
+import {
+  ContestList,
+  ContestListProps,
+  ReorderParams,
+} from './contest_list.js';
 import { render, screen, within } from '../test/react_testing_library.js';
 import { routes } from './routes.js';
 

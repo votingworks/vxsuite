@@ -1,8 +1,10 @@
 import { Button, Icons } from '@votingworks/ui';
 import React from 'react';
 
-export interface FilterInputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+export interface FilterInputProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'onChange'
+> {
   onChange: (value: string) => void;
 }
 

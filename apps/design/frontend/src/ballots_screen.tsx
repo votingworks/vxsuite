@@ -182,15 +182,13 @@ function BallotStylesTab(): JSX.Element | null {
   const listPartiesQuery = listParties.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
 
-  if (
-    !(
-      getElectionInfoQuery.isSuccess &&
-      listPrecinctsQuery.isSuccess &&
-      listBallotStylesQuery.isSuccess &&
-      listPartiesQuery.isSuccess &&
-      getBallotsFinalizedAtQuery.isSuccess
-    )
-  ) {
+  if (!(
+    getElectionInfoQuery.isSuccess &&
+    listPrecinctsQuery.isSuccess &&
+    listBallotStylesQuery.isSuccess &&
+    listPartiesQuery.isSuccess &&
+    getBallotsFinalizedAtQuery.isSuccess
+  )) {
     return null;
   }
 
@@ -346,13 +344,11 @@ function BallotLayoutTab(): JSX.Element | null {
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const getBallotTemplateQuery = getBallotTemplate.useQuery(electionId);
 
-  if (
-    !(
-      getBallotLayoutSettingsQuery.isSuccess &&
-      getBallotsFinalizedAtQuery.isSuccess &&
-      getBallotTemplateQuery.isSuccess
-    )
-  ) {
+  if (!(
+    getBallotLayoutSettingsQuery.isSuccess &&
+    getBallotsFinalizedAtQuery.isSuccess &&
+    getBallotTemplateQuery.isSuccess
+  )) {
     return null;
   }
 

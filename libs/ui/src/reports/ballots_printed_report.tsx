@@ -22,10 +22,7 @@ import { ReportGeneratedMetadata } from './report_generated_metadata.js';
 import { FillerColumn } from './ballot_count_report.js';
 
 type AttributeColumnId =
-  | 'precinctName'
-  | 'precinctSplitName'
-  | 'party'
-  | 'language';
+  'precinctName' | 'precinctSplitName' | 'party' | 'language';
 interface AttributeColumn {
   type: 'attribute';
   id: AttributeColumnId;
@@ -348,8 +345,8 @@ function BallotsPrintedTable({
                     column.id === 'absentee'
                       ? totalAbsentee
                       : column.id === 'precinct'
-                      ? totalPrecinct
-                      : totalTotal
+                        ? totalPrecinct
+                        : totalTotal
                   )}
                 </span>
               );

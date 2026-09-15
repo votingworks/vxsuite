@@ -12,8 +12,8 @@ export function findUnusedPackages(
   for (const pkg of pkgs.values()) {
     const isInherentlyUsed = Boolean(
       !pkg.relativePath.startsWith('libs/') ||
-        !pkg.packageJson ||
-        pkg.packageJson.bin
+      !pkg.packageJson ||
+      pkg.packageJson.bin
     );
 
     if (isInherentlyUsed) {

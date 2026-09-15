@@ -14,7 +14,12 @@ import {
 } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { assertDefined } from '@votingworks/basics';
-import { render, screen, waitFor, within } from '../test/react_testing_library.js';
+import {
+  render,
+  screen,
+  waitFor,
+  within,
+} from '../test/react_testing_library.js';
 import * as GLOBALS from './config/globals.js';
 import { App } from './app.js';
 import { withMarkup } from '../test/helpers/with_markup.js';

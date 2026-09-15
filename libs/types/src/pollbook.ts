@@ -169,8 +169,7 @@ export interface VoterMailingAddressChangeRequest {
   mailingZip4: string;
 }
 
-export interface VoterMailingAddressChange
-  extends VoterMailingAddressChangeRequest {
+export interface VoterMailingAddressChange extends VoterMailingAddressChangeRequest {
   timestamp: string;
 }
 
@@ -267,8 +266,7 @@ export const VoterNameChangeSchema: z.ZodSchema<VoterNameChange> =
   VoterNameChangeSchemaInternal;
 
 export interface VoterRegistrationRequest
-  extends VoterAddressChangeRequest,
-    VoterNameChangeRequest {
+  extends VoterAddressChangeRequest, VoterNameChangeRequest {
   party: PartyAbbreviation | '';
 }
 

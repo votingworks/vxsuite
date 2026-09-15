@@ -3,7 +3,12 @@ import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
-import { render, screen, waitFor, within } from '../test/react_testing_library.js';
+import {
+  render,
+  screen,
+  waitFor,
+  within,
+} from '../test/react_testing_library.js';
 import { App } from './app.js';
 
 let apiMock: ApiMock;

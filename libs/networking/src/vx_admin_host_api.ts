@@ -104,8 +104,7 @@ export type VxAdminHostApi = Api<{
    * reachability probe when verifying advertised hosts.
    */
   getCurrentElectionMetadata: () =>
-    | { electionDefinition: ElectionDefinition }
-    | undefined;
+    { electionDefinition: ElectionDefinition } | undefined;
   /**
    * Starts (or resumes) transferring one batch of cast vote records. The
    * import record keyed by (scanner machineId, batchId) is the only transfer

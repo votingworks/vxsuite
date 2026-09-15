@@ -3,7 +3,10 @@ import * as grout from '@votingworks/grout';
 import { assertDefined } from '@votingworks/basics';
 import { Store } from '../src/store.js';
 import { Api } from '../src/app.js';
-import { MockCastVoteRecordFile, addMockCvrFileToStore } from './mock_cvr_file.js';
+import {
+  MockCastVoteRecordFile,
+  addMockCvrFileToStore,
+} from './mock_cvr_file.js';
 
 const baseCvr: Omit<MockCastVoteRecordFile[number], 'card' | 'votes'> = {
   ballotStyleGroupId: 'ballot-style-1',

@@ -704,67 +704,63 @@ export function convertVxfElectionToCdfBallotDefinition(
       // For other contests (yesno), use grid layout order
       return gridLayout.gridPositions
         .filter((position) => position.contestId === contest.id)
-        .map(
-          (position): Cdf.PhysicalContestOption => ({
-            '@type': 'BallotDefinition.PhysicalContestOption',
-            ContestOptionId: optionIdForPosition(contest, position),
-            OptionPosition: [
-              {
-                '@type': 'BallotDefinition.OptionPosition',
-                Sheet: position.sheetNumber,
-                Side: position.side as Cdf.BallotSideType,
+        .map((position): Cdf.PhysicalContestOption => ({
+          '@type': 'BallotDefinition.PhysicalContestOption',
+          ContestOptionId: optionIdForPosition(contest, position),
+          OptionPosition: [
+            {
+              '@type': 'BallotDefinition.OptionPosition',
+              Sheet: position.sheetNumber,
+              Side: position.side as Cdf.BallotSideType,
 
-                // Technically these should be in inches, not grid
-                // coordinates, since that's the measurement unit
-                // specified in the ballot format, but grid coordinates
-                // are what our interpreter uses, and converting to inches
-                // and back would just add arbitrary confusion.
-                X: position.column,
-                Y: position.row,
+              // Technically these should be in inches, not grid
+              // coordinates, since that's the measurement unit
+              // specified in the ballot format, but grid coordinates
+              // are what our interpreter uses, and converting to inches
+              // and back would just add arbitrary confusion.
+              X: position.column,
+              Y: position.row,
 
-                // It's not clear what the height/width of an
-                // OptionPosition refer to. Is it the dimensions of the
-                // bubble? Since we don't actually use this data, just set
-                // it to a dummy value.
-                H: 0,
-                W: 0,
-                NumberVotes: 1,
-              },
-            ],
-            WriteInPosition:
-              // @coverage-defer
-              position.type === 'write-in'
-                ? [
-                    {
-                      '@type': 'BallotDefinition.WriteInPosition',
-                      Sheet: position.sheetNumber,
-                      Side: position.side as Cdf.BallotSideType,
-                      // Note that these are in grid coordinates
-                      X: position.writeInArea.x,
-                      Y: position.writeInArea.y,
-                      W: position.writeInArea.width,
-                      H: position.writeInArea.height,
-                    },
-                  ]
-                : undefined,
-          })
-        );
+              // It's not clear what the height/width of an
+              // OptionPosition refer to. Is it the dimensions of the
+              // bubble? Since we don't actually use this data, just set
+              // it to a dummy value.
+              H: 0,
+              W: 0,
+              NumberVotes: 1,
+            },
+          ],
+          WriteInPosition:
+            // @coverage-defer
+            position.type === 'write-in'
+              ? [
+                  {
+                    '@type': 'BallotDefinition.WriteInPosition',
+                    Sheet: position.sheetNumber,
+                    Side: position.side as Cdf.BallotSideType,
+                    // Note that these are in grid coordinates
+                    X: position.writeInArea.x,
+                    Y: position.writeInArea.y,
+                    W: position.writeInArea.width,
+                    H: position.writeInArea.height,
+                  },
+                ]
+              : undefined,
+        }));
     }
 
     const contests = getContests({ election: vxfElection, ballotStyle });
-    return contests.map(
-      (contest): Cdf.OrderedContest => ({
-        '@type': 'BallotDefinition.OrderedContest',
-        ContestId: contest.id,
-        Physical: [
-          {
-            '@type': 'BallotDefinition.PhysicalContest',
-            BallotFormatId: 'ballot-format',
-            PhysicalContestOption: getOrderedPhysicalContestOptions(contest),
-          },
-        ],
-      })
-    );
+    return contests.map((contest): Cdf.OrderedContest => ({
+      '@type': 'BallotDefinition.OrderedContest',
+      ContestId: contest.id,
+      Physical: [
+        {
+          '@type': 'BallotDefinition.PhysicalContest',
+          BallotFormatId: 'ballot-format',
+          PhysicalContestOption: getOrderedPhysicalContestOptions(contest),
+        },
+      ],
+    }));
   }
 
   // In order to include contest term descriptions in the CDF, we need to
@@ -774,17 +770,15 @@ export function convertVxfElectionToCdfBallotDefinition(
       (contest): contest is Vxf.CandidateContest =>
         contest.type === 'candidate' && contest.termDescription !== undefined
     )
-    .map(
-      (contest): Cdf.Office => ({
-        '@type': 'BallotDefinition.Office',
-        '@id': officeId(contest.id),
-        Name: text(contest.title, 'other'), // Not used, but required
-        Term: {
-          '@type': 'BallotDefinition.Term',
-          Label: assertDefined(contest.termDescription),
-        },
-      })
-    );
+    .map((contest): Cdf.Office => ({
+      '@type': 'BallotDefinition.Office',
+      '@id': officeId(contest.id),
+      Name: text(contest.title, 'other'), // Not used, but required
+      Term: {
+        '@type': 'BallotDefinition.Term',
+        Label: assertDefined(contest.termDescription),
+      },
+    }));
 
   return {
     '@type': 'BallotDefinition.BallotDefinition',
@@ -813,24 +807,22 @@ export function convertVxfElectionToCdfBallotDefinition(
               contest.type === 'candidate'
           )
           .flatMap((contest) => contest.candidates)
-          .map(
-            (candidate): Cdf.Candidate => ({
-              '@type': 'BallotDefinition.Candidate',
-              '@id': candidate.id,
-              BallotName: text(candidate.name, [
-                ElectionStringKey.CANDIDATE_NAME,
-                candidate.id,
-              ]),
-              // CDF has no dedicated field for a candidate designation, so we
-              // use the closest available: the candidate's campaign slogan.
-              CampaignSlogan: candidate.designation
-                ? text(candidate.designation, [
-                    ElectionStringKey.CANDIDATE_DESIGNATION,
-                    candidate.id,
-                  ])
-                : undefined,
-            })
-          ),
+          .map((candidate): Cdf.Candidate => ({
+            '@type': 'BallotDefinition.Candidate',
+            '@id': candidate.id,
+            BallotName: text(candidate.name, [
+              ElectionStringKey.CANDIDATE_NAME,
+              candidate.id,
+            ]),
+            // CDF has no dedicated field for a candidate designation, so we
+            // use the closest available: the candidate's campaign slogan.
+            CampaignSlogan: candidate.designation
+              ? text(candidate.designation, [
+                  ElectionStringKey.CANDIDATE_DESIGNATION,
+                  candidate.id,
+                ])
+              : undefined,
+          })),
 
         // eslint-disable-next-line array-callback-return
         Contest: vxfElection.contests.map((contest) => {
@@ -863,13 +855,11 @@ export function convertVxfElectionToCdfBallotDefinition(
                   ...(contest.allowWriteIns
                     ? naturals()
                         .take(contest.seats)
-                        .map(
-                          (writeInIndex): Cdf.CandidateOption => ({
-                            '@type': 'BallotDefinition.CandidateOption',
-                            '@id': writeInOptionId(contest.id, writeInIndex),
-                            IsWriteIn: true,
-                          })
-                        )
+                        .map((writeInIndex): Cdf.CandidateOption => ({
+                          '@type': 'BallotDefinition.CandidateOption',
+                          '@id': writeInOptionId(contest.id, writeInIndex),
+                          IsWriteIn: true,
+                        }))
                     : []),
                 ],
                 PrimaryPartyIds: contest.partyId
@@ -965,55 +955,49 @@ export function convertVxfElectionToCdfBallotDefinition(
           (district) => district.id
         ),
       },
-      ...vxfElection.districts.map(
-        (district): Cdf.ReportingUnit => ({
-          '@type': 'BallotDefinition.ReportingUnit',
-          '@id': district.id,
-          Name: text(district.name, [
-            ElectionStringKey.DISTRICT_NAME,
-            district.id,
-          ]),
-          // Since we represent multiple real-world entities as districts in VXF,
-          // we can't know the actual type to use here
-          Type: Cdf.ReportingUnitType.Other,
-          ComposingGpUnitIds: vxfElection.precincts.flatMap((precinct) =>
-            Vxf.hasSplits(precinct)
-              ? precinct.splits
-                  .filter((split) => split.districtIds.includes(district.id))
-                  .map((split) => split.id)
-              : precinct.districtIds.includes(district.id)
+      ...vxfElection.districts.map((district): Cdf.ReportingUnit => ({
+        '@type': 'BallotDefinition.ReportingUnit',
+        '@id': district.id,
+        Name: text(district.name, [
+          ElectionStringKey.DISTRICT_NAME,
+          district.id,
+        ]),
+        // Since we represent multiple real-world entities as districts in VXF,
+        // we can't know the actual type to use here
+        Type: Cdf.ReportingUnitType.Other,
+        ComposingGpUnitIds: vxfElection.precincts.flatMap((precinct) =>
+          Vxf.hasSplits(precinct)
+            ? precinct.splits
+                .filter((split) => split.districtIds.includes(district.id))
+                .map((split) => split.id)
+            : precinct.districtIds.includes(district.id)
               ? [precinct.id]
               : []
-          ),
-        })
-      ),
-      ...vxfElection.precincts.map(
-        (precinct): Cdf.ReportingUnit => ({
-          '@type': 'BallotDefinition.ReportingUnit',
-          '@id': precinct.id,
-          Name: text(precinct.name, [
-            ElectionStringKey.PRECINCT_NAME,
-            precinct.id,
-          ]),
-          Type: Cdf.ReportingUnitType.Precinct,
-          ComposingGpUnitIds: Vxf.hasSplits(precinct)
-            ? precinct.splits.map((split) => split.id)
-            : undefined,
-        })
-      ),
+        ),
+      })),
+      ...vxfElection.precincts.map((precinct): Cdf.ReportingUnit => ({
+        '@type': 'BallotDefinition.ReportingUnit',
+        '@id': precinct.id,
+        Name: text(precinct.name, [
+          ElectionStringKey.PRECINCT_NAME,
+          precinct.id,
+        ]),
+        Type: Cdf.ReportingUnitType.Precinct,
+        ComposingGpUnitIds: Vxf.hasSplits(precinct)
+          ? precinct.splits.map((split) => split.id)
+          : undefined,
+      })),
       ...vxfElection.precincts.flatMap((precinct) =>
         Vxf.hasSplits(precinct)
-          ? precinct.splits.map(
-              (split): Cdf.ReportingUnit => ({
-                '@type': 'BallotDefinition.ReportingUnit',
-                '@id': split.id,
-                Name: text(split.name, [
-                  ElectionStringKey.PRECINCT_SPLIT_NAME,
-                  split.id,
-                ]),
-                Type: Cdf.ReportingUnitType.SplitPrecinct,
-              })
-            )
+          ? precinct.splits.map((split): Cdf.ReportingUnit => ({
+              '@type': 'BallotDefinition.ReportingUnit',
+              '@id': split.id,
+              Name: text(split.name, [
+                ElectionStringKey.PRECINCT_SPLIT_NAME,
+                split.id,
+              ]),
+              Type: Cdf.ReportingUnitType.SplitPrecinct,
+            }))
           : []
       ),
       // @coverage-defer
@@ -1383,16 +1367,14 @@ export function convertCdfBallotDefinitionToVxfElection(
         return {
           ...precinctBase,
           splits: precinctSplits
-            .filter(
-              (split) => precinct.ComposingGpUnitIds?.includes(split['@id'])
+            .filter((split) =>
+              precinct.ComposingGpUnitIds?.includes(split['@id'])
             )
-            .map(
-              (split): Vxf.PrecinctSplit => ({
-                id: split['@id'],
-                name: englishText(split.Name),
-                districtIds: districtsForPrecinctOrSplit(split['@id']),
-              })
-            ),
+            .map((split): Vxf.PrecinctSplit => ({
+              id: split['@id'],
+              name: englishText(split.Name),
+              districtIds: districtsForPrecinctOrSplit(split['@id']),
+            })),
         };
       }
       return {
@@ -1441,50 +1423,51 @@ export function convertCdfBallotDefinitionToVxfElection(
 
       // Extract orderedCandidatesByContest from OrderedContent if available
       const orderedCandidatesByContest:
-        | Record<Vxf.ContestId, Vxf.OrderedCandidateOption[]>
-        | undefined = ballotStyle.OrderedContent
-        ? Object.fromEntries(
-            ballotStyle.OrderedContent.filter((orderedContest) => {
-              const contest = find(
-                election.Contest,
-                (c) => c['@id'] === orderedContest.ContestId
-              );
-              return contest['@type'] === 'BallotDefinition.CandidateContest';
-            }).map((orderedContest) => {
-              const contest = find(
-                election.Contest,
-                (c) => c['@id'] === orderedContest.ContestId
-              ) as Cdf.CandidateContest;
-              const candidateOptions =
-                orderedContest.Physical[0].PhysicalContestOption.filter(
-                  (option) => !option.WriteInPosition
-                ).map((option) => {
-                  const candidateId = convertOptionId(
-                    orderedContest.ContestId,
-                    option.ContestOptionId
-                  );
-                  const contestOption = find(
-                    contest.ContestOption,
-                    (o) => o['@id'] === option.ContestOptionId
-                  );
-                  const orderedOption: Vxf.OrderedCandidateOption = {
-                    id: candidateId,
-                  };
-                  // Include partyIds if this represents a cross-endorsed candidate
-                  // We will always represent multi-endorsed candidates with a single ordered candidate option
-                  // when converting from CDF to VXF
-                  if (
-                    contestOption.EndorsementPartyIds &&
-                    contestOption.EndorsementPartyIds.length > 0
-                  ) {
-                    orderedOption.partyIds = contestOption.EndorsementPartyIds;
-                  }
-                  return orderedOption;
-                });
-              return [orderedContest.ContestId, candidateOptions];
-            })
-          )
-        : undefined;
+        Record<Vxf.ContestId, Vxf.OrderedCandidateOption[]> | undefined =
+        ballotStyle.OrderedContent
+          ? Object.fromEntries(
+              ballotStyle.OrderedContent.filter((orderedContest) => {
+                const contest = find(
+                  election.Contest,
+                  (c) => c['@id'] === orderedContest.ContestId
+                );
+                return contest['@type'] === 'BallotDefinition.CandidateContest';
+              }).map((orderedContest) => {
+                const contest = find(
+                  election.Contest,
+                  (c) => c['@id'] === orderedContest.ContestId
+                ) as Cdf.CandidateContest;
+                const candidateOptions =
+                  orderedContest.Physical[0].PhysicalContestOption.filter(
+                    (option) => !option.WriteInPosition
+                  ).map((option) => {
+                    const candidateId = convertOptionId(
+                      orderedContest.ContestId,
+                      option.ContestOptionId
+                    );
+                    const contestOption = find(
+                      contest.ContestOption,
+                      (o) => o['@id'] === option.ContestOptionId
+                    );
+                    const orderedOption: Vxf.OrderedCandidateOption = {
+                      id: candidateId,
+                    };
+                    // Include partyIds if this represents a cross-endorsed candidate
+                    // We will always represent multi-endorsed candidates with a single ordered candidate option
+                    // when converting from CDF to VXF
+                    if (
+                      contestOption.EndorsementPartyIds &&
+                      contestOption.EndorsementPartyIds.length > 0
+                    ) {
+                      orderedOption.partyIds =
+                        contestOption.EndorsementPartyIds;
+                    }
+                    return orderedOption;
+                  });
+                return [orderedContest.ContestId, candidateOptions];
+              })
+            )
+          : undefined;
 
       return {
         id: ballotStyleId,

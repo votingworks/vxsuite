@@ -17,8 +17,15 @@ import {
 } from '@votingworks/test-utils';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { render, RenderResult } from './react_testing_library.js';
-import { ApiClientContext, createQueryClient, systemCallApi } from '../src/api.js';
-import { AppContext, AppContextInterface } from '../src/contexts/app_context.js';
+import {
+  ApiClientContext,
+  createQueryClient,
+  systemCallApi,
+} from '../src/api.js';
+import {
+  AppContext,
+  AppContextInterface,
+} from '../src/contexts/app_context.js';
 import { ApiMock } from './api.js';
 
 interface RenderInAppContextParams {

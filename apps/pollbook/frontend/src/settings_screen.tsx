@@ -9,7 +9,12 @@ import {
   SignedHashValidationButton,
 } from '@votingworks/ui';
 import React from 'react';
-import { formatUsbDrive, getUsbDriveStatus, logOut, useApiClient } from './api.js';
+import {
+  formatUsbDrive,
+  getUsbDriveStatus,
+  logOut,
+  useApiClient,
+} from './api.js';
 
 interface SettingsScreenProps {
   showFormatUsbButton: boolean;

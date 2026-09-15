@@ -70,7 +70,11 @@ import {
   CANDIDATE_OPTION_CLASS,
   BALLOT_MEASURE_OPTION_CLASS,
 } from '../ballot_components.js';
-import { PixelDimensions, CandidateOrdering, RotationParams } from '../types.js';
+import {
+  PixelDimensions,
+  CandidateOrdering,
+  RotationParams,
+} from '../types.js';
 import { hmpbStrings } from '../hmpb_strings.js';
 import { voteForText } from './nh_state_ballot_components.js';
 import { layOutInColumns } from '../layout_in_columns.js';

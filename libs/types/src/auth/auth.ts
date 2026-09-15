@@ -84,14 +84,7 @@ export const UserRoleSchema: z.ZodSchema<UserRole> = z.union([
  * See libs/auth/src/lockout.ts for more context.
  */
 export type NumIncorrectPinAttemptsAllowedBeforeCardLockout =
-  | 3
-  | 4
-  | 5
-  | 6
-  | 7
-  | 8
-  | 9
-  | 10;
+  3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 export const NumIncorrectPinAttemptsAllowedBeforeCardLockoutSchema: z.ZodSchema<NumIncorrectPinAttemptsAllowedBeforeCardLockout> =
   z.union([
     z.literal(3),
@@ -135,18 +128,7 @@ export const DEFAULT_INACTIVE_SESSION_TIME_LIMIT_MINUTES: InactiveSessionTimeLim
  * The overall session time limit, after which the user must reauthenticate - a VVSG2 requirement
  */
 export type OverallSessionTimeLimitHours =
-  | 1
-  | 2
-  | 3
-  | 4
-  | 5
-  | 6
-  | 7
-  | 8
-  | 9
-  | 10
-  | 11
-  | 12;
+  1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 export const OverallSessionTimeLimitHoursSchema: z.ZodSchema<OverallSessionTimeLimitHours> =
   z.union([
     z.literal(1),

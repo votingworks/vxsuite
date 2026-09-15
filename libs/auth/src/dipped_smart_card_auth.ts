@@ -35,8 +35,7 @@ import { computeCardLockoutEndTime } from './lockout';
 import { computeSessionEndTime } from './sessions';
 
 type CheckPinResponseExtended =
-  | CheckPinResponse
-  | { response: 'error'; error: unknown };
+  CheckPinResponse | { response: 'error'; error: unknown };
 
 type AuthAction =
   | { type: 'check_card_reader'; cardStatus: CardStatus }
@@ -719,8 +718,8 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
   private isLockedOut(): boolean {
     return Boolean(
       this.authStatus.status === 'checking_pin' &&
-        this.authStatus.lockedOutUntil &&
-        new Date() < this.authStatus.lockedOutUntil
+      this.authStatus.lockedOutUntil &&
+      new Date() < this.authStatus.lockedOutUntil
     );
   }
 }

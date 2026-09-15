@@ -590,10 +590,10 @@ describe('VX BMD interpretation', () => {
         ballotPlacement === 'top'
           ? 0
           : ballotPlacement === 'bottom'
-          ? canvas.height - bmdSummaryBallotPage.height
-          : ballotPlacement === 'middle'
-          ? Math.round((canvas.height - bmdSummaryBallotPage.height) / 2)
-          : throwIllegalValue(ballotPlacement)
+            ? canvas.height - bmdSummaryBallotPage.height
+            : ballotPlacement === 'middle'
+              ? Math.round((canvas.height - bmdSummaryBallotPage.height) / 2)
+              : throwIllegalValue(ballotPlacement)
       );
       const bmdSummaryBallotPageWithLargeBlackArea = context.getImageData(
         0,

@@ -182,30 +182,26 @@ export function generateBallotPageLayouts(
             position.side === side && position.contestId === contest.id
         )
       )
-      .map(
-        (contest): BallotPageContestLayout => ({
-          contestId: contest.id,
-          bounds: { x: 0, y: 0, width: 100, height: 100 },
-          corners: [
-            { x: 0, y: 0 },
-            { x: 100, y: 0 },
-            { x: 0, y: 100 },
-            { x: 100, y: 100 },
-          ],
-          options: iter(allContestOptions(contest, ballotStyle))
-            .map(
-              (option): BallotPageContestOptionLayout => ({
-                bounds: { x: 0, y: 0, width: 10, height: 10 },
-                target: {
-                  bounds: { x: 0, y: 0, width: 10, height: 10 },
-                  inner: { x: 0, y: 0, width: 10, height: 10 },
-                },
-                definition: option,
-              })
-            )
-            .toArray(),
-        })
-      ),
+      .map((contest): BallotPageContestLayout => ({
+        contestId: contest.id,
+        bounds: { x: 0, y: 0, width: 100, height: 100 },
+        corners: [
+          { x: 0, y: 0 },
+          { x: 100, y: 0 },
+          { x: 0, y: 100 },
+          { x: 100, y: 100 },
+        ],
+        options: iter(allContestOptions(contest, ballotStyle))
+          .map((option): BallotPageContestOptionLayout => ({
+            bounds: { x: 0, y: 0, width: 10, height: 10 },
+            target: {
+              bounds: { x: 0, y: 0, width: 10, height: 10 },
+              inner: { x: 0, y: 0, width: 10, height: 10 },
+            },
+            definition: option,
+          }))
+          .toArray(),
+      })),
   }));
 }
 

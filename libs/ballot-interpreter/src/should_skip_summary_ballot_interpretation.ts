@@ -1,11 +1,12 @@
 import { PageInterpretation, SheetOf } from '@votingworks/types';
 
-const BUBBLE_BALLOT_DEFINITIVE_PAGE_TYPES: ReadonlySet<PageInterpretation['type']> =
-  new Set([
-    'InvalidBallotHashPage',
-    'InvalidTestModePage',
-    'InvalidPrecinctPage',
-  ]);
+const BUBBLE_BALLOT_DEFINITIVE_PAGE_TYPES: ReadonlySet<
+  PageInterpretation['type']
+> = new Set([
+  'InvalidBallotHashPage',
+  'InvalidTestModePage',
+  'InvalidPrecinctPage',
+]);
 
 /**
  * Determines whether the bubble ballot interpretation result is definitive

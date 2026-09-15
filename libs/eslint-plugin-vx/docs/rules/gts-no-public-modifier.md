@@ -13,7 +13,7 @@ Examples of **incorrect** code for this rule:
 
 ```ts
 class Foo {
-  public bar = new Bar() // BAD: public modifier not needed
+  public bar = new Bar(); // BAD: public modifier not needed
 
   constructor(public readonly baz: Baz) {} // BAD: readonly implies it's a property which defaults to public
 }
@@ -23,7 +23,7 @@ Examples of **correct** code for this rule:
 
 ```ts
 class Foo {
-  bar = new Bar() // GOOD: public modifier not needed
+  bar = new Bar(); // GOOD: public modifier not needed
 
   constructor(public baz: Baz) {} // public modifier allowed
 }

@@ -4,7 +4,10 @@ import { PollsTransitionType } from '@votingworks/types';
 import { Optional, assert } from '@votingworks/basics';
 import { getPollsReportTitle } from '@votingworks/utils';
 import type { PrintResult } from '@votingworks/fujitsu-thermal-printer';
-import { Screen, getPostPollsTransitionHeaderText } from './poll_worker_shared.js';
+import {
+  Screen,
+  getPostPollsTransitionHeaderText,
+} from './poll_worker_shared.js';
 import { getPrinterStatus, printReportSection } from '../api.js';
 import { PollWorkerLoadAndReprintButton } from '../components/printer_management/poll_worker_load_and_reprint_button.js';
 import { CenteredText } from '../components/layout.js';

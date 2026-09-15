@@ -176,8 +176,8 @@ const ContestSection = styled.div<{ fill?: 'neutral' | 'warning' }>`
     p.fill === 'neutral'
       ? p.theme.colors.container
       : p.fill === 'warning'
-      ? p.theme.colors.warningContainer
-      : undefined};
+        ? p.theme.colors.warningContainer
+        : undefined};
   border-top: ${(p) => p.theme.sizes.bordersRem.thick}rem double
     ${(p) => p.theme.colors.outline};
 

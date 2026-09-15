@@ -1,5 +1,8 @@
 import { expect, test } from 'vitest';
-import { CITIZEN_E351_PRINTER_CONFIG, HP_4001_PRINTER_CONFIG } from '../index.js';
+import {
+  CITIZEN_E351_PRINTER_CONFIG,
+  HP_4001_PRINTER_CONFIG,
+} from '../index.js';
 import {
   MOCK_PRINTER_RICH_STATUS,
   getMockConnectedPrinterStatus,

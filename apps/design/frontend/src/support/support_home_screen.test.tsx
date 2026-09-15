@@ -189,8 +189,8 @@ test('sort elections by status and jurisdiction', async () => {
 
   function columnValues(index: number) {
     const rows = within(table).getAllByRole('row').slice(1);
-    return rows.map(
-      (row) => within(row).getAllByRole('cell')[index].textContent?.trim()
+    return rows.map((row) =>
+      within(row).getAllByRole('cell')[index].textContent?.trim()
     );
   }
 

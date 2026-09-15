@@ -56,9 +56,7 @@ export type WriteInAdjudicationStatus =
 export function isValidCandidate(
   status: WriteInAdjudicationStatus
 ): status is
-  | ExistingOfficialCandidate
-  | ExistingWriteInCandidate
-  | NewWriteInCandidate {
+  ExistingOfficialCandidate | ExistingWriteInCandidate | NewWriteInCandidate {
   return (
     status?.type === 'existing-official' ||
     status?.type === 'existing-write-in' ||

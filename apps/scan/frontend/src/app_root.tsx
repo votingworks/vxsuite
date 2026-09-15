@@ -176,16 +176,14 @@ export function AppRoot(): JSX.Element | null {
     };
   }, [sessionSettingsManager]);
 
-  if (
-    !(
-      authStatusQuery.isSuccess &&
-      configQuery.isSuccess &&
-      scannerStatusQuery.isSuccess &&
-      usbDriveStatusQuery.isSuccess &&
-      pollsInfoQuery.isSuccess &&
-      printerStatusQuery.isSuccess
-    )
-  ) {
+  if (!(
+    authStatusQuery.isSuccess &&
+    configQuery.isSuccess &&
+    scannerStatusQuery.isSuccess &&
+    usbDriveStatusQuery.isSuccess &&
+    pollsInfoQuery.isSuccess &&
+    printerStatusQuery.isSuccess
+  )) {
     return <LoadingConfigurationScreen />;
   }
 
