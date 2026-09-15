@@ -9,8 +9,13 @@ import {
   makeTemporaryFile,
 } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
-import { BackupError, Client, DbConnectionOptions, Statement } from './client';
-import { SchemaDigestMismatchError } from './schema_digest_mismatch_error';
+import {
+  BackupError,
+  Client,
+  DbConnectionOptions,
+  Statement,
+} from './client.js';
+import { SchemaDigestMismatchError } from './schema_digest_mismatch_error.js';
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -93,7 +98,7 @@ test('backs up a memory database', async () => {
 
 test('file database client with a schema', () => {
   const dbFile = makeTemporaryFile();
-  const schemaFile = join(__dirname, '../test/fixtures/schema.sql');
+  const schemaFile = join(import.meta.dirname, '../test/fixtures/schema.sql');
   const client = Client.fileClient(
     dbFile,
     mockBaseLogger({ fn: vi.fn }),
@@ -234,7 +239,7 @@ test('`using` closes the client at the end of the scope', () => {
 
 test('reset file database client', () => {
   const dbFile = makeTemporaryFile();
-  const schemaFile = join(__dirname, '../test/fixtures/schema.sql');
+  const schemaFile = join(import.meta.dirname, '../test/fixtures/schema.sql');
   const client = Client.fileClient(
     dbFile,
     mockBaseLogger({ fn: vi.fn }),
@@ -275,7 +280,7 @@ test('reset file database client that has not connected yet', () => {
 });
 
 test('memory database client, reset', () => {
-  const schemaFile = join(__dirname, '../test/fixtures/schema.sql');
+  const schemaFile = join(import.meta.dirname, '../test/fixtures/schema.sql');
   const client = Client.memoryClient(schemaFile);
 
   expect(client.getDatabasePath()).toEqual(':memory:');
@@ -716,7 +721,7 @@ test('creates the schema in an empty database file', () => {
 
 test('vacuuming reduces file size', () => {
   const dbFile = makeTemporaryFile();
-  const schemaFile = join(__dirname, '../test/fixtures/schema.sql');
+  const schemaFile = join(import.meta.dirname, '../test/fixtures/schema.sql');
   const client = Client.fileClient(
     dbFile,
     mockBaseLogger({ fn: vi.fn }),
