@@ -1,5 +1,5 @@
 import { Rect, RgbaImageData } from '@votingworks/types';
-import { createImageData, RGBA_CHANNEL_COUNT } from './image_data';
+import { createImageData, RGBA_CHANNEL_COUNT } from './image_data.js';
 
 /**
  * Returns a new image cropped to the specified bounds.

@@ -3,7 +3,7 @@ import { Buffer } from 'node:buffer';
 import { CanvasGradient, CanvasPattern } from 'canvas';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import { GrayImageData, RgbaImageData } from '@votingworks/types';
-import { createImageData, toGrayScale } from './image_data';
+import { createImageData, toGrayScale } from './image_data.js';
 
 /**
  * A page of a PDF document.

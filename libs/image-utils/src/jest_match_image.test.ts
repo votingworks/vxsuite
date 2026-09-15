@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest';
 import { sampleBallotImages } from '@votingworks/fixtures';
 import { basename } from 'node:path';
-import { createImageData } from './image_data';
-import { crop } from './crop';
+import { createImageData } from './image_data.js';
+import { crop } from './crop.js';
 
 test('matching images', async () => {
   const image = createImageData(1, 1);
@@ -51,10 +51,9 @@ test('mismatching images with diff path', async () => {
     height: 100,
   });
 
-  const diffPath = `/tmp/${basename(__filename)}.${currentTestName?.replace(
-    /[^a-z0-9]+/g,
-    '-'
-  )}-diff.png`;
+  const diffPath = `/tmp/${basename(
+    import.meta.filename
+  )}.${currentTestName?.replace(/[^a-z0-9]+/g, '-')}-diff.png`;
   await expect(cropped).not.toMatchImage(slightlyOffset, { diffPath });
   await expect(
     expect(cropped).toMatchImage(slightlyOffset, { diffPath })

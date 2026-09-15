@@ -1,4 +1,4 @@
-import { createImageData } from './image_data';
+import { createImageData } from './image_data.js';
 
 /**
  * ImageData for a 1x1 image for use in tests that mock a blank page.

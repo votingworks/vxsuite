@@ -9,6 +9,7 @@ export default defineConfig({
         'src/jest_pdf_snapshot.ts',
         'src/cli/pdf_to_images.ts',
         'src/index.ts',
+        'src/vitest_setup.ts',
       ],
     },
   },

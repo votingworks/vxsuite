@@ -2,24 +2,8 @@ import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import { RgbaImageData } from '@votingworks/types';
-import { afterAll, beforeAll, expect } from 'vitest';
-import { toMatchImage, ToMatchImageOptions } from '../src';
-
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace jest {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    interface Matchers<R> {
-      toMatchImage(
-        expected: RgbaImageData,
-        options?: ToMatchImageOptions
-      ): Promise<CustomMatcherResult>;
-    }
-  }
-}
-
-expect.extend({ toMatchImage });
+import { afterAll, beforeAll } from 'vitest';
+import '../src/vitest_setup.js';
 
 beforeAll(setupTemporaryRootDir);
 afterAll(clearTemporaryRootDir);

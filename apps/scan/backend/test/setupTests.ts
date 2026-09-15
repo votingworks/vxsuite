@@ -4,6 +4,7 @@ import {
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import { cleanupCachedBrowser } from '@votingworks/printing/browser';
+import '@votingworks/image-utils/vitest-setup';
 
 afterAll(async () => {
   await cleanupCachedBrowser();
