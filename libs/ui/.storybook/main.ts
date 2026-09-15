@@ -65,6 +65,14 @@ const config: StorybookConfig = {
           { find: 'events', replacement: require.resolve('events/') },
           { find: 'node:events', replacement: require.resolve('events/') },
           {
+            find: 'crypto',
+            replacement: path.join(dirname, '../src/stubs/crypto.ts'),
+          },
+          {
+            find: 'node:crypto',
+            replacement: path.join(dirname, '../src/stubs/crypto.ts'),
+          },
+          {
             find: 'fs/promises',
             replacement: path.join(dirname, '../src/stubs/fs.ts'),
           },

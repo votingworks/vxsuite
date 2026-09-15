@@ -59,6 +59,14 @@ export default defineConfig((env) => {
         { find: /^node:buffer\/?$/, replacement: require.resolve('buffer/') },
         { find: /^events\/?$/, replacement: require.resolve('events/') },
         { find: /^node:events\/?$/, replacement: require.resolve('events/') },
+        {
+          find: /^crypto$/,
+          replacement: join(__dirname, './src/stubs/crypto.ts'),
+        },
+        {
+          find: /^node:crypto$/,
+          replacement: join(__dirname, './src/stubs/crypto.ts'),
+        },
         { find: /^fs$/, replacement: join(__dirname, './src/stubs/fs.ts') },
         {
           find: /^node:fs$/,
