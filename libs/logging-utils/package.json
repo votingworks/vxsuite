@@ -2,26 +2,35 @@
   "name": "@votingworks/logging-utils",
   "version": "0.0.0",
   "license": "GPL-3.0-only",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "artifacts": "napi artifacts",
     "build": "pnpm -w vx-task build $npm_package_name",
-    "build:debug": "napi build --platform",
-    "build:self": "napi build --platform --release",
+    "build:debug": "napi build --platform --esm",
+    "build:self": "napi build --platform --release --esm",
     "build:watch": "nodemon -x 'pnpm build:self' -w src -w test -e rs",
     "install:rust-addon": "cargo fetch",
     "lint": "pnpm -w vx-task lint $npm_package_name",
-    "lint:self": "cargo clippy",
+    "lint:fix": "pnpm type-check && eslint --cache . --fix",
+    "lint:self": "pnpm type-check && eslint --cache . && cargo clippy",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "pnpm -w vx-task build $npm_package_name && vitest",
     "test:run": "pnpm -w vx-task test:run $npm_package_name",
     "test:run:self": "cargo test && vitest run",
+    "type-check": "tsc --build",
     "universal": "napi universal",
     "version": "napi version"
   },
   "devDependencies": {
     "@napi-rs/cli": "^3.5.1",
+    "@types/node": "24.13.3",
     "@types/tmp": "0.2.4",
     "@vitest/coverage-istanbul": "^4.1.6",
     "@votingworks/coverage-check": "workspace:*",
