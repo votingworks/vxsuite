@@ -11,7 +11,7 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 
-import { ProgrammedCardDetails } from '../../src/card.js';
+import { ProgrammedCardDetails } from '../card.js';
 import {
   CardType,
   CERT_EXPIRY_IN_DAYS,
@@ -19,16 +19,16 @@ import {
   constructCardCertSubjectWithoutJurisdictionAndCardType,
   constructMachineCertSubject,
   MachineType,
-} from '../../src/certs.js';
+} from '../certs.js';
 import {
   certPemToDer,
   createCert,
   CreateCertInput,
   openssl,
   publicKeyPemToDer,
-} from '../../src/cryptography.js';
-import { DEV_JURISDICTION } from '../../src/jurisdictions.js';
-import { runCommand } from '../../src/shell.js';
+} from '../cryptography.js';
+import { DEV_JURISDICTION } from '../jurisdictions.js';
+import { runCommand } from '../shell.js';
 import { generatePrivateKey, generateSelfSignedCert } from './utils.js';
 
 function extractPublicKeyFromDevPrivateKey(

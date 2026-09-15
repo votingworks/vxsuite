@@ -4,7 +4,6 @@ import { Byte } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
-import waitForExpect from 'wait-for-expect';
 import { mockConstructor } from '@votingworks/test-utils';
 import { MockCardReader, getTestFilePath } from '../../test/utils.js';
 import {
@@ -220,9 +219,9 @@ test('cardStatus', async () => {
     await certPemToDer(DEV_CERT_PEM)
   );
   mockCardReader.setReaderStatus('ready');
-  await waitForExpect(async () => {
-    expect((await cac.getCardStatus()).status).toEqual('ready');
-  });
+  await expect
+    .poll(() => cac.getCardStatus())
+    .toMatchObject({ status: 'ready' });
 
   // remove the cert and make sure we are back to ready
   mockCardReader.setReaderStatus('no_card');
@@ -232,9 +231,9 @@ test('cardStatus', async () => {
   mockCardGetCertificateRequest(CARD_DOD_CERT.OBJECT_ID, new Error('no cert'));
 
   mockCardReader.setReaderStatus('ready');
-  await waitForExpect(async () => {
-    expect((await cac.getCardStatus()).status).toEqual('ready');
-  });
+  await expect
+    .poll(() => cac.getCardStatus())
+    .toMatchObject({ status: 'ready' });
 });
 
 test('checkPin: success', async () => {

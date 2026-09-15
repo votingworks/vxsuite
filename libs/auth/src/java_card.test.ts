@@ -4,7 +4,6 @@ import * as fs from 'node:fs';
 import path from 'node:path';
 import { createInterface } from 'node:readline/promises';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import waitForExpect from 'wait-for-expect';
 import {
   electionFamousNames2021Fixtures,
   makeTemporaryDirectory,
@@ -792,14 +791,14 @@ test.each<{
     }
 
     mockCardReader.setReaderStatus('ready');
-    await waitForExpect(async () => {
-      // This might fail if the test keys and certs are outdated (e.g. if the election key changes).
-      // Run ./scripts/generate-test-keys-and-certs to update them.
-      expect(await javaCard.getCardStatus()).toEqual({
+    // This might fail if the test keys and certs are outdated (e.g. if the election key changes).
+    // Run ./scripts/generate-test-keys-and-certs to update them.
+    await expect
+      .poll(() => javaCard.getCardStatus())
+      .toEqual({
         status: 'ready',
         cardDetails: expectedCardDetails,
       });
-    });
   }
 );
 
@@ -1546,12 +1545,12 @@ test('TOCTOU regression test: Card validation stashes the identity cert for use 
   mockCardGetNumRemainingPinAttemptsRequest(MAX_NUM_INCORRECT_PIN_ATTEMPTS);
 
   mockCardReader.setReaderStatus('ready');
-  await waitForExpect(async () => {
-    expect(await javaCard.getCardStatus()).toEqual({
+  await expect
+    .poll(() => javaCard.getCardStatus())
+    .toEqual({
       status: 'ready',
       cardDetails: { user: systemAdministratorUser },
     });
-  });
   mockCardReader.transmit.assertComplete();
 
   // No card identity cert retrieval is mocked. If checkPin re-fetched the cert from the card

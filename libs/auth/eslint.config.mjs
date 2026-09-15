@@ -4,7 +4,7 @@ export default [
   { ignores: ['*.js'] },
   ...recommended,
   {
-    files: ['scripts/**'],
+    files: ['scripts/**', 'src/scripts/**'],
     rules: {
       'no-console': 'off',
     },

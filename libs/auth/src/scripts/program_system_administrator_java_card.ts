@@ -6,9 +6,9 @@ import {
 import { ProgrammingMachineType } from '@votingworks/types';
 import { getRequiredEnvVar, isNodeEnvProduction } from '@votingworks/utils';
 
-import { constructJavaCardConfig, JavaCardConfig } from '../../src/config.js';
-import { JavaCard } from '../../src/java_card.js';
-import { DEV_JURISDICTION } from '../../src/jurisdictions.js';
+import { constructJavaCardConfig, JavaCardConfig } from '../config.js';
+import { JavaCard } from '../java_card.js';
+import { DEV_JURISDICTION } from '../jurisdictions.js';
 import { programJavaCard } from './utils.js';
 
 interface ScriptEnvVars {

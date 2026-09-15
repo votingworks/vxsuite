@@ -1,12 +1,9 @@
 import readline from 'node:readline';
 import { extractErrorMessage, throwIllegalValue } from '@votingworks/basics';
 
-import {
-  CommonAccessCard,
-  CommonAccessCardDetails,
-} from '../../src/cac/index.js';
-import { CardDetails, PinProtectedCard, StatefulCard } from '../../src/card.js';
-import { JavaCard } from '../../src/java_card.js';
+import { CommonAccessCard, CommonAccessCardDetails } from '../cac/index.js';
+import { CardDetails, PinProtectedCard, StatefulCard } from '../card.js';
+import { JavaCard } from '../java_card.js';
 import { waitForReadyCardStatus } from './utils.js';
 
 const usageMessage = 'Usage: check-pin [--cac|--vxsuite (default)]';

@@ -3,7 +3,7 @@ import path from 'node:path';
 import yargs from 'yargs';
 import { extractErrorMessage } from '@votingworks/basics';
 
-import { CERT_EXPIRY_IN_DAYS } from '../../src/certs.js';
+import { CERT_EXPIRY_IN_DAYS } from '../certs.js';
 import { generatePrivateKey, generateSelfSignedCert } from './utils.js';
 
 interface CommandLineArgs {

@@ -11,9 +11,9 @@ import {
   CERT_EXPIRY_IN_DAYS,
   constructCardCertSubject,
   constructCardCertSubjectWithoutJurisdictionAndCardType,
-} from '../../src/certs.js';
-import { PROD_VX_CERT_AUTHORITY_CERT_PATH } from '../../src/config.js';
-import { createCert } from '../../src/cryptography.js';
+} from '../certs.js';
+import { PROD_VX_CERT_AUTHORITY_CERT_PATH } from '../config.js';
+import { createCert } from '../cryptography.js';
 
 interface ScriptEnvVars {
   certPublicKeyPath: string;

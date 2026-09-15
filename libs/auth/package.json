@@ -51,12 +51,10 @@
     "@votingworks/coverage-check": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
     "sort-package-json": "^1.50.0",
-    "vitest": "^4.1.11",
-    "wait-for-expect": "^3.0.2"
+    "vitest": "^4.1.11"
   },
   "packageManager": "pnpm@10.34.5"
 }

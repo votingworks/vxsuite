@@ -7,9 +7,9 @@ import {
   extractPublicKeyFromCert,
   signMessage,
   verifySignature,
-} from '../../src/cryptography.js';
-import { FileKey } from '../../src/keys.js';
-import { constructPrefixedMessage } from '../../src/signatures.js';
+} from '../cryptography.js';
+import { FileKey } from '../keys.js';
+import { constructPrefixedMessage } from '../signatures.js';
 
 interface CommandLineArgs {
   privateKeyPath: string;

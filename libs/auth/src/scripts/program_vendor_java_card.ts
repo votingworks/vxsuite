@@ -4,9 +4,9 @@ import { getRequiredEnvVar, isNodeEnvProduction } from '@votingworks/utils';
 import {
   constructJavaCardConfigForVxProgramming,
   JavaCardConfig,
-} from '../../src/config.js';
-import { JavaCard } from '../../src/java_card.js';
-import { DEV_JURISDICTION } from '../../src/jurisdictions.js';
+} from '../config.js';
+import { JavaCard } from '../java_card.js';
+import { DEV_JURISDICTION } from '../jurisdictions.js';
 import { programJavaCard } from './utils.js';
 
 interface ScriptEnvVars {

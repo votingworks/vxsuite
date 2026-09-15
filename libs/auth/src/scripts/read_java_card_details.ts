@@ -1,12 +1,12 @@
 import { extractErrorMessage } from '@votingworks/basics';
 
-import { CardDetails } from '../../src/card.js';
+import { CardDetails } from '../card.js';
 import {
   DEV_VX_CERT_AUTHORITY_CERT_PATH,
   PROD_VX_CERT_AUTHORITY_CERT_PATH,
-} from '../../src/config.js';
-import { verifyFirstCertWasSignedBySecondCert } from '../../src/cryptography.js';
-import { JavaCard } from '../../src/java_card.js';
+} from '../config.js';
+import { verifyFirstCertWasSignedBySecondCert } from '../cryptography.js';
+import { JavaCard } from '../java_card.js';
 import { waitForReadyCardStatus } from './utils.js';
 
 const ENVS = ['development', 'production'] as const;

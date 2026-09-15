@@ -1,8 +1,8 @@
 import { extractErrorMessage } from '@votingworks/basics';
 import { getRequiredEnvVar } from '@votingworks/utils';
 
-import { constructMachineCertSubject, MachineType } from '../../src/certs.js';
-import { createCertSigningRequest } from '../../src/cryptography.js';
+import { constructMachineCertSubject, MachineType } from '../certs.js';
+import { createCertSigningRequest } from '../cryptography.js';
 
 interface ScriptEnvVars {
   machineType: MachineType;

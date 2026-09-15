@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
-require('./src/create_production_machine_cert_signing_request').main();
+import { main } from '../build/scripts/create_production_machine_cert_signing_request.js';
+
+main();
