@@ -8,14 +8,14 @@ import {
   SignedHashValidationQrCodeValue,
 } from '@votingworks/types';
 
-import { parseCert } from './certs';
+import { parseCert } from './certs.js';
 import {
   constructSignedHashValidationConfig,
   SignedHashValidationConfig,
-} from './config';
-import { signMessage } from './cryptography';
-import { runCommand } from './shell';
-import { constructPrefixedMessage } from './signatures';
+} from './config.js';
+import { signMessage } from './cryptography.js';
+import { runCommand } from './shell.js';
+import { constructPrefixedMessage } from './signatures.js';
 
 /**
  * The separator between parts of the signed hash validation QR code value
@@ -29,7 +29,7 @@ export const SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR = '#';
 
 async function computeSystemHash(): Promise<string> {
   const scriptPath = path.join(
-    __dirname,
+    import.meta.dirname,
     '../src/intermediate-scripts/compute-system-hash'
   );
   const stdout = await runCommand(['sudo', scriptPath]);

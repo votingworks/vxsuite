@@ -6,10 +6,10 @@ import {
 import { ProgrammingMachineType } from '@votingworks/types';
 import { getRequiredEnvVar, isNodeEnvProduction } from '@votingworks/utils';
 
-import { constructJavaCardConfig, JavaCardConfig } from '../../src/config';
-import { JavaCard } from '../../src/java_card';
-import { DEV_JURISDICTION } from '../../src/jurisdictions';
-import { programJavaCard } from './utils';
+import { constructJavaCardConfig, JavaCardConfig } from '../../src/config.js';
+import { JavaCard } from '../../src/java_card.js';
+import { DEV_JURISDICTION } from '../../src/jurisdictions.js';
+import { programJavaCard } from './utils.js';
 
 interface ScriptEnvVars {
   isProduction: boolean;

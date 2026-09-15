@@ -3,11 +3,11 @@ import { assert, sleep, throwIllegalValue } from '@votingworks/basics';
 import { SystemAdministratorUser, VendorUser } from '@votingworks/types';
 import { generatePin, hyphenatePin } from '@votingworks/utils';
 
-import { ResponseApduError } from '../../src/apdu';
-import { CardStatusReady, StatefulCard } from '../../src/card';
-import { STANDARD_CERT_FIELDS } from '../../src/certs';
-import { openssl } from '../../src/cryptography';
-import { JavaCard } from '../../src/java_card';
+import { ResponseApduError } from '../../src/apdu.js';
+import { CardStatusReady, StatefulCard } from '../../src/card.js';
+import { STANDARD_CERT_FIELDS } from '../../src/certs.js';
+import { openssl } from '../../src/cryptography.js';
+import { JavaCard } from '../../src/java_card.js';
 
 /**
  * Generates an ECC private key and returns the private key contents in a buffer. The key is not

@@ -3,14 +3,14 @@ import { Buffer } from 'node:buffer';
 import path from 'node:path';
 import { Mocked, MockFunction, mockFunction } from '@votingworks/test-utils';
 
-import { Card, CardStatus } from '../src/card';
+import { Card, CardStatus } from '../src/card.js';
 import {
   CardReader,
   OnReaderStatusChange,
   ReaderStatus,
-} from '../src/card_reader';
-import { CardType } from '../src/certs';
-import { JavaCard } from '../src/java_card';
+} from '../src/card_reader.js';
+import { CardType } from '../src/certs.js';
+import { JavaCard } from '../src/java_card.js';
 
 /**
  * A mock card reader

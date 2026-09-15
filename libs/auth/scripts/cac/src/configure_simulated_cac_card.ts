@@ -5,26 +5,33 @@ import { extractErrorMessage, lines } from '@votingworks/basics';
 import { Byte } from '@votingworks/types';
 import { getRequiredEnvVar } from '@votingworks/utils';
 
-import { CommandApdu, constructTlv } from '../../../src/apdu';
+import { CommandApdu, constructTlv } from '../../../src/apdu.js';
 import {
   MAX_NUM_INCORRECT_PIN_ATTEMPTS,
   OPEN_FIPS_201_AID,
   PUK,
-} from '../../../src/java_card';
+} from '../../../src/java_card.js';
 import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
-} from '../../../src/piv';
-import { runCommand } from '../../../src/shell';
-import { waitForReadyCardStatus } from '../../src/utils';
+} from '../../../src/piv.js';
+import { runCommand } from '../../../src/shell.js';
+import { waitForReadyCardStatus } from '../../src/utils.js';
 
-import { CARD_DOD_CERT, CommonAccessCard, DEFAULT_PIN } from '../../../src/cac';
+import {
+  CARD_DOD_CERT,
+  CommonAccessCard,
+  DEFAULT_PIN,
+} from '../../../src/cac/index.js';
 
 const APPLET_PATH = path.join(
-  __dirname,
+  import.meta.dirname,
   '../../../applets/OpenFIPS201-v1.10.2-with-vx-mods.cap'
 );
-const GLOBAL_PLATFORM_JAR_FILE_PATH = path.join(__dirname, '../../gp.jar');
+const GLOBAL_PLATFORM_JAR_FILE_PATH = path.join(
+  import.meta.dirname,
+  '../../gp.jar'
+);
 
 /**
  * CHANGE REFERENCE DATA ADMIN is an OpenFIPS201-specific extension of the PIV-standard CHANGE

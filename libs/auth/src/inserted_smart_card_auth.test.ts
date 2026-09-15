@@ -35,14 +35,19 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 
-import { buildMockCard, mockCardAssertComplete } from '../test/utils';
-import { Card, CardDetails, CardStatus, ProgrammedCardDetails } from './card';
-import { DippedSmartCardAuthMachineState } from './dipped_smart_card_auth_api';
-import { InsertedSmartCardAuth } from './inserted_smart_card_auth';
+import { buildMockCard, mockCardAssertComplete } from '../test/utils.js';
+import {
+  Card,
+  CardDetails,
+  CardStatus,
+  ProgrammedCardDetails,
+} from './card.js';
+import { DippedSmartCardAuthMachineState } from './dipped_smart_card_auth_api.js';
+import { InsertedSmartCardAuth } from './inserted_smart_card_auth.js';
 import {
   InsertedSmartCardAuthConfig,
   InsertedSmartCardAuthMachineState,
-} from './inserted_smart_card_auth_api';
+} from './inserted_smart_card_auth_api.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

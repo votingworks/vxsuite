@@ -11,8 +11,8 @@ import {
   MAX_RESPONSE_APDU_DATA_LENGTH,
   ResponseApduError,
   STATUS_WORD,
-} from './apdu';
-import { CardReader, PcscLite } from './card_reader';
+} from './apdu.js';
+import { CardReader, PcscLite } from './card_reader.js';
 
 vi.mock('pcsclite');
 

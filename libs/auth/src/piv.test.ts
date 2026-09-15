@@ -8,7 +8,7 @@ import {
   isSecurityConditionNotSatisfiedStatusWord,
   numRemainingPinAttemptsFromIncorrectPinStatusWord,
   pivDataObjectId,
-} from './piv';
+} from './piv.js';
 
 test('pivDataObjectId', () => {
   expect(pivDataObjectId(0x00)).toEqual(Buffer.of(0x5f, 0xc1, 0x00));

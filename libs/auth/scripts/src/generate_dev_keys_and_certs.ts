@@ -11,7 +11,7 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 
-import { ProgrammedCardDetails } from '../../src/card';
+import { ProgrammedCardDetails } from '../../src/card.js';
 import {
   CardType,
   CERT_EXPIRY_IN_DAYS,
@@ -19,17 +19,17 @@ import {
   constructCardCertSubjectWithoutJurisdictionAndCardType,
   constructMachineCertSubject,
   MachineType,
-} from '../../src/certs';
+} from '../../src/certs.js';
 import {
   certPemToDer,
   createCert,
   CreateCertInput,
   openssl,
   publicKeyPemToDer,
-} from '../../src/cryptography';
-import { DEV_JURISDICTION } from '../../src/jurisdictions';
-import { runCommand } from '../../src/shell';
-import { generatePrivateKey, generateSelfSignedCert } from './utils';
+} from '../../src/cryptography.js';
+import { DEV_JURISDICTION } from '../../src/jurisdictions.js';
+import { runCommand } from '../../src/shell.js';
+import { generatePrivateKey, generateSelfSignedCert } from './utils.js';
 
 function extractPublicKeyFromDevPrivateKey(
   privateKeyPath: string
@@ -56,14 +56,14 @@ async function parseCommandLineArgs(
       'output-dir': {
         description: 'The directory to output generated keys and certs to',
         type: 'string',
-        default: path.join(__dirname, '../../certs/dev'),
+        default: path.join(import.meta.dirname, '../../certs/dev'),
       },
       'election-definition': {
         description:
           'The path to an election definition to generate keys and certs for',
         type: 'string',
         default: path.join(
-          __dirname,
+          import.meta.dirname,
           '../../../fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json'
         ),
       },
