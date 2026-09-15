@@ -388,6 +388,15 @@ function generateCircleCiFilteredAppConfigForPackage(
     '      # Since the contents of this file affect the cache key, editing only a',
     '      # comment will invalidate the cache without changing the behavior.',
     '      # last edited by Kofi 2024-09-19',
+    '      - run:',
+    '          name: Pre-install Node.js headers for node-gyp',
+    '          command: |',
+    '            # Concurrent native-module builds race to download and extract',
+    '            # the Node headers into the shared node-gyp devdir,',
+    '            # intermittently corrupting the header tree (builds then fail',
+    '            # with errors inside the v8 headers). Extract the headers once',
+    '            # up front so the concurrent builds only ever read them.',
+    '            node "$(npm root -g)/pnpm/dist/node_modules/node-gyp/bin/node-gyp.js" install',
     '      - when:',
     '          condition: << parameters.is_node_package >>',
     '          steps:',
@@ -396,16 +405,6 @@ function generateCircleCiFilteredAppConfigForPackage(
     '                key:',
     '                  pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum',
     '                  "pnpm-lock.yaml" }}',
-    '            - run:',
-    '                name: Pre-install Node.js headers for node-gyp',
-    '                command: |',
-    '                  # Concurrent native-module builds during `pnpm install`',
-    '                  # race to download and extract the Node headers into the',
-    '                  # shared node-gyp devdir, intermittently corrupting the',
-    '                  # header tree (builds then fail with errors inside the v8',
-    '                  # headers). Extract the headers once up front so the',
-    '                  # concurrent builds only ever read them.',
-    '                  node "$(npm root -g)/pnpm/dist/node_modules/node-gyp/bin/node-gyp.js" install',
     '            - run:',
     '                name: Install Node.js Dependencies',
     '                command: pnpm install --frozen-lockfile',
@@ -619,6 +618,15 @@ commands:
       # Since the contents of this file affect the cache key, editing only a
       # comment will invalidate the cache without changing the behavior.
       # last edited by Kofi 2024-09-19
+      - run:
+          name: Pre-install Node.js headers for node-gyp
+          command: |
+            # Concurrent native-module builds race to download and extract
+            # the Node headers into the shared node-gyp devdir,
+            # intermittently corrupting the header tree (builds then fail
+            # with errors inside the v8 headers). Extract the headers once
+            # up front so the concurrent builds only ever read them.
+            node "$(npm root -g)/pnpm/dist/node_modules/node-gyp/bin/node-gyp.js" install
       - when:
           condition: << parameters.is_node_package >>
           steps:
@@ -626,16 +634,6 @@ commands:
                 name: Restore Node.js Cache
                 key:
                   pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
-            - run:
-                name: Pre-install Node.js headers for node-gyp
-                command: |
-                  # Concurrent native-module builds during \`pnpm install\`
-                  # race to download and extract the Node headers into the
-                  # shared node-gyp devdir, intermittently corrupting the
-                  # header tree (builds then fail with errors inside the v8
-                  # headers). Extract the headers once up front so the
-                  # concurrent builds only ever read them.
-                  node "$(npm root -g)/pnpm/dist/node_modules/node-gyp/bin/node-gyp.js" install
             - run:
                 name: Install Node.js Dependencies
                 command: pnpm install --frozen-lockfile
