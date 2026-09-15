@@ -51,6 +51,14 @@ export default defineConfig(async (env) => {
         // way Rollup did.
         { find: /^buffer\/?$/, replacement: require.resolve('buffer/') },
         { find: /^node:buffer\/?$/, replacement: require.resolve('buffer/') },
+        {
+          find: /^crypto$/,
+          replacement: join(__dirname, './src/stubs/crypto.ts'),
+        },
+        {
+          find: /^node:crypto$/,
+          replacement: join(__dirname, './src/stubs/crypto.ts'),
+        },
         { find: /^fs$/, replacement: join(__dirname, './src/stubs/fs.ts') },
         {
           find: /^node:fs$/,
