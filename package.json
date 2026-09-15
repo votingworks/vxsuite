@@ -14,7 +14,7 @@
     "prepare": "husky install",
     "run-dev": "script/run-dev",
     "shellcheck": "script/shellcheck",
-    "test": "VX_TEST_WORKERS=2 turbo run test:run:self --concurrency=50% --filter=!@votingworks/exercises",
+    "test": "VX_TEST_WORKERS=2 turbo run test:run:self --concurrency=50%",
     "type-check": "turbo run type-check",
     "update-snapshots": "script/update-snapshots",
     "vx-dev": "script/vx-dev",
