@@ -10,4 +10,7 @@ export * from './scanner_status.js';
 // scanner_config is mostly internal but some types are useful to callers.
 // Scanner config types can be separated to a different file if this export
 // becomes unwieldy.
-export type { PaperMovementAfterScan, ScanDirection } from './scanner_config.js';
+export type {
+  PaperMovementAfterScan,
+  ScanDirection,
+} from './scanner_config.js';

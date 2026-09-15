@@ -352,8 +352,7 @@ export interface CreateCertInput {
    * key is also acceptable. We set the cert key using -force_pubkey in this case.
    */
   certKeyInput:
-    | { type: 'private'; key: FileKey }
-    | { type: 'public'; key: InlineKey };
+    { type: 'private'; key: FileKey } | { type: 'public'; key: InlineKey };
   certSubject: string;
   certType?: CertType;
   expiryInDays: number;

@@ -4,7 +4,6 @@ import { userEvent } from './user_event.js';
 import { render, screen } from '../test/react_testing_library.js';
 import { NumberInput } from './number_input.js';
 
-
 function ControllerNumberInput({
   onChange,
   initialValue = '',

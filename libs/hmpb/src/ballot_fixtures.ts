@@ -310,15 +310,13 @@ export const vxGeneralElectionFixtures = lazyFixtures(() => {
     const blankBallotPath = join(electionDir, 'blank-ballot.pdf');
     const markedBallotPath = join(electionDir, 'marked-ballot.pdf');
     const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
-      ballotStyle.precincts.map(
-        (precinctId): BaseBallotProps => ({
-          election,
-          ballotStyleId: ballotStyle.id,
-          precinctId,
-          ballotType: BallotType.Absentee,
-          ballotMode: 'official',
-        })
-      )
+      ballotStyle.precincts.map((precinctId): BaseBallotProps => ({
+        election,
+        ballotStyleId: ballotStyle.id,
+        precinctId,
+        ballotType: BallotType.Absentee,
+        ballotMode: 'official',
+      }))
     );
 
     // Has ballot measures
@@ -456,15 +454,13 @@ export const vxPrimaryElectionFixtures = lazyFixtures(() => {
 
   const election = electionPrimaryPrecinctSplitsFixtures.readElection();
   const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
-    ballotStyle.precincts.map(
-      (precinctId): BaseBallotProps => ({
-        election,
-        ballotStyleId: ballotStyle.id,
-        precinctId,
-        ballotType: BallotType.Precinct,
-        ballotMode: 'test',
-      })
-    )
+    ballotStyle.precincts.map((precinctId): BaseBallotProps => ({
+      election,
+      ballotStyleId: ballotStyle.id,
+      precinctId,
+      ballotType: BallotType.Precinct,
+      ballotMode: 'test',
+    }))
   );
 
   function makePartyFixtureSpec(partyLabel: string, ballotStyle: BallotStyle) {
@@ -632,20 +628,20 @@ export const nhGeneralElectionFixtures = lazyFixtures(() => {
             description: contest.description.repeat(5),
           }
         : // Give one ballot measure a third option to test that it gets rendered
-        // correctly. v4.0 exports transform it to a candidate contest;
-        // v4.1+ exports it natively with all options.
-        contest.id === 'question-a' && contest.type === 'yesno'
-        ? {
-            ...contest,
-            options: [
-              ...contest.options,
-              {
-                id: 'third-option',
-                label: 'Third Option',
-              },
-            ] as typeof contest.options,
-          }
-        : contest
+          // correctly. v4.0 exports transform it to a candidate contest;
+          // v4.1+ exports it natively with all options.
+          contest.id === 'question-a' && contest.type === 'yesno'
+          ? {
+              ...contest,
+              options: [
+                ...contest.options,
+                {
+                  id: 'third-option',
+                  label: 'Third Option',
+                },
+              ] as typeof contest.options,
+            }
+          : contest
     );
 
     const election: Election = {
@@ -680,16 +676,14 @@ export const nhGeneralElectionFixtures = lazyFixtures(() => {
     const blankBallotPath = join(electionDir, 'blank-ballot.pdf');
     const markedBallotPath = join(electionDir, 'marked-ballot.pdf');
     const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
-      ballotStyle.precincts.map(
-        (precinctId): BaseBallotProps => ({
-          election,
-          ballotStyleId: ballotStyle.id,
-          precinctId,
-          ballotType: BallotType.Precinct,
-          ballotMode: 'official',
-          ...props,
-        })
-      )
+      ballotStyle.precincts.map((precinctId): BaseBallotProps => ({
+        election,
+        ballotStyleId: ballotStyle.id,
+        precinctId,
+        ballotType: BallotType.Precinct,
+        ballotMode: 'official',
+        ...props,
+      }))
     );
 
     // Has ballot measures
@@ -1351,15 +1345,13 @@ export const msGeneralElectionFixtures = lazyFixtures(() => {
 
   const election = readElectionGeneral();
   const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
-    ballotStyle.precincts.map(
-      (precinctId): BaseBallotProps => ({
-        election,
-        ballotStyleId: ballotStyle.id,
-        precinctId,
-        ballotType: BallotType.Precinct,
-        ballotMode: 'test',
-      })
-    )
+    ballotStyle.precincts.map((precinctId): BaseBallotProps => ({
+      election,
+      ballotStyleId: ballotStyle.id,
+      precinctId,
+      ballotType: BallotType.Precinct,
+      ballotMode: 'test',
+    }))
   );
   const blankBallotProps = allBallotProps[0];
   const ballotStyle = assertDefined(
@@ -1442,15 +1434,13 @@ export const miClosedPrimaryElectionFixtures = lazyFixtures(() => {
     contests: [...baseElection.contests, nonpartisanContest],
   };
   const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
-    ballotStyle.precincts.map(
-      (precinctId): BaseBallotProps => ({
-        election,
-        ballotStyleId: ballotStyle.id,
-        precinctId,
-        ballotType: BallotType.Precinct,
-        ballotMode: 'test',
-      })
-    )
+    ballotStyle.precincts.map((precinctId): BaseBallotProps => ({
+      election,
+      ballotStyleId: ballotStyle.id,
+      precinctId,
+      ballotType: BallotType.Precinct,
+      ballotMode: 'test',
+    }))
   );
 
   function makePartyFixtureSpec(partyLabel: string, ballotStyle: BallotStyle) {
@@ -1558,15 +1548,13 @@ export const miCombinedBallotPrimaryElectionFixtures = lazyFixtures(() => {
   );
   const precinctId = assertDefined(ballotStyle.precincts[0]);
   const allBallotProps = election.ballotStyles.flatMap((bs) =>
-    bs.precincts.map(
-      (pid): BaseBallotProps => ({
-        election,
-        ballotStyleId: bs.id,
-        precinctId: pid,
-        ballotType: BallotType.Precinct,
-        ballotMode: 'test',
-      })
-    )
+    bs.precincts.map((pid): BaseBallotProps => ({
+      election,
+      ballotStyleId: bs.id,
+      precinctId: pid,
+      ballotType: BallotType.Precinct,
+      ballotMode: 'test',
+    }))
   );
 
   const contests = getContests({ election, ballotStyle });
@@ -1638,15 +1626,13 @@ export const miGeneralElectionFixtures = lazyFixtures(() => {
   const ballotStyle = assertDefined(election.ballotStyles[0]);
   const precinctId = assertDefined(ballotStyle.precincts[0]);
   const allBallotProps = election.ballotStyles.flatMap((bs) =>
-    bs.precincts.map(
-      (pid): BaseBallotProps => ({
-        election,
-        ballotStyleId: bs.id,
-        precinctId: pid,
-        ballotType: BallotType.Precinct,
-        ballotMode: 'test',
-      })
-    )
+    bs.precincts.map((pid): BaseBallotProps => ({
+      election,
+      ballotStyleId: bs.id,
+      precinctId: pid,
+      ballotType: BallotType.Precinct,
+      ballotMode: 'test',
+    }))
   );
 
   function candidate(contestId: string, candidateId: string): Candidate {

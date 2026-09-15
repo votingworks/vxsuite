@@ -1,7 +1,9 @@
 # Requires type annotations instead of type assertions on object literals (`vx/gts-object-literal-types`)
 
-This rule is from
-Google TypeScript Style Guide sections ["Type Assertions and Object Literals"](https://google.github.io/styleguide/tsguide.html#type-assertions-and-object-literals) and ["Structural Types vs Nominal Types"](https://google.github.io/styleguide/tsguide.html#structural-types-vs-nominal-types):
+This rule is from Google TypeScript Style Guide sections
+["Type Assertions and Object Literals"](https://google.github.io/styleguide/tsguide.html#type-assertions-and-object-literals)
+and
+["Structural Types vs Nominal Types"](https://google.github.io/styleguide/tsguide.html#structural-types-vs-nominal-types):
 
 > Use type annotations (`: Foo`) instead of type assertions (`as Foo`) to
 > specify the type of an object literal. This allows detecting refactoring bugs

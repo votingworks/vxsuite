@@ -29,7 +29,12 @@ import {
 import { makeIdFactory } from '../test/id_helpers.js';
 import { withRoute } from '../test/routing_helpers.js';
 import { routes } from './routes.js';
-import { render, screen, waitFor, within } from '../test/react_testing_library.js';
+import {
+  render,
+  screen,
+  waitFor,
+  within,
+} from '../test/react_testing_library.js';
 import { PrecinctsScreen } from './precincts_screen.js';
 import { PrecinctList } from './precincts_list.js';
 import { PrecinctAudioPanel } from './precinct_audio_panel.js';

@@ -98,15 +98,13 @@ function Content(): JSX.Element | null {
   const [reorderedContests, setReorderedContests] =
     useState<readonly Contest[]>();
 
-  if (
-    !(
-      listContestsQuery.isSuccess &&
-      getElectionInfoQuery.isSuccess &&
-      listDistrictsQuery.isSuccess &&
-      listPartiesQuery.isSuccess &&
-      getBallotsFinalizedAtQuery.isSuccess
-    )
-  ) {
+  if (!(
+    listContestsQuery.isSuccess &&
+    getElectionInfoQuery.isSuccess &&
+    listDistrictsQuery.isSuccess &&
+    listPartiesQuery.isSuccess &&
+    getBallotsFinalizedAtQuery.isSuccess
+  )) {
     return null;
   }
 

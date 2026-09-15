@@ -60,8 +60,7 @@ export interface RegisterAdjudicationStationError {
 
 /** Error type for host to machine connection */
 export type RegistrationErrorType =
-  | RegisterScannerError['type']
-  | RegisterAdjudicationStationError['type'];
+  RegisterScannerError['type'] | RegisterAdjudicationStationError['type'];
 
 /** Connection status for a client machine in a multi-station setup. */
 export enum ClientConnectionStatus {
@@ -199,8 +198,7 @@ export interface WriteInCandidateRecord {
  * adjudicated for this candidate. Used by the qualified write-in candidate
  * management UI.
  */
-export interface QualifiedWriteInCandidateRecord
-  extends WriteInCandidateRecord {
+export interface QualifiedWriteInCandidateRecord extends WriteInCandidateRecord {
   readonly hasAdjudicatedVotes: boolean;
 }
 
@@ -229,8 +227,7 @@ interface WriteInRecordAdjudicatedBase extends WriteInRecordBase {
 /**
  * A write-in that has been adjudicated for an official candidate.
  */
-export interface WriteInRecordAdjudicatedOfficialCandidate
-  extends WriteInRecordAdjudicatedBase {
+export interface WriteInRecordAdjudicatedOfficialCandidate extends WriteInRecordAdjudicatedBase {
   readonly adjudicationType: 'official-candidate';
   readonly candidateId: CandidateId;
 }
@@ -238,8 +235,7 @@ export interface WriteInRecordAdjudicatedOfficialCandidate
 /**
  * A write-in that has been adjudicated for a write-in candidate.
  */
-export interface WriteInRecordAdjudicatedWriteInCandidate
-  extends WriteInRecordAdjudicatedBase {
+export interface WriteInRecordAdjudicatedWriteInCandidate extends WriteInRecordAdjudicatedBase {
   readonly adjudicationType: 'write-in-candidate';
   readonly candidateId: string;
 }
@@ -247,8 +243,7 @@ export interface WriteInRecordAdjudicatedWriteInCandidate
 /**
  * A write-in that has been adjudicated as invalid.
  */
-export interface WriteInRecordAdjudicatedInvalid
-  extends WriteInRecordAdjudicatedBase {
+export interface WriteInRecordAdjudicatedInvalid extends WriteInRecordAdjudicatedBase {
   readonly adjudicationType: 'invalid';
 }
 
@@ -301,8 +296,7 @@ interface WriteInAdjudicatedTallyBase {
 /**
  * Write-in summary information for write-ins adjudicated for an official candidate.
  */
-export interface WriteInAdjudicatedOfficialCandidateTally
-  extends WriteInAdjudicatedTallyBase {
+export interface WriteInAdjudicatedOfficialCandidateTally extends WriteInAdjudicatedTallyBase {
   readonly adjudicationType: 'official-candidate';
   readonly candidateId: CandidateId;
   readonly candidateName: string;
@@ -311,8 +305,7 @@ export interface WriteInAdjudicatedOfficialCandidateTally
 /**
  * Write-in summary information for write-ins adjudicated for a write-in candidate.
  */
-export interface WriteInAdjudicatedWriteInCandidateTally
-  extends WriteInAdjudicatedTallyBase {
+export interface WriteInAdjudicatedWriteInCandidateTally extends WriteInAdjudicatedTallyBase {
   readonly adjudicationType: 'write-in-candidate';
   readonly candidateId: string;
   readonly candidateName: string;
@@ -321,8 +314,7 @@ export interface WriteInAdjudicatedWriteInCandidateTally
 /**
  * Write-in summary information for write-ins adjudicated as invalid.
  */
-export interface WriteInAdjudicatedInvalidTally
-  extends WriteInAdjudicatedTallyBase {
+export interface WriteInAdjudicatedInvalidTally extends WriteInAdjudicatedTallyBase {
   readonly adjudicationType: 'invalid';
 }
 
@@ -433,8 +425,7 @@ export interface AdjudicatedCvr {
  * A fully adjudicated candidate or write-in option
  */
 export type AdjudicatedContestOption =
-  | AdjudicatedOfficialOption
-  | AdjudicatedWriteInOption;
+  AdjudicatedOfficialOption | AdjudicatedWriteInOption;
 
 interface AdjudicatedOfficialOption {
   type: 'official-option';
@@ -652,8 +643,7 @@ export type ImportCastVoteRecordsError =
  * An error encountered during import of an Election Results Reporting file.
  */
 export type ImportElectionResultsReportingError =
-  | { type: 'parsing-failed' }
-  | { type: 'conversion-failed' };
+  { type: 'parsing-failed' } | { type: 'conversion-failed' };
 
 /**
  * Errors returned by client proxy endpoints and peer API endpoints

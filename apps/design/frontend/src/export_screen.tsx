@@ -105,17 +105,15 @@ export function ExportScreen(): JSX.Element | null {
     });
   }
 
-  if (
-    !(
-      electionPackageQuery.isSuccess &&
-      testDecksQuery.isSuccess &&
-      getBallotsFinalizedAtQuery.isSuccess &&
-      getBallotTemplateQuery.isSuccess &&
-      getStateFeaturesQuery.isSuccess &&
-      getElectionInfoQuery.isSuccess &&
-      getUserFeaturesQuery.isSuccess
-    )
-  ) {
+  if (!(
+    electionPackageQuery.isSuccess &&
+    testDecksQuery.isSuccess &&
+    getBallotsFinalizedAtQuery.isSuccess &&
+    getBallotTemplateQuery.isSuccess &&
+    getStateFeaturesQuery.isSuccess &&
+    getElectionInfoQuery.isSuccess &&
+    getUserFeaturesQuery.isSuccess
+  )) {
     return null;
   }
   const electionInfo = getElectionInfoQuery.data;

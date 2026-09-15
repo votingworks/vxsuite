@@ -5,7 +5,10 @@ import { getFeatureFlagMock } from '@votingworks/utils';
 import { assertDefined } from '@votingworks/basics';
 import { MarkScanReadinessReport } from './mark_scan_readiness_report.js';
 import { render, screen } from '../../test/react_testing_library.js';
-import { expectConnectionStatus, expectDiagnosticResult } from './test_utils.js';
+import {
+  expectConnectionStatus,
+  expectDiagnosticResult,
+} from './test_utils.js';
 import { DiagnosticSectionTitle } from './types.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();

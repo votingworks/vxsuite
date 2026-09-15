@@ -2,8 +2,7 @@ import { Tabulation } from '@votingworks/types';
 import { CheckboxGroup } from '@votingworks/ui';
 
 export type GroupByEditorOption =
-  | keyof Tabulation.GroupBy
-  | 'includeSheetCounts';
+  keyof Tabulation.GroupBy | 'includeSheetCounts';
 
 const GROUPING_LABEL: Record<GroupByEditorOption, string> = {
   groupByParty: 'Party',

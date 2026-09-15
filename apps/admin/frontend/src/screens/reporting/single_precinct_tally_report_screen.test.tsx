@@ -1,7 +1,10 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
+import {
+  ApiMock,
+  createApiMock,
+} from '../../../test/helpers/mock_api_client.js';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import { screen } from '../../../test/react_testing_library.js';
 import {

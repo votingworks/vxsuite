@@ -251,16 +251,13 @@ function buildMachine({
         error
       );
       // Replace interpretation with something that cannot be accepted
-      pages = mapSheet(
-        pages,
-        ({ imagePath }): PageInterpretationWithFiles => ({
-          imagePath,
-          interpretation: {
-            type: 'UnreadablePage',
-            reason: `invalid CVR: ${errDescription}`,
-          },
-        })
-      );
+      pages = mapSheet(pages, ({ imagePath }): PageInterpretationWithFiles => ({
+        imagePath,
+        interpretation: {
+          type: 'UnreadablePage',
+          reason: `invalid CVR: ${errDescription}`,
+        },
+      }));
     }
 
     const [frontPageNumber, backPageNumber] = mapSheet(
@@ -350,12 +347,10 @@ function buildMachine({
         on: {
           START_BATCH: {
             target: 'startingBatch',
-            actions: assign(
-              (): Partial<Context> => ({
-                batchId: store.addBatch(),
-                error: undefined,
-              })
-            ),
+            actions: assign((): Partial<Context> => ({
+              batchId: store.addBatch(),
+              error: undefined,
+            })),
           },
           SCANNER_DISCONNECTED: 'disconnected',
         },

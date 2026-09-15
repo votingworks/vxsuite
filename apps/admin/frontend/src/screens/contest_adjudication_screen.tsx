@@ -35,7 +35,10 @@ import {
 } from '../components/adjudication_ballot_image_viewer.js';
 import { WriteInAdjudicationButton } from '../components/write_in_adjudication_button.js';
 import { ContestOptionButton } from '../components/contest_option_button.js';
-import { contestPartyLabel, getOptionCoordinates } from '../utils/adjudication.js';
+import {
+  contestPartyLabel,
+  getOptionCoordinates,
+} from '../utils/adjudication.js';
 import {
   DoubleVoteAlert,
   DoubleVoteAlertModal,

@@ -32,7 +32,7 @@ const StyledSelect = styled.select<SelectProps>`
     center;
   background-repeat: no-repeat;
   background-size: ${({ large, small }) =>
-      (small && '0.5em') || (large && '0.85em') || '0.75em'}
+    (small && '0.5em') || (large && '0.85em') || '0.75em'}
     auto;
   width: ${({ fullWidth }) => (fullWidth ? '100%' : undefined)};
   max-width: 100%;

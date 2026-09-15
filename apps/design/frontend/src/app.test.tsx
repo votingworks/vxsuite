@@ -11,7 +11,12 @@ import {
   supportUser,
   user,
 } from '../test/api_helpers.js';
-import { render, screen, waitFor, within } from '../test/react_testing_library.js';
+import {
+  render,
+  screen,
+  waitFor,
+  within,
+} from '../test/react_testing_library.js';
 import { App } from './app.js';
 
 let apiMock: MockApiClient;

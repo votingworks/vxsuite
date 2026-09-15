@@ -383,12 +383,12 @@ function CandidateContest({
                   numContestColumns === 2
                     ? 14.6
                     : numContestColumns === 4
-                    ? 6.9
-                    : (() => {
-                        throw new Error(
-                          `Unsupported number of contest columns: ${numContestColumns}`
-                        );
-                      })(),
+                      ? 6.9
+                      : (() => {
+                          throw new Error(
+                            `Unsupported number of contest columns: ${numContestColumns}`
+                          );
+                        })(),
               },
             };
             return (

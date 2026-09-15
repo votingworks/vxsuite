@@ -25,13 +25,11 @@ export async function encryptBallotAuditId(
   systemSettings: SystemSettings,
   sheet: Sheet
 ): Promise<Sheet> {
-  if (
-    !(
-      systemSettings.precinctScanEnableBallotAuditIds &&
-      sheet.type === 'accepted' &&
-      sheet.interpretation[0].type === 'InterpretedHmpbPage'
-    )
-  ) {
+  if (!(
+    systemSettings.precinctScanEnableBallotAuditIds &&
+    sheet.type === 'accepted' &&
+    sheet.interpretation[0].type === 'InterpretedHmpbPage'
+  )) {
     return sheet;
   }
   const ballotAuditIdFromMetadata =
@@ -83,8 +81,8 @@ export async function exportCastVoteRecordsToUsbDrive({
       mode === 'polls_closing'
         ? 'Marking cast vote record export as complete on polls close...'
         : mode === 'recovery_export'
-        ? 'Exporting cast vote records that failed to sync...'
-        : 'Exporting cast vote records...',
+          ? 'Exporting cast vote records that failed to sync...'
+          : 'Exporting cast vote records...',
   });
 
   // Use the continuous export mutex to ensure that any pending continuous export

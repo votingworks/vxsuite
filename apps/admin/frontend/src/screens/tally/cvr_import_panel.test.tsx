@@ -12,8 +12,15 @@ import userEvent from '@testing-library/user-event';
 import { mockKiosk } from '@votingworks/test-utils';
 import { deferred, err, ok, Result, sleep } from '@votingworks/basics';
 
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
-import { screen, waitFor, within } from '../../../test/react_testing_library.js';
+import {
+  ApiMock,
+  createApiMock,
+} from '../../../test/helpers/mock_api_client.js';
+import {
+  screen,
+  waitFor,
+  within,
+} from '../../../test/react_testing_library.js';
 import { CvrImportPanel } from './cvr_import_panel.js';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import { errorMessage } from './cvr_importer.js';

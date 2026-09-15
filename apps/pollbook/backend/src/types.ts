@@ -187,8 +187,10 @@ export interface PollbookService extends PollbookConfigurationInformation {
   status: PollbookConnectionStatus;
 }
 
-export interface PollbookServiceInfo
-  extends Omit<PollbookService, 'apiClient'> {
+export interface PollbookServiceInfo extends Omit<
+  PollbookService,
+  'apiClient'
+> {
   numCheckIns: number;
 }
 
@@ -226,8 +228,7 @@ export enum PollbookConnectionStatus {
 export function transitionPollbookToDisconnectedStatus(
   service: PollbookService,
   status:
-    | PollbookConnectionStatus.LostConnection
-    | PollbookConnectionStatus.ShutDown
+    PollbookConnectionStatus.LostConnection | PollbookConnectionStatus.ShutDown
 ): PollbookService {
   return {
     ...service,

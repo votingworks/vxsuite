@@ -16,15 +16,15 @@ rule is enabled and disallows the post-fix `!` operator. This rule helps you use
 Examples of **incorrect** code for this rule:
 
 ```ts
-assert(stringValue)
-assert(numberValue)
+assert(stringValue);
+assert(numberValue);
 ```
 
 Examples of **correct** code for this rule:
 
 ```ts
-assert(typeof stringValue !== 'undefined')
-assert(typeof numberValue !== 'undefined')
+assert(typeof stringValue !== 'undefined');
+assert(typeof numberValue !== 'undefined');
 ```
 
 ## Rule Options
@@ -44,14 +44,14 @@ value to `true`.
 Examples of **incorrect** code for this rule, when `objects` is `true`:
 
 ```ts
-assert(objectValue)
+assert(objectValue);
 ```
 
 Examples of **correct** code for this rule, when `objects` is `true`:
 
 ```ts
-assert(typeof objectValue !== 'undefined')
-assert(!!objectValue)
+assert(typeof objectValue !== 'undefined');
+assert(!!objectValue);
 ```
 
 ### `asserts` (default: `["assert", "ok"]`)

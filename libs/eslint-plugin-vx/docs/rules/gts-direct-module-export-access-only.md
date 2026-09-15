@@ -12,24 +12,24 @@ This rule is from
 Examples of **incorrect** code for this rule:
 
 ```ts
-import * as utils from 'utils'
+import * as utils from 'utils';
 class A {
-  readonly utils = utils
+  readonly utils = utils;
 }
 ```
 
 Examples of **correct** code for this rule:
 
 ```ts
-import { method1, method2 } from 'utils'
+import { method1, method2 } from 'utils';
 class A {
-  readonly utils = { method1, method2 }
+  readonly utils = { method1, method2 };
 }
 ```
 
 ```ts
-import * as utils from 'utils'
+import * as utils from 'utils';
 class A {
-  readonly utils = { method1: utils.method1, method2: utils.method2 }
+  readonly utils = { method1: utils.method1, method2: utils.method2 };
 }
 ```

@@ -4,7 +4,10 @@ import { formatElectionHashes } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
 import { render, screen, within } from '../test/react_testing_library.js';
-import { ElectionInfoBar, VerticalElectionInfoBar } from './election_info_bar.js';
+import {
+  ElectionInfoBar,
+  VerticalElectionInfoBar,
+} from './election_info_bar.js';
 import { makeTheme } from './themes/make_theme.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();

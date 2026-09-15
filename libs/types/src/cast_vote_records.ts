@@ -151,16 +151,13 @@ type RecoveryExportError = {
  * An error encountered while exporting cast vote records to a USB drive
  */
 export type ExportCastVoteRecordsToUsbDriveError =
-  | { type: ExportDataError }
-  | SheetValidationError
-  | RecoveryExportError;
+  { type: ExportDataError } | SheetValidationError | RecoveryExportError;
 
 /**
  * An error encountered while reading a cast vote record export's metadata file
  */
 export type ReadCastVoteRecordExportMetadataError =
-  | { type: 'metadata-file-not-found' }
-  | { type: 'metadata-file-parse-error' };
+  { type: 'metadata-file-not-found' } | { type: 'metadata-file-parse-error' };
 
 /**
  * A top-level error encountered while reading a cast vote record export. Does not include errors

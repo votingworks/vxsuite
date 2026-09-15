@@ -14,7 +14,7 @@ Examples of **incorrect** code for this rule:
 
 ```ts
 class Clazz {
-  #ident = 1
+  #ident = 1;
 }
 ```
 
@@ -22,6 +22,6 @@ Examples of **correct** code for this rule:
 
 ```ts
 class Clazz {
-  private ident = 1
+  private ident = 1;
 }
 ```

@@ -168,8 +168,8 @@ describe('PickDateTimeModal', () => {
             (dateTime.hour > 12
               ? dateTime.hour % 12
               : dateTime.hour === 0
-              ? 12
-              : dateTime.hour
+                ? 12
+                : dateTime.hour
             ).toString()
           );
           userEvent.selectOptions(

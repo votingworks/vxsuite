@@ -8,7 +8,12 @@ import {
 import { userEvent } from '../user_event.js';
 import { newTestContext } from '../../test/test_context.js';
 import { KeyboardShortcutHandlers } from './keyboard_shortcut_handlers.js';
-import { act, render, screen, waitFor } from '../../test/react_testing_library.js';
+import {
+  act,
+  render,
+  screen,
+  waitFor,
+} from '../../test/react_testing_library.js';
 import { useCurrentLanguage } from '../hooks/use_current_language.js';
 import { Keybinding } from '../index.js';
 

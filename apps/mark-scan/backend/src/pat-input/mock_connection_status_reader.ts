@@ -8,9 +8,7 @@ import { GPIO_PATH_PREFIX } from './constants.js';
 // reader.isPatDeviceConnected() to return false.
 // For tests that need assertions on PatConnectionStatusReader, consider
 // using vi.mock(import('path/to/pat-input/connection_status_reader.js'))
-export class MockPatConnectionStatusReader
-  implements PatConnectionStatusReaderInterface
-{
+export class MockPatConnectionStatusReader implements PatConnectionStatusReaderInterface {
   private mockConnectedStatus: boolean = false;
 
   constructor(

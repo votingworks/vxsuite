@@ -21,7 +21,10 @@ import { assert, mapObject } from '@votingworks/basics';
 import { screen } from '../../../test/react_testing_library.js';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import { ManualTalliesFormScreen } from './manual_tallies_form_screen.js';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
+import {
+  ApiMock,
+  createApiMock,
+} from '../../../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

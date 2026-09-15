@@ -24,8 +24,8 @@ export const Table = styled.table<TableProps>`
       condensed
         ? '0.125rem 0.25rem'
         : expanded
-        ? '0.25rem 1rem'
-        : '0.25rem 0.5rem'};
+          ? '0.25rem 1rem'
+          : '0.25rem 0.5rem'};
   }
 
   & th {

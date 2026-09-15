@@ -7,7 +7,12 @@ import {
 import { assertDefined } from '@votingworks/basics';
 import { userEvent } from '../user_event.js';
 
-import { act, render, screen, waitFor } from '../../test/react_testing_library.js';
+import {
+  act,
+  render,
+  screen,
+  waitFor,
+} from '../../test/react_testing_library.js';
 import {
   DELETE_KEY,
   SPACE_BAR_KEY,

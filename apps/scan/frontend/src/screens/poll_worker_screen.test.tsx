@@ -20,7 +20,10 @@ import {
 import { err } from '@votingworks/basics';
 import { DEFAULT_SYSTEM_SETTINGS, PollsState } from '@votingworks/types';
 import { screen, render } from '../../test/react_testing_library.js';
-import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen.js';
+import {
+  PollWorkerScreen,
+  PollWorkerScreenProps,
+} from './poll_worker_screen.js';
 import {
   ApiMock,
   createApiMock,

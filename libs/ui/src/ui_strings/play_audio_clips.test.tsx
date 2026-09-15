@@ -4,7 +4,11 @@ import { deferred } from '@votingworks/basics';
 
 import { newTestContext } from '../../test/test_context.js';
 import { PlayAudioClips } from './play_audio_clips.js';
-import { AudioPlayer, AudioPlayerParams, newAudioPlayer } from './audio_player.js';
+import {
+  AudioPlayer,
+  AudioPlayerParams,
+  newAudioPlayer,
+} from './audio_player.js';
 import { act, screen, waitFor } from '../../test/react_testing_library.js';
 import { DEFAULT_PLAYBACK_RATE } from './audio_playback_rate.js';
 

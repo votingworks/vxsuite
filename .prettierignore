@@ -4,9 +4,23 @@ pnpm-lock.yaml
 .github/pull_request_template.md
 libs/logging-utils/index.d.ts
 libs/logging-utils/index.js
+libs/ballot-interpreter/index.d.ts
+libs/ballot-interpreter/index.js
+libs/fs/index.d.ts
+libs/fs/index.js
 libs/logging/VotingWorksLoggingDocumentation.md
+libs/types/src/cdf/*/index.ts
 
 # Coverage-check fixtures: position-sensitive test sources whose exact layout
 # the snapshots depend on; coverage output is machine-generated.
 libs/coverage-check/fixtures/src/**
 libs/coverage-check/fixtures/coverage/**
+
+# Election/CVR fixture data and ballot fixtures, written by their generators
+# (`libs/hmpb`'s `generate-fixtures`); prettier would reflow them on every run.
+libs/fixtures/data/**
+libs/hmpb/fixtures/**
+
+# Vendored webfont CSS: app `public/` dirs and libs/ui's Storybook `staticDirs`.
+**/public/fonts/**
+libs/ui/.storybook-static/**

@@ -278,9 +278,10 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
       this.authStatus.reason === 'no_card';
 
     // Allow if poll worker is logged in, or if skipPollWorkerCheck is true and no card is inserted
-    if (
-      !(isPollWorkerLoggedIn || (input.skipPollWorkerCheck && isNoCardMode))
-    ) {
+    if (!(
+      isPollWorkerLoggedIn ||
+      (input.skipPollWorkerCheck && isNoCardMode)
+    )) {
       return;
     }
 
@@ -624,8 +625,8 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
   private isLockedOut(): boolean {
     return Boolean(
       this.authStatus.status === 'checking_pin' &&
-        this.authStatus.lockedOutUntil &&
-        new Date() < this.authStatus.lockedOutUntil
+      this.authStatus.lockedOutUntil &&
+      new Date() < this.authStatus.lockedOutUntil
     );
   }
 }

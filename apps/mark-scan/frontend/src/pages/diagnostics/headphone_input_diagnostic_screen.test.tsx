@@ -1,7 +1,11 @@
 import { afterEach, beforeEach, expect, MockInstance, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { VxRenderResult } from '@votingworks/ui';
-import { fireEvent, render, screen } from '../../../test/react_testing_library.js';
+import {
+  fireEvent,
+  render,
+  screen,
+} from '../../../test/react_testing_library.js';
 import {
   ApiMock,
   createApiMock,

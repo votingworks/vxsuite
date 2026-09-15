@@ -90,17 +90,13 @@ type VxAdminBackup = VxAdminBackupToExport | VxAdminBackupToImport;
  * An export-time representation of an {@link Artifact}
  */
 export type ArtifactToExport =
-  | CastVoteRecordsToExport
-  | ElectionPackageToExport
-  | VxAdminBackupToExport;
+  CastVoteRecordsToExport | ElectionPackageToExport | VxAdminBackupToExport;
 
 /**
  * An import-time representation of an {@link Artifact}
  */
 export type ArtifactToImport =
-  | CastVoteRecordsToImport
-  | ElectionPackageToImport
-  | VxAdminBackupToImport;
+  CastVoteRecordsToImport | ElectionPackageToImport | VxAdminBackupToImport;
 
 /**
  * A machine-exported artifact whose authenticity we want to be able to verify

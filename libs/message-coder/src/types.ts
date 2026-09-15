@@ -5,10 +5,7 @@ import { Buffer } from 'node:buffer';
  * Errors that can occur when encoding or decoding.
  */
 export type CoderError =
-  | 'SmallBuffer'
-  | 'InvalidValue'
-  | 'UnsupportedOffset'
-  | 'TrailingData';
+  'SmallBuffer' | 'InvalidValue' | 'UnsupportedOffset' | 'TrailingData';
 
 /**
  * Descriptive alias for `number`.

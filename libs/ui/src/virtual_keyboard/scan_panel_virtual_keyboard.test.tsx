@@ -7,7 +7,12 @@ import {
 import { assertDefined } from '@votingworks/basics';
 import { userEvent } from '../user_event.js';
 
-import { act, render, screen, waitFor } from '../../test/react_testing_library.js';
+import {
+  act,
+  render,
+  screen,
+  waitFor,
+} from '../../test/react_testing_library.js';
 import { newTestContext as newUiStringsTestContext } from '../../test/test_context.js';
 import { AudioOnly } from '../ui_strings/audio_only.js';
 import { useCurrentLanguage } from '../hooks/use_current_language.js';

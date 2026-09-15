@@ -2,7 +2,12 @@ import { beforeEach, expect, Mock, test, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { userEvent } from './user_event.js';
 
-import { render, screen, waitFor, within } from '../test/react_testing_library.js';
+import {
+  render,
+  screen,
+  waitFor,
+  within,
+} from '../test/react_testing_library.js';
 import { VendorScreen } from './vendor_screen.js';
 
 let mockApiClient: {

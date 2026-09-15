@@ -14,10 +14,7 @@ import { Icons } from './icons.js';
  *   multiple hosts detected or an incompatible software version).
  */
 export type NetworkIndicatorStatus =
-  | 'connected'
-  | 'no-host-connected'
-  | 'no-network'
-  | 'error';
+  'connected' | 'no-host-connected' | 'no-network' | 'error';
 
 /**
  * Network statuses applicable to the VxAdmin host machine itself, which is

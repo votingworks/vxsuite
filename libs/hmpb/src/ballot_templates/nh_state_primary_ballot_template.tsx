@@ -102,8 +102,8 @@ const Box = styled.div<{
     p.fill === 'tinted'
       ? Colors.LIGHT_GRAY
       : p.fill === 'transparent' || !p.fill
-      ? 'none'
-      : ColorTints[p.fill]};
+        ? 'none'
+        : ColorTints[p.fill]};
 `;
 
 export function colorTintForParty(party: Party): ColorTint {

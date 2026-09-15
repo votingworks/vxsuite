@@ -72,9 +72,11 @@ export function WriteInAdjudicationReport({
             election.type !== 'primary'
               ? undefined
               : partyId
-              ? CachedElectionLookups.getPartyById(electionDefinition, partyId)
-                  .fullName
-              : 'Nonpartisan Contests';
+                ? CachedElectionLookups.getPartyById(
+                    electionDefinition,
+                    partyId
+                  ).fullName
+                : 'Nonpartisan Contests';
           const partyWriteInContests = allWriteInContests.filter(
             (c) => c.partyId === partyId
           );

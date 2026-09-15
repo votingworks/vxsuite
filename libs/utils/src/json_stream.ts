@@ -10,13 +10,14 @@ function isIterable(value: unknown): value is MaybeAsyncIterable<unknown> {
   );
 }
 
-type WithArraysAsIterables<T> = T extends ReadonlyArray<infer U>
-  ? MaybeAsyncIterable<WithArraysAsIterables<U>>
-  : T extends Optional<ReadonlyArray<infer U>>
-  ? Optional<MaybeAsyncIterable<WithArraysAsIterables<U>>>
-  : T extends object
-  ? { [P in keyof T]: WithArraysAsIterables<T[P]> }
-  : T;
+type WithArraysAsIterables<T> =
+  T extends ReadonlyArray<infer U>
+    ? MaybeAsyncIterable<WithArraysAsIterables<U>>
+    : T extends Optional<ReadonlyArray<infer U>>
+      ? Optional<MaybeAsyncIterable<WithArraysAsIterables<U>>>
+      : T extends object
+        ? { [P in keyof T]: WithArraysAsIterables<T[P]> }
+        : T;
 
 /**
  * Options for {@link jsonStream}.
@@ -29,11 +30,7 @@ export interface JsonStreamOptions {
  * A JSON-serializable value that can be streamed as a series of strings.
  */
 export type JsonStreamInput<T> =
-  | WithArraysAsIterables<T>
-  | null
-  | string
-  | number
-  | boolean;
+  WithArraysAsIterables<T> | null | string | number | boolean;
 
 /**
  * Represents raw JSON for a previously stringified value.

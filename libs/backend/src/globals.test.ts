@@ -4,7 +4,11 @@ import {
   REAL_USB_DRIVE_GLOB_PATTERN,
 } from '@votingworks/usb-drive';
 import { DEV_MACHINE_ID } from '@votingworks/types';
-import { getMachineId, getNodeEnv, getScanAllowedExportPatterns } from './globals.js';
+import {
+  getMachineId,
+  getNodeEnv,
+  getScanAllowedExportPatterns,
+} from './globals.js';
 
 beforeEach(() => {
   vi.unstubAllEnvs();

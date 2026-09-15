@@ -140,8 +140,7 @@ export interface ButtonQueryOptions {
  * `RenderResult` and the return type of the `within()` utility.
  */
 type ScopedQueryFunctions<Q extends Queries = typeof queries> =
-  | BoundFunctions<typeof queries>
-  | { [P in keyof Q]: BoundFunction<Q[P]> };
+  BoundFunctions<typeof queries> | { [P in keyof Q]: BoundFunction<Q[P]> };
 
 function getVxQueryFunctions<S extends ScopedQueryFunctions<typeof queries>>(
   scopedQueryFunctions: S

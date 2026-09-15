@@ -50,13 +50,11 @@ function buildCandidateContest(
     Name: contest.title,
     VotesAllowed: contest.seats,
     ContestSelection: [
-      ...contest.candidates.map(
-        (candidate): CVR.CandidateSelection => ({
-          '@id': candidate.id,
-          '@type': 'CVR.CandidateSelection',
-          CandidateIds: [candidate.id],
-        })
-      ),
+      ...contest.candidates.map((candidate): CVR.CandidateSelection => ({
+        '@id': candidate.id,
+        '@type': 'CVR.CandidateSelection',
+        CandidateIds: [candidate.id],
+      })),
       ...buildWriteInCandidateSelections(contest),
     ],
     PrimaryPartyId: contest.partyId,
@@ -85,13 +83,11 @@ function buildStraightPartyContest(
     '@id': contest.id,
     '@type': 'CVR.PartyContest',
     Name: contest.title,
-    ContestSelection: contest.optionIds.map(
-      (partyId): CVR.PartySelection => ({
-        '@id': partyId,
-        '@type': 'CVR.PartySelection',
-        PartyIds: [partyId],
-      })
-    ),
+    ContestSelection: contest.optionIds.map((partyId): CVR.PartySelection => ({
+      '@id': partyId,
+      '@type': 'CVR.PartySelection',
+      PartyIds: [partyId],
+    })),
   };
 }
 
@@ -214,14 +210,12 @@ export function buildCastVoteRecordReportMetadata({
       }),
     ],
     GpUnit: [
-      ...election.precincts.map(
-        (precinct): CVR.GpUnit => ({
-          '@type': 'CVR.GpUnit',
-          '@id': precinct.id,
-          Type: CVR.ReportingUnitType.Precinct,
-          Name: precinct.name,
-        })
-      ),
+      ...election.precincts.map((precinct): CVR.GpUnit => ({
+        '@type': 'CVR.GpUnit',
+        '@id': precinct.id,
+        Type: CVR.ReportingUnitType.Precinct,
+        Name: precinct.name,
+      })),
       // VVSG 1.1.5-G.2 requires identification of the geographical location of the device
       {
         '@type': 'CVR.GpUnit',

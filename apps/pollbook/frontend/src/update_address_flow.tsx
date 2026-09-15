@@ -18,13 +18,14 @@ import { Column, Row } from './layout.js';
 import { NoNavScreen } from './nav_screen.js';
 import { TitledCard, VoterName } from './shared_components.js';
 import { AddressInputGroup } from './address_input_group.js';
-import { changeVoterAddress, getPollbookConfigurationInformation } from './api.js';
+import {
+  changeVoterAddress,
+  getPollbookConfigurationInformation,
+} from './api.js';
 import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals.js';
 
 type UpdateAddressFlowState =
-  | { step: 'update' }
-  | { step: 'printing' }
-  | { step: 'success' };
+  { step: 'update' } | { step: 'printing' } | { step: 'success' };
 
 function createBlankAddress(): VoterAddressChangeRequest {
   return {
@@ -54,9 +55,8 @@ function UpdateAddressScreen({
   election: Election;
 }): JSX.Element {
   const configurationQuery = getPollbookConfigurationInformation.useQuery();
-  const [address, setAddress] = useState<VoterAddressChangeRequest>(
-    createBlankAddress()
-  );
+  const [address, setAddress] =
+    useState<VoterAddressChangeRequest>(createBlankAddress());
   const isAddressValid = !(address.city === '' || address.zipCode === '');
 
   const isAddressInWrongPrecinct = useMemo(

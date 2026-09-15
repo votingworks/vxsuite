@@ -5,7 +5,10 @@ import { Screen } from './screen.js';
 import { FullScreenIconWrapper, Icons } from './icons.js';
 import { FullScreenMessage } from './full_screen_message.js';
 import { H3 } from './typography.js';
-import { CardInsertionDirection, RotateCardImage } from './smart_card_images.js';
+import {
+  CardInsertionDirection,
+  RotateCardImage,
+} from './smart_card_images.js';
 
 type ReasonAndContext = Pick<
   DippedSmartCardAuth.LoggedOut | InsertedSmartCardAuth.LoggedOut,

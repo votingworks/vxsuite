@@ -4,7 +4,10 @@ import {
   electionFamousNames2021Fixtures,
   electionSimpleSinglePrecinctFixtures,
 } from '@votingworks/fixtures';
-import { ElectionInfoBar, VerticalElectionInfoBar } from './election_info_bar.js';
+import {
+  ElectionInfoBar,
+  VerticalElectionInfoBar,
+} from './election_info_bar.js';
 import { renderInAppContext } from '../test/render_in_app_context.js';
 
 const electionDef = electionFamousNames2021Fixtures.readElectionDefinition();

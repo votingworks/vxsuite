@@ -5,7 +5,10 @@ import { assert, assertDefined, sleep } from '@votingworks/basics';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { getPaperHandlerDriver } from '../driver/helpers.js';
-import { MaxPrintWidthDots, PaperHandlerDriverInterface } from '../driver/index.js';
+import {
+  MaxPrintWidthDots,
+  PaperHandlerDriverInterface,
+} from '../driver/index.js';
 import { ScanDirection, scanDirections } from '../driver/scanner_config.js';
 
 /**

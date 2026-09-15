@@ -1,7 +1,12 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { render, within, screen, waitFor } from '../test/react_testing_library.js';
+import {
+  render,
+  within,
+  screen,
+  waitFor,
+} from '../test/react_testing_library.js';
 import { App } from './app.js';
 import { ApiMock, createApiMock } from '../test/api.js';
 

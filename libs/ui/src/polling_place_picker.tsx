@@ -31,9 +31,7 @@ const Option = styled.div`
 `;
 
 export type PollingPlacePickerMode =
-  | 'default'
-  | 'confirmation_required'
-  | 'disabled';
+  'default' | 'confirmation_required' | 'disabled';
 
 export interface PollingPlacePickerProps {
   /**

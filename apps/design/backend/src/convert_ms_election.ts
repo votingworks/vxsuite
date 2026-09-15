@@ -232,8 +232,8 @@ export function convertMsElection(
       label === 'Democrat'
         ? 'Democratic Party'
         : label === 'Nonpartisan'
-        ? label
-        : `${label} Party`;
+          ? label
+          : `${label} Party`;
     return { id: uniqueId(id), name: label, fullName, abbrev };
   });
 
@@ -308,21 +308,17 @@ export function convertMsElection(
           .reverse()
           .join(' · ');
 
-        const candidates = candidateRows.map(
-          (candidateRow): Candidate => ({
-            // For candidate contests, candidateId is a seq number that's only unique
-            // within the contest, so we need to map it to the SEMS unique ID.
-            id: uniqueId(
-              getCandidateSemsId(contestId, candidateRow.candidateId)
-            ),
-            name: candidateRow.labelOnBallot,
-            ...splitCandidateName(candidateRow.labelOnBallot),
-            partyIds:
-              candidateRow.partyId === '' || candidateRow.partyId === '0'
-                ? undefined
-                : [uniqueId(candidateRow.partyId)],
-          })
-        );
+        const candidates = candidateRows.map((candidateRow): Candidate => ({
+          // For candidate contests, candidateId is a seq number that's only unique
+          // within the contest, so we need to map it to the SEMS unique ID.
+          id: uniqueId(getCandidateSemsId(contestId, candidateRow.candidateId)),
+          name: candidateRow.labelOnBallot,
+          ...splitCandidateName(candidateRow.labelOnBallot),
+          partyIds:
+            candidateRow.partyId === '' || candidateRow.partyId === '0'
+              ? undefined
+              : [uniqueId(candidateRow.partyId)],
+        }));
 
         return {
           id: uniqueId(contestId),

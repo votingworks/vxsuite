@@ -121,13 +121,11 @@ function Contents(props: { editing: boolean }): React.ReactNode {
   const updatePartiesMutation = api.updateParties.useMutation();
   const error = updatePartiesMutation.data?.err();
 
-  if (
-    !(
-      savedPartiesQuery.isSuccess &&
-      ballotsFinalizedAtQuery.isSuccess &&
-      getElectionInfoQuery.isSuccess
-    )
-  ) {
+  if (!(
+    savedPartiesQuery.isSuccess &&
+    ballotsFinalizedAtQuery.isSuccess &&
+    getElectionInfoQuery.isSuccess
+  )) {
     return null;
   }
 

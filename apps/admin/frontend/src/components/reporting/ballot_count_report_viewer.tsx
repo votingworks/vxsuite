@@ -7,7 +7,11 @@ import {
   getBallotCountReportPreview,
   printBallotCountReport,
 } from '../../api.js';
-import { ExportActions, GenerateButtonWrapper, ReportWarning } from './shared.js';
+import {
+  ExportActions,
+  GenerateButtonWrapper,
+  ReportWarning,
+} from './shared.js';
 import { getBallotCountReportWarningText } from './ballot_count_report_warnings.js';
 import { PrintButton } from '../print_button.js';
 import { PdfViewer } from './pdf_viewer.js';

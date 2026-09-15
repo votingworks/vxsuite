@@ -36,8 +36,7 @@ interface ElectionStringConfigTranslatable {
 }
 
 type ElectionStringConfig =
-  | ElectionStringConfigNotTranslatable
-  | ElectionStringConfigTranslatable;
+  ElectionStringConfigNotTranslatable | ElectionStringConfigTranslatable;
 
 const electionStringConfigs: Record<ElectionStringKey, ElectionStringConfig> = {
   [ElectionStringKey.BALLOT_LANGUAGE]: {
@@ -138,15 +137,10 @@ const electionStringExtractorFns: Record<
       .flatMap((contest) =>
         contest.candidates
           .filter((candidate) => candidate.designation)
-          .map(
-            (candidate): ElectionString => ({
-              stringKey: [
-                ElectionStringKey.CANDIDATE_DESIGNATION,
-                candidate.id,
-              ],
-              stringInEnglish: assertDefined(candidate.designation),
-            })
-          )
+          .map((candidate): ElectionString => ({
+            stringKey: [ElectionStringKey.CANDIDATE_DESIGNATION, candidate.id],
+            stringInEnglish: assertDefined(candidate.designation),
+          }))
       );
   },
   [ElectionStringKey.CANDIDATE_NAME](election) {
@@ -155,12 +149,10 @@ const electionStringExtractorFns: Record<
         (contest): contest is CandidateContest => contest.type === 'candidate'
       )
       .flatMap((contest) =>
-        contest.candidates.map(
-          (candidate): ElectionString => ({
-            stringKey: [ElectionStringKey.CANDIDATE_NAME, candidate.id],
-            stringInEnglish: candidate.name,
-          })
-        )
+        contest.candidates.map((candidate): ElectionString => ({
+          stringKey: [ElectionStringKey.CANDIDATE_NAME, candidate.id],
+          stringInEnglish: candidate.name,
+        }))
       );
   },
   [ElectionStringKey.CONTEST_DESCRIPTION](election) {
@@ -301,8 +293,8 @@ export function extractElectionStrings(
       options.exclude
         ? !options.exclude.includes(key as ElectionStringKey)
         : options.include
-        ? options.include.includes(key as ElectionStringKey)
-        : true
+          ? options.include.includes(key as ElectionStringKey)
+          : true
     )
     .map(([, extractorFn]) => extractorFn);
   return electionStringExtractorFnsToUse.flatMap((extractorFn) =>

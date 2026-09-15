@@ -731,15 +731,15 @@ test('can tabulate results and print polls closed report for straight party', as
       );
       const candidateContestResults = contestResults[candidateContest.id];
       assert(candidateContestResults.contestType === 'candidate');
-      const party1Candidates = candidateContest.candidates.filter(
-        (candidate) => candidate.partyIds?.includes(partyId1)
+      const party1Candidates = candidateContest.candidates.filter((candidate) =>
+        candidate.partyIds?.includes(partyId1)
       );
       assert(party1Candidates.length > 0);
       for (const candidate of party1Candidates) {
         expect(candidateContestResults.tallies[candidate.id].tally).toEqual(2);
       }
-      const party2Candidates = candidateContest.candidates.filter(
-        (candidate) => candidate.partyIds?.includes(partyId2)
+      const party2Candidates = candidateContest.candidates.filter((candidate) =>
+        candidate.partyIds?.includes(partyId2)
       );
       assert(party2Candidates.length > 0);
       for (const candidate of party2Candidates) {

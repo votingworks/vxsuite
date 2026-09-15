@@ -26,9 +26,7 @@ export interface PatConnectionStatusReaderInterface {
   isPatDeviceConnected(): Promise<boolean>;
 }
 
-export class PatConnectionStatusReader
-  implements PatConnectionStatusReaderInterface
-{
+export class PatConnectionStatusReader implements PatConnectionStatusReaderInterface {
   private file?: fs.FileHandle;
 
   constructor(

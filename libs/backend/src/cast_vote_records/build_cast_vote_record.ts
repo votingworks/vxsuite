@@ -136,8 +136,8 @@ function buildCVRBallotMeasureContest({
     Status: overvoted
       ? [CVR.ContestStatus.Overvoted, CVR.ContestStatus.InvalidatedRules]
       : undervoted
-      ? [CVR.ContestStatus.Undervoted, CVR.ContestStatus.NotIndicated]
-      : undefined,
+        ? [CVR.ContestStatus.Undervoted, CVR.ContestStatus.NotIndicated]
+        : undefined,
     CVRContestSelection: vote.map((optionId) => ({
       '@type': 'CVR.CVRContestSelection',
       ContestSelectionId: optionId,
@@ -275,8 +275,8 @@ function buildCVRCandidateContest({
             IsAllocable: overvoted
               ? CVR.AllocationStatus.No
               : isWriteIn
-              ? CVR.AllocationStatus.Unknown
-              : CVR.AllocationStatus.Yes,
+                ? CVR.AllocationStatus.Unknown
+                : CVR.AllocationStatus.Yes,
             Status: overvoted
               ? [CVR.PositionStatus.InvalidatedRules]
               : undefined,
@@ -375,8 +375,8 @@ function buildCVRStraightPartyContest({
     Status: overvoted
       ? [CVR.ContestStatus.Overvoted, CVR.ContestStatus.InvalidatedRules]
       : undervoted
-      ? [CVR.ContestStatus.Undervoted, CVR.ContestStatus.NotIndicated]
-      : undefined,
+        ? [CVR.ContestStatus.Undervoted, CVR.ContestStatus.NotIndicated]
+        : undefined,
     CVRContestSelection: vote.map((partyId) => ({
       '@type': 'CVR.CVRContestSelection',
       ContestSelectionId: partyId,

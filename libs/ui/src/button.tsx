@@ -364,8 +364,8 @@ export const buttonStyles = css<StyledButtonProps>`
     p.theme.sizeMode === 'desktop'
       ? 'nowrap'
       : p.rightIcon
-      ? 'wrap-reverse'
-      : 'wrap'};
+        ? 'wrap-reverse'
+        : 'wrap'};
   white-space: ${(p) => (p.theme.sizeMode === 'desktop' ? 'nowrap' : 'normal')};
   font-family: inherit;
   font-size: ${FONT_SIZE_REM}rem;
@@ -380,8 +380,8 @@ export const buttonStyles = css<StyledButtonProps>`
   text-shadow: none;
   touch-action: manipulation;
   transition: 100ms ease-in;
-  transition-property: background, background-color, filter, border, box-shadow,
-    color, opacity;
+  transition-property:
+    background, background-color, filter, border, box-shadow, color, opacity;
   vertical-align: middle;
   width: auto;
 

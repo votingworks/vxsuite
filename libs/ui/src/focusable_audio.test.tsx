@@ -2,7 +2,10 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { userEvent } from './user_event.js';
 
 import { fireEvent, render, screen } from '../test/react_testing_library.js';
-import { FocusableAudio, FOCUSABLE_AUDIO_CLASS_NAME } from './focusable_audio.js';
+import {
+  FocusableAudio,
+  FOCUSABLE_AUDIO_CLASS_NAME,
+} from './focusable_audio.js';
 import { ReadOnLoad, ReadOnLoadProps } from './ui_strings/read_on_load.js';
 
 vi.mock(import('./ui_strings/read_on_load.js'), async (importActual) => ({

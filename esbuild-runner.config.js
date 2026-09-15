@@ -1,7 +1,7 @@
 module.exports = {
-  type: "transform",
+  type: 'transform',
   esbuild: {
     // Any esbuild build or transform options go here
-    target: "es2019",
+    target: 'es2019',
   },
 };

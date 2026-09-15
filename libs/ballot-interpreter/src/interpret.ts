@@ -172,8 +172,8 @@ function aggregateContestOptionScores({
       scoredMark.fillScore >= options.markThresholds.definite
         ? MarkStatus.Marked
         : scoredMark.fillScore >= options.markThresholds.marginal
-        ? MarkStatus.Marginal
-        : MarkStatus.Unmarked;
+          ? MarkStatus.Marginal
+          : MarkStatus.Unmarked;
 
     const expectScoredWriteInArea =
       shouldScoreWriteIns(options) && gridPosition.type === 'write-in';

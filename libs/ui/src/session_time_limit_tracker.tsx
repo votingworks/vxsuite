@@ -142,8 +142,7 @@ function SessionTimeLimitTrackerHelper({
 
 interface SessionTimeLimitTrackerProps {
   authStatus?:
-    | DippedSmartCardAuth.AuthStatus
-    | InsertedSmartCardAuth.AuthStatus;
+    DippedSmartCardAuth.AuthStatus | InsertedSmartCardAuth.AuthStatus;
   logOut: () => void;
   systemSettings?: SystemSettings;
   updateSessionExpiry: (sessionExpiresAt: Date) => void;
@@ -183,8 +182,7 @@ export function SessionTimeLimitTracker({
 
 interface SessionTimeLimitTimerProps {
   authStatus?:
-    | DippedSmartCardAuth.AuthStatus
-    | InsertedSmartCardAuth.AuthStatus;
+    DippedSmartCardAuth.AuthStatus | InsertedSmartCardAuth.AuthStatus;
 }
 
 const TimerCallout = styled(Card).attrs({ color: 'warning' })`

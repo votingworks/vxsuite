@@ -155,6 +155,6 @@ export function validateManualResults(
   return anyInvalidContests
     ? 'invalid'
     : anyMissingContests
-    ? 'incomplete'
-    : undefined;
+      ? 'incomplete'
+      : undefined;
 }

@@ -18,8 +18,8 @@ function concatLiteralParts<T extends Array<string | number | Buffer>>(
       typeof v === 'string'
         ? Buffer.from(v)
         : Buffer.isBuffer(v)
-        ? v
-        : Buffer.of(v)
+          ? v
+          : Buffer.of(v)
     )
   );
 }

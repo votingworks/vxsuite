@@ -31,8 +31,9 @@ export const ElectionMetadataSchema = z.object({
 /**
  * Basic information about an election for identification purposes.
  */
-export interface ElectionMetadata
-  extends z.infer<typeof ElectionMetadataSchema> {}
+export interface ElectionMetadata extends z.infer<
+  typeof ElectionMetadataSchema
+> {}
 
 /**
  * Schema for {@link BackupManifestEntry}.
@@ -61,8 +62,9 @@ function isContainedRelativePath(path: string): boolean {
 /**
  * An entry in a `manifest.json` file.
  */
-export interface BackupManifestEntry
-  extends z.infer<typeof BackupManifestEntrySchema> {}
+export interface BackupManifestEntry extends z.infer<
+  typeof BackupManifestEntrySchema
+> {}
 
 /**
  * Schema for {@see BackupManifestStruct}.
@@ -79,8 +81,9 @@ export const BackupManifestStructSchema = z.object({
 /**
  * A plain object version of the backup manifest.
  */
-export interface BackupManifestStruct
-  extends z.infer<typeof BackupManifestStructSchema> {}
+export interface BackupManifestStruct extends z.infer<
+  typeof BackupManifestStructSchema
+> {}
 
 /**
  * An in-memory representation of a backup's `manifest.json`.

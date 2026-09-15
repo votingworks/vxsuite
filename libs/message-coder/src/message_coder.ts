@@ -17,9 +17,7 @@ import {
  */
 type MessageCoderParts<T> = {
   [K in keyof T]:
-    | Coder<T[K]>
-    | LiteralCoder<Array<string | number | Buffer>>
-    | PaddingCoder;
+    Coder<T[K]> | LiteralCoder<Array<string | number | Buffer>> | PaddingCoder;
 };
 type PropsMatching<T, V> = {
   [P in keyof T]: T[P] extends V ? P : never;
@@ -31,11 +29,12 @@ type MakeOptional<T, V> = Omit<T, PropsMatching<T, V>> &
 /**
  * Gets the type encoded by a coder.
  */
-export type CoderType<T> = T extends Coder<infer U>
-  ? U
-  : T extends [infer Head, ...infer Tail]
-  ? CoderType<Head> | CoderType<Tail>
-  : never;
+export type CoderType<T> =
+  T extends Coder<infer U>
+    ? U
+    : T extends [infer Head, ...infer Tail]
+      ? CoderType<Head> | CoderType<Tail>
+      : never;
 
 /**
  * Gets the object type encoded by a message coder's parts.
@@ -58,9 +57,8 @@ type CoderFromParts<T> = Coder<
 /**
  * Gets the type of an object from its coder parts.
  */
-type ObjectFromParts<T> = T extends MessageCoderParts<infer U>
-  ? CoderType<U>
-  : never;
+type ObjectFromParts<T> =
+  T extends MessageCoderParts<infer U> ? CoderType<U> : never;
 
 /**
  * Builds a message encoder/decoder from a sequence of named fields and literal

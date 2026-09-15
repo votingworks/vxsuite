@@ -54,12 +54,11 @@ function parseGrid({
   // the column id only, e.g. 'bmd', for brevity
   const columnIds = within(grid)
     .getAllByTestId(/^header-/)
-    .map(
-      (cell) =>
-        cell
-          .getAttribute('data-testid')
-          ?.replace(/header-/, '')
-          ?.replace(/attribute-|ballot-count-|sheet-count-|filler-/, '')
+    .map((cell) =>
+      cell
+        .getAttribute('data-testid')
+        ?.replace(/header-/, '')
+        ?.replace(/attribute-|ballot-count-|sheet-count-|filler-/, '')
     ) as string[];
 
   const width = columnIds.length;

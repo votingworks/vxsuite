@@ -9,7 +9,10 @@ import {
   MockApiClient,
   provideApi,
 } from '../../test/api_helpers.js';
-import { AudioEditorPanel, AudioEditorPanelProps } from './audio_editor_panel.js';
+import {
+  AudioEditorPanel,
+  AudioEditorPanelProps,
+} from './audio_editor_panel.js';
 import { render, screen } from '../../test/react_testing_library.js';
 
 vi.mock('./audio_editor.js');

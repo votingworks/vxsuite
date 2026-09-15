@@ -110,8 +110,8 @@ function generateTestJobForNodeJsPackage(
   const testScript = pkg.packageJson?.scripts?.['test:ci']
     ? 'test:ci'
     : pkg.packageJson?.scripts?.['test:run']
-    ? 'test:run'
-    : 'test';
+      ? 'test:run'
+      : 'test';
 
   const lines = [
     `# ${pkg.name}`,

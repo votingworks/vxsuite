@@ -336,16 +336,13 @@ export function BallotEjectScreen({
         <BallotImagesContainer>
           {mapSheet(images, (pageImage, side) => {
             const highlights = pageImage.layout?.contests
-              .filter(
-                (contestLayout) =>
-                  ejectInfo.highlightedContestIds?.has(contestLayout.contestId)
+              .filter((contestLayout) =>
+                ejectInfo.highlightedContestIds?.has(contestLayout.contestId)
               )
-              .map(
-                (contestLayout): BallotImageHighlight => ({
-                  bounds: contestLayout.bounds,
-                  variant: 'warning',
-                })
-              );
+              .map((contestLayout): BallotImageHighlight => ({
+                bounds: contestLayout.bounds,
+                variant: 'warning',
+              }));
 
             return (
               <div

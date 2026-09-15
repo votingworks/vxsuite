@@ -64,10 +64,7 @@ export type UserType = User['type'];
 export type ExternalElectionSource = 'ms-sems';
 
 export type ElectionStatus =
-  | 'notStarted'
-  | 'inProgress'
-  | 'ballotsFinalized'
-  | 'ballotsApproved';
+  'notStarted' | 'inProgress' | 'ballotsFinalized' | 'ballotsApproved';
 
 export interface ElectionListing {
   jurisdictionId: string;
@@ -153,8 +150,7 @@ export interface ReceivedPollsOpenReportInfo extends ReceivedReportInfoBase {
   ballotCount: number;
 }
 
-export interface ReceivedVotingResumedReportInfo
-  extends ReceivedReportInfoBase {
+export interface ReceivedVotingResumedReportInfo extends ReceivedReportInfoBase {
   pollsTransitionType: 'resume_voting';
   isPartial: false;
   ballotCount: number;
@@ -166,16 +162,14 @@ export interface ReceivedPollsPausedReportInfo extends ReceivedReportInfoBase {
   ballotCount: number;
 }
 
-export interface ReceivedPollsClosedPartialReportInfo
-  extends ReceivedReportInfoBase {
+export interface ReceivedPollsClosedPartialReportInfo extends ReceivedReportInfoBase {
   pollsTransitionType: 'close_polls';
   isPartial: true;
   numPages: number;
   pageIndex: number;
 }
 
-export interface ReceivedPollsClosedFinalReportInfo
-  extends ReceivedReportInfoBase {
+export interface ReceivedPollsClosedFinalReportInfo extends ReceivedReportInfoBase {
   pollsTransitionType: 'close_polls';
   isPartial: false;
   contestResultsByPrecinct: Record<
@@ -218,13 +212,10 @@ export interface QuickReportedPollStatus {
 }
 
 export type GetExportedElectionError =
-  | 'no-election-export-found'
-  | 'election-out-of-date';
+  'no-election-export-found' | 'election-out-of-date';
 
 export type ResultsReportingError =
-  | 'invalid-payload'
-  | 'invalid-signature'
-  | GetExportedElectionError;
+  'invalid-payload' | 'invalid-signature' | GetExportedElectionError;
 
 export const RESULTS_REPORTING_PATH = '/report';
 export type ResultsReportingPath = typeof RESULTS_REPORTING_PATH;

@@ -583,10 +583,12 @@ test('create/list/delete elections', async () => {
                   partyIds: candidate.partyIds
                     ?.map(updatedPartyId)
                     .sort((a, b) => {
-                      const aName = election2Parties.find((p) => p.id === a)
-                        ?.name;
-                      const bName = election2Parties.find((p) => p.id === b)
-                        ?.name;
+                      const aName = election2Parties.find(
+                        (p) => p.id === a
+                      )?.name;
+                      const bName = election2Parties.find(
+                        (p) => p.id === b
+                      )?.name;
                       assert(
                         typeof aName === 'string',
                         `no party with id: ${a}`
@@ -4115,16 +4117,14 @@ test('Election package and ballots export', async () => {
   const expectedBallotProps = expectedElection.ballotStyles.flatMap(
     (ballotStyle) =>
       ballotStyle.precincts.flatMap((precinctId) =>
-        ballotCombos.map(
-          ([ballotType, ballotMode]): BaseBallotProps => ({
-            election: expectedElection,
-            ballotStyleId: ballotStyle.id,
-            precinctId,
-            ballotType,
-            ballotMode,
-            compact: false,
-          })
-        )
+        ballotCombos.map(([ballotType, ballotMode]): BaseBallotProps => ({
+          election: expectedElection,
+          ballotStyleId: ballotStyle.id,
+          precinctId,
+          ballotType,
+          ballotMode,
+          compact: false,
+        }))
       )
   );
   expect(
@@ -4302,21 +4302,19 @@ test('export omits optional ballots if not enabled', async () => {
   const { election } = electionDefinition;
   const expectedBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precincts.flatMap((precinctId) =>
-      ballotCombos.map(
-        ([ballotType, ballotMode]): BaseBallotProps => ({
-          election: {
-            ...election,
-            ballotStyles: election.ballotStyles.map(
-              ({ ballotPositions: _ballotPositions, ...rest }) => rest
-            ),
-          },
-          ballotStyleId: ballotStyle.id,
-          precinctId,
-          ballotType,
-          ballotMode,
-          compact: false,
-        })
-      )
+      ballotCombos.map(([ballotType, ballotMode]): BaseBallotProps => ({
+        election: {
+          ...election,
+          ballotStyles: election.ballotStyles.map(
+            ({ ballotPositions: _ballotPositions, ...rest }) => rest
+          ),
+        },
+        ballotStyleId: ballotStyle.id,
+        precinctId,
+        ballotType,
+        ballotMode,
+        compact: false,
+      }))
     )
   );
   expect(

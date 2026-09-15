@@ -16,8 +16,7 @@ export interface PrecinctWithSplitsRegisteredVoterCounts {
  * For precincts with splits, the value is a record mapping split IDs to counts.
  */
 export type PrecinctRegisteredVoterCountEntry =
-  | number
-  | PrecinctWithSplitsRegisteredVoterCounts;
+  number | PrecinctWithSplitsRegisteredVoterCounts;
 
 /**
  * Registered voter counts for all precincts in an election, keyed by

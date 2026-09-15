@@ -37,11 +37,7 @@ import { throwIllegalValue } from './utils.js';
 interface CounterCheckResult {
   readonly counter: CoverageCounter;
   readonly status:
-    | 'covered'
-    | 'uncovered'
-    | 'excluded'
-    | 'deferred'
-    | 'unreachable';
+    'covered' | 'uncovered' | 'excluded' | 'deferred' | 'unreachable';
 }
 
 interface DirectiveCheckResult {

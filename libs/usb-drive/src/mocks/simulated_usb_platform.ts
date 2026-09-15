@@ -103,10 +103,7 @@ function findPresentPartition(
  * Actions that can artificially fail with injected faults.
  */
 export type FaultType =
-  | 'mountPartition'
-  | 'unmountPartition'
-  | 'formatDrive'
-  | 'sync';
+  'mountPartition' | 'unmountPartition' | 'formatDrive' | 'sync';
 
 class SimulatedUsbPlatformFaults {
   private readonly faults = new Map<
@@ -202,17 +199,15 @@ export class SimulatedUsbPlatform implements UsbPlatform {
     // RealUsbPlatform.getDrives (which always includes an explicit mountpoint).
     return this.getSimulatedDrives()
       .filter((drive) => drive.present)
-      .map(
-        ({ partition, diskPath }): UsbPlatformDrive => ({
-          diskPath,
-          partition: partition && {
-            partPath: partition.partPath,
-            fstype: partition.fstype,
-            label: partition.label,
-            mountpoint: partition.mountpoint,
-          },
-        })
-      );
+      .map(({ partition, diskPath }): UsbPlatformDrive => ({
+        diskPath,
+        partition: partition && {
+          partPath: partition.partPath,
+          fstype: partition.fstype,
+          label: partition.label,
+          mountpoint: partition.mountpoint,
+        },
+      }));
   }
 
   /**

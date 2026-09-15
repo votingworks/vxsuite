@@ -81,9 +81,7 @@ export interface FujitsuThermalPrinterDriverInterface {
   feedForward(dots: number): Promise<void>;
 }
 
-export class FujitsuThermalPrinterDriver
-  implements FujitsuThermalPrinterDriverInterface
-{
+export class FujitsuThermalPrinterDriver implements FujitsuThermalPrinterDriverInterface {
   private readonly lock = new Lock();
   private readonly webDevice: MinimalWebUsbDevice;
 

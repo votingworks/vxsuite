@@ -17,7 +17,10 @@ import {
   ManualTalliesTab,
 } from './manual_tallies_tab.js';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
+import {
+  ApiMock,
+  createApiMock,
+} from '../../../test/helpers/mock_api_client.js';
 import { mockManualResultsMetadata } from '../../../test/api_mock_data.js';
 
 let apiMock: ApiMock;
@@ -64,8 +67,9 @@ test('initial table without manual tallies & adding a manual tally - primary ele
   expect(screen.getByLabelText('Voting Method')).toBeDisabled();
 
   userEvent.click(screen.getByLabelText('Ballot Style'));
-  const ballotStyleOptions = screen.getByText('Precinct 1 - Mammal')
-    .parentElement!;
+  const ballotStyleOptions = screen.getByText(
+    'Precinct 1 - Mammal'
+  ).parentElement!;
   expect(
     [...ballotStyleOptions.children].map((option) => option.textContent)
   ).toEqual([

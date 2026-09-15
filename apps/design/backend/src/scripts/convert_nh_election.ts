@@ -202,8 +202,8 @@ function contestCandidateInfos(
   const infos = Array.isArray(contestInfo.CandidateName)
     ? contestInfo.CandidateName
     : contestInfo.CandidateName
-    ? [contestInfo.CandidateName]
-    : [];
+      ? [contestInfo.CandidateName]
+      : [];
   return infos.filter((info) => candidateName(info) !== '');
 }
 

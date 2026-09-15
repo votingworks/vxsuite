@@ -9,8 +9,7 @@ export function isVendorAuth(
 export function isVendorAuth(
   auth: DippedSmartCardAuth.AuthStatus | InsertedSmartCardAuth.AuthStatus
 ): auth is
-  | InsertedSmartCardAuth.VendorLoggedIn
-  | DippedSmartCardAuth.VendorLoggedIn;
+  InsertedSmartCardAuth.VendorLoggedIn | DippedSmartCardAuth.VendorLoggedIn;
 export function isVendorAuth(
   auth: DippedSmartCardAuth.AuthStatus | InsertedSmartCardAuth.AuthStatus
 ): boolean {

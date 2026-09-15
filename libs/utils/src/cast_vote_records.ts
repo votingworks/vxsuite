@@ -226,8 +226,8 @@ export function getWriteInsFromCastVoteRecord(
                 pageIndex === undefined || pageIndex === -1
                   ? undefined
                   : pageIndex === 0
-                  ? 'front'
-                  : 'back',
+                    ? 'front'
+                    : 'back',
               isUnmarked:
                 selectionPosition.OtherStatus ===
                 UNMARKED_WRITE_IN_SELECTION_POSITION_OTHER_STATUS,
@@ -270,8 +270,7 @@ function getValidContestOptions(contest: Contest): ContestOptionId[] {
 }
 
 export type ContestReferenceError =
-  | 'contest-not-found'
-  | 'contest-option-not-found';
+  'contest-not-found' | 'contest-option-not-found';
 
 /**
  * Checks whether all the contest and contest options referenced in a cast vote record are indeed a

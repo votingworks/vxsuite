@@ -6,8 +6,7 @@ import {
 } from '../../src/fujitsu_scanner.js';
 
 type ScanSessionStep =
-  | { type: 'sheet'; sheet: ScannedSheetInfo }
-  | { type: 'error'; error: Error };
+  { type: 'sheet'; sheet: ScannedSheetInfo } | { type: 'error'; error: Error };
 
 /**
  * Represents a scanner session, but doesn't actually run anything.

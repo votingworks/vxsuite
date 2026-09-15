@@ -62,8 +62,7 @@ export interface UnprogrammedOrInvalidCardDetails {
  * Details about a card
  */
 export type CardDetails =
-  | ProgrammedCardDetails
-  | UnprogrammedOrInvalidCardDetails;
+  ProgrammedCardDetails | UnprogrammedOrInvalidCardDetails;
 
 /**
  * A CardDetails type guard
@@ -133,8 +132,7 @@ export interface CardStatusNotReady {
  * The status of a card in a card reader
  */
 export type CardStatus<T = CardDetails> =
-  | CardStatusReady<T>
-  | CardStatusNotReady;
+  CardStatusReady<T> | CardStatusNotReady;
 
 interface CheckPinResponseCorrect {
   response: 'correct';
@@ -154,9 +152,7 @@ interface CheckPinResponseError {
  * The response to a PIN check
  */
 export type CheckPinResponse =
-  | CheckPinResponseCorrect
-  | CheckPinResponseIncorrect
-  | CheckPinResponseError;
+  CheckPinResponseCorrect | CheckPinResponseIncorrect | CheckPinResponseError;
 
 /**
  * The base API any card should support

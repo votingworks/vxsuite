@@ -100,9 +100,9 @@ async function getReportSection(
     // @coverage-exclude: there should be at least one completed batch but keep the fallback
     const mostRecentBatchCount =
       reportSection.pollsTransitionType === 'pause_voting'
-        ? [...allBatches]
+        ? ([...allBatches]
             .sort((a, b) => b.startedAt.localeCompare(a.startedAt))
-            .find((b) => b.endedAt !== undefined)?.count ?? 0
+            .find((b) => b.endedAt !== undefined)?.count ?? 0)
         : undefined;
     return PrecinctScannerBallotCountReport({
       electionDefinition,

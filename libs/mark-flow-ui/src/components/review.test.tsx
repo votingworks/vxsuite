@@ -299,8 +299,8 @@ describe('yesno contest', () => {
         !vote
           ? 'You may still vote in this contest.'
           : vote === contest.options[0].id
-          ? 'Yes'
-          : 'No'
+            ? 'Yes'
+            : 'No'
       );
 
       userEvent.click(within(contestCard).getButton(/Change/));

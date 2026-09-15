@@ -7,7 +7,10 @@ import {
   provideApi,
   statusNoPaper,
 } from '../../test/helpers/mock_api_client.js';
-import { render as baseRender, screen } from '../../test/react_testing_library.js';
+import {
+  render as baseRender,
+  screen,
+} from '../../test/react_testing_library.js';
 import { InsertUsbScreen, InsertUsbScreenProps } from './insert_usb_screen.js';
 
 vi.useFakeTimers({ shouldAdvanceTime: true });

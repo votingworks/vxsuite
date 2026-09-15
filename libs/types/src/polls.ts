@@ -1,15 +1,10 @@
 import { z } from 'zod/v4';
 
 export type PollsState =
-  | 'polls_closed_initial'
-  | 'polls_open'
-  | 'polls_paused'
-  | 'polls_closed_final';
+  'polls_closed_initial' | 'polls_open' | 'polls_paused' | 'polls_closed_final';
 
 export type PollsStateSupportsLiveReporting =
-  | 'polls_open'
-  | 'polls_paused'
-  | 'polls_closed_final';
+  'polls_open' | 'polls_paused' | 'polls_closed_final';
 
 export function doesPollsStateSupportLiveReporting(
   state: PollsState
@@ -38,8 +33,7 @@ export const PollsStateSchema: z.ZodSchema<PollsState> = z.union([
 export type StandardPollsTransitionType = 'open_polls' | 'close_polls';
 export type PollsSuspensionTransitionType = 'pause_voting' | 'resume_voting';
 export type PollsTransitionType =
-  | StandardPollsTransitionType
-  | PollsSuspensionTransitionType;
+  StandardPollsTransitionType | PollsSuspensionTransitionType;
 
 export const StandardPollsTransitionTypeSchema: z.ZodSchema<StandardPollsTransitionType> =
   z.union([z.literal('open_polls'), z.literal('close_polls')]);

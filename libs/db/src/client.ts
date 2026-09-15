@@ -126,8 +126,7 @@ export class Client {
       }
 
       const row = this.one(`select digest from ${SCHEMA_DIGEST_TABLE}`) as
-        | { digest: string }
-        | undefined;
+        { digest: string } | undefined;
       return row?.digest;
     } catch (error) {
       // An unreadable or corrupt database has no usable digest, which is

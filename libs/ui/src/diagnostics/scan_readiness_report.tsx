@@ -16,7 +16,10 @@ import {
   ThermalPrinterSectionProps,
 } from './thermal_printer_section.js';
 import { StorageSection, StorageSectionProps } from './storage_section.js';
-import { ScanAudioSection, ScanAudioSectionProps } from './scan_audio_section.js';
+import {
+  ScanAudioSection,
+  ScanAudioSectionProps,
+} from './scan_audio_section.js';
 import {
   PrecinctScannerSection,
   PrecinctScannerSectionProps,

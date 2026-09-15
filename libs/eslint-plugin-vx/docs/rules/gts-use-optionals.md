@@ -15,8 +15,8 @@ Examples of **incorrect** code for this rule:
 
 ```ts
 interface CoffeeOrder {
-  sugarCubes: number
-  milk: Whole | LowFat | HalfHalf | undefined
+  sugarCubes: number;
+  milk: Whole | LowFat | HalfHalf | undefined;
 }
 
 function pourCoffee(volume: Milliliter | undefined) {
@@ -28,8 +28,8 @@ Examples of **correct** code for this rule:
 
 ```ts
 interface CoffeeOrder {
-  sugarCubes: number
-  milk?: Whole | LowFat | HalfHalf
+  sugarCubes: number;
+  milk?: Whole | LowFat | HalfHalf;
 }
 
 function pourCoffee(volume?: Milliliter) {

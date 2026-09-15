@@ -17,9 +17,8 @@ exports.shorthands =
 exports.up = async (pgm) => {
   // Loaded via dynamic import: the built globals module is ESM, and this
   // migration is CommonJS (node-pg-migrate loads migrations with require).
-  const { sliOrganizationId, votingWorksOrganizationId } = await import(
-    '../build/globals.js'
-  );
+  const { sliOrganizationId, votingWorksOrganizationId } =
+    await import('../build/globals.js');
   pgm.createType('user_type', ['organization_user', 'jurisdiction_user']);
   pgm.addColumn('users', {
     type: { type: 'user_type' },

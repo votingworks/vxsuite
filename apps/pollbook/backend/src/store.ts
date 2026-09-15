@@ -61,8 +61,8 @@ export function sortedByVoterName(
   { useOriginalName = false } = {}
 ): Voter[] {
   return voters.toSorted((v1, v2) => {
-    const v1Name = useOriginalName ? v1 : v1.nameChange ?? v1;
-    const v2Name = useOriginalName ? v2 : v2.nameChange ?? v2;
+    const v1Name = useOriginalName ? v1 : (v1.nameChange ?? v1);
+    const v2Name = useOriginalName ? v2 : (v2.nameChange ?? v2);
     return (
       v1Name.lastName.localeCompare(v2Name.lastName) ||
       v1Name.firstName.localeCompare(v2Name.firstName) ||

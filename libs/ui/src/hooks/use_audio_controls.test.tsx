@@ -3,7 +3,10 @@ import { renderHook } from '@testing-library/react';
 import { AudioControls } from '@votingworks/types';
 import { UiStringsAudioContext } from '../ui_strings/audio_context.js';
 import { useAudioControls } from './use_audio_controls.js';
-import { UiStringsReactQueryApi, createUiStringsApi } from './ui_strings_api.js';
+import {
+  UiStringsReactQueryApi,
+  createUiStringsApi,
+} from './ui_strings_api.js';
 import { UiStringScreenReaderContext } from '../ui_strings/ui_string_screen_reader.js';
 import { newTestContext } from '../../test/test_context.js';
 import { DEFAULT_AUDIO_VOLUME } from '../ui_strings/audio_volume.js';

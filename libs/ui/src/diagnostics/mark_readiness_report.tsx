@@ -32,7 +32,8 @@ type AudioDeviceInputProps = Omit<
 >;
 
 interface ReportContentsProps
-  extends ConfigurationSectionProps,
+  extends
+    ConfigurationSectionProps,
     PollingPlaceSectionProps,
     StorageSectionProps,
     PrinterSectionProps,

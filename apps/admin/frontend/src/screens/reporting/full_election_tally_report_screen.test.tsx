@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client.js';
+import {
+  ApiMock,
+  createApiMock,
+} from '../../../test/helpers/mock_api_client.js';
 import {
   FullElectionTallyReportScreen,
   TITLE,

@@ -87,12 +87,8 @@ export type AnyApi = Api<AnyMethods, AnyContext>;
 /**
  * Helper to extract the method types from an API definition type
  */
-export type inferApiMethods<SomeApi extends AnyApi> = SomeApi extends Api<
-  infer Methods,
-  AnyContext
->
-  ? Methods
-  : never;
+export type inferApiMethods<SomeApi extends AnyApi> =
+  SomeApi extends Api<infer Methods, AnyContext> ? Methods : never;
 
 /**
  * Info about a method call that is passed to middleware.
