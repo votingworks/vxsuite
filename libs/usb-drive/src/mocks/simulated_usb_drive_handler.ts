@@ -2,10 +2,10 @@ import {
   UsbDiskDevPathSchema,
   UsbDriveStatus,
   UsbPartitionMountpoint,
-} from '../types';
-import { MockFileTree } from './helpers';
-import { getMockUsbDirPath } from './mock_usb_dir';
-import { SimulatedUsbPlatform } from './simulated_usb_platform';
+} from '../types.js';
+import { MockFileTree } from './helpers.js';
+import { getMockUsbDirPath } from './mock_usb_dir.js';
+import { SimulatedUsbPlatform } from './simulated_usb_platform.js';
 
 const DEFAULT_DISK_NAME = 'sdb';
 

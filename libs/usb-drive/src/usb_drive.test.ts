@@ -1,9 +1,9 @@
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockLogger } from '@votingworks/logging';
 import { expect, test, vi } from 'vitest';
-import { SimulatedUsbPlatform } from './mocks/simulated_usb_platform';
-import { UsbDiskDevPathSchema } from './types';
-import { detectUsbDrive } from './usb_drive';
+import { SimulatedUsbPlatform } from './mocks/simulated_usb_platform.js';
+import { UsbDiskDevPathSchema } from './types.js';
+import { detectUsbDrive } from './usb_drive.js';
 
 test('returns no_drive when no drives are connected', async () => {
   const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());

@@ -1,8 +1,8 @@
 import { getTemporaryRootDir } from '@votingworks/fixtures';
 import { Mocked, mockFunction } from '@votingworks/test-utils';
 import tmp from 'tmp';
-import { MockFileTree, writeMockFileTree } from './helpers';
-import { UsbDrive, UsbPartitionMountpointSchema } from '../types';
+import { MockFileTree, writeMockFileTree } from './helpers.js';
+import { UsbDrive, UsbPartitionMountpointSchema } from '../types.js';
 
 /**
  * A mock of the UsbDrive interface. See createMockUsbDrive for details.

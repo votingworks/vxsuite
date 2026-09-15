@@ -1,13 +1,13 @@
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import makeDebug from 'debug';
-import { MultiUsbDrive } from './multi_usb_drive';
+import { MultiUsbDrive } from './multi_usb_drive.js';
 import {
   UsbDiskDevPath,
   UsbDrive,
   UsbDriveFilesystemType,
   UsbDriveInfo,
   UsbDriveStatus,
-} from './types';
+} from './types.js';
 
 const debug = makeDebug('usb-drive:adapter');
 

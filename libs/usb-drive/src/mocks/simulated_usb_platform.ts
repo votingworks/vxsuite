@@ -24,15 +24,15 @@ import {
   UsbPartitionDevPathSchema,
   UsbPartitionMountpoint,
   UsbPartitionMountpointSchema,
-} from '../types';
+} from '../types.js';
 import {
   DriveWatcher,
   UsbPlatform,
   UsbPlatformDrive,
   UsbPlatformDriveSchema,
   UsbPlatformPartition,
-} from '../usb_platform_types';
-import { MockFileTree, writeMockFileTree } from './helpers';
+} from '../usb_platform_types.js';
+import { MockFileTree, writeMockFileTree } from './helpers.js';
 
 const debug = makeDebug('SimulatedUsbPlatform');
 

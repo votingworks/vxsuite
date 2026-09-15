@@ -5,14 +5,14 @@ import { existsSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, test, vi } from 'vitest';
-import { SimulatedUsbPlatform } from './mocks/simulated_usb_platform';
-import { detectMultiUsbDrive } from './multi_usb_drive';
+import { SimulatedUsbPlatform } from './mocks/simulated_usb_platform.js';
+import { detectMultiUsbDrive } from './multi_usb_drive.js';
 import {
   UsbDiskDevPathSchema,
   UsbPartitionDevPathSchema,
   UsbPartitionInfo,
   UsbPartitionMount,
-} from './types';
+} from './types.js';
 
 const devsdb = UsbDiskDevPathSchema.decode('/dev/sdb');
 const devsdb1 = UsbPartitionDevPathSchema.decode('/dev/sdb1');

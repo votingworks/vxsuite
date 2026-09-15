@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import {
   resetMockUsbDriveDir,
   setMockUsbDriveDir,
-} from '../src/mocks/mock_usb_dir';
+} from '../src/mocks/mock_usb_dir.js';
 
 beforeAll(setupTemporaryRootDir);
 afterAll(clearTemporaryRootDir);

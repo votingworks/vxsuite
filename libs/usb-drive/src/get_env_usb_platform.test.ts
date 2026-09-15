@@ -3,9 +3,9 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { beforeEach, expect, test, vi } from 'vitest';
-import { getEnvUsbPlatform } from './get_env_usb_platform';
-import { SimulatedUsbPlatform } from './mocks/simulated_usb_platform';
-import { RealUsbPlatform } from './usb_platform';
+import { getEnvUsbPlatform } from './get_env_usb_platform.js';
+import { SimulatedUsbPlatform } from './mocks/simulated_usb_platform.js';
+import { RealUsbPlatform } from './usb_platform.js';
 
 const featureFlagMock = getFeatureFlagMock();
 

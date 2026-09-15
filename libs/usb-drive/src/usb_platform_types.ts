@@ -7,7 +7,7 @@ import {
   UsbPartitionDevPathSchema,
   UsbPartitionMountpoint,
   UsbPartitionMountpointSchema,
-} from './types';
+} from './types.js';
 
 export interface DriveWatcher {
   stop(): void;

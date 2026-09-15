@@ -2,10 +2,10 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { getMockUsbDirPath } from './mocks/mock_usb_dir';
-import { SimulatedUsbPlatform } from './mocks/simulated_usb_platform';
-import { RealUsbPlatform } from './usb_platform';
-import { UsbPlatform } from './usb_platform_types';
+import { getMockUsbDirPath } from './mocks/mock_usb_dir.js';
+import { SimulatedUsbPlatform } from './mocks/simulated_usb_platform.js';
+import { RealUsbPlatform } from './usb_platform.js';
+import { UsbPlatform } from './usb_platform_types.js';
 
 /**
  * Gets the appropriate USB platform based on the environment.

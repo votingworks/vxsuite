@@ -2,7 +2,7 @@ import { getMockStateRootDir } from '@votingworks/utils';
 import { join } from 'node:path';
 
 // libs/usb-drive/src/mocks/ is 4 levels below the repo root
-const REPO_ROOT = join(__dirname, '../../../..');
+const REPO_ROOT = join(import.meta.dirname, '../../../..');
 const MOCK_USB_DRIVE_DIR = join(getMockStateRootDir(REPO_ROOT), 'usb-drive');
 export const DEV_MOCK_USB_DRIVE_GLOB_PATTERN = join(MOCK_USB_DRIVE_DIR, '**/*');
 
