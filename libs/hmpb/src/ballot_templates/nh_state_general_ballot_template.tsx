@@ -2,6 +2,7 @@ import React from 'react';
 import { Buffer } from 'node:buffer';
 import {
   assertDefined,
+  DateWithoutTime,
   err,
   find,
   groupBy,
@@ -616,22 +617,42 @@ function CandidateContest({
   );
 }
 
-function BallotMeasureContestSectionHeader() {
+/**
+ * The heading NH prints above the ballot measure section. It's not part of the
+ * election definition, so it's hardcoded here and validated against the NH
+ * source files during conversion.
+ */
+export function nhBallotMeasureContestSectionHeader(
+  electionDate: DateWithoutTime
+): string {
+  const [year] = electionDate.toISOString().split('-');
+  return `QUESTIONS RELATING TO CONSTITUTIONAL AMENDMENTS PROPOSED BY THE ${year} GENERAL COURT`;
+}
+
+function BallotMeasureContestSectionHeader({
+  election,
+}: {
+  election: Election;
+}) {
   return (
-    <div style={{ textAlign: 'center' }}>
-      <h2>Constitutional Amendment Questions</h2>
-      <h3>Constitutional Amendments Proposed by the General Court </h3>
-    </div>
+    <h3 style={{ textAlign: 'center' }}>
+      {nhBallotMeasureContestSectionHeader(election.date)}
+    </h3>
   );
 }
 
-function BallotMeasureContest({
-  contest,
-  contestNumber,
-}: {
-  contest: YesNoContest;
-  contestNumber: number;
-}) {
+// A ballot measure description may open with a heading (e.g. the statute
+// requiring the question), which NH centers above the question text.
+const BallotMeasureDescription = styled(RichText)`
+  flex: 1;
+
+  h4 {
+    margin: 0 0 0.5em;
+    text-align: center;
+  }
+`;
+
+function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
   return (
     <div>
       <div
@@ -642,14 +663,13 @@ function BallotMeasureContest({
           gap: '0.25rem',
         }}
       >
-        <div>{contestNumber}.</div>
-        <RichText
+        <BallotMeasureDescription
           tableBorderWidth={'1px'}
           tableBorderColor={Colors.DARKER_GRAY}
           tableHeaderBackgroundColor={Colors.LIGHT_GRAY}
         >
           {electionStrings.contestDescription(contest)}
-        </RichText>
+        </BallotMeasureDescription>
       </div>
       <ul
         style={{
@@ -695,6 +715,7 @@ export async function BallotPageContent(
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
+
   // One section for candidate contests, one for ballot measures.
   const contestSections = iter(contests)
     .partition((contest) => contest.type === 'candidate')
@@ -707,7 +728,7 @@ export async function BallotPageContent(
 
   while (contestSections.length > 0 && heightUsed < dimensions.height) {
     const section = assertDefined(contestSections.shift());
-    const contestElements = section.map((contest, index) => {
+    const contestElements = section.map((contest) => {
       // @coverage-exclude
       if (contest.type === 'straight-party') {
         return straightPartyNotYetImplemented();
@@ -720,18 +741,14 @@ export async function BallotPageContent(
           ballotStyle={ballotStyle}
         />
       ) : (
-        <BallotMeasureContest
-          key={contest.id}
-          contest={contest}
-          contestNumber={index + 1}
-        />
+        <BallotMeasureContest key={contest.id} contest={contest} />
       );
     });
     const sectionHeader =
       section[0].type === 'candidate' ? (
         <CandidateContestSectionHeader />
       ) : (
-        <BallotMeasureContestSectionHeader />
+        <BallotMeasureContestSectionHeader election={election} />
       );
     contestElements.unshift(sectionHeader);
     const contestMeasurements = await scratchpad.measureElements(

@@ -2,6 +2,7 @@ import {
   BallotStyle,
   Candidate,
   CandidateContest,
+  Contest,
   District,
   Election,
   HmpbBallotPaperSize,
@@ -12,6 +13,8 @@ import {
   safeParse,
   safeParseElection,
   safeParseInt,
+  YesNoContest,
+  YesNoOption,
 } from '@votingworks/types';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod/v4';
@@ -24,6 +27,7 @@ import {
   iter,
   unique,
 } from '@votingworks/basics';
+import { nhBallotMeasureContestSectionHeader } from '@votingworks/hmpb';
 import { generateId } from '../utils.js';
 
 const CandidateNameSchema = z.object({
@@ -77,9 +81,29 @@ const HeaderInfoSchema = z.object({
   BallotSize: z.string(),
 });
 
+const QuestionOptionSchema = z.object({
+  OX: z.number(),
+  OY: z.number(),
+});
+
+const QuestionSchema = z.object({
+  Title: z.string(),
+  Question: z.string(),
+  Yes: QuestionOptionSchema,
+  No: QuestionOptionSchema,
+});
+
+type Question = z.infer<typeof QuestionSchema>;
+
+const QuestionarySchema = z.object({
+  Header: z.string(),
+  Questions: z.array(QuestionSchema),
+});
+
 const AvsInterfaceSchema = z.object({
   HeaderInfo: HeaderInfoSchema,
   Candidates: z.array(CandidateSchema),
+  Questionary: QuestionarySchema.optional(),
 });
 
 export const NhBallotStyleSchema = z.object({
@@ -207,6 +231,64 @@ function contestCandidateInfos(
   return infos.filter((info) => candidateName(info) !== '');
 }
 
+function cleanQuestionHtml(html: string): string {
+  return html
+    .replace(/\s+(?:style|class|lang|dir)="[^"]*"/g, '')
+    .replace(/<\/?o:p>/g, '')
+    .replace(/<\/?span>/g, '')
+    .replace(/<\/?strong>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/<p> /g, '<p>')
+    .replace(/ <\/p>/g, '</p>')
+    .replace(/<p><\/p>/g, '')
+    .trim();
+}
+
+const NUMBERED_PREFIX_REGEX = /^(\d+)\. /;
+
+interface QuestionInfo {
+  number: number;
+  description: string;
+}
+
+function parseQuestion(question: Question): QuestionInfo {
+  const paragraphs = [
+    ...cleanQuestionHtml(question.Question).matchAll(/<p>([\s\S]*?)<\/p>/g),
+  ].map(([, inner]) => inner);
+  assert(
+    paragraphs.length === 1 || paragraphs.length === 2,
+    `Expected one or two paragraphs in question: ${question.Question}`
+  );
+  const heading = paragraphs.length === 2 ? paragraphs[0] : '';
+  const body = paragraphs.length === 2 ? paragraphs[1] : paragraphs[0];
+  const [, number] = assertDefined(
+    body.match(NUMBERED_PREFIX_REGEX),
+    `Question is not numbered: ${body}`
+  );
+  return {
+    number: safeParseInt(number).unsafeUnwrap(),
+    description: heading
+      ? `<h4>${heading}</h4><p>${body}</p>`
+      : `<p>${body}</p>`,
+  };
+}
+
+function parseQuestions(nhBallotStyle: NhBallotStyle): QuestionInfo[] {
+  const questions = (
+    nhBallotStyle.AVSInterface.Questionary?.Questions ?? []
+  ).map(parseQuestion);
+  assert(
+    questions.every((question, index) => question.number === index + 1),
+    'Questions must be numbered consecutively starting at 1'
+  );
+  return questions;
+}
+
+function questionContestTitle(number: number): string {
+  return `Question ${number}`;
+}
+
 function districtNameForWards(wards: string[]): string {
   if (wards.length === 1) {
     return wards[0];
@@ -273,6 +355,50 @@ function inferDistrictNames(
   return districtNamesByOfficeAndWard;
 }
 
+/**
+ * Infers the district name for every (question number, ward) in the given
+ * ballot style files.
+ */
+function inferQuestionDistrictNames(
+  nhBallotStyles: NhBallotStyle[],
+  precinctNameFor: (headerInfo: { WardName: string | number }) => string
+): Map<number, Map<string, string>> {
+  const descriptionsByNumberAndWard = new Map<number, Map<string, string>>();
+  for (const nhBallotStyle of nhBallotStyles) {
+    const wardPrecinctName = precinctNameFor(
+      nhBallotStyle.AVSInterface.HeaderInfo
+    );
+    for (const { number, description } of parseQuestions(nhBallotStyle)) {
+      const byWard = descriptionsByNumberAndWard.get(number) ?? new Map();
+      byWard.set(wardPrecinctName, description);
+      descriptionsByNumberAndWard.set(number, byWard);
+    }
+  }
+
+  const districtNamesByNumberAndWard = new Map<number, Map<string, string>>();
+  for (const [number, byWard] of descriptionsByNumberAndWard) {
+    // Group the question's wards by their question text
+    const wardGroups = groupBy(
+      [...byWard.entries()],
+      ([, description]) => description
+    );
+
+    const wardToDistrictName = new Map<string, string>();
+    for (const [, entries] of wardGroups) {
+      const wards = entries.map(([ward]) => ward);
+      const districtName =
+        wardGroups.length > 1
+          ? districtNameForWards(wards)
+          : questionContestTitle(number);
+      for (const ward of wards) {
+        wardToDistrictName.set(ward, districtName);
+      }
+    }
+    districtNamesByNumberAndWard.set(number, wardToDistrictName);
+  }
+  return districtNamesByNumberAndWard;
+}
+
 interface ContestInfo {
   id: string;
   title: string;
@@ -281,6 +407,14 @@ interface ContestInfo {
   seats: number;
   allowWriteIns: boolean;
   candidates: Candidate[];
+}
+
+interface QuestionContestInfo {
+  id: string;
+  number: number;
+  district: District;
+  description: string;
+  options: [YesNoOption, YesNoOption];
 }
 
 interface BallotStyleInfo {
@@ -293,9 +427,6 @@ interface BallotStyleInfo {
  * Converts one town or city's ballot style JSON files into a single VxSuite
  * election. In a primary, each file corresponds to one party (towns) or one
  * (party, ward) pair (cities). In a general, it's just one file per town or ward.
- *
- * The source files contain only candidate contests, so there's no support for
- * ballot measures yet.
  *
  * `signatureImage` is the Secretary of State's signature in SVG, which must be
  * provided (since it can't be committed publicly).
@@ -346,10 +477,24 @@ export function convertNhElection(
     'Multiple source files for the same (party, ward)'
   );
 
+  // The ballot measure contest section header isn't stored in the Vx election
+  // definition, so the ballot template hardcodes it. Double check that what
+  // we've hardcoded matches the actual NH source file.
+  const expectedQuestionaryHeader = nhBallotMeasureContestSectionHeader(date);
+  for (const nhBallotStyle of nhBallotStyles) {
+    const { Questionary } = nhBallotStyle.AVSInterface;
+    assert(
+      Questionary === undefined ||
+        cleanString(Questionary.Header) === expectedQuestionaryHeader,
+      `Unsupported questionary header: ${Questionary?.Header}`
+    );
+  }
+
   const districtsByName = new Map<string, District>();
   const precinctsByName = new Map<string, PrecinctWithoutSplits>();
   const partiesByName = new Map<string, Party>();
   const contestsByKey = new Map<string, ContestInfo>();
+  const questionContestsByKey = new Map<string, QuestionContestInfo>();
   const ballotStyleInfos: BallotStyleInfo[] = [];
   // Each file's contests in source order, parallel to `ballotStyleInfos` --
   // the intended ballot order we merge globally and validate against below.
@@ -412,12 +557,39 @@ export function convertNhElection(
     return newContest;
   }
 
+  function getOrCreateQuestionContest(input: {
+    number: number;
+    district: District;
+    description: string;
+  }): QuestionContestInfo {
+    const key = JSON.stringify([input.number, input.district.id]);
+    const contest = questionContestsByKey.get(key);
+    if (contest) {
+      return contest;
+    }
+    const newContest: QuestionContestInfo = {
+      id: generateId(),
+      options: [
+        { id: generateId(), label: 'Yes' },
+        { id: generateId(), label: 'No' },
+      ],
+      ...input,
+    };
+    questionContestsByKey.set(key, newContest);
+    return newContest;
+  }
+
   function precinctName(headerInfo: { WardName: string | number }): string {
     return headerInfo.WardName ? `Ward ${headerInfo.WardName}` : townName;
   }
 
   // office title -> precinct name -> district name
   const districtNameByOfficeAndWard = inferDistrictNames(
+    nhBallotStyles,
+    precinctName
+  );
+  // question number -> precinct name -> district name
+  const districtNameByQuestionNumberAndWard = inferQuestionDistrictNames(
     nhBallotStyles,
     precinctName
   );
@@ -482,6 +654,15 @@ export function convertNhElection(
       orderedCandidatesByContest[contest.id] = orderedCandidates;
     }
 
+    for (const { number, description } of parseQuestions(nhBallotStyle)) {
+      const districtName = assertDefined(
+        districtNameByQuestionNumberAndWard.get(number)?.get(wardPrecinctName)
+      );
+      const district = getOrCreateDistrict(districtName);
+      districtIds.push(district.id);
+      getOrCreateQuestionContest({ number, district, description });
+    }
+
     const precinct = precinctsByName.get(wardPrecinctName) ?? {
       id: generateId(),
       name: wardPrecinctName,
@@ -514,16 +695,29 @@ export function convertNhElection(
   }));
 
   const orderedContests = mergeContestOrderings(contestOrderings);
-  const contests: CandidateContest[] = orderedContests.map((contest) => ({
-    id: contest.id,
-    type: 'candidate',
-    title: contest.title,
-    districtId: contest.district.id,
-    partyId: contest.party?.id,
-    seats: contest.seats,
-    allowWriteIns: contest.allowWriteIns,
-    candidates: contest.candidates,
-  }));
+  const candidateContests: CandidateContest[] = orderedContests.map(
+    (contest) => ({
+      id: contest.id,
+      type: 'candidate',
+      title: contest.title,
+      districtId: contest.district.id,
+      partyId: contest.party?.id,
+      seats: contest.seats,
+      allowWriteIns: contest.allowWriteIns,
+      candidates: contest.candidates,
+    })
+  );
+  const questionContests: YesNoContest[] = [...questionContestsByKey.values()]
+    .sort((a, b) => a.number - b.number)
+    .map((contest) => ({
+      id: contest.id,
+      type: 'yesno',
+      title: questionContestTitle(contest.number),
+      districtId: contest.district.id,
+      description: contest.description,
+      options: contest.options,
+    }));
+  const contests: Contest[] = [...candidateContests, ...questionContests];
 
   const paperSize = (() => {
     switch (nhBallotStyles[0].AVSInterface.HeaderInfo.BallotSize) {

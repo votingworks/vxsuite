@@ -70,6 +70,43 @@ function makeBallotStyle(
   };
 }
 
+const QUESTIONARY_HEADER =
+  'QUESTIONS RELATING TO CONSTITUTIONAL AMENDMENTS PROPOSED BY THE 2026 GENERAL COURT';
+
+function withQuestions(
+  ballotStyle: NhBallotStyle,
+  questions: string[],
+  header = QUESTIONARY_HEADER
+): NhBallotStyle {
+  return {
+    ...ballotStyle,
+    AVSInterface: {
+      ...ballotStyle.AVSInterface,
+      Questionary: {
+        Header: header,
+        Questions: questions.map((html) => ({
+          Title: '',
+          Question: html,
+          Yes: { OX: 0, OY: 0 },
+          No: { OX: 0, OY: 0 },
+        })),
+      },
+    },
+  };
+}
+
+function yesNoContests(election: ReturnType<typeof convertNhElection>) {
+  return election.contests.filter((contest) => contest.type === 'yesno');
+}
+
+function districtName(
+  election: ReturnType<typeof convertNhElection>,
+  districtId: string
+): string {
+  return assertDefined(election.districts.find((d) => d.id === districtId))
+    .name;
+}
+
 function ballotStyleForWard(
   election: ReturnType<typeof convertNhElection>,
   ward: string
@@ -447,5 +484,142 @@ test('throws when source files disagree on the relative order of two contests', 
 
   expect(() => convertNhElection([ward1, ward2], testSignatureImage)).toThrow(
     /Cycle detected/
+  );
+});
+
+test('converts ballot measure questions', () => {
+  const town = withQuestions(makeBallotStyle('', '', [sheriff()]), [
+    '<p style="font-size:10pt;">1. <span style="font-size:10.0pt;">“Are you in' +
+      ' favor of amending the constitution?”</span><o:p></o:p>&nbsp;</p>',
+    '<p style="text-align:center;">  \n   <strong>&nbsp; </strong>' +
+      '<span style="font-size:14px;"><strong>STATUTORY QUESTION REQUIRED BY HB 1300' +
+      '</strong></span>  \n      \n  </p><p lang="en" dir="ltr">2. "Shall the ' +
+      'City limit property tax growth?”</p>',
+  ]);
+
+  const election = convertNhElection([town], testSignatureImage);
+
+  // Questions come after the candidate contests, in ballot order
+  expect(election.contests.map((contest) => contest.title)).toEqual([
+    'For Sheriff',
+    'Question 1',
+    'Question 2',
+  ]);
+
+  const [question1, question2] = yesNoContests(election);
+  assert(question1.type === 'yesno' && question2.type === 'yesno');
+
+  // The source file's question number stays in the description, since that's
+  // how it's printed on the ballot
+  expect(question1.description).toEqual(
+    '<p>1. “Are you in favor of amending the constitution?”</p>'
+  );
+  // A question's heading paragraph becomes a subheading
+  expect(question2.description).toEqual(
+    '<h4>STATUTORY QUESTION REQUIRED BY HB 1300</h4>' +
+      '<p>2. "Shall the City limit property tax growth?”</p>'
+  );
+
+  for (const question of [question1, question2]) {
+    expect(question.options.map((option) => option.label)).toEqual([
+      'Yes',
+      'No',
+    ]);
+  }
+
+  // Each question gets its own district, which the town's only ballot style
+  // votes in
+  expect(districtName(election, question1.districtId)).toEqual('Question 1');
+  expect(districtName(election, question2.districtId)).toEqual('Question 2');
+  expect(contestTitlesForWard(election, 'Sample City')).toEqual([
+    'For Sheriff',
+    'Question 1',
+    'Question 2',
+  ]);
+});
+
+test('splits a question into separate districts when wards have differing question text', () => {
+  // Question 1 is the same statewide question in every ward, while question 2
+  // is a local question that names its own ward.
+  function questions(ward: number) {
+    return [
+      '<p>1. Are you in favor of amending the constitution?</p>',
+      `<p>2. Shall Ward ${ward} limit property tax growth?</p>`,
+    ];
+  }
+  const ward1 = withQuestions(
+    makeBallotStyle(1, '', [sheriff()]),
+    questions(1)
+  );
+  const ward2 = withQuestions(
+    makeBallotStyle(2, '', [sheriff()]),
+    questions(2)
+  );
+
+  const election = convertNhElection([ward1, ward2], testSignatureImage);
+
+  expect(
+    yesNoContests(election).map((contest) => ({
+      title: contest.title,
+      district: districtName(election, contest.districtId),
+    }))
+  ).toEqual([
+    { title: 'Question 1', district: 'Question 1' },
+    { title: 'Question 2', district: 'Ward 1' },
+    { title: 'Question 2', district: 'Ward 2' },
+  ]);
+
+  expect(contestTitlesForWard(election, 'Ward 1')).toEqual([
+    'For Sheriff',
+    'Question 1',
+    'Question 2',
+  ]);
+  expect(contestTitlesForWard(election, 'Ward 2')).toEqual([
+    'For Sheriff',
+    'Question 1',
+    'Question 2',
+  ]);
+});
+
+test('throws when the questionary header doesn’t match the ballot template', () => {
+  const town = withQuestions(
+    makeBallotStyle('', '', [sheriff()]),
+    ['<p>1. Are you in favor of amending the constitution?</p>'],
+    'QUESTIONS RELATING TO SOMETHING ELSE'
+  );
+
+  expect(() => convertNhElection([town], testSignatureImage)).toThrow(
+    /Unsupported questionary header/
+  );
+});
+
+test('throws when questions aren’t numbered consecutively', () => {
+  const town = withQuestions(makeBallotStyle('', '', [sheriff()]), [
+    '<p>1. Are you in favor of amending the constitution?</p>',
+    '<p>3. Shall the City limit property tax growth?</p>',
+  ]);
+
+  expect(() => convertNhElection([town], testSignatureImage)).toThrow(
+    /numbered consecutively/
+  );
+});
+
+test('throws when a question isn’t numbered', () => {
+  const town = withQuestions(makeBallotStyle('', '', [sheriff()]), [
+    '<p>Are you in favor of amending the constitution?</p>',
+  ]);
+
+  expect(() => convertNhElection([town], testSignatureImage)).toThrow(
+    /Question is not numbered/
+  );
+});
+
+test('throws when a question has more paragraphs than expected', () => {
+  const town = withQuestions(makeBallotStyle('', '', [sheriff()]), [
+    '<p>Heading</p><p>1. Are you in favor?</p><p>Fine print</p>',
+  ]);
+
+  expect(() => convertNhElection([town], testSignatureImage)).toThrow(
+    /Expected one or two paragraphs/
   );
 });

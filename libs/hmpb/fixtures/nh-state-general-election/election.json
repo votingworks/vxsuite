@@ -87,7 +87,7 @@
         "barker": "Beverly Barker"
       },
       "contestDescription": {
-        "102": "Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1, 2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?",
+        "102": "<h4>Question Required by HB 1234, Chapter 56</h4><p>Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1, 2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?</p>",
         "judicial-robert-demergue": "Shall Robert Demergue be retained as Chief Justice of the Hamilton Court of Appeals?",
         "judicial-elmer-hull": "Shall Elmer Hull be retained as Associate Justice of the Hamilton Court of Appeals?",
         "question-a": "Shall there be an amendment to the State constitution concerning recovery of damages relating to construction of real property improvements, and, in connection therewith, prohibiting laws that limit or impair a property owner's right to recover damages caused by a failure to construct an improvement in a good and workmanlike manner?",
@@ -1783,20 +1783,20 @@
             {
               "contestId": "judicial-robert-demergue",
               "bounds": {
-                "row": 15.384945972495089,
+                "row": 14.363334970530452,
                 "column": 23.02484893328401,
                 "width": 9.280614132445432,
-                "height": 1.571709233791747
+                "height": 1.5717092337917489
               },
               "options": [
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 16.210093320235757,
+                    "row": 15.18848231827112,
                     "column": 28.094154642989274
                   },
                   "bounds": {
-                    "row": 15.384945972495089,
+                    "row": 14.363334970530452,
                     "column": 23.02484893328401,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -1806,11 +1806,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 16.210093320235757,
+                    "row": 15.18848231827112,
                     "column": 31.67603896904674
                   },
                   "bounds": {
-                    "row": 15.384945972495089,
+                    "row": 14.363334970530452,
                     "column": 26.606733259341475,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -1822,7 +1822,7 @@
             {
               "contestId": "judicial-elmer-hull",
               "bounds": {
-                "row": 17.44106090373281,
+                "row": 16.419449901768175,
                 "column": 23.02484893328401,
                 "width": 9.280614132445432,
                 "height": 1.571709233791747
@@ -1831,11 +1831,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 18.26620825147348,
+                    "row": 17.244597249508843,
                     "column": 28.094154642989274
                   },
                   "bounds": {
-                    "row": 17.44106090373281,
+                    "row": 16.419449901768175,
                     "column": 23.02484893328401,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -1845,11 +1845,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 18.26620825147348,
+                    "row": 17.244597249508843,
                     "column": 31.67603896904674
                   },
                   "bounds": {
-                    "row": 17.44106090373281,
+                    "row": 16.419449901768175,
                     "column": 26.606733259341475,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -1861,7 +1861,7 @@
             {
               "contestId": "question-a",
               "bounds": {
-                "row": 20.833128683693516,
+                "row": 19.81151768172888,
                 "column": 23.02484893328401,
                 "width": 9.280614132445432,
                 "height": 1.571709233791747
@@ -1870,11 +1870,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 21.658276031434184,
+                    "row": 20.636665029469548,
                     "column": 28.094154642989274
                   },
                   "bounds": {
-                    "row": 20.833128683693516,
+                    "row": 19.81151768172888,
                     "column": 23.02484893328401,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -1884,11 +1884,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 21.658276031434184,
+                    "row": 20.636665029469548,
                     "column": 31.67603896904674
                   },
                   "bounds": {
-                    "row": 20.833128683693516,
+                    "row": 19.81151768172888,
                     "column": 26.606733259341475,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -1900,7 +1900,7 @@
             {
               "contestId": "question-b",
               "bounds": {
-                "row": 24.89317288801572,
+                "row": 23.871561886051083,
                 "column": 23.02484893328401,
                 "width": 9.280614132445432,
                 "height": 1.571709233791747
@@ -1909,11 +1909,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 25.718320235756387,
+                    "row": 24.69670923379175,
                     "column": 28.094154642989274
                   },
                   "bounds": {
-                    "row": 24.89317288801572,
+                    "row": 23.871561886051083,
                     "column": 23.02484893328401,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -1923,11 +1923,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 25.718320235756387,
+                    "row": 24.69670923379175,
                     "column": 31.67603896904674
                   },
                   "bounds": {
-                    "row": 24.89317288801572,
+                    "row": 23.871561886051083,
                     "column": 26.606733259341475,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -1939,7 +1939,7 @@
             {
               "contestId": "question-c",
               "bounds": {
-                "row": 27.617264243614933,
+                "row": 26.595653241650297,
                 "column": 23.02484893328401,
                 "width": 9.280614132445432,
                 "height": 1.571709233791747
@@ -1948,11 +1948,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 28.4424115913556,
+                    "row": 27.420800589390964,
                     "column": 28.094154642989274
                   },
                   "bounds": {
-                    "row": 27.617264243614933,
+                    "row": 26.595653241650297,
                     "column": 23.02484893328401,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -1962,11 +1962,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 28.4424115913556,
+                    "row": 27.420800589390964,
                     "column": 31.67603896904674
                   },
                   "bounds": {
-                    "row": 27.617264243614933,
+                    "row": 26.595653241650297,
                     "column": 26.606733259341475,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -1982,7 +1982,7 @@
             {
               "contestId": "proposition-1",
               "bounds": {
-                "row": 10.267681728880158,
+                "row": 9.246070726915521,
                 "column": 23.02484893328401,
                 "width": 9.280614132445432,
                 "height": 1.5717092337917489
@@ -1991,11 +1991,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 11.092829076620825,
+                    "row": 10.071218074656189,
                     "column": 28.094154642989274
                   },
                   "bounds": {
-                    "row": 10.267681728880158,
+                    "row": 9.246070726915521,
                     "column": 23.02484893328401,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -2005,11 +2005,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 11.092829076620825,
+                    "row": 10.071218074656189,
                     "column": 31.67603896904674
                   },
                   "bounds": {
-                    "row": 10.267681728880158,
+                    "row": 9.246070726915521,
                     "column": 26.606733259341475,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -2021,7 +2021,7 @@
             {
               "contestId": "measure-101",
               "bounds": {
-                "row": 19.224582514734774,
+                "row": 18.202971512770137,
                 "column": 23.02484893328401,
                 "width": 9.280614132445432,
                 "height": 1.571709233791747
@@ -2030,11 +2030,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 20.04972986247544,
+                    "row": 19.028118860510805,
                     "column": 28.094154642989274
                   },
                   "bounds": {
-                    "row": 19.224582514734774,
+                    "row": 18.202971512770137,
                     "column": 23.02484893328401,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -2044,11 +2044,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 20.04972986247544,
+                    "row": 19.028118860510805,
                     "column": 31.67603896904674
                   },
                   "bounds": {
-                    "row": 19.224582514734774,
+                    "row": 18.202971512770137,
                     "column": 26.606733259341475,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -2060,7 +2060,7 @@
             {
               "contestId": "102",
               "bounds": {
-                "row": 22.616650294695482,
+                "row": 22.904592337917485,
                 "column": 23.02484893328401,
                 "width": 9.280614132445432,
                 "height": 1.571709233791747
@@ -2069,11 +2069,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 23.44179764243615,
+                    "row": 23.729739685658153,
                     "column": 28.094154642989274
                   },
                   "bounds": {
-                    "row": 22.616650294695482,
+                    "row": 22.904592337917485,
                     "column": 23.02484893328401,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -2083,11 +2083,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 23.44179764243615,
+                    "row": 23.729739685658153,
                     "column": 31.67603896904674
                   },
                   "bounds": {
-                    "row": 22.616650294695482,
+                    "row": 22.904592337917485,
                     "column": 26.606733259341475,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -2599,7 +2599,7 @@
             {
               "contestId": "judicial-robert-demergue",
               "bounds": {
-                "row": 27.43553536345776,
+                "row": 26.413924361493123,
                 "column": 23.02484893328401,
                 "width": 9.280614132445432,
                 "height": 1.571709233791747
@@ -2608,11 +2608,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 28.260682711198427,
+                    "row": 27.23907170923379,
                     "column": 28.094154642989274
                   },
                   "bounds": {
-                    "row": 27.43553536345776,
+                    "row": 26.413924361493123,
                     "column": 23.02484893328401,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -2622,11 +2622,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 28.260682711198427,
+                    "row": 27.23907170923379,
                     "column": 31.67603896904674
                   },
                   "bounds": {
-                    "row": 27.43553536345776,
+                    "row": 26.413924361493123,
                     "column": 26.606733259341475,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -2638,7 +2638,7 @@
             {
               "contestId": "question-a",
               "bounds": {
-                "row": 30.827603143418468,
+                "row": 29.80599214145383,
                 "column": 23.02484893328401,
                 "width": 9.280614132445432,
                 "height": 1.571709233791747
@@ -2647,11 +2647,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 31.652750491159136,
+                    "row": 30.6311394891945,
                     "column": 28.094154642989274
                   },
                   "bounds": {
-                    "row": 30.827603143418468,
+                    "row": 29.80599214145383,
                     "column": 23.02484893328401,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -2661,11 +2661,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 31.652750491159136,
+                    "row": 30.6311394891945,
                     "column": 31.67603896904674
                   },
                   "bounds": {
-                    "row": 30.827603143418468,
+                    "row": 29.80599214145383,
                     "column": 26.606733259341475,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -2677,7 +2677,7 @@
             {
               "contestId": "question-b",
               "bounds": {
-                "row": 34.88764734774067,
+                "row": 33.86603634577603,
                 "column": 23.02484893328401,
                 "width": 9.280614132445432,
                 "height": 1.5717092337917506
@@ -2686,11 +2686,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 35.712794695481335,
+                    "row": 34.6911836935167,
                     "column": 28.094154642989274
                   },
                   "bounds": {
-                    "row": 34.88764734774067,
+                    "row": 33.86603634577603,
                     "column": 23.02484893328401,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -2700,11 +2700,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 35.712794695481335,
+                    "row": 34.6911836935167,
                     "column": 31.67603896904674
                   },
                   "bounds": {
-                    "row": 34.88764734774067,
+                    "row": 33.86603634577603,
                     "column": 26.606733259341475,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -2718,7 +2718,7 @@
             {
               "contestId": "proposition-1",
               "bounds": {
-                "row": 10.267681728880158,
+                "row": 9.246070726915521,
                 "column": 23.02484893328401,
                 "width": 9.280614132445432,
                 "height": 1.5717092337917489
@@ -2727,11 +2727,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 11.092829076620825,
+                    "row": 10.071218074656189,
                     "column": 28.094154642989274
                   },
                   "bounds": {
-                    "row": 10.267681728880158,
+                    "row": 9.246070726915521,
                     "column": 23.02484893328401,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -2741,11 +2741,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 11.092829076620825,
+                    "row": 10.071218074656189,
                     "column": 31.67603896904674
                   },
                   "bounds": {
-                    "row": 10.267681728880158,
+                    "row": 9.246070726915521,
                     "column": 26.606733259341475,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -2757,7 +2757,7 @@
             {
               "contestId": "102",
               "bounds": {
-                "row": 13.659749508840866,
+                "row": 13.947691552062869,
                 "column": 23.02484893328401,
                 "width": 9.280614132445432,
                 "height": 1.5717092337917489
@@ -2766,11 +2766,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 14.484896856581534,
+                    "row": 14.772838899803537,
                     "column": 28.094154642989274
                   },
                   "bounds": {
-                    "row": 13.659749508840866,
+                    "row": 13.947691552062869,
                     "column": 23.02484893328401,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -2780,11 +2780,11 @@
                 {
                   "type": "option",
                   "bubbleCenter": {
-                    "row": 14.484896856581534,
+                    "row": 14.772838899803537,
                     "column": 31.67603896904674
                   },
                   "bounds": {
-                    "row": 13.659749508840866,
+                    "row": 13.947691552062869,
                     "column": 26.606733259341475,
                     "width": 5.698729806387965,
                     "height": 1.5717092337917484
@@ -3267,7 +3267,7 @@
       "districtId": "district-1",
       "title": "Measure 102: Vehicle Abatement Program",
       "type": "yesno",
-      "description": "Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1, 2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?",
+      "description": "<h4>Question Required by HB 1234, Chapter 56</h4><p>Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1, 2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?</p>",
       "options": [
         {
           "id": "measure-102-option-yes",
