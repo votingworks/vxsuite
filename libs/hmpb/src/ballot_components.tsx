@@ -304,6 +304,13 @@ export const CANDIDATE_OPTION_CLASS = 'candidate-option';
 
 export const WRITE_IN_OPTION_CLASS = 'write-in-option';
 
+/**
+ * Marks a write-in option whose write-in area may grow upward at extraction
+ * time to fill the unused space in its cell (see `expandWriteInAreaTop` in
+ * `render_ballot.tsx`). Templates that want a fixed area omit it.
+ */
+export const EXPANDABLE_WRITE_IN_OPTION_CLASS = 'expandable-write-in-option';
+
 export const BALLOT_MEASURE_OPTION_CLASS = 'ballot-measure-option';
 
 export const MARK_OVERLAY_CLASS = 'mark-overlay';

@@ -44,6 +44,7 @@ import {
   AlignedBubble,
   BALLOT_MEASURE_OPTION_CLASS,
   CANDIDATE_OPTION_CLASS,
+  EXPANDABLE_WRITE_IN_OPTION_CLASS,
   WRITE_IN_OPTION_CLASS,
 } from '../ballot_components.js';
 import { ContentComponentResult, BallotLayoutError } from '../render_ballot.js';
@@ -572,7 +573,10 @@ function CandidateContest({
               return (
                 <div
                   key={writeInIndex}
-                  className={WRITE_IN_OPTION_CLASS}
+                  className={[
+                    WRITE_IN_OPTION_CLASS,
+                    EXPANDABLE_WRITE_IN_OPTION_CLASS,
+                  ].join(' ')}
                   style={{
                     display: 'flex',
                     padding: '0.375rem',

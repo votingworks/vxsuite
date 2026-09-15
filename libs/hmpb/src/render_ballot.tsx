@@ -49,6 +49,7 @@ import {
 } from './renderer.js';
 import {
   BUBBLE_CLASS,
+  EXPANDABLE_WRITE_IN_OPTION_CLASS,
   CONTENT_SLOT_CLASS,
   ContentSlot,
   BALLOT_HASH_SLOT_CLASS,
@@ -325,6 +326,79 @@ export function gridHeightToPixels(
   return height * grid.rowGap;
 }
 
+/**
+ * Gap left between an expanded write-in area and the top edge of its cell, so
+ * the area doesn't reach the printed rule bounding the contest row.
+ */
+const WRITE_IN_AREA_CELL_TOP_INSET = 0.1;
+
+/**
+ * Cap on how far above its bubble center a write-in area may be expanded.
+ *
+ * `optionBoundsFromTargetMark` is a single outset shared by every option on the
+ * ballot (the only shape v4.0 election definitions can carry), and it has to
+ * cover the tallest write-in area. Without a cap, one unusually tall contest row
+ * would push that shared outset far enough up that every candidate option's
+ * bounds would overhang the option above it, whose gap is a fixed 0.75 grid rows.
+ */
+const WRITE_IN_AREA_MAX_TOP = 1.3;
+
+/**
+ * Grows a write-in area upward into the unused space of its cell, for templates
+ * that opt in with {@link EXPANDABLE_WRITE_IN_OPTION_CLASS}. Contest rows get
+ * taller when a neighboring column has longer candidate names, but write-in
+ * options are a fixed height, so that extra space would otherwise go unscanned.
+ *
+ * Only the top edge moves: the office label sits directly below the area, and
+ * growing down would pull printed text into the scanned region. The area stops
+ * at the bottom of the preceding write-in option, or at the top of the cell for
+ * the first one.
+ */
+function expandWriteInAreaTop({
+  bubble,
+  grid,
+  options,
+  cells,
+  writeInArea,
+}: {
+  bubble: DocumentElement;
+  grid: GridMeasurements;
+  options: readonly DocumentElement[];
+  cells: readonly DocumentElement[];
+  writeInArea: Outset<number>;
+}): number {
+  const optionIndex = options.findIndex(
+    (option) =>
+      bubble.y >= option.y &&
+      bubble.y + bubble.height <= option.y + option.height
+  );
+  const option = options[optionIndex];
+  if (!option) {
+    return writeInArea.top;
+  }
+
+  const cell = assertDefined(
+    cells.find(
+      (c) => option.y >= c.y && option.y + option.height <= c.y + c.height
+    ),
+    'an expandable write-in option must be rendered inside a cell'
+  );
+  const previousOption = options
+    .slice(0, optionIndex)
+    .filter((o) => o.y >= cell.y && o.y < option.y)
+    .pop();
+  const ceiling = previousOption
+    ? previousOption.y + previousOption.height
+    : cell.y + gridHeightToPixels(grid, WRITE_IN_AREA_CELL_TOP_INSET);
+
+  const bubbleCenterY = bubble.y + bubble.height / 2;
+  const expandedTop = pixelsToGridHeight(grid, bubbleCenterY - ceiling);
+  return Math.min(
+    WRITE_IN_AREA_MAX_TOP,
+    Math.max(writeInArea.top, expandedTop)
+  );
+}
+
 async function extractBallotPositions(
   document: RenderDocument,
   ballotStyleId: BallotStyleId,
@@ -339,8 +413,17 @@ async function extractBallotPositions(
       const pageNumber = i + 1;
       const grid = await measureTimingMarkGrid(document, pageNumber);
 
+      const pageSelector = `.${PAGE_CLASS}[data-page-number="${pageNumber}"]`;
       const bubbles = await document.inspectElements(
-        `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${BUBBLE_CLASS}`
+        `${pageSelector} .${BUBBLE_CLASS}`
+      );
+      // Templates opt into growing their write-in areas into the unused space of
+      // the surrounding cell; measuring that needs the laid-out option and cell.
+      const expandableOptions = await document.inspectElements(
+        `${pageSelector} .${EXPANDABLE_WRITE_IN_OPTION_CLASS}`
+      );
+      const expandableCells = await document.inspectElements(
+        `${pageSelector} div:has(> .${EXPANDABLE_WRITE_IN_OPTION_CLASS})`
       );
       const optionPositions = bubbles.map((bubble): GridPosition => {
         // Use the grid coordinates for the center of the bubble
@@ -361,19 +444,26 @@ async function extractBallotPositions(
               ...optionInfo,
             };
           case 'write-in': {
+            const top = expandWriteInAreaTop({
+              bubble,
+              grid,
+              options: expandableOptions,
+              cells: expandableCells,
+              writeInArea: optionInfo.writeInArea,
+            });
             return {
               ...positionInfo,
               ...optionInfo,
               writeInArea: {
                 x: positionInfo.column - optionInfo.writeInArea.left,
-                y: positionInfo.row - optionInfo.writeInArea.top,
+                y: positionInfo.row - top,
                 width:
                   optionInfo.writeInArea.left + optionInfo.writeInArea.right,
-                height:
-                  optionInfo.writeInArea.top + optionInfo.writeInArea.bottom,
+                height: top + optionInfo.writeInArea.bottom,
               },
             };
           }
+
           default:
             return throwIllegalValue(optionInfo);
         }
@@ -466,11 +556,26 @@ async function extractBallotPositions(
   // optionBoundsFromTargetMark outset, reproducing the bounds the interpreter
   // historically computed. Per-option/per-contest bounds now live on the ballot
   // style's ballotPositions instead of a flat election-level gridLayout.
+
+  // A write-in area that grew past the option box would otherwise be scanned
+  // but fall outside the bounds VxAdmin crops for adjudication, leaving the
+  // reviewer a cropped image with the top of the handwriting cut off. The
+  // outset is shared by every option, so cover the tallest area on the ballot.
+  const writeInAreaTops = gridPositions.flatMap((gridPosition) =>
+    gridPosition.type === 'write-in'
+      ? [gridPosition.row - gridPosition.writeInArea.y]
+      : []
+  );
+  const optionBounds: Outset<number> = {
+    ...optionBoundsFromTargetMark,
+    top: Math.max(optionBoundsFromTargetMark.top, ...writeInAreaTops),
+  };
+
   return {
     ballotStyleId,
     ballotPositions: ballotPositionsFromGridPositions(
       gridPositions,
-      optionBoundsFromTargetMark
+      optionBounds
     ),
   };
 }
