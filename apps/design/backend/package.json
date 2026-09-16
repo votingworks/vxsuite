@@ -47,6 +47,7 @@
     "list-organizations": "pnpm build:self && node ./build/scripts/list_organizations.js",
     "list-user-jurisdictions": "pnpm build:self && node ./build/scripts/list_user_jurisdictions.js",
     "mock-circleci-server": "pnpm build:self && node ./build/scripts/mock_circleci_server.js",
+    "nh-ballot-production": "pnpm build:self && node ./build/scripts/nh_ballot_production.js",
     "send-welcome-email": "pnpm build:self && node ./build/scripts/send_welcome_email.js",
     "start": "./scripts/start.sh",
     "start-with-mock-circleci": "./scripts/start-with-mock-circleci.sh",
