@@ -2,7 +2,13 @@ import React, { useContext, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { PrintPage as MarkFlowPrintPage } from '@votingworks/mark-flow-ui';
 import { assert, assertDefined } from '@votingworks/basics';
-import { Button, Modal, P, useCurrentLanguage } from '@votingworks/ui';
+import {
+  appStrings,
+  Button,
+  Modal,
+  P,
+  useCurrentLanguage,
+} from '@votingworks/ui';
 import { BallotContext } from '../contexts/ballot_context.js';
 import { getPrintJobStatus, printBallot } from '../api.js';
 import { getPrintOutcome } from '../utils/print_outcome.js';
@@ -78,7 +84,7 @@ export function PrintPage(): JSX.Element {
       <MarkFlowPrintPage print={print} />
       {failed && (
         <Modal
-          title="Ballot Not Printed"
+          title={appStrings.titleBmdBallotNotPrinted()}
           content={
             <P>
               The ballot was not sent to the printer. Ask for a poll worker for

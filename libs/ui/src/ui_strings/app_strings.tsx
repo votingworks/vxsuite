@@ -1493,6 +1493,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  titleBmdBallotNotPrinted: () => (
+    <UiString uiStringKey="titleBmdBallotNotPrinted">
+      Ballot Not Printed
+    </UiString>
+  ),
+
   titleBmdReadyToReview: () => (
     <UiString uiStringKey="titleBmdReadyToReview">Ready to Review</UiString>
   ),
