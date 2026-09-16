@@ -11,7 +11,7 @@ import fontKit from '@pdf-lib/fontkit';
 import fs from 'node:fs';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { normalizePdf } from '@votingworks/image-utils';
+import { normalizePdf } from '@votingworks/image-utils/pdf';
 import {
   ballotPaperDimensions,
   Candidate,

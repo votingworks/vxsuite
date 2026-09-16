@@ -7,7 +7,7 @@ import {
   renderToPdf,
   SummaryBallotLayoutRenderer,
 } from '@votingworks/printing';
-import { getPdfPageCount } from '@votingworks/image-utils';
+import { getPdfPageCount } from '@votingworks/image-utils/pdf';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { generateMarkOverlay } from '@votingworks/hmpb';
 import {

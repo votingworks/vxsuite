@@ -1,6 +1,5 @@
-import { createCanvas } from '@napi-rs/canvas';
 import { Buffer } from 'node:buffer';
-import { CanvasGradient, CanvasPattern } from 'canvas';
+import type { CanvasGradient, CanvasPattern } from 'canvas';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import { GrayImageData, RgbaImageData } from '@votingworks/types';
 import { createImageData, toGrayScale } from './image_data.js';
@@ -64,6 +63,8 @@ export async function* pdfToImages(
 ): AsyncIterable<PdfPage<RgbaImageData | GrayImageData>> {
   const { background, color, scale = 1 } = opts;
   const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+  // Loaded lazily so importing this module never loads the native addon.
+  const { createCanvas } = await import('@napi-rs/canvas');
   const canvas = createCanvas(0, 0);
   const context = canvas.getContext('2d');
 

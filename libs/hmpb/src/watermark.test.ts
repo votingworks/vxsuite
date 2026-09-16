@@ -1,6 +1,7 @@
 import { iter } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { encodeImageData, pdfToImages } from '@votingworks/image-utils';
+import { encodeImageData } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils/pdf';
 import { BallotType } from '@votingworks/types';
 import { expect, test, vi } from 'vitest';
 import { vxDefaultBallotTemplate } from './ballot_templates/vx_default_ballot_template.js';

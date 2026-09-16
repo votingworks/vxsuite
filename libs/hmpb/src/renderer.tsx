@@ -3,7 +3,7 @@ import type { Page as PlaywrightPage } from 'playwright';
 import ReactDomServer from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
 import { assert } from '@votingworks/basics';
-import { normalizePdf } from '@votingworks/image-utils';
+import { normalizePdf } from '@votingworks/image-utils/pdf';
 import { PixelMeasurements } from './types.js';
 import { PAGE_CLASS } from './ballot_components.js';
 

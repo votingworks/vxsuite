@@ -7,7 +7,7 @@ import { setInterval } from 'node:timers/promises';
 import { MarginDimensions, renderToPdf } from '@votingworks/printing';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { assertDefined, err, ok, iter, Result } from '@votingworks/basics';
-import { concatenatePdfs } from '@votingworks/image-utils';
+import { concatenatePdfs } from '@votingworks/image-utils/pdf';
 
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
 import { PartyAbbreviation } from '@votingworks/types';

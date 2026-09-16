@@ -5,7 +5,8 @@ import {
 } from '@votingworks/types';
 import { join } from 'node:path';
 import { generateMockVotes } from '@votingworks/utils';
-import { pdfToImages, writeImageData } from '@votingworks/image-utils';
+import { writeImageData } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils/pdf';
 import { iter, assert, assertDefined } from '@votingworks/basics';
 import tmp from 'tmp';
 

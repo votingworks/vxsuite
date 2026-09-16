@@ -10,7 +10,7 @@ import {
 } from '@votingworks/backend';
 import { interpretSheetAndSaveImages } from '@votingworks/ballot-interpreter';
 import { type MarginalMark } from '@votingworks/hmpb';
-import { pdfToImages } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils/pdf';
 import {
   AdjudicationReason,
   anyPollingPlace,

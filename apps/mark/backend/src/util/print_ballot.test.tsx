@@ -12,7 +12,7 @@ import {
   UiStringsPackage,
   VotesDict,
 } from '@votingworks/types';
-import { getPdfPageCount } from '@votingworks/image-utils';
+import { getPdfPageCount } from '@votingworks/image-utils/pdf';
 import {
   PrintFunction,
   PrintSides,
@@ -36,7 +36,7 @@ import { closeLayoutRenderer, printBallot } from './print_ballot.js';
 
 vi.mock('@votingworks/hmpb');
 vi.mock('@votingworks/printing');
-vi.mock(import('@votingworks/image-utils'), async (importActual) => ({
+vi.mock(import('@votingworks/image-utils/pdf'), async (importActual) => ({
   ...(await importActual()),
   getPdfPageCount: vi.fn(),
 }));
