@@ -80,7 +80,7 @@ test('copies a file larger than one read chunk', async () => {
     size: content.byteLength,
     sha256: createHash('sha256').update(content).digest('hex'),
   });
-  expect(readFileSync(destination)).toEqual(content);
+  expect(readFileSync(destination).equals(content)).toBeTruthy();
 });
 
 test('a file exactly at the limit is still copied', async () => {
