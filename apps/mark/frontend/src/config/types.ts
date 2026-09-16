@@ -4,6 +4,7 @@ import {
   PartyId,
   PrecinctId,
   VotesDict,
+  PrintJobId,
 } from '@votingworks/types';
 import type { MachineConfig } from '@votingworks/mark-backend';
 import {
@@ -22,6 +23,8 @@ export interface BallotContextInterface {
   endVoterSession: () => Promise<void>;
   hasPrintedBallot: boolean;
   setHasPrintedBallot: () => void;
+  printJobId?: PrintJobId;
+  setPrintJobId: (printJobId: PrintJobId) => void;
   precinctId?: PrecinctId;
   resetBallot: (showPostVotingInstructions?: boolean) => void;
   // `selectedPartyId` and `selectParty` apply only to combined ballot primaries, where the

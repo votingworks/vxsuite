@@ -20,7 +20,7 @@ import {
 } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
-import { assertDefined, DateWithoutTime } from '@votingworks/basics';
+import { assertDefined, DateWithoutTime, err } from '@votingworks/basics';
 import {
   format,
   getMockMultiLanguageElectionDefinition,
@@ -40,9 +40,12 @@ import {
   PollWorkerScreen,
   PollworkerScreenProps,
 } from './poll_worker_screen.js';
-import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals.js';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config.js';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  ApiMock,
+  createApiMock,
+  MOCK_PRINT_JOB_ID,
+} from '../../test/helpers/mock_api_client.js';
 import { ApiProvider } from '../api_provider.js';
 
 const MOCK_SECTION_SESSION_START_ID = 'MockSectionSessionStart';
@@ -235,7 +238,7 @@ test('prints a blank ballot for the selected ballot style', async () => {
       precinctId: MOCK_BALLOT_STYLE_PRECINCT_ID,
       ballotStyleId: MOCK_BALLOT_STYLE_ID,
     })
-    .resolves();
+    .resolves(MOCK_PRINT_JOB_ID);
 
   renderScreen();
 
@@ -245,21 +248,85 @@ test('prints a blank ballot for the selected ballot style', async () => {
   fireEvent.click(screen.getByText('Mock Select Ballot Style'));
   fireEvent.click(screen.getByText('Print Ballot'));
 
-  // The progress modal is shown for a fixed duration, not gated on the print
-  // job (which completes near-instantly).
+  // The progress modal stays up until the job reaches the printer.
+  apiMock.setPrintJobStatus({ outcome: 'in-progress' });
   await screen.findByText('Printing Ballot');
   expect(screen.queryByText('Ballot Printed')).toBeNull();
 
-  act(() => {
-    vi.advanceTimersByTime(BALLOT_PRINTING_TIMEOUT_SECONDS * 1000);
-  });
-
+  apiMock.setPrintJobStatus({ outcome: 'sent-to-printer' });
   await screen.findByText('Ballot Printed');
   fireEvent.click(screen.getByText('Done'));
 
   await waitFor(() => {
     expect(screen.queryByText('Ballot Printed')).toBeNull();
   });
+});
+
+test('shows the printing modal while the print request is still in flight', async () => {
+  expectSystemSettings(true);
+  // Never resolves, so the screen stays in the window between the print
+  // request and the job id coming back.
+  apiMock.mockApiClient.printBlankBallot
+    .expectCallWith({
+      precinctId: MOCK_BALLOT_STYLE_PRECINCT_ID,
+      ballotStyleId: MOCK_BALLOT_STYLE_ID,
+    })
+    .returns(new Promise(() => {}));
+
+  renderScreen();
+
+  fireEvent.click(await screen.findByText('Print Blank Ballot'));
+  fireEvent.click(screen.getByText('Mock Select Ballot Style'));
+  fireEvent.click(screen.getByText('Print Ballot'));
+
+  await screen.findByText('Printing Ballot');
+});
+
+async function printBlankBallotAndWaitForFailure() {
+  fireEvent.click(await screen.findByText('Print Blank Ballot'));
+  fireEvent.click(screen.getByText('Mock Select Ballot Style'));
+  fireEvent.click(screen.getByText('Print Ballot'));
+  await screen.findByText('Ballot Not Printed');
+}
+
+test('shows a dismissible failure modal when the blank ballot is not printed', async () => {
+  expectSystemSettings(true);
+  apiMock.mockApiClient.printBlankBallot
+    .expectCallWith({
+      precinctId: MOCK_BALLOT_STYLE_PRECINCT_ID,
+      ballotStyleId: MOCK_BALLOT_STYLE_ID,
+    })
+    .resolves(MOCK_PRINT_JOB_ID);
+  apiMock.setPrintJobStatus({
+    outcome: 'failed',
+    reason: 'Unable to send data to printer.',
+  });
+
+  renderScreen();
+  await printBlankBallotAndWaitForFailure();
+  screen.getByText('Unable to send data to printer.');
+
+  fireEvent.click(screen.getByText('Close'));
+  await waitFor(() => {
+    expect(screen.queryByText('Ballot Not Printed')).toBeNull();
+  });
+});
+
+test('treats a job with no tracked status as a failure', async () => {
+  expectSystemSettings(true);
+  apiMock.mockApiClient.printBlankBallot
+    .expectCallWith({
+      precinctId: MOCK_BALLOT_STYLE_PRECINCT_ID,
+      ballotStyleId: MOCK_BALLOT_STYLE_ID,
+    })
+    .resolves(MOCK_PRINT_JOB_ID);
+  apiMock.mockApiClient.getPrintJobStatus.mockImplementation(() =>
+    Promise.resolve(err(new Error('no status tracked for print job 1')))
+  );
+
+  renderScreen();
+  await printBlankBallotAndWaitForFailure();
+  screen.getByText('The ballot was not sent to the printer.');
 });
 
 test('returns to the poll worker menu from the print blank ballot screen', async () => {
@@ -327,7 +394,7 @@ test('prints a blank ballot in the language chosen from the dropdown', async () 
       precinctId: MOCK_BALLOT_STYLE_PRECINCT_ID,
       ballotStyleId: spanishBallotStyle.id,
     })
-    .resolves();
+    .resolves(MOCK_PRINT_JOB_ID);
 
   renderScreen(
     {},
@@ -351,10 +418,6 @@ test('prints a blank ballot in the language chosen from the dropdown', async () 
 
   fireEvent.click(screen.getByText('Print Ballot'));
 
-  await screen.findByText('Printing Ballot');
-  act(() => {
-    vi.advanceTimersByTime(BALLOT_PRINTING_TIMEOUT_SECONDS * 1000);
-  });
   await screen.findByText('Ballot Printed');
 });
 
@@ -367,7 +430,7 @@ test('prints in the default language when the dropdown is left unchanged', async
       precinctId: MOCK_BALLOT_STYLE_PRECINCT_ID,
       ballotStyleId: englishBallotStyle.id,
     })
-    .resolves();
+    .resolves(MOCK_PRINT_JOB_ID);
 
   renderScreen(
     {},
@@ -380,9 +443,5 @@ test('prints in the default language when the dropdown is left unchanged', async
   screen.getByText('Language');
   fireEvent.click(screen.getByText('Print Ballot'));
 
-  await screen.findByText('Printing Ballot');
-  act(() => {
-    vi.advanceTimersByTime(BALLOT_PRINTING_TIMEOUT_SECONDS * 1000);
-  });
   await screen.findByText('Ballot Printed');
 });

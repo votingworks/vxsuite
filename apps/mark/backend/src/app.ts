@@ -22,6 +22,8 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   PollsState,
   PrinterStatus,
+  PrintJobId,
+  PrintJobStatus,
   DiagnosticRecord,
   DiagnosticType,
   DiagnosticOutcome,
@@ -70,6 +72,7 @@ import { setUpBarcodeActivation } from './barcodes/activation.js';
 import { Player as AudioPlayer, SoundName } from './audio/player.js';
 import { saveReadinessReport } from './readiness_report.js';
 import { printTestPage } from './util/print_test_page.js';
+import { startPrintJobMonitor } from './util/print_job_monitor.js';
 import { getCurrentTime } from './util/get_current_time.js';
 
 const TEST_UPS_USER_PASS_REASON = 'UPS connected and fully charged per user.';
@@ -201,6 +204,12 @@ export function buildApi(ctx: Context) {
 
     getPrinterStatus(): Promise<PrinterStatus> {
       return printer.status();
+    },
+
+    getPrintJobStatus(input: {
+      jobId: PrintJobId;
+    }): Result<PrintJobStatus, Error> {
+      return printer.getJobStatus(input.jobId);
     },
 
     getBarcodeConnected(): boolean {
@@ -378,16 +387,26 @@ export function buildApi(ctx: Context) {
 
     ...systemCallApi,
 
-    async printBallot(input: PrintBallotProps) {
-      await printBallot({
+    async printBallot(input: PrintBallotProps): Promise<PrintJobId> {
+      const jobId = await printBallot({
         store,
         printer,
         ...input,
       });
-      store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
+      startPrintJobMonitor({
+        jobId,
+        printer,
+        onSettled: (status) => {
+          if (status.outcome === 'sent-to-printer') {
+            store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
+          }
+          return Promise.resolve();
+        },
+      });
+      return jobId;
     },
 
-    async printBlankBallot(input: PrintBlankBallotProps) {
+    async printBlankBallot(input: PrintBlankBallotProps): Promise<PrintJobId> {
       const systemSettings =
         // @coverage-defer
         store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
@@ -400,18 +419,31 @@ export function buildApi(ctx: Context) {
         ballotStyleId: input.ballotStyleId,
         precinctId: input.precinctId,
       });
-      await printBlankBallot({
+      const jobId = await printBlankBallot({
         store,
         printer,
         ...input,
       });
-      store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
-      await logger.logAsCurrentRole(LogEventId.PrinterPrintComplete, {
-        message: 'Blank ballot printed',
-        disposition: 'success',
-        ballotStyleId: input.ballotStyleId,
-        precinctId: input.precinctId,
+      startPrintJobMonitor({
+        jobId,
+        printer,
+        onSettled: async (status) => {
+          const sentToPrinter = status.outcome === 'sent-to-printer';
+          if (sentToPrinter) {
+            store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
+          }
+          await logger.logAsCurrentRole(LogEventId.PrinterPrintComplete, {
+            message: sentToPrinter
+              ? 'Blank ballot printed'
+              : 'Blank ballot failed to print',
+            disposition: sentToPrinter ? 'success' : 'failure',
+            ballotStyleId: input.ballotStyleId,
+            precinctId: input.precinctId,
+            ...(status.reason ? { reason: status.reason } : {}),
+          });
+        },
       });
+      return jobId;
     },
 
     async printTestDeck({

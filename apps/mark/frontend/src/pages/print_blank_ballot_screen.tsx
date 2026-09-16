@@ -7,8 +7,10 @@ import {
   getConfiguredPrecinctsAndSplits,
   LanguageCode,
   PrecinctId,
+  PrintJobId,
+  PrintJobStatus,
 } from '@votingworks/types';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, Result, throwIllegalValue } from '@votingworks/basics';
 import {
   format,
   getLanguageOptions,
@@ -32,8 +34,7 @@ import {
 
 import styled from 'styled-components';
 
-import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals.js';
-import { printBlankBallot } from '../api.js';
+import { getPrintJobStatus, printBlankBallot } from '../api.js';
 
 const Contents = styled.div`
   display: flex;
@@ -52,6 +53,26 @@ export interface PrintBlankBallotScreenProps {
   onBackButtonPress: () => void;
 }
 
+type PrintStatus = 'printing' | 'printed' | 'failed';
+
+function getPrintStatus(
+  jobStatusResult?: Result<PrintJobStatus, Error>
+): PrintStatus {
+  if (!jobStatusResult) return 'printing';
+  if (jobStatusResult.isErr()) return 'failed';
+  const { outcome } = jobStatusResult.ok();
+  switch (outcome) {
+    case 'in-progress':
+      return 'printing';
+    case 'sent-to-printer':
+      return 'printed';
+    case 'failed':
+      return 'failed';
+    default:
+      return throwIllegalValue(outcome);
+  }
+}
+
 export function PrintBlankBallotScreen({
   isLiveMode,
   electionPackageHash,
@@ -64,19 +85,16 @@ export function PrintBlankBallotScreen({
   const { BallotStyleSelect } = pollWorkerComponents;
   const printBlankBallotMutation = printBlankBallot.useMutation();
 
-  const [printStatus, setPrintStatus] = React.useState<
-    'idle' | 'printing' | 'printed'
-  >('idle');
+  const [jobId, setJobId] = React.useState<PrintJobId>();
+
+  const printJobStatusQuery = getPrintJobStatus.useQuery(jobId);
+
   const [selection, setSelection] = React.useState<{
     precinctId: PrecinctId;
     ballotStyleId: BallotStyleId;
   }>();
   const [selectedLanguage, setSelectedLanguage] =
     React.useState<LanguageCode>();
-  const printTimer = React.useRef(0);
-
-  React.useEffect(() => () => clearTimeout(printTimer.current), []);
-
   // Language is encoded in the ballot style ID, so the languages a ballot style
   // is available in are the ones whose language-specific variant exists in its
   // group.
@@ -94,11 +112,10 @@ export function PrintBlankBallotScreen({
 
   const startPrint = React.useCallback(
     (precinctId: PrecinctId, ballotStyleId: BallotStyleId) => {
-      printBlankBallotMutation.mutate({ precinctId, ballotStyleId });
-      setPrintStatus('printing');
-      printTimer.current = window.setTimeout(() => {
-        setPrintStatus('printed');
-      }, BALLOT_PRINTING_TIMEOUT_SECONDS * 1000);
+      printBlankBallotMutation.mutate(
+        { precinctId, ballotStyleId },
+        { onSuccess: setJobId }
+      );
     },
     [printBlankBallotMutation]
   );
@@ -128,6 +145,15 @@ export function PrintBlankBallotScreen({
     startPrint(precinctId, resolvedBallotStyleId);
   }, [election, selectedLanguage, selection, showLanguagePicker, startPrint]);
 
+  const hasStartedPrint =
+    printBlankBallotMutation.isLoading || jobId !== undefined;
+  const jobStatusResult = printJobStatusQuery.data;
+  const jobStatus = jobStatusResult?.ok();
+
+  const printStatus = hasStartedPrint
+    ? getPrintStatus(jobStatusResult)
+    : undefined;
+
   return (
     <Screen>
       {!isLiveMode && <TestModeBanner />}
@@ -141,7 +167,7 @@ export function PrintBlankBallotScreen({
           <BallotStyleSelect
             election={election}
             onSelect={onChooseBallotStyle}
-            disabled={printStatus !== 'idle'}
+            disabled={jobId !== undefined}
             selectedBallotStyleId={selection?.ballotStyleId}
             configuredPrecinctsAndSplits={getConfiguredPrecinctsAndSplits({
               election,
@@ -165,14 +191,14 @@ export function PrintBlankBallotScreen({
                   }
                 }}
                 style={{ width: '100%' }}
-                disabled={printStatus !== 'idle'}
+                disabled={jobId !== undefined}
               />
             </React.Fragment>
           )}
           <Button
             variant="primary"
             onPress={onPrint}
-            disabled={printStatus !== 'idle'}
+            disabled={jobId !== undefined}
           >
             Print Ballot
           </Button>
@@ -185,7 +211,19 @@ export function PrintBlankBallotScreen({
         <Modal
           title="Ballot Printed"
           content={<P>Remove the printed ballot from the printer.</P>}
-          actions={<Button onPress={() => setPrintStatus('idle')}>Done</Button>}
+          actions={<Button onPress={() => setJobId(undefined)}>Done</Button>}
+        />
+      )}
+      {printStatus === 'failed' && (
+        <Modal
+          title="Ballot Not Printed"
+          content={
+            <React.Fragment>
+              <P>The ballot was not sent to the printer.</P>
+              {jobStatus?.reason && <P>{jobStatus.reason}</P>}
+            </React.Fragment>
+          }
+          actions={<Button onPress={() => setJobId(undefined)}>Close</Button>}
         />
       )}
       <ElectionInfoBar
