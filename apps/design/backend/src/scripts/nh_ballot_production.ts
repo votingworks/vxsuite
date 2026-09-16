@@ -86,6 +86,26 @@ interface Jurisdiction {
   files: SourceFile[];
 }
 
+/**
+ * Corrections NH hasn't made to the source files, layered in here instead.
+ * Keyed by the source file's spelling.
+ */
+const TOWN_NAME_CORRECTIONS: Readonly<Record<string, string>> = {
+  'AT.& GIL. AC. GT.': 'AT. & GIL. AC. GT.',
+  'CHANDLERS PURCHASE': "CHANDLER'S PURCHASE",
+  'LOW & BURBANKS GRANT': "LOW & BURBANK'S GRANT",
+};
+
+function correctTownName(townName: string): string {
+  return TOWN_NAME_CORRECTIONS[townName] ?? townName;
+}
+
+// Exported file names keep NH's spelling so they stay matched to the source
+// files, apart from the same missing space.
+function correctFileName(fileName: string): string {
+  return fileName.replace('AT.&', 'AT. &');
+}
+
 function ballotCategory(props: NhStateBallotProps): BallotCategory | undefined {
   if (props.variant === 'federalOfficeOnly') {
     return 'foo';
@@ -545,13 +565,16 @@ async function readSourceFiles(inputDir: string): Promise<SourceFile[]> {
   return await Promise.all(
     [...entries].sort().map(async (entry) => {
       const path = join(inputDir, entry);
+      const nhBallotStyle = safeParse<NhBallotStyle>(
+        NhBallotStyleSchema,
+        JSON.parse(await readFile(path, 'utf-8'))
+      ).unsafeUnwrap();
+      const headerInfo = nhBallotStyle.AVSInterface.HeaderInfo;
+      headerInfo.TownName = correctTownName(headerInfo.TownName);
       return {
         path,
-        name: basename(entry, extname(entry)),
-        nhBallotStyle: safeParse<NhBallotStyle>(
-          NhBallotStyleSchema,
-          JSON.parse(await readFile(path, 'utf-8'))
-        ).unsafeUnwrap(),
+        name: correctFileName(basename(entry, extname(entry))),
+        nhBallotStyle,
       };
     })
   );
