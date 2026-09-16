@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render as renderWithBallotContext } from '../../test/test_utils.js';
+import { createQueryClient, getPrintJobStatus } from '../api.js';
 import { screen, waitFor } from '../../test/react_testing_library.js';
 import { PrintPage } from './print_page.js';
 import {
@@ -72,4 +73,31 @@ test('shows no failure modal while the job is in progress', async () => {
 
   await screen.findByText(/Printing Your Ballot/i);
   expect(screen.queryByText('Ballot Not Printed')).toBeNull();
+});
+
+test('clears the settled job status so a reused job id is not read from cache', async () => {
+  const queryClient = createQueryClient();
+  const queryKey = getPrintJobStatus.queryKey(MOCK_PRINT_JOB_ID);
+
+  apiMock.setPrintJobStatus({ outcome: 'sent-to-printer' });
+  const resetBallot = vi.fn();
+  const { unmount } = renderWithBallotContext(
+    provideApi(apiMock, <PrintPage />, queryClient),
+    {
+      ballotStyleId: '12',
+      precinctId: '23',
+      hasPrintedBallot: true,
+      printJobId: MOCK_PRINT_JOB_ID,
+      resetBallot,
+    }
+  );
+  await waitFor(() => {
+    expect(resetBallot).toHaveBeenCalledWith(true);
+  });
+
+  unmount();
+
+  await waitFor(() => {
+    expect(queryClient.getQueryData(queryKey)).toBeUndefined();
+  });
 });

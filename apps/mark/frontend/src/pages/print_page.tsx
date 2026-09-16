@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { PrintPage as MarkFlowPrintPage } from '@votingworks/mark-flow-ui';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import {
   appStrings,
   Button,
@@ -67,14 +67,17 @@ export function PrintPage(): JSX.Element {
     }
   }, [sentToPrinter, resetBallot]);
 
+  React.useEffect(() => {
+    if (printJobId === undefined) return undefined;
+    return () => {
+      // CUPS may reuse job IDs so we delete the cache when we're done.
+      queryClient.removeQueries(getPrintJobStatus.queryKey(printJobId));
+    };
+  }, [printJobId, queryClient]);
+
   // End the voter session to be sure we do not allow a duplicate ballot print.
   async function endSessionAfterFailure() {
     setIsEndingSession(true);
-    // CUPS reuses job numbers, so drop this job's terminal status rather than
-    // let a later session read it back from the cache.
-    queryClient.removeQueries(
-      getPrintJobStatus.queryKey(assertDefined(printJobId))
-    );
     await endVoterSession();
     resetBallot();
   }

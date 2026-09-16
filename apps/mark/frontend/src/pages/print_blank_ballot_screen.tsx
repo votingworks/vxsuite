@@ -1,4 +1,5 @@
 import React from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import {
   BallotStyleId,
@@ -68,6 +69,15 @@ export function PrintBlankBallotScreen({
   const [jobId, setJobId] = React.useState<PrintJobId>();
 
   const printJobStatusQuery = getPrintJobStatus.useQuery(jobId);
+  const queryClient = useQueryClient();
+
+  React.useEffect(() => {
+    if (jobId === undefined) return undefined;
+    return () => {
+      // CUPS may reuse job IDs so we delete the cache when we're done.
+      queryClient.removeQueries(getPrintJobStatus.queryKey(jobId));
+    };
+  }, [jobId, queryClient]);
 
   const [selection, setSelection] = React.useState<{
     precinctId: PrecinctId;

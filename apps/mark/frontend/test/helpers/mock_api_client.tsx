@@ -37,6 +37,7 @@ import { err, ok, Result } from '@votingworks/basics';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import { TestErrorBoundary } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import { QueryClient } from '@tanstack/react-query';
 import { mockMachineConfig } from './mock_machine_config.js';
 import { initialElectionState } from '../../src/app_root.js';
 import { ApiProvider } from '../../src/api_provider.js';
@@ -428,11 +429,14 @@ export type ApiMock = ReturnType<typeof createApiMock>;
 
 export function provideApi(
   apiMock: ReturnType<typeof createApiMock>,
-  children: React.ReactNode
+  children: React.ReactNode,
+  queryClient?: QueryClient
 ): JSX.Element {
   return (
     <TestErrorBoundary>
-      <ApiProvider apiClient={apiMock.mockApiClient}>{children}</ApiProvider>
+      <ApiProvider apiClient={apiMock.mockApiClient} queryClient={queryClient}>
+        {children}
+      </ApiProvider>
     </TestErrorBoundary>
   );
 }

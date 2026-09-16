@@ -21,12 +21,14 @@ import {
 import userEvent from '@testing-library/user-event';
 
 import { assertDefined, DateWithoutTime, err } from '@votingworks/basics';
+import { QueryClient } from '@tanstack/react-query';
 import {
   format,
   getMockMultiLanguageElectionDefinition,
   getRelatedBallotStyle,
 } from '@votingworks/utils';
 import { pollWorkerComponents } from '@votingworks/mark-flow-ui';
+import { createQueryClient, getPrintJobStatus } from '../api.js';
 import {
   act,
   fireEvent,
@@ -109,10 +111,15 @@ function renderScreen(
   pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn = mockPollWorkerAuth(
     electionGeneralDefinition
   ),
-  electionDefinition: ElectionDefinition = electionGeneralDefinition
+  electionDefinition: ElectionDefinition = electionGeneralDefinition,
+  queryClient?: QueryClient
 ) {
   return render(
-    <ApiProvider apiClient={apiMock.mockApiClient} noAudio>
+    <ApiProvider
+      apiClient={apiMock.mockApiClient}
+      queryClient={queryClient}
+      noAudio
+    >
       <PollWorkerScreen
         pollWorkerAuth={pollWorkerAuth}
         activateCardlessVoterSession={vi.fn()}
@@ -444,4 +451,30 @@ test('prints in the default language when the dropdown is left unchanged', async
   fireEvent.click(screen.getByText('Print Ballot'));
 
   await screen.findByText('Ballot Printed');
+});
+
+test('clears a settled blank ballot job status so a reused job id is not read from cache', async () => {
+  const queryClient = createQueryClient();
+  const queryKey = getPrintJobStatus.queryKey(MOCK_PRINT_JOB_ID);
+
+  expectSystemSettings(true);
+  apiMock.mockApiClient.printBlankBallot
+    .expectCallWith({
+      precinctId: MOCK_BALLOT_STYLE_PRECINCT_ID,
+      ballotStyleId: MOCK_BALLOT_STYLE_ID,
+    })
+    .resolves(MOCK_PRINT_JOB_ID);
+
+  renderScreen({}, undefined, undefined, queryClient);
+
+  fireEvent.click(await screen.findByText('Print Blank Ballot'));
+  fireEvent.click(screen.getByText('Mock Select Ballot Style'));
+  fireEvent.click(screen.getByText('Print Ballot'));
+
+  await screen.findByText('Ballot Printed');
+  fireEvent.click(screen.getByText('Done'));
+
+  await waitFor(() => {
+    expect(queryClient.getQueryData(queryKey)).toBeUndefined();
+  });
 });
