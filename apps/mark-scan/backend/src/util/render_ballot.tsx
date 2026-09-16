@@ -192,7 +192,7 @@ export async function renderBallot({
       })
     ).unsafeUnwrap();
 
-    const numPages = await getPdfPageCount(Uint8Array.from(pdfData));
+    const numPages = await getPdfPageCount(pdfData);
     if (numPages === 1) {
       return pdfData;
     }
