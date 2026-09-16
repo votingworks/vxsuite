@@ -211,6 +211,40 @@ function mergeContestOrderings(
   return topologicalSort(contestEdges);
 }
 
+const NH_OTHER_PARTY = 'Other';
+
+/**
+ * Party affiliations for the candidates the source files list only as
+ * "Other", from the Secretary of State's 2026 Declarations of Intent list.
+ */
+const OTHER_PARTY_AFFILIATIONS: Readonly<Record<string, string>> = {
+  'Becky Berk': 'Independent',
+  'C. Mark DelSesto': 'Independent',
+  'Cassie Mason': 'Independent',
+  "Daryl D'Angelo": 'Classic Liberal',
+  'Edmond Laplante': 'Constitution',
+  'George Randell': 'Independent',
+  'Kaley Dvorak': 'Undeclared',
+  'Kirsten Larsen Schultz': 'Independent',
+  'Kyle Haines': 'Independent',
+  'Paul Twomey': 'Independent',
+  'Robbie Mahrou': 'Independent',
+  'Scott McKinnon Black': 'Independent',
+  'Stephen Villee': 'Libertarian',
+  'Timothy J. Coffin': 'Independent',
+  'William F. Fessenden': 'Independent',
+};
+
+function partyNameForCandidate(sourceParty: string, name: string): string {
+  if (sourceParty !== NH_OTHER_PARTY) {
+    return sourceParty;
+  }
+  return assertDefined(
+    OTHER_PARTY_AFFILIATIONS[name.replace(/\u2019/g, "'")],
+    `No party affiliation on file for "${name}", listed as ${NH_OTHER_PARTY} in the source file`
+  );
+}
+
 // Names are matched across ward files (candidate interning, district
 // inference), so normalize whitespace to keep an invisible difference from
 // reading as two different candidates.
@@ -631,7 +665,7 @@ export function convertNhElection(
       for (const info of contestCandidateInfos(contestInfo)) {
         const name = candidateName(info);
         const partyIds = info.Party
-          ? [getOrCreateParty(info.Party).id]
+          ? [getOrCreateParty(partyNameForCandidate(info.Party, name)).id]
           : undefined;
         const index = contest.candidates.findIndex((c) => c.name === name);
         const existing = index === -1 ? undefined : contest.candidates[index];

@@ -502,6 +502,70 @@ test('a candidate nominated by two parties is listed once per party', () => {
   }
 });
 
+test('replaces the source "Other" party with the candidate’s declared affiliation', () => {
+  const ward1 = makeBallotStyle(1, '', [
+    {
+      ...contestInfo('For Governor', []),
+      CandidateName: [
+        candidate('Kelly Ayotte', 'Republican'),
+        candidate('Stephen Villee', 'Other'),
+      ],
+    },
+  ]);
+
+  const election = convertNhElection([ward1], testSignatureImage);
+  const governorContest = find(
+    election.contests,
+    (contest) => contest.title === 'For Governor'
+  );
+  assert(governorContest.type === 'candidate');
+
+  const villee = find(
+    governorContest.candidates,
+    (c) => c.name === 'Stephen Villee'
+  );
+  const partyId = assertDefined(assertDefined(villee.partyIds)[0]);
+  expect(find(election.parties, (party) => party.id === partyId).name).toEqual(
+    'Libertarian'
+  );
+  expect(election.parties.map((party) => party.name)).not.toContain('Other');
+});
+
+test('matches a declared affiliation whose name uses a typographic apostrophe', () => {
+  const ward1 = makeBallotStyle(1, '', [
+    {
+      ...contestInfo('For State Representative', []),
+      CandidateName: [candidate('Daryl D’Angelo', 'Other')],
+    },
+  ]);
+
+  const election = convertNhElection([ward1], testSignatureImage);
+  const contest = find(
+    election.contests,
+    (c) => c.title === 'For State Representative'
+  );
+  assert(contest.type === 'candidate');
+  const partyId = assertDefined(
+    assertDefined(assertDefined(contest.candidates[0]).partyIds)[0]
+  );
+  expect(find(election.parties, (party) => party.id === partyId).name).toEqual(
+    'Classic Liberal'
+  );
+});
+
+test('throws when a candidate listed as Other has no declared affiliation on file', () => {
+  const ward1 = makeBallotStyle(1, '', [
+    {
+      ...contestInfo('For Governor', []),
+      CandidateName: [candidate('Nemo Nobody', 'Other')],
+    },
+  ]);
+
+  expect(() => convertNhElection([ward1], testSignatureImage)).toThrow(
+    'No party affiliation on file for "Nemo Nobody"'
+  );
+});
+
 test('throws when source files disagree on the relative order of two contests', () => {
   const ward1 = makeBallotStyle(1, 'DEMOCRATIC', [
     sheriff(),
