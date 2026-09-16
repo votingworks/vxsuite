@@ -500,9 +500,13 @@ test('restore warns but does not fail if the machine ID does not match', async (
   // apart from a restore onto the machine that made it.
   const warnings = vi
     .mocked(logger.log)
-    .mock.calls.filter((call) => JSON.stringify(call).includes(thisMachineId));
+    .mock.calls.filter(([, , logData]) =>
+      Object.values(logData ?? {}).includes(thisMachineId)
+    );
   expect(warnings).toHaveLength(1);
-  expect(JSON.stringify(warnings[0])).toContain(DEV_MACHINE_ID);
+  expect(Object.values(assertDefined(warnings[0])[2] ?? {})).toContain(
+    DEV_MACHINE_ID
+  );
 });
 
 test('the recorded machine ID is the signer, not what the manifest claims', async () => {
@@ -528,7 +532,9 @@ test('the recorded machine ID is the signer, not what the manifest claims', asyn
 
   const warnings = vi
     .mocked(logger.log)
-    .mock.calls.filter((call) => JSON.stringify(call).includes(DEV_MACHINE_ID));
+    .mock.calls.filter(([, , logData]) =>
+      Object.values(logData ?? {}).includes(DEV_MACHINE_ID)
+    );
   expect(warnings).toHaveLength(1);
 });
 
