@@ -533,7 +533,7 @@ function CandidateList({
                       position: 'absolute',
                       width: '100%',
                       textAlign: 'center',
-                      top: '-0.8em',
+                      top: '-1em',
                     }}
                   >
                     {electionStrings.partyName(party)}
