@@ -350,9 +350,10 @@ const WRITE_IN_AREA_MAX_TOP = 1.3;
  * options are a fixed height, so that extra space would otherwise go unscanned.
  *
  * Only the top edge moves: the office label sits directly below the area, and
- * growing down would pull printed text into the scanned region. The area stops
- * at the bottom of the preceding write-in option, or at the top of the cell for
- * the first one.
+ * growing down would pull printed text into the scanned region. Only the first
+ * option in a cell claims the space above it; a later option stops at its own
+ * top edge, because the gap above it holds the preceding option's label, whose
+ * wrapped lines render outside that option's box.
  */
 function expandWriteInAreaTop({
   bubble,
@@ -383,13 +384,12 @@ function expandWriteInAreaTop({
     ),
     'an expandable write-in option must be rendered inside a cell'
   );
-  const previousOption = options
+  const isFirstOptionInCell = !options
     .slice(0, optionIndex)
-    .filter((o) => o.y >= cell.y && o.y < option.y)
-    .pop();
-  const ceiling = previousOption
-    ? previousOption.y + previousOption.height
-    : cell.y + gridHeightToPixels(grid, WRITE_IN_AREA_CELL_TOP_INSET);
+    .some((o) => o.y >= cell.y && o.y < option.y);
+  const ceiling = isFirstOptionInCell
+    ? cell.y + gridHeightToPixels(grid, WRITE_IN_AREA_CELL_TOP_INSET)
+    : option.y;
 
   const bubbleCenterY = bubble.y + bubble.height / 2;
   const expandedTop = pixelsToGridHeight(grid, bubbleCenterY - ceiling);
