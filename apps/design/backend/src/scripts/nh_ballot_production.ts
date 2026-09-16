@@ -20,6 +20,7 @@ import {
 } from '@votingworks/hmpb';
 import {
   BallotStyle,
+  ballotPaperDimensions,
   BallotType,
   Election,
   ElectionPackageFileName,
@@ -103,6 +104,13 @@ function ballotCategory(props: NhStateBallotProps): BallotCategory | undefined {
     default:
       return undefined;
   }
+}
+
+function fileNameWithPaperLength(
+  name: string,
+  paperSize: HmpbBallotPaperSize
+): string {
+  return `${name} - ${ballotPaperDimensions(paperSize).height}`;
 }
 
 function precinctKeyForWard(wardName: string | number): string {
@@ -233,7 +241,10 @@ async function writeRovForms(
           { election: p.election, ballotStyle, precinctId },
           p.election.ballotLayout.paperSize
         );
-        const fileName = assertDefined(p.fileNames.get(precinctId));
+        const fileName = fileNameWithPaperLength(
+          assertDefined(p.fileNames.get(precinctId)),
+          paperSize
+        );
         await writeFile(join(rovDir, `${fileName}.pdf`), pdf);
         if (paperSize !== p.election.ballotLayout.paperSize) {
           process.stdout.write(
@@ -364,7 +375,10 @@ async function writeProofBallots(
             watermark: PROOF_WATERMARK,
           })
         ).unsafeUnwrap();
-        const fileName = assertDefined(p.fileNames.get(props.precinctId));
+        const fileName = fileNameWithPaperLength(
+          assertDefined(p.fileNames.get(props.precinctId)),
+          p.election.ballotLayout.paperSize
+        );
         const scratchPath = join(p.scratchDir.path, `${randomUUID()}.pdf`);
         await writeFile(scratchPath, await document.renderToPdf());
         await normalizeForPrinting(scratchPath, p.election);
@@ -467,7 +481,10 @@ async function processJurisdiction(
     const category = assertDefined(ballotCategory(props));
     const categoryDir = join(p.outDir, 'ballots', category);
     await mkdir(categoryDir, { recursive: true });
-    const fileName = assertDefined(fileNames.get(props.precinctId));
+    const fileName = fileNameWithPaperLength(
+      assertDefined(fileNames.get(props.precinctId)),
+      election.ballotLayout.paperSize
+    );
     await copyFile(ballotPath, join(categoryDir, `${fileName}.pdf`));
 
     if (props.variant === undefined && props.ballotMode === 'official') {
