@@ -13,7 +13,7 @@ import {
 import React from 'react';
 import { BmdPaperBallot, filterVotesForContests } from '@votingworks/ui';
 import { randomUUID as uuid } from 'node:crypto';
-import { concatenatePdfs } from '@votingworks/hmpb';
+import { concatenatePdfs } from '@votingworks/image-utils';
 import { TestDeckBallot } from './test_decks.js';
 
 /**

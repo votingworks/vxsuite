@@ -1,3 +1,4 @@
+export * from './concatenate_pdfs.js';
 export * from './crop.js';
 export * from './image_data.js';
 export * from './pdf_to_images.js';

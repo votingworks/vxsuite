@@ -12,9 +12,9 @@ import {
 import { renderToPdf } from '@votingworks/printing';
 
 import { AdminTallyReportByParty } from '@votingworks/ui';
+import { concatenatePdfs } from '@votingworks/image-utils';
 import {
   markBallotDocument,
-  concatenatePdfs,
   renderBallotPdfWithMetadataQrCode,
   RendererPool,
 } from '@votingworks/hmpb';
