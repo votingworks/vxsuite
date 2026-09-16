@@ -569,7 +569,7 @@ function CandidateContest({
                 writeInArea: {
                   top: 0.75,
                   left: 4.9,
-                  bottom: 0.15,
+                  bottom: 0.08,
                   right: -0.6,
                 },
               };
