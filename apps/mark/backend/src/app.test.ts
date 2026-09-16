@@ -722,6 +722,13 @@ test('printing ballots', async () => {
   });
 
   await expectElectionState({ ballotsPrintedCount: 1 });
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.BallotPrintComplete,
+    expect.objectContaining({
+      message: 'Ballot printed',
+      disposition: 'success',
+    })
+  );
   await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'english-ballot',
     failureThreshold: 0.0001,
@@ -768,8 +775,16 @@ test('a ballot that fails to print does not increment the printed count', async 
   });
 
   await vi.waitFor(() => {
-    expect(clearJobQueue).toHaveBeenCalled();
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.BallotPrintComplete,
+      expect.objectContaining({
+        message: 'Ballot failed to print',
+        disposition: 'failure',
+        reason: 'Unable to send data to printer.',
+      })
+    );
   });
+  expect(clearJobQueue).toHaveBeenCalled();
   await expectElectionState({ ballotsPrintedCount: 0 });
 });
 
@@ -826,7 +841,7 @@ test('printing a blank ballot prints the pre-rendered base ballot PDF', async ()
   expect(printedData.toString('utf-8')).toEqual(mockBallotPdfData);
 
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
-    LogEventId.PrinterPrintRequest,
+    LogEventId.BallotPrintRequest,
     expect.objectContaining({
       message: 'Printing a blank ballot',
       ballotStyleId: '1',
@@ -834,7 +849,7 @@ test('printing a blank ballot prints the pre-rendered base ballot PDF', async ()
     })
   );
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
-    LogEventId.PrinterPrintComplete,
+    LogEventId.BallotPrintComplete,
     expect.objectContaining({
       message: 'Blank ballot printed',
       disposition: 'success',
@@ -844,7 +859,7 @@ test('printing a blank ballot prints the pre-rendered base ballot PDF', async ()
   );
 });
 
-test('a blank ballot that fails to print does not increment the printed count', async () => {
+test('a blank ballot that fails to print is logged as a failure', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
 
@@ -875,7 +890,6 @@ test('a blank ballot that fails to print does not increment the printed count', 
   }
   mockNoCard();
 
-  const clearJobQueue = vi.spyOn(mockPrinterHandler.printer, 'clearJobQueue');
   mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   await expectElectionState({ ballotsPrintedCount: 0 });
 
@@ -889,7 +903,16 @@ test('a blank ballot that fails to print does not increment the printed count', 
   });
 
   await vi.waitFor(() => {
-    expect(clearJobQueue).toHaveBeenCalled();
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.BallotPrintComplete,
+      expect.objectContaining({
+        message: 'Blank ballot failed to print',
+        disposition: 'failure',
+        ballotStyleId: '1',
+        precinctId: '23',
+        reason: 'Unable to send data to printer.',
+      })
+    );
   });
   await expectElectionState({ ballotsPrintedCount: 0 });
 });
@@ -913,11 +936,11 @@ test('printing a blank ballot throws when no ballot PDF is available', async () 
 
   // The request is logged, but the completion is not, since printing failed.
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
-    LogEventId.PrinterPrintRequest,
+    LogEventId.BallotPrintRequest,
     expect.objectContaining({ message: 'Printing a blank ballot' })
   );
   expect(logger.logAsCurrentRole).not.toHaveBeenCalledWith(
-    LogEventId.PrinterPrintComplete,
+    LogEventId.BallotPrintComplete,
     expect.anything()
   );
 });

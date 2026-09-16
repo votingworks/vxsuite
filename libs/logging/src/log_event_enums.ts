@@ -85,6 +85,8 @@ export enum LogEventId {
   PrinterStatusChanged = 'printer-status-changed',
   PrinterPrintRequest = 'printer-print-request',
   PrinterPrintComplete = 'printer-print-complete',
+  BallotPrintRequest = 'ballot-print-request',
+  BallotPrintComplete = 'ballot-print-complete',
   DeviceAttached = 'device-attached',
   DeviceUnattached = 'device-unattached',
   WorkspaceConfigurationMessage = 'workspace-config',
@@ -383,6 +385,19 @@ const PrinterPrintComplete: LogDetails = {
   eventType: LogEventType.UserAction,
   documentationMessage:
     'A print request was completed. Success or failure is indicated by disposition.',
+};
+
+const BallotPrintRequest: LogDetails = {
+  eventId: LogEventId.BallotPrintRequest,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'A ballot print request was triggered.',
+};
+
+const BallotPrintComplete: LogDetails = {
+  eventId: LogEventId.BallotPrintComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A ballot print request was completed. Success or failure is indicated by disposition.',
 };
 
 const DeviceAttached: LogDetails = {
@@ -1624,6 +1639,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return PrinterPrintRequest;
     case LogEventId.PrinterPrintComplete:
       return PrinterPrintComplete;
+    case LogEventId.BallotPrintRequest:
+      return BallotPrintRequest;
+    case LogEventId.BallotPrintComplete:
+      return BallotPrintComplete;
     case LogEventId.DeviceAttached:
       return DeviceAttached;
     case LogEventId.DeviceUnattached:

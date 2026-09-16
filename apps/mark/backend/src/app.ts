@@ -388,6 +388,11 @@ export function buildApi(ctx: Context) {
     ...systemCallApi,
 
     async printBallot(input: PrintBallotProps): Promise<PrintJobId> {
+      await logger.logAsCurrentRole(LogEventId.BallotPrintRequest, {
+        message: 'Printing a ballot',
+        ballotStyleId: input.ballotStyleId,
+        precinctId: input.precinctId,
+      });
       const jobId = await printBallot({
         store,
         printer,
@@ -396,11 +401,20 @@ export function buildApi(ctx: Context) {
       startPrintJobMonitor({
         jobId,
         printer,
-        onSettled: (status) => {
-          if (status.outcome === 'sent-to-printer') {
+        onSettled: async (status) => {
+          const sentToPrinter = status.outcome === 'sent-to-printer';
+          if (sentToPrinter) {
             store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
           }
-          return Promise.resolve();
+          await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
+            message: sentToPrinter
+              ? 'Ballot printed'
+              : 'Ballot failed to print',
+            disposition: sentToPrinter ? 'success' : 'failure',
+            ballotStyleId: input.ballotStyleId,
+            precinctId: input.precinctId,
+            ...(status.reason ? { reason: status.reason } : {}),
+          });
         },
       });
       return jobId;
@@ -414,7 +428,7 @@ export function buildApi(ctx: Context) {
         systemSettings.allowPrintingBlankBallotsFromVxMark,
         'Printing blank ballots from VxMark is not enabled'
       );
-      await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+      await logger.logAsCurrentRole(LogEventId.BallotPrintRequest, {
         message: 'Printing a blank ballot',
         ballotStyleId: input.ballotStyleId,
         precinctId: input.precinctId,
@@ -427,18 +441,21 @@ export function buildApi(ctx: Context) {
       startPrintJobMonitor({
         jobId,
         printer,
-        onSettled: (status) => {
-          if (status.outcome === 'sent-to-printer') {
+        onSettled: async (status) => {
+          const sentToPrinter = status.outcome === 'sent-to-printer';
+          if (sentToPrinter) {
             store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
           }
-          return Promise.resolve();
+          await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
+            message: sentToPrinter
+              ? 'Blank ballot printed'
+              : 'Blank ballot failed to print',
+            disposition: sentToPrinter ? 'success' : 'failure',
+            ballotStyleId: input.ballotStyleId,
+            precinctId: input.precinctId,
+            ...(status.reason ? { reason: status.reason } : {}),
+          });
         },
-      });
-      await logger.logAsCurrentRole(LogEventId.PrinterPrintComplete, {
-        message: 'Blank ballot printed',
-        disposition: 'success',
-        ballotStyleId: input.ballotStyleId,
-        precinctId: input.precinctId,
       });
       return jobId;
     },

@@ -232,6 +232,16 @@ eventId = "printer-print-complete"
 eventType = "user-action"
 documentationMessage = "A print request was completed. Success or failure is indicated by disposition."
 
+[Events.BallotPrintRequest]
+eventId = "ballot-print-request"
+eventType = "user-action"
+documentationMessage = "A ballot print request was triggered."
+
+[Events.BallotPrintComplete]
+eventId = "ballot-print-complete"
+eventType = "user-action"
+documentationMessage = "A ballot print request was completed. Success or failure is indicated by disposition."
+
 [Events.DeviceAttached]
 eventId = "device-attached"
 eventType = "application-status"
