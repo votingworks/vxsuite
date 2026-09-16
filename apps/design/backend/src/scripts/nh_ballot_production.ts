@@ -104,6 +104,10 @@ const QUESTION_TEXT_CORRECTIONS: ReadonlyArray<readonly [string, string]> = [
   ['SCHOOL DISTRICT SCHOOL DISTRICT', 'SCHOOL DISTRICT'],
 ];
 
+const CANDIDATE_NAME_CORRECTIONS: Readonly<Record<string, string>> = {
+  'Sean M. Leavitt': 'Robert J. Drew',
+};
+
 function logCorrection(entry: string, description: string): void {
   process.stdout.write(`Corrected ${entry}: ${description}\n`);
 }
@@ -142,6 +146,15 @@ function correctQuestionText(
       logCorrection(entry, `Question ${questionNumber} "${from}" > "${to}"`);
     }
   }
+  return corrected;
+}
+
+function correctCandidateName(entry: string, name: string): string {
+  const corrected = CANDIDATE_NAME_CORRECTIONS[name];
+  if (corrected === undefined) {
+    return name;
+  }
+  logCorrection(entry, `Candidate name "${name}" > "${corrected}"`);
   return corrected;
 }
 
@@ -617,6 +630,17 @@ async function readSourceFiles(inputDir: string): Promise<SourceFile[]> {
           index + 1,
           question.Question
         );
+      }
+      for (const contest of nhBallotStyle.AVSInterface.Candidates) {
+        const { CandidateName } = contest;
+        const candidates = Array.isArray(CandidateName)
+          ? CandidateName
+          : (CandidateName && [CandidateName]) || [];
+        for (const candidate of candidates) {
+          candidate.Name = Array.isArray(candidate.Name)
+            ? candidate.Name.map((part) => correctCandidateName(entry, part))
+            : correctCandidateName(entry, candidate.Name);
+        }
       }
       return {
         path,
