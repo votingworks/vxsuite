@@ -327,10 +327,11 @@ export function gridHeightToPixels(
 }
 
 /**
- * Gap left between an expanded write-in area and the top edge of its cell, so
- * the area doesn't reach the printed rule bounding the contest row.
+ * Gap left between an expanded write-in area and the top edge of its option, so
+ * the area clears the label of the option above it, whose wrapped lines render
+ * in that gap.
  */
-const WRITE_IN_AREA_CELL_TOP_INSET = 0.1;
+const WRITE_IN_AREA_OPTION_TOP_INSET = 0.15;
 
 /**
  * Cap on how far above its bubble center a write-in area may be expanded.
@@ -387,9 +388,14 @@ function expandWriteInAreaTop({
   const isFirstOptionInCell = !options
     .slice(0, optionIndex)
     .some((o) => o.y >= cell.y && o.y < option.y);
+  // An area reaching the top of its cell is inset to match the gap it already
+  // leaves on the left, so its clearance from the printed rules is even.
+  const bubbleCenterX = bubble.x + bubble.width / 2;
+  const cellLeftGap =
+    bubbleCenterX - gridWidthToPixels(grid, writeInArea.left) - cell.x;
   const ceiling = isFirstOptionInCell
-    ? cell.y + gridHeightToPixels(grid, WRITE_IN_AREA_CELL_TOP_INSET)
-    : option.y;
+    ? cell.y + cellLeftGap
+    : option.y + gridHeightToPixels(grid, WRITE_IN_AREA_OPTION_TOP_INSET);
 
   const bubbleCenterY = bubble.y + bubble.height / 2;
   const expandedTop = pixelsToGridHeight(grid, bubbleCenterY - ceiling);
