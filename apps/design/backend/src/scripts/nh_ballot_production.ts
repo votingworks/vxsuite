@@ -7,6 +7,7 @@ import {
   ballotTemplates,
   createPlaywrightRendererPool,
   hmpbStringsCatalog,
+  convertPdfFileToGrayscale,
   countBallotPages,
   ElectionSerializationOptions,
   NhStateBallotProps,
@@ -21,6 +22,7 @@ import {
   BallotType,
   Election,
   ElectionPackageFileName,
+  EncodedBallotEntry,
   formatElectionHashes,
   getBallotLanguageConfigs,
   HmpbBallotPaperSize,
@@ -44,6 +46,7 @@ import { basename, extname, join } from 'node:path';
 import { buffer } from 'node:stream/consumers';
 import * as tmp from 'tmp';
 import { createBallotPropsForTemplate } from '../ballots.js';
+import { normalizeBallotColorModeForPrinting } from '../worker/ballot_pdfs.js';
 import { stateDefaultSystemSettings } from '../system_settings.js';
 import { Archiver } from '../worker/zip.js';
 import {
@@ -138,11 +141,6 @@ function fileNamesByPrecinctId(
   );
 }
 
-/**
- * NH ballots are English-only, so every string resolves from the local
- * catalogs. This translator fails loudly rather than reaching the network if
- * that ever stops being true.
- */
 function englishOnlyTranslator(): GoogleCloudTranslator {
   return new GoogleCloudTranslator({
     translationClient: {
@@ -178,10 +176,6 @@ async function electionWithBallotStrings(election: Election): Promise<{
   };
 }
 
-/**
- * ROV forms list every contest on one sheet, so they often need more paper than
- * the ballot itself. Start at the ballot's size and step up until one fits.
- */
 async function renderRovFormAtFittingPaperSize(
   renderer: Renderer,
   props: Omit<Parameters<typeof renderNhStateRovForm>[1], 'paperSize'>,
@@ -243,6 +237,7 @@ async function writeElectionPackage(p: {
   electionData: string;
   ballotHash: string;
   appStrings: UiStringsPackage;
+  encodedBallots: string;
   outDir: string;
 }): Promise<string> {
   const zip = new Archiver();
@@ -256,6 +251,7 @@ async function writeElectionPackage(p: {
   zip.addEntry(JSON.stringify(p.appStrings, null, 2), {
     name: ElectionPackageFileName.APP_STRINGS,
   });
+  zip.addEntry(p.encodedBallots, { name: ElectionPackageFileName.BALLOTS });
 
   const contents = await buffer(zip.finalize());
   const electionPackageHash = createHash('sha256')
@@ -271,11 +267,6 @@ async function writeElectionPackage(p: {
 
 const PAGES_PER_SHEET = 2;
 
-/**
- * NH prints on legal stock, disregarding the size named in the source files.
- * A ballot that would spill onto a second sheet moves up to the next size
- * instead, since every voter's ballot has to be a single sheet.
- */
 async function choosePaperSize(
   rendererPool: RendererPool,
   election: Election,
@@ -356,8 +347,6 @@ async function processJurisdiction(
     .filter((props) => ballotCategory(props) !== undefined)
     .map((props) => (isHandCount ? { ...props, isHandCount: true } : props));
 
-  // Hand-count ballots are never scanned, so they have no bubble positions to
-  // express in the v4.0 grid layout format.
   const serializationOptions: ElectionSerializationOptions = {
     format: 'vxf',
     version: isHandCount ? LATEST_SOFTWARE_VERSION : 'v4.0',
@@ -372,12 +361,37 @@ async function processJurisdiction(
       { path: tmp.dirSync({ unsafeCleanup: true }).name }
     );
 
+  await Promise.all(
+    ballotPaths.map(async (ballotPath) => {
+      if (election.type === 'primary') {
+        await normalizeBallotColorModeForPrinting({
+          ballotPath,
+          ballotTemplateId: 'NhStateBallot',
+        });
+        return;
+      }
+      await convertPdfFileToGrayscale(ballotPath);
+    })
+  );
+
+  const encodedBallotLines: string[] = [];
   for (const [props, ballotPath] of iter(ballotProps).zip(ballotPaths)) {
     const category = assertDefined(ballotCategory(props));
     const categoryDir = join(p.outDir, 'ballots', category);
     await mkdir(categoryDir, { recursive: true });
     const fileName = assertDefined(fileNames.get(props.precinctId));
     await copyFile(ballotPath, join(categoryDir, `${fileName}.pdf`));
+
+    if (props.variant === undefined) {
+      const entry: EncodedBallotEntry = {
+        ballotStyleId: props.ballotStyleId,
+        precinctId: props.precinctId,
+        ballotType: props.ballotType,
+        ballotMode: props.ballotMode,
+        encodedBallot: await readFile(ballotPath, 'base64'),
+      };
+      encodedBallotLines.push(`${JSON.stringify(entry)}\n`);
+    }
   }
 
   await writeRovForms(rendererPool, {
@@ -392,6 +406,7 @@ async function processJurisdiction(
       electionData: electionDefinition.electionData,
       ballotHash: electionDefinition.ballotHash,
       appStrings,
+      encodedBallots: encodedBallotLines.join(''),
       outDir: p.outDir,
     });
   }
