@@ -265,6 +265,9 @@ async function writeElectionPackage(p: {
     name: ElectionPackageFileName.APP_STRINGS,
   });
   zip.addEntry(p.encodedBallots, { name: ElectionPackageFileName.BALLOTS });
+  zip.addEntry(JSON.stringify({}, null, 2), {
+    name: ElectionPackageFileName.REGISTERED_VOTER_COUNTS,
+  });
 
   const contents = await buffer(zip.finalize());
   const electionPackageHash = createHash('sha256')
@@ -467,12 +470,15 @@ async function processJurisdiction(
     const fileName = assertDefined(fileNames.get(props.precinctId));
     await copyFile(ballotPath, join(categoryDir, `${fileName}.pdf`));
 
-    if (props.variant === undefined) {
+    if (props.variant === undefined && props.ballotMode === 'official') {
       const entry: EncodedBallotEntry = {
         ballotStyleId: props.ballotStyleId,
         precinctId: props.precinctId,
         ballotType: props.ballotType,
         ballotMode: props.ballotMode,
+        watermark: props.watermark,
+        compact: false,
+        ballotAuditId: props.ballotAuditId,
         encodedBallot: await readFile(ballotPath, 'base64'),
       };
       encodedBallotLines.push(`${JSON.stringify(entry)}\n`);
