@@ -130,7 +130,7 @@ function fileNameWithPaperLength(
   name: string,
   paperSize: HmpbBallotPaperSize
 ): string {
-  return `${name} - ${ballotPaperDimensions(paperSize).height}`;
+  return `${name} ${ballotPaperDimensions(paperSize).height}in`;
 }
 
 function precinctKeyForWard(wardName: string | number): string {
