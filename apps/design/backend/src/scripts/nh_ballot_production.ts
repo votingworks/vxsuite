@@ -96,14 +96,53 @@ const TOWN_NAME_CORRECTIONS: Readonly<Record<string, string>> = {
   'LOW & BURBANKS GRANT': "LOW & BURBANK'S GRANT",
 };
 
-function correctTownName(townName: string): string {
-  return TOWN_NAME_CORRECTIONS[townName] ?? townName;
+const FILE_NAME_CORRECTIONS: ReadonlyArray<readonly [string, string]> = [
+  ['AT.&', 'AT. &'],
+];
+
+const QUESTION_TEXT_CORRECTIONS: ReadonlyArray<readonly [string, string]> = [
+  ['SCHOOL DISTRICT SCHOOL DISTRICT', 'SCHOOL DISTRICT'],
+];
+
+function logCorrection(entry: string, description: string): void {
+  process.stdout.write(`Corrected ${entry}: ${description}\n`);
+}
+
+function correctTownName(entry: string, townName: string): string {
+  const corrected = TOWN_NAME_CORRECTIONS[townName];
+  if (corrected === undefined) {
+    return townName;
+  }
+  logCorrection(entry, `Town name "${townName}" > "${corrected}"`);
+  return corrected;
 }
 
 // Exported file names keep NH's spelling so they stay matched to the source
 // files, apart from the same missing space.
-function correctFileName(fileName: string): string {
-  return fileName.replace('AT.&', 'AT. &');
+function correctFileName(entry: string, fileName: string): string {
+  let corrected = fileName;
+  for (const [from, to] of FILE_NAME_CORRECTIONS) {
+    if (corrected.includes(from)) {
+      corrected = corrected.replaceAll(from, to);
+      logCorrection(entry, `File name "${fileName}" > "${corrected}"`);
+    }
+  }
+  return corrected;
+}
+
+function correctQuestionText(
+  entry: string,
+  questionNumber: number,
+  question: string
+): string {
+  let corrected = question;
+  for (const [from, to] of QUESTION_TEXT_CORRECTIONS) {
+    if (corrected.includes(from)) {
+      corrected = corrected.replaceAll(from, to);
+      logCorrection(entry, `Question ${questionNumber} "${from}" > "${to}"`);
+    }
+  }
+  return corrected;
 }
 
 function ballotCategory(props: NhStateBallotProps): BallotCategory | undefined {
@@ -570,10 +609,18 @@ async function readSourceFiles(inputDir: string): Promise<SourceFile[]> {
         JSON.parse(await readFile(path, 'utf-8'))
       ).unsafeUnwrap();
       const headerInfo = nhBallotStyle.AVSInterface.HeaderInfo;
-      headerInfo.TownName = correctTownName(headerInfo.TownName);
+      headerInfo.TownName = correctTownName(entry, headerInfo.TownName);
+      const questions = nhBallotStyle.AVSInterface.Questionary?.Questions ?? [];
+      for (const [index, question] of questions.entries()) {
+        question.Question = correctQuestionText(
+          entry,
+          index + 1,
+          question.Question
+        );
+      }
       return {
         path,
-        name: correctFileName(basename(entry, extname(entry))),
+        name: correctFileName(entry, basename(entry, extname(entry))),
         nhBallotStyle,
       };
     })
