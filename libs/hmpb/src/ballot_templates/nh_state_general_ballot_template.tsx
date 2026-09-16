@@ -1,6 +1,7 @@
 import React from 'react';
 import { Buffer } from 'node:buffer';
 import {
+  assert,
   assertDefined,
   DateWithoutTime,
   err,
@@ -10,6 +11,8 @@ import {
   ok,
   range,
   Result,
+  throwIllegalValue,
+  unique,
 } from '@votingworks/basics';
 import {
   BallotMode,
@@ -22,9 +25,11 @@ import {
   ContestId,
   Election,
   getBallotStyle,
+  getContests,
   getOrderedCandidatesForContestInBallotStyle,
   getPrecinctById,
   Party,
+  PartyId,
   Precinct,
   straightPartyNotYetImplemented,
   YesNoContest,
@@ -351,17 +356,95 @@ const CandidateContestSectionHeaderContainer = styled.div`
   }
 `;
 
-function CandidateContestSectionHeader(): JSX.Element {
+const CANDIDATE_COLUMNS = ['democratic', 'republican', 'other'] as const;
+
+type CandidateColumn = (typeof CANDIDATE_COLUMNS)[number];
+
+function candidateColumnHeading(column: CandidateColumn): JSX.Element {
+  switch (column) {
+    case 'democratic':
+      return <>Democratic Candidates</>;
+    case 'republican':
+      return <>Republican Candidates</>;
+    case 'other':
+      return (
+        <>
+          Other
+          <br />
+          Candidates
+        </>
+      );
+    default:
+      return throwIllegalValue(column);
+  }
+}
+
+function candidateColumn(
+  candidate: Candidate,
+  democraticPartyId: PartyId,
+  republicanPartyId: PartyId
+): CandidateColumn {
+  switch (candidate.partyIds?.[0]) {
+    case democraticPartyId:
+      return 'democratic';
+    case republicanPartyId:
+      return 'republican';
+    default:
+      return 'other';
+  }
+}
+
+function candidateColumnOrder({
+  election,
+  ballotStyle,
+}: {
+  election: Election;
+  ballotStyle: BallotStyle;
+}): CandidateColumn[] {
+  const democraticPartyId = find(election.parties, isDemocraticParty).id;
+  const republicanPartyId = find(election.parties, isRepublicanParty).id;
+  const columnSequences = getContests({ election, ballotStyle })
+    .filter((contest) => contest.type === 'candidate')
+    .map((contest) =>
+      unique(
+        getOrderedCandidatesForContestInBallotStyle({
+          contest,
+          ballotStyle,
+        }).map((candidate) =>
+          candidateColumn(candidate, democraticPartyId, republicanPartyId)
+        )
+      )
+    );
+
+  return [...CANDIDATE_COLUMNS].sort((columnA, columnB) => {
+    const relativeOrders = unique(
+      columnSequences
+        .filter(
+          (sequence) => sequence.includes(columnA) && sequence.includes(columnB)
+        )
+        .map((sequence) =>
+          Math.sign(sequence.indexOf(columnA) - sequence.indexOf(columnB))
+        )
+    );
+    assert(
+      relativeOrders.length <= 1,
+      `Contests disagree on whether the ${columnA} or ${columnB} column comes first`
+    );
+    return relativeOrders[0] ?? 0;
+  });
+}
+
+function CandidateContestSectionHeader({
+  columnOrder,
+}: {
+  columnOrder: readonly CandidateColumn[];
+}): JSX.Element {
   return (
     <CandidateContestSectionHeaderContainer>
       <div>Offices</div>
-      <div>Democratic Candidates</div>
-      <div>Republican Candidates</div>
-      <div>
-        Other
-        <br />
-        Candidates
-      </div>
+      {columnOrder.map((column) => (
+        <div key={column}>{candidateColumnHeading(column)}</div>
+      ))}
       <div>Write-in Candidates</div>
     </CandidateContestSectionHeaderContainer>
   );
@@ -473,10 +556,12 @@ function CandidateContest({
   election,
   contest,
   ballotStyle,
+  columnOrder,
 }: {
   election: Election;
   contest: CandidateContestStruct;
   ballotStyle: BallotStyle;
+  columnOrder: readonly CandidateColumn[];
 }) {
   const seatsWord = {
     2: 'Two',
@@ -510,13 +595,47 @@ function CandidateContest({
 
   // When there are multiple bubbles in any party column, they must be
   // vertically offset with bubbles in adjacent columns.
-  const democraticCandidatesPositioning =
-    contest.seats === 1 ? 'center' : 'topOffset';
-  const republicanCandidatesPositioning =
-    contest.seats === 1 ? 'center' : 'top';
-  const otherCandidatesPositioning =
-    contest.seats === 1 ? 'center' : 'topOffset';
-  const writeInCandidatesPositioning = contest.seats === 1 ? 'center' : 'top';
+  function positioning(columnIndex: number) {
+    if (contest.seats === 1) {
+      return 'center' as const;
+    }
+    return columnIndex % 2 === 0 ? ('topOffset' as const) : ('top' as const);
+  }
+  const writeInCandidatesPositioning = positioning(columnOrder.length);
+
+  function columnCandidateLists(column: CandidateColumn, columnIndex: number) {
+    switch (column) {
+      case 'democratic':
+        return (
+          <CandidateList
+            contestId={contest.id}
+            candidates={democraticCandidates}
+            positioning={positioning(columnIndex)}
+          />
+        );
+      case 'republican':
+        return (
+          <CandidateList
+            contestId={contest.id}
+            candidates={republicanCandidates}
+            positioning={positioning(columnIndex)}
+          />
+        );
+      case 'other':
+        return otherCandidateGroups.map(([partyId, candidates]) => (
+          <div key={partyId} style={{ height: '100%' }}>
+            <CandidateList
+              contestId={contest.id}
+              candidates={candidates}
+              party={parties.find((p) => p.id === partyId)}
+              positioning={positioning(columnIndex)}
+            />
+          </div>
+        ));
+      default:
+        return throwIllegalValue(column);
+    }
+  }
 
   return (
     <CandidateContestRow>
@@ -545,32 +664,11 @@ function CandidateContest({
           )}
         </div>
       </ContestTitleCell>
-      <CandidateListCell>
-        <CandidateList
-          contestId={contest.id}
-          candidates={democraticCandidates}
-          positioning={democraticCandidatesPositioning}
-        />
-      </CandidateListCell>
-      <CandidateListCell>
-        <CandidateList
-          contestId={contest.id}
-          candidates={republicanCandidates}
-          positioning={republicanCandidatesPositioning}
-        />
-      </CandidateListCell>
-      <CandidateListCell>
-        {otherCandidateGroups.map(([partyId, candidates]) => (
-          <div key={partyId} style={{ height: '100%' }}>
-            <CandidateList
-              contestId={contest.id}
-              candidates={candidates}
-              party={parties.find((p) => p.id === partyId)}
-              positioning={otherCandidatesPositioning}
-            />
-          </div>
-        ))}
-      </CandidateListCell>
+      {columnOrder.map((column, columnIndex) => (
+        <CandidateListCell key={column}>
+          {columnCandidateLists(column, columnIndex)}
+        </CandidateListCell>
+      ))}
       <CandidateListCell>
         <OptionList positioning={writeInCandidatesPositioning}>
           {contest.allowWriteIns &&
@@ -735,6 +833,7 @@ export async function BallotPageContent(
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
+  const columnOrder = candidateColumnOrder({ election, ballotStyle });
 
   // One section for candidate contests, one for ballot measures.
   const contestSections = iter(contests)
@@ -759,6 +858,7 @@ export async function BallotPageContent(
           contest={contest}
           election={election}
           ballotStyle={ballotStyle}
+          columnOrder={columnOrder}
         />
       ) : (
         <BallotMeasureContest key={contest.id} contest={contest} />
@@ -766,7 +866,7 @@ export async function BallotPageContent(
     });
     const sectionHeader =
       section[0].type === 'candidate' ? (
-        <CandidateContestSectionHeader />
+        <CandidateContestSectionHeader columnOrder={columnOrder} />
       ) : (
         <BallotMeasureContestSectionHeader election={election} />
       );
