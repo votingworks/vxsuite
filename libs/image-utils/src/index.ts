@@ -3,6 +3,7 @@ export * from './image_data.js';
 export * from './pdf_to_images.js';
 export * from './jest_match_image.js';
 export * from './jest_pdf_snapshot.js';
+export * from './normalize_pdf.js';
 export * from './overlay.js';
 export * from './test_utils.js';
 export * from './types.js';

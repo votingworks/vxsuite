@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { assertDefined } from '@votingworks/basics';
 import { safeParseInt } from '@votingworks/types';
 import { makeTemporaryFile } from '@votingworks/fixtures';
 import { normalizePdf, normalizePdfFile } from './normalize_pdf.js';
@@ -57,7 +58,7 @@ function extractContentStreams(data: Uint8Array): string[] {
   const streamRegex = /stream\r?\n([\s\S]*?)\r?\nendstream/g;
   let match = streamRegex.exec(str);
   while (match) {
-    streams.push(match[1]);
+    streams.push(assertDefined(match[1]));
     match = streamRegex.exec(str);
   }
   return streams;
@@ -231,11 +232,13 @@ describe('normalizePdf', () => {
     const xrefMatch = result.match(/xref\n0 (\d+)\n([\s\S]*?)trailer/);
     expect(xrefMatch).toBeTruthy();
 
-    const entries = xrefMatch![2].trim().split('\n');
+    const entries = assertDefined(xrefMatch?.[2]).trim().split('\n');
     expect(entries[0]).toMatch(/^0000000000 65535 f/);
 
     for (let i = 1; i < entries.length; i += 1) {
-      const offset = safeParseInt(entries[i].slice(0, 10)).unsafeUnwrap();
+      const offset = safeParseInt(
+        assertDefined(entries[i]).slice(0, 10)
+      ).unsafeUnwrap();
       expect(result.slice(offset)).toMatch(new RegExp(`^${i} 0 obj`));
     }
   });
@@ -285,7 +288,7 @@ describe('normalizePdf', () => {
   test('does not modify PDF content streams', () => {
     const fixturePath = path.join(
       import.meta.dirname,
-      '../fixtures/calibration-sheet/calibration-sheet-letter.pdf'
+      '../test/fixtures/ms-ballot.pdf'
     );
     const pdf = fs.readFileSync(fixturePath);
     const normalized = normalizePdf(pdf);

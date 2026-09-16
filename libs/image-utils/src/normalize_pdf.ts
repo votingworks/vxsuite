@@ -1,7 +1,7 @@
 import * as fs from 'node:fs/promises';
 
 import { Buffer } from 'node:buffer';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { safeParseInt } from '@votingworks/types';
 
 /**
@@ -18,9 +18,10 @@ function renumberPdfObjects(str: string): string {
   const defRegex = /(\d+) 0 obj/g;
   let match = defRegex.exec(str);
   while (match) {
+    const num = assertDefined(match[1]);
     // @coverage-defer
-    if (!oldToNew.has(match[1])) {
-      oldToNew.set(match[1], nextNum);
+    if (!oldToNew.has(num)) {
+      oldToNew.set(num, nextNum);
       nextNum += 1;
     }
     match = defRegex.exec(str);
