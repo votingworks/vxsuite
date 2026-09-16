@@ -1,4 +1,4 @@
-import { assert, assertDefined, iter } from '@votingworks/basics';
+import { assert, assertDefined, iter, sleep } from '@votingworks/basics';
 import {
   getAllStringsForElectionPackage,
   GoogleCloudTranslator,
@@ -30,11 +30,13 @@ import {
   LATEST_METADATA,
   LATEST_SOFTWARE_VERSION,
   mergeUiStrings,
+  SoftwareVersion,
   Precinct,
   safeParse,
   UiStringsPackage,
 } from '@votingworks/types';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
+import { createReadStream } from 'node:fs';
 import {
   copyFile,
   mkdir,
@@ -46,6 +48,9 @@ import { basename, extname, join } from 'node:path';
 import { buffer } from 'node:stream/consumers';
 import * as tmp from 'tmp';
 import { createBallotPropsForTemplate } from '../ballots.js';
+import { CircleCiClient } from '../circleci_client.js';
+import { S3FileStorageClient } from '../file_storage_client.js';
+import { QaConfig } from '../qa_config.js';
 import { normalizeBallotColorModeForPrinting } from '../worker/ballot_pdfs.js';
 import { stateDefaultSystemSettings } from '../system_settings.js';
 import { Archiver } from '../worker/zip.js';
@@ -55,7 +60,12 @@ import {
   NhBallotStyleSchema,
 } from './convert_nh_election.js';
 
-const USAGE = `Usage: nh-ballot-production --handcount|--vx --signature <signature.svg> --out <output-dir> <input-dir>`;
+const USAGE = `Usage: nh-ballot-production --handcount|--vx --signature <signature.svg> --out <output-dir> [--qa] <input-dir>`;
+
+const QA_PACKAGE_FILE_NAME = 'election-package.zip';
+const QA_KEY_PREFIX = 'nh-qa';
+const QA_PRESIGN_EXPIRY_SECONDS = 12 * 60 * 60;
+const QA_TRIGGER_DELAY_MS = 1500;
 
 type BallotCategory = 'absentee' | 'foo' | 'precinct' | 'sample' | 'uocava';
 
@@ -311,6 +321,37 @@ function withPaperSize(
   return { ...election, ballotLayout: { ...election.ballotLayout, paperSize } };
 }
 
+async function triggerQa(p: {
+  config: QaConfig;
+  jurisdictionName: string;
+  packagePath: string;
+  vxsuiteVersion: SoftwareVersion;
+}): Promise<void> {
+  const storageKey = `${QA_KEY_PREFIX}/${randomUUID()}/${QA_PACKAGE_FILE_NAME}`;
+  const fileStorageClient = new S3FileStorageClient();
+  await fileStorageClient.streamFile(
+    storageKey,
+    createReadStream(p.packagePath)
+  );
+  const exportPackageUrl = await fileStorageClient.getSignedUrl(
+    storageKey,
+    QA_PRESIGN_EXPIRY_SECONDS
+  );
+
+  const { pipelineNumber } = await new CircleCiClient(p.config).triggerPipeline(
+    {
+      exportPackageUrl,
+      webhookUrl: '',
+      qaRunId: randomUUID(),
+      electionId: p.jurisdictionName,
+      vxsuiteVersion: p.vxsuiteVersion,
+    }
+  );
+  process.stdout.write(
+    `    VxQA pipeline ${pipelineNumber}: https://app.circleci.com/pipelines/${p.config.projectSlug}/${pipelineNumber}\n`
+  );
+}
+
 async function processJurisdiction(
   rendererPool: RendererPool,
   jurisdiction: Jurisdiction,
@@ -318,6 +359,7 @@ async function processJurisdiction(
     mode: TabulationMode;
     signatureImage: string;
     outDir: string;
+    qaConfig?: QaConfig;
   }
 ): Promise<void> {
   const isHandCount = p.mode === 'handcount';
@@ -401,7 +443,7 @@ async function processJurisdiction(
   });
 
   if (!isHandCount) {
-    await writeElectionPackage({
+    const packagePath = await writeElectionPackage({
       jurisdictionName: jurisdiction.name,
       electionData: electionDefinition.electionData,
       ballotHash: electionDefinition.ballotHash,
@@ -409,6 +451,16 @@ async function processJurisdiction(
       encodedBallots: encodedBallotLines.join(''),
       outDir: p.outDir,
     });
+
+    if (p.qaConfig) {
+      await triggerQa({
+        config: p.qaConfig,
+        jurisdictionName: jurisdiction.name,
+        packagePath,
+        vxsuiteVersion: assertDefined(serializationOptions.version),
+      });
+      await sleep(QA_TRIGGER_DELAY_MS);
+    }
   }
 }
 
@@ -436,6 +488,7 @@ interface Args {
   signaturePath: string;
   outDir: string;
   inputDir: string;
+  qa: boolean;
 }
 
 function parseArgs(args: readonly string[]): Args | undefined {
@@ -443,6 +496,7 @@ function parseArgs(args: readonly string[]): Args | undefined {
   let mode: TabulationMode | undefined;
   let signaturePath: string | undefined;
   let outDir: string | undefined;
+  let qa = false;
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
@@ -452,6 +506,9 @@ function parseArgs(args: readonly string[]): Args | undefined {
         break;
       case '--vx':
         mode = 'vx';
+        break;
+      case '--qa':
+        qa = true;
         break;
       case '--signature':
         i += 1;
@@ -470,7 +527,7 @@ function parseArgs(args: readonly string[]): Args | undefined {
   if (!mode || !signaturePath || !outDir || !inputDir || rest.length > 1) {
     return undefined;
   }
-  return { mode, signaturePath, outDir, inputDir };
+  return { mode, signaturePath, outDir, inputDir, qa };
 }
 
 export async function main(args: readonly string[]): Promise<number> {
@@ -478,6 +535,18 @@ export async function main(args: readonly string[]): Promise<number> {
   if (!parsed) {
     process.stderr.write(`${USAGE}\n`);
     return 1;
+  }
+
+  const qaConfig = parsed.qa
+    ? assertDefined(
+        QaConfig.fromEnv(),
+        'Automated QA is not configured. Set CIRCLECI_API_TOKEN, CIRCLECI_PROJECT_SLUG and CIRCLECI_WEBHOOK_SECRET (plus AWS_S3_BUCKET_NAME, AWS_S3_REGION and AWS credentials) to use --qa.'
+      )
+    : undefined;
+  if (parsed.qa && parsed.mode === 'handcount') {
+    process.stderr.write(
+      'Hand-count towns have no election package to QA; --qa has no effect.\n'
+    );
   }
 
   const signatureImage = await readFile(parsed.signaturePath, 'utf-8');
@@ -499,6 +568,7 @@ export async function main(args: readonly string[]): Promise<number> {
         mode: parsed.mode,
         signatureImage,
         outDir: parsed.outDir,
+        qaConfig,
       });
     }
   } finally {
