@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { makeTemporaryFile } from '@votingworks/fixtures';
-import { Client } from './client';
-import { findSchemaViolations } from './schema_validation';
+import { Client } from './client.js';
+import { findSchemaViolations } from './schema_validation.js';
 
 function clientWithSchema(schema: string): Client {
   const client = Client.memoryClient();

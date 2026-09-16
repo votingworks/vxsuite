@@ -12,9 +12,9 @@ import makeDebug from 'debug';
 import * as fs from 'node:fs';
 import Database from 'better-sqlite3';
 import { dirname, join } from 'node:path';
-import { BackupCancelledError } from './backup_cancelled_error';
-import { SchemaDigestMismatchError } from './schema_digest_mismatch_error';
-import { findSchemaViolations } from './schema_validation';
+import { BackupCancelledError } from './backup_cancelled_error.js';
+import { SchemaDigestMismatchError } from './schema_digest_mismatch_error.js';
+import { findSchemaViolations } from './schema_validation.js';
 
 type Database = Database.Database;
 
