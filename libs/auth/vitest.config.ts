@@ -10,6 +10,7 @@ export default defineConfig({
         'src/integration_test_utils.ts',
         'src/intermediate-scripts',
         'src/jurisdictions.ts',
+        'src/scripts',
         'src/test_utils.ts',
       ],
     },

@@ -4,7 +4,7 @@ import { extractErrorMessage } from '@votingworks/basics';
 import {
   parseSignMessageInputExcludingMessage,
   signMessageHelper,
-} from '../cryptography';
+} from '../cryptography.js';
 
 /**
  * An intermediate component of signMessage in src/cryptography.ts, needed for permissions

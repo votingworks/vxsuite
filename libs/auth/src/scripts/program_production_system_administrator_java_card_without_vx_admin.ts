@@ -5,14 +5,11 @@ import { extractErrorMessage } from '@votingworks/basics';
 import { DEV_MACHINE_ID } from '@votingworks/types';
 import { getRequiredEnvVar } from '@votingworks/utils';
 
-import {
-  CERT_EXPIRY_IN_DAYS,
-  constructMachineCertSubject,
-} from '../../src/certs';
-import { PROD_VX_CERT_AUTHORITY_CERT_PATH } from '../../src/config';
-import { createCert } from '../../src/cryptography';
-import { JavaCard } from '../../src/java_card';
-import { generatePrivateKey, programJavaCard } from './utils';
+import { CERT_EXPIRY_IN_DAYS, constructMachineCertSubject } from '../certs.js';
+import { PROD_VX_CERT_AUTHORITY_CERT_PATH } from '../config.js';
+import { createCert } from '../cryptography.js';
+import { JavaCard } from '../java_card.js';
+import { generatePrivateKey, programJavaCard } from './utils.js';
 
 interface ScriptEnvVars {
   jurisdiction: string;

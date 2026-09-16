@@ -15,10 +15,10 @@ import {
   VendorUser,
 } from '@votingworks/types';
 
-import { Card, CardStatus, CheckPinResponse } from './card';
+import { Card, CardStatus, CheckPinResponse } from './card.js';
 
 // libs/auth/src/ is 3 levels below the repo root
-const REPO_ROOT = join(__dirname, '../../..');
+const REPO_ROOT = join(import.meta.dirname, '../../..');
 
 /**
  * The path of the file underlying a MockFileCard, namespaced by NODE_ENV so

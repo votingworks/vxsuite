@@ -12,7 +12,7 @@ import {
   VendorUser,
 } from '@votingworks/types';
 
-import { MachineType } from './certs';
+import { MachineType } from './certs.js';
 
 /**
  * The API for a dipped smart card auth instance, "dipped" meaning that the card needs to be

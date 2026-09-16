@@ -34,14 +34,14 @@ import {
   CardDetails,
   CardStatus,
   CheckPinResponse,
-} from './card';
+} from './card.js';
 import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthConfig,
   InsertedSmartCardAuthMachineState,
-} from './inserted_smart_card_auth_api';
-import { computeCardLockoutEndTime } from './lockout';
-import { computeSessionEndTime } from './sessions';
+} from './inserted_smart_card_auth_api.js';
+import { computeCardLockoutEndTime } from './lockout.js';
+import { computeSessionEndTime } from './sessions.js';
 
 type CheckPinResponseExtended = CheckPinResponse | { response: 'error' };
 
