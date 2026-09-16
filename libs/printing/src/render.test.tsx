@@ -13,7 +13,7 @@ import {
   P,
   useCurrentTheme,
 } from '@votingworks/ui';
-import { parsePdf } from '@votingworks/image-utils';
+import { parsePdf } from '@votingworks/image-utils/pdf';
 import { writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
 import { err, iter } from '@votingworks/basics';

@@ -5,11 +5,8 @@ import {
   iter,
   ok,
 } from '@votingworks/basics';
-import {
-  createImageData,
-  pdfToImages,
-  rgbToGrayscale,
-} from '@votingworks/image-utils';
+import { createImageData, rgbToGrayscale } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils/pdf';
 import type { RgbaImageData } from '@votingworks/types';
 import { BITS_PER_BYTE } from '@votingworks/message-coder';
 import { readFileSync } from 'node:fs';

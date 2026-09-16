@@ -4,7 +4,8 @@ import {
   makeTemporaryPath,
 } from '@votingworks/fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
-import { pdfToImages, writeImageData } from '@votingworks/image-utils';
+import { writeImageData } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils/pdf';
 import {
   AdjudicationReason,
   asSheet,

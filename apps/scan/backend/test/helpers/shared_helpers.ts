@@ -27,7 +27,7 @@ import {
 } from '@votingworks/types';
 import type { MockUsbDrive } from '@votingworks/usb-drive';
 import { mockLogger, LogSource, type MockLogger } from '@votingworks/logging';
-import { pdfToImages } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils/pdf';
 
 import type { Api } from '../../src/app.js';
 import type {

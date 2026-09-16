@@ -25,7 +25,7 @@ import {
   type MachineType,
   ORDERED_BMD_BALLOT_LAYOUTS,
 } from '@votingworks/ui';
-import { getPdfPageCount } from '@votingworks/image-utils';
+import { getPdfPageCount } from '@votingworks/image-utils/pdf';
 import type { Store } from '../store.js';
 import { getMarkScanBmdModel } from './hardware.js';
 

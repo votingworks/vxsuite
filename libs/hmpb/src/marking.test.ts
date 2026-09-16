@@ -7,11 +7,8 @@ import {
   type VotesDict,
 } from '@votingworks/types';
 import { assertDefined, find, iter } from '@votingworks/basics';
-import {
-  overlayImages,
-  pdfToImages,
-  toImageBuffer,
-} from '@votingworks/image-utils';
+import { overlayImages, toImageBuffer } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils/pdf';
 
 import { generateMarkOverlay } from './marking.js';
 import {

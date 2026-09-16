@@ -6,7 +6,7 @@ import {
   renderBmdBallotFixture,
 } from '@votingworks/bmd-ballot-fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
-import { pdfToImages } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils/pdf';
 import {
   AdjudicationReason,
   DEFAULT_MARK_THRESHOLDS,

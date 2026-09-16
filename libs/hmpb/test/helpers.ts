@@ -1,5 +1,5 @@
 import { iter } from '@votingworks/basics';
-import { pdfToImages } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils/pdf';
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
 import { expect } from 'vitest';
