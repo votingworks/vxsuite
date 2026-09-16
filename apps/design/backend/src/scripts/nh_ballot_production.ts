@@ -15,6 +15,7 @@ import {
   renderBallotTemplate,
   renderNhStateRovForm,
   Renderer,
+  ScratchDir,
   RendererPool,
 } from '@votingworks/hmpb';
 import {
@@ -344,6 +345,7 @@ async function writeProofBallots(
     ballotProps: NhStateBallotProps[];
     fileNames: Map<string, string>;
     outDir: string;
+    scratchDir: ScratchDir;
   }
 ): Promise<void> {
   const proofDir = join(p.outDir, 'ballots', 'proof');
@@ -360,9 +362,10 @@ async function writeProofBallots(
           })
         ).unsafeUnwrap();
         const fileName = assertDefined(p.fileNames.get(props.precinctId));
-        const proofPath = join(proofDir, `${fileName}.pdf`);
-        await writeFile(proofPath, await document.renderToPdf());
-        await normalizeForPrinting(proofPath, p.election);
+        const scratchPath = join(p.scratchDir.path, `${randomUUID()}.pdf`);
+        await writeFile(scratchPath, await document.renderToPdf());
+        await normalizeForPrinting(scratchPath, p.election);
+        await copyFile(scratchPath, join(proofDir, `${fileName}.pdf`));
       })
   );
 }
@@ -440,13 +443,16 @@ async function processJurisdiction(
     version: isHandCount ? LATEST_SOFTWARE_VERSION : 'v4.0',
   };
 
+  const scratchDir: ScratchDir = {
+    path: tmp.dirSync({ unsafeCleanup: true }).name,
+  };
   const { ballotPaths, electionDefinition } =
     await renderAllBallotPdfsAndCreateElectionDefinition(
       rendererPool,
       ballotTemplates.NhStateBallot,
       ballotProps,
       serializationOptions,
-      { path: tmp.dirSync({ unsafeCleanup: true }).name }
+      scratchDir
     );
 
   await Promise.all(
@@ -478,6 +484,7 @@ async function processJurisdiction(
     ballotProps,
     fileNames,
     outDir: p.outDir,
+    scratchDir,
   });
 
   await writeRovForms(rendererPool, {
