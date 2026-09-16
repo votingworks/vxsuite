@@ -16,9 +16,9 @@ import makeDebug from 'debug';
 
 import { join } from 'node:path';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import { concatenatePdfs } from '@votingworks/image-utils';
 import { createElection } from './all_bubble_ballot/election.js';
 import { allBubbleBallotTemplate } from './all_bubble_ballot/template.js';
-import { concatenatePdfs } from './concatenate_pdfs.js';
 import { markBallotDocument } from './mark_ballot.js';
 import {
   layOutBallotsAndCreateElectionDefinition,
