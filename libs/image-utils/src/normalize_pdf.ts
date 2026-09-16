@@ -80,7 +80,7 @@ function renumberPdfObjects(str: string): string {
  * Idempotent — safe to apply after rendering and again after any
  * transformation (ghostscript, pdf-lib concatenation, etc.).
  */
-export function normalizePdf(pdf: Buffer): Uint8Array {
+export function normalizePdf(pdf: Uint8Array): Buffer {
   const ZERO_TIMESTAMP = "D:00000000000000+00'00'";
   const ZERO_XMP_DATE = '0000-00-00T00:00:00+00:00';
   const ZERO_UUID = '00000000-0000-0000-0000-000000000000';
@@ -92,7 +92,9 @@ export function normalizePdf(pdf: Buffer): Uint8Array {
   // losslessly. This lets us use regex on the ASCII-structured parts of the PDF
   // (timestamps, object numbers, etc.) while binary data (compressed streams,
   // images) passes through untouched and converts back to the original bytes.
-  let str = pdf.toString('latin1');
+  let str = Buffer.from(pdf.buffer, pdf.byteOffset, pdf.byteLength).toString(
+    'latin1'
+  );
 
   // Chromium assigns DOM node IDs (node00000001, etc.) that increment based on
   // page reuse history. These are internal identifiers used in the structure
