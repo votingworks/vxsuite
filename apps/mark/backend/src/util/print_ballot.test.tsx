@@ -12,8 +12,8 @@ import {
   UiStringsPackage,
   VotesDict,
 } from '@votingworks/types';
+import { getPdfPageCount } from '@votingworks/image-utils';
 import {
-  getPdfPageCount,
   PrintFunction,
   PrintSides,
   RenderSpec,
@@ -36,6 +36,10 @@ import { closeLayoutRenderer, printBallot } from './print_ballot.js';
 
 vi.mock('@votingworks/hmpb');
 vi.mock('@votingworks/printing');
+vi.mock(import('@votingworks/image-utils'), async (importActual) => ({
+  ...(await importActual()),
+  getPdfPageCount: vi.fn(),
+}));
 vi.mock('@votingworks/ui');
 // Spy on the encoder without changing what it produces: rendered ballots are
 // compared against image snapshots elsewhere in this suite.

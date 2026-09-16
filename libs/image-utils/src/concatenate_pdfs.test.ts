@@ -13,7 +13,7 @@ const MS_BALLOT_PDF_PATH = join(
 test('combines the pages of every PDF in order', async () => {
   const pdf = await readFile(MS_BALLOT_PDF_PATH);
   const combined = await concatenatePdfs([pdf, pdf]);
-  expect(await getPdfPageCount(new Uint8Array(combined))).toEqual(12);
+  expect(await getPdfPageCount(combined)).toEqual(12);
 });
 
 test('produces byte-identical output across calls', async () => {

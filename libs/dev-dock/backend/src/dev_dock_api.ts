@@ -625,7 +625,7 @@ function buildApi(
       );
 
       const pdfData = Uint8Array.from(fs.readFileSync(input.path));
-      const pageCount = await getPdfPageCount(Uint8Array.from(pdfData));
+      const pageCount = await getPdfPageCount(pdfData);
       const totalSheets = Math.ceil(pageCount / 2);
       const sheetIterator = iter(
         pdfToImages(pdfData, { scale: 200 / 72, color: 'gray' })

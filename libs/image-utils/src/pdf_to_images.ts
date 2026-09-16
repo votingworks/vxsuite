@@ -136,9 +136,9 @@ export async function parsePdf(
  * Parse PDF data with `pdf.js` to get the number of pages in the PDF. Useful
  * when you want to know how many pages are in a PDF without rendering it.
  *
- * Consumes `pdfBytes`, replacing it with an empty array.
+ * Unlike `parsePdf`, leaves `pdfBytes` intact.
  */
 export async function getPdfPageCount(pdfBytes: Uint8Array): Promise<number> {
-  const pdf = await parsePdf(pdfBytes);
+  const pdf = await parsePdf(new Uint8Array(pdfBytes));
   return pdf.numPages;
 }

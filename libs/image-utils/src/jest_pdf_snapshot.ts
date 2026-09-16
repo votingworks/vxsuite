@@ -83,8 +83,7 @@ export function buildToMatchPdfSnapshot(
       if (pdfSnapshot.equals(pdfContents)) {
         // `toMatchImageSnapshot` numbers snapshots by counting calls within a
         // test, so skipping the per-page calls must still advance the count.
-        // pdfjs detaches the bytes it is given, hence the copy.
-        const pageCount = await getPdfPageCount(new Uint8Array(pdfContents));
+        const pageCount = await getPdfPageCount(pdfContents);
         counters.set(currentTestName, nextCounter - 1 + pageCount);
         return { pass: true, message: () => '' };
       }
