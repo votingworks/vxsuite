@@ -34,6 +34,7 @@ import {
   allBaseBallotProps,
   layOutBallotsAndCreateElectionDefinition,
   layOutMinimalBallotsToCreateElectionDefinition,
+  countBallotPages,
   renderBallotTemplate,
   ScratchDir,
 } from './render_ballot.js';
@@ -466,6 +467,18 @@ test.each(templateSpecificTestCases)(
     }
   }
 );
+
+test('countBallotPages counts the pages of a rendered ballot', async () => {
+  const [ballotProps] = templateSpecificTestCases;
+  const { templateName, ballotProps: props } = assertDefined(ballotProps);
+  const pageCount = await rendererPool.runTask(async (renderer) => {
+    const document = (
+      await renderBallotTemplate(renderer, ballotTemplates[templateName], props)
+    ).unsafeUnwrap();
+    return await countBallotPages(document);
+  });
+  expect(pageCount).toBeGreaterThan(0);
+});
 
 test('fails on inconsistent ballot positions for matching styles', async () => {
   const baseProps: BaseBallotProps = {

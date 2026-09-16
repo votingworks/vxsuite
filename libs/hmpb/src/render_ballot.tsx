@@ -650,6 +650,12 @@ export async function renderBallotPdfWithMetadataQrCode(
   return await document.renderToPdf();
 }
 
+export async function countBallotPages(
+  document: RenderDocument
+): Promise<number> {
+  return (await document.inspectElements(`.${PAGE_CLASS}`)).length;
+}
+
 /**
  * Given a {@link BallotPageTemplate} and a single set of props, renders the
  * pages of the ballot and returns the resulting {@link RenderDocument}.
