@@ -47,7 +47,8 @@ function kebabCase(value: string): string {
  * byte-identical to the stored PDF snapshot. Otherwise it converts the PDF to
  * PNG files and uses `jest-image-snapshot` to snapshot them page by page. The
  * normalized PDF is stored when there is no PDF snapshot yet or when updating
- * snapshots, so later runs take the fast path.
+ * snapshots, so later runs take the fast path. Any other slow-path run logs a
+ * warning.
  */
 export function buildToMatchPdfSnapshot(
   expect: typeof vitest.expect
@@ -109,6 +110,22 @@ export function buildToMatchPdfSnapshot(
     ) {
       await mkdir(dirname(pdfSnapshotPath), { recursive: true });
       await writeFile(pdfSnapshotPath, pdfContents);
+    } else if (hasPdfSnapshot) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `PDF snapshot matched visually but not byte-for-byte, so the slow ` +
+          `page-by-page comparison ran: ${pdfSnapshotPath}\n` +
+          `Either the PDF output is nondeterministic or the renderer changed. ` +
+          `Run the test with -u to refresh the PDF snapshot.`
+      );
+    } else {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `No PDF snapshot to compare against, so the slow page-by-page ` +
+          `comparison ran: ${pdfSnapshotPath}\n` +
+          `Snapshot updates are disabled (CI), so it was not written. ` +
+          `Commit the PDF snapshot from a local run to enable the fast path.`
+      );
     }
 
     return {

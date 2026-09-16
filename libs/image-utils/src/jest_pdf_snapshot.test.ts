@@ -41,6 +41,7 @@ function buildFakeState(
 
 const toMatchImageSnapshot = vi.fn();
 const fakeExpect = vi.fn(() => ({ toMatchImageSnapshot }));
+const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 const toMatchPdfSnapshot = buildToMatchPdfSnapshot(
   fakeExpect as unknown as typeof expect
 );
@@ -73,6 +74,7 @@ test('snapshots each page and stores the normalized PDF when no PDF snapshot exi
   const result = await runMatcher(state, pdf);
 
   expect(result.pass).toEqual(true);
+  expect(warn).not.toHaveBeenCalled();
   expect(toMatchImageSnapshot).toHaveBeenCalledTimes(MS_BALLOT_PAGE_COUNT);
   expect(toMatchImageSnapshot).toHaveBeenCalledWith({
     failureThreshold: 0,
@@ -115,6 +117,7 @@ test('passes without rasterizing when the PDF matches the snapshot byte for byte
 
   expect(result.pass).toEqual(true);
   expect(fakeExpect).not.toHaveBeenCalled();
+  expect(warn).not.toHaveBeenCalled();
   expect(counters.get(TEST_NAME)).toEqual(MS_BALLOT_PAGE_COUNT);
 });
 
@@ -156,6 +159,9 @@ test('falls back to image snapshots when the bytes differ and keeps the stored P
   await runMatcher(state, modifiedPdf);
 
   expect(toMatchImageSnapshot).toHaveBeenCalledTimes(MS_BALLOT_PAGE_COUNT);
+  expect(warn).toHaveBeenCalledWith(
+    expect.stringContaining('matched visually but not byte-for-byte')
+  );
   expect(
     await readFile(
       join(
@@ -182,6 +188,9 @@ test('never writes PDF snapshots when snapshot updates are disabled', async () =
 
   expect(toMatchImageSnapshot).toHaveBeenCalledTimes(MS_BALLOT_PAGE_COUNT);
   expect(existsSync(join(testDir, PDF_SNAPSHOTS_DIR))).toEqual(false);
+  expect(warn).toHaveBeenCalledWith(
+    expect.stringContaining('No PDF snapshot to compare against')
+  );
 });
 
 test('skips the fast path and rewrites the PDF when updating all snapshots', async () => {
@@ -198,6 +207,7 @@ test('skips the fast path and rewrites the PDF when updating all snapshots', asy
   await runMatcher(state, pdf);
 
   expect(toMatchImageSnapshot).toHaveBeenCalledTimes(MS_BALLOT_PAGE_COUNT);
+  expect(warn).not.toHaveBeenCalled();
   expect(await readFile(pdfSnapshotPath)).toEqual(normalizedPdf);
 });
 
