@@ -62,6 +62,8 @@ import {
 
 const USAGE = `Usage: nh-ballot-production --handcount|--vx --signature <signature.svg> --out <output-dir> [--qa] <input-dir>`;
 
+const PROOF_WATERMARK = 'PROOF';
+
 const QA_PACKAGE_FILE_NAME = 'election-package.zip';
 const QA_KEY_PREFIX = 'nh-qa';
 const QA_PRESIGN_EXPIRY_SECONDS = 12 * 60 * 60;
@@ -321,6 +323,50 @@ function withPaperSize(
   return { ...election, ballotLayout: { ...election.ballotLayout, paperSize } };
 }
 
+async function normalizeForPrinting(
+  ballotPath: string,
+  election: Election
+): Promise<void> {
+  if (election.type === 'primary') {
+    await normalizeBallotColorModeForPrinting({
+      ballotPath,
+      ballotTemplateId: 'NhStateBallot',
+    });
+    return;
+  }
+  await convertPdfFileToGrayscale(ballotPath);
+}
+
+async function writeProofBallots(
+  rendererPool: RendererPool,
+  p: {
+    election: Election;
+    ballotProps: NhStateBallotProps[];
+    fileNames: Map<string, string>;
+    outDir: string;
+  }
+): Promise<void> {
+  const proofDir = join(p.outDir, 'ballots', 'proof');
+  await mkdir(proofDir, { recursive: true });
+
+  await rendererPool.runTasks(
+    p.ballotProps
+      .filter((props) => ballotCategory(props) === 'precinct')
+      .map((props) => async (renderer: Renderer) => {
+        const document = (
+          await renderBallotTemplate(renderer, ballotTemplates.NhStateBallot, {
+            ...props,
+            watermark: PROOF_WATERMARK,
+          })
+        ).unsafeUnwrap();
+        const fileName = assertDefined(p.fileNames.get(props.precinctId));
+        const proofPath = join(proofDir, `${fileName}.pdf`);
+        await writeFile(proofPath, await document.renderToPdf());
+        await normalizeForPrinting(proofPath, p.election);
+      })
+  );
+}
+
 async function triggerQa(p: {
   config: QaConfig;
   jurisdictionName: string;
@@ -404,16 +450,7 @@ async function processJurisdiction(
     );
 
   await Promise.all(
-    ballotPaths.map(async (ballotPath) => {
-      if (election.type === 'primary') {
-        await normalizeBallotColorModeForPrinting({
-          ballotPath,
-          ballotTemplateId: 'NhStateBallot',
-        });
-        return;
-      }
-      await convertPdfFileToGrayscale(ballotPath);
-    })
+    ballotPaths.map((ballotPath) => normalizeForPrinting(ballotPath, election))
   );
 
   const encodedBallotLines: string[] = [];
@@ -435,6 +472,13 @@ async function processJurisdiction(
       encodedBallotLines.push(`${JSON.stringify(entry)}\n`);
     }
   }
+
+  await writeProofBallots(rendererPool, {
+    election,
+    ballotProps,
+    fileNames,
+    outDir: p.outDir,
+  });
 
   await writeRovForms(rendererPool, {
     election,
