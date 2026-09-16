@@ -864,9 +864,15 @@ export async function layOutBallotsAndCreateElectionDefinition<
           )
         )
       ) {
+        // A candidate nominated by more than one party is listed once per
+        // party column, so the display order can name them more than once
+        // while the contest still lists each candidate exactly once.
+        const orderedCandidateIds = [
+          ...new Set(firstLayoutOrder.map(({ id }) => id)),
+        ];
         return {
           ...contest,
-          candidates: firstLayoutOrder.map(({ id }) =>
+          candidates: orderedCandidateIds.map((id) =>
             find(contest.candidates, (c) => c.id === id)
           ),
         };

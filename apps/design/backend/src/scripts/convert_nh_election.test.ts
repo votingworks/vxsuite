@@ -7,7 +7,7 @@ import {
   HmpbBallotPaperSize,
   safeParseElection,
 } from '@votingworks/types';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, find } from '@votingworks/basics';
 import { convertNhElection, NhBallotStyle } from './convert_nh_election.js';
 
 const testSignatureImage = '<svg><text>Test Signature</text></svg>';
@@ -457,19 +457,49 @@ test('throws when a source file lists the same office twice', () => {
   );
 });
 
-test('throws when a candidate is listed with different parties across files', () => {
-  function governorContest(party: string) {
+test('a candidate nominated by two parties is listed once per party', () => {
+  function governorContest(parties: string[]) {
     return {
       ...contestInfo('For Governor', []),
-      CandidateName: [candidate('Ann Smith', party)],
+      CandidateName: parties.map((party) => candidate('Ann Smith', party)),
     };
   }
-  const ward1 = makeBallotStyle(1, '', [governorContest('Democratic')]);
-  const ward2 = makeBallotStyle(2, '', [governorContest('Republican')]);
+  const parties = ['Democratic', 'Republican'];
+  const ward1 = makeBallotStyle(1, '', [governorContest(parties)]);
+  const ward2 = makeBallotStyle(2, '', [governorContest(parties)]);
 
-  expect(() => convertNhElection([ward1, ward2], testSignatureImage)).toThrow(
-    /"Ann Smith" is listed with different parties/
+  const election = convertNhElection([ward1, ward2], testSignatureImage);
+  const governorContestResult = find(
+    election.contests,
+    (contest) => contest.title === 'For Governor'
   );
+  assert(governorContestResult.type === 'candidate');
+
+  const [annSmith, ...otherCandidates] = governorContestResult.candidates;
+  expect(otherCandidates).toEqual([]);
+  expect(assertDefined(annSmith).name).toEqual('Ann Smith');
+
+  const [democraticId, republicanId] = assertDefined(
+    assertDefined(annSmith).partyIds
+  );
+  expect(
+    [democraticId, republicanId].map(
+      (partyId) => find(election.parties, (party) => party.id === partyId).name
+    )
+  ).toEqual(parties);
+
+  // Each ward lists her once per party column, which is what places her in
+  // both columns on the ballot.
+  for (const ballotStyle of election.ballotStyles) {
+    expect(
+      assertDefined(ballotStyle.orderedCandidatesByContest)[
+        governorContestResult.id
+      ]
+    ).toEqual([
+      { id: assertDefined(annSmith).id, partyIds: [democraticId] },
+      { id: assertDefined(annSmith).id, partyIds: [republicanId] },
+    ]);
+  }
 });
 
 test('throws when source files disagree on the relative order of two contests', () => {

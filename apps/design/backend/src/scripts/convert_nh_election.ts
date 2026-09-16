@@ -633,23 +633,27 @@ export function convertNhElection(
         const partyIds = info.Party
           ? [getOrCreateParty(info.Party).id]
           : undefined;
-        let candidate = contest.candidates.find((c) => c.name === name);
-        if (candidate) {
-          // Candidates are shared across ward files by name, so the party
-          // listed for a name must agree everywhere it appears.
-          assert(
-            candidate.partyIds?.[0] === partyIds?.[0],
-            `"${contest.title}": candidate "${name}" is listed with ` +
-              `different parties in different source files`
-          );
+        const index = contest.candidates.findIndex((c) => c.name === name);
+        const existing = index === -1 ? undefined : contest.candidates[index];
+        const id = existing?.id ?? generateId();
+        if (existing) {
+          // A candidate nominated by more than one party is listed once per
+          // party, both within a source file and across a city's ward files.
+          // The candidate carries every party that nominated them, while each
+          // ordered option carries the single party of its listing, which is
+          // what puts the candidate in both party columns on the ballot.
+          const mergedPartyIds = unique([
+            ...(existing.partyIds ?? []),
+            ...(partyIds ?? []),
+          ]);
+          contest.candidates[index] = {
+            ...existing,
+            partyIds: mergedPartyIds.length > 0 ? mergedPartyIds : undefined,
+          };
         } else {
-          candidate = { id: generateId(), name, partyIds };
-          contest.candidates.push(candidate);
+          contest.candidates.push({ id, name, partyIds });
         }
-        orderedCandidates.push({
-          id: candidate.id,
-          partyIds: candidate.partyIds,
-        });
+        orderedCandidates.push({ id, partyIds });
       }
       orderedCandidatesByContest[contest.id] = orderedCandidates;
     }
