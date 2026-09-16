@@ -596,8 +596,8 @@ test('converts ballot measure questions', () => {
   // Questions come after the candidate contests, in ballot order
   expect(election.contests.map((contest) => contest.title)).toEqual([
     'For Sheriff',
-    'Question 1',
-    'Question 2',
+    'Constitutional Amendment Question 1',
+    'Constitutional Amendment Question 2',
   ]);
 
   const [question1, question2] = yesNoContests(election);
@@ -623,12 +623,16 @@ test('converts ballot measure questions', () => {
 
   // Each question gets its own district, which the town's only ballot style
   // votes in
-  expect(districtName(election, question1.districtId)).toEqual('Question 1');
-  expect(districtName(election, question2.districtId)).toEqual('Question 2');
+  expect(districtName(election, question1.districtId)).toEqual(
+    'Constitutional Amendment Question 1'
+  );
+  expect(districtName(election, question2.districtId)).toEqual(
+    'Constitutional Amendment Question 2'
+  );
   expect(contestTitlesForWard(election, 'Sample City')).toEqual([
     'For Sheriff',
-    'Question 1',
-    'Question 2',
+    'Constitutional Amendment Question 1',
+    'Constitutional Amendment Question 2',
   ]);
 });
 
@@ -658,20 +662,23 @@ test('splits a question into separate districts when wards have differing questi
       district: districtName(election, contest.districtId),
     }))
   ).toEqual([
-    { title: 'Question 1', district: 'Question 1' },
-    { title: 'Question 2', district: 'Ward 1' },
-    { title: 'Question 2', district: 'Ward 2' },
+    {
+      title: 'Constitutional Amendment Question 1',
+      district: 'Constitutional Amendment Question 1',
+    },
+    { title: 'Constitutional Amendment Question 2', district: 'Ward 1' },
+    { title: 'Constitutional Amendment Question 2', district: 'Ward 2' },
   ]);
 
   expect(contestTitlesForWard(election, 'Ward 1')).toEqual([
     'For Sheriff',
-    'Question 1',
-    'Question 2',
+    'Constitutional Amendment Question 1',
+    'Constitutional Amendment Question 2',
   ]);
   expect(contestTitlesForWard(election, 'Ward 2')).toEqual([
     'For Sheriff',
-    'Question 1',
-    'Question 2',
+    'Constitutional Amendment Question 1',
+    'Constitutional Amendment Question 2',
   ]);
 });
 

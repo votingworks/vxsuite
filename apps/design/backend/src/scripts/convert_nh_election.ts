@@ -320,7 +320,7 @@ function parseQuestions(nhBallotStyle: NhBallotStyle): QuestionInfo[] {
 }
 
 function questionContestTitle(number: number): string {
-  return `Question ${number}`;
+  return `Constitutional Amendment Question ${number}`;
 }
 
 function districtNameForWards(wards: string[]): string {
