@@ -23,7 +23,9 @@ import {
   Election,
   getBallotStyle,
   getOrderedCandidatesForContestInBallotStyle,
+  getPrecinctById,
   Party,
+  Precinct,
   straightPartyNotYetImplemented,
   YesNoContest,
 } from '@votingworks/types';
@@ -65,11 +67,13 @@ import {
 
 export function Header({
   election,
+  precinct,
   ballotType,
   ballotMode,
   variant,
 }: {
   election: Election;
+  precinct?: Precinct;
   ballotType: BallotType;
   ballotMode: BallotMode;
   variant?: NhStateBallotVariant;
@@ -128,8 +132,10 @@ export function Header({
         >
           {ballotTitle} FOR
         </h5>
-        <h1 style={{ fontSize: '18pt' }}>
+        {/* Sized so that the longest NH city and ward stay on one line. */}
+        <h1 style={{ fontSize: precinct ? '15pt' : '18pt' }}>
           {electionStrings.jurisdictionName(election.jurisdiction)}
+          {precinct && <> {electionStrings.precinctName(precinct)}</>}
         </h1>
         <h3>
           {variant === 'federalOfficeOnly'
@@ -218,6 +224,7 @@ export function Header({
 export function BallotPageFrame({
   election,
   ballotStyleId,
+  precinctId,
   ballotType,
   ballotMode,
   pageNumber,
@@ -272,6 +279,12 @@ export function BallotPageFrame({
               <>
                 <Header
                   election={election}
+                  precinct={
+                    // In cities, the header names the ward alongside the city.
+                    election.precincts.length > 1
+                      ? assertDefined(getPrecinctById({ election, precinctId }))
+                      : undefined
+                  }
                   ballotType={ballotType}
                   ballotMode={ballotMode}
                   variant={variant}
