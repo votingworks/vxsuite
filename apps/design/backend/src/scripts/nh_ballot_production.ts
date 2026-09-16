@@ -90,15 +90,12 @@ interface Jurisdiction {
  * Corrections NH hasn't made to the source files, layered in here instead.
  * Keyed by the source file's spelling.
  */
+
 const TOWN_NAME_CORRECTIONS: Readonly<Record<string, string>> = {
   'AT.& GIL. AC. GT.': 'AT. & GIL. AC. GT.',
   'CHANDLERS PURCHASE': "CHANDLER'S PURCHASE",
   'LOW & BURBANKS GRANT': "LOW & BURBANK'S GRANT",
 };
-
-const FILE_NAME_CORRECTIONS: ReadonlyArray<readonly [string, string]> = [
-  ['AT.&', 'AT. &'],
-];
 
 const QUESTION_TEXT_CORRECTIONS: ReadonlyArray<readonly [string, string]> = [
   ['SCHOOL DISTRICT SCHOOL DISTRICT', 'SCHOOL DISTRICT'],
@@ -121,11 +118,9 @@ function correctTownName(entry: string, townName: string): string {
   return corrected;
 }
 
-// Exported file names keep NH's spelling so they stay matched to the source
-// files, apart from the same missing space.
 function correctFileName(entry: string, fileName: string): string {
   let corrected = fileName;
-  for (const [from, to] of FILE_NAME_CORRECTIONS) {
+  for (const [from, to] of Object.entries(TOWN_NAME_CORRECTIONS)) {
     if (corrected.includes(from)) {
       corrected = corrected.replaceAll(from, to);
       logCorrection(entry, `File name "${fileName}" > "${corrected}"`);
