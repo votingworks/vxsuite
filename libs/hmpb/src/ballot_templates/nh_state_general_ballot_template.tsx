@@ -786,6 +786,20 @@ export async function BallotPageContent(
       maxColumnHeight: dimensions.height - heightUsed,
     });
 
+    // If ballot measures don't all fit in the room left on this page, move the
+    // whole section to the next page rather than splitting it. If the current
+    // page is empty, there is nowhere further to defer to so lay out whatever
+    // fits.
+    const isBallotMeasureSection = section[0].type !== 'candidate';
+    if (
+      isBallotMeasureSection &&
+      leftoverElements.length > 0 &&
+      heightUsed > 0
+    ) {
+      contestSections.unshift(section);
+      break;
+    }
+
     // Put contests we didn't lay out back on the front of the queue
     if (leftoverElements.length > 0) {
       contestSections.unshift(section.slice(-leftoverElements.length));
