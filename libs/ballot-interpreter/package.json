@@ -24,7 +24,7 @@
     "build": "pnpm -w vx-task build $npm_package_name",
     "build:rust-addon": "napi build --platform --release --esm",
     "build:self": "pnpm build:rust-addon && pnpm build:ts",
-    "build:ts": "tsc --build tsconfig.build.json",
+    "build:ts": "rm -f build/tsconfig.build.tsbuildinfo && tsc --build tsconfig.build.json",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "cargo clean --release --package ballot-interpreter && rm -rf build",
     "install:rust-addon": "cargo fetch",
@@ -35,7 +35,7 @@
     "test:run": "pnpm -w vx-task test:run $npm_package_name",
     "test:run:self": "pnpm test:rust-addon && vitest run",
     "test:rust-addon": "cargo test",
-    "type-check": "tsc --build"
+    "type-check": "rm -f tsconfig.tsbuildinfo && tsc --build"
   },
   "dependencies": {
     "@votingworks/ballot-encoder": "workspace:*",
