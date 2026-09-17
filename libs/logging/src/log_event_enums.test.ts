@@ -4,7 +4,7 @@ import {
   getDetailsForEventId,
   LogEventId,
   LogEventType,
-} from './log_event_enums';
+} from './log_event_enums.js';
 
 test('getDetailsForEventId implemented for all events properly', () => {
   for (const eventId of Object.values(LogEventId)) {

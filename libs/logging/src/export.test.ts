@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import { iter } from '@votingworks/basics';
-import { filterErrorLogs } from './export';
+import { filterErrorLogs } from './export.js';
 
 vi.useFakeTimers().setSystemTime(new Date('2020-07-24T00:00:00.000Z'));
 

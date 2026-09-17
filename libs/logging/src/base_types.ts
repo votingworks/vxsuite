@@ -1,4 +1,4 @@
-import { type AppName } from './log_event_enums';
+import { type AppName } from './log_event_enums.js';
 
 // The base interface for LogEventDetails. Implementers are expected to overwrite `eventId`.
 export interface BaseLogEventDetails {

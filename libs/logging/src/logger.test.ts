@@ -7,7 +7,7 @@ import {
   LogEventType,
   LogSource,
   Logger,
-} from '.';
+} from './index.js';
 
 test('logger can log with passed user role', async () => {
   vi.spyOn(console, 'log').mockReturnValue();

@@ -10,7 +10,7 @@ import {
   LogEventId,
   LogEventType,
   LogSource,
-} from './log_event_enums';
+} from './log_event_enums.js';
 
 export enum LogDispositionStandardTypes {
   Success = 'success',
