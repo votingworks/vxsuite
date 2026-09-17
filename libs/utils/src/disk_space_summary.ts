@@ -1,4 +1,4 @@
-import * as format from './format';
+import * as format from './format.js';
 
 /**
  * Summary of disk space usage, in kilobytes.

@@ -5,7 +5,7 @@ import {
   Tabulation,
 } from '@votingworks/types';
 import { assertDefined, iter } from '@votingworks/basics';
-import { combineCandidateContestResults } from './tabulation';
+import { combineCandidateContestResults } from './tabulation.js';
 
 type TallyReportCandidateRow = Candidate & {
   scannedTally: number;

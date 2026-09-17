@@ -5,7 +5,7 @@ import {
   coalesceGroupsAcrossParty,
   groupMapToGroupList,
   mergeTabulationGroupMaps,
-} from './transformations';
+} from './transformations.js';
 
 interface BallotCount {
   ballotCount: number;

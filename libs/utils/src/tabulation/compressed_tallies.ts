@@ -16,8 +16,8 @@ import {
 } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import { assert, throwIllegalValue, typedAs } from '@votingworks/basics';
-import { getContestsForPrecinctAndElection } from './contest_filtering';
-import { singlePrecinctSelectionFor } from '../precinct_selection';
+import { getContestsForPrecinctAndElection } from './contest_filtering.js';
+import { singlePrecinctSelectionFor } from '../precinct_selection.js';
 
 const MAX_UINT16 = 0xffff;
 const UINT16_BITS = 16;

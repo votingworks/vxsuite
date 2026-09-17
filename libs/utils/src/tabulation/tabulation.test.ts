@@ -48,8 +48,8 @@ import {
   areContestResultsValid,
   combineAndDecodeCompressedElectionResults,
   getScannedBallotCountForSheet,
-} from './tabulation';
-import { partisanContests } from './combined_ballot_primary';
+} from './tabulation.js';
+import { partisanContests } from './combined_ballot_primary.js';
 import {
   convertCastVoteRecordMarkMetricsToMarkScores,
   convertCastVoteRecordVotesToTabulationVotes,
@@ -57,12 +57,12 @@ import {
   getCurrentSnapshot,
   getExportedCastVoteRecordIds,
   getOriginalSnapshot,
-} from '../cast_vote_records';
-import { compressAndEncodeTally } from './compressed_tallies';
+} from '../cast_vote_records.js';
+import { compressAndEncodeTally } from './compressed_tallies.js';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
-} from '../precinct_selection';
+} from '../precinct_selection.js';
 
 const GROUP_KEY = getGroupKey({}, {});
 

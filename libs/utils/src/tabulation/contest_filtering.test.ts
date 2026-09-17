@@ -14,8 +14,8 @@ import {
   getContestsForPrecinct,
   getContestsForPrecinctAndElection,
   groupContestsByParty,
-} from './contest_filtering';
-import { singlePrecinctSelectionFor } from '../precinct_selection';
+} from './contest_filtering.js';
+import { singlePrecinctSelectionFor } from '../precinct_selection.js';
 
 test('getContestIdsForBallotStyle', () => {
   const electionDefinition = readElectionTwoPartyPrimaryDefinition();

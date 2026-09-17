@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import {
   DiskSpaceSummary,
   getLowDiskSpaceWarningMessage,
-} from './disk_space_summary';
+} from './disk_space_summary.js';
 
 test('getLowDiskSpaceWarningMessage returns undefined when disk space is sufficient', () => {
   const summary: DiskSpaceSummary = {

@@ -6,7 +6,7 @@ import {
   JsonStreamInput,
   JsonStreamOptions,
   RawJson,
-} from './json_stream';
+} from './json_stream.js';
 
 async function asString<T>(
   input: JsonStreamInput<T>,

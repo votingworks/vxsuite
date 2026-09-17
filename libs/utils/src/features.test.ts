@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
-import { BooleanEnvironmentVariableName } from './environment_variable';
-import { isFeatureFlagEnabled, isStagingDeploy, isVxDev } from './features';
+import { BooleanEnvironmentVariableName } from './environment_variable.js';
+import { isFeatureFlagEnabled, isStagingDeploy, isVxDev } from './features.js';
 
 describe('features', () => {
   test('isVxDev returns true when expected', () => {

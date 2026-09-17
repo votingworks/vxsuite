@@ -22,7 +22,7 @@ import {
   getSingleYesNoVote,
   hasWriteIns,
   normalizeWriteInId,
-} from './votes';
+} from './votes.js';
 
 const electionGeneral = electionGeneralFixtures.readElection();
 const electionWithMsEitherNeither =

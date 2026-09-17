@@ -1,6 +1,6 @@
 import { beforeEach, afterEach, describe, expect, test, vi } from 'vitest';
 import { TestLanguageCode } from '@votingworks/test-utils';
-import * as format from './format';
+import * as format from './format.js';
 
 test('formats counts properly', () => {
   expect(format.count(0)).toEqual('0');
