@@ -252,6 +252,17 @@ export function BallotPageFrame({
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
   );
+  // In cities, the jurisdiction is named alongside the ward.
+  const ward =
+    election.precincts.length > 1
+      ? assertDefined(getPrecinctById({ election, precinctId }))
+      : undefined;
+  const jurisdictionName = (
+    <>
+      {electionStrings.jurisdictionName(election.jurisdiction)}
+      {ward && <> {electionStrings.precinctName(ward)}</>}
+    </>
+  );
   return ok(
     <BackendLanguageContextProvider
       key={pageNumber}
@@ -284,12 +295,7 @@ export function BallotPageFrame({
               <>
                 <Header
                   election={election}
-                  precinct={
-                    // In cities, the header names the ward alongside the city.
-                    election.precincts.length > 1
-                      ? assertDefined(getPrecinctById({ election, precinctId }))
-                      : undefined
-                  }
+                  precinct={ward}
                   ballotType={ballotType}
                   ballotMode={ballotMode}
                   variant={variant}
@@ -316,9 +322,7 @@ export function BallotPageFrame({
               )}
             </div>
             <Footer
-              jurisdictionName={electionStrings.jurisdictionName(
-                election.jurisdiction
-              )}
+              jurisdictionName={jurisdictionName}
               pageNumber={pageNumber}
               totalPages={totalPages}
               ballotMode={ballotMode}
