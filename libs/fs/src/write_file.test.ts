@@ -9,8 +9,8 @@ import {
   makeTemporaryPath,
 } from '@votingworks/fixtures';
 import fc from 'fast-check';
-import * as openRegularFile from './open_regular_file';
-import { WriteFileError, writeFile } from './write_file';
+import * as openRegularFile from './open_regular_file.js';
+import { WriteFileError, writeFile } from './write_file.js';
 
 afterEach(() => {
   vi.restoreAllMocks();

@@ -4,7 +4,7 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { ZodError } from 'zod/v4';
-import { ReadFileError, readFile } from './read_file';
+import { ReadFileError, readFile } from './read_file.js';
 
 /**
  * The largest election definition we will read. Generous relative to any real

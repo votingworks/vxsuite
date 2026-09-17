@@ -1,9 +1,9 @@
 import { assert, Result, err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { openRegularFileForReading } from './open_regular_file';
-import { FileExceedsMaxSizeError } from './file_exceeds_max_size_error';
-import { ReadChunkError } from './read_chunk_error';
-import { readChunksWithinLimit } from './read_chunks';
+import { openRegularFileForReading } from './open_regular_file.js';
+import { FileExceedsMaxSizeError } from './file_exceeds_max_size_error.js';
+import { ReadChunkError } from './read_chunk_error.js';
+import { readChunksWithinLimit } from './read_chunks.js';
 
 /**
  * Possible errors that can occur when reading a file.

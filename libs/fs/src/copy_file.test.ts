@@ -9,10 +9,10 @@ import {
   makeTemporaryDirectory,
   makeTemporaryFile,
 } from '@votingworks/fixtures';
-import { CopyFileError, copyFile } from './copy_file';
-import * as openFile from './open_file';
-import * as openRegularFile from './open_regular_file';
-import { READ_CHUNK_SIZE } from './read_chunks';
+import { CopyFileError, copyFile } from './copy_file.js';
+import * as openFile from './open_file.js';
+import * as openRegularFile from './open_regular_file.js';
+import { READ_CHUNK_SIZE } from './read_chunks.js';
 
 afterEach(() => {
   vi.restoreAllMocks();

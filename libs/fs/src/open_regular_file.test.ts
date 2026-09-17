@@ -8,12 +8,12 @@ import {
   makeTemporaryDirectory,
   makeTemporaryFile,
 } from '@votingworks/fixtures';
-import * as openFile from './open_file';
+import * as openFile from './open_file.js';
 import {
   OpenRegularFileError,
   openRegularFileForReading,
   openRegularFileForWriting,
-} from './open_regular_file';
+} from './open_regular_file.js';
 
 afterEach(() => {
   vi.restoreAllMocks();
