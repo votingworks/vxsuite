@@ -1,7 +1,5 @@
-import matchers from '@testing-library/jest-dom/matchers';
-import { afterAll, expect, vi } from 'vitest';
-
-expect.extend(matchers);
+import '@testing-library/jest-dom/vitest';
+import { afterAll, vi } from 'vitest';
 
 afterAll(() => {
   vi.useRealTimers();

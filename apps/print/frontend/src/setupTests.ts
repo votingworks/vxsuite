@@ -2,11 +2,9 @@ import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import { afterAll, beforeAll, expect } from 'vitest';
-import matchers from '@testing-library/jest-dom/matchers';
+import { afterAll, beforeAll } from 'vitest';
+import '@testing-library/jest-dom/vitest';
 import { TextDecoder, TextEncoder } from 'node:util';
-
-expect.extend(matchers);
 
 globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;
 globalThis.TextEncoder = TextEncoder;

@@ -2,11 +2,9 @@ import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import { afterAll, beforeAll, beforeEach, expect, vi } from 'vitest';
-import matchers from '@testing-library/jest-dom/matchers';
+import { afterAll, beforeAll, beforeEach, vi } from 'vitest';
+import '@testing-library/jest-dom/vitest';
 import { configure } from '@testing-library/react';
-
-expect.extend(matchers);
 
 configure({ asyncUtilTimeout: 5_000 });
 

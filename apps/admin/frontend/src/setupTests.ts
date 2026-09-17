@@ -1,17 +1,15 @@
-import { afterAll, afterEach, beforeAll, expect, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, vi } from 'vitest';
 import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import matchers from '@testing-library/jest-dom/matchers';
+import '@testing-library/jest-dom/vitest';
 import { cleanup, configure } from '../test/react_testing_library.js';
 import {
   MockDocument,
   MockPage,
   setMockPdfNumPages,
 } from '../test/react_pdf_mocks.js';
-
-expect.extend(matchers);
 
 configure({ asyncUtilTimeout: 5_000 });
 
