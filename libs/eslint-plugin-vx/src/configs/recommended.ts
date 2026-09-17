@@ -174,6 +174,10 @@ export default function buildRecommended(
           'error',
           'interface',
         ],
+        '@typescript-eslint/consistent-type-imports': [
+          'error',
+          { fixStyle: 'inline-type-imports', disallowTypeAnnotations: false },
+        ],
         '@typescript-eslint/explicit-module-boundary-types': 'error',
         '@typescript-eslint/no-array-constructor': 'off',
         // require() is used intentionally in some places (e.g. better-sqlite3).
@@ -182,6 +186,7 @@ export default function buildRecommended(
         // creating named types from Zod schemas etc.
         '@typescript-eslint/no-empty-object-type': 'off',
         '@typescript-eslint/no-floating-promises': 'error',
+        '@typescript-eslint/no-import-type-side-effects': 'error',
         '@typescript-eslint/no-non-null-assertion': 'error',
         '@typescript-eslint/no-unnecessary-type-assertion': 'error',
         '@typescript-eslint/no-unused-vars': [
@@ -224,6 +229,7 @@ export default function buildRecommended(
             ],
           },
         ],
+        'import/no-duplicates': ['error', { 'prefer-inline': true }],
         'import/no-self-import': 'off',
         // TypeScript verifies named imports itself; the import plugin can't
         // see type-only exports (mirrors `plugin:import/typescript`).
