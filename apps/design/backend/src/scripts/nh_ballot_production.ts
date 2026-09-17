@@ -92,7 +92,7 @@ interface Jurisdiction {
  */
 
 const TOWN_NAME_CORRECTIONS: Readonly<Record<string, string>> = {
-  'AT.& GIL. AC. GT.': 'AT. & GIL. AC. GT.',
+  'AT.& GIL. AC. GT.': 'ATKINSON & GILMANTON ACADEMY GRANT',
   'CHANDLERS PURCHASE': "CHANDLER'S PURCHASE",
   'LOW & BURBANKS GRANT': "LOW & BURBANK'S GRANT",
 };
