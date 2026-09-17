@@ -12,6 +12,7 @@ import {
 import React from 'react';
 import { createRequire } from 'node:module';
 import { VX_DEFAULT_MONOSPACE_FONT_FAMILY_DECLARATION } from '@votingworks/ui';
+import { getCurrentTime } from '../get_current_time.js';
 import {
   StyledReceipt,
   ReceiptMetadata,
@@ -329,7 +330,7 @@ export function StatisticsSummaryReceipt({
   };
   eventCounts: EventCounts;
 }): JSX.Element {
-  const now = new Date();
+  const now = new Date(getCurrentTime());
   return (
     <StyledReceipt
       style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}

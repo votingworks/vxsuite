@@ -5,7 +5,7 @@ import {
   unique,
 } from '@votingworks/basics';
 import { voteToOptionId } from '@votingworks/hmpb';
-import { pdfToImages } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils/pdf';
 import {
   ContestId,
   GridPosition,

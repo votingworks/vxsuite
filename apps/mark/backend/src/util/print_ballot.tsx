@@ -2,12 +2,12 @@ import { Buffer } from 'node:buffer';
 import { randomUUID as uuid } from 'node:crypto';
 
 import {
-  getPdfPageCount,
   PrintSides,
   Printer,
   renderToPdf,
   SummaryBallotLayoutRenderer,
 } from '@votingworks/printing';
+import { getPdfPageCount } from '@votingworks/image-utils/pdf';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { generateMarkOverlay } from '@votingworks/hmpb';
 import {

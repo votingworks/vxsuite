@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { assertDefined } from '@votingworks/basics';
-import { pdfToImages, writeImageData } from '@votingworks/image-utils';
+import { writeImageData } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils/pdf';
 import { SCREENSHOTS_DIR } from './constants.js';
 import type { ScreenshotNamer } from './screenshots.js';
 

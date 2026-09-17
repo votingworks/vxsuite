@@ -6,7 +6,8 @@ import {
 } from '@votingworks/backend';
 import { iter, ok } from '@votingworks/basics';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
-import { pdfToImages, writeImageData } from '@votingworks/image-utils';
+import { writeImageData } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils/pdf';
 import {
   asSheet,
   BallotType,

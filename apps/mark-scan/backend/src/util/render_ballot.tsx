@@ -25,7 +25,7 @@ import {
   MachineType,
   ORDERED_BMD_BALLOT_LAYOUTS,
 } from '@votingworks/ui';
-import { getPdfPageCount } from '@votingworks/image-utils';
+import { getPdfPageCount } from '@votingworks/image-utils/pdf';
 import { Store } from '../store.js';
 import { getMarkScanBmdModel } from './hardware.js';
 
@@ -192,7 +192,7 @@ export async function renderBallot({
       })
     ).unsafeUnwrap();
 
-    const numPages = await getPdfPageCount(Uint8Array.from(pdfData));
+    const numPages = await getPdfPageCount(pdfData);
     if (numPages === 1) {
       return pdfData;
     }

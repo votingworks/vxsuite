@@ -63,11 +63,10 @@ import { MockScanner, MockSheetStatus } from '@votingworks/pdi-scanner';
 import {
   createGrayImageData,
   createImageData,
-  getPdfPageCount,
   loadImageMetadata,
-  pdfToImages,
   writeImageData,
 } from '@votingworks/image-utils';
+import { getPdfPageCount, pdfToImages } from '@votingworks/image-utils/pdf';
 import { execFile } from './utils.js';
 import {
   findLatestVxDesignElectionPackage,
@@ -348,7 +347,7 @@ interface PdiScannerSheetQueueState {
   sheetIterator: AsyncIterator<SheetOf<GrayImageData>>;
   totalSheets: number;
   sheetsInserted: number;
-  timeoutId: ReturnType<typeof setTimeout>;
+  timeoutId?: ReturnType<typeof setTimeout>;
 }
 
 function buildApi(
@@ -625,7 +624,7 @@ function buildApi(
       );
 
       const pdfData = Uint8Array.from(fs.readFileSync(input.path));
-      const pageCount = await getPdfPageCount(Uint8Array.from(pdfData));
+      const pageCount = await getPdfPageCount(pdfData);
       const totalSheets = Math.ceil(pageCount / 2);
       const sheetIterator = iter(
         pdfToImages(pdfData, { scale: 200 / 72, color: 'gray' })
@@ -656,12 +655,9 @@ function buildApi(
         pdiScannerSheetQueue.timeoutId = setTimeout(insertNextSheet, 500);
       }
 
-      pdiScannerSheetQueue = {
-        sheetIterator,
-        totalSheets,
-        sheetsInserted: 0,
-        timeoutId: setTimeout(insertNextSheet, 0),
-      };
+      pdiScannerSheetQueue = { sheetIterator, totalSheets, sheetsInserted: 0 };
+      // Insert the first sheet before returning so the status is settled.
+      await insertNextSheet();
     },
 
     pdiScannerRemoveSheet(): void {

@@ -11,6 +11,7 @@ import fontKit from '@pdf-lib/fontkit';
 import fs from 'node:fs';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
+import { normalizePdf } from '@votingworks/image-utils/pdf';
 import {
   ballotPaperDimensions,
   Candidate,
@@ -212,7 +213,7 @@ export async function generateMarkOverlay(
   // ballot sheets (paper paths differ between simplex vs duplex printing).
   if (doc.getPageCount() % 2) doc.addPage().setSize(pageSize[0], pageSize[1]);
 
-  return doc.save();
+  return normalizePdf(await doc.save({ useObjectStreams: false }));
 }
 
 /**

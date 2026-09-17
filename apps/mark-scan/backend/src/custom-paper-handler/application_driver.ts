@@ -11,7 +11,7 @@ import {
   isMockPaperHandler,
   ScanDirection,
 } from '@votingworks/custom-paper-handler';
-import { pdfToImages } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils/pdf';
 import { tmpNameSync } from 'tmp';
 import {
   PRINT_DPI,

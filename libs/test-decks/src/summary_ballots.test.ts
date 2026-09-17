@@ -5,7 +5,8 @@ import {
   renderToPdf,
   SummaryBallotLayoutRenderer,
 } from '@votingworks/printing';
-import { concatenatePdfs, vxFamousNamesFixtures } from '@votingworks/hmpb';
+import { vxFamousNamesFixtures } from '@votingworks/hmpb';
+import { concatenatePdfs } from '@votingworks/image-utils/pdf';
 import {
   createElectionDefinition,
   createMockVotes,
@@ -43,8 +44,8 @@ vi.mock('@votingworks/printing', async (importActual) => {
   };
 });
 
-vi.mock('@votingworks/hmpb', async (importActual) => {
-  const actual = await importActual<typeof import('@votingworks/hmpb')>();
+vi.mock(import('@votingworks/image-utils/pdf'), async (importActual) => {
+  const actual = await importActual();
   return {
     ...actual,
     concatenatePdfs: vi.fn(actual.concatenatePdfs),

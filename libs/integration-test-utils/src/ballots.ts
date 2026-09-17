@@ -21,11 +21,8 @@ import {
   straightPartyNotYetImplemented,
   RgbaImageData,
 } from '@votingworks/types';
-import {
-  createImageData,
-  pdfToImages,
-  writeImageData,
-} from '@votingworks/image-utils';
+import { createImageData, writeImageData } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils/pdf';
 import { assertDefined } from '@votingworks/basics';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';

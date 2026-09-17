@@ -1,6 +1,5 @@
-import { createCanvas } from '@napi-rs/canvas';
 import { Buffer } from 'node:buffer';
-import { CanvasGradient, CanvasPattern } from 'canvas';
+import type { CanvasGradient, CanvasPattern } from 'canvas';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import { GrayImageData, RgbaImageData } from '@votingworks/types';
 import { createImageData, toGrayScale } from './image_data.js';
@@ -64,6 +63,8 @@ export async function* pdfToImages(
 ): AsyncIterable<PdfPage<RgbaImageData | GrayImageData>> {
   const { background, color, scale = 1 } = opts;
   const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+  // Loaded lazily so importing this module never loads the native addon.
+  const { createCanvas } = await import('@napi-rs/canvas');
   const canvas = createCanvas(0, 0);
   const context = canvas.getContext('2d');
 
@@ -136,9 +137,9 @@ export async function parsePdf(
  * Parse PDF data with `pdf.js` to get the number of pages in the PDF. Useful
  * when you want to know how many pages are in a PDF without rendering it.
  *
- * Consumes `pdfBytes`, replacing it with an empty array.
+ * Unlike `parsePdf`, leaves `pdfBytes` intact.
  */
 export async function getPdfPageCount(pdfBytes: Uint8Array): Promise<number> {
-  const pdf = await parsePdf(pdfBytes);
+  const pdf = await parsePdf(new Uint8Array(pdfBytes));
   return pdf.numPages;
 }

@@ -3,7 +3,8 @@ import {
   electionFamousNames2021Fixtures,
   electionPrimaryPrecinctSplitsFixtures,
 } from '@votingworks/fixtures';
-import { pdfToImages, toImageBuffer } from '@votingworks/image-utils';
+import { toImageBuffer } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils/pdf';
 import { find, iter } from '@votingworks/basics';
 import { readFile } from '@votingworks/fs';
 import {
