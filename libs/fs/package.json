@@ -20,7 +20,7 @@
   ],
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
-    "build:rust-addon": "napi build --platform --release",
+    "build:rust-addon": "napi build --platform --release --esm",
     "build:self": "pnpm build:rust-addon && pnpm build:ts",
     "build:ts": "tsc --build tsconfig.build.json",
     "clean": "pnpm -w vx-task clean $npm_package_name",
