@@ -2,15 +2,15 @@ import { deferred } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockLogger } from '@votingworks/logging';
 import { afterEach, describe, expect, test, vi } from 'vitest';
-import { SimulatedUsbPlatform } from './mocks/simulated_usb_platform';
-import { detectMultiUsbDrive, MultiUsbDrive } from './multi_usb_drive';
+import { SimulatedUsbPlatform } from './mocks/simulated_usb_platform.js';
+import { detectMultiUsbDrive, MultiUsbDrive } from './multi_usb_drive.js';
 import {
   UsbDiskDevPath,
   UsbDiskDevPathSchema,
   UsbDriveInfo,
   UsbPartitionMount,
-} from './types';
-import { createUsbDriveAdapter } from './usb_drive_adapter';
+} from './types.js';
+import { createUsbDriveAdapter } from './usb_drive_adapter.js';
 
 const devsdb = UsbDiskDevPathSchema.decode('/dev/sdb');
 

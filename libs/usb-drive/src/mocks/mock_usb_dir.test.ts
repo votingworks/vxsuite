@@ -4,7 +4,7 @@ import {
   getMockUsbDirPath,
   resetMockUsbDriveDir,
   setMockUsbDriveDir,
-} from './mock_usb_dir';
+} from './mock_usb_dir.js';
 
 // `test/setup.ts` points the mock USB dir at a fresh temporary directory before
 // each test, so reset first to observe the built-in default.

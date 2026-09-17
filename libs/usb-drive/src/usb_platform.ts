@@ -5,21 +5,21 @@ import {
   getAllDiskDevices,
   isFat32Partition,
   isSupportedPartition,
-} from './block_devices';
-import { exec } from './exec';
+} from './block_devices.js';
+import { exec } from './exec.js';
 import {
   UsbDiskDevPath,
   UsbDriveFilesystemType,
   UsbPartitionDevPath,
   UsbPartitionMountpoint,
-} from './types';
+} from './types.js';
 import {
   DriveWatcher,
   UsbPlatform,
   UsbPlatformDrive,
-} from './usb_platform_types';
+} from './usb_platform_types.js';
 
-const MOUNT_SCRIPT_PATH = join(__dirname, '../scripts');
+const MOUNT_SCRIPT_PATH = join(import.meta.dirname, '../scripts');
 
 export class RealUsbPlatform implements UsbPlatform {
   async getDrives(): Promise<UsbPlatformDrive[]> {

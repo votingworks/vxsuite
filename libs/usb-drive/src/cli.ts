@@ -1,6 +1,9 @@
 import { LogSource, Logger } from '@votingworks/logging';
-import { detectMultiUsbDriveFromEnv, MultiUsbDrive } from './multi_usb_drive';
-import { UsbDiskDevPathSchema, UsbDriveFilesystemType } from './types';
+import {
+  detectMultiUsbDriveFromEnv,
+  MultiUsbDrive,
+} from './multi_usb_drive.js';
+import { UsbDiskDevPathSchema, UsbDriveFilesystemType } from './types.js';
 
 function printDrives(multiUsbDrive: MultiUsbDrive, stdout: NodeJS.WriteStream) {
   stdout.write(`${JSON.stringify(multiUsbDrive.getDrives(), null, 2)}\n`);

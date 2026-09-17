@@ -11,13 +11,16 @@ import {
   UsbPartitionDevPathSchema,
   UsbPartitionMountpoint,
   UsbPartitionMountpointSchema,
-} from '../types';
-import { UsbPlatformDrive, UsbPlatformPartition } from '../usb_platform_types';
+} from '../types.js';
+import {
+  UsbPlatformDrive,
+  UsbPlatformPartition,
+} from '../usb_platform_types.js';
 import {
   FaultType,
   SimulatedUsbDrive,
   SimulatedUsbPlatform,
-} from './simulated_usb_platform';
+} from './simulated_usb_platform.js';
 
 function getSimulatedMountpoint(
   platform: SimulatedUsbPlatform

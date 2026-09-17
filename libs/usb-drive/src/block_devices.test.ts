@@ -5,13 +5,13 @@ import {
   createBlockDeviceChangeWatcher,
   getAllDiskDevices,
   UsbDiskDeviceInfo,
-} from './block_devices';
-import { exec, spawn } from './exec';
+} from './block_devices.js';
+import { exec, spawn } from './exec.js';
 import {
   UsbDiskDevPathSchema,
   UsbPartitionDevPathSchema,
   UsbPartitionMountpointSchema,
-} from './types';
+} from './types.js';
 
 const readFileMock = vi.mocked(fs.readFile);
 const execMock = vi.mocked(exec);
@@ -40,7 +40,7 @@ vi.mock(import('./media_mount_dir.js'), () => ({
 
 vi.mock(
   import('./exec.js'),
-  async (importActual): Promise<typeof import('./exec')> => ({
+  async (importActual): Promise<typeof import('./exec.js')> => ({
     ...(await importActual()),
     exec: vi.fn().mockRejectedValue(new Error('exec not mocked')),
     spawn: vi.fn().mockRejectedValue(new Error('spawn not mocked')),

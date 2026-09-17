@@ -3,19 +3,19 @@ import {
   BlockDeviceChangeWatcher,
   createBlockDeviceChangeWatcher,
   getAllDiskDevices,
-} from './block_devices';
-import { exec } from './exec';
+} from './block_devices.js';
+import { exec } from './exec.js';
 import {
   UsbDiskDevPathSchema,
   UsbPartitionDevPathSchema,
   UsbPartitionMountpointSchema,
-} from './types';
-import { RealUsbPlatform } from './usb_platform';
-import { UsbPlatformDrive } from './usb_platform_types';
+} from './types.js';
+import { RealUsbPlatform } from './usb_platform.js';
+import { UsbPlatformDrive } from './usb_platform_types.js';
 
 vi.mock(
   import('./exec.js'),
-  async (importActual): Promise<typeof import('./exec')> => ({
+  async (importActual): Promise<typeof import('./exec.js')> => ({
     ...(await importActual()),
     exec: vi.fn().mockRejectedValue(new Error('exec not mocked')),
     spawn: vi.fn().mockRejectedValue(new Error('spawn not mocked')),
@@ -27,7 +27,7 @@ vi.mock(
 // (transformation and delegation) in isolation.
 vi.mock(
   import('./block_devices.js'),
-  async (importActual): Promise<typeof import('./block_devices')> => ({
+  async (importActual): Promise<typeof import('./block_devices.js')> => ({
     ...(await importActual()),
     getAllDiskDevices: vi.fn(),
     createBlockDeviceChangeWatcher: vi.fn(),

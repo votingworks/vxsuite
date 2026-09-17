@@ -4,15 +4,15 @@ import { mockLogger } from '@votingworks/logging';
 import { Buffer } from 'node:buffer';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { detectMultiUsbDrive } from '../multi_usb_drive';
-import { UsbDiskDevPathSchema, UsbPartitionMount } from '../types';
+import { detectMultiUsbDrive } from '../multi_usb_drive.js';
+import { UsbDiskDevPathSchema, UsbPartitionMount } from '../types.js';
 import {
   getMockUsbDirPath,
   resetMockUsbDriveDir,
   setMockUsbDriveDir,
-} from './mock_usb_dir';
-import { SimulatedUsbPlatform } from './simulated_usb_platform';
-import { getMockUsbDriveHandler } from './simulated_usb_drive_handler';
+} from './mock_usb_dir.js';
+import { SimulatedUsbPlatform } from './simulated_usb_platform.js';
+import { getMockUsbDriveHandler } from './simulated_usb_drive_handler.js';
 
 beforeEach(() => {
   setMockUsbDriveDir(makeTemporaryDirectory());

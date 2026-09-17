@@ -17,13 +17,13 @@ import {
   UsbDriveInfo,
   UsbPartitionDevPath,
   UsbPartitionMount,
-} from './types';
+} from './types.js';
 import {
   UsbPlatform,
   UsbPlatformDrive,
   UsbPlatformPartition,
-} from './usb_platform_types';
-import { getEnvUsbPlatform } from './get_env_usb_platform';
+} from './usb_platform_types.js';
+import { getEnvUsbPlatform } from './get_env_usb_platform.js';
 
 const VX_USB_LABEL_REGEXP = /^VxUSB-[A-Z0-9]{5}$/i;
 
