@@ -9,8 +9,8 @@ import {
   ok,
   Result,
 } from '@votingworks/basics';
-import { rootDebug } from './debug';
-import { serialize, deserialize } from './serialization';
+import { rootDebug } from './debug.js';
+import { serialize, deserialize } from './serialization.js';
 
 const debug = rootDebug.extend('server');
 const perfDebug = debug.extend('perf');

@@ -1,3 +1,3 @@
-export * from './client';
-export * from './server';
-export * from './serialization';
+export * from './client.js';
+export * from './server.js';
+export * from './serialization.js';
