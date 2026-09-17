@@ -11,13 +11,13 @@ import {
   configFilepath,
   logEventIdsOutputFilepath,
   logEventIdsTemplateFilepath,
-} from './filepaths';
+} from './filepaths.js';
 import {
   GenerateTypesArgs,
   LoggingConfig,
   diffAndCleanUp,
   parseConfig,
-} from './types';
+} from './types.js';
 
 const execFile = promisify(callbackExecFile);
 

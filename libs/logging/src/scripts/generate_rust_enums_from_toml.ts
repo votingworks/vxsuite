@@ -9,13 +9,13 @@ import {
   configFilepath,
   rustEnumsOutputFilepath,
   rustEnumsTemplateFilepath,
-} from './filepaths';
+} from './filepaths.js';
 import {
   GenerateTypesArgs,
   LoggingConfig,
   diffAndCleanUp,
   parseConfig,
-} from './types';
+} from './types.js';
 
 const RUST_STRING_ESCAPES: ReadonlyMap<string, string> = new Map([
   ['\\', '\\\\'],
