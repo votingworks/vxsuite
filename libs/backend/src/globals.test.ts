@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   DEV_MOCK_USB_DRIVE_GLOB_PATTERN,
-  REAL_USB_DRIVE_GLOB_PATTERN,
+  getRealUsbDriveGlobPattern,
 } from '@votingworks/usb-drive';
 import { DEV_MACHINE_ID } from '@votingworks/types';
 import {
@@ -31,7 +31,7 @@ test('NODE_ENV=development - allows real USB and dev mock USB drive', () => {
   vi.stubEnv('NODE_ENV', 'development');
   vi.stubEnv('SCAN_ALLOWED_EXPORT_PATTERNS', undefined);
   expect(getScanAllowedExportPatterns()).toEqual([
-    REAL_USB_DRIVE_GLOB_PATTERN,
+    getRealUsbDriveGlobPattern(),
     DEV_MOCK_USB_DRIVE_GLOB_PATTERN,
   ]);
 });
@@ -41,7 +41,9 @@ test('NODE_ENV=production (non-integration) - allows real USB drive only', () =>
   vi.stubEnv('IS_INTEGRATION_TEST', undefined);
   vi.stubEnv('REACT_APP_IS_INTEGRATION_TEST', undefined);
   vi.stubEnv('SCAN_ALLOWED_EXPORT_PATTERNS', undefined);
-  expect(getScanAllowedExportPatterns()).toEqual([REAL_USB_DRIVE_GLOB_PATTERN]);
+  expect(getScanAllowedExportPatterns()).toEqual([
+    getRealUsbDriveGlobPattern(),
+  ]);
 });
 
 test('NODE_ENV=production (integration test) - allows real USB and dev mock USB drive', () => {
@@ -49,7 +51,7 @@ test('NODE_ENV=production (integration test) - allows real USB and dev mock USB 
   vi.stubEnv('IS_INTEGRATION_TEST', 'true');
   vi.stubEnv('SCAN_ALLOWED_EXPORT_PATTERNS', undefined);
   expect(getScanAllowedExportPatterns()).toEqual([
-    REAL_USB_DRIVE_GLOB_PATTERN,
+    getRealUsbDriveGlobPattern(),
     DEV_MOCK_USB_DRIVE_GLOB_PATTERN,
   ]);
 });

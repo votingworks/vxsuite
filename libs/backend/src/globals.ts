@@ -2,7 +2,7 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import { DEV_MACHINE_ID } from '@votingworks/types';
 import {
   DEV_MOCK_USB_DRIVE_GLOB_PATTERN,
-  REAL_USB_DRIVE_GLOB_PATTERN,
+  getRealUsbDriveGlobPattern,
 } from '@votingworks/usb-drive';
 import { isIntegrationTest } from '@votingworks/utils';
 
@@ -46,15 +46,15 @@ export function getAllowedExportPatterns(
     case 'production':
       return isIntegrationTest()
         ? [
-            REAL_USB_DRIVE_GLOB_PATTERN,
+            getRealUsbDriveGlobPattern(),
             DEV_MOCK_USB_DRIVE_GLOB_PATTERN,
             ...additionalPatterns,
           ]
-        : [REAL_USB_DRIVE_GLOB_PATTERN, ...additionalPatterns];
+        : [getRealUsbDriveGlobPattern(), ...additionalPatterns];
 
     case 'development':
       return [
-        REAL_USB_DRIVE_GLOB_PATTERN,
+        getRealUsbDriveGlobPattern(),
         DEV_MOCK_USB_DRIVE_GLOB_PATTERN,
         ...additionalPatterns,
       ];

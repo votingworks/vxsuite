@@ -33,9 +33,9 @@ vi.mock(
 // Pin the resolved media mount dir so tests don't depend on the host
 // filesystem (e.g., whether /media/vx exists on the CI runner).
 vi.mock(import('./media_mount_dir.js'), () => ({
-  MEDIA_MOUNT_DIR: '/media/vx',
-  RESOLVED_MEDIA_MOUNT_DIR: '/media/vx',
-  REAL_USB_DRIVE_GLOB_PATTERN: '/media/vx/**/*',
+  getMediaMountDir: () => '/media/vx',
+  getResolvedMediaMountDir: () => '/media/vx',
+  getRealUsbDriveGlobPattern: () => '/media/vx/**/*',
 }));
 
 vi.mock(

@@ -69,9 +69,9 @@ import {
 } from '@votingworks/fs';
 import {
   MultiUsbDrive,
-  REAL_USB_DRIVE_GLOB_PATTERN,
   UsbDriveStatus,
   createUsbDriveAdapter,
+  getRealUsbDriveGlobPattern,
 } from '@votingworks/usb-drive';
 import ZipStream from 'zip-stream';
 import { AvahiService } from '@votingworks/networking';
@@ -615,7 +615,7 @@ function buildApi({
         getNodeEnv() === 'production' && !isIntegrationTest()
           ? matchesGlob(
               normalize(input.electionFilePath),
-              REAL_USB_DRIVE_GLOB_PATTERN
+              getRealUsbDriveGlobPattern()
             )
           : true,
         'Can only import election packages from removable media in production'
