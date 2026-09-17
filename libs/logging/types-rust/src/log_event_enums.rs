@@ -153,6 +153,8 @@ pub enum EventId {
     PrinterPrintRequest,
     #[serde(rename = "printer-print-complete")]
     PrinterPrintComplete,
+    #[serde(rename = "printer-clear-queue-request")]
+    PrinterClearQueueRequest,
     #[serde(rename = "ballot-print-request")]
     BallotPrintRequest,
     #[serde(rename = "ballot-print-complete")]

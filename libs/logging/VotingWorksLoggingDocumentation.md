@@ -90,6 +90,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)
 **Description:** A print request was completed. Success or failure is indicated by disposition.
 **Machines:** All
+### printer-clear-queue-request
+**Type:** [user-action](#user-action)
+**Description:** A print request was completed. Success or failure is indicated by disposition.
+**Machines:** All
 ### ballot-print-request
 **Type:** [user-action](#user-action)
 **Description:** A ballot print request was triggered.

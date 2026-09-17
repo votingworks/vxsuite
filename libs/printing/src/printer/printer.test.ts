@@ -385,3 +385,42 @@ test('still reports the disconnect when clearing the queue fails', async () => {
 
   expect(await printer.status()).toEqual({ connected: false });
 });
+
+test('logs a successful queue clear', async () => {
+  const logger = mockBaseLogger({ fn: vi.fn });
+  const printer = detectPrinter(logger);
+
+  mockCancelAllJobs.expectCallWith().returns(ok());
+  await printer.clearJobQueue();
+
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.PrinterClearQueueRequest,
+    'system',
+    { disposition: 'success' }
+  );
+});
+
+test('logs a failed queue clear with the underlying error', async () => {
+  const logger = mockBaseLogger({ fn: vi.fn });
+  const printer = detectPrinter(logger);
+
+  mockCancelAllJobs.expectCallWith().returns(
+    err({
+      code: 1,
+      signal: null,
+      stdout: '',
+      stderr: 'cancel: Error - unknown destination "VxPrinter".\n',
+      cmd: 'cancel',
+    })
+  );
+  await printer.clearJobQueue();
+
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.PrinterClearQueueRequest,
+    'system',
+    {
+      disposition: 'failure',
+      error: expect.stringContaining('unknown destination'),
+    }
+  );
+});

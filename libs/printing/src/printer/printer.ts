@@ -1,5 +1,10 @@
 import { isDeviceAttached, type Device } from '@votingworks/backend';
-import { assertDefined, err, ok } from '@votingworks/basics';
+import {
+  assertDefined,
+  err,
+  extractErrorMessage,
+  ok,
+} from '@votingworks/basics';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { PrintJobId, PrintJobStatus } from '@votingworks/types';
 import {
@@ -139,7 +144,17 @@ export function detectPrinter(logger: BaseLogger): Printer {
     },
 
     clearJobQueue: async () => {
-      (await cancelAllJobs()).unsafeUnwrap();
+      const cancelResult = await cancelAllJobs();
+      if (cancelResult.isErr()) {
+        logger.log(LogEventId.PrinterClearQueueRequest, 'system', {
+          disposition: 'failure',
+          error: extractErrorMessage(cancelResult.err()),
+        });
+      } else {
+        logger.log(LogEventId.PrinterClearQueueRequest, 'system', {
+          disposition: 'success',
+        });
+      }
     },
   };
 }
