@@ -1,9 +1,6 @@
+import { beforeEach, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { afterAll, beforeAll, beforeEach, vi } from 'vitest';
-import {
-  clearTemporaryRootDir,
-  setupTemporaryRootDir,
-} from '@votingworks/fixtures';
+import '@votingworks/fixtures/vitest-setup';
 import { TextDecoder, TextEncoder } from 'node:util';
 import { cleanup, configure } from '../test/react_testing_library.js';
 
@@ -16,6 +13,3 @@ beforeEach(() => {
 
 globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;
 globalThis.TextEncoder = TextEncoder;
-
-beforeAll(setupTemporaryRootDir);
-afterAll(clearTemporaryRootDir);

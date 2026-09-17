@@ -1,13 +1,7 @@
-import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest';
-import {
-  clearTemporaryRootDir,
-  makeTemporaryDirectory,
-  setupTemporaryRootDir,
-} from '@votingworks/fixtures';
+import { afterEach, beforeEach, vi } from 'vitest';
+import '@votingworks/fixtures/vitest-setup';
+import { makeTemporaryDirectory } from '@votingworks/fixtures/tmpdir';
 import { join } from 'node:path';
-
-beforeAll(setupTemporaryRootDir);
-afterAll(clearTemporaryRootDir);
 
 /**
  * Allow mocking `@votingworks/usb-drive` in tests by not eagerly loading it

@@ -1,8 +1,5 @@
-import { afterAll, afterEach, beforeAll, vi } from 'vitest';
-import {
-  clearTemporaryRootDir,
-  setupTemporaryRootDir,
-} from '@votingworks/fixtures';
+import { afterAll, afterEach, vi } from 'vitest';
+import '@votingworks/fixtures/vitest-setup';
 import '@testing-library/jest-dom/vitest';
 import { cleanup, configure } from '../test/react_testing_library.js';
 import {
@@ -29,9 +26,6 @@ afterEach(() => {
   cleanup();
   setMockPdfNumPages(1);
 });
-
-beforeAll(setupTemporaryRootDir);
-afterAll(clearTemporaryRootDir);
 
 // Not implemented in jsdom:
 HTMLElement.prototype.scrollIntoView = vi.fn();

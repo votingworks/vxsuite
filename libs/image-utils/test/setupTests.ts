@@ -1,9 +1,2 @@
-import {
-  clearTemporaryRootDir,
-  setupTemporaryRootDir,
-} from '@votingworks/fixtures';
-import { afterAll, beforeAll } from 'vitest';
+import '@votingworks/fixtures/vitest-setup';
 import '../src/vitest_setup.js';
-
-beforeAll(setupTemporaryRootDir);
-afterAll(clearTemporaryRootDir);

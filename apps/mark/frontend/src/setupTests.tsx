@@ -1,11 +1,6 @@
-// https://til.hashrocket.com/posts/hzqwty5ykx-create-react-app-has-a-default-test-setup-file
-
-import { afterAll, afterEach, beforeAll, beforeEach, vi } from 'vitest';
+import { afterAll, afterEach, beforeEach, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import {
-  clearTemporaryRootDir,
-  setupTemporaryRootDir,
-} from '@votingworks/fixtures';
+import '@votingworks/fixtures/vitest-setup';
 import fetchMock from 'fetch-mock';
 import { TextDecoder, TextEncoder } from 'node:util';
 import { cleanup, configure } from '../test/react_testing_library.js';
@@ -35,9 +30,6 @@ globalThis.TextEncoder = TextEncoder;
 if (typeof globalThis.PointerEvent === 'undefined') {
   globalThis.PointerEvent = MouseEvent as typeof PointerEvent;
 }
-
-beforeAll(setupTemporaryRootDir);
-afterAll(clearTemporaryRootDir);
 
 afterAll(() => {
   vi.useRealTimers();
