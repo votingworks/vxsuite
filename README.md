@@ -40,6 +40,21 @@ Turborepo.
 View our contribution guidelines
 [here](https://github.com/votingworks/contribution-guidelines).
 
+### Running with kiosk-browser
+
+It's often helpful and even necessary to run VxSuite via
+[kiosk-browser](https://github.com/votingworks/kiosk-browser). The steps for
+doing so are as follows:
+
+1. Clone [kiosk-browser](https://github.com/votingworks/kiosk-browser) adjacent
+   to this repo.
+2. Follow kiosk-browser's build and installation instructions.
+3. Clone
+   [vxsuite-complete-system](https://github.com/votingworks/vxsuite-complete-system)
+   adjacent to this repo.
+4. Run `KIOSK_BROWSER_ALLOW_DEVTOOLS=true ./run-scripts/run-kiosk-browser.sh`
+   from vxsuite-complete-system.
+
 ## License
 
 All files are licensed under GNU GPL v3.0 only. Refer to the
