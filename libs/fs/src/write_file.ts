@@ -1,5 +1,5 @@
 import { Result, err, ok } from '@votingworks/basics';
-import { openRegularFileForWriting } from './open_regular_file';
+import { openRegularFileForWriting } from './open_regular_file.js';
 
 /**
  * Possible errors that can occur when writing a file.

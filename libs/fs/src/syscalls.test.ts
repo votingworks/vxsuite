@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { err, ok } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { napi } from './napi';
+import { napi } from './napi.js';
 import {
   dropPageCache,
   exchangePaths,
@@ -11,7 +11,7 @@ import {
   renameNoReplace,
   syncFilesystem,
   tryLockFileExclusive,
-} from './syscalls';
+} from './syscalls.js';
 
 afterEach(() => {
   vi.restoreAllMocks();

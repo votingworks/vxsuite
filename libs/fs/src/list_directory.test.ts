@@ -13,7 +13,7 @@ import {
   listDirectory,
   ListDirectoryError,
   listDirectoryRecursive,
-} from './list_directory';
+} from './list_directory.js';
 
 async function unwrapAndSortEntries(
   generator: AsyncGenerator<Result<FileSystemEntry, ListDirectoryError>>

@@ -1,7 +1,7 @@
 import { Buffer } from 'node:buffer';
 import { FileHandle } from 'node:fs/promises';
-import { FileExceedsMaxSizeError } from './file_exceeds_max_size_error';
-import { ReadChunkError } from './read_chunk_error';
+import { FileExceedsMaxSizeError } from './file_exceeds_max_size_error.js';
+import { ReadChunkError } from './read_chunk_error.js';
 
 /**
  * How much is read at a time from a file whose size we do not trust in advance.

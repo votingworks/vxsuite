@@ -1,7 +1,7 @@
 import { Result, err, ok } from '@votingworks/basics';
 import { Stats, constants } from 'node:fs';
 import { FileHandle } from 'node:fs/promises';
-import { open } from './open_file';
+import { open } from './open_file.js';
 
 /**
  * Why {@link openRegularFileForReading} or {@link openRegularFileForWriting}

@@ -5,8 +5,8 @@ import {
   ok,
   Result,
 } from '@votingworks/basics';
-import { open } from './open_file';
-import { napi } from './napi';
+import { open } from './open_file.js';
+import { napi } from './napi.js';
 
 /**
  * A failed syscall: the errno name (e.g. `ENOENT`, `EEXIST`, `EINVAL`) and

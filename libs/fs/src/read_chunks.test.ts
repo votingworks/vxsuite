@@ -2,9 +2,9 @@ import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { iter } from '@votingworks/basics';
 import { makeTemporaryFile } from '@votingworks/fixtures';
-import { open } from './open_file';
-import { READ_CHUNK_SIZE, readChunksWithinLimit } from './read_chunks';
-import { FileExceedsMaxSizeError } from './file_exceeds_max_size_error';
+import { open } from './open_file.js';
+import { READ_CHUNK_SIZE, readChunksWithinLimit } from './read_chunks.js';
+import { FileExceedsMaxSizeError } from './file_exceeds_max_size_error.js';
 
 async function collect(
   content: string,
