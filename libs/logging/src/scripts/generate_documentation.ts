@@ -2,13 +2,13 @@ import { safeParse } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
 import yargs from 'yargs/yargs';
 import * as fs from 'node:fs';
-import { AppName, AppNameSchema } from '../src/index.js';
+import { AppName, AppNameSchema } from '../index.js';
 import {
   generateCdfLogDocumentationFileContent,
   generateMarkdownDocumentationContent,
-} from '../src/log_documentation.js';
+} from '../log_documentation.js';
+import { markdownDocumentationFilepath } from './filepaths.js';
 
-const DEFAULT_MARKDOWN_LOCATION = 'VotingWorksLoggingDocumentation.md';
 const VOTING_WORKS = 'VotingWorks';
 
 function writeCdfDocumentationForApp(
@@ -29,7 +29,7 @@ function writeCdfDocumentationForApp(
 
 function writeMarkdownDocumentation(outputPath?: string) {
   const fileContent = generateMarkdownDocumentationContent();
-  fs.writeFileSync(outputPath ?? DEFAULT_MARKDOWN_LOCATION, fileContent);
+  fs.writeFileSync(outputPath ?? markdownDocumentationFilepath, fileContent);
 }
 
 interface GenerateDocumentationFileArguments {
