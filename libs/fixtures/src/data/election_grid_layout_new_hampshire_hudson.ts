@@ -1,4 +1,4 @@
-import * as builders from '../builders';
+import * as builders from '../builders.js';
 
 export const electionJson = builders.election(
   'data/electionGridLayoutNewHampshireHudson/election.json'

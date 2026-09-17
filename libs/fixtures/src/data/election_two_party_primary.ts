@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { Election, ElectionDefinition } from '@votingworks/types';
-import * as builders from '../builders';
-import { asElectionDefinition } from '../util';
+import * as builders from '../builders.js';
+import { asElectionDefinition } from '../util.js';
 
 export const makeBatchCsvData = builders.file(
   'data/electionTwoPartyPrimary/csvFiles/batchResults.csv'
