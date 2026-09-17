@@ -8,7 +8,7 @@ import {
   getPollTransitionsFromState,
   isPollsSuspensionTransition,
   isValidPollsStateChange,
-} from './polls';
+} from './polls.js';
 
 test('getPollsTransitionDestinationState', () => {
   expect(getPollsTransitionDestinationState('close_polls')).toEqual(

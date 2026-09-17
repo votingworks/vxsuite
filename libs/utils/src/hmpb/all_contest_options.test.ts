@@ -15,7 +15,7 @@ import {
 } from '@votingworks/types';
 import fc from 'fast-check';
 import { expect, expectTypeOf, test } from 'vitest';
-import { allContestOptions, contestOptionName } from './all_contest_options';
+import { allContestOptions, contestOptionName } from './all_contest_options.js';
 
 const parties: Party[] = [
   { id: 'party-1', name: 'Party 1', fullName: 'Party One', abbrev: 'P1' },

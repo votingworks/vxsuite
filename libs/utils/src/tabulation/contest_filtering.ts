@@ -11,7 +11,7 @@ import {
   getContests,
 } from '@votingworks/types';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
-import { createElectionMetadataLookupFunction } from './lookups';
+import { createElectionMetadataLookupFunction } from './lookups.js';
 
 function buildBallotStyleContestIdsLookup(
   election: Election

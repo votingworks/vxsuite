@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { readElectionTwoPartyPrimary } from '@votingworks/fixtures';
-import { generateMockVotes } from './bmd_votes_mock';
+import { generateMockVotes } from './bmd_votes_mock.js';
 
 const electionTwoPartyPrimary = readElectionTwoPartyPrimary();
 

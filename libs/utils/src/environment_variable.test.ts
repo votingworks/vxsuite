@@ -3,7 +3,7 @@ import {
   BooleanEnvironmentVariableName,
   getEnvironmentVariable,
   getBooleanEnvVarConfig,
-} from './environment_variable';
+} from './environment_variable.js';
 
 describe('environment flags', () => {
   test('gets flag details as expected', () => {

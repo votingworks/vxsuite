@@ -1,6 +1,6 @@
 import { ZodSchema } from 'zod/v4';
 import { throwIllegalValue } from '@votingworks/basics';
-import { asBoolean } from './as_boolean';
+import { asBoolean } from './as_boolean.js';
 
 export enum BooleanEnvironmentVariableName {
   /**

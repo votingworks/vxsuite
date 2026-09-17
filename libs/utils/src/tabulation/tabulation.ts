@@ -20,14 +20,14 @@ import {
   YesNoContest,
   StraightPartyContest,
 } from '@votingworks/types';
-import { isGroupByEmpty } from './arguments';
-import { getGroupedBallotStyles } from '../ballot_styles';
-import { readV0CompressedTallyAsContestResults } from './compressed_tallies';
+import { isGroupByEmpty } from './arguments.js';
+import { getGroupedBallotStyles } from '../ballot_styles.js';
+import { readV0CompressedTallyAsContestResults } from './compressed_tallies.js';
 import {
   inferPartyFromVotes,
   partisanContests,
-} from './combined_ballot_primary';
-import { deriveStraightPartyVotes } from './straight_party';
+} from './combined_ballot_primary.js';
+import { deriveStraightPartyVotes } from './straight_party.js';
 
 export function getEmptyYesNoContestResults(
   contest: YesNoContest

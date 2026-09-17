@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
-import { getRequiredEnvVar, isNodeEnvProduction } from './env_vars';
+import { getRequiredEnvVar, isNodeEnvProduction } from './env_vars.js';
 
 const originalNodeEnv = process.env.NODE_ENV;
 

@@ -14,7 +14,7 @@ import {
   deriveStraightPartyVotes,
   deriveStraightPartyVotesForContest,
   selectedStraightPartyId,
-} from './straight_party';
+} from './straight_party.js';
 
 // These tests encode the Michigan straight-party tabulation rules from Michigan
 // Administrative Rule R 168.773, Rule 3(6) using the examples provided in that

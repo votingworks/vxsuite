@@ -11,7 +11,7 @@ import {
   CastVoteRecordExportDirectoryNameComponents,
   parseCastVoteRecordReportExportDirectoryName,
   generateReadinessReportFilename,
-} from './filenames';
+} from './filenames.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 import { expect, test } from 'vitest';
-import { randomElement, shuffle } from './random';
+import { randomElement, shuffle } from './random.js';
 
 test('randomElement returns an element of the array', () => {
   const array = ['a', 'b', 'c'];

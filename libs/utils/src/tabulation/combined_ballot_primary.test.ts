@@ -15,7 +15,7 @@ import {
   inferPartyFromVotes,
   partisanContests,
   votedPartyIds,
-} from './combined_ballot_primary';
+} from './combined_ballot_primary.js';
 
 const combinedBallotPrimary = readElectionCombinedBallotPrimary();
 const closedPrimary = readElectionTwoPartyPrimary();

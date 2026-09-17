@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import {
   convertVotesDictToTabulationVotes,
   filterVotesByContestIds,
-} from './convert';
+} from './convert.js';
 
 test('convertVotesDictToTabulationVotes', () => {
   expect(

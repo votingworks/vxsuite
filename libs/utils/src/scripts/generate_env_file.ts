@@ -5,7 +5,7 @@ import yargs from 'yargs';
 import {
   BooleanEnvironmentVariableName,
   getBooleanEnvVarConfig,
-} from '../environment_variable';
+} from '../environment_variable.js';
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -101,7 +101,7 @@ if (args.help) {
   process.exit(0);
 }
 
-const fileLocation = join(__dirname, '../../../..');
+const fileLocation = join(import.meta.dirname, '../../../..');
 const fileName = '.env.local';
 const filePath = args.outputPath ?? join(fileLocation, fileName);
 void generateEnvFile(filePath, args.isVxDev ?? false);

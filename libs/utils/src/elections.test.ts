@@ -4,7 +4,7 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   readElectionGeneral,
 } from '@votingworks/fixtures';
-import { electionHasBallotPositions, getMaxSheetsPerBallot } from './index';
+import { electionHasBallotPositions, getMaxSheetsPerBallot } from './index.js';
 
 test('getMaxSheetsPerBallot', () => {
   // election with no gridLayouts available
