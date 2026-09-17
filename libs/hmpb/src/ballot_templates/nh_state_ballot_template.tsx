@@ -42,8 +42,12 @@ const BallotPageContent: ContentComponent<NhStateBallotProps> = async (
   contests,
   scratchpad
 ) => {
-  // Federal-office-only and UOCAVA ballots should not include blank placeholder pages
-  if (contests.length === 0 && props.variant) {
+  // Federal-office-only, UOCAVA and sample ballots should not include blank
+  // placeholder pages
+  if (
+    contests.length === 0 &&
+    (props.variant || props.ballotMode === 'sample')
+  ) {
     return ok(undefined);
   }
   switch (props.election.type) {
