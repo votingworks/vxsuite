@@ -1045,3 +1045,43 @@ test('printTestDeck throws when no test deck PDF is generated', async () => {
     })
   );
 });
+
+test('a print job that settles after a count reset does not count itself', async () => {
+  const electionDefinition = getMockMultiLanguageElectionDefinition(
+    electionGeneralDefinition,
+    ['en', 'zh-Hans']
+  );
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
+  await configureMachine(
+    mockUsbDrive,
+    electionDefinition,
+    electionGeneralFixtures.uiStrings
+  );
+
+  // A ballot is still in flight...
+  const jobId = await apiClient.printBallot({
+    precinctId: '21',
+    ballotStyleId: electionDefinition.election.ballotStyles.find((bs) =>
+      bs.languages.includes('en')
+    )!.id,
+    votes: generateMockVotes(electionDefinition.election),
+    languageCode: 'en',
+  });
+  mockPrinterHandler.setJobStatus(jobId, { outcome: 'in-progress' });
+
+  // ...when a poll worker reconfigures the machine, resetting the count.
+  const place = assertDefined(electionDefinition.election.pollingPlaces?.[0]);
+  await apiClient.setPollingPlaceId({ id: place.id });
+  await expectElectionState({ ballotsPrintedCount: 0 });
+
+  // The job belongs to the previous configuration, so it must not count
+  // itself into the fresh tally, though it is still logged.
+  mockPrinterHandler.setJobStatus(jobId, { outcome: 'sent-to-printer' });
+  await vi.waitFor(() => {
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.BallotPrintComplete,
+      expect.objectContaining({ disposition: 'success' })
+    );
+  });
+  await expectElectionState({ ballotsPrintedCount: 0 });
+});

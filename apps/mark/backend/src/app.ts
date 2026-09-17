@@ -119,6 +119,24 @@ export function buildApi(ctx: Context) {
   const { auth, logger, printer, usbDrive, workspace, barcodeClient } = ctx;
   const { store } = workspace;
 
+  // Bumped whenever the printed ballot count is reset
+  // e.g. by switching ballot casting mode. This prevents the following:
+  // 1. Test ballot print job is started
+  // 2. Pollworker switches ballot casting mode while print job is in flight
+  // 3. Print job finishes and increments official ballot mode print count
+  let ballotPrintingGeneration = 0;
+
+  function countPrintedBallot(generation: number): void {
+    if (generation === ballotPrintingGeneration) {
+      store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
+    }
+  }
+
+  function resetBallotsPrintedCount(): void {
+    ballotPrintingGeneration += 1;
+    store.setBallotsPrintedCount(0);
+  }
+
   // Set up barcode scan tracking for diagnostics
   barcodeClient.on('scan', (scanData: Uint8Array) => {
     lastBarcodeScanData = new TextDecoder().decode(scanData);
@@ -393,6 +411,7 @@ export function buildApi(ctx: Context) {
         ballotStyleId: input.ballotStyleId,
         precinctId: input.precinctId,
       });
+      const generation = ballotPrintingGeneration;
       const jobId = await printBallot({
         store,
         printer,
@@ -404,7 +423,7 @@ export function buildApi(ctx: Context) {
         onSettled: async (status) => {
           const sentToPrinter = status.outcome === 'sent-to-printer';
           if (sentToPrinter) {
-            store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
+            countPrintedBallot(generation);
           }
           await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
             message: sentToPrinter
@@ -433,6 +452,7 @@ export function buildApi(ctx: Context) {
         ballotStyleId: input.ballotStyleId,
         precinctId: input.precinctId,
       });
+      const generation = ballotPrintingGeneration;
       const jobId = await printBlankBallot({
         store,
         printer,
@@ -444,7 +464,7 @@ export function buildApi(ctx: Context) {
         onSettled: async (status) => {
           const sentToPrinter = status.outcome === 'sent-to-printer';
           if (sentToPrinter) {
-            store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
+            countPrintedBallot(generation);
           }
           await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
             message: sentToPrinter
@@ -567,7 +587,7 @@ export function buildApi(ctx: Context) {
       endCardlessVoterSessionIfAny();
       store.setTestMode(input.isTestMode);
       store.setPollsState('polls_closed_initial');
-      store.setBallotsPrintedCount(0);
+      resetBallotsPrintedCount();
     },
 
     setPollingPlaceId(input: { id: string }): void {
@@ -581,7 +601,7 @@ export function buildApi(ctx: Context) {
 
       endCardlessVoterSessionIfAny();
       store.setPollingPlaceId(input.id);
-      store.setBallotsPrintedCount(0);
+      resetBallotsPrintedCount();
 
       void logger.logAsCurrentRole(LogEventId.PollingPlaceChanged, {
         disposition: 'success',
