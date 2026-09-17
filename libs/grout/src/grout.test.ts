@@ -5,15 +5,14 @@ import { AddressInfo } from 'node:net';
 import express from 'express';
 import { assert, err, ok, Result, sleep } from '@votingworks/basics';
 import { expectTypeOf } from 'expect-type';
-import waitForExpect from 'wait-for-expect';
-import { createClient, ServerError } from './client';
+import { createClient, ServerError } from './client.js';
 import {
   AnyApi,
   buildRouter,
   createApi,
   MiddlewareMethodCall,
   UserError,
-} from './server';
+} from './server.js';
 
 function createTestApp(api: AnyApi) {
   const app = express();
@@ -193,7 +192,7 @@ test("crashes if RPC method doesn't have the correct signature (crash mode)", as
   vi.spyOn(process, 'exit').mockReturnValue(undefined as never);
   vi.spyOn(console, 'error').mockReturnValue();
   void client.sqrt(4);
-  await waitForExpect(() => {
+  await vi.waitFor(() => {
     expect(process.exit).toHaveBeenCalledTimes(1);
     expect(process.exit).toHaveBeenCalledWith(1);
     expect(console.error).toHaveBeenCalledTimes(1);
@@ -257,7 +256,7 @@ test('crashes if app has upstream body-parsing middleware (crash mode)', async (
   vi.spyOn(process, 'exit').mockReturnValue(undefined as never);
   vi.spyOn(console, 'error').mockReturnValue();
   void client.getStuff();
-  await waitForExpect(() => {
+  await vi.waitFor(() => {
     expect(process.exit).toHaveBeenCalledTimes(1);
     expect(process.exit).toHaveBeenCalledWith(1);
     expect(console.error).toHaveBeenCalledTimes(1);
@@ -346,7 +345,7 @@ test('crashes for invalid JSON body (crash mode)', async () => {
     headers: { 'Content-type': 'application/json' },
   });
 
-  await waitForExpect(() => {
+  await vi.waitFor(() => {
     expect(processExitSpy).toHaveBeenCalledWith(1);
   });
 
@@ -553,7 +552,7 @@ test('middleware runs before and after RPC method, adding context that can be ac
   expect(await client.getUserAttribute({ attribute: 'name' })).toEqual(
     mockUser.name
   );
-  await waitForExpect(() => {
+  await vi.waitFor(() => {
     expect(loadUserMiddleware).toHaveBeenCalledTimes(1);
     expect(authMiddleware).toHaveBeenCalledTimes(1);
     expect(loggingMiddleware).toHaveBeenCalledTimes(1);
@@ -596,7 +595,7 @@ test('before middleware errors are caught, returned to client, and passed to aft
   const { server, baseUrl } = createTestApp(api);
   const client = createClient<typeof api>({ baseUrl });
   await expect(client.getStuff()).rejects.toThrow('middleware error');
-  await waitForExpect(() => {
+  await vi.waitFor(() => {
     expect(authMiddleware).toHaveBeenCalledTimes(1);
     expect(loggingMiddleware).toHaveBeenCalledTimes(1);
   });

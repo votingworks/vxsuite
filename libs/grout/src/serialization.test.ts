@@ -3,7 +3,7 @@ import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { DateWithoutTime, err, ok } from '@votingworks/basics';
 import { DateTime } from 'luxon';
-import { deserialize, serialize } from './serialization';
+import { deserialize, serialize } from './serialization.js';
 
 // Note that instead of using a table of test cases, we're using a series of
 // assertion functions. This is useful for these tests in particular because
