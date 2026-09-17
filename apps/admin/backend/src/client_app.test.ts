@@ -2,7 +2,6 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { AddressInfo } from 'node:net';
-import tmp from 'tmp';
 import {
   DEV_MACHINE_ID,
   SystemSettings,
@@ -44,8 +43,7 @@ vi.mock('./multi_station_config', () => ({
 
 function buildClientTestEnvironment() {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
-  const workspaceRoot = tmp.dirSync().name;
-  const workspace = createClientWorkspace(workspaceRoot);
+  const workspace = createClientWorkspace(makeTemporaryDirectory());
   const logger = buildMockLogger(auth, workspace.clientStore);
   const usbPlatform = new SimulatedUsbPlatform(makeTemporaryDirectory());
   const multiUsbDrive = detectMultiUsbDrive({
