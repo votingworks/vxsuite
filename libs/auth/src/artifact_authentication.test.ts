@@ -2,7 +2,6 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import * as fs from 'node:fs';
 import path from 'node:path';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { z } from 'zod/v4';
 import { assert, err, ok } from '@votingworks/basics';
 import {
   CastVoteRecordExportFileName,
@@ -26,11 +25,14 @@ import { ArtifactAuthenticationConfig } from './config.js';
 
 vi.mock(
   '@votingworks/types',
-  async (importActual): Promise<typeof import('@votingworks/types')> => ({
-    ...(await importActual<typeof import('@votingworks/types')>()),
-    // Avoid having to prepare a complete CastVoteRecordExportMetadata object
-    CastVoteRecordExportMetadataSchema: z.any(),
-  })
+  async (importActual): Promise<typeof import('@votingworks/types')> => {
+    const { z } = await import('zod/v4');
+    return {
+      ...(await importActual<typeof import('@votingworks/types')>()),
+      // Avoid having to prepare a complete CastVoteRecordExportMetadata object
+      CastVoteRecordExportMetadataSchema: z.any(),
+    };
+  }
 );
 
 /**
