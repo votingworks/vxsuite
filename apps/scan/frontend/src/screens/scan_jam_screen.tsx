@@ -49,19 +49,3 @@ export function ScanJamScreen({
     </Screen>
   );
 }
-
-// @coverage-exclude
-export function InternalJamPreview(): JSX.Element {
-  return <ScanJamScreen scannedBallotCount={42} isTestMode={false} />;
-}
-
-// @coverage-exclude
-export function OutfeedJamPreview(): JSX.Element {
-  return (
-    <ScanJamScreen
-      scannedBallotCount={42}
-      error="outfeed_blocked"
-      isTestMode={false}
-    />
-  );
-}

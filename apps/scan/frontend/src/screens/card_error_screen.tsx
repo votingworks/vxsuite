@@ -12,8 +12,3 @@ export function CardErrorScreen(): JSX.Element {
     </ScreenMainCenterChild>
   );
 }
-
-// @coverage-exclude
-export function DefaultPreview(): JSX.Element {
-  return <CardErrorScreen />;
-}

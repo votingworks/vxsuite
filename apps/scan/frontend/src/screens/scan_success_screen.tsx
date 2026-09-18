@@ -32,8 +32,3 @@ export function ScanSuccessScreen({
     </Screen>
   );
 }
-
-// @coverage-exclude
-export function DefaultPreview(): JSX.Element {
-  return <ScanSuccessScreen scannedBallotCount={42} isTestMode={false} />;
-}

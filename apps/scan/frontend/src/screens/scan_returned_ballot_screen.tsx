@@ -19,8 +19,3 @@ export function ScanReturnedBallotScreen({
     </ScreenMainCenterChild>
   );
 }
-
-// @coverage-exclude
-export function DefaultPreview(): JSX.Element {
-  return <ScanReturnedBallotScreen isTestMode={false} />;
-}

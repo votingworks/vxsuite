@@ -29,13 +29,3 @@ export function ScannerCoverOpenScreen({ disableAlarm }: Props): JSX.Element {
     </ScreenMainCenterChild>
   );
 }
-
-// @coverage-exclude
-export function WithAlarmPreview(): JSX.Element {
-  return <ScannerCoverOpenScreen />;
-}
-
-// @coverage-exclude
-export function WithoutAlarmPreview(): JSX.Element {
-  return <ScannerCoverOpenScreen disableAlarm />;
-}

@@ -56,8 +56,3 @@ export function UnconfiguredElectionScreenWrapper(
     </Screen>
   );
 }
-
-// @coverage-exclude
-export function DefaultPreview(): JSX.Element {
-  return <UnconfiguredElectionScreenWrapper isElectionManagerAuth />;
-}

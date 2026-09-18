@@ -33,13 +33,3 @@ export function AccessibilityInputDisconnectedScreen({
     </ScreenMainCenterChild>
   );
 }
-
-// @coverage-exclude
-export function WithAlarmPreview(): JSX.Element {
-  return <AccessibilityInputDisconnectedScreen />;
-}
-
-// @coverage-exclude
-export function WithoutAlarmPreview(): JSX.Element {
-  return <AccessibilityInputDisconnectedScreen disableAlarm />;
-}

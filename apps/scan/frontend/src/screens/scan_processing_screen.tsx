@@ -18,8 +18,3 @@ export function ScanProcessingScreen({
     </ScreenMainCenterChild>
   );
 }
-
-// @coverage-exclude
-export function DefaultPreview(): JSX.Element {
-  return <ScanProcessingScreen isTestMode={false} />;
-}

@@ -21,15 +21,3 @@ export function InvalidCardScreen({
     </ScreenMainCenterChild>
   );
 }
-
-// @coverage-exclude
-export function DefaultPreview(): JSX.Element {
-  return (
-    <InvalidCardScreen
-      authStatus={{
-        status: 'logged_out',
-        reason: 'unprogrammed_or_invalid_card',
-      }}
-    />
-  );
-}

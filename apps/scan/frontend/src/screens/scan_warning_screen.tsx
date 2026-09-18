@@ -1,14 +1,12 @@
 import React from 'react';
 import {
   AdjudicationReason,
-  CandidateContest,
   ElectionDefinition,
   AdjudicationReasonInfo,
   OvervoteAdjudicationReasonInfo,
   UndervoteAdjudicationReasonInfo,
   Contest,
   SystemSettings,
-  DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
 import {
   Button,
@@ -19,11 +17,10 @@ import {
   PageNavigationButtonId,
   appStrings,
 } from '@votingworks/ui';
-import { assert } from '@votingworks/basics';
 
 import { Screen } from '../components/layout.js';
 
-import { acceptBallot, getConfig, returnBallot } from '../api.js';
+import { acceptBallot, returnBallot } from '../api.js';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout.js';
 import { MisvoteWarnings } from '../components/misvote_warnings/index.js';
 
@@ -370,218 +367,4 @@ export function ScanWarningScreen({
 
   // @coverage-defer
   return <OtherReasonWarningScreen isTestMode={isTestMode} />;
-}
-
-// @coverage-exclude
-export function OvervotePreview(): JSX.Element {
-  const configQuery = getConfig.useQuery();
-
-  const electionDefinition = configQuery.data?.electionDefinition;
-  if (!electionDefinition) {
-    return <P>Loading…</P>;
-  }
-
-  const contest = electionDefinition.election.contests.find(
-    (c): c is CandidateContest =>
-      c.type === 'candidate' && c.seats === 1 && c.candidates.length > 1
-  );
-  assert(contest);
-
-  return (
-    <ScanWarningScreen
-      electionDefinition={electionDefinition}
-      adjudicationReasonInfo={[
-        {
-          type: AdjudicationReason.Overvote,
-          contestId: contest.id,
-          optionIds: contest.candidates.slice(0, 2).map(({ id }) => id),
-          expected: contest.seats,
-        },
-        {
-          type: AdjudicationReason.Overvote,
-          contestId: contest.id,
-          optionIds: contest.candidates.slice(0, 2).map(({ id }) => id),
-          expected: contest.seats,
-        },
-      ]}
-      systemSettings={DEFAULT_SYSTEM_SETTINGS}
-      isTestMode={false}
-    />
-  );
-}
-
-// @coverage-exclude
-export function UndervoteNoVotes1ContestPreview(): JSX.Element {
-  const configQuery = getConfig.useQuery();
-  const electionDefinition = configQuery.data?.electionDefinition;
-
-  if (!electionDefinition) {
-    return <P>Loading…</P>;
-  }
-
-  const contest = electionDefinition.election.contests.find(
-    (c): c is CandidateContest => c.type === 'candidate'
-  );
-  assert(contest);
-
-  return (
-    <ScanWarningScreen
-      electionDefinition={electionDefinition}
-      systemSettings={DEFAULT_SYSTEM_SETTINGS}
-      adjudicationReasonInfo={[
-        {
-          type: AdjudicationReason.Undervote,
-          contestId: contest.id,
-          optionIds: [],
-          expected: contest.seats,
-        },
-      ]}
-      isTestMode={false}
-    />
-  );
-}
-
-// @coverage-exclude
-export function UndervoteNoVotesManyContestsPreview(): JSX.Element {
-  const configQuery = getConfig.useQuery();
-  const electionDefinition = configQuery.data?.electionDefinition;
-
-  if (!electionDefinition) {
-    return <P>Loading…</P>;
-  }
-
-  const contests = electionDefinition.election.contests.filter(
-    (c): c is CandidateContest => c.type === 'candidate'
-  );
-  assert(contests.length > 0);
-
-  return (
-    <ScanWarningScreen
-      electionDefinition={electionDefinition}
-      systemSettings={DEFAULT_SYSTEM_SETTINGS}
-      adjudicationReasonInfo={contests.map((contest) => ({
-        type: AdjudicationReason.Undervote,
-        contestId: contest.id,
-        optionIds: [],
-        expected: contest.seats,
-      }))}
-      isTestMode={false}
-    />
-  );
-}
-
-// @coverage-exclude
-export function Undervote1ContestPreview(): JSX.Element {
-  const configQuery = getConfig.useQuery();
-  const electionDefinition = configQuery.data?.electionDefinition;
-
-  if (!electionDefinition) {
-    return <P>Loading…</P>;
-  }
-
-  const contest = electionDefinition.election.contests.find(
-    (c): c is CandidateContest => c.type === 'candidate' && c.seats > 1
-  );
-  assert(contest);
-
-  return (
-    <ScanWarningScreen
-      electionDefinition={electionDefinition}
-      systemSettings={DEFAULT_SYSTEM_SETTINGS}
-      adjudicationReasonInfo={[
-        {
-          type: AdjudicationReason.Undervote,
-          contestId: contest.id,
-          optionIds: contest.candidates
-            .slice(0, contest.seats - 1)
-            .map(({ id }) => id),
-          expected: contest.seats,
-        },
-      ]}
-      isTestMode={false}
-    />
-  );
-}
-
-// @coverage-exclude
-export function MixedOvervotesAndUndervotesPreview(): JSX.Element {
-  const configQuery = getConfig.useQuery();
-  const electionDefinition = configQuery.data?.electionDefinition;
-
-  if (!electionDefinition) {
-    return <P>Loading…</P>;
-  }
-
-  const contests = electionDefinition.election.contests.filter(
-    (c): c is CandidateContest => c.type === 'candidate'
-  );
-  assert(contests.length > 0);
-
-  const multiSeatContests = contests.filter((c) => c.seats > 1);
-
-  return (
-    <ScanWarningScreen
-      electionDefinition={electionDefinition}
-      systemSettings={DEFAULT_SYSTEM_SETTINGS}
-      adjudicationReasonInfo={[
-        ...multiSeatContests.map<AdjudicationReasonInfo>((c) => ({
-          type: AdjudicationReason.Undervote,
-          contestId: c.id,
-          optionIds: c.candidates.slice(0, c.seats - 1).map(({ id }) => id),
-          expected: c.seats,
-        })),
-        ...contests.slice(0, 3).map<AdjudicationReasonInfo>((c) => ({
-          type: AdjudicationReason.Undervote,
-          contestId: c.id,
-          optionIds: [],
-          expected: c.seats,
-        })),
-        ...contests.slice(3, 5).map<AdjudicationReasonInfo>((c) => ({
-          type: AdjudicationReason.Overvote,
-          contestId: c.id,
-          optionIds: c.candidates.slice(0, 2).map(({ id }) => id),
-          expected: c.seats,
-        })),
-      ]}
-      isTestMode={false}
-    />
-  );
-}
-
-// @coverage-exclude
-export function CrossoverVotingPreview(): JSX.Element {
-  const configQuery = getConfig.useQuery();
-  const electionDefinition = configQuery.data?.electionDefinition;
-
-  if (!electionDefinition) {
-    return <P>Loading…</P>;
-  }
-
-  return (
-    <ScanWarningScreen
-      electionDefinition={electionDefinition}
-      systemSettings={DEFAULT_SYSTEM_SETTINGS}
-      adjudicationReasonInfo={[{ type: AdjudicationReason.CrossoverVoting }]}
-      isTestMode={false}
-    />
-  );
-}
-
-// @coverage-exclude
-export function BlankBallotPreview(): JSX.Element {
-  const configQuery = getConfig.useQuery();
-  const electionDefinition = configQuery.data?.electionDefinition;
-
-  if (!electionDefinition) {
-    return <P>Loading…</P>;
-  }
-
-  return (
-    <ScanWarningScreen
-      electionDefinition={electionDefinition}
-      systemSettings={DEFAULT_SYSTEM_SETTINGS}
-      adjudicationReasonInfo={[{ type: AdjudicationReason.BlankBallot }]}
-      isTestMode={false}
-    />
-  );
 }
