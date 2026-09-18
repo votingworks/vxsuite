@@ -90,8 +90,8 @@ export function PrintPage(): JSX.Element {
           title={appStrings.titleBmdBallotNotPrinted()}
           content={
             <P>
-              The ballot was not sent to the printer. Ask for a poll worker for
-              help.
+              The ballot was not sent to the printer.{' '}
+              {appStrings.instructionsAskForHelp()}
             </P>
           }
           actions={

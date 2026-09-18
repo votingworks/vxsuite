@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
+import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render as renderWithBallotContext } from '../../test/test_utils.js';
 import { createQueryClient, getPrintJobStatus } from '../api.js';
 import { screen, waitFor } from '../../test/react_testing_library.js';
@@ -55,7 +56,9 @@ test('closing the failure modal ends the voter session', async () => {
 
   await screen.findByText('Ballot Not Printed');
   screen.getByText(
-    'The ballot was not sent to the printer. Ask for a poll worker for help.'
+    hasTextAcrossElements(
+      'The ballot was not sent to the printer. Please ask a poll worker for help.'
+    )
   );
 
   userEvent.click(screen.getByText('Close'));
