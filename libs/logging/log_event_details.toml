@@ -235,7 +235,7 @@ documentationMessage = "A print request was completed. Success or failure is ind
 [Events.PrinterClearQueueRequest]
 eventId = "printer-clear-queue-request"
 eventType = "user-action"
-documentationMessage = "A print request was completed. Success or failure is indicated by disposition."
+documentationMessage = "A request to clear the print queue was completed. Success or failure is indicated by disposition."
 
 [Events.BallotPrintRequest]
 eventId = "ballot-print-request"

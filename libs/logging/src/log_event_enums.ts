@@ -392,7 +392,7 @@ const PrinterClearQueueRequest: LogDetails = {
   eventId: LogEventId.PrinterClearQueueRequest,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'A print request was completed. Success or failure is indicated by disposition.',
+    'A request to clear the print queue was completed. Success or failure is indicated by disposition.',
 };
 
 const BallotPrintRequest: LogDetails = {
