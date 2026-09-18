@@ -996,8 +996,3 @@ export function PollWorkerScreen(
     <PollWorkerScreenContents {...props} pollsInfo={pollsInfoQuery.data} />
   );
 }
-
-// @coverage-exclude
-export function BallotsAlreadyScannedScreenPreview(): JSX.Element {
-  return BallotsAlreadyScannedScreen;
-}
