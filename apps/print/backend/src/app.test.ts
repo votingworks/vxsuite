@@ -39,6 +39,7 @@ import {
 } from '@votingworks/utils';
 import { zipFile } from '@votingworks/test-utils';
 import {
+  concatenatePdfs,
   HP_4001_PRINTER_CONFIG,
   MemoryPrinterHandler,
   renderToPdf,
@@ -817,20 +818,26 @@ test('end-to-end printing flow handles precinct splits correctly', async () => {
   expect(splitRow!.precinctOrSplitName).toMatch(/Precinct 4 - Split 1/);
 });
 
-async function expectPrintedJobsMatchBallotsInOrder({
+async function expectPrintedJobMatchesBallotsInOrder({
   ballots,
-  printJobHistoryPaths,
+  copies,
+  printJobPath,
 }: {
   ballots: ReadonlyArray<{ encodedBallot: string }>;
-  printJobHistoryPaths: readonly string[];
+  copies: number;
+  printJobPath: string;
 }): Promise<void> {
-  const expectedHashes = ballots.map((b) =>
-    sha256(Buffer.from(b.encodedBallot, 'base64'))
+  const expectedPages: Buffer[] = [];
+  for (const ballot of ballots) {
+    const pdf = Buffer.from(ballot.encodedBallot, 'base64');
+    for (let i = 0; i < copies; i += 1) {
+      expectedPages.push(pdf);
+    }
+  }
+  const expected = await concatenatePdfs(expectedPages);
+  expect(sha256(await readFile(printJobPath))).toEqual(
+    sha256(Buffer.from(expected))
   );
-  const actualHashes = await Promise.all(
-    printJobHistoryPaths.map(async (p) => sha256(await readFile(p)))
-  );
-  expect(actualHashes).toEqual(expectedHashes);
 }
 
 test('printAllBallotStyles prints every style and updates counts in a stable order', async () => {
@@ -888,16 +895,12 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
     copiesPerStyle: 1,
   });
   const jobsAfterPrecinct = mockPrinterHandler.getPrintJobHistory().length;
-  expect(jobsAfterPrecinct - jobsBeforePrecinct).toEqual(
-    allPrecinctBallots.length
-  );
+  expect(jobsAfterPrecinct - jobsBeforePrecinct).toEqual(1);
 
-  await expectPrintedJobsMatchBallotsInOrder({
+  await expectPrintedJobMatchesBallotsInOrder({
     ballots: allPrecinctBallots,
-    printJobHistoryPaths: mockPrinterHandler
-      .getPrintJobHistory()
-      .slice(jobsBeforePrecinct, jobsAfterPrecinct)
-      .map((j) => j.filename),
+    copies: 1,
+    printJobPath: assertDefined(mockPrinterHandler.getLastPrintPath()),
   });
 
   const countsAfterPrecinct = await apiClient.getBallotPrintCounts();
@@ -927,16 +930,12 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
     copiesPerStyle: 2,
   });
   const jobsAfterAbsentee = mockPrinterHandler.getPrintJobHistory().length;
-  expect(jobsAfterAbsentee - jobsBeforeAbsentee).toEqual(
-    allAbsenteeBallots.length
-  );
+  expect(jobsAfterAbsentee - jobsBeforeAbsentee).toEqual(1);
 
-  await expectPrintedJobsMatchBallotsInOrder({
+  await expectPrintedJobMatchesBallotsInOrder({
     ballots: allAbsenteeBallots,
-    printJobHistoryPaths: mockPrinterHandler
-      .getPrintJobHistory()
-      .slice(jobsBeforeAbsentee, jobsAfterAbsentee)
-      .map((j) => j.filename),
+    copies: 2,
+    printJobPath: assertDefined(mockPrinterHandler.getLastPrintPath()),
   });
 
   const countsAfterAbsentee = await apiClient.getBallotPrintCounts();

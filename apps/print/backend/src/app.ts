@@ -41,6 +41,7 @@ import {
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import {
   cleanupCachedBrowser,
+  concatenatePdfs,
   PrintProps,
   PrintSides,
   renderToPdf,
@@ -64,6 +65,9 @@ interface TestDeckBallotToPrint {
   spec: TestDeckBallot;
   ballot: BallotPrintEntry;
 }
+
+// Max size of combined ballots that result from the "Print all ballot styles" feature
+const MAX_PRINT_ALL_BALLOTS_SIZE_BYTES = 512 * 1024 * 1024;
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(ctx: AppContext) {
@@ -505,13 +509,22 @@ export function buildApi(ctx: AppContext) {
             assertDefined(ballotOrder.get(`${b.precinctId}-${b.ballotStyleId}`))
         );
 
-      let totalPrintCount = 0;
+      const pagesToPrint: Buffer[] = [];
       for (const ballot of ballots) {
-        await printBallots(electionDefinition, {
-          data: Buffer.from(ballot.encodedBallot, 'base64'),
-          copies: input.copiesPerStyle,
-        });
-        totalPrintCount += input.copiesPerStyle;
+        const pdf = Buffer.from(ballot.encodedBallot, 'base64');
+        for (let i = 0; i < input.copiesPerStyle; i += 1) {
+          pagesToPrint.push(pdf);
+        }
+      }
+      await printBallots(electionDefinition, {
+        data: await concatenatePdfs(pagesToPrint, {
+          maxSizeBytes: MAX_PRINT_ALL_BALLOTS_SIZE_BYTES,
+        }),
+        copies: 1,
+      });
+
+      const totalPrintCount = ballots.length * input.copiesPerStyle;
+      for (const ballot of ballots) {
         store.incrementBallotPrintCount({
           precinctId: ballot.precinctId,
           ballotStyleId: ballot.ballotStyleId,
