@@ -2,7 +2,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import { ExecError, exec } from '../utils/exec.js';
 import { DEFAULT_MANAGED_PRINTER_NAME } from './configure.js';
-import { cancelAllJobs, print } from './print.js';
+import { cancelAllJobs, MAX_PRINT_JOB_SIZE_BYTES, print } from './print.js';
 import { PrintSides } from './types.js';
 
 vi.mock('../utils/exec');
@@ -177,4 +177,12 @@ test('returns an error when cancelling fails', async () => {
   vi.mocked(exec).mockResolvedValueOnce(err(execError));
 
   expect(await cancelAllJobs()).toEqual(err(execError));
+});
+
+test('refuses a job larger than the maximum size', async () => {
+  await expect(
+    print({ data: new Uint8Array(MAX_PRINT_JOB_SIZE_BYTES + 1) })
+  ).rejects.toThrow(/exceeds the maximum/);
+
+  expect(exec).not.toHaveBeenCalled();
 });

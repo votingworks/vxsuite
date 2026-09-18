@@ -41,6 +41,7 @@ import {
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import {
   cleanupCachedBrowser,
+  concatenatePdfs,
   PrintProps,
   PrintSides,
   renderToPdf,
@@ -505,13 +506,23 @@ export function buildApi(ctx: AppContext) {
             assertDefined(ballotOrder.get(`${b.precinctId}-${b.ballotStyleId}`))
         );
 
-      let totalPrintCount = 0;
+      const pagesToPrint: Buffer[] = [];
       for (const ballot of ballots) {
-        await printBallots(electionDefinition, {
-          data: Buffer.from(ballot.encodedBallot, 'base64'),
-          copies: input.copiesPerStyle,
-        });
-        totalPrintCount += input.copiesPerStyle;
+        const pdf = Buffer.from(ballot.encodedBallot, 'base64');
+        for (let i = 0; i < input.copiesPerStyle; i += 1) {
+          pagesToPrint.push(pdf);
+        }
+      }
+      await printBallots(electionDefinition, {
+        // `updateMetadata: false` avoids stamping the document with timestamp
+        // We don't need the timestamp because the PDF is never permanently saved
+        // and its existence causes test flakiness
+        data: await concatenatePdfs(pagesToPrint, { updateMetadata: false }),
+        copies: 1,
+      });
+
+      const totalPrintCount = ballots.length * input.copiesPerStyle;
+      for (const ballot of ballots) {
         store.incrementBallotPrintCount({
           precinctId: ballot.precinctId,
           ballotStyleId: ballot.ballotStyleId,

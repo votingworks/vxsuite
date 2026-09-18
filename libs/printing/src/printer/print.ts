@@ -15,6 +15,13 @@ const LP_REQUEST_ID_PATTERN = new RegExp(
   `\\b${DEFAULT_MANAGED_PRINTER_NAME}-(\\d+)\\b`
 );
 
+/**
+ * Largest print job we will submit to CUPS. Guards against a caller building
+ * an unbounded document, which would be spooled to disk and held in memory on
+ * its way to the printer.
+ */
+export const MAX_PRINT_JOB_SIZE_BYTES = 512 * 1024 * 1024;
+
 export async function print({
   data,
   copies,
@@ -40,6 +47,13 @@ export async function print({
 
   if (copies !== undefined) {
     lpOptions.push('-n', copies.toString());
+  }
+
+  if (data instanceof Uint8Array) {
+    assert(
+      data.byteLength <= MAX_PRINT_JOB_SIZE_BYTES,
+      `print job of ${data.byteLength} bytes exceeds the maximum of ${MAX_PRINT_JOB_SIZE_BYTES} bytes`
+    );
   }
 
   debug('printing via lp with args=%o', lpOptions);
