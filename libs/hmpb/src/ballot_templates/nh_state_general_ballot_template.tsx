@@ -683,7 +683,7 @@ function CandidateContest({
                 writeInIndex,
                 writeInArea: {
                   top: 0.75,
-                  left: 4.9,
+                  left: 4.8,
                   bottom: 0.08,
                   right: -0.6,
                 },

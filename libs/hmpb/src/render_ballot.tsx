@@ -327,17 +327,6 @@ export function gridHeightToPixels(
 }
 
 /**
- * Cap on how far above its bubble center a write-in area may be expanded.
- *
- * `optionBoundsFromTargetMark` is a single outset shared by every option on the
- * ballot (the only shape v4.0 election definitions can carry), and it has to
- * cover the tallest write-in area. Without a cap, one unusually tall contest row
- * would push that shared outset far enough up that every candidate option's
- * bounds would overhang the option above it, whose gap is a fixed 0.75 grid rows.
- */
-const WRITE_IN_AREA_MAX_TOP = 1.3;
-
-/**
  * Grows a write-in area upward into the unused space of its cell, for templates
  * that opt in with {@link EXPANDABLE_WRITE_IN_OPTION_CLASS}. Contest rows get
  * taller when a neighboring column has longer candidate names, but write-in
@@ -393,8 +382,7 @@ function expandWriteInAreaTop({
   const ceiling = (isFirstOptionInCell ? cell.y : option.y) + leftGap;
 
   const bubbleCenterY = bubble.y + bubble.height / 2;
-  const expandedTop = pixelsToGridHeight(grid, bubbleCenterY - ceiling);
-  return Math.min(WRITE_IN_AREA_MAX_TOP, expandedTop);
+  return pixelsToGridHeight(grid, bubbleCenterY - ceiling);
 }
 
 async function extractBallotPositions(
