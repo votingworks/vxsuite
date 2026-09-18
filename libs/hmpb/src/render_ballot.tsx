@@ -327,13 +327,6 @@ export function gridHeightToPixels(
 }
 
 /**
- * Gap left between an expanded write-in area and the top edge of its option, so
- * the area clears the label of the option above it, whose wrapped lines render
- * in that gap.
- */
-const WRITE_IN_AREA_OPTION_TOP_INSET = 0.15;
-
-/**
  * Cap on how far above its bubble center a write-in area may be expanded.
  *
  * `optionBoundsFromTargetMark` is a single outset shared by every option on the
@@ -356,9 +349,9 @@ const WRITE_IN_AREA_MAX_TOP = 1.3;
  * top edge, because the gap above it holds the preceding option's label, whose
  * wrapped lines render outside that option's box.
  *
- * For the first option the cell ceiling also bounds the area's default height,
- * shortening it where the cell leaves less room than that default, so every
- * area keeps the same clearance from the rule above it.
+ * The ceiling bounds the area in both directions, shortening it below its
+ * template height where its bound leaves less room, so areas laid out alike
+ * come out the same size.
  */
 function expandWriteInAreaTop({
   bubble,
@@ -392,21 +385,16 @@ function expandWriteInAreaTop({
   const isFirstOptionInCell = !options
     .slice(0, optionIndex)
     .some((o) => o.y >= cell.y && o.y < option.y);
-  // An area reaching the top of its cell is inset to match the gap it already
-  // leaves on the left, so its clearance from the printed rules is even.
+  // Every area is inset from its bound by the gap it already leaves on the
+  // left, so its clearance from the printed rules is even.
   const bubbleCenterX = bubble.x + bubble.width / 2;
-  const cellLeftGap =
+  const leftGap =
     bubbleCenterX - gridWidthToPixels(grid, writeInArea.left) - cell.x;
-  const ceiling = isFirstOptionInCell
-    ? cell.y + cellLeftGap
-    : option.y + gridHeightToPixels(grid, WRITE_IN_AREA_OPTION_TOP_INSET);
+  const ceiling = (isFirstOptionInCell ? cell.y : option.y) + leftGap;
 
   const bubbleCenterY = bubble.y + bubble.height / 2;
   const expandedTop = pixelsToGridHeight(grid, bubbleCenterY - ceiling);
-  const top = isFirstOptionInCell
-    ? expandedTop
-    : Math.max(writeInArea.top, expandedTop);
-  return Math.min(WRITE_IN_AREA_MAX_TOP, top);
+  return Math.min(WRITE_IN_AREA_MAX_TOP, expandedTop);
 }
 
 async function extractBallotPositions(
