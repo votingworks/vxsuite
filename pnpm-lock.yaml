@@ -4826,6 +4826,9 @@ importers:
       '@votingworks/types':
         specifier: workspace:*
         version: link:../types
+      '@votingworks/utils':
+        specifier: workspace:*
+        version: link:../utils
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)

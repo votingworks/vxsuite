@@ -12,7 +12,7 @@ import {
 import { constructElectionKey } from '@votingworks/types';
 import {
   deserializeMockFileContents,
-  MOCK_FILE_PATH,
+  getMockFilePath,
   mockCard,
   MockFileCard,
   MockFileContents,
@@ -316,7 +316,7 @@ test('MockFileCard data reading and writing', async () => {
 
 test('MockFileCard resiliency to deletion of underlying file', async () => {
   const card = new MockFileCard();
-  fs.rmSync(MOCK_FILE_PATH);
+  fs.rmSync(getMockFilePath());
   expect(await card.getCardStatus()).toEqual({
     status: 'no_card',
   });
@@ -324,7 +324,7 @@ test('MockFileCard resiliency to deletion of underlying file', async () => {
 
 test('MockFileCard resiliency to underlying file that cannot be parsed', async () => {
   const card = new MockFileCard();
-  fs.writeFileSync(MOCK_FILE_PATH, 'Not valid JSON');
+  fs.writeFileSync(getMockFilePath(), 'Not valid JSON');
   expect(await card.getCardStatus()).toEqual({
     status: 'no_card',
   });

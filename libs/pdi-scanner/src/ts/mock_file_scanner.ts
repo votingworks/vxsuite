@@ -1,6 +1,7 @@
 import { iter } from '@votingworks/basics';
 import { createGrayImageData, pdfToImages } from '@votingworks/image-utils';
 import { asSheet, GrayImageData, SheetOf } from '@votingworks/types';
+import { getMockStateRootDir } from '@votingworks/utils';
 import {
   existsSync,
   mkdirSync,
@@ -17,14 +18,16 @@ import {
 } from './mock_scanner.js';
 
 // Build output is flat at libs/pdi-scanner/build/; 3 levels up is the repo root.
-const REPO_ROOT = join(import.meta.dirname, '../../..');
-const MOCK_STATE_DIR = join(
-  REPO_ROOT,
-  '.mock-state',
-  process.env['NODE_ENV'] ?? 'development',
-  'pdi-scanner'
-);
-const COMMAND_FILE = join(MOCK_STATE_DIR, 'command.json');
+function getMockStateDir(): string {
+  return join(
+    getMockStateRootDir(join(import.meta.dirname, '../../..')),
+    'pdi-scanner'
+  );
+}
+
+function getCommandFile(): string {
+  return join(getMockStateDir(), 'command.json');
+}
 
 function blankGrayscalePage(width: number, height: number): GrayImageData {
   return createGrayImageData(
@@ -38,16 +41,16 @@ type Command =
   { type: 'insert'; path: string } | { type: 'remove' } | { type: 'none' };
 
 function writeCommand(command: Command): void {
-  mkdirSync(MOCK_STATE_DIR, { recursive: true });
-  writeFileSync(COMMAND_FILE, JSON.stringify(command), 'utf-8');
+  mkdirSync(getMockStateDir(), { recursive: true });
+  writeFileSync(getCommandFile(), JSON.stringify(command), 'utf-8');
 }
 
 function readCommand(): Command {
-  if (!existsSync(COMMAND_FILE)) {
+  if (!existsSync(getCommandFile())) {
     return { type: 'none' };
   }
   try {
-    return JSON.parse(readFileSync(COMMAND_FILE, 'utf-8')) as Command;
+    return JSON.parse(readFileSync(getCommandFile(), 'utf-8')) as Command;
   } catch {
     return { type: 'none' };
   }
@@ -70,7 +73,7 @@ export function getMockFilePdiScannerHandler(): MockFilePdiScannerHandler {
       writeCommand({ type: 'remove' });
     },
     cleanup(): void {
-      rmSync(MOCK_STATE_DIR, { recursive: true, force: true });
+      rmSync(getMockStateDir(), { recursive: true, force: true });
     },
   };
 }

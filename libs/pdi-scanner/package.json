@@ -36,6 +36,7 @@
     "@votingworks/basics": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
+    "@votingworks/utils": "workspace:*",
     "debug": "4.3.4",
     "xstate": "^4.33.0",
     "zod": "4.4.3"

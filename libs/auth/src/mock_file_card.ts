@@ -21,16 +21,11 @@ import { Card, CardStatus, CheckPinResponse } from './card.js';
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
 /**
- * The path of the file underlying a MockFileCard, namespaced by NODE_ENV so
- * that tests and development instances in the same worktree don't interfere.
- *
- * The directory structure .mock-state/<NODE_ENV>/ inside the repo root also
- * ensures that separate git worktrees use entirely separate mock state.
+ * Gets the path of the file underlying a MockFileCard.
  */
-export const MOCK_FILE_PATH = join(
-  getMockStateRootDir(REPO_ROOT),
-  'mock-file-card.json'
-);
+export function getMockFilePath(): string {
+  return join(getMockStateRootDir(REPO_ROOT), 'mock-file-card.json');
+}
 
 /**
  * The contents of the file underlying a MockFileCard
@@ -75,8 +70,9 @@ export function deserializeMockFileContents(file: Buffer): MockFileContents {
 }
 
 function writeToMockFile(mockFileContents: MockFileContents): void {
-  fs.mkdirSync(dirname(MOCK_FILE_PATH), { recursive: true });
-  fs.writeFileSync(MOCK_FILE_PATH, serializeMockFileContents(mockFileContents));
+  const mockFilePath = getMockFilePath();
+  fs.mkdirSync(dirname(mockFilePath), { recursive: true });
+  fs.writeFileSync(mockFilePath, serializeMockFileContents(mockFileContents));
 }
 
 /**
@@ -97,10 +93,11 @@ function initializeMockFile() {
  * parsed.
  */
 function readFromMockFileHelper(): Optional<MockFileContents> {
-  if (!fs.existsSync(MOCK_FILE_PATH)) {
+  const mockFilePath = getMockFilePath();
+  if (!fs.existsSync(mockFilePath)) {
     return undefined;
   }
-  const file = fs.readFileSync(MOCK_FILE_PATH);
+  const file = fs.readFileSync(mockFilePath);
   try {
     return deserializeMockFileContents(file);
   } catch {
