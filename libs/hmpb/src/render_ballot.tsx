@@ -355,6 +355,10 @@ const WRITE_IN_AREA_MAX_TOP = 1.3;
  * option in a cell claims the space above it; a later option stops at its own
  * top edge, because the gap above it holds the preceding option's label, whose
  * wrapped lines render outside that option's box.
+ *
+ * For the first option the cell ceiling also bounds the area's default height,
+ * shortening it where the cell leaves less room than that default, so every
+ * area keeps the same clearance from the rule above it.
  */
 function expandWriteInAreaTop({
   bubble,
@@ -399,10 +403,10 @@ function expandWriteInAreaTop({
 
   const bubbleCenterY = bubble.y + bubble.height / 2;
   const expandedTop = pixelsToGridHeight(grid, bubbleCenterY - ceiling);
-  return Math.min(
-    WRITE_IN_AREA_MAX_TOP,
-    Math.max(writeInArea.top, expandedTop)
-  );
+  const top = isFirstOptionInCell
+    ? expandedTop
+    : Math.max(writeInArea.top, expandedTop);
+  return Math.min(WRITE_IN_AREA_MAX_TOP, top);
 }
 
 async function extractBallotPositions(
