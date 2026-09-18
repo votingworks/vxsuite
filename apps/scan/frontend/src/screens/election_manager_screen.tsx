@@ -400,28 +400,6 @@ export function ElectionManagerScreen({
     </Screen>
   );
 }
-
-// @coverage-exclude
-export function DefaultPreview(): JSX.Element {
-  const configQuery = getConfig.useQuery();
-  const electionDefinition = configQuery.data?.electionDefinition;
-
-  if (!electionDefinition) {
-    return <div>Loading…</div>;
-  }
-
-  return (
-    <ElectionManagerScreen
-      electionDefinition={electionDefinition}
-      scannerStatus={{
-        state: 'waiting_for_ballot',
-        ballotsCounted: 1234,
-      }}
-      usbDrive={{ status: 'no_drive' }}
-    />
-  );
-}
-
 function LocationPicker(props: {
   config: PrecinctScannerConfig;
   election: Election;
