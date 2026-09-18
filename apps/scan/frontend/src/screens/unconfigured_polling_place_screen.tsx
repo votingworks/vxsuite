@@ -11,8 +11,3 @@ export function UnconfiguredPollingPlaceScreen(): JSX.Element {
     </ScreenMainCenterChild>
   );
 }
-
-// @coverage-exclude
-export function DefaultPreview(): JSX.Element {
-  return <UnconfiguredPollingPlaceScreen />;
-}
