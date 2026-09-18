@@ -8,7 +8,7 @@
   "types": "build/index.d.ts",
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
-    "build:self": "tsc --build tsconfig.build.json",
+    "build:self": "rm -f build/tsconfig.build.tsbuildinfo && tsc --build tsconfig.build.json",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
     "lint": "pnpm -w vx-task lint $npm_package_name",
@@ -17,7 +17,7 @@
     "test": "pnpm -w vx-task build $npm_package_name && vitest",
     "test:run": "pnpm -w vx-task test:run $npm_package_name",
     "test:run:self": "vitest run",
-    "type-check": "tsc --build"
+    "type-check": "rm -f tsconfig.tsbuildinfo && tsc --build"
   },
   "dependencies": {
     "@votingworks/basics": "workspace:*"
