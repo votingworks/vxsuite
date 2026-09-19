@@ -22,8 +22,9 @@ import type {
   PrecinctScannerConfig,
   PrecinctScannerStatus,
   SoundName,
+  StatusUpdate,
 } from '@votingworks/scan-backend';
-import { deferred, err, ok } from '@votingworks/basics';
+import { deepEqual, deferred, err, ok } from '@votingworks/basics';
 import {
   mockElectionManagerUser,
   mockPollWorkerUser,
@@ -41,6 +42,7 @@ import type {
 } from '@votingworks/fujitsu-thermal-printer';
 import { mockPollsInfo } from './mock_polls_info.js';
 import { ApiProvider } from '../../src/api_provider.js';
+import { useStatusUpdates } from '../../src/api.js';
 
 export const machineConfig: MachineConfig = {
   machineId: '0002',
@@ -64,11 +66,38 @@ export const statusNoPaper: PrecinctScannerStatus = {
   lifetimeSheetsCounted: 0,
 };
 
-type MockApiClient = Omit<MockClient<Api>, 'getDiskSpaceSummary'> & {
+type MockApiClient = Omit<
+  MockClient<Api>,
+  'getDiskSpaceSummary' | 'getStatusUpdate'
+> & {
   // Because this is polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
   getDiskSpaceSummary: Mock;
+  getStatusUpdate: Mock;
 };
+
+/** Mirrors the backend: a request with the current revision stays pending. */
+function createMockStatusUpdates() {
+  let current: StatusUpdate = {
+    revision: 0,
+    statuses: { scanner: statusNoPaper },
+  };
+  let changed = deferred<void>();
+
+  return {
+    setScannerStatus(scanner: PrecinctScannerStatus) {
+      if (deepEqual(scanner, current.statuses.scanner)) return;
+      current = { revision: current.revision + 1, statuses: { scanner } };
+      changed.resolve();
+      changed = deferred();
+    },
+
+    getStatusUpdate: vi.fn(async ({ since }: { since?: number }) => {
+      if (since === current.revision) await changed.promise;
+      return current;
+    }),
+  };
+}
 
 function createMockApiClient(): MockApiClient {
   const mockApiClient = createMockClient<Api>();
@@ -85,6 +114,8 @@ function createMockApiClient(): MockApiClient {
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function createApiMock() {
   const mockApiClient = createMockApiClient();
+  const statusUpdates = createMockStatusUpdates();
+  mockApiClient.getStatusUpdate = statusUpdates.getStatusUpdate;
 
   function setAuthStatus(authStatus: InsertedSmartCardAuth.AuthStatus): void {
     mockApiClient.getAuthStatus.expectRepeatedCallsWith().resolves(authStatus);
@@ -198,7 +229,7 @@ export function createApiMock() {
     },
 
     expectGetScannerStatus(status: PrecinctScannerStatus): void {
-      mockApiClient.getScannerStatus.expectRepeatedCallsWith().resolves(status);
+      statusUpdates.setScannerStatus(status);
     },
 
     expectOpenPolls(result: OpenPollsResult = ok()): void {
@@ -380,6 +411,11 @@ export function createApiMock() {
 
 export type ApiMock = ReturnType<typeof createApiMock>;
 
+function StatusUpdates(): null {
+  useStatusUpdates();
+  return null;
+}
+
 export function provideApi(
   apiMock: ReturnType<typeof createApiMock>,
   children: React.ReactNode
@@ -387,6 +423,7 @@ export function provideApi(
   return (
     <TestErrorBoundary>
       <ApiProvider apiClient={apiMock.mockApiClient} noAudio>
+        <StatusUpdates />
         {children}
       </ApiProvider>
     </TestErrorBoundary>

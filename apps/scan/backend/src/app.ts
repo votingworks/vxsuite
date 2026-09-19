@@ -74,6 +74,7 @@ import {
 import { saveReadinessReport } from './printing/readiness_report.js';
 import type { AudioPlayer, SoundName } from './audio/audio.js';
 import { getScannerResultsByPrecinctMemoized } from './util/results.js';
+import { createStatusUpdates, type StatusUpdate } from './status_updates.js';
 
 export const BALLOT_AUDIT_ID_FILE_NAME = 'ballot-audit-id-secret-key.txt';
 
@@ -96,6 +97,18 @@ export function buildApi({
   logger: Logger;
 }) {
   const { store } = workspace;
+
+  async function getScannerStatus(): Promise<PrecinctScannerStatus> {
+    return {
+      ...machine.status(),
+      ballotsCounted: store.getBallotsCounted(),
+      lifetimeSheetsCounted: await workspace.lifetimeSheetCounter.get(),
+    };
+  }
+  const statusUpdates = createStatusUpdates({
+    getStatuses: async () => ({ scanner: await getScannerStatus() }),
+    onChange: machine.subscribe,
+  });
 
   return grout.createApi({
     getMachineConfig,
@@ -270,6 +283,7 @@ export function buildApi({
 
     async unconfigureElection(): Promise<void> {
       workspace.unconfigure();
+      statusUpdates.notifyChanged();
       await audioPlayer.setIsScreenReaderEnabled(false);
       await logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
         disposition: 'success',
@@ -297,6 +311,7 @@ export function buildApi({
 
       store.setPollingPlaceId(input.id);
       workspace.resetElectionSession();
+      statusUpdates.notifyChanged();
 
       void logger.logAsCurrentRole(LogEventId.PollingPlaceChanged, {
         disposition: 'success',
@@ -355,6 +370,7 @@ export function buildApi({
         workspace.resetElectionSession()
       );
       store.setTestMode(input.isTestMode);
+      statusUpdates.notifyChanged();
       await logger.logAsCurrentRole(LogEventId.ToggledTestMode, {
         disposition: 'success',
         message: `Successfully toggled from ${logMessage} mode.`,
@@ -382,6 +398,7 @@ export function buildApi({
       // switching casting modes.
       store.setPollingPlaceId(null);
       workspace.resetElectionSession();
+      statusUpdates.notifyChanged();
 
       await logger.logAsCurrentRole(LogEventId.SetBallotCastingMode, {
         message: `Successfully set ballot casting mode to ${input.ballotCastingMode}.`,
@@ -434,15 +451,15 @@ export function buildApi({
       return printWriteInImageReport({ store, printer });
     },
 
-    async getScannerStatus(): Promise<PrecinctScannerStatus> {
-      const machineStatus = machine.status();
-      const ballotsCounted = store.getBallotsCounted();
-      const lifetimeSheetsCounted = await workspace.lifetimeSheetCounter.get();
-      return {
-        ...machineStatus,
-        ballotsCounted,
-        lifetimeSheetsCounted,
-      };
+    getScannerStatus,
+
+    /**
+     * Long-polls for a change to any of the bundled statuses. Pass the
+     * `revision` from the previous update as `since` to wait for the next
+     * change; omit it to get the current statuses immediately.
+     */
+    getStatusUpdate(input: { since?: number }): Promise<StatusUpdate> {
+      return statusUpdates.next(input.since);
     },
 
     acceptBallot(): void {

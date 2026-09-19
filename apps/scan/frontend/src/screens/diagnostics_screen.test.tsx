@@ -1,4 +1,3 @@
-import React from 'react';
 import { vi, beforeEach, afterEach, test, expect } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { userEvent } from '@testing-library/user-event';
@@ -11,35 +10,15 @@ import {
 } from '../../test/helpers/mock_api_client.js';
 import { render, screen, waitFor } from '../../test/react_testing_library.js';
 import { DiagnosticsScreen } from './diagnostics_screen.js';
-import { getScannerStatus } from '../api.js';
-import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals.js';
 
 let apiMock: ApiMock;
-
-// In the app, AppRoot is the single scanner status poller and DiagnosticsScreen
-// just subscribes to the shared query. Since these tests render the screen on
-// its own, this stands in for AppRoot's polling.
-function ScannerStatusPoller() {
-  getScannerStatus.useQuery({
-    refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
-  });
-  return null;
-}
 
 function renderScreen({
   onClose = vi.fn(),
 }: {
   onClose?: VoidFunction;
 } = {}) {
-  render(
-    provideApi(
-      apiMock,
-      <React.Fragment>
-        <ScannerStatusPoller />
-        <DiagnosticsScreen onClose={onClose} />
-      </React.Fragment>
-    )
-  );
+  render(provideApi(apiMock, <DiagnosticsScreen onClose={onClose} />));
 }
 
 beforeEach(() => {
@@ -191,17 +170,17 @@ test('can run scanner diagnostic flow', async () => {
   await screen.findByText('Test Scan Successful');
 
   apiMock.mockApiClient.endScannerDiagnostic.expectCallWith().resolves();
-  apiMock.expectGetScannerStatus({
-    state: 'paused',
-    ballotsCounted: 0,
-    lifetimeSheetsCounted: 0,
-  });
   apiMock.expectGetMostRecentScannerDiagnostic({
     type: 'blank-sheet-scan',
     outcome: 'pass',
     timestamp: new Date('2024-01-01T00:00:00').getTime(),
   });
   await userEvent.click(screen.getButton('Close'));
+  apiMock.expectGetScannerStatus({
+    state: 'paused',
+    ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
+  });
 
   await screen.findByText('Test scan successful, 1/1/2024, 12:00:00 AM');
 });

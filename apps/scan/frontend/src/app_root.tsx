@@ -24,10 +24,6 @@ import { PollWorkerScreen } from './screens/poll_worker_screen.js';
 import { CardErrorScreen } from './screens/card_error_screen.js';
 import { InternalConnectionProblemScreen } from './screens/internal_connection_problem_screen.js';
 import { InsertUsbScreen } from './screens/insert_usb_screen.js';
-import {
-  POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
-  POLLING_INTERVAL_FOR_SCANNER_STATUS_WHILE_SCANNING_MS,
-} from './config/globals.js';
 import { UnconfiguredPollingPlaceScreen } from './screens/unconfigured_polling_place_screen.js';
 import { UnconfiguredElectionScreenWrapper } from './screens/unconfigured_election_screen_wrapper.js';
 import {
@@ -40,6 +36,7 @@ import {
   getUsbDriveStatus,
   unconfigureElection,
   useApiClient,
+  useStatusUpdates,
 } from './api.js';
 import { VoterScreen } from './screens/voter_screen.js';
 import { LoginPromptScreen } from './screens/login_prompt_screen.js';
@@ -67,21 +64,8 @@ export function AppRoot(): JSX.Element | null {
   const checkPinMutation = checkPin.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
 
-  // AppRoot is the single scanner status poller. Other components subscribe
-  // to the same query without a refetchInterval and receive updates through
-  // the shared query cache; react-query runs a separate timer for every
-  // observer that sets a refetchInterval, so a second poller would double the
-  // request rate.
-  const scannerStatusQuery = getScannerStatus.useQuery({
-    // In order to make the perceived speed of scanning as fast as possible,
-    // we poll more frequently when a scan is in progress so we can find out
-    // promptly when it's done. Experimentally, 100ms hit a sweet spot between
-    // finding out quickly and adding too much overhead.
-    refetchInterval: (status) =>
-      status?.state === 'scanning'
-        ? POLLING_INTERVAL_FOR_SCANNER_STATUS_WHILE_SCANNING_MS
-        : POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
-  });
+  useStatusUpdates();
+  const scannerStatusQuery = getScannerStatus.useQuery();
   const printerStatusQuery = getPrinterStatus.useQuery();
 
   const sessionSettingsManager = useSessionSettingsManager();

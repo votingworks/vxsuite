@@ -161,6 +161,7 @@ export function buildMockLogger(
 export function createPrecinctScannerStateMachineMock(): Mocked<PrecinctScannerStateMachine> {
   return {
     status: vi.fn(),
+    subscribe: vi.fn(),
     accept: vi.fn(),
     return: vi.fn(),
     readyForNextBallot: vi.fn(),

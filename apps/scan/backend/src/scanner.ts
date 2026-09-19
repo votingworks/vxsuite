@@ -1504,6 +1504,10 @@ export function createPrecinctScannerStateMachine({
   setupLogging(machineService, logger);
 
   return {
+    subscribe: (listener: () => void): void => {
+      machineService.subscribe(listener);
+    },
+
     status: (): PrecinctScannerMachineStatus => {
       const { state } = machineService;
       const scannerState: PrecinctScannerState = (() => {

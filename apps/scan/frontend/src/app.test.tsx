@@ -37,7 +37,6 @@ import {
   fireEvent,
   act,
 } from '../test/react_testing_library.js';
-import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from './config/globals.js';
 import { scannerStatus } from '../test/helpers/helpers.js';
 import {
   type ApiMock,
@@ -377,10 +376,6 @@ test('election manager and poll worker configuration', async () => {
   apiMock.removeCard();
 
   // Remove card and insert election manager card to unconfigure
-  apiMock.expectGetScannerStatus({
-    ...statusNoPaper,
-    ballotsCounted: 1,
-  });
   apiMock.authenticateAsElectionManager(electionDefinition);
   await screen.findByText('Election Manager Menu');
   screen.getButton('Change Polling Place');
@@ -409,19 +404,15 @@ const statusBallotCounted = scannerStatus({
 
 async function scanBallot() {
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
-  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText(/Please wait/);
 
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
-  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
 
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepting' }));
-  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
 
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepted' }));
   apiMock.expectPlaySound('success');
   apiMock.mockApiClient.readyForNextBallot.expectCallWith().resolves();
-  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Your ballot was counted!');
 
   apiMock.expectGetScannerStatus(statusBallotCounted);
@@ -534,7 +525,6 @@ test('success screen stays visible until screen reader audio is done', async () 
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepted' }));
   apiMock.expectPlaySound('success');
   apiMock.mockApiClient.readyForNextBallot.expectCallWith().resolves();
-  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Your ballot was counted!');
 
   mockUseScreenReaderActive.mockReturnValue(true);
@@ -546,7 +536,6 @@ test('success screen stays visible until screen reader audio is done', async () 
 
   // Trigger a re-render to pick up new hook value:
   apiMock.expectGetScannerStatus(statusBallotCounted);
-  await vi.advanceTimersByTimeAsync(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
 
   await screen.findByText(/Insert Your Ballot/i);
   expect(screen.getByTestId('ballot-count').textContent).toEqual('1');
@@ -566,20 +555,18 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     reasons: [{ type: AdjudicationReason.BlankBallot }],
   };
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
-  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText(/Please wait/);
 
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
-  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
 
   apiMock.expectGetScannerStatus(
     scannerStatus({ state: 'needs_review', interpretation })
   );
   apiMock.expectPlaySound('warning');
-  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('No votes were found when scanning this ballot.');
 
   apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
+  await userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
   apiMock.expectGetScannerStatus(
     scannerStatus({ state: 'accepting_after_review', interpretation })
   );
@@ -588,7 +575,6 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   );
   apiMock.expectPlaySound('success');
   apiMock.mockApiClient.readyForNextBallot.expectCallWith().resolves();
-  await userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
   await screen.findByText('Your ballot was counted!');
 
   vi.advanceTimersByTime(DELAY_ACCEPTED_SCREEN_MS);
@@ -609,7 +595,6 @@ test('voter tries to cast ballot that is rejected', async () => {
   await screen.findByText(/Insert Your Ballot/i);
 
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
-  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText(/Please wait/);
 
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
@@ -625,7 +610,6 @@ test('voter tries to cast ballot that is rejected', async () => {
       },
     })
   );
-  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Wrong Election');
   screen.getByText(
     'The scanner is configured for an election that does not match the ballot.'
@@ -651,7 +635,6 @@ test('voter can cast another ballot while the success screen is showing', async 
   expect(screen.getByTestId('ballot-count').textContent).toEqual('1');
 
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
-  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText(/Please wait/);
 
   apiMock.expectGetScannerStatus(
@@ -664,7 +647,6 @@ test('voter can cast another ballot while the success screen is showing', async 
     })
   );
   apiMock.expectPlaySound('warning');
-  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('No votes were found when scanning this ballot.');
 });
 
@@ -689,7 +671,6 @@ test('scanning is not triggered when polls closed or cards present', async () =>
   // Once we remove the poll worker card, scanning should start
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
   apiMock.removeCard();
-  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText(/Please wait/);
 });
 
@@ -899,21 +880,17 @@ test('ballot mode banner consistently displayed in voter screens', async () => {
 
   // banner while scanning
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
-  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText(/Please wait/);
   screen.getByText('Test Ballot Mode');
 
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
-  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
 
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepting' }));
-  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
 
   // banner after successful scan
   apiMock.mockApiClient.readyForNextBallot.expectCallWith().resolves();
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepted' }));
   apiMock.expectPlaySound('success');
-  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Your ballot was counted!');
   screen.getByText('Test Ballot Mode');
 
@@ -1357,7 +1334,9 @@ test('"Test" voter settings are cleared when a voter finishes', async () => {
   await screen.findByText('Your ballot was counted!');
 
   apiMock.expectGetScannerStatus(statusBallotCounted);
-  await vi.advanceTimersByTimeAsync(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+  await waitFor(() =>
+    expect(screen.getByTestId('ballot-count')).toHaveTextContent('1')
+  );
   screen.getByText('Your ballot was counted!');
   expect(startNewSessionMock).not.toBeCalled();
 
@@ -1401,7 +1380,6 @@ test('"Test" voter settings are not reset when scanner status changes from pause
   await screen.findByText('Sheets Scanned');
 
   apiMock.expectGetScannerStatus(statusNoPaper);
-  vi.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
 
   await screen.findByText(/Insert Your Ballot/i);
 
