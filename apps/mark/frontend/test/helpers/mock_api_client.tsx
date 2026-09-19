@@ -19,6 +19,8 @@ import {
   SystemSettings,
   PrinterStatus,
   PrinterConfig,
+  PrintJobId,
+  PrintJobStatus,
   constructElectionKey,
   DiagnosticRecord,
   DiagnosticType,
@@ -35,9 +37,12 @@ import { err, ok, Result } from '@votingworks/basics';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import { TestErrorBoundary } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import { QueryClient } from '@tanstack/react-query';
 import { mockMachineConfig } from './mock_machine_config.js';
 import { initialElectionState } from '../../src/app_root.js';
 import { ApiProvider } from '../../src/api_provider.js';
+
+export const MOCK_PRINT_JOB_ID: PrintJobId = 1;
 
 // the below is copied from libs/printing to avoid importing a backend package
 export const MOCK_PRINTER_CONFIG: PrinterConfig = {
@@ -63,6 +68,7 @@ type MockApiClient = Omit<
   | 'getBarcodeConnected'
   | 'getPatInputConnected'
   | 'getDiskSpaceSummary'
+  | 'getPrintJobStatus'
 > & {
   // Because these are polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
@@ -73,6 +79,7 @@ type MockApiClient = Omit<
   getBarcodeConnected: Mock;
   getPatInputConnected: Mock;
   getDiskSpaceSummary: Mock;
+  getPrintJobStatus: Mock;
 };
 
 function createMockApiClient(): MockApiClient {
@@ -103,6 +110,11 @@ function createMockApiClient(): MockApiClient {
   (mockApiClient.getDiskSpaceSummary as unknown as Mock) = vi.fn(() =>
     Promise.resolve({ total: 3, used: 2, available: 1 })
   );
+  // Polled while a print job is in flight. Jobs succeed unless a test says
+  // otherwise, so most tests need not set this up.
+  (mockApiClient.getPrintJobStatus as unknown as Mock) = vi.fn(() =>
+    Promise.resolve(ok({ outcome: 'sent-to-printer' }))
+  );
   return mockApiClient as unknown as MockApiClient;
 }
 
@@ -131,6 +143,12 @@ export function createApiMock() {
         config: MOCK_PRINTER_CONFIG,
         ...printerStatus,
       })
+    );
+  }
+
+  function setPrintJobStatus(printJobStatus: PrintJobStatus): void {
+    mockApiClient.getPrintJobStatus.mockImplementation(() =>
+      Promise.resolve(ok(printJobStatus))
     );
   }
 
@@ -166,6 +184,8 @@ export function createApiMock() {
     mockApiClient,
 
     setPrinterStatus,
+
+    setPrintJobStatus,
 
     setUsbDriveStatus,
 
@@ -339,7 +359,7 @@ export function createApiMock() {
           languageCode: 'en',
           ...input,
         })
-        .resolves();
+        .resolves(MOCK_PRINT_JOB_ID);
     },
 
     setDiskSpaceSummary(summary?: DiskSpaceSummary) {
@@ -409,11 +429,14 @@ export type ApiMock = ReturnType<typeof createApiMock>;
 
 export function provideApi(
   apiMock: ReturnType<typeof createApiMock>,
-  children: React.ReactNode
+  children: React.ReactNode,
+  queryClient?: QueryClient
 ): JSX.Element {
   return (
     <TestErrorBoundary>
-      <ApiProvider apiClient={apiMock.mockApiClient}>{children}</ApiProvider>
+      <ApiProvider apiClient={apiMock.mockApiClient} queryClient={queryClient}>
+        {children}
+      </ApiProvider>
     </TestErrorBoundary>
   );
 }

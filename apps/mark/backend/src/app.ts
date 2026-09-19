@@ -22,6 +22,8 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   PollsState,
   PrinterStatus,
+  PrintJobId,
+  PrintJobStatus,
   DiagnosticRecord,
   DiagnosticType,
   DiagnosticOutcome,
@@ -70,6 +72,7 @@ import { setUpBarcodeActivation } from './barcodes/activation.js';
 import { Player as AudioPlayer, SoundName } from './audio/player.js';
 import { saveReadinessReport } from './readiness_report.js';
 import { printTestPage } from './util/print_test_page.js';
+import { startPrintJobMonitor } from './util/print_job_monitor.js';
 import { getCurrentTime } from './util/get_current_time.js';
 
 const TEST_UPS_USER_PASS_REASON = 'UPS connected and fully charged per user.';
@@ -115,6 +118,24 @@ function isTestModeAvailable(store: Store): boolean {
 export function buildApi(ctx: Context) {
   const { auth, logger, printer, usbDrive, workspace, barcodeClient } = ctx;
   const { store } = workspace;
+
+  // Bumped whenever the printed ballot count is reset
+  // e.g. by switching ballot casting mode. This prevents the following:
+  // 1. Test ballot print job is started
+  // 2. Pollworker switches ballot casting mode while print job is in flight
+  // 3. Print job finishes and increments official ballot mode print count
+  let ballotPrintingGeneration = 0;
+
+  function countPrintedBallot(generation: number): void {
+    if (generation === ballotPrintingGeneration) {
+      store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
+    }
+  }
+
+  function resetBallotsPrintedCount(): void {
+    ballotPrintingGeneration += 1;
+    store.setBallotsPrintedCount(0);
+  }
 
   // Set up barcode scan tracking for diagnostics
   barcodeClient.on('scan', (scanData: Uint8Array) => {
@@ -201,6 +222,12 @@ export function buildApi(ctx: Context) {
 
     getPrinterStatus(): Promise<PrinterStatus> {
       return printer.status();
+    },
+
+    getPrintJobStatus(input: {
+      jobId: PrintJobId;
+    }): Result<PrintJobStatus, Error> {
+      return printer.getJobStatus(input.jobId);
     },
 
     getBarcodeConnected(): boolean {
@@ -378,16 +405,41 @@ export function buildApi(ctx: Context) {
 
     ...systemCallApi,
 
-    async printBallot(input: PrintBallotProps) {
-      await printBallot({
+    async printBallot(input: PrintBallotProps): Promise<PrintJobId> {
+      await logger.logAsCurrentRole(LogEventId.BallotPrintRequest, {
+        message: 'Printing a ballot',
+        ballotStyleId: input.ballotStyleId,
+        precinctId: input.precinctId,
+      });
+      const generation = ballotPrintingGeneration;
+      const jobId = await printBallot({
         store,
         printer,
         ...input,
       });
-      store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
+      startPrintJobMonitor({
+        jobId,
+        printer,
+        onSettled: async (status) => {
+          const sentToPrinter = status.outcome === 'sent-to-printer';
+          if (sentToPrinter) {
+            countPrintedBallot(generation);
+          }
+          await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
+            message: sentToPrinter
+              ? 'Ballot printed'
+              : 'Ballot failed to print',
+            disposition: sentToPrinter ? 'success' : 'failure',
+            ballotStyleId: input.ballotStyleId,
+            precinctId: input.precinctId,
+            ...(status.reason ? { reason: status.reason } : {}),
+          });
+        },
+      });
+      return jobId;
     },
 
-    async printBlankBallot(input: PrintBlankBallotProps) {
+    async printBlankBallot(input: PrintBlankBallotProps): Promise<PrintJobId> {
       const systemSettings =
         // @coverage-defer
         store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
@@ -395,23 +447,37 @@ export function buildApi(ctx: Context) {
         systemSettings.allowPrintingBlankBallotsFromVxMark,
         'Printing blank ballots from VxMark is not enabled'
       );
-      await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+      await logger.logAsCurrentRole(LogEventId.BallotPrintRequest, {
         message: 'Printing a blank ballot',
         ballotStyleId: input.ballotStyleId,
         precinctId: input.precinctId,
       });
-      await printBlankBallot({
+      const generation = ballotPrintingGeneration;
+      const jobId = await printBlankBallot({
         store,
         printer,
         ...input,
       });
-      store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
-      await logger.logAsCurrentRole(LogEventId.PrinterPrintComplete, {
-        message: 'Blank ballot printed',
-        disposition: 'success',
-        ballotStyleId: input.ballotStyleId,
-        precinctId: input.precinctId,
+      startPrintJobMonitor({
+        jobId,
+        printer,
+        onSettled: async (status) => {
+          const sentToPrinter = status.outcome === 'sent-to-printer';
+          if (sentToPrinter) {
+            countPrintedBallot(generation);
+          }
+          await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
+            message: sentToPrinter
+              ? 'Blank ballot printed'
+              : 'Blank ballot failed to print',
+            disposition: sentToPrinter ? 'success' : 'failure',
+            ballotStyleId: input.ballotStyleId,
+            precinctId: input.precinctId,
+            ...(status.reason ? { reason: status.reason } : {}),
+          });
+        },
       });
+      return jobId;
     },
 
     async printTestDeck({
@@ -521,7 +587,7 @@ export function buildApi(ctx: Context) {
       endCardlessVoterSessionIfAny();
       store.setTestMode(input.isTestMode);
       store.setPollsState('polls_closed_initial');
-      store.setBallotsPrintedCount(0);
+      resetBallotsPrintedCount();
     },
 
     setPollingPlaceId(input: { id: string }): void {
@@ -535,7 +601,7 @@ export function buildApi(ctx: Context) {
 
       endCardlessVoterSessionIfAny();
       store.setPollingPlaceId(input.id);
-      store.setBallotsPrintedCount(0);
+      resetBallotsPrintedCount();
 
       void logger.logAsCurrentRole(LogEventId.PollingPlaceChanged, {
         disposition: 'success',

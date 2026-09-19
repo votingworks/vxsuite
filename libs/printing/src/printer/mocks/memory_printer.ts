@@ -12,7 +12,9 @@ import { MockPrintJob, PrintProps, Printer } from '../types.js';
 import { createMockJobId, getMockConnectedPrinterStatus } from './fixtures.js';
 
 /**
- * A mock of the UsbDrive interface. See createMockUsbDrive for details.
+ * A test harness that wraps the Printer interface and provides
+ * methods to drive and manage the Printer mock. See {@link detectPrinter}
+ * for details.
  */
 export interface MemoryPrinterHandler {
   printer: Printer;
