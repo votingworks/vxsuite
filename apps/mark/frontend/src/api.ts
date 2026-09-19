@@ -109,6 +109,8 @@ export const getPrintJobStatus = {
       () => apiClient.getPrintJobStatus({ jobId: assertDefined(jobId) }),
       {
         enabled: jobId !== undefined,
+        // CUPS reuses job numbers so we don't want to cache old job status values
+        cacheTime: 0,
         // Stop polling once the job settles; its status will not change again.
         refetchInterval: (result) =>
           result?.ok()?.outcome === 'in-progress'

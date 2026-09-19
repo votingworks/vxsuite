@@ -1,5 +1,4 @@
 import React, { useContext, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import { PrintPage as MarkFlowPrintPage } from '@votingworks/mark-flow-ui';
 import { assert } from '@votingworks/basics';
 import {
@@ -26,7 +25,6 @@ export function PrintPage(): JSX.Element {
     setPrintJobId,
   } = useContext(BallotContext);
   const languageCode = useCurrentLanguage();
-  const queryClient = useQueryClient();
   const printBallotMutation = printBallot.useMutation();
   const [isEndingSession, setIsEndingSession] = useState(false);
 
@@ -66,14 +64,6 @@ export function PrintPage(): JSX.Element {
       resetBallot(true);
     }
   }, [sentToPrinter, resetBallot]);
-
-  React.useEffect(() => {
-    if (printJobId === undefined) return undefined;
-    return () => {
-      // CUPS may reuse job IDs so we delete the cache when we're done.
-      queryClient.removeQueries(getPrintJobStatus.queryKey(printJobId));
-    };
-  }, [printJobId, queryClient]);
 
   // End the voter session to be sure we do not allow a duplicate ballot print.
   async function endSessionAfterFailure() {
