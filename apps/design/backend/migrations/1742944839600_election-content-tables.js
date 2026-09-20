@@ -1,9 +1,14 @@
 const { throwIllegalValue } = require('@votingworks/basics');
+// NodeJS can `require` an ES module as of v20.19, but tsc still rejects it.
 const {
   hasSplits,
   straightPartyNotYetImplemented,
+  // @ts-expect-error - require of an ESM package
 } = require('@votingworks/types');
 const { PgLiteral } = require('node-pg-migrate');
+
+/** @typedef {import('@votingworks/types', { with: { 'resolution-mode': 'import' } }).Election} Election */
+/** @typedef {import('@votingworks/types', { with: { 'resolution-mode': 'import' } }).Precinct} Precinct */
 
 /**
  * @type {import('node-pg-migrate').ColumnDefinitions | undefined}
@@ -206,7 +211,7 @@ exports.up = async (pgm) => {
     text: 'SELECT election_data FROM elections',
   });
   for (const electionData of electionDatas) {
-    /** @type import('@votingworks/types').Election */
+    /** @type {Election} */
     const election = JSON.parse(electionData.election_data);
 
     pgm.sql(`
@@ -245,7 +250,7 @@ exports.up = async (pgm) => {
       text: 'SELECT precinct_data FROM elections WHERE id = $1',
       values: [election.id],
     });
-    /** @type import('@votingworks/types').Precinct[] */
+    /** @type {Precinct[]} */
     const precincts = JSON.parse(precinctData.precinct_data);
     for (const precinct of precincts) {
       pgm.sql(`

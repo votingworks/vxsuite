@@ -1,8 +1,13 @@
 /* eslint-disable vx/gts-object-literal-types */
+// NodeJS can `require` an ES module as of v20.19, but tsc still rejects it.
 const {
   hasSplits,
   straightPartyNotYetImplemented,
+  // @ts-expect-error - require of an ESM package
 } = require('@votingworks/types');
+
+/** @typedef {import('@votingworks/types', { with: { 'resolution-mode': 'import' } }).Election} Election */
+/** @typedef {import('@votingworks/types', { with: { 'resolution-mode': 'import' } }).Precinct} Precinct */
 
 // Assigned in up() from the built (ESM) helper via dynamic import, before
 // regenerateElectionIds (a module-scope helper) calls it. This migration is
@@ -14,8 +19,8 @@ let generateId;
 /**
  * Regenerate the IDs of all entities in an election, ensuring that all
  * references are updated.
- * @param {import('@votingworks/types').Election} election
- * @param {import('@votingworks/types').Precinct[]} precincts
+ * @param {Election} election
+ * @param {Precinct[]} precincts
  */
 function regenerateElectionIds(election, precincts) {
   const idMap = new Map();
@@ -118,7 +123,7 @@ exports.up = async (pgm) => {
   const seenIds = new Set();
 
   /**
-   * @param {{ id: string; election: import('@votingworks/types').Election; precincts: import('@votingworks/types').Precinct[]; }} electionRecord
+   * @param {{ id: string; election: Election; precincts: Precinct[]; }} electionRecord
    */
   function allIds(electionRecord) {
     const { election, precincts } = electionRecord;
