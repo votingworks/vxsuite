@@ -1,7 +1,7 @@
 import { assertDefined } from '@votingworks/basics';
-import { BallotStyle, Election, PartyIdSchema } from '../src/election';
-import { safeParseElection } from '../src/election_parsing';
-import { unsafeParse } from '../src/generic';
+import { BallotStyle, Election, PartyIdSchema } from '../src/election.js';
+import { safeParseElection } from '../src/election_parsing.js';
+import { unsafeParse } from '../src/generic.js';
 
 export const electionData = `
 {

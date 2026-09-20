@@ -9,13 +9,17 @@ import {
   OrientationType,
   SelectionCaptureMethod,
   BallotSideType,
-} from '.';
-import { HmpbBallotPaperSize, Election, SheetPositions } from '../../election';
-import { Outset } from '../../geometry';
+} from './index.js';
+import {
+  HmpbBallotPaperSize,
+  Election,
+  SheetPositions,
+} from '../../election.js';
+import { Outset } from '../../geometry.js';
 import {
   ballotPositionsFromGridPositions,
   type FlatGridPosition,
-} from '../../ballot_positions';
+} from '../../ballot_positions.js';
 
 const testVxfGridLayouts: ReadonlyArray<{
   ballotStyleId: string;

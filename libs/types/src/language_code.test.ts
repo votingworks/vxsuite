@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { isLanguageCode } from './language_code';
+import { isLanguageCode } from './language_code.js';
 
 test('isLanguageCode', () => {
   expect(isLanguageCode('en')).toEqual(true);

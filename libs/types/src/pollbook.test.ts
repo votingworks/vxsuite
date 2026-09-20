@@ -16,7 +16,7 @@ import {
   getUndeclaredPrimaryPartyChoiceRaw,
   getTotalPrecinctCheckInsRaw,
   getTotalPrecinctCheckIns,
-} from './pollbook';
+} from './pollbook.js';
 
 describe('Zod schema string truncation', () => {
   test('VoterSchema truncates strings to field limits', () => {

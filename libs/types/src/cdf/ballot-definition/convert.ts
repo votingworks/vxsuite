@@ -13,8 +13,8 @@ import {
   unique,
   wrapException,
 } from '@votingworks/basics';
-import * as Cdf from '.';
-import * as Vxf from '../../election';
+import * as Cdf from './index.js';
+import * as Vxf from '../../election.js';
 import {
   DEFAULT_OPTION_BOUNDS_FROM_TARGET_MARK_OUTSET,
   flattenBallotPositions,
@@ -23,20 +23,20 @@ import {
   rectToGridRect,
   gridRectToRect,
   type FlatOptionPosition,
-} from '../../ballot_positions';
+} from '../../ballot_positions.js';
 import {
   ballotPaperDimensions,
   getContests,
   getOrderedCandidatesForContestInBallotStyle,
-} from '../../election_utils';
-import { Id, safeParse } from '../../generic';
-import { safeParseInt } from '../../numeric';
+} from '../../election_utils.js';
+import { Id, safeParse } from '../../generic.js';
+import { safeParseInt } from '../../numeric.js';
 import {
   ElectionStringKey,
   UiStringsPackage,
-} from '../../ui_string_translations';
-import { DEFAULT_LANGUAGE_CODE } from '../../languages';
-import { pollingPlaceMembers } from '../../polling_places';
+} from '../../ui_string_translations.js';
+import { DEFAULT_LANGUAGE_CODE } from '../../languages.js';
+import { pollingPlaceMembers } from '../../polling_places.js';
 
 function officeId(contestId: Vxf.ContestId): string {
   return `office-${contestId}`;

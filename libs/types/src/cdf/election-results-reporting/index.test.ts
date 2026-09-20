@@ -2,24 +2,24 @@ import { expect, test } from 'vitest';
 import { buildSchema } from '@votingworks/cdf-schema-builder';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { ElectionReportSchema } from '.';
-import { mockWritable } from '../../../test/helpers/mock_writable';
+import { ElectionReportSchema } from './index.js';
+import { mockWritable } from '../../../test/helpers/mock_writable.js';
 import {
   findUnusedDefinitions,
   validateSchemaDraft04,
-} from '../../../test/cdf_schema_utils';
-import { testElectionReport } from './fixtures';
+} from '../../../test/cdf_schema_utils.js';
+import { testElectionReport } from './fixtures.js';
 
 const nistXsd = readFileSync(
   join(
-    __dirname,
+    import.meta.dirname,
     '../../../data/cdf/election-results-reporting/nist-schema.xsd'
   ),
   'utf-8'
 );
 const nistJson = readFileSync(
   join(
-    __dirname,
+    import.meta.dirname,
     '../../../data/cdf/election-results-reporting/nist-schema.json'
   ),
   'utf-8'
@@ -31,7 +31,10 @@ test('ElectionReportSchema', () => {
 });
 
 test('generated types are in sync with schema', () => {
-  const generatedTypes = readFileSync(join(__dirname, './index.ts'), 'utf-8');
+  const generatedTypes = readFileSync(
+    join(import.meta.dirname, './index.ts'),
+    'utf-8'
+  );
   const out = mockWritable();
   buildSchema(nistXsd, nistJson, out).unsafeUnwrap();
   const expectedTypes = out.toString();

@@ -1,13 +1,13 @@
 import { expect, test } from 'vitest';
 import { z } from 'zod/v4';
 import { DateWithoutTime } from '@votingworks/basics';
-import { MachineId, safeParse } from '.';
+import { MachineId, safeParse } from './index.js';
 import {
   DateWithoutTimeSchema,
   maybeParse,
   safeParseJson,
   unsafeParse,
-} from './generic';
+} from './generic.js';
 
 test('unsafeParse', () => {
   expect(unsafeParse(z.string(), 'hello world!')).toEqual('hello world!');

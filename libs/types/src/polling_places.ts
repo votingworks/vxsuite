@@ -8,7 +8,7 @@ import {
   PollingPlaceType,
   Precinct,
   PrecinctOrSplit,
-} from './election';
+} from './election.js';
 
 export function anyPollingPlace(election: Election): PollingPlace {
   const err = 'no polling places in election';

@@ -1,3 +1,3 @@
-export * from './machine_status';
-export * from './manual_results';
-export * from './reporting';
+export * from './machine_status.js';
+export * from './manual_results.js';
+export * from './reporting.js';

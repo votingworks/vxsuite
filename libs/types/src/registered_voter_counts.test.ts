@@ -3,12 +3,12 @@ import {
   hasPartialRegisteredVoterCounts,
   isPrecinctCount,
   isSplitCounts,
-} from './registered_voter_counts';
+} from './registered_voter_counts.js';
 import type {
   ElectionRegisteredVoterCounts,
   PrecinctRegisteredVoterCountEntry,
-} from './registered_voter_counts';
-import type { Precinct } from './election';
+} from './registered_voter_counts.js';
+import type { Precinct } from './election.js';
 
 const p1: Precinct = { id: 'p1', name: 'Precinct 1', districtIds: [] };
 const p2: Precinct = { id: 'p2', name: 'Precinct 2', districtIds: [] };

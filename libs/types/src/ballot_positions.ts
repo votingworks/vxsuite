@@ -1,6 +1,6 @@
 import { assert, assertDefined } from '@votingworks/basics';
-import { Outset, Rect } from './geometry';
-import { Id } from './generic';
+import { Outset, Rect } from './geometry.js';
+import { Id } from './generic.js';
 import {
   ContestId,
   ContestOptionPosition,
@@ -11,7 +11,7 @@ import {
   GridUnit,
   PartyId,
   SheetPositions,
-} from './election';
+} from './election.js';
 
 /**
  * The option bounds outset to assume when a source format (e.g. CDF) doesn't

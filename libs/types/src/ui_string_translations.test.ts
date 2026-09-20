@@ -1,12 +1,12 @@
 import { expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
-import { safeParseJson } from './generic';
+import { safeParseJson } from './generic.js';
 import {
   UiStringsPackage,
   UiStringsPackageSchema,
   filterUiStrings,
   mergeUiStrings,
-} from './ui_string_translations';
+} from './ui_string_translations.js';
 
 test('valid structure', () => {
   const testPackage: UiStringsPackage = {

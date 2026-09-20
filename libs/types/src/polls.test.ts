@@ -4,7 +4,7 @@ import {
   doesPollsStateSupportLiveReporting,
   PollsState,
   PollsStateSupportsLiveReporting,
-} from './polls';
+} from './polls.js';
 
 test('doesPollsStateSupportLiveReporting', () => {
   expect(doesPollsStateSupportLiveReporting('polls_open')).toEqual(true);

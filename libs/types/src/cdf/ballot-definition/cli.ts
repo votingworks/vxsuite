@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { stderr } from 'node:process';
-import { safeParseElection } from '../../election_parsing';
-import { convertVxfElectionToCdfBallotDefinition } from './convert';
+import { safeParseElection } from '../../election_parsing.js';
+import { convertVxfElectionToCdfBallotDefinition } from './convert.js';
 
 interface Stdio {
   readonly stdin: NodeJS.ReadableStream;

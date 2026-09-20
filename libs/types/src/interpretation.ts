@@ -17,8 +17,8 @@ import {
   VotesDictSchema,
   WriteInId,
   WriteInIdSchema,
-} from './election';
-import { BallotPageLayout, BallotPageLayoutSchema, SheetOf } from './hmpb';
+} from './election.js';
+import { BallotPageLayout, BallotPageLayoutSchema, SheetOf } from './hmpb.js';
 
 export interface BlankPage {
   type: 'BlankPage';

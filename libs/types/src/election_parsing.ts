@@ -1,10 +1,10 @@
 import { Result, err, ok } from '@votingworks/basics';
 import { z } from 'zod/v4';
-import { sha256 } from './sha256';
-import { safeParseCdfBallotDefinition } from './cdf/ballot-definition/convert';
-import * as Cdf from './cdf/ballot-definition';
-import { Election, ElectionDefinition, ElectionSchema } from './election';
-import { safeParse, safeParseJson } from './generic';
+import { sha256 } from './sha256.js';
+import { safeParseCdfBallotDefinition } from './cdf/ballot-definition/convert.js';
+import * as Cdf from './cdf/ballot-definition/index.js';
+import { Election, ElectionDefinition, ElectionSchema } from './election.js';
+import { safeParse, safeParseJson } from './generic.js';
 
 /**
  * Parses `value` as a VXF `Election` object.

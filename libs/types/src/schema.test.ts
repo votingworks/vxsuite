@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest';
 import { assertDefined, err } from '@votingworks/basics';
-import { election as electionGeneral, electionData } from '../test/election';
-import * as t from '.';
-import { safeParse, safeParseJson, unsafeParse } from './generic';
+import { election as electionGeneral, electionData } from '../test/election.js';
+import * as t from './index.js';
+import { safeParse, safeParseJson, unsafeParse } from './generic.js';
 
 test('parsing fails on an empty object', () => {
   t.safeParseVxfElection({}).unsafeUnwrapErr();

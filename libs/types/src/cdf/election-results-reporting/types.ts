@@ -3,7 +3,7 @@ import {
   CandidateContest,
   PartyContest,
   RetentionContest,
-} from '.';
+} from './index.js';
 
 export function isBallotMeasureContest(
   contest:

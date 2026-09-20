@@ -1,6 +1,6 @@
 import { mapObject } from '@votingworks/basics';
-import { Election } from '../src/election';
-import { ElectionStringKey } from '../src/ui_string_translations';
+import { Election } from '../src/election.js';
+import { ElectionStringKey } from '../src/ui_string_translations.js';
 
 export function normalizeVxfAfterCdfConversion(
   vxfElection: Election
