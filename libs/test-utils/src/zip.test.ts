@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { sleep } from '@votingworks/basics';
-import { zipFile } from './zip';
+import { zipFile } from './zip.js';
 
 test('zipFile is deterministic across runs', async () => {
   const contents = {

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { asyncDisposable, disposable } from './disposable';
+import { asyncDisposable, disposable } from './disposable.js';
 
 test('disposable', () => {
   let disposed = false;

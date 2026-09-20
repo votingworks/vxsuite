@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, expect, expectTypeOf, test } from 'vitest';
-import { Mocked, MockFunction, mockFunction } from './mock_function';
+import { Mocked, MockFunction, mockFunction } from './mock_function.js';
 
 describe('mockFunction', () => {
   function add(num1: number, num2: number): number {

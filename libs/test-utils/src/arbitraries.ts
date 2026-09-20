@@ -38,7 +38,7 @@ import {
 } from '@votingworks/types';
 import { DateWithoutTime, assertDefined, deepEqual } from '@votingworks/basics';
 import { createHash } from 'node:crypto';
-import { TestLanguageCode } from './test_language_code';
+import { TestLanguageCode } from './test_language_code.js';
 
 /**
  * Builds arbitrary uint2 values.
