@@ -2,6 +2,7 @@ import express, { Application } from 'express';
 import { basename, resolve } from 'node:path';
 import * as grout from '@votingworks/grout';
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
+import { DippedSmartCardAuth } from '@votingworks/types';
 import { err, ok, Result } from '@votingworks/basics';
 import { createSystemCallApi } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
@@ -126,7 +127,7 @@ function buildRestoreApi({
       return isMultiStationAdjudicationEnabled();
     },
 
-    getAuthStatus() {
+    getAuthStatus(): Promise<DippedSmartCardAuth.AuthStatus> {
       return auth.getAuthStatus(constructAuthMachineState(RESTORE_MODE_STORE));
     },
 

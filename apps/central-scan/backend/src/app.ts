@@ -22,6 +22,7 @@ import {
   pollingPlaceFromElection,
   SheetInterpretation,
   SheetOf,
+  DippedSmartCardAuth,
 } from '@votingworks/types';
 import { combinePageInterpretationsForSheet } from '@votingworks/ballot-interpreter';
 import { isElectionManagerAuth } from '@votingworks/utils';
@@ -78,7 +79,7 @@ function buildApi({
   }
 
   return grout.createApi({
-    getAuthStatus() {
+    getAuthStatus(): Promise<DippedSmartCardAuth.AuthStatus> {
       return auth.getAuthStatus(constructAuthMachineState(workspace));
     },
 

@@ -23,6 +23,7 @@ import {
   DiagnosticType,
   PageInterpretation,
   pollingPlaceFromElection,
+  InsertedSmartCardAuth,
 } from '@votingworks/types';
 import { isElectionManagerAuth, isPollWorkerAuth } from '@votingworks/utils';
 
@@ -90,7 +91,7 @@ export function buildApi(
   return grout.createApi({
     getMachineConfig,
 
-    getAuthStatus() {
+    getAuthStatus(): Promise<InsertedSmartCardAuth.AuthStatus> {
       return auth.getAuthStatus(constructAuthMachineState(workspace));
     },
 

@@ -8,6 +8,7 @@ import {
   doesPollsStateSupportLiveReporting,
   BallotCastingMode,
   pollingPlaceFromElection,
+  InsertedSmartCardAuth,
 } from '@votingworks/types';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import express, { Application } from 'express';
@@ -96,7 +97,7 @@ export function buildApi({
   return grout.createApi({
     getMachineConfig,
 
-    getAuthStatus() {
+    getAuthStatus(): Promise<InsertedSmartCardAuth.AuthStatus> {
       return auth.getAuthStatus(constructAuthMachineState(workspace.store));
     },
 
