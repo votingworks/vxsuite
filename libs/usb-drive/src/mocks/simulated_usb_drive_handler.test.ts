@@ -94,3 +94,11 @@ test('a drive inserted via the handler is auto-mounted by a detached platform', 
 
   multiUsbDrive.stop();
 });
+
+test('an unformatted drive is reported as bad_format', () => {
+  const handler = getMockUsbDriveHandler();
+  const platform = new SimulatedUsbPlatform(getMockUsbDirPath());
+  platform.createDrive({ diskPath: UsbDiskDevPathSchema.decode('/dev/sdb') });
+  platform.insertDrive(UsbDiskDevPathSchema.decode('/dev/sdb'));
+  expect(handler.status()).toEqual({ status: 'error', reason: 'bad_format' });
+});
