@@ -33,6 +33,8 @@ test('exposes the first FAT32 drive via the UsbDrive interface', async () => {
       fstype: 'fat32',
       maxFileSize: 2 ** 32 - 1,
       mountpoint: platform.storagePath(devsdb),
+      totalBytes: expect.any(Number),
+      availableBytes: expect.any(Number),
     });
   });
 });

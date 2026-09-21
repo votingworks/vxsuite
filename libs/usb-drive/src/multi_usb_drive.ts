@@ -10,13 +10,14 @@ import {
 } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 import makeDebug from 'debug';
-import { randomElement } from '@votingworks/utils';
+import { randomElement, UsbDriveSpace } from '@votingworks/utils';
 import {
   UsbDiskDevPath,
   UsbDriveFilesystemType,
   UsbDriveInfo,
   UsbPartitionDevPath,
   UsbPartitionMount,
+  UsbPartitionMountpoint,
 } from './types.js';
 import {
   UsbPlatform,
@@ -54,6 +55,7 @@ export interface MultiUsbDrive {
     fstype: UsbDriveFilesystemType
   ): Promise<void>;
   sync(partPath: UsbPartitionDevPath): Promise<void>;
+  getPartitionSpace(mountpoint: UsbPartitionMountpoint): Promise<UsbDriveSpace>;
   stop(): void;
   addListener(listener: () => void): void;
   removeListener(listener: () => void): void;
@@ -446,6 +448,12 @@ export function detectMultiUsbDrive(options: {
       }
 
       await platform.sync(partition.mountpoint);
+    },
+
+    getPartitionSpace(
+      mountpoint: UsbPartitionMountpoint
+    ): Promise<UsbDriveSpace> {
+      return platform.getSpace(mountpoint);
     },
 
     stop(): void {

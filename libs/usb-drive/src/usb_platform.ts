@@ -1,4 +1,6 @@
 import { throwIllegalValue } from '@votingworks/basics';
+import { UsbDriveSpace } from '@votingworks/utils';
+import { statfs } from 'node:fs/promises';
 import { join } from 'node:path';
 import {
   createBlockDeviceChangeWatcher,
@@ -90,4 +92,16 @@ export class RealUsbPlatform implements UsbPlatform {
   async sync(mountpoint: UsbPartitionMountpoint): Promise<void> {
     await exec('sync', ['-f', mountpoint]);
   }
+
+  async getSpace(mountpoint: UsbPartitionMountpoint): Promise<UsbDriveSpace> {
+    return getSpaceAtPath(mountpoint);
+  }
+}
+
+export async function getSpaceAtPath(path: string): Promise<UsbDriveSpace> {
+  const stats = await statfs(path);
+  return {
+    totalBytes: stats.bsize * stats.blocks,
+    availableBytes: stats.bsize * stats.bavail,
+  };
 }

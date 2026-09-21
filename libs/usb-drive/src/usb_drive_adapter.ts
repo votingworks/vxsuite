@@ -1,4 +1,5 @@
-import { throwIllegalValue } from '@votingworks/basics';
+import { extractErrorMessage, throwIllegalValue } from '@votingworks/basics';
+import { UsbDriveSpace } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { MultiUsbDrive } from './multi_usb_drive.js';
 import {
@@ -9,6 +10,7 @@ import {
   UsbDriveInfo,
   UsbDriveStatus,
   UsbPartitionInfo,
+  UsbPartitionMountpoint,
 } from './types.js';
 
 const debug = makeDebug('usb-drive:adapter');
@@ -68,20 +70,33 @@ export function createUsbDriveAdapter(
     return selected.type === 'supported' ? selected.drive : undefined;
   }
 
+  async function getSpace(
+    mountpoint: UsbPartitionMountpoint
+  ): Promise<UsbDriveSpace | undefined> {
+    try {
+      return await multiUsbDrive.getPartitionSpace(mountpoint);
+    } catch (error) {
+      debug(
+        `adapter: could not read space at ${mountpoint}: ${extractErrorMessage(error)}`
+      );
+      return undefined;
+    }
+  }
+
   return {
-    status(): Promise<UsbDriveStatus> {
+    async status(): Promise<UsbDriveStatus> {
       const selected = selectDrive();
 
       if (selected.type === 'none') {
         debug('adapter: no drive selected, returning no_drive');
-        return Promise.resolve({ status: 'no_drive' });
+        return { status: 'no_drive' };
       }
 
       if (selected.type === 'unsupported') {
         debug(
           `adapter: ${selected.drive.diskPath} has no usable partition, returning bad_format`
         );
-        return Promise.resolve({ status: 'error', reason: 'bad_format' });
+        return { status: 'error', reason: 'bad_format' };
       }
 
       const { partition } = selected.drive;
@@ -90,28 +105,32 @@ export function createUsbDriveAdapter(
       switch (mount.type) {
         case 'mounting':
           debug('adapter: partition is mounting, returning no_drive');
-          return Promise.resolve({ status: 'no_drive' });
+          return { status: 'no_drive' };
         case 'mounted':
           debug(`adapter: partition is mounted at ${mount.mountpoint}`);
-          return Promise.resolve(
-            mountedUsbDriveStatus(mount.mountpoint, partition.fstype)
+          return mountedUsbDriveStatus(
+            mount.mountpoint,
+            partition.fstype,
+            await getSpace(mount.mountpoint)
           );
         case 'unmounting':
           debug('adapter: partition is unmounting, returning mounted');
-          return Promise.resolve(
-            mountedUsbDriveStatus(mount.mountpoint, partition.fstype)
+          return mountedUsbDriveStatus(
+            mount.mountpoint,
+            partition.fstype,
+            await getSpace(mount.mountpoint)
           );
         case 'formatting':
           // Formatting unmounts the drive first; present it as ejected, which
           // is what legacy single-drive consumers expect mid-format.
           debug('adapter: partition is formatting, returning ejected');
-          return Promise.resolve({ status: 'ejected' });
+          return { status: 'ejected' };
         case 'ejected':
           debug('adapter: partition is ejected, returning ejected');
-          return Promise.resolve({ status: 'ejected' });
+          return { status: 'ejected' };
         case 'unmounted':
           debug('adapter: partition is unmounted, returning no_drive');
-          return Promise.resolve({ status: 'no_drive' });
+          return { status: 'no_drive' };
         default:
           return throwIllegalValue(mount);
       }

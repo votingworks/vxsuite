@@ -1,4 +1,4 @@
-import { test } from 'vitest';
+import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { createMockUsbDrive } from './memory_usb_drive.js';
 
@@ -18,6 +18,16 @@ test('insert twice is fine', () => {
   const mock = createMockUsbDrive();
   mock.insertUsbDrive({ 'file.txt': Buffer.from('contents') });
   mock.insertUsbDrive({ 'file.txt': Buffer.from('contents') });
+});
+
+test('insert with space', async () => {
+  const mock = createMockUsbDrive();
+  mock.insertUsbDrive({}, { space: { totalBytes: 10, availableBytes: 5 } });
+  expect(await mock.usbDrive.status()).toMatchObject({
+    status: 'mounted',
+    totalBytes: 10,
+    availableBytes: 5,
+  });
 });
 
 test('assertComplete', async () => {

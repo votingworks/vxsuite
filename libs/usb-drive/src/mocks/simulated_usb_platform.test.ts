@@ -370,6 +370,53 @@ test('createDrive can seed initial contents', async () => {
   await expect(readTestFile(platform)).resolves.toEqual('seeded');
 });
 
+test('getSpace reports the backing file system by default', async () => {
+  const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
+  platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  platform.insertDrive(devsdb);
+  await platform.mountPartition(devsdb1);
+  const space = await platform.getSpace(platform.storagePath(devsdb));
+  expect(space.totalBytes).toBeGreaterThan(0);
+  expect(space.availableBytes).toBeGreaterThan(0);
+  expect(space.availableBytes).toBeLessThanOrEqual(space.totalBytes);
+});
+
+test('getSpace reports a configured capacity less stored bytes', async () => {
+  const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
+  platform.createDrive({
+    diskPath: devsdb,
+    fstype: 'fat32',
+    capacityBytes: 100,
+    contents: { a: Buffer.from('12345'), dir: { b: Buffer.from('678') } },
+  });
+  platform.insertDrive(devsdb);
+  await platform.mountPartition(devsdb1);
+  expect(await platform.getSpace(platform.storagePath(devsdb))).toEqual({
+    totalBytes: 100,
+    availableBytes: 92,
+  });
+
+  platform.replaceDriveData(devsdb, { big: Buffer.alloc(200) });
+  expect(await platform.getSpace(platform.storagePath(devsdb))).toEqual({
+    totalBytes: 100,
+    availableBytes: 0,
+  });
+
+  await platform.formatDrive(devsdb, 'fat32', 'FORMATTED');
+  expect(await platform.getSpace(platform.storagePath(devsdb))).toEqual({
+    totalBytes: 100,
+    availableBytes: 100,
+  });
+});
+
+test('getSpace rejects an unmounted drive', async () => {
+  const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
+  platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  await expect(platform.getSpace(platform.storagePath(devsdb))).rejects.toThrow(
+    'Drive not mounted'
+  );
+});
+
 test('deleteAllDrives is a no-op when there are no drives', () => {
   const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
   expect(() => platform.deleteAllDrives()).not.toThrow();
@@ -546,6 +593,10 @@ test('faults', async () => {
   await checkOneshotFault('formatDrive', () =>
     platform.formatDrive(devsdb, 'fat32', 'test')
   );
+
+  await checkOneshotFault('getSpace', async () => {
+    await platform.getSpace(platform.storagePath(devsdb));
+  });
 
   await checkRepeatedFault('mountPartition', () =>
     platform.mountPartition(devsdb1)

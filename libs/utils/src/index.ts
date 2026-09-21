@@ -30,3 +30,4 @@ export * from './sqlite.js';
 export * from './system_limits.js';
 export * from './tabulation/index.js';
 export * from './votes.js';
+export * from './usb_drive_space.js';

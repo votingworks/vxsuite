@@ -5,13 +5,16 @@ import {
   isNonExistentFileOrDirectoryError,
   iter,
 } from '@votingworks/basics';
+import { UsbDriveSpace } from '@votingworks/utils';
 import makeDebug from 'debug';
 import {
   linkSync,
   mkdirSync,
+  readdirSync,
   readFileSync,
   renameSync,
   rmSync,
+  statSync,
   watch,
   writeFileSync,
 } from 'node:fs';
@@ -32,12 +35,15 @@ import {
   UsbPlatformDriveSchema,
   UsbPlatformPartition,
 } from '../usb_platform_types.js';
+import { getSpaceAtPath } from '../usb_platform.js';
 import { MockFileTree, writeMockFileTree } from './helpers.js';
 
 const debug = makeDebug('SimulatedUsbPlatform');
 
 export const SimulatedUsbDriveSchema = UsbPlatformDriveSchema.extend({
   present: z.boolean(),
+  /** Drive size; omitted, the backing file system's space is reported. */
+  capacityBytes: z.number().optional(),
 });
 
 /**
@@ -60,6 +66,14 @@ interface CreateDriveOptions {
   fstype?: UsbDriveFilesystemType;
   label?: string;
   contents?: MockFileTree;
+  capacityBytes?: number;
+}
+
+function directorySizeBytes(path: string): number {
+  return iter(readdirSync(path, { withFileTypes: true, recursive: true }))
+    .filter((entry) => entry.isFile())
+    .map((entry) => statSync(join(entry.parentPath, entry.name)).size)
+    .sum();
 }
 
 function findDrive(
@@ -103,7 +117,7 @@ function findPresentPartition(
  * Actions that can artificially fail with injected faults.
  */
 export type FaultType =
-  'mountPartition' | 'unmountPartition' | 'formatDrive' | 'sync';
+  'mountPartition' | 'unmountPartition' | 'formatDrive' | 'sync' | 'getSpace';
 
 class SimulatedUsbPlatformFaults {
   private readonly faults = new Map<
@@ -285,6 +299,7 @@ export class SimulatedUsbPlatform implements UsbPlatform {
     const newDrive: SimulatedUsbDrive = {
       diskPath: options.diskPath,
       present: false,
+      capacityBytes: options.capacityBytes,
       partition: options.fstype
         ? {
             partPath: this.partPathFromDiskPath(options.diskPath),
@@ -487,6 +502,29 @@ export class SimulatedUsbPlatform implements UsbPlatform {
       drives.some((d) => d.partition?.mountpoint === mountpoint),
       `Drive not mounted: ${mountpoint}`
     );
+  }
+
+  /**
+   * Space on a mounted drive: its capacity less the bytes stored on it.
+   * @throws {Error} If the drive is not present or not mounted.
+   */
+  async getSpace(mountpoint: UsbPartitionMountpoint): Promise<UsbDriveSpace> {
+    const fault = this.internalFaults.take('getSpace');
+    if (fault) throw fault;
+    const drive = this.getSimulatedDrives().find(
+      (d) => d.present && d.partition?.mountpoint === mountpoint
+    );
+    assert(drive, `Drive not mounted: ${mountpoint}`);
+    if (drive.capacityBytes === undefined) {
+      return await getSpaceAtPath(mountpoint);
+    }
+    return {
+      totalBytes: drive.capacityBytes,
+      availableBytes: Math.max(
+        0,
+        drive.capacityBytes - directorySizeBytes(mountpoint)
+      ),
+    };
   }
 
   /**

@@ -139,6 +139,8 @@ describe('status', () => {
       fstype: 'fat32',
       maxFileSize: 2 ** 32 - 1,
       mountpoint: platform.storagePath(devsdb),
+      totalBytes: expect.any(Number),
+      availableBytes: expect.any(Number),
     });
   });
 
@@ -148,6 +150,20 @@ describe('status', () => {
     expect(await adapter.status()).toEqual({
       status: 'mounted',
       fstype: 'ext4',
+      mountpoint: platform.storagePath(devsdb),
+      totalBytes: expect.any(Number),
+      availableBytes: expect.any(Number),
+    });
+  });
+
+  test('omits space when it cannot be read', async () => {
+    const { platform, multiUsbDrive, adapter } = newAdapter();
+    await insertAndMount(platform, multiUsbDrive);
+    platform.faults.failNext('getSpace', new Error('EIO'));
+    expect(await adapter.status()).toEqual({
+      status: 'mounted',
+      fstype: 'fat32',
+      maxFileSize: 2 ** 32 - 1,
       mountpoint: platform.storagePath(devsdb),
     });
   });
@@ -177,6 +193,8 @@ describe('status', () => {
       fstype: 'fat32',
       maxFileSize: 2 ** 32 - 1,
       mountpoint: platform.storagePath(devsdb),
+      totalBytes: expect.any(Number),
+      availableBytes: expect.any(Number),
     });
     await ejecting;
   });

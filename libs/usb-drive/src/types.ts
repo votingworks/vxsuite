@@ -1,4 +1,5 @@
 import { Optional, throwIllegalValue } from '@votingworks/basics';
+import { UsbDriveSpace } from '@votingworks/utils';
 import { z } from 'zod/v4';
 
 export type UsbDriveStatus =
@@ -7,7 +8,7 @@ export type UsbDriveStatus =
   | { status: 'ejected' }
   | { status: 'error'; reason: 'bad_format' };
 
-export interface MountedUsbDriveStatus {
+export interface MountedUsbDriveStatus extends Partial<UsbDriveSpace> {
   status: 'mounted';
   mountpoint: UsbPartitionMountpoint;
   fstype: UsbDriveFilesystemType;
@@ -17,7 +18,8 @@ export interface MountedUsbDriveStatus {
 
 export function mountedUsbDriveStatus(
   mountpoint: UsbPartitionMountpoint,
-  fstype: UsbDriveFilesystemType
+  fstype: UsbDriveFilesystemType,
+  space?: UsbDriveSpace
 ): MountedUsbDriveStatus {
   const maxFileSize = getUsbDriveMaximumFileSize(fstype);
   return {
@@ -25,6 +27,7 @@ export function mountedUsbDriveStatus(
     mountpoint,
     fstype,
     ...(maxFileSize === undefined ? {} : { maxFileSize }),
+    ...(space ?? {}),
   };
 }
 

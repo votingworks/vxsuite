@@ -1,5 +1,6 @@
 import { getTemporaryRootDir } from '@votingworks/fixtures';
 import { Mocked, mockFunction } from '@votingworks/test-utils';
+import { UsbDriveSpace } from '@votingworks/utils';
 import tmp from 'tmp';
 import { MockFileTree, writeMockFileTree } from './helpers.js';
 import {
@@ -17,7 +18,7 @@ export interface MockUsbDrive {
   assertComplete(): void;
   insertUsbDrive(
     contents: MockFileTree,
-    options?: { fstype?: UsbDriveFilesystemType }
+    options?: { fstype?: UsbDriveFilesystemType; space?: UsbDriveSpace }
   ): void;
   removeUsbDrive(): void;
 }
@@ -54,7 +55,7 @@ export function createMockUsbDrive(): MockUsbDrive {
       }
     },
 
-    insertUsbDrive(contents, { fstype = 'fat32' } = {}) {
+    insertUsbDrive(contents, { fstype = 'fat32', space } = {}) {
       mockUsbTmpDir?.removeCallback();
       mockUsbTmpDir = tmp.dirSync({
         unsafeCleanup: true,
@@ -67,7 +68,8 @@ export function createMockUsbDrive(): MockUsbDrive {
         .resolves(
           mountedUsbDriveStatus(
             UsbPartitionMountpointSchema.decode(mockUsbTmpDir.name),
-            fstype
+            fstype,
+            space
           )
         );
     },
