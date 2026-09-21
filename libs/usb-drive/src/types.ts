@@ -77,7 +77,7 @@ export type UsbPartitionMountpoint = z.output<
 export interface UsbDrive {
   status(): Promise<UsbDriveStatus>;
   eject(): Promise<void>;
-  format(fstype: UsbDriveFilesystemType): Promise<void>;
+  format(fstype: UsbDriveFormatFilesystemType): Promise<void>;
   sync(): Promise<void>;
 }
 
@@ -92,12 +92,9 @@ export interface UsbDriveInfo {
 /**
  * A USB partition with one of the supported file systems.
  */
-export interface UsbPartitionInfo {
+export interface UsbPartitionInfo extends UsbPartitionBase {
   diskPath: UsbDiskDevPath;
-  partPath: UsbPartitionDevPath;
-  fstype: UsbDriveFilesystemType;
   mount: UsbPartitionMount;
-  label?: string;
 }
 
 export const UsbPartitionMount = {
@@ -123,10 +120,49 @@ export type UsbPartitionMount =
   | { type: 'mounted'; mountpoint: UsbPartitionMountpoint }
   | { type: 'unmounting'; mountpoint: UsbPartitionMountpoint };
 
-export const UsbDriveFilesystemTypeSchema = z.enum(['fat32', 'ext4']);
+/**
+ * File system formats that we support mounting for read & write.
+ */
+export const UsbDriveFilesystemTypeSchema = z.enum(['exfat', 'fat32', 'ext4']);
+
+/**
+ * File system formats that we support mounting for read & write.
+ */
 export type UsbDriveFilesystemType = z.output<
   typeof UsbDriveFilesystemTypeSchema
 >;
+
+/**
+ * File system formats that we support formatting drives using.
+ */
+export const UsbDriveFormatFilesystemTypeSchema = z.enum(['fat32', 'ext4']);
+
+/**
+ * File system formats that we support formatting drives using.
+ */
+export type UsbDriveFormatFilesystemType = z.output<
+  typeof UsbDriveFormatFilesystemTypeSchema
+>;
+
+/**
+ * What a drive is used for: general file transfer (`data`) or backup & restore
+ * (`backup`). Determined by the file system it's formatted with.
+ */
+export type UsbDrivePurpose = 'data' | 'backup';
+
+export function getUsbDrivePurpose(
+  fstype: UsbDriveFilesystemType
+): UsbDrivePurpose {
+  switch (fstype) {
+    case 'exfat':
+    case 'fat32':
+      return 'data';
+    case 'ext4':
+      return 'backup';
+    default:
+      return throwIllegalValue(fstype);
+  }
+}
 
 /** FAT32 stores file sizes as unsigned 32-bit integers. */
 const FAT32_MAXIMUM_FILE_SIZE = 2 ** 32 - 1;
@@ -141,9 +177,21 @@ export function getUsbDriveMaximumFileSize(
   switch (fstype) {
     case 'fat32':
       return FAT32_MAXIMUM_FILE_SIZE;
+    case 'exfat':
     case 'ext4':
       return undefined;
     default:
       return throwIllegalValue(fstype);
   }
 }
+
+/**
+ * The fields common to every representation of a supported partition.
+ */
+export const UsbPartitionBaseSchema = z.object({
+  partPath: UsbPartitionDevPathSchema,
+  fstype: UsbDriveFilesystemTypeSchema,
+  label: z.string().optional(),
+});
+
+export type UsbPartitionBase = z.output<typeof UsbPartitionBaseSchema>;

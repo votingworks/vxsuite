@@ -72,6 +72,7 @@ import {
   MultiUsbDrive,
   UsbDriveStatus,
   createUsbDriveAdapter,
+  findDriveByPurpose,
   getRealUsbDriveGlobPattern,
 } from '@votingworks/usb-drive';
 import ZipStream from 'zip-stream';
@@ -209,10 +210,8 @@ function buildApi({
 }) {
   const { store } = workspace;
 
-  const usbDriveAdapter = createUsbDriveAdapter(
-    multiUsbDrive,
-    // return the first FAT32 drive
-    (drives) => drives.find((d) => d.partition?.fstype === 'fat32')?.diskPath
+  const usbDriveAdapter = createUsbDriveAdapter(multiUsbDrive, (drives) =>
+    findDriveByPurpose(drives, 'data')
   );
 
   // Backs the `waitForUsbDriveChange` long-poll. `usbDriveChangeSeq` is a

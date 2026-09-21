@@ -1,9 +1,13 @@
 import { LogSource, Logger } from '@votingworks/logging';
+import { safeParse } from 'zod';
 import {
   detectMultiUsbDriveFromEnv,
   MultiUsbDrive,
 } from './multi_usb_drive.js';
-import { UsbDiskDevPathSchema, UsbDriveFilesystemType } from './types.js';
+import {
+  UsbDiskDevPathSchema,
+  UsbDriveFormatFilesystemTypeSchema,
+} from './types.js';
 
 function printDrives(multiUsbDrive: MultiUsbDrive, stdout: NodeJS.WriteStream) {
   stdout.write(`${JSON.stringify(multiUsbDrive.getDrives(), null, 2)}\n`);
@@ -17,10 +21,6 @@ Commands:
   format <devPath> [fat32|ext4]   Format a specific drive (default: fat32)
   watch                           Watch for USB drive changes (auto-mounts supported partitions)
 `;
-
-function isValidFstype(value: string): value is UsbDriveFilesystemType {
-  return value === 'fat32' || value === 'ext4';
-}
 
 export async function main(args: string[]): Promise<number> {
   const { stdout, stderr } = process;
@@ -76,7 +76,11 @@ export async function main(args: string[]): Promise<number> {
           stderr.write('Usage: usb-drive format <devPath> [fat32|ext4]\n');
           return 1;
         }
-        if (!isValidFstype(fstypeArg)) {
+        const parseFstypeResult = safeParse(
+          UsbDriveFormatFilesystemTypeSchema,
+          fstypeArg
+        );
+        if (!parseFstypeResult.success) {
           stderr.write(`Error: invalid filesystem type "${fstypeArg}"\n`);
           stderr.write('Usage: usb-drive format <devPath> [fat32|ext4]\n');
           return 1;
@@ -84,7 +88,7 @@ export async function main(args: string[]): Promise<number> {
         stdout.write(`Formatting ${devPath} as ${fstypeArg}...\n`);
         await multiUsbDrive.formatDrive(
           UsbDiskDevPathSchema.decode(devPath),
-          fstypeArg
+          parseFstypeResult.data
         );
         stdout.write('Formatted.\n');
         await multiUsbDrive.refresh();

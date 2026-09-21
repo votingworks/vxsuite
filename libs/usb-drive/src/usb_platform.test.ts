@@ -59,6 +59,40 @@ describe('getDrives', () => {
     expect(await new RealUsbPlatform().getDrives()).toEqual([]);
   });
 
+  test('maps a single exFAT partition to a exfat drive', async () => {
+    getAllDiskDevicesMock.mockResolvedValueOnce([
+      {
+        diskPath,
+        vendor: 'SanDisk',
+        model: 'Ultra',
+        serial: 'ABC123',
+        partitions: [
+          {
+            partPath,
+            mountpoint,
+            fstype: 'exfat',
+            fsver: '1.0',
+            label: 'VxUSB-ABCDE',
+          },
+        ],
+      },
+    ]);
+
+    expect(await new RealUsbPlatform().getDrives()).toEqual<UsbPlatformDrive[]>(
+      [
+        {
+          diskPath,
+          partition: {
+            partPath,
+            fstype: 'exfat',
+            label: 'VxUSB-ABCDE',
+            mountpoint,
+          },
+        },
+      ]
+    );
+  });
+
   test('maps a single FAT32 partition to a fat32 drive', async () => {
     getAllDiskDevicesMock.mockResolvedValueOnce([
       {

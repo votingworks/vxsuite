@@ -6,7 +6,7 @@ import {
   mountedUsbDriveStatus,
   UsbDiskDevPath,
   UsbDrive,
-  UsbDriveFilesystemType,
+  UsbDriveFormatFilesystemType,
   UsbDriveInfo,
   UsbDriveStatus,
   UsbPartitionInfo,
@@ -146,7 +146,7 @@ export function createUsbDriveAdapter(
       await multiUsbDrive.ejectDrive(drive.diskPath);
     },
 
-    async format(fstype: UsbDriveFilesystemType): Promise<void> {
+    async format(fstype: UsbDriveFormatFilesystemType): Promise<void> {
       const selected = selectDrive();
       if (selected.type === 'none') {
         debug('adapter: no drive to format');
