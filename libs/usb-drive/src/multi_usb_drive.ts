@@ -413,7 +413,7 @@ export function detectMultiUsbDrive(options: {
           await logger.logAsCurrentRole(LogEventId.UsbDriveFormatted, {
             disposition: 'success',
             message: `USB drive successfully formatted with a single ${
-              fstype === 'ext4' ? 'ext4' : 'FAT32'
+              fstype
             } volume named "${label}".`,
           });
           debug(`Drive ${diskPath} formatted successfully`);

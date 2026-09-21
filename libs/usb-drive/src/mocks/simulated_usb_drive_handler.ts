@@ -56,7 +56,7 @@ export function getMockUsbDriveHandler(
     insert: (contents?: MockFileTree) => {
       const drive = findDrive();
       if (!drive) {
-        platform.createDrive({ diskPath, fstype: 'fat32', contents });
+        platform.createDrive({ diskPath, fstype: 'exfat', contents });
       } else if (contents) {
         platform.replaceDriveData(diskPath, contents);
       }

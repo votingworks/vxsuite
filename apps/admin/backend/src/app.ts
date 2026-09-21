@@ -495,7 +495,7 @@ function buildApi({
       }
 
       try {
-        await usbDriveAdapter.format('fat32');
+        await usbDriveAdapter.format('exfat');
         return ok();
       } catch (error) {
         return err(error as Error);

@@ -233,13 +233,13 @@ describe('getDrives', () => {
           {
             partPath,
             mountpoint,
-            fstype: 'vfat',
-            fsver: 'FAT32',
+            fstype: 'exfat',
+            fsver: '1.0',
           },
           {
             partPath: UsbPartitionDevPathSchema.decode('/dev/sdb2'),
-            fstype: 'vfat',
-            fsver: 'FAT32',
+            fstype: 'exfat',
+            fsver: '1.0',
           },
         ],
       },
@@ -258,7 +258,7 @@ describe('getDrives', () => {
         vendor: undefined,
         model: undefined,
         serial: undefined,
-        partitions: [{ partPath, mountpoint, fstype: 'vfat', fsver: 'FAT32' }],
+        partitions: [{ partPath, mountpoint, fstype: 'exfat', fsver: '1.0' }],
       },
       {
         diskPath: diskPathC,
@@ -271,7 +271,7 @@ describe('getDrives', () => {
 
     expect(await new RealUsbPlatform().getDrives()).toEqual<UsbPlatformDrive[]>(
       [
-        { diskPath, partition: { partPath, fstype: 'fat32', mountpoint } },
+        { diskPath, partition: { partPath, fstype: 'exfat', mountpoint } },
         { diskPath: diskPathC },
       ]
     );
@@ -324,12 +324,12 @@ describe('unmountPartition', () => {
 });
 
 describe('formatDrive', () => {
-  test('runs the FAT32 format script via sudo', async () => {
-    await new RealUsbPlatform().formatDrive(diskPath, 'fat32', 'VxUSB-ABCDE');
+  test('runs the exFAT format script via sudo', async () => {
+    await new RealUsbPlatform().formatDrive(diskPath, 'exfat', 'VxUSB-ABCDE');
 
     expect(execMock).toHaveBeenCalledWith('sudo', [
       '-n',
-      expect.stringContaining('scripts/format_fat32.sh'),
+      expect.stringContaining('scripts/format_exfat.sh'),
       diskPath,
       'VxUSB-ABCDE',
     ]);
@@ -350,7 +350,7 @@ describe('formatDrive', () => {
     execMock.mockRejectedValueOnce(new Error('format failed'));
 
     await expect(
-      new RealUsbPlatform().formatDrive(diskPath, 'fat32', 'VxUSB-ABCDE')
+      new RealUsbPlatform().formatDrive(diskPath, 'exfat', 'VxUSB-ABCDE')
     ).rejects.toThrow('format failed');
   });
 });

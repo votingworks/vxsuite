@@ -221,7 +221,7 @@ test('exportDataToUsbDrive happy path', async () => {
   const path = join(tmpDir, 'bucket/test.txt');
   usbDrive.status.expectCallWith().resolves({
     status: 'mounted',
-    fstype: 'fat32',
+    fstype: 'exfat',
     mountpoint: UsbPartitionMountpointSchema.decode(tmpDir),
   });
   usbDrive.sync.expectCallWith().resolves();
@@ -288,7 +288,7 @@ test.each([
     const tmpDir = makeTemporaryDirectory();
     usbDrive.status.expectCallWith().resolves({
       status: 'mounted',
-      fstype: 'fat32',
+      fstype: 'exfat',
       mountpoint: UsbPartitionMountpointSchema.decode(tmpDir),
       totalBytes,
       availableBytes,
@@ -314,7 +314,7 @@ test('exportDataToUsbDrive with machineDirectoryToWriteToFirst', async () => {
   const tmpDir = makeTemporaryDirectory();
   usbDrive.status.expectCallWith().resolves({
     status: 'mounted',
-    fstype: 'fat32',
+    fstype: 'exfat',
     mountpoint: UsbPartitionMountpointSchema.decode(tmpDir),
   });
   usbDrive.sync.expectCallWith().resolves();

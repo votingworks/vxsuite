@@ -68,10 +68,10 @@ export class RealUsbPlatform implements UsbPlatform {
     label: string
   ): Promise<void> {
     switch (fstype) {
-      case 'fat32':
+      case 'exfat':
         await exec('sudo', [
           '-n',
-          join(MOUNT_SCRIPT_PATH, 'format_fat32.sh'),
+          join(MOUNT_SCRIPT_PATH, 'format_exfat.sh'),
           diskPath,
           label,
         ]);

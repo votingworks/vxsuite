@@ -135,7 +135,7 @@ export type UsbDriveFilesystemType = z.output<
 /**
  * File system formats that we support formatting drives using.
  */
-export const UsbDriveFormatFilesystemTypeSchema = z.enum(['fat32', 'ext4']);
+export const UsbDriveFormatFilesystemTypeSchema = z.enum(['exfat', 'ext4']);
 
 /**
  * File system formats that we support formatting drives using.

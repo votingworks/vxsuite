@@ -168,7 +168,7 @@ export function buildMockLogger(
 export const devsdb = UsbDiskDevPathSchema.parse('/dev/sdb');
 
 /**
- * Creates a mock USB drive (FAT32 by default, `ext4` for backup drives),
+ * Creates a mock USB drive (exFAT by default, `ext4` for backup drives),
  * attaches it, and waits until the app has detected and auto-mounted it.
  * Detection and mounting happen asynchronously (via a file watcher on the
  * {@link SimulatedUsbPlatform} state), so callers must await this before
@@ -178,7 +178,7 @@ export async function attachUsbDrive(
   apiClient: { getUsbDriveStatus: () => Promise<UsbDriveStatus> },
   usbPlatform: SimulatedUsbPlatform,
   contents?: MockFileTree,
-  fstype: UsbDriveFilesystemType = 'fat32'
+  fstype: UsbDriveFilesystemType = 'exfat'
 ): Promise<void> {
   usbPlatform.createDrive({ diskPath: devsdb, fstype, contents });
   usbPlatform.insertDrive(devsdb);

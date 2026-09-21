@@ -589,7 +589,7 @@ test('saveElectionPackageToUsb when the package does not fit', async () => {
 
   usbPlatform.createDrive({
     diskPath: devsdb,
-    fstype: 'fat32',
+    fstype: 'exfat',
     capacityBytes: 1,
   });
   usbPlatform.insertDrive(devsdb);
@@ -637,7 +637,6 @@ test('usbDrive', async () => {
   await attachUsbDrive(apiClient, usbPlatform);
   expect(await apiClient.getUsbDriveStatus()).toMatchObject({
     status: 'mounted',
-    fstype: 'fat32',
     mountpoint: expect.any(String),
   });
 
@@ -648,10 +647,10 @@ test('usbDrive', async () => {
   });
   await apiClient.ejectUsbDrive();
 
-  await usbPlatform.formatDrive(devsdb, 'fat32', 'MY-LABEL');
+  await usbPlatform.formatDrive(devsdb, 'exfat', 'MY-LABEL');
   (await apiClient.formatUsbDrive()).assertOk('format failed');
   expect(usbPlatform.getSimulatedDrives()[0]?.partition?.fstype).toEqual(
-    'fat32'
+    'exfat'
   );
 
   const error = new Error('format failed');

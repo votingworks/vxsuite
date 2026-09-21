@@ -286,7 +286,7 @@ test('formatUsbDrive formats drive when system administrator', async () => {
     expect.objectContaining<Partial<UsbDriveInfo>>({
       diskPath: devsdb,
       partition: expect.objectContaining<Partial<UsbPartitionInfo>>({
-        fstype: 'fat32',
+        fstype: 'exfat',
       }),
     })
   );

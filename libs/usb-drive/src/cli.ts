@@ -18,7 +18,7 @@ const USAGE = `Usage: usb-drive <command>
 Commands:
   status                          List all drives as JSON (auto-mounts supported partitions)
   eject <devPath>                 Eject a drive (unmount + prevent auto-remount)
-  format <devPath> [fat32|ext4]   Format a specific drive (default: fat32)
+  format <devPath> [exfat|ext4]   Format a specific drive (default: exfat)
   watch                           Watch for USB drive changes (auto-mounts supported partitions)
 `;
 
@@ -70,10 +70,10 @@ export async function main(args: string[]): Promise<number> {
 
       case 'format': {
         const devPath = args[3];
-        const fstypeArg = args[4] ?? 'fat32';
+        const fstypeArg = args[4] ?? 'exfat';
         if (!devPath) {
           stderr.write('Error: <devPath> is required\n');
-          stderr.write('Usage: usb-drive format <devPath> [fat32|ext4]\n');
+          stderr.write('Usage: usb-drive format <devPath> [exfat|ext4]\n');
           return 1;
         }
         const parseFstypeResult = safeParse(
@@ -82,7 +82,7 @@ export async function main(args: string[]): Promise<number> {
         );
         if (!parseFstypeResult.success) {
           stderr.write(`Error: invalid filesystem type "${fstypeArg}"\n`);
-          stderr.write('Usage: usb-drive format <devPath> [fat32|ext4]\n');
+          stderr.write('Usage: usb-drive format <devPath> [exfat|ext4]\n');
           return 1;
         }
         stdout.write(`Formatting ${devPath} as ${fstypeArg}...\n`);
