@@ -1,11 +1,17 @@
 import React, { useContext, useState } from 'react';
 import {
+  checkFileFitsOnUsbDrive,
+  format,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
+  UsbDriveFileFit,
 } from '@votingworks/utils';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import {
   Button,
+  FILESYSTEM_LABELS,
+  Font,
+  FormatUsbModal,
   LoadingButton,
   Modal,
   P,
@@ -13,14 +19,80 @@ import {
   userReadableMessageFromExportDataError,
 } from '@votingworks/ui';
 import type { ExportDataError } from '@votingworks/admin-backend';
+import type { MountedUsbDriveStatus } from '@votingworks/usb-drive';
 
-import { ejectUsbDrive, saveElectionPackageToUsb } from '../api.js';
+import {
+  ejectUsbDrive,
+  formatUsbDrive,
+  getElectionPackageSize,
+  saveElectionPackageToUsb,
+} from '../api.js';
 import { AppContext } from '../contexts/app_context.js';
 
 type SaveState =
   | { state: 'unsaved' }
   | { state: 'saved' }
   | { state: 'error'; error: ExportDataError };
+
+function Bytes({ value }: { value: number }): JSX.Element {
+  return <Font noWrap>{format.bytes(value)}</Font>;
+}
+
+type DoesNotFit = Exclude<UsbDriveFileFit, 'fits'>;
+
+const DOES_NOT_FIT_TITLES: Record<DoesNotFit, string> = {
+  'file-too-large': 'File Too Large for USB Drive',
+  'insufficient-space': 'Not Enough Space on USB Drive',
+  'drive-too-small': 'USB Drive Too Small',
+};
+
+function DoesNotFitMessage({
+  fit,
+  usbDriveStatus,
+  electionPackageSize,
+  canFormat,
+}: {
+  fit: DoesNotFit;
+  usbDriveStatus: MountedUsbDriveStatus;
+  electionPackageSize: number;
+  canFormat: boolean;
+}): JSX.Element {
+  switch (fit) {
+    case 'file-too-large':
+      return (
+        <P>
+          The election package is <Bytes value={electionPackageSize} />. The USB
+          drive is formatted as{' '}
+          <Font weight="semiBold">
+            {FILESYSTEM_LABELS[usbDriveStatus.fstype]}
+          </Font>
+          , which cannot store files larger than{' '}
+          <Bytes value={assertDefined(usbDriveStatus.maxFileSize)} />.
+        </P>
+      );
+    case 'insufficient-space':
+      return (
+        <P>
+          The election package is <Bytes value={electionPackageSize} />, but the
+          USB drive only has{' '}
+          <Bytes value={assertDefined(usbDriveStatus.availableBytes)} /> free.
+          Remove files from the USB drive{canFormat ? ' or format it' : ''} to
+          continue.
+        </P>
+      );
+    case 'drive-too-small':
+      return (
+        <P>
+          The election package is <Bytes value={electionPackageSize} />, but the
+          USB drive can only hold{' '}
+          <Bytes value={assertDefined(usbDriveStatus.totalBytes)} />. Use a
+          larger USB drive.
+        </P>
+      );
+    default:
+      return throwIllegalValue(fit);
+  }
+}
 
 export function ExportElectionPackageModalButton(): JSX.Element {
   const { electionDefinition, usbDriveStatus, auth } = useContext(AppContext);
@@ -29,10 +101,16 @@ export function ExportElectionPackageModalButton(): JSX.Element {
   const saveElectionPackageToUsbMutation =
     saveElectionPackageToUsb.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
+  const formatUsbDriveMutation = formatUsbDrive.useMutation();
 
   const [saveState, setSaveState] = useState<SaveState>({ state: 'unsaved' });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFormatModalOpen, setIsFormatModalOpen] = useState(false);
+
+  const electionPackageSizeQuery = getElectionPackageSize.useQuery({
+    enabled: isModalOpen && usbDriveStatus.status === 'mounted',
+  });
 
   function closeModal() {
     if (saveElectionPackageToUsbMutation.isLoading) return;
@@ -69,6 +147,43 @@ export function ExportElectionPackageModalButton(): JSX.Element {
           );
           break;
         case 'mounted': {
+          const electionPackageSize = electionPackageSizeQuery.data;
+          if (electionPackageSize === undefined) {
+            actions = <Button onPress={closeModal}>Cancel</Button>;
+            title = 'Save Election Package';
+            break;
+          }
+          const fit = checkFileFitsOnUsbDrive(
+            usbDriveStatus,
+            electionPackageSize
+          );
+          if (fit !== 'fits') {
+            const canFormat = isSystemAdministratorAuth(auth);
+            const offerFormat = canFormat && fit === 'insufficient-space';
+            actions = (
+              <React.Fragment>
+                {offerFormat && (
+                  <Button
+                    variant="primary"
+                    onPress={() => setIsFormatModalOpen(true)}
+                  >
+                    Format USB Drive
+                  </Button>
+                )}
+                <Button onPress={closeModal}>Cancel</Button>
+              </React.Fragment>
+            );
+            title = DOES_NOT_FIT_TITLES[fit];
+            mainContent = (
+              <DoesNotFitMessage
+                fit={fit}
+                usbDriveStatus={usbDriveStatus}
+                electionPackageSize={electionPackageSize}
+                canFormat={canFormat}
+              />
+            );
+            break;
+          }
           actions = (
             <React.Fragment>
               {saveElectionPackageToUsbMutation.isLoading ? (
@@ -154,7 +269,14 @@ export function ExportElectionPackageModalButton(): JSX.Element {
       >
         Save Election Package
       </Button>
-      {isModalOpen && (
+      {isModalOpen && isFormatModalOpen && (
+        <FormatUsbModal
+          usbDriveStatus={usbDriveStatus}
+          formatUsbDriveMutation={formatUsbDriveMutation}
+          onClose={() => setIsFormatModalOpen(false)}
+        />
+      )}
+      {isModalOpen && !isFormatModalOpen && (
         <Modal
           title={title}
           content={mainContent}

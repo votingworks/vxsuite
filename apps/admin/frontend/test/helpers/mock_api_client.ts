@@ -666,6 +666,10 @@ export function createApiMock(
       apiClient.getManualResultsMetadata.expectCallWith().resolves(records);
     },
 
+    expectGetElectionPackageSize(size: number) {
+      apiClient.getElectionPackageSize.expectCallWith().resolves(size);
+    },
+
     expectSaveElectionPackageToUsb(
       result: Result<void, ExportDataError> = ok()
     ) {

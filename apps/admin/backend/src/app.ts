@@ -38,7 +38,7 @@ import * as grout from '@votingworks/grout';
 import { Printer } from '@votingworks/printing';
 import { randomUUID } from 'node:crypto';
 import { createReadStream, createWriteStream } from 'node:fs';
-import { rm } from 'node:fs/promises';
+import { rm, stat } from 'node:fs/promises';
 import { pipeline } from 'node:stream/promises';
 import path, { join, matchesGlob, normalize } from 'node:path';
 import {
@@ -503,6 +503,16 @@ function buildApi({
       }
     },
 
+    /** Size in bytes of the current election's package file. */
+    async getElectionPackageSize(): Promise<number> {
+      const electionRecord = getCurrentElectionRecord(workspace);
+      assert(electionRecord);
+      const electionPackageFilePath = assertDefined(
+        workspace.store.getElectionPackageFilePath(electionRecord.id)
+      );
+      return (await stat(electionPackageFilePath)).size;
+    },
+
     async saveElectionPackageToUsb(): Promise<Result<void, ExportDataError>> {
       await logger.logAsCurrentRole(LogEventId.SaveElectionPackageInit);
       const exporter = buildExporter(usbDriveAdapter);
@@ -525,7 +535,8 @@ function buildApi({
       const exportElectionPackageResult = await exporter.exportDataToUsbDrive(
         usbDriveElectionPackageDirectoryRelativePath,
         exportedElectionPackageFileName,
-        createReadStream(electionPackageFilePathOnDisk)
+        createReadStream(electionPackageFilePathOnDisk),
+        { size: (await stat(electionPackageFilePathOnDisk)).size }
       );
       if (exportElectionPackageResult.isErr()) {
         return exportElectionPackageResult;

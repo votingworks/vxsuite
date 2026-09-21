@@ -947,6 +947,20 @@ export const releaseBallotAdjudicationClaim = {
   },
 } as const;
 
+export const getElectionPackageSize = {
+  queryKey(): QueryKey {
+    return ['getElectionPackageSize'];
+  },
+  useQuery(options: { enabled: boolean }) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getElectionPackageSize(),
+      options
+    );
+  },
+} as const;
+
 export const saveElectionPackageToUsb = {
   useMutation() {
     const apiClient = useApiClient();
