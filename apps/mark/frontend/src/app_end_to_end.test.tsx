@@ -20,10 +20,8 @@ import {
   waitFor,
   within,
 } from '../test/react_testing_library.js';
-import * as GLOBALS from './config/globals.js';
 import { App } from './app.js';
 import { withMarkup } from '../test/helpers/with_markup.js';
-import { advanceTimersAndPromises } from '../test/helpers/timers.js';
 import {
   presidentContest,
   countyCommissionersContest,
@@ -304,10 +302,8 @@ test('MarkAndPrint end-to-end flow', async () => {
   userEvent.click(screen.getByText(/Print My ballot/i));
   screen.getByText(/Printing Your Ballot/i);
 
-  // Expire timeout for display of "Printing Ballot" screen
-  await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
-
-  screen.getByText('You’re Almost Done');
+  // The session ends once the job reaches the printer
+  await screen.findByText('You’re Almost Done');
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   userEvent.click(screen.getByText('Done'));
   apiMock.setAuthStatusLoggedOut();

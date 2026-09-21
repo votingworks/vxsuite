@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { assertDefined, err } from '@votingworks/basics';
+import { assertDefined, err, ok } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   electionGeneralFixtures,
@@ -17,6 +17,7 @@ import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   safeParseSystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
+  TEST_JURISDICTION,
   safeParseJson,
   SystemSettings,
   SystemSettingsSchema,
@@ -450,7 +451,9 @@ test('usbDrive', async () => {
 });
 
 async function expectElectionState(expected: Partial<ElectionState>) {
-  expect(await apiClient.getElectionState()).toMatchObject(expected);
+  await vi.waitFor(async () => {
+    expect(await apiClient.getElectionState()).toMatchObject(expected);
+  });
 }
 
 async function configureMachine(
@@ -674,6 +677,25 @@ test('printer status', async () => {
   });
 });
 
+test('print job status', async () => {
+  expect(await apiClient.getPrintJobStatus({ jobId: 1 })).toEqual(
+    err(expect.any(Error))
+  );
+
+  mockPrinterHandler.setJobStatus(1, { outcome: 'in-progress' });
+  expect(await apiClient.getPrintJobStatus({ jobId: 1 })).toEqual(
+    ok({ outcome: 'in-progress' })
+  );
+
+  mockPrinterHandler.setJobStatus(1, {
+    outcome: 'failed',
+    reason: 'Unable to send data to printer.',
+  });
+  expect(await apiClient.getPrintJobStatus({ jobId: 1 })).toEqual(
+    ok({ outcome: 'failed', reason: 'Unable to send data to printer.' })
+  );
+});
+
 test('printing ballots', async () => {
   const electionDefinition = getMockMultiLanguageElectionDefinition(
     electionGeneralDefinition,
@@ -700,6 +722,13 @@ test('printing ballots', async () => {
   });
 
   await expectElectionState({ ballotsPrintedCount: 1 });
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.BallotPrintComplete,
+    expect.objectContaining({
+      message: 'Ballot printed',
+      disposition: 'success',
+    })
+  );
   await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'english-ballot',
     failureThreshold: 0.0001,
@@ -720,6 +749,43 @@ test('printing ballots', async () => {
     customSnapshotIdentifier: 'chinese-ballot',
     failureThreshold: 0.001,
   });
+});
+
+test('a ballot that fails to print does not increment the printed count', async () => {
+  const clearJobQueue = vi.spyOn(mockPrinterHandler.printer, 'clearJobQueue');
+  const electionDefinition = electionGeneralDefinition;
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
+  await configureMachine(
+    mockUsbDrive,
+    electionDefinition,
+    electionGeneralFixtures.uiStrings
+  );
+
+  await expectElectionState({ ballotsPrintedCount: 0 });
+
+  const jobId = await apiClient.printBallot({
+    precinctId: '21',
+    ballotStyleId: electionDefinition.election.ballotStyles[0].id,
+    votes: generateMockVotes(electionDefinition.election),
+    languageCode: 'en',
+  });
+  mockPrinterHandler.setJobStatus(jobId, {
+    outcome: 'failed',
+    reason: 'Unable to send data to printer.',
+  });
+
+  await vi.waitFor(() => {
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.BallotPrintComplete,
+      expect.objectContaining({
+        message: 'Ballot failed to print',
+        disposition: 'failure',
+        reason: 'Unable to send data to printer.',
+      })
+    );
+  });
+  expect(clearJobQueue).toHaveBeenCalled();
+  await expectElectionState({ ballotsPrintedCount: 0 });
 });
 
 test('printing a blank ballot prints the pre-rendered base ballot PDF', async () => {
@@ -775,7 +841,7 @@ test('printing a blank ballot prints the pre-rendered base ballot PDF', async ()
   expect(printedData.toString('utf-8')).toEqual(mockBallotPdfData);
 
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
-    LogEventId.PrinterPrintRequest,
+    LogEventId.BallotPrintRequest,
     expect.objectContaining({
       message: 'Printing a blank ballot',
       ballotStyleId: '1',
@@ -783,7 +849,7 @@ test('printing a blank ballot prints the pre-rendered base ballot PDF', async ()
     })
   );
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
-    LogEventId.PrinterPrintComplete,
+    LogEventId.BallotPrintComplete,
     expect.objectContaining({
       message: 'Blank ballot printed',
       disposition: 'success',
@@ -791,6 +857,64 @@ test('printing a blank ballot prints the pre-rendered base ballot PDF', async ()
       precinctId: '23',
     })
   );
+});
+
+test('a blank ballot that fails to print is logged as a failure', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+
+  const ballots: EncodedBallotEntry[] = [
+    {
+      ballotStyleId: '1',
+      precinctId: '23',
+      ballotType: BallotType.Precinct,
+      ballotMode: 'test',
+      encodedBallot: Buffer.from('mock-blank-ballot-pdf-data').toString(
+        'base64'
+      ),
+    },
+  ];
+
+  const { store } = workspace;
+  store.setElectionAndJurisdiction({
+    electionData: electionDefinition.electionData,
+    jurisdiction: TEST_JURISDICTION,
+    electionPackageHash: 'test-hash',
+  });
+  store.setSystemSettings({
+    ...DEFAULT_SYSTEM_SETTINGS,
+    allowPrintingBlankBallotsFromVxMark: true,
+  });
+  for (const ballot of ballots) {
+    store.addBallot(ballot);
+  }
+  mockNoCard();
+
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
+  await expectElectionState({ ballotsPrintedCount: 0 });
+
+  const jobId = await apiClient.printBlankBallot({
+    ballotStyleId: '1',
+    precinctId: '23',
+  });
+  mockPrinterHandler.setJobStatus(jobId, {
+    outcome: 'failed',
+    reason: 'Unable to send data to printer.',
+  });
+
+  await vi.waitFor(() => {
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.BallotPrintComplete,
+      expect.objectContaining({
+        message: 'Blank ballot failed to print',
+        disposition: 'failure',
+        ballotStyleId: '1',
+        precinctId: '23',
+        reason: 'Unable to send data to printer.',
+      })
+    );
+  });
+  await expectElectionState({ ballotsPrintedCount: 0 });
 });
 
 test('printing a blank ballot throws when no ballot PDF is available', async () => {
@@ -812,11 +936,11 @@ test('printing a blank ballot throws when no ballot PDF is available', async () 
 
   // The request is logged, but the completion is not, since printing failed.
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
-    LogEventId.PrinterPrintRequest,
+    LogEventId.BallotPrintRequest,
     expect.objectContaining({ message: 'Printing a blank ballot' })
   );
   expect(logger.logAsCurrentRole).not.toHaveBeenCalledWith(
-    LogEventId.PrinterPrintComplete,
+    LogEventId.BallotPrintComplete,
     expect.anything()
   );
 });
@@ -920,4 +1044,44 @@ test('printTestDeck throws when no test deck PDF is generated', async () => {
       disposition: 'failure',
     })
   );
+});
+
+test('a print job that settles after a count reset does not count itself', async () => {
+  const electionDefinition = getMockMultiLanguageElectionDefinition(
+    electionGeneralDefinition,
+    ['en', 'zh-Hans']
+  );
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
+  await configureMachine(
+    mockUsbDrive,
+    electionDefinition,
+    electionGeneralFixtures.uiStrings
+  );
+
+  // A ballot is still in flight...
+  const jobId = await apiClient.printBallot({
+    precinctId: '21',
+    ballotStyleId: electionDefinition.election.ballotStyles.find((bs) =>
+      bs.languages.includes('en')
+    )!.id,
+    votes: generateMockVotes(electionDefinition.election),
+    languageCode: 'en',
+  });
+  mockPrinterHandler.setJobStatus(jobId, { outcome: 'in-progress' });
+
+  // ...when a poll worker reconfigures the machine, resetting the count.
+  const place = assertDefined(electionDefinition.election.pollingPlaces?.[0]);
+  await apiClient.setPollingPlaceId({ id: place.id });
+  await expectElectionState({ ballotsPrintedCount: 0 });
+
+  // The job belongs to the previous configuration, so it must not count
+  // itself into the fresh tally, though it is still logged.
+  mockPrinterHandler.setJobStatus(jobId, { outcome: 'sent-to-printer' });
+  await vi.waitFor(() => {
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.BallotPrintComplete,
+      expect.objectContaining({ disposition: 'success' })
+    );
+  });
+  await expectElectionState({ ballotsPrintedCount: 0 });
 });
