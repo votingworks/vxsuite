@@ -2,16 +2,11 @@
 
 // @ts-check
 
-require('esbuild-runner').install({
-  type: 'transform',
-});
+import { main } from '../build/cli.js';
 
-require('../src/cli')
-  .main(process.argv)
-  .then((code) => {
-    process.exitCode = code;
-  })
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+try {
+  process.exitCode = await main(process.argv);
+} catch (error) {
+  console.error(error);
+  process.exit(1);
+}
