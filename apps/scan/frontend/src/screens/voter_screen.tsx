@@ -24,6 +24,7 @@ export interface VoterScreenProps {
   systemSettings: SystemSettings;
   isTestMode: boolean;
   isSoundMuted: boolean;
+  startNewVoterSession: () => void;
 }
 
 export function VoterScreen({
@@ -31,6 +32,7 @@ export function VoterScreen({
   systemSettings,
   isTestMode,
   isSoundMuted,
+  startNewVoterSession,
 }: VoterScreenProps): JSX.Element | null {
   const scannerStatusQuery = getScannerStatus.useQuery();
   const playSoundMutate = playSound.useMutation().mutate;
@@ -80,7 +82,9 @@ export function VoterScreen({
 
   // Hold the accepted screen until the "Your ballot was counted" screen reader
   // audio finishes playing — unmounting it sooner clears the audio queue and
-  // cuts off the announcement mid-sentence.
+  // cuts off the announcement mid-sentence. Voter settings (e.g. language) are
+  // kept until the screen is dismissed so it stays readable in the voter's
+  // chosen language.
   const isScreenReaderActive = useScreenReaderActive();
   useEffect(() => {
     if (
@@ -89,11 +93,13 @@ export function VoterScreen({
       !isScreenReaderActive
     ) {
       setIsShowingAcceptedScreen(false);
+      startNewVoterSession();
     }
   }, [
     isShowingAcceptedScreen,
     acceptedScreenMinDurationElapsed,
     isScreenReaderActive,
+    startNewVoterSession,
   ]);
 
   if (!scannerStatusQuery.isSuccess) {

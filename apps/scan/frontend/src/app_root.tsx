@@ -104,11 +104,15 @@ export function AppRoot(): JSX.Element | null {
     select: ({ state }) => state,
     onChange: (newState, previousState) => {
       // If we transition from paused to waiting_for_ballot we are just returning
-      // from an election official screen
+      // from an election official screen. After a ballot is accepted, the
+      // scanner returns to waiting_for_ballot while the voter is still viewing
+      // the success screen, so VoterScreen starts the new session when it
+      // dismisses that screen instead.
       if (
         previousState &&
         previousState !== 'waiting_for_ballot' &&
         previousState !== 'paused' &&
+        previousState !== 'accepted' &&
         newState === 'waiting_for_ballot'
       ) {
         sessionSettingsManager.startNewSession();
@@ -434,6 +438,7 @@ export function AppRoot(): JSX.Element | null {
         systemSettings={systemSettings}
         isTestMode={isTestMode}
         isSoundMuted={isSoundMuted}
+        startNewVoterSession={sessionSettingsManager.startNewSession}
       />
     </PatDeviceContextProvider>
   );
