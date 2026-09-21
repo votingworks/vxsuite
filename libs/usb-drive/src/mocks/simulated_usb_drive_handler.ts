@@ -1,4 +1,5 @@
 import {
+  mountedUsbDriveStatus,
   UsbDiskDevPathSchema,
   UsbDriveStatus,
   UsbPartitionMountpoint,
@@ -45,7 +46,10 @@ export function getMockUsbDriveHandler(
       if (!drive?.present) return { status: 'no_drive' };
       if (!drive.partition) return { status: 'error', reason: 'bad_format' };
       if (drive.partition.mountpoint) {
-        return { status: 'mounted', mountpoint: drive.partition.mountpoint };
+        return mountedUsbDriveStatus(
+          drive.partition.mountpoint,
+          drive.partition.fstype
+        );
       }
       return { status: 'ejected' };
     },

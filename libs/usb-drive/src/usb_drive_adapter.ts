@@ -2,6 +2,7 @@ import { throwIllegalValue } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { MultiUsbDrive } from './multi_usb_drive.js';
 import {
+  mountedUsbDriveStatus,
   UsbDiskDevPath,
   UsbDrive,
   UsbDriveFilesystemType,
@@ -83,7 +84,8 @@ export function createUsbDriveAdapter(
         return Promise.resolve({ status: 'error', reason: 'bad_format' });
       }
 
-      const { mount } = selected.drive.partition;
+      const { partition } = selected.drive;
+      const { mount } = partition;
 
       switch (mount.type) {
         case 'mounting':
@@ -91,16 +93,14 @@ export function createUsbDriveAdapter(
           return Promise.resolve({ status: 'no_drive' });
         case 'mounted':
           debug(`adapter: partition is mounted at ${mount.mountpoint}`);
-          return Promise.resolve({
-            status: 'mounted',
-            mountpoint: mount.mountpoint,
-          });
+          return Promise.resolve(
+            mountedUsbDriveStatus(mount.mountpoint, partition.fstype)
+          );
         case 'unmounting':
           debug('adapter: partition is unmounting, returning mounted');
-          return Promise.resolve({
-            status: 'mounted',
-            mountpoint: mount.mountpoint,
-          });
+          return Promise.resolve(
+            mountedUsbDriveStatus(mount.mountpoint, partition.fstype)
+          );
         case 'formatting':
           // Formatting unmounts the drive first; present it as ejected, which
           // is what legacy single-drive consumers expect mid-format.
