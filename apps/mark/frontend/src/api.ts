@@ -1,6 +1,6 @@
 import type { Api } from '@votingworks/mark-backend';
 import React from 'react';
-import { assertDefined, deepEqual } from '@votingworks/basics';
+import { deepEqual } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
@@ -13,13 +13,13 @@ import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
   USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
+  createPrintJobStatusApi,
   createSystemCallApi,
   createUiStringsApi,
 } from '@votingworks/ui';
-import { DiagnosticType, PrintJobId } from '@votingworks/types';
+import { DiagnosticType } from '@votingworks/types';
 
 const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
-const PRINT_JOB_STATUS_POLLING_INTERVAL_MS = 100;
 export const INTERNAL_HARDWARE_POLLING_INTERVAL_MS = 3000;
 
 export type ApiClient = grout.Client<Api>;
@@ -98,28 +98,7 @@ export const getPrinterStatus = {
   },
 } as const;
 
-export const getPrintJobStatus = {
-  queryKey(jobId: PrintJobId): QueryKey {
-    return ['getPrintJobStatus', jobId];
-  },
-  useQuery(jobId?: PrintJobId) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(jobId ?? 0),
-      () => apiClient.getPrintJobStatus({ jobId: assertDefined(jobId) }),
-      {
-        enabled: jobId !== undefined,
-        // CUPS reuses job numbers so we don't want to cache old job status values
-        cacheTime: 0,
-        // Stop polling once the job settles; its status will not change again.
-        refetchInterval: (result) =>
-          result?.ok()?.outcome === 'in-progress'
-            ? PRINT_JOB_STATUS_POLLING_INTERVAL_MS
-            : false,
-      }
-    );
-  },
-} as const;
+export const getPrintJobStatus = createPrintJobStatusApi(useApiClient);
 
 export const getAccessibleControllerConnected = {
   queryKey(): QueryKey {

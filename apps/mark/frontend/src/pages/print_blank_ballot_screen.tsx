@@ -25,6 +25,7 @@ import {
   TestModeBanner,
   P,
   H4,
+  getPrintOutcome,
   Modal,
   Loading,
   SearchSelect,
@@ -34,7 +35,6 @@ import {
 import styled from 'styled-components';
 
 import { getPrintJobStatus, printBlankBallot } from '../api.js';
-import { getPrintOutcome } from '../utils/print_outcome.js';
 
 const Contents = styled.div`
   display: flex;
