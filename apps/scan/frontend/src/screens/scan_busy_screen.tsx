@@ -32,8 +32,3 @@ export function ScanBusyScreen({
     </Screen>
   );
 }
-
-// @coverage-exclude
-export function DefaultPreview(): JSX.Element {
-  return <ScanBusyScreen isTestMode={false} />;
-}

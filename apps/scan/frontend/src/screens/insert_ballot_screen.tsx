@@ -30,13 +30,3 @@ export function InsertBallotScreen({
     </Screen>
   );
 }
-
-// @coverage-exclude
-export function ZeroBallotsScannedPreview(): JSX.Element {
-  return <InsertBallotScreen scannedBallotCount={0} isTestMode={false} />;
-}
-
-// @coverage-exclude
-export function ManyBallotsScannedPreview(): JSX.Element {
-  return <InsertBallotScreen scannedBallotCount={1234} isTestMode={false} />;
-}

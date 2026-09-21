@@ -9,7 +9,6 @@ import {
 } from '@votingworks/utils';
 import { App } from './app.js';
 import { ElectricalTestingApp } from './electrical_testing/index.js';
-import { PreviewApp } from './preview_app.js';
 
 const rootElement = document.getElementById('root');
 assert(rootElement);
@@ -21,9 +20,6 @@ root.render(
       BooleanEnvironmentVariableName.ENABLE_HARDWARE_TEST_APP
     ) ? (
       <ElectricalTestingApp />
-    ) : process.env.NODE_ENV === 'development' &&
-      window.location.pathname.startsWith('/preview') ? (
-      <PreviewApp />
     ) : (
       <React.Fragment>
         <App enableStringTranslation />

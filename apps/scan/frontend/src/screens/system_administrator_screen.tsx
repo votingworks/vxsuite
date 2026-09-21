@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Button,
-  P,
   PowerDownButton,
   SignedHashValidationButton,
   SystemAdministratorScreenContents,
@@ -14,7 +13,6 @@ import {
   logOut,
   resetPollsToPaused,
   useApiClient,
-  getConfig,
   getScannerStatus,
   beginImageSensorCalibration,
 } from '../api.js';
@@ -96,23 +94,5 @@ export function SystemAdministratorScreen({
         }
       />
     </Screen>
-  );
-}
-
-// @coverage-exclude
-export function DefaultPreview(): JSX.Element {
-  const configQuery = getConfig.useQuery();
-  const electionDefinition = configQuery.data?.electionDefinition;
-
-  if (!electionDefinition) {
-    return <P>Loading…</P>;
-  }
-
-  return (
-    <SystemAdministratorScreen
-      pollsState="polls_open"
-      electionDefinition={electionDefinition}
-      usbDrive={{ status: 'no_drive' }}
-    />
   );
 }
