@@ -6,21 +6,15 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { mkdir, writeFile } from 'node:fs/promises';
-import { isAbsolute, join, matchesGlob, normalize, parse } from 'node:path';
+import { mkdir } from 'node:fs/promises';
+import { dirname, isAbsolute, join, matchesGlob, normalize } from 'node:path';
 import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import { createReadStream, lstatSync } from 'node:fs';
 import { ExportDataError as BaseExportDataError } from '@votingworks/types';
+import { openRegularFileForWriting } from '@votingworks/fs';
 import { MountedUsbDriveStatus, UsbDrive } from '@votingworks/usb-drive';
 import { checkFileFitsOnUsbDrive, format } from '@votingworks/utils';
-import { splitToFiles } from './split.js';
-
-/**
- * The largest file size that can be exported to a USB drive formatted as FAT32.
- * Since each file size is recorded as a 32-bit unsigned integer, the largest
- * file size is 4,294,967,295 bytes.
- */
-const MAXIMUM_FAT32_FILE_SIZE = 2 ** 32 - 1;
 
 /**
  * Types that may be exported.
@@ -69,18 +63,12 @@ export class Exporter {
   }
 
   /**
-   * Exports data to a file on the file system. The file and its parent directories
-   * will be created if they do not exist. To split the data into multiple files,
-   * specify a `maximumFileSize` greater than 0.
+   * Exports data to a file on the file system. The file and its parent
+   * directories will be created if they do not exist.
    */
   async exportData(
     path: string,
-    data: ExportableData,
-    {
-      maximumFileSize,
-    }: {
-      maximumFileSize?: number;
-    } = {}
+    data: ExportableData
   ): Promise<ExportDataResult> {
     const getSafePathResult = this.getSafePathForWriting(path);
 
@@ -89,63 +77,50 @@ export class Exporter {
     }
 
     const safePath = getSafePathResult.ok();
-    const pathParts = parse(safePath);
+    await mkdir(dirname(safePath), { recursive: true });
 
-    await mkdir(pathParts.dir, { recursive: true });
-
-    const paths = await splitToFiles(
-      Readable.from(
-        // `Readable.from` doesn't handle `Uint8Array` the way we expect, so we
-        // convert it to a `Buffer` if it is a `Uint8Array` but not a `Buffer`.
-        //
-        // We expect the `Readable::read` to return bytes, strings, etc. but
-        // when given a `Uint8Array` it returns `number`. This breaks the
-        // expected behavior of `Readable::read` which should return a `Buffer`
-        // or `string` when reading from a stream:
-        //
-        // ```
-        // > r = Readable.from(Uint8Array.of(1, 2, 3));
-        // > r.read()
-        // 1
-        // > r.read()
-        // 2
-        // > r.read()
-        // 3
-        // > r.read()
-        // null
-        //
-        //
-        // > r = Readable.from(Buffer.of(1, 2, 3));
-        // > r.read()
-        // <Buffer 01, 02, 03>
-        // > r.read()
-        // null
-        // ```
-        data instanceof Uint8Array && !(data instanceof Buffer)
-          ? Buffer.from(data)
-          : data
-      ),
-      {
-        size: maximumFileSize ?? Infinity,
-        nextPath: (index) =>
-          join(pathParts.dir, `${pathParts.base}-part-${index + 1}`),
-        singleFileName: pathParts.base,
+    const openResult = await openRegularFileForWriting(safePath);
+    if (openResult.isErr()) {
+      const error = openResult.err();
+      switch (error.type) {
+        case 'NotRegularFile':
+          return err({
+            type: 'file-system-error',
+            message: `Path is not a regular file: ${path}`,
+          });
+        case 'OpenFileError':
+          return err({
+            type: 'file-system-error',
+            message: `Unable to open ${path} for writing: ${error.error.message}`,
+          });
+        default:
+          return throwIllegalValue(error);
       }
-    );
-    // If the data was empty, splitToFiles won't create any files, but we still
-    // want to create an empty file.
-    if (paths.length === 0) {
-      await writeFile(safePath, '');
-      paths.push(safePath);
     }
-    return ok(paths);
+
+    try {
+      await pipeline(
+        Readable.from(
+          // `Readable.from` iterates a bare `Uint8Array` element by element,
+          // yielding numbers instead of a single binary chunk, so wrap it.
+          data instanceof Uint8Array && !(data instanceof Buffer)
+            ? Buffer.from(data)
+            : data
+        ),
+        openResult.ok().createWriteStream()
+      );
+    } catch (error) {
+      return err({
+        type: 'file-system-error',
+        message: `Unable to write ${path}: ${(error as Error).message}`,
+      });
+    }
+    return ok([safePath]);
   }
 
   /**
    * Exports data to a USB drive. The file and its parent directories will be
-   * created if they do not exist. By default the data will be split into multiple
-   * files if it is larger than the maximum FAT32 file size. To disable this, set
-   * `maximumFileSize` to `Infinity`.
+   * created if they do not exist.
    *
    * Once the promise returned by this function resolves, the data has been
    * successfully written to the USB drive and it may be safely unmounted.
@@ -167,11 +142,9 @@ export class Exporter {
     data: ExportableData,
     {
       machineDirectoryToWriteToFirst,
-      maximumFileSize = MAXIMUM_FAT32_FILE_SIZE,
       size,
     }: {
       machineDirectoryToWriteToFirst?: string;
-      maximumFileSize?: number;
       size?: number;
     } = {}
   ): Promise<ExportDataResult> {
@@ -204,8 +177,7 @@ export class Exporter {
 
     const result = await this.exportData(
       join(usbDriveStatus.mountpoint, bucket, name),
-      dataToWrite,
-      { maximumFileSize }
+      dataToWrite
     );
 
     // Exporting a file might take a while. Ensure the data is flushed to the USB

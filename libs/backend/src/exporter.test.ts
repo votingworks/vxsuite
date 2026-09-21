@@ -1,10 +1,11 @@
 import { afterEach, expect, test, vi } from 'vitest';
 import { err, iter, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { readFile, symlink, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, symlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { existsSync } from 'node:fs';
 import { Readable } from 'node:stream';
+import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import {
   createMockUsbDrive,
@@ -110,21 +111,6 @@ test('exportData with stream', async () => {
   expect(await readFile(path)).toEqual(Buffer.of(1, 2, 3));
 });
 
-test('exportData with stream and maximumFileSize', async () => {
-  const tmpDir = makeTemporaryDirectory();
-  const path = join(tmpDir, 'test.txt');
-  const result = await exporter.exportData(
-    path,
-    Readable.from(Buffer.of(1, 2, 3)),
-    {
-      maximumFileSize: 2,
-    }
-  );
-  expect(result).toEqual(ok([`${path}-part-1`, `${path}-part-2`]));
-  expect(await readFile(`${path}-part-1`)).toEqual(Buffer.of(1, 2));
-  expect(await readFile(`${path}-part-2`)).toEqual(Buffer.of(3));
-});
-
 test('exportData with empty string', async () => {
   const tmpDir = makeTemporaryDirectory();
   const path = join(tmpDir, 'test.txt');
@@ -139,6 +125,69 @@ test('exportData with empty stream', async () => {
   const result = await exporter.exportData(path, Readable.from([]));
   expect(result).toEqual(ok([path]));
   expect(await readFile(path)).toEqual(Buffer.of());
+});
+
+test.runIf(existsSync('/dev/null'))(
+  'exportData to a device is not a regular file',
+  async () => {
+    const exporterAllowingDev = new Exporter({
+      allowedExportPatterns: ['/dev/**'],
+      usbDrive,
+    });
+    const result = await exporterAllowingDev.exportData('/dev/null', 'bar');
+    expect(result).toEqual<ExportDataResult>(
+      err({
+        type: 'file-system-error',
+        message: expect.stringContaining('Path is not a regular file'),
+      })
+    );
+  }
+);
+
+test('exportData to a FIFO fails instead of blocking', async () => {
+  const tmpDir = makeTemporaryDirectory();
+  const path = join(tmpDir, 'fifo');
+  execFileSync('mkfifo', [path]);
+  const result = await exporter.exportData(path, 'bar');
+  expect(result).toEqual<ExportDataResult>(
+    err({
+      type: 'file-system-error',
+      message: expect.stringContaining('ENXIO'),
+    })
+  );
+});
+
+test('exportData to a directory is an open error', async () => {
+  const tmpDir = makeTemporaryDirectory();
+  const path = join(tmpDir, 'dir');
+  await mkdir(path);
+  const result = await exporter.exportData(path, 'bar');
+  expect(result).toEqual<ExportDataResult>(
+    err({
+      type: 'file-system-error',
+      message: expect.stringContaining('EISDIR'),
+    })
+  );
+});
+
+test('exportData with a failing write is a file system error', async () => {
+  const tmpDir = makeTemporaryDirectory();
+  const path = join(tmpDir, 'test.txt');
+  const result = await exporter.exportData(
+    path,
+    Readable.from(
+      (function* failingSource() {
+        yield 'partial';
+        throw new Error('EFBIG: file too large');
+      })()
+    )
+  );
+  expect(result).toEqual<ExportDataResult>(
+    err({
+      type: 'file-system-error',
+      message: expect.stringContaining('EFBIG'),
+    })
+  );
 });
 
 test('exportData with a symbolic link', async () => {
@@ -183,28 +232,6 @@ test('exportDataToUsbDrive happy path', async () => {
   );
   expect(result).toEqual(ok([path]));
   expect(await readFile(path, 'utf-8')).toEqual('bar');
-});
-
-test('exportDataToUsbDrive with maximumFileSize', async () => {
-  const tmpDir = makeTemporaryDirectory();
-  const path = join(tmpDir, 'bucket/test.txt');
-  usbDrive.status.expectCallWith().resolves({
-    status: 'mounted',
-    fstype: 'fat32',
-    mountpoint: UsbPartitionMountpointSchema.decode(tmpDir),
-  });
-  usbDrive.sync.expectCallWith().resolves();
-  const result = await exporter.exportDataToUsbDrive(
-    'bucket',
-    'test.txt',
-    'bar',
-    {
-      maximumFileSize: 2,
-    }
-  );
-  expect(result).toEqual(ok([`${path}-part-1`, `${path}-part-2`]));
-  expect(await readFile(`${path}-part-1`, 'utf-8')).toEqual('ba');
-  expect(await readFile(`${path}-part-2`, 'utf-8')).toEqual('r');
 });
 
 test('exportDataToUsbDrive with a size that fits', async () => {
