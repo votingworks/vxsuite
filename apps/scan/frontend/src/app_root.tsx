@@ -103,9 +103,7 @@ export function AppRoot(): JSX.Element | null {
   // without a ballot being accepted (e.g. a rejected or returned ballot).
   // Excluded transitions:
   // - paused -> waiting_for_ballot: returning from an election official screen
-  // - accepted -> waiting_for_ballot: the scanner is ready for the next ballot
-  //   while the voter is still viewing the success screen, so VoterScreen
-  //   resets the settings when it dismisses that screen instead
+  // - accepted -> waiting_for_ballot: handled by VoterScreen
   useQueryChangeListener(scannerStatusQuery, {
     select: ({ state }) => state,
     onChange: (newState, previousState) => {
