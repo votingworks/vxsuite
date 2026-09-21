@@ -454,15 +454,18 @@ test('a ballot claimed via the peer API is released when the client goes stale',
 
   // The client stops heartbeating
   mockFindAllVxAdminHostMachines.mockResolvedValue([]);
+
+  // The claim survives a disconnect shorter than the stale threshold
+  await vi.advanceTimersByTimeAsync(NETWORK_POLLING_INTERVAL_MS);
+  expect(claimNextOnHost(store, electionId, 'OTHER-MACHINE')).toBeUndefined();
+
+  // Wait for the client to fully disconnect
   await waitFor(() => {
     vi.advanceTimersByTime(NETWORK_POLLING_INTERVAL_MS);
     expect(clientStore.getConnectionStatus()).toEqual(
       ClientConnectionStatus.OnlineWaitingForHost
     );
   });
-
-  // The claim survives a disconnect shorter than the stale threshold
-  expect(claimNextOnHost(store, electionId, 'OTHER-MACHINE')).toBeUndefined();
 
   // Once the client is stale, the host's polling loop releases the claim and
   // another machine can pick up the ballot
