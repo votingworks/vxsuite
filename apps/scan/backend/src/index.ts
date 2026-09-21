@@ -24,7 +24,7 @@ import {
   TaskController,
 } from '@votingworks/backend';
 import { getFujitsuThermalPrinter } from '@votingworks/fujitsu-thermal-printer';
-import { getMockPlayer as getMockAudioPlayer } from './audio/player.js';
+import { getMockAudioPlayer } from './audio/audio.js';
 import * as server from './server.js';
 import { startElectricalTestingServer } from './electrical_testing/server.js';
 import { getUserRole } from './util/auth.js';
@@ -35,7 +35,7 @@ import { resolveWorkspace } from './util/workspace.js';
 export type { Api } from './app.js';
 export type * as HWTA from './electrical_testing/exports.js';
 export type { OpenPollsResult } from './polls.js';
-export type { SoundName } from './audio/player.js';
+export type { SoundName } from './audio/audio.js';
 export * from './types.js';
 
 loadEnvVarsFromDotenvFiles();

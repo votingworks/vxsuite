@@ -2,11 +2,7 @@ import express from 'express';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, detectUsbDriveFromEnv } from '@votingworks/usb-drive';
-import {
-  detectDevices,
-  getNodeEnv,
-  startCpuMetricsLogging,
-} from '@votingworks/backend';
+import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import {
   createMockFilePdiScanner,
@@ -23,11 +19,7 @@ import { buildApi, buildApp } from './app.js';
 import { PORT } from './globals.js';
 import { Workspace } from './util/workspace.js';
 import * as scanner from './scanner.js';
-import {
-  Player as AudioPlayer,
-  PlayerInterface as AudioPlayerInterface,
-} from './audio/player.js';
-import { AudioCard } from './audio/card.js';
+import { AudioPlayerInterface, newAudioPlayer } from './audio/audio.js';
 
 export interface StartOptions {
   auth: InsertedSmartCardAuthApi;
@@ -77,16 +69,17 @@ export async function start({
   // Clear any cached data
   workspace.clearUploads();
 
-  const nodeEnv = getNodeEnv();
-  const resolvedAudioPlayer =
-    audioPlayer ??
-    new AudioPlayer(nodeEnv, logger, await AudioCard.default(nodeEnv, logger));
-
   const systemSettings = workspace.store.getSystemSettings();
   const isScreenReaderEnabled = Boolean(
     systemSettings && !systemSettings.precinctScanDisableScreenReaderAudio
   );
-  await resolvedAudioPlayer.setIsScreenReaderEnabled(isScreenReaderEnabled);
+
+  const resolvedAudioPlayer =
+    audioPlayer ??
+    (await newAudioPlayer({
+      logger,
+      screenReaderEnabled: isScreenReaderEnabled,
+    }));
 
   const context: Parameters<typeof buildApi>[0] = {
     audioPlayer: resolvedAudioPlayer,

@@ -1,14 +1,16 @@
 import { expect, test, vi } from 'vitest';
-import { mockLogger } from '@votingworks/logging';
-import { AUDIO_DEVICE_DEFAULT_SINK, AudioPlayer } from '@votingworks/backend';
-import { deferred, sleep } from '@votingworks/basics';
-import { Player, SoundName } from './player.js';
+import { Logger, mockLogger } from '@votingworks/logging';
+import { assertDefined, deferred, sleep } from '@votingworks/basics';
+import { Player } from './player.js';
 import { AudioCard } from './card.js';
+import { AudioPlayer } from '../player.js';
+import { AUDIO_DEVICE_DEFAULT_SINK } from '../../system_call/pulse_audio.js';
+import { NODE_ENV } from '../../globals.js';
 
 vi.mock('./card.js');
 
-vi.mock('@votingworks/backend', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@votingworks/backend')>();
+vi.mock('../player.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../player.js')>();
   // vi.mock factories are hoisted above imports; resolve test-utils lazily
   // here so `mockConstructor` isn't in TDZ when the factory first runs.
   // (Can't use `vi.hoisted` + top-level await — node16 modules are CJS.)
@@ -23,43 +25,44 @@ vi.mock('@votingworks/backend', async (importOriginal) => {
   };
 });
 
+type SoundName = 'alarm' | 'success';
+
 const MockAudioPlayer = vi.mocked(AudioPlayer);
+const MOCK_SOUNDS_DIR = '/mock/sounds';
 
 test('Player uses correct sounds directory (import.meta.dirname)', () => {
   const logger = mockLogger({ fn: vi.fn });
   const mockCard = new AudioCard('test', logger, { name: 'test.card' });
 
-  // eslint-disable-next-line no-new
-  new Player('development', logger, mockCard);
+  newPlayer('development', logger, mockCard);
 
   expect(MockAudioPlayer).toHaveBeenCalledWith({
     nodeEnv: 'development',
     logger,
     outputName: AUDIO_DEVICE_DEFAULT_SINK,
-    soundsDirectory: import.meta.dirname,
+    soundsDirectory: MOCK_SOUNDS_DIR,
   });
 });
 
 test('Player supports all VxScan sound names', async () => {
   const logger = mockLogger({ fn: vi.fn });
   const mockCard = new AudioCard('test', logger, { name: 'test.card' });
-  const player = new Player('development', logger, mockCard);
+  const player = newPlayer('development', logger, mockCard);
 
-  // VxScan supports: alarm, error, success, warning (no chime)
-  const soundNames: SoundName[] = ['alarm', 'error', 'success', 'warning'];
+  const soundNames: SoundName[] = ['alarm', 'success'];
 
   for (const soundName of soundNames) {
     await player.play(soundName);
   }
 
-  const mockPlayer = MockAudioPlayer.mock.results[0].value;
+  const mockPlayer = assertDefined(MockAudioPlayer.mock.results[0]).value;
   expect(mockPlayer.play).toHaveBeenCalledTimes(soundNames.length);
 });
 
 test('toggles output when screen reader is enabled', async () => {
   const logger = mockLogger({ fn: vi.fn });
   const mockCard = new AudioCard('test', logger, { name: 'test.card' });
-  const player = new Player('production', logger, mockCard);
+  const player = newPlayer('production', logger, mockCard);
 
   await player.setIsScreenReaderEnabled(true);
   expect(mockCard.useHeadphones).toHaveBeenCalledOnce();
@@ -78,7 +81,7 @@ test('toggles output when screen reader is enabled', async () => {
   deferredOutputSwitch.resolve();
 
   // Sound shouldn't be played until port change has resolved:
-  const mockPlayer = MockAudioPlayer.mock.results[0].value;
+  const mockPlayer = assertDefined(MockAudioPlayer.mock.results[0]).value;
   expect(mockPlayer.play).not.toHaveBeenCalled();
 
   vi.mocked(mockCard.useHeadphones).mockResolvedValueOnce();
@@ -96,7 +99,7 @@ test('toggles output when screen reader is enabled', async () => {
 test('does not toggle output when screen reader is disabled', async () => {
   const logger = mockLogger({ fn: vi.fn });
   const mockCard = new AudioCard('test', logger, { name: 'test.card' });
-  const player = new Player('production', logger, mockCard);
+  const player = newPlayer('production', logger, mockCard);
 
   await player.setIsScreenReaderEnabled(false);
   expect(mockCard.useSpeaker).toHaveBeenCalledOnce();
@@ -104,8 +107,17 @@ test('does not toggle output when screen reader is disabled', async () => {
 
   await player.play('success');
 
-  const mockPlayer = MockAudioPlayer.mock.results[0].value;
+  const mockPlayer = assertDefined(MockAudioPlayer.mock.results[0]).value;
   expect(mockPlayer.play).toHaveBeenCalledWith<[SoundName]>('success');
   expect(mockCard.useSpeaker).not.toHaveBeenCalled();
   expect(mockCard.useHeadphones).not.toHaveBeenCalled();
 });
+
+function newPlayer(nodeEnv: NODE_ENV, logger: Logger, card: AudioCard) {
+  return new Player<SoundName>({
+    nodeEnv,
+    logger,
+    card,
+    soundsDirectory: MOCK_SOUNDS_DIR,
+  });
+}

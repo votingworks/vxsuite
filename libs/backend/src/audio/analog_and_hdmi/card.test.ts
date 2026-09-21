@@ -1,24 +1,24 @@
 import { expect, test, vi } from 'vitest';
 import { Logger, mockLogger } from '@votingworks/logging';
+import { err, ok } from '@votingworks/basics';
 import {
   AUDIO_DEVICE_DEFAULT_SINK,
   AudioCardProfile,
   getAudioCardName,
   GetAudioCardNameParams,
-  type NODE_ENV,
   setAudioCardProfile,
   SetAudioCardProfileParams,
   setAudioVolume,
-} from '@votingworks/backend';
-import { err, ok } from '@votingworks/basics';
+} from '../../system_call/index.js';
+import { type NODE_ENV } from '../../globals.js';
 import {
-  AudioCard,
   DEFAULT_HEADPHONE_VOLUME,
   DEFAULT_SPEAKER_VOLUME,
+  defaultAudioCard,
   MAX_CARD_DETECTION_RETRIES,
 } from './card.js';
 
-vi.mock('@votingworks/backend');
+vi.mock('../../system_call/index.js');
 const mockGetCardName = vi.mocked(getAudioCardName);
 const mockSetProfile = vi.mocked(setAudioCardProfile);
 const mockSetVolume = vi.mocked(setAudioVolume);
@@ -56,7 +56,7 @@ test('default()', async () => {
     return Promise.resolve(ok());
   });
 
-  await AudioCard.default('production', logger);
+  await defaultAudioCard('production', logger);
   expect(mockGetCardName).toHaveBeenCalledWith<[GetAudioCardNameParams]>({
     logger,
     nodeEnv: 'production',
@@ -72,7 +72,7 @@ test('setVolume()', async () => {
   mockSetProfile.mockResolvedValue(ok());
   mockSetVolume.mockResolvedValue(ok());
 
-  const card = await AudioCard.default('production', logger);
+  const card = await defaultAudioCard('production', logger);
   await card.setVolume(98);
 
   expect(mockSetVolume).toHaveBeenCalledWith({
@@ -94,7 +94,7 @@ test('useHeadphones()', async () => {
   mockSetProfile.mockResolvedValue(ok());
   mockSetVolume.mockResolvedValue(ok());
 
-  const card = await AudioCard.default('production', logger);
+  const card = await defaultAudioCard('production', logger);
   await card.useHeadphones();
   expectOutputSwitch('production', logger, AudioCardProfile.ANALOG);
 
@@ -110,7 +110,7 @@ test('useSpeaker()', async () => {
   mockSetProfile.mockResolvedValue(ok());
   mockSetVolume.mockResolvedValue(ok());
 
-  const card = await AudioCard.default('development', logger);
+  const card = await defaultAudioCard('development', logger);
   await card.useSpeaker();
   expectOutputSwitch('development', logger, AudioCardProfile.HDMI);
 

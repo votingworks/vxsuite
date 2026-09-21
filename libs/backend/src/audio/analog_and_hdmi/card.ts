@@ -1,12 +1,13 @@
+import { Logger } from '@votingworks/logging';
+
+import { type NODE_ENV } from '../../globals.js';
 import {
   AUDIO_DEVICE_DEFAULT_SINK,
   AudioCardProfile,
   getAudioCardName,
-  type NODE_ENV,
   setAudioCardProfile,
   setAudioVolume,
-} from '@votingworks/backend';
-import { Logger } from '@votingworks/logging';
+} from '../../system_call/index.js';
 
 /**
  * Headphone-based screen reader audio is calibrated against a 100% system
@@ -31,6 +32,10 @@ export const DEFAULT_SPEAKER_VOLUME = 120;
  */
 export const MAX_CARD_DETECTION_RETRIES = 6;
 
+/**
+ * Control interface for the builtin audio card on VxComputer boards
+ * (VxMark/VxScan v4).
+ */
 export class AudioCard {
   constructor(
     private readonly nodeEnv: NODE_ENV,
@@ -38,25 +43,15 @@ export class AudioCard {
     private readonly card: { name: string }
   ) {}
 
-  static async default(nodeEnv: NODE_ENV, logger: Logger): Promise<AudioCard> {
-    const nameRes = await getAudioCardName({
-      logger,
-      maxRetries: MAX_CARD_DETECTION_RETRIES,
-      nodeEnv,
-    });
-    const name = nameRes.assertOk('audio card detection failed');
-
-    const card = new AudioCard(nodeEnv, logger, { name });
-    await card.configureDefaults();
-
-    return card;
-  }
-
   /**
    * Resets the audio card's speaker and headphone profiles to their
    * canonical initial states for VxScan.
    */
   async configureDefaults(): Promise<void> {
+    // [TODO] We might be able to play audio directly through the HDMI port
+    // without switching profiles:
+    // https://wiki.archlinux.org/title/PulseAudio/Examples (sec. 5 and 6).
+
     await this.useSpeaker();
     await this.setVolume(DEFAULT_SPEAKER_VOLUME);
 
@@ -97,4 +92,27 @@ export class AudioCard {
 
     res.assertOk(`unable to switch audio output`);
   }
+}
+
+/**
+ * Returns a handle to the primary system audio card, configured with defaults
+ * for v4 VxComputer machines.
+ *
+ * Selects the analog headphone output as primary by default.
+ */
+export async function defaultAudioCard(
+  nodeEnv: NODE_ENV,
+  logger: Logger
+): Promise<AudioCard> {
+  const nameRes = await getAudioCardName({
+    logger,
+    maxRetries: MAX_CARD_DETECTION_RETRIES,
+    nodeEnv,
+  });
+  const name = nameRes.assertOk('audio card detection failed');
+
+  const card = new AudioCard(nodeEnv, logger, { name });
+  await card.configureDefaults();
+
+  return card;
 }

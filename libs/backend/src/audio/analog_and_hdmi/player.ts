@@ -1,20 +1,19 @@
-import {
-  AUDIO_DEVICE_DEFAULT_SINK,
-  AudioPlayer as SharedAudioPlayer,
-} from '@votingworks/backend';
+/* eslint-disable vx/gts-no-return-type-only-generics */
+/* eslint-disable vx/gts-jsdoc */
 import { Logger } from '@votingworks/logging';
+import { AudioPlayer } from '../player.js';
+import { AUDIO_DEVICE_DEFAULT_SINK } from '../../system_call/pulse_audio.js';
 import { AudioCard } from './card.js';
+import { NODE_ENV } from '../../globals.js';
 
-export type SoundName = 'alarm' | 'error' | 'success' | 'warning';
-
-export interface PlayerInterface {
+export interface PlayerInterface<Sound extends string> {
   setIsScreenReaderEnabled(enabled: boolean): Promise<void>;
   setVolume(volumePct: number): Promise<void>;
-  play(soundName: SoundName): Promise<void>;
+  play(soundName: Sound): Promise<void>;
 }
 
 // @coverage-exclude
-export function getMockPlayer(): PlayerInterface {
+export function getMockPlayer<Sound extends string>(): PlayerInterface<Sound> {
   return {
     setIsScreenReaderEnabled: () => Promise.resolve(),
     setVolume: () => Promise.resolve(),
@@ -22,27 +21,39 @@ export function getMockPlayer(): PlayerInterface {
   };
 }
 
-/**
- * Audio player for VxScan that plays sounds through the built-in speaker.
- *
- * When the screen reader is enabled, the audio card defaults to headphone output for screen reader
- * audio and temporarily switches to speaker output for sound effects. When the screen reader is
- * disabled, the audio card defaults to speaker output without toggling.
- */
-export class Player implements PlayerInterface {
-  private readonly sharedPlayer: SharedAudioPlayer;
-  private isScreenReaderEnabled = false;
+export interface PlayerInit {
+  nodeEnv: NODE_ENV;
+  logger: Logger;
+  card: AudioCard;
+  soundsDirectory: string;
+}
 
-  constructor(
-    private readonly nodeEnv: 'production' | 'development' | 'test',
-    private readonly logger: Logger,
-    private readonly card: AudioCard
-  ) {
-    this.sharedPlayer = new SharedAudioPlayer({
+/**
+ * Audio player that plays sounds through the screen's built-in speaker.
+ * Intended for use on v4 VxComputer machines with ELO screens, with headphone
+ * audio going through the on-board analog sound card.
+ *
+ * When the screen reader is enabled, the audio card defaults to headphone
+ * output for screen reader audio and temporarily switches to speaker output for
+ * sound effects. When the screen reader is disabled, the audio card defaults to
+ * speaker output without toggling.
+ */
+export class Player<Sound extends string> implements PlayerInterface<Sound> {
+  private readonly sharedPlayer: AudioPlayer;
+  private isScreenReaderEnabled = true;
+  private readonly nodeEnv: NODE_ENV;
+  private readonly logger: Logger;
+  private readonly card: AudioCard;
+
+  constructor(init: PlayerInit) {
+    this.card = init.card;
+    this.logger = init.logger;
+    this.nodeEnv = init.nodeEnv;
+    this.sharedPlayer = new AudioPlayer({
       nodeEnv: this.nodeEnv,
       logger: this.logger,
       outputName: AUDIO_DEVICE_DEFAULT_SINK,
-      soundsDirectory: import.meta.dirname,
+      soundsDirectory: init.soundsDirectory,
     });
   }
 
@@ -63,7 +74,7 @@ export class Player implements PlayerInterface {
   /**
    * Plays a sound through the built-in speaker
    */
-  async play(soundName: SoundName): Promise<void> {
+  async play(soundName: Sound): Promise<void> {
     // [TODO] Add locking? We can either ignore/log successive plays while
     // there's already one in progress (or queue them up, but a well-behaved
     // client shouldn't be sending overlapping play requests).
@@ -80,4 +91,16 @@ export class Player implements PlayerInterface {
       await this.card.useHeadphones();
     }
   }
+}
+
+/**
+ * Returns a new instance of {@link Player}.
+ *
+ * Simplifies mocking in consumer tests.
+ */
+// @coverage-exclude
+export function defaultAudioPlayer<Sound extends string>(
+  init: PlayerInit
+): Player<Sound> {
+  return new Player(init);
 }
