@@ -24,7 +24,7 @@ export interface VoterScreenProps {
   systemSettings: SystemSettings;
   isTestMode: boolean;
   isSoundMuted: boolean;
-  startNewVoterSession: () => void;
+  resetSessionSettings: () => void;
 }
 
 export function VoterScreen({
@@ -32,7 +32,7 @@ export function VoterScreen({
   systemSettings,
   isTestMode,
   isSoundMuted,
-  startNewVoterSession,
+  resetSessionSettings,
 }: VoterScreenProps): JSX.Element | null {
   const scannerStatusQuery = getScannerStatus.useQuery();
   const playSoundMutate = playSound.useMutation().mutate;
@@ -93,13 +93,13 @@ export function VoterScreen({
       !isScreenReaderActive
     ) {
       setIsShowingAcceptedScreen(false);
-      startNewVoterSession();
+      resetSessionSettings();
     }
   }, [
     isShowingAcceptedScreen,
     acceptedScreenMinDurationElapsed,
     isScreenReaderActive,
-    startNewVoterSession,
+    resetSessionSettings,
   ]);
 
   if (!scannerStatusQuery.isSuccess) {
