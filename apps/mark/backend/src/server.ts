@@ -9,6 +9,7 @@ import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
+  isIntegrationTest,
 } from '@votingworks/utils';
 import { buildApp, buildApi, Context } from './app.js';
 import { Workspace } from './util/workspace.js';
@@ -19,12 +20,11 @@ import {
   getMockPatInputConnected,
   setMockPatInputConnected,
 } from './util/mock_pat_input.js';
-import { Player as AudioPlayer } from './audio/player.js';
+import { getMockAudioPlayer, newAudioPlayer } from './audio/player.js';
 import {
   getMockAccessibleControllerConnected,
   setMockAccessibleControllerConnected,
 } from './util/mock_accessible_controller.js';
-import { initializeAudio } from './audio/initialize.js';
 
 export interface StartOptions {
   auth?: InsertedSmartCardAuthApi;
@@ -46,6 +46,7 @@ export async function start({
   const resolvedAuth = auth ?? getDefaultAuth(baseLogger).auth;
 
   const logger = Logger.from(baseLogger, () =>
+    // @coverage-exclude
     getUserRole(resolvedAuth, workspace)
   );
   const usbDrive = detectUsbDriveFromEnv({ logger });
@@ -60,12 +61,10 @@ export async function start({
     ? new MockBarcodeClient()
     : new BarcodeClient(baseLogger);
 
-  const audioInfo = await initializeAudio(logger);
-  const audioPlayer = new AudioPlayer(
-    getNodeEnv(),
-    logger,
-    audioInfo.builtin.name
-  );
+  const audioPlayer = isIntegrationTest()
+    ? // @coverage-exclude
+      getMockAudioPlayer()
+    : await newAudioPlayer(logger);
 
   const context: Context = {
     audioPlayer,

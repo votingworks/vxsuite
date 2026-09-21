@@ -1,10 +1,7 @@
 import {
-  AUDIO_DEVICE_DEFAULT_SINK,
   createSystemCallApi,
   getCpuMetrics,
   CpuMetrics,
-  setAudioVolume,
-  getNodeEnv,
 } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
 import {
@@ -155,13 +152,7 @@ function buildApi({
     },
 
     async setVolume(input: { volumePct: number }): Promise<void> {
-      const result = await setAudioVolume({
-        logger,
-        nodeEnv: getNodeEnv(),
-        sinkName: AUDIO_DEVICE_DEFAULT_SINK,
-        volumePct: input.volumePct,
-      });
-      result.assertOk('unable to set audio volume');
+      await audioPlayer?.setVolume(input.volumePct);
     },
 
     async playSpeakerSound(input: { name: SoundName }): Promise<void> {

@@ -69,7 +69,7 @@ import { constructAuthMachineState } from './util/auth.js';
 import { ElectionRecord, Store } from './store.js';
 import * as barcodes from './barcodes/index.js';
 import { setUpBarcodeActivation } from './barcodes/activation.js';
-import { Player as AudioPlayer, SoundName } from './audio/player.js';
+import { AudioPlayerInterface, SoundName } from './audio/player.js';
 import { saveReadinessReport } from './readiness_report.js';
 import { printTestPage } from './util/print_test_page.js';
 import { startPrintJobMonitor } from './util/print_job_monitor.js';
@@ -80,7 +80,7 @@ const TEST_UPS_USER_FAIL_REASON =
   'UPS not connected or not fully charged per user.';
 
 export interface Context {
-  audioPlayer?: AudioPlayer;
+  audioPlayer?: AudioPlayerInterface;
   auth: InsertedSmartCardAuthApi;
   barcodeClient: barcodes.BarcodeReader;
   logger: Logger;

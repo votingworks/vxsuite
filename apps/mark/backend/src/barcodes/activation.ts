@@ -15,10 +15,10 @@ import {
 import { BarcodeReader } from './types.js';
 import { Workspace } from '../util/workspace.js';
 import { constructAuthMachineState } from '../util/auth.js';
-import { Player as AudioPlayer } from '../audio/player.js';
+import { AudioPlayerInterface } from '../audio/player.js';
 
 interface Context {
-  audioPlayer?: AudioPlayer;
+  audioPlayer?: AudioPlayerInterface;
   auth: InsertedSmartCardAuthApi;
   barcodeClient?: BarcodeReader;
   logger: Logger;
