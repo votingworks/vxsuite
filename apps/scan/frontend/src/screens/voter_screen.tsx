@@ -82,9 +82,7 @@ export function VoterScreen({
 
   // Hold the accepted screen until the "Your ballot was counted" screen reader
   // audio finishes playing — unmounting it sooner clears the audio queue and
-  // cuts off the announcement mid-sentence. Voter settings are reset on
-  // dismissal so the screen keeps the voter's language, theme, and audio
-  // while shown.
+  // cuts off the announcement mid-sentence.
   const isScreenReaderActive = useScreenReaderActive();
   useEffect(() => {
     if (
