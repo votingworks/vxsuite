@@ -47,6 +47,7 @@ export class CardReader {
   private readonly onReaderStatusChange: OnReaderStatusChange;
   private readonly pcscLite: PcscLite;
   private reader: Reader;
+  private numConnectedReaders = 0;
 
   constructor(input: { onReaderStatusChange: OnReaderStatusChange }) {
     this.onReaderStatusChange = input.onReaderStatusChange;
@@ -58,6 +59,8 @@ export class CardReader {
     });
 
     this.pcscLite.on('reader', (reader) => {
+      this.numConnectedReaders += 1;
+
       reader.on('error', () => {
         this.updateReader({ status: 'unknown_error' });
       });
@@ -97,7 +100,12 @@ export class CardReader {
       });
 
       reader.on('end', () => {
-        this.updateReader({ status: 'no_card_reader' });
+        this.numConnectedReaders -= 1;
+        // With multiple readers (e.g. a laptop's built-in reader plus an external one), losing
+        // one reader shouldn't be reported as losing them all
+        this.updateReader({
+          status: this.numConnectedReaders === 0 ? 'no_card_reader' : 'no_card',
+        });
       });
     });
   }

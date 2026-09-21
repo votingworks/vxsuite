@@ -163,6 +163,30 @@ test('CardReader status changes', () => {
   expect(onReaderStatusChange).toHaveBeenNthCalledWith(6, 'no_card_reader');
 });
 
+test('CardReader with multiple readers - removing one reader does not report no_card_reader', () => {
+  newCardReader();
+  const builtInReader = newMockPcscLiteReader();
+  const externalReader = newMockPcscLiteReader();
+  mockPcscLite.emit('reader', builtInReader);
+  mockPcscLite.emit('reader', externalReader);
+  builtInReader.emit('status', { state: 0 });
+  externalReader.emit('status', { state: 0 });
+  expect(onReaderStatusChange).toHaveBeenCalledTimes(1);
+  expect(onReaderStatusChange).toHaveBeenNthCalledWith(1, 'no_card');
+
+  vi.mocked(externalReader.connect).mockImplementationOnce(mockConnectSuccess);
+  externalReader.emit('status', { state: 1 });
+  expect(onReaderStatusChange).toHaveBeenNthCalledWith(2, 'ready');
+
+  externalReader.emit('end');
+  expect(onReaderStatusChange).toHaveBeenCalledTimes(3);
+  expect(onReaderStatusChange).toHaveBeenNthCalledWith(3, 'no_card');
+
+  builtInReader.emit('end');
+  expect(onReaderStatusChange).toHaveBeenCalledTimes(4);
+  expect(onReaderStatusChange).toHaveBeenNthCalledWith(4, 'no_card_reader');
+});
+
 test('CardReader card disconnect - success', async () => {
   const cardReader = newCardReader('ready');
   vi.mocked(mockPcscLiteReader.disconnect).mockImplementationOnce(
