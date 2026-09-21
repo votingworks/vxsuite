@@ -67,7 +67,10 @@ function DoesNotFitMessage({
             {FILESYSTEM_LABELS[usbDriveStatus.fstype]}
           </Font>
           , which cannot store files larger than{' '}
-          <Bytes value={assertDefined(usbDriveStatus.maxFileSize)} />.
+          <Bytes value={assertDefined(usbDriveStatus.maxFileSize)} />.{' '}
+          {canFormat
+            ? 'Format the USB drive to continue.'
+            : 'Ask a system administrator to format the USB drive, or use a different USB drive.'}
         </P>
       );
     case 'insufficient-space':
@@ -159,7 +162,7 @@ export function ExportElectionPackageModalButton(): JSX.Element {
           );
           if (fit !== 'fits') {
             const canFormat = isSystemAdministratorAuth(auth);
-            const offerFormat = canFormat && fit === 'insufficient-space';
+            const offerFormat = canFormat && fit !== 'drive-too-small';
             actions = (
               <React.Fragment>
                 {offerFormat && (

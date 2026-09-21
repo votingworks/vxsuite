@@ -156,7 +156,7 @@ test('Modal waits for the election package size before offering to save', async 
   await screen.findButton('Save');
 });
 
-test('Modal explains when the package exceeds the FAT32 file size limit', async () => {
+test('Modal offers a system administrator formatting when the package exceeds the FAT32 limit', async () => {
   apiMock.expectGetElectionPackageSize(5 * GIB);
   renderInAppContext(<ExportElectionPackageModalButton />, {
     apiMock,
@@ -177,16 +177,47 @@ test('Modal explains when the package exceeds the FAT32 file size limit', async 
   screen.getByText(/formatted as/);
   screen.getByText('FAT32');
   screen.getByText(/cannot store files larger than/);
+  screen.getByText(/Format the USB drive to continue\./);
   expect(
     screen.queryByRole('button', { name: 'Save' })
   ).not.toBeInTheDocument();
-  expect(
-    screen.queryByRole('button', { name: 'Format USB Drive' })
-  ).not.toBeInTheDocument();
+
+  userEvent.click(screen.getButton('Format USB Drive'));
+  await screen.findByRole('heading', { name: 'Format USB Drive' });
+  apiMock.expectFormatUsbDrive();
+  userEvent.click(screen.getButton('Format USB Drive'));
+  await screen.findByRole('heading', { name: 'USB Drive Formatted' });
+
+  userEvent.click(screen.getButton('Close'));
+  await screen.findByRole('heading', {
+    name: 'File Too Large for USB Drive',
+  });
   userEvent.click(screen.getButton('Cancel'));
   await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
+});
+
+test('Modal tells an election manager to ask for formatting when the package exceeds the FAT32 limit', async () => {
+  apiMock.expectGetElectionPackageSize(5 * GIB);
+  renderInAppContext(<ExportElectionPackageModalButton />, {
+    apiMock,
+    usbDriveStatus: mockUsbDriveStatus('mounted', {
+      fstype: 'fat32',
+      maxFileSize: FAT32_MAX_FILE_SIZE,
+      totalBytes: 32 * GIB,
+      availableBytes: 32 * GIB,
+    }),
+  });
+  userEvent.click(screen.getButton('Save Election Package'));
+  await screen.findByRole('heading', {
+    name: 'File Too Large for USB Drive',
+  });
+  screen.getByText(/Ask a system administrator to format the USB drive/);
+  expect(
+    screen.queryByRole('button', { name: 'Format USB Drive' })
+  ).not.toBeInTheDocument();
+  userEvent.click(screen.getButton('Cancel'));
 });
 
 test('Modal explains when the USB drive is too full', async () => {
@@ -208,24 +239,8 @@ test('Modal explains when the USB drive is too full', async () => {
   screen.getByText(
     /Remove files from the USB drive or format it to continue\./
   );
-  expect(
-    screen.queryByRole('button', { name: 'Save' })
-  ).not.toBeInTheDocument();
-
-  userEvent.click(screen.getButton('Format USB Drive'));
-  await screen.findByRole('heading', { name: 'Format USB Drive' });
-  apiMock.expectFormatUsbDrive();
-  userEvent.click(screen.getButton('Format USB Drive'));
-  await screen.findByRole('heading', { name: 'USB Drive Formatted' });
-
-  userEvent.click(screen.getButton('Close'));
-  await screen.findByRole('heading', {
-    name: 'Not Enough Space on USB Drive',
-  });
+  screen.getButton('Format USB Drive');
   userEvent.click(screen.getButton('Cancel'));
-  await vi.waitFor(() =>
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-  );
 });
 
 test('Modal tells an election manager to remove files when the USB drive is too full', async () => {

@@ -107,6 +107,25 @@ test('already-formatted usb drives', async () => {
   screen.getByText('already compatible');
 });
 
+test('FAT32 usb drives are partially compatible', async () => {
+  render(
+    <QueryClientProvider client={queryClient}>
+      <MockComponent
+        usbDriveStatus={mockUsbDriveStatus('mounted', {
+          fstype: 'fat32',
+          maxFileSize: 2 ** 32 - 1,
+        })}
+      />
+    </QueryClientProvider>
+  );
+
+  userEvent.click(screen.getButton('Format USB Drive'));
+  await screen.findByRole('heading', { name: 'Format USB Drive' });
+  screen.getByText('FAT32');
+  screen.getByText('4 GB');
+  screen.getByText(/Formatting the drive removes this limit/);
+});
+
 test('no usb drive inserted shows prompt', async () => {
   render(
     <QueryClientProvider client={queryClient}>

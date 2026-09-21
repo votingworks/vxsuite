@@ -1,11 +1,56 @@
 import React, { useCallback, useState } from 'react';
 import { Result, throwIllegalValue } from '@votingworks/basics';
-import { UsbDriveStatus } from '@votingworks/usb-drive';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import { format } from '@votingworks/utils';
 import { UseMutationResult } from '@tanstack/react-query';
 import { Button } from './button.js';
 import { Modal } from './modal.js';
 import { Font, P } from './typography.js';
 import { Icons } from './icons.js';
+import { FILESYSTEM_LABELS } from './usb_drive.js';
+
+function CompatibilityMessage({
+  usbDriveStatus,
+}: {
+  usbDriveStatus: UsbDriveStatus;
+}): JSX.Element {
+  if (usbDriveStatus.status === 'error') {
+    return (
+      <P>
+        The format of the inserted USB drive is{' '}
+        <Font weight="semiBold">not compatible</Font> with VotingWorks
+        components.
+      </P>
+    );
+  }
+
+  if (
+    usbDriveStatus.status === 'mounted' &&
+    usbDriveStatus.maxFileSize !== undefined
+  ) {
+    return (
+      <P>
+        The inserted USB drive is formatted as{' '}
+        <Font weight="semiBold">
+          {FILESYSTEM_LABELS[usbDriveStatus.fstype]}
+        </Font>
+        , which cannot store files larger than{' '}
+        <Font noWrap>
+          {format.bytes(usbDriveStatus.maxFileSize, { fractionDigits: 0 })}
+        </Font>
+        . Formatting the drive removes this limit.
+      </P>
+    );
+  }
+
+  return (
+    <P>
+      The format of the inserted USB drive is{' '}
+      <Font weight="semiBold">already compatible</Font> with VotingWorks
+      components.
+    </P>
+  );
+}
 
 type FlowState =
   | { stage: 'confirm' }
@@ -24,7 +69,7 @@ export function FormatUsbModal({
   const [state, setState] = useState<FlowState>({ stage: 'confirm' });
 
   const formatUsbDriveMutateAsync = formatUsbDriveMutation.mutateAsync;
-  const format = useCallback(async () => {
+  const formatDrive = useCallback(async () => {
     setState({ stage: 'formatting' });
     const formatUsbDriveResult = await formatUsbDriveMutateAsync();
     if (formatUsbDriveResult.isOk()) {
@@ -58,19 +103,7 @@ export function FormatUsbModal({
           title="Format USB Drive"
           content={
             <React.Fragment>
-              {usbDriveStatus.status === 'error' ? (
-                <P>
-                  The format of the inserted USB drive is{' '}
-                  <Font weight="semiBold">not compatible</Font> with VotingWorks
-                  components.
-                </P>
-              ) : (
-                <P>
-                  The format of the inserted USB drive is{' '}
-                  <Font weight="semiBold">already compatible</Font> with
-                  VotingWorks components.
-                </P>
-              )}
+              <CompatibilityMessage usbDriveStatus={usbDriveStatus} />
               <P>
                 <Icons.Warning color="warning" /> Formatting will delete all
                 files on the USB drive. Back up USB drive files before
@@ -81,7 +114,7 @@ export function FormatUsbModal({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <Button variant="primary" onPress={format}>
+              <Button variant="primary" onPress={formatDrive}>
                 Format USB Drive
               </Button>
               <Button onPress={onClose}>Close</Button>
