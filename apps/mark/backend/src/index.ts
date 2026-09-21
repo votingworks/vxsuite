@@ -9,7 +9,6 @@ import {
   BarcodeReaderErrorTracker,
   CardReaderErrorTracker,
   ExternalPrinterErrorTracker,
-  getNodeEnv,
   handleUncaughtExceptions,
   loadEnvVarsFromDotenvFiles,
   TaskController,
@@ -27,8 +26,7 @@ import { startElectricalTestingServer } from './electrical_testing/server.js';
 import { getDefaultAuth, getUserRole } from './util/auth.js';
 import { BarcodeClient } from './barcodes/index.js';
 import { MockBarcodeClient } from './barcodes/mock_client.js';
-import { Player as AudioPlayer } from './audio/player.js';
-import { initializeAudio } from './audio/initialize.js';
+import { newAudioPlayer } from './audio/player.js';
 
 export type { Api } from './app.js';
 export type { PrintCalibration } from '@votingworks/hmpb';
@@ -62,6 +60,8 @@ async function main(): Promise<number> {
 
   const workspace = resolveWorkspace();
 
+  // [TODO] Most of the environment initialization in this block is duplicated
+  // in server.ts - worth consolidating.
   if (
     isFeatureFlagEnabled(
       BooleanEnvironmentVariableName.ENABLE_HARDWARE_TEST_APP
@@ -77,17 +77,13 @@ async function main(): Promise<number> {
     const barcodeClient = useMockBarcode
       ? new MockBarcodeClient()
       : new BarcodeClient(baseLogger);
-    const audioInfo = await initializeAudio(logger, {
-      // System volume is set to 100% in the prod app, but the HWTA has no UI
-      // volume control, so we set to a safe listening level discovered the
-      // hard way
-      defaultVolumeOverride: 40,
-    });
-    const audioPlayer = new AudioPlayer(
-      getNodeEnv(),
-      logger,
-      audioInfo.builtin.name
-    );
+
+    const audioPlayer = await newAudioPlayer(logger);
+
+    // System volume is set to 100% in the prod app, but the HWTA has no UI
+    // volume control, so we set to a safe listening level discovered the
+    // hard way
+    await audioPlayer.setVolume(40);
 
     startElectricalTestingServer({
       audioPlayer,

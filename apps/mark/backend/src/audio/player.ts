@@ -1,5 +1,4 @@
-import { AudioPlayer as SharedAudioPlayer } from '@votingworks/backend';
-import { assert } from '@votingworks/basics';
+import { analogAndHdmi, getNodeEnv } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
 
 export const SoundNameValues = [
@@ -11,27 +10,22 @@ export const SoundNameValues = [
 ] as const;
 export type SoundName = (typeof SoundNameValues)[number];
 
-/**
- * Audio player for VxMark that plays sounds through the builtin speaker.
- */
-export class Player {
-  private readonly sharedPlayer: SharedAudioPlayer;
+export type AudioCard = analogAndHdmi.AudioCard;
 
-  constructor(
-    nodeEnv: 'production' | 'development' | 'test',
-    logger: Logger,
-    outputName: string
-  ) {
-    this.sharedPlayer = new SharedAudioPlayer({
-      nodeEnv,
-      logger,
-      outputName,
-      soundsDirectory: import.meta.dirname,
-    });
-  }
+export type AudioPlayerInterface = analogAndHdmi.PlayerInterface<SoundName>;
 
-  async play(soundName: SoundName): Promise<void> {
-    assert(SoundNameValues.includes(soundName));
-    return await this.sharedPlayer.play(soundName);
-  }
+export type Player = analogAndHdmi.Player<SoundName>;
+
+/** See {@link analogAndHdmi.Player} */
+export async function newAudioPlayer(logger: Logger): Promise<Player> {
+  const nodeEnv = getNodeEnv();
+
+  return analogAndHdmi.defaultAudioPlayer({
+    card: await analogAndHdmi.defaultAudioCard(nodeEnv, logger),
+    logger,
+    nodeEnv,
+    soundsDirectory: import.meta.dirname,
+  });
 }
+
+export const getMockAudioPlayer = analogAndHdmi.getMockPlayer<SoundName>;

@@ -1,56 +1,24 @@
 import { expect, test, vi } from 'vitest';
 import { mockLogger } from '@votingworks/logging';
-import { AudioPlayer } from '@votingworks/backend';
-import { Player, SoundName } from './player.js';
+import { analogAndHdmi, getNodeEnv } from '@votingworks/backend';
+import { AudioCard, newAudioPlayer, Player } from './player.js';
 
-vi.mock('@votingworks/backend', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@votingworks/backend')>();
-  // vi.mock factories are hoisted above imports; resolve test-utils lazily
-  // here so `mockConstructor` isn't in TDZ when the factory first runs.
-  // (Can't use `vi.hoisted` + top-level await — node16 modules are CJS.)
-  const { mockConstructor } = await import('@votingworks/test-utils');
-  return {
-    ...actual,
-    AudioPlayer: vi.fn().mockImplementation(
-      mockConstructor(() => ({
-        play: vi.fn().mockResolvedValue(undefined),
-      }))
-    ),
-  };
-});
+test('Player uses correct sounds directory (import.meta.dirname)', async () => {
+  const mockCard = { mock: 'card' } as unknown as AudioCard;
+  vi.spyOn(analogAndHdmi, 'defaultAudioCard').mockResolvedValue(mockCard);
 
-const MockAudioPlayer = vi.mocked(AudioPlayer);
+  const mockPlayer = { mock: 'player' } as unknown as Player;
+  const mockPlayerInit = vi
+    .spyOn(analogAndHdmi, 'defaultAudioPlayer')
+    .mockResolvedValue(mockPlayer);
 
-test('Player uses correct sounds directory (import.meta.dirname)', () => {
   const logger = mockLogger({ fn: vi.fn });
-  // eslint-disable-next-line no-new
-  new Player('development', logger, 'test.output');
+  await newAudioPlayer(logger);
 
-  expect(MockAudioPlayer).toHaveBeenCalledWith({
-    nodeEnv: 'development',
+  expect(mockPlayerInit).toHaveBeenCalledWith<[analogAndHdmi.PlayerInit]>({
+    card: mockCard,
+    nodeEnv: getNodeEnv(),
     logger,
-    outputName: 'test.output',
     soundsDirectory: import.meta.dirname,
   });
-});
-
-test('Player supports all VxMark sound names', async () => {
-  const logger = mockLogger({ fn: vi.fn });
-  const player = new Player('development', logger, 'test.output');
-
-  // VxMark supports: alarm, chime, error, success, warning
-  const soundNames: SoundName[] = [
-    'alarm',
-    'chime',
-    'error',
-    'success',
-    'warning',
-  ];
-
-  for (const soundName of soundNames) {
-    await player.play(soundName);
-  }
-
-  const mockPlayer = MockAudioPlayer.mock.results[0].value;
-  expect(mockPlayer.play).toHaveBeenCalledTimes(soundNames.length);
 });

@@ -2,6 +2,7 @@ import {
   afterEach,
   beforeEach,
   expect,
+  Mocked,
   MockedFunction,
   test,
   vi,
@@ -12,11 +13,11 @@ import { Application } from 'express';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import {
+  analogAndHdmi,
   getNodeEnv,
   type NODE_ENV,
   testDetectDevices,
 } from '@votingworks/backend';
-import { mockConstructor } from '@votingworks/test-utils';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { MockFileFujitsuPrinter } from '@votingworks/fujitsu-thermal-printer';
 import { buildApp } from './app.js';
@@ -24,24 +25,12 @@ import { PORT } from './globals.js';
 import { start } from './server.js';
 import { createWorkspace, Workspace } from './util/workspace.js';
 import { buildMockLogger } from '../test/helpers/shared_helpers.js';
-import { Player as AudioPlayer } from './audio/player.js';
-import { AudioCard } from './audio/card.js';
+import { AudioPlayer } from './audio/audio.js';
 
 vi.mock('./app');
-vi.mock('./audio/card');
-vi.mock('./audio/player');
-
-vi.mock('@votingworks/backend', async (importActual) => ({
-  ...(await importActual()),
-  getAudioCardName: vi.fn(),
-  getAudioInfoWithRetry: vi.fn(),
-  setAudioCardProfile: vi.fn(),
-  setAudioVolume: vi.fn(),
-  setDefaultAudio: vi.fn(),
-}));
 
 const buildAppMock = buildApp as MockedFunction<typeof buildApp>;
-const mockAudioPlayerClass = vi.mocked(AudioPlayer);
+const mockAudioPlayerInit = vi.spyOn(analogAndHdmi, 'defaultAudioPlayer');
 
 let workspace!: Workspace;
 
@@ -67,14 +56,7 @@ test('start passes context to `buildApp`', async () => {
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
-  const mockAudioPlayer = {
-    trustMe: 'I play audio.',
-    setIsScreenReaderEnabled: vi.fn().mockResolvedValue(undefined),
-  } as unknown as AudioPlayer;
-  mockAudioPlayerClass.mockImplementationOnce(
-    mockConstructor(() => mockAudioPlayer)
-  );
-
+  const mockAudioPlayer = initMockAudioPlayer();
   const mockAudioCard = initMockAudioCard(getNodeEnv(), logger, audioCardName);
 
   await start({
@@ -95,11 +77,12 @@ test('start passes context to `buildApp`', async () => {
   });
   expect(listen).toHaveBeenNthCalledWith(1, PORT, expect.any(Function));
 
-  expect(mockAudioPlayerClass).toHaveBeenCalledWith(
-    getNodeEnv(),
+  expect(mockAudioPlayerInit).toHaveBeenCalledWith<[analogAndHdmi.PlayerInit]>({
+    nodeEnv: getNodeEnv(),
     logger,
-    mockAudioCard
-  );
+    card: mockAudioCard,
+    soundsDirectory: expect.any(String),
+  });
 
   const callback = listen.mock.calls[0][1];
   await callback();
@@ -146,7 +129,17 @@ test.each([
       workspace.store.setSystemSettings(systemSettings);
     }
 
-    initMockAudioCard(getNodeEnv(), logger, audioCardName);
+    const mockAudioCard = initMockAudioCard(
+      getNodeEnv(),
+      logger,
+      audioCardName
+    );
+
+    const mockPlayer = initMockAudioPlayer();
+    const mockSetScreenReaderEnabled = vi.spyOn(
+      mockPlayer,
+      'setIsScreenReaderEnabled'
+    );
 
     await start({
       auth: buildMockInsertedSmartCardAuth(vi.fn),
@@ -155,10 +148,18 @@ test.each([
       printer: new MockFileFujitsuPrinter(logger),
     });
 
-    const mockAudioPlayer = mockAudioPlayerClass.mock.results[0].value;
-    expect(
-      mockAudioPlayer.setIsScreenReaderEnabled
-    ).toHaveBeenCalledExactlyOnceWith(isScreenReaderEnabled);
+    expect(mockAudioPlayerInit).toHaveBeenCalledWith<
+      [analogAndHdmi.PlayerInit]
+    >({
+      nodeEnv: getNodeEnv(),
+      logger,
+      card: mockAudioCard,
+      soundsDirectory: expect.any(String),
+    });
+
+    expect(mockSetScreenReaderEnabled).toHaveBeenCalledExactlyOnceWith(
+      isScreenReaderEnabled
+    );
   }
 );
 
@@ -168,9 +169,8 @@ test('logs device attach/unattach events', async () => {
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
-  initMockAudioCard(getNodeEnv(), logger, audioCardName);
-
   await start({
+    audioPlayer: analogAndHdmi.getMockPlayer(),
     auth: buildMockInsertedSmartCardAuth(vi.fn),
     workspace,
     logger,
@@ -181,9 +181,11 @@ test('logs device attach/unattach events', async () => {
 });
 
 function initMockAudioCard(nodeEnv: NODE_ENV, logger: Logger, name: string) {
-  const mockAudioCard = new AudioCard(nodeEnv, logger, { name });
+  const mockAudioCard = {
+    mockCard: name,
+  } as unknown as Mocked<analogAndHdmi.AudioCard>;
 
-  const mockAudioCardDefault = vi.spyOn(AudioCard, 'default');
+  const mockAudioCardDefault = vi.spyOn(analogAndHdmi, 'defaultAudioCard');
   mockAudioCardDefault.mockImplementation((paramNodeEnv, paramLogger) => {
     expect(paramNodeEnv).toEqual(nodeEnv);
     expect(paramLogger).toEqual(logger);
@@ -192,4 +194,11 @@ function initMockAudioCard(nodeEnv: NODE_ENV, logger: Logger, name: string) {
   });
 
   return mockAudioCard;
+}
+
+function initMockAudioPlayer() {
+  const mockPlayer = analogAndHdmi.getMockPlayer() as AudioPlayer;
+  mockAudioPlayerInit.mockReturnValueOnce(mockPlayer);
+
+  return mockPlayer;
 }

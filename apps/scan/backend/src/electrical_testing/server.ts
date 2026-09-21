@@ -1,14 +1,13 @@
 import { extractErrorMessage } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 
-import { getNodeEnv, startCpuMetricsLogging } from '@votingworks/backend';
+import { startCpuMetricsLogging } from '@votingworks/backend';
 import { PORT } from '../globals.js';
 import { buildApp } from './app.js';
 import { runPrintAndScanTask } from './tasks/print_and_scan_task.js';
 import { ServerContext } from './context.js';
 import { runCardReadAndUsbDriveWriteTask } from './tasks/card_read_and_usb_drive_write_task.js';
-import { Player as AudioPlayer } from '../audio/player.js';
-import { AudioCard } from '../audio/card.js';
+import { AudioPlayer, newAudioPlayer } from '../audio/audio.js';
 
 export async function startElectricalTestingServer(
   context: ServerContext
@@ -93,12 +92,12 @@ export async function startElectricalTestingServer(
 }
 
 async function configureAudio(logger: Logger): Promise<AudioPlayer> {
-  const nodeEnv = getNodeEnv();
-  const audioCard = await AudioCard.default(nodeEnv, logger);
-  const audioPlayer = new AudioPlayer(nodeEnv, logger, audioCard);
-
-  // Enables the ability to toggle back and forth between headphone and speaker output
-  await audioPlayer.setIsScreenReaderEnabled(true);
+  const audioPlayer = await newAudioPlayer({
+    logger,
+    // Enables the ability to toggle back and forth between headphone and
+    // speaker output
+    screenReaderEnabled: true,
+  });
 
   // System volume is set to 100% in the prod app, but the HWTA has no UI volume control, so we set
   // to a safe listening level discovered the hard way

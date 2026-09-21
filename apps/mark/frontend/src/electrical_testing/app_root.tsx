@@ -6,7 +6,6 @@ import {
   HeadphoneCalibrationButton,
   Icons,
   InputControls,
-  useHeadphonesPluggedIn,
 } from '@votingworks/ui';
 import React, { useRef, useState } from 'react';
 import useInterval from 'use-interval';
@@ -17,7 +16,6 @@ import {
   getElectricalTestingStatuses,
   getPrinterStatus,
   getPrinterTaskStatus,
-  playSpeakerSound,
   printTestPage,
   setCardReaderTaskRunning,
   setPrinterTaskRunning,
@@ -26,6 +24,7 @@ import {
   systemCallApi,
   useApiClient,
 } from './api.js';
+import * as api from './api.js';
 import { useSound } from '../hooks/use_sound.js';
 
 const SOUND_INTERVAL_SECONDS = 10;
@@ -88,15 +87,15 @@ function AudioControls({
   setSpeakerEnabled,
   headphonesEnabled,
   setHeadphonesEnabled,
-  headphonesAvailable,
   setCalibratingHeadphones,
+  playingSpeakerSound,
 }: {
   speakerEnabled: boolean;
   setSpeakerEnabled: (enabled: boolean) => void;
   headphonesEnabled: boolean;
   setHeadphonesEnabled: (enabled: boolean) => void;
-  headphonesAvailable: boolean;
   setCalibratingHeadphones: (calibrating: boolean) => void;
+  playingSpeakerSound: boolean;
 }): JSX.Element {
   const setVolumeMutation = setVolume.useMutation();
 
@@ -108,17 +107,14 @@ function AudioControls({
         onChange={setSpeakerEnabled}
       />
       <CheckboxButton
-        label={
-          headphonesAvailable
-            ? 'Headphones'
-            : 'Headphones (No USB audio detected)'
-        }
-        isChecked={headphonesEnabled && headphonesAvailable}
+        label="Headphones"
+        isChecked={headphonesEnabled}
         onChange={setHeadphonesEnabled}
-        disabled={!headphonesAvailable}
       />
       <HeadphoneCalibrationButton
         audioUrl="/sounds/tts-sample.mp3"
+        // Avoid setting volume for the speaker instead of headphones.
+        disabled={playingSpeakerSound}
         onBegin={() => {
           setCalibratingHeadphones(true);
           // Calibration must be performed against max system volume
@@ -148,7 +144,10 @@ export function AppRoot(): JSX.Element {
   const setPrinterTaskRunningMutation = setPrinterTaskRunning.useMutation();
   const printTestPageMutation = printTestPage.useMutation();
   const powerDownMutation = systemCallApi.powerDown.useMutation();
-  const playSpeakerSoundMutation = playSpeakerSound.useMutation().mutate;
+
+  const playSpeakerSoundMutation = api.playSpeakerSound.useMutation();
+  const playingSpeakerSound = playSpeakerSoundMutation.status === 'loading';
+  const playSpeakerSound = playSpeakerSoundMutation.mutate;
 
   const [speakerEnabled, setSpeakerEnabled] = useState(true);
   const [headphonesEnabled, setHeadphonesEnabled] = useState(true);
@@ -157,19 +156,17 @@ export function AppRoot(): JSX.Element {
   // Track which output to play next for alternating
   const nextOutputRef = useRef<'speaker' | 'headphones'>('speaker');
 
-  // Headphones play through the frontend (USB audio device)
+  // Headphones play through the frontend
   const playSoundHeadphones = useSound('success-5s');
 
-  const headphonesAvailable = useHeadphonesPluggedIn();
   const soundsEnabled =
-    !calibratingHeadphones &&
-    (speakerEnabled || (headphonesEnabled && headphonesAvailable));
+    !calibratingHeadphones && (speakerEnabled || headphonesEnabled);
 
   // Alternating sound playback
   useInterval(
     () => {
       const canPlaySpeaker = speakerEnabled;
-      const canPlayHeadphones = headphonesEnabled && headphonesAvailable;
+      const canPlayHeadphones = headphonesEnabled;
 
       if (!canPlaySpeaker && !canPlayHeadphones) {
         return;
@@ -177,7 +174,7 @@ export function AppRoot(): JSX.Element {
 
       // If only one output is available, use that
       if (canPlaySpeaker && !canPlayHeadphones) {
-        playSpeakerSoundMutation('success');
+        playSpeakerSound('success');
         return;
       }
       if (!canPlaySpeaker && canPlayHeadphones) {
@@ -187,7 +184,7 @@ export function AppRoot(): JSX.Element {
 
       // Both are available, alternate
       if (nextOutputRef.current === 'speaker') {
-        playSpeakerSoundMutation('success');
+        playSpeakerSound('success');
         nextOutputRef.current = 'headphones';
       } else {
         playSoundHeadphones();
@@ -303,8 +300,8 @@ export function AppRoot(): JSX.Element {
               setSpeakerEnabled={setSpeakerEnabled}
               headphonesEnabled={headphonesEnabled}
               setHeadphonesEnabled={setHeadphonesEnabled}
-              headphonesAvailable={headphonesAvailable}
               setCalibratingHeadphones={setCalibratingHeadphones}
+              playingSpeakerSound={playingSpeakerSound}
             />
           ),
         },

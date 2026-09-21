@@ -1,12 +1,10 @@
 import { expect, test, vi } from 'vitest';
 import { withApp } from '../test/helpers/scanner_helpers.js';
 
-vi.mock('./audio/player');
-
 test('playAudio() uses configured audio player', () =>
   withApp(async ({ apiClient, mockAudioPlayer }) => {
-    mockAudioPlayer.play.mockResolvedValueOnce();
+    const mockPlay = vi.spyOn(mockAudioPlayer, 'play');
 
     await apiClient.playSound({ name: 'warning' });
-    expect(mockAudioPlayer.play).toHaveBeenCalledWith('warning');
+    expect(mockPlay).toHaveBeenCalledWith('warning');
   }));

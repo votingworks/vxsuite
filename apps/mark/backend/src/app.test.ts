@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, Mocked, test, vi } from 'vitest';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
@@ -48,7 +48,7 @@ import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { Server } from 'node:http';
 import * as grout from '@votingworks/grout';
 import { MockUsbDrive } from '@votingworks/usb-drive';
-import { LogEventId, Logger, mockLogger } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 import {
   HP_4001_PRINTER_CONFIG,
   MemoryPrinterHandler,
@@ -61,7 +61,7 @@ import {
   isPatInputAttached,
 } from './util/accessible_controller.js';
 import { Workspace } from './util/workspace.js';
-import { Player } from './audio/player.js';
+import { getMockAudioPlayer, Player } from './audio/player.js';
 import { MockBarcodeClient } from './barcodes/mock_client.js';
 
 const electionGeneralDefinition =
@@ -79,8 +79,6 @@ vi.mock(import('./util/accessible_controller.js'), async (importActual) => ({
   isAccessibleControllerAttached: vi.fn().mockResolvedValue(true),
   isPatInputAttached: vi.fn().mockResolvedValue(true),
 }));
-
-vi.mock('./audio/player');
 
 vi.mock(import('@votingworks/test-decks'), async (importActual) => ({
   ...(await importActual()),
@@ -1005,16 +1003,14 @@ test('print calibration', async () => {
 });
 
 test('playSound() uses configured audio player', async () => {
-  const mockAudioPlayer = vi.mocked(
-    new Player('development', mockLogger({ fn: vi.fn() }), 'builtin')
-  );
-  mockAudioPlayer.play.mockResolvedValueOnce();
+  const mockAudioPlayer = getMockAudioPlayer() as Mocked<Player>;
+  const mockPlay = vi.spyOn(mockAudioPlayer, 'play');
 
   const app = createApp({ audioPlayer: mockAudioPlayer });
   server = app.server;
 
   await app.apiClient.playSound({ name: 'alarm' });
-  expect(mockAudioPlayer.play).toHaveBeenCalledWith('alarm');
+  expect(mockPlay).toHaveBeenCalledWith('alarm');
 });
 
 test('playSound does nothing when audio player is not present', async () => {

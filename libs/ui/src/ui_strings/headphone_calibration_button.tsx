@@ -12,6 +12,7 @@ import { getAudioGainRatio, AudioVolume } from './audio_volume.js';
 
 export interface HeadphoneCalibrationButtonProps {
   audioUrl: string;
+  disabled?: boolean;
   onBegin: () => void;
   onEnd: () => void;
 }
@@ -26,7 +27,7 @@ export interface HeadphoneCalibrationButtonProps {
 export function HeadphoneCalibrationButton(
   props: HeadphoneCalibrationButtonProps
 ): JSX.Element {
-  const { audioUrl, onEnd, onBegin } = props;
+  const { audioUrl, disabled, onEnd, onBegin } = props;
   const [open, setOpen] = React.useState(false);
 
   function begin() {
@@ -41,7 +42,9 @@ export function HeadphoneCalibrationButton(
 
   return (
     <div>
-      <Button onPress={begin}>Calibrate Headphones</Button>
+      <Button disabled={disabled} onPress={begin}>
+        Calibrate Headphones
+      </Button>
       {open && <CalibrationModal audioUrl={audioUrl} close={end} />}
     </div>
   );

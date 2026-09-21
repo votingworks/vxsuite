@@ -68,10 +68,7 @@ import {
   testPrintFailureDiagnosticMessage,
 } from './util/diagnostics.js';
 import { saveReadinessReport } from './printing/readiness_report.js';
-import {
-  PlayerInterface as AudioPlayerInterface,
-  SoundName,
-} from './audio/player.js';
+import { AudioPlayerInterface, SoundName } from './audio/audio.js';
 import { getScannerResultsByPrecinctMemoized } from './util/results.js';
 
 export const BALLOT_AUDIT_ID_FILE_NAME = 'ballot-audit-id-secret-key.txt';

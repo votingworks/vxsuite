@@ -22,7 +22,7 @@ import {
   safeParseElectionDefinition,
   testCdfBallotDefinition,
 } from '@votingworks/types';
-import { mockBaseLogger, mockLogger } from '@votingworks/logging';
+import { mockBaseLogger } from '@votingworks/logging';
 import { createMockFujitsuPrinterHandler } from '@votingworks/fujitsu-thermal-printer';
 import { Store } from './store.js';
 import { buildApi } from './app.js';
@@ -31,8 +31,7 @@ import {
   buildMockLogger,
   createPrecinctScannerStateMachineMock,
 } from '../test/helpers/shared_helpers.js';
-import { Player as AudioPlayer } from './audio/player.js';
-import { AudioCard } from './audio/card.js';
+import { AudioPlayer, getMockAudioPlayer } from './audio/audio.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -41,14 +40,7 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 
-vi.mock('./audio/card');
-vi.mock('./audio/player');
-
-const mockLog = mockLogger({ fn: vi.fn() });
-const mockAudioCard = new AudioCard('development', mockLog, { name: 'mock' });
-const mockAudioPlayer = vi.mocked(
-  new AudioPlayer('development', mockLog, mockAudioCard)
-);
+const mockAudioPlayer = getMockAudioPlayer() as AudioPlayer;
 
 const store = Store.memoryStore();
 let workspace: Workspace;

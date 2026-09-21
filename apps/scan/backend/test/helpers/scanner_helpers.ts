@@ -50,7 +50,7 @@ import { Mocked, expect, vi } from 'vitest';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
 import { createCanvas } from 'canvas';
 import { Api, buildApp } from '../../src/app.js';
-import { Player as AudioPlayer } from '../../src/audio/player.js';
+import { AudioPlayer, getMockAudioPlayer } from '../../src/audio/audio.js';
 import {
   createPrecinctScannerStateMachine,
   delays,
@@ -64,10 +64,6 @@ import {
   waitForContinuousExportToUsbDrive,
   waitForStatus,
 } from './shared_helpers.js';
-import { AudioCard } from '../../src/audio/card.js';
-
-vi.mock('../../src/audio/card');
-vi.mock('../../src/audio/player');
 
 export interface MockPdiScannerClient {
   emitEvent: (event: ScannerEvent) => void;
@@ -175,10 +171,7 @@ export async function withApp(
     clock,
   });
 
-  const mockAudioCard = new AudioCard('development', logger, { name: 'mock' });
-  const mockAudioPlayer = vi.mocked(
-    new AudioPlayer('development', logger, mockAudioCard)
-  );
+  const mockAudioPlayer = getMockAudioPlayer() as Mocked<AudioPlayer>;
 
   const app = buildApp({
     audioPlayer: mockAudioPlayer,
