@@ -2,6 +2,11 @@
   "name": "@types/kiosk-browser",
   "version": "0.0.1-development",
   "license": "GPL-3.0-only",
-  "types": "kiosk-browser",
-  "dependencies": {}
+  "type": "commonjs",
+  "exports": {
+    ".": {
+      "types": "./kiosk-browser.d.ts"
+    },
+    "./package.json": "./package.json"
+  }
 }

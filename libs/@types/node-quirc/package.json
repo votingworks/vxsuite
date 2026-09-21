@@ -2,5 +2,11 @@
   "name": "@types/node-quirc",
   "version": "0.0.1-development",
   "license": "GPL-3.0-only",
-  "types": "node-quirc"
+  "type": "commonjs",
+  "exports": {
+    ".": {
+      "types": "./node-quirc.d.ts"
+    },
+    "./package.json": "./package.json"
+  }
 }
