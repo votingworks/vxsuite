@@ -119,3 +119,26 @@ test('Modal renders error message appropriately', async () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
 });
+
+test.each<{ error: ExportDataError; message: string }>([
+  {
+    error: { type: 'file-too-large', message: '' },
+    message: 'File is too large for the USB drive format',
+  },
+  {
+    error: { type: 'insufficient-space', message: '' },
+    message: 'Not enough space on the USB drive',
+  },
+])('Modal renders the $error.type error', async ({ error, message }) => {
+  renderInAppContext(<ExportElectionPackageModalButton />, {
+    apiMock,
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
+  });
+  userEvent.click(screen.getButton('Save Election Package'));
+  apiMock.expectSaveElectionPackageToUsb(err(error));
+  userEvent.click(screen.getButton('Save'));
+  await screen.findByRole('heading', {
+    name: 'Failed to Save Election Package',
+  });
+  screen.getByText(`An error occurred: ${message}.`);
+});

@@ -10,6 +10,7 @@ import {
   Modal,
   P,
   UsbControllerButton,
+  userReadableMessageFromExportDataError,
 } from '@votingworks/ui';
 import type { ExportDataError } from '@votingworks/admin-backend';
 
@@ -20,13 +21,6 @@ type SaveState =
   | { state: 'unsaved' }
   | { state: 'saved' }
   | { state: 'error'; error: ExportDataError };
-
-const ErrorMessages: Record<ExportDataError['type'], string> = {
-  'file-system-error': 'Error reading from USB',
-  'missing-usb-drive': 'No USB drive detected',
-  'permission-denied': 'Error reading from USB',
-  'relative-file-path': 'Error reading from USB',
-};
 
 export function ExportElectionPackageModalButton(): JSX.Element {
   const { electionDefinition, usbDriveStatus, auth } = useContext(AppContext);
@@ -139,7 +133,10 @@ export function ExportElectionPackageModalButton(): JSX.Element {
       actions = <Button onPress={closeModal}>Close</Button>;
       title = 'Failed to Save Election Package';
       mainContent = (
-        <P>An error occurred: {ErrorMessages[saveState.error.type]}.</P>
+        <P>
+          An error occurred:{' '}
+          {userReadableMessageFromExportDataError(saveState.error.type)}
+        </P>
       );
       break;
     }

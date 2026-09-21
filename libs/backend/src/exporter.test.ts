@@ -3,6 +3,7 @@ import { err, iter, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { readFile, symlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { existsSync } from 'node:fs';
 import { Readable } from 'node:stream';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import {
@@ -205,6 +206,82 @@ test('exportDataToUsbDrive with maximumFileSize', async () => {
   expect(await readFile(`${path}-part-1`, 'utf-8')).toEqual('ba');
   expect(await readFile(`${path}-part-2`, 'utf-8')).toEqual('r');
 });
+
+test('exportDataToUsbDrive with a size that fits', async () => {
+  const tmpDir = makeTemporaryDirectory();
+  usbDrive.status.expectCallWith().resolves({
+    status: 'mounted',
+    fstype: 'fat32',
+    maxFileSize: 2 ** 32 - 1,
+    mountpoint: UsbPartitionMountpointSchema.decode(tmpDir),
+    totalBytes: 2 ** 40,
+    availableBytes: 2 ** 40,
+  });
+  usbDrive.sync.expectCallWith().resolves();
+  const result = await exporter.exportDataToUsbDrive(
+    'bucket',
+    'test.txt',
+    'bar',
+    { size: 3 }
+  );
+  expect(result).toEqual(ok([join(tmpDir, 'bucket/test.txt')]));
+});
+
+test('exportDataToUsbDrive with a size over the file system limit', async () => {
+  const tmpDir = makeTemporaryDirectory();
+  usbDrive.status.expectCallWith().resolves({
+    status: 'mounted',
+    fstype: 'fat32',
+    maxFileSize: 2 ** 32 - 1,
+    mountpoint: UsbPartitionMountpointSchema.decode(tmpDir),
+    totalBytes: 2 ** 40,
+    availableBytes: 2 ** 40,
+  });
+  const result = await exporter.exportDataToUsbDrive(
+    'bucket',
+    'test.txt',
+    'bar',
+    { size: 2 ** 32 }
+  );
+  expect(result).toEqual<ExportDataResult>(
+    err({
+      type: 'file-too-large',
+      message: "File of 4.0 GB exceeds the USB drive's 4.0 GB file size limit",
+    })
+  );
+  expect(existsSync(join(tmpDir, 'bucket'))).toEqual(false);
+});
+
+test.each([
+  { totalBytes: 2 ** 40, availableBytes: 2 ** 20 },
+  { totalBytes: 2 ** 20, availableBytes: 2 ** 20 },
+])(
+  'exportDataToUsbDrive with a size over the available space %o',
+  async ({ totalBytes, availableBytes }) => {
+    const tmpDir = makeTemporaryDirectory();
+    usbDrive.status.expectCallWith().resolves({
+      status: 'mounted',
+      fstype: 'fat32',
+      mountpoint: UsbPartitionMountpointSchema.decode(tmpDir),
+      totalBytes,
+      availableBytes,
+    });
+    const result = await exporter.exportDataToUsbDrive(
+      'bucket',
+      'test.txt',
+      'bar',
+      { size: 2 ** 20 }
+    );
+    expect(result).toEqual<ExportDataResult>(
+      err({
+        type: 'insufficient-space',
+        message:
+          'File of 1.0 MB does not fit in the 1.0 MB available on the USB drive',
+      })
+    );
+    expect(existsSync(join(tmpDir, 'bucket'))).toEqual(false);
+  }
+);
 
 test('exportDataToUsbDrive with machineDirectoryToWriteToFirst', async () => {
   const tmpDir = makeTemporaryDirectory();

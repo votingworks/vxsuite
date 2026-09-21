@@ -167,5 +167,7 @@ test('shows error screen if saving file failed on backend', () => {
     }
   );
   screen.getByText('Batch Export Not Saved');
-  screen.getByText('Failed to save batch export. Permission denied.');
+  screen.getByText(
+    'Failed to save batch export. Unable to write to USB drive.'
+  );
 });

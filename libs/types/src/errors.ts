@@ -13,6 +13,8 @@ export type ElectionPackageConfigurationError =
 
 export type ExportDataError =
   | 'file-system-error'
+  | 'file-too-large'
+  | 'insufficient-space'
   | 'missing-usb-drive'
   | 'permission-denied'
   | 'relative-file-path';

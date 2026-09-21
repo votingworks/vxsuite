@@ -1,11 +1,18 @@
-import { err, ok, Result } from '@votingworks/basics';
+import {
+  assertDefined,
+  err,
+  ok,
+  Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { isAbsolute, join, matchesGlob, normalize, parse } from 'node:path';
 import { Readable } from 'node:stream';
 import { createReadStream, lstatSync } from 'node:fs';
 import { ExportDataError as BaseExportDataError } from '@votingworks/types';
-import { UsbDrive } from '@votingworks/usb-drive';
+import { MountedUsbDriveStatus, UsbDrive } from '@votingworks/usb-drive';
+import { checkFileFitsOnUsbDrive, format } from '@votingworks/utils';
 import { splitToFiles } from './split.js';
 
 /**
@@ -148,6 +155,10 @@ export class Exporter {
    * written to `machineDirectoryToWriteToFirst` will be left intact for other
    * code to use, e.g. for signature file creation.
    *
+   * If `size` is provided, the export fails before writing anything to the USB
+   * drive when the drive's file system cannot hold a file that large or the
+   * drive lacks the space for it.
+   *
    * @returns a list of the paths of the files that were created, or an error
    */
   async exportDataToUsbDrive(
@@ -157,9 +168,11 @@ export class Exporter {
     {
       machineDirectoryToWriteToFirst,
       maximumFileSize = MAXIMUM_FAT32_FILE_SIZE,
+      size,
     }: {
       machineDirectoryToWriteToFirst?: string;
       maximumFileSize?: number;
+      size?: number;
     } = {}
   ): Promise<ExportDataResult> {
     let dataToWrite = data;
@@ -180,6 +193,13 @@ export class Exporter {
         type: 'missing-usb-drive',
         message: 'No USB drive found',
       });
+    }
+
+    if (size !== undefined) {
+      const fitResult = checkFitOnUsbDrive(usbDriveStatus, size);
+      if (fitResult.isErr()) {
+        return fitResult;
+      }
     }
 
     const result = await this.exportData(
@@ -258,5 +278,29 @@ export class Exporter {
       // @coverage-exclude
       throw error;
     }
+  }
+}
+
+function checkFitOnUsbDrive(
+  usbDriveStatus: MountedUsbDriveStatus,
+  size: number
+): Result<void, ExportDataError> {
+  const fit = checkFileFitsOnUsbDrive(usbDriveStatus, size);
+  switch (fit) {
+    case 'fits':
+      return ok();
+    case 'file-too-large':
+      return err({
+        type: 'file-too-large',
+        message: `File of ${format.bytes(size)} exceeds the USB drive's ${format.bytes(assertDefined(usbDriveStatus.maxFileSize))} file size limit`,
+      });
+    case 'insufficient-space':
+    case 'drive-too-small':
+      return err({
+        type: 'insufficient-space',
+        message: `File of ${format.bytes(size)} does not fit in the ${format.bytes(assertDefined(usbDriveStatus.availableBytes))} available on the USB drive`,
+      });
+    default:
+      return throwIllegalValue(fit);
   }
 }

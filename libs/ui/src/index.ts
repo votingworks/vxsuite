@@ -108,6 +108,7 @@ export * from './export_logs_modal.js';
 export * from './task_screen.js';
 export * from './unconfigured_election_screen.js';
 export * from './keyboard_navigation.js';
+export * from './export_data_error.js';
 export * from './format_usb_modal.js';
 export * from './usb_drive.js';
 export * from './usb_drive_image.js';
