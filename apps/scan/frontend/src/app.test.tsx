@@ -1274,6 +1274,10 @@ test('"Test" voter settings are cleared when a voter finishes', async () => {
   await screen.findByText('Your ballot was counted!');
 
   apiMock.expectGetScannerStatus(statusBallotCounted);
+  await vi.advanceTimersByTimeAsync(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+  screen.getByText('Your ballot was counted!');
+  expect(startNewSessionMock).not.toBeCalled();
+
   vi.advanceTimersByTime(DELAY_ACCEPTED_SCREEN_MS);
   await screen.findByText(/Insert Your Ballot/i);
 

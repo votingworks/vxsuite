@@ -41,6 +41,7 @@ function renderScreen(
         isSoundMuted={false}
         isTestMode={false}
         systemSettings={DEFAULT_SYSTEM_SETTINGS}
+        resetSessionSettings={vi.fn()}
         {...props}
       />
     )

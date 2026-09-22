@@ -99,16 +99,19 @@ export function AppRoot(): JSX.Element | null {
     },
   });
 
-  // Reset to default settings and PAT calibration state when a voter finishes
+  // Reset voter settings and PAT calibration state when a voter session ends
+  // without a ballot being accepted (e.g. a rejected or returned ballot).
+  // Excluded transitions:
+  // - paused -> waiting_for_ballot: returning from an election official screen
+  // - accepted -> waiting_for_ballot: handled by VoterScreen
   useQueryChangeListener(scannerStatusQuery, {
     select: ({ state }) => state,
     onChange: (newState, previousState) => {
-      // If we transition from paused to waiting_for_ballot we are just returning
-      // from an election official screen
       if (
         previousState &&
         previousState !== 'waiting_for_ballot' &&
         previousState !== 'paused' &&
+        previousState !== 'accepted' &&
         newState === 'waiting_for_ballot'
       ) {
         sessionSettingsManager.startNewSession();
@@ -432,6 +435,7 @@ export function AppRoot(): JSX.Element | null {
         systemSettings={systemSettings}
         isTestMode={isTestMode}
         isSoundMuted={isSoundMuted}
+        resetSessionSettings={sessionSettingsManager.startNewSession}
       />
     </PatDeviceContextProvider>
   );
