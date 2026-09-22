@@ -1,88 +1,18 @@
-/* eslint-disable import/no-extraneous-dependencies, vx/gts-safe-number-parse */
 import { expect } from 'vitest';
-import { assertDefined, iter, range } from '@votingworks/basics';
+import {
+  BenchmarkResults,
+  computeBenchmarkStats,
+  percentChange,
+  printBenchmarkResults,
+  runBenchmark,
+} from '@votingworks/test-utils';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 const { UPDATE_BENCHMARKS, BENCHMARKS_ENV: BENCHMARK_ENV } = process.env;
 const ENV = BENCHMARK_ENV ?? 'development-m1-macbook-pro';
 
-async function measureTime(func: () => Promise<void>): Promise<Milliseconds> {
-  const start = process.hrtime.bigint();
-  await func();
-  const end = process.hrtime.bigint();
-
-  return Number((end - start) / BigInt(10_000)) / 100;
-}
-
-type Milliseconds = number;
-
-interface BenchmarkStats {
-  min: Milliseconds;
-  max: Milliseconds;
-  mean: Milliseconds;
-  median: Milliseconds;
-  variance: Milliseconds;
-  standardDeviation: Milliseconds;
-  marginOfError: Milliseconds;
-}
-
-interface BenchmarkResults {
-  measurements: Milliseconds[];
-  stats: BenchmarkStats;
-}
-
-function computeStats(measurements: Milliseconds[]): BenchmarkStats {
-  const min = Math.min(...measurements);
-  const max = Math.max(...measurements);
-  const mean = iter(measurements).sum() / measurements.length;
-  // See https://www.mathsisfun.com/data/standard-deviation.html
-  const variance =
-    iter(measurements)
-      .map((x) => (x - mean) ** 2)
-      .sum() /
-    (measurements.length - 1);
-  const standardDeviation = Math.sqrt(variance);
-  const median = assertDefined(
-    [...measurements].sort()[Math.floor(measurements.length / 2)]
-  );
-  // 99% confidence interval
-  // See https://www.mathsisfun.com/data/confidence-interval.html
-  const marginOfError =
-    (standardDeviation * 2.576) / Math.sqrt(measurements.length);
-
-  return {
-    min,
-    max,
-    mean,
-    median,
-    variance,
-    standardDeviation,
-    marginOfError,
-  };
-}
-
-async function benchmark(
-  func: () => Promise<void>,
-  runs: number
-): Promise<BenchmarkResults> {
-  // Warm up the system by running the function a few times without measuring
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  for (const i of range(0, 3)) {
-    await measureTime(func);
-  }
-
-  const measurements: Milliseconds[] = [];
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  for (const i of range(0, runs)) {
-    measurements.push(await measureTime(func));
-  }
-
-  return {
-    measurements,
-    stats: computeStats(measurements),
-  };
-}
+let printedEnv = false;
 
 function resultsFilePath(label: string) {
   return join(
@@ -104,106 +34,8 @@ function loadResults(label: string): BenchmarkResults | undefined {
   const measurements = JSON.parse(readFileSync(resultsFilePath(label), 'utf8'));
   return {
     measurements,
-    stats: computeStats(measurements),
+    stats: computeBenchmarkStats(measurements),
   };
-}
-
-function formatMs(milliseconds: Milliseconds): string {
-  if (milliseconds < 1000) {
-    return `${milliseconds.toFixed(0)}ms`;
-  }
-  return `${Number((milliseconds / 1000).toFixed(2))}s`;
-}
-
-function percentChange(old: number, current: number) {
-  return (current - old) / old;
-}
-
-function formatPercentChange(percent: number): string {
-  const sign = percent < 0 ? '-' : '+';
-  return `${sign}${Math.abs(Number((percent * 100).toFixed(2)))}%`;
-}
-
-function textTable(rows: Array<Record<string, string>>): string {
-  const keys = Object.keys(assertDefined(rows[0]));
-  const widths = keys.map((key) =>
-    Math.max(...rows.map((row) => assertDefined(row[key]).length), key.length)
-  );
-  const spacer = '   ';
-  const header = keys
-    .map((key, i) => key.padEnd(assertDefined(widths[i])))
-    .join(spacer);
-  const divider = widths.map((width) => '-'.repeat(width)).join(spacer);
-  const body = rows
-
-    .map((row) =>
-      keys
-        .map((key, i) =>
-          assertDefined(row[key]).padEnd(assertDefined(widths[i]))
-        )
-        .join(spacer)
-    )
-    .join('\n');
-  return `${header}\n${divider}\n${body}`;
-}
-
-function printBenchmarkResults(
-  label: string,
-  newResults: BenchmarkResults,
-  oldResults?: BenchmarkResults
-) {
-  const newStats = newResults.stats;
-  const oldStats = oldResults?.stats;
-
-  // eslint-disable-next-line no-console
-  console.log(
-    `${label}\n${textTable([
-      ...(oldStats
-        ? [
-            {
-              '': 'old',
-              runs: oldResults.measurements.length.toString(),
-              min: formatMs(oldStats.min),
-              max: formatMs(oldStats.max),
-              mean: `${formatMs(oldStats.mean)} ± ${formatMs(
-                oldStats.marginOfError
-              )}`,
-              median: formatMs(oldStats.median),
-            },
-          ]
-        : []),
-      {
-        '': 'new',
-        runs: newResults.measurements.length.toString(),
-        min: formatMs(newStats.min),
-        max: formatMs(newStats.max),
-        mean: `${formatMs(newStats.mean)} ± ${formatMs(
-          newStats.marginOfError
-        )}`,
-        median: formatMs(newStats.median),
-      },
-      ...(oldStats
-        ? [
-            {
-              '': 'change',
-              runs: '',
-              min: formatPercentChange(
-                percentChange(oldStats.min, newStats.min)
-              ),
-              max: formatPercentChange(
-                percentChange(oldStats.max, newStats.max)
-              ),
-              mean: formatPercentChange(
-                percentChange(oldStats.mean, newStats.mean)
-              ),
-              median: formatPercentChange(
-                percentChange(oldStats.median, newStats.median)
-              ),
-            },
-          ]
-        : []),
-    ])}`
-  );
 }
 
 /**
@@ -227,10 +59,15 @@ export async function benchmarkRegressionTest({
   func: () => Promise<void>;
   runs: number;
 }): Promise<void> {
+  if (!printedEnv) {
+    // eslint-disable-next-line no-console
+    console.log(`Benchmark environment: ${ENV}`);
+    printedEnv = true;
+  }
   // eslint-disable-next-line no-console
-  console.log('Running benchmark:', { env: ENV, label });
+  console.log(`\nRunning benchmark: ${label}`);
 
-  const newResults = await benchmark(func, runs);
+  const newResults = await runBenchmark({ func, runs });
   const oldResults = loadResults(label);
   printBenchmarkResults(label, newResults, oldResults);
 

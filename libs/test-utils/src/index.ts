@@ -1,6 +1,7 @@
 export * from './advance_timers';
 export * from './arbitraries';
 export * from './auth';
+export * from './benchmarking';
 export * from './backend_wait_for';
 export * from './child_process';
 export * from './console';
