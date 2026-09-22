@@ -1,58 +1,40 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vitest';
+import { realpathSync } from 'node:fs';
+import {
+  getMediaMountDir,
+  getRealUsbDriveGlobPattern,
+  getResolvedMediaMountDir,
+} from './media_mount_dir.js';
 
-beforeEach(() => {
-  vi.resetModules();
-  vi.unstubAllGlobals();
+const realfs = await vi.importActual<typeof import('node:fs')>('node:fs');
+
+vi.mock('node:fs', async (importActual) => {
+  const actual = await importActual<typeof import('node:fs')>();
+  return {
+    ...actual,
+    realpathSync: vi.fn((p: string) => {
+      if (p === '/media/vx') return '/var/vx/usb-drives';
+      return actual.realpathSync(p);
+    }),
+  };
 });
 
-afterEach(() => {
-  vi.doUnmock('node:fs');
-});
-
-async function importMediaMountDir() {
-  return import('./media_mount_dir.js');
-}
-
-test('RESOLVED_MEDIA_MOUNT_DIR returns the realpath of /media/vx', async () => {
-  vi.doMock('node:fs', async (importActual) => {
-    const actual = await importActual<typeof import('node:fs')>();
-    return {
-      ...actual,
-      realpathSync: vi.fn((p: string) => {
-        if (p === '/media/vx') return '/var/vx/usb-drives';
-        return actual.realpathSync(p);
-      }),
-    };
+test('getResolvedMediaMountDir returns the realpath of /media/vx', () => {
+  vi.mocked(realpathSync).mockImplementation((p) => {
+    if (p === '/media/vx') return '/var/vx/usb-drives';
+    return realfs.realpathSync(p);
   });
 
-  const {
-    MEDIA_MOUNT_DIR,
-    RESOLVED_MEDIA_MOUNT_DIR,
-    REAL_USB_DRIVE_GLOB_PATTERN,
-  } = await importMediaMountDir();
-
-  expect(MEDIA_MOUNT_DIR).toEqual('/media/vx');
-  expect(RESOLVED_MEDIA_MOUNT_DIR).toEqual('/var/vx/usb-drives');
-  expect(REAL_USB_DRIVE_GLOB_PATTERN).toEqual('/var/vx/usb-drives/**/*');
+  expect(getMediaMountDir()).toEqual('/media/vx');
+  expect(getResolvedMediaMountDir()).toEqual('/var/vx/usb-drives');
+  expect(getRealUsbDriveGlobPattern()).toEqual('/var/vx/usb-drives/**/*');
 });
 
-test('RESOLVED_MEDIA_MOUNT_DIR falls back to the literal path when realpathSync throws', async () => {
-  vi.doMock('node:fs', async (importActual) => {
-    const actual = await importActual<typeof import('node:fs')>();
-    return {
-      ...actual,
-      realpathSync: vi.fn(() => {
-        throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' });
-      }),
-    };
+test('getResolvedMediaMountDir falls back to the literal path when realpathSync throws', () => {
+  vi.mocked(realpathSync).mockImplementation(() => {
+    throw Object.assign(new Error('ENOENT'), { code: 'ENOENT' });
   });
 
-  const {
-    MEDIA_MOUNT_DIR,
-    RESOLVED_MEDIA_MOUNT_DIR,
-    REAL_USB_DRIVE_GLOB_PATTERN,
-  } = await importMediaMountDir();
-
-  expect(RESOLVED_MEDIA_MOUNT_DIR).toEqual(MEDIA_MOUNT_DIR);
-  expect(REAL_USB_DRIVE_GLOB_PATTERN).toEqual('/media/vx/**/*');
+  expect(getResolvedMediaMountDir()).toEqual(getMediaMountDir());
+  expect(getRealUsbDriveGlobPattern()).toEqual('/media/vx/**/*');
 });

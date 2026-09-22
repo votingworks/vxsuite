@@ -3,7 +3,7 @@ import makeDebug from 'debug';
 import { promises as fs } from 'node:fs';
 import { assert, Optional } from '@votingworks/basics';
 import { exec, spawn } from './exec.js';
-import { RESOLVED_MEDIA_MOUNT_DIR } from './media_mount_dir.js';
+import { getResolvedMediaMountDir } from './media_mount_dir.js';
 import {
   UsbDiskDevPath,
   UsbDiskDevPathSchema,
@@ -105,7 +105,7 @@ function isDataUsbDrive(device: UsbBlockDevice): boolean {
   return (
     !device.fstype?.includes('LVM') && // no partitions acting as LVMs
     (!device.mountpoint ||
-      device.mountpoint.startsWith(`${RESOLVED_MEDIA_MOUNT_DIR}/`))
+      device.mountpoint.startsWith(`${getResolvedMediaMountDir()}/`))
   );
 }
 
