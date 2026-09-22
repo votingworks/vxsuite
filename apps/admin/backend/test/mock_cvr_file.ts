@@ -89,7 +89,8 @@ export function addMockCvrFileToStore({
   });
 
   const { electionDefinition } = assertDefined(store.getElection(electionId));
-  const { markThresholds } = store.getSystemSettings(electionId);
+  const { markThresholds, adminAdjudicationReasons } =
+    store.getSystemSettings(electionId);
   const cvrIds = [];
   for (const mockCastVoteRecord of mockCastVoteRecordFile) {
     const isHmpb = mockCastVoteRecord.card.type === 'hmpb';
@@ -142,7 +143,6 @@ export function addMockCvrFileToStore({
 
       // Production stores both front + back ballot images for any CVR that
       // needs adjudication. Mirror that here so getBallotImages works.
-      const { adminAdjudicationReasons } = store.getSystemSettings(electionId);
       if (
         doesCvrNeedAdjudication(adjudicationFlags, adminAdjudicationReasons)
       ) {

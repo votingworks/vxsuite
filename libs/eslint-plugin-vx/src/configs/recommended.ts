@@ -212,6 +212,7 @@ export default function buildRecommended(
               '**/*.test.ts',
               '**/*.test.tsx',
               'test/**/*',
+              '**/benchmarks/**/*',
               'src/setupTests.ts',
               'src/setupTests.tsx',
               '**/*.stories.ts',
