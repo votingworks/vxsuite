@@ -373,8 +373,9 @@ export default function buildRecommended(
           'error',
           {
             allow: [
-              // Only loads `playwright`, nothing we actually mock.
-              '@votingworks/printing/browser',
+              // Registers the cached-browser teardown; only loads
+              // `playwright`, nothing we actually mock.
+              '@votingworks/printing/vitest-setup',
               // Registers the shared image matchers; its dependency graph
               // stays mockable from the test file.
               '@votingworks/image-utils/vitest-setup',

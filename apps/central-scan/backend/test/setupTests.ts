@@ -3,12 +3,8 @@ import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import { cleanupCachedBrowser } from '@votingworks/printing/browser';
 import '@votingworks/image-utils/vitest-setup';
-
-afterAll(async () => {
-  await cleanupCachedBrowser();
-});
+import '@votingworks/printing/vitest-setup';
 
 beforeAll(setupTemporaryRootDir);
 afterAll(clearTemporaryRootDir);
