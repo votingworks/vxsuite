@@ -19,8 +19,9 @@ export function UnconfiguredElectionScreenWrapper(): JSX.Element {
   const configure = configureElectionPackageFromUsb.useMutation();
 
   useQueryChangeListener(usbDriveStatusQuery, {
-    onChange: (newUsbDriveStatus) => {
-      if (newUsbDriveStatus.status === 'mounted') {
+    select: ({ status }) => status,
+    onChange: (newStatus) => {
+      if (newStatus === 'mounted') {
         configure.mutate();
       }
     },
