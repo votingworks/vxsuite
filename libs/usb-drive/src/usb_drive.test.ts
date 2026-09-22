@@ -30,7 +30,11 @@ test('exposes the first FAT32 drive via the UsbDrive interface', async () => {
   await vi.waitFor(async () => {
     expect(await usbDrive.status()).toEqual({
       status: 'mounted',
+      fstype: 'fat32',
+      maxFileSize: 2 ** 32 - 1,
       mountpoint: platform.storagePath(devsdb),
+      totalBytes: expect.any(Number),
+      availableBytes: expect.any(Number),
     });
   });
 });

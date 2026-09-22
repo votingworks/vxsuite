@@ -1,3 +1,4 @@
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   BlockDeviceChangeWatcher,
@@ -325,5 +326,16 @@ describe('sync', () => {
     await new RealUsbPlatform().sync(mountpoint);
 
     expect(execMock).toHaveBeenCalledWith('sync', ['-f', mountpoint]);
+  });
+});
+
+describe('getSpace', () => {
+  test('reports the file system at the mountpoint', async () => {
+    const space = await new RealUsbPlatform().getSpace(
+      UsbPartitionMountpointSchema.decode(makeTemporaryDirectory())
+    );
+    expect(space.totalBytes).toBeGreaterThan(0);
+    expect(space.availableBytes).toBeGreaterThan(0);
+    expect(space.availableBytes).toBeLessThanOrEqual(space.totalBytes);
   });
 });

@@ -30,6 +30,8 @@ test('getUsbDriveStatus', async () => {
     mockUsbDrive.insertUsbDrive({});
     await expect(apiClient.getUsbDriveStatus()).resolves.toEqual({
       status: 'mounted',
+      fstype: 'fat32',
+      maxFileSize: 2 ** 32 - 1,
       mountpoint: expect.any(String),
     });
   });
@@ -55,6 +57,8 @@ test('doesUsbDriveRequireCastVoteRecordSync is properly populated', async () => 
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
       const mountedUsbDriveStatus = {
         status: 'mounted',
+        fstype: 'fat32',
+        maxFileSize: 2 ** 32 - 1,
         mountpoint: expect.any(String),
       } as const;
 

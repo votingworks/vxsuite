@@ -25,8 +25,9 @@ export function UnconfiguredElectionScreenWrapper({
     configureFromElectionPackageOnUsbDrive.useMutation();
 
   useQueryChangeListener(usbDriveStatusQuery, {
-    onChange: (newUsbDriveStatus) => {
-      if (newUsbDriveStatus.status === 'mounted') {
+    select: ({ status }) => status,
+    onChange: (newStatus) => {
+      if (newStatus === 'mounted') {
         configureMutation.mutate();
       }
     },

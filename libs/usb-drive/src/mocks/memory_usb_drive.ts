@@ -1,8 +1,14 @@
 import { getTemporaryRootDir } from '@votingworks/fixtures';
 import { Mocked, mockFunction } from '@votingworks/test-utils';
+import { UsbDriveSpace } from '@votingworks/utils';
 import tmp from 'tmp';
 import { MockFileTree, writeMockFileTree } from './helpers.js';
-import { UsbDrive, UsbPartitionMountpointSchema } from '../types.js';
+import {
+  mountedUsbDriveStatus,
+  UsbDrive,
+  UsbDriveFilesystemType,
+  UsbPartitionMountpointSchema,
+} from '../types.js';
 
 /**
  * A mock of the UsbDrive interface. See createMockUsbDrive for details.
@@ -10,7 +16,10 @@ import { UsbDrive, UsbPartitionMountpointSchema } from '../types.js';
 export interface MockUsbDrive {
   usbDrive: Mocked<UsbDrive>;
   assertComplete(): void;
-  insertUsbDrive(contents: MockFileTree): void;
+  insertUsbDrive(
+    contents: MockFileTree,
+    options?: { fstype?: UsbDriveFilesystemType; space?: UsbDriveSpace }
+  ): void;
   removeUsbDrive(): void;
 }
 
@@ -46,7 +55,7 @@ export function createMockUsbDrive(): MockUsbDrive {
       }
     },
 
-    insertUsbDrive(contents: MockFileTree) {
+    insertUsbDrive(contents, { fstype = 'fat32', space } = {}) {
       mockUsbTmpDir?.removeCallback();
       mockUsbTmpDir = tmp.dirSync({
         unsafeCleanup: true,
@@ -54,10 +63,15 @@ export function createMockUsbDrive(): MockUsbDrive {
       });
       writeMockFileTree(mockUsbTmpDir.name, contents);
       usbDrive.status.reset();
-      usbDrive.status.expectRepeatedCallsWith().resolves({
-        status: 'mounted',
-        mountpoint: UsbPartitionMountpointSchema.decode(mockUsbTmpDir.name),
-      });
+      usbDrive.status
+        .expectRepeatedCallsWith()
+        .resolves(
+          mountedUsbDriveStatus(
+            UsbPartitionMountpointSchema.decode(mockUsbTmpDir.name),
+            fstype,
+            space
+          )
+        );
     },
 
     removeUsbDrive() {

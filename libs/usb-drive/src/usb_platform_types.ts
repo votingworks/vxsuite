@@ -1,3 +1,4 @@
+import { UsbDriveSpace } from '@votingworks/utils';
 import z from 'zod/v4';
 import {
   UsbDiskDevPath,
@@ -48,6 +49,9 @@ export interface UsbPlatform {
    * Sync the contents of a mounted partition to disk.
    */
   sync(mountpoint: UsbPartitionMountpoint): Promise<void>;
+
+  /** Total and available space of a mounted partition. */
+  getSpace(mountpoint: UsbPartitionMountpoint): Promise<UsbDriveSpace>;
 }
 
 export const UsbPlatformPartitionSchema = z.object({

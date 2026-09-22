@@ -1,13 +1,35 @@
+import { Optional, throwIllegalValue } from '@votingworks/basics';
+import { UsbDriveSpace } from '@votingworks/utils';
 import { z } from 'zod/v4';
 
 export type UsbDriveStatus =
   | { status: 'no_drive' }
-  | {
-      status: 'mounted';
-      mountpoint: UsbPartitionMountpoint;
-    }
+  | MountedUsbDriveStatus
   | { status: 'ejected' }
   | { status: 'error'; reason: 'bad_format' };
+
+export interface MountedUsbDriveStatus extends Partial<UsbDriveSpace> {
+  status: 'mounted';
+  mountpoint: UsbPartitionMountpoint;
+  fstype: UsbDriveFilesystemType;
+  /** Largest file the drive's file system can hold, if it has such a limit. */
+  maxFileSize?: number;
+}
+
+export function mountedUsbDriveStatus(
+  mountpoint: UsbPartitionMountpoint,
+  fstype: UsbDriveFilesystemType,
+  space?: UsbDriveSpace
+): MountedUsbDriveStatus {
+  const maxFileSize = getUsbDriveMaximumFileSize(fstype);
+  return {
+    status: 'mounted',
+    mountpoint,
+    fstype,
+    ...(maxFileSize === undefined ? {} : { maxFileSize }),
+    ...(space ?? {}),
+  };
+}
 
 /**
  * A branded string type for USB disk device paths, e.g. `/dev/sdb`.
@@ -105,3 +127,23 @@ export const UsbDriveFilesystemTypeSchema = z.enum(['fat32', 'ext4']);
 export type UsbDriveFilesystemType = z.output<
   typeof UsbDriveFilesystemTypeSchema
 >;
+
+/** FAT32 stores file sizes as unsigned 32-bit integers. */
+const FAT32_MAXIMUM_FILE_SIZE = 2 ** 32 - 1;
+
+/**
+ * Largest file the file system can hold, in bytes. `undefined` when the limit
+ * exceeds any file we would write.
+ */
+export function getUsbDriveMaximumFileSize(
+  fstype: UsbDriveFilesystemType
+): Optional<number> {
+  switch (fstype) {
+    case 'fat32':
+      return FAT32_MAXIMUM_FILE_SIZE;
+    case 'ext4':
+      return undefined;
+    default:
+      return throwIllegalValue(fstype);
+  }
+}

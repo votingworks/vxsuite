@@ -142,6 +142,7 @@ test('save logs', async () => {
       powerDown={vi.fn()}
       usbDriveStatus={{
         status: 'mounted',
+        fstype: 'fat32',
         mountpoint: UsbPartitionMountpointSchema.decode('/media/vx/usb-drive'),
       }}
       apiClient={mockApiClient}

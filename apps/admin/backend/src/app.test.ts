@@ -608,6 +608,7 @@ test('usbDrive', async () => {
   await attachUsbDrive(apiClient, usbPlatform);
   expect(await apiClient.getUsbDriveStatus()).toMatchObject({
     status: 'mounted',
+    fstype: 'fat32',
     mountpoint: expect.any(String),
   });
 
