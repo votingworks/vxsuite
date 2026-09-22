@@ -31,7 +31,6 @@ import {
   EventObject,
   interpret,
   InterpreterFrom,
-  sendParent,
 } from 'xstate';
 import {
   BatchControl,
@@ -61,23 +60,11 @@ interface Context {
 }
 
 type Event =
-  | { type: 'START_BATCH' }
-  | { type: 'ACCEPT_SHEET' }
-  | { type: 'REJECT_SHEET' }
-  | { type: 'SCANNER_CONNECTED' }
-  | { type: 'SCANNER_DISCONNECTED' };
+  { type: 'START_BATCH' } | { type: 'ACCEPT_SHEET' } | { type: 'REJECT_SHEET' };
 
 type DoneEvent<F extends (...args: never[]) => Promise<unknown>> =
   DoneInvokeEvent<Awaited<ReturnType<F>>>;
 type ErrorEvent = DoneInvokeEvent<Error>;
-
-interface Delays {
-  DELAY_SCANNER_CONNECTION_POLLING_INTERVAL: number;
-}
-
-export const delays = {
-  DELAY_SCANNER_CONNECTION_POLLING_INTERVAL: 500,
-} satisfies Delays;
 
 export interface BatchScannerStateMachine {
   status(): BatchScannerMachineStatus;
@@ -103,48 +90,6 @@ function buildMachine({
   logger: Logger;
 }) {
   const { store } = workspace;
-
-  function createPollingChildMachine(
-    id: string,
-    queryFn: () => Promise<Event>,
-    delay: keyof Delays
-  ) {
-    return createMachine(
-      {
-        id,
-        strict: true,
-        predictableActionArguments: true,
-
-        initial: 'querying',
-        states: {
-          querying: {
-            invoke: {
-              src: queryFn,
-              onDone: {
-                target: 'waiting',
-                actions: sendParent(
-                  (_, event: DoneEvent<typeof queryFn>) => event.data
-                ),
-              },
-            },
-          },
-          waiting: {
-            after: { [delay]: 'querying' },
-          },
-        },
-      },
-      { delays }
-    );
-  }
-
-  const pollScannerConnection = createPollingChildMachine(
-    'pollScannerConnection',
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async () => ({
-      type: scanner.isAttached() ? 'SCANNER_CONNECTED' : 'SCANNER_DISCONNECTED',
-    }),
-    'DELAY_SCANNER_CONNECTION_POLLING_INTERVAL'
-  );
 
   async function startScanningBatch(batchId: string): Promise<BatchContext> {
     const imageDirectory = join(workspace.ballotImagesPath, `batch-${batchId}`);
@@ -334,16 +279,10 @@ function buildMachine({
 
     context: {},
 
-    initial: 'disconnected',
+    initial: 'idle',
     states: {
-      disconnected: {
-        invoke: pollScannerConnection,
-        on: { SCANNER_CONNECTED: 'idle' },
-      },
-
       idle: {
         entry: clearBatch,
-        invoke: pollScannerConnection,
         on: {
           START_BATCH: {
             target: 'startingBatch',
@@ -352,7 +291,6 @@ function buildMachine({
               error: undefined,
             })),
           },
-          SCANNER_DISCONNECTED: 'disconnected',
         },
       },
 
@@ -536,7 +474,6 @@ function setupLogging(
       );
     })
     .onTransition((state) => {
-      if (!state.changed) return;
       logger.log(
         LogEventId.ScannerStateChanged,
         'system',
@@ -581,9 +518,6 @@ export function createBatchScannerStateMachine({
       const { batchId, sheetIdToReview, error } = state.context;
       // We use state.matches as recommended by the XState docs. This allows
       // us to add new substates to a state without breaking these checks.
-      if (state.matches('disconnected')) {
-        return { state: 'disconnected' };
-      }
       if (state.matches('idle')) {
         return { state: 'idle', error: error?.message };
       }

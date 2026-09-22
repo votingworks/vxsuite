@@ -394,3 +394,19 @@ test('rejects ballots whose precinct is not in the selected polling place', asyn
     });
   });
 });
+
+test('reports whether the scanner is attached', async () => {
+  await withApp(async ({ apiClient, scanner }) => {
+    const isAttached = vi.spyOn(scanner, 'isAttached').mockReturnValue(false);
+    expect(await apiClient.getStatus()).toMatchObject({
+      state: 'idle',
+      isScannerAttached: false,
+    });
+
+    isAttached.mockReturnValue(true);
+    expect(await apiClient.getStatus()).toMatchObject({
+      state: 'idle',
+      isScannerAttached: true,
+    });
+  });
+});
