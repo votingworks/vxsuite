@@ -286,9 +286,9 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
     getElectionPackageHash(): Optional<string> {
       const currentElectionId = store.getCurrentElectionId();
       if (!currentElectionId) return undefined;
-      const record = store.getElection(currentElectionId);
-      assert(record);
-      return record.electionPackageHash;
+
+      const hash = store.getElectionPackageHash(currentElectionId);
+      return assertDefined(hash, 'no election found for configured ID');
     },
 
     getCurrentElectionMetadata(): Optional<ElectionRecord> {
