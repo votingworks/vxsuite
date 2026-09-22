@@ -66,24 +66,30 @@ export async function measureTime(
 
 /**
  * Runs `func` `warmupRuns` times without measuring (to get past cold caches
- * and JIT warmup), then `runs` more times, measuring each.
+ * and JIT warmup), then `runs` more times, measuring each. `cleanup`, when
+ * given, runs after every invocation, outside the measured window, so that
+ * benchmarks of mutating operations can restore state between runs.
  */
 export async function runBenchmark({
   func,
   runs,
   warmupRuns = 3,
+  cleanup,
 }: {
   func: () => unknown | Promise<unknown>;
   runs: number;
   warmupRuns?: number;
+  cleanup?: () => unknown | Promise<unknown>;
 }): Promise<BenchmarkResults> {
   for (const _ of range(0, warmupRuns)) {
     await measureTime(func);
+    await cleanup?.();
   }
 
   const measurements: Milliseconds[] = [];
   for (const _ of range(0, runs)) {
     measurements.push(await measureTime(func));
+    await cleanup?.();
   }
 
   return {
