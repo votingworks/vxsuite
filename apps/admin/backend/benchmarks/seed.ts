@@ -46,7 +46,8 @@ function buildMarkScores(): Tabulation.MarkScores {
   );
 }
 
-function buildVotes(
+/** Builds valid votes for the given ballot style's candidate contests. */
+export function buildVotes(
   election: Election,
   ballotStyle: BallotStyle,
   {
