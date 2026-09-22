@@ -325,11 +325,20 @@ test('exportDataToUsbDrive with a size over the file system limit', async () => 
 });
 
 test.each([
-  { totalBytes: 2 ** 40, availableBytes: 2 ** 20 },
-  { totalBytes: 2 ** 20, availableBytes: 2 ** 20 },
+  {
+    totalBytes: 2 ** 40,
+    availableBytes: 2 ** 20,
+    message:
+      'File of 1.0 MB does not fit in the 1.0 MB available on the USB drive',
+  },
+  {
+    totalBytes: 2 ** 20,
+    availableBytes: 2 ** 20,
+    message: 'File of 1.0 MB does not fit on the 1.0 MB USB drive',
+  },
 ])(
   'exportDataToUsbDrive with a size over the available space %o',
-  async ({ totalBytes, availableBytes }) => {
+  async ({ totalBytes, availableBytes, message }) => {
     const tmpDir = makeTemporaryDirectory();
     usbDrive.status.expectCallWith().resolves({
       status: 'mounted',
@@ -347,8 +356,7 @@ test.each([
     expect(result).toEqual<ExportDataResult>(
       err({
         type: 'insufficient-space',
-        message:
-          'File of 1.0 MB does not fit in the 1.0 MB available on the USB drive',
+        message,
       })
     );
     expect(existsSync(join(tmpDir, 'bucket'))).toEqual(false);

@@ -10,7 +10,10 @@ export interface UsbDriveSpace {
 const FILESYSTEM_OVERHEAD_BYTES = 1024 * 1024;
 
 export type UsbDriveFileFit =
-  'fits' | 'file-too-large' | 'insufficient-space' | 'drive-too-small';
+  | { type: 'fits' }
+  | { type: 'file-too-large'; maxFileSize: number }
+  | { type: 'insufficient-space'; availableBytes: number }
+  | { type: 'drive-too-small'; totalBytes: number };
 
 /**
  * Whether a file of `sizeBytes` can be written to a mounted USB drive.
@@ -19,18 +22,16 @@ export function checkFileFitsOnUsbDrive(
   drive: Partial<UsbDriveSpace> & { maxFileSize?: number },
   sizeBytes: number
 ): UsbDriveFileFit {
-  if (drive.maxFileSize !== undefined && sizeBytes > drive.maxFileSize) {
-    return 'file-too-large';
+  const { maxFileSize, totalBytes, availableBytes } = drive;
+  if (maxFileSize !== undefined && sizeBytes > maxFileSize) {
+    return { type: 'file-too-large', maxFileSize };
   }
   const requiredBytes = sizeBytes + FILESYSTEM_OVERHEAD_BYTES;
-  if (drive.totalBytes !== undefined && requiredBytes > drive.totalBytes) {
-    return 'drive-too-small';
+  if (totalBytes !== undefined && requiredBytes > totalBytes) {
+    return { type: 'drive-too-small', totalBytes };
   }
-  if (
-    drive.availableBytes !== undefined &&
-    requiredBytes > drive.availableBytes
-  ) {
-    return 'insufficient-space';
+  if (availableBytes !== undefined && requiredBytes > availableBytes) {
+    return { type: 'insufficient-space', availableBytes };
   }
-  return 'fits';
+  return { type: 'fits' };
 }

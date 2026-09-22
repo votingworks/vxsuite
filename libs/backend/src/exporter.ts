@@ -1,10 +1,4 @@
-import {
-  assertDefined,
-  err,
-  ok,
-  Result,
-  throwIllegalValue,
-} from '@votingworks/basics';
+import { err, ok, Result, throwIllegalValue } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { mkdir } from 'node:fs/promises';
 import { dirname, isAbsolute, join, matchesGlob, normalize } from 'node:path';
@@ -277,21 +271,25 @@ function checkFitOnUsbDrive(
   size: number
 ): Result<void, ExportDataError> {
   const fit = checkFileFitsOnUsbDrive(usbDriveStatus, size);
-  switch (fit) {
+  switch (fit.type) {
     case 'fits':
       return ok();
     case 'file-too-large':
       return err({
         type: 'file-too-large',
-        message: `File of ${format.bytes(size)} exceeds the USB drive's ${format.bytes(assertDefined(usbDriveStatus.maxFileSize))} file size limit`,
+        message: `File of ${format.bytes(size)} exceeds the USB drive's ${format.bytes(fit.maxFileSize)} file size limit`,
       });
     case 'insufficient-space':
+      return err({
+        type: 'insufficient-space',
+        message: `File of ${format.bytes(size)} does not fit in the ${format.bytes(fit.availableBytes)} available on the USB drive`,
+      });
     case 'drive-too-small':
       return err({
         type: 'insufficient-space',
-        message: `File of ${format.bytes(size)} does not fit in the ${format.bytes(assertDefined(usbDriveStatus.availableBytes))} available on the USB drive`,
+        message: `File of ${format.bytes(size)} does not fit on the ${format.bytes(fit.totalBytes)} USB drive`,
       });
     default:
-      return throwIllegalValue(fit);
+      return throwIllegalValue(fit, 'type');
   }
 }

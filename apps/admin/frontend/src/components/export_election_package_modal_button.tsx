@@ -6,7 +6,7 @@ import {
   isSystemAdministratorAuth,
   UsbDriveFileFit,
 } from '@votingworks/utils';
-import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   Button,
   FILESYSTEM_LABELS,
@@ -38,9 +38,9 @@ function Bytes({ value }: { value: number }): JSX.Element {
   return <Font noWrap>{format.bytes(value)}</Font>;
 }
 
-type DoesNotFit = Exclude<UsbDriveFileFit, 'fits'>;
+type DoesNotFit = Exclude<UsbDriveFileFit, { type: 'fits' }>;
 
-const DOES_NOT_FIT_TITLES: Record<DoesNotFit, string> = {
+const DOES_NOT_FIT_TITLES: Record<DoesNotFit['type'], string> = {
   'file-too-large': 'File Too Large for USB Drive',
   'insufficient-space': 'Not Enough Space on USB Drive',
   'drive-too-small': 'USB Drive Too Small',
@@ -57,7 +57,7 @@ function DoesNotFitMessage({
   electionPackageSize: number;
   canFormat: boolean;
 }): JSX.Element {
-  switch (fit) {
+  switch (fit.type) {
     case 'file-too-large':
       return (
         <P>
@@ -67,7 +67,7 @@ function DoesNotFitMessage({
             {FILESYSTEM_LABELS[usbDriveStatus.fstype]}
           </Font>
           , which cannot store files larger than{' '}
-          <Bytes value={assertDefined(usbDriveStatus.maxFileSize)} />.{' '}
+          <Bytes value={fit.maxFileSize} />.{' '}
           {canFormat
             ? 'Format the USB drive to continue.'
             : 'Ask a system administrator to format the USB drive, or use a different USB drive.'}
@@ -77,9 +77,8 @@ function DoesNotFitMessage({
       return (
         <P>
           The election package is <Bytes value={electionPackageSize} />, but the
-          USB drive only has{' '}
-          <Bytes value={assertDefined(usbDriveStatus.availableBytes)} /> free.
-          Remove files from the USB drive{canFormat ? ' or format it' : ''} to
+          USB drive only has <Bytes value={fit.availableBytes} /> free. Remove
+          files from the USB drive{canFormat ? ' or format it' : ''} to
           continue.
         </P>
       );
@@ -87,13 +86,12 @@ function DoesNotFitMessage({
       return (
         <P>
           The election package is <Bytes value={electionPackageSize} />, but the
-          USB drive can only hold{' '}
-          <Bytes value={assertDefined(usbDriveStatus.totalBytes)} />. Use a
-          larger USB drive.
+          USB drive can only hold <Bytes value={fit.totalBytes} />. Use a larger
+          USB drive.
         </P>
       );
     default:
-      return throwIllegalValue(fit);
+      return throwIllegalValue(fit, 'type');
   }
 }
 
@@ -160,9 +158,12 @@ export function ExportElectionPackageModalButton(): JSX.Element {
             usbDriveStatus,
             electionPackageSize
           );
-          if (!saveElectionPackageToUsbMutation.isLoading && fit !== 'fits') {
+          if (
+            !saveElectionPackageToUsbMutation.isLoading &&
+            fit.type !== 'fits'
+          ) {
             const canFormat = isSystemAdministratorAuth(auth);
-            const offerFormat = canFormat && fit !== 'drive-too-small';
+            const offerFormat = canFormat && fit.type !== 'drive-too-small';
             actions = (
               <React.Fragment>
                 {offerFormat && (
@@ -176,7 +177,7 @@ export function ExportElectionPackageModalButton(): JSX.Element {
                 <Button onPress={closeModal}>Cancel</Button>
               </React.Fragment>
             );
-            title = DOES_NOT_FIT_TITLES[fit];
+            title = DOES_NOT_FIT_TITLES[fit.type];
             mainContent = (
               <DoesNotFitMessage
                 fit={fit}

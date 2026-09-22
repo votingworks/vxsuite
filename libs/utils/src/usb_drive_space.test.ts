@@ -4,7 +4,9 @@ import { checkFileFitsOnUsbDrive } from './usb_drive_space.js';
 const MIB = 1024 * 1024;
 
 test('fits when the drive reports no limits', () => {
-  expect(checkFileFitsOnUsbDrive({}, Number.MAX_SAFE_INTEGER)).toEqual('fits');
+  expect(checkFileFitsOnUsbDrive({}, Number.MAX_SAFE_INTEGER)).toEqual({
+    type: 'fits',
+  });
 });
 
 test('file-too-large takes precedence over space', () => {
@@ -13,7 +15,7 @@ test('file-too-large takes precedence over space', () => {
       { maxFileSize: 100, totalBytes: 10, availableBytes: 10 },
       101
     )
-  ).toEqual('file-too-large');
+  ).toEqual({ type: 'file-too-large', maxFileSize: 100 });
 });
 
 test('drive-too-small when the whole drive cannot hold the file', () => {
@@ -22,7 +24,7 @@ test('drive-too-small when the whole drive cannot hold the file', () => {
       { totalBytes: 10 * MIB, availableBytes: 10 * MIB },
       9.5 * MIB
     )
-  ).toEqual('drive-too-small');
+  ).toEqual({ type: 'drive-too-small', totalBytes: 10 * MIB });
 });
 
 test('insufficient-space when the drive is big enough but too full', () => {
@@ -31,7 +33,7 @@ test('insufficient-space when the drive is big enough but too full', () => {
       { totalBytes: 100 * MIB, availableBytes: 10 * MIB },
       9.5 * MIB
     )
-  ).toEqual('insufficient-space');
+  ).toEqual({ type: 'insufficient-space', availableBytes: 10 * MIB });
 });
 
 test('fits with room for file system overhead', () => {
@@ -44,5 +46,5 @@ test('fits with room for file system overhead', () => {
       },
       10 * MIB
     )
-  ).toEqual('fits');
+  ).toEqual({ type: 'fits' });
 });
