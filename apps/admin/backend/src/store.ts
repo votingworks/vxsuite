@@ -449,6 +449,15 @@ export class Store implements BaseStore {
     };
   }
 
+  getElectionPackageHash(electionId: string): string | undefined {
+    const result = this.client.one(
+      `select election_package_hash as hash from elections where id = ?`,
+      electionId
+    ) as { hash: string } | undefined;
+
+    return result?.hash;
+  }
+
   /**
    * Fetches the identifying election data a backup's manifest records.
    */

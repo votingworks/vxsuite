@@ -994,3 +994,15 @@ test('adjudication endpoints reject requests when multiple hosts are detected', 
     cvrId
   );
 });
+
+test('getElectionPackageHash', async () => {
+  const fixtures = electionTwoPartyPrimaryFixtures;
+  const electionDefinition = fixtures.readElectionDefinition();
+
+  const env = buildTestEnvironment();
+  await configureMachine(env.apiClient, env.auth, electionDefinition);
+
+  const expected = await env.apiClient.getCurrentElectionMetadata();
+  const actual = await env.peerApiClient.getElectionPackageHash();
+  expect(actual).toEqual(expected?.electionPackageHash);
+});

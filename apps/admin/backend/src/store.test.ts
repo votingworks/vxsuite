@@ -165,6 +165,23 @@ test('add an election', async () => {
   expect(store.getElectionPackageFilePath('nonexistent-id')).toEqual(undefined);
 });
 
+test('getElectionPackageHash()', async () => {
+  const fixtures = electionTwoPartyPrimaryFixtures;
+  const { electionData } = fixtures.readElectionDefinition();
+  const electionPackageHash = 'test-election-package-hash';
+
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionId = await store.addElection({
+    electionData,
+    systemSettingsData,
+    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageHash,
+  });
+
+  expect(store.getElectionPackageHash(electionId)).toEqual(electionPackageHash);
+  expect(store.getElectionPackageHash('invalid_id')).toBeUndefined();
+});
+
 test('reads election metadata without parsing the election definition', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
