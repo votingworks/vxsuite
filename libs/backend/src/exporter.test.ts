@@ -216,6 +216,51 @@ test('exportDataToUsbDrive with no drives', async () => {
   expect(vi.mocked(execFile)).not.toHaveBeenCalled();
 });
 
+test('exportData destroys a stream it does not write', async () => {
+  const data = Readable.from('bar');
+  expect(await exporter.exportData('/etc/passwd', data)).toEqual(
+    err({
+      type: 'permission-denied',
+      message: 'Path is not allowed: /etc/passwd',
+    })
+  );
+  expect(data.destroyed).toEqual(true);
+});
+
+test('exportDataToUsbDrive with no drives destroys the stream', async () => {
+  usbDrive.status.expectCallWith().resolves({ status: 'no_drive' });
+  const data = Readable.from('bar');
+  const result = await exporter.exportDataToUsbDrive(
+    'bucket',
+    'test.txt',
+    data
+  );
+  expect(result).toEqual(
+    err({ type: 'missing-usb-drive', message: 'No USB drive found' })
+  );
+  expect(data.destroyed).toEqual(true);
+});
+
+test('exportDataToUsbDrive with a size that does not fit destroys the stream', async () => {
+  const tmpDir = makeTemporaryDirectory();
+  usbDrive.status.expectCallWith().resolves({
+    status: 'mounted',
+    fstype: 'exfat',
+    mountpoint: UsbPartitionMountpointSchema.decode(tmpDir),
+    totalBytes: 2 ** 20,
+    availableBytes: 2 ** 20,
+  });
+  const data = Readable.from('bar');
+  const result = await exporter.exportDataToUsbDrive(
+    'bucket',
+    'test.txt',
+    data,
+    { size: 2 ** 20 }
+  );
+  expect(result.err()?.type).toEqual('insufficient-space');
+  expect(data.destroyed).toEqual(true);
+});
+
 test('exportDataToUsbDrive happy path', async () => {
   const tmpDir = makeTemporaryDirectory();
   const path = join(tmpDir, 'bucket/test.txt');

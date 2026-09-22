@@ -26,6 +26,12 @@ export type ExportableData =
   | AsyncIterable<string | Uint8Array>
   | NodeJS.ReadableStream;
 
+function destroyIfStream(data: ExportableData): void {
+  if (data instanceof Readable) {
+    data.destroy();
+  }
+}
+
 /**
  * Possible export errors.
  */
@@ -67,6 +73,17 @@ export class Exporter {
    * directories will be created if they do not exist.
    */
   async exportData(
+    path: string,
+    data: ExportableData
+  ): Promise<ExportDataResult> {
+    try {
+      return await this.writeData(path, data);
+    } finally {
+      destroyIfStream(data);
+    }
+  }
+
+  private async writeData(
     path: string,
     data: ExportableData
   ): Promise<ExportDataResult> {
@@ -148,20 +165,21 @@ export class Exporter {
       size?: number;
     } = {}
   ): Promise<ExportDataResult> {
-    let dataToWrite = data;
-    if (machineDirectoryToWriteToFirst) {
-      const machineFilePath = join(machineDirectoryToWriteToFirst, name);
-      const result = await this.exportData(machineFilePath, dataToWrite);
+    const machineFilePath =
+      machineDirectoryToWriteToFirst &&
+      join(machineDirectoryToWriteToFirst, name);
+    if (machineFilePath) {
+      const result = await this.exportData(machineFilePath, data);
       // @coverage-defer
       if (result.isErr()) {
         return result;
       }
-      dataToWrite = createReadStream(machineFilePath);
     }
 
     const usbDriveStatus = await this.usbDrive.status();
 
     if (usbDriveStatus.status !== 'mounted') {
+      destroyIfStream(data);
       return err({
         type: 'missing-usb-drive',
         message: 'No USB drive found',
@@ -171,13 +189,14 @@ export class Exporter {
     if (size !== undefined) {
       const fitResult = checkFitOnUsbDrive(usbDriveStatus, size);
       if (fitResult.isErr()) {
+        destroyIfStream(data);
         return fitResult;
       }
     }
 
     const result = await this.exportData(
       join(usbDriveStatus.mountpoint, bucket, name),
-      dataToWrite
+      machineFilePath ? createReadStream(machineFilePath) : data
     );
 
     // Exporting a file might take a while. Ensure the data is flushed to the USB
