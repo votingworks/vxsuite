@@ -64,14 +64,16 @@ export function imageDataToPaperHandlerChunks(
 
   const chunks: PaperHandlerBitmap[] = [];
   for (let chunkIndex = 0; chunkIndex < chunkCount; chunkIndex += 1) {
-    const chunkData = chunkBytes.slice(
-      chunkIndex * bytesPerChunk,
-      (chunkIndex + 1) * bytesPerChunk
-    );
-    const empty = chunkData.every((byte) => byte === 0);
+    const chunkByteStart = chunkIndex * bytesPerChunk;
+    const chunkByteEnd = chunkByteStart + bytesPerChunk;
+    const empty = chunkBytes
+      .subarray(chunkByteStart, chunkByteEnd)
+      .every((byte) => byte === 0);
     chunks.push({
       width: imageDataWidth,
-      data: empty ? new Uint8Array() : chunkData,
+      data: empty
+        ? new Uint8Array()
+        : chunkBytes.slice(chunkByteStart, chunkByteEnd),
     });
   }
   return chunks;
