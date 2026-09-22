@@ -99,6 +99,13 @@ export const SystemSettingsSchema = z
      */
     limitAdminAdjudicationToFlaggedContests: z.boolean().optional(),
 
+    /**
+     * When enabled, ballots scanned on VxCentralScan that require adjudication
+     * in VxAdmin are excluded from tally results until they have been
+     * adjudicated.
+     */
+    countCentralScanBallotsOnlyAfterAdjudication: z.boolean().optional(),
+
     centralScanAdjudicationReasons: z.array(
       z.lazy(() => AdjudicationReasonSchema)
     ),

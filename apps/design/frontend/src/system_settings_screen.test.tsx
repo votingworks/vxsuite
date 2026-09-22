@@ -222,6 +222,13 @@ test('adjudication reasons', async () => {
   userEvent.click(limitToFlaggedContests);
   expect(limitToFlaggedContests).toBeChecked();
 
+  const countOnlyAfterAdjudication = screen.getByRole('checkbox', {
+    name: 'Count VxCentralScan Ballots Only After Adjudication',
+  });
+  expect(countOnlyAfterAdjudication).not.toBeChecked();
+  userEvent.click(countOnlyAfterAdjudication);
+  expect(countOnlyAfterAdjudication).toBeChecked();
+
   const updatedSystemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
     precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
@@ -229,6 +236,7 @@ test('adjudication reasons', async () => {
     adminAdjudicationReasons: [AdjudicationReason.Overvote],
     disallowCastingOvervotes: true,
     limitAdminAdjudicationToFlaggedContests: true,
+    countCentralScanBallotsOnlyAfterAdjudication: true,
   };
   apiMock.updateSystemSettings
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
@@ -246,6 +254,8 @@ test('adjudication reasons', async () => {
       option.textContent === 'Overvote' ||
       option.textContent === 'Disallow Casting Overvotes' ||
       option.textContent === 'Limit Adjudication to Flagged Contests' ||
+      option.textContent ===
+        'Count VxCentralScan Ballots Only After Adjudication' ||
       option.textContent === 'Enable Summary Ballot Scanning on VxScan'
     ) {
       expect(option).toBeChecked();
@@ -630,7 +640,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(44);
+  expect(allControls).toHaveLength(45);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();
