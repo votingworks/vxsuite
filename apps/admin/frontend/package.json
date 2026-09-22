@@ -93,7 +93,7 @@
     "@types/readable-stream": "2.3.9",
     "@types/styled-components": "^5.1.26",
     "@vitejs/plugin-react": "^6.1.1",
-    "@vitest/coverage-istanbul": "^4.1.6",
+    "@vitest/coverage-istanbul": "^4.1.11",
     "@votingworks/admin-backend": "workspace:*",
     "@votingworks/backend": "workspace:*",
     "@votingworks/coverage-check": "workspace:*",
