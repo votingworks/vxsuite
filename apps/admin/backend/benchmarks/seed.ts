@@ -195,6 +195,8 @@ export async function openPerfStore(
   const donePath = join(dir, 'seed-complete.json');
 
   if (process.env['RESET_CACHED_STORE'] || !existsSync(donePath)) {
+    // Reset at most once per run, not once per bench file
+    delete process.env['RESET_CACHED_STORE'];
     rmSync(dir, { recursive: true, force: true });
     mkdirSync(dir, { recursive: true });
     process.stdout.write(

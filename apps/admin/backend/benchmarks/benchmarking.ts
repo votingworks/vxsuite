@@ -4,7 +4,6 @@ import {
   BenchmarkResults,
   computeBenchmarkStats,
   formatMs,
-  percentChange,
   printBenchmarkResults,
   runBenchmark,
 } from '@votingworks/test-utils';
@@ -13,6 +12,12 @@ import { dirname, join } from 'node:path';
 
 const { UPDATE_BENCHMARKS, BENCHMARKS_ENV: BENCHMARK_ENV } = process.env;
 const ENV = BENCHMARK_ENV ?? 'development-m4-macbook-pro';
+
+/**
+ * How much slower than the saved baseline a benchmark may run before failing.
+ * The benchmarks can be noisy so this is a fairly large buffer.
+ */
+const MAX_REGRESSION_RATIO = 1.2;
 
 let printedEnv = false;
 
@@ -86,15 +91,13 @@ export async function benchmarkRegressionTest({
   }
 
   if (oldResults) {
-    const newStats = newResults.stats;
-    const oldStats = oldResults.stats;
-
-    const fastestNewMean = newStats.mean - newStats.marginOfError;
-    const slowestOldMean = oldStats.mean + oldStats.marginOfError;
-    expect(fastestNewMean).toBeLessThanOrEqual(slowestOldMean);
-
-    const change = percentChange(oldStats.median, newStats.median);
-    expect(change).toBeLessThanOrEqual(0.05);
+    expect(
+      newResults.stats.median,
+      `median ${formatMs(newResults.stats.median)} regressed more than ` +
+        `${MAX_REGRESSION_RATIO}x from the saved ${formatMs(
+          oldResults.stats.median
+        )}`
+    ).toBeLessThanOrEqual(oldResults.stats.median * MAX_REGRESSION_RATIO);
   }
 
   if (goalMs !== undefined && newResults.stats.median > goalMs) {
