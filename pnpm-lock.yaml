@@ -150,9 +150,6 @@ importers:
       react:
         specifier: 18.3.1
         version: 18.3.1
-      tmp:
-        specifier: ^0.2.6
-        version: 0.2.7
       yargs:
         specifier: 17.7.1
         version: 17.7.1
@@ -193,9 +190,6 @@ importers:
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
-      '@types/tmp':
-        specifier: 0.2.4
-        version: 0.2.4
       '@types/yargs':
         specifier: 17.0.22
         version: 17.0.22

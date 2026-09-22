@@ -23,7 +23,6 @@ import {
 import * as grout from '@votingworks/grout';
 import { AddressInfo } from 'node:net';
 import { Buffer } from 'node:buffer';
-import tmp, { tmpNameSync } from 'tmp';
 import {
   generateElectionBasedSubfolderName,
   SCANNER_RESULTS_FOLDER,
@@ -35,7 +34,6 @@ import {
   UsbDriveFilesystemType,
   UsbDriveStatus,
 } from '@votingworks/usb-drive';
-import { writeFileSync } from 'node:fs';
 import { createMockPrinterHandler } from '@votingworks/printing';
 import {
   LogSource,
@@ -43,14 +41,16 @@ import {
   MockLogger,
   mockLogger,
 } from '@votingworks/logging';
-import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import {
+  makeTemporaryDirectory,
+  makeTemporaryFile,
+} from '@votingworks/fixtures';
 import { Api, MachineMode, PeerApi } from '../src/index.js';
 import { BaseStore } from '../src/types.js';
 import { createWorkspace } from '../src/util/workspace.js';
 import { buildApp } from '../src/app.js';
 import { buildPeerApp } from '../src/peer_app.js';
 import { getMachineConfig } from '../src/machine_config.js';
-import { deleteTmpFileAfterTestSuiteCompletes } from './cleanup.js';
 import { getUserRole } from '../src/util/auth.js';
 
 type ActualDirectory = string;
@@ -115,10 +115,7 @@ export function saveTmpFile(
   contents: string | Buffer,
   extension?: string
 ): string {
-  const tmpFilePath = tmpNameSync({ postfix: extension });
-  writeFileSync(tmpFilePath, contents);
-  deleteTmpFileAfterTestSuiteCompletes(tmpFilePath);
-  return tmpFilePath;
+  return makeTemporaryFile({ content: contents, postfix: extension });
 }
 
 // For now, returns electionId for client calls that still need it
@@ -189,13 +186,7 @@ export async function attachUsbDrive(
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildTestEnvironment(workspaceRoot?: string) {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
-  const resolvedWorkspaceRoot =
-    workspaceRoot ||
-    (() => {
-      const defaultWorkspaceRoot = tmp.dirSync().name;
-      deleteTmpFileAfterTestSuiteCompletes(defaultWorkspaceRoot);
-      return defaultWorkspaceRoot;
-    })();
+  const resolvedWorkspaceRoot = workspaceRoot || makeTemporaryDirectory();
   const workspace = createWorkspace(
     resolvedWorkspaceRoot,
     mockBaseLogger({ fn: vi.fn })
