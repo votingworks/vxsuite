@@ -89,7 +89,7 @@ describe('status', () => {
     expect(await adapter.status()).toEqual({ status: 'no_drive' });
   });
 
-  test('does not offer unformatted drives (no partition) for selection', async () => {
+  test('reports an unformatted drive (no partition) as bad_format without offering it for selection', async () => {
     const getDriveDevPath = vi.fn(
       (drives: readonly UsbDriveInfo[]) => drives[0]?.diskPath
     );
@@ -99,8 +99,36 @@ describe('status', () => {
     platform.insertDrive(devsdb);
     await multiUsbDrive.refresh();
 
-    expect(await adapter.status()).toEqual({ status: 'no_drive' });
+    expect(await adapter.status()).toEqual({
+      status: 'error',
+      reason: 'bad_format',
+    });
     expect(getDriveDevPath).not.toHaveBeenCalled();
+  });
+
+  test('prefers the selected supported drive over an unformatted one', async () => {
+    const { platform, multiUsbDrive, adapter } = newAdapter();
+    await insertAndMount(platform, multiUsbDrive);
+    platform.createDrive({ diskPath: UsbDiskDevPathSchema.decode('/dev/sdc') });
+    platform.insertDrive(UsbDiskDevPathSchema.decode('/dev/sdc'));
+    await multiUsbDrive.refresh();
+
+    expect(await adapter.status()).toEqual(
+      expect.objectContaining({ status: 'mounted' })
+    );
+  });
+
+  test('reports bad_format when the selector passes over every supported drive', async () => {
+    const { platform, multiUsbDrive, adapter } = newAdapter(() => undefined);
+    await insertAndMount(platform, multiUsbDrive);
+    platform.createDrive({ diskPath: UsbDiskDevPathSchema.decode('/dev/sdc') });
+    platform.insertDrive(UsbDiskDevPathSchema.decode('/dev/sdc'));
+    await multiUsbDrive.refresh();
+
+    expect(await adapter.status()).toEqual({
+      status: 'error',
+      reason: 'bad_format',
+    });
   });
 
   test('returns mounted with the mountpoint for a mounted partition', async () => {
@@ -206,6 +234,24 @@ describe('eject', () => {
 });
 
 describe('format', () => {
+  test('formats an unformatted drive', async () => {
+    const { platform, multiUsbDrive, adapter } = newAdapter();
+    platform.createDrive({ diskPath: devsdb });
+    platform.insertDrive(devsdb);
+    await multiUsbDrive.refresh();
+    expect(await adapter.status()).toEqual({
+      status: 'error',
+      reason: 'bad_format',
+    });
+
+    await adapter.format('fat32');
+
+    expect(platform.getSimulatedDrives()[0]?.partition?.fstype).toEqual(
+      'fat32'
+    );
+    expect(await adapter.status()).toEqual({ status: 'ejected' });
+  });
+
   test('formats the selected drive', async () => {
     const { platform, multiUsbDrive, adapter } = newAdapter();
     await insertAndMount(platform, multiUsbDrive);

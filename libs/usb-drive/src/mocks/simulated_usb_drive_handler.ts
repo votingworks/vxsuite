@@ -43,7 +43,8 @@ export function getMockUsbDriveHandler(
     status: (): UsbDriveStatus => {
       const drive = findDrive();
       if (!drive?.present) return { status: 'no_drive' };
-      if (drive.partition?.mountpoint) {
+      if (!drive.partition) return { status: 'error', reason: 'bad_format' };
+      if (drive.partition.mountpoint) {
         return { status: 'mounted', mountpoint: drive.partition.mountpoint };
       }
       return { status: 'ejected' };
