@@ -245,6 +245,10 @@ create table cvr_file_entries (
   foreign key (cvr_id) references cvrs(id)
     on delete cascade
 ) strict;
+-- the primary key leads with cvr_file_id, so lookups by cvr_id alone — the
+-- shared-CVR check when deleting an import, and the foreign key cascade from
+-- cvrs — need their own index to avoid scanning the table per CVR
+create index idx_cvr_file_entries_cvr_id on cvr_file_entries(cvr_id);
 
 create table ballot_images (
   -- image files stored on disk based on cvr_id
