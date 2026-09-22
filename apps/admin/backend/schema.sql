@@ -161,6 +161,23 @@ create table cvrs (
 create index idx_cvrs_election_id on cvrs(election_id);
 create index idx_cvrs_ballot_id on cvrs(ballot_id);
 create index idx_cvrs_batch_id on cvrs(election_id, batch_id);
+-- covering index for the adjudication queue: queue membership counts,
+-- ordering, and next-ballot polling run entirely within the index instead of
+-- reading CVR rows, whose large vote payloads precede these columns
+create index idx_cvrs_adjudication_queue on cvrs(
+  election_id,
+  has_write_in,
+  has_crossover_vote,
+  has_overvote,
+  has_undervote,
+  has_marginal_mark,
+  is_blank,
+  is_adjudicated,
+  card_type,
+  ballot_style_group_id,
+  sheet_number,
+  id
+);
 
 create table scanner_batches (
   id text not null,
