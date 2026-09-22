@@ -64,7 +64,7 @@ test('shows scanned ballot count', () => {
 describe('Scan Ballots Button', () => {
   test('disabled when no scanner is attached', () => {
     renderScreen({
-      status: mockStatus({}, { state: 'disconnected' }),
+      status: mockStatus({ isScannerAttached: false }),
     });
     expect(screen.getButton('No Scanner')).toBeDisabled();
   });

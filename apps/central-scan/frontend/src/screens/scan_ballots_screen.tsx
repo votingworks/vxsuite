@@ -44,7 +44,7 @@ export function ScanBallotsScreen({
           <ScanButton
             /* disable scan button while status query is refetching to avoid double clicks */
             disabled={isScanning || statusIsStale || isPollingPlaceUnconfigured}
-            isScannerAttached={status.state !== 'disconnected'}
+            isScannerAttached={status.isScannerAttached}
           />
         </TopBar>
       </Content>

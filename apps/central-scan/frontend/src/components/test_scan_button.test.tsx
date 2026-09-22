@@ -28,7 +28,17 @@ test('disabled behavior', async () => {
     expect(button).toBeEnabled();
   });
 
-  apiMock.setStatus(mockStatus({}, { state: 'disconnected' }));
+  apiMock.setStatus(mockStatus({ isScannerAttached: false }));
+  await vi.waitFor(() => {
+    expect(button).toBeDisabled();
+  });
+
+  apiMock.setStatus(mockStatus({}, { state: 'idle' }));
+  await vi.waitFor(() => {
+    expect(button).toBeEnabled();
+  });
+
+  apiMock.setStatus(mockStatus({}, { state: 'scanning', batchId: 'b1' }));
   await vi.waitFor(() => {
     expect(button).toBeDisabled();
   });
@@ -41,7 +51,7 @@ test('disabled behavior', async () => {
   userEvent.click(button);
   await screen.findButton('Scan');
 
-  apiMock.setStatus(mockStatus({}, { state: 'disconnected' }));
+  apiMock.setStatus(mockStatus({ isScannerAttached: false }));
   await vi.waitFor(() => {
     expect(screen.queryButton('Scan')).not.toBeInTheDocument();
   });

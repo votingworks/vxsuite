@@ -4,10 +4,10 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import { getStatus, performScanDiagnostic } from '../api.js';
 
 function TestScanModal({
-  isScannerIdle,
+  isScannerAttached,
   onClose,
 }: {
-  isScannerIdle: boolean;
+  isScannerAttached: boolean;
   onClose: VoidFunction;
 }): JSX.Element {
   const performDiagnosticMutation = performScanDiagnostic.useMutation();
@@ -16,7 +16,7 @@ function TestScanModal({
   assert(status !== 'error');
   switch (status) {
     case 'idle':
-      if (!isScannerIdle) {
+      if (!isScannerAttached) {
         return (
           <Modal
             title="Test Scan Diagnostic"
@@ -124,8 +124,9 @@ function TestScanModal({
 
 export function TestScanButton(): JSX.Element {
   const statusQuery = getStatus.usePollingQuery();
-  const isScannerIdle =
-    statusQuery.isSuccess && statusQuery.data.state === 'idle';
+  const isScannerAttached =
+    statusQuery.isSuccess && statusQuery.data.isScannerAttached;
+  const isScannerIdle = isScannerAttached && statusQuery.data.state === 'idle';
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   return (
     <React.Fragment>
@@ -134,7 +135,7 @@ export function TestScanButton(): JSX.Element {
       </Button>
       {isModalOpen && (
         <TestScanModal
-          isScannerIdle={isScannerIdle}
+          isScannerAttached={isScannerAttached}
           onClose={() => setIsModalOpen(false)}
         />
       )}
