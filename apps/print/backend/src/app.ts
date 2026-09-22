@@ -42,6 +42,7 @@ import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import {
   cleanupCachedBrowser,
   concatenatePdfs,
+  ConcatenatePdfsErrorCode,
   PrintProps,
   PrintSides,
   renderToPdf,
@@ -449,7 +450,7 @@ export function buildApi(ctx: AppContext) {
       languageCode: LanguageCode;
       ballotType: BallotType;
       copiesPerStyle: number;
-    }): Promise<Result<void, Error>> {
+    }): Promise<Result<void, ConcatenatePdfsErrorCode>> {
       const { electionDefinition } = assertDefined(store.getElectionRecord());
       const printerStatus = await printer.status();
       await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
@@ -520,6 +521,11 @@ export function buildApi(ctx: AppContext) {
         maxSizeBytes: MAX_PRINT_ALL_BALLOTS_SIZE_BYTES,
       });
       if (concatenatedPdfResult.isErr()) {
+        await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+          message: 'Failed to concatenate PDFs for printing.',
+          disposition: 'failure',
+        });
+
         return concatenatedPdfResult;
       }
 

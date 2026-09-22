@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { PDFDocument } from 'pdf-lib';
-import { sleep } from '@votingworks/basics';
+import { err, sleep } from '@votingworks/basics';
 import { concatenatePdfs, getPdfPageCount } from './pdf_utils.js';
 
 describe('getPdfPageCount', () => {
@@ -70,7 +70,7 @@ describe('concatenatePdfs', () => {
     const result = await concatenatePdfs([pdf, pdf], {
       maxSizeBytes: pdf.byteLength,
     });
-    expect(result.err()?.message).toMatch(/Output PDF would be too large/);
+    expect(result).toEqual(err('job_too_large'));
   });
 
   test('accepts inputs at exactly the maximum size', async () => {

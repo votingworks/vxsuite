@@ -847,7 +847,7 @@ async function expectPrintedJobMatchesBallotsInOrder({
   );
 }
 
-test('printAllBallotStyles reports an error without printing when the ballots are too large', async () => {
+test('printAllBallotStyles returns job_too_large without printing anything', async () => {
   await configureMachine({
     electionDefinition:
       sharedFixtures.primaryPrecinctSplitsMultiLangElectionDefinition,
@@ -858,9 +858,7 @@ test('printAllBallotStyles reports an error without printing when the ballots ar
   });
   mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
-  vi.mocked(concatenatePdfs).mockResolvedValueOnce(
-    err(new Error('Output PDF would be too large: 99 exceeds 1 max bytes'))
-  );
+  vi.mocked(concatenatePdfs).mockResolvedValueOnce(err('job_too_large'));
 
   const jobsBefore = mockPrinterHandler.getPrintJobHistory().length;
   const result = await apiClient.printAllBallotStyles({
@@ -869,7 +867,7 @@ test('printAllBallotStyles reports an error without printing when the ballots ar
     copiesPerStyle: 1,
   });
 
-  expect(result.err()?.message).toMatch(/Output PDF would be too large/);
+  expect(result).toEqual(err('job_too_large'));
   expect(mockPrinterHandler.getPrintJobHistory()).toHaveLength(jobsBefore);
   for (const count of await apiClient.getBallotPrintCounts()) {
     expect(count.totalCount).toEqual(0);

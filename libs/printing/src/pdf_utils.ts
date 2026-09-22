@@ -12,24 +12,22 @@ export async function getPdfPageCount(pdfBytes: Uint8Array): Promise<number> {
   return pdf.getPageCount();
 }
 
+export type ConcatenatePdfsErrorCode = 'job_too_large';
+
 /**
  * Concatenates PDF documents into a single document, preserving order.
  */
 export async function concatenatePdfs(
   pdfs: Uint8Array[],
   { maxSizeBytes }: { maxSizeBytes?: number } = {}
-): Promise<Result<Uint8Array, Error>> {
+): Promise<Result<Uint8Array, ConcatenatePdfsErrorCode>> {
   if (maxSizeBytes !== undefined) {
     const totalSizeBytes = pdfs.reduce(
       (total, pdf) => total + pdf.byteLength,
       0
     );
     if (totalSizeBytes > maxSizeBytes) {
-      return err(
-        new Error(
-          `Output PDF would be too large: ${totalSizeBytes} exceeds ${maxSizeBytes} max bytes`
-        )
-      );
+      return err('job_too_large');
     }
   }
 

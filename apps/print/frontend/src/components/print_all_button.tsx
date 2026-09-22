@@ -10,7 +10,7 @@ import {
   SegmentedButton,
 } from '@votingworks/ui';
 import { BallotType, LanguageCode } from '@votingworks/types';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { format, getLanguageOptions } from '@votingworks/utils';
 import {
   getDistinctBallotStylesCount,
@@ -82,14 +82,23 @@ function PrintAllModal({
   }
 
   if (printAllMutation.isSuccess && printAllMutation.data.isErr()) {
-    return (
-      <Modal
-        centerContent
-        content={
-          <P>Failed to print ballots: {printAllMutation.data.err().message}</P>
-        }
-      />
-    );
+    const error = printAllMutation.data.err();
+    switch (error) {
+      case 'job_too_large':
+        return (
+          <Modal
+            centerContent
+            content={
+              <P>
+                The print job was too large. Please try printing fewer copies or
+                choose a single ballot style.
+              </P>
+            }
+          />
+        );
+      default:
+        throwIllegalValue(error);
+    }
   }
 
   if (isShowingPrintingModal) {
