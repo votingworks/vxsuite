@@ -1,16 +1,14 @@
-import { afterAll, beforeAll, expect } from 'vitest';
+import { afterAll, beforeAll } from 'vitest';
 import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
 import { cleanupCachedBrowser } from '@votingworks/printing/browser';
-import { toMatchImageSnapshot } from 'jest-image-snapshot';
+import '@votingworks/image-utils/vitest-setup';
 
 afterAll(async () => {
   await cleanupCachedBrowser();
 });
-
-expect.extend({ toMatchImageSnapshot });
 
 beforeAll(setupTemporaryRootDir);
 afterAll(clearTemporaryRootDir);

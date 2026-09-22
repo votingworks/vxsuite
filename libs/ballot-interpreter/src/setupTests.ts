@@ -1,11 +1,9 @@
+import { afterAll, beforeAll } from 'vitest';
 import {
   clearTemporaryRootDir,
   setupTemporaryRootDir,
 } from '@votingworks/fixtures';
-import { toMatchImageSnapshot } from 'jest-image-snapshot';
-import { afterAll, beforeAll, expect } from 'vitest';
-
-expect.extend({ toMatchImageSnapshot });
+import '@votingworks/image-utils/vitest-setup';
 
 beforeAll(setupTemporaryRootDir);
 afterAll(clearTemporaryRootDir);
