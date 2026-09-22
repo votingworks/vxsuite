@@ -47,40 +47,43 @@ describe('concatenatePdfs', () => {
   }
 
   test('concatenates documents in order', async () => {
-    const merged = await concatenatePdfs([
-      await pdfWithPageWidths([10]),
-      await pdfWithPageWidths([20, 30]),
-      await pdfWithPageWidths([40, 50, 60]),
-    ]);
+    const merged = (
+      await concatenatePdfs([
+        await pdfWithPageWidths([10]),
+        await pdfWithPageWidths([20, 30]),
+        await pdfWithPageWidths([40, 50, 60]),
+      ])
+    ).unsafeUnwrap();
     expect(await pageWidthsOf(merged)).toEqual([10, 20, 30, 40, 50, 60]);
   });
 
   test('produces the same bytes for the same inputs', async () => {
     const pdfs = [await pdfWithPageWidths([10]), await pdfWithPageWidths([20])];
-    const first = await concatenatePdfs(pdfs);
+    const first = (await concatenatePdfs(pdfs)).unsafeUnwrap();
     await sleep(1100);
-    const second = await concatenatePdfs(pdfs);
+    const second = (await concatenatePdfs(pdfs)).unsafeUnwrap();
     expect(second).toEqual(first);
   });
 
   test('refuses inputs whose combined size exceeds the maximum', async () => {
     const pdf = await pdfWithPageWidths([10]);
-    await expect(
-      concatenatePdfs([pdf, pdf], { maxSizeBytes: pdf.byteLength })
-    ).rejects.toThrow(/Output PDF would be too large/);
+    const result = await concatenatePdfs([pdf, pdf], {
+      maxSizeBytes: pdf.byteLength,
+    });
+    expect(result.err()?.message).toMatch(/Output PDF would be too large/);
   });
 
   test('accepts inputs at exactly the maximum size', async () => {
     const pdf = await pdfWithPageWidths([10]);
-    const merged = await concatenatePdfs([pdf, pdf], {
-      maxSizeBytes: pdf.byteLength * 2,
-    });
+    const merged = (
+      await concatenatePdfs([pdf, pdf], { maxSizeBytes: pdf.byteLength * 2 })
+    ).unsafeUnwrap();
     expect(await pageWidthsOf(merged)).toEqual([10, 10]);
   });
 
   test('accepts the same document more than once', async () => {
     const pdf = await pdfWithPageWidths([10, 20]);
-    const merged = await concatenatePdfs([pdf, pdf, pdf]);
+    const merged = (await concatenatePdfs([pdf, pdf, pdf])).unsafeUnwrap();
     expect(await pageWidthsOf(merged)).toEqual([10, 20, 10, 20, 10, 20]);
     expect(await pageWidthsOf(pdf)).toEqual([10, 20]);
   });

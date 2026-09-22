@@ -78,10 +78,15 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 
 vi.mock(
   import('@votingworks/printing'),
-  async (importActual): Promise<typeof import('@votingworks/printing')> => ({
-    ...(await importActual()),
-    renderToPdf: vi.fn().mockResolvedValue(ok(new Uint8Array())),
-  })
+  async (importActual): Promise<typeof import('@votingworks/printing')> => {
+    const actual = await importActual();
+    return {
+      ...actual,
+      renderToPdf: vi.fn().mockResolvedValue(ok(new Uint8Array())),
+      // Spied so a test can force the too-large error
+      concatenatePdfs: vi.fn(actual.concatenatePdfs),
+    };
+  }
 );
 
 vi.mock(
@@ -749,11 +754,13 @@ test('printAllBallotStyles works for combined ballot primary (consolidated ballo
   });
   mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
-  await apiClient.printAllBallotStyles({
-    languageCode: LanguageCode.ENGLISH,
-    ballotType: BallotType.Precinct,
-    copiesPerStyle: 1,
-  });
+  (
+    await apiClient.printAllBallotStyles({
+      languageCode: LanguageCode.ENGLISH,
+      ballotType: BallotType.Precinct,
+      copiesPerStyle: 1,
+    })
+  ).unsafeUnwrap();
 
   const counts = await apiClient.getBallotPrintCounts();
   expect(counts.length).toEqual(
@@ -834,11 +841,40 @@ async function expectPrintedJobMatchesBallotsInOrder({
       expectedPages.push(pdf);
     }
   }
-  const expected = await concatenatePdfs(expectedPages);
+  const expected = (await concatenatePdfs(expectedPages)).unsafeUnwrap();
   expect(sha256(await readFile(printJobPath))).toEqual(
     sha256(Buffer.from(expected))
   );
 }
+
+test('printAllBallotStyles reports an error without printing when the ballots are too large', async () => {
+  await configureMachine({
+    electionDefinition:
+      sharedFixtures.primaryPrecinctSplitsMultiLangElectionDefinition,
+    ballots: sharedFixtures.primaryPrecinctSplitsMultiLangOfficialBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
+
+  vi.mocked(concatenatePdfs).mockResolvedValueOnce(
+    err(new Error('Output PDF would be too large: 99 exceeds 1 max bytes'))
+  );
+
+  const jobsBefore = mockPrinterHandler.getPrintJobHistory().length;
+  const result = await apiClient.printAllBallotStyles({
+    languageCode: LanguageCode.ENGLISH,
+    ballotType: BallotType.Precinct,
+    copiesPerStyle: 1,
+  });
+
+  expect(result.err()?.message).toMatch(/Output PDF would be too large/);
+  expect(mockPrinterHandler.getPrintJobHistory()).toHaveLength(jobsBefore);
+  for (const count of await apiClient.getBallotPrintCounts()) {
+    expect(count.totalCount).toEqual(0);
+  }
+});
 
 test('printAllBallotStyles prints every style and updates counts in a stable order', async () => {
   // Use primary election to cover party name sorting logic
@@ -889,11 +925,13 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
     );
 
   const jobsBeforePrecinct = mockPrinterHandler.getPrintJobHistory().length;
-  await apiClient.printAllBallotStyles({
-    languageCode: LanguageCode.ENGLISH,
-    ballotType: BallotType.Precinct,
-    copiesPerStyle: 1,
-  });
+  (
+    await apiClient.printAllBallotStyles({
+      languageCode: LanguageCode.ENGLISH,
+      ballotType: BallotType.Precinct,
+      copiesPerStyle: 1,
+    })
+  ).unsafeUnwrap();
   const jobsAfterPrecinct = mockPrinterHandler.getPrintJobHistory().length;
   expect(jobsAfterPrecinct - jobsBeforePrecinct).toEqual(1);
 
@@ -924,11 +962,13 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
     );
 
   const jobsBeforeAbsentee = mockPrinterHandler.getPrintJobHistory().length;
-  await apiClient.printAllBallotStyles({
-    languageCode: LanguageCode.ENGLISH,
-    ballotType: BallotType.Absentee,
-    copiesPerStyle: 2,
-  });
+  (
+    await apiClient.printAllBallotStyles({
+      languageCode: LanguageCode.ENGLISH,
+      ballotType: BallotType.Absentee,
+      copiesPerStyle: 2,
+    })
+  ).unsafeUnwrap();
   const jobsAfterAbsentee = mockPrinterHandler.getPrintJobHistory().length;
   expect(jobsAfterAbsentee - jobsBeforeAbsentee).toEqual(1);
 
