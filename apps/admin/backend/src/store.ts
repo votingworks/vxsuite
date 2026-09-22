@@ -2085,7 +2085,9 @@ export class Store implements BaseStore {
           cvrs.votes as votes,
           cvrs.adjudicated_votes as adjudicatedVotes
         from cvrs
-        inner join scanner_batches on cvrs.batch_id = scanner_batches.id
+        inner join scanner_batches on
+          cvrs.election_id = scanner_batches.election_id and
+          cvrs.batch_id = scanner_batches.id
         inner join ballot_styles on
           cvrs.election_id = ballot_styles.election_id and
           cvrs.ballot_style_group_id = ballot_styles.group_id
@@ -2207,7 +2209,9 @@ export class Store implements BaseStore {
             cvrs.card_type as cardType,
             count(cvrs.id) as tally
           from cvrs
-          inner join scanner_batches on cvrs.batch_id = scanner_batches.id
+          inner join scanner_batches on
+          cvrs.election_id = scanner_batches.election_id and
+          cvrs.batch_id = scanner_batches.id
           inner join ballot_styles on
             cvrs.election_id = ballot_styles.election_id and
             cvrs.ballot_style_group_id = ballot_styles.group_id
@@ -3048,7 +3052,9 @@ export class Store implements BaseStore {
           from write_ins
           inner join
             cvrs on write_ins.cvr_id = cvrs.id
-          inner join scanner_batches on cvrs.batch_id = scanner_batches.id
+          inner join scanner_batches on
+          cvrs.election_id = scanner_batches.election_id and
+          cvrs.batch_id = scanner_batches.id
           inner join ballot_styles on
               cvrs.election_id = ballot_styles.election_id and
               cvrs.ballot_style_group_id = ballot_styles.group_id
