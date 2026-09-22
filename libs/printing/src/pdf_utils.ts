@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/basics';
+import { err, ok, Result } from '@votingworks/basics';
 import { PDFDocument } from 'pdf-lib';
 
 /**
@@ -18,16 +18,19 @@ export async function getPdfPageCount(pdfBytes: Uint8Array): Promise<number> {
 export async function concatenatePdfs(
   pdfs: Uint8Array[],
   { maxSizeBytes }: { maxSizeBytes?: number } = {}
-): Promise<Uint8Array> {
+): Promise<Result<Uint8Array, Error>> {
   if (maxSizeBytes !== undefined) {
     const totalSizeBytes = pdfs.reduce(
       (total, pdf) => total + pdf.byteLength,
       0
     );
-    assert(
-      totalSizeBytes <= maxSizeBytes,
-      `Output PDF would be too large: ${totalSizeBytes} exceeds ${maxSizeBytes} max bytes`
-    );
+    if (totalSizeBytes > maxSizeBytes) {
+      return err(
+        new Error(
+          `Output PDF would be too large: ${totalSizeBytes} exceeds ${maxSizeBytes} max bytes`
+        )
+      );
+    }
   }
 
   // `updateMetadata: false` prevents adding a timestamp to the output.
@@ -40,5 +43,6 @@ export async function concatenatePdfs(
       merged.addPage(page);
     }
   }
-  return merged.save();
+  const pdf = await merged.save();
+  return ok(pdf);
 }

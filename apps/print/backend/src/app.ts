@@ -449,7 +449,7 @@ export function buildApi(ctx: AppContext) {
       languageCode: LanguageCode;
       ballotType: BallotType;
       copiesPerStyle: number;
-    }): Promise<void> {
+    }): Promise<Result<void, Error>> {
       const { electionDefinition } = assertDefined(store.getElectionRecord());
       const printerStatus = await printer.status();
       await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
@@ -516,10 +516,15 @@ export function buildApi(ctx: AppContext) {
           pagesToPrint.push(pdf);
         }
       }
+      const concatenatedPdfResult = await concatenatePdfs(pagesToPrint, {
+        maxSizeBytes: MAX_PRINT_ALL_BALLOTS_SIZE_BYTES,
+      });
+      if (concatenatedPdfResult.isErr()) {
+        return concatenatedPdfResult;
+      }
+
       await printBallots(electionDefinition, {
-        data: await concatenatePdfs(pagesToPrint, {
-          maxSizeBytes: MAX_PRINT_ALL_BALLOTS_SIZE_BYTES,
-        }),
+        data: concatenatedPdfResult.ok(),
         copies: 1,
       });
 
@@ -543,6 +548,8 @@ export function buildApi(ctx: AppContext) {
         }),
         disposition: 'success',
       });
+
+      return ok();
     },
 
     async printBallotsPrintedReport(): Promise<void> {

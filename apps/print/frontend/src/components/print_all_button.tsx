@@ -5,6 +5,7 @@ import {
   Loading,
   Modal,
   NumberInput,
+  P,
   RadioGroup,
   SegmentedButton,
 } from '@votingworks/ui';
@@ -78,6 +79,17 @@ function PrintAllModal({
       copiesPerStyle: numCopies,
       languageCode,
     });
+  }
+
+  if (printAllMutation.isSuccess && printAllMutation.data.isErr()) {
+    return (
+      <Modal
+        centerContent
+        content={
+          <P>Failed to print ballots: {printAllMutation.data.err().message}</P>
+        }
+      />
+    );
   }
 
   if (isShowingPrintingModal) {
