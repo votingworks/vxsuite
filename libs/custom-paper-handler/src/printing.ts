@@ -1,5 +1,6 @@
 import { BITS_PER_BYTE } from '@votingworks/message-coder';
 import { RgbaImageData } from '@votingworks/types';
+import { RGBA_CHANNEL_COUNT, rgbToGrayscale } from '@votingworks/image-utils';
 import { PaperHandlerBitmap } from './driver/coders.js';
 import { VERTICAL_DOTS_IN_CHUNK } from './driver/constants.js';
 
@@ -8,24 +9,10 @@ export interface PaperHandlerBitmapExt extends PaperHandlerBitmap {
 }
 
 /**
- * Converts 8-bit sRGB color values to an 8-bit grayscale value without gamma
- * correction.
- *
- * @param r Red color value from 0 - 255
- * @param g Green color value from 0 - 255
- * @param b Blue color value from 0 - 255
- * @returns Grayscale color value from 0 - 255
- */
-export function rgbToGrayscale(r: number, g: number, b: number): number {
-  return 0.299 * r + 0.587 * g + 0.114 * b;
-}
-
-/**
  * Below this value, we consider the grayscale to be black. Otherwise, white.
  */
 const GRAYSCALE_WHITE_THRESHOLD = 230;
 
-const IMAGE_DATA_BYTES_PER_PIXEL = 4;
 export const BYTES_PER_CHUNK_COLUMN = VERTICAL_DOTS_IN_CHUNK / BITS_PER_BYTE;
 
 /**
@@ -62,7 +49,7 @@ export function imageDataToPaperHandlerChunks(
         for (let bit = 0; bit < BITS_PER_BYTE; bit += 1) {
           const y = chunkFirstRow + byteIndex * BITS_PER_BYTE + bit;
           const imageDataByteOffset =
-            (y * imageDataWidth + x) * IMAGE_DATA_BYTES_PER_PIXEL;
+            (y * imageDataWidth + x) * RGBA_CHANNEL_COUNT;
           const isBlack =
             rgbToGrayscale(
               data[imageDataByteOffset] as number,
