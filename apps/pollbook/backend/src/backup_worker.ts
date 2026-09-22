@@ -7,7 +7,7 @@ import { setInterval } from 'node:timers/promises';
 import { MarginDimensions, renderToPdf } from '@votingworks/printing';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { assertDefined, err, ok, iter, Result } from '@votingworks/basics';
-import { PDFDocument } from 'pdf-lib';
+import { concatenatePdfs } from '@votingworks/image-utils/pdf';
 
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
 import { PartyAbbreviation } from '@votingworks/types';
@@ -21,21 +21,6 @@ import {
 import { LocalStore } from './local_store.js';
 
 const BACKUP_INTERVAL = 1_000 * 60; // 1 minute
-
-export async function concatenatePdfs(pdfs: Uint8Array[]): Promise<Uint8Array> {
-  const combinedPdf = await PDFDocument.create();
-  for (const pdf of pdfs) {
-    const pdfDoc = await PDFDocument.load(pdf);
-    const copiedPages = await combinedPdf.copyPages(
-      pdfDoc,
-      pdfDoc.getPageIndices()
-    );
-    for (const page of copiedPages) {
-      combinedPdf.addPage(page);
-    }
-  }
-  return Uint8Array.from(await combinedPdf.save());
-}
 
 async function* splitIntoBalancedChunks<T>(
   items: AsyncIterable<T>,

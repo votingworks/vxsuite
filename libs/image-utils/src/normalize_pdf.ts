@@ -1,7 +1,7 @@
 import * as fs from 'node:fs/promises';
 
 import { Buffer } from 'node:buffer';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { safeParseInt } from '@votingworks/types';
 
 /**
@@ -18,9 +18,10 @@ function renumberPdfObjects(str: string): string {
   const defRegex = /(\d+) 0 obj/g;
   let match = defRegex.exec(str);
   while (match) {
+    const num = assertDefined(match[1]);
     // @coverage-defer
-    if (!oldToNew.has(match[1])) {
-      oldToNew.set(match[1], nextNum);
+    if (!oldToNew.has(num)) {
+      oldToNew.set(num, nextNum);
       nextNum += 1;
     }
     match = defRegex.exec(str);
@@ -79,7 +80,7 @@ function renumberPdfObjects(str: string): string {
  * Idempotent — safe to apply after rendering and again after any
  * transformation (ghostscript, pdf-lib concatenation, etc.).
  */
-export function normalizePdf(pdf: Buffer): Uint8Array {
+export function normalizePdf(pdf: Uint8Array): Buffer {
   const ZERO_TIMESTAMP = "D:00000000000000+00'00'";
   const ZERO_XMP_DATE = '0000-00-00T00:00:00+00:00';
   const ZERO_UUID = '00000000-0000-0000-0000-000000000000';
@@ -91,7 +92,41 @@ export function normalizePdf(pdf: Buffer): Uint8Array {
   // losslessly. This lets us use regex on the ASCII-structured parts of the PDF
   // (timestamps, object numbers, etc.) while binary data (compressed streams,
   // images) passes through untouched and converts back to the original bytes.
-  let str = pdf.toString('latin1');
+  let str = Buffer.from(pdf.buffer, pdf.byteOffset, pdf.byteLength).toString(
+    'latin1'
+  );
+
+  // Chromium assigns DOM node IDs (node00000001, etc.) that increment based on
+  // page reuse history. These are internal identifiers used in the structure
+  // tree for accessibility tagging — they don't affect visual rendering.
+  // Re-sequencing them makes the output consistent regardless of page history.
+  let counter = 0;
+  str = str.replace(
+    new RegExp(`node\\d{${CHROMIUM_NODE_ID_WIDTH}}`, 'g'),
+    () => {
+      counter += 1;
+      return `node${String(counter).padStart(CHROMIUM_NODE_ID_WIDTH, '0')}`;
+    }
+  );
+
+  // /ID pairs in hex form (/ID [<hex><hex>], with optional whitespace as
+  // emitted by pdf-lib) identify the document for viewers — no effect on
+  // content. Only the hex digits are replaced, preserving byte offsets.
+  str = str.replace(
+    /(\/ID \[\s*<)[0-9A-Fa-f]{32}(>\s*<)[0-9A-Fa-f]{32}(>)/g,
+    `$1${ZERO_HEX_ID}$2${ZERO_HEX_ID}$3`
+  );
+
+  // A PDF whose cross-reference data lives in a compressed stream (pdf-lib's
+  // default output) encodes byte offsets in binary, so only same-length
+  // substitutions are safe: zero the 14 timestamp digits and stop.
+  if (!/(^|\n)xref\r?\n[\s\S]*?\ntrailer\b/.test(str)) {
+    str = str.replace(
+      /(\/(?:CreationDate|ModDate) ?\()D:\d{14}/g,
+      '$1D:00000000000000'
+    );
+    return Buffer.from(str, 'latin1');
+  }
 
   // Chromium embeds the current time in CreationDate/ModDate. These are
   // metadata-only and don't affect rendering or content.
@@ -113,19 +148,6 @@ export function normalizePdf(pdf: Buffer): Uint8Array {
   str = str.replace(
     /\/ModDate\(D:\d{14}[^)]*\)/g,
     `/ModDate(${ZERO_TIMESTAMP})`
-  );
-
-  // Chromium assigns DOM node IDs (node00000001, etc.) that increment based on
-  // page reuse history. These are internal identifiers used in the structure
-  // tree for accessibility tagging — they don't affect visual rendering.
-  // Re-sequencing them makes the output consistent regardless of page history.
-  let counter = 0;
-  str = str.replace(
-    new RegExp(`node\\d{${CHROMIUM_NODE_ID_WIDTH}}`, 'g'),
-    () => {
-      counter += 1;
-      return `node${String(counter).padStart(CHROMIUM_NODE_ID_WIDTH, '0')}`;
-    }
   );
 
   // The /Names array maps DOM node IDs to PDF structure tree element objects.
@@ -153,15 +175,8 @@ export function normalizePdf(pdf: Buffer): Uint8Array {
     `xapMM:DocumentID='uuid:${ZERO_UUID}'`
   );
 
-  // Ghostscript generates unique /ID pairs per run. These are used for PDF
-  // document identification (e.g. by viewers to detect the same document) — no
-  // effect on content. Handles the hex form (/ID [<hex><hex>], with optional
-  // whitespace as emitted by pdf-lib) and the string literal form
-  // (/ID [(...)(...)]).
-  str = str.replace(
-    /\/ID \[\s*<[0-9A-Fa-f]{32}>\s*<[0-9A-Fa-f]{32}>\s*\]/g,
-    `/ID [<${ZERO_HEX_ID}><${ZERO_HEX_ID}>]`
-  );
+  // Ghostscript generates unique /ID pairs in string literal form
+  // (/ID [(...)(...)]) per run — no effect on content.
   str = str.replace(
     /\/ID \[\((?:[^)\\]|\\.)*\)\((?:[^)\\]|\\.)*\)\]/g,
     `/ID [<${ZERO_HEX_ID}><${ZERO_HEX_ID}>]`

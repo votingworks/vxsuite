@@ -11,7 +11,7 @@ import {
   safeParseSystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-import { getPdfPageCount } from '@votingworks/image-utils';
+import { getPdfPageCount } from '@votingworks/image-utils/pdf';
 import { TestLanguageCode } from '@votingworks/test-utils';
 import {
   getLayout,
@@ -25,7 +25,7 @@ import { createWorkspace, Workspace } from './workspace.js';
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;
 
-vi.mock(import('@votingworks/image-utils'), async (importActual) => ({
+vi.mock(import('@votingworks/image-utils/pdf'), async (importActual) => ({
   ...(await importActual()),
   getPdfPageCount: vi.fn().mockImplementation(() => {
     throw new Error('Unexpected call to getPdfPageCount during this test');

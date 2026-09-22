@@ -1,5 +1,6 @@
 import { join } from 'node:path';
 import { Alias, defineConfig } from 'vite';
+import { assertDefined } from '@votingworks/basics';
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 
 export default defineConfig(async (env) => {
@@ -17,6 +18,11 @@ export default defineConfig(async (env) => {
       // TODO: Replace these with the appropriate `import.meta.env` values.
       // ...processEnvDefines,
     },
+
+    // `pdfToImages` loads the native canvas addon lazily; keep the bundler
+    // from trying to load it for the browser.
+    optimizeDeps: { exclude: ['@napi-rs/canvas'] },
+    build: { rollupOptions: { external: ['@napi-rs/canvas'] } },
 
     resolve: {
       alias: [
@@ -63,6 +69,17 @@ export default defineConfig(async (env) => {
         { find: /^node:path\/?$/, replacement: require.resolve('path/') },
         { find: /^util\/?$/, replacement: require.resolve('util/') },
         { find: /^node:util\/?$/, replacement: require.resolve('util/') },
+
+        // Subpath exports must come before the package aliases below, which
+        // would otherwise rewrite them to paths under `src/index.ts`.
+        {
+          find: '@votingworks/image-utils/pdf',
+          replacement: join(
+            assertDefined(workspacePackages.get('@votingworks/image-utils'))
+              .path,
+            'src/pdf.ts'
+          ),
+        },
 
         // Create aliases for all workspace packages, i.e.
         //

@@ -1,5 +1,6 @@
 import { iter } from '@votingworks/basics';
-import { createGrayImageData, pdfToImages } from '@votingworks/image-utils';
+import { createGrayImageData } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils/pdf';
 import { asSheet, GrayImageData, SheetOf } from '@votingworks/types';
 import {
   existsSync,

@@ -4,7 +4,8 @@ import { join, relative } from 'node:path';
 import { beforeAll, describe, expect, test } from 'vitest';
 import fontKit from '@pdf-lib/fontkit';
 import { PDFDocument, PDFFont, rgb } from 'pdf-lib';
-import { pdfToImages, toImageBuffer } from '@votingworks/image-utils';
+import { toImageBuffer } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils/pdf';
 import { assertDefined } from '@votingworks/basics';
 import {
   ballotPaperDimensions,

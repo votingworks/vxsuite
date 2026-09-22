@@ -857,9 +857,7 @@ test('register a voter, change name and address, and check in', async () => {
       expect(statisticsResult.ok()).toEqual(undefined);
       const statisticsReceipt = mockPrinterHandler.getLastPrintPath();
       expect(statisticsReceipt).toBeDefined();
-      await expect(statisticsReceipt).toMatchPdfSnapshot({
-        failureThreshold: 0.05,
-      });
+      await expect(statisticsReceipt).toMatchPdfSnapshot();
     }
   );
 });
