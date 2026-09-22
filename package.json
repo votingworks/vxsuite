@@ -34,7 +34,7 @@
     "sort-package-json": "^1.50.0",
     "stylelint": "^15.10.2",
     "stylelint-config-standard": "^34.0.0",
-    "turbo": "2.10.5",
+    "turbo": "2.11.2",
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "vitest": "^4.1.11"
   },
