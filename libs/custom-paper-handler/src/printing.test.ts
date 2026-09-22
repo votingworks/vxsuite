@@ -5,8 +5,6 @@ import { assertDefined } from '@votingworks/basics';
 import {
   BYTES_PER_CHUNK_COLUMN,
   PaperHandlerBitmapExt,
-  getBlackChunk,
-  getWhiteChunk,
   imageDataToPaperHandlerChunks,
 } from './printing.js';
 import { VERTICAL_DOTS_IN_CHUNK } from './driver/constants.js';
@@ -101,15 +99,4 @@ test('imageDataToPaperHandlerChunks of an image shorter than a chunk is empty', 
   expect(
     imageDataToPaperHandlerChunks(whiteImage(10, VERTICAL_DOTS_IN_CHUNK - 1))
   ).toEqual([]);
-});
-
-test('getBlackChunk and getWhiteChunk', () => {
-  expect(getBlackChunk(2)).toEqual({
-    width: 2,
-    data: new Uint8Array([255, 255, 255, 255, 255, 255]),
-  });
-  expect(getWhiteChunk(2)).toEqual({
-    width: 2,
-    data: new Uint8Array([0, 0, 0, 0, 0, 0]),
-  });
 });

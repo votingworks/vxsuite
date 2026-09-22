@@ -1,6 +1,5 @@
 import { BITS_PER_BYTE } from '@votingworks/message-coder';
 import { RgbaImageData } from '@votingworks/types';
-import { Uint8Max } from './bits.js';
 import { PaperHandlerBitmap } from './driver/coders.js';
 import { VERTICAL_DOTS_IN_CHUNK } from './driver/constants.js';
 
@@ -90,22 +89,7 @@ export function imageDataToPaperHandlerChunks(
     chunks.push({
       width: imageDataWidth,
       data: empty ? new Uint8Array() : chunkData,
-      empty,
     });
   }
   return chunks;
-}
-
-export function getBlackChunk(width: number): PaperHandlerBitmapExt {
-  return {
-    width,
-    data: new Uint8Array(width * BYTES_PER_CHUNK_COLUMN).fill(Uint8Max),
-  };
-}
-
-export function getWhiteChunk(width: number): PaperHandlerBitmapExt {
-  return {
-    width,
-    data: new Uint8Array(width * BYTES_PER_CHUNK_COLUMN).fill(0),
-  };
 }
