@@ -73,7 +73,7 @@ export async function printBallotChunks(
   await enablePrintPromise;
   let dotsSkipped = 0;
   for (const customChunkedBitmap of customChunkedBitmaps) {
-    if (customChunkedBitmap.empty) {
+    if (customChunkedBitmap.data.byteLength === 0) {
       dotsSkipped += VERTICAL_DOTS_IN_CHUNK;
     } else {
       if (dotsSkipped) {

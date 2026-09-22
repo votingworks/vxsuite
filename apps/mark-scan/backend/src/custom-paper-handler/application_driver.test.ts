@@ -56,7 +56,6 @@ test('print ballot', async () => {
     {
       width: 0,
       data: Buffer.of(),
-      empty: true,
     },
     {
       width: 1,

@@ -4,10 +4,10 @@ import { RgbaImageData } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import {
   BYTES_PER_CHUNK_COLUMN,
-  PaperHandlerBitmapExt,
   imageDataToPaperHandlerChunks,
 } from './printing.js';
 import { VERTICAL_DOTS_IN_CHUNK } from './driver/constants.js';
+import { PaperHandlerBitmap } from './driver/coders.js';
 
 function whiteImage(width: number, height: number): RgbaImageData {
   const imageData = createImageData(width, height);
@@ -15,7 +15,12 @@ function whiteImage(width: number, height: number): RgbaImageData {
   return imageData;
 }
 
-function paintGray(imageData: RgbaImageData, x: number, y: number, gray: number) {
+function paintGray(
+  imageData: RgbaImageData,
+  x: number,
+  y: number,
+  gray: number
+) {
   imageData.data.set([gray, gray, gray, 255], (y * imageData.width + x) * 4);
 }
 
@@ -25,7 +30,7 @@ function paintBlack(imageData: RgbaImageData, x: number, y: number) {
 
 /** Asserts the 3 bytes for the given column of a chunk. */
 function expectColumnBytes(
-  chunk: PaperHandlerBitmapExt,
+  chunk: PaperHandlerBitmap,
   x: number,
   expectedBytes: [number, number, number]
 ) {
@@ -57,7 +62,6 @@ test('imageDataToPaperHandlerChunks packs each column top-down, black = 1', () =
   expect(chunks).toHaveLength(1);
   const chunk = assertDefined(chunks[0]);
   expect(chunk.width).toEqual(4);
-  expect(chunk.empty).toEqual(false);
   expect(chunk.data).toHaveLength(4 * BYTES_PER_CHUNK_COLUMN);
   expectColumnBytes(chunk, 0, [0b1000_0001, 0, 0]);
   expectColumnBytes(chunk, 1, [0, 0b1000_0000, 0]);
@@ -80,17 +84,16 @@ test('imageDataToPaperHandlerChunks splits rows into chunks and drops the remain
   expectColumnBytes(assertDefined(chunks[1]), 1, [0, 0, 0]);
 });
 
-test('imageDataToPaperHandlerChunks flags all-white chunks as empty', () => {
+test('imageDataToPaperHandlerChunks truncates data for all-white chunks', () => {
   const imageData = whiteImage(3, 3 * VERTICAL_DOTS_IN_CHUNK);
   paintBlack(imageData, 2, 2 * VERTICAL_DOTS_IN_CHUNK);
 
   expect(imageDataToPaperHandlerChunks(imageData)).toEqual([
-    { width: 3, data: new Uint8Array(), empty: true },
-    { width: 3, data: new Uint8Array(), empty: true },
+    { width: 3, data: new Uint8Array() },
+    { width: 3, data: new Uint8Array() },
     {
       width: 3,
       data: new Uint8Array([0, 0, 0, 0, 0, 0, 0b1000_0000, 0, 0]),
-      empty: false,
     },
   ]);
 });

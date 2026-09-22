@@ -4,10 +4,6 @@ import { RGBA_CHANNEL_COUNT, rgbToGrayscale } from '@votingworks/image-utils';
 import { PaperHandlerBitmap } from './driver/coders.js';
 import { VERTICAL_DOTS_IN_CHUNK } from './driver/constants.js';
 
-export interface PaperHandlerBitmapExt extends PaperHandlerBitmap {
-  empty?: boolean;
-}
-
 /**
  * Below this value, we consider the grayscale to be black. Otherwise, white.
  */
@@ -19,12 +15,12 @@ export const BYTES_PER_CHUNK_COLUMN = VERTICAL_DOTS_IN_CHUNK / BITS_PER_BYTE;
  * Converts an image into the chunks the paper handler prints in image print
  * mode: bands `VERTICAL_DOTS_IN_CHUNK` dots high, each column of a band packed
  * top-down into `BYTES_PER_CHUNK_COLUMN` bytes, MSB = topmost dot, 1 = black.
- * An all-white chunk carries no data and is flagged `empty` so the caller can
- * skip it by advancing the print position instead of printing it.
+ * An all-white chunk is returned with empty data so the caller can skip it by
+ * advancing the print position instead of printing it.
  */
 export function imageDataToPaperHandlerChunks(
   imageData: RgbaImageData
-): PaperHandlerBitmapExt[] {
+): PaperHandlerBitmap[] {
   const { width: imageDataWidth, height: imageDataHeight, data } = imageData;
   // Rows below the last full chunk are dropped: printing close to the bottom
   // of the page can wedge the printer-scanner, and the bottom of our summary
@@ -66,7 +62,7 @@ export function imageDataToPaperHandlerChunks(
     }
   }
 
-  const chunks: PaperHandlerBitmapExt[] = [];
+  const chunks: PaperHandlerBitmap[] = [];
   for (let chunkIndex = 0; chunkIndex < chunkCount; chunkIndex += 1) {
     const chunkData = chunkBytes.slice(
       chunkIndex * bytesPerChunk,
