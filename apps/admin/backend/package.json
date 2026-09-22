@@ -16,6 +16,7 @@
     "schema.sql"
   ],
   "scripts": {
+    "benchmark": "pnpm -w vx-task build $npm_package_name && cd benchmarks && TZ=America/Anchorage vitest run",
     "build": "pnpm -w vx-task build $npm_package_name",
     "build:self": "tsc --build tsconfig.build.json",
     "clean": "pnpm -w vx-task clean $npm_package_name",
