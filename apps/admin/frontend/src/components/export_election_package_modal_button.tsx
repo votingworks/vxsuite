@@ -160,7 +160,7 @@ export function ExportElectionPackageModalButton(): JSX.Element {
             usbDriveStatus,
             electionPackageSize
           );
-          if (fit !== 'fits') {
+          if (!saveElectionPackageToUsbMutation.isLoading && fit !== 'fits') {
             const canFormat = isSystemAdministratorAuth(auth);
             const offerFormat = canFormat && fit !== 'drive-too-small';
             actions = (

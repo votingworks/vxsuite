@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { useContext, useState } from 'react';
 import userEvent from '@testing-library/user-event';
 import { Result, deferred, err, ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
@@ -9,10 +10,11 @@ import {
 } from '@votingworks/test-utils';
 import { DippedSmartCardAuth } from '@votingworks/types';
 import type { ExportDataError } from '@votingworks/admin-backend';
-import { screen, within } from '../../test/react_testing_library.js';
+import { act, screen, within } from '../../test/react_testing_library.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { ExportElectionPackageModalButton } from './export_election_package_modal_button.js';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import { AppContext } from '../contexts/app_context.js';
 
 let apiMock: ApiMock;
 
@@ -111,6 +113,45 @@ test('Modal renders export confirmation screen when usb detected', async () => {
   await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
+});
+
+test('Modal keeps showing the save in progress as the USB drive fills up', async () => {
+  let setUsbDriveStatus!: (usbDriveStatus: UsbDriveStatus) => void;
+  function WithUsbDriveStatus(): JSX.Element {
+    const appContext = useContext(AppContext);
+    const [usbDriveStatus, setState] = useState<UsbDriveStatus>(
+      mockUsbDriveStatus('mounted', { availableBytes: 2 * GIB })
+    );
+    setUsbDriveStatus = setState;
+    return (
+      <AppContext.Provider value={{ ...appContext, usbDriveStatus }}>
+        <ExportElectionPackageModalButton />
+      </AppContext.Provider>
+    );
+  }
+
+  apiMock.expectGetElectionPackageSize(GIB);
+  renderInAppContext(<WithUsbDriveStatus />, { apiMock });
+  userEvent.click(screen.getButton('Save Election Package'));
+  const modal = await screen.findByRole('alertdialog');
+
+  const { promise, resolve } = deferred<Result<void, ExportDataError>>();
+  apiMock.apiClient.saveElectionPackageToUsb.expectCallWith().returns(promise);
+  userEvent.click(await within(modal).findButton('Save'));
+  await within(modal).findButton('Saving...');
+
+  act(() =>
+    setUsbDriveStatus(
+      mockUsbDriveStatus('mounted', { availableBytes: GIB / 2 })
+    )
+  );
+  within(modal).getButton('Saving...');
+  expect(
+    within(modal).queryByText('Not Enough Space on USB Drive')
+  ).not.toBeInTheDocument();
+
+  resolve(ok());
+  await within(modal).findByText('Election Package Saved');
 });
 
 test('Modal renders error message appropriately', async () => {
