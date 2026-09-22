@@ -98,9 +98,10 @@ test('a file larger than one read chunk is read whole', async () => {
   const content = 'a'.repeat(READ_CHUNK_SIZE * 2 + 1);
   const path = makeTemporaryFile({ content });
 
-  expect(await readFile(path, { maxSize: content.length })).toEqual(
-    ok(Buffer.from(content))
-  );
+  const readContent = (
+    await readFile(path, { maxSize: content.length })
+  ).unsafeUnwrap();
+  expect(readContent.equals(Buffer.from(content))).toBeTruthy();
 });
 
 test('invalid maxSize', async () => {
@@ -126,11 +127,12 @@ test('success', async () => {
   await fc.assert(
     fc.asyncProperty(fc.uint8Array(), async (content) => {
       const path = makeTemporaryFile({ content });
-      expect(
+      const readContent = (
         await readFile(path, {
           maxSize: content.byteLength,
         })
-      ).toEqual(ok(Buffer.from(content)));
+      ).unsafeUnwrap();
+      expect(readContent.equals(Buffer.from(content))).toBeTruthy();
     })
   );
 });
