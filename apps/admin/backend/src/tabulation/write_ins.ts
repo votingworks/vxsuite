@@ -115,8 +115,6 @@ export function convertContestWriteInSummaryToWriteInTallies(
  * Modifies the summary in place! Do not export.
  */
 function addWriteInToElectionWriteInSummary({
-  store,
-  electionId,
   electionDefinition,
   electionWriteInSummary,
   writeIn,
@@ -124,8 +122,6 @@ function addWriteInToElectionWriteInSummary({
   // (i.e. pending unmarked write-ins, pending write-ins part of overvotes)
   includeUnallocablePendingWriteInsAsPending,
 }: {
-  store: Store;
-  electionId: Id;
   electionDefinition: ElectionDefinition;
   electionWriteInSummary: Tabulation.ElectionWriteInSummary;
   writeIn: WriteInForTally;
@@ -133,7 +129,7 @@ function addWriteInToElectionWriteInSummary({
 }): Tabulation.ElectionWriteInSummary {
   const {
     contestId,
-    cvrId,
+    votes: cvrVotes,
     officialCandidateId,
     writeInCandidateId,
     candidateName,
@@ -150,13 +146,6 @@ function addWriteInToElectionWriteInSummary({
     return electionWriteInSummary;
   }
 
-  const [cvr] = store.getCastVoteRecords({
-    electionId,
-    election: electionDefinition.election,
-    cvrId,
-    filter: {},
-  });
-  assert(cvr !== undefined);
   const contest = CachedElectionLookups.getContestById(
     electionDefinition,
     contestId
@@ -166,14 +155,14 @@ function addWriteInToElectionWriteInSummary({
   // If the ballot has a crossover vote and the write-in was for a partisan
   // contest, it doesn't count
   if (
-    hasCrossoverVote(electionDefinition.election, cvr.votes) &&
+    hasCrossoverVote(electionDefinition.election, cvrVotes) &&
     contest.partyId
   ) {
     contestWriteInSummary.invalidTally += 1;
     return electionWriteInSummary;
   }
 
-  const votes = assertDefined(cvr.votes[contestId]);
+  const votes = assertDefined(cvrVotes[contestId]);
 
   const isPending = officialCandidateId === null && writeInCandidateId === null;
   const isOvervote = votes.length > contest.seats;
@@ -267,8 +256,6 @@ export function tabulateWriteInTallies({
     const electionWriteInSummary = getEmptyElectionWriteInSummary(election);
     for (const writeIn of writeIns) {
       addWriteInToElectionWriteInSummary({
-        store,
-        electionId,
         electionDefinition,
         electionWriteInSummary,
         writeIn,
@@ -288,8 +275,6 @@ export function tabulateWriteInTallies({
 
       electionWriteInSummaryGroupMap[groupKey] =
         addWriteInToElectionWriteInSummary({
-          store,
-          electionId,
           electionDefinition,
           electionWriteInSummary: summary,
           writeIn,

@@ -271,6 +271,7 @@ export type WriteInAdjudicationStatus = WriteInRecord['status'];
 export interface WriteInForTally {
   contestId: ContestId;
   cvrId: Id;
+  votes: Tabulation.Votes;
   isInvalid: boolean;
   isUnmarked: boolean;
   candidateName: string | null;
