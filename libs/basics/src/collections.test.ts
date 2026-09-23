@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { map, reduce } from './collections';
+import { map, reduce } from './collections.js';
 
 test('map with an array', () => {
   const result = map(['a', 'b', 'c'], (value) => value.toUpperCase());

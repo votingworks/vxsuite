@@ -1,5 +1,3 @@
-// NodeJS can `require` an ES module as of v20.19, but tsc still rejects it.
-// @ts-expect-error - require of an ESM package
 const { loadEnvVarsFromDotenvFiles } = require('@votingworks/backend');
 
 loadEnvVarsFromDotenvFiles();

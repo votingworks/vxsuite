@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { mergeObjects } from './merge_objects';
+import { mergeObjects } from './merge_objects.js';
 
 test('mergeObjects', () => {
   expect(mergeObjects({}, {})).toEqual({});

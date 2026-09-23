@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { unique, uniqueBy, uniqueDeep } from './unique';
+import { unique, uniqueBy, uniqueDeep } from './unique.js';
 
 test('unique', () => {
   expect(unique([])).toEqual([]);

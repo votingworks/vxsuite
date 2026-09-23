@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { inspect, InspectOptions } from 'node:util';
-import { extractErrorMessage } from './errors';
+import { extractErrorMessage } from './errors.js';
 
 /**
  * Represents a successful result of type `T`.

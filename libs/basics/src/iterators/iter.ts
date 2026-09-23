@@ -1,6 +1,6 @@
-import { AsyncIteratorPlusImpl } from './async_iterator_plus';
-import { IteratorPlusImpl } from './iterator_plus';
-import { AsyncIteratorPlus, IteratorPlus } from './types';
+import { AsyncIteratorPlusImpl } from './async_iterator_plus.js';
+import { IteratorPlusImpl } from './iterator_plus.js';
+import { AsyncIteratorPlus, IteratorPlus } from './types.js';
 
 /**
  * Wraps iterables to make working with them easier. See {@link IteratorPlus}

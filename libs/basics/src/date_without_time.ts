@@ -1,4 +1,4 @@
-import { assertDefined } from './assert';
+import { assertDefined } from './assert.js';
 
 /**
  * Models a date only (no time). This is safer to use than a Date object when

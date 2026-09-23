@@ -1,5 +1,5 @@
-import { assert } from './assert';
-import { isBoolean, isNumber, isPlainObject, isString } from './type_guards';
+import { assert } from './assert.js';
+import { isBoolean, isNumber, isPlainObject, isString } from './type_guards.js';
 
 function isPrimitive(value: unknown): boolean {
   return (

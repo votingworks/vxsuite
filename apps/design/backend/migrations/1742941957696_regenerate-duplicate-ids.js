@@ -1,9 +1,7 @@
 /* eslint-disable vx/gts-object-literal-types */
-// NodeJS can `require` an ES module as of v20.19, but tsc still rejects it.
 const {
   hasSplits,
   straightPartyNotYetImplemented,
-  // @ts-expect-error - require of an ESM package
 } = require('@votingworks/types');
 
 /** @typedef {import('@votingworks/types', { with: { 'resolution-mode': 'import' } }).Election} Election */

@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import fc from 'fast-check';
-import { memoizeByObject } from './memoize';
+import { memoizeByObject } from './memoize.js';
 
 interface Key {
   id: number;

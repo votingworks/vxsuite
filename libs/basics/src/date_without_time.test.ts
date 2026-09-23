@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { DateWithoutTime } from './date_without_time';
+import { DateWithoutTime } from './date_without_time.js';
 
 describe('DateWithoutTime', () => {
   test('constructor', () => {
