@@ -4,23 +4,20 @@
   "description": "VotingWorks monorepo rules for ESLint",
   "keywords": [],
   "license": "GPL-3.0-only",
+  "type": "module",
   "exports": {
     ".": {
-      "import": "./build/index.js",
-      "require": "./build/index.js",
-      "types": "./build/index.d.ts"
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
     },
     "./package.json": "./package.json"
   },
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
   "files": [
-    "build"
+    "src"
   ],
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
-    "build:self": "tsc --build tsconfig.build.json",
-    "build:watch": "tsc --build --watch tsconfig.build.json",
+    "build:self": "tsc --build",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
     "lint": "pnpm -w vx-task lint $npm_package_name",

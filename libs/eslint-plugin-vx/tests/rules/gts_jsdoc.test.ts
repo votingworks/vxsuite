@@ -1,13 +1,13 @@
 import { RuleTester } from '@typescript-eslint/rule-tester';
 import * as ts from 'typescript';
 import { join } from 'node:path';
-import rule from '../../src/rules/gts_jsdoc';
+import rule from '../../src/rules/gts_jsdoc.ts';
 
 const ruleTester = new RuleTester({
   languageOptions: {
     parserOptions: {
       ecmaVersion: 2018,
-      tsconfigRootDir: join(__dirname, '../fixtures'),
+      tsconfigRootDir: join(import.meta.dirname, '../fixtures'),
       project: './tsconfig.json',
     },
   },
@@ -63,16 +63,16 @@ ruleTester.run('gts-jsdoc', rule, {
       export { one as ONE, two as TWO };
     `,
     `
-      import { UsbPortAction } from './usb_port_status.js';
-      export type { UsbPortAction } from './usb_port_status.js';
+      import { UsbPortAction } from './usb_port_status.ts';
+      export type { UsbPortAction } from './usb_port_status.ts';
     `,
     `
-      import { UsbPortAction } from './usb_port_status.js';
+      import { UsbPortAction } from './usb_port_status.ts';
       export { UsbPortAction };
     `,
     `
       const one = 1;
-      export { one } from './usb_port_status.js';
+      export { one } from './usb_port_status.ts';
     `,
   ],
   invalid: [

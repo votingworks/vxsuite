@@ -2,7 +2,7 @@ import { RuleTester } from '@typescript-eslint/rule-tester';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import rule from '../../src/rules/no_esm_workspace_import_in_test_setup';
+import rule from '../../src/rules/no_esm_workspace_import_in_test_setup.ts';
 
 // A throwaway package tree so the rule's `node_modules` lookup has real
 // packages to find: one ESM, one CommonJS, plus one with unreadable JSON.

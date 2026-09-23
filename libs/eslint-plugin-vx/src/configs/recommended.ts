@@ -7,9 +7,9 @@ import pluginVitest from '@vitest/eslint-plugin';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import { FlatCompat } from '@eslint/eslintrc';
-import type { VxPlugin } from '../index';
+import type { VxPlugin } from '../index.ts';
 
-const compat = new FlatCompat({ baseDirectory: __dirname });
+const compat = new FlatCompat({ baseDirectory: import.meta.dirname });
 
 /** TypeScript source extensions, for rules that must not apply to JS files. */
 const TS_FILES = ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts'];

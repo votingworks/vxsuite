@@ -1,6 +1,6 @@
 import type { Linter } from 'eslint';
-import type { VxPlugin } from '../index';
-import buildRecommended from './recommended';
+import type { VxPlugin } from '../index.ts';
+import buildRecommended from './recommended.ts';
 
 /**
  * Build the "react" flat config array for a given instance of the vx plugin.

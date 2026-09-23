@@ -6,13 +6,13 @@ import {
 } from '@typescript-eslint/utils';
 import { strict as assert } from 'node:assert';
 import {
-  CollectionType,
+  type CollectionType,
   createRule,
-  FunctionType,
+  type FunctionType,
   getCollectionType,
   isBindingName,
   isFunction,
-} from '../util';
+} from '../util/index.ts';
 
 /**
  * Contains information about a `forEach` call.

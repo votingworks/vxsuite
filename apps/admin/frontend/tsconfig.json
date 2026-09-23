@@ -20,7 +20,6 @@
     { "path": "../../../libs/basics/tsconfig.build.json" },
     { "path": "../../../libs/coverage-check/tsconfig.build.json" },
     { "path": "../../../libs/dev-dock/frontend/tsconfig.build.json" },
-    { "path": "../../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../../libs/fixtures/tsconfig.build.json" },
     { "path": "../../../libs/fs/tsconfig.build.json" },
     { "path": "../../../libs/grout/test-utils/tsconfig.build.json" },

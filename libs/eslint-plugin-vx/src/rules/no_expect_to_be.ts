@@ -1,5 +1,5 @@
 import { AST_NODE_TYPES, TSESLint, TSESTree } from '@typescript-eslint/utils';
-import { createRule } from '../util';
+import { createRule } from '../util/index.ts';
 
 const rule: TSESLint.RuleModule<'noExpectToBe', readonly unknown[]> =
   createRule({

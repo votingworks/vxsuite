@@ -1,7 +1,7 @@
 import type { Linter, Rule } from 'eslint';
-import rules from './rules';
-import buildRecommended from './configs/recommended';
-import buildReact from './configs/react';
+import rules from './rules/index.ts';
+import buildRecommended from './configs/recommended.ts';
+import buildReact from './configs/react.ts';
 
 export interface VxPlugin {
   rules: Record<string, Rule.RuleModule>;

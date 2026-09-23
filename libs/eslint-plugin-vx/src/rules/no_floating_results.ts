@@ -1,12 +1,12 @@
 import {
   AST_NODE_TYPES,
   ESLintUtils,
-  ParserServices,
+  type ParserServices,
   TSESLint,
   TSESTree,
 } from '@typescript-eslint/utils';
 import * as ts from 'typescript';
-import { containsNamedType, createRule } from '../util';
+import { containsNamedType, createRule } from '../util/index.ts';
 
 interface Options {
   ignoreVoid?: boolean;

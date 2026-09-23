@@ -18,7 +18,6 @@
     { "path": "../backend/tsconfig.build.json" },
     { "path": "../backend/tsconfig.build.json" },
     { "path": "../basics/tsconfig.build.json" },
-    { "path": "../eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../fixtures/tsconfig.build.json" },
     { "path": "../fujitsu-thermal-printer/tsconfig.build.json" },
     { "path": "../logging/tsconfig.build.json" },

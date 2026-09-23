@@ -1,5 +1,5 @@
 import { TSESLint, TSESTree } from '@typescript-eslint/utils';
-import { createRule } from '../util';
+import { createRule } from '../util/index.ts';
 
 const rule: TSESLint.RuleModule<'noPublicClassFields', readonly unknown[]> =
   createRule({
