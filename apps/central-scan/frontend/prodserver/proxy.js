@@ -5,11 +5,9 @@
 // here is what breaks config loading under `"type": "module"`.
 
 /** Request path prefixes the frontend forwards to the backend. */
-const PROXY_PATHS = ['/api', '/dock'];
+export const PROXY_PATHS = ['/api', '/dock'];
 
 /** The backend listens on the port after the frontend's. */
-function backendTarget(frontendPort = process.env.FRONTEND_PORT) {
+export function backendTarget(frontendPort = process.env.FRONTEND_PORT) {
   return `http://localhost:${Number(frontendPort || 3000) + 1}`;
 }
-
-module.exports = { PROXY_PATHS, backendTarget };
