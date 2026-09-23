@@ -5,7 +5,7 @@ import * as fs from 'node:fs';
 import {
   extractErrorMessage,
   isNonExistentFileOrDirectoryError,
-} from './errors';
+} from './errors.js';
 
 test.each<{ error: unknown; expectedErrorMessage: string }>([
   { error: new Error('Whoa!'), expectedErrorMessage: 'Whoa!' },

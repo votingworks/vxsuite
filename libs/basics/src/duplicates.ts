@@ -1,4 +1,4 @@
-import { unique } from './unique';
+import { unique } from './unique.js';
 
 /**
  * Returns an array of duplicate items in the given array.

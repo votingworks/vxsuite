@@ -1,6 +1,6 @@
-import { assert } from '../assert';
-import { Optional } from '../types';
-import { AsyncIteratorPlusImpl } from './async_iterator_plus';
+import { assert } from '../assert.js';
+import { Optional } from '../types.js';
+import { AsyncIteratorPlusImpl } from './async_iterator_plus.js';
 import {
   AsyncIteratorPlus,
   IteratorPlus,
@@ -8,7 +8,7 @@ import {
   ExactChunk,
   ZipElements,
   Window,
-} from './types';
+} from './types.js';
 
 /**
  * A wrapper around {@link Iterable} that provides additional methods.

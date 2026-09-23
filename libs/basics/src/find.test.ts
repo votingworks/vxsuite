@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { find } from './find';
+import { find } from './find.js';
 
 test('find', () => {
   expect(find([1, 2, 3, 4], (number: number) => number > 2, 10)).toEqual(3);

@@ -1,12 +1,12 @@
-import { assert } from '../assert';
-import { MaybePromise, Optional } from '../types';
+import { assert } from '../assert.js';
+import { MaybePromise, Optional } from '../types.js';
 import {
   AsyncIteratorPlus,
   AsyncZipElements,
   Chunk,
   ExactChunk,
   Window,
-} from './types';
+} from './types.js';
 
 /**
  * A wrapper around {@link AsyncIterable} that provides additional methods.

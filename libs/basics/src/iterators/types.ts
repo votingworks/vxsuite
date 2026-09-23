@@ -1,4 +1,4 @@
-import { MaybePromise, Optional } from '../types';
+import { MaybePromise, Optional } from '../types.js';
 
 /**
  * The elements of a tuple of iterables: what one round of zipping them yields.

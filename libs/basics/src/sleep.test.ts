@@ -1,5 +1,5 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import { sleep } from './sleep';
+import { sleep } from './sleep.js';
 
 beforeEach(() => {
   vi.useFakeTimers();
