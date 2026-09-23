@@ -6,8 +6,7 @@
   "type": "module",
   "files": [
     "build",
-    "Makefile",
-    "prodserver"
+    "Makefile"
   ],
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",

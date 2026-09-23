@@ -440,9 +440,6 @@ importers:
       http-proxy-middleware:
         specifier: 3.0.7
         version: 3.0.7
-      resolve:
-        specifier: 1.18.1
-        version: 1.18.1
 
   apps/admin/integration-testing:
     dependencies:
@@ -2299,9 +2296,6 @@ importers:
       http-proxy-middleware:
         specifier: 3.0.7
         version: 3.0.7
-      resolve:
-        specifier: 1.18.1
-        version: 1.18.1
 
   apps/print/backend:
     dependencies:
@@ -2577,9 +2571,6 @@ importers:
       http-proxy-middleware:
         specifier: 3.0.7
         version: 3.0.7
-      resolve:
-        specifier: 1.18.1
-        version: 1.18.1
 
   apps/print/integration-testing:
     dependencies:

@@ -4,12 +4,12 @@
 //
 /* eslint-disable */
 
-const express = require('express');
-const path = require('path');
-const { Logger, LogSource, LogEventId } = require('@votingworks/logging');
-const { handleUncaughtExceptions } = require('@votingworks/backend');
+import express from 'express';
+import path from 'node:path';
+import { Logger, LogSource, LogEventId } from '@votingworks/logging';
+import { handleUncaughtExceptions } from '@votingworks/backend';
+import { setupProxy } from './setupProxy.js';
 
-const proxy = require('./setupProxy');
 const app = express();
 const frontendPort = Number(process.env.FRONTEND_PORT || 3000);
 const logger = new Logger(LogSource.VxMarkFrontendServer);
@@ -20,11 +20,11 @@ app.use((req, res, next) => {
   res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   next();
 });
-proxy(app);
+setupProxy(app);
 
 app.use('/', express.static('../build'));
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../build/index.html'));
+  res.sendFile(path.join(import.meta.dirname, '../build/index.html'));
 });
 
 app

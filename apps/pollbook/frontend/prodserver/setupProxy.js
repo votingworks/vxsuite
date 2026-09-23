@@ -4,17 +4,17 @@
 
 // @ts-check
 
-const { createProxyMiddleware: proxy } = require('http-proxy-middleware');
-const { PROXY_PATHS, backendTarget } = require('./proxy');
+import { createProxyMiddleware } from 'http-proxy-middleware';
+import { PROXY_PATHS, backendTarget } from './proxy.js';
 
 /**
  * @param {import('connect').Server} app
  */
-module.exports = function (app) {
+export function setupProxy(app) {
   app.use(
-    proxy({
+    createProxyMiddleware({
       pathFilter: PROXY_PATHS,
       target: backendTarget(),
     })
   );
-};
+}
