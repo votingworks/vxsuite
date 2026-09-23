@@ -39,6 +39,7 @@ import {
 } from '@votingworks/utils';
 import { zipFile } from '@votingworks/test-utils';
 import {
+  concatenatePdfs,
   HP_4001_PRINTER_CONFIG,
   MemoryPrinterHandler,
   renderToPdf,
@@ -77,10 +78,15 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 
 vi.mock(
   import('@votingworks/printing'),
-  async (importActual): Promise<typeof import('@votingworks/printing')> => ({
-    ...(await importActual()),
-    renderToPdf: vi.fn().mockResolvedValue(ok(new Uint8Array())),
-  })
+  async (importActual): Promise<typeof import('@votingworks/printing')> => {
+    const actual = await importActual();
+    return {
+      ...actual,
+      renderToPdf: vi.fn().mockResolvedValue(ok(new Uint8Array())),
+      // Spied so a test can force the too-large error
+      concatenatePdfs: vi.fn(actual.concatenatePdfs),
+    };
+  }
 );
 
 vi.mock(
@@ -748,11 +754,13 @@ test('printAllBallotStyles works for combined ballot primary (consolidated ballo
   });
   mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
-  await apiClient.printAllBallotStyles({
-    languageCode: LanguageCode.ENGLISH,
-    ballotType: BallotType.Precinct,
-    copiesPerStyle: 1,
-  });
+  (
+    await apiClient.printAllBallotStyles({
+      languageCode: LanguageCode.ENGLISH,
+      ballotType: BallotType.Precinct,
+      copiesPerStyle: 1,
+    })
+  ).unsafeUnwrap();
 
   const counts = await apiClient.getBallotPrintCounts();
   expect(counts.length).toEqual(
@@ -817,21 +825,54 @@ test('end-to-end printing flow handles precinct splits correctly', async () => {
   expect(splitRow!.precinctOrSplitName).toMatch(/Precinct 4 - Split 1/);
 });
 
-async function expectPrintedJobsMatchBallotsInOrder({
+async function expectPrintedJobMatchesBallotsInOrder({
   ballots,
-  printJobHistoryPaths,
+  copies,
+  printJobPath,
 }: {
   ballots: ReadonlyArray<{ encodedBallot: string }>;
-  printJobHistoryPaths: readonly string[];
+  copies: number;
+  printJobPath: string;
 }): Promise<void> {
-  const expectedHashes = ballots.map((b) =>
-    sha256(Buffer.from(b.encodedBallot, 'base64'))
+  const expectedPages: Buffer[] = [];
+  for (const ballot of ballots) {
+    const pdf = Buffer.from(ballot.encodedBallot, 'base64');
+    for (let i = 0; i < copies; i += 1) {
+      expectedPages.push(pdf);
+    }
+  }
+  const expected = (await concatenatePdfs(expectedPages)).unsafeUnwrap();
+  expect(sha256(await readFile(printJobPath))).toEqual(
+    sha256(Buffer.from(expected))
   );
-  const actualHashes = await Promise.all(
-    printJobHistoryPaths.map(async (p) => sha256(await readFile(p)))
-  );
-  expect(actualHashes).toEqual(expectedHashes);
 }
+
+test('printAllBallotStyles returns job_too_large without printing anything', async () => {
+  await configureMachine({
+    electionDefinition:
+      sharedFixtures.primaryPrecinctSplitsMultiLangElectionDefinition,
+    ballots: sharedFixtures.primaryPrecinctSplitsMultiLangOfficialBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
+
+  vi.mocked(concatenatePdfs).mockResolvedValueOnce(err('job_too_large'));
+
+  const jobsBefore = mockPrinterHandler.getPrintJobHistory().length;
+  const result = await apiClient.printAllBallotStyles({
+    languageCode: LanguageCode.ENGLISH,
+    ballotType: BallotType.Precinct,
+    copiesPerStyle: 1,
+  });
+
+  expect(result).toEqual(err('job_too_large'));
+  expect(mockPrinterHandler.getPrintJobHistory()).toHaveLength(jobsBefore);
+  for (const count of await apiClient.getBallotPrintCounts()) {
+    expect(count.totalCount).toEqual(0);
+  }
+});
 
 test('printAllBallotStyles prints every style and updates counts in a stable order', async () => {
   // Use primary election to cover party name sorting logic
@@ -882,22 +923,20 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
     );
 
   const jobsBeforePrecinct = mockPrinterHandler.getPrintJobHistory().length;
-  await apiClient.printAllBallotStyles({
-    languageCode: LanguageCode.ENGLISH,
-    ballotType: BallotType.Precinct,
-    copiesPerStyle: 1,
-  });
+  (
+    await apiClient.printAllBallotStyles({
+      languageCode: LanguageCode.ENGLISH,
+      ballotType: BallotType.Precinct,
+      copiesPerStyle: 1,
+    })
+  ).unsafeUnwrap();
   const jobsAfterPrecinct = mockPrinterHandler.getPrintJobHistory().length;
-  expect(jobsAfterPrecinct - jobsBeforePrecinct).toEqual(
-    allPrecinctBallots.length
-  );
+  expect(jobsAfterPrecinct - jobsBeforePrecinct).toEqual(1);
 
-  await expectPrintedJobsMatchBallotsInOrder({
+  await expectPrintedJobMatchesBallotsInOrder({
     ballots: allPrecinctBallots,
-    printJobHistoryPaths: mockPrinterHandler
-      .getPrintJobHistory()
-      .slice(jobsBeforePrecinct, jobsAfterPrecinct)
-      .map((j) => j.filename),
+    copies: 1,
+    printJobPath: assertDefined(mockPrinterHandler.getLastPrintPath()),
   });
 
   const countsAfterPrecinct = await apiClient.getBallotPrintCounts();
@@ -921,22 +960,20 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
     );
 
   const jobsBeforeAbsentee = mockPrinterHandler.getPrintJobHistory().length;
-  await apiClient.printAllBallotStyles({
-    languageCode: LanguageCode.ENGLISH,
-    ballotType: BallotType.Absentee,
-    copiesPerStyle: 2,
-  });
+  (
+    await apiClient.printAllBallotStyles({
+      languageCode: LanguageCode.ENGLISH,
+      ballotType: BallotType.Absentee,
+      copiesPerStyle: 2,
+    })
+  ).unsafeUnwrap();
   const jobsAfterAbsentee = mockPrinterHandler.getPrintJobHistory().length;
-  expect(jobsAfterAbsentee - jobsBeforeAbsentee).toEqual(
-    allAbsenteeBallots.length
-  );
+  expect(jobsAfterAbsentee - jobsBeforeAbsentee).toEqual(1);
 
-  await expectPrintedJobsMatchBallotsInOrder({
+  await expectPrintedJobMatchesBallotsInOrder({
     ballots: allAbsenteeBallots,
-    printJobHistoryPaths: mockPrinterHandler
-      .getPrintJobHistory()
-      .slice(jobsBeforeAbsentee, jobsAfterAbsentee)
-      .map((j) => j.filename),
+    copies: 2,
+    printJobPath: assertDefined(mockPrinterHandler.getLastPrintPath()),
   });
 
   const countsAfterAbsentee = await apiClient.getBallotPrintCounts();
