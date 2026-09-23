@@ -274,6 +274,7 @@ function buildApi({
     getStatus(): ScanStatus {
       return {
         ...machine.status(),
+        isScannerAttached: scanner.isAttached(),
         batches: store.getBatches(),
         canUnconfigure: store.getCanUnconfigure(),
       };

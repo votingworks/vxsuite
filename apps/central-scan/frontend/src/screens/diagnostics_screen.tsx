@@ -57,7 +57,7 @@ export function DiagnosticsScreen(): JSX.Element {
     return <NavigationScreen title="Diagnostics">{null}</NavigationScreen>;
   }
 
-  const { state } = statusQuery.data;
+  const { isScannerAttached } = statusQuery.data;
   const { electionDefinition, electionPackageHash } =
     electionRecordQuery.data ?? {};
   const batteryInfo = batteryInfoQuery.data;
@@ -76,7 +76,7 @@ export function DiagnosticsScreen(): JSX.Element {
             // @coverage-defer
             batteryInfo={batteryInfo ?? undefined}
             diskSpaceSummary={diskSpaceSummary}
-            isScannerAttached={state !== 'disconnected'}
+            isScannerAttached={isScannerAttached}
             mostRecentScannerDiagnostic={scannerDiagnosticRecord}
             mostRecentUpsDiagnostic={upsDiagnosticRecord}
             upsSectionAdditionalContents={

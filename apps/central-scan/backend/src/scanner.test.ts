@@ -54,9 +54,7 @@ async function setup(scanner: BatchScanner = makeMockScanner()): Promise<{
     logger,
   });
   onTestFinished(() => machine.stop());
-  if (scanner.isAttached()) {
-    await waitForStatus(machine, { state: 'idle' });
-  }
+  await waitForStatus(machine, { state: 'idle' });
   return { machine, workspace, logger };
 }
 
@@ -244,35 +242,6 @@ test('a failure while finishing the batch is reported', async () => {
   scanner.withNextScannerSession().end();
   machine.startBatch();
   await waitForStatus(machine, { state: 'idle', error: 'database locked' });
-});
-
-test('is disconnected while the scanner is detached and no batch is in progress', async () => {
-  const scanner = makeMockScanner();
-  const isAttached = vi.spyOn(scanner, 'isAttached').mockReturnValue(false);
-  const { machine, workspace, logger } = await setup(scanner);
-  configureElection(workspace);
-
-  expect(machine.status()).toEqual({ state: 'disconnected' });
-  machine.startBatch();
-  expect(machine.status()).toEqual({ state: 'disconnected' });
-  expect(workspace.store.getBatches()).toEqual([]);
-
-  isAttached.mockReturnValue(true);
-  await waitForStatus(machine, { state: 'idle' });
-  scanner.withNextScannerSession().end();
-  machine.startBatch();
-  await waitForStatus(machine, { state: 'idle' });
-  expect(workspace.store.getBatches()).toHaveLength(1);
-
-  isAttached.mockReturnValue(false);
-  await waitForStatus(machine, { state: 'disconnected' });
-
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ScannerStateChanged,
-    'system',
-    expect.objectContaining({ message: 'Transitioned to: "disconnected"' }),
-    expect.any(Function)
-  );
 });
 
 test('cleanLogData keeps only adjudication reason types and hides large values', () => {
