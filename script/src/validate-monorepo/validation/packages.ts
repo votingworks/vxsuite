@@ -80,7 +80,7 @@ export async function* checkPackageManager({
       };
     }
 
-    if (pkg.name.startsWith('@types/') || pkg.name === 'prodserver') {
+    if (pkg.name.startsWith('@types/')) {
       continue;
     }
 
