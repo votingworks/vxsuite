@@ -30,12 +30,14 @@ function CompatibilityMessage({
   ) {
     return (
       <P>
-        The inserted USB drive&apos;s current format can&apos;t hold files
-        larger than{' '}
+        The inserted USB drive is already compatible with VotingWorks components
+        and can be used as is. Its current format can&apos;t store individual
+        files larger than{' '}
         <Font noWrap>
           {format.bytes(usbDriveStatus.maxFileSize, { fractionDigits: 0 })}
         </Font>
-        . Formatting the drive removes this limit.
+        . If you need larger files, you can reformat the drive to remove the
+        limit.
       </P>
     );
   }

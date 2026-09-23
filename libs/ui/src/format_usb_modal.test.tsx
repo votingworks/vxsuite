@@ -142,10 +142,11 @@ test('FAT32 usb drives are partially compatible', async () => {
 
   userEvent.click(screen.getButton('Format USB Drive'));
   await screen.findByRole('heading', { name: 'Format USB Drive' });
-  screen.getByText(/current format can't hold files larger than/);
+  screen.getByText(/already compatible with VotingWorks components/);
+  screen.getByText(/can't store individual files larger than/);
   screen.getByText('4 GB');
   expect(screen.queryByText(/FAT32/)).not.toBeInTheDocument();
-  screen.getByText(/Formatting the drive removes this limit/);
+  screen.getByText(/reformat the drive to remove the limit/);
 });
 
 test('no usb drive inserted shows prompt', async () => {
