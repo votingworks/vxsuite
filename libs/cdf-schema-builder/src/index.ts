@@ -1,18 +1,18 @@
 import { err, ok, Result } from '@votingworks/basics';
-import { findDocForProperty, findDocForType } from './docs';
+import { findDocForProperty, findDocForType } from './docs.js';
 import {
   createInterfaceFromDefinition,
   createEnumFromDefinition,
   parseJsonSchema,
-} from './json_schema';
-import { Enum, Interface, StringAlias } from './types';
+} from './json_schema.js';
+import { Enum, Interface, StringAlias } from './types.js';
 import {
   makeIdentifier,
   isValidIdentifier,
   renderTypeAsDeclaration,
   renderTypeAsZodSchema,
-} from './util';
-import { extractDocumentationForSchema, parseXsdSchema } from './xsd';
+} from './util.js';
+import { extractDocumentationForSchema, parseXsdSchema } from './xsd.js';
 
 function writeDocumentation(
   documentation: string | undefined,

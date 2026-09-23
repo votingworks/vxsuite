@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
-import { mockWritable } from './mock_writable';
+import { mockWritable } from './mock_writable.js';
 
 test('mockWritable', async () => {
   const writable = mockWritable();

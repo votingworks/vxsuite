@@ -1,12 +1,12 @@
 import { beforeEach, expect, test } from 'vitest';
-import { DocumentedEntity } from './types';
+import { DocumentedEntity } from './types.js';
 import {
   extractDocumentation,
   extractDocumentationForSchema,
   getChildOfType,
   getChildrenOfType,
   parseXsdSchema,
-} from './xsd';
+} from './xsd.js';
 
 let schema: Element;
 
