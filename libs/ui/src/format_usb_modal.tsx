@@ -7,7 +7,6 @@ import { Button } from './button.js';
 import { Modal } from './modal.js';
 import { Font, P } from './typography.js';
 import { Icons } from './icons.js';
-import { FILESYSTEM_LABELS } from './usb_drive.js';
 import { UsbControllerButton } from './usbcontroller_button.js';
 
 function CompatibilityMessage({
@@ -31,11 +30,8 @@ function CompatibilityMessage({
   ) {
     return (
       <P>
-        The inserted USB drive is formatted as{' '}
-        <Font weight="semiBold">
-          {FILESYSTEM_LABELS[usbDriveStatus.fstype]}
-        </Font>
-        , which cannot store files larger than{' '}
+        The inserted USB drive&apos;s current format can&apos;t hold files
+        larger than{' '}
         <Font noWrap>
           {format.bytes(usbDriveStatus.maxFileSize, { fractionDigits: 0 })}
         </Font>
