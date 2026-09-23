@@ -39,7 +39,7 @@
     "@types/lodash.set": "^4.3.7",
     "@types/node": "24.13.3",
     "@types/react": "18.3.3",
-    "@vitest/coverage-istanbul": "^4.1.6",
+    "@vitest/coverage-istanbul": "^4.1.11",
     "@votingworks/cdf-schema-builder": "workspace:*",
     "@votingworks/coverage-check": "workspace:*",
     "ajv": "^8.12.0",

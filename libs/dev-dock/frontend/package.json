@@ -46,7 +46,7 @@
     "@types/node": "24.13.3",
     "@types/react": "18.3.3",
     "@types/styled-components": "^5.1.26",
-    "@vitest/coverage-istanbul": "^4.1.6",
+    "@vitest/coverage-istanbul": "^4.1.11",
     "@votingworks/auth": "workspace:*",
     "@votingworks/coverage-check": "workspace:*",
     "@votingworks/fujitsu-thermal-printer": "workspace:*",

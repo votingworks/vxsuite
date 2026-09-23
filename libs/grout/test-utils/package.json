@@ -29,7 +29,7 @@
     "@votingworks/test-utils": "workspace:*"
   },
   "devDependencies": {
-    "@vitest/coverage-istanbul": "^4.1.6",
+    "@vitest/coverage-istanbul": "^4.1.11",
     "@votingworks/coverage-check": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
