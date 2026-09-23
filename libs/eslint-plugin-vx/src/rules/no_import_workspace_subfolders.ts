@@ -1,7 +1,7 @@
 import { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { strict as assert } from 'node:assert';
 import * as path from 'node:path';
-import { createRule, isExportedSubpath } from '../util';
+import { createRule, isExportedSubpath } from '../util/index.js';
 
 const VOTINGWORKS_WORKSPACE_PREFIX = '@votingworks';
 

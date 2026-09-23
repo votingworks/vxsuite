@@ -1,12 +1,12 @@
 import { RuleTester } from '@typescript-eslint/rule-tester';
 import { join } from 'node:path';
-import rule from '../../src/rules/gts_use_optionals';
+import rule from '../../src/rules/gts_use_optionals.js';
 
 const ruleTester = new RuleTester({
   languageOptions: {
     parserOptions: {
       ecmaVersion: 2018,
-      tsconfigRootDir: join(__dirname, '../fixtures'),
+      tsconfigRootDir: join(import.meta.dirname, '../fixtures'),
       project: './tsconfig.json',
     },
   },

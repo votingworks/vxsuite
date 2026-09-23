@@ -6,7 +6,7 @@ import {
   TSESTree,
 } from '@typescript-eslint/utils';
 import * as ts from 'typescript';
-import { containsNamedType, createRule } from '../util';
+import { containsNamedType, createRule } from '../util/index.js';
 
 interface Options {
   ignoreVoid?: boolean;

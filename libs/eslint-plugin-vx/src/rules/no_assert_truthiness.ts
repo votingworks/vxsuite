@@ -6,7 +6,7 @@ import {
   TSESTree,
 } from '@typescript-eslint/utils';
 import * as ts from 'typescript';
-import { createRule } from '../util';
+import { createRule } from '../util/index.js';
 
 export interface Options {
   objects: boolean;

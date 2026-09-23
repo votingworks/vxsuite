@@ -7,7 +7,7 @@ import {
 } from '@typescript-eslint/utils';
 import { strict as assert } from 'node:assert';
 import * as ts from 'typescript';
-import { createRule, getCollectionType } from '../util';
+import { createRule, getCollectionType } from '../util/index.js';
 
 function isIterableType(type: ts.Type): boolean {
   return (

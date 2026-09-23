@@ -1,6 +1,6 @@
 import { AST_NODE_TYPES, TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { strict as assert } from 'node:assert';
-import { createRule } from '../util';
+import { createRule } from '../util/index.js';
 
 const rule: TSESLint.RuleModule<'noArrayConstructor', readonly unknown[]> =
   createRule({

@@ -1,6 +1,6 @@
 import { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { basename } from 'node:path';
-import { createRule } from '../util';
+import { createRule } from '../util/index.js';
 
 function convertFileNameToSnakeCase(fileName: string): string {
   return fileName

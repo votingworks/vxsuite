@@ -1,6 +1,6 @@
 import { AST_NODE_TYPES, TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { strict as assert } from 'node:assert';
-import { createRule, isBindingName } from '../util';
+import { createRule, isBindingName } from '../util/index.js';
 
 interface GetUndefinedUnionPartResult {
   unionType: TSESTree.TSUnionType;

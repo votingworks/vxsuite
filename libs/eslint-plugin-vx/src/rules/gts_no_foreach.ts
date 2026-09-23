@@ -12,7 +12,7 @@ import {
   getCollectionType,
   isBindingName,
   isFunction,
-} from '../util';
+} from '../util/index.js';
 
 /**
  * Contains information about a `forEach` call.
