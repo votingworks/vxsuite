@@ -5103,9 +5103,6 @@ importers:
 
   libs/types:
     dependencies:
-      '@antongolub/iso8601':
-        specifier: ^1.2.1
-        version: 1.2.1
       '@noble/hashes':
         specifier: ^1.8.0
         version: 1.8.0
@@ -5627,9 +5624,6 @@ packages:
 
   '@adobe/css-tools@4.4.2':
     resolution: {integrity: sha512-baYZExFpsdkBNuvGKTKWCwKH57HRZLVtycZS05WTQNVOiXVSeAki3nU35zlRbToeMW8aHlJfyS+1C4BOv27q0A==}
-
-  '@antongolub/iso8601@1.2.1':
-    resolution: {integrity: sha512-XsH1mkG5a4J8feeH50Il436pyNCVj6n7EeILYhAHVibQDrxV9gZso198vBZ/dxyhbnfjwK315gvi3/EtEpoekQ==}
 
   '@aws-crypto/crc32@5.2.0':
     resolution: {integrity: sha512-nLbCWqQNgUiwwtFsen1AdzAtvuLRsQS8rYgMuxCrdKf9kOssamGLuPwyTY9wyYblNr9+1XM8v6zoDTPPSIeANg==}
@@ -14280,8 +14274,6 @@ snapshots:
   '@aashutoshrathi/word-wrap@1.2.6': {}
 
   '@adobe/css-tools@4.4.2': {}
-
-  '@antongolub/iso8601@1.2.1': {}
 
   '@aws-crypto/crc32@5.2.0':
     dependencies:

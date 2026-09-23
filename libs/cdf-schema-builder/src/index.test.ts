@@ -30,11 +30,10 @@ test('empty', () => {
 
     import { z } from 'zod/v4';
 
-    import check8601 from '@antongolub/iso8601';
-
-    const Iso8601Date = z
-      .string()
-      .refine(check8601, 'dates must be in ISO8601 format');
+    const Iso8601Date = z.union([
+      z.iso.date(),
+      z.iso.datetime({ offset: true, local: true }),
+    ]);
 
     /**
      * Type for xsd:datetime values.
@@ -159,11 +158,10 @@ test('enum type', () => {
 
     import { z } from 'zod/v4';
 
-    import check8601 from '@antongolub/iso8601';
-
-    const Iso8601Date = z
-      .string()
-      .refine(check8601, 'dates must be in ISO8601 format');
+    const Iso8601Date = z.union([
+      z.iso.date(),
+      z.iso.datetime({ offset: true, local: true }),
+    ]);
 
     /**
      * Type for xsd:datetime values.
@@ -308,11 +306,10 @@ test('object type', () => {
 
     import { z } from 'zod/v4';
 
-    import check8601 from '@antongolub/iso8601';
-
-    const Iso8601Date = z
-      .string()
-      .refine(check8601, 'dates must be in ISO8601 format');
+    const Iso8601Date = z.union([
+      z.iso.date(),
+      z.iso.datetime({ offset: true, local: true }),
+    ]);
 
     /**
      * Type for xsd:datetime values.
@@ -479,11 +476,10 @@ test('object type property types', () => {
 
     import { z } from 'zod/v4';
 
-    import check8601 from '@antongolub/iso8601';
-
-    const Iso8601Date = z
-      .string()
-      .refine(check8601, 'dates must be in ISO8601 format');
+    const Iso8601Date = z.union([
+      z.iso.date(),
+      z.iso.datetime({ offset: true, local: true }),
+    ]);
 
     /**
      * Type for xsd:datetime values.
@@ -627,11 +623,10 @@ test('object type references', () => {
 
     import { z } from 'zod/v4';
 
-    import check8601 from '@antongolub/iso8601';
-
-    const Iso8601Date = z
-      .string()
-      .refine(check8601, 'dates must be in ISO8601 format');
+    const Iso8601Date = z.union([
+      z.iso.date(),
+      z.iso.datetime({ offset: true, local: true }),
+    ]);
 
     /**
      * Type for xsd:datetime values.
@@ -751,11 +746,10 @@ test('string aliases', () => {
 
     import { z } from 'zod/v4';
 
-    import check8601 from '@antongolub/iso8601';
-
-    const Iso8601Date = z
-      .string()
-      .refine(check8601, 'dates must be in ISO8601 format');
+    const Iso8601Date = z.union([
+      z.iso.date(),
+      z.iso.datetime({ offset: true, local: true }),
+    ]);
 
     /**
      * Type for xsd:datetime values.
@@ -915,11 +909,10 @@ test('documentation from JSON schema', () => {
 
     import { z } from 'zod/v4';
 
-    import check8601 from '@antongolub/iso8601';
-
-    const Iso8601Date = z
-      .string()
-      .refine(check8601, 'dates must be in ISO8601 format');
+    const Iso8601Date = z.union([
+      z.iso.date(),
+      z.iso.datetime({ offset: true, local: true }),
+    ]);
 
     /**
      * Type for xsd:datetime values.
