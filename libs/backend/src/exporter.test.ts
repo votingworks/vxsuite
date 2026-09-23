@@ -1,7 +1,7 @@
 import { afterEach, expect, test, vi } from 'vitest';
 import { err, iter, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { mkdir, readFile, symlink, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, symlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
 import { execFileSync } from 'node:child_process';
@@ -41,6 +41,59 @@ test('exportData with string', async () => {
   expect(result).toEqual(ok([path]));
   expect(await readFile(path, 'utf-8')).toEqual('bar');
 });
+
+test('exportData replaces an existing file only after the source completes', async () => {
+  const tmpDir = makeTemporaryDirectory();
+  const path = join(tmpDir, 'test.txt');
+  await writeFile(path, 'original');
+
+  const result = await exporter.exportData(
+    path,
+    (async function* source() {
+      yield 'replacement';
+      expect(await readFile(path, 'utf-8')).toEqual('original');
+      yield ' complete';
+    })()
+  );
+
+  expect(result).toEqual(ok([path]));
+  expect(await readFile(path, 'utf-8')).toEqual('replacement complete');
+  expect(await readdir(tmpDir)).toEqual(['test.txt']);
+});
+
+test.each([false, true])(
+  'exportData preserves the destination on failure (existing: %s)',
+  async (existing) => {
+    const tmpDir = makeTemporaryDirectory();
+    const path = join(tmpDir, 'test.txt');
+    if (existing) {
+      await writeFile(path, 'original');
+    }
+
+    const result = await exporter.exportData(
+      path,
+      (async function* source() {
+        yield 'partial';
+        // Let the pipeline start writing before the source fails.
+        await new Promise<void>((resolve) => {
+          setImmediate(resolve);
+        });
+        throw new Error('write failed');
+      })()
+    );
+
+    expect(result).toEqual(
+      err({
+        type: 'file-system-error',
+        message: `Unable to write ${path}: write failed`,
+      })
+    );
+    if (existing) {
+      expect(await readFile(path, 'utf-8')).toEqual('original');
+    }
+    expect(await readdir(tmpDir)).toEqual(existing ? ['test.txt'] : []);
+  }
+);
 
 test('exportData with Buffer', async () => {
   const tmpDir = makeTemporaryDirectory();
@@ -152,12 +205,12 @@ test('exportData to a FIFO fails instead of blocking', async () => {
   expect(result).toEqual<ExportDataResult>(
     err({
       type: 'file-system-error',
-      message: expect.stringContaining('ENXIO'),
+      message: expect.stringContaining('Path is not a regular file'),
     })
   );
 });
 
-test('exportData to a directory is an open error', async () => {
+test('exportData to a directory is not a regular file', async () => {
   const tmpDir = makeTemporaryDirectory();
   const path = join(tmpDir, 'dir');
   await mkdir(path);
@@ -165,7 +218,7 @@ test('exportData to a directory is an open error', async () => {
   expect(result).toEqual<ExportDataResult>(
     err({
       type: 'file-system-error',
-      message: expect.stringContaining('EISDIR'),
+      message: expect.stringContaining('Path is not a regular file'),
     })
   );
 });

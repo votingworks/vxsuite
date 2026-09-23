@@ -1,6 +1,6 @@
 import { err, ok, Result, throwIllegalValue } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { mkdir } from 'node:fs/promises';
+import { lstat, mkdir, mkdtemp, rename, rm } from 'node:fs/promises';
 import { dirname, isAbsolute, join, matchesGlob, normalize } from 'node:path';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
@@ -90,41 +90,69 @@ export class Exporter {
     const safePath = getSafePathResult.ok();
     await mkdir(dirname(safePath), { recursive: true });
 
-    const openResult = await openRegularFileForWriting(safePath);
-    if (openResult.isErr()) {
-      const error = openResult.err();
-      switch (error.type) {
-        case 'NotRegularFile':
-          return err({
-            type: 'file-system-error',
-            message: `Path is not a regular file: ${path}`,
-          });
-        case 'OpenFileError':
-          return err({
-            type: 'file-system-error',
-            message: `Unable to open ${path} for writing: ${error.error.message}`,
-          });
-        default:
-          return throwIllegalValue(error);
+    // Reject special files without opening or truncating the destination.
+    try {
+      const stats = await lstat(safePath);
+      if (!stats.isFile()) {
+        return err({
+          type: 'file-system-error',
+          message: `Path is not a regular file: ${path}`,
+        });
+      }
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+        return err({
+          type: 'file-system-error',
+          message: `Unable to inspect ${path}: ${(error as Error).message}`,
+        });
       }
     }
 
+    // Keep the temporary file on the same filesystem so rename is atomic.
+    const temporaryDirectory = await mkdtemp(
+      join(dirname(safePath), '.export-')
+    );
+    const temporaryPath = join(temporaryDirectory, 'data');
     try {
-      await pipeline(
-        Readable.from(
-          // `Readable.from` iterates a bare `Uint8Array` element by element,
-          // yielding numbers instead of a single binary chunk, so wrap it.
-          data instanceof Uint8Array && !(data instanceof Buffer)
-            ? Buffer.from(data)
-            : data
-        ),
-        openResult.ok().createWriteStream()
-      );
-    } catch (error) {
-      return err({
-        type: 'file-system-error',
-        message: `Unable to write ${path}: ${(error as Error).message}`,
-      });
+      const openResult = await openRegularFileForWriting(temporaryPath);
+      if (openResult.isErr()) {
+        const error = openResult.err();
+        switch (error.type) {
+          case 'NotRegularFile':
+            return err({
+              type: 'file-system-error',
+              message: `Path is not a regular file: ${path}`,
+            });
+          case 'OpenFileError':
+            return err({
+              type: 'file-system-error',
+              message: `Unable to open ${path} for writing: ${error.error.message}`,
+            });
+          default:
+            return throwIllegalValue(error);
+        }
+      }
+
+      try {
+        await pipeline(
+          Readable.from(
+            // `Readable.from` iterates a bare `Uint8Array` element by element,
+            // yielding numbers instead of a single binary chunk, so wrap it.
+            data instanceof Uint8Array && !(data instanceof Buffer)
+              ? Buffer.from(data)
+              : data
+          ),
+          openResult.ok().createWriteStream()
+        );
+        await rename(temporaryPath, safePath);
+      } catch (error) {
+        return err({
+          type: 'file-system-error',
+          message: `Unable to write ${path}: ${(error as Error).message}`,
+        });
+      }
+    } finally {
+      await rm(temporaryDirectory, { recursive: true, force: true });
     }
     return ok([safePath]);
   }
