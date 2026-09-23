@@ -8,22 +8,12 @@ import {
 
 export const PRINT_JOB_STATUS_POLLING_INTERVAL_MS = 100;
 
-/**
- * The backend methods a print job status query needs. Declared structurally so
- * that `libs/ui` need not depend on the package that implements them.
- */
 export interface PrintJobStatusApiClient {
   getPrintJobStatus: (input: {
     jobId: PrintJobId;
   }) => Promise<Result<PrintJobStatus, Error>>;
 }
 
-/**
- * Reduces a print job status query result to the job's outcome. A job whose
- * status has not arrived yet is still in progress, and one we can no longer get
- * status for is treated as a failure rather than left pending, so the caller is
- * never left on an indefinite "printing" screen.
- */
 export function getPrintOutcome(
   jobStatusResult?: Result<PrintJobStatus, Error>
 ): PrintJobOutcome {
@@ -46,7 +36,7 @@ function buildPrintJobStatusApi(getApiClient: () => PrintJobStatusApiClient) {
           enabled: jobId !== undefined,
           // CUPS reuses job numbers so we don't want to cache old job status values
           cacheTime: 0,
-          // Stop polling once the job settles; its status will not change again.
+          // Status is unchanged after job settles, so we can stop polling
           refetchInterval: (result) =>
             result?.ok()?.outcome === 'in-progress'
               ? PRINT_JOB_STATUS_POLLING_INTERVAL_MS
@@ -61,10 +51,6 @@ export type PrintJobStatusReactQueryApi = ReturnType<
   typeof buildPrintJobStatusApi
 >;
 
-/**
- * Builds the react-query wrapper for polling a print job's status, given a way
- * to reach the app's API client.
- */
 export function createPrintJobStatusApi(
   getApiClient: () => PrintJobStatusApiClient
 ): PrintJobStatusReactQueryApi {
