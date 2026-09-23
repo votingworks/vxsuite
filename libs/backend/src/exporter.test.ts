@@ -1,12 +1,20 @@
 import { afterEach, expect, test, vi } from 'vitest';
 import { err, iter, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { mkdir, readFile, readdir, symlink, writeFile } from 'node:fs/promises';
+import {
+  lstat,
+  mkdir,
+  readFile,
+  readdir,
+  symlink,
+  writeFile,
+} from 'node:fs/promises';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
 import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import { openRegularFileForWriting } from '@votingworks/fs';
 import {
   createMockUsbDrive,
   UsbPartitionMountpointSchema,
@@ -20,6 +28,28 @@ vi.mock(
     ...(await importActual()),
     execFile: vi.fn(),
   })
+);
+
+vi.mock(
+  import('node:fs/promises'),
+  async (importActual): Promise<typeof import('node:fs/promises')> => {
+    const actual = await importActual();
+    return {
+      ...actual,
+      lstat: vi.fn(actual.lstat) as unknown as typeof actual.lstat,
+    };
+  }
+);
+
+vi.mock(
+  import('@votingworks/fs'),
+  async (importActual): Promise<typeof import('@votingworks/fs')> => {
+    const actual = await importActual();
+    return {
+      ...actual,
+      openRegularFileForWriting: vi.fn(actual.openRegularFileForWriting),
+    };
+  }
 );
 
 const mockUsbDrive = createMockUsbDrive();
@@ -221,6 +251,54 @@ test('exportData to a directory is not a regular file', async () => {
       message: expect.stringContaining('Path is not a regular file'),
     })
   );
+});
+
+test('exportData that cannot inspect the destination is a file system error', async () => {
+  const tmpDir = makeTemporaryDirectory();
+  const path = join(tmpDir, 'test.txt');
+  vi.mocked(lstat).mockRejectedValueOnce(
+    Object.assign(new Error('EACCES: permission denied'), { code: 'EACCES' })
+  );
+  const result = await exporter.exportData(path, 'bar');
+  expect(result).toEqual<ExportDataResult>(
+    err({
+      type: 'file-system-error',
+      message: `Unable to inspect ${path}: EACCES: permission denied`,
+    })
+  );
+  expect(await readdir(tmpDir)).toEqual([]);
+});
+
+test('exportData whose temporary file is not a regular file is a file system error', async () => {
+  const tmpDir = makeTemporaryDirectory();
+  const path = join(tmpDir, 'test.txt');
+  vi.mocked(openRegularFileForWriting).mockResolvedValueOnce(
+    err({ type: 'NotRegularFile' })
+  );
+  const result = await exporter.exportData(path, 'bar');
+  expect(result).toEqual<ExportDataResult>(
+    err({
+      type: 'file-system-error',
+      message: `Path is not a regular file: ${path}`,
+    })
+  );
+  expect(await readdir(tmpDir)).toEqual([]);
+});
+
+test('exportData whose temporary file cannot be opened is a file system error', async () => {
+  const tmpDir = makeTemporaryDirectory();
+  const path = join(tmpDir, 'test.txt');
+  vi.mocked(openRegularFileForWriting).mockResolvedValueOnce(
+    err({ type: 'OpenFileError', error: new Error('EROFS: read-only') })
+  );
+  const result = await exporter.exportData(path, 'bar');
+  expect(result).toEqual<ExportDataResult>(
+    err({
+      type: 'file-system-error',
+      message: `Unable to open ${path} for writing: EROFS: read-only`,
+    })
+  );
+  expect(await readdir(tmpDir)).toEqual([]);
 });
 
 test('exportData with a failing write is a file system error', async () => {
