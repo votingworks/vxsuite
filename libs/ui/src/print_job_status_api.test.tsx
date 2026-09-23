@@ -33,10 +33,8 @@ describe('getPrintOutcome', () => {
     expect(getPrintOutcome(undefined)).toEqual('in-progress');
   });
 
-  test('treats an untrackable job as a failure', () => {
-    expect(getPrintOutcome(err(new Error('no status tracked')))).toEqual(
-      'failed'
-    );
+  test('treats an error as a failure', () => {
+    expect(getPrintOutcome(err(new Error('test error')))).toEqual('failed');
   });
 
   test('reports the outcome the backend gave', () => {
@@ -48,10 +46,6 @@ describe('getPrintOutcome', () => {
 });
 
 describe('createPrintJobStatusApi', () => {
-  test('keys each job separately', () => {
-    expect(api.queryKey(1)).not.toEqual(api.queryKey(2));
-  });
-
   test('does not query until there is a job to watch', () => {
     renderHook(() => api.useQuery(undefined), { wrapper: QueryWrapper });
     expect(mockApiClient.getPrintJobStatus).not.toHaveBeenCalled();

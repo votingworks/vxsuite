@@ -24,13 +24,13 @@ export function getPrintOutcome(
 
 function buildPrintJobStatusApi(getApiClient: () => PrintJobStatusApiClient) {
   return {
-    queryKey(jobId: PrintJobId): QueryKey {
+    queryKey(jobId?: PrintJobId): QueryKey {
       return ['getPrintJobStatus', jobId];
     },
     useQuery(jobId?: PrintJobId) {
       const apiClient = getApiClient();
       return useQuery(
-        this.queryKey(jobId ?? 0),
+        this.queryKey(jobId),
         () => apiClient.getPrintJobStatus({ jobId: assertDefined(jobId) }),
         {
           enabled: jobId !== undefined,
