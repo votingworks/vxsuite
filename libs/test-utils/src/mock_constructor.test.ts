@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { expect, test, vi } from 'vitest';
-import { mockConstructor } from './mock_constructor';
+import { mockConstructor } from './mock_constructor.js';
 
 class Original {
   constructor(private readonly value: number) {}

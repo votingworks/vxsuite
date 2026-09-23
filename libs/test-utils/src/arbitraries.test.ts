@@ -7,7 +7,7 @@ import {
 } from '@votingworks/types';
 import fc from 'fast-check';
 import { assert } from '@votingworks/basics';
-import { arbitraryDateTime } from '.';
+import { arbitraryDateTime } from './index.js';
 import {
   arbitraryCandidateContest,
   arbitraryElection,
@@ -20,7 +20,7 @@ import {
   arbitraryUint16,
   arbitraryUint24,
   arbitraryUint32,
-} from './arbitraries';
+} from './arbitraries.js';
 
 test('arbitraryUint2', () => {
   fc.assert(
