@@ -304,12 +304,14 @@ test('Modal tells an election manager to remove files when the USB drive is too 
   userEvent.click(screen.getButton('Cancel'));
 });
 
-test('Modal explains when the USB drive is too small to ever fit the package', async () => {
+test('Modal explains when the USB drive is too small to ever fit the package, even if reformatted', async () => {
   apiMock.expectGetElectionPackageSize(5 * GIB);
   renderInAppContext(<ExportElectionPackageModalButton />, {
     apiMock,
     auth: systemAdministratorAuth,
     usbDriveStatus: mockUsbDriveStatus('mounted', {
+      fstype: 'fat32',
+      maxFileSize: FAT32_MAX_FILE_SIZE,
       totalBytes: 4 * GIB,
       availableBytes: 4 * GIB,
     }),

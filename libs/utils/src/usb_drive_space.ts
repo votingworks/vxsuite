@@ -23,12 +23,12 @@ export function checkFileFitsOnUsbDrive(
   sizeBytes: number
 ): UsbDriveFileFit {
   const { maxFileSize, totalBytes, availableBytes } = drive;
-  if (maxFileSize !== undefined && sizeBytes > maxFileSize) {
-    return { type: 'file-too-large', maxFileSize };
-  }
   const requiredBytes = sizeBytes + FILESYSTEM_OVERHEAD_BYTES;
   if (totalBytes !== undefined && requiredBytes > totalBytes) {
     return { type: 'drive-too-small', totalBytes };
+  }
+  if (maxFileSize !== undefined && sizeBytes > maxFileSize) {
+    return { type: 'file-too-large', maxFileSize };
   }
   if (availableBytes !== undefined && requiredBytes > availableBytes) {
     return { type: 'insufficient-space', availableBytes };

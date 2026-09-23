@@ -9,13 +9,22 @@ test('fits when the drive reports no limits', () => {
   });
 });
 
-test('file-too-large takes precedence over space', () => {
+test('drive-too-small takes precedence over file-too-large', () => {
   expect(
     checkFileFitsOnUsbDrive(
       { maxFileSize: 100, totalBytes: 10, availableBytes: 10 },
       101
     )
-  ).toEqual({ type: 'file-too-large', maxFileSize: 100 });
+  ).toEqual({ type: 'drive-too-small', totalBytes: 10 });
+});
+
+test('file-too-large takes precedence over insufficient-space', () => {
+  expect(
+    checkFileFitsOnUsbDrive(
+      { maxFileSize: 10 * MIB, totalBytes: 100 * MIB, availableBytes: 5 * MIB },
+      20 * MIB
+    )
+  ).toEqual({ type: 'file-too-large', maxFileSize: 10 * MIB });
 });
 
 test('drive-too-small when the whole drive cannot hold the file', () => {
