@@ -1,8 +1,6 @@
 // Single source of truth for the frontend→backend proxy, shared by the dev
 // server (Vite `server.proxy` in vite.config.ts) and the production server
-// (index.js, via setupProxy.js). Kept dependency-free so Vite can inline it when
-// bundling the ESM config — importing anything heavier (e.g. http-proxy-middleware)
-// here is what breaks config loading under `"type": "module"`.
+// (index.js, via setupProxy.js).
 
 /** Request path prefixes the frontend forwards to the backend. */
 export const PROXY_PATHS = ['/api', '/dock'];
