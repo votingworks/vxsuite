@@ -24,7 +24,7 @@
     "test": "pnpm -w vx-task build $npm_package_name && vitest",
     "test:run": "pnpm -w vx-task test:run $npm_package_name",
     "test:run:self": "cargo test && vitest run",
-    "type-check": "tsc --build",
+    "type-check": "rm -f tsconfig.tsbuildinfo && tsc --build",
     "universal": "napi universal",
     "version": "napi version"
   },

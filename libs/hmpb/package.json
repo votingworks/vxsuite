@@ -19,7 +19,7 @@
     "benchmark": "bin/run-benchmarks ${BENCH_ENV:-default}",
     "benchmark:compare": "vitest bench --compare bench-results/${BENCH_ENV:-default}.json",
     "build": "pnpm -w vx-task build $npm_package_name",
-    "build:self": "tsc --build tsconfig.build.json && cp -R ./src/fonts ./build",
+    "build:self": "rm -f build/tsconfig.build.tsbuildinfo && tsc --build tsconfig.build.json && cp -R ./src/fonts ./build",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
     "format": "prettier '**/*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
@@ -32,7 +32,7 @@
     "test": "pnpm -w vx-task build $npm_package_name && vitest",
     "test:run": "pnpm -w vx-task test:run $npm_package_name",
     "test:run:self": "vitest run",
-    "type-check": "tsc --build"
+    "type-check": "rm -f tsconfig.tsbuildinfo && tsc --build"
   },
   "dependencies": {
     "@pdf-lib/fontkit": "^1.1.1",

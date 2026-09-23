@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
-    "build:self": "tsc --build tsconfig.build.json",
+    "build:self": "rm -f build/tsconfig.build.tsbuildinfo && tsc --build tsconfig.build.json",
     "cdf:ballot-definition:build-schema": "cdf-schema-builder data/cdf/ballot-definition/nist-schema.xsd src/cdf/ballot-definition/vx-schema.json > src/cdf/ballot-definition/index.ts",
     "cdf:cvr:build-schema": "cdf-schema-builder data/cdf/cast-vote-records/nist-schema.xsd src/cdf/cast-vote-records/vx-schema.json > src/cdf/cast-vote-records/index.ts",
     "cdf:err:build-schema": "cdf-schema-builder data/cdf/election-results-reporting/nist-schema.xsd data/cdf/election-results-reporting/nist-schema.json > src/cdf/election-results-reporting/index.ts",
@@ -24,7 +24,7 @@
     "test": "pnpm -w vx-task build $npm_package_name && vitest",
     "test:run": "pnpm -w vx-task test:run $npm_package_name",
     "test:run:self": "vitest run",
-    "type-check": "tsc --build"
+    "type-check": "rm -f tsconfig.tsbuildinfo && tsc --build"
   },
   "dependencies": {
     "@antongolub/iso8601": "^1.2.1",

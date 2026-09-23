@@ -18,7 +18,7 @@
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
     "build:prod": "pnpm --filter-prod $npm_package_name... build:self",
-    "build:self": "tsc --build tsconfig.build.json",
+    "build:self": "rm -f build/tsconfig.build.tsbuildinfo && tsc --build tsconfig.build.json",
     "cancel-background-task": "pnpm build:self && node ./build/scripts/cancel_background_task.js",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
@@ -55,7 +55,7 @@
     "test:ci:self": "pnpm db:migrations:ci-validate && TZ=America/Anchorage ./scripts/test_ci.sh",
     "test:run": "pnpm -w vx-task test:run $npm_package_name",
     "test:run:self": "TZ=America/Anchorage vitest run",
-    "type-check": "tsc --build"
+    "type-check": "rm -f tsconfig.tsbuildinfo && tsc --build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.735.0",

@@ -24,7 +24,7 @@
     "build:generate-types": "pnpm build:generate-typescript-types && pnpm build:generate-rust-types",
     "build:generate-typescript-types": "pnpm build && pnpm build:generate-typescript-types:self",
     "build:generate-typescript-types:self": "node ./build/scripts/generate_types_from_toml.js",
-    "build:self": "tsc --build tsconfig.build.json",
+    "build:self": "rm -f build/tsconfig.build.tsbuildinfo && tsc --build tsconfig.build.json",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
     "install:rust-addon": "cargo fetch",
@@ -34,7 +34,7 @@
     "test": "pnpm -w vx-task build $npm_package_name && TZ=America/Anchorage vitest",
     "test:run": "pnpm -w vx-task test:run $npm_package_name",
     "test:run:self": "pnpm build:generate-typescript-types:self --check && pnpm build:generate-rust-types:self --check && TZ=America/Anchorage vitest run",
-    "type-check": "tsc --build"
+    "type-check": "rm -f tsconfig.tsbuildinfo && tsc --build"
   },
   "dependencies": {
     "@iarna/toml": "^2.2.5",
