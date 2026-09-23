@@ -1,6 +1,6 @@
 import { isAbsolute, join } from 'node:path';
 
-export const WORKSPACE_ROOT = join(__dirname, '../../..');
+export const WORKSPACE_ROOT = join(import.meta.dirname, '../../..');
 export const BUILD_ROOT = ((envBuildRoot?: string) =>
   envBuildRoot
     ? isAbsolute(envBuildRoot)

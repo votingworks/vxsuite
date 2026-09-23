@@ -1,11 +1,11 @@
 import { join } from 'node:path';
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
-import * as cargo from './cargo';
-import * as circleci from './circleci';
-import * as markdownLinks from './markdown_links';
-import * as pkgs from './packages';
-import * as tsconfig from './tsconfig';
-import * as turbo from './turbo';
+import * as cargo from './cargo.ts';
+import * as circleci from './circleci.ts';
+import * as markdownLinks from './markdown_links.ts';
+import * as pkgs from './packages.ts';
+import * as tsconfig from './tsconfig.ts';
+import * as turbo from './turbo.ts';
 import { readFile } from 'node:fs/promises';
 
 export type ValidationIssue =
@@ -17,7 +17,7 @@ export type ValidationIssue =
   | markdownLinks.ValidationIssue;
 
 export async function* validateMonorepo(): AsyncGenerator<ValidationIssue> {
-  const root = join(__dirname, '../../../..');
+  const root = join(import.meta.dirname, '../../../..');
   const workspacePackages = getWorkspacePackageInfo(root);
   const nodeVersionFile = (
     await readFile(join(root, '.node-version'), 'utf8')

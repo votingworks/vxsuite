@@ -1,13 +1,6 @@
-import { Optional } from '@votingworks/basics';
-import { PnpmPackageInfo } from '@votingworks/monorepo-utils';
+import type { Optional } from '@votingworks/basics';
+import type { PnpmPackageInfo } from '@votingworks/monorepo-utils';
 import matcher from 'matcher';
-
-export enum ValidationIssueKind {
-  MismatchedPropertyValue = 'MismatchedPropertyValue',
-  NoLicenseSpecified = 'NoLicenseSpecified',
-  UnexportedPackageJson = 'UnexportedPackageJson',
-  InvalidTaskDelegation = 'InvalidTaskDelegation',
-}
 
 export interface PackageJsonProperty {
   readonly packageJsonPath: string;
@@ -16,22 +9,22 @@ export interface PackageJsonProperty {
 }
 
 export interface MismatchedPropertyIssue {
-  readonly kind: ValidationIssueKind.MismatchedPropertyValue;
+  readonly kind: 'MismatchedPropertyValue';
   readonly properties: readonly PackageJsonProperty[];
 }
 
 export interface NoLicenseSpecifiedIssue {
-  readonly kind: ValidationIssueKind.NoLicenseSpecified;
+  readonly kind: 'NoLicenseSpecified';
   readonly packageJsonPath: string;
 }
 
 export interface UnexportedPackageJsonIssue {
-  readonly kind: ValidationIssueKind.UnexportedPackageJson;
+  readonly kind: 'UnexportedPackageJson';
   readonly packageJsonPath: string;
 }
 
 export interface InvalidTaskDelegationIssue {
-  readonly kind: ValidationIssueKind.InvalidTaskDelegation;
+  readonly kind: 'InvalidTaskDelegation';
   readonly packageJsonPath: string;
   readonly task: string;
   readonly expected: string;
@@ -43,6 +36,8 @@ export type ValidationIssue =
   | NoLicenseSpecifiedIssue
   | UnexportedPackageJsonIssue
   | InvalidTaskDelegationIssue;
+
+export type ValidationIssueKind = ValidationIssue['kind'];
 
 /**
  * Public tasks that delegate to the `vx-task` orchestrator, which picks between
@@ -75,7 +70,7 @@ export async function* checkPackageManager({
 
     if (pkg.packageJson.license !== 'GPL-3.0-only') {
       yield {
-        kind: ValidationIssueKind.NoLicenseSpecified,
+        kind: 'NoLicenseSpecified',
         packageJsonPath: pkg.packageJsonPath,
       };
     }
@@ -94,7 +89,7 @@ export async function* checkPackageManager({
 
   if (packageManagers.size > 1) {
     yield {
-      kind: ValidationIssueKind.MismatchedPropertyValue,
+      kind: 'MismatchedPropertyValue',
       properties,
     };
   }
@@ -158,7 +153,7 @@ export async function* checkPinnedVersions({
       );
 
       yield {
-        kind: ValidationIssueKind.MismatchedPropertyValue,
+        kind: 'MismatchedPropertyValue',
         properties,
       };
     }
@@ -209,7 +204,7 @@ export async function* checkEngines({
 
     if (values.size > 1) {
       yield {
-        kind: ValidationIssueKind.MismatchedPropertyValue,
+        kind: 'MismatchedPropertyValue',
         properties: engineProperties,
       };
     } else if (engine === 'node' && values.size === 1) {
@@ -218,7 +213,7 @@ export async function* checkEngines({
       );
       if (propertiesNotMatchingNodeVersionFile.length > 0) {
         yield {
-          kind: ValidationIssueKind.MismatchedPropertyValue,
+          kind: 'MismatchedPropertyValue',
           properties: propertiesNotMatchingNodeVersionFile,
         };
       }
@@ -250,7 +245,7 @@ export async function* checkPackageJsonIsExported({
 
     if (exportsMap && exportsMap['./package.json'] === undefined) {
       yield {
-        kind: ValidationIssueKind.UnexportedPackageJson,
+        kind: 'UnexportedPackageJson',
         packageJsonPath,
       };
     }
@@ -286,7 +281,7 @@ export async function* checkTaskDelegation({
       const expected = `pnpm -w vx-task ${task} $npm_package_name`;
       if (scripts[task] !== expected) {
         yield {
-          kind: ValidationIssueKind.InvalidTaskDelegation,
+          kind: 'InvalidTaskDelegation',
           packageJsonPath,
           task,
           expected,

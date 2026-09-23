@@ -5,8 +5,11 @@
     "esModuleInterop": true,
     "lib": ["ESNext"],
     "jsx": "react-jsx",
-    "module": "node16",
+    "module": "nodenext",
     "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
     "strict": true
   },
   "include": ["src"],

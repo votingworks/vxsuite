@@ -5,6 +5,7 @@
   "description": "",
   "license": "GPL-3.0-only",
   "author": "VotingWorks Eng <eng@voting.works>",
+  "type": "module",
   "scripts": {
     "build": "tsc --build"
   },
@@ -18,8 +19,6 @@
   },
   "devDependencies": {
     "@types/node": "24.13.3",
-    "esbuild": "0.28.1",
-    "esbuild-runner": "2.2.2",
     "prettier": "3.9.6",
     "typescript": "npm:@typescript/typescript6@6.0.2"
   },

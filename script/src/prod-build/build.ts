@@ -1,9 +1,12 @@
+import { createRequire } from 'node:module';
 import { join } from 'node:path';
-import { WORKSPACE_ROOT } from './globals';
-import { execSync } from './utils/exec_sync';
-import { existsSync } from './utils/exists_sync';
-import { mkdirp } from './utils/mkdirp';
-import { relativePath } from './utils/relative_path';
+import { WORKSPACE_ROOT } from './globals.ts';
+import { execSync } from './utils/exec_sync.ts';
+import { existsSync } from './utils/exists_sync.ts';
+import { mkdirp } from './utils/mkdirp.ts';
+import { relativePath } from './utils/relative_path.ts';
+
+const require = createRequire(import.meta.url);
 
 export function inBuildDir(path: string, buildRoot: string): string {
   return join(buildRoot, relativePath(path, { from: WORKSPACE_ROOT }));

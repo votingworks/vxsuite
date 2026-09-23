@@ -1,14 +1,10 @@
 import resolveFrom from 'resolve-from';
-import { WORKSPACE_ROOT } from './globals';
-import { maybeRequire } from './utils/maybe_require';
-import { relativePath } from './utils/relative_path';
+import { WORKSPACE_ROOT } from './globals.ts';
+import { maybeRequire } from './utils/maybe_require.ts';
+import { relativePath } from './utils/relative_path.ts';
 import { dirname, normalize, join } from 'node:path';
 
-export enum PackageType {
-  Frontend = 'frontend',
-  Service = 'service',
-  Library = 'lib',
-}
+export type PackageType = 'frontend' | 'service' | 'lib';
 
 export interface Package {
   readonly name: string;
@@ -52,16 +48,14 @@ export function getDependencyGraph(path: string, type: PackageType): Package {
           if (from[name].startsWith('workspace:')) {
             const depPkgFile = resolveFrom(path, `${name}/package.json`);
             const depPkgRoot = dirname(depPkgFile);
-            to.push(addDependency(depPkgRoot, PackageType.Library));
+            to.push(addDependency(depPkgRoot, 'lib'));
           }
         }
       }
 
       if (pkg.vx?.services) {
         for (const mod of pkg.vx.services) {
-          deps.push(
-            addDependency(normalize(join(path, mod)), PackageType.Service)
-          );
+          deps.push(addDependency(normalize(join(path, mod)), 'service'));
         }
       }
     }
@@ -107,7 +101,7 @@ export function getProductionPackages(root: Package): Set<Package> {
     packages.add(node);
 
     for (const dep of node.deps) {
-      if (!node.isBundled || dep.type === PackageType.Service) {
+      if (!node.isBundled || dep.type === 'service') {
         visit(dep);
       }
     }

@@ -1,20 +1,19 @@
 import * as fs from 'node:fs';
 import { basename, join } from 'node:path';
-import { doBuild, doCopy, inBuildDir } from './build';
+import { doBuild, doCopy, inBuildDir } from './build.ts';
 import {
   getDependencyGraph,
   getPackages,
   getProductionPackages,
-  PackageType,
-} from './deps';
-import { BUILD_ROOT, WORKSPACE_ROOT } from './globals';
-import { assertExpectedPnpmVersion, deleteScript } from './pnpm';
-import { IO } from '../types';
-import { execSync } from './utils/exec_sync';
-import { existsSync } from './utils/exists_sync';
-import { mkdirp } from './utils/mkdirp';
-import { rmrf } from './utils/rmrf';
-import { useTurbo } from './utils/use_turbo';
+} from './deps.ts';
+import { BUILD_ROOT, WORKSPACE_ROOT } from './globals.ts';
+import { assertExpectedPnpmVersion, deleteScript } from './pnpm.ts';
+import type { IO } from '../types.ts';
+import { execSync } from './utils/exec_sync.ts';
+import { existsSync } from './utils/exists_sync.ts';
+import { mkdirp } from './utils/mkdirp.ts';
+import { rmrf } from './utils/rmrf.ts';
+import { useTurbo } from './utils/use_turbo.ts';
 
 export function main({ stdout }: IO): void {
   assertExpectedPnpmVersion();
@@ -22,15 +21,13 @@ export function main({ stdout }: IO): void {
   // Ensure pipenv places the virtualenv in the project.
   process.env.PIPENV_VENV_IN_PROJECT = '0';
 
-  const root = getDependencyGraph(process.cwd(), PackageType.Frontend);
+  const root = getDependencyGraph(process.cwd(), 'frontend');
   stdout.write(`ℹ️ Building ${root.path} for production\n`);
   stdout.write(`ℹ️ Output: ${BUILD_ROOT}\n`);
   stdout.write(`\n`);
 
   const allPackages = getPackages(root);
-  const appPackages = [...allPackages].filter(
-    ({ type }) => type !== PackageType.Library
-  );
+  const appPackages = [...allPackages].filter(({ type }) => type !== 'lib');
   const prodPackages = getProductionPackages(root);
 
   if (useTurbo()) {

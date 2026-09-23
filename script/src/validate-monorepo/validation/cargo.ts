@@ -2,10 +2,6 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { parse as parseToml } from '@iarna/toml';
 
-export enum ValidationIssueKind {
-  MismatchedCargoDependencyVersion = 'MismatchedCargoDependencyVersion',
-}
-
 export interface CargoDependencyProperty {
   readonly cargoTomlPath: string;
   readonly section: string;
@@ -14,12 +10,14 @@ export interface CargoDependencyProperty {
 }
 
 export interface MismatchedCargoDependencyVersionIssue {
-  readonly kind: ValidationIssueKind.MismatchedCargoDependencyVersion;
+  readonly kind: 'MismatchedCargoDependencyVersion';
   readonly dependencyName: string;
   readonly properties: readonly CargoDependencyProperty[];
 }
 
 export type ValidationIssue = MismatchedCargoDependencyVersionIssue;
+
+export type ValidationIssueKind = ValidationIssue['kind'];
 
 const DEPENDENCY_SECTIONS = [
   'dependencies',
@@ -123,7 +121,7 @@ export async function* checkConfig(
     const versions = new Set(properties.map((p) => p.version));
     if (versions.size > 1) {
       yield {
-        kind: ValidationIssueKind.MismatchedCargoDependencyVersion,
+        kind: 'MismatchedCargoDependencyVersion',
         dependencyName: depName,
         properties,
       };

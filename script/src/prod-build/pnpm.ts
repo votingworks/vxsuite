@@ -1,8 +1,11 @@
+import { createRequire } from 'node:module';
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { PNPM_LOGLEVEL, WORKSPACE_ROOT } from './globals';
-import { execSync } from './utils/exec_sync';
+import { PNPM_LOGLEVEL, WORKSPACE_ROOT } from './globals.ts';
+import { execSync } from './utils/exec_sync.ts';
+
+const require = createRequire(import.meta.url);
 
 /**
  * Check that `pnpm` on PATH is the version the lockfile was written with.
