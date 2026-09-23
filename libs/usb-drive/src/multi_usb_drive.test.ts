@@ -366,6 +366,44 @@ describe('formatDrive', () => {
     multiUsbDrive.stop();
   });
 
+  test('remounts the drive after formatting it', async () => {
+    const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive({ logger, platform });
+
+    platform.createDrive({ diskPath: devsdb });
+    platform.insertDrive(devsdb);
+
+    await multiUsbDrive.refresh();
+    await multiUsbDrive.formatDrive(devsdb, 'exfat');
+
+    expect(multiUsbDrive.getDrives()[0]?.partition?.mount.type).toEqual(
+      'mounted'
+    );
+
+    multiUsbDrive.stop();
+  });
+
+  test('does not wait for a remount if the drive is removed while formatting', async () => {
+    const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive({ logger, platform });
+
+    platform.createDrive({ diskPath: devsdb });
+    platform.insertDrive(devsdb);
+    vi.spyOn(platform, 'formatDrive').mockImplementation(() => {
+      platform.removeDrive(devsdb);
+      return Promise.resolve();
+    });
+
+    await multiUsbDrive.refresh();
+    await multiUsbDrive.formatDrive(devsdb, 'exfat');
+
+    expect(multiUsbDrive.getDrives()).toEqual([]);
+
+    multiUsbDrive.stop();
+  });
+
   test('logs failure and rethrows when format throws', async () => {
     const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
     const logger = mockLogger({ fn: vi.fn });
@@ -707,8 +745,11 @@ describe('integration', () => {
         UsbPartitionMount.ejected()
       );
 
-      // Format preserves the VxUSB label and wipes the drive's data
+      // Format preserves the VxUSB label, wipes the drive's data, and remounts
       await multiUsbDrive.formatDrive(devsdb, 'exfat');
+      expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
+        UsbPartitionMount.mounted(mountpoint)
+      );
       expect(logger.log).toHaveBeenCalledWith(
         LogEventId.UsbDriveFormatted,
         expect.any(String),
@@ -732,7 +773,7 @@ describe('integration', () => {
         { timeout: 2000 }
       );
 
-      // Re-inserting clears the eject state and auto-mounts again
+      // Re-inserting auto-mounts again
       platform.insertDrive(devsdb);
       await multiUsbDrive.refresh();
       await vi.waitFor(

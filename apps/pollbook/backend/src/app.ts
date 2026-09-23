@@ -186,6 +186,10 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       }
     },
 
+    async ejectUsbDrive(): Promise<void> {
+      await usbDrive.eject();
+    },
+
     // @coverage-defer
     async getUsbDriveStatus(): Promise<UsbDriveStatus> {
       return usbDrive.status();

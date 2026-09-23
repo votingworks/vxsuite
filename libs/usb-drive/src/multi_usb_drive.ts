@@ -407,8 +407,7 @@ export function detectMultiUsbDrive(options: {
             `formatting drive ${diskPath} as ${fstype} with label ${label}`
           );
           await platform.formatDrive(diskPath, fstype, label);
-          ejectedDrives.add(diskPath); // prevent auto-remount
-          await doRefresh();
+          ejectedDrives.delete(diskPath);
 
           await logger.logAsCurrentRole(LogEventId.UsbDriveFormatted, {
             disposition: 'success',
@@ -435,6 +434,13 @@ export function detectMultiUsbDrive(options: {
       }
 
       await result;
+      await doRefresh();
+      const partition = cachedDrives.find(
+        (d) => d.diskPath === diskPath
+      )?.partition;
+      if (partition) {
+        await partitionAction.join(partition.partPath);
+      }
     },
 
     async sync(partPath: UsbPartitionDevPath): Promise<void> {

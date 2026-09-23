@@ -214,7 +214,6 @@ export const getUsbDriveStatus = {
 } as const;
 
 export const ejectUsbDrive = {
-  // @coverage-defer
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();

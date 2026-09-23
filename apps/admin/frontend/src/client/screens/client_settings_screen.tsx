@@ -21,6 +21,7 @@ import { isSystemAdministratorAuth } from '@votingworks/utils';
 import { AppContext } from '../../contexts/app_context.js';
 import { NavigationScreen } from '../../components/navigation_screen.js';
 import {
+  ejectUsbDrive,
   formatUsbDrive,
   logOut,
   setMachineMode,
@@ -32,6 +33,7 @@ export function ClientSettingsScreen(): JSX.Element | null {
   const apiClient = useApiClient();
   const logOutMutation = logOut.useMutation();
   const formatUsbDriveMutation = formatUsbDrive.useMutation();
+  const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const setMachineModeMutation = setMachineMode.useMutation();
   const rebootMutation = useSystemCallApi().reboot.useMutation();
 
@@ -90,6 +92,7 @@ export function ClientSettingsScreen(): JSX.Element | null {
           <FormatUsbButton
             usbDriveStatus={usbDriveStatus}
             formatUsbDriveMutation={formatUsbDriveMutation}
+            ejectUsbDriveMutation={ejectUsbDriveMutation}
           />
         </React.Fragment>
       )}

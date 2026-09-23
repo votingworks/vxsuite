@@ -8,6 +8,7 @@ import { Modal } from './modal.js';
 import { Font, P } from './typography.js';
 import { Icons } from './icons.js';
 import { FILESYSTEM_LABELS } from './usb_drive.js';
+import { UsbControllerButton } from './usbcontroller_button.js';
 
 function CompatibilityMessage({
   usbDriveStatus,
@@ -65,6 +66,7 @@ export function FormatUsbModal({
   onClose,
   usbDriveStatus,
   formatUsbDriveMutation,
+  ejectUsbDriveMutation,
 }: FormatUsbModalProps): JSX.Element {
   const [state, setState] = useState<FlowState>({ stage: 'confirm' });
 
@@ -139,12 +141,22 @@ export function FormatUsbModal({
           title="USB Drive Formatted"
           content={
             <P>
-              USB drive successfully formatted and ejected. It can now be used
-              with VotingWorks components.
+              USB drive successfully formatted. It can now be used with
+              VotingWorks components.
             </P>
           }
           onOverlayClick={onClose}
-          actions={<Button onPress={onClose}>Close</Button>}
+          actions={
+            <React.Fragment>
+              <UsbControllerButton
+                primary
+                usbDriveStatus={usbDriveStatus}
+                usbDriveEject={() => ejectUsbDriveMutation.mutate()}
+                usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
+              />
+              <Button onPress={onClose}>Close</Button>
+            </React.Fragment>
+          }
         />
       );
     case 'error':
@@ -169,6 +181,7 @@ export interface FormatUsbButtonProps {
     void,
     unknown
   >;
+  ejectUsbDriveMutation: UseMutationResult<void, unknown, void, unknown>;
 }
 
 export function FormatUsbButton(props: FormatUsbButtonProps): JSX.Element {

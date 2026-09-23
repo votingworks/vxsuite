@@ -279,7 +279,10 @@ describe('format', () => {
     expect(platform.getSimulatedDrives()[0]?.partition?.fstype).toEqual(
       'exfat'
     );
-    expect(await adapter.status()).toEqual({ status: 'ejected' });
+    expect(await adapter.status()).toMatchObject({
+      status: 'mounted',
+      fstype: 'exfat',
+    });
   });
 
   test('formats the selected drive', async () => {
@@ -289,8 +292,8 @@ describe('format', () => {
     await adapter.format('ext4');
 
     expect(platform.getSimulatedDrives()[0]?.partition?.fstype).toEqual('ext4');
-    expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
-      UsbPartitionMount.ejected()
+    expect(multiUsbDrive.getDrives()[0]?.partition?.mount.type).toEqual(
+      'mounted'
     );
   });
 

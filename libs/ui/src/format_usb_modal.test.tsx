@@ -18,19 +18,23 @@ const mockMutate = vi
   .fn<() => Promise<Result<void, Error>>>()
   .mockResolvedValue(ok());
 
+const mockEject = vi.fn<() => Promise<void>>().mockResolvedValue();
+
 const queryClient = new QueryClient({
   defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS,
 });
 
 function MockComponent({
   usbDriveStatus,
-}: Omit<FormatUsbButtonProps, 'formatUsbDriveMutation'>): JSX.Element {
+}: Pick<FormatUsbButtonProps, 'usbDriveStatus'>): JSX.Element {
   const mutation = useMutation(mockMutate);
+  const ejectMutation = useMutation(mockEject);
 
   return (
     <FormatUsbButton
       usbDriveStatus={usbDriveStatus}
       formatUsbDriveMutation={mutation}
+      ejectUsbDriveMutation={ejectMutation}
     />
   );
 }
@@ -52,11 +56,13 @@ function ControlledMockComponent({
       return Promise.resolve(ok());
     })
   );
+  const ejectMutation = useMutation(mockEject);
 
   return (
     <FormatUsbButton
       usbDriveStatus={usbDriveStatus}
       formatUsbDriveMutation={mutation}
+      ejectUsbDriveMutation={ejectMutation}
     />
   );
 }
@@ -75,9 +81,24 @@ test('formatting', async () => {
   );
   userEvent.click(screen.getButton('Format USB Drive'));
   await screen.findByText(
-    'USB drive successfully formatted and ejected. It can now be used with VotingWorks components.'
+    'USB drive successfully formatted. It can now be used with VotingWorks components.'
   );
   expect(mockMutate).toHaveBeenCalledOnce();
+});
+
+test('ejecting after formatting', async () => {
+  render(
+    <QueryClientProvider client={queryClient}>
+      <MockComponent usbDriveStatus={mockUsbDriveStatus('mounted')} />
+    </QueryClientProvider>
+  );
+
+  userEvent.click(screen.getButton('Format USB Drive'));
+  await screen.findByRole('heading', { name: 'Format USB Drive' });
+  userEvent.click(screen.getButton('Format USB Drive'));
+  await screen.findByRole('heading', { name: 'USB Drive Formatted' });
+  userEvent.click(screen.getButton('Eject USB'));
+  await vi.waitFor(() => expect(mockEject).toHaveBeenCalledOnce());
 });
 
 test('modal open and close', async () => {
@@ -157,7 +178,7 @@ test('done screen shown even when status becomes no_drive during formatting', as
 
   // Despite status becoming no_drive during formatting, done screen must appear
   await screen.findByText(
-    'USB drive successfully formatted and ejected. It can now be used with VotingWorks components.'
+    'USB drive successfully formatted. It can now be used with VotingWorks components.'
   );
 });
 
@@ -168,10 +189,12 @@ test('error during formatting', async () => {
 
   function ErrorMockComponent(): JSX.Element {
     const mutation = useMutation(failMutate);
+    const ejectMutation = useMutation(mockEject);
     return (
       <FormatUsbButton
         usbDriveStatus={mockUsbDriveStatus('error')}
         formatUsbDriveMutation={mutation}
+        ejectUsbDriveMutation={ejectMutation}
       />
     );
   }
