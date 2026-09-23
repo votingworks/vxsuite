@@ -264,6 +264,12 @@ export const SystemSettingsSchema = z
      * Allows printing blank (unmarked) ballots from VxMark.
      */
     allowPrintingBlankBallotsFromVxMark: z.boolean().optional(),
+
+    /**
+     * [WIP] Enables splitting the election definition into separate files to
+     * support counties with large elections (mainly WRT ballot style count).
+     */
+    splitElectionDefinition: z.boolean().optional(),
   })
   .refine(
     (settings) =>

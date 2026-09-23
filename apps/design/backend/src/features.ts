@@ -92,6 +92,10 @@ export interface UserFeaturesConfig {
    * Requires the system settings screen to be enabled.
    */
   VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING?: boolean;
+  /**
+   * [WIP] Allow toggling the split election definition system setting.
+   */
+  SPLIT_ELECTION_DEFINITION_SYSTEM_SETTING?: boolean;
 }
 
 /**
@@ -215,14 +219,15 @@ const vxUserFeaturesConfig: UserFeaturesConfig = {
   BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING: true,
   BMD_OVERVOTE_SYSTEM_SETTING: true,
   QUICK_RESULTS_REPORTING_SYSTEM_SETTING: true,
+  SPLIT_ELECTION_DEFINITION_SYSTEM_SETTING: true,
   SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING: true,
   TEST_DECK_PRINTING_SYSTEM_SETTING: true,
   VOTER_HELP_BUTTONS_SYSTEM_SETTING: true,
+  VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING: true,
   VXSCAN_ALARMS_SYSTEM_SETTING: true,
   VXSCAN_NUMBER_OF_REPORT_COPIES_SYSTEM_SETTING: true,
   VXSCAN_SCREEN_READER_AUDIO_SYSTEM_SETTING: true,
   VXSCAN_WRITE_IN_IMAGE_REPORT_SYSTEM_SETTING: true,
-  VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING: true,
 };
 
 export const userFeatureConfigs = {

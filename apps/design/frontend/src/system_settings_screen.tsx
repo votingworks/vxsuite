@@ -932,6 +932,20 @@ export function SystemSettingsForm({
               }
               disabled={!isEditing}
             />
+            {features.SPLIT_ELECTION_DEFINITION_SYSTEM_SETTING && (
+              <CheckboxButton
+                label="Split Election Definition"
+                isChecked={Boolean(systemSettings.splitElectionDefinition)}
+                onChange={(isChecked) =>
+                  setSystemSettings({
+                    ...systemSettings,
+                    // @coverage-defer
+                    splitElectionDefinition: isChecked ? true : undefined, // WIP feature
+                  })
+                }
+                disabled={!isEditing}
+              />
+            )}
           </Column>
         </Card>
       </Row>
