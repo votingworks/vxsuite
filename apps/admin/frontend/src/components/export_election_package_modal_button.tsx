@@ -9,7 +9,6 @@ import {
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   Button,
-  FILESYSTEM_LABELS,
   Font,
   LoadingButton,
   Modal,
@@ -18,7 +17,6 @@ import {
   userReadableMessageFromExportDataError,
 } from '@votingworks/ui';
 import type { ExportDataError } from '@votingworks/admin-backend';
-import type { MountedUsbDriveStatus } from '@votingworks/usb-drive';
 
 import {
   ejectUsbDrive,
@@ -39,19 +37,17 @@ function Bytes({ value }: { value: number }): JSX.Element {
 type DoesNotFit = Exclude<UsbDriveFileFit, { type: 'fits' }>;
 
 const DOES_NOT_FIT_TITLES: Record<DoesNotFit['type'], string> = {
-  'file-too-large': 'File Too Large for USB Drive',
+  'file-too-large': 'Election Package Too Large for USB Drive',
   'insufficient-space': 'Not Enough Space on USB Drive',
   'drive-too-small': 'USB Drive Too Small',
 };
 
 function DoesNotFitMessage({
   fit,
-  usbDriveStatus,
   electionPackageSize,
   canFormat,
 }: {
   fit: DoesNotFit;
-  usbDriveStatus: MountedUsbDriveStatus;
   electionPackageSize: number;
   canFormat: boolean;
 }): JSX.Element {
@@ -59,16 +55,12 @@ function DoesNotFitMessage({
     case 'file-too-large':
       return (
         <P>
-          The election package is <Bytes value={electionPackageSize} />. The USB
-          drive is formatted as{' '}
-          <Font weight="semiBold">
-            {FILESYSTEM_LABELS[usbDriveStatus.fstype]}
-          </Font>
-          , which cannot store files larger than{' '}
+          The election package is <Bytes value={electionPackageSize} />, but
+          this USB drive&apos;s current format can&apos;t hold files larger than{' '}
           <Bytes value={fit.maxFileSize} />.{' '}
           {canFormat
-            ? 'Format the USB drive from the Settings screen to continue.'
-            : 'Ask a system administrator to format the USB drive, or use a different USB drive.'}
+            ? 'Reformat the USB drive from the Settings screen to continue.'
+            : 'Ask a system administrator to reformat the USB drive, or use a different USB drive.'}
         </P>
       );
     case 'insufficient-space':
@@ -77,7 +69,7 @@ function DoesNotFitMessage({
           The election package is <Bytes value={electionPackageSize} />, but the
           USB drive only has <Bytes value={fit.availableBytes} /> free. Remove
           files from the USB drive
-          {canFormat ? ' or format it from the Settings screen' : ''} to
+          {canFormat ? ' or reformat it from the Settings screen' : ''} to
           continue.
         </P>
       );
@@ -164,7 +156,6 @@ export function ExportElectionPackageModalButton(): JSX.Element {
             mainContent = (
               <DoesNotFitMessage
                 fit={fit}
-                usbDriveStatus={usbDriveStatus}
                 electionPackageSize={electionPackageSize}
                 canFormat={isSystemAdministratorAuth(auth)}
               />

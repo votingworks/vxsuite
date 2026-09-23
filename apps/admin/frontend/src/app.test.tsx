@@ -549,7 +549,7 @@ test('usb formatting flows', async () => {
   apiMock.expectGetUsbDriveStatus('mounted');
   await screen.findByRole('heading', { name: 'Format USB Drive' });
   const formatModal = screen.getByRole('alertdialog');
-  within(formatModal).getByText(/already compatible/);
+  within(formatModal).getByText(/fully compatible/);
   apiMock.expectFormatUsbDrive();
   userEvent.click(within(formatModal).getButton('Format USB Drive'));
   await within(formatModal).findByText('USB Drive Formatted');

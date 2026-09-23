@@ -46,8 +46,8 @@ function CompatibilityMessage({
 
   return (
     <P>
-      The format of the inserted USB drive is{' '}
-      <Font weight="semiBold">already compatible</Font> with VotingWorks
+      The format of the inserted USB drive is already{' '}
+      <Font weight="semiBold">fully compatible</Font> with VotingWorks
       components.
     </P>
   );

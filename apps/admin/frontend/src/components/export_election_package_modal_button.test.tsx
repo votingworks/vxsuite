@@ -212,15 +212,15 @@ test('Modal tells a system administrator to format the USB drive from Settings w
   userEvent.click(screen.getButton('Save Election Package'));
   const modal = await screen.findByRole('alertdialog');
   await within(modal).findByRole('heading', {
-    name: 'File Too Large for USB Drive',
+    name: 'Election Package Too Large for USB Drive',
   });
   within(modal).getByText(/The election package is/);
   within(modal).getByText('5.0 GB');
-  within(modal).getByText(/formatted as/);
-  within(modal).getByText('FAT32');
-  within(modal).getByText(/cannot store files larger than/);
+  within(modal).getByText(/current format can't hold files larger than/);
+  within(modal).getByText('4.0 GB');
+  expect(within(modal).queryByText(/FAT32/)).not.toBeInTheDocument();
   within(modal).getByText(
-    /Format the USB drive from the Settings screen to continue\./
+    /Reformat the USB drive from the Settings screen to continue\./
   );
   expect(
     within(modal)
@@ -247,9 +247,9 @@ test('Modal tells an election manager to ask for formatting when the package exc
   });
   userEvent.click(screen.getButton('Save Election Package'));
   await screen.findByRole('heading', {
-    name: 'File Too Large for USB Drive',
+    name: 'Election Package Too Large for USB Drive',
   });
-  screen.getByText(/Ask a system administrator to format the USB drive/);
+  screen.getByText(/Ask a system administrator to reformat the USB drive/);
   userEvent.click(screen.getButton('Close'));
 });
 
@@ -270,7 +270,7 @@ test('Modal explains when the USB drive is too full', async () => {
   screen.getByText(/the USB drive only has/);
   screen.getByText('2.0 GB');
   screen.getByText(
-    /Remove files from the USB drive or format it from the Settings screen to continue\./
+    /Remove files from the USB drive or reformat it from the Settings screen to continue\./
   );
   userEvent.click(screen.getButton('Close'));
 });

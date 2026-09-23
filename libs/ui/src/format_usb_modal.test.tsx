@@ -125,7 +125,7 @@ test('already-formatted usb drives', async () => {
 
   userEvent.click(screen.getButton('Format USB Drive'));
   await screen.findByRole('heading', { name: 'Format USB Drive' });
-  screen.getByText('already compatible');
+  screen.getByText('fully compatible');
 });
 
 test('FAT32 usb drives are partially compatible', async () => {
