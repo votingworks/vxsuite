@@ -1,14 +1,14 @@
 import { expect, test } from 'vitest';
 import { z } from 'zod/v4';
 import { assertDefined } from '@votingworks/basics';
-import { Election, SheetPositions } from './election';
-import { safeParseElectionDefinition } from './election_parsing';
+import { Election, SheetPositions } from './election.js';
+import { safeParseElectionDefinition } from './election_parsing.js';
 import {
   convertLatestElectionToV4p0,
   safeParseElectionDefinitionForAnySoftwareVersion,
   safeParseElectionDefinitionV4p0,
-} from './software_versions';
-import { election, primaryElection } from '../test/election';
+} from './software_versions.js';
+import { election, primaryElection } from '../test/election.js';
 
 const generalElectionData = JSON.stringify(election);
 const closedPrimaryElectionData = JSON.stringify(primaryElection);

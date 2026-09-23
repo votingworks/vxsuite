@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
-import { safeParseJson } from './generic';
+import { safeParseJson } from './generic.js';
 import {
   UiStringAudioIdsPackage,
   UiStringAudioIdsPackageSchema,
-} from './ui_string_audio_ids';
+} from './ui_string_audio_ids.js';
 
 test('valid structure', () => {
   const testPackage: UiStringAudioIdsPackage = {

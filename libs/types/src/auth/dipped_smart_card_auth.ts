@@ -4,7 +4,7 @@ import {
   SystemAdministratorUser,
   UserWithCard,
   VendorUser,
-} from './auth';
+} from './auth.js';
 
 export interface LoggedOut {
   readonly status: 'logged_out';

@@ -1,4 +1,3 @@
-import check8601 from '@antongolub/iso8601';
 import { z } from 'zod/v4';
 import {
   err,
@@ -112,9 +111,10 @@ export const MachineId = z
     'Machine IDs may only contain numbers, uppercase letters, and dashes'
   );
 
-export const Iso8601DateTimeSchema = z
-  .string()
-  .refine(check8601, 'datetimes must be in ISO8601 format');
+export const Iso8601DateTimeSchema = z.iso.datetime({
+  offset: true,
+  local: true,
+});
 export type Iso8601Timestamp = string;
 export const Iso8601TimestampSchema = Iso8601DateTimeSchema;
 

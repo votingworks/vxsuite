@@ -18,6 +18,7 @@ import {
   PrecinctId,
   Election,
   Tabulation,
+  DippedSmartCardAuth,
 } from '@votingworks/types';
 import {
   createSystemCallApi,
@@ -154,7 +155,7 @@ export function buildApi(ctx: AppContext) {
   const methods = {
     getMachineConfig,
 
-    getAuthStatus() {
+    getAuthStatus(): Promise<DippedSmartCardAuth.AuthStatus> {
       return auth.getAuthStatus(constructAuthMachineState(store));
     },
 

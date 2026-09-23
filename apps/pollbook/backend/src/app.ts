@@ -23,6 +23,7 @@ import {
   VoterMailingAddressChangeRequest,
   VoterNameChangeRequest,
   VoterRegistrationRequest,
+  DippedSmartCardAuth,
 } from '@votingworks/types';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import React from 'react';
@@ -144,7 +145,7 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
     },
 
     // @coverage-defer
-    getAuthStatus() {
+    getAuthStatus(): Promise<DippedSmartCardAuth.AuthStatus> {
       return auth.getAuthStatus(constructAuthMachineState(workspace));
     },
 

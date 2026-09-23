@@ -1,6 +1,6 @@
 import { z } from 'zod/v4';
 import { assert, assertDefined, ok, Result } from '@votingworks/basics';
-import { sha256 } from './sha256';
+import { sha256 } from './sha256.js';
 import {
   BallotStyle,
   BallotStyleId,
@@ -27,7 +27,7 @@ import {
   YesNoContest,
   YesNoOption,
   YesNoOptionSchema,
-} from './election';
+} from './election.js';
 import {
   ballotPositionsFromGridPositions,
   flattenBallotPositions,
@@ -35,12 +35,15 @@ import {
   outsetFromOptionPosition,
   DEFAULT_OPTION_BOUNDS_FROM_TARGET_MARK_OUTSET,
   type FlatOptionPosition,
-} from './ballot_positions';
-import { Outset, OutsetSchema, Rect, RectSchema } from './geometry';
-import { pollingPlacesGenerateFromPrecincts } from './polling_places';
-import { safeParseElectionDefinition } from './election_parsing';
-import { Id, IdSchema, safeParse, safeParseJson } from './generic';
-import { ElectionStringKey, UiStringsPackage } from './ui_string_translations';
+} from './ballot_positions.js';
+import { Outset, OutsetSchema, Rect, RectSchema } from './geometry.js';
+import { pollingPlacesGenerateFromPrecincts } from './polling_places.js';
+import { safeParseElectionDefinition } from './election_parsing.js';
+import { Id, IdSchema, safeParse, safeParseJson } from './generic.js';
+import {
+  ElectionStringKey,
+  UiStringsPackage,
+} from './ui_string_translations.js';
 
 export const SoftwareVersions = ['v4.0', 'v4.1'] as const;
 export const LATEST_SOFTWARE_VERSION = 'v4.1';

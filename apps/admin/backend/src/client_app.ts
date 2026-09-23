@@ -27,6 +27,7 @@ import {
   Id,
   Side,
   SystemSettings,
+  DippedSmartCardAuth,
 } from '@votingworks/types';
 import { getMachineConfig } from './machine_config.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
@@ -332,7 +333,7 @@ function buildClientApi({
       return ok();
     },
 
-    getAuthStatus() {
+    getAuthStatus(): Promise<DippedSmartCardAuth.AuthStatus> {
       return auth.getAuthStatus(constructAuthMachineState(clientStore));
     },
 

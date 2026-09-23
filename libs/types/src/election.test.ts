@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import * as fc from 'fast-check';
 import { assert, find, ok } from '@votingworks/basics';
-import { sha256 } from './sha256';
+import { sha256 } from './sha256.js';
 import {
   ballotPaperDimensions,
   getBallotStyle,
@@ -30,12 +30,12 @@ import {
   getAllPrecinctsAndSplits,
   getOrderedCandidatesForContestInBallotStyle,
   getCandidateVoteSortedForBallotStyleRotation,
-} from './election_utils';
+} from './election_utils.js';
 import {
   election,
   electionTwoPartyPrimary,
   primaryElection,
-} from '../test/election';
+} from '../test/election.js';
 import {
   BallotIdSchema,
   HmpbBallotPaperSize,
@@ -56,17 +56,17 @@ import {
   Election,
   PollingPlace,
   PollingPlacesSchema,
-} from './election';
-import { safeParse, safeParseJson, unsafeParse } from './generic';
+} from './election.js';
+import { safeParse, safeParseJson, unsafeParse } from './generic.js';
 import {
   testCdfBallotDefinition,
   testVxfElection,
-} from './cdf/ballot-definition/fixtures';
+} from './cdf/ballot-definition/fixtures.js';
 import {
   safeParseElection,
   safeParseElectionDefinition,
-} from './election_parsing';
-import { normalizeVxfAfterCdfConversion } from '../test/cdf_conversion_helpers';
+} from './election_parsing.js';
+import { normalizeVxfAfterCdfConversion } from '../test/cdf_conversion_helpers.js';
 
 test('can build votes from a candidate ID', () => {
   const contests = election.contests.filter((c) => c.id === 'CC');

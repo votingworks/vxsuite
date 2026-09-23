@@ -16,6 +16,7 @@ import {
   convertElectionResultsReportingReportToVxManualResults,
   getContests,
   isCombinedBallotPrimary,
+  DippedSmartCardAuth,
 } from '@votingworks/types';
 import {
   assert,
@@ -400,7 +401,7 @@ function buildApi({
       });
     },
 
-    getAuthStatus() {
+    getAuthStatus(): Promise<DippedSmartCardAuth.AuthStatus> {
       return auth.getAuthStatus(constructAuthMachineState(workspace.store));
     },
 

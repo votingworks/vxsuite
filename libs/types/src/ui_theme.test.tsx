@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { isTouchSizeMode, isTouchscreen } from '.';
+import { isTouchSizeMode, isTouchscreen } from './index.js';
 
 test('isTouchSizeMode', () => {
   expect(isTouchSizeMode('desktop')).toEqual(false);

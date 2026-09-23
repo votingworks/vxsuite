@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import fc from 'fast-check';
 import { createHash } from 'node:crypto';
-import { sha256 } from './sha256';
+import { sha256 } from './sha256.js';
 
 test('hashes strings as UTF-8', () => {
   // NIST test vector

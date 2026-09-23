@@ -10,7 +10,7 @@ import {
   PrecinctSplit,
   PrecinctWithoutSplits,
   PrecinctWithSplits,
-} from './election';
+} from './election.js';
 import {
   anyPollingPlace,
   pollingPlaceBallotStyles,
@@ -25,7 +25,7 @@ import {
   getPrecinctsWithoutAbsenteePollingPlace,
   centralScanningPollingPlaceId,
   earlyVotingPollingPlaceId,
-} from './polling_places';
+} from './polling_places.js';
 
 test('deterministic default polling place ids', () => {
   expect(centralScanningPollingPlaceId('election-1')).toEqual(

@@ -4,7 +4,7 @@ import {
   CastVoteRecordReport,
   CastVoteRecordReportSchema,
   CVRSchema,
-} from './cdf/cast-vote-records';
+} from './cdf/cast-vote-records/index.js';
 import {
   BallotCastingMode,
   BallotStyle,
@@ -15,11 +15,11 @@ import {
   Precinct,
   ScannerMachineType,
   ScannerMachineTypeSchema,
-} from './election';
-import { ExportDataError } from './errors';
-import { Iso8601Timestamp, Iso8601TimestampSchema } from './generic';
-import { SheetOf } from './hmpb';
-import { PageInterpretation } from './interpretation';
+} from './election.js';
+import { ExportDataError } from './errors.js';
+import { Iso8601Timestamp, Iso8601TimestampSchema } from './generic.js';
+import { SheetOf } from './hmpb.js';
+import { PageInterpretation } from './interpretation.js';
 
 export interface CVRSnapshotOtherStatus {
   ballotType: BallotType;

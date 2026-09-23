@@ -1,6 +1,6 @@
 import { Result } from '@votingworks/basics';
 import { z } from 'zod/v4';
-import { AdjudicationReasonSchema } from './election';
+import { AdjudicationReasonSchema } from './election.js';
 import {
   DEFAULT_INACTIVE_SESSION_TIME_LIMIT_MINUTES,
   DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
@@ -14,8 +14,8 @@ import {
   OverallSessionTimeLimitHoursSchema,
   StartingCardLockoutDurationSeconds,
   StartingCardLockoutDurationSecondsSchema,
-} from './auth';
-import { safeParseJson } from './generic';
+} from './auth/index.js';
+import { safeParseJson } from './generic.js';
 
 interface AuthSettings {
   readonly arePollWorkerCardPinsEnabled: boolean;

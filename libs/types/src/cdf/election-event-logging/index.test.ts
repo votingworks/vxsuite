@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { buildSchema } from '@votingworks/cdf-schema-builder';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { mockWritable } from '../../../test/helpers/mock_writable';
+import { mockWritable } from '../../../test/helpers/mock_writable.js';
 import {
   Device,
   DeviceSchema,
@@ -17,7 +17,7 @@ import {
   EventSchema,
   EventTypeDescription,
   HashType,
-} from '.';
+} from './index.js';
 
 const event: Event = {
   '@type': 'EventLogging.Event',
@@ -81,17 +81,23 @@ test('ElectionEventLogDocumentation', () => {
 
 test('schema in sync', () => {
   const xsd = readFileSync(
-    join(__dirname, '../../../data/cdf/election-event-logging/nist-schema.xsd'),
+    join(
+      import.meta.dirname,
+      '../../../data/cdf/election-event-logging/nist-schema.xsd'
+    ),
     'utf-8'
   );
   const json = readFileSync(
     join(
-      __dirname,
+      import.meta.dirname,
       '../../../data/cdf/election-event-logging/nist-schema.json'
     ),
     'utf-8'
   );
-  const currentOutput = readFileSync(join(__dirname, './index.ts'), 'utf-8');
+  const currentOutput = readFileSync(
+    join(import.meta.dirname, './index.ts'),
+    'utf-8'
+  );
   const out = mockWritable();
   buildSchema(xsd, json, out).unsafeUnwrap();
   const expectedOutput = out.toString();

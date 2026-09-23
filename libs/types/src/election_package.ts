@@ -7,14 +7,14 @@ import {
   ElectionDefinition,
   PrecinctId,
   PrecinctIdSchema,
-} from './election';
-import { SystemSettings } from './system_settings';
-import { ElectionPackageMetadata } from './election_package_metadata';
-import { ElectionRegisteredVoterCounts } from './registered_voter_counts';
-import { UiStringAudioClips } from './ui_string_audio_clips';
-import { UiStringAudioIdsPackage } from './ui_string_audio_ids';
-import { UiStringsPackage } from './ui_string_translations';
-import { BALLOT_MODES, BaseBallotProps } from './hmpb';
+} from './election.js';
+import { SystemSettings } from './system_settings.js';
+import { ElectionPackageMetadata } from './election_package_metadata.js';
+import { ElectionRegisteredVoterCounts } from './registered_voter_counts.js';
+import { UiStringAudioClips } from './ui_string_audio_clips.js';
+import { UiStringAudioIdsPackage } from './ui_string_audio_ids.js';
+import { UiStringsPackage } from './ui_string_translations.js';
+import { BALLOT_MODES, BaseBallotProps } from './hmpb.js';
 
 export enum ElectionPackageFileName {
   APP_STRINGS = 'appStrings.json',

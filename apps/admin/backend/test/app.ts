@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, Mocked, vi } from 'vitest';
 import {
   buildMockDippedSmartCardAuth,
   DippedSmartCardAuthApi,
@@ -29,15 +29,20 @@ import {
 } from '@votingworks/utils';
 import {
   detectMultiUsbDrive,
+  MultiUsbDrive,
   SimulatedUsbPlatform,
   UsbDiskDevPathSchema,
   UsbDriveFilesystemType,
   UsbDriveStatus,
 } from '@votingworks/usb-drive';
-import { createMockPrinterHandler } from '@votingworks/printing';
+import {
+  createMockPrinterHandler,
+  MemoryPrinterHandler,
+} from '@votingworks/printing';
 import {
   LogSource,
   mockBaseLogger,
+  MockBaseLogger,
   MockLogger,
   mockLogger,
 } from '@votingworks/logging';
@@ -45,9 +50,11 @@ import {
   makeTemporaryDirectory,
   makeTemporaryFile,
 } from '@votingworks/fixtures';
+import { Application } from 'express';
+import { Server } from 'node:http';
 import { Api, MachineMode, PeerApi } from '../src/index.js';
 import { BaseStore } from '../src/types.js';
-import { createWorkspace } from '../src/util/workspace.js';
+import { createWorkspace, Workspace } from '../src/util/workspace.js';
 import { buildApp } from '../src/app.js';
 import { buildPeerApp } from '../src/peer_app.js';
 import { getMachineConfig } from '../src/machine_config.js';
@@ -183,8 +190,21 @@ export async function attachUsbDrive(
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function buildTestEnvironment(workspaceRoot?: string) {
+export interface TestEnvironment {
+  logger: MockLogger;
+  auth: Mocked<DippedSmartCardAuthApi>;
+  workspace: Workspace;
+  app: Application;
+  apiClient: grout.Client<Api>;
+  peerApiClient: grout.Client<PeerApi>;
+  peerLogger: MockBaseLogger;
+  peerServer: Server;
+  usbPlatform: SimulatedUsbPlatform;
+  multiUsbDrive: MultiUsbDrive;
+  mockPrinterHandler: MemoryPrinterHandler;
+}
+
+export function buildTestEnvironment(workspaceRoot?: string): TestEnvironment {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
   const resolvedWorkspaceRoot = workspaceRoot || makeTemporaryDirectory();
   const workspace = createWorkspace(

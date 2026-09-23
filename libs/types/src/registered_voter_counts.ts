@@ -1,5 +1,10 @@
 import { z } from 'zod/v4';
-import { hasSplits, Precinct, PrecinctId, PrecinctSplitId } from './election';
+import {
+  hasSplits,
+  Precinct,
+  PrecinctId,
+  PrecinctSplitId,
+} from './election.js';
 
 /**
  * Registered voter counts for a precinct with splits, keyed by split ID.

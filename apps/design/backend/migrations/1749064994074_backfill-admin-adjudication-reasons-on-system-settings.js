@@ -1,3 +1,5 @@
+/** @typedef {import('@votingworks/types', { with: { 'resolution-mode': 'import' } }).SystemSettings} SystemSettings */
+
 exports.shorthands =
   /** @type {import('node-pg-migrate').ColumnDefinitions | undefined} */ (
     undefined
@@ -16,7 +18,7 @@ exports.up = async (pgm) => {
     id: electionId,
     system_settings_data: systemSettingsData,
   } of entries) {
-    /** @type import('@votingworks/types').SystemSettings */
+    /** @type {SystemSettings} */
     const systemSettings = JSON.parse(systemSettingsData);
     await pgm.db.query({
       text: 'UPDATE elections SET system_settings_data = $1 WHERE id = $2',

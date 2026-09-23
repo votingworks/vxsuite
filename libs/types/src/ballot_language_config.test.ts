@@ -3,8 +3,8 @@ import {
   BallotLanguageConfig,
   getAllBallotLanguages,
   getBallotLanguageConfigs,
-} from './ballot_language_config';
-import { LanguageCode } from './language_code';
+} from './ballot_language_config.js';
+import { LanguageCode } from './language_code.js';
 
 test('isLanguageCode', () => {
   expect(getAllBallotLanguages([])).toEqual([]);
