@@ -1,10 +1,10 @@
 import { join } from 'node:path';
 import { rmSync } from 'node:fs';
-import { findUnusedPackages } from '../unused';
-import { getWorkspacePackageInfo } from '../pnpm';
+import { findUnusedPackages } from '../unused.js';
+import { getWorkspacePackageInfo } from '../pnpm.js';
 
 // This file compiles to `build/bin/`, so the repo root is four levels up.
-const MONOREPO_ROOT = join(__dirname, '..', '..', '..', '..');
+const MONOREPO_ROOT = join(import.meta.dirname, '..', '..', '..', '..');
 
 function pruneUnusedPackages({
   dryRun = false,

@@ -1,11 +1,11 @@
 import { expect, test } from 'vitest';
 import { join } from 'node:path';
 import { assert } from '@votingworks/basics';
-import { generateAllConfigs } from './circleci';
-import { getWorkspacePackageInfo } from './pnpm';
+import { generateAllConfigs } from './circleci.js';
+import { getWorkspacePackageInfo } from './pnpm.js';
 
 test('generateConfig', () => {
-  const root = join(__dirname, '../../..');
+  const root = join(import.meta.dirname, '../../..');
   const configs = generateAllConfigs(getWorkspacePackageInfo(root));
   const keys = Array.from(configs.keys());
   assert(keys[0] !== undefined);

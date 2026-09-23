@@ -1,7 +1,7 @@
 import { basename, join } from 'node:path';
 import { existsSync, readdirSync } from 'node:fs';
 import { iter, Optional } from '@votingworks/basics';
-import { PnpmPackageInfo } from './types';
+import { PnpmPackageInfo } from './types.js';
 
 function jobIdForPackage(pkg: PnpmPackageInfo): string {
   return `test-${pkg.relativePath.replace(/\//g, '-')}`;
@@ -312,7 +312,7 @@ function generateTestJobForPackage(
  * Path to the CircleCI config file.
  */
 export const CIRCLECI_CONFIG_PATH = join(
-  __dirname,
+  import.meta.dirname,
   '../../../.circleci/config.yml'
 );
 
@@ -667,7 +667,7 @@ ${turboCacheRestoreSteps('            ').join('\n')}
     // @coverage-exclude-else
     if (filteredConfigLines.length > 0) {
       const filteredConfigPath = join(
-        __dirname,
+        import.meta.dirname,
         '../../..',
         generateCircleCiAppLevelConfigPath(pkg)
       );

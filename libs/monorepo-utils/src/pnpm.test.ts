@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest';
 import { relative } from 'node:path';
-import { getWorkspacePackageInfo, getWorkspacePackagePaths } from './pnpm';
+import { getWorkspacePackageInfo, getWorkspacePackagePaths } from './pnpm.js';
 
 test('getWorkspacePackagePaths', () => {
-  expect(getWorkspacePackagePaths(__dirname)).toEqual(
+  expect(getWorkspacePackagePaths(import.meta.dirname)).toEqual(
     expect.arrayContaining([
       // workspace root
       '../../..',
@@ -13,7 +13,9 @@ test('getWorkspacePackagePaths', () => {
       '../../basics',
     ])
   );
-  expect(getWorkspacePackagePaths(relative(process.cwd(), __dirname))).toEqual(
+  expect(
+    getWorkspacePackagePaths(relative(process.cwd(), import.meta.dirname))
+  ).toEqual(
     expect.arrayContaining([
       // workspace root
       '../../..',
@@ -26,7 +28,7 @@ test('getWorkspacePackagePaths', () => {
 });
 
 test('getWorkspacePackageInfo', () => {
-  const packages = getWorkspacePackageInfo(__dirname);
+  const packages = getWorkspacePackageInfo(import.meta.dirname);
 
   // workspace root
   expect(packages.get('vxsuite')).toEqual(
