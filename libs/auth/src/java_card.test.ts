@@ -82,6 +82,10 @@ vi.mock(
   })
 );
 
+// Reading card details runs several `openssl` processes, which can exceed
+// `expect.poll`'s 1s default on a loaded CI machine.
+const CARD_DETAILS_READ_TIMEOUT_MS = 5_000;
+
 let mockCardReader: MockCardReader;
 
 beforeEach(() => {
@@ -794,7 +798,9 @@ test.each<{
     // This might fail if the test keys and certs are outdated (e.g. if the election key changes).
     // Run ./scripts/generate-test-keys-and-certs to update them.
     await expect
-      .poll(() => javaCard.getCardStatus())
+      .poll(() => javaCard.getCardStatus(), {
+        timeout: CARD_DETAILS_READ_TIMEOUT_MS,
+      })
       .toEqual({
         status: 'ready',
         cardDetails: expectedCardDetails,
@@ -1546,7 +1552,9 @@ test('TOCTOU regression test: Card validation stashes the identity cert for use 
 
   mockCardReader.setReaderStatus('ready');
   await expect
-    .poll(() => javaCard.getCardStatus())
+    .poll(() => javaCard.getCardStatus(), {
+      timeout: CARD_DETAILS_READ_TIMEOUT_MS,
+    })
     .toEqual({
       status: 'ready',
       cardDetails: { user: systemAdministratorUser },
