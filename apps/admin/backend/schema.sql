@@ -161,6 +161,23 @@ create table cvrs (
 create index idx_cvrs_election_id on cvrs(election_id);
 create index idx_cvrs_ballot_id on cvrs(ballot_id);
 create index idx_cvrs_batch_id on cvrs(election_id, batch_id);
+-- covering index for the adjudication queue: queue membership counts,
+-- ordering, and next-ballot polling run entirely within the index instead of
+-- reading CVR rows, whose large vote payloads precede these columns
+create index idx_cvrs_adjudication_queue on cvrs(
+  election_id,
+  has_write_in,
+  has_crossover_vote,
+  has_overvote,
+  has_undervote,
+  has_marginal_mark,
+  is_blank,
+  is_adjudicated,
+  card_type,
+  ballot_style_group_id,
+  sheet_number,
+  id
+);
 
 create table scanner_batches (
   id text not null,
@@ -228,6 +245,10 @@ create table cvr_file_entries (
   foreign key (cvr_id) references cvrs(id)
     on delete cascade
 ) strict;
+-- the primary key leads with cvr_file_id, so lookups by cvr_id alone — the
+-- shared-CVR check when deleting an import, and the foreign key cascade from
+-- cvrs — need their own index to avoid scanning the table per CVR
+create index idx_cvr_file_entries_cvr_id on cvr_file_entries(cvr_id);
 
 create table ballot_images (
   -- image files stored on disk based on cvr_id

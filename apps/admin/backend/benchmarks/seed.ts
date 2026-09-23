@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
@@ -23,8 +24,41 @@ import { Store } from '../src/store.js';
 /** The number of CVRs benchmarks run against. */
 export const DEFAULT_CVR_COUNT = 1_000_000;
 
+/** The size of the CVR export import benchmarks ingest: one full batch. */
+export const DEFAULT_CVR_EXPORT_SIZE = 500;
+
+const REPO_ROOT = join(import.meta.dirname, '../../../..');
+
+/**
+ * Generates a real cast vote record export for the seeded election, sized at
+ * {@link DEFAULT_CVR_EXPORT_SIZE}, so import benchmarks can exercise the full import
+ * pipeline (export reading, hashing, conversion, and store writes).
+ */
+function generateCvrExport(exportDirectoryPath: string): void {
+  execFileSync(
+    'pnpm',
+    ['-w', 'vx-task', 'build', '@votingworks/fixture-generators'],
+    { cwd: REPO_ROOT, stdio: 'ignore' }
+  );
+  execFileSync(
+    join(REPO_ROOT, 'libs/fixture-generators/bin/generate-cvrs'),
+    [
+      '--electionDefinition',
+      join(
+        REPO_ROOT,
+        'libs/fixtures/data/electionTwoPartyPrimary/election.json'
+      ),
+      '--outputPath',
+      exportDirectoryPath,
+      '--numBallots',
+      `${DEFAULT_CVR_EXPORT_SIZE}`,
+    ],
+    { cwd: REPO_ROOT, stdio: 'ignore' }
+  );
+}
+
 const AVERAGE_BATCH_SIZE = 250;
-const CENTRAL_SCAN_SHARE = 0.7; // per scale targets in #9063
+const CENTRAL_SCAN_SHARE = 0.7;
 const WRITE_INS_PER_BATCH = 12; // ~5% of CVRs
 const UNDERVOTES_PER_BATCH = 25; // ~10% of CVRs
 
@@ -46,7 +80,8 @@ function buildMarkScores(): Tabulation.MarkScores {
   );
 }
 
-function buildVotes(
+/** Builds valid votes for the given ballot style's candidate contests. */
+export function buildVotes(
   election: Election,
   ballotStyle: BallotStyle,
   {
@@ -104,6 +139,7 @@ async function seed(
       .update(electionDefinition.electionData)
       .digest('hex'),
   });
+  store.setCurrentElectionId(electionId);
 
   const styles = ['1M', '2F'].map((id) =>
     assertDefined(election.ballotStyles.find((bs) => bs.id === id))
@@ -185,13 +221,17 @@ function totalCvrCount(store: Store, electionId: Id): number {
  * Run with RESET_CACHED_STORE=1 to discard the cache and reseed — needed
  * whenever the seeded data shape or the store schema changes.
  */
-export async function openPerfStore(
-  cvrCount: number
-): Promise<{ store: Store; electionId: Id; dbPath: string }> {
+export async function openPerfStore(cvrCount: number): Promise<{
+  store: Store;
+  electionId: Id;
+  dbPath: string;
+  cvrExportPath: string;
+}> {
   const cacheRoot =
     process.env['PERF_DB_DIR'] ?? join(tmpdir(), 'vx-admin-perf');
   const dir = join(cacheRoot, `two-party-primary-${cvrCount}`);
   const dbPath = join(dir, 'data.db');
+  const cvrExportPath = join(dir, 'machine_0000__2024-01-01_00-00-00');
   const donePath = join(dir, 'seed-complete.json');
 
   if (process.env['RESET_CACHED_STORE'] || !existsSync(donePath)) {
@@ -204,6 +244,7 @@ export async function openPerfStore(
     );
     const startMs = Date.now();
     const electionId = await seed(dir, dbPath, cvrCount);
+    generateCvrExport(cvrExportPath);
     await writeFile(donePath, JSON.stringify({ electionId }));
     process.stdout.write(
       `seeded in ${((Date.now() - startMs) / 1000).toFixed(0)}s\n`
@@ -227,5 +268,5 @@ export async function openPerfStore(
       `${cvrCount}; re-run with RESET_CACHED_STORE=1`
   );
 
-  return { store, electionId, dbPath };
+  return { store, electionId, dbPath, cvrExportPath };
 }

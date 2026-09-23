@@ -2085,7 +2085,9 @@ export class Store implements BaseStore {
           cvrs.votes as votes,
           cvrs.adjudicated_votes as adjudicatedVotes
         from cvrs
-        inner join scanner_batches on cvrs.batch_id = scanner_batches.id
+        inner join scanner_batches on
+          cvrs.election_id = scanner_batches.election_id and
+          cvrs.batch_id = scanner_batches.id
         inner join ballot_styles on
           cvrs.election_id = ballot_styles.election_id and
           cvrs.ballot_style_group_id = ballot_styles.group_id
@@ -2207,7 +2209,9 @@ export class Store implements BaseStore {
             cvrs.card_type as cardType,
             count(cvrs.id) as tally
           from cvrs
-          inner join scanner_batches on cvrs.batch_id = scanner_batches.id
+          inner join scanner_batches on
+          cvrs.election_id = scanner_batches.election_id and
+          cvrs.batch_id = scanner_batches.id
           inner join ballot_styles on
             cvrs.election_id = ballot_styles.election_id and
             cvrs.ballot_style_group_id = ballot_styles.group_id
@@ -2766,9 +2770,10 @@ export class Store implements BaseStore {
       `
         select c.id as cvr_id
         from cvrs c
-        where (${filter})
+        where c.election_id = ? and (${filter})
         order by ${adjudicationSortKeyExprs('c').join(', ')}
-      `
+      `,
+      electionId
     ) as Array<{ cvr_id: Id }>;
     debug('queried ballot adjudication queue');
     return rows.map((r) => r.cvr_id);
@@ -2789,8 +2794,9 @@ export class Store implements BaseStore {
           count(*) as totalTally,
           count(case when c.is_adjudicated = 0 then 1 end) as pendingTally
         from cvrs c
-        where (${filter})
-      `
+        where c.election_id = ? and (${filter})
+      `,
+      electionId
     ) as {
       totalTally: number;
       pendingTally: number;
@@ -2958,7 +2964,7 @@ export class Store implements BaseStore {
           ) then 0 else 1 end,`
       : '';
 
-    const params: string[] = [machineId];
+    const params: string[] = [machineId, electionId];
     if (afterCvrId) params.push(afterCvrId);
 
     const row = this.client.one(
@@ -2968,7 +2974,8 @@ export class Store implements BaseStore {
         left join machine_ballot_adjudication_assignments mba
           on mba.cvr_id = c.id
           and (mba.status = 'completed' or mba.machine_id != ?)
-        where (${filter})
+        where c.election_id = ?
+          and (${filter})
           and c.is_adjudicated = 0
           and mba.cvr_id is null
         order by ${wrapOrder} ${sortKeyList}
@@ -3048,7 +3055,9 @@ export class Store implements BaseStore {
           from write_ins
           inner join
             cvrs on write_ins.cvr_id = cvrs.id
-          inner join scanner_batches on cvrs.batch_id = scanner_batches.id
+          inner join scanner_batches on
+          cvrs.election_id = scanner_batches.election_id and
+          cvrs.batch_id = scanner_batches.id
           inner join ballot_styles on
               cvrs.election_id = ballot_styles.election_id and
               cvrs.ballot_style_group_id = ballot_styles.group_id
