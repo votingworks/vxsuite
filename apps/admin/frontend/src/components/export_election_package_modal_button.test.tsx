@@ -197,7 +197,7 @@ test('Modal waits for the election package size before offering to save', async 
   await screen.findButton('Save');
 });
 
-test('Modal offers a system administrator formatting when the package exceeds the FAT32 limit', async () => {
+test('Modal tells a system administrator to format the USB drive from Settings when the package exceeds the FAT32 limit', async () => {
   apiMock.expectGetElectionPackageSize(5 * GIB);
   renderInAppContext(<ExportElectionPackageModalButton />, {
     apiMock,
@@ -210,30 +210,25 @@ test('Modal offers a system administrator formatting when the package exceeds th
     }),
   });
   userEvent.click(screen.getButton('Save Election Package'));
-  await screen.findByRole('heading', {
+  const modal = await screen.findByRole('alertdialog');
+  await within(modal).findByRole('heading', {
     name: 'File Too Large for USB Drive',
   });
-  screen.getByText(/The election package is/);
-  screen.getByText('5.0 GB');
-  screen.getByText(/formatted as/);
-  screen.getByText('FAT32');
-  screen.getByText(/cannot store files larger than/);
-  screen.getByText(/Format the USB drive to continue\./);
+  within(modal).getByText(/The election package is/);
+  within(modal).getByText('5.0 GB');
+  within(modal).getByText(/formatted as/);
+  within(modal).getByText('FAT32');
+  within(modal).getByText(/cannot store files larger than/);
+  within(modal).getByText(
+    /Format the USB drive from the Settings screen to continue\./
+  );
   expect(
-    screen.queryByRole('button', { name: 'Save' })
-  ).not.toBeInTheDocument();
+    within(modal)
+      .getAllByRole('button')
+      .map((button) => button.textContent)
+  ).toEqual(['Close']);
 
-  userEvent.click(screen.getButton('Format USB Drive'));
-  await screen.findByRole('heading', { name: 'Format USB Drive' });
-  apiMock.expectFormatUsbDrive();
-  userEvent.click(screen.getButton('Format USB Drive'));
-  await screen.findByRole('heading', { name: 'USB Drive Formatted' });
-
-  userEvent.click(screen.getButton('Close'));
-  await screen.findByRole('heading', {
-    name: 'File Too Large for USB Drive',
-  });
-  userEvent.click(screen.getButton('Cancel'));
+  userEvent.click(within(modal).getButton('Close'));
   await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
@@ -255,10 +250,7 @@ test('Modal tells an election manager to ask for formatting when the package exc
     name: 'File Too Large for USB Drive',
   });
   screen.getByText(/Ask a system administrator to format the USB drive/);
-  expect(
-    screen.queryByRole('button', { name: 'Format USB Drive' })
-  ).not.toBeInTheDocument();
-  userEvent.click(screen.getButton('Cancel'));
+  userEvent.click(screen.getButton('Close'));
 });
 
 test('Modal explains when the USB drive is too full', async () => {
@@ -278,10 +270,9 @@ test('Modal explains when the USB drive is too full', async () => {
   screen.getByText(/the USB drive only has/);
   screen.getByText('2.0 GB');
   screen.getByText(
-    /Remove files from the USB drive or format it to continue\./
+    /Remove files from the USB drive or format it from the Settings screen to continue\./
   );
-  screen.getButton('Format USB Drive');
-  userEvent.click(screen.getButton('Cancel'));
+  userEvent.click(screen.getButton('Close'));
 });
 
 test('Modal tells an election manager to remove files when the USB drive is too full', async () => {
@@ -298,10 +289,7 @@ test('Modal tells an election manager to remove files when the USB drive is too 
     name: 'Not Enough Space on USB Drive',
   });
   screen.getByText(/Remove files from the USB drive to continue\./);
-  expect(
-    screen.queryByRole('button', { name: 'Format USB Drive' })
-  ).not.toBeInTheDocument();
-  userEvent.click(screen.getButton('Cancel'));
+  userEvent.click(screen.getButton('Close'));
 });
 
 test('Modal explains when the USB drive is too small to ever fit the package, even if reformatted', async () => {
@@ -323,10 +311,7 @@ test('Modal explains when the USB drive is too small to ever fit the package, ev
   screen.getByText(/the USB drive can only hold/);
   screen.getByText('4.0 GB');
   screen.getByText(/Use a larger USB drive\./);
-  expect(
-    screen.queryByRole('button', { name: 'Format USB Drive' })
-  ).not.toBeInTheDocument();
-  userEvent.click(screen.getButton('Cancel'));
+  userEvent.click(screen.getButton('Close'));
 });
 
 test.each<{ error: ExportDataError; message: string }>([
