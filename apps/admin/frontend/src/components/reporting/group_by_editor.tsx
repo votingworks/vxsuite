@@ -13,6 +13,7 @@ const GROUPING_LABEL: Record<GroupByEditorOption, string> = {
   groupByScanner: 'Scanner',
   includeSheetCounts: 'Sheet',
   groupByBatchDate: 'Batch Date',
+  groupByReportingStatus: 'Reporting Status',
 };
 
 export interface GroupByEditorProps {

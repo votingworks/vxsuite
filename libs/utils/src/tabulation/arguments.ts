@@ -45,7 +45,8 @@ export function isGroupByEmpty(groupBy: Tabulation.GroupBy): boolean {
     groupBy.groupByParty ||
     groupBy.groupByScanner ||
     groupBy.groupByVotingMethod ||
-    groupBy.groupByBatchDate
+    groupBy.groupByBatchDate ||
+    groupBy.groupByReportingStatus
   );
 }
 

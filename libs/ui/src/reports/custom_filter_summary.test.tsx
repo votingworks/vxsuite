@@ -102,6 +102,19 @@ test('adjudication status filter', () => {
   );
 });
 
+test('reporting status filter', () => {
+  render(
+    <CustomFilterSummary
+      electionDefinition={electionDefinition}
+      scannerBatches={mockScannerBatches}
+      filter={{ reportingStatus: 'notCounted' }}
+    />
+  );
+  expect(screen.getByTestId('custom-filter-summary').textContent).toEqual(
+    'Reporting Status: Not Counted'
+  );
+});
+
 test('district filter', () => {
   render(
     <CustomFilterSummary

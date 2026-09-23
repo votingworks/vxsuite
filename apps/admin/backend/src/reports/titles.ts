@@ -41,6 +41,7 @@ function getFilterRank(filter: Admin.FrontendReportingFilter): number {
     (filter.votingMethods?.[0] ? 1 : 0) +
     (filter.partyIds?.[0] ? 1 : 0) +
     (filter.adjudicationFlags?.[0] ? 1 : 0) +
+    (filter.reportingStatus ? 1 : 0) +
     (filter.districtIds?.[0] ? 1 : 0) +
     (filter.pollingPlaceIds?.[0] ? 1 : 0)
   );
@@ -82,6 +83,7 @@ export function generateTitleForReport({
   const scannerId = filter.scannerIds?.[0];
   const partyId = filter.partyIds?.[0];
   const adjudicationFlag = filter.adjudicationFlags?.[0];
+  const { reportingStatus } = filter;
   const districtId = filter.districtIds?.[0];
   const pollingPlaceId = filter.pollingPlaceIds?.[0];
 
@@ -143,6 +145,18 @@ export function generateTitleForReport({
           return 'Ballots With Crossover Votes';
         default: {
           throwIllegalValue(adjudicationFlag);
+        }
+      }
+    }
+
+    if (reportingStatus) {
+      switch (reportingStatus) {
+        case 'counted':
+          return 'Counted Ballots';
+        case 'notCounted':
+          return 'Ballots Not Counted';
+        default: {
+          throwIllegalValue(reportingStatus);
         }
       }
     }

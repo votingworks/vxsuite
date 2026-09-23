@@ -12,6 +12,7 @@ import {
 import { readFileSync } from 'node:fs';
 import { LogEventId } from '@votingworks/logging';
 import {
+  Admin,
   DEFAULT_SYSTEM_SETTINGS,
   formatBallotHash,
   Tabulation,
@@ -145,7 +146,7 @@ async function getParsedExport({
 }: {
   apiClient: Client<Api>;
   groupBy?: Tabulation.GroupBy;
-  filter?: Tabulation.Filter;
+  filter?: Admin.FrontendReportingFilter;
 }): Promise<ReturnType<typeof parseCsv>> {
   const filename = mockFileName();
   const exportResult = await apiClient.exportBallotCountReportCsv({
@@ -468,4 +469,70 @@ test('combined ballot primary: groupByParty with No Party filter', async () => {
       },
     ],
   });
+});
+
+test('ballot count report grouped by or filtered to a reporting status', async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { apiClient, auth, usbPlatform, workspace } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition,
+    undefined,
+    {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      countCentralScanBallotsOnlyAfterAdjudication: true,
+    }
+  );
+  mockElectionManagerAuth(auth, electionDefinition.election);
+  await attachUsbDrive(apiClient, usbPlatform);
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile: [
+      {
+        ballotStyleGroupId: '2F',
+        batchId: 'batch-central-write-in',
+        scannerId: 'scanner-central',
+        scannerMachineType: 'central',
+        precinctId: 'precinct-1',
+        votingMethod: 'precinct',
+        votes: { 'aquarium-council-fish': ['manta-ray', 'write-in-0'] },
+        card: { type: 'bmd' },
+        multiplier: 3,
+      },
+      {
+        ballotStyleGroupId: '2F',
+        batchId: 'batch-central-clean',
+        scannerId: 'scanner-central',
+        scannerMachineType: 'central',
+        precinctId: 'precinct-1',
+        votingMethod: 'precinct',
+        votes: { 'aquarium-council-fish': ['manta-ray', 'pufferfish'] },
+        card: { type: 'bmd' },
+        multiplier: 2,
+      },
+    ],
+    store: workspace.store,
+    pollingPlaceId: 'polling-place-1',
+  });
+
+  const grouped = await getParsedExport({
+    apiClient,
+    groupBy: { groupByReportingStatus: true },
+  });
+  expect(grouped.headers).toEqual(['Reporting Status', 'Total']);
+  expect(grouped.rows).toEqual([
+    { 'Reporting Status': 'Counted', Total: '2' },
+    { 'Reporting Status': 'Not Counted', Total: '3' },
+  ]);
+
+  const filtered = await getParsedExport({
+    apiClient,
+    filter: { reportingStatus: 'notCounted' },
+  });
+  expect(filtered.headers).toEqual(['Reporting Status', 'Total']);
+  expect(filtered.rows).toEqual([
+    { 'Reporting Status': 'Not Counted', Total: '3' },
+  ]);
 });

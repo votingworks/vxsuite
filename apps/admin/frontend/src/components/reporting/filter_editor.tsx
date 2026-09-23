@@ -67,6 +67,7 @@ export type FilterType =
   | 'batch'
   | 'party'
   | 'adjudication-status'
+  | 'reporting-status'
   | 'district'
   | 'polling-place';
 
@@ -85,6 +86,7 @@ const FILTER_TYPE_LABELS: Record<FilterType, string> = {
   batch: 'Batch',
   party: 'Party',
   'adjudication-status': 'Adjudication Status',
+  'reporting-status': 'Reporting Status',
   district: 'District',
   'polling-place': 'Polling Place',
 };
@@ -180,6 +182,13 @@ function generateOptionsForFilter({
           value,
           label,
         }));
+    case 'reporting-status':
+      return Object.entries(Admin.REPORTING_STATUS_LABELS).map(
+        ([value, label]) => ({
+          value,
+          label,
+        })
+      );
     case 'district':
       return getValidDistricts(election).map((district) => ({
         value: district.id,
@@ -231,6 +240,10 @@ function convertFilterRowsToTabulationFilter(
       case 'adjudication-status':
         filter.adjudicationFlags =
           filterValues as Admin.CastVoteRecordAdjudicationFlag[];
+        break;
+      case 'reporting-status':
+        filter.reportingStatus = filterValues[0] as
+          Admin.ReportingStatus | undefined;
         break;
       case 'district':
         filter.districtIds = filterValues;
@@ -315,6 +328,12 @@ export function FilterEditor({
     <FilterEditorContainer data-testid="filter-editor">
       {rows.map((row) => {
         const { filterType, rowId } = row;
+        const options = generateOptionsForFilter({
+          filterType,
+          election,
+          scannerBatches,
+          isEarlyVotingEnabled,
+        });
         return (
           <FilterRow
             key={rowId}
@@ -335,22 +354,34 @@ export function FilterEditor({
               aria-label="Edit Filter Type"
             />
             <Predicate>is</Predicate>
-            <SearchSelect<string>
-              isMulti
-              isSearchable
-              key={filterType}
-              options={generateOptionsForFilter({
-                filterType,
-                election,
-                scannerBatches,
-                isEarlyVotingEnabled,
-              })}
-              value={row.filterValues}
-              onChange={(filterValues) => {
-                updateRowFilterValues(rowId, filterValues);
-              }}
-              aria-label="Select Filter Values"
-            />
+            {filterType === 'reporting-status' ? (
+              // A ballot has exactly one reporting status, so selecting both
+              // would be the same as no filter
+              <SearchSelect<string>
+                isMulti={false}
+                isSearchable={false}
+                key={filterType}
+                options={options}
+                value={row.filterValues[0]}
+                onChange={(filterValue) => {
+                  assert(filterValue !== undefined);
+                  updateRowFilterValues(rowId, [filterValue]);
+                }}
+                aria-label="Select Filter Values"
+              />
+            ) : (
+              <SearchSelect<string>
+                isMulti
+                isSearchable
+                key={filterType}
+                options={options}
+                value={row.filterValues}
+                onChange={(filterValues) => {
+                  updateRowFilterValues(rowId, filterValues);
+                }}
+                aria-label="Select Filter Values"
+              />
+            )}
             <div>
               <RemoveButton
                 icon="X"

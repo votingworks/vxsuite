@@ -1,5 +1,6 @@
 import { stringify } from 'csv-stringify/sync';
 import {
+  Admin,
   Tabulation,
   ElectionDefinition,
   Id,
@@ -28,15 +29,21 @@ import { tabulateFullCardCounts } from '../tabulation/card_counts.js';
 function generateHeaders({
   election,
   metadataStructure,
+  includeReportingStatus,
   hasManualTallies,
   maxSheetsPerBallot,
 }: {
   election: Election;
   metadataStructure: CsvMetadataStructure;
+  includeReportingStatus: boolean;
   hasManualTallies: boolean;
   maxSheetsPerBallot?: number;
 }): string[] {
   const headers = generateCsvMetadataHeaders({ election, metadataStructure });
+
+  if (includeReportingStatus) {
+    headers.push('Reporting Status');
+  }
 
   if (hasManualTallies) {
     headers.push('Manual');
@@ -70,7 +77,6 @@ function buildRow({
   const values: string[] = [...metadataValues];
 
   const counts: number[] = [];
-  // @coverage-exclude: trivial fallthrough case
   const manual = cardCounts.manual ?? 0;
   const total = getBallotCount(cardCounts);
 
@@ -97,15 +103,17 @@ function* generateDataRows({
   overallExportFilter,
   allCardCounts,
   metadataStructure,
+  includeReportingStatus,
   hasManualTallies,
   maxSheetsPerBallot,
   store,
 }: {
   electionId: Id;
   electionDefinition: ElectionDefinition;
-  overallExportFilter: Tabulation.Filter;
+  overallExportFilter: Admin.ReportingFilter;
   allCardCounts: Tabulation.GroupList<Tabulation.CardCounts>;
   metadataStructure: CsvMetadataStructure;
+  includeReportingStatus: boolean;
   hasManualTallies: boolean;
   maxSheetsPerBallot?: number;
   store: Store;
@@ -123,9 +131,18 @@ function* generateDataRows({
       electionDefinition,
       batchLookup,
     });
+    const reportingStatusValues = includeReportingStatus
+      ? [
+          Admin.REPORTING_STATUS_LABELS[
+            assertDefined(
+              cardCounts.reportingStatus ?? overallExportFilter.reportingStatus
+            )
+          ],
+        ]
+      : [];
 
     yield buildRow({
-      metadataValues,
+      metadataValues: [...metadataValues, ...reportingStatusValues],
       cardCounts,
       hasManualTallies,
       maxSheetsPerBallot,
@@ -149,7 +166,7 @@ export function* generateBallotCountReportCsv({
   filename,
 }: {
   store: Store;
-  filter?: Tabulation.Filter;
+  filter?: Admin.ReportingFilter;
   groupBy?: Tabulation.GroupBy;
   includeSheetCounts?: boolean;
   filename: string;
@@ -178,12 +195,16 @@ export function* generateBallotCountReportCsv({
   const maxSheetsPerBallot = includeSheetCounts
     ? getMaxSheetsPerBallot(election)
     : undefined;
+  const includeReportingStatus = Boolean(
+    groupBy.groupByReportingStatus || filter.reportingStatus
+  );
 
   yield stringify([
     generateCsvTitleRow({ filename, electionDefinition }),
     generateHeaders({
       election,
       metadataStructure,
+      includeReportingStatus,
       hasManualTallies,
       maxSheetsPerBallot,
     }),
@@ -194,6 +215,7 @@ export function* generateBallotCountReportCsv({
     overallExportFilter: filter,
     allCardCounts,
     metadataStructure,
+    includeReportingStatus,
     hasManualTallies,
     maxSheetsPerBallot,
     store,

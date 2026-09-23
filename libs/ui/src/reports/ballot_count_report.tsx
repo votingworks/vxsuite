@@ -46,6 +46,7 @@ export const ATTRIBUTE_COLUMNS = [
   'scanner',
   'batch',
   'batch-date',
+  'reporting-status',
 ] as const;
 type AttributeColumnId = (typeof ATTRIBUTE_COLUMNS)[number];
 interface AttributeColumn {
@@ -84,6 +85,7 @@ const COLUMN_LABELS: Record<AttributeColumnId | BallotCountColumnId, string> = {
   scanner: 'Scanner ID',
   batch: 'Batch',
   'batch-date': 'Batch Date',
+  'reporting-status': 'Reporting Status',
   manual: 'Manual',
   scanned: 'Scanned',
   total: 'Total',
@@ -404,6 +406,10 @@ function getCellContent({
           }
           return format.localeDate(new Date(`${batchDate}T00:00:00`));
         }
+        case 'reporting-status':
+          return Admin.REPORTING_STATUS_LABELS[
+            assertDefined(cardCounts.reportingStatus)
+          ];
         default: {
           throwIllegalValue(column);
         }
@@ -470,6 +476,9 @@ function BallotCountTable({
   }
   if (groupBy.groupByBatchDate) {
     columns.push({ type: 'attribute', id: 'batch-date' });
+  }
+  if (groupBy.groupByReportingStatus) {
+    columns.push({ type: 'attribute', id: 'reporting-status' });
   }
 
   if (hasGroups) {

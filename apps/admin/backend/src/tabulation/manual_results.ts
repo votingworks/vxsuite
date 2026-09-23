@@ -35,6 +35,8 @@ function getManualResultsGroupSpecifier(
     batchDate: groupBy.groupByBatchDate
       ? Tabulation.MANUAL_BATCH_DATE
       : undefined,
+    // manual results always count toward tallies
+    reportingStatus: groupBy.groupByReportingStatus ? 'counted' : undefined,
     scannerId: groupBy.groupByScanner
       ? Tabulation.MANUAL_SCANNER_ID
       : undefined,
@@ -86,7 +88,8 @@ export function isFilterCompatibleWithManualResults(
   return (
     !filter.batchIds &&
     !filter.scannerIds &&
-    !(filter.adjudicationFlags && filter.adjudicationFlags.length > 0)
+    !(filter.adjudicationFlags && filter.adjudicationFlags.length > 0) &&
+    filter.reportingStatus !== 'notCounted'
   );
 }
 
