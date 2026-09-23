@@ -51,7 +51,7 @@ export interface ZipArchiveOutputStreamOptions extends ArchiveOutputStreamOption
   /**
    * Passed to [zlib]{@link https://nodejs.org/api/zlib.html#zlib_class_options} to control compression.
    */
-  zlib?: import('zlib').ZlibOptions;
+  zlib?: import('node:zlib').ZlibOptions;
 }
 
 export class ZipArchiveOutputStream extends ArchiveOutputStream {}

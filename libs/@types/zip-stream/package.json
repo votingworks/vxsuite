@@ -2,7 +2,13 @@
   "name": "@types/zip-stream",
   "version": "0.0.1-development",
   "license": "GPL-3.0-only",
-  "types": "zip-stream",
+  "type": "commonjs",
+  "exports": {
+    ".": {
+      "types": "./zip-stream.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
   "dependencies": {
     "@types/compress-commons": "workspace:*"
   }

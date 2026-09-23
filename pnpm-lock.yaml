@@ -5116,9 +5116,6 @@ importers:
         specifier: 4.4.3
         version: 4.4.3
     devDependencies:
-      '@types/kiosk-browser':
-        specifier: workspace:*
-        version: link:../@types/kiosk-browser
       '@types/lodash.clonedeep':
         specifier: ^4.5.9
         version: 4.5.9

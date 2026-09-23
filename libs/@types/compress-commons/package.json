@@ -2,7 +2,13 @@
   "name": "@types/compress-commons",
   "version": "0.0.1-development",
   "license": "GPL-3.0-only",
-  "types": "compress-commons",
+  "type": "commonjs",
+  "exports": {
+    ".": {
+      "types": "./compress-commons.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
   "dependencies": {
     "@types/readable-stream": "2.3.9"
   }

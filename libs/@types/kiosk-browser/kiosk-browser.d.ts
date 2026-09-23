@@ -1,4 +1,10 @@
 declare namespace KioskBrowser {
+  // Copied from Electron.FileFilter
+  export interface FileFilter {
+    extensions: string[];
+    name: string;
+  }
+
   // Copied from Electron.OpenDialogOptions
   export interface OpenDialogOptions {
     title?: string;
