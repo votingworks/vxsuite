@@ -1,10 +1,6 @@
-import { afterAll, beforeAll, beforeEach, vi } from 'vitest';
+import { afterAll, beforeEach, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-
-import {
-  clearTemporaryRootDir,
-  setupTemporaryRootDir,
-} from '@votingworks/fixtures';
+import '@votingworks/fixtures/vitest-setup';
 
 import { TextEncoder } from 'node:util';
 import { makeIdFactory } from './id_helpers.js';
@@ -74,9 +70,6 @@ HTMLElement.prototype.scrollIntoView = vi.fn();
 
 // Mock needed for react-flip-toolkit:
 window.matchMedia = vi.fn().mockImplementation(() => ({ matches: false }));
-
-beforeAll(setupTemporaryRootDir);
-afterAll(clearTemporaryRootDir);
 
 afterAll(() => {
   vi.useRealTimers();

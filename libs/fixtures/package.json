@@ -6,8 +6,22 @@
   "keywords": [],
   "license": "GPL-3.0-only",
   "author": "VotingWorks",
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "default": "./build/index.js"
+    },
+    "./tmpdir": {
+      "types": "./build/tmpdir.d.ts",
+      "default": "./build/tmpdir.js"
+    },
+    "./vitest-setup": {
+      "types": "./build/vitest_setup.d.ts",
+      "default": "./build/vitest_setup.js"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "build"
   ],

@@ -11,7 +11,7 @@ import {
   makeTemporaryPath,
   setTemporaryRootDir,
   setupTemporaryRootDir,
-} from './tmpdir';
+} from './tmpdir.js';
 
 afterEach(clearTemporaryRootDir);
 

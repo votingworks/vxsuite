@@ -1,12 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { afterAll, beforeAll, beforeEach, expect, vi } from 'vitest';
+import { afterAll, beforeEach, expect, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import type { TestingLibraryMatchers } from '@testing-library/jest-dom/matchers';
 import { cleanup, configure } from '@testing-library/react';
-import {
-  clearTemporaryRootDir,
-  setupTemporaryRootDir,
-} from '@votingworks/fixtures';
+import '@votingworks/fixtures/vitest-setup';
 import '@votingworks/image-utils/vitest-setup';
 import {
   buildToHaveStyleRule,
@@ -38,9 +35,6 @@ expect.extend({ toHaveStyleRule: buildToHaveStyleRule(expect) });
 beforeEach(cleanup);
 
 configure({ asyncUtilTimeout: 5_000 });
-
-beforeAll(setupTemporaryRootDir);
-afterAll(clearTemporaryRootDir);
 
 afterAll(() => {
   vi.useRealTimers();

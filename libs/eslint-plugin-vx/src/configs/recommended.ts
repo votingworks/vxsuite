@@ -379,6 +379,12 @@ export default function buildRecommended(
               // Registers the shared image matchers; its dependency graph
               // stays mockable from the test file.
               '@votingworks/image-utils/vitest-setup',
+              // Registers the temporary root directory hooks; imports
+              // nothing but node builtins.
+              '@votingworks/fixtures/vitest-setup',
+              // Temporary directory helpers; imports nothing but node
+              // builtins.
+              '@votingworks/fixtures/tmpdir',
             ],
           },
         ],
