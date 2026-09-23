@@ -1,10 +1,10 @@
 import { join } from 'node:path';
 import { rmSync } from 'node:fs';
-import { getWorkspacePackageInfo } from '../pnpm';
-import { findAllMonorepoDependencies } from '../dependencies';
+import { getWorkspacePackageInfo } from '../pnpm.js';
+import { findAllMonorepoDependencies } from '../dependencies.js';
 
 // This file compiles to `build/bin/`, so the repo root is four levels up.
-const workspaceRoot = join(__dirname, '..', '..', '..', '..');
+const workspaceRoot = join(import.meta.dirname, '..', '..', '..', '..');
 
 function removePackages(names: readonly string[]): void {
   for (const name of names) {
