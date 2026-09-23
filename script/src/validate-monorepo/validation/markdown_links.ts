@@ -7,21 +7,19 @@ import { dirname, join, resolve } from 'node:path';
 export type ValidationIssue = BrokenLink;
 
 /**
- * All the kinds of validation issues for links in markdown files.
- */
-export enum ValidationIssueKind {
-  BrokenLink = 'BrokenLink',
-}
-
-/**
  * A relative link in a markdown file points at a path that does not exist.
  */
 export interface BrokenLink {
-  kind: ValidationIssueKind.BrokenLink;
+  kind: 'BrokenLink';
   markdownPath: string;
   line: number;
   link: string;
 }
+
+/**
+ * All the kinds of validation issues for links in markdown files.
+ */
+export type ValidationIssueKind = ValidationIssue['kind'];
 
 /**
  * Directories that never hold checked-in markdown: dependencies, build output,
@@ -153,7 +151,7 @@ export function* checkLinks(root: string): Generator<ValidationIssue> {
 
         if (resolved && !existsSync(resolved)) {
           yield {
-            kind: ValidationIssueKind.BrokenLink,
+            kind: 'BrokenLink',
             markdownPath,
             line: index + 1,
             link: target,

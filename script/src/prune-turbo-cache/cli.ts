@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { IO } from '../types';
+import type { IO } from '../types.ts';
 
 // Every cache entry is stored as <hash>.tar.zst alongside these sidecars, so
 // the leading hash identifies the entry a file belongs to.

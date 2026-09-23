@@ -1,7 +1,7 @@
 import { basename, dirname, join } from 'node:path';
 import * as ts from 'typescript';
 import { statSync } from 'node:fs';
-import { PnpmPackageInfo } from '@votingworks/monorepo-utils';
+import type { PnpmPackageInfo } from '@votingworks/monorepo-utils';
 
 export interface Tsconfig {
   readonly include?: readonly string[];
@@ -10,20 +10,13 @@ export interface Tsconfig {
   readonly references?: readonly ts.ProjectReference[];
 }
 
-export enum ValidationIssueKind {
-  InvalidPropertyValue = 'InvalidPropertyValue',
-  MissingConfigFile = 'MissingConfigFile',
-  MissingReference = 'MissingReference',
-  MissingWorkspaceDependency = 'MissingWorkspaceDependency',
-}
-
 export interface MissingConfigFileIssue {
-  readonly kind: ValidationIssueKind.MissingConfigFile;
+  readonly kind: 'MissingConfigFile';
   readonly tsconfigPath: string;
 }
 
 export interface InvalidPropertyValueIssue {
-  readonly kind: ValidationIssueKind.InvalidPropertyValue;
+  readonly kind: 'InvalidPropertyValue';
   readonly tsconfigPath: string;
   readonly propertyKeyPath: string;
   readonly actualValue: unknown;
@@ -31,14 +24,14 @@ export interface InvalidPropertyValueIssue {
 }
 
 export interface MissingReferenceIssue {
-  readonly kind: ValidationIssueKind.MissingReference;
+  readonly kind: 'MissingReference';
   readonly tsconfigPath: string;
   readonly referencingPath: string;
   readonly expectedReferencePath: string;
 }
 
 export interface MissingWorkspaceDependencyIssue {
-  readonly kind: ValidationIssueKind.MissingWorkspaceDependency;
+  readonly kind: 'MissingWorkspaceDependency';
   readonly packageJsonPath: string;
   readonly dependencyName: string;
 }
@@ -48,6 +41,8 @@ export type ValidationIssue =
   | InvalidPropertyValueIssue
   | MissingReferenceIssue
   | MissingWorkspaceDependencyIssue;
+
+export type ValidationIssueKind = ValidationIssue['kind'];
 
 export function maybeReadTsconfig(filepath: string): Tsconfig | undefined {
   if (!statSync(dirname(filepath)).isDirectory()) {
@@ -82,7 +77,7 @@ export function* checkTsconfig(
 
   if (noEmit !== !isBuild) {
     yield {
-      kind: ValidationIssueKind.InvalidPropertyValue,
+      kind: 'InvalidPropertyValue',
       tsconfigPath,
       propertyKeyPath: 'compilerOptions.noEmit',
       actualValue: noEmit,
@@ -93,7 +88,7 @@ export function* checkTsconfig(
   if (isBuild) {
     if (!rootDir) {
       yield {
-        kind: ValidationIssueKind.InvalidPropertyValue,
+        kind: 'InvalidPropertyValue',
         tsconfigPath,
         propertyKeyPath: 'compilerOptions.rootDir',
         actualValue: rootDir,
@@ -103,7 +98,7 @@ export function* checkTsconfig(
 
     if (!outDir) {
       yield {
-        kind: ValidationIssueKind.InvalidPropertyValue,
+        kind: 'InvalidPropertyValue',
         tsconfigPath,
         propertyKeyPath: 'compilerOptions.outDir',
         actualValue: rootDir,
@@ -113,7 +108,7 @@ export function* checkTsconfig(
 
     if (declaration !== true) {
       yield {
-        kind: ValidationIssueKind.InvalidPropertyValue,
+        kind: 'InvalidPropertyValue',
         tsconfigPath,
         propertyKeyPath: 'compilerOptions.declaration',
         actualValue: declaration,
@@ -123,7 +118,7 @@ export function* checkTsconfig(
 
     if (!(declarationMap === true || declarationMap === undefined)) {
       yield {
-        kind: ValidationIssueKind.InvalidPropertyValue,
+        kind: 'InvalidPropertyValue',
         tsconfigPath,
         propertyKeyPath: 'compilerOptions.declarationMap',
         actualValue: declarationMap,
@@ -137,7 +132,7 @@ export function* checkTsconfig(
     // re-emitting, leaving an empty output.
     if (tsBuildInfoFile !== 'build/tsconfig.build.tsbuildinfo') {
       yield {
-        kind: ValidationIssueKind.InvalidPropertyValue,
+        kind: 'InvalidPropertyValue',
         tsconfigPath,
         propertyKeyPath: 'compilerOptions.tsBuildInfoFile',
         actualValue: tsBuildInfoFile,
@@ -147,7 +142,7 @@ export function* checkTsconfig(
 
     for (const [key, value] of Object.entries(otherCompilerOptions)) {
       yield {
-        kind: ValidationIssueKind.InvalidPropertyValue,
+        kind: 'InvalidPropertyValue',
         tsconfigPath,
         propertyKeyPath: `compilerOptions.${key}`,
         actualValue: value,
@@ -158,7 +153,7 @@ export function* checkTsconfig(
 
   if (!Array.isArray(tsconfig.include)) {
     yield {
-      kind: ValidationIssueKind.InvalidPropertyValue,
+      kind: 'InvalidPropertyValue',
       tsconfigPath,
       propertyKeyPath: `include`,
       actualValue: tsconfig.include,
@@ -168,7 +163,7 @@ export function* checkTsconfig(
 
   if (tsconfig.exclude && !Array.isArray(tsconfig.exclude)) {
     yield {
-      kind: ValidationIssueKind.InvalidPropertyValue,
+      kind: 'InvalidPropertyValue',
       tsconfigPath,
       propertyKeyPath: `exclude`,
       actualValue: tsconfig.exclude,
@@ -202,7 +197,7 @@ export async function* checkTsconfigMatchesPackageJson(
       !tsconfigReferencesPaths.has(expectedWorkspaceDependencyTsconfigBuildPath)
     ) {
       yield {
-        kind: ValidationIssueKind.MissingReference,
+        kind: 'MissingReference',
         tsconfigPath,
         referencingPath: packageJsonPath,
         expectedReferencePath: expectedWorkspaceDependencyTsconfigBuildPath,
@@ -229,7 +224,7 @@ export function* checkTsconfigReferencesMatch(
   for (const tsconfigReferencePath of tsconfigReferencesPaths) {
     if (!otherTsconfigReferencesPaths.has(tsconfigReferencePath)) {
       yield {
-        kind: ValidationIssueKind.MissingReference,
+        kind: 'MissingReference',
         tsconfigPath: otherTsconfigPath,
         referencingPath: tsconfigPath,
         expectedReferencePath: tsconfigReferencePath,
@@ -240,7 +235,7 @@ export function* checkTsconfigReferencesMatch(
   for (const otherTsconfigReferencePath of otherTsconfigReferencesPaths) {
     if (!tsconfigReferencesPaths.has(otherTsconfigReferencePath)) {
       yield {
-        kind: ValidationIssueKind.MissingReference,
+        kind: 'MissingReference',
         tsconfigPath,
         referencingPath: otherTsconfigPath,
         expectedReferencePath: otherTsconfigReferencePath,
@@ -285,7 +280,7 @@ export async function* checkConfig(
       if (!workspacePackages.has(workspaceDependency)) {
         hasMissingWorkspaceDependency = true;
         yield {
-          kind: ValidationIssueKind.MissingWorkspaceDependency,
+          kind: 'MissingWorkspaceDependency',
           packageJsonPath,
           dependencyName: workspaceDependency,
         };
@@ -305,7 +300,7 @@ export async function* checkConfig(
 
     if (!tsconfig) {
       yield {
-        kind: ValidationIssueKind.MissingConfigFile,
+        kind: 'MissingConfigFile',
         tsconfigPath,
       };
       continue;

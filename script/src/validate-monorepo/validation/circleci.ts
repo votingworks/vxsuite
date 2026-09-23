@@ -1,6 +1,5 @@
 import {
-  CIRCLECI_CONFIG_PATH,
-  PnpmPackageInfo,
+  type PnpmPackageInfo,
   generateAllCircleCiConfigs,
 } from '@votingworks/monorepo-utils';
 import { readFileSync } from 'node:fs';
@@ -11,19 +10,17 @@ import { readFileSync } from 'node:fs';
 export type ValidationIssue = OutdatedConfig;
 
 /**
- * All the kinds of validation issues for CircleCI configuration.
- */
-export enum ValidationIssueKind {
-  OutdatedConfig = 'OutdatedConfig',
-}
-
-/**
  * CircleCI configuration is outdated.
  */
 export interface OutdatedConfig {
-  kind: ValidationIssueKind.OutdatedConfig;
+  kind: 'OutdatedConfig';
   configPath: string;
 }
+
+/**
+ * All the kinds of validation issues for CircleCI configuration.
+ */
+export type ValidationIssueKind = ValidationIssue['kind'];
 
 /**
  * Validates the CircleCI configuration.
@@ -37,7 +34,7 @@ export function* checkConfig(
 
     if (expectedConfig !== actualConfig) {
       yield {
-        kind: ValidationIssueKind.OutdatedConfig,
+        kind: 'OutdatedConfig',
         configPath: path,
       };
     }

@@ -1,13 +1,7 @@
 import { throwIllegalValue } from '@votingworks/basics';
 import { relative } from 'node:path';
-import { IO } from '../types';
-import { validateMonorepo, ValidationIssue } from './validation';
-import * as cargo from './validation/cargo';
-import * as circleci from './validation/circleci';
-import * as markdownLinks from './validation/markdown_links';
-import * as pkgs from './validation/packages';
-import * as tsconfig from './validation/tsconfig';
-import * as turbo from './validation/turbo';
+import type { IO } from '../types.ts';
+import { validateMonorepo, type ValidationIssue } from './validation/index.ts';
 
 /**
  * Validate the monorepo build configuration, printing any issues found.
@@ -18,7 +12,7 @@ export async function main({ stderr }: IO): Promise<number> {
 
   function reportValidationIssue(issue: ValidationIssue) {
     switch (issue.kind) {
-      case pkgs.ValidationIssueKind.MismatchedPropertyValue: {
+      case 'MismatchedPropertyValue': {
         const { properties } = issue;
         stderr.write(`Mismatched package configuration:\n`);
         for (const { packageJsonPath, propertyName, value } of properties) {
@@ -32,7 +26,7 @@ export async function main({ stderr }: IO): Promise<number> {
         break;
       }
 
-      case pkgs.ValidationIssueKind.NoLicenseSpecified: {
+      case 'NoLicenseSpecified': {
         const { packageJsonPath } = issue;
         stderr.write(
           `${relative(
@@ -45,7 +39,7 @@ export async function main({ stderr }: IO): Promise<number> {
         break;
       }
 
-      case pkgs.ValidationIssueKind.UnexportedPackageJson: {
+      case 'UnexportedPackageJson': {
         const { packageJsonPath } = issue;
         stderr.write(
           `${relative(
@@ -57,7 +51,7 @@ export async function main({ stderr }: IO): Promise<number> {
         break;
       }
 
-      case pkgs.ValidationIssueKind.InvalidTaskDelegation: {
+      case 'InvalidTaskDelegation': {
         const { packageJsonPath, task, expected, actual } = issue;
         stderr.write(
           `${relative(
@@ -73,14 +67,14 @@ export async function main({ stderr }: IO): Promise<number> {
         break;
       }
 
-      case tsconfig.ValidationIssueKind.MissingConfigFile: {
+      case 'MissingConfigFile': {
         const { tsconfigPath } = issue;
         stderr.write(`${tsconfigPath}: missing TypeScript configuration\n`);
         errors += 1;
         break;
       }
 
-      case tsconfig.ValidationIssueKind.InvalidPropertyValue:
+      case 'InvalidPropertyValue':
         stderr.write(
           `${relative(cwd, issue.tsconfigPath)}: invalid value for "${
             issue.propertyKeyPath
@@ -88,7 +82,7 @@ export async function main({ stderr }: IO): Promise<number> {
         );
         break;
 
-      case tsconfig.ValidationIssueKind.MissingReference:
+      case 'MissingReference':
         stderr.write(
           `${relative(
             cwd,
@@ -100,7 +94,7 @@ export async function main({ stderr }: IO): Promise<number> {
         );
         break;
 
-      case tsconfig.ValidationIssueKind.MissingWorkspaceDependency:
+      case 'MissingWorkspaceDependency':
         stderr.write(
           `${relative(
             cwd,
@@ -111,7 +105,7 @@ export async function main({ stderr }: IO): Promise<number> {
         );
         break;
 
-      case circleci.ValidationIssueKind.OutdatedConfig:
+      case 'OutdatedConfig':
         stderr.write(
           `${relative(
             cwd,
@@ -120,7 +114,7 @@ export async function main({ stderr }: IO): Promise<number> {
         );
         break;
 
-      case cargo.ValidationIssueKind.MismatchedCargoDependencyVersion:
+      case 'MismatchedCargoDependencyVersion':
         stderr.write(
           `Mismatched Cargo dependency versions for "${issue.dependencyName}":\n`
         );
@@ -131,19 +125,19 @@ export async function main({ stderr }: IO): Promise<number> {
         }
         break;
 
-      case turbo.ValidationIssueKind.UntrackedCargoPathDependency:
+      case 'UntrackedCargoPathDependency':
         stderr.write(
           `${issue.packageDir}: Cargo path dependency "${issue.cargoPathDep}" is not tracked by turbo. Add it to build:self inputs in ${issue.packageDir}/turbo.json, e.g. "inputs": ["$TURBO_DEFAULT$", "${issue.suggestedInput}"]\n`
         );
         break;
 
-      case turbo.ValidationIssueKind.MissingCargoBinaryOutput:
+      case 'MissingCargoBinaryOutput':
         stderr.write(
           `${issue.packageDir}: Cargo binary "${issue.binaryName}" is not a turbo output. Add it to build:self outputs in ${issue.packageDir}/turbo.json, e.g. "outputs": ["build/**", "${issue.expectedOutput}"]\n`
         );
         break;
 
-      case markdownLinks.ValidationIssueKind.BrokenLink:
+      case 'BrokenLink':
         stderr.write(
           `${relative(cwd, issue.markdownPath)}:${issue.line}: broken link to ${
             issue.link

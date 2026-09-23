@@ -1,13 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { parse as parseToml } from '@iarna/toml';
-import { PnpmPackageInfo } from '@votingworks/monorepo-utils';
-import { findCargoTomlFiles } from './cargo';
-
-export enum ValidationIssueKind {
-  UntrackedCargoPathDependency = 'UntrackedCargoPathDependency',
-  MissingCargoBinaryOutput = 'MissingCargoBinaryOutput',
-}
+import type { PnpmPackageInfo } from '@votingworks/monorepo-utils';
+import { findCargoTomlFiles } from './cargo.ts';
 
 /**
  * A package whose turbo build compiles Rust (napi/cargo) depends, via a Cargo
@@ -17,7 +12,7 @@ export enum ValidationIssueKind {
  * would leave turbo reporting a (stale) cache hit.
  */
 export interface UntrackedCargoPathDependencyIssue {
-  readonly kind: ValidationIssueKind.UntrackedCargoPathDependency;
+  readonly kind: 'UntrackedCargoPathDependency';
   readonly packageName: string;
   readonly packageDir: string;
   readonly cargoPathDep: string;
@@ -30,7 +25,7 @@ export interface UntrackedCargoPathDependencyIssue {
  * hit would then skip the build without restoring the binary.
  */
 export interface MissingCargoBinaryOutputIssue {
-  readonly kind: ValidationIssueKind.MissingCargoBinaryOutput;
+  readonly kind: 'MissingCargoBinaryOutput';
   readonly packageName: string;
   readonly packageDir: string;
   readonly binaryName: string;
@@ -39,6 +34,8 @@ export interface MissingCargoBinaryOutputIssue {
 
 export type ValidationIssue =
   UntrackedCargoPathDependencyIssue | MissingCargoBinaryOutputIssue;
+
+export type ValidationIssueKind = ValidationIssue['kind'];
 
 const CARGO_DEP_SECTIONS = [
   'dependencies',
@@ -236,7 +233,7 @@ function* checkCargoPathDepInputs(
       if (inputsCover(pkgDir, inputs, depDir)) continue;
 
       yield {
-        kind: ValidationIssueKind.UntrackedCargoPathDependency,
+        kind: 'UntrackedCargoPathDependency',
         packageName: pkg.name,
         packageDir: relative(root, pkgDir),
         cargoPathDep: relative(root, depDir),
@@ -264,7 +261,7 @@ function* checkCargoBinaryOutputs(
       const expectedOutput = `target/${profile}/${binaryName}`;
       if (outputsCover(outputs, expectedOutput)) continue;
       yield {
-        kind: ValidationIssueKind.MissingCargoBinaryOutput,
+        kind: 'MissingCargoBinaryOutput',
         packageName: pkg.name,
         packageDir: relative(root, pkg.path),
         binaryName,
