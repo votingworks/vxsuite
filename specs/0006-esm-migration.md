@@ -2,7 +2,7 @@
 
 **Author:** @eventualbuddha
 
-**Status:** `implementing`
+**Status:** `completed`
 
 ## Problem
 
@@ -75,9 +75,10 @@ libraries — follows a pattern like this:
 7. Bare `require(...)` is evaluated case-by-case.
 8. JSON imports get `with { type: 'json' }`.
 
-The vast majority of changes are 1–3, all handled by a codemod (it derives each
-package's file set from its tsconfigs, rewrites the specifiers and module
-globals, and flips `package.json`). Items 4–8 are a couple dozen manual sites
+The vast majority of changes are 1–3, all handled by a codemod
+(`esm-codemod.cjs`, deleted once the last package converted; it derived each
+package's file set from its tsconfigs, rewrote the specifiers and module
+globals, and flipped `package.json`). Items 4–8 are a couple dozen manual sites
 across the whole repo. Packages with native components or that are just type
 shims overlap with the above but need some special handling — for example, a CJS
 `.d.ts` shim should use `export =` to match its `module.exports` runtime.
@@ -122,7 +123,7 @@ type-check or test notices.
   exactly, and declare `"./package.json": "./package.json"` in the map so that
   subpath resolves at all. Exporting `./package.json` is conventional and worth
   having regardless — reading `<pkg>/package.json` is a common thing for tooling
-  to do. The codemod emits the subpath and `validate-monorepo` enforces it,
+  to do. The codemod emitted the subpath and `validate-monorepo` enforces it,
   because otherwise every remaining library reintroduces the problem as it
   converts and only prod-build, which CI never runs, would notice.
 - **Tooling that sniffs `main`/`module` stops recognizing converted packages.**
@@ -279,9 +280,28 @@ there's no reason to take on that risk.
 
 ## Open Questions
 
-- Native-addon and type-shim packages need case-by-case handling the codemod
-  doesn't fully cover; each should be spot-checked by running its built output
-  under `node` before its consumers convert.
 - Reworking build orchestration (dropping `composite`/`references`, or adopting
   a task runner) is a natural companion but is out of scope here and can proceed
   on its own track.
+
+## Wrap-up / Retro
+
+Every workspace package is now `type: module`. A few `package.json` files
+deliberately are not:
+
+- The repo root, which holds no code that NodeJS imports.
+- `apps/design/backend/migrations`, which stays `{ "type": "commonjs" }` for
+  node-pg-migrate as described above.
+- The `libs/logging-utils/npm/*` platform packages, whose `main` is a `.node`
+  addon rather than JavaScript.
+- The `libs/@types/*` shims, which ship only `.d.ts` files and needed just an
+  `exports` map with a `types` condition.
+
+`eslint-plugin-vx`, the last package to convert, went one step further: since
+only ESLint's config loader runs it, it no longer builds at all. Its `exports`
+point at `src/index.ts` and NodeJS strips the types at load time, which needs
+`.ts` import specifiers (`allowImportingTsExtensions`), `verbatimModuleSyntax`
+so type-only imports are erased, and `erasableSyntaxOnly`. This works only
+because pnpm's workspace symlink resolves outside `node_modules`, where NodeJS
+refuses to strip types. The package keeps a type-checking `build:self` so that
+Turbo still invalidates dependents' cached lint results when a rule changes.
