@@ -70,6 +70,25 @@ test('runBenchmark defaults to 3 warmup runs', async () => {
   expect(results.measurements).toHaveLength(1);
 });
 
+test('runBenchmark runs cleanup after every invocation, unmeasured', async () => {
+  const calls: string[] = [];
+  const results = await runBenchmark({
+    func: () => calls.push('func'),
+    cleanup: () => calls.push('cleanup'),
+    runs: 2,
+    warmupRuns: 1,
+  });
+  expect(calls).toEqual([
+    'func',
+    'cleanup',
+    'func',
+    'cleanup',
+    'func',
+    'cleanup',
+  ]);
+  expect(results.measurements).toHaveLength(2);
+});
+
 test('formatMs', () => {
   expect(formatMs(0)).toEqual('0ms');
   expect(formatMs(47.4)).toEqual('47ms');

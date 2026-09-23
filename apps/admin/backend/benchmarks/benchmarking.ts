@@ -68,12 +68,15 @@ export async function benchmarkRegressionTest({
   runs,
   warmupRuns,
   goalMs,
+  cleanup,
 }: {
   label: string;
   func: () => unknown | Promise<unknown>;
   runs: number;
   warmupRuns?: number;
   goalMs?: number;
+  /** Runs after each invocation of `func`, outside the measured window. */
+  cleanup?: () => unknown | Promise<unknown>;
 }): Promise<void> {
   if (!printedEnv) {
     console.log(`Benchmark environment: ${ENV}`);
@@ -81,7 +84,7 @@ export async function benchmarkRegressionTest({
   }
   console.log(`\nRunning benchmark: ${label}`);
 
-  const newResults = await runBenchmark({ func, runs, warmupRuns });
+  const newResults = await runBenchmark({ func, runs, warmupRuns, cleanup });
   const oldResults = loadResults(label);
   printBenchmarkResults(label, newResults, oldResults);
 
