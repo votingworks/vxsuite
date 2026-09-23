@@ -13,6 +13,7 @@ import {
   SearchSelectSingleProps,
 } from './search_select.js';
 import { makeTheme } from './themes/make_theme.js';
+import { Modal } from './modal.js';
 
 const options = [
   { value: 'apple', label: 'Apple' },
@@ -118,6 +119,28 @@ test('single and not searchable', () => {
   userEvent.click(screen.getByRole('option', { name: 'Banana' }));
   expect(screen.queryByText('Apple')).not.toBeInTheDocument();
   screen.getByText('Banana');
+});
+
+test('menu portals into an open modal dialog', () => {
+  render(
+    <Modal
+      content={
+        <ControlledSingleSelect
+          options={options}
+          aria-label="Choose Fruit"
+          menuPortalTarget={document.body}
+        />
+      }
+    />
+  );
+
+  userEvent.click(screen.getByLabelText('Choose Fruit'));
+  const option = screen.getByRole('option', { name: 'Apple' });
+  const dialog = screen.getByRole('alertdialog');
+  const menuPortal = [...dialog.children].find((child) =>
+    child.contains(option)
+  );
+  expect(menuPortal).toHaveStyle({ position: 'fixed' });
 });
 
 test('single and searchable', async () => {

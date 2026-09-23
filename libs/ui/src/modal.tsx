@@ -1,9 +1,15 @@
-import React, { ReactNode, useMemo } from 'react';
-import ReactModal from 'react-modal';
+import React, {
+  ReactNode,
+  useLayoutEffect,
+  useRef,
+  MouseEvent as ReactMouseEvent,
+  KeyboardEvent as ReactKeyboardEvent,
+} from 'react';
+import { createPortal } from 'react-dom';
 import { DefaultTheme } from 'styled-components';
 import { rgba } from 'polished';
 
-import { assert } from '@votingworks/basics';
+import { assertDefined } from '@votingworks/basics';
 
 import { SizeMode } from '@votingworks/types';
 import { styled } from './styled.js';
@@ -11,6 +17,7 @@ import { H2 } from './typography.js';
 import { ReadOnLoad } from './ui_strings/read_on_load.js';
 import { useAudioContext } from './ui_strings/audio_context.js';
 import { FocusableAudio } from './focusable_audio.js';
+import { registerOpenDialog } from './top_layer.js';
 
 /**
  * Controls the maximum width the modal can expand to.
@@ -33,33 +40,57 @@ function getSpacingValueRem(p: { theme: DefaultTheme }) {
   return CONTENT_SPACING_VALUES_REM[p.theme.sizeMode];
 }
 
-interface ReactModalContentInterface {
+function getViewportMarginCssValue(p: {
+  theme: DefaultTheme;
+  fullscreen?: boolean;
+}) {
+  return p.fullscreen ? '0rem' : `${getSpacingValueRem(p) * 2}rem`;
+}
+
+interface DialogInterface {
   fullscreen?: boolean;
   modalWidth?: ModalWidth;
 }
-const ReactModalContent = styled('div')<ReactModalContentInterface>`
-  display: flex;
-  flex-direction: column;
-  position: absolute;
+const Dialog = styled('dialog')<DialogInterface>`
+  position: fixed;
   inset: 0;
   margin: auto;
+  border: none;
+  padding: 0;
   outline: none;
   background: ${(p) => p.theme.colors.background};
+  color: inherit;
   width: 100%;
+  height: 100%;
+  max-width: 100%;
   max-height: 100%;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
 
+  &[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &::backdrop {
+    background: ${(p) => rgba(p.theme.colors.inverseBackground, 0.9)};
+  }
+
   @media (min-width: 480px) {
-    position: static;
     border-radius: ${({ fullscreen }) => (fullscreen ? '0' : '0.5rem')};
-    max-width: ${({ fullscreen, modalWidth = ModalWidth.Standard }) =>
-      fullscreen ? '100%' : modalWidth};
-    height: ${({ fullscreen }) => (fullscreen ? '100%' : 'auto')};
+    height: ${({ fullscreen }) => (fullscreen ? '100%' : 'fit-content')};
+    max-width: ${({ modalWidth = ModalWidth.Standard, ...p }) =>
+      p.fullscreen
+        ? '100%'
+        : `min(${modalWidth}, calc(100% - ${getViewportMarginCssValue(p)}))`};
+    max-height: calc(100% - ${(p) => getViewportMarginCssValue(p)});
   }
 
   @media print {
-    display: none;
+    &[open],
+    &::backdrop {
+      display: none;
+    }
   }
 `;
 
@@ -97,25 +128,6 @@ export const ButtonBar = styled('div')`
   }
 `;
 
-interface ReactModalOverlayInterface {
-  fullscreen?: boolean;
-}
-const ReactModalOverlay = styled('div')<ReactModalOverlayInterface>`
-  display: flex;
-  position: fixed;
-  inset: 0;
-  z-index: 999; /* Should be above all default UI */
-  background: ${(p) => rgba(p.theme.colors.inverseBackground, 0.9)};
-
-  @media (min-width: 480px) {
-    padding: ${(p) => (p.fullscreen ? 0 : getSpacingValueRem(p))}rem;
-  }
-
-  @media print {
-    display: none;
-  }
-`;
-
 interface ModalContentInterface {
   centerContent?: boolean;
   fullscreen?: boolean;
@@ -143,10 +155,6 @@ const AudioContent = styled.div`
 /** Props for {@link Modal}. */
 export interface ModalProps {
   'aria-label'?: string;
-  // If a Modal is created and destroyed too quickly it can screw up the aria
-  // focus elements. In that case use ariaHideApp=true to disable the default
-  // focusing behavior on the Modal. See https://github.com/votingworks/vxsuite/issues/988
-  ariaHideApp?: boolean;
   content?: ReactNode;
   centerContent?: boolean;
   /**
@@ -171,14 +179,50 @@ export interface ModalProps {
    * (such as "Save As") and are less common.
    */
   actions?: ReactNode;
-  onAfterOpen?: () => void;
-  onAfterClose?: () => void;
+  /** Called when the backdrop is clicked or the Escape key is pressed. */
   onOverlayClick?: () => void;
   focusableAudioContent?: boolean;
   fullscreen?: boolean;
   modalWidth?: ModalWidth;
   title?: ReactNode;
   className?: string;
+}
+
+function isOutsideDialog(event: ReactMouseEvent<HTMLDialogElement>): boolean {
+  const rect = event.currentTarget.getBoundingClientRect();
+  return (
+    event.clientX < rect.left ||
+    event.clientX >= rect.right ||
+    event.clientY < rect.top ||
+    event.clientY >= rect.bottom
+  );
+}
+
+/**
+ * `showModal()` moves focus to the first focusable descendant. Instead, keep
+ * focus where it is if already inside the dialog, and otherwise focus the
+ * dialog itself so that screen readers announce it as a whole.
+ */
+function showModal(dialog: HTMLDialogElement) {
+  const { activeElement } = document;
+  if (
+    activeElement &&
+    activeElement !== dialog &&
+    dialog.contains(activeElement)
+  ) {
+    activeElement.setAttribute('autofocus', '');
+    dialog.showModal();
+    activeElement.removeAttribute('autofocus');
+    return;
+  }
+
+  for (const child of dialog.children) {
+    child.setAttribute('inert', '');
+  }
+  dialog.showModal();
+  for (const child of dialog.children) {
+    child.removeAttribute('inert');
+  }
 }
 
 export function Modal({
@@ -189,9 +233,6 @@ export function Modal({
   disableAutoplayAudio,
   focusableAudioContent,
   fullscreen = false,
-  ariaHideApp = true,
-  onAfterOpen,
-  onAfterClose,
   onOverlayClick,
   modalWidth,
   title,
@@ -199,6 +240,52 @@ export function Modal({
 }: ModalProps): JSX.Element {
   const isInVoterAudioContext = !!useAudioContext();
   const shouldPlayAudioOnOpen = isInVoterAudioContext && !disableAutoplayAudio;
+
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const previouslyFocusedElementRef = useRef<Element | null>(null);
+  const isBackdropMouseDownRef = useRef(false);
+
+  useLayoutEffect(() => {
+    previouslyFocusedElementRef.current = document.activeElement;
+    const dialog = assertDefined(dialogRef.current);
+    dialog.setAttribute('closedby', 'none');
+    showModal(dialog);
+    const unregister = registerOpenDialog(dialog);
+
+    return () => {
+      unregister();
+      dialog.close();
+      const previouslyFocusedElement = previouslyFocusedElementRef.current;
+      if (
+        previouslyFocusedElement instanceof HTMLElement &&
+        previouslyFocusedElement.isConnected
+      ) {
+        previouslyFocusedElement.focus();
+      }
+    };
+  }, []);
+
+  function onMouseDown(event: ReactMouseEvent<HTMLDialogElement>) {
+    isBackdropMouseDownRef.current =
+      event.target === event.currentTarget && isOutsideDialog(event);
+  }
+
+  function onClick(event: ReactMouseEvent<HTMLDialogElement>) {
+    if (
+      isBackdropMouseDownRef.current &&
+      event.target === event.currentTarget
+    ) {
+      onOverlayClick?.();
+    }
+    isBackdropMouseDownRef.current = false;
+  }
+
+  function onKeyDown(event: ReactKeyboardEvent<HTMLDialogElement>) {
+    if (event.key === 'Escape') {
+      event.stopPropagation();
+      onOverlayClick?.();
+    }
+  }
 
   let modalContent = (
     <React.Fragment>
@@ -217,50 +304,27 @@ export function Modal({
     modalContent = <ReadOnLoad as={AudioContent}>{modalContent}</ReadOnLoad>;
   }
 
-  const appElement = useMemo(
-    () =>
-      document.getElementById('root') ??
-      (document.body.firstElementChild as HTMLElement | null),
-    []
-  );
-  assert(appElement);
-  return (
-    <ReactModal
-      appElement={appElement}
-      ariaHideApp={ariaHideApp}
-      aria-modal
+  return createPortal(
+    <Dialog
+      ref={dialogRef}
       role="alertdialog"
-      isOpen
-      contentLabel={ariaLabel}
-      onAfterOpen={onAfterOpen}
-      onAfterClose={onAfterClose}
-      onRequestClose={onOverlayClick}
-      testId="modal"
-      // eslint-disable-next-line react/no-unstable-nested-components
-      contentElement={(props, children) => (
-        <ReactModalContent
-          modalWidth={modalWidth}
-          fullscreen={fullscreen}
-          {...props}
-        >
-          {children}
-        </ReactModalContent>
-      )}
-      // eslint-disable-next-line react/no-unstable-nested-components
-      overlayElement={(props, contentElement) => (
-        <ReactModalOverlay fullscreen={fullscreen} {...props}>
-          {contentElement}
-        </ReactModalOverlay>
-      )}
-      // className properties are required to prevent react-modal
-      // from overriding the styles defined in contentElement and overlayElement
-      className={className ?? '_'}
-      overlayClassName="_"
+      aria-label={ariaLabel}
+      aria-modal
+      tabIndex={-1}
+      data-testid="modal"
+      className={className}
+      fullscreen={fullscreen}
+      modalWidth={modalWidth}
+      onCancel={(event) => event.preventDefault()}
+      onClick={onClick}
+      onKeyDown={onKeyDown}
+      onMouseDown={onMouseDown}
     >
       <ModalContent centerContent={centerContent} fullscreen={fullscreen}>
         {modalContent}
       </ModalContent>
       {actions && <ButtonBar as="div">{actions}</ButtonBar>}
-    </ReactModal>
+    </Dialog>,
+    document.body
   );
 }

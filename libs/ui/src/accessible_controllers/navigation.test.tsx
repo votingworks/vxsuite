@@ -7,6 +7,7 @@ import {
   triggerPageNavigationButton,
 } from './navigation.js';
 import { FocusableAudio } from '../focusable_audio.js';
+import { Modal } from '../modal.js';
 
 const TestButton = styled.button.attrs({ type: 'button' })`
   /* stylelint-disable no-empty-source */
@@ -239,4 +240,39 @@ test('triggerPageNavigationButton - clicking on a button takes precendence over 
   expect(onClickNext1).not.toHaveBeenCalled();
   expect(screen.getByTestId('button')).not.toHaveFocus();
   expect(onClickNext2).toHaveBeenCalled();
+});
+
+test('navigation is scoped to an open modal', () => {
+  render(
+    <div>
+      <TestButton data-testid="outsideButton" />
+      <TestButton id={PageNavigationButtonId.NEXT} data-testid="outsideNext" />
+      <Modal
+        content={
+          <TestButton
+            id={PageNavigationButtonId.NEXT}
+            data-testid="modalNext"
+          />
+        }
+        actions={<TestButton data-testid="modalButton" />}
+      />
+    </div>
+  );
+
+  act(() => advanceElementFocus(1));
+  expect(screen.getByTestId('modalNext')).toHaveFocus();
+
+  act(() => advanceElementFocus(1));
+  expect(screen.getByTestId('modalButton')).toHaveFocus();
+
+  act(() => advanceElementFocus(1));
+  expect(screen.getByTestId('modalNext')).toHaveFocus();
+
+  const onOutsideNext = vi.fn();
+  const onModalNext = vi.fn();
+  screen.getByTestId('outsideNext').addEventListener('click', onOutsideNext);
+  screen.getByTestId('modalNext').addEventListener('click', onModalNext);
+  act(() => triggerPageNavigationButton(PageNavigationButtonId.NEXT));
+  expect(onOutsideNext).not.toHaveBeenCalled();
+  expect(onModalNext).toHaveBeenCalledTimes(1);
 });

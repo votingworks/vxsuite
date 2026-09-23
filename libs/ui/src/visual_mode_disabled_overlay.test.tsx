@@ -1,9 +1,10 @@
 import { expect, test } from 'vitest';
+import React from 'react';
 import { UiTheme } from '@votingworks/types';
 import { ThemeConsumer } from 'styled-components';
 import { userEvent } from './user_event.js';
 import { render, screen } from '../test/react_testing_library.js';
-import { VisualModeDisabledOverlay } from './index.js';
+import { Modal, VisualModeDisabledOverlay } from './index.js';
 
 test('updates context isVisualModeDisabled when button is pressed', () => {
   let currentTheme: UiTheme | null = null;
@@ -28,4 +29,18 @@ test('updates context isVisualModeDisabled when button is pressed', () => {
   expect(currentTheme!.isVisualModeDisabled).toEqual(true);
   userEvent.click(screen.getAllByText('Exit Audio-Only Mode')[0]);
   expect(currentTheme!.isVisualModeDisabled).toEqual(false);
+});
+
+test('renders above an open modal', () => {
+  render(
+    <React.Fragment>
+      <VisualModeDisabledOverlay />
+      <Modal content="Content" />
+    </React.Fragment>,
+    { vxTheme: { isVisualModeDisabled: true } }
+  );
+
+  expect(screen.getByText('Exit Audio-Only Mode').closest('dialog')).toEqual(
+    screen.getByRole('alertdialog')
+  );
 });

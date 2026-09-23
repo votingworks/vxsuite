@@ -385,6 +385,8 @@ export default function buildRecommended(
               // Temporary directory helpers; imports nothing but node
               // builtins.
               '@votingworks/fixtures/tmpdir',
+              // Fills in jsdom's missing `<dialog>` methods; imports nothing.
+              '@votingworks/ui/vitest-setup',
             ],
           },
         ],

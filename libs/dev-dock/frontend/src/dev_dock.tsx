@@ -45,7 +45,13 @@ import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
-import { Button, Modal, P, VxThemeProvider } from '@votingworks/ui';
+import {
+  Button,
+  Modal,
+  P,
+  TopLayerPortal,
+  VxThemeProvider,
+} from '@votingworks/ui';
 import { UsbDriveIcon } from './usb_drive_icon.js';
 import { Colors } from './colors.js';
 import { FujitsuPrinterMockControl } from './fujitsu_printer_mock.js';
@@ -479,17 +485,11 @@ const ScreenshotModal = styled(Modal)`
 
 function ScreenshotControls({
   containerRef,
+  onCapture,
 }: {
   containerRef: RefObject<HTMLDivElement>;
+  onCapture: (screenshot: ScreenshotToSaveProps) => void;
 }) {
-  const apiClient = useApiClient();
-  const saveScreenshotForAppMutation = useMutation(
-    apiClient.saveScreenshotForApp
-  );
-
-  const [screenshotToSave, setScreenshotToSave] =
-    useState<ScreenshotToSaveProps>();
-
   async function captureScreenshot() {
     // Use a ref to the dock container to momentarily hide it during the
     // screenshot.
@@ -506,15 +506,9 @@ function ScreenshotControls({
     assert(/^[a-z0-9]+$/i.test(appName));
     const defaultFileName = `Screenshot-${appName}-${new Date().toISOString()}.png`;
 
-    setScreenshotToSave({ screenshot, fileName: defaultFileName });
+    onCapture({ screenshot, fileName: defaultFileName });
     // eslint-disable-next-line no-param-reassign
     containerRef.current.style.visibility = 'visible';
-  }
-
-  async function onSaveScreenshot() {
-    assert(screenshotToSave);
-    await saveScreenshotForAppMutation.mutateAsync(screenshotToSave);
-    setScreenshotToSave(undefined);
   }
 
   async function onKeyDown(event: KeyboardEvent): Promise<void> {
@@ -531,66 +525,79 @@ function ScreenshotControls({
   }, []);
 
   return (
-    <>
-      <ScreenshotButton
-        onClick={captureScreenshot}
-        disabled={!window.kiosk}
-        aria-label="Capture Screenshot"
-      >
-        <FontAwesomeIcon icon={faCamera} size="2x" />
-      </ScreenshotButton>
-      {screenshotToSave && (
-        <ScreenshotModal
-          title="Save Screenshot"
-          onOverlayClick={() => setScreenshotToSave(undefined)}
-          content={
-            <>
-              <P>The image will be saved to the Downloads folder as:</P>
-              <input
-                type="text"
-                value={screenshotToSave.fileName}
-                aria-label="Screenshot File Name"
-                onChange={(e) =>
-                  setScreenshotToSave({
-                    ...screenshotToSave,
-                    fileName: e.target.value,
-                  })
-                }
-                onBlur={(e) =>
-                  setScreenshotToSave({
-                    ...screenshotToSave,
-                    fileName: e.target.value.trim(),
-                  })
-                }
-                autoComplete="off"
-              />
-            </>
-          }
-          actions={
-            <>
-              <Button
-                autoFocus
-                onPress={onSaveScreenshot}
-                style={{
-                  backgroundColor: Colors.ACTIVE,
-                  color: Colors.BACKGROUND,
-                }}
-              >
-                Save
-              </Button>
-              <Button
-                onPress={() => setScreenshotToSave(undefined)}
-                style={{
-                  backgroundColor: 'white',
-                }}
-              >
-                Cancel
-              </Button>
-            </>
-          }
-        />
-      )}
-    </>
+    <ScreenshotButton
+      onClick={captureScreenshot}
+      disabled={!window.kiosk}
+      aria-label="Capture Screenshot"
+    >
+      <FontAwesomeIcon icon={faCamera} size="2x" />
+    </ScreenshotButton>
+  );
+}
+
+function SaveScreenshotModal({
+  screenshotToSave,
+  onChange,
+  onClose,
+}: {
+  screenshotToSave: ScreenshotToSaveProps;
+  onChange: (screenshotToSave: ScreenshotToSaveProps) => void;
+  onClose: () => void;
+}) {
+  const apiClient = useApiClient();
+  const saveScreenshotForAppMutation = useMutation(
+    apiClient.saveScreenshotForApp
+  );
+
+  async function onSaveScreenshot() {
+    await saveScreenshotForAppMutation.mutateAsync(screenshotToSave);
+    onClose();
+  }
+
+  return (
+    <ScreenshotModal
+      title="Save Screenshot"
+      onOverlayClick={onClose}
+      content={
+        <>
+          <P>The image will be saved to the Downloads folder as:</P>
+          <input
+            type="text"
+            value={screenshotToSave.fileName}
+            aria-label="Screenshot File Name"
+            onChange={(e) =>
+              onChange({ ...screenshotToSave, fileName: e.target.value })
+            }
+            onBlur={(e) =>
+              onChange({ ...screenshotToSave, fileName: e.target.value.trim() })
+            }
+            autoComplete="off"
+          />
+        </>
+      }
+      actions={
+        <>
+          <Button
+            autoFocus
+            onPress={onSaveScreenshot}
+            style={{
+              backgroundColor: Colors.ACTIVE,
+              color: Colors.BACKGROUND,
+            }}
+          >
+            Save
+          </Button>
+          <Button
+            onPress={onClose}
+            style={{
+              backgroundColor: 'white',
+            }}
+          >
+            Cancel
+          </Button>
+        </>
+      }
+    />
   );
 }
 
@@ -1075,7 +1082,7 @@ const Container = styled.div<{ side: DevDockSide }>`
   position: fixed;
   display: flex;
   align-items: center;
-  z-index: 1000; /* Above react-modal z-index of 999 */
+  z-index: 1000;
   pointer-events: none;
   /* Draw a unified shadow around the content and handle */
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35))
@@ -1291,6 +1298,8 @@ function createQueryClient() {
 function DevDock(props: { enableAccessibleNav?: boolean }) {
   const { enableAccessibleNav } = props;
   const [isOpen, setIsOpen] = useState(true);
+  const [screenshotToSave, setScreenshotToSave] =
+    useState<ScreenshotToSaveProps>();
   const containerRef = useRef<HTMLDivElement>(null);
 
   const apiClient = useApiClient();
@@ -1341,62 +1350,78 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
     isFeatureFlagEnabled(BooleanEnvironmentVariableName.SKIP_PIN_ENTRY);
 
   return (
-    <Container
-      aria-hidden={!enableAccessibleNav}
-      ref={containerRef}
-      className={isOpen ? '' : 'closed'}
-      side={side}
-      // Don't flip the dev dock when using an RTL language
-      dir="ltr"
-    >
-      <Content side={side}>
-        <Row>
-          <ElectionControl />
-          <DockSideControl side={side} />
-        </Row>
-        <Row>
-          <Column>
+    <React.Fragment>
+      <TopLayerPortal>
+        <Container
+          aria-hidden={!enableAccessibleNav}
+          ref={containerRef}
+          className={isOpen ? '' : 'closed'}
+          side={side}
+          // Don't flip the dev dock when using an RTL language
+          dir="ltr"
+        >
+          <Content side={side}>
             <Row>
-              <SmartCardMockControls />
+              <ElectionControl />
+              <DockSideControl side={side} />
             </Row>
-          </Column>
-          <Column>
-            <UsbDriveMockControls />
-          </Column>
-          <Column>
-            <IconsGrid>
-              <ScreenshotControls containerRef={containerRef} />
-              {mockSpec.printerConfig &&
-                mockSpec.printerConfig !== 'fujitsu' && <PrinterMockControl />}
-              {(mockSpec.hasBarcodeMock || mockSpec.hasPatInputMock) && (
-                <HardwareMockControls />
+            <Row>
+              <Column>
+                <Row>
+                  <SmartCardMockControls />
+                </Row>
+              </Column>
+              <Column>
+                <UsbDriveMockControls />
+              </Column>
+              <Column>
+                <IconsGrid>
+                  <ScreenshotControls
+                    containerRef={containerRef}
+                    onCapture={setScreenshotToSave}
+                  />
+                  {mockSpec.printerConfig &&
+                    mockSpec.printerConfig !== 'fujitsu' && (
+                      <PrinterMockControl />
+                    )}
+                  {(mockSpec.hasBarcodeMock || mockSpec.hasPatInputMock) && (
+                    <HardwareMockControls />
+                  )}
+                  {mockSpec.hasQuickConfigure && isQuickConfigureEnabled && (
+                    <QuickConfigureButton />
+                  )}
+                </IconsGrid>
+              </Column>
+            </Row>
+            <Row style={{ justifyContent: 'space-between' }}>
+              {mockSpec.printerConfig === 'fujitsu' && (
+                <FujitsuPrinterMockControl />
               )}
-              {mockSpec.hasQuickConfigure && isQuickConfigureEnabled && (
-                <QuickConfigureButton />
-              )}
-            </IconsGrid>
-          </Column>
-        </Row>
-        <Row style={{ justifyContent: 'space-between' }}>
-          {mockSpec.printerConfig === 'fujitsu' && (
-            <FujitsuPrinterMockControl />
-          )}
-          {mockSpec.mockPdiScanner && <PdiScannerMockControl />}
-          {mockSpec.mockBatchScanner && <BatchScannerMockControl />}
-        </Row>
-      </Content>
-      <Handle
-        id="handle"
-        side={side}
-        aria-label="Toggle Dock"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <FontAwesomeIcon
-          icon={HANDLE_CARET_ICONS[side][isOpen ? 'open' : 'closed']}
-          size="lg"
+              {mockSpec.mockPdiScanner && <PdiScannerMockControl />}
+              {mockSpec.mockBatchScanner && <BatchScannerMockControl />}
+            </Row>
+          </Content>
+          <Handle
+            id="handle"
+            side={side}
+            aria-label="Toggle Dock"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            <FontAwesomeIcon
+              icon={HANDLE_CARET_ICONS[side][isOpen ? 'open' : 'closed']}
+              size="lg"
+            />
+          </Handle>
+        </Container>
+      </TopLayerPortal>
+      {screenshotToSave && (
+        <SaveScreenshotModal
+          screenshotToSave={screenshotToSave}
+          onChange={setScreenshotToSave}
+          onClose={() => setScreenshotToSave(undefined)}
         />
-      </Handle>
-    </Container>
+      )}
+    </React.Fragment>
   );
 }
 

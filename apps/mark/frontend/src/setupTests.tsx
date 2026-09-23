@@ -1,6 +1,7 @@
 import { afterAll, afterEach, beforeEach, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import '@votingworks/fixtures/vitest-setup';
+import '@votingworks/ui/vitest-setup';
 import fetchMock from 'fetch-mock';
 import { TextDecoder, TextEncoder } from 'node:util';
 import { cleanup, configure } from '../test/react_testing_library.js';

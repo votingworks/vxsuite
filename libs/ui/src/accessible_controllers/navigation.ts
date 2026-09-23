@@ -1,4 +1,5 @@
 import { FOCUSABLE_AUDIO_CLASS_NAME } from '../focusable_audio.js';
+import { getTopmostOpenDialog } from '../top_layer.js';
 
 export enum PageNavigationButtonId {
   NEXT = 'next',
@@ -23,9 +24,15 @@ const TAB_ENABLED_ELEMENT_IN_HIDDEN_BLOCK_SELECTORS = [
   `[aria-hidden="true"] .${FOCUSABLE_AUDIO_CLASS_NAME}`,
 ].join(', ');
 
+function getNavigationRoot(): ParentNode {
+  return getTopmostOpenDialog() ?? document;
+}
+
 function getTabEnabledElementsInHiddenBlocks() {
   return new Set(
-    document.querySelectorAll(TAB_ENABLED_ELEMENT_IN_HIDDEN_BLOCK_SELECTORS)
+    getNavigationRoot().querySelectorAll(
+      TAB_ENABLED_ELEMENT_IN_HIDDEN_BLOCK_SELECTORS
+    )
   );
 }
 
@@ -34,9 +41,10 @@ function getTabEnabledElementsInHiddenBlocks() {
  * focusable element in the document, in the specified {@link direction}.
  */
 export function advanceElementFocus(direction: 1 | -1): void {
-  const allTabEnabledElements = document.querySelectorAll<HTMLElement>(
-    TAB_ENABLED_ELEMENT_SELECTORS
-  );
+  const allTabEnabledElements =
+    getNavigationRoot().querySelectorAll<HTMLElement>(
+      TAB_ENABLED_ELEMENT_SELECTORS
+    );
   const tabEnabledElementsInHiddenBlocks =
     getTabEnabledElementsInHiddenBlocks();
 
@@ -72,7 +80,7 @@ export function triggerPageNavigationButton(
 ): void {
   const hiddenElements = getTabEnabledElementsInHiddenBlocks();
   const navigationButtons = Array.from(
-    document.querySelectorAll(`#${navigationId}`)
+    getNavigationRoot().querySelectorAll(`#${navigationId}`)
   ).filter((e) => !hiddenElements.has(e) && e instanceof HTMLElement);
 
   if (navigationButtons.length >= 1) {
@@ -83,7 +91,7 @@ export function triggerPageNavigationButton(
     return;
   }
   const navigationOnConfirmButtons = Array.from(
-    document.querySelectorAll(`#${navigationOnConfirmId}`)
+    getNavigationRoot().querySelectorAll(`#${navigationOnConfirmId}`)
   ).filter((e) => !hiddenElements.has(e) && e instanceof HTMLElement);
 
   if (navigationOnConfirmButtons.length >= 1) {

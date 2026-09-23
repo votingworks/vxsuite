@@ -50,6 +50,9 @@ export function createScreenshotNamer(testInfo: TestInfo): ScreenshotNamer {
  * line — the overlay box is clamped to the viewport inset by the ring width.
  * For elements away from the edges the clamp is a no-op, so the ring keeps its
  * original look.
+ *
+ * The overlay is shown as a popover so that it paints above an open modal
+ * dialog, which sits above any `z-index`.
  */
 function addHighlightOverlay(elOrEls: Element | Element[]): void {
   const els = Array.isArray(elOrEls) ? elOrEls : [elOrEls];
@@ -73,19 +76,26 @@ function addHighlightOverlay(elOrEls: Element | Element[]): void {
 
   const overlay = document.createElement('div');
   overlay.setAttribute('data-focus-highlight', 'true');
+  overlay.setAttribute('popover', 'manual');
   overlay.style.cssText = `
     position: fixed;
+    inset: auto;
     top: ${top}px;
     left: ${left}px;
     width: ${Math.max(right - left, 0)}px;
     height: ${Math.max(bottom - top, 0)}px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    overflow: visible;
     outline: ${ringWidth}px solid #00E7E7;
     outline-offset: ${ringOffset}px;
     border-radius: 4px;
     pointer-events: none;
-    z-index: 9999;
   `;
   document.body.appendChild(overlay);
+  overlay.showPopover();
 }
 
 export function buildIntegrationTestHelper(page: Page, namer: ScreenshotNamer) {

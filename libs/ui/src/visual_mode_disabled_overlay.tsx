@@ -7,6 +7,7 @@ import { H2 } from './typography.js';
 import { useScreenInfo } from './hooks/use_screen_info.js';
 import { Header } from './voter_settings/header.js';
 import { useCurrentTheme } from './hooks/use_current_theme.js';
+import { TopLayerPortal } from './top_layer.js';
 
 const Overlay = styled.div`
   position: fixed;
@@ -35,21 +36,25 @@ export function VisualModeDisabledOverlay(): JSX.Element | null {
   }
 
   return (
-    <Overlay aria-hidden>
-      <Header portrait={screenInfo.isPortrait}>
-        <H2 style={{ margin: 0 }}>{appStrings.titleAudioOnlyModeEnabled()}</H2>
-      </Header>
-      <ButtonContainer>
-        <Button
-          icon="Eye"
-          variant="primary"
-          onPress={() => {
-            voterSettingsManager.setIsVisualModeDisabled(false);
-          }}
-        >
-          {appStrings.buttonExitAudioOnlyMode()}
-        </Button>
-      </ButtonContainer>
-    </Overlay>
+    <TopLayerPortal>
+      <Overlay aria-hidden>
+        <Header portrait={screenInfo.isPortrait}>
+          <H2 style={{ margin: 0 }}>
+            {appStrings.titleAudioOnlyModeEnabled()}
+          </H2>
+        </Header>
+        <ButtonContainer>
+          <Button
+            icon="Eye"
+            variant="primary"
+            onPress={() => {
+              voterSettingsManager.setIsVisualModeDisabled(false);
+            }}
+          >
+            {appStrings.buttonExitAudioOnlyMode()}
+          </Button>
+        </ButtonContainer>
+      </Overlay>
+    </TopLayerPortal>
   );
 }

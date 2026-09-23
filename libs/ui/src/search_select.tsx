@@ -12,6 +12,7 @@ import React from 'react';
 import { styled } from './styled.js';
 import { Button, buttonStyles, StyledButtonProps } from './button.js';
 import { Icons } from './icons.js';
+import { useTopmostOpenDialog } from './top_layer.js';
 
 // The react-select DropdownIndicator component toggles the menu from its own
 // mousedown/touchend handlers, so this has to be a plain button rather than our
@@ -172,6 +173,9 @@ export function SearchSelect<T = string>({
 }: SearchSelectSingleProps<T> | SearchSelectMultiProps<T>): JSX.Element {
   const theme = useTheme();
   const borderRadius = `${theme.sizes.borderRadiusRem}rem`;
+  const openDialog = useTopmostOpenDialog();
+  const resolvedMenuPortalTarget =
+    menuPortalTarget && openDialog ? openDialog : menuPortalTarget;
 
   return (
     <Select
@@ -204,7 +208,10 @@ export function SearchSelect<T = string>({
       components={{ DropdownIndicator, MultiValueRemove, Option, Menu }}
       className="search-select"
       menuPlacement="auto"
-      menuPortalTarget={menuPortalTarget}
+      menuPortalTarget={resolvedMenuPortalTarget}
+      menuPosition={
+        resolvedMenuPortalTarget === openDialog ? 'fixed' : 'absolute'
+      }
       minMenuHeight={minMenuHeight}
       maxMenuHeight={maxMenuHeight}
       noOptionsMessage={noOptionsMessage}
@@ -263,7 +270,7 @@ export function SearchSelect<T = string>({
         }),
         menuPortal: (baseStyles) => ({
           ...baseStyles,
-          zIndex: 1000, // above react-modal z-index 999
+          zIndex: 1000,
         }),
         menu: (baseStyles) => ({
           ...baseStyles,

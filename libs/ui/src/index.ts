@@ -65,6 +65,7 @@ export * from './logo_mark.js';
 export * from './low_disk_space_warning.js';
 export * from './main.js';
 export * from './modal.js';
+export * from './top_layer.js';
 export * from './number_pad.js';
 export * from './printer_alert.js';
 export * from './printing_ballot_image.js';

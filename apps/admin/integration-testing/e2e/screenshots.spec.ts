@@ -172,7 +172,10 @@ test('system administrator', async ({ page }, testInfo) => {
     'sa-confirm-save-election-package-button'
   );
 
-  await page.getByRole('button', { name: 'Save' }).click();
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Save' })
+    .click();
   await page.getByRole('heading', { name: 'Election Package Saved' }).waitFor();
   await screenshot('sa-election-package-saved');
   await page.getByText('Close').click();
@@ -276,7 +279,10 @@ test('system administrator', async ({ page }, testInfo) => {
   await page.getByRole('heading', { name: 'Save Logs' }).waitFor();
   await screenshotWithButtonHighlight('Save', 'sa-confirm-save-logs-button');
 
-  await page.getByRole('button', { name: 'Save' }).click();
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Save' })
+    .click();
   await page.getByRole('heading', { name: 'Logs Saved' }).waitFor();
   await screenshot('logs-saved');
   await page.getByText('Close').click();
@@ -297,7 +303,10 @@ test('system administrator', async ({ page }, testInfo) => {
     'Format USB Drive',
     'confirm-format-usb-drive-button'
   );
-  await page.getByRole('button', { name: 'Format USB Drive' }).click();
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Format USB Drive' })
+    .click();
   await page.getByRole('heading', { name: 'USB Drive Formatted' }).waitFor();
   await screenshot('usb-drive-formatted');
   await page.getByText('Close').click();
@@ -344,7 +353,10 @@ test('system administrator', async ({ page }, testInfo) => {
     'Save',
     'confirm-save-readiness-report-button'
   );
-  await page.getByRole('button', { name: 'Save' }).click();
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Save' })
+    .click();
   await page.getByRole('heading', { name: 'Readiness Report Saved' }).waitFor();
   await screenshot('readiness-report-saved');
   await page.getByRole('button', { name: 'Close' }).click();

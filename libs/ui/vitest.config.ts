@@ -8,6 +8,7 @@ export default defineConfig({
     coverage: {
       exclude: [
         'src/index.ts',
+        'src/vitest_setup.ts',
         'src/stubs/*',
         'src/test-utils/*',
         'src/diagnostics/types.ts',

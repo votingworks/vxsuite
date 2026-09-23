@@ -1,7 +1,12 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import React from 'react';
 import { userEvent } from './user_event.js';
-import { render, screen, within } from '../test/react_testing_library.js';
+import {
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '../test/react_testing_library.js';
 import { Modal, ModalWidth } from './modal.js';
 import { Button } from './button.js';
 import { ReadOnLoad, ReadOnLoadProps } from './ui_strings/read_on_load.js';
@@ -99,27 +104,171 @@ describe('Modal', () => {
 
   test('handles overlay click', () => {
     const onOverlayClick = vi.fn();
-    const { baseElement } = render(
-      <Modal content="Content" onOverlayClick={onOverlayClick} />
-    );
-    userEvent.click(
-      baseElement.getElementsByClassName('ReactModal__Overlay')[0]
-    );
+    render(<Modal content="Content" onOverlayClick={onOverlayClick} />);
+
+    userEvent.click(screen.getByText('Content'));
+    expect(onOverlayClick).not.toHaveBeenCalled();
+
+    userEvent.click(screen.getByRole('alertdialog'));
     expect(onOverlayClick).toHaveBeenCalledTimes(1);
   });
 
-  test('handles after open', () => {
-    // Work around a react-modal bug: https://github.com/reactjs/react-modal/issues/903
-    vi.spyOn(window, 'requestAnimationFrame').mockImplementation(
-      (cb: FrameRequestCallback) => {
-        cb(1);
-        return 1;
-      }
+  test('treats clicks on the dialog box itself as inside', () => {
+    const onOverlayClick = vi.fn();
+    render(<Modal content="Content" onOverlayClick={onOverlayClick} />);
+    const dialog = screen.getByRole('alertdialog');
+    vi.spyOn(dialog, 'getBoundingClientRect').mockReturnValue({
+      left: 100,
+      right: 200,
+      top: 100,
+      bottom: 200,
+    } as unknown as DOMRect);
+
+    for (const [clientX, clientY] of [
+      [150, 150],
+      [150, 50],
+      [150, 250],
+    ]) {
+      fireEvent.mouseDown(dialog, { clientX, clientY });
+      fireEvent.click(dialog, { clientX, clientY });
+    }
+    expect(onOverlayClick).toHaveBeenCalledTimes(2);
+  });
+
+  test('ignores overlay click without a handler', () => {
+    render(<Modal content="Content" />);
+    userEvent.click(screen.getByRole('alertdialog'));
+    screen.getByRole('alertdialog');
+  });
+
+  test('handles the Escape key', () => {
+    const onOverlayClick = vi.fn();
+    const onParentKeyDown = vi.fn();
+    render(
+      <div role="presentation" onKeyDown={onParentKeyDown}>
+        <Modal content="Content" onOverlayClick={onOverlayClick} />
+      </div>
     );
-    const onAfterOpen = vi.fn();
-    render(<Modal content="Content" onAfterOpen={onAfterOpen} />);
-    expect(onAfterOpen).toHaveBeenCalledTimes(1);
-    vi.mocked(window.requestAnimationFrame).mockRestore();
+
+    userEvent.keyboard('a');
+    expect(onParentKeyDown).toHaveBeenCalledTimes(1);
+
+    userEvent.keyboard('{Escape}');
+    expect(onOverlayClick).toHaveBeenCalledTimes(1);
+    expect(onParentKeyDown).toHaveBeenCalledTimes(1);
+  });
+
+  test('ignores the Escape key without a handler', () => {
+    render(<Modal content="Content" />);
+    userEvent.keyboard('{Escape}');
+    screen.getByRole('alertdialog');
+  });
+
+  test('stays open when the browser requests to close it', () => {
+    render(<Modal content="Content" />);
+    const cancelEvent = new Event('cancel', { cancelable: true });
+    fireEvent(screen.getByRole('alertdialog'), cancelEvent);
+    expect(cancelEvent.defaultPrevented).toEqual(true);
+    screen.getByRole('alertdialog');
+  });
+
+  test('keeps focus on an already-focused descendant', () => {
+    render(
+      <Modal
+        content="Content"
+        actions={
+          <React.Fragment>
+            <Button onPress={() => undefined} autoFocus>
+              Save
+            </Button>
+            <Button onPress={() => undefined}>Cancel</Button>
+          </React.Fragment>
+        }
+      />
+    );
+
+    expect(screen.getByRole('button', { name: 'Save' })).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Save' })).not.toHaveAttribute(
+      'autofocus'
+    );
+  });
+
+  test('focuses the dialog when effects are double-invoked in strict mode', () => {
+    render(
+      <React.StrictMode>
+        <Modal
+          content="Content"
+          actions={<Button onPress={() => undefined}>Save</Button>}
+        />
+      </React.StrictMode>
+    );
+    expect(screen.getByRole('alertdialog')).toHaveFocus();
+  });
+
+  test('restores focus to the previously focused element on close', () => {
+    function TestComponent(): JSX.Element {
+      const [isOpen, setIsOpen] = React.useState(false);
+      return (
+        <React.Fragment>
+          <Button onPress={() => setIsOpen(true)}>Open</Button>
+          {isOpen && (
+            <Modal
+              content="Content"
+              actions={<Button onPress={() => setIsOpen(false)}>Close</Button>}
+            />
+          )}
+        </React.Fragment>
+      );
+    }
+
+    render(<TestComponent />);
+    userEvent.click(screen.getByRole('button', { name: 'Open' }));
+    expect(screen.getByRole('alertdialog')).toHaveFocus();
+
+    userEvent.click(screen.getByRole('button', { name: 'Close' }));
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Open' })).toHaveFocus();
+  });
+
+  test('does not restore focus to an element that has been removed', () => {
+    function TestComponent(): JSX.Element {
+      const [isOpen, setIsOpen] = React.useState(false);
+      return (
+        <React.Fragment>
+          {!isOpen && <Button onPress={() => setIsOpen(true)}>Open</Button>}
+          {isOpen && (
+            <Modal
+              content="Content"
+              actions={<Button onPress={() => setIsOpen(false)}>Close</Button>}
+            />
+          )}
+        </React.Fragment>
+      );
+    }
+
+    render(<TestComponent />);
+    userEvent.click(screen.getByRole('button', { name: 'Open' }));
+    userEvent.click(screen.getByRole('button', { name: 'Close' }));
+    expect(document.body).toHaveFocus();
+  });
+
+  test('makes content outside the modal inaccessible while open', () => {
+    render(<Button onPress={() => undefined}>Outside</Button>);
+    screen.getByRole('button', { name: 'Outside' });
+
+    const { unmount } = render(
+      <Modal
+        content="Content"
+        actions={<Button onPress={() => undefined}>Inside</Button>}
+      />
+    );
+    screen.getByRole('button', { name: 'Inside' });
+    expect(
+      screen.queryByRole('button', { name: 'Outside' })
+    ).not.toBeInTheDocument();
+
+    unmount();
+    screen.getByRole('button', { name: 'Outside' });
   });
 });
 
@@ -244,38 +393,4 @@ describe('when focusable audio content is enabled', () => {
       })
     );
   });
-});
-
-test('aria-hidden is set and cleared properly', () => {
-  // ensure there is a root element
-  render(<div id="test-root" />);
-
-  const root = document.body.firstElementChild;
-
-  const { unmount, rerender } = render(
-    <div>
-      <Modal
-        title={<span>TITLE</span>}
-        content={<span>Content!</span>}
-        actions={<span>Do not read this</span>}
-      />
-    </div>
-  );
-
-  expect(root).toHaveAttribute('aria-hidden', 'true');
-
-  // cause the `appElement` to change if it's not cached
-  rerender(
-    <div>
-      <Modal
-        title={<span>TITLE</span>}
-        content={<span>Content!</span>}
-        actions={<span>Do not read this</span>}
-      />
-    </div>
-  );
-
-  // unmount should clear the aria-hidden attribute
-  unmount();
-  expect(root).not.toHaveAttribute('aria-hidden');
 });

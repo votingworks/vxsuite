@@ -21,7 +21,7 @@ export default defineConfig({
     // is necessary for tests to work correctly.
     alias: [
       {
-        find: '@votingworks/ui',
+        find: /^@votingworks\/ui$/,
         replacement: join(__dirname, '../../../libs/ui/src/index.ts'),
       },
     ],

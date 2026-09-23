@@ -1,5 +1,6 @@
 import { beforeEach, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
+import '@votingworks/ui/vitest-setup';
 import { configure } from '@testing-library/react';
 import '@votingworks/fixtures/vitest-setup';
 

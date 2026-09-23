@@ -1,35 +1,39 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`Modal > can configure a wider max width 1`] = `
-<div
+<dialog
   aria-label="Alert Modal"
   aria-modal="true"
-  class="sc-cPiKLX hLwftm ReactModal__Content _"
+  class="sc-cPiKLX jcSLYG"
+  closedby="none"
   data-testid="modal"
+  open=""
   role="alertdialog"
   tabindex="-1"
 >
   <div
-    class="sc-eldPxv juBGsE"
+    class="sc-eDPEul fumtka"
   >
     Do you want to do the thing?
   </div>
-</div>
+</dialog>
 `;
 
 exports[`Modal > can configure fullscreen 1`] = `
-<div
+<dialog
   aria-label="Alert Modal"
   aria-modal="true"
-  class="sc-cPiKLX dValZG ReactModal__Content _"
+  class="sc-cPiKLX dAewOe"
+  closedby="none"
   data-testid="modal"
+  open=""
   role="alertdialog"
   tabindex="-1"
 >
   <div
-    class="sc-eldPxv forLMv"
+    class="sc-eDPEul hxMyvF"
   >
     Do you want to do the thing?
   </div>
-</div>
+</dialog>
 `;

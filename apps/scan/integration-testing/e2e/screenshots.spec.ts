@@ -120,7 +120,10 @@ test('configuration', async ({ page }, testInfo) => {
   await page.getByText('Paper Detected').waitFor();
   await screenshot('em-printer-paper-detected');
 
-  await page.getByRole('button', { name: 'Print Test Page' }).click();
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Print Test Page' })
+    .click();
   await page.getByText('Test Page Printed').waitFor();
   await screenshot('em-printer-test-page-printed');
   await capturePrintedReport('em-printer-test-page', namer);

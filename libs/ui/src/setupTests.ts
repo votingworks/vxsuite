@@ -5,6 +5,7 @@ import type { TestingLibraryMatchers } from '@testing-library/jest-dom/matchers'
 import { cleanup, configure } from '@testing-library/react';
 import '@votingworks/fixtures/vitest-setup';
 import '@votingworks/image-utils/vitest-setup';
+import './vitest_setup.js';
 import {
   buildToHaveStyleRule,
   ToHaveStyleRuleMatchers,

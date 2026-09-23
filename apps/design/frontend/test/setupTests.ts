@@ -1,6 +1,7 @@
 import { afterAll, beforeEach, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import '@votingworks/fixtures/vitest-setup';
+import '@votingworks/ui/vitest-setup';
 
 import { TextEncoder } from 'node:util';
 import { makeIdFactory } from './id_helpers.js';

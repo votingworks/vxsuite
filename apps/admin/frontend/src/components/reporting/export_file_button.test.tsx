@@ -134,7 +134,8 @@ test('overall flow', async () => {
   within(newModal).getByText(
     'unofficial-full-election-success__2021-01-01_00-00-10.txt'
   );
-  userEvent.click(within(modal).getButton('Close'));
+  userEvent.click(within(newModal).getButton('Cancel'));
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
   expect(vitestMockMutate).toHaveBeenCalledTimes(1);
 });
