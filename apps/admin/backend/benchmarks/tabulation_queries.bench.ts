@@ -1,6 +1,13 @@
 import { afterAll, beforeAll, test } from 'vitest';
-import { Election, Id } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  Election,
+  Id,
+  SystemSettings,
+} from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
+import { BaseLogger, LogSource } from '@votingworks/logging';
+import { Client as DbClient } from '@votingworks/db';
 import { Store } from '../src/store.js';
 import {
   tabulateElectionResults,
@@ -38,9 +45,11 @@ const WRITE_IN_REPORT_GOAL_MS = 2_000;
 let store: Store;
 let electionId: Id;
 let election: Election;
+let dbPath: string;
 
 beforeAll(async () => {
-  ({ store, electionId } = await openPerfStore(DEFAULT_CVR_COUNT));
+  ({ store, electionId, dbPath } = await openPerfStore(DEFAULT_CVR_COUNT));
+  replaceSystemSettingsData(JSON.stringify(DEFAULT_SYSTEM_SETTINGS));
   ({
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId)));
@@ -87,6 +96,50 @@ test('report: uncached CVR tabulation', async () => {
     warmupRuns: 0,
     goalMs: UNCACHED_TABULATION_GOAL_MS,
   });
+});
+
+/**
+ * Replaces the seeded election's raw system settings data, bypassing the
+ * store, and returns the previous data so it can be restored exactly.
+ */
+function replaceSystemSettingsData(systemSettingsData: string): string {
+  const client = DbClient.fileClient(dbPath, new BaseLogger(LogSource.System));
+  const { previous } = client.one(
+    'select system_settings_data as previous from elections where id = ?',
+    electionId
+  ) as { previous: string };
+  client.run(
+    'update elections set system_settings_data = ? where id = ?',
+    systemSettingsData,
+    electionId
+  );
+  client.close();
+  return previous;
+}
+
+test('report: uncached CVR tabulation with ballots withheld', async () => {
+  // Same operation as the benchmark above, but with withholding enabled so
+  // the withheld predicate is evaluated against every CVR
+  const withholdingEnabled: SystemSettings = {
+    ...store.getSystemSettings(electionId),
+    countCentralScanBallotsOnlyAfterAdjudication: true,
+  };
+  const originalSystemSettingsData = replaceSystemSettingsData(
+    JSON.stringify(withholdingEnabled)
+  );
+  try {
+    await benchmarkRegressionTest({
+      label: 'uncached CVR tabulation with ballots withheld',
+      func: async () => {
+        await tabulateCastVoteRecords({ electionId, store });
+      },
+      runs: 3,
+      warmupRuns: 0,
+      goalMs: UNCACHED_TABULATION_GOAL_MS,
+    });
+  } finally {
+    replaceSystemSettingsData(originalSystemSettingsData);
+  }
 });
 
 test('report: full election tally report, warm caches', async () => {

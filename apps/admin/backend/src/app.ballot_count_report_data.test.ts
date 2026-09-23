@@ -8,12 +8,17 @@ import {
   buildManualResultsFixture,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { BallotStyleGroupId, Tabulation } from '@votingworks/types';
+import {
+  BallotStyleGroupId,
+  DEFAULT_SYSTEM_SETTINGS,
+  Tabulation,
+} from '@votingworks/types';
 import {
   buildTestEnvironment,
   configureMachine,
   mockElectionManagerAuth,
 } from '../test/app.js';
+import { addMockCvrFileToStore } from '../test/mock_cvr_file.js';
 import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture.js';
 
 vi.setConfig({
@@ -601,4 +606,74 @@ test('combined ballot primary: card counts with partyIds filter', async () => {
       manual: 0,
     },
   ]);
+});
+
+test('withheld unadjudicated central scan ballots still appear in ballot counts', async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+
+  const { apiClient, auth, workspace } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition,
+    undefined,
+    {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      countCentralScanBallotsOnlyAfterAdjudication: true,
+    }
+  );
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile: [
+      {
+        ballotStyleGroupId: '2F',
+        batchId: 'batch-central-write-in',
+        scannerId: 'scanner-central',
+        scannerMachineType: 'central',
+        precinctId: 'precinct-1',
+        votingMethod: 'precinct',
+        votes: { 'aquarium-council-fish': ['manta-ray', 'write-in-0'] },
+        card: { type: 'bmd' },
+        multiplier: 3,
+      },
+      {
+        ballotStyleGroupId: '2F',
+        batchId: 'batch-central-clean',
+        scannerId: 'scanner-central',
+        scannerMachineType: 'central',
+        precinctId: 'precinct-1',
+        votingMethod: 'precinct',
+        votes: { 'aquarium-council-fish': ['manta-ray', 'pufferfish'] },
+        card: { type: 'bmd' },
+        multiplier: 2,
+      },
+    ],
+    store: workspace.store,
+    pollingPlaceId: 'polling-place-1',
+  });
+
+  // ballot count reports include the withheld ballots
+  expect(
+    await apiClient.getCardCounts({
+      filter: {},
+      groupBy: { groupByBatch: true },
+    })
+  ).toEqual([
+    {
+      batchId: 'batch-central-clean',
+      bmd: [2],
+      hmpb: [],
+      manual: 0,
+    },
+    {
+      batchId: 'batch-central-write-in',
+      bmd: [3],
+      hmpb: [],
+      manual: 0,
+    },
+  ]);
+  expect(await apiClient.getTotalBallotCount()).toEqual(5);
 });

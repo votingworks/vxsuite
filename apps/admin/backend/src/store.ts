@@ -302,6 +302,25 @@ export class Store implements BaseStore {
   }
 
   /**
+   * When countCentralScanBallotsOnlyAfterAdjudication is enabled, returns a
+   * SQL expression excluding withheld ballots — central scanner ballots that
+   * require adjudication and have not yet been adjudicated — from tallies.
+   * Requires cvrs joined to scanner_batches.
+   */
+  private getWithheldBallotsSqlExpr(electionId: Id): string | undefined {
+    const { countCentralScanBallotsOnlyAfterAdjudication } =
+      this.getSystemSettings(electionId);
+    if (!countCentralScanBallotsOnlyAfterAdjudication) {
+      return undefined;
+    }
+    return `not (
+      scanner_batches.scanner_machine_type is 'central'
+      and cvrs.is_adjudicated = 0
+      and (${this.getAdjudicationQueueFilter(electionId, 'cvrs')})
+    )`;
+  }
+
+  /**
    * Runs the given function in a transaction. If the function throws an error,
    * the transaction is rolled back. Otherwise, the transaction is committed.
    *
@@ -2060,16 +2079,25 @@ export class Store implements BaseStore {
     electionId,
     election,
     filter,
+    excludeWithheldBallots,
   }: {
     electionId: Id;
     election: Election;
     filter: Tabulation.Filter;
+    excludeWithheldBallots: boolean;
   }): Generator<Tabulation.CastVoteRecord> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
       election,
       electionId,
       filter
     );
+
+    if (excludeWithheldBallots) {
+      const withheldBallotsExpr = this.getWithheldBallotsSqlExpr(electionId);
+      if (withheldBallotsExpr) {
+        whereParts.push(withheldBallotsExpr);
+      }
+    }
 
     for (const row of this.client.each(
       `
@@ -2292,6 +2320,7 @@ export class Store implements BaseStore {
       electionId,
       election,
       filter: restFilter,
+      excludeWithheldBallots: false,
     })) {
       if (partyIds && !partyIds.some((id) => deepEqual(id, cvr.partyId))) {
         continue;
@@ -2740,24 +2769,24 @@ export class Store implements BaseStore {
    * Builds a SQL WHERE clause for CVRs that need adjudication based on
    * the election's system settings and the CVR's adjudication flags.
    */
-  private getAdjudicationQueueFilter(electionId: Id): string {
+  private getAdjudicationQueueFilter(electionId: Id, tableAlias = 'c'): string {
     const { adminAdjudicationReasons } = this.getSystemSettings(electionId);
     // Write-ins and crossover votes always need adjudication
     const conditions: string[] = [
-      'c.has_write_in = 1',
-      'c.has_crossover_vote = 1',
+      `${tableAlias}.has_write_in = 1`,
+      `${tableAlias}.has_crossover_vote = 1`,
     ];
     if (adminAdjudicationReasons.includes(AdjudicationReason.Overvote)) {
-      conditions.push('c.has_overvote = 1');
+      conditions.push(`${tableAlias}.has_overvote = 1`);
     }
     if (adminAdjudicationReasons.includes(AdjudicationReason.Undervote)) {
-      conditions.push('c.has_undervote = 1');
+      conditions.push(`${tableAlias}.has_undervote = 1`);
     }
     if (adminAdjudicationReasons.includes(AdjudicationReason.MarginalMark)) {
-      conditions.push('c.has_marginal_mark = 1');
+      conditions.push(`${tableAlias}.has_marginal_mark = 1`);
     }
     if (adminAdjudicationReasons.includes(AdjudicationReason.BlankBallot)) {
-      conditions.push('c.is_blank = 1');
+      conditions.push(`${tableAlias}.is_blank = 1`);
     }
     return conditions.join(' or ');
   }
@@ -2996,17 +3025,26 @@ export class Store implements BaseStore {
     electionId,
     filter = {},
     groupBy = {},
+    excludeWithheldBallots,
   }: {
     election: Election;
     electionId: Id;
     filter?: Tabulation.Filter;
     groupBy?: Tabulation.GroupBy;
+    excludeWithheldBallots: boolean;
   }): Generator<Tabulation.GroupOf<WriteInForTally>> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
       election,
       electionId,
       filter
     );
+
+    if (excludeWithheldBallots) {
+      const withheldBallotsExpr = this.getWithheldBallotsSqlExpr(electionId);
+      if (withheldBallotsExpr) {
+        whereParts.push(withheldBallotsExpr);
+      }
+    }
 
     const selectParts: string[] = [];
 

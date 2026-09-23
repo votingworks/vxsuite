@@ -1381,3 +1381,215 @@ test('primary, filtered by polling place', async () => {
     'water-1-fishing',
   ]);
 });
+
+test('withholding unadjudicated central scan ballots from tallies', async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+
+  const { apiClient, auth, workspace } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition,
+    undefined,
+    {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      countCentralScanBallotsOnlyAfterAdjudication: true,
+    }
+  );
+  mockElectionManagerAuth(auth, election);
+
+  const contestId = 'aquarium-council-fish';
+  const fishPartyId = '1';
+  const mockCastVoteRecordFile: MockCastVoteRecordFile = [
+    {
+      ballotStyleGroupId: '2F',
+      batchId: 'batch-central-clean',
+      scannerId: 'scanner-central',
+      scannerMachineType: 'central',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { [contestId]: ['manta-ray', 'pufferfish'] },
+      card: { type: 'bmd' },
+      multiplier: 4,
+    },
+    {
+      ballotStyleGroupId: '2F',
+      batchId: 'batch-central-write-in',
+      scannerId: 'scanner-central',
+      scannerMachineType: 'central',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { [contestId]: ['manta-ray', 'write-in-0'] },
+      card: { type: 'bmd' },
+      multiplier: 3,
+    },
+    {
+      ballotStyleGroupId: '2F',
+      batchId: 'batch-precinct-write-in',
+      scannerId: 'scanner-precinct',
+      scannerMachineType: 'precinct',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { [contestId]: ['manta-ray', 'write-in-0'] },
+      card: { type: 'bmd' },
+      multiplier: 2,
+    },
+    {
+      ballotStyleGroupId: '2F',
+      batchId: 'batch-legacy-write-in',
+      scannerId: 'scanner-legacy',
+      precinctId: 'precinct-1',
+      votingMethod: 'precinct',
+      votes: { [contestId]: ['manta-ray', 'write-in-0'] },
+      card: { type: 'bmd' },
+      multiplier: 1,
+    },
+  ];
+  const cvrIds = addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile,
+    store: workspace.store,
+    pollingPlaceId: 'polling-place-1',
+  });
+  // records expand in order: 4 clean, then 3 central write-in, ...
+  const withheldCvrIds = cvrIds.slice(4, 7);
+
+  function getFishTallyReport(
+    tallyReportList: Awaited<
+      ReturnType<typeof apiClient.getResultsForTallyReports>
+    >
+  ) {
+    expect(tallyReportList).toHaveLength(1);
+    const [tallyReport] = tallyReportList;
+    assert(tallyReport);
+    assert(tallyReport.hasPartySplits);
+    const contestResults = tallyReport.scannedResults.contestResults[contestId];
+    assert(contestResults);
+    assert(contestResults.contestType === 'candidate');
+    return { tallyReport, contestResults };
+  }
+
+  const { tallyReport, contestResults } = getFishTallyReport(
+    await apiClient.getResultsForTallyReports()
+  );
+
+  // withheld ballots are excluded from the tally report's card counts and
+  // contest results, while precinct and legacy (unknown scanner type) write-in
+  // ballots still count
+  expect(tallyReport.cardCountsByParty[fishPartyId]).toEqual({
+    bmd: [7],
+    hmpb: [],
+    manual: undefined,
+  });
+  expect(contestResults.ballots).toEqual(7);
+  expect(contestResults.tallies['manta-ray']?.tally).toEqual(7);
+  expect(contestResults.tallies['pufferfish']?.tally).toEqual(4);
+  expect(contestResults.tallies[Tabulation.PENDING_WRITE_IN_ID]?.tally).toEqual(
+    3
+  );
+
+  // ballot counts still include the withheld ballots
+  expect(await apiClient.getTotalBallotCount()).toEqual(10);
+
+  // the write-in adjudication summary still includes the withheld ballots'
+  // pending write-ins
+  const writeInSummary = await apiClient.getElectionWriteInSummary();
+  expect(
+    writeInSummary.contestWriteInSummaries[contestId]?.pendingTally
+  ).toEqual(6);
+
+  // adjudicate the withheld ballots
+  const unofficialCandidate = await apiClient.addWriteInCandidate({
+    contestId,
+    name: 'Unofficial Fish',
+  });
+  for (const cvrId of withheldCvrIds) {
+    (await apiClient.claimAndLoadBallot({ cvrId })).unsafeUnwrap();
+    expect(
+      await apiClient.adjudicateCvr({
+        cvrId,
+        contests: [
+          {
+            contestId,
+            adjudicatedContestOptionById: {
+              'write-in-0': {
+                type: 'write-in-option',
+                candidateName: unofficialCandidate.name,
+                candidateType: 'write-in-candidate',
+                hasVote: true,
+              },
+            },
+          },
+        ],
+      })
+    ).toEqual(ok());
+  }
+
+  const afterAdjudication = getFishTallyReport(
+    await apiClient.getResultsForTallyReports()
+  );
+  expect(afterAdjudication.tallyReport.cardCountsByParty[fishPartyId]).toEqual({
+    bmd: [10],
+    hmpb: [],
+    manual: undefined,
+  });
+  expect(afterAdjudication.contestResults.ballots).toEqual(10);
+  expect(afterAdjudication.contestResults.tallies['manta-ray']?.tally).toEqual(
+    10
+  );
+  expect(
+    afterAdjudication.contestResults.tallies[unofficialCandidate.id]?.tally
+  ).toEqual(3);
+  expect(
+    afterAdjudication.contestResults.tallies[Tabulation.PENDING_WRITE_IN_ID]
+      ?.tally
+  ).toEqual(3);
+  expect(await apiClient.getTotalBallotCount()).toEqual(10);
+});
+
+test('withholding setting disabled: unadjudicated central scan ballots count immediately', async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+
+  const { apiClient, auth, workspace } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  mockElectionManagerAuth(auth, election);
+
+  const contestId = 'aquarium-council-fish';
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile: [
+      {
+        ballotStyleGroupId: '2F',
+        batchId: 'batch-central-write-in',
+        scannerId: 'scanner-central',
+        scannerMachineType: 'central',
+        precinctId: 'precinct-1',
+        votingMethod: 'precinct',
+        votes: { [contestId]: ['manta-ray', 'write-in-0'] },
+        card: { type: 'bmd' },
+        multiplier: 3,
+      },
+    ],
+    store: workspace.store,
+    pollingPlaceId: 'polling-place-1',
+  });
+
+  const tallyReportList = await apiClient.getResultsForTallyReports();
+  expect(tallyReportList).toHaveLength(1);
+  const [tallyReport] = tallyReportList;
+  assert(tallyReport);
+  assert(tallyReport.hasPartySplits);
+  const contestResults = tallyReport.scannedResults.contestResults[contestId];
+  assert(contestResults);
+  assert(contestResults.contestType === 'candidate');
+  expect(contestResults.ballots).toEqual(3);
+  expect(contestResults.tallies['manta-ray']?.tally).toEqual(3);
+});

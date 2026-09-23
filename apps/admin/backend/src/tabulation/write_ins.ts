@@ -228,6 +228,7 @@ export function tabulateWriteInTallies({
   filter,
   groupBy,
   includeUnallocablePendingWriteInsAsPending = false,
+  excludeWithheldBallots,
 }: {
   electionId: Id;
   store: Store;
@@ -237,6 +238,7 @@ export function tabulateWriteInTallies({
   // i.e. pending unmarked write-ins, write-ins part of overvotes. Defaults to
   // false for regular tabulations, set to true for overall WIA summary report
   includeUnallocablePendingWriteInsAsPending?: boolean;
+  excludeWithheldBallots: boolean;
 }): Tabulation.GroupMap<Tabulation.ElectionWriteInSummary> {
   const { electionDefinition } = assertDefined(store.getElection(electionId));
   const { election } = electionDefinition;
@@ -246,6 +248,7 @@ export function tabulateWriteInTallies({
     electionId,
     filter,
     groupBy,
+    excludeWithheldBallots,
   });
 
   const electionWriteInSummaryGroupMap: Tabulation.GroupMap<Tabulation.ElectionWriteInSummary> =
@@ -481,6 +484,7 @@ export function getOverallElectionWriteInSummary({
       electionId,
       store,
       includeUnallocablePendingWriteInsAsPending: true,
+      excludeWithheldBallots: false,
     })
   )[0];
   assert(scannedElectionWriteInSummary);
