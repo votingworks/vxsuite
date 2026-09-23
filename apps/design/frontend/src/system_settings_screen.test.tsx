@@ -630,7 +630,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(43);
+  expect(allControls).toHaveLength(44);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();
@@ -846,6 +846,17 @@ test.each<{
     checkboxLabel: 'Enable Test Deck Printing',
     isCheckboxExpected: true,
     expectedSavedSystemSettings: { enableTestDeckPrinting: true },
+  },
+  {
+    userFeatures: { SPLIT_ELECTION_DEFINITION_SYSTEM_SETTING: false },
+    checkboxLabel: 'Split Election Definition',
+    isCheckboxExpected: false,
+  },
+  {
+    userFeatures: { SPLIT_ELECTION_DEFINITION_SYSTEM_SETTING: true },
+    checkboxLabel: 'Split Election Definition',
+    isCheckboxExpected: true,
+    expectedSavedSystemSettings: { splitElectionDefinition: true },
   },
   {
     userFeatures: {

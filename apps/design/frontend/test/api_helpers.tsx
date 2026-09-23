@@ -39,6 +39,7 @@ const allUserFeaturesOnConfig: Record<UserFeature, boolean> = {
   TEST_DECK_PRINTING_SYSTEM_SETTING: true,
   VOTER_HELP_BUTTONS_SYSTEM_SETTING: true,
   VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING: true,
+  SPLIT_ELECTION_DEFINITION_SYSTEM_SETTING: true,
 };
 
 export function mockUserFeatures(
