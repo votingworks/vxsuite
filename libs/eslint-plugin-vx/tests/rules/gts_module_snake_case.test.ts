@@ -1,6 +1,6 @@
 import { RuleTester } from '@typescript-eslint/rule-tester';
 import { join } from 'node:path';
-import rule from '../../src/rules/gts_module_snake_case.js';
+import rule from '../../src/rules/gts_module_snake_case.ts';
 
 const ruleTester = new RuleTester({
   languageOptions: {

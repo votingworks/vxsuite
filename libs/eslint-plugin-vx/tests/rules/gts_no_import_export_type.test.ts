@@ -1,6 +1,6 @@
 import { RuleTester } from '@typescript-eslint/rule-tester';
 import { join } from 'node:path';
-import rule from '../../src/rules/gts_no_import_export_type.js';
+import rule from '../../src/rules/gts_no_import_export_type.ts';
 
 const ruleTester = new RuleTester({
   languageOptions: {

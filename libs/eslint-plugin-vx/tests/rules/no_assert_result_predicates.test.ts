@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { RuleTester } from '@typescript-eslint/rule-tester';
-import rule from '../../src/rules/no_assert_result_predicates.js';
+import rule from '../../src/rules/no_assert_result_predicates.ts';
 
 const ruleTester = new RuleTester({
   languageOptions: {

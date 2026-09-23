@@ -1,6 +1,6 @@
 import { RuleTester } from '@typescript-eslint/rule-tester';
 import { join } from 'node:path';
-import rule from '../../src/rules/gts_no_foreach.js';
+import rule from '../../src/rules/gts_no_foreach.ts';
 
 const ruleTester = new RuleTester({
   languageOptions: {

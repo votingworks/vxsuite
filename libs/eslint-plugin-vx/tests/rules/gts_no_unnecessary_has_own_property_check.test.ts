@@ -1,6 +1,6 @@
 import { RuleTester } from '@typescript-eslint/rule-tester';
 import { join } from 'node:path';
-import rule from '../../src/rules/gts_no_unnecessary_has_own_property_check.js';
+import rule from '../../src/rules/gts_no_unnecessary_has_own_property_check.ts';
 
 const ruleTester = new RuleTester({
   languageOptions: {

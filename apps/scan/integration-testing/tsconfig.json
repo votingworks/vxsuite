@@ -19,7 +19,6 @@
   "exclude": [],
   "references": [
     { "path": "../../../libs/auth/tsconfig.build.json" },
-    { "path": "../../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../../libs/fixtures/tsconfig.build.json" },
     { "path": "../../../libs/hmpb/tsconfig.build.json" },
     { "path": "../../../libs/pdi-scanner/tsconfig.build.json" },

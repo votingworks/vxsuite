@@ -1,6 +1,6 @@
 import { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { strict as assert } from 'node:assert';
-import { createRule } from '../util/index.js';
+import { createRule } from '../util/index.ts';
 
 const rule: TSESLint.RuleModule<'noConstEnum', readonly unknown[]> = createRule(
   {

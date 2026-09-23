@@ -2,7 +2,7 @@ import { RuleTester } from '@typescript-eslint/rule-tester';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import rule from '../../src/rules/no_import_workspace_subfolders.js';
+import rule from '../../src/rules/no_import_workspace_subfolders.ts';
 
 // A throwaway package tree so the rule's `node_modules` lookup finds a package
 // that declares a subpath in its `exports` map.

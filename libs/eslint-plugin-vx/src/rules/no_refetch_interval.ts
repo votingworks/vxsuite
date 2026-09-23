@@ -1,5 +1,5 @@
 import { AST_NODE_TYPES, TSESLint, TSESTree } from '@typescript-eslint/utils';
-import { createRule } from '../util/index.js';
+import { createRule } from '../util/index.ts';
 
 /**
  * Disallows setting react-query's `refetchInterval` option, whether in a

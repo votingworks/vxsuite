@@ -305,4 +305,4 @@ export function containsNamedType(
   return false;
 }
 
-export * from './workspace_package.js';
+export * from './workspace_package.ts';

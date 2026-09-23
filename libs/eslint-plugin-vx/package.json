@@ -7,18 +7,17 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./build/index.d.ts",
-      "default": "./build/index.js"
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
     },
     "./package.json": "./package.json"
   },
   "files": [
-    "build"
+    "src"
   ],
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
-    "build:self": "tsc --build tsconfig.build.json",
-    "build:watch": "tsc --build --watch tsconfig.build.json",
+    "build:self": "tsc --build",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
     "lint": "pnpm -w vx-task lint $npm_package_name",

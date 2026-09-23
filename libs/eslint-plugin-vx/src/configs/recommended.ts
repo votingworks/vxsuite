@@ -7,7 +7,7 @@ import pluginVitest from '@vitest/eslint-plugin';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import { FlatCompat } from '@eslint/eslintrc';
-import type { VxPlugin } from '../index.js';
+import type { VxPlugin } from '../index.ts';
 
 const compat = new FlatCompat({ baseDirectory: import.meta.dirname });
 

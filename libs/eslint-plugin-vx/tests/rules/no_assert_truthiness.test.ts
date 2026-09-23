@@ -1,6 +1,6 @@
 import { RuleTester } from '@typescript-eslint/rule-tester';
 import { join } from 'node:path';
-import rule from '../../src/rules/no_assert_truthiness.js';
+import rule from '../../src/rules/no_assert_truthiness.ts';
 
 const ruleTester = new RuleTester({
   languageOptions: {

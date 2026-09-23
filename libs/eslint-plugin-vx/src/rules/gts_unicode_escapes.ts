@@ -5,7 +5,7 @@ import {
   enumerateNonPrintableCharacters,
   hasAttachedComment,
   isNonPrintableCharacter,
-} from '../util/index.js';
+} from '../util/index.ts';
 
 const QUOTE_LENGTH = '"'.length;
 

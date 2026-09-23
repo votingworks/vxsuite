@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { RuleTester } from '@typescript-eslint/rule-tester';
-import rule from '../../src/rules/no_array_sort_mutation.js';
+import rule from '../../src/rules/no_array_sort_mutation.ts';
 
 const ruleTester = new RuleTester({
   languageOptions: {

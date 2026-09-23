@@ -14,7 +14,6 @@
     { "path": "../../libs/coverage-check/tsconfig.build.json" },
     { "path": "../basics/tsconfig.build.json" },
     { "path": "../ballot-encoder/tsconfig.build.json" },
-    { "path": "../eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../fixtures/tsconfig.build.json" },
     { "path": "../image-utils/tsconfig.build.json" },
     { "path": "../types/tsconfig.build.json" },

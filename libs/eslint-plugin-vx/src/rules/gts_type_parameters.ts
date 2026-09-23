@@ -1,5 +1,5 @@
 import { TSESLint, TSESTree } from '@typescript-eslint/utils';
-import { createRule } from '../util/index.js';
+import { createRule } from '../util/index.ts';
 
 function isValidTypeParameterName(name: string): boolean {
   return /^([A-Z]|([A-Z][a-z\d]+)+)$/.test(name);

@@ -1,6 +1,6 @@
 import { RuleTester } from '@typescript-eslint/rule-tester';
 import { join } from 'node:path';
-import rule from '../../src/rules/no_expect_to_be.js';
+import rule from '../../src/rules/no_expect_to_be.ts';
 
 const ruleTester = new RuleTester({
   languageOptions: {

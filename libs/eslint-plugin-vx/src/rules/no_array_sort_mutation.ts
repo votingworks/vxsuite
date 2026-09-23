@@ -1,5 +1,5 @@
 import { AST_NODE_TYPES, TSESLint, TSESTree } from '@typescript-eslint/utils';
-import { createRule } from '../util/index.js';
+import { createRule } from '../util/index.ts';
 
 function isDirectAccess(node: TSESTree.Node): boolean {
   if (node.type === AST_NODE_TYPES.Identifier) {

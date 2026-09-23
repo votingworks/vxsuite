@@ -1,6 +1,6 @@
 import { RuleTester } from '@typescript-eslint/rule-tester';
 import { join } from 'node:path';
-import rule from '../../src/rules/no_react_hook_mutation_dependency.js';
+import rule from '../../src/rules/no_react_hook_mutation_dependency.ts';
 
 const ruleTester = new RuleTester({
   languageOptions: {
