@@ -44,6 +44,7 @@ import { zipFile } from '@votingworks/test-utils';
 import {
   concatenatePdfs,
   HP_4001_PRINTER_CONFIG,
+  JOB_SETTLEMENT_POLL_INTERVAL_MS,
   type MemoryPrinterHandler,
   renderToPdf,
 } from '@votingworks/printing';
@@ -57,11 +58,15 @@ import {
   configureMachine,
   mockElectionManagerAuth,
   buildBallotsForElection,
+  waitForTotalBallotPrintCount,
 } from '../test/app.js';
 import type { Api } from './app.js';
 import type { Workspace } from './util/workspace.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
+const PRINT_SETTLEMENT_WAIT_OPTIONS = {
+  timeout: JOB_SETTLEMENT_POLL_INTERVAL_MS * 10,
+} as const;
 const EXPECTED_TALLY_REPORT_PAGES = 1;
 
 let batteryInfo: BatteryInfo | null = null;
@@ -492,6 +497,7 @@ test('cannot switch to test mode when the election package has no test ballots',
     ballotType: BallotType.Precinct,
     copies: 1,
   });
+  await waitForTotalBallotPrintCount(apiClient, 1);
   const printCounts = await apiClient.getBallotPrintCounts();
   expect(printCounts.some((count) => count.totalCount > 0)).toEqual(true);
 
@@ -587,6 +593,7 @@ test('end-to-end printing flow updates getBallotPrintCounts', async () => {
     copies: 1,
   });
 
+  await waitForTotalBallotPrintCount(apiClient, 4);
   const counts = await apiClient.getBallotPrintCounts();
   const rowA = counts.find(
     (c) => c.ballotStyleId === styleA.id && c.precinctId === precinctA
@@ -659,6 +666,7 @@ test('end-to-end printing flow updates getBallotPrintCounts for primary election
     copies: 1,
   });
 
+  await waitForTotalBallotPrintCount(apiClient, 3);
   const counts = await apiClient.getBallotPrintCounts();
   const mammalRow = counts.find(
     (c) =>
@@ -723,6 +731,7 @@ test('end-to-end printing flow handles combined ballot primary (consolidated bal
     copies: 2,
   });
 
+  await waitForTotalBallotPrintCount(apiClient, 2);
   const counts = await apiClient.getBallotPrintCounts();
   const row = counts.find(
     (c) => c.ballotStyleId === ballotStyle.id && c.precinctId === precinctId
@@ -765,6 +774,10 @@ test('printAllBallotStyles works for combined ballot primary (consolidated ballo
     })
   ).unsafeUnwrap();
 
+  await waitForTotalBallotPrintCount(
+    apiClient,
+    electionDefinition.election.ballotStyles.length
+  );
   const counts = await apiClient.getBallotPrintCounts();
   expect(counts.length).toEqual(
     electionDefinition.election.ballotStyles.length
@@ -806,6 +819,7 @@ test('end-to-end printing flow handles precinct splits correctly', async () => {
     copies: 1,
   });
 
+  await waitForTotalBallotPrintCount(apiClient, 1);
   const counts = await apiClient.getBallotPrintCounts();
 
   // Find the row for the split - should have combined precinct/split name
@@ -849,6 +863,107 @@ async function expectPrintedJobMatchesBallotsInOrder({
     sha256(Buffer.from(expected))
   );
 }
+
+test('print job status', async () => {
+  expect(await apiClient.getPrintJobStatus({ jobId: 1 })).toEqual(
+    err(expect.any(Error))
+  );
+
+  mockPrinterHandler.setJobStatus(1, { outcome: 'in-progress' });
+  expect(await apiClient.getPrintJobStatus({ jobId: 1 })).toEqual(
+    ok({ outcome: 'in-progress' })
+  );
+
+  mockPrinterHandler.setJobStatus(1, {
+    outcome: 'failed',
+    reason: 'Unable to send data to printer.',
+  });
+  expect(await apiClient.getPrintJobStatus({ jobId: 1 })).toEqual(
+    ok({ outcome: 'failed', reason: 'Unable to send data to printer.' })
+  );
+});
+
+test('printBallot does not count a ballot whose print job fails', async () => {
+  const {
+    famousNamesMultiLangElectionDefinition: electionDefinition,
+    famousNamesMultiLangOfficialBallots,
+  } = sharedFixtures;
+
+  await configureMachine({
+    electionDefinition,
+    ballots: famousNamesMultiLangOfficialBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+    pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
+  });
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
+
+  const ballotStyle = electionDefinition.election.ballotStyles[0]!;
+  const jobId = await apiClient.printBallot({
+    precinctId: ballotStyle.precincts[0]!,
+    languageCode: LanguageCode.ENGLISH,
+    ballotType: BallotType.Precinct,
+    copies: 1,
+  });
+  mockPrinterHandler.setJobStatus(jobId, {
+    outcome: 'failed',
+    reason: 'Unable to send data to printer.',
+  });
+
+  await vi.waitFor(() => {
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.BallotPrintComplete,
+      expect.objectContaining({
+        message: `Failed to print official ballot ${ballotStyle.id} with 1 copies`,
+        disposition: 'failure',
+        reason: 'Unable to send data to printer.',
+      })
+    );
+  }, PRINT_SETTLEMENT_WAIT_OPTIONS);
+  await waitForTotalBallotPrintCount(apiClient, 0);
+});
+
+test('printAllBallotStyles does not count ballots whose print job fails', async () => {
+  const {
+    famousNamesMultiLangElectionDefinition: electionDefinition,
+    famousNamesMultiLangOfficialBallots,
+  } = sharedFixtures;
+
+  await configureMachine({
+    electionDefinition,
+    ballots: famousNamesMultiLangOfficialBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+    pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
+  });
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
+
+  const jobId = (
+    await apiClient.printAllBallotStyles({
+      languageCode: LanguageCode.ENGLISH,
+      ballotType: BallotType.Precinct,
+      copiesPerStyle: 1,
+    })
+  ).unsafeUnwrap();
+  mockPrinterHandler.setJobStatus(jobId, {
+    outcome: 'failed',
+    reason: 'Unable to send data to printer.',
+  });
+
+  await vi.waitFor(() => {
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.BallotPrintComplete,
+      expect.objectContaining({
+        message: 'Failed to print all ballot styles with 1 copies',
+        disposition: 'failure',
+        reason: 'Unable to send data to printer.',
+      })
+    );
+  }, PRINT_SETTLEMENT_WAIT_OPTIONS);
+  await waitForTotalBallotPrintCount(apiClient, 0);
+});
 
 test('printAllBallotStyles returns job_too_large without printing anything', async () => {
   await configureMachine({
@@ -942,6 +1057,7 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
     printJobPath: assertDefined(mockPrinterHandler.getLastPrintPath()),
   });
 
+  await waitForTotalBallotPrintCount(apiClient, allPrecinctBallots.length);
   const countsAfterPrecinct = await apiClient.getBallotPrintCounts();
   for (const c of countsAfterPrecinct) {
     expect(c.precinctCount).toEqual(1);
@@ -979,6 +1095,10 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
     printJobPath: assertDefined(mockPrinterHandler.getLastPrintPath()),
   });
 
+  await waitForTotalBallotPrintCount(
+    apiClient,
+    allPrecinctBallots.length + allAbsenteeBallots.length * 2
+  );
   const countsAfterAbsentee = await apiClient.getBallotPrintCounts();
   for (const c of countsAfterAbsentee) {
     expect(c.precinctCount).toEqual(1);
