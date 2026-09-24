@@ -356,9 +356,8 @@ export async function setupUnconfiguredPollbooksOnNetwork(
       port: ports[index].toString(),
     }))
   );
-  vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
-
   await extendedWaitFor(async () => {
+    vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
     const deviceStatuses =
       await pollbookContexts[0].localApiClient.getDeviceStatuses();
     expect(deviceStatuses.network.isOnline).toEqual(true);
@@ -374,9 +373,8 @@ export async function setupUnconfiguredPollbooksOnNetwork(
     }
   });
 
-  vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
-
   await extendedWaitFor(async () => {
+    vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
     // All pollbooks should now see each other with mismatched configuration
     for (const context of pollbookContexts) {
       const deviceStatuses = await context.localApiClient.getDeviceStatuses();
