@@ -138,6 +138,21 @@ test('paused after the tray emptied: Save, Continue, or Discard', async () => {
   );
 });
 
+test('Save is disabled for empty batches', () => {
+  renderScreen({
+    status: mockStatus(
+      { batches: [{ ...openBatch, count: 0 }] },
+      { state: 'paused', batchId: 'a', pauseReason: { type: 'tray-empty' } }
+    ),
+  });
+  screen.getByText('Paused');
+  screen.getByText('Input tray empty');
+  expect(screen.getByTestId('batch-sheet-count')).toHaveTextContent('0');
+  expect(screen.getButton('Save Batch')).toBeDisabled();
+  expect(screen.getButton('Continue Scanning')).toBeEnabled();
+  expect(screen.getButton('Discard Batch')).toBeEnabled();
+});
+
 test('paused manually: Continue or Discard', () => {
   renderScreen({ status: pausedStatus({ type: 'manual' }) });
   screen.getByText('Paused');
