@@ -4,9 +4,8 @@ import {
   type protos,
 } from '@google-cloud/translate';
 import { assert, assertDefined, iter } from '@votingworks/basics';
-
 import { type NonEnglishLanguageCode, LanguageCode } from '@votingworks/types';
-import { GOOGLE_CLOUD_PROJECT_ID } from './google_cloud_config.js';
+import { getGoogleCloudProjectId } from './google_cloud_config.js';
 
 const REGEX_IMAGE_ELEMENTS = /(<svg.*?>(.|\n)*?<\/svg>|<img (.|\n)*?>)/gi;
 
@@ -111,7 +110,7 @@ export class GoogleCloudTranslator implements Translator {
       const [response] = await this.translationClient.translateText({
         contents,
         mimeType: 'text/plain',
-        parent: `projects/${GOOGLE_CLOUD_PROJECT_ID}`,
+        parent: `projects/${getGoogleCloudProjectId()}`,
         sourceLanguageCode: LanguageCode.ENGLISH,
         targetLanguageCode,
       });
