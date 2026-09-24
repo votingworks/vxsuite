@@ -1,8 +1,4 @@
-import {
-  assert,
-  assertDefined,
-  extractErrorMessage,
-} from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import {
   AdjudicationReasonInfo,
   DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
@@ -32,6 +28,7 @@ import {
   interpret,
   InterpreterFrom,
 } from 'xstate';
+import { waitFor } from 'xstate/lib/waitFor.js';
 import {
   BatchControl,
   BatchScanner,
@@ -42,7 +39,7 @@ import {
   describeValidationError,
   validateSheetInterpretation,
 } from './validation.js';
-import { BatchScannerMachineStatus } from './types.js';
+import { BatchPauseReason, BatchScannerMachineStatus } from './types.js';
 
 const debug = makeDebug('scan:state-machine');
 
@@ -55,26 +52,39 @@ interface Context {
   batchId?: Id;
   batchContext?: BatchContext;
   scannedSheet?: ScannedSheetInfo;
-  sheetIdToReview?: Id;
+  pauseReason?: BatchPauseReason;
   error?: Error;
 }
 
 type Event =
-  { type: 'START_BATCH' } | { type: 'ACCEPT_SHEET' } | { type: 'REJECT_SHEET' };
+  | { type: 'START_BATCH' }
+  | { type: 'PAUSE_BATCH' }
+  | { type: 'RESUME_BATCH' }
+  | { type: 'SAVE_BATCH' }
+  | { type: 'DISCARD_BATCH' }
+  | { type: 'ACCEPT_SHEET' }
+  | { type: 'REJECT_SHEET' };
 
 type DoneEvent<F extends (...args: never[]) => Promise<unknown>> =
   DoneInvokeEvent<Awaited<ReturnType<F>>>;
 type ErrorEvent = DoneInvokeEvent<Error>;
 
+const assignError = assign((_context: Context, event: ErrorEvent) => ({
+  error: event.data,
+}));
+
+const catchError = { target: '#error', actions: assignError } as const;
+
 export interface BatchScannerStateMachine {
   status(): BatchScannerMachineStatus;
 
-  // The commands are non-blocking and do not return a result. They just send
-  // an event to the machine. The effects of the event (or any error) will show
-  // up in the status.
-  startBatch(): void;
-  acceptSheet(): void;
-  rejectSheet(): void;
+  startBatch(): Promise<void>;
+  pauseBatch(): Promise<void>;
+  resumeBatch(): Promise<void>;
+  saveBatch(): Promise<void>;
+  discardBatch(): Promise<void>;
+  acceptSheet(): Promise<void>;
+  rejectSheet(): Promise<void>;
 
   // Stop the state machine and release any resources it is using.
   stop(): void;
@@ -91,41 +101,49 @@ function buildMachine({
 }) {
   const { store } = workspace;
 
-  async function startScanningBatch(batchId: string): Promise<BatchContext> {
+  async function startBatch(batchId: string): Promise<BatchContext> {
     const imageDirectory = join(workspace.ballotImagesPath, `batch-${batchId}`);
-    try {
-      const hasImprinter = await scanner.isImprinterAttached();
-      logger.log(LogEventId.ImprinterStatus, 'system', {
-        // @coverage-defer
-        message: `Imprinter is ${hasImprinter ? 'attached' : 'not attached'}.`,
-      });
-      await fsExtra.ensureDir(imageDirectory);
-      debug('scanning starting for batch %s into %s', batchId, imageDirectory);
-      const control = scanner.scanSheets({
-        directory: imageDirectory,
-        pageSize: store.getBallotPaperSizeForElection(),
-        // @coverage-defer
-        // If the imprinter is attached, imprint an ID prefixed by the batch ID
-        imprintIdPrefix: hasImprinter ? batchId : undefined,
-      });
-      void logger.logAsCurrentRole(LogEventId.ScannerBatchStarted, {
-        disposition: 'success',
-        message: `User has begun scanning a new batch with ID: ${batchId}`,
-        batchId,
-      });
-      return { control, imageDirectory };
-    } catch (error) {
-      store.deleteBatch(batchId);
-      await fsExtra.remove(imageDirectory);
-      void logger.logAsCurrentRole(LogEventId.ScannerBatchStarted, {
-        disposition: 'failure',
-        message: `User attempt to start scanning failed: ${extractErrorMessage(
-          error
-        )}`,
-        batchId,
-      });
-      throw error;
-    }
+    const hasImprinter = await scanner.isImprinterAttached();
+    logger.log(LogEventId.ImprinterStatus, 'system', {
+      // @coverage-defer
+      message: `Imprinter is ${hasImprinter ? 'attached' : 'not attached'}.`,
+    });
+    await fsExtra.ensureDir(imageDirectory);
+    const control = scanner.scanSheets({
+      directory: imageDirectory,
+      pageSize: store.getBallotPaperSizeForElection(),
+      // @coverage-defer
+      // If the imprinter is attached, imprint an ID prefixed by the batch ID
+      imprintIdPrefix: hasImprinter ? batchId : undefined,
+    });
+    void logger.logAsCurrentRole(LogEventId.ScannerBatchStarted, {
+      disposition: 'success',
+      message: `User has begun scanning a new batch with ID: ${batchId}`,
+      batchId,
+    });
+    return { control, imageDirectory };
+  }
+
+  async function resumeBatch({
+    batchId,
+    batchContext,
+  }: Context): Promise<BatchContext> {
+    const { control, imageDirectory } = assertDefined(batchContext);
+    // Since the scanner ends its "batch" internally when the tray runs out of paper,
+    // we need to start a new scanner batch when resuming after that. If we
+    // paused for another reason (e.g. manual pause or adjudication), then we
+    // need to end the current scanner batch before starting a new one.
+    await control.endBatch();
+    const hasImprinter = await scanner.isImprinterAttached();
+    const newControl = scanner.scanSheets({
+      directory: imageDirectory,
+      pageSize: store.getBallotPaperSizeForElection(),
+      // @coverage-defer
+      // TODO: how do we make sure imprinting doesn't produce duplicate IDs
+      // after pause/resume?
+      imprintIdPrefix: hasImprinter ? batchId : undefined,
+    });
+    return { control: newControl, imageDirectory };
   }
 
   async function interpretAndSaveSheet(
@@ -235,41 +253,46 @@ function buildMachine({
     return { sheetId, interpretation: sheetInterpretation };
   }
 
-  async function finishBatch({
+  async function endBatch(batchContext: BatchContext): Promise<void> {
+    const { control, imageDirectory } = batchContext;
+    try {
+      await control.endBatch();
+    } finally {
+      await fsExtra.remove(imageDirectory);
+    }
+  }
+
+  async function saveBatch({ batchId, batchContext }: Context): Promise<void> {
+    assert(batchId !== undefined);
+    await endBatch(assertDefined(batchContext));
+    store.finishBatch(batchId);
+    const batch = store.getBatch(batchId);
+    void logger.logAsCurrentRole(LogEventId.ScannerBatchEnded, {
+      disposition: 'success',
+      message: `Scanning batch ${batch.id} successfully completed scanning ${batch.count} sheets.`,
+      batchId: batch.id,
+      sheetCount: batch.count,
+      scanningEndedAt: batch.endedAt,
+    });
+  }
+
+  async function discardBatch({
     batchId,
     batchContext,
-    error,
   }: Context): Promise<void> {
-    assert(batchId !== undefined);
-    const { control, imageDirectory } = assertDefined(batchContext);
-    debug('finishing batch %s', batchId);
-
-    store.finishBatch({ batchId, error: error?.message });
-    await control.endBatch();
-    await fsExtra.remove(imageDirectory);
-    if (error) {
-      await logger.logAsCurrentRole(LogEventId.ScannerBatchEnded, {
-        disposition: 'failure',
-        message: `Processing sheet failed: ${error.message}`,
-        batchId,
-      });
-    } else {
-      const batch = store.getBatch(batchId);
-      await logger.logAsCurrentRole(LogEventId.ScannerBatchEnded, {
-        disposition: 'success',
-        message: `Scanning batch ${batch.id} successfully completed scanning ${batch.count} sheets.`,
-        batchId: batch.id,
-        sheetCount: batch.count,
-        scanningEndedAt: batch.endedAt,
-      });
-    }
+    if (batchContext) await endBatch(batchContext);
+    store.deleteBatch(assertDefined(batchId));
   }
 
   const clearBatch = assign<Context, Event>({
     batchId: undefined,
     batchContext: undefined,
     scannedSheet: undefined,
-    sheetIdToReview: undefined,
+    pauseReason: undefined,
+  });
+
+  const clearError = assign<Context, Event>({
+    error: undefined,
   });
 
   return createMachine<Context, Event>({
@@ -282,51 +305,66 @@ function buildMachine({
     initial: 'idle',
     states: {
       idle: {
-        entry: clearBatch,
+        id: 'idle',
+        entry: [clearBatch, clearError],
         on: {
           START_BATCH: {
             target: 'startingBatch',
-            actions: assign((): Partial<Context> => ({
-              batchId: store.addBatch(),
-              error: undefined,
-            })),
+            actions: assign((_context) => ({ batchId: store.addBatch() })),
           },
         },
       },
 
       startingBatch: {
         invoke: {
-          src: (context) => startScanningBatch(assertDefined(context.batchId)),
+          src: (context) => startBatch(assertDefined(context.batchId)),
           onDone: {
             target: 'scanningSheet',
-            actions: assign({
-              batchContext: (
-                _context,
-                event: DoneEvent<typeof startScanningBatch>
-              ) => event.data,
-            }),
+            actions: assign(
+              (_context, event: DoneEvent<typeof startBatch>) => ({
+                batchContext: event.data,
+              })
+            ),
           },
-          onError: {
-            target: 'idle',
+          onError: catchError,
+        },
+        on: {
+          PAUSE_BATCH: {
             actions: assign({
-              error: (_context, event: ErrorEvent) => event.data,
+              pauseReason: (_context) => ({ type: 'manual' }),
             }),
           },
         },
       },
 
       scanningSheet: {
+        id: 'scanningSheet',
         entry: assign({
           scannedSheet: undefined,
-          sheetIdToReview: undefined,
         }),
+        on: {
+          // If we get a manual pause during scanning, record it but allow
+          // scanning to continue so we can be sure that the ballot that ran
+          // through the scanner already got counted.
+          PAUSE_BATCH: {
+            actions: assign({
+              pauseReason: (_context) => ({ type: 'manual' }),
+            }),
+          },
+        },
         invoke: {
           src: (context) =>
             assertDefined(context.batchContext).control.scanSheet(),
           onDone: [
             {
               cond: (_context, event: DoneEvent<BatchControl['scanSheet']>) =>
-                event.data !== undefined,
+                event.data === undefined,
+              target: 'paused',
+              actions: assign({
+                pauseReason: (_context) => ({ type: 'tray-empty' }),
+              }),
+            },
+            {
               target: 'interpretingSheet',
               actions: assign({
                 scannedSheet: (
@@ -335,18 +373,19 @@ function buildMachine({
                 ) => event.data,
               }),
             },
-            { target: 'finishingBatch' },
           ],
-          onError: {
-            target: 'finishingBatch',
-            actions: assign({
-              error: (_context, event: ErrorEvent) => event.data,
-            }),
-          },
+          onError: catchError,
         },
       },
 
       interpretingSheet: {
+        on: {
+          PAUSE_BATCH: {
+            actions: assign({
+              pauseReason: (_context) => ({ type: 'manual' }),
+            }),
+          },
+        },
         invoke: {
           src: (context) =>
             interpretAndSaveSheet(
@@ -354,6 +393,13 @@ function buildMachine({
               assertDefined(context.scannedSheet)
             ),
           onDone: [
+            // Handle any manual pauses that occurred during scanning/interpretation
+            {
+              cond: (context, event: DoneEvent<typeof interpretAndSaveSheet>) =>
+                event.data.interpretation.type === 'ValidSheet' &&
+                context.pauseReason?.type === 'manual',
+              target: 'paused',
+            },
             {
               cond: (
                 _context,
@@ -364,42 +410,87 @@ function buildMachine({
             {
               target: 'sheetNeedsReview',
               actions: assign({
-                sheetIdToReview: (
+                pauseReason: (
                   _context,
                   event: DoneEvent<typeof interpretAndSaveSheet>
-                ) => event.data.sheetId,
+                ) => ({ type: 'review', sheetId: event.data.sheetId }),
               }),
             },
           ],
-          onError: {
-            target: 'finishingBatch',
-            actions: assign({
-              error: (_context, event: ErrorEvent) => event.data,
-            }),
-          },
+          onError: catchError,
         },
       },
 
       sheetNeedsReview: {
         on: {
-          ACCEPT_SHEET: 'scanningSheet',
+          ACCEPT_SHEET: 'paused',
           REJECT_SHEET: {
-            target: 'scanningSheet',
-            actions: (context) =>
-              store.deleteSheet(assertDefined(context.sheetIdToReview)),
+            target: 'paused',
+            actions: (context) => {
+              assert(context.pauseReason?.type === 'review');
+              store.deleteSheet(context.pauseReason.sheetId);
+            },
           },
         },
       },
 
-      finishingBatch: {
-        invoke: {
-          src: finishBatch,
-          onDone: 'idle',
-          onError: {
-            target: 'idle',
-            actions: assign({
-              error: (_context, event: ErrorEvent) => event.data,
-            }),
+      paused: {
+        initial: 'paused',
+        states: {
+          paused: {
+            on: {
+              RESUME_BATCH: 'resuming',
+              SAVE_BATCH: 'saving',
+              DISCARD_BATCH: 'discarding',
+            },
+          },
+          resuming: {
+            invoke: {
+              src: resumeBatch,
+              onDone: {
+                target: '#scanningSheet',
+                actions: assign(
+                  (_context, event: DoneEvent<typeof resumeBatch>) => ({
+                    pauseReason: undefined,
+                    batchContext: event.data,
+                  })
+                ),
+              },
+              onError: catchError,
+            },
+          },
+          saving: {
+            invoke: {
+              src: saveBatch,
+              onDone: '#idle',
+              onError: catchError,
+            },
+          },
+          discarding: {
+            invoke: {
+              src: discardBatch,
+              onDone: '#idle',
+              onError: catchError,
+            },
+          },
+        },
+      },
+
+      error: {
+        id: 'error',
+        initial: 'error',
+        states: {
+          error: {
+            on: {
+              DISCARD_BATCH: 'discarding',
+            },
+          },
+          discarding: {
+            invoke: {
+              src: discardBatch,
+              onDone: '#idle',
+              onError: { target: 'error', actions: assignError },
+            },
           },
         },
       },
@@ -408,7 +499,15 @@ function buildMachine({
 }
 
 function isEventUserAction(event: EventObject): boolean {
-  return ['START_BATCH', 'ACCEPT_SHEET', 'REJECT_SHEET'].includes(event.type);
+  return [
+    'START_BATCH',
+    'PAUSE_BATCH',
+    'RESUME_BATCH',
+    'SAVE_BATCH',
+    'DISCARD_BATCH',
+    'ACCEPT_SHEET',
+    'REJECT_SHEET',
+  ].includes(event.type);
 }
 
 export function cleanLogData(key: string, value: unknown): unknown {
@@ -515,43 +614,98 @@ export function createBatchScannerStateMachine({
   return {
     status(): BatchScannerMachineStatus {
       const { state } = machineService;
-      const { batchId, sheetIdToReview, error } = state.context;
+      const { batchId, pauseReason } = state.context;
       // We use state.matches as recommended by the XState docs. This allows
       // us to add new substates to a state without breaking these checks.
       if (state.matches('idle')) {
-        return { state: 'idle', error: error?.message };
+        return { state: 'idle' };
       }
       if (
-        [
-          'startingBatch',
-          'scanningSheet',
-          'interpretingSheet',
-          'finishingBatch',
-        ].some((scanningState) => state.matches(scanningState))
+        ['startingBatch', 'scanningSheet', 'interpretingSheet'].some(
+          (scanningState) => state.matches(scanningState)
+        )
       ) {
         return { state: 'scanning', batchId: assertDefined(batchId) };
       }
       if (state.matches('sheetNeedsReview')) {
+        assert(pauseReason?.type === 'review');
         return {
           state: 'needsReview',
           batchId: assertDefined(batchId),
-          sheetId: assertDefined(sheetIdToReview),
+          sheetId: pauseReason.sheetId,
         };
+      }
+      if (state.matches('paused')) {
+        return {
+          state: 'paused',
+          batchId: assertDefined(batchId),
+          pauseReason: assertDefined(pauseReason),
+        };
+      }
+      if (state.matches('error')) {
+        return { state: 'error', batchId: assertDefined(batchId) };
       }
       // @coverage-exclude
       throw new Error(`Unexpected state: ${JSON.stringify(state.value)}`);
     },
 
-    startBatch() {
+    async startBatch() {
       machineService.send('START_BATCH');
+      await waitFor(machineService, (state) => !state.matches('startingBatch'));
     },
 
-    acceptSheet() {
+    async pauseBatch() {
+      machineService.send('PAUSE_BATCH');
+      await waitFor(
+        machineService,
+        (state) =>
+          !(
+            state.matches('startingBatch') ||
+            state.matches('scanningSheet') ||
+            state.matches('interpretingSheet')
+          )
+      );
+    },
+
+    async resumeBatch() {
+      machineService.send('RESUME_BATCH');
+      await waitFor(
+        machineService,
+        (state) => !state.matches('paused.resuming')
+      );
+    },
+
+    async saveBatch() {
+      machineService.send('SAVE_BATCH');
+      await waitFor(machineService, (state) => !state.matches('paused.saving'));
+    },
+
+    async discardBatch() {
+      machineService.send('DISCARD_BATCH');
+      await waitFor(
+        machineService,
+        (state) =>
+          !(
+            state.matches('paused.discarding') ||
+            state.matches('error.discarding')
+          )
+      );
+    },
+
+    async acceptSheet() {
       machineService.send('ACCEPT_SHEET');
+      await waitFor(
+        machineService,
+        (state) => !state.matches('sheetNeedsReview')
+      );
     },
 
-    rejectSheet() {
+    async rejectSheet() {
       machineService.send('REJECT_SHEET');
+      await waitFor(
+        machineService,
+        (state) => !state.matches('sheetNeedsReview')
+      );
     },
 
     stop() {

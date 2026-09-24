@@ -1,4 +1,4 @@
-import { iter } from '@votingworks/basics';
+import { assertDefined, deferred, iter } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   makeTemporaryPath,
@@ -17,7 +17,7 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { LogEventId } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { readFile } from 'node:fs/promises';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth.js';
@@ -50,6 +50,16 @@ beforeEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
 
+function hasLoggedMachineEvent(logger: Logger, eventType: string): boolean {
+  return vi
+    .mocked(logger.log)
+    .mock.calls.some(
+      ([eventId, , logData]) =>
+        eventId === LogEventId.ScannerEvent &&
+        logData?.message === `Event: ${eventType}`
+    );
+}
+
 test('scanBatch with multiple sheets', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
@@ -80,9 +90,23 @@ test('scanBatch with multiple sheets', async () => {
       .end();
 
     await apiClient.scanBatch();
-    await waitForStatus(apiClient, { state: 'idle' });
+    const pausedStatus = await waitForStatus(apiClient, {
+      state: 'paused',
+      pauseReason: { type: 'tray-empty' },
+    });
+    expect(pausedStatus.batches[0]).toEqual<BatchInfo>({
+      id: expect.any(String),
+      batchNumber: 1,
+      label: 'Batch 1',
+      count: 3,
+      startedAt: expect.any(String),
+      endedAt: undefined,
+      pollingPlaceId: '23-polling-place',
+    });
 
+    await apiClient.saveBatch();
     const status = await apiClient.getStatus();
+    expect(status.state).toEqual('idle');
     expect(status.canUnconfigure).toEqual(true);
     expect(status.batches.length).toEqual(1);
     expect(status.batches[0]).toEqual<BatchInfo>({
@@ -94,6 +118,257 @@ test('scanBatch with multiple sheets', async () => {
       endedAt: expect.any(String),
       pollingPlaceId: '23-polling-place',
     });
+  });
+});
+
+test('pausing while a sheet is staged scans it first; resuming continues the batch', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const bmdFixture = await generateBmdBallotFixture();
+  const scannedBallot: ScannedSheetInfo = {
+    frontPath: bmdFixture.sheet[0],
+    backPath: bmdFixture.sheet[1],
+  };
+  await withApp(async ({ auth, apiClient, scanner, workspace, logger }) => {
+    mockElectionManagerAuth(auth, electionDefinition);
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
+      jurisdiction,
+      electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
+    });
+    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+    await apiClient.setTestMode({ testMode: true });
+    await apiClient.setPollingPlaceId({ id: '23-polling-place' });
+
+    const thirdSheetStaged = deferred<void>();
+    const scannerHoldingThirdSheet = deferred<void>();
+    scanner
+      .withNextScannerSession()
+      .sheet(scannedBallot)
+      .sheet(scannedBallot)
+      .waitFor(thirdSheetStaged.promise, () =>
+        scannerHoldingThirdSheet.resolve()
+      )
+      .sheet(scannedBallot)
+      .end();
+
+    await apiClient.scanBatch();
+    await scannerHoldingThirdSheet.promise;
+    expect((await apiClient.getStatus()).batches[0].count).toEqual(2);
+
+    const pausing = apiClient.pauseBatch();
+    await vi.waitFor(() => {
+      expect(hasLoggedMachineEvent(logger, 'PAUSE_BATCH')).toEqual(true);
+    });
+    expect((await apiClient.getStatus()).state).toEqual('scanning');
+
+    thirdSheetStaged.resolve();
+    await pausing;
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.ScannerEvent,
+      'election_manager',
+      expect.objectContaining({ message: 'Event: PAUSE_BATCH' })
+    );
+    const pausedStatus = await apiClient.getStatus();
+    expect(pausedStatus).toMatchObject({
+      state: 'paused',
+      pauseReason: { type: 'manual' },
+    });
+    expect(pausedStatus.batches[0].count).toEqual(3);
+
+    scanner.withNextScannerSession().end();
+    await apiClient.resumeBatch();
+    await waitForStatus(apiClient, {
+      state: 'paused',
+      pauseReason: { type: 'tray-empty' },
+    });
+
+    scanner.withNextScannerSession().sheet(scannedBallot).end();
+    await apiClient.resumeBatch();
+    const reloadedStatus = await waitForStatus(apiClient, {
+      state: 'paused',
+      pauseReason: { type: 'tray-empty' },
+    });
+    expect(reloadedStatus.batches[0].count).toEqual(4);
+
+    await apiClient.saveBatch();
+    const status = await apiClient.getStatus();
+    expect(status.state).toEqual('idle');
+    expect(status.batches[0]).toEqual(
+      expect.objectContaining({ count: 4, endedAt: expect.any(String) })
+    );
+  });
+});
+
+test('pausing while the batch is starting pauses after the first sheet', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const bmdFixture = await generateBmdBallotFixture();
+  const scannedBallot: ScannedSheetInfo = {
+    frontPath: bmdFixture.sheet[0],
+    backPath: bmdFixture.sheet[1],
+  };
+  await withApp(async ({ auth, apiClient, scanner, workspace, logger }) => {
+    mockElectionManagerAuth(auth, electionDefinition);
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
+      jurisdiction,
+      electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
+    });
+    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+    await apiClient.setTestMode({ testMode: true });
+    await apiClient.setPollingPlaceId({ id: '23-polling-place' });
+
+    const imprinterCheck = deferred<boolean>();
+    vi.spyOn(scanner, 'isImprinterAttached').mockReturnValueOnce(
+      imprinterCheck.promise
+    );
+    scanner
+      .withNextScannerSession()
+      .sheet(scannedBallot)
+      .sheet(scannedBallot)
+      .end();
+
+    const starting = apiClient.scanBatch();
+    await waitForStatus(apiClient, { state: 'scanning' });
+    const pausing = apiClient.pauseBatch();
+    await vi.waitFor(() => {
+      expect(hasLoggedMachineEvent(logger, 'PAUSE_BATCH')).toEqual(true);
+    });
+
+    imprinterCheck.resolve(false);
+    await Promise.all([starting, pausing]);
+    const status = await apiClient.getStatus();
+    expect(status).toMatchObject({
+      state: 'paused',
+      pauseReason: { type: 'manual' },
+    });
+    expect(status.batches[0].count).toEqual(1);
+  });
+});
+
+test('pausing while a sheet is being interpreted pauses after it', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const bmdFixture = await generateBmdBallotFixture();
+  const scannedBallot: ScannedSheetInfo = {
+    frontPath: bmdFixture.sheet[0],
+    backPath: bmdFixture.sheet[1],
+  };
+  await withApp(async ({ auth, apiClient, scanner, workspace }) => {
+    mockElectionManagerAuth(auth, electionDefinition);
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
+      jurisdiction,
+      electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
+    });
+    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+    await apiClient.setTestMode({ testMode: true });
+    await apiClient.setPollingPlaceId({ id: '23-polling-place' });
+
+    let pausing: Promise<void> | undefined;
+    scanner
+      .withNextScannerSession()
+      .sheet(scannedBallot, () => {
+        setImmediate(() => {
+          pausing = apiClient.pauseBatch();
+        });
+      })
+      .sheet(scannedBallot)
+      .end();
+
+    await apiClient.scanBatch();
+    await vi.waitFor(() => expect(pausing).toBeDefined());
+    await assertDefined(pausing);
+    const status = await apiClient.getStatus();
+    expect(status).toMatchObject({
+      state: 'paused',
+      pauseReason: { type: 'manual' },
+    });
+    expect(status.batches[0].count).toEqual(1);
+  });
+});
+
+test('pausing while a sheet that needs review is being interpreted stops for review', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const bmdFixture = await generateBmdBallotFixture();
+  await withApp(async ({ auth, apiClient, scanner, workspace }) => {
+    mockElectionManagerAuth(auth, electionDefinition);
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
+      jurisdiction,
+      electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
+    });
+    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+    await apiClient.setTestMode({ testMode: true });
+    await apiClient.setPollingPlaceId({ id: 'central-scanning' });
+
+    let pausing: Promise<void> | undefined;
+    scanner
+      .withNextScannerSession()
+      .sheet(
+        { frontPath: bmdFixture.sheet[1], backPath: bmdFixture.sheet[1] },
+        () => {
+          setImmediate(() => {
+            pausing = apiClient.pauseBatch();
+          });
+        }
+      )
+      .end();
+
+    await apiClient.scanBatch();
+    await vi.waitFor(() => expect(pausing).toBeDefined());
+    await assertDefined(pausing);
+    const { sheetId } = await waitForStatus(apiClient, {
+      state: 'needsReview',
+    });
+
+    await apiClient.acceptSheet();
+    expect(await apiClient.getStatus()).toMatchObject({
+      state: 'paused',
+      pauseReason: { type: 'review', sheetId },
+    });
+  });
+});
+
+test('discardBatch deletes the paused batch', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const bmdFixture = await generateBmdBallotFixture();
+  const scannedBallot: ScannedSheetInfo = {
+    frontPath: bmdFixture.sheet[0],
+    backPath: bmdFixture.sheet[1],
+  };
+  await withApp(async ({ auth, apiClient, scanner, workspace }) => {
+    mockElectionManagerAuth(auth, electionDefinition);
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
+      jurisdiction,
+      electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
+    });
+    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+    await apiClient.setTestMode({ testMode: true });
+    await apiClient.setPollingPlaceId({ id: '23-polling-place' });
+
+    scanner.withNextScannerSession().sheet(scannedBallot).end();
+    await apiClient.scanBatch();
+    const pausedStatus = await waitForStatus(apiClient, {
+      state: 'paused',
+      pauseReason: { type: 'tray-empty' },
+    });
+    expect(pausedStatus.batches[0].count).toEqual(1);
+
+    await apiClient.discardBatch();
+    const status = await apiClient.getStatus();
+    expect(status.state).toEqual('idle');
+    expect(status.batches).toEqual([]);
+    expect(workspace.store.getBallotsCounted()).toEqual(0);
   });
 });
 
@@ -121,7 +396,6 @@ test('rejectSheet after invalid ballot', async () => {
       })
       // Invalid BMD ballot
       .sheet({ frontPath: bmdFixture.sheet[1], backPath: bmdFixture.sheet[1] })
-      .sheet({ frontPath: bmdFixture.sheet[0], backPath: bmdFixture.sheet[1] })
       .end();
 
     await apiClient.scanBatch();
@@ -150,7 +424,20 @@ test('rejectSheet after invalid ballot', async () => {
       });
     }
     await apiClient.rejectSheet();
-    await waitForStatus(apiClient, { state: 'idle' });
+    expect(await apiClient.getStatus()).toMatchObject({
+      state: 'paused',
+      pauseReason: { type: 'review', sheetId },
+    });
+    scanner
+      .withNextScannerSession()
+      .sheet({ frontPath: bmdFixture.sheet[0], backPath: bmdFixture.sheet[1] })
+      .end();
+    await apiClient.resumeBatch();
+    await waitForStatus(apiClient, {
+      state: 'paused',
+      pauseReason: { type: 'tray-empty' },
+    });
+    await apiClient.saveBatch();
     {
       const status = await apiClient.getStatus();
       expect(status.canUnconfigure).toEqual(true);
@@ -260,7 +547,10 @@ test('scanBatch with streaked page', async () => {
     scanner.withNextScannerSession().sheet(scannedBallot).end();
 
     await apiClient.scanBatch();
-    await waitForStatus(apiClient, { state: 'idle' });
+    await waitForStatus(apiClient, {
+      state: 'paused',
+      pauseReason: { type: 'tray-empty' },
+    });
 
     // no adjudication should be needed
     expect(workspace.store.getBallotsCounted()).toEqual(1);
@@ -340,17 +630,26 @@ test('accepting a sheet that needs review keeps it and continues scanning', asyn
       LogEventId.ScannerStateChanged,
       'system',
       expect.objectContaining({
-        changedFields: expect.stringContaining(
-          `"sheetIdToReview":"${sheetId}"`
-        ),
+        changedFields: expect.stringContaining(`"sheetId":"${sheetId}"`),
       }),
       expect.any(Function)
     );
 
     await apiClient.acceptSheet();
-    await waitForStatus(apiClient, { state: 'idle' });
+    expect(await apiClient.getStatus()).toMatchObject({
+      state: 'paused',
+      pauseReason: { type: 'review', sheetId },
+    });
+    scanner.withNextScannerSession().end();
+    await apiClient.resumeBatch();
+    await waitForStatus(apiClient, {
+      state: 'paused',
+      pauseReason: { type: 'tray-empty' },
+    });
+    await apiClient.saveBatch();
 
     const status = await apiClient.getStatus();
+    expect(status.state).toEqual('idle');
     expect(status.batches).toEqual([
       expect.objectContaining({ count: 1, endedAt: expect.any(String) }),
     ]);

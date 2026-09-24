@@ -4,11 +4,15 @@ export interface MachineConfig {
   machineId: string;
   codeVersion: string;
 }
+export type BatchPauseReason =
+  { type: 'tray-empty' } | { type: 'review'; sheetId: Id } | { type: 'manual' };
 
 export type BatchScannerMachineStatus =
-  | { state: 'idle'; error?: string }
+  | { state: 'idle' }
   | { state: 'scanning'; batchId: Id }
-  | { state: 'needsReview'; batchId: Id; sheetId: Id };
+  | { state: 'needsReview'; batchId: Id; sheetId: Id }
+  | { state: 'paused'; batchId: Id; pauseReason: BatchPauseReason }
+  | { state: 'error'; batchId: Id };
 
 export type ScanStatus = BatchScannerMachineStatus & {
   isScannerAttached: boolean;
