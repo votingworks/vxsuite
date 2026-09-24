@@ -209,7 +209,6 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
         <Route path="/scan">
           <ScanBallotsScreen
             status={status}
-            statusIsStale={statusQuery.isStale}
             isPollingPlaceUnconfigured={isPollingPlaceUnconfigured}
           />
         </Route>
