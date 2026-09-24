@@ -1,5 +1,4 @@
 import * as fs from 'node:fs';
-import { range } from '@votingworks/basics';
 import {
   BatchControl,
   BatchScanner,
@@ -19,16 +18,15 @@ export interface MockBatchScannerApi {
 /**
  * A mock batch scanner for dev-dock use. PDFs loaded via the dev dock are
  * converted to image pairs and written to {@link imageDir}, then enqueued.
- * When "Scan New Batch" is clicked, the scanner state machine calls
- * `scanSheets()`, which returns sheets from the queue. Sheets remain in the
- * queue across scans so the same ballots can be scanned repeatedly. Use
- * `clearSheets()` to reset and clean up temporary files.
+ * When the user clicks to scan a new batch, the scanner state machine calls
+ * `scanSheets()`, which returns sheets from the queue. Sheets in the queue are
+ * consumed as they are scanned. Use `clearSheets()` to reset and clean up
+ * temporary files.
  *
  * `setCopies(n)` scales the stack: each queued sheet is scanned `n` times,
- * simulating a larger stack (and therefore a longer scanning window, e.g. to
- * try the Stop button). It applies to sheets already in the queue and takes
- * effect when the next scan session starts; `getStatus()` reports the scaled
- * sheet count.
+ * simulating a larger stack (and therefore a longer scanning window). It
+ * applies to sheets already in the queue and takes effect on the next
+ * `scanSheet()` call. `getStatus()` reports the scaled sheet count.
  *
  * `setErrorQueued(true)` queues a one-shot scanner error: the next attempt to
  * scan a sheet fails, whether mid-batch or when opening the next scan session.
@@ -41,6 +39,7 @@ export interface MockBatchScannerApi {
 export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
   private queue: ScannedSheetInfo[] = [];
   private copies = 1;
+  private copiesScannedOfCurrentSheet = 0;
   private pendingError?: Error;
 
   constructor(private readonly imageDirPath: string) {
@@ -67,17 +66,23 @@ export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
 
   getStatus(): { sheetCount: number; errorQueued: boolean } {
     return {
-      sheetCount: this.queue.length * this.copies,
+      sheetCount:
+        this.queue.length * this.copies - this.copiesScannedOfCurrentSheet,
       errorQueued: this.pendingError !== undefined,
     };
   }
 
   setCopies(copies: number): void {
     this.copies = copies;
+    if (this.queue.length > 0 && this.copiesScannedOfCurrentSheet >= copies) {
+      this.queue.shift();
+      this.copiesScannedOfCurrentSheet = 0;
+    }
   }
 
   clearSheets(): void {
     this.queue = [];
+    this.copiesScannedOfCurrentSheet = 0;
     this.pendingError = undefined;
     fs.rmSync(this.imageDirPath, { recursive: true, force: true });
     fs.mkdirSync(this.imageDirPath, { recursive: true });
@@ -91,10 +96,7 @@ export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
 
   /* eslint-disable @typescript-eslint/require-await */
   scanSheets(): BatchControl {
-    const snapshot = this.queue.flatMap((sheet) =>
-      range(0, this.copies).map(() => sheet)
-    );
-    let index = 0;
+    let ended = false;
 
     return {
       scanSheet: async (): Promise<ScannedSheetInfo | undefined> => {
@@ -103,16 +105,23 @@ export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
           this.pendingError = undefined;
           throw error;
         }
-        if (index >= snapshot.length) {
+        if (ended) {
           return undefined;
         }
-        const sheet = snapshot[index];
-        index += 1;
+        const sheet = this.queue[0];
+        if (sheet === undefined) {
+          return undefined;
+        }
+        this.copiesScannedOfCurrentSheet += 1;
+        if (this.copiesScannedOfCurrentSheet >= this.copies) {
+          this.queue.shift();
+          this.copiesScannedOfCurrentSheet = 0;
+        }
         return sheet;
       },
 
-      async endBatch(): Promise<void> {
-        index = Infinity;
+      endBatch: async (): Promise<void> => {
+        ended = true;
       },
     };
   }
