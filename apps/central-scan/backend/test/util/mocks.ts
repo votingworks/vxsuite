@@ -6,7 +6,9 @@ import {
 } from '../../src/fujitsu_scanner.js';
 
 type ScanSessionStep =
-  { type: 'sheet'; sheet: ScannedSheetInfo } | { type: 'error'; error: Error };
+  | { type: 'sheet'; sheet: ScannedSheetInfo; onScanned: () => void }
+  | { type: 'error'; error: Error }
+  | { type: 'wait'; promise: Promise<void>; onWaiting: () => void };
 
 /**
  * Represents a scanner session, but doesn't actually run anything.
@@ -22,11 +24,11 @@ class ScannerSessionPlan {
   /**
    * Adds a scanning step to the session.
    */
-  sheet(sheet: ScannedSheetInfo): this {
+  sheet(sheet: ScannedSheetInfo, onScanned: () => void = () => {}): this {
     if (this.ended) {
       throw new Error('cannot add a sheet scan step to an ended session');
     }
-    this.steps.push({ type: 'sheet', sheet });
+    this.steps.push({ type: 'sheet', sheet, onScanned });
     return this;
   }
 
@@ -38,6 +40,14 @@ class ScannerSessionPlan {
       throw new Error('cannot add an error step to an ended session');
     }
     this.steps.push({ type: 'error', error });
+    return this;
+  }
+
+  waitFor(promise: Promise<void>, onWaiting: () => void = () => {}): this {
+    if (this.ended) {
+      throw new Error('cannot add a wait step to an ended session');
+    }
+    this.steps.push({ type: 'wait', promise, onWaiting });
     return this;
   }
 
@@ -97,10 +107,15 @@ export function makeMockScanner(): MockScanner {
       }
 
       return {
-        // eslint-disable-next-line @typescript-eslint/require-await
         scanSheet: async (): Promise<ScannedSheetInfo | undefined> => {
-          const step = session.getStep(stepIndex);
+          let step = session.getStep(stepIndex);
           stepIndex += 1;
+          while (step?.type === 'wait') {
+            step.onWaiting();
+            await step.promise;
+            step = session.getStep(stepIndex);
+            stepIndex += 1;
+          }
 
           if (!step) {
             return undefined;
@@ -108,6 +123,7 @@ export function makeMockScanner(): MockScanner {
 
           switch (step.type) {
             case 'sheet':
+              step.onScanned();
               return step.sheet;
 
             case 'error':

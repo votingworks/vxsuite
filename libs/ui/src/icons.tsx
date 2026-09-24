@@ -15,6 +15,9 @@ import {
   faCheckCircle,
   faCircleHalfStroke,
   faCircleLeft,
+  faCircleArrowUp,
+  faCirclePause,
+  faCirclePlay,
   faCircleRight,
   faDeleteLeft,
   faDisplay,
@@ -391,6 +394,10 @@ export const Icons = {
     return <FaIcon {...props} flipInRtlMode={false} type={faChevronCircleUp} />;
   },
 
+  ArrowCircleUp(props) {
+    return <FaIcon {...props} flipInRtlMode={false} type={faCircleArrowUp} />;
+  },
+
   ChevronDown(props) {
     return <FaIcon {...props} flipInRtlMode={false} type={faChevronDown} />;
   },
@@ -585,6 +592,14 @@ export const Icons = {
 
   Play(props) {
     return <FaIcon {...props} flipInRtlMode={false} type={faPlay} />;
+  },
+
+  PlayCircle(props) {
+    return <FaIcon {...props} flipInRtlMode={false} type={faCirclePlay} />;
+  },
+
+  PauseCircle(props) {
+    return <FaIcon {...props} flipInRtlMode={false} type={faCirclePause} />;
   },
 
   Pause(props) {

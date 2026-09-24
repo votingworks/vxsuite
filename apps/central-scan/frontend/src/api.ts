@@ -302,6 +302,54 @@ export const scanBatch = {
   },
 } as const;
 
+export const pauseBatch = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.pauseBatch, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const resumeBatch = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.resumeBatch, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const saveBatch = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.saveBatch, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const discardBatch = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.discardBatch, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const acceptSheet = {
   useMutation() {
     const apiClient = useApiClient();

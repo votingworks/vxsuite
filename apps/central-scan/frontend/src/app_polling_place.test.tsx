@@ -51,7 +51,7 @@ test('warns and disables scanning when no polling place is selected', async () =
   logInAsElectionManager(electionDefinition);
 
   await screen.findByText(/No polling place selected/);
-  expect(screen.getButton('Scan New Batch')).toBeDisabled();
+  expect(screen.getButton('Start Scanning')).toBeDisabled();
 
   // The user can navigate to the settings screen to select a polling place.
   userEvent.click(screen.getByText('Settings'));
@@ -66,8 +66,8 @@ test('does not warn when a polling place is already selected', async () => {
   await screen.findByText('VxCentralScan Locked');
   logInAsElectionManager(electionDefinition);
 
-  await screen.findByText('Scan New Batch');
-  expect(screen.getButton('Scan New Batch')).toBeEnabled();
+  await screen.findByText('Ready to Scan');
+  expect(screen.getButton('Start Scanning')).toBeEnabled();
   expect(
     screen.queryByText(/No polling place selected/)
   ).not.toBeInTheDocument();
