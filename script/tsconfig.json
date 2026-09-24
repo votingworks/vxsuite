@@ -9,7 +9,6 @@
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "erasableSyntaxOnly": true,
-    "verbatimModuleSyntax": true,
     "strict": true
   },
   "include": ["src"],
