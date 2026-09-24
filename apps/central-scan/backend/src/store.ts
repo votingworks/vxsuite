@@ -392,10 +392,9 @@ export class Store {
   /**
    * Marks the batch with id `batchId` as finished.
    */
-  finishBatch({ batchId, error }: { batchId: string; error?: string }): void {
+  finishBatch(batchId: string): void {
     this.client.run(
-      'update batches set ended_at = current_timestamp, error = ? where id = ?',
-      error ?? null,
+      'update batches set ended_at = current_timestamp where id = ?',
       batchId
     );
   }
@@ -642,7 +641,6 @@ export class Store {
       pollingPlaceId: string;
       startedAt: string;
       endedAt: string | null;
-      error: string | null;
       count: number;
       sentToAdminAt: string | null;
       sendToAdminError: string | null;
@@ -659,7 +657,6 @@ export class Store {
         (case when sent_to_admin_at is null then sent_to_admin_at else strftime('%s', sent_to_admin_at) end) as sentToAdminAt,
         send_to_admin_error as sendToAdminError,
         (case when removed_from_admin_at is null then removed_from_admin_at else strftime('%s', removed_from_admin_at) end) as removedFromAdminAt,
-        error,
         sum(case when sheets.id is null then 0 else 1 end) as count
       from
         batches left join sheets
@@ -672,8 +669,7 @@ export class Store {
       group by
         batches.id,
         batches.started_at,
-        batches.ended_at,
-        error
+        batches.ended_at
       order by
         batches.started_at desc
     `) as SqliteBatchInfo[];
@@ -688,7 +684,6 @@ export class Store {
         // eslint-disable-next-line vx/gts-safe-number-parse
         (info.endedAt && DateTime.fromSeconds(Number(info.endedAt)).toISO()) ||
         undefined,
-      error: info.error || undefined,
       count: info.count,
       sentToAdminAt:
         (info.sentToAdminAt &&
