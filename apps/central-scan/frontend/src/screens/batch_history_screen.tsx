@@ -126,8 +126,8 @@ function getBatchSendState(batch: BatchInfo): BatchSendState {
 export function BatchHistoryScreen({
   status,
 }: BatchHistoryScreenProps): JSX.Element {
-  const { batches, state } = status;
-  const isScanning = state === 'scanning';
+  const { batches } = status;
+  const isBatchOpen = status.state !== 'idle';
 
   const [isExportingCvrs, setIsExportingCvrs] = useState(false);
   const [pendingDeleteBatch, setPendingDeleteBatch] = useState<BatchInfo>();
@@ -170,7 +170,7 @@ export function BatchHistoryScreen({
             </Button>
             <Button
               icon="Delete"
-              disabled={batches.length === 0 || isScanning}
+              disabled={batches.length === 0 || isBatchOpen}
               onPress={() => setDeleteBallotDataFlowState('confirmation')}
             >
               Delete All Batches
@@ -203,9 +203,9 @@ export function BatchHistoryScreen({
                       {format.count(batch.count)}
                     </ScrollTable.Cell>
                     <ScrollTable.Cell>
-                      {isScanning && !batch.endedAt ? (
+                      {isBatchOpen && !batch.endedAt ? (
                         <TextWithIcon>
-                          <Icons.Loading /> Scanning…
+                          <Icons.Loading /> In progress
                         </TextWithIcon>
                       ) : (
                         batch.endedAt &&
@@ -251,7 +251,7 @@ export function BatchHistoryScreen({
                         icon="Delete"
                         fill="transparent"
                         onPress={() => setPendingDeleteBatch(batch)}
-                        disabled={isScanning}
+                        disabled={isBatchOpen}
                       >
                         Delete
                       </Button>
