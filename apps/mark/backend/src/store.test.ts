@@ -32,6 +32,7 @@ test('get/set/has election', () => {
     electionData: electionDefinition.electionData,
     jurisdiction,
     electionPackageHash: 'test-election-package-hash',
+    ballotHash: electionDefinition.ballotHash,
   });
   expect(store.getElectionRecord()).toEqual({
     electionDefinition,
@@ -64,6 +65,7 @@ test('errors when election definition cannot be parsed', () => {
     electionData: '{malformed json',
     jurisdiction,
     electionPackageHash: 'test-election-package-hash',
+    ballotHash: 'test-ballot-hash',
   });
   expect(() => store.getElectionRecord()).toThrow(SyntaxError);
 });
@@ -77,6 +79,7 @@ test('reset clears the database', () => {
     electionData: electionDefinition.electionData,
     jurisdiction,
     electionPackageHash: 'test-election-package-hash',
+    ballotHash: electionDefinition.ballotHash,
   });
   expect(store.hasElection()).toBeTruthy();
   store.reset();

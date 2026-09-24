@@ -168,6 +168,7 @@ describe('setUpBarcodeActivation', () => {
       electionData: electionDefinition.electionData,
       jurisdiction: TEST_JURISDICTION,
       electionPackageHash: 'test-hash',
+      ballotHash: electionDefinition.ballotHash,
     });
     workspace.store.setPollingPlaceId(pollingPlace.id);
     workspace.store.setPollsState('polls_open');
@@ -215,6 +216,7 @@ describe('setUpBarcodeActivation', () => {
       electionData: electionDefinition.electionData,
       jurisdiction: TEST_JURISDICTION,
       electionPackageHash: 'test-hash',
+      ballotHash: electionDefinition.ballotHash,
     });
     workspace.store.setSystemSettings(systemSettings);
     workspace.store.setPollingPlaceId(pollingPlace.id);
@@ -254,6 +256,7 @@ describe('setUpBarcodeActivation', () => {
       electionData: electionDefinition.electionData,
       jurisdiction: TEST_JURISDICTION,
       electionPackageHash: 'test-hash',
+      ballotHash: electionDefinition.ballotHash,
     });
     workspace.store.setSystemSettings(systemSettings);
     workspace.store.setPollingPlaceId(pollingPlace.id);
@@ -300,6 +303,7 @@ describe('setUpBarcodeActivation', () => {
       electionData: electionDefinition.electionData,
       jurisdiction: TEST_JURISDICTION,
       electionPackageHash: 'test-hash',
+      ballotHash: electionDefinition.ballotHash,
     });
     workspace.store.setSystemSettings(systemSettings);
     workspace.store.setPollingPlaceId(pollingPlace.id);
@@ -373,6 +377,7 @@ describe('setUpBarcodeActivation', () => {
       electionData: electionDefinition.electionData,
       jurisdiction: TEST_JURISDICTION,
       electionPackageHash: 'test-hash',
+      ballotHash: electionDefinition.ballotHash,
     });
     workspace.store.setSystemSettings(systemSettings);
     workspace.store.setPollingPlaceId(pollingPlace.id);

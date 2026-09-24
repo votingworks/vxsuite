@@ -46,6 +46,7 @@ function createStore(): Store {
     electionData: electionDefinition.electionData,
     jurisdiction,
     electionPackageHash,
+    ballotHash: electionDefinition.ballotHash,
   });
   return store;
 }
@@ -483,6 +484,7 @@ function createPrimaryStore(): Store {
     electionData: primaryElectionDefinition.electionData,
     jurisdiction,
     electionPackageHash,
+    ballotHash: primaryElectionDefinition.ballotHash,
   });
   return store;
 }

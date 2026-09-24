@@ -65,6 +65,7 @@ function configureStore(
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash: 'test-election-package-hash',
+    ballotHash: electionDefinition.ballotHash,
   });
 }
 

@@ -132,6 +132,7 @@ test('unlock_machine (election_manager)', async () => {
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash,
+    ballotHash: electionDefinition.ballotHash,
   });
 
   auth.getAuthStatus.mockResolvedValue({
@@ -159,6 +160,7 @@ test('unlock_machine (poll_worker)', async () => {
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash,
+    ballotHash: electionDefinition.ballotHash,
   });
 
   auth.getAuthStatus.mockResolvedValue({
@@ -229,6 +231,7 @@ test('logged_in:election_manager', async () => {
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash,
+    ballotHash: electionDefinition.ballotHash,
   });
 
   auth.getAuthStatus.mockResolvedValue({
@@ -256,6 +259,7 @@ test('unconfigured:polling_place', async () => {
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash,
+    ballotHash: electionDefinition.ballotHash,
   });
 
   auth.getAuthStatus.mockResolvedValue({
@@ -283,6 +287,7 @@ test('USB drive removed', async () => {
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash,
+    ballotHash: electionDefinition.ballotHash,
   });
   store.setPollingPlaceId(pollingPlace1.id);
   store.transitionPolls({ type: 'open_polls', time: Date.now() });
@@ -326,6 +331,7 @@ test('logged_in:poll_worker', async () => {
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash,
+    ballotHash: electionDefinition.ballotHash,
   });
 
   auth.getAuthStatus.mockResolvedValue({
@@ -355,6 +361,7 @@ test('polls_not_open', async () => {
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash,
+    ballotHash: electionDefinition.ballotHash,
   });
 
   store.setPollingPlaceId(pollingPlace1.id);
@@ -378,6 +385,7 @@ test('cast_vote_record_sync_required', async () => {
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash,
+    ballotHash: electionDefinition.ballotHash,
   });
 
   store.setPollingPlaceId(pollingPlace1.id);
@@ -404,6 +412,7 @@ test('ballot:waiting_to_scan', async () => {
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash,
+    ballotHash: electionDefinition.ballotHash,
   });
 
   store.setPollingPlaceId(pollingPlace1.id);

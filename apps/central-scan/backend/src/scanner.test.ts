@@ -63,6 +63,7 @@ function configureElection(workspace: Workspace): void {
     electionData: electionDefinition.electionData,
     jurisdiction: 'test-jurisdiction',
     electionPackageHash: 'test-hash',
+    ballotHash: electionDefinition.ballotHash,
   });
   workspace.store.setPollingPlaceId(anyPollingPlace(election).id);
 }

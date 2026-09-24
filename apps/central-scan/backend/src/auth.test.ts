@@ -75,7 +75,7 @@ const jurisdiction = TEST_JURISDICTION;
 const machineType = 'central-scan';
 const electionDefinition =
   electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
-const { electionData, election } = electionDefinition;
+const { electionData, election, ballotHash } = electionDefinition;
 const electionKey = constructElectionKey(election);
 const systemSettings: SystemSettings = {
   ...DEFAULT_SYSTEM_SETTINGS,
@@ -98,6 +98,7 @@ function configureMachine(systemSettings: SystemSettings): void {
     electionData,
     jurisdiction,
     electionPackageHash: 'test-election-package-hash',
+    ballotHash,
   });
   workspace.store.setSystemSettings(systemSettings);
 }

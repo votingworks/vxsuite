@@ -25,24 +25,24 @@ import { getScannerResultsMemoized, isBmdPage, isHmpbPage } from './results.js';
 const jurisdiction = TEST_JURISDICTION;
 const electionPackageHash = 'test-election-package-hash';
 
-const testMetadata: BallotMetadata = {
-  ballotStyleId: 'card-number-3',
-  ballotType: BallotType.Precinct,
-  ballotHash:
-    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
-      .ballotHash,
-  isTestMode: false,
-  precinctId: 'town-id-00701-precinct-id-default',
-};
-
 test('getScannerResultsMemoized correctly memoizes results based on ballot count', async () => {
+  const nhFixtures = electionGridLayoutNewHampshireTestBallotFixtures;
+  const { ballotHash, electionData } = nhFixtures.readElectionDefinition();
+
+  const testMetadata: BallotMetadata = {
+    ballotStyleId: 'card-number-3',
+    ballotType: BallotType.Precinct,
+    ballotHash,
+    isTestMode: false,
+    precinctId: 'town-id-00701-precinct-id-default',
+  };
+
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
   store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
-        .electionData,
+    electionData,
     jurisdiction,
     electionPackageHash,
+    ballotHash,
   });
 
   const zeroResultsA = await getScannerResultsMemoized({ store });
@@ -148,6 +148,7 @@ test('getScannerResults groups by inferred party for a combined ballot primary',
     electionData: electionDefinition.electionData,
     jurisdiction,
     electionPackageHash,
+    ballotHash: electionDefinition.ballotHash,
   });
 
   const metadata: BallotMetadata = {

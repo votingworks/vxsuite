@@ -64,6 +64,7 @@ test('scanBatch with multiple sheets', async () => {
       electionData: electionDefinition.electionData,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
     });
     workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setTestMode({ testMode: true });
@@ -106,6 +107,7 @@ test('rejectSheet after invalid ballot', async () => {
       electionData: electionDefinition.electionData,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
     });
     workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setTestMode({ testMode: true });
@@ -207,6 +209,7 @@ test('scanBatch with streaked page', async () => {
       electionData: electionDefinition.electionData,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
     });
     workspace.store.setSystemSettings({
       ...DEFAULT_SYSTEM_SETTINGS,
@@ -244,6 +247,7 @@ test('scanBatch with streaked page', async () => {
       electionData: electionDefinition.electionData,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
     });
     workspace.store.setSystemSettings({
       ...DEFAULT_SYSTEM_SETTINGS,
@@ -286,6 +290,7 @@ test('accepting a sheet that needs review keeps it and continues scanning', asyn
       electionData: electionDefinition.electionData,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
     });
     workspace.store.setSystemSettings({
       ...DEFAULT_SYSTEM_SETTINGS,
@@ -369,6 +374,7 @@ test('rejects ballots whose precinct is not in the selected polling place', asyn
       electionData: bmdFixture.electionDefinition.electionData,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
+      ballotHash: bmdFixture.electionDefinition.ballotHash,
     });
     workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setTestMode({ testMode: true });

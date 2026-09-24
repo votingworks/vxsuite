@@ -69,6 +69,7 @@ test('logs when sheet counts are present at startup', () => {
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash: 'test-election-package-hash',
+    ballotHash: electionDefinition.ballotHash,
   });
   workspace.store.setPollingPlaceId(anyPollingPlace(election).id);
 
