@@ -11,7 +11,6 @@ export * from './mark_readiness_report.js';
 export * from './mark_scan_readiness_report.js';
 export * from './print_readiness_report.js';
 export * from './scan_readiness_report.js';
-export * from './test_utils.js';
 export * from './types.js';
 export * from './uninterruptible_power_supply_screen.js';
 export * from './print_test_page_button.js';

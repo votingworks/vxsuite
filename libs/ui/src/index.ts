@@ -90,7 +90,6 @@ export * from './scroll_table.js';
 export * from './scrollbars.js';
 export * from './test_mode.js';
 export * from './themes/make_theme.js';
-export * from './themes/render_with_themes.js';
 export * from './themes/vx_theme_provider.js';
 export * from './timer.js';
 export * from './toggle_usb_ports_button.js';

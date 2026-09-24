@@ -7,7 +7,7 @@ import {
   vi,
 } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import type { VxRenderResult } from '@votingworks/ui';
+import type { VxRenderResult } from '@votingworks/ui/test-utils';
 import {
   fireEvent,
   render,
