@@ -39,7 +39,6 @@ export const REPORTING_STATUS_LABELS: Record<ReportingStatus, string> = {
  */
 export type ReportingFilter = Tabulation.Filter & {
   adjudicationFlags?: CastVoteRecordAdjudicationFlag[];
-  reportingStatus?: ReportingStatus;
 };
 
 /**

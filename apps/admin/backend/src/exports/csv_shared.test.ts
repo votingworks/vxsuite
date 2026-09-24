@@ -10,6 +10,7 @@ const ALL: CsvMetadataStructure = {
   ballotStyle: 'all',
   party: 'all',
   votingMethod: 'all',
+  reportingStatus: 'all',
   scanner: 'all',
   batch: 'all',
 };

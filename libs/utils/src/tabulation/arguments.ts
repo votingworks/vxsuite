@@ -16,6 +16,7 @@ export function combineGroupSpecifierAndFilter(
     votingMethods: group.votingMethod
       ? [group.votingMethod]
       : filter.votingMethods,
+    reportingStatus: group.reportingStatus ?? filter.reportingStatus,
   };
 }
 
@@ -57,6 +58,7 @@ export function isFilterEmpty(filter: Tabulation.Filter): boolean {
     filter.precinctIds ||
     filter.scannerIds ||
     filter.batchIds ||
-    filter.votingMethods
+    filter.votingMethods ||
+    filter.reportingStatus
   );
 }

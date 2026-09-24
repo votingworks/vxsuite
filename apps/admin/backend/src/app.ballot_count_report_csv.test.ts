@@ -12,7 +12,6 @@ import {
 import { readFileSync } from 'node:fs';
 import { LogEventId } from '@votingworks/logging';
 import {
-  Admin,
   DEFAULT_SYSTEM_SETTINGS,
   formatBallotHash,
   Tabulation,
@@ -146,7 +145,7 @@ async function getParsedExport({
 }: {
   apiClient: Client<Api>;
   groupBy?: Tabulation.GroupBy;
-  filter?: Admin.FrontendReportingFilter;
+  filter?: Tabulation.Filter;
 }): Promise<ReturnType<typeof parseCsv>> {
   const filename = mockFileName();
   const exportResult = await apiClient.exportBallotCountReportCsv({
@@ -535,4 +534,23 @@ test('ballot count report grouped by or filtered to a reporting status', async (
   expect(filtered.rows).toEqual([
     { 'Reporting Status': 'Not Counted', Total: '3' },
   ]);
+  const groupedWithOtherAttributes = await getParsedExport({
+    apiClient,
+    filter: { reportingStatus: 'counted' },
+    groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
+  });
+  expect(groupedWithOtherAttributes.headers).toEqual([
+    'Precinct',
+    'Precinct ID',
+    'Voting Method',
+    'Reporting Status',
+    'Total',
+  ]);
+  expect(groupedWithOtherAttributes.rows).toContainEqual({
+    Precinct: 'Precinct 1',
+    'Precinct ID': 'precinct-1',
+    'Voting Method': 'Precinct',
+    'Reporting Status': 'Counted',
+    Total: '2',
+  });
 });

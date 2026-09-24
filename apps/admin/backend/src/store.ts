@@ -982,7 +982,7 @@ export class Store implements BaseStore {
     electionId: Id;
     election: Election;
     groupBy?: Tabulation.GroupBy;
-    filter?: Admin.ReportingFilter;
+    filter?: Tabulation.Filter;
   }): Tabulation.GroupSpecifier[] {
     const whereParts = ['ballot_styles.election_id = ?'];
     const params: Bindable[] = [electionId];

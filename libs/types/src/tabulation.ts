@@ -93,6 +93,7 @@ export interface Filter {
   readonly votingMethods?: VotingMethod[];
   readonly batchIds?: Id[];
   readonly scannerIds?: Id[];
+  readonly reportingStatus?: ReportingStatus;
 }
 
 export const REPORTING_STATUSES = ['counted', 'notCounted'] as const;
