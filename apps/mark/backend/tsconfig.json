@@ -14,8 +14,7 @@
     "noEmit": true,
     "noUnusedParameters": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "noPropertyAccessFromIndexSignature": false
+    "skipLibCheck": true
   },
   "references": [
     { "path": "../../../libs/ballot-encoder/tsconfig.build.json" },
