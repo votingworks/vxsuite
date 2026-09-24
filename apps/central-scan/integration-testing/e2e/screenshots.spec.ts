@@ -110,17 +110,30 @@ test('screenshots', async ({ page }, testInfo) => {
   // obscures the timing marks, with the ballot's real back page behind it.
   const foldedCornerSheet = await renderFoldedCornerSheet(fullPdf);
 
+  async function saveBatch() {
+    await page
+      .getByRole('button', { name: 'Save Batch' })
+      .waitFor({ timeout: 60000 });
+    await page.getByRole('button', { name: 'Save Batch' }).click();
+    await page
+      .getByRole('alertdialog')
+      .getByRole('button', { name: 'Save Batch' })
+      .click();
+    await page.getByRole('button', { name: 'Start Scanning' }).waitFor();
+  }
+
   // Scans a batch of counted (fully-voted) ballots and waits for it to finish.
   let expectedSheets = 0;
   async function scanCountedBatch(paths: string[]) {
     await devDockClient.batchScannerClearBallots();
     await devDockClient.batchScannerLoadBallots({ paths });
-    await page.getByRole('button', { name: 'Scan New Batch' }).click();
+    await page.getByRole('button', { name: 'Start Scanning' }).click();
     expectedSheets += paths.length;
     await expect(page.getByTestId('total-sheets')).toHaveText(
       String(expectedSheets),
       { timeout: 60000 }
     );
+    await saveBatch();
   }
 
   // Unconfigured: insert election manager card.
@@ -204,8 +217,8 @@ test('screenshots', async ({ page }, testInfo) => {
   await page.getByRole('heading', { name: 'Scan Ballots' }).waitFor();
   await screenshot('scan-ballots-empty');
   await screenshotWithButtonHighlight(
-    'Scan New Batch',
-    'scan-ballots-empty-scan-new-batch-button'
+    'Start Scanning',
+    'scan-ballots-empty-start-scanning-button'
   );
 
   // Scan several non-trivial batches so the Scan Ballots screen looks like
@@ -239,7 +252,7 @@ test('screenshots', async ({ page }, testInfo) => {
       foldedCornerSheet.backPath,
     ],
   });
-  await page.getByRole('button', { name: 'Scan New Batch' }).click();
+  await page.getByRole('button', { name: 'Start Scanning' }).click();
 
   const remainingEjectStates = new Map([
     ['Overvote', 'adjudication-overvote'],
@@ -271,10 +284,16 @@ test('screenshots', async ({ page }, testInfo) => {
     await page
       .getByRole('heading', { name: shownHeading, exact: true })
       .waitFor({ state: 'hidden', timeout: 60000 });
+    if (remainingEjectStates.size === 0) {
+      await screenshot('scan-ballots-paused');
+    }
+    await page.getByRole('button', { name: 'Continue Scanning' }).click();
   }
 
+  await saveBatch();
+
   // Back on Batch History with batches present: highlight Save CVRs.
-  await page.getByRole('button', { name: 'Scan New Batch' }).waitFor();
+  await page.getByRole('button', { name: 'Start Scanning' }).waitFor();
   await page.getByRole('button', { name: 'Batch History' }).click();
   await screenshotWithButtonHighlight(
     'Save CVRs',
