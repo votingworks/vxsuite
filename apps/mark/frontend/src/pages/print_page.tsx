@@ -4,13 +4,13 @@ import { assert } from '@votingworks/basics';
 import {
   appStrings,
   Button,
+  getPrintOutcome,
   Modal,
   P,
   useCurrentLanguage,
 } from '@votingworks/ui';
 import { BallotContext } from '../contexts/ballot_context.js';
 import { getPrintJobStatus, printBallot } from '../api.js';
-import { getPrintOutcome } from '../utils/print_outcome.js';
 
 export function PrintPage(): JSX.Element {
   const {

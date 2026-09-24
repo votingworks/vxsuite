@@ -45,7 +45,12 @@ import {
 } from '@votingworks/backend';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
-import { PrintSides, Printer, renderToPdf } from '@votingworks/printing';
+import {
+  PrintSides,
+  Printer,
+  renderToPdf,
+  awaitJobSettlement,
+} from '@votingworks/printing';
 import { PrintCalibration } from '@votingworks/hmpb';
 import {
   createSummaryBallotTestDeck,
@@ -73,7 +78,6 @@ import { setUpBarcodeActivation } from './barcodes/activation.js';
 import { AudioPlayerInterface, SoundName } from './audio/player.js';
 import { saveReadinessReport } from './readiness_report.js';
 import { printTestPage } from './util/print_test_page.js';
-import { startPrintJobMonitor } from './util/print_job_monitor.js';
 import { getCurrentTime } from './util/get_current_time.js';
 
 const TEST_UPS_USER_PASS_REASON = 'UPS connected and fully charged per user.';
@@ -418,7 +422,7 @@ export function buildApi(ctx: Context) {
         printer,
         ...input,
       });
-      startPrintJobMonitor({
+      awaitJobSettlement({
         jobId,
         printer,
         onSettled: async (status) => {
@@ -459,7 +463,7 @@ export function buildApi(ctx: Context) {
         printer,
         ...input,
       });
-      startPrintJobMonitor({
+      awaitJobSettlement({
         jobId,
         printer,
         onSettled: async (status) => {

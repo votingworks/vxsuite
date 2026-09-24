@@ -1,12 +1,12 @@
-import { Printer } from '@votingworks/printing';
 import { PrintJobId, PrintJobStatus } from '@votingworks/types';
-import { rootDebug } from './debug.js';
+import { rootDebug } from '../utils/debug.js';
+import { Printer } from './types.js';
 
-const debug = rootDebug.extend('print-job-monitor');
+const debug = rootDebug.extend('await-job-settlement');
 
-export const PRINT_JOB_POLL_INTERVAL_MS = 500;
+export const JOB_SETTLEMENT_POLL_INTERVAL_MS = 500;
 
-export interface PrintJobMonitorContext {
+export interface AwaitJobSettlementContext {
   jobId: PrintJobId;
   printer: Printer;
   onSettled: (status: PrintJobStatus) => Promise<void>;
@@ -15,11 +15,11 @@ export interface PrintJobMonitorContext {
 /**
  * Watches a submitted print job until it reaches a terminal state.
  */
-export function startPrintJobMonitor({
+export function awaitJobSettlement({
   jobId,
   printer,
   onSettled,
-}: PrintJobMonitorContext): { stop(): void } {
+}: AwaitJobSettlementContext): { stop(): void } {
   let pollTimer: NodeJS.Timeout;
 
   function stop(): void {
@@ -56,7 +56,7 @@ export function startPrintJobMonitor({
 
   pollTimer = setInterval(() => {
     void poll();
-  }, PRINT_JOB_POLL_INTERVAL_MS);
+  }, JOB_SETTLEMENT_POLL_INTERVAL_MS);
 
   return { stop };
 }

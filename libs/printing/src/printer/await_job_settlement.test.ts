@@ -3,11 +3,11 @@ import { PrintJobStatus } from '@votingworks/types';
 import {
   MemoryPrinterHandler,
   createMockPrinterHandler,
-} from '@votingworks/printing';
+} from './mocks/memory_printer.js';
 import {
-  PRINT_JOB_POLL_INTERVAL_MS,
-  startPrintJobMonitor,
-} from './print_job_monitor.js';
+  JOB_SETTLEMENT_POLL_INTERVAL_MS,
+  awaitJobSettlement,
+} from './await_job_settlement.js';
 
 const JOB_ID = 1;
 
@@ -27,7 +27,7 @@ afterEach(() => {
 });
 
 function start() {
-  return startPrintJobMonitor({
+  return awaitJobSettlement({
     jobId: JOB_ID,
     printer: mockPrinterHandler.printer,
     onSettled,
@@ -35,7 +35,7 @@ function start() {
 }
 
 async function advancePolls(count = 1): Promise<void> {
-  await vi.advanceTimersByTimeAsync(PRINT_JOB_POLL_INTERVAL_MS * count);
+  await vi.advanceTimersByTimeAsync(JOB_SETTLEMENT_POLL_INTERVAL_MS * count);
 }
 
 test('waits while the job is in progress', async () => {
