@@ -153,7 +153,7 @@ test('batch cleanup works correctly', () => {
   store.setPollingPlaceId(anyPollingPlace(election).id);
   const firstBatchId = store.addBatch();
   store.addBatch();
-  store.finishBatch({ batchId: firstBatchId });
+  store.finishBatch(firstBatchId);
   store.cleanupIncompleteBatches();
 
   const batches = store.getBatches();
@@ -164,7 +164,7 @@ test('batch cleanup works correctly', () => {
 
   const thirdBatchId = store.addBatch();
   store.addBatch();
-  store.finishBatch({ batchId: thirdBatchId });
+  store.finishBatch(thirdBatchId);
   store.cleanupIncompleteBatches();
   const updatedBatches = store.getBatches();
   expect(
@@ -634,19 +634,19 @@ test('iterating over each accepted sheet includes correct batch sequence id', ()
   store.addSheet(batch1Sheet2Id, batch1Id, generateSheet());
   const batch1Sheet3Id = uuid();
   store.addSheet(batch1Sheet3Id, batch1Id, generateSheet());
-  store.finishBatch({ batchId: batch1Id });
+  store.finishBatch(batch1Id);
 
   const batch2Id = store.addBatch();
   const batch2Sheet1Id = uuid();
   store.addSheet(batch2Sheet1Id, batch2Id, generateSheet());
-  store.finishBatch({ batchId: batch2Id });
+  store.finishBatch(batch2Id);
 
   const batch3Id = store.addBatch();
   const batch3Sheet1Id = uuid();
   store.addSheet(batch3Sheet1Id, batch3Id, generateSheet());
   const batch3Sheet2Id = uuid();
   store.addSheet(batch3Sheet2Id, batch3Id, generateSheet());
-  store.finishBatch({ batchId: batch3Id });
+  store.finishBatch(batch3Id);
 
   const acceptedSheets = Array.from(store.forEachAcceptedSheet());
   expect(acceptedSheets).toHaveLength(6);
@@ -744,7 +744,7 @@ test('getBallotsCounted', () => {
   ]);
 
   expect(store.getBallotsCounted()).toEqual(1);
-  store.finishBatch({ batchId });
+  store.finishBatch(batchId);
   expect(store.getBallotsCounted()).toEqual(1);
 
   // Create a second batch and add a second and third sheet
@@ -783,7 +783,7 @@ test('getBallotsCounted', () => {
   ]);
 
   expect(store.getBallotsCounted()).toEqual(3);
-  store.finishBatch({ batchId: batch2Id });
+  store.finishBatch(batch2Id);
   expect(store.getBallotsCounted()).toEqual(3);
 
   // Delete one of the sheets

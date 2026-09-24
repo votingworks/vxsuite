@@ -105,7 +105,7 @@ function copyBatch({ batchName, numCopies }: CopyBatchInput): void {
     for (const sheet of sheets) {
       copySheet(store, sheet, newBatchId);
     }
-    store.finishBatch({ batchId: newBatchId });
+    store.finishBatch(newBatchId);
   }
 
   const copyOrCopies = numCopies === 1 ? 'copy' : 'copies';

@@ -19,7 +19,6 @@ create table batches (
   started_at text default current_timestamp not null,
   ended_at text,
   deleted_at text,
-  error text,
   -- When this batch's cast vote records were successfully sent to a VxAdmin
   -- host over the network. Null until sent.
   sent_to_admin_at text,
