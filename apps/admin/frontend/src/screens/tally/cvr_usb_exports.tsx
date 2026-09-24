@@ -108,7 +108,8 @@ export function CvrUsbExports(props: { importer: Importer }): React.ReactNode {
       </Caption>
       <Exports>
         {eligibleExports.map((e) => {
-          const locationId = e.pollingPlaceIds[0];
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const locationId = e.pollingPlaceIds[0]!;
           const location = locationMap.get(locationId);
 
           // @coverage-exclude: unreachable in practice, but doesn't warrant a crash.

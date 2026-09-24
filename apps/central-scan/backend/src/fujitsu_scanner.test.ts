@@ -491,7 +491,7 @@ test('attached based on detected USB devices', () => {
   isDeviceAttachedMock.mockReturnValue(false);
   expect(scanner.isAttached()).toEqual(false);
 
-  const isDeviceFn = isDeviceAttachedMock.mock.calls[0][0];
+  const isDeviceFn = isDeviceAttachedMock.mock.calls[0]![0];
 
   expect(
     isDeviceFn({

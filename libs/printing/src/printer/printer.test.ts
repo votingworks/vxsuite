@@ -349,7 +349,7 @@ test('job status tracking', async () => {
   expect(printer.getJobStatus(jobId)).toEqual(ok({ outcome: 'in-progress' }));
 
   // the monitor stops tracking the job once its retention window elapses
-  const [monitorContext] = vi.mocked(startPrintJobMonitor).mock.calls[0];
+  const [monitorContext] = vi.mocked(startPrintJobMonitor).mock.calls[0]!;
   monitorContext.clearStatus();
   expect(printer.getJobStatus(jobId)).toEqual(err(expect.any(Error)));
 

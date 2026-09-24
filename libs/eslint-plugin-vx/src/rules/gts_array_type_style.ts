@@ -36,7 +36,8 @@ const rule: TSESLint.RuleModule<
       ) => {
         if (
           node.typeArguments?.params.length === 1 &&
-          isSimpleType(node.typeArguments.params[0])
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          isSimpleType(node.typeArguments.params[0]!)
         ) {
           const elementType = node.typeArguments.params[0];
           context.report({

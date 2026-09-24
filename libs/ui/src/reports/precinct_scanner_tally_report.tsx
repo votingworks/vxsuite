@@ -53,7 +53,8 @@ export function PrecinctScannerTallyReport({
 }: Props): JSX.Element {
   const { election } = electionDefinition;
   const { cardCounts } = scannedElectionResults;
-  const singleBatchId = batches.length === 1 ? batches[0].id : undefined;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const singleBatchId = batches.length === 1 ? batches[0]!.id : undefined;
 
   return (
     <ThemeProvider theme={printedReportThemeFn}>

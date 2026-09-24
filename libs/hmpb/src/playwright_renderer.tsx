@@ -222,7 +222,8 @@ export async function createPlaywrightRendererPool(
      */
     async runTask<T>(task: Task<T>): Promise<T> {
       const [result] = await runTasks([task]);
-      return result;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return result!;
     },
 
     async close(): Promise<void> {

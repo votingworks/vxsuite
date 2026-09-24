@@ -76,7 +76,7 @@ test('getBallotPreviewPdf returns a ballot pdf for NH election with split precin
   const splitPrecinctIndex = precincts.findIndex((p) => hasSplits(p));
   assert(splitPrecinctIndex >= 0);
   const precinct = precincts[splitPrecinctIndex] as PrecinctWithSplits;
-  const split = precinct.splits[0];
+  const split = precinct.splits[0]!;
   split.clerkSignatureCaption = 'Test Clerk Caption';
   split.clerkSignatureImage = signatureSvg;
   split.electionTitleOverride = 'Test Election Title Override';
@@ -152,7 +152,7 @@ test('getBallotPreviewPdf returns a ballot pdf for nh precinct with no split', a
       ballotStyleId: assertDefined(
         ballotStyles.find(
           (style) =>
-            style.districts.includes(precinct.districtIds[0]) &&
+            style.districts.includes(precinct.districtIds[0]!) &&
             style.languages.includes(LanguageCode.ENGLISH)
         )
       ).id,
@@ -202,7 +202,7 @@ test.each<{
             { id: 'yes-option', label: 'Yes' },
             { id: 'no-option', label: 'No' },
           ],
-          districtId: baseElectionDefinition.election.districts[0].id,
+          districtId: baseElectionDefinition.election.districts[0]!.id,
         },
       ],
       signature: {
@@ -330,7 +330,7 @@ test('ballot measure contest editing with additional contest options', async () 
 test('getBallotPreviewPdf routes Federal Office Only ballots for federalOfficeOnly variant', async () => {
   // Use the NH state general election fixture so the election has the contest
   // titles that NhStateBallot's isFederalOfficeContest matcher recognizes
-  const { election } = nhStateGeneralElectionFixtures.allBallotProps[0];
+  const { election } = nhStateGeneralElectionFixtures.allBallotProps[0]!;
   const { apiClient, auth0 } = await setupApp({
     organizations,
     jurisdictions,
@@ -358,7 +358,7 @@ test('getBallotPreviewPdf routes Federal Office Only ballots for federalOfficeOn
   const ballotStyle = assertDefined(
     ballotStyles.find((style) => style.languages.includes(LanguageCode.ENGLISH))
   );
-  const precinct = (await apiClient.listPrecincts({ electionId }))[0];
+  const precinct = (await apiClient.listPrecincts({ electionId }))[0]!;
 
   const nonFooResult = (
     await apiClient.getBallotPreviewPdf({

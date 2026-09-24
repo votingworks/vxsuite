@@ -19,8 +19,10 @@ function renumberPdfObjects(str: string): string {
   let match = defRegex.exec(str);
   while (match) {
     // @coverage-defer
-    if (!oldToNew.has(match[1])) {
-      oldToNew.set(match[1], nextNum);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    if (!oldToNew.has(match[1]!)) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      oldToNew.set(match[1]!, nextNum);
       nextNum += 1;
     }
     match = defRegex.exec(str);

@@ -695,7 +695,8 @@ function buildCombinedBallotPrimaryContestSections(
           districtId,
           title,
         })),
-        nonEmptyPartisanSections[0].contests.map(({ districtId, title }) => ({
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        nonEmptyPartisanSections[0]!.contests.map(({ districtId, title }) => ({
           districtId,
           title,
         }))
@@ -1046,7 +1047,8 @@ async function BallotPageContent(
   if (leftoverContests.length === contests.length) {
     return err({
       error: 'contestTooLong',
-      contest: leftoverContests[0],
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      contest: leftoverContests[0]!,
     });
   }
 

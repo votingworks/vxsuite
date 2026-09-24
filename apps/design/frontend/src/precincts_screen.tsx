@@ -93,7 +93,8 @@ function Content(): React.ReactNode {
    */
   const defaultPrecinctRoute =
     !precinctId && precincts.data.length > 0
-      ? precinctRoutes.view(precincts.data[0].id).path
+      ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        precinctRoutes.view(precincts.data[0]!.id).path
       : null;
 
   const ballotsFinalized = !!ballotsFinalizedAt.data;

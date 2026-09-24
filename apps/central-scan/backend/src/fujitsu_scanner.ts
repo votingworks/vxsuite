@@ -268,8 +268,10 @@ export class FujitsuScanner implements BatchScanner {
         const [frontPath, backPath] = scannedFiles.slice(-2);
         results.resolve(
           Promise.resolve({
-            frontPath,
-            backPath,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            frontPath: frontPath!,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            backPath: backPath!,
             ballotAuditId:
               // Because we pass `${imprintIdPrefix}_%04ud` to --endorser-string the scanner
               // will imprint the prefix followed by a sequential index for each page in the batch,

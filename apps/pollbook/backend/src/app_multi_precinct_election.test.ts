@@ -19,8 +19,8 @@ let mockNodeEnv: 'production' | 'test' = 'test';
 const electionDefinition =
   electionMultiPartyPrimaryFixtures.readElectionDefinition();
 
-const currentPrecinctId = electionDefinition.election.precincts[0].id;
-const wrongPrecinctId = electionDefinition.election.precincts[1].id;
+const currentPrecinctId = electionDefinition.election.precincts[0]!.id;
+const wrongPrecinctId = electionDefinition.election.precincts[1]!.id;
 
 const mockStreetNames = [
   createValidStreetInfo(
@@ -123,8 +123,8 @@ test('check in a voter', async () => {
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
     expect((votersAbigail as Voter[]).length).toEqual(3);
-    const firstVoter = (votersAbigail as Voter[])[0];
-    const secondVoter = (votersAbigail as Voter[])[1];
+    const firstVoter = (votersAbigail as Voter[])[0]!;
+    const secondVoter = (votersAbigail as Voter[])[1]!;
 
     const checkInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
@@ -306,7 +306,7 @@ test('change a voter name', async () => {
 
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
-    const secondVoter = (votersAbigail as Voter[])[1];
+    const secondVoter = (votersAbigail as Voter[])[1]!;
     expect(votersAbigail).toHaveLength(3);
 
     const nameChangeData: VoterNameChangeRequest = {
@@ -358,7 +358,7 @@ test('change a voter name', async () => {
     assert(votersBarbara !== null);
     assert(Array.isArray(votersBarbara));
     expect(votersBarbara).toHaveLength(1); // the changed name now found
-    expect((votersBarbara as Voter[])[0].voterId).toEqual(secondVoter.voterId);
+    expect((votersBarbara as Voter[])[0]!.voterId).toEqual(secondVoter.voterId);
   });
 });
 
@@ -388,7 +388,7 @@ test('change a voter mailing address - already has mailing address', async () =>
     assert(voterAbigail !== null);
     assert(Array.isArray(voterAbigail));
     expect(voterAbigail).toHaveLength(1);
-    const voter = (voterAbigail as Voter[])[0];
+    const voter = (voterAbigail as Voter[])[0]!;
 
     const mailingAddressChangeData: VoterMailingAddressChangeRequest = {
       mailingStreetNumber: '314',
@@ -442,7 +442,7 @@ test('undo a voter check-in', async () => {
 
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
-    const firstVoter = (votersAbigail as Voter[])[0];
+    const firstVoter = (votersAbigail as Voter[])[0]!;
 
     const checkInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,

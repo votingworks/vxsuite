@@ -152,8 +152,8 @@ test('`waiting_for_invalidated_ballot_confirmation` state renders ballot invalid
   );
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
-      ballotStyleId: electionDefinition.election.ballotStyles[0].id,
-      precinctId: electionDefinition.election.precincts[0].id,
+      ballotStyleId: electionDefinition.election.ballotStyles[0]!.id,
+      precinctId: electionDefinition.election.precincts[0]!.id,
     },
   });
   await screen.findByText('Remove Ballot');
@@ -178,8 +178,8 @@ test('`blank_page_interpretation` state renders BlankPageInterpretationPage for 
   apiMock.setPaperHandlerState('blank_page_interpretation');
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
-      ballotStyleId: electionDefinition.election.ballotStyles[0].id,
-      precinctId: electionDefinition.election.precincts[0].id,
+      ballotStyleId: electionDefinition.election.ballotStyles[0]!.id,
+      precinctId: electionDefinition.election.precincts[0]!.id,
     },
   });
   await screen.findByText('Load New Ballot Sheet');
@@ -193,8 +193,8 @@ test('`paper_reloaded` state renders PaperReloadedPage', async () => {
   apiMock.setPaperHandlerState('paper_reloaded');
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
-      ballotStyleId: electionDefinition.election.ballotStyles[0].id,
-      precinctId: electionDefinition.election.precincts[0].id,
+      ballotStyleId: electionDefinition.election.ballotStyles[0]!.id,
+      precinctId: electionDefinition.election.precincts[0]!.id,
     },
   });
   await screen.findByText('The ballot sheet has been loaded.');

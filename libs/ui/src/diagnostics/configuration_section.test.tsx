@@ -149,24 +149,24 @@ describe('PollingPlaceSection', () => {
   const [precinct1, precinct2] = baseElection.precincts;
 
   const bs1: BallotStyle = {
-    ...baseElection.ballotStyles[0],
+    ...baseElection.ballotStyles[0]!,
     groupId: '1',
     id: '1_en',
     languages: ['en'],
-    precincts: [precinct1.id],
+    precincts: [precinct1!.id],
   };
   const bs2: BallotStyle = {
-    ...baseElection.ballotStyles[1],
+    ...baseElection.ballotStyles[1]!,
     groupId: '2',
     id: '2_en',
     languages: ['en'],
-    precincts: [precinct1.id, precinct2.id],
+    precincts: [precinct1!.id, precinct2!.id],
   };
 
   const singlePrecinctPlace: PollingPlace = {
     id: 'singlePrecinctPlace',
     name: 'Single-Precinct Polling Place',
-    precincts: { [precinct2.id]: { type: 'whole' } },
+    precincts: { [precinct2!.id]: { type: 'whole' } },
     type: 'election_day',
   };
 
@@ -174,8 +174,8 @@ describe('PollingPlaceSection', () => {
     id: 'multiPrecinctPlace',
     name: 'Multi-Precinct Polling Place',
     precincts: {
-      [precinct1.id]: { type: 'whole' },
-      [precinct2.id]: { type: 'whole' },
+      [precinct1!.id]: { type: 'whole' },
+      [precinct2!.id]: { type: 'whole' },
     },
     type: 'early_voting',
   };

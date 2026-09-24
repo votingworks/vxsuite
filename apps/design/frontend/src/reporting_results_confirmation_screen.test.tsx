@@ -105,7 +105,7 @@ const mockPollsClosedReportGeneral: ReceivedReportInfo = {
   pollingPlaceId: generalPollingPlaceId,
 
   contestResultsByPrecinct: {
-    [election.precincts[0].id]: buildElectionResultsFixture({
+    [election.precincts[0]!.id]: buildElectionResultsFixture({
       election,
       contestResultsSummaries: {},
       cardCounts: {
@@ -146,7 +146,7 @@ const mockPollsClosedReportPrimary: ReceivedReportInfo = {
   election: primaryElection,
   pollingPlaceId: primaryPollingPlaceId,
   contestResultsByPrecinct: {
-    [primaryElection.precincts[0].id]: buildElectionResultsFixture({
+    [primaryElection.precincts[0]!.id]: buildElectionResultsFixture({
       election: primaryElection,
       contestResultsSummaries: {},
       cardCounts: {
@@ -607,8 +607,8 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
       name: 'Springfield Community Center',
       type: 'election_day',
       precincts: {
-        [election.precincts[0].id]: { type: 'whole' },
-        [election.precincts[1].id]: { type: 'whole' },
+        [election.precincts[0]!.id]: { type: 'whole' },
+        [election.precincts[1]!.id]: { type: 'whole' },
       },
     };
     const multiPrecinctElection: Election = {
@@ -634,8 +634,8 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
       election: multiPrecinctElection,
       pollingPlaceId: multiPrecinctPollingPlace.id,
       contestResultsByPrecinct: {
-        [election.precincts[0].id]: emptyContestResults,
-        [election.precincts[1].id]: emptyContestResults,
+        [election.precincts[0]!.id]: emptyContestResults,
+        [election.precincts[1]!.id]: emptyContestResults,
       },
       isPartial: false,
     };
@@ -660,8 +660,8 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     screen.getByText('Springfield Community Center');
 
     // Both precinct section headings are rendered
-    screen.getByRole('heading', { name: election.precincts[0].name });
-    screen.getByRole('heading', { name: election.precincts[1].name });
+    screen.getByRole('heading', { name: election.precincts[0]!.name });
+    screen.getByRole('heading', { name: election.precincts[1]!.name });
 
     // Contest tables appear for both precincts
     const tables = screen.getAllByRole('table');

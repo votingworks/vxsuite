@@ -248,7 +248,8 @@ export function AppRoot(): JSX.Element | null {
               // screen), default to a random party so the contest count
               // matches.
               const partyId =
-                selectedPartyId ?? electionDefinition.election.parties[0].id;
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                selectedPartyId ?? electionDefinition.election.parties[0]!.id;
               return contest.type === 'candidate'
                 ? !contest.partyId || contest.partyId === partyId
                 : true;

@@ -428,7 +428,8 @@ export class Button<T = undefined> extends PureComponent<
   }
 
   private readonly onTouchStart = (event: React.TouchEvent): void => {
-    const { clientX, clientY } = event.touches[0];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const { clientX, clientY } = event.touches[0]!;
     this.setState({ startCoordinates: [clientX, clientY] });
   };
 
@@ -439,7 +440,8 @@ export class Button<T = undefined> extends PureComponent<
     const { startCoordinates } = this.state;
 
     const maxMove = 30;
-    const { clientX, clientY } = event.changedTouches[0];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const { clientX, clientY } = event.changedTouches[0]!;
     if (
       !disabled &&
       Math.abs(startCoordinates[0] - clientX) < maxMove &&

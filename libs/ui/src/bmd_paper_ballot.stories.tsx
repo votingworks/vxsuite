@@ -164,14 +164,16 @@ const TEST_UI_STRINGS: UiStringsPackage = {
 };
 
 const initialArgs: BmdPaperBallotProps = {
-  ballotStyleId: election.ballotStyles[0].id,
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  ballotStyleId: election.ballotStyles[0]!.id,
   electionDefinition: safeParseElectionDefinition(
     JSON.stringify(election)
   ).unsafeUnwrap(),
   isLiveMode: true,
   machineType: 'markScan',
   onRendered: () => undefined,
-  precinctId: election.precincts[0].id,
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  precinctId: election.precincts[0]!.id,
   votes: Object.fromEntries(
     election.contests.map((c) => {
       if (c.type === 'straight-party') {

@@ -353,13 +353,15 @@ export async function setupUnconfiguredPollbooksOnNetwork(
       name: `Pollbook-test-${index}`,
       host: 'local',
       resolvedIp: 'localhost',
-      port: ports[index].toString(),
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      port: ports[index]!.toString(),
     }))
   );
   await extendedWaitFor(async () => {
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
     const deviceStatuses =
-      await pollbookContexts[0].localApiClient.getDeviceStatuses();
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      await pollbookContexts[0]!.localApiClient.getDeviceStatuses();
     expect(deviceStatuses.network.isOnline).toEqual(true);
     expect(deviceStatuses.network.pollbooks).toHaveLength(
       pollbookContexts.length - 1

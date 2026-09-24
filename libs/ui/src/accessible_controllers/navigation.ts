@@ -56,7 +56,8 @@ export function advanceElementFocus(direction: 1 | -1): void {
   const currentIndex = focusableElements.indexOf(activeElement as HTMLElement);
   const nextIndex = (currentIndex + 1) % focusableElements.length;
 
-  focusableElements[nextIndex].focus();
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  focusableElements[nextIndex]!.focus();
 }
 
 /**

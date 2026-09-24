@@ -8,7 +8,6 @@
     "noEmit": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "noUncheckedIndexedAccess": false,
     "paths": { "@fixtures/*": ["../fixtures/data/*"] }
   },
   "include": ["scripts", "src", "test", ".storybook/*"],

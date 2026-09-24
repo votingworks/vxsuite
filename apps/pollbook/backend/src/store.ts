@@ -204,7 +204,8 @@ export abstract class Store {
       physical_time: physical,
       logical_counter: logical,
       machine_id: machineId,
-    } = rows[0];
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    } = rows[0]!;
 
     return {
       physical,
@@ -234,7 +235,8 @@ export abstract class Store {
     assert(voterRows.length === 1, `Voter with ID ${voterId} not found.`);
 
     const voter = safeParseJson(
-      voterRows[0].voter_data,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      voterRows[0]!.voter_data,
       VoterSchema
     ).unsafeUnwrap();
 
@@ -255,7 +257,8 @@ export abstract class Store {
     );
 
     return {
-      voter: updatedVoters[voterId],
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      voter: updatedVoters[voterId]!,
       orderedEvents: events,
     };
   }
@@ -624,7 +627,8 @@ export abstract class Store {
               update elections
               set configured_precinct_id = ?
             `,
-            electionDefinition.election.precincts[0].id
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            electionDefinition.election.precincts[0]!.id
           );
         }
       });

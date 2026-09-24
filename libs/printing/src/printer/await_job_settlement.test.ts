@@ -72,7 +72,7 @@ test('settling a failed job results in queue cleared', async () => {
   expect(clearJobQueue).toHaveBeenCalledTimes(1);
   expect(onSettled).toHaveBeenCalledWith(status);
   expect(clearJobQueue.mock.invocationCallOrder[0]).toBeLessThan(
-    vi.mocked(onSettled).mock.invocationCallOrder[0]
+    vi.mocked(onSettled).mock.invocationCallOrder[0]!
   );
 });
 

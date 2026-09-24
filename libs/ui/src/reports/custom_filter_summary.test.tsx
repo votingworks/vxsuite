@@ -64,7 +64,7 @@ test('scanner filter', () => {
 });
 
 test('batch filter', () => {
-  const batch = mockScannerBatches[1];
+  const batch = mockScannerBatches[1]!;
   render(
     <CustomFilterSummary
       electionDefinition={electionDefinition}
@@ -157,7 +157,7 @@ test('multiple polling place filter', () => {
 test('party filter', () => {
   const electionTwoPartyPrimaryDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const party = electionTwoPartyPrimaryDefinition.election.parties[0];
+  const party = electionTwoPartyPrimaryDefinition.election.parties[0]!;
   render(
     <CustomFilterSummary
       electionDefinition={electionTwoPartyPrimaryDefinition}

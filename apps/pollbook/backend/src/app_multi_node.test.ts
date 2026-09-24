@@ -98,7 +98,7 @@ test('pollbook can go online as expected and goes offline if it does not have an
   await withManyApps(1, async ([pollbookContext]) => {
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
     await setupUnconfiguredPollbooksOnNetwork(
-      [pollbookContext],
+      [pollbookContext!],
       vitest,
       mockHasOnlineInterface,
       mockDiscoverHttpServices
@@ -108,7 +108,7 @@ test('pollbook can go online as expected and goes offline if it does not have an
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext.localApiClient.getDeviceStatuses()
+        await pollbookContext!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -122,7 +122,7 @@ test('pollbook can go online as expected and goes offline if it does not have an
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext.localApiClient.getDeviceStatuses()
+        await pollbookContext!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: false,
@@ -137,7 +137,7 @@ test('pollbook goes offline if it is not finding itself on avahi', async () => {
   await withManyApps(1, async ([pollbookContext]) => {
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
     await setupUnconfiguredPollbooksOnNetwork(
-      [pollbookContext],
+      [pollbookContext!],
       vitest,
       mockHasOnlineInterface,
       mockDiscoverHttpServices
@@ -147,7 +147,7 @@ test('pollbook goes offline if it is not finding itself on avahi', async () => {
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext.localApiClient.getDeviceStatuses()
+        await pollbookContext!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -161,7 +161,7 @@ test('pollbook goes offline if it is not finding itself on avahi', async () => {
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext.localApiClient.getDeviceStatuses()
+        await pollbookContext!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: false,
@@ -176,19 +176,19 @@ test('pollbook handles bad ip6 address for self gracefully', async () => {
   await withManyApps(1, async ([pollbookContext]) => {
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
     await setupUnconfiguredPollbooksOnNetwork(
-      [pollbookContext],
+      [pollbookContext!],
       vitest,
       mockHasOnlineInterface,
       mockDiscoverHttpServices
     );
 
-    const { port } = pollbookContext.peerServer.address() as AddressInfo;
+    const { port } = pollbookContext!.peerServer.address() as AddressInfo;
 
     // Start online
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext.localApiClient.getDeviceStatuses()
+        await pollbookContext!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -209,7 +209,7 @@ test('pollbook handles bad ip6 address for self gracefully', async () => {
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext.localApiClient.getDeviceStatuses()
+        await pollbookContext!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -224,7 +224,7 @@ test('pollbook handles bad ip6 address for self gracefully', async () => {
       // the vitest mock timers will not impact the times we set as last seen for the pollbooks without an additional mock
       currentTime = assertDefined(vitest.getMockedSystemTime());
       expect(
-        await pollbookContext.localApiClient.getDeviceStatuses()
+        await pollbookContext!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -239,7 +239,7 @@ test('pollbook goes offline if pings fail for the MACHINE_DISCONNECTED_TIMEOUT',
   await withManyApps(1, async ([pollbookContext]) => {
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
     await setupUnconfiguredPollbooksOnNetwork(
-      [pollbookContext],
+      [pollbookContext!],
       vitest,
       mockHasOnlineInterface,
       mockDiscoverHttpServices
@@ -249,7 +249,7 @@ test('pollbook goes offline if pings fail for the MACHINE_DISCONNECTED_TIMEOUT',
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext.localApiClient.getDeviceStatuses()
+        await pollbookContext!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -258,7 +258,7 @@ test('pollbook goes offline if pings fail for the MACHINE_DISCONNECTED_TIMEOUT',
       });
     });
 
-    const { port } = pollbookContext.peerServer.address() as AddressInfo;
+    const { port } = pollbookContext!.peerServer.address() as AddressInfo;
 
     // Sending a new ip4 address to avahi will cause us to change what address we are pinging. If it is invalid we
     // will not transition to offline immediately but will after the machine disconnected timeout.
@@ -273,7 +273,7 @@ test('pollbook goes offline if pings fail for the MACHINE_DISCONNECTED_TIMEOUT',
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext.localApiClient.getDeviceStatuses()
+        await pollbookContext!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -286,7 +286,7 @@ test('pollbook goes offline if pings fail for the MACHINE_DISCONNECTED_TIMEOUT',
       // the vitest mock timers will not impact the times we set as last seen for the pollbooks without an additional mock
       currentTime = assertDefined(vitest.getMockedSystemTime());
       expect(
-        await pollbookContext.localApiClient.getDeviceStatuses()
+        await pollbookContext!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: false,
@@ -301,8 +301,8 @@ test('connection status between two pollbooks is managed properly - connected an
   await withManyApps(2, async ([pollbookContext1, pollbookContext2]) => {
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
     for (const context of [pollbookContext1, pollbookContext2]) {
-      context.mockUsbDrive.insertUsbDrive({});
-      expect(await context.localApiClient.getDeviceStatuses()).toMatchObject({
+      context!.mockUsbDrive.insertUsbDrive({});
+      expect(await context!.localApiClient.getDeviceStatuses()).toMatchObject({
         network: {
           isOnline: false,
           pollbooks: [],
@@ -312,9 +312,9 @@ test('connection status between two pollbooks is managed properly - connected an
     // Mock hasOnlineInterface to always return true
     mockHasOnlineInterface.mockResolvedValue(true);
     const { port: port1 } =
-      pollbookContext1.peerServer.address() as AddressInfo;
+      pollbookContext1!.peerServer.address() as AddressInfo;
     const { port: port2 } =
-      pollbookContext2.peerServer.address() as AddressInfo;
+      pollbookContext2!.peerServer.address() as AddressInfo;
 
     mockDiscoverHttpServices.mockResolvedValue([
       {
@@ -329,7 +329,7 @@ test('connection status between two pollbooks is managed properly - connected an
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
 
       expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
+        await pollbookContext1!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -337,7 +337,7 @@ test('connection status between two pollbooks is managed properly - connected an
         },
       });
       expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
+        await pollbookContext2!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: false,
@@ -346,47 +346,47 @@ test('connection status between two pollbooks is managed properly - connected an
       });
     });
     await setupUnconfiguredPollbooksOnNetwork(
-      [pollbookContext1, pollbookContext2],
+      [pollbookContext1!, pollbookContext2!],
       vitest,
       mockHasOnlineInterface,
       mockDiscoverHttpServices
     );
 
     // Set the pollbooks for the same election and precinct
-    pollbookContext1.workspace.store.setElectionAndVoters(
+    pollbookContext1!.workspace.store.setElectionAndVoters(
       singlePrecinctElectionDefinition,
       'mock-package-hash',
       testStreets,
       testVoters
     );
-    pollbookContext1.workspace.store.setConfiguredPrecinct(
-      singlePrecinctElectionDefinition.election.precincts[0].id
+    pollbookContext1!.workspace.store.setConfiguredPrecinct(
+      singlePrecinctElectionDefinition.election.precincts[0]!.id
     );
-    pollbookContext1.mockPrinterHandler.connectPrinter(
+    pollbookContext1!.mockPrinterHandler.connectPrinter(
       CITIZEN_E351_PRINTER_CONFIG
     );
     // Check in a voter on pollbook 1
-    const checkIn = await pollbookContext1.localApiClient.checkInVoter({
-      voterId: testVoters[0].voterId,
+    const checkIn = await pollbookContext1!.localApiClient.checkInVoter({
+      voterId: testVoters[0]!.voterId,
       identificationMethod: { type: 'default' },
       ballotParty: 'NOT_APPLICABLE',
     });
     expect(checkIn.ok()).toEqual(undefined);
 
-    pollbookContext2.workspace.store.setElectionAndVoters(
+    pollbookContext2!.workspace.store.setElectionAndVoters(
       singlePrecinctElectionDefinition,
       'mock-package-hash',
       testStreets,
       testVoters
     );
-    pollbookContext2.workspace.store.setConfiguredPrecinct(
-      singlePrecinctElectionDefinition.election.precincts[0].id
+    pollbookContext2!.workspace.store.setConfiguredPrecinct(
+      singlePrecinctElectionDefinition.election.precincts[0]!.id
     );
 
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
+        await pollbookContext1!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -398,7 +398,7 @@ test('connection status between two pollbooks is managed properly - connected an
         },
       });
       expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
+        await pollbookContext2!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -415,16 +415,16 @@ test('connection status between two pollbooks is managed properly - connected an
       vi.advanceTimersByTime(EVENT_POLLING_INTERVAL);
       // Now that the pollbooks are connected they should be querying for each others events
       expect(
-        pollbookContext1.peerWorkspace.store.getNewEvents
+        pollbookContext1!.peerWorkspace.store.getNewEvents
       ).toHaveBeenCalled();
       expect(
-        pollbookContext2.peerWorkspace.store.getNewEvents
+        pollbookContext2!.peerWorkspace.store.getNewEvents
       ).toHaveBeenCalled();
 
       // Pollbook 2 should now have the check in event for the test voter
       expect(
-        await pollbookContext2.localApiClient.getVoter({
-          voterId: testVoters[0].voterId,
+        await pollbookContext2!.localApiClient.getVoter({
+          voterId: testVoters[0]!.voterId,
         })
       ).toEqual(
         expect.objectContaining({
@@ -436,12 +436,12 @@ test('connection status between two pollbooks is managed properly - connected an
     });
 
     // Unconfigure one machine and they should update to wrong election.
-    pollbookContext1.mockUsbDrive.usbDrive.eject.expectCallWith().resolves();
-    await pollbookContext1.localApiClient.unconfigure();
+    pollbookContext1!.mockUsbDrive.usbDrive.eject.expectCallWith().resolves();
+    await pollbookContext1!.localApiClient.unconfigure();
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
+        await pollbookContext1!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -453,7 +453,7 @@ test('connection status between two pollbooks is managed properly - connected an
         },
       });
       expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
+        await pollbookContext2!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -477,7 +477,7 @@ test('connection status between two pollbooks is managed properly - connected an
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
+        await pollbookContext1!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -489,7 +489,7 @@ test('connection status between two pollbooks is managed properly - connected an
         },
       });
       expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
+        await pollbookContext2!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: false,
@@ -514,7 +514,7 @@ test('connection status between two pollbooks is managed properly - connected an
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
+        await pollbookContext1!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: false,
@@ -526,7 +526,7 @@ test('connection status between two pollbooks is managed properly - connected an
         },
       });
       expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
+        await pollbookContext2!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -559,7 +559,7 @@ test('connection status between two pollbooks is managed properly - connected an
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
+        await pollbookContext1!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -571,7 +571,7 @@ test('connection status between two pollbooks is managed properly - connected an
         },
       });
       expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
+        await pollbookContext2!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -591,9 +591,9 @@ test('pollbooks will update connection status to lost connection if pings fail f
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
 
     const { port: port2 } =
-      pollbookContext2.peerServer.address() as AddressInfo;
+      pollbookContext2!.peerServer.address() as AddressInfo;
     await setupUnconfiguredPollbooksOnNetwork(
-      [pollbookContext1, pollbookContext2],
+      [pollbookContext1!, pollbookContext2!],
       vitest,
       mockHasOnlineInterface,
       mockDiscoverHttpServices
@@ -603,7 +603,7 @@ test('pollbooks will update connection status to lost connection if pings fail f
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
+        await pollbookContext1!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -615,7 +615,7 @@ test('pollbooks will update connection status to lost connection if pings fail f
         },
       });
       expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
+        await pollbookContext2!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -648,7 +648,7 @@ test('pollbooks will update connection status to lost connection if pings fail f
       // Check before we hit MACHINE_DISCONNECTION_TIMEOUT
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
+        await pollbookContext1!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -660,7 +660,7 @@ test('pollbooks will update connection status to lost connection if pings fail f
         },
       });
       expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
+        await pollbookContext2!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -677,7 +677,7 @@ test('pollbooks will update connection status to lost connection if pings fail f
       // the vitest mock timers will not impact the times we set as last seen for the pollbooks without an additional mock
       currentTime = assertDefined(vitest.getMockedSystemTime());
       expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
+        await pollbookContext1!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: false,
@@ -689,7 +689,7 @@ test('pollbooks will update connection status to lost connection if pings fail f
         },
       });
       expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
+        await pollbookContext2!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -709,11 +709,11 @@ test('pollbooks will update connection status to lost connection if pings fail f
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
 
     const { port: port1 } =
-      pollbookContext1.peerServer.address() as AddressInfo;
+      pollbookContext1!.peerServer.address() as AddressInfo;
     const { port: port2 } =
-      pollbookContext2.peerServer.address() as AddressInfo;
+      pollbookContext2!.peerServer.address() as AddressInfo;
     await setupUnconfiguredPollbooksOnNetwork(
-      [pollbookContext1, pollbookContext2],
+      [pollbookContext1!, pollbookContext2!],
       vitest,
       mockHasOnlineInterface,
       mockDiscoverHttpServices
@@ -723,7 +723,7 @@ test('pollbooks will update connection status to lost connection if pings fail f
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
+        await pollbookContext1!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -735,7 +735,7 @@ test('pollbooks will update connection status to lost connection if pings fail f
         },
       });
       expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
+        await pollbookContext2!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -768,7 +768,7 @@ test('pollbooks will update connection status to lost connection if pings fail f
       // Check before we hit MACHINE_DISCONNECTION_TIMEOUT
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
+        await pollbookContext1!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -780,7 +780,7 @@ test('pollbooks will update connection status to lost connection if pings fail f
         },
       });
       expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
+        await pollbookContext2!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -797,7 +797,7 @@ test('pollbooks will update connection status to lost connection if pings fail f
       // the vitest mock timers will not impact the times we set as last seen for the pollbooks without an additional mock
       currentTime = assertDefined(vitest.getMockedSystemTime());
       expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
+        await pollbookContext1!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: false,
@@ -809,7 +809,7 @@ test('pollbooks will update connection status to lost connection if pings fail f
         },
       });
       expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
+        await pollbookContext2!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -829,11 +829,11 @@ test('pollbooks will continue to connect if they establish connection, even when
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
 
     const { port: port1 } =
-      pollbookContext1.peerServer.address() as AddressInfo;
+      pollbookContext1!.peerServer.address() as AddressInfo;
     const { port: port2 } =
-      pollbookContext2.peerServer.address() as AddressInfo;
+      pollbookContext2!.peerServer.address() as AddressInfo;
     await setupUnconfiguredPollbooksOnNetwork(
-      [pollbookContext1, pollbookContext2],
+      [pollbookContext1!, pollbookContext2!],
       vitest,
       mockHasOnlineInterface,
       mockDiscoverHttpServices
@@ -843,7 +843,7 @@ test('pollbooks will continue to connect if they establish connection, even when
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
+        await pollbookContext1!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -855,7 +855,7 @@ test('pollbooks will continue to connect if they establish connection, even when
         },
       });
       expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
+        await pollbookContext2!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -887,7 +887,7 @@ test('pollbooks will continue to connect if they establish connection, even when
       // Check before we hit MACHINE_DISCONNECTION_TIMEOUT
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
+        await pollbookContext1!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -899,7 +899,7 @@ test('pollbooks will continue to connect if they establish connection, even when
         },
       });
       expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
+        await pollbookContext2!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -917,7 +917,7 @@ test('pollbooks will continue to connect if they establish connection, even when
       // the vitest mock timers will not impact the times we set as last seen for the pollbooks without an additional mock
       currentTime = assertDefined(vitest.getMockedSystemTime());
       expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
+        await pollbookContext1!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -929,7 +929,7 @@ test('pollbooks will continue to connect if they establish connection, even when
         },
       });
       expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
+        await pollbookContext2!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -979,7 +979,7 @@ test('connection status is managed properly with many pollbooks', async () => {
         testVoters
       );
       context.workspace.store.setConfiguredPrecinct(
-        singlePrecinctElectionDefinition.election.precincts[0].id
+        singlePrecinctElectionDefinition.election.precincts[0]!.id
       );
     }
 
@@ -1063,21 +1063,23 @@ test('pollbooks with different code versions cannot connect', async () => {
     async ([pollbookContext1, pollbookContext2]) => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       for (const context of [pollbookContext1, pollbookContext2]) {
-        context.mockUsbDrive.insertUsbDrive({});
-        expect(await context.localApiClient.getDeviceStatuses()).toMatchObject({
-          network: {
-            isOnline: false,
-            pollbooks: [],
-          },
-        });
+        context!.mockUsbDrive.insertUsbDrive({});
+        expect(await context!.localApiClient.getDeviceStatuses()).toMatchObject(
+          {
+            network: {
+              isOnline: false,
+              pollbooks: [],
+            },
+          }
+        );
       }
 
       const { port: port1 } =
-        pollbookContext1.peerServer.address() as AddressInfo;
+        pollbookContext1!.peerServer.address() as AddressInfo;
       const { port: port2 } =
-        pollbookContext2.peerServer.address() as AddressInfo;
+        pollbookContext2!.peerServer.address() as AddressInfo;
 
-      pollbookContext1.mockUsbDrive.removeUsbDrive();
+      pollbookContext1!.mockUsbDrive.removeUsbDrive();
       mockHasOnlineInterface.mockResolvedValue(true);
       mockDiscoverHttpServices.mockResolvedValue([
         {
@@ -1096,7 +1098,7 @@ test('pollbooks with different code versions cannot connect', async () => {
       await extendedWaitFor(async () => {
         vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
         expect(
-          await pollbookContext1.localApiClient.getDeviceStatuses()
+          await pollbookContext1!.localApiClient.getDeviceStatuses()
         ).toMatchObject({
           network: {
             isOnline: true,
@@ -1110,7 +1112,7 @@ test('pollbooks with different code versions cannot connect', async () => {
       });
       await extendedWaitFor(async () => {
         expect(
-          await pollbookContext2.localApiClient.getDeviceStatuses()
+          await pollbookContext2!.localApiClient.getDeviceStatuses()
         ).toMatchObject({
           network: {
             isOnline: true,
@@ -1123,30 +1125,30 @@ test('pollbooks with different code versions cannot connect', async () => {
         });
       });
       // Set the pollbooks for the same election and precinct
-      pollbookContext1.workspace.store.setElectionAndVoters(
+      pollbookContext1!.workspace.store.setElectionAndVoters(
         singlePrecinctElectionDefinition,
         'mock-package-hash',
         testStreets,
         testVoters
       );
-      pollbookContext1.workspace.store.setConfiguredPrecinct(
-        singlePrecinctElectionDefinition.election.precincts[0].id
+      pollbookContext1!.workspace.store.setConfiguredPrecinct(
+        singlePrecinctElectionDefinition.election.precincts[0]!.id
       );
-      pollbookContext2.workspace.store.setElectionAndVoters(
+      pollbookContext2!.workspace.store.setElectionAndVoters(
         singlePrecinctElectionDefinition,
         'mock-package-hash',
         testStreets,
         testVoters
       );
-      pollbookContext2.workspace.store.setConfiguredPrecinct(
-        singlePrecinctElectionDefinition.election.precincts[0].id
+      pollbookContext2!.workspace.store.setConfiguredPrecinct(
+        singlePrecinctElectionDefinition.election.precincts[0]!.id
       );
 
       // The pollbooks should be listing each other as mismatching configuration.
       await extendedWaitFor(async () => {
         vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
         expect(
-          await pollbookContext1.localApiClient.getDeviceStatuses()
+          await pollbookContext1!.localApiClient.getDeviceStatuses()
         ).toMatchObject({
           network: {
             isOnline: true,
@@ -1158,7 +1160,7 @@ test('pollbooks with different code versions cannot connect', async () => {
           },
         });
         expect(
-          await pollbookContext2.localApiClient.getDeviceStatuses()
+          await pollbookContext2!.localApiClient.getDeviceStatuses()
         ).toMatchObject({
           network: {
             isOnline: true,
@@ -1179,8 +1181,8 @@ test('pollbooks with different pollbook package hash values cannot connect', asy
   await withManyApps(2, async ([pollbookContext1, pollbookContext2]) => {
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
     for (const context of [pollbookContext1, pollbookContext2]) {
-      context.mockUsbDrive.insertUsbDrive({});
-      expect(await context.localApiClient.getDeviceStatuses()).toMatchObject({
+      context!.mockUsbDrive.insertUsbDrive({});
+      expect(await context!.localApiClient.getDeviceStatuses()).toMatchObject({
         network: {
           isOnline: false,
           pollbooks: [],
@@ -1188,37 +1190,37 @@ test('pollbooks with different pollbook package hash values cannot connect', asy
       });
     }
     await setupUnconfiguredPollbooksOnNetwork(
-      [pollbookContext1, pollbookContext2],
+      [pollbookContext1!, pollbookContext2!],
       vitest,
       mockHasOnlineInterface,
       mockDiscoverHttpServices
     );
 
     // Set the election with different pollbook package hash values
-    pollbookContext1.workspace.store.setElectionAndVoters(
+    pollbookContext1!.workspace.store.setElectionAndVoters(
       singlePrecinctElectionDefinition,
       'mock-package-hash-1',
       testStreets,
       testVoters
     );
-    pollbookContext1.workspace.store.setConfiguredPrecinct(
-      singlePrecinctElectionDefinition.election.precincts[0].id
+    pollbookContext1!.workspace.store.setConfiguredPrecinct(
+      singlePrecinctElectionDefinition.election.precincts[0]!.id
     );
-    pollbookContext2.workspace.store.setElectionAndVoters(
+    pollbookContext2!.workspace.store.setElectionAndVoters(
       singlePrecinctElectionDefinition,
       'mock-package-hash-2',
       testStreets,
       testVoters
     );
-    pollbookContext2.workspace.store.setConfiguredPrecinct(
-      singlePrecinctElectionDefinition.election.precincts[0].id
+    pollbookContext2!.workspace.store.setConfiguredPrecinct(
+      singlePrecinctElectionDefinition.election.precincts[0]!.id
     );
 
     // The pollbooks should be listing each other as mismatching configuration.
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
+        await pollbookContext1!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -1230,7 +1232,7 @@ test('pollbooks with different pollbook package hash values cannot connect', asy
         },
       });
       expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
+        await pollbookContext2!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -1249,8 +1251,8 @@ test('pollbooks with different configured precinct values cannot connect', async
   await withManyApps(2, async ([pollbookContext1, pollbookContext2]) => {
     vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
     for (const context of [pollbookContext1, pollbookContext2]) {
-      context.mockUsbDrive.insertUsbDrive({});
-      expect(await context.localApiClient.getDeviceStatuses()).toMatchObject({
+      context!.mockUsbDrive.insertUsbDrive({});
+      expect(await context!.localApiClient.getDeviceStatuses()).toMatchObject({
         network: {
           isOnline: false,
           pollbooks: [],
@@ -1258,20 +1260,20 @@ test('pollbooks with different configured precinct values cannot connect', async
       });
     }
     await setupUnconfiguredPollbooksOnNetwork(
-      [pollbookContext1, pollbookContext2],
+      [pollbookContext1!, pollbookContext2!],
       vitest,
       mockHasOnlineInterface,
       mockDiscoverHttpServices
     );
 
     // Setting to multi-precinct election without setting configured precinct should not connect
-    pollbookContext1.workspace.store.setElectionAndVoters(
+    pollbookContext1!.workspace.store.setElectionAndVoters(
       multiPrecinctElectionDefinition,
       'mock-package-hash',
       multiPrecinctCityStreets,
       multiPrecinctCityVoters
     );
-    pollbookContext2.workspace.store.setElectionAndVoters(
+    pollbookContext2!.workspace.store.setElectionAndVoters(
       multiPrecinctElectionDefinition,
       'mock-package-hash',
       testStreets,
@@ -1282,7 +1284,7 @@ test('pollbooks with different configured precinct values cannot connect', async
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
+        await pollbookContext1!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -1294,7 +1296,7 @@ test('pollbooks with different configured precinct values cannot connect', async
         },
       });
       expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
+        await pollbookContext2!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -1308,18 +1310,18 @@ test('pollbooks with different configured precinct values cannot connect', async
     });
 
     // Configure for different precincts
-    pollbookContext1.workspace.store.setConfiguredPrecinct(
-      multiPrecinctElectionDefinition.election.precincts[0].id
+    pollbookContext1!.workspace.store.setConfiguredPrecinct(
+      multiPrecinctElectionDefinition.election.precincts[0]!.id
     );
-    pollbookContext2.workspace.store.setConfiguredPrecinct(
-      multiPrecinctElectionDefinition.election.precincts[1].id
+    pollbookContext2!.workspace.store.setConfiguredPrecinct(
+      multiPrecinctElectionDefinition.election.precincts[1]!.id
     );
 
     // Status should still be mismatched configuration
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
+        await pollbookContext1!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -1331,7 +1333,7 @@ test('pollbooks with different configured precinct values cannot connect', async
         },
       });
       expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
+        await pollbookContext2!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -1345,13 +1347,13 @@ test('pollbooks with different configured precinct values cannot connect', async
     });
 
     // Configure for the same precinct and it should connect
-    pollbookContext1.workspace.store.setConfiguredPrecinct(
-      multiPrecinctElectionDefinition.election.precincts[1].id
+    pollbookContext1!.workspace.store.setConfiguredPrecinct(
+      multiPrecinctElectionDefinition.election.precincts[1]!.id
     );
     await extendedWaitFor(async () => {
       vitest.advanceTimersByTime(NETWORK_POLLING_INTERVAL);
       expect(
-        await pollbookContext1.localApiClient.getDeviceStatuses()
+        await pollbookContext1!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,
@@ -1363,7 +1365,7 @@ test('pollbooks with different configured precinct values cannot connect', async
         },
       });
       expect(
-        await pollbookContext2.localApiClient.getDeviceStatuses()
+        await pollbookContext2!.localApiClient.getDeviceStatuses()
       ).toMatchObject({
         network: {
           isOnline: true,

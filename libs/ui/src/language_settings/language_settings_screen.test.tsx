@@ -53,7 +53,7 @@ test('displays all available languages', async () => {
   expect(languageButtons[1]).toHaveAccessibleName('简体中文');
   expect(languageButtons[2]).toHaveAccessibleName('Selected: Español');
 
-  userEvent.click(languageButtons[1]);
+  userEvent.click(languageButtons[1]!);
   await screen.findByRole('radio', {
     checked: true,
     name: 'Selected: 简体中文',

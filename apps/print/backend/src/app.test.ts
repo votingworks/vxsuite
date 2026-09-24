@@ -251,8 +251,8 @@ test('configureElectionPackageFromUsb reads to and writes from store', async () 
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
 
-  const ballotStyleId = electionDefinition.election.ballotStyles[0].id;
-  const precinctId = electionDefinition.election.precincts[0].id;
+  const ballotStyleId = electionDefinition.election.ballotStyles[0]!.id;
+  const precinctId = electionDefinition.election.precincts[0]!.id;
   const ballots: EncodedBallotEntry[] = [
     {
       ballotStyleId,
@@ -368,8 +368,8 @@ test('configureElectionPackageFromUsb cleans up when ballot streaming fails', as
 test('configureElectionPackageFromUsb auto-selects polling place for single-location election', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.makeSinglePrecinctElectionDefinition();
-  const ballotStyleId = electionDefinition.election.ballotStyles[0].id;
-  const precinctId = electionDefinition.election.precincts[0].id;
+  const ballotStyleId = electionDefinition.election.ballotStyles[0]!.id;
+  const precinctId = electionDefinition.election.precincts[0]!.id;
   const ballots: EncodedBallotEntry[] = [
     {
       ballotStyleId,
@@ -484,7 +484,7 @@ test('cannot switch to test mode when the election package has no test ballots',
 
   mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   await apiClient.printBallot({
-    precinctId: electionDefinition.election.ballotStyles[0].precincts[0],
+    precinctId: electionDefinition.election.ballotStyles[0]!.precincts[0]!,
     languageCode: LanguageCode.ENGLISH,
     ballotType: BallotType.Precinct,
     copies: 1,
@@ -560,10 +560,10 @@ test('end-to-end printing flow updates getBallotPrintCounts', async () => {
   mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   const { ballotStyles } = electionDefinition.election;
-  const styleA = ballotStyles[0];
-  const styleB = ballotStyles[1];
-  const precinctA = styleA.precincts[0];
-  const precinctB = styleB.precincts[0];
+  const styleA = ballotStyles[0]!;
+  const styleB = ballotStyles[1]!;
+  const precinctA = styleA.precincts[0]!;
+  const precinctB = styleB.precincts[0]!;
 
   await apiClient.printBallot({
     precinctId: precinctA,
@@ -637,8 +637,8 @@ test('end-to-end printing flow updates getBallotPrintCounts for primary election
 
   const mammalStyle = ballotStyles.find((bs) => bs.partyId === mammalParty.id)!;
   const fishStyle = ballotStyles.find((bs) => bs.partyId === fishParty.id)!;
-  const mammalPrecinctId = mammalStyle.precincts[0];
-  const fishPrecinctId = fishStyle.precincts[0];
+  const mammalPrecinctId = mammalStyle.precincts[0]!;
+  const fishPrecinctId = fishStyle.precincts[0]!;
 
   // Print ballots for both parties
   await apiClient.printBallot({
@@ -709,8 +709,8 @@ test('end-to-end printing flow handles combined ballot primary (consolidated bal
   mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
   const { ballotStyles } = electionDefinition.election;
-  const ballotStyle = ballotStyles[0];
-  const precinctId = ballotStyle.precincts[0];
+  const ballotStyle = ballotStyles[0]!;
+  const precinctId = ballotStyle.precincts[0]!;
 
   // Print with no partyId, matching what the frontend sends for combined ballot primaries.
   await apiClient.printBallot({
@@ -905,7 +905,7 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
     return 0;
   });
   for (let i = 0; i < sortedCounts.length; i += 1) {
-    const c = sortedCounts[i];
+    const c = sortedCounts[i]!;
     ballotOrder.set(`${c.precinctId}-${c.ballotStyleId}`, i);
   }
 
@@ -1044,7 +1044,7 @@ async function buildTestBallotsForElection(
   let index = 0;
   for (const ballotStyle of election.ballotStyles) {
     for (const precinctId of ballotStyle.precincts) {
-      const encodedBallot = pdfBase64s[index % pdfBase64s.length];
+      const encodedBallot = pdfBase64s[index % pdfBase64s.length]!;
       index += 1;
       entries.push(
         {

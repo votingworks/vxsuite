@@ -194,11 +194,11 @@ test('centers the lines vertically within the area', () => {
     writeInLineBaselineOffset(threeLines, index, NH_STATE_AREA.height)
   );
   // Lines are evenly spaced...
-  expect(offsets[1] - offsets[0]).toBeCloseTo(offsets[2] - offsets[1]);
+  expect(offsets[1]! - offsets[0]!).toBeCloseTo(offsets[2]! - offsets[1]!);
   // ...and the block is centered: the space above the first line's top matches
   // the space below the last line's baseline.
-  expect(offsets[0] - threeLines.fontSize).toBeCloseTo(
-    NH_STATE_AREA.height - offsets[2]
+  expect(offsets[0]! - threeLines.fontSize).toBeCloseTo(
+    NH_STATE_AREA.height - offsets[2]!
   );
 });
 
@@ -271,7 +271,7 @@ test('every write-in area on the ballots we generate fits the longest name a vot
     const electionJson = fs.readFileSync(electionPath, 'utf8');
     const fixture = relative(fixturesDir, electionPath);
     if (seenElections.has(electionJson)) {
-      fixturesCovered.add(fixture.split('/')[0]);
+      fixturesCovered.add(fixture.split('/')[0]!);
       continue;
     }
     seenElections.add(electionJson);
@@ -307,7 +307,7 @@ test('every write-in area on the ballots we generate fits the longest name a vot
         }
 
         areasChecked.push(where);
-        fixturesCovered.add(fixture.split('/')[0]);
+        fixturesCovered.add(fixture.split('/')[0]!);
       }
     }
   }

@@ -237,7 +237,7 @@ test('navigation with left and right arrow', async () => {
   }
 
   // Expect wrap around from end of keyboard
-  await pressKeyAndExpectFocus('[ArrowRight]', TEST_ROWS[0][0].value);
+  await pressKeyAndExpectFocus('[ArrowRight]', TEST_ROWS[0]![0]!.value);
 
   const reversed = TEST_ROWS.toReversed();
   for (const row of reversed) {

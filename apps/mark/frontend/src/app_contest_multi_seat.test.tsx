@@ -52,7 +52,7 @@ test('Single Seat Contest', async () => {
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12',
-    precinctId,
+    precinctId: precinctId!,
   });
 
   // Go to First Contest
@@ -61,11 +61,11 @@ test('Single Seat Contest', async () => {
 
   // ====================== END CONTEST SETUP ====================== //
 
-  const candidate0 = countyCommissionersContest.candidates[0];
-  const candidate1 = countyCommissionersContest.candidates[1];
-  const candidate2 = countyCommissionersContest.candidates[2];
-  const candidate3 = countyCommissionersContest.candidates[3];
-  const candidate4 = countyCommissionersContest.candidates[4];
+  const candidate0 = countyCommissionersContest.candidates[0]!;
+  const candidate1 = countyCommissionersContest.candidates[1]!;
+  const candidate2 = countyCommissionersContest.candidates[2]!;
+  const candidate3 = countyCommissionersContest.candidates[3]!;
+  const candidate4 = countyCommissionersContest.candidates[4]!;
 
   // Advance to multi-seat contest
   while (!screen.queryByText(countyCommissionersContest.title)) {

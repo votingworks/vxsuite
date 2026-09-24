@@ -114,11 +114,11 @@ test('general elections include generated straight party contest', async () => {
     )
   ).toEqual(true);
 
-  const ballotStyle = ballotStyles[0];
+  const ballotStyle = ballotStyles[0]!;
   const result = (
     await apiClient.getBallotPreviewPdf({
       electionId,
-      precinctId: ballotStyle.precincts[0],
+      precinctId: ballotStyle.precincts[0]!,
       ballotStyleId: ballotStyle.id,
       ballotType: BallotType.Precinct,
       ballotMode: 'test',

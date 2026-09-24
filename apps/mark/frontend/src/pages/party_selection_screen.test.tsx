@@ -87,7 +87,7 @@ test('Next button navigates to first contest when a party is selected', () => {
 test('changing party with votes cast prompts confirmation before clearing votes', () => {
   const selectParty = vi.fn();
   const votes: VotesDict = {
-    [democraticGovernor.id]: [democraticGovernor.candidates[0]],
+    [democraticGovernor.id]: [democraticGovernor.candidates[0]!],
   };
   render(<Route path="/party-selection" component={PartySelectionScreen} />, {
     electionDefinition,
@@ -133,7 +133,7 @@ test('changing party with no votes cast skips the confirmation modal', () => {
 test('entering from review shows a Review button until a vote-clearing change is confirmed', () => {
   const selectParty = vi.fn();
   const votes: VotesDict = {
-    [democraticGovernor.id]: [democraticGovernor.candidates[0]],
+    [democraticGovernor.id]: [democraticGovernor.candidates[0]!],
   };
   const history = createMemoryHistory({
     initialEntries: ['/party-selection#review'],

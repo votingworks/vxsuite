@@ -165,7 +165,8 @@ export function PrinterStatusDisplay({
     }
   })();
 
-  const marker = richStatus.markerInfos[0];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const marker = richStatus.markerInfos[0]!;
   const markerLow = marker.level <= marker.lowLevel;
   return (
     <React.Fragment>

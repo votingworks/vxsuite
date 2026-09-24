@@ -19,7 +19,7 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 
 const electionDef = readElectionTwoPartyPrimaryDefinition();
 const { election } = electionDef;
-const selectedPollingPlace = assertDefined(election.pollingPlaces)[0];
+const selectedPollingPlace = assertDefined(election.pollingPlaces)[0]!;
 
 test('MarkScanReadinessReport', () => {
   const generatedAtTime = new Date('2022-01-01T00:00:00');

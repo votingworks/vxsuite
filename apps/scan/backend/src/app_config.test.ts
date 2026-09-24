@@ -232,7 +232,7 @@ test('setPollingPlaceId will reset polls to closed', async () => {
 
     const electionRecord = assertDefined(workspace.store.getElectionRecord());
     const { election } = electionRecord.electionDefinition;
-    const place = assertDefined(election.pollingPlaces)[0];
+    const place = assertDefined(election.pollingPlaces)[0]!;
     await apiClient.setPollingPlaceId({ id: place.id });
 
     expect(await apiClient.getPollsInfo()).toEqual<PrecinctScannerPollsInfo>({
@@ -256,7 +256,7 @@ test('cannot set polling place in polls_closed_final state', async () => {
 
       const electionRecord = assertDefined(workspace.store.getElectionRecord());
       const { election } = electionRecord.electionDefinition;
-      const place = assertDefined(election.pollingPlaces)[0];
+      const place = assertDefined(election.pollingPlaces)[0]!;
 
       workspace.store.transitionPolls({ time: 0, type: 'close_polls' });
 
@@ -273,7 +273,7 @@ test('switching ballot casting modes clears polling place selection', async () =
 
     const electionRecord = assertDefined(workspace.store.getElectionRecord());
     const { election } = electionRecord.electionDefinition;
-    const place = assertDefined(election.pollingPlaces)[0];
+    const place = assertDefined(election.pollingPlaces)[0]!;
 
     await apiClient.setPollingPlaceId({ id: place.id });
     workspace.store.transitionPolls({ time: 0, type: 'pause_voting' });

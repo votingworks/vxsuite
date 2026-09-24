@@ -888,7 +888,8 @@ export class Store {
       jurisdictionName: row.jurisdictionName,
       type: row.type,
       title: row.title,
-      date: new DateWithoutTime(row.date.toISOString().split('T')[0]),
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      date: new DateWithoutTime(row.date.toISOString().split('T')[0]!),
       state: row.state,
       externalSource: row.externalSource || undefined,
       status: ((): ElectionStatus => {
@@ -1229,7 +1230,10 @@ export class Store {
         id: electionId,
         type: electionRow.type,
         title: electionRow.title,
-        date: new DateWithoutTime(electionRow.date.toISOString().split('T')[0]),
+        date: new DateWithoutTime(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          electionRow.date.toISOString().split('T')[0]!
+        ),
         jurisdiction: {
           id: electionRow.jurisdictionExternalId,
           name: electionRow.jurisdictionName,

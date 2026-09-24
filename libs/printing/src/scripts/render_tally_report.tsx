@@ -10,7 +10,8 @@ export async function main(args: readonly string[]): Promise<void> {
     process.exit(1);
   }
 
-  const electionPath = args[0];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const electionPath = args[0]!;
   const outputPath = args[1];
   const electionDefinition = (await readElection(electionPath)).unsafeUnwrap();
   const { election } = electionDefinition;

@@ -33,7 +33,8 @@ export function PollingPlaceList(
   // place in the list, for user convenience.
   if (!selectedId) {
     const firstNonEmpty = sublists.find((s) => s.places.length > 0);
-    if (firstNonEmpty) setTimeout(() => onSelect(firstNonEmpty.places[0].id));
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    if (firstNonEmpty) setTimeout(() => onSelect(firstNonEmpty.places[0]!.id));
   }
 
   return (

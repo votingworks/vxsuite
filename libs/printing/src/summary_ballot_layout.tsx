@@ -84,7 +84,8 @@ function selectLayout(contestCount: number, machineType: MachineType): Layout {
   const layout = layouts.find((l) => contestCount >= l.minContests);
   // Fallback is defensive - all machine types have a layout with minContests: 0
   // @coverage-exclude
-  return layout ?? layouts[layouts.length - 1];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return layout ?? layouts[layouts.length - 1]!;
 }
 
 /**

@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import { Contest } from '@votingworks/types';
 
-const CONTEST_TEMPLATE: Contest = readElectionGeneral().contests[0];
+const CONTEST_TEMPLATE: Contest = readElectionGeneral().contests[0]!;
 
 export function generateContests(count: number): Contest[] {
   const contests: Contest[] = [];

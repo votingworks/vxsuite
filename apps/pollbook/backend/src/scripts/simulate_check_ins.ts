@@ -64,9 +64,11 @@ async function searchVoterByInitials(firstName: string, lastName: string) {
   try {
     const response = await api.searchVoters({
       searchParams: {
-        firstName: firstName[0],
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        firstName: firstName[0]!,
         middleName: '',
-        lastName: lastName[0],
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        lastName: lastName[0]!,
         suffix: '',
       },
     });
@@ -101,8 +103,10 @@ async function searchVoterByFullName(
 
 function isVoterInRange(voter: { lastName: string }, range: string): boolean {
   const [start, end] = range.split('-').map((char) => char.toUpperCase());
-  const lastNameInitial = voter.lastName[0].toUpperCase();
-  return lastNameInitial >= start && lastNameInitial <= end;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const lastNameInitial = voter.lastName[0]!.toUpperCase();
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return lastNameInitial >= start! && lastNameInitial <= end!;
 }
 
 async function checkInAllVotersOnCurrentMachine(

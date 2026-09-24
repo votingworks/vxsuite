@@ -236,7 +236,8 @@ function toGrayscaleImageData({
 }: RgbaImageData): GrayImageData {
   const pixels = new Uint8ClampedArray(width * height);
   for (let i = 0; i < pixels.length; i += 1) {
-    pixels[i] = data[i * RGBA_CHANNEL_COUNT];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    pixels[i] = data[i * RGBA_CHANNEL_COUNT]!;
   }
   return createGrayImageData(pixels, width, height);
 }

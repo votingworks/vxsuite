@@ -20,7 +20,7 @@ afterAll(cleanup);
 
 test('polling places CRUD', async () => {
   const user = nonVxUser;
-  const jurisdiction = user.jurisdictions[0];
+  const jurisdiction = user.jurisdictions[0]!;
   expectEditingEnabled(jurisdiction, false);
 
   const { apiClient, auth0 } = await setupApp({
@@ -168,7 +168,7 @@ test('polling places CRUD', async () => {
 
 test('polling place precinct order is stable regardless of save order - necessary for guaranteeing a consistent ballot hash', async () => {
   const user = nonVxUser;
-  const jurisdiction = user.jurisdictions[0];
+  const jurisdiction = user.jurisdictions[0]!;
 
   const { apiClient, auth0 } = await setupApp({
     organizations,
@@ -209,7 +209,7 @@ test('polling place precinct order is stable regardless of save order - necessar
 
   async function savedPrecinctIds() {
     const [savedPlace] = await apiClient.listPollingPlaces({ electionId });
-    return Object.keys(savedPlace.precincts);
+    return Object.keys(savedPlace!.precincts);
   }
 
   expect(await savedPrecinctIds()).toEqual([
@@ -243,7 +243,7 @@ test('polling place precinct order is stable regardless of save order - necessar
 
 test('polling place updates on precinct creation/update/deletion', async () => {
   const user = nonVxUser;
-  const jurisdiction = user.jurisdictions[1];
+  const jurisdiction = user.jurisdictions[1]!;
   expectEditingEnabled(jurisdiction, true);
 
   const { apiClient: api, auth0 } = await setupApp({
@@ -279,12 +279,12 @@ test('polling place updates on precinct creation/update/deletion', async () => {
   }
 
   const placeFromPrecinct1 = pollingPlaceGenerateFromPrecinct({
-    precinct: precincts[0],
+    precinct: precincts[0]!,
     id: expect.any(String),
     type: 'election_day',
   });
   const placeFromPrecinct2 = pollingPlaceGenerateFromPrecinct({
-    precinct: precincts[1],
+    precinct: precincts[1]!,
     id: expect.any(String),
     type: 'election_day',
   });
@@ -321,7 +321,7 @@ test('polling place updates on precinct creation/update/deletion', async () => {
     await api.updatePrecinct({
       electionId,
       updatedPrecinct: {
-        ...precincts[0],
+        ...precincts[0]!,
         name: 'Precinct 1 (Updated)',
       },
     })
@@ -335,7 +335,7 @@ test('polling place updates on precinct creation/update/deletion', async () => {
 
   // Deleting precincts removes polling place links:
 
-  await api.deletePrecinct({ electionId, precinctId: precincts[0].id });
+  await api.deletePrecinct({ electionId, precinctId: precincts[0]!.id });
 
   const customPlace1Updated: PollingPlace = {
     ...customPlace1,
@@ -378,7 +378,7 @@ describe('loadElection', () => {
   const place1: PollingPlace = {
     id: 'place1',
     name: 'Place 1',
-    precincts: { [precinct1.id]: { type: 'whole' } },
+    precincts: { [precinct1!.id]: { type: 'whole' } },
     type: 'election_day',
   };
 
@@ -386,8 +386,8 @@ describe('loadElection', () => {
     id: 'place2',
     name: 'Place 2',
     precincts: {
-      [precinct1.id]: { type: 'whole' },
-      [precinct2.id]: { type: 'whole' },
+      [precinct1!.id]: { type: 'whole' },
+      [precinct2!.id]: { type: 'whole' },
     },
     type: 'absentee',
   };
@@ -430,7 +430,7 @@ describe('loadElection', () => {
 
   describe('stateFeatures.EDIT_POLLING_PLACES === true', () => {
     const user = nonVxUser;
-    const jurisdiction = user.jurisdictions[1];
+    const jurisdiction = user.jurisdictions[1]!;
     expectEditingEnabled(jurisdiction, true);
 
     test('uses existing polling places if present', async () => {
@@ -448,14 +448,14 @@ describe('loadElection', () => {
           ...place2,
           id: expect.not.stringMatching(place2.id),
           precincts: {
-            [precinctCopy1.id]: { type: 'whole' },
-            [precinctCopy2.id]: { type: 'whole' },
+            [precinctCopy1!.id]: { type: 'whole' },
+            [precinctCopy2!.id]: { type: 'whole' },
           },
         },
         {
           ...place1,
           id: expect.not.stringMatching(place1.id),
-          precincts: { [precinctCopy1.id]: { type: 'whole' } },
+          precincts: { [precinctCopy1!.id]: { type: 'whole' } },
         },
       ]);
     });
@@ -477,7 +477,7 @@ describe('loadElection', () => {
 
   describe('stateFeatures.EDIT_POLLING_PLACES === false', () => {
     const user = nonVxUser;
-    const jurisdiction = user.jurisdictions[0];
+    const jurisdiction = user.jurisdictions[0]!;
     expectEditingEnabled(jurisdiction, false);
 
     test('ignores polling places if present', async () => {
@@ -505,7 +505,7 @@ describe('cloneElection', () => {
   const place1: PollingPlace = {
     id: 'place1',
     name: 'Place 1',
-    precincts: { [precinct1.id]: { type: 'whole' } },
+    precincts: { [precinct1!.id]: { type: 'whole' } },
     type: 'election_day',
   };
 
@@ -513,8 +513,8 @@ describe('cloneElection', () => {
     id: 'place2',
     name: 'Place 2',
     precincts: {
-      [precinct1.id]: { type: 'whole' },
-      [precinct2.id]: { type: 'whole' },
+      [precinct1!.id]: { type: 'whole' },
+      [precinct2!.id]: { type: 'whole' },
     },
     type: 'absentee',
   };
@@ -558,10 +558,10 @@ describe('cloneElection', () => {
   describe('stateFeatures.EDIT_POLLING_PLACES === true', () => {
     const user = nonVxUser;
 
-    const srcJurisdiction = user.jurisdictions[1];
+    const srcJurisdiction = user.jurisdictions[1]!;
     expectEditingEnabled(srcJurisdiction, true);
 
-    const destJurisdiction = user.jurisdictions[1];
+    const destJurisdiction = user.jurisdictions[1]!;
     expectEditingEnabled(destJurisdiction, true);
 
     test('clones source polling places if present', async () => {
@@ -587,14 +587,14 @@ describe('cloneElection', () => {
           ...place2,
           id: expect.not.stringMatching(place2.id),
           precincts: {
-            [precinctCopy1.id]: { type: 'whole' },
-            [precinctCopy2.id]: { type: 'whole' },
+            [precinctCopy1!.id]: { type: 'whole' },
+            [precinctCopy2!.id]: { type: 'whole' },
           },
         },
         {
           ...place1,
           id: expect.not.stringMatching(place1.id),
-          precincts: { [precinctCopy1.id]: { type: 'whole' } },
+          precincts: { [precinctCopy1!.id]: { type: 'whole' } },
         },
       ]);
     });
@@ -632,10 +632,10 @@ describe('cloneElection', () => {
   describe('stateFeatures.EDIT_POLLING_PLACES === false', () => {
     const user = nonVxUser;
 
-    const srcJurisdiction = user.jurisdictions[1];
+    const srcJurisdiction = user.jurisdictions[1]!;
     expectEditingEnabled(srcJurisdiction, true);
 
-    const destJurisdiction = user.jurisdictions[0];
+    const destJurisdiction = user.jurisdictions[0]!;
     expectEditingEnabled(destJurisdiction, false);
 
     test('ignores source polling places if present', async () => {

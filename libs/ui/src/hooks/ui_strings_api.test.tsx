@@ -135,11 +135,11 @@ test('getAudioClip', async () => {
   await act(async () => {
     mockApiClient.getAudioClips.mockImplementation((input) => {
       if (input.languageCode === ENGLISH) {
-        return Promise.resolve([clipEnglish1]);
+        return Promise.resolve([clipEnglish1!]);
       }
 
       if (input.languageCode === SPANISH) {
-        return Promise.resolve([clipSpanish1, clipSpanish2]);
+        return Promise.resolve([clipSpanish1!, clipSpanish2!]);
       }
 
       return Promise.resolve([]);

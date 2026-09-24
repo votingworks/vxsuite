@@ -103,7 +103,7 @@ describe('Modal', () => {
       <Modal content="Content" onOverlayClick={onOverlayClick} />
     );
     userEvent.click(
-      baseElement.getElementsByClassName('ReactModal__Overlay')[0]
+      baseElement.getElementsByClassName('ReactModal__Overlay')[0]!
     );
     expect(onOverlayClick).toHaveBeenCalledTimes(1);
   });

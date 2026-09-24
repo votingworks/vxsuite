@@ -20,6 +20,6 @@ test('renders provided metrics', () => {
   screen.getByText(hasTextAcrossElements(['CVRs', '2,048'].join('')));
 
   screen.getByRole('progressbar');
-  const progressBarProps = progressBarSpy.mock.calls[0][0];
+  const progressBarProps = progressBarSpy.mock.calls[0]![0];
   expect(progressBarProps.progress).toEqual(0.2);
 });

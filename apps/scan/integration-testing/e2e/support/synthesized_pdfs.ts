@@ -22,7 +22,8 @@ function buildPdf(pageContents: string[]): Buffer {
       .join(' ')}] /Count ${pageContents.length} >>`
   );
   for (const [i, content] of pageContents.entries()) {
-    const pageObjectNumber = pageObjectNumbers[i];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const pageObjectNumber = pageObjectNumbers[i]!;
     objects.push(
       `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${LETTER_WIDTH_POINTS} ${LETTER_HEIGHT_POINTS}] /Contents ${
         pageObjectNumber + 1

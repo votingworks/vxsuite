@@ -174,18 +174,18 @@ test('renders both ballot images with highlights on overvoted contests', async (
   // Both ballot images are rendered
   const ballotImages = screen.getAllByRole('img', { name: /ballot/i });
   expect(ballotImages).toHaveLength(2);
-  expect(ballotImages[0].style.backgroundImage).toContain('mock-front-image');
-  expect(ballotImages[1].style.backgroundImage).toContain('mock-back-image');
+  expect(ballotImages[0]!.style.backgroundImage).toContain('mock-front-image');
+  expect(ballotImages[1]!.style.backgroundImage).toContain('mock-back-image');
 
   // Front image has a single highlight overlay for the overvoted contest only
-  const frontHighlights = ballotImages[0].querySelectorAll('div');
+  const frontHighlights = ballotImages[0]!.querySelectorAll('div');
   expect(frontHighlights).toHaveLength(1);
   expect(frontHighlights[0]).toHaveStyle({
     background: HIGHLIGHT_WARNING_BACKGROUND,
   });
 
   // Back image has no highlights
-  expect(ballotImages[1].querySelector('div')).not.toBeInTheDocument();
+  expect(ballotImages[1]!.querySelector('div')).not.toBeInTheDocument();
 
   apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
@@ -224,7 +224,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
 
   // Undervoted contest is highlighted on the front image
   const ballotImages = screen.getAllByRole('img', { name: /ballot/i });
-  expect(ballotImages[0].querySelectorAll('div')).toHaveLength(1);
+  expect(ballotImages[0]!.querySelectorAll('div')).toHaveLength(1);
 
   apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));
@@ -268,7 +268,7 @@ test('says the ballot sheet is blank if it is', async () => {
   // No highlights on a blank ballot — even though the layout has the
   // undervoted contest, the Blank Ballot case suppresses highlighting.
   const ballotImages = screen.getAllByRole('img', { name: /ballot/i });
-  expect(ballotImages[0].querySelector('div')).not.toBeInTheDocument();
+  expect(ballotImages[0]!.querySelector('div')).not.toBeInTheDocument();
 
   apiMock.expectRejectSheet();
   userEvent.click(screen.getByText('Confirm Ballot Removed'));

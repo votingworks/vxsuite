@@ -89,7 +89,7 @@ test('poll worker selects ballot style, voter votes', async () => {
   userEvent.click(screen.getByText('Start Voting'));
 
   // Voter votes in first contest
-  userEvent.click(screen.getByText(presidentContest.candidates[0].name));
+  userEvent.click(screen.getByText(presidentContest.candidates[0]!.name));
   userEvent.click(screen.getByText('Next'));
 
   // Poll worker inserts card and sees message that there are votes
@@ -135,13 +135,13 @@ test('poll worker selects ballot style, voter votes', async () => {
 
   // Voter makes selection in first contest and then advances to review screen
   for (let i = 0; i < voterContests.length; i += 1) {
-    const { title } = voterContests[i];
+    const { title } = voterContests[i]!;
 
     await screen.findByRole('heading', { name: title });
 
     // Vote for a candidate contest
     if (title === presidentContest.title) {
-      userEvent.click(screen.getByText(presidentContest.candidates[0].name));
+      userEvent.click(screen.getByText(presidentContest.candidates[0]!.name));
     }
     userEvent.click(screen.getByText('Next'));
   }
@@ -151,7 +151,7 @@ test('poll worker selects ballot style, voter votes', async () => {
     ballotStyleId: '12',
     precinctId,
     votes: {
-      [presidentContest.id]: [presidentContest.candidates[0]],
+      [presidentContest.id]: [presidentContest.candidates[0]!],
     },
   });
   apiMock.expectGetElectionState({
@@ -205,10 +205,10 @@ test('poll worker card insertion during printing does not cause duplicate print'
 
   // Voter makes a selection and navigates to review
   for (let i = 0; i < voterContests.length; i += 1) {
-    const { title } = voterContests[i];
+    const { title } = voterContests[i]!;
     await screen.findByRole('heading', { name: title });
     if (title === presidentContest.title) {
-      userEvent.click(screen.getByText(presidentContest.candidates[0].name));
+      userEvent.click(screen.getByText(presidentContest.candidates[0]!.name));
     }
     userEvent.click(screen.getByText('Next'));
   }
@@ -217,7 +217,7 @@ test('poll worker card insertion during printing does not cause duplicate print'
   apiMock.expectPrintBallot({
     ballotStyleId: '12',
     precinctId,
-    votes: { [presidentContest.id]: [presidentContest.candidates[0]] },
+    votes: { [presidentContest.id]: [presidentContest.candidates[0]!] },
   });
   apiMock.expectGetElectionState({ ballotsPrintedCount: 1 });
   apiMock.setPrintJobStatus({ outcome: 'in-progress' });
@@ -257,8 +257,8 @@ test('in multi-precinct location, poll worker must select a precinct first', asy
     name: 'Springfield Community Center',
     type: 'election_day',
     precincts: {
-      [election.precincts[0].id]: { type: 'whole' },
-      [election.precincts[1].id]: { type: 'whole' },
+      [election.precincts[0]!.id]: { type: 'whole' },
+      [election.precincts[1]!.id]: { type: 'whole' },
     },
   };
 
@@ -330,13 +330,13 @@ test('a failed print ends the voter session', async () => {
   for (const { title } of voterContests) {
     await screen.findByRole('heading', { name: title });
     if (title === presidentContest.title) {
-      userEvent.click(screen.getByText(presidentContest.candidates[0].name));
+      userEvent.click(screen.getByText(presidentContest.candidates[0]!.name));
     }
     userEvent.click(screen.getByText('Next'));
   }
 
   const votes: VotesDict = {
-    [presidentContest.id]: [presidentContest.candidates[0]],
+    [presidentContest.id]: [presidentContest.candidates[0]!],
   };
 
   apiMock.expectPrintBallot({ ballotStyleId: '12', precinctId, votes });

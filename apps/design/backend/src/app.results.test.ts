@@ -115,7 +115,7 @@ async function setUpElectionInSystem(
     async (_, _ballotTemplates, ballotProps) => ({
       ballotPaths: ballotProps.map(() => makeTemporaryFile()),
       electionDefinition: safeParseElectionDefinition(
-        JSON.stringify(ballotProps[0].election, null, 2)
+        JSON.stringify(ballotProps[0]!.election, null, 2)
       ).unsafeUnwrap(),
     })
   );
@@ -237,7 +237,7 @@ test('processQRCodeReport returns "invalid-signature" when authenticating the si
     [1, 1, 3, 5],
     [0, 0, 0, 0],
   ] as CompressedTally;
-  const encodedTally = encodeV0CompressedTally(mockCompressedTally, 1)[0];
+  const encodedTally = encodeV0CompressedTally(mockCompressedTally, 1)[0]!;
 
   mockAuthReturnValue = err('invalid-signature');
 
@@ -271,7 +271,7 @@ test('processQRCodeReport returns no election found where there is no election f
     [1, 1, 3, 5],
     [0, 0, 0, 0],
   ] as CompressedTally;
-  const encodedTally = encodeV0CompressedTally(mockCompressedTally, 1)[0];
+  const encodedTally = encodeV0CompressedTally(mockCompressedTally, 1)[0]!;
 
   const result = await unauthenticatedApiClient.processQrCodeReport({
     payload: `1//qr3//${encodeQuickResultsMessage({
@@ -320,12 +320,13 @@ test('quick results reporting works e2e with all precinct reports', async () => 
     contestResultsSummaries: {},
     includeGenericWriteIn: true,
   });
-  const submittedPrecinctId = sampleElectionDefinition.election.precincts[0].id;
+  const submittedPrecinctId =
+    sampleElectionDefinition.election.precincts[0]!.id;
   const encodedTally = compressAndEncodePerPrecinctTally({
     election: sampleElectionDefinition.election,
     resultsByPrecinct: { [submittedPrecinctId]: mockResults },
     numPages: 1,
-  })[0];
+  })[0]!;
 
   const result = await unauthenticatedApiClient.processQrCodeReport({
     payload: `1//qr3//${encodeQuickResultsMessage({
@@ -424,7 +425,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
   });
   expect(result2).toEqual(result);
 
-  const sampleContest = sampleElectionDefinition.election.contests[0];
+  const sampleContest = sampleElectionDefinition.election.contests[0]!;
   const sampleContestResults: Record<ContestId, ContestResultsSummary> = {
     [sampleContest.id]: {
       type: 'candidate',
@@ -447,7 +448,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
     election: sampleElectionDefinition.election,
     resultsByPrecinct: { [submittedPrecinctId]: mockResults2 },
     numPages: 1,
-  })[0];
+  })[0]!;
 
   // Calling with updated data should overwrite the previous result.
   const result3 = await unauthenticatedApiClient.processQrCodeReport({
@@ -521,7 +522,7 @@ test('quick results reporting works e2e with all precinct reports', async () => 
       electionId: sampleElectionDefinition.election.id,
     });
     const isSubmittedPrecinct =
-      precinct.id === sampleElectionDefinition.election.precincts[0].id;
+      precinct.id === sampleElectionDefinition.election.precincts[0]!.id;
     expect(storedResultsForPrecinct).toEqual(
       ok({
         election: expect.objectContaining({
@@ -646,7 +647,7 @@ test('quick results reporting works for polls open reporting', async () => {
     fileStorageClient
   );
   // stay logged in for getting polls status
-  const precinctId = sampleElectionDefinition.election.precincts[0].id;
+  const precinctId = sampleElectionDefinition.election.precincts[0]!.id;
 
   const openResult = await unauthenticatedApiClient.processQrCodeReport({
     payload: `1//qr3//${encodeQuickResultsMessage({
@@ -774,12 +775,12 @@ test('quick results reporting works for polls open reporting', async () => {
     contestResultsSummaries: {},
     includeGenericWriteIn: true,
   });
-  const closePrecinctId = sampleElectionDefinition.election.precincts[0].id;
+  const closePrecinctId = sampleElectionDefinition.election.precincts[0]!.id;
   const encodedTally = compressAndEncodePerPrecinctTally({
     election: sampleElectionDefinition.election,
     resultsByPrecinct: { [closePrecinctId]: mockResults },
     numPages: 1,
-  })[0];
+  })[0]!;
 
   const result = await unauthenticatedApiClient.processQrCodeReport({
     payload: `1//qr3//${encodeQuickResultsMessage({
@@ -950,7 +951,7 @@ test('quick results reporting works for polls paused reporting', async () => {
     workspace,
     fileStorageClient
   );
-  const precinctId = sampleElectionDefinition.election.precincts[0].id;
+  const precinctId = sampleElectionDefinition.election.precincts[0]!.id;
 
   const pausedResult = await unauthenticatedApiClient.processQrCodeReport({
     payload: `1//qr3//${encodeQuickResultsMessage({
@@ -1024,7 +1025,7 @@ test('quick results reporting works for voting resumed reporting', async () => {
     workspace,
     fileStorageClient
   );
-  const precinctId = sampleElectionDefinition.election.precincts[0].id;
+  const precinctId = sampleElectionDefinition.election.precincts[0]!.id;
 
   const resumedResult = await unauthenticatedApiClient.processQrCodeReport({
     payload: `1//qr3//${encodeQuickResultsMessage({
@@ -1124,7 +1125,7 @@ test('quick results reporting works as expected end to end with single precinct 
   expect(expectedPrecinct1Contests).not.toEqual(expectedPrecinct2Contests);
 
   // Use the first contest from the loaded election for simple results
-  const sampleContest = sampleElectionDefinition.election.contests[0];
+  const sampleContest = sampleElectionDefinition.election.contests[0]!;
   const sampleContestResults: ContestResultsSummaries = {
     [sampleContest.id]: {
       type: 'candidate',
@@ -1162,7 +1163,7 @@ test('quick results reporting works as expected end to end with single precinct 
     election: sampleElectionDefinition.election,
     resultsByPrecinct: { [firstPrecinctId]: mockResultsFirstPrecinct },
     numPages: 1,
-  })[0];
+  })[0]!;
 
   const resultFirstPrecinct =
     await unauthenticatedApiClient.processQrCodeReport({
@@ -1207,7 +1208,7 @@ test('quick results reporting works as expected end to end with single precinct 
     election: sampleElectionDefinition.election,
     resultsByPrecinct: { [secondPrecinctId]: mockResultsSecondPrecinct },
     numPages: 1,
-  })[0];
+  })[0]!;
 
   const resultSecondPrecinct =
     await unauthenticatedApiClient.processQrCodeReport({
@@ -1357,7 +1358,7 @@ test('deleteQuickReportingResults clears quick results data as expected', async 
   auth0.logOut();
 
   // Create and submit some quick results data
-  const sampleContest = sampleElectionDefinition.election.contests[0];
+  const sampleContest = sampleElectionDefinition.election.contests[0]!;
   const sampleContestResults: Record<ContestId, ContestResultsSummary> = {
     [sampleContest.id]: {
       type: 'candidate',
@@ -1379,10 +1380,10 @@ test('deleteQuickReportingResults clears quick results data as expected', async 
   const encodedTally = compressAndEncodePerPrecinctTally({
     election: sampleElectionDefinition.election,
     resultsByPrecinct: {
-      [sampleElectionDefinition.election.precincts[0].id]: mockResults,
+      [sampleElectionDefinition.election.precincts[0]!.id]: mockResults,
     },
     numPages: 1,
-  })[0];
+  })[0]!;
 
   // Submit test results (isLiveMode: false)
   const testResult = await unauthenticatedApiClient.processQrCodeReport({
@@ -1509,8 +1510,8 @@ test('quick results reporting supports paginated 2-page reports', async () => {
   );
   auth0.logOut();
   const { contests } = sampleElectionDefinition.election;
-  const contestId1 = contests[0].id;
-  const contestIdLast = contests[contests.length - 1].id;
+  const contestId1 = contests[0]!.id;
+  const contestIdLast = contests[contests.length - 1]!.id;
 
   // Build simple results and split into two sections
   const mockResults = buildElectionResultsFixture({
@@ -1536,7 +1537,8 @@ test('quick results reporting supports paginated 2-page reports', async () => {
     includeGenericWriteIn: true,
   });
 
-  const paginatedPrecinctId = sampleElectionDefinition.election.precincts[0].id;
+  const paginatedPrecinctId =
+    sampleElectionDefinition.election.precincts[0]!.id;
   const sections = compressAndEncodePerPrecinctTally({
     election: sampleElectionDefinition.election,
     resultsByPrecinct: { [paginatedPrecinctId]: mockResults },
@@ -1551,7 +1553,7 @@ test('quick results reporting supports paginated 2-page reports', async () => {
     signingMachineId: 'paginated-machine',
     timestamp: new Date('2024-01-01T12:00:00Z').getTime() / 1000,
     isLiveMode: true,
-    primaryMessage: sections[0],
+    primaryMessage: sections[0]!,
     numPages: 2,
     pageIndex: 0,
     pollingPlaceId: 'test-polling-place',
@@ -1601,7 +1603,7 @@ test('quick results reporting supports paginated 2-page reports', async () => {
     signingMachineId: 'paginated-machine',
     timestamp: new Date('2024-01-01T12:00:01Z').getTime() / 1000,
     isLiveMode: true,
-    primaryMessage: sections[1],
+    primaryMessage: sections[1]!,
     numPages: 2,
     pageIndex: 1,
     pollingPlaceId: 'test-polling-place',
@@ -1696,8 +1698,8 @@ test('quick results reporting clears previous partial reports on numPages change
   );
   auth0.logOut();
   const { contests } = sampleElectionDefinition.election;
-  const contestId1 = contests[0].id;
-  const contestIdLast = contests[contests.length - 1].id;
+  const contestId1 = contests[0]!.id;
+  const contestIdLast = contests[contests.length - 1]!.id;
 
   // Build simple results and split into two sections
   const mockResults = buildElectionResultsFixture({
@@ -1723,7 +1725,8 @@ test('quick results reporting clears previous partial reports on numPages change
     includeGenericWriteIn: true,
   });
 
-  const submittedPrecinctId = sampleElectionDefinition.election.precincts[0].id;
+  const submittedPrecinctId =
+    sampleElectionDefinition.election.precincts[0]!.id;
 
   const sections = compressAndEncodePerPrecinctTally({
     election: sampleElectionDefinition.election,
@@ -1742,7 +1745,7 @@ test('quick results reporting clears previous partial reports on numPages change
     signingMachineId: 'paginated-machine',
     timestamp: new Date('2024-01-01T12:00:00Z').getTime() / 1000,
     isLiveMode: true,
-    primaryMessage: sections[0],
+    primaryMessage: sections[0]!,
     numPages: 2,
     pageIndex: 0,
     pollingPlaceId: 'test-polling-place',
@@ -1771,7 +1774,7 @@ test('quick results reporting clears previous partial reports on numPages change
   const sectionsInThreePages = compressAndEncodePerPrecinctTally({
     election: sampleElectionDefinition.election,
     resultsByPrecinct: {
-      [sampleElectionDefinition.election.precincts[0].id]: mockResults,
+      [sampleElectionDefinition.election.precincts[0]!.id]: mockResults,
     },
     numPages: 3,
   });
@@ -1782,7 +1785,7 @@ test('quick results reporting clears previous partial reports on numPages change
     signingMachineId: 'paginated-machine',
     timestamp: new Date('2024-01-01T12:00:01Z').getTime() / 1000,
     isLiveMode: true,
-    primaryMessage: sectionsInThreePages[1],
+    primaryMessage: sectionsInThreePages[1]!,
     numPages: 3,
     pageIndex: 1,
     pollingPlaceId: 'test-polling-place',
@@ -1818,7 +1821,7 @@ test('quick results reporting clears previous partial reports on numPages change
     signingMachineId: 'paginated-machine',
     timestamp: new Date('2024-01-01T12:00:02Z').getTime() / 1000,
     isLiveMode: true,
-    primaryMessage: sectionsInThreePages[2],
+    primaryMessage: sectionsInThreePages[2]!,
     numPages: 3,
     pageIndex: 2,
     pollingPlaceId: 'test-polling-place',
@@ -1853,7 +1856,7 @@ test('quick results reporting clears previous partial reports on numPages change
     signingMachineId: 'paginated-machine',
     timestamp: new Date('2024-01-01T12:00:00Z').getTime() / 1000,
     isLiveMode: true,
-    primaryMessage: sectionsInThreePages[0],
+    primaryMessage: sectionsInThreePages[0]!,
     numPages: 3,
     pageIndex: 0,
     pollingPlaceId: 'test-polling-place',
@@ -1911,8 +1914,8 @@ test('quick results clears previous partial reports when pollingPlaceId changes'
   );
   auth0.logOut();
 
-  const precinctA = sampleElectionDefinition.election.precincts[0].id;
-  const precinctB = sampleElectionDefinition.election.precincts[1].id;
+  const precinctA = sampleElectionDefinition.election.precincts[0]!.id;
+  const precinctB = sampleElectionDefinition.election.precincts[1]!.id;
 
   // Build simple results and split into two pages
   const mockResults = buildElectionResultsFixture({
@@ -1935,7 +1938,7 @@ test('quick results clears previous partial reports when pollingPlaceId changes'
     timestamp: new Date('2024-01-01T10:00:00Z').getTime() / 1000,
     isLiveMode: true,
     pollingPlaceId: precinctA,
-    primaryMessage: sections[0],
+    primaryMessage: sections[0]!,
     numPages: 2,
     pageIndex: 0,
     ballotCount: 0,
@@ -1967,7 +1970,7 @@ test('quick results clears previous partial reports when pollingPlaceId changes'
     timestamp: new Date('2024-01-01T10:00:01Z').getTime() / 1000,
     isLiveMode: true,
     pollingPlaceId: precinctB,
-    primaryMessage: sectionsB[0],
+    primaryMessage: sectionsB[0]!,
     numPages: 2,
     pageIndex: 0,
     ballotCount: 0,
@@ -1992,7 +1995,7 @@ test('quick results clears previous partial reports when pollingPlaceId changes'
     signingMachineId: 'machine-x',
     timestamp: new Date('2024-01-01T10:00:02Z').getTime() / 1000,
     isLiveMode: true,
-    primaryMessage: sections[1],
+    primaryMessage: sections[1]!,
     numPages: 2,
     pageIndex: 1,
     pollingPlaceId: 'test-polling-place',
@@ -2033,7 +2036,7 @@ test('quick results clears previous partial reports when pollingPlaceId changes'
     timestamp: new Date('2024-01-01T10:00:03Z').getTime() / 1000,
     isLiveMode: true,
     pollingPlaceId: precinctA,
-    primaryMessage: sections[1],
+    primaryMessage: sections[1]!,
     numPages: 2,
     pageIndex: 1,
     ballotCount: 0,
@@ -2092,7 +2095,7 @@ test('LiveReports uses modified exported election, not original vxdesign electio
   ).unsafeUnwrap();
 
   // Get the original contest and candidate order
-  const originalFirstContest = baseElectionDefinition.election.contests[0];
+  const originalFirstContest = baseElectionDefinition.election.contests[0]!;
 
   // Create a reordered version of the election (simulating NH ballot template behavior)
   const reorderedElection: typeof baseElectionDefinition.election = {
@@ -2171,10 +2174,10 @@ test('LiveReports uses modified exported election, not original vxdesign electio
   const encodedTally = compressAndEncodePerPrecinctTally({
     election: reorderedElectionDefinition.election,
     resultsByPrecinct: {
-      [reorderedElectionDefinition.election.precincts[0].id]: mockResults,
+      [reorderedElectionDefinition.election.precincts[0]!.id]: mockResults,
     },
     numPages: 1,
-  })[0];
+  })[0]!;
 
   auth0.logOut();
 
@@ -2401,7 +2404,7 @@ test('getLiveReportsActivityLog includes every state change for a machine', asyn
   const reports =
     pollsStatus.unsafeUnwrap().reportsByPollingPlace['pp-a'] ?? [];
   expect(reports).toHaveLength(1);
-  expect(reports[0].pollsTransitionType).toEqual('resume_voting');
+  expect(reports[0]!.pollsTransitionType).toEqual('resume_voting');
 });
 
 test('getLiveReportsActivityLog limits activity log to MAX_LIVE_REPORT_ACTIVITY_ITEMS', async () => {
@@ -2469,7 +2472,7 @@ test('getLiveReportsActivityLog filters activity log by votingGroup', async () =
   );
   const { ballotHash } = sampleElectionDefinition;
   const electionId = sampleElectionDefinition.election.id;
-  const firstPrecinctId = sampleElectionDefinition.election.precincts[0].id;
+  const firstPrecinctId = sampleElectionDefinition.election.precincts[0]!.id;
 
   // Set up polling places of each voting type. The polling places need to
   // live in the database so the JOIN on polling_places.type works.
@@ -2586,7 +2589,7 @@ test('getLiveReportsActivityLog filter still honors the MAX limit', async () => 
   );
   const { ballotHash } = sampleElectionDefinition;
   const electionId = sampleElectionDefinition.election.id;
-  const firstPrecinctId = sampleElectionDefinition.election.precincts[0].id;
+  const firstPrecinctId = sampleElectionDefinition.election.precincts[0]!.id;
 
   const edPlace: PollingPlace = {
     id: 'pp-ed',

@@ -25,7 +25,7 @@ test('general election, polls open, test mode', () => {
     <PrecinctScannerReportHeader
       electionDefinition={generalElectionDefinition}
       electionPackageHash="test-election-package-hash"
-      pollingPlaceId={pollingPlace.id}
+      pollingPlaceId={pollingPlace!.id}
       pollsTransition="open_polls"
       isLiveMode={false}
       pollsTransitionedTime={pollsTransitionedTime}
@@ -35,7 +35,7 @@ test('general election, polls open, test mode', () => {
   );
   expect(screen.queryByText('Party')).toBeNull();
   screen.getByText('Test Report');
-  screen.getByText(`Polls Opened Report • ${pollingPlace.name}`);
+  screen.getByText(`Polls Opened Report • ${pollingPlace!.name}`);
   screen.getByText(
     'Lincoln Municipal General Election, Jun 6, 2021, Franklin County, State of Hamilton'
   );
@@ -67,7 +67,7 @@ test('primary election, single precinct, polls closed, live mode', () => {
     <PrecinctScannerReportHeader
       electionDefinition={electionTwoPartyPrimaryDefinition}
       electionPackageHash="test-election-package-hash"
-      pollingPlaceId={pollingPlace.id}
+      pollingPlaceId={pollingPlace!.id}
       partyId="0"
       pollsTransition="close_polls"
       isLiveMode
@@ -78,7 +78,7 @@ test('primary election, single precinct, polls closed, live mode', () => {
   );
   expect(screen.queryByText('Test Report')).not.toBeInTheDocument();
   expect(screen.queryByText('Party')).toBeNull();
-  screen.getByText(`Polls Closed Report • ${pollingPlace.name}`);
+  screen.getByText(`Polls Closed Report • ${pollingPlace!.name}`);
   screen.getByText('Mammal Party');
   screen.getByText(
     'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
@@ -111,7 +111,7 @@ test('primary election nonpartisan contests', () => {
     <PrecinctScannerReportHeader
       electionDefinition={electionTwoPartyPrimaryDefinition}
       electionPackageHash="test-election-package-hash"
-      pollingPlaceId={pollingPlace.id}
+      pollingPlaceId={pollingPlace!.id}
       pollsTransition="close_polls"
       isLiveMode
       pollsTransitionedTime={pollsTransitionedTime}
@@ -134,7 +134,7 @@ test('primary election, polls paused', () => {
       electionDefinition={electionTwoPartyPrimaryDefinition}
       electionPackageHash="test-election-package-hash"
       partyId="0"
-      pollingPlaceId={pollingPlace.id}
+      pollingPlaceId={pollingPlace!.id}
       pollsTransition="pause_voting"
       pollsTransitionedTime={pollsTransitionedTime}
       isLiveMode={false}
@@ -142,7 +142,7 @@ test('primary election, polls paused', () => {
       precinctScannerMachineId="SC-01-000"
     />
   );
-  screen.getByText(`Voting Paused Report • ${pollingPlace.name}`);
+  screen.getByText(`Voting Paused Report • ${pollingPlace!.name}`);
   // No party label shown for paused voting
   screen.getByText(
     'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'

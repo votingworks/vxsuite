@@ -117,7 +117,8 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
   );
   // For backwards compatibility, use test mode as default
   const allBallotProps = allBallotPropsTest;
-  const blankBallotProps = allBallotProps[0];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const blankBallotProps = allBallotProps[0]!;
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId: blankBallotProps.ballotStyleId })
   );
@@ -197,7 +198,8 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
         const ballotDocument = await renderer.documentFromPath(testLayoutPath);
         // eslint-disable-next-line @typescript-eslint/no-shadow
         const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
-          allBallotPropsTest[0],
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          allBallotPropsTest[0]!,
           ballotDocument,
           electionDefinition,
           LATEST_SOFTWARE_VERSION
@@ -213,7 +215,8 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
           await renderer.documentFromPath(officialLayoutPath);
         // eslint-disable-next-line @typescript-eslint/no-shadow
         const blankOfficialBallotPdf = await renderBallotPdfWithMetadataQrCode(
-          allBallotPropsOfficial[0],
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          allBallotPropsOfficial[0]!,
           officialBallotDocument,
           electionDefinition,
           LATEST_SOFTWARE_VERSION
@@ -230,7 +233,8 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
           await renderer.documentFromPath(sampleLayoutPath);
         // eslint-disable-next-line @typescript-eslint/no-shadow
         const sampleBallotPdf = await renderBallotPdfWithMetadataQrCode(
-          allBallotPropsSample[0],
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          allBallotPropsSample[0]!,
           sampleBallotDocument,
           electionDefinition,
           LATEST_SOFTWARE_VERSION
@@ -302,7 +306,8 @@ export const vxGeneralElectionFixtures = lazyFixtures(() => {
   function makeElectionFixtureSpec(election: Election) {
     const electionDir = join(
       dir,
-      [election.ballotLayout.paperSize, election.ballotStyles[0].languages[0]]
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      [election.ballotLayout.paperSize, election.ballotStyles[0]!.languages[0]]
         .filter((label) => Boolean(label))
         .join('-')
     );
@@ -327,7 +332,8 @@ export const vxGeneralElectionFixtures = lazyFixtures(() => {
     const contests = getContests({ election, ballotStyle });
     const { votes, unmarkedWriteIns } = createTestVotes(contests);
     const { paperSize } = election.ballotLayout;
-    const languageCode = ballotStyle.languages[0];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const languageCode = ballotStyle.languages[0]!;
     return {
       electionDir,
       paperSize,
@@ -709,6 +715,7 @@ export const nhGeneralElectionFixtures = lazyFixtures(() => {
 
   const customNhProps: Partial<NhBallotProps> = {
     electionTitleOverride: 'Overriden Election Title',
+
     electionSealOverride: vxFamousNamesFixtures.election.seal,
     clerkSignatureImage: `
         <svg xmlns="http://www.w3.org/2000/svg" width="200" height="50" viewBox="0 0 200 50">
@@ -1353,7 +1360,8 @@ export const msGeneralElectionFixtures = lazyFixtures(() => {
       ballotMode: 'test',
     }))
   );
-  const blankBallotProps = allBallotProps[0];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const blankBallotProps = allBallotProps[0]!;
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId: blankBallotProps.ballotStyleId })
   );
@@ -1380,13 +1388,15 @@ export const msGeneralElectionFixtures = lazyFixtures(() => {
           resolveScratchDir(scratchDir)
         );
 
-      const layoutPath = layoutPaths[0];
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const layoutPath = layoutPaths[0]!;
       const { blankBallotPdf, markedBallotPdf } = await rendererPool.runTask(
         async (renderer) => {
           const ballotDocument = await renderer.documentFromPath(layoutPath);
           // eslint-disable-next-line @typescript-eslint/no-shadow
           const blankBallotPdf = await renderBallotPdfWithMetadataQrCode(
-            allBallotProps[0],
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            allBallotProps[0]!,
             ballotDocument,
             electionDefinition,
             LATEST_SOFTWARE_VERSION

@@ -35,7 +35,8 @@ function parseCommandLineArgs(args: readonly string[]): CopyBatchInput {
     console.error(usageMessage);
     process.exit(1);
   }
-  const batchName = args[0];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const batchName = args[0]!;
   const numCopies = parseNumCopiesResult.ok();
   return { batchName, numCopies };
 }

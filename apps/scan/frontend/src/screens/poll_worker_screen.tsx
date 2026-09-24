@@ -691,7 +691,8 @@ function PollWorkerScreenContents({
                   data-testid="quick-results-code"
                   data-value={reports[currentQrIndex]}
                 >
-                  <QrCode value={reports[currentQrIndex]} size={450} />
+                  {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
+                  <QrCode value={reports[currentQrIndex]!} size={450} />
                 </div>
               )}
               <div style={{ height: '0.3em' }} />

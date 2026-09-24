@@ -340,7 +340,8 @@ export function PickDateTimeModal({
                         zone: tz,
                       })
                     )}{' '}
-                    ({tz.split('/')[1].replace(/_/gi, ' ')})
+                    {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
+                    ({tz.split('/')[1]!.replace(/_/gi, ' ')})
                   </option>
                 ))}
               </Select>

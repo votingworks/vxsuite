@@ -228,14 +228,14 @@ test('setConfiguredPrecinct sets and getPollbookConfigurationInformation returns
     );
 
     const ok = await localApiClient.setConfiguredPrecinct({
-      precinctId: multiPrecinctElectionDefinition.election.precincts[0].id,
+      precinctId: multiPrecinctElectionDefinition.election.precincts[0]!.id,
     });
     expect(ok.ok()).toEqual(undefined);
 
     // Now it should be returned
     config = await localApiClient.getPollbookConfigurationInformation();
     expect(config.configuredPrecinctId).toEqual(
-      multiPrecinctElectionDefinition.election.precincts[0].id
+      multiPrecinctElectionDefinition.election.precincts[0]!.id
     );
   });
 });
@@ -251,7 +251,7 @@ test('setting a single precinct election automatically sets the configured preci
     );
     const config = await localApiClient.getPollbookConfigurationInformation();
     expect(config.configuredPrecinctId).toEqual(
-      singlePrecinctElectionDefinition.election.precincts[0].id
+      singlePrecinctElectionDefinition.election.precincts[0]!.id
     );
   });
 });

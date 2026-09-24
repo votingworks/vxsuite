@@ -8,8 +8,7 @@
     "composite": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
-    "noUncheckedIndexedAccess": false
+    "skipLibCheck": true
   },
   "include": ["src", "test"],
   "exclude": [],

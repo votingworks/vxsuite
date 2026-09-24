@@ -58,7 +58,7 @@ describe(`printMode === "marks_on_preprinted_ballot"`, () => {
     const electionDefinition = mockElection({
       paperSize: size,
     });
-    const ballotStyle = electionDefinition.election.ballotStyles[0];
+    const ballotStyle = electionDefinition.election.ballotStyles[0]!;
     const mockVotes: VotesDict = {
       foo: ['yes'],
       bar: [{ id: 'one', name: 'Hon. One III' }],
@@ -119,7 +119,7 @@ describe(`printMode === "marks_on_preprinted_ballot"`, () => {
 describe(`printMode === "summary"`, () => {
   test('prints summary ballot', async () => {
     const electionDefinition = electionDefBase;
-    const ballotStyle = electionDefinition.election.ballotStyles[0];
+    const ballotStyle = electionDefinition.election.ballotStyles[0]!;
     const allContests = getContests({
       ballotStyle,
       election: electionDefinition.election,
@@ -229,8 +229,8 @@ describe(`printMode === "summary"`, () => {
 
     const electionDefinition = electionDefBase;
     const { election } = electionDefinition;
-    const ballotStyle = election.ballotStyles[0];
-    const precinctId = ballotStyle.precincts[0];
+    const ballotStyle = election.ballotStyles[0]!;
+    const precinctId = ballotStyle.precincts[0]!;
 
     // Get real contest IDs from the election and split them into two pages
     const allContests = election.contests.filter((c) =>
@@ -262,8 +262,8 @@ describe(`printMode === "summary"`, () => {
     );
 
     const mockVotes: VotesDict = {
-      [page1ContestIds[0]]: ['vote-1'],
-      [page2ContestIds[0]]: ['vote-2'],
+      [page1ContestIds[0]!]: ['vote-1'],
+      [page2ContestIds[0]!]: ['vote-2'],
     };
 
     // Mock filterVotesForContests to track calls and return filtered votes
@@ -342,18 +342,18 @@ describe(`printMode === "summary"`, () => {
 
     // filterVotesForContests should be called once per page with correct contests
     expect(filterCalls).toHaveLength(2);
-    expect([...filterCalls[0].contestIds].sort()).toEqual(
+    expect([...filterCalls[0]!.contestIds].sort()).toEqual(
       [...page1ContestIds].sort()
     );
-    expect([...filterCalls[1].contestIds].sort()).toEqual(
+    expect([...filterCalls[1]!.contestIds].sort()).toEqual(
       [...page2ContestIds].sort()
     );
 
     // Verify BmdPaperBallot props via the JSX passed to the second renderToPdf call
-    const wrapperElement = renderCalls[1][0].document as React.ReactElement;
+    const wrapperElement = renderCalls[1]![0].document as React.ReactElement;
     const pageElements = wrapperElement.props.children as React.ReactElement[];
 
-    const page1Element = pageElements[0];
+    const page1Element = pageElements[0]!;
     const page1BmdElement = page1Element.props.children as React.ReactElement;
     const page1Props = page1BmdElement.props;
     expect(page1Props.pageNumber).toEqual(1);
@@ -362,7 +362,7 @@ describe(`printMode === "summary"`, () => {
       page1Props.contestsForPage?.map((c: { id: string }) => c.id).sort()
     ).toEqual([...page1ContestIds].sort());
 
-    const page2Element = pageElements[1];
+    const page2Element = pageElements[1]!;
     const page2BmdElement = page2Element.props.children as React.ReactElement;
     const page2Props = page2BmdElement.props;
     expect(page2Props.pageNumber).toEqual(2);
@@ -376,7 +376,8 @@ describe(`printMode === "summary"`, () => {
     const encodedPages = vi
       .mocked(encodeSummaryBallotPage)
       .mock.calls.slice(-2);
-    const [[, firstPage], [, secondPage]] = encodedPages;
+    const [, firstPage] = encodedPages[0]!;
+    const [, secondPage] = encodedPages[1]!;
     expect(firstPage.ballotAuditId).toBeDefined();
     expect(firstPage.ballotAuditId).toEqual(secondPage.ballotAuditId);
     expect(firstPage.pageNumber).toEqual(1);
@@ -392,8 +393,8 @@ describe(`printMode === "summary"`, () => {
 
     const electionDefinition = electionDefBase;
     const { election } = electionDefinition;
-    const ballotStyle = election.ballotStyles[0];
-    const precinctId = ballotStyle.precincts[0];
+    const ballotStyle = election.ballotStyles[0]!;
+    const precinctId = ballotStyle.precincts[0]!;
 
     const allContests = election.contests.filter((c) =>
       ballotStyle.districts.includes(c.districtId)
@@ -451,7 +452,7 @@ describe(`printMode === "summary"`, () => {
     const renderCalls = vi.mocked(renderToPdf).mock.calls;
     expect(renderCalls).toHaveLength(2);
     // All pages should have isLiveMode: false when in test mode (check second call)
-    const wrapperElement = renderCalls[1][0].document as React.ReactElement;
+    const wrapperElement = renderCalls[1]![0].document as React.ReactElement;
     const pageElements = wrapperElement.props.children as React.ReactElement[];
     for (const pageElement of pageElements) {
       const bmdElement = pageElement.props.children as React.ReactElement;
@@ -469,7 +470,7 @@ describe(`printMode === "bubble_ballot"`, () => {
     const electionDefinition = mockElection({
       paperSize: size,
     });
-    const ballotStyle = electionDefinition.election.ballotStyles[0];
+    const ballotStyle = electionDefinition.election.ballotStyles[0]!;
     const mockVotes: VotesDict = {
       foo: ['yes'],
       bar: [{ id: 'one', name: 'Hon. One III' }],

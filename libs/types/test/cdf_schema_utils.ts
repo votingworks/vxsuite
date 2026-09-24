@@ -197,7 +197,8 @@ export function isSubsetCdfSchema(
             return fail(`extra property in subschema: ${key}`);
           }
           const result = isSubsetDefinitionSchema(
-            subSchema.properties[key],
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            subSchema.properties[key]!,
             superSchema.properties[key],
             `${path}.properties.${key}`
           );

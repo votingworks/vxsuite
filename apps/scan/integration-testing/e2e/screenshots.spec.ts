@@ -343,10 +343,13 @@ test('voting', async ({ page }, testInfo) => {
   const [multiSeatContest] = multiSeatContests;
 
   const undervoteVotes = withUndervote(
-    withUndervote(fullVotes, singleSeatContest),
-    multiSeatContest
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    withUndervote(fullVotes, singleSeatContest!),
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    multiSeatContest!
   );
-  const overvoteVotes = withOvervote(fullVotes, singleSeatContest);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const overvoteVotes = withOvervote(fullVotes, singleSeatContest!);
 
   // Mixed: overvote several single-seat contests, blank others, undervote
   // the multi-seat contests — enough problems to trigger the summary view.
@@ -445,7 +448,8 @@ test('voting', async ({ page }, testInfo) => {
   // next action without waiting for the "Insert Your Ballot" screen to return —
   // the backend re-enables scanning as soon as a ballot is accepted, so we don't
   // need to wait out the (3s) accepted-screen display hold.
-  mockPdiScannerHandler.insertSheet(fullPdf);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  mockPdiScannerHandler.insertSheet(fullPdf!);
   await page.getByText('Please wait').waitFor({ timeout: 15000 });
   await screenshot('scanning');
   await page.getByText('Your ballot was counted!').waitFor({ timeout: 15000 });
@@ -467,25 +471,29 @@ test('voting', async ({ page }, testInfo) => {
   }
 
   // Blank ballot warning.
-  mockPdiScannerHandler.insertSheet(blankPdf);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  mockPdiScannerHandler.insertSheet(blankPdf!);
   await waitForReviewScreen();
   await screenshot('blank-ballot-warning');
   await page.getByRole('button', { name: 'Cast Ballot' }).click();
 
   // Undervote warning.
-  mockPdiScannerHandler.insertSheet(undervotePdf);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  mockPdiScannerHandler.insertSheet(undervotePdf!);
   await waitForReviewScreen();
   await screenshot('undervote-warning');
   await page.getByRole('button', { name: 'Cast Ballot' }).click();
 
   // Overvote warning.
-  mockPdiScannerHandler.insertSheet(overvotePdf);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  mockPdiScannerHandler.insertSheet(overvotePdf!);
   await waitForReviewScreen();
   await screenshot('overvote-warning');
   await page.getByRole('button', { name: 'Cast Ballot' }).click();
 
   // Mixed overvote + undervote warning.
-  mockPdiScannerHandler.insertSheet(mixedPdf);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  mockPdiScannerHandler.insertSheet(mixedPdf!);
   await waitForReviewScreen();
   await screenshot('mixed-overvote-undervote-warning');
   await page.getByRole('button', { name: 'Cast Ballot' }).click();
@@ -571,7 +579,8 @@ test('voting', async ({ page }, testInfo) => {
   mockCardRemoval();
   await page.getByText('Insert Your Ballot').waitFor();
 
-  mockPdiScannerHandler.insertSheet(fullPdf);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  mockPdiScannerHandler.insertSheet(fullPdf!);
   await page.getByText('Your ballot was counted!').waitFor({ timeout: 15000 });
 
   // Pause voting.
@@ -600,7 +609,8 @@ test('voting', async ({ page }, testInfo) => {
   mockCardRemoval();
   await page.getByText('Insert Your Ballot').waitFor();
 
-  mockPdiScannerHandler.insertSheet(fullPdf);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  mockPdiScannerHandler.insertSheet(fullPdf!);
   await page.getByText('Your ballot was counted!').waitFor({ timeout: 15000 });
 
   // Closing polls flow (multi-batch).
@@ -780,7 +790,8 @@ test('write-in-report', async ({ page }, testInfo) => {
   // between consecutive successful scans.
   const writeInPdfs = [writeInPdfA, writeInPdfB];
   for (const [index, writeInPdf] of writeInPdfs.entries()) {
-    mockPdiScannerHandler.insertSheet(writeInPdf);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    mockPdiScannerHandler.insertSheet(writeInPdf!);
     await expect(page.getByTestId('ballot-count')).toHaveText(
       String(index + 1),
       { timeout: 15000 }

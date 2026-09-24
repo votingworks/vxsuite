@@ -104,8 +104,8 @@ const electionGeneralDefinition = readElectionGeneralDefinition();
 const { election } = electionGeneralDefinition;
 
 const [pollingPlace] = assertDefined(election.pollingPlaces);
-const precinctId = electionGeneralDefinition.election.precincts[0].id;
-assert(precinctId in pollingPlace.precincts);
+const precinctId = electionGeneralDefinition.election.precincts[0]!.id;
+assert(precinctId in pollingPlace!.precincts);
 
 vi.mock(import('@votingworks/ballot-interpreter'), async (importActual) => ({
   ...(await importActual()),
@@ -223,7 +223,7 @@ beforeEach(async () => {
     electionPackageHash: 'test-election-package-hash',
     ballotHash: electionGeneralDefinition.ballotHash,
   });
-  workspace.store.setPollingPlaceId(pollingPlace.id);
+  workspace.store.setPollingPlaceId(pollingPlace!.id);
   workspace.store.setSystemSettings(
     safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
   );
@@ -518,9 +518,7 @@ async function executePrintBallotAndAssert(
     await loadImageData(scanFixtureFilepath)
   ).unsafeUnwrap();
   expect(interpretSimplexBmdBallot).toHaveBeenCalledTimes(1);
-  const {
-    calls: [[frontImage]],
-  } = vi.mocked(interpretSimplexBmdBallot).mock;
+  const [frontImage] = vi.mocked(interpretSimplexBmdBallot).mock.calls[0]!;
 
   assert(frontImage, 'No front image was passed to interpretSimplexBmdBallot');
   await expect(frontImage).toMatchImage(scanFixtureImageData);
@@ -610,7 +608,7 @@ test('elections with grid layouts still try to interpret BMD ballots', async () 
     ballotHash: electionDefinition.ballotHash,
   });
   workspace.store.setPollingPlaceId(
-    assertDefined(electionDefinition.election.pollingPlaces)[0].id
+    assertDefined(electionDefinition.election.pollingPlaces)[0]!.id
   );
 
   await executePrintBallotAndAssert(
@@ -649,7 +647,7 @@ test('blank page interpretation', async () => {
 
   await waitForStatus('paper_reloaded');
 
-  const ballotStyle = electionGeneralDefinition.election.ballotStyles[1];
+  const ballotStyle = electionGeneralDefinition.election.ballotStyles[1]!;
   // The fixture expects ballot style id 5
   assert(ballotStyle.id === '5');
 
@@ -778,7 +776,7 @@ describe('PAT device', () => {
 
 test('ending poll worker auth in accepting_paper returns to initial state', async () => {
   machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
-  const ballotStyle = electionGeneralDefinition.election.ballotStyles[1];
+  const ballotStyle = electionGeneralDefinition.election.ballotStyles[1]!;
   mockCardlessVoterAuth(auth, {
     ballotStyleId: ballotStyle.id,
     precinctId,
@@ -795,7 +793,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
 
   test('loading_paper state', async () => {
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
-    const ballotStyle = electionGeneralDefinition.election.ballotStyles[1];
+    const ballotStyle = electionGeneralDefinition.election.ballotStyles[1]!;
     await setMockStatusAndIncrementClock('paperInserted');
     await waitForStatus('loading_new_sheet');
     mockCardlessVoterAuth(auth, {
@@ -958,9 +956,7 @@ test('insert and validate new blank sheet', async () => {
   clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
   await waitForStatus('waiting_for_ballot_data');
 
-  const {
-    calls: [[frontImage]],
-  } = vi.mocked(interpretSimplexBmdBallot).mock;
+  const [frontImage] = vi.mocked(interpretSimplexBmdBallot).mock.calls[0]!;
   assert(frontImage, 'No front image was passed to interpretSimplexBmdBallot');
 
   await expect(frontImage).toMatchImage(BLANK_PAGE_IMAGE_DATA);
@@ -1134,9 +1130,7 @@ describe('re-insert removed ballot', () => {
 
     mockInterpretResult.resolve(SUCCESSFUL_INTERPRETATION_MOCK);
     await waitForStatus('presenting_ballot');
-    const {
-      calls: [[frontImage]],
-    } = vi.mocked(interpretSimplexBmdBallot).mock;
+    const [frontImage] = vi.mocked(interpretSimplexBmdBallot).mock.calls[0]!;
 
     await expect(frontImage).toMatchImage(BLANK_PAGE_IMAGE_DATA);
   });

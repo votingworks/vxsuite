@@ -148,7 +148,8 @@ function Content(): JSX.Element | null {
    */
   const defaultContestRoute =
     !contestId && contestsToShow.length > 0
-      ? contestRoutes.view(contestsToShow[0].id).path
+      ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        contestRoutes.view(contestsToShow[0]!.id).path
       : null;
 
   function onSaveReorderedContests(updatedContests: readonly Contest[]) {

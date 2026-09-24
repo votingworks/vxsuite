@@ -25,7 +25,7 @@ let mockNodeEnv: 'production' | 'test' = 'test';
 const electionDefinition =
   electionSimpleSinglePrecinctFixtures.readElectionDefinition();
 const electionKey = constructElectionKey(electionDefinition.election);
-const currentPrecinctId = electionDefinition.election.precincts[0].id;
+const currentPrecinctId = electionDefinition.election.precincts[0]!.id;
 const mockStreetNames = [
   createValidStreetInfo(
     'MAIN ST',
@@ -163,8 +163,8 @@ test('check in a voter', async () => {
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
     expect((votersAbigail as Voter[]).length).toEqual(3);
-    const firstVoter = (votersAbigail as Voter[])[0];
-    const secondVoter = (votersAbigail as Voter[])[1];
+    const firstVoter = (votersAbigail as Voter[])[0]!;
+    const secondVoter = (votersAbigail as Voter[])[1]!;
 
     const checkInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
@@ -248,7 +248,7 @@ test('checking in a voter does not allow ballot party during a general', async (
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
     expect((votersAbigail as Voter[]).length).toEqual(3);
-    const firstVoter = (votersAbigail as Voter[])[0];
+    const firstVoter = (votersAbigail as Voter[])[0]!;
 
     await suppressingConsoleOutput(() =>
       expect(
@@ -484,7 +484,7 @@ test('change a voter name', async () => {
 
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
-    const secondVoter = (votersAbigail as Voter[])[1];
+    const secondVoter = (votersAbigail as Voter[])[1]!;
     expect(votersAbigail).toHaveLength(4);
 
     const nameChangeData: VoterNameChangeRequest = {
@@ -536,7 +536,7 @@ test('change a voter name', async () => {
     assert(votersBarbara !== null);
     assert(Array.isArray(votersBarbara));
     expect(votersBarbara).toHaveLength(1); // the changed name voter is gone
-    expect((votersBarbara as Voter[])[0].voterId).toEqual(secondVoter.voterId);
+    expect((votersBarbara as Voter[])[0]!.voterId).toEqual(secondVoter.voterId);
   });
 });
 
@@ -563,8 +563,8 @@ test('change a voter mailing address', async () => {
 
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
-    const voterWithMailingAddress = (votersAbigail as Voter[])[0];
-    const voterWithoutMailingAddress = (votersAbigail as Voter[])[1];
+    const voterWithMailingAddress = (votersAbigail as Voter[])[0]!;
+    const voterWithoutMailingAddress = (votersAbigail as Voter[])[1]!;
     expect(votersAbigail).toHaveLength(3);
 
     const mailingAddressChangeData: VoterMailingAddressChangeRequest = {
@@ -632,7 +632,7 @@ test('undo a voter check-in', async () => {
 
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
-    const firstVoter = (votersAbigail as Voter[])[0];
+    const firstVoter = (votersAbigail as Voter[])[0]!;
 
     const checkInResult = await localApiClient.checkInVoter({
       voterId: firstVoter.voterId,
@@ -889,7 +889,7 @@ test('check in, change name, undo check-in, change address, and check in again',
 
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
-    const firstVoter = (votersAbigail as Voter[])[0];
+    const firstVoter = (votersAbigail as Voter[])[0]!;
 
     // Initial check-in
     const checkInResult = await localApiClient.checkInVoter({
@@ -992,7 +992,7 @@ test('change a voter address with various formats', async () => {
 
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
-    const secondVoter = (votersAbigail as Voter[])[1];
+    const secondVoter = (votersAbigail as Voter[])[1]!;
 
     const addressChangeDataVariants: VoterAddressChangeRequest[] = [
       {
@@ -1227,9 +1227,9 @@ test('mark a voter inactive', async () => {
     assert(votersAbigail !== null);
     assert(Array.isArray(votersAbigail));
     expect(votersAbigail).toHaveLength(3);
-    const firstVoter = (votersAbigail as Voter[])[0];
-    const secondVoter = (votersAbigail as Voter[])[1];
-    const thirdVoter = (votersAbigail as Voter[])[2];
+    const firstVoter = (votersAbigail as Voter[])[0]!;
+    const secondVoter = (votersAbigail as Voter[])[1]!;
+    const thirdVoter = (votersAbigail as Voter[])[2]!;
 
     // Mark the first voter as inactive
     const markInactiveResult = await localApiClient.markVoterInactive({
@@ -1298,10 +1298,12 @@ test('mark a voter inactive', async () => {
     assert(votersAbigail2 !== null);
     assert(Array.isArray(votersAbigail2));
     expect(votersAbigail2).toHaveLength(3);
-    expect((votersAbigail2 as Voter[])[0].voterId).toEqual(firstVoter.voterId);
-    expect((votersAbigail2 as Voter[])[0].isInactive).toEqual(true);
-    expect((votersAbigail2 as Voter[])[1].voterId).toEqual(secondVoter.voterId);
-    expect((votersAbigail2 as Voter[])[1].isInactive).toEqual(false);
+    expect((votersAbigail2 as Voter[])[0]!.voterId).toEqual(firstVoter.voterId);
+    expect((votersAbigail2 as Voter[])[0]!.isInactive).toEqual(true);
+    expect((votersAbigail2 as Voter[])[1]!.voterId).toEqual(
+      secondVoter.voterId
+    );
+    expect((votersAbigail2 as Voter[])[1]!.isInactive).toEqual(false);
 
     const votersNameChange = await localApiClient.searchVoters({
       searchParams: {
@@ -1314,10 +1316,10 @@ test('mark a voter inactive', async () => {
     assert(votersNameChange !== null);
     assert(Array.isArray(votersNameChange));
     expect(votersNameChange).toHaveLength(1);
-    expect((votersNameChange as Voter[])[0].voterId).toEqual(
+    expect((votersNameChange as Voter[])[0]!.voterId).toEqual(
       thirdVoter.voterId
     );
-    expect((votersNameChange as Voter[])[0].isInactive).toEqual(true);
+    expect((votersNameChange as Voter[])[0]!.isInactive).toEqual(true);
   });
 });
 
@@ -1371,16 +1373,16 @@ test('voter search results prioritize voters from configured precinct', async ()
     const voterResults = searchResult as Voter[];
 
     // Verify that voters from the configured precinct come first
-    expect(voterResults[0].precinct).toEqual(currentPrecinctId);
-    expect(voterResults[0].firstName).toEqual('Charlie');
-    expect(voterResults[1].precinct).toEqual(currentPrecinctId);
-    expect(voterResults[1].firstName).toEqual('David');
+    expect(voterResults[0]!.precinct).toEqual(currentPrecinctId);
+    expect(voterResults[0]!.firstName).toEqual('Charlie');
+    expect(voterResults[1]!.precinct).toEqual(currentPrecinctId);
+    expect(voterResults[1]!.firstName).toEqual('David');
 
     // Verify that voters from other precincts come after
-    expect(voterResults[2].precinct).toEqual('precinct-2');
-    expect(voterResults[2].firstName).toEqual('Alice');
-    expect(voterResults[3].precinct).toEqual('precinct-2');
-    expect(voterResults[3].firstName).toEqual('Bob');
+    expect(voterResults[2]!.precinct).toEqual('precinct-2');
+    expect(voterResults[2]!.firstName).toEqual('Alice');
+    expect(voterResults[3]!.precinct).toEqual('precinct-2');
+    expect(voterResults[3]!.firstName).toEqual('Bob');
   });
 });
 
@@ -1618,12 +1620,12 @@ test('voter search results consider address changes for precinct prioritization'
     const voterResults = searchResult as Voter[];
 
     // Verify that Alice (with address change) comes first due to effective precinct
-    expect(voterResults[0].firstName).toEqual('Alice');
-    expect(voterResults[0].addressChange?.precinct).toEqual(currentPrecinctId);
+    expect(voterResults[0]!.firstName).toEqual('Alice');
+    expect(voterResults[0]!.addressChange?.precinct).toEqual(currentPrecinctId);
 
     // Verify that Bob comes second (also in configured precinct, but alphabetically after Alice)
-    expect(voterResults[1].firstName).toEqual('Bob');
-    expect(voterResults[1].precinct).toEqual(currentPrecinctId);
+    expect(voterResults[1]!.firstName).toEqual('Bob');
+    expect(voterResults[1]!.precinct).toEqual(currentPrecinctId);
   });
 });
 
@@ -1670,19 +1672,19 @@ test('searchVoters sorts voters with matching precinct first', async () => {
     const result = votersAdams as Voter[];
 
     // Bob Adams (current precinct) should come first
-    expect(result[0].firstName).toEqual('Bob');
-    expect(result[0].lastName).toEqual('Adams');
-    expect(result[0].precinct).toEqual(currentPrecinctId);
+    expect(result[0]!.firstName).toEqual('Bob');
+    expect(result[0]!.lastName).toEqual('Adams');
+    expect(result[0]!.precinct).toEqual(currentPrecinctId);
 
     // Then Alice Adams (precinct-2)
-    expect(result[1].firstName).toEqual('Alice');
-    expect(result[1].lastName).toEqual('Adams');
-    expect(result[1].precinct).toEqual('precinct-2');
+    expect(result[1]!.firstName).toEqual('Alice');
+    expect(result[1]!.lastName).toEqual('Adams');
+    expect(result[1]!.precinct).toEqual('precinct-2');
 
     // Then Charlie Adams (precinct-2)
-    expect(result[2].firstName).toEqual('Charlie');
-    expect(result[2].lastName).toEqual('Adams');
-    expect(result[2].precinct).toEqual('precinct-2');
+    expect(result[2]!.firstName).toEqual('Charlie');
+    expect(result[2]!.lastName).toEqual('Adams');
+    expect(result[2]!.precinct).toEqual('precinct-2');
   });
 });
 
@@ -1708,7 +1710,7 @@ test('searchVoters considers address changes for precinct matching', async () =>
 
     // Change Charlie's address to move them to current precinct
     const addressChangeResult = await localApiClient.changeVoterAddress({
-      voterId: testVoters[1].voterId,
+      voterId: testVoters[1]!.voterId,
       addressChangeData: {
         streetName: 'ELM ST',
         streetNumber: '20',
@@ -1743,14 +1745,14 @@ test('searchVoters considers address changes for precinct matching', async () =>
 
     // Both voters should now be in current precinct, sorted alphabetically
     // Alice Adams should come first
-    expect(result[0].firstName).toEqual('Alice');
-    expect(result[0].lastName).toEqual('Adams');
-    expect(result[0].precinct).toEqual(currentPrecinctId);
+    expect(result[0]!.firstName).toEqual('Alice');
+    expect(result[0]!.lastName).toEqual('Adams');
+    expect(result[0]!.precinct).toEqual(currentPrecinctId);
 
     // Charlie Adams should come second (moved to current precinct via address change)
-    expect(result[1].firstName).toEqual('Charlie');
-    expect(result[1].lastName).toEqual('Adams');
-    expect(result[1].addressChange?.precinct).toEqual(currentPrecinctId);
+    expect(result[1]!.firstName).toEqual('Charlie');
+    expect(result[1]!.lastName).toEqual('Adams');
+    expect(result[1]!.addressChange?.precinct).toEqual(currentPrecinctId);
   });
 });
 
@@ -1779,7 +1781,7 @@ test('getActiveAnomalies returns anomalies with voter details', async () => {
 
     // Directly record an anomaly via store for testing
     workspace.store.recordAnomaly('DuplicateCheckIn', {
-      voterId: mockVoters[0].voterId,
+      voterId: mockVoters[0]!.voterId,
       checkInEvents: [
         { machineId: 'machine-1', timestamp: '2024-01-01T10:00:00.000Z' },
         { machineId: 'machine-2', timestamp: '2024-01-01T10:01:00.000Z' },
@@ -1788,12 +1790,14 @@ test('getActiveAnomalies returns anomalies with voter details', async () => {
 
     const anomalies = await localApiClient.getActiveAnomalies();
     expect(anomalies).toHaveLength(1);
-    expect(anomalies[0].anomalyType).toEqual('DuplicateCheckIn');
-    expect(anomalies[0].dismissed).toEqual(false);
-    expect(anomalies[0].anomalyDetails.voterId).toEqual(mockVoters[0].voterId);
-    expect(anomalies[0].anomalyDetails.voter).toBeDefined();
-    expect(anomalies[0].anomalyDetails.voter.firstName).toEqual('Abigail');
-    expect(anomalies[0].anomalyDetails.checkInEvents).toHaveLength(2);
+    expect(anomalies[0]!.anomalyType).toEqual('DuplicateCheckIn');
+    expect(anomalies[0]!.dismissed).toEqual(false);
+    expect(anomalies[0]!.anomalyDetails.voterId).toEqual(
+      mockVoters[0]!.voterId
+    );
+    expect(anomalies[0]!.anomalyDetails.voter).toBeDefined();
+    expect(anomalies[0]!.anomalyDetails.voter.firstName).toEqual('Abigail');
+    expect(anomalies[0]!.anomalyDetails.checkInEvents).toHaveLength(2);
   });
 });
 
@@ -1808,7 +1812,7 @@ test('dismissAnomaly removes anomaly from active list', async () => {
 
     // Record an anomaly
     workspace.store.recordAnomaly('DuplicateCheckIn', {
-      voterId: mockVoters[0].voterId,
+      voterId: mockVoters[0]!.voterId,
       checkInEvents: [
         { machineId: 'machine-1', timestamp: '2024-01-01T10:00:00.000Z' },
       ],
@@ -1820,7 +1824,7 @@ test('dismissAnomaly removes anomaly from active list', async () => {
 
     // Dismiss it
     await localApiClient.dismissAnomaly({
-      anomalyId: anomaliesBefore[0].anomalyId,
+      anomalyId: anomaliesBefore[0]!.anomalyId,
     });
 
     // Verify it's gone
@@ -1839,7 +1843,7 @@ test('duplicate check-in after undo is allowed and does not create anomaly', asy
     );
     mockPrinterHandler.connectPrinter(CITIZEN_E351_PRINTER_CONFIG);
 
-    const voter = mockVoters[0];
+    const voter = mockVoters[0]!;
 
     // First check-in should succeed without creating anomaly
     const checkInResult1 = await localApiClient.checkInVoter({

@@ -17,7 +17,7 @@ const electionFamousNames =
 const mockPollbookService: PollbookServiceInfo = {
   electionId: electionFamousNames.election.id,
   electionBallotHash: electionFamousNames.ballotHash,
-  configuredPrecinctId: electionFamousNames.election.precincts[0].id,
+  configuredPrecinctId: electionFamousNames.election.precincts[0]!.id,
   pollbookPackageHash: 'test-package-hash',
   electionTitle: 'Test Election',
   machineId: 'TEST',
@@ -56,10 +56,10 @@ test('renders network status as expected - when unconfigured', async () => {
   const icons = within(networkElement).getAllByRole('img', {
     hidden: true,
   });
-  expect(icons[0].getAttribute('data-icon')).toEqual('tower-broadcast');
-  expect(icons[1].getAttribute('data-icon')).toEqual('triangle-exclamation');
+  expect(icons[0]!.getAttribute('data-icon')).toEqual('tower-broadcast');
+  expect(icons[1]!.getAttribute('data-icon')).toEqual('triangle-exclamation');
 
-  userEvent.click(icons[0]);
+  userEvent.click(icons[0]!);
   await screen.findByText('Network Details');
   await screen.findByText('Network is offline.');
   userEvent.click(screen.getByText('Close'));
@@ -124,46 +124,46 @@ test('renders network status as expected - when unconfigured', async () => {
   // Check each row
   const pollbookRows = screen.getAllByTestId('pollbook-row');
   expect(pollbookRows).toHaveLength(5);
-  expect(within(pollbookRows[0]).getByText('Connected')).toBeInTheDocument();
-  const iconElement0 = within(pollbookRows[0]).getByRole('img', {
+  expect(within(pollbookRows[0]!).getByText('Connected')).toBeInTheDocument();
+  const iconElement0 = within(pollbookRows[0]!).getByRole('img', {
     hidden: true,
   });
   expect(iconElement0.getAttribute('data-icon')).toEqual('circle-info');
-  expect(within(pollbookRows[0]).getByText('0001')).toBeInTheDocument();
+  expect(within(pollbookRows[0]!).getByText('0001')).toBeInTheDocument();
 
-  expect(within(pollbookRows[1]).getByText('Connected')).toBeInTheDocument();
-  const iconElement1 = within(pollbookRows[1]).getByRole('img', {
+  expect(within(pollbookRows[1]!).getByText('Connected')).toBeInTheDocument();
+  const iconElement1 = within(pollbookRows[1]!).getByRole('img', {
     hidden: true,
   });
   expect(iconElement1.getAttribute('data-icon')).toEqual('circle-info');
-  expect(within(pollbookRows[1]).getByText('0003')).toBeInTheDocument();
+  expect(within(pollbookRows[1]!).getByText('0003')).toBeInTheDocument();
 
   expect(
-    within(pollbookRows[2]).getByText('Lost Connection')
+    within(pollbookRows[2]!).getByText('Lost Connection')
   ).toBeInTheDocument();
-  const iconElement2 = within(pollbookRows[2]).getByRole('img', {
+  const iconElement2 = within(pollbookRows[2]!).getByRole('img', {
     hidden: true,
   });
   expect(iconElement2.getAttribute('data-icon')).toEqual(
     'triangle-exclamation'
   );
-  expect(within(pollbookRows[2]).getByText('0002')).toBeInTheDocument();
+  expect(within(pollbookRows[2]!).getByText('0002')).toBeInTheDocument();
 
-  expect(within(pollbookRows[3]).getByText('Powered Off')).toBeInTheDocument();
-  const iconElement3 = within(pollbookRows[3]).getByRole('img', {
+  expect(within(pollbookRows[3]!).getByText('Powered Off')).toBeInTheDocument();
+  const iconElement3 = within(pollbookRows[3]!).getByRole('img', {
     hidden: true,
   });
   expect(iconElement3.getAttribute('data-icon')).toEqual('circle-info');
-  expect(within(pollbookRows[3]).getByText('0004')).toBeInTheDocument();
+  expect(within(pollbookRows[3]!).getByText('0004')).toBeInTheDocument();
 
   expect(
-    within(pollbookRows[4]).getByText('Incompatible Machine')
+    within(pollbookRows[4]!).getByText('Incompatible Machine')
   ).toBeInTheDocument();
-  const iconElement4 = within(pollbookRows[4]).getByRole('img', {
+  const iconElement4 = within(pollbookRows[4]!).getByRole('img', {
     hidden: true,
   });
   expect(iconElement4.getAttribute('data-icon')).toEqual('circle-exclamation');
-  expect(within(pollbookRows[4]).getByText('0005')).toBeInTheDocument();
+  expect(within(pollbookRows[4]!).getByText('0005')).toBeInTheDocument();
 
   userEvent.click(screen.getByText('Close'));
 });
@@ -172,7 +172,7 @@ test('renders network status as expected - when configured', async () => {
   apiMock.setNetworkOffline();
   apiMock.setElection(
     electionFamousNames,
-    electionFamousNames.election.precincts[0].id
+    electionFamousNames.election.precincts[0]!.id
   );
   const result = renderInAppContext(<DeviceStatusBar />, {
     apiMock,
@@ -183,10 +183,10 @@ test('renders network status as expected - when configured', async () => {
   const icons = within(networkElement).getAllByRole('img', {
     hidden: true,
   });
-  expect(icons[0].getAttribute('data-icon')).toEqual('tower-broadcast');
-  expect(icons[1].getAttribute('data-icon')).toEqual('triangle-exclamation');
+  expect(icons[0]!.getAttribute('data-icon')).toEqual('tower-broadcast');
+  expect(icons[1]!.getAttribute('data-icon')).toEqual('triangle-exclamation');
 
-  userEvent.click(icons[0]);
+  userEvent.click(icons[0]!);
   await screen.findByText('Network Details');
   await screen.findByText('Network is offline.');
   userEvent.click(screen.getByText('Close'));
@@ -257,8 +257,8 @@ test('renders network status as expected - when configured', async () => {
   // Check each row
   const pollbookRows = screen.getAllByTestId('pollbook-row');
   expect(pollbookRows).toHaveLength(6);
-  expect(within(pollbookRows[0]).getByText('Synced')).toBeInTheDocument();
-  const iconElement0 = within(pollbookRows[0]).getByRole('img', {
+  expect(within(pollbookRows[0]!).getByText('Synced')).toBeInTheDocument();
+  const iconElement0 = within(pollbookRows[0]!).getByRole('img', {
     hidden: true,
   });
   // This is a checkmark icon. There is no data-icon attribute for this icon.
@@ -280,52 +280,52 @@ test('renders network status as expected - when configured', async () => {
       />
     </svg>
   `);
-  expect(within(pollbookRows[0]).getByText('0006')).toBeInTheDocument();
+  expect(within(pollbookRows[0]!).getByText('0006')).toBeInTheDocument();
 
   expect(
-    within(pollbookRows[1]).getByText('Different Election')
+    within(pollbookRows[1]!).getByText('Different Election')
   ).toBeInTheDocument();
-  const iconElement1 = within(pollbookRows[1]).getByRole('img', {
+  const iconElement1 = within(pollbookRows[1]!).getByRole('img', {
     hidden: true,
   });
   expect(iconElement1.getAttribute('data-icon')).toEqual('circle-info');
-  expect(within(pollbookRows[1]).getByText('0001')).toBeInTheDocument();
+  expect(within(pollbookRows[1]!).getByText('0001')).toBeInTheDocument();
 
   expect(
-    within(pollbookRows[2]).getByText('Different Precinct')
+    within(pollbookRows[2]!).getByText('Different Precinct')
   ).toBeInTheDocument();
-  const iconElement2 = within(pollbookRows[2]).getByRole('img', {
+  const iconElement2 = within(pollbookRows[2]!).getByRole('img', {
     hidden: true,
   });
   expect(iconElement2.getAttribute('data-icon')).toEqual('circle-info');
-  expect(within(pollbookRows[2]).getByText('0003')).toBeInTheDocument();
+  expect(within(pollbookRows[2]!).getByText('0003')).toBeInTheDocument();
 
   expect(
-    within(pollbookRows[3]).getByText('Lost Connection')
+    within(pollbookRows[3]!).getByText('Lost Connection')
   ).toBeInTheDocument();
-  const iconElement3 = within(pollbookRows[3]).getByRole('img', {
+  const iconElement3 = within(pollbookRows[3]!).getByRole('img', {
     hidden: true,
   });
   expect(iconElement3.getAttribute('data-icon')).toEqual(
     'triangle-exclamation'
   );
-  expect(within(pollbookRows[3]).getByText('0002')).toBeInTheDocument();
+  expect(within(pollbookRows[3]!).getByText('0002')).toBeInTheDocument();
 
-  expect(within(pollbookRows[4]).getByText('Powered Off')).toBeInTheDocument();
-  const iconElement4 = within(pollbookRows[4]).getByRole('img', {
+  expect(within(pollbookRows[4]!).getByText('Powered Off')).toBeInTheDocument();
+  const iconElement4 = within(pollbookRows[4]!).getByRole('img', {
     hidden: true,
   });
   expect(iconElement4.getAttribute('data-icon')).toEqual('circle-info');
-  expect(within(pollbookRows[4]).getByText('0004')).toBeInTheDocument();
+  expect(within(pollbookRows[4]!).getByText('0004')).toBeInTheDocument();
 
   expect(
-    within(pollbookRows[5]).getByText('Incompatible Machine')
+    within(pollbookRows[5]!).getByText('Incompatible Machine')
   ).toBeInTheDocument();
-  const iconElement5 = within(pollbookRows[5]).getByRole('img', {
+  const iconElement5 = within(pollbookRows[5]!).getByRole('img', {
     hidden: true,
   });
   expect(iconElement5.getAttribute('data-icon')).toEqual('circle-exclamation');
-  expect(within(pollbookRows[5]).getByText('0005')).toBeInTheDocument();
+  expect(within(pollbookRows[5]!).getByText('0005')).toBeInTheDocument();
 
   userEvent.click(screen.getByText('Close'));
 });
@@ -334,7 +334,7 @@ test('renders barcode scanner status warning when scanner is disconnected', asyn
   apiMock.setBarcodeScannerStatus(false);
   apiMock.setElection(
     electionFamousNames,
-    electionFamousNames.election.precincts[0].id
+    electionFamousNames.election.precincts[0]!.id
   );
   const result = renderInAppContext(<DeviceStatusBar />, {
     apiMock,
@@ -348,15 +348,15 @@ test('renders barcode scanner status warning when scanner is disconnected', asyn
     hidden: true,
   });
   expect(icons.length).toEqual(2);
-  expect(icons[0].getAttribute('data-icon')).toEqual('id-card');
-  expect(icons[1].getAttribute('data-icon')).toEqual('triangle-exclamation');
+  expect(icons[0]!.getAttribute('data-icon')).toEqual('id-card');
+  expect(icons[1]!.getAttribute('data-icon')).toEqual('triangle-exclamation');
 });
 
 test('renders barcode scanner status without warning when scanner is connected', async () => {
   apiMock.setBarcodeScannerStatus(true);
   apiMock.setElection(
     electionFamousNames,
-    electionFamousNames.election.precincts[0].id
+    electionFamousNames.election.precincts[0]!.id
   );
   const result = renderInAppContext(<DeviceStatusBar />, {
     apiMock,
@@ -370,5 +370,5 @@ test('renders barcode scanner status without warning when scanner is connected',
     hidden: true,
   });
   expect(icons.length).toEqual(1);
-  expect(icons[0].getAttribute('data-icon')).toEqual('id-card');
+  expect(icons[0]!.getAttribute('data-icon')).toEqual('id-card');
 });

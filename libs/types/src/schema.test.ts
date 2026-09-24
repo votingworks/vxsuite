@@ -30,7 +30,7 @@ test('parsing gives specific errors for nested objects', () => {
         contests: [
           ...electionGeneral.contests.slice(1),
           {
-            ...electionGeneral.contests[0],
+            ...electionGeneral.contests[0]!,
             // give title a type it shouldn't have
             title: 42,
           },
@@ -70,7 +70,7 @@ test('parsing a valid election', () => {
 test('contest IDs cannot start with an underscore', () => {
   expect(
     safeParse(t.CandidateContestSchema, {
-      ...electionGeneral.contests[0],
+      ...electionGeneral.contests[0]!,
       id: '_president',
     }).unsafeUnwrapErr()
   ).toMatchSnapshot();
@@ -161,10 +161,13 @@ test('parsing validates that ballot style districts match precinct districts', (
       ...electionGeneral,
       districts,
       ballotStyles: [
-        { ...electionGeneral.ballotStyles[0], districts: ballotStyleDistricts },
+        {
+          ...electionGeneral.ballotStyles[0]!,
+          districts: ballotStyleDistricts,
+        },
       ],
       precincts: [
-        { ...electionGeneral.precincts[0], districtIds: precinctDistrictIds },
+        { ...electionGeneral.precincts[0]!, districtIds: precinctDistrictIds },
       ],
     };
   }
@@ -198,7 +201,7 @@ test('parsing validates that ballot style districts match precinct districts', (
       ...electionGeneral,
       districts,
       ballotStyles: [
-        { ...electionGeneral.ballotStyles[0], precincts: ['P', 'P2'] },
+        { ...electionGeneral.ballotStyles[0]!, precincts: ['P', 'P2'] },
       ],
       precincts: [
         ...electionGeneral.precincts,
@@ -242,7 +245,10 @@ test('parsing validates that ballot style districts match a precinct split', () 
         { id: 'D2', name: 'DISTRICT 2' },
       ],
       ballotStyles: [
-        { ...electionGeneral.ballotStyles[0], districts: ballotStyleDistricts },
+        {
+          ...electionGeneral.ballotStyles[0]!,
+          districts: ballotStyleDistricts,
+        },
       ],
       precincts: [
         {
@@ -317,7 +323,7 @@ test('parsing validates candidate party references', () => {
             candidates: [
               ...contest.candidates.slice(1),
               {
-                ...contest.candidates[0],
+                ...contest.candidates[0]!,
                 partyIds: ['not-a-party'],
               },
             ],
@@ -453,7 +459,7 @@ test('specifying all write-in candidates is required if any are specified', () =
 
   expect(
     safeParse(t.CandidateContestSchema, candidateContest).unsafeUnwrapErr()
-      .issues[0].message
+      .issues[0]!.message
   ).toEqual(
     'Contest has 1 write-in candidate(s), but 2 seat(s) are available.'
   );
@@ -482,7 +488,7 @@ test('no write-in candidates may be specified if write-ins are not allowed', () 
 
   expect(
     safeParse(t.CandidateContestSchema, candidateContest).unsafeUnwrapErr()
-      .issues[0].message
+      .issues[0]!.message
   ).toEqual(`Contest 'CC' does not allow write-ins.`);
 });
 
@@ -499,7 +505,7 @@ test('a contest must have at least one candidate option if write-ins are not all
 
   expect(
     safeParse(t.CandidateContestSchema, candidateContest).unsafeUnwrapErr()
-      .issues[0].message
+      .issues[0]!.message
   ).toEqual('Contest must have at least one candidate or allow write-ins.');
 });
 

@@ -52,7 +52,7 @@ test.each([
       ...ppdContent.matchAll(
         new RegExp(String.raw`^\*${keyword}\s+(\S+?)/`, 'gm')
       ),
-    ].map(([, name]) => name.toLowerCase());
+    ].map(([, name]) => name!.toLowerCase());
 
     for (const paperSize of Object.values(HmpbBallotPaperSize)) {
       expect(definedSizes, `${keyword} is missing ${paperSize}`).toContain(

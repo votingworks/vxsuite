@@ -34,7 +34,7 @@ function setupTwoStores(): [PeerStore, PeerStore] {
   const testElection = getTestElectionDefinition();
   for (const store of [store1, store2]) {
     store.setElectionAndVoters(testElection, 'mock-package-hash', [], voters);
-    store.setConfiguredPrecinct(testElection.election.precincts[0].id);
+    store.setConfiguredPrecinct(testElection.election.precincts[0]!.id);
   }
   return [store1, store2];
 }
@@ -233,7 +233,7 @@ test('getNewEvents returns hasMore when there are more events from known machine
 
   // Set up store2 to have synced the first event only from myMachineId
   store2.saveRemoteEvents(
-    [events[0]],
+    [events[0]!],
     store.getPollbookConfigurationInformation()
   );
   expect(store2.getMostRecentEventIdPerMachine()).toEqual({ [myMachineId]: 0 });
@@ -288,7 +288,7 @@ test('getNewEvents returns hasMore when there are more events from known machine
 
   // Set up store2 to have synced the first event only from myMachineId
   store2.saveRemoteEvents(
-    [machine1Events[0]],
+    [machine1Events[0]!],
     store.getPollbookConfigurationInformation()
   );
   expect(store2.getMostRecentEventIdPerMachine()).toEqual({ [myMachineId]: 0 });
@@ -348,7 +348,7 @@ test('sortedByVoterName respects useOriginalName option', () => {
   ];
 
   // Add name change to first voter
-  voters[0].nameChange = {
+  voters[0]!.nameChange = {
     firstName: 'Charles',
     lastName: 'Smith',
     middleName: '',
@@ -413,7 +413,7 @@ test('sortedByVoterNameAndMatchingPrecinct considers address changes for precinc
   ];
 
   // Add address change to first voter that changes their precinct
-  voters[0].addressChange = {
+  voters[0]!.addressChange = {
     streetNumber: '456',
     streetName: 'Oak St',
     streetSuffix: '',
@@ -452,7 +452,7 @@ test('sortedByVoterNameAndMatchingPrecinct respects useOriginalName option', () 
   ];
 
   // Add name change to first voter
-  voters[0].nameChange = {
+  voters[0]!.nameChange = {
     firstName: 'Charles',
     lastName: 'Smith',
     middleName: '',
@@ -488,11 +488,11 @@ describe('Anomaly Management - Store Methods', () => {
 
       const anomalies = store.getActiveAnomalies();
       expect(anomalies).toHaveLength(1);
-      expect(anomalies[0].anomalyType).toEqual('DuplicateCheckIn');
-      expect(anomalies[0].dismissed).toEqual(false);
-      expect(anomalies[0].dismissedAt).toBeUndefined();
-      expect(anomalies[0].anomalyDetails.voterId).toEqual('voter-1');
-      expect(anomalies[0].anomalyDetails.checkInEvents).toHaveLength(2);
+      expect(anomalies[0]!.anomalyType).toEqual('DuplicateCheckIn');
+      expect(anomalies[0]!.dismissed).toEqual(false);
+      expect(anomalies[0]!.dismissedAt).toBeUndefined();
+      expect(anomalies[0]!.anomalyDetails.voterId).toEqual('voter-1');
+      expect(anomalies[0]!.anomalyDetails.checkInEvents).toHaveLength(2);
     });
 
     test('sets detected_at to current time', () => {
@@ -510,10 +510,10 @@ describe('Anomaly Management - Store Methods', () => {
 
       const afterTime = Date.now();
       const anomalies = store.getActiveAnomalies();
-      expect(anomalies[0].detectedAt.getTime()).toBeGreaterThanOrEqual(
+      expect(anomalies[0]!.detectedAt.getTime()).toBeGreaterThanOrEqual(
         beforeTime
       );
-      expect(anomalies[0].detectedAt.getTime()).toBeLessThanOrEqual(afterTime);
+      expect(anomalies[0]!.detectedAt.getTime()).toBeLessThanOrEqual(afterTime);
     });
 
     test('can record multiple anomalies', () => {
@@ -575,7 +575,7 @@ describe('Anomaly Management - Store Methods', () => {
 
       const activeAnomalies = store.getActiveAnomalies();
       expect(activeAnomalies).toHaveLength(1);
-      expect(activeAnomalies[0].anomalyDetails.voterId).toEqual('voter-2');
+      expect(activeAnomalies[0]!.anomalyDetails.voterId).toEqual('voter-2');
     });
 
     test('returns anomalies ordered by detected_at DESC (most recent first)', async () => {
@@ -598,10 +598,10 @@ describe('Anomaly Management - Store Methods', () => {
       const anomalies = store.getActiveAnomalies();
       expect(anomalies).toHaveLength(2);
       // Most recent first
-      expect(anomalies[0].anomalyDetails.voterId).toEqual('voter-2');
-      expect(anomalies[1].anomalyDetails.voterId).toEqual('voter-1');
-      expect(anomalies[0].detectedAt.getTime()).toBeGreaterThan(
-        anomalies[1].detectedAt.getTime()
+      expect(anomalies[0]!.anomalyDetails.voterId).toEqual('voter-2');
+      expect(anomalies[1]!.anomalyDetails.voterId).toEqual('voter-1');
+      expect(anomalies[0]!.detectedAt.getTime()).toBeGreaterThan(
+        anomalies[1]!.detectedAt.getTime()
       );
     });
 
@@ -618,10 +618,12 @@ describe('Anomaly Management - Store Methods', () => {
       });
 
       const anomalies = store.getActiveAnomalies();
-      expect(anomalies[0].anomalyDetails.voter).toBeDefined();
-      expect(anomalies[0].anomalyDetails.voter.voterId).toEqual('voter-1');
-      expect(anomalies[0].anomalyDetails.voter.firstName).toEqual('FirstName1');
-      expect(anomalies[0].anomalyDetails.voter.lastName).toEqual('LastName1');
+      expect(anomalies[0]!.anomalyDetails.voter).toBeDefined();
+      expect(anomalies[0]!.anomalyDetails.voter.voterId).toEqual('voter-1');
+      expect(anomalies[0]!.anomalyDetails.voter.firstName).toEqual(
+        'FirstName1'
+      );
+      expect(anomalies[0]!.anomalyDetails.voter.lastName).toEqual('LastName1');
     });
 
     test('converts timestamp integers to Date objects', () => {
@@ -635,7 +637,7 @@ describe('Anomaly Management - Store Methods', () => {
       });
 
       const anomalies = store.getActiveAnomalies();
-      expect(anomalies[0].detectedAt).toBeInstanceOf(Date);
+      expect(anomalies[0]!.detectedAt).toBeInstanceOf(Date);
     });
   });
 
@@ -653,7 +655,7 @@ describe('Anomaly Management - Store Methods', () => {
       const anomalies = store.getActiveAnomalies();
       expect(anomalies).toHaveLength(1);
 
-      store.dismissAnomaly(anomalies[0].anomalyId);
+      store.dismissAnomaly(anomalies[0]!.anomalyId);
 
       const activeAnomalies = store.getActiveAnomalies();
       expect(activeAnomalies).toHaveLength(0);
@@ -749,9 +751,9 @@ describe('Duplicate Check-In Detection', () => {
 
       const anomalies = store.getActiveAnomalies();
       expect(anomalies).toHaveLength(1);
-      expect(anomalies[0].anomalyType).toEqual('DuplicateCheckIn');
-      expect(anomalies[0].anomalyDetails.voterId).toEqual('voter-1');
-      expect(anomalies[0].anomalyDetails.checkInEvents).toHaveLength(2);
+      expect(anomalies[0]!.anomalyType).toEqual('DuplicateCheckIn');
+      expect(anomalies[0]!.anomalyDetails.voterId).toEqual('voter-1');
+      expect(anomalies[0]!.anomalyDetails.checkInEvents).toHaveLength(2);
     });
 
     test('check-ins for different voters do not create anomaly', () => {
@@ -797,7 +799,7 @@ describe('Duplicate Check-In Detection', () => {
       expect(anomalies.length).toBeGreaterThanOrEqual(1);
 
       // The most recent anomaly should have all check-in events
-      const latestAnomaly = anomalies[0];
+      const latestAnomaly = anomalies[0]!;
       expect(latestAnomaly.anomalyDetails.checkInEvents).toHaveLength(3);
     });
   });
@@ -858,7 +860,7 @@ describe('Duplicate Check-In Detection', () => {
 
       const anomalies = store.getActiveAnomalies();
       expect(anomalies).toHaveLength(1);
-      expect(anomalies[0].anomalyDetails.checkInEvents).toHaveLength(2);
+      expect(anomalies[0]!.anomalyDetails.checkInEvents).toHaveLength(2);
     });
 
     test('undo clears duplicate detection state', () => {
@@ -912,7 +914,7 @@ describe('Duplicate Check-In Detection', () => {
       );
 
       const anomalies = store.getActiveAnomalies();
-      expect(anomalies[0].anomalyDetails.voterId).toEqual('voter-5');
+      expect(anomalies[0]!.anomalyDetails.voterId).toEqual('voter-5');
     });
 
     test('anomaly includes voter details', () => {
@@ -929,7 +931,7 @@ describe('Duplicate Check-In Detection', () => {
       );
 
       const anomalies = store.getActiveAnomalies();
-      const { voter } = anomalies[0].anomalyDetails;
+      const { voter } = anomalies[0]!.anomalyDetails;
       expect(voter.voterId).toEqual('voter-3');
       expect(voter.firstName).toEqual('FirstName3');
       expect(voter.lastName).toEqual('LastName3');
@@ -949,7 +951,7 @@ describe('Duplicate Check-In Detection', () => {
       );
 
       const anomalies = store.getActiveAnomalies();
-      const { checkInEvents } = anomalies[0].anomalyDetails;
+      const { checkInEvents } = anomalies[0]!.anomalyDetails;
 
       for (const event of checkInEvents) {
         expect(event.machineId).toEqual(myMachineId);

@@ -54,7 +54,7 @@ test('UnconfigureMachineButton interactions', async () => {
 
   expect(unconfigureMachine).toHaveBeenCalledTimes(1);
   expect(sleep).toHaveBeenCalledTimes(1);
-  const sleepTime = vi.mocked(sleep).mock.calls[0][0];
+  const sleepTime = vi.mocked(sleep).mock.calls[0]![0];
   expect(sleepTime).toBeGreaterThan(0);
   expect(sleepTime).toBeLessThan(MIN_TIME_TO_UNCONFIGURE_MACHINE_MS);
 });

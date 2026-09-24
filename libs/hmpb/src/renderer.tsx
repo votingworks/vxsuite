@@ -52,12 +52,14 @@ export function createDocument(pageHandle: PageHandle) {
       await pageHandle.page().evaluate(
         // eslint-disable-next-line @typescript-eslint/no-shadow
         ([selector, content]) => {
-          const node = document.querySelector(selector);
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const node = document.querySelector(selector!);
           if (!node) {
             throw new Error(`No element found with selector: ${selector}`);
           }
 
-          node.innerHTML = content;
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          node.innerHTML = content!;
 
           // After we set the innerHTML, we need to wait for the DOM to finish
           // updating with the new content.
@@ -133,8 +135,10 @@ export function createDocument(pageHandle: PageHandle) {
     async renderToPdf(): Promise<Uint8Array> {
       const [pageDimensions] = await this.inspectElements(`.${PAGE_CLASS}`);
       const pdf = await pageHandle.page().pdf({
-        width: `${pageDimensions.width}px`,
-        height: `${pageDimensions.height}px`,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        width: `${pageDimensions!.width}px`,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        height: `${pageDimensions!.height}px`,
         printBackground: true,
       });
       return normalizePdf(pdf);

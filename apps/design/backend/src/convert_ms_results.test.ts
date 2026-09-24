@@ -62,7 +62,7 @@ const primaryElectionDefinition = safeParseElectionDefinition(
         groupId: 'dummy',
         precincts: [],
         districts: [],
-        partyId: primaryElection.parties[0].id,
+        partyId: primaryElection.parties[0]!.id,
         languages: ['en'],
       },
     ],
@@ -186,7 +186,7 @@ test('errors on missing column headers', () => {
 
 test('errors on mismatched precincts', () => {
   const rows = generateAllPrecinctsTallyReportRows(generalElection).filter(
-    (row) => row.precinctId !== generalElection.precincts[0].id
+    (row) => row.precinctId !== generalElection.precincts[0]!.id
   );
   const invalidReport =
     generateAllPrecinctsTallyReportMetadataRow(generalElectionDefinition) +
@@ -198,7 +198,7 @@ test('errors on mismatched precincts', () => {
 
 test('errors on mismatched contests', () => {
   const rows = generateAllPrecinctsTallyReportRows(generalElection).filter(
-    (row) => row.contestId !== generalElection.contests[0].id
+    (row) => row.contestId !== generalElection.contests[0]!.id
   );
   const invalidReport =
     generateAllPrecinctsTallyReportMetadataRow(generalElectionDefinition) +

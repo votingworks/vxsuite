@@ -158,9 +158,9 @@ test('batch cleanup works correctly', () => {
 
   const batches = store.getBatches();
   expect(batches).toHaveLength(1);
-  expect(batches[0].id).toEqual(firstBatchId);
-  expect(batches[0].batchNumber).toEqual(1);
-  expect(batches[0].label).toEqual('Batch 1');
+  expect(batches[0]!.id).toEqual(firstBatchId);
+  expect(batches[0]!.batchNumber).toEqual(1);
+  expect(batches[0]!.label).toEqual('Batch 1');
 
   const thirdBatchId = store.addBatch();
   store.addBatch();
@@ -229,19 +229,19 @@ test('getBatches', () => {
   ]);
   let batches = store.getBatches();
   expect(batches).toHaveLength(1);
-  expect(batches[0].count).toEqual(2);
+  expect(batches[0]!.count).toEqual(2);
 
   // Delete one of the sheets
   store.deleteSheet(sheetId);
   batches = store.getBatches();
   expect(batches).toHaveLength(1);
-  expect(batches[0].count).toEqual(1);
+  expect(batches[0]!.count).toEqual(1);
 
   // Delete the last sheet, then confirm that store.getBatches() results still include the batch
   store.deleteSheet(sheetId2);
   batches = store.getBatches();
   expect(batches).toHaveLength(1);
-  expect(batches[0].count).toEqual(0);
+  expect(batches[0]!.count).toEqual(0);
 
   // Confirm that batches marked as deleted are not included
   store.deleteBatch(batchId);

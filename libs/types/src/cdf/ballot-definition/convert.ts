@@ -47,7 +47,8 @@ function getElectionDistricts(
 ): Cdf.ReportingUnit[] {
   // Any GpUnit that is associated with contests is a "district" in VXF
   return cdfBallotDefinition.GpUnit.filter((gpUnit) =>
-    cdfBallotDefinition.Election[0].Contest.some(
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    cdfBallotDefinition.Election[0]!.Contest.some(
       (contest) => contest.ElectionDistrictId === gpUnit['@id']
     )
   );
@@ -1059,9 +1060,11 @@ export function convertVxfElectionToCdfBallotDefinition(
 export function convertCdfBallotDefinitionToVxfElection(
   cdfBallotDefinition: Cdf.BallotDefinition
 ): Vxf.Election {
-  const election = cdfBallotDefinition.Election[0];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const election = cdfBallotDefinition.Election[0]!;
   const gpUnits = cdfBallotDefinition.GpUnit;
-  const ballotFormat = cdfBallotDefinition.BallotFormat[0];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const ballotFormat = cdfBallotDefinition.BallotFormat[0]!;
 
   const state = find(
     gpUnits,
@@ -1114,7 +1117,8 @@ export function convertCdfBallotDefinitionToVxfElection(
           contest.ContestOption,
           (option) => option['@id'] === optionId
         );
-        return assertDefined(candidateOption.CandidateIds)[0];
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return assertDefined(candidateOption.CandidateIds)[0]!;
       }
       case 'BallotDefinition.BallotMeasureContest':
         return optionId;
@@ -1158,9 +1162,11 @@ export function convertCdfBallotDefinitionToVxfElection(
           election.Contest,
           (c) => c['@id'] === orderedContest.ContestId
         );
-        return orderedContest.Physical[0].PhysicalContestOption.map(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return orderedContest.Physical[0]!.PhysicalContestOption.map(
           (option): FlatOptionPosition => {
-            const optionPosition = option.OptionPosition[0];
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const optionPosition = option.OptionPosition[0]!;
             const bubbleCenter: Vxf.GridPoint = {
               row: optionPosition.Y,
               column: optionPosition.X,
@@ -1189,10 +1195,14 @@ export function convertCdfBallotDefinitionToVxfElection(
                     option.ContestOptionId
                   ),
                   writeInArea: rectToGridRect({
-                    x: option.WriteInPosition[0].X,
-                    y: option.WriteInPosition[0].Y,
-                    width: option.WriteInPosition[0].W,
-                    height: option.WriteInPosition[0].H,
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    x: option.WriteInPosition[0]!.X,
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    y: option.WriteInPosition[0]!.Y,
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    width: option.WriteInPosition[0]!.W,
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    height: option.WriteInPosition[0]!.H,
                   }),
                 },
               };
@@ -1409,7 +1419,8 @@ export function convertCdfBallotDefinitionToVxfElection(
       // context).
       assert(ballotStyle.ExternalIdentifier.length === 1);
 
-      const ballotStyleId = ballotStyle.ExternalIdentifier[0].Value;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const ballotStyleId = ballotStyle.ExternalIdentifier[0]!.Value;
 
       const idParts = ballotStyleId.split('_');
 
@@ -1438,7 +1449,8 @@ export function convertCdfBallotDefinitionToVxfElection(
                   (c) => c['@id'] === orderedContest.ContestId
                 ) as Cdf.CandidateContest;
                 const candidateOptions =
-                  orderedContest.Physical[0].PhysicalContestOption.filter(
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  orderedContest.Physical[0]!.PhysicalContestOption.filter(
                     (option) => !option.WriteInPosition
                   ).map((option) => {
                     const candidateId = convertOptionId(
@@ -1471,7 +1483,8 @@ export function convertCdfBallotDefinitionToVxfElection(
 
       return {
         id: ballotStyleId,
-        groupId: useExtractedGroupId ? idParts[0] : ballotStyleId,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        groupId: useExtractedGroupId ? idParts[0]! : ballotStyleId,
         districts: districtIds,
         precincts: precinctIds,
         partyId: ballotStyle.PartyIds?.[0],

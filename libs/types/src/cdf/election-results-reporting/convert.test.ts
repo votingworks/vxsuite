@@ -43,7 +43,7 @@ const spanishLanguageString = makeLanguageString('hola', 'es-US');
 const englishLanguageString = makeLanguageString('hello', 'en');
 
 function getValidCandidateIds(report: ElectionReport) {
-  const election = assertDefined(report.Election)[0];
+  const election = assertDefined(report.Election)[0]!;
   const ids = new Set<string>();
   for (const candidate of election.Candidate || []) {
     ids.add(candidate['@id']);

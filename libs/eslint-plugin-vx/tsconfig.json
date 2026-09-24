@@ -10,7 +10,6 @@
     "noEmit": true,
     "composite": true,
     "skipLibCheck": true,
-    "noUncheckedIndexedAccess": false,
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "erasableSyntaxOnly": true

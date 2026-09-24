@@ -27,8 +27,8 @@ test('calls invalidateBallot if voter indicates their ballot is incorrect', asyn
   apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectInvalidateBallot();
   renderWithBallotContext(<ValidateBallotPage />, {
-    precinctId: electionDefinition.election.precincts[0].id,
-    ballotStyleId: electionDefinition.election.ballotStyles[0].id,
+    precinctId: electionDefinition.election.precincts[0]!.id,
+    ballotStyleId: electionDefinition.election.ballotStyles[0]!.id,
     apiMock,
   });
 
@@ -48,8 +48,8 @@ test('renders as voter screen', async () => {
   apiMock.expectGetInterpretation(mockInterpretation);
 
   renderWithBallotContext(<ValidateBallotPage />, {
-    precinctId: electionDefinition.election.precincts[0].id,
-    ballotStyleId: electionDefinition.election.ballotStyles[0].id,
+    precinctId: electionDefinition.election.precincts[0]!.id,
+    ballotStyleId: electionDefinition.election.ballotStyles[0]!.id,
     apiMock,
   });
 

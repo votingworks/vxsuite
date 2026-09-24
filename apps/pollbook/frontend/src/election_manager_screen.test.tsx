@@ -19,7 +19,7 @@ let apiMock: ApiMock;
 const electionDefFamousNames =
   electionFamousNames2021Fixtures.readElectionDefinition();
 
-const precinct1 = electionDefFamousNames.election.precincts[0].id;
+const precinct1 = electionDefFamousNames.election.precincts[0]!.id;
 
 let unmount: () => void;
 
@@ -97,16 +97,16 @@ describe('ElectionScreen precinct selection', () => {
     expect((select as HTMLSelectElement).value).toEqual('');
 
     // Simulate changing the precinct
-    const newPrecinctId = precincts[1].id;
+    const newPrecinctId = precincts[1]!.id;
 
     apiMock.expectSetConfiguredPrecinct(newPrecinctId);
 
     userEvent.click(screen.getByText('Select Precinct…'));
-    userEvent.click(screen.getByText(precincts[1].name));
+    userEvent.click(screen.getByText(precincts[1]!.name));
 
     // Wait for the value to update
     await vi.waitFor(() => {
-      screen.getByText(precincts[1].name);
+      screen.getByText(precincts[1]!.name);
     });
   });
 
@@ -133,7 +133,7 @@ describe('ElectionScreen precinct selection', () => {
       electionSimpleSinglePrecinctFixtures.readElectionDefinition();
     apiMock.setElection(
       singlePrecinctElection,
-      singlePrecinctElection.election.precincts[0].id
+      singlePrecinctElection.election.precincts[0]!.id
     );
     apiMock.expectGetDeviceStatuses();
     // Render
@@ -160,10 +160,10 @@ describe('ElectionScreen precinct selection', () => {
     expect(select).toBeInTheDocument();
     expect((select as HTMLSelectElement).disabled).toBeFalsy();
 
-    apiMock.expectSetConfiguredPrecinct(precincts[1].id, new Error('test'));
+    apiMock.expectSetConfiguredPrecinct(precincts[1]!.id, new Error('test'));
 
     userEvent.click(screen.getByText('Select Precinct…'));
-    userEvent.click(screen.getByText(precincts[1].name));
+    userEvent.click(screen.getByText(precincts[1]!.name));
 
     const selectDisabled = await screen.findByLabelText('Select Precinct');
     expect(selectDisabled).toBeInTheDocument();

@@ -50,7 +50,8 @@ export const Colors = {
 } as const;
 
 export function primaryLanguageCode(ballotStyle: BallotStyle): string {
-  return ballotStyle.languages[0];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return ballotStyle.languages[0]!;
 }
 
 export const TIMING_MARK_DIMENSIONS: InchDimensions = {

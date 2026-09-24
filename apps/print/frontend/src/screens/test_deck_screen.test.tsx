@@ -112,7 +112,7 @@ test('prints a test deck for the selected precinct', async () => {
   renderScreen();
   await screen.findByRole('heading', { name: 'Test Decks' });
 
-  const precinct = election.precincts[0];
+  const precinct = election.precincts[0]!;
   userEvent.click(screen.getByText(precinct.name));
   const precinctId = precinct.id;
 
@@ -137,7 +137,7 @@ test('Print All Test Decks prints all precincts even when one is selected', asyn
   await screen.findByRole('heading', { name: 'Test Decks' });
 
   // Selecting a precinct must not affect the "Print All Test Decks" action.
-  userEvent.click(screen.getByText(election.precincts[0].name));
+  userEvent.click(screen.getByText(election.precincts[0]!.name));
 
   apiMock.getTestDeckBallotCount
     .expectRepeatedCallsWith({ precinctId: undefined })

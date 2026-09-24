@@ -24,8 +24,8 @@ import { BallotScreen } from './ballot_screen.js';
 
 const electionRecord = generalElectionRecord(jurisdiction.id);
 const electionId = electionRecord.election.id;
-const ballotStyle = electionRecord.election.ballotStyles[0];
-const precinct = electionRecord.election.precincts[0];
+const ballotStyle = electionRecord.election.ballotStyles[0]!;
+const precinct = electionRecord.election.precincts[0]!;
 
 function MockDocument({
   children,
@@ -408,7 +408,7 @@ describe('Ballot rendering error handling', () => {
         id: 'long-contest',
         type: 'candidate',
         title: 'Very Long Contest',
-        districtId: electionRecord.election.districts[0].id,
+        districtId: electionRecord.election.districts[0]!.id,
         seats: 1,
         allowWriteIns: false,
         candidates: [],
@@ -423,7 +423,7 @@ describe('Ballot rendering error handling', () => {
         id: 'long-contest',
         type: 'yesno',
         title: 'Very Long Ballot Measure',
-        districtId: electionRecord.election.districts[0].id,
+        districtId: electionRecord.election.districts[0]!.id,
         description: '',
         options: [
           { id: 'yes', label: 'Yes' },
@@ -440,7 +440,7 @@ describe('Ballot rendering error handling', () => {
         id: 'long-contest',
         type: 'yesno',
         title: 'Very Long Ballot Measure',
-        districtId: electionRecord.election.districts[0].id,
+        districtId: electionRecord.election.districts[0]!.id,
         description: '',
         options: [
           { id: 'yes', label: 'Yes' },
@@ -457,7 +457,7 @@ describe('Ballot rendering error handling', () => {
         id: 'long-contest',
         type: 'candidate',
         title: 'Very Long Contest',
-        districtId: electionRecord.election.districts[0].id,
+        districtId: electionRecord.election.districts[0]!.id,
         seats: 1,
         allowWriteIns: false,
         candidates: [],

@@ -33,7 +33,8 @@ export function WriteInCandidateName(
 
   const letters: React.ReactNode[] = [];
   for (let i = 0; i < name.length; i += 1) {
-    const char = name[i];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const char = name[i]!;
     letters.push(
       <VirtualKeyboardLabel
         config={assertDefined(LETTER_KEYS[char])}

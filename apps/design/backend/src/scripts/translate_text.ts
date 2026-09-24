@@ -21,7 +21,8 @@ interface TranslateTextInput {
 }
 
 function parseCommandLineArgs(args: readonly string[]): TranslateTextInput {
-  if (args.length !== 2 || !nonEnglishLanguageCodes.has(args[1])) {
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  if (args.length !== 2 || !nonEnglishLanguageCodes.has(args[1]!)) {
     console.error(usageMessage);
     process.exit(1);
   }

@@ -279,7 +279,8 @@ export function ContestResultsTable({
             optionLabel={
               find(election.parties, (party) => party.id === partyId).fullName
             }
-            scannedTally={scannedContestResults.tallies[partyId]}
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            scannedTally={scannedContestResults.tallies[partyId]!}
             manualTally={manualContestResults?.tallies[partyId] ?? 0}
             showManualTally={hasManualResults}
           />

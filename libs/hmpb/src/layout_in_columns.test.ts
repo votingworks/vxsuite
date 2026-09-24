@@ -964,7 +964,7 @@ describe('layOutSectionsInParallelColumns', () => {
           // Placed elements + leftover elements = original elements
           for (const [i, section] of sections.entries()) {
             const originalElements = flatElements([section]);
-            const placedElements = result.columns[i].filter((item) =>
+            const placedElements = result.columns[i]!.filter((item) =>
               originalElements.includes(item)
             );
             const leftoverElements = result.leftoverSections[i]
@@ -985,14 +985,14 @@ describe('layOutSectionsInParallelColumns', () => {
 
           // Leftover sections all have matching structure
           if (result.leftoverSections.length > 0) {
-            const firstLeftover = result.leftoverSections[0];
+            const firstLeftover = result.leftoverSections[0]!;
             for (const section of result.leftoverSections.slice(1)) {
               expect(section.subsections.length).toEqual(
                 firstLeftover.subsections.length
               );
               for (const [j, subsection] of section.subsections.entries()) {
                 expect(subsection.elements.length).toEqual(
-                  firstLeftover.subsections[j].elements.length
+                  firstLeftover.subsections[j]!.elements.length
                 );
               }
             }
@@ -1001,18 +1001,18 @@ describe('layOutSectionsInParallelColumns', () => {
           // Column structure: section header first, then subsection
           // headers before their elements
           for (const [i, column] of result.columns.entries()) {
-            const sectionHeader = sections[i].header;
+            const sectionHeader = sections[i]!.header;
             const elementToSubsectionHeader = new Map<
               TestElement,
               TestElement
             >();
-            for (const subsection of sections[i].subsections) {
+            for (const subsection of sections[i]!.subsections) {
               for (const element of subsection.elements) {
                 elementToSubsectionHeader.set(element, subsection.header);
               }
             }
             const subsectionHeaders = new Set(
-              sections[i].subsections.map((s) => s.header)
+              sections[i]!.subsections.map((s) => s.header)
             );
 
             // First item must be the section header

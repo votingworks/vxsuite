@@ -57,7 +57,7 @@ describe('ElectionInfoBar', () => {
   });
 
   test('Renders with polling place selection', () => {
-    const place = pollingPlaces[0];
+    const place = pollingPlaces[0]!;
 
     render(
       <ElectionInfoBar
@@ -137,7 +137,7 @@ describe('VerticalElectionInfoBar', () => {
   });
 
   test('Renders with polling place selection', () => {
-    const place = pollingPlaces[0];
+    const place = pollingPlaces[0]!;
 
     render(
       <VerticalElectionInfoBar

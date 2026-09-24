@@ -114,7 +114,8 @@ function connect() {
   }
 
   try {
-    activeScanner = new hid.HID(devices[0].vendorId, devices[0].productId)
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    activeScanner = new hid.HID(devices[0]!.vendorId, devices[0]!.productId)
       .on('data', onData)
       .on('error', onError);
   } catch (error) {

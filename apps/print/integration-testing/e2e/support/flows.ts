@@ -60,7 +60,8 @@ export async function buildBallotsForElection({
     if (!precinctId) {
       throw new Error(`Ballot style ${ballotStyle.id} has no precincts`);
     }
-    const encodedBallot = pdfBase64s[index % pdfBase64s.length];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const encodedBallot = pdfBase64s[index % pdfBase64s.length]!;
     for (const ballotMode of ballotModes) {
       ballots.push(
         {

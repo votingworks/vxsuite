@@ -367,9 +367,9 @@ test('unconfiguring clears all cached data', async () => {
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetManualResultsMetadata([
     {
-      ...mockManualResultsMetadata[0],
-      precinctId: electionDefinition.election.precincts[0].id,
-      ballotStyleGroupId: electionDefinition.election.ballotStyles[0].groupId,
+      ...mockManualResultsMetadata[0]!,
+      precinctId: electionDefinition.election.precincts[0]!.id,
+      ballotStyleGroupId: electionDefinition.election.ballotStyles[0]!.groupId,
     },
   ]);
   userEvent.click(screen.getButton('Tally'));

@@ -84,7 +84,7 @@ test('start passes context to `buildApp`', async () => {
     soundsDirectory: expect.any(String),
   });
 
-  const callback = listen.mock.calls[0][1];
+  const callback = listen.mock.calls[0]![1];
   await callback();
 
   expect(logger.log).toHaveBeenCalledWith(

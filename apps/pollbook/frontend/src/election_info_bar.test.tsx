@@ -37,7 +37,7 @@ describe('ElectionInfoBar', () => {
   });
 
   test('renders full election info', () => {
-    const configuredPrecinctId = election.precincts[0].id;
+    const configuredPrecinctId = election.precincts[0]!.id;
     const renderResult = renderInAppContext(
       <ElectionInfoBar
         election={election}
@@ -55,7 +55,7 @@ describe('ElectionInfoBar', () => {
     screen.getByText('Machine ID');
     screen.getByText('Election ID');
     // Precinct name should be present
-    screen.getByText(election.precincts[0].name);
+    screen.getByText(election.precincts[0]!.name);
   });
 
   test('does not show precinct if only one precinct', () => {
@@ -66,7 +66,7 @@ describe('ElectionInfoBar', () => {
         pollbookPackageHash={packageHash}
         codeVersion={codeVersion}
         machineId={machineId}
-        configuredPrecinctId={singlePrecinctElection.precincts[0].id}
+        configuredPrecinctId={singlePrecinctElection.precincts[0]!.id}
       />
     );
     unmount = renderResult.unmount;
@@ -89,7 +89,7 @@ describe('VerticalElectionInfoBar', () => {
   });
 
   test('renders full election info', () => {
-    const configuredPrecinctId = election.precincts[0].id;
+    const configuredPrecinctId = election.precincts[0]!.id;
     const renderResult = renderInAppContext(
       <VerticalElectionInfoBar
         election={election}
@@ -108,7 +108,7 @@ describe('VerticalElectionInfoBar', () => {
     screen.getByText('Election ID:');
     // Precinct name should be present
     screen.getByText('Precinct:');
-    screen.getByText(election.precincts[0].name);
+    screen.getByText(election.precincts[0]!.name);
   });
 
   test('does not show precinct if only one precinct', () => {
@@ -119,7 +119,7 @@ describe('VerticalElectionInfoBar', () => {
         pollbookPackageHash={packageHash}
         codeVersion={codeVersion}
         machineId={machineId}
-        configuredPrecinctId={singlePrecinctElection.precincts[0].id}
+        configuredPrecinctId={singlePrecinctElection.precincts[0]!.id}
       />
     );
     unmount = renderResult.unmount;

@@ -726,7 +726,8 @@ function BallotView({
     const item = find(contestItems, (i) => i.contest.id === hoveredContestId);
     return (
       !item.isResolved ||
-      crossoverVoteStatus.statusByContest[hoveredContestId].isUnresolved
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      crossoverVoteStatus.statusByContest[hoveredContestId]!.isUnresolved
     );
   })();
 

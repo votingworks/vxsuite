@@ -18,7 +18,7 @@ let onConfirmCheckIn: Mock<SelectPartyScreenProps['onConfirmCheckIn']>;
 
 const electionDefinition =
   electionMultiPartyPrimaryFixtures.readElectionDefinition();
-const precinct = electionDefinition.election.precincts[0].id;
+const precinct = electionDefinition.election.precincts[0]!.id;
 const mockIdentificationMethod: VoterIdentificationMethod = { type: 'default' };
 
 beforeEach(() => {

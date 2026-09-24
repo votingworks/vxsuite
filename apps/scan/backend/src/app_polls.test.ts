@@ -187,7 +187,7 @@ test('scanner batch flow', async () => {
       (await apiClient.openPolls()).unsafeUnwrap();
       let batchIds = getBatchIds();
       expect(batchIds).toHaveLength(1);
-      const batch1Id = batchIds[0];
+      const batch1Id = batchIds[0]!;
 
       expect(logger.log).toHaveBeenCalledWith(
         LogEventId.ScannerBatchStarted,

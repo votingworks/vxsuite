@@ -249,7 +249,8 @@ export function VoterSearch({
             };
 
       if (typeof searchResult === 'object' && searchResult.length === 1) {
-        onBarcodeScanMatch({ ...searchResult[0] }, identificationMethod);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        onBarcodeScanMatch({ ...searchResult[0]! }, identificationMethod);
       }
     }
   }, [

@@ -760,8 +760,8 @@ test('uses number-aware sorting on relevant entities', async () => {
       id: 'p100',
       name: 'precinct 100',
       splits: [
-        { districtIds: [newDistricts[0].id], id: 's100', name: 'split 100' },
-        { districtIds: [newDistricts[1].id], id: 's20', name: 'split 20' },
+        { districtIds: [newDistricts[0]!.id], id: 's100', name: 'split 100' },
+        { districtIds: [newDistricts[1]!.id], id: 's20', name: 'split 20' },
       ],
     },
     { districtIds: [], id: 'p20', name: 'precinct 20' },
@@ -780,7 +780,7 @@ test('uses number-aware sorting on relevant entities', async () => {
     'precinct 100',
   ]);
 
-  assert(types.hasSplits(election.precincts[2]));
+  assert(types.hasSplits(election.precincts[2]!));
   expect(election.precincts[2].splits.map((s) => s.name)).toEqual([
     'split 20',
     'split 100',

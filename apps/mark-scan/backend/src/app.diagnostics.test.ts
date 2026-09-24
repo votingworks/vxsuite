@@ -238,7 +238,7 @@ test('saving the readiness report', async () => {
 
   const { election } = await configureApp(apiClient, auth, mockUsbDrive);
   const [pollingPlace] = assertDefined(election.pollingPlaces);
-  await apiClient.setPollingPlaceId({ id: pollingPlace.id });
+  await apiClient.setPollingPlaceId({ id: pollingPlace!.id });
 
   mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
   const exportResult = await apiClient.saveReadinessReport();
@@ -303,8 +303,8 @@ describe('paper handler diagnostic', () => {
         metadata: {
           ballotHash: 'hash',
           ballotType: BallotType.Precinct,
-          ballotStyleId: electionDefinition.election.ballotStyles[0].id,
-          precinctId: electionDefinition.election.precincts[0].id,
+          ballotStyleId: electionDefinition.election.ballotStyles[0]!.id,
+          precinctId: electionDefinition.election.precincts[0]!.id,
           isTestMode: true,
           pageNumber: 1,
           totalPages: 1,

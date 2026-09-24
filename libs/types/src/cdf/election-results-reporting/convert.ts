@@ -200,16 +200,18 @@ function getCandidateTallies(
 
   for (const selection of contest.ContestSelection as ResultsReporting.CandidateSelection[]) {
     const baseCandidateId = trimVxIdPrefix(
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       assertDefined(
         selection.CandidateIds,
         'Expected CandidateSelection.Candidate to be defined'
-      )[0]
+      )[0]!
     );
     if (selection.IsWriteIn) {
       // ID prefix indicates to VxAdmin logic that this was a write in
       const candidateId = `${TEMPORARY_WRITE_IN_ID_PREFIX}${baseCandidateId}`;
 
-      const name = candidateNameRecord[baseCandidateId];
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const name = candidateNameRecord[baseCandidateId]!;
       const tally: VxTabulation.CandidateTally = {
         id: candidateId,
         name,
@@ -224,7 +226,8 @@ function getCandidateTallies(
       }
       writeInCandidateNameRecord[lowerCaseName].push(tally);
     } else {
-      const name = candidateNameRecord[baseCandidateId];
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const name = candidateNameRecord[baseCandidateId]!;
       const tally: VxTabulation.CandidateTally = {
         id: baseCandidateId,
         name,
@@ -240,7 +243,8 @@ function getCandidateTallies(
   // candidates "regular" votes will show up separately from their write-in votes.
   for (const lowerCaseName of Object.keys(writeInCandidateNameRecord)) {
     // Get list of tallies grouped by case-insensitive name
-    const talliesForName = writeInCandidateNameRecord[lowerCaseName];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const talliesForName = writeInCandidateNameRecord[lowerCaseName]!;
     // Sort by vote count descending
     const sorted = talliesForName.slice().sort((a, b) => b.tally - a.tally);
     // Sum vote count for candidate across all spellings
@@ -249,15 +253,18 @@ function getCandidateTallies(
       .reduce((prevSum, incremental) => prevSum + incremental, 0);
 
     // Choose the most popular spelling and update their vote count to the summed vote count
-    const mostPopularSpelling = sorted[0];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const mostPopularSpelling = sorted[0]!;
     tallies[mostPopularSpelling.id] = {
-      ...tallies[mostPopularSpelling.id],
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      ...tallies[mostPopularSpelling.id]!,
       tally: voteSum,
     };
 
     // Delete tallies for all other spellings
     for (let i = 1; i < sorted.length; i += 1) {
-      delete tallies[sorted[i].id];
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      delete tallies[sorted[i]!.id];
     }
   }
 
@@ -370,6 +377,7 @@ function validateCandidateIds(
         }
 
         const candidateId = trimVxIdPrefix(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           assertDefined(
             selection.CandidateIds,
             `No candidate ID on selection: ${JSON.stringify(
@@ -377,7 +385,7 @@ function validateCandidateIds(
               null,
               2
             )}`
-          )[0]
+          )[0]!
         );
 
         if (!validCandidateIds.has(candidateId)) {
@@ -444,7 +452,8 @@ export function convertElectionResultsReportingReportToVxManualResults(
     'No ballot counts defined for election'
   );
   const ballotCount = assertDefined(
-    ballotCountList[0].BallotsCast,
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    ballotCountList[0]!.BallotsCast,
     'No total count of ballots cast defined for BallotCounts entry'
   );
   const manualResults: VxTabulation.ManualElectionResults = {

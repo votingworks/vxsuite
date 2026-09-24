@@ -137,7 +137,7 @@ describe('non-English ballot style', () => {
         ballotStyleId={spanishBallotStyle.id}
         electionDefinition={electionDefinition}
         isLiveMode
-        precinctId={spanishBallotStyle.precincts[0]}
+        precinctId={spanishBallotStyle.precincts[0]!}
         votes={{}}
         onRendered={() => {}}
         machineType="markScan"
@@ -172,7 +172,7 @@ describe('non-English ballot style', () => {
           election: { ...election, contests: [contest] },
         }}
         isLiveMode
-        precinctId={spanishBallotStyle.precincts[0]}
+        precinctId={spanishBallotStyle.precincts[0]!}
         votes={{
           [contest.id]: [
             candidate,
@@ -229,7 +229,7 @@ describe('non-English ballot style', () => {
           election: { ...election, contests: [contest] },
         }}
         isLiveMode
-        precinctId={spanishBallotStyle.precincts[0]}
+        precinctId={spanishBallotStyle.precincts[0]!}
         votes={{}}
         onRendered={() => {}}
         machineType="markScan"
@@ -258,7 +258,7 @@ describe('non-English ballot style', () => {
           election: { ...election, contests: [contest] },
         }}
         isLiveMode
-        precinctId={spanishBallotStyle.precincts[0]}
+        precinctId={spanishBallotStyle.precincts[0]!}
         votes={{ [contest.id]: [contest.options[0].id] }}
         onRendered={() => {}}
         machineType="markScan"
@@ -296,7 +296,7 @@ describe('non-English ballot style', () => {
           election: { ...election, contests: [contest] },
         }}
         isLiveMode
-        precinctId={spanishBallotStyle.precincts[0]}
+        precinctId={spanishBallotStyle.precincts[0]!}
         votes={{}}
         onRendered={() => {}}
         machineType="markScan"
@@ -344,7 +344,7 @@ describe('English ballot style', () => {
         ballotStyleId={englishBallotStyle.id}
         electionDefinition={electionDefinition}
         isLiveMode
-        precinctId={englishBallotStyle.precincts[0]}
+        precinctId={englishBallotStyle.precincts[0]!}
         votes={votes}
         onRendered={() => {}}
         machineType="markScan"
@@ -384,7 +384,7 @@ describe('English ballot style', () => {
         ballotStyleId={englishBallotStyle.id}
         electionDefinition={electionDefinition}
         isLiveMode
-        precinctId={englishBallotStyle.precincts[0]}
+        precinctId={englishBallotStyle.precincts[0]!}
         votes={{}}
         onRendered={() => {}}
         machineType="markScan"

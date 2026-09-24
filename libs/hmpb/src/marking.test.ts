@@ -86,7 +86,7 @@ test('marks a ballot with a vote for the third yesno option', async () => {
   // Uses the NH general election fixture which has question-a as a 3-option
   // yesno contest (Yes / No / Third Option). This verifies that a bubble mark
   // is correctly rendered for a third option beyond the standard Yes/No pair.
-  const spec = nhGeneralElectionFixtures.fixtureSpecs[0];
+  const spec = nhGeneralElectionFixtures.fixtureSpecs[0]!;
   const { electionPath, ballotStyleId, blankBallotPath } = spec;
 
   const election = safeParseElection(
@@ -127,7 +127,7 @@ test('marks a ballot with a vote for the third yesno option', async () => {
 test.each([
   {
     label: 'a wide write-in area',
-    fixtures: () => vxGeneralElectionFixtures.fixtureSpecs[0],
+    fixtures: () => vxGeneralElectionFixtures.fixtureSpecs[0]!,
   },
   {
     label: 'a narrow write-in area',

@@ -34,8 +34,8 @@ test('varies container styling based on UI theme', () => {
   );
 
   expect(
-    window.getComputedStyle(darkThemeSeal.container.children[0])
-  ).not.toEqual(window.getComputedStyle(lightThemeSeal.container.children[0]));
+    window.getComputedStyle(darkThemeSeal.container.children[0]!)
+  ).not.toEqual(window.getComputedStyle(lightThemeSeal.container.children[0]!));
 });
 
 test('renders nothing if seal is empty string (special case for CDF)', () => {

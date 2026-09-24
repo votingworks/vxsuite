@@ -190,7 +190,7 @@ test('adjudication reasons', async () => {
     expect(options[2]).toHaveTextContent('Blank Ballot');
     expect(options[3]).toHaveTextContent('Unmarked Write-In');
 
-    userEvent.click(options[0]);
+    userEvent.click(options[0]!);
     expect(options[0]).toBeChecked();
   }
 
@@ -205,7 +205,7 @@ test('adjudication reasons', async () => {
   expect(options[2]).toHaveTextContent('Marginal Mark');
   expect(options[3]).toHaveTextContent('Blank Ballot');
 
-  userEvent.click(options[0]);
+  userEvent.click(options[0]!);
   expect(options[0]).toBeChecked();
 
   const disallowOvervotes = screen.getByRole('checkbox', {

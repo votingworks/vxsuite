@@ -91,7 +91,8 @@ async function getReportSection(
     reportSectionIndex < reportSections.length,
     `report section index ${reportSectionIndex} is out of range`
   );
-  const reportSection = reportSections[reportSectionIndex];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const reportSection = reportSections[reportSectionIndex]!;
 
   if (reportSection.type === 'ballotCount') {
     debug(

@@ -96,7 +96,7 @@ test('shows modal with jurisdiction selector for multi-jurisdiction user', async
   expect(jurisdictionOptions.map((o) => o.textContent)).toEqual(
     multiJurisdictionUser.jurisdictions.map((j) => j.name)
   );
-  userEvent.click(jurisdictionOptions[1]);
+  userEvent.click(jurisdictionOptions[1]!);
 
   const newId = idFactory.next();
   apiMock.createElection

@@ -55,7 +55,8 @@ const rule: TSESLint.RuleModule<MessageId, readonly unknown[]> = createRule({
             node.callee.property.name === 'ok' &&
             node.arguments.length === 1)
         ) {
-          const arg = node.arguments[0];
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const arg = node.arguments[0]!;
           if (arg.type === AST_NODE_TYPES.CallExpression) {
             checkCallExpression(arg, node, 'noAssertResultPredicates');
           }
@@ -86,7 +87,8 @@ const rule: TSESLint.RuleModule<MessageId, readonly unknown[]> = createRule({
           node.callee.object.callee.name === 'expect' &&
           node.callee.object.arguments.length === 1
         ) {
-          const arg = node.callee.object.arguments[0];
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const arg = node.callee.object.arguments[0]!;
           if (arg.type === AST_NODE_TYPES.CallExpression) {
             checkCallExpression(arg, node, 'noExpectResultPredicates');
           }

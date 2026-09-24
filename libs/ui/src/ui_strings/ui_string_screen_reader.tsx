@@ -130,14 +130,16 @@ function usePlaybackRateControls(params: {
     const currentIdx = PLAYBACK_RATES.indexOf(playbackRate);
     const newIdx = Math.max(0, currentIdx - 1);
     decreasePlaybackRate();
-    announceFeedback(PLAYBACK_RATES[newIdx]);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    announceFeedback(PLAYBACK_RATES[newIdx]!);
   }, [announceFeedback, decreasePlaybackRate, playbackRate]);
 
   const increase = React.useCallback(() => {
     const currentIdx = PLAYBACK_RATES.indexOf(playbackRate);
     const newIdx = Math.min(PLAYBACK_RATES.length - 1, currentIdx + 1);
     increasePlaybackRate();
-    announceFeedback(PLAYBACK_RATES[newIdx]);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    announceFeedback(PLAYBACK_RATES[newIdx]!);
   }, [announceFeedback, increasePlaybackRate, playbackRate]);
 
   return { decreasePlaybackRate: decrease, increasePlaybackRate: increase };

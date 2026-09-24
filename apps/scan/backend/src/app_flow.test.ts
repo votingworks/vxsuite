@@ -289,7 +289,7 @@ test('USB drive removed', async () => {
     electionPackageHash,
     ballotHash: electionDefinition.ballotHash,
   });
-  store.setPollingPlaceId(pollingPlace1.id);
+  store.setPollingPlaceId(pollingPlace1!.id);
   store.transitionPolls({ type: 'open_polls', time: Date.now() });
 
   expect(
@@ -340,7 +340,7 @@ test('logged_in:poll_worker', async () => {
     sessionExpiresAt: mockSessionExpiresAt(),
   });
 
-  store.setPollingPlaceId(pollingPlace1.id);
+  store.setPollingPlaceId(pollingPlace1!.id);
   mockUsbDrive.insertUsbDrive({});
 
   expect(
@@ -364,7 +364,7 @@ test('polls_not_open', async () => {
     ballotHash: electionDefinition.ballotHash,
   });
 
-  store.setPollingPlaceId(pollingPlace1.id);
+  store.setPollingPlaceId(pollingPlace1!.id);
   mockUsbDrive.insertUsbDrive({});
 
   expect(
@@ -388,7 +388,7 @@ test('cast_vote_record_sync_required', async () => {
     ballotHash: electionDefinition.ballotHash,
   });
 
-  store.setPollingPlaceId(pollingPlace1.id);
+  store.setPollingPlaceId(pollingPlace1!.id);
   mockUsbDrive.insertUsbDrive({});
   store.transitionPolls({ type: 'open_polls', time: Date.now() });
 
@@ -415,7 +415,7 @@ test('ballot:waiting_to_scan', async () => {
     ballotHash: electionDefinition.ballotHash,
   });
 
-  store.setPollingPlaceId(pollingPlace1.id);
+  store.setPollingPlaceId(pollingPlace1!.id);
   mockUsbDrive.insertUsbDrive({});
   store.transitionPolls({ type: 'open_polls', time: Date.now() });
 

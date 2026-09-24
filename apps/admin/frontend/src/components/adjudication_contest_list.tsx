@@ -337,7 +337,8 @@ function CrossoverVoteStatusLine({
 }) {
   const { isBallotResolved, ballotHasScannedCrossoverVote } =
     crossoverVoteStatus;
-  const contestStatus = crossoverVoteStatus.statusByContest[contestId];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const contestStatus = crossoverVoteStatus.statusByContest[contestId]!;
   const warningIcon = <Icons.Crossover color="warning" fixedWidth />;
   const primaryIcon = <Icons.Crossover color="primary" fixedWidth />;
   if (ballotHasScannedCrossoverVote) {
@@ -441,7 +442,8 @@ function BallotSideContestList({
               autoScrollIntoView={isFirstUnresolved}
               hasWarning={
                 (!isResolved && !suppressContestAdjudicationInfo) ||
-                crossoverVoteStatus.statusByContest[contest.id].isUnresolved
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                crossoverVoteStatus.statusByContest[contest.id]!.isUnresolved
               }
             >
               <Column>

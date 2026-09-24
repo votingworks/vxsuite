@@ -658,7 +658,8 @@ export async function BallotPageContent(
         ballotStyle={ballotStyle}
       />
     ));
-    const numColumns = section[0].type === 'candidate' ? 3 : 1;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const numColumns = section[0]!.type === 'candidate' ? 3 : 1;
     const columnWidthPx =
       (dimensions.width - horizontalGapPx * (numColumns - 1)) / numColumns;
     const contestMeasurements = await scratchpad.measureElements(
@@ -732,7 +733,8 @@ export async function BallotPageContent(
   if (heightUsed === 0) {
     return err({
       error: 'contestTooLong',
-      contest: leftoverContests[0],
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      contest: leftoverContests[0]!,
     });
   }
 

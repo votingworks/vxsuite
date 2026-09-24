@@ -728,9 +728,9 @@ describe('bmd write-in adjudication', () => {
 
     expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
 
-    [writeInCheckbox] = screen
+    writeInCheckbox = screen
       .getAllByRole('checkbox', { name: /machine-marked-mock-text/i })
-      .filter((el) => !(el as HTMLInputElement).disabled);
+      .filter((el) => !(el as HTMLInputElement).disabled)[0]!;
     expect(writeInCheckbox).not.toBeChecked();
 
     userEvent.click(writeInCheckbox);
@@ -993,7 +993,7 @@ describe('unmarked and undetected write-ins', () => {
       confirmButton = getButtonByName('confirm');
       expect(confirmButton).toBeDisabled();
       fireEvent.keyDown(select, { key: 'ArrowDown' });
-      const dropdownItem = getDropdownItemByLabel(selections[i]);
+      const dropdownItem = getDropdownItemByLabel(selections[i]!);
       userEvent.click(dropdownItem!);
     }
 
@@ -1271,7 +1271,7 @@ describe('double votes', () => {
 
     // enter in the official candidate that is already selected
     // via their official checkbox
-    const writeInSearchSelect = screen.getAllByRole('combobox')[0];
+    const writeInSearchSelect = screen.getAllByRole('combobox')[0]!;
     fireEvent.keyDown(writeInSearchSelect, { key: 'ArrowDown' });
     userEvent.type(writeInSearchSelect, 'Kangaroo');
     // the select should be highlighting the 'add' option
@@ -1586,7 +1586,7 @@ describe('marginal mark adjudication', () => {
 
     const writeIn0Checkbox = screen.getAllByRole('checkbox', {
       name: /write-in/i,
-    })[0];
+    })[0]!;
     expect(writeIn0Checkbox).not.toBeChecked();
 
     // The marginal mark flag will not show since write-in adjudication is showing
@@ -1689,9 +1689,9 @@ describe('candidate ordering', () => {
     // In ballot style 1-1, Sherlock Holmes should appear before Thomas Edison
     const allCheckboxes = screen.getAllByRole('checkbox');
     expect(allCheckboxes).toHaveLength(3); // two candidates and one write-in
-    within(allCheckboxes[0]).getByText(/Sherlock Holmes/i);
-    within(allCheckboxes[1]).getByText(/Thomas Edison/i);
-    within(allCheckboxes[2]).getByText(/Write-In/i);
+    within(allCheckboxes[0]!).getByText(/Sherlock Holmes/i);
+    within(allCheckboxes[1]!).getByText(/Thomas Edison/i);
+    within(allCheckboxes[2]!).getByText(/Write-In/i);
 
     // Verify write-in dropdown options are also in rotated order
     let writeInSearchSelect = screen.getByRole('combobox');
@@ -1707,8 +1707,8 @@ describe('candidate ordering', () => {
 
     expect(dropdownOptions).toHaveLength(2);
     // Verify the order of the dropdown options
-    within(dropdownOptions[0]).getByText(/Sherlock Holmes/i);
-    within(dropdownOptions[1]).getByText(/Thomas Edison/i);
+    within(dropdownOptions[0]!).getByText(/Sherlock Holmes/i);
+    within(dropdownOptions[1]!).getByText(/Thomas Edison/i);
 
     // Close the dropdown
     userEvent.keyboard('{Escape}');
@@ -1756,9 +1756,9 @@ describe('candidate ordering', () => {
     // Note: Cross-endorsed candidates appear only once, so Sherlock (party 2) is the same as Sherlock (party 0)
     const allCheckboxes2 = screen.getAllByRole('checkbox');
     expect(allCheckboxes2).toHaveLength(3); // Edison, Sherlock (cross-endorsed, so only one), Write-In
-    within(allCheckboxes2[0]).getByText(/Thomas Edison/i);
-    within(allCheckboxes2[1]).getByText(/Sherlock Holmes/i);
-    within(allCheckboxes2[2]).getByText(/Write-In/i);
+    within(allCheckboxes2[0]!).getByText(/Thomas Edison/i);
+    within(allCheckboxes2[1]!).getByText(/Sherlock Holmes/i);
+    within(allCheckboxes2[2]!).getByText(/Write-In/i);
 
     // Verify write-in dropdown options are also in rotated order for ballot style 1-4
     let writeInSearchSelect2 = screen.getByRole('combobox');
@@ -1774,8 +1774,8 @@ describe('candidate ordering', () => {
 
     expect(dropdownOptions2).toHaveLength(2);
     // Verify the order of the dropdown options
-    within(dropdownOptions2[0]).getByText(/Thomas Edison/i);
-    within(dropdownOptions2[1]).getByText(/Sherlock Holmes/i);
+    within(dropdownOptions2[0]!).getByText(/Thomas Edison/i);
+    within(dropdownOptions2[1]!).getByText(/Sherlock Holmes/i);
   });
 
   test('cross-endorsed candidates appear only once in adjudication UI', async () => {

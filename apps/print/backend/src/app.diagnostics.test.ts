@@ -239,7 +239,7 @@ test('save readiness report', async () => {
 
   const { election } = electionDefinition;
   const [pollingPlace] = assertDefined(election.pollingPlaces);
-  await apiClient.setPollingPlaceId({ id: pollingPlace.id });
+  await apiClient.setPollingPlaceId({ id: pollingPlace!.id });
 
   mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
   await apiClient.printTestPage();
@@ -264,7 +264,7 @@ test('save readiness report', async () => {
     }
   );
 
-  const printPath = exportFileResult.unsafeUnwrap()[0];
+  const printPath = exportFileResult.unsafeUnwrap()[0]!;
   await expect(printPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'readiness-report',
     failureThreshold: 0.0001,

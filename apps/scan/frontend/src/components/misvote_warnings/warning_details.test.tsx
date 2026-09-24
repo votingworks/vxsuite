@@ -81,21 +81,21 @@ test('renders all relevant warnings', () => {
   const contestLists = screen.getAllByTestId('mockContestList');
   expect(contestLists).toHaveLength(3);
 
-  expectMockContestListProps(contestLists[0], {
+  expectMockContestListProps(contestLists[0]!, {
     title: /no votes/i,
     helpNote: /did you mean to leave these contests blank?/i,
     maxColumns: 2,
     contests: blankContests,
   });
 
-  expectMockContestListProps(contestLists[1], {
+  expectMockContestListProps(contestLists[1]!, {
     title: /you may add one or more/i,
     helpNote: /all other votes in these contests will count/i,
     maxColumns: 2,
     contests: partiallyVotedContests,
   });
 
-  expectMockContestListProps(contestLists[2], {
+  expectMockContestListProps(contestLists[2]!, {
     title: /too many votes/i,
     helpNote: /votes in this contest will not be counted/i,
     maxColumns: 2,

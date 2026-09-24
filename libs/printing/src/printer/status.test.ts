@@ -99,7 +99,7 @@ test('uses ipptool to query and parse printer atttributes', async () => {
   ]);
 
   // confirm tmp file was written to
-  const tmpFilename = (execMock.mock.calls[0][1] as string[]).pop();
+  const tmpFilename = (execMock.mock.calls[0]![1] as string[]).pop();
   assert(tmpFilename !== undefined);
   expect(tmpFilename.startsWith('/tmp/tmp-')).toEqual(true);
   expect(writeFileMock).toHaveBeenCalledWith(tmpFilename, IPP_QUERY);
@@ -261,7 +261,7 @@ test('throws error if ipptool output cannot be parsed', async () => {
     ],
   ];
   for (const [stdout, expectedError] of badOutput) {
-    execMock.mockResolvedValueOnce(ok({ stdout, stderr: '' }));
+    execMock.mockResolvedValueOnce(ok({ stdout: stdout!, stderr: '' }));
     await expect(getPrinterRichStatus()).rejects.toThrowError(expectedError);
   }
 });

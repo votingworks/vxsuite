@@ -101,7 +101,7 @@ test('can build votes from yesno values', () => {
 test('can build votes from a candidate object', () => {
   const contests = election.contests.filter((c) => c.id === 'CC');
   const contest = contests[0] as CandidateContest;
-  const candidate = contest.candidates[0];
+  const candidate = contest.candidates[0]!;
 
   expect(vote(contests, { CC: candidate })).toEqual({
     CC: [candidate],
@@ -145,14 +145,14 @@ test('can get a party primary adjective from ballot style', () => {
 test('can get a party abbreviation by party ID', () => {
   expect(
     getPartyAbbreviationByPartyId({
-      partyId: primaryElection.parties[0].id,
+      partyId: primaryElection.parties[0]!.id,
       election: { ...primaryElection },
     })
   ).toEqual('D');
 
   expect(
     getPartyAbbreviationByPartyId({
-      partyId: primaryElection.parties[0].id,
+      partyId: primaryElection.parties[0]!.id,
       election: { ...primaryElection, parties: [] },
     })
   ).toEqual('');
@@ -203,20 +203,20 @@ test('defaults to empty string if no party can be found', () => {
 
 test('getPrecinctById', () => {
   expect(
-    getPrecinctById({ election, precinctId: election.precincts[0].id })
+    getPrecinctById({ election, precinctId: election.precincts[0]!.id })
   ).toEqual(election.precincts[0]);
   expect(getPrecinctById({ election, precinctId: '' })).toBeUndefined();
 });
 
 test('getPrecinctIndexById', () => {
   expect(
-    getPrecinctIndexById({ election, precinctId: election.precincts[0].id })
+    getPrecinctIndexById({ election, precinctId: election.precincts[0]!.id })
   ).toEqual(0);
   expect(getPrecinctIndexById({ election, precinctId: '' })).toEqual(-1);
 });
 
 test('getPrecinctSplitById', () => {
-  const precinct = testVxfElection.precincts[0];
+  const precinct = testVxfElection.precincts[0]!;
   assert(hasSplits(precinct));
   expect(
     getPrecinctSplitById({
@@ -224,7 +224,7 @@ test('getPrecinctSplitById', () => {
       precinctSplitId: 'precinct-1-split-1',
     })
   ).toEqual({
-    ...precinct.splits[0],
+    ...precinct.splits[0]!,
     precinctId: precinct.id,
   });
   expect(
@@ -233,7 +233,7 @@ test('getPrecinctSplitById', () => {
       precinctSplitId: 'precinct-1-split-2',
     })
   ).toEqual({
-    ...precinct.splits[1],
+    ...precinct.splits[1]!,
     precinctId: precinct.id,
   });
 });
@@ -376,7 +376,7 @@ test('getContestDistrictName', () => {
   expect(
     getContestDistrictName(
       electionTwoPartyPrimary,
-      electionTwoPartyPrimary.contests[0]
+      electionTwoPartyPrimary.contests[0]!
     )
   ).toEqual('District 1');
 });
@@ -389,13 +389,13 @@ test('isVotePresent', () => {
     isVotePresent([
       election.contests.find(
         (c): c is CandidateContest => c.type === 'candidate'
-      )!.candidates[0],
+      )!.candidates[0]!,
     ])
   ).toEqual(true);
 });
 
 test('validates votes by checking that contests are present in a given ballot style', () => {
-  const ballotStyle = election.ballotStyles[0];
+  const ballotStyle = election.ballotStyles[0]!;
 
   const yesno = election.contests.find(
     (c): c is YesNoContest => c.type === 'yesno'
@@ -552,7 +552,7 @@ test('election schema', () => {
         candidates: [
           ...candidateContest.candidates.map((c) => ({
             ...c,
-            partyIds: [election.parties[0].id],
+            partyIds: [election.parties[0]!.id],
           })),
           ...candidateContest.candidates.map((c) => ({
             ...c,
@@ -569,7 +569,7 @@ test('election schema', () => {
     if (contest.type === 'candidate') {
       for (const candidate of contest.candidates) {
         expect(candidate.partyIds).toEqual(
-          candidate.id.endsWith('-noparty') ? [] : [election.parties[0].id]
+          candidate.id.endsWith('-noparty') ? [] : [election.parties[0]!.id]
         );
       }
     }
@@ -580,8 +580,8 @@ test('election schema rejects primary with mixed partyId ballot styles', () => {
   const mixedPrimary: Election = {
     ...primaryElection,
     ballotStyles: [
-      primaryElection.ballotStyles[0],
-      { ...primaryElection.ballotStyles[1], partyId: undefined },
+      primaryElection.ballotStyles[0]!,
+      { ...primaryElection.ballotStyles[1]!, partyId: undefined },
     ],
   };
   const result = safeParseElection(mixedPrimary);
@@ -779,8 +779,8 @@ test('hasSplits', () => {
     },
   ];
 
-  expect(hasSplits(precincts[0])).toEqual(true);
-  expect(hasSplits(precincts[1])).toEqual(false);
+  expect(hasSplits(precincts[0]!)).toEqual(true);
+  expect(hasSplits(precincts[1]!)).toEqual(false);
 });
 
 test('getAllPrecinctsAndSplits', () => {
@@ -1058,16 +1058,16 @@ test('getOrderedCandidatesForContestInBallotStyle with primary election', () => 
     orderedCandidatesByContest: {
       'best-animal-mammal': [
         {
-          id: mammalContest.candidates[2].id,
-          partyIds: mammalContest.candidates[2].partyIds,
+          id: mammalContest.candidates[2]!.id,
+          partyIds: mammalContest.candidates[2]!.partyIds,
         },
         {
-          id: mammalContest.candidates[0].id,
-          partyIds: mammalContest.candidates[0].partyIds,
+          id: mammalContest.candidates[0]!.id,
+          partyIds: mammalContest.candidates[0]!.partyIds,
         },
         {
-          id: mammalContest.candidates[1].id,
-          partyIds: mammalContest.candidates[1].partyIds,
+          id: mammalContest.candidates[1]!.id,
+          partyIds: mammalContest.candidates[1]!.partyIds,
         },
       ],
     },
@@ -1079,9 +1079,9 @@ test('getOrderedCandidatesForContestInBallotStyle with primary election', () => 
   });
 
   expect(orderedCandidates.map((c) => c.id)).toEqual([
-    mammalContest.candidates[2].id,
-    mammalContest.candidates[0].id,
-    mammalContest.candidates[1].id,
+    mammalContest.candidates[2]!.id,
+    mammalContest.candidates[0]!.id,
+    mammalContest.candidates[1]!.id,
   ]);
 });
 
@@ -1487,9 +1487,9 @@ test('election validation throws when orderedCandidatesByContest references non-
     ...election,
     ballotStyles: [
       {
-        ...election.ballotStyles[0],
+        ...election.ballotStyles[0]!,
         orderedCandidatesByContest: {
-          'non-existent-contest': [{ id: candidateContest.candidates[0].id }],
+          'non-existent-contest': [{ id: candidateContest.candidates[0]!.id }],
         },
       },
     ],
@@ -1510,11 +1510,11 @@ test('election validation throws when orderedCandidatesByContest references non-
     ...election,
     ballotStyles: [
       {
-        ...election.ballotStyles[0],
+        ...election.ballotStyles[0]!,
         orderedCandidatesByContest: {
           [candidateContest.id]: [
             { id: 'non-existent-candidate' },
-            { id: candidateContest.candidates[0].id },
+            { id: candidateContest.candidates[0]!.id },
           ],
         },
       },
@@ -1555,7 +1555,7 @@ test('election validation throws when orderedCandidatesByContest has mismatched 
     ],
     ballotStyles: [
       {
-        ...election.ballotStyles[0],
+        ...election.ballotStyles[0]!,
         orderedCandidatesByContest: {
           [candidateContest.id]: [
             // Wrong party IDs - should be ['party-1', 'party-2']
@@ -1601,7 +1601,7 @@ test('election validation throws when orderedCandidatesByContest has extra party
     ],
     ballotStyles: [
       {
-        ...election.ballotStyles[0],
+        ...election.ballotStyles[0]!,
         orderedCandidatesByContest: {
           [candidateContest.id]: [
             // Extra party IDs - should be ['party-1']

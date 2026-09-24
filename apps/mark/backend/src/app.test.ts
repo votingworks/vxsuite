@@ -763,7 +763,7 @@ test('a ballot that fails to print does not increment the printed count', async 
 
   const jobId = await apiClient.printBallot({
     precinctId: '21',
-    ballotStyleId: electionDefinition.election.ballotStyles[0].id,
+    ballotStyleId: electionDefinition.election.ballotStyles[0]!.id,
     votes: generateMockVotes(electionDefinition.election),
     languageCode: 'en',
   });

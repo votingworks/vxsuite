@@ -309,16 +309,16 @@ describe('Zod schema string truncation', () => {
       },
     ]);
 
-    expect(validStreets[0].streetName).toEqual(
+    expect(validStreets[0]!.streetName).toEqual(
       'a'.repeat(VOTER_INPUT_FIELD_LIMITS.streetName)
     );
-    expect(validStreets[0].postalCityTown).toEqual(
+    expect(validStreets[0]!.postalCityTown).toEqual(
       'b'.repeat(VOTER_INPUT_FIELD_LIMITS.cityTown)
     );
-    expect(validStreets[0].zip5).toEqual(
+    expect(validStreets[0]!.zip5).toEqual(
       'c'.repeat(VOTER_INPUT_FIELD_LIMITS.zip5)
     );
-    expect(validStreets[0].zip4).toEqual(
+    expect(validStreets[0]!.zip4).toEqual(
       'd'.repeat(VOTER_INPUT_FIELD_LIMITS.zip4)
     );
   });

@@ -155,16 +155,20 @@ export function convertMsElection(
   // Skip it
 
   // Section 1 is one row: 1, ELECTION_TITLE, ELECTION_DATE
-  const [[, title, dateString]] = sectionRows(1);
-  const [month, day, year] = dateString.split('/');
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const [, title, dateString] = sectionRows(1)[0]!;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const [month, day, year] = dateString!.split('/');
   const date = new DateWithoutTime(
-    `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    `${year}-${month!.padStart(2, '0')}-${day!.padStart(2, '0')}`
   );
 
   // Section 2 is one row per district: 2, PARENT_DISTRICT, DISTRICT_ID, DISTRICT_LABEL
   const districtRows = sectionRows(2).map((row) => {
     const [, , id, label] = row;
-    return { id, label };
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return { id: id!, label: label! };
   });
   const duplicateLabels = new Set(
     groupBy(districtRows, ({ label }) => label)
@@ -187,13 +191,21 @@ export function convertMsElection(
   const splitsToDistricts = new Map(
     groupBy(sectionRows(5), ([, splitId]) => splitId).map(([splitId, rows]) => [
       splitId,
-      rows.map(([, , districtId]) => uniqueId(districtId)),
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      rows.map(([, , districtId]) => uniqueId(districtId!)),
     ])
   );
 
   const precinctEntries = sectionRows(4).map((row) => {
     const [, , precinctId, splitId, precinctLabel] = row;
-    return { precinctId, splitId, precinctLabel };
+    return {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      precinctId: precinctId!,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      splitId: splitId!,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      precinctLabel: precinctLabel!,
+    };
   });
   const precincts: Precinct[] = groupBy(
     precinctEntries,
@@ -207,12 +219,14 @@ export function convertMsElection(
 
     const base = {
       id: uniqueId(precinctId),
-      name: rows[0].precinctLabel,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      name: rows[0]!.precinctLabel,
     } as const;
     if (rows.length === 1) {
       return {
         ...base,
-        districtIds: assertDefined(splitsToDistricts.get(rows[0].splitId)),
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        districtIds: assertDefined(splitsToDistricts.get(rows[0]!.splitId)),
       };
     }
     return {
@@ -234,7 +248,8 @@ export function convertMsElection(
         : label === 'Nonpartisan'
           ? label
           : `${label} Party`;
-    return { id: uniqueId(id), name: label, fullName, abbrev };
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return { id: uniqueId(id!), name: label!, fullName, abbrev: abbrev! };
   });
 
   // Section 7 is one row per contest: 7, CONTEST_ID, CONTEST_LABEL, CONTEST_TYPE, 0, DISTRICT_ID, NUM_VOTE_FOR, NUM_WRITE_INS, CONTEST_TEXT, PARTY_ID, 0
@@ -251,10 +266,20 @@ export function convertMsElection(
   //   Results have to be reported by SEMS candidate ID which is in the candidate file.
   const candidateFileEntries = candidateFileRows.map((row) => {
     const [, countyId, contestId, candidateId, candidateSemsId] = row;
-    return { countyId, contestId, candidateId, candidateSemsId };
+    return {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      countyId: countyId!,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      contestId: contestId!,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      candidateId: candidateId!,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      candidateSemsId: candidateSemsId!,
+    };
   });
 
-  const [{ countyId }] = candidateFileEntries;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const { countyId } = candidateFileEntries[0]!;
   const jurisdiction: Jurisdiction = {
     id: uniqueId(countyId),
     name: `${counties[countyId]} County`,
@@ -269,7 +294,18 @@ export function convertMsElection(
 
   const candidateEntries = sectionRows(8).map((row) => {
     const [, contestId, candidateId, , , sortSeq, partyId, labelOnBallot] = row;
-    return { contestId, candidateId, sortSeq, partyId, labelOnBallot };
+    return {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      contestId: contestId!,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      candidateId: candidateId!,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      sortSeq: sortSeq!,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      partyId: partyId!,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      labelOnBallot: labelOnBallot!,
+    };
   });
   const candidatesByContest = new Map(
     groupBy(candidateEntries, ({ contestId }) => contestId)
@@ -290,7 +326,8 @@ export function convertMsElection(
     ] = row;
 
     const candidateRows = assertDefined(
-      candidatesByContest.get(contestId)
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      candidatesByContest.get(contestId!)
     ).sort(
       (rowA, rowB) =>
         safeParseNumber(rowA.sortSeq).unsafeUnwrap() -
@@ -301,7 +338,8 @@ export function convertMsElection(
     switch (contestType) {
       // Candidate contest
       case '0': {
-        const contestTextElementsReversed = contestText.split(/\\n/).reverse();
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const contestTextElementsReversed = contestText!.split(/\\n/).reverse();
         const [, termDescription, ...contestTitleElementsReversed] =
           contestTextElementsReversed;
         const contestTitle = [...contestTitleElementsReversed]
@@ -311,7 +349,10 @@ export function convertMsElection(
         const candidates = candidateRows.map((candidateRow): Candidate => ({
           // For candidate contests, candidateId is a seq number that's only unique
           // within the contest, so we need to map it to the SEMS unique ID.
-          id: uniqueId(getCandidateSemsId(contestId, candidateRow.candidateId)),
+          id: uniqueId(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            getCandidateSemsId(contestId!, candidateRow.candidateId)
+          ),
           name: candidateRow.labelOnBallot,
           ...splitCandidateName(candidateRow.labelOnBallot),
           partyIds:
@@ -321,16 +362,19 @@ export function convertMsElection(
         }));
 
         return {
-          id: uniqueId(contestId),
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          id: uniqueId(contestId!),
           type: 'candidate',
           title: contestTitle,
-          districtId: uniqueId(districtId),
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          districtId: uniqueId(districtId!),
           seats: safeParseNumber(numVoteFor).unsafeUnwrap(),
           // @coverage-defer
           termDescription: termDescription || undefined,
           allowWriteIns: numWriteIns !== '0',
           partyId:
-            partyId === '' || partyId === '0' ? undefined : uniqueId(partyId),
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            partyId === '' || partyId === '0' ? undefined : uniqueId(partyId!),
           candidates,
         };
       }
@@ -342,7 +386,8 @@ export function convertMsElection(
         // So we extract the ballot measure number line and use the rest as the description.
         // The description may have \r\n line breaks, so we split on those as well.
         const [titlePrefix, ...descriptionLines] =
-          contestText.split(/\\n|[\r\n]+/);
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          contestText!.split(/\\n|[\r\n]+/);
         const contestTitle = `${titlePrefix}: ${contestLabel}`;
         const description = descriptionLines
           .map((line) => line.trim())
@@ -354,25 +399,33 @@ export function convertMsElection(
         const [yesCandidateRow, noCandidateRow] = candidateRows;
         // Candidate ballot labels look like this: "Vote for ONE\nYes"
         // So we extract the second line as the option label.
-        const [, yesLabel] = yesCandidateRow.labelOnBallot.split(/\\n/);
-        const [, noLabel] = noCandidateRow.labelOnBallot.split(/\\n/);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const [, yesLabel] = yesCandidateRow!.labelOnBallot.split(/\\n/);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const [, noLabel] = noCandidateRow!.labelOnBallot.split(/\\n/);
 
         return {
-          id: uniqueId(contestId),
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          id: uniqueId(contestId!),
           type: 'yesno',
           title: contestTitle,
-          districtId: uniqueId(districtId),
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          districtId: uniqueId(districtId!),
           description,
           options: [
             {
               // For ballot measures, candidateId is already the SEMS unique ID,
               // so we don't need to map it using getCandidateSemsId.
-              id: uniqueId(yesCandidateRow.candidateId),
-              label: yesLabel,
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              id: uniqueId(yesCandidateRow!.candidateId),
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              label: yesLabel!,
             },
             {
-              id: uniqueId(noCandidateRow.candidateId),
-              label: noLabel,
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              id: uniqueId(noCandidateRow!.candidateId),
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              label: noLabel!,
             },
           ],
         };
@@ -394,7 +447,8 @@ export function convertMsElection(
   const election: Election = {
     id: newElectionId,
     type,
-    title,
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    title: title!,
     date,
     state: 'State of Mississippi',
     jurisdiction,
@@ -427,7 +481,8 @@ export function convertMsElection(
         groupId: 'dummy',
         precincts: [],
         districts: [],
-        partyId: type === 'primary' ? parties[0].id : undefined,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        partyId: type === 'primary' ? parties[0]!.id : undefined,
         languages: ['en'],
       },
     ],

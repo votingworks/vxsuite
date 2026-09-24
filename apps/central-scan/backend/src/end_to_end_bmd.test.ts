@@ -67,7 +67,7 @@ test('going through the whole process works - BMD', async () => {
         // check the status
         const status = await apiClient.getStatus();
 
-        expect(status.batches[0].count).toEqual(1);
+        expect(status.batches[0]!.count).toEqual(1);
 
         const ballotImagesPathEntries = await fsExtra.readdir(
           workspace.ballotImagesPath,
@@ -93,7 +93,7 @@ test('going through the whole process works - BMD', async () => {
 
         const cvrReportDirectoryPath = (
           await getCastVoteRecordExportDirectoryPaths(mockUsbDrive.usbDrive)
-        )[0];
+        )[0]!;
         expect(cvrReportDirectoryPath).toContain('TEST__machine_0000__');
 
         const { castVoteRecordExportMetadata, castVoteRecordIterator } = (
@@ -104,7 +104,7 @@ test('going through the whole process works - BMD', async () => {
         // Famous names has a single absentee polling place, which is
         // auto-selected on configuration.
         expect(
-          castVoteRecordExportMetadata.batchManifest[0].pollingPlaceId
+          castVoteRecordExportMetadata.batchManifest[0]!.pollingPlaceId
         ).toEqual('central-scanning');
 
         const cvrs: CVR.CVR[] = (await castVoteRecordIterator.toArray()).map(
@@ -113,7 +113,7 @@ test('going through the whole process works - BMD', async () => {
         );
         expect(
           cvrs.map((cvr) =>
-            convertCastVoteRecordVotesToTabulationVotes(cvr.CVRSnapshot[0])
+            convertCastVoteRecordVotesToTabulationVotes(cvr.CVRSnapshot[0]!)
           )
         ).toEqual([
           expect.objectContaining({
@@ -146,7 +146,7 @@ test('going through the whole process works - BMD', async () => {
       const cvrReportDirectoryPaths =
         await getCastVoteRecordExportDirectoryPaths(mockUsbDrive.usbDrive);
       expect(cvrReportDirectoryPaths).toHaveLength(3);
-      const cvrReportDirectoryPath = cvrReportDirectoryPaths[2];
+      const cvrReportDirectoryPath = cvrReportDirectoryPaths[2]!;
       const { castVoteRecordIterator } = (
         await readCastVoteRecordExport(cvrReportDirectoryPath)
       ).unsafeUnwrap();

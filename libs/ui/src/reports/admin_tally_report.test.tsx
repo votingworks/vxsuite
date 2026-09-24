@@ -36,7 +36,7 @@ test('includes indicated contests', () => {
   for (const contest of includedContests) {
     expect(queryForContest(contest.id)).toBeInTheDocument();
   }
-  expect(queryForContest(excludedContest.id)).not.toBeInTheDocument();
+  expect(queryForContest(excludedContest!.id)).not.toBeInTheDocument();
 });
 
 test('"test" mode banner', () => {

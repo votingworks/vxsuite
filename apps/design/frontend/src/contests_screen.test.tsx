@@ -198,7 +198,7 @@ const straightPartyContest: StraightPartyContest = {
   id: 'straight-party-contest',
   type: 'straight-party',
   title: 'Straight Party Ticket',
-  districtId: electionWithNoContestsRecord.election.districts[0].id,
+  districtId: electionWithNoContestsRecord.election.districts[0]!.id,
   optionIds: electionWithNoContestsRecord.election.parties.map(
     (party) => party.id
   ),
@@ -208,7 +208,7 @@ const mayorContest: CandidateContest = {
   id: 'candidate-contest',
   type: 'candidate',
   title: 'Mayor',
-  districtId: electionWithNoContestsRecord.election.districts[0].id,
+  districtId: electionWithNoContestsRecord.election.districts[0]!.id,
   seats: 1,
   allowWriteIns: false,
   candidates: [],
@@ -258,7 +258,7 @@ test('auto-selects first available contest, if any', async () => {
   expectOtherElectionApiCalls(election);
 
   const history = renderScreen(electionId);
-  await expectViewModeContest(history, electionId, contests[0]);
+  await expectViewModeContest(history, electionId, contests[0]!);
 });
 
 test('renders contest list on all sub-views', async () => {
@@ -272,14 +272,14 @@ test('renders contest list on all sub-views', async () => {
 
   const history = renderScreen(electionId);
 
-  await expectViewModeContest(history, electionId, contests[0]);
+  await expectViewModeContest(history, electionId, contests[0]!);
   expectContestListItems(contests);
 
   userEvent.click(screen.getButton('Add Contest'));
   await screen.findByRole('heading', { name: 'Add Contest' });
   expectContestListItems(contests);
 
-  await navigateToContestEdit(history, electionId, election.contests[2].id);
+  await navigateToContestEdit(history, electionId, election.contests[2]!.id);
   expectContestListItems(contests);
 
   // [TODO] Add assertion for audio editor view.
@@ -332,7 +332,7 @@ test('adding a candidate contest (general election)', async () => {
     id: idFactory.next(),
     type: 'candidate',
     title: 'New Contest',
-    districtId: election.districts[0].id,
+    districtId: election.districts[0]!.id,
     seats: 2,
     termDescription: '2 years',
     allowWriteIns: false,
@@ -343,7 +343,7 @@ test('adding a candidate contest (general election)', async () => {
         firstName: 'New Candidate',
         middleName: undefined,
         lastName: '1',
-        partyIds: [election.parties[0].id],
+        partyIds: [election.parties[0]!.id],
       },
       {
         id: idFactory.next(),
@@ -351,7 +351,7 @@ test('adding a candidate contest (general election)', async () => {
         firstName: 'New Candidate',
         middleName: undefined,
         lastName: '2',
-        partyIds: [election.parties[1].id],
+        partyIds: [election.parties[1]!.id],
       },
       {
         id: idFactory.next(),
@@ -381,7 +381,7 @@ test('adding a candidate contest (general election)', async () => {
 
   // Set district
   userEvent.click(screen.getByLabelText('District'));
-  userEvent.click(screen.getByText(election.districts[0].name));
+  userEvent.click(screen.getByText(election.districts[0]!.name));
 
   // Default type is candidate contest
   within(screen.getByLabelText('Type')).getByRole('option', {
@@ -413,7 +413,7 @@ test('adding a candidate contest (general election)', async () => {
     screen.getByRole('columnheader', { name: 'First Name' });
     screen.getByRole('columnheader', { name: 'Last Name' });
     screen.getByRole('columnheader', { name: 'Party' });
-    const row = screen.getAllByRole('row')[i + 1];
+    const row = screen.getAllByRole('row')[i + 1]!;
 
     // Set name
     userEvent.type(
@@ -604,7 +604,7 @@ test('editing a candidate contest (primary election)', async () => {
     termDescription: 'Updated Term Description',
     candidates: withUndefinedDesignations([
       {
-        ...savedContest.candidates[1],
+        ...savedContest.candidates[1]!,
         name: 'Updated Candidate Name',
         firstName: 'Updated',
         middleName: 'Candidate',
@@ -671,7 +671,7 @@ test('editing a candidate contest (primary election)', async () => {
   const candidateRows = screen.getAllByRole('row');
   expect(candidateRows).toHaveLength(savedContest.candidates.length + 1);
   for (const [i, candidate] of savedContest.candidates.entries()) {
-    const row = candidateRows[i + 1];
+    const row = candidateRows[i + 1]!;
     expect(
       within(row).getByLabelText(`Candidate ${i + 1} First Name`)
     ).toHaveValue(candidate.firstName);
@@ -685,34 +685,34 @@ test('editing a candidate contest (primary election)', async () => {
   const nameUpdateSpec = [
     {
       labelText: 'First',
-      nameValue: assertDefined(updatedContest.candidates[0].firstName),
+      nameValue: assertDefined(updatedContest.candidates[0]!.firstName),
     },
     {
       labelText: 'Middle',
-      nameValue: assertDefined(updatedContest.candidates[0].middleName),
+      nameValue: assertDefined(updatedContest.candidates[0]!.middleName),
     },
     {
       labelText: 'Last',
-      nameValue: assertDefined(updatedContest.candidates[0].lastName),
+      nameValue: assertDefined(updatedContest.candidates[0]!.lastName),
     },
   ];
   for (const spec of nameUpdateSpec) {
-    const input = within(candidateRows[2]).getByLabelText(
+    const input = within(candidateRows[2]!).getByLabelText(
       `Candidate 2 ${spec.labelText} Name`
     );
     userEvent.clear(input);
     userEvent.type(input, spec.nameValue);
   }
 
-  const partySelect = within(candidateRows[2]).getByLabelText(
+  const partySelect = within(candidateRows[2]!).getByLabelText(
     'Candidate 2 Party'
   );
   userEvent.click(partySelect);
-  userEvent.click(within(candidateRows[2]).getByText('No Party Affiliation'));
+  userEvent.click(within(candidateRows[2]!).getByText('No Party Affiliation'));
 
   // Remove candidate 1
   userEvent.click(
-    within(candidateRows[1]).getByRole('button', {
+    within(candidateRows[1]!).getByRole('button', {
       name: 'Remove Candidate Test Candidate 1',
     })
   );
@@ -721,7 +721,7 @@ test('editing a candidate contest (primary election)', async () => {
       savedContest.candidates.length
     );
     expect(
-      screen.queryByText(savedContest.candidates[0].name)
+      screen.queryByText(savedContest.candidates[0]!.name)
     ).not.toBeInTheDocument();
   });
 
@@ -779,7 +779,7 @@ test.each(nameTestSpecs)(
       id: idFactory.next(),
       type: 'candidate',
       title: 'New Contest',
-      districtId: election.districts[0].id,
+      districtId: election.districts[0]!.id,
       seats: 1,
       allowWriteIns: true,
       candidates: [
@@ -811,7 +811,7 @@ test.each(nameTestSpecs)(
 
     // Set district
     userEvent.click(screen.getByLabelText('District'));
-    userEvent.click(screen.getByText(election.districts[0].name));
+    userEvent.click(screen.getByText(election.districts[0]!.name));
 
     // Default type is candidate contest
     within(screen.getByLabelText('Type')).getByRole('option', {
@@ -834,7 +834,7 @@ test.each(nameTestSpecs)(
     const candidateRows = screen.getAllByRole('row');
     // First row is headers
     expect(candidateRows).toHaveLength(2);
-    const row = candidateRows[1];
+    const row = candidateRows[1]!;
 
     // Set name
     userEvent.type(
@@ -883,7 +883,7 @@ test('editing a candidate designation is not shown when flag is off', async () =
 
   // Flag is off by default but this is more readable
   const history = renderScreen(electionId, { CANDIDATE_DESIGNATIONS: false });
-  await navigateToContestEdit(history, electionId, election.contests[0].id);
+  await navigateToContestEdit(history, electionId, election.contests[0]!.id);
 
   // The rest of the candidate table still renders
   screen.getByRole('columnheader', { name: 'First Name' });
@@ -920,7 +920,7 @@ test('editing a candidate designation', async () => {
     ...savedContest,
     candidates: [
       {
-        ...savedContest.candidates[0],
+        ...savedContest.candidates[0]!,
         designation: 'Member of City Council',
         middleName: undefined,
         partyIds: undefined,
@@ -945,7 +945,7 @@ test('editing a candidate designation', async () => {
   expect(designationInput).toHaveValue('');
 
   // Designations may contain spaces
-  userEvent.type(designationInput, updatedContest.candidates[0].designation!);
+  userEvent.type(designationInput, updatedContest.candidates[0]!.designation!);
   userEvent.tab();
   expect(designationInput).toHaveValue('Member of City Council');
 
@@ -971,7 +971,7 @@ test('adding a ballot measure', async () => {
     type: 'yesno',
     title: 'New Ballot Measure',
     id,
-    districtId: election.districts[0].id,
+    districtId: election.districts[0]!.id,
     description: 'New Ballot Measure Description',
     options: [
       {
@@ -993,7 +993,7 @@ test('adding a ballot measure', async () => {
 
   const history = renderScreen(electionId);
 
-  await expectViewModeContest(history, electionId, election.contests[0]);
+  await expectViewModeContest(history, electionId, election.contests[0]!);
   expectContestListItems(election.contests);
 
   userEvent.click(screen.getByRole('button', { name: 'Add Contest' }));
@@ -1004,7 +1004,7 @@ test('adding a ballot measure', async () => {
 
   // Set district
   userEvent.click(screen.getByLabelText('District'));
-  userEvent.click(screen.getByText(election.districts[0].name));
+  userEvent.click(screen.getByText(election.districts[0]!.name));
 
   // Change type to ballot measure
   userEvent.click(screen.getByRole('option', { name: 'Ballot Measure' }));
@@ -1023,10 +1023,10 @@ test('adding a ballot measure', async () => {
   expect(inputs).toHaveLength(2);
   const [yesInput, noInput] = inputs;
   expect(screen.queryButton('Add Option')).not.toBeInTheDocument();
-  userEvent.clear(yesInput);
-  userEvent.type(yesInput, newContest.options[0].label);
-  userEvent.clear(noInput);
-  userEvent.type(noInput, newContest.options[1].label);
+  userEvent.clear(yesInput!);
+  userEvent.type(yesInput!, newContest.options[0].label);
+  userEvent.clear(noInput!);
+  userEvent.type(noInput!, newContest.options[1].label);
 
   await within(descriptionEditor).findByText(newContest.description);
   const descriptionHtml = `<p>${newContest.description}</p>`;
@@ -1123,12 +1123,12 @@ test('editing a ballot measure', async () => {
   // Change yes and no labels
   const [yesInput, noInput] = getOptionInputs();
   expect(yesInput).toHaveValue(savedContest.options[0].label);
-  userEvent.clear(yesInput);
-  userEvent.type(yesInput, updatedContest.options[0].label);
+  userEvent.clear(yesInput!);
+  userEvent.type(yesInput!, updatedContest.options[0].label);
 
   expect(noInput).toHaveValue(savedContest.options[1].label);
-  userEvent.clear(noInput);
-  userEvent.type(noInput, updatedContest.options[1].label);
+  userEvent.clear(noInput!);
+  userEvent.type(noInput!, updatedContest.options[1].label);
 
   // Save contest
   const updatedContestWithDescriptionHtml: YesNoContest = {
@@ -1184,14 +1184,14 @@ test('features.ADDITIONAL_BALLOT_MEASURE_OPTIONS enables adding/removing additio
   expect(noInput).toHaveValue(savedContest.options[1].label);
   expect(additionalInput).toHaveValue('');
 
-  userEvent.type(additionalInput, 'Third Option');
+  userEvent.type(additionalInput!, 'Third Option');
   expect(additionalInput).toHaveValue('Third Option');
 
   userEvent.click(screen.getButton('Add Option'));
   const updatedOptionInputs = getOptionInputs();
   expect(updatedOptionInputs).toHaveLength(4);
   const [, , , fourthInput] = updatedOptionInputs;
-  userEvent.type(fourthInput, 'Fourth Option');
+  userEvent.type(fourthInput!, 'Fourth Option');
 
   const updatedContest: YesNoContest = {
     ...savedContest,
@@ -1231,7 +1231,9 @@ test('features.ADDITIONAL_BALLOT_MEASURE_OPTIONS enables adding/removing additio
 
   await navigateToContestEdit(history, electionId, savedContest.id);
   const [, , thirdInput] = getOptionInputs();
-  userEvent.click(within(thirdInput.parentElement!).getButton('Remove Option'));
+  userEvent.click(
+    within(thirdInput!.parentElement!).getButton('Remove Option')
+  );
   const updatedContest2: YesNoContest = {
     ...updatedContest,
     options: [
@@ -1277,7 +1279,7 @@ test('reordering contests', async () => {
 
   const history = renderScreen(electionId);
 
-  await expectViewModeContest(history, electionId, election.contests[0]);
+  await expectViewModeContest(history, electionId, election.contests[0]!);
   assert(reorder);
 
   userEvent.click(screen.getByRole('button', { name: 'Reorder Contests' }));
@@ -1290,13 +1292,13 @@ test('reordering contests', async () => {
   userEvent.click(screen.getByRole('button', { name: 'Reorder Contests' }));
 
   const [contest1, contest2, contest3] = election.contests;
-  act(() => reorder!({ id: contest1.id, direction: 1 }));
-  act(() => reorder!({ id: contest3.id, direction: -1 }));
+  act(() => reorder!({ id: contest1!.id, direction: 1 }));
+  act(() => reorder!({ id: contest3!.id, direction: -1 }));
 
   const reorderedContests = [
-    contest2,
-    contest3,
-    contest1,
+    contest2!,
+    contest3!,
+    contest1!,
     ...election.contests.slice(3),
   ];
   expectContestListItems(reorderedContests);
@@ -1335,11 +1337,11 @@ test('deleting a contest', async () => {
   const history = renderScreen(electionId);
 
   const contestRoutes = routes.election(electionId).contests;
-  history.replace(contestRoutes.edit(savedContest.id).path);
+  history.replace(contestRoutes.edit(savedContest!.id).path);
   await screen.findByRole('heading', { name: 'Edit Contest' });
 
   apiMock.deleteContest
-    .expectCallWith({ electionId, contestId: savedContest.id })
+    .expectCallWith({ electionId, contestId: savedContest!.id })
     .resolves();
 
   const remainingContests = election.contests.slice(1);
@@ -1355,7 +1357,7 @@ test('deleting a contest', async () => {
   userEvent.click(screen.getByRole('button', { name: 'Delete Contest' }));
 
   // Should auto-select the first of the remaining contests:
-  await expectViewModeContest(history, electionId, remainingContests[0]);
+  await expectViewModeContest(history, electionId, remainingContests[0]!);
   expectContestListItems(remainingContests);
 });
 
@@ -1422,7 +1424,7 @@ test('editing contests is restricted for elections with external source', async 
   // Candidate name inputs should be disabled
   const candidateRows = screen.getAllByRole('row').slice(1); // Skip header row
   for (let i = 0; i < candidateContest.candidates.length; i += 1) {
-    const row = candidateRows[i];
+    const row = candidateRows[i]!;
     expect(
       within(row).getByLabelText(`Candidate ${i + 1} First Name`)
     ).toBeDisabled();
@@ -1500,15 +1502,15 @@ test('changing contests is disabled when ballots are finalized', async () => {
   const contestRoutes = routes.election(electionId).contests;
   const [, contest2, contest3] = election.contests;
 
-  await navigateToContestView(history, electionId, contest2.id);
+  await navigateToContestView(history, electionId, contest2!.id);
   expect(screen.queryButton('Edit')).not.toBeInTheDocument();
   expect(screen.queryButton('Save')).not.toBeInTheDocument();
   expect(screen.queryButton('Cancel')).not.toBeInTheDocument();
   expect(screen.queryButton('Delete Contest')).not.toBeInTheDocument();
 
   // Accessing `/edit` route when finalized should redirect to "view" route:
-  history.replace(contestRoutes.edit(contest3.id).path);
-  await waitFor(() => expectViewModeContest(history, electionId, contest3));
+  history.replace(contestRoutes.edit(contest3!.id).path);
+  await waitFor(() => expectViewModeContest(history, electionId, contest3!));
   expect(screen.queryButton('Edit')).not.toBeInTheDocument();
   expect(screen.queryButton('Save')).not.toBeInTheDocument();
   expect(screen.queryButton('Cancel')).not.toBeInTheDocument();
@@ -1584,10 +1586,10 @@ test('error messages for duplicate candidate contest/candidates', async () => {
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   const history = renderScreen(electionId);
-  await expectViewModeContest(history, electionId, election.contests[0]);
-  await navigateToContestEdit(history, electionId, election.contests[1].id);
+  await expectViewModeContest(history, electionId, election.contests[0]!);
+  await navigateToContestEdit(history, electionId, election.contests[1]!.id);
 
-  const savedContest = election.contests[1];
+  const savedContest = election.contests[1]!;
   assert(savedContest.type === 'candidate');
   const expectedContest: CandidateContest = {
     ...savedContest,
@@ -1635,7 +1637,7 @@ test('error messages for duplicate ballot measure', async () => {
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   const history = renderScreen(electionId);
-  await expectViewModeContest(history, electionId, election.contests[0]);
+  await expectViewModeContest(history, electionId, election.contests[0]!);
   await navigateToContestEdit(history, electionId, ballotMeasureContest.id);
 
   // Mock the duplicate contest error, even though we didn't actually change anything
@@ -1679,7 +1681,7 @@ test('error messages for candidate contest with no candidates and write-ins disa
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   const history = renderScreen(electionId);
-  await expectViewModeContest(history, electionId, election.contests[0]);
+  await expectViewModeContest(history, electionId, election.contests[0]!);
   await navigateToContestEdit(history, electionId, candidateContest.id);
 
   // Remove all candidates
@@ -1713,7 +1715,7 @@ test('disables form and shows edit button when in "view" mode', async () => {
   apiMock.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(null);
 
   const history = renderScreen(electionId);
-  await navigateToContestView(history, electionId, savedContest.id);
+  await navigateToContestView(history, electionId, savedContest!.id);
 
   // Initial "view" state:
 
@@ -1883,7 +1885,7 @@ describe('audio editing', () => {
     await navigateToContestView(history, electionId, yesNoContest.id);
 
     const [yesInput] = getOptionInputs();
-    const yesAudioButton = within(yesInput.parentElement!).getButton(
+    const yesAudioButton = within(yesInput!.parentElement!).getButton(
       /preview or edit audio/i
     );
     userEvent.click(yesAudioButton);
@@ -1898,7 +1900,7 @@ describe('audio editing', () => {
     await navigateToContestView(history, electionId, yesNoContest.id);
 
     const [, noInput] = getOptionInputs();
-    const noAudioButton = within(noInput.parentElement!).getButton(
+    const noAudioButton = within(noInput!.parentElement!).getButton(
       /preview or edit audio/i
     );
     userEvent.click(noAudioButton);

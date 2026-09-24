@@ -47,7 +47,7 @@ test('CandidatePartyList - single-party association', async () => {
       <CandidatePartyList
         candidate={{
           ...CANDIDATE,
-          partyIds: [ELECTION_PARTIES[1].id],
+          partyIds: [ELECTION_PARTIES[1]!.id],
         }}
         electionParties={ELECTION_PARTIES}
       />
@@ -73,7 +73,7 @@ test('CandidatePartyList - multi-party association', async () => {
       <CandidatePartyList
         candidate={{
           ...CANDIDATE,
-          partyIds: [ELECTION_PARTIES[1].id, ELECTION_PARTIES[0].id],
+          partyIds: [ELECTION_PARTIES[1]!.id, ELECTION_PARTIES[0]!.id],
         }}
         electionParties={ELECTION_PARTIES}
       />

@@ -48,7 +48,7 @@ test('getScannerResultsMemoized correctly memoizes results based on ballot count
   const zeroResultsA = await getScannerResultsMemoized({ store });
   expect(store.getBallotsCounted()).toEqual(0);
   expect(zeroResultsA).toHaveLength(1);
-  expect(zeroResultsA[0].cardCounts.hmpb[0]).toBeUndefined();
+  expect(zeroResultsA[0]!.cardCounts.hmpb[0]).toBeUndefined();
 
   const zeroResultsB = await getScannerResultsMemoized({ store });
   expect(zeroResultsB).toBe(zeroResultsA); // should be exact same object due to memoization
@@ -70,7 +70,7 @@ test('getScannerResultsMemoized correctly memoizes results based on ballot count
   const oneResultsA = await getScannerResultsMemoized({ store });
   expect(oneResultsA).not.toBe(zeroResultsA); // Should be a different object reference
   expect(oneResultsA).toHaveLength(1); // Should have one group of results
-  expect(oneResultsA[0].cardCounts.hmpb[0]).toEqual(1);
+  expect(oneResultsA[0]!.cardCounts.hmpb[0]).toEqual(1);
 
   const oneResultsB = await getScannerResultsMemoized({
     store,
@@ -91,7 +91,7 @@ test('getScannerResultsMemoized correctly memoizes results based on ballot count
   const twoResultsA = await getScannerResultsMemoized({ store });
   expect(twoResultsA).not.toBe(oneResultsA);
   expect(twoResultsA).toHaveLength(1);
-  expect(twoResultsA[0].cardCounts.hmpb[0]).toEqual(2);
+  expect(twoResultsA[0]!.cardCounts.hmpb[0]).toEqual(2);
 
   const twoResultsB = await getScannerResultsMemoized({
     store,
@@ -141,7 +141,7 @@ test('getScannerResults groups by inferred party for a combined ballot primary',
   const nonpartisanContest = election.contests.find(
     (c): c is YesNoContest => c.type === 'yesno'
   )!;
-  const ballotStyle = election.ballotStyles[0];
+  const ballotStyle = election.ballotStyles[0]!;
 
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
   store.setElectionAndJurisdiction({
@@ -156,7 +156,7 @@ test('getScannerResults groups by inferred party for a combined ballot primary',
     ballotType: BallotType.Precinct,
     ballotHash: electionDefinition.ballotHash,
     isTestMode: false,
-    precinctId: ballotStyle.precincts[0],
+    precinctId: ballotStyle.precincts[0]!,
   };
   function recordHmpbBallot(frontVotes: VotesDict): void {
     store.setPollingPlaceId('place-1');
@@ -172,19 +172,19 @@ test('getScannerResults groups by inferred party for a combined ballot primary',
 
   // Two democratic-only ballots
   recordHmpbBallot({
-    [democraticContest.id]: [democraticContest.candidates[0].id],
+    [democraticContest.id]: [democraticContest.candidates[0]!.id],
   });
   recordHmpbBallot({
-    [democraticContest.id]: [democraticContest.candidates[0].id],
+    [democraticContest.id]: [democraticContest.candidates[0]!.id],
   });
   // One republican-only ballot
   recordHmpbBallot({
-    [republicanContest.id]: [republicanContest.candidates[0].id],
+    [republicanContest.id]: [republicanContest.candidates[0]!.id],
   });
   // One crossover ballot
   recordHmpbBallot({
-    [democraticContest.id]: [democraticContest.candidates[0].id],
-    [republicanContest.id]: [republicanContest.candidates[0].id],
+    [democraticContest.id]: [democraticContest.candidates[0]!.id],
+    [republicanContest.id]: [republicanContest.candidates[0]!.id],
     [nonpartisanContest.id]: [nonpartisanContest.options[0].id],
   });
   // One ballot with only nonpartisan votes

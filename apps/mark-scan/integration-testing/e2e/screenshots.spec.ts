@@ -81,7 +81,8 @@ async function voteAndCaptureContests(
   let capturedWriteIn = false;
 
   for (let i = 0; i < contests.length; i += 1) {
-    const contest = contests[i];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const contest = contests[i]!;
     await page.getByRole('heading', { name: contest.title }).first().waitFor();
 
     if (contest.type === 'candidate') {

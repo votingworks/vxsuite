@@ -78,7 +78,8 @@ function element(
   }
 
   for (const key of Object.keys(attributes)) {
-    result.setAttribute(key, attributes[key]);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    result.setAttribute(key, attributes[key]!);
   }
 
   result.append(...children);

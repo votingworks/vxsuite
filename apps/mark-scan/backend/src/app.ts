@@ -204,7 +204,8 @@ export function buildApi(
 
         if (electionDefinition.election.pollingPlaces?.length === 1) {
           workspace.store.setPollingPlaceId(
-            electionDefinition.election.pollingPlaces[0].id
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            electionDefinition.election.pollingPlaces[0]!.id
           );
         }
 

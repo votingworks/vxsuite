@@ -224,7 +224,8 @@ export function getLayout(
   }
 
   const finalLayoutIndex = Math.max(i - densityOffset, 0);
-  return ok(possibleLayoutsDescending[finalLayoutIndex]);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return ok(possibleLayoutsDescending[finalLayoutIndex]!);
 }
 
 /**

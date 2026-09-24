@@ -177,14 +177,18 @@ export async function generateMarkOverlay(
     const page = doc.getPage(pageNumber - 1);
 
     const bubbleCenter = [
-      gridOrigin[0] + gridSize[0] * (pos.column / (timingMarkCount.x - 1)),
-      gridOrigin[1] + gridSize[1] * (pos.row / (timingMarkCount.y - 1)),
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      gridOrigin[0] + gridSize[0]! * (pos.column / (timingMarkCount.x - 1)),
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      gridOrigin[1] + gridSize[1]! * (pos.row / (timingMarkCount.y - 1)),
     ];
 
     // Draw bubble mark using pdf-lib
     bubbleMark(page, [
-      bubbleCenter[0] - markSizeHalf[0],
-      pageSize[1] - bubbleCenter[1] + markSizeHalf[1],
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      bubbleCenter[0]! - markSizeHalf[0],
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      pageSize[1] - bubbleCenter[1]! + markSizeHalf[1],
     ]);
 
     if (!mark.writeInName) continue;
@@ -192,8 +196,10 @@ export async function generateMarkOverlay(
     // Add write-in candidate name within the configured search area
     const { writeInArea: area, writeInName: name } = mark;
     const origin = [
-      gridOrigin[0] + gridSize[0] * (area.x / (timingMarkCount.x - 1)),
-      gridOrigin[1] + gridSize[1] * (area.y / (timingMarkCount.y - 1)),
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      gridOrigin[0] + gridSize[0]! * (area.x / (timingMarkCount.x - 1)),
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      gridOrigin[1] + gridSize[1]! * (area.y / (timingMarkCount.y - 1)),
     ];
     const areaSize = [
       area.width * spacing.columnGap,
@@ -201,10 +207,14 @@ export async function generateMarkOverlay(
     ];
 
     drawWriteInText(page, fontRobotoBold, name, {
-      x: origin[0],
-      y: pageSize[1] - origin[1] - areaSize[1],
-      width: areaSize[0],
-      height: areaSize[1],
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      x: origin[0]!,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      y: pageSize[1] - origin[1]! - areaSize[1]!,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      width: areaSize[0]!,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      height: areaSize[1]!,
     });
   }
 

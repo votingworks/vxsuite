@@ -97,7 +97,7 @@ test('shows alert modal on import errors', async () => {
   mockImportResult(api, location2Export.path, err(error));
   mockModeUnlocked(api);
 
-  userEvent.click(screen.getButton(new RegExp(location2.name)));
+  userEvent.click(screen.getButton(new RegExp(location2!.name)));
   await waitFor(() => api.assertComplete());
 
   const modal = screen.getByRole('alertdialog');
@@ -124,7 +124,7 @@ test('shows alert modal on duplicate import', async () => {
   mockImportResult(api, location1Export.path, ok(res));
   mockModeUnlocked(api);
 
-  userEvent.click(screen.getButton(new RegExp(location1.name)));
+  userEvent.click(screen.getButton(new RegExp(location1!.name)));
   await waitFor(() => api.assertComplete());
 
   const modal = screen.getByRole('alertdialog');
@@ -151,13 +151,13 @@ describe('shows alert modal on partial import', () => {
     render(<CvrImportPanel onClose={vi.fn()} />, { api, usbStatus: 'mounted' });
 
     await waitFor(() => api.assertComplete());
-    screen.getButton(new RegExp(location1.name));
+    screen.getButton(new RegExp(location1!.name));
 
     const res = resultFromExport(location1Export, result);
     mockImportResult(api, location1Export.path, ok(res));
     mockModeOfficial(api, []);
 
-    userEvent.click(screen.getButton(new RegExp(location1.name)));
+    userEvent.click(screen.getButton(new RegExp(location1!.name)));
     await waitFor(() => api.assertComplete());
 
     const modal = screen.getByRole('alertdialog');
@@ -214,13 +214,13 @@ test('no alerts on successful, full import', async () => {
   render(<CvrImportPanel onClose={vi.fn()} />, { api, usbStatus: 'mounted' });
 
   await waitFor(() => api.assertComplete());
-  screen.getButton(new RegExp(location1.name));
+  screen.getButton(new RegExp(location1!.name));
 
   const res = resultFromExport(location1Export, {});
   mockImportResult(api, location1Export.path, ok(res));
   mockModeOfficial(api, []);
 
-  userEvent.click(screen.getButton(new RegExp(location1.name)));
+  userEvent.click(screen.getButton(new RegExp(location1!.name)));
   await waitFor(() => api.assertComplete());
 
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
@@ -234,7 +234,7 @@ test('disables controls while importing', async () => {
   render(<CvrImportPanel onClose={vi.fn()} />, { api, usbStatus: 'mounted' });
 
   await waitFor(() => api.assertComplete());
-  screen.getButton(new RegExp(location1.name));
+  screen.getButton(new RegExp(location1!.name));
 
   const res = resultFromExport(location1Export, {});
   const deferredRes = deferred<CvrImportResult>();
@@ -242,11 +242,11 @@ test('disables controls while importing', async () => {
     .expectCallWith({ path: location1Export.path })
     .returns(deferredRes.promise);
 
-  userEvent.click(screen.getButton(new RegExp(location1.name)));
+  userEvent.click(screen.getButton(new RegExp(location1!.name)));
   await waitFor(() => api.assertComplete());
 
-  expect(screen.getButton(new RegExp(location1.name))).toBeDisabled();
-  expect(screen.getButton(new RegExp(location2.name))).toBeDisabled();
+  expect(screen.getButton(new RegExp(location1!.name))).toBeDisabled();
+  expect(screen.getButton(new RegExp(location2!.name))).toBeDisabled();
   expect(screen.getButton(/Select CVR Export Manually/)).toBeDisabled();
   expect(screen.getButton('Done')).toBeDisabled();
 

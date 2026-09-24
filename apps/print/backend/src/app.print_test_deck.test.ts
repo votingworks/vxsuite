@@ -156,10 +156,10 @@ test('printTestDeck produces correctly marked letter-size ballots and a tally re
   // Ballot PDFs + overall tally report + one tally report per precinct
   expect(jobs.length).toEqual(allSpecs.length + 1 + election.precincts.length);
 
-  const markedBallotJob = jobs[0];
-  expect(Object.keys(allSpecs[0].votes).length).toBeGreaterThan(0);
-  const blankBallotJob = jobs[allSpecs.length - 1];
-  const tallyReportJob = jobs[allSpecs.length];
+  const markedBallotJob = jobs[0]!;
+  expect(Object.keys(allSpecs[0]!.votes).length).toBeGreaterThan(0);
+  const blankBallotJob = jobs[allSpecs.length - 1]!;
+  const tallyReportJob = jobs[allSpecs.length]!;
 
   await expect(markedBallotJob.filename).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'test-deck-letter-marked-ballot',
@@ -207,16 +207,16 @@ test('printTestDeck produces legal-size ballot PDFs for a legal-paper election',
   );
   expect(jobs.length).toEqual(allSpecs.length + 1 + election.precincts.length);
 
-  expect(Object.keys(allSpecs[0].votes).length).toBeGreaterThan(0);
-  await expect(jobs[0].filename).toMatchPdfSnapshot({
+  expect(Object.keys(allSpecs[0]!.votes).length).toBeGreaterThan(0);
+  await expect(jobs[0]!.filename).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'test-deck-legal-marked-ballot',
     failureThreshold: 0.0001,
   });
-  await expect(jobs[allSpecs.length - 1].filename).toMatchPdfSnapshot({
+  await expect(jobs[allSpecs.length - 1]!.filename).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'test-deck-legal-ballot',
     failureThreshold: 0.0001,
   });
-  await expect(jobs[allSpecs.length].filename).toMatchPdfSnapshot({
+  await expect(jobs[allSpecs.length]!.filename).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'test-deck-legal-tally-report',
     failureThreshold: 0.0001,
   });

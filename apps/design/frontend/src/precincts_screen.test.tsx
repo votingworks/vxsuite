@@ -107,7 +107,7 @@ test('adding a precinct', async () => {
   const newPrecinct: Precinct = {
     id: idFactory.next(),
     name: 'New Precinct',
-    districtIds: [election.districts[0].id, election.districts[1].id],
+    districtIds: [election.districts[0]!.id, election.districts[1]!.id],
   };
 
   apiMock.listPrecincts.expectCallWith({ electionId }).resolves([]);
@@ -163,7 +163,7 @@ test('editing a precinct - adding splits in NH', async () => {
   const { election } = nhElectionRecord;
   // eslint-disable-next-line @typescript-eslint/no-shadow
   const electionId = election.id;
-  const savedPrecinct = election.precincts[0];
+  const savedPrecinct = election.precincts[0]!;
   assert(!hasSplits(savedPrecinct));
 
   const sealImage =
@@ -177,7 +177,7 @@ test('editing a precinct - adding splits in NH', async () => {
       {
         id: idFactory.next(),
         name: 'Split 1',
-        districtIds: [election.districts[0].id],
+        districtIds: [election.districts[0]!.id],
       },
       {
         id: (() => {
@@ -186,7 +186,7 @@ test('editing a precinct - adding splits in NH', async () => {
           return idFactory.next();
         })(),
         name: 'Split 2',
-        districtIds: [election.districts[1].id],
+        districtIds: [election.districts[1]!.id],
         electionTitleOverride: 'Mock Election Override Name',
         electionSealOverride: sealImage,
         clerkSignatureImage: signatureImage,
@@ -228,62 +228,63 @@ test('editing a precinct - adding splits in NH', async () => {
   expect(splitCards).toHaveLength(3);
   const [split1Card, split2Card, split3Card] = splitCards;
 
-  const split1NameInput = within(split1Card).getByLabelText('Name');
+  const split1NameInput = within(split1Card!).getByLabelText('Name');
   expect(split1NameInput).toHaveValue('');
-  userEvent.type(split1NameInput, changedPrecinct.splits[0].name);
+  userEvent.type(split1NameInput, changedPrecinct.splits[0]!.name);
 
   // Selected districts carry over to first precinct split
-  within(split1Card).getByRole('checkbox', {
-    name: election.districts[0].name,
+  within(split1Card!).getByRole('checkbox', {
+    name: election.districts[0]!.name,
     checked: true,
   });
   userEvent.click(
-    within(split1Card).getByRole('checkbox', {
-      name: election.districts[1].name,
+    within(split1Card!).getByRole('checkbox', {
+      name: election.districts[1]!.name,
       checked: true,
     })
   );
-  within(split1Card).getByRole('checkbox', {
-    name: election.districts[2].name,
+  within(split1Card!).getByRole('checkbox', {
+    name: election.districts[2]!.name,
     checked: false,
   });
 
   for (const district of election.districts) {
-    within(split2Card).getByRole('checkbox', {
+    within(split2Card!).getByRole('checkbox', {
       name: district.name,
       checked: false,
     });
   }
   userEvent.click(
-    within(split2Card).getByRole('button', { name: 'Remove Split' })
+    within(split2Card!).getByRole('button', { name: 'Remove Split' })
   );
 
-  const split3NameInput = within(split3Card).getByLabelText('Name');
+  const split3NameInput = within(split3Card!).getByLabelText('Name');
   expect(split3NameInput).toHaveValue('');
-  userEvent.type(split3NameInput, changedPrecinct.splits[1].name);
+  userEvent.type(split3NameInput, changedPrecinct.splits[1]!.name);
   for (const district of election.districts) {
-    within(split3Card).getByRole('checkbox', {
+    within(split3Card!).getByRole('checkbox', {
       name: district.name,
       checked: false,
     });
   }
   userEvent.click(
-    within(split3Card).getByRole('checkbox', {
-      name: election.districts[1].name,
+    within(split3Card!).getByRole('checkbox', {
+      name: election.districts[1]!.name,
     })
   );
 
   // Update NH-configurable fields
-  const split3ElectionTitleOverrideInput = within(split3Card).getByLabelText(
+  const split3ElectionTitleOverrideInput = within(split3Card!).getByLabelText(
     'Election Title Override'
   );
   expect(split3ElectionTitleOverrideInput).toHaveValue('');
   userEvent.type(
     split3ElectionTitleOverrideInput,
-    assertDefined(changedPrecinct.splits[1].electionTitleOverride)
+    assertDefined(changedPrecinct.splits[1]!.electionTitleOverride)
   );
-  const split3ElectionSealOverrideInput =
-    within(split3Card).getByLabelText('Upload Seal Image').parentElement!;
+  const split3ElectionSealOverrideInput = within(split3Card!).getByLabelText(
+    'Upload Seal Image'
+  ).parentElement!;
   userEvent.upload(
     split3ElectionSealOverrideInput,
     new File([sealImage], 'seal.svg', {
@@ -291,22 +292,22 @@ test('editing a precinct - adding splits in NH', async () => {
     })
   );
   await waitFor(() =>
-    expect(within(split3Card).getByRole('img')).toHaveAttribute(
+    expect(within(split3Card!).getByRole('img')).toHaveAttribute(
       'src',
       `data:image/svg+xml;base64,${Buffer.from(sealImage).toString('base64')}`
     )
   );
 
-  const split3ClerkSignatureCaption = within(split3Card).getByLabelText(
+  const split3ClerkSignatureCaption = within(split3Card!).getByLabelText(
     'Signature Caption Override'
   );
   expect(split3ClerkSignatureCaption).toHaveValue('');
   userEvent.type(
     split3ClerkSignatureCaption,
-    assertDefined(changedPrecinct.splits[1].clerkSignatureCaption)
+    assertDefined(changedPrecinct.splits[1]!.clerkSignatureCaption)
   );
 
-  const signatureInput = within(split3Card).getByLabelText(
+  const signatureInput = within(split3Card!).getByLabelText(
     'Upload Signature Image'
   ).parentElement!;
   userEvent.upload(
@@ -316,7 +317,7 @@ test('editing a precinct - adding splits in NH', async () => {
     })
   );
   await waitFor(() => {
-    const srcs = within(split3Card)
+    const srcs = within(split3Card!)
       .getAllByRole('img')
       .map((img) => img.getAttribute('src'));
     expect(srcs).toContain(
@@ -351,7 +352,7 @@ test('editing a precinct - removing splits', async () => {
   const changedPrecinct: PrecinctWithoutSplits = {
     id: savedPrecinct.id,
     name: savedPrecinct.name,
-    districtIds: savedPrecinct.splits[1].districtIds,
+    districtIds: savedPrecinct.splits[1]!.districtIds,
   };
 
   apiMock.listPrecincts
@@ -369,7 +370,7 @@ test('editing a precinct - removing splits', async () => {
     .map((button) => button.closest('div')!);
   const [split1Card] = splitCards;
   userEvent.click(
-    within(split1Card).getByRole('button', { name: 'Remove Split' })
+    within(split1Card!).getByRole('button', { name: 'Remove Split' })
   );
   expect(
     screen.queryByRole('button', { name: 'Remove Split' })
@@ -377,15 +378,15 @@ test('editing a precinct - removing splits', async () => {
 
   // Districts from last remaining split should be selected for the whole precinct
   screen.getByRole('checkbox', {
-    name: election.districts[0].name,
+    name: election.districts[0]!.name,
     checked: true,
   });
   screen.getByRole('checkbox', {
-    name: election.districts[1].name,
+    name: election.districts[1]!.name,
     checked: true,
   });
   screen.getByRole('checkbox', {
-    name: election.districts[2].name,
+    name: election.districts[2]!.name,
     checked: false,
   });
 
@@ -421,12 +422,12 @@ test('editing a precinct - removing splits preserves last split voter count', as
       {
         id: split1Id,
         name: 'Split 1',
-        districtIds: [election.districts[0].id],
+        districtIds: [election.districts[0]!.id],
       },
       {
         id: split2Id,
         name: 'Split 2',
-        districtIds: [election.districts[1].id],
+        districtIds: [election.districts[1]!.id],
       },
     ],
   };
@@ -435,7 +436,7 @@ test('editing a precinct - removing splits preserves last split voter count', as
   const precinctWithoutSplits: PrecinctWithoutSplits = {
     id: initialPrecinct.id,
     name: initialPrecinct.name,
-    districtIds: split2.districtIds,
+    districtIds: split2!.districtIds,
   };
 
   apiMock.listPrecincts
@@ -453,11 +454,17 @@ test('editing a precinct - removing splits preserves last split voter count', as
     .map((button) => assertDefined(button.closest('div')));
   const [split1Card, split2Card] = splitCards;
 
-  userEvent.type(within(split1Card).getByLabelText('Registered Voters'), '200');
-  userEvent.type(within(split2Card).getByLabelText('Registered Voters'), '400');
+  userEvent.type(
+    within(split1Card!).getByLabelText('Registered Voters'),
+    '200'
+  );
+  userEvent.type(
+    within(split2Card!).getByLabelText('Registered Voters'),
+    '400'
+  );
 
   userEvent.click(
-    within(split1Card).getByRole('button', { name: 'Remove Split' })
+    within(split1Card!).getByRole('button', { name: 'Remove Split' })
   );
   expect(
     screen.queryByRole('button', { name: 'Remove Split' })
@@ -496,12 +503,12 @@ test('deleting a precinct', async () => {
     .resolves(election.districts);
 
   const history = renderScreen(electionId);
-  await navigateToPrecinctEdit(history, savedPrecinct.id);
+  await navigateToPrecinctEdit(history, savedPrecinct!.id);
 
   apiMock.deletePrecinct
     .expectCallWith({
       electionId,
-      precinctId: savedPrecinct.id,
+      precinctId: savedPrecinct!.id,
     })
     .resolves();
 
@@ -521,7 +528,7 @@ test('deleting a precinct', async () => {
   // Confirm the deletion in the modal
   userEvent.click(screen.getByRole('button', { name: 'Delete Precinct' }));
 
-  await expectViewModePrecinct(history, remainingPrecincts[0]);
+  await expectViewModePrecinct(history, remainingPrecincts[0]!);
 });
 
 test('editing or adding a precinct is disabled when ballots are finalized', async () => {
@@ -538,13 +545,13 @@ test('editing or adding a precinct is disabled when ballots are finalized', asyn
 
   const history = renderScreen(electionId);
 
-  await expectViewModePrecinct(history, election.precincts[0]);
+  await expectViewModePrecinct(history, election.precincts[0]!);
   expect(screen.queryButton('Edit')).not.toBeInTheDocument();
   expect(screen.queryButton('Save')).not.toBeInTheDocument();
   expect(screen.queryButton('Cancel')).not.toBeInTheDocument();
   expect(screen.queryButton('Delete Precinct')).not.toBeInTheDocument();
 
-  const precinct2 = election.precincts[1];
+  const precinct2 = election.precincts[1]!;
 
   // Accessing `/edit` route when finalized should redirect to "view" route:
   history.replace(precinctRoutes.edit(precinct2.id).path);
@@ -623,7 +630,7 @@ test('cancelling', async () => {
 
   const history = renderScreen(electionId);
 
-  const precinct1 = election.precincts[0];
+  const precinct1 = election.precincts[0]!;
   await navigateToPrecinctEdit(history, precinct1.id);
 
   userEvent.click(screen.getByRole('button', { name: 'Delete Precinct' }));
@@ -653,14 +660,14 @@ test('error message for duplicate precinct name', async () => {
 
   userEvent.click(await screen.findByRole('button', { name: 'Add Precinct' }));
   await screen.findByRole('heading', { name: 'Add Precinct' });
-  userEvent.type(screen.getByLabelText('Name'), election.precincts[0].name);
+  userEvent.type(screen.getByLabelText('Name'), election.precincts[0]!.name);
 
   apiMock.createPrecinct
     .expectCallWith({
       electionId,
       newPrecinct: {
         id: idFactory.next(),
-        name: election.precincts[0].name,
+        name: election.precincts[0]!.name,
         districtIds: [],
       },
     })
@@ -670,18 +677,18 @@ test('error message for duplicate precinct name', async () => {
 
   userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
-  await navigateToPrecinctEdit(history, election.precincts[0].id);
+  await navigateToPrecinctEdit(history, election.precincts[0]!.id);
   const nameInput = screen.getByLabelText('Name');
-  expect(nameInput).toHaveValue(election.precincts[0].name);
+  expect(nameInput).toHaveValue(election.precincts[0]!.name);
   userEvent.clear(nameInput);
-  userEvent.type(nameInput, election.precincts[1].name);
+  userEvent.type(nameInput, election.precincts[1]!.name);
 
   apiMock.updatePrecinct
     .expectCallWith({
       electionId,
       updatedPrecinct: {
-        ...election.precincts[0],
-        name: election.precincts[1].name,
+        ...election.precincts[0]!,
+        name: election.precincts[1]!.name,
       },
     })
     .resolves(err('duplicate-precinct-name'));
@@ -712,8 +719,8 @@ test('error message for duplicate precinct split name', async () => {
     .map((button) => button.closest('div')!);
   expect(splitCards).toHaveLength(2);
   const [split1Card, split2Card] = splitCards;
-  userEvent.type(within(split1Card).getByLabelText('Name'), 'Split 1');
-  userEvent.type(within(split2Card).getByLabelText('Name'), 'Split 1');
+  userEvent.type(within(split1Card!).getByLabelText('Name'), 'Split 1');
+  userEvent.type(within(split2Card!).getByLabelText('Name'), 'Split 1');
 
   apiMock.createPrecinct
     .expectCallWith({
@@ -746,11 +753,11 @@ test('error message for duplicate precinct split name', async () => {
     .getAllByRole('button', { name: 'Remove Split' })
     .map((button) => button.closest('div')!);
   expect(savedSplitCards).toHaveLength(2);
-  const savedSplit1NameInput = within(savedSplitCards[0]).getByLabelText(
+  const savedSplit1NameInput = within(savedSplitCards[0]!).getByLabelText(
     'Name'
   );
   userEvent.clear(savedSplit1NameInput);
-  userEvent.type(savedSplit1NameInput, savedPrecinct.splits[1].name);
+  userEvent.type(savedSplit1NameInput, savedPrecinct.splits[1]!.name);
 
   apiMock.updatePrecinct
     .expectCallWith({
@@ -759,10 +766,10 @@ test('error message for duplicate precinct split name', async () => {
         ...savedPrecinct,
         splits: [
           {
-            ...savedPrecinct.splits[0],
-            name: savedPrecinct.splits[1].name,
+            ...savedPrecinct.splits[0]!,
+            name: savedPrecinct.splits[1]!.name,
           },
-          savedPrecinct.splits[1],
+          savedPrecinct.splits[1]!,
         ],
       },
     })
@@ -794,8 +801,8 @@ test('error message for splits with the same districts', async () => {
     .map((button) => button.closest('div')!);
   expect(splitCards).toHaveLength(2);
   const [split1Card, split2Card] = splitCards;
-  userEvent.type(within(split1Card).getByLabelText('Name'), 'Split 1');
-  userEvent.type(within(split2Card).getByLabelText('Name'), 'Split 2');
+  userEvent.type(within(split1Card!).getByLabelText('Name'), 'Split 1');
+  userEvent.type(within(split2Card!).getByLabelText('Name'), 'Split 2');
 
   apiMock.createPrecinct
     .expectCallWith({
@@ -850,15 +857,15 @@ describe('audio editing', () => {
     },
     {
       testLabel: 'first precinct split',
-      inputValue: precinct.splits[0].name,
+      inputValue: precinct.splits[0]!.name,
       stringKey: ElectionStringKey.PRECINCT_SPLIT_NAME,
-      subkey: precinct.splits[0].id,
+      subkey: precinct.splits[0]!.id,
     },
     {
       testLabel: 'second precinct split',
-      inputValue: precinct.splits[1].name,
+      inputValue: precinct.splits[1]!.name,
       stringKey: ElectionStringKey.PRECINCT_SPLIT_NAME,
-      subkey: precinct.splits[1].id,
+      subkey: precinct.splits[1]!.id,
     },
   ] as AudioEnabledInputSpec[]) {
     test(`configures audio edit button for ${spec.testLabel}`, async () => {
@@ -893,9 +900,9 @@ test('form controls are disabled in "view" mode', async () => {
   const savedPrecinct: Precinct = {
     ...srcPrecinct,
     splits: [
-      srcPrecinct.splits[0],
+      srcPrecinct.splits[0]!,
       {
-        ...srcPrecinct.splits[1],
+        ...srcPrecinct.splits[1]!,
         clerkSignatureImage: 'abc123',
         electionSealOverride: 'def456',
       },
@@ -974,7 +981,7 @@ async function navigateToPrecinctView(
 }
 
 test('shows voter count field by default', async () => {
-  const savedPrecinct = election.precincts[0];
+  const savedPrecinct = election.precincts[0]!;
   assert(!hasSplits(savedPrecinct));
 
   mockStateFeatures(apiMock, electionId, {});
@@ -991,7 +998,7 @@ test('shows voter count field by default', async () => {
 });
 
 test('DISABLE_REGISTERED_VOTER_COUNTS hides voter count field', async () => {
-  const savedPrecinct = election.precincts[0];
+  const savedPrecinct = election.precincts[0]!;
   assert(!hasSplits(savedPrecinct));
 
   mockStateFeatures(apiMock, electionId, {
@@ -1029,17 +1036,23 @@ test('saves registered voter counts for a precinct with splits', async () => {
     .map((button) => button.closest('div')!);
   const [split1Card, split2Card] = splitCards;
 
-  userEvent.type(within(split1Card).getByLabelText('Registered Voters'), '500');
+  userEvent.type(
+    within(split1Card!).getByLabelText('Registered Voters'),
+    '500'
+  );
 
-  userEvent.type(within(split2Card).getByLabelText('Registered Voters'), '300');
+  userEvent.type(
+    within(split2Card!).getByLabelText('Registered Voters'),
+    '300'
+  );
 
-  userEvent.clear(within(split1Card).getByLabelText('Registered Voters'));
+  userEvent.clear(within(split1Card!).getByLabelText('Registered Voters'));
 
   apiMock.updatePrecinct
     .expectCallWith({
       electionId,
       updatedPrecinct: savedPrecinct,
-      registeredVoterCounts: { splits: { [split2.id]: 300 } },
+      registeredVoterCounts: { splits: { [split2!.id]: 300 } },
     })
     .resolves(ok());
   apiMock.listPrecincts
@@ -1054,7 +1067,7 @@ test('saves registered voter counts for a precinct with splits', async () => {
 });
 
 test('clears registered voter count for a precinct without splits', async () => {
-  const savedPrecinct = election.precincts[0];
+  const savedPrecinct = election.precincts[0]!;
   assert(!hasSplits(savedPrecinct));
 
   apiMock.listPrecincts

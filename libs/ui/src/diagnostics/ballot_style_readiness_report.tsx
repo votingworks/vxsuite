@@ -112,7 +112,8 @@ export function BallotStyleReadinessReport(
               {b.partyId && (
                 <BallotStyleDetail
                   label="Party"
-                  values={partyNames[b.partyId]}
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  values={partyNames[b.partyId]!}
                 />
               )}
               <BallotStyleDetail
@@ -127,14 +128,16 @@ export function BallotStyleReadinessReport(
                 label="Districts"
                 numColumns={3}
                 values={b.districts
-                  .map((id) => districtNames[id])
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  .map((id) => districtNames[id]!)
                   .sort(sortCompareFn)}
               />
               <BallotStyleDetail
                 label="Precincts"
                 numColumns={3}
                 values={b.precincts
-                  .map((id) => precinctNames[id])
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  .map((id) => precinctNames[id]!)
                   .sort(sortCompareFn)}
               />
               <BallotStyleDetail

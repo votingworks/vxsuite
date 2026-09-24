@@ -217,7 +217,7 @@ describe('generateBallotStyles()', () => {
           languages,
           precincts: [precinct1District1.id],
           orderedCandidatesByContest: Object.fromEntries(
-            contests[district1.id].map((contest) => [
+            contests[district1.id]!.map((contest) => [
               contest.id,
               [
                 { id: 'candidate-1' },
@@ -234,7 +234,7 @@ describe('generateBallotStyles()', () => {
           languages,
           precincts: [precinct2District2.id],
           orderedCandidatesByContest: Object.fromEntries(
-            contests[district2.id].map((contest) => [
+            contests[district2.id]!.map((contest) => [
               contest.id,
               [
                 { id: 'candidate-1' },
@@ -279,7 +279,7 @@ describe('generateBallotStyles()', () => {
           languages,
           precincts: [precinct1District1.id, precinct3District1And2.id],
           orderedCandidatesByContest: Object.fromEntries(
-            contests[district1.id].map((contest) => [
+            contests[district1.id]!.map((contest) => [
               contest.id,
               [
                 { id: 'candidate-1' },
@@ -296,7 +296,7 @@ describe('generateBallotStyles()', () => {
           languages,
           precincts: [precinct3District1And2.id],
           orderedCandidatesByContest: Object.fromEntries(
-            [...contests[district1.id], ...contests[district2.id]].map(
+            [...contests[district1.id]!, ...contests[district2.id]!].map(
               (contest) => [
                 contest.id,
                 [
@@ -354,7 +354,7 @@ describe('generateBallotStyles()', () => {
           languages,
           precincts: [precinct1District1.id],
           orderedCandidatesByContest: Object.fromEntries(
-            contests[district1.id].map((contest) => [
+            contests[district1.id]!.map((contest) => [
               contest.id,
               [
                 { id: 'candidate-1' },
@@ -378,7 +378,7 @@ describe('generateBallotStyles()', () => {
           languages,
           precincts: [precinct3District1And2.id],
           orderedCandidatesByContest: Object.fromEntries(
-            contests[district1.id].map((contest) => [
+            contests[district1.id]!.map((contest) => [
               contest.id,
               [
                 { id: 'candidate-3' },
@@ -395,7 +395,7 @@ describe('generateBallotStyles()', () => {
           languages,
           precincts: [precinct3District1And2.id],
           orderedCandidatesByContest: Object.fromEntries(
-            [...contests[district1.id], ...contests[district2.id]].map(
+            [...contests[district1.id]!, ...contests[district2.id]!].map(
               (contest) => [
                 contest.id,
                 [
@@ -975,24 +975,24 @@ describe('generateBallotStyles()', () => {
       electionId: 'test-election',
     });
     expect(ballotStyles.length).toEqual(2);
-    expect(ballotStyles[0].districts).toEqual([district1.id, district2.id]);
-    expect(ballotStyles[0].precincts).toEqual([
+    expect(ballotStyles[0]!.districts).toEqual([district1.id, district2.id]);
+    expect(ballotStyles[0]!.precincts).toEqual([
       precinct1.id,
       precinct2.id,
       precinct3.id,
     ]);
     expect(
-      ballotStyleHasPrecinctOrSplit(ballotStyles[0], {
+      ballotStyleHasPrecinctOrSplit(ballotStyles[0]!, {
         precinct: precinct3,
-        split: precinct3.splits[0],
+        split: precinct3.splits[0]!,
       })
     ).toEqual(true);
-    expect(ballotStyles[1].districts).toEqual([district1.id]);
-    expect(ballotStyles[1].precincts).toEqual([precinct3.id, precinct4.id]);
+    expect(ballotStyles[1]!.districts).toEqual([district1.id]);
+    expect(ballotStyles[1]!.precincts).toEqual([precinct3.id, precinct4.id]);
     expect(
-      ballotStyleHasPrecinctOrSplit(ballotStyles[1], {
+      ballotStyleHasPrecinctOrSplit(ballotStyles[1]!, {
         precinct: precinct3,
-        split: precinct3.splits[1],
+        split: precinct3.splits[1]!,
       })
     ).toEqual(true);
   });

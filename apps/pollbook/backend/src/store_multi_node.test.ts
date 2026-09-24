@@ -64,7 +64,9 @@ test('stores will not sync when not configured properly', () => {
   );
 
   // Configure Pollbook A
-  localA.setConfiguredPrecinct(testElectionDefinition.election.precincts[0].id);
+  localA.setConfiguredPrecinct(
+    testElectionDefinition.election.precincts[0]!.id
+  );
   // Bob checks in on PollbookA
   localA.recordVoterCheckIn({
     voterId: 'bob',
@@ -80,11 +82,15 @@ test('stores will not sync when not configured properly', () => {
   expect(syncEventsFromTo(peerA, peerB)).toHaveLength(0);
 
   // Configure Pollbook B to a different precinct
-  localB.setConfiguredPrecinct(testElectionDefinition.election.precincts[1].id);
+  localB.setConfiguredPrecinct(
+    testElectionDefinition.election.precincts[1]!.id
+  );
   expect(syncEventsFromTo(peerA, peerB)).toHaveLength(0);
 
   // Configure Pollbook B to the same precinct
-  localB.setConfiguredPrecinct(testElectionDefinition.election.precincts[0].id);
+  localB.setConfiguredPrecinct(
+    testElectionDefinition.election.precincts[0]!.id
+  );
   expect(syncEventsFromTo(peerA, peerB)).toHaveLength(1);
 });
 
@@ -124,7 +130,7 @@ test('offline undo with later real time check in', async () => {
       testVoters
     );
     store.setConfiguredPrecinct(
-      testElectionDefinition.election.precincts[0].id
+      testElectionDefinition.election.precincts[0]!.id
     );
   }
 
@@ -199,7 +205,7 @@ test('offline undo with later real time check in', async () => {
     suffix: '',
   });
   expect((voters as Voter[]).length).toEqual(1);
-  expect((voters as Voter[])[0].checkIn).toEqual({
+  expect((voters as Voter[])[0]!.checkIn).toEqual({
     timestamp: expect.any(String),
     identificationMethod: { type: 'default' },
     ballotParty: 'DEM',
@@ -240,7 +246,7 @@ test('bad system time nodes should be able to undo', () => {
       testVoters
     );
     store.setConfiguredPrecinct(
-      testElectionDefinition.election.precincts[0].id
+      testElectionDefinition.election.precincts[0]!.id
     );
   }
 
@@ -293,8 +299,8 @@ test('bad system time nodes should be able to undo', () => {
     lastName: '',
     suffix: '',
   });
-  expect((votersA as Voter[])[0].checkIn).toBeUndefined();
-  expect((votersB as Voter[])[0].checkIn).toBeUndefined();
+  expect((votersA as Voter[])[0]!.checkIn).toBeUndefined();
+  expect((votersB as Voter[])[0]!.checkIn).toBeUndefined();
 
   vi.useRealTimers();
 });
@@ -334,7 +340,7 @@ test("getting a offline machines events when I've synced with the online machine
       testVoters
     );
     store.setConfiguredPrecinct(
-      testElectionDefinition.election.precincts[0].id
+      testElectionDefinition.election.precincts[0]!.id
     );
   }
 
@@ -491,7 +497,7 @@ test('last write wins on double check ins', async () => {
       testVoters
     );
     store.setConfiguredPrecinct(
-      testElectionDefinition.election.precincts[0].id
+      testElectionDefinition.election.precincts[0]!.id
     );
   }
 
@@ -616,7 +622,7 @@ test('last write wins even when there is bad system time after a sync', () => {
       testVoters
     );
     store.setConfiguredPrecinct(
-      testElectionDefinition.election.precincts[0].id
+      testElectionDefinition.election.precincts[0]!.id
     );
   }
 
@@ -741,7 +747,7 @@ test('simultaneous events are handled properly', () => {
       testVoters
     );
     store.setConfiguredPrecinct(
-      testElectionDefinition.election.precincts[0].id
+      testElectionDefinition.election.precincts[0]!.id
     );
   }
 
@@ -812,7 +818,7 @@ test('late-arriving older event with a more recent undo', () => {
       testVoters
     );
     store.setConfiguredPrecinct(
-      testElectionDefinition.election.precincts[0].id
+      testElectionDefinition.election.precincts[0]!.id
     );
   }
 
@@ -881,9 +887,9 @@ test('late-arriving older event with a more recent undo', () => {
     lastName: '',
     suffix: '',
   });
-  expect((oscarA as Voter[])[0].checkIn).toBeUndefined();
-  expect((oscarB as Voter[])[0].checkIn).toBeUndefined();
-  expect((oscarC as Voter[])[0].checkIn).toBeUndefined();
+  expect((oscarA as Voter[])[0]!.checkIn).toBeUndefined();
+  expect((oscarB as Voter[])[0]!.checkIn).toBeUndefined();
+  expect((oscarC as Voter[])[0]!.checkIn).toBeUndefined();
 
   const pennyA = localA.searchVoters({
     firstName: 'Penny',
@@ -903,9 +909,9 @@ test('late-arriving older event with a more recent undo', () => {
     lastName: '',
     suffix: '',
   });
-  expect((pennyA as Voter[])[0].checkIn).toBeDefined();
-  expect((pennyB as Voter[])[0].checkIn).toBeDefined();
-  expect((pennyC as Voter[])[0].checkIn).toBeDefined();
+  expect((pennyA as Voter[])[0]!.checkIn).toBeDefined();
+  expect((pennyB as Voter[])[0]!.checkIn).toBeDefined();
+  expect((pennyC as Voter[])[0]!.checkIn).toBeDefined();
 
   expect(localA.getCheckInCount('pollbook-a')).toEqual(0);
   expect(localB.getCheckInCount('pollbook-a')).toEqual(0);
@@ -941,7 +947,7 @@ test('all possible events are synced', () => {
       testVoters
     );
     store.setConfiguredPrecinct(
-      testElectionDefinition.election.precincts[0].id
+      testElectionDefinition.election.precincts[0]!.id
     );
   }
 
@@ -1076,7 +1082,7 @@ test('register on A, check in on B, name/address change on C, sync all', () => {
       []
     );
     store.setConfiguredPrecinct(
-      testElectionDefinition.election.precincts[0].id
+      testElectionDefinition.election.precincts[0]!.id
     );
   }
 
@@ -1165,7 +1171,7 @@ test('last write wins for name/address changes with bad system time after sync',
       voters
     );
     store.setConfiguredPrecinct(
-      testElectionDefinition.election.precincts[0].id
+      testElectionDefinition.election.precincts[0]!.id
     );
   }
   // Name change on A at 9am
@@ -1280,7 +1286,7 @@ test('register, check in, then change name/address, sync', () => {
       []
     );
     store.setConfiguredPrecinct(
-      testElectionDefinition.election.precincts[0].id
+      testElectionDefinition.election.precincts[0]!.id
     );
   }
   // Register on A
@@ -1360,7 +1366,7 @@ test('simultaneous name/address changes, last write wins', async () => {
       [voter]
     );
     store.setConfiguredPrecinct(
-      testElectionDefinition.election.precincts[0].id
+      testElectionDefinition.election.precincts[0]!.id
     );
   }
   // Name change on A
@@ -1433,7 +1439,7 @@ test('check in event on an offline machine BEFORE the mark inactive', async () =
       [voter]
     );
     store.setConfiguredPrecinct(
-      testElectionDefinition.election.precincts[0].id
+      testElectionDefinition.election.precincts[0]!.id
     );
   }
   // Sync initial state
@@ -1474,7 +1480,7 @@ test('check in event on an offline machine AFTER the mark inactive', async () =>
       [voter]
     );
     store.setConfiguredPrecinct(
-      testElectionDefinition.election.precincts[0].id
+      testElectionDefinition.election.precincts[0]!.id
     );
   }
   syncEventsForAllPollbooks([peerA, peerB]);
@@ -1518,7 +1524,7 @@ test('name/address change AFTER mark inactive on another machine get processed',
       [voter]
     );
     store.setConfiguredPrecinct(
-      testElectionDefinition.election.precincts[0].id
+      testElectionDefinition.election.precincts[0]!.id
     );
   }
 
@@ -1578,7 +1584,7 @@ test('can check in after mark inactive event is synced', () => {
       [voter]
     );
     store.setConfiguredPrecinct(
-      testElectionDefinition.election.precincts[0].id
+      testElectionDefinition.election.precincts[0]!.id
     );
   }
   syncEventsForAllPollbooks([peerA, peerB]);
@@ -1618,7 +1624,7 @@ test('check-in on different machines for same voter creates anomaly after sync',
       voters
     );
     store.setConfiguredPrecinct(
-      testElectionDefinition.election.precincts[0].id
+      testElectionDefinition.election.precincts[0]!.id
     );
   }
 
@@ -1647,10 +1653,10 @@ test('check-in on different machines for same voter creates anomaly after sync',
   // Machine B should now detect the duplicate
   const anomalies = peerB.getActiveAnomalies();
   expect(anomalies).toHaveLength(1);
-  expect(anomalies[0].anomalyDetails.checkInEvents).toHaveLength(2);
+  expect(anomalies[0]!.anomalyDetails.checkInEvents).toHaveLength(2);
 
   // Verify both machines are recorded
-  const machineIds = anomalies[0].anomalyDetails.checkInEvents.map(
+  const machineIds = anomalies[0]!.anomalyDetails.checkInEvents.map(
     (e) => e.machineId
   );
   expect(machineIds).toContain('pollbook-a');
@@ -1674,7 +1680,7 @@ test('syncing check-in to machine with existing check-in creates anomaly on rece
       voters
     );
     store.setConfiguredPrecinct(
-      testElectionDefinition.election.precincts[0].id
+      testElectionDefinition.election.precincts[0]!.id
     );
   }
 
@@ -1720,7 +1726,7 @@ test('anomaly records correct timestamps from different machines', async () => {
       voters
     );
     store.setConfiguredPrecinct(
-      testElectionDefinition.election.precincts[0].id
+      testElectionDefinition.election.precincts[0]!.id
     );
   }
 
@@ -1743,7 +1749,7 @@ test('anomaly records correct timestamps from different machines', async () => {
   const anomalies = peerB.getActiveAnomalies();
   expect(anomalies).toHaveLength(1);
 
-  const { checkInEvents } = anomalies[0].anomalyDetails;
+  const { checkInEvents } = anomalies[0]!.anomalyDetails;
   expect(checkInEvents).toHaveLength(2);
 
   // Timestamps should be valid ISO strings
@@ -1769,7 +1775,7 @@ test('InvalidRegistrationCheckIn anomaly - check in before invalidation sync', a
       []
     );
     store.setConfiguredPrecinct(
-      testElectionDefinition.election.precincts[0].id
+      testElectionDefinition.election.precincts[0]!.id
     );
   }
   syncEventsForAllPollbooks([peerA, peerB]);
@@ -1826,8 +1832,8 @@ test('InvalidRegistrationCheckIn anomaly - check in before invalidation sync', a
   for (const store of [localA, localB]) {
     const anomalies = store.getActiveAnomalies();
     expect(anomalies).toHaveLength(1);
-    expect(anomalies[0].anomalyType).toEqual('InvalidRegistrationCheckIn');
-    expect(anomalies[0].anomalyDetails.voterId).toEqual(voter.voterId);
+    expect(anomalies[0]!.anomalyType).toEqual('InvalidRegistrationCheckIn');
+    expect(anomalies[0]!.anomalyDetails.voterId).toEqual(voter.voterId);
   }
 });
 
@@ -1848,7 +1854,7 @@ test('InvalidRegistrationCheckIn anomaly - invalidation after check in', async (
       []
     );
     store.setConfiguredPrecinct(
-      testElectionDefinition.election.precincts[0].id
+      testElectionDefinition.election.precincts[0]!.id
     );
   }
   syncEventsForAllPollbooks([peerA, peerB]);
@@ -1905,7 +1911,7 @@ test('InvalidRegistrationCheckIn anomaly - invalidation after check in', async (
   for (const store of [localA, localB]) {
     const anomalies = store.getActiveAnomalies();
     expect(anomalies).toHaveLength(1);
-    expect(anomalies[0].anomalyType).toEqual('InvalidRegistrationCheckIn');
-    expect(anomalies[0].anomalyDetails.voterId).toEqual(voter.voterId);
+    expect(anomalies[0]!.anomalyType).toEqual('InvalidRegistrationCheckIn');
+    expect(anomalies[0]!.anomalyDetails.voterId).toEqual(voter.voterId);
   }
 });

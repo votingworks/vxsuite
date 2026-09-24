@@ -81,13 +81,16 @@ export function layOutInColumns<Element extends ElementWithHeight>({
   let currentColumnIndex = 0;
   let elementIndex = 0;
   while (elementIndex < elements.length && currentColumnIndex < numColumns) {
-    const element = elements[elementIndex];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const element = elements[elementIndex]!;
     if (
-      isColumnOverflowing(greedyColumns[currentColumnIndex].concat([element]))
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      isColumnOverflowing(greedyColumns[currentColumnIndex]!.concat([element]))
     ) {
       currentColumnIndex += 1;
     } else {
-      greedyColumns[currentColumnIndex].push(element);
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      greedyColumns[currentColumnIndex]!.push(element);
       elementIndex += 1;
     }
   }
@@ -127,9 +130,12 @@ export function layOutInColumns<Element extends ElementWithHeight>({
     if (lastNonEmptyColumnIndex !== -1) {
       const newColumns = [...columnsSoFar];
       newColumns[lastNonEmptyColumnIndex] = [
-        ...newColumns[lastNonEmptyColumnIndex],
-        nextElement,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        ...newColumns[lastNonEmptyColumnIndex]!,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        nextElement!,
       ];
+
       if (!isColumnOverflowing(newColumns[lastNonEmptyColumnIndex])) {
         yield* possibleColumns(newColumns, restElements);
       }
@@ -141,8 +147,10 @@ export function layOutInColumns<Element extends ElementWithHeight>({
     );
     if (firstEmptyColumnIndex !== -1) {
       const newColumns = [...columnsSoFar];
-      newColumns[firstEmptyColumnIndex] = [nextElement];
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      newColumns[firstEmptyColumnIndex] = [nextElement!];
       // @coverage-defer
+
       if (!isColumnOverflowing(newColumns[firstEmptyColumnIndex])) {
         yield* possibleColumns(newColumns, restElements);
       }
@@ -233,7 +241,8 @@ export function layOutSectionsInColumns<
     elementsToAdd: Array<Header | Element>
   ): boolean {
     return (
-      columnHeight(columns[columnIndex].concat(elementsToAdd), 0) <=
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      columnHeight(columns[columnIndex]!.concat(elementsToAdd), 0) <=
       maxColumnHeight
     );
   }
@@ -250,25 +259,31 @@ export function layOutSectionsInColumns<
   }));
 
   sectionLoop: while (sectionQueue.length > 0) {
-    const section = sectionQueue[0];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const section = sectionQueue[0]!;
     while (
       !fitsInCurrentColumn([
         section.header,
-        section.subsections[0].header,
-        section.subsections[0].elements[0],
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        section.subsections[0]!.header,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        section.subsections[0]!.elements[0]!,
       ])
     ) {
       columnIndex += 1;
       if (columnIndex >= numColumns) break sectionLoop;
     }
-    columns[columnIndex].push(section.header);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    columns[columnIndex]!.push(section.header);
 
     while (section.subsections.length > 0) {
-      const subsection = section.subsections[0];
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const subsection = section.subsections[0]!;
 
       let elementIndex = 0;
       while (subsection.elements.length > 0) {
-        const element = subsection.elements[0];
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const element = subsection.elements[0]!;
 
         let elementsToAdd =
           elementIndex === 0 ? [subsection.header, element] : [element];
@@ -279,7 +294,8 @@ export function layOutSectionsInColumns<
           elementsToAdd = [subsection.header, element];
           if (columnIndex >= numColumns) break sectionLoop;
         }
-        columns[columnIndex].push(...elementsToAdd);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        columns[columnIndex]!.push(...elementsToAdd);
 
         subsection.elements.shift();
         elementIndex += 1;
@@ -324,11 +340,13 @@ export function layOutSectionsInParallelColumns<
   assert(
     sections.every(
       (section) =>
-        section.subsections.length === sections[0].subsections.length &&
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        section.subsections.length === sections[0]!.subsections.length &&
         section.subsections.every(
           (subsection, i) =>
             subsection.elements.length ===
-            sections[0].subsections[i].elements.length
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            sections[0]!.subsections[i]!.elements.length
         )
     ),
     'All sections must have the same number of subsections and same number of elements per subsection'
@@ -341,7 +359,8 @@ export function layOutSectionsInParallelColumns<
   ): boolean {
     return elementsPerColumn.every(
       (elements, i) =>
-        columnHeight(columns[i].concat(elements), 0) <= maxColumnHeight
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        columnHeight(columns[i]!.concat(elements), 0) <= maxColumnHeight
     );
   }
 
@@ -359,36 +378,45 @@ export function layOutSectionsInParallelColumns<
   // Add section headers
   assert(fitsInAllColumns(sectionQueues.map((q) => [q.header])));
   for (const [i, section] of sectionQueues.entries()) {
-    columns[i].push(section.header);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    columns[i]!.push(section.header);
   }
 
-  subsectionLoop: while (sectionQueues[0].subsections.length > 0) {
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  subsectionLoop: while (sectionQueues[0]!.subsections.length > 0) {
     // Add subsection headers
     if (
       !fitsInAllColumns(
         sectionQueues.map((section) => [
-          section.subsections[0].header,
-          section.subsections[0].elements[0],
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          section.subsections[0]!.header,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          section.subsections[0]!.elements[0]!,
         ])
       )
     ) {
       break;
     }
     for (const [i, section] of sectionQueues.entries()) {
-      columns[i].push(section.subsections[0].header);
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      columns[i]!.push(section.subsections[0]!.header);
     }
 
     // Add elements in lockstep
-    while (sectionQueues[0].subsections[0].elements.length > 0) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    while (sectionQueues[0]!.subsections[0]!.elements.length > 0) {
       const firstElements = sectionQueues.map((section) => [
-        section.subsections[0].elements[0],
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        section.subsections[0]!.elements[0]!,
       ]);
       if (!fitsInAllColumns(firstElements)) {
         break subsectionLoop;
       }
       for (const [i, [element]] of firstElements.entries()) {
-        columns[i].push(element);
-        sectionQueues[i].subsections[0].elements.shift();
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        columns[i]!.push(element!);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        sectionQueues[i]!.subsections[0]!.elements.shift();
       }
     }
 

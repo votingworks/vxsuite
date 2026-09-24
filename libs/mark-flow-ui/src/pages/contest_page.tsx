@@ -84,7 +84,8 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
 
   // eslint-disable-next-line vx/gts-safe-number-parse
   const currentContestIndex = parseInt(contestNumber, 10);
-  const contest = contests[currentContestIndex];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const contest = contests[currentContestIndex]!;
 
   const prevContestIndex = currentContestIndex - 1;
   const prevContest = contests[prevContestIndex];

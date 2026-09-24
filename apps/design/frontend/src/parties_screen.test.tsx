@@ -111,25 +111,25 @@ test('adding a parties to empty list', async () => {
   // Add first party:
   {
     const inputs = getInputsByRow(0);
-    userEvent.type(inputs[0], newParty1.fullName);
-    userEvent.type(inputs[1], newParty1.name);
-    userEvent.type(inputs[2], newParty1.abbrev);
+    userEvent.type(inputs[0]!, newParty1.fullName);
+    userEvent.type(inputs[1]!, newParty1.name);
+    userEvent.type(inputs[2]!, newParty1.abbrev);
   }
 
   // Add second party:
   userEvent.click(screen.getButton('Add Party'));
   {
     const inputs = getInputsByRow(1);
-    userEvent.type(inputs[0], newParty2.fullName);
-    userEvent.type(inputs[1], newParty2.name);
-    userEvent.type(inputs[2], newParty2.abbrev);
+    userEvent.type(inputs[0]!, newParty2.fullName);
+    userEvent.type(inputs[1]!, newParty2.name);
+    userEvent.type(inputs[2]!, newParty2.abbrev);
   }
 
   // Add and delete third party:
   userEvent.click(screen.getButton('Add Party'));
   {
     const inputs = getInputsByRow(2);
-    userEvent.type(inputs[0], 'Temporary Party');
+    userEvent.type(inputs[0]!, 'Temporary Party');
     userEvent.click(screen.getButton('Delete Party Temporary Party'));
   }
 
@@ -154,10 +154,10 @@ test('editing existing party list', async () => {
     { id: 'p3', abbrev: '3', fullName: 'party 3', name: 'p3' },
   ];
 
-  const preservedParty = savedParties[0];
-  const deletedParty = savedParties[1];
+  const preservedParty = savedParties[0]!;
+  const deletedParty = savedParties[1]!;
   const updatedParty: Party = {
-    id: savedParties[2].id,
+    id: savedParties[2]!.id,
     abbrev: '3 (edit)',
     fullName: 'party 3 (edit)',
     name: 'p3 (edit)',
@@ -181,23 +181,23 @@ test('editing existing party list', async () => {
 
   // Delete second saved party:
   userEvent.click(screen.getButton(`Delete Party ${deletedParty.fullName}`));
-  expectPartyInputs([savedParties[0], savedParties[2]]);
+  expectPartyInputs([savedParties[0]!, savedParties[2]!]);
 
   // Update third saved party (now at row index 1):
   {
     const inputs = getInputsByRow(1);
-    userEvent.type(inputs[0], ' (edit)');
-    userEvent.type(inputs[1], ' (edit)');
-    userEvent.type(inputs[2], ' (edit)');
+    userEvent.type(inputs[0]!, ' (edit)');
+    userEvent.type(inputs[1]!, ' (edit)');
+    userEvent.type(inputs[2]!, ' (edit)');
   }
 
   // Add new party:
   userEvent.click(screen.getButton('Add Party'));
   {
     const inputs = getInputsByRow(2);
-    userEvent.type(inputs[0], newParty.fullName);
-    userEvent.type(inputs[1], newParty.name);
-    userEvent.type(inputs[2], newParty.abbrev);
+    userEvent.type(inputs[0]!, newParty.fullName);
+    userEvent.type(inputs[1]!, newParty.name);
+    userEvent.type(inputs[2]!, newParty.abbrev);
   }
 
   const updatedList = [preservedParty, updatedParty, newParty];
@@ -226,7 +226,7 @@ test('editing or adding a party is disabled when ballots are finalized', async (
 
   renderScreen(electionId);
 
-  await screen.findByDisplayValue(election.parties[0].name);
+  await screen.findByDisplayValue(election.parties[0]!.name);
   expect(screen.getButton('Add Party')).toBeDisabled();
   expect(screen.queryButton('Edit Parties')).not.toBeInTheDocument();
   expect(screen.queryButton('Save')).not.toBeInTheDocument();
@@ -248,7 +248,7 @@ test('adding, editing, or deleting a party is disabled for elections with extern
 
   renderScreen(electionId);
 
-  await screen.findByDisplayValue(savedParties[0].name);
+  await screen.findByDisplayValue(savedParties[0]!.name);
 
   // Add Party button should not be visible
   expect(screen.queryButton('Add Party')).not.toBeInTheDocument();
@@ -270,14 +270,16 @@ test('cancelling', async () => {
   userEvent.click(await screen.findButton('Edit Parties'));
   expectPartyInputs(savedParties);
 
-  userEvent.click(screen.getButton(`Delete Party ${savedParties[1].fullName}`));
-  userEvent.type(getInputsByRow(1)[0], ' (edit)');
+  userEvent.click(
+    screen.getButton(`Delete Party ${savedParties[1]!.fullName}`)
+  );
+  userEvent.type(getInputsByRow(1)[0]!, ' (edit)');
   userEvent.click(screen.getButton('Add Party'));
   {
     const inputs = getInputsByRow(2);
-    userEvent.type(inputs[0], 'new party');
-    userEvent.type(inputs[1], 'new');
-    userEvent.type(inputs[2], 'n');
+    userEvent.type(inputs[0]!, 'new party');
+    userEvent.type(inputs[1]!, 'new');
+    userEvent.type(inputs[2]!, 'n');
   }
 
   userEvent.click(screen.getButton('Cancel'));
@@ -331,7 +333,7 @@ describe('error messages', () => {
       expectUpdate(apiMock, {
         electionId,
         updatedParties: savedParties,
-      }).resolves(err({ code: spec.code, partyId: savedParties[0].id }));
+      }).resolves(err({ code: spec.code, partyId: savedParties[0]!.id }));
 
       userEvent.click(screen.getButton('Save'));
 
@@ -340,7 +342,7 @@ describe('error messages', () => {
       // [TODO] Assert that the error is positioned under the relevant row.
 
       // Editing the problem district should clear the error:
-      const input = getInputsByRow(0)[spec.inputIndex];
+      const input = getInputsByRow(0)[spec.inputIndex]!;
       userEvent.type(input, ' (edit)');
       expect(screen.queryByText(spec.expectedMessage)).not.toBeInTheDocument();
     });

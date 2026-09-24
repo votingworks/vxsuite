@@ -1232,7 +1232,8 @@ export function buildMachine(
                     context.paperHandlerDiagnosticElection
                   );
                   const validPrecinctIds = new Set([
-                    electionDefinition.election.precincts[0].id,
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    electionDefinition.election.precincts[0]!.id,
                   ]);
 
                   const markThresholds: MarkThresholds = {

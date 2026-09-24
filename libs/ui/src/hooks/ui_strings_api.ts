@@ -121,8 +121,10 @@ function createReactQueryApi(getApiClient: () => UiStringsApiClient) {
 
         const indexedQueries: { [key: string]: (typeof queries)[number] } = {};
         for (let i = 0; i < languageCodes.length; i += 1) {
-          const languageCode = languageCodes[i];
-          indexedQueries[languageCode] = queries[i];
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const languageCode = languageCodes[i]!;
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          indexedQueries[languageCode] = queries[i]!;
         }
 
         return indexedQueries;

@@ -30,7 +30,7 @@ test('renders column headers and no data rows when batches is empty', () => {
   const rows = screen.queryAllByRole('row');
   expect(rows).toHaveLength(1); // header row only
   const [headerRow] = rows;
-  const headers = within(headerRow).getAllByRole('columnheader');
+  const headers = within(headerRow!).getAllByRole('columnheader');
   expect(headers[0]).toHaveTextContent('Batch ID');
   expect(headers[1]).toHaveTextContent('Sheets Scanned');
   expect(headers[2]).toHaveTextContent('Polls Opened / Resumed');
@@ -44,7 +44,7 @@ test('renders a single batch row with id, count, and formatted dates', () => {
   expect(rows).toHaveLength(2);
 
   const [, dataRow] = rows;
-  const cells = within(dataRow).getAllByRole('cell');
+  const cells = within(dataRow!).getAllByRole('cell');
   expect(cells[0]).toHaveTextContent('a3c38c4b-0d95671595ca');
   expect(cells[1]).toHaveTextContent('10');
   expect(cells[2]).toHaveTextContent('Sep 19, 2021, 3:00 AM');
@@ -56,7 +56,7 @@ test('renders a dash for a batch with no end time', () => {
   render(<BatchSummaryTable batches={[ongoingBatch]} />);
 
   const [, dataRow] = screen.getAllByRole('row');
-  const cells = within(dataRow).getAllByRole('cell');
+  const cells = within(dataRow!).getAllByRole('cell');
   expect(cells[3]).toHaveTextContent('—');
 });
 
@@ -68,13 +68,13 @@ test('renders multiple batches sorted ascending by start time', () => {
   expect(rows).toHaveLength(3);
 
   const [, row1, row2] = rows;
-  const row1Cells = within(row1).getAllByRole('cell');
+  const row1Cells = within(row1!).getAllByRole('cell');
   expect(row1Cells[0]).toHaveTextContent('a3c38c4b-0d95671595ca');
   expect(row1Cells[1]).toHaveTextContent('10');
   expect(row1Cells[2]).toHaveTextContent('Sep 19, 2021, 3:00 AM');
   expect(row1Cells[3]).toHaveTextContent('Sep 19, 2021, 3:05 AM');
 
-  const row2Cells = within(row2).getAllByRole('cell');
+  const row2Cells = within(row2!).getAllByRole('cell');
   expect(row2Cells[0]).toHaveTextContent('f7c3b5d2-cde401234567');
   expect(row2Cells[1]).toHaveTextContent('5');
   expect(row2Cells[2]).toHaveTextContent('Sep 19, 2021, 4:00 AM');

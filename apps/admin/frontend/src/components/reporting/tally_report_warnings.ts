@@ -4,7 +4,8 @@ import { Election, Tabulation, getContestsFromIds } from '@votingworks/types';
 
 function oxfordCommaJoin(items: string[]): string {
   if (items.length === 1) {
-    return items[0];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return items[0]!;
   }
 
   if (items.length === 2) {

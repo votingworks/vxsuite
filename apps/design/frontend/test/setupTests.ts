@@ -55,7 +55,8 @@ function getBoundingClientRect(): DOMRect {
 // eslint-disable-next-line vx/gts-identifiers
 class FakeDOMRectList extends Array<DOMRect> implements DOMRectList {
   item(index: number): DOMRect | null {
-    return this[index];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return this[index]!;
   }
 }
 

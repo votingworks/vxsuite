@@ -165,7 +165,7 @@ test('shows duplicate name modal and allows override - single precinct election'
   const electionSimpleSinglePrecinct =
     electionSimpleSinglePrecinctFixtures.readElectionDefinition();
   const singlePrecinctId =
-    electionSimpleSinglePrecinct.election.precincts[0].id;
+    electionSimpleSinglePrecinct.election.precincts[0]!.id;
   apiMock.setElection(electionSimpleSinglePrecinct, singlePrecinctId);
   apiMock.setPrinterStatus(true);
   apiMock.expectGetDeviceStatuses();

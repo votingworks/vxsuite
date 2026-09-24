@@ -243,7 +243,7 @@ test('get/set polling place', () => {
   const electionDefinition = fixtures.readElectionDefinition();
 
   const { ballotHash, election, electionData } = electionDefinition;
-  const pollingPlace = assertDefined(election.pollingPlaces)[0];
+  const pollingPlace = assertDefined(election.pollingPlaces)[0]!;
 
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
   expect(store.getPollingPlaceId()).toBeUndefined();
@@ -313,7 +313,7 @@ test('getBatches', () => {
   });
   let batches = store.getBatches();
   expect(batches).toHaveLength(1);
-  expect(batches[0].count).toEqual(1);
+  expect(batches[0]!.count).toEqual(1);
 
   // Record a rejected sheet — does not count toward the batch
   store.recordSheet({
@@ -836,7 +836,7 @@ function configureElectionNh(store: Store) {
   const fixtures = electionGridLayoutNewHampshireTestBallotFixtures;
   const electionDefinition = fixtures.readElectionDefinition();
   const { election, electionData, ballotHash } = electionDefinition;
-  const pollingPlace = assertDefined(election.pollingPlaces)[0];
+  const pollingPlace = assertDefined(election.pollingPlaces)[0]!;
 
   store.setElectionAndJurisdiction({
     electionData,

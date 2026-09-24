@@ -199,7 +199,8 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   function onRemoveSplitPress(index: number) {
     assert(precinct && hasSplits(precinct));
     const { splits, ...rest } = precinct;
-    const removedSplitId = splits[index].id;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const removedSplitId = splits[index]!.id;
     const newSplits = splits.filter((_, i) => i !== index);
     if (newSplits.length > 1) {
       setPrecinct({
@@ -221,12 +222,14 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
     } else {
       setPrecinct({
         ...rest,
-        districtIds: newSplits[0].districtIds,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        districtIds: newSplits[0]!.districtIds,
       });
       setRegisteredVoterCounts(
         registeredVoterCounts !== undefined &&
           isSplitCounts(registeredVoterCounts)
-          ? registeredVoterCounts.splits[newSplits[0].id]
+          ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            registeredVoterCounts.splits[newSplits[0]!.id]
           : undefined
       );
     }

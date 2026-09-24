@@ -90,7 +90,8 @@ export class GoogleCloudTranslatorWithDbCache extends GoogleCloudTranslator {
       targetLanguageCode
     );
     for (const [i, translatedText] of cacheMissesTranslated.entries()) {
-      const { index: originalIndex, text } = cacheMisses[i];
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const { index: originalIndex, text } = cacheMisses[i]!;
       translatedTextArray[originalIndex] = translatedText;
       // Store in cache using the stripped text as the key
       const strippedText = stripImagesFromRichText(text);

@@ -37,7 +37,7 @@ test('convertLatestElectionToV4p0', () => {
     ballotStrings: {
       ...election.ballotStrings,
       en: {
-        ...election.ballotStrings['en'],
+        ...election.ballotStrings['en']!,
         jurisdictionName: undefined,
         countyName: election.ballotStrings['en']?.['jurisdictionName'],
       },
@@ -53,7 +53,7 @@ test('convertLatestElectionToV4p0', () => {
     ballotStrings: {
       ...primaryElection.ballotStrings,
       en: {
-        ...primaryElection.ballotStrings['en'],
+        ...primaryElection.ballotStrings['en']!,
         jurisdictionName: undefined,
         countyName: primaryElection.ballotStrings['en']?.['jurisdictionName'],
       },
@@ -77,7 +77,7 @@ test('convertLatestElectionToV4p0', () => {
     ballotStrings: {
       ...combinedBallotPrimaryElection.ballotStrings,
       en: {
-        ...combinedBallotPrimaryElection.ballotStrings['en'],
+        ...combinedBallotPrimaryElection.ballotStrings['en']!,
         jurisdictionName: undefined,
         countyName:
           combinedBallotPrimaryElection.ballotStrings['en']?.[
@@ -331,7 +331,7 @@ test('ballot positions round-trip through the v4.0 gridLayouts shape', () => {
   const electionWithPositions: Election = {
     ...election,
     ballotStyles: [
-      { ...firstBallotStyle, ballotPositions },
+      { ...firstBallotStyle!, ballotPositions },
       ...restBallotStyles,
     ],
   };
@@ -387,7 +387,7 @@ test('convertLatestElectionToV4p0 throws when ballot style has non-uniform optio
   const electionWithNonUniform: Election = {
     ...election,
     ballotStyles: [
-      { ...firstBallotStyle, ballotPositions: nonUniformBallotPositions },
+      { ...firstBallotStyle!, ballotPositions: nonUniformBallotPositions },
       ...restBallotStyles,
     ],
   };

@@ -186,8 +186,10 @@ export function createApiMock() {
       electionDefinition: ElectionDefinition
     ) {
       this.setAuthStatusCardlessVoterLoggedIn({
-        ballotStyleId: electionDefinition.election.ballotStyles[0].id,
-        precinctId: electionDefinition.election.precincts[0].id,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        ballotStyleId: electionDefinition.election.ballotStyles[0]!.id,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        precinctId: electionDefinition.election.precincts[0]!.id,
       });
     },
 

@@ -58,7 +58,7 @@ describe('getCandidateOrderingByPrecinctAlphabetical', () => {
 
       const result = getCandidateOrderingByPrecinctAlphabetical(params);
       expect(
-        result[0].orderedCandidatesByContest[contest.id].map((c) => c.id)
+        result[0]!.orderedCandidatesByContest[contest.id]!.map((c) => c.id)
       ).toEqual(expected);
     }
   });
@@ -102,11 +102,15 @@ describe('getCandidateOrderingByPrecinctAlphabetical', () => {
     const result = getCandidateOrderingByPrecinctAlphabetical(params);
 
     expect(result).toHaveLength(3);
-    expect(result[0].precinctsOrSplits).toEqual([{ precinctId: precinct1.id }]);
-    expect(result[1].precinctsOrSplits).toEqual([
+    expect(result[0]!.precinctsOrSplits).toEqual([
+      { precinctId: precinct1.id },
+    ]);
+    expect(result[1]!.precinctsOrSplits).toEqual([
       { precinctId: precinct1.id, splitId: 'split-1' },
     ]);
-    expect(result[2].precinctsOrSplits).toEqual([{ precinctId: precinct2.id }]);
+    expect(result[2]!.precinctsOrSplits).toEqual([
+      { precinctId: precinct2.id },
+    ]);
   });
 
   test('skips yesno contests', () => {
@@ -141,11 +145,11 @@ describe('getCandidateOrderingByPrecinctAlphabetical', () => {
     const result = getCandidateOrderingByPrecinctAlphabetical(params);
 
     expect(result).toHaveLength(1);
-    expect(result[0].orderedCandidatesByContest).toHaveProperty('contest-1');
-    expect(result[0].orderedCandidatesByContest).not.toHaveProperty(
+    expect(result[0]!.orderedCandidatesByContest).toHaveProperty('contest-1');
+    expect(result[0]!.orderedCandidatesByContest).not.toHaveProperty(
       'contest-2'
     );
-    expect(result[0].orderedCandidatesByContest).not.toHaveProperty(
+    expect(result[0]!.orderedCandidatesByContest).not.toHaveProperty(
       yesnoContest.id
     );
   });
@@ -206,7 +210,7 @@ describe('getAllPossibleCandidateOrderings', () => {
 
       expect(result).toHaveLength(1);
       expect(
-        result[0].orderedCandidatesByContest[contest.id].map((c) => c.id)
+        result[0]!.orderedCandidatesByContest[contest.id]!.map((c) => c.id)
       ).toEqual(expectedOrderIds);
     }
   });
@@ -273,7 +277,7 @@ describe('getAllPossibleCandidateOrderings', () => {
       const result = getAllPossibleCandidateOrderings('NhBallot', params);
 
       expect(result).toHaveLength(expectedCount);
-      expect(result[0].precinctsOrSplits).toHaveLength(expectedPrecinctCount);
+      expect(result[0]!.precinctsOrSplits).toHaveLength(expectedPrecinctCount);
     }
   });
 
@@ -329,7 +333,7 @@ describe('getAllPossibleCandidateOrderings', () => {
       );
 
       expect(result).toHaveLength(1);
-      expect(Object.keys(result[0].orderedCandidatesByContest)).toEqual(
+      expect(Object.keys(result[0]!.orderedCandidatesByContest)).toEqual(
         expectedContestIds
       );
     }
@@ -362,17 +366,17 @@ describe('deduplicateIdenticalOrderingsAcrossPrecincts', () => {
     const result = deduplicateIdenticalOrderingsAcrossPrecincts(orderings);
 
     expect(result).toHaveLength(1);
-    expect(result[0].precinctsOrSplits).toHaveLength(3);
-    expect(result[0].precinctsOrSplits).toContainEqual({
+    expect(result[0]!.precinctsOrSplits).toHaveLength(3);
+    expect(result[0]!.precinctsOrSplits).toContainEqual({
       precinctId: 'precinct-1',
     });
-    expect(result[0].precinctsOrSplits).toContainEqual({
+    expect(result[0]!.precinctsOrSplits).toContainEqual({
       precinctId: 'precinct-2',
     });
-    expect(result[0].precinctsOrSplits).toContainEqual({
+    expect(result[0]!.precinctsOrSplits).toContainEqual({
       precinctId: 'precinct-3',
     });
-    expect(result[0].orderedCandidatesByContest).toEqual({
+    expect(result[0]!.orderedCandidatesByContest).toEqual({
       'contest-1': [{ id: 'candidate-1' }, { id: 'candidate-2' }],
     });
   });
@@ -396,12 +400,16 @@ describe('deduplicateIdenticalOrderingsAcrossPrecincts', () => {
     const result = deduplicateIdenticalOrderingsAcrossPrecincts(orderings);
 
     expect(result).toHaveLength(2);
-    expect(result[0].precinctsOrSplits).toEqual([{ precinctId: 'precinct-1' }]);
-    expect(result[0].orderedCandidatesByContest).toEqual({
+    expect(result[0]!.precinctsOrSplits).toEqual([
+      { precinctId: 'precinct-1' },
+    ]);
+    expect(result[0]!.orderedCandidatesByContest).toEqual({
       'contest-1': [{ id: 'candidate-1' }, { id: 'candidate-2' }],
     });
-    expect(result[1].precinctsOrSplits).toEqual([{ precinctId: 'precinct-2' }]);
-    expect(result[1].orderedCandidatesByContest).toEqual({
+    expect(result[1]!.precinctsOrSplits).toEqual([
+      { precinctId: 'precinct-2' },
+    ]);
+    expect(result[1]!.orderedCandidatesByContest).toEqual({
       'contest-1': [{ id: 'candidate-2' }, { id: 'candidate-1' }],
     });
   });
@@ -431,16 +439,16 @@ describe('deduplicateIdenticalOrderingsAcrossPrecincts', () => {
     const result = deduplicateIdenticalOrderingsAcrossPrecincts(orderings);
 
     expect(result).toHaveLength(1);
-    expect(result[0].precinctsOrSplits).toHaveLength(3);
-    expect(result[0].precinctsOrSplits).toContainEqual({
+    expect(result[0]!.precinctsOrSplits).toHaveLength(3);
+    expect(result[0]!.precinctsOrSplits).toContainEqual({
       precinctId: 'precinct-1',
       splitId: 'split-1',
     });
-    expect(result[0].precinctsOrSplits).toContainEqual({
+    expect(result[0]!.precinctsOrSplits).toContainEqual({
       precinctId: 'precinct-1',
       splitId: 'split-2',
     });
-    expect(result[0].precinctsOrSplits).toContainEqual({
+    expect(result[0]!.precinctsOrSplits).toContainEqual({
       precinctId: 'precinct-2',
     });
   });
@@ -470,14 +478,14 @@ describe('deduplicateIdenticalOrderingsAcrossPrecincts', () => {
     const result = deduplicateIdenticalOrderingsAcrossPrecincts(orderings);
 
     expect(result).toHaveLength(1);
-    expect(result[0].precinctsOrSplits).toHaveLength(3);
-    expect(result[0].precinctsOrSplits).toContainEqual({
+    expect(result[0]!.precinctsOrSplits).toHaveLength(3);
+    expect(result[0]!.precinctsOrSplits).toContainEqual({
       precinctId: 'precinct-1',
     });
-    expect(result[0].precinctsOrSplits).toContainEqual({
+    expect(result[0]!.precinctsOrSplits).toContainEqual({
       precinctId: 'precinct-2',
     });
-    expect(result[0].precinctsOrSplits).toContainEqual({
+    expect(result[0]!.precinctsOrSplits).toContainEqual({
       precinctId: 'precinct-3',
     });
   });
@@ -503,8 +511,8 @@ describe('deduplicateIdenticalOrderingsAcrossPrecincts', () => {
     const result = deduplicateIdenticalOrderingsAcrossPrecincts(orderings);
 
     expect(result).toHaveLength(1);
-    expect(result[0].precinctsOrSplits).toHaveLength(2);
-    expect(result[0].orderedCandidatesByContest).toEqual({
+    expect(result[0]!.precinctsOrSplits).toHaveLength(2);
+    expect(result[0]!.orderedCandidatesByContest).toEqual({
       'contest-1': [{ id: 'candidate-1' }],
       'contest-2': [{ id: 'candidate-2' }],
     });
