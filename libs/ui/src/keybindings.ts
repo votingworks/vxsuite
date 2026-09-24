@@ -28,3 +28,44 @@ export enum Keybinding {
 export const KEYBINDINGS: readonly Keybinding[] = Object.values(
   Keybinding
 ).filter((k) => typeof k === 'string');
+
+export type KeybindingAction = keyof typeof Keybinding;
+
+/**
+ * An app's mapping of keybinding actions to the keys that trigger them. An
+ * action mapped to `undefined` is unavailable in that app.
+ */
+export type AppKeybindings = Readonly<
+  Record<KeybindingAction, string | undefined>
+>;
+
+const BASE_KEYBINDINGS = {
+  FOCUS_NEXT: Keybinding.FOCUS_NEXT,
+  FOCUS_PREVIOUS: Keybinding.FOCUS_PREVIOUS,
+  PAGE_NEXT: Keybinding.PAGE_NEXT,
+  PAGE_PREVIOUS: Keybinding.PAGE_PREVIOUS,
+  SELECT: Keybinding.SELECT,
+  SWITCH_LANGUAGE: Keybinding.SWITCH_LANGUAGE,
+  TOGGLE_AUDIO: Keybinding.TOGGLE_AUDIO,
+  VOLUME_CYCLE: Keybinding.VOLUME_CYCLE,
+  VOLUME_DOWN: Keybinding.VOLUME_DOWN,
+  VOLUME_UP: Keybinding.VOLUME_UP,
+  PAT_MOVE: Keybinding.PAT_MOVE,
+  PAT_SELECT: Keybinding.PAT_SELECT,
+} as const;
+
+export const DEFAULT_KEYBINDINGS = {
+  ...BASE_KEYBINDINGS,
+  PLAYBACK_RATE_DOWN: Keybinding.PLAYBACK_RATE_DOWN,
+  PLAYBACK_RATE_UP: Keybinding.PLAYBACK_RATE_UP,
+  TOGGLE_HELP: Keybinding.TOGGLE_HELP,
+  TOGGLE_PAUSE: Keybinding.TOGGLE_PAUSE,
+} as const satisfies AppKeybindings;
+
+export const MARK_KEYBINDINGS = {
+  ...BASE_KEYBINDINGS,
+  PLAYBACK_RATE_DOWN: undefined,
+  PLAYBACK_RATE_UP: undefined,
+  TOGGLE_HELP: '.',
+  TOGGLE_PAUSE: ',',
+} as const satisfies AppKeybindings;

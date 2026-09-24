@@ -4,7 +4,8 @@ import {
   simulateKeyPress,
   useAccessibleControllerHelpTrigger,
 } from './index.js';
-import { KEYBINDINGS, Keybinding } from '../keybindings.js';
+import { KEYBINDINGS, Keybinding, MARK_KEYBINDINGS } from '../keybindings.js';
+import { KeybindingsProvider } from '../keybindings_context.js';
 
 test('toggles "off" to "on" for single keypress', () => {
   const { result } = renderHook(useAccessibleControllerHelpTrigger);
@@ -31,6 +32,26 @@ test('toggles "on" to "off" for two consecutive keypresses', () => {
   simulateKeyPress(Keybinding.TOGGLE_HELP);
   simulateKeyPress('Shift'); // Should be ignored.
   simulateKeyPress(Keybinding.TOGGLE_HELP);
+  expect(result.current.shouldShowControllerSandbox).toEqual(false);
+});
+
+test('uses help key from keybindings context', () => {
+  const { result } = renderHook(useAccessibleControllerHelpTrigger, {
+    wrapper: ({ children }) => (
+      <KeybindingsProvider keybindings={MARK_KEYBINDINGS}>
+        {children}
+      </KeybindingsProvider>
+    ),
+  });
+
+  simulateKeyPress(Keybinding.TOGGLE_HELP);
+  expect(result.current.shouldShowControllerSandbox).toEqual(false);
+
+  simulateKeyPress(MARK_KEYBINDINGS.TOGGLE_HELP);
+  expect(result.current.shouldShowControllerSandbox).toEqual(true);
+
+  simulateKeyPress(MARK_KEYBINDINGS.TOGGLE_HELP);
+  simulateKeyPress(MARK_KEYBINDINGS.TOGGLE_HELP);
   expect(result.current.shouldShowControllerSandbox).toEqual(false);
 });
 

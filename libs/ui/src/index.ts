@@ -51,6 +51,7 @@ export * from './hooks/use_screen_info.js';
 export * from './icons.js';
 export * from './insert_ballot_image.js';
 export * from './keybindings.js';
+export * from './keybindings_context.js';
 export * from './labelled_text.js';
 export * from './language_settings/index.js';
 export * from './left_nav.js';

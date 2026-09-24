@@ -15,7 +15,7 @@ import {
   waitFor,
 } from '../../test/react_testing_library.js';
 import { useCurrentLanguage } from '../hooks/use_current_language.js';
-import { Keybinding } from '../index.js';
+import { Keybinding, KeybindingsProvider, MARK_KEYBINDINGS } from '../index.js';
 
 const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = TestLanguageCode;
 const audioControls: AudioControls = mockUseAudioControls(vi.fn);
@@ -95,3 +95,27 @@ test.each([
     expect(expectedFnCall).toHaveBeenCalled();
   }
 );
+
+test('uses keybindings from context', async () => {
+  vi.clearAllMocks();
+  render(
+    <KeybindingsProvider keybindings={MARK_KEYBINDINGS}>
+      <KeyboardShortcutHandlers />
+    </KeybindingsProvider>
+  );
+
+  await act(async () => {
+    userEvent.keyboard(MARK_KEYBINDINGS.TOGGLE_PAUSE);
+    await advancePromises();
+  });
+  expect(audioControls.togglePause).toHaveBeenCalledTimes(1);
+
+  await act(async () => {
+    userEvent.keyboard(MARK_KEYBINDINGS.TOGGLE_HELP);
+    userEvent.keyboard(Keybinding.TOGGLE_PAUSE);
+    await advancePromises();
+  });
+  expect(audioControls.togglePause).toHaveBeenCalledTimes(1);
+  expect(audioControls.decreasePlaybackRate).not.toHaveBeenCalled();
+  expect(audioControls.increasePlaybackRate).not.toHaveBeenCalled();
+});
