@@ -71,6 +71,7 @@ import type { BallotPrintEntry, DeviceStatuses } from './types.js';
 import { getMachineConfig } from './machine_config.js';
 import { findBallotStyleId } from './util/ballot_styles.js';
 import { getCurrentTime } from './util/get_current_time.js';
+import type { IncrementBallotPrintCountParams } from './store.js';
 
 interface TestDeckBallotToPrint {
   spec: TestDeckBallot;
@@ -84,6 +85,30 @@ const MAX_PRINT_ALL_BALLOTS_SIZE_BYTES = 512 * 1024 * 1024;
 export function buildApi(ctx: AppContext) {
   const { auth, usbDrive, logger, workspace, printer } = ctx;
   const { store } = workspace;
+
+  // Bumped whenever the printed ballot count is reset
+  // e.g. by switching ballot casting mode. This prevents the following:
+  // 1. Test ballot print job is started
+  // 2. Pollworker switches ballot casting mode while print job is in flight
+  // 3. Print job finishes and increments official ballot mode print count
+  let ballotPrintingGeneration = 0;
+
+  function countPrintedBallots(
+    generation: number,
+    counts: IncrementBallotPrintCountParams[]
+  ): void {
+    if (generation !== ballotPrintingGeneration) {
+      return;
+    }
+    for (const count of counts) {
+      store.incrementBallotPrintCount(count);
+    }
+  }
+
+  function resetBallotPrintCounts(): void {
+    ballotPrintingGeneration += 1;
+    store.resetBallotPrintCounts();
+  }
 
   function printBallots(
     electionDefinition: ElectionDefinition,
@@ -316,7 +341,7 @@ export function buildApi(ctx: AppContext) {
         message: `Toggling to ${testMode ? 'Test' : 'Official'} Ballot Mode...`,
       });
       store.withTransaction(() => {
-        store.resetBallotPrintCounts();
+        resetBallotPrintCounts();
         store.setTestMode(testMode);
       });
       await logger.logAsCurrentRole(LogEventId.ToggledTestMode, {
@@ -424,7 +449,6 @@ export function buildApi(ctx: AppContext) {
       });
 
       const isTestMode = store.getTestMode();
-      // @coverage-defer
       const ballotMode = isTestMode ? 'test' : 'official';
 
       const ballot = assertDefined(
@@ -436,6 +460,7 @@ export function buildApi(ctx: AppContext) {
         })
       );
 
+      const generation = ballotPrintingGeneration;
       const jobId = await printBallots(electionDefinition, {
         data: Buffer.from(ballot.encodedBallot, 'base64'),
         copies: input.copies,
@@ -447,13 +472,15 @@ export function buildApi(ctx: AppContext) {
         onSettled: async (status) => {
           const sentToPrinter = status.outcome === 'sent-to-printer';
           if (sentToPrinter) {
-            store.incrementBallotPrintCount({
-              precinctId: input.precinctId,
-              ballotStyleId,
-              ballotType: input.ballotType,
-              ballotMode,
-              count: input.copies,
-            });
+            countPrintedBallots(generation, [
+              {
+                precinctId: input.precinctId,
+                ballotStyleId,
+                ballotType: input.ballotType,
+                ballotMode,
+                count: input.copies,
+              },
+            ]);
           }
 
           await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
@@ -562,6 +589,7 @@ export function buildApi(ctx: AppContext) {
         return concatenatedPdfResult;
       }
 
+      const generation = ballotPrintingGeneration;
       const jobId = await printBallots(electionDefinition, {
         data: concatenatedPdfResult.ok(),
         copies: 1,
@@ -574,15 +602,16 @@ export function buildApi(ctx: AppContext) {
         onSettled: async (status) => {
           const sentToPrinter = status.outcome === 'sent-to-printer';
           if (sentToPrinter) {
-            for (const ballot of ballots) {
-              store.incrementBallotPrintCount({
+            countPrintedBallots(
+              generation,
+              ballots.map((ballot) => ({
                 precinctId: ballot.precinctId,
                 ballotStyleId: ballot.ballotStyleId,
                 ballotType: input.ballotType,
                 ballotMode,
                 count: input.copiesPerStyle,
-              });
-            }
+              }))
+            );
           }
 
           await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {

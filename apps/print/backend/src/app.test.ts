@@ -883,6 +883,112 @@ test('print job status', async () => {
   );
 });
 
+test('switching ballot mode discards counts from jobs still in flight', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const ballots = await buildBallotsForElection({
+    electionDefinition,
+    ballotModes: ['official', 'test'],
+  });
+  await configureMachine({
+    electionDefinition,
+    ballots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
+
+  const jobId = await apiClient.printBallot({
+    precinctId: electionDefinition.election.ballotStyles[0]!.precincts[0]!,
+    languageCode: LanguageCode.ENGLISH,
+    ballotType: BallotType.Precinct,
+    copies: 1,
+  });
+  mockPrinterHandler.setJobStatus(jobId, { outcome: 'in-progress' });
+
+  await apiClient.setTestMode({ testMode: true });
+
+  mockPrinterHandler.setJobStatus(jobId, { outcome: 'sent-to-printer' });
+  await vi.waitFor(() => {
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.BallotPrintComplete,
+      expect.objectContaining({ disposition: 'success' })
+    );
+  }, PRINT_SETTLEMENT_WAIT_OPTIONS);
+
+  const officialCounts = workspace.store.getBallotPrintCounts({
+    ballotMode: 'official',
+  });
+  expect(officialCounts).not.toHaveLength(0);
+  for (const count of officialCounts) {
+    expect(count.totalCount).toEqual(0);
+  }
+});
+
+test('concurrent jobs settling with mixed outcomes across a ballot mode switch', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const ballots = await buildBallotsForElection({
+    electionDefinition,
+    ballotModes: ['official', 'test'],
+  });
+  await configureMachine({
+    electionDefinition,
+    ballots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
+
+  const precinctId = electionDefinition.election.ballotStyles[0]!.precincts[0]!;
+  function printOneBallot() {
+    return apiClient.printBallot({
+      precinctId,
+      languageCode: LanguageCode.ENGLISH,
+      ballotType: BallotType.Precinct,
+      copies: 1,
+    });
+  }
+
+  // Two official-mode jobs, both still in flight when the mode switches.
+  const succeedingJobId = await printOneBallot();
+  mockPrinterHandler.setJobStatus(succeedingJobId, { outcome: 'in-progress' });
+  const failingJobId = await printOneBallot();
+  mockPrinterHandler.setJobStatus(failingJobId, { outcome: 'in-progress' });
+
+  await apiClient.setTestMode({ testMode: true });
+
+  // A third job started after the switch, which must still be counted.
+  const testModeJobId = await printOneBallot();
+
+  mockPrinterHandler.setJobStatus(succeedingJobId, {
+    outcome: 'sent-to-printer',
+  });
+  mockPrinterHandler.setJobStatus(failingJobId, {
+    outcome: 'failed',
+    reason: 'Unable to send data to printer.',
+  });
+
+  await vi.waitFor(() => {
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.BallotPrintComplete,
+      expect.objectContaining({ disposition: 'failure' })
+    );
+  }, PRINT_SETTLEMENT_WAIT_OPTIONS);
+  await waitForTotalBallotPrintCount(apiClient, 1);
+
+  // The succeeding pre-switch job settled successfully but belongs to the
+  // discarded generation, so only the post-switch job is counted.
+  expect(testModeJobId).not.toEqual(succeedingJobId);
+  for (const count of workspace.store.getBallotPrintCounts({
+    ballotMode: 'official',
+  })) {
+    expect(count.totalCount).toEqual(0);
+  }
+});
+
 test('printBallot does not count a ballot whose print job fails', async () => {
   const {
     famousNamesMultiLangElectionDefinition: electionDefinition,
