@@ -36,7 +36,7 @@ export type KeybindingAction = keyof typeof Keybinding;
  * action mapped to `undefined` is unavailable in that app.
  */
 export type AppKeybindings = Readonly<
-  Record<KeybindingAction, string | undefined>
+  Record<KeybindingAction, Keybinding | undefined>
 >;
 
 const BASE_KEYBINDINGS = {
@@ -66,6 +66,6 @@ export const MARK_KEYBINDINGS = {
   ...BASE_KEYBINDINGS,
   PLAYBACK_RATE_DOWN: undefined,
   PLAYBACK_RATE_UP: undefined,
-  TOGGLE_HELP: '.',
-  TOGGLE_PAUSE: ',',
+  TOGGLE_HELP: Keybinding.PLAYBACK_RATE_UP,
+  TOGGLE_PAUSE: Keybinding.PLAYBACK_RATE_DOWN,
 } as const satisfies AppKeybindings;
