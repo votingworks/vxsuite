@@ -373,7 +373,7 @@ export function ScanBallotsScreen({
                         variant="primary"
                         icon="Done"
                         onPress={() => setIsConfirmingSave(true)}
-                        disabled={anyMutationIsLoading}
+                        disabled={anyMutationIsLoading || sheetCount === 0}
                       >
                         Save Batch
                       </Button>
