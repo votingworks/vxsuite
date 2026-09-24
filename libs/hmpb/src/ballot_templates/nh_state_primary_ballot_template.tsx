@@ -4,20 +4,20 @@ import {
   iter,
   ok,
   range,
-  Result,
+  type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import {
-  Contest as ContestStruct,
-  BallotMode,
-  BallotType,
-  BallotStyle,
-  CandidateContest as CandidateContestStruct,
-  Election,
-  Party,
-  Precinct,
-  YesNoContest,
+  type Contest as ContestStruct,
+  type BallotMode,
+  type BallotType,
+  type BallotStyle,
+  type CandidateContest as CandidateContestStruct,
+  type Election,
+  type Party,
+  type Precinct,
+  type YesNoContest,
   ballotPaperDimensions,
   getBallotStyle,
   getOrderedCandidatesForContestInBallotStyle,
@@ -32,11 +32,14 @@ import {
 } from '@votingworks/ui';
 import React from 'react';
 import { styled } from '../styled.js';
-import { BallotLayoutError, ContentComponentResult } from '../render_ballot.js';
-import { RenderScratchpad } from '../renderer.js';
-import { SpotColor } from '../pdf_conversion.js';
+import type {
+  BallotLayoutError,
+  ContentComponentResult,
+} from '../render_ballot.js';
+import type { RenderScratchpad } from '../renderer.js';
+import type { SpotColor } from '../pdf_conversion.js';
 import {
-  OptionInfo,
+  type OptionInfo,
   Page,
   TimingMarkGrid,
   BALLOT_MEASURE_OPTION_CLASS,
@@ -48,7 +51,7 @@ import {
   primaryLanguageCode,
   WriteInLabel,
 } from '../ballot_components.js';
-import { PixelDimensions } from '../types.js';
+import type { PixelDimensions } from '../types.js';
 import { layOutInColumns } from '../layout_in_columns.js';
 import { Watermark } from './watermark.js';
 import {
@@ -56,7 +59,7 @@ import {
   HandCountInsignia,
   Instructions,
   Footer,
-  NhStateBallotProps,
+  type NhStateBallotProps,
   isDemocraticParty,
   isRepublicanParty,
   voteForText,

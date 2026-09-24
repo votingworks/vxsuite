@@ -2,11 +2,11 @@
 import { createReadStream } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { Readable } from 'node:stream';
+import type { Readable } from 'node:stream';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { getSignedUrl as s3GetSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { assertDefined, err, ok, Result } from '@votingworks/basics';
+import { assertDefined, err, ok, type Result } from '@votingworks/basics';
 
 import { WORKSPACE } from './globals.js';
 

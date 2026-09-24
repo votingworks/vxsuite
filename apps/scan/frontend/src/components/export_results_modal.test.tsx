@@ -7,10 +7,10 @@ import { mockUsbDriveStatus } from '@votingworks/ui';
 import { render, waitFor } from '../../test/react_testing_library.js';
 import {
   ExportResultsModal,
-  ExportResultsModalProps,
+  type ExportResultsModalProps,
 } from './export_results_modal.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   provideApi,
 } from '../../test/helpers/mock_api_client.js';

@@ -4,7 +4,7 @@ import {
   deferred,
   err,
   ok,
-  Result,
+  type Result,
 } from '@votingworks/basics';
 
 export type NormalizeResult = Result<NormalizedImage, NormalizeError>;

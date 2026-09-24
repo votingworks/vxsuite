@@ -1,5 +1,5 @@
 import { throwIllegalValue } from '@votingworks/basics';
-import { SYSTEM_LIMITS, SystemLimitViolation } from '@votingworks/types';
+import { SYSTEM_LIMITS, type SystemLimitViolation } from '@votingworks/types';
 
 /**
  * Converts a {@link SystemLimitViolation} to a human-readable string for use in an error message.

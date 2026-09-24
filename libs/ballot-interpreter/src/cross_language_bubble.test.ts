@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import fc from 'fast-check';
 import { Buffer } from 'node:buffer';
-import { BallotType, Election } from '@votingworks/types';
+import { BallotType, type Election } from '@votingworks/types';
 import {
   encodeHmpbBallotPageMetadata,
   sliceBallotHashForEncoding,

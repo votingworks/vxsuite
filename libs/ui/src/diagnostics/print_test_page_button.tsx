@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { assert, assertFalsy, sleep } from '@votingworks/basics';
-import { DiagnosticOutcome } from '@votingworks/types';
+import type { DiagnosticOutcome } from '@votingworks/types';
 import { Button } from '../button.js';
 import { Loading } from '../loading.js';
 import { Modal } from '../modal.js';

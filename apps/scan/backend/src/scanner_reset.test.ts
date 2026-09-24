@@ -1,5 +1,5 @@
-import { deferred, err, ok, Result } from '@votingworks/basics';
-import { mockScannerStatus, ScannerError } from '@votingworks/pdi-scanner';
+import { deferred, err, ok, type Result } from '@votingworks/basics';
+import { mockScannerStatus, type ScannerError } from '@votingworks/pdi-scanner';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
@@ -8,7 +8,7 @@ import { beforeEach, test, vi } from 'vitest';
 import {
   ballotImages,
   withApp,
-  MockPdiScannerClient,
+  type MockPdiScannerClient,
 } from '../test/helpers/scanner_helpers.js';
 import { configureApp, waitForStatus } from '../test/helpers/shared_helpers.js';
 import { delays, RESET_COOLDOWN_MS } from './scanner.js';

@@ -1,12 +1,12 @@
 import {
-  AsyncIteratorPlus,
+  type AsyncIteratorPlus,
   assertDefined,
   iter,
   unique,
 } from '@votingworks/basics';
 import { voteToOptionId } from '@votingworks/hmpb';
 import { pdfToImages } from '@votingworks/image-utils';
-import {
+import type {
   ContestId,
   GridPosition,
   RgbaImageData,

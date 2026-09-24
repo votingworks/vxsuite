@@ -1,6 +1,6 @@
-import { QueryKey, useQuery } from '@tanstack/react-query';
-import { Result, assertDefined } from '@votingworks/basics';
-import {
+import { type QueryKey, useQuery } from '@tanstack/react-query';
+import { type Result, assertDefined } from '@votingworks/basics';
+import type {
   PrintJobId,
   PrintJobOutcome,
   PrintJobStatus,

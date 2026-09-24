@@ -8,7 +8,10 @@ import { App } from './app.js';
 
 import { advanceTimersAndPromises } from '../test/helpers/timers.js';
 
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../test/helpers/mock_api_client.js';
 import { INTERNAL_HARDWARE_POLLING_INTERVAL_MS } from './api.js';
 
 const NO_PRINTER_DETECTED_TEXT = 'No Printer Detected';

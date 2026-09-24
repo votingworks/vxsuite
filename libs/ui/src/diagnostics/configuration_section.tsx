@@ -1,10 +1,10 @@
 import React from 'react';
 
 import {
-  BallotStyle,
-  Election,
-  ElectionDefinition,
-  MarkThresholds,
+  type BallotStyle,
+  type Election,
+  type ElectionDefinition,
+  type MarkThresholds,
   formatElectionHashes,
   pollingPlaceBallotStyles,
   pollingPlaceFromElection,

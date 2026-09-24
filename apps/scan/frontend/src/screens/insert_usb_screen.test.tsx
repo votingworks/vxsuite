@@ -1,8 +1,8 @@
-import { createMemoryHistory, MemoryHistory } from 'history';
+import { createMemoryHistory, type MemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   provideApi,
   statusNoPaper,
@@ -11,7 +11,10 @@ import {
   render as baseRender,
   screen,
 } from '../../test/react_testing_library.js';
-import { InsertUsbScreen, InsertUsbScreenProps } from './insert_usb_screen.js';
+import {
+  InsertUsbScreen,
+  type InsertUsbScreenProps,
+} from './insert_usb_screen.js';
 
 vi.useFakeTimers({ shouldAdvanceTime: true });
 

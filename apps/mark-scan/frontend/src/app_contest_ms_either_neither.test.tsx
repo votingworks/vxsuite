@@ -15,7 +15,10 @@ import { App } from './app.js';
 import { withMarkup } from '../test/helpers/with_markup.js';
 import { advanceTimersAndPromises } from '../test/helpers/timers.js';
 
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 const electionDefinition = readElectionWithMsEitherNeitherDefinition();

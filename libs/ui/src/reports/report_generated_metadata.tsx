@@ -1,7 +1,7 @@
 import { formatFullDateTimeZone } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import {
-  ElectionDefinition,
+  type ElectionDefinition,
   formatBallotHash,
   formatElectionHashes,
 } from '@votingworks/types';

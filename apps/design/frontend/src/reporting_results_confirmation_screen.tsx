@@ -17,11 +17,11 @@ import { DateTime } from 'luxon';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import {
   formatBallotHash,
-  Election,
-  LiveReportVotingType,
-  PollsTransitionType,
-  Tabulation,
-  ContestId,
+  type Election,
+  type LiveReportVotingType,
+  type PollsTransitionType,
+  type Tabulation,
+  type ContestId,
   pollingPlaceFromElection,
   pollingPlacePrecinctIds,
 } from '@votingworks/types';

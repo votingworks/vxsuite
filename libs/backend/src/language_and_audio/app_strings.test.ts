@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { describe, expect, test, vi } from 'vitest';
-import { LanguageCode, BallotLanguageConfigs } from '@votingworks/types';
+import { LanguageCode, type BallotLanguageConfigs } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { GoogleCloudTranslator } from './translator.js';
 import { makeMockGoogleCloudTranslationClient } from './test_utils.js';

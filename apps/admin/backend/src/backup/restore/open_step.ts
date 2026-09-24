@@ -1,15 +1,18 @@
-import { err, ok, Result, throwIllegalValue } from '@votingworks/basics';
-import { Logger, LogEventId } from '@votingworks/logging';
+import { err, ok, type Result, throwIllegalValue } from '@votingworks/basics';
+import { type Logger, LogEventId } from '@votingworks/logging';
 import { LATEST_SOFTWARE_VERSION } from '@votingworks/types';
 import {
   getMachineConfig,
   getMachineJurisdiction,
 } from '../../machine_config.js';
-import { AuthenticatedBackup } from '../authenticated_backup.js';
+import type { AuthenticatedBackup } from '../authenticated_backup.js';
 import { Backup } from '../backup.js';
-import { BACKUP_WORKSPACE_DIR, BackupManifest } from '../backup_manifest.js';
+import {
+  BACKUP_WORKSPACE_DIR,
+  type BackupManifest,
+} from '../backup_manifest.js';
 import { WORKSPACE_CONTROL_DIRECTORY_NAME } from '../../util/workspace.js';
-import { RestoreError } from './types.js';
+import type { RestoreError } from './types.js';
 
 /**
  * Opens and authenticates the backup to restore. Dispose of the result when

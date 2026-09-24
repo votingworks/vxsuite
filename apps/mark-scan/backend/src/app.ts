@@ -1,29 +1,29 @@
-import express, { Application } from 'express';
+import express, { type Application } from 'express';
 import {
-  InsertedSmartCardAuthApi,
+  type InsertedSmartCardAuthApi,
   generateSignedHashValidationQrCodeValue,
 } from '@votingworks/auth';
 import {
   assert,
   assertDefined,
   ok,
-  Result,
+  type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
-  ElectionPackageConfigurationError,
-  BallotStyleId,
-  ElectionDefinition,
-  PrecinctId,
-  SystemSettings,
+  type ElectionPackageConfigurationError,
+  type BallotStyleId,
+  type ElectionDefinition,
+  type PrecinctId,
+  type SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
-  PollsState,
-  DiagnosticRecord,
-  DiagnosticType,
-  PageInterpretation,
+  type PollsState,
+  type DiagnosticRecord,
+  type DiagnosticType,
+  type PageInterpretation,
   pollingPlaceFromElection,
-  InsertedSmartCardAuth,
+  type InsertedSmartCardAuth,
 } from '@votingworks/types';
 import { isElectionManagerAuth, isPollWorkerAuth } from '@votingworks/utils';
 
@@ -32,32 +32,36 @@ import {
   readSignedElectionPackageFromDirectory,
   configureUiStrings,
   createSystemCallApi,
-  ExportDataResult,
+  type ExportDataResult,
   configureUiStringAudioClipsStreaming,
   withElectionPackageZip,
 } from '@votingworks/backend';
-import { LogEventId, Logger } from '@votingworks/logging';
-import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
-import {
+import { LogEventId, type Logger } from '@votingworks/logging';
+import type { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
+import type {
   MockPaperHandlerStatus,
   PaperHandlerDriverInterface,
 } from '@votingworks/custom-paper-handler';
 import { getMachineConfig } from './machine_config.js';
-import { Workspace } from './util/workspace.js';
+import type { Workspace } from './util/workspace.js';
 import {
-  PaperHandlerStateMachine,
-  AcceptedPaperType,
-  SimpleServerStatus,
+  type PaperHandlerStateMachine,
+  type AcceptedPaperType,
+  type SimpleServerStatus,
   buildMockPaperHandlerApi,
 } from './custom-paper-handler/index.js';
-import { BmdModelNumber, ElectionState, PrintBallotProps } from './types.js';
+import type {
+  BmdModelNumber,
+  ElectionState,
+  PrintBallotProps,
+} from './types.js';
 import {
   getMarkScanBmdModel,
   isAccessibleControllerDaemonRunning,
 } from './util/hardware.js';
 import { saveReadinessReport } from './readiness_report.js';
 import { renderBallot } from './util/render_ballot.js';
-import { ElectionRecord, Store } from './store.js';
+import type { ElectionRecord, Store } from './store.js';
 import { constructAuthMachineState } from './util/auth.js';
 
 function addDiagnosticRecordAndLog(

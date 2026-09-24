@@ -3,13 +3,16 @@ import {
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { DippedSmartCardAuth } from '@votingworks/types';
+import type { DippedSmartCardAuth } from '@votingworks/types';
 import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { screen } from '../../test/react_testing_library.js';
 
 import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { BackupsScreen } from './backups_screen.js';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../../test/helpers/mock_api_client.js';
 
 const featureFlagMock = vi.hoisted(() => {
   // eslint-disable-next-line global-require

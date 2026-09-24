@@ -1,11 +1,11 @@
 import { assertDefined, find, uniqueBy } from '@votingworks/basics';
 import {
-  BallotStyle,
-  Candidate,
-  CandidateContest,
-  CandidateVote,
+  type BallotStyle,
+  type Candidate,
+  type CandidateContest,
+  type CandidateVote,
   getOrderedCandidatesForContestInBallotStyle,
-  PartyId,
+  type PartyId,
 } from '@votingworks/types';
 import { deriveStraightPartyVotesForContest } from '@votingworks/utils';
 

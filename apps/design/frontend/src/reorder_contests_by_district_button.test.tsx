@@ -2,21 +2,21 @@ import { afterEach, beforeEach, expect, test } from 'vitest';
 import { within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateWithoutTime } from '@votingworks/basics';
-import { ElectionInfo } from '@votingworks/design-backend';
+import type { ElectionInfo } from '@votingworks/design-backend';
 import {
-  CandidateContest,
-  Contest,
-  District,
+  type CandidateContest,
+  type Contest,
+  type District,
   DistrictIdSchema,
   HmpbBallotPaperSize,
   unsafeParse,
-  YesNoContest,
+  type YesNoContest,
 } from '@votingworks/types';
 
 import {
   createMockApiClient,
   jurisdiction,
-  MockApiClient,
+  type MockApiClient,
   provideApi,
 } from '../test/api_helpers.js';
 import {

@@ -2,7 +2,7 @@ import type { Meta } from '@storybook/react-vite' with {
   'resolution-mode': 'import',
 };
 import {
-  SmartCardImageProps,
+  type SmartCardImageProps,
   InsertCardImage,
   RemoveCardImage,
   RotateCardImage,

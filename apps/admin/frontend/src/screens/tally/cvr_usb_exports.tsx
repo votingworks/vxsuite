@@ -1,16 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Id, PollingPlace } from '@votingworks/types';
+import type { Id, PollingPlace } from '@votingworks/types';
 import { Caption, Card, Font, H4, Icons } from '@votingworks/ui';
 import type {
   CastVoteRecordFileMetadata as CvrExport,
   CvrFileMode,
 } from '@votingworks/admin-backend';
 
-import { CvrImporter } from './cvr_importer.js';
+import type { CvrImporter } from './cvr_importer.js';
 import { GAP } from './styles.js';
-import { LocationImportCard, Status } from './location_import_card.js';
+import { LocationImportCard, type Status } from './location_import_card.js';
 
 const Container = styled.div`
   display: grid;

@@ -1,12 +1,12 @@
 // @coverage-exclude-file: tested via VxSuite apps
-import { BaseLogger } from '@votingworks/logging';
+import type { BaseLogger } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
 import {
-  ElectionPackageZip,
-  ParsedElectionPackage,
+  type ElectionPackageZip,
+  type ParsedElectionPackage,
   streamElectionPackageAudioClips,
 } from '../election_package/election_package_io.js';
-import { UiStringsStore } from './ui_strings_store.js';
+import type { UiStringsStore } from './ui_strings_store.js';
 
 /** Input for {@link configureUiStrings}. */
 export interface ElectionPackageProcessorInput {

@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { getAbsoluteRootPath } from './dependencies.js';
-import { PnpmPackageInfo, PackageJson } from './types.js';
+import type { PnpmPackageInfo, PackageJson } from './types.js';
 
 /**
  * Read a JSON file, returning `undefined` if the file does not exist.

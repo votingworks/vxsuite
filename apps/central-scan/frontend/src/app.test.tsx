@@ -12,14 +12,14 @@ import {
   AdjudicationReason,
   DEFAULT_SYSTEM_SETTINGS,
   constructElectionKey,
-  ElectionDefinition,
+  type ElectionDefinition,
   formatElectionHashes,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { render, within, screen } from '../test/react_testing_library.js';
 import { App } from './app.js';
-import { ApiMock, createApiMock } from '../test/api.js';
+import { type ApiMock, createApiMock } from '../test/api.js';
 import { mockBatch, mockStatus } from '../test/fixtures.js';
 
 const electionDefinition = readElectionGeneralDefinition();

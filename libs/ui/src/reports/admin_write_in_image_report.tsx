@@ -1,6 +1,6 @@
 import React from 'react';
 import { assertDefined } from '@votingworks/basics';
-import {
+import type {
   CandidateContest,
   ContestId,
   ElectionDefinition,
@@ -24,7 +24,7 @@ import {
 } from './report_header.js';
 import { ReportGeneratedMetadata } from './report_generated_metadata.js';
 import { prefixedTitle } from './utils.js';
-import { WriteInEntry } from './precinct_scanner_write_in_image_report.js';
+import type { WriteInEntry } from './precinct_scanner_write_in_image_report.js';
 import { Icons } from '../icons.js';
 
 const WRITE_IN_REACT_KEY_MAX_LENGTH = 64;

@@ -1,11 +1,11 @@
 import { assert } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
-import { Voter } from '@votingworks/types';
+import type { Voter } from '@votingworks/types';
 import {
   StyledReceipt,
   VoterName,
   PartyName,
-  ReceiptMetadataProps,
+  type ReceiptMetadataProps,
   ReceiptMetadata,
   ReceiptIcon,
 } from './receipt_helpers.js';

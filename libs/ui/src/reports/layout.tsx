@@ -1,4 +1,4 @@
-import { DefaultTheme } from 'styled-components';
+import type { DefaultTheme } from 'styled-components';
 import { styled } from '../styled.js';
 import { makeTheme } from '../themes/make_theme.js';
 

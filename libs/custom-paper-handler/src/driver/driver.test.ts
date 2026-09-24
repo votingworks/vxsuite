@@ -1,9 +1,16 @@
-import { beforeEach, describe, expect, MockInstance, test, vi } from 'vitest';
+import {
+  beforeEach,
+  describe,
+  expect,
+  type MockInstance,
+  test,
+  vi,
+} from 'vitest';
 import { Buffer } from 'node:buffer';
 import { arrayBufferFrom, assert, assertDefined } from '@votingworks/basics';
 import { findByIds, WebUSBDevice } from 'usb';
-import { Uint16 } from '@votingworks/message-coder';
-import { MockWebUsbDevice } from '../test-utils/index.js';
+import type { Uint16 } from '@votingworks/message-coder';
+import type { MockWebUsbDevice } from '../test-utils/index.js';
 import {
   GENERIC_ENDPOINT_OUT,
   REAL_TIME_ENDPOINT_IN,
@@ -24,9 +31,9 @@ import { setUpMockWebUsbDevice } from './test_utils.js';
 import {
   INVALID_ARGUMENT_RESPONSE_CODE,
   LoadPaperCommand,
-  PaperHandlerBitmap,
-  PrinterStatusRealTimeExchangeResponse,
-  SensorStatusRealTimeExchangeResponse,
+  type PaperHandlerBitmap,
+  type PrinterStatusRealTimeExchangeResponse,
+  type SensorStatusRealTimeExchangeResponse,
 } from './coders.js';
 
 vi.mock('usb');

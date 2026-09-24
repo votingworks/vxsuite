@@ -1,7 +1,7 @@
 import React from 'react';
 import { isVxDev } from '@votingworks/utils';
 
-import { UsbDriveStatus } from '@votingworks/usb-drive';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { styled } from './styled.js';
 import { Button } from './button.js';
 import { UnconfigureMachineButton } from './unconfigure_machine_button.js';

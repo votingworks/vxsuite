@@ -4,7 +4,7 @@ import type { Meta } from '@storybook/react-vite' with {
 
 import {
   UnconfiguredElectionScreen,
-  UnconfiguredElectionScreenProps,
+  type UnconfiguredElectionScreenProps,
 } from './unconfigured_election_screen.js';
 import { mockUsbDriveStatus } from './test-utils/mock_usb_drive.js';
 

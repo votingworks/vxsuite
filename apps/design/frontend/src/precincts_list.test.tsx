@@ -3,7 +3,7 @@ import { expect, test } from 'vitest';
 import { Router, Route } from 'react-router-dom';
 
 import { within } from '@testing-library/react';
-import { Precinct, PrecinctSplit } from '@votingworks/types';
+import type { Precinct, PrecinctSplit } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 
 import { createMockApiClient, provideApi } from '../test/api_helpers.js';

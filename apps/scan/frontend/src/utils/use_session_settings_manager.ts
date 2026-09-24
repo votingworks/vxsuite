@@ -6,7 +6,7 @@ import {
   useCurrentLanguage,
   useLanguageControls,
 } from '@votingworks/ui';
-import { DefaultTheme, ThemeContext } from 'styled-components';
+import { type DefaultTheme, ThemeContext } from 'styled-components';
 
 export interface SessionSettingsManagerProps {
   startNewSession: () => void;

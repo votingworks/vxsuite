@@ -1,11 +1,11 @@
 import { expect, test, beforeEach, afterEach } from 'vitest';
-import React from 'react';
+import type React from 'react';
 import { createMemoryHistory } from 'history';
 import { ok } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import {
   createMockApiClient,
-  MockApiClient,
+  type MockApiClient,
   multiJurisdictionUser,
   jurisdiction,
   jurisdiction2,

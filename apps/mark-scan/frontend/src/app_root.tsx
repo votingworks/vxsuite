@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useReducer } from 'react';
 import {
-  OptionalVote,
-  VotesDict,
+  type OptionalVote,
+  type VotesDict,
   getBallotStyle,
   getContests,
-  ContestId,
+  type ContestId,
   isCombinedBallotPrimary,
-  PartyId,
-  PrecinctId,
-  BallotStyleId,
+  type PartyId,
+  type PrecinctId,
+  type BallotStyleId,
   InsertedSmartCardAuth,
 } from '@votingworks/types';
 

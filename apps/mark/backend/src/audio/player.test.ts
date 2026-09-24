@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import { mockLogger } from '@votingworks/logging';
 import { analogAndHdmi, getNodeEnv } from '@votingworks/backend';
-import { AudioCard, newAudioPlayer, Player } from './player.js';
+import { type AudioCard, newAudioPlayer, type Player } from './player.js';
 
 test('Player uses correct sounds directory (import.meta.dirname)', async () => {
   const mockCard = { mock: 'card' } as unknown as AudioCard;

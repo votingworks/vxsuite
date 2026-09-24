@@ -1,4 +1,4 @@
-import { beforeEach, expect, Mock, test, vi } from 'vitest';
+import { beforeEach, expect, type Mock, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import EventEmitter from 'node:events';
 import pcscLite from 'pcsclite';
@@ -12,7 +12,7 @@ import {
   ResponseApduError,
   STATUS_WORD,
 } from './apdu.js';
-import { CardReader, PcscLite } from './card_reader.js';
+import { CardReader, type PcscLite } from './card_reader.js';
 
 vi.mock('pcsclite');
 

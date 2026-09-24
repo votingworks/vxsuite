@@ -1,5 +1,5 @@
-import { Optional, throwIllegalValue } from '@votingworks/basics';
-import {
+import { type Optional, throwIllegalValue } from '@votingworks/basics';
+import type {
   BatchControl,
   BatchScanner,
   ScannedSheetInfo,

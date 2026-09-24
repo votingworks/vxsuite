@@ -1,14 +1,14 @@
 import {
   AdjudicationReason,
-  Contest,
-  ContestOptionId,
-  ElectionDefinition,
-  MarkThresholds,
-  Tabulation,
+  type Contest,
+  type ContestOptionId,
+  type ElectionDefinition,
+  type MarkThresholds,
+  type Tabulation,
 } from '@votingworks/types';
 import { CachedElectionLookups, hasCrossoverVote } from '@votingworks/utils';
 import { throwIllegalValue } from '@votingworks/basics';
-import {
+import type {
   CastVoteRecordAdjudicationFlags,
   CvrContestTag,
   WriteInRecord,

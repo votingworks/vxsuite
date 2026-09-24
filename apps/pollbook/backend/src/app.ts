@@ -1,16 +1,16 @@
 import * as grout from '@votingworks/grout';
-import express, { Application } from 'express';
+import express, { type Application } from 'express';
 import {
   assert,
   assertDefined,
   err,
   extractErrorMessage,
   ok,
-  Optional,
-  Result,
+  type Optional,
+  type Result,
   sleep,
 } from '@votingworks/basics';
-import {
+import type {
   CheckInBallotParty,
   Election,
   PrimarySummaryStatistics,
@@ -37,22 +37,22 @@ import {
   isElectionManagerAuth,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
-import { UsbDriveStatus } from '@votingworks/usb-drive';
-import { LogEventId, Logger } from '@votingworks/logging';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import { LogEventId, type Logger } from '@votingworks/logging';
 import {
-  DeviceStatuses,
-  VoterSearchParams,
-  ConfigurationStatus,
-  ThroughputStat,
-  LocalAppContext,
-  ConfigurationError,
-  VoterCheckInError,
-  DuplicateVoterError,
-  PollbookConfigurationInformation,
-  AamvaDocument,
+  type DeviceStatuses,
+  type VoterSearchParams,
+  type ConfigurationStatus,
+  type ThroughputStat,
+  type LocalAppContext,
+  type ConfigurationError,
+  type VoterCheckInError,
+  type DuplicateVoterError,
+  type PollbookConfigurationInformation,
+  type AamvaDocument,
   isBarcodeScannerError,
-  PartyFilterAbbreviation,
-  Anomaly,
+  type PartyFilterAbbreviation,
+  type Anomaly,
   EventType,
 } from './types.js';
 import { rootDebug } from './debug.js';
@@ -72,7 +72,7 @@ import { generateVoterHistoryCsvContent } from './voter_history.js';
 import { getCurrentTime } from './get_current_time.js';
 import { MarkInactiveReceipt } from './receipts/mark_inactive_receipt.js';
 import { InvalidateRegistrationReceipt } from './receipts/invalidate_registration_receipt.js';
-import { BarcodeScannerClient } from './barcode_scanner/client.js';
+import type { BarcodeScannerClient } from './barcode_scanner/client.js';
 import { securityHeadersMiddleware } from './security_middleware.js';
 import { constructAuthMachineState } from './auth.js';
 

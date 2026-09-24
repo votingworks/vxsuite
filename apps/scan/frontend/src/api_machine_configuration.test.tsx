@@ -1,10 +1,10 @@
 import { afterAll, expect, test, vi } from 'vitest';
 import { QueryClient } from '@tanstack/react-query';
 import { ok } from '@votingworks/basics';
-import React from 'react';
+import type React from 'react';
 import { renderHook, waitFor } from '../test/react_testing_library.js';
 import {
-  ApiClient,
+  type ApiClient,
   configureFromElectionPackageOnUsbDrive,
   createApiClient,
   uiStringsApi,

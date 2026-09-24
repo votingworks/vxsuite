@@ -1,11 +1,11 @@
 import {
-  Admin,
-  Election,
+  type Admin,
+  type Election,
   pollingPlaceFromElection,
   pollingPlacePrecinctIds,
 } from '@votingworks/types';
 import { getGroupedBallotStyles } from '@votingworks/utils';
-import { ScannerBatch } from '../types.js';
+import type { ScannerBatch } from '../types.js';
 
 /**
  * Intersects two lists of values. The second list is optional; when it is

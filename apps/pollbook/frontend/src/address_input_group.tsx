@@ -3,8 +3,8 @@ import React, { useMemo } from 'react';
 import {
   safeParseInt,
   VOTER_INPUT_FIELD_LIMITS,
-  ValidStreetInfo,
-  VoterAddressChangeRequest,
+  type ValidStreetInfo,
+  type VoterAddressChangeRequest,
 } from '@votingworks/types';
 import { Row, FieldName } from './layout.js';
 import {

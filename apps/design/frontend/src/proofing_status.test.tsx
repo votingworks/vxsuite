@@ -9,7 +9,7 @@ import { sleep } from '@votingworks/basics';
 import {
   provideApi,
   createMockApiClient,
-  MockApiClient,
+  type MockApiClient,
 } from '../test/api_helpers.js';
 import {
   render,

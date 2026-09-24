@@ -1,4 +1,4 @@
-import { Admin, ElectionDefinition, Tabulation } from '@votingworks/types';
+import { Admin, type ElectionDefinition, Tabulation } from '@votingworks/types';
 
 import { CachedElectionLookups } from '@votingworks/utils';
 
@@ -9,7 +9,7 @@ import {
   getBallotStyleLabel,
   getBatchLabel,
   getScannerLabel,
-  LabeledScannerBatch,
+  type LabeledScannerBatch,
 } from './utils.js';
 import { Box } from './layout.js';
 

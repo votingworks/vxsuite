@@ -20,13 +20,13 @@ import {
 } from '@votingworks/auth';
 import { DateTime } from 'luxon';
 import { err, typedAs } from '@votingworks/basics';
-import { WriteFileError } from '@votingworks/fs';
+import type { WriteFileError } from '@votingworks/fs';
 import {
   BackupManifest,
   BackupManifestStructSchema,
 } from '../backup_manifest.js';
 import { writeManifest } from './manifest_step.js';
-import { ProgressEvent } from '../progress.js';
+import type { ProgressEvent } from '../progress.js';
 
 function makeManifest(): BackupManifest {
   const { election } = electionFamousNames2021Fixtures.readElectionDefinition();

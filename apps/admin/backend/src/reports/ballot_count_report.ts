@@ -1,17 +1,17 @@
 import { assert } from '@votingworks/basics';
 import { BallotCountReport } from '@votingworks/ui';
-import { Admin, Tabulation } from '@votingworks/types';
-import { LogEventId, Logger } from '@votingworks/logging';
+import type { Admin, Tabulation } from '@votingworks/types';
+import { LogEventId, type Logger } from '@votingworks/logging';
 
-import { Printer, renderToPdf } from '@votingworks/printing';
-import { UsbDrive } from '@votingworks/usb-drive';
+import { type Printer, renderToPdf } from '@votingworks/printing';
+import type { UsbDrive } from '@votingworks/usb-drive';
 import { join } from 'node:path';
-import { Store } from '../store.js';
+import type { Store } from '../store.js';
 import { generateTitleForReport } from './titles.js';
 import { getCurrentTime } from '../util/get_current_time.js';
-import { ExportDataResult } from '../types.js';
+import type { ExportDataResult } from '../types.js';
 import {
-  BallotCountReportWarning,
+  type BallotCountReportWarning,
   getBallotCountReportWarning,
 } from './warnings.js';
 import { generateReportsDirectoryPath } from '../util/filenames.js';

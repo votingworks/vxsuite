@@ -1,22 +1,22 @@
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { LogSource, BaseLogger } from '@votingworks/logging';
 import {
-  DippedSmartCardAuth,
+  type DippedSmartCardAuth,
   constructElectionKey,
-  ElectionDefinition,
+  type ElectionDefinition,
   DEV_MACHINE_ID,
 } from '@votingworks/types';
 import { SystemCallContextProvider, TestErrorBoundary } from '@votingworks/ui';
-import { createMemoryHistory, MemoryHistory } from 'history';
-import React from 'react';
+import { createMemoryHistory, type MemoryHistory } from 'history';
+import type React from 'react';
 import { Router } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { type QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { render, RenderResult } from './react_testing_library.js';
+import { render, type RenderResult } from './react_testing_library.js';
 import {
   ApiClientContext,
   createQueryClient,
@@ -24,9 +24,9 @@ import {
 } from '../src/api.js';
 import {
   AppContext,
-  AppContextInterface,
+  type AppContextInterface,
 } from '../src/contexts/app_context.js';
-import { ApiMock } from './api.js';
+import type { ApiMock } from './api.js';
 
 interface RenderInAppContextParams {
   route?: string;

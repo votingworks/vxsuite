@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs/promises';
-import { AddressInfo } from 'node:net';
+import type { AddressInfo } from 'node:net';
 import path from 'node:path';
 import { assert, assertDefined, err, ok } from '@votingworks/basics';
 import {

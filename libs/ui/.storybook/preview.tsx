@@ -7,7 +7,7 @@ import type {
 } from 'storybook/internal/types';
 
 import { AppBase, VoterSettingsManagerContext } from '../src/index.js';
-import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
+import type { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 import { createGlobalStyle } from 'styled-components';
 
 // Storybook doesn't export a type for toolbar items.

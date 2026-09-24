@@ -3,7 +3,7 @@ import type { Meta } from '@storybook/react-vite' with {
   'resolution-mode': 'import',
 };
 import {
-  CheckboxGroupProps,
+  type CheckboxGroupProps,
   CheckboxGroup as Component,
 } from './checkbox_group.js';
 

@@ -1,5 +1,5 @@
 import type * as vitest from 'vitest';
-import { UiStringsStore } from './ui_strings_store.js';
+import type { UiStringsStore } from './ui_strings_store.js';
 
 /** Test context for {@link runUiStringMachineDeconfigurationTests}. */
 export interface UiStringDeconfigurationTestContext {

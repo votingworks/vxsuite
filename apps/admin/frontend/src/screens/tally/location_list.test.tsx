@@ -1,13 +1,13 @@
 import { expect, test } from 'vitest';
 
-import { PollingPlace } from '@votingworks/types';
-import { CastVoteRecordFileRecord } from '@votingworks/admin-backend';
+import type { PollingPlace } from '@votingworks/types';
+import type { CastVoteRecordFileRecord } from '@votingworks/admin-backend';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '../../../test/react_testing_library.js';
 import { LocationList } from './location_list.js';
-import { LocationCvrs } from './cvrs_state.js';
-import { LocationCvrImport } from './location_cvrs_panel.js';
+import type { LocationCvrs } from './cvrs_state.js';
+import type { LocationCvrImport } from './location_cvrs_panel.js';
 
 const place1 = mockPlace({ id: 'place1', name: 'Place 1', type: 'absentee' });
 const place2 = mockPlace({ id: 'place2', name: 'Place 2', type: 'absentee' });

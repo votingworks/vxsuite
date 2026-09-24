@@ -1,4 +1,4 @@
-import { Id, Tabulation } from '@votingworks/types';
+import type { Id, Tabulation } from '@votingworks/types';
 import {
   combineElectionResults,
   convertManualElectionResults,
@@ -10,7 +10,7 @@ import {
 import { assert, assertDefined } from '@votingworks/basics';
 import memoize from 'lodash.memoize';
 import hash from 'object-hash';
-import { Store } from '../store.js';
+import type { Store } from '../store.js';
 import {
   getEmptyElectionWriteInSummary,
   modifyElectionResultsWithWriteInSummary,

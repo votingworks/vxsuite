@@ -1,6 +1,6 @@
-import React from 'react';
+import type React from 'react';
 
-import { Button, ButtonProps } from '@votingworks/ui';
+import { Button, type ButtonProps } from '@votingworks/ui';
 
 import * as api from '../api.js';
 

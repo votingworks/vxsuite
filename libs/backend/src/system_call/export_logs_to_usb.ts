@@ -1,18 +1,18 @@
 import {
-  Result,
+  type Result,
   err,
   extractErrorMessage,
   ok,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { UsbDrive } from '@votingworks/usb-drive';
+import type { UsbDrive } from '@votingworks/usb-drive';
 import * as fs from 'node:fs/promises';
 import { join } from 'node:path';
 
 import {
   LogEventId,
-  LogExportFormat,
-  Logger,
+  type LogExportFormat,
+  type Logger,
   filterErrorLogs,
 } from '@votingworks/logging';
 import { createReadStream, createWriteStream } from 'node:fs';

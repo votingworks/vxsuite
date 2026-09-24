@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import {
-  ContestResultsSummary,
+  type ContestResultsSummary,
   buildElectionResultsFixture,
   buildManualResultsFixture,
   buildSimpleMockTallyReportResults,
@@ -10,10 +10,10 @@ import {
   electionFamousNames2021Fixtures,
   readElectionTwoPartyPrimary,
 } from '@votingworks/fixtures';
-import { Admin, ContestId, Tabulation } from '@votingworks/types';
+import type { Admin, ContestId, Tabulation } from '@votingworks/types';
 import {
-  BallotCountReportWarning,
-  TallyReportWarning,
+  type BallotCountReportWarning,
+  type TallyReportWarning,
   getBallotCountReportWarning,
   getTallyReportWarning,
 } from './warnings.js';

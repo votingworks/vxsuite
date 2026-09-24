@@ -1,10 +1,10 @@
-import { Election, PollsState } from '@votingworks/types';
+import type { Election, PollsState } from '@votingworks/types';
 import {
-  PollingPlacePickerMode,
+  type PollingPlacePickerMode,
   PollingPlacePicker,
-  PollingPlacePickerProps,
+  type PollingPlacePickerProps,
 } from '@votingworks/ui';
-import React from 'react';
+import type React from 'react';
 
 export interface LocationPickerProps {
   election: Election;

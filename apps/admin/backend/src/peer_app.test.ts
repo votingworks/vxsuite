@@ -1,6 +1,6 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
-import { AddressInfo } from 'node:net';
+import type { AddressInfo } from 'node:net';
 import {
   Admin,
   DEFAULT_SYSTEM_SETTINGS,
@@ -10,9 +10,14 @@ import {
   electionTwoPartyPrimaryFixtures,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
-import { assertDefined, err, ok, range } from '@votingworks/basics';
+import {
+  assertDefined,
+  err,
+  ok,
+  range,
+  type Result,
+} from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
-import type { Result } from '@votingworks/basics';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -21,7 +26,7 @@ import {
 import { getCurrentTime } from './get_current_time.js';
 import {
   addMockCvrFileToStore,
-  MockCastVoteRecordFile,
+  type MockCastVoteRecordFile,
 } from '../test/mock_cvr_file.js';
 
 vi.mock('./get_current_time');

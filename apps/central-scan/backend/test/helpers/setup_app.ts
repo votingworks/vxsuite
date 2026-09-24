@@ -1,32 +1,32 @@
-import { expect, Mocked, vi } from 'vitest';
-import { Application } from 'express';
+import { expect, type Mocked, vi } from 'vitest';
+import type { Application } from 'express';
 import {
   LogSource,
-  Logger,
-  MockLogger,
+  type Logger,
+  type MockLogger,
   mockBaseLogger,
   mockLogger,
 } from '@votingworks/logging';
-import { Server } from 'node:http';
+import type { Server } from 'node:http';
 import * as grout from '@votingworks/grout';
 import {
-  DippedSmartCardAuthApi,
+  type DippedSmartCardAuthApi,
   buildMockDippedSmartCardAuth,
 } from '@votingworks/auth';
 import { dirSync } from 'tmp';
 import getPort from 'get-port';
-import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
-import { Workspace, createWorkspace } from '../../src/util/workspace.js';
-import { MockScanner, makeMockScanner } from '../util/mocks.js';
+import { type MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
+import { type Workspace, createWorkspace } from '../../src/util/workspace.js';
+import { type MockScanner, makeMockScanner } from '../util/mocks.js';
 import {
-  BatchScannerStateMachine,
+  type BatchScannerStateMachine,
   createBatchScannerStateMachine,
 } from '../../src/scanner.js';
-import { ScanStatus } from '../../src/types.js';
-import { Api } from '../../src/index.js';
+import type { ScanStatus } from '../../src/types.js';
+import type { Api } from '../../src/index.js';
 import { buildCentralScannerApp } from '../../src/app.js';
 import { start } from '../../src/server.js';
-import { Store } from '../../src/store.js';
+import type { Store } from '../../src/store.js';
 import { getUserRole } from '../../src/util/auth.js';
 
 export function buildMockLogger(

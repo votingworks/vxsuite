@@ -5,11 +5,11 @@ import {
   electionMultiPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import type { ThroughputStat } from '@votingworks/pollbook-backend';
-import {
+import type {
   PrimarySummaryStatistics,
   SummaryStatistics,
 } from '@votingworks/types';
-import { ApiMock, createApiMock } from '../test/mock_api_client.js';
+import { type ApiMock, createApiMock } from '../test/mock_api_client.js';
 import { renderInAppContext } from '../test/render_in_app_context.js';
 import { act, screen, waitFor } from '../test/react_testing_library.js';
 import {

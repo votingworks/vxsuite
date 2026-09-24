@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { readElectionGeneral } from '@votingworks/fixtures';
-import { Candidate, CandidateContest } from '@votingworks/types';
+import type { Candidate, CandidateContest } from '@votingworks/types';
 import { find } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library.js';
 import { CandidateInfoCaption } from './candidate_info_caption.js';

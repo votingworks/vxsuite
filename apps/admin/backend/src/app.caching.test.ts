@@ -1,6 +1,6 @@
-import { expect, MockInstance, test, vi } from 'vitest';
+import { expect, type MockInstance, test, vi } from 'vitest';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import { Client } from '@votingworks/grout';
+import type { Client } from '@votingworks/grout';
 import { readFileSync } from 'node:fs';
 import { assert, assertDefined, ok } from '@votingworks/basics';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
@@ -15,7 +15,7 @@ import {
   mockElectionManagerAuth,
 } from '../test/app.js';
 import { mockFileName, parseCsv } from '../test/csv.js';
-import { Api } from './app.js';
+import type { Api } from './app.js';
 
 // enable us to use modified fixtures that don't pass authentication
 const featureFlagMock = getFeatureFlagMock();

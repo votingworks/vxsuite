@@ -1,16 +1,19 @@
-import React from 'react';
+import type React from 'react';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   constructElectionKey,
-  ElectionDefinition,
-  InsertedSmartCardAuth,
-  PollsState,
-  DiagnosticRecord,
-  DiagnosticOutcome,
+  type ElectionDefinition,
+  type InsertedSmartCardAuth,
+  type PollsState,
+  type DiagnosticRecord,
+  type DiagnosticOutcome,
 } from '@votingworks/types';
-import { Mock, vi } from 'vitest';
-import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
+import { type Mock, vi } from 'vitest';
+import {
+  createMockClient,
+  type MockClient,
+} from '@votingworks/grout-test-utils';
 import type {
   Api,
   MachineConfig,
@@ -28,7 +31,7 @@ import {
   mockSystemAdministratorUser,
   mockVendorUser,
 } from '@votingworks/test-utils';
-import { UsbDriveStatus } from '@votingworks/usb-drive';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { TestErrorBoundary, mockUsbDriveStatus } from '@votingworks/ui';
 import type { ExportDataResult } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';

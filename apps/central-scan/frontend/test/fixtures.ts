@@ -1,8 +1,8 @@
-import {
+import type {
   BatchScannerMachineStatus,
   ScanStatus,
 } from '@votingworks/central-scan-backend';
-import { BatchInfo } from '@votingworks/types';
+import type { BatchInfo } from '@votingworks/types';
 
 export const DEFAULT_STATUS: ScanStatus = {
   state: 'idle',

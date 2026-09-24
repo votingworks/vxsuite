@@ -1,12 +1,12 @@
-import { afterAll, beforeEach, expect, Mocked, test, vi } from 'vitest';
+import { afterAll, beforeEach, expect, type Mocked, test, vi } from 'vitest';
 import { mockConstructor, TestLanguageCode } from '@votingworks/test-utils';
 import { deferred } from '@votingworks/basics';
 
 import { newTestContext } from '../../test/test_context.js';
 import { PlayAudioClips } from './play_audio_clips.js';
 import {
-  AudioPlayer,
-  AudioPlayerParams,
+  type AudioPlayer,
+  type AudioPlayerParams,
   newAudioPlayer,
 } from './audio_player.js';
 import { act, screen, waitFor } from '../../test/react_testing_library.js';

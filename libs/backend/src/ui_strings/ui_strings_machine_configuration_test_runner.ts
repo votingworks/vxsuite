@@ -1,16 +1,16 @@
 import type * as vitest from 'vitest';
-import {
+import type {
   ElectionDefinition,
   UiStringAudioClips,
   UiStringAudioIdsPackage,
   UiStringsPackage,
 } from '@votingworks/types';
-import { MockUsbDrive } from '@votingworks/usb-drive';
-import { Result, assertDefined } from '@votingworks/basics';
-import { UiStringsStore } from './ui_strings_store.js';
+import type { MockUsbDrive } from '@votingworks/usb-drive';
+import { type Result, assertDefined } from '@votingworks/basics';
+import type { UiStringsStore } from './ui_strings_store.js';
 import {
   mockElectionPackageFileTree,
-  PartialElectionPackage,
+  type PartialElectionPackage,
 } from '../election_package/test_utils.js';
 
 type MockUsbDriveLike = Pick<MockUsbDrive, 'insertUsbDrive'>;

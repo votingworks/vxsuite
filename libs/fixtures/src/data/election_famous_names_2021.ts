@@ -1,4 +1,4 @@
-import {
+import type {
   ContestPosition,
   Election,
   ElectionDefinition,

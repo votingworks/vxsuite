@@ -1,8 +1,11 @@
 import readline from 'node:readline';
 import { extractErrorMessage, throwIllegalValue } from '@votingworks/basics';
 
-import { CommonAccessCard, CommonAccessCardDetails } from '../cac/index.js';
-import { CardDetails, PinProtectedCard, StatefulCard } from '../card.js';
+import {
+  CommonAccessCard,
+  type CommonAccessCardDetails,
+} from '../cac/index.js';
+import type { CardDetails, PinProtectedCard, StatefulCard } from '../card.js';
 import { JavaCard } from '../java_card.js';
 import { waitForReadyCardStatus } from './utils.js';
 

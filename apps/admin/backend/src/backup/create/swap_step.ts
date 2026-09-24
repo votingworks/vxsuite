@@ -1,8 +1,8 @@
 import { existsSync } from 'node:fs';
 import { rename, rm } from 'node:fs/promises';
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, type Result } from '@votingworks/basics';
 import { exchangePaths, syncFilesystem } from '@votingworks/fs';
-import { SwapBackupOptions } from './types.js';
+import type { SwapBackupOptions } from './types.js';
 
 /**
  * Possible expected errors that might occur during {@link swap}.

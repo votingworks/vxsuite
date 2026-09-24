@@ -4,7 +4,10 @@ import { mockUseAudioControls } from '@votingworks/test-utils';
 import { deferred, sleep } from '@votingworks/basics';
 import { renderHook } from '../test/react_testing_library.js';
 import { ApiProvider } from './api_provider.js';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../test/helpers/mock_api_client.js';
 import * as api from './api.js';
 
 const mockAudioControls = mockUseAudioControls(vi.fn);

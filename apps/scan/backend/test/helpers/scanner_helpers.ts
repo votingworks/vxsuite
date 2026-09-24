@@ -1,8 +1,8 @@
 import {
-  InsertedSmartCardAuthApi,
+  type InsertedSmartCardAuthApi,
   buildMockInsertedSmartCardAuth,
 } from '@votingworks/auth';
-import { Result, deferred, ok } from '@votingworks/basics';
+import { type Result, deferred, ok } from '@votingworks/basics';
 import {
   DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
   DEFAULT_FAMOUS_NAMES_POLLING_PLACE_ID,
@@ -16,7 +16,7 @@ import {
   sampleBallotImages,
 } from '@votingworks/fixtures';
 import {
-  MemoryFujitsuPrinterHandler,
+  type MemoryFujitsuPrinterHandler,
   createMockFujitsuPrinterHandler,
 } from '@votingworks/fujitsu-thermal-printer';
 import * as grout from '@votingworks/grout';
@@ -25,38 +25,38 @@ import {
   createGrayImageData,
   RGBA_CHANNEL_COUNT,
 } from '@votingworks/image-utils';
-import { Logger, mockBaseLogger } from '@votingworks/logging';
+import { type Logger, mockBaseLogger } from '@votingworks/logging';
 import {
-  Listener,
-  ScannerClient,
-  ScannerError,
-  ScannerEvent,
-  ScannerStatus,
+  type Listener,
+  type ScannerClient,
+  type ScannerError,
+  type ScannerEvent,
+  type ScannerStatus,
   mockScannerStatus,
 } from '@votingworks/pdi-scanner';
 import {
-  GrayImageData,
+  type GrayImageData,
   mapSheet,
-  RgbaImageData,
-  SheetOf,
+  type RgbaImageData,
+  type SheetOf,
 } from '@votingworks/types';
-import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
-import { Application } from 'express';
+import { type MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
+import type { Application } from 'express';
 import { readFile } from 'node:fs/promises';
-import { Server } from 'node:http';
-import { AddressInfo } from 'node:net';
+import type { Server } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import * as tmp from 'tmp';
-import { Mocked, expect, vi } from 'vitest';
+import { type Mocked, expect, vi } from 'vitest';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
 import { createCanvas } from 'canvas';
-import { Api, buildApp } from '../../src/app.js';
-import { AudioPlayer, getMockAudioPlayer } from '../../src/audio/audio.js';
+import { type Api, buildApp } from '../../src/app.js';
+import { type AudioPlayer, getMockAudioPlayer } from '../../src/audio/audio.js';
 import {
   createPrecinctScannerStateMachine,
   delays,
 } from '../../src/scanner.js';
-import { Store } from '../../src/store.js';
-import { Workspace, createWorkspace } from '../../src/util/workspace.js';
+import type { Store } from '../../src/store.js';
+import { type Workspace, createWorkspace } from '../../src/util/workspace.js';
 import {
   buildMockLogger,
   expectStatus,

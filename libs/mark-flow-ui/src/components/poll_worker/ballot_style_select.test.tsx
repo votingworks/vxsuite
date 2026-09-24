@@ -4,7 +4,11 @@ import {
   electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
-import { hasSplits, Precinct, PrecinctOrSplit } from '@votingworks/types';
+import {
+  hasSplits,
+  type Precinct,
+  type PrecinctOrSplit,
+} from '@votingworks/types';
 
 import userEvent from '@testing-library/user-event';
 
@@ -12,7 +16,7 @@ import { assert } from '@votingworks/basics';
 import { render, screen } from '../../../test/react_testing_library.js';
 import {
   BallotStyleSelect,
-  BallotStyleSelectProps,
+  type BallotStyleSelectProps,
 } from './ballot_style_select.js';
 
 describe('general election', () => {

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { readElectionGeneral } from '@votingworks/fixtures';
-import { Contest } from '@votingworks/types';
+import type { Contest } from '@votingworks/types';
 
 const CONTEST_TEMPLATE: Contest = readElectionGeneral().contests[0]!;
 

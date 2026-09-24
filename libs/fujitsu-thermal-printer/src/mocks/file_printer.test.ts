@@ -9,7 +9,7 @@ import {
   MockFileFujitsuPrinter,
   getMockFileFujitsuPrinterHandler,
 } from './file_printer.js';
-import { PrinterStatus } from '../types.js';
+import type { PrinterStatus } from '../types.js';
 
 beforeEach(() => {
   getMockFileFujitsuPrinterHandler().cleanup();

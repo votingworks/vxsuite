@@ -3,7 +3,7 @@ import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
 import React, { useState } from 'react';
 import { useIdleTimer } from 'react-idle-timer';
-import {
+import type {
   DippedSmartCardAuth,
   InsertedSmartCardAuth,
   SystemSettings,

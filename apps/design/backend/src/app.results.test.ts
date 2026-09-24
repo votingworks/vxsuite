@@ -3,25 +3,25 @@ import {
   ALL_PRECINCTS_SELECTION,
   buildElectionResultsFixture,
   compressAndEncodePerPrecinctTally,
-  ContestResultsSummary,
-  ContestResultsSummaries,
+  type ContestResultsSummary,
+  type ContestResultsSummaries,
   encodeV0CompressedTally,
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
   getContestsForPrecinct,
   getContestsForPrecinctAndElection,
 } from '@votingworks/utils';
-import { assertDefined, err, ok, Result } from '@votingworks/basics';
+import { assertDefined, err, ok, type Result } from '@votingworks/basics';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
-  CompressedTally,
-  ContestId,
-  ElectionDefinition,
-  PollingPlace,
-  PollingPlaceType,
-  PrecinctId,
+  type CompressedTally,
+  type ContestId,
+  type ElectionDefinition,
+  type PollingPlace,
+  type PollingPlaceType,
+  type PrecinctId,
   safeParseElectionDefinition,
-  Tabulation,
+  type Tabulation,
 } from '@votingworks/types';
 import { encodeQuickResultsMessage } from '@votingworks/auth';
 import {
@@ -33,13 +33,13 @@ import { renderAllBallotPdfsAndCreateElectionDefinition } from '@votingworks/hmp
 import type * as grout from '@votingworks/grout';
 import type { UnauthenticatedApi } from './app.js';
 import {
-  ApiClient,
+  type ApiClient,
   exportElectionPackage,
   getExportedFile,
-  MockFileStorageClient,
+  type MockFileStorageClient,
   testSetupHelpers,
 } from '../test/helpers.js';
-import { Workspace } from './workspace.js';
+import type { Workspace } from './workspace.js';
 import {
   jurisdictions,
   nonVxJurisdiction,

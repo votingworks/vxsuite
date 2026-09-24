@@ -7,16 +7,16 @@ import {
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
-  SummaryBallotPageMetadata,
-  BallotPageLayout,
-  BallotStyleId,
+  type SummaryBallotPageMetadata,
+  type BallotPageLayout,
+  type BallotStyleId,
   BallotType,
-  ImageData,
-  PageInterpretationWithFiles,
-  RgbaImageData,
-  SheetOf,
+  type ImageData,
+  type PageInterpretationWithFiles,
+  type RgbaImageData,
+  type SheetOf,
   TEST_JURISDICTION,
-  VotesDict,
+  type VotesDict,
 } from '@votingworks/types';
 import { loadImageData, crop, toDataUrl } from '@votingworks/image-utils';
 import { Store } from '../store.js';

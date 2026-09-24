@@ -1,5 +1,10 @@
-import React, { forwardRef } from 'react';
-import { Id } from '@votingworks/types';
+import {
+  forwardRef,
+  type ForwardRefExoticComponent,
+  type ReactNode,
+  type RefAttributes,
+} from 'react';
+import type { Id } from '@votingworks/types';
 import { CheckboxButton } from '@votingworks/ui';
 import styled from 'styled-components';
 import { MarginalMarkFlag } from './marginal_mark_flag.js';
@@ -21,13 +26,13 @@ const StyledCheckboxButton = styled(CheckboxButton)<{
 `;
 
 interface Props {
-  option: { id: Id; label: React.ReactNode };
+  option: { id: Id; label: ReactNode };
   isSelected: boolean;
   marginalMarkStatus?: MarginalMarkStatus;
   onSelect: () => void;
   onDeselect?: () => void;
   onDismissFlag?: () => void;
-  caption?: React.ReactNode;
+  caption?: ReactNode;
   disabled?: boolean;
   isDerivedVote?: boolean;
 }
@@ -77,8 +82,6 @@ export const ContestOptionButton = forwardRef<HTMLDivElement, Props>(
       </div>
     );
   }
-) as React.ForwardRefExoticComponent<
-  Props & React.RefAttributes<HTMLDivElement>
->;
+) as ForwardRefExoticComponent<Props & RefAttributes<HTMLDivElement>>;
 
 ContestOptionButton.displayName = 'ContestOptionButton';

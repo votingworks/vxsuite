@@ -16,12 +16,12 @@ import {
 import { testCdfBallotDefinition, testVxfElection } from './fixtures.js';
 import {
   ElectionStringKey,
-  UiStringsPackage,
+  type UiStringsPackage,
   mergeUiStrings,
 } from '../../index.js';
-import * as Cdf from './index.js';
-import * as Vxf from '../../election.js';
-import { Outset } from '../../geometry.js';
+import type * as Cdf from './index.js';
+import type * as Vxf from '../../election.js';
+import type { Outset } from '../../geometry.js';
 import {
   ballotPositionsFromGridPositions,
   type FlatGridPosition,

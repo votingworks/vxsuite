@@ -1,7 +1,7 @@
-import { Result, ok, resultBlock } from '@votingworks/basics';
-import { Buffer } from 'node:buffer';
+import { type Result, ok, resultBlock } from '@votingworks/basics';
+import type { Buffer } from 'node:buffer';
 import { MAX_UINT24, MIN_UINT24 } from './constants.js';
-import {
+import type {
   BitOffset,
   Coder,
   CoderError,

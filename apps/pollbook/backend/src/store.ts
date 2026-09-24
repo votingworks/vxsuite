@@ -1,35 +1,38 @@
-import { Client as DbClient } from '@votingworks/db';
+import type { Client as DbClient } from '@votingworks/db';
 // import { Iso8601Timestamp } from '@votingworks/types';
 import { join } from 'node:path';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
-  Election,
-  ElectionDefinition,
+  type Election,
+  type ElectionDefinition,
   safeParseElection,
   safeParseJson,
-  ValidStreetInfo,
+  type ValidStreetInfo,
   ValidStreetInfoSchema,
-  Voter,
+  type Voter,
   VoterSchema,
 } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
-import { BaseLogger, LogEventId } from '@votingworks/logging';
+import { type BaseLogger, LogEventId } from '@votingworks/logging';
 import { rootDebug } from './debug.js';
 import {
-  PollbookEvent,
-  EventDbRow,
+  type PollbookEvent,
+  type EventDbRow,
   EventType,
   PollbookConnectionStatus,
-  PollbookConfigurationInformation,
-  ConfigurationError,
-  ConfigurationStatus,
-  Anomaly,
-  AnomalyDbRow,
-  AnomalyType,
-  AnomalyDetailsDb,
-  DuplicateCheckInDetailsDb,
+  type PollbookConfigurationInformation,
+  type ConfigurationError,
+  type ConfigurationStatus,
+  type Anomaly,
+  type AnomalyDbRow,
+  type AnomalyType,
+  type AnomalyDetailsDb,
+  type DuplicateCheckInDetailsDb,
 } from './types.js';
-import { HlcTimestamp, HybridLogicalClock } from './hybrid_logical_clock.js';
+import {
+  type HlcTimestamp,
+  HybridLogicalClock,
+} from './hybrid_logical_clock.js';
 import {
   applyPollbookEventsToVoters,
   convertDbRowsToPollbookEvents,

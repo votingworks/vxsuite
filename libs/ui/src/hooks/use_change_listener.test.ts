@@ -1,6 +1,6 @@
 import { describe, test } from 'vitest';
 import { mockFunction } from '@votingworks/test-utils';
-import { UseQueryResult } from '@tanstack/react-query';
+import type { UseQueryResult } from '@tanstack/react-query';
 import {
   useExternalStateChangeListener,
   useQueryChangeListener,

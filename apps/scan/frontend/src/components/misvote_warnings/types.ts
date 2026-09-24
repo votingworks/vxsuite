@@ -1,4 +1,4 @@
-import { Contest } from '@votingworks/types';
+import type { Contest } from '@votingworks/types';
 
 export interface MisvoteWarningsProps {
   blankContests: readonly Contest[];

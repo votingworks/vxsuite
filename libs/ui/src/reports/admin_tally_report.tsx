@@ -1,4 +1,4 @@
-import {
+import type {
   Admin,
   Contest,
   ElectionDefinition,
@@ -15,7 +15,7 @@ import { LogoMark } from '../logo_mark.js';
 import { ContestResultsTable } from './contest_results_table.js';
 import { TallyReportCardCounts } from './tally_report_card_counts.js';
 import { CustomFilterSummary } from './custom_filter_summary.js';
-import { LabeledScannerBatch, prefixedTitle } from './utils.js';
+import { type LabeledScannerBatch, prefixedTitle } from './utils.js';
 import { CertificationSignatures } from './certification_signatures.js';
 import {
   ReportHeader,

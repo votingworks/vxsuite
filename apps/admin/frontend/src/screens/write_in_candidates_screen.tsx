@@ -1,10 +1,10 @@
 import React, { useContext, useState } from 'react';
 import styled, { css } from 'styled-components';
 import {
-  CandidateContest,
-  ContestId,
+  type CandidateContest,
+  type ContestId,
   getContestDistrictName,
-  Id,
+  type Id,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import { Button, Callout, Modal, P, useCurrentTheme } from '@votingworks/ui';

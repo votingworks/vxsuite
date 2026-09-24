@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { ok } from '@votingworks/basics';
-import { VotesDict } from '@votingworks/types';
+import type { VotesDict } from '@votingworks/types';
 import {
   renderToPdf,
   SummaryBallotLayoutRenderer,

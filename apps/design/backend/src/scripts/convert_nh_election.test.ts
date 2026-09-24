@@ -1,14 +1,17 @@
 /* eslint-disable vx/gts-identifiers */
 import { expect, test } from 'vitest';
 import {
-  CandidateContest,
+  type CandidateContest,
   getContests,
   getOrderedCandidatesForContestInBallotStyle,
   HmpbBallotPaperSize,
   safeParseElection,
 } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
-import { convertNhElection, NhBallotStyle } from './convert_nh_election.js';
+import {
+  convertNhElection,
+  type NhBallotStyle,
+} from './convert_nh_election.js';
 
 const testSignatureImage = '<svg><text>Test Signature</text></svg>';
 

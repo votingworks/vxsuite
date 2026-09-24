@@ -6,15 +6,15 @@ import {
   makeTemporaryFile,
 } from '@votingworks/fixtures';
 import {
-  BallotStyleGroupId,
+  type BallotStyleGroupId,
   DEFAULT_SYSTEM_SETTINGS,
   formatBallotHash,
-  Tabulation,
+  type Tabulation,
 } from '@votingworks/types';
 import { find } from '@votingworks/basics';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import {
-  MockCastVoteRecordFile,
+  type MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../../test/mock_cvr_file.js';
 import { iterableToString, mockFileName, parseCsv } from '../../test/csv.js';

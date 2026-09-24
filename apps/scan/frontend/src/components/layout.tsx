@@ -5,7 +5,7 @@ import {
   InfoBar,
   ElectionInfo,
   SystemInfo,
-  InfoBarMode,
+  type InfoBarMode,
   H1,
   Icons,
   LanguageSettingsButton,
@@ -16,11 +16,11 @@ import {
   VoterSettings,
   Button,
   appStrings,
-  ElectionInfoBarProps,
+  type ElectionInfoBarProps,
   FocusableAudio,
 } from '@votingworks/ui';
-import styled, { DefaultTheme, ThemeContext } from 'styled-components';
-import { SizeMode } from '@votingworks/types';
+import styled, { type DefaultTheme, ThemeContext } from 'styled-components';
+import type { SizeMode } from '@votingworks/types';
 import { getConfig, getMachineConfig, getScannerStatus } from '../api.js';
 import { ScannedBallotCount } from './scanned_ballot_count.js';
 import { VoterHelpScreen } from './voter_help_screen.js';

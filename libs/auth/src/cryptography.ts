@@ -1,18 +1,18 @@
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs/promises';
 import path from 'node:path';
-import { Readable, Stream } from 'node:stream';
-import { FileResult, fileSync } from 'tmp';
+import { Readable, type Stream } from 'node:stream';
+import { type FileResult, fileSync } from 'tmp';
 import { z } from 'zod/v4';
 import { unsafeParse } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import {
-  FileKey,
+  type FileKey,
   FileKeySchema,
-  InlineKey,
+  type InlineKey,
   InlineKeySchema,
   opensslKeyParams,
-  TpmKey,
+  type TpmKey,
   TpmKeySchema,
 } from './keys.js';
 import { runCommand } from './shell.js';

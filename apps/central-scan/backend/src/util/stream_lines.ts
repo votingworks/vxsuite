@@ -1,4 +1,4 @@
-import { Readable } from 'node:stream';
+import type { Readable } from 'node:stream';
 import { Lines } from './lines.js';
 
 export class StreamLines extends Lines {

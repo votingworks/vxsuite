@@ -1,7 +1,7 @@
 import { assert } from '../assert.js';
-import { Optional } from '../types.js';
+import type { Optional } from '../types.js';
 import { AsyncIteratorPlusImpl } from './async_iterator_plus.js';
-import {
+import type {
   AsyncIteratorPlus,
   IteratorPlus,
   Chunk,

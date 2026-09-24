@@ -8,7 +8,7 @@ import {
   AudioEditorExitLink,
   AudioEditorPanel,
 } from './ballot_audio/audio_editor_panel.js';
-import { BallotAudioPathParams } from './ballot_audio/routes.js';
+import type { BallotAudioPathParams } from './ballot_audio/routes.js';
 import { routes } from './routes.js';
 import * as api from './api.js';
 

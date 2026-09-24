@@ -1,13 +1,19 @@
 import { ScanOptions, scanGrayscale } from 'zedbar';
-import { decode as quircDecode, QRCode } from 'node-quirc';
+import { decode as quircDecode, type QRCode } from 'node-quirc';
 import { isVxBallot } from '@votingworks/ballot-encoder';
 import { RGBA_CHANNEL_COUNT, crop } from '@votingworks/image-utils';
-import { Rect, RgbaImageData, Size } from '@votingworks/types';
+import type { Rect, RgbaImageData, Size } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import makeDebug from 'debug';
-import { Optional, Result, err, ok, assertDefined } from '@votingworks/basics';
-import { DetectedQrCode } from '../types.js';
-import { stats, Stats } from './luminosity.js';
+import {
+  type Optional,
+  type Result,
+  err,
+  ok,
+  assertDefined,
+} from '@votingworks/basics';
+import type { DetectedQrCode } from '../types.js';
+import { stats, type Stats } from './luminosity.js';
 
 const debug = makeDebug('ballot-interpreter:bmd:qrcode');
 

@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import {
+import type {
   Contest,
   BallotStyle,
   Election,
@@ -16,7 +16,7 @@ import {
   pollingPlaceBallotStyles,
   pollingPlaceContests,
   pollingPlaceFromElection,
-  PollingPlaceGroups,
+  type PollingPlaceGroups,
   pollingPlaceGroups,
   pollingPlaceMembers,
   pollingPlacePrecinctIds,

@@ -1,17 +1,17 @@
 import * as grout from '@votingworks/grout';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, type Logger } from '@votingworks/logging';
 import {
-  ElectionPackageConfigurationError,
+  type ElectionPackageConfigurationError,
   DEFAULT_SYSTEM_SETTINGS,
-  DiagnosticRecord,
-  DiagnosticOutcome,
+  type DiagnosticRecord,
+  type DiagnosticOutcome,
   doesPollsStateSupportLiveReporting,
-  BallotCastingMode,
+  type BallotCastingMode,
   pollingPlaceFromElection,
-  InsertedSmartCardAuth,
+  type InsertedSmartCardAuth,
 } from '@votingworks/types';
 import { isElectionManagerAuth } from '@votingworks/utils';
-import express, { Application } from 'express';
+import express, { type Application } from 'express';
 import {
   createUiStringsApi,
   createSystemCallApi,
@@ -20,39 +20,45 @@ import {
   configureUiStrings,
   configureUiStringAudioClipsStreaming,
   Exporter,
-  ExportDataResult,
+  type ExportDataResult,
   withElectionPackageZip,
   getScanAllowedExportPatterns,
 } from '@votingworks/backend';
-import { assert, assertDefined, err, ok, Result } from '@votingworks/basics';
 import {
-  InsertedSmartCardAuthApi,
+  assert,
+  assertDefined,
+  err,
+  ok,
+  type Result,
+} from '@votingworks/basics';
+import {
+  type InsertedSmartCardAuthApi,
   generateRandomAes256Key,
   generateSignedHashValidationQrCodeValue,
   generateSignedQuickResultsReportingUrl,
 } from '@votingworks/auth';
-import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
-import {
+import type { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
+import type {
   FujitsuThermalPrinterInterface,
   PrinterStatus,
   PrintResult,
 } from '@votingworks/fujitsu-thermal-printer';
-import {
+import type {
   PrecinctScannerStateMachine,
   PrecinctScannerConfig,
   PrecinctScannerStatus,
   PrecinctScannerPollsInfo,
 } from './types.js';
 import { constructAuthMachineState } from './util/auth.js';
-import { Workspace } from './util/workspace.js';
+import type { Workspace } from './util/workspace.js';
 import { getMachineConfig } from './machine_config.js';
 import {
   exportCastVoteRecordsToUsbDrive,
-  ExportCastVoteRecordsToUsbDriveResult,
+  type ExportCastVoteRecordsToUsbDriveResult,
 } from './export.js';
 import {
   openPolls,
-  OpenPollsResult,
+  type OpenPollsResult,
   closePolls,
   pauseVoting,
   resumeVoting,
@@ -69,7 +75,7 @@ import {
   testPrintFailureDiagnosticMessage,
 } from './util/diagnostics.js';
 import { saveReadinessReport } from './printing/readiness_report.js';
-import { AudioPlayerInterface, SoundName } from './audio/audio.js';
+import type { AudioPlayerInterface, SoundName } from './audio/audio.js';
 import { getScannerResultsByPrecinctMemoized } from './util/results.js';
 
 export const BALLOT_AUDIT_ID_FILE_NAME = 'ballot-audit-id-secret-key.txt';

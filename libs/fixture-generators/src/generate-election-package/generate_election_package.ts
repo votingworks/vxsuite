@@ -1,7 +1,7 @@
 import * as tmp from 'tmp';
 import {
   getAllStringsForElectionPackage,
-  ParsedElectionPackage,
+  type ParsedElectionPackage,
 } from '@votingworks/backend';
 import {
   allBaseBallotProps,
@@ -12,9 +12,9 @@ import {
 } from '@votingworks/hmpb';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  Election,
+  type Election,
   ElectionPackageFileName,
-  ElectionPackageMetadata,
+  type ElectionPackageMetadata,
   getBallotLanguageConfigs,
   LanguageCode,
   LATEST_METADATA,

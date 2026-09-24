@@ -1,11 +1,11 @@
 import { assertDefined, iter } from '@votingworks/basics';
 import {
-  CandidateContest,
-  Election,
+  type CandidateContest,
+  type Election,
   straightPartyNotYetImplemented,
-  Vote,
-  VotesDict,
-  YesNoContest,
+  type Vote,
+  type VotesDict,
+  type YesNoContest,
 } from '@votingworks/types';
 
 // @coverage-defer

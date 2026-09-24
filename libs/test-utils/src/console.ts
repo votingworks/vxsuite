@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { MaybePromise, Optional } from '@votingworks/basics';
+import type { MaybePromise, Optional } from '@votingworks/basics';
 
 /**
  * Suppresses console output during the execution of a function. Resolves to the

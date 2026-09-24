@@ -1,19 +1,19 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { useContext, useState } from 'react';
 import userEvent from '@testing-library/user-event';
-import { Result, deferred, err, ok } from '@votingworks/basics';
+import { type Result, deferred, err, ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import {
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { DippedSmartCardAuth } from '@votingworks/types';
+import type { DippedSmartCardAuth } from '@votingworks/types';
 import type { ExportDataError } from '@votingworks/admin-backend';
 import { act, screen, within } from '../../test/react_testing_library.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { ExportElectionPackageModalButton } from './export_election_package_modal_button.js';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import { type ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
 import { AppContext } from '../contexts/app_context.js';
 
 let apiMock: ApiMock;

@@ -1,14 +1,14 @@
 import { BrowserRouter } from 'react-router-dom';
 
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { QueryClient } from '@tanstack/react-query';
+import type { QueryClient } from '@tanstack/react-query';
 import {
   AppErrorBoundary,
   LowDiskSpaceWarning,
   VisualModeDisabledOverlay,
 } from '@votingworks/ui';
 import { AppRoot } from './app_root.js';
-import { ApiClient, createApiClient, createQueryClient } from './api.js';
+import { type ApiClient, createApiClient, createQueryClient } from './api.js';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker.js';
 import { ApiProvider } from './api_provider.js';
 import { MarkAppBase } from './mark_app_base.js';

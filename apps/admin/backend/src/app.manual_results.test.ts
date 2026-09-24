@@ -4,7 +4,11 @@ import {
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 
-import { BallotStyleGroupId, PrecinctId, Tabulation } from '@votingworks/types';
+import type {
+  BallotStyleGroupId,
+  PrecinctId,
+  Tabulation,
+} from '@votingworks/types';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
@@ -14,7 +18,7 @@ import {
   configureMachine,
   mockElectionManagerAuth,
 } from '../test/app.js';
-import { ManualResultsIdentifier } from './types.js';
+import type { ManualResultsIdentifier } from './types.js';
 
 beforeEach(() => {
   vi.clearAllMocks();

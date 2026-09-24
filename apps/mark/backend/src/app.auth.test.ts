@@ -5,9 +5,9 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   constructElectionKey,
-  SystemSettings,
+  type SystemSettings,
   TEST_JURISDICTION,
-  SignedHashValidationQrCodeValue,
+  type SignedHashValidationQrCodeValue,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -15,7 +15,7 @@ import {
 } from '@votingworks/utils';
 import {
   generateSignedHashValidationQrCodeValue,
-  InsertedSmartCardAuthMachineState,
+  type InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
 import { LogEventId } from '@votingworks/logging';
 import { configureApp, createApp } from '../test/app_helpers.js';

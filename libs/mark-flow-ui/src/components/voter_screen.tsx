@@ -1,7 +1,7 @@
 // @coverage-exclude-file: presentational component
 
 import React from 'react';
-import styled, { DefaultTheme } from 'styled-components';
+import styled, { type DefaultTheme } from 'styled-components';
 
 import {
   FocusableAudio,
@@ -12,7 +12,7 @@ import {
   VoterHelpButton,
   VoterSettings,
 } from '@votingworks/ui';
-import { SizeMode } from '@votingworks/types';
+import type { SizeMode } from '@votingworks/types';
 
 import { assert } from '@votingworks/basics';
 import { VoterSettingsButton } from './voter_settings_button.js';

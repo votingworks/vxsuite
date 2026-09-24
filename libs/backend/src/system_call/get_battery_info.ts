@@ -1,5 +1,5 @@
 import { lines } from '@votingworks/basics';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, type Logger } from '@votingworks/logging';
 import { safeParseNumber } from '@votingworks/types';
 import { createReadStream } from 'node:fs';
 

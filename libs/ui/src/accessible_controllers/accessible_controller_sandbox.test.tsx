@@ -1,12 +1,12 @@
 import { beforeAll, expect, test, vi } from 'vitest';
 import { mockUseAudioControls } from '@votingworks/test-utils';
-import React from 'react';
+import type React from 'react';
 import { assert } from '@votingworks/basics';
 import { simulateKeyPress as baseSimulateKeyPress } from './test_utils.js';
 import { UiString } from '../ui_strings/ui_string.js';
 import {
-  AccessibleControllerHelpStrings,
-  AccessibleControllerIllustrationProps,
+  type AccessibleControllerHelpStrings,
+  type AccessibleControllerIllustrationProps,
   AccessibleControllerSandbox,
 } from './accessible_controller_sandbox.js';
 import { act, screen } from '../../test/react_testing_library.js';

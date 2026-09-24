@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { OverallSessionTimeLimitHours } from '@votingworks/types';
+import type { OverallSessionTimeLimitHours } from '@votingworks/types';
 
 /**
  * Config params for sessions

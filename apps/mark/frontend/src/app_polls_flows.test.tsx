@@ -5,7 +5,10 @@ import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { anyPollingPlace } from '@votingworks/types';
 import { screen, within } from '../test/react_testing_library.js';
 import { buildApp } from '../test/helpers/build_app.js';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../test/helpers/mock_api_client.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const pollingPlace = anyPollingPlace(electionGeneralDefinition.election);

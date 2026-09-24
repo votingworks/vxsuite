@@ -1,9 +1,9 @@
-import { Result, resultBlock } from '@votingworks/basics';
-import { Buffer } from 'node:buffer';
+import { type Result, resultBlock } from '@votingworks/basics';
+import type { Buffer } from 'node:buffer';
 import { BaseCoder } from './base_coder.js';
 import { LiteralCoder } from './literal_coder.js';
 import { PaddingCoder } from './padding_coder.js';
-import {
+import type {
   BitLength,
   BitOffset,
   Coder,

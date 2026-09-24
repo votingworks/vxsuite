@@ -7,7 +7,7 @@ import {
 } from '@votingworks/fixtures';
 import { renderBmdBallotFixture } from '@votingworks/bmd-ballot-fixtures';
 import {
-  QrCodePageResult,
+  type QrCodePageResult,
   detectInBallot,
   getSearchAreas,
   unwrapVxPayload,

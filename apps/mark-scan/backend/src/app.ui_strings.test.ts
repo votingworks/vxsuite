@@ -15,11 +15,11 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
+import { type MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { mockBaseLogger } from '@votingworks/logging';
 import { Store } from './store.js';
-import { createWorkspace, Workspace } from './util/workspace.js';
-import { Api, buildApi } from './app.js';
+import { createWorkspace, type Workspace } from './util/workspace.js';
+import { type Api, buildApi } from './app.js';
 import { buildMockLogger } from '../test/app_helpers.js';
 import { mockElectionManagerAuth } from '../test/auth_helpers.js';
 

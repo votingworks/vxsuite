@@ -1,9 +1,9 @@
 import * as grout from '@votingworks/grout';
-import express, { Application } from 'express';
+import express, { type Application } from 'express';
 import { join } from 'node:path';
-import { Result } from '@votingworks/basics';
+import type { Result } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
-import {
+import type {
   PollbookEvent,
   PeerAppContext,
   ConfigurationError,

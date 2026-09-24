@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, test } from 'vitest';
-import { Id } from '@votingworks/types';
+import type { Id } from '@votingworks/types';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { assertDefined, err } from '@votingworks/basics';
-import { Store } from '../src/store.js';
+import type { Store } from '../src/store.js';
 import { importCastVoteRecords } from '../src/cast_vote_records.js';
 import { DEFAULT_CVR_COUNT, openPerfStore } from './seed.js';
 import { benchmarkRegressionTest } from './benchmarking.js';

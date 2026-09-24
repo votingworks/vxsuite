@@ -1,20 +1,20 @@
 import { expect, vi } from 'vitest';
 import {
   buildMockInsertedSmartCardAuth,
-  InsertedSmartCardAuthApi,
+  type InsertedSmartCardAuthApi,
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
-import { Application } from 'express';
-import { AddressInfo } from 'node:net';
+import type { Application } from 'express';
+import type { AddressInfo } from 'node:net';
 import {
   mockLogger,
   LogSource,
-  Logger,
+  type Logger,
   mockBaseLogger,
 } from '@votingworks/logging';
 import tmp from 'tmp';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
-import { Server } from 'node:http';
+import type { Server } from 'node:http';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   mockElectionManagerUser,
@@ -24,21 +24,21 @@ import {
 import {
   DEFAULT_SYSTEM_SETTINGS,
   constructElectionKey,
-  SystemSettings,
+  type SystemSettings,
   TEST_JURISDICTION,
-  Election,
+  type Election,
 } from '@votingworks/types';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { assert, ok } from '@votingworks/basics';
-import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
+import { createMockUsbDrive, type MockUsbDrive } from '@votingworks/usb-drive';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
-import { Api, buildApp } from '../src/app.js';
-import { createWorkspace, Workspace } from '../src/util/workspace.js';
+import { type Api, buildApp } from '../src/app.js';
+import { createWorkspace, type Workspace } from '../src/util/workspace.js';
 import {
   getPaperHandlerStateMachine,
-  PaperHandlerStateMachine,
+  type PaperHandlerStateMachine,
 } from '../src/custom-paper-handler/index.js';
-import { PatConnectionStatusReaderInterface } from '../src/pat-input/connection_status_reader.js';
+import type { PatConnectionStatusReaderInterface } from '../src/pat-input/connection_status_reader.js';
 import { getUserRole } from '../src/util/auth.js';
 import { MockPatConnectionStatusReader } from '../src/pat-input/mock_connection_status_reader.js';
 

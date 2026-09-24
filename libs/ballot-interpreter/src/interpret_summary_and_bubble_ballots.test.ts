@@ -2,12 +2,12 @@ import { expect, test } from 'vitest';
 import { renderBmdBallotFixture } from '@votingworks/bmd-ballot-fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import {
-  CandidateContest,
+  type CandidateContest,
   DEFAULT_MARK_THRESHOLDS,
-  ElectionDefinition,
-  InterpretedHmpbPage,
-  PageInterpretation,
-  VotesDict,
+  type ElectionDefinition,
+  type InterpretedHmpbPage,
+  type PageInterpretation,
+  type VotesDict,
   asSheet,
 } from '@votingworks/types';
 import { CachedElectionLookups } from '@votingworks/utils';

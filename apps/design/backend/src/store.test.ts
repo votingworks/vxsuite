@@ -2,12 +2,12 @@ import { afterAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { assert, assertDefined, err, ok, sleep } from '@votingworks/basics';
 
 import {
-  CandidateContest,
-  Election,
-  ElectionDefinition,
+  type CandidateContest,
+  type Election,
+  type ElectionDefinition,
   LanguageCode,
   LATEST_SOFTWARE_VERSION,
-  TtsEditKey,
+  type TtsEditKey,
 } from '@votingworks/types';
 import { createHash } from 'node:crypto';
 import * as types from '@votingworks/types';
@@ -20,7 +20,7 @@ import {
   allBaseBallotProps,
   renderAllBallotPdfsAndCreateElectionDefinition,
 } from '@votingworks/hmpb';
-import {
+import type {
   MainExportTaskMetadata,
   Store,
   TaskName,

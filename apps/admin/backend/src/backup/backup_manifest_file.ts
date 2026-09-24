@@ -1,5 +1,5 @@
-import { readFile, ReadFileError } from '@votingworks/fs';
-import { err, extractErrorMessage, ok, Result } from '@votingworks/basics';
+import { readFile, type ReadFileError } from '@votingworks/fs';
+import { err, extractErrorMessage, ok, type Result } from '@votingworks/basics';
 import { safeParse, safeParseJson } from '@votingworks/types';
 import {
   BACKUP_MANIFEST_VERSION,

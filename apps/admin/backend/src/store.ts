@@ -3,8 +3,8 @@
 //
 
 import {
-  Optional,
-  Result,
+  type Optional,
+  type Result,
   err,
   ok,
   typedAs,
@@ -16,48 +16,48 @@ import {
   deepEqual,
 } from '@votingworks/basics';
 import {
-  BackupError,
-  Bindable,
+  type BackupError,
+  type Bindable,
   Client as DbClient,
-  Statement,
+  type Statement,
 } from '@votingworks/db';
 import {
   AdjudicationReason,
-  Contest,
-  BallotId,
-  BallotPageLayout,
+  type Contest,
+  type BallotId,
+  type BallotPageLayout,
   BallotPageLayoutSchema,
-  ContestId,
-  ContestOptionId,
-  DiagnosticRecord,
-  DistrictId,
-  Election,
-  Id,
-  Iso8601Timestamp,
-  Precinct,
-  PrecinctId,
+  type ContestId,
+  type ContestOptionId,
+  type DiagnosticRecord,
+  type DistrictId,
+  type Election,
+  type Id,
+  type Iso8601Timestamp,
+  type Precinct,
+  type PrecinctId,
   safeParse,
   safeParseElectionDefinition,
   safeParseJson,
-  Side,
-  SystemSettings,
+  type Side,
+  type SystemSettings,
   safeParseSystemSettings,
   Tabulation,
   Admin,
-  BallotType,
-  DiagnosticType,
-  ElectionKey,
+  type BallotType,
+  type DiagnosticType,
+  type ElectionKey,
   constructElectionKey,
-  BallotStyleGroupId,
-  BallotStyleGroup,
+  type BallotStyleGroupId,
+  type BallotStyleGroup,
   getContests,
-  SheetOf,
-  ElectionId,
-  ElectionRegisteredVoterCounts,
+  type SheetOf,
+  type ElectionId,
+  type ElectionRegisteredVoterCounts,
   ElectionRegisteredVoterCountsSchema,
-  UserRole,
+  type UserRole,
   isCombinedBallotPrimary,
-  PartyId,
+  type PartyId,
 } from '@votingworks/types';
 import {
   mkdirSync,
@@ -68,7 +68,7 @@ import {
 } from 'node:fs';
 import { copyFile, mkdir, rm } from 'node:fs/promises';
 import { dirname, join, sep } from 'node:path';
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 import { createHash, randomUUID as uuid } from 'node:crypto';
 import {
   allContestOptions,
@@ -80,56 +80,56 @@ import {
   getOfficialCandidateNameLookup,
   inferPartyFromVotes,
   partisanContests,
-  SqliteBool,
+  type SqliteBool,
 } from '@votingworks/utils';
 import {
   addDiagnosticRecord,
   getMostRecentDiagnosticRecord,
 } from '@votingworks/backend';
-import { BaseLogger } from '@votingworks/logging';
+import type { BaseLogger } from '@votingworks/logging';
 import { emptyDir } from 'fs-extra';
 import {
-  CastVoteRecordFileRecord,
+  type CastVoteRecordFileRecord,
   CastVoteRecordFileRecordSchema,
-  CvrFileMode,
-  ElectionRecord,
-  ManualResultsIdentifier,
-  ManualResultsMetadataRecord,
-  ManualResultsRecord,
-  ScannerBatch,
-  QualifiedWriteInCandidateRecord,
-  WriteInCandidateRecord,
-  WriteInRecord,
-  WriteInRecordAdjudicatedInvalid,
-  WriteInRecordAdjudicatedOfficialCandidate,
-  WriteInRecordAdjudicatedWriteInCandidate,
-  WriteInRecordPending,
-  ManualResultsFilter,
-  CardTally,
-  CastVoteRecordVoteInfo,
-  WriteInAdjudicationActionOfficialCandidate,
-  WriteInAdjudicationActionInvalid,
-  WriteInAdjudicationActionWriteInCandidate,
-  CastVoteRecordAdjudicationFlags,
-  CvrTag,
-  WriteInForTally,
-  BaseStore,
-  MachineRecord,
-  NetworkedMachineRole,
-  RegistrationErrorType,
-  BallotAdjudicationQueueMetadata,
-  BallotAdjudicationData,
-  ContestAdjudicationData,
-  ContestOptionAdjudicationData,
-  AdjudicatedCvrContest,
-  AdjudicationError,
+  type CvrFileMode,
+  type ElectionRecord,
+  type ManualResultsIdentifier,
+  type ManualResultsMetadataRecord,
+  type ManualResultsRecord,
+  type ScannerBatch,
+  type QualifiedWriteInCandidateRecord,
+  type WriteInCandidateRecord,
+  type WriteInRecord,
+  type WriteInRecordAdjudicatedInvalid,
+  type WriteInRecordAdjudicatedOfficialCandidate,
+  type WriteInRecordAdjudicatedWriteInCandidate,
+  type WriteInRecordPending,
+  type ManualResultsFilter,
+  type CardTally,
+  type CastVoteRecordVoteInfo,
+  type WriteInAdjudicationActionOfficialCandidate,
+  type WriteInAdjudicationActionInvalid,
+  type WriteInAdjudicationActionWriteInCandidate,
+  type CastVoteRecordAdjudicationFlags,
+  type CvrTag,
+  type WriteInForTally,
+  type BaseStore,
+  type MachineRecord,
+  type NetworkedMachineRole,
+  type RegistrationErrorType,
+  type BallotAdjudicationQueueMetadata,
+  type BallotAdjudicationData,
+  type ContestAdjudicationData,
+  type ContestOptionAdjudicationData,
+  type AdjudicatedCvrContest,
+  type AdjudicationError,
 } from './types.js';
 import { buildAdjudicatedContestOption } from './adjudication.js';
 import { deriveCvrContestTag } from './util/cast_vote_records.js';
 import { rootDebug } from './util/debug.js';
 import { getCurrentTime } from './get_current_time.js';
 import { STALE_MACHINE_THRESHOLD_MS } from './globals.js';
-import { type ElectionMetadata } from './backup/backup_manifest.js';
+import type { ElectionMetadata } from './backup/backup_manifest.js';
 
 const debug = rootDebug.extend('store');
 

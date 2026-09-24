@@ -20,11 +20,11 @@ import {
 } from '@votingworks/ui';
 import { getPollsReportTitle } from '@votingworks/utils';
 import {
-  ElectionDefinition,
+  type ElectionDefinition,
   doesPollsStateSupportLiveReporting,
-  PollsTransitionType,
+  type PollsTransitionType,
 } from '@votingworks/types';
-import { Optional, assert, throwIllegalValue } from '@votingworks/basics';
+import { type Optional, assert, throwIllegalValue } from '@votingworks/basics';
 import styled from 'styled-components';
 import type { PrecinctScannerPollsInfo } from '@votingworks/scan-backend';
 import type { PrintResult } from '@votingworks/fujitsu-thermal-printer';
@@ -44,7 +44,7 @@ import {
 } from '../api.js';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout.js';
 import {
-  PollsFlowPrinterSummary,
+  type PollsFlowPrinterSummary,
   getPollsFlowPrinterSummary,
 } from '../utils/printer.js';
 import { PostPrintScreen } from './poll_worker_post_print_screen.js';

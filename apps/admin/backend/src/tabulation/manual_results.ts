@@ -1,17 +1,28 @@
-import { Admin, Election, Id, Tabulation } from '@votingworks/types';
 import {
-  BallotStyleIdPartyIdLookup,
+  type Admin,
+  type Election,
+  type Id,
+  Tabulation,
+} from '@votingworks/types';
+import {
+  type BallotStyleIdPartyIdLookup,
   combineManualElectionResults,
   getBallotStyleIdPartyIdLookup,
   getGroupKey,
 } from '@votingworks/utils';
-import { Result, assert, assertDefined, err, ok } from '@votingworks/basics';
 import {
+  type Result,
+  assert,
+  assertDefined,
+  err,
+  ok,
+} from '@votingworks/basics';
+import type {
   ManualResultsFilter,
   ManualResultsIdentifier,
   ManualResultsRecord,
 } from '../types.js';
-import { Store } from '../store.js';
+import type { Store } from '../store.js';
 
 function getManualResultsGroupSpecifier(
   manualResultsIdentifier: ManualResultsIdentifier,

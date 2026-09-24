@@ -1,4 +1,4 @@
-import { Optional } from '@votingworks/basics';
+import type { Optional } from '@votingworks/basics';
 
 type MaybeAsyncIterable<T> = Iterable<T> | AsyncIterable<T>;
 

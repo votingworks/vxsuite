@@ -1,12 +1,12 @@
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   assert,
   assertDefined,
   extractErrorMessage,
-  Result,
+  type Result,
 } from '@votingworks/basics';
-import { Logger, LogEventId, LogLine } from '@votingworks/logging';
-import {
+import { type Logger, LogEventId, type LogLine } from '@votingworks/logging';
+import type {
   ScannerClient,
   ScannerError,
   ScannerEvent,
@@ -14,33 +14,33 @@ import {
 } from '@votingworks/pdi-scanner';
 import {
   DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
-  ExportCastVoteRecordsToUsbDriveError,
+  type ExportCastVoteRecordsToUsbDriveError,
   HmpbBallotPaperSize,
-  InsertedSmartCardAuth,
-  PrecinctScannerState,
+  type InsertedSmartCardAuth,
+  type PrecinctScannerState,
   PrecinctScannerError,
-  PrecinctScannerMachineStatus,
-  SheetInterpretation,
-  SheetOf,
+  type PrecinctScannerMachineStatus,
+  type SheetInterpretation,
+  type SheetOf,
   ballotPaperDimensions,
   mapSheet,
   pollingPlacePrecinctIds,
   pollingPlaceFromElection,
-  Election,
-  GrayImageData,
+  type Election,
+  type GrayImageData,
 } from '@votingworks/types';
-import { UsbDrive } from '@votingworks/usb-drive';
-import { time, Timer } from '@votingworks/utils';
+import type { UsbDrive } from '@votingworks/usb-drive';
+import { time, type Timer } from '@votingworks/utils';
 import { exportCastVoteRecordsToUsbDrive } from '@votingworks/backend';
 import { ImageData } from 'canvas';
 import { randomUUID as uuid } from 'node:crypto';
 import {
-  ActorRef,
-  BaseActionObject,
-  EventObject,
-  Interpreter,
-  InvokeConfig,
-  StateNodeConfig,
+  type ActorRef,
+  type BaseActionObject,
+  type EventObject,
+  type Interpreter,
+  type InvokeConfig,
+  type StateNodeConfig,
   assign,
   createMachine,
   interpret as interpretStateMachine,
@@ -51,12 +51,15 @@ import type { Clock } from 'xstate/lib/interpreter.js';
 import { runBlankPaperDiagnosticFromImage } from '@votingworks/ballot-interpreter';
 import { isReadyToScan } from './app_flow.js';
 import { interpret } from './interpret.js';
-import { InterpretationResult, PrecinctScannerStateMachine } from './types.js';
+import type {
+  InterpretationResult,
+  PrecinctScannerStateMachine,
+} from './types.js';
 import { rootDebug } from './util/debug.js';
 import { getCurrentTime } from './util/get_current_time.js';
-import { Workspace } from './util/workspace.js';
+import type { Workspace } from './util/workspace.js';
 import { constructAuthMachineState } from './util/auth.js';
-import { Store } from './store.js';
+import type { Store } from './store.js';
 import { encryptBallotAuditId } from './export.js';
 
 const debug = rootDebug.extend('state-machine');

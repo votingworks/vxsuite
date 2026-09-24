@@ -1,4 +1,9 @@
-import React, { useCallback, useState } from 'react';
+import {
+  useCallback,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from 'react';
 import { ConfirmExitPatDeviceIdentificationPage } from './confirm_exit_pat_device_identification_page.js';
 import { PatDeviceIdentificationPage } from './pat_device_identification_page.js';
 
@@ -11,11 +16,11 @@ export interface PatDeviceCalibrationPageProps {
    * centerContent, hideMenuButtons, and actionButtons props.
    * In VxMarkScan, this is typically VoterScreen from @votingworks/mark-flow-ui.
    */
-  ScreenWrapper: React.ComponentType<{
-    children: React.ReactNode;
+  ScreenWrapper: ComponentType<{
+    children: ReactNode;
     centerContent?: boolean;
     hideMenuButtons?: boolean;
-    actionButtons?: React.ReactNode;
+    actionButtons?: ReactNode;
   }>;
 }
 

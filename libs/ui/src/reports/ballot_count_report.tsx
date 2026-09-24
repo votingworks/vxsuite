@@ -1,6 +1,10 @@
-import { Admin, ElectionDefinition, Tabulation } from '@votingworks/types';
 import {
-  Optional,
+  Admin,
+  type ElectionDefinition,
+  Tabulation,
+} from '@votingworks/types';
+import {
+  type Optional,
   assert,
   assertDefined,
   find,
@@ -27,7 +31,7 @@ import { CustomFilterSummary } from './custom_filter_summary.js';
 import {
   getBatchLabel,
   getScannerLabel,
-  LabeledScannerBatch,
+  type LabeledScannerBatch,
   prefixedTitle,
 } from './utils.js';
 import {

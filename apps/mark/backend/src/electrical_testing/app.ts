@@ -1,20 +1,20 @@
 import {
   createSystemCallApi,
   getCpuMetrics,
-  CpuMetrics,
+  type CpuMetrics,
 } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
-import {
+import type {
   PrinterStatus,
   SignedHashValidationQrCodeValue,
 } from '@votingworks/types';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
-import express, { Application } from 'express';
+import express, { type Application } from 'express';
 import { isBarcodeDeviceConnected } from './devices.js';
-import { ServerContext } from './context.js';
+import type { ServerContext } from './context.js';
 import { getMachineConfig } from '../machine_config.js';
 import { sendTestPrint } from './background.js';
-import { SoundName } from '../audio/player.js';
+import type { SoundName } from '../audio/player.js';
 
 export interface BarcodeStatus {
   connected: boolean;

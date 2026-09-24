@@ -1,10 +1,10 @@
 // allow multiple variants of `byteArray` within the same file
 /* eslint-disable max-classes-per-file */
 
-import { Result, err, resultBlock } from '@votingworks/basics';
-import { Buffer } from 'node:buffer';
+import { type Result, err, resultBlock } from '@votingworks/basics';
+import type { Buffer } from 'node:buffer';
 import { BaseCoder } from './base_coder.js';
-import { CoderError, EncodeResult, DecodeResult, Coder } from './types.js';
+import type { CoderError, EncodeResult, DecodeResult, Coder } from './types.js';
 import { BITS_PER_BYTE, toBitLength } from './bits.js';
 import { uint8 } from './uint8_coder.js';
 import { uint16 } from './uint16_coder.js';

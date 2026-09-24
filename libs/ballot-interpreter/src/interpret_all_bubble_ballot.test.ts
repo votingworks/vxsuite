@@ -1,14 +1,14 @@
 import { beforeAll, describe, expect, test } from 'vitest';
-import { assert, Optional } from '@votingworks/basics';
+import { assert, type Optional } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
 import { allBubbleBallotFixtures } from '@votingworks/hmpb';
 import {
   AdjudicationReason,
   asSheet,
-  Candidate,
-  CandidateVote,
+  type Candidate,
+  type CandidateVote,
   DEFAULT_MARK_THRESHOLDS,
-  ElectionDefinition,
+  type ElectionDefinition,
   HmpbBallotPaperSize,
 } from '@votingworks/types';
 import {

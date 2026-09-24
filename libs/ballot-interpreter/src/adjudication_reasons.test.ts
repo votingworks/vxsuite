@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'vitest';
 import {
   AdjudicationReason,
-  AdjudicationReasonInfo,
-  Contest,
-  CandidateContest,
-  ContestOptionId,
+  type AdjudicationReasonInfo,
+  type Contest,
+  type CandidateContest,
+  type ContestOptionId,
   MarkStatus,
-  StraightPartyContest,
+  type StraightPartyContest,
   WriteInAreaStatus,
-  YesNoContest,
+  type YesNoContest,
 } from '@votingworks/types';
 import {
   readElectionStraightParty,

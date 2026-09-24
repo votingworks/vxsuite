@@ -14,7 +14,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageFileName,
   LATEST_METADATA,
-  ElectionRegisteredVoterCounts,
+  type ElectionRegisteredVoterCounts,
 } from '@votingworks/types';
 import { zipFile } from '@votingworks/test-utils';
 import {

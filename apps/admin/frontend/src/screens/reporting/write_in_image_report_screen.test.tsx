@@ -8,7 +8,7 @@ import { ok } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
 } from '../../../test/helpers/mock_api_client.js';
 import {

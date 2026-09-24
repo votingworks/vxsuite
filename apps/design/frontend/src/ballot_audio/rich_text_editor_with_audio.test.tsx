@@ -2,7 +2,10 @@ import { expect, test, vi } from 'vitest';
 import { sleep } from '@votingworks/basics';
 import { fireEvent, render, screen } from '../../test/react_testing_library.js';
 import { RichTextEditorWithAudio } from './rich_text_editor_with_audio.js';
-import { AudioLinkButtonProps, AudioLinkButton } from './audio_link_button.js';
+import {
+  type AudioLinkButtonProps,
+  AudioLinkButton,
+} from './audio_link_button.js';
 
 vi.mock('./audio_link_button.js');
 

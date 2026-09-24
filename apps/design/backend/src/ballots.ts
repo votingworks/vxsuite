@@ -1,29 +1,29 @@
 import {
   BallotType,
-  BaseBallotProps,
+  type BaseBallotProps,
   centralScanningPollingPlaceId,
   CENTRAL_SCANNING_POLLING_PLACE_NAME,
   earlyVotingPollingPlaceId,
   EARLY_VOTING_POLLING_PLACE_NAME,
-  Election,
+  type Election,
   hasSplits,
-  PollingPlace,
+  type PollingPlace,
   pollingPlacesGenerateFromPrecincts,
-  SystemSettings,
-  UiStringsPackage,
+  type SystemSettings,
+  type UiStringsPackage,
 } from '@votingworks/types';
 import {
   allBaseBallotProps,
-  AnyBallotProps,
-  BallotTemplateId,
-  NhBallotProps,
-  NhStateBallotProps,
+  type AnyBallotProps,
+  type BallotTemplateId,
+  type NhBallotProps,
+  type NhStateBallotProps,
 } from '@votingworks/hmpb';
 import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import { createHash } from 'node:crypto';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
 import { getStateFeaturesConfig } from './features.js';
-import { Jurisdiction } from './types.js';
+import type { Jurisdiction } from './types.js';
 
 export function defaultBallotTemplate(
   jurisdiction: Jurisdiction

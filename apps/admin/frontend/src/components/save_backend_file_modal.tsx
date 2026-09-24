@@ -16,7 +16,7 @@ import {
   userReadableMessageFromExportDataError,
 } from '@votingworks/ui';
 
-import { MutationStatus } from '@tanstack/react-query';
+import type { MutationStatus } from '@tanstack/react-query';
 import { AppContext } from '../contexts/app_context.js';
 
 export interface SaveBackendFileModalProps {

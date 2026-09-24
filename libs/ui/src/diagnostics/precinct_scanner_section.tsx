@@ -1,4 +1,4 @@
-import {
+import type {
   DiagnosticRecord,
   PrecinctScannerMachineStatus,
 } from '@votingworks/types';

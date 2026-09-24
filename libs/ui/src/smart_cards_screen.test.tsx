@@ -1,5 +1,5 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import { deferred, err, ok, Result, sleep } from '@votingworks/basics';
+import { deferred, err, ok, type Result, sleep } from '@votingworks/basics';
 import {
   advancePromises,
   mockElectionManagerUser,
@@ -11,8 +11,8 @@ import {
 
 import {
   constructElectionKey,
-  DippedSmartCardAuth,
-  Election,
+  type DippedSmartCardAuth,
+  type Election,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import {
@@ -23,11 +23,11 @@ import { userEvent } from './user_event.js';
 import { screen, within } from '../test/react_testing_library.js';
 import { newTestContext } from '../test/test_context.js';
 import {
-  CardProgrammingApiClient,
+  type CardProgrammingApiClient,
   SmartCardsScreen,
-  SmartCardsScreenProps,
+  type SmartCardsScreenProps,
 } from './smart_cards_screen.js';
-import { VxRenderOptions } from './themes/render_with_themes.js';
+import type { VxRenderOptions } from './themes/render_with_themes.js';
 
 vi.useFakeTimers({ shouldAdvanceTime: true });
 

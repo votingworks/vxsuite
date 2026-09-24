@@ -4,7 +4,7 @@ import { useAudioEnabled } from '@votingworks/ui';
 import { render, screen } from '../../test/react_testing_library.js';
 import { SetupPrinterPage } from './setup_printer_page.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   provideApi,
 } from '../../test/helpers/mock_api_client.js';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { DiagnosticOutcome } from '@votingworks/types';
+import type { DiagnosticOutcome } from '@votingworks/types';
 import { Modal } from '../modal.js';
 import { Button } from '../button.js';
 import { P } from '../typography.js';

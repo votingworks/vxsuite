@@ -14,7 +14,7 @@ import {
 } from '../../../test/backup.js';
 import { prepare } from './prepare_step.js';
 import { copy } from './copy_step.js';
-import { ProgressEvent } from '../progress.js';
+import type { ProgressEvent } from '../progress.js';
 
 vi.mock(
   import('@votingworks/backend'),

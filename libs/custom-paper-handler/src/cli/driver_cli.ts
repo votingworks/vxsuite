@@ -7,9 +7,12 @@ import { tmpdir } from 'node:os';
 import { getPaperHandlerDriver } from '../driver/helpers.js';
 import {
   MaxPrintWidthDots,
-  PaperHandlerDriverInterface,
+  type PaperHandlerDriverInterface,
 } from '../driver/index.js';
-import { ScanDirection, scanDirections } from '../driver/scanner_config.js';
+import {
+  type ScanDirection,
+  scanDirections,
+} from '../driver/scanner_config.js';
 
 /**
  * Command line interface for interacting with the paper handler driver.

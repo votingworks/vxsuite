@@ -3,10 +3,10 @@ import {
   err,
   extractErrorMessage,
   ok,
-  Result,
+  type Result,
 } from '@votingworks/basics';
-import { LogEventId, Logger } from '@votingworks/logging';
-import { RgbaImageData } from '@votingworks/types';
+import { LogEventId, type Logger } from '@votingworks/logging';
+import type { RgbaImageData } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -15,7 +15,7 @@ import {
 import { rootDebug } from './debug.js';
 import {
   FujitsuThermalPrinterDriver,
-  FujitsuThermalPrinterDriverInterface,
+  type FujitsuThermalPrinterDriverInterface,
   getDevice,
 } from './driver/index.js';
 import { IDLE_REPLY_PARAMETER, LINE_FEED_REPLY_PARAMETER } from './globals.js';
@@ -23,7 +23,7 @@ import { logPrinterStatusIfChanged } from './logging.js';
 import { MockFileFujitsuPrinter } from './mocks/file_printer.js';
 import { printImageData, printPdf } from './printing.js';
 import { summarizeRawStatus, waitForPrintReadyStatus } from './status.js';
-import {
+import type {
   FujitsuThermalPrinterInterface,
   PrinterStatus,
   PrintResult,

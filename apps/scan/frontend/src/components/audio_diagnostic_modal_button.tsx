@@ -1,5 +1,5 @@
 import React from 'react';
-import { DiagnosticOutcome } from '@votingworks/types';
+import type { DiagnosticOutcome } from '@votingworks/types';
 import { Button, Icons, Modal, P } from '@votingworks/ui';
 import * as api from '../api.js';
 

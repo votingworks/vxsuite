@@ -1,15 +1,15 @@
-import { expect, Mocked, test, vi } from 'vitest';
-import { SpeechSynthesizer } from '@votingworks/backend';
+import { expect, type Mocked, test, vi } from 'vitest';
+import type { SpeechSynthesizer } from '@votingworks/backend';
 import { assert } from '@votingworks/basics';
 import {
-  Election,
+  type Election,
   ElectionStringKey,
   LanguageCode,
-  TtsEdit,
-  TtsEditKey,
+  type TtsEdit,
+  type TtsEditKey,
 } from '@votingworks/types';
 import * as ttsStrings from './tts_strings.js';
-import { ElectionRecord, Store } from './store.js';
+import type { ElectionRecord, Store } from './store.js';
 
 test('ttsSynthesizeFromText', async () => {
   const mockSynthesizer: Mocked<SpeechSynthesizer> = {

@@ -1,14 +1,14 @@
-import { beforeEach, describe, expect, Mocked, test, vi } from 'vitest';
+import { beforeEach, describe, expect, type Mocked, test, vi } from 'vitest';
 import {
   ElectionStringKey,
   LanguageCode,
-  UiStringsPackage,
+  type UiStringsPackage,
 } from '@votingworks/types';
 import { getFeatureFlagMock } from '@votingworks/utils';
 import { deferred } from '@votingworks/basics';
 import {
   GoogleCloudSpeechSynthesizer,
-  SpeechSynthesizer,
+  type SpeechSynthesizer,
 } from './speech_synthesizer.js';
 import { generateAudioIdsAndClips } from './audio.js';
 import { audioIdForText } from './utils.js';

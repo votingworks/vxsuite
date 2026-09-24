@@ -2,12 +2,12 @@ import React from 'react';
 import type { Api, ClientApi } from '@votingworks/admin-backend';
 import {
   QueryClient,
-  QueryKey,
+  type QueryKey,
   useMutation,
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import * as grout from '@votingworks/grout';
+import type * as grout from '@votingworks/grout';
 import {
   QUERY_CLIENT_DEFAULT_OPTIONS,
   createSystemCallApi,

@@ -6,9 +6,9 @@ import {
   BACKUP_MANIFEST_VERSION,
   BackupManifest,
   BackupManifestEntrySchema,
-  BackupManifestStruct,
+  type BackupManifestStruct,
   BackupManifestStructSchema,
-  ElectionMetadata,
+  type ElectionMetadata,
 } from './backup_manifest.js';
 
 const election: ElectionMetadata = {

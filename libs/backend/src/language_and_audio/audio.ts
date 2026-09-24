@@ -1,16 +1,16 @@
 import { Readable } from 'node:stream';
 import {
-  UiStringAudioClip,
-  UiStringAudioIdsPackage,
-  UiStringTtsInput,
-  UiStringsPackage,
-  TtsEditEntry,
-  LanguageCode,
+  type UiStringAudioClip,
+  type UiStringAudioIdsPackage,
+  type UiStringTtsInput,
+  type UiStringsPackage,
+  type TtsEditEntry,
+  type LanguageCode,
   ElectionStringKey,
 } from '@votingworks/types';
 
 import { assert } from '@votingworks/basics';
-import { SpeechSynthesizer } from './speech_synthesizer.js';
+import type { SpeechSynthesizer } from './speech_synthesizer.js';
 import {
   audioIdForText,
   cleanText,

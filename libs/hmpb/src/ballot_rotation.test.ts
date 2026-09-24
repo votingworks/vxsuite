@@ -1,12 +1,16 @@
 import { describe, expect, test } from 'vitest';
 import { readElectionGeneral } from '@votingworks/fixtures';
-import { CandidateContest, YesNoContest, Precinct } from '@votingworks/types';
+import type {
+  CandidateContest,
+  YesNoContest,
+  Precinct,
+} from '@votingworks/types';
 import {
   getCandidateOrderingByPrecinctAlphabetical,
   getAllPossibleCandidateOrderings,
   deduplicateIdenticalOrderingsAcrossPrecincts,
 } from './ballot_rotation.js';
-import { RotationParams, CandidateOrdering } from './types.js';
+import type { RotationParams, CandidateOrdering } from './types.js';
 
 const electionGeneral = readElectionGeneral();
 

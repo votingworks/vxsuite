@@ -1,9 +1,9 @@
 import { createHash } from 'node:crypto';
 import { assert, assertDefined } from '@votingworks/basics';
 import {
-  UiStringAudioIdsPackage,
-  UiStringsPackage,
-  LanguageCode,
+  type UiStringAudioIdsPackage,
+  type UiStringsPackage,
+  type LanguageCode,
   isLanguageCode,
 } from '@votingworks/types';
 

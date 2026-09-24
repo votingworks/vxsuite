@@ -1,20 +1,20 @@
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
 import {
   err,
   isNonExistentFileOrDirectoryError,
   ok,
-  Result,
+  type Result,
 } from '@votingworks/basics';
 import {
-  BallotPageLayout,
+  type BallotPageLayout,
   BallotPageLayoutSchema,
-  ReadCastVoteRecordError,
-  ReferencedFileType,
+  type ReadCastVoteRecordError,
+  type ReferencedFileType,
   safeParseJson,
-  SheetOf,
+  type SheetOf,
 } from '@votingworks/types';
-import { CastVoteRecordFileSource } from './file_source.js';
+import type { CastVoteRecordFileSource } from './file_source.js';
 
 /**
  * A file referenced by a cast vote record report

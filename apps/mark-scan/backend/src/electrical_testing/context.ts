@@ -1,8 +1,11 @@
-import { Card } from '@votingworks/auth';
-import { CardReaderErrorTracker, TaskController } from '@votingworks/backend';
-import { Logger } from '@votingworks/logging';
-import { UsbDrive } from '@votingworks/usb-drive';
-import { Workspace } from '../util/workspace.js';
+import type { Card } from '@votingworks/auth';
+import type {
+  CardReaderErrorTracker,
+  TaskController,
+} from '@votingworks/backend';
+import type { Logger } from '@votingworks/logging';
+import type { UsbDrive } from '@votingworks/usb-drive';
+import type { Workspace } from '../util/workspace.js';
 
 export interface ServerContext {
   card: Card;

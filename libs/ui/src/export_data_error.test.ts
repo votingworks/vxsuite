@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { ExportDataError } from '@votingworks/types';
+import type { ExportDataError } from '@votingworks/types';
 import { userReadableMessageFromExportDataError } from './export_data_error.js';
 
 test.each<[ExportDataError, string]>([

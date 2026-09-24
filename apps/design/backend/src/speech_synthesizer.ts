@@ -1,10 +1,10 @@
 import {
   GoogleCloudSpeechSynthesizer,
-  MinimalGoogleCloudTextToSpeechClient,
+  type MinimalGoogleCloudTextToSpeechClient,
 } from '@votingworks/backend';
-import { LanguageCode } from '@votingworks/types';
+import type { LanguageCode } from '@votingworks/types';
 import { rootDebug } from './debug.js';
-import { Store } from './store.js';
+import type { Store } from './store.js';
 import { isValidPrimaryKey } from './utils.js';
 
 const debug = rootDebug.extend('speech');

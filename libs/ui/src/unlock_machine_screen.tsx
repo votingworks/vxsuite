@@ -1,5 +1,8 @@
 import { useState, useCallback } from 'react';
-import { DippedSmartCardAuth, InsertedSmartCardAuth } from '@votingworks/types';
+import type {
+  DippedSmartCardAuth,
+  InsertedSmartCardAuth,
+} from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { styled } from './styled.js';
 

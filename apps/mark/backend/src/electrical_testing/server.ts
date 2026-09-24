@@ -7,7 +7,7 @@ import {
   runCardReadAndUsbDriveWriteTask,
   runPrinterTestTask,
 } from './background.js';
-import { ServerContext } from './context.js';
+import type { ServerContext } from './context.js';
 
 export function startElectricalTestingServer(context: ServerContext): void {
   const { logger, barcodeClient } = context;

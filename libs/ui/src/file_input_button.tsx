@@ -1,6 +1,6 @@
-import { ChangeEvent, FormEvent, RefObject } from 'react';
+import type { ChangeEvent, FormEvent, RefObject } from 'react';
 import { styled } from './styled.js';
-import { LabelButton, ButtonProps } from './button.js';
+import { LabelButton, type ButtonProps } from './button.js';
 
 const LabelButtonContainer = styled(LabelButton)`
   position: relative;

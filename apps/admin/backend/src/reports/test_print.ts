@@ -1,8 +1,8 @@
 import { BallotCountReport } from '@votingworks/ui';
 import {
-  ElectionDefinition,
+  type ElectionDefinition,
   HmpbBallotPaperSize,
-  Tabulation,
+  type Tabulation,
 } from '@votingworks/types';
 import {
   DateWithoutTime,
@@ -10,8 +10,8 @@ import {
   assertDefined,
   range,
 } from '@votingworks/basics';
-import { Printer, renderToPdf } from '@votingworks/printing';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { type Printer, renderToPdf } from '@votingworks/printing';
+import { LogEventId, type Logger } from '@votingworks/logging';
 import { getCurrentTime } from '../util/get_current_time.js';
 
 const REPORT_NUM_ROWS = 30;

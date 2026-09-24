@@ -1,4 +1,4 @@
-import { DateTime, HourNumbers } from 'luxon';
+import { DateTime, type HourNumbers } from 'luxon';
 import React, { useCallback, useState } from 'react';
 
 import {
@@ -8,17 +8,17 @@ import {
   getDaysInMonth,
   MONTHS_SHORT,
 } from '@votingworks/utils';
-import { SelectChangeEventFunction } from '@votingworks/types';
+import type { SelectChangeEventFunction } from '@votingworks/types';
 import { assertDefined, integers } from '@votingworks/basics';
 import { styled } from './styled.js';
 import { Select } from './select.js';
 import { Modal } from './modal.js';
-import { Button, ButtonProps } from './button.js';
+import { Button, type ButtonProps } from './button.js';
 import { useNow } from './hooks/use_now.js';
 import { H2, P } from './typography.js';
 import { Icons } from './icons.js';
 import { Card } from './card.js';
-import { ScreenInfo, useScreenInfo } from './hooks/use_screen_info.js';
+import { type ScreenInfo, useScreenInfo } from './hooks/use_screen_info.js';
 import { useSystemCallApi } from './system_call_api.js';
 
 const InputGroup = styled.div`

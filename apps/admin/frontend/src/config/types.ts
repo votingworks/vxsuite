@@ -1,4 +1,8 @@
-import { BallotStyleGroupId, ContestId, PrecinctId } from '@votingworks/types';
+import type {
+  BallotStyleGroupId,
+  ContestId,
+  PrecinctId,
+} from '@votingworks/types';
 import type { ManualResultsVotingMethod } from '@votingworks/admin-backend';
 
 // Router Params

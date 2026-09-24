@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import { safeParseJson } from './generic.js';
 import {
-  UiStringsPackage,
+  type UiStringsPackage,
   UiStringsPackageSchema,
   filterUiStrings,
   mergeUiStrings,

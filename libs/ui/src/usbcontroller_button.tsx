@@ -1,6 +1,6 @@
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Button } from './button.js';
-import { IconName } from './icons.js';
+import type { IconName } from './icons.js';
 
 type ExtendedUsbDriveStatus = UsbDriveStatus['status'] | 'ejecting';
 

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  ElectionId,
+  type ElectionId,
   ElectionStringKey,
   LanguageCode,
 } from '@votingworks/types';
@@ -11,7 +11,7 @@ import { createMemoryHistory } from 'history';
 import { assertDefined, DateWithoutTime, err, ok } from '@votingworks/basics';
 import type { ElectionInfo } from '@votingworks/design-backend';
 import {
-  MockApiClient,
+  type MockApiClient,
   createMockApiClient,
   mockUserFeatures,
   jurisdiction,

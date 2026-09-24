@@ -3,11 +3,11 @@ import { err } from '@votingworks/basics';
 import { join } from 'node:path';
 import {
   BallotType,
-  EncodedBallotEntry,
+  type EncodedBallotEntry,
   LanguageCode,
 } from '@votingworks/types';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { LogEventId, MockLogger } from '@votingworks/logging';
+import { LogEventId, type MockLogger } from '@votingworks/logging';
 import {
   getMockMultiLanguageElectionDefinition,
   generateFileTimeSuffix,
@@ -16,13 +16,13 @@ import {
 } from '@votingworks/utils';
 import {
   HP_4001_PRINTER_CONFIG,
-  MemoryPrinterHandler,
+  type MemoryPrinterHandler,
   renderToPdf,
 } from '@votingworks/printing';
-import { DippedSmartCardAuthApi } from '@votingworks/auth';
-import * as grout from '@votingworks/grout';
-import { MockUsbDrive } from '@votingworks/usb-drive';
-import { Server } from 'node:http';
+import type { DippedSmartCardAuthApi } from '@votingworks/auth';
+import type * as grout from '@votingworks/grout';
+import type { MockUsbDrive } from '@votingworks/usb-drive';
+import type { Server } from 'node:http';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -33,8 +33,8 @@ import {
   generateReportsDirectoryPath,
   printBallotsPrintedReport,
 } from './reports/ballots_printed_report.js';
-import { Api } from './app.js';
-import { Workspace } from './util/workspace.js';
+import type { Api } from './app.js';
+import type { Workspace } from './util/workspace.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

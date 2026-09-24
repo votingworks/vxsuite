@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { SystemSettings } from '@votingworks/types';
+import type { SystemSettings } from '@votingworks/types';
 
 import {
   SLI_DEFAULT_SYSTEM_SETTINGS,

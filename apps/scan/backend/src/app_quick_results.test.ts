@@ -1,5 +1,8 @@
 import { expect, test, vi, beforeEach } from 'vitest';
-import { DEFAULT_SYSTEM_SETTINGS, SystemSettings } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  type SystemSettings,
+} from '@votingworks/types';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   BooleanEnvironmentVariableName,
@@ -7,7 +10,7 @@ import {
 } from '@votingworks/utils';
 import { configureApp } from '../test/helpers/shared_helpers.js';
 import { withApp } from '../test/helpers/scanner_helpers.js';
-import { PrecinctScannerPollsInfo } from './index.js';
+import type { PrecinctScannerPollsInfo } from './index.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

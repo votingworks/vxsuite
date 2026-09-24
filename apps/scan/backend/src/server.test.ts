@@ -2,14 +2,14 @@ import {
   afterEach,
   beforeEach,
   expect,
-  Mocked,
-  MockedFunction,
+  type Mocked,
+  type MockedFunction,
   test,
   vi,
 } from 'vitest';
-import { LogEventId, Logger, mockBaseLogger } from '@votingworks/logging';
+import { LogEventId, type Logger, mockBaseLogger } from '@votingworks/logging';
 import { EventEmitter } from 'node:events';
-import { Application } from 'express';
+import type { Application } from 'express';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import {
@@ -23,9 +23,9 @@ import { MockFileFujitsuPrinter } from '@votingworks/fujitsu-thermal-printer';
 import { buildApp } from './app.js';
 import { PORT } from './globals.js';
 import { start } from './server.js';
-import { createWorkspace, Workspace } from './util/workspace.js';
+import { createWorkspace, type Workspace } from './util/workspace.js';
 import { buildMockLogger } from '../test/helpers/shared_helpers.js';
-import { AudioPlayer } from './audio/audio.js';
+import type { AudioPlayer } from './audio/audio.js';
 
 vi.mock('./app');
 

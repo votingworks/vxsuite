@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { join } from 'node:path';
-import { GrayImageData, RgbaImageData } from '@votingworks/types';
+import type { GrayImageData, RgbaImageData } from '@votingworks/types';
 import {
   createGrayImageData,
   loadImageData,

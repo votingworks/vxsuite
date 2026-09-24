@@ -3,12 +3,12 @@ import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockLogger } from '@votingworks/logging';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { SimulatedUsbPlatform } from './mocks/simulated_usb_platform.js';
-import { detectMultiUsbDrive, MultiUsbDrive } from './multi_usb_drive.js';
+import { detectMultiUsbDrive, type MultiUsbDrive } from './multi_usb_drive.js';
 import {
-  UsbDiskDevPath,
+  type UsbDiskDevPath,
   UsbDiskDevPathSchema,
-  UsbDriveFilesystemType,
-  UsbDriveInfo,
+  type UsbDriveFilesystemType,
+  type UsbDriveInfo,
   UsbPartitionMount,
 } from './types.js';
 import { createUsbDriveAdapter } from './usb_drive_adapter.js';

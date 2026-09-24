@@ -1,7 +1,7 @@
-import React from 'react';
+import type React from 'react';
 import styled from 'styled-components';
 
-import { TooltipProps } from '../tooltip.js';
+import type { TooltipProps } from '../tooltip.js';
 import { AudioLinkButton } from './audio_link_button.js';
 
 export type InputWithAudioProps = {

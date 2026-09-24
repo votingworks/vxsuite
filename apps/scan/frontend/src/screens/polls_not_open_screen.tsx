@@ -1,5 +1,5 @@
 import { FullScreenIconWrapper, Icons, P } from '@votingworks/ui';
-import { PollsState } from '@votingworks/types';
+import type { PollsState } from '@votingworks/types';
 import { Screen } from '../components/layout.js';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout.js';
 

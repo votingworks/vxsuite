@@ -1,19 +1,19 @@
 import {
-  LanguageCode,
-  ElectionId,
-  Election,
-  ContestId,
-  PrecinctId,
-  PollsTransitionType,
-  SoftwareVersion,
-  ElectionType,
+  type LanguageCode,
+  type ElectionId,
+  type Election,
+  type ContestId,
+  type PrecinctId,
+  type PollsTransitionType,
+  type SoftwareVersion,
+  type ElectionType,
   ElectionIdSchema,
   ElectionTypeSchema,
   DateWithoutTimeSchema,
   LanguageCodeSchema,
-  Tabulation,
+  type Tabulation,
 } from '@votingworks/types';
-import { DateWithoutTime } from '@votingworks/basics';
+import type { DateWithoutTime } from '@votingworks/basics';
 import { z } from 'zod/v4';
 import { baseUrl } from './globals.js';
 

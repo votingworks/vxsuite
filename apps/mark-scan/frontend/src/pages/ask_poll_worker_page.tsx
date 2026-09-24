@@ -1,8 +1,8 @@
 import { appStrings, Icons } from '@votingworks/ui';
 
-import { InsertedSmartCardAuth } from '@votingworks/types';
+import type { InsertedSmartCardAuth } from '@votingworks/types';
 import { isPollWorkerAuth } from '@votingworks/utils';
-import React from 'react';
+import type React from 'react';
 import {
   CenteredCardPageLayout,
   PollWorkerPrompt,

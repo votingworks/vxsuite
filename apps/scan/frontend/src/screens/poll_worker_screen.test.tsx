@@ -5,10 +5,10 @@ import {
   describe,
   test,
   expect,
-  Mock,
+  type Mock,
 } from 'vitest';
 import {
-  BooleanEnvironmentVariableName,
+  type BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
@@ -18,14 +18,14 @@ import {
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { err } from '@votingworks/basics';
-import { DEFAULT_SYSTEM_SETTINGS, PollsState } from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS, type PollsState } from '@votingworks/types';
 import { screen, render } from '../../test/react_testing_library.js';
 import {
   PollWorkerScreen,
-  PollWorkerScreenProps,
+  type PollWorkerScreenProps,
 } from './poll_worker_screen.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   provideApi,
   statusNoPaper,

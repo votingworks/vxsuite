@@ -18,16 +18,16 @@ import {
 import { assert, assertDefined, find } from '@votingworks/basics';
 
 import {
-  BallotStyleId,
-  ElectionDefinition,
+  type BallotStyleId,
+  type ElectionDefinition,
   getBallotStyle,
   getPartyForBallotStyle,
-  PrecinctId,
+  type PrecinctId,
 } from '@votingworks/types';
 import { getPrecinctsAndSplitsForBallotStyle } from '@votingworks/utils';
-import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests.js';
+import type { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests.js';
 import {
-  VoterHelpScreenType,
+  type VoterHelpScreenType,
   VoterScreen,
 } from '../components/voter_screen.js';
 

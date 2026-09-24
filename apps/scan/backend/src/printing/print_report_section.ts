@@ -4,25 +4,25 @@ import {
   getEmptyElectionResults,
   groupContestsByParty,
   isPollsSuspensionTransition,
-  PartyWithContests,
+  type PartyWithContests,
 } from '@votingworks/utils';
 import {
   PrecinctScannerBallotCountReport,
   PrecinctScannerTallyReport,
 } from '@votingworks/ui';
 import { PAPER_DIMENSIONS, renderToPdf } from '@votingworks/printing';
-import {
+import type {
   FujitsuThermalPrinterInterface,
   PrintResult,
 } from '@votingworks/fujitsu-thermal-printer';
 import {
-  Election,
+  type Election,
   pollingPlaceContests,
   pollingPlaceFromElection,
-  PollsSuspensionTransitionType,
-  StandardPollsTransitionType,
+  type PollsSuspensionTransitionType,
+  type StandardPollsTransitionType,
 } from '@votingworks/types';
-import { Store } from '../store.js';
+import type { Store } from '../store.js';
 import { getMachineConfig } from '../machine_config.js';
 import { getScannerResultsMemoized } from '../util/results.js';
 import { getCurrentTime } from '../util/get_current_time.js';

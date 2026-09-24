@@ -1,6 +1,6 @@
-import { assert, Result } from '@votingworks/basics';
-import { JSONSchema4 } from 'json-schema';
-import { Enum, EnumValue, Interface, Property, Type } from './types.js';
+import { assert, type Result } from '@votingworks/basics';
+import type { JSONSchema4 } from 'json-schema';
+import type { Enum, EnumValue, Interface, Property, Type } from './types.js';
 import { makeIdentifier } from './util.js';
 import { safeParseJson } from './parse_json.js';
 

@@ -7,7 +7,7 @@ import {
   appStrings,
 } from '@votingworks/ui';
 import React from 'react';
-import { MisvoteWarningsProps } from './types.js';
+import type { MisvoteWarningsProps } from './types.js';
 import { WarningDetails } from './warning_details.js';
 
 export function WarningDetailsModalButton(

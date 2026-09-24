@@ -6,7 +6,7 @@ import { createUiStringsApi } from './ui_strings_api.js';
 import { UiStringsContextProvider, useCurrentLanguage } from '../index.js';
 import {
   DEFAULT_LANGUAGE_CODE,
-  FrontendLanguageContextInterface,
+  type FrontendLanguageContextInterface,
   useFrontendLanguageContext,
 } from '../ui_strings/language_context.js';
 

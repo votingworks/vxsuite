@@ -3,7 +3,7 @@ import {
   beforeEach,
   describe,
   expect,
-  Mocked,
+  type Mocked,
   onTestFinished,
   test,
   vi,
@@ -18,7 +18,10 @@ import {
 } from '@testing-library/react';
 import { assertDefined } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
-import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
+import {
+  createMockClient,
+  type MockClient,
+} from '@votingworks/grout-test-utils';
 import type { Api, DevDockUsbDriveInfo } from '@votingworks/dev-dock-backend';
 import {
   BooleanEnvironmentVariableName,
@@ -30,8 +33,8 @@ import {
   mockPollWorkerUser,
   mockKiosk,
 } from '@votingworks/test-utils';
-import { CardStatus } from '@votingworks/auth';
-import { PrinterConfig } from '@votingworks/types';
+import type { CardStatus } from '@votingworks/auth';
+import type { PrinterConfig } from '@votingworks/types';
 import { makeRender } from '@votingworks/ui';
 import { DevDock } from './dev_dock.js';
 

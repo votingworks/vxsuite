@@ -4,18 +4,18 @@ import {
   find,
   iter,
   ok,
-  Optional,
-  Result,
+  type Optional,
+  type Result,
 } from '@votingworks/basics';
 import {
   DEFAULT_MARK_THRESHOLDS,
-  ElectionDefinition,
+  type ElectionDefinition,
   mapSheet,
-  MarkThresholds,
+  type MarkThresholds,
   safeParseElectionDefinition,
   safeParseJson,
-  SheetOf,
-  SystemSettings,
+  type SheetOf,
+  type SystemSettings,
   safeParseSystemSettings,
   safeParseNumber,
 } from '@votingworks/types';
@@ -26,7 +26,7 @@ import { basename, dirname, isAbsolute, join } from 'node:path';
 import { once } from 'node:events';
 import { styleText } from 'node:util';
 import { interpret } from './interpret.js';
-import { InterpretedBallotCard, InterpretError } from './types.js';
+import type { InterpretedBallotCard, InterpretError } from './types.js';
 
 interface IO {
   stdout: NodeJS.WritableStream;

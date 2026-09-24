@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { ContestPage, ContestPageProps } from '@votingworks/mark-flow-ui';
+import { ContestPage, type ContestPageProps } from '@votingworks/mark-flow-ui';
 import {
   anyPollingPlace,
-  ContestId,
-  OptionalVote,
-  VotesDict,
+  type ContestId,
+  type OptionalVote,
+  type VotesDict,
 } from '@votingworks/types';
 import { useHistory } from 'react-router-dom';
 import {
@@ -23,7 +23,10 @@ import {
 } from '../test/helpers/timers.js';
 
 import { singleSeatContestWithWriteIn } from '../test/helpers/election.js';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

@@ -1,4 +1,4 @@
-import {
+import type {
   BallotStyle,
   BallotType,
   ElectionDefinition,
@@ -7,7 +7,7 @@ import {
   Precinct,
   SheetOf,
 } from '@votingworks/types';
-import { throwIllegalValue, Result, ok, err } from '@votingworks/basics';
+import { throwIllegalValue, type Result, ok, err } from '@votingworks/basics';
 
 const BlankPageTypes: ReadonlyArray<PageInterpretation['type']> = [
   'BlankPage',

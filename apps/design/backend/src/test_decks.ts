@@ -1,13 +1,13 @@
 import { find } from '@votingworks/basics';
 import {
-  BaseBallotProps,
-  ElectionDefinition,
+  type BaseBallotProps,
+  type ElectionDefinition,
   LATEST_SOFTWARE_VERSION,
 } from '@votingworks/types';
 import {
   generateTestDeckCastVoteRecords,
   getTallyReportResults,
-  TestDeckBallot as TestDeckBallotSpec,
+  type TestDeckBallot as TestDeckBallotSpec,
 } from '@votingworks/test-decks';
 import { renderToPdf } from '@votingworks/printing';
 
@@ -16,7 +16,7 @@ import {
   markBallotDocument,
   concatenatePdfs,
   renderBallotPdfWithMetadataQrCode,
-  RendererPool,
+  type RendererPool,
 } from '@votingworks/hmpb';
 
 /**

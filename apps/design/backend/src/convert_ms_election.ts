@@ -7,15 +7,15 @@ import {
   uniqueDeep,
 } from '@votingworks/basics';
 import {
-  Contest,
-  Candidate,
-  Jurisdiction,
-  District,
-  Election,
-  ElectionId,
+  type Contest,
+  type Candidate,
+  type Jurisdiction,
+  type District,
+  type Election,
+  type ElectionId,
   HmpbBallotPaperSize,
-  Party,
-  Precinct,
+  type Party,
+  type Precinct,
   safeParseNumber,
   safeParseVxfElection,
 } from '@votingworks/types';

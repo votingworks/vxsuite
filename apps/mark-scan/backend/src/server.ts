@@ -1,12 +1,12 @@
 import express from 'express';
-import { Server } from 'node:http';
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { LogEventId, BaseLogger, Logger } from '@votingworks/logging';
+import type { Server } from 'node:http';
+import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import { LogEventId, type BaseLogger, Logger } from '@votingworks/logging';
 import {
   getPaperHandlerDriver,
   MaxPrintWidthDots,
   MockPaperHandlerDriver,
-  PaperHandlerDriverInterface,
+  type PaperHandlerDriverInterface,
 } from '@votingworks/custom-paper-handler';
 import {
   BooleanEnvironmentVariableName,
@@ -20,12 +20,12 @@ import {
 } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { buildApi, buildApp } from './app.js';
-import { Workspace } from './util/workspace.js';
+import type { Workspace } from './util/workspace.js';
 import { getPaperHandlerStateMachine } from './custom-paper-handler/state_machine.js';
 import { getDefaultAuth, getUserRole } from './util/auth.js';
 import {
   PatConnectionStatusReader,
-  PatConnectionStatusReaderInterface,
+  type PatConnectionStatusReaderInterface,
 } from './pat-input/connection_status_reader.js';
 import { MockPatConnectionStatusReader } from './pat-input/mock_connection_status_reader.js';
 import { getMarkScanBmdModel } from './util/hardware.js';

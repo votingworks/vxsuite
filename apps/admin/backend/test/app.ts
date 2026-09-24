@@ -1,7 +1,7 @@
-import { expect, Mocked, vi } from 'vitest';
+import { expect, type Mocked, vi } from 'vitest';
 import {
   buildMockDippedSmartCardAuth,
-  DippedSmartCardAuthApi,
+  type DippedSmartCardAuthApi,
 } from '@votingworks/auth';
 import {
   mockElectionManagerUser,
@@ -11,50 +11,50 @@ import {
 } from '@votingworks/test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  DippedSmartCardAuth,
-  Election,
+  type DippedSmartCardAuth,
+  type Election,
   constructElectionKey,
-  ElectionDefinition,
+  type ElectionDefinition,
   ElectionPackageFileName,
-  ElectionRegisteredVoterCounts,
+  type ElectionRegisteredVoterCounts,
   LATEST_METADATA,
-  SystemSettings,
+  type SystemSettings,
 } from '@votingworks/types';
 import * as grout from '@votingworks/grout';
-import { AddressInfo } from 'node:net';
-import { Buffer } from 'node:buffer';
+import type { AddressInfo } from 'node:net';
+import type { Buffer } from 'node:buffer';
 import {
   generateElectionBasedSubfolderName,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 import {
   detectMultiUsbDrive,
-  MultiUsbDrive,
+  type MultiUsbDrive,
   SimulatedUsbPlatform,
   UsbDiskDevPathSchema,
-  UsbDriveFilesystemType,
-  UsbDriveStatus,
+  type UsbDriveFilesystemType,
+  type UsbDriveStatus,
 } from '@votingworks/usb-drive';
 import {
   createMockPrinterHandler,
-  MemoryPrinterHandler,
+  type MemoryPrinterHandler,
 } from '@votingworks/printing';
 import {
   LogSource,
   mockBaseLogger,
-  MockBaseLogger,
-  MockLogger,
+  type MockBaseLogger,
+  type MockLogger,
   mockLogger,
 } from '@votingworks/logging';
 import {
   makeTemporaryDirectory,
   makeTemporaryFile,
 } from '@votingworks/fixtures';
-import { Application } from 'express';
-import { Server } from 'node:http';
-import { Api, MachineMode, PeerApi } from '../src/index.js';
-import { BaseStore } from '../src/types.js';
-import { createWorkspace, Workspace } from '../src/util/workspace.js';
+import type { Application } from 'express';
+import type { Server } from 'node:http';
+import type { Api, MachineMode, PeerApi } from '../src/index.js';
+import type { BaseStore } from '../src/types.js';
+import { createWorkspace, type Workspace } from '../src/util/workspace.js';
 import { buildApp } from '../src/app.js';
 import { buildPeerApp } from '../src/peer_app.js';
 import { getMachineConfig } from '../src/machine_config.js';

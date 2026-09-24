@@ -6,7 +6,7 @@ import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
 import { ServerError } from '@votingworks/grout';
-import { PrecinctScannerConfig } from '@votingworks/scan-backend';
+import type { PrecinctScannerConfig } from '@votingworks/scan-backend';
 import type { ErrorType } from '@votingworks/fujitsu-thermal-printer';
 import { assertDefined } from '@votingworks/basics';
 import {
@@ -16,11 +16,11 @@ import {
   waitFor,
 } from '../test/react_testing_library.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   statusNoPaper,
 } from '../test/helpers/mock_api_client.js';
-import { App, AppProps } from './app.js';
+import { App, type AppProps } from './app.js';
 
 configure({ asyncUtilTimeout: 800 });
 

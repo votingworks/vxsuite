@@ -3,7 +3,7 @@ import React from 'react';
 import { assertDefined } from '@votingworks/basics';
 
 import { useAudioContext } from './audio_context.js';
-import { AudioPlayer, newAudioPlayer } from './audio_player.js';
+import { type AudioPlayer, newAudioPlayer } from './audio_player.js';
 
 export interface ClipParams {
   audioId: string;

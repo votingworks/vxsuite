@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { DefaultTheme, StyledComponent } from 'styled-components';
+import type { DefaultTheme, StyledComponent } from 'styled-components';
 import { styled } from '../styled.js';
 import { Icons } from '../icons.js';
 import { appStrings } from '../ui_strings/index.js';
 import { DELETE_KEY, SPACE_BAR_KEY } from './virtual_keyboard.js';
-import { Key } from './common.js';
+import type { Key } from './common.js';
 import { ScanPanelRow } from './scan_panels/scan_panel_row.js';
 import { KeyButton } from './scan_panels/key_button.js';
-import { ScanPanel, ScanPanelRenderOption } from './scan_panels/scan_panel.js';
-import { Button, buttonStyles, gapStyles } from '../button.js';
+import {
+  ScanPanel,
+  type ScanPanelRenderOption,
+} from './scan_panels/scan_panel.js';
+import { type Button, buttonStyles, gapStyles } from '../button.js';
 
 const Keyboard = styled.div`
   display: flex;

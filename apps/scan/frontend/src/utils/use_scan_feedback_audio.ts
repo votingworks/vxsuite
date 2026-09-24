@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { PrecinctScannerState } from '@votingworks/types';
+import type { PrecinctScannerState } from '@votingworks/types';
 
-import { SoundName } from '@votingworks/scan-backend';
+import type { SoundName } from '@votingworks/scan-backend';
 
 export interface UseScanFeedbackAudioInput {
   // eslint-disable-next-line vx/gts-use-optionals

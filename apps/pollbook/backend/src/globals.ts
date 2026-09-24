@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { getNodeEnv } from '@votingworks/backend';
-import { Optional } from '@votingworks/basics';
+import type { Optional } from '@votingworks/basics';
 
 /**
  * Default port for the backend server.

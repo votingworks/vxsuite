@@ -10,15 +10,15 @@ import {
 import {
   Admin,
   AdjudicationReason,
-  CandidateContest,
+  type CandidateContest,
   Tabulation,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageFileName,
-  BallotStyleGroupId,
-  Id,
-  Election,
-  ElectionRegisteredVoterCounts,
-  SystemSettings,
+  type BallotStyleGroupId,
+  type Id,
+  type Election,
+  type ElectionRegisteredVoterCounts,
+  type SystemSettings,
   convertVxfElectionToCdfBallotDefinition,
   safeParseElectionDefinition,
 } from '@votingworks/types';
@@ -33,10 +33,10 @@ import {
 } from '@votingworks/utils';
 import {
   addMockCvrFileToStore,
-  MockCastVoteRecordFile,
+  type MockCastVoteRecordFile,
 } from '../test/mock_cvr_file.js';
 import { Store } from './store.js';
-import {
+import type {
   ElectionRecord,
   ManualResultsVotingMethod,
   ScannerBatch,

@@ -1,5 +1,5 @@
 import { sleep } from '@votingworks/basics';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, type Logger } from '@votingworks/logging';
 import { isIntegrationTest } from '@votingworks/utils';
 import * as audio from '../system_call/get_audio_info.js';
 import { MOCK_AUDIO_INFO } from '../system_call/get_audio_info.js';

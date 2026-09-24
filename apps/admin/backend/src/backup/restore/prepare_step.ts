@@ -1,7 +1,7 @@
 import { mkdir } from 'node:fs/promises';
-import { err, iter, ok, Result } from '@votingworks/basics';
+import { err, iter, ok, type Result } from '@votingworks/basics';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
-import { Logger, LogEventId } from '@votingworks/logging';
+import { type Logger, LogEventId } from '@votingworks/logging';
 import {
   clearRestoreState,
   emptyWorkspaceData,
@@ -10,9 +10,9 @@ import {
   openWorkspaceStoreIfPresent,
   setRestoreState,
 } from '../../util/workspace.js';
-import { BackupManifest } from '../backup_manifest.js';
+import type { BackupManifest } from '../backup_manifest.js';
 import { checkWorkspaceIsHostMode } from '../host_mode.js';
-import { RestoreError } from './types.js';
+import type { RestoreError } from './types.js';
 
 const DEFAULT_MIN_AVAILABLE_STORAGE_BYTES = 50_000_000; // 50 MB
 

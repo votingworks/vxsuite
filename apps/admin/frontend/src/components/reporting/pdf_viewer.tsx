@@ -1,6 +1,6 @@
 import { Document, Page, pdfjs } from 'react-pdf';
 import styled from 'styled-components';
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState, type UIEvent } from 'react';
 import { H3, Icons, P } from '@votingworks/ui';
 import { Buffer } from 'node:buffer';
 import { range } from '@votingworks/basics';
@@ -79,7 +79,7 @@ function PdfViewerHelper({ pdfData, loading }: PdfViewerProps): JSX.Element {
   );
 
   // @coverage-defer
-  function onScroll(e: React.UIEvent<HTMLDivElement>) {
+  function onScroll(e: UIEvent<HTMLDivElement>) {
     if (!numPages) return;
     const { scrollHeight, scrollTop } = e.currentTarget;
     // Add a fraction of the page height to the scroll position to make the

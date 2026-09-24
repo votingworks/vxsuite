@@ -1,4 +1,4 @@
-import {
+import type {
   BallotStyle,
   BallotStyleId,
   CandidateContest,
@@ -15,7 +15,7 @@ import {
   VotesDict,
   YesNoContest,
 } from '@votingworks/types';
-import {
+import type {
   ContestsWithMsEitherNeither,
   MsEitherNeitherContest,
 } from '../utils/ms_either_neither_contests.js';

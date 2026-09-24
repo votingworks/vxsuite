@@ -1,5 +1,5 @@
 import { throwIllegalValue } from '@votingworks/basics';
-import { ExportDataError } from '@votingworks/types';
+import type { ExportDataError } from '@votingworks/types';
 
 export function userReadableMessageFromExportDataError(
   type: ExportDataError

@@ -1,12 +1,12 @@
 import { ensureDirSync } from 'fs-extra';
 import { join } from 'node:path';
 
-import { BaseLogger } from '@votingworks/logging';
+import type { BaseLogger } from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
-import { PeerWorkspace, LocalWorkspace } from './types.js';
+import type { PeerWorkspace, LocalWorkspace } from './types.js';
 import { LocalStore } from './local_store.js';
 import { PeerStore } from './peer_store.js';
-import { PeerApi } from './peer_app.js';
+import type { PeerApi } from './peer_app.js';
 
 export function createLocalWorkspace(
   workspacePath: string,

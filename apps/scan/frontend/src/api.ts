@@ -7,12 +7,12 @@ import React from 'react';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
-  QueryKey,
+  type QueryKey,
   useMutation,
-  UseMutationResult,
+  type UseMutationResult,
   useQuery,
   useQueryClient,
-  UseQueryOptions,
+  type UseQueryOptions,
 } from '@tanstack/react-query';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
@@ -23,7 +23,7 @@ import {
   useAudioControls,
   useAudioEnabled,
 } from '@votingworks/ui';
-import { DiagnosticRecord } from '@votingworks/types';
+import type { DiagnosticRecord } from '@votingworks/types';
 
 const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
 

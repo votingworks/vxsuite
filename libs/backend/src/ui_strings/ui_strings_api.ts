@@ -1,11 +1,11 @@
 // @coverage-exclude-file: tested via VxSuite apps
-import { BaseLogger } from '@votingworks/logging';
-import {
+import type { BaseLogger } from '@votingworks/logging';
+import type {
   UiStringAudioClips,
   UiStringAudioIds,
   UiStringTranslations,
 } from '@votingworks/types';
-import { UiStringsStore } from './ui_strings_store.js';
+import type { UiStringsStore } from './ui_strings_store.js';
 
 /** App context for {@link UiStringsApiMethods} endpoints. */
 export interface UiStringsApiContext {

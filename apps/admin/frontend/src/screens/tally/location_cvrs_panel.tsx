@@ -10,7 +10,11 @@ import {
   Icons,
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
-import { Id, PollingPlaceType, pollingPlaceTypeName } from '@votingworks/types';
+import {
+  type Id,
+  type PollingPlaceType,
+  pollingPlaceTypeName,
+} from '@votingworks/types';
 import type { CastVoteRecordFileRecord } from '@votingworks/admin-backend';
 import { GAP, INSET_FOCUS_OUTLINE } from './styles.js';
 

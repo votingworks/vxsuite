@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Callout } from '@votingworks/ui';
-import { PollingPlace, pollingPlaceGroups } from '@votingworks/types';
+import { type PollingPlace, pollingPlaceGroups } from '@votingworks/types';
 
 import { Column } from './layout.js';
 import { EntityList } from './entity_list.js';

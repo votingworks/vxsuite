@@ -1,6 +1,6 @@
-import express, { Application } from 'express';
+import express, { type Application } from 'express';
 import {
-  DippedSmartCardAuthApi,
+  type DippedSmartCardAuthApi,
   generateSignedHashValidationQrCodeValue,
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
@@ -9,45 +9,45 @@ import {
   assertDefined,
   err,
   ok,
-  Optional,
-  Result,
+  type Optional,
+  type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import { createSystemCallApi } from '@votingworks/backend';
-import { Logger, LogEventId } from '@votingworks/logging';
+import { type Logger, LogEventId } from '@votingworks/logging';
 import { isSystemAdministratorAuth } from '@votingworks/utils';
 import {
-  MultiUsbDrive,
-  UsbDriveStatus,
+  type MultiUsbDrive,
+  type UsbDriveStatus,
   createUsbDriveAdapter,
   findDriveByPurpose,
 } from '@votingworks/usb-drive';
 import {
-  ContestId,
+  type ContestId,
   DEFAULT_SYSTEM_SETTINGS,
-  Id,
-  Side,
-  SystemSettings,
-  DippedSmartCardAuth,
+  type Id,
+  type Side,
+  type SystemSettings,
+  type DippedSmartCardAuth,
 } from '@votingworks/types';
 import { getMachineConfig } from './machine_config.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
-import { MachineModeController } from './machine_mode.js';
+import type { MachineModeController } from './machine_mode.js';
 import {
   type MachineMode,
-  BallotPageImage,
+  type BallotPageImage,
   ClientConnectionStatus,
-  ElectionRecord,
-  AdjudicatedCvr,
-  BallotAdjudicationData,
-  BallotImages,
-  AdjudicationError,
-  AppMode,
-  WriteInCandidateRecord,
+  type ElectionRecord,
+  type AdjudicatedCvr,
+  type BallotAdjudicationData,
+  type BallotImages,
+  type AdjudicationError,
+  type AppMode,
+  type WriteInCandidateRecord,
 } from './types.js';
-import { type HostConnection } from './client_store.js';
+import type { HostConnection } from './client_store.js';
 import type { PeerApi } from './peer_app.js';
-import { type ClientWorkspace } from './util/workspace.js';
+import type { ClientWorkspace } from './util/workspace.js';
 import { constructAuthMachineState } from './util/auth.js';
 
 /**

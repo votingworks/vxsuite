@@ -1,11 +1,11 @@
-import {
+import type {
   InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
   SheetOf,
   SheetValidationError,
 } from '@votingworks/types';
-import { Result, ok, err } from '@votingworks/basics';
+import { type Result, ok, err } from '@votingworks/basics';
 
 /**
  * The back of a BMD ballot should be empty, which could be interpreted as

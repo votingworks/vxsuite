@@ -4,9 +4,9 @@ import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { mockScannerStatus } from '@votingworks/pdi-scanner';
 import {
   AdjudicationReason,
-  AdjudicationReasonInfo,
+  type AdjudicationReasonInfo,
   DEFAULT_SYSTEM_SETTINGS,
-  SheetInterpretation,
+  type SheetInterpretation,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,

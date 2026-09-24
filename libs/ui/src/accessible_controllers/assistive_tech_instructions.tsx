@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 
 import { useIsPatDeviceConnected } from './pat_device_context.js';
 

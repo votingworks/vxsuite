@@ -2,12 +2,12 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { EventEmitter } from 'node:events';
 import {
   buildMockInsertedSmartCardAuth,
-  InsertedSmartCardAuthApi,
+  type InsertedSmartCardAuthApi,
 } from '@votingworks/auth';
 import {
   mockLogger,
   LogSource,
-  Logger,
+  type Logger,
   mockBaseLogger,
 } from '@votingworks/logging';
 import tmp from 'tmp';
@@ -16,11 +16,11 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   pollingPlaceBallotStyles,
   pollingPlacePrecinctIds,
-  SystemSettings,
+  type SystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import {
-  BooleanEnvironmentVariableName as Feature,
+  type BooleanEnvironmentVariableName as Feature,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
@@ -30,9 +30,9 @@ import {
 
 import { assertDefined, sleep } from '@votingworks/basics';
 import { setUpBarcodeActivation } from './activation.js';
-import { createWorkspace, Workspace } from '../util/workspace.js';
+import { createWorkspace, type Workspace } from '../util/workspace.js';
 import { getUserRole } from '../util/auth.js';
-import { BarcodeReader } from './types.js';
+import type { BarcodeReader } from './types.js';
 
 const featureFlagMock = getFeatureFlagMock();
 vi.mock('@votingworks/utils', async (importActual) => ({

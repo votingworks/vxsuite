@@ -5,7 +5,7 @@ import { asSheet } from '@votingworks/types';
 import { backendWaitFor, mockFunction } from '@votingworks/test-utils';
 import {
   createMockPdiScanner,
-  MockScanner,
+  type MockScanner,
   mockScannerStatus,
 } from './mock_scanner.js';
 

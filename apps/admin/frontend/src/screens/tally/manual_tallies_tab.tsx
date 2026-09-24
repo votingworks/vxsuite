@@ -21,10 +21,10 @@ import {
   isElectionManagerAuth,
 } from '@votingworks/utils';
 import {
-  BallotStyleGroup,
-  Election,
+  type BallotStyleGroup,
+  type Election,
   getAllPrecinctsAndSplits,
-  PrecinctOrSplit,
+  type PrecinctOrSplit,
 } from '@votingworks/types';
 import type {
   ManualResultsVotingMethod,

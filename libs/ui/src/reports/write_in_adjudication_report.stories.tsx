@@ -6,7 +6,7 @@ import electionFamousNamesData from '@fixtures/electionFamousNames2021/electionG
 import { safeParseElectionDefinition } from '@votingworks/types';
 import {
   WriteInAdjudicationReport,
-  WriteInAdjudicationReportProps,
+  type WriteInAdjudicationReportProps,
 } from './write_in_adjudication_report.js';
 import { PrintedReportPreview } from './layout.js';
 

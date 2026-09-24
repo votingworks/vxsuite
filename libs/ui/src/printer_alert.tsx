@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { PrinterRichStatus, PrinterStatus } from '@votingworks/types';
+import type { PrinterRichStatus, PrinterStatus } from '@votingworks/types';
 import {
   IPP_PRINTER_STATE_REASON_MESSAGES,
   parseHighestPriorityIppPrinterStateReason,

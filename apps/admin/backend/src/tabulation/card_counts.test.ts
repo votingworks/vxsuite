@@ -6,10 +6,10 @@ import {
   makeTemporaryFile,
 } from '@votingworks/fixtures';
 import {
-  Admin,
-  BallotStyleGroupId,
+  type Admin,
+  type BallotStyleGroupId,
   DEFAULT_SYSTEM_SETTINGS,
-  SystemSettings,
+  type SystemSettings,
   Tabulation,
 } from '@votingworks/types';
 import {
@@ -19,7 +19,7 @@ import {
 } from '@votingworks/utils';
 import { Store } from '../store.js';
 import {
-  MockCastVoteRecordFile,
+  type MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../../test/mock_cvr_file.js';
 import {

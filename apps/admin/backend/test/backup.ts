@@ -7,10 +7,10 @@ import {
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import { assertDefined } from '@votingworks/basics';
-import { DEFAULT_SYSTEM_SETTINGS, Id } from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS, type Id } from '@votingworks/types';
 import { BaseLogger, LogSource, mockLogger } from '@votingworks/logging';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
-import { createWorkspace, Workspace } from '../src/util/workspace.js';
+import { createWorkspace, type Workspace } from '../src/util/workspace.js';
 import { createBackup } from '../src/backup/create/index.js';
 import { Backup } from '../src/backup/backup.js';
 

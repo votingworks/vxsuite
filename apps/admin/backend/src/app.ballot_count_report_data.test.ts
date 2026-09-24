@@ -9,7 +9,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
-  BallotStyleGroupId,
+  type BallotStyleGroupId,
   DEFAULT_SYSTEM_SETTINGS,
   Tabulation,
 } from '@votingworks/types';

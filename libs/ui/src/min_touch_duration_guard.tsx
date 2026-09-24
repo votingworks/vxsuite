@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import { useRef, type CSSProperties, type ReactNode } from 'react';
 
 /**
  * Default identified through empirical testing, specifically ESD testing on VxMarkScan
@@ -6,9 +6,9 @@ import React, { useRef } from 'react';
 export const DEFAULT_MIN_TOUCH_DURATION_MS = 50;
 
 interface MinTouchDurationGuardProps {
-  children: React.ReactNode;
+  children: ReactNode;
   minTouchDurationMs?: number;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
 }
 
 /**

@@ -1,4 +1,4 @@
-import {
+import type {
   BallotStyleId,
   ElectionDefinition,
   PartyId,
@@ -7,7 +7,7 @@ import {
   PrintJobId,
 } from '@votingworks/types';
 import type { MachineConfig } from '@votingworks/mark-backend';
-import {
+import type {
   ContestsWithMsEitherNeither,
   UpdateVoteFunction,
 } from '@votingworks/mark-flow-ui';

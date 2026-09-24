@@ -3,14 +3,14 @@ import {
   ElectionStringKey,
   hasSplits,
   LanguageCode,
-  TtsEdit,
-  TtsEditKey,
+  type TtsEdit,
+  type TtsEditKey,
 } from '@votingworks/types';
 import {
-  SpeechSynthesizer,
+  type SpeechSynthesizer,
   convertHtmlToAudioCues,
 } from '@votingworks/backend';
-import { Workspace } from './workspace.js';
+import type { Workspace } from './workspace.js';
 
 export type DataUrl = string;
 

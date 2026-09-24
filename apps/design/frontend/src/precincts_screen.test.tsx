@@ -1,20 +1,20 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { ElectionRecord } from '@votingworks/design-backend';
+import type { ElectionRecord } from '@votingworks/design-backend';
 import { Buffer } from 'node:buffer';
-import { createMemoryHistory, MemoryHistory } from 'history';
+import { createMemoryHistory, type MemoryHistory } from 'history';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  ElectionId,
+  type ElectionId,
   ElectionStringKey,
-  Precinct,
-  PrecinctWithSplits,
-  PrecinctWithoutSplits,
+  type Precinct,
+  type PrecinctWithSplits,
+  type PrecinctWithoutSplits,
   hasSplits,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { assert, assertDefined, err, ok } from '@votingworks/basics';
 import {
-  MockApiClient,
+  type MockApiClient,
   createMockApiClient,
   mockStateFeatures,
   mockUserFeatures,

@@ -1,12 +1,12 @@
 import React, { PureComponent } from 'react';
 
-import { css, CSSObject, DefaultTheme } from 'styled-components';
-import { SizeMode, SizeTheme, UiTheme } from '@votingworks/types';
+import { css, type CSSObject, type DefaultTheme } from 'styled-components';
+import type { SizeMode, SizeTheme, UiTheme } from '@votingworks/types';
 
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { rgba } from 'polished';
 import { styled } from './styled.js';
-import { IconName, Icons } from './icons.js';
+import { type IconName, Icons } from './icons.js';
 
 const FONT_SIZE_REM = 1;
 

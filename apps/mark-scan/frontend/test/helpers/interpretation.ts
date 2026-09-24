@@ -1,8 +1,8 @@
 import {
   BallotType,
-  ElectionDefinition,
-  InterpretedBmdPage,
-  VotesDict,
+  type ElectionDefinition,
+  type InterpretedBmdPage,
+  type VotesDict,
 } from '@votingworks/types';
 
 // Returns a BMD page interpretation with a vote for the first option (candidate or yesOption) in the first contest of the provided election. Use when you just need a well-formed interpretation and the contents don't matter.

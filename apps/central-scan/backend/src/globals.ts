@@ -1,5 +1,5 @@
 import { getNodeEnv } from '@votingworks/backend';
-import { Optional } from '@votingworks/basics';
+import type { Optional } from '@votingworks/basics';
 import { join } from 'node:path';
 
 /**

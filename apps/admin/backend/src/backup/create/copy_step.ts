@@ -1,15 +1,15 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 import { DateTime } from 'luxon';
-import { assert, assertDefined, ok, Result } from '@votingworks/basics';
-import { copyFile, CopyFileError } from '@votingworks/fs';
+import { assert, assertDefined, ok, type Result } from '@votingworks/basics';
+import { copyFile, type CopyFileError } from '@votingworks/fs';
 import { LATEST_SOFTWARE_VERSION } from '@votingworks/types';
 import {
   BACKUP_WORKSPACE_DIR,
   BackupManifest,
-  BackupManifestEntry,
+  type BackupManifestEntry,
 } from '../backup_manifest.js';
-import { CopyBackupOptions } from './types.js';
+import type { CopyBackupOptions } from './types.js';
 import { getMachineConfig } from '../../machine_config.js';
 
 /**

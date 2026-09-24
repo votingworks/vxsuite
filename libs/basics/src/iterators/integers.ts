@@ -1,5 +1,5 @@
 import { iter } from './iter.js';
-import { IteratorPlus } from './types.js';
+import type { IteratorPlus } from './types.js';
 
 /**
  * Builds an infinite generator starting at 0 yielding successive integers.

@@ -1,13 +1,13 @@
 import { assert } from '@votingworks/basics';
 import {
-  ColorMode,
-  ColorPalette,
-  ColorTheme,
-  ScreenType,
-  SizeMode,
-  SizeTheme,
-  TouchSizeMode,
-  UiTheme,
+  type ColorMode,
+  type ColorPalette,
+  type ColorTheme,
+  type ScreenType,
+  type SizeMode,
+  type SizeTheme,
+  type TouchSizeMode,
+  type UiTheme,
   isTouchSizeMode,
 } from '@votingworks/types';
 

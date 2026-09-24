@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { BatchInfo } from '@votingworks/types';
+import type { BatchInfo } from '@votingworks/types';
 import { render, screen, within } from '../../test/react_testing_library.js';
 import { BatchSummaryTable } from './batch_summary_table.js';
 

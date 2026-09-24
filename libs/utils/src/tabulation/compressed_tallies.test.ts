@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
-  CandidateContest,
-  CandidateContestCompressedTally,
-  CompressedTally,
-  Election,
-  PrecinctSelection,
+  type CandidateContest,
+  type CandidateContestCompressedTally,
+  type CompressedTally,
+  type Election,
+  type PrecinctSelection,
   Tabulation,
-  YesNoContest,
+  type YesNoContest,
 } from '@votingworks/types';
 import {
   electionWithMsEitherNeitherFixtures,

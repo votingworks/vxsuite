@@ -1,21 +1,21 @@
 import {
-  Candidate,
-  ContestId,
-  Contest,
-  Id,
-  Vote,
-  VotesDict,
-  WriteInCandidate,
+  type Candidate,
+  type ContestId,
+  type Contest,
+  type Id,
+  type Vote,
+  type VotesDict,
+  type WriteInCandidate,
   straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import { assertDefined, iter, throwIllegalValue } from '@votingworks/basics';
 import React from 'react';
-import { RenderDocument } from './renderer.js';
+import type { RenderDocument } from './renderer.js';
 import {
   BUBBLE_CLASS,
   BubbleShape,
   MARK_OVERLAY_CLASS,
-  OptionInfo,
+  type OptionInfo,
   PAGE_CLASS,
 } from './ballot_components.js';
 import {

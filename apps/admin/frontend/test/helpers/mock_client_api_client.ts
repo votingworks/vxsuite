@@ -1,4 +1,7 @@
-import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
+import {
+  createMockClient,
+  type MockClient,
+} from '@votingworks/grout-test-utils';
 import type {
   ClientApi,
   MachineConfig,
@@ -6,17 +9,17 @@ import type {
 } from '@votingworks/admin-backend';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  DippedSmartCardAuth,
+  type DippedSmartCardAuth,
   DEV_MACHINE_ID,
-  ElectionDefinition,
-  Id,
-  SystemSettings,
+  type ElectionDefinition,
+  type Id,
+  type SystemSettings,
 } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import type { BatteryInfo } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
-import { Mock, vi } from 'vitest';
+import { type Mock, vi } from 'vitest';
 
 type MockClientApiClient = Omit<
   MockClient<ClientApi>,

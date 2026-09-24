@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef, type CSSProperties, type ChangeEvent } from 'react';
 
 import { DesktopPalette, Icons } from '@votingworks/ui';
 import styled from 'styled-components';
@@ -110,7 +110,7 @@ export function ExpandedSelect({
   options: Array<{ value: string; label: string }>;
   onSelect: (selected: string) => void;
   onSearch?: (value: string) => void;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
 }): JSX.Element {
   const optionListRef = useRef<HTMLDivElement>(null);
   const selectedOptionRef = useRef<HTMLOptionElement>(null);
@@ -145,7 +145,7 @@ export function ExpandedSelect({
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
             // @coverage-defer
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            onChange={(event: ChangeEvent<HTMLInputElement>) => {
               const newSearchString = (event.target.value || '').trim();
               onSearch(newSearchString);
             }}

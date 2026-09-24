@@ -7,8 +7,8 @@ import { Callout, LinkButton, H2, P, Font, H3, Icons } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import styled from 'styled-components';
 import {
-  Election,
-  ElectionRegisteredVoterCounts,
+  type Election,
+  type ElectionRegisteredVoterCounts,
   hasPartialRegisteredVoterCounts,
 } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context.js';

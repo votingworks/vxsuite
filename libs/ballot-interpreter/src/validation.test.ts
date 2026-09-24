@@ -3,10 +3,10 @@ import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   BallotType,
   DEFAULT_MARK_THRESHOLDS,
-  PageInterpretation,
+  type PageInterpretation,
 } from '@votingworks/types';
 import { normalizeBallotMode } from './validation.js';
-import { InterpreterOptions } from './types.js';
+import type { InterpreterOptions } from './types.js';
 
 const BLANK_INTERPRETATION: PageInterpretation = { type: 'BlankPage' };
 

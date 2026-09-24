@@ -12,14 +12,14 @@ import { readFileSync } from 'node:fs';
 import { LogEventId } from '@votingworks/logging';
 import {
   CVR,
-  CandidateContest,
+  type CandidateContest,
   ResultsReporting,
   Tabulation,
   safeParse,
   safeParseJson,
 } from '@votingworks/types';
 import { assert, assertDefined, err, find, ok } from '@votingworks/basics';
-import { Client } from '@votingworks/grout';
+import type { Client } from '@votingworks/grout';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
 import {
   attachUsbDrive,
@@ -27,7 +27,7 @@ import {
   configureMachine,
   mockElectionManagerAuth,
 } from '../test/app.js';
-import { Api } from './index.js';
+import type { Api } from './index.js';
 import { mockFileName } from '../test/csv.js';
 import { generateReportPath } from './util/filenames.js';
 

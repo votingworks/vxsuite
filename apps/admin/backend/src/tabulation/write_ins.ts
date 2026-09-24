@@ -1,9 +1,9 @@
 import {
-  Contest,
-  ContestId,
-  Election,
-  ElectionDefinition,
-  Id,
+  type Contest,
+  type ContestId,
+  type Election,
+  type ElectionDefinition,
+  type Id,
   Tabulation,
 } from '@votingworks/types';
 import {
@@ -14,8 +14,8 @@ import {
   isGroupByEmpty,
 } from '@votingworks/utils';
 import { assert, assertDefined } from '@votingworks/basics';
-import { WriteInForTally, WriteInTally } from '../types.js';
-import { Store } from '../store.js';
+import type { WriteInForTally, WriteInTally } from '../types.js';
+import type { Store } from '../store.js';
 import {
   extractWriteInSummary,
   tabulateManualResults,

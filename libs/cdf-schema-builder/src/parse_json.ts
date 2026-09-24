@@ -1,5 +1,5 @@
-import { err, ok, Result, wrapException } from '@votingworks/basics';
-import { z } from 'zod/v4';
+import { err, ok, type Result, wrapException } from '@votingworks/basics';
+import type { z } from 'zod/v4';
 
 function safeParse<T>(
   parser: z.ZodType<T>,

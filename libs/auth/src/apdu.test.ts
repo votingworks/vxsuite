@@ -1,16 +1,16 @@
 import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
 import fc from 'fast-check';
-import { asHexString, Byte } from '@votingworks/types';
+import { asHexString, type Byte } from '@votingworks/types';
 
 import {
   CardCommand,
-  ClaParams,
+  type ClaParams,
   CommandApdu,
   constructTlv,
   parseTlv,
   ResponseApduError,
-  Tlv,
+  type Tlv,
 } from './apdu.js';
 
 test.each<{

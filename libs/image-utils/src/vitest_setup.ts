@@ -1,10 +1,10 @@
 import { expect } from 'vitest';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
-import { RgbaImageData } from '@votingworks/types';
-import { toMatchImage, ToMatchImageOptions } from './jest_match_image.js';
+import type { RgbaImageData } from '@votingworks/types';
+import { toMatchImage, type ToMatchImageOptions } from './jest_match_image.js';
 import {
   buildToMatchPdfSnapshot,
-  ToMatchPdfSnapshotOptions,
+  type ToMatchPdfSnapshotOptions,
 } from './jest_pdf_snapshot.js';
 
 declare global {

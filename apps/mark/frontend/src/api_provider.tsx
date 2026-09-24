@@ -1,11 +1,11 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { type QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type React from 'react';
 import {
   SystemCallContextProvider,
   UiStringsContextProvider,
 } from '@votingworks/ui';
 import {
-  ApiClient,
+  type ApiClient,
   ApiClientContext,
   createQueryClient,
   systemCallApi,

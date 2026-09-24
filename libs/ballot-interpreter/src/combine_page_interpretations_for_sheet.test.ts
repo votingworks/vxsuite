@@ -4,14 +4,14 @@ import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { electionCombinedBallotPrimaryFixtures } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
-  AdjudicationReasonInfo,
+  type AdjudicationReasonInfo,
   BallotType,
-  HmpbBallotPageMetadata,
-  InterpretedBmdPage,
-  InterpretedHmpbPage,
-  PageInterpretation,
-  SheetInterpretation,
-  VotesDict,
+  type HmpbBallotPageMetadata,
+  type InterpretedBmdPage,
+  type InterpretedHmpbPage,
+  type PageInterpretation,
+  type SheetInterpretation,
+  type VotesDict,
 } from '@votingworks/types';
 import { combinePageInterpretationsForSheet } from './combine_page_interpretations_for_sheet.js';
 

@@ -13,8 +13,8 @@ import {
   logEventIdsTemplateFilepath,
 } from './filepaths.js';
 import {
-  GenerateTypesArgs,
-  LoggingConfig,
+  type GenerateTypesArgs,
+  type LoggingConfig,
   diffAndCleanUp,
   parseConfig,
 } from './types.js';

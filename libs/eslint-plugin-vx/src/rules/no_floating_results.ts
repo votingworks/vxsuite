@@ -2,10 +2,10 @@ import {
   AST_NODE_TYPES,
   ESLintUtils,
   type ParserServices,
-  TSESLint,
-  TSESTree,
+  type TSESLint,
+  type TSESTree,
 } from '@typescript-eslint/utils';
-import * as ts from 'typescript';
+import type * as ts from 'typescript';
 import { containsNamedType, createRule } from '../util/index.ts';
 
 interface Options {

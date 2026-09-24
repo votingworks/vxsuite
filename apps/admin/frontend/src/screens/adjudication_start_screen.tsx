@@ -17,7 +17,7 @@ import {
 import pluralize from 'pluralize';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
-import { Admin, CandidateContest } from '@votingworks/types';
+import { Admin, type CandidateContest } from '@votingworks/types';
 import type { MachineRecord } from '@votingworks/admin-backend';
 import { NavigationScreen } from '../components/navigation_screen.js';
 import { AppContext } from '../contexts/app_context.js';

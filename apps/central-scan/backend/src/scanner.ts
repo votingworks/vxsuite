@@ -4,15 +4,15 @@ import {
   extractErrorMessage,
 } from '@votingworks/basics';
 import {
-  AdjudicationReasonInfo,
+  type AdjudicationReasonInfo,
   DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
-  Id,
+  type Id,
   mapSheet,
-  PageInterpretationWithFiles,
+  type PageInterpretationWithFiles,
   pollingPlaceFromElection,
   pollingPlacePrecinctIds,
-  SheetInterpretation,
-  SheetOf,
+  type SheetInterpretation,
+  type SheetOf,
 } from '@votingworks/types';
 import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
@@ -22,27 +22,27 @@ import {
   combinePageInterpretationsForSheet,
   interpretSheetAndSaveImages,
 } from '@votingworks/ballot-interpreter';
-import { LogEventId, Logger, LogLine } from '@votingworks/logging';
+import { LogEventId, type Logger, type LogLine } from '@votingworks/logging';
 import { loadImageData } from '@votingworks/image-utils';
 import {
   assign,
   createMachine,
-  DoneInvokeEvent,
-  EventObject,
+  type DoneInvokeEvent,
+  type EventObject,
   interpret,
-  InterpreterFrom,
+  type InterpreterFrom,
 } from 'xstate';
-import {
+import type {
   BatchControl,
   BatchScanner,
   ScannedSheetInfo,
 } from './fujitsu_scanner.js';
-import { Workspace } from './util/workspace.js';
+import type { Workspace } from './util/workspace.js';
 import {
   describeValidationError,
   validateSheetInterpretation,
 } from './validation.js';
-import { BatchScannerMachineStatus } from './types.js';
+import type { BatchScannerMachineStatus } from './types.js';
 
 const debug = makeDebug('scan:state-machine');
 

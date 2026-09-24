@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { deferred, err, ok } from '@votingworks/basics';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
-import { PrintJobId, PrintJobStatus } from '@votingworks/types';
+import type { PrintJobId, PrintJobStatus } from '@votingworks/types';
 import {
   JOB_POLL_INTERVAL_MS,
   JOB_TIMEOUT_MS,

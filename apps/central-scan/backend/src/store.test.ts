@@ -3,17 +3,17 @@ import { expect, test, vi } from 'vitest';
 import {
   AdjudicationReason,
   anyPollingPlace,
-  BallotMetadata,
+  type BallotMetadata,
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
-  InterpretedHmpbPage,
+  type InterpretedHmpbPage,
   mapSheet,
-  PageInterpretationWithFiles,
-  SheetOf,
+  type PageInterpretationWithFiles,
+  type SheetOf,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import { sleep } from '@votingworks/basics';
-import { AcceptedSheet, RejectedSheet } from '@votingworks/backend';
+import type { AcceptedSheet, RejectedSheet } from '@votingworks/backend';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   makeTemporaryFile,

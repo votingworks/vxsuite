@@ -2,10 +2,13 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { HP_4001_PRINTER_CONFIG } from '@votingworks/printing';
-import { DEFAULT_SYSTEM_SETTINGS, SystemSettings } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  type SystemSettings,
+} from '@votingworks/types';
 import { render, screen } from '../test/react_testing_library.js';
 import {
-  ApiMock,
+  type ApiMock,
   ApiMockProvider,
   createApiMock,
 } from '../test/mock_api_client.js';

@@ -1,5 +1,5 @@
 import { throwIllegalValue } from '@votingworks/basics';
-import { Type } from './types.js';
+import type { Type } from './types.js';
 
 /**
  * Determines whether a string matches a semver pattern.

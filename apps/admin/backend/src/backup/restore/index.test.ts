@@ -49,13 +49,13 @@ import { createBackup } from '../create/index.js';
 import { Backup } from '../backup.js';
 import { FileBackedMachineModeController } from '../../machine_mode.js';
 import {
-  BackupManifest,
+  type BackupManifest,
   BACKUP_MANIFEST_VERSION,
-  BackupManifestStruct,
+  type BackupManifestStruct,
   BackupManifestStructSchema,
 } from '../backup_manifest.js';
 import { restoreBackup } from './index.js';
-import { ProgressEvent } from '../progress.js';
+import type { ProgressEvent } from '../progress.js';
 
 vi.mock(
   import('@votingworks/backend'),

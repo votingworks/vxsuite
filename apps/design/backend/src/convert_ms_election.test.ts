@@ -1,13 +1,13 @@
 import { test, expect, vi, beforeAll, afterAll } from 'vitest';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
-  Election,
+  type Election,
   LATEST_SOFTWARE_VERSION,
   safeParseElection,
 } from '@votingworks/types';
 import { convertMsElection } from './convert_ms_election.js';
 import { TestStore } from '../test/test_store.js';
-import { Jurisdiction } from './types.js';
+import type { Jurisdiction } from './types.js';
 import { readFixture } from '../test/helpers.js';
 import { vxOrganization } from '../test/mocks.js';
 import { defaultSystemSettings } from './system_settings.js';

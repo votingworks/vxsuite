@@ -8,7 +8,7 @@ import {
   waitFor,
 } from '../test/react_testing_library.js';
 import { App } from './app.js';
-import { ApiMock, createApiMock } from '../test/api.js';
+import { type ApiMock, createApiMock } from '../test/api.js';
 
 const electionDefinition = readElectionGeneralDefinition();
 

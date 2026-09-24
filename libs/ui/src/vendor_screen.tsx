@@ -2,7 +2,7 @@ import { Button } from './button.js';
 import { Main } from './main.js';
 import { Screen } from './screen.js';
 import {
-  SignedHashValidationApiClient,
+  type SignedHashValidationApiClient,
   SignedHashValidationButton,
 } from './signed_hash_validation_button.js';
 import { P } from './typography.js';

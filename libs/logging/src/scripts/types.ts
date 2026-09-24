@@ -1,8 +1,8 @@
-import toml from '@iarna/toml';
+import type toml from '@iarna/toml';
 import { assert } from '@votingworks/basics';
 import { execFile } from 'node:child_process';
 import * as fs from 'node:fs';
-import { AppName, BaseLogEventDetails } from '../index.js';
+import { AppName, type BaseLogEventDetails } from '../index.js';
 
 export interface AppDetails {
   name: string;

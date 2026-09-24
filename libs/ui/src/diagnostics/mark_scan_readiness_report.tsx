@@ -1,21 +1,21 @@
 import { ThemeProvider } from 'styled-components';
-import { BooleanEnvironmentVariableName } from '@votingworks/utils';
+import type { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import {
   ConfigurationSection,
-  ConfigurationSectionProps,
+  type ConfigurationSectionProps,
   PollingPlaceSection,
-  PollingPlaceSectionProps,
+  type PollingPlaceSectionProps,
 } from './configuration_section.js';
 import { makeTheme } from '../themes/make_theme.js';
 import { PrintedReport } from '../reports/layout.js';
 import { ReadinessReportHeader } from './report_header.js';
 import {
   MarkScanDeviceDiagnosticSection,
-  MarkScanDeviceDiagnosticSectionProps,
+  type MarkScanDeviceDiagnosticSectionProps,
 } from './mark_scan_device_diagnostic_section.js';
 import { ReportContents } from './components.js';
 import { DiagnosticSectionTitle } from './types.js';
-import { StorageSection, StorageSectionProps } from './storage_section.js';
+import { StorageSection, type StorageSectionProps } from './storage_section.js';
 
 type NonpresentationalSectionProps = Omit<
   MarkScanDeviceDiagnosticSectionProps,

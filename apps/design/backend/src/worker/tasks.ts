@@ -2,10 +2,10 @@ import * as tmp from 'tmp';
 
 import { throwIllegalValue } from '@votingworks/basics';
 import { safeParseJson } from '@votingworks/types';
-import { ScratchDir } from '@votingworks/hmpb';
+import type { ScratchDir } from '@votingworks/hmpb';
 
-import { BackgroundTask } from '../store.js';
-import { WorkerContext } from './context.js';
+import type { BackgroundTask } from '../store.js';
+import type { WorkerContext } from './context.js';
 import {
   generateElectionPackageAndBallots,
   GenerateElectionPackageAndBallotsPayloadSchema,

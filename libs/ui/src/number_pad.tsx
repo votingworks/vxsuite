@@ -1,4 +1,9 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  type KeyboardEventHandler,
+} from 'react';
 import { styled } from './styled.js';
 import { Button } from './button.js';
 import { Icons } from './icons.js';
@@ -33,7 +38,7 @@ export function NumberPad({
   onEnter,
 }: NumberPadProps): JSX.Element {
   const container = useRef<HTMLDivElement>(null);
-  const onKeyPress: React.KeyboardEventHandler = useCallback(
+  const onKeyPress: KeyboardEventHandler = useCallback(
     (event) => {
       if (disabled) {
         return;
@@ -49,7 +54,7 @@ export function NumberPad({
     },
     [disabled, onButtonPress, onClear, onEnter]
   );
-  const onKeyDown: React.KeyboardEventHandler = useCallback(
+  const onKeyDown: KeyboardEventHandler = useCallback(
     (event) => {
       if (disabled) {
         return;

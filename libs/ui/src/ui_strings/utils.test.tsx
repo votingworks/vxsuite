@@ -1,10 +1,10 @@
 import { test } from 'vitest';
 import {
-  Candidate,
-  Election,
+  type Candidate,
+  type Election,
   ElectionStringKey,
-  Parties,
-  PollingPlace,
+  type Parties,
+  type PollingPlace,
 } from '@votingworks/types';
 import { CandidatePartyList, PollingPlaceName } from './utils.js';
 import { newTestContext } from '../../test/test_context.js';

@@ -4,12 +4,15 @@ import {
   H1,
   Icons,
   MainContent,
-  StyledButtonProps,
+  type StyledButtonProps,
   Table,
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
 import { throwIllegalValue } from '@votingworks/basics';
-import { ElectionListing, ElectionStatus } from '@votingworks/design-backend';
+import type {
+  ElectionListing,
+  ElectionStatus,
+} from '@votingworks/design-backend';
 import { useMemo } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import * as api from '../api.js';

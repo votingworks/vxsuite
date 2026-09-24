@@ -1,10 +1,10 @@
-import { err, ok, Result, throwIllegalValue } from '@votingworks/basics';
+import { err, ok, type Result, throwIllegalValue } from '@votingworks/basics';
 import {
-  ElectionDefinition,
+  type ElectionDefinition,
   ElectionStringKey,
   SYSTEM_LIMITS,
-  SystemLimits,
-  SystemLimitViolation,
+  type SystemLimits,
+  type SystemLimitViolation,
 } from '@votingworks/types';
 import {
   getContestIdsForBallotStyle,

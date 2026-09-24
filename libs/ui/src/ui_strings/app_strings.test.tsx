@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { AppStringKey, appStrings } from './app_strings.js';
+import { type AppStringKey, appStrings } from './app_strings.js';
 
 // TODO(kofi): Quick-and-dirty placeholder -- convert to a lint check.
 test('uiStringKeys match object keys', () => {

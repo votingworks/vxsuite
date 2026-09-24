@@ -10,17 +10,24 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { Optional, Result, assert, err, iter, ok } from '@votingworks/basics';
+import {
+  type Optional,
+  type Result,
+  assert,
+  err,
+  iter,
+  ok,
+} from '@votingworks/basics';
 import { writeFile } from 'node:fs/promises';
 import { PDFDocument } from 'pdf-lib';
-import {
+import type {
   PrinterConfig,
   PrinterStatus,
   PrintJobId,
   PrintJobStatus,
 } from '@votingworks/types';
 import { getMockStateRootDir } from '@votingworks/utils';
-import { PrintProps, PrintSides, Printer } from '../types.js';
+import { type PrintProps, PrintSides, type Printer } from '../types.js';
 import { createMockJobId, getMockConnectedPrinterStatus } from './fixtures.js';
 
 export const MOCK_PRINTER_STATE_FILENAME = 'state.json';

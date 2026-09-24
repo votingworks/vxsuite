@@ -14,9 +14,9 @@ import {
   useQueryChangeListener,
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
-import { BackgroundTask, ExportQaRun } from '@votingworks/design-backend';
+import type { BackgroundTask, ExportQaRun } from '@votingworks/design-backend';
 
-import { ElectionIdParams, routes } from './routes.js';
+import { type ElectionIdParams, routes } from './routes.js';
 import { InputGroup, Row } from './layout.js';
 import * as api from './api.js';
 import { TaskProgress } from './task_progress.js';

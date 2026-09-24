@@ -6,14 +6,14 @@ import {
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
-  BallotStyle,
-  CandidateContest,
-  CandidateVote,
-  Dictionary,
-  Election,
+  type BallotStyle,
+  type CandidateContest,
+  type CandidateVote,
+  type Dictionary,
+  type Election,
   getBallotStyle,
   getContests,
-  YesNoVote,
+  type YesNoVote,
 } from '@votingworks/types';
 import {
   assertDefined,

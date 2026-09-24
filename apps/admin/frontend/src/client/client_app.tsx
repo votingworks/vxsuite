@@ -1,9 +1,9 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { type QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import { BatteryLowAlert, LowDiskSpaceWarning } from '@votingworks/ui';
 import { ClientAppRoot } from './client_app_root.js';
 import {
-  ApiClient,
+  type ApiClient,
   ApiClientContext,
   createApiClient,
   createQueryClient,

@@ -1,19 +1,19 @@
-import React, { useCallback } from 'react';
-import { DefaultTheme, css } from 'styled-components';
-import { SizeMode } from '@votingworks/types';
+import { useCallback, type ReactNode } from 'react';
+import { type DefaultTheme, css } from 'styled-components';
+import type { SizeMode } from '@votingworks/types';
 import { styled } from './styled.js';
 
-import { Button, ButtonVariant } from './button.js';
+import { Button, type ButtonVariant } from './button.js';
 import { Checkbox } from './checkbox.js';
 import { Caption, P } from './typography.js';
 
 export interface ContestChoiceButtonProps<T> {
   'aria-label'?: string;
-  caption?: React.ReactNode;
+  caption?: ReactNode;
   choice: T;
   isSelected?: boolean;
   isDerivedVote?: boolean;
-  label: React.ReactNode;
+  label: ReactNode;
   onPress: (value: T) => void;
 
   /**

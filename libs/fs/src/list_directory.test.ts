@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { err, iter, Result } from '@votingworks/basics';
+import { err, iter, type Result } from '@votingworks/basics';
 import { mkdirSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
@@ -8,10 +8,10 @@ import {
 } from '@votingworks/fixtures';
 import { execFileSync } from 'node:child_process';
 import {
-  FileSystemEntry,
+  type FileSystemEntry,
   FileSystemEntryType,
   listDirectory,
-  ListDirectoryError,
+  type ListDirectoryError,
   listDirectoryRecursive,
 } from './list_directory.js';
 

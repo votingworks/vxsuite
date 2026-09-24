@@ -4,18 +4,18 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { mockWritable } from '../../../test/helpers/mock_writable.js';
 import {
-  Device,
+  type Device,
   DeviceSchema,
   DeviceType,
-  ElectionEventLog,
-  ElectionEventLogDocumentation,
+  type ElectionEventLog,
+  type ElectionEventLogDocumentation,
   ElectionEventLogDocumentationSchema,
   ElectionEventLogSchema,
-  Event,
+  type Event,
   EventDispositionType,
-  EventIdDescription,
+  type EventIdDescription,
   EventSchema,
-  EventTypeDescription,
+  type EventTypeDescription,
   HashType,
 } from './index.js';
 

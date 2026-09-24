@@ -1,20 +1,20 @@
 import {
-  BallotStyleId,
+  type BallotStyleId,
   BallotType,
-  ElectionDefinition,
+  type ElectionDefinition,
 } from '@votingworks/types';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import { assertDefined } from '@votingworks/basics';
 import {
   renderToPdf,
   SummaryBallotLayoutRenderer,
-  SummaryBallotPageLayout,
+  type SummaryBallotPageLayout,
 } from '@votingworks/printing';
 import React from 'react';
 import { BmdPaperBallot, filterVotesForContests } from '@votingworks/ui';
 import { randomUUID as uuid } from 'node:crypto';
 import { concatenatePdfs } from '@votingworks/hmpb';
-import { TestDeckBallot } from './test_decks.js';
+import type { TestDeckBallot } from './test_decks.js';
 
 /**
  * Creates a test deck of summary BMD ballots for the given ballot specs.

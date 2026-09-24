@@ -1,14 +1,14 @@
-import { IteratorPlus, assert, iter } from '@votingworks/basics';
+import { type IteratorPlus, assert, iter } from '@votingworks/basics';
 import { createHash } from 'node:crypto';
 import {
-  BallotPageLayout,
-  Contest,
-  CVR,
-  Election,
+  type BallotPageLayout,
+  type Contest,
+  type CVR,
+  type Election,
   getBallotStyle,
   getContests,
-  SheetOf,
-  VotesDict,
+  type SheetOf,
+  type VotesDict,
 } from '@votingworks/types';
 
 /**

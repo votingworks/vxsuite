@@ -3,7 +3,7 @@ import { getRequiredEnvVar, isNodeEnvProduction } from '@votingworks/utils';
 
 import {
   constructJavaCardConfigForVxProgramming,
-  JavaCardConfig,
+  type JavaCardConfig,
 } from '../config.js';
 import { JavaCard } from '../java_card.js';
 import { DEV_JURISDICTION } from '../jurisdictions.js';

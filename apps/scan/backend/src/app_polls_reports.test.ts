@@ -11,13 +11,13 @@ import {
 } from '@votingworks/fixtures';
 import { randomUUID as uuid } from 'node:crypto';
 import {
-  BallotMetadata,
+  type BallotMetadata,
   BallotType,
-  ElectionDefinition,
+  type ElectionDefinition,
   getBallotStyle,
   getContests,
-  PartyId,
-  VotesDict,
+  type PartyId,
+  type VotesDict,
 } from '@votingworks/types';
 import {
   DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,

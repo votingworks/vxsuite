@@ -10,10 +10,10 @@ import {
   RadioGroup,
 } from '@votingworks/ui';
 import {
-  ElectionId,
-  PollingPlace,
+  type ElectionId,
+  type PollingPlace,
   ElectionStringKey,
-  Precinct,
+  type Precinct,
 } from '@votingworks/types';
 import { assertDefined, find, throwIllegalValue } from '@votingworks/basics';
 

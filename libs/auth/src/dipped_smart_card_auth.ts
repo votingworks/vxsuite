@@ -4,11 +4,11 @@ import {
   err,
   extractErrorMessage,
   ok,
-  Result,
+  type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
-  BaseLogger,
+  type BaseLogger,
   LogDispositionStandardTypes,
   LogEventId,
 } from '@votingworks/logging';
@@ -21,12 +21,12 @@ import {
 import {
   arePollWorkerCardDetails,
   areUniversalVendorCardDetails,
-  Card,
-  CardDetails,
-  CardStatus,
-  CheckPinResponse,
+  type Card,
+  type CardDetails,
+  type CardStatus,
+  type CheckPinResponse,
 } from './card.js';
-import {
+import type {
   DippedSmartCardAuthApi,
   DippedSmartCardAuthConfig,
   DippedSmartCardAuthMachineState,

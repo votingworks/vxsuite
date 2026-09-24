@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest';
 import { CircleCiClient } from './circleci_client.js';
-import { QaConfig, QaConfigParams } from './qa_config.js';
+import { QaConfig, type QaConfigParams } from './qa_config.js';
 
 const configParams: QaConfigParams = {
   apiBaseUrl: 'https://circleci.com',

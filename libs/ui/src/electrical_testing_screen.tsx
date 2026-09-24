@@ -1,5 +1,5 @@
-import { UsbDriveStatus } from '@votingworks/usb-drive';
-import { DateTime } from 'luxon';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import type { DateTime } from 'luxon';
 import React from 'react';
 import { styled } from './styled.js';
 import { Button } from './button.js';
@@ -10,7 +10,7 @@ import { Screen } from './screen.js';
 import { Caption, H6 } from './typography.js';
 import { ExportLogsModal } from './export_logs_modal.js';
 import {
-  SignedHashValidationApiClient,
+  type SignedHashValidationApiClient,
   SignedHashValidationButton,
 } from './signed_hash_validation_button.js';
 

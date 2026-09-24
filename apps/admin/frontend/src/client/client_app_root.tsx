@@ -23,7 +23,10 @@ import {
   logOut,
   useApiClient,
 } from './api.js';
-import { AppContext, AppContextInterface } from '../contexts/app_context.js';
+import {
+  AppContext,
+  type AppContextInterface,
+} from '../contexts/app_context.js';
 import { routerPaths } from '../router_paths.js';
 import { ClientMachineLockedScreen } from './screens/client_machine_locked_screen.js';
 import { ClientSettingsScreen } from './screens/client_settings_screen.js';

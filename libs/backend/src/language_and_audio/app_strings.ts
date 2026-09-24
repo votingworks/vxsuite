@@ -2,16 +2,16 @@ import * as fs from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod/v4';
 import {
-  MachineVersion,
+  type MachineVersion,
   safeParseJson,
-  UiStringsPackage,
-  BallotLanguageConfigs,
+  type UiStringsPackage,
+  type BallotLanguageConfigs,
   getAllBallotLanguages,
   LanguageCode,
 } from '@votingworks/types';
 
 import { assertDefined } from '@votingworks/basics';
-import { GoogleCloudTranslator } from './translator.js';
+import type { GoogleCloudTranslator } from './translator.js';
 import { setUiString } from './utils.js';
 
 /**

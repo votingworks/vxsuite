@@ -1,5 +1,5 @@
-import { Result } from '@votingworks/basics';
-import {
+import type { Result } from '@votingworks/basics';
+import type {
   HmpbBallotPaperSize,
   PrinterStatus,
   PrintJobId,

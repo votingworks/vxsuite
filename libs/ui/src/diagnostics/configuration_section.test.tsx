@@ -4,10 +4,10 @@ import {
   electionPrimaryPrecinctSplitsFixtures,
 } from '@votingworks/fixtures';
 import {
-  BallotStyle,
-  Election,
+  type BallotStyle,
+  type Election,
   formatElectionHashes,
-  PollingPlace,
+  type PollingPlace,
   pollingPlaceTypeName,
 } from '@votingworks/types';
 import { getGroupedBallotStyles } from '@votingworks/utils';

@@ -1,10 +1,10 @@
 import React from 'react';
 import { styled } from '../styled.js';
 
-import { SettingsPaneId } from './types.js';
+import type { SettingsPaneId } from './types.js';
 import { TabBar } from './tab_bar.js';
-import { ColorSettings, ColorSettingsProps } from './color_settings.js';
-import { SizeSettings, SizeSettingsProps } from './size_settings.js';
+import { ColorSettings, type ColorSettingsProps } from './color_settings.js';
+import { SizeSettings, type SizeSettingsProps } from './size_settings.js';
 import { H2 } from '../typography.js';
 import { Button } from '../button.js';
 import { VoterSettingsManagerContext } from '../voter_settings_manager_context.js';

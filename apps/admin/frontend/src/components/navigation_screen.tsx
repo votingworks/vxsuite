@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import {
   BatteryStatus,
   DateTimeDisplay,
-  HostNetworkIndicatorStatus,
+  type HostNetworkIndicatorStatus,
   NetworkStatusIndicator as NetworkStatusIndicatorView,
   Toolbar,
   LockMachineButton,
@@ -14,7 +14,7 @@ import {
   SessionTimeLimitTimer,
   Main,
   H1,
-  Route,
+  type Route,
   Breadcrumbs,
   ToolbarButtons,
 } from '@votingworks/ui';
@@ -26,7 +26,7 @@ import {
 } from '@votingworks/utils';
 
 import type { MachineMode } from '@votingworks/admin-backend';
-import { DippedSmartCardAuth } from '@votingworks/types';
+import type { DippedSmartCardAuth } from '@votingworks/types';
 import { throwIllegalValue, assert } from '@votingworks/basics';
 import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context.js';
@@ -39,7 +39,7 @@ import {
 } from '../shared_api.js';
 import { getNetworkStatus } from '../api.js';
 import { ClientNetworkStatusIndicator } from '../client/components/network_status_indicator.js';
-import { NavItem, Sidebar } from './sidebar.js';
+import { type NavItem, Sidebar } from './sidebar.js';
 
 function NetworkStatusIndicator(): JSX.Element | null {
   const networkStatusQuery = getNetworkStatus.usePollingQuery();

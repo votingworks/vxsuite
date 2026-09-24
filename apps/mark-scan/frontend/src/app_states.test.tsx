@@ -1,11 +1,14 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
+import type { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import React from 'react';
 import { anyPollingPlace } from '@votingworks/types';
 import { electionDefinition } from '../test/helpers/election.js';
 import { render, screen } from '../test/react_testing_library.js';
 import { App } from './app.js';
-import { createApiMock, ApiMock } from '../test/helpers/mock_api_client.js';
+import {
+  createApiMock,
+  type ApiMock,
+} from '../test/helpers/mock_api_client.js';
 import { JammedPage } from './pages/jammed_page.js';
 import { JamClearedPage } from './pages/jam_cleared_page.js';
 import { BallotContext } from './contexts/ballot_context.js';

@@ -30,7 +30,7 @@ import {
 } from './api.js';
 import { FieldName, FixedViewport, InputGroup, Row } from './layout.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
-import { ElectionIdParams, routes } from './routes.js';
+import { type ElectionIdParams, routes } from './routes.js';
 import { SealImageInput } from './seal_image_input.js';
 import { useTitle } from './hooks/use_title.js';
 import { SignatureImageInput } from './signature_image_input.js';

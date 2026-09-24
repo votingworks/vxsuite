@@ -1,14 +1,14 @@
 import {
   AdjudicationReason,
-  ContestId,
+  type ContestId,
   formatBallotHash,
-  Id,
+  type Id,
   mapSheet,
 } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   BallotImage,
-  BallotImageHighlight,
+  type BallotImageHighlight,
   Button,
   H1,
   H2,

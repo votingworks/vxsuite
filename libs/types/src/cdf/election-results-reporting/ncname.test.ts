@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
 import { election } from '../../../test/election.js';
-import { Candidate } from '../../election.js';
+import type { Candidate } from '../../election.js';
 import {
   asNcName,
   getCandidateId,

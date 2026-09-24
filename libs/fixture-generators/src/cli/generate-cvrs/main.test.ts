@@ -7,8 +7,8 @@ import {
 } from '@votingworks/fixtures';
 import { mockReadable, mockWritable } from '@votingworks/test-utils';
 import {
-  CVR,
-  CastVoteRecordBatchMetadata,
+  type CVR,
+  type CastVoteRecordBatchMetadata,
   CastVoteRecordExportFileName,
   DEV_MACHINE_ID,
 } from '@votingworks/types';

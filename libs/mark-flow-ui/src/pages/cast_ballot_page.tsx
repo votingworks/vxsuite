@@ -12,7 +12,7 @@ import {
   appStrings,
 } from '@votingworks/ui';
 import {
-  VoterHelpScreenType,
+  type VoterHelpScreenType,
   VoterScreen,
 } from '../components/voter_screen.js';
 

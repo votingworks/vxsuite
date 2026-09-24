@@ -17,7 +17,7 @@ import {
 import { BrowserRouter } from 'react-router-dom';
 import { DevDock } from '@votingworks/dev-dock-frontend';
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { type QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import {
   isElectionManagerAuth,
@@ -28,7 +28,7 @@ import {
 import { assert } from '@votingworks/basics';
 import { MachineLockedScreen } from './screens/machine_locked_screen.js';
 import {
-  ApiClient,
+  type ApiClient,
   ApiClientContext,
   checkPin,
   createApiClient,

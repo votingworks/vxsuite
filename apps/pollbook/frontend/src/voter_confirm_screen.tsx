@@ -18,9 +18,9 @@ import type {
   CheckInBallotParty,
   PartyAbbreviation,
   VoterIdentificationMethod,
+  Election,
 } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { Election } from '@votingworks/types';
 import { Column, Row } from './layout.js';
 import { NoNavScreen } from './nav_screen.js';
 import { usJurisdictions } from './us_states.js';

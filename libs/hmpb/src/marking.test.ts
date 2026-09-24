@@ -1,7 +1,11 @@
 import fs from 'node:fs';
 import { expect, test } from 'vitest';
 
-import { safeParseElection, Vote, VotesDict } from '@votingworks/types';
+import {
+  safeParseElection,
+  type Vote,
+  type VotesDict,
+} from '@votingworks/types';
 import { assertDefined, find, iter } from '@votingworks/basics';
 import {
   overlayImages,

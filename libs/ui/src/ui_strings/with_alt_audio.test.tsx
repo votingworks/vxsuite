@@ -1,5 +1,5 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import React from 'react';
+import type React from 'react';
 import { TestLanguageCode } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
 import { WithAltAudio } from './with_alt_audio.js';

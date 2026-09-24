@@ -2,8 +2,8 @@
 import makeDebug from 'debug';
 import HID from 'node-hid';
 import {
-  PaperHandlerStatus,
-  PaperHandlerDriverInterface,
+  type PaperHandlerStatus,
+  type PaperHandlerDriverInterface,
   isPaperInScanner,
   isPaperReadyToLoad,
   isPaperInOutput,
@@ -15,38 +15,38 @@ import {
 } from '@votingworks/custom-paper-handler';
 import {
   assign as xassign,
-  BaseActionObject,
+  type BaseActionObject,
   createMachine,
-  InvokeConfig,
-  StateMachine,
+  type InvokeConfig,
+  type StateMachine,
   interpret as interpretStateMachine,
-  Interpreter,
-  Assigner,
-  PropertyAssigner,
-  ServiceMap,
-  StateSchema,
+  type Interpreter,
+  type Assigner,
+  type PropertyAssigner,
+  type ServiceMap,
+  type StateSchema,
   sendParent,
-  EventObject,
+  type EventObject,
 } from 'xstate';
 import {
-  Optional,
+  type Optional,
   assert,
   assertDefined,
   extractErrorMessage,
 } from '@votingworks/basics';
 import {
-  Election,
-  ElectionDefinition,
-  MarkThresholds,
-  PageInterpretation,
-  PageInterpretationType,
+  type Election,
+  type ElectionDefinition,
+  type MarkThresholds,
+  type PageInterpretation,
+  type PageInterpretationType,
   pollingPlaceFromElection,
   pollingPlacePrecinctIds,
-  SheetOf,
+  type SheetOf,
 } from '@votingworks/types';
 import { interpretSimplexBmdBallot } from '@votingworks/ballot-interpreter';
-import { LogEventId, LogLine, Logger } from '@votingworks/logging';
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import { LogEventId, type LogLine, type Logger } from '@votingworks/logging';
+import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   isCardlessVoterAuth,
   isIntegrationTest,
@@ -61,8 +61,8 @@ import {
   getNodeEnv,
   setBuiltinAudioPort,
 } from '@votingworks/backend';
-import { Workspace } from '../util/workspace.js';
-import { SimpleServerStatus } from './types.js';
+import type { Workspace } from '../util/workspace.js';
+import type { SimpleServerStatus } from './types.js';
 import { MAX_BALLOT_BOX_CAPACITY } from './constants.js';
 import {
   scanAndSave,
@@ -71,7 +71,7 @@ import {
   loadAndParkPaper,
   printBallotChunks,
 } from './application_driver.js';
-import { PatConnectionStatusReaderInterface } from '../pat-input/connection_status_reader.js';
+import type { PatConnectionStatusReaderInterface } from '../pat-input/connection_status_reader.js';
 import {
   ORIGIN_SWIFTY_PRODUCT_ID,
   ORIGIN_VENDOR_ID,
@@ -84,7 +84,7 @@ import { constructAuthMachineState } from '../util/auth.js';
 import { BlankPageInterpretationDiagnosticError } from './diagnostic/blank_page_interpretation_diagnostic_error.js';
 import { UnknownInterpretationDiagnosticError } from './diagnostic/unknown_interpretation_diagnostic_error.js';
 import { DiagnosticError } from './diagnostic/diagnostic_error.js';
-import { Store } from '../store.js';
+import type { Store } from '../store.js';
 
 interface CoverStatus {
   isOpen: boolean;

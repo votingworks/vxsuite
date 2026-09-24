@@ -1,5 +1,5 @@
-import { SoftwareVersion } from '@votingworks/types';
-import { QaConfig } from './qa_config.js';
+import type { SoftwareVersion } from '@votingworks/types';
+import type { QaConfig } from './qa_config.js';
 import { rootDebug } from './debug.js';
 
 const debug = rootDebug.extend('circleci');

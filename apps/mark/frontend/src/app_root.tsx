@@ -1,17 +1,17 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import {
-  OptionalVote,
-  VotesDict,
+  type OptionalVote,
+  type VotesDict,
   getBallotStyle,
   getContests,
-  ContestId,
+  type ContestId,
   isCombinedBallotPrimary,
-  PartyId,
-  PrecinctId,
-  BallotStyleId,
+  type PartyId,
+  type PrecinctId,
+  type BallotStyleId,
   InsertedSmartCardAuth,
-  PrinterStatus,
-  PrintJobId,
+  type PrinterStatus,
+  type PrintJobId,
 } from '@votingworks/types';
 
 import { useHistory } from 'react-router-dom';

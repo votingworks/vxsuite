@@ -6,18 +6,18 @@ import {
   beforeEach,
   afterEach,
   vi,
-  MockedFunction,
+  type MockedFunction,
   expect,
 } from 'vitest';
 import { PassThrough } from 'node:stream';
-import * as net from 'node:net';
+import type * as net from 'node:net';
 import {
   mockLogger,
   LogSource,
-  MockLogger,
+  type MockLogger,
   LogEventId,
   LogDispositionStandardTypes,
-  Logger,
+  type Logger,
 } from '@votingworks/logging';
 import path from 'node:path';
 import { tryConnect } from './unix_socket.js';
@@ -27,7 +27,7 @@ import {
   UDS_CONNECTION_ATTEMPT_DELAY_MS,
   SCAN_DATA_TTL_MS,
 } from './client.js';
-import { AamvaDocument, BarcodeScannerError } from '../types.js';
+import type { AamvaDocument, BarcodeScannerError } from '../types.js';
 
 vi.mock('./unix_socket');
 

@@ -1,4 +1,4 @@
-import { RawPrinterStatus } from './coders.js';
+import type { RawPrinterStatus } from './coders.js';
 
 /**
  * Checks whether the printer status from the driver indicates an error that

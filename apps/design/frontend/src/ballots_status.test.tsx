@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'vitest';
 import {
-  BallotStyle,
-  Contest,
-  ElectionRegisteredVoterCounts,
-  ElectionType,
+  type BallotStyle,
+  type Contest,
+  type ElectionRegisteredVoterCounts,
+  type ElectionType,
   LanguageCode,
-  PollingPlace,
-  Precinct,
+  type PollingPlace,
+  type Precinct,
 } from '@votingworks/types';
 import type { ElectionInfo } from '@votingworks/design-backend';
 import userEvent from '@testing-library/user-event';
@@ -16,7 +16,7 @@ import { routes } from './routes.js';
 import { withRoute } from '../test/routing_helpers.js';
 import {
   createMockApiClient,
-  MockApiClient,
+  type MockApiClient,
   provideApi,
 } from '../test/api_helpers.js';
 import { render, screen, within } from '../test/react_testing_library.js';

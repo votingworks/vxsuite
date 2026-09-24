@@ -1,10 +1,10 @@
 import { Buffer } from 'node:buffer';
-import { createHash, Hash } from 'node:crypto';
+import { createHash, type Hash } from 'node:crypto';
 import { expect, test, vi } from 'vitest';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { makeTemporaryFile } from '@votingworks/fixtures';
-import { createWriteStream, readFileSync, WriteStream } from 'node:fs';
+import { createWriteStream, readFileSync, type WriteStream } from 'node:fs';
 import { buffer } from 'node:stream/consumers';
 import { HashingPassthrough } from './hash.js';
 

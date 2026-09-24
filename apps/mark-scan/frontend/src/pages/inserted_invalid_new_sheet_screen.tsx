@@ -1,5 +1,5 @@
 import { assertDefined } from '@votingworks/basics';
-import { PageInterpretationType } from '@votingworks/types';
+import type { PageInterpretationType } from '@votingworks/types';
 
 import * as api from '../api.js';
 import { InsertedWrongElectionBallotScreen } from './inserted_wrong_election_ballot_screen.js';

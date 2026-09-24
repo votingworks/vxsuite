@@ -9,7 +9,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   AdminTallyReportByParty,
-  AdminTallyReportByPartyProps,
+  type AdminTallyReportByPartyProps,
   P,
   useCurrentTheme,
 } from '@votingworks/ui';
@@ -18,7 +18,7 @@ import { writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
 import { err, iter } from '@votingworks/basics';
 import { styled } from '../test/styled.js';
-import { PAPER_DIMENSIONS, RenderSpec, renderToPdf } from './render.js';
+import { PAPER_DIMENSIONS, type RenderSpec, renderToPdf } from './render.js';
 
 vi.mock(import('@votingworks/types'), async (importActual) => {
   const original = await importActual();

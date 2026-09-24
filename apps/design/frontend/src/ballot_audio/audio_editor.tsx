@@ -2,9 +2,9 @@ import styled from 'styled-components';
 import React from 'react';
 
 import { throwIllegalValue } from '@votingworks/basics';
-import { TtsStringDefault } from '@votingworks/design-backend';
-import { ElectionStringKey, TtsExportSource } from '@votingworks/types';
-import { H3, P, RadioGroup, RadioGroupOption } from '@votingworks/ui';
+import type { TtsStringDefault } from '@votingworks/design-backend';
+import { ElectionStringKey, type TtsExportSource } from '@votingworks/types';
+import { H3, P, RadioGroup, type RadioGroupOption } from '@votingworks/ui';
 
 import * as api from '../api.js';
 import { TtsTextEditor } from './tts_text_editor.js';

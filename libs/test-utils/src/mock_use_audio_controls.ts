@@ -1,5 +1,5 @@
 // @coverage-defer-file
-import { AudioControls } from '@votingworks/types';
+import type { AudioControls } from '@votingworks/types';
 import type { Mocked, vi } from 'vitest';
 
 export function mockUseAudioControls(fn: typeof vi.fn): Mocked<AudioControls> {

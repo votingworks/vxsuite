@@ -1,10 +1,13 @@
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
+import type React from 'react';
 import { assert } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library.js';
 import { InputWithAudio } from './input_with_audio.js';
-import { AudioLinkButton, AudioLinkButtonProps } from './audio_link_button.js';
+import {
+  AudioLinkButton,
+  type AudioLinkButtonProps,
+} from './audio_link_button.js';
 
 vi.mock('./audio_link_button.js');
 

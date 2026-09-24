@@ -1,17 +1,17 @@
-import { afterEach, beforeEach, expect, Mock, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, type Mock, test, vi } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
   findAllVxAdminHostMachines,
   hasOnlineInterface,
   NETWORK_POLLING_INTERVAL_MS,
-  VxAdminHostMachine,
+  type VxAdminHostMachine,
 } from '@votingworks/networking';
 import { mockBaseLogger, LogEventId } from '@votingworks/logging';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   DEV_MACHINE_ID,
-  ElectionDefinition,
+  type ElectionDefinition,
   TEST_JURISDICTION,
   anyPollingPlace,
 } from '@votingworks/types';

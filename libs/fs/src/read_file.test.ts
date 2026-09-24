@@ -9,7 +9,7 @@ import {
 } from '@votingworks/fixtures';
 import fc from 'fast-check';
 import * as openRegularFile from './open_regular_file.js';
-import { ReadFileError, readFile } from './read_file.js';
+import { type ReadFileError, readFile } from './read_file.js';
 import { READ_CHUNK_SIZE } from './read_chunks.js';
 
 afterEach(() => {

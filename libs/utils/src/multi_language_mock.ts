@@ -1,6 +1,6 @@
 import {
-  Election,
-  ElectionDefinition,
+  type Election,
+  type ElectionDefinition,
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { generateBallotStyleId } from './ballot_styles.js';

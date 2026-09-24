@@ -2,8 +2,8 @@ import { afterEach, beforeEach, expect, test } from 'vitest';
 
 import {
   anyPollingPlace,
-  CandidateContest,
-  Election,
+  type CandidateContest,
+  type Election,
 } from '@votingworks/types';
 import {
   asElectionDefinition,
@@ -13,7 +13,10 @@ import userEvent from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library.js';
 import { App } from './app.js';
 
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

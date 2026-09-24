@@ -1,16 +1,16 @@
-import * as net from 'node:net';
-import { lines, Optional, sleep } from '@votingworks/basics';
+import type * as net from 'node:net';
+import { lines, type Optional, sleep } from '@votingworks/basics';
 import { safeParseJson } from '@votingworks/types';
 import {
-  Logger,
+  type Logger,
   LogEventId,
   LogDispositionStandardTypes,
 } from '@votingworks/logging';
 import { lstat } from 'node:fs/promises';
 import {
-  AamvaDocument,
-  BarcodeScannerError,
-  BarcodeScannerPayload,
+  type AamvaDocument,
+  type BarcodeScannerError,
+  type BarcodeScannerPayload,
   BarcodeScannerPayloadSchema,
   isAamvaDocument,
 } from '../types.js';

@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { readElectionStraightParty } from '@votingworks/fixtures';
-import { StraightPartyContest as StraightPartyContestInterface } from '@votingworks/types';
+import type { StraightPartyContest as StraightPartyContestInterface } from '@votingworks/types';
 import { find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { act } from '@testing-library/react';

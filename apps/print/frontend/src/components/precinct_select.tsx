@@ -1,4 +1,4 @@
-import { Precinct, PrecinctId } from '@votingworks/types';
+import type { Precinct, PrecinctId } from '@votingworks/types';
 import React from 'react';
 import { ExpandedSelect } from './expanded_select.js';
 

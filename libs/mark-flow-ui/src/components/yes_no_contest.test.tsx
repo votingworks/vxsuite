@@ -3,12 +3,12 @@ import {
   readElectionGeneral,
   readElectionTwoPartyPrimary,
 } from '@votingworks/fixtures';
-import { YesNoContest as YesNoContestInterface } from '@votingworks/types';
+import type { YesNoContest as YesNoContestInterface } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import {
   useIsPatDeviceConnected,
   WithScrollButtons,
-  WithScrollButtonsProps,
+  type WithScrollButtonsProps,
 } from '@votingworks/ui';
 import { screen, within, render } from '../../test/react_testing_library.js';
 import { YesNoContest } from './yes_no_contest.js';

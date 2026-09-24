@@ -1,5 +1,5 @@
 import { LogEventId } from '@votingworks/logging';
-import { UsbDrive } from '@votingworks/usb-drive';
+import type { UsbDrive } from '@votingworks/usb-drive';
 import { exists } from 'fs-extra';
 import { join } from 'node:path';
 import { afterEach, beforeEach, expect, vi } from 'vitest';

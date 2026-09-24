@@ -2,8 +2,8 @@
 import {
   AST_NODE_TYPES,
   ESLintUtils,
-  TSESLint,
-  TSESTree,
+  type TSESLint,
+  type TSESTree,
 } from '@typescript-eslint/utils';
 import { strict as assert } from 'node:assert';
 import * as ts from 'typescript';

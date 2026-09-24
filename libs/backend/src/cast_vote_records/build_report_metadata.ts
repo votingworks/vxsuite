@@ -1,14 +1,14 @@
 import { integers, throwIllegalValue } from '@votingworks/basics';
 import {
-  Contest,
-  BatchInfo,
-  CandidateContest,
-  CastVoteRecordBatchMetadata,
+  type Contest,
+  type BatchInfo,
+  type CandidateContest,
+  type CastVoteRecordBatchMetadata,
   CVR,
-  Election,
-  ScannerMachineType,
-  YesNoContest,
-  StraightPartyContest,
+  type Election,
+  type ScannerMachineType,
+  type YesNoContest,
+  type StraightPartyContest,
 } from '@votingworks/types';
 
 /**

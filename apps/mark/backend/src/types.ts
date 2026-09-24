@@ -1,4 +1,4 @@
-import { BallotStyleId, PollsState, VotesDict } from '@votingworks/types';
+import type { BallotStyleId, PollsState, VotesDict } from '@votingworks/types';
 
 export interface MachineConfig {
   machineId: string;

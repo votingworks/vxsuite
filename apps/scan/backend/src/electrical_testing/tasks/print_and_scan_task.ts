@@ -9,8 +9,8 @@ import {
 } from '@votingworks/basics';
 import { PAGE_DOTS_WIDTH } from '@votingworks/fujitsu-thermal-printer';
 import { LogEventId } from '@votingworks/logging';
-import { ScannerEvent } from '@votingworks/pdi-scanner';
-import { mapSheet, RgbaImageData, SheetOf } from '@votingworks/types';
+import type { ScannerEvent } from '@votingworks/pdi-scanner';
+import { mapSheet, type RgbaImageData, type SheetOf } from '@votingworks/types';
 import { createCanvas } from 'canvas';
 import { DateTime } from 'luxon';
 import { mkdir, unlink } from 'node:fs/promises';
@@ -22,7 +22,7 @@ import {
 } from '@votingworks/utils';
 import {
   analyzeScannedPage,
-  ScannedPageAnalysis,
+  type ScannedPageAnalysis,
   writeScanPageAnalyses,
 } from '../analysis/scan.js';
 import type { ScanningMode, ServerContext } from '../context.js';

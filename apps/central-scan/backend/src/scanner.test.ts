@@ -7,24 +7,24 @@ import {
   LogEventId,
   mockBaseLogger,
   mockLogger,
-  MockLogger,
+  type MockLogger,
 } from '@votingworks/logging';
 import {
   AdjudicationReason,
-  AdjudicationReasonInfo,
+  type AdjudicationReasonInfo,
   anyPollingPlace,
 } from '@votingworks/types';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { createWorkspace, Workspace } from './util/workspace.js';
+import { createWorkspace, type Workspace } from './util/workspace.js';
 import { makeMockScanner } from '../test/util/mocks.js';
-import { BatchScanner } from './fujitsu_scanner.js';
+import type { BatchScanner } from './fujitsu_scanner.js';
 import {
-  BatchScannerStateMachine,
+  type BatchScannerStateMachine,
   cleanLogData,
   createBatchScannerStateMachine,
 } from './scanner.js';
-import { BatchScannerMachineStatus } from './types.js';
+import type { BatchScannerMachineStatus } from './types.js';
 
 const electionDefinition = readElectionGeneralDefinition();
 const { election } = electionDefinition;

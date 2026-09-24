@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { constructElectionKey, ElectionDefinition } from '@votingworks/types';
+import {
+  constructElectionKey,
+  type ElectionDefinition,
+} from '@votingworks/types';
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
@@ -8,7 +11,7 @@ import {
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library.js';
 import { App } from './app.js';
-import { ApiMock, createApiMock } from '../test/api.js';
+import { type ApiMock, createApiMock } from '../test/api.js';
 
 // The famous names fixture defines a 'central-scanning' absentee polling place.
 const electionDefinition =

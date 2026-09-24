@@ -5,7 +5,7 @@ import {
   err,
   isResult,
   ok,
-  Result,
+  type Result,
   isArray,
   isBoolean,
   isFunction,

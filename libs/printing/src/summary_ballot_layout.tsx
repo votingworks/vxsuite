@@ -1,20 +1,20 @@
-import { Browser, Page, chromium } from 'playwright';
+import { type Browser, type Page, chromium } from 'playwright';
 import ReactDom from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
 import { assert } from '@votingworks/basics';
 import {
-  BallotStyleId,
-  ContestId,
-  Contest,
-  ElectionDefinition,
+  type BallotStyleId,
+  type ContestId,
+  type Contest,
+  type ElectionDefinition,
   getBallotStyle,
   getContests,
-  UiStringsPackage,
-  VotesDict,
+  type UiStringsPackage,
+  type VotesDict,
 } from '@votingworks/types';
 import {
-  Layout,
-  MachineType,
+  type Layout,
+  type MachineType,
   ORDERED_BMD_BALLOT_LAYOUTS,
   BmdPaperBallot,
   GlobalStyles,

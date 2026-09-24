@@ -1,6 +1,12 @@
 import React, { useState, useCallback } from 'react';
 
-import { Button, StyledButtonProps, Loading, Modal, P } from '@votingworks/ui';
+import {
+  Button,
+  type StyledButtonProps,
+  Loading,
+  Modal,
+  P,
+} from '@votingworks/ui';
 import { sleep } from '@votingworks/basics';
 import { getPrinterStatus } from '../api.js';
 

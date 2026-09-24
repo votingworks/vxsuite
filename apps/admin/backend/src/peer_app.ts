@@ -1,23 +1,23 @@
 import { Buffer } from 'node:buffer';
-import express, { Application } from 'express';
+import express, { type Application } from 'express';
 import * as grout from '@votingworks/grout';
 import {
   assert,
   assertDefined,
   err,
   ok,
-  Optional,
-  Result,
+  type Optional,
+  type Result,
 } from '@votingworks/basics';
 import {
   Admin,
-  ContestId,
+  type ContestId,
   type Id,
   type Side,
   type SystemSettings,
   type UserRole,
 } from '@votingworks/types';
-import { BaseLogger, LogEventId } from '@votingworks/logging';
+import { type BaseLogger, LogEventId } from '@votingworks/logging';
 import type {
   CvrTransferManifest,
   FinishCvrTransferError,
@@ -27,8 +27,8 @@ import type {
   VxAdminHostApi,
 } from '@votingworks/networking';
 import { getMachineConfig } from './machine_config.js';
-import { Workspace } from './util/workspace.js';
-import {
+import type { Workspace } from './util/workspace.js';
+import type {
   AdjudicationError,
   ElectionRecord,
   MachineConfig,

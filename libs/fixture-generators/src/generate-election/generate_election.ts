@@ -6,21 +6,21 @@ import {
   unique,
 } from '@votingworks/basics';
 import {
-  Contest,
+  type Contest,
   HmpbBallotPaperSize,
-  BallotStyle,
-  District,
-  Election,
+  type BallotStyle,
+  type District,
+  type Election,
   ElectionSchema,
-  Party,
-  Precinct,
+  type Party,
+  type Precinct,
   safeParse,
-  PrecinctWithoutSplits,
+  type PrecinctWithoutSplits,
   pollingPlacesGenerateFromPrecincts,
 } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
 import { randomElement } from '@votingworks/utils';
-import { defaultConfig, GenerateElectionConfig } from './config.js';
+import { defaultConfig, type GenerateElectionConfig } from './config.js';
 import { ballotMeasureText, seal, words } from './source_text.js';
 
 const generateId = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12);

@@ -1,6 +1,6 @@
 import { iter } from '@votingworks/basics';
 import { createGrayImageData, pdfToImages } from '@votingworks/image-utils';
-import { asSheet, GrayImageData, SheetOf } from '@votingworks/types';
+import { asSheet, type GrayImageData, type SheetOf } from '@votingworks/types';
 import {
   existsSync,
   mkdirSync,
@@ -10,9 +10,9 @@ import {
 } from 'node:fs';
 import { join } from 'node:path';
 import {
-  MockPdiScannerDelays,
-  MockScanner,
-  MockSheetStatus,
+  type MockPdiScannerDelays,
+  type MockScanner,
+  type MockSheetStatus,
   createMockPdiScanner,
 } from './mock_scanner.js';
 

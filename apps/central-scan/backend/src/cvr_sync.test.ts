@@ -3,7 +3,7 @@ import {
   beforeAll,
   beforeEach,
   expect,
-  Mock,
+  type Mock,
   test,
   vi,
 } from 'vitest';
@@ -11,19 +11,19 @@ import { randomUUID as uuid } from 'node:crypto';
 import { err, ok } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
-  FinishCvrTransferError,
+  type FinishCvrTransferError,
   NETWORK_POLLING_INTERVAL_MS,
 } from '@votingworks/networking';
 import { getEntries, openZip } from '@votingworks/utils';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import {
-  BallotMetadata,
+  type BallotMetadata,
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
   DEV_MACHINE_ID,
-  PageInterpretationWithFiles,
-  SheetOf,
+  type PageInterpretationWithFiles,
+  type SheetOf,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import * as fsSync from 'node:fs';
@@ -32,7 +32,7 @@ import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { generateHmpbFixture } from '../test/helpers/ballots.js';
 import { startCvrSync } from './cvr_sync.js';
 import { Store } from './store.js';
-import { NetworkConnectionInfo } from './types.js';
+import type { NetworkConnectionInfo } from './types.js';
 
 vi.setConfig({
   testTimeout: 60_000,

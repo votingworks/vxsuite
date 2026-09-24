@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   mockCardlessVoterUser,
   mockElectionManagerUser,
@@ -8,9 +8,9 @@ import {
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import {
-  CardlessVoterUser,
+  type CardlessVoterUser,
   constructElectionKey,
-  ElectionDefinition,
+  type ElectionDefinition,
 } from '@votingworks/types';
 
 export function mockLoggedOutAuth(auth: InsertedSmartCardAuthApi): void {

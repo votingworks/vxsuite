@@ -11,9 +11,9 @@ import {
   err,
   extractErrorMessage,
   ok,
-  Result,
+  type Result,
 } from '@votingworks/basics';
-import { copyFile, CopyFileError } from '@votingworks/fs';
+import { copyFile, type CopyFileError } from '@votingworks/fs';
 import { AuthenticatedBackup } from './authenticated_backup.js';
 
 const BACKUP_MANIFEST_MAX_SIZE = 100_000_000; // 100 MB

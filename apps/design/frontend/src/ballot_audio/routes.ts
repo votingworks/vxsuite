@@ -1,4 +1,4 @@
-import { ElectionStringKey } from '@votingworks/types';
+import type { ElectionStringKey } from '@votingworks/types';
 
 export interface BallotAudioPathParams {
   electionId: string;

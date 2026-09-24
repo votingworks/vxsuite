@@ -1,4 +1,4 @@
-import { ImageData } from '@votingworks/types';
+import type { ImageData } from '@votingworks/types';
 import { napi } from './napi.js';
 
 /**

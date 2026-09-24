@@ -1,7 +1,7 @@
-import React from 'react';
+import type React from 'react';
 import { ThemeProvider } from 'styled-components';
 
-import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
+import type { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 
 import { makeTheme } from './make_theme.js';
 

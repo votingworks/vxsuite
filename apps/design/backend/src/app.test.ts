@@ -3,7 +3,7 @@ import { Buffer } from 'node:buffer';
 import JsZip from 'jszip';
 import {
   DateWithoutTime,
-  Result,
+  type Result,
   assert,
   assertDefined,
   deferred,
@@ -26,18 +26,18 @@ import {
   makeTemporaryFile,
 } from '@votingworks/fixtures';
 import {
-  BallotMode,
-  BaseBallotProps,
+  type BallotMode,
+  type BaseBallotProps,
   AdjudicationReason,
   HmpbBallotPaperSize,
   BallotType,
-  Candidate,
-  CandidateContest,
+  type Candidate,
+  type CandidateContest,
   DEFAULT_SYSTEM_SETTINGS,
-  Election,
+  type Election,
   ElectionStringKey,
-  SystemSettings,
-  UiStringsPackage,
+  type SystemSettings,
+  type UiStringsPackage,
   formatBallotHash,
   formatElectionPackageHash,
   mergeUiStrings,
@@ -45,29 +45,29 @@ import {
   unsafeParse,
   ElectionIdSchema,
   DistrictIdSchema,
-  ElectionId,
-  Precinct,
+  type ElectionId,
+  type Precinct,
   hasSplits,
-  District,
-  Party,
+  type District,
+  type Party,
   PartyIdSchema,
-  YesNoContest,
-  PartyId,
-  DistrictId,
+  type YesNoContest,
+  type PartyId,
+  type DistrictId,
   CastVoteRecordExportFileName,
   BALLOT_MODES,
   safeParseJson,
   pollingPlacesGenerateFromPrecincts,
-  PrecinctWithoutSplits,
-  PrecinctWithSplits,
-  ElectionRegisteredVoterCounts,
+  type PrecinctWithoutSplits,
+  type PrecinctWithSplits,
+  type ElectionRegisteredVoterCounts,
   ElectionPackageFileName,
   safeParseElectionDefinitionV4p0,
   LATEST_SOFTWARE_VERSION,
   convertLatestElectionToV4p0,
   straightPartyNotYetImplemented,
-  EncodedBallotEntry,
-  UiStringAudioClip,
+  type EncodedBallotEntry,
+  type UiStringAudioClip,
 } from '@votingworks/types';
 import {
   ballotStyleHasPrecinctOrSplit,
@@ -102,14 +102,14 @@ import {
   layOutBallotsAndCreateElectionDefinition,
   renderAllBallotPdfsAndCreateElectionDefinition,
   generateBallotStyles,
-  ScratchDir,
+  type ScratchDir,
 } from '@votingworks/hmpb';
 import path, { join } from 'node:path';
 import { LogEventId } from '@votingworks/logging';
 import { readdir, readFile } from 'node:fs/promises';
 import { createSummaryBallotTestDeck } from '@votingworks/test-decks';
 import {
-  ApiClient,
+  type ApiClient,
   ELECTION_PACKAGE_FILE_NAME_REGEX,
   exportElectionPackage,
   exportTestDecks,
@@ -123,7 +123,7 @@ import {
   createTestDeckTallyReports,
   precinctTallyReportFileName,
 } from './test_decks.js';
-import {
+import type {
   ElectionInfo,
   ElectionInfoUpdate,
   ElectionListing,
@@ -131,7 +131,7 @@ import {
   Jurisdiction,
   JurisdictionUser,
 } from './types.js';
-import {
+import type {
   MainExportTaskMetadata,
   DuplicateDistrictError,
   DuplicatePartyError,
@@ -165,11 +165,11 @@ import {
   stateDefaultSystemSettings,
 } from './system_settings.js';
 import {
-  GenerateElectionPackageAndBallotsPayload,
+  type GenerateElectionPackageAndBallotsPayload,
   GenerateElectionPackageAndBallotsPayloadSchema,
 } from './worker/generate_election_package_and_ballots.js';
 import {
-  GenerateTestDecksPayload,
+  type GenerateTestDecksPayload,
   GenerateTestDecksPayloadSchema,
 } from './worker/generate_test_decks.js';
 

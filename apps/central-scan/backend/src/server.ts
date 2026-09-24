@@ -1,4 +1,4 @@
-import express, { Application } from 'express';
+import express, { type Application } from 'express';
 import {
   BaseLogger,
   LogEventId,
@@ -6,14 +6,14 @@ import {
   Logger,
 } from '@votingworks/logging';
 import { DippedSmartCardAuth, JavaCard, MockFileCard } from '@votingworks/auth';
-import { Server } from 'node:http';
+import type { Server } from 'node:http';
 import { join } from 'node:path';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
   isIntegrationTest,
 } from '@votingworks/utils';
-import { UsbDrive, detectUsbDriveFromEnv } from '@votingworks/usb-drive';
+import { type UsbDrive, detectUsbDriveFromEnv } from '@votingworks/usb-drive';
 import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
 import {
   DEFAULT_DEV_DOCK_DIR,
@@ -23,7 +23,7 @@ import { getScanWorkspace, PORT } from './globals.js';
 import { createBatchScannerStateMachine } from './scanner.js';
 import { FujitsuScanner, ScannerMode } from './fujitsu_scanner.js';
 import { MockBatchScanner } from './mock_batch_scanner.js';
-import { createWorkspace, Workspace } from './util/workspace.js';
+import { createWorkspace, type Workspace } from './util/workspace.js';
 import { buildCentralScannerApp } from './app.js';
 import { getUserRole } from './util/auth.js';
 import { isCentralScanNetworkingEnabled } from './networking_config.js';

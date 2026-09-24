@@ -1,16 +1,16 @@
-import { Card } from '@votingworks/auth';
-import {
+import type { Card } from '@votingworks/auth';
+import type {
   BarcodeReaderErrorTracker,
   CardReaderErrorTracker,
   ExternalPrinterErrorTracker,
   TaskController,
 } from '@votingworks/backend';
-import { Logger } from '@votingworks/logging';
-import { UsbDrive } from '@votingworks/usb-drive';
-import { Printer } from '@votingworks/printing';
-import { Workspace } from '../util/workspace.js';
-import * as barcodes from '../barcodes/index.js';
-import { Player as AudioPlayer } from '../audio/player.js';
+import type { Logger } from '@votingworks/logging';
+import type { UsbDrive } from '@votingworks/usb-drive';
+import type { Printer } from '@votingworks/printing';
+import type { Workspace } from '../util/workspace.js';
+import type * as barcodes from '../barcodes/index.js';
+import type { Player as AudioPlayer } from '../audio/player.js';
 
 export interface ServerContext {
   audioPlayer?: AudioPlayer;

@@ -1,5 +1,5 @@
 import { assert } from '@votingworks/basics';
-import { BallotPrintCount } from '@votingworks/types';
+import type { BallotPrintCount } from '@votingworks/types';
 import { languageSort } from '@votingworks/utils';
 
 // sortBallotPrintCounts sort order: totalCount, precinctOrSplitName, partyName, languageCode

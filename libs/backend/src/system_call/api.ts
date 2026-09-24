@@ -1,9 +1,15 @@
-import { UsbDrive } from '@votingworks/usb-drive';
-import { LogExportFormat, Logger, LogEventId } from '@votingworks/logging';
-import { getLowDiskSpaceWarningMessage } from '@votingworks/utils';
-import type { DiskSpaceSummary } from '@votingworks/utils';
+import type { UsbDrive } from '@votingworks/usb-drive';
+import {
+  type LogExportFormat,
+  type Logger,
+  LogEventId,
+} from '@votingworks/logging';
+import {
+  getLowDiskSpaceWarningMessage,
+  type DiskSpaceSummary,
+} from '@votingworks/utils';
 
-import { GetAuthStatus } from './auth.js';
+import type { GetAuthStatus } from './auth.js';
 import { exportLogsToUsb } from './export_logs_to_usb.js';
 import { reboot } from './reboot.js';
 import { rebootToVendorMenu } from './reboot_to_vendor_menu.js';
@@ -15,7 +21,7 @@ import { getDiskSpaceSummaries } from './disk_space_summaries.js';
 import {
   getUsbPortStatus,
   toggleUsbPorts,
-  UsbPortAction,
+  type UsbPortAction,
 } from './usb_port_status.js';
 import { getNodeEnv } from '../globals.js';
 

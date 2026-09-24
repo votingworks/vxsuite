@@ -1,6 +1,10 @@
 import type { ManualResultsVotingMethod } from '@votingworks/admin-backend';
 import { assertDefined, find } from '@votingworks/basics';
-import { Election, PrecinctId, BallotStyleGroupId } from '@votingworks/types';
+import type {
+  Election,
+  PrecinctId,
+  BallotStyleGroupId,
+} from '@votingworks/types';
 import {
   getBallotStyleGroup,
   getPrecinctsAndSplitsForBallotStyle,

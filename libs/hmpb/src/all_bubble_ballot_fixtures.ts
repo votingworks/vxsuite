@@ -2,14 +2,14 @@ import * as fs from 'node:fs';
 import { assertDefined, iter, range } from '@votingworks/basics';
 import {
   BallotType,
-  BaseBallotProps,
-  CandidateContest,
-  ElectionDefinition,
+  type BaseBallotProps,
+  type CandidateContest,
+  type ElectionDefinition,
   formatBallotHash,
-  GridPositionOption,
+  type GridPositionOption,
   gridPositionsFromBallotPositions,
-  HmpbBallotPaperSize,
-  VotesDict,
+  type HmpbBallotPaperSize,
+  type VotesDict,
   LATEST_SOFTWARE_VERSION,
 } from '@votingworks/types';
 import makeDebug from 'debug';
@@ -23,9 +23,9 @@ import { markBallotDocument } from './mark_ballot.js';
 import {
   layOutBallotsAndCreateElectionDefinition,
   renderBallotPdfWithMetadataQrCode,
-  ScratchDir,
+  type ScratchDir,
 } from './render_ballot.js';
-import { RendererPool } from './renderer.js';
+import type { RendererPool } from './renderer.js';
 import { injectFooterMetadata } from './all_bubble_ballot/footer.js';
 import { allBubbleBallotConfig } from './all_bubble_ballot/config.js';
 

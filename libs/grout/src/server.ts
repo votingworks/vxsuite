@@ -7,7 +7,7 @@ import {
   isObject,
   isString,
   ok,
-  Result,
+  type Result,
 } from '@votingworks/basics';
 import { rootDebug } from './debug.js';
 import { serialize, deserialize } from './serialization.js';

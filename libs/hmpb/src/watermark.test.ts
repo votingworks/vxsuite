@@ -6,7 +6,7 @@ import { expect, test, vi } from 'vitest';
 import { vxDefaultBallotTemplate } from './ballot_templates/vx_default_ballot_template.js';
 import { createPlaywrightRenderer } from './playwright_renderer.js';
 import { renderBallotPreviewToPdf } from './render_ballot.js';
-import { Renderer } from './renderer.js';
+import type { Renderer } from './renderer.js';
 
 const rendererTest = test.extend<{ renderer: Renderer }>({
   // eslint-disable-next-line no-empty-pattern

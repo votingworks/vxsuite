@@ -1,20 +1,20 @@
 /* eslint-disable react/destructuring-assignment */
 
 import {
-  BallotStyle,
-  Candidate,
-  CandidateContest,
-  Contest,
-  Jurisdiction,
+  type BallotStyle,
+  type Candidate,
+  type CandidateContest,
+  type Contest,
+  type Jurisdiction,
   DEFAULT_LANGUAGE_CODE,
-  District,
-  Election,
+  type District,
+  type Election,
   ElectionStringKey as Key,
-  Party,
-  PollingPlace,
-  Precinct,
-  PrecinctSplit,
-  YesNoOption,
+  type Party,
+  type PollingPlace,
+  type Precinct,
+  type PrecinctSplit,
+  type YesNoOption,
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 

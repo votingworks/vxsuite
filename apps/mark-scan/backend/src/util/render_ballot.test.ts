@@ -20,7 +20,7 @@ import {
 } from '@votingworks/ui';
 import { assert, err, ok } from '@votingworks/basics';
 import { renderBallot } from './render_ballot.js';
-import { createWorkspace, Workspace } from './workspace.js';
+import { createWorkspace, type Workspace } from './workspace.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;

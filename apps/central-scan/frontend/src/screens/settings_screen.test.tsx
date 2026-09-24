@@ -5,8 +5,8 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { MIN_TIME_TO_UNCONFIGURE_MACHINE_MS } from '@votingworks/ui';
 import { screen, within } from '../../test/react_testing_library.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
-import { SettingsScreenProps, SettingsScreen } from './settings_screen.js';
-import { ApiMock, createApiMock } from '../../test/api.js';
+import { type SettingsScreenProps, SettingsScreen } from './settings_screen.js';
+import { type ApiMock, createApiMock } from '../../test/api.js';
 
 // The famous names fixture defines a 'central-scanning' absentee polling place.
 const electionWithPollingPlaces =

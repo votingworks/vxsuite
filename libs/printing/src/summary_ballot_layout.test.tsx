@@ -1,6 +1,10 @@
 import { describe, expect, test, vi } from 'vitest';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
-import { BallotType, ElectionDefinition, VotesDict } from '@votingworks/types';
+import {
+  BallotType,
+  type ElectionDefinition,
+  type VotesDict,
+} from '@votingworks/types';
 import {
   BmdPaperBallot,
   filterVotesForContests,
@@ -14,7 +18,7 @@ import {
 } from '@votingworks/test-utils';
 import {
   SummaryBallotLayoutRenderer,
-  SummaryBallotPageLayout,
+  type SummaryBallotPageLayout,
   computeSummaryBallotLayoutWithRendering,
 } from './summary_ballot_layout.js';
 import { renderToPdf } from './render.js';

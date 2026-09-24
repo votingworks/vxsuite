@@ -14,13 +14,13 @@ import {
   DEV_MACHINE_ID,
   ElectionPackageFileName,
   LATEST_METADATA,
-  ElectionRegisteredVoterCounts,
-  PrinterStatus,
+  type ElectionRegisteredVoterCounts,
+  type PrinterStatus,
   safeParseElectionDefinition,
   testElectionReport,
   testElectionReportUnsupportedContestType,
   Admin,
-  Tabulation,
+  type Tabulation,
 } from '@votingworks/types';
 import { suppressingConsoleOutput, zipFile } from '@votingworks/test-utils';
 import {
@@ -38,7 +38,7 @@ import {
 } from '../test/app.js';
 import { addMockCvrFileToStore } from '../test/mock_cvr_file.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
-import { ManualResultsIdentifier, ManualResultsRecord } from './types.js';
+import type { ManualResultsIdentifier, ManualResultsRecord } from './types.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;

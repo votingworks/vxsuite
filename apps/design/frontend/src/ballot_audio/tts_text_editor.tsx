@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { assertDefined } from '@votingworks/basics';
-import { TtsEdit } from '@votingworks/types';
+import type { TtsEdit } from '@votingworks/types';
 import {
   Icons,
   Button,

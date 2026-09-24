@@ -4,15 +4,15 @@ import {
   arrayBufferFrom,
   assert,
   assertDefined,
-  Optional,
-  Result,
+  type Optional,
+  type Result,
   sleep,
 } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import {
   byteArray,
-  Coder,
-  CoderError,
+  type Coder,
+  type CoderError,
   literal,
   message,
   oneOf,
@@ -23,41 +23,41 @@ import {
   crop,
   writeImageData,
 } from '@votingworks/image-utils';
-import { GrayImageData, Rect } from '@votingworks/types';
+import type { GrayImageData, Rect } from '@votingworks/types';
 import { Mutex } from '@votingworks/utils';
 import {
   assertNumberIsInRangeInclusive,
   assertUint16,
   BytesPerUint32,
-  Uint16,
+  type Uint16,
   Uint16toUint8,
-  Uint8,
+  type Uint8,
 } from '../bits.js';
 import {
   parseScannerCapability,
-  ScannerCapability,
+  type ScannerCapability,
 } from './scanner_capability.js';
 import {
   getDefaultConfig,
   getScannerConfigCoderValues,
-  PaperMovementAfterScan,
-  Resolution,
-  ScanDataFormat,
-  ScanDirection,
-  ScanLight,
-  ScannerConfig,
+  type PaperMovementAfterScan,
+  type Resolution,
+  type ScanDataFormat,
+  type ScanDirection,
+  type ScanLight,
+  type ScannerConfig,
 } from './scanner_config.js';
 import {
   getBitsPerPixelForScanType,
   INT_16_MAX,
   INT_16_MIN,
-  MaxPrintWidthDots,
+  type MaxPrintWidthDots,
   OK_CONTINUE,
   OK_NO_MORE_DATA,
   PRINTING_DENSITY_CODES,
   PRINTING_SPEED_CODES,
-  PrintingDensity,
-  PrintingSpeed,
+  type PrintingDensity,
+  type PrintingSpeed,
   PrintModeDotDensity,
   RealTimeRequestIds,
   SCAN_HEADER_LENGTH_BYTES,
@@ -74,8 +74,8 @@ import {
   InitializeRequestCommand,
   InvalidArgumentErrorCode,
   LoadPaperCommand,
-  PaperHandlerBitmap,
-  PaperHandlerStatus,
+  type PaperHandlerBitmap,
+  type PaperHandlerStatus,
   ParkPaperCommand,
   PresentPaperAndHoldCommand,
   PrintAndFeedPaperCommand,
@@ -97,8 +97,8 @@ import {
   SetRelativeVerticalPrintPositionCommand,
   TransferOutRealTimeRequest,
 } from './coders.js';
-import { PaperHandlerDriverInterface } from './driver_interface.js';
-import { MinimalWebUsbDevice } from './minimal_web_usb_device.js';
+import type { PaperHandlerDriverInterface } from './driver_interface.js';
+import type { MinimalWebUsbDevice } from './minimal_web_usb_device.js';
 
 const serverDebug = makeDebug('mark-scan:custom-paper-handler:driver');
 

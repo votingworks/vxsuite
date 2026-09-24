@@ -1,12 +1,12 @@
 import { getTemporaryRootDir } from '@votingworks/fixtures';
-import { Mocked, mockFunction } from '@votingworks/test-utils';
-import { UsbDriveSpace } from '@votingworks/utils';
+import { type Mocked, mockFunction } from '@votingworks/test-utils';
+import type { UsbDriveSpace } from '@votingworks/utils';
 import tmp from 'tmp';
-import { MockFileTree, writeMockFileTree } from './helpers.js';
+import { type MockFileTree, writeMockFileTree } from './helpers.js';
 import {
   mountedUsbDriveStatus,
-  UsbDrive,
-  UsbDriveFilesystemType,
+  type UsbDrive,
+  type UsbDriveFilesystemType,
   UsbPartitionMountpointSchema,
 } from '../types.js';
 

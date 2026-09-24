@@ -1,9 +1,9 @@
-import React from 'react';
+import type React from 'react';
 import { expect, test } from 'vitest';
 
 import userEvent from '@testing-library/user-event';
 import { deferred, sleep } from '@votingworks/basics';
-import { TtsEdit } from '@votingworks/types';
+import type { TtsEdit } from '@votingworks/types';
 
 import {
   act,
@@ -14,7 +14,7 @@ import {
 import { TtsTextEditor } from './tts_text_editor.js';
 import {
   createMockApiClient,
-  MockApiClient,
+  type MockApiClient,
   provideApi,
 } from '../../test/api_helpers.js';
 

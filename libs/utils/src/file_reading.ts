@@ -1,4 +1,4 @@
-import JsZip, { JSZipObject } from 'jszip';
+import JsZip, { type JSZipObject } from 'jszip';
 import { Buffer } from 'node:buffer';
 
 // @coverage-defer

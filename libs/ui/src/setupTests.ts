@@ -7,7 +7,7 @@ import '@votingworks/fixtures/vitest-setup';
 import '@votingworks/image-utils/vitest-setup';
 import {
   buildToHaveStyleRule,
-  ToHaveStyleRuleMatchers,
+  type ToHaveStyleRuleMatchers,
 } from 'vitest-styled-components';
 
 declare module 'vitest' {

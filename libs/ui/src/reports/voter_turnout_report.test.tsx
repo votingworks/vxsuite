@@ -3,7 +3,7 @@ import {
   electionPrimaryPrecinctSplitsFixtures,
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
-import { Tabulation } from '@votingworks/types';
+import type { Tabulation } from '@votingworks/types';
 import { screen, within } from '@testing-library/react';
 import { render } from '../../test/react_testing_library.js';
 import { VoterTurnoutReport } from './voter_turnout_report.js';

@@ -1,12 +1,12 @@
 import { DateWithoutTime, range } from '@votingworks/basics';
-import {
+import type {
   BallotStyleGroupId,
   BallotStyleId,
   CandidateContest,
   DistrictId,
   Election,
 } from '@votingworks/types';
-import { AllBubbleBallotConfig } from './config.js';
+import type { AllBubbleBallotConfig } from './config.js';
 
 export function contestId(page: number): string {
   return `test-contest-page-${page}`;

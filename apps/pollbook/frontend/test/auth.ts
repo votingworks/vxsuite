@@ -4,7 +4,7 @@ import {
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { DippedSmartCardAuth } from '@votingworks/types';
+import type { DippedSmartCardAuth } from '@votingworks/types';
 
 export function getMockElectionManagerAuth(): DippedSmartCardAuth.AuthStatus {
   return {

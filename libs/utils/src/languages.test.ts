@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { assert } from '@votingworks/basics';
-import { LanguageCode, Election } from '@votingworks/types';
+import { LanguageCode, type Election } from '@votingworks/types';
 import { languageSort, getLanguageOptions } from './languages.js';
 
 test('languageSort', () => {

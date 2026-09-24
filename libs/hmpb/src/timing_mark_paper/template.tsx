@@ -1,4 +1,7 @@
-import { ballotPaperDimensions, HmpbBallotPaperSize } from '@votingworks/types';
+import {
+  ballotPaperDimensions,
+  type HmpbBallotPaperSize,
+} from '@votingworks/types';
 import React from 'react';
 import {
   Page,
@@ -6,7 +9,7 @@ import {
   TimingMarkGrid,
 } from '../ballot_components.js';
 import { BaseStyles } from '../base_styles.js';
-import { RenderDocument, Renderer } from '../renderer.js';
+import type { RenderDocument, Renderer } from '../renderer.js';
 
 export type TimingMarkPaperType = 'standard' | 'qa-overlay';
 

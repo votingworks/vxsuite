@@ -7,7 +7,7 @@ import {
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import { join } from 'node:path';
-import { DiagnosticRecord, TEST_JURISDICTION } from '@votingworks/types';
+import { type DiagnosticRecord, TEST_JURISDICTION } from '@votingworks/types';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { mockSystemAdministratorAuth } from '../test/helpers/auth.js';
 import { withApp } from '../test/helpers/setup_app.js';

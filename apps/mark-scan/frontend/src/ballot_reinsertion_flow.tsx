@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import type { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import { assert } from '@votingworks/basics';
 import { ReinsertedInvalidBallotScreen } from './pages/reinserted_invalid_ballot_screen.js';

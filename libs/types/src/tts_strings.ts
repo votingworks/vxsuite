@@ -1,9 +1,9 @@
 import { z } from 'zod/v4';
 
 import {
-  IpaPhoneme,
+  type IpaPhoneme,
   IpaPhonemeSchema,
-  PhoneticSyllableStress,
+  type PhoneticSyllableStress,
 } from './tts_phonemes.js';
 
 /**

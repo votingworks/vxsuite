@@ -1,11 +1,15 @@
-import React from 'react';
+import type React from 'react';
 import styled from 'styled-components';
 import { Switch, Route, Redirect, useParams } from 'react-router-dom';
 
 import { H1, LinkButton } from '@votingworks/ui';
 
 import { ElectionNavScreen, Header } from './nav_screen.js';
-import { ElectionIdParams, electionParamRoutes, routes } from './routes.js';
+import {
+  type ElectionIdParams,
+  electionParamRoutes,
+  routes,
+} from './routes.js';
 import {
   getBallotsFinalizedAt,
   getElectionInfo,

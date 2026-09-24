@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, Mocked, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, type Mocked, test, vi } from 'vitest';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
@@ -13,23 +13,23 @@ import {
   suppressingConsoleOutput,
   zipFile,
 } from '@votingworks/test-utils';
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   safeParseSystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
   TEST_JURISDICTION,
   safeParseJson,
-  SystemSettings,
+  type SystemSettings,
   SystemSettingsSchema,
-  ElectionDefinition,
-  PrinterStatus,
-  UiStringsPackage,
+  type ElectionDefinition,
+  type PrinterStatus,
+  type UiStringsPackage,
   constructElectionKey,
   convertVxfElectionToCdfBallotDefinition,
   safeParseElectionDefinition,
   DEV_MACHINE_ID,
   ElectionPackageFileName,
-  EncodedBallotEntry,
+  type EncodedBallotEntry,
   LATEST_METADATA,
   BallotType,
 } from '@votingworks/types';
@@ -45,24 +45,24 @@ import {
 import { Buffer } from 'node:buffer';
 import { readFileSync } from 'node:fs';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
-import { Server } from 'node:http';
-import * as grout from '@votingworks/grout';
-import { MockUsbDrive } from '@votingworks/usb-drive';
-import { LogEventId, Logger } from '@votingworks/logging';
+import type { Server } from 'node:http';
+import type * as grout from '@votingworks/grout';
+import type { MockUsbDrive } from '@votingworks/usb-drive';
+import { LogEventId, type Logger } from '@votingworks/logging';
 import {
   HP_4001_PRINTER_CONFIG,
-  MemoryPrinterHandler,
+  type MemoryPrinterHandler,
 } from '@votingworks/printing';
 import { createApp } from '../test/app_helpers.js';
-import { Api } from './app.js';
-import { ElectionState, PrintCalibration } from './index.js';
+import type { Api } from './app.js';
+import type { ElectionState, PrintCalibration } from './index.js';
 import {
   isAccessibleControllerAttached,
   isPatInputAttached,
 } from './util/accessible_controller.js';
-import { Workspace } from './util/workspace.js';
-import { getMockAudioPlayer, Player } from './audio/player.js';
-import { MockBarcodeClient } from './barcodes/mock_client.js';
+import type { Workspace } from './util/workspace.js';
+import { getMockAudioPlayer, type Player } from './audio/player.js';
+import type { MockBarcodeClient } from './barcodes/mock_client.js';
 
 const electionGeneralDefinition =
   electionGeneralFixtures.readElectionDefinition();

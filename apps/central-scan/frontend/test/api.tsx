@@ -1,20 +1,23 @@
-import { Mock, vi } from 'vitest';
-import React from 'react';
+import { type Mock, vi } from 'vitest';
+import type React from 'react';
 import type {
   Api,
   MachineConfig,
   NetworkStatus,
   ScanStatus,
 } from '@votingworks/central-scan-backend';
-import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
+import {
+  createMockClient,
+  type MockClient,
+} from '@votingworks/grout-test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  DiagnosticOutcome,
-  DiagnosticRecord,
-  DippedSmartCardAuth,
-  ElectionDefinition,
-  Id,
-  SystemSettings,
+  type DiagnosticOutcome,
+  type DiagnosticRecord,
+  type DippedSmartCardAuth,
+  type ElectionDefinition,
+  type Id,
+  type SystemSettings,
 } from '@votingworks/types';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { SystemCallContextProvider, TestErrorBoundary } from '@votingworks/ui';

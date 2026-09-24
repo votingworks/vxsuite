@@ -1,11 +1,11 @@
 import { expect, test } from 'vitest';
-import {
+import type {
   AdjudicatedCvrContest,
   ContestAdjudicationData,
   ContestOptionAdjudicationData,
   WriteInCandidateRecord,
 } from '@votingworks/admin-backend';
-import {
+import type {
   CandidateContest,
   Contest,
   ContestOption,

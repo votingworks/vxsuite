@@ -1,11 +1,11 @@
 /* eslint-disable vx/gts-no-public-class-fields */
 // props must be public to be defined in the interface
 
-import * as fs from 'node:fs/promises';
+import type * as fs from 'node:fs/promises';
 import { open as fsOpen } from '@votingworks/fs';
 import { assert, sleep } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { LogEventId, BaseLogger } from '@votingworks/logging';
+import { LogEventId, type BaseLogger } from '@votingworks/logging';
 import { join } from 'node:path';
 import {
   FAI_100_STATUS_FILENAME,
@@ -13,7 +13,7 @@ import {
   PAT_CONNECTION_STATUS_PIN,
   PAT_GPIO_OFFSET,
 } from './constants.js';
-import { BmdModelNumber } from '../types.js';
+import type { BmdModelNumber } from '../types.js';
 
 export const CONNECTION_TIMEOUT_MS = 5000;
 export const CONNECTION_RETRY_INTERVAL_MS = 500;

@@ -1,5 +1,5 @@
-import { UiTheme } from '@votingworks/types';
-import React from 'react';
+import type { UiTheme } from '@votingworks/types';
+import type React from 'react';
 import { styled } from './styled.js';
 
 export type CardFooterAlign = 'left' | 'center' | 'right';

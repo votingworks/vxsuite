@@ -7,12 +7,12 @@ import {
   electionWithMsEitherNeitherFixtures,
 } from '@votingworks/fixtures';
 import {
-  BallotTargetMark,
-  CandidateContest,
-  StraightPartyContest,
+  type BallotTargetMark,
+  type CandidateContest,
+  type StraightPartyContest,
   Tabulation,
-  WriteInCandidate,
-  YesNoContest,
+  type WriteInCandidate,
+  type YesNoContest,
 } from '@votingworks/types';
 import { find, typedAs } from '@votingworks/basics';
 import {

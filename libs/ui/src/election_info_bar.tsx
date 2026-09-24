@@ -1,5 +1,8 @@
 import React from 'react';
-import { ElectionDefinition, formatElectionHashes } from '@votingworks/types';
+import {
+  type ElectionDefinition,
+  formatElectionHashes,
+} from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import { styled } from './styled.js';
 import { Seal } from './seal.js';

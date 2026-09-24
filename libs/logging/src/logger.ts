@@ -1,6 +1,6 @@
-import { LogEventId, LogSource } from './log_event_enums.js';
-import { LogLine, LoggingUserRole } from './types.js';
-import { LogData, BaseLogger } from './base_logger.js';
+import type { LogEventId, LogSource } from './log_event_enums.js';
+import type { LogLine, LoggingUserRole } from './types.js';
+import { type LogData, BaseLogger } from './base_logger.js';
 
 export class Logger extends BaseLogger {
   constructor(

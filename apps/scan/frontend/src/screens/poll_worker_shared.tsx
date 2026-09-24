@@ -1,7 +1,7 @@
-import { PollsTransitionType } from '@votingworks/types';
+import type { PollsTransitionType } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
 import {
-  CenteredScreenProps,
+  type CenteredScreenProps,
   ScreenMainCenterChild,
 } from '../components/layout.js';
 

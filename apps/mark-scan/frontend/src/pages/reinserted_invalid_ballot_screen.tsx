@@ -1,7 +1,7 @@
-import React from 'react';
+import type React from 'react';
 
 import { assertDefined } from '@votingworks/basics';
-import { PageInterpretationType } from '@votingworks/types';
+import type { PageInterpretationType } from '@votingworks/types';
 
 import * as api from '../api.js';
 import { ReinsertedNonBallotScreen } from './reinserted_non_ballot_screen.js';

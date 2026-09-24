@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { Tabulation } from '@votingworks/types';
+import type { Tabulation } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { GroupByEditor } from './group_by_editor.js';
 import { screen } from '../../../test/react_testing_library.js';

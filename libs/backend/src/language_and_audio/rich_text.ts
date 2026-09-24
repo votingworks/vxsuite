@@ -1,5 +1,5 @@
 import { assert, assertDefined } from '@votingworks/basics';
-import { parse as parseHtml, Node, HTMLElement } from 'node-html-parser';
+import { parse as parseHtml, type Node, HTMLElement } from 'node-html-parser';
 
 /**
  * Converts HTML tags to useful audio cues for the listener. Google Cloud

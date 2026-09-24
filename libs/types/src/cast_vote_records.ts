@@ -1,25 +1,25 @@
 import { z } from 'zod/v4';
 
 import {
-  CastVoteRecordReport,
+  type CastVoteRecordReport,
   CastVoteRecordReportSchema,
   CVRSchema,
 } from './cdf/cast-vote-records/index.js';
 import {
-  BallotCastingMode,
-  BallotStyle,
-  BallotType,
+  type BallotCastingMode,
+  type BallotStyle,
+  type BallotType,
   BallotTypeSchema,
-  ElectionDefinition,
-  HmpbBallotPageMetadata,
-  Precinct,
-  ScannerMachineType,
+  type ElectionDefinition,
+  type HmpbBallotPageMetadata,
+  type Precinct,
+  type ScannerMachineType,
   ScannerMachineTypeSchema,
 } from './election.js';
-import { ExportDataError } from './errors.js';
-import { Iso8601Timestamp, Iso8601TimestampSchema } from './generic.js';
-import { SheetOf } from './hmpb.js';
-import { PageInterpretation } from './interpretation.js';
+import type { ExportDataError } from './errors.js';
+import { type Iso8601Timestamp, Iso8601TimestampSchema } from './generic.js';
+import type { SheetOf } from './hmpb.js';
+import type { PageInterpretation } from './interpretation.js';
 
 export interface CVRSnapshotOtherStatus {
   ballotType: BallotType;

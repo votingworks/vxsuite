@@ -6,7 +6,7 @@ import {
   FocusableAudio,
   FOCUSABLE_AUDIO_CLASS_NAME,
 } from './focusable_audio.js';
-import { ReadOnLoad, ReadOnLoadProps } from './ui_strings/read_on_load.js';
+import { ReadOnLoad, type ReadOnLoadProps } from './ui_strings/read_on_load.js';
 
 vi.mock(import('./ui_strings/read_on_load.js'), async (importActual) => ({
   ...(await importActual()),

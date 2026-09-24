@@ -1,5 +1,5 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import { CardStatus } from '@votingworks/auth';
+import type { CardStatus } from '@votingworks/auth';
 
 import {
   BarcodeReaderErrorTracker,

@@ -7,7 +7,7 @@ import { Readable } from 'node:stream';
 import readline from 'node:readline';
 import yauzl from 'yauzl';
 import {
-  Result,
+  type Result,
   assert,
   assertDefined,
   deepEqual,
@@ -28,14 +28,14 @@ import {
   systemLimitViolationToString,
 } from '@votingworks/utils';
 import * as fs from 'node:fs/promises';
-import { LogEventId, BaseLogger } from '@votingworks/logging';
+import { LogEventId, type BaseLogger } from '@votingworks/logging';
 import {
-  ElectionPackage,
-  ElectionPackageConfigurationError,
-  DippedSmartCardAuth,
-  InsertedSmartCardAuth,
+  type ElectionPackage,
+  type ElectionPackageConfigurationError,
+  type DippedSmartCardAuth,
+  type InsertedSmartCardAuth,
   ElectionPackageFileName,
-  UiStringAudioClip,
+  type UiStringAudioClip,
   UiStringAudioClipSchema,
   UiStringAudioIdsPackageSchema,
   UiStringsPackageSchema,
@@ -43,18 +43,18 @@ import {
   safeParseSystemSettings,
   ElectionPackageMetadataSchema,
   mergeUiStrings,
-  UiStringAudioIdsPackage,
+  type UiStringAudioIdsPackage,
   safeParseElectionDefinition,
   constructElectionKey,
-  EncodedBallotEntry,
+  type EncodedBallotEntry,
   EncodedBallotEntrySchema,
-  SystemLimitViolation,
-  SystemLimits,
-  ElectionRegisteredVoterCounts,
+  type SystemLimitViolation,
+  type SystemLimits,
+  type ElectionRegisteredVoterCounts,
   ElectionRegisteredVoterCountsSchema,
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
-import { z } from 'zod/v4';
+import type { z } from 'zod/v4';
 import { validateElectionDefinitionAgainstSystemLimits } from './system_limits.js';
 
 /**

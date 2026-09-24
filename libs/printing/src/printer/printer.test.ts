@@ -7,7 +7,7 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { PrinterRichStatus } from '@votingworks/types';
+import type { PrinterRichStatus } from '@votingworks/types';
 import { isDeviceAttached } from '@votingworks/backend';
 import { detectPrinter } from './printer.js';
 import {

@@ -1,4 +1,4 @@
-import { deferred, Optional } from '@votingworks/basics';
+import { deferred, type Optional } from '@votingworks/basics';
 
 interface LockResult<T> {
   value: T;

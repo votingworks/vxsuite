@@ -1,6 +1,6 @@
 import {
   DEFAULT_MARGIN_DIMENSIONS,
-  MarginDimensions,
+  type MarginDimensions,
 } from '@votingworks/printing';
 
 /**

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import {
   BallotType,
-  ExportCastVoteRecordsToUsbDriveError,
+  type ExportCastVoteRecordsToUsbDriveError,
 } from '@votingworks/types';
 
 import { userReadableMessageFromExportError } from './cast_vote_records.js';

@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 
 import { appStrings, Caption, Icons, P } from '@votingworks/ui';
 

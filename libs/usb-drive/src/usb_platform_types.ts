@@ -1,12 +1,12 @@
-import { UsbDriveSpace } from '@votingworks/utils';
+import type { UsbDriveSpace } from '@votingworks/utils';
 import z from 'zod/v4';
 import {
-  UsbDiskDevPath,
+  type UsbDiskDevPath,
   UsbDiskDevPathSchema,
-  UsbDriveFormatFilesystemType,
+  type UsbDriveFormatFilesystemType,
   UsbPartitionBaseSchema,
-  UsbPartitionDevPath,
-  UsbPartitionMountpoint,
+  type UsbPartitionDevPath,
+  type UsbPartitionMountpoint,
   UsbPartitionMountpointSchema,
 } from './types.js';
 

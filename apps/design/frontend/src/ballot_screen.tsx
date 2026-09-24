@@ -3,15 +3,15 @@ import { Link, useParams } from 'react-router-dom';
 import { find, range, throwIllegalValue } from '@votingworks/basics';
 import {
   HmpbBallotPaperSize,
-  BallotMode,
+  type BallotMode,
   BallotType,
   unsafeParse,
   ElectionIdSchema,
   BallotStyleIdSchema,
   PrecinctIdSchema,
-  Contest,
+  type Contest,
 } from '@votingworks/types';
-import React, { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, type ReactNode, type UIEvent } from 'react';
 import styled from 'styled-components';
 import { z } from 'zod/v4';
 import {
@@ -134,7 +134,7 @@ function PdfViewer({ pdfData }: { pdfData?: Uint8Array }) {
   );
 
   // @coverage-defer
-  function onScroll(e: React.UIEvent<HTMLDivElement>) {
+  function onScroll(e: UIEvent<HTMLDivElement>) {
     if (!numPages) return;
     const { scrollHeight, scrollTop } = e.currentTarget;
     // Add a fraction of the page height to the scroll position to make the
@@ -246,11 +246,7 @@ function formContestTooLongErrorMessage(
   return `${issue} ${suggestion}`;
 }
 
-function ErrorMessage({
-  children,
-}: {
-  children: React.ReactNode;
-}): JSX.Element {
+function ErrorMessage({ children }: { children: ReactNode }): JSX.Element {
   return (
     <Row
       style={{

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { mockWritable } from '@votingworks/test-utils';
 import {
-  DisplayProgress,
+  type DisplayProgress,
   fractionComplete,
   ProgressDisplay,
   renderProgressLine,

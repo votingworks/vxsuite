@@ -1,15 +1,15 @@
-import { Logger } from '@votingworks/logging';
+import type { Logger } from '@votingworks/logging';
 import { getEnvUsbPlatform } from './get_env_usb_platform.js';
 import { detectMultiUsbDrive } from './multi_usb_drive.js';
 import {
   getUsbDrivePurpose,
-  UsbDiskDevPath,
-  UsbDrive,
-  UsbDriveInfo,
-  UsbDrivePurpose,
+  type UsbDiskDevPath,
+  type UsbDrive,
+  type UsbDriveInfo,
+  type UsbDrivePurpose,
 } from './types.js';
 import { createUsbDriveAdapter } from './usb_drive_adapter.js';
-import { UsbPlatform } from './usb_platform_types.js';
+import type { UsbPlatform } from './usb_platform_types.js';
 
 /** Returns the first drive whose partition serves `purpose`, if any. */
 export function findDriveByPurpose(

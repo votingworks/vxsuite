@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { existsSync } from 'node:fs';
-import { AddressInfo } from 'node:net';
+import type { AddressInfo } from 'node:net';
 import { basename, dirname, join } from 'node:path';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { deferred, err, ok } from '@votingworks/basics';
@@ -22,7 +22,7 @@ import { restoreBackup } from './backup/restore/index.js';
 import { FileBackedMachineModeController } from './machine_mode.js';
 import {
   buildRestoreApp,
-  RestoreApi,
+  type RestoreApi,
   RESTORE_MODE_STORE,
 } from './restore_app.js';
 import {

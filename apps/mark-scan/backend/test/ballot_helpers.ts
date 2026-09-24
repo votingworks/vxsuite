@@ -1,4 +1,4 @@
-import { PageInterpretation, SheetOf } from '@votingworks/types';
+import type { PageInterpretation, SheetOf } from '@votingworks/types';
 
 export const BLANK_PAGE_MOCK: PageInterpretation = {
   type: 'BlankPage',

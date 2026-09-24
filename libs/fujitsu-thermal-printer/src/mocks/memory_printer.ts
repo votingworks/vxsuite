@@ -1,10 +1,10 @@
 import { err, ok } from '@votingworks/basics';
 import { writeImageData } from '@votingworks/image-utils';
-import { RgbaImageData } from '@votingworks/types';
+import type { RgbaImageData } from '@votingworks/types';
 import { rmSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { tmpName } from 'tmp-promise';
-import {
+import type {
   FujitsuThermalPrinterInterface,
   PrintResult,
   PrinterStatus,

@@ -6,16 +6,16 @@ import {
   isElectionManagerAuth,
   isGroupByEmpty,
 } from '@votingworks/utils';
-import { Admin, Tabulation } from '@votingworks/types';
+import type { Admin, Tabulation } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context.js';
 import { NavigationScreen } from '../../components/navigation_screen.js';
 import {
   FilterEditor,
-  FilterType,
+  type FilterType,
 } from '../../components/reporting/filter_editor.js';
 import {
   GroupByEditor,
-  GroupByEditorOption,
+  type GroupByEditorOption,
 } from '../../components/reporting/group_by_editor.js';
 import {
   canonicalizeFilter,

@@ -7,7 +7,7 @@ import React from 'react';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import type { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import { act, render, screen } from '../test/react_testing_library.js';
-import { VoterFlow, VoterFlowProps } from './voter_flow.js';
+import { VoterFlow, type VoterFlowProps } from './voter_flow.js';
 import { mockMachineConfig } from '../test/helpers/mock_machine_config.js';
 import { Ballot } from './components/ballot.js';
 import { PatDeviceCalibrationPageWrapper } from './pages/pat_device_calibration_page_wrapper.js';

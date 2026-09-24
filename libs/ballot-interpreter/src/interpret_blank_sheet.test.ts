@@ -4,8 +4,8 @@ import {
 } from '@votingworks/fixtures';
 import {
   DEFAULT_MARK_THRESHOLDS,
-  SheetOf,
-  RgbaImageData,
+  type SheetOf,
+  type RgbaImageData,
 } from '@votingworks/types';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { interpretSheet } from './interpret.js';

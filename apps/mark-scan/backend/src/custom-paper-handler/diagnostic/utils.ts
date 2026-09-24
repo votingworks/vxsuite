@@ -1,6 +1,6 @@
 import { readElection } from '@votingworks/fs';
 import {
-  ElectionDefinition,
+  type ElectionDefinition,
   ElectionPackageFileName,
 } from '@votingworks/types';
 import { join } from 'node:path';

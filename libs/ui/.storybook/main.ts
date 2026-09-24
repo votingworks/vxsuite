@@ -1,8 +1,8 @@
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Alias, mergeConfig } from 'vite';
-import { StorybookConfig } from '@storybook/react-vite';
+import { type Alias, mergeConfig } from 'vite';
+import type { StorybookConfig } from '@storybook/react-vite';
 
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 

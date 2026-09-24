@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
-import { err, Result } from '@votingworks/basics';
-import { Logger, LogEventId } from '@votingworks/logging';
+import { err, type Result } from '@votingworks/basics';
+import { type Logger, LogEventId } from '@votingworks/logging';
 import { copyBackupFiles } from './copy_step.js';
 import { openBackup, vetManifest } from './open_step.js';
 import {
@@ -10,7 +10,7 @@ import {
   claimWorkspace,
   completeRestore,
 } from './prepare_step.js';
-import { RestoreBackupOptions, RestoreError } from './types.js';
+import type { RestoreBackupOptions, RestoreError } from './types.js';
 import {
   flushRestoredWorkspace,
   verifyRestoredWorkspace,

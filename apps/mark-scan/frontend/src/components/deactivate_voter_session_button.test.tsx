@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { render, screen } from '../../test/react_testing_library.js';
 import {
   ResetVoterSessionButton,
-  ResetVoterSessionButtonProps,
+  type ResetVoterSessionButtonProps,
 } from './deactivate_voter_session_button.js';
 import * as api from '../api.js';
 

@@ -1,6 +1,6 @@
-import React from 'react';
+import type React from 'react';
 import { css } from 'styled-components';
-import { SizeTheme } from '@votingworks/types';
+import type { SizeTheme } from '@votingworks/types';
 import { styled } from './styled.js';
 
 export type Align = 'left' | 'center' | 'right';

@@ -1,4 +1,4 @@
-import { err, ok, Result, resultBlock } from '@votingworks/basics';
+import { err, ok, type Result, resultBlock } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import {
   bufferContainsBitOffset,
@@ -6,7 +6,7 @@ import {
   toBitOffset,
   toByteOffset,
 } from './bits.js';
-import {
+import type {
   BitLength,
   BitOffset,
   Coder,

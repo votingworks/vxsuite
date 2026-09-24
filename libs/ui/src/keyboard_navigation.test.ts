@@ -1,4 +1,4 @@
-import { expect, Mock, test, vi } from 'vitest';
+import { expect, type Mock, test, vi } from 'vitest';
 import { Keybinding } from './keybindings.js';
 import {
   advanceElementFocus,

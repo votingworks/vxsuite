@@ -1,7 +1,14 @@
-import { MockInstance, afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { PrintJobStatus } from '@votingworks/types';
 import {
-  MemoryPrinterHandler,
+  type MockInstance,
+  afterEach,
+  beforeEach,
+  expect,
+  test,
+  vi,
+} from 'vitest';
+import type { PrintJobStatus } from '@votingworks/types';
+import {
+  type MemoryPrinterHandler,
   createMockPrinterHandler,
 } from './mocks/memory_printer.js';
 import {

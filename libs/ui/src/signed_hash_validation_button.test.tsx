@@ -3,7 +3,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import { sleep } from '@votingworks/basics';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 
-import { SignedHashValidationQrCodeValue } from '@votingworks/types';
+import type { SignedHashValidationQrCodeValue } from '@votingworks/types';
 import { userEvent } from './user_event.js';
 import { newTestContext } from '../test/test_context.js';
 import { SignedHashValidationButton } from './signed_hash_validation_button.js';

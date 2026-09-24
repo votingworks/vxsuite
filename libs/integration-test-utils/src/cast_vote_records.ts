@@ -9,32 +9,32 @@ import {
   buildCastVoteRecordReportMetadata,
 } from '@votingworks/backend';
 import { interpretSheetAndSaveImages } from '@votingworks/ballot-interpreter';
-import { type MarginalMark } from '@votingworks/hmpb';
+import type { MarginalMark } from '@votingworks/hmpb';
 import { pdfToImages } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
   anyPollingPlace,
-  BallotId,
+  type BallotId,
   BallotIdSchema,
-  BallotStyleId,
+  type BallotStyleId,
   BallotType,
-  BatchInfo,
+  type BatchInfo,
   CastVoteRecordExportFileName,
-  CastVoteRecordExportMetadata,
+  type CastVoteRecordExportMetadata,
   CVR,
   DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED,
   DEV_MACHINE_ID,
-  ElectionDefinition,
-  InterpretedHmpbPage,
+  type ElectionDefinition,
+  type InterpretedHmpbPage,
   mapSheet,
-  PrecinctId,
-  SheetOf,
+  type PrecinctId,
+  type SheetOf,
   unsafeParse,
-  VotesDict,
-  RgbaImageData,
+  type VotesDict,
+  type RgbaImageData,
 } from '@votingworks/types';
 import { createHash, randomUUID } from 'node:crypto';
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 import * as fs from 'node:fs/promises';
 import { basename, join, parse } from 'node:path';
 import { mkdtempSync } from 'node:fs';

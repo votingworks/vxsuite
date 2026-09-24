@@ -1,9 +1,12 @@
-import { Mock, vi } from 'vitest';
-import React from 'react';
-import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
+import { type Mock, vi } from 'vitest';
+import type React from 'react';
+import {
+  createMockClient,
+  type MockClient,
+} from '@votingworks/grout-test-utils';
 import {
   ACCEPTED_PAPER_TYPES,
-  BmdModelNumber,
+  type BmdModelNumber,
   type AcceptedPaperType,
   type Api,
   type ElectionState,
@@ -12,17 +15,17 @@ import {
   type SimpleServerStatus,
 } from '@votingworks/mark-scan-backend';
 import {
-  ElectionPackageConfigurationError,
-  BallotStyleId,
+  type ElectionPackageConfigurationError,
+  type BallotStyleId,
   DEFAULT_SYSTEM_SETTINGS,
-  DiagnosticRecord,
-  ElectionDefinition,
-  InsertedSmartCardAuth,
-  InterpretedBmdPage,
-  PollsState,
-  PrecinctId,
-  SystemSettings,
-  DiagnosticType,
+  type DiagnosticRecord,
+  type ElectionDefinition,
+  type InsertedSmartCardAuth,
+  type InterpretedBmdPage,
+  type PollsState,
+  type PrecinctId,
+  type SystemSettings,
+  type DiagnosticType,
   constructElectionKey,
 } from '@votingworks/types';
 import {
@@ -33,7 +36,7 @@ import {
   mockSystemAdministratorUser,
   mockVendorUser,
 } from '@votingworks/test-utils';
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, type Result } from '@votingworks/basics';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import { TestErrorBoundary } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';

@@ -4,13 +4,13 @@ import { assertDefined, err, ok } from '@votingworks/basics';
 import { buildElectionResultsFixture } from '@votingworks/utils';
 import type { ReceivedReportInfo } from '@votingworks/design-backend';
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
-import { Election, PollingPlace } from '@votingworks/types';
+import type { Election, PollingPlace } from '@votingworks/types';
 import { render } from '../test/react_testing_library.js';
 import { generalElectionRecord } from '../test/fixtures.js';
 import { ReportingResultsConfirmationScreen } from './reporting_results_confirmation_screen.js';
 import {
   createMockUnauthenticatedApiClient,
-  MockUnauthenticatedApiClient,
+  type MockUnauthenticatedApiClient,
   provideUnauthenticatedApi,
 } from '../test/unauthenticated_api_helpers.js';
 

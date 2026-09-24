@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { MockFunction } from '@votingworks/test-utils';
+import type { MockFunction } from '@votingworks/test-utils';
 import { expectTypeOf } from 'expect-type';
 import { createApi, createClient } from '@votingworks/grout';
 import { createMockClient } from './mock_client.js';

@@ -12,7 +12,7 @@ import {
 } from '@votingworks/utils';
 import { assert, assertDefined, find, ok } from '@votingworks/basics';
 import {
-  BallotStyleGroupId,
+  type BallotStyleGroupId,
   DEFAULT_SYSTEM_SETTINGS,
   DEV_MACHINE_ID,
   Tabulation,
@@ -23,14 +23,14 @@ import {
   mockElectionManagerAuth,
 } from '../test/app.js';
 import {
-  MockCastVoteRecordFile,
+  type MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../test/mock_cvr_file.js';
 import {
   seedCombinedBallotPrimaryCvrsAndAdjudications,
   seedCombinedBallotPrimaryWriteIns,
 } from '../test/combined_ballot_primary_fixture.js';
-import { AdjudicatedContestOption } from './types.js';
+import type { AdjudicatedContestOption } from './types.js';
 
 vi.setConfig({
   testTimeout: 60_000,

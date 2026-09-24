@@ -5,9 +5,9 @@ import {
 } from '@votingworks/fixtures';
 import {
   LanguageCode,
-  BallotLanguageConfigs,
-  CandidateContest,
-  Election,
+  type BallotLanguageConfigs,
+  type CandidateContest,
+  type Election,
   ElectionStringKey,
 } from '@votingworks/types';
 import { assert, find } from '@votingworks/basics';

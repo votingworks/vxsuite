@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from 'react';
-import { Result, throwIllegalValue } from '@votingworks/basics';
+import { type Result, throwIllegalValue } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { format } from '@votingworks/utils';
-import { UseMutationResult } from '@tanstack/react-query';
+import type { UseMutationResult } from '@tanstack/react-query';
 import { Button } from './button.js';
 import { Modal } from './modal.js';
 import { Font, P } from './typography.js';

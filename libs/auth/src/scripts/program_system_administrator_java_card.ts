@@ -3,10 +3,10 @@ import {
   assertDefined,
   extractErrorMessage,
 } from '@votingworks/basics';
-import { ProgrammingMachineType } from '@votingworks/types';
+import type { ProgrammingMachineType } from '@votingworks/types';
 import { getRequiredEnvVar, isNodeEnvProduction } from '@votingworks/utils';
 
-import { constructJavaCardConfig, JavaCardConfig } from '../config.js';
+import { constructJavaCardConfig, type JavaCardConfig } from '../config.js';
 import { JavaCard } from '../java_card.js';
 import { DEV_JURISDICTION } from '../jurisdictions.js';
 import { programJavaCard } from './utils.js';

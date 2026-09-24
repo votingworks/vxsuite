@@ -1,6 +1,9 @@
-import React from 'react';
+import type React from 'react';
 import type { UnauthenticatedApi } from '@votingworks/design-backend';
-import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
+import {
+  createMockClient,
+  type MockClient,
+} from '@votingworks/grout-test-utils';
 import { TestErrorBoundary } from '@votingworks/ui';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { UnauthenticatedApiClientContext } from '../src/public_api.js';

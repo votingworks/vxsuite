@@ -1,7 +1,7 @@
 import {
   ElectionStringKey,
   LanguageCode,
-  UiStringTranslations,
+  type UiStringTranslations,
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 

@@ -3,20 +3,20 @@ import { expect, test, vi } from 'vitest';
 import { assert, DateWithoutTime } from '@votingworks/basics';
 import {
   DEV_MACHINE_ID,
-  ElectionKey,
+  type ElectionKey,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 
-import { ProgrammedCardDetails } from './card.js';
+import type { ProgrammedCardDetails } from './card.js';
 import {
-  CardCustomCertFields,
+  type CardCustomCertFields,
   certDetailsToCardDetails,
   constructCardCertSubject,
   constructCardCertSubjectWithoutJurisdictionAndCardType,
   constructMachineCertSubject,
-  CustomCertFields,
-  MachineCustomCertFields,
-  MachineType,
+  type CustomCertFields,
+  type MachineCustomCertFields,
+  type MachineType,
   parseCert,
 } from './certs.js';
 import { openssl } from './cryptography.js';

@@ -1,13 +1,13 @@
-import { err, ok, Result, throwIllegalValue } from '@votingworks/basics';
+import { err, ok, type Result, throwIllegalValue } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { lstat, mkdir, mkdtemp, rename, rm } from 'node:fs/promises';
 import { dirname, isAbsolute, join, matchesGlob, normalize } from 'node:path';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { createReadStream, lstatSync } from 'node:fs';
-import { ExportDataError as BaseExportDataError } from '@votingworks/types';
+import type { ExportDataError as BaseExportDataError } from '@votingworks/types';
 import { openRegularFileForWriting } from '@votingworks/fs';
-import { MountedUsbDriveStatus, UsbDrive } from '@votingworks/usb-drive';
+import type { MountedUsbDriveStatus, UsbDrive } from '@votingworks/usb-drive';
 import { checkFileFitsOnUsbDrive, format } from '@votingworks/utils';
 
 /**

@@ -7,7 +7,7 @@ import {
   isVxDev,
 } from '@votingworks/utils';
 
-import { FileKey, RemoteKey, TpmKey } from './keys.js';
+import type { FileKey, RemoteKey, TpmKey } from './keys.js';
 
 /**
  * The path to the dev root cert

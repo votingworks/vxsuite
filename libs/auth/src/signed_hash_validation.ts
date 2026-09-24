@@ -5,13 +5,13 @@ import { Readable } from 'node:stream';
 import { assert } from '@votingworks/basics';
 import {
   formatElectionHashes,
-  SignedHashValidationQrCodeValue,
+  type SignedHashValidationQrCodeValue,
 } from '@votingworks/types';
 
 import { parseCert } from './certs.js';
 import {
   constructSignedHashValidationConfig,
-  SignedHashValidationConfig,
+  type SignedHashValidationConfig,
 } from './config.js';
 import { signMessage } from './cryptography.js';
 import { runCommand } from './shell.js';

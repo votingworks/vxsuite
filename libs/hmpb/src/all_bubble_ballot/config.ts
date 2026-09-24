@@ -1,4 +1,7 @@
-import { ballotPaperDimensions, HmpbBallotPaperSize } from '@votingworks/types';
+import {
+  ballotPaperDimensions,
+  type HmpbBallotPaperSize,
+} from '@votingworks/types';
 
 export interface AllBubbleBallotConfig {
   ballotPaperSize: HmpbBallotPaperSize;

@@ -1,6 +1,6 @@
 // @coverage-defer-file
-import { Optional } from '@votingworks/basics';
-import { PaperHandlerDriverInterface } from './driver_interface.js';
+import type { Optional } from '@votingworks/basics';
+import type { PaperHandlerDriverInterface } from './driver_interface.js';
 import { PaperHandlerDriver, getPaperHandlerWebDevice } from './driver.js';
 import { MaxPrintWidthDots } from './constants.js';
 

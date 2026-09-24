@@ -1,6 +1,6 @@
 import { format } from '@votingworks/utils';
-import { Election } from '@votingworks/types';
-import React from 'react';
+import type { Election } from '@votingworks/types';
+import type React from 'react';
 import { styled } from '../styled.js';
 import { Font } from '../typography.js';
 import { Icons } from '../icons.js';

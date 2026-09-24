@@ -6,7 +6,7 @@ import {
 } from '@votingworks/backend';
 import * as server from './server.js';
 import { getPrintWorkspace } from './globals.js';
-import { createWorkspace, Workspace } from './util/workspace.js';
+import { createWorkspace, type Workspace } from './util/workspace.js';
 
 export type { Api } from './app.js';
 

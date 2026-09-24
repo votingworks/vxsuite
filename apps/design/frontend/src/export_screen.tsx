@@ -1,4 +1,4 @@
-import React, { FormEvent, useState } from 'react';
+import React, { type FormEvent, useState } from 'react';
 import {
   H1,
   P,
@@ -12,7 +12,7 @@ import {
 } from '@votingworks/ui';
 import { Buffer } from 'node:buffer';
 import { useParams } from 'react-router-dom';
-import { ElectionSerializationFormat } from '@votingworks/types';
+import type { ElectionSerializationFormat } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import type { BallotTemplateId } from '@votingworks/design-backend';
 import {
@@ -29,7 +29,7 @@ import {
   getStateFeatures,
 } from './api.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
-import { ElectionIdParams, routes } from './routes.js';
+import { type ElectionIdParams, routes } from './routes.js';
 import { downloadFile } from './utils.js';
 import { Column, InputGroup } from './layout.js';
 import { useTitle } from './hooks/use_title.js';

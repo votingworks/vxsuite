@@ -1,9 +1,9 @@
-import { Id } from '@votingworks/types';
-import { BackupStagingArea } from '../staging_area.js';
-import { Store } from '../../store.js';
-import { BackupManifest } from '../backup_manifest.js';
-import { Workspace } from '../../util/workspace.js';
-import { ProgressTracking } from '../progress.js';
+import type { Id } from '@votingworks/types';
+import type { BackupStagingArea } from '../staging_area.js';
+import type { Store } from '../../store.js';
+import type { BackupManifest } from '../backup_manifest.js';
+import type { Workspace } from '../../util/workspace.js';
+import type { ProgressTracking } from '../progress.js';
 
 /**
  * Options for preparing a backup to copy from the given workspace to a target.

@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { IppMarkerInfo } from '@votingworks/types';
+import type { IppMarkerInfo } from '@votingworks/types';
 import { backendWaitFor } from '@votingworks/test-utils';
 import { assert, err, ok } from '@votingworks/basics';
 import { existsSync } from 'node:fs';
@@ -7,7 +7,7 @@ import { writeFile } from 'node:fs/promises';
 import {
   CUPS_DEFAULT_IPP_URI,
   IPP_QUERY,
-  QueriedIppAttribute,
+  type QueriedIppAttribute,
   getPrinterRichStatus,
 } from './status.js';
 import { exec } from '../utils/exec.js';

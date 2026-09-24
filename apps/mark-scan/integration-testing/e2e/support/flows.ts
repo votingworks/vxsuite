@@ -1,5 +1,4 @@
-import type { Page } from '@playwright/test';
-import { expect } from '@playwright/test';
+import { type Page, expect } from '@playwright/test';
 import { mockCardRemoval } from '@votingworks/auth';
 import type { mockElectionPackageFileTree } from '@votingworks/backend';
 import type { Election } from '@votingworks/types';

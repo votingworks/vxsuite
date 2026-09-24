@@ -1,35 +1,35 @@
 import util from 'node:util';
 import { randomUUID as uuid } from 'node:crypto';
-import express, { Application } from 'express';
+import express, { type Application } from 'express';
 import {
   generateSignedHashValidationQrCodeValue,
-  InsertedSmartCardAuthApi,
+  type InsertedSmartCardAuthApi,
 } from '@votingworks/auth';
 import {
   assert,
   assertDefined,
   ok,
-  Result,
+  type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
-  ElectionPackageConfigurationError,
-  BallotStyleId,
-  ElectionDefinition,
-  PrecinctId,
-  SystemSettings,
+  type ElectionPackageConfigurationError,
+  type BallotStyleId,
+  type ElectionDefinition,
+  type PrecinctId,
+  type SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
-  PollsState,
-  PrinterStatus,
-  PrintJobId,
-  PrintJobStatus,
-  DiagnosticRecord,
-  DiagnosticType,
-  DiagnosticOutcome,
+  type PollsState,
+  type PrinterStatus,
+  type PrintJobId,
+  type PrintJobStatus,
+  type DiagnosticRecord,
+  type DiagnosticType,
+  type DiagnosticOutcome,
   pollingPlaceFromElection,
-  Tabulation,
-  InsertedSmartCardAuth,
+  type Tabulation,
+  type InsertedSmartCardAuth,
 } from '@votingworks/types';
 import { isElectionManagerAuth } from '@votingworks/utils';
 
@@ -38,20 +38,20 @@ import {
   readSignedElectionPackageFromDirectory,
   configureUiStrings,
   createSystemCallApi,
-  ExportDataResult,
+  type ExportDataResult,
   configureUiStringAudioClipsStreaming,
   streamElectionPackageBallots,
   withElectionPackageZip,
 } from '@votingworks/backend';
-import { LogEventId, Logger } from '@votingworks/logging';
-import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
+import { LogEventId, type Logger } from '@votingworks/logging';
+import type { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   PrintSides,
-  Printer,
+  type Printer,
   renderToPdf,
   awaitJobSettlement,
 } from '@votingworks/printing';
-import { PrintCalibration } from '@votingworks/hmpb';
+import type { PrintCalibration } from '@votingworks/hmpb';
 import {
   createSummaryBallotTestDeck,
   generateTestDeckBallots,
@@ -60,8 +60,8 @@ import {
 } from '@votingworks/test-decks';
 import { AdminTallyReportByParty } from '@votingworks/ui';
 import { getMachineConfig } from './machine_config.js';
-import { Workspace } from './util/workspace.js';
-import {
+import type { Workspace } from './util/workspace.js';
+import type {
   ElectionState,
   PrintBallotProps,
   PrintBlankBallotProps,
@@ -72,10 +72,10 @@ import {
   isPatInputAttached,
 } from './util/accessible_controller.js';
 import { constructAuthMachineState } from './util/auth.js';
-import { ElectionRecord, Store } from './store.js';
-import * as barcodes from './barcodes/index.js';
+import type { ElectionRecord, Store } from './store.js';
+import type * as barcodes from './barcodes/index.js';
 import { setUpBarcodeActivation } from './barcodes/activation.js';
-import { AudioPlayerInterface, SoundName } from './audio/player.js';
+import type { AudioPlayerInterface, SoundName } from './audio/player.js';
 import { saveReadinessReport } from './readiness_report.js';
 import { printTestPage } from './util/print_test_page.js';
 import { getCurrentTime } from './util/get_current_time.js';

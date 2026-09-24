@@ -9,7 +9,7 @@ import { anyPollingPlace, TEST_JURISDICTION } from '@votingworks/types';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { testDetectDevices } from '@votingworks/backend';
 import { EventEmitter } from 'node:events';
-import { Server } from 'node:http';
+import type { Server } from 'node:http';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { createWorkspace } from './util/workspace.js';
 import { buildMockLogger } from '../test/helpers/setup_app.js';

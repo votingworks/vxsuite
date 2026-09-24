@@ -1,8 +1,8 @@
 import { describe, expect, test, vi } from 'vitest';
 import {
   LanguageCode,
-  BallotLanguageConfigs,
-  DistrictId,
+  type BallotLanguageConfigs,
+  type DistrictId,
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';

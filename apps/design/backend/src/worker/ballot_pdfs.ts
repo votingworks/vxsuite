@@ -2,13 +2,13 @@ import { assert } from '@votingworks/basics';
 import {
   convertPdfToGrayscale,
   calibrationSheetTemplate,
-  Renderer,
-  BallotTemplateId,
+  type Renderer,
+  type BallotTemplateId,
   NhStateSpotColors,
   convertPdfFileToGrayscale,
   convertPdfToSpotColor,
 } from '@votingworks/hmpb';
-import { HmpbBallotPaperSize } from '@votingworks/types';
+import type { HmpbBallotPaperSize } from '@votingworks/types';
 
 const NEEDS_COLOR_NORMALIZATION: Record<BallotTemplateId, boolean> = {
   MiBallot: false,

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { DefaultTheme } from 'styled-components';
+import type { DefaultTheme } from 'styled-components';
 import { render } from '../../test/react_testing_library.js';
 import { useCurrentTheme } from './use_current_theme.js';
 

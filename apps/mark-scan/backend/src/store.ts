@@ -3,7 +3,7 @@
 //
 
 import {
-  UiStringsStore,
+  type UiStringsStore,
   addDiagnosticRecord,
   createUiStringStore,
   getMostRecentDiagnosticRecord,
@@ -12,21 +12,21 @@ import {
   assert,
   assertDefined,
   DateWithoutTime,
-  Optional,
+  type Optional,
 } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
-import { BaseLogger } from '@votingworks/logging';
+import type { BaseLogger } from '@votingworks/logging';
 import {
-  ElectionDefinition,
+  type ElectionDefinition,
   safeParseElectionDefinition,
-  SystemSettings,
+  type SystemSettings,
   safeParseSystemSettings,
-  PollsState,
+  type PollsState,
   safeParse,
   PollsStateSchema,
-  DiagnosticRecord,
-  DiagnosticType,
-  ElectionKey,
+  type DiagnosticRecord,
+  type DiagnosticType,
+  type ElectionKey,
   constructElectionKey,
 } from '@votingworks/types';
 import { DateTime } from 'luxon';

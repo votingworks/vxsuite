@@ -1,9 +1,9 @@
 import { createHash, randomUUID as uuid } from 'node:crypto';
 import {
-  AcceptedSheet,
+  type AcceptedSheet,
   doesUsbDriveRequireCastVoteRecordSync,
-  RejectedSheet,
-  Sheet,
+  type RejectedSheet,
+  type Sheet,
 } from '@votingworks/backend';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
@@ -13,14 +13,14 @@ import {
 import { mockBaseLogger } from '@votingworks/logging';
 import {
   AdjudicationReason,
-  BallotMetadata,
+  type BallotMetadata,
   BallotType,
-  BatchInfo,
-  InterpretedHmpbPage,
+  type BatchInfo,
+  type InterpretedHmpbPage,
   mapSheet,
-  PageInterpretationWithFiles,
+  type PageInterpretationWithFiles,
   safeParseSystemSettings,
-  SheetOf,
+  type SheetOf,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import { createMockUsbDrive } from '@votingworks/usb-drive';

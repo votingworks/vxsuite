@@ -9,7 +9,7 @@ import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import { FilterEditor } from './filter_editor.js';
 import { screen, within } from '../../../test/react_testing_library.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
 } from '../../../test/helpers/mock_api_client.js';
 

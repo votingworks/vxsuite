@@ -1,13 +1,13 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
-  BallotStyle,
-  BallotStyleId,
-  District,
-  Election,
-  ElectionDefinition,
-  Party,
-  Precinct,
+  type BallotStyle,
+  type BallotStyleId,
+  type District,
+  type Election,
+  type ElectionDefinition,
+  type Party,
+  type Precinct,
   getContests,
 } from '@votingworks/types';
 import {

@@ -3,12 +3,12 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import {
   PollbookConnectionStatus,
-  PollbookServiceInfo,
+  type PollbookServiceInfo,
 } from '@votingworks/pollbook-backend';
 import { within } from '@testing-library/react';
 import { UsbPartitionMountpointSchema } from '@votingworks/usb-drive';
 import { screen } from '../test/react_testing_library.js';
-import { ApiMock, createApiMock } from '../test/mock_api_client.js';
+import { type ApiMock, createApiMock } from '../test/mock_api_client.js';
 import { SystemAdministratorScreen } from './system_administrator_screen.js';
 import { renderInAppContext } from '../test/render_in_app_context.js';
 import { getMockSystemAdministratorAuth } from '../test/auth.js';

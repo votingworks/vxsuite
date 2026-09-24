@@ -7,7 +7,7 @@ import {
   makeTemporaryPath,
 } from '@votingworks/fixtures';
 import { FileBackedMachineModeController } from './machine_mode.js';
-import { MachineMode } from './types.js';
+import type { MachineMode } from './types.js';
 import { getWorkspaceControlPath } from './util/workspace.js';
 
 describe('FileBackedMachineModeController::get', () => {

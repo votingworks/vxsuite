@@ -1,7 +1,7 @@
-import { UsbDrive } from '@votingworks/usb-drive';
-import { LogEventId, Logger } from '@votingworks/logging';
+import type { UsbDrive } from '@votingworks/usb-drive';
+import { LogEventId, type Logger } from '@votingworks/logging';
 import {
-  ExportDataResult,
+  type ExportDataResult,
   Exporter,
   getScanAllowedExportPatterns,
   getMachineId,
@@ -9,10 +9,10 @@ import {
 import { renderToPdf } from '@votingworks/printing';
 import { generateReadinessReportFilename } from '@votingworks/utils';
 import { ScanReadinessReport } from '@votingworks/ui';
-import { FujitsuThermalPrinterInterface } from '@votingworks/fujitsu-thermal-printer';
-import { Workspace } from '../util/workspace.js';
+import type { FujitsuThermalPrinterInterface } from '@votingworks/fujitsu-thermal-printer';
+import type { Workspace } from '../util/workspace.js';
 import { getCurrentTime } from '../util/get_current_time.js';
-import { PrecinctScannerStateMachine } from '../types.js';
+import type { PrecinctScannerStateMachine } from '../types.js';
 
 /**
  * Saves the VxCentralScan hardware readiness report to the USB drive.

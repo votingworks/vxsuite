@@ -1,11 +1,11 @@
-import { beforeEach, describe, expect, Mocked, test, vi } from 'vitest';
+import { beforeEach, describe, expect, type Mocked, test, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { err, ok } from '@votingworks/basics';
 import {
   createPrintJobStatusApi,
   getPrintOutcome,
-  PrintJobStatusApiClient,
+  type PrintJobStatusApiClient,
 } from './print_job_status_api.js';
 
 vi.useFakeTimers({ shouldAdvanceTime: true });

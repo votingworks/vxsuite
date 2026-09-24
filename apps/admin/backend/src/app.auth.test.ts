@@ -4,7 +4,7 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   constructElectionKey,
-  SystemSettings,
+  type SystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 

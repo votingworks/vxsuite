@@ -1,5 +1,5 @@
-import { expect, MockedFunction, test, vi } from 'vitest';
-import { Device, findByIds, Interface, WebUSBDevice } from 'usb';
+import { expect, type MockedFunction, test, vi } from 'vitest';
+import { type Device, findByIds, type Interface, WebUSBDevice } from 'usb';
 import { assert } from '@votingworks/basics';
 import {
   BooleanEnvironmentVariableName,

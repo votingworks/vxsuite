@@ -5,7 +5,7 @@ import type { Meta } from '@storybook/react-vite' with {
 import { useState } from 'react';
 import {
   FileInputButton as Component,
-  FileInputButtonProps,
+  type FileInputButtonProps,
 } from './file_input_button.js';
 
 const meta: Meta<typeof Component> = {

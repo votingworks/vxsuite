@@ -11,7 +11,7 @@ import {
   manageOpensslConfig,
   MockFileCard,
 } from '@votingworks/auth';
-import { Server } from 'node:http';
+import type { Server } from 'node:http';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -19,17 +19,17 @@ import {
 } from '@votingworks/utils';
 import {
   detectMultiUsbDriveFromEnv,
-  MultiUsbDrive,
+  type MultiUsbDrive,
 } from '@votingworks/usb-drive';
 import {
   HP_4001_PRINTER_CONFIG,
-  Printer,
+  type Printer,
   detectPrinter,
 } from '@votingworks/printing';
 import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
-import { UserRole } from '@votingworks/types';
+import type { UserRole } from '@votingworks/types';
 import { PEER_PORT, PORT } from './globals.js';
 import {
   createWorkspace,
@@ -51,7 +51,7 @@ import { getUserRole } from './util/auth.js';
 import type { AppMode } from './types.js';
 import {
   FileBackedMachineModeController,
-  MachineModeController,
+  type MachineModeController,
 } from './machine_mode.js';
 
 const debug = rootDebug.extend('server');

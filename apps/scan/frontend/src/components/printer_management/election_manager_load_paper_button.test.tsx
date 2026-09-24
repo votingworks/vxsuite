@@ -2,7 +2,7 @@ import { beforeEach, afterEach, expect, test } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { err } from '@votingworks/basics';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   provideApi,
 } from '../../../test/helpers/mock_api_client.js';
@@ -13,7 +13,7 @@ import {
 } from '../../../test/react_testing_library.js';
 import {
   ElectionManagerLoadPaperButton,
-  ElectionManagerLoadPaperButtonProps,
+  type ElectionManagerLoadPaperButtonProps,
 } from './election_manager_load_paper_button.js';
 
 let apiMock: ApiMock;

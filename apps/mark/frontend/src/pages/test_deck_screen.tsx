@@ -10,7 +10,7 @@ import {
   Screen,
   SearchSelect,
 } from '@votingworks/ui';
-import { PrecinctId } from '@votingworks/types';
+import type { PrecinctId } from '@votingworks/types';
 import { getElectionRecord, getPrinterStatus, printTestDeck } from '../api.js';
 
 export interface TestDeckScreenProps {

@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import { makeTemporaryFile } from '@votingworks/fixtures';
 import { Client } from '@votingworks/db';
-import { DiagnosticRecord } from '@votingworks/types';
+import type { DiagnosticRecord } from '@votingworks/types';
 import {
   DIAGNOSTICS_TABLE_SCHEMA,
   addDiagnosticRecord,

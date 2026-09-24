@@ -9,15 +9,15 @@ import {
 } from '@votingworks/auth';
 import { Client } from '@votingworks/db';
 import {
-  BallotCastingMode,
-  BatchInfo,
+  type BallotCastingMode,
+  type BatchInfo,
   DEFAULT_MARK_THRESHOLDS,
-  ElectionDefinition,
-  MarkThresholds,
-  PollsState,
-  SystemSettings,
+  type ElectionDefinition,
+  type MarkThresholds,
+  type PollsState,
+  type SystemSettings,
 } from '@votingworks/types';
-import {
+import type {
   CentralScannerStore,
   ElectionRecord,
   PrecinctScannerStore,

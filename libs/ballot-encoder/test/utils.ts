@@ -2,11 +2,11 @@ import { expect } from 'vitest';
 import fc from 'fast-check';
 import { WriteInEncoding } from '../src/index.js';
 import {
-  BitReader,
-  BitWriter,
+  type BitReader,
+  type BitWriter,
   toUint8,
-  Uint1,
-  Uint8,
+  type Uint1,
+  type Uint8,
 } from '../src/bits/index.js';
 
 /**

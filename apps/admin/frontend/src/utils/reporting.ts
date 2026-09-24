@@ -1,4 +1,4 @@
-import { Admin, Election, Tabulation } from '@votingworks/types';
+import { type Admin, type Election, Tabulation } from '@votingworks/types';
 import { find, throwIllegalValue } from '@votingworks/basics';
 import {
   TEST_FILE_PREFIX,

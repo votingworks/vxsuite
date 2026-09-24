@@ -6,7 +6,7 @@ import {
 } from '@votingworks/fixtures';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import {
-  BallotStyleGroupId,
+  type BallotStyleGroupId,
   DEFAULT_SYSTEM_SETTINGS,
   Tabulation,
 } from '@votingworks/types';
@@ -17,7 +17,7 @@ import {
   tabulateManualBallotCounts,
   tabulateManualResults,
 } from './manual_results.js';
-import { ManualResultsFilter } from '../types.js';
+import type { ManualResultsFilter } from '../types.js';
 
 test('isFilterCompatibleWithManualResults', () => {
   expect(

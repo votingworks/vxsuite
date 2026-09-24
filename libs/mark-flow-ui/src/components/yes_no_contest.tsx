@@ -1,9 +1,9 @@
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { type ReactNode, useEffect, useState } from 'react';
 import {
-  YesNoVote,
-  YesNoContest as YesNoContestInterface,
-  Election,
-  YesNoContestOptionId,
+  type YesNoVote,
+  type YesNoContest as YesNoContestInterface,
+  type Election,
+  type YesNoContestOptionId,
   getContestDistrict,
 } from '@votingworks/types';
 import {
@@ -23,11 +23,11 @@ import {
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
-import { Optional } from '@votingworks/basics';
+import type { Optional } from '@votingworks/basics';
 
 import { ContestFooter, ChoicesGrid } from './contest_screen_layout.js';
 import { ContestHeader } from './contest_header.js';
-import { UpdateVoteFunction } from '../config/types.js';
+import type { UpdateVoteFunction } from '../config/types.js';
 
 interface Props {
   election: Election;

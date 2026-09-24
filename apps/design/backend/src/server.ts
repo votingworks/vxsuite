@@ -1,5 +1,5 @@
 import { buildApp } from './app.js';
-import { AppContext } from './context.js';
+import type { AppContext } from './context.js';
 import { PORT } from './globals.js';
 import { QaConfig } from './qa_config.js';
 

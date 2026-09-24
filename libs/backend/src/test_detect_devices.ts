@@ -1,5 +1,5 @@
 import type * as vitest from 'vitest';
-import { LogEventId, MockBaseLogger } from '@votingworks/logging';
+import { LogEventId, type MockBaseLogger } from '@votingworks/logging';
 import { usb } from 'usb';
 
 /**

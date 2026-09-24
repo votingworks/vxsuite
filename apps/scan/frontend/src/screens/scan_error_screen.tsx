@@ -7,7 +7,7 @@ import {
   ERROR_SCREEN_MESSAGES,
 } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import {
+import type {
   PrecinctScannerErrorType,
   InvalidInterpretationReason,
 } from '@votingworks/types';

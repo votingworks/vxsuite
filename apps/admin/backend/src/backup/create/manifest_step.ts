@@ -1,8 +1,8 @@
 import { join } from 'node:path';
 import { prepareSignatureFile } from '@votingworks/auth';
-import { Result } from '@votingworks/basics';
-import { WriteFileError, writeFile } from '@votingworks/fs';
-import { WriteManifestOptions } from './types.js';
+import type { Result } from '@votingworks/basics';
+import { type WriteFileError, writeFile } from '@votingworks/fs';
+import type { WriteManifestOptions } from './types.js';
 import { Backup } from '../backup.js';
 
 /**

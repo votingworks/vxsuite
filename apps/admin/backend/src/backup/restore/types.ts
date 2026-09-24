@@ -1,4 +1,4 @@
-import { ProgressTracking } from '../progress.js';
+import type { ProgressTracking } from '../progress.js';
 
 /**
  * Possible expected errors that can occur when restoring a backup.

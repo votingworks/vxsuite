@@ -1,36 +1,40 @@
-import { Mocked, vi } from 'vitest';
-import React from 'react';
+import { type Mocked, vi } from 'vitest';
+import type React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Optional } from '@votingworks/basics';
-import { AudioControls } from '@votingworks/types';
+import type { Optional } from '@votingworks/basics';
+import type { AudioControls } from '@votingworks/types';
 import type { SystemCallApiMethods as SystemCallApiClient } from '@votingworks/backend';
 import {
-  UiStringsApiClient,
-  UiStringsReactQueryApi,
+  type UiStringsApiClient,
+  type UiStringsReactQueryApi,
   createUiStringsApi,
 } from '../src/hooks/ui_strings_api.js';
 import {
-  FrontendLanguageContextInterface,
+  type FrontendLanguageContextInterface,
   useFrontendLanguageContext,
 } from '../src/ui_strings/language_context.js';
 import {
-  UiStringsAudioContextInterface,
+  type UiStringsAudioContextInterface,
   useAudioContext,
 } from '../src/ui_strings/audio_context.js';
 import { UiStringsContextProvider } from '../src/ui_strings/ui_strings_context.js';
-import { RenderResult, render, renderHook } from './react_testing_library.js';
+import {
+  type RenderResult,
+  render,
+  renderHook,
+} from './react_testing_library.js';
 import {
   QUERY_CLIENT_DEFAULT_OPTIONS,
-  VxRenderOptions,
+  type VxRenderOptions,
   useAudioControls,
 } from '../src/index.js';
 import {
-  SystemCallReactQueryApi,
+  type SystemCallReactQueryApi,
   createSystemCallApi,
   SystemCallContextProvider,
 } from '../src/system_call_api.js';
-import { SignedHashValidationApiClient } from '../src/signed_hash_validation_button.js';
-import { CardProgrammingApiClient } from '../src/smart_cards_screen.js';
+import type { SignedHashValidationApiClient } from '../src/signed_hash_validation_button.js';
+import type { CardProgrammingApiClient } from '../src/smart_cards_screen.js';
 
 type ApiClient = UiStringsApiClient &
   SystemCallApiClient &

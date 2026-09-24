@@ -1,4 +1,4 @@
-import styledDefault, { StyledInterface } from 'styled-components';
+import styledDefault, { type StyledInterface } from 'styled-components';
 
 /**
  * `styled` from styled-components, normalized across module systems.

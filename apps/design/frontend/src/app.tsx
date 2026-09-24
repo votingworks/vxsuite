@@ -10,7 +10,7 @@ import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import {
-  ApiClient,
+  type ApiClient,
   ApiClientContext,
   createApiClient,
   createQueryClient,
@@ -18,7 +18,7 @@ import {
 } from './api.js';
 import {
   createUnauthenticatedApiClient,
-  UnauthenticatedApiClient,
+  type UnauthenticatedApiClient,
   UnauthenticatedApiClientContext,
 } from './public_api.js';
 import { electionParamRoutes, routes, resultsRoutes } from './routes.js';

@@ -1,12 +1,15 @@
-import { Card } from '@votingworks/auth';
-import { CardReaderErrorTracker, TaskController } from '@votingworks/backend';
-import { Logger } from '@votingworks/logging';
-import { UsbDrive } from '@votingworks/usb-drive';
-import { DateTime } from 'luxon';
-import { FujitsuThermalPrinterInterface } from '@votingworks/fujitsu-thermal-printer';
-import { Workspace } from '../util/workspace.js';
-import { ScanningSession } from './analysis/scan.js';
-import { SimpleScannerClient } from './simple_scanner_client.js';
+import type { Card } from '@votingworks/auth';
+import type {
+  CardReaderErrorTracker,
+  TaskController,
+} from '@votingworks/backend';
+import type { Logger } from '@votingworks/logging';
+import type { UsbDrive } from '@votingworks/usb-drive';
+import type { DateTime } from 'luxon';
+import type { FujitsuThermalPrinterInterface } from '@votingworks/fujitsu-thermal-printer';
+import type { Workspace } from '../util/workspace.js';
+import type { ScanningSession } from './analysis/scan.js';
+import type { SimpleScannerClient } from './simple_scanner_client.js';
 
 export type ScanningMode =
   'shoe-shine' | 'manual-front' | 'manual-rear' | 'disabled';

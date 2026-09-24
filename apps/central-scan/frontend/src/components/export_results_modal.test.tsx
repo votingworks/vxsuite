@@ -6,7 +6,7 @@ import { screen } from '@testing-library/react';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { ExportResultsModal } from './export_results_modal.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
-import { ApiMock, createApiMock } from '../../test/api.js';
+import { type ApiMock, createApiMock } from '../../test/api.js';
 
 let apiMock: ApiMock;
 

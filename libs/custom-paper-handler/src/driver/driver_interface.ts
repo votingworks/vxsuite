@@ -1,26 +1,31 @@
-import { Coder, CoderError, Uint16, Uint8 } from '@votingworks/message-coder';
-import { Result } from '@votingworks/basics';
-import { ImageData } from '@votingworks/types';
-import {
+import type {
+  Coder,
+  CoderError,
+  Uint16,
+  Uint8,
+} from '@votingworks/message-coder';
+import type { Result } from '@votingworks/basics';
+import type { ImageData } from '@votingworks/types';
+import type {
   PrintingDensity,
   PrintingSpeed,
   RealTimeRequestIds,
 } from './constants.js';
-import {
+import type {
   PaperHandlerBitmap,
   PaperHandlerStatus,
   PrinterStatusRealTimeExchangeResponse,
   RealTimeExchangeResponseWithoutData,
   SensorStatusRealTimeExchangeResponse,
 } from './coders.js';
-import {
+import type {
   PaperMovementAfterScan,
   Resolution,
   ScanDataFormat,
   ScanDirection,
   ScanLight,
 } from './scanner_config.js';
-import { ScannerCapability } from './scanner_capability.js';
+import type { ScannerCapability } from './scanner_capability.js';
 
 export interface PaperHandlerDriverInterface {
   connect(): Promise<void>;

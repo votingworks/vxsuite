@@ -1,4 +1,4 @@
-import { PrinterConfig } from '@votingworks/types';
+import type { PrinterConfig } from '@votingworks/types';
 import { rootDebug } from '../utils/debug.js';
 import { exec } from '../utils/exec.js';
 import { getPpdPath } from './supported.js';

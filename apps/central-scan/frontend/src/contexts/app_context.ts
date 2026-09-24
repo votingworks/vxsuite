@@ -2,8 +2,8 @@ import type { MachineConfig } from '@votingworks/central-scan-backend';
 import { LogSource, BaseLogger } from '@votingworks/logging';
 import {
   DEV_MACHINE_ID,
-  DippedSmartCardAuth,
-  ElectionDefinition,
+  type DippedSmartCardAuth,
+  type ElectionDefinition,
 } from '@votingworks/types';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { createContext } from 'react';

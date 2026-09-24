@@ -1,6 +1,6 @@
 /* eslint-disable vx/gts-no-public-class-fields */
 import { assert } from 'node:console';
-import { Mock, vi } from 'vitest';
+import { type Mock, vi } from 'vitest';
 
 type MockSocketEventName = 'connect' | 'error';
 

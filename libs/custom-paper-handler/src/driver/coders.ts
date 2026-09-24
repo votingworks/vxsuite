@@ -1,5 +1,5 @@
 import {
-  CoderType,
+  type CoderType,
   literal,
   message,
   padding,

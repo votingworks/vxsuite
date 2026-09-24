@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import {
   assert,
   assertDefined,
-  Result,
+  type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import type {
@@ -19,7 +19,7 @@ import {
   MainHeader,
 } from '@votingworks/ui';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import {
+import type {
   VoterIdentificationMethod,
   CheckInBallotParty,
 } from '@votingworks/types';

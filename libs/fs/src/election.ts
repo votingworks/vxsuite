@@ -1,10 +1,10 @@
-import { Result, err } from '@votingworks/basics';
+import { type Result, err } from '@votingworks/basics';
 import {
-  ElectionDefinition,
+  type ElectionDefinition,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { ZodError } from 'zod/v4';
-import { ReadFileError, readFile } from './read_file.js';
+import type { ZodError } from 'zod/v4';
+import { type ReadFileError, readFile } from './read_file.js';
 
 /**
  * The largest election definition we will read. Generous relative to any real

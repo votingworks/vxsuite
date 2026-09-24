@@ -1,4 +1,4 @@
-import { InsertedSmartCardAuth } from '@votingworks/types';
+import type { InsertedSmartCardAuth } from '@votingworks/types';
 
 import { Button, Icons, P, appStrings } from '@votingworks/ui';
 import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';

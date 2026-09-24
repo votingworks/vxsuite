@@ -4,18 +4,18 @@ import { dirname, join } from 'node:path';
 import {
   assert,
   DateWithoutTime,
-  Optional,
+  type Optional,
   throwIllegalValue,
 } from '@votingworks/basics';
 import { getMockStateRootDir } from '@votingworks/utils';
-import {
+import type {
   ElectionManagerUser,
   PollWorkerUser,
   SystemAdministratorUser,
   VendorUser,
 } from '@votingworks/types';
 
-import { Card, CardStatus, CheckPinResponse } from './card.js';
+import type { Card, CardStatus, CheckPinResponse } from './card.js';
 
 // libs/auth/src/ is 3 levels below the repo root
 const REPO_ROOT = join(import.meta.dirname, '../../..');

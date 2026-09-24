@@ -9,17 +9,17 @@ import {
   renderBallotPdfWithMetadataQrCode,
 } from '@votingworks/hmpb';
 import {
-  BaseBallotProps,
-  BallotMode,
+  type BaseBallotProps,
+  type BallotMode,
   BallotType,
-  CandidateContest,
-  ElectionDefinition,
-  VotesDict,
+  type CandidateContest,
+  type ElectionDefinition,
+  type VotesDict,
   getBallotStyle,
   getContests,
   LATEST_SOFTWARE_VERSION,
   straightPartyNotYetImplemented,
-  RgbaImageData,
+  type RgbaImageData,
 } from '@votingworks/types';
 import {
   createImageData,

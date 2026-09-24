@@ -3,10 +3,10 @@ import type { ScanStatus } from '@votingworks/central-scan-backend';
 import { screen } from '../../test/react_testing_library.js';
 import {
   ScanBallotsScreen,
-  ScanBallotsScreenProps,
+  type ScanBallotsScreenProps,
 } from './scan_ballots_screen.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
-import { ApiMock, createApiMock } from '../../test/api.js';
+import { type ApiMock, createApiMock } from '../../test/api.js';
 import { mockBatch, mockStatus } from '../../test/fixtures.js';
 
 let apiMock: ApiMock;

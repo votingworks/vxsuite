@@ -1,13 +1,13 @@
-import { assertDefined, find, err, ok, Result } from '@votingworks/basics';
-import { Candidate, CandidateId } from '../../election.js';
-import * as ResultsReporting from './index.js';
-import * as VxTabulation from '../../tabulation.js';
+import { assertDefined, find, err, ok, type Result } from '@votingworks/basics';
+import type { Candidate, CandidateId } from '../../election.js';
+import type * as ResultsReporting from './index.js';
+import type * as VxTabulation from '../../tabulation.js';
 import {
-  BallotMeasureContest,
-  CandidateContest,
+  type BallotMeasureContest,
+  type CandidateContest,
   CountItemType,
-  PartyContest,
-  RetentionContest,
+  type PartyContest,
+  type RetentionContest,
 } from './index.js';
 import {
   isBallotMeasureContest,

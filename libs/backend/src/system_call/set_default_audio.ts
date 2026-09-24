@@ -1,7 +1,7 @@
-import { LogEventId, Logger } from '@votingworks/logging';
-import { err, ok, Result } from '@votingworks/basics';
+import { LogEventId, type Logger } from '@votingworks/logging';
+import { err, ok, type Result } from '@votingworks/basics';
 import { execFile } from '../exec.js';
-import { type NODE_ENV } from '../globals.js';
+import type { NODE_ENV } from '../globals.js';
 
 /**
  * Errors returned by {@link setDefaultAudio}.

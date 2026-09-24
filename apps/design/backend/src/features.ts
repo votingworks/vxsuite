@@ -1,5 +1,5 @@
 import { sliOrganizationId, votingWorksOrganizationId } from './globals.js';
-import { Jurisdiction, StateCode, User } from './types.js';
+import type { Jurisdiction, StateCode, User } from './types.js';
 import { userBelongsToOrganization } from './utils.js';
 
 /**

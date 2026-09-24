@@ -1,40 +1,40 @@
 import {
-  DippedSmartCardAuthApi,
+  type DippedSmartCardAuthApi,
   generateSignedHashValidationQrCodeValue,
 } from '@votingworks/auth';
-import { Result, assert, assertDefined, ok } from '@votingworks/basics';
+import { type Result, assert, assertDefined, ok } from '@votingworks/basics';
 import {
   createSystemCallApi,
   readSignedElectionPackageFromDirectory,
   exportCastVoteRecordsToUsbDrive,
-  ElectionRecord,
+  type ElectionRecord,
 } from '@votingworks/backend';
 import {
-  ElectionPackageConfigurationError,
+  type ElectionPackageConfigurationError,
   DEFAULT_SYSTEM_SETTINGS,
-  ElectionDefinition,
-  SystemSettings,
-  ExportCastVoteRecordsToUsbDriveError,
-  DiagnosticRecord,
-  DiagnosticOutcome,
-  Rect,
+  type ElectionDefinition,
+  type SystemSettings,
+  type ExportCastVoteRecordsToUsbDriveError,
+  type DiagnosticRecord,
+  type DiagnosticOutcome,
+  type Rect,
   mapSheet,
   pollingPlaceFromElection,
-  SheetInterpretation,
-  SheetOf,
-  DippedSmartCardAuth,
+  type SheetInterpretation,
+  type SheetOf,
+  type DippedSmartCardAuth,
 } from '@votingworks/types';
 import { combinePageInterpretationsForSheet } from '@votingworks/ballot-interpreter';
 import { isElectionManagerAuth } from '@votingworks/utils';
-import express, { Application } from 'express';
+import express, { type Application } from 'express';
 import * as grout from '@votingworks/grout';
-import { LogEventId, Logger } from '@votingworks/logging';
-import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
+import { LogEventId, type Logger } from '@votingworks/logging';
+import type { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { readFile } from 'node:fs/promises';
 import { loadImageMetadata } from '@votingworks/image-utils';
-import { BatchScannerStateMachine } from './scanner.js';
-import { Workspace } from './util/workspace.js';
-import {
+import type { BatchScannerStateMachine } from './scanner.js';
+import type { Workspace } from './util/workspace.js';
+import type {
   BallotImage,
   MachineConfig,
   NetworkStatus,
@@ -44,8 +44,11 @@ import { isCentralScanNetworkingEnabled } from './networking_config.js';
 import { getMachineConfig } from './machine_config.js';
 import { constructAuthMachineState } from './util/auth.js';
 import { saveReadinessReport } from './readiness_report.js';
-import { performScanDiagnostic, ScanDiagnosticOutcome } from './diagnostic.js';
-import { BatchScanner } from './fujitsu_scanner.js';
+import {
+  performScanDiagnostic,
+  type ScanDiagnosticOutcome,
+} from './diagnostic.js';
+import type { BatchScanner } from './fujitsu_scanner.js';
 
 export interface AppOptions {
   auth: DippedSmartCardAuthApi;

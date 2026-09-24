@@ -4,7 +4,7 @@ import {
   mockSystemAdministratorUser,
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
-import { DippedSmartCardAuth } from '@votingworks/types';
+import type { DippedSmartCardAuth } from '@votingworks/types';
 import { userEvent } from './user_event.js';
 
 import { act, render, screen, waitFor } from '../test/react_testing_library.js';

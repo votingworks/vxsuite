@@ -1,8 +1,8 @@
 import { basename } from 'node:path';
 import { extractErrorMessage, iter } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
-import { BackupManifest } from '../backup_manifest.js';
-import { StyledPrinter } from './styled_printer.js';
+import type { BackupManifest } from '../backup_manifest.js';
+import type { StyledPrinter } from './styled_printer.js';
 
 const LABEL_WIDTH = 8;
 

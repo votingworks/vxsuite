@@ -1,14 +1,14 @@
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
-import { LogEventId, BaseLogger } from '@votingworks/logging';
-import { ContestOptionId, Id } from '@votingworks/types';
-import {
+import { LogEventId, type BaseLogger } from '@votingworks/logging';
+import type { ContestOptionId, Id } from '@votingworks/types';
+import type {
   AdjudicatedContestOption,
   AdjudicatedCvr,
   AdjudicatedCvrContest,
   WriteInAdjudicationAction,
   WriteInRecord,
 } from './types.js';
-import { type Store } from './store.js';
+import type { Store } from './store.js';
 
 /**
  * Builds an adjudicated contest option for a given option.

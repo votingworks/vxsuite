@@ -8,7 +8,7 @@ import {
   loadImageData,
   toDataUrl,
 } from '@votingworks/image-utils';
-import { BallotPageLayout, BallotType } from '@votingworks/types';
+import { type BallotPageLayout, BallotType } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
 import { Buffer } from 'node:buffer';
 import {
@@ -24,10 +24,10 @@ import {
 } from '../test/app.js';
 import { mockFileName } from '../test/csv.js';
 import {
-  MockCastVoteRecordFile,
+  type MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../test/mock_cvr_file.js';
-import { Store } from './store.js';
+import type { Store } from './store.js';
 import { buildAdminContestWriteIns } from './reports/write_in_image_report.js';
 import { generateReportPath } from './util/filenames.js';
 

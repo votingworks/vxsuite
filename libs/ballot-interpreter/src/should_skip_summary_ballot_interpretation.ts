@@ -1,4 +1,4 @@
-import { PageInterpretation, SheetOf } from '@votingworks/types';
+import type { PageInterpretation, SheetOf } from '@votingworks/types';
 
 const BUBBLE_BALLOT_DEFINITIVE_PAGE_TYPES: ReadonlySet<
   PageInterpretation['type']

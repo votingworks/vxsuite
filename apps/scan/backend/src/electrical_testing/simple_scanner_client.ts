@@ -1,9 +1,9 @@
-import { assert, Optional } from '@votingworks/basics';
+import { assert, type Optional } from '@votingworks/basics';
 import {
   createPdiScannerClient,
-  EjectMotion,
-  ScannerClient,
-  ScannerEvent,
+  type EjectMotion,
+  type ScannerClient,
+  type ScannerEvent,
 } from '@votingworks/pdi-scanner';
 
 export interface SimpleScannerClient {

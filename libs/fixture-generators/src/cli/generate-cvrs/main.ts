@@ -1,14 +1,14 @@
 import {
-  HmpbBallotPaperSize,
+  type HmpbBallotPaperSize,
   BallotType,
   ballotPaperDimensions,
   DEV_MACHINE_ID,
   anyPollingPlace,
 } from '@votingworks/types';
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 import { assertDefined, iter } from '@votingworks/basics';
 import {
-  CastVoteRecordToExport,
+  type CastVoteRecordToExport,
   writeCastVoteRecordExport,
 } from '@votingworks/backend';
 import { readElection } from '@votingworks/fs';

@@ -1,4 +1,4 @@
-import { Rect } from '@votingworks/types';
+import type { Rect } from '@votingworks/types';
 import { styled } from './styled.js';
 import { DesktopPalette } from './themes/make_theme.js';
 

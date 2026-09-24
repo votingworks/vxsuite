@@ -1,7 +1,7 @@
 import { z } from 'zod/v4';
 
-import { DateWithoutTime } from '@votingworks/basics';
-import {
+import type { DateWithoutTime } from '@votingworks/basics';
+import type {
   BallotStyleId,
   Election,
   ElectionId,

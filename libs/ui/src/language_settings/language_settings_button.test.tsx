@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { ElectionStringKey, UiStringsPackage } from '@votingworks/types';
+import { ElectionStringKey, type UiStringsPackage } from '@votingworks/types';
 import React from 'react';
 import { advancePromises, TestLanguageCode } from '@votingworks/test-utils';
 import { userEvent } from '../user_event.js';

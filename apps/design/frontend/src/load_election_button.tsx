@@ -1,4 +1,4 @@
-import React, { FormEvent, useState } from 'react';
+import React, { type FormEvent, useState } from 'react';
 import {
   Button,
   Callout,

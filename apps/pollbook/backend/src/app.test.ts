@@ -6,17 +6,17 @@ import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   constructElectionKey,
   DEFAULT_SYSTEM_SETTINGS,
-  Voter,
-  VoterAddressChangeRequest,
-  VoterMailingAddressChangeRequest,
-  VoterNameChangeRequest,
-  VoterRegistrationRequest,
+  type Voter,
+  type VoterAddressChangeRequest,
+  type VoterMailingAddressChangeRequest,
+  type VoterNameChangeRequest,
+  type VoterRegistrationRequest,
 } from '@votingworks/types';
 import {
   DEV_JURISDICTION,
-  DippedSmartCardAuthMachineState,
+  type DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { BatteryInfo } from '@votingworks/backend';
+import type { BatteryInfo } from '@votingworks/backend';
 import { TEST_MACHINE_ID, withApp } from '../test/app.js';
 import { createValidStreetInfo, createVoter } from '../test/test_helpers.js';
 

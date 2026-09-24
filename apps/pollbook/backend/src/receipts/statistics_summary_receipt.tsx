@@ -1,11 +1,11 @@
 import { format } from '@votingworks/utils';
 import {
-  Election,
-  PartyAbbreviation,
+  type Election,
+  type PartyAbbreviation,
   getUndeclaredPrimaryPartyChoice,
   getUndeclaredPrimaryPartyChoiceRaw,
-  PrimarySummaryStatistics,
-  SummaryStatistics,
+  type PrimarySummaryStatistics,
+  type SummaryStatistics,
   getImportedVotersCount,
   getTotalPrecinctCheckIns,
 } from '@votingworks/types';

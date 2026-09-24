@@ -3,7 +3,12 @@ import type { Meta } from '@storybook/react-vite' with {
 };
 
 import { styled } from './styled.js';
-import { ICON_COLORS, IconComponent, IconProps, Icons } from './icons.js';
+import {
+  ICON_COLORS,
+  type IconComponent,
+  type IconProps,
+  Icons,
+} from './icons.js';
 import { H1, H5, P } from './typography.js';
 
 const meta: Meta<IconComponent> = {

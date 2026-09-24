@@ -1,8 +1,8 @@
 import { vi } from 'vitest';
-import { createMemoryHistory, History } from 'history';
-import React from 'react';
+import { createMemoryHistory, type History } from 'history';
+import type React from 'react';
 import { Router } from 'react-router-dom';
-import {
+import type {
   BallotStyleId,
   Contest,
   ElectionDefinition,
@@ -11,7 +11,7 @@ import {
   PrintJobId,
   VotesDict,
 } from '@votingworks/types';
-import { MachineConfig } from '@votingworks/mark-backend';
+import type { MachineConfig } from '@votingworks/mark-backend';
 
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { render as testRender } from './react_testing_library.js';

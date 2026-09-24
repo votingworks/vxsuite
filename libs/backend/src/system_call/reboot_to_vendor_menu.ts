@@ -1,10 +1,10 @@
 import path from 'node:path';
 import { assert, assertDefined } from '@votingworks/basics';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, type Logger } from '@votingworks/logging';
 
 import { execFile } from '../exec.js';
 import { intermediateScript } from '../intermediate_scripts.js';
-import { GetAuthStatus } from './auth.js';
+import type { GetAuthStatus } from './auth.js';
 
 /**
  * Reboots the machine into the vendor menu.

@@ -1,9 +1,9 @@
 import React from 'react';
 import { ThemeProvider } from 'styled-components';
 import {
-  ElectionDefinition,
+  type ElectionDefinition,
   hasSplits,
-  BallotPrintCount,
+  type BallotPrintCount,
   isCombinedBallotPrimary,
 } from '@votingworks/types';
 import { format, getLanguageOptions } from '@votingworks/utils';
@@ -19,7 +19,7 @@ import {
   TestModeReportBanner,
 } from './report_header.js';
 import { ReportGeneratedMetadata } from './report_generated_metadata.js';
-import { FillerColumn } from './ballot_count_report.js';
+import type { FillerColumn } from './ballot_count_report.js';
 
 type AttributeColumnId =
   'precinctName' | 'precinctSplitName' | 'party' | 'language';

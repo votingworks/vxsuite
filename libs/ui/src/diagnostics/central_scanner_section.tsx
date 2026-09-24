@@ -1,4 +1,4 @@
-import { DiagnosticRecord } from '@votingworks/types';
+import type { DiagnosticRecord } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { H2, P } from '../typography.js';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons.js';

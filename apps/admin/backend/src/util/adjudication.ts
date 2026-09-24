@@ -1,8 +1,14 @@
-import { Buffer } from 'node:buffer';
-import { BallotPageLayout, Id, mapSheet, Rect, Side } from '@votingworks/types';
+import type { Buffer } from 'node:buffer';
+import {
+  type BallotPageLayout,
+  type Id,
+  mapSheet,
+  type Rect,
+  type Side,
+} from '@votingworks/types';
 import { loadImageMetadata } from '@votingworks/image-utils';
-import { Store } from '../store.js';
-import { BallotImages, BallotPageImage } from '../types.js';
+import type { Store } from '../store.js';
+import type { BallotImages, BallotPageImage } from '../types.js';
 import { rootDebug } from './debug.js';
 
 const debug = rootDebug.extend('adjudication');

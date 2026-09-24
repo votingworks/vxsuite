@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from '@storybook/react-vite' with {
   'resolution-mode': 'import',
 };
 import {
-  ContestPosition,
-  ElectionDefinition,
+  type ContestPosition,
+  type ElectionDefinition,
   safeParseElectionDefinition,
-  SheetPositions,
+  type SheetPositions,
   Tabulation,
 } from '@votingworks/types';
 import { getGroupedBallotStyles } from '@votingworks/utils';
@@ -15,9 +15,9 @@ import electionWithMsEitherNeitherData from '@fixtures/electionWithMsEitherNeith
 import { styled } from '../styled.js';
 import {
   BallotCountReport,
-  BallotCountReportProps,
+  type BallotCountReportProps,
 } from './ballot_count_report.js';
-import { LabeledScannerBatch } from './utils.js';
+import type { LabeledScannerBatch } from './utils.js';
 
 const electionTwoPartyPrimaryDefinition = safeParseElectionDefinition(
   electionTwoPartyPrimaryData

@@ -4,8 +4,8 @@ import {
   hasOnlineInterface,
   NETWORK_POLLING_INTERVAL_MS,
 } from '@votingworks/networking';
-import { AddressInfo } from 'node:net';
-import { Server } from 'node:http';
+import type { AddressInfo } from 'node:net';
+import type { Server } from 'node:http';
 import {
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
@@ -17,7 +17,7 @@ import {
   anyPollingPlace,
   constructElectionKey,
   DEFAULT_SYSTEM_SETTINGS,
-  Id,
+  type Id,
 } from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
@@ -28,12 +28,10 @@ import {
   SimulatedUsbPlatform,
 } from '@votingworks/usb-drive';
 import { startHostNetworking, startClientNetworking } from './networking.js';
-import { buildPeerApp } from './peer_app.js';
-import type { PeerApi } from './peer_app.js';
-import { buildClientApp } from './client_app.js';
-import type { ClientApi } from './client_app.js';
-import { Store } from './store.js';
-import { ClientConnectionStatus, MachineMode } from './types.js';
+import { buildPeerApp, type PeerApi } from './peer_app.js';
+import { buildClientApp, type ClientApi } from './client_app.js';
+import type { Store } from './store.js';
+import { ClientConnectionStatus, type MachineMode } from './types.js';
 import { addMockCvrFileToStore } from '../test/mock_cvr_file.js';
 import {
   buildMockLogger,
@@ -41,7 +39,7 @@ import {
   mockMachineLocked,
 } from '../test/app.js';
 
-import { ClientStore } from './client_store.js';
+import type { ClientStore } from './client_store.js';
 import { createClientWorkspace, createWorkspace } from './util/workspace.js';
 import { STALE_MACHINE_THRESHOLD_MS } from './globals.js';
 import { getCurrentTime } from './get_current_time.js';

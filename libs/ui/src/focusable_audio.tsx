@@ -1,8 +1,8 @@
 import {
-  ComponentPropsWithoutRef,
-  CSSProperties,
-  ElementType,
-  MouseEvent,
+  type ComponentPropsWithoutRef,
+  type CSSProperties,
+  type ElementType,
+  type MouseEvent,
   useState,
 } from 'react';
 import { styled } from './styled.js';

@@ -1,16 +1,16 @@
 import type { ChildProcess } from 'node:child_process';
 import makeDebug from 'debug';
 import { promises as fs } from 'node:fs';
-import { assert, Optional } from '@votingworks/basics';
+import { assert, type Optional } from '@votingworks/basics';
 import { exec, spawn } from './exec.js';
 import { getResolvedMediaMountDir } from './media_mount_dir.js';
 import {
-  UsbDiskDevPath,
+  type UsbDiskDevPath,
   UsbDiskDevPathSchema,
-  UsbDriveFilesystemType,
-  UsbPartitionDevPath,
+  type UsbDriveFilesystemType,
+  type UsbPartitionDevPath,
   UsbPartitionDevPathSchema,
-  UsbPartitionMountpoint,
+  type UsbPartitionMountpoint,
   UsbPartitionMountpointSchema,
 } from './types.js';
 

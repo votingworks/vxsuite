@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { SYSTEM_LIMITS, SystemLimitViolation } from '@votingworks/types';
+import { SYSTEM_LIMITS, type SystemLimitViolation } from '@votingworks/types';
 
 import { systemLimitViolationToString } from './system_limits.js';
 

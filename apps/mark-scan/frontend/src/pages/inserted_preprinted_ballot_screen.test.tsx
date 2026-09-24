@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, Mocked, test, vi } from 'vitest';
-import {
+import { beforeEach, describe, expect, type Mocked, test, vi } from 'vitest';
+import type {
   BallotMetadata,
   BallotStyleId,
   InterpretedBmdPage,

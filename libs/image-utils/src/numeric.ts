@@ -1,4 +1,4 @@
-import { float, int } from './types.js';
+import type { float, int } from './types.js';
 
 /**
  * A tiny value that is effectively zero.

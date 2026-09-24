@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, Redirect } from 'react-router-dom';
 
-import { TtsStringDefault } from '@votingworks/design-backend';
+import type { TtsStringDefault } from '@votingworks/design-backend';
 import { ElectionStringKey, LanguageCode } from '@votingworks/types';
 import { H2 } from '@votingworks/ui';
 
@@ -9,7 +9,7 @@ import {
   AudioEditorExitLink,
   AudioEditorPanel,
 } from './ballot_audio/audio_editor_panel.js';
-import { BallotAudioPathParams } from './ballot_audio/routes.js';
+import type { BallotAudioPathParams } from './ballot_audio/routes.js';
 import { routes } from './routes.js';
 import * as api from './api.js';
 

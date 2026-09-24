@@ -21,7 +21,7 @@ import {
 } from '@votingworks/utils';
 import * as server from './server.js';
 import { getMarkWorkspace, PORT } from './globals.js';
-import { createWorkspace, Workspace } from './util/workspace.js';
+import { createWorkspace, type Workspace } from './util/workspace.js';
 import { startElectricalTestingServer } from './electrical_testing/server.js';
 import { getDefaultAuth, getUserRole } from './util/auth.js';
 import { BarcodeClient } from './barcodes/index.js';

@@ -1,4 +1,4 @@
-import { Stats } from 'node:fs';
+import type { Stats } from 'node:fs';
 import { mkdir, mkdtemp, rm, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import {
@@ -8,14 +8,14 @@ import {
   isNonExistentFileOrDirectoryError,
   iter,
   ok,
-  Result,
+  type Result,
 } from '@votingworks/basics';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
 import { exchangePaths } from '@votingworks/fs';
-import { Id } from '@votingworks/types';
+import type { Id } from '@votingworks/types';
 import { Store } from '../../store.js';
 import { checkWorkspaceIsHostMode } from '../host_mode.js';
-import { PrepareBackupOptions } from './types.js';
+import type { PrepareBackupOptions } from './types.js';
 import { BackupStagingArea } from '../staging_area.js';
 
 const DEFAULT_MIN_AVAILABLE_STORAGE_BYTES = 50_000_000; // 50 MB

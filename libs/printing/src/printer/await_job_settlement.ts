@@ -1,6 +1,6 @@
-import { PrintJobId, PrintJobStatus } from '@votingworks/types';
+import type { PrintJobId, PrintJobStatus } from '@votingworks/types';
 import { rootDebug } from '../utils/debug.js';
-import { Printer } from './types.js';
+import type { Printer } from './types.js';
 
 const debug = rootDebug.extend('await-job-settlement');
 

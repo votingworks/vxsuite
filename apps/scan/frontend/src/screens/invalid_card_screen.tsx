@@ -1,4 +1,4 @@
-import { InsertedSmartCardAuth } from '@votingworks/types';
+import type { InsertedSmartCardAuth } from '@votingworks/types';
 import { InvalidCardScreen as SharedInvalidCardScreen } from '@votingworks/ui';
 
 import { ScreenMainCenterChild } from '../components/layout.js';

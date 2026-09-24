@@ -1,6 +1,6 @@
-import React from 'react';
+import type React from 'react';
 import { styled } from './styled.js';
-import { LinkButton, LinkButtonProps } from './link_button.js';
+import { LinkButton, type LinkButtonProps } from './link_button.js';
 import { Icons } from './icons.js';
 
 /**

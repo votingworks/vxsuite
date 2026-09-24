@@ -1,5 +1,9 @@
 import { throwIllegalValue } from '@votingworks/basics';
-import type { Voter, VoterAddressChangeRequest } from '@votingworks/types';
+import type {
+  Voter,
+  VoterAddressChangeRequest,
+  Election,
+} from '@votingworks/types';
 import {
   MainHeader,
   H1,
@@ -13,7 +17,6 @@ import {
   H4,
 } from '@votingworks/ui';
 import { useState, useMemo } from 'react';
-import { Election } from '@votingworks/types';
 import { Column, Row } from './layout.js';
 import { NoNavScreen } from './nav_screen.js';
 import { TitledCard, VoterName } from './shared_components.js';

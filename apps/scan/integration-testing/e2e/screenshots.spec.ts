@@ -18,13 +18,11 @@ import {
   withUndervote,
   withWriteIns,
 } from '@votingworks/integration-test-utils';
-import type {
-  CandidateContest,
-  PollingPlace,
-  SystemSettings,
-  VotesDict,
-} from '@votingworks/types';
 import {
+  type CandidateContest,
+  type PollingPlace,
+  type SystemSettings,
+  type VotesDict,
   AdjudicationReason,
   DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';

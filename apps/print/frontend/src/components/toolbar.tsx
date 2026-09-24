@@ -6,15 +6,15 @@ import {
   Button,
   Caption,
   DateTimeDisplay,
-  IconName,
+  type IconName,
   Icons,
   LockMachineButton,
   ToolbarButtons,
   Toolbar as ToolbarContainer,
 } from '@votingworks/ui';
-import { UsbDriveStatus } from '@votingworks/usb-drive';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 
-import { type PrinterStatus as PrinterStatusType } from '@votingworks/types';
+import type { PrinterStatus as PrinterStatusType } from '@votingworks/types';
 import { ejectUsbDrive, getDeviceStatuses, logOut } from '../api.js';
 
 // The printer is set to default to 2%, but we warn at 5%

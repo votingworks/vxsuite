@@ -2,7 +2,7 @@ import React from 'react';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
-  QueryKey,
+  type QueryKey,
   useMutation,
   useQuery,
   useQueryClient,

@@ -5,30 +5,30 @@ import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import {
   assert,
   assertDefined,
-  AsyncIteratorPlus,
+  type AsyncIteratorPlus,
   err,
   iter,
   ok,
-  Result,
+  type Result,
 } from '@votingworks/basics';
 import {
-  BallotPageLayout,
+  type BallotPageLayout,
   CastVoteRecordExportFileName,
-  CastVoteRecordExportMetadata,
+  type CastVoteRecordExportMetadata,
   CastVoteRecordExportMetadataSchema,
   CastVoteRecordReportWithoutMetadataSchema,
   CVR,
   mapSheet,
-  ReadCastVoteRecordError,
-  ReadCastVoteRecordExportError,
-  ReadCastVoteRecordExportMetadataError,
+  type ReadCastVoteRecordError,
+  type ReadCastVoteRecordExportError,
+  type ReadCastVoteRecordExportMetadataError,
   safeParseJson,
   safeParseNumber,
-  SheetOf,
+  type SheetOf,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
-  CastVoteRecordWriteIn,
+  type CastVoteRecordWriteIn,
   getCurrentSnapshot,
   getExportedCastVoteRecordIds,
   getOriginalSnapshot,
@@ -39,14 +39,14 @@ import {
 
 import { TEST_OTHER_REPORT_TYPE } from './build_report_metadata.js';
 import {
-  ReferencedFile,
-  ReferencedFiles,
+  type ReferencedFile,
+  type ReferencedFiles,
   referencedImageFile,
   referencedLayoutFile,
 } from './referenced_files.js';
 import { getImageHash, getLayoutHash } from './build_cast_vote_record.js';
 import {
-  CastVoteRecordFileSource,
+  type CastVoteRecordFileSource,
   directoryFileSource,
 } from './file_source.js';
 

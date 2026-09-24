@@ -12,10 +12,10 @@ import JsBarcode from 'jsbarcode';
 import { format } from '@votingworks/utils';
 import React from 'react';
 import { iter, range } from '@votingworks/basics';
-import { Election, Precinct, Voter } from '@votingworks/types';
-import { VoterGroup } from './types.js';
+import type { Election, Precinct, Voter } from '@votingworks/types';
+import type { VoterGroup } from './types.js';
 import {
-  ExternalToInternalPrecinctIdMapping,
+  type ExternalToInternalPrecinctIdMapping,
   getExternalPrecinctIdMappingFromElection,
 } from './pollbook_package.js';
 import { padWithZeroes } from './strings.js';

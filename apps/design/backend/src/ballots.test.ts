@@ -1,18 +1,18 @@
 import { readElectionGeneral } from '@votingworks/fixtures';
 import {
   BallotType,
-  BaseBallotProps,
+  type BaseBallotProps,
   centralScanningPollingPlaceId,
   CENTRAL_SCANNING_POLLING_PLACE_NAME,
   DEFAULT_SYSTEM_SETTINGS,
   earlyVotingPollingPlaceId,
   EARLY_VOTING_POLLING_PLACE_NAME,
-  Election,
+  type Election,
   ElectionStringKey,
   hasSplits,
-  PollingPlace,
-  Precinct,
-  UiStringsPackage,
+  type PollingPlace,
+  type Precinct,
+  type UiStringsPackage,
 } from '@votingworks/types';
 import { TestLanguageCode } from '@votingworks/test-utils';
 import { expect, test } from 'vitest';
@@ -23,7 +23,7 @@ import {
   find,
   iter,
 } from '@votingworks/basics';
-import { NhBallotProps, NhStateBallotProps } from '@votingworks/hmpb';
+import type { NhBallotProps, NhStateBallotProps } from '@votingworks/hmpb';
 import {
   addPollingPlacesForExport,
   createBallotPropsForTemplate,

@@ -1,5 +1,5 @@
-import { BaseLogger, LogEventId } from '@votingworks/logging';
-import { Printer, renderToPdf } from '@votingworks/printing';
+import { type BaseLogger, LogEventId } from '@votingworks/logging';
+import { type Printer, renderToPdf } from '@votingworks/printing';
 
 export async function renderAndPrintReceipt(
   printer: Printer,

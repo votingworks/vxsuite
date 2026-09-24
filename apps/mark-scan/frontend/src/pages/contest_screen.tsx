@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { ContestPage, useIsReviewMode } from '@votingworks/mark-flow-ui';
-import { ContestId } from '@votingworks/types';
+import type { ContestId } from '@votingworks/types';
 
 import { AccessibilityMode } from '@votingworks/ui';
 import * as api from '../api.js';

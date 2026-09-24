@@ -10,7 +10,7 @@ import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 import {
   asSheet,
   BallotType,
-  CVR,
+  type CVR,
   DEFAULT_SYSTEM_SETTINGS,
   DEV_MACHINE_ID,
 } from '@votingworks/types';

@@ -8,14 +8,14 @@ import {
   NETWORK_REQUEST_TIMEOUT_MS,
 } from '@votingworks/networking';
 import { assert, deepEqual } from '@votingworks/basics';
-import { DippedSmartCardAuthApi } from '@votingworks/auth';
+import type { DippedSmartCardAuthApi } from '@votingworks/auth';
 import {
   Admin,
   formatElectionHashes,
   safeParseElectionDefinition,
   type UserRole,
 } from '@votingworks/types';
-import { BaseLogger, LogEventId } from '@votingworks/logging';
+import { type BaseLogger, LogEventId } from '@votingworks/logging';
 import type { PeerApi } from './peer_app.js';
 import type { Store } from './store.js';
 import type { ClientStore, HostConnection } from './client_store.js';

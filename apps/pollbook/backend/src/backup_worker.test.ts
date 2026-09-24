@@ -1,7 +1,7 @@
 import { expect, test, vi, vitest } from 'vitest';
 import { writeFileSync } from 'node:fs';
 import { makeTemporaryPath } from '@votingworks/fixtures';
-import {
+import type {
   ElectionDefinition,
   PrecinctId,
   Voter,
@@ -15,7 +15,7 @@ import {
 } from '../test/test_helpers.js';
 import { getBackupPaperChecklistPdfs } from './backup_worker.js';
 import { LocalStore } from './local_store.js';
-import { EventType, VoterRegistrationEvent } from './types.js';
+import { EventType, type VoterRegistrationEvent } from './types.js';
 
 function setSinglePrecinctElection(store: LocalStore): void {
   const baseElection = getTestElection();

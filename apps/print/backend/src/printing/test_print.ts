@@ -1,6 +1,6 @@
 import { assert } from '@votingworks/basics';
-import { LogEventId, Logger } from '@votingworks/logging';
-import { Printer } from '@votingworks/printing';
+import { LogEventId, type Logger } from '@votingworks/logging';
+import type { Printer } from '@votingworks/printing';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 

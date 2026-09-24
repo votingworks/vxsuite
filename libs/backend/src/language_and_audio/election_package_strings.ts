@@ -1,9 +1,9 @@
-import {
+import type {
   BallotLanguageConfigs,
   Election,
   UiStringsPackage,
 } from '@votingworks/types';
-import { GoogleCloudTranslator } from './translator.js';
+import type { GoogleCloudTranslator } from './translator.js';
 import { translateAppStrings } from './app_strings.js';
 import { translateElectionAndHmpbStrings } from './ballot_strings.js';
 

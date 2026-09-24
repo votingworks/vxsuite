@@ -1,5 +1,5 @@
-import { Optional, Result } from '@votingworks/basics';
-import {
+import type { Optional, Result } from '@votingworks/basics';
+import type {
   BallotStyleId,
   ElectionKey,
   InsertedSmartCardAuth,
@@ -9,7 +9,7 @@ import {
   StartingCardLockoutDurationSeconds,
 } from '@votingworks/types';
 
-import { MachineType } from './certs.js';
+import type { MachineType } from './certs.js';
 
 /**
  * The API for an inserted smart card auth instance, "inserted" meaning that the card needs to be

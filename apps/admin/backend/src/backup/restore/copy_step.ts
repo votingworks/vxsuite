@@ -5,14 +5,17 @@ import {
   extractErrorMessage,
   iter,
   ok,
-  Result,
+  type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import { copyFile } from '@votingworks/fs';
-import { AuthenticatedBackup } from '../authenticated_backup.js';
-import { BACKUP_WORKSPACE_DIR, BackupManifest } from '../backup_manifest.js';
-import { ProgressEvent } from '../progress.js';
-import { RestoreError } from './types.js';
+import type { AuthenticatedBackup } from '../authenticated_backup.js';
+import {
+  BACKUP_WORKSPACE_DIR,
+  type BackupManifest,
+} from '../backup_manifest.js';
+import type { ProgressEvent } from '../progress.js';
+import type { RestoreError } from './types.js';
 
 /**
  * How many bytes of a single file must be copied before another progress event

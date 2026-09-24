@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 
 import {
   NumberInput as Component,
-  NumberInputProps as Props,
+  type NumberInputProps as Props,
 } from './number_input.js';
 
 const initialProps: Props = {

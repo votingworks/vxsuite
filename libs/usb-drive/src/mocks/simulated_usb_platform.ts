@@ -5,7 +5,7 @@ import {
   isNonExistentFileOrDirectoryError,
   iter,
 } from '@votingworks/basics';
-import { UsbDriveSpace } from '@votingworks/utils';
+import type { UsbDriveSpace } from '@votingworks/utils';
 import makeDebug from 'debug';
 import {
   linkSync,
@@ -21,23 +21,23 @@ import {
 import { basename, join } from 'node:path';
 import { z } from 'zod/v4';
 import {
-  UsbDiskDevPath,
-  UsbDriveFilesystemType,
-  UsbDriveFormatFilesystemType,
-  UsbPartitionDevPath,
+  type UsbDiskDevPath,
+  type UsbDriveFilesystemType,
+  type UsbDriveFormatFilesystemType,
+  type UsbPartitionDevPath,
   UsbPartitionDevPathSchema,
-  UsbPartitionMountpoint,
+  type UsbPartitionMountpoint,
   UsbPartitionMountpointSchema,
 } from '../types.js';
 import {
-  DriveWatcher,
-  UsbPlatform,
-  UsbPlatformDrive,
+  type DriveWatcher,
+  type UsbPlatform,
+  type UsbPlatformDrive,
   UsbPlatformDriveSchema,
-  UsbPlatformPartition,
+  type UsbPlatformPartition,
 } from '../usb_platform_types.js';
 import { getSpaceAtPath } from '../usb_platform.js';
-import { MockFileTree, writeMockFileTree } from './helpers.js';
+import { type MockFileTree, writeMockFileTree } from './helpers.js';
 
 const debug = makeDebug('SimulatedUsbPlatform');
 

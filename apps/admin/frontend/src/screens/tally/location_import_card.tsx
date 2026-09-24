@@ -3,7 +3,10 @@ import styled, { css } from 'styled-components';
 import { DateTime } from 'luxon';
 
 import { Font, Icons } from '@votingworks/ui';
-import { PollingPlaceType, pollingPlaceTypeName } from '@votingworks/types';
+import {
+  type PollingPlaceType,
+  pollingPlaceTypeName,
+} from '@votingworks/types';
 
 import { TIME_FORMAT } from '../../config/globals.js';
 import { LocationCvrCard } from './location_cvr_card.js';

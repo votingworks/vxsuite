@@ -1,6 +1,6 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { err, ok } from '@votingworks/basics';
-import { IppJobState, PrintJobOutcome } from '@votingworks/types';
+import type { IppJobState, PrintJobOutcome } from '@votingworks/types';
 import {
   CUPS_SCHEDULER_IPP_URI,
   GET_JOB_ATTRIBUTES_QUERY_PATH,

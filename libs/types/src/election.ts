@@ -1,6 +1,6 @@
 import {
-  Optional,
-  DateWithoutTime,
+  type Optional,
+  type DateWithoutTime,
   iter,
   deepEqual,
 } from '@votingworks/basics';
@@ -8,22 +8,22 @@ import { z } from 'zod/v4';
 import { sha256 } from './sha256.js';
 import {
   Sha256Hash,
-  Id,
+  type Id,
   IdSchema,
-  Iso8601Timestamp,
+  type Iso8601Timestamp,
   Iso8601TimestampSchema,
   DateWithoutTimeSchema,
 } from './generic.js';
 import {
-  Offset,
+  type Offset,
   OffsetSchema,
-  Rect,
+  type Rect,
   RectSchema,
-  Size,
+  type Size,
   SizeSchema,
 } from './geometry.js';
 import {
-  UiStringsPackage,
+  type UiStringsPackage,
   UiStringsPackageSchema,
 } from './ui_string_translations.js';
 

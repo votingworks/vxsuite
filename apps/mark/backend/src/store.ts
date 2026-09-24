@@ -4,7 +4,7 @@
 
 import util from 'node:util';
 import {
-  UiStringsStore,
+  type UiStringsStore,
   createUiStringStore,
   addDiagnosticRecord,
   getMostRecentDiagnosticRecord,
@@ -13,28 +13,28 @@ import {
   assert,
   assertDefined,
   DateWithoutTime,
-  Optional,
+  type Optional,
 } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
-import { BaseLogger } from '@votingworks/logging';
+import type { BaseLogger } from '@votingworks/logging';
 import {
-  ElectionDefinition,
+  type ElectionDefinition,
   safeParseElectionDefinition,
-  SystemSettings,
+  type SystemSettings,
   safeParseSystemSettings,
-  PollsState,
+  type PollsState,
   safeParse,
   PollsStateSchema,
-  ElectionKey,
+  type ElectionKey,
   constructElectionKey,
-  BallotStyleId,
-  PrecinctId,
-  EncodedBallotEntry,
-  DiagnosticRecord,
-  DiagnosticType,
+  type BallotStyleId,
+  type PrecinctId,
+  type EncodedBallotEntry,
+  type DiagnosticRecord,
+  type DiagnosticType,
 } from '@votingworks/types';
 import { join } from 'node:path';
-import { PrintCalibration } from '@votingworks/hmpb';
+import type { PrintCalibration } from '@votingworks/hmpb';
 import { DateTime } from 'luxon';
 
 const SchemaPath = join(import.meta.dirname, '../schema.sql');

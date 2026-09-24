@@ -1,6 +1,6 @@
 import { expect } from 'vitest';
 import {
-  BenchmarkResults,
+  type BenchmarkResults,
   computeBenchmarkStats,
   percentChange,
   printBenchmarkResults,

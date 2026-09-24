@@ -1,7 +1,7 @@
 import { styled } from '../styled.js';
 
 import { Keybinding } from '../keybindings.js';
-import { MarkScanControllerButton } from './types.js';
+import type { MarkScanControllerButton } from './types.js';
 
 interface MarkScanControllerIllustrationProps {
   highlight?: MarkScanControllerButton;

@@ -1,16 +1,16 @@
 // @coverage-exclude-file: tested via VxSuite apps
-import { Optional, typedAs } from '@votingworks/basics';
-import { Client as DbClient } from '@votingworks/db';
+import { type Optional, typedAs } from '@votingworks/basics';
+import type { Client as DbClient } from '@votingworks/db';
 import {
   safeParse,
   safeParseJson,
-  UiStringAudioClip,
-  UiStringAudioClips,
+  type UiStringAudioClip,
+  type UiStringAudioClips,
   UiStringAudioClipSchema,
-  UiStringAudioIds,
+  type UiStringAudioIds,
   UiStringAudioIdsSchema,
-  UiStringsPackage,
-  UiStringTranslations,
+  type UiStringsPackage,
+  type UiStringTranslations,
   UiStringTranslationsSchema,
 } from '@votingworks/types';
 

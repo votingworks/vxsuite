@@ -1,5 +1,5 @@
 import { Exporter } from '@votingworks/backend';
-import { UsbDrive } from '@votingworks/usb-drive';
+import type { UsbDrive } from '@votingworks/usb-drive';
 import { getAdminAllowedExportPatterns } from '../globals.js';
 
 /**

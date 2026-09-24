@@ -5,21 +5,21 @@ import {
   iter,
   ok,
   range,
-  Result,
+  type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import {
-  Contest as ContestStruct,
-  BallotMode,
-  BallotStyle,
-  BallotStyleId,
+  type Contest as ContestStruct,
+  type BallotMode,
+  type BallotStyle,
+  type BallotStyleId,
   BallotType,
-  BaseBallotProps,
-  CandidateContest as CandidateContestStruct,
-  Election,
-  PrecinctId,
-  YesNoContest,
+  type BaseBallotProps,
+  type CandidateContest as CandidateContestStruct,
+  type Election,
+  type PrecinctId,
+  type YesNoContest,
   ballotPaperDimensions,
   getBallotStyle,
   getContests,
@@ -33,14 +33,14 @@ import {
   electionStrings,
   RichText,
 } from '@votingworks/ui';
-import {
+import type {
   BallotLayoutError,
   BallotPageTemplate,
   ContentComponentResult,
 } from '../render_ballot.js';
-import { RenderScratchpad } from '../renderer.js';
+import type { RenderScratchpad } from '../renderer.js';
 import {
-  OptionInfo,
+  type OptionInfo,
   Page,
   TimingMarkGrid,
   WRITE_IN_OPTION_CLASS,
@@ -64,7 +64,7 @@ import {
   FooterVoterInstruction,
   QrCodeSlot,
 } from '../ballot_components.js';
-import { PixelDimensions } from '../types.js';
+import type { PixelDimensions } from '../types.js';
 import { layOutInColumns } from '../layout_in_columns.js';
 import { hmpbStrings } from '../hmpb_strings.js';
 import { Watermark } from './watermark.js';

@@ -1,6 +1,6 @@
 import { beforeEach, afterEach, expect, test, vi } from 'vitest';
 import { readMultiPartyPrimaryElectionDefinition } from '@votingworks/fixtures';
-import { VoterAddressChangeRequest } from '@votingworks/types';
+import type { VoterAddressChangeRequest } from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
 import { LocalStore } from './local_store.js';
 import {

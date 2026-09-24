@@ -2,15 +2,15 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { isIntegrationTest, isVxDev } from '@votingworks/utils';
 
 import {
-  ArtifactAuthenticationConfig,
+  type ArtifactAuthenticationConfig,
   constructArtifactAuthenticationConfig,
   constructJavaCardConfig,
   constructJavaCardConfigForVxProgramming,
   constructSignedHashValidationConfig,
   constructSignedQuickResultsReportingConfig,
-  JavaCardConfig,
-  SignedHashValidationConfig,
-  SignedQuickResultsReportingConfig,
+  type JavaCardConfig,
+  type SignedHashValidationConfig,
+  type SignedQuickResultsReportingConfig,
   getVxCertAuthorityCertPath,
 } from './config.js';
 

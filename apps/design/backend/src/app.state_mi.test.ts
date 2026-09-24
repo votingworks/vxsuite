@@ -14,7 +14,7 @@ import {
   organizations,
   users,
 } from '../test/mocks.js';
-import { JurisdictionUser } from './types.js';
+import type { JurisdictionUser } from './types.js';
 
 vi.setConfig({ testTimeout: 30_000 });
 

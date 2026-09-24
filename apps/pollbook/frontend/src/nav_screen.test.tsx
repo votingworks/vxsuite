@@ -2,12 +2,12 @@ import { test, beforeEach, afterEach, vi, expect } from 'vitest';
 
 import {
   PollbookConnectionStatus,
-  PollbookServiceInfo,
+  type PollbookServiceInfo,
 } from '@votingworks/pollbook-backend';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { screen, within } from '../test/react_testing_library.js';
-import { ApiMock, createApiMock } from '../test/mock_api_client.js';
+import { type ApiMock, createApiMock } from '../test/mock_api_client.js';
 import { DeviceStatusBar } from './nav_screen.js';
 import { renderInAppContext } from '../test/render_in_app_context.js';
 

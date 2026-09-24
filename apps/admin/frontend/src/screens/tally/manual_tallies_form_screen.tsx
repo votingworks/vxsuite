@@ -9,18 +9,18 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Route, Switch, useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import {
-  ContestId,
-  ContestOptionId,
+  type ContestId,
+  type ContestOptionId,
   getContestDistrictName,
   getContests,
-  Tabulation,
-  CandidateId,
+  type Tabulation,
+  type CandidateId,
   Admin as AdminTypes,
-  Contest,
+  type Contest,
   getPrecinctById,
-  BallotStyleGroupId,
-  Precinct,
-  Election,
+  type BallotStyleGroupId,
+  type Precinct,
+  type Election,
   straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import {
@@ -65,7 +65,7 @@ import {
   setManualResults,
 } from '../../api.js';
 import { normalizeWriteInName } from '../../utils/adjudication.js';
-import {
+import type {
   ManualTallyFormContestParams,
   ManualTallyFormParams,
 } from '../../config/types.js';

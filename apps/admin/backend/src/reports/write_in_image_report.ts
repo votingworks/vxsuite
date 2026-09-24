@@ -1,25 +1,29 @@
 import { assert, assertDefined } from '@votingworks/basics';
 import {
-  AdminContestWriteIns,
+  type AdminContestWriteIns,
   AdminWriteInImageReport,
-  CandidateGroupWriteIns,
-  WriteInEntry,
+  type CandidateGroupWriteIns,
+  type WriteInEntry,
 } from '@votingworks/ui';
 import { crop, loadImageData, toDataUrl } from '@votingworks/image-utils';
-import { PdfError, Printer, renderToPdf } from '@votingworks/printing';
-import { LogEventId, Logger } from '@votingworks/logging';
 import {
+  type PdfError,
+  type Printer,
+  renderToPdf,
+} from '@votingworks/printing';
+import { LogEventId, type Logger } from '@votingworks/logging';
+import type {
   BallotPageLayout,
   CandidateContest,
   ContestId,
   SheetOf,
 } from '@votingworks/types';
-import { UsbDrive } from '@votingworks/usb-drive';
+import type { UsbDrive } from '@votingworks/usb-drive';
 import { join } from 'node:path';
-import { Buffer } from 'node:buffer';
-import { Store } from '../store.js';
+import type { Buffer } from 'node:buffer';
+import type { Store } from '../store.js';
 import { getCurrentTime } from '../util/get_current_time.js';
-import { ExportDataResult, WriteInRecord } from '../types.js';
+import type { ExportDataResult, WriteInRecord } from '../types.js';
 import { buildExporter } from '../util/exporter.js';
 import { generateReportsDirectoryPath } from '../util/filenames.js';
 import { rootDebug } from '../util/debug.js';

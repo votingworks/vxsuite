@@ -1,22 +1,22 @@
 import React from 'react';
 import styled from 'styled-components';
 import {
-  CandidateVote,
-  YesNoVote,
-  OptionalYesNoVote,
-  Election,
-  VotesDict,
-  PrecinctId,
+  type CandidateVote,
+  type YesNoVote,
+  type OptionalYesNoVote,
+  type Election,
+  type VotesDict,
+  type PrecinctId,
   getContestDistrict,
-  ContestId,
-  BallotStyle,
+  type ContestId,
+  type BallotStyle,
   getCandidateVoteSortedForBallotStyleRotation,
-  StraightPartyVote,
+  type StraightPartyVote,
 } from '@votingworks/types';
 import {
   Caption,
   Card,
-  ContestVote,
+  type ContestVote,
   Icons,
   VoterContestSummary,
   Button,
@@ -33,14 +33,14 @@ import {
   getSingleYesNoVote,
   selectedStraightPartyId,
 } from '@votingworks/utils';
-import {
+import type {
   CandidateContestResultInterface,
   MsEitherNeitherContestResultInterface,
   StraightPartyContestResultInterface,
   YesNoContestResultInterface,
 } from '../config/types.js';
 
-import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests.js';
+import type { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests.js';
 import { CandidateInfoCaption } from './candidate_info_caption.js';
 import { WriteInCandidateName } from './write_in_candidate_name.js';
 import {

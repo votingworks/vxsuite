@@ -11,7 +11,7 @@ import {
 } from '@votingworks/ui';
 import fileDownload from 'js-file-download';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
-import { ElectionIdParams, routes } from './routes.js';
+import { type ElectionIdParams, routes } from './routes.js';
 import { useTitle } from './hooks/use_title.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import { convertMsResults } from './api.js';

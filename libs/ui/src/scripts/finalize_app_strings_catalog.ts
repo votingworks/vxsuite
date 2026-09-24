@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 
 import {
-  UiStringTranslations,
+  type UiStringTranslations,
   UiStringTranslationsSchema,
   safeParseJson,
 } from '@votingworks/types';

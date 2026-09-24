@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
-import { UiTheme } from '@votingworks/types';
+import type { UiTheme } from '@votingworks/types';
 import { ThemeConsumer } from 'styled-components';
 import { mockUseAudioControls } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';

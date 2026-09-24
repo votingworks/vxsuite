@@ -7,7 +7,10 @@ import {
   mockSystemAdministratorUser,
   mockVendorUser,
 } from '@votingworks/test-utils';
-import { DippedSmartCardAuth, InsertedSmartCardAuth } from '@votingworks/types';
+import type {
+  DippedSmartCardAuth,
+  InsertedSmartCardAuth,
+} from '@votingworks/types';
 
 import {
   isCardlessVoterAuth,

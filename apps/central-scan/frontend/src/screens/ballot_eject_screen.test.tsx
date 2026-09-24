@@ -2,12 +2,12 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { deferred } from '@votingworks/basics';
 import {
   AdjudicationReason,
-  BallotPageMetadata,
+  type BallotPageMetadata,
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
   formatBallotHash,
-  SheetInterpretation,
-  SheetOf,
+  type SheetInterpretation,
+  type SheetOf,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
@@ -15,7 +15,7 @@ import { HIGHLIGHT_WARNING_BACKGROUND } from '@votingworks/ui';
 import { screen } from '../../test/react_testing_library.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { BallotEjectScreen } from './ballot_eject_screen.js';
-import { createApiMock, ApiMock } from '../../test/api.js';
+import { createApiMock, type ApiMock } from '../../test/api.js';
 
 let apiMock: ApiMock;
 

@@ -9,32 +9,32 @@ import { assertDefined, err, ok } from '@votingworks/basics';
 import {
   mockUsbDriveStatus,
   PollingPlacePicker,
-  PollingPlacePickerMode,
-  PollingPlacePickerProps,
+  type PollingPlacePickerMode,
+  type PollingPlacePickerProps,
 } from '@votingworks/ui';
-import { PrinterStatus } from '@votingworks/fujitsu-thermal-printer';
+import type { PrinterStatus } from '@votingworks/fujitsu-thermal-printer';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  PollingPlaceType,
-  PollsState,
+  type PollingPlaceType,
+  type PollsState,
 } from '@votingworks/types';
 import {
   act,
   render,
-  RenderResult,
+  type RenderResult,
   screen,
   waitFor,
   within,
 } from '../../test/react_testing_library.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   provideApi,
   statusNoPaper,
 } from '../../test/helpers/mock_api_client.js';
 import {
   ElectionManagerScreen,
-  ElectionManagerScreenProps,
+  type ElectionManagerScreenProps,
 } from './election_manager_screen.js';
 import { RELOAD_REMINDER_TEXT } from '../components/printer_management/election_manager_printer_tab_content.js';
 

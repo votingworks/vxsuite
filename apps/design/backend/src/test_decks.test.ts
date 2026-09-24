@@ -1,9 +1,9 @@
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import { readElection } from '@votingworks/fs';
 import {
-  ElectionSerializationOptions,
-  RendererPool,
-  ScratchDir,
+  type ElectionSerializationOptions,
+  type RendererPool,
+  type ScratchDir,
   allBaseBallotProps,
   ballotTemplates,
   createPlaywrightRendererPool,
@@ -19,8 +19,8 @@ import {
 } from '@votingworks/utils';
 import {
   BallotType,
-  Election,
-  ElectionDefinition,
+  type Election,
+  type ElectionDefinition,
   hasSplits,
   LanguageCode,
   LATEST_SOFTWARE_VERSION,

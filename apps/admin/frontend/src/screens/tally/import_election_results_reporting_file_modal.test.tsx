@@ -1,10 +1,16 @@
-import { afterEach, beforeEach, expect, Mocked, test, vi } from 'vitest';
-import {
+import { afterEach, beforeEach, expect, type Mocked, test, vi } from 'vitest';
+import type {
   ManualResultsIdentifier,
   ImportElectionResultsReportingError,
 } from '@votingworks/admin-backend';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { assertDefined, deferred, err, ok, Result } from '@votingworks/basics';
+import {
+  assertDefined,
+  deferred,
+  err,
+  ok,
+  type Result,
+} from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import {
@@ -13,10 +19,13 @@ import {
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { join } from 'node:path';
-import { UsbDriveStatus } from '@votingworks/usb-drive';
-import { BallotStyleGroupId, DippedSmartCardAuth } from '@votingworks/types';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import type {
+  BallotStyleGroupId,
+  DippedSmartCardAuth,
+} from '@votingworks/types';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
 } from '../../../test/helpers/mock_api_client.js';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';

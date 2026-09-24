@@ -1,24 +1,24 @@
 import {
-  Result,
+  type Result,
   assertDefined,
   err,
   deepEqual,
   iter,
   ok,
-  Optional,
+  type Optional,
 } from '@votingworks/basics';
 import {
-  BallotStyle,
-  BallotStyleGroupId,
-  BallotStyleId,
-  BallotStyleGroup,
-  Party,
-  Election,
-  PrecinctOrSplit,
+  type BallotStyle,
+  type BallotStyleGroupId,
+  type BallotStyleId,
+  type BallotStyleGroup,
+  type Party,
+  type Election,
+  type PrecinctOrSplit,
   hasSplits,
-  ElectionDefinition,
-  Tabulation,
-  PartyId,
+  type ElectionDefinition,
+  type Tabulation,
+  type PartyId,
 } from '@votingworks/types';
 
 const ID_LANGUAGES_SEPARATOR = '_';

@@ -21,7 +21,7 @@ import {
   convertPdfFileToGrayscale,
   convertPdfToGrayscale,
   convertPdfToSpotColor,
-  SpotColor,
+  type SpotColor,
 } from './pdf_conversion.js';
 import { fixturesDir } from './ballot_fixtures.js';
 import { Colors } from './ballot_components.js';

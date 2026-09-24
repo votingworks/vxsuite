@@ -13,7 +13,10 @@ import { App } from './app.js';
 import { advanceTimersAndPromises } from '../test/helpers/timers.js';
 
 import { countyCommissionersContest } from '../test/helpers/election.js';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

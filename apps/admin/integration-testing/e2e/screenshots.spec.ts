@@ -1,9 +1,10 @@
-import type { Page } from '@playwright/test';
-import { expect, test } from '@playwright/test';
-import type { MockUsbDriveHandler } from '@votingworks/usb-drive';
-import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
-import type { MockFilePrinterHandler } from '@votingworks/printing';
+import { type Page, expect, test } from '@playwright/test';
 import {
+  type MockUsbDriveHandler,
+  getMockUsbDriveHandler,
+} from '@votingworks/usb-drive';
+import {
+  type MockFilePrinterHandler,
   HP_4001_PRINTER_CONFIG,
   getMockFilePrinterHandler,
 } from '@votingworks/printing';
@@ -29,14 +30,12 @@ import {
   type ScreenshotNamer,
   withWriteIns,
 } from '@votingworks/integration-test-utils';
-import type {
-  CandidateContest,
-  ElectionDefinition,
-  ElectionRegisteredVoterCounts,
-  SystemSettings,
-  VotesDict,
-} from '@votingworks/types';
 import {
+  type CandidateContest,
+  type ElectionDefinition,
+  type ElectionRegisteredVoterCounts,
+  type SystemSettings,
+  type VotesDict,
   AdjudicationReason,
   BallotType,
   CVR,

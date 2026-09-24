@@ -6,7 +6,7 @@ import { ok } from '@votingworks/basics';
 import { mockWritable } from '../../../test/helpers/mock_writable.js';
 import {
   AllocationStatus,
-  CastVoteRecordReport,
+  type CastVoteRecordReport,
   CastVoteRecordReportSchema,
   CastVoteRecordVersion,
   CVRType,

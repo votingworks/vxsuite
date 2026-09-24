@@ -2,7 +2,7 @@ import { Screen } from './screen.js';
 import { Main } from './main.js';
 import { H1 } from './typography.js';
 import {
-  CardInsertionDirection,
+  type CardInsertionDirection,
   RemoveCardImage,
 } from './smart_card_images.js';
 

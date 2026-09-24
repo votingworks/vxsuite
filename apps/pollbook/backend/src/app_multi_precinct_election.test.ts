@@ -2,9 +2,9 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { electionMultiPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { assert } from 'node:console';
 import { CITIZEN_E351_PRINTER_CONFIG } from '@votingworks/printing';
-import { BatteryInfo } from '@votingworks/backend';
+import type { BatteryInfo } from '@votingworks/backend';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import {
+import type {
   Voter,
   VoterAddressChangeRequest,
   VoterMailingAddressChangeRequest,

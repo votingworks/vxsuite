@@ -1,6 +1,6 @@
-import { ImageData } from '@votingworks/types';
+import type { ImageData } from '@votingworks/types';
 import { napi } from './napi.js';
-import { TimingMarks } from './types.js';
+import type { TimingMarks } from './types.js';
 
 export * from './diagnostic.js';
 export * from './interpret.js';

@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import type { Anomaly } from '@votingworks/pollbook-backend';
 import { screen, waitFor } from '../test/react_testing_library.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   createMockVoter,
 } from '../test/mock_api_client.js';

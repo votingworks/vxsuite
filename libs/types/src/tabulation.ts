@@ -1,4 +1,4 @@
-import {
+import type {
   Contest,
   BallotCastingMode,
   BallotStyleGroupId,
@@ -10,7 +10,7 @@ import {
   PartyId,
   PrecinctId,
 } from './election.js';
-import { Id } from './generic.js';
+import type { Id } from './generic.js';
 
 export interface ContestResultsMetadata {
   overvotes: number;

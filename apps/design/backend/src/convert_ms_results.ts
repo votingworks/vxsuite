@@ -1,5 +1,5 @@
 import {
-  ElectionDefinition,
+  type ElectionDefinition,
   formatBallotHash,
   safeParseInt,
   Tabulation,
@@ -17,7 +17,7 @@ import {
   iter,
   lines,
   ok,
-  Result,
+  type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import { MS_ID_SEPARATOR } from './convert_ms_election.js';

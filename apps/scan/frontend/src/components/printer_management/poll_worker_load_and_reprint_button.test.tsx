@@ -1,7 +1,7 @@
 import { beforeEach, afterEach, vi, test, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   provideApi,
 } from '../../../test/helpers/mock_api_client.js';
@@ -12,7 +12,7 @@ import {
 } from '../../../test/react_testing_library.js';
 import {
   PollWorkerLoadAndReprintButton,
-  PollWorkerLoadAndReprintButtonProps,
+  type PollWorkerLoadAndReprintButtonProps,
 } from './poll_worker_load_and_reprint_button.js';
 
 let apiMock: ApiMock;

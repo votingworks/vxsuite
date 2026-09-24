@@ -1,9 +1,9 @@
 import { Buffer } from 'node:buffer';
 import ReactDomServer from 'react-dom/server';
 import {
-  Page,
-  RenderDocument,
-  Renderer,
+  type Page,
+  type RenderDocument,
+  type Renderer,
   createDocument,
   createScratchpad,
 } from '../renderer.js';

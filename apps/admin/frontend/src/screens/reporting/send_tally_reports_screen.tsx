@@ -10,7 +10,7 @@ import {
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import styled from 'styled-components';
-import { PollingPlace } from '@votingworks/types';
+import type { PollingPlace } from '@votingworks/types';
 import { NavigationScreen } from '../../components/navigation_screen.js';
 import {
   reportParentRoutes,

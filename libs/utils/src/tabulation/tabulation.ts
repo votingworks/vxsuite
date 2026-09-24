@@ -5,20 +5,20 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
-  Contest,
-  BallotStyleGroupId,
-  CandidateContest,
-  CandidateId,
-  ContestId,
-  ContestOptionId,
-  Election,
-  Id,
+  type Contest,
+  type BallotStyleGroupId,
+  type CandidateContest,
+  type CandidateId,
+  type ContestId,
+  type ContestOptionId,
+  type Election,
+  type Id,
   isCombinedBallotPrimary,
-  PartyId,
-  PrecinctSelection,
+  type PartyId,
+  type PrecinctSelection,
   Tabulation,
-  YesNoContest,
-  StraightPartyContest,
+  type YesNoContest,
+  type StraightPartyContest,
 } from '@votingworks/types';
 import { isGroupByEmpty } from './arguments.js';
 import { getGroupedBallotStyles } from '../ballot_styles.js';

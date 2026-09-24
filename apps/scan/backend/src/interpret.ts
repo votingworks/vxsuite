@@ -1,14 +1,14 @@
 import {
   combinePageInterpretationsForSheet,
-  InterpreterOptions,
+  type InterpreterOptions,
   interpretSheetAndSaveImages,
 } from '@votingworks/ballot-interpreter';
-import { ok, Result } from '@votingworks/basics';
+import { ok, type Result } from '@votingworks/basics';
 import {
   mapSheet,
-  ImageData,
-  SheetInterpretationWithPages,
-  SheetOf,
+  type ImageData,
+  type SheetInterpretationWithPages,
+  type SheetOf,
 } from '@votingworks/types';
 import { time } from '@votingworks/utils';
 import { rootDebug } from './util/debug.js';

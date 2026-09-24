@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 import { spawn } from 'node:child_process';
 import {
-  Result,
+  type Result,
   assert,
   assertDefined,
   deferredQueue,
@@ -10,7 +10,7 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { GrayImageData, SheetOf } from '@votingworks/types';
+import type { GrayImageData, SheetOf } from '@votingworks/types';
 import { createGrayImageData } from '@votingworks/image-utils';
 import makeDebug from 'debug';
 

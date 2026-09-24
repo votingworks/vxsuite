@@ -1,4 +1,4 @@
-import { BallotPageTemplate } from '../render_ballot.js';
+import type { BallotPageTemplate } from '../render_ballot.js';
 import { miBallotTemplate } from './mi_ballot_template.js';
 import { msBallotTemplate } from './ms_ballot_template.js';
 import { nhBallotTemplate } from './nh_ballot_template.js';

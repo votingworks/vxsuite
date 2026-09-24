@@ -1,15 +1,15 @@
 /* eslint-disable no-empty-pattern */
 import { CardReaderErrorTracker, TaskController } from '@votingworks/backend';
-import { DateTime } from 'luxon';
-import { Mocked, test, vi } from 'vitest';
-import { Card } from '@votingworks/auth';
-import {
+import type { DateTime } from 'luxon';
+import { type Mocked, test, vi } from 'vitest';
+import type { Card } from '@votingworks/auth';
+import type {
   ScanningMode,
   ServerContext,
 } from '../../src/electrical_testing/context.js';
 import { ScanningSession } from '../../src/electrical_testing/analysis/scan.js';
-import { SimpleScannerClient } from '../../src/electrical_testing/simple_scanner_client.js';
-import { AppContext, withApp } from './scanner_helpers.js';
+import type { SimpleScannerClient } from '../../src/electrical_testing/simple_scanner_client.js';
+import { type AppContext, withApp } from './scanner_helpers.js';
 
 function createMockSimpleScannerClient(): Mocked<SimpleScannerClient> {
   return {

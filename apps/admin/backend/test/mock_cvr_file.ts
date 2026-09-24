@@ -1,16 +1,16 @@
 import {
-  BallotPageLayout,
+  type BallotPageLayout,
   BallotType,
-  ContestId,
-  ContestOptionId,
-  Id,
-  ScannerMachineType,
-  Tabulation,
+  type ContestId,
+  type ContestOptionId,
+  type Id,
+  type ScannerMachineType,
+  type Tabulation,
 } from '@votingworks/types';
 import { randomUUID as uuid } from 'node:crypto';
 import { Buffer } from 'node:buffer';
 import { assertDefined } from '@votingworks/basics';
-import { Store } from '../src/store.js';
+import type { Store } from '../src/store.js';
 import {
   doesCvrNeedAdjudication,
   getCastVoteRecordAdjudicationFlags,

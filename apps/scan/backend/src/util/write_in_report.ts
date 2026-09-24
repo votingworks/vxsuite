@@ -1,7 +1,11 @@
 import { assertDefined } from '@votingworks/basics';
 import { loadImageData, crop, toDataUrl } from '@votingworks/image-utils';
-import { Contest, InterpretedHmpbPage, VotesDict } from '@votingworks/types';
-import { WriteInEntry } from '@votingworks/ui';
+import type {
+  Contest,
+  InterpretedHmpbPage,
+  VotesDict,
+} from '@votingworks/types';
+import type { WriteInEntry } from '@votingworks/ui';
 import { rootDebug } from './debug.js';
 
 const debug = rootDebug.extend('write-in-report');

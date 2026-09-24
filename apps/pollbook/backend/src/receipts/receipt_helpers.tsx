@@ -1,8 +1,13 @@
 import { createRequire } from 'node:module';
 import { throwIllegalValue } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
-import { DivBreakWord, IconName, Icons, SpanBreakWord } from '@votingworks/ui';
-import { Election, Voter, VoterCheckIn } from '@votingworks/types';
+import {
+  DivBreakWord,
+  type IconName,
+  Icons,
+  SpanBreakWord,
+} from '@votingworks/ui';
+import type { Election, Voter, VoterCheckIn } from '@votingworks/types';
 import React from 'react';
 
 // styled-components is CJS with an ESM `export default`. Its default-import shape

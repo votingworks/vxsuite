@@ -1,4 +1,4 @@
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, type Logger } from '@votingworks/logging';
 import { execFile } from '../exec.js';
 
 /**

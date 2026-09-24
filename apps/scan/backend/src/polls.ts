@@ -1,9 +1,9 @@
-import { Result, assert, err, ok } from '@votingworks/basics';
-import { LogEventId, Logger } from '@votingworks/logging';
-import { UsbDrive } from '@votingworks/usb-drive';
-import { Store } from './store.js';
+import { type Result, assert, err, ok } from '@votingworks/basics';
+import { LogEventId, type Logger } from '@votingworks/logging';
+import type { UsbDrive } from '@votingworks/usb-drive';
+import type { Store } from './store.js';
 import { exportCastVoteRecordsToUsbDrive } from './export.js';
-import { Workspace } from './util/workspace.js';
+import type { Workspace } from './util/workspace.js';
 import { getCurrentTime } from './util/get_current_time.js';
 
 export type OpenPollsResult = Result<void, 'ballots-already-scanned'>;

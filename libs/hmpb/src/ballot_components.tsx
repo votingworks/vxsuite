@@ -1,13 +1,13 @@
 import React from 'react';
 import {
   BALLOT_HASH_DISPLAY_LENGTH,
-  BallotStyle,
-  BallotStyleId,
-  Election,
+  type BallotStyle,
+  type BallotStyleId,
+  type Election,
   getBallotStyle,
   getPartyForBallotStyle,
-  Outset,
-  PrecinctId,
+  type Outset,
+  type PrecinctId,
 } from '@votingworks/types';
 import { assertDefined, find, range, unique } from '@votingworks/basics';
 import {
@@ -20,7 +20,7 @@ import {
   getPrecinctsAndSplitsForBallotStyle,
 } from '@votingworks/utils';
 import { styled } from './styled.js';
-import { InchDimensions, InchMargins } from './types.js';
+import type { InchDimensions, InchMargins } from './types.js';
 import { hmpbStrings } from './hmpb_strings.js';
 import {
   ArrowRightCircle,

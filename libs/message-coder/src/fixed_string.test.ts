@@ -4,8 +4,8 @@ import { Buffer } from 'node:buffer';
 import fc from 'fast-check';
 import { toBitOffset } from './bits.js';
 import { fixedString } from './fixed_string.js';
-import { CoderType } from './message_coder.js';
-import { DecodeResult } from './types.js';
+import type { CoderType } from './message_coder.js';
+import type { DecodeResult } from './types.js';
 
 test('fixed string', () => {
   const coder = fixedString(5);

@@ -1,7 +1,7 @@
 import {
   makeRender,
-  VxRenderOptions,
-  VxRenderResult,
+  type VxRenderOptions,
+  type VxRenderResult,
   vxTestingLibraryScreen,
   vxTestingLibraryWithinFn,
 } from '@votingworks/ui';

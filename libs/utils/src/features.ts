@@ -1,6 +1,6 @@
 import { asBoolean } from './as_boolean.js';
 import {
-  BooleanEnvironmentVariableName,
+  type BooleanEnvironmentVariableName,
   getEnvironmentVariable,
   getBooleanEnvVarConfig,
   isIntegrationTest,

@@ -1,6 +1,6 @@
 import { afterAll, beforeEach, expect, test, vi } from 'vitest';
 import {
-  VendoredTranslations,
+  type VendoredTranslations,
   mockCloudTranslatedText,
   makeMockGoogleCloudTranslationClient,
 } from '@votingworks/backend';

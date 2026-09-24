@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { SheetPositions } from './election.js';
+import type { SheetPositions } from './election.js';
 import { gridPositionsFromBallotPositions } from './ballot_positions.js';
 
 test('gridPositionsFromBallotPositions flattens sheets into per-bubble grid positions', () => {

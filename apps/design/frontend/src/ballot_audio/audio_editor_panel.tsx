@@ -2,10 +2,10 @@ import styled from 'styled-components';
 import React from 'react';
 
 import { assertDefined } from '@votingworks/basics';
-import { TtsStringDefault } from '@votingworks/design-backend';
-import { ElectionStringKey, YesNoContest } from '@votingworks/types';
+import type { TtsStringDefault } from '@votingworks/design-backend';
+import { ElectionStringKey, type YesNoContest } from '@votingworks/types';
 
-import { LinkButton, LinkButtonProps } from '@votingworks/ui';
+import { LinkButton, type LinkButtonProps } from '@votingworks/ui';
 import * as api from '../api.js';
 import { UiStringPreview } from './ui_string_preview.js';
 import { AudioEditor } from './audio_editor.js';

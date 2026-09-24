@@ -1,4 +1,4 @@
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, type Result } from '@votingworks/basics';
 import { FileBackedMachineModeController } from '../machine_mode.js';
 
 /**

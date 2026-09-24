@@ -2,12 +2,12 @@ import { createContext } from 'react';
 import {
   DEV_MACHINE_ID,
   DippedSmartCardAuth,
-  ElectionDefinition,
+  type ElectionDefinition,
 } from '@votingworks/types';
 import type { MachineConfig, MachineMode } from '@votingworks/admin-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { Iso8601Timestamp } from '../config/types.js';
+import type { Iso8601Timestamp } from '../config/types.js';
 
 export interface AppContextInterface {
   electionDefinition?: ElectionDefinition;

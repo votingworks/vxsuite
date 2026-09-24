@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { Election, Id } from '@votingworks/types';
+import type { Election, Id } from '@votingworks/types';
 import { Button, Callout, Modal, Loading, P } from '@votingworks/ui';
 import { assertDefined } from '@votingworks/basics';
 import {

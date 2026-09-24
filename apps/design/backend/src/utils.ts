@@ -1,25 +1,25 @@
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import {
-  Contest,
-  Candidate,
-  District,
-  Election,
+  type Contest,
+  type Candidate,
+  type District,
+  type Election,
   getPrecinctById,
   hasSplits,
-  Party,
-  PollingPlace,
-  PollingPlacePrecinct,
+  type Party,
+  type PollingPlace,
+  type PollingPlacePrecinct,
   pollingPlacesGenerateFromPrecincts,
-  Precinct,
-  PrecinctId,
+  type Precinct,
+  type PrecinctId,
   straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import { customAlphabet } from 'nanoid';
 import { Buffer } from 'node:buffer';
-import { AnyBallotProps, NhStateBallotVariant } from '@votingworks/hmpb';
+import type { AnyBallotProps, NhStateBallotVariant } from '@votingworks/hmpb';
 import { MAX_POSTGRES_INDEX_KEY_BYTES } from './globals.js';
-import { Jurisdiction, User } from './types.js';
-import { type StateFeaturesConfig } from './features.js';
+import type { Jurisdiction, User } from './types.js';
+import type { StateFeaturesConfig } from './features.js';
 
 export function getBallotPdfFileName(props: AnyBallotProps): string {
   const precinct = assertDefined(getPrecinctById(props));

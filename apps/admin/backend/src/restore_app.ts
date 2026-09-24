@@ -1,26 +1,26 @@
-import express, { Application } from 'express';
+import express, { type Application } from 'express';
 import { basename, resolve } from 'node:path';
 import * as grout from '@votingworks/grout';
-import { DippedSmartCardAuthApi } from '@votingworks/auth';
-import { DippedSmartCardAuth } from '@votingworks/types';
-import { err, ok, Result } from '@votingworks/basics';
+import type { DippedSmartCardAuthApi } from '@votingworks/auth';
+import type { DippedSmartCardAuth } from '@votingworks/types';
+import { err, ok, type Result } from '@votingworks/basics';
 import { createSystemCallApi } from '@votingworks/backend';
-import { Logger } from '@votingworks/logging';
+import type { Logger } from '@votingworks/logging';
 import {
   createUsbDriveAdapter,
   findDriveByPurpose,
-  MultiUsbDrive,
-  UsbDriveStatus,
+  type MultiUsbDrive,
+  type UsbDriveStatus,
 } from '@votingworks/usb-drive';
 import { getMachineConfig } from './machine_config.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
-import { MachineModeController } from './machine_mode.js';
-import { AppMode, BaseStore, MachineMode } from './types.js';
+import type { MachineModeController } from './machine_mode.js';
+import type { AppMode, BaseStore, MachineMode } from './types.js';
 import { constructAuthMachineState } from './util/auth.js';
-import { BackupRoot, ListBackupsError } from './backup/backup_root.js';
-import { ProgressEvent } from './backup/progress.js';
+import { BackupRoot, type ListBackupsError } from './backup/backup_root.js';
+import type { ProgressEvent } from './backup/progress.js';
 import { restoreBackup } from './backup/restore/index.js';
-import { RestoreError } from './backup/restore/types.js';
+import type { RestoreError } from './backup/restore/types.js';
 
 /**
  * What restore mode presents to auth in place of a store: no election, so the

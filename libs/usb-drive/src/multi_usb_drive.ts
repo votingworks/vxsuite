@@ -1,25 +1,25 @@
 import {
   assert,
-  Deferred,
+  type Deferred,
   deferred,
   extractErrorMessage,
   iter,
-  MaybePromise,
-  Optional,
+  type MaybePromise,
+  type Optional,
   sleep,
 } from '@votingworks/basics';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, type Logger } from '@votingworks/logging';
 import makeDebug from 'debug';
-import { randomElement, UsbDriveSpace } from '@votingworks/utils';
+import { randomElement, type UsbDriveSpace } from '@votingworks/utils';
 import {
-  UsbDiskDevPath,
-  UsbDriveFormatFilesystemType,
-  UsbDriveInfo,
-  UsbPartitionDevPath,
+  type UsbDiskDevPath,
+  type UsbDriveFormatFilesystemType,
+  type UsbDriveInfo,
+  type UsbPartitionDevPath,
   UsbPartitionMount,
-  UsbPartitionMountpoint,
+  type UsbPartitionMountpoint,
 } from './types.js';
-import {
+import type {
   UsbPlatform,
   UsbPlatformDrive,
   UsbPlatformPartition,

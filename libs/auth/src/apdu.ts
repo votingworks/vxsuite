@@ -2,7 +2,7 @@
 import { Buffer } from 'node:buffer';
 import { inspect } from 'node:util';
 import { assert, assertDefined } from '@votingworks/basics';
-import { asHexString, Byte, isByte } from '@votingworks/types';
+import { asHexString, type Byte, isByte } from '@votingworks/types';
 
 /**
  * The max length of an APDU

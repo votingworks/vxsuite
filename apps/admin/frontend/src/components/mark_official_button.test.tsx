@@ -2,7 +2,10 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../../test/helpers/mock_api_client.js';
 import {
   MARK_RESULTS_OFFICIAL_BUTTON_TEXT,
   MarkResultsOfficialButton,

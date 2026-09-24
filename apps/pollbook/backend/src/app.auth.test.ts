@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
-import { SignedHashValidationQrCodeValue } from '@votingworks/types';
+import type { SignedHashValidationQrCodeValue } from '@votingworks/types';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import { electionSimpleSinglePrecinctFixtures } from '@votingworks/fixtures';
 import { CITIZEN_E351_PRINTER_CONFIG } from '@votingworks/printing';

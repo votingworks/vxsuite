@@ -15,7 +15,7 @@ import {
   Button,
   H2,
 } from '@votingworks/ui';
-import { ElectionDefinition, PollsState } from '@votingworks/types';
+import type { ElectionDefinition, PollsState } from '@votingworks/types';
 import type { MachineConfig } from '@votingworks/mark-scan-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { format } from '@votingworks/utils';

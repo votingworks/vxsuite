@@ -3,7 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
 import { render as renderWithBallotContext } from '../../test/test_utils.js';
-import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  createApiMock,
+  type ApiMock,
+} from '../../test/helpers/mock_api_client.js';
 import { screen } from '../../test/react_testing_library.js';
 import { ValidateBallotPage } from './validate_ballot_page.js';
 import { getMockInterpretation } from '../../test/helpers/interpretation.js';

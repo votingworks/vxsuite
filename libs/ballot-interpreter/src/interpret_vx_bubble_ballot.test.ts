@@ -17,7 +17,7 @@ import {
   markBallotDocument,
   createTestVotes,
   createPlaywrightRendererPool,
-  ScratchDir,
+  type ScratchDir,
 } from '@votingworks/hmpb';
 import {
   AdjudicationReason,
@@ -25,12 +25,12 @@ import {
   HmpbBallotPaperSize,
   BallotType,
   DEFAULT_MARK_THRESHOLDS,
-  PageInterpretation,
-  InterpretedHmpbPage,
-  SheetOf,
-  RgbaImageData,
-  BaseBallotProps,
-  ElectionDefinition,
+  type PageInterpretation,
+  type InterpretedHmpbPage,
+  type SheetOf,
+  type RgbaImageData,
+  type BaseBallotProps,
+  type ElectionDefinition,
   getBallotStyle,
   gridPositionsFromBallotPositions,
   LATEST_SOFTWARE_VERSION,
@@ -49,7 +49,7 @@ import {
   votesForSheet,
 } from '../test/helpers/interpretation.js';
 import { interpretSheet } from './interpret.js';
-import { InterpreterOptions } from './types.js';
+import type { InterpreterOptions } from './types.js';
 import { normalizeBallotMode } from './validation.js';
 
 vi.mock('./validation');

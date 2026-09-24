@@ -4,14 +4,14 @@ import userEvent from '@testing-library/user-event';
 import { deferred, err, ok } from '@votingworks/basics';
 
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   provideApi,
   statusNoPaper,
 } from '../../test/helpers/mock_api_client.js';
 import { render } from '../../test/react_testing_library.js';
 import { CastVoteRecordSyncRequiredScreen } from './cast_vote_record_sync_required_screen.js';
-import { ApiClient } from '../api.js';
+import type { ApiClient } from '../api.js';
 
 let apiMock: ApiMock;
 

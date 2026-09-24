@@ -1,10 +1,10 @@
 // @coverage-exclude-file: tested via apps
 
-import React from 'react';
+import type React from 'react';
 import styled from 'styled-components';
 
 import {
-  Align,
+  type Align,
   Font,
   Main,
   ReadOnLoad as ReadOnLoadBase,

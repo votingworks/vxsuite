@@ -1,5 +1,5 @@
-import { Optional, throwIllegalValue } from '@votingworks/basics';
-import { UsbDriveSpace } from '@votingworks/utils';
+import { type Optional, throwIllegalValue } from '@votingworks/basics';
+import type { UsbDriveSpace } from '@votingworks/utils';
 import { z } from 'zod/v4';
 
 export type UsbDriveStatus =

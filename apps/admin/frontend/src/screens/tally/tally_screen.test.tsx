@@ -12,7 +12,7 @@ import { TallyScreen } from './tally_screen.js';
 import { AppRoutes } from '../../components/app_routes.js';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
 } from '../../../test/helpers/mock_api_client.js';
 import { mockCastVoteRecordFileRecord } from '../../../test/api_mock_data.js';

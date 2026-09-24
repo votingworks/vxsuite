@@ -1,11 +1,11 @@
 import { assert, assertDefined, unique } from '@votingworks/basics';
 import {
-  CandidateContest,
-  Election,
+  type CandidateContest,
+  type Election,
   ElectionStringKey,
-  UiStringsPackage,
-  YesNoContest,
-  BallotLanguageConfigs,
+  type UiStringsPackage,
+  type YesNoContest,
+  type BallotLanguageConfigs,
   getAllBallotLanguages,
   LanguageCode,
   hasSplits,
@@ -13,7 +13,7 @@ import {
 } from '@votingworks/types';
 
 import { format } from '@votingworks/utils';
-import { GoogleCloudTranslator } from './translator.js';
+import type { GoogleCloudTranslator } from './translator.js';
 import { setUiString } from './utils.js';
 
 interface ElectionString {

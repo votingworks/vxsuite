@@ -4,7 +4,7 @@ import { mockChildProcess } from '@votingworks/test-utils';
 import {
   createBlockDeviceChangeWatcher,
   getAllDiskDevices,
-  UsbDiskDeviceInfo,
+  type UsbDiskDeviceInfo,
 } from './block_devices.js';
 import { exec, spawn } from './exec.js';
 import {

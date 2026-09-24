@@ -5,7 +5,7 @@ import { format } from '@votingworks/utils';
 import { styled } from './styled.js';
 import { Button } from './button.js';
 import { getBatteryIcon } from './battery_display.js';
-import { IconName, Icons } from './icons.js';
+import { type IconName, Icons } from './icons.js';
 
 export const Toolbar = styled.div`
   display: flex;

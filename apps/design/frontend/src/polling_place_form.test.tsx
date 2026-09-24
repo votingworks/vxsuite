@@ -1,19 +1,19 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import { SetPollingPlaceError } from '@votingworks/design-backend';
+import type { SetPollingPlaceError } from '@votingworks/design-backend';
 import {
   ElectionStringKey,
-  PollingPlace,
-  Precinct,
-  PrecinctSplit,
-  PrecinctWithSplits,
-  PrecinctWithoutSplits,
+  type PollingPlace,
+  type Precinct,
+  type PrecinctSplit,
+  type PrecinctWithSplits,
+  type PrecinctWithoutSplits,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { err, ok } from '@votingworks/basics';
-import React from 'react';
+import type React from 'react';
 import {
   createMockApiClient,
-  MockApiClient,
+  type MockApiClient,
   provideApi,
 } from '../test/api_helpers.js';
 import { makeIdFactory } from '../test/id_helpers.js';

@@ -4,7 +4,7 @@ import {
   electionSimpleSinglePrecinctFixtures,
   electionMultiPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import { AddressInfo } from 'node:net';
+import type { AddressInfo } from 'node:net';
 import { assertDefined, ok } from '@votingworks/basics';
 import { CITIZEN_E351_PRINTER_CONFIG } from '@votingworks/printing';
 import { AvahiService, hasOnlineInterface } from '@votingworks/networking';

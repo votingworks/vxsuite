@@ -3,7 +3,7 @@ import type { Meta } from '@storybook/react-vite' with {
   'resolution-mode': 'import',
 };
 import {
-  CheckboxButtonProps,
+  type CheckboxButtonProps,
   CheckboxButton as Component,
 } from './checkbox_button.js';
 

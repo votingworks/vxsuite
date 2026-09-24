@@ -7,7 +7,7 @@ import {
   pdfToText,
 } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
-import { DiagnosticRecord } from '@votingworks/types';
+import type { DiagnosticRecord } from '@votingworks/types';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   attachUsbDrive,

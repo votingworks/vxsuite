@@ -1,6 +1,6 @@
-import { SizeMode } from '@votingworks/types';
+import type { SizeMode } from '@votingworks/types';
 import React from 'react';
-import { DefaultTheme } from 'styled-components';
+import type { DefaultTheme } from 'styled-components';
 import { styled } from './styled.js';
 
 export interface ListProps {

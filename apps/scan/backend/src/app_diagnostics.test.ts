@@ -2,12 +2,12 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
+  type DiskSpaceSummary,
 } from '@votingworks/utils';
 import { err } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
-import { DiagnosticRecord } from '@votingworks/types';
+import type { DiagnosticRecord } from '@votingworks/types';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
-import type { DiskSpaceSummary } from '@votingworks/utils';
 import { withApp } from '../test/helpers/scanner_helpers.js';
 import {
   TEST_PRINT_USER_FAIL_REASON,

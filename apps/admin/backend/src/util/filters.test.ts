@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest';
 import { readElectionGeneral } from '@votingworks/fixtures';
-import { Admin, BallotStyleGroupId } from '@votingworks/types';
+import type { Admin, BallotStyleGroupId } from '@votingworks/types';
 import { assertIsBackendFilter, convertFrontendFilter } from './filters.js';
-import { ScannerBatch } from '../types.js';
+import type { ScannerBatch } from '../types.js';
 
 const electionGeneral = readElectionGeneral();
 

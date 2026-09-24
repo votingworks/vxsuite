@@ -10,7 +10,7 @@ import {
 } from '@votingworks/fixtures';
 import * as openFile from './open_file.js';
 import {
-  OpenRegularFileError,
+  type OpenRegularFileError,
   openRegularFileForReading,
   openRegularFileForWriting,
 } from './open_regular_file.js';

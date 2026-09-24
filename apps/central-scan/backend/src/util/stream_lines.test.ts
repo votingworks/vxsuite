@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import EventEmitter from 'node:events';
-import { Readable } from 'node:stream';
+import type { Readable } from 'node:stream';
 import { StreamLines } from './stream_lines.js';
 
 test('streams lines from an input stream', () => {

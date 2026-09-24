@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { AudioControls } from '@votingworks/types';
+import type { AudioControls } from '@votingworks/types';
 import {
   advancePromises,
   mockUseAudioControls,

@@ -5,7 +5,7 @@ import {
   layOutInColumns,
   layOutSectionsInColumns,
   layOutSectionsInParallelColumns,
-  Section,
+  type Section,
 } from './layout_in_columns.js';
 
 interface TestElement {

@@ -1,4 +1,4 @@
-import { WebUSBDevice } from 'usb';
+import type { WebUSBDevice } from 'usb';
 
 // Not all WebUSbDevice methods are implemented in the mock
 export type MinimalWebUsbDevice = Pick<

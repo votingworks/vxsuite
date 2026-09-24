@@ -1,5 +1,5 @@
 import { assert } from '@votingworks/basics';
-import { RgbaImageData } from '@votingworks/types';
+import type { RgbaImageData } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';

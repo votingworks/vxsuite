@@ -1,4 +1,4 @@
-import { Result, err, ok } from '@votingworks/basics';
+import { type Result, err, ok } from '@votingworks/basics';
 import { spawn } from 'node:child_process';
 import makeDebug from 'debug';
 import { Readable } from 'node:stream';

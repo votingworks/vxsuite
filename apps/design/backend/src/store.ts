@@ -1,7 +1,7 @@
 import {
   DateWithoutTime,
-  Optional,
-  Result,
+  type Optional,
+  type Result,
   assert,
   assertDefined,
   err,
@@ -11,69 +11,68 @@ import {
   uniqueDeep,
 } from '@votingworks/basics';
 import {
-  Id,
-  Iso8601Timestamp,
-  Election,
-  SystemSettings,
+  type Id,
+  type Iso8601Timestamp,
+  type Election,
+  type SystemSettings,
   safeParseSystemSettings,
-  ElectionSerializationFormat,
-  BallotLanguageConfigs,
+  type ElectionSerializationFormat,
+  type BallotLanguageConfigs,
   LanguageCode,
-  ElectionId,
-  BallotLanguageConfig,
-  Precinct,
-  DistrictId,
+  type ElectionId,
+  type BallotLanguageConfig,
+  type Precinct,
+  type DistrictId,
   hasSplits,
-  District,
-  PrecinctId,
-  Party,
-  Contest,
-  HmpbBallotPaperSize,
-  NhPrecinctSplitOptions,
-  Candidate,
-  CandidateId,
-  PartyId,
-  YesNoContest,
-  CandidateContest,
-  Signature,
-  TtsEdit,
-  TtsEditKey,
+  type District,
+  type PrecinctId,
+  type Party,
+  type Contest,
+  type HmpbBallotPaperSize,
+  type NhPrecinctSplitOptions,
+  type Candidate,
+  type CandidateId,
+  type PartyId,
+  type YesNoContest,
+  type CandidateContest,
+  type Signature,
+  type TtsEdit,
+  type TtsEditKey,
   safeParse,
   PhoneticWordsSchema,
-  ContestId,
-  PrecinctSelection,
-  TtsEditEntry,
-  PollsTransitionType,
-  ElectionDefinition,
-  BallotStyle,
+  type ContestId,
+  type PrecinctSelection,
+  type TtsEditEntry,
+  type PollsTransitionType,
+  type ElectionDefinition,
+  type BallotStyle,
   unsafeParse,
   DistrictSchema,
   PartySchema,
-  YesNoOption,
-  PollingPlace,
-  PollingPlaceType,
+  type YesNoOption,
+  type PollingPlace,
+  type PollingPlaceType,
   pollingPlaceGenerateFromPrecinct,
-  ElectionRegisteredVoterCounts,
+  type ElectionRegisteredVoterCounts,
   isPrecinctCount,
   isSplitCounts,
-  PrecinctRegisteredVoterCountEntry,
+  type PrecinctRegisteredVoterCountEntry,
   safeParseElectionDefinitionForAnySoftwareVersion,
-  SoftwareVersion,
-  ElectionType,
+  type SoftwareVersion,
+  type ElectionType,
   straightPartyNotYetImplemented,
-  StraightPartyContest,
-  Tabulation,
+  type StraightPartyContest,
+  type Tabulation,
 } from '@votingworks/types';
 import {
   singlePrecinctSelectionFor,
   combineAndDecodeCompressedElectionResults,
 } from '@votingworks/utils';
 import { randomUUID as uuid } from 'node:crypto';
-import { BaseLogger } from '@votingworks/logging';
-import { BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
-import pg from 'pg';
-import type { DatabaseError } from 'pg';
-import {
+import type { BaseLogger } from '@votingworks/logging';
+import { type BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
+import pg, { type DatabaseError } from 'pg';
+import type {
   ExternalElectionSource,
   ElectionListing,
   ExportQaRun,
@@ -89,7 +88,7 @@ import {
   ElectionInfoUpdate,
 } from './types.js';
 import { Db } from './db/db.js';
-import { Bindable, Client } from './db/client.js';
+import type { Bindable, Client } from './db/client.js';
 import { generateId } from './utils.js';
 import { getStateFeaturesConfig } from './features.js';
 import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from './globals.js';

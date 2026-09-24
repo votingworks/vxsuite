@@ -2,13 +2,13 @@ import { err, ok } from '@votingworks/basics';
 import { tmpName } from 'tmp-promise';
 import { writeFile } from 'node:fs/promises';
 import { rmSync } from 'node:fs';
-import {
+import type {
   PrinterConfig,
   PrinterStatus,
   PrintJobId,
   PrintJobStatus,
 } from '@votingworks/types';
-import { MockPrintJob, PrintProps, Printer } from '../types.js';
+import type { MockPrintJob, PrintProps, Printer } from '../types.js';
 import { createMockJobId, getMockConnectedPrinterStatus } from './fixtures.js';
 
 /**

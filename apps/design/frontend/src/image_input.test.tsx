@@ -8,7 +8,10 @@ import {
   waitFor,
 } from '../test/react_testing_library.js';
 import { ImageInput } from './image_input.js';
-import { normalizeImageToSvg, NormalizeParams } from './image_normalization.js';
+import {
+  normalizeImageToSvg,
+  type NormalizeParams,
+} from './image_normalization.js';
 
 vi.mock('./image_normalization', { spy: true });
 

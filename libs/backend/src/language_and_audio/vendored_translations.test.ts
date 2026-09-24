@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { assertDefined, iter } from '@votingworks/basics';
 import {
   parseVendoredTranslations,
-  VendoredTranslations,
+  type VendoredTranslations,
 } from './vendored_translations.js';
 
 /**

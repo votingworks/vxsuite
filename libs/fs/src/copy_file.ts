@@ -1,4 +1,4 @@
-import { Result, err, ok } from '@votingworks/basics';
+import { type Result, err, ok } from '@votingworks/basics';
 import { createHash } from 'node:crypto';
 import { rm } from 'node:fs/promises';
 import {

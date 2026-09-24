@@ -1,16 +1,16 @@
 import { deepEqual, typedAs } from '@votingworks/basics';
 import Select, {
   components,
-  DropdownIndicatorProps,
-  MenuProps,
-  MultiValueRemoveProps,
-  OptionProps,
-  StylesConfig,
+  type DropdownIndicatorProps,
+  type MenuProps,
+  type MultiValueRemoveProps,
+  type OptionProps,
+  type StylesConfig,
 } from 'react-select';
 import { useTheme } from 'styled-components';
-import React from 'react';
+import type React from 'react';
 import { styled } from './styled.js';
-import { Button, buttonStyles, StyledButtonProps } from './button.js';
+import { Button, buttonStyles, type StyledButtonProps } from './button.js';
 import { Icons } from './icons.js';
 
 // The react-select DropdownIndicator component toggles the menu from its own

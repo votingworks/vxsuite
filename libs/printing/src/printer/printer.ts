@@ -5,8 +5,8 @@ import {
   extractErrorMessage,
   ok,
 } from '@votingworks/basics';
-import { LogEventId, BaseLogger } from '@votingworks/logging';
-import { PrintJobId, PrintJobStatus } from '@votingworks/types';
+import { LogEventId, type BaseLogger } from '@votingworks/logging';
+import type { PrintJobId, PrintJobStatus } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -14,7 +14,7 @@ import {
 import { rootDebug } from '../utils/debug.js';
 import { getConnectedDeviceUris } from './device_uri.js';
 import { configurePrinter } from './configure.js';
-import { Printer } from './types.js';
+import type { Printer } from './types.js';
 import { cancelAllJobs, print as printData } from './print.js';
 import { getPrinterConfig, getPrinterSpecificOptions } from './supported.js';
 import { MockFilePrinter } from './mocks/file_printer.js';

@@ -1,11 +1,11 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import React, { act } from 'react';
+import { act, type ReactNode } from 'react';
 import { ReadOnIdle } from './read_on_idle.js';
 import { render, screen } from '../../test/react_testing_library.js';
 import { UiStringsAudioContext } from './audio_context.js';
 import { UiStringScreenReaderContext } from './ui_string_screen_reader.js';
 import {
-  UiStringsReactQueryApi,
+  type UiStringsReactQueryApi,
   createUiStringsApi,
 } from '../hooks/ui_strings_api.js';
 import { DEFAULT_AUDIO_VOLUME } from './audio_volume.js';
@@ -33,7 +33,7 @@ function newRenderer(params: {
   );
 
   function TestContextWrapper(props: {
-    children: React.ReactNode;
+    children: ReactNode;
     isAudioEnabled: boolean;
     isScreenReaderActive: boolean;
   }) {

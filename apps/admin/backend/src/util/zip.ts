@@ -1,6 +1,6 @@
-import { Buffer } from 'node:buffer';
-import { Stream } from 'node:stream';
-import ZipStream from 'zip-stream';
+import type { Buffer } from 'node:buffer';
+import type { Stream } from 'node:stream';
+import type ZipStream from 'zip-stream';
 
 /**
  * A promisified version of ZipStream.entry

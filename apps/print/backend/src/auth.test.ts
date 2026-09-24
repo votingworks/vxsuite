@@ -1,11 +1,11 @@
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
-import { Server } from 'node:http';
+import type { Server } from 'node:http';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   anyPollingPlace,
   constructElectionKey,
   DEFAULT_SYSTEM_SETTINGS,
-  EncodedBallotEntry,
+  type EncodedBallotEntry,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import {

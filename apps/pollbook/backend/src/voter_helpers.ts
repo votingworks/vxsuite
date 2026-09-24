@@ -1,4 +1,4 @@
-import { Voter, VoterNameChangeRequest } from '@votingworks/types';
+import type { Voter, VoterNameChangeRequest } from '@votingworks/types';
 
 export function getUpdatedVoterFirstName(voter: Voter): string {
   // @coverage-defer

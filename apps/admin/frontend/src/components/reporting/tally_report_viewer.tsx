@@ -1,4 +1,4 @@
-import { Admin, Tabulation } from '@votingworks/types';
+import type { Admin, Tabulation } from '@votingworks/types';
 import { Button, Callout, H6 } from '@votingworks/ui';
 import React, { useContext } from 'react';
 import { assert } from '@votingworks/basics';

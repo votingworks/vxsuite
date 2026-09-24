@@ -2,31 +2,31 @@ import * as os from 'node:os';
 import * as fs from 'node:fs/promises';
 import { createReadStream, createWriteStream } from 'node:fs';
 import {
-  ElectionSerializationFormat,
+  type ElectionSerializationFormat,
   ElectionPackageFileName,
-  ElectionPackageMetadata,
+  type ElectionPackageMetadata,
   mergeUiStrings,
   formatElectionHashes,
   LATEST_METADATA,
-  ElectionId,
+  type ElectionId,
   formatBallotHash,
   BallotType,
   ElectionIdSchema,
   ElectionSerializationFormatSchema,
-  EncodedBallotEntry,
-  BaseBallotProps,
-  SoftwareVersion,
-  ElectionDefinition,
+  type EncodedBallotEntry,
+  type BaseBallotProps,
+  type SoftwareVersion,
+  type ElectionDefinition,
 } from '@votingworks/types';
 import {
   hmpbStringsCatalog,
   ballotTemplates,
   renderAllBallotPdfsAndCreateElectionDefinition,
   createPlaywrightRendererPool,
-  ElectionSerializationOptions,
-  ScratchDir,
-  RendererPool,
-  BallotTemplateId,
+  type ElectionSerializationOptions,
+  type ScratchDir,
+  type RendererPool,
+  type BallotTemplateId,
   randomScratchFilePath,
 } from '@votingworks/hmpb';
 import {
@@ -45,7 +45,7 @@ import z from 'zod/v4';
 import { Readable } from 'node:stream';
 import { createHash, randomUUID as uuid } from 'node:crypto';
 import { pipeline } from 'node:stream/promises';
-import { EmitProgressFunction, WorkerContext } from './context.js';
+import type { EmitProgressFunction, WorkerContext } from './context.js';
 import {
   addPollingPlacesForExport,
   createBallotPropsForTemplate,
@@ -58,10 +58,10 @@ import {
   renderCalibrationSheetPdf,
 } from './ballot_pdfs.js';
 import { CircleCiClient } from '../circleci_client.js';
-import { FileStorageClient } from '../file_storage_client.js';
+import type { FileStorageClient } from '../file_storage_client.js';
 import { baseUrl } from '../globals.js';
 import { QaConfig } from '../qa_config.js';
-import { Store } from '../store.js';
+import type { Store } from '../store.js';
 import { rootDebug } from '../debug.js';
 import { Archiver } from './zip.js';
 

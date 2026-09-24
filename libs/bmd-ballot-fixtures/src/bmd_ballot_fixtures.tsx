@@ -3,10 +3,10 @@ import { renderToPdf } from '@votingworks/printing';
 import tmp from 'tmp';
 import {
   BallotType,
-  ElectionDefinition,
-  VotesDict,
-  BallotStyleId,
-  PrecinctId,
+  type ElectionDefinition,
+  type VotesDict,
+  type BallotStyleId,
+  type PrecinctId,
   getBallotStyle,
   getContests,
   vote,

@@ -7,10 +7,10 @@ import {
   LowDiskSpaceWarning,
   SystemCallContextProvider,
 } from '@votingworks/ui';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AppRoot, AppRootProps } from './app_root.js';
+import { type QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AppRoot, type AppRootProps } from './app_root.js';
 import {
-  ApiClient,
+  type ApiClient,
   ApiClientContext,
   createApiClient,
   createQueryClient,

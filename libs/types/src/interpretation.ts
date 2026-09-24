@@ -1,24 +1,28 @@
 import { z } from 'zod/v4';
 import {
-  AdjudicationInfo,
+  type AdjudicationInfo,
   AdjudicationInfoSchema,
-  AdjudicationReasonInfo,
-  BallotMetadata,
+  type AdjudicationReasonInfo,
+  type BallotMetadata,
   BallotMetadataSchema,
-  SummaryBallotPageMetadata,
+  type SummaryBallotPageMetadata,
   SummaryBallotPageMetadataSchema,
-  ContestId,
+  type ContestId,
   ContestIdSchema,
-  HmpbBallotPageMetadata,
+  type HmpbBallotPageMetadata,
   HmpbBallotPageMetadataSchema,
-  MarkInfo,
+  type MarkInfo,
   MarkInfoSchema,
-  VotesDict,
+  type VotesDict,
   VotesDictSchema,
-  WriteInId,
+  type WriteInId,
   WriteInIdSchema,
 } from './election.js';
-import { BallotPageLayout, BallotPageLayoutSchema, SheetOf } from './hmpb.js';
+import {
+  type BallotPageLayout,
+  BallotPageLayoutSchema,
+  type SheetOf,
+} from './hmpb.js';
 
 export interface BlankPage {
   type: 'BlankPage';

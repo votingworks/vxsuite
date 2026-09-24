@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Icons, DesktopPalette, Callout } from '@votingworks/ui';
 import { hasSplits } from '@votingworks/types';
 
-import { ElectionIdParams, routes } from './routes.js';
+import { type ElectionIdParams, routes } from './routes.js';
 import { Column } from './layout.js';
 import * as api from './api.js';
 import { EntityList } from './entity_list.js';

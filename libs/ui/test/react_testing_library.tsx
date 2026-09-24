@@ -1,8 +1,8 @@
 import { onTestFinished } from 'vitest';
 import {
   makeRender,
-  VxRenderOptions,
-  VxRenderResult,
+  type VxRenderOptions,
+  type VxRenderResult,
   vxTestingLibraryScreen,
   vxTestingLibraryWithinFn,
 } from '../src/themes/render_with_themes.js';

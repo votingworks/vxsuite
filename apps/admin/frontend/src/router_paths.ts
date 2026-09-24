@@ -1,4 +1,4 @@
-import {
+import type {
   ManualTallyFormContestParams,
   ManualTallyFormParams,
 } from './config/types.js';

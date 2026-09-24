@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { ThemeConsumer } from 'styled-components';
-import { UiTheme } from '@votingworks/types';
+import type { UiTheme } from '@votingworks/types';
 import { mockUseAudioControls } from '@votingworks/test-utils';
 import { userEvent } from '../user_event.js';
 import { render, screen } from '../../test/react_testing_library.js';

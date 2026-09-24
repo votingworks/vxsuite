@@ -1,5 +1,5 @@
-import { Result } from '@votingworks/basics';
-import { Buffer } from 'node:buffer';
+import type { Result } from '@votingworks/basics';
+import type { Buffer } from 'node:buffer';
 
 /**
  * Errors that can occur when encoding or decoding.

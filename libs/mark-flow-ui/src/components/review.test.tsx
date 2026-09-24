@@ -4,7 +4,7 @@ import {
   readElectionStraightParty,
   readElectionWithMsEitherNeither,
 } from '@votingworks/fixtures';
-import {
+import type {
   CandidateContest,
   Election,
   StraightPartyContest,

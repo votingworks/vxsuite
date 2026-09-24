@@ -3,7 +3,7 @@ import React from 'react';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
-  QueryKey,
+  type QueryKey,
   useMutation,
   useQuery,
   useQueryClient,
@@ -15,7 +15,7 @@ import {
   createUiStringsApi,
 } from '@votingworks/ui';
 import { deepEqual } from '@votingworks/basics';
-import { DiagnosticType } from '@votingworks/types';
+import type { DiagnosticType } from '@votingworks/types';
 import {
   ACCESSIBLE_CONTROLLER_DIAGNOSTIC_POLLING_INTERVAL_MS,
   AUTH_STATUS_POLLING_INTERVAL_MS_OVERRIDE,

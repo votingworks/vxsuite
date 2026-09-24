@@ -1,8 +1,8 @@
-import { beforeEach, expect, MockedFunction, test, vi } from 'vitest';
+import { beforeEach, expect, type MockedFunction, test, vi } from 'vitest';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { HmpbBallotPaperSize } from '@votingworks/types';
-import { ChildProcess } from 'node:child_process';
-import { Device, isDeviceAttached } from '@votingworks/backend';
+import type { ChildProcess } from 'node:child_process';
+import { type Device, isDeviceAttached } from '@votingworks/backend';
 import { sleep } from '@votingworks/basics';
 import { mockChildProcess } from '@votingworks/test-utils';
 import {

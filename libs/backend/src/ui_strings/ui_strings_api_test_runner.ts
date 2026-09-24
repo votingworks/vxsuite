@@ -1,8 +1,8 @@
 import type * as vitest from 'vitest';
-import { MaybePromise } from '@votingworks/basics';
-import { UiStringAudioClips } from '@votingworks/types';
-import { UiStringsStore } from './ui_strings_store.js';
-import { UiStringsApiMethods } from './ui_strings_api.js';
+import type { MaybePromise } from '@votingworks/basics';
+import type { UiStringAudioClips } from '@votingworks/types';
+import type { UiStringsStore } from './ui_strings_store.js';
+import type { UiStringsApiMethods } from './ui_strings_api.js';
 
 type MaybeBuilder<T> = T | (() => MaybePromise<T>);
 

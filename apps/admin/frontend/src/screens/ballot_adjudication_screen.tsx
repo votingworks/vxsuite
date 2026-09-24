@@ -3,11 +3,11 @@ import styled from 'styled-components';
 import { Button, Loading, Main, Modal, P, Screen } from '@votingworks/ui';
 import {
   AdjudicationReason,
-  ContestId,
-  Election,
-  Id,
-  Side,
-  SystemSettings,
+  type ContestId,
+  type Election,
+  type Id,
+  type Side,
+  type SystemSettings,
 } from '@votingworks/types';
 import { format, selectedStraightPartyId } from '@votingworks/utils';
 import type {
@@ -40,9 +40,9 @@ import { AdjudicationContestList } from '../components/adjudication_contest_list
 import { AppContext } from '../contexts/app_context.js';
 import { ContestAdjudicationScreen } from './contest_adjudication_screen.js';
 import {
-  AdjudicatedContests,
+  type AdjudicatedContests,
   adjudicatedVotes,
-  ContestListItem,
+  type ContestListItem,
   deriveCrossoverVoteStatus,
   isContestFlaggedForAdjudication,
   isContestTagOnlyUndervote,

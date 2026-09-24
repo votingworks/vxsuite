@@ -1,11 +1,11 @@
-import { Result, err, ok } from '@votingworks/basics';
+import { type Result, err, ok } from '@votingworks/basics';
 import {
-  SummaryBallotPageMetadata,
-  ElectionDefinition,
-  SheetOf,
-  VotesDict,
+  type SummaryBallotPageMetadata,
+  type ElectionDefinition,
+  type SheetOf,
+  type VotesDict,
   mapSheet,
-  RgbaImageData,
+  type RgbaImageData,
 } from '@votingworks/types';
 import {
   BALLOT_HASH_ENCODING_LENGTH,
@@ -13,8 +13,8 @@ import {
   decodeSummaryBallotPage,
 } from '@votingworks/ballot-encoder';
 import { crop } from '@votingworks/image-utils';
-import { DetectQrCodeError, detectInBallot } from './utils/qrcode.js';
-import { DetectedQrCode } from './types.js';
+import { type DetectQrCodeError, detectInBallot } from './utils/qrcode.js';
+import type { DetectedQrCode } from './types.js';
 import { rotateImageData180 } from './utils/rotate.js';
 import { findScannedDocumentInset } from './image_utils.js';
 import { otsu } from './otsu.js';

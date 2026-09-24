@@ -1,9 +1,9 @@
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  SheetInterpretation,
+  type SheetInterpretation,
 } from '@votingworks/types';
-import { PartialElectionPackage } from '@votingworks/backend';
+import type { PartialElectionPackage } from '@votingworks/backend';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,

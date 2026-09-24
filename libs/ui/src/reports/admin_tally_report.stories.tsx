@@ -14,7 +14,7 @@ import {
 import { assertDefined } from '@votingworks/basics';
 import electionTwoPartyPrimaryData from '@fixtures/electionTwoPartyPrimary/election.json?raw';
 import {
-  AdminTallyReportProps,
+  type AdminTallyReportProps,
   AdminTallyReport,
 } from './admin_tally_report.js';
 import { PrintedReportPreview } from './layout.js';

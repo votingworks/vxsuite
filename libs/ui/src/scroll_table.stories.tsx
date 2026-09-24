@@ -2,7 +2,10 @@ import type { Meta } from '@storybook/react-vite' with {
   'resolution-mode': 'import',
 };
 import { range } from '@votingworks/basics';
-import { ScrollTable as Component, ScrollTableProps } from './scroll_table.js';
+import {
+  ScrollTable as Component,
+  type ScrollTableProps,
+} from './scroll_table.js';
 
 const meta: Meta<ScrollTableProps & { numRows: number }> = {
   title: 'libs-ui/ScrollTable',

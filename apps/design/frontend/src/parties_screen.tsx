@@ -8,11 +8,15 @@ import {
   useCurrentTheme,
 } from '@votingworks/ui';
 import { Route, Switch, useParams, useHistory } from 'react-router-dom';
-import { ElectionStringKey, Party } from '@votingworks/types';
-import { DuplicatePartyError } from '@votingworks/design-backend';
+import { ElectionStringKey, type Party } from '@votingworks/types';
+import type { DuplicatePartyError } from '@votingworks/design-backend';
 import styled from 'styled-components';
 import { ElectionNavScreen, Header } from './nav_screen.js';
-import { ElectionIdParams, electionParamRoutes, routes } from './routes.js';
+import {
+  type ElectionIdParams,
+  electionParamRoutes,
+  routes,
+} from './routes.js';
 import { getBallotsFinalizedAt, getElectionInfo, listParties } from './api.js';
 import { useTitle } from './hooks/use_title.js';
 import { generateId } from './utils.js';

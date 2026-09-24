@@ -6,15 +6,15 @@ import {
 } from '@votingworks/fixtures';
 import { nhStateGeneralElectionFixtures } from '@votingworks/hmpb';
 import {
-  Election,
+  type Election,
   hasSplits,
   HmpbBallotPaperSize,
-  PrecinctWithSplits,
+  type PrecinctWithSplits,
   LanguageCode,
   BallotType,
-  Precinct,
-  PrecinctWithoutSplits,
-  YesNoContest,
+  type Precinct,
+  type PrecinctWithoutSplits,
+  type YesNoContest,
 } from '@votingworks/types';
 import { readElectionPackageFromBuffer } from '@votingworks/backend';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';

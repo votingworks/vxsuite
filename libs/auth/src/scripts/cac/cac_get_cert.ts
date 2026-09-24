@@ -3,7 +3,7 @@ import { throwIllegalValue } from '@votingworks/basics';
 import {
   CARD_DOD_CERT,
   CommonAccessCard,
-  CommonAccessCardCompatibleCard,
+  type CommonAccessCardCompatibleCard,
 } from '../../cac/index.js';
 import { waitForReadyCardStatus } from '../utils.js';
 

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test, vi, afterEach } from 'vitest';
-import { mockBaseLogger, BaseLogger } from '@votingworks/logging';
+import { mockBaseLogger, type BaseLogger } from '@votingworks/logging';
 
 // Mock the worker_threads module before importing the Client
 vi.mock('node:worker_threads', async () => {

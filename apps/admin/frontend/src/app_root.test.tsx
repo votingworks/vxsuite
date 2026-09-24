@@ -5,7 +5,10 @@ import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { screen } from '../test/react_testing_library.js';
 import { renderRootElement } from '../test/render_in_app_context.js';
 import { AppRoot } from './app_root.js';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

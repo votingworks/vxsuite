@@ -1,4 +1,4 @@
-import {
+import type {
   Contest,
   ContestOptionId,
   Election,
@@ -11,7 +11,7 @@ import {
   assert,
   assertDefined,
   mapObject,
-  Optional,
+  type Optional,
 } from '@votingworks/basics';
 
 export function deriveStraightPartyVotes(

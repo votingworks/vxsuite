@@ -3,7 +3,7 @@ import type {
   PollsTransition,
   PrecinctScannerPollsInfo,
 } from '@votingworks/scan-backend';
-import { PollsState, PollsTransitionType } from '@votingworks/types';
+import type { PollsState, PollsTransitionType } from '@votingworks/types';
 
 /**
  * Because you can get to the opened state by either opening polls or resuming

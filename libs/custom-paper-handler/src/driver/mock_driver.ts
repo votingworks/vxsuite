@@ -1,19 +1,19 @@
-import { Result, sleep } from '@votingworks/basics';
-import { CoderError } from '@votingworks/message-coder';
+import { type Result, sleep } from '@votingworks/basics';
+import type { CoderError } from '@votingworks/message-coder';
 import makeDebug from 'debug';
 import {
   BLANK_PAGE_IMAGE_DATA,
   writeImageData,
 } from '@votingworks/image-utils';
-import { RgbaImageData } from '@votingworks/types';
-import {
+import type { RgbaImageData } from '@votingworks/types';
+import type {
   PaperHandlerStatus,
   PrinterStatusRealTimeExchangeResponse,
   SensorStatusRealTimeExchangeResponse,
 } from './coders.js';
-import { ScannerCapability } from './scanner_capability.js';
-import { PaperHandlerDriverInterface } from './driver_interface.js';
-import { PrintingSpeed } from './constants.js';
+import type { ScannerCapability } from './scanner_capability.js';
+import type { PaperHandlerDriverInterface } from './driver_interface.js';
+import type { PrintingSpeed } from './constants.js';
 import { defaultPaperHandlerStatus } from './test_utils.js';
 
 const debug = makeDebug('custom-paper-handler:mock-driver');

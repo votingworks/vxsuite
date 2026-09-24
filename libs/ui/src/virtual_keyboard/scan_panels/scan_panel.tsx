@@ -1,8 +1,8 @@
-import React, { forwardRef, Ref } from 'react';
+import { type Ref, forwardRef, type ReactNode } from 'react';
 import { styled } from '../../styled.js';
 import { gapStyles } from '../../button.js';
 import { TextOnly } from '../../ui_strings/index.js';
-import { getBorderWidthRem, Key } from '../common.js';
+import { getBorderWidthRem, type Key } from '../common.js';
 import { KeyGroupAudioLabel } from './key_group_audio_label.js';
 
 interface StyledComponentProps {
@@ -24,7 +24,7 @@ export type ScanPanelRenderOption =
   'button-enabled' | 'button-disabled' | 'container';
 
 interface ScanPanelProps {
-  children?: React.ReactNode;
+  children?: ReactNode;
   keys: Key[];
   numKeys: number;
   onSelect: () => void;

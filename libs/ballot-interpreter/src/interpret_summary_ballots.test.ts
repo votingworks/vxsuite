@@ -17,20 +17,20 @@ import {
 } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
-  BallotStyleId,
+  type BallotStyleId,
   DEFAULT_MARK_THRESHOLDS,
-  ElectionDefinition,
-  InterpretedBmdPage,
-  InvalidBallotHashPage,
-  PageInterpretation,
-  PrecinctId,
-  SheetOf,
-  VotesDict,
+  type ElectionDefinition,
+  type InterpretedBmdPage,
+  type InvalidBallotHashPage,
+  type PageInterpretation,
+  type PrecinctId,
+  type SheetOf,
+  type VotesDict,
   asSheet,
   getBallotStyle,
   getContests,
   mapSheet,
-  RgbaImageData,
+  type RgbaImageData,
   vote,
 } from '@votingworks/types';
 import { createCanvas } from 'canvas';
@@ -40,7 +40,7 @@ import { loadImageMetadata, toImageBuffer } from '@votingworks/image-utils';
 import { readFile } from 'node:fs/promises';
 import { pdfToPageImages } from '../test/helpers/interpretation.js';
 import { interpretSheet, interpretSimplexBmdBallot } from './interpret.js';
-import { InterpreterOptions } from './types.js';
+import type { InterpreterOptions } from './types.js';
 import { normalizeBallotMode } from './validation.js';
 import { rotateImageData180 } from './summary-ballot/utils/rotate.js';
 

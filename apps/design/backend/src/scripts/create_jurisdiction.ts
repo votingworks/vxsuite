@@ -7,7 +7,7 @@ import { safeParse, SoftwareVersionSchema } from '@votingworks/types';
 import { createWorkspace } from '../workspace.js';
 import { WORKSPACE } from '../globals.js';
 import { generateId } from '../utils.js';
-import { Jurisdiction, StateCodeSchema } from '../types.js';
+import { type Jurisdiction, StateCodeSchema } from '../types.js';
 
 const USAGE = `Usage: pnpm create-jurisdiction --organizationId=<organizationId> --stateCode=<stateCode> --softwareVersion=<softwareVersion> "<name>"`;
 

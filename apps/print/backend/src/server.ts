@@ -1,15 +1,15 @@
 import express from 'express';
-import { BaseLogger, Logger, LogEventId } from '@votingworks/logging';
-import { DippedSmartCardAuthApi } from '@votingworks/auth';
+import { type BaseLogger, Logger, LogEventId } from '@votingworks/logging';
+import type { DippedSmartCardAuthApi } from '@votingworks/auth';
 import { detectUsbDriveFromEnv } from '@votingworks/usb-drive';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { detectPrinter, HP_4001_PRINTER_CONFIG } from '@votingworks/printing';
 import { startCpuMetricsLogging } from '@votingworks/backend';
 import { buildApp } from './app.js';
 import { PORT } from './globals.js';
-import { Workspace } from './util/workspace.js';
+import type { Workspace } from './util/workspace.js';
 import { getDefaultAuth, getUserRole } from './util/auth.js';
-import { AppContext } from './context.js';
+import type { AppContext } from './context.js';
 
 export interface StartOptions {
   auth?: DippedSmartCardAuthApi;

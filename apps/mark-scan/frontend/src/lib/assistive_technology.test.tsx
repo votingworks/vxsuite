@@ -15,7 +15,10 @@ import {
   contest1candidate0,
 } from '../../test/helpers/election.js';
 
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../../test/helpers/mock_api_client.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const precinctId = '23';

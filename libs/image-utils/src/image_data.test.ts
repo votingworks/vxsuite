@@ -5,7 +5,7 @@ import fc from 'fast-check';
 import { writeFile } from 'node:fs/promises';
 import { makeTemporaryFile } from '@votingworks/fixtures';
 import { randomFillSync } from 'node:crypto';
-import { err, ok, MaybePromise } from '@votingworks/basics';
+import { err, ok, type MaybePromise } from '@votingworks/basics';
 import { arbitraryImageData } from '../test/arbitraries.js';
 import {
   RGBA_CHANNEL_COUNT,

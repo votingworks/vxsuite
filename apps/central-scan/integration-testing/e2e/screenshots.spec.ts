@@ -20,8 +20,9 @@ import {
   withOvervote,
   withUndervote,
 } from '@votingworks/integration-test-utils';
-import type { CandidateContest, SystemSettings } from '@votingworks/types';
 import {
+  type CandidateContest,
+  type SystemSettings,
   AdjudicationReason,
   DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';

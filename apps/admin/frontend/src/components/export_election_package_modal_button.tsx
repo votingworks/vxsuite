@@ -4,7 +4,7 @@ import {
   format,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
-  UsbDriveFileFit,
+  type UsbDriveFileFit,
 } from '@votingworks/utils';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {

@@ -9,8 +9,8 @@ import {
   appStrings,
   electionStrings,
 } from '@votingworks/ui';
-import { Contest, District } from '@votingworks/types';
-import { MsEitherNeitherContest } from '../utils/ms_either_neither_contests.js';
+import type { Contest, District } from '@votingworks/types';
+import type { MsEitherNeitherContest } from '../utils/ms_either_neither_contests.js';
 
 export interface ContestHeaderProps {
   children?: React.ReactNode;

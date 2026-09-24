@@ -1,4 +1,7 @@
-import { ElectionDefinition, formatElectionHashes } from '@votingworks/types';
+import {
+  type ElectionDefinition,
+  formatElectionHashes,
+} from '@votingworks/types';
 import { unique } from '@votingworks/basics';
 import {
   CachedElectionLookups,

@@ -1,16 +1,16 @@
 import { expect, test, vi } from 'vitest';
-import { Logger, mockLogger } from '@votingworks/logging';
+import { type Logger, mockLogger } from '@votingworks/logging';
 import { err, ok } from '@votingworks/basics';
 import {
   AUDIO_DEVICE_DEFAULT_SINK,
   AudioCardProfile,
   getAudioCardName,
-  GetAudioCardNameParams,
+  type GetAudioCardNameParams,
   setAudioCardProfile,
-  SetAudioCardProfileParams,
+  type SetAudioCardProfileParams,
   setAudioVolume,
 } from '../../system_call/index.js';
-import { type NODE_ENV } from '../../globals.js';
+import type { NODE_ENV } from '../../globals.js';
 import {
   DEFAULT_HEADPHONE_VOLUME,
   DEFAULT_SPEAKER_VOLUME,

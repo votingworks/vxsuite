@@ -5,11 +5,14 @@ import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { deferred } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   provideApi,
 } from '../../test/helpers/mock_api_client.js';
-import { TestDeckScreen, TestDeckScreenProps } from './test_deck_screen.js';
+import {
+  TestDeckScreen,
+  type TestDeckScreenProps,
+} from './test_deck_screen.js';
 
 const electionDefinition = readElectionGeneralDefinition();
 

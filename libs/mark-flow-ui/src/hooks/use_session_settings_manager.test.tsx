@@ -1,9 +1,9 @@
-import { afterEach, expect, test, vi, Mocked } from 'vitest';
-import { DefaultTheme, ThemeContext } from 'styled-components';
+import { afterEach, expect, test, vi, type Mocked } from 'vitest';
+import { type DefaultTheme, ThemeContext } from 'styled-components';
 import React from 'react';
 import {
   VoterSettingsManagerContext,
-  LanguageControls,
+  type LanguageControls,
   useCurrentLanguage,
   useAudioEnabled,
   AppBase,
@@ -15,7 +15,7 @@ import {
   mockUseAudioControls,
   TestLanguageCode,
 } from '@votingworks/test-utils';
-import { AudioControls, InsertedSmartCardAuth } from '@votingworks/types';
+import type { AudioControls, InsertedSmartCardAuth } from '@votingworks/types';
 import { act, renderHook } from '../../test/react_testing_library.js';
 import { useSessionSettingsManager } from './use_session_settings_manager.js';
 

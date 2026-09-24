@@ -3,7 +3,10 @@ import { createMemoryHistory } from 'history';
 import { Route, Router, Switch } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 
-import { ElectionInfo, TtsStringDefault } from '@votingworks/design-backend';
+import type {
+  ElectionInfo,
+  TtsStringDefault,
+} from '@votingworks/design-backend';
 import { ElectionStringKey, LanguageCode } from '@votingworks/types';
 
 import { createMockApiClient, provideApi } from '../test/api_helpers.js';

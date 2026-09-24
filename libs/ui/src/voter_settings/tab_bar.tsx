@@ -1,6 +1,6 @@
 import { styled } from '../styled.js';
 
-import { PANE_IDS, SettingsPaneId } from './types.js';
+import { PANE_IDS, type SettingsPaneId } from './types.js';
 import { Button } from '../button.js';
 import { appStrings } from '../ui_strings/index.js';
 

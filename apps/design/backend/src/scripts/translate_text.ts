@@ -1,6 +1,6 @@
 import { extractErrorMessage } from '@votingworks/basics';
 
-import { LanguageCode, NonEnglishLanguageCode } from '@votingworks/types';
+import { LanguageCode, type NonEnglishLanguageCode } from '@votingworks/types';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { Store } from '../store.js';
 import { GoogleCloudTranslatorWithDbCache } from '../translator.js';

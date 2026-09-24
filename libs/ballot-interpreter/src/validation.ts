@@ -1,4 +1,4 @@
-import {
+import type {
   InterpretedBmdPage,
   InterpretedHmpbPage,
   InvalidPrecinctPage,
@@ -6,7 +6,7 @@ import {
   PageInterpretation,
 } from '@votingworks/types';
 
-import { InterpreterOptions } from './types.js';
+import type { InterpreterOptions } from './types.js';
 
 type PageInterpretationWithMetadata =
   | InterpretedBmdPage

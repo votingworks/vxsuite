@@ -1,29 +1,35 @@
 import * as grout from '@votingworks/grout';
 import { Buffer } from 'node:buffer';
-import express, { Application } from 'express';
-import { assert, assertDefined, err, ok, Result } from '@votingworks/basics';
+import express, { type Application } from 'express';
+import {
+  assert,
+  assertDefined,
+  err,
+  ok,
+  type Result,
+} from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import {
   ballotPaperDimensions,
-  DiagnosticRecord,
-  ElectionDefinition,
-  ElectionPackageConfigurationError,
-  LanguageCode,
-  Id,
+  type DiagnosticRecord,
+  type ElectionDefinition,
+  type ElectionPackageConfigurationError,
+  type LanguageCode,
+  type Id,
   BallotType,
-  BallotPrintCount,
+  type BallotPrintCount,
   DEFAULT_SYSTEM_SETTINGS,
-  SystemSettings,
+  type SystemSettings,
   pollingPlaceFromElection,
-  PrecinctId,
-  Election,
-  Tabulation,
-  DippedSmartCardAuth,
+  type PrecinctId,
+  type Election,
+  type Tabulation,
+  type DippedSmartCardAuth,
 } from '@votingworks/types';
 import {
   createSystemCallApi,
-  ElectionRecord,
-  ExportDataResult,
+  type ElectionRecord,
+  type ExportDataResult,
   getBatteryInfo,
   readSignedElectionPackageFromDirectory,
   streamElectionPackageBallots,
@@ -37,20 +43,20 @@ import {
   generateTestDeckBallots,
   generateTestDeckCastVoteRecords,
   getTallyReportResults,
-  TestDeckBallot,
+  type TestDeckBallot,
 } from '@votingworks/test-decks';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import {
   cleanupCachedBrowser,
   concatenatePdfs,
-  ConcatenatePdfsErrorCode,
-  PrintProps,
+  type ConcatenatePdfsErrorCode,
+  type PrintProps,
   PrintSides,
   renderToPdf,
 } from '@votingworks/printing';
 import { AdminTallyReportByParty } from '@votingworks/ui';
 import { generateMarkOverlay } from '@votingworks/hmpb';
-import { AppContext } from './context.js';
+import type { AppContext } from './context.js';
 import { constructAuthMachineState } from './util/auth.js';
 import {
   printBallotsPrintedReport,
@@ -58,7 +64,7 @@ import {
 } from './reports/ballots_printed_report.js';
 import { printTestPage } from './printing/test_print.js';
 import { saveReadinessReport } from './reports/readiness.js';
-import { BallotPrintEntry, DeviceStatuses } from './types.js';
+import type { BallotPrintEntry, DeviceStatuses } from './types.js';
 import { getMachineConfig } from './machine_config.js';
 import { findBallotStyleId } from './util/ballot_styles.js';
 import { getCurrentTime } from './util/get_current_time.js';

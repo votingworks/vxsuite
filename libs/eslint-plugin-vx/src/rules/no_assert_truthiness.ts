@@ -2,8 +2,8 @@
 import {
   AST_NODE_TYPES,
   ESLintUtils,
-  TSESLint,
-  TSESTree,
+  type TSESLint,
+  type TSESTree,
 } from '@typescript-eslint/utils';
 import * as ts from 'typescript';
 import { createRule } from '../util/index.ts';

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { sleep, typedAs } from '@votingworks/basics';
-import { BooleanEnvironmentVariableName } from '@votingworks/utils';
+import type { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import type {
   MachineRecord,
   QualifiedWriteInCandidateRecord,
@@ -11,7 +11,10 @@ import { Admin, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { act, screen, within } from '../../test/react_testing_library.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { AdjudicationStartScreen } from './adjudication_start_screen.js';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../../test/helpers/mock_api_client.js';
 import { mockCastVoteRecordFileRecord } from '../../test/api_mock_data.js';
 
 const featureFlagMock = vi.hoisted(() => {

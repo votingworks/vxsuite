@@ -1,6 +1,6 @@
 import * as util from 'node:util';
-import { BinaryToTextEncoding, Hash } from 'node:crypto';
-import { Transform, TransformCallback } from 'node:stream';
+import type { BinaryToTextEncoding, Hash } from 'node:crypto';
+import { Transform, type TransformCallback } from 'node:stream';
 
 import { assert } from '@votingworks/basics';
 

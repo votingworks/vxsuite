@@ -2,8 +2,8 @@
 
 import type { Mocked, vi } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
-import { MinimalGoogleCloudTextToSpeechClient } from './speech_synthesizer.js';
-import { MinimalGoogleCloudTranslationClient } from './translator.js';
+import type { MinimalGoogleCloudTextToSpeechClient } from './speech_synthesizer.js';
+import type { MinimalGoogleCloudTranslationClient } from './translator.js';
 
 export function mockCloudTranslatedText(
   englishText: string,

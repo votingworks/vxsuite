@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { createMemoryHistory } from 'history';
-import {
+import type {
   BackgroundTask,
   MainExportTaskMetadata,
   TestDecksTaskMetadata,
@@ -10,7 +10,7 @@ import userEvent from '@testing-library/user-event';
 import { downloadFile } from './utils.js';
 import {
   createMockApiClient,
-  MockApiClient,
+  type MockApiClient,
   provideApi,
 } from '../test/api_helpers.js';
 import { routes } from './routes.js';

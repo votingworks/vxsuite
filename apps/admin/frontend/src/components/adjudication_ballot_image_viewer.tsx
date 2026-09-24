@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import {
   BallotImage,
-  BallotImageHighlight,
+  type BallotImageHighlight,
   Button,
   Callout,
 } from '@votingworks/ui';
 import styled from 'styled-components';
-import { Rect } from '@votingworks/types';
+import type { Rect } from '@votingworks/types';
 
 const VIEWPORT_WIDTH_PX = 1920;
 const VIEWPORT_HEIGHT_PX = 1200;

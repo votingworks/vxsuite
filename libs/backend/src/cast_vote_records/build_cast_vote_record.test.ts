@@ -8,9 +8,9 @@ import {
 import {
   BallotIdSchema,
   BallotType,
-  CandidateContest,
+  type CandidateContest,
   CVR,
-  MarkThresholds,
+  type MarkThresholds,
   unsafeParse,
 } from '@votingworks/types';
 import { getCastVoteRecordBallotType } from '@votingworks/utils';

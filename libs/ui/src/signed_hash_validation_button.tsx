@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { assert } from '@votingworks/basics';
-import { SignedHashValidationQrCodeValue } from '@votingworks/types';
+import type { SignedHashValidationQrCodeValue } from '@votingworks/types';
 
 import { DateTime } from 'luxon';
 import { styled } from './styled.js';

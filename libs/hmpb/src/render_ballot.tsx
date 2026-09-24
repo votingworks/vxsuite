@@ -9,29 +9,29 @@ import {
   groupBy,
   iter,
   ok,
-  Result,
+  type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
-  Contest,
+  type Contest,
   BALLOT_MODES,
-  BallotStyleId,
+  type BallotStyleId,
   BallotType,
-  BaseBallotProps,
-  Election,
-  ElectionDefinition,
-  ElectionSerializationFormat,
-  GridPosition,
-  HmpbBallotPageMetadata,
-  Outset,
-  SheetPositions,
+  type BaseBallotProps,
+  type Election,
+  type ElectionDefinition,
+  type ElectionSerializationFormat,
+  type GridPosition,
+  type HmpbBallotPageMetadata,
+  type Outset,
+  type SheetPositions,
   ballotPositionsFromGridPositions,
   convertVxfElectionToCdfBallotDefinition,
   formatBallotHash,
   safeParseElection,
   convertLatestElectionToV4p0,
   ElectionV4p0Schema,
-  SoftwareVersion,
+  type SoftwareVersion,
   safeParseElectionDefinitionForAnySoftwareVersion,
   safeParse,
   LATEST_SOFTWARE_VERSION,
@@ -39,8 +39,8 @@ import {
 import { QrCode } from '@votingworks/ui';
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
 import * as fs from 'node:fs/promises';
-import { Readable } from 'node:stream';
-import {
+import type { Readable } from 'node:stream';
+import type {
   DocumentElement,
   RenderDocument,
   RenderScratchpad,
@@ -53,7 +53,7 @@ import {
   ContentSlot,
   BALLOT_HASH_SLOT_CLASS,
   CANDIDATE_OPTION_CLASS,
-  OptionInfo,
+  type OptionInfo,
   PAGE_CLASS,
   QR_CODE_SIZE,
   QR_CODE_SLOT_CLASS,
@@ -61,8 +61,8 @@ import {
   WRITE_IN_OPTION_CLASS,
   BALLOT_MEASURE_OPTION_CLASS,
 } from './ballot_components.js';
-import { PixelDimensions, Pixels, Point } from './types.js';
-import { BaseStylesProps } from './base_styles.js';
+import type { PixelDimensions, Pixels, Point } from './types.js';
+import type { BaseStylesProps } from './base_styles.js';
 
 export type StylesComponent<P> = (props: P) => JSX.Element;
 

@@ -1,13 +1,13 @@
 import { expect, test } from 'vitest';
 import { typedAs } from '@votingworks/basics';
-import { JSONSchema4 } from 'json-schema';
+import type { JSONSchema4 } from 'json-schema';
 import {
   convertToGenericType,
   createEnumFromDefinition,
   createInterfaceFromDefinition,
   parseJsonSchema,
 } from './json_schema.js';
-import { Enum, Interface, Type } from './types.js';
+import type { Enum, Interface, Type } from './types.js';
 
 test('parseJsonSchema', () => {
   expect(parseJsonSchema(`{`).unsafeUnwrapErr()).toBeInstanceOf(SyntaxError);

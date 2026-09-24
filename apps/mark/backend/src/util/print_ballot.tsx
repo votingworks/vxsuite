@@ -4,20 +4,20 @@ import { randomUUID as uuid } from 'node:crypto';
 import {
   getPdfPageCount,
   PrintSides,
-  Printer,
+  type Printer,
   renderToPdf,
   SummaryBallotLayoutRenderer,
 } from '@votingworks/printing';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { generateMarkOverlay } from '@votingworks/hmpb';
 import {
-  BallotStyleId,
+  type BallotStyleId,
   BallotType,
-  Contest,
-  Election,
+  type Contest,
+  type Election,
   getBallotStyle,
   getContests,
-  PrintJobId,
+  type PrintJobId,
 } from '@votingworks/types';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import {
@@ -25,8 +25,8 @@ import {
   BackendLanguageContextProvider,
   filterVotesForContests,
 } from '@votingworks/ui';
-import { Store } from '../store.js';
-import { PrintBallotProps as ClientParams } from '../types.js';
+import type { Store } from '../store.js';
+import type { PrintBallotProps as ClientParams } from '../types.js';
 
 /**
  * Shared renderer instance for measuring ballot layouts.

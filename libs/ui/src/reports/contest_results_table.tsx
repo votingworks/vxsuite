@@ -1,13 +1,18 @@
 import pluralize from 'pluralize';
 
 import {
-  Election,
+  type Election,
   getContestDistrictName,
-  Tabulation,
-  Contest,
+  type Tabulation,
+  type Contest,
 } from '@votingworks/types';
 import { format, getTallyReportCandidateRows } from '@votingworks/utils';
-import { throwIllegalValue, assert, Optional, find } from '@votingworks/basics';
+import {
+  throwIllegalValue,
+  assert,
+  type Optional,
+  find,
+} from '@votingworks/basics';
 import { styled } from '../styled.js';
 
 import { ReportTable } from './layout.js';

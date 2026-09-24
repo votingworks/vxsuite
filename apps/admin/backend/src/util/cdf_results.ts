@@ -1,14 +1,14 @@
 import {
-  CandidateContest,
-  Election,
+  type CandidateContest,
+  type Election,
   NcName,
   ResultsReporting,
   Tabulation,
-  YesNoContest,
+  type YesNoContest,
 } from '@votingworks/types';
 import { getBallotCount } from '@votingworks/utils';
 import { assert, assertDefined } from '@votingworks/basics';
-import { MachineConfig, WriteInCandidateRecord } from '../types.js';
+import type { MachineConfig, WriteInCandidateRecord } from '../types.js';
 
 const {
   asNcName,

@@ -1,4 +1,4 @@
-import { Uint8 } from './types.js';
+import type { Uint8 } from './types.js';
 
 /**
  * Generates a series of bitmasks in little-endian order.

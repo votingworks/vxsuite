@@ -4,7 +4,7 @@ import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { advancePromises } from '@votingworks/test-utils';
 import { useIsVoterAuth } from './use_is_voter_auth.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   provideApi,
 } from '../../test/helpers/mock_api_client.js';

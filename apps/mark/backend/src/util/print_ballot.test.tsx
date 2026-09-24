@@ -2,21 +2,21 @@ import { describe, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 
 import { electionGeneralFixtures } from '@votingworks/fixtures';
-import { generateMarkOverlay, PrintCalibration } from '@votingworks/hmpb';
+import { generateMarkOverlay, type PrintCalibration } from '@votingworks/hmpb';
 import {
   BallotType,
-  ElectionDefinition,
+  type ElectionDefinition,
   getContests,
   HmpbBallotPaperSize,
-  SystemSettings,
-  UiStringsPackage,
-  VotesDict,
+  type SystemSettings,
+  type UiStringsPackage,
+  type VotesDict,
 } from '@votingworks/types';
 import {
   getPdfPageCount,
-  PrintFunction,
+  type PrintFunction,
   PrintSides,
-  RenderSpec,
+  type RenderSpec,
   renderToPdf,
   SummaryBallotLayoutRenderer,
   type Printer,
@@ -27,11 +27,11 @@ import {
   BmdPaperBallot,
   filterVotesForContests,
 } from '@votingworks/ui';
-import { UiStringsStore } from '@votingworks/backend';
+import type { UiStringsStore } from '@votingworks/backend';
 import { assertDefined, ok } from '@votingworks/basics';
 import { mockConstructor } from '@votingworks/test-utils';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
-import { type Store } from '../store.js';
+import type { Store } from '../store.js';
 import { closeLayoutRenderer, printBallot } from './print_ballot.js';
 
 vi.mock('@votingworks/hmpb');
