@@ -15,7 +15,7 @@ export function mockUsbDriveStatus(
       return {
         status,
         mountpoint: '/test-mount-point' as UsbPartitionMountpoint,
-        fstype: 'fat32',
+        fstype: 'exfat',
         ...mounted,
       };
     case 'no_drive':

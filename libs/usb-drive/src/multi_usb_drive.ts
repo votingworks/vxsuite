@@ -13,7 +13,7 @@ import makeDebug from 'debug';
 import { randomElement, UsbDriveSpace } from '@votingworks/utils';
 import {
   UsbDiskDevPath,
-  UsbDriveFilesystemType,
+  UsbDriveFormatFilesystemType,
   UsbDriveInfo,
   UsbPartitionDevPath,
   UsbPartitionMount,
@@ -52,7 +52,7 @@ export interface MultiUsbDrive {
   ejectDrive(diskPath: UsbDiskDevPath): Promise<void>;
   formatDrive(
     diskPath: UsbDiskDevPath,
-    fstype: UsbDriveFilesystemType
+    fstype: UsbDriveFormatFilesystemType
   ): Promise<void>;
   sync(partPath: UsbPartitionDevPath): Promise<void>;
   getPartitionSpace(mountpoint: UsbPartitionMountpoint): Promise<UsbDriveSpace>;
@@ -298,7 +298,7 @@ export function detectMultiUsbDrive(options: {
   async function doRefresh(): Promise<void> {
     if (stopped) return;
     // Every detected USB disk is included. `partition` is set only when the
-    // disk has exactly one supported (FAT32/ext4) partition; otherwise the disk
+    // disk has exactly one supported partition; otherwise the disk
     // appears with no partition (e.g. unformatted or unsupported drives).
     const newDrives = await platform.getDrives();
 
@@ -393,7 +393,7 @@ export function detectMultiUsbDrive(options: {
 
     async formatDrive(
       diskPath: UsbDiskDevPath,
-      fstype: UsbDriveFilesystemType
+      fstype: UsbDriveFormatFilesystemType
     ): Promise<void> {
       const result = driveAction.perform(diskPath, 'formatting', async () => {
         await logger.logAsCurrentRole(LogEventId.UsbDriveFormatInit);
@@ -407,13 +407,12 @@ export function detectMultiUsbDrive(options: {
             `formatting drive ${diskPath} as ${fstype} with label ${label}`
           );
           await platform.formatDrive(diskPath, fstype, label);
-          ejectedDrives.add(diskPath); // prevent auto-remount
-          await doRefresh();
+          ejectedDrives.delete(diskPath);
 
           await logger.logAsCurrentRole(LogEventId.UsbDriveFormatted, {
             disposition: 'success',
             message: `USB drive successfully formatted with a single ${
-              fstype === 'ext4' ? 'ext4' : 'FAT32'
+              fstype
             } volume named "${label}".`,
           });
           debug(`Drive ${diskPath} formatted successfully`);
@@ -435,6 +434,13 @@ export function detectMultiUsbDrive(options: {
       }
 
       await result;
+      await doRefresh();
+      const partition = cachedDrives.find(
+        (d) => d.diskPath === diskPath
+      )?.partition;
+      if (partition) {
+        await partitionAction.join(partition.partPath);
+      }
     },
 
     async sync(partPath: UsbPartitionDevPath): Promise<void> {

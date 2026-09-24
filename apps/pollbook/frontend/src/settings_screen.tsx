@@ -10,6 +10,7 @@ import {
 } from '@votingworks/ui';
 import React from 'react';
 import {
+  ejectUsbDrive,
   formatUsbDrive,
   getUsbDriveStatus,
   logOut,
@@ -27,6 +28,7 @@ export function SettingsScreen({
   const logOutMutation = logOut.useMutation();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const formatUsbDriveMutation = formatUsbDrive.useMutation();
+  const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
 
   if (!usbDriveStatusQuery.isSuccess) {
     return null;
@@ -55,6 +57,7 @@ export function SettingsScreen({
             <FormatUsbButton
               usbDriveStatus={usbDriveStatus}
               formatUsbDriveMutation={formatUsbDriveMutation}
+              ejectUsbDriveMutation={ejectUsbDriveMutation}
             />
           </P>
         </React.Fragment>

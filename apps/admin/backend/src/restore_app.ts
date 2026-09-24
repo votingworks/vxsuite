@@ -8,6 +8,7 @@ import { createSystemCallApi } from '@votingworks/backend';
 import { Logger } from '@votingworks/logging';
 import {
   createUsbDriveAdapter,
+  findDriveByPurpose,
   MultiUsbDrive,
   UsbDriveStatus,
 } from '@votingworks/usb-drive';
@@ -79,9 +80,8 @@ function buildRestoreApi({
   logger: Logger;
   multiUsbDrive: MultiUsbDrive;
 }) {
-  const usbDriveAdapter = createUsbDriveAdapter(
-    multiUsbDrive,
-    (drives) => drives.find((d) => d.partition?.fstype === 'ext4')?.diskPath
+  const usbDriveAdapter = createUsbDriveAdapter(multiUsbDrive, (drives) =>
+    findDriveByPurpose(drives, 'backup')
   );
 
   let status: RestoreStatus = { state: 'idle' };

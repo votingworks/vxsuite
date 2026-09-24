@@ -162,7 +162,7 @@ test('exportLogsToUsb works for vxf format when all conditions are met', async (
   mockUsbDrive.usbDrive.status.reset();
   mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
     status: 'mounted',
-    fstype: 'fat32',
+    fstype: 'exfat',
     mountpoint: UsbPartitionMountpointSchema.decode('/media/usb-drive'),
   });
   mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
@@ -217,7 +217,7 @@ testPlainAndCompressed('when CDF conversion fails - [$0]', async (fmt) => {
   mockUsbDrive.usbDrive.status.reset();
   mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
     status: 'mounted',
-    fstype: 'fat32',
+    fstype: 'exfat',
     mountpoint: UsbPartitionMountpointSchema.decode('/media/usb-drive'),
   });
 
@@ -253,7 +253,7 @@ test('exportLogsToUsb returns error when error filtering fails', async () => {
   mockUsbDrive.usbDrive.status.reset();
   mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
     status: 'mounted',
-    fstype: 'fat32',
+    fstype: 'exfat',
     mountpoint: UsbPartitionMountpointSchema.decode('/media/usb-drive'),
   });
 
@@ -301,7 +301,7 @@ testPlainAndCompressed('works for CDF format - [$0]', async (fmt) => {
   mockUsbDrive.usbDrive.status.reset();
   mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
     status: 'mounted',
-    fstype: 'fat32',
+    fstype: 'exfat',
     mountpoint: UsbPartitionMountpointSchema.decode('/media/usb-drive'),
   });
   mockUsbDrive.usbDrive.sync.expectCallWith().resolves();
@@ -391,7 +391,7 @@ testPlainAndCompressed('works for error format - [$0]', async (fmt) => {
   mockUsbDrive.usbDrive.status.reset();
   mockUsbDrive.usbDrive.status.expectRepeatedCallsWith().resolves({
     status: 'mounted',
-    fstype: 'fat32',
+    fstype: 'exfat',
     mountpoint: UsbPartitionMountpointSchema.decode('/media/usb-drive'),
   });
   mockUsbDrive.usbDrive.sync.expectCallWith().resolves();

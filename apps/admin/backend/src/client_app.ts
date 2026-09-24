@@ -20,6 +20,7 @@ import {
   MultiUsbDrive,
   UsbDriveStatus,
   createUsbDriveAdapter,
+  findDriveByPurpose,
 } from '@votingworks/usb-drive';
 import {
   ContestId,
@@ -161,10 +162,8 @@ function buildClientApi({
     return proxyToHost(clientStore, logger, action, fn);
   }
 
-  const usbDriveAdapter = createUsbDriveAdapter(
-    multiUsbDrive,
-    // return the first FAT32 drive
-    (drives) => drives.find((d) => d.partition?.fstype === 'fat32')?.diskPath
+  const usbDriveAdapter = createUsbDriveAdapter(multiUsbDrive, (drives) =>
+    findDriveByPurpose(drives, 'data')
   );
 
   return grout.createApi({
@@ -371,7 +370,7 @@ function buildClientApi({
       }
 
       try {
-        await usbDriveAdapter.format('fat32');
+        await usbDriveAdapter.format('exfat');
         return ok();
       } catch (error) {
         return err(error as Error);

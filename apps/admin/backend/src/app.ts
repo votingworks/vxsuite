@@ -38,7 +38,7 @@ import * as grout from '@votingworks/grout';
 import { Printer } from '@votingworks/printing';
 import { randomUUID } from 'node:crypto';
 import { createReadStream, createWriteStream } from 'node:fs';
-import { rm } from 'node:fs/promises';
+import { rm, stat } from 'node:fs/promises';
 import { pipeline } from 'node:stream/promises';
 import path, { join, matchesGlob, normalize } from 'node:path';
 import {
@@ -72,6 +72,7 @@ import {
   MultiUsbDrive,
   UsbDriveStatus,
   createUsbDriveAdapter,
+  findDriveByPurpose,
   getRealUsbDriveGlobPattern,
 } from '@votingworks/usb-drive';
 import ZipStream from 'zip-stream';
@@ -209,10 +210,8 @@ function buildApi({
 }) {
   const { store } = workspace;
 
-  const usbDriveAdapter = createUsbDriveAdapter(
-    multiUsbDrive,
-    // return the first FAT32 drive
-    (drives) => drives.find((d) => d.partition?.fstype === 'fat32')?.diskPath
+  const usbDriveAdapter = createUsbDriveAdapter(multiUsbDrive, (drives) =>
+    findDriveByPurpose(drives, 'data')
   );
 
   // Backs the `waitForUsbDriveChange` long-poll. `usbDriveChangeSeq` is a
@@ -496,11 +495,21 @@ function buildApi({
       }
 
       try {
-        await usbDriveAdapter.format('fat32');
+        await usbDriveAdapter.format('exfat');
         return ok();
       } catch (error) {
         return err(error as Error);
       }
+    },
+
+    /** Size in bytes of the current election's package file. */
+    async getElectionPackageSize(): Promise<number> {
+      const electionRecord = getCurrentElectionRecord(workspace);
+      assert(electionRecord);
+      const electionPackageFilePath = assertDefined(
+        workspace.store.getElectionPackageFilePath(electionRecord.id)
+      );
+      return (await stat(electionPackageFilePath)).size;
     },
 
     async saveElectionPackageToUsb(): Promise<Result<void, ExportDataError>> {
@@ -525,7 +534,8 @@ function buildApi({
       const exportElectionPackageResult = await exporter.exportDataToUsbDrive(
         usbDriveElectionPackageDirectoryRelativePath,
         exportedElectionPackageFileName,
-        createReadStream(electionPackageFilePathOnDisk)
+        createReadStream(electionPackageFilePathOnDisk),
+        { size: (await stat(electionPackageFilePathOnDisk)).size }
       );
       if (exportElectionPackageResult.isErr()) {
         return exportElectionPackageResult;

@@ -524,6 +524,13 @@ export const formatUsbDrive = {
   },
 } as const;
 
+export const ejectUsbDrive = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.ejectUsbDrive);
+  },
+} as const;
+
 export const getActiveAnomalies = {
   queryKey(): QueryKey {
     return ['getActiveAnomalies'];

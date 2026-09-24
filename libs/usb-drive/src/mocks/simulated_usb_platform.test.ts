@@ -73,14 +73,14 @@ test('bad diskPath crashes', async () => {
   expect(() => platform.clearDriveStorage(devsdb)).toThrow();
   expect(() => platform.insertDrive(devsdb)).toThrow();
   await expect(
-    platform.formatDrive(devsdb, 'fat32', 'LABEL')
+    platform.formatDrive(devsdb, 'exfat', 'LABEL')
   ).rejects.toThrow();
   await expect(platform.mountPartition(devsdb1)).rejects.toThrow();
   await expect(
     platform.unmountPartition(platform.storagePath(devsdb))
   ).rejects.toThrow();
 
-  platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
   platform.insertDrive(devsdb);
   await expect(platform.mountPartition(devsdc1)).rejects.toThrow();
   await platform.mountPartition(devsdb1);
@@ -91,9 +91,9 @@ test('bad diskPath crashes', async () => {
 
 test('cannot create a drive that already exists', () => {
   const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
-  platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
   expect(() =>
-    platform.createDrive({ diskPath: devsdb, fstype: 'fat32' })
+    platform.createDrive({ diskPath: devsdb, fstype: 'exfat' })
   ).toThrow();
 });
 
@@ -129,14 +129,14 @@ test('unformatted drive lifecycle: create, insert, format', async () => {
   platform.insertDrive(devsdb);
 
   // Formatting installs a mounted partition.
-  await platform.formatDrive(devsdb, 'fat32', 'VxUSB-ABCDE');
+  await platform.formatDrive(devsdb, 'exfat', 'VxUSB-ABCDE');
   await expect(platform.getDrives()).resolves.toEqual(
     typedAs<UsbPlatformDrive[]>([
       {
         diskPath: devsdb,
         partition: {
           partPath: devsdb1,
-          fstype: 'fat32',
+          fstype: 'exfat',
           label: 'VxUSB-ABCDE',
           mountpoint: platform.storagePath(devsdb),
         },
@@ -159,7 +159,7 @@ test('created drives are not present until inserted', async () => {
 
   platform.createDrive({
     diskPath: devsdb,
-    fstype: 'fat32',
+    fstype: 'exfat',
   });
   // Created but not attached: invisible to the platform, but tracked.
   await expect(platform.getDrives()).resolves.toEqual([]);
@@ -194,7 +194,7 @@ test('failed create cleans up storage path', () => {
     'writeStateFile'
   ).mockThrow('FAIL');
   expect(() =>
-    platform.createDrive({ diskPath: devsdb, fstype: 'fat32' })
+    platform.createDrive({ diskPath: devsdb, fstype: 'exfat' })
   ).toThrow();
   expect(existsSync(platform.storagePath(devsdb))).toEqual(false);
 });
@@ -206,7 +206,7 @@ test('watch changes', async () => {
   const watcher1 = platform.watchChanges(onDeviceChange1);
   const watcher2 = platform.watchChanges(onDeviceChange2);
 
-  platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
   platform.insertDrive(devsdb);
   await backendWaitFor(() => {
     expect(onDeviceChange1.mock.calls.length).toBeGreaterThanOrEqual(1);
@@ -215,7 +215,7 @@ test('watch changes', async () => {
 
   watcher2.stop();
   const callsBeforeStop = onDeviceChange2.mock.calls.length;
-  platform.createDrive({ diskPath: devsdc, fstype: 'fat32' });
+  platform.createDrive({ diskPath: devsdc, fstype: 'exfat' });
   platform.insertDrive(devsdc);
   await backendWaitFor(() => {
     expect(onDeviceChange1.mock.calls.length).toBeGreaterThanOrEqual(2);
@@ -238,7 +238,7 @@ test('full lifecycle', async () => {
 
   platform.createDrive({
     diskPath: devsdb,
-    fstype: 'fat32',
+    fstype: 'exfat',
   });
   platform.insertDrive(devsdb);
   await backendWaitFor(() => {
@@ -248,7 +248,7 @@ test('full lifecycle', async () => {
     expect.objectContaining<Partial<UsbPlatformDrive>>({
       diskPath: devsdb,
       partition: expect.objectContaining<Partial<UsbPlatformPartition>>({
-        fstype: 'fat32',
+        fstype: 'exfat',
       }),
     }),
   ]);
@@ -259,7 +259,7 @@ test('full lifecycle', async () => {
     expect.objectContaining<Partial<UsbPlatformDrive>>({
       diskPath: devsdb,
       partition: expect.objectContaining<Partial<UsbPlatformPartition>>({
-        fstype: 'fat32',
+        fstype: 'exfat',
         mountpoint: expect.any(String),
       }),
     }),
@@ -272,7 +272,7 @@ test('full lifecycle', async () => {
     expect.objectContaining<Partial<UsbPlatformDrive>>({
       diskPath: devsdb,
       partition: expect.objectContaining<Partial<UsbPlatformPartition>>({
-        fstype: 'fat32',
+        fstype: 'exfat',
         mountpoint: undefined,
       }),
     }),
@@ -284,7 +284,7 @@ test('full lifecycle', async () => {
     expect.objectContaining<Partial<UsbPlatformDrive>>({
       diskPath: UsbDiskDevPathSchema.decode('/dev/sdb'),
       partition: expect.objectContaining<Partial<UsbPlatformPartition>>({
-        fstype: 'fat32',
+        fstype: 'exfat',
         mountpoint: expect.any(String),
       }),
     }),
@@ -341,7 +341,7 @@ test('full lifecycle', async () => {
   watcher.stop();
   onDeviceChange.mockClear();
 
-  platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
   platform.insertDrive(devsdb);
   await platform.mountPartition(devsdb1);
 
@@ -362,7 +362,7 @@ test('createDrive can seed initial contents', async () => {
   const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
   platform.createDrive({
     diskPath: devsdb,
-    fstype: 'fat32',
+    fstype: 'exfat',
     contents: { README: Buffer.from('seeded') },
   });
   platform.insertDrive(devsdb);
@@ -372,7 +372,7 @@ test('createDrive can seed initial contents', async () => {
 
 test('getSpace reports the backing file system by default', async () => {
   const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
-  platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
   platform.insertDrive(devsdb);
   await platform.mountPartition(devsdb1);
   const space = await platform.getSpace(platform.storagePath(devsdb));
@@ -385,7 +385,7 @@ test('getSpace reports a configured capacity less stored bytes', async () => {
   const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
   platform.createDrive({
     diskPath: devsdb,
-    fstype: 'fat32',
+    fstype: 'exfat',
     capacityBytes: 100,
     contents: { a: Buffer.from('12345'), dir: { b: Buffer.from('678') } },
   });
@@ -402,7 +402,7 @@ test('getSpace reports a configured capacity less stored bytes', async () => {
     availableBytes: 0,
   });
 
-  await platform.formatDrive(devsdb, 'fat32', 'FORMATTED');
+  await platform.formatDrive(devsdb, 'exfat', 'FORMATTED');
   expect(await platform.getSpace(platform.storagePath(devsdb))).toEqual({
     totalBytes: 100,
     availableBytes: 100,
@@ -411,7 +411,7 @@ test('getSpace reports a configured capacity less stored bytes', async () => {
 
 test('getSpace rejects an unmounted drive', async () => {
   const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
-  platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
   await expect(platform.getSpace(platform.storagePath(devsdb))).rejects.toThrow(
     'Drive not mounted'
   );
@@ -425,7 +425,7 @@ test('deleteAllDrives is a no-op when there are no drives', () => {
 
 test('can delete a created drive that was never inserted', async () => {
   const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
-  platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
   platform.deleteDrive(devsdb);
   expect(platform.getSimulatedDrives()).toEqual([]);
   await expect(platform.getDrives()).resolves.toEqual([]);
@@ -433,7 +433,7 @@ test('can delete a created drive that was never inserted', async () => {
 
 test('created-but-not-attached drives cannot be operated on as hardware', async () => {
   const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
-  platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
 
   // The drive exists but is not plugged in, so hardware operations fail.
   expect(() => platform.removeDrive(devsdb)).toThrow('Drive not attached');
@@ -451,7 +451,7 @@ test('tracks multiple drives independently', async () => {
   const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
   platform.createDrive({
     diskPath: devsdb,
-    fstype: 'fat32',
+    fstype: 'exfat',
     label: 'FIRST',
     contents: { README: Buffer.from('sdb-data') },
   });
@@ -479,7 +479,7 @@ test('tracks multiple drives independently', async () => {
       diskPath: devsdb,
       partition: expect.objectContaining<Partial<UsbPlatformPartition>>({
         partPath: devsdb1,
-        fstype: 'fat32',
+        fstype: 'exfat',
         label: 'FIRST',
       }),
     }),
@@ -508,7 +508,7 @@ test('tracks multiple drives independently', async () => {
 
 test('deleteDrive removes only the target drive, leaving others intact', async () => {
   const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
-  platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
   platform.createDrive({ diskPath: devsdc, fstype: 'ext4' });
   platform.insertDrive(devsdb);
   platform.insertDrive(devsdc);
@@ -537,7 +537,7 @@ test('deleteDrive removes only the target drive, leaving others intact', async (
 test('shares on-disk state across instances on the same root', async () => {
   const root = makeTemporaryDirectory();
   const platformA = new SimulatedUsbPlatform(root);
-  platformA.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  platformA.createDrive({ diskPath: devsdb, fstype: 'exfat' });
   platformA.insertDrive(devsdb);
 
   // A second instance on the same root sees state created by the first.
@@ -554,7 +554,7 @@ test('shares on-disk state across instances on the same root', async () => {
 test('faults', async () => {
   const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
 
-  platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
   platform.insertDrive(devsdb);
 
   async function checkOneshotFault(
@@ -591,7 +591,7 @@ test('faults', async () => {
   );
 
   await checkOneshotFault('formatDrive', () =>
-    platform.formatDrive(devsdb, 'fat32', 'test')
+    platform.formatDrive(devsdb, 'exfat', 'test')
   );
 
   await checkOneshotFault('getSpace', async () => {
@@ -611,6 +611,6 @@ test('faults', async () => {
   );
 
   await checkRepeatedFault('formatDrive', () =>
-    platform.formatDrive(devsdb, 'fat32', 'test')
+    platform.formatDrive(devsdb, 'exfat', 'test')
   );
 });

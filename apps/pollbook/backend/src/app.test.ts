@@ -141,6 +141,13 @@ test('getDeviceStatuses()', async () => {
   );
 });
 
+test('ejectUsbDrive', async () => {
+  await withApp(async ({ localApiClient, mockUsbDrive }) => {
+    mockUsbDrive.usbDrive.eject.expectCallWith().resolves();
+    await localApiClient.ejectUsbDrive();
+  });
+});
+
 test('check in a voter', async () => {
   await withApp(async ({ localApiClient, workspace, mockPrinterHandler }) => {
     workspace.store.setElectionAndVoters(

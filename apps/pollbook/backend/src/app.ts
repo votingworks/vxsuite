@@ -179,11 +179,15 @@ function buildApi({ context, logger, barcodeScannerClient }: BuildAppParams) {
       }
 
       try {
-        await usbDrive.format('fat32');
+        await usbDrive.format('exfat');
         return ok();
       } catch (error) {
         return err(error as Error);
       }
+    },
+
+    async ejectUsbDrive(): Promise<void> {
+      await usbDrive.eject();
     },
 
     // @coverage-defer

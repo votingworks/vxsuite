@@ -29,7 +29,7 @@ describe('getDrives', () => {
 
   test('returns drives after initial refresh resolves', async () => {
     const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
-    platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+    platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
     platform.insertDrive(devsdb);
     const logger = mockLogger({ fn: vi.fn });
     const multiUsbDrive = detectMultiUsbDrive({ logger, platform });
@@ -53,7 +53,7 @@ describe('getDrives', () => {
 
   test('reports a supported partition as unmounted once auto-mount fails', async () => {
     const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
-    platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+    platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
     platform.insertDrive(devsdb);
 
     // Fail the auto-mount so the partition settles back to unmounted rather
@@ -87,8 +87,8 @@ describe('getDrives', () => {
 
   test('returns multiple drives', async () => {
     const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
-    platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
-    platform.createDrive({ diskPath: devsdc, fstype: 'fat32' });
+    platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
+    platform.createDrive({ diskPath: devsdc, fstype: 'exfat' });
     platform.insertDrive(devsdb);
     platform.insertDrive(devsdc);
     const logger = mockLogger({ fn: vi.fn });
@@ -112,7 +112,7 @@ describe('refresh', () => {
 
     expect(multiUsbDrive.getDrives()).toHaveLength(0);
 
-    platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+    platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
     platform.insertDrive(devsdb);
     await multiUsbDrive.refresh();
 
@@ -137,7 +137,7 @@ describe('refresh', () => {
     expect(onChange).toHaveBeenCalledTimes(1);
 
     // Refresh with new state — should fire onChange
-    platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+    platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
     platform.insertDrive(devsdb);
     await multiUsbDrive.refresh();
     expect(onChange).toHaveBeenCalledTimes(2);
@@ -153,7 +153,7 @@ describe('refresh', () => {
 
   test('notifies listeners when ejecting an already-unmounted drive', async () => {
     const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
-    platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+    platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
     platform.insertDrive(devsdb);
     const logger = mockLogger({ fn: vi.fn });
 
@@ -186,7 +186,7 @@ describe('refresh', () => {
     const logger = mockLogger({ fn: vi.fn });
     const multiUsbDrive = detectMultiUsbDrive({ logger, platform });
 
-    platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+    platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
     platform.insertDrive(devsdb);
 
     await multiUsbDrive.refresh();
@@ -211,7 +211,7 @@ describe('refresh', () => {
 describe('ejectDrive', () => {
   test('unmounts all mounted partitions and logs events', async () => {
     const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
-    platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+    platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
     platform.insertDrive(devsdb);
     const logger = mockLogger({ fn: vi.fn });
     const multiUsbDrive = detectMultiUsbDrive({ logger, platform });
@@ -234,7 +234,7 @@ describe('ejectDrive', () => {
 
   test('logs failure and rethrows when unmount throws', async () => {
     const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
-    platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+    platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
     platform.insertDrive(devsdb);
     const logger = mockLogger({ fn: vi.fn });
     const multiUsbDrive = detectMultiUsbDrive({ logger, platform });
@@ -257,7 +257,7 @@ describe('ejectDrive', () => {
 
   test('does nothing if action already in progress', async () => {
     const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
-    platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+    platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
     platform.insertDrive(devsdb);
     vi.spyOn(platform, 'unmountPartition');
 
@@ -282,7 +282,7 @@ describe('formatDrive', () => {
     const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
     platform.createDrive({
       diskPath: devsdb,
-      fstype: 'fat32',
+      fstype: 'exfat',
       label: 'VxUSB-ABCDE',
     });
     platform.insertDrive(devsdb);
@@ -291,7 +291,7 @@ describe('formatDrive', () => {
     const multiUsbDrive = detectMultiUsbDrive({ logger, platform });
 
     await multiUsbDrive.refresh();
-    await multiUsbDrive.formatDrive(devsdb, 'fat32');
+    await multiUsbDrive.formatDrive(devsdb, 'exfat');
 
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.UsbDriveFormatInit,
@@ -333,13 +333,13 @@ describe('formatDrive', () => {
 
     platform.createDrive({
       diskPath: devsdb,
-      fstype: 'fat32',
+      fstype: 'exfat',
       label: 'MY-LABEL',
     });
     platform.insertDrive(devsdb);
 
     await multiUsbDrive.refresh();
-    await multiUsbDrive.formatDrive(devsdb, 'fat32');
+    await multiUsbDrive.formatDrive(devsdb, 'exfat');
 
     expect(platform.getSimulatedDrives()[0]?.partition?.label).toMatch(
       /^VxUSB-[A-Z0-9]{5}$/
@@ -357,11 +357,49 @@ describe('formatDrive', () => {
     platform.insertDrive(devsdb);
 
     await multiUsbDrive.refresh();
-    await multiUsbDrive.formatDrive(devsdb, 'fat32');
+    await multiUsbDrive.formatDrive(devsdb, 'exfat');
 
     expect(platform.getSimulatedDrives()[0]?.partition?.label).toMatch(
       /^VxUSB-[A-Z0-9]{5}$/
     );
+
+    multiUsbDrive.stop();
+  });
+
+  test('remounts the drive after formatting it', async () => {
+    const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive({ logger, platform });
+
+    platform.createDrive({ diskPath: devsdb });
+    platform.insertDrive(devsdb);
+
+    await multiUsbDrive.refresh();
+    await multiUsbDrive.formatDrive(devsdb, 'exfat');
+
+    expect(multiUsbDrive.getDrives()[0]?.partition?.mount.type).toEqual(
+      'mounted'
+    );
+
+    multiUsbDrive.stop();
+  });
+
+  test('does not wait for a remount if the drive is removed while formatting', async () => {
+    const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
+    const logger = mockLogger({ fn: vi.fn });
+    const multiUsbDrive = detectMultiUsbDrive({ logger, platform });
+
+    platform.createDrive({ diskPath: devsdb });
+    platform.insertDrive(devsdb);
+    vi.spyOn(platform, 'formatDrive').mockImplementation(() => {
+      platform.removeDrive(devsdb);
+      return Promise.resolve();
+    });
+
+    await multiUsbDrive.refresh();
+    await multiUsbDrive.formatDrive(devsdb, 'exfat');
+
+    expect(multiUsbDrive.getDrives()).toEqual([]);
 
     multiUsbDrive.stop();
   });
@@ -377,7 +415,7 @@ describe('formatDrive', () => {
     await multiUsbDrive.refresh();
     platform.faults.failNext('formatDrive', new Error('format failed'));
 
-    await expect(multiUsbDrive.formatDrive(devsdb, 'fat32')).rejects.toThrow(
+    await expect(multiUsbDrive.formatDrive(devsdb, 'exfat')).rejects.toThrow(
       'format failed'
     );
 
@@ -401,8 +439,8 @@ describe('formatDrive', () => {
 
     await multiUsbDrive.refresh();
 
-    const firstFormat = multiUsbDrive.formatDrive(devsdb, 'fat32');
-    await multiUsbDrive.formatDrive(devsdb, 'fat32'); // no-op
+    const firstFormat = multiUsbDrive.formatDrive(devsdb, 'exfat');
+    await multiUsbDrive.formatDrive(devsdb, 'exfat'); // no-op
     await firstFormat;
 
     expect(platform.formatDrive).toHaveBeenCalledTimes(1);
@@ -417,7 +455,7 @@ describe('sync', () => {
     const logger = mockLogger({ fn: vi.fn });
     const multiUsbDrive = detectMultiUsbDrive({ logger, platform });
 
-    platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+    platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
     platform.insertDrive(devsdb);
 
     await multiUsbDrive.refresh();
@@ -428,12 +466,12 @@ describe('sync', () => {
 });
 
 describe('autoMount', () => {
-  test('auto-mounts FAT32 partitions', async () => {
+  test('auto-mounts exFAT partitions', async () => {
     const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
     const logger = mockLogger({ fn: vi.fn });
     const multiUsbDrive = detectMultiUsbDrive({ logger, platform });
 
-    platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+    platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
     platform.insertDrive(devsdb);
 
     await vi.waitFor(
@@ -505,7 +543,7 @@ describe('autoMount', () => {
       .mockImplementationOnce(getDrives)
       .mockImplementationOnce(getDrives);
 
-    platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+    platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
     platform.insertDrive(devsdb);
 
     await vi.waitFor(async () => {
@@ -536,7 +574,7 @@ describe('autoMount', () => {
     const platform = new SimulatedUsbPlatform(makeTemporaryDirectory());
     const logger = mockLogger({ fn: vi.fn });
 
-    platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+    platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
     platform.insertDrive(devsdb);
     platform.faults.failNext('mountPartition', new Error('mount failed'));
 
@@ -573,7 +611,7 @@ describe('autoMount', () => {
       );
     });
 
-    platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+    platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
     platform.insertDrive(devsdb);
 
     await multiUsbDrive.refresh();
@@ -593,7 +631,7 @@ describe('autoMount', () => {
     // not be listening for changes.
     const { promise, resolve } = deferred<void>();
     platform.watchChanges(resolve);
-    platform.createDrive({ diskPath: devsdc, fstype: 'fat32' });
+    platform.createDrive({ diskPath: devsdc, fstype: 'exfat' });
     platform.insertDrive(devsdc);
     await promise;
     expect(states).toHaveLength(0);
@@ -632,7 +670,7 @@ describe('stop', () => {
       return Promise.resolve([
         {
           diskPath: devsdb,
-          partition: { partPath: devsdb1, fstype: 'fat32' },
+          partition: { partPath: devsdb1, fstype: 'exfat' },
         },
       ]);
     });
@@ -660,7 +698,7 @@ describe('integration', () => {
 
       platform.createDrive({
         diskPath: devsdb,
-        fstype: 'fat32',
+        fstype: 'exfat',
         label: 'VxUSB-ABCDE',
       });
       platform.insertDrive(devsdb);
@@ -707,8 +745,11 @@ describe('integration', () => {
         UsbPartitionMount.ejected()
       );
 
-      // Format preserves the VxUSB label and wipes the drive's data
-      await multiUsbDrive.formatDrive(devsdb, 'fat32');
+      // Format preserves the VxUSB label, wipes the drive's data, and remounts
+      await multiUsbDrive.formatDrive(devsdb, 'exfat');
+      expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
+        UsbPartitionMount.mounted(mountpoint)
+      );
       expect(logger.log).toHaveBeenCalledWith(
         LogEventId.UsbDriveFormatted,
         expect.any(String),
@@ -732,7 +773,7 @@ describe('integration', () => {
         { timeout: 2000 }
       );
 
-      // Re-inserting clears the eject state and auto-mounts again
+      // Re-inserting auto-mounts again
       platform.insertDrive(devsdb);
       await multiUsbDrive.refresh();
       await vi.waitFor(

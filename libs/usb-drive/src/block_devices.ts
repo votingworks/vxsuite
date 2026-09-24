@@ -7,6 +7,7 @@ import { getResolvedMediaMountDir } from './media_mount_dir.js';
 import {
   UsbDiskDevPath,
   UsbDiskDevPathSchema,
+  UsbDriveFilesystemType,
   UsbPartitionDevPath,
   UsbPartitionDevPathSchema,
   UsbPartitionMountpoint,
@@ -28,22 +29,24 @@ const debug = makeDebug('usb-drive');
 // - /proc/mounts: a standard procfs file (world-readable) containing the
 //   kernel's current mount table, used to determine mount state.
 
-export function isFat32Partition(partition?: {
+/** Maps `lsblk` file system fields to a supported file system type, if any. */
+export function classifyPartition(partition?: {
   fstype?: string;
   fsver?: string;
-}): boolean {
-  return partition?.fstype === 'vfat' && partition.fsver === 'FAT32';
-}
+}): Optional<UsbDriveFilesystemType> {
+  if (partition?.fstype === 'exfat') {
+    return 'exfat';
+  }
 
-export function isExt4Partition(partition?: { fstype?: string }): boolean {
-  return partition?.fstype === 'ext4';
-}
+  if (partition?.fstype === 'vfat' && partition.fsver === 'FAT32') {
+    return 'fat32';
+  }
 
-export function isSupportedPartition(partition?: {
-  fstype?: string;
-  fsver?: string;
-}): boolean {
-  return isFat32Partition(partition) || isExt4Partition(partition);
+  if (partition?.fstype === 'ext4') {
+    return 'ext4';
+  }
+
+  return undefined;
 }
 
 function parseMountpoints(mountsContent: string): Map<string, string> {

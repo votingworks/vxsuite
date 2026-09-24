@@ -581,6 +581,35 @@ test('saveElectionPackageToUsb', async () => {
   expect(response).toEqual(ok());
 });
 
+test('saveElectionPackageToUsb when the package does not fit', async () => {
+  const { apiClient, auth, usbPlatform } = buildTestEnvironment();
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  await configureMachine(apiClient, auth, electionDefinition);
+
+  usbPlatform.createDrive({
+    diskPath: devsdb,
+    fstype: 'exfat',
+    capacityBytes: 1,
+  });
+  usbPlatform.insertDrive(devsdb);
+  await vi.waitFor(async () => {
+    expect((await apiClient.getUsbDriveStatus()).status).toEqual('mounted');
+  });
+  const response = await apiClient.saveElectionPackageToUsb();
+  expect(response).toEqual(
+    err({ type: 'insufficient-space', message: expect.any(String) })
+  );
+});
+
+test('getElectionPackageSize', async () => {
+  const { apiClient, auth } = buildTestEnvironment();
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  await configureMachine(apiClient, auth, electionDefinition);
+  expect(await apiClient.getElectionPackageSize()).toBeGreaterThan(0);
+});
+
 test('saveElectionPackageToUsb when no USB drive', async () => {
   const { apiClient, auth } = buildTestEnvironment();
   const electionDefinition =
@@ -608,7 +637,6 @@ test('usbDrive', async () => {
   await attachUsbDrive(apiClient, usbPlatform);
   expect(await apiClient.getUsbDriveStatus()).toMatchObject({
     status: 'mounted',
-    fstype: 'fat32',
     mountpoint: expect.any(String),
   });
 
@@ -619,10 +647,10 @@ test('usbDrive', async () => {
   });
   await apiClient.ejectUsbDrive();
 
-  await usbPlatform.formatDrive(devsdb, 'fat32', 'MY-LABEL');
+  await usbPlatform.formatDrive(devsdb, 'exfat', 'MY-LABEL');
   (await apiClient.formatUsbDrive()).assertOk('format failed');
   expect(usbPlatform.getSimulatedDrives()[0]?.partition?.fstype).toEqual(
-    'fat32'
+    'exfat'
   );
 
   const error = new Error('format failed');

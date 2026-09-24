@@ -80,8 +80,7 @@ test('a drive inserted via the handler is auto-mounted by a detached platform', 
   // Once the app mounts it, the handler observes the mounted status too.
   expect(handler.status()).toEqual({
     status: 'mounted',
-    fstype: 'fat32',
-    maxFileSize: 2 ** 32 - 1,
+    fstype: 'exfat',
     mountpoint,
   });
   expect(readFileSync(join(mountpoint, 'README'), 'utf-8')).toEqual(

@@ -3,15 +3,14 @@ import { UsbDriveSpace } from '@votingworks/utils';
 import { statfs } from 'node:fs/promises';
 import { join } from 'node:path';
 import {
+  classifyPartition,
   createBlockDeviceChangeWatcher,
   getAllDiskDevices,
-  isFat32Partition,
-  isSupportedPartition,
 } from './block_devices.js';
 import { exec } from './exec.js';
 import {
   UsbDiskDevPath,
-  UsbDriveFilesystemType,
+  UsbDriveFormatFilesystemType,
   UsbPartitionDevPath,
   UsbPartitionMountpoint,
 } from './types.js';
@@ -29,8 +28,9 @@ export class RealUsbPlatform implements UsbPlatform {
     return drives.map((drive): UsbPlatformDrive => {
       const partition =
         drive.partitions.length === 1 ? drive.partitions[0] : undefined;
+      const fstype = classifyPartition(partition);
 
-      if (!partition || !isSupportedPartition(partition)) {
+      if (!partition || !fstype) {
         return { diskPath: drive.diskPath };
       }
 
@@ -38,7 +38,7 @@ export class RealUsbPlatform implements UsbPlatform {
         diskPath: drive.diskPath,
         partition: {
           partPath: partition.partPath,
-          fstype: isFat32Partition(partition) ? 'fat32' : 'ext4',
+          fstype,
           label: partition.label,
           mountpoint: partition.mountpoint,
         },
@@ -64,14 +64,14 @@ export class RealUsbPlatform implements UsbPlatform {
 
   async formatDrive(
     diskPath: UsbDiskDevPath,
-    fstype: UsbDriveFilesystemType,
+    fstype: UsbDriveFormatFilesystemType,
     label: string
   ): Promise<void> {
     switch (fstype) {
-      case 'fat32':
+      case 'exfat':
         await exec('sudo', [
           '-n',
-          join(MOUNT_SCRIPT_PATH, 'format_fat32.sh'),
+          join(MOUNT_SCRIPT_PATH, 'format_exfat.sh'),
           diskPath,
           label,
         ]);

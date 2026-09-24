@@ -16,7 +16,6 @@ export * from './is_device_attached.js';
 export * from './pdf_to_text.js';
 export * from './system_call/index.js';
 export * from './globals.js';
-export * from './split.js';
 export * from './task_controller.js';
 export * from './ui_strings/index.js';
 export * from './language_and_audio/index.js';

@@ -6,7 +6,15 @@ import {
 } from '@votingworks/utils';
 import type { ExportDataResult } from '@votingworks/admin-backend';
 
-import { Button, Loading, Modal, P, Font, ModalWidth } from '@votingworks/ui';
+import {
+  Button,
+  Loading,
+  Modal,
+  P,
+  Font,
+  ModalWidth,
+  userReadableMessageFromExportDataError,
+} from '@votingworks/ui';
 
 import { MutationStatus } from '@tanstack/react-query';
 import { AppContext } from '../contexts/app_context.js';
@@ -134,19 +142,7 @@ export function SaveBackendFileModal({
 
     assert(saveFileStatus === 'success');
     assert(saveFileResult && saveFileResult.isErr());
-    const error = saveFileResult.err();
-    // @coverage-defer
-    switch (error.type) {
-      case 'permission-denied':
-        return 'Permission denied.';
-      case 'file-system-error':
-        return 'There may be an issue with the USB drive.';
-      case 'missing-usb-drive':
-      case 'relative-file-path':
-        return 'Application error.';
-      default:
-        throwIllegalValue(error.type);
-    }
+    return userReadableMessageFromExportDataError(saveFileResult.err().type);
   })();
 
   return (

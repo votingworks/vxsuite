@@ -7,6 +7,7 @@ import { detectMultiUsbDrive, MultiUsbDrive } from './multi_usb_drive.js';
 import {
   UsbDiskDevPath,
   UsbDiskDevPathSchema,
+  UsbDriveFilesystemType,
   UsbDriveInfo,
   UsbPartitionMount,
 } from './types.js';
@@ -42,7 +43,7 @@ function newAdapter(
 async function insertAndMount(
   platform: SimulatedUsbPlatform,
   multiUsbDrive: MultiUsbDrive,
-  fstype: 'fat32' | 'ext4' = 'fat32'
+  fstype: UsbDriveFilesystemType = 'exfat'
 ) {
   platform.createDrive({ diskPath: devsdb, fstype });
   platform.insertDrive(devsdb);
@@ -59,7 +60,7 @@ async function insertUnmountable(
   multiUsbDrive: MultiUsbDrive
 ) {
   platform.faults.failRepeatedly('mountPartition', new Error('mount failed'));
-  platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+  platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
   platform.insertDrive(devsdb);
   await multiUsbDrive.refresh();
   await vi.waitFor(() => {
@@ -136,8 +137,7 @@ describe('status', () => {
     await insertAndMount(platform, multiUsbDrive);
     expect(await adapter.status()).toEqual({
       status: 'mounted',
-      fstype: 'fat32',
-      maxFileSize: 2 ** 32 - 1,
+      fstype: 'exfat',
       mountpoint: platform.storagePath(devsdb),
       totalBytes: expect.any(Number),
       availableBytes: expect.any(Number),
@@ -162,8 +162,7 @@ describe('status', () => {
     platform.faults.failNext('getSpace', new Error('EIO'));
     expect(await adapter.status()).toEqual({
       status: 'mounted',
-      fstype: 'fat32',
-      maxFileSize: 2 ** 32 - 1,
+      fstype: 'exfat',
       mountpoint: platform.storagePath(devsdb),
     });
   });
@@ -190,8 +189,7 @@ describe('status', () => {
     const ejecting = multiUsbDrive.ejectDrive(devsdb);
     expect(await adapter.status()).toEqual({
       status: 'mounted',
-      fstype: 'fat32',
-      maxFileSize: 2 ** 32 - 1,
+      fstype: 'exfat',
       mountpoint: platform.storagePath(devsdb),
       totalBytes: expect.any(Number),
       availableBytes: expect.any(Number),
@@ -203,7 +201,7 @@ describe('status', () => {
     const { platform, multiUsbDrive, adapter } = newAdapter();
     await insertAndMount(platform, multiUsbDrive);
 
-    const formatting = multiUsbDrive.formatDrive(devsdb, 'fat32');
+    const formatting = multiUsbDrive.formatDrive(devsdb, 'exfat');
     expect(await adapter.status()).toEqual({ status: 'ejected' });
     await formatting;
   });
@@ -224,7 +222,7 @@ describe('status', () => {
       }
     );
 
-    platform.createDrive({ diskPath: devsdb, fstype: 'fat32' });
+    platform.createDrive({ diskPath: devsdb, fstype: 'exfat' });
     platform.insertDrive(devsdb);
     await multiUsbDrive.refresh();
     await mountStarted.promise;
@@ -276,12 +274,15 @@ describe('format', () => {
       reason: 'bad_format',
     });
 
-    await adapter.format('fat32');
+    await adapter.format('exfat');
 
     expect(platform.getSimulatedDrives()[0]?.partition?.fstype).toEqual(
-      'fat32'
+      'exfat'
     );
-    expect(await adapter.status()).toEqual({ status: 'ejected' });
+    expect(await adapter.status()).toMatchObject({
+      status: 'mounted',
+      fstype: 'exfat',
+    });
   });
 
   test('formats the selected drive', async () => {
@@ -291,8 +292,8 @@ describe('format', () => {
     await adapter.format('ext4');
 
     expect(platform.getSimulatedDrives()[0]?.partition?.fstype).toEqual('ext4');
-    expect(multiUsbDrive.getDrives()[0]?.partition?.mount).toEqual(
-      UsbPartitionMount.ejected()
+    expect(multiUsbDrive.getDrives()[0]?.partition?.mount.type).toEqual(
+      'mounted'
     );
   });
 
@@ -300,7 +301,7 @@ describe('format', () => {
     const { platform, adapter } = newAdapter(() => undefined);
     const formatDrive = vi.spyOn(platform, 'formatDrive');
 
-    await adapter.format('fat32');
+    await adapter.format('exfat');
 
     expect(formatDrive).not.toHaveBeenCalled();
   });

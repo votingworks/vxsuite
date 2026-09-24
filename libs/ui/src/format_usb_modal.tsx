@@ -1,11 +1,55 @@
 import React, { useCallback, useState } from 'react';
 import { Result, throwIllegalValue } from '@votingworks/basics';
-import { UsbDriveStatus } from '@votingworks/usb-drive';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import { format } from '@votingworks/utils';
 import { UseMutationResult } from '@tanstack/react-query';
 import { Button } from './button.js';
 import { Modal } from './modal.js';
 import { Font, P } from './typography.js';
 import { Icons } from './icons.js';
+import { UsbControllerButton } from './usbcontroller_button.js';
+
+function CompatibilityMessage({
+  usbDriveStatus,
+}: {
+  usbDriveStatus: UsbDriveStatus;
+}): JSX.Element {
+  if (usbDriveStatus.status === 'error') {
+    return (
+      <P>
+        The format of the inserted USB drive is{' '}
+        <Font weight="semiBold">not compatible</Font> with VotingWorks
+        components.
+      </P>
+    );
+  }
+
+  if (
+    usbDriveStatus.status === 'mounted' &&
+    usbDriveStatus.maxFileSize !== undefined
+  ) {
+    return (
+      <P>
+        The inserted USB drive is already compatible with VotingWorks components
+        and can be used as is. Its current format can&apos;t store individual
+        files larger than{' '}
+        <Font noWrap>
+          {format.bytes(usbDriveStatus.maxFileSize, { fractionDigits: 0 })}
+        </Font>
+        . If you need larger files, you can reformat the drive to remove the
+        limit.
+      </P>
+    );
+  }
+
+  return (
+    <P>
+      The format of the inserted USB drive is already{' '}
+      <Font weight="semiBold">fully compatible</Font> with VotingWorks
+      components.
+    </P>
+  );
+}
 
 type FlowState =
   | { stage: 'confirm' }
@@ -20,11 +64,12 @@ export function FormatUsbModal({
   onClose,
   usbDriveStatus,
   formatUsbDriveMutation,
+  ejectUsbDriveMutation,
 }: FormatUsbModalProps): JSX.Element {
   const [state, setState] = useState<FlowState>({ stage: 'confirm' });
 
   const formatUsbDriveMutateAsync = formatUsbDriveMutation.mutateAsync;
-  const format = useCallback(async () => {
+  const formatDrive = useCallback(async () => {
     setState({ stage: 'formatting' });
     const formatUsbDriveResult = await formatUsbDriveMutateAsync();
     if (formatUsbDriveResult.isOk()) {
@@ -58,19 +103,7 @@ export function FormatUsbModal({
           title="Format USB Drive"
           content={
             <React.Fragment>
-              {usbDriveStatus.status === 'error' ? (
-                <P>
-                  The format of the inserted USB drive is{' '}
-                  <Font weight="semiBold">not compatible</Font> with VotingWorks
-                  components.
-                </P>
-              ) : (
-                <P>
-                  The format of the inserted USB drive is{' '}
-                  <Font weight="semiBold">already compatible</Font> with
-                  VotingWorks components.
-                </P>
-              )}
+              <CompatibilityMessage usbDriveStatus={usbDriveStatus} />
               <P>
                 <Icons.Warning color="warning" /> Formatting will delete all
                 files on the USB drive. Back up USB drive files before
@@ -81,7 +114,7 @@ export function FormatUsbModal({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <Button variant="primary" onPress={format}>
+              <Button variant="primary" onPress={formatDrive}>
                 Format USB Drive
               </Button>
               <Button onPress={onClose}>Close</Button>
@@ -106,12 +139,22 @@ export function FormatUsbModal({
           title="USB Drive Formatted"
           content={
             <P>
-              USB drive successfully formatted and ejected. It can now be used
-              with VotingWorks components.
+              USB drive successfully formatted. It can now be used with
+              VotingWorks components.
             </P>
           }
           onOverlayClick={onClose}
-          actions={<Button onPress={onClose}>Close</Button>}
+          actions={
+            <React.Fragment>
+              <UsbControllerButton
+                primary
+                usbDriveStatus={usbDriveStatus}
+                usbDriveEject={() => ejectUsbDriveMutation.mutate()}
+                usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
+              />
+              <Button onPress={onClose}>Close</Button>
+            </React.Fragment>
+          }
         />
       );
     case 'error':
@@ -136,6 +179,7 @@ export interface FormatUsbButtonProps {
     void,
     unknown
   >;
+  ejectUsbDriveMutation: UseMutationResult<void, unknown, void, unknown>;
 }
 
 export function FormatUsbButton(props: FormatUsbButtonProps): JSX.Element {

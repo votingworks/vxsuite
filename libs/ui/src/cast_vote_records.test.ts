@@ -30,6 +30,18 @@ test.each<{
   },
   {
     error: {
+      type: 'file-too-large',
+    },
+    expectedMessage: 'File is too large for the USB drive format.',
+  },
+  {
+    error: {
+      type: 'insufficient-space',
+    },
+    expectedMessage: 'Not enough space on the USB drive.',
+  },
+  {
+    error: {
       type: 'relative-file-path',
     },
     expectedMessage: 'Invalid file path.',

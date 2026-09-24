@@ -1,13 +1,20 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { useContext, useState } from 'react';
 import userEvent from '@testing-library/user-event';
 import { Result, deferred, err, ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
+import {
+  mockSessionExpiresAt,
+  mockSystemAdministratorUser,
+} from '@votingworks/test-utils';
+import { DippedSmartCardAuth } from '@votingworks/types';
 import type { ExportDataError } from '@votingworks/admin-backend';
-import { screen, within } from '../../test/react_testing_library.js';
+import { act, screen, within } from '../../test/react_testing_library.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { ExportElectionPackageModalButton } from './export_election_package_modal_button.js';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import { AppContext } from '../contexts/app_context.js';
 
 let apiMock: ApiMock;
 
@@ -59,7 +66,19 @@ test.each<{
   }
 );
 
+const GIB = 1024 ** 3;
+const FAT32_MAX_FILE_SIZE = 2 ** 32 - 1;
+
+const systemAdministratorAuth: DippedSmartCardAuth.SystemAdministratorLoggedIn =
+  {
+    status: 'logged_in',
+    user: mockSystemAdministratorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
+    programmableCard: { status: 'no_card' },
+  };
+
 test('Modal renders export confirmation screen when usb detected', async () => {
+  apiMock.expectGetElectionPackageSize(1024);
   renderInAppContext(<ExportElectionPackageModalButton />, {
     usbDriveStatus: mockUsbDriveStatus('mounted'),
     apiMock,
@@ -96,7 +115,47 @@ test('Modal renders export confirmation screen when usb detected', async () => {
   );
 });
 
+test('Modal keeps showing the save in progress as the USB drive fills up', async () => {
+  let setUsbDriveStatus!: (usbDriveStatus: UsbDriveStatus) => void;
+  function WithUsbDriveStatus(): JSX.Element {
+    const appContext = useContext(AppContext);
+    const [usbDriveStatus, setState] = useState<UsbDriveStatus>(
+      mockUsbDriveStatus('mounted', { availableBytes: 2 * GIB })
+    );
+    setUsbDriveStatus = setState;
+    return (
+      <AppContext.Provider value={{ ...appContext, usbDriveStatus }}>
+        <ExportElectionPackageModalButton />
+      </AppContext.Provider>
+    );
+  }
+
+  apiMock.expectGetElectionPackageSize(GIB);
+  renderInAppContext(<WithUsbDriveStatus />, { apiMock });
+  userEvent.click(screen.getButton('Save Election Package'));
+  const modal = await screen.findByRole('alertdialog');
+
+  const { promise, resolve } = deferred<Result<void, ExportDataError>>();
+  apiMock.apiClient.saveElectionPackageToUsb.expectCallWith().returns(promise);
+  userEvent.click(await within(modal).findButton('Save'));
+  await within(modal).findButton('Saving...');
+
+  act(() =>
+    setUsbDriveStatus(
+      mockUsbDriveStatus('mounted', { availableBytes: GIB / 2 })
+    )
+  );
+  within(modal).getButton('Saving...');
+  expect(
+    within(modal).queryByText('Not Enough Space on USB Drive')
+  ).not.toBeInTheDocument();
+
+  resolve(ok());
+  await within(modal).findByText('Election Package Saved');
+});
+
 test('Modal renders error message appropriately', async () => {
+  apiMock.expectGetElectionPackageSize(1024);
   renderInAppContext(<ExportElectionPackageModalButton />, {
     apiMock,
     usbDriveStatus: mockUsbDriveStatus('mounted'),
@@ -107,7 +166,7 @@ test('Modal renders error message appropriately', async () => {
   apiMock.expectSaveElectionPackageToUsb(
     err({ type: 'missing-usb-drive', message: '' })
   );
-  userEvent.click(screen.getButton('Save'));
+  userEvent.click(await screen.findButton('Save'));
 
   await screen.findByRole('heading', {
     name: 'Failed to Save Election Package',
@@ -118,4 +177,163 @@ test('Modal renders error message appropriately', async () => {
   await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
+});
+
+test('Modal waits for the election package size before offering to save', async () => {
+  const { promise, resolve } = deferred<number>();
+  apiMock.apiClient.getElectionPackageSize.expectCallWith().returns(promise);
+  renderInAppContext(<ExportElectionPackageModalButton />, {
+    apiMock,
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
+  });
+  userEvent.click(screen.getButton('Save Election Package'));
+  await screen.findByRole('heading', { name: 'Save Election Package' });
+  expect(
+    screen.queryByRole('button', { name: 'Save' })
+  ).not.toBeInTheDocument();
+  screen.getButton('Cancel');
+
+  resolve(1024);
+  await screen.findButton('Save');
+});
+
+test('Modal tells a system administrator to format the USB drive from Settings when the package exceeds the FAT32 limit', async () => {
+  apiMock.expectGetElectionPackageSize(5 * GIB);
+  renderInAppContext(<ExportElectionPackageModalButton />, {
+    apiMock,
+    auth: systemAdministratorAuth,
+    usbDriveStatus: mockUsbDriveStatus('mounted', {
+      fstype: 'fat32',
+      maxFileSize: FAT32_MAX_FILE_SIZE,
+      totalBytes: 32 * GIB,
+      availableBytes: 32 * GIB,
+    }),
+  });
+  userEvent.click(screen.getButton('Save Election Package'));
+  const modal = await screen.findByRole('alertdialog');
+  await within(modal).findByRole('heading', {
+    name: 'Election Package Too Large for USB Drive',
+  });
+  within(modal).getByText(/The election package is/);
+  within(modal).getByText('5.0 GB');
+  within(modal).getByText(/current format can't hold files larger than/);
+  within(modal).getByText('4.0 GB');
+  expect(within(modal).queryByText(/FAT32/)).not.toBeInTheDocument();
+  within(modal).getByText(
+    /Reformat the USB drive from the Settings screen to continue\./
+  );
+  expect(
+    within(modal)
+      .getAllByRole('button')
+      .map((button) => button.textContent)
+  ).toEqual(['Close']);
+
+  userEvent.click(within(modal).getButton('Close'));
+  await vi.waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+});
+
+test('Modal tells an election manager to ask for formatting when the package exceeds the FAT32 limit', async () => {
+  apiMock.expectGetElectionPackageSize(5 * GIB);
+  renderInAppContext(<ExportElectionPackageModalButton />, {
+    apiMock,
+    usbDriveStatus: mockUsbDriveStatus('mounted', {
+      fstype: 'fat32',
+      maxFileSize: FAT32_MAX_FILE_SIZE,
+      totalBytes: 32 * GIB,
+      availableBytes: 32 * GIB,
+    }),
+  });
+  userEvent.click(screen.getButton('Save Election Package'));
+  await screen.findByRole('heading', {
+    name: 'Election Package Too Large for USB Drive',
+  });
+  screen.getByText(/Ask a system administrator to reformat the USB drive/);
+  userEvent.click(screen.getButton('Close'));
+});
+
+test('Modal explains when the USB drive is too full', async () => {
+  apiMock.expectGetElectionPackageSize(5 * GIB);
+  renderInAppContext(<ExportElectionPackageModalButton />, {
+    apiMock,
+    auth: systemAdministratorAuth,
+    usbDriveStatus: mockUsbDriveStatus('mounted', {
+      totalBytes: 32 * GIB,
+      availableBytes: 2 * GIB,
+    }),
+  });
+  userEvent.click(screen.getButton('Save Election Package'));
+  await screen.findByRole('heading', {
+    name: 'Not Enough Space on USB Drive',
+  });
+  screen.getByText(/the USB drive only has/);
+  screen.getByText('2.0 GB');
+  screen.getByText(
+    /Remove files from the USB drive or reformat it from the Settings screen to continue\./
+  );
+  userEvent.click(screen.getButton('Close'));
+});
+
+test('Modal tells an election manager to remove files when the USB drive is too full', async () => {
+  apiMock.expectGetElectionPackageSize(5 * GIB);
+  renderInAppContext(<ExportElectionPackageModalButton />, {
+    apiMock,
+    usbDriveStatus: mockUsbDriveStatus('mounted', {
+      totalBytes: 32 * GIB,
+      availableBytes: 2 * GIB,
+    }),
+  });
+  userEvent.click(screen.getButton('Save Election Package'));
+  await screen.findByRole('heading', {
+    name: 'Not Enough Space on USB Drive',
+  });
+  screen.getByText(/Remove files from the USB drive to continue\./);
+  userEvent.click(screen.getButton('Close'));
+});
+
+test('Modal explains when the USB drive is too small to ever fit the package, even if reformatted', async () => {
+  apiMock.expectGetElectionPackageSize(5 * GIB);
+  renderInAppContext(<ExportElectionPackageModalButton />, {
+    apiMock,
+    auth: systemAdministratorAuth,
+    usbDriveStatus: mockUsbDriveStatus('mounted', {
+      fstype: 'fat32',
+      maxFileSize: FAT32_MAX_FILE_SIZE,
+      totalBytes: 4 * GIB,
+      availableBytes: 4 * GIB,
+    }),
+  });
+  userEvent.click(screen.getButton('Save Election Package'));
+  await screen.findByRole('heading', {
+    name: 'USB Drive Too Small',
+  });
+  screen.getByText(/the USB drive can only hold/);
+  screen.getByText('4.0 GB');
+  screen.getByText(/Use a larger USB drive\./);
+  userEvent.click(screen.getButton('Close'));
+});
+
+test.each<{ error: ExportDataError; message: string }>([
+  {
+    error: { type: 'file-too-large', message: '' },
+    message: 'File is too large for the USB drive format',
+  },
+  {
+    error: { type: 'insufficient-space', message: '' },
+    message: 'Not enough space on the USB drive',
+  },
+])('Modal renders the $error.type error', async ({ error, message }) => {
+  apiMock.expectGetElectionPackageSize(1024);
+  renderInAppContext(<ExportElectionPackageModalButton />, {
+    apiMock,
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
+  });
+  userEvent.click(screen.getButton('Save Election Package'));
+  apiMock.expectSaveElectionPackageToUsb(err(error));
+  userEvent.click(await screen.findButton('Save'));
+  await screen.findByRole('heading', {
+    name: 'Failed to Save Election Package',
+  });
+  screen.getByText(`An error occurred: ${message}.`);
 });

@@ -233,9 +233,7 @@ Use `@votingworks/logging` to log user actions and important events.
 ```ts
 await logger.logAsCurrentRole(LogEventId.UsbDriveFormatted, {
   disposition: 'success',
-  message: `USB drive successfully formatted with a single ${
-    fstype === 'ext4' ? 'ext4' : 'FAT32'
-  } volume named "${label}".`,
+  message: `USB drive successfully formatted with a single ${fstype} volume named "${label}".`,
 });
 ```
 

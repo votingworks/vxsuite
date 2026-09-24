@@ -55,7 +55,7 @@ export function createMockUsbDrive(): MockUsbDrive {
       }
     },
 
-    insertUsbDrive(contents, { fstype = 'fat32', space } = {}) {
+    insertUsbDrive(contents, { fstype = 'exfat', space } = {}) {
       mockUsbTmpDir?.removeCallback();
       mockUsbTmpDir = tmp.dirSync({
         unsafeCleanup: true,

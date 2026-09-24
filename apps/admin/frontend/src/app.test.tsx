@@ -549,12 +549,14 @@ test('usb formatting flows', async () => {
   apiMock.expectGetUsbDriveStatus('mounted');
   await screen.findByRole('heading', { name: 'Format USB Drive' });
   const formatModal = screen.getByRole('alertdialog');
-  within(formatModal).getByText(/already compatible/);
+  within(formatModal).getByText(/fully compatible/);
   apiMock.expectFormatUsbDrive();
   userEvent.click(within(formatModal).getButton('Format USB Drive'));
+  await within(formatModal).findByText('USB Drive Formatted');
+  apiMock.expectEjectUsbDrive();
+  userEvent.click(within(formatModal).getButton('Eject USB'));
   apiMock.expectGetUsbDriveStatus('ejected');
-  await screen.findByText('USB Drive Formatted');
-  screen.getByText('USB Ejected');
+  await within(formatModal).findByText('USB Ejected');
 
   // Close the done modal; wait for drive status to be 'error' before re-opening
   // so that the format confirm screen appears.
@@ -569,9 +571,9 @@ test('usb formatting flows', async () => {
   within(incompatibleModal).getByText(/not compatible/);
   apiMock.expectFormatUsbDrive();
   userEvent.click(within(incompatibleModal).getButton('Format USB Drive'));
-  apiMock.expectGetUsbDriveStatus('ejected');
-  await screen.findByText('USB Drive Formatted');
-  screen.getByText('USB Ejected');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  await within(incompatibleModal).findByText('USB Drive Formatted');
+  await within(incompatibleModal).findButton('Eject USB');
 
   // Close the done modal; wait for drive status to be 'error' before re-opening
   userEvent.click(screen.getButton('Close'));

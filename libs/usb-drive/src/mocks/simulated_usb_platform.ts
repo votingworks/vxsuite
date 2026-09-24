@@ -23,6 +23,7 @@ import { z } from 'zod/v4';
 import {
   UsbDiskDevPath,
   UsbDriveFilesystemType,
+  UsbDriveFormatFilesystemType,
   UsbPartitionDevPath,
   UsbPartitionDevPathSchema,
   UsbPartitionMountpoint,
@@ -464,7 +465,7 @@ export class SimulatedUsbPlatform implements UsbPlatform {
    */
   async formatDrive(
     diskPath: UsbDiskDevPath,
-    fstype: UsbDriveFilesystemType,
+    fstype: UsbDriveFormatFilesystemType,
     label: string
   ): Promise<void> {
     await Promise.resolve();

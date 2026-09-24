@@ -1,10 +1,20 @@
 import { afterEach, expect, test, vi } from 'vitest';
 import { err, iter, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
-import { readFile, symlink, writeFile } from 'node:fs/promises';
+import {
+  lstat,
+  mkdir,
+  readFile,
+  readdir,
+  symlink,
+  writeFile,
+} from 'node:fs/promises';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
+import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import { openRegularFileForWriting } from '@votingworks/fs';
 import {
   createMockUsbDrive,
   UsbPartitionMountpointSchema,
@@ -18,6 +28,28 @@ vi.mock(
     ...(await importActual()),
     execFile: vi.fn(),
   })
+);
+
+vi.mock(
+  import('node:fs/promises'),
+  async (importActual): Promise<typeof import('node:fs/promises')> => {
+    const actual = await importActual();
+    return {
+      ...actual,
+      lstat: vi.fn(actual.lstat) as unknown as typeof actual.lstat,
+    };
+  }
+);
+
+vi.mock(
+  import('@votingworks/fs'),
+  async (importActual): Promise<typeof import('@votingworks/fs')> => {
+    const actual = await importActual();
+    return {
+      ...actual,
+      openRegularFileForWriting: vi.fn(actual.openRegularFileForWriting),
+    };
+  }
 );
 
 const mockUsbDrive = createMockUsbDrive();
@@ -39,6 +71,59 @@ test('exportData with string', async () => {
   expect(result).toEqual(ok([path]));
   expect(await readFile(path, 'utf-8')).toEqual('bar');
 });
+
+test('exportData replaces an existing file only after the source completes', async () => {
+  const tmpDir = makeTemporaryDirectory();
+  const path = join(tmpDir, 'test.txt');
+  await writeFile(path, 'original');
+
+  const result = await exporter.exportData(
+    path,
+    (async function* source() {
+      yield 'replacement';
+      expect(await readFile(path, 'utf-8')).toEqual('original');
+      yield ' complete';
+    })()
+  );
+
+  expect(result).toEqual(ok([path]));
+  expect(await readFile(path, 'utf-8')).toEqual('replacement complete');
+  expect(await readdir(tmpDir)).toEqual(['test.txt']);
+});
+
+test.each([false, true])(
+  'exportData preserves the destination on failure (existing: %s)',
+  async (existing) => {
+    const tmpDir = makeTemporaryDirectory();
+    const path = join(tmpDir, 'test.txt');
+    if (existing) {
+      await writeFile(path, 'original');
+    }
+
+    const result = await exporter.exportData(
+      path,
+      (async function* source() {
+        yield 'partial';
+        // Let the pipeline start writing before the source fails.
+        await new Promise<void>((resolve) => {
+          setImmediate(resolve);
+        });
+        throw new Error('write failed');
+      })()
+    );
+
+    expect(result).toEqual(
+      err({
+        type: 'file-system-error',
+        message: `Unable to write ${path}: write failed`,
+      })
+    );
+    if (existing) {
+      expect(await readFile(path, 'utf-8')).toEqual('original');
+    }
+    expect(await readdir(tmpDir)).toEqual(existing ? ['test.txt'] : []);
+  }
+);
 
 test('exportData with Buffer', async () => {
   const tmpDir = makeTemporaryDirectory();
@@ -109,21 +194,6 @@ test('exportData with stream', async () => {
   expect(await readFile(path)).toEqual(Buffer.of(1, 2, 3));
 });
 
-test('exportData with stream and maximumFileSize', async () => {
-  const tmpDir = makeTemporaryDirectory();
-  const path = join(tmpDir, 'test.txt');
-  const result = await exporter.exportData(
-    path,
-    Readable.from(Buffer.of(1, 2, 3)),
-    {
-      maximumFileSize: 2,
-    }
-  );
-  expect(result).toEqual(ok([`${path}-part-1`, `${path}-part-2`]));
-  expect(await readFile(`${path}-part-1`)).toEqual(Buffer.of(1, 2));
-  expect(await readFile(`${path}-part-2`)).toEqual(Buffer.of(3));
-});
-
 test('exportData with empty string', async () => {
   const tmpDir = makeTemporaryDirectory();
   const path = join(tmpDir, 'test.txt');
@@ -138,6 +208,117 @@ test('exportData with empty stream', async () => {
   const result = await exporter.exportData(path, Readable.from([]));
   expect(result).toEqual(ok([path]));
   expect(await readFile(path)).toEqual(Buffer.of());
+});
+
+test.runIf(existsSync('/dev/null'))(
+  'exportData to a device is not a regular file',
+  async () => {
+    const exporterAllowingDev = new Exporter({
+      allowedExportPatterns: ['/dev/**'],
+      usbDrive,
+    });
+    const result = await exporterAllowingDev.exportData('/dev/null', 'bar');
+    expect(result).toEqual<ExportDataResult>(
+      err({
+        type: 'file-system-error',
+        message: expect.stringContaining('Path is not a regular file'),
+      })
+    );
+  }
+);
+
+test('exportData to a FIFO fails instead of blocking', async () => {
+  const tmpDir = makeTemporaryDirectory();
+  const path = join(tmpDir, 'fifo');
+  execFileSync('mkfifo', [path]);
+  const result = await exporter.exportData(path, 'bar');
+  expect(result).toEqual<ExportDataResult>(
+    err({
+      type: 'file-system-error',
+      message: expect.stringContaining('Path is not a regular file'),
+    })
+  );
+});
+
+test('exportData to a directory is not a regular file', async () => {
+  const tmpDir = makeTemporaryDirectory();
+  const path = join(tmpDir, 'dir');
+  await mkdir(path);
+  const result = await exporter.exportData(path, 'bar');
+  expect(result).toEqual<ExportDataResult>(
+    err({
+      type: 'file-system-error',
+      message: expect.stringContaining('Path is not a regular file'),
+    })
+  );
+});
+
+test('exportData that cannot inspect the destination is a file system error', async () => {
+  const tmpDir = makeTemporaryDirectory();
+  const path = join(tmpDir, 'test.txt');
+  vi.mocked(lstat).mockRejectedValueOnce(
+    Object.assign(new Error('EACCES: permission denied'), { code: 'EACCES' })
+  );
+  const result = await exporter.exportData(path, 'bar');
+  expect(result).toEqual<ExportDataResult>(
+    err({
+      type: 'file-system-error',
+      message: `Unable to inspect ${path}: EACCES: permission denied`,
+    })
+  );
+  expect(await readdir(tmpDir)).toEqual([]);
+});
+
+test('exportData whose temporary file is not a regular file is a file system error', async () => {
+  const tmpDir = makeTemporaryDirectory();
+  const path = join(tmpDir, 'test.txt');
+  vi.mocked(openRegularFileForWriting).mockResolvedValueOnce(
+    err({ type: 'NotRegularFile' })
+  );
+  const result = await exporter.exportData(path, 'bar');
+  expect(result).toEqual<ExportDataResult>(
+    err({
+      type: 'file-system-error',
+      message: `Path is not a regular file: ${path}`,
+    })
+  );
+  expect(await readdir(tmpDir)).toEqual([]);
+});
+
+test('exportData whose temporary file cannot be opened is a file system error', async () => {
+  const tmpDir = makeTemporaryDirectory();
+  const path = join(tmpDir, 'test.txt');
+  vi.mocked(openRegularFileForWriting).mockResolvedValueOnce(
+    err({ type: 'OpenFileError', error: new Error('EROFS: read-only') })
+  );
+  const result = await exporter.exportData(path, 'bar');
+  expect(result).toEqual<ExportDataResult>(
+    err({
+      type: 'file-system-error',
+      message: `Unable to open ${path} for writing: EROFS: read-only`,
+    })
+  );
+  expect(await readdir(tmpDir)).toEqual([]);
+});
+
+test('exportData with a failing write is a file system error', async () => {
+  const tmpDir = makeTemporaryDirectory();
+  const path = join(tmpDir, 'test.txt');
+  const result = await exporter.exportData(
+    path,
+    Readable.from(
+      (function* failingSource() {
+        yield 'partial';
+        throw new Error('EFBIG: file too large');
+      })()
+    )
+  );
+  expect(result).toEqual<ExportDataResult>(
+    err({
+      type: 'file-system-error',
+      message: expect.stringContaining('EFBIG'),
+    })
+  );
 });
 
 test('exportData with a symbolic link', async () => {
@@ -166,12 +347,57 @@ test('exportDataToUsbDrive with no drives', async () => {
   expect(vi.mocked(execFile)).not.toHaveBeenCalled();
 });
 
+test('exportData destroys a stream it does not write', async () => {
+  const data = Readable.from('bar');
+  expect(await exporter.exportData('/etc/passwd', data)).toEqual(
+    err({
+      type: 'permission-denied',
+      message: 'Path is not allowed: /etc/passwd',
+    })
+  );
+  expect(data.destroyed).toEqual(true);
+});
+
+test('exportDataToUsbDrive with no drives destroys the stream', async () => {
+  usbDrive.status.expectCallWith().resolves({ status: 'no_drive' });
+  const data = Readable.from('bar');
+  const result = await exporter.exportDataToUsbDrive(
+    'bucket',
+    'test.txt',
+    data
+  );
+  expect(result).toEqual(
+    err({ type: 'missing-usb-drive', message: 'No USB drive found' })
+  );
+  expect(data.destroyed).toEqual(true);
+});
+
+test('exportDataToUsbDrive with a size that does not fit destroys the stream', async () => {
+  const tmpDir = makeTemporaryDirectory();
+  usbDrive.status.expectCallWith().resolves({
+    status: 'mounted',
+    fstype: 'exfat',
+    mountpoint: UsbPartitionMountpointSchema.decode(tmpDir),
+    totalBytes: 2 ** 20,
+    availableBytes: 2 ** 20,
+  });
+  const data = Readable.from('bar');
+  const result = await exporter.exportDataToUsbDrive(
+    'bucket',
+    'test.txt',
+    data,
+    { size: 2 ** 20 }
+  );
+  expect(result.err()?.type).toEqual('insufficient-space');
+  expect(data.destroyed).toEqual(true);
+});
+
 test('exportDataToUsbDrive happy path', async () => {
   const tmpDir = makeTemporaryDirectory();
   const path = join(tmpDir, 'bucket/test.txt');
   usbDrive.status.expectCallWith().resolves({
     status: 'mounted',
-    fstype: 'fat32',
+    fstype: 'exfat',
     mountpoint: UsbPartitionMountpointSchema.decode(tmpDir),
   });
   usbDrive.sync.expectCallWith().resolves();
@@ -184,33 +410,95 @@ test('exportDataToUsbDrive happy path', async () => {
   expect(await readFile(path, 'utf-8')).toEqual('bar');
 });
 
-test('exportDataToUsbDrive with maximumFileSize', async () => {
+test('exportDataToUsbDrive with a size that fits', async () => {
   const tmpDir = makeTemporaryDirectory();
-  const path = join(tmpDir, 'bucket/test.txt');
   usbDrive.status.expectCallWith().resolves({
     status: 'mounted',
     fstype: 'fat32',
+    maxFileSize: 2 ** 32 - 1,
     mountpoint: UsbPartitionMountpointSchema.decode(tmpDir),
+    totalBytes: 2 ** 40,
+    availableBytes: 2 ** 40,
   });
   usbDrive.sync.expectCallWith().resolves();
   const result = await exporter.exportDataToUsbDrive(
     'bucket',
     'test.txt',
     'bar',
-    {
-      maximumFileSize: 2,
-    }
+    { size: 3 }
   );
-  expect(result).toEqual(ok([`${path}-part-1`, `${path}-part-2`]));
-  expect(await readFile(`${path}-part-1`, 'utf-8')).toEqual('ba');
-  expect(await readFile(`${path}-part-2`, 'utf-8')).toEqual('r');
+  expect(result).toEqual(ok([join(tmpDir, 'bucket/test.txt')]));
 });
+
+test('exportDataToUsbDrive with a size over the file system limit', async () => {
+  const tmpDir = makeTemporaryDirectory();
+  usbDrive.status.expectCallWith().resolves({
+    status: 'mounted',
+    fstype: 'fat32',
+    maxFileSize: 2 ** 32 - 1,
+    mountpoint: UsbPartitionMountpointSchema.decode(tmpDir),
+    totalBytes: 2 ** 40,
+    availableBytes: 2 ** 40,
+  });
+  const result = await exporter.exportDataToUsbDrive(
+    'bucket',
+    'test.txt',
+    'bar',
+    { size: 2 ** 32 }
+  );
+  expect(result).toEqual<ExportDataResult>(
+    err({
+      type: 'file-too-large',
+      message: "File of 4.0 GB exceeds the USB drive's 4.0 GB file size limit",
+    })
+  );
+  expect(existsSync(join(tmpDir, 'bucket'))).toEqual(false);
+});
+
+test.each([
+  {
+    totalBytes: 2 ** 40,
+    availableBytes: 2 ** 20,
+    message:
+      'File of 1.0 MB does not fit in the 1.0 MB available on the USB drive',
+  },
+  {
+    totalBytes: 2 ** 20,
+    availableBytes: 2 ** 20,
+    message: 'File of 1.0 MB does not fit on the 1.0 MB USB drive',
+  },
+])(
+  'exportDataToUsbDrive with a size over the available space %o',
+  async ({ totalBytes, availableBytes, message }) => {
+    const tmpDir = makeTemporaryDirectory();
+    usbDrive.status.expectCallWith().resolves({
+      status: 'mounted',
+      fstype: 'exfat',
+      mountpoint: UsbPartitionMountpointSchema.decode(tmpDir),
+      totalBytes,
+      availableBytes,
+    });
+    const result = await exporter.exportDataToUsbDrive(
+      'bucket',
+      'test.txt',
+      'bar',
+      { size: 2 ** 20 }
+    );
+    expect(result).toEqual<ExportDataResult>(
+      err({
+        type: 'insufficient-space',
+        message,
+      })
+    );
+    expect(existsSync(join(tmpDir, 'bucket'))).toEqual(false);
+  }
+);
 
 test('exportDataToUsbDrive with machineDirectoryToWriteToFirst', async () => {
   const tmpDir = makeTemporaryDirectory();
   usbDrive.status.expectCallWith().resolves({
     status: 'mounted',
-    fstype: 'fat32',
+    fstype: 'exfat',
     mountpoint: UsbPartitionMountpointSchema.decode(tmpDir),
   });
   usbDrive.sync.expectCallWith().resolves();

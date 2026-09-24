@@ -3,6 +3,7 @@ import {
   ExportCastVoteRecordsToUsbDriveError,
   SheetOf,
 } from '@votingworks/types';
+import { userReadableMessageFromExportDataError } from './export_data_error.js';
 
 function sheetValuesToString<T extends string | number>(
   sheetValues: SheetOf<T>
@@ -15,14 +16,12 @@ export function userReadableMessageFromExportError(
 ): string {
   switch (error.type) {
     case 'file-system-error':
-    case 'permission-denied': {
-      return 'Unable to write to USB drive.';
-    }
-    case 'missing-usb-drive': {
-      return 'No USB drive detected.';
-    }
+    case 'permission-denied':
+    case 'missing-usb-drive':
+    case 'file-too-large':
+    case 'insufficient-space':
     case 'relative-file-path': {
-      return 'Invalid file path.';
+      return userReadableMessageFromExportDataError(error.type);
     }
     case 'invalid-sheet': {
       return (() => {

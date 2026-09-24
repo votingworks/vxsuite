@@ -3,9 +3,9 @@ import z from 'zod/v4';
 import {
   UsbDiskDevPath,
   UsbDiskDevPathSchema,
-  UsbDriveFilesystemType,
+  UsbDriveFormatFilesystemType,
+  UsbPartitionBaseSchema,
   UsbPartitionDevPath,
-  UsbPartitionDevPathSchema,
   UsbPartitionMountpoint,
   UsbPartitionMountpointSchema,
 } from './types.js';
@@ -41,7 +41,7 @@ export interface UsbPlatform {
    */
   formatDrive(
     diskPath: UsbDiskDevPath,
-    fstype: UsbDriveFilesystemType,
+    fstype: UsbDriveFormatFilesystemType,
     label: string
   ): Promise<void>;
 
@@ -54,10 +54,7 @@ export interface UsbPlatform {
   getSpace(mountpoint: UsbPartitionMountpoint): Promise<UsbDriveSpace>;
 }
 
-export const UsbPlatformPartitionSchema = z.object({
-  partPath: UsbPartitionDevPathSchema,
-  fstype: z.enum(['fat32', 'ext4']),
-  label: z.string().optional(),
+export const UsbPlatformPartitionSchema = UsbPartitionBaseSchema.extend({
   mountpoint: UsbPartitionMountpointSchema.optional(),
 });
 

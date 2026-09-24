@@ -50,6 +50,11 @@ FSTYPE=$(blkid -o value -s TYPE "$DEVICE" 2>/dev/null || echo "")
 
 if [[ "$FSTYPE" == "ext4" ]]; then
   mount -t ext4 -w -o nosuid,nodev,noexec,nosymfollow "$DEVICE" "$MOUNTPOINT"
-else
+elif [[ "$FSTYPE" == "exfat" ]]; then
+  mount -t exfat -w -o uid=vx-services,gid=vx-group,fmask=113,dmask=002,nosuid,nodev,noexec,nosymfollow "$DEVICE" "$MOUNTPOINT"
+elif [[ "$FSTYPE" == "vfat" ]]; then
   mount -t vfat -w -o uid=vx-services,gid=vx-group,fmask=113,dmask=002,nosuid,nodev,noexec,nosymfollow "$DEVICE" "$MOUNTPOINT"
+else
+  echo "mount.sh: unsupported filesystem type: ${FSTYPE}"
+  exit 1
 fi
