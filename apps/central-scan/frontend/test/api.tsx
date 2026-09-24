@@ -166,6 +166,22 @@ export function createApiMock(
       apiClient.scanBatch.expectCallWith().resolves();
     },
 
+    expectPauseBatch() {
+      apiClient.pauseBatch.expectCallWith().resolves();
+    },
+
+    expectResumeBatch() {
+      apiClient.resumeBatch.expectCallWith().resolves();
+    },
+
+    expectSaveBatch() {
+      apiClient.saveBatch.expectCallWith().resolves();
+    },
+
+    expectDiscardBatch() {
+      apiClient.discardBatch.expectCallWith().resolves();
+    },
+
     expectGetSheetForReview(
       sheetId: Id,
       sheetForReview: Awaited<

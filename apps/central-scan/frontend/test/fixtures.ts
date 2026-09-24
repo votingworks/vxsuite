@@ -11,15 +11,15 @@ export const DEFAULT_STATUS: ScanStatus = {
   batches: [],
 };
 
-export function mockStatus(
+export function mockStatus<
+  M extends BatchScannerMachineStatus = { state: 'idle' },
+>(
   status: Partial<Omit<ScanStatus, 'state'>> = {},
-  machineStatus: BatchScannerMachineStatus = { state: 'idle' }
-): ScanStatus {
-  return {
-    ...DEFAULT_STATUS,
-    ...status,
-    ...machineStatus,
-  };
+  machineStatus?: M
+): Extract<ScanStatus, { state: M['state'] }> {
+  const machine: BatchScannerMachineStatus = machineStatus ?? { state: 'idle' };
+  const result: ScanStatus = { ...DEFAULT_STATUS, ...status, ...machine };
+  return result as Extract<ScanStatus, { state: M['state'] }>;
 }
 
 export const MOCK_BATCH: BatchInfo = {
