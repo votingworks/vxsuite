@@ -13,8 +13,7 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": false
+    "noFallthroughCasesInSwitch": true
   },
   "references": [
     { "path": "../../../libs/coverage-check/tsconfig.build.json" },

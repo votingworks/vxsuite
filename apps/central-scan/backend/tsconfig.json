@@ -13,8 +13,7 @@
     "noEmit": true,
     "noUnusedParameters": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "noUncheckedIndexedAccess": false
+    "skipLibCheck": true
   },
   "references": [
     { "path": "../../../libs/auth/tsconfig.build.json" },

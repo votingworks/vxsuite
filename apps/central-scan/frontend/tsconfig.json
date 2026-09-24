@@ -11,8 +11,7 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": false
+    "noFallthroughCasesInSwitch": true
   },
   "exclude": [],
   "include": ["src", "prodserver", "script", "test", "types"],
