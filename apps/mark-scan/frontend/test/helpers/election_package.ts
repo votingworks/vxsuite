@@ -2,7 +2,8 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   type ElectionDefinition,
 } from '@votingworks/types';
-import { type VxScreen, mockUsbDriveStatus } from '@votingworks/ui';
+import { mockUsbDriveStatus } from '@votingworks/ui';
+import type { VxScreen } from '@votingworks/ui/test-utils';
 import type { ApiMock } from './mock_api_client.js';
 
 /**

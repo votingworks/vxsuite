@@ -3,12 +3,14 @@ import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import {
   MARK_SCAN_CONTROLLER_ILLUSTRATION_HIGHLIGHT_CLASS_NAME,
-  expectConnectionStatus,
-  expectDiagnosticResult,
   mockUsbDriveStatus,
   DiagnosticSectionTitle,
   Keybinding,
 } from '@votingworks/ui';
+import {
+  expectConnectionStatus,
+  expectDiagnosticResult,
+} from '@votingworks/ui/test-utils';
 import { assertDefined, ok } from '@votingworks/basics';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
