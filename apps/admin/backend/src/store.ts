@@ -302,6 +302,35 @@ export class Store implements BaseStore {
   }
 
   /**
+   * SQL condition expression for withheld ballots - when countCentralScanBallotsOnlyAfterAdjudication
+   * is enabled central scan unadjudicated ballots.
+   * Requires cvrs joined to scanner_batches.
+   */
+  private getWithheldBallotsSqlCondition(electionId: Id): string {
+    const { countCentralScanBallotsOnlyAfterAdjudication } =
+      this.getSystemSettings(electionId);
+    if (!countCentralScanBallotsOnlyAfterAdjudication) {
+      // no ballots are withheld
+      return 'false';
+    }
+    return `(
+      scanner_batches.scanner_machine_type is 'central'
+      and cvrs.is_adjudicated = 0
+      and (${this.getAdjudicationQueueFilter(electionId, 'cvrs')})
+    )`;
+  }
+
+  /**
+   * SQL expression for a ballot's {@link Tabulation.ReportingStatus}.
+   * Requires cvrs joined to scanner_batches.
+   */
+  private getReportingStatusSqlExpr(electionId: Id): string {
+    return `case when ${this.getWithheldBallotsSqlCondition(
+      electionId
+    )} then 'notCounted' else 'counted' end`;
+  }
+
+  /**
    * Runs the given function in a transaction. If the function throws an error,
    * the transaction is rolled back. Otherwise, the transaction is committed.
    *
@@ -1049,6 +1078,7 @@ export class Store implements BaseStore {
     // In combined ballot primary elections, ballot styles in the db don't have party IDs.
     // Instead, each CVR's party is inferred from its votes. So we need to
     // manually create group specifiers for each party.
+    let expandedGroups = groups;
     if (isCombinedBallotPrimary(election) && groupBy.groupByParty) {
       const partyIds = [
         ...unique(partisanContests(election).map((contest) => contest.partyId)),
@@ -1058,11 +1088,26 @@ export class Store implements BaseStore {
           !filter.partyIds ||
           filter.partyIds.some((id) => deepEqual(id, partyId))
       );
-      return groups.flatMap((group) =>
+      expandedGroups = expandedGroups.flatMap((group) =>
         partyIds.map((partyId) => ({ ...group, partyId }))
       );
     }
-    return groups;
+
+    // Every group has both reporting statuses, so that counted and not
+    // counted rows always appear and sum to the ballots read
+    if (groupBy.groupByReportingStatus) {
+      const reportingStatuses = Tabulation.REPORTING_STATUSES.filter(
+        (status) => !filter.reportingStatus || status === filter.reportingStatus
+      );
+      expandedGroups = expandedGroups.flatMap((group) =>
+        reportingStatuses.map((reportingStatus) => ({
+          ...group,
+          reportingStatus,
+        }))
+      );
+    }
+
+    return expandedGroups;
   }
 
   /**
@@ -2020,6 +2065,15 @@ export class Store implements BaseStore {
       );
     }
 
+    if (filter.reportingStatus) {
+      const withheldCondition = this.getWithheldBallotsSqlCondition(electionId);
+      whereParts.push(
+        filter.reportingStatus === 'counted'
+          ? `not ${withheldCondition}`
+          : withheldCondition
+      );
+    }
+
     return [whereParts, params];
   }
 
@@ -2060,16 +2114,22 @@ export class Store implements BaseStore {
     electionId,
     election,
     filter,
+    excludeWithheldBallots,
   }: {
     electionId: Id;
     election: Election;
     filter: Tabulation.Filter;
+    excludeWithheldBallots: boolean;
   }): Generator<Tabulation.CastVoteRecord> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
       election,
       electionId,
       filter
     );
+
+    if (excludeWithheldBallots) {
+      whereParts.push(`not ${this.getWithheldBallotsSqlCondition(electionId)}`);
+    }
 
     for (const row of this.client.each(
       `
@@ -2080,6 +2140,7 @@ export class Store implements BaseStore {
           ${this.getVotingMethodSqlExpr(electionId)} as votingMethod,
           cvrs.batch_id as batchId,
           scanner_batches.scanner_id as scannerId,
+          ${this.getReportingStatusSqlExpr(electionId)} as reportingStatus,
           cvrs.card_type as cardType,
           cvrs.sheet_number as sheetNumber,
           cvrs.votes as votes,
@@ -2116,6 +2177,7 @@ export class Store implements BaseStore {
         batchId: row.batchId,
         scannerId: row.scannerId,
         precinctId: row.precinctId,
+        reportingStatus: row.reportingStatus,
         card: this.convertSheetNumberToCard(row.cardType, row.sheetNumber),
         votes,
       };
@@ -2201,6 +2263,12 @@ export class Store implements BaseStore {
       groupByParts.push(this.getVotingMethodSqlExpr(electionId));
     }
 
+    if (groupBy.groupByReportingStatus) {
+      const reportingStatusExpr = this.getReportingStatusSqlExpr(electionId);
+      selectParts.push(`${reportingStatusExpr} as reportingStatus`);
+      groupByParts.push(reportingStatusExpr);
+    }
+
     for (const row of this.client.each(
       `
           select
@@ -2244,6 +2312,9 @@ export class Store implements BaseStore {
         precinctId: groupBy.groupByPrecinct ? row.precinctId : undefined,
         votingMethod: groupBy.groupByVotingMethod
           ? row.votingMethod
+          : undefined,
+        reportingStatus: groupBy.groupByReportingStatus
+          ? row.reportingStatus
           : undefined,
       };
 
@@ -2292,6 +2363,7 @@ export class Store implements BaseStore {
       electionId,
       election,
       filter: restFilter,
+      excludeWithheldBallots: false,
     })) {
       if (partyIds && !partyIds.some((id) => deepEqual(id, cvr.partyId))) {
         continue;
@@ -2309,6 +2381,9 @@ export class Store implements BaseStore {
         precinctId: groupBy.groupByPrecinct ? cvr.precinctId : undefined,
         votingMethod: groupBy.groupByVotingMethod
           ? cvr.votingMethod
+          : undefined,
+        reportingStatus: groupBy.groupByReportingStatus
+          ? cvr.reportingStatus
           : undefined,
       };
       const key = JSON.stringify({ ...groupSpecifier, card: cvr.card });
@@ -2740,24 +2815,24 @@ export class Store implements BaseStore {
    * Builds a SQL WHERE clause for CVRs that need adjudication based on
    * the election's system settings and the CVR's adjudication flags.
    */
-  private getAdjudicationQueueFilter(electionId: Id): string {
+  private getAdjudicationQueueFilter(electionId: Id, tableAlias = 'c'): string {
     const { adminAdjudicationReasons } = this.getSystemSettings(electionId);
     // Write-ins and crossover votes always need adjudication
     const conditions: string[] = [
-      'c.has_write_in = 1',
-      'c.has_crossover_vote = 1',
+      `${tableAlias}.has_write_in = 1`,
+      `${tableAlias}.has_crossover_vote = 1`,
     ];
     if (adminAdjudicationReasons.includes(AdjudicationReason.Overvote)) {
-      conditions.push('c.has_overvote = 1');
+      conditions.push(`${tableAlias}.has_overvote = 1`);
     }
     if (adminAdjudicationReasons.includes(AdjudicationReason.Undervote)) {
-      conditions.push('c.has_undervote = 1');
+      conditions.push(`${tableAlias}.has_undervote = 1`);
     }
     if (adminAdjudicationReasons.includes(AdjudicationReason.MarginalMark)) {
-      conditions.push('c.has_marginal_mark = 1');
+      conditions.push(`${tableAlias}.has_marginal_mark = 1`);
     }
     if (adminAdjudicationReasons.includes(AdjudicationReason.BlankBallot)) {
-      conditions.push('c.is_blank = 1');
+      conditions.push(`${tableAlias}.is_blank = 1`);
     }
     return conditions.join(' or ');
   }
@@ -2996,17 +3071,23 @@ export class Store implements BaseStore {
     electionId,
     filter = {},
     groupBy = {},
+    excludeWithheldBallots,
   }: {
     election: Election;
     electionId: Id;
     filter?: Tabulation.Filter;
     groupBy?: Tabulation.GroupBy;
+    excludeWithheldBallots: boolean;
   }): Generator<Tabulation.GroupOf<WriteInForTally>> {
     const [whereParts, params] = this.getTabulationFilterAsSql(
       election,
       electionId,
       filter
     );
+
+    if (excludeWithheldBallots) {
+      whereParts.push(`not ${this.getWithheldBallotsSqlCondition(electionId)}`);
+    }
 
     const selectParts: string[] = [];
 

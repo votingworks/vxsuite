@@ -109,6 +109,12 @@ export function CustomFilterSummary({
             .join(', ')}
         </FilterDisplayRow>
       )}
+      {filter.reportingStatus && (
+        <FilterDisplayRow>
+          <Font weight="semiBold">Reporting Status:</Font>{' '}
+          {Admin.REPORTING_STATUS_LABELS[filter.reportingStatus]}
+        </FilterDisplayRow>
+      )}
       {filter.districtIds && (
         <FilterDisplayRow>
           <Font weight="semiBold">

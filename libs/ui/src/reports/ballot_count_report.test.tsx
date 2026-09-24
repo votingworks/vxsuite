@@ -617,3 +617,65 @@ test('titles', () => {
     unmount();
   }
 });
+
+test('shows reporting status groups', () => {
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
+
+  const reportingStatusCardCountsList: Tabulation.GroupList<Tabulation.CardCounts> =
+    [
+      {
+        ...cc(5, 2),
+        reportingStatus: 'counted',
+      },
+      {
+        ...cc(3),
+        reportingStatus: 'notCounted',
+      },
+    ];
+
+  render(
+    <BallotCountReport
+      title="Ballot Count Report by Reporting Status"
+      isTest={false}
+      isOfficial={false}
+      electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
+      scannerBatches={mockScannerBatches}
+      groupBy={{ groupByReportingStatus: true }}
+      cardCountsList={reportingStatusCardCountsList}
+    />
+  );
+
+  const expectedColumns = [
+    'reporting-status',
+    'center',
+    'manual',
+    'scanned',
+    'total',
+    'right',
+  ];
+  const expectedRows: RowData[] = [
+    {
+      'reporting-status': 'Counted',
+      manual: '2',
+      scanned: '5',
+      total: '7',
+    },
+    {
+      'reporting-status': 'Not Counted',
+      manual: '0',
+      scanned: '3',
+      total: '3',
+    },
+  ];
+  const expectedFooter: RowData = {
+    manual: '2',
+    scanned: '8',
+    total: '10',
+  };
+
+  const { columns, rows, footer } = parseGrid({ expectFooter: true });
+  expect(columns).toEqual(expectedColumns);
+  expect(rows).toEqual(expectedRows);
+  expect(footer).toEqual(expectedFooter);
+});

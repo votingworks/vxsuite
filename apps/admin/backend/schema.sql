@@ -354,7 +354,7 @@ begin
     where election_id = old.election_id;
 end;
 
-create trigger cvr_adjudication_updated after update of adjudicated_votes on cvrs
+create trigger cvr_adjudication_updated after update of adjudicated_votes, is_adjudicated on cvrs
 begin
   update data_versions
     set cvrs_data_version = data_versions.cvrs_data_version + 1

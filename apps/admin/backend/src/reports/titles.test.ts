@@ -223,6 +223,11 @@ test('generateTitleForReport', () => {
       },
       'Ballot Count Report • Ballots With Crossover Votes',
     ],
+    [{ reportingStatus: 'counted' }, 'Ballot Count Report • Counted Ballots'],
+    [
+      { reportingStatus: 'notCounted' },
+      'Ballot Count Report • Ballots Not Counted',
+    ],
   ];
 
   for (const [filter, title] of ballotCountFilters) {

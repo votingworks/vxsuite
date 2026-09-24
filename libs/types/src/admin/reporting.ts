@@ -25,6 +25,14 @@ export const ADJUDICATION_FLAG_LABELS: Record<
   hasCrossoverVote: 'Crossover Vote',
 };
 
+/** See {@link Tabulation.ReportingStatus}. */
+export type ReportingStatus = Tabulation.ReportingStatus;
+
+export const REPORTING_STATUS_LABELS: Record<ReportingStatus, string> = {
+  counted: 'Counted',
+  notCounted: 'Not Counted',
+};
+
 /**
  * Features of cast vote records that VxAdmin can filter on, which extends beyond
  * features that the tabulation code can group on, e.g. adjudication flags.

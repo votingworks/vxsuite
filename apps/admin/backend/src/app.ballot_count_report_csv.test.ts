@@ -469,3 +469,88 @@ test('combined ballot primary: groupByParty with No Party filter', async () => {
     ],
   });
 });
+
+test('ballot count report grouped by or filtered to a reporting status', async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { apiClient, auth, usbPlatform, workspace } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition,
+    undefined,
+    {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      countCentralScanBallotsOnlyAfterAdjudication: true,
+    }
+  );
+  mockElectionManagerAuth(auth, electionDefinition.election);
+  await attachUsbDrive(apiClient, usbPlatform);
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile: [
+      {
+        ballotStyleGroupId: '2F',
+        batchId: 'batch-central-write-in',
+        scannerId: 'scanner-central',
+        scannerMachineType: 'central',
+        precinctId: 'precinct-1',
+        votingMethod: 'precinct',
+        votes: { 'aquarium-council-fish': ['manta-ray', 'write-in-0'] },
+        card: { type: 'bmd' },
+        multiplier: 3,
+      },
+      {
+        ballotStyleGroupId: '2F',
+        batchId: 'batch-central-clean',
+        scannerId: 'scanner-central',
+        scannerMachineType: 'central',
+        precinctId: 'precinct-1',
+        votingMethod: 'precinct',
+        votes: { 'aquarium-council-fish': ['manta-ray', 'pufferfish'] },
+        card: { type: 'bmd' },
+        multiplier: 2,
+      },
+    ],
+    store: workspace.store,
+    pollingPlaceId: 'polling-place-1',
+  });
+
+  const grouped = await getParsedExport({
+    apiClient,
+    groupBy: { groupByReportingStatus: true },
+  });
+  expect(grouped.headers).toEqual(['Reporting Status', 'Total']);
+  expect(grouped.rows).toEqual([
+    { 'Reporting Status': 'Counted', Total: '2' },
+    { 'Reporting Status': 'Not Counted', Total: '3' },
+  ]);
+
+  const filtered = await getParsedExport({
+    apiClient,
+    filter: { reportingStatus: 'notCounted' },
+  });
+  expect(filtered.headers).toEqual(['Reporting Status', 'Total']);
+  expect(filtered.rows).toEqual([
+    { 'Reporting Status': 'Not Counted', Total: '3' },
+  ]);
+  const groupedWithOtherAttributes = await getParsedExport({
+    apiClient,
+    filter: { reportingStatus: 'counted' },
+    groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
+  });
+  expect(groupedWithOtherAttributes.headers).toEqual([
+    'Precinct',
+    'Precinct ID',
+    'Voting Method',
+    'Reporting Status',
+    'Total',
+  ]);
+  expect(groupedWithOtherAttributes.rows).toContainEqual({
+    Precinct: 'Precinct 1',
+    'Precinct ID': 'precinct-1',
+    'Voting Method': 'Precinct',
+    'Reporting Status': 'Counted',
+    Total: '2',
+  });
+});

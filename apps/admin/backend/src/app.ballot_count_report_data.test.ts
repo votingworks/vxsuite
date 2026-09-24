@@ -8,12 +8,17 @@ import {
   buildManualResultsFixture,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import { BallotStyleGroupId, Tabulation } from '@votingworks/types';
+import {
+  BallotStyleGroupId,
+  DEFAULT_SYSTEM_SETTINGS,
+  Tabulation,
+} from '@votingworks/types';
 import {
   buildTestEnvironment,
   configureMachine,
   mockElectionManagerAuth,
 } from '../test/app.js';
+import { addMockCvrFileToStore } from '../test/mock_cvr_file.js';
 import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture.js';
 
 vi.setConfig({
@@ -596,6 +601,292 @@ test('combined ballot primary: card counts with partyIds filter', async () => {
     },
     {
       partyId: Tabulation.NO_PARTY_ID,
+      bmd: [],
+      hmpb: [2, 1],
+      manual: 0,
+    },
+  ]);
+});
+
+test('withheld unadjudicated central scan ballots still appear in ballot counts', async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+
+  const { apiClient, auth, workspace } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition,
+    undefined,
+    {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      countCentralScanBallotsOnlyAfterAdjudication: true,
+    }
+  );
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile: [
+      {
+        ballotStyleGroupId: '2F',
+        batchId: 'batch-central-write-in',
+        scannerId: 'scanner-central',
+        scannerMachineType: 'central',
+        precinctId: 'precinct-1',
+        votingMethod: 'precinct',
+        votes: { 'aquarium-council-fish': ['manta-ray', 'write-in-0'] },
+        card: { type: 'bmd' },
+        multiplier: 3,
+      },
+      {
+        ballotStyleGroupId: '2F',
+        batchId: 'batch-central-clean',
+        scannerId: 'scanner-central',
+        scannerMachineType: 'central',
+        precinctId: 'precinct-1',
+        votingMethod: 'precinct',
+        votes: { 'aquarium-council-fish': ['manta-ray', 'pufferfish'] },
+        card: { type: 'bmd' },
+        multiplier: 2,
+      },
+    ],
+    store: workspace.store,
+    pollingPlaceId: 'polling-place-1',
+  });
+
+  // ballot count reports include the withheld ballots
+  expect(
+    await apiClient.getCardCounts({
+      filter: {},
+      groupBy: { groupByBatch: true },
+    })
+  ).toEqual([
+    {
+      batchId: 'batch-central-clean',
+      bmd: [2],
+      hmpb: [],
+      manual: 0,
+    },
+    {
+      batchId: 'batch-central-write-in',
+      bmd: [3],
+      hmpb: [],
+      manual: 0,
+    },
+  ]);
+  expect(await apiClient.getTotalBallotCount()).toEqual(5);
+
+  // manual tallies always count toward results
+  await apiClient.setManualResults({
+    precinctId: 'precinct-1',
+    ballotStyleGroupId: '2F',
+    votingMethod: 'precinct',
+    manualResults: buildManualResultsFixture({
+      election: electionDefinition.election,
+      ballotCount: 10,
+      contestResultsSummaries: {},
+    }),
+  });
+
+  // the reporting status filter separates counted from withheld ballots,
+  // and only counted ballots include manual tallies
+  expect(
+    await apiClient.getCardCounts({
+      filter: { reportingStatus: 'counted' },
+      groupBy: {},
+    })
+  ).toEqual([{ bmd: [2], hmpb: [], manual: 10 }]);
+  expect(
+    await apiClient.getCardCounts({
+      filter: { reportingStatus: 'notCounted' },
+      groupBy: {},
+    })
+  ).toEqual([{ bmd: [3], hmpb: [] }]);
+
+  // grouping by reporting status shows both rows, which sum to the ballots
+  // read, with manual tallies under counted
+  expect(
+    await apiClient.getCardCounts({
+      filter: {},
+      groupBy: { groupByReportingStatus: true },
+    })
+  ).toEqual([
+    { reportingStatus: 'counted', bmd: [2], hmpb: [], manual: 10 },
+    { reportingStatus: 'notCounted', bmd: [3], hmpb: [], manual: 0 },
+  ]);
+});
+
+test('reporting status filter when withholding is disabled', async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+
+  const { apiClient, auth, workspace } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  mockElectionManagerAuth(auth, electionDefinition.election);
+
+  addMockCvrFileToStore({
+    electionId,
+    mockCastVoteRecordFile: [
+      {
+        ballotStyleGroupId: '2F',
+        batchId: 'batch-central-write-in',
+        scannerId: 'scanner-central',
+        scannerMachineType: 'central',
+        precinctId: 'precinct-1',
+        votingMethod: 'precinct',
+        votes: { 'aquarium-council-fish': ['manta-ray', 'write-in-0'] },
+        card: { type: 'bmd' },
+        multiplier: 3,
+      },
+    ],
+    store: workspace.store,
+    pollingPlaceId: 'polling-place-1',
+  });
+
+  // every ballot is counted, none are withheld
+  expect(
+    await apiClient.getCardCounts({
+      filter: { reportingStatus: 'counted' },
+      groupBy: {},
+    })
+  ).toEqual([{ bmd: [3], hmpb: [], manual: 0 }]);
+  expect(
+    await apiClient.getCardCounts({
+      filter: { reportingStatus: 'notCounted' },
+      groupBy: {},
+    })
+  ).toEqual([{ bmd: [], hmpb: [] }]);
+
+  // both rows still appear, with nothing withheld
+  expect(
+    await apiClient.getCardCounts({
+      filter: {},
+      groupBy: { groupByReportingStatus: true },
+    })
+  ).toEqual([
+    { reportingStatus: 'counted', bmd: [3], hmpb: [], manual: 0 },
+    { reportingStatus: 'notCounted', bmd: [], hmpb: [], manual: 0 },
+  ]);
+});
+
+test('combined ballot primary: card counts grouped by party and reporting status', async () => {
+  const electionDefinition =
+    electionCombinedBallotPrimaryFixtures.readElectionDefinition();
+  const { apiClient, auth, workspace } = buildTestEnvironment();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  mockElectionManagerAuth(auth, electionDefinition.election);
+  await seedCombinedBallotPrimaryCvrsAndAdjudications({
+    apiClient,
+    electionId,
+    store: workspace.store,
+  });
+
+  // With withholding disabled every ballot is counted, and each party still
+  // gets a not counted row
+  expect(
+    await apiClient.getCardCounts({
+      filter: {},
+      groupBy: { groupByParty: true, groupByReportingStatus: true },
+    })
+  ).toEqual([
+    {
+      partyId: 'democratic-party',
+      reportingStatus: 'counted',
+      bmd: [1],
+      hmpb: [3],
+      manual: 0,
+    },
+    {
+      partyId: 'democratic-party',
+      reportingStatus: 'notCounted',
+      bmd: [],
+      hmpb: [],
+      manual: 0,
+    },
+    {
+      partyId: 'republican-party',
+      reportingStatus: 'counted',
+      bmd: [],
+      hmpb: [2],
+      manual: 0,
+    },
+    {
+      partyId: 'republican-party',
+      reportingStatus: 'notCounted',
+      bmd: [],
+      hmpb: [],
+      manual: 0,
+    },
+    {
+      partyId: 'libertarian-party',
+      reportingStatus: 'counted',
+      bmd: [1],
+      hmpb: [],
+      manual: 0,
+    },
+    {
+      partyId: 'libertarian-party',
+      reportingStatus: 'notCounted',
+      bmd: [],
+      hmpb: [],
+      manual: 0,
+    },
+    {
+      partyId: Tabulation.NO_PARTY_ID,
+      reportingStatus: 'counted',
+      bmd: [],
+      hmpb: [2, 1],
+      manual: 0,
+    },
+    {
+      partyId: Tabulation.NO_PARTY_ID,
+      reportingStatus: 'notCounted',
+      bmd: [],
+      hmpb: [],
+      manual: 0,
+    },
+  ]);
+
+  // Filtering to one status while grouping by status keeps only its rows
+  expect(
+    await apiClient.getCardCounts({
+      filter: { reportingStatus: 'counted' },
+      groupBy: { groupByParty: true, groupByReportingStatus: true },
+    })
+  ).toEqual([
+    {
+      partyId: 'democratic-party',
+      reportingStatus: 'counted',
+      bmd: [1],
+      hmpb: [3],
+      manual: 0,
+    },
+    {
+      partyId: 'republican-party',
+      reportingStatus: 'counted',
+      bmd: [],
+      hmpb: [2],
+      manual: 0,
+    },
+    {
+      partyId: 'libertarian-party',
+      reportingStatus: 'counted',
+      bmd: [1],
+      hmpb: [],
+      manual: 0,
+    },
+    {
+      partyId: Tabulation.NO_PARTY_ID,
+      reportingStatus: 'counted',
       bmd: [],
       hmpb: [2, 1],
       manual: 0,

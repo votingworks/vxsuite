@@ -93,7 +93,17 @@ export interface Filter {
   readonly votingMethods?: VotingMethod[];
   readonly batchIds?: Id[];
   readonly scannerIds?: Id[];
+  readonly reportingStatus?: ReportingStatus;
 }
+
+export const REPORTING_STATUSES = ['counted', 'notCounted'] as const;
+
+/**
+ * Whether a scanned ballot is included in tally results. Ballots are only
+ * `notCounted` while countCentralScanBallotsOnlyAfterAdjudication withholds
+ * them pending adjudication.
+ */
+export type ReportingStatus = (typeof REPORTING_STATUSES)[number];
 
 /**
  * Attributes that always exist for every cast vote record.
@@ -107,6 +117,7 @@ export interface CastVoteRecordAttributes {
   readonly partyId?: PartyId | NoPartyId;
   readonly ballotCastingMode?: BallotCastingMode;
   readonly batchDate?: string;
+  readonly reportingStatus?: ReportingStatus;
 }
 
 /**
@@ -148,6 +159,7 @@ export interface GroupBy {
   groupByBatch?: boolean;
   groupByScanner?: boolean;
   groupByBatchDate?: boolean;
+  groupByReportingStatus?: boolean;
 }
 
 /**

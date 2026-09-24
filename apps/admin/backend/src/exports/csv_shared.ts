@@ -1,4 +1,5 @@
 import {
+  Admin,
   Election,
   ElectionDefinition,
   formatBallotHash,
@@ -19,6 +20,7 @@ export const CSV_METADATA_ATTRIBUTES = [
   'party',
   'ballotStyle',
   'votingMethod',
+  'reportingStatus',
   'scanner',
   'batch',
 ] as const;
@@ -37,6 +39,7 @@ export const CSV_METADATA_ATTRIBUTE_MULTI_LABEL: Record<
   party: 'Parties',
   ballotStyle: 'Ballot Styles',
   votingMethod: 'Voting Methods',
+  reportingStatus: 'Reporting Statuses',
   scanner: 'Scanners',
   batch: 'Batches',
 };
@@ -110,6 +113,7 @@ export function determineCsvMetadataStructure({
         ? 'multi'
         : 'single'
       : 'all',
+    reportingStatus: filter.reportingStatus ? 'single' : 'all',
   };
 
   // If we're grouping by an attribute, it's always going to be a single.
@@ -125,6 +129,9 @@ export function determineCsvMetadataStructure({
     votingMethod: groupBy.groupByVotingMethod
       ? 'single'
       : filterStructure.votingMethod,
+    reportingStatus: groupBy.groupByReportingStatus
+      ? 'single'
+      : filterStructure.reportingStatus,
   };
 }
 
@@ -165,6 +172,10 @@ export function generateCsvMetadataHeaders({
 
   if (metadataStructure.votingMethod === 'single') {
     headers.push('Voting Method');
+  }
+
+  if (metadataStructure.reportingStatus === 'single') {
+    headers.push('Reporting Status');
   }
 
   if (
@@ -262,6 +273,12 @@ export function getCsvMetadataRowValues({
   if (metadataStructure.votingMethod === 'single') {
     values.push(
       Tabulation.VOTING_METHOD_LABELS[assertOnlyElement(filter.votingMethods)]
+    );
+  }
+
+  if (metadataStructure.reportingStatus === 'single') {
+    values.push(
+      Admin.REPORTING_STATUS_LABELS[assertDefined(filter.reportingStatus)]
     );
   }
 

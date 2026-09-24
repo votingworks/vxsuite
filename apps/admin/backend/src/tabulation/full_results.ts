@@ -55,7 +55,12 @@ export function tabulateCastVoteRecords({
 
   debug('tabulating filtered cast vote records from the store');
   return tabulateFilteredCastVoteRecords({
-    cvrs: store.getCastVoteRecords({ electionId, election, filter }),
+    cvrs: store.getCastVoteRecords({
+      electionId,
+      election,
+      filter,
+      excludeWithheldBallots: true,
+    }),
     election,
     groupBy,
     expectedGroups,
@@ -126,6 +131,7 @@ export async function tabulateElectionResults({
       filter,
       groupBy,
       includeUnallocablePendingWriteInsAsPending: false,
+      excludeWithheldBallots: true,
     });
 
     debug('merging write-in adjudication results into CVR results');

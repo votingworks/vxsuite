@@ -13,6 +13,7 @@ export function isFilterEmpty(filter: Admin.FrontendReportingFilter): boolean {
   return (
     isTabulationFilterEmpty(filter) &&
     !filter.adjudicationFlags &&
+    !filter.reportingStatus &&
     !filter.districtIds &&
     !filter.pollingPlaceIds
   );
@@ -47,6 +48,7 @@ function getFilterRank(filter: Admin.FrontendReportingFilter): number {
     (filter.votingMethods?.[0] ? 1 : 0) +
     (filter.partyIds?.[0] ? 1 : 0) +
     (filter.adjudicationFlags?.[0] ? 1 : 0) +
+    (filter.reportingStatus ? 1 : 0) +
     (filter.districtIds?.[0] ? 1 : 0) +
     (filter.pollingPlaceIds?.[0] ? 1 : 0)
   );
@@ -90,6 +92,7 @@ export function canonicalizeFilter(
       filter.adjudicationFlags && filter.adjudicationFlags.length > 0
         ? [...filter.adjudicationFlags].sort()
         : undefined,
+    reportingStatus: filter.reportingStatus,
     districtIds:
       filter.districtIds && filter.districtIds.length > 0
         ? [...filter.districtIds].sort()
@@ -112,6 +115,7 @@ export function canonicalizeGroupBy(
     groupByVotingMethod: groupBy.groupByVotingMethod ?? false,
     groupByBatch: groupBy.groupByBatch ?? false,
     groupByBatchDate: groupBy.groupByBatchDate ?? false,
+    groupByReportingStatus: groupBy.groupByReportingStatus ?? false,
   };
 }
 
@@ -226,6 +230,19 @@ function generateReportFilenameFilterPrefix({
     }
   }
 
+  if (filter.reportingStatus) {
+    switch (filter.reportingStatus) {
+      case 'counted':
+        filterPrefixes.push('counted');
+        break;
+      case 'notCounted':
+        filterPrefixes.push('not-counted');
+        break;
+      default:
+        throwIllegalValue(filter.reportingStatus);
+    }
+  }
+
   return filterPrefixes.join(WORD_SEPARATOR);
 }
 
@@ -262,6 +279,10 @@ function generateReportFilenameGroupByPostfix({
 
   if (groupBy.groupByBatchDate) {
     postfixes.push('batch-date');
+  }
+
+  if (groupBy.groupByReportingStatus) {
+    postfixes.push('reporting-status');
   }
 
   return postfixes.join(`${WORD_SEPARATOR}and${WORD_SEPARATOR}`);

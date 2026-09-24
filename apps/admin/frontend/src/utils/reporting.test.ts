@@ -55,6 +55,9 @@ test('canonicalizeFilter', () => {
     districtIds: ['district-1', 'district-2'],
     pollingPlaceIds: ['precinct-1-polling-place', 'precinct-2-polling-place'],
   });
+  expect(canonicalizeFilter({ reportingStatus: 'notCounted' })).toEqual({
+    reportingStatus: 'notCounted',
+  });
 });
 
 test('canonicalizeGroupBy', () => {
@@ -62,6 +65,7 @@ test('canonicalizeGroupBy', () => {
     groupByScanner: false,
     groupByBatch: false,
     groupByBatchDate: false,
+    groupByReportingStatus: false,
     groupByBallotStyle: false,
     groupByPrecinct: false,
     groupByParty: false,
@@ -72,6 +76,7 @@ test('canonicalizeGroupBy', () => {
     groupByScanner: true,
     groupByBatch: true,
     groupByBatchDate: true,
+    groupByReportingStatus: true,
     groupByBallotStyle: true,
     groupByPrecinct: true,
     groupByParty: true,
@@ -97,6 +102,11 @@ test('generateBallotCountReportPdfFilename', () => {
       groupBy: { groupByBatchDate: true },
       expectedFilename:
         'unofficial-ballot-count-report-by-batch-date__2023-12-09_15-59-32.pdf',
+    },
+    {
+      groupBy: { groupByReportingStatus: true },
+      expectedFilename:
+        'unofficial-ballot-count-report-by-reporting-status__2023-12-09_15-59-32.pdf',
     },
     {
       filter: {
@@ -137,6 +147,16 @@ test('generateBallotCountReportPdfFilename', () => {
       isTestMode: true,
       expectedFilename:
         'TEST-unofficial-crossover-voted-ballot-count-report__2023-12-09_15-59-32.pdf',
+    },
+    {
+      filter: { reportingStatus: 'counted' },
+      expectedFilename:
+        'unofficial-counted-ballot-count-report__2023-12-09_15-59-32.pdf',
+    },
+    {
+      filter: { reportingStatus: 'notCounted' },
+      expectedFilename:
+        'unofficial-not-counted-ballot-count-report__2023-12-09_15-59-32.pdf',
     },
     {
       // No Party filter combined with two other dimensions: should be
@@ -361,6 +381,7 @@ test('isFilterEmpty', () => {
   expect(isFilterEmpty({})).toEqual(true);
   expect(isFilterEmpty({ batchIds: [] })).toEqual(false);
   expect(isFilterEmpty({ adjudicationFlags: [] })).toEqual(false);
+  expect(isFilterEmpty({ reportingStatus: 'counted' })).toEqual(false);
   expect(isFilterEmpty({ districtIds: [] })).toEqual(false);
   expect(isFilterEmpty({ pollingPlaceIds: [] })).toEqual(false);
 });

@@ -23,6 +23,7 @@ import {
   isFilterEmpty,
 } from '../../utils/reporting.js';
 import { BallotCountReportViewer } from '../../components/reporting/ballot_count_report_viewer.js';
+import { getSystemSettings } from '../../api.js';
 import {
   ControlLabel,
   ReportBuilderControls,
@@ -38,6 +39,7 @@ export function BallotCountReportBuilder(): JSX.Element {
   assert(isElectionManagerAuth(auth));
   const { election } = electionDefinition;
 
+  const systemSettingsQuery = getSystemSettings.useQuery();
   const [filter, setFilter] = useState<Admin.FrontendReportingFilter>({});
   const [groupBy, setGroupBy] = useState<Tabulation.GroupBy>({});
   const [includeSheetCounts, setIncludeSheetCounts] = useState<boolean>(false);
@@ -68,6 +70,10 @@ export function BallotCountReportBuilder(): JSX.Element {
     'groupByScanner',
     'groupByVotingMethod',
   ];
+  if (systemSettingsQuery.data?.countCentralScanBallotsOnlyAfterAdjudication) {
+    allowedFilters.push('reporting-status');
+    allowedGroupBys.push('groupByReportingStatus');
+  }
   if (electionDefinition.election.type === 'primary') {
     allowedFilters.push('party');
     allowedGroupBys.push('groupByParty');

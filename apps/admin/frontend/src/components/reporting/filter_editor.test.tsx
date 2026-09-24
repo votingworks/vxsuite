@@ -301,6 +301,42 @@ test('adjudication status selection includes "Crossover Vote" in combined ballot
   });
 });
 
+test('reporting status filter', () => {
+  const { election } = electionTwoPartyPrimaryDefinition;
+  const onChange = vi.fn();
+
+  apiMock.expectGetScannerBatches([]);
+  apiMock.expectGetSystemSettings();
+  renderInAppContext(
+    <FilterEditor
+      election={election}
+      onChange={onChange}
+      allowedFilters={['reporting-status']}
+    />,
+    {
+      apiMock,
+    }
+  );
+
+  userEvent.click(screen.getButton('Add Filter'));
+  userEvent.click(screen.getByLabelText('Select New Filter Type'));
+  userEvent.click(screen.getByText('Reporting Status'));
+  expect(onChange).toHaveBeenNthCalledWith(1, { reportingStatus: undefined });
+  userEvent.click(screen.getByLabelText('Select Filter Values'));
+  screen.getByText('Counted');
+  userEvent.click(screen.getByText('Not Counted'));
+  expect(onChange).toHaveBeenNthCalledWith(2, {
+    reportingStatus: 'notCounted',
+  });
+
+  // only one status can be selected; choosing another replaces it
+  userEvent.click(screen.getByLabelText('Select Filter Values'));
+  userEvent.click(screen.getByText('Counted'));
+  expect(onChange).toHaveBeenNthCalledWith(3, {
+    reportingStatus: 'counted',
+  });
+});
+
 test('district filter', () => {
   const { election } = electionTwoPartyPrimaryDefinition;
   const onChange = vi.fn();

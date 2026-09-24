@@ -367,6 +367,7 @@ test('tabulateWriteInTallies', async () => {
       store,
       filter,
       groupBy,
+      excludeWithheldBallots: false,
     });
 
     for (const [groupKey, tally, invalidTally] of expected) {
@@ -390,6 +391,7 @@ test('tabulateWriteInTallies', async () => {
       filter,
       groupBy,
       includeUnallocablePendingWriteInsAsPending: true,
+      excludeWithheldBallots: false,
     });
 
     for (const [groupKey, tally, invalidTally] of expected) {
@@ -516,7 +518,11 @@ test('tabulateWriteInTallies in qualified mode - unadjudicated qualified candida
     name: 'Unicorn',
   });
 
-  const summaries = tabulateWriteInTallies({ electionId, store });
+  const summaries = tabulateWriteInTallies({
+    electionId,
+    store,
+    excludeWithheldBallots: false,
+  });
   const contestSummary = assertDefined(
     assertDefined(summaries['{}']).contestWriteInSummaries[contestId]
   );
@@ -600,7 +606,11 @@ test('tabulateWriteInTallies in qualified mode - preserves adjudicated tallies w
     });
   }
 
-  const summaries = tabulateWriteInTallies({ electionId, store });
+  const summaries = tabulateWriteInTallies({
+    electionId,
+    store,
+    excludeWithheldBallots: false,
+  });
   const contestSummary = assertDefined(
     assertDefined(summaries['{}']).contestWriteInSummaries[contestId]
   );

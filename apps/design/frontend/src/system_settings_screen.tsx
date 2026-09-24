@@ -320,6 +320,23 @@ export function SystemSettingsForm({
               }
               disabled={!isEditing}
             />
+            <CheckboxButton
+              label="Count VxCentralScan Ballots Only After Adjudication"
+              isChecked={
+                systemSettings.countCentralScanBallotsOnlyAfterAdjudication ??
+                false
+              }
+              onChange={(isChecked) =>
+                setSystemSettings({
+                  ...systemSettings,
+                  // @coverage-defer
+                  countCentralScanBallotsOnlyAfterAdjudication: isChecked
+                    ? true
+                    : undefined, // Completely omit when unchecked
+                })
+              }
+              disabled={!isEditing}
+            />
           </Column>
         </Card>
         <Card style={{ minWidth: '16rem' }}>

@@ -351,6 +351,9 @@ export function getGroupKey(
     batchId: groupBy.groupByBatch ? groupSpecifier.batchId : undefined,
     partyId: groupBy.groupByParty ? groupSpecifier.partyId : undefined,
     precinctId: groupBy.groupByPrecinct ? groupSpecifier.precinctId : undefined,
+    reportingStatus: groupBy.groupByReportingStatus
+      ? groupSpecifier.reportingStatus
+      : undefined,
     scannerId: groupBy.groupByScanner ? groupSpecifier.scannerId : undefined,
     votingMethod: groupBy.groupByVotingMethod
       ? groupSpecifier.votingMethod

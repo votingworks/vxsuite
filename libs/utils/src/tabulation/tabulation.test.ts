@@ -767,6 +767,7 @@ test('mapping from group keys to and from group specifiers', () => {
       groupByPrecinct: groupSpecifier.precinctId !== undefined,
       groupByScanner: groupSpecifier.scannerId !== undefined,
       groupByVotingMethod: groupSpecifier.votingMethod !== undefined,
+      groupByReportingStatus: groupSpecifier.reportingStatus !== undefined,
     };
     expect(
       getGroupSpecifierFromGroupKey(getGroupKey(groupSpecifier, groupBy))
@@ -784,6 +785,7 @@ test('mapping from group keys to and from group specifiers', () => {
   maintainsGroupSpecifier({ scannerId: 'scanner-1' });
   maintainsGroupSpecifier({ votingMethod: 'absentee' });
   maintainsGroupSpecifier({ batchDate: '2024-11-05' });
+  maintainsGroupSpecifier({ reportingStatus: 'notCounted' });
 
   // composite group specifiers, multiple attributes
   maintainsGroupSpecifier({
@@ -796,6 +798,11 @@ test('mapping from group keys to and from group specifiers', () => {
     batchId: 'batch-1',
     scannerId: 'scanner-1',
     precinctId: 'precinct-1',
+  });
+
+  maintainsGroupSpecifier({
+    precinctId: 'precinct-1',
+    reportingStatus: 'counted',
   });
 
   // with characters that need JSON escaping

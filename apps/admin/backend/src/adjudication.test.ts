@@ -63,7 +63,12 @@ test('setContestAdjudicatedVotes and getAdjudicatedVotes', async () => {
 
   function expectVotes(votes: Tabulation.Votes) {
     const [cvr] = [
-      ...store.getCastVoteRecords({ electionId, election, filter: {} }),
+      ...store.getCastVoteRecords({
+        electionId,
+        election,
+        filter: {},
+        excludeWithheldBallots: false,
+      }),
     ];
     assert(cvr);
     expect(cvr.votes).toEqual({
@@ -495,7 +500,12 @@ test('adjudicateCvr adjudicates contest and resolves tags', async () => {
 
   function expectVotes(votes: string[]) {
     const [cvr] = [
-      ...store.getCastVoteRecords({ electionId, election, filter: {} }),
+      ...store.getCastVoteRecords({
+        electionId,
+        election,
+        filter: {},
+        excludeWithheldBallots: false,
+      }),
     ];
     assert(cvr);
     expect(cvr.votes[contestId]).toEqual(votes);
@@ -945,7 +955,12 @@ test('adjudicateCvr applies multiple contests in a single transaction and marks 
 
   // Both contests' adjudicated_votes are written.
   const [cvr] = [
-    ...store.getCastVoteRecords({ electionId, election, filter: {} }),
+    ...store.getCastVoteRecords({
+      electionId,
+      election,
+      filter: {},
+      excludeWithheldBallots: false,
+    }),
   ];
   assert(cvr);
   expect(new Set(cvr.votes['zoo-council-mammal'])).toEqual(

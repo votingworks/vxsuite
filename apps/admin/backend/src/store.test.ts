@@ -9,6 +9,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   Admin,
+  AdjudicationReason,
   CandidateContest,
   Tabulation,
   DEFAULT_SYSTEM_SETTINGS,
@@ -1776,4 +1777,171 @@ describe('deleteCvrFile', () => {
       startedAt: expect.any(String),
     };
   }
+});
+
+describe('withholding unadjudicated central scan ballots from tallies', () => {
+  let store: Store;
+  let electionId: Id;
+  let election: Election;
+
+  async function setUpElection(settings: SystemSettings): Promise<void> {
+    store = Store.memoryStore(makeTemporaryDirectory());
+    const electionDefinition =
+      electionTwoPartyPrimaryFixtures.readElectionDefinition();
+    election = electionDefinition.election;
+    electionId = await store.addElection({
+      electionData: electionDefinition.electionData,
+      systemSettingsData: JSON.stringify(settings),
+      electionPackageSourceFilePath: makeTemporaryFile(),
+      electionPackageHash: 'test-hash',
+    });
+    store.setCurrentElectionId(electionId);
+  }
+
+  function addCvrs(): { withheldCvrId: Id } {
+    const cvrIds = addMockCvrFileToStore({
+      electionId,
+      store,
+      mockCastVoteRecordFile: [
+        {
+          ballotStyleGroupId: '2F',
+          batchId: 'batch-central-write-in',
+          scannerId: 'scanner-central',
+          scannerMachineType: 'central',
+          precinctId: 'precinct-1',
+          votingMethod: 'precinct',
+          votes: { 'aquarium-council-fish': ['manta-ray', 'write-in-0'] },
+          card: { type: 'bmd' },
+        },
+        {
+          ballotStyleGroupId: '2F',
+          batchId: 'batch-central-clean',
+          scannerId: 'scanner-central',
+          scannerMachineType: 'central',
+          precinctId: 'precinct-1',
+          votingMethod: 'precinct',
+          votes: { 'aquarium-council-fish': ['manta-ray', 'pufferfish'] },
+          card: { type: 'bmd' },
+        },
+        {
+          ballotStyleGroupId: '2F',
+          batchId: 'batch-central-undervote',
+          scannerId: 'scanner-central',
+          scannerMachineType: 'central',
+          precinctId: 'precinct-1',
+          votingMethod: 'precinct',
+          votes: { 'aquarium-council-fish': ['manta-ray'] },
+          card: { type: 'bmd' },
+        },
+        {
+          ballotStyleGroupId: '2F',
+          batchId: 'batch-precinct-write-in',
+          scannerId: 'scanner-precinct',
+          scannerMachineType: 'precinct',
+          precinctId: 'precinct-1',
+          votingMethod: 'precinct',
+          votes: { 'aquarium-council-fish': ['manta-ray', 'write-in-0'] },
+          card: { type: 'bmd' },
+        },
+        {
+          ballotStyleGroupId: '2F',
+          batchId: 'batch-legacy-write-in',
+          scannerId: 'scanner-legacy',
+          precinctId: 'precinct-1',
+          votingMethod: 'precinct',
+          votes: { 'aquarium-council-fish': ['manta-ray', 'write-in-0'] },
+          card: { type: 'bmd' },
+        },
+      ],
+      pollingPlaceId: 'polling-place-1',
+    });
+    return { withheldCvrId: assertDefined(cvrIds[0]) };
+  }
+
+  function getTallyBatchIds(excludeWithheldBallots: boolean): string[] {
+    return [
+      ...store.getCastVoteRecords({
+        electionId,
+        election,
+        filter: {},
+        excludeWithheldBallots,
+      }),
+    ]
+      .map((cvr) => cvr.batchId)
+      .sort();
+  }
+
+  test('setting enabled: tally queries exclude only unadjudicated central scan ballots needing adjudication', async () => {
+    await setUpElection({
+      ...DEFAULT_SYSTEM_SETTINGS,
+      countCentralScanBallotsOnlyAfterAdjudication: true,
+    });
+    const { withheldCvrId } = addCvrs();
+
+    // only the central write-in ballot is withheld; the undervoted central
+    // ballot does not need adjudication under the default (empty) reasons,
+    // and the legacy batch without a machine type is never withheld
+    expect(getTallyBatchIds(true)).toEqual([
+      'batch-central-clean',
+      'batch-central-undervote',
+      'batch-legacy-write-in',
+      'batch-precinct-write-in',
+    ]);
+    // without the flag the query is unfiltered
+    expect(getTallyBatchIds(false)).toHaveLength(5);
+    // write-ins for tallies follow the same exclusion
+    expect([
+      ...store.getWriteInsForTallies({
+        election,
+        electionId,
+        excludeWithheldBallots: true,
+      }),
+    ]).toHaveLength(2);
+    expect([
+      ...store.getWriteInsForTallies({
+        election,
+        electionId,
+        excludeWithheldBallots: false,
+      }),
+    ]).toHaveLength(3);
+
+    // resolving the ballot un-withholds it and bumps the tally data version
+    // even though only is_adjudicated changes
+    const dataVersionBefore = store.getCastVoteRecordsDataVersion(electionId);
+    store.setCvrAdjudicated({ cvrId: withheldCvrId });
+    expect(store.getCastVoteRecordsDataVersion(electionId)).toEqual(
+      dataVersionBefore + 1
+    );
+    expect(getTallyBatchIds(true)).toHaveLength(5);
+  });
+
+  test('setting enabled: withholding follows the admin adjudication reasons', async () => {
+    await setUpElection({
+      ...DEFAULT_SYSTEM_SETTINGS,
+      countCentralScanBallotsOnlyAfterAdjudication: true,
+      adminAdjudicationReasons: [AdjudicationReason.Undervote],
+    });
+    addCvrs();
+
+    // the undervoted central ballot is now withheld too
+    expect(getTallyBatchIds(true)).toEqual([
+      'batch-central-clean',
+      'batch-legacy-write-in',
+      'batch-precinct-write-in',
+    ]);
+  });
+
+  test('setting disabled: no ballots are withheld', async () => {
+    await setUpElection(DEFAULT_SYSTEM_SETTINGS);
+    addCvrs();
+
+    expect(getTallyBatchIds(true)).toHaveLength(5);
+    expect([
+      ...store.getWriteInsForTallies({
+        election,
+        electionId,
+        excludeWithheldBallots: true,
+      }),
+    ]).toHaveLength(3);
+  });
 });
