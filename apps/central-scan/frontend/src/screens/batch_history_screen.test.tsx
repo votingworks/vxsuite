@@ -237,17 +237,24 @@ test('hides the VxAdmin sync column when networking is disabled', () => {
 
 test('shows whether a batch is scanning', () => {
   const status: ScanStatus = mockStatus(
-    {
-      batches: [
-        mockBatch({
-          endedAt: undefined,
-        }),
-      ],
-    },
+    { batches: [mockBatch({ id: 'a', endedAt: undefined })] },
     { state: 'scanning', batchId: 'a' }
   );
   renderScreen({ status });
-  screen.getByText('Scanning…');
+  screen.getByText('In progress');
+  for (const deleteButton of screen.getAllButtons('Delete')) {
+    expect(deleteButton).toBeDisabled();
+  }
+  expect(screen.getButton('Delete All Batches')).toBeDisabled();
+});
+
+test('shows whether a batch is paused', () => {
+  const status: ScanStatus = mockStatus(
+    { batches: [mockBatch({ id: 'a', endedAt: undefined })] },
+    { state: 'paused', batchId: 'a', pauseReason: { type: 'tray-empty' } }
+  );
+  renderScreen({ status });
+  screen.getByText('In progress');
   for (const deleteButton of screen.getAllButtons('Delete')) {
     expect(deleteButton).toBeDisabled();
   }
@@ -305,7 +312,7 @@ test('shows no scanned time for a batch that has not ended', () => {
   renderScreen({ status });
   const [row] = getBatchRows();
   within(row).getByText('Batch 1');
-  expect(within(row).queryByText('Scanning…')).not.toBeInTheDocument();
+  expect(within(row).queryByText('In progress')).not.toBeInTheDocument();
   expect(within(row).getAllByRole('cell')[2]).toBeEmptyDOMElement();
 });
 
