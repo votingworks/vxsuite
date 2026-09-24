@@ -11,13 +11,13 @@ import {
 } from '@votingworks/utils';
 import {
   HP_4001_PRINTER_CONFIG,
-  MemoryPrinterHandler,
+  type MemoryPrinterHandler,
   renderToPdf,
 } from '@votingworks/printing';
 import { assert, err } from '@votingworks/basics';
-import { Client } from '@votingworks/grout';
+import type { Client } from '@votingworks/grout';
 import { LogEventId } from '@votingworks/logging';
-import { BallotStyleGroupId } from '@votingworks/types';
+import type { BallotStyleGroupId } from '@votingworks/types';
 import {
   attachUsbDrive,
   buildTestEnvironment,
@@ -26,11 +26,11 @@ import {
   mockElectionManagerAuth,
 } from '../test/app.js';
 import {
-  MockCastVoteRecordFile,
+  type MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../test/mock_cvr_file.js';
-import { Api } from './app.js';
-import { TallyReportSpec } from './reports/tally_report.js';
+import type { Api } from './app.js';
+import type { TallyReportSpec } from './reports/tally_report.js';
 import { mockFileName } from '../test/csv.js';
 import { generateReportPath } from './util/filenames.js';
 

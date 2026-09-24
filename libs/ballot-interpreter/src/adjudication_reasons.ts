@@ -1,11 +1,11 @@
 import {
   AdjudicationReason,
-  AdjudicationReasonInfo,
-  Contest,
-  BallotStyle,
-  ContestOption,
+  type AdjudicationReasonInfo,
+  type Contest,
+  type BallotStyle,
+  type ContestOption,
   MarkStatus,
-  VotesDict,
+  type VotesDict,
   WriteInAreaStatus,
 } from '@votingworks/types';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';

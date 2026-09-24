@@ -15,7 +15,7 @@ import {
   MOCK_FILE_PATH,
   mockCard,
   MockFileCard,
-  MockFileContents,
+  type MockFileContents,
   serializeMockFileContents,
 } from './mock_file_card.js';
 

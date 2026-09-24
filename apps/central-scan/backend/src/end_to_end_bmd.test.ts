@@ -5,7 +5,7 @@ import {
 } from '@votingworks/backend';
 import { ok, sleep } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { CVR } from '@votingworks/types';
+import type { CVR } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   convertCastVoteRecordVotesToTabulationVotes,
@@ -16,7 +16,7 @@ import { expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth.js';
 import { generateBmdBallotFixture } from '../test/helpers/ballots.js';
 import { waitForStatus, withApp } from '../test/helpers/setup_app.js';
-import { ScannedSheetInfo } from './fujitsu_scanner.js';
+import type { ScannedSheetInfo } from './fujitsu_scanner.js';
 
 // we need more time for ballot interpretation
 vi.setConfig({

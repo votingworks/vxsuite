@@ -1,15 +1,15 @@
 import {
   Admin,
-  Election,
-  ElectionDefinition,
+  type Election,
+  type ElectionDefinition,
   formatBallotHash,
-  Id,
+  type Id,
   Tabulation,
 } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
 import { CachedElectionLookups } from '@votingworks/utils';
-import { ScannerBatchLookup } from '../types.js';
-import { Store } from '../store.js';
+import type { ScannerBatchLookup } from '../types.js';
+import type { Store } from '../store.js';
 
 /**
  * Possible metadata attributes that can be included in the CSV, in the order

@@ -1,10 +1,10 @@
-import { Buffer } from 'node:buffer';
-import { createHash, Hash } from 'node:crypto';
+import type { Buffer } from 'node:buffer';
+import { createHash, type Hash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 import path from 'node:path';
 import { Readable } from 'node:stream';
 import { assert, groupBy } from '@votingworks/basics';
-import { Client } from '@votingworks/db';
+import type { Client } from '@votingworks/db';
 import { CastVoteRecordExportFileName } from '@votingworks/types';
 import { getExportedCastVoteRecordIds } from '@votingworks/utils';
 

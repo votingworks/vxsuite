@@ -2,25 +2,25 @@ import { fromByteArray } from 'base64-js';
 import React from 'react';
 
 import {
-  BallotStyle,
-  BallotStyleId,
-  CandidateContest,
-  CandidateVote,
-  Contest,
-  Election,
-  ElectionDefinition,
+  type BallotStyle,
+  type BallotStyleId,
+  type CandidateContest,
+  type CandidateVote,
+  type Contest,
+  type Election,
+  type ElectionDefinition,
   formatBallotHash,
   getBallotStyle,
   getCandidateVoteSortedForBallotStyleRotation,
   getContests,
   getPartyForBallotStyle,
   isCombinedBallotPrimary,
-  OptionalYesNoVote,
-  PrecinctId,
-  StraightPartyVote,
-  VotesDict,
-  YesNoContest,
-  YesNoVote,
+  type OptionalYesNoVote,
+  type PrecinctId,
+  type StraightPartyVote,
+  type VotesDict,
+  type YesNoContest,
+  type YesNoVote,
 } from '@votingworks/types';
 import {
   getPrecinctsAndSplitsForBallotStyle,
@@ -33,10 +33,10 @@ import {
   err,
   find,
   ok,
-  Result,
+  type Result,
 } from '@votingworks/basics';
 import { styled } from './styled.js';
-import { QrCode, QrCodeLevel } from './qrcode.js';
+import { QrCode, type QrCodeLevel } from './qrcode.js';
 import { Font, H4, H5, P } from './typography.js';
 import { VxThemeProvider } from './themes/vx_theme_provider.js';
 import { VX_DEFAULT_FONT_FAMILY_DECLARATION } from './fonts/font_family.js';

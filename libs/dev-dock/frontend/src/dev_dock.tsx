@@ -1,4 +1,4 @@
-import React, { RefObject, useEffect, useRef, useState } from 'react';
+import React, { type RefObject, useEffect, useRef, useState } from 'react';
 import {
   QueryClient,
   QueryClientProvider,
@@ -7,7 +7,10 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import styled, { css, FlattenSimpleInterpolation } from 'styled-components';
+import styled, {
+  css,
+  type FlattenSimpleInterpolation,
+} from 'styled-components';
 import * as grout from '@votingworks/grout';
 import {
   assert,
@@ -39,7 +42,7 @@ import {
   faPrint,
   faQrcode,
   faXmark,
-  IconDefinition,
+  type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   isFeatureFlagEnabled,
@@ -49,7 +52,11 @@ import { Button, Modal, P, VxThemeProvider } from '@votingworks/ui';
 import { UsbDriveIcon } from './usb_drive_icon.js';
 import { Colors } from './colors.js';
 import { FujitsuPrinterMockControl } from './fujitsu_printer_mock.js';
-import { ApiClient, ApiClientContext, useApiClient } from './api_client.js';
+import {
+  type ApiClient,
+  ApiClientContext,
+  useApiClient,
+} from './api_client.js';
 
 const Row = styled.div`
   display: flex;

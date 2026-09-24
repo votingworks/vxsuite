@@ -1,28 +1,28 @@
 import { assert, typedAs, throwIllegalValue } from '@votingworks/basics';
 import {
   safeParseJson,
-  Voter,
+  type Voter,
   VoterAddressChangeSchema,
   VoterCheckInSchema,
   VoterMailingAddressChangeSchema,
   VoterNameChangeSchema,
-  VoterRegistration,
+  type VoterRegistration,
   VoterRegistrationSchema,
 } from '@votingworks/types';
 import { rootDebug } from './debug.js';
 import {
-  EventDbRow,
+  type EventDbRow,
   EventType,
-  VoterCheckInEvent,
-  UndoVoterCheckInEvent,
-  VoterRegistrationEvent,
-  VoterRegistrationInvalidatedEvent,
-  PollbookEvent,
-  VoterAddressChangeEvent,
-  VoterMailingAddressChangeEvent,
-  VoterNameChangeEvent,
-  PollbookEventBase,
-  VoterInactivatedEvent,
+  type VoterCheckInEvent,
+  type UndoVoterCheckInEvent,
+  type VoterRegistrationEvent,
+  type VoterRegistrationInvalidatedEvent,
+  type PollbookEvent,
+  type VoterAddressChangeEvent,
+  type VoterMailingAddressChangeEvent,
+  type VoterNameChangeEvent,
+  type PollbookEventBase,
+  type VoterInactivatedEvent,
 } from './types.js';
 
 const debug = rootDebug.extend('store');

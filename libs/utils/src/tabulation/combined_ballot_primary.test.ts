@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest';
 import {
-  CandidateContest,
-  PartyId,
-  YesNoContest,
+  type CandidateContest,
+  type PartyId,
+  type YesNoContest,
   Tabulation,
 } from '@votingworks/types';
 import {

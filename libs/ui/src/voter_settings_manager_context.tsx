@@ -1,7 +1,7 @@
 // @coverage-exclude-file: tested via AppBase
 import React from 'react';
 
-import { ColorMode, SizeMode } from '@votingworks/types';
+import type { ColorMode, SizeMode } from '@votingworks/types';
 
 /** Provides an API for managing themes. */
 export interface VoterSettingsManagerContextInterface {

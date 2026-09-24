@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { PrinterRichStatus, PrinterStatus } from '@votingworks/types';
+import type { PrinterRichStatus, PrinterStatus } from '@votingworks/types';
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
@@ -7,7 +7,7 @@ import {
 } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import {
-  ApiMock,
+  type ApiMock,
   MOCK_PRINTER_CONFIG,
   createApiMock,
 } from '../../test/helpers/mock_api_client.js';

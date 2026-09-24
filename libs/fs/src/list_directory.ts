@@ -1,5 +1,11 @@
-import { Optional, Result, assert, err, ok } from '@votingworks/basics';
-import { Dir, Dirent, promises as fs } from 'node:fs';
+import {
+  type Optional,
+  type Result,
+  assert,
+  err,
+  ok,
+} from '@votingworks/basics';
+import { type Dir, type Dirent, promises as fs } from 'node:fs';
 import { isAbsolute, join } from 'node:path';
 
 /**

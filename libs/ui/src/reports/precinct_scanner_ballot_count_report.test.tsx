@@ -1,13 +1,13 @@
 import { expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
-  BooleanEnvironmentVariableName as Feature,
+  type BooleanEnvironmentVariableName as Feature,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import {
   anyPollingPlace,
-  BatchInfo,
+  type BatchInfo,
   formatElectionHashes,
 } from '@votingworks/types';
 import { render, screen } from '../../test/react_testing_library.js';

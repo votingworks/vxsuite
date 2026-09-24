@@ -1,10 +1,10 @@
 import { expect, test, vi } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
-  AdminContestWriteIns,
+  type AdminContestWriteIns,
   AdminWriteInImageReport,
-  CandidateGroupWriteIns,
-  WriteInEntry,
+  type CandidateGroupWriteIns,
+  type WriteInEntry,
 } from '@votingworks/ui';
 import { renderToPdf } from './render.js';
 

@@ -4,24 +4,24 @@ import { auth as auth0Middleware } from 'express-openid-connect';
 import path, { join } from 'node:path';
 import { Buffer } from 'node:buffer';
 import {
-  BallotMode,
-  Election,
+  type BallotMode,
+  type Election,
   HmpbBallotPaperSize,
-  SystemSettings,
-  BallotType,
-  ElectionSerializationFormat,
-  ElectionId,
-  BallotStyleId,
+  type SystemSettings,
+  type BallotType,
+  type ElectionSerializationFormat,
+  type ElectionId,
+  type BallotStyleId,
   unsafeParse,
   getAllBallotLanguages,
-  Precinct,
-  PrecinctRegisteredVoterCountEntry,
+  type Precinct,
+  type PrecinctRegisteredVoterCountEntry,
   PrecinctRegisteredVoterCountEntrySchema,
-  ElectionRegisteredVoterCounts,
-  District,
-  PrecinctId,
-  Party,
-  Contest,
+  type ElectionRegisteredVoterCounts,
+  type District,
+  type PrecinctId,
+  type Party,
+  type Contest,
   ContestSchema,
   HmpbBallotPaperSizeSchema,
   SystemSettingsSchema,
@@ -29,18 +29,18 @@ import {
   CastVoteRecordExportFileName,
   safeParseJson,
   CastVoteRecordReportWithoutMetadataSchema,
-  PrecinctSelection,
-  BallotStyle,
+  type PrecinctSelection,
+  type BallotStyle,
   formatBallotHash,
   PollingPlaceSchema,
-  PollingPlace,
-  PollingPlaceType,
+  type PollingPlace,
+  type PollingPlaceType,
   hasPartialRegisteredVoterCounts,
   getPrecinctsWithoutAbsenteePollingPlace,
   safeParseElectionDefinitionForAnySoftwareVersion,
   isCombinedBallotPrimary,
 } from '@votingworks/types';
-import express, { Application } from 'express';
+import express, { type Application } from 'express';
 import {
   assert,
   assertDefined,
@@ -49,19 +49,19 @@ import {
   extractErrorMessage,
   find,
   ok,
-  Optional,
-  Result,
+  type Optional,
+  type Result,
   throwIllegalValue,
   wrapException,
 } from '@votingworks/basics';
 import {
-  BallotLayoutError,
-  BallotTemplateId,
+  type BallotLayoutError,
+  type BallotTemplateId,
   ballotTemplates,
   createPlaywrightRenderer,
   hmpbStringsCatalog,
-  NhStateBallotProps,
-  NhStateBallotVariant,
+  type NhStateBallotProps,
+  type NhStateBallotVariant,
   renderBallotPreviewToPdf,
 } from '@votingworks/hmpb';
 import { translateBallotStrings, execFile } from '@votingworks/backend';
@@ -80,7 +80,7 @@ import {
   decryptAes256,
   decodeQuickResultsMessage,
 } from '@votingworks/auth';
-import {
+import type {
   MainExportTaskMetadata,
   DuplicateContestError,
   DuplicateDistrictError,
@@ -92,23 +92,23 @@ import {
   Store,
 } from './store.js';
 import {
-  AggregatedLiveReportActivityLog,
-  AggregatedReportedPollsStatus,
-  AggregatedReportedResults,
-  ElectionInfo,
-  ElectionInfoUpdate,
+  type AggregatedLiveReportActivityLog,
+  type AggregatedReportedPollsStatus,
+  type AggregatedReportedResults,
+  type ElectionInfo,
+  type ElectionInfoUpdate,
   ElectionInfoUpdateSchema,
-  ElectionListing,
-  ElectionUpload,
-  ExportQaRun,
-  GetExportedElectionError,
-  Jurisdiction,
-  ReceivedReportInfo,
-  ResultsReportingError,
-  User,
+  type ElectionListing,
+  type ElectionUpload,
+  type ExportQaRun,
+  type GetExportedElectionError,
+  type Jurisdiction,
+  type ReceivedReportInfo,
+  type ResultsReportingError,
+  type User,
   resultsReportingUrl,
 } from './types.js';
-import { AppContext } from './context.js';
+import type { AppContext } from './context.js';
 import {
   auth0ClientId,
   auth0IssuerBaseUrl,
@@ -129,10 +129,10 @@ import {
   userCanAccessJurisdiction,
 } from './utils.js';
 import {
-  StateFeaturesConfig,
+  type StateFeaturesConfig,
   getStateFeaturesConfig,
   getUserFeaturesConfig,
-  UserFeaturesConfig,
+  type UserFeaturesConfig,
 } from './features.js';
 import { QaConfig } from './qa_config.js';
 import { rootDebug } from './debug.js';
@@ -140,7 +140,7 @@ import * as ttsStrings from './tts_strings.js';
 import { convertMsElection } from './convert_ms_election.js';
 import {
   convertMsResults,
-  ConvertMsResultsError,
+  type ConvertMsResultsError,
 } from './convert_ms_results.js';
 import { defaultSystemSettings } from './system_settings.js';
 import { logActivity } from './activity_logs.js';

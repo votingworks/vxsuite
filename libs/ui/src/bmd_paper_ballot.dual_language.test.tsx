@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import {
-  CandidateContest,
-  Election,
-  ElectionDefinition,
+  type CandidateContest,
+  type Election,
+  type ElectionDefinition,
   ElectionStringKey,
-  VotesDict,
-  YesNoContest,
+  type VotesDict,
+  type YesNoContest,
   getContests,
   straightPartyNotYetImplemented,
 } from '@votingworks/types';
@@ -15,10 +15,10 @@ import { generateBallotStyleId } from '@votingworks/utils';
 import { assertDefined, find } from '@votingworks/basics';
 import { BmdPaperBallot } from './bmd_paper_ballot.js';
 import { newTestContext as newUiStringsTestContext } from '../test/test_context.js';
-import { UiString, UiStringProps } from './ui_strings/ui_string.js';
+import { UiString, type UiStringProps } from './ui_strings/ui_string.js';
 import { useLanguageContext } from './ui_strings/language_context.js';
 import { act, screen, waitFor } from '../test/react_testing_library.js';
-import { AppStringKey } from './index.js';
+import type { AppStringKey } from './index.js';
 import {
   generateCandidateVotes,
   generateYesNoVote,

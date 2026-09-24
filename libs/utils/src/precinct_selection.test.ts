@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { readElectionGeneral } from '@votingworks/fixtures';
-import { Precinct } from '@votingworks/types';
+import type { Precinct } from '@votingworks/types';
 import {
   ALL_PRECINCTS_NAME,
   ALL_PRECINCTS_SELECTION,

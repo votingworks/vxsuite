@@ -4,7 +4,7 @@ import { ok } from '@votingworks/basics';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { renderHook } from '../test/react_testing_library.js';
 import {
-  ApiClient,
+  type ApiClient,
   configureElectionPackageFromUsb,
   createApiClient,
   uiStringsApi,

@@ -7,13 +7,13 @@ import {
 import {
   BallotType,
   BallotTypeMaximumValue,
-  Candidate,
-  CandidateContest,
+  type Candidate,
+  type CandidateContest,
   getContests,
-  HmpbBallotPageMetadata,
+  type HmpbBallotPageMetadata,
   LATEST_SOFTWARE_VERSION,
   vote,
-  VotesDict,
+  type VotesDict,
 } from '@votingworks/types';
 import {
   decodeBallotHash,
@@ -27,7 +27,7 @@ import {
   encodeSummaryBallotPage,
   encodeSummaryBallotPageInto,
   decodeSummaryBallotPage,
-  SummaryBallotPage,
+  type SummaryBallotPage,
 } from './index.js';
 import { BitReader, BitWriter } from './bits/index.js';
 

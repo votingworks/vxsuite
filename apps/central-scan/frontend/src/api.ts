@@ -10,13 +10,13 @@ import {
 } from '@votingworks/ui';
 import {
   QueryClient,
-  QueryKey,
+  type QueryKey,
   useMutation,
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
 import * as grout from '@votingworks/grout';
-import { Id } from '@votingworks/types';
+import type { Id } from '@votingworks/types';
 
 export type ApiClient = grout.Client<Api>;
 

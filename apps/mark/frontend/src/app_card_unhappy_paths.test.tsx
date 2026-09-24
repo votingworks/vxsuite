@@ -5,7 +5,10 @@ import { render, screen } from '../test/react_testing_library.js';
 
 import { App } from './app.js';
 
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

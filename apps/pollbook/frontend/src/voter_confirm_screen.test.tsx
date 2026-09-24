@@ -1,6 +1,6 @@
 import { expect, test, beforeEach, afterEach, vi, type Mock } from 'vitest';
-import { ComponentProps } from 'react';
-import {
+import type { ComponentProps } from 'react';
+import type {
   Election,
   Voter,
   ValidStreetInfo,
@@ -13,7 +13,7 @@ import {
 } from '@votingworks/fixtures';
 import { screen, waitFor, within } from '../test/react_testing_library.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   createMockVoter,
 } from '../test/mock_api_client.js';

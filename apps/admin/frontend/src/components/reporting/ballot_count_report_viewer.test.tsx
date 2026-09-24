@@ -5,10 +5,10 @@ import {
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { BallotCountReportSpec } from '@votingworks/admin-backend';
+import type { BallotCountReportSpec } from '@votingworks/admin-backend';
 import { ok } from '@votingworks/basics';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
 } from '../../../test/helpers/mock_api_client.js';
 import { screen, within } from '../../../test/react_testing_library.js';

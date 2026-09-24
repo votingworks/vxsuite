@@ -1,5 +1,5 @@
 import { throwIllegalValue } from '@votingworks/basics';
-import { Uint8 } from '@votingworks/message-coder';
+import type { Uint8 } from '@votingworks/message-coder';
 
 /**
  * Maximum value of a `Uint16`

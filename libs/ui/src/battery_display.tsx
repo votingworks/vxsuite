@@ -2,7 +2,7 @@ import type { BatteryInfo as BatteryInfoType } from '@votingworks/backend';
 import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { styled } from './styled.js';
-import { IconProps, Icons } from './icons.js';
+import { type IconProps, Icons } from './icons.js';
 import { Font } from './typography.js';
 import { useSystemCallApi } from './system_call_api.js';
 

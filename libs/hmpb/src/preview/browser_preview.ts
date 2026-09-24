@@ -1,18 +1,18 @@
 import './polyfills.js';
 import {
-  BaseBallotProps,
+  type BaseBallotProps,
   HmpbBallotPaperSize,
-  BallotStyle,
+  type BallotStyle,
   BallotType,
   getContests,
   safeParseElection,
-  Election,
+  type Election,
   unsafeParse,
   HmpbBallotPaperSizeSchema,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import {
-  BallotPageTemplate,
+  type BallotPageTemplate,
   gridHeightToPixels,
   gridWidthToPixels,
   measureTimingMarkGrid,
@@ -20,9 +20,13 @@ import {
 } from '../render_ballot.js';
 import { createBrowserPreviewRenderer } from './browser_preview_renderer.js';
 import { createTestVotes, markBallotDocument } from '../mark_ballot.js';
-import { BUBBLE_CLASS, OptionInfo, PAGE_CLASS } from '../ballot_components.js';
 import {
-  BallotTemplateId,
+  BUBBLE_CLASS,
+  type OptionInfo,
+  PAGE_CLASS,
+} from '../ballot_components.js';
+import {
+  type BallotTemplateId,
   ballotTemplates,
 } from '../ballot_templates/index.js';
 

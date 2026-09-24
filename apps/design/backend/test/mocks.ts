@@ -1,5 +1,5 @@
 import { LATEST_SOFTWARE_VERSION } from '@votingworks/types';
-import {
+import type {
   OrganizationUser,
   Jurisdiction,
   JurisdictionUser,

@@ -8,7 +8,10 @@ import { DateWithoutTime } from '@votingworks/basics';
 import { anyPollingPlace } from '@votingworks/types';
 import { render, screen } from '../test/react_testing_library.js';
 
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../test/helpers/mock_api_client.js';
 import { App } from './app.js';
 
 let apiMock: ApiMock;

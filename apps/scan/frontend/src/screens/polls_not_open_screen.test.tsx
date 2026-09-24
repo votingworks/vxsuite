@@ -4,10 +4,10 @@ import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { render, screen } from '../../test/react_testing_library.js';
 import {
   PollsNotOpenScreen,
-  PollsNotOpenScreenProps,
+  type PollsNotOpenScreenProps,
 } from './polls_not_open_screen.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   machineConfig,
   provideApi,

@@ -1,5 +1,5 @@
 import { appStrings, Caption, H1, Icons, P } from '@votingworks/ui';
-import { PollsState } from '@votingworks/types';
+import type { PollsState } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { CenteredText, ScreenMainCenterChild } from '../components/layout.js';
 import { useAlarm } from '../utils/use_alarm.js';

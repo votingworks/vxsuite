@@ -12,14 +12,14 @@ import {
 } from '@votingworks/ui';
 
 import {
-  YesNoVote,
-  Election,
+  type YesNoVote,
+  type Election,
   getContestDistrict,
-  YesNoOption,
+  type YesNoOption,
 } from '@votingworks/types';
 
-import { UpdateVoteFunction } from '../config/types.js';
-import { MsEitherNeitherContest as MsEitherNeitherContestInterface } from '../utils/ms_either_neither_contests.js';
+import type { UpdateVoteFunction } from '../config/types.js';
+import type { MsEitherNeitherContest as MsEitherNeitherContestInterface } from '../utils/ms_either_neither_contests.js';
 import { ContestHeader } from './contest_header.js';
 
 const ChoicesGrid = styled.div`

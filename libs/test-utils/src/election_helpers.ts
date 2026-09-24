@@ -1,18 +1,18 @@
 import { DateWithoutTime } from '@votingworks/basics';
 import {
-  Contest,
-  BallotStyle,
-  CandidateContest,
-  District,
-  Election,
-  ElectionDefinition,
+  type Contest,
+  type BallotStyle,
+  type CandidateContest,
+  type District,
+  type Election,
+  type ElectionDefinition,
   HmpbBallotPaperSize,
-  Party,
-  Precinct,
+  type Party,
+  type Precinct,
   safeParseElectionDefinition,
   straightPartyNotYetImplemented,
-  VotesDict,
-  YesNoContest,
+  type VotesDict,
+  type YesNoContest,
 } from '@votingworks/types';
 
 /**

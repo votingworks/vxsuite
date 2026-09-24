@@ -1,8 +1,8 @@
 import { assert, assertDefined } from '@votingworks/basics';
 import { BallotsPrintedReport } from '@votingworks/ui';
-import { LogEventId, Logger } from '@votingworks/logging';
-import { Printer, renderToPdf } from '@votingworks/printing';
-import { UsbDrive } from '@votingworks/usb-drive';
+import { LogEventId, type Logger } from '@votingworks/logging';
+import { type Printer, renderToPdf } from '@votingworks/printing';
+import type { UsbDrive } from '@votingworks/usb-drive';
 import { Exporter } from '@votingworks/backend';
 import { join } from 'node:path';
 import {
@@ -10,8 +10,8 @@ import {
   REPORT_FOLDER,
   generateFileTimeSuffix,
 } from '@votingworks/utils';
-import { ElectionDefinition } from '@votingworks/types';
-import { Store } from '../store.js';
+import type { ElectionDefinition } from '@votingworks/types';
+import type { Store } from '../store.js';
 import { getPrintAllowedExportPatterns } from '../globals.js';
 
 export function generateReportsDirectoryPath(

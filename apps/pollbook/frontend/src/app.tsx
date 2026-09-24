@@ -24,7 +24,7 @@ import {
 } from '@votingworks/utils';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
 import {
-  ApiClient,
+  type ApiClient,
   ApiClientContext,
   checkPin,
   createApiClient,

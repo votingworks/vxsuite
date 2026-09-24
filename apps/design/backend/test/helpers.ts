@@ -2,32 +2,32 @@
 import {
   makeMockGoogleCloudTextToSpeechClient,
   makeMockGoogleCloudTranslationClient,
-  VendoredTranslations,
+  type VendoredTranslations,
 } from '@votingworks/backend';
 import {
   assert,
   assertDefined,
   err,
   ok,
-  Result,
+  type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 import * as grout from '@votingworks/grout';
 import { mockBaseLogger, mockLogger } from '@votingworks/logging';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
-  Election,
-  ElectionDefinition,
-  ElectionId,
-  ElectionSerializationFormat,
+  type Election,
+  type ElectionDefinition,
+  type ElectionId,
+  type ElectionSerializationFormat,
   formatBallotHash,
   LanguageCode,
   safeParseInt,
   straightPartyNotYetImplemented,
 } from '@votingworks/types';
-import { Server } from 'node:http';
-import { AddressInfo } from 'node:net';
+import type { Server } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { Readable } from 'node:stream';
 import * as tmp from 'tmp';
 import { onTestFinished, vi } from 'vitest';
@@ -35,24 +35,23 @@ import { join } from 'node:path';
 import { readFileSync } from 'node:fs';
 import { stringify } from 'csv-stringify/sync';
 import { buffer } from 'node:stream/consumers';
-import type { Api, UnauthenticatedApi } from '../src/app.js';
-import { buildApp } from '../src/app.js';
-import { Auth0ClientInterface } from '../src/auth0_client.js';
-import {
+import { type Api, type UnauthenticatedApi, buildApp } from '../src/app.js';
+import type { Auth0ClientInterface } from '../src/auth0_client.js';
+import type {
   FileStorageClient,
   FileStorageClientError,
 } from '../src/file_storage_client.js';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from '../src/speech_synthesizer.js';
 import { GoogleCloudTranslatorWithDbCache } from '../src/translator.js';
-import { Jurisdiction, Organization, User } from '../src/types.js';
+import type { Jurisdiction, Organization, User } from '../src/types.js';
 import * as worker from '../src/worker/worker.js';
-import { createWorkspace, Workspace } from '../src/workspace.js';
+import { createWorkspace, type Workspace } from '../src/workspace.js';
 import { TestStore } from './test_store.js';
-import {
+import type {
   AllPrecinctsTallyReportRow,
   AllPrecinctsTallyReportRowWithManualTallies,
 } from '../src/convert_ms_results.js';
-import { MainExportTaskMetadata } from '../src/index.js';
+import type { MainExportTaskMetadata } from '../src/index.js';
 
 tmp.setGracefulCleanup();
 

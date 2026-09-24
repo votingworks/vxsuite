@@ -1,9 +1,13 @@
-import { Result, err, ok } from '@votingworks/basics';
-import { z } from 'zod/v4';
+import { type Result, err, ok } from '@votingworks/basics';
+import type { z } from 'zod/v4';
 import { sha256 } from './sha256.js';
 import { safeParseCdfBallotDefinition } from './cdf/ballot-definition/convert.js';
-import * as Cdf from './cdf/ballot-definition/index.js';
-import { Election, ElectionDefinition, ElectionSchema } from './election.js';
+import type * as Cdf from './cdf/ballot-definition/index.js';
+import {
+  type Election,
+  type ElectionDefinition,
+  ElectionSchema,
+} from './election.js';
 import { safeParse, safeParseJson } from './generic.js';
 
 /**

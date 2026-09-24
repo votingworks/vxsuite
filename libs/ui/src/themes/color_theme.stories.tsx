@@ -1,7 +1,7 @@
 import type { Meta } from '@storybook/react-vite' with {
   'resolution-mode': 'import',
 };
-import { ColorMode } from '@votingworks/types';
+import type { ColorMode } from '@votingworks/types';
 import { useTheme } from 'styled-components';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { throwIllegalValue } from '@votingworks/basics';

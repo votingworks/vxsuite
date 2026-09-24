@@ -1,4 +1,8 @@
-import { Election, ElectionDefinition, PollsState } from '@votingworks/types';
+import type {
+  Election,
+  ElectionDefinition,
+  PollsState,
+} from '@votingworks/types';
 import {
   Button,
   Modal,
@@ -9,7 +13,7 @@ import {
   ExportLogsButton,
   UnconfigureMachineButton,
   Icons,
-  TabConfig,
+  type TabConfig,
   PowerDownButton,
   SignedHashValidationButton,
   PollingPlacePicker,

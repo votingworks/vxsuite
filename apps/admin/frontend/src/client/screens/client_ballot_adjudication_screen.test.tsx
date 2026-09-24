@@ -6,7 +6,7 @@ import {
 import {
   constructElectionKey,
   DEFAULT_SYSTEM_SETTINGS,
-  DippedSmartCardAuth,
+  type DippedSmartCardAuth,
 } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { err, ok } from '@votingworks/basics';
@@ -14,7 +14,7 @@ import { Route } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import { screen, waitFor } from '../../../test/react_testing_library.js';
 import {
-  ClientApiMock,
+  type ClientApiMock,
   createClientApiMock,
 } from '../../../test/helpers/mock_client_api_client.js';
 import { renderInClientContext } from '../../../test/render_in_client_context.js';

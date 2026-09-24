@@ -8,7 +8,7 @@ import {
   find,
   naturals,
   ok,
-  Result,
+  type Result,
   throwIllegalValue,
   unique,
   wrapException,
@@ -29,11 +29,11 @@ import {
   getContests,
   getOrderedCandidatesForContestInBallotStyle,
 } from '../../election_utils.js';
-import { Id, safeParse } from '../../generic.js';
+import { type Id, safeParse } from '../../generic.js';
 import { safeParseInt } from '../../numeric.js';
 import {
   ElectionStringKey,
-  UiStringsPackage,
+  type UiStringsPackage,
 } from '../../ui_string_translations.js';
 import { DEFAULT_LANGUAGE_CODE } from '../../languages.js';
 import { pollingPlaceMembers } from '../../polling_places.js';

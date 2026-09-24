@@ -1,7 +1,7 @@
 import { Button, H1, LoadingAnimation, P } from '@votingworks/ui';
 import { useCallback, useState } from 'react';
-import { PollsTransitionType } from '@votingworks/types';
-import { Optional, assert } from '@votingworks/basics';
+import type { PollsTransitionType } from '@votingworks/types';
+import { type Optional, assert } from '@votingworks/basics';
 import { getPollsReportTitle } from '@votingworks/utils';
 import type { PrintResult } from '@votingworks/fujitsu-thermal-printer';
 import {

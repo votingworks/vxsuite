@@ -1,4 +1,4 @@
-import { expect, Mocked, test, vi } from 'vitest';
+import { expect, type Mocked, test, vi } from 'vitest';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
@@ -10,7 +10,7 @@ import { Store } from './store.js';
 import { createWorkspace } from './util/workspace.js';
 import { buildApi } from './app.js';
 import { buildMockLogger } from '../test/app_helpers.js';
-import { PaperHandlerStateMachine } from './custom-paper-handler/index.js';
+import type { PaperHandlerStateMachine } from './custom-paper-handler/index.js';
 
 function getMockStateMachine() {
   return typedAs<Partial<PaperHandlerStateMachine>>({

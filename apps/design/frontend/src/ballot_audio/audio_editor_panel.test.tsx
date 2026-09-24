@@ -1,17 +1,21 @@
 import { expect, test, vi } from 'vitest';
 
-import { TtsStringDefault } from '@votingworks/design-backend';
-import { Contest, ElectionStringKey, YesNoContest } from '@votingworks/types';
+import type { TtsStringDefault } from '@votingworks/design-backend';
+import {
+  type Contest,
+  ElectionStringKey,
+  type YesNoContest,
+} from '@votingworks/types';
 
-import { AudioEditor, AudioEditorProps } from './audio_editor.js';
+import { AudioEditor, type AudioEditorProps } from './audio_editor.js';
 import {
   createMockApiClient,
-  MockApiClient,
+  type MockApiClient,
   provideApi,
 } from '../../test/api_helpers.js';
 import {
   AudioEditorPanel,
-  AudioEditorPanelProps,
+  type AudioEditorPanelProps,
 } from './audio_editor_panel.js';
 import { render, screen } from '../../test/react_testing_library.js';
 

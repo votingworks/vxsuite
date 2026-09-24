@@ -1,6 +1,6 @@
 import { find } from '@votingworks/basics';
 import {
-  Election,
+  type Election,
   getPartyForBallotStyle,
   Tabulation,
 } from '@votingworks/types';

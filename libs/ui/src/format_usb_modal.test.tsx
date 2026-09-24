@@ -1,16 +1,19 @@
 import React from 'react';
 import { expect, test, vi } from 'vitest';
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, type Result } from '@votingworks/basics';
 import {
   QueryClient,
   QueryClientProvider,
   useMutation,
 } from '@tanstack/react-query';
 import { act } from '@testing-library/react';
-import { UsbDriveStatus } from '@votingworks/usb-drive';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { userEvent } from './user_event.js';
 import { render, screen } from '../test/react_testing_library.js';
-import { FormatUsbButton, FormatUsbButtonProps } from './format_usb_modal.js';
+import {
+  FormatUsbButton,
+  type FormatUsbButtonProps,
+} from './format_usb_modal.js';
 import { mockUsbDriveStatus } from './test-utils/mock_usb_drive.js';
 import { QUERY_CLIENT_DEFAULT_OPTIONS } from './react_query.js';
 

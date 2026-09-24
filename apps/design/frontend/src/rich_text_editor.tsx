@@ -1,7 +1,7 @@
 import {
   useEditor,
   EditorContent,
-  Editor,
+  type Editor,
   useEditorState,
 } from '@tiptap/react';
 import Bold from '@tiptap/extension-bold';
@@ -21,10 +21,10 @@ import {
   TableHeader,
 } from '@tiptap/extension-table';
 import { Dropcursor, Gapcursor, UndoRedo } from '@tiptap/extensions';
-import { Node as PMNode, Slice } from '@tiptap/pm/model';
+import { type Node as PMNode, Slice } from '@tiptap/pm/model';
 import {
   Button,
-  ButtonProps,
+  type ButtonProps,
   Callout,
   Icons,
   richTextStyles,
@@ -33,7 +33,7 @@ import styled from 'styled-components';
 import React, { useState } from 'react';
 import { Buffer } from 'node:buffer';
 import { ImageInputButton } from './image_input.js';
-import { NormalizeParams } from './image_normalization.js';
+import type { NormalizeParams } from './image_normalization.js';
 
 const ControlGroup = styled.div`
   display: flex;

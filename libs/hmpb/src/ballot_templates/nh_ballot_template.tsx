@@ -6,28 +6,28 @@ import {
   iter,
   ok,
   range,
-  Result,
+  type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import {
-  Contest as ContestStruct,
-  BallotMode,
-  BallotStyle,
-  BallotStyleId,
+  type Contest as ContestStruct,
+  type BallotMode,
+  type BallotStyle,
+  type BallotStyleId,
   BallotType,
-  BaseBallotProps,
-  Candidate,
-  CandidateContest as CandidateContestStruct,
-  ContestId,
-  OrderedCandidateOption,
-  Election,
-  ElectionId,
+  type BaseBallotProps,
+  type Candidate,
+  type CandidateContest as CandidateContestStruct,
+  type ContestId,
+  type OrderedCandidateOption,
+  type Election,
+  type ElectionId,
   LanguageCode,
-  NhPrecinctSplitOptions,
-  Precinct,
-  PrecinctId,
-  YesNoContest,
+  type NhPrecinctSplitOptions,
+  type Precinct,
+  type PrecinctId,
+  type YesNoContest,
   ballotPaperDimensions,
   getBallotStyle,
   getPartyForBallotStyle,
@@ -43,14 +43,14 @@ import {
   RichText,
 } from '@votingworks/ui';
 import { parse as parseHtml } from 'node-html-parser';
-import {
+import type {
   BallotLayoutError,
   BallotPageTemplate,
   ContentComponentResult,
 } from '../render_ballot.js';
-import { RenderScratchpad } from '../renderer.js';
+import type { RenderScratchpad } from '../renderer.js';
 import {
-  OptionInfo,
+  type OptionInfo,
   Page,
   TimingMarkGrid,
   WRITE_IN_OPTION_CLASS,
@@ -70,7 +70,7 @@ import {
   CANDIDATE_OPTION_CLASS,
   BALLOT_MEASURE_OPTION_CLASS,
 } from '../ballot_components.js';
-import {
+import type {
   PixelDimensions,
   CandidateOrdering,
   RotationParams,

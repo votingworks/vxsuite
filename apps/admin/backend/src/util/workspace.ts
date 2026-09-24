@@ -12,7 +12,7 @@ import { ensureDirSync } from 'fs-extra';
 import { isNonExistentFileOrDirectoryError } from '@votingworks/basics';
 import { getDiskSpaceSummaries, getNodeEnv } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
-import { BaseLogger, LogEventId } from '@votingworks/logging';
+import { type BaseLogger, LogEventId } from '@votingworks/logging';
 import { Store } from '../store.js';
 import { ClientStore } from '../client_store.js';
 

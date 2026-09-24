@@ -1,12 +1,12 @@
 import {
-  Admin,
-  Election,
+  type Admin,
+  type Election,
   straightPartyNotYetImplemented,
-  Tabulation,
+  type Tabulation,
 } from '@votingworks/types';
 import { mapObject } from '@votingworks/basics';
 import {
-  ContestResultsSummaries,
+  type ContestResultsSummaries,
   buildElectionResultsFixture,
 } from './tabulation.js';
 

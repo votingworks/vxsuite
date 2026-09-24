@@ -20,10 +20,10 @@ import {
 } from '../../../test/react_testing_library.js';
 import {
   DiagnosticsScreen,
-  DiagnosticsScreenProps,
+  type DiagnosticsScreenProps,
 } from './diagnostics_screen.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   provideApi,
 } from '../../../test/helpers/mock_api_client.js';

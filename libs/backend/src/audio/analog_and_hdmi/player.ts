@@ -1,10 +1,10 @@
 /* eslint-disable vx/gts-no-return-type-only-generics */
 /* eslint-disable vx/gts-jsdoc */
-import { Logger } from '@votingworks/logging';
+import type { Logger } from '@votingworks/logging';
 import { AudioPlayer } from '../player.js';
 import { AUDIO_DEVICE_DEFAULT_SINK } from '../../system_call/pulse_audio.js';
-import { AudioCard } from './card.js';
-import { NODE_ENV } from '../../globals.js';
+import type { AudioCard } from './card.js';
+import type { NODE_ENV } from '../../globals.js';
 
 export interface PlayerInterface<Sound extends string> {
   setIsScreenReaderEnabled(enabled: boolean): Promise<void>;

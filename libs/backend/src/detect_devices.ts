@@ -1,4 +1,4 @@
-import { LogEventId, BaseLogger } from '@votingworks/logging';
+import { LogEventId, type BaseLogger } from '@votingworks/logging';
 import { usb } from 'usb';
 
 /**

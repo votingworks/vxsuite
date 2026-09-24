@@ -1,19 +1,19 @@
-import { Optional, throwIllegalValue } from '@votingworks/basics';
+import { type Optional, throwIllegalValue } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
-import { BaseLogger, LogEventId } from '@votingworks/logging';
+import { type BaseLogger, LogEventId } from '@votingworks/logging';
 import {
   findAllVxAdminHostMachines,
   hasOnlineInterface,
   NETWORK_POLLING_INTERVAL_MS,
   NETWORK_REQUEST_TIMEOUT_MS,
-  RegisterScannerError,
-  VxAdminHostApi,
-  VxAdminHostMachine,
+  type RegisterScannerError,
+  type VxAdminHostApi,
+  type VxAdminHostMachine,
 } from '@votingworks/networking';
 import makeDebug from 'debug';
 import { getMachineConfig } from './machine_config.js';
-import { Store } from './store.js';
-import { NetworkConnectionInfo } from './types.js';
+import type { Store } from './store.js';
+import type { NetworkConnectionInfo } from './types.js';
 
 const debug = makeDebug('scan:networking');
 

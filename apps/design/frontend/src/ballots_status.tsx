@@ -10,7 +10,7 @@ import {
   Icons,
   Modal,
   Callout as CalloutBase,
-  CalloutProps,
+  type CalloutProps,
   Font,
 } from '@votingworks/ui';
 
@@ -19,7 +19,7 @@ import {
   getPrecinctsWithoutAbsenteePollingPlace,
 } from '@votingworks/types';
 import * as api from './api.js';
-import { ElectionIdParams, routes } from './routes.js';
+import { type ElectionIdParams, routes } from './routes.js';
 import { Row } from './layout.js';
 
 export function BallotsStatus(): React.ReactNode {

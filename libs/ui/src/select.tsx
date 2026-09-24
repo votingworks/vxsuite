@@ -1,5 +1,5 @@
 // Inspiration: https://www.filamentgroup.com/lab/select-css.html
-import React from 'react';
+import type React from 'react';
 import { styled } from './styled.js';
 
 export type SelectProps = React.SelectHTMLAttributes<HTMLSelectElement> & {

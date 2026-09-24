@@ -6,7 +6,7 @@ import { LoremIpsum } from 'lorem-ipsum';
 import { styled } from './styled.js';
 import {
   WithScrollButtons,
-  WithScrollButtonsProps,
+  type WithScrollButtonsProps,
 } from './with_scroll_buttons.js';
 import { H1 } from './typography.js';
 import { Card } from './card.js';

@@ -1,5 +1,5 @@
-import { LogEventId, Logger } from '@votingworks/logging';
-import {
+import { LogEventId, type Logger } from '@votingworks/logging';
+import type {
   ExportCastVoteRecordsToUsbDriveError,
   SystemSettings,
 } from '@votingworks/types';
@@ -8,17 +8,17 @@ import {
   assertDefined,
   extractErrorMessage,
   iter,
-  Result,
+  type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
   exportCastVoteRecordsToUsbDrive as exportCastVoteRecordsToUsbDriveBackend,
-  Sheet,
+  type Sheet,
 } from '@votingworks/backend';
-import { UsbDrive } from '@votingworks/usb-drive';
+import type { UsbDrive } from '@votingworks/usb-drive';
 import { encryptAes256 } from '@votingworks/auth';
-import { Workspace } from './util/workspace.js';
-import { Store } from './store.js';
+import type { Workspace } from './util/workspace.js';
+import type { Store } from './store.js';
 
 export async function encryptBallotAuditId(
   store: Store,

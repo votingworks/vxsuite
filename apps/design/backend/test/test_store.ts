@@ -1,4 +1,4 @@
-import { BaseLogger } from '@votingworks/logging';
+import type { BaseLogger } from '@votingworks/logging';
 import { randomUUID as uuid } from 'node:crypto';
 import { Db } from '../src/db/db.js';
 import { Store } from '../src/store.js';

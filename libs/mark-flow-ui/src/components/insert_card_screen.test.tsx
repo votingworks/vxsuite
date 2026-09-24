@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 
-import { PollsState } from '@votingworks/types';
-import { ElectionInfoBar, ElectionInfoBarProps } from '@votingworks/ui';
+import type { PollsState } from '@votingworks/types';
+import { ElectionInfoBar, type ElectionInfoBarProps } from '@votingworks/ui';
 import { assertDefined } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library.js';
 import { InsertCardScreen } from './insert_card_screen.js';

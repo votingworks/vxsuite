@@ -4,10 +4,10 @@ import { assertDefined, ok } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { ElectionIdSchema, unsafeParse } from '@votingworks/types';
-import { ElectionListing } from '@votingworks/design-backend';
+import type { ElectionListing } from '@votingworks/design-backend';
 import { format } from '@votingworks/utils';
 import {
-  MockApiClient,
+  type MockApiClient,
   createMockApiClient,
   jurisdiction,
   jurisdiction2,

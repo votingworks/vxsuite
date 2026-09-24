@@ -3,8 +3,8 @@ import { SearchSelect } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import {
-  CandidateContest,
-  Election,
+  type CandidateContest,
+  type Election,
   getContestDistrictName,
   getPartyAbbreviationByPartyId,
 } from '@votingworks/types';

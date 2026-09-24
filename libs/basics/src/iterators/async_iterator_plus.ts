@@ -1,6 +1,6 @@
 import { assert } from '../assert.js';
-import { MaybePromise, Optional } from '../types.js';
-import {
+import type { MaybePromise, Optional } from '../types.js';
+import type {
   AsyncIteratorPlus,
   AsyncZipElements,
   Chunk,

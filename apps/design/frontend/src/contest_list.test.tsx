@@ -1,18 +1,18 @@
-import { Contest, District, Party } from '@votingworks/types';
+import type { Contest, District, Party } from '@votingworks/types';
 import { afterEach, expect, test, vi } from 'vitest';
-import { createMemoryHistory, MemoryHistory } from 'history';
+import { createMemoryHistory, type MemoryHistory } from 'history';
 import { Router, Route } from 'react-router-dom';
 import { assert, typedAs } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import {
   createMockApiClient,
-  MockApiClient,
+  type MockApiClient,
   provideApi,
 } from '../test/api_helpers.js';
 import {
   ContestList,
-  ContestListProps,
-  ReorderParams,
+  type ContestListProps,
+  type ReorderParams,
 } from './contest_list.js';
 import { render, screen, within } from '../test/react_testing_library.js';
 import { routes } from './routes.js';

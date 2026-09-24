@@ -1,14 +1,18 @@
 import { afterEach, beforeEach, expect, test, vi, describe } from 'vitest';
-import { BallotType, CandidateContest, YesNoContest } from '@votingworks/types';
+import {
+  BallotType,
+  type CandidateContest,
+  type YesNoContest,
+} from '@votingworks/types';
 import type { BallotTemplateId } from '@votingworks/design-backend';
-import { DocumentProps, PageProps } from 'react-pdf';
-import { ReactNode, useEffect } from 'react';
+import type { DocumentProps, PageProps } from 'react-pdf';
+import { type ReactNode, useEffect } from 'react';
 import { ok, err } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
-  MockApiClient,
+  type MockApiClient,
   createMockApiClient,
   jurisdiction,
   provideApi,

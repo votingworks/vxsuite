@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { ColorMode, ColorString, SizeMode } from '@votingworks/types';
+import type { ColorMode, ColorString, SizeMode } from '@votingworks/types';
 
 import { DesktopPalette, TouchscreenPalette, makeTheme } from './make_theme.js';
 

@@ -1,5 +1,5 @@
-import { Result } from '@votingworks/basics';
-import {
+import type { Result } from '@votingworks/basics';
+import type {
   DippedSmartCardAuth,
   ElectionKey,
   ElectionManagerUser,
@@ -12,7 +12,7 @@ import {
   VendorUser,
 } from '@votingworks/types';
 
-import { MachineType } from './certs.js';
+import type { MachineType } from './certs.js';
 
 /**
  * The API for a dipped smart card auth instance, "dipped" meaning that the card needs to be

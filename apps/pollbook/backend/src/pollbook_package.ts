@@ -1,13 +1,13 @@
-import { Result, assertDefined, err, iter, ok } from '@votingworks/basics';
-import { readFile, ReadFileError } from '@votingworks/fs';
+import { type Result, assertDefined, err, iter, ok } from '@votingworks/basics';
+import { readFile, type ReadFileError } from '@votingworks/fs';
 import { createHash } from 'node:crypto';
 import {
-  Election,
+  type Election,
   safeParseElectionDefinition,
   safeParseInt,
-  StreetSide,
-  ValidStreetInfo,
-  Voter,
+  type StreetSide,
+  type ValidStreetInfo,
+  type Voter,
 } from '@votingworks/types';
 import { parse } from 'csv-parse/sync';
 import {
@@ -24,9 +24,9 @@ import { createReadStream, createWriteStream } from 'node:fs';
 import { pipeline } from 'node:stream/promises';
 import { rootDebug } from './debug.js';
 import {
-  LocalAppContext,
-  PollbookPackage,
-  PeerAppContext,
+  type LocalAppContext,
+  type PollbookPackage,
+  type PeerAppContext,
   PollbookConnectionStatus,
 } from './types.js';
 import {

@@ -4,7 +4,7 @@ import {
   lineTo,
   moveTo,
   PDFDocument,
-  PDFPage,
+  type PDFPage,
   setFillingGrayscaleColor,
 } from 'pdf-lib';
 import fontKit from '@pdf-lib/fontkit';
@@ -13,14 +13,14 @@ import fs from 'node:fs';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   ballotPaperDimensions,
-  Candidate,
-  Contest,
-  Election,
-  GridPosition,
+  type Candidate,
+  type Contest,
+  type Election,
+  type GridPosition,
   gridPositionsFromBallotPositions,
-  Rect,
-  Vote,
-  VotesDict,
+  type Rect,
+  type Vote,
+  type VotesDict,
 } from '@votingworks/types';
 
 import {
@@ -30,7 +30,7 @@ import {
   TIMING_MARK_DIMENSIONS,
   timingMarkCounts,
 } from './ballot_components.js';
-import { InchDimensions, PrintCalibration } from './types.js';
+import type { InchDimensions, PrintCalibration } from './types.js';
 import { voteMatchesGridPosition } from './vote_matching.js';
 import { drawWriteInText } from './write_in_text.js';
 

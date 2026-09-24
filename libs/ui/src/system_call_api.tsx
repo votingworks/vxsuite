@@ -1,14 +1,14 @@
 import React from 'react';
 
-import { Optional } from '@votingworks/basics';
+import type { Optional } from '@votingworks/basics';
 import {
-  QueryKey,
+  type QueryKey,
   useMutation,
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
 import type { SystemCallApiMethods } from '@votingworks/backend';
-import * as grout from '@votingworks/grout';
+import type * as grout from '@votingworks/grout';
 
 export const BATTERY_POLLING_INTERVAL_GROUT = 3000;
 export const AUDIO_INFO_POLLING_INTERVAL_MS = 1000;

@@ -1,12 +1,12 @@
 import React from 'react';
 
 import {
-  AppStringKey,
+  type AppStringKey,
   AudioOnly,
   ReadOnLoad,
   appStrings,
 } from '../ui_strings/index.js';
-import { Keybinding } from '../keybindings.js';
+import type { Keybinding } from '../keybindings.js';
 import { Screen } from '../screen.js';
 import { Main } from '../main.js';
 import { useAudioControls } from '../hooks/use_audio_controls.js';

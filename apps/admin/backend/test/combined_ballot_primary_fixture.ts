@@ -1,10 +1,10 @@
-import { Id, Tabulation } from '@votingworks/types';
-import * as grout from '@votingworks/grout';
+import type { Id, Tabulation } from '@votingworks/types';
+import type * as grout from '@votingworks/grout';
 import { assertDefined } from '@votingworks/basics';
-import { Store } from '../src/store.js';
-import { Api } from '../src/app.js';
+import type { Store } from '../src/store.js';
+import type { Api } from '../src/app.js';
 import {
-  MockCastVoteRecordFile,
+  type MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from './mock_cvr_file.js';
 

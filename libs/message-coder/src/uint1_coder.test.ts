@@ -3,7 +3,7 @@ import { err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import * as fc from 'fast-check';
 import { BITS_PER_BYTE, toByteOffset } from './bits.js';
-import { CoderType } from './message_coder.js';
+import type { CoderType } from './message_coder.js';
 import { uint1 } from './uint1_coder.js';
 
 test('uint1 offset=0', () => {

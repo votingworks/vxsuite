@@ -1,15 +1,15 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import { StateFeaturesConfig } from '@votingworks/design-backend';
-import { createMemoryHistory, History } from 'history';
+import type { StateFeaturesConfig } from '@votingworks/design-backend';
+import { createMemoryHistory, type History } from 'history';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionStringKey,
-  PollingPlace,
+  type PollingPlace,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import {
-  MockApiClient,
+  type MockApiClient,
   createMockApiClient,
   mockStateFeatures,
   mockUserFeatures,
@@ -27,12 +27,12 @@ import { act, render, screen, waitFor } from '../test/react_testing_library.js';
 import { PollingPlacesScreen } from './polling_places_screen.js';
 import {
   PollingPlaceList,
-  PollingPlaceListProps,
+  type PollingPlaceListProps,
 } from './polling_place_list.js';
 import { PollingPlaceAudioPanel } from './polling_place_audio_panel.js';
 import {
   PollingPlaceForm,
-  PollingPlaceFormProps,
+  type PollingPlaceFormProps,
 } from './polling_place_form.js';
 
 vi.mock('./polling_place_list.js');

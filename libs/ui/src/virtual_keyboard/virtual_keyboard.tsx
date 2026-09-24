@@ -1,9 +1,16 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type MutableRefObject,
+} from 'react';
 import { styled } from '../styled.js';
 
-import { Button, ButtonProps } from '../button.js';
+import { Button, type ButtonProps } from '../button.js';
 import { WithAltAudio, appStrings } from '../ui_strings/index.js';
-import { ActionKey, getBorderWidthRem, Key } from './common.js';
+import { ActionKey, getBorderWidthRem, type Key } from './common.js';
 import { advanceElementFocus } from '../accessible_controllers/index.js';
 import { Keybinding } from '../keybindings.js';
 
@@ -254,7 +261,7 @@ function getNextRowIndex(keyMap: KeyMap, focusedRowIndex: number) {
 // 3. Choose the keyboard button with the closest edge
 function getAdjacentRowTargetButtonIndex(
   keyMap: KeyMap,
-  rowRefs: React.MutableRefObject<Array<HTMLDivElement | null>>,
+  rowRefs: MutableRefObject<Array<HTMLDivElement | null>>,
   focusedRowIndex: number,
   direction: -1 | 1
 ) {
@@ -304,7 +311,7 @@ function getAdjacentRowTargetButtonIndex(
 function getPrevRowTargetButtonIndex(
   keyMap: KeyMap,
   focusedRowIndex: number,
-  rowRefs: React.MutableRefObject<Array<HTMLDivElement | null>>
+  rowRefs: MutableRefObject<Array<HTMLDivElement | null>>
 ) {
   return getAdjacentRowTargetButtonIndex(keyMap, rowRefs, focusedRowIndex, -1);
 }
@@ -316,7 +323,7 @@ function getPrevRowTargetButtonIndex(
 function getNextRowTargetButtonIndex(
   keyMap: KeyMap,
   focusedRowIndex: number,
-  rowRefs: React.MutableRefObject<Array<HTMLDivElement | null>>
+  rowRefs: MutableRefObject<Array<HTMLDivElement | null>>
 ) {
   return getAdjacentRowTargetButtonIndex(keyMap, rowRefs, focusedRowIndex, 1);
 }
@@ -364,7 +371,7 @@ export function VirtualKeyboard({
   // Remap the default behavior of the direction keys to navigate the keyboard grid in 2D
   // @coverage-exclude
   const handleKeyboardEventForVirtualKeyboard = useCallback(
-    (event: React.KeyboardEvent<HTMLDivElement>): void => {
+    (event: KeyboardEvent<HTMLDivElement>): void => {
       // Prevent propagation so behavior here overrides the app-level keydown listeners bound to `window`
       event.stopPropagation();
 

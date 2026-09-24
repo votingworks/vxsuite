@@ -1,19 +1,19 @@
 import {
   DippedSmartCardAuth,
-  DippedSmartCardAuthApi,
-  DippedSmartCardAuthMachineState,
+  type DippedSmartCardAuthApi,
+  type DippedSmartCardAuthMachineState,
   JavaCard,
   MockFileCard,
 } from '@votingworks/auth';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import { BaseLogger, LoggingUserRole } from '@votingworks/logging';
+import type { BaseLogger, LoggingUserRole } from '@votingworks/logging';
 import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName as Feature,
   isIntegrationTest,
 } from '@votingworks/utils';
-import { Workspace } from './workspace.js';
-import { Store } from '../store.js';
+import type { Workspace } from './workspace.js';
+import type { Store } from '../store.js';
 
 // @coverage-exclude
 export function getDefaultAuth(logger: BaseLogger): DippedSmartCardAuth {

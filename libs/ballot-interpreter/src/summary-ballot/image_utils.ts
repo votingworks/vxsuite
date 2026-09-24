@@ -4,9 +4,9 @@
  * interpretation for summary ballots with the Rust version.
  */
 
-import { Optional } from '@votingworks/basics';
+import type { Optional } from '@votingworks/basics';
 import { RGBA_CHANNEL_COUNT } from '@votingworks/image-utils';
-import { RgbaImageData } from '@votingworks/types';
+import type { RgbaImageData } from '@votingworks/types';
 
 export interface Inset {
   top: number;

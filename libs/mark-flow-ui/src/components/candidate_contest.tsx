@@ -1,18 +1,18 @@
 import camelCase from 'lodash.camelcase';
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import React, { type ReactNode, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import {
-  BallotStyleId,
-  Candidate,
-  CandidateId,
-  CandidateVote,
-  CandidateContest as CandidateContestInterface,
-  Election,
+  type BallotStyleId,
+  type Candidate,
+  type CandidateId,
+  type CandidateVote,
+  type CandidateContest as CandidateContestInterface,
+  type Election,
   getBallotStyle,
   getContestDistrict,
   getOrderedCandidatesForContestInBallotStyle,
-  PartyId,
+  type PartyId,
 } from '@votingworks/types';
 import {
   Button,
@@ -41,7 +41,7 @@ import {
 } from '@votingworks/ui';
 import { assert, assertDefined, deepEqual } from '@votingworks/basics';
 
-import { UpdateVoteFunction } from '../config/types.js';
+import type { UpdateVoteFunction } from '../config/types.js';
 
 import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals.js';
 import { ChoicesGrid } from './contest_screen_layout.js';

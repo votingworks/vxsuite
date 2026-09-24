@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Button, Icons, P } from '@votingworks/ui';
-import { BallotStyleId, PrecinctId, VotesDict } from '@votingworks/types';
+import type { BallotStyleId, PrecinctId, VotesDict } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 
 import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';

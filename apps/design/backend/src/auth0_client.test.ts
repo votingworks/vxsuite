@@ -1,16 +1,16 @@
 import { expect, test, vi } from 'vitest';
 import {
-  Connection,
-  ApiResponse,
+  type Connection,
+  type ApiResponse,
   Database,
   UsersManager,
-  GetUsers200ResponseOneOfInner,
-  UserCreate,
-  ChangePasswordRequest,
+  type GetUsers200ResponseOneOfInner,
+  type UserCreate,
+  type ChangePasswordRequest,
 } from 'auth0';
 import crypto from 'node:crypto';
 import { Buffer } from 'node:buffer';
-import { Auth0Client, ConnectionType } from './auth0_client.js';
+import { Auth0Client, type ConnectionType } from './auth0_client.js';
 
 vi.mock(import('auth0'));
 vi.mock(import('node:crypto'));

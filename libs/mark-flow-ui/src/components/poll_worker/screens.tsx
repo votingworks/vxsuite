@@ -1,9 +1,9 @@
 // @coverage-exclude-file: currently tested via apps
 
-import React from 'react';
+import type React from 'react';
 
 import { Icons, P, RemoveCardImage } from '@votingworks/ui';
-import { Election, CardlessVoterUser } from '@votingworks/types';
+import type { Election, CardlessVoterUser } from '@votingworks/types';
 import { CenteredCardPageLayout } from '../centered_card_page_layout.js';
 
 import { BallotStyleLabel } from './elements.js';

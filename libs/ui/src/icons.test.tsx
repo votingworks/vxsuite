@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { render, screen } from '../test/react_testing_library.js';
 
-import { FullScreenIconWrapper, IconColor, Icons } from './icons.js';
+import { FullScreenIconWrapper, type IconColor, Icons } from './icons.js';
 import { makeTheme } from './themes/make_theme.js';
 
 for (const [name, Component] of Object.entries(Icons)) {

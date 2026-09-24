@@ -1,5 +1,9 @@
 import { assertDefined } from '@votingworks/basics';
-import { BallotStyle, Election, PartyIdSchema } from '../src/election.js';
+import {
+  type BallotStyle,
+  type Election,
+  PartyIdSchema,
+} from '../src/election.js';
 import { safeParseElection } from '../src/election_parsing.js';
 import { unsafeParse } from '../src/generic.js';
 

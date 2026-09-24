@@ -1,6 +1,6 @@
-import React from 'react';
+import type React from 'react';
 import { Route, Router } from 'react-router-dom';
-import { createMemoryHistory, History } from 'history';
+import { createMemoryHistory, type History } from 'history';
 
 export function withRoute(
   ui: React.ReactElement,

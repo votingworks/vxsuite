@@ -2,36 +2,36 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   BooleanEnvironmentVariableName as Feature,
   getFeatureFlagMock,
+  type DiskSpaceSummary,
 } from '@votingworks/utils';
-import { Logger, LogEventId } from '@votingworks/logging';
+import { type Logger, LogEventId } from '@votingworks/logging';
 import {
   constructElectionKey,
   DEFAULT_SYSTEM_SETTINGS,
-  DiagnosticRecord,
+  type DiagnosticRecord,
 } from '@votingworks/types';
-import { Server } from 'node:http';
-import * as grout from '@votingworks/grout';
-import { MockUsbDrive } from '@votingworks/usb-drive';
+import type { Server } from 'node:http';
+import type * as grout from '@votingworks/grout';
+import type { MockUsbDrive } from '@votingworks/usb-drive';
 import {
   getDiskSpaceSummaries,
   mockElectionPackageFileTree,
-  PartialElectionPackage,
+  type PartialElectionPackage,
 } from '@votingworks/backend';
-import type { DiskSpaceSummary } from '@votingworks/utils';
 import {
   HP_4001_PRINTER_CONFIG,
-  MemoryPrinterHandler,
+  type MemoryPrinterHandler,
 } from '@votingworks/printing';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
 import { createApp } from '../test/app_helpers.js';
-import { Api } from './app.js';
-import { MockBarcodeClient } from './barcodes/mock_client.js';
+import type { Api } from './app.js';
+import type { MockBarcodeClient } from './barcodes/mock_client.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

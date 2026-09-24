@@ -1,4 +1,4 @@
-import { ElectionDefinition, SystemSettings } from '@votingworks/types';
+import type { ElectionDefinition, SystemSettings } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { useQueryChangeListener, useScreenReaderActive } from '@votingworks/ui';
 import { useEffect, useRef, useState } from 'react';

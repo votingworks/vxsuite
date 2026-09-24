@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { expect } from 'vitest';
 import {
-  BenchmarkResults,
+  type BenchmarkResults,
   computeBenchmarkStats,
   formatMs,
   printBenchmarkResults,

@@ -3,15 +3,15 @@ import {
   expect,
   test,
   vi,
-  MockedFunction,
+  type MockedFunction,
   afterEach,
 } from 'vitest';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
-import { Application } from 'express';
+import type { Application } from 'express';
 import { start } from './server.js';
-import { createWorkspace, Workspace } from './util/workspace.js';
+import { createWorkspace, type Workspace } from './util/workspace.js';
 import { PORT } from './globals.js';
 import { buildApp } from './app.js';
 

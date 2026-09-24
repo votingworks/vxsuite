@@ -6,7 +6,7 @@ import {
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { assert, find } from '@votingworks/basics';
-import {
+import type {
   CandidateContest,
   StraightPartyContest,
   VotesDict,
@@ -17,7 +17,7 @@ import { render, screen, within } from '../../test/react_testing_library.js';
 
 import { Contest } from './contest.js';
 import {
-  MsEitherNeitherContest,
+  type MsEitherNeitherContest,
   mergeMsEitherNeitherContests,
 } from '../utils/ms_either_neither_contests.js';
 

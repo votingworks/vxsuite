@@ -17,7 +17,10 @@ import { screen, waitFor } from '../../test/react_testing_library.js';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config.js';
 import { render } from '../../test/test_utils.js';
 import { StartScreen } from './start_screen.js';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 beforeEach(() => {

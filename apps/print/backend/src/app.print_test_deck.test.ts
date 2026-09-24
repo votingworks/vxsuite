@@ -5,14 +5,14 @@
  */
 import { join, resolve } from 'node:path';
 import { readFile } from 'node:fs/promises';
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { Server } from 'node:http';
+import type { Server } from 'node:http';
 import {
   safeParseElectionDefinition,
   BallotType,
-  ElectionDefinition,
-  EncodedBallotEntry,
+  type ElectionDefinition,
+  type EncodedBallotEntry,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -20,18 +20,18 @@ import {
 } from '@votingworks/utils';
 import {
   HP_4001_PRINTER_CONFIG,
-  MemoryPrinterHandler,
+  type MemoryPrinterHandler,
 } from '@votingworks/printing';
-import * as grout from '@votingworks/grout';
-import { DippedSmartCardAuthApi } from '@votingworks/auth';
-import { MockUsbDrive } from '@votingworks/usb-drive';
+import type * as grout from '@votingworks/grout';
+import type { DippedSmartCardAuthApi } from '@votingworks/auth';
+import type { MockUsbDrive } from '@votingworks/usb-drive';
 import { generateTestDeckBallots } from '@votingworks/test-decks';
 import {
   buildTestEnvironment,
   configureMachine,
   mockElectionManagerAuth,
 } from '../test/app.js';
-import { Api } from './app.js';
+import type { Api } from './app.js';
 
 vi.setConfig({ testTimeout: 90_000 });
 

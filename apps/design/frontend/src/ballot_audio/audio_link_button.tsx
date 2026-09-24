@@ -1,11 +1,11 @@
-import React, { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { LinkButton } from '@votingworks/ui';
 
 import * as api from '../api.js';
-import { Tooltip, TooltipContainer, TooltipProps } from '../tooltip.js';
-import { ElectionIdParams } from '../routes.js';
+import { Tooltip, TooltipContainer, type TooltipProps } from '../tooltip.js';
+import type { ElectionIdParams } from '../routes.js';
 
 export interface AudioLinkButtonProps {
   buttonClassName?: string;
@@ -15,7 +15,7 @@ export interface AudioLinkButtonProps {
   tooltipPlacement?: TooltipProps['attachTo'];
 }
 
-export function AudioLinkButton(props: AudioLinkButtonProps): React.ReactNode {
+export function AudioLinkButton(props: AudioLinkButtonProps): ReactNode {
   const { buttonClassName, className, to, tooltip, tooltipPlacement, ...rest } =
     props;
 

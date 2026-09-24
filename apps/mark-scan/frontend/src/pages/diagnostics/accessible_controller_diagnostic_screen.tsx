@@ -7,7 +7,7 @@ import {
   P,
   Screen,
   MarkScanControllerIllustration,
-  MarkScanControllerButton,
+  type MarkScanControllerButton,
   Keybinding,
 } from '@votingworks/ui';
 import { addDiagnosticRecord } from '../../api.js';

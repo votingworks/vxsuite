@@ -4,7 +4,7 @@ import {
   cleanup,
   fireEvent,
   render,
-  RenderOptions,
+  type RenderOptions,
 } from '../test/react_testing_library.js';
 import { mockUsbDriveStatus } from './test-utils/mock_usb_drive.js';
 

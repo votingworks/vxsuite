@@ -1,10 +1,10 @@
-import React from 'react';
+import type React from 'react';
 import { useParams } from 'react-router-dom';
 
 import { H1, MainContent } from '@votingworks/ui';
 
 import { ElectionNavScreen, Header } from './nav_screen.js';
-import { ElectionIdParams, routes } from './routes.js';
+import { type ElectionIdParams, routes } from './routes.js';
 import { useTitle } from './hooks/use_title.js';
 import { Downloads } from './downloads.js';
 import * as api from './api.js';

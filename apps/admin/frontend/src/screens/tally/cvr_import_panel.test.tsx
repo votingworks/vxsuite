@@ -6,14 +6,14 @@ import type {
   ImportCastVoteRecordsError as CvrImportErr,
   CastVoteRecordFileMetadata as CvrExport,
 } from '@votingworks/admin-backend';
-import { UsbDriveStatus } from '@votingworks/usb-drive';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import { mockKiosk } from '@votingworks/test-utils';
-import { deferred, err, ok, Result, sleep } from '@votingworks/basics';
+import { deferred, err, ok, type Result, sleep } from '@votingworks/basics';
 
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
 } from '../../../test/helpers/mock_api_client.js';
 import {

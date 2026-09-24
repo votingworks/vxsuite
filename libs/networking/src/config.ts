@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import {
-  BooleanEnvironmentVariableName,
+  type BooleanEnvironmentVariableName,
   getRequiredEnvVar,
   isFeatureFlagEnabled,
   isNodeEnvProduction,

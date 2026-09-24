@@ -1,41 +1,41 @@
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, type Logger } from '@votingworks/logging';
 import {
   Admin,
   ElectionPackageFileName,
   LATEST_METADATA,
-  ElectionRegisteredVoterCounts,
+  type ElectionRegisteredVoterCounts,
   CastVoteRecordExportFileName,
-  ContestId,
+  type ContestId,
   DEFAULT_SYSTEM_SETTINGS,
-  DiagnosticRecord,
-  Id,
-  PollingPlace,
-  PrinterStatus,
-  SystemSettings,
-  Tabulation,
+  type DiagnosticRecord,
+  type Id,
+  type PollingPlace,
+  type PrinterStatus,
+  type SystemSettings,
+  type Tabulation,
   convertElectionResultsReportingReportToVxManualResults,
   getContests,
   isCombinedBallotPrimary,
-  DippedSmartCardAuth,
+  type DippedSmartCardAuth,
 } from '@votingworks/types';
 import {
   assert,
   assertDefined,
   deferred,
-  Err,
+  type Err,
   err,
   ok,
-  Optional,
-  Result,
+  type Optional,
+  type Result,
 } from '@votingworks/basics';
-import express, { Application } from 'express';
+import express, { type Application } from 'express';
 import {
-  DippedSmartCardAuthApi,
+  type DippedSmartCardAuthApi,
   generateSignedHashValidationQrCodeValue,
   prepareSignatureFile,
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
-import { Printer } from '@votingworks/printing';
+import type { Printer } from '@votingworks/printing';
 import { randomUUID } from 'node:crypto';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { rm, stat } from 'node:fs/promises';
@@ -55,29 +55,29 @@ import {
   systemLimitViolationToString,
 } from '@votingworks/utils';
 import {
-  ElectionPackageError,
-  ExportDataError,
+  type ElectionPackageError,
+  type ExportDataError,
   createSystemCallApi,
   getNodeEnv,
   readElectionPackageFromFile,
 } from '@votingworks/backend';
 import {
-  FileSystemEntry,
+  type FileSystemEntry,
   FileSystemEntryType,
   listDirectory,
-  ListDirectoryError,
+  type ListDirectoryError,
   readElection,
 } from '@votingworks/fs';
 import {
-  MultiUsbDrive,
-  UsbDriveStatus,
+  type MultiUsbDrive,
+  type UsbDriveStatus,
   createUsbDriveAdapter,
   findDriveByPurpose,
   getRealUsbDriveGlobPattern,
 } from '@votingworks/usb-drive';
 import ZipStream from 'zip-stream';
 import { AvahiService } from '@votingworks/networking';
-import {
+import type {
   CastVoteRecordFileRecord,
   CvrFileImportInfo,
   CvrFileMode,
@@ -101,10 +101,10 @@ import {
   BallotAdjudicationData,
   BallotImages,
 } from './types.js';
-import { setRestoreState, Workspace } from './util/workspace.js';
+import { setRestoreState, type Workspace } from './util/workspace.js';
 import { getMachineConfig } from './machine_config.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
-import { MachineModeController } from './machine_mode.js';
+import type { MachineModeController } from './machine_mode.js';
 import { getBallotImages } from './util/adjudication.js';
 import {
   transformWriteInsAndSetManualResults,
@@ -121,7 +121,7 @@ import { buildExporter } from './util/exporter.js';
 import {
   getCastVoteRecordsPath,
   importCastVoteRecords,
-  ListCastVoteRecordExportsInDirectory,
+  type ListCastVoteRecordExportsInDirectory,
   listCastVoteRecordExportsInDirectory,
 } from './cast_vote_records.js';
 import { generateBallotCountReportCsv } from './exports/csv_ballot_count_report.js';
@@ -138,30 +138,30 @@ import {
   exportWriteInAdjudicationReportPdf,
   generateWriteInAdjudicationReportPreview,
   printWriteInAdjudicationReport,
-  WriteInAdjudicationReportPreview,
+  type WriteInAdjudicationReportPreview,
 } from './reports/write_in_adjudication_report.js';
 import {
   exportWriteInImageReportPdf,
   generateWriteInImageReportPreview,
   printWriteInImageReport,
-  WriteInImageReportPreview,
+  type WriteInImageReportPreview,
 } from './reports/write_in_image_report.js';
 import {
   exportVoterTurnoutReportPdf,
   generateVoterTurnoutReportPreview,
   printVoterTurnoutReport,
-  VoterTurnoutReportPreview,
+  type VoterTurnoutReportPreview,
 } from './reports/voter_turnout_report.js';
 import {
-  BallotCountReportPreview,
-  BallotCountReportSpec,
+  type BallotCountReportPreview,
+  type BallotCountReportSpec,
   exportBallotCountReportPdf,
   generateBallotCountReportPreview,
   printBallotCountReport,
 } from './reports/ballot_count_report.js';
 import {
-  TallyReportSpec,
-  TallyReportPreview,
+  type TallyReportSpec,
+  type TallyReportPreview,
   generateTallyReportPreview,
   printTallyReport,
   exportTallyReportPdf,

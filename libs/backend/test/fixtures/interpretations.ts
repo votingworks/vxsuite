@@ -1,17 +1,17 @@
 /* eslint-disable vx/gts-jsdoc */
 import { assertDefined, find } from '@votingworks/basics';
 import {
-  AdjudicationInfo,
-  BallotMetadata,
+  type AdjudicationInfo,
+  type BallotMetadata,
   BallotType,
-  BlankPage,
-  CandidateContest,
-  InterpretedBmdPage,
-  InterpretedHmpbPage,
-  PageInterpretation,
-  SheetOf,
-  TargetShape,
-  YesNoContest,
+  type BlankPage,
+  type CandidateContest,
+  type InterpretedBmdPage,
+  type InterpretedHmpbPage,
+  type PageInterpretation,
+  type SheetOf,
+  type TargetShape,
+  type YesNoContest,
 } from '@votingworks/types';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 

@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import {
-  QueryClient,
-  QueryFunction,
-  QueryKey,
-  UseQueryOptions,
-  UseQueryResult,
+  type QueryClient,
+  type QueryFunction,
+  type QueryKey,
+  type UseQueryOptions,
+  type UseQueryResult,
   hashQueryKey,
   useQuery,
   useQueryClient,

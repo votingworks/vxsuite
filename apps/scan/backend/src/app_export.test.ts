@@ -6,8 +6,8 @@ import {
 } from '@votingworks/backend';
 import { assert, assertDefined, err, find, ok } from '@votingworks/basics';
 import {
-  BaseBallotProps,
-  CVR,
+  type BaseBallotProps,
+  type CVR,
   DEFAULT_SYSTEM_SETTINGS,
   LATEST_SOFTWARE_VERSION,
 } from '@votingworks/types';

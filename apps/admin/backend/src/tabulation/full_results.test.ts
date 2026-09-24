@@ -20,21 +20,21 @@ import {
   AdjudicationReason,
   anyPollingPlace,
   BallotIdSchema,
-  BallotStyleGroupId,
+  type BallotStyleGroupId,
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
   getContests,
-  InterpretedBmdPage,
-  SystemSettings,
+  type InterpretedBmdPage,
+  type SystemSettings,
   Tabulation,
   unsafeParse,
-  VotesDict,
+  type VotesDict,
 } from '@votingworks/types';
 import {
   buildCastVoteRecord,
   writeCastVoteRecordExport,
 } from '@votingworks/backend';
-import { BaseLogger, mockBaseLogger } from '@votingworks/logging';
+import { type BaseLogger, mockBaseLogger } from '@votingworks/logging';
 import {
   tabulateCastVoteRecords,
   tabulateElectionResults,
@@ -42,11 +42,11 @@ import {
 import { Store } from '../store.js';
 import { importCastVoteRecords } from '../cast_vote_records.js';
 import {
-  MockCastVoteRecordFile,
+  type MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../../test/mock_cvr_file.js';
 import { adjudicateCvr } from '../adjudication.js';
-import { AdjudicatedContestOption, WriteInRecord } from '../types.js';
+import type { AdjudicatedContestOption, WriteInRecord } from '../types.js';
 
 const GROUP_KEY = getGroupKey({}, {});
 

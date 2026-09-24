@@ -1,22 +1,27 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
-import { z } from 'zod/v4';
+import type { z } from 'zod/v4';
 
-import { assert, find, Result, throwIllegalValue } from '@votingworks/basics';
 import {
-  ElectionId,
-  Contest,
-  DistrictId,
-  PartyId,
-  Candidate,
+  assert,
+  find,
+  type Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
+import {
+  type ElectionId,
+  type Contest,
+  type DistrictId,
+  type PartyId,
+  type Candidate,
   CandidateContestSchema,
-  CandidateId,
-  ContestId,
+  type CandidateId,
+  type ContestId,
   safeParse,
   YesNoContestSchema,
   ElectionStringKey,
-  StraightPartyContest,
+  type StraightPartyContest,
 } from '@votingworks/types';
 import {
   Callout,

@@ -5,8 +5,8 @@ import type { Meta } from '@storybook/react-vite' with {
 
 import {
   SegmentedButton as Component,
-  SegmentedButtonOptionId,
-  SegmentedButtonProps,
+  type SegmentedButtonOptionId,
+  type SegmentedButtonProps,
 } from './segmented_button.js';
 
 const initialProps: SegmentedButtonProps<string> = {

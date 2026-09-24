@@ -1,4 +1,4 @@
-import { Logger } from '@votingworks/logging';
+import type { Logger } from '@votingworks/logging';
 
 /**
  * Basic options for all backup and restore steps.

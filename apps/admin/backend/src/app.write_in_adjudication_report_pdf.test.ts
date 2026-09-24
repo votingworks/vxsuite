@@ -22,7 +22,7 @@ import {
 import { mockFileName } from '../test/csv.js';
 import { seedCombinedBallotPrimaryWriteIns } from '../test/combined_ballot_primary_fixture.js';
 import { generateReportPath } from './util/filenames.js';
-import { AdjudicatedContestOption } from './types.js';
+import type { AdjudicatedContestOption } from './types.js';
 
 vi.setConfig({
   testTimeout: 60_000,

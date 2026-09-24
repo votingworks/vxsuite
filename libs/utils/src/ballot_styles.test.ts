@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'vitest';
 import {
-  BallotStyle,
-  Election,
+  type BallotStyle,
+  type Election,
   hasSplits,
-  Party,
-  Tabulation,
+  type Party,
+  type Tabulation,
 } from '@votingworks/types';
 import {
   electionFamousNames2021Fixtures,

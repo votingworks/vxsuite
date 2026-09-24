@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { QueryClient } from '@tanstack/react-query';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import type { QueryClient } from '@tanstack/react-query';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../../test/helpers/mock_api_client.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { createQueryClient } from '../api.js';
 import { CvrDataRefresher } from './cvr_data_refresher.js';

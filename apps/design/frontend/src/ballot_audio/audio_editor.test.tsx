@@ -1,17 +1,17 @@
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 
-import { TtsStringDefault } from '@votingworks/design-backend';
+import type { TtsStringDefault } from '@votingworks/design-backend';
 import { ElectionStringKey } from '@votingworks/types';
 
-import { TtsTextEditor, TtsTextEditorProps } from './tts_text_editor.js';
+import { TtsTextEditor, type TtsTextEditorProps } from './tts_text_editor.js';
 import {
   createMockApiClient,
-  MockApiClient,
+  type MockApiClient,
   provideApi,
 } from '../../test/api_helpers.js';
 import { render, screen } from '../../test/react_testing_library.js';
-import { AudioEditor, AudioEditorProps } from './audio_editor.js';
+import { AudioEditor, type AudioEditorProps } from './audio_editor.js';
 
 vi.mock('./tts_text_editor.js');
 

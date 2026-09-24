@@ -5,14 +5,14 @@ import { chromium } from 'playwright';
 import { assert } from '@votingworks/basics';
 import { cpus } from 'node:os';
 import {
-  Page,
-  PageHandle,
-  RenderDocument,
-  RenderScratchpad,
-  Renderer,
-  RendererPool,
-  SingletonRenderer,
-  Task,
+  type Page,
+  type PageHandle,
+  type RenderDocument,
+  type RenderScratchpad,
+  type Renderer,
+  type RendererPool,
+  type SingletonRenderer,
+  type Task,
   createDocument,
   createScratchpad,
 } from './renderer.js';

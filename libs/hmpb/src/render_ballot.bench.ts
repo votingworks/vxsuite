@@ -2,7 +2,7 @@ import { HmpbBallotPaperSize } from '@votingworks/types';
 import { afterAll, beforeAll, bench, describe } from 'vitest';
 import { vxGeneralElectionFixtures } from './ballot_fixtures.js';
 import { createPlaywrightRendererPool } from './playwright_renderer.js';
-import { RendererPool } from './renderer.js';
+import type { RendererPool } from './renderer.js';
 
 let rendererPool: RendererPool;
 beforeAll(async () => {

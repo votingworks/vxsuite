@@ -7,7 +7,7 @@ import {
 } from '../ballot_components.js';
 import { hmpbStrings } from '../hmpb_strings.js';
 import { ArrowRightCircle } from '../svg_assets.js';
-import { RenderDocument } from '../renderer.js';
+import type { RenderDocument } from '../renderer.js';
 
 function FooterMetadataContent({
   label,

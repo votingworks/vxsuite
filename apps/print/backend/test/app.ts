@@ -1,28 +1,28 @@
 import { vi } from 'vitest';
 import {
   buildMockDippedSmartCardAuth,
-  DippedSmartCardAuthApi,
+  type DippedSmartCardAuthApi,
 } from '@votingworks/auth';
-import { AddressInfo } from 'node:net';
-import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
+import type { AddressInfo } from 'node:net';
+import { createMockUsbDrive, type MockUsbDrive } from '@votingworks/usb-drive';
 import {
   createMockPrinterHandler,
-  MemoryPrinterHandler,
+  type MemoryPrinterHandler,
 } from '@votingworks/printing';
 import * as grout from '@votingworks/grout';
 import {
   LogSource,
   mockBaseLogger,
-  MockLogger,
+  type MockLogger,
   mockLogger,
 } from '@votingworks/logging';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { Server } from 'node:http';
+import type { Server } from 'node:http';
 import {
   constructElectionKey,
-  DippedSmartCardAuth,
-  EncodedBallotEntry,
-  ElectionDefinition,
+  type DippedSmartCardAuth,
+  type EncodedBallotEntry,
+  type ElectionDefinition,
   TEST_JURISDICTION,
   DEFAULT_SYSTEM_SETTINGS,
   BallotType,
@@ -36,9 +36,9 @@ import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { getUserRole } from '../src/util/auth.js';
-import { createWorkspace, Workspace } from '../src/util/workspace.js';
+import { createWorkspace, type Workspace } from '../src/util/workspace.js';
 import { buildApp } from '../src/app.js';
-import { Api } from '../src/index.js';
+import type { Api } from '../src/index.js';
 
 async function getFamousNamesBallotPdfBase64s(): Promise<
   readonly [string, string, string, string]

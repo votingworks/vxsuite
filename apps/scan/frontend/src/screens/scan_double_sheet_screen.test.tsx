@@ -2,7 +2,7 @@ import { beforeEach, afterEach, test } from 'vitest';
 import { render, screen } from '../../test/react_testing_library.js';
 import { ScanDoubleSheetScreen } from './scan_double_sheet_screen.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   provideApi,
   statusNoPaper,

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { Buffer } from 'node:buffer';
-import { Byte } from '@votingworks/types';
+import type { Byte } from '@votingworks/types';
 
 import {
   construct8BytePinBuffer,

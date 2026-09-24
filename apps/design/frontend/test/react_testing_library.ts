@@ -1,8 +1,8 @@
-import React from 'react';
+import type React from 'react';
 import {
   makeRender,
-  VxRenderOptions,
-  VxRenderResult,
+  type VxRenderOptions,
+  type VxRenderResult,
   vxTestingLibraryScreen,
   vxTestingLibraryWithinFn,
 } from '@votingworks/ui';

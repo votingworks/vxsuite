@@ -22,8 +22,8 @@ import type {
 } from '@votingworks/pollbook-backend';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
-import { Optional } from '@votingworks/basics';
-import {
+import type { Optional } from '@votingworks/basics';
+import type {
   Election,
   Voter,
   VoterCheckIn,

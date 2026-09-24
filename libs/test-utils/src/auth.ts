@@ -1,13 +1,13 @@
 // @coverage-defer-file
 import { DateTime } from 'luxon';
 import {
-  CardlessVoterUser,
+  type CardlessVoterUser,
   DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
-  ElectionManagerUser,
-  PollWorkerUser,
-  SystemAdministratorUser,
+  type ElectionManagerUser,
+  type PollWorkerUser,
+  type SystemAdministratorUser,
   TEST_JURISDICTION,
-  VendorUser,
+  type VendorUser,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
 

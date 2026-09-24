@@ -4,7 +4,7 @@ import {
   LogDispositionStandardTypes,
   mockLogger,
   LogSource,
-  MockLogger,
+  type MockLogger,
 } from '@votingworks/logging';
 import * as net from 'node:net';
 import { tryConnect } from './unix_socket.js';

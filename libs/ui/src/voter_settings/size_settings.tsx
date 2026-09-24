@@ -1,5 +1,5 @@
 import React from 'react';
-import { SizeMode, TouchSizeMode } from '@votingworks/types';
+import type { SizeMode, TouchSizeMode } from '@votingworks/types';
 import { ThemeConsumer } from 'styled-components';
 import { SettingsPane } from './settings_pane.js';
 import { RadioGroup } from '../radio_group.js';

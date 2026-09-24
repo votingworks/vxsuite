@@ -3,12 +3,12 @@ import { Buffer } from 'node:buffer';
 import { css } from 'styled-components';
 import { assertDefined } from '@votingworks/basics';
 import {
-  Election,
-  BallotMode,
+  type Election,
+  type BallotMode,
   BallotType,
-  Contest,
-  BaseBallotProps,
-  Party,
+  type Contest,
+  type BaseBallotProps,
+  type Party,
 } from '@votingworks/types';
 import { electionStrings } from '@votingworks/ui';
 import { styled } from '../styled.js';

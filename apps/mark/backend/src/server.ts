@@ -1,7 +1,7 @@
 import express from 'express';
-import { Server } from 'node:http';
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { LogEventId, BaseLogger, Logger } from '@votingworks/logging';
+import type { Server } from 'node:http';
+import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import { LogEventId, type BaseLogger, Logger } from '@votingworks/logging';
 import { detectUsbDriveFromEnv } from '@votingworks/usb-drive';
 import { getNodeEnv, startCpuMetricsLogging } from '@votingworks/backend';
 import { detectPrinter, HP_4001_PRINTER_CONFIG } from '@votingworks/printing';
@@ -11,8 +11,8 @@ import {
   isFeatureFlagEnabled,
   isIntegrationTest,
 } from '@votingworks/utils';
-import { buildApp, buildApi, Context } from './app.js';
-import { Workspace } from './util/workspace.js';
+import { buildApp, buildApi, type Context } from './app.js';
+import type { Workspace } from './util/workspace.js';
 import { getDefaultAuth, getUserRole } from './util/auth.js';
 import { BarcodeClient } from './barcodes/index.js';
 import { MockBarcodeClient } from './barcodes/mock_client.js';

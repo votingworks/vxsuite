@@ -1,16 +1,16 @@
 import React from 'react';
-import i18nextDefault, { InitOptions, i18n } from 'i18next';
+import i18nextDefault, { type InitOptions, type i18n } from 'i18next';
 import { initReactI18next, useTranslation } from 'react-i18next';
 
-import { UiStringsPackage } from '@votingworks/types';
+import type { UiStringsPackage } from '@votingworks/types';
 import {
-  Optional,
+  type Optional,
   assert,
   assertDefined,
   mapObject,
 } from '@votingworks/basics';
 import { Screen } from '../screen.js';
-import { UiStringsReactQueryApi } from '../hooks/ui_strings_api.js';
+import type { UiStringsReactQueryApi } from '../hooks/ui_strings_api.js';
 
 // i18next declares one `types` entry for both its CommonJS and ESM builds, so
 // TypeScript models the default import as CommonJS `module.exports` even though

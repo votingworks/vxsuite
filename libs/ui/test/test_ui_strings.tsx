@@ -1,4 +1,4 @@
-import { UiStringsPackage } from '@votingworks/types';
+import type { UiStringsPackage } from '@votingworks/types';
 
 import React from 'react';
 import { UiString } from '../src/ui_strings/ui_string.js';

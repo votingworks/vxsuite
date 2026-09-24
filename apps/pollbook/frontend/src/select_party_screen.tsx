@@ -1,4 +1,4 @@
-import {
+import type {
   CheckInBallotParty,
   VoterIdentificationMethod,
 } from '@votingworks/types';
@@ -11,7 +11,7 @@ import {
   P,
 } from '@votingworks/ui';
 import { useState } from 'react';
-import { assertDefined, Optional } from '@votingworks/basics';
+import { assertDefined, type Optional } from '@votingworks/basics';
 import { NoNavScreen } from './nav_screen.js';
 import { Column, Row } from './layout.js';
 

@@ -1,8 +1,8 @@
-import { afterEach, beforeEach, expect, test, vi, Mock } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi, type Mock } from 'vitest';
 import { AUTH_STATUS_POLLING_INTERVAL_MS } from '@votingworks/ui';
 import { act, render, screen } from '../test/react_testing_library.js';
 import { App } from './app.js';
-import { ApiMock, createApiMock } from '../test/api.js';
+import { type ApiMock, createApiMock } from '../test/api.js';
 import { mockStatus } from '../test/fixtures.js';
 import { STATUS_POLLING_INTERVAL_MS } from './api.js';
 

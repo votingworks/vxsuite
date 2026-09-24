@@ -2,13 +2,13 @@ import {
   assign as xassign,
   createMachine,
   interpret,
-  Assigner,
-  PropertyAssigner,
+  type Assigner,
+  type PropertyAssigner,
 } from 'xstate';
-import { SheetOf, GrayImageData } from '@votingworks/types';
+import type { SheetOf, GrayImageData } from '@votingworks/types';
 import { assertDefined, err, ok, sleep } from '@votingworks/basics';
 import makeDebug from 'debug';
-import {
+import type {
   EjectMotion,
   Listener,
   ScannerClient,

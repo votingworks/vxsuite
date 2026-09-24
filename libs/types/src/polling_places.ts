@@ -1,13 +1,13 @@
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import {
-  BallotStyle,
-  Contest,
-  Election,
+  type BallotStyle,
+  type Contest,
+  type Election,
   hasSplits,
-  PollingPlace,
-  PollingPlaceType,
-  Precinct,
-  PrecinctOrSplit,
+  type PollingPlace,
+  type PollingPlaceType,
+  type Precinct,
+  type PrecinctOrSplit,
 } from './election.js';
 
 export function anyPollingPlace(election: Election): PollingPlace {

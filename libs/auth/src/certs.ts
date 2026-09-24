@@ -1,13 +1,16 @@
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 import { z } from 'zod/v4';
 import {
   assert,
   DateWithoutTime,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { ElectionKey } from '@votingworks/types';
+import type { ElectionKey } from '@votingworks/types';
 
-import { arePollWorkerCardDetails, ProgrammedCardDetails } from './card.js';
+import {
+  arePollWorkerCardDetails,
+  type ProgrammedCardDetails,
+} from './card.js';
 import { openssl } from './cryptography.js';
 
 /**

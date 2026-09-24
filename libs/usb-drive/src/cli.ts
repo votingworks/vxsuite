@@ -2,7 +2,7 @@ import { LogSource, Logger } from '@votingworks/logging';
 import { safeParse } from 'zod';
 import {
   detectMultiUsbDriveFromEnv,
-  MultiUsbDrive,
+  type MultiUsbDrive,
 } from './multi_usb_drive.js';
 import {
   UsbDiskDevPathSchema,

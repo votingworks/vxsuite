@@ -17,7 +17,7 @@ import {
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import type { PartyFilterAbbreviation } from '@votingworks/pollbook-backend';
-import React, { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   Chart as ChartJS,
   TimeScale,
@@ -172,7 +172,7 @@ function Metric({
   value,
 }: {
   label: string;
-  value: number | React.ReactNode;
+  value: number | ReactNode;
 }): JSX.Element {
   return (
     <Column>

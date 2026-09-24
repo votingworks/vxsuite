@@ -10,7 +10,7 @@ import {
   BUTTON_FILLS,
   BUTTON_VARIANTS,
   Button,
-  ButtonProps,
+  type ButtonProps,
 } from './button.js';
 import { H1, H4, P } from './typography.js';
 import { Card } from './card.js';

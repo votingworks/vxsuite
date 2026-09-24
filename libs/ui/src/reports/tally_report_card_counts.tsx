@@ -1,4 +1,4 @@
-import { Tabulation } from '@votingworks/types';
+import type { Tabulation } from '@votingworks/types';
 import {
   format,
   getBallotCount,

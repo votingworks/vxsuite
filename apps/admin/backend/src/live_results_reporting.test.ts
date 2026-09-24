@@ -8,10 +8,10 @@ import { assert, assertDefined } from '@votingworks/basics';
 import { decodeQuickResultsMessage } from '@votingworks/auth';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  Election,
-  PollingPlace,
+  type Election,
+  type PollingPlace,
   safeParseElectionDefinition,
-  SystemSettings,
+  type SystemSettings,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -25,7 +25,7 @@ import {
 } from './live_results_reporting.js';
 import {
   addMockCvrFileToStore,
-  MockCastVoteRecordFile,
+  type MockCastVoteRecordFile,
 } from '../test/mock_cvr_file.js';
 
 vi.setConfig({ testTimeout: 30_000 });

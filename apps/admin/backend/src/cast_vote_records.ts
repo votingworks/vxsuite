@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { createHash, randomUUID as uuid } from 'node:crypto';
 import {
-  CastVoteRecordAndReferencedFiles,
+  type CastVoteRecordAndReferencedFiles,
   isTestReport,
   readCastVoteRecordExport,
   readCastVoteRecordExportMetadata,
@@ -12,21 +12,21 @@ import {
   err,
   iter,
   ok,
-  Result,
+  type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import { FileSystemEntryType, listDirectory } from '@votingworks/fs';
 import {
-  AdjudicationReason,
-  BallotId,
-  CVR,
-  ElectionDefinition,
+  type AdjudicationReason,
+  type BallotId,
+  type CVR,
+  type ElectionDefinition,
   getBallotStyle,
   getContests,
   getGroupIdFromBallotStyleId,
   getPrecinctById,
-  MarkThresholds,
-  Tabulation,
+  type MarkThresholds,
+  type Tabulation,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -39,9 +39,9 @@ import {
   parseCastVoteRecordReportExportDirectoryName,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
-import { LogEventId, BaseLogger } from '@votingworks/logging';
-import { Store } from './store.js';
-import {
+import { LogEventId, type BaseLogger } from '@votingworks/logging';
+import type { Store } from './store.js';
+import type {
   CastVoteRecordElectionDefinitionValidationError,
   CastVoteRecordFileMetadata,
   CvrFileImportInfo,
@@ -52,7 +52,7 @@ import {
   doesCvrNeedAdjudication,
   formatMarkScoreDistributionForLog,
   getCastVoteRecordAdjudicationFlags,
-  MarkScoreDistribution,
+  type MarkScoreDistribution,
   updateMarkScoreDistributionFromMarkScores,
 } from './util/cast_vote_records.js';
 

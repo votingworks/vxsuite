@@ -31,11 +31,11 @@ import React, { useState } from 'react';
 import { assert, deepEqual, throwIllegalValue } from '@votingworks/basics';
 import {
   formatBallotHash,
-  PollingPlace,
-  PollingPlaceType,
+  type PollingPlace,
+  type PollingPlaceType,
   pollingPlaceTypeName,
-  PollsTransitionType,
-  PrecinctSelection,
+  type PollsTransitionType,
+  type PrecinctSelection,
 } from '@votingworks/types';
 import {
   format,
@@ -48,7 +48,7 @@ import type {
   QuickReportedPollStatus,
 } from '@votingworks/design-backend';
 import { ElectionNavScreen, Header } from './nav_screen.js';
-import { ElectionIdParams, routes } from './routes.js';
+import { type ElectionIdParams, routes } from './routes.js';
 import {
   deleteQuickReportingResults,
   getLiveReportsActivityLog,

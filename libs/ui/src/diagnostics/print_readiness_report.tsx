@@ -1,17 +1,17 @@
 import { ThemeProvider } from 'styled-components';
-import { PrinterSection, PrinterSectionProps } from './printer_section.js';
+import { PrinterSection, type PrinterSectionProps } from './printer_section.js';
 import { PrintedReport } from '../reports/layout.js';
 import { makeTheme } from '../themes/make_theme.js';
 import { ReadinessReportHeader } from './report_header.js';
 import {
-  ConfigurationSectionProps,
+  type ConfigurationSectionProps,
   ConfigurationSection,
-  PollingPlaceSectionProps,
+  type PollingPlaceSectionProps,
   PollingPlaceSection,
 } from './configuration_section.js';
 import { ReportContents } from './components.js';
-import { BatterySection, BatterySectionProps } from './battery_section.js';
-import { StorageSection, StorageSectionProps } from './storage_section.js';
+import { BatterySection, type BatterySectionProps } from './battery_section.js';
+import { StorageSection, type StorageSectionProps } from './storage_section.js';
 
 type ReportContentsProps = ConfigurationSectionProps &
   PollingPlaceSectionProps &

@@ -1,5 +1,5 @@
 import { assertDefined } from '@votingworks/basics';
-import { ImageData, Rect } from '@votingworks/types';
+import type { ImageData, Rect } from '@votingworks/types';
 import makeDebug from 'debug';
 
 const debug = makeDebug('ballot-interpreter:bmd:luminosity');

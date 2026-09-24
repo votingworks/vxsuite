@@ -1,15 +1,15 @@
 import {
   assert,
   deepEqual,
-  Result,
+  type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import { format, hyphenatePin } from '@votingworks/utils';
 import {
   constructElectionKey,
-  DippedSmartCardAuth,
-  Election,
-  UserWithCard,
+  type DippedSmartCardAuth,
+  type Election,
+  type UserWithCard,
 } from '@votingworks/types';
 import React, { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';

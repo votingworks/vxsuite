@@ -1,42 +1,42 @@
 import { createRequire } from 'node:module';
-import { Mocked, expect, vi } from 'vitest';
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import { type Mocked, expect, vi } from 'vitest';
+import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { iter, ok } from '@votingworks/basics';
 import {
   mockElectionPackageFileTree,
-  PartialElectionPackage,
+  type PartialElectionPackage,
 } from '@votingworks/backend';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import * as grout from '@votingworks/grout';
+import type * as grout from '@votingworks/grout';
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import { randomUUID as uuid } from 'node:crypto';
 import {
-  BallotMetadata,
-  PageInterpretationWithFiles,
+  type BallotMetadata,
+  type PageInterpretationWithFiles,
   anyPollingPlace,
-  PrecinctScannerState,
-  SheetOf,
-  VotesDict,
+  type PrecinctScannerState,
+  type SheetOf,
+  type VotesDict,
   asSheet,
   constructElectionKey,
   pollingPlaceFromElection,
-  RgbaImageData,
+  type RgbaImageData,
 } from '@votingworks/types';
-import { MockUsbDrive } from '@votingworks/usb-drive';
-import { mockLogger, LogSource, MockLogger } from '@votingworks/logging';
+import type { MockUsbDrive } from '@votingworks/usb-drive';
+import { mockLogger, LogSource, type MockLogger } from '@votingworks/logging';
 import { pdfToImages } from '@votingworks/image-utils';
 
-import { Api } from '../../src/app.js';
-import {
+import type { Api } from '../../src/app.js';
+import type {
   PrecinctScannerStateMachine,
   PrecinctScannerStatus,
 } from '../../src/types.js';
-import { Store } from '../../src/store.js';
+import type { Store } from '../../src/store.js';
 import { getUserRole } from '../../src/util/auth.js';
-import { Workspace } from '../../src/util/workspace.js';
+import type { Workspace } from '../../src/util/workspace.js';
 // `wait-for-expect` is CJS with an ESM `export default` in its types, which node16
 // can't bind to the callable; load it via require.
 const waitForExpect = createRequire(import.meta.url)(

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { PrinterStatus } from '@votingworks/fujitsu-thermal-printer';
+import type { PrinterStatus } from '@votingworks/fujitsu-thermal-printer';
 import { testPrintFailureDiagnosticMessage } from './diagnostics.js';
 
 test.each<{ printerStatus: PrinterStatus; message: string }>([

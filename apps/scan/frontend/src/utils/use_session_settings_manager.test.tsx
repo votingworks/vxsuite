@@ -1,17 +1,20 @@
-import { afterEach, beforeEach, expect, it, Mocked, vi } from 'vitest';
+import { afterEach, beforeEach, expect, it, type Mocked, vi } from 'vitest';
 import {
   AppBase,
-  LanguageControls,
+  type LanguageControls,
   useCurrentLanguage,
   VoterSettingsManagerContext,
   useAudioEnabled,
 } from '@votingworks/ui';
-import { DefaultTheme, ThemeContext } from 'styled-components';
+import { type DefaultTheme, ThemeContext } from 'styled-components';
 import React from 'react';
 import { mockUseAudioControls } from '@votingworks/test-utils';
 import { useSessionSettingsManager } from './use_session_settings_manager.js';
 import { renderHook, act } from '../../test/react_testing_library.js';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 const mockAudioControls = mockUseAudioControls(vi.fn);

@@ -7,7 +7,10 @@ import { mockUsbDriveStatus } from '@votingworks/ui';
 import { screen } from '../../test/react_testing_library.js';
 import { SaveBackendFileModal } from './save_backend_file_modal.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

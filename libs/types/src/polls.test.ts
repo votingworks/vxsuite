@@ -2,8 +2,8 @@ import { expect, test } from 'vitest';
 import { assert } from '@votingworks/basics';
 import {
   doesPollsStateSupportLiveReporting,
-  PollsState,
-  PollsStateSupportsLiveReporting,
+  type PollsState,
+  type PollsStateSupportsLiveReporting,
 } from './polls.js';
 
 test('doesPollsStateSupportLiveReporting', () => {

@@ -1,11 +1,11 @@
 import tmp from 'tmp-promise';
-import { Optional, assert } from '@votingworks/basics';
+import { type Optional, assert } from '@votingworks/basics';
 import { writeFile } from 'node:fs/promises';
 import {
-  IppMarkerInfo,
-  IppPrinterState,
-  IppPrinterStateReason,
-  PrinterRichStatus,
+  type IppMarkerInfo,
+  type IppPrinterState,
+  type IppPrinterStateReason,
+  type PrinterRichStatus,
   safeParseInt,
 } from '@votingworks/types';
 import { exec } from '../utils/exec.js';

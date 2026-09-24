@@ -1,6 +1,6 @@
 import { Buffer } from 'node:buffer';
 import { spawn } from 'node:child_process';
-import { Stream } from 'node:stream';
+import type { Stream } from 'node:stream';
 import { assert } from '@votingworks/basics';
 
 interface RunCommandOptions {

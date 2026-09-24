@@ -2,17 +2,17 @@ import { afterAll, describe, expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import {
   convertLatestElectionToV4p0,
-  PollingPlace,
+  type PollingPlace,
   pollingPlaceGenerateFromPrecinct,
   pollingPlacesGenerateFromPrecincts,
-  Precinct,
-  PrecinctSplit,
+  type Precinct,
+  type PrecinctSplit,
 } from '@votingworks/types';
 import { electionGeneralFixtures } from '@votingworks/fixtures';
 import { testSetupHelpers } from '../test/helpers.js';
 import { nonVxUser, organizations, jurisdictions } from '../test/mocks.js';
 import { getStateFeaturesConfig } from './features.js';
-import { Jurisdiction, User } from './types.js';
+import type { Jurisdiction, User } from './types.js';
 
 const { setupApp, cleanup } = testSetupHelpers();
 

@@ -1,9 +1,9 @@
 import {
   mockFunction,
-  MockFunction,
+  type MockFunction,
   MockFunctionError,
 } from '@votingworks/test-utils';
-import {
+import type {
   AnyApi,
   AnyMethods,
   AsyncRpcMethod,

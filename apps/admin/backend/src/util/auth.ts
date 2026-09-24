@@ -1,9 +1,9 @@
-import {
+import type {
   DippedSmartCardAuthApi,
   DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import { LoggingUserRole } from '@votingworks/logging';
+import type { LoggingUserRole } from '@votingworks/logging';
 import { getMachineJurisdiction } from '../machine_config.js';
 import type { BaseStore } from '../types.js';
 

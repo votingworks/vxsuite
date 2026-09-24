@@ -1,8 +1,8 @@
 import { expect, test, vi } from 'vitest';
-import { BallotMetadata, PageInterpretation } from '@votingworks/types';
+import type { BallotMetadata, PageInterpretation } from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { TestErrorBoundary } from '@votingworks/ui';
-import { UseQueryResult } from '@tanstack/react-query';
+import type { UseQueryResult } from '@tanstack/react-query';
 import { render } from '../../test/react_testing_library.js';
 import * as api from '../api.js';
 import { ReinsertedWrongTestModeBallotScreen } from './reinserted_wrong_test_mode_ballot_screen.js';

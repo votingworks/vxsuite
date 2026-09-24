@@ -1,4 +1,4 @@
-import { PDFFont, PDFPage } from 'pdf-lib';
+import type { PDFFont, PDFPage } from 'pdf-lib';
 import { assertDefined } from '@votingworks/basics';
 
 /**

@@ -7,7 +7,7 @@ import {
   err,
   extractErrorMessage,
   ok,
-  Result,
+  type Result,
   sleep,
 } from '@votingworks/basics';
 import {
@@ -29,7 +29,7 @@ import {
   resetAndReconnect,
   scanAndSave,
 } from '../custom-paper-handler/application_driver.js';
-import { ServerContext } from './context.js';
+import type { ServerContext } from './context.js';
 
 const CARD_READ_AND_USB_DRIVE_WRITE_INTERVAL_SECONDS = 5;
 const PAPER_HANDLER_POLL_INTERVAL_MS = 250;

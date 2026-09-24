@@ -3,11 +3,11 @@ import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { Route } from 'react-router-dom';
 
 import {
-  BallotStyleGroupId,
-  Election,
+  type BallotStyleGroupId,
+  type Election,
   getContests,
   straightPartyNotYetImplemented,
-  Tabulation,
+  type Tabulation,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import {
@@ -16,13 +16,13 @@ import {
 } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { createMemoryHistory } from 'history';
-import { ManualResultsIdentifier } from '@votingworks/admin-backend';
+import type { ManualResultsIdentifier } from '@votingworks/admin-backend';
 import { assert, mapObject } from '@votingworks/basics';
 import { screen } from '../../../test/react_testing_library.js';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import { ManualTalliesFormScreen } from './manual_tallies_form_screen.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
 } from '../../../test/helpers/mock_api_client.js';
 

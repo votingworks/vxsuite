@@ -3,7 +3,7 @@ import React from 'react';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
-  QueryKey,
+  type QueryKey,
   useMutation,
   useQuery,
   useQueryClient,
@@ -14,7 +14,7 @@ import {
   QUERY_CLIENT_DEFAULT_OPTIONS,
   USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
 } from '@votingworks/ui';
-import { BallotType, LanguageCode } from '@votingworks/types';
+import type { BallotType, LanguageCode } from '@votingworks/types';
 
 export type ApiClient = grout.Client<Api>;
 

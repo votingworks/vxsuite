@@ -1,6 +1,6 @@
-import styled, { DefaultTheme } from 'styled-components';
+import styled, { type DefaultTheme } from 'styled-components';
 
-import { Contest, SizeMode } from '@votingworks/types';
+import type { Contest, SizeMode } from '@votingworks/types';
 import {
   Caption,
   Font,
@@ -9,7 +9,7 @@ import {
   ListItem,
   electionStrings,
 } from '@votingworks/ui';
-import React from 'react';
+import type React from 'react';
 
 export interface ContestListProps {
   contests: readonly Contest[];

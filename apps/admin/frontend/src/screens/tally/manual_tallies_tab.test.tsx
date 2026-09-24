@@ -18,7 +18,7 @@ import {
 } from './manual_tallies_tab.js';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
 } from '../../../test/helpers/mock_api_client.js';
 import { mockManualResultsMetadata } from '../../../test/api_mock_data.js';

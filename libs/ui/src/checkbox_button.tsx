@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { styled } from './styled.js';
 import { Button } from './button.js';
 

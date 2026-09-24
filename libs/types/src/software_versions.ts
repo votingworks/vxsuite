@@ -1,31 +1,31 @@
 import { z } from 'zod/v4';
-import { assert, assertDefined, ok, Result } from '@votingworks/basics';
+import { assert, assertDefined, ok, type Result } from '@votingworks/basics';
 import { sha256 } from './sha256.js';
 import {
-  BallotStyle,
-  BallotStyleId,
+  type BallotStyle,
+  type BallotStyleId,
   BallotStyleIdSchema,
   BallotStyleSchema,
-  CandidateContest,
+  type CandidateContest,
   CandidateContestSchema,
-  Contest,
-  ContestBase,
+  type Contest,
+  type ContestBase,
   ContestBaseSchema,
-  ContestId,
+  type ContestId,
   ContestIdSchema,
-  Election,
-  ElectionDefinition,
+  type Election,
+  type ElectionDefinition,
   ElectionSchema,
   JurisdictionSchema,
-  PartyId,
+  type PartyId,
   PartyIdSchema,
-  PollingPlace,
+  type PollingPlace,
   PollingPlacesSchema,
-  SheetPositions,
-  StraightPartyContest,
+  type SheetPositions,
+  type StraightPartyContest,
   StraightPartyContestSchema,
-  YesNoContest,
-  YesNoOption,
+  type YesNoContest,
+  type YesNoOption,
   YesNoOptionSchema,
 } from './election.js';
 import {
@@ -36,13 +36,18 @@ import {
   DEFAULT_OPTION_BOUNDS_FROM_TARGET_MARK_OUTSET,
   type FlatOptionPosition,
 } from './ballot_positions.js';
-import { Outset, OutsetSchema, Rect, RectSchema } from './geometry.js';
+import {
+  type Outset,
+  OutsetSchema,
+  type Rect,
+  RectSchema,
+} from './geometry.js';
 import { pollingPlacesGenerateFromPrecincts } from './polling_places.js';
 import { safeParseElectionDefinition } from './election_parsing.js';
-import { Id, IdSchema, safeParse, safeParseJson } from './generic.js';
+import { type Id, IdSchema, safeParse, safeParseJson } from './generic.js';
 import {
   ElectionStringKey,
-  UiStringsPackage,
+  type UiStringsPackage,
 } from './ui_string_translations.js';
 
 export const SoftwareVersions = ['v4.0', 'v4.1'] as const;

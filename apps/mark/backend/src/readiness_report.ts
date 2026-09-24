@@ -1,20 +1,20 @@
-import { UsbDrive } from '@votingworks/usb-drive';
-import { LogEventId, Logger } from '@votingworks/logging';
+import type { UsbDrive } from '@votingworks/usb-drive';
+import { LogEventId, type Logger } from '@votingworks/logging';
 import { generateReadinessReportFilename } from '@votingworks/utils';
 import { MarkReadinessReport } from '@votingworks/ui';
 import {
-  ExportDataResult,
+  type ExportDataResult,
   Exporter,
   getScanAllowedExportPatterns,
   getMachineId,
 } from '@votingworks/backend';
-import { Printer, renderToPdf } from '@votingworks/printing';
-import { Workspace } from './util/workspace.js';
+import { type Printer, renderToPdf } from '@votingworks/printing';
+import type { Workspace } from './util/workspace.js';
 import {
   isAccessibleControllerAttached,
   isPatInputAttached,
 } from './util/accessible_controller.js';
-import * as barcodes from './barcodes/index.js';
+import type * as barcodes from './barcodes/index.js';
 import { getCurrentTime } from './util/get_current_time.js';
 
 /**

@@ -1,5 +1,5 @@
 import { throwIllegalValue } from '@votingworks/basics';
-import { ContestOptionId } from '@votingworks/types';
+import type { ContestOptionId } from '@votingworks/types';
 import { Button, Font, Modal, P } from '@votingworks/ui';
 
 export interface DoubleVoteAlert {

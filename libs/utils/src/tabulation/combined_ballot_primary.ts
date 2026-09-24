@@ -5,11 +5,11 @@ import {
   unique,
 } from '@votingworks/basics';
 import {
-  CandidateContest,
-  Election,
-  PartyId,
+  type CandidateContest,
+  type Election,
+  type PartyId,
   Tabulation,
-  VotesDict,
+  type VotesDict,
   isCombinedBallotPrimary,
 } from '@votingworks/types';
 

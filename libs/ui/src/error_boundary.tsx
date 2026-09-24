@@ -1,6 +1,6 @@
 /* eslint-disable react/sort-comp */
 import React, { useEffect } from 'react';
-import { LogEventId, BaseLogger } from '@votingworks/logging';
+import { LogEventId, type BaseLogger } from '@votingworks/logging';
 import { extractErrorMessage } from '@votingworks/basics';
 import { styled } from './styled.js';
 import { Screen } from './screen.js';

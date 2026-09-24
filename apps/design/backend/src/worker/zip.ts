@@ -1,8 +1,8 @@
 // [TODO] Harden and promote to libs/backend if useful.
 
 import { Buffer } from 'node:buffer';
-import { PassThrough, Readable, pipeline } from 'node:stream';
-import { ZipArchive, ZipEntryData } from 'archiver';
+import { PassThrough, type Readable, pipeline } from 'node:stream';
+import { ZipArchive, type ZipEntryData } from 'archiver';
 
 export const FIXED_ZIP_DATE = new Date('2024-01-01T00:00:00Z');
 export const FIXED_ZIP_FILE_MODE = 0o644;

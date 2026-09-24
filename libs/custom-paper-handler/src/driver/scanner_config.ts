@@ -1,5 +1,5 @@
-import { Uint16toUint8, Uint32toUint8, Uint8 } from '../bits.js';
-import { ConfigureScannerCommand } from './coders.js';
+import { Uint16toUint8, Uint32toUint8, type Uint8 } from '../bits.js';
+import type { ConfigureScannerCommand } from './coders.js';
 
 export type PaperMovementAfterScan =
   'hold_ticket' | 'move_forward' | 'move_back' | 'move_park';

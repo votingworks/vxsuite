@@ -1,16 +1,16 @@
 import {
-  Election,
-  UiStringsPackage,
+  type Election,
+  type UiStringsPackage,
   mergeUiStrings,
-  BallotLanguageConfigs,
+  type BallotLanguageConfigs,
   getAllBallotLanguages,
   LanguageCode,
-  Precinct,
+  type Precinct,
   hasSplits,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import { extractAndTranslateElectionStrings } from './election_strings.js';
-import { GoogleCloudTranslator } from './translator.js';
+import type { GoogleCloudTranslator } from './translator.js';
 import { setUiString } from './utils.js';
 
 /**

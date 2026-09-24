@@ -1,10 +1,10 @@
-import {
+import type {
   DiagnosticRecord,
   PrinterStatus,
   IppPrinterStateReason,
 } from '@votingworks/types';
 import React from 'react';
-import { Optional, assert, throwIllegalValue } from '@votingworks/basics';
+import { type Optional, assert, throwIllegalValue } from '@votingworks/basics';
 import { H2, P } from '../typography.js';
 import { InfoIcon, LoadingIcon, SuccessIcon, WarningIcon } from './icons.js';
 

@@ -13,7 +13,7 @@ import {
   P,
   Screen,
 } from '@votingworks/ui';
-import React from 'react';
+import type React from 'react';
 import { endDoubleFeedCalibration, getScannerStatus } from '../api.js';
 
 function CalibrationScreen({ children }: { children: React.ReactNode }) {

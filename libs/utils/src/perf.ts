@@ -1,4 +1,4 @@
-import { Debugger } from 'debug';
+import type { Debugger } from 'debug';
 
 export function formatDurationNs(nanoseconds: bigint): string {
   if (nanoseconds < 1000) {

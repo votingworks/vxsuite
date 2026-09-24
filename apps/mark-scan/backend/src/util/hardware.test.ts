@@ -1,4 +1,11 @@
-import { afterEach, beforeEach, expect, MockInstance, test, vi } from 'vitest';
+import {
+  afterEach,
+  beforeEach,
+  expect,
+  type MockInstance,
+  test,
+  vi,
+} from 'vitest';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
@@ -6,7 +13,7 @@ import {
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import * as fs from 'node:fs';
 import { Buffer } from 'node:buffer';
-import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
+import { LogEventId, type MockLogger, mockLogger } from '@votingworks/logging';
 import { join } from 'node:path';
 import {
   getMarkScanBmdModel,

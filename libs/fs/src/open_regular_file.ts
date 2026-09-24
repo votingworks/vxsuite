@@ -1,6 +1,6 @@
-import { Result, err, ok } from '@votingworks/basics';
-import { Stats, constants } from 'node:fs';
-import { FileHandle } from 'node:fs/promises';
+import { type Result, err, ok } from '@votingworks/basics';
+import { type Stats, constants } from 'node:fs';
+import type { FileHandle } from 'node:fs/promises';
 import { open } from './open_file.js';
 
 /**

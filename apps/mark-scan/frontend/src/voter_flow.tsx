@@ -1,10 +1,10 @@
-import React from 'react';
-import {
+import type React from 'react';
+import type {
   ContestsWithMsEitherNeither,
   MachineConfig,
   UpdateVoteFunction,
 } from '@votingworks/mark-flow-ui';
-import {
+import type {
   BallotStyleId,
   ElectionDefinition,
   PartyId,

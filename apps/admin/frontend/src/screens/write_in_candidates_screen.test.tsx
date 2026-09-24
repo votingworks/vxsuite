@@ -2,11 +2,14 @@ import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import type { QualifiedWriteInCandidateRecord } from '@votingworks/admin-backend';
-import { Election } from '@votingworks/types';
+import type { Election } from '@votingworks/types';
 import { screen, within, waitFor } from '../../test/react_testing_library.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { WriteInCandidatesScreen } from './write_in_candidates_screen.js';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

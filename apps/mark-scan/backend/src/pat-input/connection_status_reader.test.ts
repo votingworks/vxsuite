@@ -3,7 +3,7 @@ import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import {
   LogEventId,
   mockBaseLogger,
-  MockBaseLogger,
+  type MockBaseLogger,
 } from '@votingworks/logging';
 import * as fs from 'node:fs/promises';
 import { Buffer } from 'node:buffer';

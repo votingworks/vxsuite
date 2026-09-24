@@ -1,4 +1,4 @@
-import { deferred, Optional, sleep } from '@votingworks/basics';
+import { deferred, type Optional, sleep } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import { existsSync } from 'node:fs';
@@ -10,7 +10,7 @@ import { detectMultiUsbDrive } from './multi_usb_drive.js';
 import {
   UsbDiskDevPathSchema,
   UsbPartitionDevPathSchema,
-  UsbPartitionInfo,
+  type UsbPartitionInfo,
   UsbPartitionMount,
 } from './types.js';
 

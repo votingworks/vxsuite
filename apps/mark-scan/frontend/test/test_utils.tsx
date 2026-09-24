@@ -1,24 +1,24 @@
 import { vi } from 'vitest';
-import { createMemoryHistory, History } from 'history';
-import React from 'react';
+import { createMemoryHistory, type History } from 'history';
+import type React from 'react';
 import { Router } from 'react-router-dom';
 import {
-  BallotStyleId,
-  Contest,
-  ElectionDefinition,
-  PartyId,
+  type BallotStyleId,
+  type Contest,
+  type ElectionDefinition,
+  type PartyId,
   DEFAULT_SYSTEM_SETTINGS,
-  PrecinctId,
-  VotesDict,
+  type PrecinctId,
+  type VotesDict,
 } from '@votingworks/types';
-import { MachineConfig } from '@votingworks/mark-scan-backend';
+import type { MachineConfig } from '@votingworks/mark-scan-backend';
 
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { render as testRender } from './react_testing_library.js';
 
 import { BallotContext } from '../src/contexts/ballot_context.js';
 import { mockMachineConfig } from './helpers/mock_machine_config.js';
-import { ApiMock, createApiMock } from './helpers/mock_api_client.js';
+import { type ApiMock, createApiMock } from './helpers/mock_api_client.js';
 import { ApiProvider } from '../src/api_provider.js';
 
 export function render(

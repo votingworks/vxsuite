@@ -1,5 +1,5 @@
 import { useId } from 'react';
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {
   faCircle,
   faCircleDot,
@@ -109,10 +109,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTheme } from 'styled-components';
 
 import { assert } from '@votingworks/basics';
-import { UiTheme } from '@votingworks/types';
+import type { UiTheme } from '@votingworks/types';
 import { styled } from './styled.js';
-import { ScreenInfo, useScreenInfo } from './hooks/use_screen_info.js';
-import { Font, FontProps } from './typography.js';
+import { type ScreenInfo, useScreenInfo } from './hooks/use_screen_info.js';
+import { Font, type FontProps } from './typography.js';
 import { FONT_AWESOME_INLINE_SVG_CLASS_NAME } from './fonts/font_awesome_class_names.js';
 
 export const ICON_COLORS = [

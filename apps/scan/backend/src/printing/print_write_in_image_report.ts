@@ -1,11 +1,11 @@
 import { assertDefined } from '@votingworks/basics';
 import { PrecinctScannerWriteInImageReport } from '@votingworks/ui';
 import { PAPER_DIMENSIONS, renderToPdf } from '@votingworks/printing';
-import {
+import type {
   FujitsuThermalPrinterInterface,
   PrintResult,
 } from '@votingworks/fujitsu-thermal-printer';
-import { Store } from '../store.js';
+import type { Store } from '../store.js';
 import { getMachineConfig } from '../machine_config.js';
 import { getCurrentTime } from '../util/get_current_time.js';
 import { ADJUSTED_MARGIN_DIMENSIONS } from './constants.js';

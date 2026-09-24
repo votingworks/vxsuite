@@ -1,9 +1,9 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 import * as mockFs from 'node:fs/promises';
 import { mockLogger } from '@votingworks/logging';
 import { backendWaitFor } from '@votingworks/test-utils';
-import { MaybePromise, Optional, sleep } from '@votingworks/basics';
+import { type MaybePromise, type Optional, sleep } from '@votingworks/basics';
 import { getTopCpuProcesses, startCpuMetricsLogging } from './cpu_metrics.js';
 import { execFile } from './exec.js';
 

@@ -1,17 +1,20 @@
 import {
   createSystemCallApi,
   getCpuMetrics,
-  CpuMetrics,
+  type CpuMetrics,
 } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
-import { mapSheet, SignedHashValidationQrCodeValue } from '@votingworks/types';
+import {
+  mapSheet,
+  type SignedHashValidationQrCodeValue,
+} from '@votingworks/types';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
-import express, { Application } from 'express';
+import express, { type Application } from 'express';
 import { basename, join } from 'node:path';
-import { AudioPlayer, SoundName } from '../audio/audio.js';
+import type { AudioPlayer, SoundName } from '../audio/audio.js';
 import { getMachineConfig } from '../machine_config.js';
 import type { ScanningMode, ServerContext } from './context.js';
-import { ScanningSession, ScanningSessionData } from './analysis/scan.js';
+import { ScanningSession, type ScanningSessionData } from './analysis/scan.js';
 
 type ApiContext = ServerContext & {
   audioPlayer?: AudioPlayer;

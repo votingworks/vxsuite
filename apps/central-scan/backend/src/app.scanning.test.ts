@@ -8,13 +8,13 @@ import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
   asSheet,
-  BatchInfo,
+  type BatchInfo,
   DEFAULT_SYSTEM_SETTINGS,
-  PageInterpretation,
+  type PageInterpretation,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import {
-  BooleanEnvironmentVariableName,
+  type BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
@@ -23,7 +23,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth.js';
 import { generateBmdBallotFixture } from '../test/helpers/ballots.js';
 import { waitForStatus, withApp } from '../test/helpers/setup_app.js';
-import { ScannedSheetInfo } from './fujitsu_scanner.js';
+import type { ScannedSheetInfo } from './fujitsu_scanner.js';
 
 const jurisdiction = TEST_JURISDICTION;
 

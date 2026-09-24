@@ -2,7 +2,7 @@ import sample from 'lodash.sample';
 import sampleSize from 'lodash.samplesize';
 
 import { assertDefined } from '@votingworks/basics';
-import {
+import type {
   Candidate,
   CandidateContest,
   Vote,

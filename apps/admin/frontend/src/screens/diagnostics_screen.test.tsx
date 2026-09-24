@@ -1,11 +1,14 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { PrinterConfig } from '@votingworks/types';
+import type { PrinterConfig } from '@votingworks/types';
 import { ok } from '@votingworks/basics';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { screen, within, act } from '../../test/react_testing_library.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../../test/helpers/mock_api_client.js';
 import { DiagnosticsScreen } from './diagnostics_screen.js';
 import { TEST_PAGE_PRINT_DELAY_SECONDS } from '../components/print_test_page_button.js';
 

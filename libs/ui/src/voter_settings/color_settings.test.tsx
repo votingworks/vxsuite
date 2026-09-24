@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { UiTheme } from '@votingworks/types';
+import type { UiTheme } from '@votingworks/types';
 import { ThemeConsumer } from 'styled-components';
 import { userEvent } from '../user_event.js';
 import { render, screen } from '../../test/react_testing_library.js';

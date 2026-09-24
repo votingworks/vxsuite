@@ -7,13 +7,13 @@ import {
   err,
   extractErrorMessage,
   ok,
-  Result,
+  type Result,
   sleep,
 } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { renderToPdf } from '@votingworks/printing';
 import { isBarcodeDeviceConnected } from './devices.js';
-import { ServerContext } from './context.js';
+import type { ServerContext } from './context.js';
 import { getMachineConfig } from '../machine_config.js';
 import { TestPrintPage } from './test_print_page.js';
 

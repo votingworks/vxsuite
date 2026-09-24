@@ -1,7 +1,7 @@
-import React, { forwardRef, Ref } from 'react';
+import { type Ref, forwardRef, type ReactNode } from 'react';
 import { styled } from '../../styled.js';
 import { TextOnly } from '../../ui_strings/index.js';
-import { Key } from '../common.js';
+import type { Key } from '../common.js';
 import { KeyGroupAudioLabel } from './key_group_audio_label.js';
 
 const RowButton = styled.button`
@@ -17,7 +17,7 @@ const RowDisplay = styled.div`
 `;
 
 interface ScanPanelRowProps {
-  children?: React.ReactNode;
+  children?: ReactNode;
   keys: Key[];
   onSelect?: () => void;
   selectable: boolean;

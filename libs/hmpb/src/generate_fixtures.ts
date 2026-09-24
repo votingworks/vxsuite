@@ -6,7 +6,7 @@ import { HmpbBallotPaperSize } from '@votingworks/types';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import {
-  AllBubbleBallotFixtures,
+  type AllBubbleBallotFixtures,
   allBubbleBallotFixtures,
 } from './all_bubble_ballot_fixtures.js';
 import {
@@ -24,9 +24,9 @@ import {
   vxPrimaryElectionFixtures,
 } from './ballot_fixtures.js';
 import { createPlaywrightRendererPool } from './playwright_renderer.js';
-import { Renderer, RendererPool } from './renderer.js';
-import { TimingMarkPaperType } from './timing_mark_paper/template.js';
-import { ScratchDir } from './render_ballot.js';
+import type { Renderer, RendererPool } from './renderer.js';
+import type { TimingMarkPaperType } from './timing_mark_paper/template.js';
+import type { ScratchDir } from './render_ballot.js';
 
 async function generateAllBubbleBallotFixtures(
   fixtures: AllBubbleBallotFixtures,

@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import {
-  CandidateContest as TypeCandidateContest,
-  CandidateContest as CandidateContestInterface,
-  CandidateVote,
+  type CandidateContest as TypeCandidateContest,
+  type CandidateContest as CandidateContestInterface,
+  type CandidateVote,
   getCandidateParties,
-  Candidate,
-  CandidateContest as CandidateContestData,
-  Election,
+  type Candidate,
+  type CandidateContest as CandidateContestData,
+  type Election,
 } from '@votingworks/types';
 import {
   readElectionGeneralDefinition,
@@ -21,8 +21,8 @@ import {
   DELETE_KEY,
   SPACE_BAR_KEY,
   VirtualKeyboard,
-  virtualKeyboardCommon,
-  VirtualKeyboardProps,
+  type virtualKeyboardCommon,
+  type VirtualKeyboardProps,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import {
@@ -32,7 +32,7 @@ import {
   act,
 } from '../../test/react_testing_library.js';
 import { CandidateContest } from './candidate_contest.js';
-import { UpdateVoteFunction } from '../config/types.js';
+import type { UpdateVoteFunction } from '../config/types.js';
 import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals.js';
 
 vi.mock('@votingworks/ui', async () => {

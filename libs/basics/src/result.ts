@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import { inspect, InspectOptions } from 'node:util';
+import { inspect, type InspectOptions } from 'node:util';
 import { extractErrorMessage } from './errors.js';
 
 /**

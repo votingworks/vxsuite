@@ -9,7 +9,7 @@ import {
 } from 'node:fs';
 import { err, sleep } from '@votingworks/basics';
 import { PDFDocument } from 'pdf-lib';
-import { PrinterStatus } from '@votingworks/types';
+import type { PrinterStatus } from '@votingworks/types';
 import {
   MOCK_HP_PRINTER_DIR,
   MOCK_PRINTER_OUTPUT_DIR,

@@ -6,21 +6,21 @@ import {
   err,
   extractErrorMessage,
   ok,
-  Optional,
-  Result,
+  type Optional,
+  type Result,
   throwIllegalValue,
   wrapException,
 } from '@votingworks/basics';
 import {
   LogDispositionStandardTypes,
   LogEventId,
-  BaseLogger,
+  type BaseLogger,
 } from '@votingworks/logging';
 import {
-  BallotStyleId,
-  CardlessVoterUser,
+  type BallotStyleId,
+  type CardlessVoterUser,
   InsertedSmartCardAuth as InsertedSmartCardAuthTypes,
-  PrecinctId,
+  type PrecinctId,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -30,12 +30,12 @@ import {
 import {
   arePollWorkerCardDetails,
   areUniversalVendorCardDetails,
-  Card,
-  CardDetails,
-  CardStatus,
-  CheckPinResponse,
+  type Card,
+  type CardDetails,
+  type CardStatus,
+  type CheckPinResponse,
 } from './card.js';
-import {
+import type {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthConfig,
   InsertedSmartCardAuthMachineState,

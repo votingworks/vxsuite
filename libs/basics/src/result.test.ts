@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { inspect } from 'node:util';
 import {
-  Result,
+  type Result,
   asyncResultBlock,
   err,
   isResult,
@@ -9,7 +9,7 @@ import {
   resultBlock,
   wrapException,
 } from './result.js';
-import { Optional } from './types.js';
+import type { Optional } from './types.js';
 import { assert } from './assert.js';
 
 test('ok is Ok', () => {

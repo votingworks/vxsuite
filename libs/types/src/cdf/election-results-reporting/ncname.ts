@@ -1,5 +1,5 @@
 import { CDF_ERR_VX_ID_PREFIX } from './constants.js';
-import {
+import type {
   Candidate,
   CandidateId,
   Contest,

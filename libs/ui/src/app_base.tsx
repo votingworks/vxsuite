@@ -1,6 +1,11 @@
 import React, { useCallback } from 'react';
 
-import { ColorMode, ScreenType, SizeMode, UiTheme } from '@votingworks/types';
+import type {
+  ColorMode,
+  ScreenType,
+  SizeMode,
+  UiTheme,
+} from '@votingworks/types';
 
 import { GlobalStyles } from './global_styles.js';
 import { VoterSettingsManagerContext } from './voter_settings_manager_context.js';

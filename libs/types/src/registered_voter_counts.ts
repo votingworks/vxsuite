@@ -1,9 +1,9 @@
 import { z } from 'zod/v4';
 import {
   hasSplits,
-  Precinct,
-  PrecinctId,
-  PrecinctSplitId,
+  type Precinct,
+  type PrecinctId,
+  type PrecinctSplitId,
 } from './election.js';
 
 /**

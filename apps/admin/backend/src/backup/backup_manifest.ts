@@ -3,7 +3,7 @@ import {
   DateWithoutTimeSchema,
   ElectionIdSchema,
   Iso8601DateTimeSchema,
-  Iso8601Timestamp,
+  type Iso8601Timestamp,
 } from '@votingworks/types';
 
 /**

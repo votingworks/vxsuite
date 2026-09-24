@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { LanguageCode } from '@votingworks/types';
 import { render, screen } from '../../test/react_testing_library';
 import {
-  ApiMock,
+  type ApiMock,
   ApiMockProvider,
   createApiMock,
 } from '../../test/mock_api_client';

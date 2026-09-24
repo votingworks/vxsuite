@@ -6,7 +6,7 @@ import {
   H6,
   P,
   PowerDownButton,
-  SignedHashValidationApiClient,
+  type SignedHashValidationApiClient,
   SignedHashValidationButton,
 } from '@votingworks/ui';
 import React from 'react';
@@ -16,13 +16,13 @@ import {
   getPollTransitionsFromState,
 } from '@votingworks/utils';
 import {
-  Election,
+  type Election,
   getConfiguredPrecinctsAndSplits,
-  PollsState,
+  type PollsState,
 } from '@votingworks/types';
 import {
   BallotStyleSelect,
-  OnBallotStyleSelect,
+  type OnBallotStyleSelect,
 } from './ballot_style_select.js';
 import { ButtonGrid, VotingSession } from './elements.js';
 import { UpdatePollsButton } from './update_polls_button.js';

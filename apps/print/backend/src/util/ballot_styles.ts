@@ -1,10 +1,12 @@
-import type {
-  Election,
-  BallotStyleId,
-  Id,
-  PrecinctId,
-  LanguageCode,
-  BallotPrintCount,
+import {
+  type Election,
+  type BallotStyleId,
+  type Id,
+  type PrecinctId,
+  type LanguageCode,
+  type BallotPrintCount,
+  getAllPrecinctsAndSplits,
+  isCombinedBallotPrimary,
 } from '@votingworks/types';
 
 import {
@@ -13,10 +15,6 @@ import {
   find,
   throwIllegalValue,
 } from '@votingworks/basics';
-import {
-  getAllPrecinctsAndSplits,
-  isCombinedBallotPrimary,
-} from '@votingworks/types';
 import {
   getBallotStyleGroupsForPrecinctOrSplit,
   getPrecinctsAndSplitsForBallotStyle,

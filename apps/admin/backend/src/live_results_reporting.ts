@@ -1,19 +1,25 @@
 import { generateSignedQuickResultsReportingUrl } from '@votingworks/auth';
-import { assert, assertDefined, err, ok, Result } from '@votingworks/basics';
 import {
-  Id,
-  PollingPlace,
+  assert,
+  assertDefined,
+  err,
+  ok,
+  type Result,
+} from '@votingworks/basics';
+import {
+  type Id,
+  type PollingPlace,
   pollingPlaceFromElection,
   pollingPlacePrecinctIds,
-  PrecinctId,
-  Tabulation,
+  type PrecinctId,
+  type Tabulation,
 } from '@votingworks/types';
 import {
   getBallotCount,
   groupMapToGroupList,
   mergeWriteInTallies,
 } from '@votingworks/utils';
-import { Store } from './store.js';
+import type { Store } from './store.js';
 import { tabulateElectionResults } from './tabulation/full_results.js';
 
 /**

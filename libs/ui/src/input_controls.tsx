@@ -1,5 +1,5 @@
 // @coverage-defer-file
-import { DateTime } from 'luxon';
+import type { DateTime } from 'luxon';
 import React from 'react';
 import { styled } from './styled.js';
 import { CounterButton } from './counter_button.js';

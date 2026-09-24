@@ -7,15 +7,15 @@ import {
   readElectionCombinedBallotPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
-  BallotMetadata,
+  type BallotMetadata,
   BallotType,
-  CandidateContest,
-  PartyId,
+  type CandidateContest,
+  type PartyId,
   Tabulation,
   TEST_JURISDICTION,
-  PageInterpretation,
-  VotesDict,
-  YesNoContest,
+  type PageInterpretation,
+  type VotesDict,
+  type YesNoContest,
 } from '@votingworks/types';
 import { deepEqual } from '@votingworks/basics';
 import { Store } from '../store.js';

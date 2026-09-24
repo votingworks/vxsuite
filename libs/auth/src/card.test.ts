@@ -11,7 +11,7 @@ import {
   arePollWorkerCardDetails,
   areSystemAdministratorCardDetails,
   areVendorCardDetails,
-  CardDetails,
+  type CardDetails,
 } from './card.js';
 
 const vendorUser = mockVendorUser();

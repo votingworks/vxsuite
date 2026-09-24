@@ -5,11 +5,11 @@ import {
   electionSimpleSinglePrecinctFixtures,
 } from '@votingworks/fixtures';
 import {
-  BallotPrintCount,
+  type BallotPrintCount,
   hasSplits,
   LanguageCode,
-  PrecinctWithSplits,
-  PrecinctWithoutSplits,
+  type PrecinctWithSplits,
+  type PrecinctWithoutSplits,
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 import { assertDefined } from '@votingworks/basics';

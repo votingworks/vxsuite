@@ -6,13 +6,13 @@ import { afterAll, beforeAll, test, expect } from 'vitest';
 import {
   BALLOT_MODES,
   BallotType,
-  BaseBallotProps,
-  CandidateContest,
-  Election,
+  type BaseBallotProps,
+  type CandidateContest,
+  type Election,
   getBallotStyle,
   getContests,
   LanguageCode,
-  YesNoContest,
+  type YesNoContest,
   LATEST_SOFTWARE_VERSION,
   straightPartyNotYetImplemented,
   convertLatestElectionToV4p0,
@@ -28,18 +28,21 @@ import {
 } from '@votingworks/basics';
 import {
   parse as parseHtml,
-  HTMLElement as ParsedHTMLElement,
+  type HTMLElement as ParsedHTMLElement,
 } from 'node-html-parser';
 import {
   allBaseBallotProps,
   layOutBallotsAndCreateElectionDefinition,
   layOutMinimalBallotsToCreateElectionDefinition,
   renderBallotTemplate,
-  ScratchDir,
+  type ScratchDir,
 } from './render_ballot.js';
 import { createPlaywrightRendererPool } from './playwright_renderer.js';
-import { RendererPool } from './renderer.js';
-import { BallotTemplateId, ballotTemplates } from './ballot_templates/index.js';
+import type { RendererPool } from './renderer.js';
+import {
+  type BallotTemplateId,
+  ballotTemplates,
+} from './ballot_templates/index.js';
 import {
   miClosedPrimaryElectionFixtures,
   msGeneralElectionFixtures,
@@ -55,7 +58,7 @@ import {
   BALLOT_MEASURE_OPTION_CLASS,
   BUBBLE_CLASS,
   CANDIDATE_OPTION_CLASS,
-  OptionInfo,
+  type OptionInfo,
   WRITE_IN_OPTION_CLASS,
 } from './ballot_components.js';
 import { vxDefaultBallotTemplate } from './ballot_templates/vx_default_ballot_template.js';

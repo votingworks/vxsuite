@@ -4,12 +4,12 @@ import {
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
-  Dictionary,
+  type Dictionary,
   formatElectionHashes,
   Tabulation,
 } from '@votingworks/types';
 import { within } from '@testing-library/react';
-import { Optional } from '@votingworks/basics';
+import type { Optional } from '@votingworks/basics';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen } from '../../test/react_testing_library.js';
 import {

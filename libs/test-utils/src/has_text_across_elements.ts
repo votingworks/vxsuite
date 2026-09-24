@@ -1,5 +1,5 @@
 // @coverage-defer-file
-import { Matcher } from '@testing-library/react';
+import type { Matcher } from '@testing-library/react';
 
 export function hasTextAcrossElements(text: string | RegExp): Matcher {
   function matcher(content: string, node: Element | null) {

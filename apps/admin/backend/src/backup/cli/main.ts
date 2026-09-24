@@ -7,11 +7,11 @@ import { BaseLogger, Logger, LogSource } from '@votingworks/logging';
 import { getNodeEnv } from '@votingworks/backend';
 import { BackupRoot } from '../backup_root.js';
 import { StyledPrinter } from './styled_printer.js';
-import { DisplayProgress, ProgressDisplay } from './progress_display.js';
+import { type DisplayProgress, ProgressDisplay } from './progress_display.js';
 import * as views from './views.js';
-import { ProgressEvent } from '../progress.js';
+import type { ProgressEvent } from '../progress.js';
 import { createBackup } from '../create/index.js';
-import { openWorkspace, Workspace } from '../../util/workspace.js';
+import { openWorkspace, type Workspace } from '../../util/workspace.js';
 import { restoreBackup } from '../restore/index.js';
 
 /**

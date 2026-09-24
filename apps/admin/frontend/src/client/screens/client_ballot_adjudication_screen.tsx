@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Button, Loading, Main, P, Screen } from '@votingworks/ui';
 import { useHistory } from 'react-router-dom';
 import { throwIllegalValue } from '@votingworks/basics';
-import { Id } from '@votingworks/types';
+import type { Id } from '@votingworks/types';
 import type {
   AdjudicationError,
   BallotAdjudicationData,

@@ -6,7 +6,7 @@ import { pactl } from './pulse_audio.js';
 import {
   AudioCardProfile,
   setAudioCardProfile,
-  SetAudioCardProfileResult,
+  type SetAudioCardProfileResult,
 } from './set_audio_card_profile.js';
 
 vi.mock(import('./pulse_audio.js'));

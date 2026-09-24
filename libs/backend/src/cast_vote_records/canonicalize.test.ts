@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest';
 import {
   BallotType,
-  BlankPage,
-  SheetOf,
-  SheetValidationError,
+  type BlankPage,
+  type SheetOf,
+  type SheetValidationError,
 } from '@votingworks/types';
 import { canonicalizeSheet } from './canonicalize.js';
 import {

@@ -3,7 +3,7 @@ import { expectTextWithIcon } from '../../test/expect_text_with_icon.js';
 import { render, screen } from '../../test/react_testing_library.js';
 import {
   MarkScanDeviceDiagnosticSection,
-  MarkScanDeviceDiagnosticSectionProps,
+  type MarkScanDeviceDiagnosticSectionProps,
 } from './mark_scan_device_diagnostic_section.js';
 import { DiagnosticSectionTitle } from './types.js';
 

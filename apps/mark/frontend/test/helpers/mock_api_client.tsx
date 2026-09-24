@@ -1,7 +1,10 @@
-import React from 'react';
+import type React from 'react';
 
-import { Mock, vi } from 'vitest';
-import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
+import { type Mock, vi } from 'vitest';
+import {
+  createMockClient,
+  type MockClient,
+} from '@votingworks/grout-test-utils';
 import type {
   Api,
   MachineConfig,
@@ -9,21 +12,21 @@ import type {
   PrintBallotProps,
 } from '@votingworks/mark-backend';
 import {
-  ElectionPackageConfigurationError,
-  BallotStyleId,
+  type ElectionPackageConfigurationError,
+  type BallotStyleId,
   DEFAULT_SYSTEM_SETTINGS,
-  ElectionDefinition,
-  InsertedSmartCardAuth,
-  PollsState,
-  PrecinctId,
-  SystemSettings,
-  PrinterStatus,
-  PrinterConfig,
-  PrintJobId,
-  PrintJobStatus,
+  type ElectionDefinition,
+  type InsertedSmartCardAuth,
+  type PollsState,
+  type PrecinctId,
+  type SystemSettings,
+  type PrinterStatus,
+  type PrinterConfig,
+  type PrintJobId,
+  type PrintJobStatus,
   constructElectionKey,
-  DiagnosticRecord,
-  DiagnosticType,
+  type DiagnosticRecord,
+  type DiagnosticType,
 } from '@votingworks/types';
 import {
   mockCardlessVoterUser,
@@ -33,11 +36,11 @@ import {
   mockSystemAdministratorUser,
   mockVendorUser,
 } from '@votingworks/test-utils';
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, type Result } from '@votingworks/basics';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import { TestErrorBoundary } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { QueryClient } from '@tanstack/react-query';
+import type { QueryClient } from '@tanstack/react-query';
 import { mockMachineConfig } from './mock_machine_config.js';
 import { initialElectionState } from '../../src/app_root.js';
 import { ApiProvider } from '../../src/api_provider.js';

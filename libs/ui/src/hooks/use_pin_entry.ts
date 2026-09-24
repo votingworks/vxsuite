@@ -1,5 +1,11 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { PinLength } from '../utils/pin_length.js';
+import {
+  useCallback,
+  useMemo,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from 'react';
+import type { PinLength } from '../utils/pin_length.js';
 
 /**
  * Options for the {@link usePinEntry} hook.
@@ -14,7 +20,7 @@ export interface UsePinEntryOptions {
 export interface PinEntry {
   current: string;
   display: string;
-  setCurrent: React.Dispatch<React.SetStateAction<string>>;
+  setCurrent: Dispatch<SetStateAction<string>>;
   reset: () => string;
   handleDigit: (digit: number) => string;
   handleBackspace: () => string;

@@ -1,9 +1,9 @@
 import { assert } from '@votingworks/basics';
 import {
-  CandidateContest,
+  type CandidateContest,
   getBallotStyle,
   getContests,
-  YesNoContest,
+  type YesNoContest,
 } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 

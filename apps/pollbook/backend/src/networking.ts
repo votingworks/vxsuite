@@ -8,8 +8,8 @@ import { rootDebug } from './debug.js';
 import {
   CommunicatingPollbookConnectionStatuses,
   createConnectedPollbookServiceFromConfiguration,
-  PeerAppContext,
-  PollbookConfigurationInformation,
+  type PeerAppContext,
+  type PollbookConfigurationInformation,
   PollbookConnectionStatus,
   transitionPollbookToConnectedStatus,
   transitionPollbookToDisconnectedStatus,

@@ -1,7 +1,7 @@
 import { assert } from '@votingworks/basics';
-import { Rect, RgbaImageData } from '@votingworks/types';
+import type { Rect, RgbaImageData } from '@votingworks/types';
 import fc from 'fast-check';
-import { createImageData, int, RGBA_CHANNEL_COUNT } from '../src/index.js';
+import { createImageData, type int, RGBA_CHANNEL_COUNT } from '../src/index.js';
 import { assertInteger } from '../src/numeric.js';
 
 /**

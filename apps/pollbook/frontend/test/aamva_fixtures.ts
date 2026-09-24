@@ -1,4 +1,4 @@
-import {
+import type {
   AamvaDocument,
   VoterSearchParams,
 } from '@votingworks/pollbook-backend';

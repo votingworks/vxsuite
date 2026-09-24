@@ -5,8 +5,8 @@ import {
 } from '@votingworks/test-utils';
 import {
   constructElectionKey,
-  ElectionDefinition,
-  InsertedSmartCardAuth,
+  type ElectionDefinition,
+  type InsertedSmartCardAuth,
 } from '@votingworks/types';
 
 export function mockPollWorkerAuth(

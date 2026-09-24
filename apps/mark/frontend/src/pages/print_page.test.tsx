@@ -6,7 +6,7 @@ import { createQueryClient, getPrintJobStatus } from '../api.js';
 import { screen, waitFor } from '../../test/react_testing_library.js';
 import { PrintPage } from './print_page.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   MOCK_PRINT_JOB_ID,
   provideApi,

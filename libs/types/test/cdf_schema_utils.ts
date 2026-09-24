@@ -1,11 +1,11 @@
 import {
-  Result,
+  type Result,
   err,
   ok,
   throwIllegalValue,
   assert,
 } from '@votingworks/basics';
-import { Ajv, AnySchema } from 'ajv';
+import { Ajv, type AnySchema } from 'ajv';
 import AjvDraft04 from 'ajv6';
 import { createRequire } from 'node:module';
 

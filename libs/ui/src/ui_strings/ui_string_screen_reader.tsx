@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { Optional, assertDefined } from '@votingworks/basics';
+import { type Optional, assertDefined } from '@votingworks/basics';
 
 import { useAudioContext } from './audio_context.js';
 import { getDeepValue } from './get_deep_value.js';
-import { ClipParams, PlayAudioClips } from './play_audio_clips.js';
+import { type ClipParams, PlayAudioClips } from './play_audio_clips.js';
 import { useCurrentLanguage } from '../hooks/use_current_language.js';
 import { UiStringAudioDataAttributeName } from './with_audio.js';
 import {
@@ -16,7 +16,7 @@ import {
   getDecreasedVolume,
   getIncreasedVolume,
 } from './audio_volume.js';
-import { PLAYBACK_RATES, PlaybackRate } from './audio_playback_rate.js';
+import { PLAYBACK_RATES, type PlaybackRate } from './audio_playback_rate.js';
 
 const EMPTY_CLIP_QUEUE: ClipParams[] = [];
 

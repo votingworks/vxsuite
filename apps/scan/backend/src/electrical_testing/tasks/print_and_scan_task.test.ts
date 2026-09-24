@@ -1,5 +1,5 @@
 import { createGrayImageData } from '@votingworks/image-utils';
-import { GrayImageData, SheetOf } from '@votingworks/types';
+import type { GrayImageData, SheetOf } from '@votingworks/types';
 import { afterEach, beforeEach, expect, vi } from 'vitest';
 import {
   BooleanEnvironmentVariableName,

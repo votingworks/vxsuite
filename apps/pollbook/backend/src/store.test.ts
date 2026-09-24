@@ -14,7 +14,7 @@ import {
   sortedByVoterName,
   sortedByVoterNameAndMatchingPrecinct,
 } from './store.js';
-import { DuplicateCheckInDetailsDb } from './types.js';
+import type { DuplicateCheckInDetailsDb } from './types.js';
 
 export const myMachineId = 'machine-1';
 const otherMachineId = 'machine-2';

@@ -1,7 +1,7 @@
 import { beforeEach, test, expect } from 'vitest';
-import { SizeMode } from '@votingworks/types';
+import type { SizeMode } from '@votingworks/types';
 import { render } from '../../../test/react_testing_library.js';
-import { Layout, MisvoteWarningsProps } from './types.js';
+import type { Layout, MisvoteWarningsProps } from './types.js';
 import { useLayoutConfig } from './use_layout_config_hook.js';
 import { CONFIG } from './constants.js';
 import { generateContests } from './test_utils.test.js';

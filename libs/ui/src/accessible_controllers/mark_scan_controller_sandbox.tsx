@@ -1,6 +1,6 @@
-import { MarkScanControllerButton } from './types.js';
+import type { MarkScanControllerButton } from './types.js';
 import {
-  AccessibleControllerHelpStrings,
+  type AccessibleControllerHelpStrings,
   AccessibleControllerSandbox,
 } from './accessible_controller_sandbox.js';
 import { MarkScanControllerIllustration } from './mark_scan_controller_illustration.js';

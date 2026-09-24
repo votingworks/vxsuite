@@ -1,4 +1,4 @@
-import { ElectionDefinition } from '@votingworks/types';
+import type { ElectionDefinition } from '@votingworks/types';
 import {
   generateElectionBasedSubfolderName,
   REPORT_FOLDER,

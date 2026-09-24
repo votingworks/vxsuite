@@ -2,7 +2,7 @@ import { expect, test, vi } from 'vitest';
 import { userEvent } from '../user_event.js';
 import { render, screen, within } from '../../test/react_testing_library.js';
 import { TabBar } from './tab_bar.js';
-import { SettingsPaneId } from './types.js';
+import type { SettingsPaneId } from './types.js';
 
 test('renders all available voter settings tabs', () => {
   render(<TabBar activePaneId="voterSettingsSize" onChange={vi.fn()} />);

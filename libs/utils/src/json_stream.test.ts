@@ -3,8 +3,8 @@ import { integers, iter } from '@votingworks/basics';
 import * as fc from 'fast-check';
 import {
   jsonStream,
-  JsonStreamInput,
-  JsonStreamOptions,
+  type JsonStreamInput,
+  type JsonStreamOptions,
   RawJson,
 } from './json_stream.js';
 

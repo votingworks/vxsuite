@@ -1,4 +1,4 @@
-import { TSESLint, TSESTree } from '@typescript-eslint/utils';
+import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { strict as assert } from 'node:assert';
 import * as path from 'node:path';
 import { createRule, isEsmWorkspacePackage } from '../util/index.ts';

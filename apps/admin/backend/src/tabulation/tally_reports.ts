@@ -1,4 +1,9 @@
-import { Admin, Election, Id, Tabulation } from '@votingworks/types';
+import {
+  type Admin,
+  type Election,
+  type Id,
+  Tabulation,
+} from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
 import {
   coalesceGroupsAcrossParty,
@@ -10,7 +15,7 @@ import {
   groupMapToGroupList,
   mergeTabulationGroupMaps,
 } from '@votingworks/utils';
-import { Store } from '../store.js';
+import type { Store } from '../store.js';
 import { tabulateElectionResults } from './full_results.js';
 import { tabulateManualResults } from './manual_results.js';
 import { rootDebug } from '../util/debug.js';

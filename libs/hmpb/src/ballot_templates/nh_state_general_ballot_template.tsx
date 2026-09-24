@@ -8,23 +8,23 @@ import {
   iter,
   ok,
   range,
-  Result,
+  type Result,
 } from '@votingworks/basics';
 import {
-  BallotMode,
+  type BallotMode,
   ballotPaperDimensions,
-  BallotStyle,
-  BallotType,
-  Candidate,
-  CandidateContest as CandidateContestStruct,
-  Contest as ContestStruct,
-  ContestId,
-  Election,
+  type BallotStyle,
+  type BallotType,
+  type Candidate,
+  type CandidateContest as CandidateContestStruct,
+  type Contest as ContestStruct,
+  type ContestId,
+  type Election,
   getBallotStyle,
   getOrderedCandidatesForContestInBallotStyle,
-  Party,
+  type Party,
   straightPartyNotYetImplemented,
-  YesNoContest,
+  type YesNoContest,
 } from '@votingworks/types';
 import {
   BackendLanguageContextProvider,
@@ -39,24 +39,27 @@ import {
   pageMarginsInches,
   TimingMarkGrid,
   Colors,
-  OptionInfo,
+  type OptionInfo,
   AlignedBubble,
   BALLOT_MEASURE_OPTION_CLASS,
   CANDIDATE_OPTION_CLASS,
   WRITE_IN_OPTION_CLASS,
 } from '../ballot_components.js';
-import { ContentComponentResult, BallotLayoutError } from '../render_ballot.js';
+import type {
+  ContentComponentResult,
+  BallotLayoutError,
+} from '../render_ballot.js';
 import { Watermark } from './watermark.js';
-import { PixelDimensions } from '../types.js';
+import type { PixelDimensions } from '../types.js';
 import { layOutInColumns } from '../layout_in_columns.js';
-import { RenderScratchpad } from '../renderer.js';
+import type { RenderScratchpad } from '../renderer.js';
 import {
   allCaps,
   HandCountInsignia,
   Instructions,
   Footer,
-  NhStateBallotProps,
-  NhStateBallotVariant,
+  type NhStateBallotProps,
+  type NhStateBallotVariant,
   isDemocraticParty,
   isRepublicanParty,
 } from './nh_state_ballot_components.js';

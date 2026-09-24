@@ -1,6 +1,6 @@
 import { expect, test, beforeEach, afterEach, vi } from 'vitest';
 
-import {
+import type {
   Election,
   ElectionDefinition,
   ValidStreetInfo,
@@ -10,7 +10,7 @@ import { electionMultiPartyPrimaryFixtures } from '@votingworks/fixtures';
 
 import userEvent from '@testing-library/user-event';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   createMockVoter,
 } from '../test/mock_api_client.js';

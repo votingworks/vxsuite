@@ -1,9 +1,9 @@
 import React from 'react';
 
 import {
-  Candidate,
-  Election,
-  Parties,
+  type Candidate,
+  type Election,
+  type Parties,
   getCandidateParties,
   pollingPlaceFromElection,
 } from '@votingworks/types';

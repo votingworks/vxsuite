@@ -2,27 +2,27 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   BooleanEnvironmentVariableName as Feature,
   getFeatureFlagMock,
+  type DiskSpaceSummary,
 } from '@votingworks/utils';
-import * as grout from '@votingworks/grout';
-import { Server } from 'node:http';
-import { LogEventId, Logger } from '@votingworks/logging';
+import type * as grout from '@votingworks/grout';
+import type { Server } from 'node:http';
+import { LogEventId, type Logger } from '@votingworks/logging';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import {
   BallotType,
-  DiagnosticRecord,
-  PageInterpretation,
-  SheetOf,
+  type DiagnosticRecord,
+  type PageInterpretation,
+  type SheetOf,
 } from '@votingworks/types';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
-import type { DiskSpaceSummary } from '@votingworks/utils';
-import { MockUsbDrive } from '@votingworks/usb-drive';
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
+import type { MockUsbDrive } from '@votingworks/usb-drive';
+import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import type { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { assertDefined, deferred, ok } from '@votingworks/basics';
 import { interpretSimplexBmdBallot } from '@votingworks/ballot-interpreter';
 import { readElection } from '@votingworks/fs';
-import { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
-import { Api } from './app.js';
+import type { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
+import type { Api } from './app.js';
 import { PatConnectionStatusReader } from './pat-input/connection_status_reader.js';
 import {
   configureApp,
@@ -31,7 +31,7 @@ import {
 } from '../test/app_helpers.js';
 import {
   delays,
-  PaperHandlerStateMachine,
+  type PaperHandlerStateMachine,
 } from './custom-paper-handler/state_machine.js';
 import { isAccessibleControllerDaemonRunning } from './util/hardware.js';
 import { mockSystemAdminAuth } from '../test/auth_helpers.js';

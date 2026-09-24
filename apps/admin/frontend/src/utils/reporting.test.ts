@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest';
 import {
-  Admin,
-  BallotStyleGroupId,
-  Election,
+  type Admin,
+  type BallotStyleGroupId,
+  type Election,
   Tabulation,
 } from '@votingworks/types';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';

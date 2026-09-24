@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import { safeParseJson } from './generic.js';
 import {
-  UiStringAudioIdsPackage,
+  type UiStringAudioIdsPackage,
   UiStringAudioIdsPackageSchema,
 } from './ui_string_audio_ids.js';
 

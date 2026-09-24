@@ -1,6 +1,6 @@
 // @coverage-exclude-file: tested externally at point of usage
 import { createCanvas } from 'canvas';
-import { RgbaImageData } from '@votingworks/types';
+import type { RgbaImageData } from '@votingworks/types';
 
 /**
  * Creates a new image consisting of {@link overlay} drawn on top of

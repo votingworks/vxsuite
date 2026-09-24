@@ -1,8 +1,8 @@
-import { UsbDrive } from '@votingworks/usb-drive';
-import { LogEventId, Logger } from '@votingworks/logging';
+import type { UsbDrive } from '@votingworks/usb-drive';
+import { LogEventId, type Logger } from '@votingworks/logging';
 import { CentralScanReadinessReport } from '@votingworks/ui';
 import {
-  ExportDataResult,
+  type ExportDataResult,
   Exporter,
   getMachineId,
   getBatteryInfo,
@@ -10,7 +10,7 @@ import {
 } from '@votingworks/backend';
 import { renderToPdf } from '@votingworks/printing';
 import { generateReadinessReportFilename } from '@votingworks/utils';
-import { Workspace } from './util/workspace.js';
+import type { Workspace } from './util/workspace.js';
 import { getCurrentTime } from './util/get_current_time.js';
 
 /**

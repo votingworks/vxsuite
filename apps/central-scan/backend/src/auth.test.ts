@@ -1,17 +1,17 @@
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import getPort from 'get-port';
-import { Server } from 'node:http';
+import type { Server } from 'node:http';
 import { DateTime } from 'luxon';
 import {
   buildMockDippedSmartCardAuth,
-  DippedSmartCardAuthApi,
+  type DippedSmartCardAuthApi,
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
-import { Logger, mockBaseLogger } from '@votingworks/logging';
+import { type Logger, mockBaseLogger } from '@votingworks/logging';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   constructElectionKey,
-  SystemSettings,
+  type SystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 
@@ -21,13 +21,13 @@ import {
 } from '@votingworks/fixtures';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { makeMockScanner } from '../test/util/mocks.js';
-import { Api, buildCentralScannerApp } from './app.js';
+import { type Api, buildCentralScannerApp } from './app.js';
 import {
-  BatchScannerStateMachine,
+  type BatchScannerStateMachine,
   createBatchScannerStateMachine,
 } from './scanner.js';
 import { start } from './server.js';
-import { createWorkspace, Workspace } from './util/workspace.js';
+import { createWorkspace, type Workspace } from './util/workspace.js';
 import { buildMockLogger } from '../test/helpers/setup_app.js';
 
 let apiClient: grout.Client<Api>;

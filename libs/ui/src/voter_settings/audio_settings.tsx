@@ -4,7 +4,7 @@ import { SettingsPane } from './settings_pane.js';
 import { Button } from '../button.js';
 import { VoterSettingsManagerContext } from '../voter_settings_manager_context.js';
 import {
-  AppStringKey,
+  type AppStringKey,
   appStrings,
   RATE_CHANGE_FEEDBACK_STRING_KEYS,
   VOLUME_CHANGE_FEEDBACK_STRING_KEYS,
@@ -15,9 +15,9 @@ import { useCurrentTheme } from '../hooks/use_current_theme.js';
 import { Font } from '../typography.js';
 import { useAudioContext } from '../ui_strings/audio_context.js';
 import { AssistiveTechInstructions } from '../accessible_controllers/index.js';
-import { IconName } from '../icons.js';
-import { AudioVolume } from '../ui_strings/audio_volume.js';
-import { PlaybackRate } from '../ui_strings/audio_playback_rate.js';
+import type { IconName } from '../icons.js';
+import type { AudioVolume } from '../ui_strings/audio_volume.js';
+import type { PlaybackRate } from '../ui_strings/audio_playback_rate.js';
 
 const Column = styled.div`
   align-items: start;

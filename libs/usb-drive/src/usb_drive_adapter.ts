@@ -1,16 +1,16 @@
 import { extractErrorMessage, throwIllegalValue } from '@votingworks/basics';
-import { UsbDriveSpace } from '@votingworks/utils';
+import type { UsbDriveSpace } from '@votingworks/utils';
 import makeDebug from 'debug';
-import { MultiUsbDrive } from './multi_usb_drive.js';
+import type { MultiUsbDrive } from './multi_usb_drive.js';
 import {
   mountedUsbDriveStatus,
-  UsbDiskDevPath,
-  UsbDrive,
-  UsbDriveFormatFilesystemType,
-  UsbDriveInfo,
-  UsbDriveStatus,
-  UsbPartitionInfo,
-  UsbPartitionMountpoint,
+  type UsbDiskDevPath,
+  type UsbDrive,
+  type UsbDriveFormatFilesystemType,
+  type UsbDriveInfo,
+  type UsbDriveStatus,
+  type UsbPartitionInfo,
+  type UsbPartitionMountpoint,
 } from './types.js';
 
 const debug = makeDebug('usb-drive:adapter');

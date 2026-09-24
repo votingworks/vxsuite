@@ -1,6 +1,6 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { err, ok } from '@votingworks/basics';
-import { ExecError, exec } from '../utils/exec.js';
+import { type ExecError, exec } from '../utils/exec.js';
 import { DEFAULT_MANAGED_PRINTER_NAME } from './configure.js';
 import { cancelAllJobs, print } from './print.js';
 import { PrintSides } from './types.js';

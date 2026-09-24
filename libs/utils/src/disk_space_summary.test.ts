@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import {
-  DiskSpaceSummary,
+  type DiskSpaceSummary,
   getLowDiskSpaceWarningMessage,
 } from './disk_space_summary.js';
 

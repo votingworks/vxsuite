@@ -10,7 +10,7 @@ import {
   VerticalElectionInfoBar,
 } from '@votingworks/ui';
 import {
-  BooleanEnvironmentVariableName,
+  type BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 

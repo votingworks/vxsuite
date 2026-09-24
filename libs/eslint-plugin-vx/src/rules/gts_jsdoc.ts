@@ -2,7 +2,7 @@ import {
   AST_NODE_TYPES,
   AST_TOKEN_TYPES,
   TSESLint,
-  TSESTree,
+  type TSESTree,
 } from '@typescript-eslint/utils';
 import { strict as assert } from 'node:assert';
 /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */

@@ -1,5 +1,10 @@
-import { PdfError } from '@votingworks/printing';
-import { Admin, ContestId, Election, Tabulation } from '@votingworks/types';
+import type { PdfError } from '@votingworks/printing';
+import {
+  type Admin,
+  type ContestId,
+  type Election,
+  Tabulation,
+} from '@votingworks/types';
 import {
   combineElectionResults,
   convertManualElectionResults,

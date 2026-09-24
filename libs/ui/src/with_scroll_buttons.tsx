@@ -1,9 +1,13 @@
 // @coverage-exclude-file: tested via VxMark Playwright tests
 import React from 'react';
-import { DefaultTheme, ThemeProvider } from 'styled-components';
+import { type DefaultTheme, ThemeProvider } from 'styled-components';
 
 import { rgba } from 'polished';
-import { SizeMode, TouchSizeMode, isTouchSizeMode } from '@votingworks/types';
+import {
+  type SizeMode,
+  type TouchSizeMode,
+  isTouchSizeMode,
+} from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { styled } from './styled.js';
 import { Button } from './button.js';

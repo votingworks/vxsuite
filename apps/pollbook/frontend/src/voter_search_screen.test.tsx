@@ -1,13 +1,13 @@
 import { expect, test, beforeEach, afterEach, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import {
+import type {
   AamvaDocument,
   VoterSearchParams,
 } from '@votingworks/pollbook-backend';
 import { electionSimpleSinglePrecinctFixtures } from '@votingworks/fixtures';
-import { Voter } from '@votingworks/types';
+import type { Voter } from '@votingworks/types';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   createMockVoter,
 } from '../test/mock_api_client.js';

@@ -1,6 +1,6 @@
-import { BaseLogger, LogEventId } from '@votingworks/logging';
+import { type BaseLogger, LogEventId } from '@votingworks/logging';
 import { Client as DbClient } from '@votingworks/db';
-import { Result, assert, err, ok } from '@votingworks/basics';
+import { type Result, assert, err, ok } from '@votingworks/basics';
 import { randomUUID } from 'node:crypto';
 import { unlink } from 'node:fs/promises';
 import { createWriteStream, createReadStream } from 'node:fs';
@@ -17,12 +17,12 @@ import { getCurrentTime } from './get_current_time.js';
 import { convertDbRowsToPollbookEvents } from './event_helpers.js';
 import {
   CommunicatingPollbookConnectionStatuses,
-  ConfigurationError,
-  EventDbRow,
-  PollbookConfigurationInformation,
+  type ConfigurationError,
+  type EventDbRow,
+  type PollbookConfigurationInformation,
   PollbookConnectionStatus,
-  PollbookEvent,
-  PollbookService,
+  type PollbookEvent,
+  type PollbookService,
   transitionPollbookToDisconnectedStatus,
 } from './types.js';
 import { rootDebug } from './debug.js';

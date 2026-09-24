@@ -1,13 +1,13 @@
 import { expect, test } from 'vitest';
 import { createImageData } from '@votingworks/image-utils';
-import { RgbaImageData } from '@votingworks/types';
+import type { RgbaImageData } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import {
   BYTES_PER_CHUNK_COLUMN,
   imageDataToPaperHandlerChunks,
 } from './printing.js';
 import { VERTICAL_DOTS_IN_CHUNK } from './driver/constants.js';
-import { PaperHandlerBitmap } from './driver/coders.js';
+import type { PaperHandlerBitmap } from './driver/coders.js';
 
 function whiteImage(width: number, height: number): RgbaImageData {
   const imageData = createImageData(width, height);

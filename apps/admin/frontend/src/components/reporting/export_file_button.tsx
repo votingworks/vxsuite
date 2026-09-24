@@ -1,9 +1,9 @@
 import React, { useContext, useState } from 'react';
 import { Button } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
-import { UseMutationResult } from '@tanstack/react-query';
+import type { UseMutationResult } from '@tanstack/react-query';
 import type { ExportDataResult } from '@votingworks/admin-backend';
-import { Election } from '@votingworks/types';
+import type { Election } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context.js';
 import { getCastVoteRecordFileMode } from '../../api.js';
 import { SaveBackendFileModal } from '../save_backend_file_modal.js';

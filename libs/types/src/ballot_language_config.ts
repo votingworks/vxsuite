@@ -1,4 +1,4 @@
-import { LanguageCode } from './language_code.js';
+import type { LanguageCode } from './language_code.js';
 
 export interface BallotLanguageConfig {
   languages: LanguageCode[];

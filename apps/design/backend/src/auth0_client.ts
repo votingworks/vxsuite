@@ -1,8 +1,8 @@
 import {
   ManagementClient,
   AuthenticationClient,
-  Database,
-  UsersManager,
+  type Database,
+  type UsersManager,
 } from 'auth0';
 import { assertDefined } from '@votingworks/basics';
 import crypto from 'node:crypto';

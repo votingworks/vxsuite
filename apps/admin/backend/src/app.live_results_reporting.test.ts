@@ -2,8 +2,8 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  Election,
-  PollingPlace,
+  type Election,
+  type PollingPlace,
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import {

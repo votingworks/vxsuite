@@ -1,15 +1,15 @@
 import { assert, err, ok } from '@votingworks/basics';
 import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import {
-  ElectionDefinition,
-  ImageData,
-  SheetOf,
+  type ElectionDefinition,
+  type ImageData,
+  type SheetOf,
   DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
   DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
 } from '@votingworks/types';
 import type { BridgeInterpretOptions } from '../../index.js';
 import { napi } from './napi.js';
-import { BridgeInterpretResult, HmpbInterpretResult } from './types.js';
+import type { BridgeInterpretResult, HmpbInterpretResult } from './types.js';
 
 /**
  * Options for interpreting a ballot at the bridge layer.

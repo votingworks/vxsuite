@@ -2,7 +2,7 @@
 import React, { useCallback, useRef } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 
-import {
+import type {
   CandidateVote,
   ContestId,
   ElectionDefinition,
@@ -13,7 +13,7 @@ import {
 import {
   LinkButton,
   appStrings,
-  Button,
+  type Button,
   PageNavigationButtonId,
   AccessibilityMode,
   WithAltAudio,
@@ -24,14 +24,14 @@ import {
   deriveStraightPartyVotesForContest,
   selectedStraightPartyId,
 } from '@votingworks/utils';
-import { Contest, ContestProps } from '../components/contest.js';
-import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests.js';
+import { Contest, type ContestProps } from '../components/contest.js';
+import type { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests.js';
 import {
-  BreadcrumbMetadata,
+  type BreadcrumbMetadata,
   Breadcrumbs,
 } from '../components/contest_header.js';
 import {
-  VoterHelpScreenType,
+  type VoterHelpScreenType,
   VoterScreen,
 } from '../components/voter_screen.js';
 import { numVotesRemaining } from '../utils/vote.js';

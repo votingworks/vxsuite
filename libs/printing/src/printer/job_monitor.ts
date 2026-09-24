@@ -1,5 +1,5 @@
-import { BaseLogger, LogEventId } from '@votingworks/logging';
-import { PrintJobId, PrintJobStatus } from '@votingworks/types';
+import { type BaseLogger, LogEventId } from '@votingworks/logging';
+import type { PrintJobId, PrintJobStatus } from '@votingworks/types';
 import { extractErrorMessage } from '@votingworks/basics';
 import { rootDebug } from '../utils/debug.js';
 import { queryJobStatus } from './job_status.js';

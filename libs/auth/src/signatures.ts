@@ -1,4 +1,4 @@
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 import CombinedStream from 'combined-stream';
 
 const MESSAGE_FORMAT_VERSION = 1;

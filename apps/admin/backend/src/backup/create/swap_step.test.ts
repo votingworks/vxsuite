@@ -1,12 +1,16 @@
 import { expect, test, vi } from 'vitest';
 import { join } from 'node:path';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, type Result } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockLogger } from '@votingworks/logging';
-import { exchangePaths, syncFilesystem, SyscallError } from '@votingworks/fs';
+import {
+  exchangePaths,
+  syncFilesystem,
+  type SyscallError,
+} from '@votingworks/fs';
 import { swap } from './swap_step.js';
-import { ProgressEvent } from '../progress.js';
+import type { ProgressEvent } from '../progress.js';
 
 vi.mock(import('@votingworks/fs'), async () => {
   const { mockFs } = await import('../../../test/mock_fs.js');

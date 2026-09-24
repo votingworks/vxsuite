@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { find } from '@votingworks/basics';
-import { CandidateContest, Tabulation } from '@votingworks/types';
+import { type CandidateContest, Tabulation } from '@votingworks/types';
 import { buildContestResultsFixture } from './tabulation.js';
 import {
   getTallyReportCandidateRows,

@@ -1,12 +1,12 @@
 import { expect, test } from 'vitest';
-import * as grout from '@votingworks/grout';
+import type * as grout from '@votingworks/grout';
 import {
   constructElectionKey,
   DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { ClientStore, HostConnection } from './client_store.js';
-import { ClientConnectionStatus, ElectionRecord } from './types.js';
+import { ClientStore, type HostConnection } from './client_store.js';
+import { ClientConnectionStatus, type ElectionRecord } from './types.js';
 import type { PeerApi } from './peer_app.js';
 
 function createMockPeerApiClient(): grout.Client<PeerApi> {

@@ -5,7 +5,7 @@ import {
 import { getMockUsbDirPath } from './mocks/mock_usb_dir.js';
 import { SimulatedUsbPlatform } from './mocks/simulated_usb_platform.js';
 import { RealUsbPlatform } from './usb_platform.js';
-import { UsbPlatform } from './usb_platform_types.js';
+import type { UsbPlatform } from './usb_platform_types.js';
 
 /**
  * Gets the appropriate USB platform based on the environment.

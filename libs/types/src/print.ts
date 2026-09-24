@@ -1,5 +1,5 @@
-import { Id } from './generic.js';
-import { LanguageCode } from './language_code.js';
+import type { Id } from './generic.js';
+import type { LanguageCode } from './language_code.js';
 
 export interface BallotPrintCount {
   ballotStyleId: Id;

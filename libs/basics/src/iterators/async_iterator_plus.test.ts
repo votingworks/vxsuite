@@ -4,7 +4,7 @@ import { typedAs } from '../typed_as.js';
 import { integers } from './integers.js';
 import { iter } from './iter.js';
 import { naturals } from './naturals.js';
-import { AsyncIteratorPlus } from './types.js';
+import type { AsyncIteratorPlus } from './types.js';
 
 test('async', async () => {
   const it = iter([]).async();

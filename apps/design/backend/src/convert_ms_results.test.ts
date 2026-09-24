@@ -15,7 +15,7 @@ import { convertMsElection } from './convert_ms_election.js';
 import {
   convertMsResults,
   SEMS_RESULTS_COLUMNS,
-  SemsResultsRow,
+  type SemsResultsRow,
 } from './convert_ms_results.js';
 
 const generalElection = convertMsElection(

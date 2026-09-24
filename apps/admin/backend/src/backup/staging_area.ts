@@ -1,9 +1,9 @@
 import assert from 'node:assert';
 import { link, mkdir, rm, stat } from 'node:fs/promises';
 import { dirname, isAbsolute, join, normalize, relative } from 'node:path';
-import { err, iter, ok, Result } from '@votingworks/basics';
+import { err, iter, ok, type Result } from '@votingworks/basics';
 import {
-  FileLock,
+  type FileLock,
   isLockHeldElsewhereError,
   tryLockFileExclusive,
 } from '@votingworks/fs';

@@ -6,7 +6,7 @@ import {
 import {
   straightPartyNotYetImplemented,
   anyPollingPlace,
-  BatchInfo,
+  type BatchInfo,
   formatElectionHashes,
 } from '@votingworks/types';
 import { buildElectionResultsFixture } from '@votingworks/utils';

@@ -14,9 +14,12 @@ import type { CastVoteRecordFileRecord as CvrImport } from '@votingworks/admin-b
 
 import { CvrSummaries } from './cvr_summaries.js';
 import { GAP, INSET_FOCUS_OUTLINE } from './styles.js';
-import { LocationFilter, LocationFilterBar } from './location_filter_bar.js';
+import {
+  type LocationFilter,
+  LocationFilterBar,
+} from './location_filter_bar.js';
 import { RemoveAllCvrsModal } from './remove_all_cvrs_modal.js';
-import { CvrsState, useCvrsState } from './cvrs_state.js';
+import { type CvrsState, useCvrsState } from './cvrs_state.js';
 import { LocationList } from './location_list.js';
 import { CvrImportPanel } from './cvr_import_panel.js';
 import { RemoveImportModal } from './remove_import_modal.js';

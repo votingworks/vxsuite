@@ -1,4 +1,4 @@
-import { TSESLint, TSESTree } from '@typescript-eslint/utils';
+import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { strict as assert } from 'node:assert';
 import { createRule } from '../util/index.ts';
 

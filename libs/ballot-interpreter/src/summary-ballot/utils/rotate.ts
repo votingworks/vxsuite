@@ -1,4 +1,4 @@
-import { RgbaImageData } from '@votingworks/types';
+import type { RgbaImageData } from '@votingworks/types';
 /**
  * Rotate an image 180 degrees in place.
  */

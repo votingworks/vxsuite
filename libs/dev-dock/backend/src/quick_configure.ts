@@ -1,7 +1,7 @@
 import { dirname, join, resolve } from 'node:path';
-import { Optional, iter } from '@votingworks/basics';
+import { type Optional, iter } from '@votingworks/basics';
 import {
-  FileSystemEntry,
+  type FileSystemEntry,
   FileSystemEntryType,
   listDirectory,
 } from '@votingworks/fs';

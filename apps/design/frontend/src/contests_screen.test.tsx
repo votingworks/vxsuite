@@ -1,23 +1,23 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { createMemoryHistory, MemoryHistory } from 'history';
+import { createMemoryHistory, type MemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import {
-  Contest,
+  type Contest,
   BallotStyleGroupIdSchema,
   BallotStyleIdSchema,
-  Candidate,
-  CandidateContest,
+  type Candidate,
+  type CandidateContest,
   DEFAULT_SYSTEM_SETTINGS,
   DistrictIdSchema,
-  Election,
-  ElectionId,
+  type Election,
+  type ElectionId,
   ElectionStringKey,
   HmpbBallotPaperSize,
   PartyIdSchema,
   PrecinctIdSchema,
-  StraightPartyContest,
+  type StraightPartyContest,
   unsafeParse,
-  YesNoContest,
+  type YesNoContest,
 } from '@votingworks/types';
 import {
   assert,
@@ -27,9 +27,9 @@ import {
   find,
   ok,
 } from '@votingworks/basics';
-import { StateFeaturesConfig } from '@votingworks/design-backend';
+import type { StateFeaturesConfig } from '@votingworks/design-backend';
 import {
-  MockApiClient,
+  type MockApiClient,
   createMockApiClient,
   mockUserFeatures,
   jurisdiction,
@@ -56,8 +56,8 @@ import { routes } from './routes.js';
 import { makeIdFactory } from '../test/id_helpers.js';
 import {
   ContestList,
-  ContestListProps,
-  ReorderParams,
+  type ContestListProps,
+  type ReorderParams,
 } from './contest_list.js';
 import { ContestAudioPanel } from './contest_audio_panel.js';
 

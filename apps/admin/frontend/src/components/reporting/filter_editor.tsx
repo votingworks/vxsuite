@@ -6,7 +6,7 @@ import {
 } from '@votingworks/basics';
 import {
   Admin,
-  Election,
+  type Election,
   isCombinedBallotPrimary,
   pollingPlaceTypeName,
   Tabulation,
@@ -15,7 +15,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import {
   SearchSelect,
-  SelectOption,
+  type SelectOption,
   Button,
   getBallotStyleLabel,
 } from '@votingworks/ui';

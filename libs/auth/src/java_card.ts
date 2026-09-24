@@ -11,7 +11,7 @@ import {
   extractErrorMessage,
   throwIllegalValue,
 } from '@votingworks/basics';
-import {
+import type {
   Byte,
   ElectionManagerUser,
   PollWorkerUser,
@@ -30,11 +30,11 @@ import {
 } from './apdu.js';
 import {
   arePollWorkerCardDetails,
-  Card,
-  CardDetails,
-  CardStatus,
-  CheckPinResponse,
-  ProgrammedCardDetails,
+  type Card,
+  type CardDetails,
+  type CardStatus,
+  type CheckPinResponse,
+  type ProgrammedCardDetails,
 } from './card.js';
 import { CardReader } from './card_reader.js';
 import {
@@ -45,15 +45,15 @@ import {
   parseCert,
 } from './certs.js';
 import {
-  CardProgrammingConfig,
+  type CardProgrammingConfig,
   constructJavaCardConfig,
-  JavaCardConfig,
+  type JavaCardConfig,
 } from './config.js';
 import {
   certDerToPem,
   certPemToDer,
   createCert,
-  CreateCertInput,
+  type CreateCertInput,
   extractPublicKeyFromCert,
   PUBLIC_KEY_IN_DER_FORMAT_HEADER,
   publicKeyDerToPem,

@@ -1,11 +1,11 @@
 import { expect, test, vi } from 'vitest';
-import { Logger, mockLogger } from '@votingworks/logging';
+import { type Logger, mockLogger } from '@votingworks/logging';
 import { assertDefined, deferred, sleep } from '@votingworks/basics';
 import { Player } from './player.js';
 import { AudioCard } from './card.js';
 import { AudioPlayer } from '../player.js';
 import { AUDIO_DEVICE_DEFAULT_SINK } from '../../system_call/pulse_audio.js';
-import { NODE_ENV } from '../../globals.js';
+import type { NODE_ENV } from '../../globals.js';
 
 vi.mock('./card.js');
 

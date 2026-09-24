@@ -1,6 +1,6 @@
 import { afterAll, describe, expect, test, vi } from 'vitest';
 import { randomUUID as uuid } from 'node:crypto';
-import { ElectionId } from '@votingworks/types';
+import type { ElectionId } from '@votingworks/types';
 import { testSetupHelpers } from '../test/helpers.js';
 import {
   organizations,

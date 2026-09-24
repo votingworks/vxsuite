@@ -19,20 +19,20 @@ import {
   zipFile,
 } from '@votingworks/test-utils';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   constructElectionKey,
   convertVxfElectionToCdfBallotDefinition,
   DEFAULT_SYSTEM_SETTINGS,
   DEV_MACHINE_ID,
-  ElectionDefinition,
+  type ElectionDefinition,
   ElectionPackageFileName,
   LATEST_METADATA,
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { configureApp } from '../test/helpers/shared_helpers.js';
 import { withApp } from '../test/helpers/scanner_helpers.js';
-import { PrecinctScannerPollsInfo } from './index.js';
+import type { PrecinctScannerPollsInfo } from './index.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;

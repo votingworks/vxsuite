@@ -1,6 +1,6 @@
-import { Logger } from '@votingworks/logging';
+import type { Logger } from '@votingworks/logging';
 
-import { type NODE_ENV } from '../../globals.js';
+import type { NODE_ENV } from '../../globals.js';
 import {
   AUDIO_DEVICE_DEFAULT_SINK,
   AudioCardProfile,

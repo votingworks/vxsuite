@@ -18,7 +18,7 @@ import {
 import { useHistory, useParams } from 'react-router-dom';
 import React, { useCallback, useEffect, useState } from 'react';
 import { assertDefined, sleep, assert } from '@votingworks/basics';
-import { PrinterStatus, Voter } from '@votingworks/types';
+import type { PrinterStatus, Voter } from '@votingworks/types';
 import { DateTime } from 'luxon';
 import { electionManagerRoutes, NoNavScreen } from './nav_screen.js';
 import {

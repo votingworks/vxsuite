@@ -4,7 +4,7 @@ import {
   electionSimpleSinglePrecinctFixtures,
   electionMultiPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import { AddressInfo } from 'node:net';
+import type { AddressInfo } from 'node:net';
 import { err, ok } from '@votingworks/basics';
 import { existsSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';

@@ -1,12 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 import {
-  Contest,
-  CandidateContest,
-  ContestId,
-  Election,
+  type Contest,
+  type CandidateContest,
+  type ContestId,
+  type Election,
   getContestDistrictName,
-  Side,
+  type Side,
 } from '@votingworks/types';
 import type {
   AdjudicatedContestOption,
@@ -15,15 +15,22 @@ import type {
   CvrTag,
 } from '@votingworks/admin-backend';
 import { find, iter } from '@votingworks/basics';
-import { Button, Callout, Caption, FontProps, Icons, P } from '@votingworks/ui';
+import {
+  Button,
+  Callout,
+  Caption,
+  type FontProps,
+  Icons,
+  P,
+} from '@votingworks/ui';
 import pluralize from 'pluralize';
 import { contestOptionName } from '@votingworks/utils';
 import { EntityList } from './entity_list.js';
 import {
-  AdjudicatedContests,
-  ContestListItem,
+  type AdjudicatedContests,
+  type ContestListItem,
   contestPartyLabel,
-  BallotCrossoverVoteStatus,
+  type BallotCrossoverVoteStatus,
   getCurrentVote,
   isContestTagOnlyUndervote,
 } from '../utils/adjudication.js';

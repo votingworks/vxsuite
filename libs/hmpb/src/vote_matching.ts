@@ -1,5 +1,5 @@
 import { assert, deepEqual } from '@votingworks/basics';
-import {
+import type {
   Candidate,
   GridPosition,
   GridPositionOption,

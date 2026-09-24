@@ -1,6 +1,6 @@
 import { test } from 'vitest';
 import {
-  ElectionPackageConfigurationError,
+  type ElectionPackageConfigurationError,
   SYSTEM_LIMITS,
 } from '@votingworks/types';
 import { render, screen } from '../test/react_testing_library.js';

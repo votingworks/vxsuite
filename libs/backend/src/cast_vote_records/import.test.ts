@@ -20,7 +20,7 @@ import { getImageHash } from './build_cast_vote_record.js';
 import { TEST_OTHER_REPORT_TYPE } from './build_report_metadata.js';
 import { isTestReport, readCastVoteRecordExport } from './import.js';
 import {
-  CastVoteRecordExportModifications,
+  type CastVoteRecordExportModifications,
   modifyCastVoteRecordExport,
 } from './test_utils.js';
 

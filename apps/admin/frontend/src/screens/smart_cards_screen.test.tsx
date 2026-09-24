@@ -4,15 +4,21 @@ import {
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { constructElectionKey, DippedSmartCardAuth } from '@votingworks/types';
+import {
+  constructElectionKey,
+  type DippedSmartCardAuth,
+} from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { deferred, ok } from '@votingworks/basics';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../../test/helpers/mock_api_client.js';
 import { screen } from '../../test/react_testing_library.js';
 import {
   renderInAppContext,
-  RenderInAppContextParams,
+  type RenderInAppContextParams,
 } from '../../test/render_in_app_context.js';
 import { SmartCardsScreen } from './smart_cards_screen.js';
 

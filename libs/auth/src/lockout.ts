@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
-import { Optional } from '@votingworks/basics';
-import {
+import type { Optional } from '@votingworks/basics';
+import type {
   NumIncorrectPinAttemptsAllowedBeforeCardLockout,
   StartingCardLockoutDurationSeconds,
 } from '@votingworks/types';

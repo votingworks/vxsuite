@@ -4,7 +4,7 @@ import {
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
-import {
+import type {
   Election,
   ElectionDefinition,
   Voter,

@@ -4,13 +4,13 @@ import {
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
-  BooleanEnvironmentVariableName as Feature,
+  type BooleanEnvironmentVariableName as Feature,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { assertDefined } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library.js';
 import {
-  ContestWriteIns,
+  type ContestWriteIns,
   PrecinctScannerWriteInImageReport,
 } from './precinct_scanner_write_in_image_report.js';
 

@@ -1,10 +1,13 @@
 import { afterEach, beforeEach, describe, test } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import { InsertedSmartCardAuth } from '@votingworks/types';
-import { VxRenderResult } from '@votingworks/ui';
+import type { InsertedSmartCardAuth } from '@votingworks/types';
+import type { VxRenderResult } from '@votingworks/ui';
 import { render } from '../../test/test_utils.js';
-import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  createApiMock,
+  type ApiMock,
+} from '../../test/helpers/mock_api_client.js';
 import { screen } from '../../test/react_testing_library.js';
 import { BallotInvalidatedPage } from './ballot_invalidated_page.js';
 import {

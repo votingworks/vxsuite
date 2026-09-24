@@ -1,31 +1,31 @@
 import {
   BallotType,
-  ElectionId,
+  type ElectionId,
   ElectionIdSchema,
-  ElectionSerializationFormat,
+  type ElectionSerializationFormat,
   ElectionSerializationFormatSchema,
   formatBallotHash,
-  Precinct,
+  type Precinct,
 } from '@votingworks/types';
 import { translateBallotStrings } from '@votingworks/backend';
 import {
   ballotTemplates,
   createPlaywrightRendererPool,
-  ElectionSerializationOptions,
+  type ElectionSerializationOptions,
   hmpbStringsCatalog,
   layOutBallotsAndCreateElectionDefinition,
-  RendererPool,
-  ScratchDir,
+  type RendererPool,
+  type ScratchDir,
 } from '@votingworks/hmpb';
 import { iter } from '@votingworks/basics';
 import path from 'node:path';
 import z from 'zod/v4';
 import {
   generateTestDeckBallots,
-  TestDeckBallot,
+  type TestDeckBallot,
   createSummaryBallotTestDeck,
 } from '@votingworks/test-decks';
-import { EmitProgressFunction, WorkerContext } from './context.js';
+import type { EmitProgressFunction, WorkerContext } from './context.js';
 import {
   addPollingPlacesForExport,
   createBallotPropsForTemplate,

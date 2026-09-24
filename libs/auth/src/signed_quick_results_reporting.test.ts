@@ -1,11 +1,11 @@
 import { expect, test, vi } from 'vitest';
 import { electionGeneralFixtures } from '@votingworks/fixtures';
-import { DEV_MACHINE_ID, Tabulation } from '@votingworks/types';
+import { DEV_MACHINE_ID, type Tabulation } from '@votingworks/types';
 import { compressAndEncodePerPrecinctTally } from '@votingworks/utils';
 import { err, ok } from '@votingworks/basics';
 
 import { getTestFilePath } from '../test/utils.js';
-import { SignedQuickResultsReportingConfig } from './config.js';
+import type { SignedQuickResultsReportingConfig } from './config.js';
 import {
   generateSignedQuickResultsReportingUrl,
   authenticateSignedQuickResultsReportingUrl,

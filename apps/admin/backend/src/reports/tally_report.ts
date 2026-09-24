@@ -1,18 +1,18 @@
-import { Admin, Tabulation } from '@votingworks/types';
+import type { Admin, Tabulation } from '@votingworks/types';
 import React from 'react';
 import { combineGroupSpecifierAndFilter } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { AdminTallyReportByParty } from '@votingworks/ui';
 
-import { LogEventId, Logger } from '@votingworks/logging';
-import { Printer, renderToPdf } from '@votingworks/printing';
-import { UsbDrive } from '@votingworks/usb-drive';
+import { LogEventId, type Logger } from '@votingworks/logging';
+import { type Printer, renderToPdf } from '@votingworks/printing';
+import type { UsbDrive } from '@votingworks/usb-drive';
 import { join } from 'node:path';
 import { generateTitleForReport } from './titles.js';
-import { Store } from '../store.js';
+import type { Store } from '../store.js';
 import { getCurrentTime } from '../util/get_current_time.js';
-import { TallyReportWarning, getTallyReportWarning } from './warnings.js';
-import { ExportDataResult } from '../types.js';
+import { type TallyReportWarning, getTallyReportWarning } from './warnings.js';
+import type { ExportDataResult } from '../types.js';
 import { generateReportsDirectoryPath } from '../util/filenames.js';
 import { buildExporter } from '../util/exporter.js';
 

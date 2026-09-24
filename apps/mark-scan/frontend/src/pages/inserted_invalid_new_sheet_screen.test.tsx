@@ -1,12 +1,12 @@
 import { expect, test, vi } from 'vitest';
-import {
+import type {
   BallotMetadata,
   PageInterpretation,
   PageInterpretationType,
 } from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { TestErrorBoundary } from '@votingworks/ui';
-import { UseQueryResult } from '@tanstack/react-query';
+import type { UseQueryResult } from '@tanstack/react-query';
 import { render, screen } from '../../test/react_testing_library.js';
 import { InsertedInvalidNewSheetScreen } from './inserted_invalid_new_sheet_screen.js';
 import * as api from '../api.js';

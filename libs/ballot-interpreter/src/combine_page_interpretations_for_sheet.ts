@@ -1,12 +1,12 @@
 import {
   AdjudicationReason,
-  AdjudicationReasonInfo,
-  Election,
-  InterpretedBmdPage,
-  InvalidBallotHashPage,
-  PageInterpretation,
-  SheetInterpretation,
-  SheetOf,
+  type AdjudicationReasonInfo,
+  type Election,
+  type InterpretedBmdPage,
+  type InvalidBallotHashPage,
+  type PageInterpretation,
+  type SheetInterpretation,
+  type SheetOf,
 } from '@votingworks/types';
 import { hasCrossoverVote } from '@votingworks/utils';
 

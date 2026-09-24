@@ -1,5 +1,5 @@
 import { integers } from '@votingworks/basics';
-import {
+import type {
   PaperMovementAfterScan,
   Resolution,
   ScanDataFormat,

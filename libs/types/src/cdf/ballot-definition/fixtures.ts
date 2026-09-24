@@ -1,6 +1,6 @@
 import { DateWithoutTime } from '@votingworks/basics';
 import {
-  BallotDefinition,
+  type BallotDefinition,
   ElectionType,
   IdentifierType,
   ReportingUnitType,
@@ -12,10 +12,10 @@ import {
 } from './index.js';
 import {
   HmpbBallotPaperSize,
-  Election,
-  SheetPositions,
+  type Election,
+  type SheetPositions,
 } from '../../election.js';
-import { Outset } from '../../geometry.js';
+import type { Outset } from '../../geometry.js';
 import {
   ballotPositionsFromGridPositions,
   type FlatGridPosition,

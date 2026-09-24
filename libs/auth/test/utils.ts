@@ -1,15 +1,19 @@
 /* eslint-disable max-classes-per-file */
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 import path from 'node:path';
-import { Mocked, MockFunction, mockFunction } from '@votingworks/test-utils';
-
-import { Card, CardStatus } from '../src/card.js';
 import {
+  type Mocked,
+  type MockFunction,
+  mockFunction,
+} from '@votingworks/test-utils';
+
+import type { Card, CardStatus } from '../src/card.js';
+import type {
   CardReader,
   OnReaderStatusChange,
   ReaderStatus,
 } from '../src/card_reader.js';
-import { CardType } from '../src/certs.js';
+import type { CardType } from '../src/certs.js';
 import { JavaCard } from '../src/java_card.js';
 
 /**

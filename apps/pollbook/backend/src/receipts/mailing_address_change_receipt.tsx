@@ -1,11 +1,11 @@
 import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-import { Voter } from '@votingworks/types';
+import type { Voter } from '@votingworks/types';
 import {
   PartyName,
   ReceiptIcon,
   ReceiptMetadata,
-  ReceiptMetadataProps,
+  type ReceiptMetadataProps,
   StyledReceipt,
   VoterMailingAddress,
   VoterName,

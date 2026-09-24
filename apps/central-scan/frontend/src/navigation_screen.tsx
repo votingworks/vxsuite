@@ -20,20 +20,23 @@ import {
   VerticalElectionInfoBar,
 } from '@votingworks/ui';
 import styled from 'styled-components';
-import React, { useContext } from 'react';
+import { useContext, type ReactNode } from 'react';
 import {
   isSystemAdministratorAuth,
   isElectionManagerAuth,
 } from '@votingworks/utils';
-import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
+import type {
+  DippedSmartCardAuth,
+  ElectionDefinition,
+} from '@votingworks/types';
 import { Link, useRouteMatch } from 'react-router-dom';
 import { AppContext } from './contexts/app_context.js';
 import { ejectUsbDrive, logOut, systemCallApi } from './api.js';
 import { NetworkStatusIndicator } from './components/network_status_indicator.js';
 
 interface Props {
-  children: React.ReactNode;
-  title?: React.ReactNode;
+  children: ReactNode;
+  title?: ReactNode;
 }
 
 export const Header = styled(MainHeader)`

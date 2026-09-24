@@ -1,24 +1,24 @@
-import { vi, VitestUtils, expect } from 'vitest';
+import { vi, type VitestUtils, expect } from 'vitest';
 import {
   buildMockDippedSmartCardAuth,
-  DippedSmartCardAuthApi,
+  type DippedSmartCardAuthApi,
 } from '@votingworks/auth';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
+import { createMockUsbDrive, type MockUsbDrive } from '@votingworks/usb-drive';
 import {
   createMockPrinterHandler,
-  MemoryPrinterHandler,
+  type MemoryPrinterHandler,
 } from '@votingworks/printing';
 import {
   LogSource,
   mockBaseLogger,
-  MockLogger,
+  type MockLogger,
   mockLogger,
 } from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
-import { Application } from 'express';
-import { Server } from 'node:http';
-import { AddressInfo } from 'node:net';
+import type { Application } from 'express';
+import type { Server } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
@@ -26,19 +26,19 @@ import {
 } from '@votingworks/test-utils';
 import {
   constructElectionKey,
-  DippedSmartCardAuth,
-  Election,
+  type DippedSmartCardAuth,
+  type Election,
 } from '@votingworks/types';
-import { AvahiService, hasOnlineInterface } from '@votingworks/networking';
-import { LocalApi, buildLocalApp } from '../src/app.js';
+import { AvahiService, type hasOnlineInterface } from '@votingworks/networking';
+import { type LocalApi, buildLocalApp } from '../src/app.js';
 import { createLocalWorkspace, createPeerWorkspace } from '../src/workspace.js';
 import {
-  LocalWorkspace,
-  PeerWorkspace,
+  type LocalWorkspace,
+  type PeerWorkspace,
   PollbookConnectionStatus,
 } from '../src/index.js';
 import { getUserRole } from '../src/auth.js';
-import { buildPeerApp, PeerApi } from '../src/peer_app.js';
+import { buildPeerApp, type PeerApi } from '../src/peer_app.js';
 import { BarcodeScannerClient } from '../src/barcode_scanner/client.js';
 import {
   EVENT_POLLING_INTERVAL,

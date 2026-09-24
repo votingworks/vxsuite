@@ -1,5 +1,11 @@
 import { assertDefined } from '@votingworks/basics';
-import { P, Button, Modal, ButtonVariant, SearchSelect } from '@votingworks/ui';
+import {
+  P,
+  Button,
+  Modal,
+  type ButtonVariant,
+  SearchSelect,
+} from '@votingworks/ui';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import type { Jurisdiction } from '@votingworks/design-backend';

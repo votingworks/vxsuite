@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { UiStringsReactQueryApi } from '../hooks/ui_strings_api.js';
+import type { UiStringsReactQueryApi } from '../hooks/ui_strings_api.js';
 import { FrontendLanguageContextProvider } from './language_context.js';
 import { UiStringsAudioContextProvider } from './audio_context.js';
 import { UiStringScreenReader } from './ui_string_screen_reader.js';

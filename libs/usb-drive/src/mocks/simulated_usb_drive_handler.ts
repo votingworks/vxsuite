@@ -1,10 +1,10 @@
 import {
   mountedUsbDriveStatus,
   UsbDiskDevPathSchema,
-  UsbDriveStatus,
-  UsbPartitionMountpoint,
+  type UsbDriveStatus,
+  type UsbPartitionMountpoint,
 } from '../types.js';
-import { MockFileTree } from './helpers.js';
+import type { MockFileTree } from './helpers.js';
 import { getMockUsbDirPath } from './mock_usb_dir.js';
 import { SimulatedUsbPlatform } from './simulated_usb_platform.js';
 

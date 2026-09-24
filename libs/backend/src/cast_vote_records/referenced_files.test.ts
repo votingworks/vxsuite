@@ -5,11 +5,11 @@ import * as fs from 'node:fs';
 import * as fsPromises from 'node:fs/promises';
 import path from 'node:path';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, type Result } from '@votingworks/basics';
 import {
-  BallotPageLayout,
+  type BallotPageLayout,
   BallotType,
-  ReadCastVoteRecordError,
+  type ReadCastVoteRecordError,
 } from '@votingworks/types';
 
 import { directoryFileSource } from './file_source.js';

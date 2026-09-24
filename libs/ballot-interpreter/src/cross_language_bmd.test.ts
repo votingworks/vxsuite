@@ -1,20 +1,20 @@
 import { expect, test } from 'vitest';
 import fc from 'fast-check';
 import {
-  Contest,
+  type Contest,
   BallotType,
-  BallotStyleId,
-  Election,
-  VotesDict,
+  type BallotStyleId,
+  type Election,
+  type VotesDict,
   getContests,
   getBallotStyle,
-  Candidate,
-  YesNoVote,
+  type Candidate,
+  type YesNoVote,
 } from '@votingworks/types';
 import {
   decodeSummaryBallotPage,
   encodeSummaryBallotPage,
-  SummaryBallotPage,
+  type SummaryBallotPage,
   sliceBallotHashForEncoding,
 } from '@votingworks/ballot-encoder';
 import {

@@ -17,7 +17,7 @@ import {
   formatBallotHash,
   Tabulation,
 } from '@votingworks/types';
-import { Client } from '@votingworks/grout';
+import type { Client } from '@votingworks/grout';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { mockFileName, parseCsv } from '../test/csv.js';
@@ -29,12 +29,12 @@ import {
   mockElectionManagerAuth,
 } from '../test/app.js';
 import {
-  MockCastVoteRecordFile,
+  type MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../test/mock_cvr_file.js';
 import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture.js';
-import { Api } from './app.js';
-import { AdjudicatedCvrContest } from './types.js';
+import type { Api } from './app.js';
+import type { AdjudicatedCvrContest } from './types.js';
 import { generateReportPath } from './util/filenames.js';
 
 vi.setConfig({

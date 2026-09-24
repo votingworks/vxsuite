@@ -6,15 +6,15 @@ import {
 } from '@votingworks/auth';
 import { assert, assertDefined } from '@votingworks/basics';
 import {
-  BatchInfo,
+  type BatchInfo,
   CastVoteRecordExportFileName,
-  CastVoteRecordExportMetadata,
+  type CastVoteRecordExportMetadata,
   CastVoteRecordReportWithoutMetadataSchema,
   CVR,
-  ElectionDefinition,
+  type ElectionDefinition,
   safeParseJson,
 } from '@votingworks/types';
-import { UsbDrive } from '@votingworks/usb-drive';
+import type { UsbDrive } from '@votingworks/usb-drive';
 import {
   getExportedCastVoteRecordIds,
   SCANNER_RESULTS_FOLDER,

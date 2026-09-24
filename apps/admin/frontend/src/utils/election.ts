@@ -1,8 +1,8 @@
 import {
-  Election,
-  Party,
-  PartyId,
-  District,
+  type Election,
+  type Party,
+  type PartyId,
+  type District,
   isCombinedBallotPrimary,
 } from '@votingworks/types';
 import { find, unique } from '@votingworks/basics';

@@ -1,4 +1,4 @@
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 // Type-only: see the note in `db.ts` about `pg`'s CommonJS exports.
 import type * as pg from 'pg';
 import * as migrate from 'node-pg-migrate';

@@ -1,5 +1,5 @@
 import { throwIllegalValue } from '@votingworks/basics';
-import { UsbDriveSpace } from '@votingworks/utils';
+import type { UsbDriveSpace } from '@votingworks/utils';
 import { statfs } from 'node:fs/promises';
 import { join } from 'node:path';
 import {
@@ -8,13 +8,13 @@ import {
   getAllDiskDevices,
 } from './block_devices.js';
 import { exec } from './exec.js';
-import {
+import type {
   UsbDiskDevPath,
   UsbDriveFormatFilesystemType,
   UsbPartitionDevPath,
   UsbPartitionMountpoint,
 } from './types.js';
-import {
+import type {
   DriveWatcher,
   UsbPlatform,
   UsbPlatformDrive,

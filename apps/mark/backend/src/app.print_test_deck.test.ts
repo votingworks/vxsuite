@@ -4,10 +4,10 @@
  * and can be snapshot-verified.
  */
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { Server } from 'node:http';
+import type { Server } from 'node:http';
 import {
   constructElectionKey,
-  ElectionDefinition,
+  type ElectionDefinition,
   safeParseJson,
   SystemSettingsSchema,
 } from '@votingworks/types';
@@ -17,12 +17,12 @@ import {
 } from '@votingworks/utils';
 import {
   HP_4001_PRINTER_CONFIG,
-  MemoryPrinterHandler,
+  type MemoryPrinterHandler,
 } from '@votingworks/printing';
-import * as grout from '@votingworks/grout';
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { MockUsbDrive } from '@votingworks/usb-drive';
-import { LogEventId, Logger } from '@votingworks/logging';
+import type * as grout from '@votingworks/grout';
+import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import type { MockUsbDrive } from '@votingworks/usb-drive';
+import { LogEventId, type Logger } from '@votingworks/logging';
 import {
   electionFamousNames2021Fixtures,
   systemSettings,
@@ -33,7 +33,7 @@ import {
 } from '@votingworks/test-utils';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { createApp } from '../test/app_helpers.js';
-import { Api } from './app.js';
+import type { Api } from './app.js';
 
 vi.setConfig({ testTimeout: 90_000 });
 

@@ -3,7 +3,7 @@ import type { Meta } from '@storybook/react-vite' with {
   'resolution-mode': 'import',
 };
 
-import { Modal as Component, ModalProps } from './modal.js';
+import { Modal as Component, type ModalProps } from './modal.js';
 import { Button } from './button.js';
 
 const initialProps: ModalProps = {

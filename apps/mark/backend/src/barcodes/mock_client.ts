@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events';
-import { BarcodeReader } from './types.js';
+import type { BarcodeReader } from './types.js';
 
 export class MockBarcodeClient
   extends EventEmitter<{

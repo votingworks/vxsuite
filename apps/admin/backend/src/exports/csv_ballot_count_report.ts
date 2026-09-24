@@ -1,5 +1,5 @@
 import { stringify } from 'csv-stringify/sync';
-import {
+import type {
   Tabulation,
   ElectionDefinition,
   Id,
@@ -14,9 +14,9 @@ import {
   getScannedBallotCountForSheet,
   groupMapToGroupList,
 } from '@votingworks/utils';
-import { Store } from '../store.js';
+import type { Store } from '../store.js';
 import {
-  CsvMetadataStructure,
+  type CsvMetadataStructure,
   determineCsvMetadataStructure,
   generateBatchLookup,
   generateCsvMetadataHeaders,

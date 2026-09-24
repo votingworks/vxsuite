@@ -1,18 +1,18 @@
 // @coverage-defer-file
 import { assert, unique } from '@votingworks/basics';
 import {
-  ElectionDefinition,
-  RgbaImageData,
-  SheetOf,
+  type ElectionDefinition,
+  type RgbaImageData,
+  type SheetOf,
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { mkdir, readFile, readdir } from 'node:fs/promises';
 import { loadImageData, writeImageData } from '@votingworks/image-utils';
 import { basename, join } from 'node:path';
-import { CanvasRenderingContext2D, createCanvas } from 'canvas';
+import { type CanvasRenderingContext2D, createCanvas } from 'canvas';
 import { fileSync } from 'tmp';
 import { interpret } from './interpret.js';
-import { InterpretedBallotPage, getQuadrilateralBounds } from './types.js';
+import { type InterpretedBallotPage, getQuadrilateralBounds } from './types.js';
 
 interface ImagePathSheet {
   sheetName: string;

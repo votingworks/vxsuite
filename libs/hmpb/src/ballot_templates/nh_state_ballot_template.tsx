@@ -1,6 +1,6 @@
 import { assertDefined, ok, throwIllegalValue } from '@votingworks/basics';
-import { Contest, getBallotStyle, getContests } from '@votingworks/types';
-import {
+import { type Contest, getBallotStyle, getContests } from '@votingworks/types';
+import type {
   BallotPageTemplate,
   ContentComponent,
   FrameComponent,
@@ -10,8 +10,8 @@ import * as Primary from './nh_state_primary_ballot_template.js';
 import {
   BaseStyles,
   isFederalOfficeContest,
-  NhStateBallotProps,
-  NhStateBallotVariant,
+  type NhStateBallotProps,
+  type NhStateBallotVariant,
 } from './nh_state_ballot_components.js';
 
 const BallotPageFrame: FrameComponent<NhStateBallotProps> = (props) => {

@@ -1,10 +1,10 @@
 /* eslint-disable vx/gts-no-array-constructor */
-import { expect, Mocked, test, vi } from 'vitest';
-import { Device, findByIds, WebUSBDevice } from 'usb';
+import { expect, type Mocked, test, vi } from 'vitest';
+import { type Device, findByIds, WebUSBDevice } from 'usb';
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import { readFileSync } from 'node:fs';
 import { createImageData } from '@votingworks/image-utils';
-import { RgbaImageData } from '@votingworks/types';
+import type { RgbaImageData } from '@votingworks/types';
 import { assertDefined, iter, ok } from '@votingworks/basics';
 import {
   BYTES_PER_BIT_IMAGE_ROW,
@@ -20,14 +20,14 @@ import {
 import { getFujitsuThermalPrinter } from './printer.js';
 import {
   CONFIGURATION_NUMBER,
-  FujitsuThermalPrinterDriverInterface,
+  type FujitsuThermalPrinterDriverInterface,
   INTERFACE_NUMBER,
   PrinterStatusResponse,
   PRODUCT_ID,
-  RawPrinterStatus,
+  type RawPrinterStatus,
   VENDOR_ID,
 } from './driver/index.js';
-import { CompressedBitImage } from './driver/types.js';
+import type { CompressedBitImage } from './driver/types.js';
 import { IDLE_REPLY_PARAMETER } from './globals.js';
 import { mockMinimalWebUsbDevice } from '../test/mock_minimal_web_usb_device.js';
 import { singlePageReportPath } from '../test/fixtures/index.js';

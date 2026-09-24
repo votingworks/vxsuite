@@ -1,13 +1,13 @@
 import { expect, test, vi } from 'vitest';
 import { assert } from '@votingworks/basics';
-import React, { act } from 'react';
+import { act, type ReactNode } from 'react';
 import { createMemoryHistory } from 'history';
 import { Route, Router } from 'react-router-dom';
 import { ReadOnLoad } from './read_on_load.js';
 import { render, screen } from '../../test/react_testing_library.js';
 import { UiStringsAudioContextProvider } from './audio_context.js';
 import {
-  UiStringsReactQueryApi,
+  type UiStringsReactQueryApi,
   createUiStringsApi,
 } from '../hooks/ui_strings_api.js';
 
@@ -21,7 +21,7 @@ const mockUiStringsApi: UiStringsReactQueryApi = createUiStringsApi(() => ({
 function newRenderer() {
   const mockOnClick = vi.fn();
 
-  function renderWithClickListener(ui: React.ReactNode) {
+  function renderWithClickListener(ui: ReactNode) {
     return render(<div onClickCapture={mockOnClick}>{ui}</div>);
   }
 

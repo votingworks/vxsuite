@@ -20,7 +20,7 @@ import { startElectricalTestingServer } from './electrical_testing/server.js';
 import { getMarkScanWorkspace, PORT } from './globals.js';
 import * as server from './server.js';
 import { getDefaultAuth, getUserRole } from './util/auth.js';
-import { createWorkspace, Workspace } from './util/workspace.js';
+import { createWorkspace, type Workspace } from './util/workspace.js';
 
 export type { Api, MockPaperHandlerStatus } from './app.js';
 export * from './custom-paper-handler/index.js';

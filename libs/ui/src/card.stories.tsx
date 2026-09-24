@@ -3,7 +3,7 @@ import type { Meta } from '@storybook/react-vite' with {
 };
 
 import { LoremIpsum } from 'lorem-ipsum';
-import { Card as Component, CardProps as Props } from './card.js';
+import { Card as Component, type CardProps as Props } from './card.js';
 
 const loremIpsum = new LoremIpsum({
   sentencesPerParagraph: { max: 8, min: 4 },

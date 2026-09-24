@@ -1,11 +1,11 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import {
-  MinimalWebUsbDevice,
+  type MinimalWebUsbDevice,
   PaperHandlerDriver,
   imageDataToPaperHandlerChunks,
   VERTICAL_DOTS_IN_CHUNK,
   getPaperHandlerDriver,
-  PaperHandlerStatus,
+  type PaperHandlerStatus,
   isPaperAnywhere,
   MockPaperHandlerDriver,
   isMockPaperHandler,

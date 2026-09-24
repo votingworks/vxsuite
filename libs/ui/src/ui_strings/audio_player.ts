@@ -1,4 +1,4 @@
-import { UiStringAudioClip } from '@votingworks/types';
+import type { UiStringAudioClip } from '@votingworks/types';
 import { deferred } from '@votingworks/basics';
 
 export interface AudioPlayerParams {

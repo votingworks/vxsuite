@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { assertDefined, err, ok } from '@votingworks/basics';
-import { Byte } from '@votingworks/types';
+import type { Byte } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
@@ -13,7 +13,7 @@ import {
   STATUS_WORD,
   constructTlv,
 } from '../apdu.js';
-import { CheckPinResponse } from '../card.js';
+import type { CheckPinResponse } from '../card.js';
 import { CardReader } from '../card_reader.js';
 import { certDerToPem, certPemToDer, createCert } from '../cryptography.js';
 import {

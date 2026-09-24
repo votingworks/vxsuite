@@ -1,4 +1,4 @@
-import { LanguageCode, Election } from '@votingworks/types';
+import { LanguageCode, type Election } from '@votingworks/types';
 
 export function languageSort(
   languageA: LanguageCode,

@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import { CardStatus } from '@votingworks/auth';
+import type { CardStatus } from '@votingworks/auth';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 
 /**

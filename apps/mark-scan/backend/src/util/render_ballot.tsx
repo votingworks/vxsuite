@@ -1,17 +1,17 @@
 import {
   PAPER_DIMENSIONS,
-  PaperDimensions,
+  type PaperDimensions,
   renderToPdf,
 } from '@votingworks/printing';
 import {
-  BallotStyleId,
+  type BallotStyleId,
   BallotType,
-  Election,
-  ElectionDefinition,
+  type Election,
+  type ElectionDefinition,
   getBallotStyle,
   getContests,
   HmpbBallotPaperSize,
-  VotesDict,
+  type VotesDict,
 } from '@votingworks/types';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 
@@ -20,13 +20,13 @@ import { randomUUID } from 'node:crypto';
 import {
   BmdPaperBallot,
   BackendLanguageContextProvider,
-  BmdBallotSheetSize,
+  type BmdBallotSheetSize,
   getLayout,
-  MachineType,
+  type MachineType,
   ORDERED_BMD_BALLOT_LAYOUTS,
 } from '@votingworks/ui';
 import { getPdfPageCount } from '@votingworks/image-utils';
-import { Store } from '../store.js';
+import type { Store } from '../store.js';
 import { getMarkScanBmdModel } from './hardware.js';
 
 export interface RenderBallotProps {

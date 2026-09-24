@@ -3,26 +3,26 @@ import * as grout from '@votingworks/grout';
 import {
   assertDefined,
   iter,
-  Optional,
+  type Optional,
   throwIllegalValue,
 } from '@votingworks/basics';
 import type { ReadableFile } from '@votingworks/auth';
 import {
-  AcceptedSheet,
+  type AcceptedSheet,
   buildCastVoteRecordFiles,
-  ScannerStateUnchangedByExport,
+  type ScannerStateUnchangedByExport,
 } from '@votingworks/backend';
-import { BaseLogger, LogEventId } from '@votingworks/logging';
+import { type BaseLogger, LogEventId } from '@votingworks/logging';
 import {
   getCvrTransferUploadPath,
   NETWORK_POLLING_INTERVAL_MS,
-  VxAdminHostApi,
+  type VxAdminHostApi,
 } from '@votingworks/networking';
-import { BatchInfo } from '@votingworks/types';
+import type { BatchInfo } from '@votingworks/types';
 import { createZip } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { getMachineConfig } from './machine_config.js';
-import { Store } from './store.js';
+import type { Store } from './store.js';
 
 const debug = makeDebug('scan:cvr-sync');
 

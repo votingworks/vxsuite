@@ -1,15 +1,15 @@
 import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
 import { typedAs } from '@votingworks/basics';
 import {
-  Contest,
-  District,
-  DistrictId,
-  Party,
-  PartyId,
+  type Contest,
+  type District,
+  type DistrictId,
+  type Party,
+  type PartyId,
   LanguageCode,
-  Precinct,
-  PrecinctSplit,
-  BallotStyle,
+  type Precinct,
+  type PrecinctSplit,
+  type BallotStyle,
 } from '@votingworks/types';
 import {
   ballotStyleHasPrecinctOrSplit,

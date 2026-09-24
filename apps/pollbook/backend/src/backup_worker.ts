@@ -4,21 +4,21 @@ import { join } from 'node:path';
 import { move } from 'fs-extra';
 import { Exporter } from '@votingworks/backend';
 import { setInterval } from 'node:timers/promises';
-import { MarginDimensions, renderToPdf } from '@votingworks/printing';
-import { UsbDrive } from '@votingworks/usb-drive';
-import { assertDefined, err, ok, iter, Result } from '@votingworks/basics';
+import { type MarginDimensions, renderToPdf } from '@votingworks/printing';
+import type { UsbDrive } from '@votingworks/usb-drive';
+import { assertDefined, err, ok, iter, type Result } from '@votingworks/basics';
 import { PDFDocument } from 'pdf-lib';
 
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
-import { PartyAbbreviation } from '@votingworks/types';
-import { LocalWorkspace } from './types.js';
+import type { PartyAbbreviation } from '@votingworks/types';
+import type { LocalWorkspace } from './types.js';
 import {
   CertificationPage,
   CoverPage,
   VoterChecklist,
   VoterChecklistHeader,
 } from './voter_checklist.js';
-import { LocalStore } from './local_store.js';
+import type { LocalStore } from './local_store.js';
 
 const BACKUP_INTERVAL = 1_000 * 60; // 1 minute
 

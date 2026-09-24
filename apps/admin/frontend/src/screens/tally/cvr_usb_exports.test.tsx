@@ -8,7 +8,7 @@ import type {
 import { assert } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../../../test/react_testing_library.js';
-import { CvrImporter } from './cvr_importer.js';
+import type { CvrImporter } from './cvr_importer.js';
 import {
   electionDefinition,
   location1,

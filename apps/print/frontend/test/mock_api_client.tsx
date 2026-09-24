@@ -1,6 +1,9 @@
-import React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
+import type React from 'react';
+import { type QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  createMockClient,
+  type MockClient,
+} from '@votingworks/grout-test-utils';
 import type { Api } from '@votingworks/print-backend';
 import { ApiClientContext, createQueryClient } from '../src/api.js';
 

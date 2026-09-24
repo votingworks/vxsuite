@@ -1,12 +1,12 @@
 import { stringify } from 'csv-stringify/sync';
-import {
+import type {
   Contest,
   Tabulation,
   ElectionDefinition,
   Id,
   Election,
 } from '@votingworks/types';
-import { Optional, assert, assertDefined } from '@votingworks/basics';
+import { type Optional, assert, assertDefined } from '@votingworks/basics';
 import {
   combineGroupSpecifierAndFilter,
   getEmptyElectionResults,
@@ -14,10 +14,10 @@ import {
   groupMapToGroupList,
   mergeTabulationGroupMaps,
 } from '@votingworks/utils';
-import { Store } from '../store.js';
+import type { Store } from '../store.js';
 import { tabulateElectionResults } from '../tabulation/full_results.js';
 import {
-  CsvMetadataStructure,
+  type CsvMetadataStructure,
   determineCsvMetadataStructure,
   generateBatchLookup,
   generateCsvMetadataHeaders,

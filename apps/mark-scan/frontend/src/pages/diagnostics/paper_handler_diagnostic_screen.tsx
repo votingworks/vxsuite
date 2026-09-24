@@ -1,5 +1,5 @@
 import { Button, H2, Loading, Main, P, Screen } from '@votingworks/ui';
-import { DiagnosticRecord } from '@votingworks/types';
+import type { DiagnosticRecord } from '@votingworks/types';
 import React from 'react';
 import {
   CancelButtonContainer,

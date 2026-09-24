@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { Tabulation } from '@votingworks/types';
+import type { Tabulation } from '@votingworks/types';
 import { iter } from '@votingworks/basics';
 import {
   coalesceGroupsAcrossParty,

@@ -1,4 +1,4 @@
-import { assert, Result, err, ok } from '@votingworks/basics';
+import { assert, type Result, err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { openRegularFileForReading } from './open_regular_file.js';
 import { FileExceedsMaxSizeError } from './file_exceeds_max_size_error.js';

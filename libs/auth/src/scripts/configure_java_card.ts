@@ -2,12 +2,12 @@ import { Buffer } from 'node:buffer';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { extractErrorMessage, lines } from '@votingworks/basics';
-import { Byte } from '@votingworks/types';
+import type { Byte } from '@votingworks/types';
 
 import { CommandApdu, constructTlv } from '../apdu.js';
 import {
   constructJavaCardConfigForVxProgramming,
-  JavaCardConfig,
+  type JavaCardConfig,
 } from '../config.js';
 import {
   CARD_IDENTITY_CERT,

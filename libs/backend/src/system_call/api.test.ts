@@ -1,17 +1,17 @@
 /* eslint-disable prefer-regex-literals */
 
 import { beforeEach, expect, test, vi, afterEach } from 'vitest';
-import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
-import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
+import { type MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
+import { LogEventId, type MockLogger, mockLogger } from '@votingworks/logging';
 import type { DiskSpaceSummary } from '@votingworks/utils';
-import { SystemCallApiMethods, createSystemCallApi } from './api.js';
-import { GetAuthStatus } from './auth.js';
+import { type SystemCallApiMethods, createSystemCallApi } from './api.js';
+import type { GetAuthStatus } from './auth.js';
 import { execFile } from '../exec.js';
-import { AudioInfo, getAudioInfo } from './get_audio_info.js';
-import { BatteryInfo, getBatteryInfo } from './get_battery_info.js';
-import { LogsExportError } from './export_logs_to_usb.js';
+import { type AudioInfo, getAudioInfo } from './get_audio_info.js';
+import { type BatteryInfo, getBatteryInfo } from './get_battery_info.js';
+import type { LogsExportError } from './export_logs_to_usb.js';
 import {
-  PathDiskSpaceSummary,
+  type PathDiskSpaceSummary,
   getDiskSpaceSummaries,
 } from './disk_space_summaries.js';
 

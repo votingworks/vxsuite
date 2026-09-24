@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import styled from 'styled-components';
 import { Caption, H6, Icons, P } from '@votingworks/ui';
 

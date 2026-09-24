@@ -1,11 +1,11 @@
-import {
+import type {
   Id,
   EncodedBallotEntry,
   PrinterStatus,
   BallotMode as FullBallotMode,
 } from '@votingworks/types';
-import { BatteryInfo } from '@votingworks/backend';
-import { UsbDriveStatus } from '@votingworks/usb-drive';
+import type { BatteryInfo } from '@votingworks/backend';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 
 export interface BallotPrintEntry extends EncodedBallotEntry {
   ballotPrintId: Id;

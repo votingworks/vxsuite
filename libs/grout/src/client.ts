@@ -1,7 +1,12 @@
 import fetch from 'cross-fetch';
 import { extractErrorMessage } from '@votingworks/basics';
 import { deserialize, serialize } from './serialization.js';
-import { AnyApi, AnyRpcMethod, inferApiMethods, UserError } from './server.js';
+import {
+  type AnyApi,
+  type AnyRpcMethod,
+  type inferApiMethods,
+  UserError,
+} from './server.js';
 import { rootDebug } from './debug.js';
 
 const debug = rootDebug.extend('client');

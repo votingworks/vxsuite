@@ -1,14 +1,14 @@
 import { describe, expect, test, vi } from 'vitest';
 import React from 'react';
-import { ColorMode, SizeMode } from '@votingworks/types';
+import type { ColorMode, SizeMode } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { userEvent } from './user_event.js';
 import { fireEvent, render, screen } from '../test/react_testing_library.js';
 import {
   BUTTON_VARIANTS,
   Button,
-  ButtonColor,
-  ButtonFill,
+  type ButtonColor,
+  type ButtonFill,
   LabelButton,
   LoadingButton,
 } from './button.js';

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { createImageData } from '@votingworks/image-utils';
-import { RgbaImageData, SheetOf } from '@votingworks/types';
+import type { RgbaImageData, SheetOf } from '@votingworks/types';
 import { join } from 'node:path';
 import { tmpDir } from '../test/helpers/tmp.js';
 import { saveSheetImages } from './save_images.js';

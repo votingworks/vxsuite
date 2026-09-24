@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import { describe, expect, test, vi } from 'vitest';
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
-import { LanguageCode, BallotLanguageConfigs } from '@votingworks/types';
+import { LanguageCode, type BallotLanguageConfigs } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { getAllStringsForElectionPackage } from './election_package_strings.js';
 import { GoogleCloudTranslator } from './translator.js';

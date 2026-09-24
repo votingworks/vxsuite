@@ -8,7 +8,11 @@ import {
 import { getTemporaryRootDir } from '@votingworks/fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
-import { ElectionDefinition, SheetOf, asSheet } from '@votingworks/types';
+import {
+  type ElectionDefinition,
+  type SheetOf,
+  asSheet,
+} from '@votingworks/types';
 import * as fs from 'node:fs/promises';
 import { tmpNameSync } from 'tmp';
 

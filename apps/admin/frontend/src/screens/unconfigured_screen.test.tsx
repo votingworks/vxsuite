@@ -7,7 +7,10 @@ import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { screen, within } from '../../test/react_testing_library.js';
 
 import { UnconfiguredScreen } from './unconfigured_screen.js';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

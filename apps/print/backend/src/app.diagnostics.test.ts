@@ -7,13 +7,13 @@ import {
   pdfToText,
 } from '@votingworks/backend';
 import {
-  DiagnosticRecord,
-  EncodedBallotEntry,
+  type DiagnosticRecord,
+  type EncodedBallotEntry,
   LanguageCode,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName as Feature,
-  DiskSpaceSummary,
+  type DiskSpaceSummary,
   getFeatureFlagMock,
   getMockMultiLanguageElectionDefinition,
 } from '@votingworks/utils';

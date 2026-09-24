@@ -6,8 +6,8 @@ import {
 } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
-  MarkThresholds,
-  Tabulation,
+  type MarkThresholds,
+  type Tabulation,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import {
@@ -15,10 +15,10 @@ import {
   doesCvrNeedAdjudication,
   formatMarkScoreDistributionForLog,
   getCastVoteRecordAdjudicationFlags,
-  MarkScoreDistribution,
+  type MarkScoreDistribution,
   updateMarkScoreDistributionFromMarkScores,
 } from './cast_vote_records.js';
-import { CastVoteRecordAdjudicationFlags } from '../index.js';
+import type { CastVoteRecordAdjudicationFlags } from '../index.js';
 
 const electionDefinition =
   electionTwoPartyPrimaryFixtures.readElectionDefinition();

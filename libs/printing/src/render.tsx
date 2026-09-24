@@ -1,4 +1,4 @@
-import { Browser, Page } from 'playwright';
+import type { Browser, Page } from 'playwright';
 import ReactDom from 'react-dom/server';
 import React from 'react';
 
@@ -10,7 +10,7 @@ import {
   VxThemeProvider,
   FONT_AWESOME_STYLES,
 } from '@votingworks/ui';
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, type Result } from '@votingworks/basics';
 import { getOrCreateCachedBrowser } from './browser.js';
 
 const PLAYWRIGHT_PIXELS_PER_INCH = 96;

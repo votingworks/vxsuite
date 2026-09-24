@@ -4,26 +4,26 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   constructElectionKey,
-  SystemSettings,
+  type SystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-import * as grout from '@votingworks/grout';
+import type * as grout from '@votingworks/grout';
 
 import { assertDefined } from '@votingworks/basics';
-import {
+import type {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { Server } from 'node:http';
+import type { Server } from 'node:http';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 
-import { MockUsbDrive } from '@votingworks/usb-drive';
+import type { MockUsbDrive } from '@votingworks/usb-drive';
 import { configureApp, createApp } from '../test/app_helpers.js';
-import { Api } from './app.js';
-import { PaperHandlerStateMachine } from './custom-paper-handler/index.js';
+import type { Api } from './app.js';
+import type { PaperHandlerStateMachine } from './custom-paper-handler/index.js';
 
 const jurisdiction = TEST_JURISDICTION;
 const machineType = 'mark-scan';

@@ -2,13 +2,13 @@ import { assert, iter, sleep } from '@votingworks/basics';
 import makeDebug from 'debug';
 
 import {
-  PaperHandlerDriverInterface,
+  type PaperHandlerDriverInterface,
   VERTICAL_DOTS_IN_CHUNK,
   getPaperHandlerDriver,
   imageDataToPaperHandlerChunks,
   isPaperAnywhere,
   isMockPaperHandler,
-  ScanDirection,
+  type ScanDirection,
 } from '@votingworks/custom-paper-handler';
 import { pdfToImages } from '@votingworks/image-utils';
 import { tmpNameSync } from 'tmp';

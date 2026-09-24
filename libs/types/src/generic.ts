@@ -2,8 +2,8 @@ import { z } from 'zod/v4';
 import {
   err,
   ok,
-  Optional,
-  Result,
+  type Optional,
+  type Result,
   wrapException,
   DateWithoutTime,
   extractErrorMessage,

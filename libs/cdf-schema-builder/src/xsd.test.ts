@@ -1,5 +1,5 @@
 import { beforeEach, expect, test } from 'vitest';
-import { DocumentedEntity } from './types.js';
+import type { DocumentedEntity } from './types.js';
 import {
   extractDocumentation,
   extractDocumentationForSchema,

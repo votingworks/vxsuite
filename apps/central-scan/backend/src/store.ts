@@ -5,22 +5,22 @@
 import { Client as DbClient } from '@votingworks/db';
 import {
   HmpbBallotPaperSize,
-  BatchInfo,
-  Iso8601Timestamp,
+  type BatchInfo,
+  type Iso8601Timestamp,
   mapSheet,
-  PageInterpretation,
+  type PageInterpretation,
   PageInterpretationSchema,
-  PageInterpretationWithFiles,
+  type PageInterpretationWithFiles,
   safeParseElectionDefinition,
   safeParseJson,
-  SheetOf,
-  Side,
-  SystemSettings,
+  type SheetOf,
+  type Side,
+  type SystemSettings,
   safeParseSystemSettings,
-  AdjudicationReason,
-  DiagnosticRecord,
-  DiagnosticType,
-  ElectionKey,
+  type AdjudicationReason,
+  type DiagnosticRecord,
+  type DiagnosticType,
+  type ElectionKey,
   constructElectionKey,
 } from '@votingworks/types';
 import {
@@ -28,16 +28,16 @@ import {
   assertDefined,
   DateWithoutTime,
   find,
-  Optional,
+  type Optional,
 } from '@votingworks/basics';
 import { DateTime } from 'luxon';
 import { dirname, join } from 'node:path';
 import { randomUUID as uuid } from 'node:crypto';
 import {
-  AcceptedSheet,
-  ElectionRecord,
-  RejectedSheet,
-  Sheet,
+  type AcceptedSheet,
+  type ElectionRecord,
+  type RejectedSheet,
+  type Sheet,
   addDiagnosticRecord,
   getMostRecentDiagnosticRecord,
 } from '@votingworks/backend';
@@ -46,9 +46,9 @@ import {
   getCastVoteRecordRootHash,
   updateCastVoteRecordHashes,
 } from '@votingworks/auth';
-import { BaseLogger } from '@votingworks/logging';
+import type { BaseLogger } from '@votingworks/logging';
 import { normalizeAndJoin } from './util/path.js';
-import { NetworkConnectionInfo } from './types.js';
+import type { NetworkConnectionInfo } from './types.js';
 
 const SchemaPath = join(import.meta.dirname, '../schema.sql');
 

@@ -1,14 +1,14 @@
 import { createRequire } from 'node:module';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
-import { Result, deferred, err, ok, typedAs } from '@votingworks/basics';
+import { type Result, deferred, err, ok, typedAs } from '@votingworks/basics';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { mockBaseLogger } from '@votingworks/logging';
-import { ScannerError, mockScannerStatus } from '@votingworks/pdi-scanner';
+import { type ScannerError, mockScannerStatus } from '@votingworks/pdi-scanner';
 import {
   AdjudicationReason,
-  AdjudicationReasonInfo,
+  type AdjudicationReasonInfo,
   DEFAULT_SYSTEM_SETTINGS,
-  SheetInterpretation,
+  type SheetInterpretation,
 } from '@votingworks/types';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import {
@@ -19,7 +19,7 @@ import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
 import {
-  MockPdiScannerClient,
+  type MockPdiScannerClient,
   POLLING_PLACE_ID_COMPLETE_HMPB,
   POLLING_PLACE_ID_OVERVOTE_HMPB,
   ballotImages,

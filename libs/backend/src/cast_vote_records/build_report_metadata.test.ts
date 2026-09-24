@@ -5,10 +5,10 @@ import {
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
-  CandidateContest,
-  CastVoteRecordBatchMetadata,
+  type CandidateContest,
+  type CastVoteRecordBatchMetadata,
   CVR,
-  YesNoContest,
+  type YesNoContest,
 } from '@votingworks/types';
 import {
   buildBatchManifest,

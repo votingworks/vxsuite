@@ -11,12 +11,16 @@ import {
 import { Switch, Route, useParams, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { District, ElectionStringKey } from '@votingworks/types';
+import { type District, ElectionStringKey } from '@votingworks/types';
 
-import { DuplicateDistrictError } from '@votingworks/design-backend';
+import type { DuplicateDistrictError } from '@votingworks/design-backend';
 import { assertDefined } from '@votingworks/basics';
 import { ElectionNavScreen, Header } from './nav_screen.js';
-import { ElectionIdParams, electionParamRoutes, routes } from './routes.js';
+import {
+  type ElectionIdParams,
+  electionParamRoutes,
+  routes,
+} from './routes.js';
 import { FixedViewport, ListActionsRow } from './layout.js';
 import {
   getBallotsFinalizedAt,

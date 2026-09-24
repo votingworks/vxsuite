@@ -10,18 +10,16 @@ import {
   Modal,
 } from '@votingworks/ui';
 import {
-  ElectionId,
-  District,
+  type ElectionId,
+  type District,
   ElectionStringKey,
   safeParseInt,
   hasSplits,
   isPrecinctCount,
   isSplitCounts,
-} from '@votingworks/types';
-import type {
-  Precinct,
-  PrecinctSplit,
-  PrecinctRegisteredVoterCountEntry,
+  type Precinct,
+  type PrecinctSplit,
+  type PrecinctRegisteredVoterCountEntry,
 } from '@votingworks/types';
 
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';

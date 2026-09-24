@@ -1,7 +1,7 @@
 import { DEV_JURISDICTION } from '@votingworks/auth';
 import { DEV_MACHINE_ID, TEST_JURISDICTION } from '@votingworks/types';
 import { isIntegrationTest } from '@votingworks/utils';
-import { MachineConfig } from './types.js';
+import type { MachineConfig } from './types.js';
 
 /**
  * Returns the ID of the current machine and the version of the currently

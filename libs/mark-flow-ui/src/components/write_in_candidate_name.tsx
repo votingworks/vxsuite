@@ -2,10 +2,10 @@ import { assertDefined } from '@votingworks/basics';
 import {
   SPACE_BAR_KEY,
   US_ENGLISH_KEYMAP,
-  virtualKeyboardCommon,
+  type virtualKeyboardCommon,
   VirtualKeyboardLabel,
 } from '@votingworks/ui';
-import React from 'react';
+import type React from 'react';
 
 interface WriteInCandidateNameProps {
   name: string;

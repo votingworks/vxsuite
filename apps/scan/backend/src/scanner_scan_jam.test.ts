@@ -1,11 +1,11 @@
-import { deferred, ok, Result, typedAs } from '@votingworks/basics';
+import { deferred, ok, type Result, typedAs } from '@votingworks/basics';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
-import { mockScannerStatus, ScannerError } from '@votingworks/pdi-scanner';
+import { mockScannerStatus, type ScannerError } from '@votingworks/pdi-scanner';
 import {
   AdjudicationReason,
-  AdjudicationReasonInfo,
+  type AdjudicationReasonInfo,
   DEFAULT_SYSTEM_SETTINGS,
-  SheetInterpretation,
+  type SheetInterpretation,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,

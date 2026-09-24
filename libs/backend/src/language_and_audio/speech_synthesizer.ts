@@ -1,7 +1,7 @@
 import { Buffer } from 'node:buffer';
 import {
   TextToSpeechClient as GoogleCloudTextToSpeechClient,
-  protos,
+  type protos,
 } from '@google-cloud/text-to-speech';
 import { assert } from '@votingworks/basics';
 

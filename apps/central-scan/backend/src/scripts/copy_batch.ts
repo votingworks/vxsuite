@@ -1,17 +1,17 @@
 import * as fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID as uuid } from 'node:crypto';
-import { AcceptedSheet } from '@votingworks/backend';
+import type { AcceptedSheet } from '@votingworks/backend';
 import {
   assert,
   assertDefined,
   extractErrorMessage,
 } from '@votingworks/basics';
-import { Id, safeParseInt } from '@votingworks/types';
+import { type Id, safeParseInt } from '@votingworks/types';
 
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { getScanWorkspace } from '../globals.js';
-import { Store } from '../store.js';
+import type { Store } from '../store.js';
 import { createWorkspace } from '../util/workspace.js';
 
 const usageMessage = `Usage: copy-batch '<batch-name>' <num-copies>

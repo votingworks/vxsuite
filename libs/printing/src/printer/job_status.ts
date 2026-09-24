@@ -1,6 +1,6 @@
 import { join } from 'node:path';
-import { Result, err, ok, throwIllegalValue } from '@votingworks/basics';
-import {
+import { type Result, err, ok, throwIllegalValue } from '@votingworks/basics';
+import type {
   IppJobState,
   PrintJobId,
   PrintJobOutcome,

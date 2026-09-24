@@ -1,12 +1,12 @@
-import { Buffer } from 'node:buffer';
-import {
+import type { Buffer } from 'node:buffer';
+import type {
   ElectionManagerUser,
   PollWorkerUser,
   SystemAdministratorUser,
   VendorUser,
 } from '@votingworks/types';
 
-import { ResponseApduError } from './apdu.js';
+import type { ResponseApduError } from './apdu.js';
 import { UNIVERSAL_VENDOR_CARD_JURISDICTION } from './jurisdictions.js';
 
 interface VendorCardDetails {

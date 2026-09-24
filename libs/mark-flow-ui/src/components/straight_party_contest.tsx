@@ -1,10 +1,10 @@
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { type ReactNode, useEffect, useState } from 'react';
 import {
-  Election,
+  type Election,
   getContestDistrict,
-  PartyId,
-  StraightPartyContest as StraightPartyContestInterface,
-  StraightPartyVote,
+  type PartyId,
+  type StraightPartyContest as StraightPartyContestInterface,
+  type StraightPartyVote,
 } from '@votingworks/types';
 import {
   Main,
@@ -22,7 +22,7 @@ import {
   PageNavigationButtonId,
 } from '@votingworks/ui';
 import { find } from '@votingworks/basics';
-import { UpdateVoteFunction } from '../config/types.js';
+import type { UpdateVoteFunction } from '../config/types.js';
 import { ContestHeader } from './contest_header.js';
 import { ChoicesGrid } from './contest_screen_layout.js';
 

@@ -10,7 +10,7 @@ import {
   Caption,
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
-import { Precinct } from '@votingworks/types';
+import type { Precinct } from '@votingworks/types';
 import { useState } from 'react';
 import {
   getElection,

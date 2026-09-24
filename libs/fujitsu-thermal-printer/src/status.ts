@@ -1,12 +1,12 @@
-import { Result, err, ok, sleep } from '@votingworks/basics';
-import {
+import { type Result, err, ok, sleep } from '@votingworks/basics';
+import type {
   FujitsuThermalPrinterDriverInterface,
   RawPrinterStatus,
 } from './driver/index.js';
 import { isErrorStatus, isPrinterStopped } from './driver/status.js';
 import { rootDebug } from './debug.js';
-import { Uint8 } from './bits.js';
-import { ErrorType, PrinterStatus } from './types.js';
+import type { Uint8 } from './bits.js';
+import type { ErrorType, PrinterStatus } from './types.js';
 
 const debug = rootDebug.extend('wait_for_status');
 

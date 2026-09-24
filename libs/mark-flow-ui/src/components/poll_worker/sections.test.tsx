@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
-  Election,
-  PollingPlace,
+  type Election,
+  type PollingPlace,
   pollingPlaceMembers,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
@@ -11,7 +11,7 @@ import { render, screen } from '../../../test/react_testing_library.js';
 import { SectionSessionStart } from './sections.js';
 import {
   BallotStyleSelect,
-  BallotStyleSelectProps,
+  type BallotStyleSelectProps,
 } from './ballot_style_select.js';
 
 const fixtures = electionFamousNames2021Fixtures;

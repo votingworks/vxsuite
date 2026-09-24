@@ -14,7 +14,7 @@ import {
   SearchSelect,
 } from '@votingworks/ui';
 import { throwIllegalValue, assert } from '@votingworks/basics';
-import {
+import type {
   Election,
   PartyAbbreviation,
   Voter,

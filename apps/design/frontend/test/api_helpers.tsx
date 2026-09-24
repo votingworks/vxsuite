@@ -1,5 +1,5 @@
-import React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type React from 'react';
+import { type QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type {
   Api,
   StateFeaturesConfig,
@@ -9,11 +9,14 @@ import type {
   Organization,
   JurisdictionUser,
   OrganizationUser,
+  SupportUser,
 } from '@votingworks/design-backend';
-import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
+import {
+  createMockClient,
+  type MockClient,
+} from '@votingworks/grout-test-utils';
 import { TestErrorBoundary } from '@votingworks/ui';
-import { ElectionId } from '@votingworks/types';
-import { SupportUser } from '@votingworks/design-backend';
+import type { ElectionId } from '@votingworks/types';
 import { ApiClientContext, createQueryClient } from '../src/api.js';
 
 export type MockApiClient = MockClient<Api>;

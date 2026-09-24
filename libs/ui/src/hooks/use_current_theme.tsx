@@ -1,4 +1,4 @@
-import { UiTheme } from '@votingworks/types';
+import type { UiTheme } from '@votingworks/types';
 import React from 'react';
 import { ThemeContext } from 'styled-components';
 

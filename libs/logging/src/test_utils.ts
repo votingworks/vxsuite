@@ -4,8 +4,8 @@ import { LogSource, getDetailsForEventId } from './log_event_enums.js';
 import { Logger } from './logger.js';
 import {
   LogDispositionStandardTypes,
-  LogLine,
-  LoggingUserRole,
+  type LogLine,
+  type LoggingUserRole,
 } from './types.js';
 
 export interface MockBaseLogger extends BaseLogger {

@@ -6,18 +6,18 @@ import {
   uniqueBy,
 } from '@votingworks/basics';
 import {
-  Contest,
-  BallotStyle,
-  BallotStyleGroup,
-  CandidateContest,
-  CandidateContestOption,
-  ContestOption,
+  type Contest,
+  type BallotStyle,
+  type BallotStyleGroup,
+  type CandidateContest,
+  type CandidateContestOption,
+  type ContestOption,
   getOrderedCandidatesForContestInBallotStyle,
-  YesNoContest,
-  YesNoContestOption,
-  StraightPartyContest,
-  StraightPartyContestOption,
-  Election,
+  type YesNoContest,
+  type YesNoContestOption,
+  type StraightPartyContest,
+  type StraightPartyContestOption,
+  type Election,
 } from '@votingworks/types';
 
 /**

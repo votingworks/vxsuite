@@ -1,7 +1,7 @@
 import { Buffer } from 'node:buffer';
-import { ChildProcess } from 'node:child_process';
+import type { ChildProcess } from 'node:child_process';
 import { EventEmitter } from 'node:events';
-import { Readable, Writable } from 'node:stream';
+import type { Readable, Writable } from 'node:stream';
 
 export interface MockReadable extends Readable {
   append(chunk: string): void;

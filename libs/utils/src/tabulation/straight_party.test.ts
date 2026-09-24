@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import {
+import type {
   Candidate,
   CandidateContest,
   Contest,

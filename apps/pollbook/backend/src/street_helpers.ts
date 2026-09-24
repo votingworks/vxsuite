@@ -1,10 +1,10 @@
 import {
   safeParseInt,
-  VoterAddressChangeRequest,
-  ValidStreetInfo,
-  VoterRegistrationRequest,
+  type VoterAddressChangeRequest,
+  type ValidStreetInfo,
+  type VoterRegistrationRequest,
 } from '@votingworks/types';
-import { Optional } from '@votingworks/basics';
+import type { Optional } from '@votingworks/basics';
 import { isVoterNameChangeValid } from './voter_helpers.js';
 
 export function maybeGetStreetInfoForAddress(

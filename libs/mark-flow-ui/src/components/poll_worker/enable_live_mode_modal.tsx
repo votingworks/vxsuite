@@ -1,7 +1,7 @@
 // @coverage-exclude-file: currently tested via apps
 
 import { DateWithoutTime } from '@votingworks/basics';
-import { Election } from '@votingworks/types';
+import type { Election } from '@votingworks/types';
 import { Modal, P, Font, Caption, Button } from '@votingworks/ui';
 import React from 'react';
 

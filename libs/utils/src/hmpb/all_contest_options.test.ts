@@ -4,7 +4,7 @@ import {
   arbitraryCandidateContest,
   arbitraryYesNoContest,
 } from '@votingworks/test-utils';
-import {
+import type {
   BallotStyle,
   CandidateContest,
   CandidateContestOption,

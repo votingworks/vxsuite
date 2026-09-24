@@ -1,6 +1,6 @@
 import { test, vi } from 'vitest';
 import { deferred, err, ok } from '@votingworks/basics';
-import { ExportDataResult } from '@votingworks/backend';
+import type { ExportDataResult } from '@votingworks/backend';
 import {
   QueryClient,
   QueryClientProvider,
@@ -9,7 +9,7 @@ import {
 import { userEvent } from './user_event.js';
 import {
   SaveReadinessReportButton,
-  SaveReadinessReportProps,
+  type SaveReadinessReportProps,
 } from './save_readiness_report_button.js';
 
 import { render, screen } from '../test/react_testing_library.js';

@@ -1,15 +1,15 @@
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  ElectionPackage,
+  type ElectionPackage,
   ElectionPackageFileName,
   LATEST_METADATA,
 } from '@votingworks/types';
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 import {
   ELECTION_PACKAGE_FOLDER,
   generateElectionBasedSubfolderName,
 } from '@votingworks/utils';
-import { MockFileTree } from '@votingworks/usb-drive';
+import type { MockFileTree } from '@votingworks/usb-drive';
 import { zipFile } from '@votingworks/test-utils';
 
 /**

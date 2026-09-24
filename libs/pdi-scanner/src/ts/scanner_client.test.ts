@@ -3,16 +3,16 @@ import { spawn } from 'node:child_process';
 import {
   backendWaitFor,
   mockChildProcess as createMockChildProcess,
-  MockChildProcess,
+  type MockChildProcess,
 } from '@votingworks/test-utils';
 import { err, iter, ok, sleep } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import {
   createPdiScannerClient,
-  DoubleFeedDetectionCalibrationConfig,
+  type DoubleFeedDetectionCalibrationConfig,
   SCAN_IMAGE_WIDTH,
-  ScannerEvent,
-  ScannerStatus,
+  type ScannerEvent,
+  type ScannerStatus,
 } from './scanner_client.js';
 
 vi.mock('node:child_process');

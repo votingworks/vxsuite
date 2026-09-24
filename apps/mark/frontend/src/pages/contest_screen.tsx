@@ -2,7 +2,7 @@ import React from 'react';
 
 import { ContestPage } from '@votingworks/mark-flow-ui';
 
-import { ContestId } from '@votingworks/types';
+import type { ContestId } from '@votingworks/types';
 import { AccessibilityMode, useIsPatDeviceConnected } from '@votingworks/ui';
 import { BallotContext } from '../contexts/ballot_context.js';
 

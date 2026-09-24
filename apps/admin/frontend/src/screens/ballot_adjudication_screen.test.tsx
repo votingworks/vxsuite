@@ -8,12 +8,10 @@ import {
   AdjudicationReason,
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
-  Election,
-} from '@votingworks/types';
-import type {
-  BallotPageLayout,
-  Rect,
-  SystemSettings,
+  type Election,
+  type BallotPageLayout,
+  type Rect,
+  type SystemSettings,
 } from '@votingworks/types';
 import type {
   AdjudicatedCvrContest,
@@ -40,7 +38,10 @@ import {
   within,
 } from '../../test/react_testing_library.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../../test/helpers/mock_api_client.js';
 import { BallotAdjudicationScreenWrapper } from './ballot_adjudication_screen.js';
 import { AdjudicationStartScreen } from './adjudication_start_screen.js';
 import { routerPaths } from '../router_paths.js';

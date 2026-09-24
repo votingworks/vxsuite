@@ -19,7 +19,7 @@ import {
   ToggleUsbPortsButton,
   Icons,
 } from '@votingworks/ui';
-import { ElectionDefinition, PollsState } from '@votingworks/types';
+import type { ElectionDefinition, PollsState } from '@votingworks/types';
 import type { MachineConfig } from '@votingworks/mark-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { format } from '@votingworks/utils';

@@ -20,7 +20,7 @@ import React from 'react';
 import styled from 'styled-components';
 import useInterval from 'use-interval';
 import { iter } from '@votingworks/basics';
-import { mapSheet, SheetOf } from '@votingworks/types';
+import { mapSheet, type SheetOf } from '@votingworks/types';
 import type { HWTA } from '@votingworks/scan-backend';
 import { useSoundControls } from '../utils/use_sound.js';
 import * as api from './api.js';

@@ -1,19 +1,19 @@
 import {
-  Card,
+  type Card,
   InsertedSmartCardAuth,
-  InsertedSmartCardAuthApi,
-  InsertedSmartCardAuthMachineState,
+  type InsertedSmartCardAuthApi,
+  type InsertedSmartCardAuthMachineState,
   JavaCard,
   MockFileCard,
 } from '@votingworks/auth';
-import { BaseLogger, LoggingUserRole } from '@votingworks/logging';
+import type { BaseLogger, LoggingUserRole } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
   isIntegrationTest,
 } from '@votingworks/utils';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import { Workspace } from './workspace.js';
+import type { Workspace } from './workspace.js';
 
 export function getDefaultAuth(logger: BaseLogger): {
   auth: InsertedSmartCardAuth;

@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
-import { assert, DateWithoutTime } from '@votingworks/basics';
-import { SystemSettings } from '@votingworks/types';
+import { assert, type DateWithoutTime } from '@votingworks/basics';
+import type { SystemSettings } from '@votingworks/types';
 import type { CvrFileMode } from '@votingworks/admin-backend';
 
 /**

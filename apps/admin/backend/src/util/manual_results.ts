@@ -1,9 +1,9 @@
 import {
-  Id,
-  Tabulation,
+  type Id,
+  type Tabulation,
   Admin as AdminTypes,
-  BallotStyleGroupId,
-  Election,
+  type BallotStyleGroupId,
+  type Election,
   getContests,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
@@ -11,8 +11,8 @@ import {
   areContestResultsValid,
   getBallotStyleGroup,
 } from '@votingworks/utils';
-import { Store } from '../store.js';
-import {
+import type { Store } from '../store.js';
+import type {
   ManualResultsRecord,
   ManualResultsValidationError,
   ManualResultsVotingMethod,

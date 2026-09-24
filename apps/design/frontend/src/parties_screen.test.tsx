@@ -3,15 +3,15 @@ import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  ElectionId,
+  type ElectionId,
   ElectionStringKey,
-  Party,
+  type Party,
 } from '@votingworks/types';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import { readElectionGeneral } from '@votingworks/fixtures';
-import { DuplicatePartyError } from '@votingworks/design-backend';
+import type { DuplicatePartyError } from '@votingworks/design-backend';
 import {
-  MockApiClient,
+  type MockApiClient,
   createMockApiClient,
   mockStateFeatures,
   mockUserFeatures,

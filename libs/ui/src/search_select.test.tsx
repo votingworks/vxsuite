@@ -9,8 +9,8 @@ import {
 } from '../test/react_testing_library.js';
 import {
   SearchSelect,
-  SearchSelectProps,
-  SearchSelectSingleProps,
+  type SearchSelectProps,
+  type SearchSelectSingleProps,
 } from './search_select.js';
 import { makeTheme } from './themes/make_theme.js';
 

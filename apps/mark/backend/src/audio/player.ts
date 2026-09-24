@@ -1,5 +1,5 @@
 import { analogAndHdmi, getNodeEnv } from '@votingworks/backend';
-import { Logger } from '@votingworks/logging';
+import type { Logger } from '@votingworks/logging';
 
 export const SoundNameValues = [
   'alarm',

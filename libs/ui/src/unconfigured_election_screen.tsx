@@ -1,4 +1,4 @@
-import { ElectionPackageConfigurationError } from '@votingworks/types';
+import type { ElectionPackageConfigurationError } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { systemLimitViolationToString } from '@votingworks/utils';

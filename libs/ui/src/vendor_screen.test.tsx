@@ -1,4 +1,4 @@
-import { beforeEach, expect, Mock, test, vi } from 'vitest';
+import { beforeEach, expect, type Mock, test, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { userEvent } from './user_event.js';
 

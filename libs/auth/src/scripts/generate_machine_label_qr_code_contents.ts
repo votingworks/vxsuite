@@ -8,7 +8,7 @@ import {
   signMessage,
   verifySignature,
 } from '../cryptography.js';
-import { FileKey } from '../keys.js';
+import type { FileKey } from '../keys.js';
 import { constructPrefixedMessage } from '../signatures.js';
 
 interface CommandLineArgs {

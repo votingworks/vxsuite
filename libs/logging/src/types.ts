@@ -1,7 +1,7 @@
 import {
-  Dictionary,
+  type Dictionary,
   EventLogging,
-  UserRole,
+  type UserRole,
   UserRoleSchema,
 } from '@votingworks/types';
 import { z } from 'zod/v4';

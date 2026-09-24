@@ -7,7 +7,7 @@ import {
   makeTemporaryFile,
 } from '@votingworks/fixtures';
 import {
-  BallotStyleGroupId,
+  type BallotStyleGroupId,
   DEFAULT_SYSTEM_SETTINGS,
   Tabulation,
 } from '@votingworks/types';
@@ -22,7 +22,7 @@ import {
   combineElectionWriteInSummaries,
 } from './write_ins.js';
 import {
-  MockCastVoteRecordFile,
+  type MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../../test/mock_cvr_file.js';
 import { Store } from '../store.js';

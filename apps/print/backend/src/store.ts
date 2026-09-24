@@ -8,25 +8,25 @@ import {
 } from '@votingworks/backend';
 import { assert, assertDefined, DateWithoutTime } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
-import { BaseLogger } from '@votingworks/logging';
+import type { BaseLogger } from '@votingworks/logging';
 import {
-  ElectionDefinition,
+  type ElectionDefinition,
   safeParseElectionDefinition,
-  SystemSettings,
+  type SystemSettings,
   safeParseSystemSettings,
-  ElectionKey,
+  type ElectionKey,
   constructElectionKey,
-  EncodedBallotEntry,
-  BallotType,
-  BallotPrintCount,
-  LanguageCode,
-  BallotStyleId,
-  PrecinctId,
-  DiagnosticRecord,
-  DiagnosticType,
+  type EncodedBallotEntry,
+  type BallotType,
+  type BallotPrintCount,
+  type LanguageCode,
+  type BallotStyleId,
+  type PrecinctId,
+  type DiagnosticRecord,
+  type DiagnosticType,
 } from '@votingworks/types';
 import { join } from 'node:path';
-import { BallotPrintEntry, BallotMode } from './types.js';
+import type { BallotPrintEntry, BallotMode } from './types.js';
 import {
   addBallotsPropsToPrintCountRow,
   getLanguageForBallotStyle,

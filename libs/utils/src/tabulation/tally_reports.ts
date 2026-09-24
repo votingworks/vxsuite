@@ -1,7 +1,7 @@
 import {
-  Candidate,
-  CandidateContest,
-  CandidateId,
+  type Candidate,
+  type CandidateContest,
+  type CandidateId,
   Tabulation,
 } from '@votingworks/types';
 import { assertDefined, iter } from '@votingworks/basics';

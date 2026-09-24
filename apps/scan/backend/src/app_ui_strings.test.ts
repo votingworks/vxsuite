@@ -26,12 +26,12 @@ import { mockBaseLogger } from '@votingworks/logging';
 import { createMockFujitsuPrinterHandler } from '@votingworks/fujitsu-thermal-printer';
 import { Store } from './store.js';
 import { buildApi } from './app.js';
-import { createWorkspace, Workspace } from './util/workspace.js';
+import { createWorkspace, type Workspace } from './util/workspace.js';
 import {
   buildMockLogger,
   createPrecinctScannerStateMachineMock,
 } from '../test/helpers/shared_helpers.js';
-import { AudioPlayer, getMockAudioPlayer } from './audio/audio.js';
+import { type AudioPlayer, getMockAudioPlayer } from './audio/audio.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 

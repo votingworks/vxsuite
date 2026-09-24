@@ -12,7 +12,7 @@ import type {
   ImportElectionResultsReportingError,
   ManualResultsVotingMethod,
 } from '@votingworks/admin-backend';
-import { BallotStyleGroupId } from '@votingworks/types';
+import type { BallotStyleGroupId } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context.js';
 import { importElectionResultsReportingFile } from '../../api.js';
 

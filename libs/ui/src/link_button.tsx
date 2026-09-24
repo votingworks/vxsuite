@@ -1,6 +1,6 @@
 import { useHistory } from 'react-router-dom';
-import { forwardRef, Ref } from 'react';
-import { Button, ButtonProps, ClickHandler } from './button.js';
+import { forwardRef, type Ref } from 'react';
+import { Button, type ButtonProps, type ClickHandler } from './button.js';
 
 /**
  * Props for {@link LinkButton}.

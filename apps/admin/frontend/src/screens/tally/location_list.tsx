@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Id, PollingPlace } from '@votingworks/types';
+import type { Id, PollingPlace } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 
-import { LocationCvrs } from './cvrs_state.js';
+import type { LocationCvrs } from './cvrs_state.js';
 import { LocationCvrsPanel } from './location_cvrs_panel.js';
 import { LocationStatusCard } from './location_status_card.js';
 import { GAP, INSET_FOCUS_OUTLINE } from './styles.js';

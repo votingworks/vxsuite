@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  ElectionSerializationFormat,
+  type ElectionSerializationFormat,
 } from '@votingworks/types';
 import { Buffer, File as NodeFile } from 'node:buffer';
 import type {
@@ -12,7 +12,7 @@ import type {
 import {
   provideApi,
   createMockApiClient,
-  MockApiClient,
+  type MockApiClient,
   mockUserFeatures,
   jurisdiction,
   user,

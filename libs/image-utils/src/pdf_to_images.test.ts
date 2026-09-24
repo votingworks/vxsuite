@@ -1,13 +1,13 @@
 import { Buffer } from 'node:buffer';
 import { assertDefined, iter } from '@votingworks/basics';
-import { Size } from '@votingworks/types';
+import type { Size } from '@votingworks/types';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { expect, test } from 'vitest';
-import { ImageData } from 'canvas';
+import type { ImageData } from 'canvas';
 import { isRgba } from './image_data.js';
 import {
-  PdfPage,
+  type PdfPage,
   getPdfPageCount,
   parsePdf,
   pdfToImages,

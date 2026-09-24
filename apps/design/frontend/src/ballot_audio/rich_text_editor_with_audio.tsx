@@ -1,8 +1,8 @@
-import React from 'react';
+import type React from 'react';
 import styled from 'styled-components';
 
 import { RichTextEditor } from '../rich_text_editor.js';
-import { TooltipProps } from '../tooltip.js';
+import type { TooltipProps } from '../tooltip.js';
 import { AudioLinkButton } from './audio_link_button.js';
 
 export type RickTextEditorWithAudioProps = {

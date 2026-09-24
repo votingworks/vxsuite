@@ -3,7 +3,7 @@ import { useState } from 'react';
 import type { VoterSearchParams } from '@votingworks/pollbook-backend';
 import { useHistory } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
-import { Voter } from '@votingworks/types';
+import type { Voter } from '@votingworks/types';
 import { getDeviceStatuses, getElection } from './api.js';
 import { Column, Row } from './layout.js';
 import { ElectionManagerNavScreen } from './nav_screen.js';

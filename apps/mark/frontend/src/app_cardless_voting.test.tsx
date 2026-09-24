@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { PollingPlace, VotesDict } from '@votingworks/types';
+import type { PollingPlace, VotesDict } from '@votingworks/types';
 import { find } from '@votingworks/basics';
 import { render, screen } from '../test/react_testing_library.js';
 import * as GLOBALS from './config/globals.js';
@@ -12,7 +12,10 @@ import { App } from './app.js';
 import { presidentContest, voterContests } from '../test/helpers/election.js';
 import { withMarkup } from '../test/helpers/with_markup.js';
 import { advanceTimersAndPromises } from '../test/helpers/timers.js';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

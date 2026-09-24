@@ -7,7 +7,12 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   sampleBallotImages,
 } from '@votingworks/fixtures';
-import { RgbaImageData, SheetOf, asSheet, vote } from '@votingworks/types';
+import {
+  type RgbaImageData,
+  type SheetOf,
+  asSheet,
+  vote,
+} from '@votingworks/types';
 import {
   renderBmdBallotFixture,
   DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
@@ -15,7 +20,7 @@ import {
   DEFAULT_FAMOUS_NAMES_VOTES,
 } from '@votingworks/bmd-ballot-fixtures';
 import { createImageData } from '@votingworks/image-utils';
-import { InterpretResult, interpret } from './interpret.js';
+import { type InterpretResult, interpret } from './interpret.js';
 import { pdfToPageImages } from '../../test/helpers/interpretation.js';
 
 let famousNamesBmdBallot: SheetOf<RgbaImageData>;

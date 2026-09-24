@@ -10,12 +10,12 @@ import {
   mockBaseLogger,
   LogDispositionStandardTypes,
   LogEventId,
-  BaseLogger,
-  MockBaseLogger,
+  type BaseLogger,
+  type MockBaseLogger,
 } from '@votingworks/logging';
 import {
   mockCardlessVoterUser,
-  Mocked,
+  type Mocked,
   mockElectionManagerUser,
   mockPollWorkerUser,
   mockSystemAdministratorUser,
@@ -26,7 +26,7 @@ import {
   DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
   DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
   constructElectionKey,
-  InsertedSmartCardAuth as InsertedSmartCardAuthTypes,
+  type InsertedSmartCardAuth as InsertedSmartCardAuthTypes,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import {
@@ -36,15 +36,15 @@ import {
 } from '@votingworks/utils';
 
 import { buildMockCard, mockCardAssertComplete } from '../test/utils.js';
-import {
+import type {
   Card,
   CardDetails,
   CardStatus,
   ProgrammedCardDetails,
 } from './card.js';
-import { DippedSmartCardAuthMachineState } from './dipped_smart_card_auth_api.js';
+import type { DippedSmartCardAuthMachineState } from './dipped_smart_card_auth_api.js';
 import { InsertedSmartCardAuth } from './inserted_smart_card_auth.js';
-import {
+import type {
   InsertedSmartCardAuthConfig,
   InsertedSmartCardAuthMachineState,
 } from './inserted_smart_card_auth_api.js';

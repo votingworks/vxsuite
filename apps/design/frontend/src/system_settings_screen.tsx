@@ -15,7 +15,7 @@ import { useParams } from 'react-router-dom';
 import {
   AdjudicationReason,
   AdjudicationReasonSchema,
-  BmdPrintMode,
+  type BmdPrintMode,
   DEFAULT_INACTIVE_SESSION_TIME_LIMIT_MINUTES,
   DEFAULT_MARK_THRESHOLDS,
   DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
@@ -23,25 +23,25 @@ import {
   DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
   DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
   DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
-  ElectionId,
-  InactiveSessionTimeLimitMinutes,
+  type ElectionId,
+  type InactiveSessionTimeLimitMinutes,
   InactiveSessionTimeLimitMinutesSchema,
-  NumIncorrectPinAttemptsAllowedBeforeCardLockout,
+  type NumIncorrectPinAttemptsAllowedBeforeCardLockout,
   NumIncorrectPinAttemptsAllowedBeforeCardLockoutSchema,
-  OverallSessionTimeLimitHours,
+  type OverallSessionTimeLimitHours,
   OverallSessionTimeLimitHoursSchema,
   safeParse,
   safeParseInt,
-  StartingCardLockoutDurationSeconds,
+  type StartingCardLockoutDurationSeconds,
   StartingCardLockoutDurationSecondsSchema,
-  SystemSettings,
+  type SystemSettings,
   SystemSettingsSchema,
   unsafeParse,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
 import { Form, Column, Row, FormActionsRow, InputGroup } from './layout.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
-import { ElectionIdParams, routes } from './routes.js';
+import { type ElectionIdParams, routes } from './routes.js';
 import {
   updateSystemSettings,
   getUserFeatures,

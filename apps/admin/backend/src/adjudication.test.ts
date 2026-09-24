@@ -1,10 +1,10 @@
 import { expect, test, vi } from 'vitest';
 import {
   AdjudicationReason,
-  ContestOptionId,
+  type ContestOptionId,
   DEFAULT_SYSTEM_SETTINGS,
-  SystemSettings,
-  Tabulation,
+  type SystemSettings,
+  type Tabulation,
 } from '@votingworks/types';
 import {
   electionCombinedBallotPrimaryFixtures,
@@ -15,12 +15,12 @@ import {
 import { assert, typedAs } from '@votingworks/basics';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import {
-  MockCastVoteRecordFile,
+  type MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../test/mock_cvr_file.js';
 import { Store } from './store.js';
 import { adjudicateCvr } from './adjudication.js';
-import { AdjudicatedContestOption, WriteInRecord } from './index.js';
+import type { AdjudicatedContestOption, WriteInRecord } from './index.js';
 
 const contestId = 'zoo-council-mammal';
 

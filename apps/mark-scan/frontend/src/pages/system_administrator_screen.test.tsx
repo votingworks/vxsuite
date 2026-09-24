@@ -8,7 +8,7 @@ import { electionDefinition, election } from '../../test/helpers/election.js';
 import { render } from '../../test/test_utils.js';
 import { SystemAdministratorScreen } from './system_administrator_screen.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   provideApi,
 } from '../../test/helpers/mock_api_client.js';

@@ -1,4 +1,7 @@
-import { DippedSmartCardAuth, InsertedSmartCardAuth } from '@votingworks/types';
+import type {
+  DippedSmartCardAuth,
+  InsertedSmartCardAuth,
+} from '@votingworks/types';
 
 export function isVendorAuth(
   auth: DippedSmartCardAuth.AuthStatus

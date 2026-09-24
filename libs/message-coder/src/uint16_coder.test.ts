@@ -3,8 +3,8 @@ import { err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import * as fc from 'fast-check';
 import { MAX_UINT16 } from './constants.js';
-import { CoderType } from './message_coder.js';
-import { DecodeResult } from './types.js';
+import type { CoderType } from './message_coder.js';
+import type { DecodeResult } from './types.js';
 import { uint16 } from './uint16_coder.js';
 
 test('uint16', () => {

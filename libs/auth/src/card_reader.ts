@@ -2,10 +2,10 @@ import { Buffer } from 'node:buffer';
 import newPcscLite from 'pcsclite';
 import { promisify } from 'node:util';
 import { assert } from '@votingworks/basics';
-import { Byte, isByte } from '@votingworks/types';
+import { type Byte, isByte } from '@votingworks/types';
 
 import {
-  CardCommand,
+  type CardCommand,
   CommandApdu,
   GET_RESPONSE,
   MAX_APDU_LENGTH,

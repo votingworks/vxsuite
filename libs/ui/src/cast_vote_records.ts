@@ -1,5 +1,5 @@
 import { throwIllegalValue } from '@votingworks/basics';
-import {
+import type {
   ExportCastVoteRecordsToUsbDriveError,
   SheetOf,
 } from '@votingworks/types';

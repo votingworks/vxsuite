@@ -1,4 +1,8 @@
-import { Contest, ElectionDefinition, getContests } from '@votingworks/types';
+import {
+  type Contest,
+  type ElectionDefinition,
+  getContests,
+} from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
 import React from 'react';

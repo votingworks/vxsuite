@@ -1,4 +1,4 @@
-import { Election, TEST_JURISDICTION } from '@votingworks/types';
+import { type Election, TEST_JURISDICTION } from '@votingworks/types';
 
 import { mockCard } from './mock_file_card.js';
 

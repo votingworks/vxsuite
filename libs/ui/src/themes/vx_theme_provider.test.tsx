@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import React from 'react';
-import { DefaultTheme, ThemeContext } from 'styled-components';
+import { type DefaultTheme, ThemeContext } from 'styled-components';
 
 import { render } from '@testing-library/react';
 import { VxThemeProvider } from './vx_theme_provider.js';

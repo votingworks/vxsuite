@@ -1,7 +1,7 @@
 import express from 'express';
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { LogEventId, Logger } from '@votingworks/logging';
-import { UsbDrive, detectUsbDriveFromEnv } from '@votingworks/usb-drive';
+import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import { LogEventId, type Logger } from '@votingworks/logging';
+import { type UsbDrive, detectUsbDriveFromEnv } from '@votingworks/usb-drive';
 import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import {
@@ -14,12 +14,12 @@ import {
   isFeatureFlagEnabled,
   isIntegrationTest,
 } from '@votingworks/utils';
-import { FujitsuThermalPrinterInterface } from '@votingworks/fujitsu-thermal-printer';
+import type { FujitsuThermalPrinterInterface } from '@votingworks/fujitsu-thermal-printer';
 import { buildApi, buildApp } from './app.js';
 import { PORT } from './globals.js';
-import { Workspace } from './util/workspace.js';
+import type { Workspace } from './util/workspace.js';
 import * as scanner from './scanner.js';
-import { AudioPlayerInterface, newAudioPlayer } from './audio/audio.js';
+import { type AudioPlayerInterface, newAudioPlayer } from './audio/audio.js';
 
 export interface StartOptions {
   auth: InsertedSmartCardAuthApi;

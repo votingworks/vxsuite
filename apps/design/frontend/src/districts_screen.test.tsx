@@ -2,15 +2,15 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { createMemoryHistory } from 'history';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  District,
-  ElectionId,
+  type District,
+  type ElectionId,
   ElectionStringKey,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import { readElectionGeneral } from '@votingworks/fixtures';
 import {
-  MockApiClient,
+  type MockApiClient,
   createMockApiClient,
   mockStateFeatures,
   mockUserFeatures,

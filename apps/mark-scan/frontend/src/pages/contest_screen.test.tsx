@@ -9,7 +9,10 @@ import { mockMachineConfig } from '../../test/helpers/mock_machine_config.js';
 import { render as renderWithBallotContext } from '../../test/test_utils.js';
 
 import { ContestScreen } from './contest_screen.js';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../../test/helpers/mock_api_client.js';
 
 const electionGeneral = readElectionGeneral();
 const firstContestTitle = electionGeneral.contests[0]!.title;

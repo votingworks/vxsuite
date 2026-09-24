@@ -1,4 +1,4 @@
-import { assert, Optional } from '@votingworks/basics';
+import { assert, type Optional } from '@votingworks/basics';
 
 const REQUIRED_ENV_VARS = [
   'CIRCLECI_API_TOKEN',

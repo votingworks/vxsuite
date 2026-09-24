@@ -19,17 +19,17 @@ import {
 import { assert, assertDefined, find } from '@votingworks/basics';
 
 import {
-  BallotStyleId,
-  ElectionDefinition,
-  PartyId,
-  PrecinctId,
-  VotesDict,
+  type BallotStyleId,
+  type ElectionDefinition,
+  type PartyId,
+  type PrecinctId,
+  type VotesDict,
   getBallotStyle,
 } from '@votingworks/types';
-import { Review, ReviewProps } from '../components/review.js';
-import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests.js';
+import { Review, type ReviewProps } from '../components/review.js';
+import type { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests.js';
 import {
-  VoterHelpScreenType,
+  type VoterHelpScreenType,
   VoterScreen,
 } from '../components/voter_screen.js';
 

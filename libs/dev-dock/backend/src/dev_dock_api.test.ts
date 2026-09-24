@@ -7,7 +7,7 @@ import {
   vxFamousNamesFixtures,
   vxGeneralElectionFixtures,
 } from '@votingworks/hmpb';
-import { AddressInfo } from 'node:net';
+import type { AddressInfo } from 'node:net';
 import {
   BooleanEnvironmentVariableName,
   ELECTION_PACKAGE_FOLDER,
@@ -26,7 +26,7 @@ import {
   zipFile,
 } from '@votingworks/test-utils';
 import {
-  CardStatus,
+  type CardStatus,
   DEV_JURISDICTION,
   readFromMockFile,
 } from '@votingworks/auth';
@@ -36,12 +36,12 @@ import {
   makeTemporaryFile,
   readElectionGeneral,
 } from '@votingworks/fixtures';
-import { Server } from 'node:http';
-import { Optional, assert, typedAs } from '@votingworks/basics';
+import type { Server } from 'node:http';
+import { type Optional, assert, typedAs } from '@votingworks/basics';
 import {
   constructElectionKey,
   DEFAULT_SYSTEM_SETTINGS,
-  PrinterStatus,
+  type PrinterStatus,
 } from '@votingworks/types';
 import {
   getMockConnectedPrinterStatus,
@@ -49,7 +49,7 @@ import {
   HP_4001_PRINTER_CONFIG,
 } from '@votingworks/printing';
 import {
-  PrinterStatus as FujitsuPrinterStatus,
+  type PrinterStatus as FujitsuPrinterStatus,
   getMockFileFujitsuPrinterHandler,
 } from '@votingworks/fujitsu-thermal-printer';
 import { createMockPdiScanner } from '@votingworks/pdi-scanner';
@@ -60,13 +60,13 @@ import {
   UsbDiskDevPathSchema,
 } from '@votingworks/usb-drive';
 import {
-  Api,
+  type Api,
   useDevDockRouter,
-  MockSpec,
-  MockBatchScannerApi,
+  type MockSpec,
+  type MockBatchScannerApi,
   DEV_DOCK_ELECTION_FILE_NAME,
-  DevDockSide,
-  PdiScannerStatus,
+  type DevDockSide,
+  type PdiScannerStatus,
 } from './dev_dock_api.js';
 import {
   QUICK_CONFIGURE_ELECTION_DIR,

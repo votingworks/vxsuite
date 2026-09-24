@@ -1,11 +1,11 @@
-import { DippedSmartCardAuthApi } from '@votingworks/auth';
+import type { DippedSmartCardAuthApi } from '@votingworks/auth';
 import { mockSessionExpiresAt } from '@votingworks/test-utils';
 import {
   constructElectionKey,
-  ElectionDefinition,
+  type ElectionDefinition,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-import { Mocked } from 'vitest';
+import type { Mocked } from 'vitest';
 
 export function mockElectionManagerAuth(
   auth: Mocked<DippedSmartCardAuthApi>,

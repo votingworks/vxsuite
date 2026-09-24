@@ -3,7 +3,7 @@ import { throwIllegalValue } from '@votingworks/basics';
 import { render, screen } from '../test/react_testing_library.js';
 
 import {
-  NetworkIndicatorStatus,
+  type NetworkIndicatorStatus,
   NetworkStatusIndicator,
 } from './network_status_indicator.js';
 import { makeTheme } from './themes/make_theme.js';

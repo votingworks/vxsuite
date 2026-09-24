@@ -1,4 +1,4 @@
-import { BatchInfo, Tabulation } from '@votingworks/types';
+import { type BatchInfo, Tabulation } from '@votingworks/types';
 import { formatFullDateTimeZone } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import { styled } from '../styled.js';

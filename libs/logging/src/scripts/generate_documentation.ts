@@ -2,7 +2,7 @@ import { safeParse } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/basics';
 import yargs from 'yargs/yargs';
 import * as fs from 'node:fs';
-import { AppName, AppNameSchema } from '../index.js';
+import { type AppName, AppNameSchema } from '../index.js';
 import {
   generateCdfLogDocumentationFileContent,
   generateMarkdownDocumentationContent,

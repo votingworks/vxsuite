@@ -4,7 +4,7 @@ import {
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { BallotStyleId, PollingPlace } from '@votingworks/types';
+import type { BallotStyleId, PollingPlace } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { fireEvent, render, screen } from '../test/react_testing_library.js';
 
@@ -12,7 +12,10 @@ import { App } from './app.js';
 
 import { presidentContest, voterContests } from '../test/helpers/election.js';
 import { withMarkup } from '../test/helpers/with_markup.js';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../test/helpers/mock_api_client.js';
 import { getMockInterpretation } from '../test/helpers/interpretation.js';
 
 let apiMock: ApiMock;

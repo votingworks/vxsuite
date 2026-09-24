@@ -1,10 +1,10 @@
 import { expect, test, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { AudioControls } from '@votingworks/types';
+import type { AudioControls } from '@votingworks/types';
 import { UiStringsAudioContext } from '../ui_strings/audio_context.js';
 import { useAudioControls } from './use_audio_controls.js';
 import {
-  UiStringsReactQueryApi,
+  type UiStringsReactQueryApi,
   createUiStringsApi,
 } from './ui_strings_api.js';
 import { UiStringScreenReaderContext } from '../ui_strings/ui_string_screen_reader.js';

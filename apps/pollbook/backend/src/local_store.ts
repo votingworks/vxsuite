@@ -1,24 +1,28 @@
-import { BaseLogger } from '@votingworks/logging';
+import type { BaseLogger } from '@votingworks/logging';
 import { Client as DbClient } from '@votingworks/db';
 import {
-  CheckInBallotParty,
-  PrimarySummaryStatistics,
+  type CheckInBallotParty,
+  type PrimarySummaryStatistics,
   safeParseJson,
-  SummaryStatistics,
-  Voter,
-  VoterAddressChange,
-  VoterAddressChangeRequest,
-  VoterIdentificationMethod,
-  VoterMailingAddressChange,
-  VoterMailingAddressChangeRequest,
-  VoterNameChange,
-  VoterNameChangeRequest,
-  VoterRegistration,
-  VoterRegistrationRequest,
+  type SummaryStatistics,
+  type Voter,
+  type VoterAddressChange,
+  type VoterAddressChangeRequest,
+  type VoterIdentificationMethod,
+  type VoterMailingAddressChange,
+  type VoterMailingAddressChangeRequest,
+  type VoterNameChange,
+  type VoterNameChangeRequest,
+  type VoterRegistration,
+  type VoterRegistrationRequest,
   VoterSchema,
 } from '@votingworks/types';
 import { assert, assertDefined, groupBy, typedAs } from '@votingworks/basics';
-import { SqliteBool, fromSqliteBool, asSqliteBool } from '@votingworks/utils';
+import {
+  type SqliteBool,
+  fromSqliteBool,
+  asSqliteBool,
+} from '@votingworks/utils';
 import makeDebug from 'debug';
 import {
   generateId,
@@ -28,23 +32,23 @@ import {
   Store,
 } from './store.js';
 import {
-  EventDbRow,
+  type EventDbRow,
   EventType,
-  PollbookConnectionStatus,
+  type PollbookConnectionStatus,
   PollbookInformationSchema,
-  PollbookServiceInfo,
-  ThroughputStat,
-  UndoVoterCheckInEvent,
-  VoterAddressChangeEvent,
-  VoterMailingAddressChangeEvent,
-  VoterCheckInEvent,
-  VoterGroup,
-  VoterInactivatedEvent,
-  VoterNameChangeEvent,
-  VoterRegistrationEvent,
-  VoterRegistrationInvalidatedEvent,
-  VoterSearchParams,
-  PartyFilterAbbreviation,
+  type PollbookServiceInfo,
+  type ThroughputStat,
+  type UndoVoterCheckInEvent,
+  type VoterAddressChangeEvent,
+  type VoterMailingAddressChangeEvent,
+  type VoterCheckInEvent,
+  type VoterGroup,
+  type VoterInactivatedEvent,
+  type VoterNameChangeEvent,
+  type VoterRegistrationEvent,
+  type VoterRegistrationInvalidatedEvent,
+  type VoterSearchParams,
+  type PartyFilterAbbreviation,
 } from './types.js';
 import {
   applyPollbookEventsToVoters,

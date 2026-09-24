@@ -11,24 +11,24 @@ import {
 import HID from 'node-hid';
 import {
   MockPaperHandlerDriver,
-  MockPaperHandlerStatus,
-  PaperHandlerDriverInterface,
+  type MockPaperHandlerStatus,
+  type PaperHandlerDriverInterface,
 } from '@votingworks/custom-paper-handler';
 import {
-  BaseLogger,
+  type BaseLogger,
   LogEventId,
   mockBaseLogger,
-  MockLogger,
+  type MockLogger,
   mockLogger,
 } from '@votingworks/logging';
 import {
-  InsertedSmartCardAuthApi,
+  type InsertedSmartCardAuthApi,
   buildMockInsertedSmartCardAuth,
 } from '@votingworks/auth';
 import {
   assert,
   assertDefined,
-  Deferred,
+  type Deferred,
   deferred,
   iter,
   sleep,
@@ -41,9 +41,9 @@ import {
 } from '@votingworks/fixtures';
 import {
   BallotType,
-  PageInterpretation,
-  PageInterpretationType,
-  SheetOf,
+  type PageInterpretation,
+  type PageInterpretationType,
+  type SheetOf,
   TEST_JURISDICTION,
   safeParseSystemSettings,
 } from '@votingworks/types';
@@ -63,18 +63,18 @@ import { AudioPort, setBuiltinAudioPort } from '@votingworks/backend';
 import {
   ACCEPTED_PAPER_TYPES,
   MAX_AUDIO_PORT_CHANGE_RETRIES,
-  PaperHandlerStateMachine,
+  type PaperHandlerStateMachine,
   delays,
   getPaperHandlerStateMachine,
   paperHandlerStatusToEvent,
 } from './state_machine.js';
-import { Workspace, createWorkspace } from '../util/workspace.js';
+import { type Workspace, createWorkspace } from '../util/workspace.js';
 import {
   PatConnectionStatusReader,
-  PatConnectionStatusReaderInterface,
+  type PatConnectionStatusReaderInterface,
 } from '../pat-input/connection_status_reader.js';
 import { getPaperInRearStatus } from './test_utils/index.js';
-import { SimpleServerStatus } from './index.js';
+import type { SimpleServerStatus } from './index.js';
 import {
   loadAndParkPaper,
   printBallotChunks,
@@ -98,7 +98,7 @@ import {
   BLANK_PAGE_INTERPRETATION_MOCK,
   BLANK_PAGE_MOCK,
 } from '../../test/ballot_helpers.js';
-import { BmdModelNumber } from '../types.js';
+import type { BmdModelNumber } from '../types.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const { election } = electionGeneralDefinition;

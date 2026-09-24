@@ -2,9 +2,9 @@ import { afterEach, beforeEach, expect, test } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { err, ok } from '@votingworks/basics';
-import { PollingPlace } from '@votingworks/types';
+import type { PollingPlace } from '@votingworks/types';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
 } from '../../../test/helpers/mock_api_client.js';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';

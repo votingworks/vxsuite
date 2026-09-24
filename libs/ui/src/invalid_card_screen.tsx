@@ -1,4 +1,7 @@
-import { DippedSmartCardAuth, InsertedSmartCardAuth } from '@votingworks/types';
+import type {
+  DippedSmartCardAuth,
+  InsertedSmartCardAuth,
+} from '@votingworks/types';
 
 import { Main } from './main.js';
 import { Screen } from './screen.js';
@@ -6,7 +9,7 @@ import { FullScreenIconWrapper, Icons } from './icons.js';
 import { FullScreenMessage } from './full_screen_message.js';
 import { H3 } from './typography.js';
 import {
-  CardInsertionDirection,
+  type CardInsertionDirection,
   RotateCardImage,
 } from './smart_card_images.js';
 

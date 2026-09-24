@@ -8,7 +8,7 @@ import {
   P,
   ScrollTable,
 } from '@votingworks/ui';
-import { BatchInfo } from '@votingworks/types';
+import type { BatchInfo } from '@votingworks/types';
 import styled from 'styled-components';
 import type {
   NetworkConnectionInfo,

@@ -5,10 +5,10 @@ import type { ScanStatus } from '@votingworks/central-scan-backend';
 import { screen, within } from '../../test/react_testing_library.js';
 import {
   BatchHistoryScreen,
-  BatchHistoryScreenProps,
+  type BatchHistoryScreenProps,
 } from './batch_history_screen.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
-import { ApiMock, createApiMock } from '../../test/api.js';
+import { type ApiMock, createApiMock } from '../../test/api.js';
 import { mockBatch, mockStatus } from '../../test/fixtures.js';
 
 let apiMock: ApiMock;

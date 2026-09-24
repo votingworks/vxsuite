@@ -9,16 +9,16 @@ import { expect, test, vi } from 'vitest';
 import {
   UsbDiskDevPathSchema,
   UsbPartitionDevPathSchema,
-  UsbPartitionMountpoint,
+  type UsbPartitionMountpoint,
   UsbPartitionMountpointSchema,
 } from '../types.js';
-import {
+import type {
   UsbPlatformDrive,
   UsbPlatformPartition,
 } from '../usb_platform_types.js';
 import {
-  FaultType,
-  SimulatedUsbDrive,
+  type FaultType,
+  type SimulatedUsbDrive,
   SimulatedUsbPlatform,
 } from './simulated_usb_platform.js';
 

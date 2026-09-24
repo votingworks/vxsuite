@@ -1,4 +1,4 @@
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 import { extractErrorMessage } from '@votingworks/basics';
 
 import { createCertHelper, parseCreateCertInput } from '../cryptography.js';

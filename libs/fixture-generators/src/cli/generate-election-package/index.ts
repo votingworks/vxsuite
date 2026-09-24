@@ -5,7 +5,7 @@ import {
 } from '@votingworks/types';
 import { readFileSync } from 'node:fs';
 import {
-  ParsedElectionPackage,
+  type ParsedElectionPackage,
   readElectionPackageFromFile,
 } from '@votingworks/backend';
 import yargs from 'yargs/yargs';

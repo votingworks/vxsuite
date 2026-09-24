@@ -7,13 +7,16 @@ import { assertDefined, err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
-import { BatteryInfo, mockElectionPackageFileTree } from '@votingworks/backend';
+import {
+  type BatteryInfo,
+  mockElectionPackageFileTree,
+} from '@votingworks/backend';
 import {
   ballotPaperDimensions,
   BallotType,
   DEV_MACHINE_ID,
-  EncodedBallotEntry,
-  ElectionDefinition,
+  type EncodedBallotEntry,
+  type ElectionDefinition,
   ElectionPackageFileName,
   HmpbBallotPaperSize,
   LanguageCode,
@@ -29,7 +32,7 @@ import {
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import { LogEventId, MockLogger } from '@votingworks/logging';
+import { LogEventId, type MockLogger } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
   ELECTION_PACKAGE_FOLDER,
@@ -41,13 +44,13 @@ import { zipFile } from '@votingworks/test-utils';
 import {
   concatenatePdfs,
   HP_4001_PRINTER_CONFIG,
-  MemoryPrinterHandler,
+  type MemoryPrinterHandler,
   renderToPdf,
 } from '@votingworks/printing';
-import { Server } from 'node:http';
-import * as grout from '@votingworks/grout';
-import { DippedSmartCardAuthApi } from '@votingworks/auth';
-import { MockUsbDrive } from '@votingworks/usb-drive';
+import type { Server } from 'node:http';
+import type * as grout from '@votingworks/grout';
+import type { DippedSmartCardAuthApi } from '@votingworks/auth';
+import type { MockUsbDrive } from '@votingworks/usb-drive';
 import { generateTestDeckBallots } from '@votingworks/test-decks';
 import {
   buildTestEnvironment,
@@ -55,8 +58,8 @@ import {
   mockElectionManagerAuth,
   buildBallotsForElection,
 } from '../test/app.js';
-import { Api } from './app.js';
-import { Workspace } from './util/workspace.js';
+import type { Api } from './app.js';
+import type { Workspace } from './util/workspace.js';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 const EXPECTED_TALLY_REPORT_PAGES = 1;

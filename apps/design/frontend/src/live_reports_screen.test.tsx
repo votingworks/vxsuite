@@ -4,10 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { cleanup, screen, waitFor } from '@testing-library/react';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  SystemSettings,
-  ElectionId,
-  Election,
-  PollingPlace,
+  type SystemSettings,
+  type ElectionId,
+  type Election,
+  type PollingPlace,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -19,7 +19,7 @@ import type { QuickReportedPollStatus } from '@votingworks/design-backend';
 import { err, ok } from '@votingworks/basics';
 import { render } from '../test/react_testing_library.js';
 import {
-  MockApiClient,
+  type MockApiClient,
   createMockApiClient,
   mockUserFeatures,
   jurisdiction,

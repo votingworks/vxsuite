@@ -1,7 +1,7 @@
 import { throwIllegalValue } from '@votingworks/basics';
 import type { NetworkConnectionInfo } from '@votingworks/central-scan-backend';
 import {
-  NetworkIndicatorStatus,
+  type NetworkIndicatorStatus,
   NetworkStatusIndicator as NetworkStatusIndicatorView,
 } from '@votingworks/ui';
 import { getNetworkStatus } from '../api.js';

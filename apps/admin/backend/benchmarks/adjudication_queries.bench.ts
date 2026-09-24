@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, test } from 'vitest';
-import { Id } from '@votingworks/types';
-import { Store } from '../src/store.js';
+import type { Id } from '@votingworks/types';
+import type { Store } from '../src/store.js';
 import { DEFAULT_CVR_COUNT, openPerfStore } from './seed.js';
 import { benchmarkRegressionTest } from './benchmarking.js';
 

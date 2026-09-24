@@ -1,25 +1,25 @@
-import * as grout from '@votingworks/grout';
+import type * as grout from '@votingworks/grout';
 import z from 'zod/v4';
 import {
-  PrinterStatus,
-  ElectionDefinition,
-  VoterAddressChange as VoterAddressChangeType,
-  ValidStreetInfo,
-  Voter,
-  VoterCheckIn as VoterCheckInType,
-  VoterMailingAddressChange as VoterMailingAddressChangeType,
-  VoterNameChange as VoterNameChangeType,
-  VoterRegistration as VoterRegistrationType,
-  PartyAbbreviation,
+  type PrinterStatus,
+  type ElectionDefinition,
+  type VoterAddressChange as VoterAddressChangeType,
+  type ValidStreetInfo,
+  type Voter,
+  type VoterCheckIn as VoterCheckInType,
+  type VoterMailingAddressChange as VoterMailingAddressChangeType,
+  type VoterNameChange as VoterNameChangeType,
+  type VoterRegistration as VoterRegistrationType,
+  type PartyAbbreviation,
   VoterSchema,
 } from '@votingworks/types';
-import { BatteryInfo } from '@votingworks/backend';
-import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
-import { DippedSmartCardAuthApi } from '@votingworks/auth';
-import { Printer } from '@votingworks/printing';
-import { BaseLogger } from '@votingworks/logging';
+import type { BatteryInfo } from '@votingworks/backend';
+import type { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
+import type { DippedSmartCardAuthApi } from '@votingworks/auth';
+import type { Printer } from '@votingworks/printing';
+import type { BaseLogger } from '@votingworks/logging';
 import type { PeerApi } from './peer_app.js';
-import { HlcTimestamp } from './hybrid_logical_clock.js';
+import type { HlcTimestamp } from './hybrid_logical_clock.js';
 import type { LocalStore } from './local_store.js';
 import type { PeerStore } from './peer_store.js';
 import { getCurrentTime } from './get_current_time.js';

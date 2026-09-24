@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 
 type ReactUiStringFragment = React.ReactNode | Record<string, unknown>;
 

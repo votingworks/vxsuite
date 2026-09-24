@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { assertDefined, Optional } from '@votingworks/basics';
+import { assertDefined, type Optional } from '@votingworks/basics';
 
-import { UiStringsReactQueryApi } from '../hooks/ui_strings_api.js';
+import type { UiStringsReactQueryApi } from '../hooks/ui_strings_api.js';
 import { PLAYBACK_RATES, PlaybackRate } from './audio_playback_rate.js';
 import {
-  AudioVolume,
+  type AudioVolume,
   DEFAULT_AUDIO_VOLUME,
   getAudioGainRatio,
 } from './audio_volume.js';

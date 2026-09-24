@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { z } from 'zod/v4';
 import { assertDefined } from '@votingworks/basics';
-import { Election, SheetPositions } from './election.js';
+import type { Election, SheetPositions } from './election.js';
 import { safeParseElectionDefinition } from './election_parsing.js';
 import {
   convertLatestElectionToV4p0,

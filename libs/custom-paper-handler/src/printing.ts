@@ -1,7 +1,7 @@
 import { BITS_PER_BYTE } from '@votingworks/message-coder';
-import { RgbaImageData } from '@votingworks/types';
+import type { RgbaImageData } from '@votingworks/types';
 import { RGBA_CHANNEL_COUNT, rgbToGrayscale } from '@votingworks/image-utils';
-import { PaperHandlerBitmap } from './driver/coders.js';
+import type { PaperHandlerBitmap } from './driver/coders.js';
 import { VERTICAL_DOTS_IN_CHUNK } from './driver/constants.js';
 
 /**

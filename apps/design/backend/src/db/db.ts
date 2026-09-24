@@ -1,7 +1,7 @@
 // [TODO] Move to separate libs/ package once it's stable/cleaned up.
 
 import {
-  BaseLogger,
+  type BaseLogger,
   LogDispositionStandardTypes,
   LogEventId,
 } from '@votingworks/logging';
@@ -9,8 +9,7 @@ import makeDebug from 'debug';
 // `pg` is CommonJS and node's ESM named-export detection cannot see its
 // exports, so values have to come off the default import (`module.exports`);
 // types still come from `pg` by name.
-import pg from 'pg';
-import type { Pool } from 'pg';
+import pg, { type Pool } from 'pg';
 import { Client } from './client.js';
 import { databaseUrl, NODE_ENV } from '../globals.js';
 

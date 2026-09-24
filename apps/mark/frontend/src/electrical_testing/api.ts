@@ -2,7 +2,7 @@ import type { ElectricalTestingApi } from '@votingworks/mark-backend';
 import React from 'react';
 import {
   QueryClient,
-  QueryKey,
+  type QueryKey,
   useMutation,
   useQuery,
   useQueryClient,

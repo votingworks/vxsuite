@@ -1,17 +1,17 @@
 /* eslint-disable max-classes-per-file */
-import { Dictionary } from '@votingworks/types';
+import type { Dictionary } from '@votingworks/types';
 import makeDebug from 'debug';
 import { assert, assertDefined, deepEqual } from '@votingworks/basics';
 import {
-  LogEventId,
+  type LogEventId,
   LogSource,
   getDetailsForEventId,
 } from './log_event_enums.js';
 import {
-  LogDisposition,
+  type LogDisposition,
   LogDispositionStandardTypes,
-  LogLine,
-  LoggingUserRole,
+  type LogLine,
+  type LoggingUserRole,
 } from './types.js';
 
 export const LOGS_ROOT_LOCATION = '/var/log';

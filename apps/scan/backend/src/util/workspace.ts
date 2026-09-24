@@ -1,8 +1,8 @@
 import { emptyDirSync, ensureDirSync } from 'fs-extra';
 import { join, resolve } from 'node:path';
-import { Optional } from '@votingworks/basics';
+import type { Optional } from '@votingworks/basics';
 import { getDiskSpaceSummaries, getNodeEnv } from '@votingworks/backend';
-import { BaseLogger, LogEventId } from '@votingworks/logging';
+import { type BaseLogger, LogEventId } from '@votingworks/logging';
 import { type DiskSpaceSummary, Mutex } from '@votingworks/utils';
 import { Store } from '../store.js';
 

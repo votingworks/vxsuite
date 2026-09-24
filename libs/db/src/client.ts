@@ -1,4 +1,4 @@
-import { assert, err, ok, Result } from '@votingworks/basics';
+import { assert, err, ok, type Result } from '@votingworks/basics';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
 import {
   isIntegrationTest,
@@ -6,7 +6,7 @@ import {
   isStagingDeploy,
   isVxDev,
 } from '@votingworks/utils';
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
 import makeDebug from 'debug';
 import * as fs from 'node:fs';

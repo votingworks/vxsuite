@@ -1,12 +1,12 @@
 // @coverage-exclude-file: tested via apps
 
-import React from 'react';
+import type React from 'react';
 
 import { Card, FullScreenIconWrapper, H2 } from '@votingworks/ui';
 import styled from 'styled-components';
 import {
   CenteredPageLayout,
-  CenteredPageLayoutProps,
+  type CenteredPageLayoutProps,
 } from './centered_page_layout.js';
 
 export type CenteredCardPageLayoutProps = Omit<

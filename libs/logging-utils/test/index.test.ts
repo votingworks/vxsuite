@@ -2,7 +2,7 @@ import {
   LogEventId,
   LogEventType,
   Logger,
-  LogLine,
+  type LogLine,
   LogSource,
   mockLogger,
 } from '@votingworks/logging';

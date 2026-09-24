@@ -1,4 +1,4 @@
-import { Result } from '@votingworks/basics';
+import type { Result } from '@votingworks/basics';
 import { z } from 'zod/v4';
 import { AdjudicationReasonSchema } from './election.js';
 import {
@@ -6,13 +6,13 @@ import {
   DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
   DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
   DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
-  InactiveSessionTimeLimitMinutes,
+  type InactiveSessionTimeLimitMinutes,
   InactiveSessionTimeLimitMinutesSchema,
-  NumIncorrectPinAttemptsAllowedBeforeCardLockout,
+  type NumIncorrectPinAttemptsAllowedBeforeCardLockout,
   NumIncorrectPinAttemptsAllowedBeforeCardLockoutSchema,
-  OverallSessionTimeLimitHours,
+  type OverallSessionTimeLimitHours,
   OverallSessionTimeLimitHoursSchema,
-  StartingCardLockoutDurationSeconds,
+  type StartingCardLockoutDurationSeconds,
   StartingCardLockoutDurationSecondsSchema,
 } from './auth/index.js';
 import { safeParseJson } from './generic.js';

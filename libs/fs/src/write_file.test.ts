@@ -10,7 +10,7 @@ import {
 } from '@votingworks/fixtures';
 import fc from 'fast-check';
 import * as openRegularFile from './open_regular_file.js';
-import { WriteFileError, writeFile } from './write_file.js';
+import { type WriteFileError, writeFile } from './write_file.js';
 
 afterEach(() => {
   vi.restoreAllMocks();

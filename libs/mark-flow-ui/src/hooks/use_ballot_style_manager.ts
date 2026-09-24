@@ -1,4 +1,4 @@
-import { BallotStyleId, ElectionDefinition } from '@votingworks/types';
+import type { BallotStyleId, ElectionDefinition } from '@votingworks/types';
 import { useCurrentLanguage } from '@votingworks/ui';
 import { getRelatedBallotStyle } from '@votingworks/utils';
 import React from 'react';

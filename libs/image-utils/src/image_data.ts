@@ -3,9 +3,9 @@ import {
   err,
   extractErrorMessage,
   ok,
-  Result,
+  type Result,
 } from '@votingworks/basics';
-import { GrayImageData, RgbaImageData } from '@votingworks/types';
+import type { GrayImageData, RgbaImageData } from '@votingworks/types';
 import { time } from '@votingworks/utils';
 import { Buffer } from 'node:buffer';
 import * as canvas from 'canvas';
@@ -13,7 +13,7 @@ import makeDebug from 'debug';
 import { open, writeFile } from 'node:fs/promises';
 
 import { assertInteger } from './numeric.js';
-import { int, u8, usize } from './types.js';
+import type { int, u8, usize } from './types.js';
 
 const debug = makeDebug('image-utils');
 

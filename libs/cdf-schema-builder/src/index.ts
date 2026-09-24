@@ -1,11 +1,11 @@
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, type Result } from '@votingworks/basics';
 import { findDocForProperty, findDocForType } from './docs.js';
 import {
   createInterfaceFromDefinition,
   createEnumFromDefinition,
   parseJsonSchema,
 } from './json_schema.js';
-import { Enum, Interface, StringAlias } from './types.js';
+import type { Enum, Interface, StringAlias } from './types.js';
 import {
   makeIdentifier,
   isValidIdentifier,

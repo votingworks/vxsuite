@@ -1,11 +1,11 @@
 import { assert, assertDefined, find } from '@votingworks/basics';
 import {
-  Contest,
-  ContestId,
-  YesNoOption,
+  type Contest,
+  type ContestId,
+  type YesNoOption,
   getContestDistrictName as getContestDistrictNameBase,
-  Election,
-  YesNoContest,
+  type Election,
+  type YesNoContest,
 } from '@votingworks/types';
 
 /**

@@ -3,10 +3,13 @@ import type { Meta } from '@storybook/react-vite' with {
 };
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import type React from 'react';
 import { assertDefined } from '@votingworks/basics';
 
-import { UiString as Component, UiStringProps as Props } from './ui_string.js';
+import {
+  UiString as Component,
+  type UiStringProps as Props,
+} from './ui_string.js';
 import {
   TEST_UI_STRING_TRANSLATIONS,
   testUiStrings,
@@ -19,7 +22,7 @@ import {
   QUERY_CLIENT_DEFAULT_OPTIONS,
   SegmentedButton,
   UiStringsContextProvider,
-  UiStringsReactQueryApi,
+  type UiStringsReactQueryApi,
   createUiStringsApi,
 } from '../index.js';
 import { useFrontendLanguageContext } from './language_context.js';

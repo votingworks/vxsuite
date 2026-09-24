@@ -1,7 +1,7 @@
 import { z } from 'zod/v4';
 import {
   safeParse,
-  NonEnglishLanguageCode,
+  type NonEnglishLanguageCode,
   LanguageCode,
 } from '@votingworks/types';
 

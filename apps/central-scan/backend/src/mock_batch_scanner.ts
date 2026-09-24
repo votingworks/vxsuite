@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import { range } from '@votingworks/basics';
-import {
+import type {
   BatchControl,
   BatchScanner,
   ScannedSheetInfo,

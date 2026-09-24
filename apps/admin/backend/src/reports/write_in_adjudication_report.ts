@@ -1,14 +1,18 @@
 import { assert } from '@votingworks/basics';
 import { WriteInAdjudicationReport } from '@votingworks/ui';
-import { PdfError, Printer, renderToPdf } from '@votingworks/printing';
+import {
+  type PdfError,
+  type Printer,
+  renderToPdf,
+} from '@votingworks/printing';
 
-import { LogEventId, Logger } from '@votingworks/logging';
-import { Tabulation } from '@votingworks/types';
-import { UsbDrive } from '@votingworks/usb-drive';
+import { LogEventId, type Logger } from '@votingworks/logging';
+import type { Tabulation } from '@votingworks/types';
+import type { UsbDrive } from '@votingworks/usb-drive';
 import { join } from 'node:path';
-import { Store } from '../store.js';
+import type { Store } from '../store.js';
 import { getCurrentTime } from '../util/get_current_time.js';
-import { ExportDataResult } from '../types.js';
+import type { ExportDataResult } from '../types.js';
 import { buildExporter } from '../util/exporter.js';
 import { generateReportsDirectoryPath } from '../util/filenames.js';
 

@@ -13,7 +13,7 @@ import {
 } from '@votingworks/test-utils';
 import * as tasks from './tasks.js';
 import { processNextBackgroundTaskIfAny, start } from './worker.js';
-import { WorkerContext } from './context.js';
+import type { WorkerContext } from './context.js';
 import { TestStore } from '../../test/test_store.js';
 
 vi.mock('./tasks');

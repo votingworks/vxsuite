@@ -1,8 +1,8 @@
-import React from 'react';
+import type React from 'react';
 import { css, useTheme } from 'styled-components';
 import { styled } from './styled.js';
 
-import { Button, ButtonProps } from './button.js';
+import { Button, type ButtonProps } from './button.js';
 
 /** Props for {@link SegmentedButton}. */
 export interface SegmentedButtonProps<T extends SegmentedButtonOptionId> {

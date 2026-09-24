@@ -3,7 +3,11 @@ import { randomInt } from 'node:crypto';
 import * as grout from '@votingworks/grout';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { CheckInBallotParty, Voter, safeParseInt } from '@votingworks/types';
+import {
+  type CheckInBallotParty,
+  type Voter,
+  safeParseInt,
+} from '@votingworks/types';
 import type { LocalApi } from '../app.js';
 
 const api = grout.createClient<LocalApi>({

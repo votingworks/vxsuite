@@ -1,16 +1,16 @@
-import type {
-  ElectionInfo,
-  ElectionListing,
-  ElectionRecord,
-  Jurisdiction,
-} from '@votingworks/design-backend';
-import { createBlankElection } from '@votingworks/design-backend';
 import {
-  BallotLanguageConfigs,
-  Candidate,
+  type ElectionInfo,
+  type ElectionListing,
+  type ElectionRecord,
+  type Jurisdiction,
+  createBlankElection,
+} from '@votingworks/design-backend';
+import {
+  type BallotLanguageConfigs,
+  type Candidate,
   DEFAULT_SYSTEM_SETTINGS,
-  Election,
-  Id,
+  type Election,
+  type Id,
   isCombinedBallotPrimary,
   LanguageCode,
 } from '@votingworks/types';

@@ -6,7 +6,7 @@ import { assertDefined } from '@votingworks/basics';
 import { createWorkspace } from '../workspace.js';
 import { WORKSPACE } from '../globals.js';
 import { generateId } from '../utils.js';
-import { Organization } from '../types.js';
+import type { Organization } from '../types.js';
 
 const USAGE = `Usage: pnpm create-organization "<name>"`;
 

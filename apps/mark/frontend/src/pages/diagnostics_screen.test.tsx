@@ -12,13 +12,13 @@ import {
   waitFor,
 } from '../../test/react_testing_library.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   provideApi,
 } from '../../test/helpers/mock_api_client.js';
 import {
   DiagnosticsScreen,
-  DiagnosticsScreenProps,
+  type DiagnosticsScreenProps,
 } from './diagnostics_screen.js';
 
 let apiMock: ApiMock;

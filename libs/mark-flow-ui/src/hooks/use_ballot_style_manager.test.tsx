@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import React from 'react';
 import { QUERY_CLIENT_DEFAULT_OPTIONS } from '@votingworks/ui';
-import { Election, ElectionDefinition } from '@votingworks/types';
+import type { Election, ElectionDefinition } from '@votingworks/types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { generateBallotStyleId } from '@votingworks/utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';

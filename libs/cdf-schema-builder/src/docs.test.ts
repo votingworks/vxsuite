@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { findDocForProperty, findDocForType } from './docs.js';
-import { DocumentedEntity } from './types.js';
+import type { DocumentedEntity } from './types.js';
 
 test('findDocForType', () => {
   const docs: DocumentedEntity[] = [

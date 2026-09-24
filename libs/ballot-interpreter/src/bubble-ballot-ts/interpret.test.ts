@@ -7,8 +7,8 @@ import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { writeImageData } from '@votingworks/image-utils';
 import {
   asSheet,
-  Election,
-  ElectionDefinition,
+  type Election,
+  type ElectionDefinition,
   gridPositionsFromBallotPositions,
   mapSheet,
 } from '@votingworks/types';

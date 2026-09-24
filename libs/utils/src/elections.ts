@@ -1,5 +1,5 @@
-import { Optional } from '@votingworks/basics';
-import { Election } from '@votingworks/types';
+import type { Optional } from '@votingworks/basics';
+import type { Election } from '@votingworks/types';
 
 /**
  * Whether the election carries HMPB ballot geometry, i.e. at least one ballot

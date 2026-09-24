@@ -1,5 +1,5 @@
-import { Result } from '@votingworks/basics';
-import { type RgbaImageData } from '@votingworks/types';
+import type { Result } from '@votingworks/basics';
+import type { RgbaImageData } from '@votingworks/types';
 
 export type ErrorType =
   | 'hardware'

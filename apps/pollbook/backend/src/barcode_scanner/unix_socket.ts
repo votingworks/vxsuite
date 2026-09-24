@@ -1,7 +1,7 @@
 import {
   LogDispositionStandardTypes,
   LogEventId,
-  Logger,
+  type Logger,
 } from '@votingworks/logging';
 import * as net from 'node:net';
 

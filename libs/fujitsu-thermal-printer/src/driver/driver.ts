@@ -3,26 +3,31 @@ import {
   arrayBufferFrom,
   assert,
   assertDefined,
-  Optional,
+  type Optional,
 } from '@votingworks/basics';
-import { byteArray, Coder, literal, message } from '@votingworks/message-coder';
+import {
+  byteArray,
+  type Coder,
+  literal,
+  message,
+} from '@votingworks/message-coder';
 import { Buffer } from 'node:buffer';
 import { inspect } from 'node:util';
 import { Lock } from './lock.js';
-import { MinimalWebUsbDevice } from './minimal_web_usb_device.js';
+import type { MinimalWebUsbDevice } from './minimal_web_usb_device.js';
 import {
   BitImagePrintMode,
   PrinterResetCommand,
-  RawPrinterStatus,
+  type RawPrinterStatus,
   PrinterStatusResponse,
   SetReplyParameterCommand,
   FeedForwardCommand,
-  PrintQuality,
+  type PrintQuality,
   SetPrintQuality,
   convertPrintQualityToCoderValue,
 } from './coders.js';
-import { Uint16toUint8, Uint8 } from '../bits.js';
-import { CompressedBitImage } from './types.js';
+import { Uint16toUint8, type Uint8 } from '../bits.js';
+import type { CompressedBitImage } from './types.js';
 import { isInconsistentStatus } from './status.js';
 import { rootDebug } from '../debug.js';
 

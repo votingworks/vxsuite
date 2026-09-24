@@ -3,14 +3,14 @@ import React from 'react';
 import parseCssColor from 'parse-css-color';
 import { assert } from '@votingworks/basics';
 import { ServerStyleSheet, ThemeConsumer } from 'styled-components';
-import { UiTheme } from '@votingworks/types';
+import type { UiTheme } from '@votingworks/types';
 import { act, render } from '@testing-library/react';
 
-import { AppBaseProps, AppBase as OriginalAppBase } from './app_base.js';
+import { type AppBaseProps, AppBase as OriginalAppBase } from './app_base.js';
 import { makeTheme } from './themes/make_theme.js';
 import {
   VoterSettingsManagerContext,
-  VoterSettingsManagerContextInterface,
+  type VoterSettingsManagerContextInterface,
 } from './voter_settings_manager_context.js';
 
 function AppBase(props: AppBaseProps) {

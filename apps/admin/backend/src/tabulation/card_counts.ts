@@ -1,4 +1,4 @@
-import { Admin, Election, Id, Tabulation } from '@votingworks/types';
+import type { Admin, Election, Id, Tabulation } from '@votingworks/types';
 import {
   getEmptyCardCounts,
   getGroupKey,
@@ -6,8 +6,8 @@ import {
   isGroupByEmpty,
   mergeTabulationGroupMaps,
 } from '@votingworks/utils';
-import { CardTally } from '../types.js';
-import { Store } from '../store.js';
+import type { CardTally } from '../types.js';
+import type { Store } from '../store.js';
 import { tabulateManualBallotCounts } from './manual_results.js';
 import { rootDebug } from '../util/debug.js';
 import { assertIsBackendFilter } from '../util/filters.js';

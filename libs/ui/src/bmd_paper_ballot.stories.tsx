@@ -2,11 +2,11 @@ import type { Meta } from '@storybook/react-vite' with {
   'resolution-mode': 'import',
 };
 import {
-  CandidateContest,
-  Election,
+  type CandidateContest,
+  type Election,
   ElectionStringKey,
-  UiStringsPackage,
-  YesNoContest,
+  type UiStringsPackage,
+  type YesNoContest,
   getContests,
   safeParseElection,
   safeParseElectionDefinition,
@@ -19,11 +19,11 @@ import electionGeneralData from '@fixtures/electionGeneral/election.json?raw';
 import { styled } from './styled.js';
 import {
   BmdPaperBallot as Component,
-  BmdPaperBallotProps,
+  type BmdPaperBallotProps,
   MAX_BMD_PAPER_BALLOT_CONTESTS,
 } from './bmd_paper_ballot.js';
 import {
-  UiStringsReactQueryApi,
+  type UiStringsReactQueryApi,
   createUiStringsApi,
 } from './hooks/ui_strings_api.js';
 import { QUERY_CLIENT_DEFAULT_OPTIONS } from './react_query.js';

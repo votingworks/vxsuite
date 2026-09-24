@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { Table as UiTable } from '@votingworks/ui';
 import styled from 'styled-components';
 

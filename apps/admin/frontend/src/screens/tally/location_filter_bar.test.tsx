@@ -1,7 +1,10 @@
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../../../test/react_testing_library.js';
-import { LocationFilter, LocationFilterBar } from './location_filter_bar.js';
+import {
+  type LocationFilter,
+  LocationFilterBar,
+} from './location_filter_bar.js';
 
 test('renders filter counts', () => {
   render(

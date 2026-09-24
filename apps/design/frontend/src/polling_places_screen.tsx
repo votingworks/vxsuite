@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import styled from 'styled-components';
 import {
   Switch,
@@ -12,7 +12,11 @@ import { H1, LinkButton } from '@votingworks/ui';
 
 import * as api from './api.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
-import { ElectionIdParams, electionParamRoutes, routes } from './routes.js';
+import {
+  type ElectionIdParams,
+  electionParamRoutes,
+  routes,
+} from './routes.js';
 import { useTitle } from './hooks/use_title.js';
 import { PollingPlaceForm } from './polling_place_form.js';
 import { PollingPlaceList } from './polling_place_list.js';

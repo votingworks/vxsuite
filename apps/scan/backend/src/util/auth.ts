@@ -1,11 +1,11 @@
-import {
+import type {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import { LoggingUserRole } from '@votingworks/logging';
-import { Store } from '../store.js';
-import { Workspace } from './workspace.js';
+import type { LoggingUserRole } from '@votingworks/logging';
+import type { Store } from '../store.js';
+import type { Workspace } from './workspace.js';
 
 export function constructAuthMachineState(
   store: Store

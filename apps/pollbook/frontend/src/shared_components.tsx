@@ -3,6 +3,7 @@ import type {
   Voter,
   VoterAddressChange,
   VoterMailingAddressChange,
+  Election,
 } from '@votingworks/types';
 import {
   Callout,
@@ -15,7 +16,6 @@ import {
 } from '@votingworks/ui';
 import styled from 'styled-components';
 import { throwIllegalValue } from '@votingworks/basics';
-import { Election } from '@votingworks/types';
 import { Column } from './layout.js';
 
 export function prependSpaceIfNeeded(text?: string): string {

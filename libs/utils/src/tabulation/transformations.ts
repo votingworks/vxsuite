@@ -1,4 +1,4 @@
-import { Tabulation } from '@votingworks/types';
+import type { Tabulation } from '@votingworks/types';
 import { mapObject } from '@votingworks/basics';
 import { getGroupKey, getGroupSpecifierFromGroupKey } from './tabulation.js';
 

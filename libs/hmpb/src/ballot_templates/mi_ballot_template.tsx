@@ -8,26 +8,26 @@ import {
   groupBy,
   ok,
   range,
-  Result,
+  type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
-  Contest as ContestStruct,
-  BallotMode,
-  BallotStyle,
-  BallotStyleId,
-  BaseBallotProps,
-  CandidateContest as CandidateContestStruct,
-  Election,
-  PrecinctId,
-  YesNoContest,
+  type Contest as ContestStruct,
+  type BallotMode,
+  type BallotStyle,
+  type BallotStyleId,
+  type BaseBallotProps,
+  type CandidateContest as CandidateContestStruct,
+  type Election,
+  type PrecinctId,
+  type YesNoContest,
   ballotPaperDimensions,
   getBallotStyle,
   getContests,
   getOrderedCandidatesForContestInBallotStyle,
   isCombinedBallotPrimary,
-  StraightPartyContest as StraightPartyContestStruct,
-  Party,
+  type StraightPartyContest as StraightPartyContestStruct,
+  type Party,
 } from '@votingworks/types';
 import {
   BackendLanguageContextProvider,
@@ -36,14 +36,14 @@ import {
   RichText,
 } from '@votingworks/ui';
 import { styled } from '../styled.js';
-import {
+import type {
   BallotLayoutError,
   BallotPageTemplate,
   ContentComponentResult,
 } from '../render_ballot.js';
-import { RenderScratchpad } from '../renderer.js';
+import type { RenderScratchpad } from '../renderer.js';
 import {
-  OptionInfo,
+  type OptionInfo,
   Page,
   TimingMarkGrid,
   WRITE_IN_OPTION_CLASS,
@@ -58,9 +58,9 @@ import {
   BALLOT_MEASURE_OPTION_CLASS,
   PrecinctOrSplitName,
 } from '../ballot_components.js';
-import { PixelDimensions, PixelMeasurements } from '../types.js';
+import type { PixelDimensions, PixelMeasurements } from '../types.js';
 import {
-  Section,
+  type Section,
   layOutSectionsInColumns,
   layOutSectionsInParallelColumns,
 } from '../layout_in_columns.js';

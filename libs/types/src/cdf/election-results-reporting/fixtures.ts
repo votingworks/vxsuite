@@ -1,9 +1,9 @@
 import {
   CountItemStatus,
   CountItemType,
-  ElectionReport,
+  type ElectionReport,
   ElectionType,
-  InternationalizedText,
+  type InternationalizedText,
   ReportDetailLevel,
   ResultsStatus,
 } from './index.js';

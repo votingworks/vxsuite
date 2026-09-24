@@ -1,5 +1,5 @@
 import React from 'react';
-import { DefaultTheme } from 'styled-components';
+import type { DefaultTheme } from 'styled-components';
 
 import {
   VoterSettingsManagerContext,
@@ -9,7 +9,7 @@ import {
   useCurrentTheme,
   useLanguageControls,
 } from '@votingworks/ui';
-import { InsertedSmartCardAuth } from '@votingworks/types';
+import type { InsertedSmartCardAuth } from '@votingworks/types';
 import { isCardlessVoterAuth } from '@votingworks/utils';
 
 export interface UseSessionSettingsManagerParams {

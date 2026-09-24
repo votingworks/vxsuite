@@ -6,7 +6,7 @@ import { Buffer } from 'node:buffer';
 import {
   decodePDFRawStream,
   PDFArray,
-  PDFContext,
+  type PDFContext,
   PDFDict,
   PDFDocument,
   PDFName,

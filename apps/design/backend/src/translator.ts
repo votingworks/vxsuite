@@ -1,13 +1,13 @@
 import {
   GoogleCloudTranslator,
-  MinimalGoogleCloudTranslationClient,
+  type MinimalGoogleCloudTranslationClient,
   parseVendoredTranslations,
-  VendoredTranslations,
+  type VendoredTranslations,
   stripImagesFromRichText,
   restoreImagesInTranslation,
 } from '@votingworks/backend';
-import { NonEnglishLanguageCode } from '@votingworks/types';
-import { Store } from './store.js';
+import type { NonEnglishLanguageCode } from '@votingworks/types';
+import type { Store } from './store.js';
 import { TranslationSourceCounts } from './translation_source_counts.js';
 import { isValidPrimaryKey } from './utils.js';
 

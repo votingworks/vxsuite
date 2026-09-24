@@ -3,12 +3,15 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
-import { constructElectionKey, ElectionDefinition } from '@votingworks/types';
+import {
+  constructElectionKey,
+  type ElectionDefinition,
+} from '@votingworks/types';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { render, screen, within } from '../test/react_testing_library.js';
 import { App } from './app.js';
-import { ApiMock, createApiMock } from '../test/mock_api_client.js';
+import { type ApiMock, createApiMock } from '../test/mock_api_client.js';
 
 let apiMock: ApiMock;
 let unmount: () => void = () => {

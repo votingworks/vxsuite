@@ -1,8 +1,8 @@
 import { appStrings, P } from '@votingworks/ui';
-import { InsertedSmartCardAuth } from '@votingworks/types';
+import type { InsertedSmartCardAuth } from '@votingworks/types';
 import { AskPollWorkerPage } from './ask_poll_worker_page.js';
 import {
-  JamClearedState,
+  type JamClearedState,
   ReplaceJammedSheetScreen,
 } from './replace_jammed_sheet_screen.js';
 

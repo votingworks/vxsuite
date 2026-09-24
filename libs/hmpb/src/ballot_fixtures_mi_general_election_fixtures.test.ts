@@ -2,7 +2,7 @@ import { afterAll, beforeAll, test, vi } from 'vitest';
 import { expectToMatchSavedPdf } from '../test/helpers.js';
 import { miGeneralElectionFixtures } from './ballot_fixtures.js';
 import { createPlaywrightRendererPool } from './playwright_renderer.js';
-import { RendererPool } from './renderer.js';
+import type { RendererPool } from './renderer.js';
 
 vi.setConfig({
   testTimeout: 20_000,

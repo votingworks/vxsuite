@@ -7,7 +7,10 @@
 // - Optimized for use on block elements; doesn't handle inline elements without
 //   additional custom styling.
 
-import styled, { css, FlattenSimpleInterpolation } from 'styled-components';
+import styled, {
+  css,
+  type FlattenSimpleInterpolation,
+} from 'styled-components';
 
 export interface TooltipProps {
   attachTo?: TooltipAttach;

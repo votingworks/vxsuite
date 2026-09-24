@@ -1,4 +1,4 @@
-import { UiStringTranslations } from '@votingworks/types';
+import type { UiStringTranslations } from '@votingworks/types';
 
 /**
  * The maximum number for which we generate audio.

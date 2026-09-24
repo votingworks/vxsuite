@@ -2,7 +2,7 @@ import { test, expect, vi } from 'vitest';
 import { sleep } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
-import {
+import type {
   Voter,
   VoterAddressChangeRequest,
   VoterNameChangeRequest,

@@ -1,4 +1,4 @@
-import { Browser, chromium } from 'playwright';
+import { type Browser, chromium } from 'playwright';
 
 // This module deliberately imports nothing from `@votingworks/*`. Test setup
 // files import it eagerly to register browser cleanup, and a setup file runs

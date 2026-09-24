@@ -2,7 +2,7 @@ import { beforeEach, afterEach, test, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { err } from '@votingworks/basics';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   provideApi,
 } from '../../../test/helpers/mock_api_client.js';

@@ -1,7 +1,14 @@
-import { Optional, assert, err, iter, ok, sleep } from '@votingworks/basics';
+import {
+  type Optional,
+  assert,
+  err,
+  iter,
+  ok,
+  sleep,
+} from '@votingworks/basics';
 import { writeImageData } from '@votingworks/image-utils';
-import { RgbaImageData } from '@votingworks/types';
-import { LogEventId, Logger } from '@votingworks/logging';
+import type { RgbaImageData } from '@votingworks/types';
+import { LogEventId, type Logger } from '@votingworks/logging';
 import { Buffer } from 'node:buffer';
 import {
   existsSync,
@@ -16,7 +23,7 @@ import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { getMockStateRootDir } from '@votingworks/utils';
 import { logPrinterStatusIfChanged } from '../logging.js';
-import {
+import type {
   FujitsuThermalPrinterInterface,
   PrintResult,
   PrinterStatus,

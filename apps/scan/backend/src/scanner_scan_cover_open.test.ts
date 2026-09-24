@@ -3,8 +3,8 @@ import {
   getFeatureFlagMock,
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
-import { Result, deferred, err, ok } from '@votingworks/basics';
-import { mockScannerStatus, ScannerError } from '@votingworks/pdi-scanner';
+import { type Result, deferred, err, ok } from '@votingworks/basics';
+import { mockScannerStatus, type ScannerError } from '@votingworks/pdi-scanner';
 import { configureApp, waitForStatus } from '../test/helpers/shared_helpers.js';
 import { delays } from './scanner.js';
 import { withApp } from '../test/helpers/scanner_helpers.js';

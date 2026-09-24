@@ -1,7 +1,7 @@
 import { css } from 'styled-components';
 import { Buffer } from 'node:buffer';
 
-import { ColorMode } from '@votingworks/types';
+import type { ColorMode } from '@votingworks/types';
 import { styled } from './styled.js';
 
 const DARK_COLOR_MODES: ReadonlySet<ColorMode> = new Set<ColorMode>([

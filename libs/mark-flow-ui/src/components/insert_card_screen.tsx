@@ -1,5 +1,5 @@
 import React from 'react';
-import { ElectionDefinition, PollsState } from '@votingworks/types';
+import type { ElectionDefinition, PollsState } from '@votingworks/types';
 import {
   Main,
   Screen,
@@ -8,7 +8,7 @@ import {
   H1,
   P,
   TestModeBanner,
-  CardInsertionDirection,
+  type CardInsertionDirection,
 } from '@votingworks/ui';
 
 import { throwIllegalValue } from '@votingworks/basics';

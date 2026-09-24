@@ -1,4 +1,4 @@
-import {
+import type {
   IppMarkerInfo,
   PrinterConfig,
   PrinterRichStatus,

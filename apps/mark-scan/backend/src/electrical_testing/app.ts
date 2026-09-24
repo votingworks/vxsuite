@@ -1,13 +1,13 @@
 import {
   createSystemCallApi,
   getCpuMetrics,
-  CpuMetrics,
+  type CpuMetrics,
 } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
-import { SignedHashValidationQrCodeValue } from '@votingworks/types';
+import type { SignedHashValidationQrCodeValue } from '@votingworks/types';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
-import express, { Application } from 'express';
-import { ServerContext } from './context.js';
+import express, { type Application } from 'express';
+import type { ServerContext } from './context.js';
 import { getMachineConfig } from '../machine_config.js';
 
 function buildApi({

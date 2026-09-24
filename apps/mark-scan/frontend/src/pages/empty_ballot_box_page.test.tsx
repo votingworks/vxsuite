@@ -2,7 +2,10 @@ import { afterEach, beforeEach, test } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { render } from '../../test/test_utils.js';
-import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  createApiMock,
+  type ApiMock,
+} from '../../test/helpers/mock_api_client.js';
 import { screen } from '../../test/react_testing_library.js';
 import { EmptyBallotBoxPage } from './empty_ballot_box_page.js';
 import {

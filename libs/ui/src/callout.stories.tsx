@@ -2,7 +2,7 @@ import type { Meta } from '@storybook/react-vite' with {
   'resolution-mode': 'import',
 };
 
-import { Callout as Component, CalloutProps as Props } from './callout.js';
+import { Callout as Component, type CalloutProps as Props } from './callout.js';
 
 const initialProps: Props = {
   icon: 'Info',

@@ -1,10 +1,10 @@
-import { createMemoryHistory, MemoryHistory } from 'history';
-import React from 'react';
+import { createMemoryHistory, type MemoryHistory } from 'history';
+import type React from 'react';
 import { Router } from 'react-router-dom';
 
-import { DippedSmartCardAuth, DEV_MACHINE_ID } from '@votingworks/types';
+import { type DippedSmartCardAuth, DEV_MACHINE_ID } from '@votingworks/types';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { type QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { MachineConfig } from '@votingworks/admin-backend';
 import {
   mockUsbDriveStatus,
@@ -12,18 +12,21 @@ import {
   TestErrorBoundary,
 } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { render as testRender, RenderResult } from './react_testing_library.js';
+import {
+  render as testRender,
+  type RenderResult,
+} from './react_testing_library.js';
 import {
   AppContext,
-  AppContextInterface,
+  type AppContextInterface,
 } from '../src/contexts/app_context.js';
 import {
-  ApiClient as ClientApiClient,
+  type ApiClient as ClientApiClient,
   ApiClientContext as ClientApiClientContext,
   createQueryClient,
 } from '../src/client/api.js';
 import { SharedApiClientContext, systemCallApi } from '../src/shared_api.js';
-import { ClientApiMock } from './helpers/mock_client_api_client.js';
+import type { ClientApiMock } from './helpers/mock_client_api_client.js';
 
 export interface RenderInClientContextParams {
   route?: string;

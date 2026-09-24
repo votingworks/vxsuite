@@ -3,14 +3,14 @@ import type {
   ElectionInfo,
   StateFeaturesConfig,
   UserFeaturesConfig,
+  ResultsReportingPath,
 } from '@votingworks/design-backend';
-import { ResultsReportingPath } from '@votingworks/design-backend';
-import {
+import type {
   ElectionId,
   ElectionStringKey,
   SystemSettings,
 } from '@votingworks/types';
-import { Route } from '@votingworks/ui';
+import type { Route } from '@votingworks/ui';
 
 export const resultsRoutes = {
   root: {

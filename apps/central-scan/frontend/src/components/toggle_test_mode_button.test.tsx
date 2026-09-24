@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { render, screen, within } from '../../test/react_testing_library.js';
 import { ToggleTestModeButton } from './toggle_test_mode_button.js';
-import { ApiMock, createApiMock, provideApi } from '../../test/api.js';
+import { type ApiMock, createApiMock, provideApi } from '../../test/api.js';
 import { mockStatus } from '../../test/fixtures.js';
 
 let apiMock: ApiMock;

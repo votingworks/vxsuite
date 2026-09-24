@@ -1,4 +1,4 @@
-import * as grout from '@votingworks/grout';
+import type * as grout from '@votingworks/grout';
 import type { Api } from '@votingworks/dev-dock-backend';
 import React from 'react';
 

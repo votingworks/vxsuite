@@ -1,7 +1,7 @@
 import { test } from 'vitest';
 import { render, screen } from '../test/react_testing_library.js';
 
-import { InvalidCardScreen, Props } from './invalid_card_screen.js';
+import { InvalidCardScreen, type Props } from './invalid_card_screen.js';
 
 const testCases: Array<{
   description: string;

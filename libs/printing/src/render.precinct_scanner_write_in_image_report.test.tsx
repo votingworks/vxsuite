@@ -4,7 +4,7 @@ import {
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
-  ContestWriteIns,
+  type ContestWriteIns,
   PrecinctScannerWriteInImageReport,
 } from '@votingworks/ui';
 import { anyPollingPlace } from '@votingworks/types';

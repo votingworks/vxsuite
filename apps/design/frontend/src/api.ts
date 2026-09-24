@@ -1,5 +1,5 @@
 import React from 'react';
-import {
+import type {
   Api,
   AuthErrorCode,
   ElectionUpload,
@@ -8,12 +8,12 @@ import type { NhStateBallotVariant } from '@votingworks/hmpb';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
-  QueryKey,
+  type QueryKey,
   useMutation,
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import {
+import type {
   BallotMode,
   BallotStyleId,
   BallotType,

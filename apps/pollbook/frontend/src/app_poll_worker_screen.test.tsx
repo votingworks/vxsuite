@@ -1,17 +1,17 @@
 import { describe, expect, test, beforeEach, afterEach, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { Voter, Election, ElectionDefinition } from '@votingworks/types';
+import type { Voter, Election, ElectionDefinition } from '@votingworks/types';
 import {
   electionFamousNames2021Fixtures,
   electionSimpleSinglePrecinctFixtures,
   readMultiPartyPrimaryElection,
   readMultiPartyPrimaryElectionDefinition,
 } from '@votingworks/fixtures';
-import { VoterCheckInError } from '@votingworks/pollbook-backend';
+import type { VoterCheckInError } from '@votingworks/pollbook-backend';
 import { act, render, screen, within } from '../test/react_testing_library.js';
 import { App } from './app.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   createMockVoter,
 } from '../test/mock_api_client.js';

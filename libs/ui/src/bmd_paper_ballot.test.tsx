@@ -1,12 +1,12 @@
 import { describe, expect, test, vi } from 'vitest';
 import {
-  BallotStyleId,
-  Candidate,
-  CandidateContest,
-  ElectionDefinition,
+  type BallotStyleId,
+  type Candidate,
+  type CandidateContest,
+  type ElectionDefinition,
   getBallotStyle,
   getContests,
-  PrecinctId,
+  type PrecinctId,
   vote,
 } from '@votingworks/types';
 import {
@@ -25,11 +25,11 @@ import { assertDefined, find } from '@votingworks/basics';
 import { render, screen, within } from '../test/react_testing_library.js';
 import {
   ORDERED_BMD_BALLOT_LAYOUTS,
-  MachineType,
+  type MachineType,
   BmdPaperBallot,
   MAX_MARK_SCAN_TOP_MARGIN,
-  BmdBallotSheetSize,
-  Layout,
+  type BmdBallotSheetSize,
+  type Layout,
   getLayout,
   NoLayoutOptionError,
   MAX_WRITE_IN_CHARS_FOR_HIGH_DENSITY_QR,

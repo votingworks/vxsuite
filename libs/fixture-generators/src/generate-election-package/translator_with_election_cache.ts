@@ -1,17 +1,17 @@
 import makeDebug from 'debug';
 import {
   GoogleCloudTranslator,
-  MinimalGoogleCloudTranslationClient,
-  ParsedElectionPackage,
+  type MinimalGoogleCloudTranslationClient,
+  type ParsedElectionPackage,
   parseVendoredTranslations,
-  VendoredTranslations,
+  type VendoredTranslations,
 } from '@votingworks/backend';
 import {
-  Dictionary,
+  type Dictionary,
   LanguageCode,
   mergeUiStrings,
-  NonEnglishLanguageCode,
-  UiStringsPackage,
+  type NonEnglishLanguageCode,
+  type UiStringsPackage,
 } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
 

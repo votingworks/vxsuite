@@ -1,7 +1,7 @@
 import { assert, assertDefined } from '@votingworks/basics';
-import { Outset, Rect } from './geometry.js';
-import { Id } from './generic.js';
-import {
+import type { Outset, Rect } from './geometry.js';
+import type { Id } from './generic.js';
+import type {
   ContestId,
   ContestOptionPosition,
   ContestPosition,

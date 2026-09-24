@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import styled from 'styled-components';
 
 import { Button, Card, Font, H3, H4, Icons, Modal, P } from '@votingworks/ui';
@@ -9,7 +9,7 @@ import type {
   CvrFileMode,
 } from '@votingworks/admin-backend';
 import { throwIllegalValue } from '@votingworks/basics';
-import { CvrImporter, useCvrImporter } from './cvr_importer.js';
+import { type CvrImporter, useCvrImporter } from './cvr_importer.js';
 import { CvrUsbExports } from './cvr_usb_exports.js';
 import { BORDER_LIGHT, GAP } from './styles.js';
 

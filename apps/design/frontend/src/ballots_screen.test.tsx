@@ -2,14 +2,14 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import {
   HmpbBallotPaperSize,
-  ElectionId,
+  type ElectionId,
   DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
 import type { ElectionRecord } from '@votingworks/design-backend';
 import {
   provideApi,
   createMockApiClient,
-  MockApiClient,
+  type MockApiClient,
   jurisdiction,
   user,
   mockUserFeatures,

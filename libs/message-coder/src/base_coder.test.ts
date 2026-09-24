@@ -1,10 +1,10 @@
 import { expect, test } from 'vitest';
-import { Result, err, ok } from '@votingworks/basics';
+import { type Result, err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import * as fc from 'fast-check';
 import { BaseCoder } from './base_coder.js';
 import { bufferContainsBitOffset, toByteOffset } from './bits.js';
-import {
+import type {
   BitLength,
   CoderError,
   DecodeResult,

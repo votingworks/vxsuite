@@ -4,7 +4,7 @@ import { deepEqual } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
-  QueryKey,
+  type QueryKey,
   useMutation,
   useQuery,
   useQueryClient,
@@ -17,7 +17,7 @@ import {
   createSystemCallApi,
   createUiStringsApi,
 } from '@votingworks/ui';
-import { DiagnosticType } from '@votingworks/types';
+import type { DiagnosticType } from '@votingworks/types';
 
 const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
 export const INTERNAL_HARDWARE_POLLING_INTERVAL_MS = 3000;

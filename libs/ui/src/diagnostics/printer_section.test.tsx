@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import {
+import type {
   IppMarkerInfo,
   PrinterConfig,
   PrinterRichStatus,

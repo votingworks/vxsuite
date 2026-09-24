@@ -1,14 +1,14 @@
 import { afterAll, beforeAll, test } from 'vitest';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  Election,
-  Id,
-  SystemSettings,
+  type Election,
+  type Id,
+  type SystemSettings,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { Client as DbClient } from '@votingworks/db';
-import { Store } from '../src/store.js';
+import type { Store } from '../src/store.js';
 import {
   tabulateElectionResults,
   tabulateCastVoteRecords,

@@ -2,7 +2,7 @@ import { sleep } from '@votingworks/basics';
 import { readFileSync } from 'node:fs';
 import { LogSource, BaseLogger } from '@votingworks/logging';
 import { detectPrinter } from './printer.js';
-import { Printer } from './types.js';
+import type { Printer } from './types.js';
 
 async function printStatus(printer: Printer, stdout: NodeJS.WriteStream) {
   const status = await printer.status();

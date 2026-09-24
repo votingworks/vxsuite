@@ -1,12 +1,12 @@
 import React from 'react';
 import {
   AdjudicationReason,
-  ElectionDefinition,
-  AdjudicationReasonInfo,
-  OvervoteAdjudicationReasonInfo,
-  UndervoteAdjudicationReasonInfo,
-  Contest,
-  SystemSettings,
+  type ElectionDefinition,
+  type AdjudicationReasonInfo,
+  type OvervoteAdjudicationReasonInfo,
+  type UndervoteAdjudicationReasonInfo,
+  type Contest,
+  type SystemSettings,
 } from '@votingworks/types';
 import {
   Button,

@@ -10,10 +10,10 @@ import {
 } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
-  BackupError,
+  type BackupError,
   Client,
-  DbConnectionOptions,
-  Statement,
+  type DbConnectionOptions,
+  type Statement,
 } from './client.js';
 import { SchemaDigestMismatchError } from './schema_digest_mismatch_error.js';
 

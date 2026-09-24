@@ -3,30 +3,30 @@ import { makeTheme } from '../themes/make_theme.js';
 import { PrintedReport } from '../reports/layout.js';
 import { ReadinessReportHeader } from './report_header.js';
 import {
-  ConfigurationSectionProps,
+  type ConfigurationSectionProps,
   ConfigurationSection,
   MarkThresholdsSection,
-  MarkThresholdsSectionProps,
+  type MarkThresholdsSectionProps,
   PollingPlaceSection,
-  PollingPlaceSectionProps,
+  type PollingPlaceSectionProps,
 } from './configuration_section.js';
 import { ReportContents } from './components.js';
 import {
   ThermalPrinterSection,
-  ThermalPrinterSectionProps,
+  type ThermalPrinterSectionProps,
 } from './thermal_printer_section.js';
-import { StorageSection, StorageSectionProps } from './storage_section.js';
+import { StorageSection, type StorageSectionProps } from './storage_section.js';
 import {
   ScanAudioSection,
-  ScanAudioSectionProps,
+  type ScanAudioSectionProps,
 } from './scan_audio_section.js';
 import {
   PrecinctScannerSection,
-  PrecinctScannerSectionProps,
+  type PrecinctScannerSectionProps,
 } from './precinct_scanner_section.js';
 import {
   UninterruptiblePowerSupplySection,
-  UpsSectionProps,
+  type UpsSectionProps,
 } from './uninterruptible_power_supply_section.js';
 
 type ReportContentsProps = ConfigurationSectionProps &

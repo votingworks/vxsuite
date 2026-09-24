@@ -2,36 +2,42 @@ import { Buffer } from 'node:buffer';
 import { randomUUID as uuid } from 'node:crypto';
 import * as fs from 'node:fs/promises';
 import path from 'node:path';
-import { assert, assertDefined, err, ok, Result } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  err,
+  ok,
+  type Result,
+} from '@votingworks/basics';
 import {
   inMemoryFileSource,
   readCastVoteRecordFromSource,
 } from '@votingworks/backend';
-import { BaseLogger, LogEventId } from '@votingworks/logging';
+import { type BaseLogger, LogEventId } from '@votingworks/logging';
 import type {
   CvrTransferManifest,
   FinishCvrTransferError,
   StartCvrTransferError,
 } from '@votingworks/networking';
 import {
-  BallotId,
-  BallotPageLayout,
+  type BallotId,
+  type BallotPageLayout,
   safeParseJson,
-  Side,
-  Tabulation,
+  type Side,
+  type Tabulation,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
 import { getEntries, getEntryStream, openZip } from '@votingworks/utils';
 import {
   prepareCastVoteRecord,
-  PreparedCastVoteRecord,
+  type PreparedCastVoteRecord,
   shouldStoreBallotImages,
 } from './cast_vote_records.js';
 import { getMachineConfig } from './machine_config.js';
-import { Store } from './store.js';
-import { CastVoteRecordAdjudicationFlags, CvrFileMode } from './types.js';
+import type { Store } from './store.js';
+import type { CastVoteRecordAdjudicationFlags, CvrFileMode } from './types.js';
 import { rootDebug } from './util/debug.js';
-import { Workspace } from './util/workspace.js';
+import type { Workspace } from './util/workspace.js';
 
 const debug = rootDebug.extend('network-cvr-transfer');
 

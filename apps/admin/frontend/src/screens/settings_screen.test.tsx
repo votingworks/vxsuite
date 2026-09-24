@@ -1,12 +1,15 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { BooleanEnvironmentVariableName } from '@votingworks/utils';
+import type { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { DippedSmartCardAuth, constructElectionKey } from '@votingworks/types';
+import {
+  type DippedSmartCardAuth,
+  constructElectionKey,
+} from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { ok } from '@votingworks/basics';
 import { screen, within } from '../../test/react_testing_library.js';
@@ -16,7 +19,10 @@ import {
   renderInAppContext,
 } from '../../test/render_in_app_context.js';
 import { SettingsScreen } from './settings_screen.js';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../../test/helpers/mock_api_client.js';
 
 const featureFlagMock = vi.hoisted(() => {
   // eslint-disable-next-line global-require

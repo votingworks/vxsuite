@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import {
-  BallotLanguageConfig,
+  type BallotLanguageConfig,
   getAllBallotLanguages,
   getBallotLanguageConfigs,
 } from './ballot_language_config.js';

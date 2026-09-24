@@ -10,7 +10,7 @@ import {
   within,
 } from '../../test/react_testing_library.js';
 import {
-  MockApiClient,
+  type MockApiClient,
   createMockApiClient,
   provideApi,
   jurisdiction,

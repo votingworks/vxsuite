@@ -11,16 +11,16 @@ import { LogEventId } from '@votingworks/logging';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   AdjudicationReason,
-  AdjudicationReasonInfo,
+  type AdjudicationReasonInfo,
   anyPollingPlace,
-  BallotMetadata,
+  type BallotMetadata,
   BallotType,
   convertVxfElectionToCdfBallotDefinition,
   DEV_MACHINE_ID,
-  InterpretedHmpbPage,
-  PageInterpretationWithFiles,
+  type InterpretedHmpbPage,
+  type PageInterpretationWithFiles,
   safeParseElectionDefinition,
-  SheetOf,
+  type SheetOf,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import {

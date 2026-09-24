@@ -1,5 +1,5 @@
-import { Client } from '@votingworks/db';
-import {
+import type { Client } from '@votingworks/db';
+import type {
   DiagnosticOutcome,
   DiagnosticRecord,
   DiagnosticType,

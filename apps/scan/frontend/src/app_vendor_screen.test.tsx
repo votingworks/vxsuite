@@ -8,11 +8,11 @@ import {
   within,
 } from '../test/react_testing_library.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   statusNoPaper,
 } from '../test/helpers/mock_api_client.js';
-import { App, AppProps } from './app.js';
+import { App, type AppProps } from './app.js';
 import { useSessionSettingsManager } from './utils/use_session_settings_manager.js';
 
 vi.mock('./utils/use_session_settings_manager');

@@ -1,9 +1,9 @@
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, type Result } from '@votingworks/basics';
 import { syncFilesystem } from '@votingworks/fs';
-import { Logger } from '@votingworks/logging';
+import type { Logger } from '@votingworks/logging';
 import { createWorkspace } from '../../util/workspace.js';
-import { BackupManifest } from '../backup_manifest.js';
-import { RestoreError } from './types.js';
+import type { BackupManifest } from '../backup_manifest.js';
+import type { RestoreError } from './types.js';
 
 /**
  * Verifies that the restored workspace holds what the manifest promised: a

@@ -1,8 +1,8 @@
-import React from 'react';
+import type React from 'react';
 import { getDeepValue } from './get_deep_value.js';
 import { useAudioContext } from './audio_context.js';
 import { useCurrentLanguage } from '../hooks/use_current_language.js';
-import { UiStringsReactQueryApi } from '../hooks/ui_strings_api.js';
+import type { UiStringsReactQueryApi } from '../hooks/ui_strings_api.js';
 
 export enum UiStringAudioDataAttributeName {
   I18N_KEY = 'data-i18n-key',

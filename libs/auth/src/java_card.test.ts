@@ -16,16 +16,16 @@ import {
   mockVendorUser,
 } from '@votingworks/test-utils';
 import {
-  Byte,
+  type Byte,
   constructElectionKey,
-  ProgrammingMachineType,
+  type ProgrammingMachineType,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 
 import {
   getTestFilePath,
   MockCardReader,
-  TestFileSetId,
+  type TestFileSetId,
   TestJavaCard,
 } from '../test/utils.js';
 import {
@@ -35,10 +35,14 @@ import {
   SELECT,
   STATUS_WORD,
 } from './apdu.js';
-import { CardDetails, CheckPinResponse, ProgrammableCard } from './card.js';
+import type {
+  CardDetails,
+  CheckPinResponse,
+  ProgrammableCard,
+} from './card.js';
 import { CardReader } from './card_reader.js';
-import { CardType } from './certs.js';
-import { JavaCardConfig } from './config.js';
+import type { CardType } from './certs.js';
+import type { JavaCardConfig } from './config.js';
 import {
   certDerToPem,
   createCert,

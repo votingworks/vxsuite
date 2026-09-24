@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { Election, ElectionDefinition } from '@votingworks/types';
+import type { Election, ElectionDefinition } from '@votingworks/types';
 import * as builders from '../builders.js';
 import { asElectionDefinition } from '../util.js';
 

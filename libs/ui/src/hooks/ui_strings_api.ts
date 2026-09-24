@@ -1,13 +1,13 @@
 import * as batcher from '@yornaath/batshit';
 
 import {
-  QueryClient,
-  QueryKey,
+  type QueryClient,
+  type QueryKey,
   useQueries,
   useQuery,
 } from '@tanstack/react-query';
 import type { UiStringsApiMethods } from '@votingworks/backend';
-import * as grout from '@votingworks/grout';
+import type * as grout from '@votingworks/grout';
 import { assertDefined } from '@votingworks/basics';
 
 export type UiStringsApiClient = grout.Client<grout.Api<UiStringsApiMethods>>;

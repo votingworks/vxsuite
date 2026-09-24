@@ -6,9 +6,9 @@ import {
 } from '@votingworks/fixtures';
 import {
   anyPollingPlace,
-  ElectionDefinition,
+  type ElectionDefinition,
   formatElectionHashes,
-  InsertedSmartCardAuth,
+  type InsertedSmartCardAuth,
 } from '@votingworks/types';
 
 import {
@@ -18,7 +18,7 @@ import {
 import userEvent from '@testing-library/user-event';
 
 import { assertDefined, DateWithoutTime } from '@votingworks/basics';
-import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
+import type { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import { pollWorkerComponents } from '@votingworks/mark-flow-ui';
 import {
   act,
@@ -31,10 +31,13 @@ import { render } from '../../test/test_utils.js';
 
 import {
   PollWorkerScreen,
-  PollworkerScreenProps,
+  type PollworkerScreenProps,
 } from './poll_worker_screen.js';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config.js';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../../test/helpers/mock_api_client.js';
 import {
   mockCardlessVoterAuth,
   mockPollWorkerAuth,

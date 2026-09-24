@@ -1,4 +1,4 @@
-import { useQueryClient, UseQueryResult } from '@tanstack/react-query';
+import { useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { deferred, sleep } from '@votingworks/basics';
 import { useEffect } from 'react';

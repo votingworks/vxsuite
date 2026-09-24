@@ -10,7 +10,7 @@ import {
 } from '@votingworks/ui';
 import {
   QueryClient,
-  QueryKey,
+  type QueryKey,
   useMutation,
   useQuery,
   useQueryClient,

@@ -9,7 +9,7 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { BLANK_PAGE_IMAGE_DATA, loadImageData } from '@votingworks/image-utils';
 import {
   DEFAULT_MARK_THRESHOLDS,
-  ElectionDefinition,
+  type ElectionDefinition,
   asSheet,
 } from '@votingworks/types';
 import { pdfToPageImages } from '../test/helpers/interpretation.js';

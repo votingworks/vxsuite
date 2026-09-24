@@ -1,5 +1,5 @@
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { PrinterStatus } from '@votingworks/fujitsu-thermal-printer';
+import type { PrinterStatus } from '@votingworks/fujitsu-thermal-printer';
 
 export function testPrintFailureDiagnosticMessage(
   failureStatus: PrinterStatus

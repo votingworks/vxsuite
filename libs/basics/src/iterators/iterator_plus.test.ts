@@ -3,7 +3,7 @@ import { expect, expectTypeOf, test, vi } from 'vitest';
 import { integers } from './integers.js';
 import { iter } from './iter.js';
 import { naturals } from './naturals.js';
-import { IteratorPlus } from './types.js';
+import type { IteratorPlus } from './types.js';
 
 test('map', () => {
   expect(iter([]).map(Boolean).toArray()).toEqual([]);

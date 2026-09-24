@@ -13,7 +13,7 @@ import type {
   CvrFileMode,
 } from '@votingworks/admin-backend';
 import { Button } from '@votingworks/ui';
-import { ElectionDefinition } from '@votingworks/types';
+import type { ElectionDefinition } from '@votingworks/types';
 
 import { AppContext } from '../../contexts/app_context.js';
 import * as api from '../../api.js';

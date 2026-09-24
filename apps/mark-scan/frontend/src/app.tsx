@@ -1,4 +1,4 @@
-import { QueryClient } from '@tanstack/react-query';
+import type { QueryClient } from '@tanstack/react-query';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import {
   AppErrorBoundary,
@@ -6,7 +6,7 @@ import {
   VisualModeDisabledOverlay,
 } from '@votingworks/ui';
 import { BrowserRouter } from 'react-router-dom';
-import { ApiClient, createApiClient, createQueryClient } from './api.js';
+import { type ApiClient, createApiClient, createQueryClient } from './api.js';
 import { ApiProvider } from './api_provider.js';
 import { AppRoot } from './app_root.js';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker.js';

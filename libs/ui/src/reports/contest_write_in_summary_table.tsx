@@ -1,7 +1,7 @@
 import {
-  Election,
+  type Election,
   getContestDistrictName,
-  Tabulation,
+  type Tabulation,
 } from '@votingworks/types';
 
 import { find } from '@votingworks/basics';
@@ -9,7 +9,7 @@ import pluralize from 'pluralize';
 import { format } from '@votingworks/utils';
 import { styled } from '../styled.js';
 import { TD } from '../table.js';
-import { Caption, Font, FontProps } from '../typography.js';
+import { Caption, Font, type FontProps } from '../typography.js';
 import { reportColors } from './layout.js';
 
 const Contest = styled.div`

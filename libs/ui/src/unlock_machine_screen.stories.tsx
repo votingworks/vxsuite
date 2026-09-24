@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite' with {
   'resolution-mode': 'import',
 };
-import React from 'react';
+import type React from 'react';
 
 import { DateWithoutTime } from '@votingworks/basics';
 import {

@@ -5,13 +5,13 @@ import {
 } from '@votingworks/fixtures';
 import {
   anyPollingPlace,
-  BallotStyleId,
+  type BallotStyleId,
   constructElectionKey,
   DEFAULT_SYSTEM_SETTINGS,
-  ElectionDefinition,
+  type ElectionDefinition,
   formatElectionHashes,
-  InsertedSmartCardAuth,
-  PrecinctId,
+  type InsertedSmartCardAuth,
+  type PrecinctId,
 } from '@votingworks/types';
 
 import {
@@ -21,7 +21,7 @@ import {
 import userEvent from '@testing-library/user-event';
 
 import { assertDefined, DateWithoutTime, err } from '@votingworks/basics';
-import { QueryClient } from '@tanstack/react-query';
+import type { QueryClient } from '@tanstack/react-query';
 import {
   format,
   getMockMultiLanguageElectionDefinition,
@@ -40,11 +40,11 @@ import { render } from '../../test/test_utils.js';
 
 import {
   PollWorkerScreen,
-  PollworkerScreenProps,
+  type PollworkerScreenProps,
 } from './poll_worker_screen.js';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   MOCK_PRINT_JOB_ID,
 } from '../../test/helpers/mock_api_client.js';

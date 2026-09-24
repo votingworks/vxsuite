@@ -6,7 +6,7 @@ import { withRoute } from '../test/routing_helpers.js';
 import {
   createMockApiClient,
   jurisdiction,
-  MockApiClient,
+  type MockApiClient,
   mockStateFeatures,
   mockUserFeatures,
   provideApi,

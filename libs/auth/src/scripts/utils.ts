@@ -1,13 +1,13 @@
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 import { assert, sleep, throwIllegalValue } from '@votingworks/basics';
-import { SystemAdministratorUser, VendorUser } from '@votingworks/types';
+import type { SystemAdministratorUser, VendorUser } from '@votingworks/types';
 import { generatePin, hyphenatePin } from '@votingworks/utils';
 
 import { ResponseApduError } from '../apdu.js';
-import { CardStatusReady, StatefulCard } from '../card.js';
+import type { CardStatusReady, StatefulCard } from '../card.js';
 import { STANDARD_CERT_FIELDS } from '../certs.js';
 import { openssl } from '../cryptography.js';
-import { JavaCard } from '../java_card.js';
+import type { JavaCard } from '../java_card.js';
 
 /**
  * Generates an ECC private key and returns the private key contents in a buffer. The key is not

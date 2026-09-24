@@ -3,12 +3,12 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { screen } from '@testing-library/react';
 import { render } from '../../test/react_testing_library.js';
 import {
-  AdminContestWriteIns,
+  type AdminContestWriteIns,
   AdminWriteInImageReport,
-  AdminWriteInImageReportProps,
-  CandidateGroupWriteIns,
+  type AdminWriteInImageReportProps,
+  type CandidateGroupWriteIns,
 } from './admin_write_in_image_report.js';
-import { WriteInEntry } from './precinct_scanner_write_in_image_report.js';
+import type { WriteInEntry } from './precinct_scanner_write_in_image_report.js';
 
 vi.mock(import('@votingworks/types'), async (importActual) => {
   const original = await importActual();

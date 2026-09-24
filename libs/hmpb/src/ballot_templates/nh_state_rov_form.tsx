@@ -4,22 +4,22 @@ import { assertDefined, find, range } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import {
   ballotPaperDimensions,
-  BallotStyle,
-  Candidate,
-  CandidateContest,
-  Election,
+  type BallotStyle,
+  type Candidate,
+  type CandidateContest,
+  type Election,
   getContests,
   getOrderedCandidatesForContestInBallotStyle,
   getPrecinctById,
-  HmpbBallotPaperSize,
-  Party,
-  PartyId,
-  PrecinctId,
+  type HmpbBallotPaperSize,
+  type Party,
+  type PartyId,
+  type PrecinctId,
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 import { CandidatePartyList, SignatureLine, SignatureX } from '@votingworks/ui';
 import { styled } from '../styled.js';
-import { RenderDocument, Renderer } from '../renderer.js';
+import type { RenderDocument, Renderer } from '../renderer.js';
 import { BaseStyles } from '../base_styles.js';
 import {
   Colors,
@@ -28,7 +28,7 @@ import {
   pageMarginsInches,
 } from '../ballot_components.js';
 import {
-  ColorTint,
+  type ColorTint,
   colorTintForParty,
   ColorTints,
 } from './nh_state_primary_ballot_template.js';

@@ -1,5 +1,5 @@
 import { Buffer } from 'node:buffer';
-import { FileHandle } from 'node:fs/promises';
+import type { FileHandle } from 'node:fs/promises';
 import { FileExceedsMaxSizeError } from './file_exceeds_max_size_error.js';
 import { ReadChunkError } from './read_chunk_error.js';
 

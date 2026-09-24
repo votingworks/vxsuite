@@ -1,21 +1,24 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
-  BooleanEnvironmentVariableName as Feature,
+  type BooleanEnvironmentVariableName as Feature,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { formatElectionHashes, PollsState } from '@votingworks/types';
-import { LocationPicker, LocationPickerProps } from '@votingworks/mark-flow-ui';
+import { formatElectionHashes, type PollsState } from '@votingworks/types';
+import {
+  LocationPicker,
+  type LocationPickerProps,
+} from '@votingworks/mark-flow-ui';
 import { assertDefined } from '@votingworks/basics';
 import { act, screen, within } from '../../test/react_testing_library.js';
 import { render } from '../../test/test_utils.js';
 import { electionDefinition, election } from '../../test/helpers/election.js';
 
-import { AdminScreen, AdminScreenProps } from './admin_screen.js';
+import { AdminScreen, type AdminScreenProps } from './admin_screen.js';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   provideApi,
 } from '../../test/helpers/mock_api_client.js';

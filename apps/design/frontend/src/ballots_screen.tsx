@@ -14,7 +14,11 @@ import {
 } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import { find } from '@votingworks/basics';
-import { HmpbBallotPaperSize, ElectionId, hasSplits } from '@votingworks/types';
+import {
+  HmpbBallotPaperSize,
+  type ElectionId,
+  hasSplits,
+} from '@votingworks/types';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
@@ -32,7 +36,11 @@ import {
 } from './api.js';
 import { Column, Form, FormActionsRow, NestedTr } from './layout.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
-import { ElectionIdParams, electionParamRoutes, routes } from './routes.js';
+import {
+  type ElectionIdParams,
+  electionParamRoutes,
+  routes,
+} from './routes.js';
 import { BallotScreen, paperSizeLabels } from './ballot_screen.js';
 import { useTitle } from './hooks/use_title.js';
 import { BallotsStatus } from './ballots_status.js';

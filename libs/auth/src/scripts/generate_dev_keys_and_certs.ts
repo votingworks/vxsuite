@@ -1,4 +1,4 @@
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 import * as fs from 'node:fs/promises';
 import path from 'node:path';
 import yargs from 'yargs/yargs';
@@ -7,23 +7,23 @@ import { readElection } from '@votingworks/fs';
 import {
   constructElectionKey,
   DEV_MACHINE_ID,
-  ElectionDefinition,
+  type ElectionDefinition,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 
-import { ProgrammedCardDetails } from '../card.js';
+import type { ProgrammedCardDetails } from '../card.js';
 import {
-  CardType,
+  type CardType,
   CERT_EXPIRY_IN_DAYS,
   constructCardCertSubject,
   constructCardCertSubjectWithoutJurisdictionAndCardType,
   constructMachineCertSubject,
-  MachineType,
+  type MachineType,
 } from '../certs.js';
 import {
   certPemToDer,
   createCert,
-  CreateCertInput,
+  type CreateCertInput,
   openssl,
   publicKeyPemToDer,
 } from '../cryptography.js';

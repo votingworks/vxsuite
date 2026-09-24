@@ -7,7 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { UsbPartitionMountpointSchema } from '@votingworks/usb-drive';
 import { screen } from '../test/react_testing_library.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   createMockVoter,
 } from '../test/mock_api_client.js';

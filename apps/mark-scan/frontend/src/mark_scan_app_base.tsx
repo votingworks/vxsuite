@@ -1,7 +1,7 @@
-import React from 'react';
+import type React from 'react';
 
 import { AppBase } from '@votingworks/ui';
-import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
+import type { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,

@@ -5,11 +5,14 @@ import {
   Button,
   Callout,
   FileInputButton,
-  FileInputButtonProps,
+  type FileInputButtonProps,
 } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
-import React, { useEffect, useRef, useState } from 'react';
-import { NormalizeParams, normalizeImageToSvg } from './image_normalization.js';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
+import {
+  type NormalizeParams,
+  normalizeImageToSvg,
+} from './image_normalization.js';
 
 const MAX_IMAGE_UPLOAD_BYTES = 5 * 1_000 * 1_000; // 5 MB
 
@@ -97,7 +100,7 @@ export function ImageInputButton({
     inputRef.current?.setCustomValidity(msg);
   }
 
-  async function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) {
       return;

@@ -1,20 +1,23 @@
 import {
-  CheckInBallotParty,
+  type CheckInBallotParty,
   constructElectionKey,
-  DippedSmartCardAuth,
-  Election,
-  ElectionDefinition,
-  PartyAbbreviation,
-  ValidStreetInfo,
-  Voter,
-  VoterAddressChangeRequest,
-  VoterMailingAddressChangeRequest,
-  VoterNameChange,
-  VoterNameChangeRequest,
-  VoterRegistration,
-  VoterRegistrationRequest,
+  type DippedSmartCardAuth,
+  type Election,
+  type ElectionDefinition,
+  type PartyAbbreviation,
+  type ValidStreetInfo,
+  type Voter,
+  type VoterAddressChangeRequest,
+  type VoterMailingAddressChangeRequest,
+  type VoterNameChange,
+  type VoterNameChangeRequest,
+  type VoterRegistration,
+  type VoterRegistrationRequest,
 } from '@votingworks/types';
-import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
+import {
+  createMockClient,
+  type MockClient,
+} from '@votingworks/grout-test-utils';
 import type {
   AamvaDocument,
   Anomaly,
@@ -36,10 +39,10 @@ import {
 } from '@votingworks/test-utils';
 import type { BatteryInfo } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
-import { UsbDriveStatus } from '@votingworks/usb-drive';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { err, ok } from '@votingworks/basics';
-import { Mock, vi } from 'vitest';
+import { type Mock, vi } from 'vitest';
 import { CITIZEN_E351_PRINTER_CONFIG } from '@votingworks/printing';
 
 export const machineConfig: MachineConfig = {

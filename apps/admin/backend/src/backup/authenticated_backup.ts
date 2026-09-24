@@ -2,13 +2,13 @@ import { join } from 'node:path';
 import { rm } from 'node:fs/promises';
 import {
   VXADMIN_BACKUP_MANIFEST_FILE_NAME,
-  VxAdminCustomCertFields,
+  type VxAdminCustomCertFields,
 } from '@votingworks/auth';
-import { Result } from '@votingworks/basics';
-import { BackupManifest } from './backup_manifest.js';
+import type { Result } from '@votingworks/basics';
+import type { BackupManifest } from './backup_manifest.js';
 import {
   BackupManifestFile,
-  ReadManifestError,
+  type ReadManifestError,
 } from './backup_manifest_file.js';
 
 /**

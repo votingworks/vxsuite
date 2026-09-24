@@ -1,7 +1,7 @@
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import {
-  BlockDeviceChangeWatcher,
+  type BlockDeviceChangeWatcher,
   createBlockDeviceChangeWatcher,
   getAllDiskDevices,
 } from './block_devices.js';
@@ -12,7 +12,7 @@ import {
   UsbPartitionMountpointSchema,
 } from './types.js';
 import { RealUsbPlatform } from './usb_platform.js';
-import { UsbPlatformDrive } from './usb_platform_types.js';
+import type { UsbPlatformDrive } from './usb_platform_types.js';
 
 vi.mock(
   import('./exec.js'),

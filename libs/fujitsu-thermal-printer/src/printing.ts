@@ -1,19 +1,28 @@
-import { IteratorPlus, Result, assert, iter, ok } from '@votingworks/basics';
+import {
+  type IteratorPlus,
+  type Result,
+  assert,
+  iter,
+  ok,
+} from '@votingworks/basics';
 import {
   createImageData,
   pdfToImages,
   rgbToGrayscale,
 } from '@votingworks/image-utils';
-import { RgbaImageData } from '@votingworks/types';
+import type { RgbaImageData } from '@votingworks/types';
 import { BITS_PER_BYTE } from '@votingworks/message-coder';
 import { readFileSync } from 'node:fs';
-import {
+import type {
   FujitsuThermalPrinterDriver,
   FujitsuThermalPrinterDriverInterface,
 } from './driver/driver.js';
-import { CompressedBitImage, UncompressedBitImage } from './driver/types.js';
+import type {
+  CompressedBitImage,
+  UncompressedBitImage,
+} from './driver/types.js';
 import { rootDebug } from './debug.js';
-import { RawPrinterStatus } from './driver/index.js';
+import type { RawPrinterStatus } from './driver/index.js';
 import {
   IDLE_REPLY_PARAMETER,
   PRINT_ONGOING_REPLY_PARAMETER,

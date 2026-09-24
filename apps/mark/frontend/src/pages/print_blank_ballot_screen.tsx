@@ -1,13 +1,13 @@
 import React from 'react';
 
 import {
-  BallotStyleId,
-  Election,
-  ElectionDefinition,
+  type BallotStyleId,
+  type Election,
+  type ElectionDefinition,
   getConfiguredPrecinctsAndSplits,
-  LanguageCode,
-  PrecinctId,
-  PrintJobId,
+  type LanguageCode,
+  type PrecinctId,
+  type PrintJobId,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import {
@@ -15,7 +15,7 @@ import {
   getLanguageOptions,
   getRelatedBallotStyle,
 } from '@votingworks/utils';
-import { MachineConfig } from '@votingworks/mark-backend';
+import type { MachineConfig } from '@votingworks/mark-backend';
 import { pollWorkerComponents } from '@votingworks/mark-flow-ui';
 import {
   Button,

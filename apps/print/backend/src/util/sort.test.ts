@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { BallotPrintCount, LanguageCode } from '@votingworks/types';
+import { type BallotPrintCount, LanguageCode } from '@votingworks/types';
 import { sortBallotPrintCounts } from './sort.js';
 
 let ballotStyleCounter = 0;

@@ -1,5 +1,5 @@
-import { Election, MachineId, maybeParse } from '@votingworks/types';
-import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
+import { type Election, MachineId, maybeParse } from '@votingworks/types';
+import { assert, type Optional, throwIllegalValue } from '@votingworks/basics';
 import { DateTime } from 'luxon';
 
 const SECTION_SEPARATOR = '__';

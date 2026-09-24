@@ -9,7 +9,7 @@ import {
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import {
-  CVR,
+  type CVR,
   CVR as CVRType,
   CastVoteRecordExportFileName,
   DEV_MACHINE_ID,
@@ -26,14 +26,14 @@ import {
   mockSigningMachineCertFields,
 } from '@votingworks/auth';
 import {
-  CastVoteRecordExportModifications,
+  type CastVoteRecordExportModifications,
   combineImageAndLayoutHashes,
   getImageHash,
   getLayoutHash,
   modifyCastVoteRecordExport,
   readCastVoteRecordExportMetadata,
 } from '@votingworks/backend';
-import { MockFileTree, writeMockFileTree } from '@votingworks/usb-drive';
+import { type MockFileTree, writeMockFileTree } from '@votingworks/usb-drive';
 import {
   attachUsbDrive,
   buildTestEnvironment,
@@ -43,10 +43,10 @@ import {
   mockElectionManagerAuth,
 } from '../test/app.js';
 import {
-  ListCastVoteRecordExportsInDirectory,
+  type ListCastVoteRecordExportsInDirectory,
   listCastVoteRecordExportsInDirectory,
 } from './cast_vote_records.js';
-import { CastVoteRecordFileMetadata, CvrFileImportInfo } from './types.js';
+import type { CastVoteRecordFileMetadata, CvrFileImportInfo } from './types.js';
 
 const electionTwoPartyPrimaryDefinition =
   electionTwoPartyPrimaryFixtures.readElectionDefinition();

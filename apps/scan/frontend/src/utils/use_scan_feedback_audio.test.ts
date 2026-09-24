@@ -1,9 +1,9 @@
 import { expect, test, vi } from 'vitest';
 import {
   PRECINCT_SCANNER_STATES,
-  PrecinctScannerState,
+  type PrecinctScannerState,
 } from '@votingworks/types';
-import { SoundName } from '@votingworks/scan-backend';
+import type { SoundName } from '@votingworks/scan-backend';
 import { renderHook } from '../../test/react_testing_library.js';
 import { useScanFeedbackAudio } from './use_scan_feedback_audio.js';
 

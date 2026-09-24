@@ -10,9 +10,9 @@ import {
   SignedHashValidationButton,
   SystemAdministratorScreenContents,
 } from '@votingworks/ui';
-import { UsbDriveStatus } from '@votingworks/usb-drive';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import type { MachineConfig } from '@votingworks/mark-backend';
-import { ElectionDefinition } from '@votingworks/types';
+import type { ElectionDefinition } from '@votingworks/types';
 import { logOut, useApiClient } from '../api.js';
 import { DiagnosticsScreen } from './diagnostics_screen.js';
 

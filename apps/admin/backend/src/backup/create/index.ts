@@ -5,16 +5,16 @@ import {
   err,
   extractErrorMessage,
   ok,
-  Result,
+  type Result,
 } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
-import { CopyFileError, WriteFileError } from '@votingworks/fs';
-import { prepare, PrepareError } from './prepare_step.js';
-import { PrepareBackupOptions } from './types.js';
+import type { CopyFileError, WriteFileError } from '@votingworks/fs';
+import { prepare, type PrepareError } from './prepare_step.js';
+import type { PrepareBackupOptions } from './types.js';
 import { copy } from './copy_step.js';
 import { writeManifest } from './manifest_step.js';
-import { swap, SwapError } from './swap_step.js';
-import { BackupManifest } from '../backup_manifest.js';
+import { swap, type SwapError } from './swap_step.js';
+import type { BackupManifest } from '../backup_manifest.js';
 import { BackupRoot } from '../backup_root.js';
 
 /**

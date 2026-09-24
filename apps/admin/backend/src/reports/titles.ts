@@ -1,6 +1,10 @@
-import { Admin, ElectionDefinition, Tabulation } from '@votingworks/types';
 import {
-  Result,
+  type Admin,
+  type ElectionDefinition,
+  Tabulation,
+} from '@votingworks/types';
+import {
+  type Result,
   assertDefined,
   err,
   find,
@@ -8,7 +12,7 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import { CachedElectionLookups } from '@votingworks/utils';
-import { ScannerBatch } from '../types.js';
+import type { ScannerBatch } from '../types.js';
 
 const MANUAL_BATCH_REPORT_LABEL = 'Manual Tallies';
 

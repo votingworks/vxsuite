@@ -3,7 +3,7 @@ import {
   err,
   extractErrorMessage,
   ok,
-  Result,
+  type Result,
 } from '@votingworks/basics';
 import { open } from './open_file.js';
 import { napi } from './napi.js';

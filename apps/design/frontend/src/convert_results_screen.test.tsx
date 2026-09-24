@@ -9,7 +9,7 @@ import type {
 } from '@votingworks/design-backend';
 import {
   createMockApiClient,
-  MockApiClient,
+  type MockApiClient,
   mockUserFeatures,
   jurisdiction,
   provideApi,

@@ -3,13 +3,13 @@ import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
-  CandidateContest,
+  type CandidateContest,
   DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
 import { render, screen } from '../../test/react_testing_library.js';
-import { ScanWarningScreen, Props } from './scan_warning_screen.js';
+import { ScanWarningScreen, type Props } from './scan_warning_screen.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   provideApi,
   statusNoPaper,

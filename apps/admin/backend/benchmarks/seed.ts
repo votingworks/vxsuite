@@ -6,18 +6,18 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import {
-  BallotStyle,
+  type BallotStyle,
   DEFAULT_SYSTEM_SETTINGS,
-  Election,
-  Id,
-  Tabulation,
+  type Election,
+  type Id,
+  type Tabulation,
   getContests,
 } from '@votingworks/types';
 import { assert, assertDefined, iter, range } from '@votingworks/basics';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import {
   addMockCvrFileToStore,
-  MockCastVoteRecordFile,
+  type MockCastVoteRecordFile,
 } from '../test/mock_cvr_file.js';
 import { Store } from '../src/store.js';
 

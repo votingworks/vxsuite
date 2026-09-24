@@ -1,16 +1,16 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/require-await */
 import { expect, test, vi } from 'vitest';
-import { AddressInfo } from 'node:net';
+import type { AddressInfo } from 'node:net';
 import express from 'express';
-import { assert, err, ok, Result, sleep } from '@votingworks/basics';
+import { assert, err, ok, type Result, sleep } from '@votingworks/basics';
 import { expectTypeOf } from 'expect-type';
 import { createClient, ServerError } from './client.js';
 import {
-  AnyApi,
+  type AnyApi,
   buildRouter,
   createApi,
-  MiddlewareMethodCall,
+  type MiddlewareMethodCall,
   UserError,
 } from './server.js';
 

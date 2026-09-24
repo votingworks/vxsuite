@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { styled } from './styled.js';
 import { ProgressEllipsis } from './progress_ellipsis.js';
 
@@ -12,7 +12,7 @@ const Fullscreen = styled.div`
 `;
 
 interface LoadingProps {
-  children?: React.ReactNode;
+  children?: ReactNode;
   isFullscreen?: boolean;
   as?: keyof JSX.IntrinsicElements;
   animationDurationS?: number;

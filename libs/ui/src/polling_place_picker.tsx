@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import {
-  PollingPlace,
+  type PollingPlace,
   pollingPlaceGroups,
-  PollingPlaceType,
+  type PollingPlaceType,
   pollingPlaceTypeName,
 } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';

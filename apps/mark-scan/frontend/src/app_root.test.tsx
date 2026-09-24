@@ -9,7 +9,10 @@ import { PollWorkerScreen } from './pages/poll_worker_screen.js';
 import { VoterFlow } from './voter_flow.js';
 import { AppRoot, POLL_WORKER_AUTH_REQUIRED_STATES } from './app_root.js';
 import { render } from '../test/test_utils.js';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../test/helpers/mock_api_client.js';
 import {
   mockCardlessVoterLoggedInAuth,
   mockPollWorkerAuth,

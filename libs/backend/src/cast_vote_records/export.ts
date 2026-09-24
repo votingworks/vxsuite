@@ -5,9 +5,9 @@ import path from 'node:path';
 import {
   computeCastVoteRecordRootHashFromScratch,
   computeSingleCastVoteRecordHash,
-  HashableFile,
+  type HashableFile,
   prepareSignatureFile,
-  ReadableFile,
+  type ReadableFile,
   readableFileFromData,
   readableFileFromDisk,
 } from '@votingworks/auth';
@@ -16,30 +16,30 @@ import {
   assertDefined,
   err,
   ok,
-  Result,
+  type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
-  BallotCastingMode,
+  type BallotCastingMode,
   BallotIdSchema,
-  BatchInfo,
+  type BatchInfo,
   CastVoteRecordExportFileName,
-  CastVoteRecordExportMetadata,
-  CastVoteRecordReportWithoutMetadata,
+  type CastVoteRecordExportMetadata,
+  type CastVoteRecordReportWithoutMetadata,
   CVR,
-  ElectionDefinition,
-  ExportCastVoteRecordsToUsbDriveError,
-  Id,
+  type ElectionDefinition,
+  type ExportCastVoteRecordsToUsbDriveError,
+  type Id,
   mapSheet,
-  MarkThresholds,
-  PageInterpretation,
-  PollsState,
-  ScannerMachineType,
-  SheetOf,
-  SystemSettings,
+  type MarkThresholds,
+  type PageInterpretation,
+  type PollsState,
+  type ScannerMachineType,
+  type SheetOf,
+  type SystemSettings,
   unsafeParse,
 } from '@votingworks/types';
-import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
+import type { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   generateCastVoteRecordExportDirectoryName,
   generateElectionBasedSubfolderName,
@@ -52,13 +52,13 @@ import { Exporter } from '../exporter.js';
 import { getScanAllowedExportPatterns, getMachineId } from '../globals.js';
 import {
   buildCastVoteRecord as baseBuildCastVoteRecord,
-  CvrImageDataInput,
+  type CvrImageDataInput,
 } from './build_cast_vote_record.js';
 import {
   buildBatchManifest,
   buildCastVoteRecordReportMetadata as baseBuildCastVoteRecordReportMetadata,
 } from './build_report_metadata.js';
-import { CanonicalizedSheet, canonicalizeSheet } from './canonicalize.js';
+import { type CanonicalizedSheet, canonicalizeSheet } from './canonicalize.js';
 import {
   recoverAfterInterruptedCreationTimestampUpdate,
   updateCreationTimestampOfDirectoryAndChildrenFiles,

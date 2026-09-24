@@ -5,19 +5,17 @@ import {
   electionStraightPartyFixtures,
 } from '@votingworks/fixtures';
 import {
-  BallotStyleGroupId,
+  type BallotStyleGroupId,
   BallotType,
-  CandidateContestOption,
-  ContestId,
-  ContestOptionId,
-  ElectionDefinition,
-  Id,
-  Side,
-} from '@votingworks/types';
-import type {
-  BallotPageContestOptionLayout,
-  BallotPageLayout,
-  HmpbBallotPageMetadata,
+  type CandidateContestOption,
+  type ContestId,
+  type ContestOptionId,
+  type ElectionDefinition,
+  type Id,
+  type Side,
+  type BallotPageContestOptionLayout,
+  type BallotPageLayout,
+  type HmpbBallotPageMetadata,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import type {
@@ -40,7 +38,10 @@ import {
   within,
 } from '../../test/react_testing_library.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
-import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../../test/helpers/mock_api_client.js';
 import { ContestAdjudicationScreen } from './contest_adjudication_screen.js';
 import { MAX_WRITE_IN_NAME_LENGTH } from '../components/write_in_adjudication_button.js';
 import {

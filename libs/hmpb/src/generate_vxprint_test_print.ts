@@ -1,12 +1,12 @@
 import { DateWithoutTime } from '@votingworks/basics';
 import {
-  BallotStyleId,
+  type BallotStyleId,
   BallotType,
-  CandidateContest,
-  DistrictId,
-  Election,
+  type CandidateContest,
+  type DistrictId,
+  type Election,
   HmpbBallotPaperSize,
-  PrecinctId,
+  type PrecinctId,
 } from '@votingworks/types';
 import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';

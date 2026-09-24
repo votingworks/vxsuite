@@ -1,10 +1,16 @@
 import { z } from 'zod/v4';
 
-import { assertDefined, err, ok, Result, sleep } from '@votingworks/basics';
+import {
+  assertDefined,
+  err,
+  ok,
+  type Result,
+  sleep,
+} from '@votingworks/basics';
 import { safeParse, safeParseJson } from '@votingworks/types';
 
-import { LogEventId, Logger } from '@votingworks/logging';
-import { type NODE_ENV } from '../globals.js';
+import { LogEventId, type Logger } from '@votingworks/logging';
+import type { NODE_ENV } from '../globals.js';
 import { pactl } from './pulse_audio.js';
 
 const PactlListCardsSchema = z.array(z.object({ name: z.string() }));

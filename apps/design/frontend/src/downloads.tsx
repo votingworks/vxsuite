@@ -1,15 +1,15 @@
-import React from 'react';
+import type React from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { Button, Card, H3, P } from '@votingworks/ui';
 
-import {
+import type {
   MainExportTaskMetadata,
   TestDecksTaskMetadata,
 } from '@votingworks/design-backend';
 import * as api from './api.js';
-import { ElectionIdParams } from './routes.js';
+import type { ElectionIdParams } from './routes.js';
 import { downloadFile } from './utils.js';
 
 export const DownloadsContainer = styled.div`

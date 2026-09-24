@@ -1,11 +1,15 @@
-import * as grout from '@votingworks/grout';
-import { assert, Optional } from '@votingworks/basics';
-import type { ElectionKey, Id, SystemSettings } from '@votingworks/types';
-import { constructElectionKey } from '@votingworks/types';
+import type * as grout from '@votingworks/grout';
+import { assert, type Optional } from '@votingworks/basics';
+import {
+  type ElectionKey,
+  type Id,
+  type SystemSettings,
+  constructElectionKey,
+} from '@votingworks/types';
 import type { PeerApi } from './peer_app.js';
 import {
   ClientConnectionStatus,
-  ElectionRecord,
+  type ElectionRecord,
   type BaseStore,
 } from './types.js';
 

@@ -1,10 +1,10 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
-import { AddressInfo } from 'node:net';
+import type { AddressInfo } from 'node:net';
 import {
   DEV_MACHINE_ID,
-  SystemSettings,
+  type SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
 import {
@@ -15,18 +15,18 @@ import { err, ok, typedAs } from '@votingworks/basics';
 import {
   detectMultiUsbDrive,
   SimulatedUsbPlatform,
-  UsbDriveInfo,
-  UsbPartitionInfo,
+  type UsbDriveInfo,
+  type UsbPartitionInfo,
 } from '@votingworks/usb-drive';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import { buildClientApp, ClientApi } from './client_app.js';
+import { buildClientApp, type ClientApi } from './client_app.js';
 import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
 import type { PeerApi } from './peer_app.js';
 import { createClientWorkspace } from './util/workspace.js';
 import {
   ClientConnectionStatus,
-  ElectionRecord,
-  MachineMode,
+  type ElectionRecord,
+  type MachineMode,
 } from './types.js';
 
 import {

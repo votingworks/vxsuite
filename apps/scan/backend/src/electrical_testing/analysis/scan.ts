@@ -1,9 +1,9 @@
-import { TimingMarks } from '@votingworks/ballot-interpreter';
+import type { TimingMarks } from '@votingworks/ballot-interpreter';
 import { assert, extractErrorMessage } from '@votingworks/basics';
-import { LogEventId, Logger } from '@votingworks/logging';
-import { mapSheet, SheetOf } from '@votingworks/types';
+import { LogEventId, type Logger } from '@votingworks/logging';
+import { mapSheet, type SheetOf } from '@votingworks/types';
 import { exists } from 'fs-extra';
-import { DateTime } from 'luxon';
+import type { DateTime } from 'luxon';
 import { appendFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 

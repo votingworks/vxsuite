@@ -1,4 +1,11 @@
-import { afterEach, beforeEach, expect, MockInstance, test, vi } from 'vitest';
+import {
+  afterEach,
+  beforeEach,
+  expect,
+  type MockInstance,
+  test,
+  vi,
+} from 'vitest';
 import {
   assert,
   assertDefined,
@@ -17,7 +24,7 @@ import {
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import { suppressingConsoleOutput, zipFile } from '@votingworks/test-utils';
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   ELECTION_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
@@ -28,44 +35,44 @@ import {
 } from '@votingworks/utils';
 import { Buffer } from 'node:buffer';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
-import { Server } from 'node:http';
+import type { Server } from 'node:http';
 import * as grout from '@votingworks/grout';
 import {
-  CandidateVote,
+  type CandidateVote,
   DEFAULT_SYSTEM_SETTINGS,
   DEV_MACHINE_ID,
-  Election,
-  ElectionDefinition,
+  type Election,
+  type ElectionDefinition,
   ElectionStringKey,
   ElectionPackageFileName,
   HmpbBallotPaperSize,
   LATEST_METADATA,
-  UiStringsPackage,
-  VotesDict,
+  type UiStringsPackage,
+  type VotesDict,
   anyPollingPlace,
   convertVxfElectionToCdfBallotDefinition,
   safeParseElectionDefinition,
   safeParseSystemSettings,
 } from '@votingworks/types';
-import { MockUsbDrive } from '@votingworks/usb-drive';
-import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
-import { LogEventId, Logger, mockBaseLogger } from '@votingworks/logging';
-import { AddressInfo } from 'node:net';
-import { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
+import type { MockUsbDrive } from '@votingworks/usb-drive';
+import type { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
+import { LogEventId, type Logger, mockBaseLogger } from '@votingworks/logging';
+import type { AddressInfo } from 'node:net';
+import type { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
 import { BLANK_PAGE_IMAGE_DATA } from '@votingworks/image-utils';
 import * as backendLib from '@votingworks/backend';
 import {
   createApp,
   waitForStatus as waitForStatusHelper,
 } from '../test/app_helpers.js';
-import { Api, buildApp } from './app.js';
+import { type Api, buildApp } from './app.js';
 import {
   ACCEPTED_PAPER_TYPES,
   delays,
-  PaperHandlerStateMachine,
-  SimpleServerStatus,
+  type PaperHandlerStateMachine,
+  type SimpleServerStatus,
 } from './custom-paper-handler/index.js';
-import { ElectionState } from './types.js';
+import type { ElectionState } from './types.js';
 import {
   mockCardlessVoterAuth,
   mockElectionManagerAuth,

@@ -1,7 +1,7 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import {
   MockPaperHandlerDriver,
-  MockPaperHandlerStatus,
+  type MockPaperHandlerStatus,
   isMockPaperHandler,
 } from '@votingworks/custom-paper-handler';
 import { buildMockPaperHandlerApi } from './mock_paper_handler_api.js';

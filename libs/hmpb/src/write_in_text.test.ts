@@ -1,9 +1,9 @@
 import fs from 'node:fs';
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 import { join, relative } from 'node:path';
 import { beforeAll, describe, expect, test } from 'vitest';
 import fontKit from '@pdf-lib/fontkit';
-import { PDFDocument, PDFFont, rgb } from 'pdf-lib';
+import { PDFDocument, type PDFFont, rgb } from 'pdf-lib';
 import { pdfToImages, toImageBuffer } from '@votingworks/image-utils';
 import { assertDefined } from '@votingworks/basics';
 import {
@@ -19,7 +19,7 @@ import {
   fitWriteInText,
   WRITE_IN_FONT_SIZE_MAX,
   WRITE_IN_FONT_SIZE_MIN,
-  WriteInArea,
+  type WriteInArea,
   writeInLineBaselineOffset,
 } from './write_in_text.js';
 

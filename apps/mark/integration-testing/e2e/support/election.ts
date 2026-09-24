@@ -2,8 +2,12 @@ import {
   electionFamousNames2021Fixtures,
   electionGeneralFixtures,
 } from '@votingworks/fixtures';
-import type { Election, ElectionDefinition } from '@votingworks/types';
-import { LanguageCode, safeParseElectionDefinition } from '@votingworks/types';
+import {
+  type Election,
+  type ElectionDefinition,
+  LanguageCode,
+  safeParseElectionDefinition,
+} from '@votingworks/types';
 
 /** The famous-names election used by the screenshot tests. */
 export function getFamousNamesElectionDefinition(): ElectionDefinition {

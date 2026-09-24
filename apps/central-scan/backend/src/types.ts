@@ -1,4 +1,4 @@
-import { BallotPageLayout, BatchInfo, Id, Rect } from '@votingworks/types';
+import type { BallotPageLayout, BatchInfo, Id, Rect } from '@votingworks/types';
 
 export interface MachineConfig {
   machineId: string;

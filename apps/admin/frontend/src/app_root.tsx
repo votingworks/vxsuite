@@ -1,4 +1,4 @@
-import { DippedSmartCardAuth } from '@votingworks/types';
+import type { DippedSmartCardAuth } from '@votingworks/types';
 import { AppContext } from './contexts/app_context.js';
 import { AppRoutes } from './components/app_routes.js';
 import {

@@ -1,21 +1,21 @@
 import { DateWithoutTime } from '@votingworks/basics';
 import {
-  Election,
-  ElectionDefinition,
+  type Election,
+  type ElectionDefinition,
   HmpbBallotPaperSize,
-  ValidStreetInfo,
-  PartyAbbreviation,
-  Voter,
+  type ValidStreetInfo,
+  type PartyAbbreviation,
+  type Voter,
 } from '@votingworks/types';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import { BaseLogger } from '@votingworks/logging';
-import { HlcTimestamp } from '../src/hybrid_logical_clock.js';
-import { Store } from '../src/store.js';
+import type { BaseLogger } from '@votingworks/logging';
+import type { HlcTimestamp } from '../src/hybrid_logical_clock.js';
+import type { Store } from '../src/store.js';
 import {
-  VoterCheckInEvent,
-  UndoVoterCheckInEvent,
+  type VoterCheckInEvent,
+  type UndoVoterCheckInEvent,
   EventType,
-  PollbookEventBase,
+  type PollbookEventBase,
 } from '../src/types.js';
 import { PeerStore } from '../src/peer_store.js';
 

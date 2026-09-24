@@ -2,7 +2,10 @@ import type { Meta } from '@storybook/react-vite' with {
   'resolution-mode': 'import',
 };
 import { MemoryRouter } from 'react-router-dom';
-import { BreadcrumbsProps, Breadcrumbs as Component } from './breadcrumbs.js';
+import {
+  type BreadcrumbsProps,
+  Breadcrumbs as Component,
+} from './breadcrumbs.js';
 import { H1 } from './typography.js';
 
 const meta: Meta<typeof Component> = {

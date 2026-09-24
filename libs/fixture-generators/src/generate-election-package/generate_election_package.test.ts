@@ -11,14 +11,14 @@ import {
 } from '@votingworks/backend';
 import { assert } from '@votingworks/basics';
 import {
-  Election,
+  type Election,
   mergeUiStrings,
   getBallotLanguageConfigs,
   LanguageCode,
   LATEST_SOFTWARE_VERSION,
 } from '@votingworks/types';
 import {
-  RendererPool,
+  type RendererPool,
   allBaseBallotProps,
   ballotTemplates,
   createPlaywrightRendererPool,

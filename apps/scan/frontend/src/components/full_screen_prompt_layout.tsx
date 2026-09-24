@@ -1,5 +1,5 @@
 import { H1, WithScrollButtons } from '@votingworks/ui';
-import React from 'react';
+import type React from 'react';
 import styled from 'styled-components';
 
 interface FullScreenPromptLayoutProps {

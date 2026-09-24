@@ -6,12 +6,12 @@ import {
   isFilterEmpty,
   isGroupByEmpty,
 } from '@votingworks/utils';
-import { Admin, Tabulation } from '@votingworks/types';
+import type { Admin, Tabulation } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context.js';
 import { NavigationScreen } from '../../components/navigation_screen.js';
 import {
   FilterEditor,
-  FilterType,
+  type FilterType,
 } from '../../components/reporting/filter_editor.js';
 import { GroupByEditor } from '../../components/reporting/group_by_editor.js';
 import { TallyReportViewer } from '../../components/reporting/tally_report_viewer.js';

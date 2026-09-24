@@ -2,11 +2,11 @@ import yargs from 'yargs/yargs';
 import {
   assert,
   extractErrorMessage,
-  Optional,
+  type Optional,
   throwIllegalValue,
 } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
-import { ElectionKey, ProgrammingMachineType } from '@votingworks/types';
+import type { ElectionKey, ProgrammingMachineType } from '@votingworks/types';
 
 import { DEV_JURISDICTION } from '../jurisdictions.js';
 import { mockCard } from '../mock_file_card.js';

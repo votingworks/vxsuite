@@ -1,9 +1,13 @@
-import { Election, Voter, VoterIdentificationMethod } from '@votingworks/types';
+import type {
+  Election,
+  Voter,
+  VoterIdentificationMethod,
+} from '@votingworks/types';
 import { expect, test, beforeEach, afterEach, vi, type Mock } from 'vitest';
-import { ComponentProps } from 'react';
+import type { ComponentProps } from 'react';
 import { electionMultiPartyPrimaryFixtures } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { ApiMock, createApiMock } from '../test/mock_api_client.js';
+import { type ApiMock, createApiMock } from '../test/mock_api_client.js';
 import { renderInAppContext } from '../test/render_in_app_context.js';
 import { SelectPartyScreen } from './select_party_screen.js';
 import { screen } from '../test/react_testing_library.js';

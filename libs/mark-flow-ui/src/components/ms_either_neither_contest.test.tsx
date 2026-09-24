@@ -3,7 +3,7 @@ import { readElectionWithMsEitherNeither } from '@votingworks/fixtures';
 import { find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import {
-  MsEitherNeitherContest as MsEitherNeitherContestType,
+  type MsEitherNeitherContest as MsEitherNeitherContestType,
   mergeMsEitherNeitherContests,
 } from '../utils/ms_either_neither_contests.js';
 import { MsEitherNeitherContest } from './ms_either_neither_contest.js';

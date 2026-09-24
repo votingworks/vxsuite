@@ -2,17 +2,17 @@ import { Readable } from 'node:stream';
 import * as fs from 'node:fs/promises';
 import { Buffer } from 'node:buffer';
 import {
-  ElectionDefinition,
-  PollsTransitionType,
-  PrecinctId,
-  Tabulation,
+  type ElectionDefinition,
+  type PollsTransitionType,
+  type PrecinctId,
+  type Tabulation,
   safeParseInt,
 } from '@votingworks/types';
 import {
   assert,
   err,
   ok,
-  Result,
+  type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
@@ -32,7 +32,7 @@ import {
 import {
   constructSignedQuickResultsReportingConfig,
   getVxCertAuthorityCertPath,
-  SignedQuickResultsReportingConfig,
+  type SignedQuickResultsReportingConfig,
 } from './config.js';
 import { parseCert } from './certs.js';
 

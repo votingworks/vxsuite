@@ -7,8 +7,8 @@ import {
 } from '@votingworks/fixtures';
 import { format } from '@votingworks/utils';
 import {
-  MockReadable,
-  MockWritable,
+  type MockReadable,
+  type MockWritable,
   mockReadable,
   mockWritable,
 } from '@votingworks/test-utils';
@@ -29,7 +29,7 @@ import {
   BackupManifestStructSchema,
 } from '../backup_manifest.js';
 import { CANCELLED_EXIT_CODE, main } from './main.js';
-import { createWorkspace, Workspace } from '../../util/workspace.js';
+import { createWorkspace, type Workspace } from '../../util/workspace.js';
 
 vi.mock(import('@votingworks/fs'), async () =>
   (await import('../../../test/mock_fs.js')).mockFs()

@@ -19,7 +19,7 @@ import {
   createMockUsbDrive,
   UsbPartitionMountpointSchema,
 } from '@votingworks/usb-drive';
-import { Exporter, ExportDataResult } from './exporter.js';
+import { Exporter, type ExportDataResult } from './exporter.js';
 import { execFile } from './exec.js';
 
 vi.mock(

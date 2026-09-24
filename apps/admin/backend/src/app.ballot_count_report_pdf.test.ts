@@ -10,13 +10,13 @@ import {
 } from '@votingworks/utils';
 import {
   HP_4001_PRINTER_CONFIG,
-  MemoryPrinterHandler,
+  type MemoryPrinterHandler,
   renderToPdf,
 } from '@votingworks/printing';
 import { assert, err } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
-import { Client } from '@votingworks/grout';
-import { BallotStyleGroupId } from '@votingworks/types';
+import type { Client } from '@votingworks/grout';
+import type { BallotStyleGroupId } from '@votingworks/types';
 import {
   attachUsbDrive,
   buildTestEnvironment,
@@ -24,8 +24,8 @@ import {
   devsdb,
   mockElectionManagerAuth,
 } from '../test/app.js';
-import { Api } from './app.js';
-import { BallotCountReportSpec } from './reports/ballot_count_report.js';
+import type { Api } from './app.js';
+import type { BallotCountReportSpec } from './reports/ballot_count_report.js';
 import { mockFileName } from '../test/csv.js';
 import { generateReportPath } from './util/filenames.js';
 import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture.js';

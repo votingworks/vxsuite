@@ -1,29 +1,29 @@
 import { assert, assertDefined } from '@votingworks/basics';
 import { z } from 'zod/v4';
 import {
-  BallotStyleId,
-  BallotType,
-  ContestId,
-  ContestOption,
+  type BallotStyleId,
+  type BallotType,
+  type ContestId,
+  type ContestOption,
   ContestOptionSchema,
-  Election,
-  HmpbBallotPageMetadata,
+  type Election,
+  type HmpbBallotPageMetadata,
   HmpbBallotPageMetadataSchema,
-  PrecinctId,
-  Side,
-  TargetShape,
+  type PrecinctId,
+  type Side,
+  type TargetShape,
   TargetShapeSchema,
 } from './election.js';
 import { IdSchema } from './generic.js';
 import {
-  Corners,
+  type Corners,
   CornersSchema,
-  Rect,
+  type Rect,
   RectSchema,
-  Size,
+  type Size,
   SizeSchema,
 } from './geometry.js';
-import { ImageData, ImageDataSchema } from './image.js';
+import { type ImageData, ImageDataSchema } from './image.js';
 
 export const BALLOT_MODES = ['official', 'test', 'sample'] as const;
 export type BallotMode = (typeof BALLOT_MODES)[number];

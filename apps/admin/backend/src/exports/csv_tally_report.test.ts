@@ -6,19 +6,19 @@ import {
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import {
-  BallotStyleGroupId,
+  type BallotStyleGroupId,
   DEFAULT_SYSTEM_SETTINGS,
   formatBallotHash,
 } from '@votingworks/types';
 import { find } from '@votingworks/basics';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import {
-  MockCastVoteRecordFile,
+  type MockCastVoteRecordFile,
   addMockCvrFileToStore,
 } from '../../test/mock_cvr_file.js';
 import {
-  CsvTallyReportFilter,
-  CsvTallyReportGroupBy,
+  type CsvTallyReportFilter,
+  type CsvTallyReportGroupBy,
   generateTallyReportCsv,
 } from './csv_tally_report.js';
 import { iterableToString, mockFileName, parseCsv } from '../../test/csv.js';

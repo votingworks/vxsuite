@@ -6,8 +6,8 @@ import {
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  ElectionDefinition,
-  SystemSettings,
+  type ElectionDefinition,
+  type SystemSettings,
 } from '@votingworks/types';
 import {
   isVoterTurnoutReportEnabled,
@@ -15,7 +15,7 @@ import {
 } from './reports_screen.js';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
 } from '../../../test/helpers/mock_api_client.js';
 import { screen } from '../../../test/react_testing_library.js';

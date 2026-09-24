@@ -9,16 +9,16 @@ import type {
 import { find, throwIllegalValue } from '@votingworks/basics';
 import {
   AdjudicationReason,
-  Contest,
-  BallotPageContestOptionLayout,
-  ContestId,
-  ContestOptionId,
-  Election,
+  type Contest,
+  type BallotPageContestOptionLayout,
+  type ContestId,
+  type ContestOptionId,
+  type Election,
   isCombinedBallotPrimary,
-  Rect,
-  Side,
-  Vote,
-  VotesDict,
+  type Rect,
+  type Side,
+  type Vote,
+  type VotesDict,
 } from '@votingworks/types';
 import { contestOptionName, hasCrossoverVote } from '@votingworks/utils';
 

@@ -1,14 +1,14 @@
 import { expect, test } from 'vitest';
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, type Result } from '@votingworks/basics';
 import {
   electionGeneralFixtures,
   readElectionStraightPartyDefinition,
 } from '@votingworks/fixtures';
 import {
-  ElectionDefinition,
+  type ElectionDefinition,
   SYSTEM_LIMITS,
-  SystemLimits,
-  SystemLimitViolation,
+  type SystemLimits,
+  type SystemLimitViolation,
 } from '@votingworks/types';
 
 import { validateElectionDefinitionAgainstSystemLimits } from './system_limits.js';

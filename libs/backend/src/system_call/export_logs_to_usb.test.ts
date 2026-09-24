@@ -1,4 +1,4 @@
-import { beforeEach, expect, MockInstance, test, vi } from 'vitest';
+import { beforeEach, expect, type MockInstance, test, vi } from 'vitest';
 import {
   createMockUsbDrive,
   UsbPartitionMountpointSchema,
@@ -6,18 +6,18 @@ import {
 import * as fs from 'node:fs/promises';
 import {
   Stats,
-  WriteStream,
+  type WriteStream,
   createReadStream,
   createWriteStream,
 } from 'node:fs';
-import { LogEventId, MockLogger, mockLogger } from '@votingworks/logging';
+import { LogEventId, type MockLogger, mockLogger } from '@votingworks/logging';
 import { makeTemporaryFile } from '@votingworks/fixtures';
 import { PassThrough } from 'node:stream';
 import { ok } from '@votingworks/basics';
 import { convertVxLogToCdf } from '@votingworks/logging-utils';
 import zlib from 'node:zlib';
 import { execFile } from '../exec.js';
-import { exportLogsToUsb, LogsExportError } from './export_logs_to_usb.js';
+import { exportLogsToUsb, type LogsExportError } from './export_logs_to_usb.js';
 
 vi.mock(import('node:fs/promises'), async (importActual) => ({
   ...(await importActual()),

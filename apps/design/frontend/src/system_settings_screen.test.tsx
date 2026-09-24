@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import {
   AdjudicationReason,
   DEFAULT_SYSTEM_SETTINGS,
-  SystemSettings,
+  type SystemSettings,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { assertDefined } from '@votingworks/basics';
@@ -14,7 +14,7 @@ import {
   within,
 } from '../test/react_testing_library.js';
 import {
-  MockApiClient,
+  type MockApiClient,
   createMockApiClient,
   mockUserFeatures,
   jurisdiction,

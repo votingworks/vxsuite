@@ -8,7 +8,7 @@ import {
   err,
   extractErrorMessage,
   ok,
-  Result,
+  type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
@@ -18,11 +18,11 @@ import {
 } from '@votingworks/types';
 import { parseCastVoteRecordReportExportDirectoryName } from '@votingworks/utils';
 
-import CombinedStream from 'combined-stream';
+import type CombinedStream from 'combined-stream';
 import { computeCastVoteRecordRootHashFromScratch } from './cast_vote_record_hashes.js';
-import { MachineCustomCertFields, parseCert } from './certs.js';
+import { type MachineCustomCertFields, parseCert } from './certs.js';
 import {
-  ArtifactAuthenticationConfig,
+  type ArtifactAuthenticationConfig,
   constructArtifactAuthenticationConfig,
 } from './config.js';
 import {

@@ -21,39 +21,42 @@ import type {
 } from '@votingworks/admin-backend';
 import type { BatteryInfo } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
-import { FileSystemEntry, FileSystemEntryType } from '@votingworks/fs';
-import { Deferred, Result, deferred, ok } from '@votingworks/basics';
-import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
+import { type FileSystemEntry, FileSystemEntryType } from '@votingworks/fs';
+import { type Deferred, type Result, deferred, ok } from '@votingworks/basics';
+import {
+  createMockClient,
+  type MockClient,
+} from '@votingworks/grout-test-utils';
 import { Buffer } from 'node:buffer';
 import {
-  MockFunction,
+  type MockFunction,
   mockElectionManagerUser,
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
   mockVendorUser,
 } from '@votingworks/test-utils';
 import {
-  Admin,
-  BallotPageLayout,
+  type Admin,
+  type BallotPageLayout,
   BallotType,
-  ContestId,
+  type ContestId,
   DEFAULT_SYSTEM_SETTINGS,
-  DiagnosticRecord,
-  DippedSmartCardAuth,
+  type DiagnosticRecord,
+  type DippedSmartCardAuth,
   constructElectionKey,
-  ElectionDefinition,
-  Id,
-  PollingPlace,
-  PrinterConfig,
-  PrinterStatus,
-  Rect,
-  SystemSettings,
-  Tabulation,
+  type ElectionDefinition,
+  type Id,
+  type PollingPlace,
+  type PrinterConfig,
+  type PrinterStatus,
+  type Rect,
+  type SystemSettings,
+  type Tabulation,
   DEV_MACHINE_ID,
 } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { Mock, vi } from 'vitest';
+import { type Mock, vi } from 'vitest';
 
 // the below is copied from libs/printing to avoid importing a backend package
 export const MOCK_PRINTER_CONFIG: PrinterConfig = {

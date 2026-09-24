@@ -1,5 +1,5 @@
-import { Buffer } from 'node:buffer';
-import { MockFileTree } from '@votingworks/usb-drive';
+import type { Buffer } from 'node:buffer';
+import type { MockFileTree } from '@votingworks/usb-drive';
 import { zipFile } from '@votingworks/test-utils';
 import { PollbookPackageFileName } from '../src/pollbook_package.js';
 

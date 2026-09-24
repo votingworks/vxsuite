@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test } from 'vitest';
-import { UiStringsPackage } from '@votingworks/types';
+import type { UiStringsPackage } from '@votingworks/types';
 import { H1 } from '../index.js';
 import {
   act,

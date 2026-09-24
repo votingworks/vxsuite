@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import {
   DEFAULT_EVENTS,
-  EventsType,
+  type EventsType,
   IdleTimerProvider,
 } from 'react-idle-timer';
 

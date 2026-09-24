@@ -1,17 +1,17 @@
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  Election,
-  ElectionDefinition,
-  ElectionPackage,
+  type Election,
+  type ElectionDefinition,
+  type ElectionPackage,
   LATEST_METADATA,
-  RgbaImageData,
+  type RgbaImageData,
   safeParseElection,
   safeParseElectionDefinition,
-  SystemSettings,
+  type SystemSettings,
 } from '@votingworks/types';
 import { createCanvas, loadImage } from 'canvas';
 import assert from 'node:assert';
-import { Buffer } from 'node:buffer';
+import type { Buffer } from 'node:buffer';
 import { cpSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import { getPathForFile } from './tmpdir.js';

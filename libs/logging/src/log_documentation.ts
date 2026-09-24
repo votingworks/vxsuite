@@ -1,12 +1,12 @@
-import { EventLogging } from '@votingworks/types';
+import type { EventLogging } from '@votingworks/types';
 import {
   getDetailsForEventId,
   getDocumentationForEventType,
-  AppName,
-  LogDetails,
+  type AppName,
+  type LogDetails,
   LogEventId,
   LogEventType,
-  LogEventTypeDocumentation,
+  type LogEventTypeDocumentation,
 } from './log_event_enums.js';
 
 export function generateMarkdownDocumentationContent(): string {

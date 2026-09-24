@@ -1,4 +1,4 @@
-import {
+import type {
   FujitsuThermalPrinterInterface,
   PrintResult,
 } from '@votingworks/fujitsu-thermal-printer';

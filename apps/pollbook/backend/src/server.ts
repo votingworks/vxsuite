@@ -6,7 +6,7 @@ import { BaseLogger, Logger, LogSource } from '@votingworks/logging';
 import { startCpuMetricsLogging } from '@votingworks/backend';
 import { buildLocalApp } from './app.js';
 import { PORT } from './globals.js';
-import { LocalAppContext } from './types.js';
+import type { LocalAppContext } from './types.js';
 import { getUserRole } from './auth.js';
 import { BarcodeScannerClient } from './barcode_scanner/client.js';
 

@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID as uuid } from 'node:crypto';
-import { AcceptedSheet } from '@votingworks/backend';
+import type { AcceptedSheet } from '@votingworks/backend';
 import {
   assert,
   assertDefined,
@@ -11,7 +11,7 @@ import {
 import { safeParseInt } from '@votingworks/types';
 
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { Store } from '../store.js';
+import type { Store } from '../store.js';
 import { createWorkspace, getScanWorkspace } from '../util/workspace.js';
 
 const usageMessage = `Usage: copy-sheets <target-sheet-count>

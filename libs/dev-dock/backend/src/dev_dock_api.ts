@@ -11,7 +11,7 @@ import {
   dirname,
 } from 'node:path';
 import {
-  Optional,
+  type Optional,
   assert,
   assertDefined,
   iter,
@@ -21,16 +21,16 @@ import {
   asSheet,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageFileName,
-  GrayImageData,
-  PrinterConfig,
-  PrinterStatus,
+  type GrayImageData,
+  type PrinterConfig,
+  type PrinterStatus,
   safeParseElectionDefinition,
   safeParseSystemSettings,
-  SheetOf,
-  UserRole,
+  type SheetOf,
+  type UserRole,
 } from '@votingworks/types';
 import {
-  CardStatus,
+  type CardStatus,
   readFromMockFile as readFromCardMockFile,
 } from '@votingworks/auth';
 import {
@@ -48,18 +48,18 @@ import { getMostRecentElectionPackageFilepath } from '@votingworks/backend';
 import {
   getMockUsbDirPath,
   getMockUsbDriveHandler,
-  MockUsbDriveHandler,
+  type MockUsbDriveHandler,
   SimulatedUsbPlatform,
-  UsbDiskDevPath,
+  type UsbDiskDevPath,
   UsbDiskDevPathSchema,
 } from '@votingworks/usb-drive';
 import {
   getMockFileFujitsuPrinterHandler,
-  PrinterStatus as FujitsuPrinterStatus,
+  type PrinterStatus as FujitsuPrinterStatus,
 } from '@votingworks/fujitsu-thermal-printer';
 import { getMockFilePrinterHandler } from '@votingworks/printing';
 import { writeFile } from 'node:fs/promises';
-import { MockScanner, MockSheetStatus } from '@votingworks/pdi-scanner';
+import type { MockScanner, MockSheetStatus } from '@votingworks/pdi-scanner';
 import {
   createGrayImageData,
   createImageData,

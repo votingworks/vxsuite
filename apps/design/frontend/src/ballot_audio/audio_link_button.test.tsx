@@ -1,11 +1,11 @@
-import React from 'react';
+import type React from 'react';
 import { expect, test } from 'vitest';
 import { Route, Router } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 
 import { sleep } from '@votingworks/basics';
-import { StateFeaturesConfig } from '@votingworks/design-backend';
+import type { StateFeaturesConfig } from '@votingworks/design-backend';
 
 import { act, render, screen } from '../../test/react_testing_library.js';
 import { AudioLinkButton } from './audio_link_button.js';

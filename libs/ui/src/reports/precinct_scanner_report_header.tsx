@@ -1,10 +1,10 @@
 import {
-  Election,
-  ElectionDefinition,
+  type Election,
+  type ElectionDefinition,
   formatElectionHashes,
-  PartyId,
+  type PartyId,
   pollingPlaceFromElection,
-  PollsTransitionType,
+  type PollsTransitionType,
   Tabulation,
 } from '@votingworks/types';
 import {

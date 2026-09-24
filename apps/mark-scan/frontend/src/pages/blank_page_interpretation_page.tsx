@@ -1,4 +1,4 @@
-import { InsertedSmartCardAuth } from '@votingworks/types';
+import type { InsertedSmartCardAuth } from '@votingworks/types';
 
 import { P, appStrings } from '@votingworks/ui';
 import { AskPollWorkerPage } from './ask_poll_worker_page.js';

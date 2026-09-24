@@ -1,19 +1,19 @@
 import { assert, assertDefined } from '@votingworks/basics';
 import {
-  Contest,
-  BallotStyle,
-  BallotStyleGroupId,
-  BallotStyleId,
-  District,
-  Election,
-  ElectionDefinition,
-  BallotStyleGroup,
-  Party,
-  PollingPlace,
-  Precinct,
-  PrecinctId,
+  type Contest,
+  type BallotStyle,
+  type BallotStyleGroupId,
+  type BallotStyleId,
+  type District,
+  type Election,
+  type ElectionDefinition,
+  type BallotStyleGroup,
+  type Party,
+  type PollingPlace,
+  type Precinct,
+  type PrecinctId,
   getBallotStyle,
-  ContestId,
+  type ContestId,
 } from '@votingworks/types';
 import { getGroupedBallotStyles } from '../ballot_styles.js';
 import { allContestOptionsWithMultiEndorsements } from '../hmpb/all_contest_options.js';

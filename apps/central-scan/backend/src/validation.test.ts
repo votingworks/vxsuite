@@ -1,15 +1,15 @@
 import { expect, test } from 'vitest';
 import {
-  BallotMetadata,
+  type BallotMetadata,
   BallotType,
-  BlankPage,
-  InterpretedBmdPage,
-  InterpretedHmpbPage,
+  type BlankPage,
+  type InterpretedBmdPage,
+  type InterpretedHmpbPage,
 } from '@votingworks/types';
 import {
   describeValidationError,
   validateSheetInterpretation,
-  ValidationError,
+  type ValidationError,
   ValidationErrorType,
 } from './validation.js';
 

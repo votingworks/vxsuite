@@ -1,8 +1,8 @@
 import { createCanvas } from '@napi-rs/canvas';
 import { Buffer } from 'node:buffer';
-import { CanvasGradient, CanvasPattern } from 'canvas';
+import type { CanvasGradient, CanvasPattern } from 'canvas';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
-import { GrayImageData, RgbaImageData } from '@votingworks/types';
+import type { GrayImageData, RgbaImageData } from '@votingworks/types';
 import { createImageData, toGrayScale } from './image_data.js';
 
 /**

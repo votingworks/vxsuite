@@ -3,7 +3,7 @@ import { mockUsbDriveStatus } from '@votingworks/ui';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { screen } from '../../test/react_testing_library.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
-import { createApiMock, ApiMock } from '../../test/api.js';
+import { createApiMock, type ApiMock } from '../../test/api.js';
 import { DiagnosticsScreen } from './diagnostics_screen.js';
 
 let apiMock: ApiMock;

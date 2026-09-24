@@ -1,7 +1,7 @@
-import { Dirent, Stats } from 'node:fs';
+import type { Dirent, Stats } from 'node:fs';
 import { readdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';
-import { err, ok, Result } from '@votingworks/basics';
+import { err, ok, type Result } from '@votingworks/basics';
 import { Backup } from './backup.js';
 
 /**

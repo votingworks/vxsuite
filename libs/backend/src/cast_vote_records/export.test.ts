@@ -9,14 +9,14 @@ import {
 } from '@votingworks/fixtures';
 import {
   anyPollingPlace,
-  BatchInfo,
+  type BatchInfo,
   CastVoteRecordExportFileName,
   CVR,
   DEFAULT_SYSTEM_SETTINGS,
-  PageInterpretation,
-  SheetOf,
+  type PageInterpretation,
+  type SheetOf,
 } from '@votingworks/types';
-import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
+import { createMockUsbDrive, type MockUsbDrive } from '@votingworks/usb-drive';
 
 import {
   interpretedBmdBallot,
@@ -34,13 +34,13 @@ import {
   summarizeDirectoryContents,
 } from '../../test/utils.js';
 import {
-  AcceptedSheet,
+  type AcceptedSheet,
   clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult,
   doesUsbDriveRequireCastVoteRecordSync,
   exportCastVoteRecordsToUsbDrive,
-  ExportOptions,
-  RejectedSheet,
-  Sheet,
+  type ExportOptions,
+  type RejectedSheet,
+  type Sheet,
 } from './export.js';
 import {
   readCastVoteRecordExport,

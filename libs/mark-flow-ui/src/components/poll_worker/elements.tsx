@@ -5,8 +5,8 @@ import styled from 'styled-components';
 
 import { assertDefined, find } from '@votingworks/basics';
 import {
-  CardlessVoterUser,
-  Election,
+  type CardlessVoterUser,
+  type Election,
   getBallotStyle,
   getPartyForBallotStyle,
   isCombinedBallotPrimary,

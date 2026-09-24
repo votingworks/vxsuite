@@ -5,26 +5,32 @@ import {
   electionCombinedBallotPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import { assert, assertDefined, err, find, ok } from '@votingworks/basics';
-import type { Result } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  err,
+  find,
+  ok,
+  type Result,
+} from '@votingworks/basics';
 import { loadImageMetadata } from '@votingworks/image-utils';
 import { join } from 'node:path';
 import { readFile, writeFile } from 'node:fs/promises';
 import {
   BooleanEnvironmentVariableName,
-  ContestResultsSummary,
+  type ContestResultsSummary,
   UNMARKED_WRITE_IN_SELECTION_POSITION_OTHER_STATUS,
   buildElectionResultsFixture,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
   AdjudicationReason,
-  ContestOptionId,
+  type ContestOptionId,
   CVR,
   DEFAULT_SYSTEM_SETTINGS,
-  Rect,
+  type Rect,
   safeParseElectionDefinition,
-  SystemSettings,
+  type SystemSettings,
   Tabulation,
 } from '@votingworks/types';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
@@ -37,7 +43,7 @@ import {
   mockSystemAdministratorAuth,
 } from '../test/app.js';
 import { seedCombinedBallotPrimaryCvrsAndAdjudications } from '../test/combined_ballot_primary_fixture.js';
-import {
+import type {
   AdjudicatedContestOption,
   AdjudicatedCvrContest,
   BallotAdjudicationData,

@@ -1,4 +1,4 @@
-import { PollingPlace, PollingPlaceType } from '@votingworks/types';
+import type { PollingPlace, PollingPlaceType } from '@votingworks/types';
 import { describe, expect, test, vi } from 'vitest';
 import { deferred } from '@votingworks/basics';
 import { userEvent } from './user_event.js';
@@ -6,7 +6,7 @@ import { render, screen, waitFor } from '../test/react_testing_library.js';
 import {
   POLLING_PLACE_PICKER_LABEL,
   PollingPlacePicker,
-  PollingPlacePickerMode,
+  type PollingPlacePickerMode,
 } from './polling_place_picker.js';
 
 let lastId = 0;

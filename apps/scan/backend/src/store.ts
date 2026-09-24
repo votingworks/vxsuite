@@ -5,43 +5,43 @@
 import { Client as DbClient } from '@votingworks/db';
 import {
   HmpbBallotPaperSize,
-  BatchInfo,
-  Iso8601Timestamp,
+  type BatchInfo,
+  type Iso8601Timestamp,
   mapSheet,
   PageInterpretationSchema,
-  PageInterpretationWithFiles,
-  PollsState as PollsStateType,
+  type PageInterpretationWithFiles,
+  type PollsState as PollsStateType,
   PollsStateSchema,
   safeParse,
   safeParseElectionDefinition,
   safeParseJson,
-  SheetOf,
-  SystemSettings,
+  type SheetOf,
+  type SystemSettings,
   safeParseSystemSettings,
-  AdjudicationReason,
-  PollsTransitionType,
-  DiagnosticRecord,
-  DiagnosticType,
-  ElectionKey,
+  type AdjudicationReason,
+  type PollsTransitionType,
+  type DiagnosticRecord,
+  type DiagnosticType,
+  type ElectionKey,
   constructElectionKey,
-  BallotCastingMode,
+  type BallotCastingMode,
 } from '@votingworks/types';
 import {
   assert,
   assertDefined,
   DateWithoutTime,
-  Optional,
+  type Optional,
   typedAs,
 } from '@votingworks/basics';
 import { DateTime } from 'luxon';
 import { join } from 'node:path';
 import { randomUUID as uuid } from 'node:crypto';
 import {
-  AcceptedSheet,
-  ElectionRecord,
-  RejectedSheet,
-  Sheet,
-  UiStringsStore,
+  type AcceptedSheet,
+  type ElectionRecord,
+  type RejectedSheet,
+  type Sheet,
+  type UiStringsStore,
   addDiagnosticRecord,
   clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult,
   createUiStringStore,
@@ -53,7 +53,7 @@ import {
   updateCastVoteRecordHashes,
 } from '@votingworks/auth';
 import { getPollsTransitionDestinationState } from '@votingworks/utils';
-import { ContestWriteIns, WriteInEntry } from '@votingworks/ui';
+import type { ContestWriteIns, WriteInEntry } from '@votingworks/ui';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
 import { getCurrentTime } from './util/get_current_time.js';
 import { rootDebug } from './util/debug.js';
@@ -64,7 +64,7 @@ import {
   extractWriteInCandidates,
   getOvervotedContestIds,
 } from './util/write_in_report.js';
-import { PollsTransition } from './types.js';
+import type { PollsTransition } from './types.js';
 
 const debug = rootDebug.extend('store');
 

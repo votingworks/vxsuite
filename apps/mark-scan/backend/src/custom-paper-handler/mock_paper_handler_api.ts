@@ -1,6 +1,6 @@
 import {
-  MockPaperHandlerStatus,
-  PaperHandlerDriverInterface,
+  type MockPaperHandlerStatus,
+  type PaperHandlerDriverInterface,
   isMockPaperHandler,
 } from '@votingworks/custom-paper-handler';
 

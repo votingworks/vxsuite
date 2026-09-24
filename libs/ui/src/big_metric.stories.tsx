@@ -2,7 +2,7 @@ import type { Meta } from '@storybook/react-vite' with {
   'resolution-mode': 'import',
 };
 
-import { BigMetric, BigMetricProps } from './big_metric.js';
+import { BigMetric, type BigMetricProps } from './big_metric.js';
 
 const initialArgs: BigMetricProps = {
   label: 'Ballots Scanned',

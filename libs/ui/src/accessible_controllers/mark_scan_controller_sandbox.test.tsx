@@ -4,7 +4,7 @@ import { render, screen } from '../../test/react_testing_library.js';
 import { AccessibleControllerSandbox } from './accessible_controller_sandbox.js';
 import {
   MARK_SCAN_CONTROLLER_KEYBINDINGS,
-  MarkScanControllerButton,
+  type MarkScanControllerButton,
 } from './types.js';
 import { Keybinding } from '../keybindings.js';
 import { MARK_SCAN_CONTROLLER_ILLUSTRATION_HIGHLIGHT_CLASS_NAME } from './index.js';

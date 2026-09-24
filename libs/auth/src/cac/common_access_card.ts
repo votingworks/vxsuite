@@ -2,13 +2,13 @@ import {
   assert,
   err,
   ok,
-  Result,
+  type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { Byte } from '@votingworks/types';
+import type { Byte } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import { createHash, randomUUID as uuid } from 'node:crypto';
-import { FileKey, TpmKey } from '../keys.js';
+import type { FileKey, TpmKey } from '../keys.js';
 
 import {
   CardCommand,
@@ -18,7 +18,7 @@ import {
   ResponseApduError,
   SELECT,
 } from '../apdu.js';
-import { CardStatus, CheckPinResponse } from '../card.js';
+import type { CardStatus, CheckPinResponse } from '../card.js';
 import { CardReader } from '../card_reader.js';
 import { CERT_EXPIRY_IN_DAYS } from '../certs.js';
 import {
@@ -42,7 +42,7 @@ import {
   PUT_DATA,
   VERIFY,
 } from '../piv.js';
-import {
+import type {
   CommonAccessCardCompatibleCard,
   CommonAccessCardDetails,
   GenerateSignatureError,

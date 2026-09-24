@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import {
+import type {
   Election,
   StreetSide,
   ValidStreetInfo,

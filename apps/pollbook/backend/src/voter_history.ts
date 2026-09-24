@@ -1,7 +1,7 @@
 // Helper to generate the CSV contents for the Voter History export.
 
 import { stringify } from 'csv-stringify/sync';
-import { Election, Voter } from '@votingworks/types';
+import type { Election, Voter } from '@votingworks/types';
 import { DateTime } from 'luxon';
 
 export function generateVoterHistoryCsvContent(

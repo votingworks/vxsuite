@@ -3,7 +3,7 @@ import { readElectionTwoPartyPrimary } from '@votingworks/fixtures';
 import type { TallyReportWarning } from '@votingworks/admin-backend';
 import {
   getTallyReportWarningText,
-  TallyReportWarningText,
+  type TallyReportWarningText,
 } from './tally_report_warnings.js';
 
 test('getTallyReportWarningText', () => {

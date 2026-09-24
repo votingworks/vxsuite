@@ -1,4 +1,4 @@
-import { Rect, RgbaImageData } from '@votingworks/types';
+import type { Rect, RgbaImageData } from '@votingworks/types';
 import { createImageData, RGBA_CHANNEL_COUNT } from './image_data.js';
 
 /**

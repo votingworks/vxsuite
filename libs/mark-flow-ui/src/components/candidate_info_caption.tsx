@@ -1,5 +1,5 @@
 import React from 'react';
-import { Candidate, Election } from '@votingworks/types';
+import type { Candidate, Election } from '@votingworks/types';
 import {
   appStrings,
   CandidatePartyList,

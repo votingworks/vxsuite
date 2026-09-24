@@ -1,4 +1,4 @@
-import { SheetInterpretation } from './interpretation.js';
+import type { SheetInterpretation } from './interpretation.js';
 
 export const PRECINCT_SCANNER_STATES = [
   'connecting',

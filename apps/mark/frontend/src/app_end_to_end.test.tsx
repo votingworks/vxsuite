@@ -7,7 +7,7 @@ import {
 import { mockBaseLogger } from '@votingworks/logging';
 import {
   constructElectionKey,
-  ElectionDefinition,
+  type ElectionDefinition,
   getContestDistrictName,
   getPrecinctById,
   pollingPlaceBallotStyles,
@@ -28,7 +28,10 @@ import {
   measure102Contest,
   voterContests,
 } from '../test/helpers/election.js';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../test/helpers/mock_api_client.js';
 import { configureFromUsbThenRemove } from '../test/helpers/election_package.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();

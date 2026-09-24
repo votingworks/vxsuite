@@ -1,21 +1,21 @@
 import util from 'node:util';
 
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { LogEventId, Logger } from '@votingworks/logging';
+import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import { LogEventId, type Logger } from '@votingworks/logging';
 import { isCardlessVoterAuth } from '@votingworks/utils';
 import { assert, find } from '@votingworks/basics';
 import {
-  SystemSettings,
+  type SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
-  Election,
+  type Election,
   pollingPlaceBallotStyles,
   pollingPlaceFromElection,
 } from '@votingworks/types';
 
-import { BarcodeReader } from './types.js';
-import { Workspace } from '../util/workspace.js';
+import type { BarcodeReader } from './types.js';
+import type { Workspace } from '../util/workspace.js';
 import { constructAuthMachineState } from '../util/auth.js';
-import { AudioPlayerInterface } from '../audio/player.js';
+import type { AudioPlayerInterface } from '../audio/player.js';
 
 interface Context {
   audioPlayer?: AudioPlayerInterface;

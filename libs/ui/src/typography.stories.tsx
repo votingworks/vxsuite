@@ -15,8 +15,8 @@ import {
   H5,
   H6,
   P,
-  FontProps,
-  HeadingProps,
+  type FontProps,
+  type HeadingProps,
 } from './typography.js';
 
 const loremIpsum = new LoremIpsum({

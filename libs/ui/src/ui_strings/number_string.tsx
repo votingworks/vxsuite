@@ -1,7 +1,7 @@
 import { format } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { useLanguageContext } from './language_context.js';
-import { Font, FontProps } from '../typography.js';
+import { Font, type FontProps } from '../typography.js';
 import { WithAudio } from './with_audio.js';
 import {
   MAXIMUM_SUPPORTED_NUMBER_FOR_TTS,

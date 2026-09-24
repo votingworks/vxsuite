@@ -5,23 +5,23 @@ import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { assert, err, ok } from '@votingworks/basics';
 import {
   CastVoteRecordExportFileName,
-  CastVoteRecordExportMetadata,
-  CVR,
+  type CastVoteRecordExportMetadata,
+  type CVR,
   DEV_MACHINE_ID,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 
 import { getTestFilePath } from '../test/utils.js';
 import {
-  ArtifactToExport,
-  ArtifactToImport,
+  type ArtifactToExport,
+  type ArtifactToImport,
   authenticateArtifactUsingSignatureFile,
   prepareSignatureFile,
   SIGNATURE_FILE_EXTENSION,
   VXADMIN_BACKUP_MANIFEST_FILE_NAME,
 } from './artifact_authentication.js';
-import { MachineCustomCertFields } from './certs.js';
-import { ArtifactAuthenticationConfig } from './config.js';
+import type { MachineCustomCertFields } from './certs.js';
+import type { ArtifactAuthenticationConfig } from './config.js';
 
 vi.mock(
   '@votingworks/types',

@@ -3,7 +3,7 @@ import { readElection } from '@votingworks/fs';
 import { expectToMatchSavedPdf } from '../test/helpers.js';
 import { msGeneralElectionFixtures } from './ballot_fixtures.js';
 import { createPlaywrightRendererPool } from './playwright_renderer.js';
-import { RendererPool } from './renderer.js';
+import type { RendererPool } from './renderer.js';
 
 vi.setConfig({
   testTimeout: 20_000,

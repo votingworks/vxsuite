@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { assert } from '@votingworks/basics';
 import { existsSync, readdirSync, writeFileSync } from 'node:fs';
-import { AddressInfo } from 'node:net';
+import type { AddressInfo } from 'node:net';
 import { join } from 'node:path';
 import { LogEventId, mockLogger } from '@votingworks/logging';
-import { Server } from 'node:http';
+import type { Server } from 'node:http';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   makeTemporaryDirectory,

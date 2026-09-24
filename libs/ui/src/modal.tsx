@@ -1,11 +1,11 @@
-import React, { ReactNode, useMemo } from 'react';
+import React, { type ReactNode, useMemo } from 'react';
 import ReactModal from 'react-modal';
-import { DefaultTheme } from 'styled-components';
+import type { DefaultTheme } from 'styled-components';
 import { rgba } from 'polished';
 
 import { assert } from '@votingworks/basics';
 
-import { SizeMode } from '@votingworks/types';
+import type { SizeMode } from '@votingworks/types';
 import { styled } from './styled.js';
 import { H2 } from './typography.js';
 import { ReadOnLoad } from './ui_strings/read_on_load.js';

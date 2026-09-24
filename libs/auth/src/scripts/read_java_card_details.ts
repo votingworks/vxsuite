@@ -1,6 +1,6 @@
 import { extractErrorMessage } from '@votingworks/basics';
 
-import { CardDetails } from '../card.js';
+import type { CardDetails } from '../card.js';
 import {
   DEV_VX_CERT_AUTHORITY_CERT_PATH,
   PROD_VX_CERT_AUTHORITY_CERT_PATH,

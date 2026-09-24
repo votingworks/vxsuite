@@ -2,19 +2,19 @@ import {
   afterEach,
   beforeEach,
   expect,
-  MockedFunction,
+  type MockedFunction,
   test,
   vi,
 } from 'vitest';
 import { mockBaseLogger } from '@votingworks/logging';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
-import { Application } from 'express';
+import type { Application } from 'express';
 import { analogAndHdmi, getNodeEnv } from '@votingworks/backend';
 import { start } from './server.js';
-import { createWorkspace, Workspace } from './util/workspace.js';
+import { createWorkspace, type Workspace } from './util/workspace.js';
 import { buildApp } from './app.js';
-import { AudioCard, Player as AudioPlayer } from './audio/player.js';
+import type { AudioCard, Player as AudioPlayer } from './audio/player.js';
 import { buildMockLogger } from '../test/app_helpers.js';
 
 vi.mock('./app');

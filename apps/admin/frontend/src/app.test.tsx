@@ -13,7 +13,7 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
-import { BooleanEnvironmentVariableName } from '@votingworks/utils';
+import type { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import {
   anyPollingPlace,
   constructElectionKey,
@@ -28,7 +28,10 @@ import {
 
 import { eitherNeitherElectionDefinition } from '../test/render_in_app_context.js';
 import { buildApp } from '../test/helpers/build_app.js';
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../test/helpers/mock_api_client.js';
 
 import {
   mockCastVoteRecordFileRecord,

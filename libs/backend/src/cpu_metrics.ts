@@ -1,7 +1,7 @@
 import { readFile, readlink } from 'node:fs/promises';
 import { safeParseInt, safeParseNumber } from '@votingworks/types';
-import { extractErrorMessage, lines, Optional } from '@votingworks/basics';
-import { BaseLogger, LogEventId } from '@votingworks/logging';
+import { extractErrorMessage, lines, type Optional } from '@votingworks/basics';
+import { type BaseLogger, LogEventId } from '@votingworks/logging';
 import { format } from '@votingworks/utils';
 import { execFile } from './exec.js';
 

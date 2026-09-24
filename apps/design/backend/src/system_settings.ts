@@ -5,11 +5,15 @@ import {
   DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
   DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
   DEFAULT_SYSTEM_SETTINGS,
-  SystemSettings,
+  type SystemSettings,
 } from '@votingworks/types';
 
 import { sliOrganizationId } from './globals.js';
-import { Jurisdiction, resultsReportingUrl, StateCode } from './types.js';
+import {
+  type Jurisdiction,
+  resultsReportingUrl,
+  type StateCode,
+} from './types.js';
 
 /**
  * Default settings applied across customers and SLI

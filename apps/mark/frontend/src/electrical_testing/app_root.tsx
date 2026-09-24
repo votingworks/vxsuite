@@ -7,7 +7,7 @@ import {
   Icons,
   InputControls,
 } from '@votingworks/ui';
-import React, { useRef, useState } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import useInterval from 'use-interval';
 import styled from 'styled-components';
 import {
@@ -49,7 +49,7 @@ function formatPrinterStatus(
 
 function formatBarcodeStatus(
   barcodeStatus: Awaited<ReturnType<typeof getBarcodeStatus.useQuery>>['data']
-): React.ReactNode {
+): ReactNode {
   if (!barcodeStatus) {
     return 'Unknown';
   }

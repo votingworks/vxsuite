@@ -3,13 +3,13 @@ import {
   electionFamousNames2021Fixtures,
   readElectionGeneral,
 } from '@votingworks/fixtures';
-import { CandidateContest, YesNoContest } from '@votingworks/types';
+import type { CandidateContest, YesNoContest } from '@votingworks/types';
 import {
   rotateCandidatesByStatute,
   rotateCandidatesByPrecinct,
   getCandidateOrderingSetsForNhBallot,
 } from './nh_ballot_template.js';
-import { RotationParams } from '../types.js';
+import type { RotationParams } from '../types.js';
 
 const electionGeneral = readElectionGeneral();
 const electionFamousNames = electionFamousNames2021Fixtures.readElection();

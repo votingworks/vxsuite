@@ -1,4 +1,9 @@
-import React, { useCallback, useState } from 'react';
+import {
+  useCallback,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from 'react';
 import { styled } from '../../styled.js';
 
 import { P, Font } from '../../typography.js';
@@ -36,11 +41,11 @@ export interface PatDeviceIdentificationPageProps {
    * centerContent, hideMenuButtons, and actionButtons props.
    * In VxMarkScan, this is typically VoterScreen from @votingworks/mark-flow-ui.
    */
-  ScreenWrapper: React.ComponentType<{
-    children: React.ReactNode;
+  ScreenWrapper: ComponentType<{
+    children: ReactNode;
     centerContent?: boolean;
     hideMenuButtons?: boolean;
-    actionButtons?: React.ReactNode;
+    actionButtons?: ReactNode;
   }>;
 }
 

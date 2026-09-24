@@ -1,20 +1,20 @@
 // TODO: This file's scope has gone out of sync with its current name/location -
 // Need to break it up and/or rename/re-locate.
 
-import React from 'react';
+import type React from 'react';
 import {
-  queries,
+  type queries,
   render,
-  RenderOptions,
-  RenderResult,
-  BoundFunctions,
-  Queries,
+  type RenderOptions,
+  type RenderResult,
+  type BoundFunctions,
+  type Queries,
   screen,
-  BoundFunction,
+  type BoundFunction,
   within,
   cleanup,
 } from '@testing-library/react';
-import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
+import type { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 import type { OnTestFinishedHandler } from 'vitest';
 import { AppBase } from '../app_base.js';
 

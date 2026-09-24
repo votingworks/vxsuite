@@ -10,12 +10,12 @@ import { pdfToImages } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
   DEFAULT_MARK_THRESHOLDS,
-  ElectionDefinition,
-  HmpbBallotPageMetadata,
-  InterpretedHmpbPage,
-  SheetOf,
+  type ElectionDefinition,
+  type HmpbBallotPageMetadata,
+  type InterpretedHmpbPage,
+  type SheetOf,
   asSheet,
-  RgbaImageData,
+  type RgbaImageData,
 } from '@votingworks/types';
 import { assert } from 'node:console';
 import * as fs from 'node:fs/promises';

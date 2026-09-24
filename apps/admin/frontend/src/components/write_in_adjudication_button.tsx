@@ -1,7 +1,7 @@
 import React, { forwardRef, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { CheckboxButton, Icons, SearchSelect } from '@votingworks/ui';
-import { Candidate } from '@votingworks/types';
+import type { Candidate } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { normalizeWriteInName } from '../utils/adjudication.js';
 import {

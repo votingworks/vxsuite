@@ -1,4 +1,4 @@
-import { Result, err, ok } from '@votingworks/basics';
+import { type Result, err, ok } from '@votingworks/basics';
 import { openRegularFileForWriting } from './open_regular_file.js';
 
 /**

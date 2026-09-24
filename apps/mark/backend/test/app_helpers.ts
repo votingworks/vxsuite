@@ -1,20 +1,20 @@
 import { expect, vi } from 'vitest';
 import {
   buildMockInsertedSmartCardAuth,
-  InsertedSmartCardAuthApi,
+  type InsertedSmartCardAuthApi,
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
-import { Application } from 'express';
-import { AddressInfo } from 'node:net';
+import type { Application } from 'express';
+import type { AddressInfo } from 'node:net';
 import {
   mockLogger,
   LogSource,
-  Logger,
+  type Logger,
   mockBaseLogger,
 } from '@votingworks/logging';
 import tmp from 'tmp';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
-import { Server } from 'node:http';
+import type { Server } from 'node:http';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   mockElectionManagerUser,
@@ -23,19 +23,19 @@ import {
 import {
   DEFAULT_SYSTEM_SETTINGS,
   constructElectionKey,
-  SystemSettings,
+  type SystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
+import { createMockUsbDrive, type MockUsbDrive } from '@votingworks/usb-drive';
 import {
   createMockPrinterHandler,
-  MemoryPrinterHandler,
+  type MemoryPrinterHandler,
 } from '@votingworks/printing';
 import { ok } from '@votingworks/basics';
-import { Api, buildApp } from '../src/app.js';
-import { createWorkspace, Workspace } from '../src/util/workspace.js';
+import { type Api, buildApp } from '../src/app.js';
+import { createWorkspace, type Workspace } from '../src/util/workspace.js';
 import { getUserRole } from '../src/util/auth.js';
-import { Player as AudioPlayer } from '../src/audio/player.js';
+import type { Player as AudioPlayer } from '../src/audio/player.js';
 import { MockBarcodeClient } from '../src/barcodes/mock_client.js';
 
 interface MockAppContents {

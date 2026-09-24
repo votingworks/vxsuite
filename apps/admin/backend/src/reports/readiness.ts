@@ -1,15 +1,15 @@
 import { AdminReadinessReport } from '@votingworks/ui';
-import { Printer, renderToPdf } from '@votingworks/printing';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { type Printer, renderToPdf } from '@votingworks/printing';
+import { LogEventId, type Logger } from '@votingworks/logging';
 import {
-  ExportDataResult,
+  type ExportDataResult,
   Exporter,
   getMachineId,
   getBatteryInfo,
 } from '@votingworks/backend';
 import { generateReadinessReportFilename } from '@votingworks/utils';
-import { UsbDrive } from '@votingworks/usb-drive';
-import { Workspace } from '../util/workspace.js';
+import type { UsbDrive } from '@votingworks/usb-drive';
+import type { Workspace } from '../util/workspace.js';
 import { getCurrentTime } from '../util/get_current_time.js';
 import { getAdminAllowedExportPatterns } from '../globals.js';
 

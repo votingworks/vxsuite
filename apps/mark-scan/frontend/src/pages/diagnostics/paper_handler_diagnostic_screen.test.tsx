@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
+import type { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import userEvent from '@testing-library/user-event';
-import { DiagnosticRecord } from '@votingworks/types';
+import type { DiagnosticRecord } from '@votingworks/types';
 import { render, screen } from '../../../test/react_testing_library.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   provideApi,
 } from '../../../test/helpers/mock_api_client.js';

@@ -5,7 +5,7 @@ import { format, getLanguageOptions } from '@votingworks/utils';
 import {
   BallotType,
   hasSplits,
-  Id,
+  type Id,
   isCombinedBallotPrimary,
   LanguageCode,
   pollingPlaceFromElection,

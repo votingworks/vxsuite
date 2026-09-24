@@ -1,22 +1,22 @@
 import { groupBy, unique } from '@votingworks/basics';
 import {
-  BallotLanguageConfigs,
-  CandidateContest,
-  Contest,
-  DistrictId,
-  Parties,
-  PrecinctOrSplitId,
-  Precinct,
+  type BallotLanguageConfigs,
+  type CandidateContest,
+  type Contest,
+  type DistrictId,
+  type Parties,
+  type PrecinctOrSplitId,
+  type Precinct,
   hasSplits,
-  BallotStyle,
-  ElectionId,
-  ElectionType,
+  type BallotStyle,
+  type ElectionId,
+  type ElectionType,
 } from '@votingworks/types';
 import {
   generateBallotStyleGroupId,
   generateBallotStyleId,
 } from '@votingworks/utils';
-import { BallotTemplateId } from './ballot_templates/index.js';
+import type { BallotTemplateId } from './ballot_templates/index.js';
 import { getAllPossibleCandidateOrderings } from './ballot_rotation.js';
 
 /**

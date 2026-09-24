@@ -1,12 +1,12 @@
 import React from 'react';
 import {
   ballotPaperDimensions,
-  BaseBallotProps,
-  Contest,
-  HmpbBallotPaperSize,
+  type BaseBallotProps,
+  type Contest,
+  type HmpbBallotPaperSize,
 } from '@votingworks/types';
-import { assert, ok, range, Result } from '@votingworks/basics';
-import {
+import { assert, ok, range, type Result } from '@votingworks/basics';
+import type {
   BallotPageTemplate,
   ContentComponentResult,
   BallotLayoutError,
@@ -17,8 +17,8 @@ import {
   pageMarginsInches,
   TimingMarkGrid,
 } from '../ballot_components.js';
-import { PixelDimensions } from '../types.js';
-import { RenderScratchpad } from '../renderer.js';
+import type { PixelDimensions } from '../types.js';
+import type { RenderScratchpad } from '../renderer.js';
 import { allBubbleBallotConfig } from './config.js';
 import { candidateId, contestId } from './election.js';
 import { Footer } from './footer.js';

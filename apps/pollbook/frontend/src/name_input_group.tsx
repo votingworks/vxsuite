@@ -1,5 +1,5 @@
 import {
-  VoterNameChangeRequest,
+  type VoterNameChangeRequest,
   VOTER_INPUT_FIELD_LIMITS,
 } from '@votingworks/types';
 import { Row, FieldName } from './layout.js';

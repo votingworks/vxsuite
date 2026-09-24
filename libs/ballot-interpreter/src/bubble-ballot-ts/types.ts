@@ -1,4 +1,4 @@
-import {
+import type {
   HmpbBallotPaperSize,
   GridPosition,
   HmpbBallotPageMetadata,
@@ -8,7 +8,7 @@ import {
   BallotType,
   ContestId,
 } from '@votingworks/types';
-import { Optional, Result } from '@votingworks/basics';
+import type { Optional, Result } from '@votingworks/basics';
 
 /*
  * Many of these types are from the Rust code.

@@ -1,7 +1,6 @@
 import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
-import type { Page } from '@playwright/test';
-import { expect, test } from '@playwright/test';
+import { type Page, expect, test } from '@playwright/test';
 import { sleep } from '@votingworks/basics';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
@@ -14,11 +13,12 @@ import {
   captureReadinessReport,
   createScreenshotNamer,
 } from '@votingworks/integration-test-utils';
-import type {
-  ElectionDefinition,
-  SignedHashValidationQrCodeValue,
+import {
+  type ElectionDefinition,
+  type SignedHashValidationQrCodeValue,
+  DEFAULT_SYSTEM_SETTINGS,
+  DEV_MACHINE_ID,
 } from '@votingworks/types';
-import { DEFAULT_SYSTEM_SETTINGS, DEV_MACHINE_ID } from '@votingworks/types';
 import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
 import {
   getMockFilePrinterHandler,

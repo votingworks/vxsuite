@@ -1,6 +1,6 @@
 import { Buffer } from 'node:buffer';
 import { assert } from '@votingworks/basics';
-import { Byte } from '@votingworks/types';
+import type { Byte } from '@votingworks/types';
 
 import { STATUS_WORD } from './apdu.js';
 

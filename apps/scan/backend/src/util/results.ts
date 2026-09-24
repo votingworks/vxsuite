@@ -1,11 +1,11 @@
 import {
-  BallotMetadata,
+  type BallotMetadata,
   BallotType,
-  InterpretedBmdPage,
-  InterpretedHmpbPage,
-  PageInterpretation,
-  PrecinctId,
-  Tabulation,
+  type InterpretedBmdPage,
+  type InterpretedHmpbPage,
+  type PageInterpretation,
+  type PrecinctId,
+  type Tabulation,
   getGroupIdFromBallotStyleId,
   isCombinedBallotPrimary,
 } from '@votingworks/types';

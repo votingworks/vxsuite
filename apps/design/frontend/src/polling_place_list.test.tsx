@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import { PollingPlace } from '@votingworks/types';
+import type { PollingPlace } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen } from '../test/react_testing_library.js';

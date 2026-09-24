@@ -1,7 +1,7 @@
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { doesUsbDriveRequireCastVoteRecordSync } from '@votingworks/backend';
-import { UsbDrive } from '@votingworks/usb-drive';
-import { Store } from './store.js';
+import type { UsbDrive } from '@votingworks/usb-drive';
+import type { Store } from './store.js';
 import { constructAuthMachineState } from './util/auth.js';
 
 /**

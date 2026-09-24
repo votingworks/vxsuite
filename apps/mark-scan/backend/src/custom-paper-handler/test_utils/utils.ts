@@ -1,6 +1,6 @@
 import {
   DEFAULT_PAPER_HANDLER_STATUS,
-  PaperHandlerStatus,
+  type PaperHandlerStatus,
 } from '@votingworks/custom-paper-handler';
 
 export function getDefaultPaperHandlerStatus(): PaperHandlerStatus {

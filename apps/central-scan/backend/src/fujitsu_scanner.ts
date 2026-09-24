@@ -8,7 +8,7 @@ import {
   Tabulation,
   ballotPaperDimensions,
 } from '@votingworks/types';
-import { LogEventId, BaseLogger } from '@votingworks/logging';
+import { LogEventId, type BaseLogger } from '@votingworks/logging';
 import { isDeviceAttached } from '@votingworks/backend';
 import { streamExecFile } from './exec.js';
 import { StreamLines } from './util/stream_lines.js';

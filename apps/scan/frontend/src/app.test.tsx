@@ -8,19 +8,25 @@ import {
 import {
   AdjudicationReason,
   DEFAULT_SYSTEM_SETTINGS,
-  ElectionDefinition,
-  ElectionPackageConfigurationError,
-  SheetInterpretation,
-  SystemSettings,
+  type ElectionDefinition,
+  type ElectionPackageConfigurationError,
+  type SheetInterpretation,
+  type SystemSettings,
   formatElectionHashes,
 } from '@votingworks/types';
-import { Result, assertDefined, deferred, err, ok } from '@votingworks/basics';
+import {
+  type Result,
+  assertDefined,
+  deferred,
+  err,
+  ok,
+} from '@votingworks/basics';
 
 import type {
   PrecinctScannerConfig,
   PrecinctScannerStatus,
 } from '@votingworks/scan-backend';
-import { UsbDriveStatus } from '@votingworks/usb-drive';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Keybinding, useScreenReaderActive } from '@votingworks/ui';
 import {
   waitFor,
@@ -33,11 +39,11 @@ import {
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from './config/globals.js';
 import { scannerStatus } from '../test/helpers/helpers.js';
 import {
-  ApiMock,
+  type ApiMock,
   createApiMock,
   statusNoPaper,
 } from '../test/helpers/mock_api_client.js';
-import { App, AppProps } from './app.js';
+import { App, type AppProps } from './app.js';
 import { useSessionSettingsManager } from './utils/use_session_settings_manager.js';
 import { DELAY_ACCEPTED_SCREEN_MS } from './screens/voter_screen.js';
 

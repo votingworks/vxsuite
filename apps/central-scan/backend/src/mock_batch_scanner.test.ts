@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, test } from 'vitest';
 import { MockBatchScanner } from './mock_batch_scanner.js';
-import { ScannedSheetInfo } from './fujitsu_scanner.js';
+import type { ScannedSheetInfo } from './fujitsu_scanner.js';
 
 function sheet(id: number): ScannedSheetInfo {
   return { frontPath: `/front-${id}.jpg`, backPath: `/back-${id}.jpg` };

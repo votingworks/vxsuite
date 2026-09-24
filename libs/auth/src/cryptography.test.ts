@@ -1,4 +1,4 @@
-import { beforeEach, expect, Mock, test, vi } from 'vitest';
+import { beforeEach, expect, type Mock, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { spawn } from 'node:child_process';
 import * as fs from 'node:fs/promises';
@@ -6,7 +6,7 @@ import { Readable, Writable } from 'node:stream';
 import { fileSync } from 'tmp';
 import {
   mockChildProcess as newMockChildProcess,
-  MockChildProcess,
+  type MockChildProcess,
 } from '@votingworks/test-utils';
 
 import { range } from '@votingworks/basics';
@@ -14,7 +14,7 @@ import {
   createCert,
   createCertGivenCertSigningRequest,
   createCertHelper,
-  CreateCertInput,
+  type CreateCertInput,
   createCertSigningRequest,
   encryptAes256,
   generateRandomAes256Key,
@@ -24,8 +24,8 @@ import {
   parseSignMessageInputExcludingMessage,
   signMessage,
   signMessageHelper,
-  SignMessageInput,
-  SignMessageInputExcludingMessage,
+  type SignMessageInput,
+  type SignMessageInputExcludingMessage,
 } from './cryptography.js';
 
 vi.mock('node:child_process');

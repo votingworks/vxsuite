@@ -3,10 +3,8 @@ import {
   hasPartialRegisteredVoterCounts,
   isPrecinctCount,
   isSplitCounts,
-} from './registered_voter_counts.js';
-import type {
-  ElectionRegisteredVoterCounts,
-  PrecinctRegisteredVoterCountEntry,
+  type ElectionRegisteredVoterCounts,
+  type PrecinctRegisteredVoterCountEntry,
 } from './registered_voter_counts.js';
 import type { Precinct } from './election.js';
 

@@ -8,12 +8,12 @@ import {
 } from 'react';
 import styled from 'styled-components';
 import {
-  CandidateContest,
-  CandidateId,
-  Election,
+  type CandidateContest,
+  type CandidateId,
+  type Election,
   getContestDistrictName,
-  Id,
-  PartyId,
+  type Id,
+  type PartyId,
 } from '@votingworks/types';
 import { Button, Main, Screen, Icons, H2, H1, P } from '@votingworks/ui';
 import { assert, assertDefined, find } from '@votingworks/basics';
@@ -40,7 +40,7 @@ import {
   getOptionCoordinates,
 } from '../utils/adjudication.js';
 import {
-  DoubleVoteAlert,
+  type DoubleVoteAlert,
   DoubleVoteAlertModal,
 } from '../components/adjudication_double_vote_alert_modal.js';
 import { DiscardChangesModal } from '../components/discard_changes_modal.js';
@@ -49,8 +49,8 @@ import {
   isWriteInPending,
   isWriteInInvalid,
   isValidCandidate,
-  MarginalMarkStatus,
-  WriteInAdjudicationStatus,
+  type MarginalMarkStatus,
+  type WriteInAdjudicationStatus,
 } from '../hooks/use_contest_adjudication_state.js';
 
 const DEFAULT_PADDING = '0.75rem';

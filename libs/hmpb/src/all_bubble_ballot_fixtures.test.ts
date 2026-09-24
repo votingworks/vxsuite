@@ -4,7 +4,7 @@ import { afterAll, beforeAll, expect, test, vi } from 'vitest';
 import { expectToMatchSavedPdf } from '../test/helpers.js';
 import { allBubbleBallotFixtures } from './all_bubble_ballot_fixtures.js';
 import { createPlaywrightRendererPool } from './playwright_renderer.js';
-import { RendererPool } from './renderer.js';
+import type { RendererPool } from './renderer.js';
 
 vi.setConfig({
   testTimeout: 50_000,

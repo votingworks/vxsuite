@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import {
-  UiStringAudioIdsPackage,
-  UiStringsPackage,
+  type UiStringAudioIdsPackage,
+  type UiStringsPackage,
   LanguageCode,
 } from '@votingworks/types';
 import {

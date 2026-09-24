@@ -1,5 +1,5 @@
-import React from 'react';
-import { ElectionId } from '@votingworks/types';
+import type React from 'react';
+import type { ElectionId } from '@votingworks/types';
 import {
   AppLogo,
   LeftNav as LeftNavBase,

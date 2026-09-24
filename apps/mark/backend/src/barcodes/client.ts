@@ -1,10 +1,10 @@
-import { BaseLogger, LogEventId } from '@votingworks/logging';
+import { type BaseLogger, LogEventId } from '@votingworks/logging';
 import { Worker } from 'node:worker_threads';
 import { EventEmitter } from 'node:events';
 import util from 'node:util';
 
 import { sleep, throwIllegalValue } from '@votingworks/basics';
-import { BarcodeReader, WorkerMessage } from './types.js';
+import type { BarcodeReader, WorkerMessage } from './types.js';
 
 export class BarcodeClient
   extends EventEmitter<{

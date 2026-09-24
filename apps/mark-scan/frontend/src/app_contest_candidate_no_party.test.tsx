@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
-import { CandidateContest, Election } from '@votingworks/types';
+import type { CandidateContest, Election } from '@votingworks/types';
 import {
   asElectionDefinition,
   readElectionGeneral,
@@ -11,7 +11,10 @@ import { App } from './app.js';
 
 import { advanceTimersAndPromises } from '../test/helpers/timers.js';
 
-import { ApiMock, createApiMock } from '../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../test/helpers/mock_api_client.js';
 
 let apiMock: ApiMock;
 

@@ -1,4 +1,4 @@
-import { ElectionDefinition } from '@votingworks/types';
+import type { ElectionDefinition } from '@votingworks/types';
 import { Main, Screen, ElectionInfoBar, H1, P } from '@votingworks/ui';
 
 interface Props {

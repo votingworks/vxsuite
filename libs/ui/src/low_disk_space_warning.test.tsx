@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { DiskSpaceSummary } from '@votingworks/utils';
+import type { DiskSpaceSummary } from '@votingworks/utils';
 import { userEvent } from './user_event.js';
 
 import { screen, within } from '../test/react_testing_library.js';

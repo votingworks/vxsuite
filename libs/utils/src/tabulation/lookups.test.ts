@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'vitest';
-import { ElectionDefinition } from '@votingworks/types';
+import type { ElectionDefinition } from '@votingworks/types';
 import {
   electionPrimaryPrecinctSplitsFixtures,
   readElectionTwoPartyPrimaryDefinition,
