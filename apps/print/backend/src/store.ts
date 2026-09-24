@@ -3,8 +3,6 @@
 //
 
 import {
-  UiStringsStore,
-  createUiStringStore,
   addDiagnosticRecord,
   getMostRecentDiagnosticRecord,
 } from '@votingworks/backend';
@@ -54,10 +52,7 @@ export interface ElectionRecord {
  * Manages a data store for imported election definition and system settings
  */
 export class Store {
-  private constructor(
-    private readonly client: DbClient,
-    private readonly uiStringsStore: UiStringsStore
-  ) {}
+  private constructor(private readonly client: DbClient) {}
 
   getDbPath(): string {
     return this.client.getDatabasePath();
@@ -68,8 +63,7 @@ export class Store {
    */
   static memoryStore(): Store {
     const client = DbClient.memoryClient(SchemaPath);
-    const uiStringsStore = createUiStringStore(client);
-    return new Store(client, uiStringsStore);
+    return new Store(client);
   }
 
   /**
@@ -77,8 +71,7 @@ export class Store {
    */
   static fileStore(dbPath: string, logger: BaseLogger): Store {
     const client = DbClient.fileClient(dbPath, logger, SchemaPath);
-    const uiStringsStore = createUiStringStore(client);
-    return new Store(client, uiStringsStore);
+    return new Store(client);
   }
 
   /**
@@ -200,6 +193,7 @@ export class Store {
     electionData: string;
     jurisdiction: string;
     electionPackageHash: string;
+    ballotHash: string;
   }): void {
     this.client.run('delete from election');
     if (input) {
@@ -208,11 +202,13 @@ export class Store {
         insert into election (
           election_data,
           jurisdiction,
+          ballot_hash,
           election_package_hash
-        ) values (?, ?, ?)
+        ) values (?, ?, ?, ?)
         `,
         input.electionData,
         input.jurisdiction,
+        input.ballotHash,
         input.electionPackageHash
       );
     }

@@ -356,6 +356,7 @@ export function buildApi(ctx: Context) {
             electionData: electionDefinition.electionData,
             jurisdiction: authStatus.user.jurisdiction,
             electionPackageHash,
+            ballotHash: electionDefinition.ballotHash,
           });
           workspace.store.setSystemSettings(systemSettings);
 

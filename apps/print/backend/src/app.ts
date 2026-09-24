@@ -230,6 +230,7 @@ export function buildApi(ctx: AppContext) {
             electionData: electionDefinition.electionData,
             jurisdiction: authStatus.user.jurisdiction,
             electionPackageHash,
+            ballotHash: electionDefinition.ballotHash,
           });
           store.setSystemSettings(systemSettings);
 

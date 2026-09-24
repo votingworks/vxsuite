@@ -192,6 +192,7 @@ export function buildApi({
             electionData: electionDefinition.electionData,
             jurisdiction: authStatus.user.jurisdiction,
             electionPackageHash,
+            ballotHash: electionDefinition.ballotHash,
           });
 
           if (electionDefinition.election.pollingPlaces?.length === 1) {
