@@ -53,7 +53,8 @@ async function* splitIntoBalancedChunks<T>(
   let currentChunkWeight = 0;
   let numChunksYielded = 0;
   for await (const [i, item] of iter(items).enumerate()) {
-    const weight = itemWeights[i];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const weight = itemWeights[i]!;
     if (
       currentChunkWeight + weight >= targetWeight &&
       numChunksYielded < numChunks - 1

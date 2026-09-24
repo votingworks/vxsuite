@@ -103,7 +103,7 @@ test('renders MachineLockedScreen when machine is locked - configured with elect
   });
   apiMock.setElection(
     famousNamesElection,
-    famousNamesElection.election.precincts[0].id,
+    famousNamesElection.election.precincts[0]!.id,
     'FAKEHASH'
   );
   renderApp();

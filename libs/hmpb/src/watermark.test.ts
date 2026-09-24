@@ -23,12 +23,12 @@ vi.setConfig({
 
 rendererTest('watermark', async ({ renderer }) => {
   const election = electionFamousNames2021Fixtures.readElection();
-  const ballotStyle = election.ballotStyles[0];
+  const ballotStyle = election.ballotStyles[0]!;
   const pdf = (
     await renderBallotPreviewToPdf(renderer, vxDefaultBallotTemplate, {
       election,
       ballotStyleId: ballotStyle.id,
-      precinctId: ballotStyle.precincts[0],
+      precinctId: ballotStyle.precincts[0]!,
       ballotType: BallotType.Precinct,
       ballotMode: 'test',
       watermark: 'PROOF',

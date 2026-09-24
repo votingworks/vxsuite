@@ -62,7 +62,7 @@ test('getContestDistrictName returns the district name for a merged contest', ()
   expect(getContestDistrictName(election, mergedContest)).toEqual(
     'State Of Mississippi'
   );
-  expect(getContestDistrictName(election, election.contests[0])).toEqual(
+  expect(getContestDistrictName(election, election.contests[0]!)).toEqual(
     'United States'
   );
 });

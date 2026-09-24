@@ -207,9 +207,9 @@ async function waitForFailure(
 /** The sole batch is neither sent nor failed and is still being sent (awaiting a retry). */
 function expectAwaitingRetry(store: Store): void {
   const [batch] = store.getBatches();
-  expect(batch.sentToAdminAt).toBeUndefined();
-  expect(batch.sendToAdminError).toBeUndefined();
-  expect(batch.isSendingToAdmin).toEqual(true);
+  expect(batch!.sentToAdminAt).toBeUndefined();
+  expect(batch!.sendToAdminError).toBeUndefined();
+  expect(batch!.isSendingToAdmin).toEqual(true);
 }
 
 async function advancePollingInterval(): Promise<void> {
@@ -294,7 +294,7 @@ test('sends batches oldest first, one per pass', async () => {
   );
 
   expect(mockClient.startCvrTransfer).toHaveBeenCalledTimes(1);
-  expect(mockClient.startCvrTransfer.mock.calls[0][0].batchId).toEqual(
+  expect(mockClient.startCvrTransfer.mock.calls[0]![0].batchId).toEqual(
     olderBatchId
   );
 
@@ -304,7 +304,7 @@ test('sends batches oldest first, one per pass', async () => {
     { timeout: 30_000 }
   );
   expect(mockClient.startCvrTransfer).toHaveBeenCalledTimes(2);
-  expect(mockClient.startCvrTransfer.mock.calls[1][0].batchId).toEqual(
+  expect(mockClient.startCvrTransfer.mock.calls[1]![0].batchId).toEqual(
     newerBatchId
   );
 });
@@ -575,7 +575,7 @@ test('a failed import marks the batch failed and skips it, sending the next batc
       ),
     { timeout: 30_000 }
   );
-  expect(mockClient.startCvrTransfer.mock.calls[0][0].batchId).toEqual(
+  expect(mockClient.startCvrTransfer.mock.calls[0]![0].batchId).toEqual(
     failingBatchId
   );
 
@@ -583,7 +583,7 @@ test('a failed import marks the batch failed and skips it, sending the next batc
   mockClient.startCvrTransfer.mockResolvedValue(ok({ alreadyComplete: true }));
   await advancePollingInterval();
   expect(mockClient.startCvrTransfer).toHaveBeenCalledTimes(2);
-  expect(mockClient.startCvrTransfer.mock.calls[1][0].batchId).toEqual(
+  expect(mockClient.startCvrTransfer.mock.calls[1]![0].batchId).toEqual(
     nextBatchId
   );
   expect(store.getBatch(nextBatchId).sentToAdminAt).toBeDefined();
@@ -597,7 +597,7 @@ test('a failed import marks the batch failed and skips it, sending the next batc
   store.setBatchSendToAdminError(failingBatchId, null);
   await advancePollingInterval();
   expect(mockClient.startCvrTransfer).toHaveBeenCalledTimes(3);
-  expect(mockClient.startCvrTransfer.mock.calls[2][0].batchId).toEqual(
+  expect(mockClient.startCvrTransfer.mock.calls[2]![0].batchId).toEqual(
     failingBatchId
   );
   expect(store.getNextBatchToSendToAdmin()).toBeUndefined();

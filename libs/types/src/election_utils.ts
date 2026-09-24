@@ -410,7 +410,8 @@ export function isCombinedBallotPrimary(election: Election): boolean {
     // We only need to check the first ballot style, since election validation
     // guarantees that either all ballot styles have a partyId or none do.
     election.ballotStyles.length > 0 &&
-    !election.ballotStyles[0].partyId
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    !election.ballotStyles[0]!.partyId
   );
 }
 

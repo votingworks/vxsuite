@@ -195,7 +195,8 @@ export function* enumerateCharacterCodeEscapes(
   for (const match of string.matchAll(CharacterEscapeSequencePattern)) {
     assert(typeof match.index === 'number');
     if (isStartOfEscapeSequence(string, match.index)) {
-      const hexString = match[1] ?? match[2] ?? match[3];
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const hexString = match[1] ?? match[2]! ?? match[3]!;
       const charCode = parseInt(hexString, 16);
       assert(!Number.isNaN(charCode) && Number.isFinite(charCode));
       const char = String.fromCharCode(charCode);

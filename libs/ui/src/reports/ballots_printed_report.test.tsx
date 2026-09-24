@@ -168,8 +168,8 @@ test('renders report for Primary Election with precinct splits, parties, multipl
 test('renders report for General Election with no parties, precincts, single language', () => {
   const { election } = electionDefinitionSimple;
 
-  const precinct = election.precincts[0];
-  const ballotStyleId = election.ballotStyles[0].id;
+  const precinct = election.precincts[0]!;
+  const ballotStyleId = election.ballotStyles[0]!.id;
 
   const ballotPrintCounts: BallotPrintCount[] = [
     {
@@ -216,8 +216,8 @@ test('renders report for General Election with no parties, precincts, single lan
 test('renders report for Combined Ballot Primary Election without a party column', () => {
   const { election } = electionDefinitionCombinedBallotPrimary;
 
-  const precinct = election.precincts[0];
-  const ballotStyleId = election.ballotStyles[0].id;
+  const precinct = election.precincts[0]!;
+  const ballotStyleId = election.ballotStyles[0]!.id;
 
   // In a combined ballot primary, consolidated ballot styles have no party, so rows have
   // no partyName, just like a general election.
@@ -329,8 +329,8 @@ test('sums totals across multiple rows', () => {
 
 test('renders count columns', () => {
   const { election } = electionDefinitionSimple;
-  const precinct = election.precincts[0];
-  const ballotStyleId = election.ballotStyles[0].id;
+  const precinct = election.precincts[0]!;
+  const ballotStyleId = election.ballotStyles[0]!.id;
 
   const ballotPrintCounts: BallotPrintCount[] = [
     {

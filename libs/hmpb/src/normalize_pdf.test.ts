@@ -57,7 +57,7 @@ function extractContentStreams(data: Uint8Array): string[] {
   const streamRegex = /stream\r?\n([\s\S]*?)\r?\nendstream/g;
   let match = streamRegex.exec(str);
   while (match) {
-    streams.push(match[1]);
+    streams.push(match[1]!);
     match = streamRegex.exec(str);
   }
   return streams;
@@ -231,11 +231,11 @@ describe('normalizePdf', () => {
     const xrefMatch = result.match(/xref\n0 (\d+)\n([\s\S]*?)trailer/);
     expect(xrefMatch).toBeTruthy();
 
-    const entries = xrefMatch![2].trim().split('\n');
+    const entries = xrefMatch![2]!.trim().split('\n');
     expect(entries[0]).toMatch(/^0000000000 65535 f/);
 
     for (let i = 1; i < entries.length; i += 1) {
-      const offset = safeParseInt(entries[i].slice(0, 10)).unsafeUnwrap();
+      const offset = safeParseInt(entries[i]!.slice(0, 10)).unsafeUnwrap();
       expect(result.slice(offset)).toMatch(new RegExp(`^${i} 0 obj`));
     }
   });

@@ -53,13 +53,16 @@ function PollbookConnectionTable({
         <tbody>
           {groups.map(([electionHash, pollbooksForElection]) => (
             <tr key={electionHash} data-testid="pollbook-config-row">
-              <td>{pollbooksForElection[0].electionTitle}</td>
+              {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
+              <td>{pollbooksForElection[0]!.electionTitle}</td>
               <td>
                 {formatElectionHashes(
                   // @coverage-defer
-                  pollbooksForElection[0].electionBallotHash || '',
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  pollbooksForElection[0]!.electionBallotHash || '',
                   // @coverage-defer
-                  pollbooksForElection[0].pollbookPackageHash || ''
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  pollbooksForElection[0]!.pollbookPackageHash || ''
                 )}
               </td>
               <td>

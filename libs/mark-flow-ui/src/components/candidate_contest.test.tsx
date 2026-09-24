@@ -106,7 +106,7 @@ test('shows up-to-date vote counter - single-seat contest', () => {
   const updateVote = vi.fn();
   const { rerender } = render(
     <CandidateContest
-      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+      ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
       election={electionDefinition.election}
       contest={candidateContest}
       vote={[]}
@@ -120,10 +120,10 @@ test('shows up-to-date vote counter - single-seat contest', () => {
 
   rerender(
     <CandidateContest
-      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+      ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
       election={electionDefinition.election}
       contest={candidateContest}
-      vote={[candidateContest.candidates[0]]}
+      vote={[candidateContest.candidates[0]!]}
       updateVote={updateVote}
     />
   );
@@ -137,7 +137,7 @@ test('shows up-to-date vote counter - multi-seat contest', () => {
   const updateVote = vi.fn();
   const { rerender } = render(
     <CandidateContest
-      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+      ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
       election={electionDefinition.election}
       contest={candidateContestWithMultipleSeats}
       vote={[]}
@@ -151,12 +151,12 @@ test('shows up-to-date vote counter - multi-seat contest', () => {
 
   rerender(
     <CandidateContest
-      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+      ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
       election={electionDefinition.election}
       contest={candidateContestWithMultipleSeats}
       vote={[
-        candidateContestWithMultipleSeats.candidates[0],
-        candidateContestWithMultipleSeats.candidates[1],
+        candidateContestWithMultipleSeats.candidates[0]!,
+        candidateContestWithMultipleSeats.candidates[1]!,
       ]}
       updateVote={updateVote}
     />
@@ -172,7 +172,7 @@ describe('supports single-seat contest', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
         election={electionDefinition.election}
         contest={candidateContest}
         vote={[]}
@@ -181,17 +181,17 @@ describe('supports single-seat contest', () => {
     );
 
     userEvent.click(
-      screen.getByText(candidateContest.candidates[0].name).closest('button')!
+      screen.getByText(candidateContest.candidates[0]!.name).closest('button')!
     );
     expect(updateVote).toHaveBeenCalledTimes(1);
 
     userEvent.click(
-      screen.getByText(candidateContest.candidates[1].name).closest('button')!
+      screen.getByText(candidateContest.candidates[1]!.name).closest('button')!
     );
     expect(updateVote).toHaveBeenCalledTimes(2);
 
     userEvent.click(
-      screen.getByText(candidateContest.candidates[2].name).closest('button')!
+      screen.getByText(candidateContest.candidates[2]!.name).closest('button')!
     );
     expect(updateVote).toHaveBeenCalledTimes(3);
   });
@@ -200,7 +200,7 @@ describe('supports single-seat contest', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
         election={electionDefinition.election}
         contest={candidateContest}
         vote={[]}
@@ -209,7 +209,7 @@ describe('supports single-seat contest', () => {
     );
 
     const candidateButton = screen
-      .getByText(candidateContest.candidates[0].name)
+      .getByText(candidateContest.candidates[0]!.name)
       .closest('button')!;
     candidateButton.focus();
     expect(candidateButton).toHaveFocus();
@@ -217,9 +217,9 @@ describe('supports single-seat contest', () => {
     expect(updateVote).toHaveBeenCalledTimes(1);
     expect(updateVote).toHaveBeenCalledWith(candidateContest.id, [
       {
-        id: candidateContest.candidates[0].id,
-        name: candidateContest.candidates[0].name,
-        partyIds: candidateContest.candidates[0].partyIds,
+        id: candidateContest.candidates[0]!.id,
+        name: candidateContest.candidates[0]!.name,
+        partyIds: candidateContest.candidates[0]!.partyIds,
       },
     ]);
   });
@@ -228,31 +228,31 @@ describe('supports single-seat contest', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
         election={electionDefinition.election}
         contest={candidateContest}
-        vote={[candidateContest.candidates[0]]}
+        vote={[candidateContest.candidates[0]!]}
         updateVote={updateVote}
       />
     );
 
     screen.getByRole('option', {
-      name: new RegExp(candidateContest.candidates[0].name),
+      name: new RegExp(candidateContest.candidates[0]!.name),
       selected: true,
     });
 
     userEvent.click(
-      screen.getByText(candidateContest.candidates[1].name).closest('button')!
+      screen.getByText(candidateContest.candidates[1]!.name).closest('button')!
     );
     expect(updateVote).not.toHaveBeenCalled();
 
     userEvent.click(
-      screen.getByText(candidateContest.candidates[2].name).closest('button')!
+      screen.getByText(candidateContest.candidates[2]!.name).closest('button')!
     );
     expect(updateVote).not.toHaveBeenCalled();
 
     userEvent.click(
-      screen.getByText(candidateContest.candidates[0].name).closest('button')!
+      screen.getByText(candidateContest.candidates[0]!.name).closest('button')!
     );
     expect(updateVote).toHaveBeenCalled();
   });
@@ -263,44 +263,44 @@ describe('supports multi-seat contests', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
         election={electionDefinition.election}
         contest={candidateContestWithMultipleSeats}
-        vote={[candidateContestWithMultipleSeats.candidates[0]]}
+        vote={[candidateContestWithMultipleSeats.candidates[0]!]}
         updateVote={updateVote}
       />
     );
 
     screen.getByRole('option', {
-      name: new RegExp(candidateContestWithMultipleSeats.candidates[0].name),
+      name: new RegExp(candidateContestWithMultipleSeats.candidates[0]!.name),
       selected: true,
     });
     screen.getByRole('option', {
-      name: new RegExp(candidateContestWithMultipleSeats.candidates[1].name),
+      name: new RegExp(candidateContestWithMultipleSeats.candidates[1]!.name),
       selected: false,
     });
     screen.getByRole('option', {
-      name: new RegExp(candidateContestWithMultipleSeats.candidates[2].name),
+      name: new RegExp(candidateContestWithMultipleSeats.candidates[2]!.name),
       selected: false,
     });
 
     userEvent.click(
       screen
-        .getByText(candidateContestWithMultipleSeats.candidates[1].name)
+        .getByText(candidateContestWithMultipleSeats.candidates[1]!.name)
         .closest('button')!
     );
     expect(updateVote).toHaveBeenCalledTimes(1);
 
     userEvent.click(
       screen
-        .getByText(candidateContestWithMultipleSeats.candidates[2].name)
+        .getByText(candidateContestWithMultipleSeats.candidates[2]!.name)
         .closest('button')!
     );
     expect(updateVote).toHaveBeenCalledTimes(2);
 
     userEvent.click(
       screen
-        .getByText(candidateContestWithMultipleSeats.candidates[0].name)
+        .getByText(candidateContestWithMultipleSeats.candidates[0]!.name)
         .closest('button')!
     );
     expect(updateVote).toHaveBeenCalledTimes(3);
@@ -317,7 +317,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -370,7 +370,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -418,7 +418,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -445,7 +445,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[
@@ -476,7 +476,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -502,7 +502,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={Array.from({ length: candidateContestWithWriteIns.seats }).map(
@@ -556,7 +556,7 @@ describe('supports write-in candidates', () => {
       const updateVote = vi.fn();
       render(
         <CandidateContest
-          ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+          ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
           election={electionDefinition.election}
           contest={candidateContestWithWriteIns}
           vote={[]}
@@ -608,7 +608,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -658,7 +658,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -703,7 +703,7 @@ describe('supports write-in candidates', () => {
 
     const { rerender } = render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
         election={electionDefinition.election}
         contest={contest}
         vote={[]}
@@ -716,7 +716,7 @@ describe('supports write-in candidates', () => {
     updateVote.mockImplementation((_, votes) => {
       rerender(
         <CandidateContest
-          ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+          ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
           election={electionDefinition.election}
           contest={contest}
           vote={votes as CandidateVote}
@@ -756,7 +756,7 @@ describe('supports write-in candidates', () => {
 
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
         election={electionDefinition.election}
         contest={contest}
         vote={votes}
@@ -777,7 +777,7 @@ describe('supports write-in candidates', () => {
     }
 
     addWriteIn('FOO');
-    selectCandidate(contest.candidates[0]);
+    selectCandidate(contest.candidates[0]!);
     addWriteIn('BAR');
     addWriteIn('BAZ');
     expect(votes).toEqual([
@@ -807,7 +807,7 @@ describe('audio cues', () => {
 
     const { rerender } = render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
         election={electionDefinition.election}
         contest={twoSeatContest}
         vote={[]}
@@ -818,7 +818,7 @@ describe('audio cues', () => {
     updateVote.mockImplementation((_, votes) => {
       rerender(
         <CandidateContest
-          ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+          ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
           election={electionDefinition.election}
           contest={twoSeatContest}
           vote={votes as CandidateVote}
@@ -829,19 +829,22 @@ describe('audio cues', () => {
 
     const [candidateA, candidateB] = twoSeatContest.candidates;
     const firstCandidateChoice = screen.getByRole('option', {
-      name: new RegExp(candidateA.name),
+      name: new RegExp(candidateA!.name),
       selected: false,
     });
 
     // initially, the candidate is not selected
     expect(firstCandidateChoice).toHaveAccessibleName(
-      expect.stringContaining(candidateA.name)
+      expect.stringContaining(candidateA!.name)
     );
 
     // select the first candidate to update the vote and trigger audio prompt:
     userEvent.click(firstCandidateChoice);
     screen.getByRole('option', {
-      name: new RegExp(`Selected.+${candidateA.name}.+votes remaining.+1`, 'i'),
+      name: new RegExp(
+        `Selected.+${candidateA!.name}.+votes remaining.+1`,
+        'i'
+      ),
       selected: true,
     });
 
@@ -855,12 +858,12 @@ describe('audio cues', () => {
 
     const lastCandidateParty = getCandidateParties(
       electionDefinition.election.parties,
-      candidateA
-    ).slice(-1)[0];
+      candidateA!
+    ).slice(-1)[0]!;
 
     screen.getByRole('option', {
       name: new RegExp(
-        `^Selected.+${candidateA.name}.+${lastCandidateParty.name}$`,
+        `^Selected.+${candidateA!.name}.+${lastCandidateParty.name}$`,
         'i'
       ),
       selected: true,
@@ -868,7 +871,7 @@ describe('audio cues', () => {
 
     // select the second candidate:
     const secondCandidateChoice = screen.getByRole('option', {
-      name: new RegExp(candidateB.name),
+      name: new RegExp(candidateB!.name),
       selected: false,
     });
 
@@ -876,7 +879,7 @@ describe('audio cues', () => {
 
     screen.getByRole('option', {
       name: new RegExp(
-        `Selected.+${candidateB.name}.+you've completed your selections`,
+        `Selected.+${candidateB!.name}.+you've completed your selections`,
         'i'
       ),
       selected: true,
@@ -886,7 +889,7 @@ describe('audio cues', () => {
     userEvent.click(firstCandidateChoice);
     screen.getByRole('option', {
       name: new RegExp(
-        `Deselected.+${candidateA.name}.+votes remaining.+1`,
+        `Deselected.+${candidateA!.name}.+votes remaining.+1`,
         'i'
       ),
       selected: false,
@@ -902,7 +905,10 @@ describe('audio cues', () => {
     });
 
     screen.getByRole('option', {
-      name: new RegExp(`^${candidateA.name}.+${lastCandidateParty.name}$`, 'i'),
+      name: new RegExp(
+        `^${candidateA!.name}.+${lastCandidateParty.name}$`,
+        'i'
+      ),
       selected: false,
     });
   });
@@ -911,7 +917,7 @@ describe('audio cues', () => {
 test('shows review mode navigation instructions when isReviewMode is true', () => {
   render(
     <CandidateContest
-      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+      ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
       election={electionDefinition.election}
       contest={candidateContest}
       vote={[]}
@@ -942,7 +948,7 @@ test('shows term description, if available', () => {
 
   render(
     <CandidateContest
-      ballotStyleId={electionDefinition.election.ballotStyles[0].id}
+      ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
       election={election}
       contest={contest}
       vote={[]}
@@ -981,9 +987,9 @@ describe('candidate ordering', () => {
     expect(buttons).toHaveLength(3);
 
     // Check that candidates appear in ballot style 1-1 order
-    within(buttons[0]).getByText('Sherlock Holmes');
-    within(buttons[1]).getByText('Sherlock Holmes');
-    within(buttons[2]).getByText('Thomas Edison');
+    within(buttons[0]!).getByText('Sherlock Holmes');
+    within(buttons[1]!).getByText('Sherlock Holmes');
+    within(buttons[2]!).getByText('Thomas Edison');
   });
 
   test('renders candidates in different order for different ballot style', () => {
@@ -1013,9 +1019,9 @@ describe('candidate ordering', () => {
     expect(buttons).toHaveLength(3);
 
     // Check that candidates appear in ballot style 1-2 order
-    within(buttons[0]).getByText('Sherlock Holmes');
-    within(buttons[1]).getByText('Thomas Edison');
-    within(buttons[2]).getByText('Sherlock Holmes');
+    within(buttons[0]!).getByText('Sherlock Holmes');
+    within(buttons[1]!).getByText('Thomas Edison');
+    within(buttons[2]!).getByText('Sherlock Holmes');
   });
 
   test('renders candidates in rotated order for multi-candidate contest', () => {
@@ -1043,9 +1049,9 @@ describe('candidate ordering', () => {
 
     const buttons = screen.getAllByRole('option');
     expect(buttons).toHaveLength(3);
-    within(buttons[0]).getByText('Winston Churchill');
-    within(buttons[1]).getByText('Oprah Winfrey');
-    within(buttons[2]).getByText('Louis Armstrong');
+    within(buttons[0]!).getByText('Winston Churchill');
+    within(buttons[1]!).getByText('Oprah Winfrey');
+    within(buttons[2]!).getByText('Louis Armstrong');
   });
 
   test('uses original candidate order when no ordering specified for ballot style', () => {
@@ -1092,9 +1098,9 @@ describe('candidate ordering', () => {
     expect(buttons).toHaveLength(3);
 
     // Check that candidates appear in original order
-    within(buttons[0]).getByText('Alice');
-    within(buttons[1]).getByText('Bob');
-    within(buttons[2]).getByText('Carol');
+    within(buttons[0]!).getByText('Alice');
+    within(buttons[1]!).getByText('Bob');
+    within(buttons[2]!).getByText('Carol');
   });
 });
 
@@ -1152,17 +1158,17 @@ describe('cross-endorsed candidates', () => {
     expect(buttons).toHaveLength(3);
 
     // Check that Alice appears twice with different party affiliations
-    within(buttons[0]).getByText('Alice Anderson');
-    within(buttons[0]).getByText('Federalist');
-    expect(within(buttons[0]).queryByText(/People/)).not.toBeInTheDocument();
+    within(buttons[0]!).getByText('Alice Anderson');
+    within(buttons[0]!).getByText('Federalist');
+    expect(within(buttons[0]!).queryByText(/People/)).not.toBeInTheDocument();
 
-    within(buttons[1]).getByText('Bob Brown');
-    within(buttons[1]).getByText('Liberty');
+    within(buttons[1]!).getByText('Bob Brown');
+    within(buttons[1]!).getByText('Liberty');
 
-    within(buttons[2]).getByText('Alice Anderson');
-    within(buttons[2]).getByText(/People/);
+    within(buttons[2]!).getByText('Alice Anderson');
+    within(buttons[2]!).getByText(/People/);
     expect(
-      within(buttons[2]).queryByText('Federalist')
+      within(buttons[2]!).queryByText('Federalist')
     ).not.toBeInTheDocument();
   });
 
@@ -1218,12 +1224,12 @@ describe('cross-endorsed candidates', () => {
     expect(buttons).toHaveLength(2);
 
     // Check that Alice appears once with both party affiliations
-    within(buttons[0]).getByText('Alice Anderson');
-    within(buttons[0]).getByText('Federalist');
-    within(buttons[0]).getByText(/People/);
+    within(buttons[0]!).getByText('Alice Anderson');
+    within(buttons[0]!).getByText('Federalist');
+    within(buttons[0]!).getByText(/People/);
 
-    within(buttons[1]).getByText('Bob Brown');
-    within(buttons[1]).getByText('Liberty');
+    within(buttons[1]!).getByText('Bob Brown');
+    within(buttons[1]!).getByText('Liberty');
   });
 
   test('selecting cross-endorsed candidate stores specific party IDs from selected option', () => {
@@ -1279,7 +1285,7 @@ describe('cross-endorsed candidates', () => {
     const buttons = screen.getAllByRole('option');
 
     // Click first Alice option (as Democrat - party 0)
-    userEvent.click(buttons[0]);
+    userEvent.click(buttons[0]!);
 
     expect(updateVote).toHaveBeenCalledWith('governor', [
       {
@@ -1343,7 +1349,7 @@ describe('cross-endorsed candidates', () => {
     const buttons = screen.getAllByRole('option');
 
     // Click third Alice option (as Republican - party 1)
-    userEvent.click(buttons[2]);
+    userEvent.click(buttons[2]!);
 
     expect(updateVote).toHaveBeenCalledWith('governor', [
       {
@@ -1413,7 +1419,7 @@ describe('cross-endorsed candidates', () => {
     });
 
     // Click to deselect
-    userEvent.click(buttons[0]);
+    userEvent.click(buttons[0]!);
 
     expect(updateVote).toHaveBeenCalledWith('governor', []);
   });
@@ -1471,7 +1477,7 @@ describe('cross-endorsed candidates', () => {
     const buttons = screen.getAllByRole('option');
 
     // Select Alice as Democrat
-    userEvent.click(buttons[0]);
+    userEvent.click(buttons[0]!);
     expect(updateVote).toHaveBeenCalledWith('council', [
       { id: 'alice', name: 'Alice Anderson', partyIds: ['0'] },
     ]);
@@ -1528,7 +1534,7 @@ describe('straight party derived votes', () => {
   }) {
     render(
       <CandidateContest
-        ballotStyleId={ballotStyle.id}
+        ballotStyleId={ballotStyle!.id}
         election={straightPartyElection}
         contest={contest}
         vote={vote}
@@ -1542,7 +1548,7 @@ describe('straight party derived votes', () => {
     renderContest({ selectedStraightPartyId: federalistPartyId });
 
     const federalistButton = screen
-      .getByText(federalistCandidate.name)
+      .getByText(federalistCandidate!.name)
       .closest('button')!;
     expect(federalistButton).toHaveAttribute('aria-selected', 'true');
     within(federalistButton).getByText(/straight party vote/i);
@@ -1556,7 +1562,7 @@ describe('straight party derived votes', () => {
     renderContest({});
 
     const federalistButton = screen
-      .getByText(federalistCandidate.name)
+      .getByText(federalistCandidate!.name)
       .closest('button')!;
     expect(federalistButton).toHaveAttribute('aria-selected', 'false');
     expect(federalistButton).not.toHaveTextContent(/straight party vote/i);
@@ -1576,7 +1582,7 @@ describe('straight party derived votes', () => {
     });
 
     userEvent.click(
-      screen.getByText(federalistCandidate.name).closest('button')!
+      screen.getByText(federalistCandidate!.name).closest('button')!
     );
     expect(updateVote).toHaveBeenCalledWith(presidentContest.id, [
       federalistCandidate,
@@ -1592,7 +1598,9 @@ describe('straight party derived votes', () => {
 
     // Even though the seat is filled by a derived vote, a different candidate
     // remains selectable because the voter still has a direct selection to make.
-    userEvent.click(screen.getByText(libertyCandidate.name).closest('button')!);
+    userEvent.click(
+      screen.getByText(libertyCandidate!.name).closest('button')!
+    );
     expect(updateVote).toHaveBeenCalledWith(presidentContest.id, [
       libertyCandidate,
     ]);
@@ -1673,7 +1681,7 @@ describe('straight party derived votes', () => {
     const contest: CandidateContestInterface = {
       ...countyCommissionersContest,
       seats: 1,
-      candidates: [{ ...argent, partyIds: ['0', '2'] }],
+      candidates: [{ ...argent!, partyIds: ['0', '2'] }],
     };
     // Rotate so the cross-endorsed candidate appears once under each endorsing
     // party (Federalist and Liberty).
@@ -1683,11 +1691,11 @@ describe('straight party derived votes', () => {
       ...straightPartyElection,
       ballotStyles: [
         {
-          ...firstBallotStyle,
+          ...firstBallotStyle!,
           orderedCandidatesByContest: {
             [contest.id]: [
-              { id: argent.id, partyIds: ['0'] },
-              { id: argent.id, partyIds: ['2'] },
+              { id: argent!.id, partyIds: ['0'] },
+              { id: argent!.id, partyIds: ['2'] },
             ],
           },
         },
@@ -1697,7 +1705,7 @@ describe('straight party derived votes', () => {
 
     render(
       <CandidateContest
-        ballotStyleId={firstBallotStyle.id}
+        ballotStyleId={firstBallotStyle!.id}
         election={election}
         contest={contest}
         vote={[]}

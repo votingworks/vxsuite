@@ -17,7 +17,8 @@ function CreateElectionModalForm({
 }): React.ReactNode {
   const createElectionMutation = api.createElection.useMutation();
   const [jurisdictionId, setJurisdictionId] = React.useState<string>(
-    jurisdictions[0].id
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    jurisdictions[0]!.id
   );
 
   return (
@@ -117,7 +118,8 @@ export function CreateElectionButton(
         icon="Add"
         onPress={
           user.type === 'jurisdiction_user' && user.jurisdictions.length === 1
-            ? () => createElection(user.jurisdictions[0].id)
+            ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              () => createElection(user.jurisdictions[0]!.id)
             : () => setModalActive(true)
         }
         disabled={modalActive || disabled}

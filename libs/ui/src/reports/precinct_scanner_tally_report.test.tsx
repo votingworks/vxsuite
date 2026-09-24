@@ -57,7 +57,7 @@ test('renders as expected for a single precinct in a general election', () => {
       precinctScannerMachineId="SC-01-000"
       electionDefinition={generalElectionDefinition}
       electionPackageHash="test-election-package-hash"
-      pollingPlaceId={pollingPlace.id}
+      pollingPlaceId={pollingPlace!.id}
       pollsTransition="open_polls"
       isLiveMode={false}
       scannedElectionResults={generalElectionResults}
@@ -67,7 +67,7 @@ test('renders as expected for a single precinct in a general election', () => {
   );
   expect(screen.queryByText('Party')).toBeNull();
   screen.getByText('Test Report');
-  screen.getByText(`Polls Opened Report • ${pollingPlace.name}`);
+  screen.getByText(`Polls Opened Report • ${pollingPlace!.name}`);
   screen.getByText(
     'Lincoln Municipal General Election, Jun 6, 2021, Franklin County, State of Hamilton'
   );
@@ -135,7 +135,7 @@ test('renders as expected for all precincts in a primary election', () => {
       precinctScannerMachineId="SC-01-000"
       electionDefinition={electionTwoPartyPrimaryDefinition}
       electionPackageHash="test-election-package-hash"
-      pollingPlaceId={pollingPlace.id}
+      pollingPlaceId={pollingPlace!.id}
       pollsTransition="open_polls"
       isLiveMode
       scannedElectionResults={primaryElectionResults}
@@ -149,7 +149,7 @@ test('renders as expected for all precincts in a primary election', () => {
       batches={[]}
     />
   );
-  screen.getByText(`Polls Opened Report • ${pollingPlace.name}`);
+  screen.getByText(`Polls Opened Report • ${pollingPlace!.name}`);
   screen.getByText('Mammal Party');
   screen.getByText(
     'Example Primary Election, Sep 8, 2021, Sample County, State of Sample'
@@ -196,7 +196,7 @@ test('displays only passed contests', () => {
       precinctScannerMachineId="SC-01-000"
       electionDefinition={electionTwoPartyPrimaryDefinition}
       electionPackageHash="test-election-package-hash"
-      pollingPlaceId={pollingPlace.id}
+      pollingPlaceId={pollingPlace!.id}
       pollsTransition="open_polls"
       isLiveMode
       scannedElectionResults={primaryElectionResults}

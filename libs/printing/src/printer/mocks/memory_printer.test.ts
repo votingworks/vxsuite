@@ -34,8 +34,8 @@ test('memory printer', async () => {
     filename: expect.stringMatching(/^\/tmp\/mock-print-job-.*\.pdf$/),
     options: { copies: 1, sides: PrintSides.OneSided },
   });
-  expect(printerHandler.getLastPrintPath()).toEqual(printJob1.filename);
-  expect((await readFile(printJob1.filename, 'utf8')).toString()).toEqual(
+  expect(printerHandler.getLastPrintPath()).toEqual(printJob1!.filename);
+  expect((await readFile(printJob1!.filename, 'utf8')).toString()).toEqual(
     'print1'
   );
 
@@ -49,8 +49,8 @@ test('memory printer', async () => {
     filename: expect.stringMatching(/^\/tmp\/mock-print-job-.*\.pdf$/),
     options: { raw: { 'fit-to-page': 'true' } },
   });
-  expect(printerHandler.getLastPrintPath()).toEqual(printJob2.filename);
-  expect((await readFile(printJob2.filename, 'utf8')).toString()).toEqual(
+  expect(printerHandler.getLastPrintPath()).toEqual(printJob2!.filename);
+  expect((await readFile(printJob2!.filename, 'utf8')).toString()).toEqual(
     'print2'
   );
 
@@ -58,8 +58,8 @@ test('memory printer', async () => {
   expect(await printer.status()).toEqual({ connected: false });
 
   printerHandler.cleanup();
-  expect(existsSync(printJob1.filename)).toEqual(false);
-  expect(existsSync(printJob2.filename)).toEqual(false);
+  expect(existsSync(printJob1!.filename)).toEqual(false);
+  expect(existsSync(printJob2!.filename)).toEqual(false);
 });
 
 test('tracks job status and lets tests override it', async () => {

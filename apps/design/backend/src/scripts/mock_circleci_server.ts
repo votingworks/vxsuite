@@ -56,7 +56,8 @@ const args = process.argv.slice(2);
 function getArg(name: string, defaultValue: string): string {
   const index = args.indexOf(name);
   if (index !== -1 && args[index + 1]) {
-    return args[index + 1];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return args[index + 1]!;
   }
   return defaultValue;
 }

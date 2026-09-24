@@ -34,7 +34,7 @@ let onConfirmVoterIdentity: Mock<
 
 const electionDefinition =
   electionMultiPartyPrimaryFixtures.readElectionDefinition();
-const precinct = electionDefinition.election.precincts[0].id;
+const precinct = electionDefinition.election.precincts[0]!.id;
 
 beforeEach(() => {
   voter = createMockVoter(mockVoterId, 'ABIGAIL', 'ADAMS', precinct, 'REP');
@@ -499,7 +499,7 @@ test('returns null when voter query is not successful', () => {
 test('unchecking out-of-state ID returns to default identification', async () => {
   await renderComponent();
 
-  screen.getByText(electionDefinition.election.precincts[0].name);
+  screen.getByText(electionDefinition.election.precincts[0]!.name);
   const outOfStateCheckbox = screen.getByRole('checkbox', {
     name: 'Out-of-State ID',
   });
@@ -545,19 +545,19 @@ test('displays updated precinct after address change', async () => {
       state: 'IL',
       zipCode: '62701-2345',
       timestamp: new Date().toISOString(),
-      precinct: electionDefinition.election.precincts[1].id, // Use the same precinct for simplicity
+      precinct: electionDefinition.election.precincts[1]!.id, // Use the same precinct for simplicity
     },
   };
 
   await renderComponent({ voterOverride: voterWithAddressChange });
 
   // Should display the updated precinct
-  screen.getByText(electionDefinition.election.precincts[1].name);
+  screen.getByText(electionDefinition.election.precincts[1]!.name);
   screen.getByText('456 1/2 OAK AVE #2B');
 });
 
 test('disables confirm check-in and out-of-state ID checkbox if precincts do not match', async () => {
-  const mismatchedPrecinct = electionDefinition.election.precincts[1].id;
+  const mismatchedPrecinct = electionDefinition.election.precincts[1]!.id;
   await renderComponent({ configuredPrecinctId: mismatchedPrecinct });
 
   // Confirm button should be disabled
@@ -604,7 +604,7 @@ test('requires ballot party selection if voter party is undeclared', async () =>
 test('precinct information not shown in single precinct election', async () => {
   const singlePrecinctElection =
     electionSimpleSinglePrecinctFixtures.readElectionDefinition();
-  const singlePrecinctId = singlePrecinctElection.election.precincts[0].id;
+  const singlePrecinctId = singlePrecinctElection.election.precincts[0]!.id;
   const newVoter = createMockVoter(
     mockVoterId,
     'ABIGAIL',
@@ -622,7 +622,7 @@ test('precinct information not shown in single precinct election', async () => {
   // Should not display "Precinct" label in single precinct election
   expect(screen.queryByText('Precinct')).toBeNull();
   expect(
-    screen.queryByText(singlePrecinctElection.election.precincts[0].name)
+    screen.queryByText(singlePrecinctElection.election.precincts[0]!.name)
   ).toBeNull();
 
   // Checking in should be enabled.

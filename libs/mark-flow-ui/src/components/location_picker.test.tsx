@@ -40,7 +40,7 @@ describe('picker modes', () => {
       render(
         <LocationPicker
           election={election}
-          pollingPlaceId={place1.id}
+          pollingPlaceId={place1!.id}
           pollsState={pollsState as PollsState}
           selectPollingPlace={mockSelectPollingPlace}
         />
@@ -50,7 +50,7 @@ describe('picker modes', () => {
       expect(MockPollingPlacePicker.mock.lastCall?.[0]).toEqual({
         mode,
         places,
-        selectedId: place1.id,
+        selectedId: place1!.id,
         selectPlace: mockSelectPollingPlace,
       });
     });
@@ -59,14 +59,14 @@ describe('picker modes', () => {
 
 test('omits location picker if only one location is available', () => {
   const singleLocationElection = mockElection({
-    precincts: [precinct1],
-    pollingPlaces: [place1],
+    precincts: [precinct1!],
+    pollingPlaces: [place1!],
   });
 
   const { container } = render(
     <LocationPicker
       election={singleLocationElection}
-      pollingPlaceId={place1.id}
+      pollingPlaceId={place1!.id}
       pollsState="polls_closed_initial"
       selectPollingPlace={mockSelectPollingPlace}
     />

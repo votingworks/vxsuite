@@ -291,7 +291,8 @@ function getExternalPrecinctId(
     return internalToExternal.precinctId;
   }
 
-  return internalToExternal.precinctIds[precinctId];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return internalToExternal.precinctIds[precinctId]!;
 }
 
 export function VoterChecklistTable({

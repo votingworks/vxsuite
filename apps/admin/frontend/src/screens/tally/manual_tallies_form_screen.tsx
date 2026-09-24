@@ -480,7 +480,8 @@ function BallotCountForm({
         precinctId,
         ballotStyleGroupId,
         votingMethod,
-        contestId: contests[0].id,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        contestId: contests[0]!.id,
       })
     );
   }
@@ -577,7 +578,8 @@ function ContestForm({
     FormWriteInCandidate[]
   >([]);
   const [isOverridingBallotCount, setIsOverridingBallotCount] = useState(
-    formManualResults.contestResults[contestId].ballots !==
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    formManualResults.contestResults[contestId]!.ballots !==
       formManualResults.ballotCount
   );
   const firstInputRef = React.useRef<HTMLInputElement>(null);
@@ -618,7 +620,8 @@ function ContestForm({
   }
 
   function getValueForInput(dataKey: string): number | EmptyValue {
-    const contestResults = formManualResults.contestResults[contestId];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const contestResults = formManualResults.contestResults[contestId]!;
     switch (dataKey) {
       case 'numBallots':
         return contestResults.ballots;
@@ -641,7 +644,8 @@ function ContestForm({
     value: number | EmptyValue,
     candidateName?: string
   ) {
-    const contestResults = formManualResults.contestResults[contestId];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const contestResults = formManualResults.contestResults[contestId]!;
     let newContestResults = contestResults;
     switch (dataKey) {
       case 'overvotes':
@@ -676,7 +680,8 @@ function ContestForm({
         }
         assert(contestResults.contestType === 'candidate');
         assert(newContestResults.contestType === 'candidate');
-        const candidateTally = contestResults.tallies[dataKey];
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const candidateTally = contestResults.tallies[dataKey]!;
         const newCandidateTally: FormCandidateTally = candidateTally
           ? {
               ...candidateTally,
@@ -707,7 +712,8 @@ function ContestForm({
       name,
     };
     setFormWriteInCandidates([...formWriteInCandidates, writeInCandidate]);
-    const contestResults = formManualResults.contestResults[contestId];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const contestResults = formManualResults.contestResults[contestId]!;
     assert(contestResults.contestType === 'candidate');
     updateManualResultsWithNewContestResults({
       ...contestResults,
@@ -727,7 +733,8 @@ function ContestForm({
     setFormWriteInCandidates(formWriteInCandidates.filter((c) => c.id !== id));
 
     // remove form candidate from contest
-    const contestResults = formManualResults.contestResults[contestId];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const contestResults = formManualResults.contestResults[contestId]!;
     assert(contestResults.contestType === 'candidate');
     delete contestResults.tallies[id];
 
@@ -735,7 +742,8 @@ function ContestForm({
   }
 
   const validationError = validateTallies(
-    formManualResults.contestResults[contestId],
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    formManualResults.contestResults[contestId]!,
     isOverridingBallotCount
   );
 
@@ -781,7 +789,8 @@ function ContestForm({
                   <Button
                     onPress={() => {
                       updateManualResultsWithNewContestResults({
-                        ...formManualResults.contestResults[contestId],
+                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                        ...formManualResults.contestResults[contestId]!,
                         ballots: formManualResults.ballotCount,
                       });
                       setIsOverridingBallotCount(false);

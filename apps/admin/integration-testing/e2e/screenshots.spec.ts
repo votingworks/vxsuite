@@ -461,7 +461,8 @@ test('results', async ({ page }, testInfo) => {
       votes[contest.id] = Array.from(
         { length: contest.seats },
         (_, seat) =>
-          contest.candidates[(index + seat) % contest.candidates.length]
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          contest.candidates[(index + seat) % contest.candidates.length]!
       );
     }
     return votes;

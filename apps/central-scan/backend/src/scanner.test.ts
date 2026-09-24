@@ -99,7 +99,7 @@ test('an empty batch is finished and cleaned up', async () => {
     expect.objectContaining({ count: 0, endedAt: expect.any(String) })
   );
   expect(
-    existsSync(join(workspace.ballotImagesPath, `batch-${batch.id}`))
+    existsSync(join(workspace.ballotImagesPath, `batch-${batch!.id}`))
   ).toEqual(false);
   expect(logger.log).toHaveBeenCalledWith(LogEventId.ScannerEvent, 'unknown', {
     message: 'Event: START_BATCH',
@@ -109,21 +109,21 @@ test('an empty batch is finished and cleaned up', async () => {
     LogEventId.ScannerStateChanged,
     'system',
     expect.objectContaining({
-      changedFields: expect.stringContaining(`"batchId":"${batch.id}"`),
+      changedFields: expect.stringContaining(`"batchId":"${batch!.id}"`),
     }),
     expect.any(Function)
   );
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScannerBatchStarted,
     'unknown',
-    expect.objectContaining({ disposition: 'success', batchId: batch.id })
+    expect.objectContaining({ disposition: 'success', batchId: batch!.id })
   );
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScannerBatchEnded,
     'unknown',
     expect.objectContaining({
       disposition: 'success',
-      batchId: batch.id,
+      batchId: batch!.id,
       sheetCount: 0,
     })
   );
@@ -172,7 +172,7 @@ test('a scanner error finishes the batch with the error', async () => {
     expect.objectContaining({ count: 0, endedAt: expect.any(String) })
   );
   expect(finishBatchSpy).toHaveBeenCalledWith({
-    batchId: batch.id,
+    batchId: batch!.id,
     error: 'paper jam',
   });
   expectErrorEventLogged(logger, 'paper jam');
@@ -182,7 +182,7 @@ test('a scanner error finishes the batch with the error', async () => {
     {
       disposition: 'failure',
       message: 'Processing sheet failed: paper jam',
-      batchId: batch.id,
+      batchId: batch!.id,
     }
   );
 
@@ -222,13 +222,13 @@ test('a sheet that fails to import finishes the batch with the error', async () 
     expect.objectContaining({ count: 0, endedAt: expect.any(String) })
   );
   expect(finishBatchSpy).toHaveBeenCalledWith({
-    batchId: batch.id,
+    batchId: batch!.id,
     error: expect.any(String),
   });
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScannerBatchEnded,
     'unknown',
-    expect.objectContaining({ disposition: 'failure', batchId: batch.id })
+    expect.objectContaining({ disposition: 'failure', batchId: batch!.id })
   );
 });
 

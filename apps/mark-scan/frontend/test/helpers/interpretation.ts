@@ -9,10 +9,12 @@ import {
 export function getMockInterpretation(
   electionDefinition: ElectionDefinition
 ): InterpretedBmdPage {
-  const contest = electionDefinition.election.contests[0];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const contest = electionDefinition.election.contests[0]!;
   let votes: VotesDict = {};
   if (contest.type === 'candidate') {
-    const candidate = contest.candidates[0];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const candidate = contest.candidates[0]!;
     votes = {
       [contest.title]: [
         {
@@ -31,10 +33,12 @@ export function getMockInterpretation(
   return {
     type: 'InterpretedBmdPage',
     metadata: {
-      ballotStyleId: electionDefinition.election.ballotStyles[0].id,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      ballotStyleId: electionDefinition.election.ballotStyles[0]!.id,
       ballotHash: electionDefinition.ballotHash,
       isTestMode: true,
-      precinctId: electionDefinition.election.precincts[0].id,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      precinctId: electionDefinition.election.precincts[0]!.id,
       ballotType: BallotType.Precinct,
       pageNumber: 1,
       totalPages: 1,

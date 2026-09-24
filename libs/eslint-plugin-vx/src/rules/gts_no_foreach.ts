@@ -142,7 +142,8 @@ const rule: TSESLint.RuleModule<'noForEach', readonly unknown[]> = createRule({
         return { forEachCall, forEachIdentifier, collection };
       }
 
-      const callback = node.arguments[0];
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const callback = node.arguments[0]!;
 
       if (callback.type !== AST_NODE_TYPES.ArrowFunctionExpression) {
         return { forEachCall, forEachIdentifier, collection };

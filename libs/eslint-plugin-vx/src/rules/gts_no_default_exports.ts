@@ -38,18 +38,25 @@ const rule: TSESLint.RuleModule<
 
       const [def] = defs;
 
-      if (def.node.type === AST_NODE_TYPES.VariableDeclarator) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      if (def!.node.type === AST_NODE_TYPES.VariableDeclarator) {
         assert(
-          def.node.parent &&
-            def.node.parent.type === AST_NODE_TYPES.VariableDeclaration
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          def!.node.parent &&
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            def!.node.parent.type === AST_NODE_TYPES.VariableDeclaration
         );
-        return def.node.parent.declarations.length === 1
-          ? def.node.parent
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return def!.node.parent.declarations.length === 1
+          ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            def!.node.parent
           : undefined;
       }
 
-      if (def.node.type === AST_NODE_TYPES.FunctionDeclaration) {
-        return def.node;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      if (def!.node.type === AST_NODE_TYPES.FunctionDeclaration) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return def!.node;
       }
     }
 

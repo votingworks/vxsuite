@@ -236,7 +236,7 @@ test('addPollingPlacesForExport - editing state keeps user-created absentee plac
       id: 'user-absentee',
       name: 'User Absentee Location',
       type: 'absentee',
-      precincts: { [election.precincts[0].id]: { type: 'whole' } },
+      precincts: { [election.precincts[0]!.id]: { type: 'whole' } },
     },
   ];
   const electionInput: Election = { ...election, pollingPlaces };
@@ -258,7 +258,7 @@ test('addPollingPlacesForExport - editing state does not generate a Central Scan
       id: 'election-day-1',
       name: 'Election Day Location',
       type: 'election_day',
-      precincts: { [election.precincts[0].id]: { type: 'whole' } },
+      precincts: { [election.precincts[0]!.id]: { type: 'whole' } },
     },
   ];
   const electionInput: Election = { ...election, pollingPlaces };

@@ -27,8 +27,10 @@ const rule: TSESLint.RuleModule<
         node.callee.type === AST_NODE_TYPES.Identifier &&
         node.callee.name === 'parseInt' &&
         (node.arguments.length < 2 ||
-          (node.arguments[1].type === AST_NODE_TYPES.Literal &&
-            node.arguments[1].value === 10))
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          (node.arguments[1]!.type === AST_NODE_TYPES.Literal &&
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            node.arguments[1]!.value === 10))
       ) {
         context.report({
           node,

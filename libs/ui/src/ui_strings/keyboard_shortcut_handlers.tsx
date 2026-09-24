@@ -29,7 +29,8 @@ export function KeyboardShortcutHandlers(): React.ReactNode {
           const nextIndex =
             (currentLanguageIndex + 1) % availableLanguages.length;
 
-          setLanguage(availableLanguages[nextIndex]);
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          setLanguage(availableLanguages[nextIndex]!);
           break;
         }
         case Keybinding.TOGGLE_AUDIO:

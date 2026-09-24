@@ -162,7 +162,8 @@ export function MailingAddressInputGroup({
                 .replace(/[^0-9-]/g, '')
                 .toUpperCase();
               const [zip5, zip4] = input.split('-');
-              const trimmedZip5 = zip5.slice(0, VOTER_INPUT_FIELD_LIMITS.zip5);
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              const trimmedZip5 = zip5!.slice(0, VOTER_INPUT_FIELD_LIMITS.zip5);
               const trimmedZip4 =
                 zip4 !== undefined
                   ? `-${zip4.slice(0, VOTER_INPUT_FIELD_LIMITS.zip4)}`
@@ -170,7 +171,8 @@ export function MailingAddressInputGroup({
               setZipInput(trimmedZip5 + trimmedZip4);
               handleChange({
                 ...mailingAddress,
-                mailingZip5: zip5.slice(0, VOTER_INPUT_FIELD_LIMITS.zip5),
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                mailingZip5: zip5!.slice(0, VOTER_INPUT_FIELD_LIMITS.zip5),
                 mailingZip4: zip4
                   ? zip4.slice(0, VOTER_INPUT_FIELD_LIMITS.zip4)
                   : '',

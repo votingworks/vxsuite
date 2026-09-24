@@ -90,7 +90,8 @@ function LiveResultsQrDisplay({
           : `Scan all ${urls.length} QR codes to send the tally report for ${pollingPlace.name}.`}
       </P>
       <div data-value={urls[currentQrIndex]} style={{ width: '600px' }}>
-        <QrCode value={urls[currentQrIndex]} size={600} />
+        {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
+        <QrCode value={urls[currentQrIndex]!} size={600} />
       </div>
       {urls.length > 1 && (
         <div
@@ -132,7 +133,8 @@ function PollingPlaceSelector({
 }): JSX.Element {
   // Default to the only place when there's just one match.
   const [pollingPlaceId, setPollingPlaceId] = useState<string | undefined>(
-    pollingPlaces.length === 1 ? pollingPlaces[0].id : undefined
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    pollingPlaces.length === 1 ? pollingPlaces[0]!.id : undefined
   );
 
   const showPicker = pollingPlaces.length > 1;

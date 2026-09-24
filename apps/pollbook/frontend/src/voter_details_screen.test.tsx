@@ -70,7 +70,7 @@ async function renderComponent() {
 describe('common functionality', () => {
   const electionFamousNames =
     electionFamousNames2021Fixtures.readElectionDefinition();
-  const precinct1 = electionFamousNames.election.precincts[0];
+  const precinct1 = electionFamousNames.election.precincts[0]!;
 
   beforeEach(() => {
     voter = createMockVoter(mockVoterId, 'ABIGAIL', 'ADAMS', precinct1.id);
@@ -227,7 +227,7 @@ describe('common functionality', () => {
         postalCityTown: 'CONCORD',
         zip5: '03301',
         zip4: '1111',
-        precinct: electionFamousNames.election.precincts[1].id, // Different precinct
+        precinct: electionFamousNames.election.precincts[1]!.id, // Different precinct
       },
     ];
     apiMock.expectGetValidStreetInfo(validStreetInfo);
@@ -260,7 +260,7 @@ describe('common functionality', () => {
   test('valid address change', async () => {
     const electionSinglePrecinct =
       electionSimpleSinglePrecinctFixtures.readElectionDefinition();
-    const precinct = electionSinglePrecinct.election.precincts[0];
+    const precinct = electionSinglePrecinct.election.precincts[0]!;
     const sampleVoter: Voter = {
       ...createMockVoter(mockVoterId, 'ABIGAIL', 'ADAMS', precinct.id),
       houseFractionNumber: '1/2',
@@ -735,7 +735,7 @@ describe('common functionality', () => {
   });
 
   test('actions are disabled when precinct does not match voter', async () => {
-    const otherPrecinct = electionFamousNames.election.precincts[1];
+    const otherPrecinct = electionFamousNames.election.precincts[1]!;
     const changedVoter = createMockVoter(
       mockVoterId,
       'ABIGAIL',
@@ -789,7 +789,7 @@ describe('common functionality', () => {
       name: 'Update Mailing Address',
     });
     // Find the first button (should be from main screen, not modal)
-    const updateMailingAddressButton = updateMailingAddressButtons[0];
+    const updateMailingAddressButton = updateMailingAddressButtons[0]!;
     // Should be enabled if precinct is configured and matches voter
     expect(updateMailingAddressButton).not.toBeDisabled();
     userEvent.click(updateMailingAddressButton);
@@ -905,7 +905,7 @@ describe('common functionality', () => {
       name: 'Update Mailing Address',
     });
     // Find the first button (should be from main screen, not modal)
-    const updateMailingAddressButton = updateMailingAddressButtons[0];
+    const updateMailingAddressButton = updateMailingAddressButtons[0]!;
     // Should be enabled if precinct is configured and matches voter
     expect(updateMailingAddressButton).not.toBeDisabled();
     userEvent.click(updateMailingAddressButton);
@@ -1038,7 +1038,7 @@ describe('common functionality', () => {
 describe('primary election functionality', () => {
   const electionPrimary =
     electionMultiPartyPrimaryFixtures.readElectionDefinition();
-  const precinct1 = electionPrimary.election.precincts[0];
+  const precinct1 = electionPrimary.election.precincts[0]!;
 
   beforeEach(() => {
     vi.clearAllMocks();

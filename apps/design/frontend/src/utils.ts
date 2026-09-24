@@ -50,7 +50,8 @@ export function reorderElement<T>(
   assert(toIndex >= 0 && toIndex < array.length);
   const result = [...array];
   const [removed] = result.splice(fromIndex, 1);
-  result.splice(toIndex, 0, removed);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  result.splice(toIndex, 0, removed!);
   return result;
 }
 

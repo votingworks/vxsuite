@@ -230,28 +230,28 @@ test('rotateCandidatesByPrecinct rotates based on index of precinct within ballo
   const [precinct1, precinct2, precinct3, precinct4] = election.precincts;
 
   expect(
-    rotateCandidatesByPrecinct(contest, election.precincts, precinct1.id)
+    rotateCandidatesByPrecinct(contest, election.precincts, precinct1!.id)
   ).toEqual([
     { id: '1' }, // Martha Jones
     { id: '3' }, // Larry Smith
     { id: '2' }, // John Zorro
   ]);
   expect(
-    rotateCandidatesByPrecinct(contest, election.precincts, precinct2.id)
+    rotateCandidatesByPrecinct(contest, election.precincts, precinct2!.id)
   ).toEqual([
     { id: '3' }, // Larry Smith
     { id: '2' }, // John Zorro
     { id: '1' }, // Martha Jones
   ]);
   expect(
-    rotateCandidatesByPrecinct(contest, election.precincts, precinct3.id)
+    rotateCandidatesByPrecinct(contest, election.precincts, precinct3!.id)
   ).toEqual([
     { id: '2' }, // John Zorro
     { id: '1' }, // Martha Jones
     { id: '3' }, // Larry Smith
   ]);
   expect(
-    rotateCandidatesByPrecinct(contest, election.precincts, precinct4.id)
+    rotateCandidatesByPrecinct(contest, election.precincts, precinct4!.id)
   ).toEqual([
     { id: '1' }, // Martha Jones
     { id: '3' }, // Larry Smith
@@ -266,15 +266,15 @@ describe('getCandidateOrderingSetsForNhBallot', () => {
     const testCases = [
       {
         precinctsOrSplitIds: [
-          { precinctId: precinct1.id },
-          { precinctId: precinct2.id },
+          { precinctId: precinct1!.id },
+          { precinctId: precinct2!.id },
         ],
         expectedCount: 2,
       },
       {
         precinctsOrSplitIds: [
-          { precinctId: precinct1.id, splitId: 'split-1' },
-          { precinctId: precinct1.id, splitId: 'split-2' },
+          { precinctId: precinct1!.id, splitId: 'split-1' },
+          { precinctId: precinct1!.id, splitId: 'split-2' },
         ],
         expectedCount: 2,
       },
@@ -282,7 +282,7 @@ describe('getCandidateOrderingSetsForNhBallot', () => {
 
     for (const { precinctsOrSplitIds, expectedCount } of testCases) {
       const contest: CandidateContest = {
-        ...electionFamousNames.contests[0],
+        ...electionFamousNames.contests[0]!,
         id: 'contest-1',
         type: 'candidate',
         districtId: 'district-1',
@@ -307,10 +307,10 @@ describe('getCandidateOrderingSetsForNhBallot', () => {
       const result = getCandidateOrderingSetsForNhBallot(params);
 
       expect(result).toHaveLength(expectedCount);
-      expect(result[0].precinctsOrSplits).toEqual([precinctsOrSplitIds[0]]);
+      expect(result[0]!.precinctsOrSplits).toEqual([precinctsOrSplitIds[0]]);
       // Verify NH rotation is applied (alphabetical by last name, then rotated)
       expect(
-        result[0].orderedCandidatesByContest[contest.id].map((c) => c.id)
+        result[0]!.orderedCandidatesByContest[contest.id]!.map((c) => c.id)
       ).toEqual([
         '1', // Martha Jones
         '3', // Larry Smith
@@ -321,7 +321,7 @@ describe('getCandidateOrderingSetsForNhBallot', () => {
 
   test('filters contests by type', () => {
     const candidateContest: CandidateContest = {
-      ...electionFamousNames.contests[0],
+      ...electionFamousNames.contests[0]!,
       id: 'contest-1',
       type: 'candidate',
       districtId: 'district-1',
@@ -348,7 +348,7 @@ describe('getCandidateOrderingSetsForNhBallot', () => {
     const params: RotationParams = {
       contests: [candidateContest, yesnoContest],
       precincts: electionFamousNames.precincts,
-      precinctsOrSplitIds: [{ precinctId: precinct1.id }],
+      precinctsOrSplitIds: [{ precinctId: precinct1!.id }],
       districtIds: ['district-1'],
       electionId: electionFamousNames.id,
     };
@@ -356,9 +356,9 @@ describe('getCandidateOrderingSetsForNhBallot', () => {
     const result = getCandidateOrderingSetsForNhBallot(params);
 
     expect(result).toHaveLength(1);
-    expect(result[0].orderedCandidatesByContest).toHaveProperty('contest-1');
-    expect(result[0].orderedCandidatesByContest).not.toHaveProperty('yesno-1');
-    expect(result[0].orderedCandidatesByContest).not.toHaveProperty(
+    expect(result[0]!.orderedCandidatesByContest).toHaveProperty('contest-1');
+    expect(result[0]!.orderedCandidatesByContest).not.toHaveProperty('yesno-1');
+    expect(result[0]!.orderedCandidatesByContest).not.toHaveProperty(
       'contest-2'
     );
   });

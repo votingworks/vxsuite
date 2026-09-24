@@ -39,8 +39,8 @@ vi.mock(import('@votingworks/ui'), async (importActual) => ({
 
 const pollingPlace = anyPollingPlace(electionGeneral);
 const [ballotStyle] = pollingPlaceBallotStyles(electionGeneral, pollingPlace);
-const ballotStyleId = ballotStyle.id;
-const [precinctId] = ballotStyle.precincts;
+const ballotStyleId = ballotStyle!.id;
+const [precinctId] = ballotStyle!.precincts;
 
 let workspace: Workspace;
 
@@ -66,7 +66,7 @@ test('tries as many layouts as necessary and proceeds with the first that works'
       assert(i !== undefined);
       return i >= ORDERED_BMD_BALLOT_LAYOUTS.markScan.length
         ? err(new NoLayoutOptionError(0, 0, 'markScan'))
-        : ok(ORDERED_BMD_BALLOT_LAYOUTS.markScan[i]);
+        : ok(ORDERED_BMD_BALLOT_LAYOUTS.markScan[i]!);
     }
   );
   vi.mocked(getPdfPageCount).mockImplementationOnce(() => Promise.resolve(2));
@@ -75,7 +75,7 @@ test('tries as many layouts as necessary and proceeds with the first that works'
 
   await renderBallot({
     store: workspace.store,
-    precinctId,
+    precinctId: precinctId!,
     ballotStyleId,
     votes: {},
     languageCode: TestLanguageCode.ENGLISH,
@@ -90,7 +90,7 @@ test('tries all layouts beginning with the least compacted layout and errors if 
       assert(i !== undefined);
       return i >= ORDERED_BMD_BALLOT_LAYOUTS.markScan.length
         ? err(new NoLayoutOptionError(0, 0, 'markScan'))
-        : ok(ORDERED_BMD_BALLOT_LAYOUTS.markScan[i]);
+        : ok(ORDERED_BMD_BALLOT_LAYOUTS.markScan[i]!);
     }
   );
   vi.mocked(getPdfPageCount).mockImplementation(() => Promise.resolve(2));
@@ -98,7 +98,7 @@ test('tries all layouts beginning with the least compacted layout and errors if 
   await expect(
     renderBallot({
       store: workspace.store,
-      precinctId,
+      precinctId: precinctId!,
       ballotStyleId,
       votes: {},
       languageCode: TestLanguageCode.ENGLISH,
@@ -119,7 +119,7 @@ test('tries all layouts beginning with a slightly compacted layout and errors if
       const iAdjusted = i + 2;
       return iAdjusted >= ORDERED_BMD_BALLOT_LAYOUTS.markScan.length
         ? err(new NoLayoutOptionError(0, 0, 'markScan'))
-        : ok(ORDERED_BMD_BALLOT_LAYOUTS.markScan[iAdjusted]);
+        : ok(ORDERED_BMD_BALLOT_LAYOUTS.markScan[iAdjusted]!);
     }
   );
   vi.mocked(getPdfPageCount).mockImplementation(() => Promise.resolve(2));
@@ -127,7 +127,7 @@ test('tries all layouts beginning with a slightly compacted layout and errors if
   await expect(
     renderBallot({
       store: workspace.store,
-      precinctId,
+      precinctId: precinctId!,
       ballotStyleId,
       votes: {},
       languageCode: TestLanguageCode.ENGLISH,

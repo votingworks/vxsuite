@@ -46,7 +46,8 @@ function toCamelCase(str: string) {
     .filter((word) => word.length > 0)
     .map((word) => word.toLowerCase());
   const first = words.shift();
-  const rest = words.map((word) => word[0].toUpperCase() + word.slice(1));
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const rest = words.map((word) => word[0]!.toUpperCase() + word.slice(1));
   return [first, ...rest].join('');
 }
 
@@ -87,7 +88,8 @@ export function getExternalPrecinctIdMappingFromElection(
   election: Election
 ): ExternalToInternalPrecinctIdMapping {
   if (election.precincts.length === 1) {
-    return { type: 'single-precinct', precinctId: election.precincts[0].id };
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return { type: 'single-precinct', precinctId: election.precincts[0]!.id };
   }
 
   const externalIdToPrecinctId: Record<string, string> = {};
@@ -500,9 +502,11 @@ export function pollNetworkForPollbookPackage({
           matchingConfiguredPollbooks.every(
             (pollbook) =>
               pollbook.electionBallotHash ===
-                matchingConfiguredPollbooks[0].electionBallotHash &&
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                matchingConfiguredPollbooks[0]!.electionBallotHash &&
               pollbook.pollbookPackageHash ===
-                matchingConfiguredPollbooks[0].pollbookPackageHash
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                matchingConfiguredPollbooks[0]!.pollbookPackageHash
           );
         if (!allPollbooksHashesMatch) {
           workspace.store.setConfigurationStatus(

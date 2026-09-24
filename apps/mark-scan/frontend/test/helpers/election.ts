@@ -16,11 +16,15 @@ export const contest0candidate0 = contest0.candidates[0];
 export const contest0candidate1 = contest0.candidates[1];
 export const contest1candidate0 = contest1.candidates[0];
 
-export const defaultPrecinctId = election.precincts[0].id;
-export const defaultBallotStyleId = election.ballotStyles[0].id;
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+export const defaultPrecinctId = election.precincts[0]!.id;
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+export const defaultBallotStyleId = election.ballotStyles[0]!.id;
 
-export const altPrecinctId = election.precincts[1].id;
-export const altBallotStyleId = election.ballotStyles[1].id;
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+export const altPrecinctId = election.precincts[1]!.id;
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+export const altBallotStyleId = election.ballotStyles[1]!.id;
 
 export const presidentContest = election.contests.find(
   (c) =>
@@ -46,7 +50,8 @@ export const singleSeatContestWithWriteIn = election.contests.find(
 ) as CandidateContest;
 
 const ballotStyle = getBallotStyle({
-  ballotStyleId: election.ballotStyles[0].id,
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  ballotStyleId: election.ballotStyles[0]!.id,
   election,
 });
 assert(ballotStyle);

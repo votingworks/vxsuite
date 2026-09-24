@@ -380,7 +380,7 @@ test('polls closed report shows correct sheet counts for multi-page BMD ballots'
       // bmd[0] = 1 (page 1), bmd[1] = 1 (page 2)
       const results = await getScannerResults({ store: workspace.store });
       expect(results).toHaveLength(1);
-      expect(results[0].cardCounts).toEqual(
+      expect(results[0]!.cardCounts).toEqual(
         expect.objectContaining({
           bmd: [1, 1],
           hmpb: [],
@@ -713,37 +713,37 @@ test('can tabulate results and print polls closed report for straight party', as
       }
 
       const [partyId1, partyId2] = election.parties.map((party) => party.id);
-      recordStraightPartyBallot(partyId1);
-      recordStraightPartyBallot(partyId1);
-      recordStraightPartyBallot(partyId2);
+      recordStraightPartyBallot(partyId1!);
+      recordStraightPartyBallot(partyId1!);
+      recordStraightPartyBallot(partyId2!);
 
       const results = await getScannerResults({ store: workspace.store });
       expect(results).toHaveLength(1);
-      const { contestResults } = results[0];
+      const { contestResults } = results[0]!;
 
-      const straightPartyResults = contestResults['straight-party-ticket'];
+      const straightPartyResults = contestResults['straight-party-ticket']!;
       assert(straightPartyResults.contestType === 'straight-party');
-      expect(straightPartyResults.tallies[partyId1]).toEqual(2);
-      expect(straightPartyResults.tallies[partyId2]).toEqual(1);
+      expect(straightPartyResults.tallies[partyId1!]).toEqual(2);
+      expect(straightPartyResults.tallies[partyId2!]).toEqual(1);
 
       const [candidateContest] = contests.filter(
         (contest) => contest.type === 'candidate'
       );
-      const candidateContestResults = contestResults[candidateContest.id];
+      const candidateContestResults = contestResults[candidateContest!.id]!;
       assert(candidateContestResults.contestType === 'candidate');
-      const party1Candidates = candidateContest.candidates.filter((candidate) =>
-        candidate.partyIds?.includes(partyId1)
+      const party1Candidates = candidateContest!.candidates.filter(
+        (candidate) => candidate.partyIds?.includes(partyId1!)
       );
       assert(party1Candidates.length > 0);
       for (const candidate of party1Candidates) {
-        expect(candidateContestResults.tallies[candidate.id].tally).toEqual(2);
+        expect(candidateContestResults.tallies[candidate.id]!.tally).toEqual(2);
       }
-      const party2Candidates = candidateContest.candidates.filter((candidate) =>
-        candidate.partyIds?.includes(partyId2)
+      const party2Candidates = candidateContest!.candidates.filter(
+        (candidate) => candidate.partyIds?.includes(partyId2!)
       );
       assert(party2Candidates.length > 0);
       for (const candidate of party2Candidates) {
-        expect(candidateContestResults.tallies[candidate.id].tally).toEqual(1);
+        expect(candidateContestResults.tallies[candidate.id]!.tally).toEqual(1);
       }
 
       await apiClient.closePolls();

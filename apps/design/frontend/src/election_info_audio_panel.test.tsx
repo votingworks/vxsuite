@@ -55,7 +55,7 @@ describe('valid string keys', () => {
       stringKey: Key.JURISDICTION_NAME,
       expectedEditor: {
         title: 'Election Info Audio: Jurisdiction',
-        ttsDefault: ttsDefaults[0],
+        ttsDefault: ttsDefaults[0]!,
       },
     },
 
@@ -63,7 +63,7 @@ describe('valid string keys', () => {
       stringKey: Key.ELECTION_TITLE,
       expectedEditor: {
         title: 'Election Info Audio: Title',
-        ttsDefault: ttsDefaults[1],
+        ttsDefault: ttsDefaults[1]!,
       },
     },
 
@@ -71,7 +71,7 @@ describe('valid string keys', () => {
       stringKey: Key.STATE_NAME,
       expectedEditor: {
         title: 'Election Info Audio: State',
-        ttsDefault: ttsDefaults[2],
+        ttsDefault: ttsDefaults[2]!,
       },
     },
   ];

@@ -535,12 +535,12 @@ test('election configuration info', async () => {
   apiMock.mockApiClient.getElectionRecord.reset();
   apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.mockApiClient.getElectionState.reset();
-  apiMock.expectGetElectionState({ pollingPlaceId: pollingPlace.id });
+  apiMock.expectGetElectionState({ pollingPlaceId: pollingPlace!.id });
   apiMock.expectGetMachineConfig();
 
   renderScreen();
   await waitFor(() => apiMock.mockApiClient.assertComplete());
 
   screen.getByText(election.title, { exact: false });
-  screen.getByText(pollingPlace.name, { exact: false });
+  screen.getByText(pollingPlace!.name, { exact: false });
 });

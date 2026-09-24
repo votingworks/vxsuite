@@ -7,7 +7,7 @@ import { screen, render } from '../../test/react_testing_library.js';
 import { Breadcrumbs, ContestHeader } from './contest_header.js';
 
 const electionGeneral = readElectionGeneral();
-const contest = electionGeneral.contests[0];
+const contest = electionGeneral.contests[0]!;
 const district = getContestDistrict(electionGeneral, contest);
 
 test('renders contest metadata in a focusable, read-on-load block', () => {

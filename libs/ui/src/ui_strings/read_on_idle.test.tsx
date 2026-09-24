@@ -125,7 +125,7 @@ test('triggers periodic click actions while screen reader audio is idle', () => 
   });
   expect(mockOnClick).toHaveBeenCalledTimes(1);
 
-  const clickTarget = mockOnClick.mock.calls[0][0].target as HTMLElement;
+  const clickTarget = mockOnClick.mock.calls[0]![0].target as HTMLElement;
   expect(clickTarget.textContent).toEqual('Bonjour!');
 
   act(() => {

@@ -315,11 +315,11 @@ describe('validation', () => {
 
     // Add two candidates with the same name
     userEvent.click(screen.getByRole('button', { name: 'Add Candidate' }));
-    userEvent.type(screen.getAllByRole('textbox')[0], 'Alice');
+    userEvent.type(screen.getAllByRole('textbox')[0]!, 'Alice');
 
     // Need to enable the add button by filling in the first input
     userEvent.click(screen.getByRole('button', { name: 'Add Candidate' }));
-    userEvent.type(screen.getAllByRole('textbox')[1], 'Alice');
+    userEvent.type(screen.getAllByRole('textbox')[1]!, 'Alice');
 
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
@@ -359,16 +359,16 @@ describe('validation', () => {
 
     // Create duplicate
     userEvent.click(screen.getByRole('button', { name: 'Add Candidate' }));
-    userEvent.type(screen.getAllByRole('textbox')[0], 'Alice');
+    userEvent.type(screen.getAllByRole('textbox')[0]!, 'Alice');
     userEvent.click(screen.getByRole('button', { name: 'Add Candidate' }));
-    userEvent.type(screen.getAllByRole('textbox')[1], 'Alice');
+    userEvent.type(screen.getAllByRole('textbox')[1]!, 'Alice');
 
     userEvent.click(screen.getByRole('button', { name: 'Save' }));
     screen.getByText('There is already a candidate with the same name.');
 
     // Edit the second input to fix the duplicate
-    userEvent.clear(screen.getAllByRole('textbox')[1]);
-    userEvent.type(screen.getAllByRole('textbox')[1], 'Bob');
+    userEvent.clear(screen.getAllByRole('textbox')[1]!);
+    userEvent.type(screen.getAllByRole('textbox')[1]!, 'Bob');
 
     expect(
       screen.queryByText('There is already a candidate with the same name.')

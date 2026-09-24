@@ -408,7 +408,7 @@ describe('ThroughputChart', () => {
     });
 
     // Verify chart data contains our mock data
-    const chartData = screen.getAllByTestId('chart-data')[0];
+    const chartData = screen.getAllByTestId('chart-data')[0]!;
     expect(chartData.textContent).toContain('Check-Ins');
     expect(chartData.textContent).toContain('15'); // First data point
     expect(chartData.textContent).toContain('25'); // Second data point
@@ -455,13 +455,13 @@ describe('ThroughputChart', () => {
 
     // Click 30m interval button (it has role="option" not "button") - use the last one which should be in the chart area
     const thirtyMinButtons = screen.getAllByRole('option', { name: '30m' });
-    const thirtyMinButton = thirtyMinButtons[thirtyMinButtons.length - 1]; // Use the last one (chart area)
+    const thirtyMinButton = thirtyMinButtons[thirtyMinButtons.length - 1]!; // Use the last one (chart area)
     act(() => {
       userEvent.click(thirtyMinButton);
     });
 
     await waitFor(() => {
-      const chartData = screen.getAllByTestId('chart-data')[0];
+      const chartData = screen.getAllByTestId('chart-data')[0]!;
       expect(chartData.textContent).toContain('8'); // New data point
       expect(chartData.textContent).toContain('12'); // New data point
     });

@@ -31,26 +31,26 @@ test('getCountyId', () => {
 });
 
 test('getDistrictId', () => {
-  expect(getDistrictId(election.districts[0])).toEqual('vx_D');
+  expect(getDistrictId(election.districts[0]!)).toEqual('vx_D');
 });
 
 test('getContestId', () => {
-  expect(getContestId(election.contests[0])).toEqual('vx_CC');
+  expect(getContestId(election.contests[0]!)).toEqual('vx_CC');
 });
 
 test('getDistrictIdFromContest', () => {
-  expect(getDistrictIdFromContest(election.contests[0])).toEqual('vx_D');
+  expect(getDistrictIdFromContest(election.contests[0]!)).toEqual('vx_D');
 });
 
 test('getPartyId', () => {
-  expect(getPartyId(election.parties[0])).toEqual('vx_PARTY');
+  expect(getPartyId(election.parties[0]!)).toEqual('vx_PARTY');
 });
 
 test('getCandidateId', () => {
   const candidateContest = assertDefined(
     election.contests.find((contest) => contest.type === 'candidate')
   );
-  expect(getCandidateId(candidateContest.candidates[0])).toEqual('vx_C');
+  expect(getCandidateId(candidateContest.candidates[0]!)).toEqual('vx_C');
 });
 
 test('getCandidateSelectionId', () => {
@@ -58,7 +58,10 @@ test('getCandidateSelectionId', () => {
     election.contests.find((contest) => contest.type === 'candidate')
   );
   expect(
-    getCandidateSelectionId(candidateContest, candidateContest.candidates[0].id)
+    getCandidateSelectionId(
+      candidateContest,
+      candidateContest.candidates[0]!.id
+    )
   ).toEqual('vx_CC_C');
 });
 
@@ -81,7 +84,7 @@ test('getPartyIdForCandidate', () => {
     election.contests.find((contest) => contest.type === 'candidate')
   );
   const candidate: Candidate = {
-    ...candidateContest.candidates[0],
+    ...candidateContest.candidates[0]!,
     partyIds: ['0'],
   };
   expect(getPartyIdForCandidate(candidate)).toEqual('vx_0');
@@ -92,7 +95,7 @@ test('getPartyIdForCandidate returns undefined if no party ID list', () => {
     election.contests.find((contest) => contest.type === 'candidate')
   );
   const candidate: Candidate = {
-    ...candidateContest.candidates[0],
+    ...candidateContest.candidates[0]!,
     partyIds: undefined,
   };
 

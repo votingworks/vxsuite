@@ -90,7 +90,8 @@ function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
     getActiveAnomaliesQuery.data.length > 0 &&
     auth.status === 'logged_in'
   ) {
-    return <AnomalyAlertScreen anomaly={getActiveAnomaliesQuery.data[0]} />;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return <AnomalyAlertScreen anomaly={getActiveAnomaliesQuery.data[0]!} />;
   }
 
   if (auth.status === 'logged_out' && auth.reason === 'no_card_reader') {

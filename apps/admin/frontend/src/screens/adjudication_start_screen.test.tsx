@@ -265,24 +265,24 @@ describe('multi-station adjudication', () => {
     // header + 5 clients = 6 rows
     expect(rows).toHaveLength(6);
 
-    const row1 = rows[1];
+    const row1 = rows[1]!;
     within(row1).getByText('CLIENT-001');
     within(row1).getByText('Active');
     within(row1).getByText('Election Manager');
 
-    const row2 = rows[2];
+    const row2 = rows[2]!;
     within(row2).getByText('CLIENT-002');
     within(row2).getByText('Locked');
 
-    const row3 = rows[3];
+    const row3 = rows[3]!;
     within(row3).getByText('CLIENT-003');
     within(row3).getByText('Disconnected');
 
-    const row4 = rows[4];
+    const row4 = rows[4]!;
     within(row4).getByText('CLIENT-004');
     within(row4).getByText('Adjudicating');
 
-    const row5 = rows[5];
+    const row5 = rows[5]!;
     within(row5).getByText('CLIENT-005');
     within(row5).getByText('Incompatible Software');
   });

@@ -108,7 +108,7 @@ test('adding districts to empty list', async () => {
   {
     const inputs = screen.getAllByRole('textbox');
     expect(inputs).toHaveLength(2);
-    userEvent.type(inputs[1], newDistrict2.name);
+    userEvent.type(inputs[1]!, newDistrict2.name);
   }
 
   const updatedList = [newDistrict1, newDistrict2];
@@ -141,11 +141,11 @@ test('editing existing district list', async () => {
     { id: 'saved-district-3', name: 'Saved District 3' },
   ];
 
-  const preservedDistrict = savedDistricts[0];
-  const deletedDistrict = savedDistricts[1];
+  const preservedDistrict = savedDistricts[0]!;
+  const deletedDistrict = savedDistricts[1]!;
   const newDistrict: District = { id: idFactory.next(), name: 'New District' };
   const updatedDistrict: District = {
-    ...savedDistricts[2],
+    ...savedDistricts[2]!,
     name: 'Saved District 3 (Updated)',
   };
 
@@ -161,14 +161,14 @@ test('editing existing district list', async () => {
 
   // Delete second saved district:
   {
-    const { name } = savedDistricts[1];
+    const { name } = savedDistricts[1]!;
     userEvent.click(screen.getButton(`Delete District ${name}`));
-    expectDistrictInputs([savedDistricts[0], savedDistricts[2]]);
+    expectDistrictInputs([savedDistricts[0]!, savedDistricts[2]!]);
   }
 
   // Update third saved district:
   {
-    const input = screen.getByDisplayValue(savedDistricts[2].name);
+    const input = screen.getByDisplayValue(savedDistricts[2]!.name);
     userEvent.clear(input);
     userEvent.type(input, updatedDistrict.name);
   }
@@ -178,7 +178,7 @@ test('editing existing district list', async () => {
   {
     const inputs = screen.getAllByRole('textbox');
     expect(inputs).toHaveLength(3);
-    userEvent.type(inputs[2], newDistrict.name);
+    userEvent.type(inputs[2]!, newDistrict.name);
   }
 
   const updatedList = [preservedDistrict, updatedDistrict, newDistrict];
@@ -216,7 +216,7 @@ test('editing or adding a district is disabled when ballots are finalized', asyn
 
   renderScreen(electionId);
 
-  await screen.findByDisplayValue(election.districts[0].name);
+  await screen.findByDisplayValue(election.districts[0]!.name);
   expect(screen.getButton('Add District')).toBeDisabled();
   expect(screen.queryButton('Edit Districts')).not.toBeInTheDocument();
   expect(screen.queryButton('Save')).not.toBeInTheDocument();
@@ -242,8 +242,8 @@ test('cancelling', async () => {
   userEvent.click(screen.getButton('Add District'));
 
   const inputs = screen.getAllByRole('textbox');
-  userEvent.type(inputs[1], ' (Updated)');
-  userEvent.type(inputs[2], 'New District');
+  userEvent.type(inputs[1]!, ' (Updated)');
+  userEvent.type(inputs[2]!, 'New District');
 
   expectDistrictInputs([
     { id: 'saved-district-1', name: 'Saved District 1' },
@@ -270,7 +270,7 @@ test('error message for duplicate district name', async () => {
 
   userEvent.click(await screen.findButton('Edit Districts'));
   userEvent.click(screen.getButton('Add District'));
-  userEvent.type(screen.getAllByRole('textbox')[1], newDistrict.name);
+  userEvent.type(screen.getAllByRole('textbox')[1]!, newDistrict.name);
 
   expectUpdate(apiMock, {
     electionId,
@@ -283,7 +283,7 @@ test('error message for duplicate district name', async () => {
   await screen.findByText('There is already a district with the same name.');
 
   // Editing the problem district should clear the error:
-  userEvent.type(screen.getAllByRole('textbox')[1], ' (edit)');
+  userEvent.type(screen.getAllByRole('textbox')[1]!, ' (edit)');
   expect(screen.queryByText(/with the same name/i)).not.toBeInTheDocument();
 });
 
@@ -299,7 +299,7 @@ test('add/delete disabled for elections with external source', async () => {
 
   renderScreen(electionId);
 
-  await screen.findByDisplayValue(election.districts[0].name);
+  await screen.findByDisplayValue(election.districts[0]!.name);
 
   // Add District button should not be visible
   expect(screen.queryButton('Add District')).not.toBeInTheDocument();
@@ -357,8 +357,8 @@ test('single district deletion', async () => {
   userEvent.click(screen.getButton('Add District'));
   const inputs = screen.getAllByRole('textbox');
   const newDistrict: District = { id: idFactory.next(), name: 'District 4' };
-  userEvent.type(inputs[inputs.length - 1], newDistrict.name);
-  const updatedDistrictList = [districts[0], districts[2], newDistrict];
+  userEvent.type(inputs[inputs.length - 1]!, newDistrict.name);
+  const updatedDistrictList = [districts[0]!, districts[2]!, newDistrict];
   expectDistrictInputs(updatedDistrictList);
 
   userEvent.click(screen.getButton('Save'));
@@ -377,9 +377,9 @@ test('single district deletion', async () => {
 
   expectUpdate(apiMock, {
     electionId,
-    deletedDistrictIds: [districts[1].id],
+    deletedDistrictIds: [districts[1]!.id],
     newDistricts: [newDistrict],
-    updatedDistricts: [districts[0], districts[2]],
+    updatedDistricts: [districts[0]!, districts[2]!],
   }).resolves(ok());
   apiMock.listDistricts
     .expectCallWith({ electionId })
@@ -410,8 +410,8 @@ test('multiple district deletion', async () => {
   userEvent.click(screen.getButton('Add District'));
   const inputs = screen.getAllByRole('textbox');
   const newDistrict: District = { id: idFactory.next(), name: 'District 4' };
-  userEvent.type(inputs[inputs.length - 1], newDistrict.name);
-  const updatedDistrictList = [districts[0], newDistrict];
+  userEvent.type(inputs[inputs.length - 1]!, newDistrict.name);
+  const updatedDistrictList = [districts[0]!, newDistrict];
   expectDistrictInputs(updatedDistrictList);
 
   userEvent.click(screen.getButton('Save'));
@@ -432,9 +432,9 @@ test('multiple district deletion', async () => {
 
   expectUpdate(apiMock, {
     electionId,
-    deletedDistrictIds: [districts[1].id, districts[2].id],
+    deletedDistrictIds: [districts[1]!.id, districts[2]!.id],
     newDistricts: [newDistrict],
-    updatedDistricts: [districts[0]],
+    updatedDistricts: [districts[0]!],
   }).resolves(ok());
   apiMock.listDistricts
     .expectCallWith({ electionId })
@@ -459,7 +459,7 @@ test('cancel district deletion', async () => {
   await screen.findButton('Save');
 
   userEvent.click(screen.getButton('Delete District District 1'));
-  expectDistrictInputs([districts[1]]);
+  expectDistrictInputs([districts[1]!]);
 
   userEvent.click(screen.getButton('Save'));
   const modal = await screen.findByRole('alertdialog');

@@ -22,7 +22,8 @@ function CloneElectionModalForm({
 }): React.ReactNode {
   const cloneMutation = api.cloneElection.useMutation();
   const [jurisdictionId, setJurisdictionId] = React.useState<string>(
-    jurisdictions[0].id
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    jurisdictions[0]!.id
   );
 
   return (
@@ -128,7 +129,8 @@ export function CloneElectionButton(
           disableEventPropagation
           onPress={
             user.type === 'jurisdiction_user' && user.jurisdictions.length === 1
-              ? () => cloneElection(user.jurisdictions[0].id)
+              ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                () => cloneElection(user.jurisdictions[0]!.id)
               : () => setModalActive(true)
           }
           aria-label={buttonLabel}

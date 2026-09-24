@@ -23,8 +23,8 @@ const pollingPlace = anyPollingPlace(election);
 const [precinctOrSplit] = pollingPlaceMembers(election, pollingPlace);
 
 const BALLOT_STYLE_ID = 'ballot-style-1' as BallotStyleId;
-const PRECINCT_ID = precinctOrSplit.precinct.id;
-const PRECINCT_NAME = precinctOrSplit.precinct.name;
+const PRECINCT_ID = precinctOrSplit!.precinct.id;
+const PRECINCT_NAME = precinctOrSplit!.precinct.name;
 
 let apiMock: ApiMock;
 
@@ -154,7 +154,7 @@ test('switching party clears votes from the previous party', async () => {
     election.contests,
     (c): c is CandidateContest => c.id === 'governor-democratic'
   );
-  const demGovernorCandidate = demGovernorContest.candidates[0];
+  const demGovernorCandidate = demGovernorContest.candidates[0]!;
   userEvent.click(screen.getByText(demGovernorCandidate.name));
 
   // Back to party selection, switch to Republican (clears votes), then back
@@ -174,7 +174,7 @@ test('switching party clears votes from the previous party', async () => {
     election.contests,
     (c): c is CandidateContest => c.id === 'governor-republican'
   );
-  screen.getByText(repGovernorContest.candidates[0].name);
+  screen.getByText(repGovernorContest.candidates[0]!.name);
   expect(screen.queryByText(demGovernorCandidate.name)).toBeNull();
 
   userEvent.click(screen.getButton(/back/i));

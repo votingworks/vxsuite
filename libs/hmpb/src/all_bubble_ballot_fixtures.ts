@@ -67,8 +67,10 @@ export function allBubbleBallotFixtures(
   const election = createElection(config);
   const ballotProps: BaseBallotProps = {
     election,
-    ballotStyleId: election.ballotStyles[0].id,
-    precinctId: election.precincts[0].id,
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    ballotStyleId: election.ballotStyles[0]!.id,
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    precinctId: election.precincts[0]!.id,
     ballotMode: 'test',
     ballotType: BallotType.Precinct,
   };
@@ -94,7 +96,8 @@ export function allBubbleBallotFixtures(
         );
 
       return await rendererPool.runTask(async (renderer) => {
-        const blankBallotContents = fs.readFileSync(layoutPaths[0], 'utf8');
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const blankBallotContents = fs.readFileSync(layoutPaths[0]!, 'utf8');
         const ballotDocument =
           await renderer.documentFromContent(blankBallotContents);
 
@@ -124,7 +127,8 @@ export function allBubbleBallotFixtures(
         debug(`Generating: ${cyclingTestDeckPath}`);
         const [ballotStyle] = electionDefinition.election.ballotStyles;
         const gridPositions = gridPositionsFromBallotPositions(
-          assertDefined(ballotStyle.ballotPositions)
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          assertDefined(ballotStyle!.ballotPositions)
         );
         const gridPositionByCandidateId = Object.fromEntries(
           gridPositions.map((position) => [
@@ -141,7 +145,8 @@ export function allBubbleBallotFixtures(
                 (contest as CandidateContest).candidates.flatMap(
                   (candidate) => {
                     const { row, column } =
-                      gridPositionByCandidateId[candidate.id];
+                      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                      gridPositionByCandidateId[candidate.id]!;
                     // Bubbles aren't perfectly aligned with the grid, but they are
                     // extremely close, so rounding is fine
                     if (

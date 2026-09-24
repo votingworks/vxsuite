@@ -16,7 +16,7 @@ test('uses hidden file input', () => {
 
   userEvent.upload(input, mockFile);
   expect(onChange).toHaveBeenCalledTimes(1);
-  expect(Array.from(onChange.mock.calls[0][0].target.files)).toEqual([
+  expect(Array.from(onChange.mock.calls[0]![0].target.files)).toEqual([
     mockFile,
   ]);
 });

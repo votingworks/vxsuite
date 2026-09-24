@@ -67,7 +67,8 @@ async function loadConfigFromSearchParams(url: URL): Promise<Config> {
   const response = await fetch(electionUrl);
   const election = safeParseElection(await response.json()).unsafeUnwrap();
   const ballotStyle: BallotStyle = {
-    ...election.ballotStyles[0],
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    ...election.ballotStyles[0]!,
     languages: languages.length
       ? languages
       : ['es-US', 'en'].filter((lang) => lang in election.ballotStrings),
@@ -82,7 +83,8 @@ async function loadConfigFromSearchParams(url: URL): Promise<Config> {
       ballotStyles: [ballotStyle],
     },
     ballotStyleId: ballotStyle.id,
-    precinctId: ballotStyle.precincts[0],
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    precinctId: ballotStyle.precincts[0]!,
     ballotType: BallotType.Absentee,
     ballotMode: 'test',
     watermark,

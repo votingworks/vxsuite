@@ -108,7 +108,8 @@ test('screenshots', async ({ page }, testInfo) => {
     ]);
   // An "unreadable" sheet that still looks like a ballot: a folded corner
   // obscures the timing marks, with the ballot's real back page behind it.
-  const foldedCornerSheet = await renderFoldedCornerSheet(fullPdf);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const foldedCornerSheet = await renderFoldedCornerSheet(fullPdf!);
 
   // Scans a batch of counted (fully-voted) ballots and waits for it to finish.
   let expectedSheets = 0;
@@ -210,9 +211,12 @@ test('screenshots', async ({ page }, testInfo) => {
 
   // Scan several non-trivial batches so the Scan Ballots screen looks like
   // real use.
-  await scanCountedBatch(Array.from({ length: 9 }, () => fullPdf));
-  await scanCountedBatch(Array.from({ length: 18 }, () => fullPdf));
-  await scanCountedBatch(Array.from({ length: 6 }, () => fullPdf));
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  await scanCountedBatch(Array.from({ length: 9 }, () => fullPdf!));
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  await scanCountedBatch(Array.from({ length: 18 }, () => fullPdf!));
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  await scanCountedBatch(Array.from({ length: 6 }, () => fullPdf!));
   await screenshot('scan-ballots-with-batches');
 
   await page.getByRole('button', { name: 'Batch History' }).click();
@@ -229,10 +233,14 @@ test('screenshots', async ({ page }, testInfo) => {
   await devDockClient.batchScannerClearBallots();
   await devDockClient.batchScannerLoadBallots({
     paths: [
-      fullPdf,
-      overvotePdf,
-      blankPdf,
-      undervotePdf,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      fullPdf!,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      overvotePdf!,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      blankPdf!,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      undervotePdf!,
       // Front + back of the folded-corner sheet; the dev dock pairs trailing
       // image paths into a single sheet (after the PDFs above).
       foldedCornerSheet.frontPath,

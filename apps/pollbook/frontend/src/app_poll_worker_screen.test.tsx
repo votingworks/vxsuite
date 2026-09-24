@@ -27,16 +27,16 @@ const famousNamesElection: Election =
   electionFamousNames2021Fixtures.readElection();
 const famousNamesElectionDefinition: ElectionDefinition =
   electionFamousNames2021Fixtures.readElectionDefinition();
-const precinct1 = famousNamesElection.precincts[0].id;
+const precinct1 = famousNamesElection.precincts[0]!.id;
 
 const singlePrecinctElectionDefinition: ElectionDefinition =
   electionSimpleSinglePrecinctFixtures.readElectionDefinition();
-const singlePrecinct = singlePrecinctElectionDefinition.election.precincts[0];
+const singlePrecinct = singlePrecinctElectionDefinition.election.precincts[0]!;
 
 const multiPartyPrimaryElectionDefinition: ElectionDefinition =
   readMultiPartyPrimaryElectionDefinition();
 const multiPartyPrimaryElection: Election = readMultiPartyPrimaryElection();
-const primaryPrecinct = multiPartyPrimaryElection.precincts[0];
+const primaryPrecinct = multiPartyPrimaryElection.precincts[0]!;
 
 describe('PollWorkerScreen', () => {
   beforeEach(() => {
@@ -62,7 +62,7 @@ describe('PollWorkerScreen', () => {
     apiMock.setPrinterStatus(true);
     apiMock.setElection(
       famousNamesElectionDefinition,
-      famousNamesElection.precincts[0].id
+      famousNamesElection.precincts[0]!.id
     );
 
     apiMock.expectGetCheckInCounts({ allMachines: 25, thisMachine: 5 });
@@ -88,7 +88,7 @@ describe('PollWorkerScreen', () => {
       '124',
       'Abigail',
       'Addams',
-      famousNamesElection.precincts[1].id
+      famousNamesElection.precincts[1]!.id
     );
 
     apiMock.expectSearchVotersWithResults(
@@ -102,12 +102,12 @@ describe('PollWorkerScreen', () => {
     const firstRow = await screen.findByTestId('voter-row#123');
     within(firstRow).getByText(/Adams, Abigail/i);
     within(firstRow).getByText(
-      new RegExp(famousNamesElection.precincts[0].name, 'i')
+      new RegExp(famousNamesElection.precincts[0]!.name, 'i')
     );
     const secondRow = await screen.findByTestId('voter-row#124');
     within(secondRow).getByText(/Addams, Abigail/i);
     within(secondRow).getByText(
-      new RegExp(famousNamesElection.precincts[1].name, 'i')
+      new RegExp(famousNamesElection.precincts[1]!.name, 'i')
     );
     const checkInButton = screen.getByTestId('check-in-button#123');
     const checkInButtonWrongPrecinct = screen.getByTestId(
@@ -142,7 +142,7 @@ describe('PollWorkerScreen', () => {
     apiMock.authenticateAsPollWorker(multiPartyPrimaryElection);
     apiMock.setElection(
       multiPartyPrimaryElectionDefinition,
-      multiPartyPrimaryElection.precincts[0].id
+      multiPartyPrimaryElection.precincts[0]!.id
     );
     apiMock.expectGetScannedIdDocument();
     apiMock.expectSearchVotersNull({});
@@ -173,7 +173,7 @@ describe('PollWorkerScreen', () => {
     const firstRow = await screen.findByTestId('voter-row#123');
     within(firstRow).getByText(/Adams, Abigail/i);
     within(firstRow).getByText(
-      new RegExp(multiPartyPrimaryElection.precincts[0].name, 'i')
+      new RegExp(multiPartyPrimaryElection.precincts[0]!.name, 'i')
     );
     const checkInButton = screen.getByTestId('check-in-button#123');
     within(checkInButton).getByText('Start Check-In');
@@ -265,7 +265,7 @@ describe('PollWorkerScreen', () => {
     apiMock.setIsAbsenteeMode(false);
     apiMock.setElection(
       famousNamesElectionDefinition,
-      famousNamesElection.precincts[0].id
+      famousNamesElection.precincts[0]!.id
     );
     apiMock.expectGetCheckInCounts({ allMachines: 25, thisMachine: 5 });
     apiMock.expectGetScannedIdDocument();
@@ -334,7 +334,7 @@ describe('PollWorkerScreen', () => {
       apiMock.setIsAbsenteeMode(false);
       apiMock.setElection(
         famousNamesElectionDefinition,
-        famousNamesElection.precincts[0].id
+        famousNamesElection.precincts[0]!.id
       );
       apiMock.expectGetCheckInCounts({ allMachines: 25, thisMachine: 5 });
       apiMock.expectGetScannedIdDocument();

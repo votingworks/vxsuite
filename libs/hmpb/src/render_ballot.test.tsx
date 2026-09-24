@@ -108,7 +108,7 @@ test('allBaseBallotProps creates props for all possible ballots for an election'
     BALLOT_MODES.map((ballotMode) => ({ ballotMode })),
   ]);
 
-  const someBallotStyle = election.ballotStyles[0];
+  const someBallotStyle = election.ballotStyles[0]!;
   const somePrecinctId = someBallotStyle.precincts[0];
 
   expect(allBallotProps).toContainEqual({
@@ -225,9 +225,9 @@ test('reorder candidates based on rotation from template', async () => {
 });
 
 test('v4.1: ballot measure contests with 3+ options are exported natively as yesno', async () => {
-  const fixtureSpec = nhGeneralElectionFixtures.fixtureSpecs[0];
+  const fixtureSpec = nhGeneralElectionFixtures.fixtureSpecs[0]!;
   // allBallotProps[0].election has the 3-option question-a contest
-  const specElection = fixtureSpec.allBallotProps[0].election;
+  const specElection = fixtureSpec.allBallotProps[0]!.election;
   const ballotMeasureContest = find(
     specElection.contests,
     (contest): contest is YesNoContest =>
@@ -259,8 +259,8 @@ test('v4.1: ballot measure contests with 3+ options are exported natively as yes
 });
 
 test('v4.0: ballot measure contests with 3+ options are transformed into candidate contests', async () => {
-  const fixtureSpec = nhGeneralElectionFixtures.fixtureSpecs[0];
-  const specElection = fixtureSpec.allBallotProps[0].election;
+  const fixtureSpec = nhGeneralElectionFixtures.fixtureSpecs[0]!;
+  const specElection = fixtureSpec.allBallotProps[0]!.election;
   const ballotMeasureContest = find(
     specElection.contests,
     (contest): contest is YesNoContest =>
@@ -299,15 +299,15 @@ test('v4.0: ballot measure contests with 3+ options are transformed into candida
 
 const templateSpecificTestProps: Record<BallotTemplateId, BaseBallotProps[]> = {
   VxDefaultBallot: [
-    vxGeneralElectionFixtures.fixtureSpecs[0].allBallotProps[0],
+    vxGeneralElectionFixtures.fixtureSpecs[0]!.allBallotProps[0]!,
   ],
-  NhBallot: [nhGeneralElectionFixtures.fixtureSpecs[0].allBallotProps[0]],
+  NhBallot: [nhGeneralElectionFixtures.fixtureSpecs[0]!.allBallotProps[0]!],
   NhStateBallot: [
-    nhStateGeneralElectionFixtures.allBallotProps[0],
-    nhStatePrimaryElectionFixtures.allBallotProps[0],
+    nhStateGeneralElectionFixtures.allBallotProps[0]!,
+    nhStatePrimaryElectionFixtures.allBallotProps[0]!,
   ],
-  MsBallot: [msGeneralElectionFixtures.allBallotProps[0]],
-  MiBallot: [miClosedPrimaryElectionFixtures.allBallotProps[0]],
+  MsBallot: [msGeneralElectionFixtures.allBallotProps[0]!],
+  MiBallot: [miClosedPrimaryElectionFixtures.allBallotProps[0]!],
 };
 const templateSpecificTestCases = Object.entries(
   templateSpecificTestProps
@@ -329,7 +329,7 @@ test.each(templateSpecificTestCases)(
     const oversizedContest: CandidateContest = {
       id: 'contest-oversized',
       type: 'candidate',
-      districtId: ballotStyle.districts[0],
+      districtId: ballotStyle.districts[0]!,
       title: 'Oversized Contest',
       seats: 1,
       allowWriteIns: false,
@@ -469,7 +469,7 @@ test.each(templateSpecificTestCases)(
 
 test('fails on inconsistent ballot positions for matching styles', async () => {
   const baseProps: BaseBallotProps = {
-    ...vxGeneralElectionFixtures.fixtureSpecs[0].allBallotProps[0],
+    ...vxGeneralElectionFixtures.fixtureSpecs[0]!.allBallotProps[0]!,
     compact: false,
   };
 

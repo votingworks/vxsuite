@@ -110,7 +110,8 @@ export function PrintScreen({
   }, [getElectionRecordQuery.data, pollingPlaceId, isElectionManagerAuth]);
 
   if (!selectedPrecinctId && precincts.length > 0) {
-    const defaultSelection = precincts[0].id;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const defaultSelection = precincts[0]!.id;
     setSelectedPrecinctId(defaultSelection);
   }
 

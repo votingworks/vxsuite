@@ -34,10 +34,10 @@ test('renders', () => {
     <Review
       election={electionGeneral}
       contests={contests}
-      precinctId={electionGeneral.precincts[0].id}
+      precinctId={electionGeneral.precincts[0]!.id}
       votes={{}}
       returnToContest={vi.fn()}
-      ballotStyle={electionGeneral.ballotStyles[0]}
+      ballotStyle={electionGeneral.ballotStyles[0]!}
     />
   );
   expect(
@@ -55,10 +55,10 @@ test('candidate contest with no votes', () => {
     <Review
       election={electionGeneral}
       contests={contests}
-      precinctId={electionGeneral.precincts[0].id}
+      precinctId={electionGeneral.precincts[0]!.id}
       votes={{}}
       returnToContest={vi.fn()}
-      ballotStyle={electionGeneral.ballotStyles[0]}
+      ballotStyle={electionGeneral.ballotStyles[0]!}
     />
   );
   expect(screen.getByText('You may still vote in this contest.')).toBeTruthy();
@@ -75,9 +75,9 @@ test('candidate contest interpretation result with no votes', () => {
       contests={[contest]}
       election={electionGeneral}
       selectionsAreEditable={false}
-      precinctId={electionGeneral.precincts[0].id}
+      precinctId={electionGeneral.precincts[0]!.id}
       returnToContest={vi.fn()}
-      ballotStyle={electionGeneral.ballotStyles[0]}
+      ballotStyle={electionGeneral.ballotStyles[0]!}
       votes={{}}
     />
   );
@@ -101,12 +101,12 @@ test('candidate contest with votes but still undervoted', () => {
     <Review
       election={electionGeneral}
       contests={contests}
-      precinctId={electionGeneral.precincts[0].id}
+      precinctId={electionGeneral.precincts[0]!.id}
       votes={{
-        [contest.id]: [contest.candidates[0]],
+        [contest.id]: [contest.candidates[0]!],
       }}
       returnToContest={vi.fn()}
-      ballotStyle={electionGeneral.ballotStyles[0]}
+      ballotStyle={electionGeneral.ballotStyles[0]!}
     />
   );
 
@@ -127,42 +127,42 @@ test('candidate contest with multiple votes are ordered properly', () => {
     <Review
       election={electionGeneral}
       contests={contests}
-      precinctId={electionGeneral.precincts[0].id}
+      precinctId={electionGeneral.precincts[0]!.id}
       votes={{
         [contest.id]: [
-          contest.candidates[0],
-          contest.candidates[3],
-          contest.candidates[2],
+          contest.candidates[0]!,
+          contest.candidates[3]!,
+          contest.candidates[2]!,
         ],
       }}
       returnToContest={vi.fn()}
       ballotStyle={{
-        ...electionGeneral.ballotStyles[0],
+        ...electionGeneral.ballotStyles[0]!,
         orderedCandidatesByContest: {
           [contest.id]: [
             {
-              id: contest.candidates[3].id,
-              partyIds: contest.candidates[3].partyIds,
+              id: contest.candidates[3]!.id,
+              partyIds: contest.candidates[3]!.partyIds,
             },
             {
-              id: contest.candidates[0].id,
-              partyIds: contest.candidates[0].partyIds,
+              id: contest.candidates[0]!.id,
+              partyIds: contest.candidates[0]!.partyIds,
             },
             {
-              id: contest.candidates[2].id,
-              partyIds: contest.candidates[2].partyIds,
+              id: contest.candidates[2]!.id,
+              partyIds: contest.candidates[2]!.partyIds,
             },
             {
-              id: contest.candidates[1].id,
-              partyIds: contest.candidates[1].partyIds,
+              id: contest.candidates[1]!.id,
+              partyIds: contest.candidates[1]!.partyIds,
             },
             {
-              id: contest.candidates[4].id,
-              partyIds: contest.candidates[4].partyIds,
+              id: contest.candidates[4]!.id,
+              partyIds: contest.candidates[4]!.partyIds,
             },
             {
-              id: contest.candidates[5].id,
-              partyIds: contest.candidates[5].partyIds,
+              id: contest.candidates[5]!.id,
+              partyIds: contest.candidates[5]!.partyIds,
             },
           ],
         },
@@ -180,9 +180,9 @@ test('candidate contest with multiple votes are ordered properly', () => {
   );
   const candidateNames = screen.getAllByText(nameRegex);
 
-  expect(candidateNames[0]).toHaveTextContent(contest.candidates[3].name);
-  expect(candidateNames[1]).toHaveTextContent(contest.candidates[0].name);
-  expect(candidateNames[2]).toHaveTextContent(contest.candidates[2].name);
+  expect(candidateNames[0]).toHaveTextContent(contest.candidates[3]!.name);
+  expect(candidateNames[1]).toHaveTextContent(contest.candidates[0]!.name);
+  expect(candidateNames[2]).toHaveTextContent(contest.candidates[2]!.name);
 });
 
 test('candidate contest fully voted', () => {
@@ -195,12 +195,12 @@ test('candidate contest fully voted', () => {
     <Review
       election={electionGeneral}
       contests={contests}
-      precinctId={electionGeneral.precincts[0].id}
+      precinctId={electionGeneral.precincts[0]!.id}
       votes={{
         [contest.id]: contest.candidates.slice(0, contest.seats),
       }}
       returnToContest={vi.fn()}
-      ballotStyle={electionGeneral.ballotStyles[0]}
+      ballotStyle={electionGeneral.ballotStyles[0]!}
     />
   );
   expect(screen.queryByText(/You may still vote/)).not.toBeInTheDocument();
@@ -220,8 +220,8 @@ test('candidate contest - write-in', () => {
     <Review
       election={electionGeneral}
       contests={contests}
-      ballotStyle={electionGeneral.ballotStyles[0]}
-      precinctId={electionGeneral.precincts[0].id}
+      ballotStyle={electionGeneral.ballotStyles[0]!}
+      precinctId={electionGeneral.precincts[0]!.id}
       votes={{
         [contest.id]: [
           {
@@ -258,8 +258,8 @@ test('candidate contest with term description', () => {
     <Review
       election={election}
       contests={[contest]}
-      precinctId={election.precincts[0].id}
-      ballotStyle={election.ballotStyles[0]}
+      precinctId={election.precincts[0]!.id}
+      ballotStyle={election.ballotStyles[0]!}
       votes={{}}
       returnToContest={vi.fn()}
     />
@@ -284,8 +284,8 @@ describe('yesno contest', () => {
         <Review
           election={election}
           contests={contests}
-          ballotStyle={election.ballotStyles[0]}
-          precinctId={election.precincts[0].id}
+          ballotStyle={election.ballotStyles[0]!}
+          precinctId={election.precincts[0]!.id}
           votes={{
             [contest.id]: vote ? [vote] : [],
           }}
@@ -313,9 +313,9 @@ describe('yesno contest', () => {
       <Review
         election={electionGeneral}
         contests={[contest]}
-        ballotStyle={electionGeneral.ballotStyles[0]}
+        ballotStyle={electionGeneral.ballotStyles[0]!}
         selectionsAreEditable={false}
-        precinctId={electionGeneral.precincts[0].id}
+        precinctId={electionGeneral.precincts[0]!.id}
         returnToContest={vi.fn()}
         votes={{}}
       />
@@ -363,8 +363,8 @@ describe('ms-either-neither contest', () => {
       <Review
         election={election}
         contests={contests}
-        ballotStyle={election.ballotStyles[0]}
-        precinctId={election.precincts[0].id}
+        ballotStyle={election.ballotStyles[0]!}
+        precinctId={election.precincts[0]!.id}
         votes={{
           '750000015': eitherNeitherVote ? [eitherNeitherVote] : [],
           '750000016': pickOneVote ? [pickOneVote] : [],
@@ -402,9 +402,9 @@ describe('ms-either-neither contest', () => {
       <Review
         contests={[mergedContest]}
         election={election}
-        ballotStyle={election.ballotStyles[0]}
+        ballotStyle={election.ballotStyles[0]!}
         selectionsAreEditable={false}
-        precinctId={election.precincts[0].id}
+        precinctId={election.precincts[0]!.id}
         returnToContest={vi.fn()}
         votes={{}}
       />
@@ -430,8 +430,8 @@ describe('keyboard navigation', () => {
         <Review
           election={electionGeneral}
           contests={contests}
-          precinctId={electionGeneral.precincts[0].id}
-          ballotStyle={electionGeneral.ballotStyles[0]}
+          precinctId={electionGeneral.precincts[0]!.id}
+          ballotStyle={electionGeneral.ballotStyles[0]!}
           votes={{}}
           returnToContest={returnToContestStub}
         />
@@ -439,7 +439,7 @@ describe('keyboard navigation', () => {
 
       userEvent.tab();
       expect(
-        await screen.findByTestId(`contest-wrapper-${contests[0].id}`)
+        await screen.findByTestId(`contest-wrapper-${contests[0]!.id}`)
       ).toHaveFocus();
       userEvent.keyboard(key);
       expect(returnToContestStub).toHaveBeenCalledTimes(1);
@@ -491,8 +491,8 @@ describe('cross-endorsed candidates', () => {
       <Review
         election={election}
         contests={[contest]}
-        precinctId={election.precincts[0].id}
-        ballotStyle={election.ballotStyles[0]}
+        precinctId={election.precincts[0]!.id}
+        ballotStyle={election.ballotStyles[0]!}
         votes={{
           governor: [{ id: 'alice', name: 'Alice Anderson', partyIds: ['0'] }],
         }}
@@ -553,8 +553,8 @@ describe('cross-endorsed candidates', () => {
       <Review
         election={election}
         contests={[contest]}
-        precinctId={election.precincts[0].id}
-        ballotStyle={election.ballotStyles[0]}
+        precinctId={election.precincts[0]!.id}
+        ballotStyle={election.ballotStyles[0]!}
         votes={{
           council: [
             { id: 'alice', name: 'Alice Anderson', partyIds: ['0'] },
@@ -613,8 +613,8 @@ describe('cross-endorsed candidates', () => {
       <Review
         election={election}
         contests={[contest]}
-        precinctId={election.precincts[0].id}
-        ballotStyle={election.ballotStyles[0]}
+        precinctId={election.precincts[0]!.id}
+        ballotStyle={election.ballotStyles[0]!}
         votes={{
           governor: [
             { id: 'alice', name: 'Alice Anderson', partyIds: ['1'] },
@@ -681,8 +681,8 @@ describe('cross-endorsed candidates', () => {
       <Review
         election={election}
         contests={[contest]}
-        precinctId={election.precincts[0].id}
-        ballotStyle={election.ballotStyles[0]}
+        precinctId={election.precincts[0]!.id}
+        ballotStyle={election.ballotStyles[0]!}
         votes={{
           governor: [
             { id: 'alice', name: 'Alice Anderson', partyIds: ['0'] },
@@ -716,12 +716,12 @@ describe('straight party contest', () => {
       <Review
         election={electionStraightParty}
         contests={[straightPartyContest]}
-        precinctId={electionStraightParty.precincts[0].id}
+        precinctId={electionStraightParty.precincts[0]!.id}
         votes={{
-          [straightPartyContest.id]: [straightPartyContest.optionIds[0]],
+          [straightPartyContest.id]: [straightPartyContest.optionIds[0]!],
         }}
         returnToContest={returnToContest}
-        ballotStyle={electionStraightParty.ballotStyles[0]}
+        ballotStyle={electionStraightParty.ballotStyles[0]!}
       />
     );
     const contestCard = screen
@@ -741,10 +741,10 @@ describe('straight party contest', () => {
       <Review
         election={electionStraightParty}
         contests={[straightPartyContest]}
-        precinctId={electionStraightParty.precincts[0].id}
+        precinctId={electionStraightParty.precincts[0]!.id}
         votes={{}}
         returnToContest={vi.fn()}
-        ballotStyle={electionStraightParty.ballotStyles[0]}
+        ballotStyle={electionStraightParty.ballotStyles[0]!}
       />
     );
     const contestCard = screen
@@ -778,10 +778,10 @@ describe('straight party derived candidate votes', () => {
       <Review
         election={electionStraightParty}
         contests={[contest]}
-        precinctId={electionStraightParty.precincts[0].id}
+        precinctId={electionStraightParty.precincts[0]!.id}
         votes={votes}
         returnToContest={vi.fn()}
-        ballotStyle={electionStraightParty.ballotStyles[0]}
+        ballotStyle={electionStraightParty.ballotStyles[0]!}
       />
     );
     return screen.getByTestId(`contest-wrapper-${contest.id}`);
@@ -790,7 +790,7 @@ describe('straight party derived candidate votes', () => {
   test('lists the derived party candidate with a straight party label', () => {
     const contestCard = renderReview(presidentContest, federalistVote);
 
-    within(contestCard).getByText(federalistCandidate.name);
+    within(contestCard).getByText(federalistCandidate!.name);
     within(contestCard).getByText(/straight party vote/i);
     expect(
       within(contestCard).queryByText('You may still vote in this contest.')
@@ -802,19 +802,19 @@ describe('straight party derived candidate votes', () => {
 
     within(contestCard).getByText('You may still vote in this contest.');
     expect(
-      within(contestCard).queryByText(federalistCandidate.name)
+      within(contestCard).queryByText(federalistCandidate!.name)
     ).toBeNull();
   });
 
   test('a direct vote overrides the derived candidate', () => {
     const contestCard = renderReview(presidentContest, {
       ...federalistVote,
-      [presidentContest.id]: [libertyCandidate],
+      [presidentContest.id]: [libertyCandidate!],
     });
 
-    within(contestCard).getByText(libertyCandidate.name);
+    within(contestCard).getByText(libertyCandidate!.name);
     expect(
-      within(contestCard).queryByText(federalistCandidate.name)
+      within(contestCard).queryByText(federalistCandidate!.name)
     ).toBeNull();
   });
 
@@ -857,7 +857,11 @@ describe('straight party derived candidate votes', () => {
   const crossEndorsedContest: CandidateContest = {
     ...countyCommissionersContest,
     seats: 3,
-    candidates: [{ ...argent, partyIds: ['0', '2'] }, witherspoon, bainbridge],
+    candidates: [
+      { ...argent!, partyIds: ['0', '2'] },
+      witherspoon!,
+      bainbridge!,
+    ],
   };
   const crossEndorsedNameRegex =
     /^(Camille Argent|Chloe Witherspoon-Smithson|Clayton Bainbridge)$/;
@@ -878,17 +882,17 @@ describe('straight party derived candidate votes', () => {
       <Review
         election={electionStraightParty}
         contests={[crossEndorsedContest]}
-        precinctId={electionStraightParty.precincts[0].id}
+        precinctId={electionStraightParty.precincts[0]!.id}
         votes={{ [straightPartyContest.id]: ['0'] }}
         returnToContest={vi.fn()}
         ballotStyle={{
-          ...electionStraightParty.ballotStyles[0],
+          ...electionStraightParty.ballotStyles[0]!,
           // Rotate so the cross-endorsed candidate's Federalist option is first.
           orderedCandidatesByContest: {
             [crossEndorsedContest.id]: [
-              { id: argent.id, partyIds: ['0'] },
-              { id: witherspoon.id, partyIds: ['0'] },
-              { id: bainbridge.id, partyIds: ['0'] },
+              { id: argent!.id, partyIds: ['0'] },
+              { id: witherspoon!.id, partyIds: ['0'] },
+              { id: bainbridge!.id, partyIds: ['0'] },
             ],
           },
         }}

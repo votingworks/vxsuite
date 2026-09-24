@@ -21,7 +21,7 @@ function setSinglePrecinctElection(store: LocalStore): void {
   const baseElection = getTestElection();
   const singlePrecinctElection: typeof baseElection = {
     ...baseElection,
-    precincts: [baseElection.precincts[0]], // Only one precinct
+    precincts: [baseElection.precincts[0]!], // Only one precinct
   };
 
   const singlePrecinctElectionDefinition: ElectionDefinition = {
@@ -180,8 +180,8 @@ test('can export paper backup checklist for multi precinct election', async () =
 
   const pt1Path = makeTemporaryPath();
   const pt2Path = makeTemporaryPath();
-  writeFileSync(pt1Path, pdfs[0]);
-  writeFileSync(pt2Path, pdfs[1]);
+  writeFileSync(pt1Path, pdfs[0]!);
+  writeFileSync(pt2Path, pdfs[1]!);
   await expect(pt1Path).toMatchPdfSnapshot();
   await expect(pt2Path).toMatchPdfSnapshot();
 });
@@ -198,8 +198,8 @@ test('backup checklist works for single-precinct election', async () => {
 
   const pt1Path = makeTemporaryPath();
   const pt2Path = makeTemporaryPath();
-  writeFileSync(pt1Path, pdfs[0]);
-  writeFileSync(pt2Path, pdfs[1]);
+  writeFileSync(pt1Path, pdfs[0]!);
+  writeFileSync(pt2Path, pdfs[1]!);
   await expect(pt1Path).toMatchPdfSnapshot();
   await expect(pt2Path).toMatchPdfSnapshot();
 });

@@ -49,7 +49,7 @@ test('voting and changing a straight party contest', async () => {
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12',
-    precinctId,
+    precinctId: precinctId!,
   });
 
   userEvent.click(await screen.findByText('Start Voting'));

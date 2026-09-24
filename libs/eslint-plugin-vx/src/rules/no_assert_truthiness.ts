@@ -99,8 +99,10 @@ const rule: TSESLint.RuleModule<
         }
 
         const [assertValue] = node.arguments;
-        const tsAssertionNode =
-          parserServices.esTreeNodeToTSNodeMap.get(assertValue);
+        const tsAssertionNode = parserServices.esTreeNodeToTSNodeMap.get(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          assertValue!
+        );
         const assertValueType = checker.getTypeAtLocation(tsAssertionNode);
 
         if (typeIsBoolean(assertValueType)) {
@@ -114,16 +116,19 @@ const rule: TSESLint.RuleModule<
           const includesUndefined = typeIncludesUndefined(assertValueType);
           const isFixable = !hasStringOrNumber && includesUndefined;
           context.report({
-            node: assertValue,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            node: assertValue!,
             messageId: hasStringOrNumber
               ? 'assertStringOrNumber'
               : 'assertObject',
             fix: !isFixable
               ? undefined
               : (fixer) => [
-                  fixer.insertTextBeforeRange(assertValue.range, 'typeof '),
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  fixer.insertTextBeforeRange(assertValue!.range, 'typeof '),
                   fixer.insertTextAfterRange(
-                    assertValue.range,
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    assertValue!.range,
                     ` !== 'undefined'`
                   ),
                 ],

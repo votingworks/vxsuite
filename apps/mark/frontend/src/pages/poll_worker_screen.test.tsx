@@ -213,7 +213,7 @@ test('renders session start section', () => {
   const [pollingPlace] = assertDefined(election.pollingPlaces);
 
   const activateCardlessVoterSession = vi.fn();
-  const pollingPlaceId = pollingPlace.id;
+  const pollingPlaceId = pollingPlace!.id;
 
   expectSystemSettings();
   renderScreen({

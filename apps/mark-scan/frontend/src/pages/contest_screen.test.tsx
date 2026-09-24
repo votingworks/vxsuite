@@ -12,7 +12,7 @@ import { ContestScreen } from './contest_screen.js';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
 
 const electionGeneral = readElectionGeneral();
-const firstContestTitle = electionGeneral.contests[0].title;
+const firstContestTitle = electionGeneral.contests[0]!.title;
 
 let apiMock: ApiMock;
 
@@ -31,8 +31,8 @@ test('Renders ContestScreen', async () => {
     {
       apiMock,
       route: '/contests/0',
-      precinctId: electionGeneral.precincts[0].id,
-      ballotStyleId: electionGeneral.ballotStyles[0].id,
+      precinctId: electionGeneral.precincts[0]!.id,
+      ballotStyleId: electionGeneral.ballotStyles[0]!.id,
     }
   );
   await screen.findByRole('heading', { name: firstContestTitle });
@@ -48,8 +48,8 @@ test('Renders ContestScreen in Landscape orientation', async () => {
     {
       apiMock,
       route: '/contests/0',
-      precinctId: electionGeneral.precincts[0].id,
-      ballotStyleId: electionGeneral.ballotStyles[0].id,
+      precinctId: electionGeneral.precincts[0]!.id,
+      ballotStyleId: electionGeneral.ballotStyles[0]!.id,
       machineConfig: mockMachineConfig({ screenOrientation: 'landscape' }),
     }
   );
@@ -62,8 +62,8 @@ test('Renders ContestScreen in Landscape orientation in Review Mode', async () =
     {
       apiMock,
       route: '/contests/0#review',
-      precinctId: electionGeneral.precincts[0].id,
-      ballotStyleId: electionGeneral.ballotStyles[0].id,
+      precinctId: electionGeneral.precincts[0]!.id,
+      ballotStyleId: electionGeneral.ballotStyles[0]!.id,
       machineConfig: mockMachineConfig({ screenOrientation: 'landscape' }),
     }
   );
@@ -82,8 +82,8 @@ test('renders as voter screen', () => {
       apiMock,
       history,
       route: '/contests/0',
-      precinctId: electionGeneral.precincts[0].id,
-      ballotStyleId: electionGeneral.ballotStyles[0].id,
+      precinctId: electionGeneral.precincts[0]!.id,
+      ballotStyleId: electionGeneral.ballotStyles[0]!.id,
     }
   );
 

@@ -98,10 +98,12 @@ export function convertMsResults(
     lines(allPrecinctsTallyReportContents).first()
   ).split(',');
   const [, reportBallotHash] =
-    reportElectionId.match(/^Election ID: (.+)$/) ?? [];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    reportElectionId!.match(/^Election ID: (.+)$/) ?? [];
   if (
     !/^(?:TEST-)?(?:official|unofficial)-tally-report-by-precinct$/.test(
-      reportTitle
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      reportTitle!
     )
   ) {
     return err('wrong-tally-report');
@@ -170,7 +172,8 @@ export function convertMsResults(
   function extractSemsId(id: string): string {
     const [electionId, semsId] = id.split(MS_ID_SEPARATOR);
     assert(electionId === election.id);
-    return semsId;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return semsId!;
   }
 
   function isWriteIn(row: AllPrecinctsTallyReportRow): boolean {
@@ -196,7 +199,8 @@ export function convertMsResults(
   )
     .map(([[, , selectionId], rowGroup]): AllPrecinctsTallyReportRow => ({
       ...assertDefined(rowGroup[0]),
-      selectionId,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      selectionId: selectionId!,
       totalVotes: String(
         iter(rowGroup)
           .map((row) => safeParseInt(row.totalVotes).unsafeUnwrap())

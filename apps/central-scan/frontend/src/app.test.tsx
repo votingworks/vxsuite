@@ -217,7 +217,7 @@ test('deleting a batch removes it from the table', async () => {
   await screen.findByRole('heading', { name: 'Batch History' });
   await screen.findByText('Batch 2');
 
-  userEvent.click(screen.getAllButtons('Delete')[1]);
+  userEvent.click(screen.getAllButtons('Delete')[1]!);
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Delete ‘Batch 2’' });
 

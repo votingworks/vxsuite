@@ -124,7 +124,8 @@ function toMiddleNameSearchPattern(searchMiddle?: string): string {
     return '.*';
   }
 
-  const initial = escapeRegexLiteral(cleaned[0]);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const initial = escapeRegexLiteral(cleaned[0]!);
 
   // Regex that matches an empty DB middle-name field.
   // Empty middle names are always considered compatible.
@@ -303,7 +304,8 @@ export class LocalStore extends Store {
       useOriginalName: true,
     });
     const groupedVoters = Object.fromEntries(
-      groupBy(sortedVoters, (v) => v.lastName[0].toUpperCase()).map(
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      groupBy(sortedVoters, (v) => v.lastName[0]!.toUpperCase()).map(
         ([key, voterGroup]) => [key, voterGroup]
       )
     );
@@ -829,7 +831,8 @@ export class LocalStore extends Store {
     const now = new Date(getCurrentTime());
 
     const startOfHour = new Date(
-      orderedByEventMachineTime[0].checkInData.timestamp
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      orderedByEventMachineTime[0]!.checkInData.timestamp
     );
     startOfHour.setMinutes(0);
     startOfHour.setSeconds(0);

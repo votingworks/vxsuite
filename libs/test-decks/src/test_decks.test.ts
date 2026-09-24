@@ -36,7 +36,7 @@ const electionGeneral = readElectionGeneral();
 
 describe('numBallotPositions', () => {
   test('returns options.length for yes-no contests', () => {
-    const yesNoContest = electionGeneral.contests[13];
+    const yesNoContest = electionGeneral.contests[13]!;
     expect(numBallotPositions(yesNoContest)).toEqual(2);
   });
 
@@ -226,7 +226,7 @@ describe('generateTestDeckBallots', () => {
     };
     const ballots = generateTestDeckBallots({
       election: electionWithOnlyYesNoContests,
-      precinctId: electionWithOnlyYesNoContests.precincts[0].id,
+      precinctId: electionWithOnlyYesNoContests.precincts[0]!.id,
       ballotFormat: 'bubble',
     });
     const overvotedBallots = ballots.filter((ballot) =>

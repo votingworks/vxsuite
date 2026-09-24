@@ -136,16 +136,16 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   const [pollingPlace] = assertDefined(election.pollingPlaces);
   apiMock.mockApiClient.setPollingPlaceId
-    .expectCallWith({ id: pollingPlace.id })
+    .expectCallWith({ id: pollingPlace!.id })
     .resolves();
-  apiMock.expectGetElectionState({ pollingPlaceId: pollingPlace.id });
+  apiMock.expectGetElectionState({ pollingPlaceId: pollingPlace!.id });
 
   userEvent.click(screen.getByText(/select a polling place/i));
-  userEvent.click(screen.getByText(pollingPlace.name));
+  userEvent.click(screen.getByText(pollingPlace!.name));
 
   await waitFor(apiMock.mockApiClient.assertComplete);
   await within(screen.getByTestId('electionInfoBar')).findByText(
-    pollingPlace.name,
+    pollingPlace!.name,
     { exact: false }
   );
 
@@ -204,23 +204,29 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Complete Voter Happy Path
 
-  const ballotStyleId = pollingPlaceBallotStyles(election, pollingPlace)[0].id;
-  const [precinctId] = Object.keys(pollingPlace.precincts);
-  const precinct = assertDefined(getPrecinctById({ election, precinctId }));
+  const ballotStyleId = pollingPlaceBallotStyles(election, pollingPlace!)[0]!
+    .id;
+  const [precinctId] = Object.keys(pollingPlace!.precincts);
+  const precinct = assertDefined(
+    getPrecinctById({ election, precinctId: precinctId! })
+  );
 
   // Start voter session
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   apiMock.mockApiClient.startCardlessVoterSession
-    .expectCallWith({ ballotStyleId, precinctId })
+    .expectCallWith({ ballotStyleId, precinctId: precinctId! })
     .resolves();
 
   userEvent.click(await screen.findButton(precinct.name));
   await waitFor(apiMock.mockApiClient.assertComplete);
 
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
-    cardlessVoterUserParams: { ballotStyleId, precinctId },
+    cardlessVoterUserParams: { ballotStyleId, precinctId: precinctId! },
   });
-  apiMock.setAuthStatusCardlessVoterLoggedIn({ ballotStyleId, precinctId });
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId,
+    precinctId: precinctId!,
+  });
 
   await findByTextWithMarkup('Number of contests on your ballot: 20');
   screen.getByText(precinct.name, { exact: false });
@@ -230,13 +236,13 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Advance through every contest
   for (let i = 0; i < voterContests.length; i += 1) {
-    const { title } = voterContests[i];
+    const { title } = voterContests[i]!;
 
     await screen.findByRole('heading', { name: title });
 
     // Vote for candidate contest
     if (title === presidentContest.title) {
-      userEvent.click(screen.getByText(presidentContest.candidates[0].name));
+      userEvent.click(screen.getByText(presidentContest.candidates[0]!.name));
     }
 
     // Vote for yesno contest
@@ -253,7 +259,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   await screen.findByText('Review Your Votes');
 
   // Check for votes
-  screen.getByText(presidentContest.candidates[0].name);
+  screen.getByText(presidentContest.candidates[0]!.name);
   within(
     screen.getByRole('heading', { name: new RegExp(measure102Contest.title) })
       .parentElement!
@@ -274,17 +280,17 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Select first candidate
   userEvent.click(
-    screen.getByText(countyCommissionersContest.candidates[0].name)
+    screen.getByText(countyCommissionersContest.candidates[0]!.name)
   );
   userEvent.click(
-    screen.getByText(countyCommissionersContest.candidates[1].name)
+    screen.getByText(countyCommissionersContest.candidates[1]!.name)
   );
 
   // Back to Review screen
   userEvent.click(screen.getByText('Review'));
   await screen.findByText('Review Your Votes');
-  screen.getByText(countyCommissionersContest.candidates[0].name);
-  screen.getByText(countyCommissionersContest.candidates[1].name);
+  screen.getByText(countyCommissionersContest.candidates[0]!.name);
+  screen.getByText(countyCommissionersContest.candidates[1]!.name);
   screen.getByText(hasTextAcrossElements(/number of unused votes: 2/i));
 
   // Print Screen
@@ -292,7 +298,7 @@ test('MarkAndPrint end-to-end flow', async () => {
     ballotStyleId: '12',
     precinctId: '23',
     votes: {
-      [presidentContest.id]: [presidentContest.candidates[0]],
+      [presidentContest.id]: [presidentContest.candidates[0]!],
       [measure102Contest.id]: [measure102Contest.options[0].id],
       [countyCommissionersContest.id]:
         countyCommissionersContest.candidates.slice(0, 2),

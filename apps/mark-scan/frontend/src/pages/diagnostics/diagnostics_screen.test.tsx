@@ -224,13 +224,13 @@ test('election information', async () => {
   apiMock.mockApiClient.getElectionRecord.reset();
   apiMock.expectGetElectionRecord(electionTwoPartyPrimaryDefinition);
   apiMock.mockApiClient.getElectionState.reset();
-  apiMock.expectGetElectionState({ pollingPlaceId: pollingPlace.id });
+  apiMock.expectGetElectionState({ pollingPlaceId: pollingPlace!.id });
 
   renderScreen();
   await waitFor(() => apiMock.mockApiClient.assertComplete());
 
   screen.getByText(election.title, { exact: false });
-  screen.getByText(pollingPlace.name, { exact: false });
+  screen.getByText(pollingPlace!.name, { exact: false });
 });
 
 test('saving report', async () => {

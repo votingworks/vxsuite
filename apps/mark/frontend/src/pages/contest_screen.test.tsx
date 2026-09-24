@@ -15,15 +15,15 @@ import { render as renderWithBallotContext } from '../../test/test_utils.js';
 import { ContestScreen } from './contest_screen.js';
 
 const electionGeneral = readElectionGeneral();
-const firstContestTitle = electionGeneral.contests[0].title;
+const firstContestTitle = electionGeneral.contests[0]!.title;
 
 test('Renders ContestScreen', () => {
   renderWithBallotContext(
     <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
       route: '/contests/0',
-      precinctId: electionGeneral.precincts[0].id,
-      ballotStyleId: electionGeneral.ballotStyles[0].id,
+      precinctId: electionGeneral.precincts[0]!.id,
+      ballotStyleId: electionGeneral.ballotStyles[0]!.id,
     }
   );
   screen.getByRole('heading', { name: firstContestTitle });
@@ -41,8 +41,8 @@ test('View All button navigates to review page', () => {
     {
       history,
       route: '/contests/0',
-      precinctId: electionGeneral.precincts[0].id,
-      ballotStyleId: electionGeneral.ballotStyles[0].id,
+      precinctId: electionGeneral.precincts[0]!.id,
+      ballotStyleId: electionGeneral.ballotStyles[0]!.id,
     }
   );
 
@@ -56,8 +56,8 @@ test('Renders ContestScreen in Landscape orientation', () => {
     <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
       route: '/contests/0',
-      precinctId: electionGeneral.precincts[0].id,
-      ballotStyleId: electionGeneral.ballotStyles[0].id,
+      precinctId: electionGeneral.precincts[0]!.id,
+      ballotStyleId: electionGeneral.ballotStyles[0]!.id,
       machineConfig: mockMachineConfig({ screenOrientation: 'landscape' }),
     }
   );
@@ -69,8 +69,8 @@ test('Renders ContestScreen in Landscape orientation in Review Mode', () => {
     <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
       route: '/contests/0#review',
-      precinctId: electionGeneral.precincts[0].id,
-      ballotStyleId: electionGeneral.ballotStyles[0].id,
+      precinctId: electionGeneral.precincts[0]!.id,
+      ballotStyleId: electionGeneral.ballotStyles[0]!.id,
       machineConfig: mockMachineConfig({ screenOrientation: 'landscape' }),
     }
   );
@@ -87,8 +87,8 @@ test('does not show View All on the last contest', () => {
     <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
       route: `/contests/${lastContestIndex}`,
-      precinctId: electionGeneral.precincts[0].id,
-      ballotStyleId: electionGeneral.ballotStyles[0].id,
+      precinctId: electionGeneral.precincts[0]!.id,
+      ballotStyleId: electionGeneral.ballotStyles[0]!.id,
     }
   );
   screen.getButton(/back/i);
@@ -101,8 +101,8 @@ test('review mode shows only Review button', () => {
     <Route path="/contests/:contestNumber" component={ContestScreen} />,
     {
       route: '/contests/0#review',
-      precinctId: electionGeneral.precincts[0].id,
-      ballotStyleId: electionGeneral.ballotStyles[0].id,
+      precinctId: electionGeneral.precincts[0]!.id,
+      ballotStyleId: electionGeneral.ballotStyles[0]!.id,
     }
   );
   screen.getButton(/review/i);
@@ -118,8 +118,8 @@ test('renders as voter screen', () => {
     {
       history,
       route: '/contests/0',
-      precinctId: electionGeneral.precincts[0].id,
-      ballotStyleId: electionGeneral.ballotStyles[0].id,
+      precinctId: electionGeneral.precincts[0]!.id,
+      ballotStyleId: electionGeneral.ballotStyles[0]!.id,
     }
   );
 
@@ -134,8 +134,8 @@ test('Back from first contest goes to start screen when no party selected', () =
     {
       history,
       route: '/contests/0',
-      precinctId: electionGeneral.precincts[0].id,
-      ballotStyleId: electionGeneral.ballotStyles[0].id,
+      precinctId: electionGeneral.precincts[0]!.id,
+      ballotStyleId: electionGeneral.ballotStyles[0]!.id,
     }
   );
 

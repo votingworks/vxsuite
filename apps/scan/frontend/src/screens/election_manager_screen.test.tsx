@@ -128,7 +128,7 @@ test('location picker shown if more than one location is available', async () =>
   const client = apiMock.mockApiClient;
   const electionDefinition = electionGeneralDefinition;
   const places = assertDefined(electionDefinition.election.pollingPlaces);
-  const selectedPlace = places[0];
+  const selectedPlace = places[0]!;
 
   renderScreen({ electionDefinition });
   await waitFor(client.assertComplete);
@@ -213,7 +213,7 @@ test('omits location picker if only one location is available', async () => {
   const fixtures = electionTwoPartyPrimaryFixtures;
   const electionDefinition = fixtures.makeSinglePrecinctElectionDefinition();
   const places = assertDefined(electionDefinition.election.pollingPlaces);
-  const pollingPlaceId = places[0].id;
+  const pollingPlaceId = places[0]!.id;
 
   apiMock.expectGetConfig({ electionDefinition, pollingPlaceId });
 

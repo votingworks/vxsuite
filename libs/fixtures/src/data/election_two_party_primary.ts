@@ -19,11 +19,14 @@ export function makeSinglePrecinctElection(): Election {
   const election = electionJson.readElection();
   return {
     ...election,
-    precincts: [election.precincts[0]],
-    pollingPlaces: [election.pollingPlaces[0]],
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    precincts: [election.precincts[0]!],
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    pollingPlaces: [election.pollingPlaces[0]!],
     ballotStyles: election.ballotStyles.map((ballotStyle) => ({
       ...ballotStyle,
-      precincts: [election.precincts[0].id],
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      precincts: [election.precincts[0]!.id],
     })),
   };
 }

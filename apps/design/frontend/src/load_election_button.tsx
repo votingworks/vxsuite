@@ -54,7 +54,8 @@ function getFile(event: FormEvent<HTMLInputElement>): File {
   // @coverage-defer
   const files = Array.from(input.files || []);
   assert(files.length === 1);
-  return files[0];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return files[0]!;
 }
 
 async function loadFileContents(
@@ -142,7 +143,8 @@ function LoadElectionModalForm({
   const history = useHistory();
   const loadElectionMutation = loadElection.useMutation();
   const [formState, setFormState] = useState<UploadFormState>(
-    defaultFormState(jurisdictions[0])
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    defaultFormState(jurisdictions[0]!)
   );
 
   const jurisdiction = find(

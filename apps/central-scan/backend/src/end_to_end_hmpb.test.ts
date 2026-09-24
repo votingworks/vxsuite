@@ -101,7 +101,7 @@ test('going through the whole process works - HMPB', async () => {
       // check the latest batch has the expected counts
       const status = await apiClient.getStatus();
       expect(status.batches.length).toEqual(1);
-      expect(status.batches[0].count).toEqual(1);
+      expect(status.batches[0]!.count).toEqual(1);
     }
 
     {
@@ -112,7 +112,7 @@ test('going through the whole process works - HMPB', async () => {
 
       const cvrReportDirectoryPath = (
         await getCastVoteRecordExportDirectoryPaths(mockUsbDrive.usbDrive)
-      )[0];
+      )[0]!;
       expect(cvrReportDirectoryPath).toContain('machine_0000__');
 
       const { castVoteRecordExportMetadata, castVoteRecordIterator } = (
@@ -127,13 +127,13 @@ test('going through the whole process works - HMPB', async () => {
       expect(
         isTestReport(castVoteRecordExportMetadata.castVoteRecordReportMetadata)
       ).toBeTruthy();
-      expect(cvr.BallotStyleId).toEqual('1-1');
-      expect(cvr.BallotStyleUnitId).toEqual('20');
-      expect(cvr.CreatingDeviceId).toEqual(DEV_MACHINE_ID);
-      expect(cvr.BallotSheetId).toEqual('1');
-      expect(cvr.BallotAuditId).toEqual('fake-ballot-audit-id');
-      expect(getCastVoteRecordBallotType(cvr)).toEqual(BallotType.Precinct);
-      expect(convertCastVoteRecordVotesToTabulationVotes(cvr.CVRSnapshot[0]))
+      expect(cvr!.BallotStyleId).toEqual('1-1');
+      expect(cvr!.BallotStyleUnitId).toEqual('20');
+      expect(cvr!.CreatingDeviceId).toEqual(DEV_MACHINE_ID);
+      expect(cvr!.BallotSheetId).toEqual('1');
+      expect(cvr!.BallotAuditId).toEqual('fake-ballot-audit-id');
+      expect(getCastVoteRecordBallotType(cvr!)).toEqual(BallotType.Precinct);
+      expect(convertCastVoteRecordVotesToTabulationVotes(cvr!.CVRSnapshot[0]!))
         .toMatchInlineSnapshot(`
             {
               "attorney": [],
@@ -212,7 +212,7 @@ test('ballots printed with invalid scale are rejected', async () => {
       // check the latest batch has the expected counts
       const status = await apiClient.getStatus();
       expect(status.batches.length).toEqual(1);
-      expect(status.batches[0].count).toEqual(1);
+      expect(status.batches[0]!.count).toEqual(1);
 
       // Reject the ballot
       await apiClient.rejectSheet();
@@ -226,7 +226,7 @@ test('ballots printed with invalid scale are rejected', async () => {
 
       const cvrReportDirectoryPath = (
         await getCastVoteRecordExportDirectoryPaths(mockUsbDrive.usbDrive)
-      )[0];
+      )[0]!;
       expect(cvrReportDirectoryPath).toContain('machine_0000__');
 
       const { castVoteRecordIterator } = (

@@ -664,7 +664,7 @@ test.each([
     const config = await configureForTestElection(electionDefinition, {
       ...electionGeneralFixtures.uiStrings,
       'zh-Hans': {
-        ...electionGeneralFixtures.uiStrings['zh-Hans'],
+        ...electionGeneralFixtures.uiStrings['zh-Hans']!,
         [ElectionStringKey.CONTEST_TERM]: {
           [idContestWithTermDescription]: '4年',
         },
@@ -696,7 +696,7 @@ test.each([
 
     const [precinctId] = Object.keys(config.pollingPlace.precincts);
     await apiClient.printBallot({
-      precinctId,
+      precinctId: precinctId!,
       ballotStyleId: electionDefinition.election.ballotStyles.find((bs) =>
         bs.languages.includes(languageCode)
       )!.id,

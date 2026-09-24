@@ -98,7 +98,8 @@ function SaveReadinessReportModal({
         );
       }
 
-      const exportPath = exportResult.ok()[0];
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const exportPath = exportResult.ok()[0]!;
       return (
         <Modal
           title="Readiness Report Saved"

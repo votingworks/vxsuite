@@ -178,7 +178,8 @@ export function UiStringsAudioContextProvider(
         isEnabled,
         isPaused,
         output: gainNodeRef.current,
-        playbackRate: PLAYBACK_RATES[playbackRateIdx],
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        playbackRate: PLAYBACK_RATES[playbackRateIdx]!,
         reset,
         setControlsEnabled,
         setIsEnabled: controlsEnabled ? setIsEnabled : noOp,

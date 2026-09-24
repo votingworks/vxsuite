@@ -167,7 +167,8 @@ function CandidatesForm({ contestId }: { contestId: ContestId }): JSX.Element {
 
   function updateCandidateName(index: number, name: string) {
     const copy = [...editedCandidates];
-    const candidate = copy[index];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const candidate = copy[index]!;
     copy[index] = { ...candidate, name };
     setEditedCandidates(copy);
     if (errors.has(candidate.id)) {
@@ -178,7 +179,8 @@ function CandidatesForm({ contestId }: { contestId: ContestId }): JSX.Element {
   }
 
   function deleteCandidate(index: number) {
-    const edited = editedCandidates[index];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const edited = editedCandidates[index]!;
     const saved = savedCandidates.find((c) => c.id === edited.id);
     // @coverage-defer
     if (saved) {

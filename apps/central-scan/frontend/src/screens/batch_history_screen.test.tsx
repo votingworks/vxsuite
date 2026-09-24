@@ -81,11 +81,11 @@ test('shows totals and a row for each batch', () => {
 
   const rows = getBatchRows();
   expect(rows).toHaveLength(2);
-  within(rows[0]).getByText('Batch 1');
-  within(rows[0]).getByText('1');
-  within(rows[0]).getByText('8/25/2026, 10:05 AM');
-  within(rows[1]).getByText('Batch 2');
-  within(rows[1]).getByText('3');
+  within(rows[0]!).getByText('Batch 1');
+  within(rows[0]!).getByText('1');
+  within(rows[0]!).getByText('8/25/2026, 10:05 AM');
+  within(rows[1]!).getByText('Batch 2');
+  within(rows[1]!).getByText('3');
 });
 
 test('shows a VxAdmin sync column when networking is enabled', async () => {
@@ -103,11 +103,11 @@ test('shows a VxAdmin sync column when networking is enabled', async () => {
   renderScreen({ status });
   await screen.findByRole('columnheader', { name: SYNC_COLUMN_HEADER });
   const rows = getBatchRows();
-  expect(within(rows[0]).getAllByRole('cell')).toHaveLength(5);
-  within(rows[0]).getByText('Sent');
-  expect(within(rows[0]).queryByText('Not sent')).not.toBeInTheDocument();
-  within(rows[1]).getByText('Not sent');
-  expect(within(rows[1]).queryByText('Sent')).not.toBeInTheDocument();
+  expect(within(rows[0]!).getAllByRole('cell')).toHaveLength(5);
+  within(rows[0]!).getByText('Sent');
+  expect(within(rows[0]!).queryByText('Not sent')).not.toBeInTheDocument();
+  within(rows[1]!).getByText('Not sent');
+  expect(within(rows[1]!).queryByText('Sent')).not.toBeInTheDocument();
 });
 
 test('shows a failed batch with a retry button', async () => {
@@ -128,7 +128,7 @@ test('shows a failed batch with a retry button', async () => {
   apiMock.apiClient.retrySendBatchToAdmin
     .expectCallWith({ batchId: 'failed-batch' })
     .resolves();
-  userEvent.click(within(row).getButton('Retry'));
+  userEvent.click(within(row!).getButton('Retry'));
   await vi.waitFor(() => apiMock.assertComplete());
 });
 
@@ -147,8 +147,8 @@ test('shows a batch waiting to retry as sending', async () => {
   renderScreen({ status });
   await screen.findByText('Sending…');
   const rows = getBatchRows();
-  within(rows[0]).getByText('Sending…');
-  within(rows[1]).getByText('Not sent');
+  within(rows[0]!).getByText('Sending…');
+  within(rows[1]!).getByText('Not sent');
 });
 
 test('shows a batch removed from VxAdmin with a resend button', async () => {
@@ -172,15 +172,15 @@ test('shows a batch removed from VxAdmin with a resend button', async () => {
   renderScreen({ status });
   await screen.findByText('Removed');
   const rows = getBatchRows();
-  within(rows[0]).getByText('Sent');
-  expect(within(rows[0]).queryButton('Resend')).not.toBeInTheDocument();
-  within(rows[1]).getByText('Removed');
-  expect(within(rows[1]).queryByText('Sent')).not.toBeInTheDocument();
+  within(rows[0]!).getByText('Sent');
+  expect(within(rows[0]!).queryButton('Resend')).not.toBeInTheDocument();
+  within(rows[1]!).getByText('Removed');
+  expect(within(rows[1]!).queryByText('Sent')).not.toBeInTheDocument();
 
   apiMock.apiClient.resendBatchToAdmin
     .expectCallWith({ batchId: 'removed' })
     .resolves();
-  userEvent.click(within(rows[1]).getButton('Resend'));
+  userEvent.click(within(rows[1]!).getButton('Resend'));
   await vi.waitFor(() => apiMock.assertComplete());
 });
 
@@ -227,8 +227,8 @@ test('hides the VxAdmin sync column when networking is disabled', () => {
   });
   renderScreen({ status });
   const [row] = getBatchRows();
-  expect(within(row).getAllByRole('cell')).toHaveLength(4);
-  within(row).getByText('Batch 1');
+  expect(within(row!).getAllByRole('cell')).toHaveLength(4);
+  within(row!).getByText('Batch 1');
   expect(
     screen.queryByRole('columnheader', { name: SYNC_COLUMN_HEADER })
   ).not.toBeInTheDocument();
@@ -304,9 +304,9 @@ test('shows no scanned time for a batch that has not ended', () => {
   });
   renderScreen({ status });
   const [row] = getBatchRows();
-  within(row).getByText('Batch 1');
-  expect(within(row).queryByText('Scanning…')).not.toBeInTheDocument();
-  expect(within(row).getAllByRole('cell')[2]).toBeEmptyDOMElement();
+  within(row!).getByText('Batch 1');
+  expect(within(row!).queryByText('Scanning…')).not.toBeInTheDocument();
+  expect(within(row!).getAllByRole('cell')[2]).toBeEmptyDOMElement();
 });
 
 test('disables Retry while the retry request is in flight', async () => {
@@ -327,8 +327,10 @@ test('disables Retry while the retry request is in flight', async () => {
   apiMock.apiClient.retrySendBatchToAdmin
     .expectCallWith({ batchId: 'failed-batch' })
     .returns(new Promise<void>(() => {}));
-  userEvent.click(within(row).getButton('Retry'));
-  await vi.waitFor(() => expect(within(row).getButton('Retry')).toBeDisabled());
+  userEvent.click(within(row!).getButton('Retry'));
+  await vi.waitFor(() =>
+    expect(within(row!).getButton('Retry')).toBeDisabled()
+  );
 });
 
 test('disables Resend while the resend request is in flight', async () => {
@@ -351,8 +353,8 @@ test('disables Resend while the resend request is in flight', async () => {
   apiMock.apiClient.resendBatchToAdmin
     .expectCallWith({ batchId: 'removed' })
     .returns(new Promise<void>(() => {}));
-  userEvent.click(within(row).getButton('Resend'));
+  userEvent.click(within(row!).getButton('Resend'));
   await vi.waitFor(() =>
-    expect(within(row).getButton('Resend')).toBeDisabled()
+    expect(within(row!).getButton('Resend')).toBeDisabled()
   );
 });

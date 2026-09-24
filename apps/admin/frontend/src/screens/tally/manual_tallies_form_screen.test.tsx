@@ -115,7 +115,7 @@ const mockValidResults: Tabulation.ManualElectionResults = {
   contestResults: Object.fromEntries(
     contests.map((contest) => [
       contest.id,
-      resultsFixture.contestResults[contest.id],
+      resultsFixture.contestResults[contest.id]!,
     ])
   ),
 };
@@ -177,7 +177,7 @@ test('entering initial ballot count and contest tallies', async () => {
     const district = election.districts.find(
       ({ id }) => id === contest.districtId
     )!;
-    const contestResults = mockValidResults.contestResults[contest.id];
+    const contestResults = mockValidResults.contestResults[contest.id]!;
     const contestNumber = i + 1;
     await screen.findByText(`${contestNumber} of ${contests.length}`);
     screen.getByRole('heading', { name: contest.title });
@@ -215,7 +215,7 @@ test('entering initial ballot count and contest tallies', async () => {
         expect(candidateInput).toHaveValue('');
         userEvent.type(
           candidateInput,
-          contestResults.tallies[candidate.id].tally.toString()
+          contestResults.tallies[candidate.id]!.tally.toString()
         );
       }
     } else {
@@ -296,17 +296,17 @@ test('editing existing tallies', async () => {
   userEvent.click(screen.getButton('Save & Next'));
 
   // Edit contest tallies
-  const contest = contests[0];
+  const contest = contests[0]!;
   await screen.findByText(`1 of ${contests.length}`);
   assert(contest.type === 'candidate');
-  const contestResults = updatedResults.contestResults[contest.id];
+  const contestResults = updatedResults.contestResults[contest.id]!;
   assert(contestResults.contestType === 'candidate');
   const inputs = [
     ['Overvotes', contestResults.overvotes],
     ['Undervotes', contestResults.undervotes],
     ...contest.candidates.map((candidate): [string, number] => [
       candidate.name,
-      contestResults.tallies[candidate.id].tally,
+      contestResults.tallies[candidate.id]!.tally,
     ]),
   ] as const;
   for (const [label, value] of inputs) {
@@ -435,7 +435,7 @@ test('adding new write-in candidates', async () => {
 
   // saves temp write-in candidate to backend
   assert(
-    mockValidResults.contestResults['zoo-council-mammal'].contestType ===
+    mockValidResults.contestResults['zoo-council-mammal']!.contestType ===
       'candidate'
   );
   const updatedResults: Tabulation.ManualElectionResults = {
@@ -443,9 +443,9 @@ test('adding new write-in candidates', async () => {
     contestResults: {
       ...mockValidResults.contestResults,
       'zoo-council-mammal': {
-        ...mockValidResults.contestResults['zoo-council-mammal'],
+        ...mockValidResults.contestResults['zoo-council-mammal']!,
         tallies: {
-          ...mockValidResults.contestResults['zoo-council-mammal'].tallies,
+          ...mockValidResults.contestResults['zoo-council-mammal']!.tallies,
           'temp-write-in-(Mock Candidate)': {
             id: 'temp-write-in-(Mock Candidate)',
             name: 'Mock Candidate',
@@ -491,7 +491,7 @@ test('loads adjudicated write-in candidates', async () => {
   userEvent.type(writeInInput, '30');
   expect(writeInInput).toHaveValue('30');
 
-  const contestResults = mockValidResults.contestResults['zoo-council-mammal'];
+  const contestResults = mockValidResults.contestResults['zoo-council-mammal']!;
   assert(contestResults.contestType === 'candidate');
   const updatedResults: Tabulation.ManualElectionResults = {
     ...mockValidResults,
@@ -532,10 +532,10 @@ test('previous/cancel button', async () => {
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetManualResults(identifier, mockValidResults);
   const { history } = renderScreen({
-    initialRoute: `/tally/manual/${ballotStyleGroupId}/${votingMethod}/${precinctId}/${contests[0].id}`,
+    initialRoute: `/tally/manual/${ballotStyleGroupId}/${votingMethod}/${precinctId}/${contests[0]!.id}`,
   });
 
-  await screen.findByRole('heading', { name: contests[0].title });
+  await screen.findByRole('heading', { name: contests[0]!.title });
   userEvent.click(screen.getButton('Previous'));
 
   await screen.findByLabelText('Manual Tally Ballot Count');
@@ -561,10 +561,10 @@ test('overriding ballot count for a contest', async () => {
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetManualResults(identifier, mockValidResults);
   renderScreen({
-    initialRoute: `/tally/manual/${ballotStyleGroupId}/${votingMethod}/${precinctId}/${contests[0].id}`,
+    initialRoute: `/tally/manual/${ballotStyleGroupId}/${votingMethod}/${precinctId}/${contests[0]!.id}`,
   });
 
-  await screen.findByRole('heading', { name: contests[0].title });
+  await screen.findByRole('heading', { name: contests[0]!.title });
   let ballotCountInput = screen.getByLabelText('Manual Tally Ballot Count');
   expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount}`);
   expect(ballotCountInput).toBeDisabled();
@@ -587,8 +587,8 @@ test('overriding ballot count for a contest', async () => {
     ...mockValidResults,
     contestResults: {
       ...mockValidResults.contestResults,
-      [contests[0].id]: {
-        ...mockValidResults.contestResults[contests[0].id],
+      [contests[0]!.id]: {
+        ...mockValidResults.contestResults[contests[0]!.id]!,
         ballots: mockValidResults.ballotCount * 2,
       },
     },
@@ -601,10 +601,10 @@ test('overriding ballot count for a contest', async () => {
   apiMock.expectGetWriteInCandidates([]);
   userEvent.click(screen.getButton('Save & Next'));
 
-  await screen.findByRole('heading', { name: contests[1].title });
+  await screen.findByRole('heading', { name: contests[1]!.title });
   userEvent.click(screen.getButton('Previous'));
 
-  await screen.findByRole('heading', { name: contests[0].title });
+  await screen.findByRole('heading', { name: contests[0]!.title });
   ballotCountInput = screen.getByLabelText('Manual Tally Ballot Count');
   expect(ballotCountInput).toHaveValue(`${mockValidResults.ballotCount * 2}`);
   expect(ballotCountInput).toBeEnabled();
@@ -621,7 +621,7 @@ test('overriding ballot count for a contest', async () => {
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetManualResults(identifier, mockValidResults);
   userEvent.click(screen.getButton('Save & Next'));
-  await screen.findByRole('heading', { name: contests[1].title });
+  await screen.findByRole('heading', { name: contests[1]!.title });
 });
 
 test('changing overall ballot count when there are overrides', async () => {
@@ -630,8 +630,8 @@ test('changing overall ballot count when there are overrides', async () => {
     ...mockValidResults,
     contestResults: {
       ...mockValidResults.contestResults,
-      [contests[0].id]: {
-        ...mockValidResults.contestResults[contests[0].id],
+      [contests[0]!.id]: {
+        ...mockValidResults.contestResults[contests[0]!.id]!,
         ballots: mockValidResults.ballotCount * 2,
       },
     },
@@ -670,7 +670,7 @@ test('changing overall ballot count when there are overrides', async () => {
   apiMock.expectGetWriteInCandidates([]);
   userEvent.click(screen.getButton('Save & Next'));
 
-  await screen.findByRole('heading', { name: contests[0].title });
+  await screen.findByRole('heading', { name: contests[0]!.title });
   expect(screen.getByLabelText('Manual Tally Ballot Count')).toHaveValue(
     `${mockValidResults.ballotCount + 1}`
   );
@@ -683,8 +683,8 @@ test('leaving overrides as is when passing through overall ballot count without 
     ...mockValidResults,
     contestResults: {
       ...mockValidResults.contestResults,
-      [contests[0].id]: {
-        ...mockValidResults.contestResults[contests[0].id],
+      [contests[0]!.id]: {
+        ...mockValidResults.contestResults[contests[0]!.id]!,
         ballots: mockValidResults.ballotCount * 2,
       },
     },
@@ -702,7 +702,7 @@ test('leaving overrides as is when passing through overall ballot count without 
   // No API calls are expected since we didn't change the overall ballot count
   userEvent.click(screen.getButton('Save & Next'));
 
-  await screen.findByRole('heading', { name: contests[0].title });
+  await screen.findByRole('heading', { name: contests[0]!.title });
   expect(screen.getByLabelText('Manual Tally Ballot Count')).toHaveValue(
     `${mockValidResults.ballotCount * 2}`
   );
@@ -787,9 +787,9 @@ test('candidates are ordered according to ballot style rotation', async () => {
 
   // Get all textbox inputs to check order in DOM
   const allInputs = screen.getAllByRole('textbox');
-  expect(allInputs[0].id).toEqual('numBallots');
-  expect(allInputs[1].id).toEqual('undervotes');
-  expect(allInputs[2].id).toEqual('overvotes');
+  expect(allInputs[0]!.id).toEqual('numBallots');
+  expect(allInputs[1]!.id).toEqual('undervotes');
+  expect(allInputs[2]!.id).toEqual('overvotes');
   expect(allInputs[3]).toEqual(foxInput);
   expect(allInputs[4]).toEqual(otterInput);
   expect(allInputs[5]).toEqual(horseInput);
@@ -879,9 +879,9 @@ test('cross-endorsed candidates appear only once in manual tallies form', async 
 
   // Get all textbox inputs to check order in DOM, fox should appear only once in first ordered spot
   const allInputs = screen.getAllByRole('textbox');
-  expect(allInputs[0].id).toEqual('numBallots');
-  expect(allInputs[1].id).toEqual('undervotes');
-  expect(allInputs[2].id).toEqual('overvotes');
+  expect(allInputs[0]!.id).toEqual('numBallots');
+  expect(allInputs[1]!.id).toEqual('undervotes');
+  expect(allInputs[2]!.id).toEqual('overvotes');
   expect(allInputs[3]).toEqual(otterInput);
   expect(allInputs[4]).toEqual(foxInput);
   expect(allInputs[5]).toEqual(horseInput);

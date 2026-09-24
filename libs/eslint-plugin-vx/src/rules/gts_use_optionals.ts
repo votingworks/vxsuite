@@ -33,7 +33,8 @@ function getOptionalTypeReference(
     node.typeName.name === 'Optional' &&
     node.typeArguments?.params.length === 1
   ) {
-    return { optionalType: node, wrappedType: node.typeArguments.params[0] };
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return { optionalType: node, wrappedType: node.typeArguments.params[0]! };
   }
 }
 

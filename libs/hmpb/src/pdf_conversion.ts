@@ -129,7 +129,8 @@ function hexToRgb(hex: string): [number, number, number] {
   const match = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex);
   assert(match !== null, `invalid hex color: ${hex}`);
   return [match[1], match[2], match[3]].map(
-    (channel) => Math.round((parseInt(channel, 16) / 255) * 10000) / 10000
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    (channel) => Math.round((parseInt(channel!, 16) / 255) * 10000) / 10000
   ) as [number, number, number];
 }
 
@@ -233,7 +234,8 @@ function replaceTintOperatorsWithSpotColors(
     .join('');
   return {
     content: updatedContent,
-    appliedSpotColors: [...appliedSpotColorIndexes].map((i) => spotColors[i]),
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    appliedSpotColors: [...appliedSpotColorIndexes].map((i) => spotColors[i]!),
   };
 }
 
@@ -298,7 +300,8 @@ export async function convertPdfToSpotColor(p: {
     const cached = separationRefs.get(spotIndex);
     // @coverage-defer
     if (cached !== undefined) return cached;
-    const spot = p.spotColors[spotIndex];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const spot = p.spotColors[spotIndex]!;
     const tintTransformRef = context.register(
       context.obj({
         FunctionType: 2,

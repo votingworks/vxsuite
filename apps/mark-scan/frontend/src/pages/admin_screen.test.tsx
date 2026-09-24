@@ -108,7 +108,7 @@ test('wires up location picker', async () => {
   const pollsState: PollsState = 'polls_paused';
   const [place1, place2] = assertDefined(election.pollingPlaces);
 
-  renderScreen({ pollingPlaceId: place1.id, pollsState });
+  renderScreen({ pollingPlaceId: place1!.id, pollsState });
   screen.getByTestId(MOCK_LOCATION_PICKER_ID);
 
   const props = assertDefined(MockLocationPicker.mock.lastCall)[0];
@@ -116,12 +116,12 @@ test('wires up location picker', async () => {
     election,
     pollsState,
     selectPollingPlace: expect.anything(),
-    pollingPlaceId: place1.id,
+    pollingPlaceId: place1!.id,
   });
 
   const client = apiMock.mockApiClient;
-  client.setPollingPlaceId.expectCallWith({ id: place2.id }).resolves();
-  await props.selectPollingPlace(place2.id);
+  client.setPollingPlaceId.expectCallWith({ id: place2!.id }).resolves();
+  await props.selectPollingPlace(place2!.id);
   client.assertComplete();
 });
 

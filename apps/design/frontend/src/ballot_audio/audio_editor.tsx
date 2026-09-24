@@ -88,7 +88,8 @@ export function AudioEditor(props: AudioEditorProps): React.ReactNode {
           hideLabel
           numColumns={2}
           onChange={setMode}
-          options={textOnly ? [TTS_MODE_OPTIONS[0]] : TTS_MODE_OPTIONS}
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          options={textOnly ? [TTS_MODE_OPTIONS[0]!] : TTS_MODE_OPTIONS}
           value={currentMode}
         />
       </ModeContainer>

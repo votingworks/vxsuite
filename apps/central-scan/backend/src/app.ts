@@ -228,7 +228,8 @@ function buildApi({
         electionDefinition.election.pollingPlaces
       ).filter((pollingPlace) => pollingPlace.type === 'absentee');
       if (absenteePollingPlaces.length === 1) {
-        store.setPollingPlaceId(absenteePollingPlaces[0].id);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        store.setPollingPlaceId(absenteePollingPlaces[0]!.id);
       }
 
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {

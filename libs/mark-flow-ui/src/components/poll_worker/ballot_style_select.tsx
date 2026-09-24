@@ -50,15 +50,19 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
       ballotStyleGroups.length === 1,
       'Expected exactly one ballot style group per precinct or split'
     );
-    return ballotStyleGroups[0].defaultLanguageBallotStyle;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return ballotStyleGroups[0]!.defaultLanguageBallotStyle;
   }
 
   if (election.type === 'general' || isCombinedBallotPrimary(election)) {
     if (configuredPrecinctsAndSplits.length === 1) {
       const [precinctOrSplit] = configuredPrecinctsAndSplits;
-      const { precinct } = precinctOrSplit;
-      const ballotStyleId =
-        getBallotStyleForPrecinctOrSplit(precinctOrSplit).id;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const { precinct } = precinctOrSplit!;
+      const ballotStyleId = getBallotStyleForPrecinctOrSplit(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        precinctOrSplit!
+      ).id;
       return (
         <Button
           onPress={() => onSelect(precinct.id, ballotStyleId)}

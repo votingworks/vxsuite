@@ -25,8 +25,8 @@ vi.setConfig({
 test('Renders ReviewScreen with Print My Ballot in final review mode', () => {
   renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
     route: '/review',
-    precinctId: electionGeneral.precincts[0].id,
-    ballotStyleId: electionGeneral.ballotStyles[0].id,
+    precinctId: electionGeneral.precincts[0]!.id,
+    ballotStyleId: electionGeneral.ballotStyles[0]!.id,
   });
   screen.getByText('Review Your Votes');
   screen.getByText('Settings');
@@ -40,8 +40,8 @@ test('Renders ReviewScreen with Print My Ballot in final review mode', () => {
 test('Renders ReviewScreen in Landscape orientation', () => {
   renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
     route: '/review',
-    precinctId: electionGeneral.precincts[0].id,
-    ballotStyleId: electionGeneral.ballotStyles[0].id,
+    precinctId: electionGeneral.precincts[0]!.id,
+    ballotStyleId: electionGeneral.ballotStyles[0]!.id,
     machineConfig: mockMachineConfig({ screenOrientation: 'landscape' }),
   });
   screen.getByText('Review Your Votes');
@@ -55,8 +55,8 @@ test('View All mode shows both back button and print button', () => {
   renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
     history,
     route: '/review?fromContest=3',
-    precinctId: electionGeneral.precincts[0].id,
-    ballotStyleId: electionGeneral.ballotStyles[0].id,
+    precinctId: electionGeneral.precincts[0]!.id,
+    ballotStyleId: electionGeneral.ballotStyles[0]!.id,
   });
 
   screen.getByText('Review Your Votes');
@@ -73,11 +73,11 @@ test('View All mode navigates to contest without review hash', () => {
   renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
     history,
     route: '/review?fromContest=3',
-    precinctId: electionGeneral.precincts[0].id,
-    ballotStyleId: electionGeneral.ballotStyles[0].id,
+    precinctId: electionGeneral.precincts[0]!.id,
+    ballotStyleId: electionGeneral.ballotStyles[0]!.id,
   });
 
-  const firstContestTitle = electionGeneral.contests[0].title;
+  const firstContestTitle = electionGeneral.contests[0]!.title;
   userEvent.click(screen.getByText(firstContestTitle));
   expect(history.location.pathname).toEqual('/contests/0');
   expect(history.location.hash).toEqual('');
@@ -91,11 +91,11 @@ test('final review mode navigates to contest with review hash', () => {
   renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
     history,
     route: '/review',
-    precinctId: electionGeneral.precincts[0].id,
-    ballotStyleId: electionGeneral.ballotStyles[0].id,
+    precinctId: electionGeneral.precincts[0]!.id,
+    ballotStyleId: electionGeneral.ballotStyles[0]!.id,
   });
 
-  const firstContestTitle = electionGeneral.contests[0].title;
+  const firstContestTitle = electionGeneral.contests[0]!.title;
   userEvent.click(screen.getByText(firstContestTitle));
   expect(history.location.pathname).toEqual('/contests/0');
   expect(history.location.hash).toEqual('#review');
@@ -105,9 +105,9 @@ test('renders as voter screen', () => {
   const history = createMemoryHistory({ initialEntries: ['/review'] });
 
   renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
-    ballotStyleId: electionGeneral.ballotStyles[0].id,
+    ballotStyleId: electionGeneral.ballotStyles[0]!.id,
     history,
-    precinctId: electionGeneral.precincts[0].id,
+    precinctId: electionGeneral.precincts[0]!.id,
     route: '/review',
   });
 

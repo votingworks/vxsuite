@@ -37,7 +37,7 @@ const baseElection = electionGeneralDefinition.election;
 const ballotLanguages = ['en', 'es-US'];
 const [ballotStyleEnglish, ballotStyleSpanish] = ballotLanguages.map(
   (languageCode) => ({
-    ...baseElection.ballotStyles[0],
+    ...baseElection.ballotStyles[0]!,
     id: generateBallotStyleId({
       ballotStyleIndex: 1,
       languages: [languageCode],
@@ -48,7 +48,7 @@ const [ballotStyleEnglish, ballotStyleSpanish] = ballotLanguages.map(
 
 const election: Election = {
   ...baseElection,
-  ballotStyles: [ballotStyleEnglish, ballotStyleSpanish],
+  ballotStyles: [ballotStyleEnglish!, ballotStyleSpanish!],
 };
 const electionDefinition: ElectionDefinition = {
   ...electionGeneralDefinition,
@@ -61,7 +61,7 @@ test('updates ballot style when language changes', () => {
   renderHook(
     () =>
       useBallotStyleManager({
-        currentBallotStyleId: ballotStyleEnglish.id,
+        currentBallotStyleId: ballotStyleEnglish!.id,
         electionDefinition,
         updateCardlessVoterBallotStyle: mockUpdateFn,
       }),
@@ -73,7 +73,7 @@ test('updates ballot style when language changes', () => {
 
   expect(mockUpdateFn).toHaveBeenCalledTimes(1);
   expect(mockUpdateFn).toHaveBeenCalledWith({
-    ballotStyleId: ballotStyleSpanish.id,
+    ballotStyleId: ballotStyleSpanish!.id,
   });
 });
 
@@ -83,7 +83,7 @@ test('is a no-op for unchanged language', () => {
   renderHook(
     () =>
       useBallotStyleManager({
-        currentBallotStyleId: ballotStyleEnglish.id,
+        currentBallotStyleId: ballotStyleEnglish!.id,
         electionDefinition,
         updateCardlessVoterBallotStyle: mockUpdateFn,
       }),
@@ -119,7 +119,7 @@ test('is a no-op for undefined election definition', () => {
   renderHook(
     () =>
       useBallotStyleManager({
-        currentBallotStyleId: ballotStyleEnglish.id,
+        currentBallotStyleId: ballotStyleEnglish!.id,
         updateCardlessVoterBallotStyle: mockUpdateFn,
       }),
     { wrapper: TestHookWrapper }

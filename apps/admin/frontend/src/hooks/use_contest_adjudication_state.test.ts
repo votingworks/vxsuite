@@ -557,8 +557,8 @@ test('initializes derived state correctly for candidate contest', () => {
           },
         }
       ),
-      adjudicatedContestAdjudicationData.options[3],
-      adjudicatedContestAdjudicationData.options[4],
+      adjudicatedContestAdjudicationData.options[3]!,
+      adjudicatedContestAdjudicationData.options[4]!,
     ],
   };
   const writeInCandidateAdjudicatedContest: AdjudicatedCvrContest = {

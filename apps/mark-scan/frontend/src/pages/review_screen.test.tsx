@@ -15,8 +15,8 @@ const electionGeneral = readElectionGeneral();
 test('Renders ReviewScreen', () => {
   renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
     route: '/review',
-    precinctId: electionGeneral.precincts[0].id,
-    ballotStyleId: electionGeneral.ballotStyles[0].id,
+    precinctId: electionGeneral.precincts[0]!.id,
+    ballotStyleId: electionGeneral.ballotStyles[0]!.id,
   });
   screen.getByText('Review Your Votes');
   screen.getByText('Settings');
@@ -25,8 +25,8 @@ test('Renders ReviewScreen', () => {
 test('Renders ReviewScreen in Landscape orientation', () => {
   renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
     route: '/review',
-    precinctId: electionGeneral.precincts[0].id,
-    ballotStyleId: electionGeneral.ballotStyles[0].id,
+    precinctId: electionGeneral.precincts[0]!.id,
+    ballotStyleId: electionGeneral.ballotStyles[0]!.id,
     machineConfig: mockMachineConfig({ screenOrientation: 'landscape' }),
   });
   screen.getByText('Review Your Votes');
@@ -36,9 +36,9 @@ test('renders as voter screen', () => {
   const history = createMemoryHistory({ initialEntries: ['/review'] });
 
   renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
-    ballotStyleId: electionGeneral.ballotStyles[0].id,
+    ballotStyleId: electionGeneral.ballotStyles[0]!.id,
     history,
-    precinctId: electionGeneral.precincts[0].id,
+    precinctId: electionGeneral.precincts[0]!.id,
     route: '/review',
   });
 

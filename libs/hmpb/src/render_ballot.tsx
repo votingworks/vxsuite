@@ -155,8 +155,10 @@ async function paginateBallotContent<P extends object>(
       `.${CONTENT_SLOT_CLASS}`
     );
     const dimensions: PixelDimensions = {
-      width: contentSlotMeasurements.width,
-      height: contentSlotMeasurements.height,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      width: contentSlotMeasurements!.width,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      height: contentSlotMeasurements!.height,
     };
 
     return contentComponent({ ...pageProps, dimensions }, contests, scratchpad);
@@ -202,7 +204,8 @@ async function paginateBallotContent<P extends object>(
       ...props,
       pageNumber: i + 1,
       totalPages: pages.length,
-      children: pages[i].currentPageElement,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      children: pages[i]!.currentPageElement,
     });
     // @coverage-defer
     if (frameResult.isErr()) {
@@ -266,8 +269,10 @@ export async function measureTimingMarkGrid(
   const gridHeight = maxY - minY;
 
   // The grid origin is the center of the top-left timing mark
-  const originX = minX + timingMarkElements[0].width / 2;
-  const originY = minY + timingMarkElements[0].height / 2;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const originX = minX + timingMarkElements[0]!.width / 2;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const originY = minY + timingMarkElements[0]!.height / 2;
 
   // There are two overlayed timing marks in each corner, don't double count them
   const numTimingMarkRows =
@@ -661,7 +666,8 @@ export async function layOutBallotsAndCreateElectionDefinition<
   electionDefinition: ElectionDefinition;
 }> {
   assert(ballotProps.length > 0, 'No ballot props provided');
-  const { election } = ballotProps[0];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const { election } = ballotProps[0]!;
   assert(ballotProps.every((props) => props.election === election));
 
   const positionsByBallotStyle = new Map<BallotStyleId, SheetPositions[]>();
@@ -748,9 +754,11 @@ export async function layOutBallotsAndCreateElectionDefinition<
       );
       if (ballotStylesWithContest.length === 0) return contest;
       const [firstBallotStyle, ...restBallotStyles] = ballotStylesWithContest;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const firstLayoutOrder = assertDefined(
-        firstBallotStyle.orderedCandidatesByContest
-      )[contest.id];
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        firstBallotStyle!.orderedCandidatesByContest
+      )[contest.id]!;
       if (
         restBallotStyles.every((ballotStyle) =>
           deepEqual(
@@ -893,7 +901,8 @@ export async function layOutMinimalBallotsToCreateElectionDefinition<
   const minimalBallotProps = groupBy(
     allBallotProps,
     (props) => props.ballotStyleId
-  ).map(([, [, props]]) => props);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  ).map(([, [, props]]) => props!);
 
   const { electionDefinition } = await layOutBallotsAndCreateElectionDefinition(
     rendererPool,

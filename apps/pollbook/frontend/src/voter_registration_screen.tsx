@@ -117,7 +117,8 @@ function RegistrationDuplicateNameMessage({
     );
   }
   assert(duplicateError.matchingVoters.length === 1);
-  const voter = duplicateError.matchingVoters[0];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const voter = duplicateError.matchingVoters[0]!;
   const voterPrecinct = election.precincts.find((p) => p.id === voter.precinct);
   assert(voterPrecinct !== undefined);
   return (

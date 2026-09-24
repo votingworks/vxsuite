@@ -84,7 +84,8 @@ async function normalizeBitmapToSvg(
   dataUrl: string,
   params: NormalizeParams
 ): Promise<NormalizeToSvgResult> {
-  const mimeType = dataUrl.split(',')[0].match(/:(.*?);/)?.[1];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const mimeType = dataUrl.split(',')[0]!.match(/:(.*?);/)?.[1];
   if (!(mimeType && isSupportedMimeType(mimeType))) {
     return err({ code: 'unsupportedImageType' });
   }
@@ -287,7 +288,8 @@ function unwrapBitmapImageFromSvg(
     return ok(undefined);
   }
   const [imageNode] = imageNodes;
-  const href = imageNode.getAttribute('href');
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const href = imageNode!.getAttribute('href');
   if (!href) {
     return err({ code: 'invalidSvg' });
   }

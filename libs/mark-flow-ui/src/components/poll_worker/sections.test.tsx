@@ -31,14 +31,14 @@ beforeEach(() => {
 describe('SectionSessionStart', () => {
   test('with single-precinct polling place', () => {
     const [place] = assertDefined(election.pollingPlaces);
-    const [precinct] = pollingPlaceMembers(election, place);
+    const [precinct] = pollingPlaceMembers(election, place!);
 
     const onSelect = vi.fn();
     render(
       <SectionSessionStart
         election={election}
         onChooseBallotStyle={onSelect}
-        pollingPlaceId={place.id}
+        pollingPlaceId={place!.id}
       />
     );
 
@@ -47,7 +47,7 @@ describe('SectionSessionStart', () => {
 
     const props = MockBallotStyleSelect.mock.lastCall?.[0];
     expect(props).toEqual<BallotStyleSelectProps>({
-      configuredPrecinctsAndSplits: [precinct],
+      configuredPrecinctsAndSplits: [precinct!],
       election,
       onSelect,
     });

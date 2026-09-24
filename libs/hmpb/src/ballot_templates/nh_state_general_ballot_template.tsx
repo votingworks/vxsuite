@@ -728,7 +728,8 @@ export async function BallotPageContent(
       );
     });
     const sectionHeader =
-      section[0].type === 'candidate' ? (
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      section[0]!.type === 'candidate' ? (
         <CandidateContestSectionHeader />
       ) : (
         <BallotMeasureContestSectionHeader />
@@ -796,7 +797,8 @@ export async function BallotPageContent(
   if (heightUsed === 0) {
     return err({
       error: 'contestTooLong',
-      contest: leftoverContests[0],
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      contest: leftoverContests[0]!,
     });
   }
 

@@ -184,9 +184,9 @@ test('link to edit an existing tally', async () => {
 
 test('table shows tally info and validation errors', async () => {
   apiMock.expectGetManualResultsMetadata([
-    { ...mockManualResultsMetadata[0], validationError: 'incomplete' },
+    { ...mockManualResultsMetadata[0]!, validationError: 'incomplete' },
     {
-      ...mockManualResultsMetadata[0],
+      ...mockManualResultsMetadata[0]!,
       votingMethod: 'absentee',
       validationError: 'invalid',
     },

@@ -170,7 +170,7 @@ describe('setUpBarcodeActivation', () => {
       electionPackageHash: 'test-hash',
       ballotHash: electionDefinition.ballotHash,
     });
-    workspace.store.setPollingPlaceId(pollingPlace.id);
+    workspace.store.setPollingPlaceId(pollingPlace!.id);
     workspace.store.setPollsState('polls_open');
     // System settings default has bmdEnableQrBallotActivation as undefined/false
 
@@ -219,7 +219,7 @@ describe('setUpBarcodeActivation', () => {
       ballotHash: electionDefinition.ballotHash,
     });
     workspace.store.setSystemSettings(systemSettings);
-    workspace.store.setPollingPlaceId(pollingPlace.id);
+    workspace.store.setPollingPlaceId(pollingPlace!.id);
     workspace.store.setPollsState('polls_closed_initial');
 
     const ctx: Context = {
@@ -259,7 +259,7 @@ describe('setUpBarcodeActivation', () => {
       ballotHash: electionDefinition.ballotHash,
     });
     workspace.store.setSystemSettings(systemSettings);
-    workspace.store.setPollingPlaceId(pollingPlace.id);
+    workspace.store.setPollingPlaceId(pollingPlace!.id);
     workspace.store.setPollsState('polls_open');
 
     // Mock that there's already a cardless voter session active
@@ -306,7 +306,7 @@ describe('setUpBarcodeActivation', () => {
       ballotHash: electionDefinition.ballotHash,
     });
     workspace.store.setSystemSettings(systemSettings);
-    workspace.store.setPollingPlaceId(pollingPlace.id);
+    workspace.store.setPollingPlaceId(pollingPlace!.id);
     workspace.store.setPollsState('polls_open');
 
     // Mock no current auth session initially, then voter session after start
@@ -316,8 +316,8 @@ describe('setUpBarcodeActivation', () => {
         return Promise.resolve({
           status: 'logged_in' as const,
           user: mockCardlessVoterUser({
-            ballotStyleId: election.ballotStyles[0].id,
-            precinctId: election.ballotStyles[0].precincts[0],
+            ballotStyleId: election.ballotStyles[0]!.id,
+            precinctId: election.ballotStyles[0]!.precincts[0],
           }),
           sessionExpiresAt: mockSessionExpiresAt(),
         });
@@ -348,11 +348,11 @@ describe('setUpBarcodeActivation', () => {
     await sleep(0);
     expect(mockAuth.startCardlessVoterSession).toHaveBeenCalled();
 
-    const precinctIds = pollingPlacePrecinctIds(pollingPlace);
-    const ballotStyles = pollingPlaceBallotStyles(election, pollingPlace);
+    const precinctIds = pollingPlacePrecinctIds(pollingPlace!);
+    const ballotStyles = pollingPlaceBallotStyles(election, pollingPlace!);
     const ballotStyleIds = ballotStyles.map((bs) => bs.id);
 
-    const startSessionInput = mockStartSession.mock.calls[0][1];
+    const startSessionInput = mockStartSession.mock.calls[0]![1];
     expect(ballotStyleIds).toContain(startSessionInput.ballotStyleId);
     expect(precinctIds).toContain(startSessionInput.precinctId);
     expect(startSessionInput.skipPollWorkerCheck).toEqual(true);
@@ -380,7 +380,7 @@ describe('setUpBarcodeActivation', () => {
       ballotHash: electionDefinition.ballotHash,
     });
     workspace.store.setSystemSettings(systemSettings);
-    workspace.store.setPollingPlaceId(pollingPlace.id);
+    workspace.store.setPollingPlaceId(pollingPlace!.id);
     workspace.store.setPollsState('polls_open');
 
     vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({

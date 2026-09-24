@@ -101,7 +101,8 @@ function copySheets({ targetSheetCount }: CopySheetsInput): void {
 
   const newSheetIds: string[] = [];
   for (let i = 0; i < numSheetsToCreate; i += 1) {
-    const sheet = sheets[i % sheets.length];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const sheet = sheets[i % sheets.length]!;
     const newSheetId = copySheet(store, sheet);
     newSheetIds.push(newSheetId);
   }

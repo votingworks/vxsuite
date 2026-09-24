@@ -139,9 +139,9 @@ describe('parseVotersFromCsvString', () => {
 
     const result = parseVotersFromCsvString(csvString, mockElection);
 
-    expect(result[0].voterId).toEqual('00001');
-    expect(result[1].voterId).toEqual('00123');
-    expect(result[2].voterId).toEqual('12345');
+    expect(result[0]!.voterId).toEqual('00001');
+    expect(result[1]!.voterId).toEqual('00123');
+    expect(result[2]!.voterId).toEqual('12345');
   });
 
   test('handles alternative column names', () => {
@@ -156,7 +156,7 @@ describe('parseVotersFromCsvString', () => {
       const csvString = `Voter ID,${altName}
 123,TestValue`;
       const result = parseVotersFromCsvString(csvString, mockElection);
-      expect(result[0][fieldName]).toEqual('TestValue');
+      expect(result[0]![fieldName]).toEqual('TestValue');
     }
   });
 
@@ -185,8 +185,8 @@ describe('parseVotersFromCsvString', () => {
     const result = parseVotersFromCsvString(csvString, mockElection);
 
     expect(result).toHaveLength(2);
-    expect(result[0].firstName).toEqual('John');
-    expect(result[1].firstName).toEqual('Bob');
+    expect(result[0]!.firstName).toEqual('John');
+    expect(result[1]!.firstName).toEqual('Bob');
   });
 
   test('skips empty lines', () => {
@@ -200,8 +200,8 @@ describe('parseVotersFromCsvString', () => {
     const result = parseVotersFromCsvString(csvString, mockElection);
 
     expect(result).toHaveLength(2);
-    expect(result[0].firstName).toEqual('John');
-    expect(result[1].firstName).toEqual('Jane');
+    expect(result[0]!.firstName).toEqual('John');
+    expect(result[1]!.firstName).toEqual('Jane');
   });
 
   test('handles ward field mapped to precinct', () => {
@@ -230,8 +230,8 @@ describe('parseVotersFromCsvString', () => {
         firstName: 'John',
       })
     );
-    expect(result[0].postalZip5).toBeUndefined();
-    expect(result[0].zip4).toBeUndefined();
+    expect(result[0]!.postalZip5).toBeUndefined();
+    expect(result[0]!.zip4).toBeUndefined();
   });
 });
 
@@ -285,10 +285,10 @@ Main St,100,200,odd`;
 
     const result = parseValidStreetsFromCsvString(csvString, mockElection);
 
-    expect(typeof result[0].lowRange).toEqual('number');
-    expect(typeof result[0].highRange).toEqual('number');
-    expect(result[0].lowRange).toEqual(100);
-    expect(result[0].highRange).toEqual(200);
+    expect(typeof result[0]!.lowRange).toEqual('number');
+    expect(typeof result[0]!.highRange).toEqual('number');
+    expect(result[0]!.lowRange).toEqual(100);
+    expect(result[0]!.highRange).toEqual(200);
   });
 
   test('converts side to lowercase', () => {
@@ -298,8 +298,8 @@ Oak Ave,1,99,EVEN`;
 
     const result = parseValidStreetsFromCsvString(csvString, mockElection);
 
-    expect(result[0].side).toEqual('odd');
-    expect(result[1].side).toEqual('even');
+    expect(result[0]!.side).toEqual('odd');
+    expect(result[1]!.side).toEqual('even');
   });
 
   test('handles alternative column names', () => {
@@ -311,7 +311,7 @@ Oak Ave,1,99,EVEN`;
       const csvString = `Street Name,Low Range,High Range,Side,${altName}
 Main St,2,10,ODD,TestValue`;
       const result = parseValidStreetsFromCsvString(csvString, mockElection);
-      expect(result[0][fieldName]).toEqual('TestValue');
+      expect(result[0]![fieldName]).toEqual('TestValue');
     }
   });
 
@@ -321,7 +321,7 @@ Main St,100,200,odd,Springfield Preferred,Springfield Alt`;
 
     const result = parseValidStreetsFromCsvString(csvString, mockElection);
 
-    expect(result[0].postalCityTown).toEqual('Springfield Preferred');
+    expect(result[0]!.postalCityTown).toEqual('Springfield Preferred');
   });
 
   test('maps ward field to precinct', () => {
@@ -393,8 +393,8 @@ Oak Ave,300,400,odd
     const result = parseValidStreetsFromCsvString(csvString, mockElection);
 
     expect(result).toHaveLength(2);
-    expect(result[0].streetName).toEqual('Main St');
-    expect(result[1].streetName).toEqual('Oak Ave');
+    expect(result[0]!.streetName).toEqual('Main St');
+    expect(result[1]!.streetName).toEqual('Oak Ave');
   });
 
   test('skips empty lines', () => {
@@ -408,8 +408,8 @@ Oak Ave,300,400,even
     const result = parseValidStreetsFromCsvString(csvString, mockElection);
 
     expect(result).toHaveLength(2);
-    expect(result[0].streetName).toEqual('Main St');
-    expect(result[1].streetName).toEqual('Oak Ave');
+    expect(result[0]!.streetName).toEqual('Main St');
+    expect(result[1]!.streetName).toEqual('Oak Ave');
   });
 
   test('handles complete street record with all fields', () => {

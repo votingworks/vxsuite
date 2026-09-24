@@ -27,7 +27,8 @@ export function TabbedSection<Id extends string = string>(
 ): JSX.Element {
   const { 'aria-label': ariaLabel, tabs } = props;
 
-  const [activePaneId, setActivePaneId] = React.useState<Id>(tabs[0].paneId);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const [activePaneId, setActivePaneId] = React.useState<Id>(tabs[0]!.paneId);
 
   const currentTab = tabs.find((t) => t.paneId === activePaneId);
 

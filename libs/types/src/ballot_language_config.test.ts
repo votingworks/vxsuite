@@ -41,7 +41,7 @@ test('getBallotLanguageConfigs', () => {
     configA: BallotLanguageConfig,
     configB: BallotLanguageConfig
   ) {
-    return configA.languages[0].localeCompare(configB.languages[0]);
+    return configA.languages[0]!.localeCompare(configB.languages[0]!);
   }
   expect(
     getBallotLanguageConfigs(Object.values(LanguageCode)).sort(sortFn)

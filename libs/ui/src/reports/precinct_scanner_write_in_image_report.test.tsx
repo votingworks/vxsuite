@@ -42,7 +42,7 @@ const DEFAULT_PROPS: Omit<
 > = {
   electionDefinition,
   electionPackageHash: 'test-package-hash',
-  pollingPlaceId: pollingPlace.id,
+  pollingPlaceId: pollingPlace!.id,
   isLiveMode: true,
   reportPrintedTime: REPORT_PRINTED_TIME,
   precinctScannerMachineId: 'SC-00-000',
@@ -69,7 +69,7 @@ test('renders contest heading with inline write-in count', () => {
   expect(heading.textContent).toContain('Mayor');
   expect(heading.textContent).toContain('3');
 
-  screen.getByText(`Write-In Image Report • ${pollingPlace.name}`);
+  screen.getByText(`Write-In Image Report • ${pollingPlace!.name}`);
 });
 
 test('renders image write-ins as img elements', () => {
@@ -90,7 +90,7 @@ test('renders image write-ins as img elements', () => {
 
   const img = screen.getByAltText('Write-in for Mayor');
   expect(img.getAttribute('src')).toEqual('data:image/png;base64,testimage');
-  screen.getByText(`Write-In Image Report • ${pollingPlace.name}`);
+  screen.getByText(`Write-In Image Report • ${pollingPlace!.name}`);
 });
 
 test('renders text write-ins with "Summary Ballot Write-In" label', () => {
@@ -214,9 +214,9 @@ test('renders multiple contests in order', () => {
   );
 
   const headings = screen.getAllByRole('heading', { level: 2 });
-  expect(headings[0].textContent).toContain('Mayor');
-  expect(headings[1].textContent).toContain('Controller');
-  expect(headings[2].textContent).toContain('Attorney');
+  expect(headings[0]!.textContent).toContain('Mayor');
+  expect(headings[1]!.textContent).toContain('Controller');
+  expect(headings[2]!.textContent).toContain('Attorney');
 });
 
 test('renders party headers for primary elections', () => {
@@ -245,7 +245,7 @@ test('renders party headers for primary elections', () => {
     PrecinctScannerWriteInImageReport({
       electionDefinition: primaryElectionDefinition,
       electionPackageHash: 'test-package-hash',
-      pollingPlaceId: primaryPollingPlace.id,
+      pollingPlaceId: primaryPollingPlace!.id,
       isLiveMode: true,
       reportPrintedTime: REPORT_PRINTED_TIME,
       precinctScannerMachineId: 'SC-00-000',

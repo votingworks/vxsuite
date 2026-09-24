@@ -77,7 +77,7 @@ test('clicking the "Print Precinct Test Deck" button calls printTestDeck', async
   });
   expect(printPrecinctButton).toBeDisabled();
 
-  const precinct = electionDefinition.election.precincts[0];
+  const precinct = electionDefinition.election.precincts[0]!;
   userEvent.click(screen.getByText('Select a precinct…'));
   userEvent.click(screen.getByText(precinct.name));
 
@@ -161,7 +161,7 @@ test('shows "Printing..." only on the precinct button and reverts after settling
   apiMock.expectGetElectionRecord(electionDefinition);
   renderScreen();
 
-  const precinct = electionDefinition.election.precincts[0];
+  const precinct = electionDefinition.election.precincts[0]!;
   userEvent.click(await screen.findByText('Select a precinct…'));
   userEvent.click(screen.getByText(precinct.name));
 

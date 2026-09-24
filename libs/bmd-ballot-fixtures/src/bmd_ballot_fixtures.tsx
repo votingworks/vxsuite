@@ -69,8 +69,10 @@ export async function renderBmdBallotFixture(
   const { election } = electionDefinition;
   const ballotStyle = ballotStyleId
     ? assertDefined(getBallotStyle({ election, ballotStyleId }))
-    : election.ballotStyles[0];
-  const resolvedPrecinctId = precinctId ?? ballotStyle.precincts[0];
+    : // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      election.ballotStyles[0]!;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const resolvedPrecinctId = precinctId ?? ballotStyle.precincts[0]!;
   const allContests = getContests({ election, ballotStyle });
   const contestsForPage = contestIdsForPage
     ? allContests.filter((c) => contestIdsForPage.includes(c.id))
@@ -167,9 +169,11 @@ export const DEFAULT_FAMOUS_NAMES_VOTES = vote(
 );
 
 export const DEFAULT_ELECTION_GENERAL_BALLOT_STYLE_ID =
-  electionGeneralDefinition.election.ballotStyles[0].id;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  electionGeneralDefinition.election.ballotStyles[0]!.id;
 export const DEFAULT_ELECTION_GENERAL_PRECINCT_ID: PrecinctId =
-  electionGeneralDefinition.election.precincts[0].id;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  electionGeneralDefinition.election.precincts[0]!.id;
 
 export const DEFAULT_ELECTION_GENERAL_VOTES = vote(
   electionGeneralDefinition.election.contests,

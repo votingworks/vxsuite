@@ -813,7 +813,8 @@ async function splitLongBallotMeasureAcrossPages(
   const continuesFooterHeight = 30; // "Continues on next page" caption
   let firstOverflowingChildIndex = childMeasurements.findIndex(
     (child) =>
-      child.y - contestMeasurements.y + child.height + continuesFooterHeight >=
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      child.y - contestMeasurements!.y + child.height + continuesFooterHeight >=
       dimensions.height
   );
 
@@ -927,7 +928,8 @@ async function BallotPageContent(
         ballotStyle={ballotStyle}
       />
     ));
-    const numColumns = section[0].type === 'candidate' ? 3 : 1;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const numColumns = section[0]!.type === 'candidate' ? 3 : 1;
     const columnWidthPx =
       (dimensions.width - horizontalGapPx * (numColumns - 1)) / numColumns;
     const contestMeasurements = await scratchpad.measureElements(
@@ -995,7 +997,8 @@ async function BallotPageContent(
   // If more than 3/4 of the page is unused and the next contest is a ballot
   // measure, try splitting it across pages.
   const unusedHeight = dimensions.height - heightUsed;
-  const nextContest = contestsLeftToLayout[0];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const nextContest = contestsLeftToLayout[0]!;
   if (
     contestsLeftToLayout.length > 0 &&
     unusedHeight > dimensions.height * 0.75 &&

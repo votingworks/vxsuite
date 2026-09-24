@@ -135,7 +135,8 @@ export function ExportScreen(): JSX.Element | null {
     const input = event.currentTarget;
     // @coverage-defer
     const files = Array.from(input.files ?? []);
-    const file = files[0];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const file = files[0]!;
     const cvrZipFileContents = Buffer.from(await file.arrayBuffer());
     decryptCvrBallotAuditIdsMutation.mutate(
       {

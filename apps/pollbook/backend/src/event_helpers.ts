@@ -195,7 +195,8 @@ export function applyPollbookEventsToVoters(
       case EventType.VoterAddressChange: {
         const { voterId, addressChangeData } = event;
         updatedVoters[voterId] = {
-          ...updatedVoters[voterId],
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          ...updatedVoters[voterId]!,
           addressChange: addressChangeData,
         };
         break;
@@ -203,7 +204,8 @@ export function applyPollbookEventsToVoters(
       case EventType.VoterMailingAddressChange: {
         const { voterId, mailingAddressChangeData } = event;
         updatedVoters[voterId] = {
-          ...updatedVoters[voterId],
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          ...updatedVoters[voterId]!,
           mailingAddressChange: mailingAddressChangeData,
         };
         break;
@@ -211,7 +213,8 @@ export function applyPollbookEventsToVoters(
       case EventType.VoterNameChange: {
         const { voterId, nameChangeData } = event;
         updatedVoters[voterId] = {
-          ...updatedVoters[voterId],
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          ...updatedVoters[voterId]!,
           nameChange: nameChangeData,
         };
         break;

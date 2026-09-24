@@ -77,9 +77,9 @@ function parseGrid({
       (i + numHeaderRows + 1) * width
     );
     for (let j = 0; j < width; j += 1) {
-      const columnId = columnIds[j];
+      const columnId = columnIds[j]!;
       if (columnId === 'center' || columnId === 'right') continue;
-      row[columnId] = cells[j].textContent ?? undefined;
+      row[columnId] = cells[j]!.textContent ?? undefined;
     }
     rows.push(row);
   }
@@ -94,9 +94,9 @@ function parseGrid({
     footer = {};
     const cells = [...allCells].slice((numRows - 1) * width, numRows * width);
     for (let j = 0; j < width; j += 1) {
-      const columnId = columnIds[j];
+      const columnId = columnIds[j]!;
       if (IGNORED_FOOTER_COLUMNS.includes(columnId)) continue;
-      footer[columnId] = cells[j].textContent ?? undefined;
+      footer[columnId] = cells[j]!.textContent ?? undefined;
     }
   }
 

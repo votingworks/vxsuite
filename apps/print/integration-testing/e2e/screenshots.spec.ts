@@ -306,7 +306,8 @@ test('election manager: print screen options', async ({ page }, testInfo) => {
     screenshotWithLocatorHighlight,
   } = buildIntegrationTestHelper(page, namer);
   const electionPackage = await buildElectionPackage(electionDefinition);
-  const partyName = election.parties[0].name;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const partyName = election.parties[0]!.name;
 
   await configureMachine(page, {
     election,
@@ -391,7 +392,8 @@ test('poll worker: split precinct and reports', async ({ page }, testInfo) => {
   const { election } = electionDefinition;
   const { screenshot } = buildIntegrationTestHelper(page, namer);
   const electionPackage = await buildElectionPackage(electionDefinition);
-  const partyName = election.parties[0].name;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const partyName = election.parties[0]!.name;
 
   await configureMachine(page, {
     election,
@@ -450,7 +452,8 @@ test('poll worker: precinct without splits', async ({ page }, testInfo) => {
   const { election } = electionDefinition;
   const { screenshot } = buildIntegrationTestHelper(page, namer);
   const electionPackage = await buildElectionPackage(electionDefinition);
-  const partyName = election.parties[0].name;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const partyName = election.parties[0]!.name;
 
   await configureMachine(page, {
     election,

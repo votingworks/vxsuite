@@ -44,7 +44,8 @@ export async function main(args: string[]): Promise<number> {
       break;
     }
     case 'print': {
-      const pdfPath = args[3];
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const pdfPath = args[3]!;
       await printer.print({ data: readFileSync(pdfPath) });
       break;
     }

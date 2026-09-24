@@ -111,25 +111,30 @@ export function parseIpptoolOutput(
         type === 'textWithoutLanguage' || type === 'nameWithoutLanguage',
         `Unexpected undefined value in line: ${line}`
       );
-      return { ...attrs, [attribute]: '' };
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return { ...attrs, [attribute!]: '' };
     }
     switch (type) {
       case 'keyword':
       case 'enum':
       case 'nameWithoutLanguage':
       case 'textWithoutLanguage':
-        return { ...attrs, [attribute]: value };
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return { ...attrs, [attribute!]: value };
       case 'integer':
-        return { ...attrs, [attribute]: safeParseInt(value).unsafeUnwrap() };
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return { ...attrs, [attribute!]: safeParseInt(value).unsafeUnwrap() };
       case '1setOf keyword':
       case '1setOf enum':
       case '1setOf nameWithoutLanguage':
       case '1setOf textWithoutLanguage':
-        return { ...attrs, [attribute]: value.split(',') };
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return { ...attrs, [attribute!]: value.split(',') };
       case '1setOf integer':
         return {
           ...attrs,
-          [attribute]: value
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          [attribute!]: value
             .split(',')
             .map((number) => safeParseInt(number).unsafeUnwrap()),
         };
@@ -184,7 +189,8 @@ function wrapWithArray<T>(value: T | T[]): T[] {
 }
 
 function zip(...arrays: Array<unknown[]>): Array<unknown[]> {
-  return arrays[0].map((_, i) => arrays.map((a) => a[i]));
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return arrays[0]!.map((_, i) => arrays.map((a) => a[i]));
 }
 
 /**

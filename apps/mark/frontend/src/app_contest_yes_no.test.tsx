@@ -52,7 +52,7 @@ test('Single Seat Contest', async () => {
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12',
-    precinctId,
+    precinctId: precinctId!,
   });
 
   // Go to First Contest

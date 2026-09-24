@@ -108,7 +108,7 @@ test('printTestDeck for a single precinct prints ballots and a tally report', as
   await configureMachine(electionDefinition);
   mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
 
-  const precinctId = electionDefinition.election.precincts[0].id;
+  const precinctId = electionDefinition.election.precincts[0]!.id;
   await apiClient.printTestDeck({ precinctId });
 
   // One combined summary-ballot deck PDF + one tally report. The tally report
@@ -116,11 +116,11 @@ test('printTestDeck for a single precinct prints ballots and a tally report', as
   const jobs = mockPrinterHandler.getPrintJobHistory();
   expect(jobs).toHaveLength(2);
 
-  await expect(jobs[0].filename).toMatchPdfSnapshot({
+  await expect(jobs[0]!.filename).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'test-deck-precinct-summary-ballots',
     failureThreshold: 0.0001,
   });
-  await expect(jobs[1].filename).toMatchPdfSnapshot({
+  await expect(jobs[1]!.filename).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'test-deck-precinct-tally-report',
     failureThreshold: 0.0001,
   });

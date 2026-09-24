@@ -74,7 +74,8 @@ export function findBallotStyleId(
       ballotStyleGroups.length === 1,
       'Expected exactly one ballot style group per precinct or split'
     );
-    const ballotStyle = ballotStyleGroups[0].ballotStyles.find((bs) =>
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const ballotStyle = ballotStyleGroups[0]!.ballotStyles.find((bs) =>
       assertDefined(bs.languages).includes(languageCode)
     );
     assert(ballotStyle, `No ballot style found for language ${languageCode}`);

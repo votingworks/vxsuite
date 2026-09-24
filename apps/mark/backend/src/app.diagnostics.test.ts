@@ -295,7 +295,7 @@ test('saveReadinessReport - machine configured', async () => {
 
   const { election } = electionDefinition;
   const [pollingPlace] = assertDefined(election.pollingPlaces);
-  await apiClient.setPollingPlaceId({ id: pollingPlace.id });
+  await apiClient.setPollingPlaceId({ id: pollingPlace!.id });
 
   vi.useFakeTimers().setSystemTime(mockTime.getTime());
   await apiClient.addDiagnosticRecord({

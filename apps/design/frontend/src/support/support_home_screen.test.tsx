@@ -116,7 +116,7 @@ test('lists elections', async () => {
   let filteredRows = within(table).getAllByRole('row').slice(1);
   expect(filteredRows).toHaveLength(1);
   expect(
-    within(filteredRows[0]).getByText(general.election.title)
+    within(filteredRows[0]!).getByText(general.election.title)
   ).toBeInTheDocument();
 
   // Search for non-existent jurisdiction
@@ -133,10 +133,14 @@ test('lists elections', async () => {
 
   rows = within(table).getAllByRole('row').slice(1);
   expect(rows).toHaveLength(2);
-  expect(within(rows[0]).getByText(general.election.title)).toBeInTheDocument();
-  expect(within(rows[1]).getByText(primary.election.title)).toBeInTheDocument();
+  expect(
+    within(rows[0]!).getByText(general.election.title)
+  ).toBeInTheDocument();
+  expect(
+    within(rows[1]!).getByText(primary.election.title)
+  ).toBeInTheDocument();
 
-  userEvent.click(within(rows[0]).getAllByRole('cell')[0]);
+  userEvent.click(within(rows[0]!).getAllByRole('cell')[0]!);
   await waitFor(() => {
     expect(history.location.pathname).toEqual(
       `/elections/${general.election.id}`
@@ -190,7 +194,7 @@ test('sort elections by status and jurisdiction', async () => {
   function columnValues(index: number) {
     const rows = within(table).getAllByRole('row').slice(1);
     return rows.map((row) =>
-      within(row).getAllByRole('cell')[index].textContent?.trim()
+      within(row).getAllByRole('cell')[index]!.textContent?.trim()
     );
   }
 

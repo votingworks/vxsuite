@@ -65,7 +65,7 @@ test.electrical(
     await vi.waitFor(() => {
       expect(mockSimpleScannerClient.connect).toHaveBeenCalled();
     });
-    const [onScannerEvent] = mockSimpleScannerClient.connect.mock.calls[0];
+    const [onScannerEvent] = mockSimpleScannerClient.connect.mock.calls[0]!;
 
     onScannerEvent({
       event: 'scanComplete',
@@ -102,7 +102,7 @@ test.electrical(
 
     mockSimpleScannerClient.isConnected.mockReturnValue(true);
 
-    const [onScannerEvent] = mockSimpleScannerClient.connect.mock.calls[0];
+    const [onScannerEvent] = mockSimpleScannerClient.connect.mock.calls[0]!;
 
     onScannerEvent({
       event: 'error',
@@ -136,7 +136,7 @@ test.electrical(
     await vi.waitFor(() => {
       expect(mockSimpleScannerClient.connect).toHaveBeenCalled();
     });
-    const [onScannerEvent] = mockSimpleScannerClient.connect.mock.calls[0];
+    const [onScannerEvent] = mockSimpleScannerClient.connect.mock.calls[0]!;
 
     onScannerEvent({
       event: 'scanComplete',
@@ -167,7 +167,7 @@ test.electrical(
     await vi.waitFor(() => {
       expect(mockSimpleScannerClient.connect).toHaveBeenCalled();
     });
-    const [onScannerEvent] = mockSimpleScannerClient.connect.mock.calls[0];
+    const [onScannerEvent] = mockSimpleScannerClient.connect.mock.calls[0]!;
 
     // A 1x1 image will fail timing mark detection, exercising the
     // analysis try/catch path. The task should continue without crashing.
@@ -186,8 +186,8 @@ test.electrical(
       const { session } = electricalAppContext.scannerTask.getState();
       const sessionData = session.toJSON();
       expect(sessionData.sheets).toHaveLength(1);
-      expect(sessionData.sheets[0][0].analysis).toBeUndefined();
-      expect(sessionData.sheets[0][1].analysis).toBeUndefined();
+      expect(sessionData.sheets[0]![0].analysis).toBeUndefined();
+      expect(sessionData.sheets[0]![1].analysis).toBeUndefined();
       expect(sessionData.stats).toBeUndefined();
     });
 
@@ -209,7 +209,7 @@ test.electrical(
     await vi.waitFor(() => {
       expect(mockSimpleScannerClient.connect).toHaveBeenCalled();
     });
-    const [onScannerEvent] = mockSimpleScannerClient.connect.mock.calls[0];
+    const [onScannerEvent] = mockSimpleScannerClient.connect.mock.calls[0]!;
 
     onScannerEvent({
       event: 'scanComplete',
@@ -240,7 +240,7 @@ test.electrical(
     await vi.waitFor(() => {
       expect(mockSimpleScannerClient.connect).toHaveBeenCalled();
     });
-    const [onScannerEvent] = mockSimpleScannerClient.connect.mock.calls[0];
+    const [onScannerEvent] = mockSimpleScannerClient.connect.mock.calls[0]!;
 
     onScannerEvent({
       event: 'scanComplete',

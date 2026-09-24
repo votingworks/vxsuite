@@ -24,8 +24,10 @@ export function mockPollWorkerAuth(
 export function mockCardlessVoterAuth(
   electionDefinition: ElectionDefinition
 ): InsertedSmartCardAuth.PollWorkerLoggedIn {
-  const ballotStyleId = electionDefinition.election.ballotStyles[0].id;
-  const precinctId = electionDefinition.election.precincts[0].id;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const ballotStyleId = electionDefinition.election.ballotStyles[0]!.id;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const precinctId = electionDefinition.election.precincts[0]!.id;
 
   return {
     ...mockPollWorkerAuth(electionDefinition),
@@ -39,8 +41,10 @@ export function mockCardlessVoterAuth(
 export function mockCardlessVoterLoggedInAuth(
   electionDefinition: ElectionDefinition
 ): InsertedSmartCardAuth.CardlessVoterLoggedIn {
-  const ballotStyleId = electionDefinition.election.ballotStyles[0].id;
-  const precinctId = electionDefinition.election.precincts[0].id;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const ballotStyleId = electionDefinition.election.ballotStyles[0]!.id;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const precinctId = electionDefinition.election.precincts[0]!.id;
 
   return {
     ...mockPollWorkerAuth(electionDefinition),

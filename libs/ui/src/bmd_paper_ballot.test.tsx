@@ -477,8 +477,8 @@ test('BMD_BALLOT_LAYOUTS is properly defined', () => {
   );
 
   // Should an entry with a threshold of 0 contests for each print type:
-  expect(ORDERED_BMD_BALLOT_LAYOUTS.markScan[0].minContests).toEqual(0);
-  expect(ORDERED_BMD_BALLOT_LAYOUTS.mark[0].minContests).toEqual(0);
+  expect(ORDERED_BMD_BALLOT_LAYOUTS.markScan[0]!.minContests).toEqual(0);
+  expect(ORDERED_BMD_BALLOT_LAYOUTS.mark[0]!.minContests).toEqual(0);
 
   // Expect top margins only for MarkScan prints:
   expect(
@@ -503,7 +503,7 @@ describe('candidate party names', () => {
       (_unused, index) => ({ ...baseTestContest, id: `contest-${index}` })
     );
 
-    const chosenCandidate = assertDefined(contests[0].candidates[0]);
+    const chosenCandidate = assertDefined(contests[0]!.candidates[0]);
     const chosenCandidatePartyName = find(
       election.parties,
       (p) => p.id === chosenCandidate.partyIds![0]
@@ -516,7 +516,7 @@ describe('candidate party names', () => {
       },
       ballotStyleId: '5',
       precinctId: '21',
-      votes: { [contests[0].id]: [chosenCandidate.id] },
+      votes: { [contests[0]!.id]: [chosenCandidate.id] },
     });
 
     return { result, chosenCandidatePartyName };
@@ -558,7 +558,7 @@ describe('getLayout', () => {
     {
       description: 'no offset',
       electionDef: electionGeneralDefinition,
-      ballotStyleId: electionGeneralDefinition.election.ballotStyles[0].id,
+      ballotStyleId: electionGeneralDefinition.election.ballotStyles[0]!.id,
       machineType: 'markScan',
       offset: 0,
       expectation: {
@@ -571,7 +571,7 @@ describe('getLayout', () => {
     {
       description: 'valid offset',
       electionDef: electionGeneralDefinition,
-      ballotStyleId: electionGeneralDefinition.election.ballotStyles[0].id,
+      ballotStyleId: electionGeneralDefinition.election.ballotStyles[0]!.id,
       machineType: 'markScan',
       offset: 1,
       expectation: {
@@ -584,7 +584,7 @@ describe('getLayout', () => {
     {
       description: 'offset out of bounds',
       electionDef: electionGeneralDefinition,
-      ballotStyleId: electionGeneralDefinition.election.ballotStyles[0].id,
+      ballotStyleId: electionGeneralDefinition.election.ballotStyles[0]!.id,
       machineType: 'markScan',
       offset: 21,
       expectation: new NoLayoutOptionError(20, 21, 'markScan'),
@@ -648,12 +648,12 @@ describe('splitContestsForPages', () => {
   test('preserves contest order across pages', () => {
     const contests = allContests.slice(0, 6) as typeof allContests;
     const pages = splitContestsForPages(contests, 2);
-    expect(pages[0][0].id).toEqual(contests[0].id);
-    expect(pages[0][1].id).toEqual(contests[1].id);
-    expect(pages[1][0].id).toEqual(contests[2].id);
-    expect(pages[1][1].id).toEqual(contests[3].id);
-    expect(pages[2][0].id).toEqual(contests[4].id);
-    expect(pages[2][1].id).toEqual(contests[5].id);
+    expect(pages[0]![0]!.id).toEqual(contests[0]!.id);
+    expect(pages[0]![1]!.id).toEqual(contests[1]!.id);
+    expect(pages[1]![0]!.id).toEqual(contests[2]!.id);
+    expect(pages[1]![1]!.id).toEqual(contests[3]!.id);
+    expect(pages[2]![0]!.id).toEqual(contests[4]!.id);
+    expect(pages[2]![1]!.id).toEqual(contests[5]!.id);
   });
 });
 
@@ -685,7 +685,7 @@ describe('needsMultiplePages', () => {
     // Create more contests than the default limit
     const manyContests = Array.from(
       { length: MAX_CONTESTS_PER_MULTI_PAGE_BALLOT_PAGE + 1 },
-      (_, i) => ({ ...allContests[0], id: `contest-${i}` })
+      (_, i) => ({ ...allContests[0]!, id: `contest-${i}` })
     ) as typeof allContests;
     expect(needsMultiplePages(manyContests)).toEqual(true);
   });
@@ -709,19 +709,19 @@ describe('filterVotesForContests', () => {
   test('filters votes to only include matching contests', () => {
     const contestSubset = allContests.slice(0, 2) as typeof allContests;
     const votes = {
-      [contestSubset[0].id]: ['option-1'],
-      [contestSubset[1].id]: ['option-2'],
-      [allContests[3].id]: ['option-3'], // This should be filtered out
+      [contestSubset[0]!.id]: ['option-1'],
+      [contestSubset[1]!.id]: ['option-2'],
+      [allContests[3]!.id]: ['option-3'], // This should be filtered out
     } as const;
     const filtered = filterVotesForContests(votes, contestSubset);
     expect(Object.keys(filtered)).toHaveLength(2);
-    expect(filtered[contestSubset[0].id]).toEqual(['option-1']);
-    expect(filtered[contestSubset[1].id]).toEqual(['option-2']);
-    expect(filtered[allContests[3].id]).toBeUndefined();
+    expect(filtered[contestSubset[0]!.id]).toEqual(['option-1']);
+    expect(filtered[contestSubset[1]!.id]).toEqual(['option-2']);
+    expect(filtered[allContests[3]!.id]).toBeUndefined();
   });
 
   test('preserves vote values when filtering', () => {
-    const contest = allContests[0];
+    const contest = allContests[0]!;
     const votes = {
       [contest.id]: [
         { id: 'candidate-1', name: 'Candidate One' },
@@ -735,7 +735,7 @@ describe('filterVotesForContests', () => {
   });
 
   test('handles empty contests array', () => {
-    const votes = { [allContests[0].id]: ['option-1'] } as const;
+    const votes = { [allContests[0]!.id]: ['option-1'] } as const;
     const filtered = filterVotesForContests(votes, []);
     expect(filtered).toEqual({});
   });

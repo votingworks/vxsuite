@@ -21,7 +21,8 @@ interface SynthesizeSpeechInput {
 }
 
 function parseCommandLineArgs(args: readonly string[]): SynthesizeSpeechInput {
-  if (args.length !== 3 || !languageCodes.includes(args[1])) {
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  if (args.length !== 3 || !languageCodes.includes(args[1]!)) {
     console.error(usageMessage);
     process.exit(1);
   }

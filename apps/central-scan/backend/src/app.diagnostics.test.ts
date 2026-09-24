@@ -123,7 +123,7 @@ test('save readiness report', async () => {
         }
       );
 
-      const exportPath = exportResult.ok()![0];
+      const exportPath = exportResult.ok()![0]!;
       await expect(exportPath).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'readiness-report',
       });

@@ -96,11 +96,11 @@ test('continuous CVR export, including polls closing', async () => {
       expect(exportDirectoryPaths[0]).toMatch(/\/TEST__machine_0000__*/);
 
       const { castVoteRecordExportMetadata, castVoteRecordIterator } = (
-        await readCastVoteRecordExport(exportDirectoryPaths[0])
+        await readCastVoteRecordExport(exportDirectoryPaths[0]!)
       ).unsafeUnwrap();
 
       expect(castVoteRecordExportMetadata.arePollsClosed).toEqual(true);
-      expect(castVoteRecordExportMetadata.batchManifest[0].sheetCount).toEqual(
+      expect(castVoteRecordExportMetadata.batchManifest[0]!.sheetCount).toEqual(
         3
       );
 
@@ -362,7 +362,7 @@ test('pausing and resuming continuous CVR export', async () => {
         mockUsbDrive.usbDrive
       );
       expect(exportDirectoryPaths).toHaveLength(1);
-      const exportDirectoryPath = exportDirectoryPaths[0];
+      const exportDirectoryPath = exportDirectoryPaths[0]!;
 
       const { castVoteRecordIterator } = (
         await readCastVoteRecordExport(exportDirectoryPath)
@@ -422,7 +422,7 @@ test('audit ballot IDs', async () => {
       { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
       { path: makeTemporaryDirectory() }
     );
-  const ballotPdf = fs.readFileSync(ballotPaths[0]);
+  const ballotPdf = fs.readFileSync(ballotPaths[0]!);
   await rendererPool.close();
   const ballotImages = toGrayscaleSheet(await pdfToImageSheet(ballotPdf));
 
@@ -456,7 +456,7 @@ test('audit ballot IDs', async () => {
         mockUsbDrive.usbDrive
       );
       const { castVoteRecordIterator } = (
-        await readCastVoteRecordExport(exportDirectoryPath)
+        await readCastVoteRecordExport(exportDirectoryPath!)
       ).unsafeUnwrap();
       const castVoteRecords: CVR.CVR[] = (
         await castVoteRecordIterator.toArray()
@@ -478,7 +478,7 @@ test('audit ballot IDs', async () => {
       expect(
         await decryptAes256(
           secretKey,
-          assertDefined(castVoteRecords[0].BallotAuditId)
+          assertDefined(castVoteRecords[0]!.BallotAuditId)
         )
       ).toEqual(ballotPropsWithAuditId.ballotAuditId);
 

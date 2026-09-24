@@ -188,7 +188,7 @@ test('renders session start section', async () => {
   const [pollingPlace] = assertDefined(election.pollingPlaces);
 
   const activateCardlessVoterSession = vi.fn();
-  const pollingPlaceId = pollingPlace.id;
+  const pollingPlaceId = pollingPlace!.id;
 
   renderScreen({
     activateCardlessVoterSession,

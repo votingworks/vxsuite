@@ -157,7 +157,8 @@ function Contents(props: { editing: boolean }): React.ReactNode {
     index: number,
     party: Party
   ) {
-    if (error?.partyId === party.id && isChanged(list[index], party)) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    if (error?.partyId === party.id && isChanged(list[index]!, party)) {
       updatePartiesMutation.reset();
     }
 

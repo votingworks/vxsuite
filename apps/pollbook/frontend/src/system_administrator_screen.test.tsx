@@ -129,15 +129,15 @@ describe('Election tab', () => {
     const rows = screen.getAllByTestId('pollbook-config-row');
     expect(rows).toHaveLength(2);
     screen.debug(rows[0], Infinity);
-    await within(rows[0]).findByText('Test Election');
+    await within(rows[0]!).findByText('Test Election');
     // Only TEST-01 should show as a machineId as the 02 and 03 are offline
-    await within(rows[0]).findByText(`TEST${nonbreakingHyphen}01`);
-    await within(rows[0]).findByText(
+    await within(rows[0]!).findByText(`TEST${nonbreakingHyphen}01`);
+    await within(rows[0]!).findByText(
       `${electionDefFamousNames.ballotHash.slice(0, 7)}-test-po`
     );
-    await within(rows[1]).findByText('Bad Election');
-    await within(rows[1]).findByText(`TEST${nonbreakingHyphen}04`);
-    await within(rows[1]).findByText(
+    await within(rows[1]!).findByText('Bad Election');
+    await within(rows[1]!).findByText(`TEST${nonbreakingHyphen}04`);
+    await within(rows[1]!).findByText(
       `${electionDefFamousNames.ballotHash.slice(0, 7)}-differe`
     );
     await screen.findByText(
@@ -156,13 +156,13 @@ describe('Election tab', () => {
 
     // Try to configure from the "bad" election and mimic an error
     apiMock.expectConfigureOverNetwork('TEST-04', 'invalid-pollbook-package');
-    const configureBad = await within(rows[1]).findByText('Configure');
+    const configureBad = await within(rows[1]!).findByText('Configure');
     userEvent.click(configureBad);
     await screen.findByText(/Error during configuration. Please try again./);
 
     // Try to configure from the "good" election and mimic success
     apiMock.expectConfigureOverNetwork('TEST-01');
-    const configureGood = await within(rows[0]).findByText('Configure');
+    const configureGood = await within(rows[0]!).findByText('Configure');
     userEvent.click(configureGood);
   });
 
@@ -185,16 +185,16 @@ describe('Election tab', () => {
     expect((select as HTMLSelectElement).value).toEqual('');
 
     // Simulate changing the precinct
-    const newPrecinctId = precincts[1].id;
+    const newPrecinctId = precincts[1]!.id;
 
     apiMock.expectSetConfiguredPrecinct(newPrecinctId);
 
     userEvent.click(screen.getByText('Select Precinct…'));
-    userEvent.click(screen.getByText(precincts[1].name));
+    userEvent.click(screen.getByText(precincts[1]!.name));
 
     // Wait for the value to update
     await vi.waitFor(() => {
-      screen.getByText(precincts[1].name);
+      screen.getByText(precincts[1]!.name);
     });
   });
 });

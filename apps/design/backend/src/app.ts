@@ -1158,8 +1158,10 @@ export function buildApi(ctx: AppContext) {
         let cvrExportDirectory = inputCvrDirectory;
         const zipEntries = await readdir(cvrExportDirectory);
         // @coverage-exclude
-        if (zipEntries.length === 1 && zipEntries[0].startsWith('machine')) {
-          cvrExportDirectory = path.join(cvrExportDirectory, zipEntries[0]);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        if (zipEntries.length === 1 && zipEntries[0]!.startsWith('machine')) {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          cvrExportDirectory = path.join(cvrExportDirectory, zipEntries[0]!);
         }
 
         const cvrIds = await getExportedCastVoteRecordIds(cvrExportDirectory);

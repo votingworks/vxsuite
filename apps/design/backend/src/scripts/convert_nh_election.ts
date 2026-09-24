@@ -125,11 +125,13 @@ function parseElectionDate(raw: string): DateWithoutTime {
       OCTOBER: 10,
       NOVEMBER: 11,
       DECEMBER: 12,
-    }[monthName.toUpperCase()],
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    }[monthName!.toUpperCase()],
     `Unsupported election date format: ${raw}`
   );
   return new DateWithoutTime(
-    `${year}-${String(month).padStart(2, '0')}-${day.padStart(2, '0')}`
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    `${year}-${String(month).padStart(2, '0')}-${day!.padStart(2, '0')}`
   );
 }
 
@@ -209,7 +211,8 @@ function contestCandidateInfos(
 
 function districtNameForWards(wards: string[]): string {
   if (wards.length === 1) {
-    return wards[0];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return wards[0]!;
   }
   if (wards.some((w) => !/^Ward .+$/.test(w))) {
     return wards.slice().sort().join(', ');
@@ -310,17 +313,20 @@ export function convertNhElection(
 
   const dates = unique(headerInfos.map((header) => header.ElectionDate));
   assert(dates.length === 1);
-  const date = parseElectionDate(dates[0]);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const date = parseElectionDate(dates[0]!);
 
   const electionNames = unique(
     headerInfos.map((header) => header.ElectionName)
   );
   assert(electionNames.length === 1);
-  const title = toTitleCase(electionNames[0]);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const title = toTitleCase(electionNames[0]!);
 
   const townNames = unique(headerInfos.map((header) => header.TownName));
   assert(townNames.length === 1);
-  const townName = toTitleCase(townNames[0]);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const townName = toTitleCase(townNames[0]!);
 
   // In a primary, every file's header carries the ballot's party; general
   // files carry none. (The party registry can't distinguish the two, since
@@ -526,14 +532,16 @@ export function convertNhElection(
   }));
 
   const paperSize = (() => {
-    switch (nhBallotStyles[0].AVSInterface.HeaderInfo.BallotSize) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    switch (nhBallotStyles[0]!.AVSInterface.HeaderInfo.BallotSize) {
       case '8.5x11':
         return HmpbBallotPaperSize.Letter;
       case '8.5x14':
         return HmpbBallotPaperSize.Legal;
       default:
         throw new Error(
-          `Unsupported ballot size: ${nhBallotStyles[0].AVSInterface.HeaderInfo.BallotSize}`
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          `Unsupported ballot size: ${nhBallotStyles[0]!.AVSInterface.HeaderInfo.BallotSize}`
         );
     }
   })();

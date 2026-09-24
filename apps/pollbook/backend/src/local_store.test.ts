@@ -83,7 +83,7 @@ test('findVotersWithName works as expected - voters without name changes', () =>
     })
   ).toEqual(
     expect.arrayContaining([
-      expect.objectContaining({ voterId: voters[0].voterId }),
+      expect.objectContaining({ voterId: voters[0]!.voterId }),
     ])
   );
 
@@ -96,7 +96,7 @@ test('findVotersWithName works as expected - voters without name changes', () =>
     })
   ).toEqual(
     expect.arrayContaining([
-      expect.objectContaining({ voterId: voters[0].voterId }),
+      expect.objectContaining({ voterId: voters[0]!.voterId }),
     ])
   );
 
@@ -109,7 +109,7 @@ test('findVotersWithName works as expected - voters without name changes', () =>
     })
   ).toEqual(
     expect.arrayContaining([
-      expect.objectContaining({ voterId: voters[1].voterId }),
+      expect.objectContaining({ voterId: voters[1]!.voterId }),
     ])
   );
 
@@ -122,7 +122,7 @@ test('findVotersWithName works as expected - voters without name changes', () =>
     })
   ).toEqual(
     expect.arrayContaining([
-      expect.objectContaining({ voterId: voters[2].voterId }),
+      expect.objectContaining({ voterId: voters[2]!.voterId }),
     ])
   );
 
@@ -135,7 +135,7 @@ test('findVotersWithName works as expected - voters without name changes', () =>
     })
   ).toEqual(
     expect.arrayContaining([
-      expect.objectContaining({ voterId: voters[3].voterId }),
+      expect.objectContaining({ voterId: voters[3]!.voterId }),
     ])
   );
 
@@ -148,8 +148,8 @@ test('findVotersWithName works as expected - voters without name changes', () =>
     })
   ).toEqual(
     expect.arrayContaining([
-      expect.objectContaining({ voterId: voters[4].voterId }),
-      expect.objectContaining({ voterId: voters[5].voterId }),
+      expect.objectContaining({ voterId: voters[4]!.voterId }),
+      expect.objectContaining({ voterId: voters[5]!.voterId }),
     ])
   );
 
@@ -163,7 +163,7 @@ test('findVotersWithName works as expected - voters without name changes', () =>
     })
   ).toEqual(
     expect.arrayContaining([
-      expect.objectContaining({ voterId: voters[0].voterId }),
+      expect.objectContaining({ voterId: voters[0]!.voterId }),
     ])
   );
 
@@ -176,7 +176,7 @@ test('findVotersWithName works as expected - voters without name changes', () =>
     })
   ).toEqual(
     expect.arrayContaining([
-      expect.objectContaining({ voterId: voters[6].voterId }),
+      expect.objectContaining({ voterId: voters[6]!.voterId }),
     ])
   );
 });
@@ -206,10 +206,10 @@ test('findVotersWithName middle name relaxed matching', () => {
     voters
   );
 
-  const johnF = voters[0].voterId;
-  const johnFitzgerald = voters[1].voterId;
-  const johnNoMiddle = voters[2].voterId;
-  const johnSalvatore = voters[3].voterId;
+  const johnF = voters[0]!.voterId;
+  const johnFitzgerald = voters[1]!.voterId;
+  const johnNoMiddle = voters[2]!.voterId;
+  const johnSalvatore = voters[3]!.voterId;
 
   function expectExactMatches(
     search: {
@@ -276,7 +276,7 @@ test('findVoterWithName works as expected - voters with name changes', () => {
     })
   ).toEqual(
     expect.arrayContaining([
-      expect.objectContaining({ voterId: voters[0].voterId }),
+      expect.objectContaining({ voterId: voters[0]!.voterId }),
     ])
   );
 
@@ -290,7 +290,7 @@ test('findVoterWithName works as expected - voters with name changes', () => {
     })
   ).toEqual(
     expect.arrayContaining([
-      expect.objectContaining({ voterId: voters[0].voterId }),
+      expect.objectContaining({ voterId: voters[0]!.voterId }),
     ])
   );
 
@@ -305,7 +305,7 @@ test('findVoterWithName works as expected - voters with name changes', () => {
   ).toEqual([]);
 
   // Change name for John Doe
-  localStore.changeVoterName(voters[0].voterId, {
+  localStore.changeVoterName(voters[0]!.voterId, {
     firstName: 'Jonathan',
     lastName: 'Dough',
     middleName: 'A.',
@@ -332,7 +332,7 @@ test('findVoterWithName works as expected - voters with name changes', () => {
     })
   ).toEqual(
     expect.arrayContaining([
-      expect.objectContaining({ voterId: voters[0].voterId }),
+      expect.objectContaining({ voterId: voters[0]!.voterId }),
     ])
   );
 
@@ -347,7 +347,7 @@ test('findVoterWithName works as expected - voters with name changes', () => {
   ).toEqual([]);
 
   // Change name for Jane Smith
-  localStore.changeVoterName(voters[1].voterId, {
+  localStore.changeVoterName(voters[1]!.voterId, {
     firstName: 'Janet',
     lastName: 'Smythe',
     middleName: 'M.',
@@ -364,7 +364,7 @@ test('findVoterWithName works as expected - voters with name changes', () => {
     })
   ).toEqual(
     expect.arrayContaining([
-      expect.objectContaining({ voterId: voters[1].voterId }),
+      expect.objectContaining({ voterId: voters[1]!.voterId }),
     ])
   );
 
@@ -421,12 +421,12 @@ test('findVotersWithName returns results sorted by configured precinct first, th
   expect(results).toHaveLength(2);
 
   // Verify sorting: configured precinct voters first
-  expect(results[0].voterId).toEqual('32'); // John A Smith (precinct-1) - comes first
-  expect(results[1].voterId).toEqual('30'); // John A Smith (precinct-2) - comes second
+  expect(results[0]!.voterId).toEqual('32'); // John A Smith (precinct-1) - comes first
+  expect(results[1]!.voterId).toEqual('30'); // John A Smith (precinct-2) - comes second
 
   // Verify the precincts are as expected
-  expect(results[0].precinct).toEqual('precinct-1');
-  expect(results[1].precinct).toEqual('precinct-2');
+  expect(results[0]!.precinct).toEqual('precinct-1');
+  expect(results[1]!.precinct).toEqual('precinct-2');
 });
 
 test('searchVoters returns results sorted by configured precinct first, then by name', () => {
@@ -484,16 +484,16 @@ test('searchVoters returns results sorted by configured precinct first, then by 
   expect(results).toHaveLength(4);
 
   // Verify sorting: configured precinct voters first, then alphabetically by name
-  expect(results[0].voterId).toEqual('22'); // Charlie Carter (precinct-1)
-  expect(results[1].voterId).toEqual('23'); // David Davis (precinct-1)
-  expect(results[2].voterId).toEqual('20'); // Alice Anderson (precinct-2)
-  expect(results[3].voterId).toEqual('21'); // Bob Baker (precinct-2)
+  expect(results[0]!.voterId).toEqual('22'); // Charlie Carter (precinct-1)
+  expect(results[1]!.voterId).toEqual('23'); // David Davis (precinct-1)
+  expect(results[2]!.voterId).toEqual('20'); // Alice Anderson (precinct-2)
+  expect(results[3]!.voterId).toEqual('21'); // Bob Baker (precinct-2)
 
   // Verify the precincts are as expected
-  expect(results[0].precinct).toEqual('precinct-1');
-  expect(results[1].precinct).toEqual('precinct-1');
-  expect(results[2].precinct).toEqual('precinct-2');
-  expect(results[3].precinct).toEqual('precinct-2');
+  expect(results[0]!.precinct).toEqual('precinct-1');
+  expect(results[1]!.precinct).toEqual('precinct-1');
+  expect(results[2]!.precinct).toEqual('precinct-2');
+  expect(results[3]!.precinct).toEqual('precinct-2');
 });
 
 test('searchVoters ignores punctuation', () => {
@@ -537,7 +537,7 @@ test('searchVoters ignores punctuation', () => {
     expect(Array.isArray(searchResults)).toEqual(true);
     const results = searchResults as Voter[];
     expect(results).toHaveLength(1);
-    expect(results[0].voterId).toEqual('22');
+    expect(results[0]!.voterId).toEqual('22');
   }
 
   // Search for punctuated voter using no punctuation
@@ -559,7 +559,7 @@ test('searchVoters ignores punctuation', () => {
     expect(Array.isArray(searchResults)).toEqual(true);
     const results = searchResults as Voter[];
     expect(results).toHaveLength(1);
-    expect(results[0].voterId).toEqual('23');
+    expect(results[0]!.voterId).toEqual('23');
   }
 });
 
@@ -836,7 +836,7 @@ test('changeVoterAddress works as expected - when precinct is the properly confi
   // Can not change address if no precinct is configured
   suppressingConsoleOutput(() => {
     expect(() =>
-      localStore.changeVoterAddress(voters[0].voterId, {
+      localStore.changeVoterAddress(voters[0]!.voterId, {
         streetNumber: '7',
         streetName: 'PEGASUS',
         streetSuffix: '',
@@ -853,7 +853,7 @@ test('changeVoterAddress works as expected - when precinct is the properly confi
   });
 
   localStore.setConfiguredPrecinct('precinct-1');
-  const { voter } = localStore.changeVoterAddress(voters[0].voterId, {
+  const { voter } = localStore.changeVoterAddress(voters[0]!.voterId, {
     streetNumber: '7',
     streetName: 'PEGASUS',
     streetSuffix: '',
@@ -871,7 +871,7 @@ test('changeVoterAddress works as expected - when precinct is the properly confi
   // Changing the address to a street in the wrong precinct should throw an error
   suppressingConsoleOutput(() => {
     expect(() =>
-      localStore.changeVoterAddress(voters[0].voterId, {
+      localStore.changeVoterAddress(voters[0]!.voterId, {
         streetNumber: '7',
         streetName: 'UNICORN',
         streetSuffix: '',
@@ -978,7 +978,7 @@ test('getGeneralSummaryStatistics returns complete statistics for in-precinct vo
   // Check in some voters (to test totalCheckIns and totalAbsenteeCheckIns)
   // Regular check-in for Dylan
   localStore.recordVoterCheckIn({
-    voterId: voters[0].voterId,
+    voterId: voters[0]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'DEM',
   });
@@ -986,7 +986,7 @@ test('getGeneralSummaryStatistics returns complete statistics for in-precinct vo
   // Absentee check-in for Ella
   localStore.setIsAbsenteeMode(true);
   localStore.recordVoterCheckIn({
-    voterId: voters[1].voterId,
+    voterId: voters[1]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'REP',
   });
@@ -1179,7 +1179,7 @@ test('getPrimarySummaryStatistics returns complete statistics for in-precinct vo
   // Check in some voters (to test totalCheckIns and totalAbsenteeCheckIns)
   // Regular DEM check-in for Dylan
   localStore.recordVoterCheckIn({
-    voterId: voters[0].voterId,
+    voterId: voters[0]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'DEM',
   });
@@ -1187,7 +1187,7 @@ test('getPrimarySummaryStatistics returns complete statistics for in-precinct vo
   // Absentee REP check-in for Ella
   localStore.setIsAbsenteeMode(true);
   localStore.recordVoterCheckIn({
-    voterId: voters[1].voterId,
+    voterId: voters[1]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'REP',
   });
@@ -1195,7 +1195,7 @@ test('getPrimarySummaryStatistics returns complete statistics for in-precinct vo
   // Regular DEM check-in for undeclared voter Ariel
   localStore.setIsAbsenteeMode(false);
   localStore.recordVoterCheckIn({
-    voterId: voters[2].voterId,
+    voterId: voters[2]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'DEM',
   });
@@ -1407,7 +1407,7 @@ test('getThroughputStatistics returns empty array for UND party filter', () => {
 
   // Check in a voter
   localStore.recordVoterCheckIn({
-    voterId: voters[0].voterId,
+    voterId: voters[0]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'DEM',
   });
@@ -1464,7 +1464,7 @@ test('getThroughputStatistics returns empty array when no check-ins match the pa
   localStore.setConfiguredPrecinct('precinct-1');
 
   localStore.recordVoterCheckIn({
-    voterId: voters[0].voterId,
+    voterId: voters[0]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'DEM',
   });
@@ -1495,7 +1495,7 @@ test('getThroughputStatistics returns empty array when the only check-ins are ab
 
   localStore.setIsAbsenteeMode(true);
   localStore.recordVoterCheckIn({
-    voterId: voters[0].voterId,
+    voterId: voters[0]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'DEM',
   });
@@ -1556,7 +1556,7 @@ test('getThroughputStatistics returns correct throughput data for single interva
   // First check-in at 11:10 AM
   vi.setSystemTime(new Date('2025-08-04T11:10:00.000Z'));
   localStore.recordVoterCheckIn({
-    voterId: voters[0].voterId,
+    voterId: voters[0]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'DEM',
   });
@@ -1564,7 +1564,7 @@ test('getThroughputStatistics returns correct throughput data for single interva
   // Second check-in at 11:25 AM
   vi.setSystemTime(new Date('2025-08-04T11:25:00.000Z'));
   localStore.recordVoterCheckIn({
-    voterId: voters[1].voterId,
+    voterId: voters[1]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'REP',
   });
@@ -1572,7 +1572,7 @@ test('getThroughputStatistics returns correct throughput data for single interva
   // Third check-in at 11:45 AM
   vi.setSystemTime(new Date('2025-08-04T11:45:00.000Z'));
   localStore.recordVoterCheckIn({
-    voterId: voters[2].voterId,
+    voterId: voters[2]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'NOT_APPLICABLE',
   });
@@ -1581,7 +1581,7 @@ test('getThroughputStatistics returns correct throughput data for single interva
   vi.setSystemTime(new Date('2025-08-04T11:46:00.000Z'));
   localStore.setIsAbsenteeMode(true);
   localStore.recordVoterCheckIn({
-    voterId: voters[3].voterId,
+    voterId: voters[3]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'DEM',
   });
@@ -1600,7 +1600,7 @@ test('getThroughputStatistics returns correct throughput data for single interva
   });
 
   // Parse and validate the startTime is at the top of the hour
-  const startTime = new Date(throughputStats[0].startTime);
+  const startTime = new Date(throughputStats[0]!.startTime);
   expect(startTime.getMinutes()).toEqual(0);
   expect(startTime.getSeconds()).toEqual(0);
   expect(startTime.getMilliseconds()).toEqual(0);
@@ -1653,7 +1653,7 @@ test('getThroughputStatistics filters by party correctly', () => {
   // DEM voter checks in at 2:05 PM
   vi.setSystemTime(new Date('2025-08-04T14:05:00.000Z'));
   localStore.recordVoterCheckIn({
-    voterId: voters[0].voterId,
+    voterId: voters[0]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'DEM',
   });
@@ -1661,7 +1661,7 @@ test('getThroughputStatistics filters by party correctly', () => {
   // REP voter checks in at 2:15 PM
   vi.setSystemTime(new Date('2025-08-04T14:15:00.000Z'));
   localStore.recordVoterCheckIn({
-    voterId: voters[1].voterId,
+    voterId: voters[1]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'REP',
   });
@@ -1669,7 +1669,7 @@ test('getThroughputStatistics filters by party correctly', () => {
   // UND voter checks in with DEM ballot at 2:25 PM
   vi.setSystemTime(new Date('2025-08-04T14:25:00.000Z'));
   localStore.recordVoterCheckIn({
-    voterId: voters[2].voterId,
+    voterId: voters[2]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'DEM', // Undeclared voter choosing DEM ballot
   });
@@ -1680,20 +1680,20 @@ test('getThroughputStatistics filters by party correctly', () => {
   // Test ALL filter
   const allStats = localStore.getThroughputStatistics(60, 'ALL');
   expect(allStats).toHaveLength(1);
-  expect(allStats[0].checkIns).toEqual(3);
-  expect(allStats[0].startTime).toEqual('2025-08-04T14:00:00.000Z');
+  expect(allStats[0]!.checkIns).toEqual(3);
+  expect(allStats[0]!.startTime).toEqual('2025-08-04T14:00:00.000Z');
 
   // Test DEM filter
   const demStats = localStore.getThroughputStatistics(60, 'DEM');
   expect(demStats).toHaveLength(1);
-  expect(demStats[0].checkIns).toEqual(2); // Dylan and Ariel with DEM ballots
-  expect(demStats[0].startTime).toEqual('2025-08-04T14:00:00.000Z');
+  expect(demStats[0]!.checkIns).toEqual(2); // Dylan and Ariel with DEM ballots
+  expect(demStats[0]!.startTime).toEqual('2025-08-04T14:00:00.000Z');
 
   // Test REP filter
   const repStats = localStore.getThroughputStatistics(60, 'REP');
   expect(repStats).toHaveLength(1);
-  expect(repStats[0].checkIns).toEqual(1); // Only Ella with REP ballot
-  expect(repStats[0].startTime).toEqual('2025-08-04T14:00:00.000Z');
+  expect(repStats[0]!.checkIns).toEqual(1); // Only Ella with REP ballot
+  expect(repStats[0]!.startTime).toEqual('2025-08-04T14:00:00.000Z');
 
   // Restore real timers
   vi.useRealTimers();
@@ -1748,7 +1748,7 @@ test('getThroughputStatistics works with different interval sizes', () => {
   // Check in first voter at 9:05 AM
   vi.setSystemTime(new Date('2025-08-04T09:05:00.000Z'));
   localStore.recordVoterCheckIn({
-    voterId: voters[0].voterId,
+    voterId: voters[0]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'DEM',
   });
@@ -1756,7 +1756,7 @@ test('getThroughputStatistics works with different interval sizes', () => {
   // Check in second voter at 9:20 AM (same 15-min interval)
   vi.setSystemTime(new Date('2025-08-04T09:20:00.000Z'));
   localStore.recordVoterCheckIn({
-    voterId: voters[1].voterId,
+    voterId: voters[1]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'REP',
   });
@@ -1764,7 +1764,7 @@ test('getThroughputStatistics works with different interval sizes', () => {
   // Check in third voter at 9:35 AM (next 15-min interval)
   vi.setSystemTime(new Date('2025-08-04T09:35:00.000Z'));
   localStore.recordVoterCheckIn({
-    voterId: voters[2].voterId,
+    voterId: voters[2]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'DEM',
   });
@@ -1772,7 +1772,7 @@ test('getThroughputStatistics works with different interval sizes', () => {
   // Check in fourth voter at 10:10 AM (next hour)
   vi.setSystemTime(new Date('2025-08-04T10:10:00.000Z'));
   localStore.recordVoterCheckIn({
-    voterId: voters[3].voterId,
+    voterId: voters[3]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'DEM',
   });
@@ -1787,34 +1787,34 @@ test('getThroughputStatistics works with different interval sizes', () => {
 
   // Verify 15-minute intervals
   expect(stats15min.length).toEqual(6); // From 9:00 to 10:30 = 6 intervals (9:00, 9:15, 9:30, 9:45, 10:00, 10:15)
-  expect(stats15min[0].startTime).toEqual('2025-08-04T09:00:00.000Z');
-  expect(stats15min[0].checkIns).toEqual(1); // Dylan at 9:05 (first interval 9:00-9:15)
-  expect(stats15min[1].startTime).toEqual('2025-08-04T09:15:00.000Z');
-  expect(stats15min[1].checkIns).toEqual(1); // Ella at 9:20 (second interval 9:15-9:30)
-  expect(stats15min[2].startTime).toEqual('2025-08-04T09:30:00.000Z');
-  expect(stats15min[2].checkIns).toEqual(1); // John at 9:35 (third interval 9:30-9:45)
-  expect(stats15min[3].startTime).toEqual('2025-08-04T09:45:00.000Z');
-  expect(stats15min[3].checkIns).toEqual(0); // No check-ins in this interval
-  expect(stats15min[4].startTime).toEqual('2025-08-04T10:00:00.000Z');
-  expect(stats15min[4].checkIns).toEqual(1); // Jane at 10:10 (fifth interval 10:00-10:15)
-  expect(stats15min[5].startTime).toEqual('2025-08-04T10:15:00.000Z');
-  expect(stats15min[5].checkIns).toEqual(0); // No check-ins in this interval
+  expect(stats15min[0]!.startTime).toEqual('2025-08-04T09:00:00.000Z');
+  expect(stats15min[0]!.checkIns).toEqual(1); // Dylan at 9:05 (first interval 9:00-9:15)
+  expect(stats15min[1]!.startTime).toEqual('2025-08-04T09:15:00.000Z');
+  expect(stats15min[1]!.checkIns).toEqual(1); // Ella at 9:20 (second interval 9:15-9:30)
+  expect(stats15min[2]!.startTime).toEqual('2025-08-04T09:30:00.000Z');
+  expect(stats15min[2]!.checkIns).toEqual(1); // John at 9:35 (third interval 9:30-9:45)
+  expect(stats15min[3]!.startTime).toEqual('2025-08-04T09:45:00.000Z');
+  expect(stats15min[3]!.checkIns).toEqual(0); // No check-ins in this interval
+  expect(stats15min[4]!.startTime).toEqual('2025-08-04T10:00:00.000Z');
+  expect(stats15min[4]!.checkIns).toEqual(1); // Jane at 10:10 (fifth interval 10:00-10:15)
+  expect(stats15min[5]!.startTime).toEqual('2025-08-04T10:15:00.000Z');
+  expect(stats15min[5]!.checkIns).toEqual(0); // No check-ins in this interval
 
   // Verify 30-minute intervals
   expect(stats30min.length).toEqual(3); // From 9:00 to 10:30 = 3 intervals (9:00, 9:30, 10:00)
-  expect(stats30min[0].startTime).toEqual('2025-08-04T09:00:00.000Z');
-  expect(stats30min[0].checkIns).toEqual(2); // Dylan and Ella (9:05 and 9:20 both in 9:00-9:30)
-  expect(stats30min[1].startTime).toEqual('2025-08-04T09:30:00.000Z');
-  expect(stats30min[1].checkIns).toEqual(1); // John at 9:35 (9:30-10:00)
-  expect(stats30min[2].startTime).toEqual('2025-08-04T10:00:00.000Z');
-  expect(stats30min[2].checkIns).toEqual(1); // Jane at 10:10 (10:00-10:30)
+  expect(stats30min[0]!.startTime).toEqual('2025-08-04T09:00:00.000Z');
+  expect(stats30min[0]!.checkIns).toEqual(2); // Dylan and Ella (9:05 and 9:20 both in 9:00-9:30)
+  expect(stats30min[1]!.startTime).toEqual('2025-08-04T09:30:00.000Z');
+  expect(stats30min[1]!.checkIns).toEqual(1); // John at 9:35 (9:30-10:00)
+  expect(stats30min[2]!.startTime).toEqual('2025-08-04T10:00:00.000Z');
+  expect(stats30min[2]!.checkIns).toEqual(1); // Jane at 10:10 (10:00-10:30)
 
   // Verify 60-minute intervals
   expect(stats60min.length).toEqual(2); // From 9:00 to 10:30 = 2 intervals (9:00, 10:00)
-  expect(stats60min[0].startTime).toEqual('2025-08-04T09:00:00.000Z');
-  expect(stats60min[0].checkIns).toEqual(3); // Dylan, Ella, and John (all in 9:00-10:00)
-  expect(stats60min[1].startTime).toEqual('2025-08-04T10:00:00.000Z');
-  expect(stats60min[1].checkIns).toEqual(1); // Jane at 10:10 (10:00-11:00)
+  expect(stats60min[0]!.startTime).toEqual('2025-08-04T09:00:00.000Z');
+  expect(stats60min[0]!.checkIns).toEqual(3); // Dylan, Ella, and John (all in 9:00-10:00)
+  expect(stats60min[1]!.startTime).toEqual('2025-08-04T10:00:00.000Z');
+  expect(stats60min[1]!.checkIns).toEqual(1); // Jane at 10:10 (10:00-11:00)
 
   // Total check-ins across all intervals should be 4
   const total15min = stats15min.reduce((sum, stat) => sum + stat.checkIns, 0);
@@ -1892,12 +1892,12 @@ test('getThroughputStatistics with fake timers across multiple hours and interva
   // First batch: 8:15 AM - 2 voters
   vi.setSystemTime(new Date('2025-08-04T08:15:00.000Z'));
   localStore.recordVoterCheckIn({
-    voterId: voters[0].voterId,
+    voterId: voters[0]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'DEM',
   });
   localStore.recordVoterCheckIn({
-    voterId: voters[1].voterId,
+    voterId: voters[1]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'REP',
   });
@@ -1905,7 +1905,7 @@ test('getThroughputStatistics with fake timers across multiple hours and interva
   // Second batch: 8:45 AM - 1 voter
   vi.setSystemTime(new Date('2025-08-04T08:45:00.000Z'));
   localStore.recordVoterCheckIn({
-    voterId: voters[2].voterId,
+    voterId: voters[2]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'DEM',
   });
@@ -1913,12 +1913,12 @@ test('getThroughputStatistics with fake timers across multiple hours and interva
   // Third batch: 9:30 AM - 2 voters
   vi.setSystemTime(new Date('2025-08-04T09:30:00.000Z'));
   localStore.recordVoterCheckIn({
-    voterId: voters[3].voterId,
+    voterId: voters[3]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'DEM',
   });
   localStore.recordVoterCheckIn({
-    voterId: voters[4].voterId,
+    voterId: voters[4]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'REP',
   });
@@ -1926,7 +1926,7 @@ test('getThroughputStatistics with fake timers across multiple hours and interva
   // Fourth batch: 10:15 AM - 1 voter
   vi.setSystemTime(new Date('2025-08-04T10:15:00.000Z'));
   localStore.recordVoterCheckIn({
-    voterId: voters[5].voterId,
+    voterId: voters[5]!.voterId,
     identificationMethod: { type: 'default' },
     ballotParty: 'DEM',
   });
@@ -1938,38 +1938,38 @@ test('getThroughputStatistics with fake timers across multiple hours and interva
   const stats30min = localStore.getThroughputStatistics(30, 'ALL');
   expect(stats30min).toHaveLength(5); // 8:00-8:30, 8:30-9:00, 9:00-9:30, 9:30-10:00, 10:00-10:30
 
-  expect(stats30min[0].startTime).toEqual('2025-08-04T08:00:00.000Z');
-  expect(stats30min[0].checkIns).toEqual(2); // Alice and Bob at 8:15
+  expect(stats30min[0]!.startTime).toEqual('2025-08-04T08:00:00.000Z');
+  expect(stats30min[0]!.checkIns).toEqual(2); // Alice and Bob at 8:15
 
-  expect(stats30min[1].startTime).toEqual('2025-08-04T08:30:00.000Z');
-  expect(stats30min[1].checkIns).toEqual(1); // Charlie at 8:45
+  expect(stats30min[1]!.startTime).toEqual('2025-08-04T08:30:00.000Z');
+  expect(stats30min[1]!.checkIns).toEqual(1); // Charlie at 8:45
 
-  expect(stats30min[2].startTime).toEqual('2025-08-04T09:00:00.000Z');
-  expect(stats30min[2].checkIns).toEqual(0); // No check-ins in this interval
+  expect(stats30min[2]!.startTime).toEqual('2025-08-04T09:00:00.000Z');
+  expect(stats30min[2]!.checkIns).toEqual(0); // No check-ins in this interval
 
-  expect(stats30min[3].startTime).toEqual('2025-08-04T09:30:00.000Z');
-  expect(stats30min[3].checkIns).toEqual(2); // Diana and Eve at 9:30
+  expect(stats30min[3]!.startTime).toEqual('2025-08-04T09:30:00.000Z');
+  expect(stats30min[3]!.checkIns).toEqual(2); // Diana and Eve at 9:30
 
-  expect(stats30min[4].startTime).toEqual('2025-08-04T10:00:00.000Z');
-  expect(stats30min[4].checkIns).toEqual(1); // Frank at 10:15
+  expect(stats30min[4]!.startTime).toEqual('2025-08-04T10:00:00.000Z');
+  expect(stats30min[4]!.checkIns).toEqual(1); // Frank at 10:15
 
   // Test DEM party filter
   const statsDem = localStore.getThroughputStatistics(30, 'DEM');
   expect(statsDem).toHaveLength(5);
-  expect(statsDem[0].checkIns).toEqual(1); // Alice with DEM ballot at 8:15
-  expect(statsDem[1].checkIns).toEqual(1); // Charlie with DEM ballot at 8:45
-  expect(statsDem[2].checkIns).toEqual(0); // No DEM ballots in this interval
-  expect(statsDem[3].checkIns).toEqual(1); // Diana with DEM ballot at 9:30
-  expect(statsDem[4].checkIns).toEqual(1); // Frank with DEM ballot at 10:15
+  expect(statsDem[0]!.checkIns).toEqual(1); // Alice with DEM ballot at 8:15
+  expect(statsDem[1]!.checkIns).toEqual(1); // Charlie with DEM ballot at 8:45
+  expect(statsDem[2]!.checkIns).toEqual(0); // No DEM ballots in this interval
+  expect(statsDem[3]!.checkIns).toEqual(1); // Diana with DEM ballot at 9:30
+  expect(statsDem[4]!.checkIns).toEqual(1); // Frank with DEM ballot at 10:15
 
   // Test REP party filter
   const statsRep = localStore.getThroughputStatistics(30, 'REP');
   expect(statsRep).toHaveLength(5);
-  expect(statsRep[0].checkIns).toEqual(1); // Bob with REP ballot at 8:15
-  expect(statsRep[1].checkIns).toEqual(0); // No REP ballots in this interval
-  expect(statsRep[2].checkIns).toEqual(0); // No REP ballots in this interval
-  expect(statsRep[3].checkIns).toEqual(1); // Eve with REP ballot at 9:30
-  expect(statsRep[4].checkIns).toEqual(0); // No REP ballots in this interval
+  expect(statsRep[0]!.checkIns).toEqual(1); // Bob with REP ballot at 8:15
+  expect(statsRep[1]!.checkIns).toEqual(0); // No REP ballots in this interval
+  expect(statsRep[2]!.checkIns).toEqual(0); // No REP ballots in this interval
+  expect(statsRep[3]!.checkIns).toEqual(1); // Eve with REP ballot at 9:30
+  expect(statsRep[4]!.checkIns).toEqual(0); // No REP ballots in this interval
 
   // Verify total check-ins across all intervals
   const totalAll = stats30min.reduce((sum, stat) => sum + stat.checkIns, 0);

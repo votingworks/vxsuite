@@ -73,7 +73,7 @@ describe('createSummaryBallotTestDeck', () => {
   test('generates summary BMD ballots for a precinct', async () => {
     const { electionDefinition } = vxFamousNamesFixtures;
     const { election } = electionDefinition;
-    const precinctId = election.precincts[0].id;
+    const precinctId = election.precincts[0]!.id;
 
     const ballotSpecs = generateTestDeckBallots({
       election,
@@ -125,8 +125,8 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
     const votes = createMockVotes([...election.contests]);
     const ballotSpecs = [
       {
-        ballotStyleId: election.ballotStyles[0].id,
-        precinctId: election.precincts[0].id,
+        ballotStyleId: election.ballotStyles[0]!.id,
+        precinctId: election.precincts[0]!.id,
         ballotFormat: 'summary' as const,
         votes,
       },
@@ -170,14 +170,14 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
     expect(mockComputePageBreaks).toHaveBeenCalledTimes(1);
 
     // renderToPdf should receive 2 documents (one per page)
-    const renderCall = vi.mocked(renderToPdf).mock.calls[0];
+    const renderCall = vi.mocked(renderToPdf).mock.calls[0]!;
     const documents = renderCall[0] as unknown as Array<{
       document: React.ReactElement;
     }>;
     expect(documents).toHaveLength(2);
 
     // Verify page 1 props
-    const page1Props = documents[0].document.props;
+    const page1Props = documents[0]!.document.props;
     expect(page1Props.pageNumber).toEqual(1);
     expect(page1Props.totalPages).toEqual(2);
     expect(
@@ -185,7 +185,7 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
     ).toEqual([...page1ContestIds].sort());
 
     // Verify page 2 props
-    const page2Props = documents[1].document.props;
+    const page2Props = documents[1]!.document.props;
     expect(page2Props.pageNumber).toEqual(2);
     expect(page2Props.totalPages).toEqual(2);
 
@@ -224,14 +224,14 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
 
     const ballotSpecs = [
       {
-        ballotStyleId: election.ballotStyles[0].id,
-        precinctId: election.precincts[0].id,
+        ballotStyleId: election.ballotStyles[0]!.id,
+        precinctId: election.precincts[0]!.id,
         ballotFormat: 'summary' as const,
         votes: votes1,
       },
       {
-        ballotStyleId: election.ballotStyles[0].id,
-        precinctId: election.precincts[0].id,
+        ballotStyleId: election.ballotStyles[0]!.id,
+        precinctId: election.precincts[0]!.id,
         ballotFormat: 'summary' as const,
         votes: votes2,
       },
@@ -292,21 +292,21 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
     expect(mockComputePageBreaks).toHaveBeenCalledTimes(2);
 
     // renderToPdf should receive 3 documents total
-    const renderCall = vi.mocked(renderToPdf).mock.calls[0];
+    const renderCall = vi.mocked(renderToPdf).mock.calls[0]!;
     const documents = renderCall[0] as unknown as Array<{
       document: React.ReactElement;
     }>;
     expect(documents).toHaveLength(3);
 
     // First two documents are multi-page (have pageNumber/totalPages)
-    expect(documents[0].document.props.pageNumber).toEqual(1);
-    expect(documents[0].document.props.totalPages).toEqual(2);
-    expect(documents[1].document.props.pageNumber).toEqual(2);
-    expect(documents[1].document.props.totalPages).toEqual(2);
+    expect(documents[0]!.document.props.pageNumber).toEqual(1);
+    expect(documents[0]!.document.props.totalPages).toEqual(2);
+    expect(documents[1]!.document.props.pageNumber).toEqual(2);
+    expect(documents[1]!.document.props.totalPages).toEqual(2);
 
     // Third document is single-page
-    expect(documents[2].document.props.pageNumber).toEqual(1);
-    expect(documents[2].document.props.totalPages).toEqual(1);
+    expect(documents[2]!.document.props.pageNumber).toEqual(1);
+    expect(documents[2]!.document.props.totalPages).toEqual(1);
 
     // All documents should have correct isLiveMode
     for (const doc of documents) {
@@ -328,14 +328,14 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
 
     const ballotSpecs = [
       {
-        ballotStyleId: election.ballotStyles[0].id,
-        precinctId: election.precincts[0].id,
+        ballotStyleId: election.ballotStyles[0]!.id,
+        precinctId: election.precincts[0]!.id,
         ballotFormat: 'summary' as const,
         votes: createMockVotes([...election.contests]),
       },
       {
-        ballotStyleId: election.ballotStyles[0].id,
-        precinctId: election.precincts[0].id,
+        ballotStyleId: election.ballotStyles[0]!.id,
+        precinctId: election.precincts[0]!.id,
         ballotFormat: 'summary' as const,
         votes: createMockVotes([...election.contests]),
       },
@@ -383,8 +383,8 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
 
     const ballotSpecs = [
       {
-        ballotStyleId: election.ballotStyles[0].id,
-        precinctId: election.precincts[0].id,
+        ballotStyleId: election.ballotStyles[0]!.id,
+        precinctId: election.precincts[0]!.id,
         ballotFormat: 'summary' as const,
         votes: createMockVotes([...election.contests]),
       },
@@ -429,14 +429,14 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
     const votes: VotesDict = {};
     for (const contest of election.contests) {
       if (contest.type === 'candidate') {
-        votes[contest.id] = [contest.candidates[0]];
+        votes[contest.id] = [contest.candidates[0]!];
       }
     }
 
     const ballotSpecs = [
       {
-        ballotStyleId: election.ballotStyles[0].id,
-        precinctId: election.precincts[0].id,
+        ballotStyleId: election.ballotStyles[0]!.id,
+        precinctId: election.precincts[0]!.id,
         ballotFormat: 'summary' as const,
         votes,
       },
@@ -468,13 +468,13 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
     });
 
     // Verify the votes passed to each page's BmdPaperBallot are filtered
-    const renderCall = vi.mocked(renderToPdf).mock.calls[0];
+    const renderCall = vi.mocked(renderToPdf).mock.calls[0]!;
     const documents = renderCall[0] as unknown as Array<{
       document: React.ReactElement;
     }>;
 
-    const page1Votes = documents[0].document.props.votes;
-    const page2Votes = documents[1].document.props.votes;
+    const page1Votes = documents[0]!.document.props.votes;
+    const page2Votes = documents[1]!.document.props.votes;
 
     // Page 1 should only have votes for page 1 contests
     for (const contestId of Object.keys(page1Votes)) {

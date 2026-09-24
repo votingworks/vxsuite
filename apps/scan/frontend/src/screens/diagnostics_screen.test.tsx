@@ -70,7 +70,7 @@ test('renders provided information', async () => {
   apiMock.expectGetMostRecentPrinterDiagnostic();
   apiMock.expectGetConfig({
     electionDefinition: readElectionTwoPartyPrimaryDefinition(),
-    pollingPlaceId: pollingPlace.id,
+    pollingPlaceId: pollingPlace!.id,
   });
 
   renderScreen();

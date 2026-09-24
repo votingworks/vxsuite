@@ -74,7 +74,8 @@ async function adjudicateWriteIn(
       break;
     default:
       // Create other new candidate
-      await combobox.fill(WRITE_IN_NAMES[Math.floor(writeInIndex / 8)]);
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      await combobox.fill(WRITE_IN_NAMES[Math.floor(writeInIndex / 8)]!);
       await page.keyboard.press('Enter');
   }
 }

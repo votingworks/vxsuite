@@ -121,7 +121,8 @@ export function VoterTurnoutReport({
 
   const rows = election.precincts.map((precinct) => {
     const ballotsCast = ballotsByPrecinct.get(precinct.id) ?? 0;
-    const rv = sumRegisteredVoters(registeredVoterCounts[precinct.id]);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const rv = sumRegisteredVoters(registeredVoterCounts[precinct.id]!);
     totalBallotsCast += ballotsCast;
     totalRegisteredVoters += rv;
     return { precinct, ballotsCast, rv };

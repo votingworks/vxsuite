@@ -947,13 +947,13 @@ test('hovering a crossover voted contest shows the warning highlight', async () 
     undefined,
     combinedBallotPrimaryElection
   );
-  demContest.options[0].scannedVote = true; // alice-jones
+  demContest.options[0]!.scannedVote = true; // alice-jones
   const repContest = makeContestAdjudicationData(
     'governor-republican',
     undefined,
     combinedBallotPrimaryElection
   );
-  repContest.options[0].scannedVote = true; // dave-wilson
+  repContest.options[0]!.scannedVote = true; // dave-wilson
   const adjData = makeBallotAdjudicationData(
     CVR_ID_1,
     [demContest, repContest],
@@ -1052,7 +1052,7 @@ test('accept advances to next ballot and blank ballot callout states', async () 
     isResolved: true,
     adjudicatedContests: [
       makeAdjudicatedCvrContest('zoo-council-mammal', {
-        [zooCouncilContest.options[0].definition.id]: true,
+        [zooCouncilContest.options[0]!.definition.id]: true,
       }),
     ],
   });
@@ -1254,17 +1254,17 @@ test('contest list shows correct status line captions', async () => {
 
   // best-animal-mammal: Overvote confirmed
   const [bestAnimalMammal, bestAnimalFish] = contestItems('Best Animal');
-  bestAnimalMammal.getByText('Overvote confirmed');
+  bestAnimalMammal!.getByText('Overvote confirmed');
 
   // best-animal-fish: Undervote confirmed
-  bestAnimalFish.getByText('Undervote confirmed');
+  bestAnimalFish!.getByText('Undervote confirmed');
 
   // zoo-council-mammal: Overvote resolved
   const [zooCouncil, aquariumCouncil] = contestItems('Zoo Council');
-  zooCouncil.getByText('Overvote resolved');
+  zooCouncil!.getByText('Overvote resolved');
 
   // aquarium-council-fish: Overvote resolved; undervote created
-  aquariumCouncil.getByText('Overvote resolved; undervote created');
+  aquariumCouncil!.getByText('Overvote resolved; undervote created');
 
   // new-zoo-either: Overvote created
   getContestListItem('Ballot Measure 1 - Part 1').getByText('Overvote created');
@@ -1431,10 +1431,10 @@ test('contest list shows correct option resolution bullets', async () => {
   );
 
   // Marginal mark on first two candidates (one valid, one invalid)
-  zooCouncil.options[0].hasMarginalMark = true;
-  zooCouncil.options[0].scannedVote = true;
-  zooCouncil.options[1].hasMarginalMark = true;
-  zooCouncil.options[1].scannedVote = false;
+  zooCouncil.options[0]!.hasMarginalMark = true;
+  zooCouncil.options[0]!.scannedVote = true;
+  zooCouncil.options[1]!.hasMarginalMark = true;
+  zooCouncil.options[1]!.scannedVote = false;
 
   // best-animal-mammal: vote adjudication bullets (no marginal marks, no write-ins)
   const bestAnimal = makeContestAdjudicationData(
@@ -1444,7 +1444,7 @@ test('contest list shows correct option resolution bullets', async () => {
     })
   );
   // Mark adjudicated as Invalid (scannedVote=true, adjudicatedVote=false)
-  bestAnimal.options[1].scannedVote = true;
+  bestAnimal.options[1]!.scannedVote = true;
 
   const adjData = makeBallotAdjudicationData(
     CVR_ID_1,
@@ -1455,20 +1455,20 @@ test('contest list shows correct option resolution bullets', async () => {
           contestId: 'zoo-council-mammal',
           adjudicatedContestOptionById: {
             // Marginal marks - official options
-            [zooCouncil.options[0].definition.id]: {
+            [zooCouncil.options[0]!.definition.id]: {
               type: 'official-option',
               hasVote: true,
             },
-            [zooCouncil.options[1].definition.id]: {
+            [zooCouncil.options[1]!.definition.id]: {
               type: 'official-option',
               hasVote: false,
             },
             // Other official candidates (no change, but included for completeness)
-            [zooCouncil.options[2].definition.id]: {
+            [zooCouncil.options[2]!.definition.id]: {
               type: 'official-option',
               hasVote: false,
             },
-            [zooCouncil.options[3].definition.id]: {
+            [zooCouncil.options[3]!.definition.id]: {
               type: 'official-option',
               hasVote: false,
             },
@@ -1491,10 +1491,10 @@ test('contest list shows correct option resolution bullets', async () => {
         },
         makeAdjudicatedCvrContest('best-animal-mammal', {
           // Undetected Mark adjudicated as Valid (scannedVote=false → true)
-          [bestAnimal.options[0].definition.id]: true,
+          [bestAnimal.options[0]!.definition.id]: true,
           // Mark adjudicated as Invalid (scannedVote=true → false)
-          [bestAnimal.options[1].definition.id]: false,
-          [bestAnimal.options[2].definition.id]: false,
+          [bestAnimal.options[1]!.definition.id]: false,
+          [bestAnimal.options[2]!.definition.id]: false,
         }),
       ],
     }
@@ -1567,8 +1567,8 @@ test('contest list shows pending status lines before adjudication', async () => 
   );
 
   // Two marginal marks on official candidates -> "2 marginal marks to adjudicate"
-  zooCouncil.options[0].hasMarginalMark = true;
-  zooCouncil.options[1].hasMarginalMark = true;
+  zooCouncil.options[0]!.hasMarginalMark = true;
+  zooCouncil.options[1]!.hasMarginalMark = true;
 
   // One pending write-in -> "1 write-in to adjudicate"
   zooCouncil.options.push({
@@ -1622,8 +1622,8 @@ test('contest list shows pending status lines before adjudication', async () => 
   const [bestAnimalMammal, bestAnimalFish] = screen
     .getAllByText('Best Animal')
     .map((el) => within(el.closest('li')!));
-  bestAnimalMammal.getByText('Overvote to adjudicate');
-  bestAnimalFish.getByText('Undervote to adjudicate');
+  bestAnimalMammal!.getByText('Overvote to adjudicate');
+  bestAnimalFish!.getByText('Undervote to adjudicate');
 
   apiMock.apiClient.releaseBallotAdjudicationClaim
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
@@ -1639,8 +1639,8 @@ test('contest list only shows overvote/undervote/marginal status lines present i
     'best-animal-mammal',
     makeContestTag({ hasWriteIn: true })
   );
-  writeInOnly.options[0].scannedVote = true;
-  writeInOnly.options[1].hasMarginalMark = true;
+  writeInOnly.options[0]!.scannedVote = true;
+  writeInOnly.options[1]!.hasMarginalMark = true;
   writeInOnly.options.push({
     definition: {
       id: 'write-in-0',
@@ -1779,13 +1779,13 @@ test('crossover voted contests stay listed when limiting adjudication to flagged
     undefined,
     combinedBallotPrimaryElection
   );
-  demContest.options[0].scannedVote = true;
+  demContest.options[0]!.scannedVote = true;
   const repContest = makeContestAdjudicationData(
     'governor-republican',
     undefined,
     combinedBallotPrimaryElection
   );
-  repContest.options[0].scannedVote = true;
+  repContest.options[0]!.scannedVote = true;
   // Partisan contest without a vote and nonpartisan contest with a vote are
   // not implicated in the crossover, so neither is listed
   const unvotedPartisanContest = makeContestAdjudicationData(
@@ -1798,7 +1798,7 @@ test('crossover voted contests stay listed when limiting adjudication to flagged
     undefined,
     combinedBallotPrimaryElection
   );
-  nonpartisanContest.options[0].scannedVote = true;
+  nonpartisanContest.options[0]!.scannedVote = true;
   const adjData = makeBallotAdjudicationData(
     CVR_ID_1,
     [demContest, repContest, unvotedPartisanContest, nonpartisanContest],
@@ -2117,25 +2117,25 @@ test('crossover voting detected during scanning', async () => {
     undefined,
     combinedBallotPrimaryElection
   );
-  demContest.options[0].scannedVote = true; // alice-jones
+  demContest.options[0]!.scannedVote = true; // alice-jones
   const repContest = makeContestAdjudicationData(
     'governor-republican',
     undefined,
     combinedBallotPrimaryElection
   );
-  repContest.options[0].scannedVote = true; // dave-wilson
+  repContest.options[0]!.scannedVote = true; // dave-wilson
   const nonpartisanContest = makeContestAdjudicationData(
     'circuit-court-judge',
     undefined,
     combinedBallotPrimaryElection
   );
-  nonpartisanContest.options[0].scannedVote = true; // margaret-chen
+  nonpartisanContest.options[0]!.scannedVote = true; // margaret-chen
   const ballotMeasure = makeContestAdjudicationData(
     'ballot-measure-1',
     undefined,
     combinedBallotPrimaryElection
   );
-  ballotMeasure.options[0].scannedVote = true; // yes
+  ballotMeasure.options[0]!.scannedVote = true; // yes
   const unvotedPartisanContest = makeContestAdjudicationData(
     'governor-libertarian',
     undefined,
@@ -2196,13 +2196,13 @@ test("crossover voting resolved when one party's vote is removed via adjudicatio
     undefined,
     combinedBallotPrimaryElection
   );
-  demContest.options[0].scannedVote = true; // alice-jones
+  demContest.options[0]!.scannedVote = true; // alice-jones
   const repContest = makeContestAdjudicationData(
     'governor-republican',
     undefined,
     combinedBallotPrimaryElection
   );
-  repContest.options[0].scannedVote = true; // dave-wilson
+  repContest.options[0]!.scannedVote = true; // dave-wilson
   const data = makeBallotAdjudicationData(CVR_ID_1, [demContest, repContest], {
     tag: { isBlankBallot: false, hasCrossoverVote: true },
     adjudicatedContests: [
@@ -2237,13 +2237,13 @@ test('crossover voting confirmed when ballot is resolved without modifying the v
     undefined,
     combinedBallotPrimaryElection
   );
-  demContest.options[0].scannedVote = true; // alice-jones
+  demContest.options[0]!.scannedVote = true; // alice-jones
   const repContest = makeContestAdjudicationData(
     'governor-republican',
     undefined,
     combinedBallotPrimaryElection
   );
-  repContest.options[0].scannedVote = true; // dave-wilson
+  repContest.options[0]!.scannedVote = true; // dave-wilson
   const data = makeBallotAdjudicationData(CVR_ID_1, [demContest, repContest], {
     tag: { isBlankBallot: false, hasCrossoverVote: true },
     isResolved: true,
@@ -2273,7 +2273,7 @@ test('crossover vote created indicator when adjudication introduces a crossover 
     undefined,
     combinedBallotPrimaryElection
   );
-  demContest.options[0].scannedVote = true; // alice-jones
+  demContest.options[0]!.scannedVote = true; // alice-jones
   const repContest = makeContestAdjudicationData(
     'governor-republican',
     undefined,
@@ -2311,7 +2311,7 @@ test('crossover voting created indicator persists when the ballot is resolved', 
     undefined,
     combinedBallotPrimaryElection
   );
-  demContest.options[0].scannedVote = true; // alice-jones
+  demContest.options[0]!.scannedVote = true; // alice-jones
   const repContest = makeContestAdjudicationData(
     'governor-republican',
     undefined,

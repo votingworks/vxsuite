@@ -174,7 +174,8 @@ function Contents(props: { editing: boolean }): React.ReactNode {
   ) {
     if (
       error?.districtId === district.id &&
-      district.name.trim() !== list[index].name.trim()
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      district.name.trim() !== list[index]!.name.trim()
     ) {
       updateDistrictsMutation.reset();
     }
@@ -231,7 +232,8 @@ function Contents(props: { editing: boolean }): React.ReactNode {
               deletedIds.size === 1 ? (
                 <P>
                   Are you sure you want to delete district{' '}
-                  {assertDefined(savedDistrictsById[[...deletedIds][0]]).name}?{' '}
+                  {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
+                  {assertDefined(savedDistrictsById[[...deletedIds][0]!]).name}?{' '}
                   <strong>
                     This will delete all contests associated with the district.
                   </strong>

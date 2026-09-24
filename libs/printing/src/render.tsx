@@ -249,5 +249,6 @@ export async function renderToPdf(
 
   await context.close();
 
-  return ok(Array.isArray(spec) ? buffers : buffers[0]);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return ok(Array.isArray(spec) ? buffers : buffers[0]!);
 }

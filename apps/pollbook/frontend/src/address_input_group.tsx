@@ -72,11 +72,13 @@ export function splitStreetNumberDetails(input: string): {
     const partialMatch = input.match(/^(\d+)([A-Za-z]*)/);
     if (partialMatch) {
       const [, streetNumber, streetSuffix] = partialMatch;
-      const trimmedStreetNumber = streetNumber.slice(
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const trimmedStreetNumber = streetNumber!.slice(
         0,
         VOTER_INPUT_FIELD_LIMITS.streetNumber
       );
-      const trimmedStreetSuffix = streetSuffix.slice(
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const trimmedStreetSuffix = streetSuffix!.slice(
         0,
         VOTER_INPUT_FIELD_LIMITS.streetSuffix
       );

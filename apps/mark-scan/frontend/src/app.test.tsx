@@ -108,7 +108,7 @@ test('uses ballot style management hook', async () => {
   apiMock.expectGetElectionState();
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '1_en',
-    precinctId: electionGeneralDefinition.election.precincts[0].id,
+    precinctId: electionGeneralDefinition.election.precincts[0]!.id,
   });
   apiMock.mockApiClient.updateCardlessVoterBallotStyle
     .expectRepeatedCallsWith({

@@ -316,25 +316,25 @@ describe('Polls status summary display', () => {
       isLive: false,
       reportsByPollingPlace: {
         // First precinct has reports (polls closed)
-        [election.precincts[0].id]: [
+        [election.precincts[0]!.id]: [
           {
             machineId: 'VxScan-001',
             pollsTransitionType: 'close_polls',
-            pollingPlaceId: election.precincts[0].id,
+            pollingPlaceId: election.precincts[0]!.id,
             signedTimestamp: new Date('2024-01-01T18:00:00Z'),
           },
         ],
         // Second precinct has reports (polls open)
-        [election.precincts[1].id]: [
+        [election.precincts[1]!.id]: [
           {
             machineId: 'VxScan-002',
             pollsTransitionType: 'open_polls',
-            pollingPlaceId: election.precincts[1].id,
+            pollingPlaceId: election.precincts[1]!.id,
             signedTimestamp: new Date('2024-01-01T17:30:00Z'),
           },
         ],
         // Third precinct has no reports
-        [election.precincts[2].id]: [],
+        [election.precincts[2]!.id]: [],
       },
     };
 
@@ -378,32 +378,32 @@ describe('Polls status summary display', () => {
       isLive: true,
       reportsByPollingPlace: {
         // All individual precincts have closed polls
-        [election.precincts[0].id]: [
+        [election.precincts[0]!.id]: [
           {
             machineId: 'VxScan-001',
             pollsTransitionType: 'open_polls',
-            pollingPlaceId: election.precincts[0].id,
+            pollingPlaceId: election.precincts[0]!.id,
             signedTimestamp: new Date('2024-01-01T18:00:00Z'),
           },
           {
             machineId: 'VxScan-002',
             pollsTransitionType: 'open_polls',
-            pollingPlaceId: election.precincts[1].id,
+            pollingPlaceId: election.precincts[1]!.id,
             signedTimestamp: new Date('2024-01-01T18:05:00Z'),
           },
         ],
-        [election.precincts[1].id]: [],
-        [election.precincts[2].id]: [
+        [election.precincts[1]!.id]: [],
+        [election.precincts[2]!.id]: [
           {
             machineId: 'VxScan-003',
             pollsTransitionType: 'close_polls',
-            pollingPlaceId: election.precincts[2].id,
+            pollingPlaceId: election.precincts[2]!.id,
             signedTimestamp: new Date('2024-01-01T18:10:00Z'),
           },
           {
             machineId: 'VxScan-005',
             pollsTransitionType: 'close_polls',
-            pollingPlaceId: election.precincts[2].id,
+            pollingPlaceId: election.precincts[2]!.id,
             signedTimestamp: new Date('2024-01-01T18:11:00Z'),
           },
         ],
@@ -445,11 +445,11 @@ describe('Voting group cards', () => {
 
     const pollsStatus = createMockPollsStatusAllGroups(election, true);
     // Need at least one report so the UI renders
-    pollsStatus.reportsByPollingPlace[`ed-${election.precincts[0].id}`] = [
+    pollsStatus.reportsByPollingPlace[`ed-${election.precincts[0]!.id}`] = [
       {
         machineId: 'VxScan-001',
         pollsTransitionType: 'open_polls',
-        pollingPlaceId: `ed-${election.precincts[0].id}`,
+        pollingPlaceId: `ed-${election.precincts[0]!.id}`,
         signedTimestamp: new Date('2024-01-01T07:00:00Z'),
       },
     ];
@@ -482,11 +482,11 @@ describe('Voting group cards', () => {
 
     // election-day-only polling places (from electionWithPollingPlaces)
     const pollsStatus = createMockPollsStatus(election, true);
-    pollsStatus.reportsByPollingPlace[election.precincts[0].id] = [
+    pollsStatus.reportsByPollingPlace[election.precincts[0]!.id] = [
       {
         machineId: 'VxScan-001',
         pollsTransitionType: 'open_polls',
-        pollingPlaceId: election.precincts[0].id,
+        pollingPlaceId: election.precincts[0]!.id,
         signedTimestamp: new Date('2024-01-01T17:00:00Z'),
       },
     ];
@@ -519,11 +519,11 @@ describe('Voting group cards', () => {
 
     const pollsStatus = createMockPollsStatusAllGroups(election, true);
     // Mark some election day places as open
-    pollsStatus.reportsByPollingPlace[`ed-${election.precincts[0].id}`] = [
+    pollsStatus.reportsByPollingPlace[`ed-${election.precincts[0]!.id}`] = [
       {
         machineId: 'VxScan-001',
         pollsTransitionType: 'open_polls',
-        pollingPlaceId: `ed-${election.precincts[0].id}`,
+        pollingPlaceId: `ed-${election.precincts[0]!.id}`,
         signedTimestamp: new Date('2024-01-01T07:00:00Z'),
       },
     ];
@@ -546,8 +546,8 @@ describe('Voting group cards', () => {
     userEvent.click(screen.getByRole('tab', { name: 'Election Day' }));
 
     // Should see election day polling places (wait for query to update)
-    await screen.findByText(`${election.precincts[0].name} Polling Place`);
-    screen.getByText(`${election.precincts[1].name} Polling Place`);
+    await screen.findByText(`${election.precincts[0]!.name} Polling Place`);
+    screen.getByText(`${election.precincts[1]!.name} Polling Place`);
 
     // Should NOT see early voting or absentee places in the table
     expect(screen.queryByTestId('polling-place-row-ev-city-hall')).toBeNull();
@@ -602,7 +602,7 @@ describe('Voting group cards', () => {
 
     // Should NOT see election day or absentee places in the table
     expect(
-      screen.queryByTestId(`polling-place-row-ed-${election.precincts[0].id}`)
+      screen.queryByTestId(`polling-place-row-ed-${election.precincts[0]!.id}`)
     ).toBeNull();
     expect(
       screen.queryByTestId('polling-place-row-abs-county-clerk')
@@ -651,7 +651,7 @@ describe('Voting group cards', () => {
 
     // Should NOT see election day or early voting places in the table
     expect(
-      screen.queryByTestId(`polling-place-row-ed-${election.precincts[0].id}`)
+      screen.queryByTestId(`polling-place-row-ed-${election.precincts[0]!.id}`)
     ).toBeNull();
     expect(screen.queryByTestId('polling-place-row-ev-city-hall')).toBeNull();
 
@@ -671,11 +671,11 @@ describe('Voting group cards', () => {
 
     const pollsStatus = createMockPollsStatusAllGroups(election, true);
     // Set different statuses across types
-    pollsStatus.reportsByPollingPlace[`ed-${election.precincts[0].id}`] = [
+    pollsStatus.reportsByPollingPlace[`ed-${election.precincts[0]!.id}`] = [
       {
         machineId: 'VxScan-001',
         pollsTransitionType: 'close_polls',
-        pollingPlaceId: `ed-${election.precincts[0].id}`,
+        pollingPlaceId: `ed-${election.precincts[0]!.id}`,
         signedTimestamp: new Date('2024-01-01T18:00:00Z'),
       },
     ];
@@ -815,7 +815,7 @@ describe('Voting group cards', () => {
     const edActivityEntry: QuickReportedPollStatus = {
       machineId: 'VxScan-001',
       pollsTransitionType: 'close_polls',
-      pollingPlaceId: `ed-${election.precincts[0].id}`,
+      pollingPlaceId: `ed-${election.precincts[0]!.id}`,
       signedTimestamp: new Date('2024-01-01T18:00:00Z'),
     };
     const absActivityEntry: QuickReportedPollStatus = {
@@ -826,7 +826,7 @@ describe('Voting group cards', () => {
     };
 
     const pollsStatusAll = createMockPollsStatusAllGroups(election, true);
-    pollsStatusAll.reportsByPollingPlace[`ed-${election.precincts[0].id}`] = [
+    pollsStatusAll.reportsByPollingPlace[`ed-${election.precincts[0]!.id}`] = [
       edActivityEntry,
     ];
     pollsStatusAll.reportsByPollingPlace['abs-county-clerk'] = [
@@ -899,11 +899,11 @@ describe('Animation behavior', () => {
     const initialData: Record<string, QuickReportedPollStatus[]> = {
       ...mockPollsStatus.reportsByPollingPlace,
     };
-    initialData[election.precincts[0].id] = [
+    initialData[election.precincts[0]!.id] = [
       {
         machineId: 'VxScan-001',
         pollsTransitionType: 'open_polls',
-        pollingPlaceId: election.precincts[0].id,
+        pollingPlaceId: election.precincts[0]!.id,
         signedTimestamp: new Date('2024-01-01T17:00:00Z'),
       },
     ];
@@ -935,7 +935,7 @@ describe('Animation behavior', () => {
     );
 
     await screen.findByRole('heading', { name: 'Live Reports' });
-    await screen.findByText(election.precincts[0].name);
+    await screen.findByText(election.precincts[0]!.name);
 
     // Should show initial counts - 2 precincts with no reports, 1 with polls open
     expect(screen.getByTestId('no-reports-sent-count')).toHaveTextContent('2');
@@ -948,11 +948,11 @@ describe('Animation behavior', () => {
 
     const updatedData: Record<string, QuickReportedPollStatus[]> = {
       ...initialData,
-      [election.precincts[1].id]: [
+      [election.precincts[1]!.id]: [
         {
           machineId: 'VxScan-002',
           pollsTransitionType: 'open_polls',
-          pollingPlaceId: election.precincts[1].id,
+          pollingPlaceId: election.precincts[1]!.id,
           signedTimestamp: new Date('2024-01-01T18:00:00Z'),
         },
       ],
@@ -975,7 +975,7 @@ describe('Animation behavior', () => {
     // Check that Precinct 2 is updated and highlighted
     await waitFor(() => {
       const precinct2Row = screen.getByTestId(
-        `polling-place-row-${election.precincts[1].id}`
+        `polling-place-row-${election.precincts[1]!.id}`
       );
       expect(precinct2Row).toHaveAttribute('data-highlighted', 'true');
     });
@@ -987,11 +987,11 @@ describe('Animation behavior', () => {
       .resolves(mockSystemSettingsWithUrl);
 
     const initialData = mockPollsStatus.reportsByPollingPlace;
-    initialData[election.precincts[0].id] = [
+    initialData[election.precincts[0]!.id] = [
       {
         machineId: 'VxScan-001',
         pollsTransitionType: 'close_polls' as const,
-        pollingPlaceId: election.precincts[0].id,
+        pollingPlaceId: election.precincts[0]!.id,
         signedTimestamp: new Date('2024-01-01T18:00:00Z'),
       },
     ];
@@ -1026,13 +1026,13 @@ describe('Animation behavior', () => {
 
     // Should show test mode callout
     await screen.findByText('Test Ballot Mode');
-    await screen.findByText(election.precincts[0].name);
+    await screen.findByText(election.precincts[0]!.name);
 
-    initialData[election.precincts[0].id] = [
+    initialData[election.precincts[0]!.id] = [
       {
         machineId: 'VxScan-001',
         pollsTransitionType: 'open_polls' as const,
-        pollingPlaceId: election.precincts[0].id,
+        pollingPlaceId: election.precincts[0]!.id,
         signedTimestamp: new Date('2024-01-01T18:00:00Z'),
       },
     ];
@@ -1064,10 +1064,10 @@ describe('Animation behavior', () => {
     // Check animation state with waitFor to handle async updates
     await waitFor(() => {
       const precinct0Row = screen.getByTestId(
-        `polling-place-row-${election.precincts[0].id}`
+        `polling-place-row-${election.precincts[0]!.id}`
       );
       const precinct1Row = screen.getByTestId(
-        `polling-place-row-${election.precincts[1].id}`
+        `polling-place-row-${election.precincts[1]!.id}`
       );
 
       // Test that the animation behavior is working by verifying the data changes are reflected
@@ -1083,11 +1083,11 @@ describe('Animation behavior', () => {
       .resolves(mockSystemSettingsWithUrl);
 
     const initialData = mockPollsStatus.reportsByPollingPlace;
-    initialData[election.precincts[0].id] = [
+    initialData[election.precincts[0]!.id] = [
       {
         machineId: 'VxScan-001',
         pollsTransitionType: 'open_polls' as const,
-        pollingPlaceId: election.precincts[0].id,
+        pollingPlaceId: election.precincts[0]!.id,
         signedTimestamp: new Date('2024-01-01T17:00:00Z'),
       },
     ];
@@ -1112,21 +1112,21 @@ describe('Animation behavior', () => {
     );
 
     await screen.findByRole('heading', { name: 'Live Reports' });
-    await screen.findByText(election.precincts[0].name);
+    await screen.findByText(election.precincts[0]!.name);
 
     // Should show polls open
     expect(screen.getByTestId('polls-open-count')).toHaveTextContent('1');
     const precinctRow = screen.getByTestId(
-      `polling-place-row-${election.precincts[0].id}`
+      `polling-place-row-${election.precincts[0]!.id}`
     );
     expect(precinctRow).toHaveAttribute('data-highlighted', 'false');
 
     // Update to polls closed
-    initialData[election.precincts[0].id] = [
+    initialData[election.precincts[0]!.id] = [
       {
         machineId: 'VxScan-001',
         pollsTransitionType: 'close_polls' as const,
-        pollingPlaceId: election.precincts[0].id,
+        pollingPlaceId: election.precincts[0]!.id,
         signedTimestamp: new Date('2024-01-01T18:00:00Z'), // Later timestamp
       },
     ];
@@ -1151,7 +1151,7 @@ describe('Animation behavior', () => {
     // Check highlighted state with waitFor to handle async updates
     await waitFor(() => {
       const precinctRowUpdated = screen.getByTestId(
-        `polling-place-row-${election.precincts[0].id}`
+        `polling-place-row-${election.precincts[0]!.id}`
       );
       expect(precinctRowUpdated).toHaveAttribute('data-highlighted', 'true');
     });
@@ -1177,16 +1177,16 @@ describe('Results navigation and display', () => {
       ballotHash: 'abc123def456',
       isLive: false,
       reportsByPollingPlace: {
-        [election.precincts[0].id]: [
+        [election.precincts[0]!.id]: [
           {
             machineId: 'VxScan-001',
             pollsTransitionType: 'close_polls',
-            pollingPlaceId: election.precincts[0].id,
+            pollingPlaceId: election.precincts[0]!.id,
             signedTimestamp: new Date('2024-01-01T18:00:00Z'),
           },
         ],
-        [election.precincts[1].id]: [],
-        [election.precincts[2].id]: [],
+        [election.precincts[1]!.id]: [],
+        [election.precincts[2]!.id]: [],
       },
     };
 
@@ -1228,7 +1228,9 @@ describe('Results navigation and display', () => {
     apiMock.getLiveResultsReports
       .expectCallWith({
         electionId,
-        precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
+        precinctSelection: singlePrecinctSelectionFor(
+          election.precincts[0]!.id
+        ),
       })
       .resolves(ok(mockSinglePrecinctResults));
 
@@ -1237,7 +1239,7 @@ describe('Results navigation and display', () => {
     });
     userEvent.click(precinctSelect);
     const option = await screen.findByRole('option', {
-      name: election.precincts[0].name,
+      name: election.precincts[0]!.name,
     });
     userEvent.click(option);
 
@@ -1264,27 +1266,27 @@ describe('Results navigation and display', () => {
       ballotHash: 'abc123def456',
       isLive: true,
       reportsByPollingPlace: {
-        [election.precincts[0].id]: [
+        [election.precincts[0]!.id]: [
           {
             machineId: 'VxScan-001',
             pollsTransitionType: 'close_polls' as const,
-            pollingPlaceId: election.precincts[0].id,
+            pollingPlaceId: election.precincts[0]!.id,
             signedTimestamp: new Date('2024-01-01T18:00:00Z'),
           },
         ],
-        [election.precincts[1].id]: [
+        [election.precincts[1]!.id]: [
           {
             machineId: 'VxScan-002',
             pollsTransitionType: 'close_polls' as const,
-            pollingPlaceId: election.precincts[1].id,
+            pollingPlaceId: election.precincts[1]!.id,
             signedTimestamp: new Date('2024-01-01T18:05:00Z'),
           },
         ],
-        [election.precincts[2].id]: [
+        [election.precincts[2]!.id]: [
           {
             machineId: 'VxScan-003',
             pollsTransitionType: 'close_polls' as const,
-            pollingPlaceId: election.precincts[2].id,
+            pollingPlaceId: election.precincts[2]!.id,
             signedTimestamp: new Date('2024-01-01T18:10:00Z'),
           },
         ],
@@ -1342,27 +1344,27 @@ describe('Results navigation and display', () => {
       ballotHash: 'abc123def456',
       isLive: true,
       reportsByPollingPlace: {
-        [primaryElection.precincts[0].id]: [
+        [primaryElection.precincts[0]!.id]: [
           {
             machineId: 'VxScan-001',
             pollsTransitionType: 'close_polls' as const,
-            pollingPlaceId: primaryElection.precincts[0].id,
+            pollingPlaceId: primaryElection.precincts[0]!.id,
             signedTimestamp: new Date('2024-01-01T18:00:00Z'),
           },
         ],
-        [primaryElection.precincts[1].id]: [
+        [primaryElection.precincts[1]!.id]: [
           {
             machineId: 'VxScan-002',
             pollsTransitionType: 'close_polls' as const,
-            pollingPlaceId: primaryElection.precincts[1].id,
+            pollingPlaceId: primaryElection.precincts[1]!.id,
             signedTimestamp: new Date('2024-01-01T18:05:00Z'),
           },
         ],
-        [primaryElection.precincts[2].id]: [
+        [primaryElection.precincts[2]!.id]: [
           {
             machineId: 'VxScan-003',
             pollsTransitionType: 'close_polls' as const,
-            pollingPlaceId: primaryElection.precincts[2].id,
+            pollingPlaceId: primaryElection.precincts[2]!.id,
             signedTimestamp: new Date('2024-01-01T18:10:00Z'),
           },
         ],
@@ -1429,27 +1431,27 @@ describe('Results navigation and display', () => {
       ballotHash: 'abc123def456',
       isLive: true,
       reportsByPollingPlace: {
-        [primaryElection.precincts[0].id]: [
+        [primaryElection.precincts[0]!.id]: [
           {
             machineId: 'VxScan-001',
             pollsTransitionType: 'close_polls' as const,
-            pollingPlaceId: primaryElection.precincts[0].id,
+            pollingPlaceId: primaryElection.precincts[0]!.id,
             signedTimestamp: new Date('2024-01-01T18:00:00Z'),
           },
         ],
-        [primaryElection.precincts[1].id]: [
+        [primaryElection.precincts[1]!.id]: [
           {
             machineId: 'VxScan-002',
             pollsTransitionType: 'close_polls' as const,
-            pollingPlaceId: primaryElection.precincts[1].id,
+            pollingPlaceId: primaryElection.precincts[1]!.id,
             signedTimestamp: new Date('2024-01-01T18:05:00Z'),
           },
         ],
-        [primaryElection.precincts[2].id]: [
+        [primaryElection.precincts[2]!.id]: [
           {
             machineId: 'VxScan-003',
             pollsTransitionType: 'close_polls' as const,
-            pollingPlaceId: primaryElection.precincts[2].id,
+            pollingPlaceId: primaryElection.precincts[2]!.id,
             signedTimestamp: new Date('2024-01-01T18:10:00Z'),
           },
         ],
@@ -1497,7 +1499,7 @@ describe('Results navigation and display', () => {
       .expectCallWith({
         electionId: primaryElection.id,
         precinctSelection: singlePrecinctSelectionFor(
-          primaryElection.precincts[0].id
+          primaryElection.precincts[0]!.id
         ),
       })
       .resolves(ok(mockPrecinct0Results));
@@ -1507,7 +1509,7 @@ describe('Results navigation and display', () => {
     });
     userEvent.click(precinctSelect);
     const option = await screen.findByRole('option', {
-      name: primaryElection.precincts[0].name,
+      name: primaryElection.precincts[0]!.name,
     });
     userEvent.click(option);
 
@@ -1535,16 +1537,16 @@ describe('Results navigation and display', () => {
       ballotHash: 'abc123def456',
       isLive: false,
       reportsByPollingPlace: {
-        [election.precincts[0].id]: [
+        [election.precincts[0]!.id]: [
           {
             machineId: 'VxScan-001',
             pollsTransitionType: 'close_polls' as const,
-            pollingPlaceId: election.precincts[0].id,
+            pollingPlaceId: election.precincts[0]!.id,
             signedTimestamp: new Date('2024-01-01T18:00:00Z'),
           },
         ],
-        [election.precincts[1].id]: [],
-        [election.precincts[2].id]: [],
+        [election.precincts[1]!.id]: [],
+        [election.precincts[2]!.id]: [],
       },
     };
 
@@ -1614,11 +1616,11 @@ describe('Edge cases', () => {
       .resolves(mockSystemSettingsWithUrl);
 
     const pollsStatus = createMockPollsStatus(election, true);
-    pollsStatus.reportsByPollingPlace[election.precincts[0].id] = [
+    pollsStatus.reportsByPollingPlace[election.precincts[0]!.id] = [
       {
         machineId: 'VxScan-001',
         pollsTransitionType: 'close_polls',
-        pollingPlaceId: election.precincts[0].id,
+        pollingPlaceId: election.precincts[0]!.id,
         signedTimestamp: new Date('2024-01-01T18:00:00Z'),
       },
     ];
@@ -1644,11 +1646,11 @@ describe('Edge cases', () => {
 
     const pollsStatus = createMockPollsStatus(election, true);
     // Put a report in the table so the UI renders
-    pollsStatus.reportsByPollingPlace[election.precincts[0].id] = [
+    pollsStatus.reportsByPollingPlace[election.precincts[0]!.id] = [
       {
         machineId: 'VxScan-001',
         pollsTransitionType: 'close_polls',
-        pollingPlaceId: election.precincts[0].id,
+        pollingPlaceId: election.precincts[0]!.id,
         signedTimestamp: new Date('2024-01-01T18:00:00Z'),
       },
     ];
@@ -1658,25 +1660,25 @@ describe('Edge cases', () => {
       {
         machineId: 'VxScan-open',
         pollsTransitionType: 'open_polls',
-        pollingPlaceId: election.precincts[0].id,
+        pollingPlaceId: election.precincts[0]!.id,
         signedTimestamp: new Date('2024-01-01T07:00:00Z'),
       },
       {
         machineId: 'VxScan-paused',
         pollsTransitionType: 'pause_voting',
-        pollingPlaceId: election.precincts[0].id,
+        pollingPlaceId: election.precincts[0]!.id,
         signedTimestamp: new Date('2024-01-01T08:00:00Z'),
       },
       {
         machineId: 'VxScan-resumed',
         pollsTransitionType: 'resume_voting',
-        pollingPlaceId: election.precincts[0].id,
+        pollingPlaceId: election.precincts[0]!.id,
         signedTimestamp: new Date('2024-01-01T09:00:00Z'),
       },
       {
         machineId: 'VxScan-closed',
         pollsTransitionType: 'close_polls',
-        pollingPlaceId: election.precincts[0].id,
+        pollingPlaceId: election.precincts[0]!.id,
         signedTimestamp: new Date('2024-01-01T18:00:00Z'),
       },
       {
@@ -1713,11 +1715,11 @@ describe('Edge cases', () => {
       .resolves(mockSystemSettingsWithUrl);
 
     const pollsStatus = createMockPollsStatus(election, true);
-    pollsStatus.reportsByPollingPlace[election.precincts[0].id] = [
+    pollsStatus.reportsByPollingPlace[election.precincts[0]!.id] = [
       {
         machineId: 'VxScan-001',
         pollsTransitionType: 'close_polls',
-        pollingPlaceId: election.precincts[0].id,
+        pollingPlaceId: election.precincts[0]!.id,
         signedTimestamp: new Date('2024-01-01T18:00:00Z'),
       },
     ];
@@ -1746,7 +1748,9 @@ describe('Edge cases', () => {
     apiMock.getLiveResultsReports
       .expectCallWith({
         electionId,
-        precinctSelection: singlePrecinctSelectionFor(election.precincts[0].id),
+        precinctSelection: singlePrecinctSelectionFor(
+          election.precincts[0]!.id
+        ),
       })
       .resolves(ok(singlePrecinctResults));
     const precinctSelect = screen.getByRole('combobox', {
@@ -1755,7 +1759,7 @@ describe('Edge cases', () => {
     userEvent.click(precinctSelect);
     userEvent.click(
       await screen.findByRole('option', {
-        name: election.precincts[0].name,
+        name: election.precincts[0]!.name,
       })
     );
     await waitFor(() => {
@@ -1784,11 +1788,11 @@ describe('Edge cases', () => {
       .resolves(mockSystemSettingsWithUrl);
 
     const pollsStatus = createMockPollsStatus(election, true);
-    pollsStatus.reportsByPollingPlace[election.precincts[0].id] = [
+    pollsStatus.reportsByPollingPlace[election.precincts[0]!.id] = [
       {
         machineId: 'VxScan-001',
         pollsTransitionType: 'close_polls',
-        pollingPlaceId: election.precincts[0].id,
+        pollingPlaceId: election.precincts[0]!.id,
         signedTimestamp: new Date('2024-01-01T18:00:00Z'),
       },
     ];
@@ -1820,11 +1824,11 @@ describe('Edge cases', () => {
       .resolves(mockSystemSettingsWithUrl);
 
     const pollsStatus = createMockPollsStatus(election, true);
-    pollsStatus.reportsByPollingPlace[election.precincts[0].id] = [
+    pollsStatus.reportsByPollingPlace[election.precincts[0]!.id] = [
       {
         machineId: 'VxScan-001',
         pollsTransitionType: 'close_polls',
-        pollingPlaceId: election.precincts[0].id,
+        pollingPlaceId: election.precincts[0]!.id,
         signedTimestamp: new Date('2024-01-01T18:00:00Z'),
       },
     ];

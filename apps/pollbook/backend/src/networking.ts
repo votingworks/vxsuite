@@ -110,10 +110,12 @@ export function fetchEventsFromConnectedPollbooks({
         // Maintain a queue of pollbooks to visit, refill and shuffle when empty
         const pollbookNamesToVisit = Object.keys(previouslyConnected).filter(
           (name) =>
-            previouslyConnected[name].status ===
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            previouslyConnected[name]!.status ===
               PollbookConnectionStatus.Connected &&
             // We don't need to fetch events from ourselves
-            previouslyConnected[name].machineId !==
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            previouslyConnected[name]!.machineId !==
               myMachineInformation.machineId
         );
         if (pollbookQueue.length === 0) {
@@ -128,7 +130,8 @@ export function fetchEventsFromConnectedPollbooks({
 
         await Promise.all(
           pollbooksToQuery.map(async (currentName) => {
-            const currentPollbookService = previouslyConnected[currentName];
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const currentPollbookService = previouslyConnected[currentName]!;
             // @coverage-exclude: extremely unlikely scenario, a machine would need to change code versions to trigger included for defense in depth
             if (
               !arePollbooksCompatible(

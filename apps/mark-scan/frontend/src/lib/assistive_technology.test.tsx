@@ -70,20 +70,20 @@ test('accessible controller handling works', async () => {
   simulateKeyPress(Keybinding.FOCUS_NEXT);
   expect(getActiveElement()).toHaveTextContent(contest0.title);
   simulateKeyPress(Keybinding.FOCUS_NEXT);
-  expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
+  expect(getActiveElement()).toHaveTextContent(contest0candidate0!.name);
   simulateKeyPress(Keybinding.FOCUS_NEXT);
-  expect(getActiveElement()).toHaveTextContent(contest0candidate1.name);
+  expect(getActiveElement()).toHaveTextContent(contest0candidate1!.name);
   simulateKeyPress(Keybinding.FOCUS_PREVIOUS);
-  expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
+  expect(getActiveElement()).toHaveTextContent(contest0candidate0!.name);
 
   // test the edge case of rolling over
   await waitFor(() => {
     simulateKeyPress(Keybinding.FOCUS_PREVIOUS);
-    expect(getActiveElement()).toHaveTextContent(contest0candidate1.name);
+    expect(getActiveElement()).toHaveTextContent(contest0candidate1!.name);
   });
   await waitFor(() => {
     simulateKeyPress(Keybinding.FOCUS_NEXT);
-    expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
+    expect(getActiveElement()).toHaveTextContent(contest0candidate0!.name);
   });
 
   simulateKeyPress(Keybinding.PAGE_NEXT);
@@ -95,7 +95,7 @@ test('accessible controller handling works', async () => {
   expect(getActiveElement()).toHaveTextContent(contest1.title);
   // Navigating down once more reaches the first contest option.
   simulateKeyPress(Keybinding.FOCUS_NEXT);
-  expect(getActiveElement()).toHaveTextContent(contest1candidate0.name);
+  expect(getActiveElement()).toHaveTextContent(contest1candidate0!.name);
   simulateKeyPress(Keybinding.PAGE_PREVIOUS);
   await advanceTimersAndPromises();
 
@@ -103,24 +103,24 @@ test('accessible controller handling works', async () => {
   simulateKeyPress(Keybinding.FOCUS_NEXT);
   expect(getActiveElement()).toHaveTextContent(contest0.title);
   simulateKeyPress(Keybinding.FOCUS_NEXT);
-  expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
+  expect(getActiveElement()).toHaveTextContent(contest0candidate0!.name);
 
   // select candidate
   simulateKeyPress(Keybinding.SELECT);
   await screen.findByRole('option', {
-    name: new RegExp(contest0candidate0.name),
+    name: new RegExp(contest0candidate0!.name),
     selected: true,
   });
 
   simulateKeyPress(Keybinding.SELECT);
   await screen.findByRole('option', {
-    name: new RegExp(contest0candidate0.name),
+    name: new RegExp(contest0candidate0!.name),
     selected: false,
   });
 
   // Confirm 'Okay' is only active element on page. Modal is "true" modal.
-  userEvent.click(screen.getByText(contest0candidate0.name));
-  userEvent.click(screen.getByText(contest0candidate1.name));
+  userEvent.click(screen.getByText(contest0candidate0!.name));
+  userEvent.click(screen.getByText(contest0candidate1!.name));
   simulateKeyPress(Keybinding.FOCUS_NEXT); // selects Okay button
   simulateKeyPress(Keybinding.FOCUS_NEXT); // Okay button should still be selected
   simulateKeyPress(Keybinding.FOCUS_NEXT); // Okay button should still be selected
@@ -159,14 +159,14 @@ test('auto-focuses "next" button on contest screen after voting', async () => {
   simulateKeyPress(Keybinding.PAT_MOVE);
   expect(getActiveElement()).toHaveTextContent(contest0.title);
   simulateKeyPress(Keybinding.PAT_MOVE);
-  expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
+  expect(getActiveElement()).toHaveTextContent(contest0candidate0!.name);
   simulateKeyPress(Keybinding.PAT_MOVE);
-  expect(getActiveElement()).toHaveTextContent(contest0candidate1.name);
+  expect(getActiveElement()).toHaveTextContent(contest0candidate1!.name);
 
   // select candidate
   simulateKeyPress(Keybinding.PAT_SELECT);
   await screen.findByRole('option', {
-    name: new RegExp(contest0candidate1.name),
+    name: new RegExp(contest0candidate1!.name),
     selected: true,
   });
 

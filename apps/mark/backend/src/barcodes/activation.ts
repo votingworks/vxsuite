@@ -154,7 +154,8 @@ export function setUpBarcodeActivation(ctx: Context): void {
 function ballotStyleForPollingPlace(election: Election, placeId?: string) {
   assert(!!placeId);
   const place = pollingPlaceFromElection(election, placeId);
-  const ballotStyle = pollingPlaceBallotStyles(election, place)[0];
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const ballotStyle = pollingPlaceBallotStyles(election, place)[0]!;
   const precinctId = find(ballotStyle.precincts, (p) => p in place.precincts);
 
   return { ballotStyle, precinctId };

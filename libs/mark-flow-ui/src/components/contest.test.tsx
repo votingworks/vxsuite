@@ -49,7 +49,7 @@ test.each([
 ])('candidate contest %s', (_, vote) => {
   render(
     <Contest
-      ballotStyleId={electionGeneral.ballotStyles[0].id}
+      ballotStyleId={electionGeneral.ballotStyles[0]!.id}
       election={electionGeneral}
       contest={candidateContest}
       votes={{
@@ -65,7 +65,7 @@ test.each([
 test('straight party contest', () => {
   render(
     <Contest
-      ballotStyleId={electionStraightParty.ballotStyles[0].id}
+      ballotStyleId={electionStraightParty.ballotStyles[0]!.id}
       election={electionStraightParty}
       contest={straightPartyContest}
       votes={{
@@ -85,7 +85,7 @@ test('candidate contest reflects straight party derived votes', () => {
   );
   render(
     <Contest
-      ballotStyleId={electionStraightParty.ballotStyles[0].id}
+      ballotStyleId={electionStraightParty.ballotStyles[0]!.id}
       election={electionStraightParty}
       contest={presidentContest}
       votes={{ [straightPartyContest.id]: ['0'] }}
@@ -94,7 +94,7 @@ test('candidate contest reflects straight party derived votes', () => {
   );
 
   const button = screen
-    .getByText(presidentContest.candidates[0].name)
+    .getByText(presidentContest.candidates[0]!.name)
     .closest('button')!;
   expect(button).toHaveAttribute('aria-selected', 'true');
   within(button).getByText(/straight party vote/i);
@@ -127,33 +127,33 @@ test('write-in character limit across contests', () => {
   }
 
   const votes: VotesDict = {
-    [singleSeatCandidateContests[0].id]: [
+    [singleSeatCandidateContests[0]!.id]: [
       createWriteIn('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 0),
     ],
-    [singleSeatCandidateContests[1].id]: [
-      singleSeatCandidateContests[1].candidates[0],
+    [singleSeatCandidateContests[1]!.id]: [
+      singleSeatCandidateContests[1]!.candidates[0]!,
     ],
-    [manySeatCandidateContests[0].id]: [
-      manySeatCandidateContests[0].candidates[0],
+    [manySeatCandidateContests[0]!.id]: [
+      manySeatCandidateContests[0]!.candidates[0]!,
       createWriteIn('ABCDEF 123456', 0),
       createWriteIn('ABC', 1),
     ],
-    [manySeatCandidateContests[1].id]: [createWriteIn('A', 0)],
-    [yesNoContests[0].id]: [yesNoContests[0].options[0].id],
+    [manySeatCandidateContests[1]!.id]: [createWriteIn('A', 0)],
+    [yesNoContests[0]!.id]: [yesNoContests[0]!.options[0].id],
   };
 
   render(
     <Contest
-      ballotStyleId={electionGeneral.ballotStyles[0].id}
+      ballotStyleId={electionGeneral.ballotStyles[0]!.id}
       election={electionGeneral}
-      contest={manySeatCandidateContests[1]}
+      contest={manySeatCandidateContests[1]!}
       votes={votes}
       updateVote={vi.fn()}
       numWriteInCharactersAllowedAcrossContests={60}
     />
   );
 
-  screen.getByText(manySeatCandidateContests[1].title);
+  screen.getByText(manySeatCandidateContests[1]!.title);
   userEvent.click(
     screen.getByText('add write-in candidate').closest('button')!
   );
@@ -168,7 +168,7 @@ test('write-in character limit across contests', () => {
 test('yesno contest', () => {
   render(
     <Contest
-      ballotStyleId={electionGeneral.ballotStyles[0].id}
+      ballotStyleId={electionGeneral.ballotStyles[0]!.id}
       election={electionGeneral}
       contest={yesnoContest}
       votes={{
@@ -185,7 +185,7 @@ test('renders ms-either-neither contests', () => {
   const updateVote = vi.fn();
   render(
     <Contest
-      ballotStyleId={electionWithMsEitherNeither.ballotStyles[0].id}
+      ballotStyleId={electionWithMsEitherNeither.ballotStyles[0]!.id}
       election={electionWithMsEitherNeither}
       contest={msEitherNeitherContest}
       votes={{}}

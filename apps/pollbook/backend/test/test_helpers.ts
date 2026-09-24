@@ -295,6 +295,7 @@ export function createTestPeerStore(
   );
   const testElection = getTestElectionDefinition();
   store.setElectionAndVoters(testElection, 'mock-package-hash', [], voters);
-  store.setConfiguredPrecinct(testElection.election.precincts[0].id);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  store.setConfiguredPrecinct(testElection.election.precincts[0]!.id);
   return store;
 }

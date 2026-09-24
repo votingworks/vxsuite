@@ -22,8 +22,10 @@ export function renderDiagnosticMockBallot(
   const { election } = electionDefinition;
   return renderTestModeBallotWithoutLanguageContext(
     electionDefinition,
-    election.precincts[0].id,
-    election.ballotStyles[0].id,
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    election.precincts[0]!.id,
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    election.ballotStyles[0]!.id,
     generateMockVotes(election)
   );
 }

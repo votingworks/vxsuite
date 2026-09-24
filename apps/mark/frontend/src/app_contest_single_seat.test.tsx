@@ -53,7 +53,7 @@ test('Single Seat Contest', async () => {
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12',
-    precinctId,
+    precinctId: precinctId!,
   });
 
   // Go to First Contest
@@ -62,8 +62,8 @@ test('Single Seat Contest', async () => {
 
   // ====================== END CONTEST SETUP ====================== //
 
-  const candidate0 = presidentContest.candidates[0].name;
-  const candidate1 = presidentContest.candidates[1].name;
+  const candidate0 = presidentContest.candidates[0]!.name;
+  const candidate1 = presidentContest.candidates[1]!.name;
 
   screen.getByText(presidentContest.title);
 

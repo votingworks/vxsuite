@@ -40,7 +40,7 @@ describe('SummaryBallotLayoutRenderer', () => {
       );
 
       expect(result.length).toEqual(1);
-      expect(result[0].contestIds.length).toEqual(5);
+      expect(result[0]!.contestIds.length).toEqual(5);
     } finally {
       await renderer.close();
     }

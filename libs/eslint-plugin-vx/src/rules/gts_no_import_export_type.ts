@@ -62,8 +62,10 @@ const rule: TSESLint.RuleModule<
 
       const [def] = variable.defs;
 
-      assert(def.node.parent);
-      if (def.node.parent.type !== AST_NODE_TYPES.ImportDeclaration) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      assert(def!.node.parent);
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      if (def!.node.parent.type !== AST_NODE_TYPES.ImportDeclaration) {
         return false;
       }
 
@@ -75,12 +77,17 @@ const rule: TSESLint.RuleModule<
 
       // A reference to a type must have at least a grandparent node, even
       // though a non-type reference doesn't have to.
-      assert(reference.identifier.parent && reference.identifier.parent.parent);
+      assert(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        reference!.identifier.parent && reference!.identifier.parent.parent
+      );
 
       if (
-        reference.identifier.parent.type !==
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        reference!.identifier.parent.type !==
           AST_NODE_TYPES.ExportAllDeclaration &&
-        reference.identifier.parent.parent.type !==
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        reference!.identifier.parent.parent.type !==
           AST_NODE_TYPES.ExportNamedDeclaration
       ) {
         return false;
@@ -98,14 +105,18 @@ const rule: TSESLint.RuleModule<
       const [exportToken, typeToken] = sourceCode.getFirstTokens(node, {
         count: 2,
       });
-      assert.equal(exportToken.value, 'export');
-      assert.equal(typeToken.value, 'type');
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      assert.equal(exportToken!.value, 'export');
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      assert.equal(typeToken!.value, 'type');
 
       context.report({
-        node: typeToken,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        node: typeToken!,
         messageId: 'noExportType',
         fix: (fixer) =>
-          fixer.removeRange([exportToken.range[1], typeToken.range[1]]),
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          fixer.removeRange([exportToken!.range[1], typeToken!.range[1]]),
       });
     }
 
@@ -118,8 +129,10 @@ const rule: TSESLint.RuleModule<
         const [importToken, typeToken] = sourceCode.getFirstTokens(node, {
           count: 2,
         });
-        assert.equal(importToken.value, 'import');
-        assert.equal(typeToken.value, 'type');
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        assert.equal(importToken!.value, 'import');
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        assert.equal(typeToken!.value, 'type');
 
         // import type { foo } from 'foo'
         // export type { foo }
@@ -133,10 +146,12 @@ const rule: TSESLint.RuleModule<
         }
 
         context.report({
-          node: typeToken,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          node: typeToken!,
           messageId: 'noImportType',
           fix: (fixer) =>
-            fixer.removeRange([importToken.range[1], typeToken.range[1]]),
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            fixer.removeRange([importToken!.range[1], typeToken!.range[1]]),
         });
       },
 

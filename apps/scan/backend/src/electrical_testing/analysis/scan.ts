@@ -108,8 +108,10 @@ export class ScanningSession {
       const sorted = [...values].sort();
       const median =
         sorted.length % 2 === 0
-          ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
-          : sorted[Math.floor(sorted.length / 2)];
+          ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            (sorted[sorted.length / 2 - 1]! + sorted[sorted.length / 2]!) / 2
+          : // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            sorted[Math.floor(sorted.length / 2)]!;
       const variance =
         sorted.reduce((sum, value) => sum + (value - mean) ** 2, 0) /
         sorted.length;

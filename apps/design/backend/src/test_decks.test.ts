@@ -64,7 +64,7 @@ describe('createPrecinctTestDeck', () => {
     const fixtures = vxFamousNamesFixtures;
     const { electionDefinition } = vxFamousNamesFixtures;
     const { election } = electionDefinition;
-    const precinctId = election.precincts[0].id;
+    const precinctId = election.precincts[0]!.id;
     assert(
       CachedElectionLookups.getBallotStylesByPrecinctId(
         electionDefinition,
@@ -119,11 +119,11 @@ describe('createPrecinctTestDeck', () => {
         props.ballotMode === 'test' && props.ballotType === BallotType.Precinct
     );
     const [precinct] = election.precincts;
-    assert(!hasSplits(precinct));
+    assert(!hasSplits(precinct!));
     assert(
       getBallotStyleGroupsForPrecinctOrSplit({
         election,
-        precinctOrSplit: { precinct },
+        precinctOrSplit: { precinct: precinct! },
       }).length > 1
     );
     const layouts = await layOutBallotsAndCreateElectionDefinition(
@@ -140,7 +140,7 @@ describe('createPrecinctTestDeck', () => {
 
     const ballotSpecs = generateTestDeckBallots({
       election,
-      precinctId: precinct.id,
+      precinctId: precinct!.id,
       ballotFormat: 'bubble',
     });
     const testDeckDocument = await createPrecinctTestDeck({
@@ -153,7 +153,7 @@ describe('createPrecinctTestDeck', () => {
   });
 
   test('for a precinct with no ballot styles', async () => {
-    const fixtures = vxGeneralElectionFixtures.fixtureSpecs[0];
+    const fixtures = vxGeneralElectionFixtures.fixtureSpecs[0]!;
     const electionDefinition = (
       await readElection(fixtures.electionPath)
     ).unsafeUnwrap();
@@ -170,7 +170,7 @@ describe('createPrecinctTestDeck', () => {
 
 describe('createTestDeckTallyReports', () => {
   test('without summary ballots', async () => {
-    const fixtures = vxGeneralElectionFixtures.fixtureSpecs[0];
+    const fixtures = vxGeneralElectionFixtures.fixtureSpecs[0]!;
     const electionDefinition = (
       await readElection(fixtures.electionPath)
     ).unsafeUnwrap();
@@ -207,7 +207,7 @@ describe('createTestDeckTallyReports', () => {
   });
 
   test('with summary ballots', async () => {
-    const fixtures = vxGeneralElectionFixtures.fixtureSpecs[0];
+    const fixtures = vxGeneralElectionFixtures.fixtureSpecs[0]!;
     const electionDefinition = (
       await readElection(fixtures.electionPath)
     ).unsafeUnwrap();
@@ -248,7 +248,7 @@ describe('createTestDeckTallyReports', () => {
       vxFamousNamesFixtures;
     const { election: baseElection } = baseElectionDefinition;
 
-    const singlePrecinct = baseElection.precincts[0];
+    const singlePrecinct = baseElection.precincts[0]!;
     const singlePrecinctElection: Election = {
       ...baseElection,
       precincts: [singlePrecinct],

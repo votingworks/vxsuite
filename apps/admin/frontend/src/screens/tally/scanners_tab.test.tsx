@@ -42,7 +42,7 @@ test('renders a row per scanner with polling place and status', async () => {
     connectedScanners: [
       mockScanner({
         machineId: 'CS-01',
-        pollingPlaceId: place1.id,
+        pollingPlaceId: place1!.id,
       }),
       mockScanner({
         machineId: 'CS-02',
@@ -61,14 +61,14 @@ test('renders a row per scanner with polling place and status', async () => {
 
   const rows = screen.getAllByRole('row').slice(1); // skip header
   expect(rows.map((row) => row.textContent)).toEqual([
-    `CS-01${place1.name} Connected1,4123Now`,
+    `CS-01${place1!.name} Connected1,4123Now`,
     'CS-02— Offline00Now',
     'CS-03not-a-real-place Connected00Now',
   ]);
   // Distinct glyphs, not just color, differentiate connected/offline
-  expect(rows[0].querySelector("[data-icon='circle-check']")).toBeTruthy();
+  expect(rows[0]!.querySelector("[data-icon='circle-check']")).toBeTruthy();
   expect(
-    rows[1].querySelector("[data-icon='circle-exclamation']")
+    rows[1]!.querySelector("[data-icon='circle-exclamation']")
   ).toBeTruthy();
 });
 

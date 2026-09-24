@@ -26,6 +26,6 @@ test('updates context isVisualModeDisabled when button is pressed', () => {
   });
 
   expect(currentTheme!.isVisualModeDisabled).toEqual(true);
-  userEvent.click(screen.getAllByText('Exit Audio-Only Mode')[0]);
+  userEvent.click(screen.getAllByText('Exit Audio-Only Mode')[0]!);
   expect(currentTheme!.isVisualModeDisabled).toEqual(false);
 });

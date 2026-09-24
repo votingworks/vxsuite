@@ -200,8 +200,8 @@ test('splits a contest into separate districts when wards have differing candida
       ballotStyle: ballotStyleForWard(election, ward),
     });
     expect(contests).toHaveLength(1);
-    assert(contests[0].type === 'candidate');
-    expect(contests[0].candidates.map((c) => c.name)).toEqual(
+    assert(contests[0]!.type === 'candidate');
+    expect(contests[0]!.candidates.map((c) => c.name)).toEqual(
       expectedCandidates
     );
   }
@@ -223,9 +223,9 @@ test('converts a town general election', () => {
   expect(election.type).toEqual('general');
   expect(election.precincts.map((p) => p.name)).toEqual(['Sample City']);
   expect(election.ballotStyles).toHaveLength(1);
-  expect(election.ballotStyles[0].partyId).toBeUndefined();
+  expect(election.ballotStyles[0]!.partyId).toBeUndefined();
 
-  const contest = election.contests[0];
+  const contest = election.contests[0]!;
   assert(contest.type === 'candidate');
   expect(
     contest.candidates.map((c) => ({
@@ -253,7 +253,7 @@ test('calculates ballot style districts across precincts/parties', () => {
 
   // A ballot style's districts list is the union of all districts in its
   // precinct
-  const precinct = election.precincts[0];
+  const precinct = election.precincts[0]!;
   assert('districtIds' in precinct);
   expect(precinct.districtIds).toHaveLength(2);
   for (const ballotStyle of election.ballotStyles) {
@@ -314,7 +314,7 @@ test('normalizes whitespace when matching candidate names across files', () => {
   const election = convertNhElection([ward1, ward2], testSignatureImage);
 
   expect(election.contests).toHaveLength(1);
-  const contest = election.contests[0];
+  const contest = election.contests[0]!;
   assert(contest.type === 'candidate');
   expect(contest.candidates.map((c) => c.name)).toEqual(['Ann Smith']);
 });
@@ -365,7 +365,7 @@ test('joins multi-line candidate names', () => {
 
   const election = convertNhElection([ward1], testSignatureImage);
 
-  const contest = election.contests[0];
+  const contest = election.contests[0]!;
   assert(contest.type === 'candidate');
   expect(contest.candidates.map((c) => c.name)).toEqual([
     'Jane Smith<br/>John Doe',
@@ -379,7 +379,7 @@ test('converts a contest with no declared candidates (write-ins only)', () => {
 
   const election = convertNhElection([ward1], testSignatureImage);
 
-  const contest = election.contests[0];
+  const contest = election.contests[0]!;
   assert(contest.type === 'candidate');
   expect(contest.candidates).toEqual([]);
   expect(contest.allowWriteIns).toEqual(true);

@@ -47,11 +47,11 @@ test('single task', async () => {
   expect(buttons).toHaveLength(1);
 
   // Toggle the task once.
-  userEvent.click(buttons[0]);
+  userEvent.click(buttons[0]!);
   expect(toggleIsRunning).toHaveBeenCalledOnce();
 
   // Clicking again calls again.
-  userEvent.click(buttons[0]);
+  userEvent.click(buttons[0]!);
   expect(toggleIsRunning).toHaveBeenCalledTimes(2);
 });
 
@@ -97,12 +97,12 @@ test('multiple tasks', async () => {
   expect(buttons).toHaveLength(2);
 
   // Toggle the second task once.
-  userEvent.click(buttons[1]);
+  userEvent.click(buttons[1]!);
   expect(toggleIsRunning1).not.toHaveBeenCalled();
   expect(toggleIsRunning2).toHaveBeenCalledOnce();
 
   // Clicking again calls again.
-  userEvent.click(buttons[1]);
+  userEvent.click(buttons[1]!);
   expect(toggleIsRunning1).not.toHaveBeenCalled();
   expect(toggleIsRunning2).toHaveBeenCalledTimes(2);
 });

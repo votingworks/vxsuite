@@ -506,11 +506,11 @@ test('ballot styles with same districts but different rotations in different pre
   const cdf = convertVxfElectionToCdfBallotDefinition(vxfElection);
 
   // Verify that each ballot style only references its own precinct
-  const ballotStyle1 = cdf.Election[0].BallotStyle.find(
-    (bs) => bs.ExternalIdentifier[0].Value === 'ballot-style-1'
+  const ballotStyle1 = cdf.Election[0]!.BallotStyle.find(
+    (bs) => bs.ExternalIdentifier[0]!.Value === 'ballot-style-1'
   );
-  const ballotStyle2 = cdf.Election[0].BallotStyle.find(
-    (bs) => bs.ExternalIdentifier[0].Value === 'ballot-style-2'
+  const ballotStyle2 = cdf.Election[0]!.BallotStyle.find(
+    (bs) => bs.ExternalIdentifier[0]!.Value === 'ballot-style-2'
   );
 
   expect(ballotStyle1?.GpUnitIds).toEqual(['precinct-1']);
@@ -525,9 +525,11 @@ test('ballot styles with same districts but different rotations in different pre
   );
 
   expect(
-    contest1InBallotStyle1?.Physical[0].PhysicalContestOption[0].ContestOptionId
+    contest1InBallotStyle1?.Physical[0]!.PhysicalContestOption[0]!
+      .ContestOptionId
   ).toEqual('contest-1-option-candidate-1');
   expect(
-    contest1InBallotStyle2?.Physical[0].PhysicalContestOption[0].ContestOptionId
+    contest1InBallotStyle2?.Physical[0]!.PhysicalContestOption[0]!
+      .ContestOptionId
   ).toEqual('contest-1-option-candidate-2');
 });

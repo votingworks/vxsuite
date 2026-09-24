@@ -1244,12 +1244,12 @@ describe('multiple report copies', () => {
 
     // First page prints during the transition; each subsequent page via the button
     await screen.findByText('Closing Polls…');
-    resolvers[0].resolve();
+    resolvers[0]!.resolve();
     await screen.findByText(/Finished printing report 1 of 6/);
     for (let page = 2; page <= 6; page += 1) {
       userEvent.click(screen.getButton('Print Next Report'));
       await screen.findByText(new RegExp(`Printing report ${page} of 6`));
-      resolvers[page - 1].resolve();
+      resolvers[page - 1]!.resolve();
       if (page < 6) {
         await screen.findByText(
           new RegExp(`Finished printing report ${page} of 6`)

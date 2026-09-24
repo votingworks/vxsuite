@@ -271,7 +271,7 @@ function expectedEnglishBallotStrings(election: Election): UiStringsPackage {
   return {
     ...expectedStrings,
     [LanguageCode.ENGLISH]: {
-      ...expectedStrings[LanguageCode.ENGLISH],
+      ...expectedStrings[LanguageCode.ENGLISH]!,
       ballotStyleId: Object.fromEntries(
         election.ballotStyles.map(({ id, groupId }) => [id, groupId])
       ),
@@ -542,7 +542,7 @@ test('create/list/delete elections', async () => {
     sliElection.precincts.toSorted(compareName).map((precinct) => ({
       id: expectNotEqualTo(precinct.id),
       name: precinct.name,
-      districtIds: [election2Districts[0].id],
+      districtIds: [election2Districts[0]!.id],
     }))
   );
   const election2Parties = await apiClient.listParties({
@@ -573,7 +573,7 @@ test('create/list/delete elections', async () => {
       return {
         ...contest,
         id: expectNotEqualTo(contest.id),
-        districtId: election2Districts[0].id,
+        districtId: election2Districts[0]!.id,
         ...(contest.type === 'candidate'
           ? {
               candidates: contest.candidates.map((candidate) =>
@@ -648,12 +648,12 @@ test('create/list/delete elections', async () => {
   // Finalize ballots and check status
   await addAbsenteePollingPlaceCoveringAllPrecincts(apiClient, sliElectionId);
   await apiClient.finalizeBallots({ electionId: sliElectionId });
-  expect((await apiClient.listElections())[0].status).toEqual<ElectionStatus>(
+  expect((await apiClient.listElections())[0]!.status).toEqual<ElectionStatus>(
     'ballotsFinalized'
   );
 
   await apiClient.approveBallots({ electionId: sliElectionId });
-  expect((await apiClient.listElections())[0].status).toEqual<ElectionStatus>(
+  expect((await apiClient.listElections())[0]!.status).toEqual<ElectionStatus>(
     'ballotsApproved'
   );
 
@@ -1186,12 +1186,12 @@ test('deleting a district updates associated precincts', async () => {
   // Delete a district associated with a precinct with splits
   const precincts = await apiClient.listPrecincts({ electionId });
   const precinctWithSplits = precincts.find(hasSplits)!;
-  const split = precinctWithSplits.splits[0];
+  const split = precinctWithSplits.splits[0]!;
 
   (
     await apiClient.updateDistricts({
       electionId,
-      deletedDistrictIds: [split.districtIds[0]],
+      deletedDistrictIds: [split.districtIds[0]!],
     })
   ).unsafeUnwrap();
 
@@ -1201,7 +1201,7 @@ test('deleting a district updates associated precincts', async () => {
   )!;
   assert(hasSplits(updatedPrecinct));
 
-  const updatedSplit = updatedPrecinct.splits[0];
+  const updatedSplit = updatedPrecinct.splits[0]!;
   expect(updatedSplit.districtIds).not.toContain(split.districtIds[0]);
 
   // Delete a district associated with a precinct without splits
@@ -1212,7 +1212,7 @@ test('deleting a district updates associated precincts', async () => {
   (
     await apiClient.updateDistricts({
       electionId,
-      deletedDistrictIds: [precinctWithoutSplits.districtIds[0]],
+      deletedDistrictIds: [precinctWithoutSplits.districtIds[0]!],
     })
   ).unsafeUnwrap();
 
@@ -1348,10 +1348,10 @@ test('CRUD precincts', async () => {
     ...precinct2,
     splits: [
       {
-        ...precinct2.splits[0],
+        ...precinct2.splits[0]!,
         districtIds: [district2.id],
       },
-      precinct2.splits[1],
+      precinct2.splits[1]!,
     ],
   };
   (
@@ -1372,9 +1372,9 @@ test('CRUD precincts', async () => {
       updatedPrecinct: {
         ...updatedPrecinct2,
         splits: [
-          updatedPrecinct2.splits[0],
+          updatedPrecinct2.splits[0]!,
           {
-            ...updatedPrecinct2.splits[1],
+            ...updatedPrecinct2.splits[1]!,
             name: 'Split 1',
           },
         ],
@@ -1436,11 +1436,11 @@ test('CRUD precincts', async () => {
         ...updatedPrecinct2,
         splits: [
           {
-            ...updatedPrecinct2.splits[0],
+            ...updatedPrecinct2.splits[0]!,
             districtIds: [district1.id],
           },
           {
-            ...updatedPrecinct2.splits[1],
+            ...updatedPrecinct2.splits[1]!,
             districtIds: [district1.id],
           },
         ],
@@ -2982,7 +2982,7 @@ test('Finalize ballots - rejects absentee polling places that do not cover all p
         id: 'absentee-partial',
         name: 'Absentee Voting',
         type: 'absentee',
-        precincts: { [precincts[0].id]: { type: 'whole' } },
+        precincts: { [precincts[0]!.id]: { type: 'whole' } },
       },
     })
   ).unsafeUnwrap();
@@ -3163,8 +3163,8 @@ test('cloneElection', async () => {
 
   // Ensure cloned election has the same data with new IDs
   const elections = await apiClient.listElections();
-  expect(elections[0].electionId).toEqual(newElectionId);
-  expect(elections[0].jurisdictionId).toEqual(anotherNonVxJurisdiction.id);
+  expect(elections[0]!.electionId).toEqual(newElectionId);
+  expect(elections[0]!.jurisdictionId).toEqual(anotherNonVxJurisdiction.id);
 
   const srcElectionInfo = await apiClient.getElectionInfo({
     electionId: srcElectionId,
@@ -4159,7 +4159,7 @@ test('export - polling places auto-generated when EDIT_POLLING_PLACES === false'
   });
 
   const user = nonVxUser;
-  const jurisdiction = nonVxUser.jurisdictions[0];
+  const jurisdiction = nonVxUser.jurisdictions[0]!;
   const stateFeatures = getStateFeaturesConfig(jurisdiction);
   expect(stateFeatures.EDIT_POLLING_PLACES).toBeFalsy();
 
@@ -4975,8 +4975,8 @@ test('export ballots with audit IDs', async () => {
   const ballotStyles = await apiClient.listBallotStyles({ electionId });
   const expectedBallotProps = range(1, numAuditIdBallots + 1).map(
     (i): BaseBallotProps => ({
-      ballotStyleId: ballotStyles[0].id,
-      precinctId: ballotStyles[0].precincts[0],
+      ballotStyleId: ballotStyles[0]!.id,
+      precinctId: ballotStyles[0]!.precincts[0]!,
       ballotType: BallotType.Precinct,
       ballotMode: 'official',
       election: expect.any(Object),
@@ -5018,7 +5018,7 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with splits', async 
   const precincts = await apiClient.listPrecincts({ electionId });
 
   const precinct = assertDefined(precincts.find((p) => hasSplits(p)));
-  const split = precinct.splits[0];
+  const split = precinct.splits[0]!;
   const ballotStyle = assertDefined(
     ballotStyles.find(
       (style) =>
@@ -5092,7 +5092,7 @@ test('getBallotPreviewPdf returns a ballot pdf for precinct with no split', asyn
       ballotStyleId: assertDefined(
         ballotStyles.find(
           (style) =>
-            style.districts.includes(precinct.districtIds[0]) &&
+            style.districts.includes(precinct.districtIds[0]!) &&
             style.languages.includes(LanguageCode.ENGLISH)
         )
       ).id,
@@ -5158,7 +5158,7 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
     expect.any(Function) // emitProgress callback
   );
   expect(
-    vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mock.calls[0][2]
+    vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition).mock.calls[0]![2]
   ).toHaveLength(props.length);
 
   await suppressingConsoleOutput(async () => {

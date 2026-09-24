@@ -188,7 +188,7 @@ test('multi-jurisdiction user sees jurisdiction selector', async () => {
     msJurisdiction.name,
   ]);
   // Select MS jurisdiction to show format selector
-  userEvent.click(jurisdictionOptions[2]);
+  userEvent.click(jurisdictionOptions[2]!);
 
   // Format selector defaults to MS SEMS. Switch to VXF.
   within(modal).getByRole('combobox', { name: /Format/ });

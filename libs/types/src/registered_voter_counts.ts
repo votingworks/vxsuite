@@ -67,7 +67,8 @@ export function hasPartialRegisteredVoterCounts(
       }
     } else if (
       counts[precinct.id] !== undefined &&
-      isPrecinctCount(counts[precinct.id])
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      isPrecinctCount(counts[precinct.id]!)
     ) {
       someHaveCount = true;
     } else {

@@ -28,7 +28,7 @@ const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;
 const [pollingPlace] = assertDefined(electionGeneral.pollingPlaces);
 const defaultConfig: Partial<PrecinctScannerConfig> = {
-  pollingPlaceId: pollingPlace.id,
+  pollingPlaceId: pollingPlace!.id,
 };
 
 let apiMock: ApiMock;

@@ -42,7 +42,7 @@ test('voteMatchesGridPosition - matches non-cross-endorsed candidate', () => {
     partyIds: ['2'],
   };
 
-  const bobGridPos = gridPositions[2];
+  const bobGridPos = gridPositions[2]!;
 
   expect(voteMatchesGridPosition(vote, bobGridPos, gridPositions)).toEqual(
     true
@@ -56,7 +56,7 @@ test('voteMatchesGridPosition - matches first cross-endorsed option', () => {
     partyIds: ['0', '1'],
   };
 
-  const firstAliceGridPos = gridPositions[0];
+  const firstAliceGridPos = gridPositions[0]!;
 
   expect(
     voteMatchesGridPosition(vote, firstAliceGridPos, gridPositions)
@@ -70,7 +70,7 @@ test('voteMatchesGridPosition - does not match second cross-endorsed option when
     partyIds: ['0', '1'],
   };
 
-  const secondAliceGridPos = gridPositions[1];
+  const secondAliceGridPos = gridPositions[1]!;
 
   expect(
     voteMatchesGridPosition(vote, secondAliceGridPos, gridPositions)
@@ -84,13 +84,13 @@ test('voteMatchesGridPosition - matches second cross-endorsed option', () => {
     partyIds: ['2'],
   };
 
-  const secondAliceGridPos = gridPositions[1];
+  const secondAliceGridPos = gridPositions[1]!;
 
   expect(
     voteMatchesGridPosition(vote, secondAliceGridPos, gridPositions)
   ).toEqual(true);
 
-  const firstAliceGridPos = gridPositions[0];
+  const firstAliceGridPos = gridPositions[0]!;
   expect(
     voteMatchesGridPosition(vote, firstAliceGridPos, gridPositions)
   ).toEqual(false);
@@ -103,7 +103,7 @@ test('voteMatchesGridPosition - does not match wrong candidate', () => {
     partyIds: ['2'],
   };
 
-  const aliceGridPos = gridPositions[0];
+  const aliceGridPos = gridPositions[0]!;
 
   expect(voteMatchesGridPosition(vote, aliceGridPos, gridPositions)).toEqual(
     false
@@ -129,7 +129,7 @@ test('voteMatchesGridPosition - handles candidate without partyIds', () => {
   };
 
   expect(
-    voteMatchesGridPosition(vote, simpleGridPositions[0], simpleGridPositions)
+    voteMatchesGridPosition(vote, simpleGridPositions[0]!, simpleGridPositions)
   ).toEqual(true);
 });
 
@@ -194,7 +194,7 @@ test('voteMatchesGridPosition - works with multiple cross-endorsed candidates', 
   expect(
     voteMatchesGridPosition(
       aliceVote,
-      complexGridPositions[0],
+      complexGridPositions[0]!,
       complexGridPositions
     )
   ).toEqual(true);
@@ -203,7 +203,7 @@ test('voteMatchesGridPosition - works with multiple cross-endorsed candidates', 
   expect(
     voteMatchesGridPosition(
       aliceVote,
-      complexGridPositions[1],
+      complexGridPositions[1]!,
       complexGridPositions
     )
   ).toEqual(false);
@@ -212,7 +212,7 @@ test('voteMatchesGridPosition - works with multiple cross-endorsed candidates', 
   expect(
     voteMatchesGridPosition(
       bobVote,
-      complexGridPositions[2],
+      complexGridPositions[2]!,
       complexGridPositions
     )
   ).toEqual(true);
@@ -221,7 +221,7 @@ test('voteMatchesGridPosition - works with multiple cross-endorsed candidates', 
   expect(
     voteMatchesGridPosition(
       bobVote,
-      complexGridPositions[3],
+      complexGridPositions[3]!,
       complexGridPositions
     )
   ).toEqual(false);

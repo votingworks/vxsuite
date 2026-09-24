@@ -31,12 +31,12 @@ test('renders summary cards', async () => {
   api.expectGetCastVoteRecordFiles([
     mockCvrFile({
       numCvrsImported: 15,
-      pollingPlaceIds: [place1.id],
+      pollingPlaceIds: [place1!.id],
       scannerIds: ['001'],
     }),
     mockCvrFile({
       numCvrsImported: 25,
-      pollingPlaceIds: [place2.id],
+      pollingPlaceIds: [place2!.id],
       scannerIds: ['002'],
     }),
   ]);
@@ -71,20 +71,20 @@ test('location name search box filters location list', async () => {
   }
 
   const emptyInput = screen.getByPlaceholderText('Search Locations');
-  userEvent.type(emptyInput, place2.name.toLowerCase());
+  userEvent.type(emptyInput, place2!.name.toLowerCase());
 
-  screen.getByDisplayValue(place2.name.toLowerCase());
-  screen.getButton(new RegExp(place2.name));
+  screen.getByDisplayValue(place2!.name.toLowerCase());
+  screen.getButton(new RegExp(place2!.name));
 
   for (const place of election.pollingPlaces) {
-    if (place.name === place2.name) continue;
+    if (place.name === place2!.name) continue;
     expect(screen.queryButton(new RegExp(place.name))).not.toBeInTheDocument();
   }
 });
 
 test('location filter buttons filter location list', async () => {
   const api = createApiMock();
-  const loadedPlace = place1;
+  const loadedPlace = place1!;
 
   api.expectGetCastVoteRecordFileMode('unlocked');
   api.expectGetCastVoteRecordFiles([
@@ -126,7 +126,7 @@ test('location filter buttons filter location list', async () => {
 
 test('search input and filter buttons are both used for filtering', async () => {
   const api = createApiMock();
-  const loadedPlace = place1;
+  const loadedPlace = place1!;
 
   api.expectGetCastVoteRecordFileMode('unlocked');
   api.expectGetCastVoteRecordFiles([
@@ -189,7 +189,7 @@ test('delete button opens confirmation modal', async () => {
   api.expectGetCastVoteRecordFiles([
     mockCvrFile({
       numCvrsImported: 15,
-      pollingPlaceIds: [place1.id],
+      pollingPlaceIds: [place1!.id],
       scannerIds: ['001'],
     }),
   ]);
@@ -251,13 +251,13 @@ describe('single-import deletion', () => {
     const file1 = mockCvrFile({
       id: 'file1',
       numCvrsImported: 15,
-      pollingPlaceIds: [place1.id],
+      pollingPlaceIds: [place1!.id],
       scannerIds: ['001'],
     });
     const file2 = mockCvrFile({
       id: 'file2',
       numCvrsImported: 30,
-      pollingPlaceIds: [place1.id],
+      pollingPlaceIds: [place1!.id],
       scannerIds: ['002'],
     });
 
@@ -272,11 +272,11 @@ describe('single-import deletion', () => {
 
     await waitFor(() => api.assertComplete());
 
-    userEvent.click(screen.getButton(new RegExp(place1.name)));
+    userEvent.click(screen.getButton(new RegExp(place1!.name)));
     const deleteButtons = screen.getAllButtons(/Remove CVR File/);
     expect(deleteButtons).toHaveLength(2);
 
-    userEvent.click(deleteButtons[1]);
+    userEvent.click(deleteButtons[1]!);
     const modal = within(await screen.findByRole('alertdialog'));
     modal.getByText(
       new RegExp(`${file2.numCvrsImported} CVRs.+will be permanently deleted`)
@@ -301,7 +301,7 @@ describe('single-import deletion', () => {
       mockCvrFile({
         id: 'file1',
         numCvrsImported: 15,
-        pollingPlaceIds: [place1.id],
+        pollingPlaceIds: [place1!.id],
         scannerIds: ['001'],
       }),
     ]);
@@ -314,7 +314,7 @@ describe('single-import deletion', () => {
 
     await waitFor(() => api.assertComplete());
 
-    userEvent.click(screen.getButton(new RegExp(place1.name)));
+    userEvent.click(screen.getButton(new RegExp(place1!.name)));
     userEvent.click(screen.getButton(/Remove CVR File/));
 
     const modal = within(await screen.findByRole('alertdialog'));
@@ -334,7 +334,7 @@ describe('single-import deletion', () => {
       mockCvrFile({
         id: 'file1',
         numCvrsImported: 15,
-        pollingPlaceIds: [place1.id],
+        pollingPlaceIds: [place1!.id],
       }),
     ]);
 
@@ -346,7 +346,7 @@ describe('single-import deletion', () => {
 
     await waitFor(() => api.assertComplete());
 
-    userEvent.click(screen.getButton(new RegExp(place1.name)));
+    userEvent.click(screen.getButton(new RegExp(place1!.name)));
     expect(screen.queryButton(/Remove CVR File/)).not.toBeInTheDocument();
   });
 });
@@ -359,13 +359,13 @@ function mockCvrFile(
   return {
     exportTimestamp,
     id: exportTimestamp,
-    pollingPlaceIds: [place1.id],
+    pollingPlaceIds: [place1!.id],
     scannerIds: ['001'],
     createdAt: exportTimestamp,
     electionId: election.id,
     filename: exportTimestamp,
     numCvrsImported: 1,
-    precinctIds: [precinct1.id],
+    precinctIds: [precinct1!.id],
     sha256Hash: 'hash',
     source: 'usb',
     ...file,
