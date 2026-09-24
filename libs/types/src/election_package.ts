@@ -20,6 +20,7 @@ export enum ElectionPackageFileName {
   APP_STRINGS = 'appStrings.json',
   AUDIO_CLIPS = 'audioClips.jsonl',
   AUDIO_IDS = 'audioIds.json',
+  BALLOT_POSITIONS = 'ballotPositions.jsonl',
   BALLOTS = 'ballots.jsonl',
   ELECTION = 'election.json',
   METADATA = 'metadata.json',
