@@ -51,6 +51,7 @@ import type { MockUsbDrive } from '@votingworks/usb-drive';
 import { LogEventId, type Logger } from '@votingworks/logging';
 import {
   HP_4001_PRINTER_CONFIG,
+  JOB_SETTLEMENT_POLL_INTERVAL_MS,
   type MemoryPrinterHandler,
 } from '@votingworks/printing';
 import { createApp } from '../test/app_helpers.js';
@@ -68,6 +69,9 @@ const electionGeneralDefinition =
   electionGeneralFixtures.readElectionDefinition();
 const { election: electionGeneral } = electionGeneralDefinition;
 const mockFeatureFlagger = getFeatureFlagMock();
+const PRINT_SETTLEMENT_WAIT_OPTIONS = {
+  timeout: JOB_SETTLEMENT_POLL_INTERVAL_MS * 10,
+} as const;
 
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
@@ -451,7 +455,7 @@ test('usbDrive', async () => {
 async function expectElectionState(expected: Partial<ElectionState>) {
   await vi.waitFor(async () => {
     expect(await apiClient.getElectionState()).toMatchObject(expected);
-  });
+  }, PRINT_SETTLEMENT_WAIT_OPTIONS);
 }
 
 async function configureMachine(
@@ -781,7 +785,7 @@ test('a ballot that fails to print does not increment the printed count', async 
         reason: 'Unable to send data to printer.',
       })
     );
-  });
+  }, PRINT_SETTLEMENT_WAIT_OPTIONS);
   expect(clearJobQueue).toHaveBeenCalled();
   await expectElectionState({ ballotsPrintedCount: 0 });
 });
@@ -912,7 +916,7 @@ test('a blank ballot that fails to print is logged as a failure', async () => {
         reason: 'Unable to send data to printer.',
       })
     );
-  });
+  }, PRINT_SETTLEMENT_WAIT_OPTIONS);
   await expectElectionState({ ballotsPrintedCount: 0 });
 });
 
@@ -1079,6 +1083,6 @@ test('a print job that settles after a count reset does not count itself', async
       LogEventId.BallotPrintComplete,
       expect.objectContaining({ disposition: 'success' })
     );
-  });
+  }, PRINT_SETTLEMENT_WAIT_OPTIONS);
   await expectElectionState({ ballotsPrintedCount: 0 });
 });
