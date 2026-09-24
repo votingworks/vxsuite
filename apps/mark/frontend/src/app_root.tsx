@@ -67,6 +67,7 @@ import {
 } from './api.js';
 
 import { Ballot } from './components/ballot.js';
+import { AccessibleControllerHelp } from './components/accessible_controller_help.js';
 import * as GLOBALS from './config/globals.js';
 import { BallotContext } from './contexts/ballot_context.js';
 import { AdminScreen } from './pages/admin_screen.js';
@@ -640,33 +641,35 @@ export function AppRoot(): JSX.Element | null {
         }
 
         return (
-          <BallotContext.Provider
-            value={{
-              machineConfig,
-              precinctId,
-              ballotStyleId,
-              contests,
-              electionDefinition,
-              isCardlessVoter: isCardlessVoterAuth(authStatus),
-              isLiveMode: !isTestMode,
-              endVoterSession,
-              hasPrintedBallot: hasPrintedBallot ?? false,
-              resetBallot,
-              selectedPartyId,
-              selectParty,
-              setHasPrintedBallot,
-              printJobId,
-              setPrintJobId,
-              updateVote,
-              votes: votes ?? blankBallotVotes,
-            }}
-          >
-            <PatDeviceContextProvider
-              isPatDeviceConnected={Boolean(isPatCalibrationComplete)}
+          <AccessibleControllerHelp>
+            <BallotContext.Provider
+              value={{
+                machineConfig,
+                precinctId,
+                ballotStyleId,
+                contests,
+                electionDefinition,
+                isCardlessVoter: isCardlessVoterAuth(authStatus),
+                isLiveMode: !isTestMode,
+                endVoterSession,
+                hasPrintedBallot: hasPrintedBallot ?? false,
+                resetBallot,
+                selectedPartyId,
+                selectParty,
+                setHasPrintedBallot,
+                printJobId,
+                setPrintJobId,
+                updateVote,
+                votes: votes ?? blankBallotVotes,
+              }}
             >
-              <Ballot />
-            </PatDeviceContextProvider>
-          </BallotContext.Provider>
+              <PatDeviceContextProvider
+                isPatDeviceConnected={Boolean(isPatCalibrationComplete)}
+              >
+                <Ballot />
+              </PatDeviceContextProvider>
+            </BallotContext.Provider>
+          </AccessibleControllerHelp>
         );
       }
     }

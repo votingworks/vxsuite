@@ -4,7 +4,9 @@ import { BaseLogger, LogSource } from '@votingworks/logging';
 import { QueryClient } from '@tanstack/react-query';
 import {
   AppErrorBoundary,
+  KeybindingsProvider,
   LowDiskSpaceWarning,
+  MARK_KEYBINDINGS,
   VisualModeDisabledOverlay,
 } from '@votingworks/ui';
 import { AppRoot } from './app_root.js';
@@ -34,29 +36,31 @@ export function App({
 }: Props): JSX.Element {
   return (
     <MarkAppBase>
-      <BrowserRouter>
-        <AppErrorBoundary
-          // Maintain the required parity with the hardware test app. But also use a longer delay
-          // so that, in most cases, the user will still manually power down and power up rather
-          // than relying on the auto-restart as the former is more likely to resolve issues than
-          // the latter.
-          autoRestartInSeconds={600}
-          logger={logger}
-          primaryMessage="Ask a poll worker to restart the ballot marking device."
-        >
-          <ApiProvider
-            queryClient={queryClient}
-            apiClient={apiClient}
-            enableStringTranslation={enableStringTranslation}
-            noAudio={noAudio}
+      <KeybindingsProvider keybindings={MARK_KEYBINDINGS}>
+        <BrowserRouter>
+          <AppErrorBoundary
+            // Maintain the required parity with the hardware test app. But also use a longer delay
+            // so that, in most cases, the user will still manually power down and power up rather
+            // than relying on the auto-restart as the former is more likely to resolve issues than
+            // the latter.
+            autoRestartInSeconds={600}
+            logger={logger}
+            primaryMessage="Ask a poll worker to restart the ballot marking device."
           >
-            <VisualModeDisabledOverlay />
-            <AppRoot />
-            <SessionTimeLimitTracker />
-            <LowDiskSpaceWarning />
-          </ApiProvider>
-        </AppErrorBoundary>
-      </BrowserRouter>
+            <ApiProvider
+              queryClient={queryClient}
+              apiClient={apiClient}
+              enableStringTranslation={enableStringTranslation}
+              noAudio={noAudio}
+            >
+              <VisualModeDisabledOverlay />
+              <AppRoot />
+              <SessionTimeLimitTracker />
+              <LowDiskSpaceWarning />
+            </ApiProvider>
+          </AppErrorBoundary>
+        </BrowserRouter>
+      </KeybindingsProvider>
     </MarkAppBase>
   );
 }
