@@ -264,6 +264,7 @@ export class Store {
     electionData: string;
     jurisdiction: string;
     electionPackageHash: string;
+    ballotHash: string;
   }): void {
     this.client.run('delete from election');
     if (input) {
@@ -272,11 +273,13 @@ export class Store {
         insert into election (
           election_data,
           jurisdiction,
+          ballot_hash,
           election_package_hash
-        ) values (?, ?, ?)
+        ) values (?, ?, ?, ?)
         `,
         input.electionData,
         input.jurisdiction,
+        input.ballotHash,
         input.electionPackageHash
       );
     }

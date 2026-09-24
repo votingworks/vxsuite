@@ -220,6 +220,7 @@ function buildApi({
         electionData: electionDefinition.electionData,
         jurisdiction: authStatus.user.jurisdiction,
         electionPackageHash,
+        ballotHash: electionDefinition.ballotHash,
       });
       store.setSystemSettings(systemSettings);
 

@@ -145,6 +145,7 @@ test('getElectionDefinition', async () => {
       electionData: electionDefinition.electionData,
       jurisdiction,
       electionPackageHash,
+      ballotHash: electionDefinition.ballotHash,
     });
     store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
 
@@ -167,6 +168,7 @@ test('unconfigure', async () => {
       electionData: electionDefinition.electionData,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
     });
     store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
     await apiClient.setTestMode({ testMode: false });
@@ -206,6 +208,7 @@ test('unconfigure w/ ignoreBackupRequirement', async () => {
       electionData: electionDefinition.electionData,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
     });
     store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
     await apiClient.setTestMode({ testMode: false });
@@ -231,6 +234,7 @@ test('retrySendBatchToAdmin clears a batch send failure', async () => {
       electionData: electionDefinition.electionData,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
     });
     store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
 
@@ -257,6 +261,7 @@ test('resendBatchToAdmin queues a sent batch to be sent again', async () => {
       electionData: electionDefinition.electionData,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
     });
     store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
 
@@ -287,6 +292,7 @@ test('clearing scanning data', async () => {
       electionData: electionDefinition.electionData,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
     });
     store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
     await apiClient.setTestMode({ testMode: false });
@@ -352,6 +358,7 @@ test('getting / setting test mode', async () => {
       electionData: electionDefinition.electionData,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
     });
     store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
 
@@ -491,6 +498,7 @@ test('get/set polling place id', async () => {
       electionData: famousNamesDefinition.electionData,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
+      ballotHash: famousNamesDefinition.ballotHash,
     });
 
     // No polling place selected initially (setElectionAndJurisdiction does not
@@ -633,6 +641,7 @@ test('getSheetForReview returns interpretation and image data for uninterpretabl
       electionData: electionDefinition.electionData,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
     });
     store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
 
@@ -676,6 +685,7 @@ test('getSheetForReview returns interpretation, image data, and layouts for inte
       electionData: electionDefinition.electionData,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
     });
     store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
 

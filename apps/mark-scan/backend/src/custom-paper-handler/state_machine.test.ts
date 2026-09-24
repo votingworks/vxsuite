@@ -221,6 +221,7 @@ beforeEach(async () => {
     electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash: 'test-election-package-hash',
+    ballotHash: electionGeneralDefinition.ballotHash,
   });
   workspace.store.setPollingPlaceId(pollingPlace.id);
   workspace.store.setSystemSettings(
@@ -606,6 +607,7 @@ test('elections with grid layouts still try to interpret BMD ballots', async () 
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash: 'test-election-package-hash',
+    ballotHash: electionDefinition.ballotHash,
   });
   workspace.store.setPollingPlaceId(
     assertDefined(electionDefinition.election.pollingPlaces)[0].id

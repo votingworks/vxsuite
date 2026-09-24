@@ -878,6 +878,7 @@ test('a blank ballot that fails to print is logged as a failure', async () => {
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash: 'test-hash',
+    ballotHash: electionDefinition.ballotHash,
   });
   store.setSystemSettings({
     ...DEFAULT_SYSTEM_SETTINGS,

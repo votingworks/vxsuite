@@ -88,6 +88,7 @@ test('save readiness report', async () => {
         electionData: electionDefinition.electionData,
         jurisdiction,
         electionPackageHash: 'test-election-package-hash',
+        ballotHash: electionDefinition.ballotHash,
       });
 
       // mock a successful scan diagnostic

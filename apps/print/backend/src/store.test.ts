@@ -19,6 +19,7 @@ test('reset clears the database', () => {
     electionData: electionDefinition.electionData,
     jurisdiction: 'test-jurisdiction',
     electionPackageHash: 'test-hash',
+    ballotHash: electionDefinition.ballotHash,
   });
 
   expect(store.hasElection()).toEqual(true);

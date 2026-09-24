@@ -133,6 +133,7 @@ function buildStore(): Store {
     electionData: vxFamousNamesFixtures.electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash: 'test-election-package-hash',
+    ballotHash: vxFamousNamesFixtures.electionDefinition.ballotHash,
   });
   store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   store.setPollingPlaceId(POLLING_PLACE_ID);

@@ -51,6 +51,7 @@ beforeEach(() => {
     electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash: 'test-election-package-hash',
+    ballotHash: electionGeneralDefinition.ballotHash,
   });
   workspace.store.setPollingPlaceId(pollingPlace.id);
   workspace.store.setSystemSettings(

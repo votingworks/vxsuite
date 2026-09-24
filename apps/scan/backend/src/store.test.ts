@@ -51,9 +51,7 @@ const electionPackageHash = 'test-election-package-hash';
 const testMetadata: BallotMetadata = {
   ballotStyleId: '12',
   ballotType: BallotType.Precinct,
-  ballotHash:
-    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
-      .ballotHash,
+  ballotHash: 'cafe',
   isTestMode: false,
   precinctId: '23',
 };
@@ -117,16 +115,9 @@ test('get/set election', () => {
   expect(store.getElectionRecord()).toBeUndefined();
   expect(store.hasElection()).toBeFalsy();
 
-  store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
-        .electionData,
-    jurisdiction,
-    electionPackageHash,
-  });
+  const { electionDefinition } = configureElectionNh(store);
   expect(store.getElectionRecord()).toEqual({
-    electionDefinition:
-      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition(),
+    electionDefinition,
     electionPackageHash,
   });
   expect(store.hasElection()).toBeTruthy();
@@ -150,13 +141,7 @@ test('get/set system settings', () => {
 test('reset clears cached election record and system settings', () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
-  store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
-        .electionData,
-    jurisdiction,
-    electionPackageHash,
-  });
+  configureElectionNh(store);
   store.setSystemSettings(
     safeParseSystemSettings(
       electionTwoPartyPrimaryFixtures.systemSettings.asText()
@@ -178,13 +163,7 @@ test('get/set test mode', () => {
   expect(store.getTestMode()).toEqual(true);
   expect(() => store.setTestMode(false)).toThrowError();
 
-  store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
-        .electionData,
-    jurisdiction,
-    electionPackageHash,
-  });
+  configureElectionNh(store);
 
   // After setting an election
   expect(store.getTestMode()).toEqual(true);
@@ -203,13 +182,7 @@ test('get/set is sounds muted mode', () => {
   expect(store.getIsSoundMuted()).toEqual(false);
   expect(() => store.setIsSoundMuted(true)).toThrowError();
 
-  store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
-        .electionData,
-    jurisdiction,
-    electionPackageHash,
-  });
+  configureElectionNh(store);
 
   // After setting an election
   expect(store.getIsSoundMuted()).toEqual(false);
@@ -228,13 +201,7 @@ test('get/set is double feed detection disabled mode', () => {
   expect(store.getIsDoubleFeedDetectionDisabled()).toEqual(false);
   expect(() => store.setIsDoubleFeedDetectionDisabled(true)).toThrowError();
 
-  store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
-        .electionData,
-    jurisdiction,
-    electionPackageHash,
-  });
+  configureElectionNh(store);
 
   // After setting an election
   expect(store.getIsDoubleFeedDetectionDisabled()).toEqual(false);
@@ -253,13 +220,7 @@ test('get/set isContinuousExportEnabled', () => {
   expect(store.getIsContinuousExportEnabled()).toEqual(true);
   expect(() => store.setIsContinuousExportEnabled(true)).toThrowError();
 
-  store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
-        .electionData,
-    electionPackageHash,
-    jurisdiction,
-  });
+  configureElectionNh(store);
 
   expect(store.getIsContinuousExportEnabled()).toEqual(true);
 
@@ -279,7 +240,9 @@ test('get/set isContinuousExportEnabled', () => {
 
 test('get/set polling place', () => {
   const fixtures = electionGridLayoutNewHampshireTestBallotFixtures;
-  const { election, electionData } = fixtures.readElectionDefinition();
+  const electionDefinition = fixtures.readElectionDefinition();
+
+  const { ballotHash, election, electionData } = electionDefinition;
   const pollingPlace = assertDefined(election.pollingPlaces)[0];
 
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
@@ -292,6 +255,7 @@ test('get/set polling place', () => {
     electionData,
     jurisdiction,
     electionPackageHash,
+    ballotHash,
   });
   expect(store.getPollingPlaceId()).toBeUndefined();
 
@@ -312,13 +276,7 @@ test('get/set polls state', () => {
   ).toThrowError();
   expect(() => store.getLastPollsTransition()).toThrowError();
 
-  store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition()
-        .electionData,
-    jurisdiction,
-    electionPackageHash,
-  });
+  configureElectionNh(store);
 
   // After setting an election
   const openPollsTime = Date.now();
@@ -877,13 +835,14 @@ test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage',
 function configureElectionNh(store: Store) {
   const fixtures = electionGridLayoutNewHampshireTestBallotFixtures;
   const electionDefinition = fixtures.readElectionDefinition();
-  const { election, electionData } = electionDefinition;
+  const { election, electionData, ballotHash } = electionDefinition;
   const pollingPlace = assertDefined(election.pollingPlaces)[0];
 
   store.setElectionAndJurisdiction({
     electionData,
     jurisdiction,
     electionPackageHash,
+    ballotHash,
   });
   store.setPollingPlaceId(pollingPlace.id);
 

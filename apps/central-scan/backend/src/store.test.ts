@@ -47,6 +47,7 @@ test('get/set election', () => {
     electionData,
     jurisdiction,
     electionPackageHash,
+    ballotHash,
   });
   expect(store.getElectionRecord()).toEqual({
     electionDefinition,
@@ -68,6 +69,7 @@ test('get/set polling place id', () => {
     electionData,
     jurisdiction,
     electionPackageHash,
+    ballotHash,
   });
   expect(store.getPollingPlaceId()).toBeUndefined();
 
@@ -84,6 +86,7 @@ test('addBatch stamps the selected polling place id', () => {
     electionData,
     jurisdiction,
     electionPackageHash,
+    ballotHash,
   });
 
   // Once a polling place is selected, subsequent batches are tagged with it
@@ -107,6 +110,7 @@ test('get/set test mode', () => {
     electionData,
     jurisdiction,
     electionPackageHash,
+    ballotHash,
   });
 
   // After setting an election
@@ -125,6 +129,7 @@ test('get/set scanner as backed up', () => {
     electionData,
     jurisdiction,
     electionPackageHash,
+    ballotHash,
   });
   expect(store.getScannerBackupTimestamp()).toBeFalsy();
   store.setScannerBackedUp();
@@ -143,6 +148,7 @@ test('batch cleanup works correctly', () => {
     electionData,
     jurisdiction,
     electionPackageHash,
+    ballotHash,
   });
   store.setPollingPlaceId(anyPollingPlace(election).id);
   const firstBatchId = store.addBatch();
@@ -183,6 +189,7 @@ test('getBatches', () => {
     electionData,
     jurisdiction,
     electionPackageHash,
+    ballotHash,
   });
   store.setPollingPlaceId(anyPollingPlace(election).id);
 
@@ -248,6 +255,7 @@ test('markBatchesRemovedFromAdmin', () => {
     electionData,
     jurisdiction,
     electionPackageHash,
+    ballotHash,
   });
   store.setPollingPlaceId(anyPollingPlace(election).id);
   const sentBatchId = store.addBatch();
@@ -286,6 +294,7 @@ test('canUnconfigure in test mode', () => {
     electionData,
     jurisdiction,
     electionPackageHash,
+    ballotHash,
   });
   store.setPollingPlaceId(anyPollingPlace(election).id);
   store.setTestMode(true);
@@ -301,6 +310,7 @@ test('canUnconfigure not in test mode', async () => {
     electionData,
     jurisdiction,
     electionPackageHash,
+    ballotHash,
   });
   store.setPollingPlaceId(anyPollingPlace(election).id);
   store.setTestMode(false);
@@ -490,6 +500,7 @@ test('iterating over sheets', () => {
       electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asText(),
     jurisdiction,
     electionPackageHash,
+    ballotHash,
   });
   store.setPollingPlaceId(anyPollingPlace(election).id);
 
@@ -597,6 +608,7 @@ test('iterating over each accepted sheet includes correct batch sequence id', ()
     electionData,
     jurisdiction,
     electionPackageHash,
+    ballotHash,
   });
   store.setPollingPlaceId(anyPollingPlace(election).id);
 
@@ -668,6 +680,7 @@ test('resetElectionSession', () => {
     electionData,
     jurisdiction,
     electionPackageHash,
+    ballotHash,
   });
   store.setPollingPlaceId(anyPollingPlace(election).id);
 
@@ -707,6 +720,7 @@ test('getBallotsCounted', () => {
     electionData,
     jurisdiction,
     electionPackageHash,
+    ballotHash,
   });
   store.setPollingPlaceId(anyPollingPlace(election).id);
 
