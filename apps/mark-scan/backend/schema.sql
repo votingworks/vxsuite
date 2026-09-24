@@ -2,6 +2,7 @@ create table election (
   -- enforce singleton table
   id integer primary key check (id = 1),
   election_data text not null,
+  ballot_hash text not null,
   election_package_hash text not null,
   jurisdiction text not null,
   polling_place_id text,
