@@ -579,6 +579,20 @@ export const SheetPositionsSchema: z.ZodSchema<SheetPositions> = z.tuple([
   z.array(ContestPositionSchema),
 ]);
 
+export interface BallotPositions {
+  ballotStyleId: BallotStyleId;
+  /**
+   * The grid positions (bubble centers and bounding boxes) of every contest and
+   * option on this ballot style's HMPB, organized by sheet. Absent for ballot
+   * styles that have not been laid out (e.g. BMD-only or draft elections).
+   */
+  positions: readonly SheetPositions[];
+}
+export const BallotPositionsSchema: z.ZodSchema<BallotPositions> = z.object({
+  ballotStyleId: IdSchema,
+  positions: z.array(SheetPositionsSchema),
+});
+
 // GridPosition is the ballot interpreter's per-mark output type: it tags a
 // scored bubble with the contest/option it represents and where the bubble sits
 // on the timing-mark grid. It is NOT part of the election definition (ballot
