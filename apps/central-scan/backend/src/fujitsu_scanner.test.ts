@@ -460,12 +460,52 @@ test('fujitsu scanner ends the scanimage process on generator return', async () 
   expect(stdinEnd).not.toHaveBeenCalled();
 
   // tell `scanimage` to exit
-  await sheets.endBatch();
+  const ending = sheets.endBatch();
   expect(stdinEnd).toHaveBeenCalledTimes(1);
+  scanimage.emit('exit', 0, null);
+  await ending;
 
   // ending the batch again does nothing
   await sheets.endBatch();
   expect(stdinEnd).toHaveBeenCalledTimes(1);
+});
+
+function settlesBeforeNextMacrotask(
+  promise: Promise<unknown>
+): Promise<boolean> {
+  return Promise.race([
+    promise.then(() => true),
+    new Promise<boolean>((resolve) => {
+      setImmediate(() => resolve(false));
+    }),
+  ]);
+}
+
+test('fujitsu scanner endBatch waits for the scanimage process to exit', async () => {
+  const scanimage = mockChildProcess();
+  exec.mockReturnValueOnce(scanimage);
+  const scanner = new FujitsuScanner({
+    logger: new BaseLogger(LogSource.VxScanService),
+  });
+  const sheets = scanner.scanSheets();
+
+  const ending = sheets.endBatch();
+  expect(await settlesBeforeNextMacrotask(ending)).toEqual(false);
+
+  scanimage.emit('exit', 0, null);
+  await ending;
+});
+
+test('fujitsu scanner endBatch resolves when the scanimage process has already exited', async () => {
+  const scanimage = mockChildProcess();
+  exec.mockReturnValueOnce(scanimage);
+  const scanner = new FujitsuScanner({
+    logger: new BaseLogger(LogSource.VxScanService),
+  });
+  const sheets = scanner.scanSheets();
+
+  scanimage.emit('exit', 0, null);
+  expect(await settlesBeforeNextMacrotask(sheets.endBatch())).toEqual(true);
 });
 
 test('fujitsu scanner fails if scanSheet fails', async () => {
@@ -478,6 +518,18 @@ test('fujitsu scanner fails if scanSheet fails', async () => {
 
   scanimage.emit('exit', 1, null);
   await expect(sheets.scanSheet()).rejects.toThrowError();
+});
+
+test('fujitsu scanner reports an empty tray when scanimage exits with SANE_STATUS_NO_DOCS', async () => {
+  const scanimage = mockChildProcess();
+  exec.mockReturnValueOnce(scanimage);
+  const scanner = new FujitsuScanner({
+    logger: new BaseLogger(LogSource.VxScanService),
+  });
+  const sheets = scanner.scanSheets();
+
+  scanimage.emit('exit', 7, null);
+  expect(await sheets.scanSheet()).toBeUndefined();
 });
 
 test('attached based on detected USB devices', () => {

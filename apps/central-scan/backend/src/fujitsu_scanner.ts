@@ -18,6 +18,7 @@ const debug = makeDebug('scan:scanner');
 export const FUJITSU_VENDOR_ID = 0x4c5;
 export const FUJITSU_FI_7160_PRODUCT_ID = 0x132e;
 export const FUJITSU_FI_8170_PRODUCT_ID = 0x15ff;
+const SANE_STATUS_NO_DOCS = 7;
 const SEQUENTIAL_BALLOT_ID_STRING = '_%04ud';
 // The fi-8950 silently fails to imprint if the --endorserString option
 // exceeds this character limit.
@@ -297,31 +298,34 @@ export class FujitsuScanner implements BatchScanner {
       );
     });
 
-    scanimage.once('exit', (code) => {
-      done = true;
-      if (code !== 0) {
-        this.logger.log(
-          LogEventId.FujitsuScanBatchComplete,
-          'system',
-          {
-            message: `scanimage [pid=${scanimage.pid}] exited with code ${code}`,
-            disposition: 'failure',
-          },
-          debug
-        );
-        results.rejectAll(new Error(`scanimage exited with code=${code}`));
-      } else {
-        this.logger.log(
-          LogEventId.FujitsuScanBatchComplete,
-          'system',
-          {
-            message: `scanimage [pid=${scanimage.pid}] exited with code 0`,
-            disposition: 'success',
-          },
-          debug
-        );
-        results.resolveAll(Promise.resolve(undefined));
-      }
+    const exitPromise = new Promise<void>((resolve) => {
+      scanimage.once('exit', (code) => {
+        done = true;
+        if (code !== 0 && code !== SANE_STATUS_NO_DOCS) {
+          this.logger.log(
+            LogEventId.FujitsuScanBatchComplete,
+            'system',
+            {
+              message: `scanimage [pid=${scanimage.pid}] exited with code ${code}`,
+              disposition: 'failure',
+            },
+            debug
+          );
+          results.rejectAll(new Error(`scanimage exited with code=${code}`));
+        } else {
+          this.logger.log(
+            LogEventId.FujitsuScanBatchComplete,
+            'system',
+            {
+              message: `scanimage [pid=${scanimage.pid}] exited with code ${code}`,
+              disposition: 'success',
+            },
+            debug
+          );
+          results.resolveAll(Promise.resolve(undefined));
+        }
+        resolve();
+      });
     });
 
     return {
@@ -350,11 +354,10 @@ export class FujitsuScanner implements BatchScanner {
             debug
           );
           await new Promise<void>((resolve) => {
-            scanimage.stdin?.end(() => {
-              resolve();
-            });
+            scanimage.stdin?.end(() => resolve());
           });
         }
+        await exitPromise;
       },
     };
   }
