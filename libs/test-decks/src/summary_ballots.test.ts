@@ -192,8 +192,9 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
     // The audit id now travels in the encoded payload rather than as a prop.
     // Both pages must carry the same one so they can be correlated after they
     // are physically separated by scanning.
-    const [[, firstPage], [, secondPage]] = vi.mocked(encodeSummaryBallotPage)
-      .mock.calls;
+    const { calls } = vi.mocked(encodeSummaryBallotPage).mock;
+    const [, firstPage] = calls[0]!;
+    const [, secondPage] = calls[1]!;
     expect(firstPage.ballotAuditId).toBeDefined();
     expect(firstPage.ballotAuditId).toEqual(secondPage.ballotAuditId);
     expect(firstPage.pageNumber).toEqual(1);

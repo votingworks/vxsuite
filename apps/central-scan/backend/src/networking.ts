@@ -114,7 +114,8 @@ export function startScannerNetworking({
 
         let hostMachine: VxAdminHostMachine;
         if (hostMachines.length === 1) {
-          [hostMachine] = hostMachines;
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          hostMachine = hostMachines[0]!;
         } else {
           // Avahi advertisements alone can be stale (e.g. an orphaned
           // advertisement from a rebooted VxAdmin), so verify each advertised
@@ -146,7 +147,8 @@ export function startScannerNetworking({
             setConnectionInfo({ status: 'online-multiple-hosts-detected' });
             return;
           }
-          [hostMachine] = reachableHosts;
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          hostMachine = reachableHosts[0]!;
         }
         const { machineId: hostMachineId } = hostMachine;
         const apiClient = createApiClient(hostMachine.address);

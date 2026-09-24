@@ -410,10 +410,14 @@ async function extractBallotPositions(
     );
     // @coverage-defer
     if (writeInOptions.length > 0) {
-      [optionElement] = writeInOptions;
-      [bubbleElement] = await document.inspectElements(
-        `.${WRITE_IN_OPTION_CLASS} .${BUBBLE_CLASS}`
-      );
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      optionElement = writeInOptions[0]!;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      bubbleElement = (
+        await document.inspectElements(
+          `.${WRITE_IN_OPTION_CLASS} .${BUBBLE_CLASS}`
+        )
+      )[0]!;
     }
 
     // @coverage-defer
@@ -422,10 +426,14 @@ async function extractBallotPositions(
         `.${CANDIDATE_OPTION_CLASS}`
       );
       if (candidateOptions.length > 0) {
-        [optionElement] = candidateOptions;
-        [bubbleElement] = await document.inspectElements(
-          `.${CANDIDATE_OPTION_CLASS} .${BUBBLE_CLASS}`
-        );
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        optionElement = candidateOptions[0]!;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        bubbleElement = (
+          await document.inspectElements(
+            `.${CANDIDATE_OPTION_CLASS} .${BUBBLE_CLASS}`
+          )
+        )[0]!;
       }
     }
 
@@ -435,10 +443,14 @@ async function extractBallotPositions(
         `.${BALLOT_MEASURE_OPTION_CLASS}`
       );
       if (ballotMeasureOptions.length > 0) {
-        [optionElement] = ballotMeasureOptions;
-        [bubbleElement] = await document.inspectElements(
-          `.${BALLOT_MEASURE_OPTION_CLASS} .${BUBBLE_CLASS}`
-        );
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        optionElement = ballotMeasureOptions[0]!;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        bubbleElement = (
+          await document.inspectElements(
+            `.${BALLOT_MEASURE_OPTION_CLASS} .${BUBBLE_CLASS}`
+          )
+        )[0]!;
       }
     }
 

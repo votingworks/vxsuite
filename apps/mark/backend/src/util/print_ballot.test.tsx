@@ -376,7 +376,8 @@ describe(`printMode === "summary"`, () => {
     const encodedPages = vi
       .mocked(encodeSummaryBallotPage)
       .mock.calls.slice(-2);
-    const [[, firstPage], [, secondPage]] = encodedPages;
+    const [, firstPage] = encodedPages[0]!;
+    const [, secondPage] = encodedPages[1]!;
     expect(firstPage.ballotAuditId).toBeDefined();
     expect(firstPage.ballotAuditId).toEqual(secondPage.ballotAuditId);
     expect(firstPage.pageNumber).toEqual(1);

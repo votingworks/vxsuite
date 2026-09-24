@@ -332,7 +332,8 @@ export const vxGeneralElectionFixtures = lazyFixtures(() => {
     const contests = getContests({ election, ballotStyle });
     const { votes, unmarkedWriteIns } = createTestVotes(contests);
     const { paperSize } = election.ballotLayout;
-    const languageCode = ballotStyle.languages[0];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const languageCode = ballotStyle.languages[0]!;
     return {
       electionDir,
       paperSize,
@@ -714,6 +715,7 @@ export const nhGeneralElectionFixtures = lazyFixtures(() => {
 
   const customNhProps: Partial<NhBallotProps> = {
     electionTitleOverride: 'Overriden Election Title',
+
     electionSealOverride: vxFamousNamesFixtures.election.seal,
     clerkSignatureImage: `
         <svg xmlns="http://www.w3.org/2000/svg" width="200" height="50" viewBox="0 0 200 50">

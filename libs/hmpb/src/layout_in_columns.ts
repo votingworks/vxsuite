@@ -135,6 +135,7 @@ export function layOutInColumns<Element extends ElementWithHeight>({
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         nextElement!,
       ];
+
       if (!isColumnOverflowing(newColumns[lastNonEmptyColumnIndex])) {
         yield* possibleColumns(newColumns, restElements);
       }
@@ -149,6 +150,7 @@ export function layOutInColumns<Element extends ElementWithHeight>({
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       newColumns[firstEmptyColumnIndex] = [nextElement!];
       // @coverage-defer
+
       if (!isColumnOverflowing(newColumns[firstEmptyColumnIndex])) {
         yield* possibleColumns(newColumns, restElements);
       }

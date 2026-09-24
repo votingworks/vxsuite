@@ -518,9 +518,7 @@ async function executePrintBallotAndAssert(
     await loadImageData(scanFixtureFilepath)
   ).unsafeUnwrap();
   expect(interpretSimplexBmdBallot).toHaveBeenCalledTimes(1);
-  const {
-    calls: [[frontImage]],
-  } = vi.mocked(interpretSimplexBmdBallot).mock;
+  const [frontImage] = vi.mocked(interpretSimplexBmdBallot).mock.calls[0]!;
 
   assert(frontImage, 'No front image was passed to interpretSimplexBmdBallot');
   await expect(frontImage).toMatchImage(scanFixtureImageData);
@@ -958,9 +956,7 @@ test('insert and validate new blank sheet', async () => {
   clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
   await waitForStatus('waiting_for_ballot_data');
 
-  const {
-    calls: [[frontImage]],
-  } = vi.mocked(interpretSimplexBmdBallot).mock;
+  const [frontImage] = vi.mocked(interpretSimplexBmdBallot).mock.calls[0]!;
   assert(frontImage, 'No front image was passed to interpretSimplexBmdBallot');
 
   await expect(frontImage).toMatchImage(BLANK_PAGE_IMAGE_DATA);
@@ -1134,9 +1130,7 @@ describe('re-insert removed ballot', () => {
 
     mockInterpretResult.resolve(SUCCESSFUL_INTERPRETATION_MOCK);
     await waitForStatus('presenting_ballot');
-    const {
-      calls: [[frontImage]],
-    } = vi.mocked(interpretSimplexBmdBallot).mock;
+    const [frontImage] = vi.mocked(interpretSimplexBmdBallot).mock.calls[0]!;
 
     await expect(frontImage).toMatchImage(BLANK_PAGE_IMAGE_DATA);
   });

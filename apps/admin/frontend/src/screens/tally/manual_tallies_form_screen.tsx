@@ -680,8 +680,7 @@ function ContestForm({
         }
         assert(contestResults.contestType === 'candidate');
         assert(newContestResults.contestType === 'candidate');
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const candidateTally = contestResults.tallies[dataKey]!;
+        const candidateTally = contestResults.tallies[dataKey];
         const newCandidateTally: FormCandidateTally = candidateTally
           ? {
               ...candidateTally,

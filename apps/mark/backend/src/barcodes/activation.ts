@@ -114,6 +114,7 @@ export function setUpBarcodeActivation(ctx: Context): void {
       ctx.logger.log(LogEventId.Info, 'system', {
         message: `starting cardless voter session with machine state`,
         machineState: JSON.stringify(machineState),
+
         ballotStyleId: ballotStyle.id,
         precinctId,
       });

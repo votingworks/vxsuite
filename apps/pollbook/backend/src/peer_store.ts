@@ -146,7 +146,8 @@ export class PeerStore extends Store {
       LIMIT ?
     `;
     const queryParams = [
-      ...machineIds.flatMap((id) => [id, lastEventSyncedPerNode[id]]),
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      ...machineIds.flatMap((id) => [id, lastEventSyncedPerNode[id]!]),
     ];
 
     return this.client.transaction(() => {

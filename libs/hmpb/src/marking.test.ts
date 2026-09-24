@@ -127,7 +127,7 @@ test('marks a ballot with a vote for the third yesno option', async () => {
 test.each([
   {
     label: 'a wide write-in area',
-    fixtures: () => vxGeneralElectionFixtures.fixtureSpecs[0],
+    fixtures: () => vxGeneralElectionFixtures.fixtureSpecs[0]!,
   },
   {
     label: 'a narrow write-in area',

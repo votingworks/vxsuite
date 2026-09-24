@@ -728,9 +728,9 @@ describe('bmd write-in adjudication', () => {
 
     expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
 
-    [writeInCheckbox] = screen
+    writeInCheckbox = screen
       .getAllByRole('checkbox', { name: /machine-marked-mock-text/i })
-      .filter((el) => !(el as HTMLInputElement).disabled);
+      .filter((el) => !(el as HTMLInputElement).disabled)[0]!;
     expect(writeInCheckbox).not.toBeChecked();
 
     userEvent.click(writeInCheckbox);
