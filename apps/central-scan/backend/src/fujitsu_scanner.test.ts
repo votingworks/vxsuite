@@ -271,7 +271,7 @@ test('fujitsu scanner shortens UUID imprint prefix to first and last segments wh
     logger: new BaseLogger(LogSource.VxScanService),
   });
 
-  // UUID is 38 chars, which exceeds the 34-char limit, so it is shortened
+  // UUID plus chunk suffix is 38 chars, which exceeds the 34-char limit, so it is shortened
   // to the first and last hyphen-separated segments
   exec.mockReturnValueOnce(scanimage);
   scanner.scanSheets({
