@@ -4,6 +4,7 @@ declare namespace NodeJS {
    */
   export interface ProcessEnv {
     readonly NODE_ENV: 'development' | 'production' | 'test';
+    readonly GOOGLE_CLOUD_PROJECT_ID?: string;
     readonly SCAN_ALLOWED_EXPORT_PATTERNS?: string;
     readonly VX_CONFIG_ROOT?: string;
     readonly VX_MACHINE_ID?: string;

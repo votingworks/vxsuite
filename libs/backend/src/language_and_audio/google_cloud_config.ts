@@ -5,7 +5,6 @@ const DEVELOPMENT_GOOGLE_CLOUD_PROJECT_ID = 'astral-pursuit-395520';
  */
 export function getGoogleCloudProjectId(): string {
   return (
-    process.env['GOOGLE_CLOUD_PROJECT_ID'] ??
-    DEVELOPMENT_GOOGLE_CLOUD_PROJECT_ID
+    process.env.GOOGLE_CLOUD_PROJECT_ID ?? DEVELOPMENT_GOOGLE_CLOUD_PROJECT_ID
   );
 }
