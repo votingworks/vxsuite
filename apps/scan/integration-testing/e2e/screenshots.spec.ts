@@ -433,6 +433,14 @@ test('voting', async ({ page }, testInfo) => {
     'Print Polls Opened Report',
     'pw-print-polls-opened-report-button'
   );
+  await screenshotWithButtonHighlight(
+    'Send Polls Opened Report',
+    'pw-send-polls-opened-report-button'
+  );
+  await page.getByRole('button', { name: 'Send Polls Opened Report' }).click();
+  await page.getByTestId('quick-results-code').waitFor();
+  await screenshot('pw-polls-opened-live-reporting-qr-code');
+  await page.getByRole('button', { name: 'Done' }).click();
   mockCardRemoval();
   await page.getByText('Insert Your Ballot').waitFor();
 
@@ -555,6 +563,14 @@ test('voting', async ({ page }, testInfo) => {
     'Print Polls Closed Report',
     'pw-print-polls-closed-report-button'
   );
+  await screenshotWithButtonHighlight(
+    'Send Polls Closed Report',
+    'pw-send-polls-closed-report-button'
+  );
+  await page.getByRole('button', { name: 'Send Polls Closed Report' }).click();
+  await page.getByTestId('quick-results-code').waitFor();
+  await screenshot('pw-polls-closed-live-reporting-qr-code');
+  await page.getByRole('button', { name: 'Done' }).click();
   await screenshotWithButtonHighlight('Power Down', 'pw-power-down');
 
   mockCardRemoval();
