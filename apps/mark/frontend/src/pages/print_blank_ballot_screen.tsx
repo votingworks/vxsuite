@@ -30,6 +30,7 @@ import {
   Loading,
   SearchSelect,
   H2,
+  PrintJobFailedModal,
 } from '@votingworks/ui';
 
 import styled from 'styled-components';
@@ -195,15 +196,10 @@ export function PrintBlankBallotScreen({
         />
       )}
       {printOutcome === 'failed' && (
-        <Modal
-          title="Ballot Not Printed"
-          content={
-            <React.Fragment>
-              <P>The ballot was not sent to the printer.</P>
-              {jobStatus?.reason && <P>{jobStatus.reason}</P>}
-            </React.Fragment>
-          }
-          actions={<Button onPress={() => setJobId(undefined)}>Close</Button>}
+        <PrintJobFailedModal
+          multipleBallotsAttempted={false}
+          reason={jobStatus?.reason}
+          onClose={() => setJobId(undefined)}
         />
       )}
       <ElectionInfoBar
