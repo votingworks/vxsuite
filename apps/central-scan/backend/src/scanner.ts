@@ -46,6 +46,7 @@ const debug = makeDebug('scan:state-machine');
 interface BatchContext {
   control: BatchControl;
   imageDirectory: string;
+  chunkIndex: number;
 }
 
 interface Context {
@@ -101,49 +102,57 @@ function buildMachine({
 }) {
   const { store } = workspace;
 
-  async function startBatch(batchId: string): Promise<BatchContext> {
-    const imageDirectory = join(workspace.ballotImagesPath, `batch-${batchId}`);
+  async function startScanning(
+    imageDirectory: string,
+    batchId: Id,
+    chunkIndex: number
+  ): Promise<BatchContext> {
     const hasImprinter = await scanner.isImprinterAttached();
     logger.log(LogEventId.ImprinterStatus, 'system', {
-      // @coverage-defer
       message: `Imprinter is ${hasImprinter ? 'attached' : 'not attached'}.`,
     });
+    return {
+      control: scanner.scanSheets({
+        directory: imageDirectory,
+        pageSize: store.getBallotPaperSizeForElection(),
+        // If the imprinter is attached, imprint an ID prefixed by the batch ID
+        // and chunk index. The scanner restarts its imprint counter each time
+        // we tell it to start a batch, so we add a chunk index to ensure unique
+        // imprint IDs within our logical batch.
+        imprintIdPrefix: hasImprinter ? `${batchId}_${chunkIndex}` : undefined,
+      }),
+      imageDirectory,
+      chunkIndex,
+    };
+  }
+
+  async function startBatch(batchId: Id): Promise<BatchContext> {
+    const imageDirectory = join(workspace.ballotImagesPath, `batch-${batchId}`);
     await fsExtra.ensureDir(imageDirectory);
-    const control = scanner.scanSheets({
-      directory: imageDirectory,
-      pageSize: store.getBallotPaperSizeForElection(),
-      // @coverage-defer
-      // If the imprinter is attached, imprint an ID prefixed by the batch ID
-      imprintIdPrefix: hasImprinter ? batchId : undefined,
-    });
+    const batchContext = await startScanning(imageDirectory, batchId, 0);
     void logger.logAsCurrentRole(LogEventId.ScannerBatchStarted, {
       disposition: 'success',
       message: `User has begun scanning a new batch with ID: ${batchId}`,
       batchId,
     });
-    return { control, imageDirectory };
+    return batchContext;
   }
 
   async function resumeBatch({
     batchId,
     batchContext,
   }: Context): Promise<BatchContext> {
-    const { control, imageDirectory } = assertDefined(batchContext);
+    const { control, imageDirectory, chunkIndex } = assertDefined(batchContext);
     // Since the scanner ends its "batch" internally when the tray runs out of paper,
     // we need to start a new scanner batch when resuming after that. If we
     // paused for another reason (e.g. manual pause or adjudication), then we
     // need to end the current scanner batch before starting a new one.
     await control.endBatch();
-    const hasImprinter = await scanner.isImprinterAttached();
-    const newControl = scanner.scanSheets({
-      directory: imageDirectory,
-      pageSize: store.getBallotPaperSizeForElection(),
-      // @coverage-defer
-      // TODO: how do we make sure imprinting doesn't produce duplicate IDs
-      // after pause/resume?
-      imprintIdPrefix: hasImprinter ? batchId : undefined,
-    });
-    return { control: newControl, imageDirectory };
+    return startScanning(
+      imageDirectory,
+      assertDefined(batchId),
+      chunkIndex + 1
+    );
   }
 
   async function interpretAndSaveSheet(
