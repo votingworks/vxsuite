@@ -4464,9 +4464,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      stream:
-        specifier: ^0.0.3
-        version: 0.0.3
       yargs:
         specifier: 17.7.1
         version: 17.7.1
@@ -9739,10 +9736,6 @@ packages:
     resolution: {integrity: sha512-QLyTNiZ2KDOibvFPlZ6ZngVsZ/0gYnE6uTXi5aoDg8ed3AkJAz4sEje3Y8a29hQ1s6A99MZXe47fLAXQ1rTqaw==}
     engines: {node: '>= 12.0.0'}
 
-  component-emitter@2.0.0:
-    resolution: {integrity: sha512-4m5s3Me2xxlVKG9PkZpQqHQR7bgpnN7joDMJ4yvVkVXngjoITG76IaZmzmywSeRTeTpc6N6r3H3+KyUurV8OYw==}
-    engines: {node: '>=18'}
-
   compress-commons@4.1.1:
     resolution: {integrity: sha512-QLdDLCKNV2dtoTorqgxngQCMA+gWXkM/Nwu7FpeBhk/RdkzimqC3jueb/FDmaZeXh+uby1jkBqE3xArsLBE5wQ==}
     engines: {node: '>= 10'}
@@ -13375,9 +13368,6 @@ packages:
 
   stream-shift@1.0.1:
     resolution: {integrity: sha512-AiisoFqQ0vbGcZgQPY1cdP2I76glaVA/RauYR4G4thNFgkTqr90yXTo4LYX60Jl+sIlPNHHdGSwo01AvbKUSVQ==}
-
-  stream@0.0.3:
-    resolution: {integrity: sha512-aMsbn7VKrl4A2T7QAQQbzgN7NVc70vgF5INQrBXqn4dCXN1zy3L9HGgLO5s7PExmdrzTJ8uR/27aviW8or8/+A==}
 
   streamx@2.15.1:
     resolution: {integrity: sha512-fQMzy2O/Q47rgwErk/eGeLu/roaFWV0jVsogDmrszM9uIw8L5OA+t+V93MgYlufNptfjmYR1tOMWhei/Eh7TQA==}
@@ -18828,8 +18818,6 @@ snapshots:
 
   comment-parser@1.4.0: {}
 
-  component-emitter@2.0.0: {}
-
   compress-commons@4.1.1:
     dependencies:
       buffer-crc32: 0.2.13
@@ -23183,10 +23171,6 @@ snapshots:
       stubs: 3.0.0
 
   stream-shift@1.0.1: {}
-
-  stream@0.0.3:
-    dependencies:
-      component-emitter: 2.0.0
 
   streamx@2.15.1:
     dependencies:
