@@ -131,9 +131,6 @@ importers:
       express:
         specifier: 4.18.2
         version: 4.18.2
-      fs-extra:
-        specifier: 11.1.1
-        version: 11.1.1
       lodash.memoize:
         specifier: ^4.1.2
         version: 4.1.2
@@ -165,9 +162,6 @@ importers:
       '@types/express':
         specifier: 4.17.14
         version: 4.17.14
-      '@types/fs-extra':
-        specifier: 11.0.1
-        version: 11.0.1
       '@types/jest-image-snapshot':
         specifier: ^6.4.0
         version: 6.4.0
@@ -276,9 +270,6 @@ importers:
       fetch-mock:
         specifier: 9.11.0
         version: 9.11.0(node-fetch@2.7.0)
-      fs-extra:
-        specifier: 11.1.1
-        version: 11.1.1
       history:
         specifier: 4.10.1
         version: 4.10.1
@@ -560,9 +551,6 @@ importers:
       express:
         specifier: 4.18.2
         version: 4.18.2
-      fs-extra:
-        specifier: 11.1.1
-        version: 11.1.1
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -582,9 +570,6 @@ importers:
       '@types/express':
         specifier: 4.17.14
         version: 4.17.14
-      '@types/fs-extra':
-        specifier: 11.0.1
-        version: 11.0.1
       '@types/jest-image-snapshot':
         specifier: ^6.4.0
         version: 6.4.0
@@ -908,9 +893,6 @@ importers:
       express-openid-connect:
         specifier: 2.17.1
         version: 2.17.1(express@4.18.2)
-      fs-extra:
-        specifier: 11.1.1
-        version: 11.1.1
       nanoid:
         specifier: ^3.3.7
         version: 3.3.17
@@ -936,9 +918,6 @@ importers:
       '@types/express':
         specifier: 4.17.14
         version: 4.17.14
-      '@types/fs-extra':
-        specifier: 11.0.1
-        version: 11.0.1
       '@types/jest-image-snapshot':
         specifier: ^6.4.0
         version: 6.4.0
@@ -1261,9 +1240,6 @@ importers:
       express:
         specifier: 4.18.2
         version: 4.18.2
-      fs-extra:
-        specifier: 11.1.1
-        version: 11.1.1
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -1289,9 +1265,6 @@ importers:
       '@types/express':
         specifier: 4.17.14
         version: 4.17.14
-      '@types/fs-extra':
-        specifier: 11.0.1
-        version: 11.0.1
       '@types/jest-image-snapshot':
         specifier: ^6.4.0
         version: 6.4.0
@@ -1627,9 +1600,6 @@ importers:
       express:
         specifier: 4.18.2
         version: 4.18.2
-      fs-extra:
-        specifier: 11.1.1
-        version: 11.1.1
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -1652,9 +1622,6 @@ importers:
       '@types/express':
         specifier: 4.17.14
         version: 4.17.14
-      '@types/fs-extra':
-        specifier: 11.0.1
-        version: 11.0.1
       '@types/jest-image-snapshot':
         specifier: ^6.4.0
         version: 6.4.0
@@ -2002,9 +1969,6 @@ importers:
       express:
         specifier: 4.18.2
         version: 4.18.2
-      fs-extra:
-        specifier: 11.1.1
-        version: 11.1.1
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
@@ -2036,9 +2000,6 @@ importers:
       '@types/express':
         specifier: 4.17.14
         version: 4.17.14
-      '@types/fs-extra':
-        specifier: 11.0.1
-        version: 11.0.1
       '@types/jest-image-snapshot':
         specifier: ^6.4.0
         version: 6.4.0
@@ -2328,9 +2289,6 @@ importers:
       express:
         specifier: 4.18.2
         version: 4.18.2
-      fs-extra:
-        specifier: 11.1.1
-        version: 11.1.1
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
@@ -2353,9 +2311,6 @@ importers:
       '@types/express':
         specifier: 4.17.14
         version: 4.17.14
-      '@types/fs-extra':
-        specifier: 11.0.1
-        version: 11.0.1
       '@types/jest-image-snapshot':
         specifier: ^6.4.0
         version: 6.4.0
@@ -2622,6 +2577,9 @@ importers:
       '@votingworks/dev-dock-backend':
         specifier: workspace:*
         version: link:../../../libs/dev-dock/backend
+      '@votingworks/fs':
+        specifier: workspace:*
+        version: link:../../../libs/fs
       '@votingworks/fujitsu-thermal-printer':
         specifier: workspace:*
         version: link:../../../libs/fujitsu-thermal-printer
@@ -2670,9 +2628,6 @@ importers:
       express:
         specifier: 4.18.2
         version: 4.18.2
-      fs-extra:
-        specifier: 11.1.1
-        version: 11.1.1
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -2695,9 +2650,6 @@ importers:
       '@types/express':
         specifier: 4.17.14
         version: 4.17.14
-      '@types/fs-extra':
-        specifier: 11.0.1
-        version: 11.0.1
       '@types/jest-image-snapshot':
         specifier: ^6.4.0
         version: 6.4.0
@@ -8519,9 +8471,6 @@ packages:
   '@types/fetch-mock@7.3.3':
     resolution: {integrity: sha512-NLMbBVQh3yx6dMd5CnVxp9ZBhQYuFzWIlRk0kQbgBfyL75u3wtZyUTuFsK9Wb9G3eIw77yja858j1fQAWqM9Og==}
 
-  '@types/fs-extra@11.0.1':
-    resolution: {integrity: sha512-MxObHvNl4A69ofaTRU8DFqvgzzv8s9yRtaPPm5gud9HDNvpB3GPQFvNuTWAI59B9huVGV5jXYJwbCsmBsOGYWA==}
-
   '@types/gensync@1.0.5':
     resolution: {integrity: sha512-MbsRCT7mTikHwKZ0X+LVUTLRrZZRLipTuXEO9qOYO+zmjMVk81axyClMROf6uoPD9MRVu46bx8zoR0Ad9q3NAg==}
 
@@ -8569,9 +8518,6 @@ packages:
 
   '@types/json5@0.0.29':
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
-
-  '@types/jsonfile@6.1.1':
-    resolution: {integrity: sha512-GSgiRCVeapDN+3pqA35IkQwasaCh/0YFH5dEF6S88iDvEn901DjOeH3/QPY+XYP1DFzDZPvIvfeEgk+7br5png==}
 
   '@types/keyv@3.1.4':
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
@@ -10734,10 +10680,6 @@ packages:
 
   fs-constants@1.0.0:
     resolution: {integrity: sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==}
-
-  fs-extra@11.1.1:
-    resolution: {integrity: sha512-MGIE4HOvQCeUCzmlHs0vXpih4ysz4wg9qiSAu6cd42lVwPbTM1TjV7RusoyQqMmk/95gdQZX72u+YW+c3eEpFQ==}
-    engines: {node: '>=14.14'}
 
   fs-extra@11.4.0:
     resolution: {integrity: sha512-EQsFzMUJkCKGr1ePqlYADkIUmHW1s3ZXr5Yqy6wbGrfUCphpl2maM/kyOIRA2HpP3AaFQTZXD4ldjek+nccddA==}
@@ -17648,11 +17590,6 @@ snapshots:
 
   '@types/fetch-mock@7.3.3': {}
 
-  '@types/fs-extra@11.0.1':
-    dependencies:
-      '@types/jsonfile': 6.1.1
-      '@types/node': 24.13.3
-
   '@types/gensync@1.0.5': {}
 
   '@types/glob@7.2.0':
@@ -17710,10 +17647,6 @@ snapshots:
   '@types/json-schema@7.0.15': {}
 
   '@types/json5@0.0.29': {}
-
-  '@types/jsonfile@6.1.1':
-    dependencies:
-      '@types/node': 24.13.3
 
   '@types/keyv@3.1.4':
     dependencies:
@@ -20129,12 +20062,6 @@ snapshots:
   fresh@0.5.2: {}
 
   fs-constants@1.0.0: {}
-
-  fs-extra@11.1.1:
-    dependencies:
-      graceful-fs: 4.2.11
-      jsonfile: 6.1.0
-      universalify: 2.0.0
 
   fs-extra@11.4.0:
     dependencies:

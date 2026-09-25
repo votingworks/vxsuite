@@ -5,8 +5,10 @@ import { join, relative } from 'node:path';
 import {
   appendFile,
   mkdir,
+  readdir,
   readFile,
   rm,
+  stat,
   symlink,
   writeFile,
 } from 'node:fs/promises';
@@ -28,7 +30,6 @@ import {
   LATEST_SOFTWARE_VERSION,
   safeParseJson,
 } from '@votingworks/types';
-import { exists } from 'fs-extra';
 import { syncFilesystem } from '@votingworks/fs';
 import {
   addCvrWithBallotImage,
@@ -650,9 +651,9 @@ test.runIf(existsSync('/proc/self/mem'))(
       message: expect.stringContaining(unreadableFile.path),
     });
 
-    await expect(
-      exists(join(workspacePath, ADMIN_WORKSPACE_DATABASE_NAME))
-    ).resolves.toBeFalsy();
+    await expect(readdir(workspacePath)).resolves.not.toContain(
+      ADMIN_WORKSPACE_DATABASE_NAME
+    );
   }
 );
 
@@ -676,9 +677,9 @@ test('restore fails on missing files from the backup manifest', async () => {
     message: expect.stringContaining(missingFile.path),
   });
 
-  await expect(
-    exists(join(workspacePath, ADMIN_WORKSPACE_DATABASE_NAME))
-  ).resolves.toBeFalsy();
+  await expect(readdir(workspacePath)).resolves.not.toContain(
+    ADMIN_WORKSPACE_DATABASE_NAME
+  );
 });
 
 // The manifest is signed, but it names paths and the drive decides what sits
@@ -705,9 +706,9 @@ test.runIf(process.platform === 'linux')(
       message: expect.stringContaining(swappedFile.path),
     });
 
-    await expect(
-      exists(join(workspacePath, ADMIN_WORKSPACE_DATABASE_NAME))
-    ).resolves.toBeFalsy();
+    await expect(readdir(workspacePath)).resolves.not.toContain(
+      ADMIN_WORKSPACE_DATABASE_NAME
+    );
   }
 );
 
@@ -733,9 +734,9 @@ test('restore fails if any backup files are an unexpected size', async () => {
     message: expect.stringContaining(grownFile.path),
   });
 
-  await expect(
-    exists(join(workspacePath, ADMIN_WORKSPACE_DATABASE_NAME))
-  ).resolves.toBeFalsy();
+  await expect(readdir(workspacePath)).resolves.not.toContain(
+    ADMIN_WORKSPACE_DATABASE_NAME
+  );
 });
 
 test('restore fails if any backup files have unexpected content (by hash)', async () => {
@@ -763,9 +764,9 @@ test('restore fails if any backup files have unexpected content (by hash)', asyn
     message: expect.stringContaining(editedFile.path),
   });
 
-  await expect(
-    exists(join(workspacePath, ADMIN_WORKSPACE_DATABASE_NAME))
-  ).resolves.toBeFalsy();
+  await expect(readdir(workspacePath)).resolves.not.toContain(
+    ADMIN_WORKSPACE_DATABASE_NAME
+  );
 });
 
 test.each<{ description: string; makePath: (escapeTarget: string) => string }>([
@@ -810,7 +811,7 @@ test.each<{ description: string; makePath: (escapeTarget: string) => string }>([
     // own error type.
     expect(result.err()).toMatchObject({ type: 'backup-read-failed' });
 
-    await expect(exists(escapeTarget)).resolves.toBeFalsy();
+    await expect(stat(escapeTarget)).rejects.toThrow();
     // Vetting failed before the restore touched the workspace, so the
     // workspace keeps what it had.
     expect(listWorkspace(workspacePath)).toEqual([
@@ -883,9 +884,9 @@ test('restore fails if there is no current election in the backup', async () => 
     ),
   });
 
-  await expect(
-    exists(join(workspacePath, ADMIN_WORKSPACE_DATABASE_NAME))
-  ).resolves.toBeFalsy();
+  await expect(readdir(workspacePath)).resolves.not.toContain(
+    ADMIN_WORKSPACE_DATABASE_NAME
+  );
 });
 
 test('restore clears whatever an unconfigured workspace already holds', async () => {
@@ -923,9 +924,9 @@ test('restore clears whatever an unconfigured workspace already holds', async ()
 
   // The workspace has to end up holding exactly what the backup provided:
   // anything already there would otherwise merge into the restored state.
-  await expect(
-    exists(join(workspacePath, 'stray-directory'))
-  ).resolves.toBeFalsy();
+  await expect(readdir(workspacePath)).resolves.not.toContain(
+    'stray-directory'
+  );
   using workspace = openWorkspace(
     workspacePath,
     mockLogger({ fn: vi.fn, role: 'system_administrator' })
@@ -968,7 +969,7 @@ test('an interrupted restore can be recovered by restoring again', async () => {
     })
   );
 
-  await expect(exists(restoreStatePath)).resolves.toBeFalsy();
+  await expect(stat(restoreStatePath)).rejects.toThrow();
   using workspace = openWorkspace(
     workspacePath,
     mockLogger({ fn: vi.fn, role: 'system_administrator' })

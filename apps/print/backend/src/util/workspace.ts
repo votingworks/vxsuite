@@ -1,4 +1,4 @@
-import { ensureDirSync } from 'fs-extra';
+import { mkdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import type { BaseLogger } from '@votingworks/logging';
 import type { DiskSpaceSummary } from '@votingworks/utils';
@@ -31,7 +31,7 @@ export function createWorkspace(
   options: { store?: Store } = {}
 ): Workspace {
   const resolvedRoot = resolve(root);
-  ensureDirSync(resolvedRoot);
+  mkdirSync(resolvedRoot, { recursive: true });
 
   const dbPath = join(resolvedRoot, 'print.db');
   const store = options.store || Store.fileStore(dbPath, baseLogger);

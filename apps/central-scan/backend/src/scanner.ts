@@ -11,7 +11,7 @@ import {
   type SheetOf,
 } from '@votingworks/types';
 import makeDebug from 'debug';
-import * as fsExtra from 'fs-extra';
+import { mkdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { randomUUID as uuid } from 'node:crypto';
 import {
@@ -128,7 +128,7 @@ function buildMachine({
 
   async function startBatch(batchId: Id): Promise<BatchContext> {
     const imageDirectory = join(workspace.ballotImagesPath, `batch-${batchId}`);
-    await fsExtra.ensureDir(imageDirectory);
+    await mkdir(imageDirectory, { recursive: true });
     const batchContext = await startScanning(imageDirectory, batchId, 0);
     void logger.logAsCurrentRole(LogEventId.ScannerBatchStarted, {
       disposition: 'success',
@@ -267,7 +267,7 @@ function buildMachine({
     try {
       await control.endBatch();
     } finally {
-      await fsExtra.remove(imageDirectory);
+      await rm(imageDirectory, { recursive: true, force: true });
     }
   }
 
