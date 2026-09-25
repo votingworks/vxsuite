@@ -57,14 +57,28 @@ export async function connectToBarcodeScannerSocket(
  * Manages the connection to the barcode scanner daemon.
  */
 export class BarcodeScannerClient {
+  private readonly logger: Logger;
+  private scannedDocument?: AamvaDocument;
+  private error?: BarcodeScannerError;
+  private connectedToDaemon: boolean;
+  private readonly devicePath: string;
+  private ttlTimeout?: ReturnType<typeof setTimeout>;
+
   constructor(
-    private readonly logger: Logger,
-    private scannedDocument: Optional<AamvaDocument> = undefined,
-    private error: Optional<BarcodeScannerError> = undefined,
-    private connectedToDaemon = false,
-    private readonly devicePath = DEVICE_PATH,
-    private ttlTimeout: Optional<ReturnType<typeof setTimeout>> = undefined
-  ) {}
+    logger: Logger,
+    scannedDocument?: AamvaDocument,
+    error?: BarcodeScannerError,
+    connectedToDaemon = false,
+    devicePath: string = DEVICE_PATH,
+    ttlTimeout?: ReturnType<typeof setTimeout>
+  ) {
+    this.logger = logger;
+    this.scannedDocument = scannedDocument;
+    this.error = error;
+    this.connectedToDaemon = connectedToDaemon;
+    this.devicePath = devicePath;
+    this.ttlTimeout = ttlTimeout;
+  }
 
   // Returns the latest payload from the barcode scanner daemon, consuming it in the process,
   // or undefined if there isn't one.
