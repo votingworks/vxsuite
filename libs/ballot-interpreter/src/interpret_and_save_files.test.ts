@@ -5,7 +5,10 @@ import {
   DEFAULT_FAMOUS_NAMES_VOTES,
   renderBmdBallotFixture,
 } from '@votingworks/bmd-ballot-fixtures';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  makeTemporaryDirectory,
+} from '@votingworks/fixtures';
 import { BLANK_PAGE_IMAGE_DATA, loadImageData } from '@votingworks/image-utils';
 import {
   DEFAULT_MARK_THRESHOLDS,
@@ -13,7 +16,6 @@ import {
   asSheet,
 } from '@votingworks/types';
 import { pdfToPageImages } from '../test/helpers/interpretation.js';
-import { tmpDir } from '../test/helpers/tmp.js';
 import { interpretSheetAndSaveImages } from './interpret.js';
 
 test('interprets ballot images and saves images for storage', async () => {
@@ -30,7 +32,7 @@ test('interprets ballot images and saves images for storage', async () => {
     ).toArray()
   );
 
-  const ballotImagesPath = tmpDir();
+  const ballotImagesPath = makeTemporaryDirectory();
   const result = await interpretSheetAndSaveImages(
     {
       electionDefinition,
@@ -57,7 +59,7 @@ test('saves images even when interpretation fails', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
 
-  const ballotImagesPath = tmpDir();
+  const ballotImagesPath = makeTemporaryDirectory();
   const result = await interpretSheetAndSaveImages(
     {
       electionDefinition,

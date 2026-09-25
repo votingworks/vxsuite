@@ -2,9 +2,8 @@ import { test } from 'vitest';
 import { writeImageData } from '@votingworks/image-utils';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { join } from 'node:path';
-import { dirSync } from 'tmp';
-import { removeSync } from 'fs-extra';
 import assert from 'node:assert';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { pdfToPageImages } from '../test/helpers/interpretation.js';
 import { writeImageDataToPng } from '../src/bubble-ballot-ts/index.js';
 import { benchmarkRegressionTest } from './benchmarking.js';
@@ -18,25 +17,21 @@ test('writeImageData (Canvas) vs writeImageToPng (Rust)', async () => {
   // eslint-disable-next-line no-console
   console.log(`Image size: ${image.width}x${image.height}`);
 
-  const tmpPath = dirSync().name;
+  const tmpPath = makeTemporaryDirectory();
 
-  try {
-    await benchmarkRegressionTest({
-      label: 'writeImageData (Canvas)',
-      func: async () => {
-        await writeImageData(join(tmpPath, 'canvas.png'), image);
-      },
-      runs: 50,
-    });
+  await benchmarkRegressionTest({
+    label: 'writeImageData (Canvas)',
+    func: async () => {
+      await writeImageData(join(tmpPath, 'canvas.png'), image);
+    },
+    runs: 50,
+  });
 
-    await benchmarkRegressionTest({
-      label: 'writeImageToPng (Rust)',
-      func: async () => {
-        await writeImageDataToPng(join(tmpPath, 'rust.png'), image);
-      },
-      runs: 50,
-    });
-  } finally {
-    removeSync(tmpPath);
-  }
+  await benchmarkRegressionTest({
+    label: 'writeImageToPng (Rust)',
+    func: async () => {
+      await writeImageDataToPng(join(tmpPath, 'rust.png'), image);
+    },
+    runs: 50,
+  });
 });
