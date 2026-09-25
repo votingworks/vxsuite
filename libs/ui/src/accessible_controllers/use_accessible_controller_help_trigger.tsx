@@ -1,5 +1,5 @@
 import React from 'react';
-import { Keybinding } from '../keybindings.js';
+import { useKeybindings } from '../keybindings_context.js';
 
 export interface UseAccessibleControllerHelpTriggerResult {
   shouldShowControllerSandbox: boolean;
@@ -10,15 +10,16 @@ const IGNORED_MODIFIER_KEY_PRESSES = new Set(['Shift']);
 export function useAccessibleControllerHelpTrigger(): UseAccessibleControllerHelpTriggerResult {
   const [shouldShowHelp, setShouldShowHelp] = React.useState(false);
   const [lastKeyPress, setLastKeyPress] = React.useState<string>();
+  const { TOGGLE_HELP: helpKey } = useKeybindings();
 
-  // Toggles `shouldShowHelp` from `false` to `true` on a single
-  // `Keybinding.TOGGLE_HELP` event and toggles `true` to `false` only after
-  // two consecutive `Keybinding.TOGGLE_HELP` events.
+  // Toggles `shouldShowHelp` from `false` to `true` on a single help key
+  // event and toggles `true` to `false` only after two consecutive help key
+  // events.
   React.useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      const helpKeyPressed = event.key === Keybinding.TOGGLE_HELP;
+      const helpKeyPressed = event.key === helpKey;
       const isSecondConsecutiveHelpKeyPress =
-        helpKeyPressed && lastKeyPress === Keybinding.TOGGLE_HELP;
+        helpKeyPressed && lastKeyPress === helpKey;
 
       const isSandboxActive = shouldShowHelp;
       const shouldToggle =
@@ -40,7 +41,7 @@ export function useAccessibleControllerHelpTrigger(): UseAccessibleControllerHel
     document.addEventListener('keydown', onKeyDown);
 
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [lastKeyPress, shouldShowHelp]);
+  }, [helpKey, lastKeyPress, shouldShowHelp]);
 
   return { shouldShowControllerSandbox: shouldShowHelp };
 }

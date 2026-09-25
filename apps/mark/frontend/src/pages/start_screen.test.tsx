@@ -83,7 +83,9 @@ test('renders repeated audio-only intro prompt', () => {
   screen.getByText(
     'Press the left arrow button to hear voting instructions. ' +
       'Press the right arrow button to start voting. ' +
-      'The arrow pad is at the top of the controller.'
+      'The arrow pad is at the top of the controller. ' +
+      'Press the button with three dots at the bottom right corner of the ' +
+      'controller for help with the controller.'
   );
 });
 
