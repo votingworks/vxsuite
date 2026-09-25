@@ -69,7 +69,9 @@ test('fujitsu scanner returns ballot audit id on scans when imprinting', async (
   });
 
   exec.mockReturnValueOnce(scanimage);
-  const sheets = scanner.scanSheets({ imprintIdPrefix: 'test-batch' });
+  const sheets = scanner.scanSheets({
+    imprintIdPrefix: 'b28733b5-dc01-4901-b433-ea179942993b_1',
+  });
 
   scanimage.stderr.append(
     [
@@ -90,7 +92,7 @@ test('fujitsu scanner returns ballot audit id on scans when imprinting', async (
   await expect(sheets.scanSheet()).resolves.toEqual({
     frontPath: '/tmp/image-0001.png',
     backPath: '/tmp/image-0002.png',
-    ballotAuditId: 'test-batch_0000',
+    ballotAuditId: 'b28733b5-dc01-4901-b433-ea179942993b_1_0000',
   });
   await expect(sheets.scanSheet()).resolves.toBeUndefined();
 });
@@ -269,11 +271,11 @@ test('fujitsu scanner shortens UUID imprint prefix to first and last segments wh
     logger: new BaseLogger(LogSource.VxScanService),
   });
 
-  // UUID is 36 chars, which exceeds the 34-char limit, so it is shortened
+  // UUID is 38 chars, which exceeds the 34-char limit, so it is shortened
   // to the first and last hyphen-separated segments
   exec.mockReturnValueOnce(scanimage);
   scanner.scanSheets({
-    imprintIdPrefix: 'b28733b5-dc01-4901-b433-ea179942993b',
+    imprintIdPrefix: 'b28733b5-dc01-4901-b433-ea179942993b_1',
   });
 
   scanimage.stderr.append(
@@ -286,7 +288,10 @@ test('fujitsu scanner shortens UUID imprint prefix to first and last segments wh
   );
   expect(exec).toHaveBeenCalledWith(
     'scanimage',
-    expect.arrayContaining(['--endorser-string', 'b28733b5-ea179942993b_%04ud'])
+    expect.arrayContaining([
+      '--endorser-string',
+      'b28733b5-ea179942993b_1_%04ud',
+    ])
   );
 });
 

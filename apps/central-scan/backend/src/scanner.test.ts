@@ -1,5 +1,5 @@
 import { expect, Mock, onTestFinished, test, vi } from 'vitest';
-import { deferred } from '@votingworks/basics';
+import { assertDefined, deferred } from '@votingworks/basics';
 import {
   makeTemporaryDirectory,
   readElectionGeneralDefinition,
@@ -198,6 +198,56 @@ test('resuming a paused batch restarts the scanner session', async () => {
     message: 'Event: RESUME_BATCH',
     eventObject: '{"type":"RESUME_BATCH"}',
   });
+});
+
+test('imprint prefix is unique across pauses within a batch', async () => {
+  const scanner = makeMockScanner();
+  const { machine, workspace } = await setup(scanner);
+  configureElection(workspace);
+  vi.spyOn(scanner, 'isImprinterAttached').mockResolvedValue(true);
+  const scanSheets = vi.spyOn(scanner, 'scanSheets');
+
+  scanner.withNextScannerSession().end();
+  await machine.startBatch();
+  const [batch] = workspace.store.getBatches();
+  await waitForStatus(machine, {
+    state: 'paused',
+    pauseReason: { type: 'tray-empty' },
+  });
+
+  scanner.withNextScannerSession().end();
+  await machine.resumeBatch();
+  await waitForStatus(machine, {
+    state: 'paused',
+    pauseReason: { type: 'tray-empty' },
+  });
+
+  scanner.withNextScannerSession().end();
+  await machine.resumeBatch();
+  await waitForStatus(machine, {
+    state: 'paused',
+    pauseReason: { type: 'tray-empty' },
+  });
+
+  await machine.saveBatch();
+  scanner.withNextScannerSession().end();
+  await machine.startBatch();
+  const newBatch = assertDefined(
+    workspace.store.getBatches().find((b) => b.id !== batch.id)
+  );
+  await waitForStatus(machine, {
+    state: 'paused',
+    pauseReason: { type: 'tray-empty' },
+  });
+
+  expect(
+    scanSheets.mock.calls.map(([options]) => options?.imprintIdPrefix)
+  ).toEqual([
+    `${batch.id}_0`,
+    `${batch.id}_1`,
+    `${batch.id}_2`,
+    `${newBatch.id}_0`,
+  ]);
 });
 
 test('discarding a paused batch deletes it', async () => {
