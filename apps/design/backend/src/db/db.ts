@@ -22,10 +22,13 @@ export class Db {
   private readonly pool: Pool;
 
   private readonly logger: BaseLogger;
-  // @coverage-defer
   private readonly opts: { defaultSchemaName?: string };
 
-  constructor(logger: BaseLogger, opts: { defaultSchemaName?: string } = {}) {
+  constructor(
+    logger: BaseLogger,
+    // @coverage-defer
+    opts: { defaultSchemaName?: string } = {}
+  ) {
     this.logger = logger;
     this.opts = opts;
 
