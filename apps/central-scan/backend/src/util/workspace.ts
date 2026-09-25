@@ -1,4 +1,4 @@
-import { emptyDirSync, ensureDirSync } from 'fs-extra';
+import { mkdirSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
@@ -52,7 +52,7 @@ export function createWorkspace(root: string, logger: BaseLogger): Workspace {
   const resolvedRoot = resolve(root);
   const ballotImagesPath = join(resolvedRoot, 'ballot-images');
   const uploadsPath = join(resolvedRoot, 'uploads');
-  ensureDirSync(ballotImagesPath);
+  mkdirSync(ballotImagesPath, { recursive: true });
 
   const dbPath = join(resolvedRoot, 'ballots.db');
   const store = Store.fileStore(dbPath, logger);
@@ -64,16 +64,17 @@ export function createWorkspace(root: string, logger: BaseLogger): Workspace {
     store,
     resetElectionSession() {
       store.resetElectionSession();
-      emptyDirSync(ballotImagesPath);
-      ensureDirSync(ballotImagesPath);
+      rmSync(ballotImagesPath, { recursive: true, force: true });
+      mkdirSync(ballotImagesPath, { recursive: true });
     },
     reset() {
       store.reset();
-      emptyDirSync(ballotImagesPath);
-      ensureDirSync(ballotImagesPath);
+      rmSync(ballotImagesPath, { recursive: true, force: true });
+      mkdirSync(ballotImagesPath, { recursive: true });
     },
     clearUploads() {
-      emptyDirSync(uploadsPath);
+      rmSync(uploadsPath, { recursive: true, force: true });
+      mkdirSync(uploadsPath, { recursive: true });
     },
     getDiskSpaceSummary: async () => {
       const [summary] = await getDiskSpaceSummaries([resolvedRoot]);
