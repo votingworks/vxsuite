@@ -3,7 +3,7 @@ import {
   generateMarkOverlay,
   msGeneralElectionFixtures,
 } from '@votingworks/hmpb';
-import { assertDefined, err, ok } from '@votingworks/basics';
+import { assertDefined, err, ok, sleep } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
@@ -924,6 +924,41 @@ test('switching ballot mode discards counts from jobs still in flight', async ()
   for (const count of officialCounts) {
     expect(count.totalCount).toEqual(0);
   }
+});
+
+test('unconfiguring stops monitors for jobs still in flight', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const ballots = await buildBallotsForElection({
+    electionDefinition,
+    ballotModes: ['official'],
+  });
+  await configureMachine({
+    electionDefinition,
+    ballots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
+
+  const jobId = await apiClient.printBallot({
+    precinctId: electionDefinition.election.ballotStyles[0]!.precincts[0]!,
+    languageCode: LanguageCode.ENGLISH,
+    ballotType: BallotType.Precinct,
+    copies: 1,
+  });
+  mockPrinterHandler.setJobStatus(jobId, { outcome: 'in-progress' });
+
+  await apiClient.unconfigureMachine();
+
+  mockPrinterHandler.setJobStatus(jobId, { outcome: 'sent-to-printer' });
+  await sleep(JOB_SETTLEMENT_POLL_INTERVAL_MS * 3);
+
+  expect(logger.logAsCurrentRole).not.toHaveBeenCalledWith(
+    LogEventId.BallotPrintComplete,
+    expect.anything()
+  );
 });
 
 test('concurrent jobs settling with mixed outcomes across a ballot mode switch', async () => {

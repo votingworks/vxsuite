@@ -50,6 +50,7 @@ import {
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import {
   awaitJobSettlement,
+  type JobSettlementMonitor,
   cleanupCachedBrowser,
   concatenatePdfs,
   type ConcatenatePdfsErrorCode,
@@ -108,6 +109,30 @@ export function buildApi(ctx: AppContext) {
   function resetBallotPrintCounts(): void {
     ballotPrintingGeneration += 1;
     store.resetBallotPrintCounts();
+  }
+
+  const activeJobMonitors = new Set<JobSettlementMonitor>();
+
+  function monitorJobSettlement(
+    jobId: PrintJobId,
+    onSettled: (status: PrintJobStatus) => Promise<void>
+  ): void {
+    const monitor = awaitJobSettlement({
+      jobId,
+      printer,
+      onSettled: async (status) => {
+        activeJobMonitors.delete(monitor);
+        await onSettled(status);
+      },
+    });
+    activeJobMonitors.add(monitor);
+  }
+
+  function stopJobMonitors(): void {
+    for (const monitor of activeJobMonitors) {
+      monitor.stop();
+    }
+    activeJobMonitors.clear();
   }
 
   function printBallots(
@@ -353,6 +378,7 @@ export function buildApi(ctx: AppContext) {
     },
 
     unconfigureMachine(): void {
+      stopJobMonitors();
       store.reset();
       void logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
         disposition: 'success',
@@ -466,40 +492,36 @@ export function buildApi(ctx: AppContext) {
         copies: input.copies,
       });
 
-      awaitJobSettlement({
-        jobId,
-        printer,
-        onSettled: async (status) => {
-          const sentToPrinter = status.outcome === 'sent-to-printer';
-          if (sentToPrinter) {
-            countPrintedBallots(generation, [
-              {
-                precinctId: input.precinctId,
-                ballotStyleId,
-                ballotType: input.ballotType,
-                ballotMode,
-                count: input.copies,
-              },
-            ]);
-          }
-
-          await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
-            message: sentToPrinter
-              ? `Printed ${ballotMode} ballot ${ballotStyleId} with ${input.copies} copies`
-              : `Failed to print ${ballotMode} ballot ${ballotStyleId} with ${input.copies} copies`,
-            ballotProps: JSON.stringify({
-              ballotStyleId,
+      monitorJobSettlement(jobId, async (status) => {
+        const sentToPrinter = status.outcome === 'sent-to-printer';
+        if (sentToPrinter) {
+          countPrintedBallots(generation, [
+            {
               precinctId: input.precinctId,
-              splitId: input.splitId,
-              partyId: input.partyId,
-              languageCode: input.languageCode,
+              ballotStyleId,
               ballotType: input.ballotType,
               ballotMode,
-            }),
-            disposition: sentToPrinter ? 'success' : 'failure',
-            ...(status.reason ? { reason: status.reason } : {}),
-          });
-        },
+              count: input.copies,
+            },
+          ]);
+        }
+
+        await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
+          message: sentToPrinter
+            ? `Printed ${ballotMode} ballot ${ballotStyleId} with ${input.copies} copies`
+            : `Failed to print ${ballotMode} ballot ${ballotStyleId} with ${input.copies} copies`,
+          ballotProps: JSON.stringify({
+            ballotStyleId,
+            precinctId: input.precinctId,
+            splitId: input.splitId,
+            partyId: input.partyId,
+            languageCode: input.languageCode,
+            ballotType: input.ballotType,
+            ballotMode,
+          }),
+          disposition: sentToPrinter ? 'success' : 'failure',
+          ...(status.reason ? { reason: status.reason } : {}),
+        });
       });
 
       return jobId;
@@ -596,37 +618,33 @@ export function buildApi(ctx: AppContext) {
       });
 
       const totalPrintCount = ballots.length * input.copiesPerStyle;
-      awaitJobSettlement({
-        jobId,
-        printer,
-        onSettled: async (status) => {
-          const sentToPrinter = status.outcome === 'sent-to-printer';
-          if (sentToPrinter) {
-            countPrintedBallots(
-              generation,
-              ballots.map((ballot) => ({
-                precinctId: ballot.precinctId,
-                ballotStyleId: ballot.ballotStyleId,
-                ballotType: input.ballotType,
-                ballotMode,
-                count: input.copiesPerStyle,
-              }))
-            );
-          }
-
-          await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
-            message: sentToPrinter
-              ? `Printed all ballot styles with ${input.copiesPerStyle} copies – ${totalPrintCount} ballots printed`
-              : `Failed to print all ballot styles with ${input.copiesPerStyle} copies`,
-            requestProps: JSON.stringify({
-              languageCode: input.languageCode,
+      monitorJobSettlement(jobId, async (status) => {
+        const sentToPrinter = status.outcome === 'sent-to-printer';
+        if (sentToPrinter) {
+          countPrintedBallots(
+            generation,
+            ballots.map((ballot) => ({
+              precinctId: ballot.precinctId,
+              ballotStyleId: ballot.ballotStyleId,
               ballotType: input.ballotType,
-              copiesPerStyle: input.copiesPerStyle,
-            }),
-            disposition: sentToPrinter ? 'success' : 'failure',
-            ...(status.reason ? { reason: status.reason } : {}),
-          });
-        },
+              ballotMode,
+              count: input.copiesPerStyle,
+            }))
+          );
+        }
+
+        await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
+          message: sentToPrinter
+            ? `Printed all ballot styles with ${input.copiesPerStyle} copies – ${totalPrintCount} ballots printed`
+            : `Failed to print all ballot styles with ${input.copiesPerStyle} copies`,
+          requestProps: JSON.stringify({
+            languageCode: input.languageCode,
+            ballotType: input.ballotType,
+            copiesPerStyle: input.copiesPerStyle,
+          }),
+          disposition: sentToPrinter ? 'success' : 'failure',
+          ...(status.reason ? { reason: status.reason } : {}),
+        });
       });
 
       return ok(jobId);
