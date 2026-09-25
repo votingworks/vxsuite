@@ -5572,15 +5572,9 @@ importers:
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
-      magic-string:
-        specifier: 0.30.21
-        version: 0.30.21
       matcher:
         specifier: '4'
         version: 4.0.0
-      oxc-parser:
-        specifier: 0.127.0
-        version: 0.127.0
       resolve-from:
         specifier: ^5.0.0
         version: 5.0.0
