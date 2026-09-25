@@ -71,6 +71,8 @@ test('prints a specified number of copies', async () => {
       'sides=one-sided',
       '-o',
       'media=letter',
+      '-o',
+      'collate=true',
       '-n',
       '3',
     ],

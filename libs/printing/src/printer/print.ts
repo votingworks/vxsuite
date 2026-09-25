@@ -39,6 +39,9 @@ export async function print({
   }
 
   if (copies !== undefined) {
+    // Without this CUPS repeats each page in turn (1,1,2,2) rather than
+    // repeating the document (1,2,1,2), which splits ballots across sheets.
+    lpOptions.push('-o', 'collate=true');
     lpOptions.push('-n', copies.toString());
   }
 
