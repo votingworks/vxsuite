@@ -32,7 +32,6 @@
     "@votingworks/logging": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
-    "base64-js": "1.5.1",
     "combined-stream": "^1.0.8",
     "debug": "4.3.4",
     "luxon": "^3.0.0",
