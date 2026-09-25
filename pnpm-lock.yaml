@@ -5566,9 +5566,6 @@ importers:
       matcher:
         specifier: '4'
         version: 4.0.0
-      resolve-from:
-        specifier: ^5.0.0
-        version: 5.0.0
     devDependencies:
       '@types/node':
         specifier: 24.13.3

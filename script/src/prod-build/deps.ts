@@ -1,8 +1,8 @@
-import resolveFrom from 'resolve-from';
 import { WORKSPACE_ROOT } from './globals.ts';
 import { maybeRequire } from './utils/maybe_require.ts';
 import { relativePath } from './utils/relative_path.ts';
 import { dirname, normalize, join } from 'node:path';
+import { createRequire } from 'node:module';
 
 export type PackageType = 'frontend' | 'service' | 'lib';
 
@@ -46,7 +46,9 @@ export function getDependencyGraph(path: string, type: PackageType): Package {
       ]) {
         for (const name in from) {
           if (from[name].startsWith('workspace:')) {
-            const depPkgFile = resolveFrom(path, `${name}/package.json`);
+            const depPkgFile = createRequire(`${path}/package.json`).resolve(
+              `${name}/package.json`
+            );
             const depPkgRoot = dirname(depPkgFile);
             to.push(addDependency(depPkgRoot, 'lib'));
           }
