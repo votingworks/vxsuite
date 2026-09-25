@@ -45,10 +45,13 @@ export type ElectricalTestingComponent = 'card' | 'paperHandler' | 'usbDrive';
  * Manages a data store for imported election definition and system settings
  */
 export class Store {
-  private constructor(
-    private readonly client: DbClient,
-    private readonly uiStringsStore: UiStringsStore
-  ) {}
+  private readonly client: DbClient;
+  private readonly uiStringsStore: UiStringsStore;
+
+  private constructor(client: DbClient, uiStringsStore: UiStringsStore) {
+    this.client = client;
+    this.uiStringsStore = uiStringsStore;
+  }
 
   getDbPath(): string {
     return this.client.getDatabasePath();

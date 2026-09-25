@@ -10,10 +10,11 @@ export class HybridLogicalClock {
   private lastPhysicalTime: number;
   private lastLogical: number;
 
-  constructor(
-    private readonly machineId: string,
-    initialTime?: number
-  ) {
+  private readonly machineId: string;
+
+  constructor(machineId: string, initialTime?: number) {
+    this.machineId = machineId;
+
     this.lastPhysicalTime = initialTime || 0;
     this.lastLogical = 0;
   }

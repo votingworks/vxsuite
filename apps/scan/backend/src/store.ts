@@ -135,11 +135,19 @@ export class Store {
   private cachedElectionRecord?: ElectionRecord | null;
   private cachedSystemSettings?: SystemSettings | null;
 
+  private readonly client: DbClient;
+  private readonly uiStringsStore: UiStringsStore;
+  private readonly logger: BaseLogger;
+
   private constructor(
-    private readonly client: DbClient,
-    private readonly uiStringsStore: UiStringsStore,
-    private readonly logger: BaseLogger
-  ) {}
+    client: DbClient,
+    uiStringsStore: UiStringsStore,
+    logger: BaseLogger
+  ) {
+    this.client = client;
+    this.uiStringsStore = uiStringsStore;
+    this.logger = logger;
+  }
 
   // Used by shared CVR export logic in libs/backend
   // eslint-disable-next-line vx/gts-no-public-class-fields

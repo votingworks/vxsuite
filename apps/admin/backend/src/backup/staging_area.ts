@@ -42,11 +42,19 @@ export class BackupStagingArea {
   private readonly preparedPaths = new Set<string>();
   private readonly readyFiles = new Map<string, { size: number }>();
 
+  private readonly workspacePath: string;
+  private readonly stagingAreaPath: string;
+  private readonly lock: FileLock;
+
   private constructor(
-    private readonly workspacePath: string,
-    private readonly stagingAreaPath: string,
-    private readonly lock: FileLock
-  ) {}
+    workspacePath: string,
+    stagingAreaPath: string,
+    lock: FileLock
+  ) {
+    this.workspacePath = workspacePath;
+    this.stagingAreaPath = stagingAreaPath;
+    this.lock = lock;
+  }
 
   /**
    * Path a workspace's staging area always occupies. Fixed rather than unique

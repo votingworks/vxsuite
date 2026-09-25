@@ -21,11 +21,14 @@ const debug = makeDebug('pg-client');
 export class Db {
   private readonly pool: Pool;
 
-  constructor(
-    private readonly logger: BaseLogger,
-    // @coverage-defer
-    private readonly opts: { defaultSchemaName?: string } = {}
-  ) {
+  private readonly logger: BaseLogger;
+  // @coverage-defer
+  private readonly opts: { defaultSchemaName?: string };
+
+  constructor(logger: BaseLogger, opts: { defaultSchemaName?: string } = {}) {
+    this.logger = logger;
+    this.opts = opts;
+
     this.pool = new pg.Pool({
       connectionString: databaseUrl(),
       // @coverage-defer

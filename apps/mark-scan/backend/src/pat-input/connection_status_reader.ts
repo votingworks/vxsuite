@@ -29,12 +29,22 @@ export interface PatConnectionStatusReaderInterface {
 export class PatConnectionStatusReader implements PatConnectionStatusReaderInterface {
   private file?: fs.FileHandle;
 
+  readonly logger: BaseLogger;
+  readonly bmdModelNumber: BmdModelNumber;
+  readonly workspacePath: string;
+  readonly gpioPathPrefix: string;
+
   constructor(
-    readonly logger: BaseLogger,
-    readonly bmdModelNumber: BmdModelNumber,
-    readonly workspacePath: string,
-    readonly gpioPathPrefix: string = GPIO_PATH_PREFIX
-  ) {}
+    logger: BaseLogger,
+    bmdModelNumber: BmdModelNumber,
+    workspacePath: string,
+    gpioPathPrefix: string = GPIO_PATH_PREFIX
+  ) {
+    this.logger = logger;
+    this.bmdModelNumber = bmdModelNumber;
+    this.workspacePath = workspacePath;
+    this.gpioPathPrefix = gpioPathPrefix;
+  }
 
   async openBmd155(): Promise<boolean> {
     this.logger.log(LogEventId.ConnectToPatInputInit, 'system');

@@ -41,7 +41,11 @@ function describeReadFileError(error: ReadFileError): string {
  * the only thing that reads a manifest out of a backup.
  */
 export class BackupManifestFile {
-  constructor(private readonly manifestPath: string) {}
+  private readonly manifestPath: string;
+
+  constructor(manifestPath: string) {
+    this.manifestPath = manifestPath;
+  }
 
   get path(): string {
     return this.manifestPath;

@@ -32,7 +32,11 @@ export type BackupOpenError =
  * Helper for managing a complete on-disk backup.
  */
 export class Backup {
-  constructor(private readonly backupPath: string) {}
+  private readonly backupPath: string;
+
+  constructor(backupPath: string) {
+    this.backupPath = backupPath;
+  }
 
   get path(): string {
     return this.backupPath;

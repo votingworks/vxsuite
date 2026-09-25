@@ -53,8 +53,11 @@ export function defaultEnumValue(enumeration: unknown): number {
  * Base coder for byte-aligned uints.
  */
 export abstract class UintCoder extends BaseCoder<number> {
-  constructor(private readonly enumeration?: unknown) {
+  private readonly enumeration?: unknown;
+
+  constructor(enumeration?: unknown) {
     super();
+    this.enumeration = enumeration;
   }
 
   canEncode(value: unknown): value is number {

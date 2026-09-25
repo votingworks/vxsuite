@@ -52,7 +52,11 @@ export interface ElectionRecord {
  * Manages a data store for imported election definition and system settings
  */
 export class Store {
-  private constructor(private readonly client: DbClient) {}
+  private readonly client: DbClient;
+
+  private constructor(client: DbClient) {
+    this.client = client;
+  }
 
   getDbPath(): string {
     return this.client.getDatabasePath();

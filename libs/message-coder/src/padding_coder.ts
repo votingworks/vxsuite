@@ -14,8 +14,11 @@ import type {
  * Occupies bits in the buffer without encoding or decoding any data.
  */
 export class PaddingCoder extends BaseCoder<void> {
-  constructor(private readonly paddingBitsLength: number) {
+  private readonly paddingBitsLength: number;
+
+  constructor(paddingBitsLength: number) {
     super();
+    this.paddingBitsLength = paddingBitsLength;
   }
 
   canEncode(value: unknown): value is void {

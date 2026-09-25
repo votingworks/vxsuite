@@ -15,8 +15,11 @@ import { byteArray } from './byte_array.js';
  * followed by the bytes.
  */
 class VariableLengthByteArrayCoder extends BaseCoder<Uint8Array> {
-  constructor(private readonly lengthCoder: Coder<number>) {
+  private readonly lengthCoder: Coder<number>;
+
+  constructor(lengthCoder: Coder<number>) {
     super();
+    this.lengthCoder = lengthCoder;
   }
 
   canEncode(value: unknown): value is Uint8Array {
@@ -76,8 +79,11 @@ class FixedLengthByteArrayCoder extends BaseCoder<Uint8Array> {
   private readonly lengthCoder: Coder<number>;
   private readonly byteArrayCoder: Coder<Uint8Array>;
 
-  constructor(private readonly length: number) {
+  private readonly length: number;
+
+  constructor(length: number) {
     super();
+    this.length = length;
 
     const bytesRequired = Math.ceil(Math.log2(length + 1) / BITS_PER_BYTE);
 

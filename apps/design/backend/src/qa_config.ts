@@ -56,7 +56,11 @@ export interface QaConfigParams {
  * backend README for the full reference and for local development recipes.
  */
 export class QaConfig {
-  constructor(private readonly params: QaConfigParams) {}
+  private readonly params: QaConfigParams;
+
+  constructor(params: QaConfigParams) {
+    this.params = params;
+  }
 
   get apiBaseUrl(): string {
     return this.params.apiBaseUrl;

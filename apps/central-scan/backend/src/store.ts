@@ -124,7 +124,11 @@ function dateTimeFromNoOffsetSqliteDate(noOffsetSqliteDate: string): DateTime {
  * interpreted by reading the sheets.
  */
 export class Store {
-  private constructor(private readonly client: DbClient) {}
+  private readonly client: DbClient;
+
+  private constructor(client: DbClient) {
+    this.client = client;
+  }
 
   // Used by shared CVR export logic in libs/backend
   // eslint-disable-next-line vx/gts-no-public-class-fields

@@ -6,7 +6,11 @@ import { extractErrorMessage } from './errors.js';
  * Represents a successful result of type `T`.
  */
 class Ok<T> {
-  constructor(private readonly value: T) {}
+  private readonly value: T;
+
+  constructor(value: T) {
+    this.value = value;
+  }
 
   /**
    * Returns `true`.
@@ -95,7 +99,11 @@ class Ok<T> {
  * Represents a failed result of type `E`.
  */
 class Err<E> {
-  constructor(private readonly error: E) {}
+  private readonly error: E;
+
+  constructor(error: E) {
+    this.error = error;
+  }
 
   /**
    * Returns `false`.
@@ -236,7 +244,11 @@ export function isResult(value: unknown): value is Result<unknown, unknown> {
 }
 
 class ResultBlockError<E> {
-  constructor(private readonly error: E) {}
+  private readonly error: E;
+
+  constructor(error: E) {
+    this.error = error;
+  }
 
   err(): E {
     return this.error;

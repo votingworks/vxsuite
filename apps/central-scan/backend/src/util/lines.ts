@@ -23,8 +23,11 @@ interface LineEmitter {
 export class Lines extends EventEmitter implements LineEmitter {
   private buffer = '';
 
-  constructor(private readonly terminator = '\n') {
+  private readonly terminator: string;
+
+  constructor(terminator = '\n') {
     super();
+    this.terminator = terminator;
   }
 
   add(data: string): void {

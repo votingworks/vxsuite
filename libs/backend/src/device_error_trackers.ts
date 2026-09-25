@@ -29,7 +29,11 @@ export class DeviceErrorTracker {
   private hasRegisteredAsConnected = false;
   private consecutiveErrors = 0;
 
-  constructor(private readonly deviceName: string) {
+  private readonly deviceName: string;
+
+  constructor(deviceName: string) {
+    this.deviceName = deviceName;
+
     this.startTime = Date.now();
   }
 

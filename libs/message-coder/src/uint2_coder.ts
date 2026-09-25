@@ -17,8 +17,11 @@ import { defaultEnumValue, validateEnumValue } from './uint_coder.js';
  * Coder for a uint2, aka a 2-bit unsigned integer.
  */
 class Uint2Coder extends BaseCoder<Uint2> {
-  constructor(private readonly enumeration?: unknown) {
+  private readonly enumeration?: unknown;
+
+  constructor(enumeration?: unknown) {
     super();
+    this.enumeration = enumeration;
   }
 
   canEncode(value: unknown): value is number {
