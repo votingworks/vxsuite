@@ -18,6 +18,13 @@ ruleTester.run('gts-parameter-properties', rule, {
       code: `
         class A {}
       `,
+      options: [{ useParameterProperties: 'always' }],
+    },
+    {
+      code: `
+        class A {}
+      `,
+      options: [{ useParameterProperties: 'never' }],
     },
     {
       code: `
@@ -25,6 +32,15 @@ ruleTester.run('gts-parameter-properties', rule, {
           a: number
         }
       `,
+      options: [{ useParameterProperties: 'always' }],
+    },
+    {
+      code: `
+        class A {
+          a: number
+        }
+      `,
+      options: [{ useParameterProperties: 'never' }],
     },
     {
       code: `
@@ -35,6 +51,7 @@ ruleTester.run('gts-parameter-properties', rule, {
           }
         }
       `,
+      options: [{ useParameterProperties: 'always' }],
     },
     {
       code: `
@@ -44,6 +61,7 @@ ruleTester.run('gts-parameter-properties', rule, {
           }
         }
       `,
+      options: [{ useParameterProperties: 'always' }],
     },
     {
       code: `
@@ -53,6 +71,7 @@ ruleTester.run('gts-parameter-properties', rule, {
           }
         }
       `,
+      options: [{ useParameterProperties: 'always' }],
     },
     {
       code: `
@@ -62,6 +81,55 @@ ruleTester.run('gts-parameter-properties', rule, {
           constructor()
         }
       `,
+      options: [{ useParameterProperties: 'always' }],
+    },
+    {
+      code: `
+        class A {
+          a: number
+          constructor(a: number) {
+            this.a = a
+          }
+        }
+      `,
+      options: [{ useParameterProperties: 'never' }],
+    },
+    {
+      code: `
+        class A {
+          a: number
+          b: number
+          constructor(a: number) {
+            this.a = a
+            this.b = a + 1
+          }
+        }
+      `,
+      options: [{ useParameterProperties: 'never' }],
+    },
+    {
+      code: `
+        class A {
+          a: number
+          b: number
+          constructor(
+            a: number,
+            b: number
+          ) {
+            this.a = a
+            this.b = b
+          }
+        }
+      `,
+      options: [{ useParameterProperties: 'never' }],
+    },
+    {
+      code: `
+        class A {
+          constructor([a]: number[]) {}
+        }
+      `,
+      options: [{ useParameterProperties: 'never' }],
     },
   ],
   invalid: [
@@ -80,6 +148,18 @@ ruleTester.run('gts-parameter-properties', rule, {
       code: `
         class A {
           a: number
+          constructor(a: number) {
+            this.a = a
+          }
+        }
+      `,
+      options: [{ useParameterProperties: 'always' }],
+      errors: [{ line: 4, messageId: 'useParameterProperties' }],
+    },
+    {
+      code: `
+        class A {
+          a: number
           b: number
           constructor(a: number) {
             this.a = a
@@ -87,6 +167,7 @@ ruleTester.run('gts-parameter-properties', rule, {
           }
         }
       `,
+      options: [{ useParameterProperties: 'always' }],
       errors: [{ line: 5, messageId: 'useParameterProperties' }],
     },
     {
@@ -103,6 +184,7 @@ ruleTester.run('gts-parameter-properties', rule, {
           }
         }
       `,
+      options: [{ useParameterProperties: 'always' }],
       errors: [
         { line: 6, messageId: 'useParameterProperties' },
         { line: 7, messageId: 'useParameterProperties' },
@@ -119,7 +201,47 @@ ruleTester.run('gts-parameter-properties', rule, {
           }
         }
       `,
+      options: [{ useParameterProperties: 'always' }],
       errors: [{ line: 7, messageId: 'noRedundantAssignment' }],
+    },
+    {
+      code: `
+        class A {
+          constructor(public a: number) {
+            this.a = -a
+          }
+        }
+      `,
+      options: [{ useParameterProperties: 'never' }],
+      errors: [{ line: 3, messageId: 'doNotUseParameterProperties' }],
+    },
+    {
+      code: `
+        class A {
+          constructor(private readonly a: number) {}
+        }
+      `,
+      options: [{ useParameterProperties: 'never' }],
+      errors: [{ line: 3, messageId: 'doNotUseParameterProperties' }],
+    },
+    {
+      code: `
+        class A {
+          a: number
+          constructor(
+            public a: number,
+            protected b: string,
+            c: boolean
+          ) {
+            this.a = a
+          }
+        }
+      `,
+      options: [{ useParameterProperties: 'never' }],
+      errors: [
+        { line: 5, messageId: 'doNotUseParameterProperties' },
+        { line: 6, messageId: 'doNotUseParameterProperties' },
+      ],
     },
   ],
 });
