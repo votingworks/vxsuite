@@ -153,7 +153,9 @@ export default function buildRecommended(
         'vx/gts-no-return-type-only-generics': 'error',
         'vx/gts-no-unnecessary-has-own-property-check': 'warn',
         'vx/gts-object-literal-types': 'error',
-        'vx/gts-parameter-properties': 'error',
+        // Parameter properties aren't erasable syntax, which blocks enabling
+        // TypeScript's `erasableSyntaxOnly`.
+        'vx/gts-parameter-properties': 'off',
         'vx/gts-safe-number-parse': 'error',
         'vx/gts-spread-like-types': 'error',
         'vx/gts-type-parameters': 'error',
