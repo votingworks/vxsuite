@@ -472,9 +472,6 @@ importers:
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
       tmp:
         specifier: ^0.2.6
         version: 0.2.7
@@ -805,9 +802,6 @@ importers:
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
     devDependencies:
       '@types/node':
         specifier: 24.13.3
@@ -1530,9 +1524,6 @@ importers:
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
     devDependencies:
       '@types/node':
         specifier: 24.13.3
@@ -1890,9 +1881,6 @@ importers:
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
     devDependencies:
       '@types/node':
         specifier: 24.13.3
@@ -2540,9 +2528,6 @@ importers:
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
     devDependencies:
       '@types/node':
         specifier: 24.13.3
@@ -2903,9 +2888,6 @@ importers:
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
     devDependencies:
       '@types/node':
         specifier: 24.13.3
@@ -3059,12 +3041,6 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
-      dotenv-expand:
-        specifier: 9.0.0
-        version: 9.0.0
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -10092,14 +10068,6 @@ packages:
   domutils@4.0.2:
     resolution: {integrity: sha512-qI4JLRKnSzqFqr7hAlS5xQDusBCjKSEG4t4+7aNrIQMHBcsC2TGEhuyABJdYkgSewL57PNLYEiibY2iPKhKpaA==}
     engines: {node: '>=20.19.0'}
-
-  dotenv-expand@9.0.0:
-    resolution: {integrity: sha512-uW8Hrhp5ammm9x7kBLR6jDfujgaDarNA02tprvZdyrJ7MpdzD1KyrIHG4l+YoC2fJ2UcdFdNWNWIjt+sexBHJw==}
-    engines: {node: '>=12'}
-
-  dotenv@16.3.1:
-    resolution: {integrity: sha512-IPzF4w4/Rd94bA9imS68tZBaYyBWSCE47V1RGuMrB94iyTOIEwRmVL2x/4An+6mETpLrKJ5hQkB8W4kFAadeIQ==}
-    engines: {node: '>=12'}
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -19244,10 +19212,6 @@ snapshots:
       dom-serializer: 3.1.1
       domelementtype: 3.0.0
       domhandler: 6.0.1
-
-  dotenv-expand@9.0.0: {}
-
-  dotenv@16.3.1: {}
 
   dunder-proto@1.0.1:
     dependencies:
