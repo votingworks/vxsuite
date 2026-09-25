@@ -1,4 +1,5 @@
 import { describe, expect, test, vi } from 'vitest';
+import { Buffer } from 'node:buffer';
 import {
   type BallotStyleId,
   type Candidate,
@@ -20,7 +21,6 @@ import {
 } from '@votingworks/fixtures';
 
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { fromByteArray } from 'base64-js';
 import { assertDefined, find } from '@votingworks/basics';
 import { render, screen, within } from '../test/react_testing_library.js';
 import {
@@ -385,7 +385,11 @@ test('BmdPaperBallot renders the encoded ballot it is given in the QR code', () 
   expect(QrCodeSpy).toBeCalledWith(
     expect.objectContaining<QrCodeModule.QrCodeProps>({
       level: 'H',
-      value: fromByteArray(mockEncodedBallotData),
+      value: Buffer.from(
+        mockEncodedBallotData.buffer,
+        mockEncodedBallotData.byteOffset,
+        mockEncodedBallotData.byteLength
+      ).toString('base64'),
     }),
     expect.anything()
   );
@@ -424,7 +428,11 @@ test('reduces QR code error correction for lots of write-ins', () => {
   expect(QrCodeSpy).toBeCalledWith(
     expect.objectContaining<QrCodeModule.QrCodeProps>({
       level: 'M',
-      value: fromByteArray(mockEncodedBallotData),
+      value: Buffer.from(
+        mockEncodedBallotData.buffer,
+        mockEncodedBallotData.byteOffset,
+        mockEncodedBallotData.byteLength
+      ).toString('base64'),
     }),
     expect.anything()
   );

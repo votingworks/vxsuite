@@ -2963,9 +2963,6 @@ importers:
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../utils
-      base64-js:
-        specifier: 1.5.1
-        version: 1.5.1
       combined-stream:
         specifier: ^1.0.8
         version: 1.0.8
@@ -5104,9 +5101,6 @@ importers:
       '@yornaath/batshit':
         specifier: ^0.9.0
         version: 0.9.0
-      base64-js:
-        specifier: 1.5.1
-        version: 1.5.1
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
@@ -5177,9 +5171,6 @@ importers:
       '@testing-library/user-event':
         specifier: ^13.5.0
         version: 13.5.0(@testing-library/dom@10.4.1)
-      '@types/base64-js':
-        specifier: ^1.3.0
-        version: 1.3.0
       '@types/debug':
         specifier: 4.1.12
         version: 4.1.12
@@ -8361,9 +8352,6 @@ packages:
 
   '@types/babel__traverse@7.28.0':
     resolution: {integrity: sha512-8PvcXf70gTDZBgt9ptxJ8elBeBjcLOAcOtoO/mPJjtji1+CdGbHgm77om1GrsPxsiE+uXIpNSK64UYaIwQXd4Q==}
-
-  '@types/base64-js@1.3.0':
-    resolution: {integrity: sha512-ZmI0sZGAUNXUfMWboWwi4LcfpoVUYldyN6Oe0oJ5cCsHDU/LlRq8nQKPXhYLOx36QYSW9bNIb1vvRrD6K7Llgw==}
 
   '@types/better-sqlite3@9.6.0':
     resolution: {integrity: sha512-ZEEwBSgMu7GYJOynoagg5X9JbxfL6dTJDsgViJIqh67jV44kyOr9RXfmFjLK5rzC4MWssP06t9hu/JwGDnUbCg==}
@@ -17335,8 +17323,6 @@ snapshots:
   '@types/babel__traverse@7.28.0':
     dependencies:
       '@babel/types': 7.29.8
-
-  '@types/base64-js@1.3.0': {}
 
   '@types/better-sqlite3@9.6.0':
     dependencies:
