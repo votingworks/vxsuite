@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { err, ok } from '@votingworks/basics';
 import {
   createPrintJobStatusApi,
-  getPrintOutcome,
+  getPrintJobDisplayStatus,
   type PrintJobStatusApiClient,
 } from './print_job_status_api.js';
 
@@ -28,20 +28,26 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe('getPrintOutcome', () => {
+describe('getPrintJobDisplayStatus', () => {
   test('treats a missing result as still in progress', () => {
-    expect(getPrintOutcome(undefined)).toEqual('in-progress');
+    expect(getPrintJobDisplayStatus(undefined)).toEqual({
+      outcome: 'in-progress',
+    });
   });
 
-  test('treats an error as a failure', () => {
-    expect(getPrintOutcome(err(new Error('test error')))).toEqual('failed');
+  test('treats an error as a failure, with no reason to show', () => {
+    expect(getPrintJobDisplayStatus(err(new Error('test error')))).toEqual({
+      outcome: 'failed',
+    });
   });
 
-  test('reports the outcome the backend gave', () => {
-    expect(getPrintOutcome(ok({ outcome: 'sent-to-printer' }))).toEqual(
-      'sent-to-printer'
-    );
-    expect(getPrintOutcome(ok({ outcome: 'failed' }))).toEqual('failed');
+  test('passes through the status the backend gave', () => {
+    expect(
+      getPrintJobDisplayStatus(ok({ outcome: 'sent-to-printer' }))
+    ).toEqual({ outcome: 'sent-to-printer' });
+    expect(
+      getPrintJobDisplayStatus(ok({ outcome: 'failed', reason: 'No paper.' }))
+    ).toEqual({ outcome: 'failed', reason: 'No paper.' });
   });
 });
 

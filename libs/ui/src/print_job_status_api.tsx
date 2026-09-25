@@ -1,10 +1,6 @@
 import { type QueryKey, useQuery } from '@tanstack/react-query';
 import { type Result, assertDefined } from '@votingworks/basics';
-import type {
-  PrintJobId,
-  PrintJobOutcome,
-  PrintJobStatus,
-} from '@votingworks/types';
+import type { PrintJobId, PrintJobStatus } from '@votingworks/types';
 
 export const PRINT_JOB_STATUS_POLLING_INTERVAL_MS = 100;
 
@@ -14,12 +10,17 @@ export interface PrintJobStatusApiClient {
   }) => Promise<Result<PrintJobStatus, Error>>;
 }
 
-export function getPrintOutcome(
+/**
+ * Interprets a `getPrintJobStatus` query result for display. A query that has
+ * not answered yet reads as in-progress; a backend that no longer knows the job
+ * reads as failed, with no reason to show since the error is internal.
+ */
+export function getPrintJobDisplayStatus(
   jobStatusResult?: Result<PrintJobStatus, Error>
-): PrintJobOutcome {
-  if (!jobStatusResult) return 'in-progress';
-  if (jobStatusResult.isErr()) return 'failed';
-  return jobStatusResult.ok().outcome;
+): PrintJobStatus {
+  if (!jobStatusResult) return { outcome: 'in-progress' };
+  if (jobStatusResult.isErr()) return { outcome: 'failed' };
+  return jobStatusResult.ok();
 }
 
 function buildPrintJobStatusApi(getApiClient: () => PrintJobStatusApiClient) {

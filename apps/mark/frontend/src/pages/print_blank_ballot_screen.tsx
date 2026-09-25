@@ -25,7 +25,7 @@ import {
   TestModeBanner,
   P,
   H4,
-  getPrintOutcome,
+  getPrintJobDisplayStatus,
   Modal,
   Loading,
   SearchSelect,
@@ -128,12 +128,10 @@ export function PrintBlankBallotScreen({
 
   const hasStartedPrint =
     printBlankBallotMutation.isLoading || jobId !== undefined;
-  const jobStatusResult = printJobStatusQuery.data;
-  const jobStatus = jobStatusResult?.ok();
-
-  const printOutcome = hasStartedPrint
-    ? getPrintOutcome(jobStatusResult)
+  const printJobStatus = hasStartedPrint
+    ? getPrintJobDisplayStatus(printJobStatusQuery.data)
     : undefined;
+  const printOutcome = printJobStatus?.outcome;
 
   return (
     <Screen>
@@ -198,7 +196,7 @@ export function PrintBlankBallotScreen({
       {printOutcome === 'failed' && (
         <PrintJobFailedModal
           multipleBallotsAttempted={false}
-          reason={jobStatus?.reason}
+          reason={printJobStatus?.reason}
           onClose={() => setJobId(undefined)}
         />
       )}

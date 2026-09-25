@@ -8,7 +8,7 @@ import {
   P,
   RadioGroup,
   SegmentedButton,
-  getPrintOutcome,
+  getPrintJobDisplayStatus,
   PrintJobFailedModal,
 } from '@votingworks/ui';
 import { BallotType, LanguageCode, type PrintJobId } from '@votingworks/types';
@@ -59,11 +59,11 @@ function PrintAllModal({
 
   const [printJobId, setPrintJobId] = useState<PrintJobId>();
   const printJobStatusQuery = getPrintJobStatus.useQuery(printJobId);
-  const printOutcome =
+  const printJobStatus =
     printJobId === undefined
       ? undefined
-      : getPrintOutcome(printJobStatusQuery.data);
-  const printFailureReason = printJobStatusQuery.data?.ok()?.reason;
+      : getPrintJobDisplayStatus(printJobStatusQuery.data);
+  const printOutcome = printJobStatus?.outcome;
 
   useEffect(() => {
     if (printOutcome !== 'sent-to-printer') {
@@ -131,7 +131,7 @@ function PrintAllModal({
     return (
       <PrintJobFailedModal
         multipleBallotsAttempted
-        reason={printFailureReason}
+        reason={printJobStatus?.reason}
         onClose={onClose}
       />
     );

@@ -18,7 +18,7 @@ import {
   NumberInput,
   Modal,
   Loading,
-  getPrintOutcome,
+  getPrintJobDisplayStatus,
   PrintJobFailedModal,
 } from '@votingworks/ui';
 import { assertDefined } from '@votingworks/basics';
@@ -97,11 +97,11 @@ export function PrintScreen({
 
   const [printJobId, setPrintJobId] = useState<PrintJobId>();
   const printJobStatusQuery = getPrintJobStatus.useQuery(printJobId);
-  const printOutcome =
+  const printJobStatus =
     printJobId === undefined
       ? undefined
-      : getPrintOutcome(printJobStatusQuery.data);
-  const printFailureReason = printJobStatusQuery.data?.ok()?.reason;
+      : getPrintJobDisplayStatus(printJobStatusQuery.data);
+  const printOutcome = printJobStatus?.outcome;
 
   useEffect(() => {
     if (printOutcome !== 'sent-to-printer') {
@@ -332,7 +332,7 @@ export function PrintScreen({
         {printOutcome === 'failed' && (
           <PrintJobFailedModal
             multipleBallotsAttempted={false}
-            reason={printFailureReason}
+            reason={printJobStatus?.reason}
             onClose={() => setPrintJobId(undefined)}
           />
         )}
