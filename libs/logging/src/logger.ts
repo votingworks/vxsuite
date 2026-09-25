@@ -3,11 +3,14 @@ import type { LogLine, LoggingUserRole } from './types.js';
 import { type LogData, BaseLogger } from './base_logger.js';
 
 export class Logger extends BaseLogger {
+  private readonly getCurrentRole: () => Promise<LoggingUserRole>;
+
   constructor(
     source: LogSource,
-    private readonly getCurrentRole: () => Promise<LoggingUserRole>
+    getCurrentRole: () => Promise<LoggingUserRole>
   ) {
     super(source);
+    this.getCurrentRole = getCurrentRole;
   }
 
   async logAsCurrentRole(

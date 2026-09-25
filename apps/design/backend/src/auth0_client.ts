@@ -37,10 +37,13 @@ export interface Auth0ClientInterface {
 export const DEV_USER_ID = 'auth0|devuser';
 
 export class Auth0Client implements Auth0ClientInterface {
-  constructor(
-    private readonly database: Database,
-    private readonly users: UsersManager
-  ) {}
+  private readonly database: Database;
+  private readonly users: UsersManager;
+
+  constructor(database: Database, users: UsersManager) {
+    this.database = database;
+    this.users = users;
+  }
 
   // @coverage-defer
   static init(): Auth0Client {

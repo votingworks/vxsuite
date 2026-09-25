@@ -5,8 +5,11 @@
  * indistinguishable once both have been thrown out of the same loop.
  */
 export class ReadChunkError extends Error {
-  constructor(private readonly error: globalThis.Error) {
+  private readonly error: globalThis.Error;
+
+  constructor(error: globalThis.Error) {
     super(error.message);
+    this.error = error;
   }
 
   /**

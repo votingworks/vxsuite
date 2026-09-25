@@ -179,7 +179,11 @@ export class SimulatedUsbPlatform implements UsbPlatform {
   private cachedDrives?: SimulatedUsbDrive[];
   private readonly listeners = new Set<() => void>();
 
-  constructor(private readonly root: string) {
+  private readonly root: string;
+
+  constructor(root: string) {
+    this.root = root;
+
     mkdirSync(this.root, { recursive: true });
     // Ensure the state file exists (so it can be read and watched) without
     // clobbering one another process may have already populated. Write the

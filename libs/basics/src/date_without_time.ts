@@ -10,10 +10,14 @@ import { assertDefined } from './assert.js';
  *   console.log(date.toMidnightDatetimeWithSystemTimezone().toDateString()); // 'Mon Feb 26 2024'
  */
 export class DateWithoutTime {
+  private readonly dateString: string;
+
   /**
    * Create a new DateWithoutTime object from a string in the format YYYY-MM-DD.
    */
-  constructor(private readonly dateString: string) {
+  constructor(dateString: string) {
+    this.dateString = dateString;
+
     if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
       throw new Error('Date must be in the format YYYY-MM-DD');
     }

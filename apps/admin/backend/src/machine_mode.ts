@@ -17,7 +17,11 @@ export interface MachineModeController {
  * machine mode setting.
  */
 export class FileBackedMachineModeController {
-  constructor(private readonly filePath: string) {}
+  private readonly filePath: string;
+
+  constructor(filePath: string) {
+    this.filePath = filePath;
+  }
 
   get(): MachineMode {
     try {

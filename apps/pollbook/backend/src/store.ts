@@ -104,12 +104,22 @@ export abstract class Store {
   protected validStreetInfo?: ValidStreetInfo[];
   protected currentClock?: HybridLogicalClock;
 
+  protected readonly client: DbClient;
+  protected readonly machineId: string;
+  protected readonly codeVersion: string;
+  protected readonly logger: BaseLogger;
+
   protected constructor(
-    protected readonly client: DbClient,
-    protected readonly machineId: string,
-    protected readonly codeVersion: string,
-    protected readonly logger: BaseLogger
-  ) {}
+    client: DbClient,
+    machineId: string,
+    codeVersion: string,
+    logger: BaseLogger
+  ) {
+    this.client = client;
+    this.machineId = machineId;
+    this.codeVersion = codeVersion;
+    this.logger = logger;
+  }
 
   protected incrementClock(): HlcTimestamp {
     if (!this.currentClock) {

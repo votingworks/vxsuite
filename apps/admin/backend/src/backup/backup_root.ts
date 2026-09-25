@@ -20,7 +20,11 @@ export type ListBackupsError =
  * Helper for managing backups in a given location.
  */
 export class BackupRoot {
-  constructor(private readonly rootPath: string) {}
+  private readonly rootPath: string;
+
+  constructor(rootPath: string) {
+    this.rootPath = rootPath;
+  }
 
   get path(): string {
     return this.rootPath;

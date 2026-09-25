@@ -37,11 +37,15 @@ export const MAX_CARD_DETECTION_RETRIES = 6;
  * (VxMark/VxScan v4).
  */
 export class AudioCard {
-  constructor(
-    private readonly nodeEnv: NODE_ENV,
-    private readonly logger: Logger,
-    private readonly card: { name: string }
-  ) {}
+  private readonly nodeEnv: NODE_ENV;
+  private readonly logger: Logger;
+  private readonly card: { name: string };
+
+  constructor(nodeEnv: NODE_ENV, logger: Logger, card: { name: string }) {
+    this.nodeEnv = nodeEnv;
+    this.logger = logger;
+    this.card = card;
+  }
 
   /**
    * Resets the audio card's speaker and headphone profiles to their

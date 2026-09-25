@@ -88,8 +88,11 @@ class MessageCoder<P extends MessageCoderParts<object>>
   extends BaseCoder<ObjectFromParts<P>>
   implements CoderFromParts<P>
 {
-  constructor(private readonly parts: P) {
+  private readonly parts: P;
+
+  constructor(parts: P) {
     super();
+    this.parts = parts;
   }
 
   canEncode(value: unknown): value is ObjectFromParts<P> {

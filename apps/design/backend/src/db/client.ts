@@ -15,7 +15,11 @@ export type Bindable =
  * Manages a client connection to a PostgreSQL database.
  */
 export class Client {
-  constructor(private readonly conn: pg.PoolClient) {}
+  private readonly conn: pg.PoolClient;
+
+  constructor(conn: pg.PoolClient) {
+    this.conn = conn;
+  }
 
   /**
    * Usage:

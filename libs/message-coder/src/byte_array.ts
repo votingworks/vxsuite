@@ -8,8 +8,11 @@ import { toBitLength, toByteOffset, bufferContainsBitOffset } from './bits.js';
  * Coder for a sequence of bytes of fixed length. Does not encode the length.
  */
 export class ByteArrayCoder extends BaseCoder<Uint8Array> {
-  constructor(private readonly length: number) {
+  private readonly length: number;
+
+  constructor(length: number) {
     super();
+    this.length = length;
   }
 
   canEncode(value: unknown): value is Uint8Array {

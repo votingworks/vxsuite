@@ -35,11 +35,19 @@ import {
  * signer's identity is carried alongside it — see {@link signer}.
  */
 export class AuthenticatedBackup implements AsyncDisposable {
+  private readonly backupPath: string;
+  private readonly stagingPath: string;
+  private readonly signingMachine: VxAdminCustomCertFields;
+
   constructor(
-    private readonly backupPath: string,
-    private readonly stagingPath: string,
-    private readonly signingMachine: VxAdminCustomCertFields
-  ) {}
+    backupPath: string,
+    stagingPath: string,
+    signingMachine: VxAdminCustomCertFields
+  ) {
+    this.backupPath = backupPath;
+    this.stagingPath = stagingPath;
+    this.signingMachine = signingMachine;
+  }
 
   /**
    * Where the backup itself lives, i.e. where its files are to be read from.

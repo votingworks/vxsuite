@@ -145,10 +145,13 @@ class RepeatLogTracker {
 export class BaseLogger {
   private readonly repeatLogTracker: RepeatLogTracker;
 
-  constructor(
-    private readonly source: LogSource,
-    private readonly kiosk?: KioskBrowser.Kiosk
-  ) {
+  private readonly source: LogSource;
+  private readonly kiosk?: KioskBrowser.Kiosk;
+
+  constructor(source: LogSource, kiosk?: KioskBrowser.Kiosk) {
+    this.source = source;
+    this.kiosk = kiosk;
+
     this.repeatLogTracker = new RepeatLogTracker();
   }
 

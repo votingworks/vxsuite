@@ -89,13 +89,25 @@ export interface BackupManifestStruct extends z.infer<
  * An in-memory representation of a backup's `manifest.json`.
  */
 export class BackupManifest {
+  private readonly manifestSoftwareVersion: string;
+  private readonly manifestMachineId: string;
+  private readonly manifestCreatedAt: Iso8601Timestamp;
+  private readonly manifestElection: ElectionMetadata;
+  private readonly manifestFiles: BackupManifestEntry[];
+
   constructor(
-    private readonly manifestSoftwareVersion: string,
-    private readonly manifestMachineId: string,
-    private readonly manifestCreatedAt: Iso8601Timestamp,
-    private readonly manifestElection: ElectionMetadata,
-    private readonly manifestFiles: BackupManifestEntry[]
-  ) {}
+    manifestSoftwareVersion: string,
+    manifestMachineId: string,
+    manifestCreatedAt: Iso8601Timestamp,
+    manifestElection: ElectionMetadata,
+    manifestFiles: BackupManifestEntry[]
+  ) {
+    this.manifestSoftwareVersion = manifestSoftwareVersion;
+    this.manifestMachineId = manifestMachineId;
+    this.manifestCreatedAt = manifestCreatedAt;
+    this.manifestElection = manifestElection;
+    this.manifestFiles = manifestFiles;
+  }
 
   static fromStruct(data: BackupManifestStruct): BackupManifest {
     return new BackupManifest(

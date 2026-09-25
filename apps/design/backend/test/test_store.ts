@@ -8,7 +8,11 @@ export class TestStore {
   private readonly db: Db;
   private readonly store: Store;
 
-  constructor(private readonly logger: BaseLogger) {
+  private readonly logger: BaseLogger;
+
+  constructor(logger: BaseLogger) {
+    this.logger = logger;
+
     this.schemaName = `test_${uuid().replaceAll('-', '_')}`;
     this.db = new Db(this.logger, {
       defaultSchemaName: this.schemaName,

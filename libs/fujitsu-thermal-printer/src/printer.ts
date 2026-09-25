@@ -38,7 +38,11 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
   private driver?: FujitsuThermalPrinterDriverInterface;
   private lastKnownStatus?: PrinterStatus;
 
-  constructor(private readonly logger: Logger) {}
+  private readonly logger: Logger;
+
+  constructor(logger: Logger) {
+    this.logger = logger;
+  }
 
   /**
    * Initializes and returns a new driver instance.

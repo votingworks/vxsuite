@@ -46,12 +46,12 @@ export type PrecinctScannerErrorType =
 
 // @coverage-exclude
 export class PrecinctScannerError extends Error {
-  constructor(
-    // eslint-disable-next-line vx/gts-no-public-class-fields
-    public type: PrecinctScannerErrorType,
-    message?: string
-  ) {
+  // eslint-disable-next-line vx/gts-no-public-class-fields
+  type: PrecinctScannerErrorType;
+
+  constructor(type: PrecinctScannerErrorType, message?: string) {
     super(message ?? type);
+    this.type = type;
   }
 }
 

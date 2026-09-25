@@ -74,16 +74,24 @@ export class ProgressDisplay {
   private lastDrawnPercent?: number;
   private lastLabel?: string;
 
+  private readonly stream: NodeJS.WritableStream;
+  private readonly isTerminal: boolean;
+  private readonly labelWidth: number;
+
   /**
    * Whether the stream is a terminal is the caller's to know: it is the one
    * holding the real stream, and saying so explicitly keeps this testable
    * without a terminal.
    */
   constructor(
-    private readonly stream: NodeJS.WritableStream,
-    private readonly isTerminal: boolean,
-    private readonly labelWidth = 22
-  ) {}
+    stream: NodeJS.WritableStream,
+    isTerminal: boolean,
+    labelWidth = 22
+  ) {
+    this.stream = stream;
+    this.isTerminal = isTerminal;
+    this.labelWidth = labelWidth;
+  }
 
   update(progress: DisplayProgress): void {
     const labelChanged = progress.label !== this.lastLabel;

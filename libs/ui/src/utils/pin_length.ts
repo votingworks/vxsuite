@@ -4,10 +4,13 @@ import { assert } from '@votingworks/basics';
  * Represents a range of possible PIN lengths.
  */
 export class PinLength {
-  private constructor(
-    private readonly minimum: number,
-    private readonly maximum: number
-  ) {
+  private readonly minimum: number;
+  private readonly maximum: number;
+
+  private constructor(minimum: number, maximum: number) {
+    this.minimum = minimum;
+    this.maximum = maximum;
+
     assert(minimum > 0, 'min must be > 0');
     assert(minimum <= maximum, 'min must be <= max');
     assert(Number.isInteger(minimum), 'min must be an integer');

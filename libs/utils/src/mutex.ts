@@ -16,9 +16,13 @@ export class Mutex<T = void> {
   private locked = false;
   private readonly asyncQueue: Array<() => void> = [];
 
+  private readonly value?: T;
+
   constructor();
   constructor(value: T);
-  constructor(private readonly value?: T) {}
+  constructor(value?: T) {
+    this.value = value;
+  }
 
   /**
    * Attempts to acquire the lock. If the lock is already acquired, returns

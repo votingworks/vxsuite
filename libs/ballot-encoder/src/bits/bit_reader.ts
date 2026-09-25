@@ -10,10 +10,14 @@ import { Utf8Encoding, type Encoding } from './encoding.js';
 export class BitReader {
   private cursor = new BitCursor();
 
+  private readonly data: Uint8Array;
+
   /**
    * @param data a buffer to read data from
    */
-  constructor(private readonly data: Uint8Array) {}
+  constructor(data: Uint8Array) {
+    this.data = data;
+  }
 
   /**
    * Reads a Uint1 and moves the internal cursor forward one bit.

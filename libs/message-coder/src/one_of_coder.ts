@@ -14,8 +14,11 @@ import type { CoderType } from './message_coder.js';
  * A coder that encodes/decodes one of a set of coders.
  */
 export class OneOfCoder<T> extends BaseCoder<T> {
-  constructor(private readonly coders: ReadonlyArray<Coder<T>>) {
+  private readonly coders: ReadonlyArray<Coder<T>>;
+
+  constructor(coders: ReadonlyArray<Coder<T>>) {
     super();
+    this.coders = coders;
   }
 
   /**

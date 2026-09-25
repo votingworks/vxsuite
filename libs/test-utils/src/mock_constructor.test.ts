@@ -3,11 +3,19 @@ import { expect, test, vi } from 'vitest';
 import { mockConstructor } from './mock_constructor.js';
 
 class Original {
-  constructor(private readonly value: number) {}
+  private readonly value: number;
+
+  constructor(value: number) {
+    this.value = value;
+  }
 }
 
 class Replacement {
-  constructor(private readonly doubled: number) {}
+  private readonly doubled: number;
+
+  constructor(doubled: number) {
+    this.doubled = doubled;
+  }
 }
 
 test('the wrapped function returns the wrapped value', () => {

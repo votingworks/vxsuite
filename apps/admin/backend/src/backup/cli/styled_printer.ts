@@ -11,7 +11,11 @@ export type TextStyle = Extract<Parameters<typeof styleText>[0], string>;
  * plain text.
  */
 export class StyledPrinter {
-  constructor(private readonly stream: NodeJS.WritableStream) {}
+  private readonly stream: NodeJS.WritableStream;
+
+  constructor(stream: NodeJS.WritableStream) {
+    this.stream = stream;
+  }
 
   /**
    * Styles `text` for this printer's stream. Formats are applied one at a
