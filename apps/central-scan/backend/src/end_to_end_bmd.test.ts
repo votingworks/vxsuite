@@ -1,3 +1,4 @@
+import { readdir } from 'node:fs/promises';
 import {
   getCastVoteRecordExportDirectoryPaths,
   mockElectionPackageFileTree,
@@ -11,7 +12,6 @@ import {
   convertCastVoteRecordVotesToTabulationVotes,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import * as fsExtra from 'fs-extra';
 import { expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth.js';
 import { generateBmdBallotFixture } from '../test/helpers/ballots.js';
@@ -69,7 +69,7 @@ test('going through the whole process works - BMD', async () => {
 
         expect(status.batches[0]!.count).toEqual(1);
 
-        const ballotImagesPathEntries = await fsExtra.readdir(
+        const ballotImagesPathEntries = await readdir(
           workspace.ballotImagesPath,
           { recursive: true, withFileTypes: true }
         );
@@ -157,7 +157,7 @@ test('going through the whole process works - BMD', async () => {
       // clean up
       await apiClient.unconfigure();
 
-      const ballotImagesPathEntries = await fsExtra.readdir(
+      const ballotImagesPathEntries = await readdir(
         workspace.ballotImagesPath,
         { recursive: true }
       );

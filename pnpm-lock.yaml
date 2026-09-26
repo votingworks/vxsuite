@@ -132,9 +132,6 @@ importers:
       express:
         specifier: 4.18.2
         version: 4.18.2
-      fs-extra:
-        specifier: 11.1.1
-        version: 11.1.1
       lodash.memoize:
         specifier: ^4.1.2
         version: 4.1.2
@@ -166,9 +163,6 @@ importers:
       '@types/express':
         specifier: 4.17.14
         version: 4.17.14
-      '@types/fs-extra':
-        specifier: 11.0.1
-        version: 11.0.1
       '@types/jest-image-snapshot':
         specifier: ^6.4.0
         version: 6.4.0
@@ -277,9 +271,6 @@ importers:
       fetch-mock:
         specifier: 9.11.0
         version: 9.11.0(node-fetch@2.7.0)
-      fs-extra:
-        specifier: 11.1.1
-        version: 11.1.1
       history:
         specifier: 4.10.1
         version: 4.10.1
@@ -485,9 +476,6 @@ importers:
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
       tmp:
         specifier: ^0.2.6
         version: 0.2.7
@@ -564,9 +552,6 @@ importers:
       express:
         specifier: 4.18.2
         version: 4.18.2
-      fs-extra:
-        specifier: 11.1.1
-        version: 11.1.1
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -586,9 +571,6 @@ importers:
       '@types/express':
         specifier: 4.17.14
         version: 4.17.14
-      '@types/fs-extra':
-        specifier: 11.0.1
-        version: 11.0.1
       '@types/jest-image-snapshot':
         specifier: ^6.4.0
         version: 6.4.0
@@ -827,9 +809,6 @@ importers:
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
     devDependencies:
       '@types/node':
         specifier: 24.13.3
@@ -912,9 +891,6 @@ importers:
       express-openid-connect:
         specifier: 2.17.1
         version: 2.17.1(express@4.18.2)
-      fs-extra:
-        specifier: 11.1.1
-        version: 11.1.1
       nanoid:
         specifier: ^3.3.7
         version: 3.3.17
@@ -940,9 +916,6 @@ importers:
       '@types/express':
         specifier: 4.17.14
         version: 4.17.14
-      '@types/fs-extra':
-        specifier: 11.0.1
-        version: 11.0.1
       '@types/jest-image-snapshot':
         specifier: ^6.4.0
         version: 6.4.0
@@ -1271,9 +1244,6 @@ importers:
       express:
         specifier: 4.18.2
         version: 4.18.2
-      fs-extra:
-        specifier: 11.1.1
-        version: 11.1.1
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -1299,9 +1269,6 @@ importers:
       '@types/express':
         specifier: 4.17.14
         version: 4.17.14
-      '@types/fs-extra':
-        specifier: 11.0.1
-        version: 11.0.1
       '@types/jest-image-snapshot':
         specifier: ^6.4.0
         version: 6.4.0
@@ -1570,9 +1537,6 @@ importers:
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
     devDependencies:
       '@types/node':
         specifier: 24.13.3
@@ -1640,9 +1604,6 @@ importers:
       express:
         specifier: 4.18.2
         version: 4.18.2
-      fs-extra:
-        specifier: 11.1.1
-        version: 11.1.1
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -1665,9 +1626,6 @@ importers:
       '@types/express':
         specifier: 4.17.14
         version: 4.17.14
-      '@types/fs-extra':
-        specifier: 11.0.1
-        version: 11.0.1
       '@types/jest-image-snapshot':
         specifier: ^6.4.0
         version: 6.4.0
@@ -1939,9 +1897,6 @@ importers:
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
     devDependencies:
       '@types/node':
         specifier: 24.13.3
@@ -2015,9 +1970,6 @@ importers:
       express:
         specifier: 4.18.2
         version: 4.18.2
-      fs-extra:
-        specifier: 11.1.1
-        version: 11.1.1
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
@@ -2052,9 +2004,6 @@ importers:
       '@types/express':
         specifier: 4.17.14
         version: 4.17.14
-      '@types/fs-extra':
-        specifier: 11.0.1
-        version: 11.0.1
       '@types/jest-image-snapshot':
         specifier: ^6.4.0
         version: 6.4.0
@@ -2350,9 +2299,6 @@ importers:
       express:
         specifier: 4.18.2
         version: 4.18.2
-      fs-extra:
-        specifier: 11.1.1
-        version: 11.1.1
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
@@ -2375,9 +2321,6 @@ importers:
       '@types/express':
         specifier: 4.17.14
         version: 4.17.14
-      '@types/fs-extra':
-        specifier: 11.0.1
-        version: 11.0.1
       '@types/jest-image-snapshot':
         specifier: ^6.4.0
         version: 6.4.0
@@ -2610,9 +2553,6 @@ importers:
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
     devDependencies:
       '@types/node':
         specifier: 24.13.3
@@ -2647,6 +2587,9 @@ importers:
       '@votingworks/dev-dock-backend':
         specifier: workspace:*
         version: link:../../../libs/dev-dock/backend
+      '@votingworks/fs':
+        specifier: workspace:*
+        version: link:../../../libs/fs
       '@votingworks/fujitsu-thermal-printer':
         specifier: workspace:*
         version: link:../../../libs/fujitsu-thermal-printer
@@ -2695,9 +2638,6 @@ importers:
       express:
         specifier: 4.18.2
         version: 4.18.2
-      fs-extra:
-        specifier: 11.1.1
-        version: 11.1.1
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -2720,9 +2660,6 @@ importers:
       '@types/express':
         specifier: 4.17.14
         version: 4.17.14
-      '@types/fs-extra':
-        specifier: 11.0.1
-        version: 11.0.1
       '@types/jest-image-snapshot':
         specifier: ^6.4.0
         version: 6.4.0
@@ -2979,9 +2916,6 @@ importers:
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
     devDependencies:
       '@types/node':
         specifier: 24.13.3
@@ -3029,9 +2963,6 @@ importers:
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../utils
-      base64-js:
-        specifier: 1.5.1
-        version: 1.5.1
       combined-stream:
         specifier: ^1.0.8
         version: 1.0.8
@@ -3135,21 +3066,12 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
-      dotenv-expand:
-        specifier: 9.0.0
-        version: 9.0.0
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
       node-html-parser:
         specifier: ^6.1.13
         version: 6.1.13
-      readline:
-        specifier: ^1.3.0
-        version: 1.3.0
       tmp:
         specifier: ^0.2.6
         version: 0.2.7
@@ -3199,9 +3121,6 @@ importers:
       lodash.set:
         specifier: ^4.3.2
         version: 4.3.2
-      memory-streams:
-        specifier: ^0.1.3
-        version: 0.1.3
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -3294,9 +3213,6 @@ importers:
       '@types/debug':
         specifier: 4.1.12
         version: 4.1.12
-      '@types/fs-extra':
-        specifier: 11.0.1
-        version: 11.0.1
       '@types/jest-image-snapshot':
         specifier: ^6.4.0
         version: 6.4.0
@@ -3336,9 +3252,6 @@ importers:
       fast-check:
         specifier: 2.23.2
         version: 2.23.2
-      fs-extra:
-        specifier: 11.1.1
-        version: 11.1.1
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2(@types/node@24.13.3)(babel-plugin-macros@3.1.0))
@@ -4053,9 +3966,6 @@ importers:
       fast-check:
         specifier: 2.23.2
         version: 2.23.2
-      memory-streams:
-        specifier: ^0.1.3
-        version: 0.1.3
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -4467,9 +4377,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      stream:
-        specifier: ^0.0.3
-        version: 0.0.3
       yargs:
         specifier: 17.7.1
         version: 17.7.1
@@ -5098,9 +5005,6 @@ importers:
         specifier: 4.4.3
         version: 4.4.3
     devDependencies:
-      '@types/lodash.clonedeep':
-        specifier: ^4.5.9
-        version: 4.5.9
       '@types/lodash.set':
         specifier: ^4.3.7
         version: 4.3.7
@@ -5134,9 +5038,6 @@ importers:
       fast-check:
         specifier: 2.23.2
         version: 2.23.2
-      lodash.clonedeep:
-        specifier: ^4.5.0
-        version: 4.5.0
       lodash.set:
         specifier: ^4.3.2
         version: 4.3.2
@@ -5194,9 +5095,6 @@ importers:
       '@yornaath/batshit':
         specifier: ^0.9.0
         version: 0.9.0
-      base64-js:
-        specifier: 1.5.1
-        version: 1.5.1
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
@@ -5267,9 +5165,6 @@ importers:
       '@testing-library/user-event':
         specifier: ^13.5.0
         version: 13.5.0(@testing-library/dom@10.4.1)
-      '@types/base64-js':
-        specifier: ^1.3.0
-        version: 1.3.0
       '@types/debug':
         specifier: 4.1.12
         version: 4.1.12
@@ -5499,9 +5394,6 @@ importers:
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
-      readline:
-        specifier: ^1.3.0
-        version: 1.3.0
       tmp:
         specifier: ^0.2.6
         version: 0.2.7
@@ -5575,9 +5467,6 @@ importers:
       matcher:
         specifier: '4'
         version: 4.0.0
-      resolve-from:
-        specifier: ^5.0.0
-        version: 5.0.0
     devDependencies:
       '@types/node':
         specifier: 24.13.3
@@ -8458,9 +8347,6 @@ packages:
   '@types/babel__traverse@7.28.0':
     resolution: {integrity: sha512-8PvcXf70gTDZBgt9ptxJ8elBeBjcLOAcOtoO/mPJjtji1+CdGbHgm77om1GrsPxsiE+uXIpNSK64UYaIwQXd4Q==}
 
-  '@types/base64-js@1.3.0':
-    resolution: {integrity: sha512-ZmI0sZGAUNXUfMWboWwi4LcfpoVUYldyN6Oe0oJ5cCsHDU/LlRq8nQKPXhYLOx36QYSW9bNIb1vvRrD6K7Llgw==}
-
   '@types/better-sqlite3@9.6.0':
     resolution: {integrity: sha512-ZEEwBSgMu7GYJOynoagg5X9JbxfL6dTJDsgViJIqh67jV44kyOr9RXfmFjLK5rzC4MWssP06t9hu/JwGDnUbCg==}
 
@@ -8502,9 +8388,6 @@ packages:
 
   '@types/fetch-mock@7.3.3':
     resolution: {integrity: sha512-NLMbBVQh3yx6dMd5CnVxp9ZBhQYuFzWIlRk0kQbgBfyL75u3wtZyUTuFsK9Wb9G3eIw77yja858j1fQAWqM9Og==}
-
-  '@types/fs-extra@11.0.1':
-    resolution: {integrity: sha512-MxObHvNl4A69ofaTRU8DFqvgzzv8s9yRtaPPm5gud9HDNvpB3GPQFvNuTWAI59B9huVGV5jXYJwbCsmBsOGYWA==}
 
   '@types/glob@7.2.0':
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
@@ -8548,9 +8431,6 @@ packages:
   '@types/json5@0.0.29':
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
 
-  '@types/jsonfile@6.1.1':
-    resolution: {integrity: sha512-GSgiRCVeapDN+3pqA35IkQwasaCh/0YFH5dEF6S88iDvEn901DjOeH3/QPY+XYP1DFzDZPvIvfeEgk+7br5png==}
-
   '@types/keyv@3.1.4':
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
 
@@ -8559,9 +8439,6 @@ packages:
 
   '@types/lodash.camelcase@4.3.6':
     resolution: {integrity: sha512-hd/TEuPd76Jtf1xEq85CHbCqR+iqvs5IOKyrYbiaOg69BRQgPN9XkvLj8Jl8rBp/dfJ2wQ1AVcP8mZmybq7kIg==}
-
-  '@types/lodash.clonedeep@4.5.9':
-    resolution: {integrity: sha512-19429mWC+FyaAhOLzsS8kZUsI+/GmBAQ0HFiCPsKGU+7pBXOQWhyrY6xNNDwUSX8SMZMJvuFVMF9O5dQOlQK9Q==}
 
   '@types/lodash.debounce@4.0.9':
     resolution: {integrity: sha512-Ma5JcgTREwpLRwMM+XwBR7DaWe96nC38uCBDFKZWbNKD+osjVzdpnUSwBcqCptrp16sSOLBAUb50Car5I0TCsQ==}
@@ -9745,10 +9622,6 @@ packages:
     resolution: {integrity: sha512-QLyTNiZ2KDOibvFPlZ6ZngVsZ/0gYnE6uTXi5aoDg8ed3AkJAz4sEje3Y8a29hQ1s6A99MZXe47fLAXQ1rTqaw==}
     engines: {node: '>= 12.0.0'}
 
-  component-emitter@2.0.0:
-    resolution: {integrity: sha512-4m5s3Me2xxlVKG9PkZpQqHQR7bgpnN7joDMJ4yvVkVXngjoITG76IaZmzmywSeRTeTpc6N6r3H3+KyUurV8OYw==}
-    engines: {node: '>=18'}
-
   compress-commons@4.1.1:
     resolution: {integrity: sha512-QLdDLCKNV2dtoTorqgxngQCMA+gWXkM/Nwu7FpeBhk/RdkzimqC3jueb/FDmaZeXh+uby1jkBqE3xArsLBE5wQ==}
     engines: {node: '>= 10'}
@@ -10130,14 +10003,6 @@ packages:
   domutils@4.0.2:
     resolution: {integrity: sha512-qI4JLRKnSzqFqr7hAlS5xQDusBCjKSEG4t4+7aNrIQMHBcsC2TGEhuyABJdYkgSewL57PNLYEiibY2iPKhKpaA==}
     engines: {node: '>=20.19.0'}
-
-  dotenv-expand@9.0.0:
-    resolution: {integrity: sha512-uW8Hrhp5ammm9x7kBLR6jDfujgaDarNA02tprvZdyrJ7MpdzD1KyrIHG4l+YoC2fJ2UcdFdNWNWIjt+sexBHJw==}
-    engines: {node: '>=12'}
-
-  dotenv@16.3.1:
-    resolution: {integrity: sha512-IPzF4w4/Rd94bA9imS68tZBaYyBWSCE47V1RGuMrB94iyTOIEwRmVL2x/4An+6mETpLrKJ5hQkB8W4kFAadeIQ==}
-    engines: {node: '>=12'}
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -10714,10 +10579,6 @@ packages:
 
   fs-constants@1.0.0:
     resolution: {integrity: sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==}
-
-  fs-extra@11.1.1:
-    resolution: {integrity: sha512-MGIE4HOvQCeUCzmlHs0vXpih4ysz4wg9qiSAu6cd42lVwPbTM1TjV7RusoyQqMmk/95gdQZX72u+YW+c3eEpFQ==}
-    engines: {node: '>=14.14'}
 
   fs-extra@11.4.0:
     resolution: {integrity: sha512-EQsFzMUJkCKGr1ePqlYADkIUmHW1s3ZXr5Yqy6wbGrfUCphpl2maM/kyOIRA2HpP3AaFQTZXD4ldjek+nccddA==}
@@ -11836,9 +11697,6 @@ packages:
   lodash.camelcase@4.3.0:
     resolution: {integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==}
 
-  lodash.clonedeep@4.5.0:
-    resolution: {integrity: sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==}
-
   lodash.debounce@4.0.8:
     resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
 
@@ -12002,9 +11860,6 @@ packages:
 
   memoize-one@6.0.0:
     resolution: {integrity: sha512-rkpe71W0N0c0Xz6QD0eJETuWAJGnJ9afsl1srmwPrI+yBCkge5EycXXbYRyvL29zZVUWQCY7InPRCv3GDXuZNw==}
-
-  memory-streams@0.1.3:
-    resolution: {integrity: sha512-qVQ/CjkMyMInPaaRMrwWNDvf6boRZXaT/DbQeMYcCWuXPEBf1v8qChOc9OlEVQp2uOvRXa1Qu30fLmKhY6NipA==}
 
   meow@10.1.5:
     resolution: {integrity: sha512-/d+PQ4GKmGvM9Bee/DPa8z3mXs/pkvJE2KEThngVNOqtmljC6K7NMPxtc2JeZYTmpWb9k/TmxjeL18ez3h7vCw==}
@@ -12960,9 +12815,6 @@ packages:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
     engines: {node: '>=8.10.0'}
 
-  readline@1.3.0:
-    resolution: {integrity: sha512-k2d6ACCkiNYz222Fs/iNze30rRJ1iIicW7JuX/7/cozvih6YCkFZH+J6mAFDVgv0dRBaAyr4jDqC95R2y4IADg==}
-
   recast@0.23.21:
     resolution: {integrity: sha512-mFAyJq9vUbSTARLZUvAEf1z3YxlvAwswbmxMx2mPA/MSm4KmpwvwvhsH/NIrZhyOuwD60Lzyw2qh83uCbgTPYw==}
     engines: {node: '>= 4'}
@@ -13384,9 +13236,6 @@ packages:
 
   stream-shift@1.0.1:
     resolution: {integrity: sha512-AiisoFqQ0vbGcZgQPY1cdP2I76glaVA/RauYR4G4thNFgkTqr90yXTo4LYX60Jl+sIlPNHHdGSwo01AvbKUSVQ==}
-
-  stream@0.0.3:
-    resolution: {integrity: sha512-aMsbn7VKrl4A2T7QAQQbzgN7NVc70vgF5INQrBXqn4dCXN1zy3L9HGgLO5s7PExmdrzTJ8uR/27aviW8or8/+A==}
 
   streamx@2.15.1:
     resolution: {integrity: sha512-fQMzy2O/Q47rgwErk/eGeLu/roaFWV0jVsogDmrszM9uIw8L5OA+t+V93MgYlufNptfjmYR1tOMWhei/Eh7TQA==}
@@ -17466,8 +17315,6 @@ snapshots:
     dependencies:
       '@babel/types': 7.29.8
 
-  '@types/base64-js@1.3.0': {}
-
   '@types/better-sqlite3@9.6.0':
     dependencies:
       '@types/node': 24.13.3
@@ -17524,11 +17371,6 @@ snapshots:
 
   '@types/fetch-mock@7.3.3': {}
 
-  '@types/fs-extra@11.0.1':
-    dependencies:
-      '@types/jsonfile': 6.1.1
-      '@types/node': 24.13.3
-
   '@types/glob@7.2.0':
     dependencies:
       '@types/minimatch': 5.1.2
@@ -17583,10 +17425,6 @@ snapshots:
 
   '@types/json5@0.0.29': {}
 
-  '@types/jsonfile@6.1.1':
-    dependencies:
-      '@types/node': 24.13.3
-
   '@types/keyv@3.1.4':
     dependencies:
       '@types/node': 24.13.3
@@ -17594,10 +17432,6 @@ snapshots:
   '@types/linkify-it@5.0.0': {}
 
   '@types/lodash.camelcase@4.3.6':
-    dependencies:
-      '@types/lodash': 4.14.202
-
-  '@types/lodash.clonedeep@4.5.9':
     dependencies:
       '@types/lodash': 4.14.202
 
@@ -18837,8 +18671,6 @@ snapshots:
 
   comment-parser@1.4.0: {}
 
-  component-emitter@2.0.0: {}
-
   compress-commons@4.1.1:
     dependencies:
       buffer-crc32: 0.2.13
@@ -19202,10 +19034,6 @@ snapshots:
       dom-serializer: 3.1.1
       domelementtype: 3.0.0
       domhandler: 6.0.1
-
-  dotenv-expand@9.0.0: {}
-
-  dotenv@16.3.1: {}
 
   dunder-proto@1.0.1:
     dependencies:
@@ -20018,12 +19846,6 @@ snapshots:
   fresh@0.5.2: {}
 
   fs-constants@1.0.0: {}
-
-  fs-extra@11.1.1:
-    dependencies:
-      graceful-fs: 4.2.11
-      jsonfile: 6.1.0
-      universalify: 2.0.0
 
   fs-extra@11.4.0:
     dependencies:
@@ -21485,8 +21307,6 @@ snapshots:
 
   lodash.camelcase@4.3.0: {}
 
-  lodash.clonedeep@4.5.0: {}
-
   lodash.debounce@4.0.8: {}
 
   lodash.defaults@4.2.0: {}
@@ -21627,10 +21447,6 @@ snapshots:
   media-typer@0.3.0: {}
 
   memoize-one@6.0.0: {}
-
-  memory-streams@0.1.3:
-    dependencies:
-      readable-stream: 1.0.34
 
   meow@10.1.5:
     dependencies:
@@ -22697,8 +22513,6 @@ snapshots:
     dependencies:
       picomatch: 2.3.1
 
-  readline@1.3.0: {}
-
   recast@0.23.21:
     dependencies:
       ast-types: 0.16.1
@@ -23194,10 +23008,6 @@ snapshots:
       stubs: 3.0.0
 
   stream-shift@1.0.1: {}
-
-  stream@0.0.3:
-    dependencies:
-      component-emitter: 2.0.0
 
   streamx@2.15.1:
     dependencies:

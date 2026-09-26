@@ -1,7 +1,5 @@
 /* eslint-disable no-console */
 import React from 'react';
-import { join } from 'node:path';
-import { move } from 'fs-extra';
 import { Exporter } from '@votingworks/backend';
 import { setInterval } from 'node:timers/promises';
 import { type MarginDimensions, renderToPdf } from '@votingworks/printing';
@@ -225,20 +223,14 @@ export async function exportBackupVoterChecklist(
   });
   // @coverage-defer
   for (const [i, pdf] of iter(pdfs).enumerate()) {
-    const inProgressName = `part_${
-      i + 1
-    }_backup_voter_checklist.in_progress.pdf`;
-    const inProgressPath = join(usbDriveStatus.mountpoint, inProgressName);
-    const finalPath = join(
-      usbDriveStatus.mountpoint,
-      `part_${i + 1}_backup_voter_checklist.pdf`
-    );
     (
-      await exporter.exportDataToUsbDrive('', inProgressName, pdf, {
-        machineDirectoryToWriteToFirst: workspace.assetDirectoryPath,
-      })
+      await exporter.exportDataToUsbDrive(
+        '',
+        `part_${i + 1}_backup_voter_checklist.pdf`,
+        pdf,
+        { machineDirectoryToWriteToFirst: workspace.assetDirectoryPath }
+      )
     ).unsafeUnwrap();
-    await move(inProgressPath, finalPath, { overwrite: true });
   }
   // @coverage-defer
   logger.log(LogEventId.PollbookPaperBackupStatus, 'system', {

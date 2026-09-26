@@ -1,16 +1,11 @@
 // @coverage-exclude-file: process startup wiring, called only from the (excluded) index.ts entry points
 
-import * as dotenv from 'dotenv';
-import * as dotenvExpand from 'dotenv-expand';
 import * as fs from 'node:fs';
 import { isIntegrationTest } from '@votingworks/utils';
 
 /**
- * Loads environment variables from .env* files. dotenv will never modify environment variables
- * that have already been set.
- *
- * https://github.com/motdotla/dotenv
- * https://github.com/motdotla/dotenv-expand
+ * Loads environment variables from .env* files. `process.loadEnvFile` will never
+ * modify environment variables that have already been set.
  */
 export function loadEnvVarsFromDotenvFiles(): void {
   const nodeEnv = process.env.NODE_ENV;
@@ -31,7 +26,7 @@ export function loadEnvVarsFromDotenvFiles(): void {
 
   for (const dotenvFile of dotenvFiles) {
     if (fs.existsSync(dotenvFile)) {
-      dotenvExpand.expand(dotenv.config({ path: dotenvFile }));
+      process.loadEnvFile(dotenvFile);
     }
   }
 }

@@ -1,4 +1,4 @@
-import { ensureDirSync } from 'fs-extra';
+import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 import type { BaseLogger } from '@votingworks/logging';
@@ -15,10 +15,10 @@ export function createLocalWorkspace(
   machineId: string,
   codeVersion: string
 ): LocalWorkspace {
-  ensureDirSync(workspacePath);
+  mkdirSync(workspacePath, { recursive: true });
 
   const assetDirectoryPath = join(workspacePath, 'assets');
-  ensureDirSync(assetDirectoryPath);
+  mkdirSync(assetDirectoryPath, { recursive: true });
 
   const dbPath = join(workspacePath, 'pollbook-backend.db');
   const store = LocalStore.fileStore(dbPath, logger, machineId, codeVersion);
@@ -41,10 +41,10 @@ export function createPeerWorkspace(
   machineId: string,
   codeVersion: string
 ): PeerWorkspace {
-  ensureDirSync(workspacePath);
+  mkdirSync(workspacePath, { recursive: true });
 
   const assetDirectoryPath = join(workspacePath, 'assets');
-  ensureDirSync(assetDirectoryPath);
+  mkdirSync(assetDirectoryPath, { recursive: true });
   const dbPath = join(workspacePath, 'pollbook-backend.db');
   const store = PeerStore.fileStore(dbPath, logger, machineId, codeVersion);
 

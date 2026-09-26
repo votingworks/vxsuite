@@ -87,7 +87,6 @@ import {
   getMostRecentDiagnosticRecord,
 } from '@votingworks/backend';
 import type { BaseLogger } from '@votingworks/logging';
-import { emptyDir } from 'fs-extra';
 import {
   type CastVoteRecordFileRecord,
   CastVoteRecordFileRecordSchema,
@@ -1680,7 +1679,8 @@ export class Store implements BaseStore {
    * reset (e.g., on unconfigure).
    */
   async clearBallotImages(): Promise<void> {
-    await emptyDir(this.ballotImagesPath);
+    await rm(this.ballotImagesPath, { recursive: true, force: true });
+    await mkdir(this.ballotImagesPath, { recursive: true });
   }
 
   /**
@@ -1688,7 +1688,8 @@ export class Store implements BaseStore {
    * is reset (e.g., on unconfigure).
    */
   async clearElectionPackages(): Promise<void> {
-    await emptyDir(this.electionPackagesPath);
+    await rm(this.electionPackagesPath, { recursive: true, force: true });
+    await mkdir(this.electionPackagesPath, { recursive: true });
   }
 
   addScannerBatch(scannerBatch: ScannerBatch): void {

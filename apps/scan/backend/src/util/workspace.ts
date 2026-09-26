@@ -1,4 +1,4 @@
-import { emptyDirSync, ensureDirSync } from 'fs-extra';
+import { mkdirSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import type { Optional } from '@votingworks/basics';
 import { getDiskSpaceSummaries, getNodeEnv } from '@votingworks/backend';
@@ -68,8 +68,8 @@ export function createWorkspace(
   const ballotImagesPath = join(resolvedRoot, 'ballot-images');
   const scannedImagesPath = join(ballotImagesPath, 'scanned-images');
   const uploadsPath = join(resolvedRoot, 'uploads');
-  ensureDirSync(ballotImagesPath);
-  ensureDirSync(scannedImagesPath);
+  mkdirSync(ballotImagesPath, { recursive: true });
+  mkdirSync(scannedImagesPath, { recursive: true });
 
   const dbPath = join(resolvedRoot, 'ballots.db');
   const store = options.store || Store.fileStore(dbPath, logger);
@@ -83,20 +83,21 @@ export function createWorkspace(
     continuousExportMutex: new Mutex(),
     resetElectionSession() {
       store.resetElectionSession();
-      emptyDirSync(ballotImagesPath);
-      emptyDirSync(scannedImagesPath);
-      ensureDirSync(ballotImagesPath);
-      ensureDirSync(scannedImagesPath);
+      rmSync(ballotImagesPath, { recursive: true, force: true });
+      rmSync(scannedImagesPath, { recursive: true, force: true });
+      mkdirSync(ballotImagesPath, { recursive: true });
+      mkdirSync(scannedImagesPath, { recursive: true });
     },
     reset() {
       store.reset();
-      emptyDirSync(ballotImagesPath);
-      emptyDirSync(scannedImagesPath);
-      ensureDirSync(ballotImagesPath);
-      ensureDirSync(scannedImagesPath);
+      rmSync(ballotImagesPath, { recursive: true, force: true });
+      rmSync(scannedImagesPath, { recursive: true, force: true });
+      mkdirSync(ballotImagesPath, { recursive: true });
+      mkdirSync(scannedImagesPath, { recursive: true });
     },
     clearUploads() {
-      emptyDirSync(uploadsPath);
+      rmSync(uploadsPath, { recursive: true, force: true });
+      mkdirSync(uploadsPath, { recursive: true });
     },
     getDiskSpaceSummary: async () => {
       const [summary] = await getDiskSpaceSummaries([resolvedRoot]);

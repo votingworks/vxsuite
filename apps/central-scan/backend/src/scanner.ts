@@ -15,7 +15,7 @@ import {
   type SheetOf,
 } from '@votingworks/types';
 import makeDebug from 'debug';
-import * as fsExtra from 'fs-extra';
+import { mkdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { randomUUID as uuid } from 'node:crypto';
 import {
@@ -99,7 +99,7 @@ function buildMachine({
         // @coverage-defer
         message: `Imprinter is ${hasImprinter ? 'attached' : 'not attached'}.`,
       });
-      await fsExtra.ensureDir(imageDirectory);
+      await mkdir(imageDirectory, { recursive: true });
       debug('scanning starting for batch %s into %s', batchId, imageDirectory);
       const control = scanner.scanSheets({
         directory: imageDirectory,
@@ -116,7 +116,7 @@ function buildMachine({
       return { control, imageDirectory };
     } catch (error) {
       store.deleteBatch(batchId);
-      await fsExtra.remove(imageDirectory);
+      await rm(imageDirectory, { recursive: true, force: true });
       void logger.logAsCurrentRole(LogEventId.ScannerBatchStarted, {
         disposition: 'failure',
         message: `User attempt to start scanning failed: ${extractErrorMessage(
@@ -246,7 +246,7 @@ function buildMachine({
 
     store.finishBatch({ batchId, error: error?.message });
     await control.endBatch();
-    await fsExtra.remove(imageDirectory);
+    await rm(imageDirectory, { recursive: true, force: true });
     if (error) {
       await logger.logAsCurrentRole(LogEventId.ScannerBatchEnded, {
         disposition: 'failure',

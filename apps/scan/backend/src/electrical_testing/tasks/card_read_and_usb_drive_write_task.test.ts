@@ -1,7 +1,6 @@
 import { LogEventId } from '@votingworks/logging';
 import type { UsbDrive } from '@votingworks/usb-drive';
-import { exists } from 'fs-extra';
-import { join } from 'node:path';
+import { readdir } from 'node:fs/promises';
 import { afterEach, beforeEach, expect, vi } from 'vitest';
 import { test } from '../../../test/helpers/test.js';
 import {
@@ -14,7 +13,7 @@ async function hasWrittenFileToUsbDrive(usbDrive: UsbDrive) {
   const status = await usbDrive.status();
   return (
     status.status === 'mounted' &&
-    exists(join(status.mountpoint, USB_DRIVE_FILE_NAME))
+    (await readdir(status.mountpoint)).includes(USB_DRIVE_FILE_NAME)
   );
 }
 

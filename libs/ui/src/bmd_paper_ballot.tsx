@@ -1,4 +1,4 @@
-import { fromByteArray } from 'base64-js';
+import { Buffer } from 'node:buffer';
 import React from 'react';
 
 import {
@@ -874,7 +874,11 @@ export function BmdPaperBallot({
                 contestsForPageInCanonicalOrder,
                 votes
               )}
-              value={fromByteArray(encodedBallot)}
+              value={Buffer.from(
+                encodedBallot.buffer,
+                encodedBallot.byteOffset,
+                encodedBallot.byteLength
+              ).toString('base64')}
             />
           </QrCodeContainer>
         </Header>

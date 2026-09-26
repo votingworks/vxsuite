@@ -1,4 +1,4 @@
-import { ensureDirSync } from 'fs-extra';
+import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 import type { BaseLogger } from '@votingworks/logging';
@@ -15,10 +15,10 @@ export function createWorkspace(
   logger: BaseLogger,
   store: Store = Store.new(logger)
 ): Workspace {
-  ensureDirSync(workspacePath);
+  mkdirSync(workspacePath, { recursive: true });
 
   const assetDirectoryPath = join(import.meta.dirname, '../../frontend/build');
-  ensureDirSync(assetDirectoryPath);
+  mkdirSync(assetDirectoryPath, { recursive: true });
 
   return { assetDirectoryPath, store };
 }

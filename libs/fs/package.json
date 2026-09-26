@@ -54,7 +54,6 @@
     "@votingworks/test-utils": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
-    "memory-streams": "^0.1.3",
     "sort-package-json": "^1.50.0",
     "tmp": "^0.2.6",
     "vitest": "^4.1.11"

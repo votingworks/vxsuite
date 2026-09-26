@@ -111,6 +111,32 @@ test('opens a file for writing, creating it', async () => {
   expect(readFileSync(path, 'utf-8')).toEqual('contents');
 });
 
+test('opens a file for append when given append: true', async () => {
+  const path = makeTemporaryFile({ content: 'initial data\n' });
+
+  const file = (
+    await openRegularFileForWriting(path, { append: true })
+  ).unsafeUnwrap();
+  await file.writeFile('appended data\n');
+  await file.close();
+
+  expect(readFileSync(path, { encoding: 'utf8' })).toEqual(
+    'initial data\nappended data\n'
+  );
+});
+
+test('creates a file it opens for append', async () => {
+  const path = join(makeTemporaryDirectory(), 'new-file');
+
+  const file = (
+    await openRegularFileForWriting(path, { append: true })
+  ).unsafeUnwrap();
+  await file.writeFile('appended data\n');
+  await file.close();
+
+  expect(readFileSync(path, { encoding: 'utf8' })).toEqual('appended data\n');
+});
+
 test('truncates a file it opens for writing', async () => {
   const path = makeTemporaryFile({ content: 'a much longer previous value' });
 

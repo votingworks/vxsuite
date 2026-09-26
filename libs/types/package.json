@@ -39,7 +39,6 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
-    "@types/lodash.clonedeep": "^4.5.9",
     "@types/lodash.set": "^4.3.7",
     "@types/node": "24.13.3",
     "@types/react": "18.3.3",
@@ -51,7 +50,6 @@
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
-    "lodash.clonedeep": "^4.5.0",
     "lodash.set": "^4.3.2",
     "sort-package-json": "^1.50.0",
     "vitest": "^4.1.11"
