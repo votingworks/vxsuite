@@ -4,7 +4,7 @@ import { assert } from '@votingworks/basics';
 import {
   appStrings,
   Button,
-  getPrintOutcome,
+  getPrintJobDisplayStatus,
   Modal,
   P,
   useCurrentLanguage,
@@ -55,7 +55,7 @@ export function PrintPage(): JSX.Element {
   const printOutcome =
     printJobId === undefined
       ? undefined
-      : getPrintOutcome(printJobStatusQuery.data);
+      : getPrintJobDisplayStatus(printJobStatusQuery.data).outcome;
   const sentToPrinter = printOutcome === 'sent-to-printer';
   const failed = printOutcome === 'failed';
 

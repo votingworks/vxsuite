@@ -25,6 +25,8 @@ import {
   type Election,
   type Tabulation,
   type DippedSmartCardAuth,
+  type PrintJobId,
+  type PrintJobStatus,
 } from '@votingworks/types';
 import {
   createSystemCallApi,
@@ -47,6 +49,8 @@ import {
 } from '@votingworks/test-decks';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import {
+  awaitJobSettlement,
+  type JobSettlementMonitor,
   cleanupCachedBrowser,
   concatenatePdfs,
   type ConcatenatePdfsErrorCode,
@@ -68,6 +72,7 @@ import type { BallotPrintEntry, DeviceStatuses } from './types.js';
 import { getMachineConfig } from './machine_config.js';
 import { findBallotStyleId } from './util/ballot_styles.js';
 import { getCurrentTime } from './util/get_current_time.js';
+import type { IncrementBallotPrintCountParams } from './store.js';
 
 interface TestDeckBallotToPrint {
   spec: TestDeckBallot;
@@ -81,6 +86,54 @@ const MAX_PRINT_ALL_BALLOTS_SIZE_BYTES = 512 * 1024 * 1024;
 export function buildApi(ctx: AppContext) {
   const { auth, usbDrive, logger, workspace, printer } = ctx;
   const { store } = workspace;
+
+  // Bumped whenever the printed ballot count is reset
+  // e.g. by switching ballot casting mode. This prevents the following:
+  // 1. Test ballot print job is started
+  // 2. Pollworker switches ballot casting mode while print job is in flight
+  // 3. Print job finishes and increments official ballot mode print count
+  let ballotPrintingGeneration = 0;
+
+  function countPrintedBallots(
+    generation: number,
+    counts: IncrementBallotPrintCountParams[]
+  ): void {
+    if (generation !== ballotPrintingGeneration) {
+      return;
+    }
+    for (const count of counts) {
+      store.incrementBallotPrintCount(count);
+    }
+  }
+
+  function resetBallotPrintCounts(): void {
+    ballotPrintingGeneration += 1;
+    store.resetBallotPrintCounts();
+  }
+
+  const activeJobMonitors = new Set<JobSettlementMonitor>();
+
+  function monitorJobSettlement(
+    jobId: PrintJobId,
+    onSettled: (status: PrintJobStatus) => Promise<void>
+  ): void {
+    const monitor = awaitJobSettlement({
+      jobId,
+      printer,
+      onSettled: async (status) => {
+        activeJobMonitors.delete(monitor);
+        await onSettled(status);
+      },
+    });
+    activeJobMonitors.add(monitor);
+  }
+
+  function stopJobMonitors(): void {
+    for (const monitor of activeJobMonitors) {
+      monitor.stop();
+    }
+    activeJobMonitors.clear();
+  }
 
   function printBallots(
     electionDefinition: ElectionDefinition,
@@ -313,7 +366,7 @@ export function buildApi(ctx: AppContext) {
         message: `Toggling to ${testMode ? 'Test' : 'Official'} Ballot Mode...`,
       });
       store.withTransaction(() => {
-        store.resetBallotPrintCounts();
+        resetBallotPrintCounts();
         store.setTestMode(testMode);
       });
       await logger.logAsCurrentRole(LogEventId.ToggledTestMode, {
@@ -325,6 +378,7 @@ export function buildApi(ctx: AppContext) {
     },
 
     unconfigureMachine(): void {
+      stopJobMonitors();
       store.reset();
       void logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
         disposition: 'success',
@@ -355,6 +409,12 @@ export function buildApi(ctx: AppContext) {
       getAuthStatus: /* @coverage-exclude */ () =>
         auth.getAuthStatus(constructAuthMachineState(workspace.store)),
     }),
+
+    getPrintJobStatus(input: {
+      jobId: PrintJobId;
+    }): Result<PrintJobStatus, Error> {
+      return printer.getJobStatus(input.jobId);
+    },
 
     getBallots(input: {
       ballotType?: BallotType;
@@ -392,10 +452,10 @@ export function buildApi(ctx: AppContext) {
       languageCode: LanguageCode;
       ballotType: BallotType;
       copies: number;
-    }) {
+    }): Promise<PrintJobId> {
       const { electionDefinition } = assertDefined(store.getElectionRecord());
       const printerStatus = await printer.status();
-      await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+      await logger.logAsCurrentRole(LogEventId.BallotPrintRequest, {
         message: `Attempting to print ballot with ${input.copies} copies`,
         ballotProps: JSON.stringify({
           precinctId: input.precinctId,
@@ -415,7 +475,6 @@ export function buildApi(ctx: AppContext) {
       });
 
       const isTestMode = store.getTestMode();
-      // @coverage-defer
       const ballotMode = isTestMode ? 'test' : 'official';
 
       const ballot = assertDefined(
@@ -427,42 +486,55 @@ export function buildApi(ctx: AppContext) {
         })
       );
 
-      await printBallots(electionDefinition, {
+      const generation = ballotPrintingGeneration;
+      const jobId = await printBallots(electionDefinition, {
         data: Buffer.from(ballot.encodedBallot, 'base64'),
         copies: input.copies,
       });
 
-      store.incrementBallotPrintCount({
-        precinctId: input.precinctId,
-        ballotStyleId,
-        ballotType: input.ballotType,
-        ballotMode,
-        count: input.copies,
+      monitorJobSettlement(jobId, async (status) => {
+        const sentToPrinter = status.outcome === 'sent-to-printer';
+        if (sentToPrinter) {
+          countPrintedBallots(generation, [
+            {
+              precinctId: input.precinctId,
+              ballotStyleId,
+              ballotType: input.ballotType,
+              ballotMode,
+              count: input.copies,
+            },
+          ]);
+        }
+
+        await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
+          message: sentToPrinter
+            ? `Printed ${ballotMode} ballot ${ballotStyleId} with ${input.copies} copies`
+            : `Failed to print ${ballotMode} ballot ${ballotStyleId} with ${input.copies} copies`,
+          ballotProps: JSON.stringify({
+            ballotStyleId,
+            precinctId: input.precinctId,
+            splitId: input.splitId,
+            partyId: input.partyId,
+            languageCode: input.languageCode,
+            ballotType: input.ballotType,
+            ballotMode,
+          }),
+          disposition: sentToPrinter ? 'success' : 'failure',
+          ...(status.reason ? { reason: status.reason } : {}),
+        });
       });
 
-      await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
-        message: `Printed ${ballotMode} ballot ${ballotStyleId} with ${input.copies} copies`,
-        ballotProps: JSON.stringify({
-          ballotStyleId,
-          precinctId: input.precinctId,
-          splitId: input.splitId,
-          partyId: input.partyId,
-          languageCode: input.languageCode,
-          ballotType: input.ballotType,
-          ballotMode,
-        }),
-        disposition: 'success',
-      });
+      return jobId;
     },
 
     async printAllBallotStyles(input: {
       languageCode: LanguageCode;
       ballotType: BallotType;
       copiesPerStyle: number;
-    }): Promise<Result<void, ConcatenatePdfsErrorCode>> {
+    }): Promise<Result<PrintJobId, ConcatenatePdfsErrorCode>> {
       const { electionDefinition } = assertDefined(store.getElectionRecord());
       const printerStatus = await printer.status();
-      await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+      await logger.logAsCurrentRole(LogEventId.BallotPrintRequest, {
         message: `Attempting to print all ballot styles with ${input.copiesPerStyle} copies`,
         ballotProps: JSON.stringify({
           languageCode: input.languageCode,
@@ -531,7 +603,7 @@ export function buildApi(ctx: AppContext) {
         maxSizeBytes: MAX_PRINT_ALL_BALLOTS_SIZE_BYTES,
       });
       if (concatenatedPdfResult.isErr()) {
-        await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
+        await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
           message: 'Failed to concatenate PDFs for printing.',
           disposition: 'failure',
         });
@@ -539,33 +611,43 @@ export function buildApi(ctx: AppContext) {
         return concatenatedPdfResult;
       }
 
-      await printBallots(electionDefinition, {
+      const generation = ballotPrintingGeneration;
+      const jobId = await printBallots(electionDefinition, {
         data: concatenatedPdfResult.ok(),
         copies: 1,
       });
 
       const totalPrintCount = ballots.length * input.copiesPerStyle;
-      for (const ballot of ballots) {
-        store.incrementBallotPrintCount({
-          precinctId: ballot.precinctId,
-          ballotStyleId: ballot.ballotStyleId,
-          ballotType: input.ballotType,
-          ballotMode,
-          count: input.copiesPerStyle,
-        });
-      }
+      monitorJobSettlement(jobId, async (status) => {
+        const sentToPrinter = status.outcome === 'sent-to-printer';
+        if (sentToPrinter) {
+          countPrintedBallots(
+            generation,
+            ballots.map((ballot) => ({
+              precinctId: ballot.precinctId,
+              ballotStyleId: ballot.ballotStyleId,
+              ballotType: input.ballotType,
+              ballotMode,
+              count: input.copiesPerStyle,
+            }))
+          );
+        }
 
-      await logger.logAsCurrentRole(LogEventId.PrinterPrintRequest, {
-        message: `Printed all ballot styles with ${input.copiesPerStyle} copies – ${totalPrintCount} ballots printed`,
-        requestProps: JSON.stringify({
-          languageCode: input.languageCode,
-          ballotType: input.ballotType,
-          copiesPerStyle: input.copiesPerStyle,
-        }),
-        disposition: 'success',
+        await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
+          message: sentToPrinter
+            ? `Printed all ballot styles with ${input.copiesPerStyle} copies – ${totalPrintCount} ballots printed`
+            : `Failed to print all ballot styles with ${input.copiesPerStyle} copies`,
+          requestProps: JSON.stringify({
+            languageCode: input.languageCode,
+            ballotType: input.ballotType,
+            copiesPerStyle: input.copiesPerStyle,
+          }),
+          disposition: sentToPrinter ? 'success' : 'failure',
+          ...(status.reason ? { reason: status.reason } : {}),
+        });
       });
 
-      return ok();
+      return ok(jobId);
     },
 
     async printBallotsPrintedReport(): Promise<void> {

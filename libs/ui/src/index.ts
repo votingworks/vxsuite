@@ -75,6 +75,7 @@ export * from './react_query.js';
 export * from './reports/index.js';
 export * from './segmented_button.js';
 export * from './smart_card_images.js';
+export * from './print_job_failed_modal.js';
 export * from './print_job_status_api.js';
 export * from './system_call_api.js';
 export * from './screen.js';

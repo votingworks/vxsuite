@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { expect, vi } from 'vitest';
 import {
   buildMockDippedSmartCardAuth,
   type DippedSmartCardAuthApi,
@@ -7,6 +7,7 @@ import type { AddressInfo } from 'node:net';
 import { createMockUsbDrive, type MockUsbDrive } from '@votingworks/usb-drive';
 import {
   createMockPrinterHandler,
+  JOB_SETTLEMENT_POLL_INTERVAL_MS,
   type MemoryPrinterHandler,
 } from '@votingworks/printing';
 import * as grout from '@votingworks/grout';
@@ -83,6 +84,7 @@ export async function buildBallotsForElection({
     if (!precinctId) {
       throw new Error(`Ballot style ${ballotStyle.id} has no precincts`);
     }
+
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const encodedBallot = pdfBase64s[index % pdfBase64s.length]!;
     for (const ballotMode of ballotModes) {
@@ -228,4 +230,18 @@ export function buildTestEnvironment(): {
     server,
     workspace,
   };
+}
+
+export async function waitForTotalBallotPrintCount(
+  apiClient: grout.Client<Api>,
+  expectedTotal: number
+): Promise<void> {
+  await vi.waitFor(
+    async () => {
+      const counts = await apiClient.getBallotPrintCounts();
+      const total = counts.reduce((sum, count) => sum + count.totalCount, 0);
+      expect(total).toEqual(expectedTotal);
+    },
+    { timeout: JOB_SETTLEMENT_POLL_INTERVAL_MS * 10 }
+  );
 }

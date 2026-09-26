@@ -27,6 +27,7 @@ import {
   buildTestEnvironment,
   configureMachine,
   buildBallotsForElection,
+  waitForTotalBallotPrintCount,
 } from '../test/app.js';
 import {
   exportBallotsPrintedReportPdf,
@@ -190,6 +191,7 @@ test('ballots printed report (non-zero) can be printed and exported (pdf snapsho
     ballotType: BallotType.Absentee,
     copies: 4,
   });
+  await waitForTotalBallotPrintCount(apiClient, 10);
 
   await printBallotsPrintedReport({
     printer: mockPrinterHandler.printer,

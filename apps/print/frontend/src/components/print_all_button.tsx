@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
   Button,
@@ -8,17 +8,19 @@ import {
   P,
   RadioGroup,
   SegmentedButton,
+  getPrintJobDisplayStatus,
+  PrintJobFailedModal,
 } from '@votingworks/ui';
-import { BallotType, LanguageCode } from '@votingworks/types';
+import { BallotType, LanguageCode, type PrintJobId } from '@votingworks/types';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { format, getLanguageOptions } from '@votingworks/utils';
 import {
   getDistinctBallotStylesCount,
   getElectionRecord,
+  getPrintJobStatus,
   printAllBallotStyles,
 } from '../api.js';
-
-const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
+import { PRINT_HANDOFF_MODAL_LINGER_SECONDS } from '../constants.js';
 
 const StyledButton = styled(Button)`
   width: 12rem;
@@ -54,7 +56,25 @@ function PrintAllModal({
   const getElectionRecordQuery = getElectionRecord.useQuery();
   const getDistinctBallotStylesCountQuery =
     getDistinctBallotStylesCount.useQuery({ ballotType, languageCode });
-  const [isShowingPrintingModal, setIsShowingPrintingModal] = useState(false);
+
+  const [printJobId, setPrintJobId] = useState<PrintJobId>();
+  const printJobStatusQuery = getPrintJobStatus.useQuery(printJobId);
+  const printJobStatus =
+    printJobId === undefined
+      ? undefined
+      : getPrintJobDisplayStatus(printJobStatusQuery.data);
+  const printOutcome = printJobStatus?.outcome;
+
+  useEffect(() => {
+    if (printOutcome !== 'sent-to-printer') {
+      return;
+    }
+    const timeout = setTimeout(
+      onClose,
+      PRINT_HANDOFF_MODAL_LINGER_SECONDS * 1000
+    );
+    return () => clearTimeout(timeout);
+  }, [printOutcome, onClose]);
 
   if (
     !getElectionRecordQuery.isSuccess ||
@@ -70,15 +90,20 @@ function PrintAllModal({
   const numberOfBallotStyles = getDistinctBallotStylesCountQuery.data;
 
   function handlePrint() {
-    setIsShowingPrintingModal(true);
-    setTimeout(() => {
-      onClose();
-    }, DEFAULT_PROGRESS_MODAL_DELAY_SECONDS * 1000);
-    printAllMutation.mutate({
-      ballotType,
-      copiesPerStyle: numCopies,
-      languageCode,
-    });
+    printAllMutation.mutate(
+      {
+        ballotType,
+        copiesPerStyle: numCopies,
+        languageCode,
+      },
+      {
+        onSuccess: (result) => {
+          if (result.isOk()) {
+            setPrintJobId(result.ok());
+          }
+        },
+      }
+    );
   }
 
   if (printAllMutation.isSuccess && printAllMutation.data.isErr()) {
@@ -87,13 +112,14 @@ function PrintAllModal({
       case 'job_too_large':
         return (
           <Modal
-            centerContent
+            title="Ballots Not Printed"
             content={
               <P>
                 The print job was too large. Please try printing fewer copies or
                 choose a single ballot style.
               </P>
             }
+            actions={<Button onPress={onClose}>Close</Button>}
           />
         );
       default:
@@ -101,17 +127,18 @@ function PrintAllModal({
     }
   }
 
-  if (isShowingPrintingModal) {
+  if (printOutcome === 'failed') {
     return (
-      <Modal
-        centerContent
-        content={
-          <Loading animationDurationS={DEFAULT_PROGRESS_MODAL_DELAY_SECONDS}>
-            Printing
-          </Loading>
-        }
+      <PrintJobFailedModal
+        multipleBallotsAttempted
+        reason={printJobStatus?.reason}
+        onClose={onClose}
       />
     );
+  }
+
+  if (printAllMutation.isLoading || printJobId !== undefined) {
+    return <Modal centerContent content={<Loading>Printing</Loading>} />;
   }
 
   return (
@@ -192,6 +219,7 @@ export function PrintAllButton({
   disabled: boolean;
 }): JSX.Element {
   const [isShowingModal, setIsShowingModal] = useState(false);
+  const closeModal = useCallback(() => setIsShowingModal(false), []);
 
   return (
     <React.Fragment>
@@ -199,15 +227,11 @@ export function PrintAllButton({
         disabled={disabled}
         color="neutral"
         fill="outlined"
-        // @coverage-defer
         onPress={() => setIsShowingModal(true)}
       >
         Print All Ballot Styles
       </StyledButton>
-      {isShowingModal && (
-        // @coverage-defer
-        <PrintAllModal onClose={() => setIsShowingModal(false)} />
-      )}
+      {isShowingModal && <PrintAllModal onClose={closeModal} />}
     </React.Fragment>
   );
 }

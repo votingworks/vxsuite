@@ -40,6 +40,14 @@ export type BallotPrintCountRow = Omit<
 
 const SchemaPath = join(import.meta.dirname, '../schema.sql');
 
+export interface IncrementBallotPrintCountParams {
+  precinctId: string;
+  ballotStyleId: string;
+  ballotType: BallotType;
+  ballotMode: BallotMode;
+  count: number;
+}
+
 /**
  * ElectionRecord represents election configuration in the store.
  */
@@ -439,13 +447,7 @@ export class Store {
     ballotType,
     ballotMode,
     count,
-  }: {
-    precinctId: string;
-    ballotStyleId: string;
-    ballotType: BallotType;
-    ballotMode: BallotMode;
-    count: number;
-  }): void {
+  }: IncrementBallotPrintCountParams): void {
     this.client.run(
       `
       update ballots
