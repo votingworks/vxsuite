@@ -6,7 +6,8 @@ import { extractErrorMessage } from './errors.js';
  * Represents a successful result of type `T`.
  */
 class Ok<T> {
-  private readonly value: T;
+  // `protected`, not `private`, so the `.d.ts` doesn't widen assignability
+  protected readonly value: T;
 
   constructor(value: T) {
     this.value = value;
@@ -99,7 +100,8 @@ class Ok<T> {
  * Represents a failed result of type `E`.
  */
 class Err<E> {
-  private readonly error: E;
+  // `protected`, not `private`, so the `.d.ts` doesn't widen assignability
+  protected readonly error: E;
 
   constructor(error: E) {
     this.error = error;
