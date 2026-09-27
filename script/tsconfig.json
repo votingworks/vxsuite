@@ -8,7 +8,6 @@
     "module": "nodenext",
     "noEmit": true,
     "allowImportingTsExtensions": true,
-    "erasableSyntaxOnly": true,
     "strict": true
   },
   "include": ["src"],
