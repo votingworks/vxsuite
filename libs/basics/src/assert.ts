@@ -36,15 +36,15 @@ export function fail(message?: string): never {
  *
  * @example
  *
- *   enum PageSize { Letter, Legal }
+ *   type PageSize = 'Letter' | 'Legal';
  *
  *   function print(pageSize: PageSize): void {
  *     switch (pageSize) {
- *       case PageSize.Letter:
+ *       case 'Letter':
  *         // …
  *         break
  *
- *       case PageSize.Legal:
+ *       case 'Legal':
  *         // …
  *         break
  *
