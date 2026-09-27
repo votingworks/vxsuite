@@ -296,16 +296,16 @@ export async function readCastVoteRecordExport(
 ): Promise<
   Result<CastVoteRecordExportContents, ReadCastVoteRecordExportError>
 > {
-  const authenticationResult: Result<void, Error> = isFeatureFlagEnabled(
+  const authenticationResult = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
   )
-    ? ok()
+    ? undefined
     : await authenticateArtifactUsingSignatureFile({
         type: 'cast_vote_records',
         context: 'import',
         directoryPath: exportDirectoryPath,
       });
-  if (authenticationResult.isErr()) {
+  if (authenticationResult?.isErr()) {
     return err({
       type: 'authentication-error',
       details: authenticationResult.err().message,
