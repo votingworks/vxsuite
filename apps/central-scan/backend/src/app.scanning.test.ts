@@ -369,6 +369,16 @@ test('discardBatch deletes the paused batch', async () => {
     expect(status.state).toEqual('idle');
     expect(status.batches).toEqual([]);
     expect(workspace.store.getBallotsCounted()).toEqual(0);
+
+    scanner.withNextScannerSession().sheet(scannedBallot).end();
+    await apiClient.scanBatch();
+    const nextBatchStatus = await waitForStatus(apiClient, {
+      state: 'paused',
+      pauseReason: { type: 'tray-empty' },
+    });
+    expect(nextBatchStatus.batches).toEqual([
+      expect.objectContaining({ batchNumber: 1, label: 'Batch 1', count: 1 }),
+    ]);
   });
 });
 

@@ -290,7 +290,7 @@ function buildMachine({
     batchContext,
   }: Context): Promise<void> {
     if (batchContext) await endBatch(batchContext);
-    store.deleteBatch(assertDefined(batchId));
+    store.discardBatch(assertDefined(batchId));
   }
 
   const clearBatch = assign<Context, Event>({

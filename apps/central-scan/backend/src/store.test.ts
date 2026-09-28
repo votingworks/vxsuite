@@ -177,10 +177,69 @@ test('batch cleanup works correctly', () => {
     }),
     expect.objectContaining({
       id: thirdBatchId,
-      batchNumber: 3,
-      label: 'Batch 3',
+      batchNumber: 2,
+      label: 'Batch 2',
     }),
   ]);
+});
+
+test('discardBatch hard-deletes the batch and its sheets', () => {
+  const store = Store.memoryStore();
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+    ballotHash,
+  });
+  store.setPollingPlaceId(anyPollingPlace(election).id);
+  store.setTestMode(false);
+
+  const savedBatchId = store.addBatch();
+  store.addSheet(uuid(), savedBatchId, [
+    {
+      imagePath: '/tmp/saved-front.png',
+      interpretation: { type: 'UnreadablePage' },
+    },
+    {
+      imagePath: '/tmp/saved-back.png',
+      interpretation: { type: 'UnreadablePage' },
+    },
+  ]);
+  store.finishBatch(savedBatchId);
+  store.setScannerBackedUp();
+  expect(store.getCanUnconfigure()).toEqual(true);
+
+  const discardedBatchId = store.addBatch();
+  expect(store.getBatch(discardedBatchId).batchNumber).toEqual(2);
+  store.addSheet(uuid(), discardedBatchId, [
+    {
+      imagePath: '/tmp/discarded-front.png',
+      interpretation: { type: 'UnreadablePage' },
+    },
+    {
+      imagePath: '/tmp/discarded-back.png',
+      interpretation: { type: 'UnreadablePage' },
+    },
+  ]);
+  expect(store.getBallotsCounted()).toEqual(2);
+
+  store.discardBatch(discardedBatchId);
+  expect(store.getBatches().map((batch) => batch.id)).toEqual([savedBatchId]);
+  expect(store.getBallotsCounted()).toEqual(1);
+  expect([...store.forEachSheet()]).toHaveLength(1);
+  expect(store.getCanUnconfigure()).toEqual(true);
+
+  // Batch number is reused after discarding a batch
+  const nextBatchId = store.addBatch();
+  expect(store.getBatch(nextBatchId).batchNumber).toEqual(2);
+  expect(store.getBatch(nextBatchId).label).toEqual('Batch 2');
+  store.finishBatch(nextBatchId);
+  expect(() => store.discardBatch(nextBatchId)).toThrow(
+    'cannot discard finished batch'
+  );
+
+  store.deleteBatch(nextBatchId);
+  expect(store.getBatch(store.addBatch()).batchNumber).toEqual(3);
 });
 
 test('getBatches', () => {
@@ -703,7 +762,7 @@ test('resetElectionSession', () => {
   // resetElectionSession should clear all batches
   expect(store.getBatches()).toEqual([]);
 
-  // resetElectionSession should reset the autoincrement in the batch label
+  // Batch numbering sequence should reset
   store.addBatch();
   store.addBatch();
   expect(
