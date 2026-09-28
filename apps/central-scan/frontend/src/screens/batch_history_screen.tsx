@@ -164,7 +164,7 @@ export function BatchHistoryScreen({
               onPress={() => setIsExportingCvrs(true)}
               icon="Export"
               variant="primary"
-              disabled={batches.length === 0}
+              disabled={batches.length === 0 || isBatchOpen}
             >
               Save CVRs
             </Button>

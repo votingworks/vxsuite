@@ -246,6 +246,7 @@ test('shows whether a batch is scanning', () => {
     expect(deleteButton).toBeDisabled();
   }
   expect(screen.getButton('Delete All Batches')).toBeDisabled();
+  expect(screen.getButton('Save CVRs')).toBeDisabled();
 });
 
 test('shows whether a batch is paused', () => {
@@ -259,6 +260,7 @@ test('shows whether a batch is paused', () => {
     expect(deleteButton).toBeDisabled();
   }
   expect(screen.getButton('Delete All Batches')).toBeDisabled();
+  expect(screen.getButton('Save CVRs')).toBeDisabled();
 });
 
 test('Save CVRs opens the export modal', async () => {
