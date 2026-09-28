@@ -216,17 +216,22 @@ test('enum type', () => {
     /**
      * YesNo is a simple enumeration of the values "yes" and "no".
      */
-    export enum YesNo {
+    export const YesNo = {
       /**
        * Yes
        */
-      Yes = 'yes',
+      Yes: 'yes',
 
       /**
        * No
        */
-      No = 'no',
-    }
+      No: 'no',
+    } as const;
+
+    /**
+     * YesNo is a simple enumeration of the values "yes" and "no".
+     */
+    export type YesNo = (typeof YesNo)[keyof typeof YesNo];
 
     /**
      * Schema for {@link YesNo}.
@@ -984,22 +989,29 @@ test('documentation from JSON schema', () => {
     /**
      * A boolean value.
      */
-    export enum YesNo {
-      Yes = 'yes',
+    export const YesNo = {
+      Yes: 'yes',
 
-      No = 'no',
-    }
+      No: 'no',
+    } as const;
+
+    /**
+     * A boolean value.
+     */
+    export type YesNo = (typeof YesNo)[keyof typeof YesNo];
 
     /**
      * Schema for {@link YesNo}.
      */
     export const YesNoSchema = z.enum(YesNo);
 
-    export enum UndocumentedEnum {
-      Yes = 'yes',
+    export const UndocumentedEnum = {
+      Yes: 'yes',
 
-      No = 'no',
-    }
+      No: 'no',
+    } as const;
+
+    export type UndocumentedEnum = (typeof UndocumentedEnum)[keyof typeof UndocumentedEnum];
 
     /**
      * Schema for {@link UndocumentedEnum}.
