@@ -283,7 +283,7 @@ export function determineAdjudicationInfoFromBmdVotes(
     AdjudicationReason.Undervote,
   ];
   const enabledReasons = options.adjudicationReasons.filter((reason) =>
-    bmdAdjudicationReasons.includes(reason)
+    bmdAdjudicationReasons.some((r) => r === reason)
   );
   const { election } = electionDefinition;
 
