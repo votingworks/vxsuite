@@ -7,45 +7,53 @@ import type {
   Precinct,
   SheetOf,
 } from '@votingworks/types';
-import { throwIllegalValue, type Result, ok, err } from '@votingworks/basics';
+import {
+  throwIllegalValue,
+  type Result,
+  ok,
+  err,
+  type EnumValues,
+} from '@votingworks/basics';
 
 const BlankPageTypes: ReadonlyArray<PageInterpretation['type']> = [
   'BlankPage',
   'UnreadablePage',
 ];
 
-export enum ValidationErrorType {
-  InvalidFrontBackPageTypes = 'InvalidFrontBackPageTypes',
-  MismatchedBallotStyle = 'MismatchedBallotStyle',
-  MismatchedBallotType = 'MismatchedBallotType',
-  MismatchedBallotHash = 'MismatchedBallotHash',
-  MismatchedPrecinct = 'MismatchedPrecinct',
-  NonConsecutivePages = 'NonConsecutivePages',
-}
+export const ValidationErrorType = {
+  InvalidFrontBackPageTypes: 'InvalidFrontBackPageTypes',
+  MismatchedBallotStyle: 'MismatchedBallotStyle',
+  MismatchedBallotType: 'MismatchedBallotType',
+  MismatchedBallotHash: 'MismatchedBallotHash',
+  MismatchedPrecinct: 'MismatchedPrecinct',
+  NonConsecutivePages: 'NonConsecutivePages',
+} as const;
+
+export type ValidationErrorType = EnumValues<typeof ValidationErrorType>;
 
 export type ValidationError =
   | {
-      type: ValidationErrorType.NonConsecutivePages;
+      type: typeof ValidationErrorType.NonConsecutivePages;
       pageNumbers: SheetOf<HmpbBallotPageMetadata['pageNumber']>;
     }
   | {
-      type: ValidationErrorType.InvalidFrontBackPageTypes;
+      type: typeof ValidationErrorType.InvalidFrontBackPageTypes;
       types: SheetOf<PageInterpretation['type']>;
     }
   | {
-      type: ValidationErrorType.MismatchedBallotStyle;
+      type: typeof ValidationErrorType.MismatchedBallotStyle;
       ballotStyleIds: SheetOf<BallotStyle['id']>;
     }
   | {
-      type: ValidationErrorType.MismatchedBallotType;
+      type: typeof ValidationErrorType.MismatchedBallotType;
       ballotTypes: SheetOf<BallotType>;
     }
   | {
-      type: ValidationErrorType.MismatchedBallotHash;
+      type: typeof ValidationErrorType.MismatchedBallotHash;
       ballotHashes: SheetOf<ElectionDefinition['ballotHash']>;
     }
   | {
-      type: ValidationErrorType.MismatchedPrecinct;
+      type: typeof ValidationErrorType.MismatchedPrecinct;
       precinctIds: SheetOf<Precinct['id']>;
     };
 

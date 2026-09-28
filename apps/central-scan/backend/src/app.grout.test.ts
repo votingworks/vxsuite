@@ -315,10 +315,10 @@ test('clearing scanning data', async () => {
     expect(store.getBallotsCounted()).toEqual(0);
     const clearLogs = vi
       .mocked(logger.log)
-      .mock.calls.filter(([eventId]) =>
-        [LogEventId.ClearingBallotData, LogEventId.ClearedBallotData].includes(
-          eventId
-        )
+      .mock.calls.filter(
+        ([eventId]) =>
+          eventId === LogEventId.ClearingBallotData ||
+          eventId === LogEventId.ClearedBallotData
       );
     expect(clearLogs).toEqual([
       [
