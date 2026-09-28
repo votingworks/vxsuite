@@ -39,12 +39,6 @@ function main(): Promise<number> {
         : new JavaCard(),
     config: {
       allowElectionManagersToAccessUnconfiguredMachines: true,
-      allowedUserRoles: [
-        'system_administrator',
-        'election_manager',
-        'poll_worker',
-        'vendor',
-      ],
     },
     logger: baseLogger,
   });
