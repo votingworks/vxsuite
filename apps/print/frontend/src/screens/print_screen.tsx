@@ -84,9 +84,8 @@ export function PrintScreen({
   const [selectedPrecinctId, setSelectedPrecinctId] = useState<Id>('');
   const [selectedSplitId, setSelectedSplitId] = useState<Id>('');
   const [selectedPartyId, setSelectedPartyId] = useState<Id>('');
-  const [selectedLanguageCode, setSelectedLanguageCode] = useState(
-    LanguageCode.ENGLISH
-  );
+  const [selectedLanguageCode, setSelectedLanguageCode] =
+    useState<LanguageCode>(LanguageCode.ENGLISH);
   const [isAbsentee, setIsAbsentee] = useState<boolean>(false);
   const printBallotMutation = printBallot.useMutation();
 

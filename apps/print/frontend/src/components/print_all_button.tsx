@@ -54,7 +54,9 @@ function PrintAllModal({
   const [isAbsentee, setIsAbsentee] = useState(false);
   const ballotType = isAbsentee ? BallotType.Absentee : BallotType.Precinct;
   const [numCopies, setNumCopies] = useState(1);
-  const [languageCode, setLanguageCode] = useState(LanguageCode.ENGLISH);
+  const [languageCode, setLanguageCode] = useState<LanguageCode>(
+    LanguageCode.ENGLISH
+  );
   const getElectionRecordQuery = getElectionRecord.useQuery();
   const getDistinctBallotStylesCountQuery =
     getDistinctBallotStylesCount.useQuery({ ballotType, languageCode });
