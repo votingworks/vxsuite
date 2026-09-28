@@ -1,5 +1,12 @@
 import { afterEach, expect, test, vi } from 'vitest';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  fstatSync,
+  mkdirSync,
+  readFileSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { join } from 'node:path';
 import { err, ok } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
@@ -111,11 +118,15 @@ test('dropPageCache reports a failed fadvise', async () => {
 
 test('syncFilesystem flushes the filesystem containing a directory', async () => {
   const root = makeTemporaryDirectory();
-  writeFileSync(join(root, 'file'), 'contents');
+  // Mock syncfs to avoid slowdown on CI
+  let syncedInode: number | undefined;
+  vi.spyOn(napi, 'syncfs').mockImplementation((fd) => {
+    syncedInode = fstatSync(fd).ino;
+  });
 
   expect(await syncFilesystem(root)).toEqual(ok());
 
-  expect(readFileSync(join(root, 'file'), 'utf-8')).toEqual('contents');
+  expect(syncedInode).toEqual(statSync(root).ino);
 });
 
 test('syncFilesystem fails on a path that cannot be opened', async () => {
