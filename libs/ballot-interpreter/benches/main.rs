@@ -3,8 +3,8 @@
 use std::{fmt::Display, path::PathBuf};
 
 use ballot_interpreter::interpret::{
-    DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH, DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD, ScanInterpreter,
-    VerticalStreakDetection, WriteInScoring,
+    BallotImageBitDepth, DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH, DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
+    ScanInterpreter, VerticalStreakDetection, WriteInScoring,
 };
 use divan::{Bencher, black_box};
 use image::GrayImage;
@@ -86,6 +86,7 @@ impl InterpretFixture {
             None,
             DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
             DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
+            BallotImageBitDepth::default(),
         );
         Ok((side_a_image, side_b_image, interpreter))
     }

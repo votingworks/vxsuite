@@ -1,9 +1,11 @@
 import { assert, err, ok } from '@votingworks/basics';
 import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import {
+  type BallotImageBitDepth,
   type ElectionDefinition,
   type ImageData,
   type SheetOf,
+  DEFAULT_BALLOT_IMAGE_BIT_DEPTH,
   DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
   DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
 } from '@votingworks/types';
@@ -23,6 +25,7 @@ export interface InterpretOptions {
   minimumDetectedScale?: number;
   maxCumulativeStreakWidth?: number;
   retryStreakWidthThreshold?: number;
+  ballotImageBitDepth?: BallotImageBitDepth;
   debug?: boolean;
   frontNormalizedImageOutputPath?: string;
   backNormalizedImageOutputPath?: string;
@@ -84,6 +87,8 @@ function buildBridgeOptions(options: InterpretOptions): BridgeInterpretOptions {
       options.maxCumulativeStreakWidth ?? DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
     retryStreakWidthThreshold:
       options.retryStreakWidthThreshold ?? DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
+    ballotImageBitDepth:
+      options.ballotImageBitDepth ?? DEFAULT_BALLOT_IMAGE_BIT_DEPTH,
     frontNormalizedImageOutputPath: options.frontNormalizedImageOutputPath,
     backNormalizedImageOutputPath: options.backNormalizedImageOutputPath,
   };

@@ -84,6 +84,20 @@ export const DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH = 5;
  */
 export const DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD = 1;
 
+const BALLOT_IMAGE_BIT_DEPTHS = [1, 2, 8] as const;
+
+/**
+ * Bits per pixel of the grayscale PNGs that VxScan and VxCentralScan save for
+ * scanned HMPB sheets. See {@link SystemSettings.ballotImageBitDepth}.
+ */
+export type BallotImageBitDepth = (typeof BALLOT_IMAGE_BIT_DEPTHS)[number];
+
+/**
+ * NOTE: This value must match the default `BallotImageBitDepth` in
+ * libs/ballot-interpreter/src/bubble-ballot-rust/image_utils.rs
+ */
+export const DEFAULT_BALLOT_IMAGE_BIT_DEPTH: BallotImageBitDepth = 2;
+
 export const SystemSettingsSchema = z
   .object({
     allowOfficialBallotsInTestMode: z.boolean().optional(),
@@ -152,6 +166,15 @@ export const SystemSettingsSchema = z
       .int()
       .min(1)
       .default(DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD),
+
+    /**
+     * Bit depth of the ballot images saved when scanning HMPBs. 1-bit images
+     * are black and white and smallest; 2-bit images (the default) add two
+     * gray levels so that anti-aliased edges and light marks such as pencil
+     * remain visible during adjudication, at roughly twice the size; 8-bit
+     * images keep the full grayscale scan at many times the size.
+     */
+    ballotImageBitDepth: z.literal(BALLOT_IMAGE_BIT_DEPTHS).optional(),
 
     /**
      * Enables quick results reporting and provides the server URL to post results to.

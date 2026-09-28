@@ -8,8 +8,9 @@ use std::{
 use ballot_interpreter::{
     debug::ImageDebugWriter,
     interpret::{
-        DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH, DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD, ScanInterpreter,
-        VerticalStreakDetection, WriteInScoring,
+        BallotImageBitDepth, DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
+        DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD, ScanInterpreter, VerticalStreakDetection,
+        WriteInScoring,
     },
     qr_code,
     scoring::UnitIntervalScore,
@@ -67,6 +68,10 @@ struct Options {
     /// Default value matches `DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD`.
     #[clap(long, default_value_t = DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD)]
     retry_streak_width_threshold: u32,
+
+    /// Bit depth (1, 2, or 8) of the normalized ballot image PNGs.
+    #[clap(long, default_value_t = Default::default())]
+    ballot_image_bit_depth: BallotImageBitDepth,
 
     /// Output as JSON instead of pretty-printed format.
     #[clap(long, short = 'j', default_value_t = false)]
@@ -375,6 +380,7 @@ fn interpret_bubble_ballot(
         options.minimum_detected_scale,
         options.max_cumulative_streak_width,
         options.retry_streak_width_threshold,
+        options.ballot_image_bit_depth,
     );
 
     let bottom_image = options

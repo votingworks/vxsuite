@@ -172,6 +172,7 @@ function buildMachine({
       minimumDetectedBallotScaleOverride,
       maxCumulativeStreakWidth,
       retryStreakWidthThreshold,
+      ballotImageBitDepth,
     } = assertDefined(store.getSystemSettings());
     const pollingPlaceId = assertDefined(store.getPollingPlaceId());
 
@@ -196,6 +197,7 @@ function buildMachine({
             DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
           maxCumulativeStreakWidth,
           retryStreakWidthThreshold,
+          ballotImageBitDepth,
         },
         [frontImageData.unsafeUnwrap(), backImageData.unsafeUnwrap()],
         sheetId,

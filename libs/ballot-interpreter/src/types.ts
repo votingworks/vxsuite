@@ -1,5 +1,6 @@
 import type {
   AdjudicationReason,
+  BallotImageBitDepth,
   ElectionDefinition,
   MarkThresholds,
 } from '@votingworks/types';
@@ -18,6 +19,7 @@ export interface InterpreterOptions {
   minimumDetectedScale?: number;
   maxCumulativeStreakWidth?: number;
   retryStreakWidthThreshold?: number;
+  ballotImageBitDepth?: BallotImageBitDepth;
   frontNormalizedImageOutputPath?: string;
   backNormalizedImageOutputPath?: string;
 }

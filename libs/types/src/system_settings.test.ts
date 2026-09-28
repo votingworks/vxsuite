@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
+import { z } from 'zod/v4';
 
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -167,4 +168,21 @@ test('disallows retry streak threshold greater than or equal to normal threshold
       })
     ).unsafeUnwrapErr()
   ).toMatchSnapshot();
+});
+
+test('parses supported ballot image bit depths only', () => {
+  for (const ballotImageBitDepth of [1, 2, 8]) {
+    expect(
+      safeParseSystemSettings(
+        JSON.stringify({ ...DEFAULT_SYSTEM_SETTINGS, ballotImageBitDepth })
+      ).unsafeUnwrap().ballotImageBitDepth
+    ).toEqual(ballotImageBitDepth);
+  }
+  for (const ballotImageBitDepth of [0, 4, 16, '2']) {
+    expect(
+      safeParseSystemSettings(
+        JSON.stringify({ ...DEFAULT_SYSTEM_SETTINGS, ballotImageBitDepth })
+      ).unsafeUnwrapErr()
+    ).toBeInstanceOf(z.ZodError);
+  }
 });
