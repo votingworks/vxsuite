@@ -49,19 +49,21 @@ test('constructor cleans up leftover files from a previous run', () => {
   expect(fs.readdirSync(scanner.imageDir)).toEqual([]);
 });
 
-test('scanSheets returns sheets and preserves the queue', async () => {
+test('scanSheets consumes the queue as it scans', async () => {
   const scanner = createScanner();
   scanner.addSheets([sheet(1), sheet(2)]);
 
   const batch = scanner.scanSheets();
-  expect(scanner.getStatus()).toEqual({ sheetCount: 2, errorQueued: false });
-
   expect(await batch.scanSheet()).toEqual(sheet(1));
+  expect(scanner.getStatus()).toEqual({ sheetCount: 1, errorQueued: false });
+
   expect(await batch.scanSheet()).toEqual(sheet(2));
+  expect(scanner.getStatus()).toEqual({ sheetCount: 0, errorQueued: false });
+
   expect(await batch.scanSheet()).toBeUndefined();
 });
 
-test('sheets can be scanned repeatedly without reloading', async () => {
+test('scanned sheets are not scanned again in the next session', async () => {
   const scanner = createScanner();
   scanner.addSheets([sheet(1)]);
 
@@ -70,7 +72,21 @@ test('sheets can be scanned repeatedly without reloading', async () => {
   expect(await batch1.scanSheet()).toBeUndefined();
 
   const batch2 = scanner.scanSheets();
-  expect(await batch2.scanSheet()).toEqual(sheet(1));
+  expect(await batch2.scanSheet()).toBeUndefined();
+});
+
+test('unscanned sheets stay in the tray for the next session', async () => {
+  const scanner = createScanner();
+  scanner.addSheets([sheet(1), sheet(2), sheet(3)]);
+
+  const batch1 = scanner.scanSheets();
+  expect(await batch1.scanSheet()).toEqual(sheet(1));
+  await batch1.endBatch();
+  expect(scanner.getStatus()).toEqual({ sheetCount: 2, errorQueued: false });
+
+  const batch2 = scanner.scanSheets();
+  expect(await batch2.scanSheet()).toEqual(sheet(2));
+  expect(await batch2.scanSheet()).toEqual(sheet(3));
   expect(await batch2.scanSheet()).toBeUndefined();
 });
 
@@ -90,19 +106,19 @@ test('endBatch stops returning sheets', async () => {
   expect(await batch.scanSheet()).toBeUndefined();
 });
 
-test('addSheets appends to existing queue for next scan', async () => {
+test('addSheets refills the tray for the next scan', async () => {
   const scanner = createScanner();
   scanner.addSheets([sheet(1)]);
 
   const batch1 = scanner.scanSheets();
   expect(await batch1.scanSheet()).toEqual(sheet(1));
   expect(await batch1.scanSheet()).toBeUndefined();
+  expect(scanner.getStatus()).toEqual({ sheetCount: 0, errorQueued: false });
 
   scanner.addSheets([sheet(2)]);
-  expect(scanner.getStatus()).toEqual({ sheetCount: 2, errorQueued: false });
+  expect(scanner.getStatus()).toEqual({ sheetCount: 1, errorQueued: false });
 
   const batch2 = scanner.scanSheets();
-  expect(await batch2.scanSheet()).toEqual(sheet(1));
   expect(await batch2.scanSheet()).toEqual(sheet(2));
   expect(await batch2.scanSheet()).toBeUndefined();
 });
@@ -118,19 +134,21 @@ test('setCopies scales the queued sheets', async () => {
   const batch = scanner.scanSheets();
   expect(await batch.scanSheet()).toEqual(sheet(1));
   expect(await batch.scanSheet()).toEqual(sheet(1));
+  expect(scanner.getStatus()).toEqual({ sheetCount: 4, errorQueued: false });
+
   expect(await batch.scanSheet()).toEqual(sheet(1));
+  expect(scanner.getStatus()).toEqual({ sheetCount: 3, errorQueued: false });
+
   expect(await batch.scanSheet()).toEqual(sheet(2));
   expect(await batch.scanSheet()).toEqual(sheet(2));
   expect(await batch.scanSheet()).toEqual(sheet(2));
   expect(await batch.scanSheet()).toBeUndefined();
-
-  scanner.setCopies(1);
-  expect(scanner.getStatus()).toEqual({ sheetCount: 2, errorQueued: false });
+  expect(scanner.getStatus()).toEqual({ sheetCount: 0, errorQueued: false });
 });
 
 test('a queued error makes the next scan attempt fail once', async () => {
   const scanner = createScanner();
-  scanner.addSheets([sheet(1), sheet(2)]);
+  scanner.addSheets([sheet(1), sheet(2), sheet(3)]);
 
   const batch = scanner.scanSheets();
   expect(await batch.scanSheet()).toEqual(sheet(1));
@@ -145,10 +163,10 @@ test('a queued error makes the next scan attempt fail once', async () => {
   // fresh one
   expect(scanner.getStatus()).toEqual({ sheetCount: 2, errorQueued: false });
   expect(await batch.scanSheet()).toEqual(sheet(2));
-  expect(await batch.scanSheet()).toBeUndefined();
+  await batch.endBatch();
 
   const batch2 = scanner.scanSheets();
-  expect(await batch2.scanSheet()).toEqual(sheet(1));
+  expect(await batch2.scanSheet()).toEqual(sheet(3));
 });
 
 test('setErrorQueued(false) cancels a queued error', async () => {
@@ -190,4 +208,52 @@ test('clearSheets resets so next scan returns nothing', async () => {
 
   expect(fs.readdirSync(scanner.imageDir)).toEqual([]);
   expect(fs.existsSync(scanner.imageDir)).toEqual(true);
+});
+
+test('copies left unscanned when a session ends are scanned in the next session', async () => {
+  const scanner = createScanner();
+  scanner.addSheets([sheet(1), sheet(2)]);
+  scanner.setCopies(3);
+
+  const firstBatch = scanner.scanSheets();
+  expect(await firstBatch.scanSheet()).toEqual(sheet(1));
+  await firstBatch.endBatch();
+  expect(scanner.getStatus()).toEqual({ sheetCount: 5, errorQueued: false });
+
+  const secondBatch = scanner.scanSheets();
+  expect(await secondBatch.scanSheet()).toEqual(sheet(1));
+  expect(await secondBatch.scanSheet()).toEqual(sheet(1));
+  expect(await secondBatch.scanSheet()).toEqual(sheet(2));
+  expect(scanner.getStatus()).toEqual({ sheetCount: 2, errorQueued: false });
+});
+
+test('lowering copies below those already scanned finishes the current sheet', async () => {
+  const scanner = createScanner();
+  scanner.addSheets([sheet(1), sheet(2)]);
+  scanner.setCopies(3);
+
+  const batch = scanner.scanSheets();
+  expect(await batch.scanSheet()).toEqual(sheet(1));
+  expect(await batch.scanSheet()).toEqual(sheet(1));
+  scanner.setCopies(2);
+  expect(scanner.getStatus()).toEqual({ sheetCount: 2, errorQueued: false });
+
+  expect(await batch.scanSheet()).toEqual(sheet(2));
+  expect(await batch.scanSheet()).toEqual(sheet(2));
+  expect(await batch.scanSheet()).toBeUndefined();
+});
+
+test('clearSheets resets partially scanned copies', async () => {
+  const scanner = createScanner();
+  scanner.addSheets([sheet(1)]);
+  scanner.setCopies(3);
+
+  const batch = scanner.scanSheets();
+  expect(await batch.scanSheet()).toEqual(sheet(1));
+  scanner.clearSheets();
+  expect(scanner.getStatus()).toEqual({ sheetCount: 0, errorQueued: false });
+
+  scanner.addSheets([sheet(2)]);
+  expect(scanner.getStatus()).toEqual({ sheetCount: 3, errorQueued: false });
+  expect(await scanner.scanSheets().scanSheet()).toEqual(sheet(2));
 });
