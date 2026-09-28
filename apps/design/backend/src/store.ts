@@ -579,7 +579,11 @@ function rowToJurisdiction(row: JurisdictionRow): Jurisdiction {
 }
 
 export class Store {
-  constructor(private readonly db: Db) {}
+  private readonly db: Db;
+
+  constructor(db: Db) {
+    this.db = db;
+  }
 
   // @coverage-exclude
   static new(logger: BaseLogger): Store {

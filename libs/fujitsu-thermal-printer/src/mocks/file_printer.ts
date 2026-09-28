@@ -151,10 +151,14 @@ export class MockFileFujitsuPrinter implements FujitsuThermalPrinterInterface {
   private readonly printPollingConfig: MockFileFujitsuPrinterPollingConfig;
   private lastKnownStatus?: PrinterStatus;
 
+  private readonly logger: Logger;
+
   constructor(
-    private readonly logger: Logger,
+    logger: Logger,
     printPollingConfig = DEFAULT_FILE_FUJITSU_PRINT_POLLING_CONFIG
   ) {
+    this.logger = logger;
+
     this.printPollingConfig = printPollingConfig;
   }
 

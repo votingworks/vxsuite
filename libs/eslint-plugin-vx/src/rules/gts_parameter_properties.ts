@@ -37,27 +37,47 @@ function isPropertyInitializerAssignment(
   );
 }
 
-const rule: TSESLint.RuleModule<
-  'useParameterProperties' | 'noRedundantAssignment',
-  readonly unknown[]
-> = createRule({
+interface Options {
+  useParameterProperties: 'always' | 'never';
+}
+
+type MessageId =
+  | 'useParameterProperties'
+  | 'doNotUseParameterProperties'
+  | 'noRedundantAssignment';
+
+const rule: TSESLint.RuleModule<MessageId, readonly [Options]> = createRule<
+  [Options],
+  MessageId
+>({
   name: 'gts-parameter-properties',
   meta: {
     docs: {
-      description: 'Use parameter properties for concise class initializers',
+      description:
+        'Determine whether to use parameter properties for concise class initializers',
     },
     messages: {
       useParameterProperties:
         'Use parameter properties for concise class initializers, e.g. constructor(public name: string)',
+      doNotUseParameterProperties:
+        'Do not use parameter properties; declare properties separately and assign in the constructor',
       noRedundantAssignment:
         'Do not assign parameter properties again as they are automatically assigned',
     },
-    schema: [],
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          useParameterProperties: { type: 'string', enum: ['always', 'never'] },
+        },
+        additionalProperties: false,
+      },
+    ],
     type: 'problem',
   },
-  defaultOptions: [],
+  defaultOptions: [{ useParameterProperties: 'always' }],
 
-  create(context) {
+  create(context, [{ useParameterProperties }]) {
     return {
       MethodDefinition(node: TSESTree.MethodDefinition): void {
         if (
@@ -71,6 +91,16 @@ const rule: TSESLint.RuleModule<
         const statements = body?.body ?? [];
 
         for (const param of params) {
+          if (useParameterProperties === 'never') {
+            if (param.type === AST_NODE_TYPES.TSParameterProperty) {
+              context.report({
+                node: param,
+                messageId: 'doNotUseParameterProperties',
+              });
+            }
+            continue;
+          }
+
           const assignmentStatement = statements.find((statement) =>
             isPropertyInitializerAssignment(param, statement)
           );

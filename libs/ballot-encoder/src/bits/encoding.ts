@@ -53,10 +53,14 @@ export class CustomEncoding implements Encoding {
   static MAX_CODE = (1 << (Uint8Array.BYTES_PER_ELEMENT * Uint8Size)) - 1;
   private readonly bitsPerElement: number;
 
+  private readonly chars: string;
+
   /**
    * @param chars a string of representable characters without duplicates
    */
-  constructor(private readonly chars: string) {
+  constructor(chars: string) {
+    this.chars = chars;
+
     CustomEncoding.validateChars(chars);
     this.bitsPerElement = sizeof(chars.length - 1);
   }

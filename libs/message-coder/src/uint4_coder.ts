@@ -17,8 +17,11 @@ import { defaultEnumValue, validateEnumValue } from './uint_coder.js';
  * Coder for a uint4, aka a 4-bit unsigned integer.
  */
 export class Uint4Coder extends BaseCoder<Uint4> {
-  constructor(private readonly enumeration?: unknown) {
+  private readonly enumeration?: unknown;
+
+  constructor(enumeration?: unknown) {
     super();
+    this.enumeration = enumeration;
   }
 
   canEncode(value: unknown): value is number {

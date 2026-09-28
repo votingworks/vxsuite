@@ -42,7 +42,11 @@ export type JsonStreamInput<T> =
  */
 export class RawJson {
   // eslint-disable-next-line vx/gts-no-public-class-fields
-  constructor(public contents: string) {}
+  contents: string;
+
+  constructor(contents: string) {
+    this.contents = contents;
+  }
 }
 
 /**

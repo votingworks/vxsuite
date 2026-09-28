@@ -11,10 +11,13 @@ import { GPIO_PATH_PREFIX } from './constants.js';
 export class MockPatConnectionStatusReader implements PatConnectionStatusReaderInterface {
   private mockConnectedStatus: boolean = false;
 
-  constructor(
-    readonly logger: BaseLogger,
-    readonly gpioPathPrefix: string = GPIO_PATH_PREFIX
-  ) {}
+  readonly logger: BaseLogger;
+  readonly gpioPathPrefix: string;
+
+  constructor(logger: BaseLogger, gpioPathPrefix: string = GPIO_PATH_PREFIX) {
+    this.logger = logger;
+    this.gpioPathPrefix = gpioPathPrefix;
+  }
 
   open(): Promise<boolean> {
     return Promise.resolve(true);

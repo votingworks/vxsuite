@@ -58,7 +58,11 @@ export interface TriggerPipelineResponse {
  * Client for interacting with the CircleCI API to trigger QA builds.
  */
 export class CircleCiClient {
-  constructor(private readonly config: QaConfig) {}
+  private readonly config: QaConfig;
+
+  constructor(config: QaConfig) {
+    this.config = config;
+  }
 
   /**
    * Trigger a CircleCI pipeline for QA.

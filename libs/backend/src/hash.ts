@@ -25,8 +25,11 @@ import { assert } from '@votingworks/basics';
 export class HashingPassthrough extends Transform {
   private hashComplete = false;
 
-  constructor(private readonly hash: Hash) {
+  private readonly hash: Hash;
+
+  constructor(hash: Hash) {
     super();
+    this.hash = hash;
   }
 
   /**

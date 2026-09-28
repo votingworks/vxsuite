@@ -42,7 +42,11 @@ export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
   private copiesScannedOfCurrentSheet = 0;
   private pendingError?: Error;
 
-  constructor(private readonly imageDirPath: string) {
+  private readonly imageDirPath: string;
+
+  constructor(imageDirPath: string) {
+    this.imageDirPath = imageDirPath;
+
     // Wipe any leftover images from a previous run
     fs.rmSync(this.imageDirPath, { recursive: true, force: true });
     fs.mkdirSync(this.imageDirPath, { recursive: true });

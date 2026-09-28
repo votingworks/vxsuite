@@ -17,8 +17,11 @@ export class BarcodeClient
   private restartAttemptCount = 0;
   private isConnected = false;
 
-  constructor(private readonly logger: BaseLogger) {
+  private readonly logger: BaseLogger;
+
+  constructor(logger: BaseLogger) {
     super();
+    this.logger = logger;
 
     this.worker = this.start();
   }

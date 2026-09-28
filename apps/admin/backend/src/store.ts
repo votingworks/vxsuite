@@ -197,11 +197,19 @@ function adjudicationSortKeyExprs(alias: string): string[] {
  * transcribed and adjudicated write-ins.
  */
 export class Store implements BaseStore {
+  private readonly client: DbClient;
+  private readonly ballotImagesPath: string;
+  private readonly electionPackagesPath: string;
+
   private constructor(
-    private readonly client: DbClient,
-    private readonly ballotImagesPath: string,
-    private readonly electionPackagesPath: string
-  ) {}
+    client: DbClient,
+    ballotImagesPath: string,
+    electionPackagesPath: string
+  ) {
+    this.client = client;
+    this.ballotImagesPath = ballotImagesPath;
+    this.electionPackagesPath = electionPackagesPath;
+  }
 
   getDbPath(): string {
     return this.client.getDatabasePath();

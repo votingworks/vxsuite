@@ -78,15 +78,25 @@ export class Client {
   private db?: Database;
   private closed = false;
 
+  private readonly dbPath: string;
+  private readonly logger: BaseLogger;
+  private readonly schemaPath?: string;
+  private readonly connectionOptions?: DbConnectionOptions;
+
   /**
    * @param dbPath a file system path, or ":memory:" for an in-memory database
    */
   private constructor(
-    private readonly dbPath: string,
-    private readonly logger: BaseLogger,
-    private readonly schemaPath?: string,
-    private readonly connectionOptions?: DbConnectionOptions
-  ) {}
+    dbPath: string,
+    logger: BaseLogger,
+    schemaPath?: string,
+    connectionOptions?: DbConnectionOptions
+  ) {
+    this.dbPath = dbPath;
+    this.logger = logger;
+    this.schemaPath = schemaPath;
+    this.connectionOptions = connectionOptions;
+  }
 
   /**
    * Gets the path to the SQLite database file.

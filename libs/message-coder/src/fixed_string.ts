@@ -20,10 +20,13 @@ import type {
  * Represents a string of fixed length.
  */
 export class FixedStringCoder implements Coder<string> {
-  constructor(
-    private readonly byteLength: ByteLength,
-    private readonly includeTrailingNulls = false
-  ) {}
+  private readonly byteLength: ByteLength;
+  private readonly includeTrailingNulls: boolean;
+
+  constructor(byteLength: ByteLength, includeTrailingNulls = false) {
+    this.byteLength = byteLength;
+    this.includeTrailingNulls = includeTrailingNulls;
+  }
 
   canEncode(value: unknown): value is string {
     return typeof value === 'string';
