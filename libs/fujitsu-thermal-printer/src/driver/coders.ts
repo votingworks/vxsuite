@@ -1,3 +1,4 @@
+import type { EnumValues } from '@votingworks/basics';
 import {
   type CoderType,
   literal,
@@ -44,12 +45,14 @@ export const PrinterStatusResponse = message({
 
 export type RawPrinterStatus = CoderType<typeof PrinterStatusResponse>;
 
-export enum BitImagePrintMode {
-  SINGLE_DENSITY = 0x60,
-  DOUBLE_DENSITY = 0x61,
-  SINGLE_DENSITY_COMPRESSED = 0xe0,
-  DOUBLE_DENSITY_COMPRESSED = 0xe1,
-}
+export const BitImagePrintMode = {
+  SINGLE_DENSITY: 0x60,
+  DOUBLE_DENSITY: 0x61,
+  SINGLE_DENSITY_COMPRESSED: 0xe0,
+  DOUBLE_DENSITY_COMPRESSED: 0xe1,
+} as const;
+
+export type BitImagePrintMode = EnumValues<typeof BitImagePrintMode>;
 
 export const SetReplyParameterCommand = message({
   command: literal(0x1c, 0x72),
