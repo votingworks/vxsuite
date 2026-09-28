@@ -286,8 +286,24 @@ function buildApi({
       };
     },
 
-    scanBatch(): void {
-      machine.startBatch();
+    async scanBatch(): Promise<void> {
+      await machine.startBatch();
+    },
+
+    async pauseBatch(): Promise<void> {
+      await machine.pauseBatch();
+    },
+
+    async resumeBatch(): Promise<void> {
+      await machine.resumeBatch();
+    },
+
+    async saveBatch(): Promise<void> {
+      await machine.saveBatch();
+    },
+
+    async discardBatch(): Promise<void> {
+      await machine.discardBatch();
     },
 
     async getSheetForReview(input: { sheetId: string }): Promise<{
@@ -335,12 +351,12 @@ function buildApi({
       };
     },
 
-    acceptSheet(): void {
-      machine.acceptSheet();
+    async acceptSheet(): Promise<void> {
+      await machine.acceptSheet();
     },
 
-    rejectSheet(): void {
-      machine.rejectSheet();
+    async rejectSheet(): Promise<void> {
+      await machine.rejectSheet();
     },
 
     async unconfigure(

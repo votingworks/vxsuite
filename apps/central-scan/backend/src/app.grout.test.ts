@@ -175,7 +175,7 @@ test('unconfigure', async () => {
 
     const batchId = store.addBatch();
     store.addSheet(uuid(), batchId, sheet);
-    store.finishBatch({ batchId });
+    store.finishBatch(batchId);
     expect(store.getBallotsCounted()).toEqual(1);
 
     await suppressingConsoleOutput(async () => {
@@ -215,7 +215,7 @@ test('unconfigure w/ ignoreBackupRequirement', async () => {
 
     const batchId = store.addBatch();
     store.addSheet(uuid(), batchId, sheet);
-    store.finishBatch({ batchId });
+    store.finishBatch(batchId);
     expect(store.getBallotsCounted()).toEqual(1);
 
     await apiClient.unconfigure({
@@ -240,7 +240,7 @@ test('retrySendBatchToAdmin clears a batch send failure', async () => {
 
     const batchId = store.addBatch();
     store.addSheet(uuid(), batchId, sheet);
-    store.finishBatch({ batchId });
+    store.finishBatch(batchId);
     store.setBatchSendToAdminError(batchId, 'sending failed');
     expect(store.getBatch(batchId).sendToAdminError).toEqual('sending failed');
     // A failed batch is skipped by the send queue
@@ -267,7 +267,7 @@ test('resendBatchToAdmin queues a sent batch to be sent again', async () => {
 
     const batchId = store.addBatch();
     store.addSheet(uuid(), batchId, sheet);
-    store.finishBatch({ batchId });
+    store.finishBatch(batchId);
     store.setBatchSentToAdmin(batchId);
     expect(store.getNextBatchToSendToAdmin()).toBeUndefined();
 
@@ -299,7 +299,7 @@ test('clearing scanning data', async () => {
 
     const batchId = store.addBatch();
     store.addSheet(uuid(), batchId, sheet);
-    store.finishBatch({ batchId });
+    store.finishBatch(batchId);
     expect(store.getBallotsCounted()).toEqual(1);
 
     await suppressingConsoleOutput(async () => {
@@ -369,7 +369,7 @@ test('getting / setting test mode', async () => {
 
     const batchId = store.addBatch();
     store.addSheet(uuid(), batchId, sheet);
-    store.finishBatch({ batchId });
+    store.finishBatch(batchId);
     expect(store.getBallotsCounted()).toEqual(1);
 
     // setting test mode should also clear ballot data
@@ -651,7 +651,7 @@ test('getSheetForReview returns interpretation and image data for uninterpretabl
       { imagePath: frontImagePath, interpretation: { type: 'BlankPage' } },
       { imagePath: backImagePath, interpretation: { type: 'BlankPage' } },
     ]);
-    workspace.store.finishBatch({ batchId });
+    workspace.store.finishBatch(batchId);
 
     const result = await apiClient.getSheetForReview({ sheetId });
     expect(result.sheetInterpretation).toEqual({
@@ -734,7 +734,7 @@ test('getSheetForReview returns interpretation, image data, and layouts for inte
       { imagePath: frontImagePath, interpretation: frontPage },
       { imagePath: backImagePath, interpretation: backPage },
     ]);
-    workspace.store.finishBatch({ batchId });
+    workspace.store.finishBatch(batchId);
 
     const result = await apiClient.getSheetForReview({ sheetId });
     expect(result.sheetInterpretation).toEqual({

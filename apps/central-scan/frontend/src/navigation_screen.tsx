@@ -37,6 +37,7 @@ import { NetworkStatusIndicator } from './components/network_status_indicator.js
 interface Props {
   children: ReactNode;
   title?: ReactNode;
+  noPadding?: boolean;
 }
 
 export const Header = styled(MainHeader)`
@@ -114,7 +115,11 @@ function NavigationToolbar(): JSX.Element {
   );
 }
 
-export function NavigationScreen({ children, title }: Props): JSX.Element {
+export function NavigationScreen({
+  children,
+  title,
+  noPadding,
+}: Props): JSX.Element {
   const {
     electionDefinition,
     electionPackageHash,
@@ -166,7 +171,9 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
         <Header>
           <H1>{title}</H1>
         </Header>
-        <MainContent>{children}</MainContent>
+        <MainContent style={{ padding: noPadding ? 0 : undefined }}>
+          {children}
+        </MainContent>
       </Main>
     </Screen>
   );

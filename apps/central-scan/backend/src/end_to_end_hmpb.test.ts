@@ -96,7 +96,11 @@ test('going through the whole process works - HMPB', async () => {
       nextSession.end();
 
       await apiClient.scanBatch();
-      await waitForStatus(apiClient, { state: 'idle' });
+      await waitForStatus(apiClient, {
+        state: 'paused',
+        pauseReason: { type: 'tray-empty' },
+      });
+      await apiClient.saveBatch();
 
       // check the latest batch has the expected counts
       const status = await apiClient.getStatus();

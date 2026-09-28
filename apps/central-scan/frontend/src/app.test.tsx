@@ -109,18 +109,6 @@ test('renders without crashing', () => {
   render(<App apiClient={apiMock.apiClient} />);
 });
 
-test('clicking Scan Batch will scan a batch', async () => {
-  apiMock.expectGetTestMode(true);
-  apiMock.expectGetElectionRecord(electionDefinition);
-
-  render(<App apiClient={apiMock.apiClient} />);
-  await authenticateAsElectionManager(electionDefinition);
-
-  apiMock.expectScanBatch();
-  userEvent.click(screen.getButton('Scan New Batch'));
-  await screen.findByText('Scan New Batch'); // wait for button to reset
-});
-
 test('shows the ballot eject screen while a sheet needs review', async () => {
   const images = [
     {
@@ -169,8 +157,85 @@ test('shows the ballot eject screen while a sheet needs review', async () => {
 
   apiMock.expectRejectSheet();
   userEvent.click(screen.getButton('Confirm Ballot Removed'));
-  apiMock.setStatus(mockStatus());
-  await screen.findByText('Scan New Batch');
+  apiMock.setStatus(
+    mockStatus(
+      { batches: [mockBatch({ id: 'batch-id', endedAt: undefined })] },
+      {
+        state: 'paused',
+        batchId: 'batch-id',
+        pauseReason: { type: 'review', sheetId: 'sheet-id-2' },
+      }
+    )
+  );
+  await screen.findByText('A ballot required review');
+});
+
+test('a batch pauses when the tray empties, continues, and is saved', async () => {
+  apiMock.expectGetTestMode(true);
+  apiMock.expectGetElectionRecord(electionDefinition);
+
+  render(<App apiClient={apiMock.apiClient} />);
+  await authenticateAsElectionManager(electionDefinition);
+  await screen.findByText('Ready to Scan');
+
+  const batch = mockBatch({
+    id: 'a',
+    label: 'Batch 1',
+    count: 2,
+    endedAt: undefined,
+  });
+  apiMock.expectScanBatch();
+  apiMock.setStatus(
+    mockStatus({ batches: [batch] }, { state: 'scanning', batchId: 'a' })
+  );
+  userEvent.click(screen.getButton('Start Scanning'));
+  await screen.findByText('Scanning');
+  expect(screen.getByTestId('batch-sheet-count')).toHaveTextContent('2');
+
+  apiMock.setStatus(
+    mockStatus(
+      { batches: [batch] },
+      { state: 'paused', batchId: 'a', pauseReason: { type: 'tray-empty' } }
+    )
+  );
+  await screen.findByText('Input tray empty');
+
+  apiMock.expectResumeBatch();
+  apiMock.setStatus(
+    mockStatus(
+      { batches: [{ ...batch, count: 3 }] },
+      { state: 'scanning', batchId: 'a' }
+    )
+  );
+  userEvent.click(screen.getButton('Continue Scanning'));
+  await screen.findByText('Scanning');
+  expect(screen.getByTestId('batch-sheet-count')).toHaveTextContent('3');
+
+  apiMock.setStatus(
+    mockStatus(
+      { batches: [{ ...batch, count: 3 }] },
+      { state: 'paused', batchId: 'a', pauseReason: { type: 'tray-empty' } }
+    )
+  );
+  await screen.findByText('Input tray empty');
+
+  userEvent.click(screen.getButton('Save Batch'));
+  const modal = await screen.findByRole('alertdialog');
+  apiMock.expectSaveBatch();
+  apiMock.setStatus(
+    mockStatus({
+      batches: [{ ...batch, count: 3, endedAt: new Date(0).toISOString() }],
+    })
+  );
+  userEvent.click(within(modal).getButton('Save Batch'));
+  await screen.findByText('Ready to Scan');
+  await vi.waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+
+  userEvent.click(screen.getByText('Batch History'));
+  await screen.findByText('Batch 1');
+  expect(screen.getByTestId('total-sheets')).toHaveTextContent('3');
 });
 
 test('clicking "Save CVRs" shows modal and makes a request to export', async () => {

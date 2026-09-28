@@ -160,7 +160,7 @@ function addFinishedBatch(store: Store, sheetCount = 1): string {
     ];
     store.addSheet(uuid(), batchId, sheetCopy);
   }
-  store.finishBatch({ batchId });
+  store.finishBatch(batchId);
   return batchId;
 }
 

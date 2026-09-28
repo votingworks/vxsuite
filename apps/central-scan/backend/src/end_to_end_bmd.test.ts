@@ -61,8 +61,11 @@ test('going through the whole process works - BMD', async () => {
         // define the next scanner session & scan some sample ballots
         scanner.withNextScannerSession().sheet(scannedBallot).end();
         await apiClient.scanBatch();
-
-        await waitForStatus(apiClient, { state: 'idle' });
+        await waitForStatus(apiClient, {
+          state: 'paused',
+          pauseReason: { type: 'tray-empty' },
+        });
+        await apiClient.saveBatch();
 
         // check the status
         const status = await apiClient.getStatus();
