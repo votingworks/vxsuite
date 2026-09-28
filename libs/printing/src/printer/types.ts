@@ -1,4 +1,4 @@
-import type { Result } from '@votingworks/basics';
+import type { EnumValues, Result } from '@votingworks/basics';
 import type {
   HmpbBallotPaperSize,
   PrinterStatus,
@@ -6,26 +6,28 @@ import type {
   PrintJobStatus,
 } from '@votingworks/types';
 
-export enum PrintSides {
+export const PrintSides = {
   /**
    * One page per sheet, aka simplex or "Duplex=None".
    */
-  OneSided = 'one-sided',
+  OneSided: 'one-sided',
 
   /**
    * Two pages per sheet, aka "Duplex=DuplexNoTumble". This option prints such
    * that a right-side up portrait sheet flipped over on the long edge remains
    * right-side up, i.e. a regular left-to-right book.
    */
-  TwoSidedLongEdge = 'two-sided-long-edge',
+  TwoSidedLongEdge: 'two-sided-long-edge',
 
   /**
    * Two pages per sheet, aka "Duplex=DuplexTumble". This option prints such
    * that a right-side up portrait sheet flipped over on the short edge remains
    * right-side up, i.e. a bound-at-the-top ring binder.
    */
-  TwoSidedShortEdge = 'two-sided-short-edge',
-}
+  TwoSidedShortEdge: 'two-sided-short-edge',
+} as const;
+
+export type PrintSides = EnumValues<typeof PrintSides>;
 
 export type PaperSize = `${HmpbBallotPaperSize}`;
 
