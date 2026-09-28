@@ -1,11 +1,6 @@
 import React from 'react';
 import {
-  H1,
-  Main,
-  P,
-  ReadOnLoad,
-  Screen,
-  appStrings,
+  MarkControllerSandbox,
   useAccessibleControllerHelpTrigger,
 } from '@votingworks/ui';
 
@@ -19,16 +14,7 @@ export function AccessibleControllerHelp({
   const { shouldShowControllerSandbox } = useAccessibleControllerHelpTrigger();
 
   if (shouldShowControllerSandbox) {
-    return (
-      <Screen>
-        <Main centerChild padded>
-          <H1>Controller Help</H1>
-          <ReadOnLoad>
-            <P>{appStrings.helpBmdControllerButtonToggleHelp()}</P>
-          </ReadOnLoad>
-        </Main>
-      </Screen>
-    );
+    return <MarkControllerSandbox />;
   }
 
   return <React.Fragment>{children}</React.Fragment>;

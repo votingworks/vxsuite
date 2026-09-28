@@ -1,9 +1,14 @@
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { Keybinding } from '@votingworks/ui';
 import { fireEvent, render, screen } from '../../test/react_testing_library.js';
 import { AccessibleControllerHelp } from './accessible_controller_help.js';
 
-test('toggles controller help on help button presses', () => {
+vi.mock(import('@votingworks/ui'), async (importActual) => ({
+  ...(await importActual()),
+  MarkControllerSandbox: () => <div>MockMarkControllerSandbox</div>,
+}));
+
+test('toggles controller sandbox on help button presses', () => {
   render(
     <AccessibleControllerHelp>
       <div>Ballot</div>
@@ -11,15 +16,14 @@ test('toggles controller help on help button presses', () => {
   );
 
   screen.getByText('Ballot');
-  expect(screen.queryByRole('heading', { name: 'Controller Help' })).toBeNull();
+  expect(screen.queryByText('MockMarkControllerSandbox')).toBeNull();
 
   fireEvent.keyDown(document, { key: Keybinding.TOGGLE_HELP });
-  screen.getByRole('heading', { name: 'Controller Help' });
-  screen.getByText(/This is the Help button/);
+  screen.getByText('MockMarkControllerSandbox');
   expect(screen.queryByText('Ballot')).toBeNull();
 
   fireEvent.keyDown(document, { key: Keybinding.TOGGLE_HELP });
-  screen.getByRole('heading', { name: 'Controller Help' });
+  screen.getByText('MockMarkControllerSandbox');
 
   fireEvent.keyDown(document, { key: Keybinding.TOGGLE_HELP });
   screen.getByText('Ballot');
