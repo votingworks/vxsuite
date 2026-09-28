@@ -51,13 +51,13 @@ export interface DippedSmartCardAuthApi {
  */
 export interface DippedSmartCardAuthConfig {
   allowElectionManagersToAccessUnconfiguredMachines?: boolean;
-  allowedUserRoles: readonly UserRole[];
 }
 
 /**
  * Machine state that the consumer is responsible for providing
  */
 export interface DippedSmartCardAuthMachineState {
+  allowedUserRoles: readonly UserRole[];
   arePollWorkerCardPinsEnabled: boolean;
   isConfigured?: boolean;
   electionKey?: ElectionKey;
