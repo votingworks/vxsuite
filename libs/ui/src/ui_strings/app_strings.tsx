@@ -358,15 +358,15 @@ export const appStrings = {
       to navigate your ballot. To navigate through the contests, use the left
       and right arrow buttons. To navigate through contest choices, use the up
       and down arrow buttons. To select or unselect a contest choice as your
-      vote, use the select button in the center of the arrow buttons. Below the
-      arrow keys are headphone volume and audio rate controls. To the left of
-      the headphone jack are two buttons for volume control: select the upper
-      button with two lines to increase volume or the lower button with one line
-      to decrease volume. Below the headphone jack are two buttons to adjust the
-      rate of speech: select the left button with one dot to slow the rate of
-      speech or the right button with three dots to increase the rate of speech.
-      Press the right arrow button now to advance to the first contest. Press
-      the left arrow button to replay these instructions.
+      vote, use the Select button in the center of the arrow buttons. You can
+      find two volume controls to the left of the headphone jack. The lower
+      button with one line reduces the volume of your audio and the upper button
+      with two lines increases the volume. To pause or unpause the audio at any
+      time, use the button with one dot at the bottom of the controller. If you
+      need more information on how to use the controller, press the button with
+      three dots at the bottom right corner of the controller at any time. Press
+      the right arrow button now to advance to the first contest. Press the left
+      arrow button to replay these instructions.
     </UiString>
   ),
 
@@ -491,7 +491,8 @@ export const appStrings = {
     <UiString uiStringKey="instructionsBmdIntroRepeatPromptMark">
       Press the left arrow button to hear voting instructions. Press the right
       arrow button to start voting. The arrow pad is at the top of the
-      controller.
+      controller. Press the button with three dots at the bottom right corner of
+      the controller for help with the controller.
     </UiString>
   ),
 
