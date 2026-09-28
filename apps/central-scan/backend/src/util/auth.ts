@@ -2,9 +2,15 @@ import type {
   DippedSmartCardAuthApi,
   DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS, type UserRole } from '@votingworks/types';
 import type { LoggingUserRole } from '@votingworks/logging';
 import type { Workspace } from './workspace.js';
+
+const ALLOWED_USER_ROLES: readonly UserRole[] = [
+  'vendor',
+  'system_administrator',
+  'election_manager',
+];
 
 export function constructAuthMachineState(
   workspace: Workspace
@@ -16,6 +22,7 @@ export function constructAuthMachineState(
     workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
   return {
     ...systemSettings.auth,
+    allowedUserRoles: ALLOWED_USER_ROLES,
     electionKey,
     jurisdiction,
     machineType,

@@ -100,11 +100,6 @@ export function start({
           : new JavaCard(),
       config: {
         allowElectionManagersToAccessUnconfiguredMachines: true,
-        allowedUserRoles: [
-          'vendor',
-          'system_administrator',
-          'election_manager',
-        ],
       },
       logger: baseLogger,
     });
