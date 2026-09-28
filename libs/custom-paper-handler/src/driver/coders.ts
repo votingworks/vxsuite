@@ -8,7 +8,8 @@ import {
   uint32,
   uint8,
 } from '@votingworks/message-coder';
-import { START_OF_PACKET, TOKEN } from './constants.js';
+import type { EnumValues } from '@votingworks/basics';
+import { ScanTypes, START_OF_PACKET, TOKEN } from './constants.js';
 
 export const INVALID_ARGUMENT_RESPONSE_CODE = 0x12;
 
@@ -163,7 +164,7 @@ export const ScanResponse = message({
   // use this field and haven't been validating it up to now so we just let it
   // be any u8.
   cis: uint8(),
-  scan: uint8(),
+  scan: uint8(ScanTypes),
   sizeX: uint16(undefined, { littleEndian: false }),
   sizeY: uint16(undefined, { littleEndian: false }),
   status: uint16(),
@@ -210,15 +211,25 @@ export const ConfigureScannerOptionPaperConfigValues = {
   MOVE_BACKWARD_AFTER_SCAN: 0x02,
   MOVE_FORWARD_AFTER_SCAN_AND_HOLD: 0x03,
 } as const;
+export type ConfigureScannerOptionPaperConfigValues = EnumValues<
+  typeof ConfigureScannerOptionPaperConfigValues
+>;
+
 export const ConfigureScannerOptionSensorConfig = {
   NONE: 0x00,
   DISABLE_JAM_WHEEL_SENSOR: 0x04,
 } as const;
+export type ConfigureScannerOptionSensorConfig = EnumValues<
+  typeof ConfigureScannerOptionSensorConfig
+>;
+
 export const ConfigureScannerFlags = {
   NONE: 0x00,
   SCAN_BACKWARDS: 0x01,
   SCAN_IN_PARK: 0x03,
 } as const;
+export type ConfigureScannerFlags = EnumValues<typeof ConfigureScannerFlags>;
+
 export const ConfigureScannerCommand = message({
   command: literal(0x1c, 'SPC'),
   optionPaperConfig: uint8(ConfigureScannerOptionPaperConfigValues),

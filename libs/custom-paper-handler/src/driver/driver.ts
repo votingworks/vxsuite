@@ -4,6 +4,7 @@ import {
   arrayBufferFrom,
   assert,
   assertDefined,
+  type EnumValues,
   type Optional,
   type Result,
   sleep,
@@ -128,10 +129,12 @@ export const PACKET_SIZE = 65536;
 // The number of times transferInGeneric will retry after receiving unexpected data.
 const MAX_TRANSFER_IN_ATTEMPTS = 20;
 
-export enum ReturnCodes {
-  POSITIVE_ACKNOWLEDGEMENT = 0x06,
-  NEGATIVE_ACKNOWLEDGEMENT = 0x15,
-}
+export const ReturnCodes = {
+  POSITIVE_ACKNOWLEDGEMENT: 0x06,
+  NEGATIVE_ACKNOWLEDGEMENT: 0x15,
+} as const;
+
+export type ReturnCodes = EnumValues<typeof ReturnCodes>;
 
 export async function getPaperHandlerWebDevice(): Promise<
   Optional<WebUSBDevice>

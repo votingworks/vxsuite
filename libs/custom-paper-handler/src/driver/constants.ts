@@ -1,4 +1,4 @@
-import { throwIllegalValue } from '@votingworks/basics';
+import { throwIllegalValue, type EnumValues } from '@votingworks/basics';
 import type { Uint8 } from '@votingworks/message-coder';
 
 /**
@@ -33,59 +33,68 @@ export const PRINTING_DENSITY_CODES: Record<PrintingDensity, Uint8> = {
   '+12.5%': 0x05,
   '+25%': 0x06,
 };
-// Exhaustive list of scan types.
-// Manual reference: "Start scan ticket" 0x1C 0x53 0x50 0x53
-export enum ScanTypes {
-  NA = 0x00,
+
+/**
+ * Exhaustive list of scan types.
+ * Manual reference: "Start scan ticket" 0x1C 0x53 0x50 0x53
+ */
+export const ScanTypes = {
+  NA: 0x00,
   /**
    * Red light scan (8bpp)
    */
-  RED = 0x01,
+  RED: 0x01,
   /**
    * Green light scan (8bpp)
    */
-  GREEN = 0x02,
+  GREEN: 0x02,
   /**
    * Blue light scan (8bpp)
    */
-  BLUE = 0x03,
+  BLUE: 0x03,
   /**
    * Ultraviolet light scan (8bpp)
    */
-  ULTRAVIOLET = 0x04,
+  ULTRAVIOLET: 0x04,
   /**
    * White light scan (8bpp)
    */
-  GRAY = 0x05,
+  GRAY: 0x05,
   /**
    * first line RED, second line GREEN, third line BLUE (24bpp)
    */
-  RGB_RAW = 0x06,
+  RGB_RAW: 0x06,
   /**
    * first line RED, second line GREEN, third line BLUE, fourth line UV (32bpp)
    */
-  RGBU_RAW = 0x07,
+  RGBU_RAW: 0x07,
   /**
    * Black and white with red light (1bpp)
    */
-  BW_RED = 0x08,
+  BW_RED: 0x08,
   /**
    * Black and white with green light (1bpp)
    */
-  BW_GREEN = 0x09,
+  BW_GREEN: 0x09,
   /**
    * Black and white with blue light (1bpp)
    */
-  BW_BLUE = 0x0a,
+  BW_BLUE: 0x0a,
   /**
    * Black and white with ultraviolet light (1bpp)
    */
-  BW_ULTRAVIOLET = 0x0b,
+  BW_ULTRAVIOLET: 0x0b,
   /**
    * Black and white with white light (1bpp)
    */
-  BW = 0x0c,
-}
+  BW: 0x0c,
+} as const;
+
+/**
+ * Exhaustive list of scan types.
+ * Manual reference: "Start scan ticket" 0x1C 0x53 0x50 0x53
+ */
+export type ScanTypes = EnumValues<typeof ScanTypes>;
 
 export function getBitsPerPixelForScanType(scanType: ScanTypes): number {
   // @coverage-defer
@@ -112,10 +121,13 @@ export function getBitsPerPixelForScanType(scanType: ScanTypes): number {
       throwIllegalValue(scanType);
   }
 }
-export enum PrintModeDotDensity {
-  SINGLE_DOT_24 = 32,
-  DOUBLE_DOT_24 = 33,
-}
+export const PrintModeDotDensity = {
+  SINGLE_DOT_24: 32,
+  DOUBLE_DOT_24: 33,
+} as const;
+
+export type PrintModeDotDensity = EnumValues<typeof PrintModeDotDensity>;
+
 // Both supported values for PrintModeDotDensity have 24 dots in the vertical direction.
 // See command manual page 84: 0x1B 0x2A "Select image print mode"
 // This const should be extended if adding support for 8 dot density.
@@ -124,16 +136,23 @@ export const VERTICAL_DOTS_IN_CHUNK = 24;
 /**
  * Maximum width the device can print, in dots
  */
-export enum MaxPrintWidthDots {
-  BMD_155 = 1700,
-  BMD_150 = 1600,
-}
+export const MaxPrintWidthDots = {
+  BMD_155: 1700,
+  BMD_150: 1600,
+} as const;
+
+/**
+ * Maximum width the device can print, in dots
+ */
+export type MaxPrintWidthDots = EnumValues<typeof MaxPrintWidthDots>;
 
 export const SCAN_HEADER_LENGTH_BYTES = 16;
 
-export enum RealTimeRequestIds {
-  SCANNER_COMPLETE_STATUS_REQUEST_ID = 0x73,
-  PRINTER_STATUS_REQUEST_ID = 0x64,
-  SCAN_ABORT_REQUEST_ID = 0x43,
-  SCAN_RESET_REQUEST_ID = 0x52,
-}
+export const RealTimeRequestIds = {
+  SCANNER_COMPLETE_STATUS_REQUEST_ID: 0x73,
+  PRINTER_STATUS_REQUEST_ID: 0x64,
+  SCAN_ABORT_REQUEST_ID: 0x43,
+  SCAN_RESET_REQUEST_ID: 0x52,
+} as const;
+
+export type RealTimeRequestIds = EnumValues<typeof RealTimeRequestIds>;
