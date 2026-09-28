@@ -8,7 +8,7 @@ import {
   P,
   userReadableMessageFromExportError,
 } from '@votingworks/ui';
-import { throwIllegalValue } from '@votingworks/basics';
+import { throwIllegalValue, type EnumValues } from '@votingworks/basics';
 
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ejectUsbDrive, exportCastVoteRecordsToUsbDrive } from '../api.js';
@@ -18,12 +18,14 @@ export interface ExportResultsModalProps {
   usbDrive: UsbDriveStatus;
 }
 
-enum ModalState {
-  ERROR = 'error',
-  SAVING = 'saving',
-  DONE = 'done',
-  INIT = 'init',
-}
+const ModalState = {
+  ERROR: 'error',
+  SAVING: 'saving',
+  DONE: 'done',
+  INIT: 'init',
+} as const;
+
+type ModalState = EnumValues<typeof ModalState>;
 
 export function ExportResultsModal({
   onClose,
