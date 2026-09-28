@@ -1,4 +1,5 @@
 import {
+  type EnumValues,
   type Optional,
   type Result,
   assert,
@@ -12,15 +13,21 @@ import { isAbsolute, join } from 'node:path';
  * Types of file system entities defined in `libuv`. We omit only `Unknown`,
  * which we handle as an error.
  */
-export enum FileSystemEntryType {
-  File = 1, // UV_DIRENT_FILE
-  Directory = 2, // UV_DIRENT_DIR
-  SymbolicLink = 3, // UV_DIRENT_LINK
-  FIFO = 4, // UV_DIRENT_FIFO
-  Socket = 5, // UV_DIRENT_SOCKET
-  CharacterDevice = 6, // UV_DIRENT_CHAR
-  BlockDevice = 7, // UV_DIRENT_BLOCK
-}
+export const FileSystemEntryType = {
+  File: 1, // UV_DIRENT_FILE
+  Directory: 2, // UV_DIRENT_DIR
+  SymbolicLink: 3, // UV_DIRENT_LINK
+  FIFO: 4, // UV_DIRENT_FIFO
+  Socket: 5, // UV_DIRENT_SOCKET
+  CharacterDevice: 6, // UV_DIRENT_CHAR
+  BlockDevice: 7, // UV_DIRENT_BLOCK
+} as const;
+
+/**
+ * Types of file system entities defined in `libuv`. We omit only `Unknown`,
+ * which we handle as an error.
+ */
+export type FileSystemEntryType = EnumValues<typeof FileSystemEntryType>;
 
 /**
  * Information about a file system entry found in a directory.
