@@ -1,117 +1,127 @@
 import type { ZodSchema } from 'zod/v4';
-import { throwIllegalValue } from '@votingworks/basics';
+import { throwIllegalValue, type EnumValues } from '@votingworks/basics';
 import { asBoolean } from './as_boolean.js';
 
-export enum BooleanEnvironmentVariableName {
+export const BooleanEnvironmentVariableName = {
   /**
    * When enabled VxAdmin will generate 000000 as the PIN for any created smartcard.
    */
-  ALL_ZERO_SMARTCARD_PIN = 'REACT_APP_VX_ENABLE_ALL_ZERO_SMARTCARD_PIN_GENERATION',
+  ALL_ZERO_SMARTCARD_PIN:
+    'REACT_APP_VX_ENABLE_ALL_ZERO_SMARTCARD_PIN_GENERATION',
   /** Enables the React Query Devtools in development. */
-  ENABLE_REACT_QUERY_DEVTOOLS = 'REACT_APP_VX_ENABLE_REACT_QUERY_DEVTOOLS',
+  ENABLE_REACT_QUERY_DEVTOOLS: 'REACT_APP_VX_ENABLE_REACT_QUERY_DEVTOOLS',
   /** Enables the VxSuite Dev Dock in development. See libs/dev-dock. */
-  ENABLE_DEV_DOCK = 'REACT_APP_VX_ENABLE_DEV_DOCK',
+  ENABLE_DEV_DOCK: 'REACT_APP_VX_ENABLE_DEV_DOCK',
   /** Skips PIN entry during authentication */
-  SKIP_PIN_ENTRY = 'REACT_APP_VX_SKIP_PIN_ENTRY',
+  SKIP_PIN_ENTRY: 'REACT_APP_VX_SKIP_PIN_ENTRY',
   /**
    * Use mock cards instead of a real card reader. Meant for development and integration tests.
    * Real smart cards will not work when this flag is enabled.
    */
-  USE_MOCK_CARDS = 'REACT_APP_VX_USE_MOCK_CARDS',
+  USE_MOCK_CARDS: 'REACT_APP_VX_USE_MOCK_CARDS',
   /**
    * Use a mock USB drive instead of real USB drives. Meant for development and integration tests.
    * Real USBs will not work when this flag is enabled.
    */
-  USE_MOCK_USB_DRIVE = 'REACT_APP_VX_USE_MOCK_USB_DRIVE',
+  USE_MOCK_USB_DRIVE: 'REACT_APP_VX_USE_MOCK_USB_DRIVE',
   /**
    * Use a mock printer instead of a real printer. Meant for development and integration tests.
    * Real printers will not connect when this flag is enabled.
    */
-  USE_MOCK_PRINTER = 'REACT_APP_VX_USE_MOCK_PRINTER',
+  USE_MOCK_PRINTER: 'REACT_APP_VX_USE_MOCK_PRINTER',
 
   /** Use a mock barcode reader instead of a real one. Dev/testing only. */
-  USE_MOCK_BARCODE_READER = 'REACT_APP_VX_USE_MOCK_BARCODE_READER',
+  USE_MOCK_BARCODE_READER: 'REACT_APP_VX_USE_MOCK_BARCODE_READER',
 
   /**
    * Use a mock PDI scanner instead of a real scanner. Meant for development and integration tests.
    * Real scanners will not work when this flag is enabled.
    */
-  USE_MOCK_PDI_SCANNER = 'REACT_APP_VX_USE_MOCK_PDI_SCANNER',
+  USE_MOCK_PDI_SCANNER: 'REACT_APP_VX_USE_MOCK_PDI_SCANNER',
 
   /**
    * Use a mock central scanner (batch scanner) instead of a real Fujitsu scanner.
    * Meant for development with the dev dock. Real scanners will not work when
    * this flag is enabled.
    */
-  USE_MOCK_CENTRAL_SCANNER = 'REACT_APP_VX_USE_MOCK_CENTRAL_SCANNER',
+  USE_MOCK_CENTRAL_SCANNER: 'REACT_APP_VX_USE_MOCK_CENTRAL_SCANNER',
 
   /** Use mock X-keys PAT input instead of the real device. Dev/testing only. */
-  USE_MOCK_XKEYS = 'REACT_APP_VX_USE_MOCK_XKEYS',
+  USE_MOCK_XKEYS: 'REACT_APP_VX_USE_MOCK_XKEYS',
 
   /** Use mock Accessible Controller instead of the real device. Dev/testing only. */
-  USE_MOCK_ACCESSIBLE_CONTROLLER = 'REACT_APP_VX_USE_MOCK_ACCESSIBLE_CONTROLLER',
+  USE_MOCK_ACCESSIBLE_CONTROLLER: 'REACT_APP_VX_USE_MOCK_ACCESSIBLE_CONTROLLER',
 
   /**
    * Skips ballot hash checks when importing CVRs to allow using old fixtures
    * in development even as their respective election definitions change.
    */
-  SKIP_CVR_BALLOT_HASH_CHECK = 'REACT_APP_VX_SKIP_CVR_BALLOT_HASH_CHECK',
+  SKIP_CVR_BALLOT_HASH_CHECK: 'REACT_APP_VX_SKIP_CVR_BALLOT_HASH_CHECK',
   /**
    * Skips authentication (i.e. signature verification) of election packages on import
    */
-  SKIP_ELECTION_PACKAGE_AUTHENTICATION = 'REACT_APP_VX_SKIP_ELECTION_PACKAGE_AUTHENTICATION',
+  SKIP_ELECTION_PACKAGE_AUTHENTICATION:
+    'REACT_APP_VX_SKIP_ELECTION_PACKAGE_AUTHENTICATION',
   /**
    * Skips authentication (i.e. signature verification) of cast vote records on import
    */
-  SKIP_CAST_VOTE_RECORDS_AUTHENTICATION = 'REACT_APP_VX_SKIP_CAST_VOTE_RECORDS_AUTHENTICATION',
+  SKIP_CAST_VOTE_RECORDS_AUTHENTICATION:
+    'REACT_APP_VX_SKIP_CAST_VOTE_RECORDS_AUTHENTICATION',
   /**
    * Allows VxMarkScan to run without a connection to the Custom paper handler
    */
-  USE_MOCK_PAPER_HANDLER = 'REACT_APP_VX_USE_MOCK_PAPER_HANDLER',
+  USE_MOCK_PAPER_HANDLER: 'REACT_APP_VX_USE_MOCK_PAPER_HANDLER',
   /**
    * Run VxMarkScan expecting BMD-150 hardware
    */
-  MARK_SCAN_USE_BMD_150 = 'REACT_APP_VX_MARK_SCAN_USE_BMD_150',
+  MARK_SCAN_USE_BMD_150: 'REACT_APP_VX_MARK_SCAN_USE_BMD_150',
   /**
    * Enables screen reader audio only when headphones are plugged in.
    *
    * NOTE: This will only work on real machines with a headphone port, not VMs.
    */
-  ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES = 'REACT_APP_VX_ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES',
+  ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES:
+    'REACT_APP_VX_ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES',
   /**
    * Hides the on-screen cursor within the bounds of the app window - intended
    * for prod touchscreen machines.
    */
-  HIDE_CURSOR = 'REACT_APP_VX_HIDE_CURSOR',
+  HIDE_CURSOR: 'REACT_APP_VX_HIDE_CURSOR',
   /**
    * Toggles the hardware test app in VxMarkScan and VxScan, in place of the standard app.
    */
-  ENABLE_HARDWARE_TEST_APP = 'REACT_APP_VX_ENABLE_HARDWARE_TEST_APP',
+  ENABLE_HARDWARE_TEST_APP: 'REACT_APP_VX_ENABLE_HARDWARE_TEST_APP',
   /**
    * Toggles hardware test app functions needed only for internal use. For external use by test
    * labs, we want to keep the app as minimal as possible. Only relevant if
    * ENABLE_HARDWARE_TEST_APP is also enabled.
    */
-  ENABLE_HARDWARE_TEST_APP_INTERNAL_FUNCTIONS = 'REACT_APP_VX_ENABLE_HARDWARE_TEST_APP_INTERNAL_FUNCTIONS',
+  ENABLE_HARDWARE_TEST_APP_INTERNAL_FUNCTIONS:
+    'REACT_APP_VX_ENABLE_HARDWARE_TEST_APP_INTERNAL_FUNCTIONS',
   /**
    * [In Development] Exposes an in-app toggle between printing BMD summary
    * ballots and printing bubble marks on pre-printed HMPBs
    */
-  MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE = 'REACT_APP_VX_MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE',
+  MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE:
+    'REACT_APP_VX_MARK_ENABLE_BALLOT_PRINT_MODE_TOGGLE',
   /**
    * Enables multi-station adjudication in VxAdmin
    */
-  ENABLE_MULTI_STATION_ADMIN = 'REACT_APP_VX_ENABLE_MULTI_STATION_ADMIN',
+  ENABLE_MULTI_STATION_ADMIN: 'REACT_APP_VX_ENABLE_MULTI_STATION_ADMIN',
   /**
    * [In Development] Enables the backup and restore feature in VxAdmin.
    * Gates both the UI surface and the backend API endpoints.
    */
-  ENABLE_ADMIN_BACKUP_RESTORE = 'REACT_APP_VX_ENABLE_ADMIN_BACKUP_RESTORE',
+  ENABLE_ADMIN_BACKUP_RESTORE: 'REACT_APP_VX_ENABLE_ADMIN_BACKUP_RESTORE',
   /**
    * [In Development] Enables networking VxCentralScan to a VxAdmin host.
    */
-  ENABLE_CENTRAL_SCAN_NETWORKING = 'REACT_APP_VX_ENABLE_CENTRAL_SCAN_NETWORKING',
-}
+  ENABLE_CENTRAL_SCAN_NETWORKING: 'REACT_APP_VX_ENABLE_CENTRAL_SCAN_NETWORKING',
+} as const;
+
+export type BooleanEnvironmentVariableName = EnumValues<
+  typeof BooleanEnvironmentVariableName
+>;
 
 export interface BooleanEnvironmentConfig {
   name: BooleanEnvironmentVariableName;

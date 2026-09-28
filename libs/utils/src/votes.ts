@@ -71,7 +71,7 @@ export function getMarkStatus(
 export function getMarkStatus(
   markScore: BallotTargetMark['score'],
   markThresholds: Omit<MarkThresholds, 'marginal'>
-): Exclude<MarkStatus, MarkStatus.Marginal>;
+): Exclude<MarkStatus, typeof MarkStatus.Marginal>;
 export function getMarkStatus(
   markScore: BallotTargetMark['score'],
   markThresholds: MarkThresholdsOptionalMarginal

@@ -1,5 +1,10 @@
 import { type Election, MachineId, maybeParse } from '@votingworks/types';
-import { assert, type Optional, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  type EnumValues,
+  type Optional,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import { DateTime } from 'luxon';
 
 const SECTION_SEPARATOR = '__';
@@ -81,10 +86,13 @@ export function generateFilenameForElectionPackage(
 }
 
 /* Describes different formats of the log file. */
-export enum LogFileType {
-  Raw = 'raw',
-  Cdf = 'cdf',
-}
+export const LogFileType = {
+  Raw: 'raw',
+  Cdf: 'cdf',
+} as const;
+
+/* Describes different formats of the log file. */
+export type LogFileType = EnumValues<typeof LogFileType>;
 
 /**
  * Generates a filename for the logs file.
