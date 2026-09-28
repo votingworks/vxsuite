@@ -113,6 +113,7 @@ import {
   type CastVoteRecordAdjudicationFlags,
   type CvrTag,
   type WriteInForTally,
+  type AppMode,
   type BaseStore,
   type MachineRecord,
   type NetworkedMachineRole,
@@ -701,6 +702,10 @@ export class Store implements BaseStore {
     } else {
       this.client.run('update settings set current_election_id = NULL');
     }
+  }
+
+  getAppMode(): AppMode {
+    return 'host';
   }
 
   /**

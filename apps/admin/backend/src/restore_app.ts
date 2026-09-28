@@ -28,6 +28,7 @@ import type { RestoreError } from './backup/restore/types.js';
  * opens the workspace's database except the restore itself.
  */
 export const RESTORE_MODE_STORE: BaseStore = {
+  getAppMode: () => 'restore',
   getCurrentElectionId: () => undefined,
   // @coverage-exclude: asked about only when there is an election, and here
   // there never is
@@ -116,7 +117,7 @@ function buildRestoreApi({
     getMachineConfig,
 
     getAppMode(): AppMode {
-      return 'restore';
+      return RESTORE_MODE_STORE.getAppMode();
     },
 
     getMachineMode(): MachineMode {

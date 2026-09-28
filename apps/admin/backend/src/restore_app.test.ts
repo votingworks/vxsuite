@@ -3,11 +3,15 @@ import { Buffer } from 'node:buffer';
 import { existsSync } from 'node:fs';
 import type { AddressInfo } from 'node:net';
 import { basename, dirname, join } from 'node:path';
-import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
+import {
+  buildMockDippedSmartCardAuth,
+  DEV_JURISDICTION,
+  type DippedSmartCardAuthMachineState,
+} from '@votingworks/auth';
 import { deferred, err, ok } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
-import { DEV_MACHINE_ID } from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS, DEV_MACHINE_ID } from '@votingworks/types';
 import {
   detectMultiUsbDrive,
   SimulatedUsbPlatform,
@@ -130,7 +134,13 @@ test('auth runs against an unconfigured machine', async () => {
   const sessionExpiresAt = new Date();
   await apiClient.updateSessionExpiry({ sessionExpiresAt });
 
-  const unconfigured = expect.objectContaining({ isConfigured: false });
+  const unconfigured: DippedSmartCardAuthMachineState = {
+    ...DEFAULT_SYSTEM_SETTINGS.auth,
+    allowedUserRoles: ['vendor', 'system_administrator'],
+    jurisdiction: DEV_JURISDICTION,
+    machineType: 'admin',
+    isConfigured: false,
+  };
   expect(auth.checkPin).toHaveBeenCalledWith(unconfigured, { pin: '123456' });
   expect(auth.logOut).toHaveBeenCalledWith(unconfigured);
   expect(auth.updateSessionExpiry).toHaveBeenCalledWith(unconfigured, {

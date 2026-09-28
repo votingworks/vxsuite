@@ -170,7 +170,7 @@ function buildClientApi({
     getMachineConfig,
 
     getAppMode(): AppMode {
-      return 'client';
+      return clientStore.getAppMode();
     },
 
     getMachineMode(): MachineMode {
