@@ -208,7 +208,7 @@ export class BaseLogger {
       return;
     }
 
-    if (CLIENT_SIDE_LOG_SOURCES.includes(this.source)) {
+    if (CLIENT_SIDE_LOG_SOURCES.some((source) => source === this.source)) {
       debug(logLine); // for internal debugging use log to the console
       if (this.kiosk) {
         void this.kiosk.log(
