@@ -13,7 +13,7 @@
  *    100 dB SPL, in increments no greater than 10 dB
  */
 
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, type EnumValues } from '@votingworks/basics';
 
 const MIN_VOLUME_DB_SPL = 20;
 const MAX_VOLUME_DB_SPL = 100;
@@ -25,19 +25,28 @@ const MAX_VOLUME_DB_SPL = 100;
  * These are explicitly defined to facilitate mapping to pre-generated audio
  * feedback clips played whenever a voter adjusts the output volume.
  */
-export enum AudioVolume {
-  MINIMUM = '0%',
-  TEN_PERCENT = '10%',
-  TWENTY_PERCENT = '20%',
-  THIRTY_PERCENT = '30%',
-  FORTY_PERCENT = '40%',
-  FIFTY_PERCENT = '50%',
-  SIXTY_PERCENT = '60%',
-  SEVENTY_PERCENT = '70%',
-  EIGHTY_PERCENT = '80%',
-  NINETY_PERCENT = '90%',
-  MAXIMUM = '100%',
-}
+export const AudioVolume = {
+  MINIMUM: '0%',
+  TEN_PERCENT: '10%',
+  TWENTY_PERCENT: '20%',
+  THIRTY_PERCENT: '30%',
+  FORTY_PERCENT: '40%',
+  FIFTY_PERCENT: '50%',
+  SIXTY_PERCENT: '60%',
+  SEVENTY_PERCENT: '70%',
+  EIGHTY_PERCENT: '80%',
+  NINETY_PERCENT: '90%',
+  MAXIMUM: '100%',
+} as const;
+
+/**
+ * Screen reader volume levels, dividing the 20 dbSPL - 100 dbSPL range
+ * specified in VVSG 2.0 into 10 equal steps.
+ *
+ * These are explicitly defined to facilitate mapping to pre-generated audio
+ * feedback clips played whenever a voter adjusts the output volume.
+ */
+export type AudioVolume = EnumValues<typeof AudioVolume>;
 
 /**
  * Estimated gain offset to apply to audio generated in Google Cloud to result

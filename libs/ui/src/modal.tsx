@@ -3,7 +3,7 @@ import ReactModal from 'react-modal';
 import type { DefaultTheme } from 'styled-components';
 import { rgba } from 'polished';
 
-import { assert } from '@votingworks/basics';
+import { assert, type EnumValues } from '@votingworks/basics';
 
 import type { SizeMode } from '@votingworks/types';
 import { styled } from './styled.js';
@@ -15,10 +15,15 @@ import { FocusableAudio } from './focusable_audio.js';
 /**
  * Controls the maximum width the modal can expand to.
  */
-export enum ModalWidth {
-  Standard = '30rem',
-  Wide = '55rem',
-}
+export const ModalWidth = {
+  Standard: '30rem',
+  Wide: '55rem',
+} as const;
+
+/**
+ * Controls the maximum width the modal can expand to.
+ */
+export type ModalWidth = EnumValues<typeof ModalWidth>;
 
 const CONTENT_SPACING_VALUES_REM: Readonly<Record<SizeMode, number>> = {
   desktop: 0.75,

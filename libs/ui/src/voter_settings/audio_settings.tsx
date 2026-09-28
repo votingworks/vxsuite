@@ -1,4 +1,5 @@
 import React from 'react';
+import type { EnumValues } from '@votingworks/basics';
 import { styled } from '../styled.js';
 import { SettingsPane } from './settings_pane.js';
 import { Button } from '../button.js';
@@ -79,14 +80,17 @@ export function AudioSettings(props: AudioSettingsProps): JSX.Element {
 }
 
 /** Grid area IDs for the audio volume/rate controls. */
-enum CtrlId {
-  rateDecrease = 'rateDecrease',
-  rateIncrease = 'rateIncrease',
-  rateLabel = 'rateLabel',
-  volumeDecrease = 'volumeDecrease',
-  volumeIncrease = 'volumeIncrease',
-  volumeLabel = 'volumeLabel',
-}
+const CtrlId = {
+  rateDecrease: 'rateDecrease',
+  rateIncrease: 'rateIncrease',
+  rateLabel: 'rateLabel',
+  volumeDecrease: 'volumeDecrease',
+  volumeIncrease: 'volumeIncrease',
+  volumeLabel: 'volumeLabel',
+} as const;
+
+/** Grid area IDs for the audio volume/rate controls. */
+type CtrlId = EnumValues<typeof CtrlId>;
 
 const Controls = styled.div`
   align-items: center;
