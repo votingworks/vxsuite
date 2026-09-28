@@ -527,16 +527,7 @@ pub(crate) fn threshold(image: &GrayImage, thresh: u8) -> GrayImage {
 }
 
 /// Binarizes a grayscale image with the given threshold and encodes it as a
-/// 1-bit grayscale PNG in memory, in a single pass over the image.
-///
-/// Pixels with luma `<= thresh` become black and others white, exactly like
-/// [`threshold`], but the bits are packed directly from the source image
-/// rather than materializing an intermediate 8-bit binarized image. The
-/// 1-bit representation gives the DEFLATE step an eighth of the data an
-/// 8-bit encoding would, making encoding faster and files smaller: the `Up`
-/// filter with fast compression measured smaller *and* faster than an 8-bit
-/// encoding with the `image` crate's defaults on a corpus of real ballot
-/// scans.
+/// 1-bit grayscale PNG in memory.
 pub(crate) fn binarize_and_encode_png(
     image: &GrayImage,
     thresh: u8,
@@ -570,7 +561,7 @@ pub(crate) fn binarize_and_encode_png(
     let mut encoder = png::Encoder::new(Cursor::new(&mut buf), width, height);
     encoder.set_color(png::ColorType::Grayscale);
     encoder.set_depth(png::BitDepth::One);
-    encoder.set_compression(png::Compression::Fast);
+    encoder.set_compression(png::Compression::Balanced);
     encoder.set_filter(png::Filter::Up);
     let mut writer = encoder.write_header().map_err(to_image_error)?;
     writer.write_image_data(&packed).map_err(to_image_error)?;
