@@ -1,83 +1,235 @@
+import { styled } from '../styled.js';
+
 import { Keybinding } from '../keybindings.js';
 import type { MarkControllerButton } from './types.js';
 
 interface MarkControllerIllustrationProps {
   highlight?: MarkControllerButton;
-  showHeadphones?: boolean;
 }
 
-// @coverage-defer: temporarily tested via apps/mark-scan
+const BUTTON_CLASS_NAME = 'markControllerIllustrationButton';
+const BUTTON_CLASS_NAME_HIGHLIGHTED = `${BUTTON_CLASS_NAME}--highlighted`;
+const BUTTON_FOREGROUND_CLASS_NAME = `${BUTTON_CLASS_NAME}Foreground`;
+const ARROW_TIP_CLASS_NAME = `${BUTTON_CLASS_NAME}ArrowTip`;
+
+export const MARK_CONTROLLER_ILLUSTRATION_HIGHLIGHT_CLASS_NAME =
+  BUTTON_CLASS_NAME_HIGHLIGHTED;
+
+const SvgContainer = styled.svg`
+  .${BUTTON_CLASS_NAME} {
+    fill: ${(p) => p.theme.colors.background};
+    stroke: ${(p) => p.theme.colors.onBackground};
+    stroke-width: 3;
+    stroke-linejoin: round;
+
+    .${BUTTON_FOREGROUND_CLASS_NAME} {
+      fill: ${(p) => p.theme.colors.onBackground};
+      stroke: none;
+    }
+
+    .${ARROW_TIP_CLASS_NAME} {
+      fill: none;
+      stroke: ${(p) => p.theme.colors.onBackground};
+      stroke-width: 7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+  }
+
+  .${BUTTON_CLASS_NAME_HIGHLIGHTED} {
+    fill: ${(p) => p.theme.colors.primary};
+    stroke: ${(p) => p.theme.colors.primary};
+
+    .${BUTTON_FOREGROUND_CLASS_NAME} {
+      fill: ${(p) => p.theme.colors.background};
+    }
+  }
+`;
+
+const SQUARE_BUTTON_SIZE = 48;
+const SQUARE_BUTTON_RADIUS = 6;
+
 export function MarkControllerIllustration({
   highlight,
-  showHeadphones,
 }: MarkControllerIllustrationProps): JSX.Element {
-  const defaultFill = '#fff';
-  const highlightFill = '#985aa3';
+  function getButtonClassNames(button: MarkControllerButton) {
+    const classNames = [BUTTON_CLASS_NAME];
 
-  function getButtonFill(button: MarkControllerButton) {
-    return highlight === button ? highlightFill : defaultFill;
+    if (highlight === button) {
+      classNames.push(BUTTON_CLASS_NAME_HIGHLIGHTED);
+    }
+
+    return classNames.join(' ');
   }
 
   return (
-    <svg
+    <SvgContainer
+      viewBox="-27.2 -13.6 354.4 536.8"
       version="1.1"
-      xmlns="http://www.w3.org/2000/svg"
-      x="0"
-      y="0"
-      viewBox="0 0 387.15 522"
       xmlSpace="preserve"
+      xmlns="http://www.w3.org/2000/svg"
     >
       <title>Accessible Controller Illustration</title>
-      <path d="M263.5 522H39.65c-11.21 0-20.63-8.03-22.42-19.1C5.96 433.04 0 354.02 0 274.36 0 183.71 7.6 95.24 21.99 18.52 24 7.79 33.38 0 44.31 0h214.54c10.92 0 20.31 7.79 22.32 18.52 14.38 76.72 21.99 165.19 21.99 255.84 0 79.65-5.96 158.68-17.23 228.54-1.8 11.07-11.23 19.1-22.43 19.1z" />
       <path
-        fill="#fff"
-        d="M44.31 10a12.72 12.72 0 0 0-12.49 10.36C17.54 96.48 10 184.32 10 274.36c0 79.13 5.91 157.61 17.1 226.95 1 6.2 6.28 10.69 12.55 10.69H263.5c6.27 0 11.55-4.5 12.55-10.69 11.19-69.34 17.1-147.82 17.1-226.95 0-90.05-7.54-177.88-21.82-254-1.12-6-6.38-10.36-12.49-10.36H44.31z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="4"
+        strokeLinejoin="round"
+        d="M -19.2 482.6 V 153.5 C -19.2 118 -7.2 92.1 9.8 74.4 L 70 18.4 C 90.2 -0.8 122.4 -5.6 150 -5.6 C 177.6 -5.6 209.8 -0.8 230 18.4 L 290.2 74.4 C 307.2 92.1 319.2 118 319.2 153.5 V 482.6 Q 319.2 515.2 287.9 515.2 H 12.1 Q -19.2 515.2 -19.2 482.6 Z"
       />
-      <circle cx="192.5" cy="342.72" r="20" />
-      <circle fill="#fff" cx="192.5" cy="342.72" r="10" />
-      <path d="m83.97 236.68-47.8-47.8c-4.07-4.07-6.31-9.48-6.31-15.25s2.24-11.18 6.31-15.25l47.8-47.8 30.02 30.02-1.64 3.23c-1.51 2.99-2.28 6.2-2.28 9.55v39.5c0 3.54.88 7.03 2.54 10.1l1.78 3.28-30.42 30.42z" />
       <path
-        data-testid="left-button"
-        fill={getButtonFill(Keybinding.PAGE_PREVIOUS)}
-        d="m83.97 124.73-40.73 40.73c-4.51 4.51-4.51 11.85 0 16.36l40.73 40.73 18.25-18.25c-1.41-3.61-2.15-7.5-2.15-11.41v-39.5c0-3.69.63-7.26 1.88-10.67l-17.98-17.99z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinejoin="round"
+        d="M 33 480 V 165 L 23.7 155.7 Q 18 150 23.7 144.3 L 144.3 23.7 Q 150 18 155.7 23.7 L 276.3 144.3 Q 282 150 276.3 155.7 L 267 165 V 480 Q 267 495 252 495 H 48 Q 33 495 33 480 Z"
       />
-      <path d="m184.2 136.45-3.28-1.78a21.278 21.278 0 0 0-10.09-2.54h-39.51c-3.35 0-6.56.77-9.55 2.28l-3.23 1.63-30.02-30.02 47.8-47.8c4.07-4.07 9.48-6.3 15.25-6.3s11.18 2.24 15.25 6.3l47.8 47.8-30.42 30.43z" />
-      <path
-        data-testid="up-button"
-        fill={getButtonFill(Keybinding.FOCUS_PREVIOUS)}
-        d="M131.32 122.14h39.51c3.91 0 7.79.74 11.4 2.15l18.25-18.25-40.73-40.74a11.48 11.48 0 0 0-8.18-3.38c-3.1 0-6 1.2-8.18 3.38l-40.73 40.73 17.98 17.98c3.42-1.24 7-1.87 10.68-1.87z"
-      />
-      <path d="M151.58 295.35c-5.77 0-11.19-2.24-15.25-6.31l-47.8-47.8 30.59-30.59 3.18 1.49c2.82 1.33 5.86 2 9.02 2h39.51c3.37 0 6.59-.76 9.56-2.27l3.23-1.63 31 31-47.8 47.8c-4.06 4.07-9.48 6.31-15.24 6.31z" />
-      <path
-        data-testid="down-button"
-        fill={getButtonFill(Keybinding.FOCUS_NEXT)}
-        d="m102.67 241.24 40.73 40.73a11.48 11.48 0 0 0 8.18 3.38c3.09 0 6-1.2 8.18-3.38l40.73-40.73-18.97-18.97c-3.4 1.24-6.98 1.87-10.68 1.87h-39.51c-3.43 0-6.76-.54-9.94-1.61l-18.72 18.71z"
-      />
-      <path d="m219.18 236.68-31-31.01 1.63-3.23a21.06 21.06 0 0 0 2.27-9.56v-39.51c0-3.17-.67-6.2-2-9.02l-1.49-3.18 30.6-30.6 47.8 47.8c4.07 4.07 6.3 9.48 6.3 15.25s-2.24 11.18-6.3 15.25l-47.81 47.81z" />
-      <path
-        data-testid="right-button"
-        fill={getButtonFill(Keybinding.PAGE_NEXT)}
-        d="m200.21 203.57 18.98 18.98 40.73-40.73a11.48 11.48 0 0 0 3.38-8.18c0-3.1-1.2-6-3.38-8.18l-40.73-40.73-18.71 18.71c1.07 3.18 1.61 6.51 1.61 9.94v39.51c-.02 3.7-.64 7.27-1.88 10.68z"
-      />
-      <path d="M169.52 209.42h-36.89c-4.76 0-9.24-1.85-12.61-5.22a17.715 17.715 0 0 1-5.22-12.61V154.7c0-9.83 8-17.83 17.83-17.83h36.89c4.76 0 9.24 1.85 12.61 5.22 3.37 3.37 5.22 7.85 5.22 12.61v36.89c0 4.76-1.85 9.24-5.22 12.61s-7.85 5.22-12.61 5.22z" />
-      <path
-        data-testid="select-button"
-        fill={getButtonFill(Keybinding.SELECT)}
-        d="M132.63 146.86c-4.32 0-7.83 3.51-7.83 7.83v36.89c0 2.09.81 4.06 2.29 5.54a7.783 7.783 0 0 0 5.54 2.29h36.89c2.09 0 4.06-.81 5.54-2.29s2.29-3.45 2.29-5.54v-36.89c0-2.09-.81-4.06-2.29-5.54a7.783 7.783 0 0 0-5.54-2.29h-36.89z"
-      />
-      <path d="M194.13 466.64h-3.26c-21.76 0-39.47-17.7-39.47-39.47v-86.08c0-21.76 17.7-39.47 39.47-39.47h3.26c21.76 0 39.47 17.7 39.47 39.47v86.08c-.01 21.76-17.71 39.47-39.47 39.47zm-3.27-155.01c-16.25 0-29.47 13.22-29.47 29.47v86.08c0 16.25 13.22 29.47 29.47 29.47h3.26c16.25 0 29.47-13.22 29.47-29.47V341.1c0-16.25-13.22-29.47-29.47-29.47h-3.26z" />
-      <path d="M215.49 424.8c0-12.83-10.44-23.27-23.27-23.27s-23.27 10.44-23.27 23.27c0 6.79 2.93 12.9 7.58 17.16.48 2.61 2.78 4.61 5.52 4.61 3.09 0 5.62-2.53 5.62-5.62v-7.09c0-3.09-2.53-5.62-5.62-5.62-2.53 0-4.69 1.7-5.38 4.01a17.051 17.051 0 0 1-1.72-7.44c0-9.52 7.75-17.27 17.27-17.27s17.27 7.75 17.27 17.27c0 2.67-.62 5.2-1.71 7.46-.69-2.32-2.85-4.03-5.39-4.03-3.09 0-5.62 2.53-5.62 5.62v7.09c0 3.09 2.53 5.62 5.62 5.62 2.75 0 5.04-2 5.52-4.61 4.66-4.26 7.58-10.37 7.58-17.16zM119.87 373.03H87.29c-9.3 0-16.87-7.57-16.87-16.87v-32.57c0-9.3 7.57-16.87 16.87-16.87h32.57c9.3 0 16.87 7.57 16.87 16.87v32.57c.01 9.31-7.56 16.87-16.86 16.87zm-32.58-56.31c-3.79 0-6.87 3.08-6.87 6.87v32.57c0 3.79 3.08 6.87 6.87 6.87h32.57c3.79 0 6.87-3.08 6.87-6.87v-32.57c0-3.79-3.08-6.87-6.87-6.87H87.29z" />
-      <path d="M90.81 357.38c-2.76 0-5-2.24-5-5v-3c0-2.76 2.24-5 5-5s5 2.24 5 5v3c0 2.76-2.24 5-5 5zM103.58 357.38c-2.76 0-5-2.24-5-5v-14c0-2.76 2.24-5 5-5s5 2.24 5 5v14c0 2.76-2.24 5-5 5zM116.35 357.38c-2.76 0-5-2.24-5-5v-25c0-2.76 2.24-5 5-5s5 2.24 5 5v25c0 2.76-2.24 5-5 5z" />
-      {showHeadphones && (
-        <g>
-          <path
-            data-testid="headphones"
-            fill={highlightFill}
-            d="m198.68 369.38-19.34-4.36-13.94-27.72 22.78-18.78 19.86 5.02 11.35 25.14 77.63 76.37-20.72 22.52z"
-          />
-          <path d="M361.3 413.79c-8.41 7.93-8.2 20.89-8.02 32.33.21 13.37-.14 21.71-6.77 24.8-13.67 6.37-22.49-1.93-45.98-26.87-1.86-1.97-3.8-4.03-5.81-6.15l2-2c5.26-5.26 5.26-13.82 0-19.08l-75.29-75.29c-.25-7.08-3.06-14.09-8.46-19.49-5.48-5.48-12.76-8.5-20.51-8.5-7.75 0-15.03 3.02-20.51 8.5s-8.5 12.76-8.5 20.51c0 7.75 3.02 15.03 8.5 20.51 5.65 5.65 13.08 8.48 20.51 8.48.08 0 .17-.01.25-.01l74.64 74.64c2.55 2.55 5.94 3.95 9.54 3.95 3.6 0 6.99-1.4 9.54-3.95l1.2-1.2c1.94 2.05 3.81 4.03 5.61 5.94 17.93 19.03 30.27 32.13 44.88 32.13 3.98 0 8.12-.97 12.59-3.05 12.99-6.05 12.75-20.91 12.55-34.02-.15-9.83-.31-19.99 4.89-24.9 3.43-3.24 9.57-4.55 18.25-3.91l.74-9.97c-11.75-.88-20.2 1.28-25.84 6.6zM179.02 329.1c3.71-3.71 8.57-5.56 13.44-5.56 4.87 0 9.73 1.85 13.44 5.56 7.41 7.41 7.41 19.47 0 26.88s-19.47 7.41-26.88 0-7.41-19.47 0-26.88zm110.63 99.72-10.28 10.28c-1.32 1.32-3.62 1.32-4.94 0l-70.1-70.1c3.14-1.4 6.07-3.38 8.64-5.95 2.81-2.81 4.92-6.05 6.33-9.52l70.35 70.35a3.5 3.5 0 0 1 0 4.94z" />
-        </g>
-      )}
-    </svg>
+      <g
+        data-testid="up"
+        className={getButtonClassNames(Keybinding.FOCUS_PREVIOUS)}
+      >
+        <path d="M 144.3 45.7 Q 150 40 155.7 45.7 L 201.5 91.5 L 172 121 L 128 121 L 98.5 91.5 Z" />
+        <path
+          className={ARROW_TIP_CLASS_NAME}
+          d="M 133.7 59.1 L 142 50.8 Q 150 42.8 158 50.8 L 166.3 59.1"
+        />
+      </g>
+      <g
+        data-testid="right"
+        className={getButtonClassNames(Keybinding.PAGE_NEXT)}
+      >
+        <path d="M 254.3 144.3 Q 260 150 254.3 155.7 L 208.5 201.5 L 179 172 L 179 128 L 208.5 98.5 Z" />
+        <path
+          className={ARROW_TIP_CLASS_NAME}
+          d="M 240.9 133.7 L 249.2 142 Q 257.2 150 249.2 158 L 240.9 166.3"
+        />
+      </g>
+      <g
+        data-testid="down"
+        className={getButtonClassNames(Keybinding.FOCUS_NEXT)}
+      >
+        <path d="M 155.7 254.3 Q 150 260 144.3 254.3 L 98.5 208.5 L 128 179 L 172 179 L 201.5 208.5 Z" />
+        <path
+          className={ARROW_TIP_CLASS_NAME}
+          d="M 166.3 240.9 L 158 249.2 Q 150 257.2 142 249.2 L 133.7 240.9"
+        />
+      </g>
+      <g
+        data-testid="left"
+        className={getButtonClassNames(Keybinding.PAGE_PREVIOUS)}
+      >
+        <path d="M 45.7 155.7 Q 40 150 45.7 144.3 L 91.5 98.5 L 121 128 L 121 172 L 91.5 201.5 Z" />
+        <path
+          className={ARROW_TIP_CLASS_NAME}
+          d="M 59.1 166.3 L 50.8 158 Q 42.8 150 50.8 142 L 59.1 133.7"
+        />
+      </g>
+      <g
+        data-testid="select"
+        className={getButtonClassNames(Keybinding.SELECT)}
+      >
+        <rect x="126" y="126" width="48" height="48" rx="8" />
+      </g>
+      <g
+        data-testid="volume-up"
+        className={getButtonClassNames(Keybinding.VOLUME_UP)}
+      >
+        <rect
+          x="45"
+          y="282"
+          width={SQUARE_BUTTON_SIZE}
+          height={SQUARE_BUTTON_SIZE}
+          rx={SQUARE_BUTTON_RADIUS}
+        />
+        <rect
+          className={BUTTON_FOREGROUND_CLASS_NAME}
+          x="53"
+          y="292"
+          width="32"
+          height="5"
+          rx="2.5"
+        />
+        <rect
+          className={BUTTON_FOREGROUND_CLASS_NAME}
+          x="61"
+          y="316"
+          width="16"
+          height="5"
+          rx="2.5"
+        />
+      </g>
+      <g
+        data-testid="volume-down"
+        className={getButtonClassNames(Keybinding.VOLUME_DOWN)}
+      >
+        <rect
+          x="45"
+          y="340"
+          width={SQUARE_BUTTON_SIZE}
+          height={SQUARE_BUTTON_SIZE}
+          rx={SQUARE_BUTTON_RADIUS}
+        />
+        <rect
+          className={BUTTON_FOREGROUND_CLASS_NAME}
+          x="61"
+          y="374"
+          width="16"
+          height="5"
+          rx="2.5"
+        />
+      </g>
+      <g data-testid="headphone-jack" fill="none" stroke="currentColor">
+        <circle cx="183" cy="334" r="38" strokeWidth="3" />
+        <circle cx="183" cy="334" r="26" strokeWidth="3" />
+      </g>
+      <g
+        data-testid="pause"
+        className={getButtonClassNames(Keybinding.TOGGLE_PAUSE)}
+      >
+        <rect
+          x="134"
+          y="412"
+          width={SQUARE_BUTTON_SIZE}
+          height={SQUARE_BUTTON_SIZE}
+          rx={SQUARE_BUTTON_RADIUS}
+        />
+        <circle
+          className={BUTTON_FOREGROUND_CLASS_NAME}
+          cx="148"
+          cy="446"
+          r="4"
+        />
+      </g>
+      <g
+        data-testid="help"
+        className={getButtonClassNames(Keybinding.TOGGLE_HELP)}
+      >
+        <rect
+          x="194"
+          y="412"
+          width={SQUARE_BUTTON_SIZE}
+          height={SQUARE_BUTTON_SIZE}
+          rx={SQUARE_BUTTON_RADIUS}
+        />
+        <circle
+          className={BUTTON_FOREGROUND_CLASS_NAME}
+          cx="230"
+          cy="424"
+          r="4"
+        />
+        <circle
+          className={BUTTON_FOREGROUND_CLASS_NAME}
+          cx="218"
+          cy="436"
+          r="4"
+        />
+        <circle
+          className={BUTTON_FOREGROUND_CLASS_NAME}
+          cx="206"
+          cy="448"
+          r="4"
+        />
+      </g>
+    </SvgContainer>
   );
 }

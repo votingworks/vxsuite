@@ -20,6 +20,7 @@ import {
   DiagnosticsScreen,
   type DiagnosticsScreenProps,
 } from './diagnostics_screen.js';
+import { DIAGNOSTIC_STEPS } from './accessible_controller_diagnostic_screen.js';
 
 let apiMock: ApiMock;
 
@@ -543,4 +544,106 @@ test('election configuration info', async () => {
 
   screen.getByText(election.title, { exact: false });
   screen.getByText(pollingPlace!.name, { exact: false });
+});
+
+test('navigating to and from accessible controller diagnostic', async () => {
+  apiMock.expectGetMachineConfig();
+  apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
+  apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
+    pollsState: 'polls_closed_initial',
+    ballotsPrintedCount: 0,
+    isTestMode: true,
+    isTestModeAvailable: true,
+  });
+  apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
+    available: 1_000_000_000,
+    used: 1_000_000_000,
+    total: 2_000_000_000,
+  });
+
+  renderScreen();
+
+  userEvent.click(
+    await screen.findByRole('button', { name: 'Test Accessible Controller' })
+  );
+  await screen.findByRole('heading', { name: 'Accessible Controller Test' });
+
+  for (const [index, step] of DIAGNOSTIC_STEPS.entries()) {
+    await screen.findByText(
+      `${index + 1}. Press the ${step.label.toLowerCase()} button.`
+    );
+    screen.getByText(`Step ${index + 1} of ${DIAGNOSTIC_STEPS.length}`);
+    screen.getByRole('button', {
+      name: `${step.label} Button is Not Working`,
+    });
+
+    if (index === DIAGNOSTIC_STEPS.length - 1) {
+      apiMock.expectAddDiagnosticRecord({
+        type: 'mark-accessible-controller',
+        outcome: 'pass',
+      });
+      apiMock.expectGetMostRecentDiagnostic('mark-accessible-controller', {
+        type: 'mark-accessible-controller',
+        outcome: 'pass',
+        timestamp: new Date('2022-03-23T11:23:00.000').getTime(),
+      });
+    }
+    fireEvent.keyDown(document, { key: step.key });
+  }
+
+  await screen.findByRole('heading', { name: 'System Diagnostics' });
+  await screen.findByText(/Accessible Controller test passed/);
+
+  userEvent.click(
+    screen.getByRole('button', { name: 'Test Accessible Controller' })
+  );
+  await screen.findByRole('heading', { name: 'Accessible Controller Test' });
+  userEvent.click(screen.getByRole('button', { name: 'Cancel Test' }));
+  await screen.findByRole('heading', { name: 'System Diagnostics' });
+});
+
+test('navigating to and from accessible controller diagnostic - fail', async () => {
+  apiMock.expectGetMachineConfig();
+  apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
+  apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
+    pollsState: 'polls_closed_initial',
+    ballotsPrintedCount: 0,
+    isTestMode: true,
+    isTestModeAvailable: true,
+  });
+  apiMock.mockApiClient.getDiskSpaceSummary.mockResolvedValue({
+    available: 1_000_000_000,
+    used: 1_000_000_000,
+    total: 2_000_000_000,
+  });
+
+  renderScreen();
+
+  userEvent.click(
+    await screen.findByRole('button', { name: 'Test Accessible Controller' })
+  );
+  await screen.findByRole('heading', { name: 'Accessible Controller Test' });
+
+  fireEvent.keyDown(document, {
+    key: assertDefined(DIAGNOSTIC_STEPS[0]).key,
+  });
+  await screen.findByText('2. Press the down button.');
+
+  apiMock.expectAddDiagnosticRecord({
+    type: 'mark-accessible-controller',
+    outcome: 'fail',
+    message: 'down button is not working.',
+  });
+  apiMock.expectGetMostRecentDiagnostic('mark-accessible-controller', {
+    type: 'mark-accessible-controller',
+    outcome: 'fail',
+    message: 'down button is not working.',
+    timestamp: new Date('2022-03-23T11:23:00.000').getTime(),
+  });
+
+  userEvent.click(
+    screen.getByRole('button', { name: 'Down Button is Not Working' })
+  );
+  await screen.findByRole('heading', { name: 'System Diagnostics' });
+  await screen.findByText(/Accessible Controller test failed/);
 });

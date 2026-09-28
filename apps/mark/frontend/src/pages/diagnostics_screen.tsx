@@ -24,6 +24,7 @@ import {
   saveReadinessReport,
   logUpsDiagnosticOutcome,
 } from '../api.js';
+import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen.js';
 import { HeadphoneInputDiagnosticScreen } from './headphone_input_diagnostic_screen.js';
 import { BarcodeReaderDiagnosticScreen } from './barcode_reader_diagnostic_screen.js';
 import { PatInputDiagnosticScreen } from './pat_input_diagnostic_screen.js';
@@ -164,6 +165,13 @@ export function DiagnosticsScreen({
                 isDeviceConnected: accessibleControllerConnected,
                 mostRecentDiagnosticRecord:
                   mostRecentAccessibleControllerDiagnostic,
+                children: (
+                  <Button
+                    onPress={() => history.push('/accessible-controller')}
+                  >
+                    Test Accessible Controller
+                  </Button>
+                ),
               }}
               patInputProps={{
                 isDeviceConnected: patDeviceConnected,
@@ -202,6 +210,12 @@ export function DiagnosticsScreen({
             />
           </Main>
         </Screen>
+      </Route>
+      <Route path="/accessible-controller">
+        <AccessibleControllerDiagnosticScreen
+          onComplete={() => history.push('/')}
+          onCancel={() => history.push('/')}
+        />
       </Route>
       <Route path="/pat-input">
         <PatInputDiagnosticScreen

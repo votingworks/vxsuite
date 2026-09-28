@@ -467,6 +467,14 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsBmdControllerSandboxMark: () => (
+    <UiString uiStringKey="instructionsBmdControllerSandboxMark">
+      Press any button on the controller to learn what it is and how to use it.
+      When you're done, press the “Help” button with three dots at the bottom
+      right corner of the controller twice to return to your ballot.
+    </UiString>
+  ),
+
   instructionsBmdControllerSandboxMarkScan: () => (
     <UiString uiStringKey="instructionsBmdControllerSandboxMarkScan">
       Press any button on the controller to learn what it is and how to use it.

@@ -23,6 +23,10 @@ export const MARK_CONTROLLER_KEYBINDINGS = [
   Keybinding.PAGE_NEXT,
   Keybinding.PAGE_PREVIOUS,
   Keybinding.SELECT,
+  Keybinding.VOLUME_UP,
+  Keybinding.VOLUME_DOWN,
+  Keybinding.TOGGLE_PAUSE,
+  Keybinding.TOGGLE_HELP,
 ] satisfies Keybinding[];
 
 export type MarkControllerButton = (typeof MARK_CONTROLLER_KEYBINDINGS)[number];

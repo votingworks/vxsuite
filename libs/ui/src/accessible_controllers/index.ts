@@ -1,6 +1,7 @@
 export * from './accessible_controller_sandbox.js';
 export * from './assistive_tech_instructions.js';
 export * from './mark_controller_illustration.js';
+export * from './mark_controller_sandbox.js';
 export * from './mark_scan_controller_illustration.js';
 export * from './mark_scan_controller_sandbox.js';
 export * from './navigation.js';
