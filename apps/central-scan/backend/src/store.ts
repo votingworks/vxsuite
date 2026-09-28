@@ -382,7 +382,12 @@ export class Store {
     assert(!!pollingPlaceId, 'polling place required for batch creation');
 
     this.client.run(
-      'insert into batches (id, polling_place_id) values (?, ?)',
+      `insert into batches (batch_number, id, polling_place_id)
+        values (
+          (select coalesce(max(batch_number), 0) + 1 from batches),
+          ?,
+          ?
+        )`,
       id,
       pollingPlaceId
     );
@@ -557,9 +562,6 @@ export class Store {
       this.client.transaction(() => {
         // Delete batches, which will cascade delete sheets
         this.client.run('delete from batches');
-        // Reset auto-incrementing key on "batches" table
-        this.client.run("delete from sqlite_sequence where name = 'batches'");
-
         this.setScannerBackedUp(false);
       });
       this.sendingToAdminBatchId = undefined;
@@ -608,6 +610,17 @@ export class Store {
       JSON.parse(row.frontInterpretationJson),
       JSON.parse(row.backInterpretationJson),
     ];
+  }
+
+  /**
+   * Discard an in-progress batch, hard-deleting it from the db.
+   */
+  discardBatch(batchId: string): void {
+    const deleted = this.client.one(
+      'delete from batches where id = ? and ended_at is null returning id',
+      batchId
+    );
+    assert(deleted, `cannot discard finished batch ${batchId}`);
   }
 
   /**

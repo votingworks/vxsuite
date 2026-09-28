@@ -12,8 +12,8 @@ create table election (
 ) strict;
 
 create table batches (
-  batch_number integer primary key autoincrement,
-  id text unique,
+  id text primary key,
+  batch_number integer not null unique,
   label text,
   polling_place_id text not null,
   started_at text default current_timestamp not null,
