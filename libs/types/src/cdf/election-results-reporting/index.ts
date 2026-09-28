@@ -102,32 +102,37 @@ export const TimeWithZoneSchema: z.ZodSchema<TimeWithZone> = z.string().regex(/(
 /**
  * Enumeration for types of ballot measures in the BallotMeasureContest element.
  */
-export enum BallotMeasureType {
+export const BallotMeasureType = {
   /**
    * For reports that contain only aggregated counts.
    */
-  BallotMeasure = 'ballot-measure',
+  BallotMeasure: 'ballot-measure',
 
   /**
    * For an initiative.
    */
-  Initiative = 'initiative',
+  Initiative: 'initiative',
 
   /**
    * Used when the type of ballot measure is not included in this enumeration.
    */
-  Other = 'other',
+  Other: 'other',
 
   /**
    * For a recall.
    */
-  Recall = 'recall',
+  Recall: 'recall',
 
   /**
    * For a referendum.
    */
-  Referendum = 'referendum',
-}
+  Referendum: 'referendum',
+} as const;
+
+/**
+ * Enumeration for types of ballot measures in the BallotMeasureContest element.
+ */
+export type BallotMeasureType = (typeof BallotMeasureType)[keyof typeof BallotMeasureType];
 
 /**
  * Schema for {@link BallotMeasureType}.
@@ -137,32 +142,37 @@ export const BallotMeasureTypeSchema = z.enum(BallotMeasureType);
 /**
  * Enumeration for various post-election statuses applicable to a candidate in the Candidate element.
  */
-export enum CandidatePostElectionStatus {
+export const CandidatePostElectionStatus = {
   /**
    * For candidates who have advanced to a runoff.
    */
-  AdvancedToRunoff = 'advanced-to-runoff',
+  AdvancedToRunoff: 'advanced-to-runoff',
 
   /**
    * Used for candidates who were defeated in the election.
    */
-  Defeated = 'defeated',
+  Defeated: 'defeated',
 
   /**
    * For a projected contest winner.
    */
-  ProjectedWinner = 'projected-winner',
+  ProjectedWinner: 'projected-winner',
 
   /**
    * For the official contest winner or one of “n” contest winners for n-of-m voting.
    */
-  Winner = 'winner',
+  Winner: 'winner',
 
   /**
    * For candidates who have withdrawn from the contest.
    */
-  Withdrawn = 'withdrawn',
-}
+  Withdrawn: 'withdrawn',
+} as const;
+
+/**
+ * Enumeration for various post-election statuses applicable to a candidate in the Candidate element.
+ */
+export type CandidatePostElectionStatus = (typeof CandidatePostElectionStatus)[keyof typeof CandidatePostElectionStatus];
 
 /**
  * Schema for {@link CandidatePostElectionStatus}.
@@ -174,22 +184,29 @@ export const CandidatePostElectionStatusSchema = z.enum(CandidatePostElectionSta
  *       in the Candidate
  *       class.
  */
-export enum CandidatePreElectionStatus {
+export const CandidatePreElectionStatus = {
   /**
    * For candidates who have filed with the election authority but not necessarily qualified.
    */
-  Filed = 'filed',
+  Filed: 'filed',
 
   /**
    * For candidates who are qualified by the election authority to be on the ballot for a contest.
    */
-  Qualified = 'qualified',
+  Qualified: 'qualified',
 
   /**
    * For candidates who have withdrawn from the contest.
    */
-  Withdrawn = 'withdrawn',
-}
+  Withdrawn: 'withdrawn',
+} as const;
+
+/**
+ * Enumeration for various pre-election statuses applicable to a candidate
+ *       in the Candidate
+ *       class.
+ */
+export type CandidatePreElectionStatus = (typeof CandidatePreElectionStatus)[keyof typeof CandidatePreElectionStatus];
 
 /**
  * Schema for {@link CandidatePreElectionStatus}.
@@ -199,27 +216,32 @@ export const CandidatePreElectionStatusSchema = z.enum(CandidatePreElectionStatu
 /**
  * Enumeration for various counting-related statuses for types of ballots or write-ins, used in the CountStatus class.
  */
-export enum CountItemStatus {
+export const CountItemStatus = {
   /**
    * For counts that are complete.
    */
-  Completed = 'completed',
+  Completed: 'completed',
 
   /**
    * For counts that are in process.
    */
-  InProcess = 'in-process',
+  InProcess: 'in-process',
 
   /**
    * When the counting has not started or is not underway.
    */
-  NotProcessed = 'not-processed',
+  NotProcessed: 'not-processed',
 
   /**
    * When the status of the counting is unknown.
    */
-  Unknown = 'unknown',
-}
+  Unknown: 'unknown',
+} as const;
+
+/**
+ * Enumeration for various counting-related statuses for types of ballots or write-ins, used in the CountStatus class.
+ */
+export type CountItemStatus = (typeof CountItemStatus)[keyof typeof CountItemStatus];
 
 /**
  * Schema for {@link CountItemStatus}.
@@ -229,67 +251,72 @@ export const CountItemStatusSchema = z.enum(CountItemStatus);
 /**
  * Enumeration for the items that are counted during the course of an election and for which the status of the counts is of interest. Used in the Counts and CountStatus classes.
  */
-export enum CountItemType {
+export const CountItemType = {
   /**
    * For any/all classes of absentee, generally when absentee is not broken out into specific classes.
    */
-  Absentee = 'absentee',
+  Absentee: 'absentee',
 
   /**
    * A type of absentee; for Federal Write-in Absentee Ballots.
    */
-  AbsenteeFwab = 'absentee-fwab',
+  AbsenteeFwab: 'absentee-fwab',
 
   /**
    * A class of absentee; for absentee ballots cast in-person, e.g., at a county office.
    */
-  AbsenteeInPerson = 'absentee-in-person',
+  AbsenteeInPerson: 'absentee-in-person',
 
   /**
    * A class of absentee; for postal mail absentee ballots separately.
    */
-  AbsenteeMail = 'absentee-mail',
+  AbsenteeMail: 'absentee-mail',
 
   /**
    * For ballots cast during early voting periods.
    */
-  Early = 'early',
+  Early: 'early',
 
   /**
    * For ballots cast on election day.
    */
-  ElectionDay = 'election-day',
+  ElectionDay: 'election-day',
 
   /**
    * Used when the type of counting item is not included in this enumeration.
    */
-  Other = 'other',
+  Other: 'other',
 
   /**
    * For challenged ballots.
    */
-  Provisional = 'provisional',
+  Provisional: 'provisional',
 
   /**
    * For legislative balance-of-power results information.
    */
-  Seats = 'seats',
+  Seats: 'seats',
 
   /**
    * Total of all ballots cast regardless of voting class.
    */
-  Total = 'total',
+  Total: 'total',
 
   /**
    * A class of absentee; for absentee ballots from Uniformed and Overseas Citizens Absentee Voting Act (UOCAVA) voters.
    */
-  Uocava = 'uocava',
+  Uocava: 'uocava',
 
   /**
    * For write-ins on ballots.
    */
-  WriteIn = 'write-in',
-}
+  WriteIn: 'write-in',
+} as const;
+
+/**
+ * Enumeration for the items that are counted during the course of an election and for which the status of the counts is of interest. Used in the Counts and CountStatus classes.
+ */
+export type CountItemType = (typeof CountItemType)[keyof typeof CountItemType];
 
 /**
  * Schema for {@link CountItemType}.
@@ -299,57 +326,62 @@ export const CountItemTypeSchema = z.enum(CountItemType);
 /**
  * Enumeration for the day(s) in a schedule in the Schedule element.
  */
-export enum DayType {
+export const DayType = {
   /**
    * Used for all days of the week.
    */
-  All = 'all',
+  All: 'all',
 
   /**
    * Used if day of week is Friday.
    */
-  Friday = 'friday',
+  Friday: 'friday',
 
   /**
    * Used if day of week is Monday.
    */
-  Monday = 'monday',
+  Monday: 'monday',
 
   /**
    * Used if day of week is Saturday.
    */
-  Saturday = 'saturday',
+  Saturday: 'saturday',
 
   /**
    * Used if day of week is Sunday.
    */
-  Sunday = 'sunday',
+  Sunday: 'sunday',
 
   /**
    * Used if day of week is Thursday.
    */
-  Thursday = 'thursday',
+  Thursday: 'thursday',
 
   /**
    * Used if day of week is Tuesday.
    */
-  Tuesday = 'tuesday',
+  Tuesday: 'tuesday',
 
   /**
    * Used if day of week is Wednesday.
    */
-  Wednesday = 'wednesday',
+  Wednesday: 'wednesday',
 
   /**
    * Used for any day of the week.
    */
-  Weekday = 'weekday',
+  Weekday: 'weekday',
 
   /**
    * Used for both Saturday and Sunday.
    */
-  Weekend = 'weekend',
-}
+  Weekend: 'weekend',
+} as const;
+
+/**
+ * Enumeration for the day(s) in a schedule in the Schedule element.
+ */
+export type DayType = (typeof DayType)[keyof typeof DayType];
 
 /**
  * Schema for {@link DayType}.
@@ -359,42 +391,47 @@ export const DayTypeSchema = z.enum(DayType);
 /**
  * Enumeration for the type of device in the DeviceClass class.
  */
-export enum DeviceType {
+export const DeviceType = {
   /**
    * For ballots prepared on ballot marking devices and then scanned.
    */
-  Bmd = 'bmd',
+  Bmd: 'bmd',
 
   /**
    * For DRE (Direct Record Electronic) and other all-electronic devices.
    */
-  Dre = 'dre',
+  Dre: 'dre',
 
   /**
    * For hand-counted paper ballots.
    */
-  ManualCount = 'manual-count',
+  ManualCount: 'manual-count',
 
   /**
    * For an optical scanner used at a central office with no opportunity for voter correction of mistakes.
    */
-  OpscanCentral = 'opscan-central',
+  OpscanCentral: 'opscan-central',
 
   /**
    * For an optical scanner used at a precinct or other location where voter correction of mistakes such as overvotes is possible.
    */
-  OpscanPrecinct = 'opscan-precinct',
+  OpscanPrecinct: 'opscan-precinct',
 
   /**
    * Used when the device type is not listed in this enumeration.
    */
-  Other = 'other',
+  Other: 'other',
 
   /**
    * Used when the type of device is unknown.
    */
-  Unknown = 'unknown',
-}
+  Unknown: 'unknown',
+} as const;
+
+/**
+ * Enumeration for the type of device in the DeviceClass class.
+ */
+export type DeviceType = (typeof DeviceType)[keyof typeof DeviceType];
 
 /**
  * Schema for {@link DeviceType}.
@@ -404,42 +441,47 @@ export const DeviceTypeSchema = z.enum(DeviceType);
 /**
  * Enumeration for the type of election in the ElectionReport class.
  */
-export enum ElectionType {
+export const ElectionType = {
   /**
    * Election in which all eligible voters, regardless of party affiliation, are permitted to select candidates to fill public office and/or vote on ballot measures.
    */
-  General = 'general',
+  General: 'general',
 
   /**
    * Used when the election type is not listed in this enumeration.
    */
-  Other = 'other',
+  Other: 'other',
 
   /**
    * Primary election in which the voter receives a ballot containing only those party-specific contests pertaining to the political party with which the voter is affiliated, along with non-party-specific contests presented at the same election. Unaffiliated voters may be permitted to vote only on non-party-specific contests.
    */
-  PartisanPrimaryClosed = 'partisan-primary-closed',
+  PartisanPrimaryClosed: 'partisan-primary-closed',
 
   /**
    * Primary election in which the voter may choose a political party at the time of voting and vote in party-specific contests associated with that party, along with non-party-specific contests presented at the same election. Some states require voters to publicly declare their choice of party at the polling place, after which the election worker provides or activates the appropriate ballot. Other states allow the voters to make their choice of party within the privacy of the voting booth.
    */
-  PartisanPrimaryOpen = 'partisan-primary-open',
+  PartisanPrimaryOpen: 'partisan-primary-open',
 
   /**
    * Election held to determine which candidates qualify to appear as contest options in subsequent elections.
    */
-  Primary = 'primary',
+  Primary: 'primary',
 
   /**
    * Election to select a winner following a primary or a general election, in which no candidate in the contest received the required minimum percentage of the votes cast. The two candidates receiving the most votes for the contest in question proceed to a runoff election.
    */
-  Runoff = 'runoff',
+  Runoff: 'runoff',
 
   /**
    * Primary or general election that is not regularly scheduled. A special election may be combined with a scheduled election.
    */
-  Special = 'special',
-}
+  Special: 'special',
+} as const;
+
+/**
+ * Enumeration for the type of election in the ElectionReport class.
+ */
+export type ElectionType = (typeof ElectionType)[keyof typeof ElectionType];
 
 /**
  * Schema for {@link ElectionType}.
@@ -449,32 +491,37 @@ export const ElectionTypeSchema = z.enum(ElectionType);
 /**
  * Enumeration for geospatial vector data formats used in Geographic Information System (GIS) software, used in the SpatialExtent class.
  */
-export enum GeoSpatialFormat {
+export const GeoSpatialFormat = {
   /**
    * For GeoJSON open standard format.
    */
-  GeoJson = 'geo-json',
+  GeoJson: 'geo-json',
 
   /**
    * For Geography Markup Language format.
    */
-  Gml = 'gml',
+  Gml: 'gml',
 
   /**
    * For Keyhole Markup Language format.
    */
-  Kml = 'kml',
+  Kml: 'kml',
 
   /**
    * For the shape file format associated with Esri.
    */
-  Shp = 'shp',
+  Shp: 'shp',
 
   /**
    * For Well-known Text format.
    */
-  Wkt = 'wkt',
-}
+  Wkt: 'wkt',
+} as const;
+
+/**
+ * Enumeration for geospatial vector data formats used in Geographic Information System (GIS) software, used in the SpatialExtent class.
+ */
+export type GeoSpatialFormat = (typeof GeoSpatialFormat)[keyof typeof GeoSpatialFormat];
 
 /**
  * Schema for {@link GeoSpatialFormat}.
@@ -484,37 +531,42 @@ export const GeoSpatialFormatSchema = z.enum(GeoSpatialFormat);
 /**
  * Enumeration for election data-related codes in the ExternalIdentifier class .
  */
-export enum IdentifierType {
+export const IdentifierType = {
   /**
    * For FIPS codes.
    */
-  Fips = 'fips',
+  Fips: 'fips',
 
   /**
    * For a code that is specific to a county or other similar locality.
    */
-  LocalLevel = 'local-level',
+  LocalLevel: 'local-level',
 
   /**
    * For a code that is used at the national level other than “fips” or “ocd-id”.
    */
-  NationalLevel = 'national-level',
+  NationalLevel: 'national-level',
 
   /**
    * For Open Civic Data identifiers.
    */
-  OcdId = 'ocd-id',
+  OcdId: 'ocd-id',
 
   /**
    * Used when the type of code is not included in this enumeration.
    */
-  Other = 'other',
+  Other: 'other',
 
   /**
    * For a code that is specific to a state.
    */
-  StateLevel = 'state-level',
-}
+  StateLevel: 'state-level',
+} as const;
+
+/**
+ * Enumeration for election data-related codes in the ExternalIdentifier class .
+ */
+export type IdentifierType = (typeof IdentifierType)[keyof typeof IdentifierType];
 
 /**
  * Schema for {@link IdentifierType}.
@@ -524,17 +576,22 @@ export const IdentifierTypeSchema = z.enum(IdentifierType);
 /**
  * Enumeration for the office term type in the Office class.
  */
-export enum OfficeTermType {
+export const OfficeTermType = {
   /**
    * When the officeholder’s term began at the beginning of the full term of the office, e.g., 6 years for U.S. Senate.
    */
-  FullTerm = 'full-term',
+  FullTerm: 'full-term',
 
   /**
    * When the officeholder’s term began at some date after the beginning of the full term of the office, generally because the previous officeholder vacated the office before the fullterm expired.
    */
-  UnexpiredTerm = 'unexpired-term',
-}
+  UnexpiredTerm: 'unexpired-term',
+} as const;
+
+/**
+ * Enumeration for the office term type in the Office class.
+ */
+export type OfficeTermType = (typeof OfficeTermType)[keyof typeof OfficeTermType];
 
 /**
  * Schema for {@link OfficeTermType}.
@@ -544,17 +601,22 @@ export const OfficeTermTypeSchema = z.enum(OfficeTermType);
 /**
  * Enumeration for the detail level of the election results report in the Election class.
  */
-export enum ReportDetailLevel {
+export const ReportDetailLevel = {
   /**
    * For reports that contain counts from precincts in the reporting jurisdiction.
    */
-  PrecinctLevel = 'precinct-level',
+  PrecinctLevel: 'precinct-level',
 
   /**
    * For reports that contain only aggregated counts.
    */
-  SummaryContest = 'summary-contest',
-}
+  SummaryContest: 'summary-contest',
+} as const;
+
+/**
+ * Enumeration for the detail level of the election results report in the Election class.
+ */
+export type ReportDetailLevel = (typeof ReportDetailLevel)[keyof typeof ReportDetailLevel];
 
 /**
  * Schema for {@link ReportDetailLevel}.
@@ -564,152 +626,157 @@ export const ReportDetailLevelSchema = z.enum(ReportDetailLevel);
 /**
  * Enumeration for the type of geopolitical unit in the ReportingUnit class.
  */
-export enum ReportingUnitType {
+export const ReportingUnitType = {
   /**
    * Used for reporting batches of ballots that may cross precinct boundaries.
    */
-  BallotBatch = 'ballot-batch',
+  BallotBatch: 'ballot-batch',
 
   /**
    * Used for ballot style areas generally composed of precincts.
    */
-  BallotStyleArea = 'ballot-style-area',
+  BallotStyleArea: 'ballot-style-area',
 
   /**
    * Used in CT, NJ, PA, other states, and New York City for boroughs. For AK and LA, see county.
    */
-  Borough = 'borough',
+  Borough: 'borough',
 
   /**
    * Used for a city that reports results and/or for the district that encompasses it.
    */
-  City = 'city',
+  City: 'city',
 
   /**
    * Used for city council districts.
    */
-  CityCouncil = 'city-council',
+  CityCouncil: 'city-council',
 
   /**
    * Used for one or more precincts that have been combined for the purposes of reporting. Used for “Ward” if “Ward” is used interchangeably with “CombinedPrecinct”.
    */
-  CombinedPrecinct = 'combined-precinct',
+  CombinedPrecinct: 'combined-precinct',
 
   /**
    * Used for U.S. Congressional districts.
    */
-  Congressional = 'congressional',
+  Congressional: 'congressional',
 
   /**
    * Used for a reporting unit of type country.
    */
-  Country = 'country',
+  Country: 'country',
 
   /**
    * Used for a county and/or for the district that encompasses it. In AK, used for counties that are called boroughs. In LA, used for parishes.
    */
-  County = 'county',
+  County: 'county',
 
   /**
    * Used for county council districts.
    */
-  CountyCouncil = 'county-council',
+  CountyCouncil: 'county-council',
 
   /**
    * Used for a dropbox for absentee ballots.
    */
-  DropBox = 'drop-box',
+  DropBox: 'drop-box',
 
   /**
    * Used for judicial districts.
    */
-  Judicial = 'judicial',
+  Judicial: 'judicial',
 
   /**
    * Used as applicable for various units such as towns, townships, villages that report votes and/or for the district that encompasses it.
    */
-  Municipality = 'municipality',
+  Municipality: 'municipality',
 
   /**
    * Used for other types of reporting units not included in this enumeration.
    */
-  Other = 'other',
+  Other: 'other',
 
   /**
    * Used for a polling place.
    */
-  PollingPlace = 'polling-place',
+  PollingPlace: 'polling-place',
 
   /**
    * Used also for “Ward” or “District” when these terms are used interchangeably with “Precinct”.
    */
-  Precinct = 'precinct',
+  Precinct: 'precinct',
 
   /**
    * Used for a school district.
    */
-  School = 'school',
+  School: 'school',
 
   /**
    * Used for a special district.
    */
-  Special = 'special',
+  Special: 'special',
 
   /**
    * Used for splits of precincts.
    */
-  SplitPrecinct = 'split-precinct',
+  SplitPrecinct: 'split-precinct',
 
   /**
    * Used for a state and/or for the district that encompasses it.
    */
-  State = 'state',
+  State: 'state',
 
   /**
    * Used for a state house or assembly district.
    */
-  StateHouse = 'state-house',
+  StateHouse: 'state-house',
 
   /**
    * Used for a state senate district.
    */
-  StateSenate = 'state-senate',
+  StateSenate: 'state-senate',
 
   /**
    * Used in some New England states as a type of municipality that reports votes and/or for the district that encompasses it.
    */
-  Town = 'town',
+  Town: 'town',
 
   /**
    * Used in some mid-western states as a type of municipality that reports votes and/or for the district that encompasses it.
    */
-  Township = 'township',
+  Township: 'township',
 
   /**
    * Used for a utility district.
    */
-  Utility = 'utility',
+  Utility: 'utility',
 
   /**
    * Used as a type of municipality that reports votes and/or for the district that encompasses it.
    */
-  Village = 'village',
+  Village: 'village',
 
   /**
    * Used for a vote center.
    */
-  VoteCenter = 'vote-center',
+  VoteCenter: 'vote-center',
 
   /**
    * Used for combinations or groupings of precincts or other units.
    */
-  Ward = 'ward',
+  Ward: 'ward',
 
   /**
    * Used for a water district.
    */
-  Water = 'water',
-}
+  Water: 'water',
+} as const;
+
+/**
+ * Enumeration for the type of geopolitical unit in the ReportingUnit class.
+ */
+export type ReportingUnitType = (typeof ReportingUnitType)[keyof typeof ReportingUnitType];
 
 /**
  * Schema for {@link ReportingUnitType}.
@@ -719,37 +786,42 @@ export const ReportingUnitTypeSchema = z.enum(ReportingUnitType);
 /**
  * Enumeration for the status of the election results in the ElectionReport class.
  */
-export enum ResultsStatus {
+export const ResultsStatus = {
   /**
    * For results that have been certified by the election authority.
    */
-  Certified = 'certified',
+  Certified: 'certified',
 
   /**
    * For results that are a correction to an earlier report.
    */
-  Correction = 'correction',
+  Correction: 'correction',
 
   /**
    * For a pre-election data.
    */
-  PreElection = 'pre-election',
+  PreElection: 'pre-election',
 
   /**
    * For results that are a recount of an earlier election.
    */
-  Recount = 'recount',
+  Recount: 'recount',
 
   /**
    * For results that are unofficial and complete, e.g., the complete election night results.
    */
-  UnofficialComplete = 'unofficial-complete',
+  UnofficialComplete: 'unofficial-complete',
 
   /**
    * For results that are unofficial and partial, e.g., partial election night results.
    */
-  UnofficialPartial = 'unofficial-partial',
-}
+  UnofficialPartial: 'unofficial-partial',
+} as const;
+
+/**
+ * Enumeration for the status of the election results in the ElectionReport class.
+ */
+export type ResultsStatus = (typeof ResultsStatus)[keyof typeof ResultsStatus];
 
 /**
  * Schema for {@link ResultsStatus}.
@@ -759,62 +831,67 @@ export const ResultsStatusSchema = z.enum(ResultsStatus);
 /**
  * Enumeration for contest decision algorithm or rules in the Contest element.
  */
-export enum VoteVariation {
+export const VoteVariation = {
   /**
    * When voter can select as many candidates as desired in a contest up to a maximum number.
    */
-  Approval = 'approval',
+  Approval: 'approval',
 
   /**
    * For the Borda count voting.
    */
-  Borda = 'borda',
+  Borda: 'borda',
 
   /**
    * When voter can allocate more than one vote to a given candidate.
    */
-  Cumulative = 'cumulative',
+  Cumulative: 'cumulative',
 
   /**
    * For majority voting.
    */
-  Majority = 'majority',
+  Majority: 'majority',
 
   /**
    * Includes vote for 1, i.e., 1-of-m.
    */
-  NOfM = 'n-of-m',
+  NOfM: 'n-of-m',
 
   /**
    * Used when the vote variation type is not included in this enumeration.
    */
-  Other = 'other',
+  Other: 'other',
 
   /**
    * For plurality voting.
    */
-  Plurality = 'plurality',
+  Plurality: 'plurality',
 
   /**
    * For proportional voting.
    */
-  Proportional = 'proportional',
+  Proportional: 'proportional',
 
   /**
    * For range voting.
    */
-  Range = 'range',
+  Range: 'range',
 
   /**
    * For ranked choice voting.
    */
-  Rcv = 'rcv',
+  Rcv: 'rcv',
 
   /**
    * For super majority voting.
    */
-  SuperMajority = 'super-majority',
-}
+  SuperMajority: 'super-majority',
+} as const;
+
+/**
+ * Enumeration for contest decision algorithm or rules in the Contest element.
+ */
+export type VoteVariation = (typeof VoteVariation)[keyof typeof VoteVariation];
 
 /**
  * Schema for {@link VoteVariation}.

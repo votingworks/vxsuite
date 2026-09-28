@@ -62,87 +62,92 @@ export const integerSchema = z.number().int();
 /**
  * Used in Device::Type to describe the type or usage of the device generating the event.
  */
-export enum DeviceType {
+export const DeviceType = {
   /**
    * Electronic adjudication function for reviewing absentee/mail-in ballots anomalies (blanks/overvotes/write-ins/unreadable ballots).
    */
-  Adjudication = 'adjudication',
+  Adjudication: 'adjudication',
 
   /**
    * Devices for enabling a vote capture device (VCD) to display a ballot, possibly directly connected to the VCD or through a smart card interface.
    */
-  BallotActivation = 'ballot-activation',
+  BallotActivation: 'ballot-activation',
 
   /**
    * Marked ballot printing devices (voter facing).
    */
-  BallotPrinting = 'ballot-printing',
+  BallotPrinting: 'ballot-printing',
 
   /**
    * On-demand blank ballot printers.
    */
-  BlankBallotPrinting = 'blank-ballot-printing',
+  BlankBallotPrinting: 'blank-ballot-printing',
 
   /**
    * Ballot marking devices (voter facing).
    */
-  Bmd = 'bmd',
+  Bmd: 'bmd',
 
   /**
    * Electronic voter stations, standalone or daisy chained to a DRE-controller (voter facing).
    */
-  Dre = 'dre',
+  Dre: 'dre',
 
   /**
    * Network controller for electronic voting (poll worker facing).
    */
-  DreController = 'dre-controller',
+  DreController: 'dre-controller',
 
   /**
    * DREs, or other devices that store cast vote records electronically (voter facing).
    */
-  ElectronicCast = 'electronic-cast',
+  ElectronicCast: 'electronic-cast',
 
   /**
    * DREs, or devices that store cast vote records electronically and also print a paper record (voter facing).
    */
-  ElectronicCastPaper = 'electronic-cast-paper',
+  ElectronicCastPaper: 'electronic-cast-paper',
 
   /**
    * Electronic poll book devices.
    */
-  ElectronicPollBook = 'electronic-poll-book',
+  ElectronicPollBook: 'electronic-poll-book',
 
   /**
    * Election management systems, including for pre- and post-election administration and reporting functions.
    */
-  Ems = 'ems',
+  Ems: 'ems',
 
   /**
    * Used when no other value in this enumeration applies.
    */
-  Other = 'other',
+  Other: 'other',
 
   /**
    * Scanning devices for batches of ballots, auto-feeding, e.g., Central Count (poll worker facing).
    */
-  ScanBatch = 'scan-batch',
+  ScanBatch: 'scan-batch',
 
   /**
    * Scanning devices for single-sheets, e.g., Precinct Count (voter facing), but could be used for Central Count by an election official.
    */
-  ScanSingle = 'scan-single',
+  ScanSingle: 'scan-single',
 
   /**
    * Remote transmission hosts, e.g., for the receiving of unofficial results at a central location from a remote location (receiving station).
    */
-  TransmissionReceiving = 'transmission-receiving',
+  TransmissionReceiving: 'transmission-receiving',
 
   /**
    * Remote transmission clients, e.g., for sending of unofficial results from a remote location to a central location (sending station).
    */
-  TransmissionSending = 'transmission-sending',
-}
+  TransmissionSending: 'transmission-sending',
+} as const;
+
+/**
+ * Used in Device::Type to describe the type or usage of the device generating the event.
+ */
+export type DeviceType = (typeof DeviceType)[keyof typeof DeviceType];
 
 /**
  * Schema for {@link DeviceType}.
@@ -152,27 +157,32 @@ export const DeviceTypeSchema = z.enum(DeviceType);
 /**
  * Used in Event::Disposition for types of event dispositions.
  */
-export enum EventDispositionType {
+export const EventDispositionType = {
   /**
    * For a failure disposition.
    */
-  Failure = 'failure',
+  Failure: 'failure',
 
   /**
    * Used when the disposition is not applicable or there is no disposition.
    */
-  Na = 'na',
+  Na: 'na',
 
   /**
    * Used when no other value in this enumeration applies.
    */
-  Other = 'other',
+  Other: 'other',
 
   /**
    * For a successful disposition.
    */
-  Success = 'success',
-}
+  Success: 'success',
+} as const;
+
+/**
+ * Used in Event::Disposition for types of event dispositions.
+ */
+export type EventDispositionType = (typeof EventDispositionType)[keyof typeof EventDispositionType];
 
 /**
  * Schema for {@link EventDispositionType}.
@@ -182,27 +192,32 @@ export const EventDispositionTypeSchema = z.enum(EventDispositionType);
 /**
  * Used in Hash::Type to indicate the type of hash being used for an image file.
  */
-export enum HashType {
+export const HashType = {
   /**
    * To indicate that the MD6 message digest algorithm is being used.
    */
-  Md6 = 'md6',
+  Md6: 'md6',
 
   /**
    * Used when no other value in this enumeration applies.
    */
-  Other = 'other',
+  Other: 'other',
 
   /**
    * To indicate that the SHA 256-bit signature is being used.
    */
-  Sha256 = 'sha-256',
+  Sha256: 'sha-256',
 
   /**
    * To indicate that the SHA 512-bit (32-byte) signature is being used.
    */
-  Sha512 = 'sha-512',
-}
+  Sha512: 'sha-512',
+} as const;
+
+/**
+ * Used in Hash::Type to indicate the type of hash being used for an image file.
+ */
+export type HashType = (typeof HashType)[keyof typeof HashType];
 
 /**
  * Schema for {@link HashType}.
