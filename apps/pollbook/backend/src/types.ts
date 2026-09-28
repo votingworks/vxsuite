@@ -18,6 +18,7 @@ import type { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import type { DippedSmartCardAuthApi } from '@votingworks/auth';
 import type { Printer } from '@votingworks/printing';
 import type { BaseLogger } from '@votingworks/logging';
+import type { EnumValues } from '@votingworks/basics';
 import type { PeerApi } from './peer_app.js';
 import type { HlcTimestamp } from './hybrid_logical_clock.js';
 import type { LocalStore } from './local_store.js';
@@ -56,16 +57,18 @@ export interface PeerWorkspace {
   logger: BaseLogger;
 }
 
-export enum EventType {
-  VoterCheckIn = 'VoterCheckIn',
-  UndoVoterCheckIn = 'UndoVoterCheckIn',
-  VoterAddressChange = 'VoterAddressChange',
-  VoterMailingAddressChange = 'VoterMailingAddressChange',
-  VoterNameChange = 'VoterNameChange',
-  VoterRegistration = 'VoterRegistration',
-  MarkInactive = 'MarkInactive',
-  InvalidateRegistration = 'InvalidateRegistration',
-}
+export const EventType = {
+  VoterCheckIn: 'VoterCheckIn',
+  UndoVoterCheckIn: 'UndoVoterCheckIn',
+  VoterAddressChange: 'VoterAddressChange',
+  VoterMailingAddressChange: 'VoterMailingAddressChange',
+  VoterNameChange: 'VoterNameChange',
+  VoterRegistration: 'VoterRegistration',
+  MarkInactive: 'MarkInactive',
+  InvalidateRegistration: 'InvalidateRegistration',
+} as const;
+
+export type EventType = EnumValues<typeof EventType>;
 
 export type VectorClock = Record<string, number>;
 
@@ -82,48 +85,48 @@ export interface PollbookEventBase {
 }
 
 export interface VoterCheckInEvent extends PollbookEventBase {
-  type: EventType.VoterCheckIn;
+  type: typeof EventType.VoterCheckIn;
   voterId: string;
   checkInData: VoterCheckInType;
 }
 
 export interface UndoVoterCheckInEvent extends PollbookEventBase {
-  type: EventType.UndoVoterCheckIn;
+  type: typeof EventType.UndoVoterCheckIn;
   voterId: string;
   reason: string;
 }
 
 export interface VoterAddressChangeEvent extends PollbookEventBase {
-  type: EventType.VoterAddressChange;
+  type: typeof EventType.VoterAddressChange;
   voterId: string;
   addressChangeData: VoterAddressChangeType;
 }
 
 export interface VoterMailingAddressChangeEvent extends PollbookEventBase {
-  type: EventType.VoterMailingAddressChange;
+  type: typeof EventType.VoterMailingAddressChange;
   voterId: string;
   mailingAddressChangeData: VoterMailingAddressChangeType;
 }
 
 export interface VoterNameChangeEvent extends PollbookEventBase {
-  type: EventType.VoterNameChange;
+  type: typeof EventType.VoterNameChange;
   voterId: string;
   nameChangeData: VoterNameChangeType;
 }
 
 export interface VoterRegistrationEvent extends PollbookEventBase {
-  type: EventType.VoterRegistration;
+  type: typeof EventType.VoterRegistration;
   voterId: string;
   registrationData: VoterRegistrationType;
 }
 
 export interface VoterInactivatedEvent extends PollbookEventBase {
-  type: EventType.MarkInactive;
+  type: typeof EventType.MarkInactive;
   voterId: string;
 }
 
 export interface VoterRegistrationInvalidatedEvent extends PollbookEventBase {
-  type: EventType.InvalidateRegistration;
+  type: typeof EventType.InvalidateRegistration;
   voterId: string;
 }
 
@@ -214,13 +217,17 @@ export interface DeviceStatuses {
   barcodeScanner: BarcodeScannerStatus;
 }
 
-export enum PollbookConnectionStatus {
-  Connected = 'Connected',
-  ShutDown = 'ShutDown',
-  LostConnection = 'LostConnection',
-  MismatchedConfiguration = 'MismatchedConfiguration',
-  IncompatibleSoftwareVersion = 'IncompatibleSoftwareVersion',
-}
+export const PollbookConnectionStatus = {
+  Connected: 'Connected',
+  ShutDown: 'ShutDown',
+  LostConnection: 'LostConnection',
+  MismatchedConfiguration: 'MismatchedConfiguration',
+  IncompatibleSoftwareVersion: 'IncompatibleSoftwareVersion',
+} as const;
+
+export type PollbookConnectionStatus = EnumValues<
+  typeof PollbookConnectionStatus
+>;
 
 /**
  * Helper functions for state transitions with PollbookService objects
@@ -228,7 +235,8 @@ export enum PollbookConnectionStatus {
 export function transitionPollbookToDisconnectedStatus(
   service: PollbookService,
   status:
-    PollbookConnectionStatus.LostConnection | PollbookConnectionStatus.ShutDown
+    | typeof PollbookConnectionStatus.LostConnection
+    | typeof PollbookConnectionStatus.ShutDown
 ): PollbookService {
   return {
     ...service,
@@ -241,9 +249,9 @@ export function transitionPollbookToDisconnectedStatus(
 export function createConnectedPollbookServiceFromConfiguration(
   configurationInformation: PollbookConfigurationInformation,
   status:
-    | PollbookConnectionStatus.Connected
-    | PollbookConnectionStatus.MismatchedConfiguration
-    | PollbookConnectionStatus.IncompatibleSoftwareVersion,
+    | typeof PollbookConnectionStatus.Connected
+    | typeof PollbookConnectionStatus.MismatchedConfiguration
+    | typeof PollbookConnectionStatus.IncompatibleSoftwareVersion,
   apiClient: grout.Client<PeerApi>,
   address: string
 ): PollbookService {
@@ -259,9 +267,9 @@ export function createConnectedPollbookServiceFromConfiguration(
 export function transitionPollbookToConnectedStatus(
   service: PollbookService,
   status:
-    | PollbookConnectionStatus.Connected
-    | PollbookConnectionStatus.MismatchedConfiguration
-    | PollbookConnectionStatus.IncompatibleSoftwareVersion
+    | typeof PollbookConnectionStatus.Connected
+    | typeof PollbookConnectionStatus.MismatchedConfiguration
+    | typeof PollbookConnectionStatus.IncompatibleSoftwareVersion
 ): PollbookService {
   return {
     ...service,

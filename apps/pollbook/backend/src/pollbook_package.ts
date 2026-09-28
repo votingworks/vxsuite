@@ -1,4 +1,11 @@
-import { type Result, assertDefined, err, iter, ok } from '@votingworks/basics';
+import {
+  type EnumValues,
+  type Result,
+  assertDefined,
+  err,
+  iter,
+  ok,
+} from '@votingworks/basics';
 import { readFile, type ReadFileError } from '@votingworks/fs';
 import { createHash } from 'node:crypto';
 import {
@@ -53,11 +60,15 @@ function toCamelCase(str: string) {
   return [first, ...rest].join('');
 }
 
-export enum PollbookPackageFileName {
-  ELECTION = 'election',
-  VOTERS = 'voters',
-  STREET_NAMES = 'streetNames',
-}
+export const PollbookPackageFileName = {
+  ELECTION: 'election',
+  VOTERS: 'voters',
+  STREET_NAMES: 'streetNames',
+} as const;
+
+export type PollbookPackageFileName = EnumValues<
+  typeof PollbookPackageFileName
+>;
 
 type PollbookPackageParseError =
   | {
