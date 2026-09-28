@@ -267,7 +267,7 @@ export async function runPrintAndScanTask({
   });
   let i = 0;
 
-  let currentAudioOutput = AudioPort.HEADPHONES;
+  let currentAudioOutput: AudioPort = AudioPort.HEADPHONES;
   let audioOutputDuration = HEADPHONE_OUTPUT_DURATION_SECONDS;
   let audioOutputStart = DateTime.now();
 
