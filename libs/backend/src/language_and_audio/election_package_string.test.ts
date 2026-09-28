@@ -56,7 +56,7 @@ describe('getAllStringsForElectionPackage', () => {
       LanguageCode.SPANISH,
     ]);
     assert(appStrings[LanguageCode.ENGLISH]);
-    expect(Object.keys(appStrings[LanguageCode.ENGLISH])).toHaveLength(
+    expect(Object.keys(appStrings[LanguageCode.ENGLISH]!)).toHaveLength(
       appStringCount
     );
 
@@ -68,7 +68,7 @@ describe('getAllStringsForElectionPackage', () => {
       LanguageCode.SPANISH,
     ]);
     assert(hmpbStrings[LanguageCode.ENGLISH]);
-    expect(Object.keys(hmpbStrings[LanguageCode.ENGLISH])).toHaveLength(2);
+    expect(Object.keys(hmpbStrings[LanguageCode.ENGLISH]!)).toHaveLength(2);
 
     expect(electionStrings).toBeDefined();
     expect(Object.keys(electionStrings)).toEqual([
@@ -78,6 +78,8 @@ describe('getAllStringsForElectionPackage', () => {
       LanguageCode.SPANISH,
     ]);
     assert(electionStrings[LanguageCode.ENGLISH]);
-    expect(Object.keys(electionStrings[LanguageCode.ENGLISH])).toHaveLength(16);
+    expect(Object.keys(electionStrings[LanguageCode.ENGLISH]!)).toHaveLength(
+      16
+    );
   });
 });
