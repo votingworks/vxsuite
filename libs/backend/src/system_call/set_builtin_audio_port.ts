@@ -1,4 +1,4 @@
-import { sleep } from '@votingworks/basics';
+import { sleep, type EnumValues } from '@votingworks/basics';
 import { LogEventId, type Logger } from '@votingworks/logging';
 import { execFile } from '../exec.js';
 import type { NODE_ENV } from '../globals.js';
@@ -9,10 +9,16 @@ const PULSE_AUDIO_SINK_ID_BUILTIN_SOUND_CARD = '0';
  * Audio output port names for builtin sound card. These are fairly
  * hardware-specific and not guaranteed to work in other environments.
  */
-export enum AudioPort {
-  SPEAKER = 'analog-output-speaker',
-  HEADPHONES = 'analog-output-headphones',
-}
+export const AudioPort = {
+  SPEAKER: 'analog-output-speaker',
+  HEADPHONES: 'analog-output-headphones',
+} as const;
+
+/**
+ * Audio output port names for builtin sound card. These are fairly
+ * hardware-specific and not guaranteed to work in other environments.
+ */
+export type AudioPort = EnumValues<typeof AudioPort>;
 
 /**
  * Sets the active audio output port.

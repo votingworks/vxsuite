@@ -1,15 +1,17 @@
-import { lines } from '@votingworks/basics';
+import { lines, type EnumValues } from '@votingworks/basics';
 import { LogEventId, type Logger } from '@votingworks/logging';
 import { safeParseNumber } from '@votingworks/types';
 import { createReadStream } from 'node:fs';
 
-enum BatteryStatus {
-  Charging = 'Charging',
-  Discharging = 'Discharging',
-  NotCharging = 'Not charging',
-  Full = 'Full',
-  Unknown = 'Unknown',
-}
+const BatteryStatus = {
+  Charging: 'Charging',
+  Discharging: 'Discharging',
+  NotCharging: 'Not charging',
+  Full: 'Full',
+  Unknown: 'Unknown',
+} as const;
+
+type BatteryStatus = EnumValues<typeof BatteryStatus>;
 
 /**
  * Information about the computer battery.
