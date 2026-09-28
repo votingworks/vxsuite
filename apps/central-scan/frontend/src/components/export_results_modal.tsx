@@ -10,7 +10,11 @@ import {
 } from '@votingworks/ui';
 import { isElectionManagerAuth } from '@votingworks/utils';
 
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  throwIllegalValue,
+  type EnumValues,
+} from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context.js';
 import {
   ejectUsbDrive,
@@ -23,12 +27,14 @@ export interface Props {
   onClose: () => void;
 }
 
-enum ModalState {
-  ERROR = 'error',
-  SAVING = 'saving',
-  DONE = 'done',
-  INIT = 'init',
-}
+const ModalState = {
+  ERROR: 'error',
+  SAVING: 'saving',
+  DONE: 'done',
+  INIT: 'init',
+} as const;
+
+type ModalState = EnumValues<typeof ModalState>;
 
 export function ExportResultsModal({ onClose }: Props): JSX.Element | null {
   const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT);
