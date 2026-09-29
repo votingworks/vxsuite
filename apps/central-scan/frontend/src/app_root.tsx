@@ -2,6 +2,7 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 
 import {
   isElectionManagerAuth,
+  isPollWorkerAuth,
   isSystemAdministratorAuth,
   isVendorAuth,
 } from '@votingworks/utils';
@@ -35,6 +36,7 @@ import {
   getMachineConfig,
   getPollingPlaceId,
   getStatus,
+  getSystemSettings,
   getTestMode,
   getUsbDriveStatus,
   logOut,
@@ -64,6 +66,7 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
 
   const electionRecordQuery = getElectionRecord.useQuery();
   const pollingPlaceIdQuery = getPollingPlaceId.useQuery();
+  const systemSettingsQuery = getSystemSettings.useQuery();
 
   if (
     !machineConfigQuery.isSuccess ||
@@ -72,7 +75,8 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
     !electionRecordQuery.isSuccess ||
     !getTestModeQuery.isSuccess ||
     !statusQuery.isSuccess ||
-    !pollingPlaceIdQuery.isSuccess
+    !pollingPlaceIdQuery.isSuccess ||
+    !systemSettingsQuery.isSuccess
   ) {
     return (
       <Screen>
@@ -88,6 +92,10 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
   const { electionDefinition, electionPackageHash } =
     electionRecordQuery.data ?? {};
   const status = statusQuery.data;
+  const isPollWorkerRoleEnabled =
+    systemSettingsQuery.data.centralScanEnablePollWorkerRole === true;
+  // A polling place must be selected before scanning.
+  const isPollingPlaceUnconfigured = !pollingPlaceIdQuery.data;
 
   const currentContext: AppContextInterface = {
     usbDriveStatus,
@@ -113,7 +121,9 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
     ) {
       return (
         <AppContext.Provider value={currentContext}>
-          <MachineLockedScreen />
+          <MachineLockedScreen
+            isPollWorkerRoleEnabled={isPollWorkerRoleEnabled}
+          />
         </AppContext.Provider>
       );
     }
@@ -121,10 +131,14 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
       <InvalidCardScreen
         reasonAndContext={authStatus}
         recommendedAction={
-          // @coverage-defer
-          electionDefinition
-            ? 'Use a valid election manager or system administrator card.'
-            : 'Use an election manager card.'
+          !electionDefinition
+            ? 'Use an election manager card.'
+            : !isPollWorkerRoleEnabled
+              ? 'Use a valid election manager or system administrator card.'
+              : authStatus.reason === 'machine_not_configured' &&
+                  isPollingPlaceUnconfigured
+                ? 'Ask an election manager to select a polling place.'
+                : 'Use a valid poll worker, election manager, or system administrator card.'
         }
         cardInsertionDirection="right"
       />
@@ -194,9 +208,6 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
     );
   }
 
-  // A polling place must be selected before scanning.
-  const isPollingPlaceUnconfigured = !pollingPlaceIdQuery.data;
-
   if (status.state === 'needsReview') {
     return (
       <AppContext.Provider value={currentContext}>
@@ -205,7 +216,7 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
     );
   }
 
-  assert(isElectionManagerAuth(authStatus));
+  assert(isElectionManagerAuth(authStatus) || isPollWorkerAuth(authStatus));
   return (
     <AppContext.Provider value={currentContext}>
       <Switch>
@@ -218,15 +229,19 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
         <Route path="/batch-history">
           <BatchHistoryScreen status={status} />
         </Route>
-        <Route path="/settings">
-          <SettingsScreen
-            canUnconfigure={status.canUnconfigure}
-            hasScannedBatches={status.batches.length > 0}
-          />
-        </Route>
-        <Route path="/hardware-diagnostics">
-          <DiagnosticsScreen />
-        </Route>
+        {isElectionManagerAuth(authStatus) && (
+          <Route path="/settings">
+            <SettingsScreen
+              canUnconfigure={status.canUnconfigure}
+              hasScannedBatches={status.batches.length > 0}
+            />
+          </Route>
+        )}
+        {isElectionManagerAuth(authStatus) && (
+          <Route path="/hardware-diagnostics">
+            <DiagnosticsScreen />
+          </Route>
+        )}
         <Redirect to="/scan" />
       </Switch>
     </AppContext.Provider>

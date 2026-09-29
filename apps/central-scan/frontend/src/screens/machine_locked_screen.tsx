@@ -19,7 +19,13 @@ const LockedImage = styled.img`
   height: 20vw;
 `;
 
-export function MachineLockedScreen(): JSX.Element {
+interface Props {
+  isPollWorkerRoleEnabled: boolean;
+}
+
+export function MachineLockedScreen({
+  isPollWorkerRoleEnabled,
+}: Props): JSX.Element {
   const { electionDefinition, electionPackageHash, machineConfig } =
     useContext(AppContext);
   return (
@@ -30,7 +36,9 @@ export function MachineLockedScreen(): JSX.Element {
             <LockedImage src="/locked.svg" alt="Locked Icon" />
             <H1>VxCentralScan Locked</H1>
             <H3 style={{ fontWeight: 'normal' }}>
-              Insert an election manager card to unlock.
+              {isPollWorkerRoleEnabled
+                ? 'Insert a poll worker or election manager card to unlock.'
+                : 'Insert an election manager card to unlock.'}
             </H3>
           </Font>
         ) : (

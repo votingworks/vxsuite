@@ -18,7 +18,6 @@ import {
   P,
   Screen,
 } from '@votingworks/ui';
-import { isElectionManagerAuth } from '@votingworks/utils';
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context.js';
@@ -70,9 +69,8 @@ export function BallotEjectScreen({
   isTestMode,
   sheetId,
 }: Props): JSX.Element | null {
-  const { auth, electionDefinition } = useContext(AppContext);
+  const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
-  assert(isElectionManagerAuth(auth));
 
   const systemSettingsQuery = getSystemSettings.useQuery();
   const getSheetForReviewQuery = getSheetForReview.useQuery(sheetId);
