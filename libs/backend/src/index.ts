@@ -1,4 +1,5 @@
 export * from './audio/index.js';
+export * from './ballot_meta/index.js';
 export * from './cast_vote_records/index.js';
 export * from './cpu_metrics.js';
 export * from './detect_devices.js';

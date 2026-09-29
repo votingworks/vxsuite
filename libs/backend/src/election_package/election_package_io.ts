@@ -54,6 +54,8 @@ import {
   ElectionRegisteredVoterCountsSchema,
   type ElectionDefinition,
   type SystemSettings,
+  type BallotPositions,
+  BallotPositionsSchema,
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import type { z } from 'zod/v4';
@@ -458,6 +460,20 @@ export function streamElectionPackageAudioClips(
     electionPackageZip,
     ElectionPackageFileName.AUDIO_CLIPS,
     UiStringAudioClipSchema
+  );
+}
+
+/**
+ * Streams ballot contest/bubble positions from the election package, one
+ * ballot style at a time.
+ */
+export function streamBallotPositions(
+  zip: ElectionPackageZip
+): AsyncIterable<BallotPositions> {
+  return streamElectionPackageJsonlEntry(
+    zip,
+    ElectionPackageFileName.BALLOT_POSITIONS,
+    BallotPositionsSchema
   );
 }
 
