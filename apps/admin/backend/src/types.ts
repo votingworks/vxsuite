@@ -48,6 +48,7 @@ export type NetworkedMachineRole = 'admin-host' | 'admin-client' | 'scanner';
 
 /** Shared interface for stores that support auth state construction. */
 export interface BaseStore {
+  getAppMode(): AppMode;
   getCurrentElectionId(): Id | undefined;
   getElectionKey(electionId: Id): ElectionKey | undefined;
   getSystemSettings(electionId: Id): SystemSettings | undefined;

@@ -16,6 +16,7 @@ beforeEach(() => {
 
 const jurisdiction = TEST_JURISDICTION;
 const machineType = 'admin';
+const allowedUserRoles = ['vendor', 'system_administrator', 'election_manager'];
 const electionDefinition =
   electionFamousNames2021Fixtures.readElectionDefinition();
 const electionKey = constructElectionKey(electionDefinition.election);
@@ -49,6 +50,7 @@ test('getAuthStatus', async () => {
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
     ...systemSettings.auth,
+    allowedUserRoles,
     electionKey,
     jurisdiction,
     machineType,
@@ -72,6 +74,7 @@ test('checkPin', async () => {
     1,
     {
       ...systemSettings.auth,
+      allowedUserRoles,
       electionKey,
       jurisdiction,
       machineType,
@@ -95,6 +98,7 @@ test('logOut', async () => {
   expect(auth.logOut).toHaveBeenCalledTimes(1);
   expect(auth.logOut).toHaveBeenNthCalledWith(1, {
     ...systemSettings.auth,
+    allowedUserRoles,
     electionKey,
     jurisdiction,
     machineType,
@@ -120,6 +124,7 @@ test('updateSessionExpiry', async () => {
     1,
     {
       ...systemSettings.auth,
+      allowedUserRoles,
       electionKey,
       jurisdiction,
       machineType,
@@ -145,6 +150,7 @@ test('programCard', async () => {
     1,
     {
       ...systemSettings.auth,
+      allowedUserRoles,
       electionKey,
       jurisdiction,
       machineType,
@@ -159,6 +165,7 @@ test('programCard', async () => {
     2,
     {
       ...systemSettings.auth,
+      allowedUserRoles,
       electionKey,
       jurisdiction,
       machineType,
@@ -173,6 +180,7 @@ test('programCard', async () => {
     3,
     {
       ...systemSettings.auth,
+      allowedUserRoles,
       electionKey,
       jurisdiction,
       machineType,
@@ -196,6 +204,7 @@ test('unprogramCard', async () => {
   expect(auth.unprogramCard).toHaveBeenCalledTimes(1);
   expect(auth.unprogramCard).toHaveBeenNthCalledWith(1, {
     ...systemSettings.auth,
+    allowedUserRoles,
     electionKey,
     jurisdiction,
     machineType,
@@ -210,6 +219,7 @@ test('getAuthStatus before election definition has been configured', async () =>
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
     ...DEFAULT_SYSTEM_SETTINGS.auth,
+    allowedUserRoles,
     jurisdiction,
     machineType,
     isConfigured: false,
@@ -225,6 +235,7 @@ test('checkPin before election definition has been configured', async () => {
     1,
     {
       ...DEFAULT_SYSTEM_SETTINGS.auth,
+      allowedUserRoles,
       jurisdiction,
       machineType,
       isConfigured: false,
@@ -240,6 +251,7 @@ test('logOut before election definition has been configured', async () => {
   expect(auth.logOut).toHaveBeenCalledTimes(1);
   expect(auth.logOut).toHaveBeenNthCalledWith(1, {
     ...DEFAULT_SYSTEM_SETTINGS.auth,
+    allowedUserRoles,
     jurisdiction,
     machineType,
     isConfigured: false,
@@ -257,6 +269,7 @@ test('updateSessionExpiry before election definition has been configured', async
     1,
     {
       ...DEFAULT_SYSTEM_SETTINGS.auth,
+      allowedUserRoles,
       jurisdiction,
       machineType,
       isConfigured: false,

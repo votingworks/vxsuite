@@ -284,7 +284,7 @@ function buildApi({
     getMachineConfig,
 
     getAppMode(): AppMode {
-      return 'host';
+      return workspace.store.getAppMode();
     },
 
     getMachineMode(): MachineMode {

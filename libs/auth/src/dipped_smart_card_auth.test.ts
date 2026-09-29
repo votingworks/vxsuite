@@ -86,10 +86,9 @@ const jurisdiction = TEST_JURISDICTION;
 const otherJurisdiction = `${TEST_JURISDICTION}-2`;
 const electionKey = constructElectionKey(readElectionGeneral());
 const otherElectionKey = constructElectionKey(readElectionTwoPartyPrimary());
-const defaultConfig: DippedSmartCardAuthConfig = {
-  allowedUserRoles: ['vendor', 'system_administrator', 'election_manager'],
-};
+const defaultConfig: DippedSmartCardAuthConfig = {};
 const defaultMachineState: DippedSmartCardAuthMachineState = {
+  allowedUserRoles: ['vendor', 'system_administrator', 'election_manager'],
   arePollWorkerCardPinsEnabled: false,
   electionKey,
   jurisdiction,
@@ -338,27 +337,22 @@ test.each<{
   async ({ cardDetails, expectedLoggedInAuthStatus }) => {
     const auth = new DippedSmartCardAuth({
       card: mockCard,
-      config: {
-        ...defaultConfig,
-        allowedUserRoles: [
-          'vendor',
-          'system_administrator',
-          'election_manager',
-          'poll_worker',
-        ],
-      },
+      config: defaultConfig,
       logger: mockLogger,
     });
     const { user } = cardDetails;
+    const machineState: DippedSmartCardAuthMachineState = {
+      ...defaultMachineState,
+      allowedUserRoles: [
+        ...defaultMachineState.allowedUserRoles,
+        'poll_worker',
+      ],
+      isConfigured: true,
+      arePollWorkerCardPinsEnabled: true,
+    };
 
     mockCardStatus({ status: 'ready', cardDetails });
-    expect(
-      await auth.getAuthStatus({
-        ...defaultMachineState,
-        isConfigured: true,
-        arePollWorkerCardPinsEnabled: true,
-      })
-    ).toEqual({
+    expect(await auth.getAuthStatus(machineState)).toEqual({
       status: 'checking_pin',
       user,
     });
@@ -366,8 +360,8 @@ test.each<{
     mockCard.checkPin
       .expectCallWith(wrongPin)
       .resolves({ response: 'incorrect', numIncorrectPinAttempts: 1 });
-    await auth.checkPin(defaultMachineState, { pin: wrongPin });
-    expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    await auth.checkPin(machineState, { pin: wrongPin });
+    expect(await auth.getAuthStatus(machineState)).toEqual({
       status: 'checking_pin',
       user,
       wrongPinEnteredAt: expect.any(Date),
@@ -384,8 +378,8 @@ test.each<{
     );
 
     mockCard.checkPin.expectCallWith(pin).resolves({ response: 'correct' });
-    await auth.checkPin(defaultMachineState, { pin });
-    expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    await auth.checkPin(machineState, { pin });
+    expect(await auth.getAuthStatus(machineState)).toEqual({
       status: 'remove_card',
       user,
       sessionExpiresAt: expect.any(Date),
@@ -402,7 +396,7 @@ test.each<{
     );
 
     mockCardStatus({ status: 'no_card' });
-    expect(await auth.getAuthStatus(defaultMachineState)).toEqual(
+    expect(await auth.getAuthStatus(machineState)).toEqual(
       expectedLoggedInAuthStatus
     );
     expect(mockLogger.log).toHaveBeenCalledTimes(3);
@@ -416,8 +410,8 @@ test.each<{
       }
     );
 
-    auth.logOut(defaultMachineState);
-    expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    auth.logOut(machineState);
+    expect(await auth.getAuthStatus(machineState)).toEqual({
       status: 'logged_out',
       reason: 'machine_locked',
     });
@@ -839,10 +833,12 @@ test.each<{
   },
   {
     description: 'poll worker user role allowed if specified',
-    config: {
+    config: defaultConfig,
+    machineState: {
+      ...defaultMachineState,
       allowedUserRoles: ['poll_worker'],
+      isConfigured: true,
     },
-    machineState: { ...defaultMachineState, isConfigured: true },
     cardDetails: {
       user: pollWorkerUser,
       hasPin: false,
@@ -895,11 +891,15 @@ test.each<{
   },
   {
     description: 'isConfigured=false for poll worker',
-    config: {
-      ...defaultConfig,
-      allowedUserRoles: defaultConfig.allowedUserRoles.concat(['poll_worker']),
+    config: defaultConfig,
+    machineState: {
+      ...defaultMachineState,
+      allowedUserRoles: [
+        ...defaultMachineState.allowedUserRoles,
+        'poll_worker',
+      ],
+      isConfigured: false,
     },
-    machineState: { ...defaultMachineState, isConfigured: false },
     cardDetails: {
       user: pollWorkerUser,
       hasPin: false,
@@ -923,11 +923,15 @@ test.each<{
   },
   {
     description: 'no electionKey for poll worker',
-    config: {
-      ...defaultConfig,
-      allowedUserRoles: defaultConfig.allowedUserRoles.concat(['poll_worker']),
+    config: defaultConfig,
+    machineState: {
+      ...defaultMachineState,
+      allowedUserRoles: [
+        ...defaultMachineState.allowedUserRoles,
+        'poll_worker',
+      ],
+      electionKey: undefined,
     },
-    machineState: { ...defaultMachineState, electionKey: undefined },
     cardDetails: {
       user: pollWorkerUser,
       hasPin: false,

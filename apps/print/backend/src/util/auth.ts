@@ -5,7 +5,7 @@ import {
   JavaCard,
   MockFileCard,
 } from '@votingworks/auth';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS, type UserRole } from '@votingworks/types';
 import type { BaseLogger, LoggingUserRole } from '@votingworks/logging';
 import {
   isFeatureFlagEnabled,
@@ -14,6 +14,13 @@ import {
 } from '@votingworks/utils';
 import type { Workspace } from './workspace.js';
 import type { Store } from '../store.js';
+
+const ALLOWED_USER_ROLES: readonly UserRole[] = [
+  'vendor',
+  'system_administrator',
+  'election_manager',
+  'poll_worker',
+];
 
 // @coverage-exclude
 export function getDefaultAuth(logger: BaseLogger): DippedSmartCardAuth {
@@ -24,12 +31,6 @@ export function getDefaultAuth(logger: BaseLogger): DippedSmartCardAuth {
         : new JavaCard(),
     config: {
       allowElectionManagersToAccessUnconfiguredMachines: true,
-      allowedUserRoles: [
-        'vendor',
-        'system_administrator',
-        'election_manager',
-        'poll_worker',
-      ],
     },
     logger,
   });
@@ -46,6 +47,7 @@ export function constructAuthMachineState(
 
   return {
     ...systemSettings.auth,
+    allowedUserRoles: ALLOWED_USER_ROLES,
     electionKey,
     jurisdiction,
     machineType,

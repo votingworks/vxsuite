@@ -42,7 +42,6 @@ import type {
   CardStatus,
   ProgrammedCardDetails,
 } from './card.js';
-import type { DippedSmartCardAuthMachineState } from './dipped_smart_card_auth_api.js';
 import { InsertedSmartCardAuth } from './inserted_smart_card_auth.js';
 import type {
   InsertedSmartCardAuthConfig,
@@ -267,7 +266,7 @@ test.each<{
 
 test.each<{
   description: string;
-  machineState: DippedSmartCardAuthMachineState;
+  machineState: InsertedSmartCardAuthMachineState;
   cardDetails: ProgrammedCardDetails;
 }>([
   {
@@ -519,7 +518,7 @@ test('Card lockout', async () => {
     config: defaultConfig,
     logger: mockLogger,
   });
-  const machineState: DippedSmartCardAuthMachineState = {
+  const machineState: InsertedSmartCardAuthMachineState = {
     ...defaultMachineState,
     // Intentionally pick non-default values to verify that machine state is being properly used
     numIncorrectPinAttemptsAllowedBeforeCardLockout: 3,
@@ -1621,7 +1620,7 @@ test('Clearing card data error handling', async () => {
 
 test.each<{
   description: string;
-  machineState: DippedSmartCardAuthMachineState;
+  machineState: InsertedSmartCardAuthMachineState;
   cardDetails: CardDetails;
 }>([
   {

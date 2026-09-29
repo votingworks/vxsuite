@@ -1,5 +1,8 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
+import {
+  buildMockDippedSmartCardAuth,
+  DEV_JURISDICTION,
+} from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import type { AddressInfo } from 'node:net';
 import {
@@ -183,9 +186,21 @@ test('updateSessionExpiry delegates to auth', async () => {
   mockSystemAdministratorAuth(env.auth);
   const sessionExpiresAt = new Date('2030-01-01T00:00:00Z');
   await env.apiClient.updateSessionExpiry({ sessionExpiresAt });
-  expect(env.auth.updateSessionExpiry).toHaveBeenCalledWith(expect.anything(), {
-    sessionExpiresAt,
-  });
+  expect(env.auth.updateSessionExpiry).toHaveBeenCalledWith(
+    {
+      ...DEFAULT_SYSTEM_SETTINGS.auth,
+      allowedUserRoles: [
+        'vendor',
+        'system_administrator',
+        'election_manager',
+        'poll_worker',
+      ],
+      jurisdiction: DEV_JURISDICTION,
+      machineType: 'admin',
+      isConfigured: false,
+    },
+    { sessionExpiresAt }
+  );
 });
 
 test('getNetworkConnectionStatus defaults to offline', async () => {

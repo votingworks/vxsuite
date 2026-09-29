@@ -20,6 +20,12 @@ import {
 
 const jurisdiction = TEST_JURISDICTION;
 const machineType = 'print';
+const allowedUserRoles = [
+  'vendor',
+  'system_administrator',
+  'election_manager',
+  'poll_worker',
+];
 const electionDefinition =
   electionFamousNames2021Fixtures.readElectionDefinition();
 let ballots: EncodedBallotEntry[];
@@ -75,6 +81,7 @@ test('getAuthStatus', async () => {
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
     ...DEFAULT_SYSTEM_SETTINGS.auth,
+    allowedUserRoles,
     electionKey,
     jurisdiction,
     machineType,
@@ -98,6 +105,7 @@ test('getAuthStatus - configured state is based on polling place selection', asy
   await apiClient.getAuthStatus();
   expect(auth.getAuthStatus).toHaveBeenLastCalledWith({
     ...DEFAULT_SYSTEM_SETTINGS.auth,
+    allowedUserRoles,
     electionKey,
     jurisdiction,
     machineType,
@@ -109,6 +117,7 @@ test('getAuthStatus - configured state is based on polling place selection', asy
   await apiClient.getAuthStatus();
   expect(auth.getAuthStatus).toHaveBeenLastCalledWith({
     ...DEFAULT_SYSTEM_SETTINGS.auth,
+    allowedUserRoles,
     electionKey,
     jurisdiction,
     machineType,
@@ -136,6 +145,7 @@ test('checkPin', async () => {
     1,
     {
       ...DEFAULT_SYSTEM_SETTINGS.auth,
+      allowedUserRoles,
       electionKey,
       jurisdiction,
       machineType,
@@ -163,6 +173,7 @@ test('logOut', async () => {
   expect(auth.logOut).toHaveBeenCalledTimes(1);
   expect(auth.logOut).toHaveBeenNthCalledWith(1, {
     ...DEFAULT_SYSTEM_SETTINGS.auth,
+    allowedUserRoles,
     electionKey,
     jurisdiction,
     machineType,
@@ -192,6 +203,7 @@ test('updateSessionExpiry', async () => {
     1,
     {
       ...DEFAULT_SYSTEM_SETTINGS.auth,
+      allowedUserRoles,
       electionKey,
       jurisdiction,
       machineType,

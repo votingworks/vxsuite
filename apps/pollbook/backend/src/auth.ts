@@ -3,10 +3,21 @@ import {
   type DippedSmartCardAuthApi,
   type DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { DEFAULT_SYSTEM_SETTINGS, TEST_JURISDICTION } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  TEST_JURISDICTION,
+  type UserRole,
+} from '@votingworks/types';
 import type { LoggingUserRole } from '@votingworks/logging';
 import { isIntegrationTest } from '@votingworks/utils';
 import type { LocalWorkspace, PeerWorkspace } from './types.js';
+
+const ALLOWED_USER_ROLES: readonly UserRole[] = [
+  'system_administrator',
+  'election_manager',
+  'poll_worker',
+  'vendor',
+];
 
 export function constructAuthMachineState(
   workspace: LocalWorkspace | PeerWorkspace
@@ -22,6 +33,7 @@ export function constructAuthMachineState(
 
   return {
     ...DEFAULT_SYSTEM_SETTINGS['auth'],
+    allowedUserRoles: ALLOWED_USER_ROLES,
     electionKey: election && {
       id: election.id,
       date: election.date,

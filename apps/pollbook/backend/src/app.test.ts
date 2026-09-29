@@ -1171,6 +1171,12 @@ test('programCard and unprogramCard', async () => {
 
     const auth: DippedSmartCardAuthMachineState = {
       ...DEFAULT_SYSTEM_SETTINGS['auth'],
+      allowedUserRoles: [
+        'system_administrator',
+        'election_manager',
+        'poll_worker',
+        'vendor',
+      ],
       electionKey,
       jurisdiction: DEV_JURISDICTION,
       machineType: 'poll-book',

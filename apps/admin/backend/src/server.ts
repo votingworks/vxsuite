@@ -29,7 +29,6 @@ import {
 import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
-import type { UserRole } from '@votingworks/types';
 import { PEER_PORT, PORT } from './globals.js';
 import {
   createWorkspace,
@@ -56,35 +55,7 @@ import {
 
 const debug = rootDebug.extend('server');
 
-function allowedUserRoles(appMode: AppMode): UserRole[] {
-  switch (appMode) {
-    case 'host': {
-      return ['vendor', 'system_administrator', 'election_manager'];
-    }
-
-    case 'client': {
-      return [
-        'vendor',
-        'system_administrator',
-        'election_manager',
-        'poll_worker',
-      ];
-    }
-
-    case 'restore': {
-      return ['vendor', 'system_administrator'];
-    }
-
-    default: {
-      throwIllegalValue(appMode);
-    }
-  }
-}
-
-function createAuth(
-  appMode: AppMode,
-  baseLogger: BaseLogger
-): DippedSmartCardAuth {
+function createAuth(baseLogger: BaseLogger): DippedSmartCardAuth {
   return new DippedSmartCardAuth({
     card:
       // @coverage-defer
@@ -94,7 +65,6 @@ function createAuth(
         : new JavaCard(),
     config: {
       allowElectionManagersToAccessUnconfiguredMachines: false,
-      allowedUserRoles: allowedUserRoles(appMode),
     },
     logger: baseLogger,
   });
@@ -166,13 +136,14 @@ export async function start(options: StartOptions = {}): Promise<Server> {
       ? 'restore'
       : machineMode.get();
 
+  const auth = createAuth(baseLogger);
+
   let app;
 
   switch (appMode) {
     case 'host': {
       // TODO(CARO) add some kind of validation that the workspace is properly configured for host mode
       const workspace = createWorkspace(workspacePath, baseLogger);
-      const auth = createAuth('host', baseLogger);
       const logger = Logger.from(
         baseLogger,
         // @coverage-exclude
@@ -260,7 +231,6 @@ export async function start(options: StartOptions = {}): Promise<Server> {
 
       // TODO(CARO) add some kind of validation that the workspace is properly configured for client mode
       const clientWorkspace = createClientWorkspace(workspacePath);
-      const auth = createAuth('client', baseLogger);
       const logger = Logger.from(
         baseLogger,
         // @coverage-exclude
@@ -295,7 +265,6 @@ export async function start(options: StartOptions = {}): Promise<Server> {
     }
 
     case 'restore': {
-      const auth = createAuth('restore', baseLogger);
       const logger = Logger.from(
         baseLogger,
         // @coverage-exclude

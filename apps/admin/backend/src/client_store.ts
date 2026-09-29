@@ -10,6 +10,7 @@ import type { PeerApi } from './peer_app.js';
 import {
   ClientConnectionStatus,
   type ElectionRecord,
+  type AppMode,
   type BaseStore,
 } from './types.js';
 
@@ -34,6 +35,10 @@ export class ClientStore implements BaseStore {
   private cachedSystemSettings?: SystemSettings;
   private isClientAdjudicationEnabled = false;
   private onDisconnect?: () => void;
+
+  getAppMode(): AppMode {
+    return 'client';
+  }
 
   getCurrentElectionId(): Optional<Id> {
     return this.cachedElectionRecord?.id;

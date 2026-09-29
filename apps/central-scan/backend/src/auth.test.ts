@@ -73,6 +73,7 @@ afterEach(() => {
 
 const jurisdiction = TEST_JURISDICTION;
 const machineType = 'central-scan';
+const allowedUserRoles = ['vendor', 'system_administrator', 'election_manager'];
 const electionDefinition =
   electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 const { electionData, election, ballotHash } = electionDefinition;
@@ -110,6 +111,7 @@ test('getAuthStatus', async () => {
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
     ...systemSettings.auth,
+    allowedUserRoles,
     electionKey,
     jurisdiction,
     machineType,
@@ -123,7 +125,13 @@ test('checkPin', async () => {
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
-    { ...systemSettings.auth, electionKey, jurisdiction, machineType },
+    {
+      ...systemSettings.auth,
+      allowedUserRoles,
+      electionKey,
+      jurisdiction,
+      machineType,
+    },
     { pin: '123456' }
   );
 });
@@ -135,6 +143,7 @@ test('logOut', async () => {
   expect(auth.logOut).toHaveBeenCalledTimes(1);
   expect(auth.logOut).toHaveBeenNthCalledWith(1, {
     ...systemSettings.auth,
+    allowedUserRoles,
     electionKey,
     jurisdiction,
     machineType,
@@ -152,6 +161,7 @@ test('updateSessionExpiry', async () => {
     1,
     {
       ...systemSettings.auth,
+      allowedUserRoles,
       electionKey,
       jurisdiction,
       machineType,
@@ -165,6 +175,7 @@ test('getAuthStatus before election definition has been configured', async () =>
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
     ...DEFAULT_SYSTEM_SETTINGS.auth,
+    allowedUserRoles,
     machineType,
   });
 });
@@ -174,7 +185,7 @@ test('checkPin before election definition has been configured', async () => {
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
-    { ...DEFAULT_SYSTEM_SETTINGS.auth, machineType },
+    { ...DEFAULT_SYSTEM_SETTINGS.auth, allowedUserRoles, machineType },
     {
       pin: '123456',
     }
@@ -186,6 +197,7 @@ test('logOut before election definition has been configured', async () => {
   expect(auth.logOut).toHaveBeenCalledTimes(1);
   expect(auth.logOut).toHaveBeenNthCalledWith(1, {
     ...DEFAULT_SYSTEM_SETTINGS.auth,
+    allowedUserRoles,
     machineType,
   });
 });
@@ -197,7 +209,7 @@ test('updateSessionExpiry before election definition has been configured', async
   expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
-    { ...DEFAULT_SYSTEM_SETTINGS.auth, machineType },
+    { ...DEFAULT_SYSTEM_SETTINGS.auth, allowedUserRoles, machineType },
     { sessionExpiresAt: expect.any(Date) }
   );
 });
