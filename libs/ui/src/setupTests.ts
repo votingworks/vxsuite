@@ -1,5 +1,5 @@
 import { afterAll, beforeEach, expect, vi } from 'vitest';
-import '@testing-library/jest-dom/vitest';
+import '@votingworks/test-utils/vitest-setup';
 import { cleanup, configure } from '@testing-library/react';
 import '@votingworks/fixtures/vitest-setup';
 import '@votingworks/image-utils/vitest-setup';

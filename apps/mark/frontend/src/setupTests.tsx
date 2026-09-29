@@ -1,5 +1,5 @@
 import { afterAll, afterEach, beforeEach, vi } from 'vitest';
-import '@testing-library/jest-dom/vitest';
+import '@votingworks/test-utils/vitest-setup';
 import '@votingworks/fixtures/vitest-setup';
 import fetchMock from 'fetch-mock';
 import { TextDecoder, TextEncoder } from 'node:util';

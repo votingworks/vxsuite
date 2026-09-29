@@ -1,1 +1,1 @@
-import '@testing-library/jest-dom/vitest';
+import '@votingworks/test-utils/vitest-setup';

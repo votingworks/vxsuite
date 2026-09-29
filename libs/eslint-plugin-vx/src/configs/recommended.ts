@@ -396,6 +396,9 @@ export default function buildRecommended(
               // Temporary directory helpers; imports nothing but node
               // builtins.
               '@votingworks/fixtures/tmpdir',
+              // Registers the jest-dom matchers; imports nothing from the
+              // workspace.
+              '@votingworks/test-utils/vitest-setup',
             ],
           },
         ],

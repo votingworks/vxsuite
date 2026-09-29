@@ -1,6 +1,6 @@
 import { afterAll, afterEach, vi } from 'vitest';
 import '@votingworks/fixtures/vitest-setup';
-import '@testing-library/jest-dom/vitest';
+import '@votingworks/test-utils/vitest-setup';
 import { cleanup, configure } from '../test/react_testing_library.js';
 import {
   MockDocument,

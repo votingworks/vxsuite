@@ -1,5 +1,5 @@
 import { afterAll, vi } from 'vitest';
-import '@testing-library/jest-dom/vitest';
+import '@votingworks/test-utils/vitest-setup';
 import '@votingworks/fixtures/vitest-setup';
 import { TextDecoder, TextEncoder } from 'node:util';
 import { configure } from '../test/react_testing_library.js';
