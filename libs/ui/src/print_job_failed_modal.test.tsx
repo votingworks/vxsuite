@@ -14,7 +14,7 @@ test('single ballot, with a reason', () => {
   );
 
   screen.getByRole('heading', { name: 'Ballot Not Printed' });
-  screen.getByText('The ballot was not sent to the printer.');
+  screen.getByText('There was a problem with the printer.');
   screen.getByText('Printer is out of paper.');
 
   userEvent.click(screen.getByRole('button', { name: 'Close' }));
@@ -25,5 +25,5 @@ test('multiple ballots, without a reason', () => {
   render(<PrintJobFailedModal multipleBallotsAttempted onClose={vi.fn()} />);
 
   screen.getByRole('heading', { name: 'Ballots Not Printed' });
-  screen.getByText('The ballots were not sent to the printer.');
+  screen.getByText('There was a problem with the printer.');
 });

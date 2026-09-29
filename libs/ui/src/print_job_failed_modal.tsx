@@ -21,11 +21,7 @@ export function PrintJobFailedModal({
       }
       content={
         <React.Fragment>
-          <P>
-            {multipleBallotsAttempted
-              ? 'The ballots were not sent to the printer.'
-              : 'The ballot was not sent to the printer.'}
-          </P>
+          <P>There was a problem with the printer.</P>
           {reason && <P>{reason}</P>}
         </React.Fragment>
       }

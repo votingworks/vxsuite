@@ -333,7 +333,7 @@ test('treats a job with no tracked status as a failure', async () => {
 
   renderScreen();
   await printBlankBallotAndWaitForFailure();
-  screen.getByText('The ballot was not sent to the printer.');
+  screen.getByText('There was a problem with the printer.');
 });
 
 test('returns to the poll worker menu from the print blank ballot screen', async () => {
