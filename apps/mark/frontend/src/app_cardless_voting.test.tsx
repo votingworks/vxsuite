@@ -16,6 +16,7 @@ import {
   type ApiMock,
   createApiMock,
 } from '../test/helpers/mock_api_client.js';
+import { ELECTION_STATE_POLLING_INTERVAL_MS } from './api.js';
 
 let apiMock: ApiMock;
 
@@ -358,4 +359,25 @@ test('a failed print ends the voter session', async () => {
 
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
+});
+
+test('printed ballot count refreshes once the backend counts a settled print job', async () => {
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetElectionRecord(electionDefinition);
+  apiMock.expectGetElectionState({
+    pollingPlaceId,
+    pollsState: 'polls_open',
+  });
+  render(<App apiClient={apiMock.mockApiClient} />);
+  const findByTextWithMarkup = withMarkup(screen.findByText);
+
+  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
+  await findByTextWithMarkup('Ballots Printed: 0');
+
+  // The backend counts a ballot when its print job settles, which happens
+  // after any mutation the frontend could invalidate against.
+  apiMock.expectGetElectionState({ ballotsPrintedCount: 1 });
+  await advanceTimersAndPromises(ELECTION_STATE_POLLING_INTERVAL_MS / 1000);
+  await findByTextWithMarkup('Ballots Printed: 1');
 });

@@ -20,6 +20,9 @@ import {
 import type { DiagnosticType } from '@votingworks/types';
 
 const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
+// The backend counts a printed ballot when its print job settles, which no
+// frontend mutation can invalidate against, so this state is polled.
+export const ELECTION_STATE_POLLING_INTERVAL_MS = 1000;
 export const INTERNAL_HARDWARE_POLLING_INTERVAL_MS = 3000;
 
 export type ApiClient = grout.Client<Api>;
@@ -208,7 +211,9 @@ export const getElectionState = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getElectionState());
+    return useQuery(this.queryKey(), () => apiClient.getElectionState(), {
+      refetchInterval: ELECTION_STATE_POLLING_INTERVAL_MS,
+    });
   },
 } as const;
 

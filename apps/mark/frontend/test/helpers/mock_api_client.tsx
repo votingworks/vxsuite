@@ -340,7 +340,7 @@ export function createApiMock() {
           }
         : initialElectionState;
       mockApiClient.getElectionState
-        .expectCallWith()
+        .expectRepeatedCallsWith()
         .resolves(electionStateRef.current);
     },
 
