@@ -282,7 +282,11 @@ async function generate(
       election,
       translator,
       hmpbStringsCatalog,
-      ballotLanguageConfigs
+      ballotLanguageConfigs,
+      {
+        shouldTransliterateCandidateNames:
+          systemSettings.shouldTransliterateCandidateNames,
+      }
     );
 
   electionPackageZip.addEntry(JSON.stringify(appStrings, null, 2), {

@@ -865,11 +865,16 @@ export function buildApi(ctx: AppContext) {
       const { election, ballotLanguageConfigs, ballotTemplateId } =
         await store.getElection(input.electionId);
       const { compact } = await store.getBallotLayoutSettings(input.electionId);
+      const systemSettings = await store.getSystemSettings(input.electionId);
       const ballotStrings = await translateBallotStrings(
         translator,
         election,
         hmpbStringsCatalog,
-        ballotLanguageConfigs
+        ballotLanguageConfigs,
+        {
+          shouldTransliterateCandidateNames:
+            systemSettings.shouldTransliterateCandidateNames,
+        }
       );
       const electionWithBallotStrings: Election = {
         ...election,

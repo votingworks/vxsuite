@@ -42,6 +42,7 @@ import {
   formatElectionPackageHash,
   mergeUiStrings,
   LanguageCode,
+  NEEDS_TRANSLITERATED_NAMES,
   unsafeParse,
   ElectionIdSchema,
   DistrictIdSchema,
@@ -3694,6 +3695,7 @@ test('Election package and ballots export', async () => {
       AdjudicationReason.Overvote,
       AdjudicationReason.UnmarkedWriteIn,
     ],
+    shouldTransliterateCandidateNames: true,
   };
   const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp({
     organizations,
@@ -3967,7 +3969,13 @@ test('Election package and ballots export', async () => {
         Array.isArray(stringKey) &&
         stringKey[0] === ElectionStringKey.CANDIDATE_NAME
       ) {
-        expect(stringInLanguage).not.toBeDefined();
+        if (NEEDS_TRANSLITERATED_NAMES[languageCode]) {
+          expect(stringInLanguage).toEqual(
+            mockCloudTranslatedText(stringInEnglish, languageCode)
+          );
+        } else {
+          expect(stringInLanguage).not.toBeDefined();
+        }
       } else if (stringKey === ElectionStringKey.ELECTION_DATE) {
         expect(stringInLanguage).toBeDefined();
       } else if (stringKey === ElectionStringKey.BALLOT_LANGUAGE) {

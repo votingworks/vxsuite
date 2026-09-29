@@ -6,6 +6,7 @@ import type {
 import type { GoogleCloudTranslator } from './translator.js';
 import { translateAppStrings } from './app_strings.js';
 import { translateElectionAndHmpbStrings } from './ballot_strings.js';
+import type { ElectionStringTranslationOptions } from './election_strings.js';
 
 /**
  * Helper function to generate all necessary strings used in an election package.
@@ -15,14 +16,16 @@ export async function getAllStringsForElectionPackage(
   election: Election,
   translator: GoogleCloudTranslator,
   hmpbStringsCatalog: Record<string, string>,
-  ballotLanguageConfigs: BallotLanguageConfigs
+  ballotLanguageConfigs: BallotLanguageConfigs,
+  options: ElectionStringTranslationOptions = {}
 ): Promise<[UiStringsPackage, UiStringsPackage, UiStringsPackage]> {
   const { hmpbStrings, electionStrings } =
     await translateElectionAndHmpbStrings(
       translator,
       election,
       hmpbStringsCatalog,
-      ballotLanguageConfigs
+      ballotLanguageConfigs,
+      options
     );
 
   const appStrings = await translateAppStrings(

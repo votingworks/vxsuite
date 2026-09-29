@@ -202,6 +202,12 @@ export const SystemSettingsSchema = z
     bmdPrintMode: z.enum(PRINT_MODES).optional(),
 
     /**
+     * Exports phonetic transliterations of candidate names for ballot languages
+     * written in a non-Latin script (see NEEDS_TRANSLITERATED_NAMES).
+     */
+    shouldTransliterateCandidateNames: z.boolean().optional(),
+
+    /**
      * Disables the VxScan alarms triggered when USB drives are removed or the scanner cover is
      * opened while polls are open. These alarms can be silenced by inserting a smart card, but
      * forgetting to do so before performing a routine action like scanner cleaning could cause

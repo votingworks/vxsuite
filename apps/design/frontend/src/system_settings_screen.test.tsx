@@ -512,6 +512,7 @@ test('setting "other" system settings', async () => {
     'Disable Vertical Streak Detection',
     'Enable Shoeshine Mode on VxScan',
     'Include Redundant Metadata in CVRs',
+    'Transliterate Candidate Names',
   ];
 
   for (const label of checkboxLabels) {
@@ -524,6 +525,7 @@ test('setting "other" system settings', async () => {
     precinctScanEnableShoeshineMode: true,
     castVoteRecordsIncludeRedundantMetadata: true,
     disableVerticalStreakDetection: true,
+    shouldTransliterateCandidateNames: true,
   };
   apiMock.updateSystemSettings
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
@@ -679,7 +681,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(47);
+  expect(allControls).toHaveLength(48);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();

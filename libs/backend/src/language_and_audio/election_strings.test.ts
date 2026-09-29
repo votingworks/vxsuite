@@ -24,6 +24,15 @@ const englishOnlyConfig: BallotLanguageConfigs = [
 const englishSpanishLanguageConfig: BallotLanguageConfigs = [
   { languages: [LanguageCode.ENGLISH, LanguageCode.SPANISH] },
 ];
+const englishChineseSpanishLanguageConfig: BallotLanguageConfigs = [
+  {
+    languages: [
+      LanguageCode.ENGLISH,
+      LanguageCode.CHINESE_SIMPLIFIED,
+      LanguageCode.SPANISH,
+    ],
+  },
+];
 
 describe('extractAndTranslateElectionStrings', () => {
   test('should extract and translate election strings correctly for english only', async () => {
@@ -135,5 +144,62 @@ describe('extractAndTranslateElectionStrings', () => {
     assert(spanishResults);
     // Should translate all the same fields
     expect(spanishResults).toMatchSnapshot();
+  });
+
+  test('should keep candidate names in English by default', async () => {
+    const translationClient = makeMockGoogleCloudTranslationClient({
+      fn: vi.fn,
+    });
+    const mockTranslator = new GoogleCloudTranslator({ translationClient });
+    const result = await extractAndTranslateElectionStrings(
+      mockTranslator,
+      electionPrimaryPrecinctSplitsFixtures.readElection(),
+      englishChineseSpanishLanguageConfig
+    );
+
+    expect(
+      result[LanguageCode.ENGLISH]?.[ElectionStringKey.CANDIDATE_NAME]
+    ).toBeDefined();
+    expect(
+      result[LanguageCode.CHINESE_SIMPLIFIED]?.[
+        ElectionStringKey.CANDIDATE_NAME
+      ]
+    ).toBeUndefined();
+    expect(
+      result[LanguageCode.SPANISH]?.[ElectionStringKey.CANDIDATE_NAME]
+    ).toBeUndefined();
+  });
+
+  test('should transliterate candidate names for non-Latin-script languages when enabled', async () => {
+    const translationClient = makeMockGoogleCloudTranslationClient({
+      fn: vi.fn,
+    });
+    const mockTranslator = new GoogleCloudTranslator({ translationClient });
+    const result = await extractAndTranslateElectionStrings(
+      mockTranslator,
+      electionPrimaryPrecinctSplitsFixtures.readElection(),
+      englishChineseSpanishLanguageConfig,
+      { shouldTransliterateCandidateNames: true }
+    );
+
+    const englishNames =
+      result[LanguageCode.ENGLISH]?.[ElectionStringKey.CANDIDATE_NAME];
+    const chineseNames =
+      result[LanguageCode.CHINESE_SIMPLIFIED]?.[
+        ElectionStringKey.CANDIDATE_NAME
+      ];
+    assert(typeof englishNames === 'object');
+    assert(typeof chineseNames === 'object');
+
+    expect(englishNames['horse']).toEqual('Horse');
+    expect(chineseNames['horse']).toEqual(
+      mockCloudTranslatedText('Horse', LanguageCode.CHINESE_SIMPLIFIED)
+    );
+    expect(Object.keys(chineseNames)).toEqual(Object.keys(englishNames));
+
+    // Latin-script languages keep the English name.
+    expect(
+      result[LanguageCode.SPANISH]?.[ElectionStringKey.CANDIDATE_NAME]
+    ).toBeUndefined();
   });
 });

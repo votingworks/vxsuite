@@ -887,6 +887,19 @@ export function SystemSettingsForm({
               }
               disabled={!isEditing}
             />
+            <CheckboxButton
+              label="Transliterate Candidate Names"
+              isChecked={Boolean(
+                systemSettings.shouldTransliterateCandidateNames
+              )}
+              onChange={(isChecked) =>
+                setSystemSettings({
+                  ...systemSettings,
+                  shouldTransliterateCandidateNames: isChecked,
+                })
+              }
+              disabled={!isEditing}
+            />
             {features.QUICK_RESULTS_REPORTING_SYSTEM_SETTING && (
               <CheckboxButton
                 label="Enable Live Reporting"
