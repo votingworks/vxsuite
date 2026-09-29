@@ -219,6 +219,11 @@ export const checkPin = {
 } as const;
 
 export const printBallot = {
+  /*
+   * If this mutation is called from a component that also displays a print count,
+   * the component should `useEffect` to invalidate the `getBallotPrintCounts` query
+   * once print job status === 'sent-to-printer'
+   */
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.printBallot);
