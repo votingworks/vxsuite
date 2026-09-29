@@ -963,6 +963,24 @@ export function SystemSettingsForm({
                 disabled={!isEditing}
               />
             )}
+            {features.VXCENTRALSCAN_POLL_WORKER_ROLE_SYSTEM_SETTING && (
+              <CheckboxButton
+                label="Enable Poll Worker Role on VxCentralScan"
+                isChecked={Boolean(
+                  systemSettings.centralScanEnablePollWorkerRole
+                )}
+                onChange={(isChecked) =>
+                  setSystemSettings({
+                    ...systemSettings,
+                    // @coverage-defer
+                    centralScanEnablePollWorkerRole: isChecked
+                      ? true
+                      : undefined,
+                  })
+                }
+                disabled={!isEditing}
+              />
+            )}
           </Column>
         </Card>
       </Row>

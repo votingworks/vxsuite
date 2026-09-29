@@ -640,7 +640,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(45);
+  expect(allControls).toHaveLength(46);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();
@@ -867,6 +867,17 @@ test.each<{
     checkboxLabel: 'Split Election Definition',
     isCheckboxExpected: true,
     expectedSavedSystemSettings: { splitElectionDefinition: true },
+  },
+  {
+    userFeatures: { VXCENTRALSCAN_POLL_WORKER_ROLE_SYSTEM_SETTING: false },
+    checkboxLabel: 'Enable Poll Worker Role on VxCentralScan',
+    isCheckboxExpected: false,
+  },
+  {
+    userFeatures: { VXCENTRALSCAN_POLL_WORKER_ROLE_SYSTEM_SETTING: true },
+    checkboxLabel: 'Enable Poll Worker Role on VxCentralScan',
+    isCheckboxExpected: true,
+    expectedSavedSystemSettings: { centralScanEnablePollWorkerRole: true },
   },
   {
     userFeatures: {

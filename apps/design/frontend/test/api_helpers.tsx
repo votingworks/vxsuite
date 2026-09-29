@@ -43,6 +43,7 @@ const allUserFeaturesOnConfig: Record<UserFeature, boolean> = {
   VOTER_HELP_BUTTONS_SYSTEM_SETTING: true,
   VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING: true,
   SPLIT_ELECTION_DEFINITION_SYSTEM_SETTING: true,
+  VXCENTRALSCAN_POLL_WORKER_ROLE_SYSTEM_SETTING: true,
 };
 
 export function mockUserFeatures(

@@ -93,6 +93,11 @@ export interface UserFeaturesConfig {
    */
   VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING?: boolean;
   /**
+   * Allow the user to enable the poll worker role for VxCentralScan.
+   * Requires the system settings screen to be enabled.
+   */
+  VXCENTRALSCAN_POLL_WORKER_ROLE_SYSTEM_SETTING?: boolean;
+  /**
    * [WIP] Allow toggling the split election definition system setting.
    */
   SPLIT_ELECTION_DEFINITION_SYSTEM_SETTING?: boolean;
@@ -223,6 +228,7 @@ const vxUserFeaturesConfig: UserFeaturesConfig = {
   SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING: true,
   TEST_DECK_PRINTING_SYSTEM_SETTING: true,
   VOTER_HELP_BUTTONS_SYSTEM_SETTING: true,
+  VXCENTRALSCAN_POLL_WORKER_ROLE_SYSTEM_SETTING: true,
   VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING: true,
   VXSCAN_ALARMS_SYSTEM_SETTING: true,
   VXSCAN_NUMBER_OF_REPORT_COPIES_SYSTEM_SETTING: true,
