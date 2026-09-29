@@ -24,7 +24,7 @@ export const IPP_PRINTER_STATE_REASON_MESSAGES: {
   stopping: 'The printer is stopping. Restart the printer.',
   'stopped-partly': 'The printer is stopped. Restart the printer.',
   'toner-low': 'The printer is low on toner. Replace toner cartridge.',
-  'toner-empty': 'The printer is low on toner. Replace toner cartridge.',
+  'toner-empty': 'The printer is out of toner. Replace toner cartridge.',
   'spool-area-full': 'The spool area is full. Restart the printer.',
   'cover-open': "The printer's cover is open. Close the printer's cover.",
   'interlock-open': "The printer's door is open. Close the printer's door.",
