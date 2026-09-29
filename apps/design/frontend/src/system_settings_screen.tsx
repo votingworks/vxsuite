@@ -741,7 +741,6 @@ export function SystemSettingsForm({
                 onChange={(isChecked) =>
                   setSystemSettings({
                     ...systemSettings,
-                    // @coverage-defer
                     precinctScanDisableAlarms: isChecked ? true : undefined, // Completely omit when unchecked
                   })
                 }
@@ -757,7 +756,6 @@ export function SystemSettingsForm({
                 onChange={(isChecked) =>
                   setSystemSettings({
                     ...systemSettings,
-                    // @coverage-defer
                     precinctScanEnableWriteInImageReport: isChecked
                       ? true
                       : undefined, // Completely omit when unchecked,
@@ -775,7 +773,6 @@ export function SystemSettingsForm({
                 onChange={(isChecked) =>
                   setSystemSettings({
                     ...systemSettings,
-                    // @coverage-defer
                     precinctScanDisableScreenReaderAudio: isChecked
                       ? true
                       : undefined, // Completely omit when unchecked
@@ -843,7 +840,6 @@ export function SystemSettingsForm({
                 onChange={(isChecked) =>
                   setSystemSettings({
                     ...systemSettings,
-                    // @coverage-defer
                     allowPrintingBlankBallotsFromVxMark: isChecked
                       ? true
                       : undefined,
@@ -872,7 +868,6 @@ export function SystemSettingsForm({
                 onChange={(isChecked) =>
                   setSystemSettings({
                     ...systemSettings,
-                    // @coverage-defer
                     quickResultsReportingUrl: isChecked
                       ? getResultsReportingUrlQuery.data
                       : undefined,
@@ -888,7 +883,6 @@ export function SystemSettingsForm({
                 onChange={(isChecked) =>
                   setSystemSettings({
                     ...systemSettings,
-                    // @coverage-defer
                     disableSystemLimitChecks: isChecked ? true : undefined, // Completely omit when unchecked
                   })
                 }
@@ -902,7 +896,6 @@ export function SystemSettingsForm({
                 onChange={(isChecked) =>
                   setSystemSettings({
                     ...systemSettings,
-                    // @coverage-defer
                     disableVoterHelpButtons: isChecked ? true : undefined, // Completely omit when unchecked
                   })
                 }
@@ -916,7 +909,6 @@ export function SystemSettingsForm({
                 onChange={(isChecked) =>
                   setSystemSettings({
                     ...systemSettings,
-                    // @coverage-defer
                     enableTestDeckPrinting: isChecked ? true : undefined, // Completely omit when unchecked
                   })
                 }
@@ -956,7 +948,6 @@ export function SystemSettingsForm({
                 onChange={(isChecked) =>
                   setSystemSettings({
                     ...systemSettings,
-                    // @coverage-defer
                     splitElectionDefinition: isChecked ? true : undefined, // WIP feature
                   })
                 }
@@ -972,7 +963,6 @@ export function SystemSettingsForm({
                 onChange={(isChecked) =>
                   setSystemSettings({
                     ...systemSettings,
-                    // @coverage-defer
                     centralScanEnablePollWorkerRole: isChecked
                       ? true
                       : undefined,
