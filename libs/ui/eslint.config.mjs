@@ -27,7 +27,6 @@ export default [
       'src/**/*.test.{ts,tsx}',
       'src/**/*.stories.{ts,tsx}',
       'src/**/test_utils.{ts,tsx}',
-      'src/setupTests.ts',
       'src/user_event.ts',
       'src/themes/render_with_themes.tsx',
     ],

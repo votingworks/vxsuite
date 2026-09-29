@@ -10,6 +10,10 @@
       "types": "./build/index.d.ts",
       "default": "./build/index.js"
     },
+    "./vitest-setup": {
+      "types": "./build/vitest_setup.d.ts",
+      "default": "./build/vitest_setup.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
@@ -30,6 +34,7 @@
   },
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.3",
     "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
@@ -46,11 +51,12 @@
     "@types/node": "24.13.3",
     "@types/react": "18.3.3",
     "@types/zip-stream": "workspace:*",
-    "@vitest/coverage-istanbul": "^4.1.11",
+    "@vitest/coverage-istanbul": "5.0.2",
     "@votingworks/coverage-check": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
+    "jsdom": "20.0.1",
     "sort-package-json": "^1.50.0",
-    "vitest": "^4.1.11"
+    "vitest": "5.0.2"
   },
   "packageManager": "pnpm@10.34.5"
 }

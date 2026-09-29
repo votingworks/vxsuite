@@ -5,18 +5,18 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     mockReset: true,
-    setupFiles: ['react-app-polyfill/jsdom', 'src/setupTests.tsx'],
+    setupFiles: ['react-app-polyfill/jsdom', 'test/setup.ts'],
     coverage: {
       exclude: [
-        'src/config',
-        'src/stubs',
+        'src/config/**',
+        'src/stubs/**',
         'src/**/*.d.ts',
         'src/index.tsx',
         'src/contexts/ballot_context.ts',
         'src/polyfills.ts',
         // Hardware-test app code — not exercised by unit tests (only wired
         // up via index.tsx, which is itself excluded).
-        'src/electrical_testing',
+        'src/electrical_testing/**',
         '**/*.test.{ts,tsx}',
       ],
     },

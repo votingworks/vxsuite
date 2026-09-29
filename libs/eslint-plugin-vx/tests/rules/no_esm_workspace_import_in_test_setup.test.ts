@@ -21,7 +21,7 @@ writePackage(
 writePackage('cjs-lib', JSON.stringify({ name: '@votingworks/cjs-lib' }));
 writePackage('broken-lib', 'not json at all');
 
-const filename = join(packageRoot, 'test', 'setupTests.ts');
+const filename = join(packageRoot, 'test', 'setup.ts');
 
 const ruleTester = new RuleTester({
   languageOptions: {
@@ -46,7 +46,7 @@ ruleTester.run('no-esm-workspace-import-in-test-setup', rule, {
     // behave when a file resolves nothing at all.
     {
       code: `import { a } from '@votingworks/esm-lib'`,
-      filename: '/nowhere/setupTests.ts',
+      filename: '/nowhere/setup.ts',
     },
     // An explicitly allowed specifier, for a module known to have no workspace
     // imports of its own.

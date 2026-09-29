@@ -1,11 +1,10 @@
-// https://til.hashrocket.com/posts/hzqwty5ykx-create-react-app-has-a-default-test-setup-file
-
 import { afterAll, afterEach, beforeEach, vi } from 'vitest';
-import '@testing-library/jest-dom/vitest';
+import '@votingworks/test-utils/vitest-setup';
+import '@votingworks/fixtures/vitest-setup';
 import fetchMock from 'fetch-mock';
 import { TextDecoder, TextEncoder } from 'node:util';
-import { cleanup, configure } from '../test/react_testing_library.js';
-import './polyfills.js';
+import { cleanup, configure } from './react_testing_library.js';
+import '../src/polyfills.js';
 
 configure({ asyncUtilTimeout: 5_000 });
 
@@ -13,6 +12,7 @@ beforeEach(() => {
   globalThis.print = vi.fn(() => {
     throw new Error('globalThis.print() should never be called');
   });
+  cleanup();
 });
 
 beforeEach(() => {
@@ -20,7 +20,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  cleanup();
   fetchMock.restore();
 });
 

@@ -5,12 +5,12 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     mockReset: true,
-    setupFiles: ['react-app-polyfill/jsdom', 'src/setupTests.tsx'],
+    setupFiles: ['react-app-polyfill/jsdom', 'test/setup.ts'],
     coverage: {
       exclude: [
         'src/polyfills.ts',
-        'src/config',
-        'src/stubs',
+        'src/config/**',
+        'src/stubs/**',
         'src/**/*.d.ts',
         'src/index.tsx',
         'src/contexts/ballot_context.ts',

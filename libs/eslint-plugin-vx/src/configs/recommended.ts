@@ -223,8 +223,6 @@ export default function buildRecommended(
               '**/*.test.tsx',
               'test/**/*',
               '**/benchmarks/**/*',
-              'src/setupTests.ts',
-              'src/setupTests.tsx',
               '**/*.stories.ts',
               '**/*.stories.tsx',
               '**/test_utils.ts',
@@ -373,10 +371,8 @@ export default function buildRecommended(
       // vitest setup files run before the test file, so anything they import at
       // module scope is instantiated before any `vi.mock` is registered.
       files: [
-        '**/setupTests.ts',
-        '**/setupTests.tsx',
         '**/test/setup.ts',
-        '**/test/setup_custom_matchers.ts',
+        '**/tests/setup.ts',
         '**/test/set_env_vars.ts',
       ],
       rules: {
@@ -396,6 +392,9 @@ export default function buildRecommended(
               // Temporary directory helpers; imports nothing but node
               // builtins.
               '@votingworks/fixtures/tmpdir',
+              // Registers the jest-dom matchers; imports nothing from the
+              // workspace.
+              '@votingworks/test-utils/vitest-setup',
             ],
           },
         ],

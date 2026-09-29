@@ -4,11 +4,11 @@ import { join } from 'node:path';
 export default defineConfig({
   test: {
     environment: 'jsdom',
-    setupFiles: ['src/setupTests.ts'],
+    setupFiles: ['test/setup.ts'],
 
     coverage: {
       exclude: [
-        'src/config',
+        'src/config/**',
         'src/polyfills.ts',
         'src/**/*.d.ts',
         'src/index.tsx',

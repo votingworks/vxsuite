@@ -11,7 +11,7 @@ eagerly and therefore aren't mocked.
 Examples of **incorrect** code for this rule:
 
 ```ts
-// in test/setupTests.ts
+// in test/setup.ts
 import { cleanupCachedBrowser } from '@votingworks/printing';
 
 afterAll(async () => {
@@ -22,7 +22,7 @@ afterAll(async () => {
 Examples of **correct** code for this rule:
 
 ```ts
-// in test/setupTests.ts
+// in test/setup.ts
 afterAll(async () => {
   const { cleanupCachedBrowser } = await vi.importActual<
     typeof import('@votingworks/printing')

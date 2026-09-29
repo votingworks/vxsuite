@@ -1,12 +1,12 @@
 import { afterAll, afterEach, vi } from 'vitest';
 import '@votingworks/fixtures/vitest-setup';
-import '@testing-library/jest-dom/vitest';
-import { cleanup, configure } from '../test/react_testing_library.js';
+import '@votingworks/test-utils/vitest-setup';
+import { cleanup, configure } from './react_testing_library.js';
 import {
   MockDocument,
   MockPage,
   setMockPdfNumPages,
-} from '../test/react_pdf_mocks.js';
+} from './react_pdf_mocks.js';
 
 configure({ asyncUtilTimeout: 5_000 });
 

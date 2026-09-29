@@ -1,3 +1,4 @@
+import type { SyncMatcherResult } from 'vitest';
 import { assert } from '@votingworks/basics';
 import type { RgbaImageData } from '@votingworks/types';
 import { format } from '@votingworks/utils';
@@ -67,7 +68,7 @@ export async function toMatchImage(
   received: RgbaImageData,
   expected: RgbaImageData,
   options: ToMatchImageOptions = {}
-): Promise<jest.CustomMatcherResult> {
+): Promise<SyncMatcherResult> {
   assert(
     options.failureThreshold === undefined ||
       (options.failureThreshold >= 0 && options.failureThreshold <= 1)

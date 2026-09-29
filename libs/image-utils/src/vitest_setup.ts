@@ -1,5 +1,8 @@
 import { expect } from 'vitest';
-import { toMatchImageSnapshot } from 'jest-image-snapshot';
+import {
+  toMatchImageSnapshot,
+  type MatchImageSnapshotOptions,
+} from 'jest-image-snapshot';
 import type { RgbaImageData } from '@votingworks/types';
 import { toMatchImage, type ToMatchImageOptions } from './jest_match_image.js';
 import {
@@ -7,16 +10,16 @@ import {
   type ToMatchPdfSnapshotOptions,
 } from './jest_pdf_snapshot.js';
 
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace jest {
-    interface Matchers<R> {
-      toMatchImage(
-        expected: RgbaImageData,
-        options?: ToMatchImageOptions
-      ): Promise<R>;
-      toMatchPdfSnapshot(options?: ToMatchPdfSnapshotOptions): Promise<R>;
-    }
+declare module 'vitest' {
+  // `jest-image-snapshot` only declares its matcher on Jest's `jest.Matchers`.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface Matchers<R, T> {
+    toMatchImage(
+      expected: RgbaImageData,
+      options?: ToMatchImageOptions
+    ): Promise<void>;
+    toMatchImageSnapshot(options?: MatchImageSnapshotOptions): R;
+    toMatchPdfSnapshot(options?: ToMatchPdfSnapshotOptions): Promise<void>;
   }
 }
 

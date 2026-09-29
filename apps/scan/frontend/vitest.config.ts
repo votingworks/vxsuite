@@ -4,7 +4,7 @@ import { join } from 'node:path';
 export default defineConfig({
   test: {
     environment: 'jsdom',
-    setupFiles: ['src/setupTests.ts'],
+    setupFiles: ['test/setup.ts'],
 
     coverage: {
       exclude: [

@@ -3,12 +3,12 @@ import { defineConfig } from '../../vitest.config.shared.mjs';
 
 export default defineConfig({
   test: {
-    setupFiles: ['test/setupTests.ts'],
+    setupFiles: ['test/setup.ts'],
     coverage: {
       exclude: [
         '**/index.ts',
-        'src/generate-election',
-        'src/generate-election-package',
+        'src/generate-election/**',
+        'src/generate-election-package/**',
         '**/*.test.ts',
       ],
     },

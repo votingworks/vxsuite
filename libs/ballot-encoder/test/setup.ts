@@ -1,12 +1,9 @@
 import { expect } from 'vitest';
 
-declare global {
-  // eslint-disable-next-line
-  namespace jest {
-    // eslint-disable-next-line
-    interface Matchers<R = void, T = {}> {
-      toEqualBits(buffer: Uint8Array): R;
-    }
+declare module 'vitest' {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface Matchers<R, T> {
+    toEqualBits(buffer: Uint8Array): R;
   }
 }
 

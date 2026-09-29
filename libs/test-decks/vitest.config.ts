@@ -3,7 +3,7 @@ import { defineConfig } from '../../vitest.config.shared.mjs';
 
 export default defineConfig({
   test: {
-    setupFiles: ['test/setupTests.ts'],
+    setupFiles: ['test/setup.ts'],
     alias: [
       {
         find: '@votingworks/types',
