@@ -3,7 +3,7 @@ import type { PrinterRichStatus, PrinterStatus } from '@votingworks/types';
 import {
   IPP_PRINTER_STATE_REASON_MESSAGES,
   parseHighestPriorityIppPrinterStateReason,
-} from './diagnostics/index.js';
+} from './utils/printer_state_reasons.js';
 import { Modal } from './modal.js';
 import { Icons } from './icons.js';
 import { P } from './typography.js';

@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, test } from 'vitest';
 import type {
   IppMarkerInfo,
   PrinterConfig,
@@ -6,10 +6,7 @@ import type {
   PrinterStatus,
 } from '@votingworks/types';
 import { render, screen } from '../../test/react_testing_library.js';
-import {
-  PrinterSection,
-  parseHighestPriorityIppPrinterStateReason,
-} from './printer_section.js';
+import { PrinterSection } from './printer_section.js';
 import { expectTextWithIcon } from '../../test/expect_text_with_icon.js';
 
 export const MOCK_PRINTER_CONFIG: PrinterConfig = {
@@ -44,50 +41,6 @@ function getMockPrinterStatus(
     },
   };
 }
-
-describe('parseHighestPriorityIppPrinterStateReason', () => {
-  test('ignores "none"', () => {
-    expect(parseHighestPriorityIppPrinterStateReason(['none'])).toEqual(
-      undefined
-    );
-  });
-
-  test('shows error over warning', () => {
-    expect(
-      parseHighestPriorityIppPrinterStateReason([
-        'toner-low-warning',
-        'media-needed-error',
-      ])
-    ).toEqual('media-needed');
-  });
-
-  test('shows warning over report', () => {
-    expect(
-      parseHighestPriorityIppPrinterStateReason([
-        'toner-low-report',
-        'media-needed-warning',
-      ])
-    ).toEqual('media-needed');
-  });
-
-  test('shows first of same level', () => {
-    expect(
-      parseHighestPriorityIppPrinterStateReason([
-        'toner-low-warning',
-        'media-needed-warning',
-      ])
-    ).toEqual('toner-low');
-  });
-
-  test('ignores unparseable reasons', () => {
-    expect(
-      parseHighestPriorityIppPrinterStateReason([
-        'toner-low-report',
-        'media?-what-media?-warning',
-      ])
-    ).toEqual('toner-low');
-  });
-});
 
 describe('PrinterSection status message', () => {
   test('displays disconnected', async () => {
