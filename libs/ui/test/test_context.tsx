@@ -25,9 +25,9 @@ import {
 } from './react_testing_library.js';
 import {
   QUERY_CLIENT_DEFAULT_OPTIONS,
-  type VxRenderOptions,
   useAudioControls,
 } from '../src/index.js';
+import type { VxRenderOptions } from '../src/test_utils.js';
 import {
   type SystemCallReactQueryApi,
   createSystemCallApi,

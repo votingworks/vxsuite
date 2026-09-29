@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, test } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import type { InsertedSmartCardAuth } from '@votingworks/types';
-import type { VxRenderResult } from '@votingworks/ui';
+import type { VxRenderResult } from '@votingworks/ui/test-utils';
 import { render } from '../../test/test_utils.js';
 import {
   createApiMock,

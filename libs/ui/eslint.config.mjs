@@ -11,12 +11,38 @@ export default [
     },
   },
   {
-    // Test-only interop shim. It lives in `src/` rather than `test/` because
-    // `accessible_controllers/test_utils.tsx` is compiled into the build and so
-    // cannot import from outside `rootDir`.
-    files: ['src/user_event.ts'],
+    // Test helpers, published as `@votingworks/ui/test-utils`.
+    files: [
+      'src/user_event.ts',
+      'src/test_utils.ts',
+      'src/themes/render_with_themes.tsx',
+    ],
     rules: {
       'import/no-extraneous-dependencies': 'off',
+    },
+  },
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: [
+      'src/**/*.test.{ts,tsx}',
+      'src/**/*.stories.{ts,tsx}',
+      'src/**/test_utils.{ts,tsx}',
+      'src/setupTests.ts',
+      'src/user_event.ts',
+      'src/themes/render_with_themes.tsx',
+    ],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              regex: '(^|/)(test_utils|user_event|render_with_themes)\\.js$',
+              message: 'Test helpers belong in `@votingworks/ui/test-utils`.',
+            },
+          ],
+        },
+      ],
     },
   },
 ];

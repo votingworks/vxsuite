@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { Keybinding, simulateKeyPress } from '@votingworks/ui';
+import { Keybinding } from '@votingworks/ui';
+import { simulateKeyPress } from '@votingworks/ui/test-utils';
 import { render, screen, waitFor } from '../../test/react_testing_library.js';
 
 import { App } from '../app.js';

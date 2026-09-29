@@ -5,7 +5,7 @@ import {
   type VxRenderResult,
   vxTestingLibraryScreen,
   vxTestingLibraryWithinFn,
-} from '@votingworks/ui';
+} from '@votingworks/ui/test-utils';
 import { onTestFinished } from 'vitest';
 
 // Re-export all of @testing-library/react for convenience and override

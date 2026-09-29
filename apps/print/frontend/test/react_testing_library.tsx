@@ -4,7 +4,7 @@ import {
   type VxRenderResult,
   vxTestingLibraryScreen,
   vxTestingLibraryWithinFn,
-} from '@votingworks/ui';
+} from '@votingworks/ui/test-utils';
 import { onTestFinished } from 'vitest';
 
 export * from '@testing-library/react';

@@ -35,7 +35,7 @@ import {
 } from '@votingworks/test-utils';
 import type { CardStatus } from '@votingworks/auth';
 import type { PrinterConfig } from '@votingworks/types';
-import { makeRender } from '@votingworks/ui';
+import { makeRender } from '@votingworks/ui/test-utils';
 import { DevDock } from './dev_dock.js';
 
 export const render = makeRender(onTestFinished);
