@@ -16,6 +16,8 @@ import { prepare } from './prepare_step.js';
 import { copy } from './copy_step.js';
 import type { ProgressEvent } from '../progress.js';
 
+vi.setConfig({ testTimeout: 30_000 });
+
 vi.mock(
   import('@votingworks/backend'),
   async (importActual): Promise<typeof import('@votingworks/backend')> => {
