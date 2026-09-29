@@ -101,6 +101,11 @@ function safeParseElectionDefinitionExtended(
         electionDefinition: {
           election: result.ok().vxfElection,
           electionData: value,
+
+          // [TODO](https://github.com/votingworks/vxsuite/issues/9217): Move
+          // hashing out of the parsing path. It will be computed only at export
+          // and configuration time, from multiple election package files, and
+          // sourced from the app DBs.
           ballotHash: sha256(value),
         },
       });

@@ -44,7 +44,7 @@ import {
   ElectionPackageMetadataSchema,
   mergeUiStrings,
   type UiStringAudioIdsPackage,
-  safeParseElectionDefinition,
+  safeParseElection,
   constructElectionKey,
   type EncodedBallotEntry,
   EncodedBallotEntrySchema,
@@ -52,6 +52,8 @@ import {
   type SystemLimits,
   type ElectionRegisteredVoterCounts,
   ElectionRegisteredVoterCountsSchema,
+  type ElectionDefinition,
+  type SystemSettings,
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import type { z } from 'zod/v4';
@@ -247,16 +249,9 @@ async function parseElectionPackage(
 
   // Election Definition:
 
-  const electionData = await zip.readEntryText(
-    ElectionPackageFileName.ELECTION
-  );
-  const electionResult = safeParseElectionDefinition(electionData);
-  if (electionResult.isErr()) {
-    return err({
-      type: 'invalid-election',
-      message: electionResult.err().message,
-    });
-  }
+  const electionResult = await parseAndHashElection(zip, systemSettings);
+  if (electionResult.isErr()) return electionResult;
+
   const electionDefinition = electionResult.ok();
 
   // UI Strings:
@@ -356,9 +351,7 @@ export async function readElectionPackageFromBuffer(
     if (result.isErr()) {
       return result;
     }
-    const electionPackageHash = createHash('sha256')
-      .update(fileContents)
-      .digest('hex');
+    const electionPackageHash = sha256Hex(fileContents);
     return ok({ electionPackage: result.ok(), electionPackageHash });
   } catch (error) {
     return err({
@@ -631,4 +624,81 @@ export async function readSignedElectionPackageFromDirectory(
   }
 
   return ok({ ...electionPackageWithHash, filePath: filepathResult.ok() });
+}
+
+/**
+ * Parses the election and computes the canonical ballot hash from the relevant
+ * election package entries, based on system settings:
+ *
+ * - `splitElectionDefinition: false` - Only the election.json entry is hashed.
+ *
+ * - `splitElectionDefinition: true` - A combined hash is computed from the
+ *   hashes of the relevant entries in canonical order. See
+ *   {@link computeBallotHashVxf}.
+ */
+export async function parseAndHashElection(
+  zip: ElectionPackageZip,
+  systemSettings: SystemSettings
+): Promise<Result<ElectionDefinition, ElectionPackageError>> {
+  const Entry = ElectionPackageFileName;
+
+  const electionData = await zip.readEntryText(Entry.ELECTION);
+  const electionResult = safeParseElection(electionData);
+
+  if (electionResult.isErr()) {
+    const { message } = electionResult.err();
+    return err({ type: 'invalid-election', message });
+  }
+
+  const election = electionResult.ok();
+  const electionHash = sha256Hex(electionData);
+
+  // [TODO] Branch on software version instead, if/when this setting becomes the
+  // default.
+  if (!systemSettings.splitElectionDefinition) {
+    return ok({ ballotHash: electionHash, election, electionData });
+  }
+
+  const ballotHash = computeBallotHashVxf({
+    ballotPositions: await hashZipEntry(zip, Entry.BALLOT_POSITIONS),
+    election: electionHash,
+  });
+
+  return ok({ ballotHash, election, electionData });
+}
+
+/**
+ * Individual election definition file hashes.
+ */
+export interface ElectionFileHashes {
+  ballotPositions: string;
+  election: string;
+}
+
+/**
+ * Computes a combined hash of VxF election definition file hashes, in canonical
+ * order. Used in both package export and import flows, to keep hashing order
+ * consistent.
+ */
+export function computeBallotHashVxf(hashes: ElectionFileHashes): string {
+  // [TODO] Make this software-version-aware, since a hash content/order change
+  // should be tied to a specific version.
+  return createHash('sha256')
+    .update(hashes.election)
+    .update(hashes.ballotPositions)
+    .digest('hex');
+}
+
+async function hashZipEntry(
+  zip: ElectionPackageZip,
+  name: ElectionPackageFileName
+): Promise<string> {
+  const hash = createHash('sha256');
+  await pipeline(await zip.openEntryStream(name), hash);
+
+  return hash.digest('hex');
+}
+
+function sha256Hex(data: Buffer | string | Uint8Array) {
+  return createHash('sha256').update(data).digest('hex');
 }
