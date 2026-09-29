@@ -29,6 +29,8 @@ import {
 import {
   forceLogOutAndResetElectionDefinition,
   logInAsElectionManager,
+  logInAsPollWorker,
+  logOut,
 } from './support/auth.js';
 
 const BALLOT_STYLE_ID = '1-1';
@@ -84,6 +86,7 @@ test('screenshots', async ({ page }, testInfo) => {
       AdjudicationReason.Undervote,
       AdjudicationReason.BlankBallot,
     ],
+    centralScanEnablePollWorkerRole: true,
   };
 
   // Pre-render every ballot variant in one Chromium instance. A single-seat
@@ -236,7 +239,22 @@ test('screenshots', async ({ page }, testInfo) => {
   await page.getByRole('button', { name: 'Batch History' }).click();
   await page.getByRole('heading', { name: 'Batch History' }).waitFor();
   await screenshot('batch-history');
+
+  await logOut(page);
+  await page
+    .getByText('Insert a poll worker or election manager card to unlock.')
+    .waitFor();
+  await screenshot('locked-screen');
+  await logInAsPollWorker(page, election);
+  await page.getByRole('button', { name: 'Batch History' }).click();
+  await page.getByRole('heading', { name: 'Batch History' }).waitFor();
+  await screenshot('pw-batch-history');
   await page.getByRole('button', { name: 'Scan Ballots' }).click();
+  await page.getByRole('heading', { name: 'Scan Ballots' }).waitFor();
+  await screenshot('pw-scan-ballots');
+  await logOut(page);
+  await logInAsElectionManager(page, election);
+  await page.getByRole('heading', { name: 'Scan Ballots' }).waitFor();
 
   // Adjudication: scan one batch of problem ballots and capture each eject
   // state. Each "Confirm Ballot Removed" advances to the next review sheet.
