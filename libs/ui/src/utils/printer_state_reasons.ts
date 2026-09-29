@@ -1,4 +1,4 @@
-import type { IppPrinterStateReason } from '@votingworks/types';
+import type { IppPrinterStateReason, PrinterStatus } from '@votingworks/types';
 import type { Optional } from '@votingworks/basics';
 
 /**
@@ -79,4 +79,35 @@ export function parseHighestPriorityIppPrinterStateReason(
       return levelRank(level1) - levelRank(level2);
     })
     .map(([reason]) => reason)[0];
+}
+
+export const BLOCKING_PRINTER_STATE_REASONS: ReadonlySet<IppPrinterStateReason> =
+  new Set([
+    'cover-open',
+    'door-open',
+    'input-tray-missing',
+    'interlock-open',
+    'marker-supply-empty',
+    'media-empty',
+    'media-jam',
+    'media-needed',
+    'output-area-full',
+    'spool-area-full',
+    'toner-empty',
+  ]);
+
+function stripSeveritySuffix(reason: IppPrinterStateReason): string {
+  return reason.replace(/-(?:report|warning|error)$/, '');
+}
+
+export function getBlockingPrinterStateReason(
+  printerStatus: PrinterStatus
+): Optional<IppPrinterStateReason> {
+  if (!printerStatus.connected || !printerStatus.richStatus) {
+    return undefined;
+  }
+
+  return printerStatus.richStatus.stateReasons
+    .map(stripSeveritySuffix)
+    .find((reason) => BLOCKING_PRINTER_STATE_REASONS.has(reason));
 }
