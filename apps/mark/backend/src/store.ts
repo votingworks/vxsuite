@@ -8,6 +8,7 @@ import {
   createUiStringStore,
   addDiagnosticRecord,
   getMostRecentDiagnosticRecord,
+  BallotMetaStore,
 } from '@votingworks/backend';
 import {
   assert,
@@ -53,10 +54,12 @@ export interface ElectionRecord {
 export class Store {
   private readonly client: DbClient;
   private readonly uiStringsStore: UiStringsStore;
+  private readonly ballotMetaStore: BallotMetaStore;
 
   private constructor(client: DbClient, uiStringsStore: UiStringsStore) {
     this.client = client;
     this.uiStringsStore = uiStringsStore;
+    this.ballotMetaStore = new BallotMetaStore(this.client);
   }
 
   getDbPath(): string {
@@ -98,6 +101,10 @@ export class Store {
    */
   reset(): void {
     this.client.reset();
+  }
+
+  getBallotMetaStore(): BallotMetaStore {
+    return this.ballotMetaStore;
   }
 
   /**

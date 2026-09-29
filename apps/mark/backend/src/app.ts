@@ -368,6 +368,11 @@ export function buildApi(ctx: Context) {
             store.addBallot(ballot);
           }
 
+          // [TODO] Add tests (pending addition of split-definition fixtures).
+          await store
+            .getBallotMetaStore()
+            .importPositions(zip, electionDefinition.election, systemSettings);
+
           // The machine defaults to test mode, but if test mode isn't available
           // for this election package (no test ballots for a print flow that
           // needs them), start in official mode to avoid footgun of allowing

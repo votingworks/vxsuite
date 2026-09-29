@@ -24,7 +24,7 @@ export class BallotMetaStore {
   /**
    * Retrieves ballot positions from the store, or `null` if not found.
    */
-  getBallotPositions(styleId: string): SheetPositions[] | null {
+  getPositions(styleId: string): SheetPositions[] | null {
     const row = this.client.one(
       `select positions from ballot_positions where style_id = ?`,
       styleId

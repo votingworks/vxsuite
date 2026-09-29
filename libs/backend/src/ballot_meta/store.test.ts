@@ -62,7 +62,7 @@ test('non-split election definition - imports from parsed election', async () =>
 
   const election: Election = {
     ...baseElection,
-    ballotStyles: [style1, style2],
+    ballotStyles: [style1, style2, style3NoPositions],
   };
 
   const client = Client.memoryClient(`${import.meta.dirname}/schema.sql`);
@@ -73,10 +73,10 @@ test('non-split election definition - imports from parsed election', async () =>
     await store.importPositions(zip, election, settings);
   });
 
-  expect(store.getBallotPositions(style1.id)).toEqual(style1.ballotPositions);
-  expect(store.getBallotPositions(style2.id)).toEqual(style2.ballotPositions);
-  expect(store.getBallotPositions(style3NoPositions.id)).toBeNull();
-  expect(store.getBallotPositions('invalid')).toBeNull();
+  expect(store.getPositions(style1.id)).toEqual(style1.ballotPositions);
+  expect(store.getPositions(style2.id)).toEqual(style2.ballotPositions);
+  expect(store.getPositions(style3NoPositions.id)).toBeNull();
+  expect(store.getPositions('invalid')).toBeNull();
 });
 
 test('split election definition - imports from ballotPositions.jsonl', async () => {
@@ -103,9 +103,9 @@ test('split election definition - imports from ballotPositions.jsonl', async () 
     await store.importPositions(zip, election, settings);
   });
 
-  expect(store.getBallotPositions(style1.id)).toEqual(style1.ballotPositions);
-  expect(store.getBallotPositions(style2.id)).toEqual(style2.ballotPositions);
-  expect(store.getBallotPositions('invalid')).toBeNull();
+  expect(store.getPositions(style1.id)).toEqual(style1.ballotPositions);
+  expect(store.getPositions(style2.id)).toEqual(style2.ballotPositions);
+  expect(store.getPositions('invalid')).toBeNull();
 });
 
 function positionsFromBallotStyle(bs: BallotStyle): BallotPositions {
