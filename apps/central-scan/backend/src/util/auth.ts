@@ -6,7 +6,7 @@ import { DEFAULT_SYSTEM_SETTINGS, type UserRole } from '@votingworks/types';
 import type { LoggingUserRole } from '@votingworks/logging';
 import type { Workspace } from './workspace.js';
 
-const ALLOWED_USER_ROLES: readonly UserRole[] = [
+const DEFAULT_ALLOWED_USER_ROLES: readonly UserRole[] = [
   'vendor',
   'system_administrator',
   'election_manager',
@@ -16,14 +16,18 @@ export function constructAuthMachineState(
   workspace: Workspace
 ): DippedSmartCardAuthMachineState {
   const electionKey = workspace.store.getElectionKey();
+  const pollingPlaceId = workspace.store.getPollingPlaceId();
   const jurisdiction = workspace.store.getJurisdiction();
   const machineType = 'central-scan';
   const systemSettings =
     workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
   return {
     ...systemSettings.auth,
-    allowedUserRoles: ALLOWED_USER_ROLES,
+    allowedUserRoles: systemSettings.centralScanEnablePollWorkerRole
+      ? [...DEFAULT_ALLOWED_USER_ROLES, 'poll_worker']
+      : DEFAULT_ALLOWED_USER_ROLES,
     electionKey,
+    isConfigured: electionKey !== undefined && pollingPlaceId !== undefined,
     jurisdiction,
     machineType,
   };

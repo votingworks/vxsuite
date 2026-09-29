@@ -78,6 +78,7 @@ const electionDefinition =
   electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 const { electionData, election, ballotHash } = electionDefinition;
 const electionKey = constructElectionKey(election);
+const pollingPlaceId = 'town-id-00701-precinct-id-default-polling-place';
 const systemSettings: SystemSettings = {
   ...DEFAULT_SYSTEM_SETTINGS,
   auth: {
@@ -102,6 +103,7 @@ function configureMachine(systemSettings: SystemSettings): void {
     ballotHash,
   });
   workspace.store.setSystemSettings(systemSettings);
+  workspace.store.setPollingPlaceId(pollingPlaceId);
 }
 
 test('getAuthStatus', async () => {
@@ -113,6 +115,30 @@ test('getAuthStatus', async () => {
     ...systemSettings.auth,
     allowedUserRoles,
     electionKey,
+    isConfigured: true,
+    jurisdiction,
+    machineType,
+  });
+});
+
+test('getAuthStatus with the poll worker role enabled', async () => {
+  configureMachine({
+    ...systemSettings,
+    centralScanEnablePollWorkerRole: true,
+  });
+
+  await apiClient.getAuthStatus();
+  expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
+  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
+    ...systemSettings.auth,
+    allowedUserRoles: [
+      'vendor',
+      'system_administrator',
+      'election_manager',
+      'poll_worker',
+    ],
+    electionKey,
+    isConfigured: true,
     jurisdiction,
     machineType,
   });
@@ -129,6 +155,7 @@ test('checkPin', async () => {
       ...systemSettings.auth,
       allowedUserRoles,
       electionKey,
+      isConfigured: true,
       jurisdiction,
       machineType,
     },
@@ -145,6 +172,7 @@ test('logOut', async () => {
     ...systemSettings.auth,
     allowedUserRoles,
     electionKey,
+    isConfigured: true,
     jurisdiction,
     machineType,
   });
@@ -163,11 +191,28 @@ test('updateSessionExpiry', async () => {
       ...systemSettings.auth,
       allowedUserRoles,
       electionKey,
+      isConfigured: true,
       jurisdiction,
       machineType,
     },
     { sessionExpiresAt: expect.any(Date) }
   );
+});
+
+test('getAuthStatus before a polling place has been selected', async () => {
+  configureMachine(systemSettings);
+  workspace.store.setPollingPlaceId(null);
+
+  await apiClient.getAuthStatus();
+  expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
+  expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
+    ...systemSettings.auth,
+    allowedUserRoles,
+    electionKey,
+    isConfigured: false,
+    jurisdiction,
+    machineType,
+  });
 });
 
 test('getAuthStatus before election definition has been configured', async () => {
@@ -176,6 +221,7 @@ test('getAuthStatus before election definition has been configured', async () =>
   expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
     ...DEFAULT_SYSTEM_SETTINGS.auth,
     allowedUserRoles,
+    isConfigured: false,
     machineType,
   });
 });
@@ -185,7 +231,12 @@ test('checkPin before election definition has been configured', async () => {
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
-    { ...DEFAULT_SYSTEM_SETTINGS.auth, allowedUserRoles, machineType },
+    {
+      ...DEFAULT_SYSTEM_SETTINGS.auth,
+      allowedUserRoles,
+      isConfigured: false,
+      machineType,
+    },
     {
       pin: '123456',
     }
@@ -198,6 +249,7 @@ test('logOut before election definition has been configured', async () => {
   expect(auth.logOut).toHaveBeenNthCalledWith(1, {
     ...DEFAULT_SYSTEM_SETTINGS.auth,
     allowedUserRoles,
+    isConfigured: false,
     machineType,
   });
 });
@@ -209,7 +261,12 @@ test('updateSessionExpiry before election definition has been configured', async
   expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
-    { ...DEFAULT_SYSTEM_SETTINGS.auth, allowedUserRoles, machineType },
+    {
+      ...DEFAULT_SYSTEM_SETTINGS.auth,
+      allowedUserRoles,
+      isConfigured: false,
+      machineType,
+    },
     { sessionExpiresAt: expect.any(Date) }
   );
 });
