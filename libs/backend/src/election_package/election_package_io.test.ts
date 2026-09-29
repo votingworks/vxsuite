@@ -4,6 +4,7 @@ import { mockBaseLogger } from '@votingworks/logging';
 import {
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
+  type ElectionDefinition,
   ElectionPackageFileName,
   type ElectionPackageMetadata,
   type ElectionRegisteredVoterCounts,
@@ -46,6 +47,7 @@ import {
   iter,
   ok,
   range,
+  type Result,
   typedAs,
 } from '@votingworks/basics';
 import {
@@ -185,6 +187,75 @@ test('readElectionPackageFromFile reads an election package with system settings
       .update(fileContents)
       .digest('hex'),
   });
+});
+
+test('read from file - SystemSettings.splitElectionDefinition = true', async () => {
+  const fixtures = electionGridLayoutNewHampshireTestBallotFixtures;
+  const { election, electionData } = fixtures.readElectionDefinition();
+
+  const settings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    splitElectionDefinition: true,
+  };
+
+  const ballotPositionsJsonl = 'content irrelevant\n'.repeat(10);
+  const ballotHash = createHash('sha256')
+    .update(sha256Hex(electionData))
+    .update(sha256Hex(ballotPositionsJsonl))
+    .digest('hex');
+
+  const electionDefinition: ElectionDefinition = {
+    ballotHash,
+    election,
+    electionData,
+  };
+
+  const zipPath = makeTemporaryFile({
+    content: await electionPackageZip({
+      [ElectionPackageFileName.BALLOT_POSITIONS]: ballotPositionsJsonl,
+      [ElectionPackageFileName.ELECTION]: electionData,
+      [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(settings),
+    }),
+  });
+
+  const res = await readElectionPackageFromFile(zipPath);
+  expect(res).toEqual<Result<ParsedElectionPackageWithHash, unknown>>(
+    ok({
+      electionPackage: {
+        electionDefinition,
+        metadata: LATEST_METADATA,
+        uiStringAudioIds: {},
+        systemSettings: settings,
+        uiStrings: election.ballotStrings,
+      },
+      electionPackageHash: createHash('sha256')
+        .update(fs.readFileSync(zipPath))
+        .digest('hex'),
+    })
+  );
+});
+
+test('read from file - error when ballot hash input file is required, but missing', async () => {
+  const fixtures = electionGridLayoutNewHampshireTestBallotFixtures;
+  const { electionData } = fixtures.readElectionDefinition();
+
+  const settings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    splitElectionDefinition: true,
+  };
+
+  const zipPath = makeTemporaryFile({
+    content: await electionPackageZip({
+      [ElectionPackageFileName.ELECTION]: electionData,
+      [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(settings),
+    }),
+  });
+
+  const expected = err({
+    type: 'invalid-zip',
+    message: expect.stringContaining(ElectionPackageFileName.BALLOT_POSITIONS),
+  });
+  expect(await readElectionPackageFromFile(zipPath)).toEqual(expected);
 });
 
 test('readElectionPackageFromFile loads available ui strings', async () => {
@@ -1176,3 +1247,7 @@ test.each<{
     }
   }
 );
+
+function sha256Hex(data: Buffer | string) {
+  return createHash('sha256').update(data).digest('hex');
+}
