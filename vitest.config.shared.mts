@@ -47,7 +47,6 @@ export const base: vitest.ViteUserConfig = {
       include: ['src/**/*.ts', 'src/**/*.tsx'],
       exclude: ['**/*.test.ts', '**/*.test.tsx'],
     },
-    clearMocks: true,
     // Reuse transformed modules across runs: 7-18% off a warm rerun.
     fsModuleCache: true,
     maxWorkers: isCI ? 6 : localMaxWorkers,

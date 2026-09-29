@@ -4,7 +4,6 @@ import { join } from 'node:path';
 export default defineConfig({
   test: {
     setupFiles: ['test/setupTests.ts'],
-    clearMocks: true,
     coverage: {
       exclude: [
         'src/configure_sentry.ts',
