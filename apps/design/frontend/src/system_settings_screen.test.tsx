@@ -5,7 +5,7 @@ import {
   type SystemSettings,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
-import { assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, mapObject } from '@votingworks/basics';
 import type { UserFeaturesConfig } from '@votingworks/design-backend';
 import {
   fireEvent,
@@ -640,7 +640,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(45);
+  expect(allControls).toHaveLength(46);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();
@@ -869,6 +869,17 @@ test.each<{
     expectedSavedSystemSettings: { splitElectionDefinition: true },
   },
   {
+    userFeatures: { VXCENTRALSCAN_POLL_WORKER_ROLE_SYSTEM_SETTING: false },
+    checkboxLabel: 'Enable Poll Worker Role on VxCentralScan',
+    isCheckboxExpected: false,
+  },
+  {
+    userFeatures: { VXCENTRALSCAN_POLL_WORKER_ROLE_SYSTEM_SETTING: true },
+    checkboxLabel: 'Enable Poll Worker Role on VxCentralScan',
+    isCheckboxExpected: true,
+    expectedSavedSystemSettings: { centralScanEnablePollWorkerRole: true },
+  },
+  {
     userFeatures: {
       VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING: false,
     },
@@ -909,9 +920,10 @@ test.each<{
         screen.getByRole('checkbox', { name: checkboxLabel, checked: false })
       );
 
+      assert(expectedSavedSystemSettings !== undefined);
       const updatedSystemSettings: SystemSettings = {
         ...electionRecord.systemSettings,
-        ...assertDefined(expectedSavedSystemSettings),
+        ...expectedSavedSystemSettings,
       };
       apiMock.updateSystemSettings
         .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
@@ -922,6 +934,26 @@ test.each<{
 
       userEvent.click(screen.getByRole('button', { name: 'Save' }));
       screen.getByRole('checkbox', { name: checkboxLabel, checked: true });
+
+      userEvent.click(await screen.findByRole('button', { name: 'Edit' }));
+      userEvent.click(
+        screen.getByRole('checkbox', { name: checkboxLabel, checked: true })
+      );
+
+      const clearedSystemSettings: SystemSettings = {
+        ...electionRecord.systemSettings,
+        ...mapObject(expectedSavedSystemSettings, () => undefined),
+      };
+      apiMock.updateSystemSettings
+        .expectCallWith({ electionId, systemSettings: clearedSystemSettings })
+        .resolves();
+      apiMock.getSystemSettings
+        .expectCallWith({ electionId })
+        .resolves(electionRecord.systemSettings);
+
+      userEvent.click(screen.getByRole('button', { name: 'Save' }));
+      await screen.findByRole('button', { name: 'Edit' });
+      screen.getByRole('checkbox', { name: checkboxLabel, checked: false });
     }
   }
 );

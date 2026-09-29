@@ -277,6 +277,12 @@ export const SystemSettingsSchema = z
      * support counties with large elections (mainly WRT ballot style count).
      */
     splitElectionDefinition: z.boolean().optional(),
+
+    /**
+     * Enables the poll worker role for VxCentralScan, which is disabled by
+     * default.
+     */
+    centralScanEnablePollWorkerRole: z.boolean().optional(),
   })
   .refine(
     (settings) =>
