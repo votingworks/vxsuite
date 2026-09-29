@@ -364,14 +364,33 @@ test('voting', async ({ page }, testInfo) => {
     ...multiSeatContests.map((c) => (v: VotesDict) => withUndervote(v, c)),
   ].reduce((v, fn) => fn(v), fullVotes);
 
-  const [fullPdf, blankPdf, undervotePdf, overvotePdf, mixedPdf] =
-    await renderMarkedBallots([
-      { ...ballotSpec, votes: fullVotes },
-      { ...ballotSpec, votes: {} },
-      { ...ballotSpec, votes: undervoteVotes },
-      { ...ballotSpec, votes: overvoteVotes },
-      { ...ballotSpec, votes: mixedVotes },
-    ]);
+  // Same layout as the configured election (renderMarkedBallots lays out from
+  // the first spec) but a different ballot hash in the QR code, so the scanner
+  // rejects it as a ballot from the wrong election.
+  const wrongElectionDefinition = asElectionDefinition({
+    ...election,
+    title: `${election.title} (Other)`,
+  });
+
+  const [
+    fullPdf,
+    blankPdf,
+    undervotePdf,
+    overvotePdf,
+    mixedPdf,
+    wrongElectionPdf,
+  ] = await renderMarkedBallots([
+    { ...ballotSpec, votes: fullVotes },
+    { ...ballotSpec, votes: {} },
+    { ...ballotSpec, votes: undervoteVotes },
+    { ...ballotSpec, votes: overvoteVotes },
+    { ...ballotSpec, votes: mixedVotes },
+    {
+      ...ballotSpec,
+      electionDefinition: wrongElectionDefinition,
+      votes: fullVotes,
+    },
+  ]);
 
   await page.goto('/');
   await logInAsElectionManager(page, election);
@@ -495,6 +514,21 @@ test('voting', async ({ page }, testInfo) => {
   await waitForReviewScreen();
   await screenshot('mixed-overvote-undervote-warning');
   await page.getByRole('button', { name: 'Cast Ballot' }).click();
+  await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
+
+  // Wrong election: the ballot is rejected and returned to the voter.
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  mockPdiScannerHandler.insertSheet(wrongElectionPdf!);
+  await page
+    .getByRole('heading', { name: 'Wrong Election' })
+    .waitFor({ timeout: 15000 });
+  await expect(
+    page.getByText(
+      'The scanner is configured for an election that does not match the ballot.'
+    )
+  ).toBeVisible();
+  await screenshot('wrong-election');
+  mockPdiScannerHandler.removeSheet();
   await page.getByText('Insert Your Ballot').waitFor({ timeout: 15000 });
 
   // Voter settings screenshots.
