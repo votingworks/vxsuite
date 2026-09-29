@@ -3,8 +3,8 @@ import '@votingworks/test-utils/vitest-setup';
 import '@votingworks/fixtures/vitest-setup';
 import fetchMock from 'fetch-mock';
 import { TextDecoder, TextEncoder } from 'node:util';
-import { cleanup, configure } from '../test/react_testing_library.js';
-import './polyfills.js';
+import { cleanup, configure } from './react_testing_library.js';
+import '../src/polyfills.js';
 
 configure({ asyncUtilTimeout: 5_000 });
 

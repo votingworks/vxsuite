@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 export default defineConfig({
   test: {
-    setupFiles: ['test/setupTests.ts'],
+    setupFiles: ['test/setup.ts'],
     coverage: {
       exclude: [
         'src/configure_sentry.ts',

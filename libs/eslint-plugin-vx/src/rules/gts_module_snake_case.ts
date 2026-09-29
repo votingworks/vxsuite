@@ -10,14 +10,6 @@ function convertFileNameToSnakeCase(fileName: string): string {
     .replace(/-/g, '_');
 }
 
-function shouldBeSnakeCase(filePath: string): boolean {
-  const fileName = basename(filePath);
-  return (
-    !fileName.startsWith('setupTests.ts') &&
-    !fileName.startsWith('serviceWorker.ts')
-  );
-}
-
 const rule: TSESLint.RuleModule<'useSnakeCase', readonly unknown[]> =
   createRule({
     name: 'gts-module-snake-case',
@@ -39,13 +31,7 @@ const rule: TSESLint.RuleModule<'useSnakeCase', readonly unknown[]> =
 
       return {
         Program(node: TSESTree.Program): void {
-          const filePath = context.filename;
-
-          if (!shouldBeSnakeCase(filePath)) {
-            return;
-          }
-
-          const fileName = basename(filePath);
+          const fileName = basename(context.filename);
           const snakeCaseFileName = convertFileNameToSnakeCase(fileName);
           const firstToken = sourceCode.getFirstToken(node);
 

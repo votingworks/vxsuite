@@ -2,7 +2,7 @@ import { defineConfig } from '../../vitest.config.shared.mjs';
 
 export default defineConfig({
   test: {
-    setupFiles: ['src/setupTests.ts'],
+    setupFiles: ['test/setup.ts'],
     coverage: {
       exclude: [
         '**/*.test.ts',
