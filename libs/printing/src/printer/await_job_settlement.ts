@@ -12,6 +12,11 @@ export interface AwaitJobSettlementContext {
   onSettled: (status: PrintJobStatus) => Promise<void>;
 }
 
+/** A running settlement watch, which the caller can cancel. */
+export interface JobSettlementMonitor {
+  stop(): void;
+}
+
 /**
  * Watches a submitted print job until it reaches a terminal state.
  */
@@ -19,7 +24,7 @@ export function awaitJobSettlement({
   jobId,
   printer,
   onSettled,
-}: AwaitJobSettlementContext): { stop(): void } {
+}: AwaitJobSettlementContext): JobSettlementMonitor {
   let pollTimer: NodeJS.Timeout;
 
   function stop(): void {

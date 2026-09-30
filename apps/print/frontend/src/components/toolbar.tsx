@@ -220,7 +220,6 @@ export function Toolbar(): JSX.Element {
   return (
     <ToolbarContainer>
       <PrinterStatus status={printer} />
-      {/* @coverage-defer */}
       {battery && <BatteryStatus batteryInfo={battery} />}
       <DateTimeDisplay />
       <ToolbarButtons>

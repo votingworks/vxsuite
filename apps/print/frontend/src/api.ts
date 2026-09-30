@@ -10,6 +10,7 @@ import {
 } from '@tanstack/react-query';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
+  createPrintJobStatusApi,
   createSystemCallApi,
   QUERY_CLIENT_DEFAULT_OPTIONS,
   USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
@@ -194,7 +195,11 @@ export const getBallotPrintCounts = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getBallotPrintCounts());
+    return useQuery(this.queryKey(), () => apiClient.getBallotPrintCounts(), {
+      // Counts are incremented when a print job settles, which happens on the
+      // backend with no corresponding frontend mutation to invalidate on.
+      staleTime: 0,
+    });
   },
 } as const;
 
@@ -214,40 +219,33 @@ export const checkPin = {
 } as const;
 
 export const printBallot = {
+  /*
+   * If this mutation is called from a component that also displays a print count,
+   * the component should `useEffect` to invalidate the `getBallotPrintCounts` query
+   * once print job status === 'sent-to-printer'
+   */
   useMutation() {
     const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.printBallot, {
-      // @coverage-defer
-      async onSuccess() {
-        await queryClient.invalidateQueries(getBallotPrintCounts.queryKey());
-      },
-    });
+    return useMutation(apiClient.printBallot);
   },
 } as const;
 
 export const printAllBallotStyles = {
-  // @coverage-defer
   useMutation() {
     const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.printAllBallotStyles, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(getBallotPrintCounts.queryKey());
-      },
-    });
+    return useMutation(apiClient.printAllBallotStyles);
   },
 } as const;
 
+export const getPrintJobStatus = createPrintJobStatusApi(useApiClient);
+
 export const getDistinctBallotStylesCount = {
-  // @coverage-defer
   queryKey(input: {
     ballotType: BallotType;
     languageCode: LanguageCode;
   }): QueryKey {
     return ['getDistinctBallotStylesCount', input];
   },
-  // @coverage-defer
   useQuery(input: { ballotType: BallotType; languageCode: LanguageCode }) {
     const apiClient = useApiClient();
     return useQuery(

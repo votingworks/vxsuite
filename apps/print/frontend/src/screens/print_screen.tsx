@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { format, getLanguageOptions } from '@votingworks/utils';
@@ -8,6 +8,7 @@ import {
   type Id,
   isCombinedBallotPrimary,
   LanguageCode,
+  type PrintJobId,
   pollingPlaceFromElection,
   pollingPlacePrecinctIds,
 } from '@votingworks/types';
@@ -17,6 +18,8 @@ import {
   NumberInput,
   Modal,
   Loading,
+  getPrintJobDisplayStatus,
+  PrintJobFailedModal,
 } from '@votingworks/ui';
 import { assertDefined } from '@votingworks/basics';
 import {
@@ -35,11 +38,11 @@ import {
   getDeviceStatuses,
   getElectionRecord,
   getPollingPlaceId,
+  getPrintJobStatus,
   printBallot,
 } from '../api.js';
 import { getPartyOptions } from '../utils.js';
-
-const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
+import { PRINT_HANDOFF_MODAL_LINGER_SECONDS } from '../constants.js';
 
 const FormSection = styled.div`
   display: flex;
@@ -92,7 +95,24 @@ export function PrintScreen({
   const pollingPlaceIdQuery = getPollingPlaceId.useQuery();
   const pollingPlaceId = pollingPlaceIdQuery.data;
 
-  const [isShowingPrintingModal, setIsShowingPrintingModal] = useState(false);
+  const [printJobId, setPrintJobId] = useState<PrintJobId>();
+  const printJobStatusQuery = getPrintJobStatus.useQuery(printJobId);
+  const printJobStatus =
+    printJobId === undefined
+      ? undefined
+      : getPrintJobDisplayStatus(printJobStatusQuery.data);
+  const printOutcome = printJobStatus?.outcome;
+
+  useEffect(() => {
+    if (printOutcome !== 'sent-to-printer') {
+      return;
+    }
+    const timeout = setTimeout(
+      () => setPrintJobId(undefined),
+      PRINT_HANDOFF_MODAL_LINGER_SECONDS * 1000
+    );
+    return () => clearTimeout(timeout);
+  }, [printOutcome]);
 
   const precincts = React.useMemo(() => {
     if (!getElectionRecordQuery.data) return [];
@@ -152,18 +172,17 @@ export function PrintScreen({
 
   // @coverage-defer
   function handlePrint() {
-    setIsShowingPrintingModal(true);
-    setTimeout(() => {
-      setIsShowingPrintingModal(false);
-    }, DEFAULT_PROGRESS_MODAL_DELAY_SECONDS * 1000);
-    printBallotMutation.mutate({
-      precinctId: assertDefined(selectedPrecinct).id,
-      splitId: selectedSplitId,
-      partyId: selectedPartyId,
-      languageCode: selectedLanguageCode,
-      ballotType: isAbsentee ? BallotType.Absentee : BallotType.Precinct,
-      copies: numCopies,
-    });
+    printBallotMutation.mutate(
+      {
+        precinctId: assertDefined(selectedPrecinct).id,
+        splitId: selectedSplitId,
+        partyId: selectedPartyId,
+        languageCode: selectedLanguageCode,
+        ballotType: isAbsentee ? BallotType.Absentee : BallotType.Precinct,
+        copies: numCopies,
+      },
+      { onSuccess: setPrintJobId }
+    );
   }
 
   return (
@@ -306,17 +325,15 @@ export function PrintScreen({
             Print Ballot
           </PrintButton>
         </Footer>
-        {isShowingPrintingModal && (
-          // @coverage-defer
-          <Modal
-            centerContent
-            content={
-              <Loading
-                animationDurationS={DEFAULT_PROGRESS_MODAL_DELAY_SECONDS}
-              >
-                Printing
-              </Loading>
-            }
+        {printOutcome !== 'failed' &&
+          (printBallotMutation.isLoading || printJobId !== undefined) && (
+            <Modal centerContent content={<Loading>Printing</Loading>} />
+          )}
+        {printOutcome === 'failed' && (
+          <PrintJobFailedModal
+            multipleBallotsAttempted={false}
+            reason={printJobStatus?.reason}
+            onClose={() => setPrintJobId(undefined)}
           />
         )}
       </Container>
