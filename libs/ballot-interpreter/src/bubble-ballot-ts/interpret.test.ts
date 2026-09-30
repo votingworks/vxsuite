@@ -92,12 +92,12 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "mayor",
         "optionId": "sherlock-holmes",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "mayor",
         "optionId": "sherlock-holmes",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "mayor",
@@ -107,7 +107,7 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "mayor",
         "optionId": "write-in-0",
-        "score": 0.5788461565971375,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "controller",
@@ -132,7 +132,7 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "attorney",
         "optionId": "john-snow",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "attorney",
@@ -142,7 +142,7 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "attorney",
         "optionId": "write-in-0",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "public-works-director",
@@ -167,7 +167,7 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "chief-of-police",
         "optionId": "natalie-portman",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "chief-of-police",
@@ -187,7 +187,7 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "chief-of-police",
         "optionId": "write-in-0",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "parks-and-recreation-director",
@@ -217,22 +217,22 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "board-of-alderman",
         "optionId": "helen-keller",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "board-of-alderman",
         "optionId": "steve-jobs",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "board-of-alderman",
         "optionId": "nikola-tesla",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "board-of-alderman",
         "optionId": "vincent-van-gogh",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "board-of-alderman",
@@ -257,7 +257,7 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "board-of-alderman",
         "optionId": "write-in-2",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "board-of-alderman",
@@ -267,7 +267,7 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "city-council",
         "optionId": "marie-curie",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "city-council",
@@ -302,12 +302,12 @@ test('interpret `ImageData` objects', async () => {
       {
         "contestId": "city-council",
         "optionId": "martin-luther-king",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "city-council",
         "optionId": "marilyn-monroe",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "city-council",
@@ -396,12 +396,12 @@ test('interpret images from paths', async () => {
       {
         "contestId": "mayor",
         "optionId": "sherlock-holmes",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "mayor",
         "optionId": "sherlock-holmes",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "mayor",
@@ -411,7 +411,7 @@ test('interpret images from paths', async () => {
       {
         "contestId": "mayor",
         "optionId": "write-in-0",
-        "score": 0.5788461565971375,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "controller",
@@ -436,7 +436,7 @@ test('interpret images from paths', async () => {
       {
         "contestId": "attorney",
         "optionId": "john-snow",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "attorney",
@@ -446,7 +446,7 @@ test('interpret images from paths', async () => {
       {
         "contestId": "attorney",
         "optionId": "write-in-0",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "public-works-director",
@@ -471,7 +471,7 @@ test('interpret images from paths', async () => {
       {
         "contestId": "chief-of-police",
         "optionId": "natalie-portman",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "chief-of-police",
@@ -491,7 +491,7 @@ test('interpret images from paths', async () => {
       {
         "contestId": "chief-of-police",
         "optionId": "write-in-0",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "parks-and-recreation-director",
@@ -521,22 +521,22 @@ test('interpret images from paths', async () => {
       {
         "contestId": "board-of-alderman",
         "optionId": "helen-keller",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "board-of-alderman",
         "optionId": "steve-jobs",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "board-of-alderman",
         "optionId": "nikola-tesla",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "board-of-alderman",
         "optionId": "vincent-van-gogh",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "board-of-alderman",
@@ -561,7 +561,7 @@ test('interpret images from paths', async () => {
       {
         "contestId": "board-of-alderman",
         "optionId": "write-in-2",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "board-of-alderman",
@@ -571,7 +571,7 @@ test('interpret images from paths', async () => {
       {
         "contestId": "city-council",
         "optionId": "marie-curie",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "city-council",
@@ -606,12 +606,12 @@ test('interpret images from paths', async () => {
       {
         "contestId": "city-council",
         "optionId": "martin-luther-king",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "city-council",
         "optionId": "marilyn-monroe",
-        "score": 0.5778846144676208,
+        "score": 0.4971153736114502,
       },
       {
         "contestId": "city-council",

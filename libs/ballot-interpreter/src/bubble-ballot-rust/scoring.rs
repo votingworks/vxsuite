@@ -12,7 +12,7 @@ use types_rs::geometry::{PixelPosition, PixelUnit, Point, Quadrilateral, Rect, S
 
 use crate::ballot_card::BallotImage;
 use crate::debug;
-use crate::image_utils::{VerticalStreak, count_pixels_in_shape};
+use crate::image_utils::{BLACK, VerticalStreak, bleed, count_pixels_in_shape};
 use crate::interpret::{Error, Result};
 use crate::timing_marks::TimingMarks;
 
@@ -103,8 +103,8 @@ pub struct ScoredBubbleMark {
 
     /// The score for the fill of the bubble at `matched_bounds`: the fraction of
     /// the template area covered by ink the blank template does not have. Only
-    /// the template's blank-paper pixels can contribute, so the score is capped
-    /// at that fraction of the template area — roughly two thirds — and a
+    /// the fill template's blank-paper pixels can contribute, so the score is
+    /// capped at that fraction of the template area — roughly 56% — and a
     /// completely filled bubble scores near that cap rather than at 100%. Mark
     /// thresholds are calibrated on this scale.
     pub fill_score: UnitIntervalScore,
@@ -144,6 +144,7 @@ pub(crate) fn score_bubble_marks_from_grid_layout(
     sheet_number: u32,
     side: BallotSide,
 ) -> Result<ScoredBubbleMarks> {
+    let bubble_fill_template = bleed(bubble_template, BLACK);
     let scored_bubbles = grid_layout
         .grid_positions
         .par_iter()
@@ -179,6 +180,7 @@ pub(crate) fn score_bubble_marks_from_grid_layout(
             let scored_bubble_mark = score_bubble_mark(
                 ballot_image,
                 bubble_template,
+                &bubble_fill_template,
                 expected_bubble_center,
                 &location,
                 DEFAULT_MAXIMUM_SEARCH_DISTANCE,
@@ -564,9 +566,15 @@ fn find_best_match_bytes(
 /// We look for the highest match score in the vicinity of where we expect
 /// because the bubble mark may not be exactly where we expect in the scanned
 /// image due to stretching or other distortions.
+///
+/// `bubble_fill_template` is `bubble_template` bled one pixel further: the
+/// printed outline's anti-aliased rim is the only ink a blank bubble has, and
+/// keeping it out of the fill count is what lets a lighter ink threshold see
+/// pencil without seeing the outline.
 pub(crate) fn score_bubble_mark(
     ballot_image: &BallotImage,
     bubble_template: &GrayImage,
+    bubble_fill_template: &GrayImage,
     expected_bubble_center: Point<SubPixelUnit>,
     location: &GridLocation,
     maximum_search_distance: PixelUnit,
@@ -607,7 +615,7 @@ pub(crate) fn score_bubble_mark(
     let (fill_img, fill_threshold) = ballot_image.fill_pixels();
     let best_region = BubbleRegion::new(
         fill_img,
-        bubble_template,
+        bubble_fill_template,
         best_match.bounds.left() as u32,
         best_match.bounds.top() as u32,
         fill_threshold,
@@ -801,6 +809,7 @@ mod test {
         let result = score_bubble_mark(
             &ballot_image,
             &template,
+            &template,
             Point { x: 200.0, y: 50.0 },
             &location,
             DEFAULT_MAXIMUM_SEARCH_DISTANCE,
@@ -810,6 +819,7 @@ mod test {
         // Center way off the bottom edge
         let result = score_bubble_mark(
             &ballot_image,
+            &template,
             &template,
             Point { x: 50.0, y: 200.0 },
             &location,
@@ -828,6 +838,7 @@ mod test {
         let _ = score_bubble_mark(
             &ballot_image,
             &template,
+            &template,
             Point { x: 5.0, y: 50.0 },
             &location,
             DEFAULT_MAXIMUM_SEARCH_DISTANCE,
@@ -836,6 +847,7 @@ mod test {
         // Near top edge
         let _ = score_bubble_mark(
             &ballot_image,
+            &template,
             &template,
             Point { x: 50.0, y: 5.0 },
             &location,
@@ -846,6 +858,7 @@ mod test {
         let _ = score_bubble_mark(
             &ballot_image,
             &template,
+            &template,
             Point { x: 95.0, y: 50.0 },
             &location,
             DEFAULT_MAXIMUM_SEARCH_DISTANCE,
@@ -854,6 +867,7 @@ mod test {
         // Near bottom edge
         let _ = score_bubble_mark(
             &ballot_image,
+            &template,
             &template,
             Point { x: 50.0, y: 95.0 },
             &location,
@@ -892,6 +906,7 @@ mod test {
 
             let _ = score_bubble_mark(
                 &ballot_image,
+                &template,
                 &template,
                 Point { x: center_x, y: center_y },
                 &location,

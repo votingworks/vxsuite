@@ -271,16 +271,18 @@ bubble is:
    re-reads to the same quantization, so re-interpreting either reproduces the
    score; a 1-bit export keeps only the black level, so its re-read can only
    score lower
-2. Count the pixels where the template expects blank paper but the scan is ink
-   — ink the blank template does not have
+2. Count the pixels where the fill template expects blank paper but the scan is
+   ink — ink the blank template does not have. The fill template is the
+   location template bled one pixel further, so the printed outline's
+   anti-aliased rim, the only ink a blank bubble has, stays out of the count
 3. The fill score is that count over the template area
 
 The fill score represents what percentage of the template area has been filled
 in beyond what the template shows. A higher fill score indicates a more
-completely filled bubble. Note that only the template's blank-paper pixels can
-contribute, so the score is capped at that fraction of the template area —
-roughly two thirds — and a completely filled bubble scores near that cap rather
-than at 100%. Mark thresholds are calibrated on this scale. The score is later
+completely filled bubble. Note that only the fill template's blank-paper pixels
+can contribute, so the score is capped at that fraction of the template area —
+roughly 56% — and a completely filled bubble scores near that cap rather than
+at 100%. Mark thresholds are calibrated on this scale. The score is later
 compared to a threshold to determine if the bubble should be counted as marked,
 but the scoring function itself simply computes the score and lets the caller
 decide how to interpret it.

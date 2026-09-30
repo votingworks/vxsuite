@@ -899,6 +899,39 @@ mod test {
         }
     }
 
+    /// Counting dark gray as ink must not raise blank scanned bubbles: the fill
+    /// template keeps the printed outline's rim out of the count, and the 2-bit
+    /// smoothing drops the rim's isolated gray pixels.
+    #[test]
+    fn test_dark_gray_ink_does_not_raise_blank_scanned_bubbles() {
+        let fills = |bit_depth: BallotImageBitDepth| {
+            let (side_a_image, side_b_image, mut options) = load_ballot_card_fixture(
+                "all-bubble-ballot",
+                ("blank-front.jpg", "blank-back.jpg"),
+                ("test-precinct", "sheet-1"),
+                true,
+            );
+            options.ballot_image_bit_depth = bit_depth;
+            let card = ballot_card(side_a_image, side_b_image, &options).unwrap();
+            card.front
+                .marks
+                .iter()
+                .chain(&card.back.marks)
+                .map(|(position, mark)| (position.to_string(), mark.as_ref().unwrap().fill_score.0))
+                .collect::<Vec<_>>()
+        };
+        let one_bit = fills(BallotImageBitDepth::One);
+        let two_bit = fills(BallotImageBitDepth::Two);
+        assert_eq!(one_bit.len(), two_bit.len());
+        assert!(one_bit.len() > 2000);
+        for ((position, one), (_, two)) in one_bit.iter().zip(&two_bit) {
+            assert!(
+                two <= &(one + 0.005),
+                "{position}: {two} at 2 bits vs {one} at 1 bit"
+            );
+        }
+    }
+
     #[test]
     fn test_debug_images_with_cropping() {
         let (side_a_image, _, _) = load_hmpb_fixture("vx-general-election/letter-en", 1);
