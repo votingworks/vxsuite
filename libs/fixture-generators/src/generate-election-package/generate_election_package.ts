@@ -84,6 +84,7 @@ export async function generateElectionPackage(
       ballotTemplates.VxDefaultBallot,
       allBaseBallotProps(electionWithBallotStrings),
       { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+      DEFAULT_SYSTEM_SETTINGS,
       { path: tmp.dirSync({ unsafeCleanup: true }).name }
     );
   await rendererPool.close();

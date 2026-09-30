@@ -17,16 +17,17 @@
     "skipLibCheck": true
   },
   "references": [
-    { "path": "../../libs/coverage-check/tsconfig.build.json" },
-    { "path": "../basics/tsconfig.build.json" },
+    { "path": "../backend/tsconfig.build.json" },
     { "path": "../ballot-encoder/tsconfig.build.json" },
+    { "path": "../basics/tsconfig.build.json" },
+    { "path": "../coverage-check/tsconfig.build.json" },
     { "path": "../fixtures/tsconfig.build.json" },
     { "path": "../fs/tsconfig.build.json" },
     { "path": "../image-utils/tsconfig.build.json" },
+    { "path": "../monorepo-utils/tsconfig.build.json" },
+    { "path": "../test-utils/tsconfig.build.json" },
     { "path": "../types/tsconfig.build.json" },
     { "path": "../ui/tsconfig.build.json" },
-    { "path": "../utils/tsconfig.build.json" },
-    { "path": "../monorepo-utils/tsconfig.build.json" },
-    { "path": "../test-utils/tsconfig.build.json" }
+    { "path": "../utils/tsconfig.build.json" }
   ]
 }

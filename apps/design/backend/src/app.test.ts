@@ -68,6 +68,7 @@ import {
   straightPartyNotYetImplemented,
   type EncodedBallotEntry,
   type UiStringAudioClip,
+  BallotPositionsSchema,
 } from '@votingworks/types';
 import {
   ballotStyleHasPrecinctOrSplit,
@@ -83,6 +84,7 @@ import {
   forEachUiString,
   isMockCloudSynthesizedSpeech,
   mockCloudTranslatedText,
+  openElectionPackageBuffer as openElectionPackageZipBuffer,
   readCastVoteRecordExport,
   readElectionPackageFromBuffer,
   streamElectionPackageAudioClips,
@@ -3543,7 +3545,7 @@ test('Election package management', async () => {
     { interval: 500, retries: 3 }
   );
   const emitProgress = vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition)
-    .mock.lastCall![5]!;
+    .mock.lastCall![6]!;
   emitProgress('Test progress message', 2, 10);
 
   await backendWaitFor(
@@ -4134,6 +4136,7 @@ test('Election package and ballots export', async () => {
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    await apiClient.getSystemSettings({ electionId }),
     ANY_SCRATCH_DIR,
     expect.any(Function) // emitProgress callback
   );
@@ -4324,6 +4327,7 @@ test('export omits optional ballots if not enabled', async () => {
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    await apiClient.getSystemSettings({ electionId }),
     ANY_SCRATCH_DIR,
     expect.any(Function) // emitProgress callback
   );
@@ -4399,6 +4403,73 @@ test('Election package export with VxDefaultBallot drops signature field', async
   expect(electionPackage.electionDefinition.election.signature).toBeUndefined();
 });
 
+test('export - stores ballot meta files when `splitElectionDefinition` setting is on', async () => {
+  const fixtures = electionFamousNames2021Fixtures;
+  const { electionData } = fixtures.readElectionDefinition();
+
+  const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp({
+    organizations,
+    jurisdictions,
+    users,
+  });
+
+  auth0.setLoggedInUser(nonVxUser);
+
+  const newElectionRes = await apiClient.loadElection({
+    newId: 'new-election-id',
+    jurisdictionId: nonVxJurisdiction.id,
+    upload: {
+      format: 'vxf',
+      electionFileContents: electionData,
+    },
+  });
+
+  const electionId = newElectionRes.unsafeUnwrap();
+  const { election } = await workspace.store.getElection(electionId);
+  const { ballotStyles } = election;
+
+  await apiClient.updateSystemSettings({
+    electionId,
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      splitElectionDefinition: true,
+    },
+  });
+
+  const exportMeta = await exportElectionPackage({
+    fileStorageClient,
+    apiClient,
+    electionId,
+    workspace,
+    electionSerializationFormat: 'vxf',
+    shouldExportAudio: false,
+    shouldExportSampleBallots: false,
+    shouldExportTestBallots: true,
+    numAuditIdBallots: undefined,
+  });
+
+  const pkg = getExportedFile({
+    storage: fileStorageClient,
+    jurisdictionId: nonVxJurisdiction.id,
+    url: exportMeta.electionPackageUrl,
+  });
+
+  const Entry = ElectionPackageFileName;
+  const zip = await openElectionPackageZipBuffer(pkg);
+  const pkgPositionsJsonl = await zip.readEntryText(Entry.BALLOT_POSITIONS);
+
+  const parsedPositions = pkgPositionsJsonl
+    .trim()
+    .split('\n')
+    .map((l) => safeParseJson(l, BallotPositionsSchema).unsafeUnwrap());
+
+  expect(parsedPositions).toHaveLength(ballotStyles.length);
+
+  for (let i = 0; i < parsedPositions.length; i += 1) {
+    expect(parsedPositions[i]?.ballotStyleId).toEqual(ballotStyles[i]?.id);
+  }
+});
+
 test('Export test decks', async () => {
   const electionDefinition = readElectionTwoPartyPrimaryDefinition();
   const { apiClient, fileStorageClient, workspace, auth0 } = await setupApp({
@@ -4472,6 +4543,7 @@ test('Export test decks', async () => {
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    await apiClient.getSystemSettings({ electionId }),
     ANY_SCRATCH_DIR,
     expect.any(Function) // emitProgress callback
   );
@@ -4989,6 +5061,10 @@ test('export ballots with audit IDs', async () => {
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    {
+      ...(await apiClient.getSystemSettings({ electionId })),
+      precinctScanEnableBallotAuditIds: true,
+    },
     ANY_SCRATCH_DIR,
     expect.any(Function) // emitProgress callback
   );
@@ -5154,6 +5230,7 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
     ballotTemplates.NhBallot,
     expect.any(Array), // Ballot props
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    await apiClient.getSystemSettings({ electionId }),
     ANY_SCRATCH_DIR,
     expect.any(Function) // emitProgress callback
   );

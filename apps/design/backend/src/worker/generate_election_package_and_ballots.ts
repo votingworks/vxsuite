@@ -344,12 +344,13 @@ async function generate(
     version: jurisdiction.softwareVersion,
   };
 
-  const { electionDefinition, ballotPaths } =
+  const { electionDefinition, ballotPaths, ballotPositionsPath } =
     await renderAllBallotPdfsAndCreateElectionDefinition(
       rendererPool,
       ballotTemplates[ballotTemplateId],
       allBallotProps,
       serializationOptions,
+      systemSettings,
       scratchDir,
       emitProgress
     );
@@ -365,6 +366,13 @@ async function generate(
   electionPackageZip.addEntry(electionDefinition.electionData, {
     name: ElectionPackageFileName.ELECTION,
   });
+
+  if (ballotPositionsPath) {
+    // [TODO] Add ZIP entry compression.
+    electionPackageZip.addEntryFromPath(ballotPositionsPath, {
+      name: ElectionPackageFileName.BALLOT_POSITIONS,
+    });
+  }
 
   electionPackageZip.addEntry(JSON.stringify(systemSettings, null, 2), {
     name: ElectionPackageFileName.SYSTEM_SETTINGS,

@@ -420,6 +420,7 @@ test('audit ballot IDs', async () => {
       ballotTemplates.VxDefaultBallot,
       [ballotPropsWithAuditId],
       { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+      DEFAULT_SYSTEM_SETTINGS,
       { path: makeTemporaryDirectory() }
     );
   const ballotPdf = fs.readFileSync(ballotPaths[0]!);

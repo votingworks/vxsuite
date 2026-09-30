@@ -1,6 +1,7 @@
 import {
   electionFamousNames2021Fixtures,
   makeTemporaryDirectory,
+  makeTemporaryFile,
 } from '@votingworks/fixtures';
 import { afterAll, beforeAll, test, expect } from 'vitest';
 import {
@@ -16,6 +17,12 @@ import {
   LATEST_SOFTWARE_VERSION,
   straightPartyNotYetImplemented,
   convertLatestElectionToV4p0,
+  DEFAULT_SYSTEM_SETTINGS,
+  type SystemSettings,
+  safeParseJson,
+  BallotPositionsSchema,
+  ElectionPackageFileName,
+  type BallotPositions,
 } from '@votingworks/types';
 import {
   assert,
@@ -30,10 +37,17 @@ import {
   parse as parseHtml,
   type HTMLElement as ParsedHTMLElement,
 } from 'node-html-parser';
+import { readFileSync } from 'node:fs';
+import {
+  parseAndHashElection,
+  withElectionPackageZip,
+} from '@votingworks/backend';
+import { zipFile } from '@votingworks/test-utils';
 import {
   allBaseBallotProps,
   layOutBallotsAndCreateElectionDefinition,
   layOutMinimalBallotsToCreateElectionDefinition,
+  renderAllBallotPdfsAndCreateElectionDefinition,
   type ScratchDir,
 } from './render_ballot.js';
 import { renderBallotTemplate } from './render_common.js';
@@ -42,6 +56,7 @@ import type { RendererPool } from './renderer.js';
 import {
   type BallotTemplateId,
   ballotTemplates,
+  type NhStateBallotProps,
 } from './ballot_templates/index.js';
 import {
   miClosedPrimaryElectionFixtures,
@@ -141,6 +156,7 @@ test('layOutMinimalBallotsToCreateElectionDefinition', async () => {
       ballotTemplates.VxDefaultBallot,
       allBallotProps,
       { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+      DEFAULT_SYSTEM_SETTINGS,
       makeScratchDir()
     );
   expect(electionDefinition).toEqual(fixtureElectionDefinition);
@@ -154,6 +170,7 @@ test('rendered ballot can convert to v4p0 election', async () => {
     ballotTemplates.VxDefaultBallot,
     allBallotProps,
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    DEFAULT_SYSTEM_SETTINGS,
     makeScratchDir()
   );
 
@@ -193,6 +210,7 @@ test('reorder candidates based on rotation from template', async () => {
     ballotTemplates.NhBallot,
     allBallotProps,
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    DEFAULT_SYSTEM_SETTINGS,
     makeScratchDir()
   );
 
@@ -248,6 +266,7 @@ test('v4.1: ballot measure contests with 3+ options are exported natively as yes
       ballotTemplates.NhBallot,
       allBallotProps,
       { format: 'vxf', version: 'v4.1' },
+      DEFAULT_SYSTEM_SETTINGS,
       makeScratchDir()
     );
   const nativeContest = find(
@@ -282,6 +301,7 @@ test('v4.0: ballot measure contests with 3+ options are transformed into candida
       ballotTemplates.NhBallot,
       allBallotProps,
       { format: 'vxf', version: 'v4.0' },
+      DEFAULT_SYSTEM_SETTINGS,
       makeScratchDir()
     );
   const transformedContest = find(
@@ -486,12 +506,150 @@ test('fails on inconsistent ballot positions for matching styles', async () => {
     vxDefaultBallotTemplate,
     [baseProps, conflictingProps],
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    DEFAULT_SYSTEM_SETTINGS,
     makeScratchDir()
   );
 
   await expect(res).rejects.toThrow(/multiple distinct ballot positions/);
 });
 
+test('writes separate ballot meta files when `splitElectionDefinition` setting is on', async () => {
+  const fixtures = vxGeneralElectionFixtures;
+  const allProps = assertDefined(fixtures.fixtureSpecs[0]?.allBallotProps);
+
+  const props1 = assertDefined(allProps[0]);
+  const props2 = find(
+    allProps,
+    (p) => p.ballotStyleId !== props1.ballotStyleId
+  );
+
+  const settings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    splitElectionDefinition: true,
+  };
+
+  const res = await renderAllBallotPdfsAndCreateElectionDefinition(
+    rendererPool,
+    vxDefaultBallotTemplate,
+    [props1, props2],
+    { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    settings,
+    makeScratchDir()
+  );
+
+  for (const bs of res.electionDefinition.election.ballotStyles) {
+    expect(bs.ballotPositions).toBeUndefined();
+  }
+
+  const ballotPositionsJsonl = loadPositionsJsonl(res.ballotPositionsPath);
+  const ballotPositions = parsePositionsJsonl(ballotPositionsJsonl);
+
+  expect(ballotPositions[0]?.ballotStyleId).toEqual(props1.ballotStyleId);
+  expect(ballotPositions[1]?.ballotStyleId).toEqual(props2.ballotStyleId);
+
+  // Make sure ballot hashes match after round trip through ZIP package:
+
+  const zipData = await zipFile({
+    [ElectionPackageFileName.ELECTION]: res.electionDefinition.electionData,
+    [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(settings),
+    [ElectionPackageFileName.BALLOT_POSITIONS]: ballotPositionsJsonl,
+  });
+
+  const zipFilePath = makeTemporaryFile({ content: zipData });
+  const parsedElection = await withElectionPackageZip(zipFilePath, (zip) =>
+    parseAndHashElection(zip, settings)
+  );
+
+  const { ballotHash } = res.electionDefinition;
+  expect(parsedElection.unsafeUnwrap().ballotHash).toEqual(ballotHash);
+});
+
+test('writes single-file election when `splitElectionDefinition` setting is off', async () => {
+  const fixtures = vxGeneralElectionFixtures;
+  const props = assertDefined(fixtures.fixtureSpecs[0]?.allBallotProps);
+
+  const props1 = assertDefined(props[0]);
+  const props2 = find(props, (p) => p.ballotStyleId !== props1.ballotStyleId);
+
+  const settings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    splitElectionDefinition: false,
+  };
+
+  const res = await renderAllBallotPdfsAndCreateElectionDefinition(
+    rendererPool,
+    vxDefaultBallotTemplate,
+    [props1, props2],
+    { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    settings,
+    makeScratchDir()
+  );
+
+  const { ballotHash, election } = res.electionDefinition;
+
+  function expectBallotStylePositions(styleId: string) {
+    const style = find(election.ballotStyles, (bs) => bs.id === styleId);
+    expect(style.ballotPositions?.length).greaterThan(0);
+  }
+
+  expectBallotStylePositions(props1.ballotStyleId);
+  expectBallotStylePositions(props2.ballotStyleId);
+  expect(res.ballotPositionsPath).toBeUndefined();
+
+  // Make sure ballot hashes match after round trip through ZIP package:
+
+  const zipData = await zipFile({
+    [ElectionPackageFileName.ELECTION]: res.electionDefinition.electionData,
+    [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(settings),
+  });
+
+  const zipFilePath = makeTemporaryFile({ content: zipData });
+  const parsedElection = await withElectionPackageZip(zipFilePath, (zip) =>
+    parseAndHashElection(zip, settings)
+  );
+
+  expect(parsedElection.unsafeUnwrap().ballotHash).toEqual(ballotHash);
+});
+
+test('omits ballot positions for non-scannable documents', async () => {
+  const fixtures = vxGeneralElectionFixtures;
+  const props = assertDefined(fixtures.fixtureSpecs[0]?.allBallotProps);
+
+  const props1: NhStateBallotProps = { ...props[0]!, isHandCount: true };
+  const props2 = find(props, (p) => p.ballotStyleId !== props1.ballotStyleId);
+
+  const settings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    splitElectionDefinition: true,
+  };
+
+  const res = await layOutBallotsAndCreateElectionDefinition(
+    rendererPool,
+    vxDefaultBallotTemplate,
+    [props1, props2],
+    { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    settings,
+    makeScratchDir()
+  );
+
+  const ballotPositionsJsonl = loadPositionsJsonl(res.ballotPositionsPath);
+  const ballotPositions = parsePositionsJsonl(ballotPositionsJsonl);
+  expect(ballotPositions).toHaveLength(1);
+  expect(ballotPositions[0]?.ballotStyleId).toEqual(props2.ballotStyleId);
+});
+
 function makeScratchDir(): ScratchDir {
   return { path: makeTemporaryDirectory() };
+}
+
+function loadPositionsJsonl(filePath?: string): string {
+  assert(!!filePath, 'missing ballot positions path');
+  return readFileSync(filePath, 'utf8');
+}
+
+function parsePositionsJsonl(jsonl: string): BallotPositions[] {
+  return jsonl
+    .trim()
+    .split('\n')
+    .map((l) => safeParseJson(l, BallotPositionsSchema).unsafeUnwrap());
 }

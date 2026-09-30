@@ -19,6 +19,7 @@ import {
 } from '@votingworks/utils';
 import {
   BallotType,
+  DEFAULT_SYSTEM_SETTINGS,
   type Election,
   type ElectionDefinition,
   hasSplits,
@@ -76,6 +77,7 @@ describe('createPrecinctTestDeck', () => {
       ballotTemplates.VxDefaultBallot,
       fixtures.allBallotProps,
       serializationOptions,
+      DEFAULT_SYSTEM_SETTINGS,
       makeScratchDir()
     );
     const ballots = iter(fixtures.allBallotProps)
@@ -131,6 +133,7 @@ describe('createPrecinctTestDeck', () => {
       ballotTemplates.VxDefaultBallot,
       ballotProps,
       serializationOptions,
+      DEFAULT_SYSTEM_SETTINGS,
       makeScratchDir()
     );
     const ballots = iter(ballotProps)

@@ -11,6 +11,7 @@ import {
   type HmpbBallotPaperSize,
   type VotesDict,
   LATEST_SOFTWARE_VERSION,
+  DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
 import makeDebug from 'debug';
 
@@ -92,6 +93,7 @@ export function allBubbleBallotFixtures(
           allBubbleBallotTemplate(paperSize),
           [ballotProps],
           { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+          DEFAULT_SYSTEM_SETTINGS,
           scratchDir ?? { path: makeTemporaryDirectory() }
         );
 

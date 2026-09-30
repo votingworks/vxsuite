@@ -338,6 +338,16 @@ export async function withElectionPackageZip<T>(
 }
 
 /**
+ * Opens the given election package ZIP file.
+ */
+// @coverage-defer
+export async function openElectionPackageBuffer(
+  zipData: Buffer
+): Promise<ElectionPackageZip> {
+  return createBufferBackedZip(await openZip(zipData));
+}
+
+/**
  * Parses a package from the given buffer and hashes the raw contents.
  */
 export async function readElectionPackageFromBuffer(

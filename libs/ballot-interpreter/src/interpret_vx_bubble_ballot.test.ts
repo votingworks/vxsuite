@@ -34,6 +34,7 @@ import {
   getBallotStyle,
   gridPositionsFromBallotPositions,
   LATEST_SOFTWARE_VERSION,
+  DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
 import { createCanvas } from 'canvas';
 import {
@@ -870,6 +871,7 @@ test('Ballot audit IDs', async () => {
       ballotTemplates.VxDefaultBallot,
       [ballotPropsWithAuditId],
       { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+      DEFAULT_SYSTEM_SETTINGS,
       makeScratchDir()
     );
   const ballotPdf = fs.readFileSync(ballotPaths[0]!);
@@ -913,6 +915,7 @@ describe('Contest option bounds', () => {
         ballotTemplates.VxDefaultBallot,
         ballotProps,
         { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+        DEFAULT_SYSTEM_SETTINGS,
         makeScratchDir()
       );
 
@@ -972,6 +975,7 @@ describe('Contest option bounds', () => {
         ballotTemplates.VxDefaultBallot,
         ballotProps,
         { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+        DEFAULT_SYSTEM_SETTINGS,
         makeScratchDir()
       );
 
