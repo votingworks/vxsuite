@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
@@ -18,7 +18,10 @@ import {
   suppressingConsoleOutput,
   zipFile,
 } from '@votingworks/test-utils';
-import { mockElectionPackageFileTree } from '@votingworks/backend';
+import {
+  mockElectionPackageFileTree,
+  type PartialElectionPackage,
+} from '@votingworks/backend';
 import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   constructElectionKey,
@@ -31,7 +34,11 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { configureApp } from '../test/helpers/shared_helpers.js';
-import { withApp } from '../test/helpers/scanner_helpers.js';
+import {
+  testWithApp,
+  withApp,
+  type AppContext,
+} from '../test/helpers/scanner_helpers.js';
 import type { PrecinctScannerPollsInfo } from './index.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
@@ -401,3 +408,30 @@ test('configure with CDF election', async () => {
     });
   });
 });
+
+describe('populates ballot_positions DB table', () => {
+  const fixtures = electionFamousNames2021Fixtures;
+  const electionDefinition = fixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+
+  // [TODO] Add test for split-file elections (pending shared fixtures).
+  testWithApp('for single-file elections', async (ctx) => {
+    mockElectionManager(ctx.mockAuth, electionDefinition);
+
+    await configureFromUsb(ctx, {
+      electionDefinition,
+      systemSettings: DEFAULT_SYSTEM_SETTINGS,
+    });
+
+    const ballotMetaStore = ctx.workspace.store.getBallotMetaStore();
+    for (const bs of election.ballotStyles) {
+      expect(ballotMetaStore.getPositions(bs.id)).toEqual(bs.ballotPositions);
+    }
+  });
+});
+
+async function configureFromUsb(ctx: AppContext, pkg: PartialElectionPackage) {
+  ctx.mockUsbDrive.insertUsbDrive(await mockElectionPackageFileTree(pkg));
+  const res = await ctx.apiClient.configureFromElectionPackageOnUsbDrive();
+  res.unsafeUnwrap();
+}

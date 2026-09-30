@@ -1,4 +1,12 @@
-import { afterEach, beforeEach, expect, type Mocked, test, vi } from 'vitest';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  type Mocked,
+  test,
+  vi,
+} from 'vitest';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
@@ -44,7 +52,10 @@ import {
 
 import { Buffer } from 'node:buffer';
 import { readFileSync } from 'node:fs';
-import { mockElectionPackageFileTree } from '@votingworks/backend';
+import {
+  mockElectionPackageFileTree,
+  type PartialElectionPackage,
+} from '@votingworks/backend';
 import type { Server } from 'node:http';
 import type * as grout from '@votingworks/grout';
 import type { MockUsbDrive } from '@votingworks/usb-drive';
@@ -220,6 +231,32 @@ test('configureElectionPackageFromUsb reads to and writes from store', async () 
     electionPackageHash: expect.any(String),
   });
 });
+
+describe('configure populates ballot_positions DB table', () => {
+  const fixtures = electionFamousNames2021Fixtures;
+  const electionDefinition = fixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+
+  test('for single-file elections', async () => {
+    mockElectionManagerAuth(electionDefinition);
+
+    await configureFromUsb({
+      electionDefinition,
+      systemSettings: DEFAULT_SYSTEM_SETTINGS,
+    });
+
+    const ballotMetaStore = workspace.store.getBallotMetaStore();
+    for (const bs of election.ballotStyles) {
+      expect(ballotMetaStore.getPositions(bs.id)).toEqual(bs.ballotPositions);
+    }
+  });
+});
+
+async function configureFromUsb(pkg: PartialElectionPackage) {
+  mockUsbDrive.insertUsbDrive(await mockElectionPackageFileTree(pkg));
+  const res = await apiClient.configureElectionPackageFromUsb();
+  res.unsafeUnwrap();
+}
 
 test('configureElectionPackageFromUsb cleans up when ballot streaming fails', async () => {
   const electionDefinition =

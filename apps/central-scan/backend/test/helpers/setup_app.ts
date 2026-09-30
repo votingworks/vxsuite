@@ -1,4 +1,4 @@
-import { expect, type Mocked, vi } from 'vitest';
+import { expect, type Mocked, test, vi } from 'vitest';
 import type { Application } from 'express';
 import {
   LogSource,
@@ -40,19 +40,28 @@ export function buildMockLogger(
   });
 }
 
+export interface TestAppContext {
+  auth: Mocked<DippedSmartCardAuthApi>;
+  workspace: Workspace;
+  scanner: MockScanner;
+  mockUsbDrive: MockUsbDrive;
+  machine: BatchScannerStateMachine;
+  app: Application;
+  logger: Logger;
+  apiClient: grout.Client<Api>;
+  server: Server;
+  store: Store;
+}
+
+export function testWithApp(
+  name: string,
+  fn: (ctx: TestAppContext) => Promise<void>
+): void {
+  test(name, async () => withApp(fn));
+}
+
 export async function withApp(
-  fn: (context: {
-    auth: Mocked<DippedSmartCardAuthApi>;
-    workspace: Workspace;
-    scanner: MockScanner;
-    mockUsbDrive: MockUsbDrive;
-    machine: BatchScannerStateMachine;
-    app: Application;
-    logger: Logger;
-    apiClient: grout.Client<Api>;
-    server: Server;
-    store: Store;
-  }) => Promise<void>
+  fn: (ctx: TestAppContext) => Promise<void>
 ): Promise<void> {
   const port = await getPort();
   const auth = buildMockDippedSmartCardAuth(vi.fn);
