@@ -263,9 +263,15 @@ bit-identical.
 Once the best matching position is found, the algorithm computes how filled the
 bubble is:
 
-1. Threshold the scanned pixels at the best matching bounds using the ballot's
-   global threshold
-2. Count the pixels where the template expects blank paper but the scan is dark
+1. Decide which pixels at the best matching bounds are ink: the black and
+   dark-gray levels of the page's smoothed 2-bit quantization, whatever bit
+   depth the page is exported at. Light pencil sits between the Otsu threshold
+   and the dark-gray level, so it registers as ink where the 1-bit binarization
+   drops it. A 2-bit export encodes exactly these pixels and an 8-bit export
+   re-reads to the same quantization, so re-interpreting either reproduces the
+   score; a 1-bit export keeps only the black level, so its re-read can only
+   score lower
+2. Count the pixels where the template expects blank paper but the scan is ink
    — ink the blank template does not have
 3. The fill score is that count over the template area
 
@@ -294,9 +300,10 @@ follows:
    coordinates, computing the four corners of the write-in area as a
    quadrilateral (to account for skew and distortion).
 
-2. **Score Computation**: The score is the ratio of dark (foreground) pixels to
-   total pixels within the quadrilateral area. This ratio represents how much of
-   the write-in area contains ink or markings.
+2. **Score Computation**: The score is the ratio of ink pixels to total pixels
+   within the quadrilateral area, with ink decided the same way as for fill
+   scoring above. This ratio represents how much of the write-in area contains
+   ink or markings.
 
 The score is later compared to a threshold to determine whether handwriting is
 present, but the core function simply computes the score and lets the caller

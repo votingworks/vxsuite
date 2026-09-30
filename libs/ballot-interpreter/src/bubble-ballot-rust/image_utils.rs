@@ -139,14 +139,14 @@ pub fn count_pixels(img: &GrayImage, luma: Luma<u8>) -> CountedPixels {
     }
 }
 
-/// Count the number of pixels in an image that are within the given shape and
-/// at or below the given threshold.
+/// Counts the pixels within the given shape that count as ink for fill
+/// scoring (see [`BallotImage::fill_pixels`]).
 pub fn count_pixels_in_shape(ballot_image: &BallotImage, shape: &Quadrilateral) -> CountedPixels {
     let mut counted = CountedPixels::default();
     let bounds = shape.bounds();
     let width = ballot_image.width() as usize;
-    let raw = ballot_image.image().as_raw();
-    let thresh = ballot_image.threshold();
+    let (fill_image, thresh) = ballot_image.fill_pixels();
+    let raw = fill_image.as_raw();
     let x_range = bounds.left().max(0)..bounds.right().min(ballot_image.width() as i32);
     let y_range = bounds.top().max(0)..bounds.bottom().min(ballot_image.height() as i32);
     // Iterate rows in the outer loop since the image data is stored row-major.
@@ -497,12 +497,32 @@ const MAX_QUANTIZED_LEVELS: usize = 4;
 /// 2-bit export's four spikes at the dark-gray level, and would make a blank
 /// sheet's single level black.
 pub(crate) fn binarization_threshold_from_histogram(hist: &GrayHistogram) -> u8 {
-    let levels = hist.iter().filter(|&&count| count > 0).count();
-    if levels <= MAX_QUANTIZED_LEVELS {
+    if is_quantized_histogram(hist) {
         0
     } else {
         otsu_level_from_histogram(hist)
     }
+}
+
+/// Whether an image with this histogram is an already-quantized export (or a
+/// synthetic image) rather than a grayscale scan.
+pub(crate) fn is_quantized_histogram(hist: &GrayHistogram) -> bool {
+    hist.iter().filter(|&&count| count > 0).count() <= MAX_QUANTIZED_LEVELS
+}
+
+/// Luma of one 2-bit level once a 2-bit PNG is expanded to 8 bits: the levels
+/// decode to 0, 85, 170 and 255.
+pub(crate) const QUANTIZED_LEVEL_LUMA: u8 = 85;
+
+/// Picks the fill-scoring threshold for a re-read quantized export from its
+/// histogram: the darkest gray a 2-bit export has below mid-gray, so black and
+/// dark gray count as ink exactly as they did when the page was scanned. A
+/// 1-bit export has no such level and keeps only black.
+pub(crate) fn quantized_fill_threshold_from_histogram(hist: &GrayHistogram) -> u8 {
+    (0..=usize::from(u8::MAX / 2))
+        .rev()
+        .find(|&luma| hist[luma] > 0)
+        .map_or(0, |luma| luma as u8)
 }
 
 /// Computes Otsu's threshold for a grayscale image.
@@ -698,6 +718,33 @@ pub(crate) fn binarize_and_encode_png(
         pack_row::<8>(pixel_row, |luma| u8::from(luma > thresh), packed_row);
     }
     write_png(image.dimensions(), BallotImageBitDepth::One, &packed)
+}
+
+/// Quantizes and smooths a grayscale image to 2-bit levels (0 to 3, one byte
+/// per pixel), exactly as [`quantize_and_encode_png`] does before packing.
+pub(crate) fn quantize_smoothed(image: &GrayImage, levels: GrayLevels) -> Vec<u8> {
+    let mut out = Vec::with_capacity(image.as_raw().len());
+    for_each_smoothed_row(image, levels, |smoothed_row| {
+        out.extend_from_slice(smoothed_row);
+    });
+    out
+}
+
+/// Encodes already-quantized 2-bit levels (0 to 3, one byte per pixel) as a
+/// 2-bit grayscale PNG in memory.
+pub(crate) fn encode_quantized_levels_png(
+    levels: &[u8],
+    (width, height): (u32, u32),
+) -> image::ImageResult<Vec<u8>> {
+    let row_bytes = packed_row_bytes(width, BallotImageBitDepth::Two);
+    let mut packed = vec![0u8; row_bytes * height as usize];
+    for (level_row, packed_row) in levels
+        .chunks_exact(width as usize)
+        .zip(packed.chunks_exact_mut(row_bytes))
+    {
+        pack_row::<4>(level_row, |level| level, packed_row);
+    }
+    write_png((width, height), BallotImageBitDepth::Two, &packed)
 }
 
 /// Quantizes a grayscale image to the given levels and encodes it as a 2-bit
@@ -1229,5 +1276,39 @@ mod test {
         let image = GrayImage::from_pixel(8, 8, Luma([255]));
         let thresh = binarization_threshold_from_histogram(&histogram(image.as_raw()));
         assert!(threshold(&image, thresh).as_raw().iter().all(|&p| p == 255));
+    }
+
+    #[test]
+    fn quantized_fill_threshold_is_the_dark_gray_level_when_present() {
+        for (levels, expected) in [
+            (&[0u8, 85, 170, 255][..], 85),
+            (&[0, 85, 255], 85),
+            (&[0, 170, 255], 0),
+            (&[0, 255], 0),
+            (&[255], 0),
+        ] {
+            let image = GrayImage::from_fn(64, 64, |x, y| {
+                Luma([levels[((x + y) as usize) % levels.len()]])
+            });
+            assert_eq!(
+                quantized_fill_threshold_from_histogram(&histogram(image.as_raw())),
+                expected,
+                "levels {levels:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn quantize_smoothed_matches_the_streaming_encoder() {
+        let image = GrayImage::from_fn(50, 40, |x, y| Luma([((x * 5 + y * 3) % 256) as u8]));
+        let hist = histogram(image.as_raw());
+        let levels = gray_levels(&hist, otsu_level_from_histogram(&hist));
+        let quantized = quantize_smoothed(&image, levels);
+        assert_eq!(quantized.len(), 50 * 40);
+        assert!(quantized.iter().all(|&level| level <= 3));
+        assert_eq!(
+            encode_quantized_levels_png(&quantized, image.dimensions()).unwrap(),
+            quantize_and_encode_png(&image, levels).unwrap()
+        );
     }
 }

@@ -2,8 +2,10 @@ use std::{cmp::Ordering, io, mem::swap, ops::Range, path::PathBuf, sync::LazyLoc
 
 use crate::{
     image_utils::{
-        GrayHistogram, binarization_threshold_from_histogram, crop_to_image, histogram, otsu_level,
-        threshold,
+        BallotImageBitDepth, GrayHistogram, QUANTIZED_LEVEL_LUMA,
+        binarization_threshold_from_histogram, crop_to_image, encode_normalized_png,
+        encode_quantized_levels_png, gray_levels, histogram, is_quantized_histogram, otsu_level,
+        quantize_smoothed, quantized_fill_threshold_from_histogram, threshold,
     },
     qr_code::SearchStrategy,
 };
@@ -44,6 +46,11 @@ pub struct BallotImage {
     image: GrayImage,
     histogram: GrayHistogram,
     threshold: u8,
+    /// The pixels fill scoring reads, when they are not `image` itself: the
+    /// smoothed 2-bit quantization that is also exported. See
+    /// [`BallotImage::prepare_fill_scoring`].
+    fill_image: Option<GrayImage>,
+    fill_threshold: u8,
     border_inset: Inset,
     debug: ImageDebugWriter,
 }
@@ -60,6 +67,9 @@ impl BallotImage {
     /// Otsu's method is rotation-independent.
     pub fn rotate180(&mut self) {
         rotate180_in_place(&mut self.image);
+        if let Some(fill_image) = &mut self.fill_image {
+            rotate180_in_place(fill_image);
+        }
         self.border_inset.rotate180();
         self.debug.rotate180();
     }
@@ -93,6 +103,8 @@ impl BallotImage {
                 image,
                 histogram: hist,
                 threshold,
+                fill_image: None,
+                fill_threshold: threshold,
                 border_inset,
                 debug,
             });
@@ -119,9 +131,69 @@ impl BallotImage {
             image,
             histogram: hist,
             threshold,
+            fill_image: None,
+            fill_threshold: threshold,
             border_inset,
             debug,
         })
+    }
+
+    /// Chooses what fill scoring counts as ink: the black and dark-gray levels
+    /// of the page's smoothed 2-bit quantization, whatever bit depth the page is
+    /// exported at, so light pencil registers and scores do not depend on the
+    /// export setting. The quantization is kept so a 2-bit export encodes the
+    /// very same pixels; an 8-bit export re-reads to the same quantization, and
+    /// a 1-bit export keeps only the black level.
+    ///
+    /// An image that is already a quantized export takes its ink levels from
+    /// the levels it has.
+    pub fn prepare_fill_scoring(&mut self) {
+        if is_quantized_histogram(&self.histogram) {
+            self.fill_threshold = quantized_fill_threshold_from_histogram(&self.histogram);
+            self.fill_image = None;
+            return;
+        }
+        let levels = gray_levels(&self.histogram, self.threshold);
+        let quantized = quantize_smoothed(&self.image, levels)
+            .into_iter()
+            .map(|level| level * QUANTIZED_LEVEL_LUMA)
+            .collect();
+        self.fill_image = GrayImage::from_vec(self.width(), self.height(), quantized);
+        self.fill_threshold = QUANTIZED_LEVEL_LUMA;
+    }
+
+    /// The pixels and threshold fill scoring uses: a pixel is ink when its
+    /// luma is at or below the threshold. Bubble location and everything else
+    /// keep using [`BallotImage::image`] with [`BallotImage::threshold`].
+    #[must_use]
+    pub fn fill_pixels(&self) -> (&GrayImage, u8) {
+        (
+            self.fill_image.as_ref().unwrap_or(&self.image),
+            self.fill_threshold,
+        )
+    }
+
+    /// Encodes the normalized page image at the given bit depth. At 2 bits
+    /// this is the quantization fill scoring used, when it was prepared.
+    ///
+    /// # Errors
+    ///
+    /// Returns any PNG encoding error.
+    pub fn encode_normalized_png(
+        &self,
+        bit_depth: BallotImageBitDepth,
+    ) -> image::ImageResult<Vec<u8>> {
+        match (bit_depth, &self.fill_image) {
+            (BallotImageBitDepth::Two, Some(fill_image)) => {
+                let levels: Vec<u8> = fill_image
+                    .as_raw()
+                    .iter()
+                    .map(|luma| luma / QUANTIZED_LEVEL_LUMA)
+                    .collect();
+                encode_quantized_levels_png(&levels, self.dimensions())
+            }
+            _ => encode_normalized_png(&self.image, &self.histogram, self.threshold, bit_depth),
+        }
     }
 
     /// Gets the underlying image data. Generally you should try to access
@@ -186,6 +258,8 @@ impl BallotImage {
             histogram: histogram(image.as_raw()),
             image,
             threshold,
+            fill_image: None,
+            fill_threshold: threshold,
             border_inset: Inset {
                 top: 0,
                 bottom: 0,
@@ -330,6 +404,10 @@ impl BallotPage {
     /// Gets the ballot image for this page.
     pub fn ballot_image(&self) -> &BallotImage {
         &self.ballot_image
+    }
+
+    pub fn ballot_image_mut(&mut self) -> &mut BallotImage {
+        &mut self.ballot_image
     }
 
     /// Gets the label for this page, mostly used for debugging purposes.
@@ -1032,6 +1110,85 @@ mod tests {
                 "{bit_depth:?} binarizes differently"
             );
         }
+    }
+
+    fn fill_mask(ballot_image: &BallotImage) -> GrayImage {
+        let (fill_image, fill_threshold) = ballot_image.fill_pixels();
+        threshold(fill_image, fill_threshold)
+    }
+
+    #[test]
+    fn test_fill_scoring_counts_black_and_dark_gray_of_the_quantization() {
+        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("test/fixtures/104h-2025-04/imprinter-front.png");
+        let scan = image::open(path).unwrap().into_luma8();
+        let mut ballot_image = BallotImage::from_image(scan, None).unwrap();
+        let black_mask = threshold(ballot_image.image(), ballot_image.threshold());
+
+        ballot_image.prepare_fill_scoring();
+        let (fill_image, fill_threshold) = ballot_image.fill_pixels();
+        assert_eq!(fill_threshold, QUANTIZED_LEVEL_LUMA);
+        assert!(
+            fill_image
+                .as_raw()
+                .iter()
+                .all(|luma| luma % QUANTIZED_LEVEL_LUMA == 0)
+        );
+        let black_in_quantization = threshold(fill_image, 0);
+        assert!(
+            black_in_quantization.as_raw() == black_mask.as_raw(),
+            "quantization must keep exactly the Otsu-black pixels black"
+        );
+        let ink = fill_mask(&ballot_image);
+        let more_ink = ink
+            .as_raw()
+            .iter()
+            .zip(black_mask.as_raw())
+            .all(|(ink, black)| *black == 255 || *ink == 0);
+        assert!(more_ink, "every black pixel is ink");
+        assert!(count_ink(&ink) > count_ink(&black_mask));
+    }
+
+    fn count_ink(mask: &GrayImage) -> usize {
+        mask.as_raw()
+            .iter()
+            .map(|&p| usize::from(p == 0))
+            .sum::<usize>()
+    }
+
+    #[test]
+    fn test_reread_export_scores_fill_like_the_original() {
+        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("test/fixtures/104h-2025-04/imprinter-front.png");
+        let scan = image::open(path).unwrap().into_luma8();
+        let mut original = BallotImage::from_image(scan, None).unwrap();
+        original.prepare_fill_scoring();
+        let original_ink = fill_mask(&original);
+        for bit_depth in [BallotImageBitDepth::Two, BallotImageBitDepth::Eight] {
+            let encoded = original.encode_normalized_png(bit_depth).unwrap();
+            let decoded = image::load_from_memory(&encoded).unwrap().into_luma8();
+            let mut reread = BallotImage::from_image(decoded, None).unwrap();
+            reread.prepare_fill_scoring();
+            assert!(
+                fill_mask(&reread).as_raw() == original_ink.as_raw(),
+                "{bit_depth:?} fill ink differs after re-reading the export"
+            );
+        }
+
+        // A 1-bit export keeps only the black level, so a re-read sees less
+        // ink than the scan did, never more.
+        let encoded = original
+            .encode_normalized_png(BallotImageBitDepth::One)
+            .unwrap();
+        let decoded = image::load_from_memory(&encoded).unwrap().into_luma8();
+        let mut reread = BallotImage::from_image(decoded, None).unwrap();
+        reread.prepare_fill_scoring();
+        let reread_ink = fill_mask(&reread);
+        assert!(
+            reread_ink.as_raw() == threshold(original.image(), original.threshold()).as_raw(),
+            "1-bit re-read ink is the Otsu binarization"
+        );
+        assert!(count_ink(&reread_ink) < count_ink(&original_ink));
     }
 
     #[test]

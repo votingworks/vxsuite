@@ -1630,7 +1630,7 @@ exports[`score write in areas 1`] = `
       },
       "writeInIndex": 0,
     },
-    "score": 0.05707527697086334,
+    "score": 0.05712669715285301,
     "shape": {
       "bottomLeft": {
         "x": 690.2671508789062,
@@ -1851,7 +1851,7 @@ exports[`score write in areas 2`] = `
       },
       "writeInIndex": 2,
     },
-    "score": 0.05723905563354492,
+    "score": 0.057338085025548935,
     "shape": {
       "bottomLeft": {
         "x": 690.2671508789062,

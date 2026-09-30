@@ -23,7 +23,6 @@ use crate::ballot_card::ballot_scan_bubble_image;
 use crate::debug::draw_timing_mark_debug_image_mut;
 pub use crate::image_utils::BallotImageBitDepth;
 use crate::image_utils::Inset;
-use crate::image_utils::encode_normalized_png;
 use crate::layout::InterpretedContestLayout;
 use crate::scoring::ScoredBubbleMarks;
 use crate::scoring::ScoredPositionAreas;
@@ -397,6 +396,9 @@ pub fn ballot_card(
     })
     .into_result()?
     .join(BallotCard::from_pages)?;
+    ballot_card.as_pair_mut().par_map(|ballot_page| {
+        ballot_page.ballot_image_mut().prepare_fill_scoring();
+    });
 
     let mut detected_vertical_streaks = match options.vertical_streak_detection {
         VerticalStreakDetection::Enabled => {
@@ -533,13 +535,9 @@ pub fn ballot_card(
         },
         || {
             ballot_card.as_pair().par_map(|ballot_page| {
-                let ballot_image = ballot_page.ballot_image();
-                encode_normalized_png(
-                    ballot_image.image(),
-                    ballot_image.histogram(),
-                    ballot_image.threshold(),
-                    options.ballot_image_bit_depth,
-                )
+                ballot_page
+                    .ballot_image()
+                    .encode_normalized_png(options.ballot_image_bit_depth)
             })
         },
     );
@@ -773,10 +771,67 @@ mod test {
         );
     }
 
+    fn first_fill_score(card: &InterpretedBallotCard) -> f32 {
+        card.front
+            .marks
+            .first()
+            .unwrap()
+            .1
+            .as_ref()
+            .unwrap()
+            .fill_score
+            .0
+    }
+
+    /// Asserts `reread` scores like `original`: identically when `exact`,
+    /// otherwise never higher.
+    fn assert_reread_scores(
+        original: &InterpretedBallotPage,
+        reread: &InterpretedBallotPage,
+        exact: bool,
+        label: &str,
+    ) {
+        assert_eq!(original.marks.len(), reread.marks.len(), "{label}");
+        for ((position, first), (_, second)) in original.marks.iter().zip(&reread.marks) {
+            let (first, second) = (first.as_ref().unwrap(), second.as_ref().unwrap());
+            if exact {
+                assert_eq!(
+                    first.fill_score, second.fill_score,
+                    "{label} {position} fill"
+                );
+            } else {
+                assert!(
+                    second.fill_score <= first.fill_score,
+                    "{label} {position} fill rose on re-read"
+                );
+            }
+            assert_eq!(
+                first.match_score, second.match_score,
+                "{label} {position} match"
+            );
+        }
+        assert_eq!(original.write_ins.len(), reread.write_ins.len(), "{label}");
+        for (first, second) in original.write_ins.iter().zip(&reread.write_ins) {
+            if exact {
+                assert_eq!(
+                    first.score, second.score,
+                    "{label} {} write-in",
+                    first.grid_position
+                );
+            } else {
+                assert!(
+                    second.score <= first.score,
+                    "{label} {} write-in",
+                    first.grid_position
+                );
+            }
+        }
+    }
+
     /// Re-interpreting the normalized image a scan produced must reproduce the
-    /// scan's scores at every exported bit depth. One bubble is filled with a
-    /// gray the live threshold treats as paper, so that if the export were
-    /// re-binarized at a lighter level the fill score would change.
+    /// scan's scores for 2- and 8-bit exports. One bubble is filled with the
+    /// page's dark-gray level, which scores as ink live at every export depth;
+    /// a 1-bit export drops it, so its re-read may only score lower.
     #[test]
     fn test_reinterpreting_normalized_images_reproduces_scores() {
         let (side_a_image, side_b_image, base_options) = load_ballot_card_fixture(
@@ -799,22 +854,18 @@ mod test {
             }
         }
 
-        for bit_depth in [BallotImageBitDepth::One, BallotImageBitDepth::Two] {
+        for bit_depth in [
+            BallotImageBitDepth::One,
+            BallotImageBitDepth::Two,
+            BallotImageBitDepth::Eight,
+        ] {
             let mut options = base_options.clone();
             options.ballot_image_bit_depth = bit_depth;
             let original =
                 ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
-            let painted_fill = original
-                .front
-                .marks
-                .first()
-                .unwrap()
-                .1
-                .as_ref()
-                .unwrap()
-                .fill_score;
+            let painted_fill = first_fill_score(&original);
             assert!(
-                painted_fill.0 < 0.01,
+                painted_fill > 0.2,
                 "{bit_depth:?}: gray fill scored {painted_fill} live"
             );
 
@@ -823,40 +874,27 @@ mod test {
                     .unwrap()
                     .into_luma8()
             };
-            let reinterpreted =
+            let reread =
                 ballot_card(decode(&original.front), decode(&original.back), &options).unwrap();
-
-            for (side, first, second) in [
-                ("front", &original.front, &reinterpreted.front),
-                ("back", &original.back, &reinterpreted.back),
-            ] {
-                assert_eq!(
-                    first.marks.len(),
-                    second.marks.len(),
-                    "{bit_depth:?} {side}"
+            let exact = !matches!(bit_depth, BallotImageBitDepth::One);
+            assert_reread_scores(
+                &original.front,
+                &reread.front,
+                exact,
+                &format!("{bit_depth:?} front"),
+            );
+            assert_reread_scores(
+                &original.back,
+                &reread.back,
+                exact,
+                &format!("{bit_depth:?} back"),
+            );
+            if !exact {
+                let reread_fill = first_fill_score(&reread);
+                assert!(
+                    reread_fill < 0.01,
+                    "1-bit re-read kept the gray fill: {reread_fill}"
                 );
-                for ((position, first_mark), (_, second_mark)) in
-                    first.marks.iter().zip(&second.marks)
-                {
-                    let (first_mark, second_mark) =
-                        (first_mark.as_ref().unwrap(), second_mark.as_ref().unwrap());
-                    assert_eq!(
-                        first_mark.fill_score, second_mark.fill_score,
-                        "{bit_depth:?} {side} {position} fill score"
-                    );
-                    assert_eq!(
-                        first_mark.match_score, second_mark.match_score,
-                        "{bit_depth:?} {side} {position} match score"
-                    );
-                }
-                assert_eq!(first.write_ins.len(), second.write_ins.len());
-                for (first_area, second_area) in first.write_ins.iter().zip(&second.write_ins) {
-                    assert_eq!(
-                        first_area.score, second_area.score,
-                        "{bit_depth:?} {side} {} write-in score",
-                        first_area.grid_position
-                    );
-                }
             }
         }
     }

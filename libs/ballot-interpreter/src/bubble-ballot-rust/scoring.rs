@@ -273,7 +273,9 @@ pub(crate) fn score_bubble_marks_from_grid_layout(
 /// "filled" when the template is white (expecting blank paper) but the scan
 /// is dark (ink present). This gives: `source_is_dark && template_is_white`.
 /// A higher fill score means more of the bubble interior has been marked by
-/// the voter.
+/// the voter. Fill scoring reads [`BallotImage::fill_pixels`], which counts the
+/// black and dark-gray levels of the page's 2-bit quantization as ink so that
+/// light pencil registers; location always uses the Otsu binarization.
 pub(crate) struct BubbleRegion<'a> {
     image_pixels: &'a [u8],
     image_stride: usize,
@@ -602,12 +604,13 @@ pub(crate) fn score_bubble_mark(
             threshold_val,
         )
     })?;
+    let (fill_img, fill_threshold) = ballot_image.fill_pixels();
     let best_region = BubbleRegion::new(
-        img,
+        fill_img,
         bubble_template,
         best_match.bounds.left() as u32,
         best_match.bounds.top() as u32,
-        threshold_val,
+        fill_threshold,
     );
     let fill_score = best_region.fill_score();
 
