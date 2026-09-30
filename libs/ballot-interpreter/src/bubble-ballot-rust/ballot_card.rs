@@ -2,7 +2,8 @@ use std::{cmp::Ordering, io, mem::swap, ops::Range, path::PathBuf, sync::LazyLoc
 
 use crate::{
     image_utils::{
-        GrayHistogram, crop_to_image, histogram, otsu_level, otsu_level_from_histogram, threshold,
+        GrayHistogram, binarization_threshold_from_histogram, crop_to_image, histogram, otsu_level,
+        threshold,
     },
     qr_code::SearchStrategy,
 };
@@ -79,7 +80,7 @@ impl BallotImage {
     #[must_use]
     pub fn from_image(image: GrayImage, debug_base: Option<PathBuf>) -> Option<Self> {
         let hist = histogram(image.as_raw());
-        let threshold = otsu_level_from_histogram(&hist);
+        let threshold = binarization_threshold_from_histogram(&hist);
         let border_inset =
             find_scanned_document_inset(&image, threshold, Self::CROP_BORDERS_THRESHOLD_RATIO)?;
 
@@ -109,7 +110,7 @@ impl BallotImage {
         // re-interpretations based on the saved image are consistent with the
         // initial one.
         let hist = histogram(image.as_raw());
-        let threshold = otsu_level_from_histogram(&hist);
+        let threshold = binarization_threshold_from_histogram(&hist);
         let debug = debug_base.map_or_else(ImageDebugWriter::disabled, |debug_base| {
             ImageDebugWriter::new(debug_base, image.clone())
         });
@@ -999,6 +1000,39 @@ pub fn ballot_scan_bubble_image() -> &'static GrayImage {
 #[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
+    use crate::image_utils::{BallotImageBitDepth, encode_normalized_png};
+
+    /// A normalized export re-read as a `BallotImage` must binarize exactly as
+    /// the image it was exported from, at every bit depth.
+    #[test]
+    fn test_reread_normalized_export_binarizes_like_the_original() {
+        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("test/fixtures/104h-2025-04/imprinter-front.png");
+        let scan = image::open(path).unwrap().into_luma8();
+        let original = BallotImage::from_image(scan, None).unwrap();
+        let expected = threshold(original.image(), original.threshold());
+        for bit_depth in [
+            BallotImageBitDepth::One,
+            BallotImageBitDepth::Two,
+            BallotImageBitDepth::Eight,
+        ] {
+            let encoded = encode_normalized_png(
+                original.image(),
+                original.histogram(),
+                original.threshold(),
+                bit_depth,
+            )
+            .unwrap();
+            let decoded = image::load_from_memory(&encoded).unwrap().into_luma8();
+            let reread = BallotImage::from_image(decoded, None).unwrap();
+            assert_eq!(reread.dimensions(), original.dimensions(), "{bit_depth:?}");
+            let actual = threshold(reread.image(), reread.threshold());
+            assert!(
+                actual.as_raw() == expected.as_raw(),
+                "{bit_depth:?} binarizes differently"
+            );
+        }
+    }
 
     #[test]
     fn test_get_scanned_ballot_card_geometry() {

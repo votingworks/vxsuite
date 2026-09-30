@@ -484,6 +484,27 @@ pub(crate) fn histogram(pixels: &[u8]) -> GrayHistogram {
     hist
 }
 
+/// Most distinct luma values an image can have and still be treated as an
+/// already-quantized export rather than a grayscale scan.
+const MAX_QUANTIZED_LEVELS: usize = 4;
+
+/// Picks the black/white threshold for a ballot image from its histogram.
+///
+/// A grayscale scan gets Otsu's threshold. An image with at most four
+/// distinct luma values is a 1- or 2-bit export (or a synthetic test image),
+/// and in an export exactly the pixels that were black when it was first
+/// interpreted are luma 0, so 0 is the threshold. Otsu would instead split a
+/// 2-bit export's four spikes at the dark-gray level, and would make a blank
+/// sheet's single level black.
+pub(crate) fn binarization_threshold_from_histogram(hist: &GrayHistogram) -> u8 {
+    let levels = hist.iter().filter(|&&count| count > 0).count();
+    if levels <= MAX_QUANTIZED_LEVELS {
+        0
+    } else {
+        otsu_level_from_histogram(hist)
+    }
+}
+
 /// Computes Otsu's threshold for a grayscale image.
 pub(crate) fn otsu_level(image: &GrayImage) -> u8 {
     otsu_level_from_histogram(&histogram(image.as_raw()))
@@ -1170,5 +1191,43 @@ mod test {
                 right: 0,
             })
         );
+    }
+
+    #[test]
+    fn binarization_threshold_uses_otsu_for_grayscale() {
+        let image = GrayImage::from_fn(64, 64, |x, _| Luma([(x * 4) as u8]));
+        let hist = histogram(image.as_raw());
+        assert_eq!(
+            binarization_threshold_from_histogram(&hist),
+            otsu_level_from_histogram(&hist)
+        );
+    }
+
+    #[test]
+    fn binarization_threshold_of_a_quantized_image_keeps_only_luma_zero_black() {
+        for levels in [
+            &[0u8, 255][..],
+            &[0, 85, 170, 255],
+            &[0, 170, 255],
+            &[170, 255],
+            &[255],
+        ] {
+            let image = GrayImage::from_fn(64, 64, |x, y| {
+                Luma([levels[((x + y) as usize) % levels.len()]])
+            });
+            let hist = histogram(image.as_raw());
+            assert_eq!(
+                binarization_threshold_from_histogram(&hist),
+                0,
+                "levels {levels:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn binarization_threshold_of_a_blank_white_image_makes_nothing_black() {
+        let image = GrayImage::from_pixel(8, 8, Luma([255]));
+        let thresh = binarization_threshold_from_histogram(&histogram(image.as_raw()));
+        assert!(threshold(&image, thresh).as_raw().iter().all(|&p| p == 255));
     }
 }

@@ -164,6 +164,14 @@ mod test {
         false
     );
 
+    /// A mock scanner produces a perfectly uniform sheet with a single luma
+    /// level; it must pass like a real blank sheet does.
+    #[test]
+    fn test_uniform_white_paper_passes() {
+        let img = GrayImage::from_pixel(1700, 2200, image::Luma([255]));
+        assert!(blank_paper(img, None));
+    }
+
     #[test]
     fn test_non_blank_paper_fails() {
         let img = image::open("./test/fixtures/all-bubble-ballot/blank-front.jpg")
