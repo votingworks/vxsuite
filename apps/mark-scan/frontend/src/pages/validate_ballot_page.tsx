@@ -20,6 +20,7 @@ import { getBallotStyle } from '@votingworks/types';
 import {
   getElectionRecord,
   getInterpretation,
+  getSystemSettings,
   invalidateBallot,
   validateBallot,
 } from '../api.js';
@@ -34,6 +35,10 @@ const ContentHeader = styled(ReadOnLoad)`
 export function ValidateBallotPage(): JSX.Element | null {
   const getInterpretationQuery = getInterpretation.useQuery();
   const getElectionRecordQuery = getElectionRecord.useQuery();
+  const systemSettingsQuery = getSystemSettings.useQuery();
+  const shouldTransliterateCandidateNames = Boolean(
+    systemSettingsQuery.data?.shouldTransliterateCandidateNames
+  );
   // We use the contest data stored in BallotContext but vote data from the interpreted ballot
   const { contests, precinctId, ballotStyleId, resetBallot } =
     React.useContext(BallotContext);
@@ -125,6 +130,7 @@ export function ValidateBallotPage(): JSX.Element | null {
           votes={votes}
           selectionsAreEditable={false}
           ballotStyle={ballotStyle}
+          shouldTransliterateCandidateNames={shouldTransliterateCandidateNames}
         />
       </WithScrollButtons>
     </VoterScreen>

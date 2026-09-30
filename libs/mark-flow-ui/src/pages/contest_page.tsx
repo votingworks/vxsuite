@@ -51,6 +51,7 @@ export interface ContestPageProps {
   votes: VotesDict;
   numWriteInCharactersAllowedAcrossContests?: number;
   VoterHelpScreen?: VoterHelpScreenType;
+  shouldTransliterateCandidateNames?: boolean;
 }
 
 interface ContestParams {
@@ -80,6 +81,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     votes,
     numWriteInCharactersAllowedAcrossContests,
     VoterHelpScreen,
+    shouldTransliterateCandidateNames,
   } = props;
 
   // eslint-disable-next-line vx/gts-safe-number-parse
@@ -242,6 +244,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
           numWriteInCharactersAllowedAcrossContests
         }
         isReviewMode={isReviewMode}
+        shouldTransliterateCandidateNames={shouldTransliterateCandidateNames}
       />
     </VoterScreen>
   );

@@ -43,6 +43,10 @@ export function ContestScreen(): JSX.Element {
   const isPatDeviceConnected = Boolean(
     api.getIsPatDeviceConnected.useQuery().data
   );
+  const systemSettingsQuery = api.getSystemSettings.useQuery();
+  const shouldTransliterateCandidateNames = Boolean(
+    systemSettingsQuery.data?.shouldTransliterateCandidateNames
+  );
 
   // In combined ballot primaries, Back from the first contest returns to party selection so the
   // voter can change their party. `selectedPartyId` being set implies the
@@ -63,6 +67,7 @@ export function ContestScreen(): JSX.Element {
       precinctId={precinctId}
       updateVote={updateVote}
       votes={votes}
+      shouldTransliterateCandidateNames={shouldTransliterateCandidateNames}
       accessibilityMode={
         // Simultaneous PAT and controller usage is not supported
         isPatDeviceConnected

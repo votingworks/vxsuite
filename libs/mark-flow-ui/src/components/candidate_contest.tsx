@@ -46,6 +46,7 @@ import type { UpdateVoteFunction } from '../config/types.js';
 import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals.js';
 import { ChoicesGrid } from './contest_screen_layout.js';
 import { ContestHeader } from './contest_header.js';
+import { CandidateName } from './candidate_name.js';
 import { WriteInCandidateName } from './write_in_candidate_name.js';
 import {
   deriveStraightPartyVotesFromOrderedCandidates,
@@ -70,6 +71,7 @@ interface Props {
   writeInCharacterLimitAcrossContests?: WriteInCharacterLimitAcrossContests;
   isReviewMode?: boolean;
   selectedStraightPartyId?: PartyId;
+  shouldTransliterateCandidateNames?: boolean;
 }
 
 const WriteInForm = styled.div`
@@ -125,6 +127,7 @@ export function CandidateContest({
   writeInCharacterLimitAcrossContests,
   isReviewMode,
   selectedStraightPartyId,
+  shouldTransliterateCandidateNames,
 }: Props): JSX.Element {
   const district = getContestDistrict(election, contest);
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
@@ -480,7 +483,12 @@ export function CandidateContest({
                   label={
                     <React.Fragment>
                       <AudioOnly>{prefixAudioText}</AudioOnly>
-                      {electionStrings.candidateName(candidate)}
+                      <CandidateName
+                        candidate={candidate}
+                        shouldTransliterateCandidateNames={
+                          shouldTransliterateCandidateNames
+                        }
+                      />
                     </React.Fragment>
                   }
                   caption={
