@@ -53,6 +53,8 @@ test('uint4 with enumeration', () => {
 
   const coder = uint4(Speed);
 
+  expect(coder.default()).toEqual(Speed.Slow);
+
   // encode/decode
   expect(coder.canEncode(Speed.Fast)).toEqual(true);
   expect(coder.canEncode(3)).toEqual(false);

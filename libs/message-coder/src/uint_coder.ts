@@ -1,4 +1,4 @@
-import { err, ok, type Result, resultBlock } from '@votingworks/basics';
+import { assert, err, ok, type Result, resultBlock } from '@votingworks/basics';
 import type { Buffer } from 'node:buffer';
 import { BaseCoder } from './base_coder.js';
 import { bufferContainsBitOffset, toByteOffset } from './bits.js';
@@ -14,58 +14,48 @@ import type {
 /**
  * Validates that a value is a valid enum value.
  */
-export function validateEnumValue(
-  enumeration: unknown,
+export function validateEnumValue<T extends number>(
+  enumeration: Record<string, T>,
   value: number
-): EncodeResult {
-  if (typeof enumeration === 'object') {
-    const e = enumeration as Record<string, number | string>;
-    const lookup = e[value];
-
-    if (typeof lookup !== 'string' || e[lookup] !== value) {
-      return err('InvalidValue');
+): Result<T, CoderError> {
+  for (const v of Object.values(enumeration)) {
+    if (v === value) {
+      return ok(v);
     }
   }
-  return ok(value);
+  return err('InvalidValue');
 }
 
 /**
  * Gets the default–i.e. first–enum value.
  */
-export function defaultEnumValue(enumeration: unknown): number {
-  if (typeof enumeration === 'object') {
-    const e = enumeration as Record<string, number | string>;
-
-    for (const value of Object.values(e)) {
-      if (typeof value === 'number') {
-        return value;
-      }
-    }
-
-    // @coverage-exclude
-    throw new Error('no enum values');
-  }
-
-  return 0;
+export function defaultEnumValue<T extends number>(
+  enumeration: Record<string, T>
+): T {
+  const [value] = Object.values(enumeration);
+  assert(value !== undefined, 'no enum values');
+  return value;
 }
 
 /**
  * Base coder for byte-aligned uints.
  */
-export abstract class UintCoder extends BaseCoder<number> {
-  private readonly enumeration?: unknown;
+export abstract class UintCoder<
+  T extends number = number,
+> extends BaseCoder<T> {
+  private readonly enumeration?: Record<string, T>;
 
-  constructor(enumeration?: unknown) {
+  constructor(enumeration?: Record<string, T>) {
     super();
     this.enumeration = enumeration;
   }
 
-  canEncode(value: unknown): value is number {
+  canEncode(value: unknown): value is T {
     return typeof value === 'number' && this.validateValue(value).isOk();
   }
 
-  default(): number {
-    return defaultEnumValue(this.enumeration);
+  default(): T {
+    return this.enumeration ? defaultEnumValue(this.enumeration) : (0 as T);
   }
 
   abstract bitLength(): Result<BitLength, CoderError>;
@@ -103,8 +93,8 @@ export abstract class UintCoder extends BaseCoder<number> {
   protected decodeUsing(
     buffer: Buffer,
     bitOffset: BitOffset,
-    fn: (byteOffset: ByteOffset) => Result<number, CoderError>
-  ): DecodeResult<number> {
+    fn: (byteOffset: ByteOffset) => Result<T, CoderError>
+  ): DecodeResult<T> {
     return resultBlock((fail) => {
       const byteOffset = this.getByteOffset(buffer, bitOffset).okOrElse(fail);
       const value = fn(byteOffset).okOrElse(fail);
@@ -112,9 +102,11 @@ export abstract class UintCoder extends BaseCoder<number> {
     });
   }
 
-  protected validateValue(value: number): Result<number, CoderError> {
+  protected validateValue(value: number): Result<T, CoderError> {
     return resultBlock((fail) => {
-      validateEnumValue(this.enumeration, value).okOrElse(fail);
+      const validatedValue = this.enumeration
+        ? validateEnumValue(this.enumeration, value).okOrElse(fail)
+        : (value as T);
 
       if (
         typeof value !== 'number' ||
@@ -125,18 +117,15 @@ export abstract class UintCoder extends BaseCoder<number> {
         return err('InvalidValue');
       }
 
-      return value;
+      return validatedValue;
     });
   }
 
   abstract encodeInto(
-    value: number,
+    value: T,
     buffer: Buffer,
     bitOffset: BitOffset
   ): EncodeResult;
 
-  abstract decodeFrom(
-    buffer: Buffer,
-    bitOffset: BitOffset
-  ): DecodeResult<number>;
+  abstract decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<T>;
 }

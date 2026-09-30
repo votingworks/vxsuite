@@ -15,7 +15,7 @@ import { UintCoder } from './uint_coder.js';
 /**
  * Coder for a uint8, aka an 8-bit unsigned integer.
  */
-export class Uint8Coder extends UintCoder {
+export class Uint8Coder<T extends number = Uint8> extends UintCoder<T> {
   bitLength(): Result<BitLength, CoderError> {
     return ok(8);
   }
@@ -23,7 +23,7 @@ export class Uint8Coder extends UintCoder {
   protected minValue = MIN_UINT8;
   protected maxValue = MAX_UINT8;
 
-  encodeInto(value: Uint8, buffer: Buffer, bitOffset: BitOffset): EncodeResult {
+  encodeInto(value: T, buffer: Buffer, bitOffset: BitOffset): EncodeResult {
     return resultBlock((fail) => {
       this.validateValue(value).okOrElse(fail);
 
@@ -33,7 +33,7 @@ export class Uint8Coder extends UintCoder {
     });
   }
 
-  decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<Uint8> {
+  decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<T> {
     return this.decodeUsing(buffer, bitOffset, (byteOffset) =>
       this.validateValue(buffer.readUInt8(byteOffset))
     );
@@ -43,9 +43,8 @@ export class Uint8Coder extends UintCoder {
 /**
  * Builds a coder for a uint8.
  */
-// eslint-disable-next-line vx/gts-no-return-type-only-generics -- TS does not have a way of saying "I want an enum of numbers"
 export function uint8<T extends number = Uint8>(
-  enumeration?: unknown
+  enumeration?: Record<string, T>
 ): Coder<T> {
-  return new Uint8Coder(enumeration) as unknown as Coder<T>;
+  return new Uint8Coder(enumeration);
 }

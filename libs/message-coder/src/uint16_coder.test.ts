@@ -10,7 +10,7 @@ import { uint16 } from './uint16_coder.js';
 test('uint16', () => {
   fc.assert(
     fc.property(
-      fc.integer(0, 65535),
+      fc.integer({ min: 0, max: 65535 }),
       fc.integer({ min: 0, max: 100 }),
       (value, byteOffset) => {
         const bitOffset = byteOffset * 8;
@@ -33,7 +33,7 @@ test('uint16', () => {
 test('uint16 with littleEndian=false', () => {
   fc.assert(
     fc.property(
-      fc.integer(0, 65535),
+      fc.integer({ min: 0, max: 65535 }),
       fc.integer({ min: 0, max: 100 }),
       (value, byteOffset) => {
         const bitOffset = byteOffset * 8;
