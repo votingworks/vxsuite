@@ -32,7 +32,7 @@ import {
 } from '@votingworks/types';
 import { join } from 'node:path';
 import makeDebug from 'debug';
-import { pdfToImages } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils/pdf';
 import { createTestVotes, markBallotDocument } from './mark_ballot.js';
 import {
   allBaseBallotProps,

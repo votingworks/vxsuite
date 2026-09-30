@@ -1,6 +1,5 @@
 export * from './crop.js';
 export * from './image_data.js';
-export * from './pdf_to_images.js';
 export * from './jest_match_image.js';
 export * from './jest_pdf_snapshot.js';
 export * from './overlay.js';

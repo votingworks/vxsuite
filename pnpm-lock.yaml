@@ -866,6 +866,9 @@ importers:
       '@votingworks/hmpb':
         specifier: workspace:*
         version: link:../../../libs/hmpb
+      '@votingworks/image-utils':
+        specifier: workspace:*
+        version: link:../../../libs/image-utils
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../../../libs/logging
@@ -966,9 +969,6 @@ importers:
       '@votingworks/fs':
         specifier: workspace:*
         version: link:../../../libs/fs
-      '@votingworks/image-utils':
-        specifier: workspace:*
-        version: link:../../../libs/image-utils
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils
@@ -1963,6 +1963,9 @@ importers:
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
+      '@votingworks/image-utils':
+        specifier: workspace:*
+        version: link:../../../libs/image-utils
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../../../libs/logging
@@ -2014,9 +2017,6 @@ importers:
       nanoid:
         specifier: ^3.3.7
         version: 3.3.17
-      pdf-lib:
-        specifier: ^1.17.1
-        version: 1.17.1
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -2066,9 +2066,6 @@ importers:
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
-      '@votingworks/image-utils':
-        specifier: workspace:*
-        version: link:../../../libs/image-utils
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils
@@ -4314,6 +4311,9 @@ importers:
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2(@types/node@24.13.3)(babel-plugin-macros@3.1.0))
+      pdf-lib:
+        specifier: ^1.17.1
+        version: 1.17.1
       pdfjs-dist:
         specifier: 5.4.296
         version: 5.4.296
@@ -4920,6 +4920,9 @@ importers:
       '@votingworks/hmpb':
         specifier: workspace:*
         version: link:../hmpb
+      '@votingworks/image-utils':
+        specifier: workspace:*
+        version: link:../image-utils
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../printing
@@ -4966,9 +4969,6 @@ importers:
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
-      '@votingworks/image-utils':
-        specifier: workspace:*
-        version: link:../image-utils
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils

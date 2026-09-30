@@ -2,6 +2,7 @@ import { Buffer } from 'node:buffer';
 import { PDFDocument } from 'pdf-lib';
 import { normalizePdf } from './normalize_pdf.js';
 
+/** Combines the pages of several PDFs into one deterministic PDF. */
 export async function concatenatePdfs(pdfs: Uint8Array[]): Promise<Uint8Array> {
   const combinedPdf = await PDFDocument.create();
   for (const pdf of pdfs) {

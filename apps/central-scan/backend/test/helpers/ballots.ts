@@ -7,7 +7,8 @@ import {
 } from '@votingworks/bmd-ballot-fixtures';
 import { getTemporaryRootDir } from '@votingworks/fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
-import { pdfToImages, writeImageData } from '@votingworks/image-utils';
+import { writeImageData } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils/pdf';
 import {
   type ElectionDefinition,
   type SheetOf,

@@ -10,6 +10,10 @@
       "types": "./build/index.d.ts",
       "default": "./build/index.js"
     },
+    "./pdf": {
+      "types": "./build/pdf.d.ts",
+      "default": "./build/pdf.js"
+    },
     "./vitest-setup": {
       "types": "./build/vitest_setup.d.ts",
       "default": "./build/vitest_setup.js"
@@ -37,6 +41,7 @@
     "canvas": "3.2.3",
     "debug": "4.3.4",
     "jest-image-snapshot": "^6.4.0",
+    "pdf-lib": "^1.17.1",
     "pdfjs-dist": "5.4.296",
     "pixelmatch": "^5.3.0",
     "tmp": "^0.2.6"

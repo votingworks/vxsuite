@@ -1,6 +1,6 @@
 import { iter } from '@votingworks/basics';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
-import { pdfToImages } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils/pdf';
 import { asSheet, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,

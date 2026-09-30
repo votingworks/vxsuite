@@ -19,7 +19,8 @@ import {
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { assertDefined, iter } from '@votingworks/basics';
-import { pdfToImages, writeImageData } from '@votingworks/image-utils';
+import { writeImageData } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils/pdf';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 

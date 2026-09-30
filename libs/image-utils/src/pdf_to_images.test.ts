@@ -91,6 +91,13 @@ test('getPdfPageCount', async () => {
   expect(pageCount).toEqual(6);
 });
 
+test('getPdfPageCount leaves the input intact and accepts a Buffer', async () => {
+  const pdfBytes = Buffer.from(await readMsBallotPdf());
+  const originalLength = pdfBytes.length;
+  expect(await getPdfPageCount(pdfBytes)).toEqual(6);
+  expect(pdfBytes.length).toEqual(originalLength);
+});
+
 test('can generate grayscale images', async () => {
   const pages = await iter(
     pdfToImages(await readMsBallotPdf(), { color: 'gray' })
