@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { Buffer } from 'node:buffer';
 import {
   assert,
@@ -34,11 +34,14 @@ import {
   safeParseElectionDefinitionForAnySoftwareVersion,
   safeParse,
   LATEST_SOFTWARE_VERSION,
+  type SystemSettings,
+  type BallotPositions,
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
 import * as fs from 'node:fs/promises';
-import type { Readable } from 'node:stream';
+import { Readable } from 'node:stream';
+import { computeBallotHashVxf, HashingPassthrough } from '@votingworks/backend';
 import type {
   DocumentElement,
   RenderDocument,
@@ -408,21 +411,23 @@ export async function layOutBallotsAndCreateElectionDefinition<
   rendererPool: RendererPool,
   template: BallotPageTemplate<P>,
   ballotProps: P[],
-  electionSerializationOptions: ElectionSerializationOptions,
+  serializationOptions: ElectionSerializationOptions,
+  systemSettings: SystemSettings,
   scratchDir: ScratchDir,
   emitProgress?: (label: string, progress: number, total: number) => void
 ): Promise<{
+  ballotPositionsPath?: string;
   layoutPaths: string[];
   electionDefinition: ElectionDefinition;
 }> {
   assert(ballotProps.length > 0, 'No ballot props provided');
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const { election } = ballotProps[0]!;
-  assert(ballotProps.every((props) => props.election === election));
+  const baseElection = ballotProps[0]!.election;
+  assert(ballotProps.every((props) => props.election === baseElection));
 
   const positionsByBallotStyle = new Map<BallotStyleId, SheetPositions[]>();
 
-  const ballotLayouts = await rendererPool.runTasks(
+  const layoutPaths = await rendererPool.runTasks(
     ballotProps.map((props) => async (renderer) => {
       // We currently only need to return errors to the user in ballot preview -
       // we assume the ballot was proofed by the time this function is called.
@@ -444,10 +449,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
         extension: 'html',
       });
 
-      return {
-        props,
-        layoutPath,
-      };
+      return layoutPath;
     }),
     // @coverage-defer
     emitProgress &&
@@ -485,7 +487,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
     }
   }
 
-  const contests = election.contests
+  const contests = baseElection.contests
     // Temporary workaround for candidate rotation to ensure that VxMark's voting
     // flow and tally reports in VxAdmin/VxScan list candidates in the same order
     // that they appear on the HMPB. (Eventually, we should use the gridLayouts
@@ -497,7 +499,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
     .map((contest) => {
       if (template.isAllBubbleBallot) return contest;
       if (contest.type !== 'candidate') return contest;
-      const ballotStylesWithContest = election.ballotStyles.filter(
+      const ballotStylesWithContest = baseElection.ballotStyles.filter(
         ({ orderedCandidatesByContest: orderedDisplayCandidatesByContest }) =>
           orderedDisplayCandidatesByContest &&
           contest.id in orderedDisplayCandidatesByContest
@@ -527,31 +529,69 @@ export async function layOutBallotsAndCreateElectionDefinition<
       return contest;
     });
 
-  const ballotStyles = election.ballotStyles.map((ballotStyle) => {
+  const election: Election = { ...baseElection, contests };
+
+  const isSplitElectionDef =
+    serializationOptions.format === 'vxf' &&
+    systemSettings.splitElectionDefinition;
+
+  // [TODO] Replace with a software version check when setting is on by default.
+  if (!isSplitElectionDef) {
+    const electionDefinition = electionWithBallotPositions(
+      election,
+      positionsByBallotStyle,
+      serializationOptions
+    );
+
+    return { electionDefinition, layoutPaths };
+  }
+
+  const electionData = serializeElection(election, serializationOptions);
+
+  function* ballotPositionLines() {
+    for (const bs of election.ballotStyles) {
+      const positions = positionsByBallotStyle.get(bs.id);
+      if (!positions) continue;
+
+      const data: BallotPositions = { ballotStyleId: bs.id, positions };
+      yield `${JSON.stringify(data)}\n`;
+    }
+  }
+
+  const ballotPositionsFile = await writeAndHashScratchFile(scratchDir, {
+    data: Readable.from(ballotPositionLines()),
+    extension: 'jsonl',
+  });
+
+  const ballotHash = computeBallotHashVxf({
+    ballotPositions: ballotPositionsFile.hash,
+    election: createHash('sha256').update(electionData).digest('hex'),
+  });
+
+  return {
+    ballotPositionsPath: ballotPositionsFile.path,
+    electionDefinition: { ballotHash, election, electionData },
+    layoutPaths,
+  };
+}
+
+function electionWithBallotPositions(
+  baseElection: Election,
+  positionsByBallotStyle: Map<BallotStyleId, SheetPositions[]>,
+  opts: ElectionSerializationOptions
+): ElectionDefinition {
+  const ballotStyles = baseElection.ballotStyles.map((ballotStyle) => {
     const ballotPositions = positionsByBallotStyle.get(ballotStyle.id);
+
     // @coverage-defer
     return ballotPositions ? { ...ballotStyle, ballotPositions } : ballotStyle;
   });
 
-  const electionWithBallotPositions: Election = {
-    ...election,
-    ballotStyles,
-    contests,
-  };
+  const withPositions: Election = { ...baseElection, ballotStyles };
+  const electionData = serializeElection(withPositions, opts);
+  const parsed = safeParseElectionDefinitionForAnySoftwareVersion(electionData);
 
-  const serializedElection = serializeElection(
-    electionWithBallotPositions,
-    electionSerializationOptions
-  );
-  const electionDefinition =
-    safeParseElectionDefinitionForAnySoftwareVersion(
-      serializedElection
-    ).unsafeUnwrap();
-
-  return {
-    layoutPaths: ballotLayouts.map((l) => l.layoutPath),
-    electionDefinition,
-  };
+  return parsed.unsafeUnwrap();
 }
 
 // @coverage-defer
@@ -562,18 +602,21 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
   template: BallotPageTemplate<P>,
   ballotProps: P[],
   electionSerializationOptions: ElectionSerializationOptions,
+  systemSettings: SystemSettings,
   scratchDir: ScratchDir,
   emitProgress?: (label: string, progress: number, total: number) => void
 ): Promise<{
   ballotPaths: string[];
+  ballotPositionsPath?: string;
   electionDefinition: ElectionDefinition;
 }> {
-  const { layoutPaths, electionDefinition } =
+  const { ballotPositionsPath, layoutPaths, electionDefinition } =
     await layOutBallotsAndCreateElectionDefinition(
       rendererPool,
       template,
       ballotProps,
       electionSerializationOptions,
+      systemSettings,
       scratchDir,
       emitProgress
     );
@@ -608,7 +651,11 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
         emitProgress('Rendering ballot PDFs', progress, total))
   );
 
-  return { ballotPaths, electionDefinition };
+  return {
+    ballotPaths,
+    ballotPositionsPath,
+    electionDefinition,
+  };
 }
 
 /**
@@ -646,6 +693,7 @@ export async function layOutMinimalBallotsToCreateElectionDefinition<
   template: BallotPageTemplate<P>,
   allBallotProps: P[],
   electionSerializationOptions: ElectionSerializationOptions,
+  systemSettings: SystemSettings,
   scratchDir: ScratchDir
 ): Promise<ElectionDefinition> {
   const minimalBallotProps = groupBy(
@@ -659,6 +707,7 @@ export async function layOutMinimalBallotsToCreateElectionDefinition<
     template,
     minimalBallotProps,
     electionSerializationOptions,
+    systemSettings,
     scratchDir
   );
 
@@ -687,4 +736,25 @@ async function writeScratchFile(
   await fs.writeFile(filePath, p.data);
 
   return filePath;
+}
+
+/**
+ * Writes to a new file in the given scratch dir and returns the resulting
+ * file path and a sha256 hash of the written contents.
+ */
+async function writeAndHashScratchFile(
+  dir: ScratchDir,
+  p: { data: Readable; extension: string }
+): Promise<{ hash: string; path: string }> {
+  const hashingStream = new HashingPassthrough(createHash('sha256'));
+
+  const filePath = await writeScratchFile(dir, {
+    data: p.data.pipe(hashingStream),
+    extension: p.extension,
+  });
+
+  return {
+    hash: hashingStream.digest('hex'),
+    path: filePath,
+  };
 }

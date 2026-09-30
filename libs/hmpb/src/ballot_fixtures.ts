@@ -29,6 +29,7 @@ import {
   LATEST_SOFTWARE_VERSION,
   type VotesDict,
   type RgbaImageData,
+  DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import makeDebug from 'debug';
@@ -163,6 +164,7 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
         vxDefaultBallotTemplate,
         allBallotProps,
         serializationOptions,
+        DEFAULT_SYSTEM_SETTINGS,
         resolveScratchDir(scratchDir)
       );
 
@@ -394,6 +396,7 @@ export const vxGeneralElectionFixtures = lazyFixtures(() => {
             vxDefaultBallotTemplate,
             spec.allBallotProps,
             serializationOptions,
+            DEFAULT_SYSTEM_SETTINGS,
             resolveScratchDir(scratchDir)
           );
         const [layoutPath, ballotProps] = assertDefined(
@@ -522,6 +525,7 @@ export const vxPrimaryElectionFixtures = lazyFixtures(() => {
         vxDefaultBallotTemplate,
         allBallotProps,
         serializationOptions,
+        DEFAULT_SYSTEM_SETTINGS,
         resolveScratchDir(scratchDir)
       );
       assert(
@@ -754,6 +758,7 @@ export const nhGeneralElectionFixtures = lazyFixtures(() => {
             nhBallotTemplate,
             spec.allBallotProps,
             serializationOptions,
+            DEFAULT_SYSTEM_SETTINGS,
             resolveScratchDir(scratchDir)
           );
         const [layoutPath, ballotProps] = assertDefined(
@@ -984,6 +989,7 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
         nhStateBallotTemplate,
         combinedBallotProps,
         serializationOptions,
+        DEFAULT_SYSTEM_SETTINGS,
         resolveScratchDir(scratchDir)
       );
 
@@ -1240,6 +1246,7 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
         nhStateBallotTemplate,
         combinedBallotProps,
         serializationOptions,
+        DEFAULT_SYSTEM_SETTINGS,
         resolveScratchDir(scratchDir)
       );
 
@@ -1385,6 +1392,7 @@ export const msGeneralElectionFixtures = lazyFixtures(() => {
           msBallotTemplate,
           allBallotProps,
           serializationOptions,
+          DEFAULT_SYSTEM_SETTINGS,
           resolveScratchDir(scratchDir)
         );
 
@@ -1492,6 +1500,7 @@ export const miClosedPrimaryElectionFixtures = lazyFixtures(() => {
           miBallotTemplate,
           allBallotProps,
           serializationOptions,
+          DEFAULT_SYSTEM_SETTINGS,
           resolveScratchDir(scratchDir)
         );
 
@@ -1590,6 +1599,7 @@ export const miCombinedBallotPrimaryElectionFixtures = lazyFixtures(() => {
           miBallotTemplate,
           allBallotProps,
           serializationOptions,
+          DEFAULT_SYSTEM_SETTINGS,
           resolveScratchDir(scratchDir)
         );
 
@@ -1703,6 +1713,7 @@ export const miGeneralElectionFixtures = lazyFixtures(() => {
           miBallotTemplate,
           allBallotProps,
           serializationOptions,
+          DEFAULT_SYSTEM_SETTINGS,
           resolveScratchDir(scratchDir)
         );
 
