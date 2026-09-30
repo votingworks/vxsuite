@@ -224,6 +224,7 @@ async function interpretSheet(
     minimumDetectedBallotScaleOverride,
     maxCumulativeStreakWidth,
     retryStreakWidthThreshold,
+    ballotImageBitDepth,
   } = assertDefined(store.getSystemSettings());
 
   const electionRecord = assertDefined(store.getElectionRecord());
@@ -244,6 +245,7 @@ async function interpretSheet(
         DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
       maxCumulativeStreakWidth,
       retryStreakWidthThreshold,
+      ballotImageBitDepth,
     })
   ).unsafeUnwrap();
   interpretTimer.end();

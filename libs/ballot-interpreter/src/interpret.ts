@@ -583,6 +583,7 @@ async function interpretHmpb(
     minimumDetectedScale: options.minimumDetectedScale,
     maxCumulativeStreakWidth: options.maxCumulativeStreakWidth,
     retryStreakWidthThreshold: options.retryStreakWidthThreshold,
+    ballotImageBitDepth: options.ballotImageBitDepth,
     frontNormalizedImageOutputPath: options.frontNormalizedImageOutputPath,
     backNormalizedImageOutputPath: options.backNormalizedImageOutputPath,
   });

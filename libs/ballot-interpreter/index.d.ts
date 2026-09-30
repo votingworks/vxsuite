@@ -6,7 +6,7 @@ import type {
   BridgeInterpretResult,
   TimingMarks,
 } from './src/bubble-ballot-ts/types.js';
-import type { Election } from '@votingworks/types';
+import type { BallotImageBitDepth, Election } from '@votingworks/types';
 
 export interface BridgeInterpretOptions {
   /**
@@ -23,6 +23,7 @@ export interface BridgeInterpretOptions {
   disableVerticalStreakDetection?: boolean;
   maxCumulativeStreakWidth: number;
   retryStreakWidthThreshold: number;
+  ballotImageBitDepth: BallotImageBitDepth;
 }
 /**
  * Decodes raw QR code bytes as a `CastVoteRecord` (VS\x01). Used for

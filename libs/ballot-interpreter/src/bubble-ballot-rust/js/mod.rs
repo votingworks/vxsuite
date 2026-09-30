@@ -19,8 +19,8 @@ use types_rs::election::Election;
 
 use crate::ballot_card::{BallotPage, PaperInfo, ballot_scan_bubble_image};
 use crate::interpret::{
-    self, InterpretedBallotCard, MetadataSource, Options, VerticalStreakDetection, WriteInScoring,
-    ballot_card,
+    self, BallotImageBitDepth, InterpretedBallotCard, MetadataSource, Options,
+    VerticalStreakDetection, WriteInScoring, ballot_card,
 };
 use crate::scoring::UnitIntervalScore;
 use crate::timing_marks::{self, DefaultForGeometry, TimingMarks};
@@ -41,6 +41,7 @@ struct JsInterpretOptions {
     disable_vertical_streak_detection: Option<bool>,
     max_cumulative_streak_width: u32,
     retry_streak_width_threshold: u32,
+    ballot_image_bit_depth: BallotImageBitDepth,
 }
 
 /// Decodes a hex ballot hash string into a [`PartialBallotHash`]. Accepts
@@ -124,6 +125,7 @@ fn interpret(
             minimum_detected_scale,
             max_cumulative_streak_width: options.max_cumulative_streak_width,
             retry_streak_width_threshold: options.retry_streak_width_threshold,
+            ballot_image_bit_depth: options.ballot_image_bit_depth,
             metadata_source: MetadataSource::QrCode,
         },
     );

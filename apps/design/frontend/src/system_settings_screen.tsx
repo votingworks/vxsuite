@@ -15,7 +15,9 @@ import { useParams } from 'react-router-dom';
 import {
   AdjudicationReason,
   AdjudicationReasonSchema,
+  type BallotImageBitDepth,
   type BmdPrintMode,
+  DEFAULT_BALLOT_IMAGE_BIT_DEPTH,
   DEFAULT_INACTIVE_SESSION_TIME_LIMIT_MINUTES,
   DEFAULT_MARK_THRESHOLDS,
   DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
@@ -503,6 +505,30 @@ export function SystemSettingsForm({
                 </InputGroup>
               </React.Fragment>
             )}
+            <InputGroup label="Ballot Image Bit Depth">
+              <SearchSelect<BallotImageBitDepth>
+                aria-label="Ballot Image Bit Depth"
+                disabled={!isEditing}
+                isMulti={false}
+                isSearchable={false}
+                onChange={(newValue) => {
+                  setSystemSettings({
+                    ...systemSettings,
+                    ballotImageBitDepth: newValue,
+                  });
+                }}
+                options={[
+                  { label: '1-bit (Black and White)', value: 1 },
+                  { label: '2-bit (Black, White, and Two Grays)', value: 2 },
+                  { label: '8-bit (Full Grayscale)', value: 8 },
+                ]}
+                style={{ width: '100%' }}
+                value={
+                  systemSettings.ballotImageBitDepth ??
+                  DEFAULT_BALLOT_IMAGE_BIT_DEPTH
+                }
+              />
+            </InputGroup>
           </Column>
         </Card>
         <Card>

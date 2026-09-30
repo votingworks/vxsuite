@@ -163,6 +163,45 @@ test('minimum detected scale', async () => {
   await screen.findByRole('button', { name: 'Edit' });
 });
 
+test('ballot image bit depth', async () => {
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(electionRecord.systemSettings);
+  renderScreen();
+  await screen.findByRole('heading', { name: 'System Settings' });
+  const editButton = await screen.findByRole('button', { name: 'Edit' });
+  const section = assertDefined(
+    screen.getByRole('heading', { name: 'Scanner Thresholds' }).parentElement
+  );
+  expectComboBoxValue(
+    section,
+    'Ballot Image Bit Depth',
+    '2-bit (Black, White, and Two Grays)'
+  );
+
+  userEvent.click(editButton);
+  await expectSearchSelectValueThenEditValue(
+    section,
+    'Ballot Image Bit Depth',
+    '2-bit (Black, White, and Two Grays)',
+    '8-bit (Full Grayscale)'
+  );
+
+  const updatedSystemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    ballotImageBitDepth: 8,
+  };
+  apiMock.updateSystemSettings
+    .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
+    .resolves();
+  apiMock.getSystemSettings
+    .expectCallWith({ electionId })
+    .resolves(updatedSystemSettings);
+  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+  await screen.findByRole('button', { name: 'Edit' });
+});
+
 test('adjudication reasons', async () => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
@@ -640,7 +679,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(46);
+  expect(allControls).toHaveLength(47);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();

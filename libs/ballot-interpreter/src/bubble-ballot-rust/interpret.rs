@@ -21,8 +21,9 @@ use crate::ballot_card::Orientation;
 use crate::ballot_card::PaperInfo;
 use crate::ballot_card::ballot_scan_bubble_image;
 use crate::debug::draw_timing_mark_debug_image_mut;
+pub use crate::image_utils::BallotImageBitDepth;
 use crate::image_utils::Inset;
-use crate::image_utils::binarize_and_encode_png;
+use crate::image_utils::encode_normalized_png;
 use crate::layout::InterpretedContestLayout;
 use crate::scoring::ScoredBubbleMarks;
 use crate::scoring::ScoredPositionAreas;
@@ -54,6 +55,7 @@ pub struct Options {
     pub minimum_detected_scale: Option<UnitIntervalScore>,
     pub max_cumulative_streak_width: PixelUnit,
     pub retry_streak_width_threshold: PixelUnit,
+    pub ballot_image_bit_depth: BallotImageBitDepth,
     pub metadata_source: MetadataSource,
 }
 
@@ -133,7 +135,7 @@ pub struct InterpretedBallotPage {
     pub metadata: BallotPageMetadata,
     pub marks: ScoredBubbleMarks,
     pub write_ins: ScoredPositionAreas,
-    /// PNG bytes of the normalized (binarized) ballot image. Produced in
+    /// PNG bytes of the normalized ballot image. Produced in
     /// parallel with scoring so that callers can write to disk without
     /// re-encoding.
     #[serde(skip_serializing)]
@@ -288,6 +290,7 @@ pub struct ScanInterpreter {
     minimum_detected_scale: Option<UnitIntervalScore>,
     max_cumulative_streak_width: PixelUnit,
     retry_streak_width_threshold: PixelUnit,
+    ballot_image_bit_depth: BallotImageBitDepth,
 }
 
 impl ScanInterpreter {
@@ -297,6 +300,7 @@ impl ScanInterpreter {
     /// [`PARTIAL_BALLOT_HASH_BYTE_LENGTH`] bytes (see
     /// [`bubble_ballot::PartialBallotHash`]).
     #[must_use]
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         election: Election,
         expected_ballot_hash: PartialBallotHash,
@@ -305,6 +309,7 @@ impl ScanInterpreter {
         minimum_detected_scale: Option<UnitIntervalScore>,
         max_cumulative_streak_width: PixelUnit,
         retry_streak_width_threshold: PixelUnit,
+        ballot_image_bit_depth: BallotImageBitDepth,
     ) -> Self {
         Self {
             election,
@@ -315,6 +320,7 @@ impl ScanInterpreter {
             minimum_detected_scale,
             max_cumulative_streak_width,
             retry_streak_width_threshold,
+            ballot_image_bit_depth,
         }
     }
 
@@ -342,6 +348,7 @@ impl ScanInterpreter {
             minimum_detected_scale: self.minimum_detected_scale,
             max_cumulative_streak_width: self.max_cumulative_streak_width,
             retry_streak_width_threshold: self.retry_streak_width_threshold,
+            ballot_image_bit_depth: self.ballot_image_bit_depth,
             metadata_source: MetadataSource::QrCode,
         };
         ballot_card(side_a_image, side_b_image, &options)
@@ -526,9 +533,12 @@ pub fn ballot_card(
         },
         || {
             ballot_card.as_pair().par_map(|ballot_page| {
-                binarize_and_encode_png(
-                    ballot_page.ballot_image().image(),
-                    ballot_page.ballot_image().threshold(),
+                let ballot_image = ballot_page.ballot_image();
+                encode_normalized_png(
+                    ballot_image.image(),
+                    ballot_image.histogram(),
+                    ballot_image.threshold(),
+                    options.ballot_image_bit_depth,
                 )
             })
         },
@@ -654,6 +664,7 @@ mod test {
             minimum_detected_scale: None,
             max_cumulative_streak_width: 5,
             retry_streak_width_threshold: 1,
+            ballot_image_bit_depth: BallotImageBitDepth::default(),
             metadata_source: provided_metadata(Metadata {
                 ballot_hash: expected_ballot_hash,
                 precinct_id: PrecinctId::from(precinct_id.to_owned()),
@@ -693,6 +704,7 @@ mod test {
             minimum_detected_scale: None,
             max_cumulative_streak_width: 5,
             retry_streak_width_threshold: 1,
+            ballot_image_bit_depth: BallotImageBitDepth::default(),
             metadata_source: MetadataSource::QrCode,
         };
         (side_a_image, side_b_image, options)
@@ -724,23 +736,41 @@ mod test {
         }
     }
 
-    fn is_binary_image(image: &GrayImage) -> bool {
-        image
-            .as_raw()
-            .iter()
-            .all(|&pixel| pixel == 0 || pixel == 255)
-    }
-
     #[test]
-    fn test_interpret_returns_binarized_images() {
-        let (side_a_image, side_b_image, options) =
-            load_hmpb_fixture("vx-general-election/letter-en", 1);
-        let card = ballot_card(side_a_image, side_b_image, &options).unwrap();
-        for page in [&card.front, &card.back] {
-            let encoded = page.encoded_normalized_image.as_ref().unwrap();
-            let decoded = image::load_from_memory(encoded).unwrap().into_luma8();
-            assert!(is_binary_image(&decoded));
+    fn test_interpret_returns_images_at_the_configured_bit_depth() {
+        for (bit_depth, allowed_levels) in [
+            (BallotImageBitDepth::One, vec![0u8, 255]),
+            (BallotImageBitDepth::Two, vec![0, 85, 170, 255]),
+        ] {
+            let (side_a_image, side_b_image, mut options) =
+                load_hmpb_fixture("vx-general-election/letter-en", 1);
+            options.ballot_image_bit_depth = bit_depth;
+            let card = ballot_card(side_a_image, side_b_image, &options).unwrap();
+            for page in [&card.front, &card.back] {
+                let encoded = page.encoded_normalized_image.as_ref().unwrap();
+                let decoded = image::load_from_memory(encoded).unwrap().into_luma8();
+                assert!(
+                    decoded
+                        .as_raw()
+                        .iter()
+                        .all(|pixel| allowed_levels.contains(pixel)),
+                    "{bit_depth:?} image has levels outside {allowed_levels:?}"
+                );
+            }
         }
+
+        let (side_a_image, side_b_image, mut options) =
+            load_hmpb_fixture("vx-general-election/letter-en", 1);
+        options.ballot_image_bit_depth = BallotImageBitDepth::Eight;
+        let card = ballot_card(side_a_image, side_b_image, &options).unwrap();
+        let encoded = card.front.encoded_normalized_image.as_ref().unwrap();
+        let decoded = image::load_from_memory(encoded).unwrap().into_luma8();
+        assert!(
+            decoded
+                .as_raw()
+                .iter()
+                .any(|&pixel| pixel != 0 && pixel != 255)
+        );
     }
 
     #[test]
