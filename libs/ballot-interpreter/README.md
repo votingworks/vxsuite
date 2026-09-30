@@ -307,7 +307,10 @@ follows:
    scoring above. This ratio represents how much of the write-in area contains
    ink or markings.
 
-The score is later compared to a threshold to determine whether handwriting is
-present, but the core function simply computes the score and lets the caller
-decide how to interpret it. This enables detection of write-in votes even when
-the corresponding bubble is not filled in.
+The score is later compared to the `writeInTextArea` mark threshold to
+determine whether handwriting is present, but the core function simply computes
+the score and lets the caller decide how to interpret it. A threshold below 1 is
+a fraction of the election's median write-in area, so the same amount of ink
+decides the question in every write-in area whatever its size; a threshold of 1
+or more is an absolute number of ink pixels at 200 dpi. This enables detection
+of write-in votes even when the corresponding bubble is not filled in.

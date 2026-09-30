@@ -37,6 +37,13 @@ const AuthSettingsSchema: z.ZodType<AuthSettings> = z.object({
 export interface MarkThresholds {
   readonly marginal: number;
   readonly definite: number;
+  /**
+   * How much ink in a write-in area counts as a write-in. Below 1, a fraction
+   * of the election's median write-in area, so the same ink decides every
+   * write-in area whatever its size (on an election whose areas are all one
+   * size, the fraction of each area). At or above 1, an absolute number of ink
+   * pixels at 200 dpi.
+   */
   readonly writeInTextArea?: number;
 }
 
@@ -44,7 +51,7 @@ export const MarkThresholdsSchema: z.ZodSchema<MarkThresholds> = z
   .object({
     marginal: z.number().min(0).max(1),
     definite: z.number().min(0).max(1),
-    writeInTextArea: z.number().min(0).max(1).optional(),
+    writeInTextArea: z.number().min(0).optional(),
   })
   .refine(
     ({ marginal, definite }) => marginal <= definite,

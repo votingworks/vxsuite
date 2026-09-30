@@ -70,6 +70,10 @@ import {
 } from './bubble-ballot-ts/index.js';
 import type { InterpreterOptions } from './types.js';
 import { normalizeBallotMode } from './validation.js';
+import {
+  isWriteInAreaFilled,
+  medianWriteInAreaGridUnits,
+} from './write_in_area_threshold.js';
 import { shouldSkipSummaryBallotInterpretation } from './should_skip_summary_ballot_interpretation.js';
 
 const debug = makeDebug('ballot-interpreter:scan:interpreter');
@@ -152,12 +156,14 @@ function aggregateContestOptionScores({
   contests,
   options,
   ballotStyle,
+  medianWriteInAreaGridUnits: medianAreaGridUnits,
 }: {
   marks: ScoredBubbleMarks;
   writeIns: ScoredPositionArea[];
   contests: readonly Contest[];
   options: InterpreterOptions;
   ballotStyle: BallotStyle;
+  medianWriteInAreaGridUnits?: number  ;
 }): ScoredContestOption[] {
   return marks.map(([gridPosition, scoredMark]) => {
     const option = getContestOptionForGridPosition(
@@ -184,11 +190,17 @@ function aggregateContestOptionScores({
       options.markThresholds.writeInTextArea ??
       // @coverage-exclude
       TEMPORARY_DEFAULT_WRITE_IN_AREA_THRESHOLD;
-    const writeInAreaStatus = scoredWriteInArea
-      ? scoredWriteInArea.score >= writeInTextAreaThreshold
-        ? WriteInAreaStatus.Filled
-        : WriteInAreaStatus.Unfilled
-      : WriteInAreaStatus.Ignored;
+    const writeInAreaStatus =
+      scoredWriteInArea && gridPosition.type === 'write-in'
+        ? isWriteInAreaFilled({
+            scoredArea: scoredWriteInArea,
+            gridPosition,
+            threshold: writeInTextAreaThreshold,
+            medianAreaGridUnits,
+          })
+          ? WriteInAreaStatus.Filled
+          : WriteInAreaStatus.Unfilled
+        : WriteInAreaStatus.Ignored;
 
     return {
       option,
@@ -431,6 +443,9 @@ function convertInterpretedBallotPage(
       contests: electionDefinition.election.contests,
       options,
       ballotStyle,
+      medianWriteInAreaGridUnits: medianWriteInAreaGridUnits(
+        electionDefinition.election
+      ),
     });
   const markInfo = convertScoredContestOptionsToMarkInfo(
     interpretation.timingMarks.geometry,

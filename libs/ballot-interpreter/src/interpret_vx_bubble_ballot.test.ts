@@ -383,6 +383,45 @@ function snapshotBallotMeasureCrops(
   }
 }
 
+describe('HMPB - write-in area threshold', () => {
+  const spec = assertDefined(vxGeneralElectionFixtures.fixtureSpecs[0]);
+
+  async function unmarkedWriteInsAt(writeInTextArea: number) {
+    const electionDefinition = (
+      await readElection(spec.electionPath)
+    ).unsafeUnwrap();
+    const found = [];
+    for await (const sheetImages of iter(
+      pdfToPageImages(spec.markedBallotPath)
+    ).chunksExact(2)) {
+      const results = await interpretSheet(
+        {
+          electionDefinition,
+          validPrecinctIds: new Set([spec.precinctId]),
+          testMode: false,
+          markThresholds: { ...DEFAULT_MARK_THRESHOLDS, writeInTextArea },
+          adjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
+        },
+        sheetImages
+      );
+      for (const result of results) {
+        assert(result.type === 'InterpretedHmpbPage');
+        found.push(...(result.unmarkedWriteIns ?? []));
+      }
+    }
+    return sortUnmarkedWriteIns(found);
+  }
+
+  test('an absolute pixel threshold finds the same write-ins as the fraction', async () => {
+    const byFraction = await unmarkedWriteInsAt(
+      assertDefined(DEFAULT_MARK_THRESHOLDS.writeInTextArea)
+    );
+    expect(byFraction.length).toEqual(spec.unmarkedWriteIns.length);
+    expect(await unmarkedWriteInsAt(300)).toEqual(byFraction);
+    expect(await unmarkedWriteInsAt(1_000_000)).toEqual([]);
+  });
+});
+
 for (const spec of vxGeneralElectionFixtures.fixtureSpecs) {
   describe(`HMPB - VX general election - ${spec.paperSize} paper - language: ${spec.languageCode}`, () => {
     const {

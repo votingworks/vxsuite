@@ -421,7 +421,6 @@ export function SystemSettingsForm({
                   }}
                   step={0.005}
                   min={0}
-                  max={1}
                   disabled={!isEditing}
                   required
                 />
