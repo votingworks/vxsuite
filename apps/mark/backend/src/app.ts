@@ -368,7 +368,6 @@ export function buildApi(ctx: Context) {
             store.addBallot(ballot);
           }
 
-          // [TODO] Add tests (pending addition of split-definition fixtures).
           await store
             .getBallotMetaStore()
             .importPositions(zip, electionDefinition.election, systemSettings);

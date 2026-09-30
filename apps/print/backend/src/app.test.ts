@@ -301,6 +301,14 @@ test('configureElectionPackageFromUsb reads to and writes from store', async () 
     encodedBallot: expect.any(String),
     ballotPrintId: expect.any(Number),
   });
+
+  const { election } = electionDefinition;
+  const ballotMetaStore = workspace.store.getBallotMetaStore();
+
+  // [TODO] Add test for split-file elections (pending shared fixtures).
+  for (const bs of election.ballotStyles) {
+    expect(ballotMetaStore.getPositions(bs.id)).toEqual(bs.ballotPositions);
+  }
 });
 
 test('configureElectionPackageFromUsb logs failure when there is an error reading from usb', async () => {

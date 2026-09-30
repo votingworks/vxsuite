@@ -10,6 +10,11 @@ create table election (
   is_test_mode integer not null default false
 ) strict;
 
+create table ballot_positions (
+  style_id text primary key,
+  positions text not null -- JSON string of SheetPositions[]
+) strict;
+
 create table system_settings (
   -- enforce singleton table
   id integer primary key check (id = 1),

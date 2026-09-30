@@ -168,14 +168,17 @@ export function buildApi({
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace.store)
       );
+
       const usbDriveStatus = await usbDrive.status();
       assert(usbDriveStatus.status === 'mounted', 'No USB drive mounted');
+
       const electionPackageResult =
         await readSignedElectionPackageFromDirectory(
           authStatus,
           usbDriveStatus.mountpoint,
           logger
         );
+
       if (electionPackageResult.isErr()) {
         await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
           disposition: 'failure',
@@ -185,9 +188,12 @@ export function buildApi({
         return electionPackageResult;
       }
       assert(isElectionManagerAuth(authStatus));
+
       const { electionPackage, electionPackageHash, filePath } =
         electionPackageResult.ok();
+
       const { electionDefinition, systemSettings } = electionPackage;
+      const { election } = electionDefinition;
       assert(systemSettings);
 
       try {
@@ -201,10 +207,10 @@ export function buildApi({
             ballotHash: electionDefinition.ballotHash,
           });
 
-          if (electionDefinition.election.pollingPlaces?.length === 1) {
+          if (election.pollingPlaces?.length === 1) {
             workspace.store.setPollingPlaceId(
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              electionDefinition.election.pollingPlaces[0]!.id
+              election.pollingPlaces[0]!.id
             );
           }
 
@@ -219,12 +225,16 @@ export function buildApi({
             store: workspace.store.getUiStringsStore(),
           });
 
-          await withElectionPackageZip(filePath, (zip) =>
-            configureUiStringAudioClipsStreaming({
+          await withElectionPackageZip(filePath, async (zip) => {
+            await store
+              .getBallotMetaStore()
+              .importPositions(zip, election, systemSettings);
+
+            await configureUiStringAudioClipsStreaming({
               zip,
               store: store.getUiStringsStore(),
-            })
-          );
+            });
+          });
         });
       } catch (error) {
         workspace.reset();

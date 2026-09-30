@@ -46,7 +46,7 @@ import { readFile } from 'node:fs/promises';
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import * as tmp from 'tmp';
-import { type Mocked, expect, vi } from 'vitest';
+import { type Mocked, expect, test, vi } from 'vitest';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock.js';
 import { createCanvas } from 'canvas';
 import { type Api, buildApp } from '../../src/app.js';
@@ -142,6 +142,13 @@ export interface AppContext {
   logger: Logger;
   server: Server;
   clock: SimulatedClock;
+}
+
+export function testWithApp(
+  name: string,
+  fn: (context: AppContext) => Promise<void>
+): void {
+  test(name, () => withApp(fn));
 }
 
 export async function withApp(

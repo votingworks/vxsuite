@@ -8,6 +8,7 @@ import {
   readSignedElectionPackageFromDirectory,
   exportCastVoteRecordsToUsbDrive,
   type ElectionRecord,
+  withElectionPackageZip,
 } from '@votingworks/backend';
 import {
   type ElectionPackageConfigurationError,
@@ -205,6 +206,7 @@ function buildApi({
           usbDriveStatus.mountpoint,
           logger
         );
+
       if (electionPackageResult.isErr()) {
         await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
           message: `Error configuring machine.`,
@@ -214,26 +216,38 @@ function buildApi({
         return electionPackageResult;
       }
       assert(isElectionManagerAuth(authStatus));
-      const { electionPackage, electionPackageHash } =
+
+      const { electionPackage, electionPackageHash, filePath } =
         electionPackageResult.ok();
+
       const { electionDefinition, systemSettings } = electionPackage;
+      const { election } = electionDefinition;
       assert(systemSettings);
 
-      store.setElectionAndJurisdiction({
-        electionData: electionDefinition.electionData,
-        jurisdiction: authStatus.user.jurisdiction,
-        electionPackageHash,
-        ballotHash: electionDefinition.ballotHash,
-      });
-      store.setSystemSettings(systemSettings);
+      await store.unsafeWithTransactionAsync(async () => {
+        store.setElectionAndJurisdiction({
+          electionData: electionDefinition.electionData,
+          jurisdiction: authStatus.user.jurisdiction,
+          electionPackageHash,
+          ballotHash: electionDefinition.ballotHash,
+        });
+        store.setSystemSettings(systemSettings);
 
-      const absenteePollingPlaces = assertDefined(
-        electionDefinition.election.pollingPlaces
-      ).filter((pollingPlace) => pollingPlace.type === 'absentee');
-      if (absenteePollingPlaces.length === 1) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        store.setPollingPlaceId(absenteePollingPlaces[0]!.id);
-      }
+        await withElectionPackageZip(filePath, async (zip) => {
+          await store
+            .getBallotMetaStore()
+            .importPositions(zip, election, systemSettings);
+        });
+
+        const absenteePollingPlaces = assertDefined(
+          electionDefinition.election.pollingPlaces
+        ).filter((pollingPlace) => pollingPlace.type === 'absentee');
+
+        if (absenteePollingPlaces.length === 1) {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          store.setPollingPlaceId(absenteePollingPlaces[0]!.id);
+        }
+      });
 
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
         message: `Machine configured for election with hash: ${electionDefinition.ballotHash}`,

@@ -19,6 +19,11 @@ create table election (
   ballot_audit_id_secret_key text
 ) strict;
 
+create table ballot_positions (
+  style_id text primary key,
+  positions text not null -- JSON string of SheetPositions[]
+) strict;
+
 create table batches (
   batch_number integer primary key autoincrement,
   id text unique,

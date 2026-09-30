@@ -35,6 +35,7 @@ import { dirname, join } from 'node:path';
 import { randomUUID as uuid } from 'node:crypto';
 import {
   type AcceptedSheet,
+  BallotMetaStore,
   type ElectionRecord,
   type RejectedSheet,
   type Sheet,
@@ -125,9 +126,11 @@ function dateTimeFromNoOffsetSqliteDate(noOffsetSqliteDate: string): DateTime {
  */
 export class Store {
   private readonly client: DbClient;
+  private readonly ballotMetaStore: BallotMetaStore;
 
   private constructor(client: DbClient) {
     this.client = client;
+    this.ballotMetaStore = new BallotMetaStore(this.client);
   }
 
   // Used by shared CVR export logic in libs/backend
@@ -188,6 +191,29 @@ export class Store {
   reset(): void {
     this.sendingToAdminBatchId = undefined;
     this.client.reset();
+  }
+
+  /**
+   * Runs the given function in a transaction. If the function throws an error,
+   * or the optional {@link shouldCommit} returns `false`, the transaction is
+   * rolled back. Otherwise, the transaction is committed.
+   *
+   * NOTE: Intended only for use during machine configuration. Yielding the main
+   * thread while a transaction is open allows other interleaved queries to be
+   * included in the transaction or, at best, may result in an error if another
+   * operation attempts to start a transaction.
+   *
+   * Returns the result of {@link fn}.
+   */
+  unsafeWithTransactionAsync<T>(
+    fn: () => Promise<T>,
+    shouldCommit?: (res: T) => boolean
+  ): Promise<T> {
+    return this.client.transaction(() => fn(), shouldCommit);
+  }
+
+  getBallotMetaStore(): BallotMetaStore {
+    return this.ballotMetaStore;
   }
 
   /**

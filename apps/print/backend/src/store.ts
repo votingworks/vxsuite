@@ -4,6 +4,7 @@
 
 import {
   addDiagnosticRecord,
+  BallotMetaStore,
   getMostRecentDiagnosticRecord,
 } from '@votingworks/backend';
 import { assert, assertDefined, DateWithoutTime } from '@votingworks/basics';
@@ -61,9 +62,11 @@ export interface ElectionRecord {
  */
 export class Store {
   private readonly client: DbClient;
+  private readonly ballotMetaStore: BallotMetaStore;
 
   private constructor(client: DbClient) {
     this.client = client;
+    this.ballotMetaStore = new BallotMetaStore(this.client);
   }
 
   getDbPath(): string {
@@ -107,6 +110,10 @@ export class Store {
    */
   reset(): void {
     this.client.reset();
+  }
+
+  getBallotMetaStore(): BallotMetaStore {
+    return this.ballotMetaStore;
   }
 
   /**

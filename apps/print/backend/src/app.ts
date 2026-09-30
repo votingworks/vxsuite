@@ -239,12 +239,14 @@ export function buildApi(ctx: AppContext) {
 
       const usbDriveStatus = await usbDrive.status();
       assert(usbDriveStatus.status === 'mounted', 'No USB drive mounted');
+
       const electionPackageResult =
         await readSignedElectionPackageFromDirectory(
           authStatus,
           usbDriveStatus.mountpoint,
           logger
         );
+
       if (electionPackageResult.isErr()) {
         await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
           disposition: 'failure',
@@ -253,9 +255,12 @@ export function buildApi(ctx: AppContext) {
         });
         return electionPackageResult;
       }
+
       const { electionPackage, electionPackageHash, filePath } =
         electionPackageResult.ok();
+
       const { electionDefinition, systemSettings } = electionPackage;
+      const { election } = electionDefinition;
       assert(systemSettings);
 
       // [TODO] Cancel the transaction if the user logs out while configuring,
@@ -271,6 +276,10 @@ export function buildApi(ctx: AppContext) {
               store.addBallot(ballot);
               ballotCount += 1;
             }
+
+            await store
+              .getBallotMetaStore()
+              .importPositions(zip, election, systemSettings);
           });
 
           if (ballotCount === 0) {
@@ -293,10 +302,10 @@ export function buildApi(ctx: AppContext) {
           });
           store.setSystemSettings(systemSettings);
 
-          if (electionDefinition.election.pollingPlaces?.length === 1) {
+          if (election.pollingPlaces?.length === 1) {
             workspace.store.setPollingPlaceId(
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              electionDefinition.election.pollingPlaces[0]!.id
+              election.pollingPlaces[0]!.id
             );
           }
 
