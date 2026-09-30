@@ -35,6 +35,7 @@ import {
   PatDeviceContextProvider,
   PatDeviceCalibrationPage,
   Keybinding,
+  getBlockingPrinterStateReason,
 } from '@votingworks/ui';
 
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
@@ -73,6 +74,7 @@ import { BallotContext } from './contexts/ballot_context.js';
 import { AdminScreen } from './pages/admin_screen.js';
 import { PollWorkerScreen } from './pages/poll_worker_screen.js';
 import { SetupPrinterPage } from './pages/setup_printer_page.js';
+import { PrinterBlockedPage } from './pages/printer_blocked_page.js';
 import { UnconfiguredScreen } from './pages/unconfigured_screen.js';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen.js';
 import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper.js';
@@ -203,6 +205,8 @@ export function AppRoot(): JSX.Element | null {
     ? printerStatusQuery.data
     : { connected: false };
   const hasPrinterAttached = printerStatus.connected;
+  const blockingPrinterStateReason =
+    getBlockingPrinterStateReason(printerStatus);
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const authStatusQuery = getAuthStatus.useQuery();
   const authStatus = authStatusQuery.isSuccess
@@ -600,6 +604,15 @@ export function AppRoot(): JSX.Element | null {
           isPollWorkerAuth={isPollWorkerAuth(authStatus)}
           isCardlessVoterAuth={isCardlessVoterAuth(authStatus)}
           pollsState={pollsState}
+        />
+      );
+    }
+
+    if (blockingPrinterStateReason && pollsState !== 'polls_closed_final') {
+      return (
+        <PrinterBlockedPage
+          blockingStateReason={blockingPrinterStateReason}
+          isCardlessVoterAuth={isCardlessVoterAuth(authStatus)}
         />
       );
     }
