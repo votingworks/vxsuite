@@ -1,5 +1,6 @@
 // [TODO] Harden and promote to libs/backend if useful.
 
+import * as zlib from 'node:zlib';
 import { Buffer } from 'node:buffer';
 import { PassThrough, type Readable, pipeline } from 'node:stream';
 import { ZipArchive, type ZipEntryData } from 'archiver';
@@ -31,6 +32,7 @@ export class Archiver {
 
   constructor() {
     this.archiver = new ZipArchive({
+      level: zlib.constants.Z_BEST_SPEED,
       store: true,
     });
 
@@ -55,6 +57,7 @@ export class Archiver {
       // [TODO] Make determinism configurable if this is used more broadly.
       date: FIXED_ZIP_DATE,
       mode: FIXED_ZIP_FILE_MODE,
+      store: !meta.compress,
     };
   }
 
@@ -86,5 +89,6 @@ export class Archiver {
 }
 
 export interface ZipEntryMeta {
+  compress?: boolean;
   name: string;
 }

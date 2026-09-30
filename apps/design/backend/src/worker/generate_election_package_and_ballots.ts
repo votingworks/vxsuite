@@ -389,6 +389,7 @@ async function generate(
       name: ElectionPackageFileName.AUDIO_IDS,
     });
     electionPackageZip.addEntry(uiStringAudioClips, {
+      compress: systemSettings.splitElectionDefinition,
       name: ElectionPackageFileName.AUDIO_CLIPS,
     });
   }
@@ -400,6 +401,7 @@ async function generate(
     ballotPaths,
   });
   electionPackageZip.addEntry(encodedBallots, {
+    compress: systemSettings.splitElectionDefinition,
     name: ElectionPackageFileName.BALLOTS,
   });
 
