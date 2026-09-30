@@ -193,6 +193,22 @@ export class Store {
     this.client.reset();
   }
 
+  /**
+   * Runs the given function in a transaction. If the function throws an error,
+   * or the optional {@link shouldCommit} returns `false`, the transaction is
+   * rolled back. Otherwise, the transaction is committed.
+   *
+   * Returns the result of the function.
+   */
+  withTransaction<T>(
+    fn: () => Promise<T>,
+    shouldCommit?: (res: T) => boolean
+  ): Promise<T>;
+  withTransaction<T>(fn: () => T, shouldCommit?: (res: T) => boolean): T;
+  withTransaction<T>(fn: () => T, shouldCommit?: (res: T) => boolean): T {
+    return this.client.transaction(() => fn(), shouldCommit);
+  }
+
   getBallotMetaStore(): BallotMetaStore {
     return this.ballotMetaStore;
   }
