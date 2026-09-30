@@ -54,13 +54,13 @@ test('uint16 with littleEndian=false', () => {
 });
 
 test('uint16 with enumeration', () => {
-  enum Enum {
-    A = 1,
-    B = 2,
-    C = 3,
-  }
+  const Enum = {
+    A: 1,
+    B: 2,
+    C: 3,
+  } as const;
 
-  const field = uint16<Enum>(Enum);
+  const field = uint16(Enum);
   expect(field.canEncode(Enum.A)).toEqual(true);
   expect(field.canEncode(99)).toEqual(false);
   expect(field.bitLength(Enum.A)).toEqual(ok(16));

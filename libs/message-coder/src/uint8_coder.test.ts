@@ -57,13 +57,13 @@ test('uint8 decode too long buffer', () => {
 });
 
 test('uint8 with enumeration', () => {
-  enum Enum {
-    A = 1,
-    B = 2,
-    C = 3,
-  }
+  const Enum = {
+    A: 1,
+    B: 2,
+    C: 3,
+  } as const;
 
-  const field = uint8<Enum>(Enum);
+  const field = uint8(Enum);
   expect(field.canEncode(Enum.A)).toEqual(true);
   expect(field.canEncode(99)).toEqual(false);
   expect(field.bitLength(Enum.A)).toEqual(ok(8));

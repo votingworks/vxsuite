@@ -45,13 +45,13 @@ test('uint4', () => {
 });
 
 test('uint4 with enumeration', () => {
-  enum Speed {
-    Slow = 0,
-    Medium = 1,
-    Fast = 2,
-  }
+  const Speed = {
+    Slow: 0,
+    Medium: 1,
+    Fast: 2,
+  } as const;
 
-  const coder = uint4<Speed>(Speed);
+  const coder = uint4(Speed);
 
   // encode/decode
   expect(coder.canEncode(Speed.Fast)).toEqual(true);
