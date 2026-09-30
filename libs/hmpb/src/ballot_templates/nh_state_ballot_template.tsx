@@ -4,7 +4,7 @@ import type {
   BallotPageTemplate,
   ContentComponent,
   FrameComponent,
-} from '../render_ballot.js';
+} from '../render_common.js';
 import * as General from './nh_state_general_ballot_template.js';
 import * as Primary from './nh_state_primary_ballot_template.js';
 import {

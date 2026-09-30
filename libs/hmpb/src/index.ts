@@ -6,6 +6,7 @@ export * from './mark_ballot.js';
 export * from './marking.js';
 export * from './playwright_renderer.js';
 export * from './render_ballot.js';
+export * from './render_common.js';
 export * from './renderer.js';
 export * from './ballot_templates/index.js';
 export * as calibrationSheetTemplate from './calibration_sheet/template.js';
