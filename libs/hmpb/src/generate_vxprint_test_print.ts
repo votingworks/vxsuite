@@ -12,7 +12,7 @@ import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { ballotTemplates } from './ballot_templates/index.js';
 import { createPlaywrightRenderer } from './playwright_renderer.js';
-import { renderBallotTemplate } from './render_ballot.js';
+import { renderBallotTemplate } from './render_common.js';
 
 const DISTRICT_ID = 'district-1' as DistrictId;
 const PRECINCT_ID = 'precinct-1' as PrecinctId;

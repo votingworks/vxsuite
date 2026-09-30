@@ -22,7 +22,7 @@ import {
   gridHeightToPixels,
   gridWidthToPixels,
   measureTimingMarkGrid,
-} from './render_ballot.js';
+} from './render_common.js';
 
 function voteIsCandidate(vote: Vote[number]): vote is Candidate {
   return typeof vote !== 'string';

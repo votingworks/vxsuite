@@ -35,7 +35,7 @@ import { styled } from '../styled.js';
 import type {
   BallotLayoutError,
   ContentComponentResult,
-} from '../render_ballot.js';
+} from '../render_common.js';
 import type { RenderScratchpad } from '../renderer.js';
 import type { SpotColor } from '../pdf_conversion.js';
 import {

@@ -47,7 +47,7 @@ import type {
   BallotLayoutError,
   BallotPageTemplate,
   ContentComponentResult,
-} from '../render_ballot.js';
+} from '../render_common.js';
 import type { RenderScratchpad } from '../renderer.js';
 import {
   type OptionInfo,

@@ -34,9 +34,9 @@ import {
   allBaseBallotProps,
   layOutBallotsAndCreateElectionDefinition,
   layOutMinimalBallotsToCreateElectionDefinition,
-  renderBallotTemplate,
   type ScratchDir,
 } from './render_ballot.js';
+import { renderBallotTemplate } from './render_common.js';
 import { createPlaywrightRendererPool } from './playwright_renderer.js';
 import type { RendererPool } from './renderer.js';
 import {

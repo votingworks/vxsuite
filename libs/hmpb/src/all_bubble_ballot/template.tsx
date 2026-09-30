@@ -10,7 +10,7 @@ import type {
   BallotPageTemplate,
   ContentComponentResult,
   BallotLayoutError,
-} from '../render_ballot.js';
+} from '../render_common.js';
 import {
   Bubble,
   Page,

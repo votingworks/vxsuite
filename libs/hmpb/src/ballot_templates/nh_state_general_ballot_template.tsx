@@ -48,7 +48,7 @@ import {
 import type {
   ContentComponentResult,
   BallotLayoutError,
-} from '../render_ballot.js';
+} from '../render_common.js';
 import { Watermark } from './watermark.js';
 import type { PixelDimensions } from '../types.js';
 import { layOutInColumns } from '../layout_in_columns.js';

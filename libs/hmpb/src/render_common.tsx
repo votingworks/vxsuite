@@ -257,11 +257,11 @@ export async function measureTimingMarkGrid(
     rowGap,
   };
 }
+
 /**
  * Given a {@link BallotPageTemplate} and a single set of props, renders the
  * pages of the ballot and returns the resulting {@link RenderDocument}.
  */
-
 export async function renderBallotTemplate<P extends object>(
   renderer: Renderer,
   template: BallotPageTemplate<P>,
