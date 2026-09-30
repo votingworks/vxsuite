@@ -20,6 +20,7 @@ import {
   LATEST_SOFTWARE_VERSION,
   straightPartyNotYetImplemented,
   type RgbaImageData,
+  DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
 import { createImageData, writeImageData } from '@votingworks/image-utils';
 import { pdfToImages } from '@votingworks/image-utils/pdf';
@@ -166,6 +167,7 @@ export async function renderMarkedBallots(
       ballotTemplates.VxDefaultBallot,
       [sharedBallotProps],
       { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+      DEFAULT_SYSTEM_SETTINGS,
       { path: tmp.dirSync({ unsafeCleanup: true }).name }
     );
     const layoutPath = assertDefined(layoutPaths[0]);
