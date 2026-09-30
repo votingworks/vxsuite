@@ -461,10 +461,10 @@ pub fn detect_vertical_streaks(ballot_image: &BallotImage) -> Vec<VerticalStreak
 /// an independent histogram to increment, breaking the dependency chain. This
 /// measured about twice as fast as a single histogram on real ballot scans.
 /// The result is identical to a single histogram since the counts commute.
-pub(crate) fn histogram(pixels: &[u8]) -> [u32; 256] {
+pub(crate) fn histogram(pixels: &[u8]) -> GrayHistogram {
     const HISTOGRAM_SHARDS: usize = 8;
 
-    let mut shards = [[0u32; 256]; HISTOGRAM_SHARDS];
+    let mut shards: [GrayHistogram; _] = [[0; 256]; HISTOGRAM_SHARDS];
     let (chunks, remainder) = pixels.as_chunks::<HISTOGRAM_SHARDS>();
     for chunk in chunks {
         for (shard, &p) in shards.iter_mut().zip(chunk.iter()) {
@@ -475,7 +475,7 @@ pub(crate) fn histogram(pixels: &[u8]) -> [u32; 256] {
         shards[0][p as usize] += 1;
     }
 
-    let mut hist = [0u32; 256];
+    let mut hist: GrayHistogram = [0; 256];
     for i in 0..hist.len() {
         for shard in &shards {
             hist[i] += shard[i];
@@ -486,8 +486,12 @@ pub(crate) fn histogram(pixels: &[u8]) -> [u32; 256] {
 
 /// Computes Otsu's threshold for a grayscale image.
 pub(crate) fn otsu_level(image: &GrayImage) -> u8 {
-    let hist = histogram(image.as_raw());
-    let total = f64::from(image.width()) * f64::from(image.height());
+    otsu_level_from_histogram(&histogram(image.as_raw()))
+}
+
+/// Computes Otsu's threshold from an image histogram.
+pub(crate) fn otsu_level_from_histogram(hist: &GrayHistogram) -> u8 {
+    let total: f64 = hist.iter().map(|&c| f64::from(c)).sum();
     let sum: f64 = hist
         .iter()
         .enumerate()
@@ -601,6 +605,9 @@ pub(crate) struct GrayLevels {
     pub light: u8,
 }
 
+/// Count of each 8-bit gray luma value from an image.
+pub(crate) type GrayHistogram = [u32; 256];
+
 /// White is the top `1/WHITE_RANGE_DIVISOR` of the range between the black
 /// threshold and the paper peak. On real scans the paper's luma tails off
 /// smoothly below its peak, so this is a trade-off: a smaller share keeps
@@ -614,7 +621,7 @@ const WHITE_RANGE_DIVISOR: u32 = 4;
 /// Black stays exactly as the 1-bit binarization would have it. White is the
 /// top quarter of the range from the threshold up to the paper's histogram
 /// peak, and the two grays split the rest evenly.
-pub(crate) fn gray_levels(hist: &[u32; 256], black: u8) -> GrayLevels {
+pub(crate) fn gray_levels(hist: &GrayHistogram, black: u8) -> GrayLevels {
     let Some(above_black) = black.checked_add(1) else {
         return GrayLevels {
             black,
@@ -632,20 +639,19 @@ pub(crate) fn gray_levels(hist: &[u32; 256], black: u8) -> GrayLevels {
 
 /// Encodes a scanned ballot image as a grayscale PNG at the given bit depth.
 ///
-/// Pixels with luma `<= thresh` are black at every bit depth below eight,
-/// exactly like [`threshold`], so re-interpreting the saved image binarizes
-/// the same way.
+/// `hist` is the histogram of `image`, from which the 2-bit gray levels are
+/// derived. Pixels with luma `<= thresh` are black at every bit depth below
+/// eight, exactly like [`threshold`], so re-interpreting the saved image
+/// binarizes the same way.
 pub(crate) fn encode_normalized_png(
     image: &GrayImage,
+    hist: &GrayHistogram,
     thresh: u8,
     bit_depth: BallotImageBitDepth,
 ) -> image::ImageResult<Vec<u8>> {
     match bit_depth {
         BallotImageBitDepth::One => binarize_and_encode_png(image, thresh),
-        BallotImageBitDepth::Two => {
-            let levels = gray_levels(&histogram(image.as_raw()), thresh);
-            quantize_and_encode_png(image, levels)
-        }
+        BallotImageBitDepth::Two => quantize_and_encode_png(image, gray_levels(hist, thresh)),
         BallotImageBitDepth::Eight => write_png(
             image.dimensions(),
             BallotImageBitDepth::Eight,
@@ -660,10 +666,16 @@ pub(crate) fn binarize_and_encode_png(
     image: &GrayImage,
     thresh: u8,
 ) -> image::ImageResult<Vec<u8>> {
-    let pixels = image.as_raw();
-    let packed = pack_rows(image.dimensions(), BallotImageBitDepth::One, |i| {
-        u8::from(pixels[i] > thresh)
-    });
+    let (width, height) = image.dimensions();
+    let row_bytes = packed_row_bytes(width, BallotImageBitDepth::One);
+    let mut packed = vec![0u8; row_bytes * height as usize];
+    for (pixel_row, packed_row) in image
+        .as_raw()
+        .chunks_exact(width as usize)
+        .zip(packed.chunks_exact_mut(row_bytes))
+    {
+        pack_row::<8>(pixel_row, |luma| u8::from(luma > thresh), packed_row);
+    }
     write_png(image.dimensions(), BallotImageBitDepth::One, &packed)
 }
 
@@ -679,14 +691,14 @@ pub(crate) fn quantize_and_encode_png(
     image: &GrayImage,
     levels: GrayLevels,
 ) -> image::ImageResult<Vec<u8>> {
-    let quantized: Vec<u8> = image
-        .as_raw()
-        .iter()
-        .map(|&luma| quantize_pixel(luma, levels))
-        .collect();
-    let smoothed = level_median_3x3(&quantized, image.dimensions());
-    let packed = pack_rows(image.dimensions(), BallotImageBitDepth::Two, |i| {
-        smoothed[i]
+    let (width, height) = image.dimensions();
+    let row_bytes = packed_row_bytes(width, BallotImageBitDepth::Two);
+    let mut packed = vec![0u8; row_bytes * height as usize];
+    let mut packed_rows = packed.chunks_exact_mut(row_bytes);
+    for_each_smoothed_row(image, levels, |smoothed_row| {
+        if let Some(packed_row) = packed_rows.next() {
+            pack_row::<4>(smoothed_row, |level| level, packed_row);
+        }
     });
     write_png(image.dimensions(), BallotImageBitDepth::Two, &packed)
 }
@@ -699,19 +711,40 @@ fn quantize_pixel(luma: u8, levels: GrayLevels) -> u8 {
     }
 }
 
-/// Replaces each non-black level with the median of the non-black levels in
-/// its 3x3 neighborhood, clamping at the image edges. Black pixels are kept.
-fn level_median_3x3(levels: &[u8], (width, height): (u32, u32)) -> Vec<u8> {
-    let (width, height) = (width as usize, height as usize);
-    let mut out = vec![0u8; levels.len()];
+/// Quantizes `image` to `levels` and calls `f` with each row after replacing
+/// every non-black level with the median of the non-black levels in its 3x3
+/// neighborhood, clamping at the image edges. Black pixels are kept.
+///
+/// Streams three quantized rows at a time so the quantized and smoothed
+/// images never exist in full.
+fn for_each_smoothed_row(image: &GrayImage, levels: GrayLevels, mut f: impl FnMut(&[u8])) {
+    let (width, height) = (image.width() as usize, image.height() as usize);
+    let quantize_row = |y: usize, row: &mut Vec<u8>| {
+        row.clear();
+        row.extend(
+            image.as_raw()[y * width..][..width]
+                .iter()
+                .map(|&luma| quantize_pixel(luma, levels)),
+        );
+    };
+    let mut above = Vec::with_capacity(width);
+    let mut here = Vec::with_capacity(width);
+    let mut below = Vec::with_capacity(width);
+    quantize_row(0, &mut here);
+    above.clone_from(&here);
+    quantize_row(1.min(height - 1), &mut below);
+
+    let mut smoothed = vec![0u8; width];
     let mut voters = vec![0u8; width + 2];
     let mut ones = vec![0u8; width + 2];
     let mut twos = vec![0u8; width + 2];
-    for (y, out_row) in out.chunks_exact_mut(width).enumerate() {
-        let above = &levels[y.saturating_sub(1) * width..][..width];
-        let here = &levels[y * width..][..width];
-        let below = &levels[(y + 1).min(height - 1) * width..][..width];
-        for (x, ((&a, &b), &c)) in above.iter().zip(here).zip(below).enumerate() {
+    for y in 0..height {
+        if y > 0 {
+            swap(&mut above, &mut here);
+            swap(&mut here, &mut below);
+            quantize_row((y + 1).min(height - 1), &mut below);
+        }
+        for (x, ((&a, &b), &c)) in above.iter().zip(&here).zip(&below).enumerate() {
             voters[x + 1] = u8::from(a != 0) + u8::from(b != 0) + u8::from(c != 0);
             ones[x + 1] = u8::from(a == 1) + u8::from(b == 1) + u8::from(c == 1);
             twos[x + 1] = u8::from(a == 2) + u8::from(b == 2) + u8::from(c == 2);
@@ -720,9 +753,9 @@ fn level_median_3x3(levels: &[u8], (width, height): (u32, u32)) -> Vec<u8> {
             counts[0] = counts[1];
             counts[width + 1] = counts[width];
         }
-        for ((((out, &center), v), o), t) in out_row
+        for ((((out, &center), v), o), t) in smoothed
             .iter_mut()
-            .zip(here)
+            .zip(&here)
             .zip(voters.windows(3))
             .zip(ones.windows(3))
             .zip(twos.windows(3))
@@ -733,36 +766,35 @@ fn level_median_3x3(levels: &[u8], (width, height): (u32, u32)) -> Vec<u8> {
             let level = 1 + u8::from(ones <= half) + u8::from(ones + twos <= half);
             *out = if center == 0 { 0 } else { level };
         }
+        f(&smoothed);
     }
-    out
 }
 
-/// Packs `sample(i)` for every pixel index `i` into big-endian PNG rows of
-/// `bit_depth` bits per sample, padding each row to a byte boundary.
-fn pack_rows(
-    (width, height): (u32, u32),
-    bit_depth: BallotImageBitDepth,
-    sample: impl Fn(usize) -> u8,
-) -> Vec<u8> {
-    let (width, height) = (width as usize, height as usize);
-    let bits = usize::from(bit_depth.bits());
-    let samples_per_byte = u8::BITS as usize / bits;
-    let row_bytes = (width * bits).div_ceil(u8::BITS as usize);
-    let mut packed = vec![0u8; row_bytes * height];
-    for (y, packed_row) in packed.chunks_exact_mut(row_bytes).enumerate() {
-        let row_start = y * width;
-        for (packed_byte, first) in packed_row
-            .iter_mut()
-            .zip((0..width).step_by(samples_per_byte))
-        {
-            let mut byte = 0u8;
-            for (slot, i) in (first..(first + samples_per_byte).min(width)).enumerate() {
-                byte |= sample(row_start + i) << (u8::BITS as usize - bits * (slot + 1));
-            }
-            *packed_byte = byte;
-        }
+/// Bytes per PNG row of `width` samples at `bit_depth`, padded to a byte.
+fn packed_row_bytes(width: u32, bit_depth: BallotImageBitDepth) -> usize {
+    (width as usize * usize::from(bit_depth.bits())).div_ceil(u8::BITS as usize)
+}
+
+/// Packs one row of samples, each mapped through `sample`, into big-endian
+/// PNG bytes holding `SAMPLES_PER_BYTE` samples apiece.
+fn pack_row<const SAMPLES_PER_BYTE: usize>(
+    row: &[u8],
+    sample: impl Fn(u8) -> u8,
+    packed_row: &mut [u8],
+) {
+    let bits = u8::BITS as usize / SAMPLES_PER_BYTE;
+    let pack = |group: &[u8]| {
+        group.iter().enumerate().fold(0u8, |byte, (slot, &value)| {
+            byte | (sample(value) << (u8::BITS as usize - bits * (slot + 1)))
+        })
+    };
+    let (groups, remainder) = row.as_chunks::<SAMPLES_PER_BYTE>();
+    for (packed_byte, group) in packed_row.iter_mut().zip(groups) {
+        *packed_byte = pack(group);
     }
-    packed
+    if !remainder.is_empty() {
+        packed_row[groups.len()] = pack(remainder);
+    }
 }
 
 /// Writes `data`, already packed at `bit_depth`, as a grayscale PNG with the
@@ -906,7 +938,7 @@ mod test {
         fn histogram_matches_naive_single_histogram(
             pixels in proptest::collection::vec(proptest::num::u8::ANY, 0..2048),
         ) {
-            let mut expected = [0u32; 256];
+            let mut expected: GrayHistogram = [0; 256];
             for &p in &pixels {
                 expected[p as usize] += 1;
             }
@@ -970,13 +1002,26 @@ mod test {
         }
 
         #[test]
-        fn level_median_3x3_matches_sorting_non_black_levels_in_each_window(
+        fn quantize_and_encode_png_matches_sorting_non_black_levels_in_each_window(
             width in 1u32..12,
             height in 1u32..12,
-            seed in proptest::collection::vec(0u8..4, 12 * 12),
+            seed in proptest::collection::vec(proptest::num::u8::ANY, 12 * 12),
         ) {
-            let levels = &seed[..(width * height) as usize];
-            let filtered = level_median_3x3(levels, (width, height));
+            let gray_levels = GrayLevels {
+                black: 63,
+                dark: 127,
+                light: 191,
+            };
+            let image = GrayImage::from_fn(width, height, |x, y| {
+                Luma([seed[(y * width + x) as usize]])
+            });
+            let levels: Vec<u8> = image
+                .as_raw()
+                .iter()
+                .map(|&luma| quantize_pixel(luma, gray_levels))
+                .collect();
+            let encoded = quantize_and_encode_png(&image, gray_levels).unwrap();
+            let decoded = image::load_from_memory(&encoded).unwrap().to_luma8();
             for y in 0..height {
                 for x in 0..width {
                     let center = levels[(y * width + x) as usize];
@@ -991,7 +1036,7 @@ mod test {
                         .collect();
                     window.sort_unstable();
                     let expected = if center == 0 { 0 } else { window[window.len() / 2] };
-                    assert_eq!(filtered[(y * width + x) as usize], expected);
+                    assert_eq!(decoded.get_pixel(x, y)[0], expected * 85);
                 }
             }
         }
@@ -1005,7 +1050,13 @@ mod test {
             let image = GrayImage::from_fn(width, height, |x, y| {
                 Luma([seed[(y * width + x) as usize]])
             });
-            let encoded = encode_normalized_png(&image, 0, BallotImageBitDepth::Eight).unwrap();
+            let encoded = encode_normalized_png(
+                &image,
+                &histogram(image.as_raw()),
+                0,
+                BallotImageBitDepth::Eight,
+            )
+            .unwrap();
             let decoded = image::load_from_memory(&encoded).unwrap().to_luma8();
             assert_eq!(decoded.as_raw(), image.as_raw());
         }
@@ -1035,7 +1086,7 @@ mod test {
 
     #[test]
     fn gray_levels_split_the_range_from_threshold_to_paper_peak() {
-        let mut hist = [0u32; 256];
+        let mut hist: GrayHistogram = [0; 256];
         hist[0] = 1_000;
         hist[200] = 50;
         hist[255] = 10_000;
@@ -1073,7 +1124,13 @@ mod test {
         fill(&mut image, 0, 32, 245);
 
         // Otsu threshold typical of real scans; gray levels are 182 and 226.
-        let encoded = encode_normalized_png(&image, 139, BallotImageBitDepth::Two).unwrap();
+        let encoded = encode_normalized_png(
+            &image,
+            &histogram(image.as_raw()),
+            139,
+            BallotImageBitDepth::Two,
+        )
+        .unwrap();
         let decoded = image::load_from_memory(&encoded).unwrap().to_luma8();
         assert_eq!(decoded.get_pixel(8, 8)[0], 0);
         assert_eq!(decoded.get_pixel(32, 8)[0], 85);

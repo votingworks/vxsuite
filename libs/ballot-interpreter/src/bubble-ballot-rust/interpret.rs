@@ -533,9 +533,11 @@ pub fn ballot_card(
         },
         || {
             ballot_card.as_pair().par_map(|ballot_page| {
+                let ballot_image = ballot_page.ballot_image();
                 encode_normalized_png(
-                    ballot_page.ballot_image().image(),
-                    ballot_page.ballot_image().threshold(),
+                    ballot_image.image(),
+                    ballot_image.histogram(),
+                    ballot_image.threshold(),
                     options.ballot_image_bit_depth,
                 )
             })

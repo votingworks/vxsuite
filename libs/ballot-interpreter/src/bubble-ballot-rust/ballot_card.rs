@@ -1,7 +1,9 @@
 use std::{cmp::Ordering, io, mem::swap, ops::Range, path::PathBuf, sync::LazyLock};
 
 use crate::{
-    image_utils::{crop_to_image, otsu_level, threshold},
+    image_utils::{
+        GrayHistogram, crop_to_image, histogram, otsu_level, otsu_level_from_histogram, threshold,
+    },
     qr_code::SearchStrategy,
 };
 use image::{GrayImage, imageops::rotate180_in_place};
@@ -39,6 +41,7 @@ use types_rs::{
 #[must_use]
 pub struct BallotImage {
     image: GrayImage,
+    histogram: GrayHistogram,
     threshold: u8,
     border_inset: Inset,
     debug: ImageDebugWriter,
@@ -74,8 +77,9 @@ impl BallotImage {
     /// cropped off. Returns [`None`] if a valid border inset cannot be
     /// computed.
     #[must_use]
-    pub fn from_image(image: GrayImage, debug_base: Option<PathBuf>) -> Option<BallotImage> {
-        let threshold = otsu_level(&image);
+    pub fn from_image(image: GrayImage, debug_base: Option<PathBuf>) -> Option<Self> {
+        let hist = histogram(image.as_raw());
+        let threshold = otsu_level_from_histogram(&hist);
         let border_inset =
             find_scanned_document_inset(&image, threshold, Self::CROP_BORDERS_THRESHOLD_RATIO)?;
 
@@ -84,8 +88,9 @@ impl BallotImage {
             let debug = debug_base.map_or_else(ImageDebugWriter::disabled, |debug_base| {
                 ImageDebugWriter::new(debug_base, image.clone())
             });
-            return Some(BallotImage {
+            return Some(Self {
                 image,
+                histogram: hist,
                 threshold,
                 border_inset,
                 debug,
@@ -103,13 +108,15 @@ impl BallotImage {
         // Re-compute the threshold after cropping to ensure future
         // re-interpretations based on the saved image are consistent with the
         // initial one.
-        let threshold = otsu_level(&image);
+        let hist = histogram(image.as_raw());
+        let threshold = otsu_level_from_histogram(&hist);
         let debug = debug_base.map_or_else(ImageDebugWriter::disabled, |debug_base| {
             ImageDebugWriter::new(debug_base, image.clone())
         });
 
-        Some(BallotImage {
+        Some(Self {
             image,
+            histogram: hist,
             threshold,
             border_inset,
             debug,
@@ -127,6 +134,12 @@ impl BallotImage {
     /// Gets the image debug writer associated with this ballot image.
     pub fn debug(&self) -> &ImageDebugWriter {
         &self.debug
+    }
+
+    /// Gets the luma histogram of the image.
+    #[must_use]
+    pub fn histogram(&self) -> &GrayHistogram {
+        &self.histogram
     }
 
     /// Gets the computed Otsu threshold. Generally you should try to access
@@ -168,7 +181,8 @@ impl BallotImage {
         use crate::debug::ImageDebugWriter;
         use crate::image_utils::Inset;
 
-        BallotImage {
+        Self {
+            histogram: histogram(image.as_raw()),
             image,
             threshold,
             border_inset: Inset {
