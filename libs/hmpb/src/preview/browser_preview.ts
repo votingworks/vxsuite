@@ -17,7 +17,7 @@ import {
   gridWidthToPixels,
   measureTimingMarkGrid,
   renderBallotTemplate,
-} from '../render_ballot.js';
+} from '../render_common.js';
 import { createBrowserPreviewRenderer } from './browser_preview_renderer.js';
 import { createTestVotes, markBallotDocument } from '../mark_ballot.js';
 import {
