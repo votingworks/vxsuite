@@ -38,6 +38,7 @@ import { join } from 'node:path';
 import { randomUUID as uuid } from 'node:crypto';
 import {
   type AcceptedSheet,
+  BallotMetaStore,
   type ElectionRecord,
   type RejectedSheet,
   type Sheet,
@@ -136,6 +137,7 @@ export class Store {
   private cachedSystemSettings?: SystemSettings | null;
 
   private readonly client: DbClient;
+  private readonly ballotMetaStore: BallotMetaStore;
   private readonly uiStringsStore: UiStringsStore;
   private readonly logger: BaseLogger;
 
@@ -145,6 +147,7 @@ export class Store {
     logger: BaseLogger
   ) {
     this.client = client;
+    this.ballotMetaStore = new BallotMetaStore(this.client);
     this.uiStringsStore = uiStringsStore;
     this.logger = logger;
   }
@@ -198,6 +201,10 @@ export class Store {
     this.cachedSystemSettings = undefined;
     this.client.reset();
     clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
+  }
+
+  getBallotMetaStore(): BallotMetaStore {
+    return this.ballotMetaStore;
   }
 
   /**

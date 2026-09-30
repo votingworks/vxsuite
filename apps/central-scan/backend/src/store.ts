@@ -35,6 +35,7 @@ import { dirname, join } from 'node:path';
 import { randomUUID as uuid } from 'node:crypto';
 import {
   type AcceptedSheet,
+  BallotMetaStore,
   type ElectionRecord,
   type RejectedSheet,
   type Sheet,
@@ -125,9 +126,11 @@ function dateTimeFromNoOffsetSqliteDate(noOffsetSqliteDate: string): DateTime {
  */
 export class Store {
   private readonly client: DbClient;
+  private readonly ballotMetaStore: BallotMetaStore;
 
   private constructor(client: DbClient) {
     this.client = client;
+    this.ballotMetaStore = new BallotMetaStore(this.client);
   }
 
   // Used by shared CVR export logic in libs/backend
@@ -188,6 +191,10 @@ export class Store {
   reset(): void {
     this.sendingToAdminBatchId = undefined;
     this.client.reset();
+  }
+
+  getBallotMetaStore(): BallotMetaStore {
+    return this.ballotMetaStore;
   }
 
   /**

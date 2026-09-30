@@ -11,6 +11,11 @@ create table election (
   created_at text not null default current_timestamp
 ) strict;
 
+create table ballot_positions (
+  style_id text primary key,
+  positions text not null -- JSON string of SheetPositions[]
+) strict;
+
 create table batches (
   id text primary key,
   batch_number integer not null unique,
