@@ -80,8 +80,6 @@ interface SheetRow {
   indexInBatch: number;
 }
 
-type NonPromise<T> = T extends PromiseLike<unknown> ? never : T;
-
 function sheetRowToAcceptedSheet(row: SheetRow): AcceptedSheet {
   assert(row.deletedAt === null);
   return {
@@ -193,20 +191,6 @@ export class Store {
   reset(): void {
     this.sendingToAdminBatchId = undefined;
     this.client.reset();
-  }
-
-  /**
-   * Runs the given function in a transaction. If the function throws an error,
-   * or the optional {@link shouldCommit} returns `false`, the transaction is
-   * rolled back. Otherwise, the transaction is committed.
-   *
-   * Returns the result of {@link fn}.
-   */
-  withTransaction<T>(
-    fn: () => NonPromise<T>,
-    shouldCommit?: (res: T) => boolean
-  ): T {
-    return this.client.transaction(() => fn(), shouldCommit);
   }
 
   /**
