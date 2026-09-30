@@ -11,6 +11,7 @@ import {
   type MockClient,
 } from '@votingworks/grout-test-utils';
 import {
+  constructElectionKey,
   DEFAULT_SYSTEM_SETTINGS,
   type DiagnosticOutcome,
   type DiagnosticRecord,
@@ -25,7 +26,11 @@ import type { BatteryInfo } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ok } from '@votingworks/basics';
-import { mockVendorUser, mockSessionExpiresAt } from '@votingworks/test-utils';
+import {
+  mockPollWorkerUser,
+  mockSessionExpiresAt,
+  mockVendorUser,
+} from '@votingworks/test-utils';
 import {
   ApiClientContext,
   createQueryClient,
@@ -62,6 +67,18 @@ export function createMockApiClient(): MockApiClient {
     Promise.resolve({ total: 3, used: 2, available: 1 })
   );
   return mockApiClient as unknown as MockApiClient;
+}
+
+export function mockPollWorkerAuth(
+  electionDefinition: ElectionDefinition
+): DippedSmartCardAuth.PollWorkerLoggedIn {
+  return {
+    status: 'logged_in',
+    user: mockPollWorkerUser({
+      electionKey: constructElectionKey(electionDefinition.election),
+    }),
+    sessionExpiresAt: mockSessionExpiresAt(),
+  };
 }
 
 /**
@@ -261,6 +278,17 @@ export function createApiMock(
         sessionExpiresAt: mockSessionExpiresAt(),
       });
       await screen.findByText('Lock Machine');
+    },
+
+    async authenticateAsPollWorker(
+      electionDefinition: ElectionDefinition,
+      lockScreenText = 'VxCentralScan Locked',
+      postAuthText = 'Lock Machine'
+    ): Promise<void> {
+      await screen.findByText(lockScreenText);
+
+      this.setAuthStatus(mockPollWorkerAuth(electionDefinition));
+      await screen.findByText(postAuthText);
     },
 
     expectGetUsbPortStatus() {

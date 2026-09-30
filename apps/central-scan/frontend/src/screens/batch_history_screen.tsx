@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   Button,
   Callout,
@@ -14,7 +14,8 @@ import type {
   NetworkConnectionInfo,
   ScanStatus,
 } from '@votingworks/central-scan-backend';
-import { format } from '@votingworks/utils';
+import { format, isElectionManagerAuth } from '@votingworks/utils';
+import { AppContext } from '../contexts/app_context.js';
 import { DeleteBatchModal } from '../components/delete_batch_modal.js';
 import { NavigationScreen } from '../navigation_screen.js';
 import { ExportResultsModal } from '../components/export_results_modal.js';
@@ -36,8 +37,9 @@ const Content = styled.div`
 const BatchTable = styled(ScrollTable)`
   flex: 1;
 
-  ${ScrollTable.Cell} {
-    padding: 0.25rem 0.75rem;
+  ${ScrollTable.Cell}:has(button) {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
   }
 
   button {
@@ -126,6 +128,7 @@ function getBatchSendState(batch: BatchInfo): BatchSendState {
 export function BatchHistoryScreen({
   status,
 }: BatchHistoryScreenProps): JSX.Element {
+  const { auth } = useContext(AppContext);
   const { batches } = status;
   const isBatchOpen = status.state !== 'idle';
 
@@ -157,25 +160,31 @@ export function BatchHistoryScreen({
       <Content>
         <div style={{ display: 'flex', gap: '1rem' }}>
           <BatchSummaryStats status={status} />
-          <div
-            style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}
-          >
-            <Button
-              onPress={() => setIsExportingCvrs(true)}
-              icon="Export"
-              variant="primary"
-              disabled={batches.length === 0 || isBatchOpen}
+          {isElectionManagerAuth(auth) && (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem',
+              }}
             >
-              Save CVRs
-            </Button>
-            <Button
-              icon="Delete"
-              disabled={batches.length === 0 || isBatchOpen}
-              onPress={() => setDeleteBallotDataFlowState('confirmation')}
-            >
-              Delete All Batches
-            </Button>
-          </div>
+              <Button
+                onPress={() => setIsExportingCvrs(true)}
+                icon="Export"
+                variant="primary"
+                disabled={batches.length === 0 || isBatchOpen}
+              >
+                Save CVRs
+              </Button>
+              <Button
+                icon="Delete"
+                disabled={batches.length === 0 || isBatchOpen}
+                onPress={() => setDeleteBallotDataFlowState('confirmation')}
+              >
+                Delete All Batches
+              </Button>
+            </div>
+          )}
         </div>
         {isNetworkingEnabled && networkStatus && (
           <SendingPausedCallout connection={networkStatus.connection} />
@@ -189,9 +198,11 @@ export function BatchHistoryScreen({
               {isNetworkingEnabled && (
                 <ScrollTable.Column>VxAdmin&nbsp;Sync</ScrollTable.Column>
               )}
-              <ScrollTable.Column width="min-content">
-                &nbsp;
-              </ScrollTable.Column>
+              {isElectionManagerAuth(auth) && (
+                <ScrollTable.Column width="min-content">
+                  &nbsp;
+                </ScrollTable.Column>
+              )}
             </ScrollTable.Header>
             <ScrollTable.Body>
               {batches.map((batch) => {
@@ -246,16 +257,18 @@ export function BatchHistoryScreen({
                         )}
                       </ScrollTable.Cell>
                     )}
-                    <ScrollTable.Cell>
-                      <Button
-                        icon="Delete"
-                        fill="transparent"
-                        onPress={() => setPendingDeleteBatch(batch)}
-                        disabled={isBatchOpen}
-                      >
-                        Delete
-                      </Button>
-                    </ScrollTable.Cell>
+                    {isElectionManagerAuth(auth) && (
+                      <ScrollTable.Cell>
+                        <Button
+                          icon="Delete"
+                          fill="transparent"
+                          onPress={() => setPendingDeleteBatch(batch)}
+                          disabled={isBatchOpen}
+                        >
+                          Delete
+                        </Button>
+                      </ScrollTable.Cell>
+                    )}
                   </ScrollTable.Row>
                 );
               })}

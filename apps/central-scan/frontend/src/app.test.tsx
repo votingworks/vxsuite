@@ -522,3 +522,19 @@ test('battery display and alert', async () => {
   // updated battery level in nav bar
   await screen.findByText('10%');
 });
+
+test('invalid card copy when no election is configured', async () => {
+  apiMock.expectGetTestMode(true);
+  apiMock.expectGetElectionRecord(null);
+  render(<App apiClient={apiMock.apiClient} />);
+
+  await screen.findByText(
+    'Insert an election manager card to configure VxCentralScan'
+  );
+
+  apiMock.setAuthStatus({
+    status: 'logged_out',
+    reason: 'user_role_not_allowed',
+  });
+  await screen.findByText('Use an election manager card.');
+});

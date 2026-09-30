@@ -181,6 +181,7 @@ export interface DippedSmartCardAuthConfig {
 export interface DippedSmartCardAuthHelpers {
   logInAsSystemAdministrator(page: Page): Promise<void>;
   logInAsElectionManager(page: Page, election: Election): Promise<void>;
+  logInAsPollWorker(page: Page, election: Election): Promise<void>;
   logOut(page: Page): Promise<void>;
   forceLogOutAndResetElectionDefinition(page: Page): Promise<void>;
 }
@@ -217,6 +218,16 @@ export function buildDippedSmartCardAuthHelpers(
   ): Promise<void> {
     mockElectionManagerCardInsertion({ election });
     await enterPin(page);
+    mockCardRemoval();
+    await page.getByText('Lock Machine').waitFor();
+  }
+
+  async function logInAsPollWorker(
+    page: Page,
+    election: Election
+  ): Promise<void> {
+    mockPollWorkerCardInsertion({ election });
+    await page.getByText(`Remove card to unlock ${appName}`).waitFor();
     mockCardRemoval();
     await page.getByText('Lock Machine').waitFor();
   }
@@ -262,6 +273,7 @@ export function buildDippedSmartCardAuthHelpers(
   return {
     logInAsSystemAdministrator,
     logInAsElectionManager,
+    logInAsPollWorker,
     logOut,
     forceLogOutAndResetElectionDefinition,
   };

@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
+import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import type { ScanStatus } from '@votingworks/central-scan-backend';
 import { screen, within } from '../../test/react_testing_library.js';
 import {
@@ -8,7 +9,11 @@ import {
   type BatchHistoryScreenProps,
 } from './batch_history_screen.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
-import { type ApiMock, createApiMock } from '../../test/api.js';
+import {
+  type ApiMock,
+  createApiMock,
+  mockPollWorkerAuth,
+} from '../../test/api.js';
 import { mockBatch, mockStatus } from '../../test/fixtures.js';
 
 let apiMock: ApiMock;
@@ -52,6 +57,25 @@ test('null state', () => {
   expect(screen.queryByRole('table')).not.toBeInTheDocument();
   expect(screen.getButton('Save CVRs')).toBeDisabled();
   expect(screen.getButton('Delete All Batches')).toBeDisabled();
+});
+
+test('poll workers see no Save CVRs or delete controls', () => {
+  const status: ScanStatus = mockStatus({
+    batches: [mockBatch({ id: 'batch-1', label: 'Batch 1', count: 3 })],
+  });
+  renderInAppContext(<BatchHistoryScreen status={status} />, {
+    apiMock,
+    auth: mockPollWorkerAuth(readElectionGeneralDefinition()),
+  });
+
+  expect(screen.getByTestId('total-batches')).toHaveTextContent('1');
+  expect(screen.getByTestId('total-sheets')).toHaveTextContent('3');
+  screen.getByRole('table');
+  expect(screen.queryByRole('button', { name: 'Save CVRs' })).toBeNull();
+  expect(
+    screen.queryByRole('button', { name: 'Delete All Batches' })
+  ).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Delete' })).toBeNull();
 });
 
 test('shows totals and a row for each batch', () => {

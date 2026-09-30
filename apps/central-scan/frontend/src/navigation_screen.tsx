@@ -24,6 +24,7 @@ import { useContext, type ReactNode } from 'react';
 import {
   isSystemAdministratorAuth,
   isElectionManagerAuth,
+  isPollWorkerAuth,
 } from '@votingworks/utils';
 import type {
   DippedSmartCardAuth,
@@ -74,6 +75,11 @@ const ELECTION_MANAGER_NAV_ITEMS = [
   { label: 'Diagnostics', routerPath: '/hardware-diagnostics' },
 ] as const;
 
+const POLL_WORKER_NAV_ITEMS = [
+  { label: 'Scan Ballots', routerPath: '/scan' },
+  { label: 'Batch History', routerPath: '/batch-history' },
+] as const;
+
 function getNavItems(
   auth: DippedSmartCardAuth.AuthStatus,
   electionDefinition?: ElectionDefinition
@@ -86,11 +92,15 @@ function getNavItems(
     return ELECTION_MANAGER_NAV_ITEMS;
   }
 
+  if (isPollWorkerAuth(auth)) {
+    return POLL_WORKER_NAV_ITEMS;
+  }
+
   return [];
 }
 
 function NavigationToolbar(): JSX.Element {
-  const { usbDriveStatus } = useContext(AppContext);
+  const { auth, usbDriveStatus } = useContext(AppContext);
   const logOutMutation = logOut.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
@@ -103,12 +113,14 @@ function NavigationToolbar(): JSX.Element {
       )}
       <DateTimeDisplay />
       <ToolbarButtons>
-        <UsbEjectButton
-          usbDriveStatus={usbDriveStatus}
-          // @coverage-defer
-          onEject={() => ejectUsbDriveMutation.mutate()}
-          isEjecting={ejectUsbDriveMutation.isLoading}
-        />
+        {!isPollWorkerAuth(auth) && (
+          <UsbEjectButton
+            usbDriveStatus={usbDriveStatus}
+            // @coverage-defer
+            onEject={() => ejectUsbDriveMutation.mutate()}
+            isEjecting={ejectUsbDriveMutation.isLoading}
+          />
+        )}
         <LockMachineButton onLock={() => logOutMutation.mutate()} />
       </ToolbarButtons>
     </Toolbar>
@@ -130,7 +142,9 @@ export function NavigationScreen({
   const currentRoute = useRouteMatch();
   const navItems = getNavItems(auth, electionDefinition);
   const showToolbar =
-    isSystemAdministratorAuth(auth) || isElectionManagerAuth(auth);
+    isSystemAdministratorAuth(auth) ||
+    isElectionManagerAuth(auth) ||
+    isPollWorkerAuth(auth);
 
   function isActivePath(path: string): boolean {
     return currentRoute.path.startsWith(path);
@@ -165,9 +179,9 @@ export function NavigationScreen({
       <Main flexColumn>
         {showToolbar && <NavigationToolbar />}
         <SessionTimeLimitTimer authStatus={auth} />
-        {isTestMode && isElectionManagerAuth(auth) && electionDefinition && (
-          <TestModeBanner />
-        )}
+        {isTestMode &&
+          (isElectionManagerAuth(auth) || isPollWorkerAuth(auth)) &&
+          electionDefinition && <TestModeBanner />}
         <Header>
           <H1>{title}</H1>
         </Header>
