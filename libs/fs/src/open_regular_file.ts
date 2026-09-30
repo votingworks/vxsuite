@@ -70,19 +70,18 @@ export function openRegularFileForReading(
  * Opens a regular file for writing, creating it if it isn't there and
  * truncating it if it is. See {@link openRegularFile}.
  *
- * The check earns its keep on the path that was already taken: `O_CREAT` opens
- * whatever is there rather than creating anything, so a device node left at a
- * destination would otherwise be written to as if it were the file.
+ * If `append: true` is given, appends to the file instead of truncating it.
  */
 export function openRegularFileForWriting(
-  path: string
+  path: string,
+  options?: { append?: boolean }
 ): Promise<Result<FileHandle, OpenRegularFileError>> {
   return openRegularFile(
     path,
     // eslint-disable-next-line no-bitwise
     constants.O_WRONLY |
       constants.O_CREAT |
-      constants.O_TRUNC |
-      constants.O_NONBLOCK
+      constants.O_NONBLOCK |
+      (options?.append ? constants.O_APPEND : constants.O_TRUNC)
   );
 }

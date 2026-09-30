@@ -8,7 +8,6 @@ import {
 } from 'node:fs';
 import { readdir, rm } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
-import { ensureDirSync } from 'fs-extra';
 import { isNonExistentFileOrDirectoryError } from '@votingworks/basics';
 import { getDiskSpaceSummaries, getNodeEnv } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
@@ -168,8 +167,8 @@ function workspacePaths(root: string): {
 export function createWorkspace(root: string, logger: BaseLogger): Workspace {
   const paths = workspacePaths(root);
 
-  ensureDirSync(paths.ballotImages);
-  ensureDirSync(paths.electionPackages);
+  mkdirSync(paths.ballotImages, { recursive: true });
+  mkdirSync(paths.electionPackages, { recursive: true });
   const store = Store.fileStore(
     paths.db,
     paths.ballotImages,

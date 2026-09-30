@@ -15,14 +15,15 @@ export type WriteFileError =
  * refuses a path holding anything but a regular file: see
  * {@link openRegularFileForWriting}.
  *
- * @param path The path to the file to write.
- * @param contents What to write to it.
+ * If `append: true` is given, appends `contents` to the file rather than
+ * replacing the file contents.
  */
 export async function writeFile(
   path: string,
-  contents: string | Uint8Array
+  contents: string | Uint8Array,
+  options?: { append?: boolean }
 ): Promise<Result<void, WriteFileError>> {
-  const openResult = await openRegularFileForWriting(path);
+  const openResult = await openRegularFileForWriting(path, options);
 
   if (openResult.isErr()) {
     const error = openResult.err();

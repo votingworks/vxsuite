@@ -42,7 +42,6 @@
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "debug": "4.3.4",
-    "stream": "^0.0.3",
     "yargs": "17.7.1",
     "zod": "4.4.3"
   },

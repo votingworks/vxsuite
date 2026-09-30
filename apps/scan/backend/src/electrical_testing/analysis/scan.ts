@@ -1,10 +1,9 @@
 import type { TimingMarks } from '@votingworks/ballot-interpreter';
 import { assert, extractErrorMessage } from '@votingworks/basics';
+import { openRegularFileForWriting, writeFile } from '@votingworks/fs';
 import { LogEventId, type Logger } from '@votingworks/logging';
 import { mapSheet, type SheetOf } from '@votingworks/types';
-import { exists } from 'fs-extra';
 import type { DateTime } from 'luxon';
-import { appendFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const CSV_COLUMNS = [
@@ -174,15 +173,21 @@ export async function writeScanPageAnalyses(
 ): Promise<void> {
   try {
     await mapSheet(analyses, async (analysis, side) => {
-      await writeFile(
-        join(basedir, `${basename}-analysis-${side}.json`),
-        JSON.stringify(analysis, null, 2)
-      );
+      (
+        await writeFile(
+          join(basedir, `${basename}-analysis-${side}.json`),
+          JSON.stringify(analysis, null, 2)
+        )
+      ).unsafeUnwrap();
     });
 
     const analysisCsvPath = join(basedir, 'electrical-testing-analysis.csv');
-    if (!(await exists(analysisCsvPath))) {
-      await writeFile(analysisCsvPath, `${CSV_COLUMNS.join(',')}\n`);
+    await using analysisCsv = (
+      await openRegularFileForWriting(analysisCsvPath, { append: true })
+    ).unsafeUnwrap();
+
+    if ((await analysisCsv.stat()).size === 0) {
+      await analysisCsv.appendFile(`${CSV_COLUMNS.join(',')}\n`);
     }
 
     for (const analysis of analyses) {
@@ -204,7 +209,7 @@ export async function writeScanPageAnalyses(
         csvValues.length === CSV_COLUMNS.length,
         `CSV row has incorrect number of values: expected ${CSV_COLUMNS.length}, got ${csvValues.length}`
       );
-      await appendFile(analysisCsvPath, `${csvValues.join(',')}\n`);
+      await analysisCsv.appendFile(`${csvValues.join(',')}\n`);
     }
   } catch (e) {
     await logger.logAsCurrentRole(LogEventId.BackgroundTaskFailure, {
