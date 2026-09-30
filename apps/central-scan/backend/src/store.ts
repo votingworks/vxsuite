@@ -80,6 +80,8 @@ interface SheetRow {
   indexInBatch: number;
 }
 
+type NonPromise<T> = T extends PromiseLike<unknown> ? never : T;
+
 function sheetRowToAcceptedSheet(row: SheetRow): AcceptedSheet {
   assert(row.deletedAt === null);
   return {
@@ -198,14 +200,31 @@ export class Store {
    * or the optional {@link shouldCommit} returns `false`, the transaction is
    * rolled back. Otherwise, the transaction is committed.
    *
-   * Returns the result of the function.
+   * Returns the result of {@link fn}.
    */
   withTransaction<T>(
+    fn: () => NonPromise<T>,
+    shouldCommit?: (res: T) => boolean
+  ): T {
+    return this.client.transaction(() => fn(), shouldCommit);
+  }
+
+  /**
+   * Runs the given function in a transaction. If the function throws an error,
+   * or the optional {@link shouldCommit} returns `false`, the transaction is
+   * rolled back. Otherwise, the transaction is committed.
+   *
+   * NOTE: Intended only for use during machine configuration. Yielding the main
+   * thread while a transaction is open allows other interleaved queries to be
+   * included in the transaction or, at best, may result in an error if another
+   * operation attempts to start a transaction.
+   *
+   * Returns the result of {@link fn}.
+   */
+  unsafeWithTransactionAsync<T>(
     fn: () => Promise<T>,
     shouldCommit?: (res: T) => boolean
-  ): Promise<T>;
-  withTransaction<T>(fn: () => T, shouldCommit?: (res: T) => boolean): T;
-  withTransaction<T>(fn: () => T, shouldCommit?: (res: T) => boolean): T {
+  ): Promise<T> {
     return this.client.transaction(() => fn(), shouldCommit);
   }
 

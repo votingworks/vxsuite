@@ -224,7 +224,7 @@ function buildApi({
       const { election } = electionDefinition;
       assert(systemSettings);
 
-      await store.withTransaction(async () => {
+      await store.unsafeWithTransactionAsync(async () => {
         store.setElectionAndJurisdiction({
           electionData: electionDefinition.electionData,
           jurisdiction: authStatus.user.jurisdiction,
