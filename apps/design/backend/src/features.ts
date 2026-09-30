@@ -67,6 +67,12 @@ export interface UserFeaturesConfig {
    */
   BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING?: boolean;
   /**
+   * Allow the user to toggle exporting transliterated candidate names for
+   * non-Latin-script ballot languages.
+   * Requires the system settings screen to be enabled.
+   */
+  TRANSLITERATE_CANDIDATE_NAMES_SYSTEM_SETTING?: boolean;
+  /**
    * Allow the user to configure quick results reporting.
    * Requires the system settings screen to be enabled.
    */
@@ -227,6 +233,7 @@ const vxUserFeaturesConfig: UserFeaturesConfig = {
   SPLIT_ELECTION_DEFINITION_SYSTEM_SETTING: true,
   SYSTEM_LIMIT_CHECKS_SYSTEM_SETTING: true,
   TEST_DECK_PRINTING_SYSTEM_SETTING: true,
+  TRANSLITERATE_CANDIDATE_NAMES_SYSTEM_SETTING: true,
   VOTER_HELP_BUTTONS_SYSTEM_SETTING: true,
   VXCENTRALSCAN_POLL_WORKER_ROLE_SYSTEM_SETTING: true,
   VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING: true,

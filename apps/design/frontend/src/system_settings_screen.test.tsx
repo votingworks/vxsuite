@@ -700,6 +700,26 @@ test('all controls are disabled until clicking "Edit"', async () => {
   }
 });
 
+describe('Transliterate candidate names', () => {
+  test('omitted when feature flag is off', async () => {
+    mockUserFeatures(apiMock, {
+      TRANSLITERATE_CANDIDATE_NAMES_SYSTEM_SETTING: false,
+    });
+
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(electionRecord.systemSettings);
+
+    renderScreen();
+
+    await screen.findByRole('heading', { name: 'System Settings' });
+    await screen.findByRole('button', { name: 'Edit' });
+    expect(
+      screen.queryByText('Transliterate Candidate Names')
+    ).not.toBeInTheDocument();
+  });
+});
+
 describe('BMD print mode', () => {
   test('omitted when feature flag is off', async () => {
     mockUserFeatures(apiMock, { BMD_EXTRA_PRINT_MODES_SYSTEM_SETTING: false });
