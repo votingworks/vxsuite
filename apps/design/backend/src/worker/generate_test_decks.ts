@@ -127,6 +127,7 @@ async function generate(
       ballotTemplates[ballotTemplateId],
       testBallotProps,
       serializationOptions,
+      systemSettings,
       scratchDir,
       emitProgress
     );
@@ -175,8 +176,12 @@ async function generate(
 
   for (const [precinct, ballotSpecs] of precinctHmpbBallotSpecs) {
     // Generate HMPB test deck
+    //
     // [TODO] Stage PDFs on disk before archiving, to avoid OOM errors on large
     // elections.
+    //
+    // [TODO] Use positions from staged ballotPositions.jsonl when
+    // `splitElectionDefinition` system setting is on.
     const testDeckPdf = await createPrecinctTestDeck({
       rendererPool,
       electionDefinition,
