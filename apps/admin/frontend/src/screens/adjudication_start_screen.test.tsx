@@ -7,10 +7,12 @@ import type {
   QualifiedWriteInCandidateRecord,
 } from '@votingworks/admin-backend';
 import userEvent from '@testing-library/user-event';
+import { createMemoryHistory } from 'history';
 import { Admin, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { act, screen, within } from '../../test/react_testing_library.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { AdjudicationStartScreen } from './adjudication_start_screen.js';
+import { routerPaths } from '../router_paths.js';
 import {
   type ApiMock,
   createApiMock,
@@ -157,6 +159,41 @@ test('queue progress updates as other stations adjudicate ballots', async () => 
 
   await screen.findByText('1 ballot remaining', undefined, { timeout: 3000 });
   screen.getByText('4 of 5 adjudicated · 80%');
+});
+
+test('shows a callout linking to the escalated queue when ballots are escalated', async () => {
+  apiMock.expectGetBallotAdjudicationQueueMetadata({
+    pendingTally: 3,
+    totalTally: 5,
+    escalatedPendingTally: 2,
+  });
+  apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
+  const history = createMemoryHistory({
+    initialEntries: [routerPaths.adjudication],
+  });
+  renderInAppContext(<AdjudicationStartScreen />, {
+    electionDefinition,
+    apiMock,
+    history,
+  });
+
+  await screen.findByText('2 ballots escalated');
+  userEvent.click(
+    screen.getByRole('button', { name: 'Adjudicate Escalated Ballots' })
+  );
+  expect(history.location.pathname).toEqual(
+    routerPaths.ballotAdjudicationEscalated
+  );
+
+  apiMock.apiClient.getBallotAdjudicationQueueMetadata.reset();
+  apiMock.expectGetBallotAdjudicationQueueMetadata({
+    pendingTally: 3,
+    totalTally: 5,
+    escalatedPendingTally: 1,
+  });
+  await screen.findByText('1 ballot escalated', undefined, {
+    timeout: 3000,
+  });
 });
 
 describe('multi-station adjudication', () => {

@@ -1,6 +1,14 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { Button, Loading, Main, Modal, P, Screen } from '@votingworks/ui';
+import {
+  Button,
+  Icons,
+  Loading,
+  Main,
+  Modal,
+  P,
+  Screen,
+} from '@votingworks/ui';
 import {
   AdjudicationReason,
   type ContestId,
@@ -72,6 +80,16 @@ const AdjudicationPanel = styled.div`
   height: 100vh;
   width: ${ADJUDICATION_PANEL_WIDTH};
   border-left: 4px solid black;
+`;
+
+const EscalatedBanner = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: ${(p) => p.theme.colors.warningContainer};
+  font-size: 0.85rem;
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
 `;
 
 const PanelHeader = styled.div`
@@ -171,9 +189,15 @@ function contestListItems(
   }));
 }
 
-export function BallotAdjudicationScreenWrapper(): JSX.Element {
-  const ballotQueueQuery = getBallotAdjudicationQueue.useQuery();
-  const nextCvrIdQuery = getNextCvrIdForBallotAdjudication.usePollingQuery();
+export function BallotAdjudicationScreenWrapper({
+  escalatedOnly = false,
+}: {
+  escalatedOnly?: boolean;
+}): JSX.Element {
+  const queueInput = escalatedOnly ? { escalatedOnly } : {};
+  const ballotQueueQuery = getBallotAdjudicationQueue.useQuery(queueInput);
+  const nextCvrIdQuery =
+    getNextCvrIdForBallotAdjudication.usePollingQuery(queueInput);
 
   if (!ballotQueueQuery.isSuccess || !nextCvrIdQuery.isSuccess) {
     return (
@@ -195,6 +219,7 @@ export function BallotAdjudicationScreenWrapper(): JSX.Element {
     <HostBallotAdjudicationScreen
       queue={queue}
       initialQueueIndex={initialQueueIndex}
+      escalatedOnly={escalatedOnly}
     />
   );
 }
@@ -202,9 +227,11 @@ export function BallotAdjudicationScreenWrapper(): JSX.Element {
 function HostBallotAdjudicationScreen({
   queue,
   initialQueueIndex,
+  escalatedOnly,
 }: {
   queue: Id[];
   initialQueueIndex: number;
+  escalatedOnly: boolean;
 }): JSX.Element {
   const history = useHistory();
   const [queueIndex, setQueueIndex] = useState(initialQueueIndex);
@@ -343,9 +370,11 @@ function HostBallotAdjudicationScreen({
   async function navigateAcceptNext(): Promise<void> {
     setIsClaimInFlight(true);
     try {
-      const nextCvrId = await apiClient.getNextCvrIdForBallotAdjudication({
-        afterCvrId: currentCvrId,
-      });
+      const nextCvrId = await apiClient.getNextCvrIdForBallotAdjudication(
+        escalatedOnly
+          ? { afterCvrId: currentCvrId, escalatedOnly: true }
+          : { afterCvrId: currentCvrId }
+      );
       const nextIndex = nextCvrId ? queue.indexOf(nextCvrId) : -1;
       if (nextIndex < 0) {
         // No ballot left, or the next one isn't in our cached queue drop back to the landing screen
@@ -778,6 +807,12 @@ function BallotView({
               Exit
             </Button>
           </PanelHeader>
+          {ballotAdjudicationData.isEscalated && (
+            <EscalatedBanner>
+              <Icons.Flag color="warning" /> Escalated for election manager
+              review
+            </EscalatedBanner>
+          )}
           {isClaimed ? (
             <ClaimedBallotOverlay>
               <P>
