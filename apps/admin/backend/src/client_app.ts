@@ -252,6 +252,27 @@ function buildClientApi({
       });
     },
 
+    async escalateBallot(input: {
+      cvrId: Id;
+    }): Promise<Result<void, AdjudicationError>> {
+      const proxied = await proxy(
+        'escalate ballot',
+        async ({ apiClient: peerApi }) =>
+          peerApi.escalateBallot({
+            machineId: getMachineConfig().machineId,
+            cvrId: input.cvrId,
+          })
+      );
+      if (proxied.isErr()) return proxied;
+      const result = proxied.ok();
+      if (result.isErr()) return result;
+      await logger.logAsCurrentRole(LogEventId.AdminBallotEscalated, {
+        message: `Escalated ballot ${input.cvrId} for election manager review.`,
+        disposition: 'success',
+      });
+      return ok();
+    },
+
     async claimAndLoadBallot(input: {
       afterCvrId?: Id;
     }): Promise<

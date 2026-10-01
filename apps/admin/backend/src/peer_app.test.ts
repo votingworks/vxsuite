@@ -621,6 +621,83 @@ test('releaseBallot frees a claimed CVR', async () => {
   expect(result).toEqual(cvrId);
 });
 
+test('escalateBallot flags the ballot, releases the claim, and stops serving it to clients', async () => {
+  const { peerApiClient, apiClient, auth, workspace, peerLogger } =
+    buildTestEnvironment();
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const electionId = await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition
+  );
+  const cvrIds = addTestCvrs(workspace.store, electionId, 2);
+  workspace.store.setIsClientAdjudicationEnabled(true);
+  const { store } = workspace;
+
+  expect(
+    await peerApiClient.escalateBallot({
+      machineId: 'client-001',
+      cvrId: assertDefined(cvrIds[0]),
+    })
+  ).toEqual(err({ type: 'claim-failed' }));
+  expect(peerLogger.log).toHaveBeenCalledWith(
+    LogEventId.AdminBallotEscalated,
+    'system',
+    expect.objectContaining({
+      disposition: 'failure',
+      clientMachineId: 'client-001',
+    })
+  );
+
+  const escalatedCvrId = assertDefined(
+    await claimBallot(peerApiClient, { machineId: 'client-001' })
+  );
+  (
+    await peerApiClient.escalateBallot({
+      machineId: 'client-001',
+      cvrId: escalatedCvrId,
+    })
+  ).unsafeUnwrap();
+  expect(peerLogger.log).toHaveBeenCalledWith(
+    LogEventId.AdminBallotEscalated,
+    'system',
+    expect.objectContaining({
+      disposition: 'success',
+      cvrId: escalatedCvrId,
+      clientMachineId: 'client-001',
+    })
+  );
+
+  expect(
+    store.hasBallotClaim({
+      electionId,
+      cvrId: escalatedCvrId,
+      machineId: 'client-001',
+    })
+  ).toEqual(false);
+  expect(
+    store.getBallotAdjudicationData({ electionId, cvrId: escalatedCvrId })
+      .isEscalated
+  ).toEqual(true);
+  expect(
+    store.getBallotAdjudicationQueue({ electionId, escalatedOnly: true })
+  ).toEqual([escalatedCvrId]);
+  expect(store.getBallotAdjudicationQueueMetadata({ electionId })).toEqual({
+    totalTally: 2,
+    pendingTally: 2,
+    escalatedPendingTally: 1,
+  });
+
+  const otherCvrId = cvrIds.find((id) => id !== escalatedCvrId);
+  expect(await claimBallot(peerApiClient, { machineId: 'client-001' })).toEqual(
+    otherCvrId
+  );
+  expect(
+    await claimBallot(peerApiClient, { machineId: 'client-002' })
+  ).toBeUndefined();
+});
+
 test("releaseBallot does not release another machine's claim", async () => {
   const { peerApiClient, apiClient, auth, workspace } = buildTestEnvironment();
   const electionDefinition =
@@ -940,6 +1017,9 @@ test('adjudication endpoints reject requests when client adjudication is disable
       cvrId,
       contests: [],
     })
+  ).toEqual(err({ type: 'adjudication-disabled' }));
+  expect(
+    await peerApiClient.escalateBallot({ machineId: 'client-001', cvrId })
   ).toEqual(err({ type: 'adjudication-disabled' }));
 });
 
