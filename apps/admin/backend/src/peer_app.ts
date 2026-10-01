@@ -325,6 +325,7 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
         electionId,
         machineId: input.machineId,
         afterCvrId: input.afterCvrId,
+        escalatedBallotFilter: 'exclude',
       });
       const value = result.unsafeUnwrap(); // error case is unreachable here.
       logger.log(LogEventId.AdminBallotClaimed, 'system', {
@@ -335,6 +336,50 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
         clientMachineId: input.machineId,
       });
       return ok(value);
+    },
+
+    escalateBallot(input: {
+      machineId: string;
+      cvrId: Id;
+    }): Result<void, AdjudicationError> {
+      if (!isClientAdjudicationAllowed()) {
+        logger.log(LogEventId.AdminBallotEscalated, 'system', {
+          message: `Rejected escalation of ballot ${input.cvrId} from client ${input.machineId}: client adjudication is not allowed.`,
+          disposition: 'failure',
+          cvrId: input.cvrId,
+          clientMachineId: input.machineId,
+        });
+        return err({ type: 'adjudication-disabled' });
+      }
+      const electionId = assertDefined(store.getCurrentElectionId());
+      if (
+        !store.hasBallotClaim({
+          electionId,
+          cvrId: input.cvrId,
+          machineId: input.machineId,
+        })
+      ) {
+        logger.log(LogEventId.AdminBallotEscalated, 'system', {
+          message: `Rejected escalation of ballot ${input.cvrId} from client ${input.machineId}: the client does not hold the claim.`,
+          disposition: 'failure',
+          cvrId: input.cvrId,
+          clientMachineId: input.machineId,
+        });
+        return err({ type: 'claim-failed' });
+      }
+      store.escalateCvrBallot({ electionId, cvrId: input.cvrId });
+      store.releaseBallotClaim({
+        electionId,
+        cvrId: input.cvrId,
+        machineId: input.machineId,
+      });
+      logger.log(LogEventId.AdminBallotEscalated, 'system', {
+        message: `Client ${input.machineId} escalated ballot ${input.cvrId} for election manager review.`,
+        disposition: 'success',
+        cvrId: input.cvrId,
+        clientMachineId: input.machineId,
+      });
+      return ok();
     },
 
     releaseBallot(input: { machineId: string; cvrId: Id }): void {
