@@ -415,6 +415,9 @@ function generateCircleCiFilteredAppConfigForPackage(
     '          key:',
     '            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/Cargo.lock" }}',
     '      - run:',
+    '          name: Install Rust Toolchain',
+    '          command: rustup toolchain install',
+    '      - run:',
     '          name: Install Rust Dependencies',
     '          command: pnpm --recursive install:rust-addon',
     '      - save_cache:',
@@ -635,6 +638,9 @@ ${turboCacheRestoreSteps('            ').join('\n')}
           name: Restore Cargo Cache
           key:
             cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/Cargo.lock" }}
+      - run:
+          name: Install Rust Toolchain
+          command: rustup toolchain install
       - run:
           name: Install Rust Dependencies
           command: pnpm --recursive install:rust-addon
