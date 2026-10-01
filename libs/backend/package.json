@@ -30,8 +30,8 @@
     "type-check": "tsc --build"
   },
   "dependencies": {
-    "@google-cloud/text-to-speech": "^5.0.1",
-    "@google-cloud/translate": "^8.0.2",
+    "@google-cloud/text-to-speech": "^5.8.1",
+    "@google-cloud/translate": "^8.5.1",
     "@votingworks/auth": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/db": "workspace:*",
