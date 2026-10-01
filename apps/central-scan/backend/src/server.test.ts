@@ -1,6 +1,8 @@
 import { expect, onTestFinished, test, vi } from 'vitest';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { randomUUID as uuid } from 'node:crypto';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   makeTemporaryDirectory,
@@ -174,4 +176,81 @@ test('logs when sheet counts are not present at startup', () => {
       sheetCount: 0,
     }
   );
+});
+
+test('removes unfinished batches and orphaned batch image directories at startup', () => {
+  const auth = buildMockDippedSmartCardAuth(vi.fn);
+  const workspace = createWorkspace(
+    makeTemporaryDirectory(),
+    mockBaseLogger({ fn: vi.fn })
+  );
+
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  workspace.store.setElectionAndJurisdiction({
+    electionData: electionDefinition.electionData,
+    jurisdiction: TEST_JURISDICTION,
+    electionPackageHash: 'test-election-package-hash',
+    ballotHash: electionDefinition.ballotHash,
+  });
+  workspace.store.setPollingPlaceId(
+    anyPollingPlace(electionDefinition.election).id
+  );
+
+  const finishedBatchId = workspace.store.addBatch();
+  workspace.store.finishBatch(finishedBatchId);
+  const deletedBatchId = workspace.store.addBatch();
+  workspace.store.finishBatch(deletedBatchId);
+  workspace.store.deleteBatch(deletedBatchId);
+  const unfinishedBatchId = workspace.store.addBatch();
+  const strayBatchImagesPath = workspace.batchImagesPath(uuid());
+  for (const batchImagesPath of [
+    workspace.batchImagesPath(finishedBatchId),
+    workspace.batchImagesPath(deletedBatchId),
+    workspace.batchImagesPath(unfinishedBatchId),
+    strayBatchImagesPath,
+  ]) {
+    mkdirSync(batchImagesPath);
+  }
+  const otherPath = join(workspace.ballotImagesPath, 'other.png');
+  writeFileSync(otherPath, '');
+
+  const logger = buildMockLogger(auth, workspace);
+  const { usbDrive } = createMockUsbDrive();
+  const scanner = makeMockScanner();
+  const machine = createBatchScannerStateMachine({
+    workspace,
+    logger,
+    scanner,
+  });
+  onTestFinished(() => machine.stop());
+  const app = buildCentralScannerApp({
+    auth,
+    workspace,
+    logger,
+    usbDrive,
+    scanner,
+    machine,
+  });
+
+  // don't actually listen
+  vi.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
+    onListening?.();
+    return new EventEmitter() as unknown as Server;
+  });
+  vi.spyOn(console, 'log').mockReturnValue();
+
+  // start up the server
+  start({ app, workspace, port: 3005, logger });
+
+  expect(workspace.store.getAllBatchIds().sort()).toEqual(
+    [finishedBatchId, deletedBatchId].sort()
+  );
+  expect(existsSync(workspace.batchImagesPath(finishedBatchId))).toEqual(true);
+  expect(existsSync(workspace.batchImagesPath(deletedBatchId))).toEqual(true);
+  expect(existsSync(workspace.batchImagesPath(unfinishedBatchId))).toEqual(
+    false
+  );
+  expect(existsSync(strayBatchImagesPath)).toEqual(false);
+  expect(existsSync(otherPath)).toEqual(true);
 });

@@ -43,9 +43,11 @@ import type { BatchPauseReason, BatchScannerMachineStatus } from './types.js';
 
 const debug = makeDebug('scan:state-machine');
 
+const RAW_IMAGES_DIRECTORY_NAME = 'raw';
+
 interface BatchContext {
   control: BatchControl;
-  imageDirectory: string;
+  rawImageDirectory: string;
   chunkIndex: number;
 }
 
@@ -103,7 +105,7 @@ function buildMachine({
   const { store } = workspace;
 
   async function startScanning(
-    imageDirectory: string,
+    rawImageDirectory: string,
     batchId: Id,
     chunkIndex: number
   ): Promise<BatchContext> {
@@ -113,7 +115,7 @@ function buildMachine({
     });
     return {
       control: scanner.scanSheets({
-        directory: imageDirectory,
+        directory: rawImageDirectory,
         pageSize: store.getBallotPaperSizeForElection(),
         // If the imprinter is attached, imprint an ID prefixed by the batch ID
         // and chunk index. The scanner restarts its imprint counter each time
@@ -121,15 +123,18 @@ function buildMachine({
         // imprint IDs within our logical batch.
         imprintIdPrefix: hasImprinter ? `${batchId}_${chunkIndex}` : undefined,
       }),
-      imageDirectory,
+      rawImageDirectory,
       chunkIndex,
     };
   }
 
   async function startBatch(batchId: Id): Promise<BatchContext> {
-    const imageDirectory = join(workspace.ballotImagesPath, `batch-${batchId}`);
-    await mkdir(imageDirectory, { recursive: true });
-    const batchContext = await startScanning(imageDirectory, batchId, 0);
+    const rawImageDirectory = join(
+      workspace.batchImagesPath(batchId),
+      RAW_IMAGES_DIRECTORY_NAME
+    );
+    await mkdir(rawImageDirectory, { recursive: true });
+    const batchContext = await startScanning(rawImageDirectory, batchId, 0);
     void logger.logAsCurrentRole(LogEventId.ScannerBatchStarted, {
       disposition: 'success',
       message: `User has begun scanning a new batch with ID: ${batchId}`,
@@ -142,14 +147,15 @@ function buildMachine({
     batchId,
     batchContext,
   }: Context): Promise<BatchContext> {
-    const { control, imageDirectory, chunkIndex } = assertDefined(batchContext);
+    const { control, rawImageDirectory, chunkIndex } =
+      assertDefined(batchContext);
     // Since the scanner ends its "batch" internally when the tray runs out of paper,
     // we need to start a new scanner batch when resuming after that. If we
     // paused for another reason (e.g. manual pause or adjudication), then we
     // need to end the current scanner batch before starting a new one.
     await control.endBatch();
     return startScanning(
-      imageDirectory,
+      rawImageDirectory,
       assertDefined(batchId),
       chunkIndex + 1
     );
@@ -201,7 +207,7 @@ function buildMachine({
         },
         [frontImageData.unsafeUnwrap(), backImageData.unsafeUnwrap()],
         sheetId,
-        workspace.ballotImagesPath
+        workspace.batchImagesPath(batchId)
       );
     for (const { imagePath, interpretation } of pages) {
       debug(
@@ -265,11 +271,11 @@ function buildMachine({
   }
 
   async function endBatch(batchContext: BatchContext): Promise<void> {
-    const { control, imageDirectory } = batchContext;
+    const { control, rawImageDirectory } = batchContext;
     try {
       await control.endBatch();
     } finally {
-      await rm(imageDirectory, { recursive: true, force: true });
+      await rm(rawImageDirectory, { recursive: true, force: true });
     }
   }
 
@@ -291,8 +297,13 @@ function buildMachine({
     batchId,
     batchContext,
   }: Context): Promise<void> {
+    assert(batchId !== undefined);
     if (batchContext) await endBatch(batchContext);
-    store.discardBatch(assertDefined(batchId));
+    await rm(workspace.batchImagesPath(batchId), {
+      recursive: true,
+      force: true,
+    });
+    store.discardBatch(batchId);
   }
 
   const clearBatch = assign<Context, Event>({

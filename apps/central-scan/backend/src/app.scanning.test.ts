@@ -19,7 +19,8 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { LogEventId, type Logger } from '@votingworks/logging';
-import { readFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { readdir, readFile } from 'node:fs/promises';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth.js';
 import { generateBmdBallotFixture } from '../test/helpers/ballots.js';
@@ -364,12 +365,20 @@ test('discardBatch deletes the paused batch', async () => {
       pauseReason: { type: 'tray-empty' },
     });
     expect(pausedStatus.batches[0]!.count).toEqual(1);
+    const batchId = pausedStatus.batches[0]!.id;
+    expect((await readdir(workspace.batchImagesPath(batchId))).sort()).toEqual([
+      expect.stringMatching(/-back\.png$/),
+      expect.stringMatching(/-front\.png$/),
+      'raw',
+    ]);
 
     await apiClient.discardBatch();
     const status = await apiClient.getStatus();
     expect(status.state).toEqual('idle');
     expect(status.batches).toEqual([]);
     expect(workspace.store.getBallotsCounted()).toEqual(0);
+    expect(existsSync(workspace.batchImagesPath(batchId))).toEqual(false);
+    expect(await readdir(workspace.ballotImagesPath)).toEqual([]);
 
     scanner.withNextScannerSession().sheet(scannedBallot).end();
     await apiClient.scanBatch();
