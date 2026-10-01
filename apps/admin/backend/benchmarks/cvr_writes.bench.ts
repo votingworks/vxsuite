@@ -97,6 +97,25 @@ test('write: deleting a CVR import', async () => {
   }
 });
 
+test('write: escalating ballots', async () => {
+  const cvrIds = store
+    .getBallotAdjudicationQueue({ electionId })
+    .slice(0, ADJUDICATE_CVR_COUNT);
+
+  await benchmarkRegressionTest({
+    label: 'escalating ballots',
+    func: () =>
+      inRolledBackTransaction(() => {
+        for (const cvrId of cvrIds) {
+          store.escalateCvrBallot({ electionId, cvrId });
+        }
+      }),
+    runs: 3,
+    warmupRuns: 1,
+    goalMs: ADJUDICATE_GOAL_MS,
+  });
+});
+
 test('write: adjudicating ballots', async () => {
   const cvrIds = store
     .getBallotAdjudicationQueue({ electionId })
