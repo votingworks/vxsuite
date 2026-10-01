@@ -532,7 +532,7 @@ test('writes separate ballot meta files when `splitElectionDefinition` setting i
     rendererPool,
     vxDefaultBallotTemplate,
     [props1, props2],
-    { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    { compact: true, format: 'vxf', version: LATEST_SOFTWARE_VERSION },
     settings,
     makeScratchDir()
   );
@@ -562,6 +562,9 @@ test('writes separate ballot meta files when `splitElectionDefinition` setting i
 
   const { ballotHash } = res.electionDefinition;
   expect(parsedElection.unsafeUnwrap().ballotHash).toEqual(ballotHash);
+
+  // Expect an unindented election.json when the `compact` option is enabled.
+  expect(res.electionDefinition.electionData).not.toContain('\n');
 });
 
 test('writes single-file election when `splitElectionDefinition` setting is off', async () => {
