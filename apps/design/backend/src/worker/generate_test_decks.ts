@@ -180,17 +180,12 @@ async function generate(
 
   for (const [precinct, ballotSpecs] of precinctHmpbBallotSpecs) {
     // Generate HMPB test deck
-    //
-    // [TODO] Stage PDFs on disk before archiving, to avoid OOM errors on large
-    // elections.
-    //
-    // [TODO] Use positions from staged ballotPositions.jsonl when
-    // `splitElectionDefinition` system setting is on.
-    const testDeckPdf = await createPrecinctTestDeck({
+    const testDeck = await createPrecinctTestDeck({
       rendererPool,
       electionDefinition,
       ballotSpecs,
       ballots,
+      scratchDir,
       // eslint-disable-next-line no-loop-func
       emitProgress: (ballotsRendered) => {
         emitProgress(
@@ -202,9 +197,9 @@ async function generate(
     });
     renderedBallots += ballotSpecs.length;
     // @coverage-exclude-else
-    if (testDeckPdf) {
+    if (testDeck) {
       const fileName = `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`;
-      zip.addEntry(testDeckPdf, { name: fileName });
+      zip.addEntryFromPath(testDeck.pdfPath, { name: fileName });
     }
   }
 

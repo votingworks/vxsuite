@@ -16,7 +16,9 @@ import { concatenatePdfs } from '@votingworks/image-utils/pdf';
 import {
   markBallotDocument,
   renderBallotPdfWithMetadataQrCode,
+  writeScratchFile,
   type RendererPool,
+  type ScratchDir,
 } from '@votingworks/hmpb';
 
 /**
@@ -33,13 +35,15 @@ export async function createPrecinctTestDeck({
   ballotSpecs,
   ballots,
   emitProgress,
+  scratchDir,
 }: {
   rendererPool: RendererPool;
   electionDefinition: ElectionDefinition;
   ballotSpecs: TestDeckBallotSpec[];
   ballots: Array<{ props: BaseBallotProps; layoutPath: string }>;
   emitProgress?: (ballotsRendered: number) => void;
-}): Promise<Uint8Array | undefined> {
+  scratchDir: ScratchDir;
+}): Promise<{ pdfPath: string } | undefined> {
   if (ballotSpecs.length === 0) {
     return undefined;
   }
@@ -63,7 +67,13 @@ export async function createPrecinctTestDeck({
     }),
     emitProgress
   );
-  return await concatenatePdfs(markedBallots);
+
+  const pdfPath = await writeScratchFile(scratchDir, {
+    data: await concatenatePdfs(markedBallots),
+    extension: 'pdf',
+  });
+
+  return { pdfPath };
 }
 
 export const FULL_TEST_DECK_TALLY_REPORT_FILE_NAME =
