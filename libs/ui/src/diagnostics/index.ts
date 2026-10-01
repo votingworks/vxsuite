@@ -1,8 +1,4 @@
-export {
-  parseHighestPriorityIppPrinterStateReason,
-  IPP_PRINTER_STATE_REASON_MESSAGES,
-  PrinterStatusDisplay,
-} from './printer_section.js';
+export { PrinterStatusDisplay } from './printer_section.js';
 export * from './admin_readiness_report.js';
 export * from './ballot_style_readiness_report.js';
 export * from './central_scan_readiness_report.js';

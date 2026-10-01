@@ -126,6 +126,7 @@ export * from './with_scroll_buttons.js';
 export * from './search_select.js';
 export * from './checkbox.js';
 export * from './utils/pin_length.js';
+export * from './utils/printer_state_reasons.js';
 export * from './test-utils/mock_usb_drive.js';
 export * from './fonts/roboto.js';
 export * from './battery_display.js';

@@ -1538,6 +1538,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  titlePrinterNeedsAttention: () => (
+    <UiString uiStringKey="titlePrinterNeedsAttention">
+      Printer Needs Attention
+    </UiString>
+  ),
+
   titleScannerCoverIsOpen: () => (
     <UiString uiStringKey="titleScannerCoverIsOpen">
       Scanner Cover is Open

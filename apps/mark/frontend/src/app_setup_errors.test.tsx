@@ -132,6 +132,98 @@ describe('Displays setup warning messages and errors screens', () => {
     await screen.findByText(insertCardScreenText);
   });
 
+  test('blocks voting when the printer reports a state that prevents printing', async () => {
+    apiMock.expectGetMachineConfig();
+    apiMock.expectGetElectionRecord(electionGeneralDefinition);
+    apiMock.expectGetElectionState({
+      pollingPlaceId: pollingPlace.id,
+      pollsState: 'polls_open',
+    });
+
+    render(<App apiClient={apiMock.mockApiClient} />);
+    await screen.findByText(insertCardScreenText);
+
+    act(() => {
+      apiMock.setPrinterStatus({
+        richStatus: {
+          state: 'idle',
+          stateReasons: ['media-empty-error'],
+          markerInfos: [],
+        },
+      });
+    });
+    await screen.findByRole('heading', { name: 'Printer Needs Attention' });
+    screen.getByText(
+      'The printer does not detect any paper. Either the paper tray is open or the printer is out of paper.'
+    );
+
+    act(() => {
+      apiMock.setPrinterStatus();
+    });
+    await screen.findByText(insertCardScreenText);
+  });
+
+  test('does not block voting for a printer state that only warns', async () => {
+    apiMock.expectGetMachineConfig();
+    apiMock.expectGetElectionRecord(electionGeneralDefinition);
+    apiMock.expectGetElectionState({
+      pollingPlaceId: pollingPlace.id,
+      pollsState: 'polls_open',
+    });
+
+    render(<App apiClient={apiMock.mockApiClient} />);
+    await screen.findByText(insertCardScreenText);
+
+    act(() => {
+      apiMock.setPrinterStatus({
+        richStatus: {
+          state: 'idle',
+          stateReasons: ['toner-low-warning', 'media-low-warning'],
+          markerInfos: [],
+        },
+      });
+    });
+    await advanceTimersAndPromises();
+    screen.getByText(insertCardScreenText);
+  });
+
+  test('blocks a poll worker', async () => {
+    apiMock.expectGetMachineConfig();
+    apiMock.expectGetElectionRecord(electionGeneralDefinition);
+    apiMock.expectGetElectionState({
+      pollingPlaceId: pollingPlace.id,
+      pollsState: 'polls_open',
+    });
+
+    render(<App apiClient={apiMock.mockApiClient} />);
+    await screen.findByText(insertCardScreenText);
+
+    act(() => {
+      apiMock.setPrinterStatus({
+        richStatus: {
+          state: 'stopped',
+          stateReasons: ['cover-open-error'],
+          markerInfos: [],
+        },
+      });
+    });
+    await screen.findByRole('heading', { name: 'Printer Needs Attention' });
+
+    apiMock.setAuthStatusPollWorkerLoggedIn(electionGeneralDefinition);
+    await advanceTimersAndPromises();
+    screen.getByRole('heading', { name: 'Printer Needs Attention' });
+    screen.getByText("The printer's cover is open. Close the printer's cover.");
+
+    act(() => {
+      apiMock.setPrinterStatus();
+    });
+    await vi.waitFor(() => {
+      expect(
+        screen.queryByRole('heading', { name: 'Printer Needs Attention' })
+      ).toBeNull();
+    });
+  });
+
   test('Admin screen trumps "No Printer Detected" error', async () => {
     apiMock.expectGetMachineConfig();
     apiMock.expectGetElectionRecord(electionGeneralDefinition);
