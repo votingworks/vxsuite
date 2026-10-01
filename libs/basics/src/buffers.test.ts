@@ -1,6 +1,6 @@
 import { Buffer } from 'node:buffer';
 import { describe, expect, test } from 'vitest';
-import { arrayBufferFrom } from './buffers.js';
+import { arrayBufferFrom, bufferAsU8Array } from './buffers.js';
 
 function assertArrayBuffersEqual(a: ArrayBuffer, b: ArrayBuffer) {
   expect(new Uint8Array(a, 0, a.byteLength)).toEqual(
@@ -29,4 +29,15 @@ describe('arrayBufferFrom', () => {
       arrayBuffer
     );
   });
+});
+
+test('bufferAsU8Array()', () => {
+  const mem = new ArrayBuffer(10);
+  const buf = Buffer.from(mem, 2, 6);
+  const arr = bufferAsU8Array(buf);
+
+  // eslint-disable-next-line vx/no-expect-to-be
+  expect(arr.buffer).toBe(buf.buffer);
+  expect(arr.byteOffset).toEqual(buf.byteOffset);
+  expect(arr.byteLength).toEqual(buf.byteLength);
 });

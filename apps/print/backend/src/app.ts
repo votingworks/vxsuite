@@ -4,6 +4,7 @@ import express, { type Application } from 'express';
 import {
   assert,
   assertDefined,
+  bufferAsU8Array,
   err,
   ok,
   type Result,
@@ -59,7 +60,7 @@ import {
   renderToPdf,
 } from '@votingworks/printing';
 import { AdminTallyReportByParty } from '@votingworks/ui';
-import { generateMarkOverlay } from '@votingworks/hmpb';
+import { generateMarkOverlay, NO_PRINT_CALIBRATION } from '@votingworks/hmpb';
 import type { AppContext } from './context.js';
 import { constructAuthMachineState } from './util/auth.js';
 import {
@@ -206,7 +207,7 @@ export function buildApi(ctx: AppContext) {
       })
     ).unsafeUnwrap();
     await printBallots(electionDefinition, {
-      data: Buffer.from(tallyReportPdf),
+      data: tallyReportPdf,
       copies: 1,
     });
   }
@@ -757,22 +758,31 @@ export function buildApi(ctx: AppContext) {
       const ballotsToPrint = overallTallyReportOnly
         ? []
         : getTestDeckBallotsToPrint(election, precinctIds);
+
+      const ballotMetaStore = store.getBallotMetaStore();
+
       for (const { spec, ballot } of ballotsToPrint) {
-        const basePdf = Uint8Array.from(
+        const basePdf = bufferAsU8Array(
           Buffer.from(ballot.encodedBallot, 'base64')
         );
+
         const hasVotes = Object.keys(spec.votes).length > 0;
         const markedPdf = hasVotes
-          ? await generateMarkOverlay(
-              election,
-              spec.ballotStyleId,
-              spec.votes,
-              { offsetMmX: 0, offsetMmY: 0 },
-              basePdf
-            )
+          ? await generateMarkOverlay({
+              baseBallotPdf: basePdf,
+              calibration: NO_PRINT_CALIBRATION,
+              contests: election.contests,
+              positions: assertDefined(
+                ballotMetaStore.getPositions(spec.ballotStyleId),
+                `no ballot positions for style ${spec.ballotStyleId}`
+              ),
+              size: election.ballotLayout.paperSize,
+              votes: spec.votes,
+            })
           : basePdf;
+
         await printBallots(electionDefinition, {
-          data: Buffer.from(markedPdf),
+          data: markedPdf,
           copies: 1,
         });
       }

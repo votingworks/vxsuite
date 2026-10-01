@@ -38,6 +38,11 @@ export interface PrintCalibration {
   offsetMmY: number;
 }
 
+export const NO_PRINT_CALIBRATION: Readonly<PrintCalibration> = {
+  offsetMmX: 0,
+  offsetMmY: 0,
+};
+
 export interface RotationParams {
   contests: readonly Contest[];
   precincts: readonly Precinct[];

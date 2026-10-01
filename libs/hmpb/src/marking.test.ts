@@ -17,6 +17,7 @@ import {
   nhStateGeneralElectionFixtures,
   vxGeneralElectionFixtures,
 } from './ballot_fixtures.js';
+import { NO_PRINT_CALIBRATION } from './types.js';
 
 test('places marks consistently', async () => {
   const fixture = find(
@@ -24,16 +25,19 @@ test('places marks consistently', async () => {
     (spec) => spec.paperSize === 'letter' && spec.languageCode === 'en'
   );
 
-  const election = safeParseElection(
+  const { ballotLayout, ballotStyles, contests } = safeParseElection(
     JSON.parse(fs.readFileSync(fixture.electionPath, 'utf8'))
-  );
+  ).unsafeUnwrap();
 
-  const overlayPdf = await generateMarkOverlay(
-    election.unsafeUnwrap(),
-    fixture.ballotStyleId,
-    fixture.votes,
-    { offsetMmX: 0, offsetMmY: 0 }
-  );
+  const ballotStyle = find(ballotStyles, (b) => b.id === fixture.ballotStyleId);
+
+  const overlayPdf = await generateMarkOverlay({
+    calibration: NO_PRINT_CALIBRATION,
+    contests,
+    positions: assertDefined(ballotStyle.ballotPositions),
+    size: ballotLayout.paperSize,
+    votes: fixture.votes,
+  });
 
   const ballotBuf = fs.readFileSync(fixture.blankBallotPath);
   const ballotPdf = Uint8Array.from(ballotBuf);
@@ -60,20 +64,23 @@ test('composites marks onto base ballot PDF', async () => {
     (spec) => spec.paperSize === 'letter' && spec.languageCode === 'en'
   );
 
-  const election = safeParseElection(
+  const { ballotLayout, ballotStyles, contests } = safeParseElection(
     JSON.parse(fs.readFileSync(fixture.electionPath, 'utf8'))
-  );
+  ).unsafeUnwrap();
+
+  const ballotStyle = find(ballotStyles, (b) => b.id === fixture.ballotStyleId);
 
   const ballotBuf = fs.readFileSync(fixture.blankBallotPath);
   const baseBallotPdf = Uint8Array.from(ballotBuf);
 
-  const compositePdf = await generateMarkOverlay(
-    election.unsafeUnwrap(),
-    fixture.ballotStyleId,
-    fixture.votes,
-    { offsetMmX: 0, offsetMmY: 0 },
-    baseBallotPdf
-  );
+  const compositePdf = await generateMarkOverlay({
+    baseBallotPdf,
+    calibration: NO_PRINT_CALIBRATION,
+    contests,
+    positions: assertDefined(ballotStyle.ballotPositions),
+    size: ballotLayout.paperSize,
+    votes: fixture.votes,
+  });
 
   const scale = 1;
   const compositePages = pdfToImages(compositePdf, { scale });
@@ -90,11 +97,13 @@ test('marks a ballot with a vote for the third yesno option', async () => {
   const spec = nhGeneralElectionFixtures.fixtureSpecs[0]!;
   const { electionPath, ballotStyleId, blankBallotPath } = spec;
 
-  const election = safeParseElection(
+  const { ballotLayout, ballotStyles, contests } = safeParseElection(
     JSON.parse(fs.readFileSync(electionPath, 'utf8'))
   ).unsafeUnwrap();
 
-  const questionA = election.contests.find(
+  const ballotStyle = find(ballotStyles, (b) => b.id === ballotStyleId);
+
+  const questionA = contests.find(
     (c) => c.id === 'question-a' && c.type === 'yesno'
   );
   // Confirm the fixture has the third option
@@ -109,13 +118,14 @@ test('marks a ballot with a vote for the third yesno option', async () => {
   };
 
   const baseBallotPdf = Uint8Array.from(fs.readFileSync(blankBallotPath));
-  const markedBallotPdf = await generateMarkOverlay(
-    election,
-    ballotStyleId,
+  const markedBallotPdf = await generateMarkOverlay({
+    baseBallotPdf,
+    calibration: NO_PRINT_CALIBRATION,
+    contests,
+    positions: assertDefined(ballotStyle.ballotPositions),
+    size: ballotLayout.paperSize,
     votes,
-    { offsetMmX: 0, offsetMmY: 0 },
-    baseBallotPdf
-  );
+  });
 
   const scale = 1;
   const markedPages = pdfToImages(markedBallotPdf, { scale });
@@ -137,9 +147,11 @@ test.each([
 ])('keeps an overflowing write-in name inside $label', async ({ fixtures }) => {
   const { electionPath, ballotStyleId, votes, blankBallotPath } = fixtures();
 
-  const election = safeParseElection(
+  const { ballotLayout, ballotStyles, contests } = safeParseElection(
     JSON.parse(fs.readFileSync(electionPath, 'utf8'))
   ).unsafeUnwrap();
+
+  const ballotStyle = find(ballotStyles, (b) => b.id === ballotStyleId);
 
   // A name long enough to overflow its write-in area and run into the
   // neighboring contest, which could be read as a mark there. 39 characters,
@@ -157,13 +169,14 @@ test.each([
   );
 
   const baseBallotPdf = Uint8Array.from(fs.readFileSync(blankBallotPath));
-  const markedBallotPdf = await generateMarkOverlay(
-    election,
-    ballotStyleId,
-    longWriteInVotes,
-    { offsetMmX: 0, offsetMmY: 0 },
-    baseBallotPdf
-  );
+  const markedBallotPdf = await generateMarkOverlay({
+    baseBallotPdf,
+    calibration: NO_PRINT_CALIBRATION,
+    contests,
+    positions: assertDefined(ballotStyle.ballotPositions),
+    size: ballotLayout.paperSize,
+    votes: longWriteInVotes,
+  });
 
   for await (const page of pdfToImages(markedBallotPdf, { scale: 1 })) {
     expect(toImageBuffer(page.page)).toMatchImageSnapshot();
@@ -174,21 +187,24 @@ test('marks the selected party in a straight party contest', async () => {
   const { electionPath, ballotStyleId, votes, blankBallotPath } =
     miGeneralElectionFixtures;
 
-  const election = safeParseElection(
+  const { ballotLayout, ballotStyles, contests } = safeParseElection(
     JSON.parse(fs.readFileSync(electionPath, 'utf8'))
   ).unsafeUnwrap();
+
+  const ballotStyle = find(ballotStyles, (b) => b.id === ballotStyleId);
 
   expect(votes['straight-party-ticket']).toEqual(['0']);
 
   const baseBallotPdf = Uint8Array.from(fs.readFileSync(blankBallotPath));
 
-  const markedBallotPdf = await generateMarkOverlay(
-    election,
-    ballotStyleId,
+  const markedBallotPdf = await generateMarkOverlay({
+    baseBallotPdf,
+    calibration: NO_PRINT_CALIBRATION,
+    contests,
+    positions: assertDefined(ballotStyle.ballotPositions),
+    size: ballotLayout.paperSize,
     votes,
-    { offsetMmX: 0, offsetMmY: 0 },
-    baseBallotPdf
-  );
+  });
 
   const scale = 1;
   const markedPages = pdfToImages(markedBallotPdf, { scale });

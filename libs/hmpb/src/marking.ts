@@ -14,12 +14,13 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import { normalizePdf } from '@votingworks/image-utils/pdf';
 import {
   ballotPaperDimensions,
+  type BallotPaperSize,
   type Candidate,
   type Contest,
-  type Election,
   type GridPosition,
   gridPositionsFromBallotPositions,
   type Rect,
+  type SheetPositions,
   type Vote,
   type VotesDict,
 } from '@votingworks/types';
@@ -88,32 +89,31 @@ export function gridSpacing(pageDimensions: InchDimensions): {
   };
 }
 
+export interface MarkOverlayParams {
+  baseBallotPdf?: Uint8Array;
+  calibration: PrintCalibration;
+  contests: readonly Contest[];
+  positions: readonly SheetPositions[];
+  size: BallotPaperSize;
+  votes: VotesDict;
+}
+
 /**
- * Generates a PDF with bubble marks in the expected positions for the given
- * ballot style and corresponding votes.
+ * Generates a PDF with bubble marks in the given positions with corresponding
+ * corresponding votes.
  *
- * If {@link baseBallotPdf} is specified, the marks will be composited on top
- * of the base ballot PDF. Otherwise, a new PDF with just the marks is created.
+ * If {@link MarkOverlayParams.baseBallotPdf} is specified, the marks will be
+ * composited on top of the base ballot PDF. Otherwise, a new PDF with just the
+ * marks is created.
  *
  * Intended for printing over pre-printed HMPBs or for bubble ballot marking.
  */
 export async function generateMarkOverlay(
-  election: Election,
-  ballotStyleId: string,
-  votes: VotesDict,
-  calibration: PrintCalibration,
-  baseBallotPdf?: Uint8Array
+  p: MarkOverlayParams
 ): Promise<Uint8Array> {
-  const ballotStyle = election.ballotStyles.find(
-    (bs) => bs.id === ballotStyleId
-  );
-  assert(
-    ballotStyle?.ballotPositions,
-    `no ballot positions found for ballot style ${ballotStyleId}`
-  );
-  const gridPositions = gridPositionsFromBallotPositions(
-    ballotStyle.ballotPositions
-  );
+  // [TODO] Use the `SheetPosition`s directly, since we can index into `votes`
+  // with the included contests IDs.
+  const gridPositions = gridPositionsFromBallotPositions(p.positions);
 
   /**
    * Center of the top-left timing mark, potentially adjusted per
@@ -123,11 +123,11 @@ export async function generateMarkOverlay(
    * definition, to support marking 3rd party ballots.
    */
   const gridOrigin = [
-    pageMargins[0] + 0.5 * timingMarkSize[0] + calibration.offsetMmX * MM,
-    pageMargins[1] + 0.5 * timingMarkSize[1] + calibration.offsetMmY * MM,
+    pageMargins[0] + 0.5 * timingMarkSize[0] + p.calibration.offsetMmX * MM,
+    pageMargins[1] + 0.5 * timingMarkSize[1] + p.calibration.offsetMmY * MM,
   ] as const;
 
-  const pageSizeIn = ballotPaperDimensions(election.ballotLayout.paperSize);
+  const pageSizeIn = ballotPaperDimensions(p.size);
   const pageSize = [pageSizeIn.width * IN, pageSizeIn.height * IN] as const;
 
   const timingMarkCount = timingMarkCounts(pageSizeIn);
@@ -138,11 +138,11 @@ export async function generateMarkOverlay(
   const spacing = gridSpacing(pageSizeIn);
 
   // Load base ballot PDF or create a new document
-  const doc = baseBallotPdf
-    ? await PDFDocument.load(baseBallotPdf)
+  const doc = p.baseBallotPdf
+    ? await PDFDocument.load(p.baseBallotPdf)
     : await PDFDocument.create();
 
-  if (baseBallotPdf) {
+  if (p.baseBallotPdf) {
     const basePageSize = doc.getPage(0).getSize();
     assert(
       basePageSize.width === pageSize[0] && basePageSize.height === pageSize[1],
@@ -159,17 +159,17 @@ export async function generateMarkOverlay(
     if (pos.side === 'front') pageNumber -= 1;
 
     // Create pages if they don't exist (for non-base ballot case)
-    if (!baseBallotPdf) {
+    if (!p.baseBallotPdf) {
       while (doc.getPageCount() < pageNumber) {
         const page = doc.addPage();
         page.setSize(pageSize[0], pageSize[1]);
       }
     }
 
-    const contestVotes = votes[pos.contestId];
+    const contestVotes = p.votes[pos.contestId];
     if (!contestVotes) continue;
 
-    const contest = election.contests.find((c) => c.id === pos.contestId);
+    const contest = p.contests.find((c) => c.id === pos.contestId);
     assert(contest, `contest ${pos.contestId} not found`);
 
     const mark = markInfo(contestVotes, pos, contest, { gridPositions });

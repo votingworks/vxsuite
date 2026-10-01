@@ -2,12 +2,19 @@ import { describe, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 
 import { electionGeneralFixtures } from '@votingworks/fixtures';
-import { generateMarkOverlay, type PrintCalibration } from '@votingworks/hmpb';
+import {
+  generateMarkOverlay,
+  NO_PRINT_CALIBRATION,
+  type MarkOverlayParams,
+  type PrintCalibration,
+} from '@votingworks/hmpb';
 import {
   BallotType,
+  type ContestPosition,
   type ElectionDefinition,
   getContests,
   HmpbBallotPaperSize,
+  type SheetPositions,
   type SystemSettings,
   type UiStringsPackage,
   type VotesDict,
@@ -27,7 +34,7 @@ import {
   BmdPaperBallot,
   filterVotesForContests,
 } from '@votingworks/ui';
-import type { UiStringsStore } from '@votingworks/backend';
+import type { BallotMetaStore, UiStringsStore } from '@votingworks/backend';
 import { assertDefined, ok } from '@votingworks/basics';
 import { mockConstructor } from '@votingworks/test-utils';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
@@ -53,6 +60,17 @@ vi.mock(import('@votingworks/ballot-encoder'), async (importActual) => {
 
 const electionDefBase = electionGeneralFixtures.readElectionDefinition();
 
+const mockContestPosition: ContestPosition = {
+  bounds: { column: 0, height: 1, row: 3, width: 4 },
+  contestId: 'contest-1',
+  options: [],
+};
+
+const mockPositions: SheetPositions[] = [
+  [[mockContestPosition], []],
+  [[], []],
+];
+
 describe(`printMode === "marks_on_preprinted_ballot"`, () => {
   const testValidSizes = test.each<HmpbBallotPaperSize>(
     Object.values(HmpbBallotPaperSize)
@@ -75,16 +93,17 @@ describe(`printMode === "marks_on_preprinted_ballot"`, () => {
 
     const mockMarkedBallotPdf = Uint8Array.of(0xca, 0xfe, 0xf0, 0x0d);
 
-    vi.mocked(generateMarkOverlay).mockImplementation(
-      (election, ballotStyleId, votes, calibration) => {
-        expect(election).toEqual(electionDefinition.election);
-        expect(ballotStyleId).toEqual(ballotStyle.id);
-        expect(votes).toEqual(mockVotes);
-        expect(calibration).toEqual(mockCalibration);
+    vi.mocked(generateMarkOverlay).mockImplementation((p) => {
+      expect(p).toEqual<MarkOverlayParams>({
+        calibration: mockCalibration,
+        contests: electionDefinition.election.contests,
+        positions: mockPositions,
+        size: electionDefinition.election.ballotLayout.paperSize,
+        votes: mockVotes,
+      });
 
-        return Promise.resolve(mockMarkedBallotPdf);
-      }
-    );
+      return Promise.resolve(mockMarkedBallotPdf);
+    });
 
     const mockPrint = vi.fn<PrintFunction>();
     await printBallot({
@@ -93,6 +112,13 @@ describe(`printMode === "marks_on_preprinted_ballot"`, () => {
       precinctId: 'unused',
       printer: mockPrinter({ print: mockPrint }),
       store: mockStore({
+        getBallotMetaStore: () =>
+          mockBallotMetaStore({
+            getPositions: (styleId) => {
+              expect(styleId).toEqual(ballotStyle.id);
+              return mockPositions;
+            },
+          }),
         getElectionRecord: () => ({
           electionDefinition,
           electionPackageHash: 'unused',
@@ -483,17 +509,18 @@ describe(`printMode === "bubble_ballot"`, () => {
     const mockBallotPdf = Uint8Array.of(0xba, 0x11, 0x07);
     const mockMarkedBallotPdf = Uint8Array.of(0xca, 0xfe, 0xf0, 0x0d);
 
-    vi.mocked(generateMarkOverlay).mockImplementation(
-      (election, ballotStyleId, votes, calibration, baseBallotPdf?) => {
-        expect(election).toEqual(electionDefinition.election);
-        expect(ballotStyleId).toEqual(ballotStyle.id);
-        expect(votes).toEqual(mockVotes);
-        expect(calibration).toEqual({ offsetMmX: 0, offsetMmY: 0 });
-        expect(baseBallotPdf).toEqual(mockBallotPdf);
+    vi.mocked(generateMarkOverlay).mockImplementation((p) => {
+      expect(p).toEqual<MarkOverlayParams>({
+        baseBallotPdf: mockBallotPdf,
+        calibration: NO_PRINT_CALIBRATION,
+        contests: electionDefinition.election.contests,
+        positions: mockPositions,
+        size: electionDefinition.election.ballotLayout.paperSize,
+        votes: mockVotes,
+      });
 
-        return Promise.resolve(mockMarkedBallotPdf);
-      }
-    );
+      return Promise.resolve(mockMarkedBallotPdf);
+    });
 
     const mockPrint = vi.fn<PrintFunction>();
     await printBallot({
@@ -515,6 +542,13 @@ describe(`printMode === "bubble_ballot"`, () => {
             encodedBallot: Buffer.from(mockBallotPdf).toString('base64'),
           };
         },
+        getBallotMetaStore: () =>
+          mockBallotMetaStore({
+            getPositions: (styleId) => {
+              expect(styleId).toEqual(ballotStyle.id);
+              return mockPositions;
+            },
+          }),
         getElectionRecord: () => ({
           electionDefinition,
           electionPackageHash: 'unused',
@@ -565,6 +599,10 @@ function mockPrinter(mocks: Partial<Printer>) {
 
 function mockStore(mocks: Partial<Store>) {
   return mocks as unknown as Store;
+}
+
+function mockBallotMetaStore(mocks: Partial<BallotMetaStore>) {
+  return mocks as unknown as BallotMetaStore;
 }
 
 function mockUiStringsStore(mocks: Partial<UiStringsStore>) {
