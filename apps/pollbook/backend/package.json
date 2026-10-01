@@ -85,5 +85,5 @@
     "tmp": "^0.2.6",
     "yargs": "17.7.1"
   },
-  "packageManager": "pnpm@10.34.5"
+  "packageManager": "pnpm@12.8.1"
 }
