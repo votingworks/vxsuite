@@ -37,30 +37,5 @@
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "vitest": "5.0.2"
   },
-  "packageManager": "pnpm@10.34.5",
-  "pnpm": {
-    "overrides": {
-      "@vitest/eslint-plugin>@typescript-eslint/scope-manager": "8.70.0",
-      "brace-expansion@1": "^1.1.21",
-      "brace-expansion@2": "^2.0.2",
-      "brace-expansion@5": "^5.0.12",
-      "canvas": "3.2.3",
-      "eslint-plugin-storybook>@typescript-eslint/types": "8.70.0",
-      "graceful-fs": "^4.2.9",
-      "joi@17": "^17.13.7",
-      "markdown-it@14": "^14.3.1",
-      "nan": "^2.28.0",
-      "postcss-styled-syntax>@typescript-eslint/typescript-estree": "8.70.0",
-      "typescript": "npm:@typescript/typescript6@6.0.2",
-      "undici@7": "^7.29.1"
-    },
-    "peerDependencyRules": {
-      "allowedVersions": {
-        "jsdom>canvas": "3"
-      }
-    },
-    "patchedDependencies": {
-      "@fortawesome/react-fontawesome@3.5.0": "patches/@fortawesome__react-fontawesome@3.5.0.patch"
-    }
-  }
+  "packageManager": "pnpm@12.9.1"
 }
