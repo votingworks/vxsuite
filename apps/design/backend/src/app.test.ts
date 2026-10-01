@@ -3898,6 +3898,11 @@ test('Election package and ballots export', async () => {
     })),
   });
 
+  // Assert that an indented election.json was exported.
+  // (Should only be compact when the `splitElectionDefinition` setting is on).
+  const { electionData } = electionDefinition;
+  expect(electionData).toContain('\n');
+
   //
   // Check system settings
   //
@@ -4411,7 +4416,7 @@ test('Election package export with VxDefaultBallot drops signature field', async
   expect(electionPackage.electionDefinition.election.signature).toBeUndefined();
 });
 
-test('export - stores ballot meta files when `splitElectionDefinition` setting is on', async () => {
+test('export - with `splitElectionDefinition` setting on', async () => {
   const fixtures = electionFamousNames2021Fixtures;
   const { electionData } = fixtures.readElectionDefinition();
 
@@ -4476,6 +4481,10 @@ test('export - stores ballot meta files when `splitElectionDefinition` setting i
   for (let i = 0; i < parsedPositions.length; i += 1) {
     expect(parsedPositions[i]?.ballotStyleId).toEqual(ballotStyles[i]?.id);
   }
+
+  // Expect a compact election.json, to reduce bloat from candidate orderings.
+  const electionJson = await zip.readEntryText(Entry.ELECTION);
+  expect(electionJson).not.toContain('\n');
 });
 
 test('Export test decks', async () => {

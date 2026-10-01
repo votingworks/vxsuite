@@ -344,6 +344,8 @@ export async function renderBallotPreviewToPdf<P extends object>(
 }
 
 export interface ElectionSerializationOptions {
+  /** If `true`, the election is serialized without indentation. */
+  compact?: boolean;
   format: ElectionSerializationFormat;
   version: SoftwareVersion;
 }
@@ -382,7 +384,10 @@ function serializeElection(
         throwIllegalValue(options.format);
     }
   })();
-  return JSON.stringify(electionToSerialize, null, 2);
+
+  return options.compact
+    ? JSON.stringify(electionToSerialize)
+    : JSON.stringify(electionToSerialize, null, 2);
 }
 
 /**

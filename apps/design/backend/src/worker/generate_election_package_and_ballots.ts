@@ -344,6 +344,9 @@ async function generate(
   }
 
   const serializationOptions: ElectionSerializationOptions = {
+    // [TODO] Can remove once candidate orderings are moved to a separate file.
+    // This mitigates the effects of the large election JSON in the meantime.
+    compact: systemSettings.splitElectionDefinition,
     format: electionSerializationFormat,
     version: jurisdiction.softwareVersion,
   };
@@ -368,12 +371,15 @@ async function generate(
   await rendererPool.close().catch(console.error);
 
   electionPackageZip.addEntry(electionDefinition.electionData, {
+    // [TODO] Can remove once candidate orderings are moved to a separate file.
+    // This mitigates the effects of the large election JSON in the meantime.
+    compress: systemSettings.splitElectionDefinition,
     name: ElectionPackageFileName.ELECTION,
   });
 
   if (ballotPositionsPath) {
-    // [TODO] Add ZIP entry compression.
     electionPackageZip.addEntryFromPath(ballotPositionsPath, {
+      compress: true,
       name: ElectionPackageFileName.BALLOT_POSITIONS,
     });
   }
