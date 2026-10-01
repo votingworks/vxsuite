@@ -57,10 +57,51 @@ test('polled: getNextCvrIdForBallotAdjudication', async () => {
   });
 });
 
+test('polled: getNextCvrIdForBallotAdjudication for a client, excluding escalated ballots', async () => {
+  await benchmarkRegressionTest({
+    label: 'next ballot for client adjudication',
+    func: () =>
+      store.getNextCvrIdForBallotAdjudication({
+        electionId,
+        machineId: 'bench-client',
+        escalatedBallotFilter: 'exclude',
+      }),
+    runs: 5,
+    warmupRuns: 1,
+    goalMs: POLLED_QUERY_GOAL_MS,
+  });
+});
+
+test('polled: getNextCvrIdForBallotAdjudication, escalated ballots only', async () => {
+  await benchmarkRegressionTest({
+    label: 'next escalated ballot for adjudication',
+    func: () =>
+      store.getNextCvrIdForBallotAdjudication({
+        electionId,
+        machineId: 'bench-machine',
+        escalatedBallotFilter: 'only',
+      }),
+    runs: 5,
+    warmupRuns: 1,
+    goalMs: POLLED_QUERY_GOAL_MS,
+  });
+});
+
 test('screen: getBallotAdjudicationQueue', async () => {
   await benchmarkRegressionTest({
     label: 'adjudication queue listing',
     func: () => store.getBallotAdjudicationQueue({ electionId }),
+    runs: 3,
+    warmupRuns: 1,
+    goalMs: SCREEN_QUERY_GOAL_MS,
+  });
+});
+
+test('screen: getBallotAdjudicationQueue, escalated ballots only', async () => {
+  await benchmarkRegressionTest({
+    label: 'escalated adjudication queue listing',
+    func: () =>
+      store.getBallotAdjudicationQueue({ electionId, escalatedOnly: true }),
     runs: 3,
     warmupRuns: 1,
     goalMs: SCREEN_QUERY_GOAL_MS,
