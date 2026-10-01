@@ -8,8 +8,13 @@ import {
   SummaryBallotLayoutRenderer,
 } from '@votingworks/printing';
 import { getPdfPageCount } from '@votingworks/image-utils/pdf';
-import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
-import { generateMarkOverlay } from '@votingworks/hmpb';
+import {
+  assert,
+  assertDefined,
+  bufferAsU8Array,
+  throwIllegalValue,
+} from '@votingworks/basics';
+import { generateMarkOverlay, NO_PRINT_CALIBRATION } from '@votingworks/hmpb';
 import {
   type BallotStyleId,
   BallotType,
@@ -18,6 +23,7 @@ import {
   getBallotStyle,
   getContests,
   type PrintJobId,
+  type SheetPositions,
 } from '@votingworks/types';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import {
@@ -225,7 +231,7 @@ function getBaseBallotPdf(
     `No ballot PDF found for precinct ID: ${precinctId} and ballot style ID: ${ballotStyleId}`
   );
 
-  const baseBallotPdf = Uint8Array.from(
+  const baseBallotPdf = bufferAsU8Array(
     Buffer.from(ballotEntry.encodedBallot, 'base64')
   );
 
@@ -239,13 +245,14 @@ async function printBubbleBallot(p: PrintBallotProps): Promise<PrintJobId> {
     p.precinctId
   );
 
-  const markedBallotPdf = await generateMarkOverlay(
-    election,
-    p.ballotStyleId,
-    p.votes,
-    { offsetMmX: 0, offsetMmY: 0 }, // No calibration applied for bubble ballots
-    baseBallotPdf
-  );
+  const markedBallotPdf = await generateMarkOverlay({
+    baseBallotPdf,
+    calibration: NO_PRINT_CALIBRATION,
+    contests: election.contests,
+    positions: requirePositions(p),
+    size: election.ballotLayout.paperSize,
+    votes: p.votes,
+  });
 
   return p.printer.print({
     data: markedBallotPdf,
@@ -274,16 +281,24 @@ async function printMarkOverlay(p: PrintBallotProps): Promise<PrintJobId> {
   const { electionDefinition } = assertDefined(p.store.getElectionRecord());
   const { election } = electionDefinition;
 
-  const markOverlayPdf = await generateMarkOverlay(
-    election,
-    p.ballotStyleId,
-    p.votes,
-    p.store.getPrintCalibration()
-  );
+  const markOverlayPdf = await generateMarkOverlay({
+    calibration: p.store.getPrintCalibration(),
+    contests: election.contests,
+    positions: requirePositions(p),
+    size: election.ballotLayout.paperSize,
+    votes: p.votes,
+  });
 
   return p.printer.print({
     data: markOverlayPdf,
     sides: PrintSides.TwoSidedLongEdge,
     size: election.ballotLayout.paperSize,
   });
+}
+
+function requirePositions(p: PrintBallotProps): SheetPositions[] {
+  return assertDefined(
+    p.store.getBallotMetaStore().getPositions(p.ballotStyleId),
+    `no ballot positions for ballot style ${p.ballotStyleId}`
+  );
 }
