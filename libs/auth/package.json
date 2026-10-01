@@ -55,5 +55,5 @@
     "sort-package-json": "^1.50.0",
     "vitest": "5.0.2"
   },
-  "packageManager": "pnpm@10.34.5"
+  "packageManager": "pnpm@12.8.1"
 }

@@ -16,6 +16,31 @@ packages:
   - 'codemods'
   - 'script'
 
+# Packages may only access what they explicitly depend on.
+hoist: false
+
+# From `pnpm` docs on `publicHoistPattern`: "This setting is useful when dealing
+# with some flawed pluggable tools that don't resolve dependencies properly."
+# These tools all fit that description.
+publicHoistPattern:
+  - '*eslint*'
+  - '*prettier*'
+  - '*stylelint*'
+
+overrides:
+  '@vitest/eslint-plugin>@typescript-eslint/scope-manager': 8.70.0
+  'brace-expansion@1': ^1.1.13
+  'brace-expansion@2': ^2.0.2
+  canvas: 3.2.3
+  'eslint-plugin-storybook>@typescript-eslint/types': 8.70.0
+  graceful-fs: ^4.2.9
+  nan: ^2.28.0
+  'postcss-styled-syntax>@typescript-eslint/typescript-estree': 8.70.0
+  typescript: npm:@typescript/typescript6@6.0.2
+
+patchedDependencies:
+  '@fortawesome/react-fontawesome@3.5.0': patches/@fortawesome__react-fontawesome@3.5.0.patch
+
 # typescript-eslint runs against the classic compiler API from the
 # `@typescript/typescript6` alias (see CLAUDE.md), which satisfies its
 # `typescript` peer range. But peer *resolution* can instead find the
@@ -24,44 +49,16 @@ packages:
 # never loads that copy. Allow any version to silence that false positive.
 peerDependencyRules:
   allowedVersions:
+    'jsdom>canvas': '3'
     '@typescript-eslint/parser>typescript': '*'
     '@typescript-eslint/typescript-estree>typescript': '*'
     '@typescript-eslint/project-service>typescript': '*'
     '@typescript-eslint/tsconfig-utils>typescript': '*'
 
-# Supply-chain and safety settings. These all match pnpm v11's defaults; we
-# adopt them early while on v10 so the v11 upgrade is a no-op here.
-
-# Don't install a newly published version until it has been on the registry for
-# at least this many minutes. Gives the community time to catch and yank
-# malicious releases (24h).
-minimumReleaseAge: 1440
-
-# Only direct dependencies may use exotic sources (git repos, tarball URLs);
-# transitive deps must resolve from the registry. We have no exotic deps, so
-# this is purely preventative.
-blockExoticSubdeps: true
-
-# Fail the install (rather than warn) if a dependency has an unreviewed build
-# script. Left off on v10: pnpm caches the ignored-builds state and re-emits the
-# error on incremental installs after any `allowBuilds` change (pnpm/pnpm#10528),
-# so every `allowBuilds` edit would force a clean reinstall across the team.
-# Unreviewed builds still warn. Enable this when we upgrade to v11 (where it is
-# the default and everyone reinstalls fresh anyway).
-strictDepBuilds: false
-
-# Fast up-to-date check before installing; speeds up repeat/no-op installs.
-optimisticRepeatInstall: true
-
-# Auto-run install before `pnpm run`/`pnpm exec` when node_modules is stale.
-verifyDepsBeforeRun: install
-
 # Which dependency build scripts may run. `true` = native/binary modules we
 # rely on and want built; `false` = packages whose postinstall we intentionally
-# skip (funding banners / unused codegen). This is pnpm v11's `allowBuilds` map,
-# which supersedes the v10 `onlyBuiltDependencies`/`ignoredBuiltDependencies`
-# fields (removed in v11). Combined with `strictDepBuilds`, any unlisted build
-# script fails the install until a human classifies it here.
+# skip (funding banners / unused codegen). Any unlisted build script fails the
+# install (`strictDepBuilds`) until a human classifies it here.
 allowBuilds:
   better-sqlite3: true
   canvas: true
@@ -73,3 +70,4 @@ allowBuilds:
   core-js: false
   core-js-pure: false
   protobufjs: false
+  unrs-resolver: false

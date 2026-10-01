@@ -31,13 +31,14 @@ export function getWorkspacePackagePaths(root: string): string[] {
   const absoluteRootPath = getAbsoluteRootPath(root);
   const stdout = execFileSync(
     'pnpm',
-    ['recursive', 'list', '--depth=-1', '--porcelain'],
+    ['recursive', 'list', '--depth=-1', '--parseable'],
     { cwd: absoluteRootPath, encoding: 'utf-8' }
   );
   return lines(stdout)
     .map((line) => relative(absoluteRootPath, line))
     .filter((line) => line.length > 0)
-    .toArray();
+    .toArray()
+    .sort();
 }
 
 /**
