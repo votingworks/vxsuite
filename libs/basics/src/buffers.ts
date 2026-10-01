@@ -18,3 +18,11 @@ export function arrayBufferFrom(data: Buffer | ArrayLike<number>): ArrayBuffer {
   }
   return arrayBuffer;
 }
+
+/**
+ * Creates a {@link Uint8Array} view over the given {@link Buffer} without
+ * copying into newly allocated memory.
+ */
+export function bufferAsU8Array(buf: Buffer): Uint8Array {
+  return new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
+}
