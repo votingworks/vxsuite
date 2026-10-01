@@ -725,7 +725,7 @@ export function randomScratchFilePath(
  * Writes to a new file in the given scratch dir and returns the resulting
  * file path.
  */
-async function writeScratchFile(
+export async function writeScratchFile(
   dir: ScratchDir,
   p: {
     data: string | Buffer | Readable | Uint8Array;

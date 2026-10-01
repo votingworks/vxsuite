@@ -4599,8 +4599,9 @@ test.each([
   async ({ bmdPrintMode, shouldIncludeSummaryBallots }) => {
     // Mock PDF rendering functions to return simple placeholder PDFs for faster test execution
     const mockPdfContent = new TextEncoder().encode('%PDF-mock');
+    const pdfPath = makeTemporaryFile({ content: mockPdfContent });
     vi.mocked(createPrecinctTestDeck).mockImplementation(({ ballotSpecs }) =>
-      Promise.resolve(ballotSpecs.length > 0 ? mockPdfContent : undefined)
+      Promise.resolve(ballotSpecs.length > 0 ? { pdfPath } : undefined)
     );
     vi.mocked(createSummaryBallotTestDeck).mockImplementation(
       ({ ballotSpecs }) =>

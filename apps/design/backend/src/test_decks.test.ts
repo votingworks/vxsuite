@@ -28,6 +28,7 @@ import {
 } from '@votingworks/types';
 import { generateTestDeckBallots } from '@votingworks/test-decks';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import { readFileSync } from 'node:fs';
 import {
   createPrecinctTestDeck,
   createTestDeckTallyReports,
@@ -90,13 +91,16 @@ describe('createPrecinctTestDeck', () => {
       precinctId,
       ballotFormat: 'bubble',
     });
-    const testDeckDocument = await createPrecinctTestDeck({
+    const testDeck = await createPrecinctTestDeck({
       rendererPool,
       electionDefinition,
       ballotSpecs,
       ballots,
+      scratchDir: makeScratchDir(),
     });
-    await expect(testDeckDocument).toMatchPdfSnapshot();
+
+    assert(!!testDeck);
+    await expect(readFileSync(testDeck.pdfPath)).toMatchPdfSnapshot();
   });
 
   test('for a precinct with multiple ballot styles', async () => {
@@ -146,13 +150,16 @@ describe('createPrecinctTestDeck', () => {
       precinctId: precinct!.id,
       ballotFormat: 'bubble',
     });
-    const testDeckDocument = await createPrecinctTestDeck({
+    const testDeck = await createPrecinctTestDeck({
       rendererPool,
       electionDefinition: layouts.electionDefinition,
       ballotSpecs,
       ballots,
+      scratchDir: makeScratchDir(),
     });
-    await expect(testDeckDocument).toMatchPdfSnapshot();
+
+    assert(!!testDeck);
+    await expect(readFileSync(testDeck.pdfPath)).toMatchPdfSnapshot();
   });
 
   test('for a precinct with no ballot styles', async () => {
@@ -166,6 +173,7 @@ describe('createPrecinctTestDeck', () => {
       electionDefinition,
       ballotSpecs: [],
       ballots: [], // doesn't matter
+      scratchDir: makeScratchDir(),
     });
     expect(testDeckDocument).toBeUndefined();
   });
