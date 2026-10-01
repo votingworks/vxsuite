@@ -117,6 +117,10 @@ const PrimaryNavButton = styled(Button)`
   flex-grow: 1;
 `;
 
+const EscalateNavButton = styled(Button)`
+  min-width: 5.5rem;
+`;
+
 const SecondaryNavButton = styled(Button)`
   width: 5.5rem;
 `;
@@ -509,6 +513,7 @@ export interface BallotAdjudicationScreenProps {
   }) => Promise<void>;
   onAcceptDone: () => void;
   onSkip?: () => void;
+  onEscalate?: () => void;
   onBack?: () => void;
   onExit: () => void;
 }
@@ -611,6 +616,7 @@ function BallotView({
   onAccept,
   onAcceptDone,
   onSkip,
+  onEscalate,
   onBack,
   onExit,
 }: {
@@ -640,6 +646,9 @@ function BallotView({
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingDiscard, setPendingDiscard] = useState<{
+    action: () => void;
+  } | null>(null);
+  const [pendingEscalate, setPendingEscalate] = useState<{
     action: () => void;
   } | null>(null);
   const [hoveredContestId, setHoveredContestId] = useState<ContestId | null>(
@@ -831,6 +840,15 @@ function BallotView({
                   >
                     Accept
                   </PrimaryNavButton>
+                  {onEscalate && (
+                    <EscalateNavButton
+                      onPress={() => setPendingEscalate({ action: onEscalate })}
+                      icon="Flag"
+                      disabled={isClaimInFlight}
+                    >
+                      Escalate
+                    </EscalateNavButton>
+                  )}
                   {onSkipGuarded && (
                     <SecondaryNavButton
                       onPress={onSkipGuarded}
@@ -869,6 +887,45 @@ function BallotView({
               </Button>
               <Button variant="danger" onPress={confirmAcceptAndNext}>
                 Accept Anyway
+              </Button>
+            </ModalActions>
+          }
+        />
+      )}
+      {pendingEscalate && (
+        <Modal
+          title="Escalate Ballot"
+          content={
+            <React.Fragment>
+              <P>
+                Are you sure you want to escalate this ballot for election
+                manager review?
+              </P>
+              {haveEditsBeenMade && (
+                <P>
+                  Your unsaved adjudications for this ballot will be discarded.
+                </P>
+              )}
+            </React.Fragment>
+          }
+          actions={
+            <ModalActions>
+              <Button
+                variant="primary"
+                icon="Flag"
+                onPress={() => {
+                  const { action } = pendingEscalate;
+                  setPendingEscalate(null);
+                  action();
+                }}
+              >
+                Escalate
+              </Button>
+              <Button
+                variant="neutral"
+                onPress={() => setPendingEscalate(null)}
+              >
+                Cancel
               </Button>
             </ModalActions>
           }
