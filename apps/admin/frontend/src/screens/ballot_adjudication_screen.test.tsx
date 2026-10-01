@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionCombinedBallotPrimaryFixtures,
   electionStraightPartyFixtures,
@@ -42,7 +42,10 @@ import {
   type ApiMock,
   createApiMock,
 } from '../../test/helpers/mock_api_client.js';
-import { BallotAdjudicationScreenWrapper } from './ballot_adjudication_screen.js';
+import {
+  BallotAdjudicationScreen,
+  BallotAdjudicationScreenWrapper,
+} from './ballot_adjudication_screen.js';
 import { AdjudicationStartScreen } from './adjudication_start_screen.js';
 import { routerPaths } from '../router_paths.js';
 
@@ -516,6 +519,64 @@ test('default side flips to next pending after confirming a contest', async () =
   apiMock.apiClient.releaseBallotAdjudicationClaim
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
     .resolves();
+});
+
+test('escalate action confirms before escalating and warns about unsaved adjudications', async () => {
+  const adjData = makeBallotAdjudicationData(CVR_ID_1, [
+    makeContestAdjudicationData(
+      'zoo-council-mammal',
+      makeContestTag({ hasOvervote: true })
+    ),
+  ]);
+  const onEscalate = vi.fn();
+  renderInAppContext(
+    <BallotAdjudicationScreen
+      cvrId={CVR_ID_1}
+      ballotAdjudicationData={adjData}
+      ballotImages={makeHmpbBallotImages(CVR_ID_1)}
+      writeInCandidates={[]}
+      systemSettings={DEFAULT_SYSTEM_SETTINGS}
+      onAccept={vi.fn()}
+      onAcceptDone={vi.fn()}
+      onEscalate={onEscalate}
+      onExit={vi.fn()}
+    />,
+    { electionDefinition, apiMock }
+  );
+
+  await screen.findByRole('button', { name: /Escalate/ });
+  expect(
+    screen.queryByRole('button', { name: /Skip/ })
+  ).not.toBeInTheDocument();
+
+  userEvent.click(screen.getByRole('button', { name: /Escalate/ }));
+  let modal = await screen.findByRole('alertdialog');
+  within(modal).getByText(
+    'Are you sure you want to escalate this ballot for election manager review?'
+  );
+  expect(
+    within(modal).queryByText(/will be discarded/)
+  ).not.toBeInTheDocument();
+  userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+  expect(onEscalate).not.toHaveBeenCalled();
+
+  userEvent.click(screen.getByText('Zoo Council'));
+  await screen.findByRole('button', { name: /Confirm/ });
+  userEvent.click(screen.getByRole('checkbox', { name: /lion/i }));
+  userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
+
+  userEvent.click(await screen.findByRole('button', { name: /Escalate/ }));
+  modal = await screen.findByRole('alertdialog');
+  within(modal).getByText(
+    'Your unsaved adjudications for this ballot will be discarded.'
+  );
+  expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
+  userEvent.click(within(modal).getByRole('button', { name: /Escalate/ }));
+  await waitFor(() => expect(onEscalate).toHaveBeenCalledTimes(1));
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 });
 
 test('skip / back / exit prompt to discard when the user has unsaved adjudications', async () => {

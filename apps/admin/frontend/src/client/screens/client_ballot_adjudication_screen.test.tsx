@@ -27,19 +27,19 @@ vi.mock('../../screens/ballot_adjudication_screen', () => ({
   BallotAdjudicationScreen({
     cvrId,
     onAcceptDone,
-    onSkip,
+    onEscalate,
     onExit,
     ...rest
   }: Record<string, unknown>) {
-    capturedProps = { cvrId, onAcceptDone, onSkip, onExit, ...rest };
+    capturedProps = { cvrId, onAcceptDone, onEscalate, onExit, ...rest };
     return (
       <div data-testid="mock-ballot-adjudication-screen">
         Adjudicating {cvrId as string}
         <button type="button" onClick={onAcceptDone as () => void}>
           Accept
         </button>
-        <button type="button" onClick={onSkip as () => void}>
-          Skip
+        <button type="button" onClick={onEscalate as () => void}>
+          Escalate
         </button>
         <button type="button" onClick={onExit as () => void}>
           Exit
@@ -192,43 +192,57 @@ test('shows error screen when claim fails during accept', async () => {
   screen.getByText('Exit');
 });
 
-test('skip releases ballot and claims next after it', async () => {
+test('escalate flags the ballot and claims the next one after it', async () => {
   expectDataLoaderQueries('cvr-1');
   expectDataLoaderQueries('cvr-2');
   expectGlobalDataLoaderQueries();
   expectInitialClaimAndLoad('cvr-1');
   renderScreen();
   await screen.findByText('Adjudicating cvr-1');
+  expect(capturedProps['onSkip']).toBeUndefined();
 
-  apiMock.apiClient.releaseBallot
+  apiMock.apiClient.escalateBallot
     .expectCallWith({ cvrId: 'cvr-1' })
     .resolves(ok());
   apiMock.apiClient.claimAndLoadBallot
     .expectCallWith({ afterCvrId: 'cvr-1' })
     .resolves(ok({ cvrId: 'cvr-2', data: makeBallotData('cvr-2') }));
 
-  screen.getByText('Skip').click();
+  screen.getByText('Escalate').click();
   await screen.findByText('Adjudicating cvr-2');
 });
 
-test('skip wraps to first eligible when nothing is available after current', async () => {
+test('escalate finishes the session when no eligible ballot remains', async () => {
   expectDataLoaderQueries('cvr-1');
   expectGlobalDataLoaderQueries();
   expectInitialClaimAndLoad('cvr-1');
   renderScreen();
   await screen.findByText('Adjudicating cvr-1');
 
-  // Skip releases cvr-1, then asks for the next ballot after it. Nothing comes
-  // after, so the backend wraps around and hands cvr-1 back in one call.
-  apiMock.apiClient.releaseBallot
+  apiMock.apiClient.escalateBallot
     .expectCallWith({ cvrId: 'cvr-1' })
     .resolves(ok());
   apiMock.apiClient.claimAndLoadBallot
     .expectCallWith({ afterCvrId: 'cvr-1' })
-    .resolves(ok({ cvrId: 'cvr-1', data: makeBallotData('cvr-1') }));
+    .resolves(ok(undefined));
 
-  screen.getByText('Skip').click();
+  screen.getByText('Escalate').click();
+  await screen.findByText('No more ballots available for adjudication.');
+});
+
+test('escalate shows an error screen when escalation fails', async () => {
+  expectDataLoaderQueries('cvr-1');
+  expectGlobalDataLoaderQueries();
+  expectInitialClaimAndLoad('cvr-1');
+  renderScreen();
   await screen.findByText('Adjudicating cvr-1');
+
+  apiMock.apiClient.escalateBallot
+    .expectCallWith({ cvrId: 'cvr-1' })
+    .resolves(err({ type: 'host-disconnect' }));
+
+  screen.getByText('Escalate').click();
+  await screen.findByText('Disconnected from host.');
 });
 
 test('exit releases ballot', async () => {
