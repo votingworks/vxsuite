@@ -104,7 +104,7 @@ export function AppRoutes(): JSX.Element | null {
     return (
       <VendorScreen
         apiClient={apiClient}
-        isMachineConfigured={Boolean(electionDefinition)}
+        canUnconfigure={Boolean(electionDefinition)}
         logOut={logOutMutation.mutate}
         unconfigureMachine={() => unconfigureMutation.mutateAsync()}
       />

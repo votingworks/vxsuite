@@ -73,7 +73,7 @@ export function SettingsScreen({
       </P>
       <ButtonRow>
         <UnconfigureMachineButton
-          isMachineConfigured={canUnconfigure}
+          disabled={!canUnconfigure}
           unconfigureMachine={unconfigureMachine}
         />
       </ButtonRow>

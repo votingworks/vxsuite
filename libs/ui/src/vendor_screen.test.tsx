@@ -33,7 +33,7 @@ test('Signed Hash Validation', () => {
     <QueryClientProvider client={new QueryClient()}>
       <VendorScreen
         apiClient={mockApiClient}
-        isMachineConfigured
+        canUnconfigure
         logOut={mockLogOut}
         unconfigureMachine={mockUnconfigureMachine}
       />
@@ -58,7 +58,7 @@ test('rebooting to vendor menu', () => {
   render(
     <VendorScreen
       apiClient={mockApiClient}
-      isMachineConfigured
+      canUnconfigure
       logOut={mockLogOut}
       unconfigureMachine={mockUnconfigureMachine}
     />
@@ -82,7 +82,7 @@ test('unconfiguring machine', async () => {
   render(
     <VendorScreen
       apiClient={mockApiClient}
-      isMachineConfigured
+      canUnconfigure
       logOut={mockLogOut}
       unconfigureMachine={mockUnconfigureMachine}
     />
@@ -114,7 +114,7 @@ test('locking machine', () => {
   render(
     <VendorScreen
       apiClient={mockApiClient}
-      isMachineConfigured
+      canUnconfigure
       logOut={mockLogOut}
       unconfigureMachine={mockUnconfigureMachine}
     />
@@ -138,7 +138,7 @@ test('if logOut is not passed, Lock Machine button is not rendered', () => {
   render(
     <VendorScreen
       apiClient={mockApiClient}
-      isMachineConfigured
+      canUnconfigure
       unconfigureMachine={mockUnconfigureMachine}
     />
   );
@@ -150,11 +150,11 @@ test('if logOut is not passed, Lock Machine button is not rendered', () => {
   ).not.toBeInTheDocument();
 });
 
-test('if isMachineConfigured is false, Unconfigure Machine button is disabled', () => {
+test('if canUnconfigure is false, Unconfigure Machine button is disabled', () => {
   render(
     <VendorScreen
       apiClient={mockApiClient}
-      isMachineConfigured={false}
+      canUnconfigure={false}
       logOut={mockLogOut}
       unconfigureMachine={mockUnconfigureMachine}
     />

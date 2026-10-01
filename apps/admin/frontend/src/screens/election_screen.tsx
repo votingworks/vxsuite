@@ -85,10 +85,7 @@ export function ElectionScreen(): JSX.Element {
       <div style={{ display: 'flex', gap: '0.5rem' }}>
         <ExportElectionPackageModalButton />
         {isSystemAdministratorAuth(auth) && (
-          <UnconfigureMachineButton
-            isMachineConfigured
-            unconfigureMachine={unconfigureMachine}
-          />
+          <UnconfigureMachineButton unconfigureMachine={unconfigureMachine} />
         )}
       </div>
     </NavigationScreen>

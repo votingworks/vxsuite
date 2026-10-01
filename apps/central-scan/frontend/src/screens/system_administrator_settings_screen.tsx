@@ -37,7 +37,7 @@ export function SystemAdministratorSettingsScreen(): JSX.Element {
             // Handled by default query client error handling
           }
         }}
-        isMachineConfigured={Boolean(electionDefinition)}
+        disabled={!electionDefinition}
       />
       <H2>Logs</H2>
       <ExportLogsButton usbDriveStatus={usbDriveStatus} />

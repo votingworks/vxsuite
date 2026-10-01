@@ -269,8 +269,7 @@ export function ElectionManagerScreen({
 
   const unconfigureElectionButton = (
     <UnconfigureMachineButton
-      // TODO rename isMachineConfigured -> disabled to be clearer
-      isMachineConfigured={!isCvrSyncRequired}
+      disabled={isCvrSyncRequired}
       unconfigureMachine={unconfigureMachine}
     />
   );

@@ -8,7 +8,7 @@ import { Font, H2, P } from './typography.js';
 
 interface Props {
   unconfigureMachine: () => Promise<void>;
-  isMachineConfigured: boolean;
+  disabled?: boolean;
 }
 
 /**
@@ -23,7 +23,7 @@ export const MIN_TIME_TO_UNCONFIGURE_MACHINE_MS = 1000;
  */
 export function UnconfigureMachineButton({
   unconfigureMachine,
-  isMachineConfigured,
+  disabled,
 }: Props): JSX.Element {
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [isUnconfiguringMachine, setIsUnconfiguringMachine] = useState(false);
@@ -59,7 +59,7 @@ export function UnconfigureMachineButton({
         color="danger"
         icon="Cancel"
         onPress={openConfirmationModal}
-        disabled={!isMachineConfigured}
+        disabled={disabled}
       >
         Unconfigure Machine
       </Button>

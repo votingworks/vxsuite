@@ -528,7 +528,7 @@ export function AppRoot(): JSX.Element | null {
     return (
       <VendorScreen
         apiClient={apiClient}
-        isMachineConfigured={Boolean(electionDefinition)}
+        canUnconfigure={Boolean(electionDefinition)}
         unconfigureMachine={unconfigure}
       />
     );

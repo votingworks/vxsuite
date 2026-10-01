@@ -74,7 +74,7 @@ export function SettingsScreen({
               election manager card.
             </P>
             <UnconfigureMachineButton
-              isMachineConfigured={isConfigured}
+              disabled={!isConfigured}
               unconfigureMachine={unconfigure}
             />
           </React.Fragment>

@@ -159,7 +159,6 @@ export function AdminScreen({
         )}
         <P>
           <UnconfigureMachineButton
-            isMachineConfigured
             unconfigureMachine={unconfigureMachineAndEjectUsb}
           />
         </P>

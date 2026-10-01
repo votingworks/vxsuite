@@ -91,10 +91,7 @@ export function ElectionScreen(): JSX.Element | null {
               style={{ width: '16rem' }}
             />
           )}
-          <UnconfigureMachineButton
-            unconfigureMachine={unconfigure}
-            isMachineConfigured
-          />
+          <UnconfigureMachineButton unconfigureMachine={unconfigure} />
         </Row>
       </Content>
     </ScreenWrapper>
