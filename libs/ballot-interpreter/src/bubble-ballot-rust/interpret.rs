@@ -773,6 +773,94 @@ mod test {
         );
     }
 
+    /// Re-interpreting the normalized image a scan produced must reproduce the
+    /// scan's scores at every exported bit depth. One bubble is filled with a
+    /// gray the live threshold treats as paper, so that if the export were
+    /// re-binarized at a lighter level the fill score would change.
+    #[test]
+    fn test_reinterpreting_normalized_images_reproduces_scores() {
+        let (side_a_image, side_b_image, base_options) = load_ballot_card_fixture(
+            "104h-2025-04",
+            ("imprinter-front.png", "imprinter-back.png"),
+            ("j6ydtpkgvwyz", "1_en"),
+            true,
+        );
+        let hist = crate::image_utils::histogram(side_a_image.as_raw());
+        let otsu = crate::image_utils::otsu_level_from_histogram(&hist);
+        let gray = crate::image_utils::gray_levels(&hist, otsu).dark;
+        let located =
+            ballot_card(side_a_image.clone(), side_b_image.clone(), &base_options).unwrap();
+        let (_, first_mark) = located.front.marks.first().unwrap();
+        let bounds = first_mark.as_ref().unwrap().matched_bounds;
+        let mut side_a_image = side_a_image;
+        for y in bounds.top() + 4..bounds.bottom() - 4 {
+            for x in bounds.left() + 4..bounds.right() - 4 {
+                side_a_image.put_pixel(x as u32, y as u32, Luma([gray]));
+            }
+        }
+
+        for bit_depth in [BallotImageBitDepth::One, BallotImageBitDepth::Two] {
+            let mut options = base_options.clone();
+            options.ballot_image_bit_depth = bit_depth;
+            let original =
+                ballot_card(side_a_image.clone(), side_b_image.clone(), &options).unwrap();
+            let painted_fill = original
+                .front
+                .marks
+                .first()
+                .unwrap()
+                .1
+                .as_ref()
+                .unwrap()
+                .fill_score;
+            assert!(
+                painted_fill.0 < 0.01,
+                "{bit_depth:?}: gray fill scored {painted_fill} live"
+            );
+
+            let decode = |page: &InterpretedBallotPage| {
+                image::load_from_memory(page.encoded_normalized_image.as_ref().unwrap())
+                    .unwrap()
+                    .into_luma8()
+            };
+            let reinterpreted =
+                ballot_card(decode(&original.front), decode(&original.back), &options).unwrap();
+
+            for (side, first, second) in [
+                ("front", &original.front, &reinterpreted.front),
+                ("back", &original.back, &reinterpreted.back),
+            ] {
+                assert_eq!(
+                    first.marks.len(),
+                    second.marks.len(),
+                    "{bit_depth:?} {side}"
+                );
+                for ((position, first_mark), (_, second_mark)) in
+                    first.marks.iter().zip(&second.marks)
+                {
+                    let (first_mark, second_mark) =
+                        (first_mark.as_ref().unwrap(), second_mark.as_ref().unwrap());
+                    assert_eq!(
+                        first_mark.fill_score, second_mark.fill_score,
+                        "{bit_depth:?} {side} {position} fill score"
+                    );
+                    assert_eq!(
+                        first_mark.match_score, second_mark.match_score,
+                        "{bit_depth:?} {side} {position} match score"
+                    );
+                }
+                assert_eq!(first.write_ins.len(), second.write_ins.len());
+                for (first_area, second_area) in first.write_ins.iter().zip(&second.write_ins) {
+                    assert_eq!(
+                        first_area.score, second_area.score,
+                        "{bit_depth:?} {side} {} write-in score",
+                        first_area.grid_position
+                    );
+                }
+            }
+        }
+    }
+
     #[test]
     fn test_debug_images_with_cropping() {
         let (side_a_image, _, _) = load_hmpb_fixture("vx-general-election/letter-en", 1);
