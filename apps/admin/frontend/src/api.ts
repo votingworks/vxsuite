@@ -322,14 +322,22 @@ export const getCastVoteRecordFileMode = {
   },
 } as const;
 
+interface BallotAdjudicationQueueInput {
+  escalatedOnly?: boolean;
+}
+
 export const getBallotAdjudicationQueue = {
-  queryKey(): QueryKey {
-    return ['getBallotAdjudicationQueue'];
+  queryKey(input?: BallotAdjudicationQueueInput): QueryKey {
+    return input?.escalatedOnly
+      ? ['getBallotAdjudicationQueue', input]
+      : ['getBallotAdjudicationQueue'];
   },
-  useQuery() {
+  useQuery(input: BallotAdjudicationQueueInput) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () =>
-      apiClient.getBallotAdjudicationQueue()
+    return useQuery(this.queryKey(input), () =>
+      input.escalatedOnly
+        ? apiClient.getBallotAdjudicationQueue(input)
+        : apiClient.getBallotAdjudicationQueue()
     );
   },
 } as const;
@@ -350,14 +358,19 @@ export const getBallotAdjudicationQueueMetadata = {
 } as const;
 
 export const getNextCvrIdForBallotAdjudication = {
-  queryKey(): QueryKey {
-    return ['getNextCvrIdForBallotAdjudication'];
+  queryKey(input?: BallotAdjudicationQueueInput): QueryKey {
+    return input?.escalatedOnly
+      ? ['getNextCvrIdForBallotAdjudication', input]
+      : ['getNextCvrIdForBallotAdjudication'];
   },
-  usePollingQuery() {
+  usePollingQuery(input: BallotAdjudicationQueueInput) {
     const apiClient = useApiClient();
     return usePollingQuery(
-      this.queryKey(),
-      () => apiClient.getNextCvrIdForBallotAdjudication(),
+      this.queryKey(input),
+      () =>
+        input.escalatedOnly
+          ? apiClient.getNextCvrIdForBallotAdjudication(input)
+          : apiClient.getNextCvrIdForBallotAdjudication(),
       DEFAULT_QUERY_REFETCH_INTERVAL,
       {
         cacheTime: 0,

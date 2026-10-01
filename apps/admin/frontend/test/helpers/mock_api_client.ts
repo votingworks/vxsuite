@@ -430,8 +430,17 @@ export function createApiMock(
         .resolves(metadata);
     },
 
-    expectGetBallotAdjudicationQueue(cvrIds: Id[]) {
-      apiClient.getBallotAdjudicationQueue.expectCallWith().resolves(cvrIds);
+    expectGetBallotAdjudicationQueue(
+      cvrIds: Id[],
+      options: { escalatedOnly?: boolean } = {}
+    ) {
+      if (options.escalatedOnly) {
+        apiClient.getBallotAdjudicationQueue
+          .expectCallWith({ escalatedOnly: true })
+          .resolves(cvrIds);
+      } else {
+        apiClient.getBallotAdjudicationQueue.expectCallWith().resolves(cvrIds);
+      }
     },
 
     expectClaimAndLoadBallot(
@@ -443,14 +452,27 @@ export function createApiMock(
         .resolves(ok({ cvrId: input.cvrId, data }));
     },
 
-    expectGetNextCvrIdForBallotAdjudication(cvrId: Id | null, afterCvrId?: Id) {
+    expectGetNextCvrIdForBallotAdjudication(
+      cvrId: Id | null,
+      afterCvrId?: Id,
+      options: { escalatedOnly?: boolean } = {}
+    ) {
+      const pollingInput = options.escalatedOnly
+        ? { escalatedOnly: true }
+        : undefined;
       if (afterCvrId !== undefined) {
         apiClient.getNextCvrIdForBallotAdjudication.reset();
         apiClient.getNextCvrIdForBallotAdjudication
-          .expectCallWith({ afterCvrId })
+          .expectCallWith(
+            options.escalatedOnly
+              ? { afterCvrId, escalatedOnly: true }
+              : { afterCvrId }
+          )
           .resolves(cvrId);
+      }
+      if (pollingInput) {
         apiClient.getNextCvrIdForBallotAdjudication
-          .expectOptionalRepeatedCallsWith()
+          .expectOptionalRepeatedCallsWith(pollingInput)
           .resolves(cvrId);
       } else {
         apiClient.getNextCvrIdForBallotAdjudication

@@ -144,10 +144,12 @@ function makeBallotAdjudicationData(
   {
     tag = { isBlankBallot: false, hasCrossoverVote: false },
     isResolved = false,
+    isEscalated = false,
     adjudicatedContests = [],
   }: {
     tag?: CvrTag;
     isResolved?: boolean;
+    isEscalated?: boolean;
     adjudicatedContests?: AdjudicatedCvrContest[];
   } = {}
 ): BallotAdjudicationData {
@@ -156,7 +158,7 @@ function makeBallotAdjudicationData(
     contests,
     tag,
     isResolved,
-    isEscalated: false,
+    isEscalated,
     adjudicatedContests,
   };
 }
@@ -519,6 +521,81 @@ test('default side flips to next pending after confirming a contest', async () =
   apiMock.apiClient.releaseBallotAdjudicationClaim
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_1 })
     .resolves();
+});
+
+test('escalated-only queue shows the escalation banner and advances within escalated ballots', async () => {
+  const adjData = makeBallotAdjudicationData(
+    CVR_ID_1,
+    [
+      makeContestAdjudicationData(
+        'zoo-council-mammal',
+        makeContestTag({ hasOvervote: true })
+      ),
+    ],
+    {
+      isEscalated: true,
+      adjudicatedContests: [makeAdjudicatedCvrContest('zoo-council-mammal')],
+    }
+  );
+  const history = createMemoryHistory({
+    initialEntries: [routerPaths.ballotAdjudicationEscalated],
+  });
+
+  apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1], {
+    escalatedOnly: true,
+  });
+  apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1, undefined, {
+    escalatedOnly: true,
+  });
+  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
+  apiMock.expectGetWriteInCandidates(
+    [],
+    adjData.contests.map((c) => c.contestId)
+  );
+  apiMock.expectGetSystemSettings();
+
+  renderInAppContext(
+    <Switch>
+      <Route path={routerPaths.ballotAdjudicationEscalated}>
+        <BallotAdjudicationScreenWrapper escalatedOnly />
+      </Route>
+      <Route
+        path={routerPaths.adjudication}
+        component={AdjudicationStartScreen}
+      />
+    </Switch>,
+    { electionDefinition, apiMock, history }
+  );
+
+  await screen.findByText(/Ballot ID/);
+  screen.getByText('Escalated for election manager review');
+  screen.getByText('Ballot 1 of 1');
+
+  apiMock.expectAdjudicateCvr({
+    cvrId: CVR_ID_1,
+    contests: [makeAdjudicatedCvrContest('zoo-council-mammal')],
+  });
+  apiMock.expectGetBallotAdjudicationQueue([], { escalatedOnly: true });
+  apiMock.expectGetBallotAdjudicationQueueMetadata({
+    totalTally: 1,
+    pendingTally: 0,
+    escalatedPendingTally: 0,
+  });
+  apiMock.expectGetNextCvrIdForBallotAdjudication(null, CVR_ID_1, {
+    escalatedOnly: true,
+  });
+  apiMock.expectGetCastVoteRecordFiles([]);
+  apiMock.apiClient.getQualifiedWriteInCandidates
+    .expectRepeatedCallsWith()
+    .resolves([]);
+  apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_1 });
+  userEvent.click(screen.getByRole('button', { name: /Accept/ }));
+
+  await waitFor(() =>
+    expect(history.location.pathname).toEqual(routerPaths.adjudication)
+  );
+  await screen.findByText('Load CVRs to begin adjudication.');
 });
 
 test('escalate action confirms before escalating and warns about unsaved adjudications', async () => {
