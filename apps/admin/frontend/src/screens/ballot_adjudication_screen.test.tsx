@@ -148,7 +148,14 @@ function makeBallotAdjudicationData(
     adjudicatedContests?: AdjudicatedCvrContest[];
   } = {}
 ): BallotAdjudicationData {
-  return { cvrId, contests, tag, isResolved, adjudicatedContests };
+  return {
+    cvrId,
+    contests,
+    tag,
+    isResolved,
+    isEscalated: false,
+    adjudicatedContests,
+  };
 }
 
 function makeAdjudicatedCvrContest(
@@ -739,6 +746,7 @@ test('confirmation modal back returns and accept anyway resolves and navigates t
   apiMock.expectGetBallotAdjudicationQueueMetadata({
     totalTally: 1,
     pendingTally: 0,
+    escalatedPendingTally: 0,
   });
   apiMock.expectGetNextCvrIdForBallotAdjudication(null, CVR_ID_1);
   // start screen fetches

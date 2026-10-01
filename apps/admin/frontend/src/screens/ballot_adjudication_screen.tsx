@@ -248,6 +248,7 @@ function HostBallotAdjudicationScreen({
             contests: [],
             tag: { isBlankBallot: false, hasCrossoverVote: false },
             isResolved: false,
+            isEscalated: false,
             adjudicatedContests: [],
           });
         } else {

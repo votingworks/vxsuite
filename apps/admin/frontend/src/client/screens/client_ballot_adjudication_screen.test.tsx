@@ -101,6 +101,7 @@ function makeBallotData(cvrId: string) {
     cvrId,
     tag: { isBlankBallot: false, hasCrossoverVote: false } as const,
     isResolved: false,
+    isEscalated: false,
     contests: [],
     adjudicatedContests: [],
   };

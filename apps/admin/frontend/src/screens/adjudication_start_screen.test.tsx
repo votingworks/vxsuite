@@ -58,6 +58,7 @@ test('No CVRs loaded', async () => {
   apiMock.expectGetBallotAdjudicationQueueMetadata({
     pendingTally: 0,
     totalTally: 0,
+    escalatedPendingTally: 0,
   });
   apiMock.expectGetCastVoteRecordFiles([]);
   renderInAppContext(<AdjudicationStartScreen />, {
@@ -71,6 +72,7 @@ test('No ballots flagged for adjudication', async () => {
   apiMock.expectGetBallotAdjudicationQueueMetadata({
     pendingTally: 0,
     totalTally: 0,
+    escalatedPendingTally: 0,
   });
   apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
   renderInAppContext(<AdjudicationStartScreen />, {
@@ -92,6 +94,7 @@ test('When tally results already marked as official, adjudication buttons are di
   apiMock.expectGetBallotAdjudicationQueueMetadata({
     pendingTally: 3,
     totalTally: 5,
+    escalatedPendingTally: 0,
   });
   apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
   apiMock.setMultiStationAdjudicationEnabled(true);
@@ -115,6 +118,7 @@ test('When ballots need adjudication, shows start button with counts', async () 
   apiMock.expectGetBallotAdjudicationQueueMetadata({
     pendingTally: 3,
     totalTally: 5,
+    escalatedPendingTally: 0,
   });
   apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
   renderInAppContext(<AdjudicationStartScreen />, {
@@ -131,6 +135,7 @@ test('queue progress updates as other stations adjudicate ballots', async () => 
   apiMock.expectGetBallotAdjudicationQueueMetadata({
     pendingTally: 3,
     totalTally: 5,
+    escalatedPendingTally: 0,
   });
   apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
   renderInAppContext(<AdjudicationStartScreen />, {
@@ -147,6 +152,7 @@ test('queue progress updates as other stations adjudicate ballots', async () => 
   apiMock.expectGetBallotAdjudicationQueueMetadata({
     pendingTally: 1,
     totalTally: 5,
+    escalatedPendingTally: 0,
   });
 
   await screen.findByText('1 ballot remaining', undefined, { timeout: 3000 });
@@ -162,6 +168,7 @@ describe('multi-station adjudication', () => {
     apiMock.expectGetBallotAdjudicationQueueMetadata({
       pendingTally: 3,
       totalTally: 5,
+      escalatedPendingTally: 0,
     });
     apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
     apiMock.expectGetNetworkStatus();
@@ -187,6 +194,7 @@ describe('multi-station adjudication', () => {
     apiMock.expectGetBallotAdjudicationQueueMetadata({
       pendingTally: 3,
       totalTally: 5,
+      escalatedPendingTally: 0,
     });
     apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
     apiMock.expectGetNetworkStatus({ isOnline: false });
@@ -254,6 +262,7 @@ describe('multi-station adjudication', () => {
     apiMock.expectGetBallotAdjudicationQueueMetadata({
       pendingTally: 3,
       totalTally: 5,
+      escalatedPendingTally: 0,
     });
     apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
     apiMock.expectGetNetworkStatus({ connectedClients });
@@ -294,6 +303,7 @@ describe('multi-station adjudication', () => {
     apiMock.expectGetBallotAdjudicationQueueMetadata({
       pendingTally: 0,
       totalTally: 0,
+      escalatedPendingTally: 0,
     });
     apiMock.expectGetCastVoteRecordFiles([]);
     apiMock.expectGetNetworkStatus();
@@ -311,6 +321,7 @@ describe('multi-station adjudication', () => {
     apiMock.expectGetBallotAdjudicationQueueMetadata({
       pendingTally: 3,
       totalTally: 5,
+      escalatedPendingTally: 0,
     });
     apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
     apiMock.expectGetNetworkStatus();
@@ -328,6 +339,7 @@ describe('multi-station adjudication', () => {
     apiMock.expectGetBallotAdjudicationQueueMetadata({
       pendingTally: 3,
       totalTally: 5,
+      escalatedPendingTally: 0,
     });
     apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
     apiMock.expectGetNetworkStatus();
@@ -347,6 +359,7 @@ test('shows completed state when all ballots adjudicated', async () => {
   apiMock.expectGetBallotAdjudicationQueueMetadata({
     pendingTally: 0,
     totalTally: 5,
+    escalatedPendingTally: 0,
   });
   apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
   renderInAppContext(<AdjudicationStartScreen />, {
@@ -379,6 +392,7 @@ describe('qualified write-in candidates card', () => {
     apiMock.expectGetBallotAdjudicationQueueMetadata({
       pendingTally: 3,
       totalTally: 5,
+      escalatedPendingTally: 0,
     });
     apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
     expectGetQualifiedWriteInCandidates([]);
@@ -395,6 +409,7 @@ describe('qualified write-in candidates card', () => {
     apiMock.expectGetBallotAdjudicationQueueMetadata({
       pendingTally: 3,
       totalTally: 5,
+      escalatedPendingTally: 0,
     });
     apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
     expectGetQualifiedWriteInCandidates([
@@ -421,6 +436,7 @@ describe('qualified write-in candidates card', () => {
     apiMock.expectGetBallotAdjudicationQueueMetadata({
       pendingTally: 3,
       totalTally: 5,
+      escalatedPendingTally: 0,
     });
     apiMock.expectGetCastVoteRecordFiles([mockCastVoteRecordFileRecord]);
     expectGetQualifiedWriteInCandidates([
