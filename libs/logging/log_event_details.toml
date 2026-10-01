@@ -1145,6 +1145,12 @@ eventType = "application-action"
 documentationMessage = "A claimed ballot was released back to the adjudication queue."
 restrictInDocumentationToApps = ["vx-admin"]
 
+[Events.AdminBallotEscalated]
+eventId = "admin-ballot-escalated"
+eventType = "application-action"
+documentationMessage = "A client machine escalated a ballot for election manager review on the host, releasing its claim."
+restrictInDocumentationToApps = ["vx-admin"]
+
 [Events.AdminAdjudicationProxyError]
 eventId = "admin-adjudication-proxy-error"
 eventType = "application-status"

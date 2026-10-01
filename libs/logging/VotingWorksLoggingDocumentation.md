@@ -722,6 +722,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-action](#application-action)
 **Description:** A claimed ballot was released back to the adjudication queue.
 **Machines:** vx-admin
+### admin-ballot-escalated
+**Type:** [application-action](#application-action)
+**Description:** A client machine escalated a ballot for election manager review on the host, releasing its claim.
+**Machines:** vx-admin
 ### admin-adjudication-proxy-error
 **Type:** [application-status](#application-status)
 **Description:** A client adjudication proxy request failed because the host is not connected.
