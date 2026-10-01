@@ -104,7 +104,11 @@ async function generate(
     translator,
     election,
     hmpbStringsCatalog,
-    ballotLanguageConfigs
+    ballotLanguageConfigs,
+    {
+      shouldTransliterateCandidateNames:
+        systemSettings.shouldTransliterateCandidateNames,
+    }
   );
   const formattedElection = formatElectionForExport(election, ballotStrings);
   const allBallotProps = createBallotPropsForTemplate(

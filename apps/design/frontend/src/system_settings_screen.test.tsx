@@ -512,6 +512,7 @@ test('setting "other" system settings', async () => {
     'Disable Vertical Streak Detection',
     'Enable Shoeshine Mode on VxScan',
     'Include Redundant Metadata in CVRs',
+    'Transliterate Candidate Names',
   ];
 
   for (const label of checkboxLabels) {
@@ -524,6 +525,7 @@ test('setting "other" system settings', async () => {
     precinctScanEnableShoeshineMode: true,
     castVoteRecordsIncludeRedundantMetadata: true,
     disableVerticalStreakDetection: true,
+    shouldTransliterateCandidateNames: true,
   };
   apiMock.updateSystemSettings
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
@@ -679,7 +681,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(47);
+  expect(allControls).toHaveLength(48);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();
@@ -696,6 +698,26 @@ test('all controls are disabled until clicking "Edit"', async () => {
   for (const control of allControlsAfterEdit) {
     expect(control).not.toBeDisabled();
   }
+});
+
+describe('Transliterate candidate names', () => {
+  test('omitted when feature flag is off', async () => {
+    mockUserFeatures(apiMock, {
+      TRANSLITERATE_CANDIDATE_NAMES_SYSTEM_SETTING: false,
+    });
+
+    apiMock.getSystemSettings
+      .expectCallWith({ electionId })
+      .resolves(electionRecord.systemSettings);
+
+    renderScreen();
+
+    await screen.findByRole('heading', { name: 'System Settings' });
+    await screen.findByRole('button', { name: 'Edit' });
+    expect(
+      screen.queryByText('Transliterate Candidate Names')
+    ).not.toBeInTheDocument();
+  });
 });
 
 describe('BMD print mode', () => {

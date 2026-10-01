@@ -8,6 +8,8 @@ import {
   type BallotLanguageConfigs,
   getAllBallotLanguages,
   LanguageCode,
+  NEEDS_TRANSLITERATED_NAMES,
+  type NonEnglishLanguageCode,
   hasSplits,
   DEFAULT_LANGUAGE_CODE,
 } from '@votingworks/types';
@@ -21,12 +23,23 @@ interface ElectionString {
   stringInEnglish: string;
 }
 
+/**
+ * Election-level options that affect which election strings get translated.
+ */
+export interface ElectionStringTranslationOptions {
+  shouldTransliterateCandidateNames?: boolean;
+}
+
 interface ElectionStringConfigNotTranslatable {
   translatable: false;
 }
 
 interface ElectionStringConfigTranslatable {
   translatable: true;
+  shouldTranslateByLanguage?: (
+    languageCode: NonEnglishLanguageCode,
+    options: ElectionStringTranslationOptions
+  ) => boolean;
   customTranslationMethod?: (input: {
     stringKey: ElectionStringKey | [ElectionStringKey, string];
     stringInEnglish: string;
@@ -54,7 +67,10 @@ const electionStringConfigs: Record<ElectionStringKey, ElectionStringConfig> = {
     translatable: true,
   },
   [ElectionStringKey.CANDIDATE_NAME]: {
-    translatable: false,
+    translatable: true,
+    shouldTranslateByLanguage: (languageCode, options) =>
+      Boolean(options.shouldTransliterateCandidateNames) &&
+      NEEDS_TRANSLITERATED_NAMES[languageCode],
   },
   [ElectionStringKey.CONTEST_DESCRIPTION]: {
     translatable: true,
@@ -309,7 +325,8 @@ export function extractElectionStrings(
 export async function extractAndTranslateElectionStrings(
   translator: GoogleCloudTranslator,
   election: Election,
-  ballotLanguageConfigs: BallotLanguageConfigs
+  ballotLanguageConfigs: BallotLanguageConfigs,
+  options: ElectionStringTranslationOptions = {}
 ): Promise<UiStringsPackage> {
   const languages = getAllBallotLanguages(ballotLanguageConfigs);
   const untranslatedElectionStrings = extractElectionStrings(election);
@@ -345,22 +362,27 @@ export async function extractAndTranslateElectionStrings(
   }
 
   // Election strings to cloud translate
-  const stringsInEnglish = electionStringsToCloudTranslate.map(
-    ({ stringInEnglish }) => stringInEnglish
-  );
   for (const languageCode of languages) {
+    const stringsToInclude = electionStringsToCloudTranslate.filter(
+      (electionString) => {
+        const config = getElectionStringConfig(electionString);
+        assert(config.translatable);
+        return (
+          languageCode === LanguageCode.ENGLISH ||
+          (config.shouldTranslateByLanguage?.(languageCode, options) ?? true)
+        );
+      }
+    );
+    const stringsInEnglish = stringsToInclude.map(
+      ({ stringInEnglish }) => stringInEnglish
+    );
     const stringsInLanguage =
       languageCode === LanguageCode.ENGLISH
         ? stringsInEnglish
         : await translator.translateText(stringsInEnglish, languageCode);
-    for (const [
-      i,
-      electionString,
-    ] of electionStringsToCloudTranslate.entries()) {
+    for (const [i, electionString] of stringsToInclude.entries()) {
       const { stringKey } = electionString;
       const stringInLanguage = stringsInLanguage[i];
-      const config = getElectionStringConfig(electionString);
-      assert(config.translatable);
       setUiString(
         electionStrings,
         languageCode,
