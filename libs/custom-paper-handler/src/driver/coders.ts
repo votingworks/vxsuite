@@ -156,16 +156,13 @@ export type RealTimeStatusTransmission = CoderType<
 export const AcknowledgementResponse = uint8();
 export type AcknowledgementResponse = CoderType<typeof AcknowledgementResponse>;
 
-export const ScanResponseCis = {
-  _0: 0x00,
-  _1: 0x01,
-  _2: 0x02,
-} as const;
-
 export const ScanResponse = message({
   signature: literal('IMG'),
   returnCode: uint8(),
-  cis: uint8(ScanResponseCis),
+  // 0x00, 0x01, or 0x02 are supposed to be the only valid values, but we don't
+  // use this field and haven't been validating it up to now so we just let it
+  // be any u8.
+  cis: uint8(),
   scan: uint8(),
   sizeX: uint16(undefined, { littleEndian: false }),
   sizeY: uint16(undefined, { littleEndian: false }),
