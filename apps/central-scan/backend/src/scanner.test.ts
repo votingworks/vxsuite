@@ -81,8 +81,8 @@ function expectErrorEventLogged(logger: MockLogger, message: string): void {
   );
 }
 
-function batchImageDirectory(workspace: Workspace, batchId: string): string {
-  return join(workspace.ballotImagesPath, `batch-${batchId}`);
+function rawImageDirectory(workspace: Workspace, batchId: string): string {
+  return join(workspace.batchImagesPath(batchId), 'raw');
 }
 
 function settlesBeforeNextMacrotask(
@@ -128,14 +128,15 @@ test('save batch after pause from empty input tray', async () => {
     batchId: batch!.id,
     pauseReason: { type: 'tray-empty' },
   });
-  expect(existsSync(batchImageDirectory(workspace, batch!.id))).toEqual(true);
+  expect(existsSync(rawImageDirectory(workspace, batch!.id))).toEqual(true);
 
   await machine.saveBatch();
   expect(machine.status()).toEqual({ state: 'idle' });
   expect(workspace.store.getBatches()[0]).toEqual(
     expect.objectContaining({ count: 0, endedAt: expect.any(String) })
   );
-  expect(existsSync(batchImageDirectory(workspace, batch!.id))).toEqual(false);
+  expect(existsSync(workspace.batchImagesPath(batch!.id))).toEqual(true);
+  expect(existsSync(rawImageDirectory(workspace, batch!.id))).toEqual(false);
 
   expect(logger.log).toHaveBeenCalledWith(LogEventId.ScannerEvent, 'unknown', {
     message: 'Event: START_BATCH',
@@ -263,7 +264,7 @@ test('discarding a paused batch deletes it', async () => {
   await machine.discardBatch();
   expect(machine.status()).toEqual({ state: 'idle' });
   expect(workspace.store.getBatches()).toEqual([]);
-  expect(existsSync(batchImageDirectory(workspace, batch!.id))).toEqual(false);
+  expect(existsSync(rawImageDirectory(workspace, batch!.id))).toEqual(false);
   expect(logger.log).toHaveBeenCalledWith(LogEventId.ScannerEvent, 'unknown', {
     message: 'Event: DISCARD_BATCH',
     eventObject: '{"type":"DISCARD_BATCH"}',
@@ -319,7 +320,7 @@ test('error in scanning', async () => {
   await machine.discardBatch();
   expect(machine.status()).toEqual({ state: 'idle' });
   expect(workspace.store.getBatches()).toEqual([]);
-  expect(existsSync(batchImageDirectory(workspace, batch!.id))).toEqual(false);
+  expect(existsSync(rawImageDirectory(workspace, batch!.id))).toEqual(false);
 
   scanner.withNextScannerSession().end();
   await machine.startBatch();
@@ -400,7 +401,10 @@ test('cleanLogData keeps only adjudication reason types and hides large values',
     JSON.stringify(
       {
         data: { type: 'NeedsReviewSheet', reasons: [overvote] },
-        batchContext: { control: { scanSheet: 'fn' }, imageDirectory: '/tmp' },
+        batchContext: {
+          control: { scanSheet: 'fn' },
+          rawImageDirectory: '/tmp',
+        },
         error: new Error('paper jam'),
         scannedSheet: undefined,
       },
@@ -409,7 +413,7 @@ test('cleanLogData keeps only adjudication reason types and hides large values',
   );
   expect(cleaned).toEqual({
     data: { type: 'NeedsReviewSheet', reasons: ['Overvote'] },
-    batchContext: { control: '[hidden]', imageDirectory: '/tmp' },
+    batchContext: { control: '[hidden]', rawImageDirectory: '/tmp' },
     error: { message: 'paper jam', stack: expect.any(String) },
     scannedSheet: 'undefined',
   });
@@ -468,7 +472,7 @@ test('paused: discard failure and success paths', async () => {
   expect(machine.status()).toEqual({ state: 'idle' });
   expect(endBatch).toHaveBeenCalledTimes(2);
   expect(workspace.store.getBatches()).toEqual([]);
-  expect(existsSync(batchImageDirectory(workspace, batch!.id))).toEqual(false);
+  expect(existsSync(rawImageDirectory(workspace, batch!.id))).toEqual(false);
 });
 
 test('resume: error in starting new scan session', async () => {
@@ -497,7 +501,7 @@ test('resume: error in starting new scan session', async () => {
   await machine.discardBatch();
   expect(machine.status()).toEqual({ state: 'idle' });
   expect(workspace.store.getBatches()).toEqual([]);
-  expect(existsSync(batchImageDirectory(workspace, batch!.id))).toEqual(false);
+  expect(existsSync(rawImageDirectory(workspace, batch!.id))).toEqual(false);
 });
 
 test('tray empty pause reason takes precedence over manual pausing', async () => {

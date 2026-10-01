@@ -2,6 +2,7 @@ import { mkdirSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
+import type { Id } from '@votingworks/types';
 import type { BaseLogger } from '@votingworks/logging';
 import { Store } from '../store.js';
 
@@ -15,6 +16,11 @@ export interface Workspace {
    * The directory where interpreted images are stored.
    */
   readonly ballotImagesPath: string;
+
+  /**
+   * Given a batch ID, returns the directory where the batch's images are stored.
+   */
+  batchImagesPath(batchId: Id): string;
 
   /**
    * The directory where files are uploaded.
@@ -48,6 +54,8 @@ export interface Workspace {
   getDiskSpaceSummary: () => Promise<DiskSpaceSummary>;
 }
 
+const BATCH_IMAGES_DIRECTORY_PREFIX = 'batch-';
+
 export function createWorkspace(root: string, logger: BaseLogger): Workspace {
   const resolvedRoot = resolve(root);
   const ballotImagesPath = join(resolvedRoot, 'ballot-images');
@@ -57,9 +65,14 @@ export function createWorkspace(root: string, logger: BaseLogger): Workspace {
   const dbPath = join(resolvedRoot, 'ballots.db');
   const store = Store.fileStore(dbPath, logger);
 
+  function batchImagesPath(batchId: Id): string {
+    return join(ballotImagesPath, `${BATCH_IMAGES_DIRECTORY_PREFIX}${batchId}`);
+  }
+
   return {
     path: resolvedRoot,
     ballotImagesPath,
+    batchImagesPath,
     uploadsPath,
     store,
     resetElectionSession() {
