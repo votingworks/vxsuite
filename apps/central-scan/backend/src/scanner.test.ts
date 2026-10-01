@@ -264,7 +264,7 @@ test('discarding a paused batch deletes it', async () => {
   await machine.discardBatch();
   expect(machine.status()).toEqual({ state: 'idle' });
   expect(workspace.store.getBatches()).toEqual([]);
-  expect(existsSync(rawImageDirectory(workspace, batch!.id))).toEqual(false);
+  expect(existsSync(workspace.batchImagesPath(batch!.id))).toEqual(false);
   expect(logger.log).toHaveBeenCalledWith(LogEventId.ScannerEvent, 'unknown', {
     message: 'Event: DISCARD_BATCH',
     eventObject: '{"type":"DISCARD_BATCH"}',
@@ -288,6 +288,7 @@ test('error when starting a batch', async () => {
   expect(workspace.store.getBatches()).toHaveLength(1);
   const [batch] = workspace.store.getBatches();
   expect(machine.status()).toEqual({ state: 'error', batchId: batch!.id });
+  expect(existsSync(workspace.batchImagesPath(batch!.id))).toEqual(true);
   expectErrorEventLogged(logger, 'scanner unavailable');
   expect(logger.log).not.toHaveBeenCalledWith(
     LogEventId.ScannerBatchStarted,
@@ -298,6 +299,7 @@ test('error when starting a batch', async () => {
   await machine.discardBatch();
   expect(machine.status()).toEqual({ state: 'idle' });
   expect(workspace.store.getBatches()).toEqual([]);
+  expect(existsSync(workspace.batchImagesPath(batch!.id))).toEqual(false);
 });
 
 test('error in scanning', async () => {
@@ -320,7 +322,7 @@ test('error in scanning', async () => {
   await machine.discardBatch();
   expect(machine.status()).toEqual({ state: 'idle' });
   expect(workspace.store.getBatches()).toEqual([]);
-  expect(existsSync(rawImageDirectory(workspace, batch!.id))).toEqual(false);
+  expect(existsSync(workspace.batchImagesPath(batch!.id))).toEqual(false);
 
   scanner.withNextScannerSession().end();
   await machine.startBatch();
@@ -472,7 +474,7 @@ test('paused: discard failure and success paths', async () => {
   expect(machine.status()).toEqual({ state: 'idle' });
   expect(endBatch).toHaveBeenCalledTimes(2);
   expect(workspace.store.getBatches()).toEqual([]);
-  expect(existsSync(rawImageDirectory(workspace, batch!.id))).toEqual(false);
+  expect(existsSync(workspace.batchImagesPath(batch!.id))).toEqual(false);
 });
 
 test('resume: error in starting new scan session', async () => {
@@ -501,7 +503,7 @@ test('resume: error in starting new scan session', async () => {
   await machine.discardBatch();
   expect(machine.status()).toEqual({ state: 'idle' });
   expect(workspace.store.getBatches()).toEqual([]);
-  expect(existsSync(rawImageDirectory(workspace, batch!.id))).toEqual(false);
+  expect(existsSync(workspace.batchImagesPath(batch!.id))).toEqual(false);
 });
 
 test('tray empty pause reason takes precedence over manual pausing', async () => {

@@ -86,7 +86,7 @@ export function start({
 
   // Clear any cached data
   resolvedWorkspace.clearUploads();
-  resolvedWorkspace.store.cleanupIncompleteBatches();
+  resolvedWorkspace.cleanupIncompleteBatches();
 
   let resolvedApp = app;
   let mockBatchScanner: MockBatchScanner | undefined;

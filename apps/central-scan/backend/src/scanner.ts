@@ -297,8 +297,13 @@ function buildMachine({
     batchId,
     batchContext,
   }: Context): Promise<void> {
+    assert(batchId !== undefined);
     if (batchContext) await endBatch(batchContext);
-    store.discardBatch(assertDefined(batchId));
+    await rm(workspace.batchImagesPath(batchId), {
+      recursive: true,
+      force: true,
+    });
+    store.discardBatch(batchId);
   }
 
   const clearBatch = assign<Context, Event>({

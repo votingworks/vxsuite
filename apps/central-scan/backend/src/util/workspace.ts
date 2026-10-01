@@ -1,4 +1,4 @@
-import { mkdirSync, rmSync } from 'node:fs';
+import { mkdirSync, readdirSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
@@ -49,6 +49,11 @@ export interface Workspace {
   clearUploads(): void;
 
   /**
+   * Clears incomplete batches from the database as well as their ballot image directories.
+   */
+  cleanupIncompleteBatches(): void;
+
+  /**
    * Get the disk space summary for the workspace.
    */
   getDiskSpaceSummary: () => Promise<DiskSpaceSummary>;
@@ -88,6 +93,21 @@ export function createWorkspace(root: string, logger: BaseLogger): Workspace {
     clearUploads() {
       rmSync(uploadsPath, { recursive: true, force: true });
       mkdirSync(uploadsPath, { recursive: true });
+    },
+    cleanupIncompleteBatches() {
+      store.cleanupIncompleteBatches();
+      const batchImagesPaths = new Set(
+        store.getAllBatchIds().map(batchImagesPath)
+      );
+      for (const entry of readdirSync(ballotImagesPath)) {
+        const entryPath = join(ballotImagesPath, entry);
+        if (
+          entry.startsWith(BATCH_IMAGES_DIRECTORY_PREFIX) &&
+          !batchImagesPaths.has(entryPath)
+        ) {
+          rmSync(entryPath, { recursive: true, force: true });
+        }
+      }
     },
     getDiskSpaceSummary: async () => {
       const [summary] = await getDiskSpaceSummaries([resolvedRoot]);
