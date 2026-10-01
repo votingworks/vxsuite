@@ -62,14 +62,14 @@ export function getDefaultConfig(): ScannerConfig {
 
 type Encoder<T extends string | number> = Record<T, Uint8>;
 
-const PaperMovementAfterScanEncoder: Encoder<PaperMovementAfterScan> = {
+const PaperMovementAfterScanEncoder = {
   hold_ticket: 0x00,
   move_forward: 0x01,
   move_back: 0x02,
   move_park: 0x03,
-};
+} satisfies Encoder<PaperMovementAfterScan>;
 
-const ScanTypeEncoder: Record<ScanDataFormat, Encoder<ScanLight>> = {
+const ScanTypeEncoder = {
   grayscale: {
     red: 0x01,
     green: 0x02,
@@ -82,15 +82,15 @@ const ScanTypeEncoder: Record<ScanDataFormat, Encoder<ScanLight>> = {
     blue: 0x0a,
     white: 0x0c,
   },
-};
+} satisfies Record<ScanDataFormat, Encoder<ScanLight>>;
 
 // Bitmap. 'Scan in park' is represented by the 0x02 position but requires
 // 'backward' scan direction to be set in 0x01, so the final value is binary(011) == 0x03
-const ScanDirectionEncoder: Encoder<ScanDirection> = {
+const ScanDirectionEncoder = {
   forward: 0x00,
   backward: 0x01,
   in_park: 0x03,
-};
+} satisfies Encoder<ScanDirection>;
 
 export function getScannerConfigCoderValues(
   scannerConfig: ScannerConfig

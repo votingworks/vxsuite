@@ -92,18 +92,18 @@ test('message with padding', () => {
 });
 
 test('id3v1 tag', () => {
-  enum Genre {
-    Blues = 0x00,
-    ClassicRock = 0x01,
-    Country = 0x02,
-    Dance = 0x03,
-    Disco = 0x04,
-    Funk = 0x05,
-    Grunge = 0x06,
-    HipHop = 0x07,
-    Jazz = 0x08,
+  const Genre = {
+    Blues: 0x00,
+    ClassicRock: 0x01,
+    Country: 0x02,
+    Dance: 0x03,
+    Disco: 0x04,
+    Funk: 0x05,
+    Grunge: 0x06,
+    HipHop: 0x07,
+    Jazz: 0x08,
     // ...
-  }
+  } as const;
 
   // define a coder for ID3v1 tags
   const id3v1 = message({
@@ -115,7 +115,7 @@ test('id3v1 tag', () => {
     comment: fixedString(28),
     zeroByte: literal(0x00),
     track: uint8(),
-    genre: uint8<Genre>(Genre),
+    genre: uint8(Genre),
   });
   type id3v1 = CoderType<typeof id3v1>;
 

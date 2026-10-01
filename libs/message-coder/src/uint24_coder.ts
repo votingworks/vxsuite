@@ -15,7 +15,7 @@ import { UintCoder } from './uint_coder.js';
  * Coder for a uint24, aka a 24-bit unsigned integer. Uses little-endian byte
  * order.
  */
-export class Uint24Coder extends UintCoder {
+export class Uint24Coder<T extends number = Uint24> extends UintCoder<T> {
   bitLength(): Result<Uint24, CoderError> {
     return ok(24);
   }
@@ -23,11 +23,7 @@ export class Uint24Coder extends UintCoder {
   protected minValue = MIN_UINT24;
   protected maxValue = MAX_UINT24;
 
-  encodeInto(
-    value: Uint24,
-    buffer: Buffer,
-    bitOffset: BitOffset
-  ): EncodeResult {
+  encodeInto(value: T, buffer: Buffer, bitOffset: BitOffset): EncodeResult {
     return resultBlock((fail) => {
       this.validateValue(value).okOrElse(fail);
 
@@ -38,7 +34,7 @@ export class Uint24Coder extends UintCoder {
     });
   }
 
-  decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<Uint24> {
+  decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<T> {
     return this.decodeUsing(buffer, bitOffset, (byteOffset) => {
       const low = buffer.readUInt16LE(byteOffset);
       const high = buffer.readUInt8(byteOffset + 2);
@@ -50,9 +46,8 @@ export class Uint24Coder extends UintCoder {
 /**
  * Builds 24-bit unsigned integer coders. Uses little-endian byte order.
  */
-// eslint-disable-next-line vx/gts-no-return-type-only-generics -- TS does not have a way of saying "I want an enum of numbers"
 export function uint24<T extends number = Uint24>(
-  enumeration?: unknown
+  enumeration?: Record<string, T>
 ): Coder<T> {
-  return new Uint24Coder(enumeration) as unknown as Coder<T>;
+  return new Uint24Coder(enumeration);
 }

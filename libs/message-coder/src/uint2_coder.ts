@@ -7,6 +7,7 @@ import type {
   BitOffset,
   Coder,
   CoderError,
+  Decoded,
   DecodeResult,
   EncodeResult,
   Uint2,
@@ -16,15 +17,15 @@ import { defaultEnumValue, validateEnumValue } from './uint_coder.js';
 /**
  * Coder for a uint2, aka a 2-bit unsigned integer.
  */
-class Uint2Coder extends BaseCoder<Uint2> {
-  private readonly enumeration?: unknown;
+class Uint2Coder<T extends Uint2 = Uint2> extends BaseCoder<T> {
+  private readonly enumeration?: Record<string, T>;
 
-  constructor(enumeration?: unknown) {
+  constructor(enumeration?: Record<string, T>) {
     super();
     this.enumeration = enumeration;
   }
 
-  canEncode(value: unknown): value is number {
+  canEncode(value: unknown): value is T {
     return (
       typeof value === 'number' &&
       Number.isInteger(value) &&
@@ -33,8 +34,8 @@ class Uint2Coder extends BaseCoder<Uint2> {
     );
   }
 
-  default(): Uint2 {
-    return defaultEnumValue(this.enumeration);
+  default(): T {
+    return this.enumeration ? defaultEnumValue(this.enumeration) : (0 as T);
   }
 
   bitLength(): Result<BitLength, CoderError> {
@@ -44,12 +45,11 @@ class Uint2Coder extends BaseCoder<Uint2> {
   protected minValue = 0b00;
   protected maxValue = 0b11;
 
-  encodeInto(value: Uint2, buffer: Buffer, bitOffset: BitOffset): EncodeResult {
+  encodeInto(value: T, buffer: Buffer, bitOffset: BitOffset): EncodeResult {
     return resultBlock((fail) => {
-      const validatedValue = validateEnumValue(
-        this.enumeration,
-        value
-      ).okOrElse(fail);
+      const validatedValue = this.enumeration
+        ? validateEnumValue(this.enumeration, value).okOrElse(fail)
+        : value;
 
       if (validatedValue < this.minValue || validatedValue > this.maxValue) {
         return err('InvalidValue');
@@ -74,12 +74,12 @@ class Uint2Coder extends BaseCoder<Uint2> {
     });
   }
 
-  decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<Uint2> {
-    return resultBlock((fail) => {
+  decodeFrom(buffer: Buffer, bitOffset: BitOffset): DecodeResult<T> {
+    return resultBlock((fail): Decoded<T> => {
       const remainder = bitOffset % BITS_PER_BYTE;
 
       if (remainder + 1 >= BITS_PER_BYTE) {
-        return err('UnsupportedOffset');
+        return fail('UnsupportedOffset');
       }
 
       const shift = BITS_PER_BYTE - remainder - this.bitLength().okOrElse(fail);
@@ -89,10 +89,10 @@ class Uint2Coder extends BaseCoder<Uint2> {
       );
 
       const byte = buffer.readUInt8(byteOffset);
-      const value = validateEnumValue(
-        this.enumeration,
-        (byte & mask) >> shift
-      ).okOrElse(fail);
+      const shifted = (byte & mask) >> shift;
+      const value = this.enumeration
+        ? validateEnumValue(this.enumeration, shifted).okOrElse(fail)
+        : (shifted as T);
       return { value, bitOffset: bitOffset + this.bitLength().okOrElse(fail) };
     });
   }
@@ -103,7 +103,8 @@ class Uint2Coder extends BaseCoder<Uint2> {
  * bits at a time, so it should be used with other sub-byte coders or with
  * `padding` to preserve alignment.
  */
-// eslint-disable-next-line vx/gts-no-return-type-only-generics -- TS does not have a way of saying "I want an enum of numbers"
-export function uint2<T extends Uint2>(enumeration?: unknown): Coder<T> {
-  return new Uint2Coder(enumeration) as unknown as Coder<T>;
+export function uint2<T extends Uint2 = Uint2>(
+  enumeration?: Record<string, T>
+): Coder<T> {
+  return new Uint2Coder(enumeration);
 }

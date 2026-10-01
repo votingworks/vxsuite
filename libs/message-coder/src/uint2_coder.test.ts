@@ -28,13 +28,13 @@ test('uint2 simple', () => {
 });
 
 test('uint2 with enumeration', () => {
-  enum Speed {
-    Slow = 1,
-    Medium = 2,
-    Fast = 3,
-  }
+  const Speed = {
+    Slow: 1,
+    Medium: 2,
+    Fast: 3,
+  } as const;
 
-  const coder = uint2<Speed>(Speed);
+  const coder = uint2(Speed);
 
   expect(coder.default()).toEqual(Speed.Slow);
 

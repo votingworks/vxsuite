@@ -159,7 +159,10 @@ export type AcknowledgementResponse = CoderType<typeof AcknowledgementResponse>;
 export const ScanResponse = message({
   signature: literal('IMG'),
   returnCode: uint8(),
-  cis: uint8(0x00 | 0x01 | 0x02),
+  // 0x00, 0x01, or 0x02 are supposed to be the only valid values, but we don't
+  // use this field and haven't been validating it up to now so we just let it
+  // be any u8.
+  cis: uint8(),
   scan: uint8(),
   sizeX: uint16(undefined, { littleEndian: false }),
   sizeY: uint16(undefined, { littleEndian: false }),
@@ -201,21 +204,21 @@ export type EnablePrintCommand = CoderType<typeof EnablePrintCommand>;
 export const DisablePrintCommand = literal(0x1f, 0x65);
 export type DisablePrintCommand = CoderType<typeof DisablePrintCommand>;
 
-export enum ConfigureScannerOptionPaperConfigValues {
-  HOLD_PAPER_AFTER_SCAN = 0x00,
-  MOVE_FORWARD_AFTER_SCAN = 0x01,
-  MOVE_BACKWARD_AFTER_SCAN = 0x02,
-  MOVE_FORWARD_AFTER_SCAN_AND_HOLD = 0x03,
-}
-export enum ConfigureScannerOptionSensorConfig {
-  NONE = 0x00,
-  DISABLE_JAM_WHEEL_SENSOR = 0x04,
-}
-export enum ConfigureScannerFlags {
-  NONE = 0x00,
-  SCAN_BACKWARDS = 0x01,
-  SCAN_IN_PARK = 0x03,
-}
+export const ConfigureScannerOptionPaperConfigValues = {
+  HOLD_PAPER_AFTER_SCAN: 0x00,
+  MOVE_FORWARD_AFTER_SCAN: 0x01,
+  MOVE_BACKWARD_AFTER_SCAN: 0x02,
+  MOVE_FORWARD_AFTER_SCAN_AND_HOLD: 0x03,
+} as const;
+export const ConfigureScannerOptionSensorConfig = {
+  NONE: 0x00,
+  DISABLE_JAM_WHEEL_SENSOR: 0x04,
+} as const;
+export const ConfigureScannerFlags = {
+  NONE: 0x00,
+  SCAN_BACKWARDS: 0x01,
+  SCAN_IN_PARK: 0x03,
+} as const;
 export const ConfigureScannerCommand = message({
   command: literal(0x1c, 'SPC'),
   optionPaperConfig: uint8(ConfigureScannerOptionPaperConfigValues),

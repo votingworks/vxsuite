@@ -31,13 +31,13 @@ test('uint24', () => {
 });
 
 test('uint24 with enumeration', () => {
-  enum Enum {
-    A = 1,
-    B = 2,
-    C = 3,
-  }
+  const Enum = {
+    A: 1,
+    B: 2,
+    C: 3,
+  } as const;
 
-  const field = uint24<Enum>(Enum);
+  const field = uint24(Enum);
   expect(field.canEncode(Enum.A)).toEqual(true);
   expect(field.canEncode(99)).toEqual(false);
   expect(field.bitLength(Enum.A)).toEqual(ok(24));
