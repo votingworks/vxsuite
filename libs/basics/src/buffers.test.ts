@@ -36,7 +36,8 @@ test('bufferAsU8Array()', () => {
   const buf = Buffer.from(mem, 2, 6);
   const arr = bufferAsU8Array(buf);
 
-  expect(arr.buffer).toEqual(buf.buffer);
+  // eslint-disable-next-line vx/no-expect-to-be
+  expect(arr.buffer).toBe(buf.buffer);
   expect(arr.byteOffset).toEqual(buf.byteOffset);
   expect(arr.byteLength).toEqual(buf.byteLength);
 });
