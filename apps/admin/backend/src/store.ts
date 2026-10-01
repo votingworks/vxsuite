@@ -14,6 +14,7 @@ import {
   assertDefined,
   unique,
   deepEqual,
+  throwIllegalValue,
 } from '@votingworks/basics';
 import {
   type BackupError,
@@ -176,6 +177,27 @@ function constructElectionPackageFilePath(
     `Election ID contains a path separator: ${electionId}`
   );
   return join(electionPackagesPath, `${electionId}.zip`);
+}
+
+/**
+ * Restricts adjudication queue lookups to escalated or non-escalated ballots.
+ */
+export type EscalatedBallotFilter = 'only' | 'exclude';
+
+function escalatedBallotConditionSql(
+  escalatedBallotFilter: EscalatedBallotFilter | undefined,
+  alias: string
+): string {
+  switch (escalatedBallotFilter) {
+    case 'only':
+      return `and ${alias}.is_escalated = 1`;
+    case 'exclude':
+      return `and ${alias}.is_escalated = 0`;
+    case undefined:
+      return '';
+    default:
+      return throwIllegalValue(escalatedBallotFilter);
+  }
 }
 
 /**
@@ -2861,21 +2883,45 @@ export class Store implements BaseStore {
     return conditions.join(' or ');
   }
 
-  getBallotAdjudicationQueue({ electionId }: { electionId: Id }): Id[] {
+  getBallotAdjudicationQueue({
+    electionId,
+    escalatedOnly,
+  }: {
+    electionId: Id;
+    escalatedOnly?: boolean;
+  }): Id[] {
     this.assertElectionExists(electionId);
     debug('querying database for ballot adjudication cvr queue');
     const filter = this.getAdjudicationQueueFilter(electionId);
+    const escalatedCondition = escalatedOnly
+      ? 'and c.is_escalated = 1 and c.is_adjudicated = 0'
+      : '';
     const rows = this.client.all(
       `
         select c.id as cvr_id
         from cvrs c
         where c.election_id = ? and (${filter})
+          ${escalatedCondition}
         order by ${adjudicationSortKeyExprs('c').join(', ')}
       `,
       electionId
     ) as Array<{ cvr_id: Id }>;
     debug('queried ballot adjudication queue');
     return rows.map((r) => r.cvr_id);
+  }
+
+  escalateCvrBallot({
+    electionId,
+    cvrId,
+  }: {
+    electionId: Id;
+    cvrId: Id;
+  }): void {
+    this.client.run(
+      'update cvrs set is_escalated = 1 where id = ? and election_id = ?',
+      cvrId,
+      electionId
+    );
   }
 
   getBallotAdjudicationQueueMetadata({
@@ -2891,7 +2937,10 @@ export class Store implements BaseStore {
       `
         select
           count(*) as totalTally,
-          count(case when c.is_adjudicated = 0 then 1 end) as pendingTally
+          count(case when c.is_adjudicated = 0 then 1 end) as pendingTally,
+          count(
+            case when c.is_escalated = 1 and c.is_adjudicated = 0 then 1 end
+          ) as escalatedPendingTally
         from cvrs c
         where c.election_id = ? and (${filter})
       `,
@@ -2899,6 +2948,7 @@ export class Store implements BaseStore {
     ) as {
       totalTally: number;
       pendingTally: number;
+      escalatedPendingTally: number;
     };
 
     debug('queried ballot adjudication queue metadata');
@@ -2927,7 +2977,8 @@ export class Store implements BaseStore {
       select
         is_blank as isBlank,
         has_crossover_vote as hasCrossoverVote,
-        is_adjudicated as isResolved
+        is_adjudicated as isResolved,
+        is_escalated as isEscalated
       from cvrs
       where id = ?
       `,
@@ -2936,8 +2987,10 @@ export class Store implements BaseStore {
       isBlank: SqliteBool;
       hasCrossoverVote: SqliteBool;
       isResolved: SqliteBool;
+      isEscalated: SqliteBool;
     };
     const isResolved = fromSqliteBool(cvrRow.isResolved);
+    const isEscalated = fromSqliteBool(cvrRow.isEscalated);
     const cvrTag: CvrTag = {
       isBlankBallot: fromSqliteBool(cvrRow.isBlank),
       hasCrossoverVote: fromSqliteBool(cvrRow.hasCrossoverVote),
@@ -3031,6 +3084,7 @@ export class Store implements BaseStore {
     return {
       cvrId,
       isResolved,
+      isEscalated,
       tag: cvrTag,
       contests,
       adjudicatedContests,
@@ -3041,13 +3095,19 @@ export class Store implements BaseStore {
     electionId,
     machineId,
     afterCvrId,
+    escalatedBallotFilter,
   }: {
     electionId: Id;
     machineId: string;
     afterCvrId?: Id;
+    escalatedBallotFilter?: EscalatedBallotFilter;
   }): Optional<Id> {
     this.assertElectionExists(electionId);
     const filter = this.getAdjudicationQueueFilter(electionId);
+    const escalatedCondition = escalatedBallotConditionSql(
+      escalatedBallotFilter,
+      'c'
+    );
     const sortKeys = adjudicationSortKeyExprs('c');
     const sortKeyList = sortKeys.join(', ');
 
@@ -3077,6 +3137,7 @@ export class Store implements BaseStore {
           and (${filter})
           and c.is_adjudicated = 0
           and mba.cvr_id is null
+          ${escalatedCondition}
         order by ${wrapOrder} ${sortKeyList}
         limit 1
       `,
@@ -4074,11 +4135,13 @@ export class Store implements BaseStore {
     machineId,
     cvrId,
     afterCvrId,
+    escalatedBallotFilter,
   }: {
     electionId: Id;
     machineId: string;
     cvrId?: Id;
     afterCvrId?: Id;
+    escalatedBallotFilter?: EscalatedBallotFilter;
   }): Result<
     { cvrId: Id; data: BallotAdjudicationData } | undefined,
     AdjudicationError
@@ -4095,6 +4158,7 @@ export class Store implements BaseStore {
           electionId,
           machineId,
           afterCvrId,
+          escalatedBallotFilter,
         });
 
       if (!cvrIdToClaim) {

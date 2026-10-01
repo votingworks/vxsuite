@@ -1353,6 +1353,99 @@ describe('machine ballot adjudication assignments', () => {
     expect(next).not.toEqual(claimed);
   });
 
+  test('escalated ballots are excluded from client claims and surfaced in the escalated queue', () => {
+    const cvr1 = addCvrWithWriteIn();
+    const cvr2 = addCvrWithWriteIn();
+
+    expect(store.getBallotAdjudicationQueueMetadata({ electionId })).toEqual({
+      totalTally: 2,
+      pendingTally: 2,
+      escalatedPendingTally: 0,
+    });
+    expect(
+      store.getBallotAdjudicationQueue({ electionId, escalatedOnly: true })
+    ).toEqual([]);
+    expect(
+      store.getBallotAdjudicationData({ electionId, cvrId: cvr1 }).isEscalated
+    ).toEqual(false);
+
+    store.escalateCvrBallot({ electionId, cvrId: cvr1 });
+
+    expect(
+      store.getBallotAdjudicationData({ electionId, cvrId: cvr1 }).isEscalated
+    ).toEqual(true);
+    expect(store.getBallotAdjudicationQueueMetadata({ electionId })).toEqual({
+      totalTally: 2,
+      pendingTally: 2,
+      escalatedPendingTally: 1,
+    });
+    expect(
+      [...store.getBallotAdjudicationQueue({ electionId })].sort()
+    ).toEqual([cvr1, cvr2].sort());
+    expect(
+      store.getBallotAdjudicationQueue({ electionId, escalatedOnly: true })
+    ).toEqual([cvr1]);
+
+    expect([cvr1, cvr2]).toContain(
+      store.getNextCvrIdForBallotAdjudication({
+        electionId,
+        machineId: 'host-001',
+      })
+    );
+    expect(
+      store.getNextCvrIdForBallotAdjudication({
+        electionId,
+        machineId: 'host-001',
+        escalatedBallotFilter: 'only',
+      })
+    ).toEqual(cvr1);
+    expect(
+      store.getNextCvrIdForBallotAdjudication({
+        electionId,
+        machineId: 'client-001',
+        escalatedBallotFilter: 'exclude',
+      })
+    ).toEqual(cvr2);
+    expect(
+      store
+        .claimAndLoadBallotData({
+          electionId,
+          machineId: 'client-001',
+          escalatedBallotFilter: 'exclude',
+        })
+        .unsafeUnwrap()?.cvrId
+    ).toEqual(cvr2);
+    expect(
+      store
+        .claimAndLoadBallotData({
+          electionId,
+          machineId: 'client-002',
+          escalatedBallotFilter: 'exclude',
+        })
+        .unsafeUnwrap()
+    ).toBeUndefined();
+
+    store.setCvrAdjudicated({ cvrId: cvr1, machineId: 'host-001' });
+    expect(store.getBallotAdjudicationQueueMetadata({ electionId })).toEqual({
+      totalTally: 2,
+      pendingTally: 1,
+      escalatedPendingTally: 0,
+    });
+    expect(
+      store.getBallotAdjudicationQueue({ electionId, escalatedOnly: true })
+    ).toEqual([]);
+    expect(
+      store.getNextCvrIdForBallotAdjudication({
+        electionId,
+        machineId: 'host-001',
+        escalatedBallotFilter: 'only',
+      })
+    ).toBeUndefined();
+    expect(
+      store.getBallotAdjudicationData({ electionId, cvrId: cvr1 }).isEscalated
+    ).toEqual(true);
+  });
+
   test('claimBallotForAdjudication claims a specific CVR for the host', () => {
     const cvr1 = addCvrWithWriteIn();
     addCvrWithWriteIn();

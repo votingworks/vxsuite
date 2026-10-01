@@ -152,6 +152,7 @@ create table cvrs (
   has_marginal_mark integer not null default false,
   has_crossover_vote integer not null,
   is_adjudicated integer not null default false,
+  is_escalated integer not null default false,
   created_at text not null default current_timestamp,
   foreign key (election_id) references elections(id)
     on delete cascade,
@@ -173,6 +174,7 @@ create index idx_cvrs_adjudication_queue on cvrs(
   has_marginal_mark,
   is_blank,
   is_adjudicated,
+  is_escalated,
   card_type,
   ballot_style_group_id,
   sheet_number,

@@ -362,6 +362,7 @@ test('claimAndLoadBallot proxies to host peer API', async () => {
     cvrId: 'cvr-1',
     tag: { isBlankBallot: false },
     isResolved: false,
+    isEscalated: false,
     contests: [],
     adjudicatedContests: [],
   } as const;
