@@ -143,7 +143,7 @@ export function ClientAppRoot(): JSX.Element | null {
     return (
       <VendorScreen
         apiClient={apiClient}
-        isMachineConfigured={Boolean(electionRecord)}
+        canUnconfigure={Boolean(electionRecord)}
         logOut={logOutMutation.mutate}
         unconfigureMachine={
           /* @coverage-exclude: no-op on client */ async () => {}

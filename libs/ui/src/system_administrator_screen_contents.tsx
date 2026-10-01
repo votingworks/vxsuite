@@ -64,7 +64,7 @@ export function SystemAdministratorScreenContents({
       <ButtonGrid>
         <UnconfigureMachineButton
           unconfigureMachine={unconfigureMachine}
-          isMachineConfigured={isMachineConfigured}
+          disabled={!isMachineConfigured}
         />
         {resetPollsToPausedText && (
           <ResetPollsToPausedButton

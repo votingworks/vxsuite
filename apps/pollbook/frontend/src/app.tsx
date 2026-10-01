@@ -148,7 +148,7 @@ function AppRoot({ logger }: { logger: BaseLogger }): JSX.Element | null {
     return (
       <VendorScreen
         apiClient={apiClient}
-        isMachineConfigured={getElectionQuery.data.isOk()}
+        canUnconfigure={getElectionQuery.data.isOk()}
         logOut={logOutMutation.mutate}
         unconfigureMachine={() => unconfigureMutation.mutateAsync()}
       />

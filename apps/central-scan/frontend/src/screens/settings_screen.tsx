@@ -36,11 +36,13 @@ const ButtonRow = styled.div`
 export interface SettingsScreenProps {
   canUnconfigure: boolean;
   hasScannedBatches: boolean;
+  isBatchOpen: boolean;
 }
 
 export function SettingsScreen({
   canUnconfigure,
   hasScannedBatches,
+  isBatchOpen,
 }: SettingsScreenProps): JSX.Element {
   const history = useHistory();
   const { auth, electionDefinition, usbDriveStatus } = useContext(AppContext);
@@ -65,24 +67,31 @@ export function SettingsScreen({
     }
   }
 
+  const isEditingElectionSettingsDisabled = isBatchOpen || !canUnconfigure;
+
   return (
     <NavigationScreen title="Settings">
       <H2>Election</H2>
       <P>
-        <ToggleTestModeButton />
+        <ToggleTestModeButton disabled={isEditingElectionSettingsDisabled} />
       </P>
       <ButtonRow>
         <UnconfigureMachineButton
-          isMachineConfigured={canUnconfigure}
+          disabled={isEditingElectionSettingsDisabled}
           unconfigureMachine={unconfigureMachine}
         />
       </ButtonRow>
-      {!canUnconfigure && (
+      {isBatchOpen ? (
         <Caption>
-          <Icons.Warning color="warning" /> You must save CVRs before you can
-          unconfigure this machine.
+          <Icons.Warning color="warning" /> You cannot change election settings
+          while a batch is in progress.
         </Caption>
-      )}
+      ) : !canUnconfigure ? (
+        <Caption>
+          <Icons.Warning color="warning" /> You must save CVRs before changing
+          election settings.
+        </Caption>
+      ) : undefined}
 
       <H2>Polling Place</H2>
       <P as="div">
@@ -98,8 +107,8 @@ export function SettingsScreen({
       </P>
       {hasScannedBatches && (
         <Caption>
-          <Icons.Warning color="warning" /> The polling place cannot be changed
-          after scanning has begun.
+          <Icons.Warning color="warning" /> You cannot change the polling place
+          once ballots have been scanned.
         </Caption>
       )}
 

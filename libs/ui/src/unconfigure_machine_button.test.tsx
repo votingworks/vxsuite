@@ -20,12 +20,7 @@ vi.mock(import('@votingworks/basics'), async (importActual) => ({
 
 test('UnconfigureMachineButton interactions', async () => {
   const unconfigureMachine = vi.fn();
-  render(
-    <UnconfigureMachineButton
-      unconfigureMachine={unconfigureMachine}
-      isMachineConfigured
-    />
-  );
+  render(<UnconfigureMachineButton unconfigureMachine={unconfigureMachine} />);
 
   // Cancel the first time
   userEvent.click(screen.getByRole('button', { name: 'Unconfigure Machine' }));
@@ -67,12 +62,7 @@ test('UnconfigureMachineButton does not sleep when not necessary', async () => {
       setTimeout(resolve, MIN_TIME_TO_UNCONFIGURE_MACHINE_MS + bufferTimeMs);
     });
   });
-  render(
-    <UnconfigureMachineButton
-      unconfigureMachine={unconfigureMachine}
-      isMachineConfigured
-    />
-  );
+  render(<UnconfigureMachineButton unconfigureMachine={unconfigureMachine} />);
 
   userEvent.click(screen.getByRole('button', { name: 'Unconfigure Machine' }));
   const modal = await screen.findByRole('alertdialog');
@@ -90,13 +80,8 @@ test('UnconfigureMachineButton does not sleep when not necessary', async () => {
   expect(sleep).toHaveBeenCalledTimes(0);
 });
 
-test('UnconfigureMachineButton is disabled if machine not configured', () => {
-  render(
-    <UnconfigureMachineButton
-      unconfigureMachine={vi.fn()}
-      isMachineConfigured={false}
-    />
-  );
+test('UnconfigureMachineButton is disabled when the disabled prop is set', () => {
+  render(<UnconfigureMachineButton unconfigureMachine={vi.fn()} disabled />);
 
   expect(
     screen.getByRole('button', { name: 'Unconfigure Machine' })

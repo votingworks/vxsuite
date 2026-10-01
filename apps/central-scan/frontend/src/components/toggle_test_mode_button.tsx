@@ -6,7 +6,11 @@ import { getStatus, getTestMode, setTestMode } from '../api.js';
 /**
  * Presents a button to toggle between test & live modes with a confirmation.
  */
-export function ToggleTestModeButton(): JSX.Element | null {
+export function ToggleTestModeButton({
+  disabled,
+}: {
+  disabled: boolean;
+}): JSX.Element | null {
   const statusQuery = getStatus.usePollingQuery();
 
   const testModeQuery = getTestMode.useQuery();
@@ -38,7 +42,7 @@ export function ToggleTestModeButton(): JSX.Element | null {
   }
 
   const status = statusQuery.data;
-  const { batches, canUnconfigure } = status;
+  const { batches } = status;
 
   const ballotCount = iter(batches)
     .map((b) => b.count)
@@ -47,7 +51,7 @@ export function ToggleTestModeButton(): JSX.Element | null {
   return (
     <React.Fragment>
       <SegmentedButton
-        disabled={setTestModeMutation.isLoading || !canUnconfigure}
+        disabled={setTestModeMutation.isLoading || disabled}
         label="Ballot Mode"
         hideLabel
         onChange={() => {

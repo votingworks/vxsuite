@@ -123,7 +123,6 @@ export function ElectionScreen(): JSX.Element | null {
           )}
           <UnconfigureMachineButton
             unconfigureMachine={() => unconfigureMutation.mutateAsync()}
-            isMachineConfigured
           />
         </Row>
         {precinctOptions.length > 1 && haveElectionEventsOccurred && (

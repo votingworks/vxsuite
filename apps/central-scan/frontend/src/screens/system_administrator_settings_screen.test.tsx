@@ -19,9 +19,12 @@ afterEach(() => {
 });
 
 test('System Admin screen', async () => {
-  renderInAppContext(<SystemAdministratorSettingsScreen />, {
-    apiMock,
-  });
+  renderInAppContext(
+    <SystemAdministratorSettingsScreen isBatchOpen={false} />,
+    {
+      apiMock,
+    }
+  );
   screen.getByRole('heading', { name: 'Settings' });
 
   screen.getByRole('heading', { name: 'Election' });
@@ -37,11 +40,25 @@ test('System Admin screen', async () => {
   await screen.findByRole('heading', { name: 'Set Date and Time' });
 });
 
-test('Exporting logs', async () => {
-  renderInAppContext(<SystemAdministratorSettingsScreen />, {
+test('disables unconfiguring while a batch is open', () => {
+  renderInAppContext(<SystemAdministratorSettingsScreen isBatchOpen />, {
     apiMock,
-    usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
+
+  expect(screen.getButton('Unconfigure Machine')).toBeDisabled();
+  screen.getByText(
+    'You cannot unconfigure this machine while a batch is in progress.'
+  );
+});
+
+test('Exporting logs', async () => {
+  renderInAppContext(
+    <SystemAdministratorSettingsScreen isBatchOpen={false} />,
+    {
+      apiMock,
+      usbDriveStatus: mockUsbDriveStatus('mounted'),
+    }
+  );
 
   apiMock.apiClient.exportLogsToUsb
     .expectCallWith({ format: 'vxf' })

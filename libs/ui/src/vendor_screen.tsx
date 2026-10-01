@@ -14,14 +14,14 @@ interface VendorScreenApiClient extends SignedHashValidationApiClient {
 
 interface Props {
   apiClient: VendorScreenApiClient;
-  isMachineConfigured: boolean;
+  canUnconfigure: boolean;
   logOut?: () => void;
   unconfigureMachine: () => Promise<void>;
 }
 
 export function VendorScreen({
   apiClient,
-  isMachineConfigured,
+  canUnconfigure,
   logOut,
   unconfigureMachine,
 }: Props): JSX.Element {
@@ -36,7 +36,7 @@ export function VendorScreen({
         <P>
           <UnconfigureMachineButton
             unconfigureMachine={unconfigureMachine}
-            isMachineConfigured={isMachineConfigured}
+            disabled={!canUnconfigure}
           />
         </P>
         <P>

@@ -121,7 +121,7 @@ function AppRoot({
       return (
         <VendorScreen
           apiClient={apiClient}
-          isMachineConfigured={electionRecord !== null}
+          canUnconfigure={electionRecord !== null}
           logOut={logOutMutation.mutate}
           unconfigureMachine={() => unconfigureMutation.mutateAsync()}
         />

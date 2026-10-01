@@ -145,6 +145,22 @@ test('Quit button does nothing when kiosk is undefined', () => {
   userEvent.click(screen.getByRole('button', { name: 'Quit' }));
 });
 
+test('Unconfigure Machine button is disabled when the machine is not configured', () => {
+  render(
+    <SystemAdministratorScreenContents
+      primaryText="Primary Text"
+      unconfigureMachine={vi.fn()}
+      isMachineConfigured={false}
+      logOut={vi.fn()}
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
+    />
+  );
+
+  expect(
+    screen.getByRole('button', { name: 'Unconfigure Machine' })
+  ).toBeDisabled();
+});
+
 test('Reset Polls to Paused button not rendered if not specified', () => {
   render(
     <SystemAdministratorScreenContents

@@ -29,6 +29,7 @@ let apiMock: ApiMock;
 
 beforeEach(() => {
   vi.restoreAllMocks();
+  window.history.replaceState({}, '', '/');
 
   apiMock = createApiMock();
   apiMock.setAuthStatus({
@@ -468,6 +469,51 @@ test('system administrator can log in and unconfigure machine', async () => {
   await vi.waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   }, 5000);
+});
+
+test('election settings are locked while a batch is open', async () => {
+  apiMock.expectGetTestMode(true);
+  apiMock.expectGetElectionRecord(electionDefinition);
+  apiMock.setStatus(
+    mockStatus(
+      {
+        canUnconfigure: true,
+        batches: [mockBatch({ id: 'a', endedAt: undefined })],
+      },
+      { state: 'paused', batchId: 'a', pauseReason: { type: 'tray-empty' } }
+    )
+  );
+
+  render(<App apiClient={apiMock.apiClient} />);
+  await authenticateAsElectionManager(electionDefinition);
+  await screen.findByText('Input tray empty');
+
+  userEvent.click(screen.getButton('Settings'));
+  await screen.findByRole('heading', { name: 'Settings' });
+  expect(screen.getButton('Unconfigure Machine')).toBeDisabled();
+  screen.getByText(
+    'You cannot change election settings while a batch is in progress.'
+  );
+});
+
+test('system administrator cannot unconfigure while a batch is open', async () => {
+  apiMock.expectGetTestMode(true);
+  apiMock.expectGetElectionRecord(electionDefinition);
+  apiMock.expectGetUsbPortStatus();
+  apiMock.setStatus(
+    mockStatus(
+      {},
+      { state: 'paused', batchId: 'a', pauseReason: { type: 'tray-empty' } }
+    )
+  );
+
+  render(<App apiClient={apiMock.apiClient} />);
+  await authenticateAsSystemAdministrator();
+
+  await screen.findByText(
+    'You cannot unconfigure this machine while a batch is in progress.'
+  );
+  expect(screen.getButton('Unconfigure Machine')).toBeDisabled();
 });
 
 test('election manager cannot auth onto machine with different election', async () => {

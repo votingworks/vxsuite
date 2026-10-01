@@ -16,18 +16,14 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-function renderButton() {
-  render(provideApi(apiMock, <ToggleTestModeButton />));
+function renderButton(disabled = false) {
+  render(provideApi(apiMock, <ToggleTestModeButton disabled={disabled} />));
 }
 
-test('shows a disabled button when the machine cannot be unconfigured', async () => {
+test('shows a disabled button when disabled', async () => {
   apiMock.expectGetTestMode(false);
-  apiMock.setStatus(
-    mockStatus({
-      canUnconfigure: false,
-    })
-  );
-  renderButton();
+  apiMock.setStatus();
+  renderButton(true);
 
   expect(
     await screen.findByRole('option', {
@@ -39,11 +35,7 @@ test('shows a disabled button when the machine cannot be unconfigured', async ()
 
 test('toggling when there are no ballots', async () => {
   apiMock.expectGetTestMode(true);
-  apiMock.setStatus(
-    mockStatus({
-      canUnconfigure: true,
-    })
-  );
+  apiMock.setStatus();
   renderButton();
 
   await screen.findByRole('option', {
@@ -78,7 +70,6 @@ test('toggling with ballots, modal confirmation', async () => {
   apiMock.expectGetTestMode(false);
   apiMock.setStatus(
     mockStatus({
-      canUnconfigure: true,
       batches: [
         {
           id: 'batch-id',

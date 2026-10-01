@@ -92,6 +92,7 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
   const { electionDefinition, electionPackageHash } =
     electionRecordQuery.data ?? {};
   const status = statusQuery.data;
+  const isBatchOpen = status.state !== 'idle';
   const isPollWorkerRoleEnabled =
     systemSettingsQuery.data.centralScanEnablePollWorkerRole === true;
   // A polling place must be selected before scanning.
@@ -173,7 +174,7 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
     return (
       <VendorScreen
         apiClient={apiClient}
-        isMachineConfigured={Boolean(electionDefinition)}
+        canUnconfigure={Boolean(electionDefinition) && !isBatchOpen}
         logOut={() => logOutMutation.mutate()}
         unconfigureMachine={() =>
           unconfigureMutation.mutateAsync({ ignoreBackupRequirement: true })
@@ -187,7 +188,7 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
       <AppContext.Provider value={currentContext}>
         <Switch>
           <Route path="/system-administrator-settings">
-            <SystemAdministratorSettingsScreen />
+            <SystemAdministratorSettingsScreen isBatchOpen={isBatchOpen} />
           </Route>
           <Route path="/hardware-diagnostics">
             <DiagnosticsScreen />
@@ -234,6 +235,7 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
             <SettingsScreen
               canUnconfigure={status.canUnconfigure}
               hasScannedBatches={status.batches.length > 0}
+              isBatchOpen={isBatchOpen}
             />
           </Route>
         )}
