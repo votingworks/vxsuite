@@ -469,6 +469,8 @@ pub enum EventId {
     AdminBallotAdjudicationComplete,
     #[serde(rename = "admin-ballot-released")]
     AdminBallotReleased,
+    #[serde(rename = "admin-ballot-escalated")]
+    AdminBallotEscalated,
     #[serde(rename = "admin-adjudication-proxy-error")]
     AdminAdjudicationProxyError,
     #[serde(rename = "admin-contest-adjudicated")]
