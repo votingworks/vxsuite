@@ -54,6 +54,8 @@ export interface ContestProps {
   numWriteInCharactersAllowedAcrossContests?: number;
 
   isReviewMode?: boolean;
+
+  shouldTransliterateCandidateNames?: boolean;
 }
 
 function countNumWriteInCharactersUsedAcrossContests(votes: VotesDict): number {
@@ -75,6 +77,7 @@ export function Contest({
   onCloseWriteInKeyboard,
   numWriteInCharactersAllowedAcrossContests = Infinity,
   isReviewMode,
+  shouldTransliterateCandidateNames,
 }: ContestProps): JSX.Element {
   const vote = votes[contest.id];
   const numWriteInCharactersUsedAcrossContests = useMemo(
@@ -103,6 +106,7 @@ export function Contest({
           }}
           isReviewMode={isReviewMode}
           selectedStraightPartyId={selectedStraightPartyId(election, votes)}
+          shouldTransliterateCandidateNames={shouldTransliterateCandidateNames}
         />
       )}
       {contest.type === 'yesno' && (

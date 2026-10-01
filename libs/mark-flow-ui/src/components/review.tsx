@@ -42,6 +42,7 @@ import type {
 
 import type { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests.js';
 import { CandidateInfoCaption } from './candidate_info_caption.js';
+import { CandidateName } from './candidate_name.js';
 import { WriteInCandidateName } from './write_in_candidate_name.js';
 import {
   deriveStraightPartyVotesFromOrderedCandidates,
@@ -72,6 +73,7 @@ function CandidateContestResult({
   ballotStyle,
   // eslint-disable-next-line @typescript-eslint/no-shadow
   selectedStraightPartyId,
+  shouldTransliterateCandidateNames,
 }: CandidateContestResultInterface): JSX.Element {
   const district = getContestDistrict(election, contest);
 
@@ -140,7 +142,12 @@ function CandidateContestResult({
               {candidate.name}
             </Font>
           ) : (
-            electionStrings.candidateName(candidate)
+            <CandidateName
+              candidate={candidate}
+              shouldTransliterateCandidateNames={
+                shouldTransliterateCandidateNames
+              }
+            />
           ),
           isDerivedVote,
         };
@@ -274,6 +281,7 @@ export interface ReviewProps {
   votes: VotesDict;
   returnToContest?: (contestId: string) => void;
   selectionsAreEditable?: boolean;
+  shouldTransliterateCandidateNames?: boolean;
 }
 
 export function Review({
@@ -284,6 +292,7 @@ export function Review({
   votes,
   returnToContest,
   selectionsAreEditable = true,
+  shouldTransliterateCandidateNames,
 }: ReviewProps): JSX.Element {
   function onChangeClick(contestId: ContestId) {
     // @coverage-defer
@@ -352,6 +361,9 @@ export function Review({
                   election,
                   votes
                 )}
+                shouldTransliterateCandidateNames={
+                  shouldTransliterateCandidateNames
+                }
               />
             )}
             {contest.type === 'yesno' && (

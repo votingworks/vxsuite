@@ -51,6 +51,7 @@ export interface CandidateContestResultInterface {
   selectionsAreEditable?: boolean;
   vote?: CandidateVote;
   selectedStraightPartyId?: PartyId;
+  shouldTransliterateCandidateNames?: boolean;
 }
 export interface YesNoContestResultInterface {
   contest: YesNoContest;

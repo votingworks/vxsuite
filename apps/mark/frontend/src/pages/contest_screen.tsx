@@ -4,6 +4,7 @@ import { ContestPage } from '@votingworks/mark-flow-ui';
 
 import type { ContestId } from '@votingworks/types';
 import { AccessibilityMode, useIsPatDeviceConnected } from '@votingworks/ui';
+import { getSystemSettings } from '../api.js';
 import { BallotContext } from '../contexts/ballot_context.js';
 
 function getContestUrl(contestIndex: number) {
@@ -30,6 +31,10 @@ export function ContestScreen(): JSX.Element {
   } = React.useContext(BallotContext);
 
   const isPatDeviceConnected = useIsPatDeviceConnected();
+  const systemSettingsQuery = getSystemSettings.useQuery();
+  const shouldTransliterateCandidateNames = Boolean(
+    systemSettingsQuery.data?.shouldTransliterateCandidateNames
+  );
 
   // In combined ballot primaries, Back from the first contest returns to party selection so the
   // voter can change their party. `selectedPartyId` being set implies the
@@ -50,6 +55,7 @@ export function ContestScreen(): JSX.Element {
       precinctId={precinctId}
       updateVote={updateVote}
       votes={votes}
+      shouldTransliterateCandidateNames={shouldTransliterateCandidateNames}
       accessibilityMode={
         // @coverage-defer
         // Simultaneous PAT and controller usage is not supported

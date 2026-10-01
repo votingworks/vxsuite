@@ -57,6 +57,7 @@ export interface ReviewPageProps {
   VoterHelpScreen?: VoterHelpScreenType;
   selectedPartyId?: PartyId;
   partySelectionScreenUrl?: string;
+  shouldTransliterateCandidateNames?: boolean;
 }
 
 export function ReviewPage(props: ReviewPageProps): JSX.Element {
@@ -72,6 +73,7 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     VoterHelpScreen,
     selectedPartyId,
     partySelectionScreenUrl,
+    shouldTransliterateCandidateNames,
   } = props;
 
   assert(
@@ -179,6 +181,7 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
           votes={votes}
           returnToContest={returnToContest}
           ballotStyle={ballotStyle}
+          shouldTransliterateCandidateNames={shouldTransliterateCandidateNames}
         />
       </WithScrollButtons>
     </VoterScreen>

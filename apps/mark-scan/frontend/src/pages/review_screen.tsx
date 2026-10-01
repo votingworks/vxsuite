@@ -4,6 +4,7 @@ import { ReviewPage } from '@votingworks/mark-flow-ui';
 import { useHistory, useLocation } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
 
+import { getSystemSettings } from '../api.js';
 import { BallotContext } from '../contexts/ballot_context.js';
 import { useVoterHelpScreen } from './use_voter_help_screen.js';
 
@@ -18,6 +19,10 @@ export function ReviewScreen(): JSX.Element {
     selectedPartyId,
     votes,
   } = useContext(BallotContext);
+  const systemSettingsQuery = getSystemSettings.useQuery();
+  const shouldTransliterateCandidateNames = Boolean(
+    systemSettingsQuery.data?.shouldTransliterateCandidateNames
+  );
   const VoterHelpScreen = useVoterHelpScreen('PrePrintReviewScreen');
 
   const searchParams = new URLSearchParams(location.search);
@@ -47,6 +52,7 @@ export function ReviewScreen(): JSX.Element {
       }}
       votes={votes}
       selectedPartyId={selectedPartyId}
+      shouldTransliterateCandidateNames={shouldTransliterateCandidateNames}
       partySelectionScreenUrl={partySelectionScreenUrl}
       VoterHelpScreen={VoterHelpScreen}
     />

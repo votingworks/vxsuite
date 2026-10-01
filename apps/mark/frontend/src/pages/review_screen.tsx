@@ -4,6 +4,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { ReviewPage } from '@votingworks/mark-flow-ui';
 import { assertDefined } from '@votingworks/basics';
 
+import { getSystemSettings } from '../api.js';
 import { BallotContext } from '../contexts/ballot_context.js';
 
 export function ReviewScreen(): JSX.Element {
@@ -17,6 +18,10 @@ export function ReviewScreen(): JSX.Element {
     selectedPartyId,
     votes,
   } = useContext(BallotContext);
+  const systemSettingsQuery = getSystemSettings.useQuery();
+  const shouldTransliterateCandidateNames = Boolean(
+    systemSettingsQuery.data?.shouldTransliterateCandidateNames
+  );
 
   const searchParams = new URLSearchParams(location.search);
   const fromContest = searchParams.get('fromContest');
@@ -44,6 +49,7 @@ export function ReviewScreen(): JSX.Element {
       }}
       votes={votes}
       selectedPartyId={selectedPartyId}
+      shouldTransliterateCandidateNames={shouldTransliterateCandidateNames}
       partySelectionScreenUrl={partySelectionScreenUrl}
     />
   );
