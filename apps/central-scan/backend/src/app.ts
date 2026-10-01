@@ -72,6 +72,7 @@ function buildApi({
   const { store } = workspace;
 
   async function clearAllBallotData(): Promise<void> {
+    assert(machine.status().state === 'idle');
     await logger.logAsCurrentRole(LogEventId.ClearingBallotData, {
       message: `Removing all ballot data...`,
     });

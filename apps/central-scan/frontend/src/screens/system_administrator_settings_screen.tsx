@@ -1,4 +1,5 @@
 import {
+  Caption,
   H2,
   P,
   Icons,
@@ -14,7 +15,13 @@ import { NavigationScreen } from '../navigation_screen.js';
 import { AppContext } from '../contexts/app_context.js';
 import { logOut, unconfigure, useApiClient } from '../api.js';
 
-export function SystemAdministratorSettingsScreen(): JSX.Element {
+export interface SystemAdministratorSettingsScreenProps {
+  isBatchOpen: boolean;
+}
+
+export function SystemAdministratorSettingsScreen({
+  isBatchOpen,
+}: SystemAdministratorSettingsScreenProps): JSX.Element {
   const { electionDefinition, usbDriveStatus } = useContext(AppContext);
   const apiClient = useApiClient();
   const unconfigureMutation = unconfigure.useMutation();
@@ -27,18 +34,26 @@ export function SystemAdministratorSettingsScreen(): JSX.Element {
         <Icons.Info /> To adjust settings for the current election, please
         insert an election manager card.
       </P>
-      <UnconfigureMachineButton
-        unconfigureMachine={async () => {
-          try {
-            await unconfigureMutation.mutateAsync({
-              ignoreBackupRequirement: true,
-            });
-          } catch {
-            // Handled by default query client error handling
-          }
-        }}
-        disabled={!electionDefinition}
-      />
+      <P>
+        <UnconfigureMachineButton
+          unconfigureMachine={async () => {
+            try {
+              await unconfigureMutation.mutateAsync({
+                ignoreBackupRequirement: true,
+              });
+            } catch {
+              // Handled by default query client error handling
+            }
+          }}
+          disabled={isBatchOpen || !electionDefinition}
+        />
+      </P>
+      {isBatchOpen && (
+        <Caption>
+          <Icons.Warning color="warning" /> You cannot unconfigure this machine
+          while a batch is in progress.
+        </Caption>
+      )}
       <H2>Logs</H2>
       <ExportLogsButton usbDriveStatus={usbDriveStatus} />
       <H2>Date and Time</H2>

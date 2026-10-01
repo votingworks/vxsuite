@@ -34,23 +34,55 @@ function renderScreen(
     <SettingsScreen
       canUnconfigure={false}
       hasScannedBatches={false}
+      isBatchOpen={false}
       {...props}
     />,
     { apiMock, history }
   );
 }
 
-test('Unconfigure Machine button is disabled when canUnconfigure is falsy', () => {
+test('disables election settings when canUnconfigure is falsy', async () => {
   renderScreen({
     canUnconfigure: false,
   });
 
   expect(screen.getButton('Unconfigure Machine')).toBeDisabled();
+  expect(
+    await screen.findByRole('option', { name: 'Test Ballot Mode' })
+  ).toBeDisabled();
+  screen.getByText('You must save CVRs before changing election settings.');
+});
+
+test('disables election settings while a batch is open', async () => {
+  renderScreen({ canUnconfigure: true, isBatchOpen: true });
+
+  expect(screen.getButton('Unconfigure Machine')).toBeDisabled();
+  expect(
+    await screen.findByRole('option', { name: 'Test Ballot Mode' })
+  ).toBeDisabled();
+  screen.getByText(
+    'You cannot change election settings while a batch is in progress.'
+  );
+});
+
+test('shows only the open-batch warning when CVRs are also unsaved', () => {
+  renderScreen({ canUnconfigure: false, isBatchOpen: true });
+
+  screen.getByText(
+    'You cannot change election settings while a batch is in progress.'
+  );
+  expect(
+    screen.queryByText('You must save CVRs before changing election settings.')
+  ).not.toBeInTheDocument();
 });
 
 test('clicking "Unconfigure Machine" calls backend', async () => {
   const history = createMemoryHistory({ initialEntries: ['/admin'] });
   renderScreen({ canUnconfigure: true }, history);
+  expect(
+    await screen.findByRole('option', { name: 'Test Ballot Mode' })
+  ).toBeEnabled();
+  expect(screen.queryByText(/election settings/)).not.toBeInTheDocument();
 
   // initial button
   userEvent.click(screen.getButton('Unconfigure Machine'));
@@ -113,7 +145,11 @@ test('clicking "Update Date and Time" shows modal to set clock', async () => {
 test('shows a polling place picker when the election has polling places', async () => {
   apiMock.expectSetPollingPlaceId({ id: 'central-scanning' });
   renderInAppContext(
-    <SettingsScreen canUnconfigure={false} hasScannedBatches={false} />,
+    <SettingsScreen
+      canUnconfigure={false}
+      hasScannedBatches={false}
+      isBatchOpen={false}
+    />,
     { apiMock, electionDefinition: electionWithPollingPlaces }
   );
 
@@ -125,13 +161,17 @@ test('shows a polling place picker when the election has polling places', async 
 
 test('disables the polling place picker after scanning has begun', async () => {
   renderInAppContext(
-    <SettingsScreen canUnconfigure={false} hasScannedBatches />,
+    <SettingsScreen
+      canUnconfigure={false}
+      hasScannedBatches
+      isBatchOpen={false}
+    />,
     { apiMock, electionDefinition: electionWithPollingPlaces }
   );
 
   await screen.findByRole('heading', { name: 'Polling Place' });
   expect(screen.getByLabelText('Select a polling place…')).toBeDisabled();
   screen.getByText(
-    'The polling place cannot be changed after scanning has begun.'
+    'You cannot change the polling place once ballots have been scanned.'
   );
 });

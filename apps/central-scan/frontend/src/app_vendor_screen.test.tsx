@@ -9,6 +9,7 @@ import {
 } from '../test/react_testing_library.js';
 import { App } from './app.js';
 import { type ApiMock, createApiMock } from '../test/api.js';
+import { mockStatus } from '../test/fixtures.js';
 
 const electionDefinition = readElectionGeneralDefinition();
 
@@ -62,6 +63,24 @@ test('vendor screen', async () => {
   const rebootButton = await screen.findButton('Reboot to Vendor Menu');
   apiMock.expectRebootToVendorMenu();
   userEvent.click(rebootButton);
+});
+
+test('vendor screen unconfigure is disabled while a batch is open', async () => {
+  apiMock.expectGetTestMode(true);
+  apiMock.expectGetElectionRecord(electionDefinition);
+  render(<App apiClient={apiMock.apiClient} />);
+
+  await apiMock.authenticateAsVendor();
+  const unconfigureButton = await screen.findButton('Unconfigure Machine');
+  expect(unconfigureButton).toBeEnabled();
+
+  apiMock.setStatus(
+    mockStatus(
+      {},
+      { state: 'paused', batchId: 'a', pauseReason: { type: 'tray-empty' } }
+    )
+  );
+  await waitFor(() => expect(unconfigureButton).toBeDisabled());
 });
 
 test('vendor screen unconfigure', async () => {
