@@ -31,7 +31,7 @@ import {
   convertLatestElectionToV4p0,
   ElectionV4p0Schema,
   type SoftwareVersion,
-  safeParseElectionDefinitionForAnySoftwareVersion,
+  safeParseElectionAnyVersion,
   safeParse,
   LATEST_SOFTWARE_VERSION,
   type SystemSettings,
@@ -594,9 +594,10 @@ function electionWithBallotPositions(
 
   const withPositions: Election = { ...baseElection, ballotStyles };
   const electionData = serializeElection(withPositions, opts);
-  const parsed = safeParseElectionDefinitionForAnySoftwareVersion(electionData);
+  const ballotHash = createHash('sha256').update(electionData).digest('hex');
+  const election = safeParseElectionAnyVersion(electionData).unsafeUnwrap();
 
-  return parsed.unsafeUnwrap();
+  return { ballotHash, election, electionData };
 }
 
 // @coverage-defer

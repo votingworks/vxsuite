@@ -63,7 +63,7 @@ import {
   type PrecinctWithSplits,
   type ElectionRegisteredVoterCounts,
   ElectionPackageFileName,
-  safeParseElectionDefinitionV4p0,
+  safeParseElectionV4p0,
   LATEST_SOFTWARE_VERSION,
   convertLatestElectionToV4p0,
   straightPartyNotYetImplemented,
@@ -4981,7 +4981,7 @@ test('v4.0 elections', async () => {
     ElectionPackageFileName.ELECTION
   );
   const electionData = await readTextEntry(electionEntry);
-  safeParseElectionDefinitionV4p0(electionData).unsafeUnwrap();
+  safeParseElectionV4p0(electionData).unsafeUnwrap();
 
   // The official ballots in the election package must be rendered with v4.0 QR
   // metadata so deployed v4.0 scanners can read them.

@@ -37,7 +37,7 @@ import {
   type PollingPlaceType,
   hasPartialRegisteredVoterCounts,
   getPrecinctsWithoutAbsenteePollingPlace,
-  safeParseElectionDefinitionForAnySoftwareVersion,
+  safeParseElectionAnyVersion,
   isCombinedBallotPrimary,
 } from '@votingworks/types';
 import express, { type Application } from 'express';
@@ -363,10 +363,9 @@ export function buildApi(ctx: AppContext) {
         } => {
           switch (input.upload.format) {
             case 'vxf': {
-              const { election: sourceElection } =
-                safeParseElectionDefinitionForAnySoftwareVersion(
-                  input.upload.electionFileContents
-                ).unsafeUnwrap();
+              const sourceElection = safeParseElectionAnyVersion(
+                input.upload.electionFileContents
+              ).unsafeUnwrap();
 
               const { districts, precincts, parties, contests, pollingPlaces } =
                 regenerateElectionIds(sourceElection, stateFeatures);

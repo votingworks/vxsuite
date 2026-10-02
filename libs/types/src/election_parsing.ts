@@ -77,6 +77,7 @@ export function safeParseElection(
   return ok(result.ok().vxfElection);
 }
 
+// @coverage-defer
 export function hashElectionData(data: string): string {
   return sha256(data);
 }
