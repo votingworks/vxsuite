@@ -11,15 +11,36 @@ import {
   LockMachineButton,
   ToolbarButtons,
   Toolbar as ToolbarContainer,
+  getBlockingPrinterStateReason,
 } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 
-import type { PrinterStatus as PrinterStatusType } from '@votingworks/types';
+import type {
+  IppPrinterStateReason,
+  PrinterStatus as PrinterStatusType,
+} from '@votingworks/types';
 import { ejectUsbDrive, getDeviceStatuses, logOut } from '../api.js';
 
 // The printer is set to default to 2%, but we warn at 5%
 // to be extra careful about low toner making ballots unscannable
 const LOW_TONER_LEVEL = 5;
+
+export const BLOCKING_PRINTER_STATE_REASON_LABELS: Readonly<
+  Record<IppPrinterStateReason, string>
+> = {
+  'cover-open': 'Cover Open',
+  'door-open': 'Door Open',
+  'input-tray-missing': 'Input Tray Missing',
+  'interlock-open': 'Door Open',
+  'marker-supply-empty': 'No Toner',
+  // `media-empty` status is reported when there is no paper and when paper tray is open
+  'media-empty': 'No Paper',
+  'media-jam': 'Paper Jam',
+  'media-needed': 'No Paper',
+  'output-area-full': 'Output Bin Full',
+  'spool-area-full': 'Output Bin Full',
+  'toner-empty': 'No Toner',
+};
 
 const Row = styled.div`
   display: flex;
@@ -71,50 +92,25 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
     return <PrinterConnectionStatus connected={connected} />;
   }
 
+  const blockingReason = getBlockingPrinterStateReason(status);
+  if (blockingReason) {
+    return (
+      <BasePrinterStatus
+        icon={<Icons.Warning color="inverseWarning" />}
+        labelText={
+          BLOCKING_PRINTER_STATE_REASON_LABELS[blockingReason] ??
+          // @coverage-exclude: every blocking reason has a label
+          'See Printer Display'
+        }
+      />
+    );
+  }
+
   // @coverage-defer
   const { richStatus } = status;
 
   // @coverage-defer
   if (richStatus.state === 'stopped') {
-    if (
-      richStatus.stateReasons.find((reason) => reason === 'media-empty-error')
-    ) {
-      // No paper and paper tray open both return the same error, so we can't
-      // differentiate the error message
-      return (
-        <BasePrinterStatus
-          icon={<Icons.Warning color="inverseWarning" />}
-          labelText="No Paper"
-        />
-      );
-    }
-
-    if (
-      richStatus.stateReasons.find((reason) => reason === 'media-jam-error')
-    ) {
-      return (
-        <BasePrinterStatus
-          icon={<Icons.Warning color="inverseWarning" />}
-          labelText="Paper Jam"
-        />
-      );
-    }
-
-    // Printer output bin is obstructed
-    if (
-      richStatus.stateReasons.find(
-        (reason) =>
-          reason === 'spool-area-full' || reason === 'spool-area-full-report'
-      )
-    ) {
-      return (
-        <BasePrinterStatus
-          icon={<Icons.Warning color="inverseWarning" />}
-          labelText="Output Bin Full"
-        />
-      );
-    }
-
     // Encountered when a jam on the 1st of 2 pages resulted in a subtle jam entirely
     // inside the printer. The printer screen readout was helpful in this case, but
     // due to the vagueness of 'other-error' our user-facing error should be vague as well
