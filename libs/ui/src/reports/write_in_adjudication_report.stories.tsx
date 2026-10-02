@@ -3,19 +3,17 @@ import type { Meta, StoryObj } from '@storybook/react-vite' with {
 };
 import electionTwoPartyPrimaryData from '@fixtures/electionTwoPartyPrimary/election.json?raw';
 import electionFamousNamesData from '@fixtures/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json?raw';
-import { safeParseElectionDefinition } from '@votingworks/types';
+import { safeParseElection, type ElectionDefinition } from '@votingworks/types';
 import {
   WriteInAdjudicationReport,
   type WriteInAdjudicationReportProps,
 } from './write_in_adjudication_report.js';
 import { PrintedReportPreview } from './layout.js';
 
-const electionTwoPartyPrimaryDefinition = safeParseElectionDefinition(
+const electionTwoPartyPrimaryDefinition = mockElectionDef(
   electionTwoPartyPrimaryData
-).unsafeUnwrap();
-const electionFamousNamesDefinition = safeParseElectionDefinition(
-  electionFamousNamesData
-).unsafeUnwrap();
+);
+const electionFamousNamesDefinition = mockElectionDef(electionFamousNamesData);
 
 function WriteInTallyReportPreview(
   props: WriteInAdjudicationReportProps
@@ -250,3 +248,11 @@ export const EmptyPrimaryReport: Story = {
 };
 
 export default meta;
+
+function mockElectionDef(electionData: string): ElectionDefinition {
+  return {
+    ballotHash: 'cafef00d',
+    election: safeParseElection(electionData).unsafeUnwrap(),
+    electionData: 'irrelevant',
+  };
+}

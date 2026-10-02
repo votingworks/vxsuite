@@ -21,7 +21,6 @@ import {
   HmpbBallotPaperSize,
   LanguageCode,
   LATEST_METADATA,
-  safeParseElectionDefinition,
   testCdfBallotDefinition,
   DEFAULT_SYSTEM_SETTINGS,
   anyPollingPlace,
@@ -40,7 +39,7 @@ import {
   getFeatureFlagMock,
   getMockMultiLanguageElectionDefinition,
 } from '@votingworks/utils';
-import { zipFile } from '@votingworks/test-utils';
+import { parseElectionDefinition, zipFile } from '@votingworks/test-utils';
 import {
   concatenatePdfs,
   HP_4001_PRINTER_CONFIG,
@@ -523,9 +522,9 @@ test('cannot switch to test mode when the election package has no test ballots',
 
 test('unconfigureMachine clears election configuration', async () => {
   // Test with a cdf election for coverage
-  const electionDefinition = safeParseElectionDefinition(
+  const electionDefinition = parseElectionDefinition(
     JSON.stringify(testCdfBallotDefinition)
-  ).unsafeUnwrap();
+  );
   const ballots = await buildBallotsForElection({
     electionDefinition,
     ballotModes: ['official', 'test'],
@@ -1340,9 +1339,9 @@ async function buildTestBallotsForElection(
 }
 
 async function makeMsElectionDefinition(): Promise<ElectionDefinition> {
-  return safeParseElectionDefinition(
+  return parseElectionDefinition(
     await readFile(msGeneralElectionFixtures.electionPath, 'utf-8')
-  ).unsafeUnwrap();
+  );
 }
 
 test('getTestDeckBallotCount returns 0 when election has no gridLayouts', async () => {
@@ -1582,9 +1581,7 @@ test.each([
       await readFile(msGeneralElectionFixtures.electionPath, 'utf-8')
     );
     electionJson.ballotLayout.paperSize = paperSize;
-    const electionDef = safeParseElectionDefinition(
-      JSON.stringify(electionJson)
-    ).unsafeUnwrap();
+    const electionDef = parseElectionDefinition(JSON.stringify(electionJson));
 
     const ballots = await buildTestBallotsForElection(electionDef);
     await configureMachine({

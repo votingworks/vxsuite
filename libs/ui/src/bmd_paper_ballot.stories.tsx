@@ -9,7 +9,6 @@ import {
   type YesNoContest,
   getContests,
   safeParseElection,
-  safeParseElectionDefinition,
   straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import { generateBallotStyleId } from '@votingworks/utils';
@@ -166,9 +165,11 @@ const TEST_UI_STRINGS: UiStringsPackage = {
 const initialArgs: BmdPaperBallotProps = {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   ballotStyleId: election.ballotStyles[0]!.id,
-  electionDefinition: safeParseElectionDefinition(
-    JSON.stringify(election)
-  ).unsafeUnwrap(),
+  electionDefinition: {
+    ballotHash: 'cafef00d',
+    election,
+    electionData: 'irrelevant',
+  },
   isLiveMode: true,
   machineType: 'markScan',
   onRendered: () => undefined,

@@ -9,20 +9,22 @@ import { LogEventId } from '@votingworks/logging';
 import { Buffer } from 'node:buffer';
 import { readdirSync } from 'node:fs';
 import {
-  convertVxfElectionToCdfBallotDefinition,
   DEFAULT_SYSTEM_SETTINGS,
   DEV_MACHINE_ID,
   ElectionPackageFileName,
   LATEST_METADATA,
   type ElectionRegisteredVoterCounts,
   type PrinterStatus,
-  safeParseElectionDefinition,
   testElectionReport,
   testElectionReportUnsupportedContestType,
   Admin,
   type Tabulation,
 } from '@votingworks/types';
-import { suppressingConsoleOutput, zipFile } from '@votingworks/test-utils';
+import {
+  createElectionDefinitionCdf,
+  suppressingConsoleOutput,
+  zipFile,
+} from '@votingworks/test-utils';
 import {
   HP_4001_PRINTER_CONFIG,
   getMockConnectedPrinterStatus,
@@ -404,9 +406,8 @@ test('configuring with a CDF election', async () => {
 
   mockSystemAdministratorAuth(auth);
 
-  const { electionData, ballotHash } = safeParseElectionDefinition(
-    JSON.stringify(convertVxfElectionToCdfBallotDefinition(electionGeneral))
-  ).unsafeUnwrap();
+  const { electionData, ballotHash } =
+    createElectionDefinitionCdf(electionGeneral);
   const electionPackage = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionData,
     [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),

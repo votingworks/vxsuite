@@ -29,13 +29,13 @@ import {
   CVR,
   DEFAULT_SYSTEM_SETTINGS,
   type Rect,
-  safeParseElectionDefinition,
   type SystemSettings,
   Tabulation,
 } from '@votingworks/types';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
 import { LogEventId } from '@votingworks/logging';
 import { readdirSync } from 'node:fs';
+import { createElectionDefinition } from '@votingworks/test-utils';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -121,8 +121,8 @@ test('getAdjudicationQueue returns a properly ordered queue', async () => {
 
   // add a second ballot style to the election so we can test ballot style group ordering
   const baseElection = baseElectionDefinition.election;
-  const modifiedElectionData = JSON.stringify({
-    ...JSON.parse(baseElectionDefinition.electionData),
+  const electionDefinition = createElectionDefinition({
+    ...baseElection,
     ballotStyles: [
       ...baseElection.ballotStyles,
       {
@@ -134,8 +134,6 @@ test('getAdjudicationQueue returns a properly ordered queue', async () => {
       },
     ],
   });
-  const electionDefinition =
-    safeParseElectionDefinition(modifiedElectionData).unsafeUnwrap();
 
   const systemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
