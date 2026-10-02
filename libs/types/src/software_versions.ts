@@ -1,6 +1,5 @@
 import { z } from 'zod/v4';
 import { assert, assertDefined, ok, type Result } from '@votingworks/basics';
-import { sha256 } from './sha256.js';
 import {
   type BallotStyle,
   type BallotStyleId,
@@ -43,7 +42,7 @@ import {
   RectSchema,
 } from './geometry.js';
 import { pollingPlacesGenerateFromPrecincts } from './polling_places.js';
-import { safeParseElectionDefinition } from './election_parsing.js';
+import { hashElectionData, safeParseElection } from './election_parsing.js';
 import { type Id, IdSchema, safeParse, safeParseJson } from './generic.js';
 import {
   ElectionStringKey,
@@ -443,15 +442,22 @@ export function safeParseElectionDefinitionV4p0(
   return ok({
     election: election.ok(),
     electionData: value,
-    ballotHash: sha256(value),
+    ballotHash: hashElectionData(value),
   });
 }
 
+// [TODO] Return an `Election` and move hashing into the caller, when needed.
 export function safeParseElectionDefinitionForAnySoftwareVersion(
   value: string
 ): Result<ElectionDefinition, z.ZodError | SyntaxError> {
-  const latestResult = safeParseElectionDefinition(value);
-  if (latestResult.isOk()) return latestResult;
+  const latestResult = safeParseElection(value);
+  if (latestResult.isOk())
+    return ok({
+      ballotHash: hashElectionData(value),
+      election: latestResult.ok(),
+      electionData: value,
+    });
+
   const v4p0Result = safeParseElectionDefinitionV4p0(value);
   if (v4p0Result.isOk()) {
     return ok({
@@ -459,5 +465,6 @@ export function safeParseElectionDefinitionForAnySoftwareVersion(
       election: convertV4p0ElectionToLatest(v4p0Result.ok().election),
     });
   }
+
   return latestResult;
 }

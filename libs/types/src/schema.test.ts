@@ -400,16 +400,8 @@ test('validates uniqueness of candidate ids within a contest', () => {
   ).toMatchSnapshot();
 });
 
-test('safeParseVxfElectionDefinition computes the ballot hash', () => {
-  expect(
-    t.safeParseElectionDefinition(electionData).unsafeUnwrap().ballotHash
-  ).toMatchInlineSnapshot(
-    `"1d28c4614a8a80e7ae10fc2658268bc52710bd91a988947733231684c1ba2df8"`
-  );
-});
-
-test('safeParseVxfElectionDefinition error result', () => {
-  expect(t.safeParseElectionDefinition('').err()).toBeDefined();
+test('safeParseElection error result', () => {
+  expect(t.safeParseElection('').err()).toBeDefined();
 });
 
 test('specifying write-in candidates', () => {

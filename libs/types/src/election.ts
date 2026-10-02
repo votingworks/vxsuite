@@ -5,7 +5,6 @@ import {
   deepEqual,
 } from '@votingworks/basics';
 import { z } from 'zod/v4';
-import { sha256 } from './sha256.js';
 import {
   Sha256Hash,
   type Id,
@@ -1081,6 +1080,7 @@ export const ElectionSchema = z
 export type OptionalElection = Optional<Election>;
 export const OptionalElectionSchema: z.ZodSchema<OptionalElection> =
   ElectionSchema.optional();
+
 export interface ElectionDefinition {
   election: Election;
   electionData: string;
@@ -1096,28 +1096,6 @@ export interface ElectionDefinition {
    */
   ballotHash: string;
 }
-export const ElectionDefinitionSchema: z.ZodSchema<ElectionDefinition> = z
-  .object({
-    election: ElectionSchema,
-    electionData: z.string().nonempty(),
-    ballotHash: Sha256Hash,
-  })
-  .check((ctx) => {
-    const electionDefinition = ctx.value;
-    const { electionData, ballotHash } = electionDefinition;
-    const electionDataHash = sha256(electionData);
-    if (electionDataHash !== ballotHash) {
-      ctx.issues.push({
-        code: 'custom',
-        path: ['ballotHash'],
-        message: `Election data hash '${electionDataHash}' does not match ballot hash '${ballotHash}'.`,
-        input: electionDefinition,
-      });
-    }
-  });
-export type OptionalElectionDefinition = Optional<ElectionDefinition>;
-export const OptionalElectionDefinitionSchema: z.ZodSchema<OptionalElectionDefinition> =
-  ElectionDefinitionSchema.optional();
 
 export const ELECTION_SERIALIZATION_FORMATS = ['vxf', 'cdf'] as const;
 export type ElectionSerializationFormat =
