@@ -12,7 +12,8 @@ import type { DippedSmartCardAuthApi } from '@votingworks/auth';
 import {
   Admin,
   formatElectionHashes,
-  safeParseElectionDefinition,
+  hashElectionData,
+  safeParseElection,
   type UserRole,
 } from '@votingworks/types';
 import { type BaseLogger, LogEventId } from '@votingworks/logging';
@@ -399,20 +400,28 @@ export function startClientNetworking({
                 apiClient.getCurrentElectionMetadata(),
                 apiClient.getSystemSettings(),
               ]);
+
               if (electionRecord) {
-                const parsed = safeParseElectionDefinition(
-                  electionRecord.electionDefinition.electionData
-                ).unsafeUnwrap();
+                const { electionData } = electionRecord.electionDefinition;
+                const election = safeParseElection(electionData).unsafeUnwrap();
+
+                // [TODO] This computed hash will be incorrect for split-file
+                // elections.
+                // - Fetch a minimal election ZIP from the host instead and
+                //   compute the hash from that?
+                // - Use the hash received in the response?
+                const ballotHash = hashElectionData(electionData);
+
                 assert(systemSettings !== undefined);
                 logger.log(LogEventId.AdminNetworkStatus, 'system', {
                   message: `Election package hash changed, syncing new election data from host. Election ID: ${formatElectionHashes(
-                    parsed.ballotHash,
+                    ballotHash,
                     remoteHash
                   )}.`,
                 });
                 clientStore.setCachedElectionRecord({
                   ...electionRecord,
-                  electionDefinition: parsed,
+                  electionDefinition: { ballotHash, election, electionData },
                 });
                 clientStore.setCachedSystemSettings(systemSettings);
               }

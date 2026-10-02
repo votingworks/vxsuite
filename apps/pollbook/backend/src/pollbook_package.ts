@@ -3,7 +3,9 @@ import { readFile, type ReadFileError } from '@votingworks/fs';
 import { createHash } from 'node:crypto';
 import {
   type Election,
-  safeParseElectionDefinition,
+  type ElectionDefinition,
+  hashElectionData,
+  safeParseElection,
   safeParseInt,
   type StreetSide,
   type ValidStreetInfo,
@@ -252,7 +254,7 @@ export async function readPollbookPackage(
       zipName
     );
     const electionJsonString = await readTextEntry(electionEntry);
-    const electionResult = safeParseElectionDefinition(electionJsonString);
+    const electionResult = safeParseElection(electionJsonString);
     // @coverage-defer
     if (electionResult.isErr()) {
       debug('Error parsing election definition: %O', electionResult.err());
@@ -263,7 +265,13 @@ export async function readPollbookPackage(
         ),
       });
     }
-    const electionDefinition = electionResult.ok();
+
+    const election = electionResult.ok();
+    const electionDefinition: ElectionDefinition = {
+      ballotHash: hashElectionData(electionJsonString),
+      election,
+      electionData: electionJsonString,
+    };
 
     const votersEntry = getFilePrefixedByName(
       entries,
@@ -272,10 +280,7 @@ export async function readPollbookPackage(
       zipName
     );
     const votersCsvString = await readTextEntry(votersEntry);
-    const voters = parseVotersFromCsvString(
-      votersCsvString,
-      electionDefinition.election
-    );
+    const voters = parseVotersFromCsvString(votersCsvString, election);
 
     const streetsEntry = getFilePrefixedByName(
       entries,
@@ -286,7 +291,7 @@ export async function readPollbookPackage(
     const streetCsvString = await readTextEntry(streetsEntry);
     const validStreets = parseValidStreetsFromCsvString(
       streetCsvString,
-      electionDefinition.election
+      election
     );
 
     return ok({ electionDefinition, voters, validStreets, packageHash });
