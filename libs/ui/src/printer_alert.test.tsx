@@ -37,7 +37,7 @@ function queryAlert() {
   return screen.queryByRole('heading', { name: 'Printer Alert' });
 }
 
-test('shows nothing without a stopped printer', () => {
+test('shows nothing without a blocking reason or a stopped printer', () => {
   const { rerender } = render(<PrinterAlert />);
   expect(queryAlert()).toBeNull();
 
@@ -53,10 +53,29 @@ test('shows nothing without a stopped printer', () => {
 
   rerender(
     <PrinterAlert
-      printerStatus={printerStatus(['media-empty-error'], 'idle')}
+      printerStatus={printerStatus(['toner-low-warning'], 'idle')}
     />
   );
   expect(queryAlert()).toBeNull();
+});
+
+test('shows a blocking reason even when the printer is not stopped', () => {
+  render(
+    <PrinterAlert
+      printerStatus={printerStatus(['media-empty-report'], 'idle')}
+    />
+  );
+  screen.getByRole('heading', { name: 'Printer Alert' });
+  screen.getByText(NO_PAPER_MESSAGE);
+});
+
+test('prefers the blocking reason over a higher-priority stopped reason', () => {
+  render(
+    <PrinterAlert
+      printerStatus={printerStatus(['paused-error', 'cover-open-report'])}
+    />
+  );
+  screen.getByText(COVER_OPEN_MESSAGE);
 });
 
 test('ignores a stopped printer with no specific reason', () => {
@@ -97,6 +116,25 @@ test('shows again when the reason changes after dismissal', () => {
     <PrinterAlert printerStatus={printerStatus(['cover-open-error'])} />
   );
   screen.getByText(COVER_OPEN_MESSAGE);
+});
+
+test('shows a non-blocking reason when the printer is stopped', () => {
+  render(<PrinterAlert printerStatus={printerStatus(['paused-error'])} />);
+  screen.getByText('The printer is paused. Restart the printer.');
+});
+
+test('stays dismissed when a blocking reason escalates from report to error', () => {
+  const { rerender } = render(
+    <PrinterAlert
+      printerStatus={printerStatus(['media-empty-report'], 'idle')}
+    />
+  );
+  userEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+
+  rerender(
+    <PrinterAlert printerStatus={printerStatus(['media-empty-error'])} />
+  );
+  expect(queryAlert()).toBeNull();
 });
 
 test('shows the same reason again after the printer recovers', () => {

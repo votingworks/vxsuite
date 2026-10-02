@@ -99,7 +99,7 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
         icon={<Icons.Warning color="inverseWarning" />}
         labelText={
           BLOCKING_PRINTER_STATE_REASON_LABELS[blockingReason] ??
-          // @coverage-exclude: every blocking reason has a label
+          // @coverage-exclude: every blocking reason has a label enforced by toolbar.test.ts
           'See Printer Display'
         }
       />
