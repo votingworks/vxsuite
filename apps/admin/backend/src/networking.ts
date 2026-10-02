@@ -9,12 +9,7 @@ import {
 } from '@votingworks/networking';
 import { assert, deepEqual } from '@votingworks/basics';
 import type { DippedSmartCardAuthApi } from '@votingworks/auth';
-import {
-  Admin,
-  formatElectionHashes,
-  safeParseElectionDefinition,
-  type UserRole,
-} from '@votingworks/types';
+import { Admin, formatElectionHashes, type UserRole } from '@votingworks/types';
 import { type BaseLogger, LogEventId } from '@votingworks/logging';
 import type { PeerApi } from './peer_app.js';
 import type { Store } from './store.js';
@@ -399,21 +394,16 @@ export function startClientNetworking({
                 apiClient.getCurrentElectionMetadata(),
                 apiClient.getSystemSettings(),
               ]);
+
               if (electionRecord) {
-                const parsed = safeParseElectionDefinition(
-                  electionRecord.electionDefinition.electionData
-                ).unsafeUnwrap();
                 assert(systemSettings !== undefined);
                 logger.log(LogEventId.AdminNetworkStatus, 'system', {
                   message: `Election package hash changed, syncing new election data from host. Election ID: ${formatElectionHashes(
-                    parsed.ballotHash,
+                    electionRecord.electionDefinition.ballotHash,
                     remoteHash
                   )}.`,
                 });
-                clientStore.setCachedElectionRecord({
-                  ...electionRecord,
-                  electionDefinition: parsed,
-                });
+                clientStore.setCachedElectionRecord(electionRecord);
                 clientStore.setCachedSystemSettings(systemSettings);
               }
             } else {

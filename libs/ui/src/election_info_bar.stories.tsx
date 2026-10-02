@@ -1,7 +1,7 @@
 import type { Meta } from '@storybook/react-vite' with {
   'resolution-mode': 'import',
 };
-import { safeParseElectionDefinition } from '@votingworks/types';
+import { safeParseElection } from '@votingworks/types';
 import electionTwoPartyPrimaryData from '@fixtures/electionTwoPartyPrimary/election.json?raw';
 import { assertDefined } from '@votingworks/basics';
 import {
@@ -9,16 +9,16 @@ import {
   type ElectionInfoBarProps,
 } from './election_info_bar.js';
 
-const electionTwoPartyPrimaryDefinition = safeParseElectionDefinition(
-  electionTwoPartyPrimaryData
-).unsafeUnwrap();
-
-const { election } = electionTwoPartyPrimaryDefinition;
+const election = safeParseElection(electionTwoPartyPrimaryData).unsafeUnwrap();
 const pollingPlaces = assertDefined(election.pollingPlaces);
 
 const initialArgs: ElectionInfoBarProps = {
   codeVersion: '00986543',
-  electionDefinition: electionTwoPartyPrimaryDefinition,
+  electionDefinition: {
+    ballotHash: 'cafef00d',
+    election,
+    electionData: '',
+  },
   electionPackageHash: '11111111111111111111',
   machineId: '00123456',
   mode: 'admin',

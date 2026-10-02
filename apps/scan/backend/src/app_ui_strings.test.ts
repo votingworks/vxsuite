@@ -12,6 +12,7 @@ import { createMockUsbDrive } from '@votingworks/usb-drive';
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
+  parseElectionDefinition,
 } from '@votingworks/test-utils';
 import {
   BooleanEnvironmentVariableName,
@@ -19,7 +20,6 @@ import {
 } from '@votingworks/utils';
 import {
   constructElectionKey,
-  safeParseElectionDefinition,
   testCdfBallotDefinition,
 } from '@votingworks/types';
 import { mockBaseLogger } from '@votingworks/logging';
@@ -58,9 +58,9 @@ beforeEach(() => {
 const mockUsbDrive = createMockUsbDrive();
 const { printer } = createMockFujitsuPrinterHandler();
 const mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
-const electionDefinition = safeParseElectionDefinition(
+const electionDefinition = parseElectionDefinition(
   JSON.stringify(testCdfBallotDefinition)
-).unsafeUnwrap();
+);
 
 afterEach(() => {
   workspace.reset();

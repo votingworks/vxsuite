@@ -15,6 +15,7 @@ import { assertDefined, err, ok } from '@votingworks/basics';
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
+  createElectionDefinitionCdf,
   suppressingConsoleOutput,
   zipFile,
 } from '@votingworks/test-utils';
@@ -25,13 +26,11 @@ import {
 import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   constructElectionKey,
-  convertVxfElectionToCdfBallotDefinition,
   DEFAULT_SYSTEM_SETTINGS,
   DEV_MACHINE_ID,
   type ElectionDefinition,
   ElectionPackageFileName,
   LATEST_METADATA,
-  safeParseElectionDefinition,
 } from '@votingworks/types';
 import { configureApp } from '../test/helpers/shared_helpers.js';
 import {
@@ -387,11 +386,7 @@ test('unconfiguring machine', async () => {
 
 test('configure with CDF election', async () => {
   await withApp(async ({ apiClient, mockUsbDrive, mockAuth }) => {
-    const cdfElection =
-      convertVxfElectionToCdfBallotDefinition(electionGeneral);
-    const cdfElectionDefinition = safeParseElectionDefinition(
-      JSON.stringify(cdfElection)
-    ).unsafeUnwrap();
+    const cdfElectionDefinition = createElectionDefinitionCdf(electionGeneral);
     await configureApp(apiClient, mockAuth, mockUsbDrive, {
       electionPackage: {
         electionDefinition: cdfElectionDefinition,

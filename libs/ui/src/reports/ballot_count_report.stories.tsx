@@ -4,9 +4,9 @@ import type { Meta, StoryObj } from '@storybook/react-vite' with {
 import {
   type ContestPosition,
   type ElectionDefinition,
-  safeParseElectionDefinition,
   type SheetPositions,
   Tabulation,
+  safeParseElection,
 } from '@votingworks/types';
 import { getGroupedBallotStyles } from '@votingworks/utils';
 import { assertDefined } from '@votingworks/basics';
@@ -19,12 +19,12 @@ import {
 } from './ballot_count_report.js';
 import type { LabeledScannerBatch } from './utils.js';
 
-const electionTwoPartyPrimaryDefinition = safeParseElectionDefinition(
+const electionTwoPartyPrimaryDefinition = mockElectionDef(
   electionTwoPartyPrimaryData
-).unsafeUnwrap();
-const electionWithMsEitherNeitherDefinition = safeParseElectionDefinition(
+);
+const electionWithMsEitherNeitherDefinition = mockElectionDef(
   electionWithMsEitherNeitherData
-).unsafeUnwrap();
+);
 
 const ReportPreview = styled.div`
   section {
@@ -408,3 +408,11 @@ const multiSheetPrecinctReportArgs: BallotCountReportProps = {
 export const MultiSheetPrecinctReport: Story = {
   args: multiSheetPrecinctReportArgs,
 };
+
+function mockElectionDef(electionData: string): ElectionDefinition {
+  return {
+    ballotHash: 'cafef00d',
+    election: safeParseElection(electionData).unsafeUnwrap(),
+    electionData: 'irrelevant',
+  };
+}

@@ -19,13 +19,11 @@ import {
   type Election,
   type ElectionRegisteredVoterCounts,
   type SystemSettings,
-  convertVxfElectionToCdfBallotDefinition,
-  safeParseElectionDefinition,
 } from '@votingworks/types';
 import { assert, assertDefined, find, typedAs } from '@votingworks/basics';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
-import { zipFile } from '@votingworks/test-utils';
+import { createElectionDefinitionCdf, zipFile } from '@votingworks/test-utils';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
   generateElectionBasedSubfolderName,
@@ -213,9 +211,7 @@ test('reads election metadata without parsing the election definition', async ()
 test('reads election metadata from a CDF election definition', async () => {
   const { election: vxfElection } =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const cdfElectionDefinition = safeParseElectionDefinition(
-    JSON.stringify(convertVxfElectionToCdfBallotDefinition(vxfElection))
-  ).unsafeUnwrap();
+  const cdfElectionDefinition = createElectionDefinitionCdf(vxfElection);
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = await store.addElection({
     electionData: cdfElectionDefinition.electionData,

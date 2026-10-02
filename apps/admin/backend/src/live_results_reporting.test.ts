@@ -10,7 +10,6 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   type Election,
   type PollingPlace,
-  safeParseElectionDefinition,
   type SystemSettings,
 } from '@votingworks/types';
 import {
@@ -18,6 +17,7 @@ import {
   decodeAndReadPerPrecinctCompressedTally,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import { createElectionDefinition } from '@votingworks/test-utils';
 import { Store } from './store.js';
 import {
   generateAdminLiveResultsReportingUrls,
@@ -80,7 +80,7 @@ function makeElectionDefinitionWithPollingPlaces(
     ...baseDefinition.election,
     pollingPlaces,
   };
-  return safeParseElectionDefinition(JSON.stringify(election)).unsafeUnwrap();
+  return createElectionDefinition(election);
 }
 
 async function setupStore(

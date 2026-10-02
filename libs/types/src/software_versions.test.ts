@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { z } from 'zod/v4';
 import { assertDefined } from '@votingworks/basics';
 import type { Election, SheetPositions } from './election.js';
-import { safeParseElectionDefinition } from './election_parsing.js';
+import { safeParseElection } from './election_parsing.js';
 import {
   convertLatestElectionToV4p0,
   safeParseElectionDefinitionForAnySoftwareVersion,
@@ -216,9 +216,7 @@ test('safeParseElectionDefinitionForAnySoftwareVersion', () => {
   });
   const result =
     safeParseElectionDefinitionForAnySoftwareVersion(invalidElectionData);
-  expect(result.err()).toEqual(
-    safeParseElectionDefinition(invalidElectionData).err()
-  );
+  expect(result.err()).toEqual(safeParseElection(invalidElectionData).err());
 });
 
 test('v4.0 ballot styles may omit languages; conversion to latest defaults them to en', () => {

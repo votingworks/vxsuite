@@ -18,6 +18,7 @@ import {
   mockElectionManagerUser,
   mockPollWorkerUser,
   mockSessionExpiresAt,
+  createElectionDefinitionCdf,
   suppressingConsoleOutput,
   zipFile,
 } from '@votingworks/test-utils';
@@ -33,8 +34,6 @@ import {
   type PrinterStatus,
   type UiStringsPackage,
   constructElectionKey,
-  convertVxfElectionToCdfBallotDefinition,
-  safeParseElectionDefinition,
   DEV_MACHINE_ID,
   ElectionPackageFileName,
   type EncodedBallotEntry,
@@ -442,10 +441,7 @@ test('configureElectionPackageFromUsb returns an error if election package parsi
 });
 
 test('configure with CDF election', async () => {
-  const cdfElection = convertVxfElectionToCdfBallotDefinition(electionGeneral);
-  const cdfElectionDefinition = safeParseElectionDefinition(
-    JSON.stringify(cdfElection)
-  ).unsafeUnwrap();
+  const cdfElectionDefinition = createElectionDefinitionCdf(electionGeneral);
   mockElectionManagerAuth(cdfElectionDefinition);
 
   mockUsbDrive.insertUsbDrive(

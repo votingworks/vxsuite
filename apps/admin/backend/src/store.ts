@@ -37,7 +37,7 @@ import {
   type Precinct,
   type PrecinctId,
   safeParse,
-  safeParseElectionDefinition,
+  safeParseElection,
   safeParseJson,
   type Side,
   type SystemSettings,
@@ -375,6 +375,8 @@ export class Store implements BaseStore {
     electionPackageHash: string;
   }): Promise<Id> {
     const id = uuid();
+    // [TODO] Pass this in from callers - potentially computed from multiple
+    // files in the election package.
     const ballotHash = createHash('sha256').update(electionData).digest('hex');
 
     const electionPackageFilePath = constructElectionPackageFilePath(
@@ -424,6 +426,7 @@ export class Store implements BaseStore {
       this.client.all(`
       select
         id,
+        ballot_hash as ballotHash,
         election_data as electionData,
         datetime(created_at, 'localtime') as createdAt,
         is_official_results as isOfficialResults,
@@ -431,6 +434,7 @@ export class Store implements BaseStore {
       from elections
     `) as Array<{
         id: Id;
+        ballotHash: string;
         electionData: string;
         createdAt: string;
         isOfficialResults: SqliteBool;
@@ -438,9 +442,11 @@ export class Store implements BaseStore {
       }>
     ).map((r) => ({
       id: r.id,
-      electionDefinition: safeParseElectionDefinition(
-        r.electionData
-      ).unsafeUnwrap(),
+      electionDefinition: {
+        ballotHash: r.ballotHash,
+        election: safeParseElection(r.electionData).unsafeUnwrap(),
+        electionData: r.electionData,
+      },
       createdAt: convertSqliteTimestampToIso8601(r.createdAt),
       isOfficialResults: r.isOfficialResults === 1,
       electionPackageHash: r.electionPackageHash,
@@ -455,6 +461,7 @@ export class Store implements BaseStore {
       `
       select
         id,
+        ballot_hash as ballotHash,
         election_data as electionData,
         datetime(created_at, 'localtime') as createdAt,
         is_official_results as isOfficialResults,
@@ -466,6 +473,7 @@ export class Store implements BaseStore {
     ) as
       | {
           id: Id;
+          ballotHash: string;
           electionData: string;
           createdAt: string;
           isOfficialResults: SqliteBool;
@@ -477,9 +485,11 @@ export class Store implements BaseStore {
     }
     return {
       id: result.id,
-      electionDefinition: safeParseElectionDefinition(
-        result.electionData
-      ).unsafeUnwrap(),
+      electionDefinition: {
+        ballotHash: result.ballotHash,
+        election: safeParseElection(result.electionData).unsafeUnwrap(),
+        electionData: result.electionData,
+      },
       createdAt: convertSqliteTimestampToIso8601(result.createdAt),
       isOfficialResults: result.isOfficialResults === 1,
       electionPackageHash: result.electionPackageHash,

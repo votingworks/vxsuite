@@ -1,7 +1,8 @@
-import { type Result, err } from '@votingworks/basics';
+import { type Result, err, ok } from '@votingworks/basics';
 import {
   type ElectionDefinition,
-  safeParseElectionDefinition,
+  hashElectionData,
+  safeParseElection,
 } from '@votingworks/types';
 import type { ZodError } from 'zod/v4';
 import { type ReadFileError, readFile } from './read_file.js';
@@ -22,6 +23,8 @@ export type ReadElectionError =
 
 /**
  * Reads an election from a file path.
+ *
+ * [TODO] Move to libs/test-utils? Mostly used in test/dev paths.
  */
 export async function readElection(
   electionPath: string
@@ -35,11 +38,15 @@ export async function readElection(
     return err({ type: 'ReadFileError', error: readFileResult.err() });
   }
 
-  const parseResult = safeParseElectionDefinition(readFileResult.ok());
+  const electionData = readFileResult.ok();
+  const parseResult = safeParseElection(electionData);
 
   if (parseResult.isErr()) {
     return err({ type: 'ParseError', error: parseResult.err() });
   }
 
-  return parseResult;
+  const election = parseResult.ok();
+  const ballotHash = hashElectionData(electionData);
+
+  return ok({ ballotHash, election, electionData });
 }

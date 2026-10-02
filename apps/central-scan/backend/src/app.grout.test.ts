@@ -8,18 +8,20 @@ import {
 } from '@votingworks/fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { LogEventId } from '@votingworks/logging';
-import { suppressingConsoleOutput } from '@votingworks/test-utils';
+import {
+  createElectionDefinition,
+  createElectionDefinitionCdf,
+  suppressingConsoleOutput,
+} from '@votingworks/test-utils';
 import {
   AdjudicationReason,
   type AdjudicationReasonInfo,
   anyPollingPlace,
   type BallotMetadata,
   BallotType,
-  convertVxfElectionToCdfBallotDefinition,
   DEV_MACHINE_ID,
   type InterpretedHmpbPage,
   type PageInterpretationWithFiles,
-  safeParseElectionDefinition,
   type SheetOf,
   TEST_JURISDICTION,
 } from '@votingworks/types';
@@ -456,11 +458,7 @@ test('configure with CDF election', async () => {
   );
 
   await withApp(async ({ apiClient, auth, mockUsbDrive, logger }) => {
-    const cdfElection =
-      convertVxfElectionToCdfBallotDefinition(electionGeneral);
-    const cdfElectionDefinition = safeParseElectionDefinition(
-      JSON.stringify(cdfElection)
-    ).unsafeUnwrap();
+    const cdfElectionDefinition = createElectionDefinitionCdf(electionGeneral);
     mockElectionManagerAuth(auth, cdfElectionDefinition);
     mockUsbDrive.insertUsbDrive(
       await mockElectionPackageFileTree({
@@ -559,20 +557,18 @@ test('configure does not auto-select when there are multiple absentee polling pl
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 
-  const electionDefinition = safeParseElectionDefinition(
-    JSON.stringify({
-      ...famousNamesDefinition.election,
-      pollingPlaces: [
-        ...(famousNamesDefinition.election.pollingPlaces ?? []),
-        {
-          id: 'central-scanning-2',
-          name: 'Central Scanning 2',
-          precincts: { '20': { type: 'whole' } },
-          type: 'absentee',
-        },
-      ],
-    })
-  ).unsafeUnwrap();
+  const electionDefinition = createElectionDefinition({
+    ...famousNamesDefinition.election,
+    pollingPlaces: [
+      ...(famousNamesDefinition.election.pollingPlaces ?? []),
+      {
+        id: 'central-scanning-2',
+        name: 'Central Scanning 2',
+        precincts: { '20': { type: 'whole' } },
+        type: 'absentee',
+      },
+    ],
+  });
 
   await withApp(async ({ apiClient, auth, mockUsbDrive }) => {
     mockElectionManagerAuth(auth, electionDefinition);

@@ -4,12 +4,12 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   type Election,
   type PollingPlace,
-  safeParseElectionDefinition,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import { createElectionDefinition } from '@votingworks/test-utils';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -53,7 +53,7 @@ function makeDefinition(pollingPlaces: PollingPlace[]) {
     ...baseDefinition.election,
     pollingPlaces,
   };
-  return safeParseElectionDefinition(JSON.stringify(election)).unsafeUnwrap();
+  return createElectionDefinition(election);
 }
 
 test('getLiveReportsPollingPlaces and getLiveResultsReportingUrl', async () => {

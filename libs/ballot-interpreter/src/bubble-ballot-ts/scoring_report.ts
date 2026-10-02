@@ -4,7 +4,8 @@ import {
   type ElectionDefinition,
   type RgbaImageData,
   type SheetOf,
-  safeParseElectionDefinition,
+  hashElectionData,
+  safeParseElection,
 } from '@votingworks/types';
 import { mkdir, readFile, readdir } from 'node:fs/promises';
 import { loadImageData, writeImageData } from '@votingworks/image-utils';
@@ -253,9 +254,11 @@ export async function main(args: string[]): Promise<void> {
     throw new Error(usage);
   }
 
-  const electionDefinition = safeParseElectionDefinition(
-    await readFile(electionPath, 'utf8')
-  ).unsafeUnwrap();
+  // [TODO] This will need to read from an election package ZIP instead, or
+  // receive an explicit ballot hash, to support split-file elections.
+  const electionData = await readFile(electionPath, 'utf8');
+  const ballotHash = hashElectionData(electionData);
+  const election = safeParseElection(electionData).unsafeUnwrap();
 
   const ballotImagePaths = (await readdir(inputDir))
     .filter((path) => path.match(/\.(jpg|jpeg|png)$/))
@@ -268,7 +271,7 @@ export async function main(args: string[]): Promise<void> {
 
   await generateScoringReport(
     scoreType,
-    electionDefinition,
+    { ballotHash, election, electionData },
     ballotImagePaths,
     outputDir
   );

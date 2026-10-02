@@ -3,10 +3,10 @@ import {
   type Election,
   type ElectionDefinition,
   type ElectionPackage,
+  hashElectionData,
   LATEST_METADATA,
   type RgbaImageData,
   safeParseElection,
-  safeParseElectionDefinition,
   type SystemSettings,
 } from '@votingworks/types';
 import { createCanvas, loadImage } from 'canvas';
@@ -156,15 +156,21 @@ export function directory(path: string): DirectoryFixture {
  */
 export function election(path: string): ElectionFixture {
   const inner = file(path);
+
+  function readElectionDefinition(): ElectionDefinition {
+    const electionData = inner.asText();
+    const ballotHash = hashElectionData(electionData);
+    const el = safeParseElection(electionData).unsafeUnwrap();
+
+    return { ballotHash, election: el, electionData };
+  }
+
   return {
     ...inner,
     readElection: () => safeParseElection(inner.asText()).unsafeUnwrap(),
-    readElectionDefinition: () =>
-      safeParseElectionDefinition(inner.asText()).unsafeUnwrap(),
+    readElectionDefinition,
     toElectionPackage: (systemSettings = DEFAULT_SYSTEM_SETTINGS) => {
-      const electionDefinition = safeParseElectionDefinition(
-        inner.asText()
-      ).unsafeUnwrap();
+      const electionDefinition = readElectionDefinition();
       return {
         electionDefinition,
         metadata: LATEST_METADATA,

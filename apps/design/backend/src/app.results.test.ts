@@ -12,16 +12,18 @@ import {
   getContestsForPrecinctAndElection,
 } from '@votingworks/utils';
 import { assertDefined, err, ok, type Result } from '@votingworks/basics';
-import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
-  type CompressedTally,
-  type ContestId,
-  type ElectionDefinition,
-  type PollingPlace,
-  type PollingPlaceType,
-  type PrecinctId,
-  safeParseElectionDefinition,
-  type Tabulation,
+  createElectionDefinition,
+  suppressingConsoleOutput,
+} from '@votingworks/test-utils';
+import type {
+  CompressedTally,
+  ContestId,
+  ElectionDefinition,
+  PollingPlace,
+  PollingPlaceType,
+  PrecinctId,
+  Tabulation,
 } from '@votingworks/types';
 import { encodeQuickResultsMessage } from '@votingworks/auth';
 import {
@@ -114,9 +116,7 @@ async function setUpElectionInSystem(
     // eslint-disable-next-line @typescript-eslint/require-await
     async (_, _ballotTemplates, ballotProps) => ({
       ballotPaths: ballotProps.map(() => makeTemporaryFile()),
-      electionDefinition: safeParseElectionDefinition(
-        JSON.stringify(ballotProps[0]!.election, null, 2)
-      ).unsafeUnwrap(),
+      electionDefinition: createElectionDefinition(ballotProps[0]!.election),
     })
   );
   const electionId = (
@@ -2119,10 +2119,8 @@ test('LiveReports uses modified exported election, not original vxdesign electio
   };
 
   // Mock the ballot rendering to return the reordered election
-  const reorderedElectionData = JSON.stringify(reorderedElection, null, 2);
-  const reorderedElectionDefinition = safeParseElectionDefinition(
-    reorderedElectionData
-  ).unsafeUnwrap();
+  const reorderedElectionDefinition =
+    createElectionDefinition(reorderedElection);
 
   const internalElectionRecord = await workspace.store.getElection(electionId);
   expect(internalElectionRecord.election).not.toEqual(

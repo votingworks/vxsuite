@@ -1,10 +1,5 @@
 import { expect, test } from 'vitest';
-import {
-  IdSchema,
-  safeParseElection,
-  safeParseElectionDefinition,
-  unsafeParse,
-} from '@votingworks/types';
+import { IdSchema, safeParseElection, unsafeParse } from '@votingworks/types';
 import fc from 'fast-check';
 import { assert } from '@votingworks/basics';
 import { arbitraryDateTime } from './index.js';
@@ -21,6 +16,7 @@ import {
   arbitraryUint24,
   arbitraryUint32,
 } from './arbitraries.js';
+import { parseElectionDefinition } from './election_helpers.js';
 
 test('arbitraryUint2', () => {
   fc.assert(
@@ -110,9 +106,7 @@ test('arbitraryElection makes valid elections', () => {
 test('arbitraryElectionDefinition makes valid election definitions', () => {
   fc.assert(
     fc.property(arbitraryElectionDefinition(), (electionDefinition) => {
-      const parsed = safeParseElectionDefinition(
-        electionDefinition.electionData
-      ).unsafeUnwrap();
+      const parsed = parseElectionDefinition(electionDefinition.electionData);
       expect(parsed).toEqual(electionDefinition);
     })
   );
