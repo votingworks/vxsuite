@@ -1,5 +1,6 @@
 import { find } from '@votingworks/basics';
-import type { Election, Party } from '@votingworks/types';
+import type { Election, Party, PrinterStatus } from '@votingworks/types';
+import { getBlockingPrinterStateReason } from '@votingworks/ui';
 
 export function getPartyOptions(election: Election): Party[] {
   const uniquePartyIds = new Set(
@@ -12,4 +13,8 @@ export function getPartyOptions(election: Election): Party[] {
     find(election.parties, (p) => p.id === partyId)
   );
   return parties;
+}
+
+export function isPrinterReady(printer: PrinterStatus): boolean {
+  return printer.connected && !getBlockingPrinterStateReason(printer);
 }

@@ -21,6 +21,7 @@ import {
   hasTestBallots,
   printTestDeck,
 } from '../api.js';
+import { isPrinterReady } from '../utils.js';
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
 
@@ -44,11 +45,13 @@ function PrintTestDeckModal({
   election,
   precinctId,
   overallTallyReportOnly,
+  printerReady,
   onClose,
 }: {
   election: Election;
   precinctId?: Id;
   overallTallyReportOnly?: boolean;
+  printerReady: boolean;
   onClose: () => void;
 }): JSX.Element | null {
   const printTestDeckMutation = printTestDeck.useMutation();
@@ -124,7 +127,9 @@ function PrintTestDeckModal({
             onPress={handlePrint}
             // The overall tally report is rendered on the fly and needs no
             // ballots; the ballot decks do.
-            disabled={!overallTallyReportOnly && ballotCount === 0}
+            disabled={
+              !printerReady || (!overallTallyReportOnly && ballotCount === 0)
+            }
           >
             {buttonText}
           </Button>
@@ -171,7 +176,7 @@ export function TestDeckScreen(): JSX.Element | null {
           actions={
             <React.Fragment>
               <Button
-                disabled={!printer.connected}
+                disabled={!isPrinterReady(printer)}
                 color="neutral"
                 fill="outlined"
                 onPress={() =>
@@ -181,7 +186,7 @@ export function TestDeckScreen(): JSX.Element | null {
                 Print Overall Tally Report
               </Button>
               <Button
-                disabled={!printer.connected || !canPrintTestDecks}
+                disabled={!isPrinterReady(printer) || !canPrintTestDecks}
                 color="neutral"
                 fill="outlined"
                 onPress={() => {
@@ -223,7 +228,9 @@ export function TestDeckScreen(): JSX.Element | null {
               setPrintTestDeckTarget({ precinctId: selectedPrecinctId })
             }
             disabled={
-              !selectedPrecinctId || !printer.connected || !canPrintTestDecks
+              !selectedPrecinctId ||
+              !isPrinterReady(printer) ||
+              !canPrintTestDecks
             }
           >
             Print Precinct Test Deck
@@ -234,6 +241,7 @@ export function TestDeckScreen(): JSX.Element | null {
             election={election}
             precinctId={printTestDeckTarget.precinctId}
             overallTallyReportOnly={printTestDeckTarget.overallTallyReportOnly}
+            printerReady={isPrinterReady(printer)}
             onClose={() => setPrintTestDeckTarget(undefined)}
           />
         )}
