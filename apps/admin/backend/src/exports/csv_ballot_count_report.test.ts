@@ -25,9 +25,10 @@ test('uses appropriate headers', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { election, electionData } = electionDefinition;
+  const { ballotHash, election, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -185,9 +186,11 @@ test('uses appropriate headers', async () => {
 
 test('includes rows for empty but known result groups', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const fixtures = electionTwoPartyPrimaryFixtures;
+  const { ballotHash, electionData } = fixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -211,9 +214,11 @@ test('includes rows for empty but known result groups', async () => {
 
 test('does not include results groups when they are excluded by the filter', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const { ballotHash, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -258,9 +263,11 @@ test('does not include results groups when they are excluded by the filter', asy
 
 test('excludes Manual column if no manual data exists', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const { ballotHash, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -285,9 +292,10 @@ test('can include sheet counts', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionFamousNames2021Fixtures.makeMultiSheetElectionDefinition();
-  const { electionData } = electionDefinition;
+  const { ballotHash, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',

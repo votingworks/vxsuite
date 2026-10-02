@@ -50,8 +50,11 @@ export async function makeConfiguredWorkspace(): Promise<Workspace> {
   const workspace = createWorkspace(makeTemporaryDirectory(), logger);
   const { electionPackage, readElectionDefinition } =
     electionFamousNames2021Fixtures;
+
+  const { ballotHash, electionData } = readElectionDefinition();
   const electionId = await workspace.store.addElection({
-    electionData: readElectionDefinition().electionData,
+    electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: electionPackage.asFilePath(),
     electionPackageHash: createHash('sha256')

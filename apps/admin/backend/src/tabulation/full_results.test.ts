@@ -118,9 +118,10 @@ test('tabulateCastVoteRecords', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { election, electionData } = electionDefinition;
+  const { ballotHash, election, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData,
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -335,9 +336,11 @@ test('tabulateCastVoteRecords', async () => {
 
 test('tabulateElectionResults - includes empty groups', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const { ballotHash, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData,
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -373,6 +376,7 @@ test('tabulateElectionResults - write-in handling', async () => {
   const { election } = electionDefinition;
   const electionId = await store.addElection({
     electionData: electionDefinition.electionData,
+    ballotHash: electionDefinition.ballotHash,
     systemSettingsData,
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -782,9 +786,10 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
-  const { election, electionData } = electionDefinition;
+  const { ballotHash, election, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData,
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -1088,6 +1093,7 @@ test('tabulateElectionResults - imports and derives straight-party votes', async
   const logger = mockBaseLogger({ fn: vi.fn });
   const electionId = await store.addElection({
     electionData: electionDefinition.electionData,
+    ballotHash: electionDefinition.ballotHash,
     systemSettingsData: JSON.stringify({
       ...DEFAULT_SYSTEM_SETTINGS,
       adminAdjudicationReasons: [AdjudicationReason.Overvote],

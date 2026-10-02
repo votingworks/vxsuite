@@ -133,6 +133,7 @@ async function seed(
   );
   const electionId = await store.addElection({
     electionData: electionDefinition.electionData,
+    ballotHash: electionDefinition.ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: electionPackagePath,
     electionPackageHash: createHash('sha256')

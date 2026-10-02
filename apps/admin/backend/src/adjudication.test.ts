@@ -26,9 +26,11 @@ const contestId = 'zoo-council-mammal';
 
 test('setContestAdjudicatedVotes and getAdjudicatedVotes', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const { ballotHash, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -137,9 +139,11 @@ test('setContestAdjudicatedVotes and getAdjudicatedVotes', async () => {
 test('adjudicateCvr write-in logging and candidate cleanup', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const logger = mockBaseLogger({ fn: vi.fn });
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const { ballotHash, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -317,9 +321,11 @@ test('adjudicateCvr write-in logging and candidate cleanup', async () => {
 test('deleteQualifiedWriteInCandidate resets all write-ins in the affected CVR-contest, not just those adjudicated for the deleted candidate', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const logger = mockBaseLogger({ fn: vi.fn });
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const { ballotHash, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -448,9 +454,11 @@ test('deleteQualifiedWriteInCandidate resets all write-ins in the affected CVR-c
 test('adjudicateCvr adjudicates contest and resolves tags', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const logger = mockBaseLogger({ fn: vi.fn });
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const { ballotHash, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(
       typedAs<SystemSettings>({
         ...DEFAULT_SYSTEM_SETTINGS,
@@ -715,9 +723,11 @@ test('adjudicateCvr adjudicates contest and resolves tags', async () => {
 
 test('blank ballot appears in adjudication queue when BlankBallot reason is enabled', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const { ballotHash, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(
       typedAs<SystemSettings>({
         ...DEFAULT_SYSTEM_SETTINGS,
@@ -766,9 +776,11 @@ test('blank ballot appears in adjudication queue when BlankBallot reason is enab
 
 test('blank ballot does not appear in adjudication queue when BlankBallot reason is disabled', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const { ballotHash, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -809,9 +821,11 @@ test('blank ballot does not appear in adjudication queue when BlankBallot reason
 
 test('marginal mark CVR does not appear in adjudication queue when MarginalMark reason is disabled', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const { ballotHash, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -847,9 +861,11 @@ test('marginal mark CVR does not appear in adjudication queue when MarginalMark 
 
 test('CVR with only an unmarked write-in appears in adjudication queue', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const { ballotHash, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -887,9 +903,11 @@ test('CVR with only an unmarked write-in appears in adjudication queue', async (
 test('adjudicateCvr applies multiple contests in a single transaction and marks resolved', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const logger = mockBaseLogger({ fn: vi.fn });
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const { ballotHash, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -974,10 +992,11 @@ test('adjudicateCvr applies multiple contests in a single transaction and marks 
 
 test('combined ballot primary crossover vote', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const { electionData } =
+  const { ballotHash, electionData } =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',

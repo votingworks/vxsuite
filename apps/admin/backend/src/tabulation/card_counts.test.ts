@@ -35,10 +35,11 @@ const systemSettingsData = JSON.stringify(systemSettings);
 
 test('tabulateScannedCardCounts - grouping', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const { election, electionData } =
+  const { ballotHash, election, electionData } =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData,
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -194,10 +195,11 @@ test('tabulateScannedCardCounts - grouping', async () => {
 
 test('tabulateScannedCardCounts - groupByBatchDate', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const { election, electionData } =
+  const { ballotHash, election, electionData } =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData,
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -305,10 +307,11 @@ test('tabulateScannedCardCounts - groupByBatchDate', async () => {
 
 test('tabulateFullCardCounts - groupByBatchDate with manual results', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const { election, electionData } =
+  const { ballotHash, election, electionData } =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData,
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -390,10 +393,11 @@ test('tabulateFullCardCounts - groupByBatchDate with manual results', async () =
 
 test('tabulateScannedCardCounts - merging card tallies', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const { election, electionData } =
+  const { ballotHash, election, electionData } =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData,
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -467,10 +471,11 @@ test('tabulateScannedCardCounts - merging card tallies', async () => {
 
 test('tabulateFullCardCounts - manual results', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const { election, electionData } =
+  const { ballotHash, election, electionData } =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData,
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -621,10 +626,11 @@ test('tabulateFullCardCounts - manual results', async () => {
 
 test('tabulateFullCardCounts - blankBallots', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const { election, electionData } =
+  const { ballotHash, election, electionData } =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData,
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -741,10 +747,11 @@ test('tabulateFullCardCounts - blankBallots', async () => {
 
 test('tabulateFullCardCounts - hasCrossoverVote filter (combined ballot primary)', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const { election, electionData } =
+  const { ballotHash, election, electionData } =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData,
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',

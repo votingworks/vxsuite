@@ -69,7 +69,7 @@ import {
 import { copyFile, mkdir, rm } from 'node:fs/promises';
 import { dirname, join, sep } from 'node:path';
 import type { Buffer } from 'node:buffer';
-import { createHash, randomUUID as uuid } from 'node:crypto';
+import { randomUUID as uuid } from 'node:crypto';
 import {
   allContestOptions,
   asSqliteBool,
@@ -364,20 +364,19 @@ export class Store implements BaseStore {
    * memory.
    */
   async addElection({
+    ballotHash,
     electionData,
     systemSettingsData,
     electionPackageSourceFilePath,
     electionPackageHash,
   }: {
+    ballotHash: string;
     electionData: string;
     systemSettingsData: string;
     electionPackageSourceFilePath: string;
     electionPackageHash: string;
   }): Promise<Id> {
     const id = uuid();
-    // [TODO] Pass this in from callers - potentially computed from multiple
-    // files in the election package.
-    const ballotHash = createHash('sha256').update(electionData).digest('hex');
 
     const electionPackageFilePath = constructElectionPackageFilePath(
       this.electionPackagesPath,
