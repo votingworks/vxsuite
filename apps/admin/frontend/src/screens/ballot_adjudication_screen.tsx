@@ -1,6 +1,14 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { Button, Loading, Main, Modal, P, Screen } from '@votingworks/ui';
+import {
+  Button,
+  Icons,
+  Loading,
+  Main,
+  Modal,
+  P,
+  Screen,
+} from '@votingworks/ui';
 import {
   AdjudicationReason,
   type ContestId,
@@ -74,6 +82,16 @@ const AdjudicationPanel = styled.div`
   border-left: 4px solid black;
 `;
 
+const EscalatedBanner = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: ${(p) => p.theme.colors.warningContainer};
+  font-size: 0.85rem;
+  font-weight: ${(p) => p.theme.sizes.fontWeight.semiBold};
+`;
+
 const PanelHeader = styled.div`
   display: flex;
   justify-content: space-between;
@@ -115,6 +133,10 @@ const FooterNav = styled.div`
 
 const PrimaryNavButton = styled(Button)`
   flex-grow: 1;
+`;
+
+const EscalateNavButton = styled(Button)`
+  min-width: 5.5rem;
 `;
 
 const SecondaryNavButton = styled(Button)`
@@ -167,9 +189,15 @@ function contestListItems(
   }));
 }
 
-export function BallotAdjudicationScreenWrapper(): JSX.Element {
-  const ballotQueueQuery = getBallotAdjudicationQueue.useQuery();
-  const nextCvrIdQuery = getNextCvrIdForBallotAdjudication.usePollingQuery();
+export function BallotAdjudicationScreenWrapper({
+  escalatedOnly = false,
+}: {
+  escalatedOnly?: boolean;
+}): JSX.Element {
+  const queueInput = escalatedOnly ? { escalatedOnly } : {};
+  const ballotQueueQuery = getBallotAdjudicationQueue.useQuery(queueInput);
+  const nextCvrIdQuery =
+    getNextCvrIdForBallotAdjudication.usePollingQuery(queueInput);
 
   if (!ballotQueueQuery.isSuccess || !nextCvrIdQuery.isSuccess) {
     return (
@@ -191,6 +219,7 @@ export function BallotAdjudicationScreenWrapper(): JSX.Element {
     <HostBallotAdjudicationScreen
       queue={queue}
       initialQueueIndex={initialQueueIndex}
+      escalatedOnly={escalatedOnly}
     />
   );
 }
@@ -198,9 +227,11 @@ export function BallotAdjudicationScreenWrapper(): JSX.Element {
 function HostBallotAdjudicationScreen({
   queue,
   initialQueueIndex,
+  escalatedOnly,
 }: {
   queue: Id[];
   initialQueueIndex: number;
+  escalatedOnly: boolean;
 }): JSX.Element {
   const history = useHistory();
   const [queueIndex, setQueueIndex] = useState(initialQueueIndex);
@@ -248,6 +279,7 @@ function HostBallotAdjudicationScreen({
             contests: [],
             tag: { isBlankBallot: false, hasCrossoverVote: false },
             isResolved: false,
+            isEscalated: false,
             adjudicatedContests: [],
           });
         } else {
@@ -338,9 +370,11 @@ function HostBallotAdjudicationScreen({
   async function navigateAcceptNext(): Promise<void> {
     setIsClaimInFlight(true);
     try {
-      const nextCvrId = await apiClient.getNextCvrIdForBallotAdjudication({
-        afterCvrId: currentCvrId,
-      });
+      const nextCvrId = await apiClient.getNextCvrIdForBallotAdjudication(
+        escalatedOnly
+          ? { afterCvrId: currentCvrId, escalatedOnly: true }
+          : { afterCvrId: currentCvrId }
+      );
       const nextIndex = nextCvrId ? queue.indexOf(nextCvrId) : -1;
       if (nextIndex < 0) {
         // No ballot left, or the next one isn't in our cached queue drop back to the landing screen
@@ -508,6 +542,7 @@ export interface BallotAdjudicationScreenProps {
   }) => Promise<void>;
   onAcceptDone: () => void;
   onSkip?: () => void;
+  onEscalate?: () => void;
   onBack?: () => void;
   onExit: () => void;
 }
@@ -610,6 +645,7 @@ function BallotView({
   onAccept,
   onAcceptDone,
   onSkip,
+  onEscalate,
   onBack,
   onExit,
 }: {
@@ -639,6 +675,9 @@ function BallotView({
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingDiscard, setPendingDiscard] = useState<{
+    action: () => void;
+  } | null>(null);
+  const [pendingEscalate, setPendingEscalate] = useState<{
     action: () => void;
   } | null>(null);
   const [hoveredContestId, setHoveredContestId] = useState<ContestId | null>(
@@ -768,6 +807,12 @@ function BallotView({
               Exit
             </Button>
           </PanelHeader>
+          {ballotAdjudicationData.isEscalated && (
+            <EscalatedBanner>
+              <Icons.Flag color="warning" /> Escalated for election manager
+              review
+            </EscalatedBanner>
+          )}
           {isClaimed ? (
             <ClaimedBallotOverlay>
               <P>
@@ -830,6 +875,15 @@ function BallotView({
                   >
                     Accept
                   </PrimaryNavButton>
+                  {onEscalate && (
+                    <EscalateNavButton
+                      onPress={() => setPendingEscalate({ action: onEscalate })}
+                      icon="Flag"
+                      disabled={isClaimInFlight}
+                    >
+                      Escalate
+                    </EscalateNavButton>
+                  )}
                   {onSkipGuarded && (
                     <SecondaryNavButton
                       onPress={onSkipGuarded}
@@ -868,6 +922,45 @@ function BallotView({
               </Button>
               <Button variant="danger" onPress={confirmAcceptAndNext}>
                 Accept Anyway
+              </Button>
+            </ModalActions>
+          }
+        />
+      )}
+      {pendingEscalate && (
+        <Modal
+          title="Escalate Ballot"
+          content={
+            <React.Fragment>
+              <P>
+                Are you sure you want to escalate this ballot for election
+                manager review?
+              </P>
+              {haveEditsBeenMade && (
+                <P>
+                  Your unsaved adjudications for this ballot will be discarded.
+                </P>
+              )}
+            </React.Fragment>
+          }
+          actions={
+            <ModalActions>
+              <Button
+                variant="primary"
+                icon="Flag"
+                onPress={() => {
+                  const { action } = pendingEscalate;
+                  setPendingEscalate(null);
+                  action();
+                }}
+              >
+                Escalate
+              </Button>
+              <Button
+                variant="neutral"
+                onPress={() => setPendingEscalate(null)}
+              >
+                Cancel
               </Button>
             </ModalActions>
           }

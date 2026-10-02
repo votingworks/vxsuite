@@ -332,6 +332,7 @@ test('getBatteryInfo returns battery info', async () => {
 interface MockPeerApi {
   claimAndLoadBallot: ReturnType<typeof vi.fn>;
   releaseBallot: ReturnType<typeof vi.fn>;
+  escalateBallot: ReturnType<typeof vi.fn>;
   getBallotImageMetadata: ReturnType<typeof vi.fn>;
   getWriteInCandidates: ReturnType<typeof vi.fn>;
   adjudicateCvr: ReturnType<typeof vi.fn>;
@@ -341,6 +342,7 @@ function connectToMockHost(): { mockPeerApi: MockPeerApi } {
   const mockPeerApi: MockPeerApi = {
     claimAndLoadBallot: vi.fn(),
     releaseBallot: vi.fn(),
+    escalateBallot: vi.fn(),
     getBallotImageMetadata: vi.fn(),
     getWriteInCandidates: vi.fn(),
     adjudicateCvr: vi.fn(),
@@ -362,6 +364,7 @@ test('claimAndLoadBallot proxies to host peer API', async () => {
     cvrId: 'cvr-1',
     tag: { isBlankBallot: false },
     isResolved: false,
+    isEscalated: false,
     contests: [],
     adjudicatedContests: [],
   } as const;
@@ -402,6 +405,9 @@ test('proxy endpoints return host-disconnect error when not connected', async ()
     err({ type: 'host-disconnect' })
   );
   expect(await env.apiClient.releaseBallot({ cvrId: 'cvr-1' })).toEqual(
+    err({ type: 'host-disconnect' })
+  );
+  expect(await env.apiClient.escalateBallot({ cvrId: 'cvr-1' })).toEqual(
     err({ type: 'host-disconnect' })
   );
   expect(await env.apiClient.getBallotImages({ cvrId: 'cvr-1' })).toEqual(
@@ -460,6 +466,26 @@ test('releaseBallot proxies to host peer API', async () => {
   (await env.apiClient.releaseBallot({ cvrId: 'cvr-1' })).unsafeUnwrap();
   expect(mockPeerApi.releaseBallot).toHaveBeenCalledWith(
     expect.objectContaining({ cvrId: 'cvr-1' })
+  );
+});
+
+test('escalateBallot proxies to host peer API', async () => {
+  const { mockPeerApi } = connectToMockHost();
+  mockPeerApi.escalateBallot.mockResolvedValue(ok());
+
+  (await env.apiClient.escalateBallot({ cvrId: 'cvr-1' })).unsafeUnwrap();
+  expect(mockPeerApi.escalateBallot).toHaveBeenCalledWith({
+    machineId: DEV_MACHINE_ID,
+    cvrId: 'cvr-1',
+  });
+});
+
+test('escalateBallot passes through a claim-failed error from the host', async () => {
+  const { mockPeerApi } = connectToMockHost();
+  mockPeerApi.escalateBallot.mockResolvedValue(err({ type: 'claim-failed' }));
+
+  expect(await env.apiClient.escalateBallot({ cvrId: 'cvr-1' })).toEqual(
+    err({ type: 'claim-failed' })
   );
 });
 

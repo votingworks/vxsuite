@@ -13,6 +13,7 @@ import { routerPaths } from '../../router_paths.js';
 import {
   adjudicateCvr,
   claimAndLoadBallot,
+  escalateBallot,
   getAdjudicationSessionStatus,
   getBallotImages,
   getSystemSettings,
@@ -49,6 +50,7 @@ export function ClientBallotAdjudicationScreen(): JSX.Element {
     getAdjudicationSessionStatus.usePollingQuery();
   const { mutateAsync: claimAndLoadAsync } = claimAndLoadBallot.useMutation();
   const { mutateAsync: releaseBallotAsync } = releaseBallot.useMutation();
+  const { mutateAsync: escalateBallotAsync } = escalateBallot.useMutation();
 
   const [flowState, setFlowState] = useState<FlowState>({
     type: 'initial-load',
@@ -101,12 +103,16 @@ export function ClientBallotAdjudicationScreen(): JSX.Element {
     void claimNextBallot();
   }, [claimNextBallot]);
 
-  const skipBallot = useCallback(
+  const escalateAndClaimNextBallot = useCallback(
     async (cvrId: Id): Promise<void> => {
-      await releaseClaim(cvrId);
+      const result = await escalateBallotAsync({ cvrId });
+      if (result.isErr()) {
+        setFlowState({ type: 'error', error: result.err() });
+        return;
+      }
       await claimNextBallot(cvrId);
     },
-    [releaseClaim, claimNextBallot]
+    [escalateBallotAsync, claimNextBallot]
   );
 
   const exitBallot = useCallback(
@@ -156,7 +162,7 @@ export function ClientBallotAdjudicationScreen(): JSX.Element {
           cvrId={flowState.cvrId}
           ballotData={flowState.data}
           onAcceptDone={() => void claimNextBallot(flowState.cvrId)}
-          onSkip={() => void skipBallot(flowState.cvrId)}
+          onEscalate={() => void escalateAndClaimNextBallot(flowState.cvrId)}
           onExit={() => void exitBallot(flowState.cvrId)}
         />
       );
@@ -170,13 +176,13 @@ function ClientBallotAdjudicationDataLoader({
   cvrId,
   ballotData,
   onAcceptDone,
-  onSkip,
+  onEscalate,
   onExit,
 }: {
   cvrId: Id;
   ballotData: BallotAdjudicationData;
   onAcceptDone: () => void;
-  onSkip: () => void;
+  onEscalate: () => void;
   onExit: () => void;
 }): JSX.Element {
   const history = useHistory();
@@ -242,7 +248,7 @@ function ClientBallotAdjudicationDataLoader({
         }
       }}
       onAcceptDone={onAcceptDone}
-      onSkip={onSkip}
+      onEscalate={onEscalate}
       onExit={onExit}
     />
   );

@@ -1023,7 +1023,11 @@ test('combined ballot primary crossover vote', async () => {
   expect(queue).toContain(crossoverCvrId);
   expect(queue).not.toContain(singlePartyCvrId);
   const metadata = store.getBallotAdjudicationQueueMetadata({ electionId });
-  expect(metadata).toEqual({ totalTally: 1, pendingTally: 1 });
+  expect(metadata).toEqual({
+    totalTally: 1,
+    pendingTally: 1,
+    escalatedPendingTally: 0,
+  });
   expect(
     store.getBallotAdjudicationData({ electionId, cvrId: crossoverCvrId }).tag
   ).toEqual({ isBlankBallot: false, hasCrossoverVote: true });

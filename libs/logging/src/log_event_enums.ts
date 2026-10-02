@@ -243,6 +243,7 @@ export enum LogEventId {
   AdminBallotClaimed = 'admin-ballot-claimed',
   AdminBallotAdjudicationComplete = 'admin-ballot-adjudication-complete',
   AdminBallotReleased = 'admin-ballot-released',
+  AdminBallotEscalated = 'admin-ballot-escalated',
   AdminAdjudicationProxyError = 'admin-adjudication-proxy-error',
   AdminContestAdjudicated = 'admin-contest-adjudicated',
   LowDiskSpace = 'low-disk-space',
@@ -1563,6 +1564,14 @@ const AdminBallotReleased: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxAdmin],
 };
 
+const AdminBallotEscalated: LogDetails = {
+  eventId: LogEventId.AdminBallotEscalated,
+  eventType: LogEventType.ApplicationAction,
+  documentationMessage:
+    'A client machine escalated a ballot for election manager review on the host, releasing its claim.',
+  restrictInDocumentationToApps: [AppName.VxAdmin],
+};
+
 const AdminAdjudicationProxyError: LogDetails = {
   eventId: LogEventId.AdminAdjudicationProxyError,
   eventType: LogEventType.ApplicationStatus,
@@ -1963,6 +1972,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return AdminBallotAdjudicationComplete;
     case LogEventId.AdminBallotReleased:
       return AdminBallotReleased;
+    case LogEventId.AdminBallotEscalated:
+      return AdminBallotEscalated;
     case LogEventId.AdminAdjudicationProxyError:
       return AdminAdjudicationProxyError;
     case LogEventId.AdminContestAdjudicated:

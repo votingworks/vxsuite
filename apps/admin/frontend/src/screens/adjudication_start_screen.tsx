@@ -72,6 +72,24 @@ const LargeText = styled.div`
   line-height: 1;
 `;
 
+const EscalatedCallout = styled(UiCard).attrs({ color: 'warning' })`
+  h3 {
+    margin: 0;
+  }
+
+  > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+`;
+
+const EscalatedLinkButton = styled(LinkButton)`
+  background-color: ${(p) => p.theme.colors.warningAccent};
+  border-color: ${(p) => p.theme.colors.warningAccent};
+`;
+
 const EmptyTableMessage = styled.div`
   display: flex;
   justify-content: center;
@@ -468,6 +486,33 @@ function MultiStationCard(): JSX.Element {
   );
 }
 
+function EscalatedBallotsCallout(): JSX.Element | null {
+  const { isOfficialResults } = useContext(AppContext);
+  const queueMetadataQuery =
+    getBallotAdjudicationQueueMetadata.usePollingQuery();
+
+  if (!queueMetadataQuery.isSuccess) return null;
+  const { escalatedPendingTally } = queueMetadataQuery.data;
+  if (escalatedPendingTally === 0) return null;
+
+  return (
+    <EscalatedCallout>
+      <H3>
+        <Icons.Flag color="warning" /> {escalatedPendingTally}{' '}
+        {pluralize('ballot', escalatedPendingTally)} escalated
+      </H3>
+      <EscalatedLinkButton
+        variant="primary"
+        icon="PenToSquare"
+        to={routerPaths.ballotAdjudicationEscalated}
+        disabled={isOfficialResults}
+      >
+        Adjudicate Escalated Ballots
+      </EscalatedLinkButton>
+    </EscalatedCallout>
+  );
+}
+
 export function AdjudicationStartScreen(): JSX.Element {
   const { isOfficialResults } = useContext(AppContext);
   const systemSettingsQuery = getSystemSettings.useQuery();
@@ -489,6 +534,7 @@ export function AdjudicationStartScreen(): JSX.Element {
   return (
     <NavigationScreen title="Adjudication">
       <CardStack>
+        <EscalatedBallotsCallout />
         {areWriteInCandidatesQualified && <WriteInCandidatesCard />}
         <BallotAdjudicationCard showHeader={hasOtherCards} />
         {showMultiStationCard && <MultiStationCard />}
