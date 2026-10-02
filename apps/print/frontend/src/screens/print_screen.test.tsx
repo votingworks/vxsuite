@@ -6,6 +6,7 @@ import {
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
   LanguageCode,
+  type PrinterStatus,
 } from '@votingworks/types';
 import { err, ok } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
@@ -38,10 +39,11 @@ afterEach(() => {
 
 function mockBaseQueries({
   pollingPlaceId = null,
-}: { pollingPlaceId?: string | null } = {}) {
+  printer = { connected: true, config: HP_4001_PRINTER_CONFIG },
+}: { pollingPlaceId?: string | null; printer?: PrinterStatus } = {}) {
   apiMock.getDeviceStatuses.expectRepeatedCallsWith().resolves({
     usbDrive: { status: 'no_drive' },
-    printer: { connected: true, config: HP_4001_PRINTER_CONFIG },
+    printer,
   });
   apiMock.getElectionRecord.expectCallWith().resolves({
     electionDefinition,
@@ -94,6 +96,28 @@ test('election managers see all precincts regardless of the configured polling p
   screen.getByRole('option', { name: 'South Lincoln' });
   screen.getByRole('option', { name: 'East Lincoln' });
   screen.getByRole('option', { name: 'West Lincoln' });
+});
+
+test('disables printing and labels the printer status when the printer is blocked', async () => {
+  mockBaseQueries({
+    printer: {
+      connected: true,
+      config: HP_4001_PRINTER_CONFIG,
+      richStatus: {
+        state: 'stopped',
+        stateReasons: ['cover-open-error'],
+        markerInfos: [],
+      },
+    },
+  });
+  renderScreen({ isElectionManagerAuth: true });
+
+  userEvent.click(await screen.findByRole('option', { name: 'North Lincoln' }));
+  await screen.findByText('Cover Open');
+  expect(screen.getByRole('button', { name: /Print Ballot/ })).toBeDisabled();
+  expect(
+    screen.getByRole('button', { name: 'Print All Ballot Styles' })
+  ).toBeDisabled();
 });
 
 const PRINT_JOB_ID = 1;
@@ -241,4 +265,42 @@ test('print all ballot styles closes its modal while device statuses keep changi
     PRINT_HANDOFF_MODAL_LINGER_SECONDS * 1000 + 500
   );
   expect(screen.queryByText('Printing')).not.toBeInTheDocument();
+});
+
+test('disables the open print all confirm action when the printer becomes blocked', async () => {
+  mockBaseQueries();
+  apiMock.getDistinctBallotStylesCount
+    .expectRepeatedCallsWith({
+      ballotType: BallotType.Precinct,
+      languageCode: LanguageCode.ENGLISH,
+    })
+    .resolves(2);
+  renderScreen({ isElectionManagerAuth: true });
+
+  userEvent.click(
+    await screen.findByRole('button', { name: 'Print All Ballot Styles' })
+  );
+  const confirmButton = await screen.findByRole('button', {
+    name: /Print 2 Ballot Styles/,
+  });
+  expect(confirmButton).toBeEnabled();
+
+  apiMock.getDeviceStatuses.reset();
+  apiMock.getDeviceStatuses.expectRepeatedCallsWith().resolves({
+    usbDrive: { status: 'no_drive' },
+    printer: {
+      connected: true,
+      config: HP_4001_PRINTER_CONFIG,
+      richStatus: {
+        state: 'idle',
+        stateReasons: ['media-empty-report'],
+        markerInfos: [],
+      },
+    },
+  });
+  await vi.waitFor(() => {
+    expect(
+      screen.getByRole('button', { name: /Print 2 Ballot Styles/ })
+    ).toBeDisabled();
+  });
 });

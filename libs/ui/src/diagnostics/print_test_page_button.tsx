@@ -17,13 +17,13 @@ export const TEST_PAGE_PRINT_DELAY_SECONDS = 7;
 type FlowState = 'printing' | 'verification' | 'test-failed';
 
 export interface PrintTestPageButtonProps {
-  isPrinterConnected: boolean;
+  isPrinterReady: boolean;
   printTestPage: () => void;
   logTestPrintOutcome: (input: { outcome: DiagnosticOutcome }) => void;
 }
 
 export function PrintTestPageButton({
-  isPrinterConnected,
+  isPrinterReady,
   printTestPage,
   logTestPrintOutcome,
 }: PrintTestPageButtonProps): JSX.Element {
@@ -132,7 +132,7 @@ export function PrintTestPageButton({
 
   return (
     <React.Fragment>
-      <Button disabled={!isPrinterConnected} onPress={startFlow}>
+      <Button disabled={!isPrinterReady} onPress={startFlow}>
         Print Test Page
       </Button>
       {modal}

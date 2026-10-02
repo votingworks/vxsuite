@@ -3,7 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { HP_4001_PRINTER_CONFIG } from '@votingworks/printing';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  type PrinterStatus,
+} from '@votingworks/types';
 import { act, render, screen } from '../../test/react_testing_library.js';
 import {
   type ApiMock,
@@ -32,14 +35,12 @@ const NO_TEST_BALLOTS_MESSAGE =
   'Election package does not contain test ballots required to print test decks.';
 
 function mockBaseQueries({
-  printerConnected = true,
+  printer = { connected: true, config: HP_4001_PRINTER_CONFIG },
   testBallotsPresent = true,
-} = {}) {
+}: { printer?: PrinterStatus; testBallotsPresent?: boolean } = {}) {
   apiMock.getDeviceStatuses.expectRepeatedCallsWith().resolves({
     usbDrive: { status: 'no_drive' },
-    printer: printerConnected
-      ? { connected: true, config: HP_4001_PRINTER_CONFIG }
-      : { connected: false },
+    printer,
   });
   apiMock.getElectionRecord.expectCallWith().resolves({
     electionDefinition,
@@ -217,7 +218,7 @@ test('Cancel closes the overall tally report modal without printing', async () =
 });
 
 test('disables all print buttons when the printer is not connected', async () => {
-  mockBaseQueries({ printerConnected: false });
+  mockBaseQueries({ printer: { connected: false } });
   renderScreen();
 
   await screen.findByRole('heading', { name: 'Test Decks' });
@@ -225,6 +226,59 @@ test('disables all print buttons when the printer is not connected', async () =>
   expect(getButton('Print All Test Decks')).toBeDisabled();
   expect(getButton('Print Precinct Test Deck')).toBeDisabled();
   expect(screen.queryByText(NO_TEST_BALLOTS_MESSAGE)).not.toBeInTheDocument();
+});
+
+test('disables all print buttons when the printer is blocked', async () => {
+  mockBaseQueries({
+    printer: {
+      connected: true,
+      config: HP_4001_PRINTER_CONFIG,
+      richStatus: {
+        state: 'stopped',
+        stateReasons: ['media-jam-error'],
+        markerInfos: [],
+      },
+    },
+  });
+  renderScreen();
+
+  await screen.findByRole('heading', { name: 'Test Decks' });
+  userEvent.click(screen.getByText(election.precincts[0]!.name));
+  expect(getButton('Print Overall Tally Report')).toBeDisabled();
+  expect(getButton('Print All Test Decks')).toBeDisabled();
+  expect(getButton('Print Precinct Test Deck')).toBeDisabled();
+});
+
+test('disables the open confirm action when the printer becomes blocked', async () => {
+  mockBaseQueries();
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Test Decks' });
+
+  apiMock.getTestDeckBallotCount
+    .expectRepeatedCallsWith({ precinctId: undefined })
+    .resolves(20);
+  userEvent.click(getButton('Print All Test Decks'));
+  await screen.findByText(
+    'Print 20 test deck ballots, the overall tally report, and all precinct tally reports?'
+  );
+  expect(getButton('Print 20 Ballots')).toBeEnabled();
+
+  apiMock.getDeviceStatuses.reset();
+  apiMock.getDeviceStatuses.expectRepeatedCallsWith().resolves({
+    usbDrive: { status: 'no_drive' },
+    printer: {
+      connected: true,
+      config: HP_4001_PRINTER_CONFIG,
+      richStatus: {
+        state: 'idle',
+        stateReasons: ['media-empty-report'],
+        markerInfos: [],
+      },
+    },
+  });
+  await vi.waitFor(() => {
+    expect(getButton('Print 20 Ballots')).toBeDisabled();
+  });
 });
 
 test('disables test deck ballot printing and explains why when the election package has no test ballots', async () => {

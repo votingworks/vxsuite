@@ -44,8 +44,10 @@ const Input = styled.div`
 
 // @coverage-defer
 function PrintAllModal({
+  printerReady,
   onClose,
 }: {
+  printerReady: boolean;
   onClose: () => void;
 }): JSX.Element | null {
   const printAllMutation = printAllBallotStyles.useMutation();
@@ -202,7 +204,9 @@ function PrintAllModal({
             icon="Print"
             variant="primary"
             onPress={handlePrint}
-            disabled={!getDistinctBallotStylesCountQuery.isSuccess}
+            disabled={
+              !printerReady || !getDistinctBallotStylesCountQuery.isSuccess
+            }
           >
             Print {numberOfBallotStyles} Ballot Styles
           </Button>
@@ -214,9 +218,9 @@ function PrintAllModal({
 }
 
 export function PrintAllButton({
-  disabled,
+  printerReady,
 }: {
-  disabled: boolean;
+  printerReady: boolean;
 }): JSX.Element {
   const [isShowingModal, setIsShowingModal] = useState(false);
   const closeModal = useCallback(() => setIsShowingModal(false), []);
@@ -224,14 +228,16 @@ export function PrintAllButton({
   return (
     <React.Fragment>
       <StyledButton
-        disabled={disabled}
+        disabled={!printerReady}
         color="neutral"
         fill="outlined"
         onPress={() => setIsShowingModal(true)}
       >
         Print All Ballot Styles
       </StyledButton>
-      {isShowingModal && <PrintAllModal onClose={closeModal} />}
+      {isShowingModal && (
+        <PrintAllModal printerReady={printerReady} onClose={closeModal} />
+      )}
     </React.Fragment>
   );
 }

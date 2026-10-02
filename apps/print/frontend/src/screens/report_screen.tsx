@@ -23,6 +23,7 @@ import {
   printBallotsPrintedReport,
   getDeviceStatuses,
 } from '../api.js';
+import { isPrinterReady } from '../utils.js';
 import { Row } from '../layout.js';
 import { TitleBar } from '../components/title_bar.js';
 import { Filter } from '../components/filter.js';
@@ -173,7 +174,7 @@ export function ReportScreen({
           title="Report"
           actions={
             <React.Fragment>
-              <Button disabled={!printer.connected} onPress={handlePrint}>
+              <Button disabled={!isPrinterReady(printer)} onPress={handlePrint}>
                 Print Report
               </Button>
               <ExportReportButton />

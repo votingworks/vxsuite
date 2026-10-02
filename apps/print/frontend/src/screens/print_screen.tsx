@@ -41,7 +41,7 @@ import {
   getPrintJobStatus,
   printBallot,
 } from '../api.js';
-import { getPartyOptions } from '../utils.js';
+import { getPartyOptions, isPrinterReady } from '../utils.js';
 import { PRINT_HANDOFF_MODAL_LINGER_SECONDS } from '../constants.js';
 
 const FormSection = styled.div`
@@ -194,7 +194,7 @@ export function PrintScreen({
           title="Print"
           actions={
             isElectionManagerAuth ? (
-              <PrintAllButton disabled={!printer.connected} />
+              <PrintAllButton printerReady={isPrinterReady(printer)} />
             ) : undefined
           }
         />
@@ -319,7 +319,7 @@ export function PrintScreen({
               (!hidePartySelection && !selectedPartyId) ||
               // @coverage-defer
               (!hideSplitSelection && !selectedSplitId) ||
-              !printer.connected
+              !isPrinterReady(printer)
             }
           >
             Print Ballot
