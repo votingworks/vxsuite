@@ -5,8 +5,8 @@ import {
 import {
   type Election,
   type ElectionDefinition,
+  hashElectionData,
   LanguageCode,
-  safeParseElectionDefinition,
 } from '@votingworks/types';
 
 /** The famous-names election used by the screenshot tests. */
@@ -25,10 +25,7 @@ const GENERAL_ELECTION_BALLOT_LANGUAGES: LanguageCode[] = [
 
 /**
  * The general election, patched so each ballot style becomes a group of
- * per-language variants (the structure VxDesign produces for multi-language
- * elections). A voter session starts on the English variant; switching the
- * ballot language swaps to the matching variant (see useBallotStyleManager),
- * and the BMD ballot then renders dual-language (e.g. Chinese + English).
+ * per-language variants.
  */
 export function getMultiLanguageGeneralElectionDefinition(): ElectionDefinition {
   const baseElectionDefinition =
@@ -41,11 +38,13 @@ export function getMultiLanguageGeneralElectionDefinition(): ElectionDefinition 
         languages: [language],
       }))
   );
-  const patchedElection: Election = {
+  const election: Election = {
     ...baseElectionDefinition.election,
     ballotStyles,
   };
-  return safeParseElectionDefinition(
-    JSON.stringify(patchedElection)
-  ).unsafeUnwrap();
+
+  const electionData = JSON.stringify(election);
+  const ballotHash = hashElectionData(electionData);
+
+  return { ballotHash, election, electionData };
 }

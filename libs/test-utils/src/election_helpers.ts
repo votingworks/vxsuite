@@ -9,10 +9,12 @@ import {
   HmpbBallotPaperSize,
   type Party,
   type Precinct,
-  safeParseElectionDefinition,
   straightPartyNotYetImplemented,
   type VotesDict,
   type YesNoContest,
+  convertVxfElectionToCdfBallotDefinition,
+  safeParseElection,
+  hashElectionData,
 } from '@votingworks/types';
 
 /**
@@ -170,8 +172,32 @@ export function createTestElection(
 export function createElectionDefinition(
   election: Election
 ): ElectionDefinition {
-  const electionData = JSON.stringify(election);
-  return safeParseElectionDefinition(electionData).unsafeUnwrap();
+  return parseElectionDefinition(JSON.stringify(election));
+}
+
+/**
+ * Creates a CDF ElectionDefinition from an Election object.
+ */
+// @coverage-exclude
+export function createElectionDefinitionCdf(
+  election: Election
+): ElectionDefinition {
+  return parseElectionDefinition(
+    JSON.stringify(convertVxfElectionToCdfBallotDefinition(election))
+  );
+}
+
+/**
+ * Creates an ElectionDefinition from serialized election data (VxF or CDF).
+ */
+export function parseElectionDefinition(
+  electionData: string
+): ElectionDefinition {
+  return {
+    ballotHash: hashElectionData(electionData),
+    election: safeParseElection(electionData).unsafeUnwrap(),
+    electionData,
+  };
 }
 
 /**
