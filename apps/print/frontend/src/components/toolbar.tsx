@@ -33,7 +33,8 @@ export const BLOCKING_PRINTER_STATE_REASON_LABELS: Readonly<
   'input-tray-missing': 'Input Tray Missing',
   'interlock-open': 'Door Open',
   'marker-supply-empty': 'No Toner',
-  // `media-empty` status is reported when there is no paper and when paper tray is open
+  // `media-empty` status is reported when there is either no paper
+  // or when paper tray is open
   'media-empty': 'No Paper',
   'media-jam': 'Paper Jam',
   'media-needed': 'No Paper',
