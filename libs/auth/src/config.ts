@@ -204,3 +204,24 @@ export function constructSignedQuickResultsReportingConfig(): SignedQuickResults
     machinePrivateKey: privateKey,
   };
 }
+
+/**
+ * Config for the mutual TLS credentials a machine mints for its peer API
+ */
+export interface PeerTlsConfig {
+  machineCertPath: string;
+  machinePrivateKey: FileKey | TpmKey;
+  vxCertAuthorityCertPath: string;
+}
+
+/**
+ * Constructs a {@link PeerTlsConfig} given relevant env vars
+ */
+export function constructPeerTlsConfig(): PeerTlsConfig {
+  const { certPath, privateKey } = getMachineCertPathAndPrivateKey();
+  return {
+    machineCertPath: certPath,
+    machinePrivateKey: privateKey,
+    vxCertAuthorityCertPath: getVxCertAuthorityCertPath(),
+  };
+}

@@ -7,8 +7,10 @@ export type {
   Component,
   CustomCertFields,
   MachineCustomCertFields,
+  MachineType,
   VxAdminCustomCertFields,
 } from './certs.js';
+export { VX_CUSTOM_CERT_FIELD } from './certs.js';
 export * from './config.js';
 export {
   manageOpensslConfig,
@@ -24,6 +26,7 @@ export * from './integration_test_utils.js';
 export * from './java_card.js';
 export * from './jurisdictions.js';
 export * from './mock_file_card.js';
+export * from './peer_tls.js';
 export * from './signed_hash_validation.js';
 export * from './signed_quick_results_reporting.js';
 export * from './test_utils.js';

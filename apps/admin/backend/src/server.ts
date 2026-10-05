@@ -12,6 +12,8 @@ import {
   MockFileCard,
 } from '@votingworks/auth';
 import type { Server } from 'node:http';
+import https from 'node:https';
+import { PeerTls, type PeerTlsLike } from '@votingworks/networking';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -82,6 +84,7 @@ export interface StartOptions {
   multiUsbDrive?: MultiUsbDrive;
   printer?: Printer;
   machineMode?: MachineModeController;
+  peerTls?: PeerTlsLike;
 }
 
 /**
@@ -166,24 +169,28 @@ export async function start(options: StartOptions = {}): Promise<Server> {
       const isMultiStationEnabled = isMultiStationAdjudicationEnabled();
 
       if (isMultiStationEnabled) {
+        const peerTls = options.peerTls ?? (await PeerTls.create());
         const peerApp = buildPeerApp({
           workspace,
           logger: baseLogger,
           machineId: getMachineConfig().machineId,
         });
-        peerApp.listen(peerPort, () => {
-          debug('Peer API server running at http://localhost:%d/', peerPort);
+        const peerServer = https.createServer(peerTls.serverOptions(), peerApp);
+        peerServer.listen(peerPort, () => {
+          debug('Peer API server running at https://localhost:%d/', peerPort);
           baseLogger.log(LogEventId.ApplicationStartup, 'system', {
-            message: `Peer API server running at http://localhost:${peerPort}/`,
+            message: `Peer API server running at https://localhost:${peerPort}/`,
             disposition: 'success',
           });
         });
+        peerTls.startRenewal([peerServer]);
 
         startHostNetworking({
           machineId: getMachineConfig().machineId,
           peerPort,
           store: workspace.store,
           logger: baseLogger,
+          peerTls,
         });
       }
 
@@ -240,11 +247,13 @@ export async function start(options: StartOptions = {}): Promise<Server> {
       const multiUsbDrive =
         options.multiUsbDrive ?? detectMultiUsbDriveFromEnv({ logger });
 
+      const peerTls = options.peerTls ?? (await PeerTls.create());
       startClientNetworking({
         machineId: getMachineConfig().machineId,
         clientStore: clientWorkspace.clientStore,
         auth,
         logger: baseLogger,
+        peerTls,
       });
 
       app = buildClientApp({

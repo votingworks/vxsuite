@@ -44,6 +44,11 @@ export type Client<Api extends AnyApi> = {
 export interface ClientOptions {
   baseUrl: string;
   timeout?: number; // If specified this timeout will be used on all requests. By default there is no timeout.
+  /**
+   * A Node http(s) Agent, or a function returning the current one, used for every request. Lets
+   * backends present client TLS credentials and reuse connections. Ignored in browsers.
+   */
+  agent?: object | (() => object);
 }
 
 /**
@@ -118,14 +123,22 @@ export function createClient<Api extends AnyApi>(
         debug(`Call: ${methodName}(${inputJson})`);
         try {
           const url = methodUrl(methodName, options.baseUrl);
-          const response = await fetch(url, {
+          const agent =
+            typeof options.agent === 'function'
+              ? options.agent()
+              : options.agent;
+          const init: RequestInit = {
             method: 'POST',
             body: serialize(input),
             headers: { 'Content-type': 'application/json' },
             signal: options.timeout
               ? AbortSignal.timeout(options.timeout)
               : undefined,
-          });
+          };
+          const response = await fetch(
+            url,
+            Object.assign(init, agent ? { agent } : {})
+          );
           debug(`Response status code: ${response.status}`);
 
           const hasJsonBody = response.headers

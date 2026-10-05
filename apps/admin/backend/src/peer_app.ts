@@ -1,5 +1,5 @@
 import { Buffer } from 'node:buffer';
-import express, { type Application } from 'express';
+import express, { type Application, type Response } from 'express';
 import * as grout from '@votingworks/grout';
 import {
   assert,
@@ -18,13 +18,18 @@ import {
   type UserRole,
 } from '@votingworks/types';
 import { type BaseLogger, LogEventId } from '@votingworks/logging';
-import type {
-  CvrTransferManifest,
-  FinishCvrTransferError,
-  RegisterScannerError,
-  ScannerRegistration,
-  StartCvrTransferError,
-  VxAdminHostApi,
+import {
+  assertPeerComponent,
+  assertPeerMachineId,
+  buildPeerTlsIdentityMiddleware,
+  type CvrTransferManifest,
+  type FinishCvrTransferError,
+  PeerIdentityError,
+  peerIdentityBeforeMiddleware,
+  type RegisterScannerError,
+  type ScannerRegistration,
+  type StartCvrTransferError,
+  type VxAdminHostApi,
 } from '@votingworks/networking';
 import { getMachineConfig } from './machine_config.js';
 import type { Workspace } from './util/workspace.js';
@@ -78,7 +83,7 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
     );
   }
 
-  const api = grout.createApi({
+  const methods = {
     registerScanner(input: {
       machineId: string;
       codeVersion: string;
@@ -86,6 +91,7 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
       pollingPlaceId?: string;
       isTestMode: boolean;
     }): Result<ScannerRegistration, RegisterScannerError> {
+      assertPeerComponent(['central-scan']);
       const machineConfig = getMachineConfig();
 
       function recordScanner(
@@ -198,6 +204,7 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
       MachineConfig & { isClientAdjudicationEnabled: boolean },
       RegisterAdjudicationStationError
     > {
+      assertPeerComponent(['admin']);
       const machineConfig = getMachineConfig();
       // Refuse to register an adjudication station running a different code
       // version.
@@ -273,6 +280,7 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
     startCvrTransfer(
       input: CvrTransferManifest & { codeVersion: string; ballotHash: string }
     ): Promise<Result<{ alreadyComplete: boolean }, StartCvrTransferError>> {
+      assertPeerComponent(['central-scan']);
       return startCvrTransfer({ workspace, logger }, input);
     },
 
@@ -280,6 +288,7 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
       machineId: string;
       batchId: string;
     }): Promise<Result<{ cvrCount: number }, FinishCvrTransferError>> {
+      assertPeerComponent(['central-scan']);
       return finishCvrTransfer({ workspace, logger, importQueue }, input);
     },
 
@@ -312,6 +321,7 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
       { cvrId: Id; data: BallotAdjudicationData } | undefined,
       AdjudicationError
     > {
+      assertPeerComponent(['admin']);
       if (!isClientAdjudicationAllowed()) {
         logger.log(LogEventId.AdminBallotClaimed, 'system', {
           message: `Rejected ballot claim from client ${input.machineId}: client adjudication is not allowed.`,
@@ -338,6 +348,7 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
     },
 
     releaseBallot(input: { machineId: string; cvrId: Id }): void {
+      assertPeerComponent(['admin']);
       // When client adjudication is not allowed, claims are managed by the
       // host (released on toggle / multi-host detection), so a stale release
       // request is a no-op rather than an error.
@@ -380,6 +391,7 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
     adjudicateCvr(
       input: AdjudicatedCvr & { machineId: string }
     ): Result<void, AdjudicationError> {
+      assertPeerComponent(['admin']);
       if (!isClientAdjudicationAllowed()) {
         logger.log(LogEventId.AdminBallotAdjudicationComplete, 'system', {
           message: `Rejected adjudication of ballot ${input.cvrId} from client ${input.machineId}: client adjudication is not allowed.`,
@@ -407,6 +419,10 @@ function buildPeerApi({ workspace, logger, machineId }: PeerAppContext) {
       });
       return ok();
     },
+  } as const;
+
+  const api = grout.createApi(methods, {
+    before: [peerIdentityBeforeMiddleware],
   });
 
   // The peer API implements the scanner-facing contract shared in
@@ -422,12 +438,41 @@ export type PeerApi = ReturnType<typeof buildPeerApi>;
 
 const VALID_SIDES: ReadonlySet<string> = new Set<Side>(['front', 'back']);
 
+function rejectUnlessPeerIdentity(
+  res: Response,
+  logger: BaseLogger,
+  check: () => void
+): boolean {
+  try {
+    check();
+    return false;
+  } catch (error) {
+    if (!(error instanceof PeerIdentityError)) {
+      throw error;
+    }
+    logger.log(LogEventId.AdminNetworkStatus, 'system', {
+      message: `Rejected peer request: ${error.message}`,
+      disposition: 'failure',
+      error: error.reason,
+    });
+    res.status(403).json({ error: error.reason });
+    return true;
+  }
+}
+
 /**
  * Builds the peer API express application for the host.
  */
 export function buildPeerApp(context: PeerAppContext): Application {
   const app: Application = express();
   const { store } = context.workspace;
+
+  app.use(
+    buildPeerTlsIdentityMiddleware({
+      logger: context.logger,
+      logEventId: LogEventId.AdminNetworkStatus,
+    })
+  );
 
   // Per-CVR upload endpoint for network CVR transfers. Raw (non-grout)
   // because the body is a zip of the cast vote record's file set.
@@ -436,6 +481,14 @@ export function buildPeerApp(context: PeerAppContext): Application {
     express.raw({ type: 'application/zip', limit: '20mb' }),
     async (req, res) => {
       const { scannerId, batchId, cvrId } = req.params;
+      if (
+        rejectUnlessPeerIdentity(res, context.logger, () => {
+          assertPeerComponent(['central-scan']);
+          assertPeerMachineId(scannerId);
+        })
+      ) {
+        return;
+      }
       if (!Buffer.isBuffer(req.body)) {
         res
           .status(400)
@@ -470,6 +523,13 @@ export function buildPeerApp(context: PeerAppContext): Application {
   // Binary ballot image endpoint — serves raw image bytes
   app.get('/api/ballot-image/:cvrId/:side', async (req, res) => {
     const { cvrId, side } = req.params;
+    if (
+      rejectUnlessPeerIdentity(res, context.logger, () =>
+        assertPeerComponent(['admin'])
+      )
+    ) {
+      return;
+    }
     if (!VALID_SIDES.has(side)) {
       res.status(400).json({ error: 'side must be "front" or "back"' });
       return;

@@ -23,3 +23,24 @@ export type {
   VxAdminHostApi,
   VxAdminHostMachineConfig,
 } from './vx_admin_host_api.js';
+export {
+  PeerIdentityError,
+  assertPeerComponent,
+  assertPeerMachineId,
+  getPeerIdentity,
+  peerIdentityBeforeMiddleware,
+  requirePeerIdentity,
+  runWithPeerIdentity,
+} from './peer_identity.js';
+export type { PeerIdentity } from './peer_identity.js';
+export {
+  PeerTls,
+  buildPeerTlsAgent,
+  buildPeerTlsIdentityMiddleware,
+  buildPeerTlsServerOptions,
+  peerIdentityFromCertificateChain,
+  peerIdentityFromSocket,
+  peerTlsRequest,
+} from './peer_tls.js';
+export type { PeerTlsLike } from './peer_tls.js';
+export { mockPeerTls } from './test_utils.js';

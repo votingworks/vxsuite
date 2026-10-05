@@ -6,6 +6,7 @@ import {
   hasOnlineInterface,
   NETWORK_POLLING_INTERVAL_MS,
   NETWORK_REQUEST_TIMEOUT_MS,
+  type PeerTlsLike,
 } from '@votingworks/networking';
 import { assert, deepEqual } from '@votingworks/basics';
 import type { DippedSmartCardAuthApi } from '@votingworks/auth';
@@ -31,11 +32,15 @@ export function getHostServiceName(machineId: string): string {
 /**
  * Creates a Grout client for a host's peer API at the given address.
  */
-function createPeerApiClient(address: string): grout.Client<PeerApi> {
+function createPeerApiClient(
+  address: string,
+  peerTls: PeerTlsLike
+): grout.Client<PeerApi> {
   debug('Creating peer API client for %s', address);
   return grout.createClient<PeerApi>({
     baseUrl: `${address}/api`,
     timeout: NETWORK_REQUEST_TIMEOUT_MS,
+    agent: () => peerTls.getAgent(),
   });
 }
 
@@ -63,11 +68,13 @@ export function startHostNetworking({
   peerPort,
   store,
   logger,
+  peerTls,
 }: {
   machineId: string;
   peerPort: number;
   store: Store;
   logger: BaseLogger;
+  peerTls: PeerTlsLike;
 }): void {
   const serviceName = getHostServiceName(machineId);
   debug('Publishing avahi service %s on port %d', serviceName, peerPort);
@@ -128,7 +135,7 @@ export function startHostNetworking({
         );
         for (const otherHost of otherHosts) {
           try {
-            const peerClient = createPeerApiClient(otherHost.address);
+            const peerClient = createPeerApiClient(otherHost.address, peerTls);
             await peerClient.getCurrentElectionMetadata();
             store.setNetworkedMachineStatus(
               otherHost.machineId,
@@ -186,11 +193,13 @@ export function startClientNetworking({
   clientStore,
   auth,
   logger,
+  peerTls,
 }: {
   machineId: string;
   clientStore: ClientStore;
   auth: DippedSmartCardAuthApi;
   logger: BaseLogger;
+  peerTls: PeerTlsLike;
 }): void {
   const { codeVersion } = getMachineConfig();
   debug('Starting client networking for machine %s', machineId);
@@ -286,7 +295,7 @@ export function startClientNetworking({
           const apiClient =
             existingConnection?.address === address
               ? existingConnection.apiClient
-              : createPeerApiClient(address);
+              : createPeerApiClient(address, peerTls);
           try {
             await apiClient.getCurrentElectionMetadata();
             reachableHosts.push({ address, apiClient });

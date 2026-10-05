@@ -21,7 +21,7 @@ const VX_IANA_ENTERPRISE_OID = '1.3.6.1.4.1.59817';
 /**
  * Instead of overloading existing X.509 cert fields, we're using our own custom cert fields.
  */
-const VX_CUSTOM_CERT_FIELD = {
+export const VX_CUSTOM_CERT_FIELD = {
   /**
    * One of: admin, central-scan, mark, mark-scan, poll-book, scan, card (the first six referring
    * to machines)

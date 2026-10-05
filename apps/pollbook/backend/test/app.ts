@@ -29,7 +29,11 @@ import {
   type DippedSmartCardAuth,
   type Election,
 } from '@votingworks/types';
-import { AvahiService, type hasOnlineInterface } from '@votingworks/networking';
+import {
+  AvahiService,
+  type hasOnlineInterface,
+  mockPeerTls,
+} from '@votingworks/networking';
 import { type LocalApi, buildLocalApp } from '../src/app.js';
 import { createLocalWorkspace, createPeerWorkspace } from '../src/workspace.js';
 import {
@@ -136,6 +140,7 @@ export async function withApp(
     workspace: peerWorkspace,
     machineId,
     codeVersion,
+    peerTls: mockPeerTls(),
   });
 
   const peerServer = peerApp.listen();
@@ -235,6 +240,7 @@ export async function withManyApps(
         workspace: peerWorkspace,
         machineId: `test-${i}`,
         codeVersion,
+        peerTls: mockPeerTls(),
       });
 
       const peerServer = peerApp.listen();

@@ -18,6 +18,7 @@ import type { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import type { DippedSmartCardAuthApi } from '@votingworks/auth';
 import type { Printer } from '@votingworks/printing';
 import type { BaseLogger } from '@votingworks/logging';
+import type { PeerTlsLike } from '@votingworks/networking';
 import type { PeerApi } from './peer_app.js';
 import type { HlcTimestamp } from './hybrid_logical_clock.js';
 import type { LocalStore } from './local_store.js';
@@ -39,6 +40,7 @@ export interface LocalAppContext extends MachineConfig {
 export interface PeerAppContext extends MachineConfig {
   auth: DippedSmartCardAuthApi;
   workspace: PeerWorkspace;
+  peerTls: PeerTlsLike;
 }
 
 export interface LocalWorkspace {

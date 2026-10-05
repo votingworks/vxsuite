@@ -4620,6 +4620,9 @@ importers:
 
   libs/networking:
     dependencies:
+      '@votingworks/auth':
+        specifier: workspace:*
+        version: link:../auth
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../backend
@@ -4629,6 +4632,9 @@ importers:
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../grout
+      '@votingworks/logging':
+        specifier: workspace:*
+        version: link:../logging
       '@votingworks/types':
         specifier: workspace:*
         version: link:../types

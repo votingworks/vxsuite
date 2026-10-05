@@ -6,6 +6,7 @@ import {
   hasOnlineInterface,
   NETWORK_POLLING_INTERVAL_MS,
   NETWORK_REQUEST_TIMEOUT_MS,
+  type PeerTlsLike,
   type RegisterScannerError,
   type VxAdminHostApi,
   type VxAdminHostMachine,
@@ -52,9 +53,11 @@ function connectionInfoForRegistrationError(
 export function startScannerNetworking({
   logger,
   store,
+  peerTls,
 }: {
   logger: BaseLogger;
   store: Store;
+  peerTls: PeerTlsLike;
 }): void {
   debug('Starting scanner networking');
   logger.log(LogEventId.CentralScanNetworkStatus, 'system', {
@@ -87,6 +90,7 @@ export function startScannerNetworking({
     return grout.createClient<VxAdminHostApi>({
       baseUrl: `${address}/api`,
       timeout: NETWORK_REQUEST_TIMEOUT_MS,
+      agent: () => peerTls.getAgent(),
     });
   }
 

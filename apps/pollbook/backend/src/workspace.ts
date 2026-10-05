@@ -3,6 +3,7 @@ import { join } from 'node:path';
 
 import type { BaseLogger } from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
+import type { PeerTlsLike } from '@votingworks/networking';
 import type { PeerWorkspace, LocalWorkspace } from './types.js';
 import { LocalStore } from './local_store.js';
 import { PeerStore } from './peer_store.js';
@@ -13,7 +14,8 @@ export function createLocalWorkspace(
   logger: BaseLogger,
   peerPort: number,
   machineId: string,
-  codeVersion: string
+  codeVersion: string,
+  peerTls?: PeerTlsLike
 ): LocalWorkspace {
   mkdirSync(workspacePath, { recursive: true });
 
@@ -23,7 +25,8 @@ export function createLocalWorkspace(
   const dbPath = join(workspacePath, 'pollbook-backend.db');
   const store = LocalStore.fileStore(dbPath, logger, machineId, codeVersion);
   const peerApiClient = grout.createClient<PeerApi>({
-    baseUrl: `http://localhost:${peerPort}/api`,
+    baseUrl: `${peerTls ? 'https' : 'http'}://localhost:${peerPort}/api`,
+    agent: peerTls ? () => peerTls.getAgent() : undefined,
   });
 
   return {

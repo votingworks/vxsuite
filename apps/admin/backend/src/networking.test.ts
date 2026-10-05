@@ -4,6 +4,7 @@ import {
   findAllVxAdminHostMachines,
   hasOnlineInterface,
   NETWORK_POLLING_INTERVAL_MS,
+  mockPeerTls,
 } from '@votingworks/networking';
 import { err, ok } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
@@ -79,6 +80,7 @@ describe('startHostNetworking', () => {
       peerPort: 3002,
       store,
       logger: mockBaseLogger({ fn: vi.fn }),
+      peerTls: mockPeerTls(),
     });
 
     expect(AvahiService.advertiseHttpService).toHaveBeenCalledWith(
@@ -95,6 +97,7 @@ describe('startHostNetworking', () => {
       peerPort: 3002,
       store,
       logger: testLogger,
+      peerTls: mockPeerTls(),
     });
 
     expect(testLogger.log).toHaveBeenCalledWith(
@@ -115,6 +118,7 @@ describe('startHostNetworking', () => {
       peerPort: 3002,
       store,
       logger: testLogger,
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
 
@@ -148,6 +152,7 @@ describe('startHostNetworking', () => {
       peerPort: 3002,
       store,
       logger: mockBaseLogger({ fn: vi.fn }),
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
 
@@ -176,6 +181,7 @@ describe('startHostNetworking', () => {
       peerPort: 3002,
       store,
       logger: mockBaseLogger({ fn: vi.fn }),
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
 
@@ -204,6 +210,7 @@ describe('startHostNetworking', () => {
       peerPort: 3002,
       store,
       logger,
+      peerTls: mockPeerTls(),
     });
 
     // Alone on the network — adjudication stays enabled
@@ -250,6 +257,7 @@ describe('startHostNetworking', () => {
       peerPort: 3002,
       store,
       logger: mockBaseLogger({ fn: vi.fn }),
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
 
@@ -272,6 +280,7 @@ describe('startHostNetworking', () => {
       peerPort: 3002,
       store,
       logger: mockBaseLogger({ fn: vi.fn }),
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
     expect(store.getMultipleHostsDetected('0001')).toEqual(true);
@@ -303,6 +312,7 @@ describe('startHostNetworking', () => {
       peerPort: 3002,
       store,
       logger: testLogger,
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
 
@@ -323,6 +333,7 @@ describe('startHostNetworking', () => {
       peerPort: 3002,
       store,
       logger: mockBaseLogger({ fn: vi.fn }),
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
 
@@ -337,6 +348,7 @@ describe('startHostNetworking', () => {
       peerPort: 3002,
       store,
       logger: mockBaseLogger({ fn: vi.fn }),
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
     expect(store.getMachines()[0]?.status).toEqual(
@@ -398,6 +410,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth: createMockAuth(),
       logger: testLogger,
+      peerTls: mockPeerTls(),
     });
 
     expect(testLogger.log).toHaveBeenCalledWith(
@@ -420,6 +433,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth: createMockAuth(),
       logger: testLogger,
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
 
@@ -471,6 +485,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth: createMockAuth(),
       logger: testLogger,
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
 
@@ -510,6 +525,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth: createMockAuth(),
       logger: testLogger,
+      peerTls: mockPeerTls(),
     });
 
     // First poll: connects and caches election
@@ -536,6 +552,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth: createMockAuth(),
       logger,
+      peerTls: mockPeerTls(),
     });
     expect(clientStore.getConnectionStatus()).toEqual(
       ClientConnectionStatus.Offline
@@ -552,6 +569,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth: createMockAuth(),
       logger,
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
 
@@ -574,6 +592,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth: createMockAuth(),
       logger,
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
 
@@ -596,6 +615,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth: createMockAuth(),
       logger,
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
     expect(clientStore.getConnectionStatus()).toEqual(
@@ -624,6 +644,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth: createMockAuth(),
       logger,
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
 
@@ -658,6 +679,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth: createMockAuth(),
       logger,
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
 
@@ -685,6 +707,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth: createMockAuth(),
       logger,
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
 
@@ -708,6 +731,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth: createMockAuth(),
       logger,
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
     expect(clientStore.getConnectionStatus()).toEqual(
@@ -738,6 +762,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth: createMockAuth(),
       logger,
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
 
@@ -768,6 +793,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth: createMockAuth(),
       logger: testLogger,
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
 
@@ -808,6 +834,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth,
       logger,
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
 
@@ -828,6 +855,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth: createMockAuth(),
       logger,
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
 
@@ -845,6 +873,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth: createMockAuth(),
       logger,
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
 
@@ -866,6 +895,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth: createMockAuth(),
       logger,
+      peerTls: mockPeerTls(),
     });
 
     // First poll: connect
@@ -896,6 +926,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth: createMockAuth(),
       logger,
+      peerTls: mockPeerTls(),
     });
 
     // First poll: connect
@@ -929,6 +960,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth: createMockAuth(),
       logger,
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
 
@@ -951,6 +983,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth: createMockAuth(),
       logger,
+      peerTls: mockPeerTls(),
     });
     await advancePollingInterval();
     expect(mockClient.registerAdjudicationStation).toHaveBeenCalledTimes(1);
@@ -991,6 +1024,7 @@ describe('startClientNetworking', () => {
       clientStore,
       auth: createMockAuth(),
       logger: testLogger,
+      peerTls: mockPeerTls(),
     });
 
     // First poll: connect with adjudication disabled
@@ -1047,7 +1081,13 @@ describe('startClientNetworking', () => {
 
     const clientStore = createClientStore();
     const auth = createMockAuth();
-    startClientNetworking({ machineId: '0011', clientStore, auth, logger });
+    startClientNetworking({
+      machineId: '0011',
+      clientStore,
+      auth,
+      logger,
+      peerTls: mockPeerTls(),
+    });
 
     // First poll: connects, sees no election
     await advancePollingInterval();
@@ -1079,7 +1119,13 @@ describe('startClientNetworking', () => {
 
     const clientStore = createClientStore();
     const auth = createMockAuth();
-    startClientNetworking({ machineId: '0012', clientStore, auth, logger });
+    startClientNetworking({
+      machineId: '0012',
+      clientStore,
+      auth,
+      logger,
+      peerTls: mockPeerTls(),
+    });
     await advancePollingInterval();
 
     expect(clientStore.getConnectionStatus()).toEqual(
@@ -1113,7 +1159,13 @@ describe('startClientNetworking', () => {
 
     const clientStore = createClientStore();
     const auth = createMockAuth();
-    startClientNetworking({ machineId: '0013', clientStore, auth, logger });
+    startClientNetworking({
+      machineId: '0013',
+      clientStore,
+      auth,
+      logger,
+      peerTls: mockPeerTls(),
+    });
 
     // First poll: connects and caches election
     await advancePollingInterval();

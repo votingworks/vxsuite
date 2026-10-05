@@ -11,10 +11,12 @@
     "declarationMap": true
   },
   "references": [
+    { "path": "../../libs/auth/tsconfig.build.json" },
     { "path": "../../libs/backend/tsconfig.build.json" },
     { "path": "../../libs/basics/tsconfig.build.json" },
     { "path": "../../libs/coverage-check/tsconfig.build.json" },
     { "path": "../../libs/grout/tsconfig.build.json" },
+    { "path": "../../libs/logging/tsconfig.build.json" },
     { "path": "../../libs/types/tsconfig.build.json" },
     { "path": "../../libs/utils/tsconfig.build.json" },
     { "path": "../test-utils/tsconfig.build.json" }

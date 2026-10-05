@@ -3,6 +3,7 @@ import {
   findAllVxAdminHostMachines,
   hasOnlineInterface,
   NETWORK_POLLING_INTERVAL_MS,
+  mockPeerTls,
 } from '@votingworks/networking';
 import type { AddressInfo } from 'node:net';
 import type { Server } from 'node:http';
@@ -152,12 +153,19 @@ async function setupHostAndClient(
 
   mockHasOnlineInterface.mockResolvedValue(true);
 
-  startHostNetworking({ machineId: hostMachineId, peerPort, store, logger });
+  startHostNetworking({
+    machineId: hostMachineId,
+    peerPort,
+    store,
+    logger,
+    peerTls: mockPeerTls(),
+  });
   startClientNetworking({
     machineId: clientMachineId,
     clientStore,
     auth,
     logger,
+    peerTls: mockPeerTls(),
   });
 
   // Allow process.nextTick callbacks to fire so setIntervals get registered

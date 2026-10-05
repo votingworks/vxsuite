@@ -13,6 +13,7 @@ import * as grout from '@votingworks/grout';
 import {
   type FinishCvrTransferError,
   NETWORK_POLLING_INTERVAL_MS,
+  mockPeerTls,
 } from '@votingworks/networking';
 import { getEntries, openZip } from '@votingworks/utils';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
@@ -223,7 +224,11 @@ test('does nothing until the scanner is registered with a host', async () => {
   const mockClient = createMockHostApiClient();
   const fetchMock = mockUploadResponses();
 
-  startCvrSync({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startCvrSync({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   await advancePollingInterval();
 
   expect(mockClient.startCvrTransfer).not.toHaveBeenCalled();
@@ -240,7 +245,7 @@ test('sends a completed batch and marks it sent', async () => {
   const fetchMock = mockUploadResponses();
   const logger = mockBaseLogger({ fn: vi.fn });
 
-  startCvrSync({ logger, store });
+  startCvrSync({ logger, store, peerTls: mockPeerTls() });
   await advancePollingInterval();
   // The send does real file I/O, which fake timers don't wait for
   await vi.waitFor(
@@ -286,7 +291,11 @@ test('sends batches oldest first, one per pass', async () => {
   const mockClient = createMockHostApiClient();
   mockUploadResponses();
 
-  startCvrSync({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startCvrSync({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   await advancePollingInterval();
   await vi.waitFor(
     () => expect(store.getNextBatchToSendToAdmin()?.id).toEqual(newerBatchId),
@@ -317,7 +326,11 @@ test('marks a batch sent without uploading when the host already has it', async 
   mockClient.startCvrTransfer.mockResolvedValue(ok({ alreadyComplete: true }));
   const fetchMock = mockUploadResponses();
 
-  startCvrSync({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startCvrSync({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   await advancePollingInterval();
 
   expect(fetchMock).not.toHaveBeenCalled();
@@ -337,7 +350,7 @@ test('a refusal at start is retried rather than failing the batch', async () => 
   mockUploadResponses();
 
   const logger = mockBaseLogger({ fn: vi.fn });
-  startCvrSync({ logger, store });
+  startCvrSync({ logger, store, peerTls: mockPeerTls() });
   await advancePollingInterval();
   await waitForFailure(logger, 'start');
 
@@ -358,7 +371,11 @@ test('repeated transient failures back off, then mark the batch failed and move 
   );
   mockUploadResponses();
 
-  startCvrSync({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startCvrSync({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   // Attempts are spaced by an exponential backoff; advance well past the
   // point where the failure threshold is reached.
   for (let i = 0; i < 40; i += 1) {
@@ -384,7 +401,11 @@ test('a batch waiting to retry stays sending until it succeeds', async () => {
   mockClient.startCvrTransfer.mockRejectedValue(new Error('ECONNREFUSED'));
   mockUploadResponses();
 
-  startCvrSync({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startCvrSync({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   await advancePollingInterval();
   expect(mockClient.startCvrTransfer).toHaveBeenCalledTimes(1);
   expect(store.getBatch(batchId).isSendingToAdmin).toEqual(true);
@@ -405,7 +426,11 @@ test('does not attempt sends while disconnected and forgets pending retries', as
   mockClient.startCvrTransfer.mockRejectedValue(new Error('ECONNREFUSED'));
   mockUploadResponses();
 
-  startCvrSync({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startCvrSync({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   await advancePollingInterval();
   expect(store.getBatch(batchId).isSendingToAdmin).toEqual(true);
 
@@ -432,7 +457,11 @@ test('a batch waiting to retry holds the batches behind it until it sends', asyn
   );
   mockUploadResponses();
 
-  startCvrSync({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startCvrSync({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   // The first backoff (2s) is one polling interval, so the flaky batch gets a
   // second attempt before its backoff grows past the interval
   await advancePollingInterval();
@@ -473,7 +502,7 @@ test('an unexpected error while sending is retried like a transient failure', as
   });
 
   const logger = mockBaseLogger({ fn: vi.fn });
-  startCvrSync({ logger, store });
+  startCvrSync({ logger, store, peerTls: mockPeerTls() });
   await advancePollingInterval();
 
   expect(logger.log).toHaveBeenCalledWith(
@@ -506,7 +535,7 @@ test('retries on the next pass when an upload fails', async () => {
   mockUploadResponses(400);
 
   const logger = mockBaseLogger({ fn: vi.fn });
-  startCvrSync({ logger, store });
+  startCvrSync({ logger, store, peerTls: mockPeerTls() });
   await advancePollingInterval();
   await waitForFailure(logger, 'upload');
 
@@ -523,7 +552,7 @@ test('retries on the next pass when the host is unreachable', async () => {
   mockUploadResponses();
 
   const logger = mockBaseLogger({ fn: vi.fn });
-  startCvrSync({ logger, store });
+  startCvrSync({ logger, store, peerTls: mockPeerTls() });
   await advancePollingInterval();
   await waitForFailure(logger, 'start');
   expectAwaitingRetry(store);
@@ -547,7 +576,7 @@ test.each<FinishCvrTransferError>([
     mockUploadResponses();
 
     const logger = mockBaseLogger({ fn: vi.fn });
-    startCvrSync({ logger, store });
+    startCvrSync({ logger, store, peerTls: mockPeerTls() });
     await advancePollingInterval();
     await waitForFailure(logger, 'finish');
 
@@ -566,7 +595,11 @@ test('a failed import marks the batch failed and skips it, sending the next batc
   );
   mockUploadResponses();
 
-  startCvrSync({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startCvrSync({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   await advancePollingInterval();
   await vi.waitFor(
     () =>
@@ -612,7 +645,7 @@ test('does not mark a batch sent when finish is unreachable', async () => {
   mockUploadResponses();
 
   const logger = mockBaseLogger({ fn: vi.fn });
-  startCvrSync({ logger, store });
+  startCvrSync({ logger, store, peerTls: mockPeerTls() });
   await advancePollingInterval();
   await waitForFailure(logger, 'finish');
 
@@ -627,7 +660,7 @@ test('retries on the next pass when an upload cannot reach the host', async () =
   vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('ECONNRESET')));
 
   const logger = mockBaseLogger({ fn: vi.fn });
-  startCvrSync({ logger, store });
+  startCvrSync({ logger, store, peerTls: mockPeerTls() });
   await advancePollingInterval();
   await waitForFailure(logger, 'upload');
 
@@ -644,7 +677,7 @@ test('marks the batch failed when a cast vote record cannot be built', async () 
   buildOverride.result = err({ type: 'missing-usb-drive' });
 
   const logger = mockBaseLogger({ fn: vi.fn });
-  startCvrSync({ logger, store });
+  startCvrSync({ logger, store, peerTls: mockPeerTls() });
   await advancePollingInterval();
   await waitForFailure(logger, 'build');
 
@@ -660,7 +693,11 @@ test('does nothing when registered with no batches to send', async () => {
   setRegistered(store);
   const mockClient = createMockHostApiClient();
 
-  startCvrSync({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startCvrSync({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   await advancePollingInterval();
 
   expect(mockClient.startCvrTransfer).not.toHaveBeenCalled();

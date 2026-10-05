@@ -3,7 +3,11 @@ import * as grout from '@votingworks/grout';
 import { assert, assertDefined, sleep } from '@votingworks/basics';
 import { shuffle } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
-import { AvahiService, hasOnlineInterface } from '@votingworks/networking';
+import {
+  AvahiService,
+  hasOnlineInterface,
+  type PeerTlsLike,
+} from '@votingworks/networking';
 import { rootDebug } from './debug.js';
 import {
   CommunicatingPollbookConnectionStatuses,
@@ -49,12 +53,14 @@ export async function resetNetworkSetup(machineId: string): Promise<void> {
 }
 
 export function createPeerApiClientForAddress(
-  address: string
+  address: string,
+  peerTls: PeerTlsLike
 ): grout.Client<PeerApi> {
   debug('Creating API client for address %s', address);
   return grout.createClient<PeerApi>({
     baseUrl: `${address}/api`,
     timeout: NETWORK_REQUEST_TIMEOUT,
+    agent: () => peerTls.getAgent(),
   });
 }
 
@@ -229,6 +235,7 @@ export function isValidIpv4Address(address: string): boolean {
 export function setupMachineNetworking({
   machineId,
   workspace,
+  peerTls,
 }: PeerAppContext): void {
   const selfMachineServiceName = getNodeServiceName(machineId);
   // Advertise a service for this machine
@@ -327,7 +334,7 @@ export function setupMachineNetworking({
           }
           const currentPollbookService = previousPollbookServices[name];
 
-          const advertisedServiceUrl = `http://${resolvedIp}:${port}`;
+          const advertisedServiceUrl = `https://${resolvedIp}:${port}`;
           // We want to re-use the old api client if it is set up, and the URL it is using matches the advertised URL.
           // Avahi can in rare cases return an invalid ipv6 address in the ipv4 field. To mitigate the impact of that when we
           // see an invalid address we will continue to use the last known good address and api client (if it exists).
@@ -357,7 +364,7 @@ export function setupMachineNetworking({
 
           const apiClient = reuseApiClient
             ? assertDefined(currentPollbookService.apiClient)
-            : createPeerApiClientForAddress(machineUrl);
+            : createPeerApiClientForAddress(machineUrl, peerTls);
 
           try {
             const machineInformation =

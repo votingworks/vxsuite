@@ -25,7 +25,7 @@ export function machineIdFromVxAdminServiceName(
 /** A VxAdmin host machine advertised on the network. */
 export interface VxAdminHostMachine {
   machineId: string;
-  /** Base address of the host's peer API server, e.g. `http://10.0.0.2:3002`. */
+  /** Base address of the host's peer API server, e.g. `https://10.0.0.2:3002`. */
   address: string;
 }
 
@@ -46,7 +46,7 @@ export async function findAllVxAdminHostMachines(): Promise<
     return [
       {
         machineId,
-        address: `http://${service.resolvedIp}:${service.port}`,
+        address: `https://${service.resolvedIp}:${service.port}`,
       },
     ];
   });

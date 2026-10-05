@@ -443,6 +443,7 @@ export function pollUsbDriveForPollbookPackage({
 export function pollNetworkForPollbookPackage({
   auth,
   workspace,
+  peerTls,
 }: PeerAppContext): void {
   usbDebug('Polling network for pollbook package');
   // @coverage-defer
@@ -526,7 +527,8 @@ export function pollNetworkForPollbookPackage({
           const { machineId } = pollbook;
           const result = await workspace.store.configureFromPeerMachine(
             workspace.assetDirectoryPath,
-            machineId
+            machineId,
+            peerTls.getAgent()
           );
           // Check if we have successfully configured!
           // @coverage-defer: whether the poll's success path runs during tests

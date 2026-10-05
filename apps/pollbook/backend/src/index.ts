@@ -8,7 +8,7 @@ import {
   isIntegrationTest,
 } from '@votingworks/utils';
 import { DippedSmartCardAuth, MockFileCard, JavaCard } from '@votingworks/auth';
-import { AvahiService } from '@votingworks/networking';
+import { AvahiService, PeerTls } from '@votingworks/networking';
 import { detectPrinter } from '@votingworks/printing';
 import * as localServer from './server.js';
 import * as peerServer from './peer_server.js';
@@ -21,7 +21,7 @@ export * from './types.js';
 
 loadEnvVarsFromDotenvFiles();
 
-function main(): Promise<number> {
+async function main(): Promise<number> {
   const baseLogger = new BaseLogger(LogSource.VxPollBookBackend);
 
   const workspacePath = getWorkspace();
@@ -54,11 +54,13 @@ function main(): Promise<number> {
     machineId,
     codeVersion
   );
+  const peerTls = await PeerTls.create();
   const peerPort = peerServer.start({
     workspace: peerWorkspace,
     machineId,
     codeVersion,
     auth,
+    peerTls,
   });
 
   const localWorkspace = createLocalWorkspace(
@@ -66,7 +68,8 @@ function main(): Promise<number> {
     baseLogger,
     peerPort,
     machineId,
-    codeVersion
+    codeVersion,
+    peerTls
   );
   localServer.start({
     workspace: localWorkspace,
@@ -81,7 +84,7 @@ function main(): Promise<number> {
     usbDrive,
   });
 
-  return Promise.resolve(0);
+  return 0;
 }
 
 // Ensure the running process is killed when the server is killed

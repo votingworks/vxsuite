@@ -1,12 +1,13 @@
 import { type BaseLogger, LogEventId } from '@votingworks/logging';
+import { peerTlsRequest } from '@votingworks/networking';
 import { Client as DbClient } from '@votingworks/db';
-import { type Result, assert, err, ok } from '@votingworks/basics';
+import { type Result, err, ok } from '@votingworks/basics';
 import { randomUUID } from 'node:crypto';
 import { unlink } from 'node:fs/promises';
 import { createWriteStream, createReadStream } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { Readable } from 'node:stream';
+import type { Agent } from 'node:https';
 import { pipeline } from 'node:stream/promises';
 import {
   NETWORK_EVENT_LIMIT,
@@ -284,7 +285,8 @@ export class PeerStore extends Store {
 
   async configureFromPeerMachine(
     assetDirectoryPath: string,
-    machineId: string
+    machineId: string,
+    agent: Agent
   ): Promise<Result<void, ConfigurationError>> {
     const election = this.getElection();
     if (election) {
@@ -312,15 +314,16 @@ export class PeerStore extends Store {
     // Download the pollbook package zip via streaming
     try {
       const pollbookUrl = `${peer.address}/file/pollbook-package`;
-      const response = await fetch(pollbookUrl);
-      if (!response.ok) {
+      const response = await peerTlsRequest(pollbookUrl, {
+        method: 'GET',
+        agent,
+      });
+      if (response.statusCode !== 200) {
+        response.resume();
         return err('pollbook-connection-problem');
       }
-      // Save to a temp file. The global `fetch` returns a web `ReadableStream`
-      // body, so adapt it to a Node stream for `pipeline`.
-      assert(response.body !== null);
       const fileStream = createWriteStream(tempPath);
-      await pipeline(Readable.fromWeb(response.body), fileStream);
+      await pipeline(response, fileStream);
       // Read and parse the pollbook package
       const pollbookPackageResult = await readPollbookPackage(tempPath);
       if (pollbookPackageResult.isErr()) {

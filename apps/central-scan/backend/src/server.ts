@@ -15,6 +15,7 @@ import {
 } from '@votingworks/utils';
 import { type UsbDrive, detectUsbDriveFromEnv } from '@votingworks/usb-drive';
 import { detectDevices, startCpuMetricsLogging } from '@votingworks/backend';
+import { PeerTls, type PeerTlsLike } from '@votingworks/networking';
 import {
   DEFAULT_DEV_DOCK_DIR,
   useDevDockRouter,
@@ -36,6 +37,7 @@ export interface StartOptions {
   app: Application;
   logger: BaseLogger;
   workspace: Workspace;
+  peerTls: PeerTlsLike;
 }
 
 /**
@@ -50,6 +52,7 @@ export function start({
   // @coverage-defer
   logger: baseLogger = new BaseLogger(LogSource.VxCentralScanService),
   workspace,
+  peerTls,
 }: Partial<StartOptions> = {}): Server {
   const stopDetectingDevices = detectDevices({ logger: baseLogger });
   let resolvedWorkspace = workspace;
@@ -137,14 +140,17 @@ export function start({
   }
 
   if (isCentralScanNetworkingEnabled()) {
-    startScannerNetworking({
-      logger: baseLogger,
-      store: resolvedWorkspace.store,
-    });
-    startCvrSync({
-      logger: baseLogger,
-      store: resolvedWorkspace.store,
-    });
+    const { store } = resolvedWorkspace;
+    void (peerTls ? Promise.resolve(peerTls) : PeerTls.create()).then(
+      (resolvedPeerTls) => {
+        startScannerNetworking({
+          logger: baseLogger,
+          store,
+          peerTls: resolvedPeerTls,
+        });
+        startCvrSync({ logger: baseLogger, store, peerTls: resolvedPeerTls });
+      }
+    );
   }
 
   useDevDockRouter(resolvedApp, express, {

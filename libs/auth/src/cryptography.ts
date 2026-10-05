@@ -236,7 +236,13 @@ export async function verifySignature({
 // Cert creation functions
 //
 
-type CertType = 'cert_authority_cert' | 'standard_cert';
+type CertType = 'cert_authority_cert' | 'standard_cert' | 'tls_leaf';
+
+const CERT_TYPE_OPENSSL_EXTENSIONS: Record<CertType, string | undefined> = {
+  cert_authority_cert: 'v3_ca',
+  standard_cert: undefined,
+  tls_leaf: 'v3_tls_leaf',
+};
 
 /**
  * Creates a cert signing request, or CSR
@@ -330,8 +336,13 @@ export async function createCertGivenCertSigningRequest({
       ...(certPublicKeyOverride
         ? ['-force_pubkey', certPublicKeyOverride]
         : []),
-      ...(certType === 'cert_authority_cert'
-        ? ['-extfile', getConfigFilePath({ usingTpm }), '-extensions', 'v3_ca']
+      ...(CERT_TYPE_OPENSSL_EXTENSIONS[certType]
+        ? [
+            '-extfile',
+            getConfigFilePath({ usingTpm }),
+            '-extensions',
+            CERT_TYPE_OPENSSL_EXTENSIONS[certType],
+          ]
         : []),
     ]);
   } finally {
@@ -367,7 +378,11 @@ const CreateCertInputSchema: z.ZodSchema<CreateCertInput> = z.object({
   ]),
   certSubject: z.string(),
   certType: z
-    .union([z.literal('cert_authority_cert'), z.literal('standard_cert')])
+    .union([
+      z.literal('cert_authority_cert'),
+      z.literal('standard_cert'),
+      z.literal('tls_leaf'),
+    ])
     .optional(),
   expiryInDays: z.number(),
   signingCertAuthorityCertPath: z.string(),

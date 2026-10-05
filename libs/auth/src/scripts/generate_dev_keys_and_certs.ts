@@ -169,7 +169,8 @@ async function generateDevKeysAndCerts({
     });
   }
 
-  // Generate non-card-programming machine private keys and certs
+  // Generate non-card-programming machine private keys and certs. Machines that sign their own
+  // peer TLS leaf certs need a cert authority cert even though they don't program cards.
   const nonCardProgrammingMachineTypes: MachineType[] = [
     'central-scan',
     'mark',
@@ -177,6 +178,7 @@ async function generateDevKeysAndCerts({
     'scan',
     'print',
   ];
+  const peerTlsMachineTypes: MachineType[] = ['central-scan'];
   for (const machineType of nonCardProgrammingMachineTypes) {
     const machinePrivateKeyPath = `${outputDir}/vx-${machineType}-private-key.pem`;
     const machineCertPath = `${outputDir}/vx-${machineType}-cert.pem`;
@@ -191,6 +193,9 @@ async function generateDevKeysAndCerts({
         machineType,
         machineId: DEV_MACHINE_ID,
       }),
+      certType: peerTlsMachineTypes.includes(machineType)
+        ? 'cert_authority_cert'
+        : 'standard_cert',
       expiryInDays: CERT_EXPIRY_IN_DAYS.DEV,
       signingCertAuthorityCertPath: vxCertAuthorityCertPath,
       signingPrivateKey: { source: 'file', path: vxPrivateKeyPath },

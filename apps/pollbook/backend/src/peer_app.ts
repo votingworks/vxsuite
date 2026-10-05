@@ -3,6 +3,12 @@ import express, { type Application } from 'express';
 import { join } from 'node:path';
 import type { Result } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
+import {
+  assertPeerComponent,
+  assertPeerMachineId,
+  buildPeerTlsIdentityMiddleware,
+  PeerIdentityError,
+} from '@votingworks/networking';
 import type {
   PollbookEvent,
   PeerAppContext,
@@ -24,6 +30,7 @@ function buildApi(context: PeerAppContext) {
 
   return grout.createApi({
     getPollbookConfigurationInformation(): PollbookConfigurationInformation {
+      assertPeerComponent(['poll-book']);
       return store.getPollbookConfigurationInformation();
     },
 
@@ -32,6 +39,7 @@ function buildApi(context: PeerAppContext) {
       configurationInformation: PollbookConfigurationInformation;
       hasMore: boolean;
     } {
+      assertPeerComponent(['poll-book']);
       return {
         ...store.getNewEvents(input.lastEventSyncedPerNode),
         configurationInformation: store.getPollbookConfigurationInformation(),
@@ -39,10 +47,12 @@ function buildApi(context: PeerAppContext) {
     },
 
     unconfigure() {
+      assertPeerMachineId(context.machineId);
       pollNetworkForPollbookPackage(context);
     },
 
     async resetNetwork() {
+      assertPeerMachineId(context.machineId);
       await resetNetworkSetup(context.machineId);
       store.clearConnectedPollbooks();
     },
@@ -50,9 +60,11 @@ function buildApi(context: PeerAppContext) {
     async configureFromPeerMachine(input: {
       machineId: string;
     }): Promise<Result<void, ConfigurationError>> {
+      assertPeerMachineId(context.machineId);
       return await store.configureFromPeerMachine(
         workspace.assetDirectoryPath,
-        input.machineId
+        input.machineId,
+        context.peerTls.getAgent()
       );
     },
   });
@@ -65,15 +77,31 @@ export function buildPeerApp(context: PeerAppContext): Application {
 
   // Apply security headers middleware first
   app.use(securityHeadersMiddleware);
+  app.use(
+    buildPeerTlsIdentityMiddleware({
+      logger: context.workspace.logger,
+      logEventId: LogEventId.PollbookNetworkStatus,
+    })
+  );
 
   const api = buildApi(context);
   app.use('/api', grout.buildRouter(api, express));
 
   // Streaming endpoint for sending the pollbook package zip file to a peer
   app.get('/file/pollbook-package', (_req, res) => {
+    try {
+      assertPeerComponent(['poll-book']);
+    } catch (error) {
+      if (!(error instanceof PeerIdentityError)) {
+        throw error;
+      }
+      res.status(403).send(error.message);
+      return;
+    }
     // Return a 404 if we are not configured
     if (!context.workspace.store.getElection()) {
       res.status(404).send('Pollbook package not found');
+      return;
     }
     context.workspace.logger.log(LogEventId.ApiCall, 'system', {
       methodName: 'getPollbookPackage',

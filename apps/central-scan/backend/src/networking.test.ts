@@ -6,6 +6,7 @@ import {
   hasOnlineInterface,
   NETWORK_POLLING_INTERVAL_MS,
   type VxAdminHostMachine,
+  mockPeerTls,
 } from '@votingworks/networking';
 import { mockBaseLogger, LogEventId } from '@votingworks/logging';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
@@ -88,7 +89,11 @@ async function advancePollingInterval(): Promise<void> {
 test('starts in offline status before the first poll', () => {
   vi.mocked(hasOnlineInterface).mockResolvedValue(false);
   const store = Store.memoryStore();
-  startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startScannerNetworking({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'offline',
   });
@@ -97,7 +102,11 @@ test('starts in offline status before the first poll', () => {
 test('reports offline when no network interface is online', async () => {
   vi.mocked(hasOnlineInterface).mockResolvedValue(false);
   const store = Store.memoryStore();
-  startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startScannerNetworking({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   await advancePollingInterval();
   expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'offline',
@@ -107,7 +116,11 @@ test('reports offline when no network interface is online', async () => {
 
 test('reports waiting-for-host when online but no VxAdmin is advertised', async () => {
   const store = Store.memoryStore();
-  startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startScannerNetworking({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   await advancePollingInterval();
   expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'online-waiting-for-host',
@@ -121,7 +134,11 @@ test('reports multiple-hosts-detected when more than one advertised VxAdmin is r
   ]);
   createMockHostApiClient();
   const store = Store.memoryStore();
-  startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startScannerNetworking({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   await advancePollingInterval();
   expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'online-multiple-hosts-detected',
@@ -144,7 +161,11 @@ test('ignores a stale advertisement and connects to the single reachable host', 
   );
   const store = Store.memoryStore();
   configureStore(store, readElectionGeneralDefinition());
-  startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startScannerNetworking({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   await advancePollingInterval();
   expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'online-host-detected',
@@ -164,7 +185,11 @@ test('reports waiting-for-host when no advertised VxAdmin is reachable', async (
     new Error('ECONNREFUSED')
   );
   const store = Store.memoryStore();
-  startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startScannerNetworking({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   await advancePollingInterval();
   expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'online-waiting-for-host',
@@ -176,7 +201,11 @@ test('reports waiting-for-host when the advertised host is unreachable', async (
   const mockClient = createMockHostApiClient();
   mockClient.registerScanner.mockRejectedValue(new Error('ECONNREFUSED'));
   const store = Store.memoryStore();
-  startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startScannerNetworking({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   await advancePollingInterval();
   expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'online-waiting-for-host',
@@ -191,7 +220,11 @@ test('reports code-version-mismatch when the host runs a different software vers
   );
   const store = Store.memoryStore();
   configureStore(store, readElectionGeneralDefinition());
-  startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startScannerNetworking({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   await advancePollingInterval();
   expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'online-code-version-mismatch',
@@ -206,7 +239,11 @@ test('reports machine-unconfigured when this scanner has no election', async () 
     err({ type: 'scanner-unconfigured' })
   );
   const store = Store.memoryStore();
-  startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startScannerNetworking({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   await advancePollingInterval();
   expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'online-machine-unconfigured',
@@ -228,7 +265,11 @@ test('reports host-unconfigured when the host has no election', async () => {
   );
   const store = Store.memoryStore();
   configureStore(store, readElectionGeneralDefinition());
-  startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startScannerNetworking({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   await advancePollingInterval();
   expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'online-host-unconfigured',
@@ -244,7 +285,11 @@ test('reports ballot-hash-mismatch when the host is configured for a different e
   );
   const store = Store.memoryStore();
   configureStore(store, readElectionGeneralDefinition());
-  startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startScannerNetworking({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   await advancePollingInterval();
   expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'online-ballot-hash-mismatch',
@@ -257,7 +302,11 @@ test('reports host-detected when everything matches', async () => {
   const mockClient = createMockHostApiClient();
   const store = Store.memoryStore();
   configureStore(store, readElectionGeneralDefinition());
-  startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startScannerNetworking({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   await advancePollingInterval();
   expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'online-host-detected',
@@ -280,7 +329,11 @@ test('reports results-official when the host has marked its results official', a
   );
   const store = Store.memoryStore();
   configureStore(store, readElectionGeneralDefinition());
-  startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startScannerNetworking({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   await advancePollingInterval();
   expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'online-results-official',
@@ -297,7 +350,11 @@ test('reports invalid-mode, with the host mode, when the host is locked to the o
   const store = Store.memoryStore();
   configureStore(store, readElectionGeneralDefinition());
   store.setTestMode(true);
-  startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  startScannerNetworking({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+    peerTls: mockPeerTls(),
+  });
   await advancePollingInterval();
   expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'online-invalid-mode',
@@ -325,7 +382,7 @@ test('tracks the batches the host holds without logging a status change', async 
   // Heartbeats sent in a later second than the batch was sent can vouch for
   // whether the host holds it
   vi.advanceTimersByTime(2_000);
-  startScannerNetworking({ logger, store });
+  startScannerNetworking({ logger, store, peerTls: mockPeerTls() });
   await advancePollingInterval();
   expect(store.getBatch(batchId).removedFromAdminAt).toBeDefined();
   expect(logger.log).toHaveBeenCalledWith(
@@ -359,7 +416,7 @@ test('logs status transitions and returns to offline when the interface goes dow
   createMockHostApiClient();
   const store = Store.memoryStore();
   configureStore(store, readElectionGeneralDefinition());
-  startScannerNetworking({ logger, store });
+  startScannerNetworking({ logger, store, peerTls: mockPeerTls() });
   await advancePollingInterval();
   expect(store.getNetworkConnectionInfo()).toEqual({
     status: 'online-host-detected',

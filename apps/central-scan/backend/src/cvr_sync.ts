@@ -1,4 +1,5 @@
 import { Buffer } from 'node:buffer';
+import type { IncomingMessage } from 'node:http';
 import * as grout from '@votingworks/grout';
 import {
   assertDefined,
@@ -15,6 +16,8 @@ import {
 import { type BaseLogger, LogEventId } from '@votingworks/logging';
 import {
   getCvrTransferUploadPath,
+  type PeerTlsLike,
+  peerTlsRequest,
   NETWORK_POLLING_INTERVAL_MS,
   type VxAdminHostApi,
 } from '@votingworks/networking';
@@ -70,11 +73,13 @@ async function sendBatchToAdmin({
   logger,
   hostAddress,
   batch,
+  peerTls,
 }: {
   store: Store;
   logger: BaseLogger;
   hostAddress: string;
   batch: BatchInfo;
+  peerTls: PeerTlsLike;
 }): Promise<SendBatchOutcome> {
   const { machineId, codeVersion } = getMachineConfig();
   // Batches can't exist while unconfigured
@@ -96,6 +101,7 @@ async function sendBatchToAdmin({
   const apiClient = grout.createClient<VxAdminHostApi>({
     baseUrl: `${hostAddress}/api`,
     timeout: CVR_TRANSFER_REQUEST_TIMEOUT_MS,
+    agent: () => peerTls.getAgent(),
   });
 
   function logFailure(step: string, detail: string): void {
@@ -173,30 +179,32 @@ async function sendBatchToAdmin({
     }
     const zipData = await createZip(zipEntries);
 
-    let response: Response;
+    let response: IncomingMessage;
     try {
-      response = await fetch(
+      response = await peerTlsRequest(
         hostAddress +
           getCvrTransferUploadPath(machineId, batch.id, castVoteRecordId),
         {
           method: 'POST',
           headers: { 'content-type': 'application/zip' },
-          body: new Uint8Array(zipData),
-          signal: AbortSignal.timeout(CVR_TRANSFER_REQUEST_TIMEOUT_MS),
+          body: zipData,
+          agent: peerTls.getAgent(),
+          timeoutMs: CVR_TRANSFER_REQUEST_TIMEOUT_MS,
         }
       );
     } catch (error) {
       logFailure('upload', `host unreachable (${error}).`);
       return { type: 'transient-failure', detail: 'host unreachable' };
     }
-    if (response.status !== 200) {
+    response.resume();
+    if (response.statusCode !== 200) {
       logFailure(
         'upload',
-        `host rejected cast vote record ${castVoteRecordId} (status ${response.status}).`
+        `host rejected cast vote record ${castVoteRecordId} (status ${response.statusCode}).`
       );
       return {
         type: 'transient-failure',
-        detail: `VxAdmin rejected a cast vote record (status ${response.status})`,
+        detail: `VxAdmin rejected a cast vote record (status ${response.statusCode})`,
       };
     }
   }
@@ -254,9 +262,11 @@ async function sendBatchToAdmin({
 export function startCvrSync({
   store,
   logger,
+  peerTls,
 }: {
   store: Store;
   logger: BaseLogger;
+  peerTls: PeerTlsLike;
 }): void {
   debug('Starting CVR sync loop');
   let isSending = false;
@@ -319,6 +329,7 @@ export function startCvrSync({
             logger,
             hostAddress: connection.hostAddress,
             batch,
+            peerTls,
           });
         } catch (error) {
           // Anything sendBatchToAdmin didn't classify itself (e.g. a failure
