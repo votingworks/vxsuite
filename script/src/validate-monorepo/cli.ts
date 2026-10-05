@@ -57,7 +57,7 @@ export async function main({ stderr }: IO): Promise<number> {
           `${relative(
             cwd,
             packageJsonPath
-          )}: "${task}" must delegate to the vx-task orchestrator so build/lint/test run the same way in Turbo and pre-Turbo modes. Expected ${JSON.stringify(
+          )}: "${task}" must delegate to the vx-task orchestrator. Expected ${JSON.stringify(
             expected
           )}, got ${
             actual === undefined ? '(missing)' : JSON.stringify(actual)

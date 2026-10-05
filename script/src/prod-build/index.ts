@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import { basename, join } from 'node:path';
-import { doBuild, doCopy, inBuildDir } from './build.ts';
+import { doCopy, inBuildDir } from './build.ts';
 import {
   getDependencyGraph,
   getPackages,
@@ -13,7 +13,6 @@ import { execSync } from './utils/exec_sync.ts';
 import { existsSync } from './utils/exists_sync.ts';
 import { mkdirp } from './utils/mkdirp.ts';
 import { rmrf } from './utils/rmrf.ts';
-import { useTurbo } from './utils/use_turbo.ts';
 
 export function main({ stdout }: IO): void {
   assertExpectedPnpmVersion();
@@ -30,25 +29,16 @@ export function main({ stdout }: IO): void {
   const appPackages = [...allPackages].filter(({ type }) => type !== 'lib');
   const prodPackages = getProductionPackages(root);
 
-  if (useTurbo()) {
-    // Build the app packages via turbo, which orders and caches the whole
-    // dependency graph. `pnpm exec` resolves turbo from the workspace without
-    // relying on it being on PATH.
-    const buildFilters = appPackages.map((pkg) => `--filter=${pkg.name}`);
-    stdout.write(
-      `🔨 Building ${appPackages.map((pkg) => pkg.name).join(', ')}\n`
-    );
-    execSync('pnpm', ['exec', 'turbo', 'run', 'build:self', ...buildFilters], {
-      cwd: WORKSPACE_ROOT,
-    });
-  } else {
-    // Opted out of Turbo: build each app package in turn via `make build`,
-    // which delegates to the package's own dependency-ordered `pnpm build`.
-    for (const { path } of appPackages) {
-      stdout.write(`🔨 ${path}\n`);
-      doBuild(path);
-    }
-  }
+  // Build the app packages via turbo, which orders and caches the whole
+  // dependency graph. `pnpm exec` resolves turbo from the workspace without
+  // relying on it being on PATH.
+  const buildFilters = appPackages.map((pkg) => `--filter=${pkg.name}`);
+  stdout.write(
+    `🔨 Building ${appPackages.map((pkg) => pkg.name).join(', ')}\n`
+  );
+  execSync('pnpm', ['exec', 'turbo', 'run', 'build:self', ...buildFilters], {
+    cwd: WORKSPACE_ROOT,
+  });
 
   const outRoot = BUILD_ROOT;
   stdout.write(`📦 Creating ${outRoot} workspace…\n`);
