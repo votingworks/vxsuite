@@ -1081,6 +1081,11 @@ export type OptionalElection = Optional<Election>;
 export const OptionalElectionSchema: z.ZodSchema<OptionalElection> =
   ElectionSchema.optional();
 
+/**
+ * @deprecated New usage of this type is highly discouraged. If being used as a
+ * parameter, consider accepting separate explicit pieces of the election data
+ * subset needed for the API.
+ */
 export interface ElectionDefinition {
   election: Election;
   electionData: string;
