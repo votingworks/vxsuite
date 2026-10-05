@@ -35,8 +35,9 @@ test('renders with desktop theme and color', () => {
     { vxTheme: theme }
   );
   const cardContents = screen.getByText('Card content');
-  expect(cardContents).toHaveStyleRule('padding: 1rem');
-  expect(cardContents.parentElement).toHaveStyleRule(
-    `background-color: ${theme.colors.primaryContainer}`
+  expect(cardContents.parentElement).toHaveStyleRule('padding', '1rem');
+  expect(cardContents.parentElement?.parentElement).toHaveStyleRule(
+    'background-color',
+    theme.colors.primaryContainer
   );
 });

@@ -99,10 +99,8 @@ describe('Button', () => {
       );
 
       const button = screen.getButton(`${colorMode} button`);
-      expect(button).toHaveStyleRule(
-        `background-color: ${theme.colors.primary}`
-      );
-      expect(button).toHaveStyleRule(`color: ${theme.colors.onPrimary}`);
+      expect(button).toHaveStyleRule('background-color', theme.colors.primary);
+      expect(button).toHaveStyleRule('color', theme.colors.onPrimary);
     }
 
     verifyPrimaryButtonColor('desktop');
@@ -114,14 +112,14 @@ describe('Button', () => {
 
   test('applies hover styling for desktop theme', () => {
     const theme = makeTheme({ colorMode: 'desktop', sizeMode: 'desktop' });
-    const expectedHoverStyles: Record<ButtonFill, string> = {
-      filled: `filter: 'saturate(1.2) brightness(1.1)'`,
-      tinted: `filter: 'saturate(1.3) brightness(0.95)'`,
-      outlined: `background-color: ${theme.colors.primaryContainer}`,
-      transparent: `background-color: ${theme.colors.primaryContainer}`,
+    const expectedHoverStyles: Record<ButtonFill, [string, string]> = {
+      filled: ['filter', 'saturate(1.2) brightness(1.1)'],
+      tinted: ['filter', 'saturate(1.3) brightness(0.95)'],
+      outlined: ['background-color', theme.colors.primaryContainer],
+      transparent: ['background-color', theme.colors.primaryContainer],
     };
 
-    for (const [fill, expectedHoverStyle] of Object.entries(
+    for (const [fill, [property, expectedValue]] of Object.entries(
       expectedHoverStyles
     )) {
       const { unmount } = render(
@@ -132,8 +130,9 @@ describe('Button', () => {
       );
 
       const button = screen.getButton('Hover me');
-      userEvent.hover(button);
-      expect(button).toHaveStyleRule(expectedHoverStyle);
+      expect(button).toHaveStyleRule(property, expectedValue, {
+        modifier: ':hover:enabled',
+      });
       unmount();
     }
   });
@@ -163,6 +162,22 @@ describe('Button', () => {
     userEvent.click(screen.getButton('Click me'));
 
     expect(onPress).toHaveBeenCalledWith(['foo', 'bar']);
+  });
+
+  test('variant warning', () => {
+    const theme = makeTheme({
+      colorMode: 'desktop',
+      sizeMode: 'desktop',
+    });
+    render(
+      <Button onPress={vi.fn()} variant="warning">
+        I’m a warning button!
+      </Button>,
+      { vxTheme: theme }
+    );
+    const button = screen.getButton('I’m a warning button!');
+    expect(button).toHaveStyleRule('background-color', theme.colors.warning);
+    expect(button).toHaveStyleRule('color', theme.colors.onWarning);
   });
 
   test('variant danger', () => {
@@ -205,13 +220,16 @@ describe('Button', () => {
     fireEvent.touchEnd(disabledButton, createTouchEndEventProperties(100, 100));
     expect(onPress).not.toHaveBeenCalled();
 
-    expect(disabledButton).toHaveStyleRule('border-style: dashed');
+    expect(disabledButton).toHaveStyleRule('border-style', 'dashed', {
+      modifier: '[disabled]',
+    });
   });
 
   test('fills in background of outlined disabled buttons in desktop theme', () => {
     const theme = makeTheme({ colorMode: 'desktop', sizeMode: 'desktop' });
     const expectedBackgroundColors: Record<ButtonColor, string> = {
       primary: theme.colors.container,
+      warning: theme.colors.container,
       danger: theme.colors.container,
       neutral: theme.colors.container,
       inverseNeutral: theme.colors.inverseContainer,
@@ -233,7 +251,9 @@ describe('Button', () => {
         { vxTheme: theme }
       );
       expect(screen.getButton('Disabled Button')).toHaveStyleRule(
-        `background-color: ${expectedBackgroundColor}`
+        'background-color',
+        expectedBackgroundColor,
+        { modifier: '[disabled]' }
       );
       unmount();
     }
