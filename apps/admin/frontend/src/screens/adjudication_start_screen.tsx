@@ -85,11 +85,6 @@ const EscalatedCallout = styled(UiCard).attrs({ color: 'warning' })`
   }
 `;
 
-const EscalatedLinkButton = styled(LinkButton)`
-  background-color: ${(p) => p.theme.colors.warningAccent};
-  border-color: ${(p) => p.theme.colors.warningAccent};
-`;
-
 const EmptyTableMessage = styled.div`
   display: flex;
   justify-content: center;
@@ -242,8 +237,10 @@ function WriteInCandidatesCard(): JSX.Element | null {
 
 function BallotAdjudicationCard({
   showHeader,
+  hasEscalatedBallots,
 }: {
   showHeader: boolean;
+  hasEscalatedBallots: boolean;
 }): JSX.Element {
   const { isOfficialResults } = useContext(AppContext);
   const queueMetadataQuery =
@@ -291,10 +288,13 @@ function BallotAdjudicationCard({
   const completedCount = totalTally - pendingTally;
   const percentComplete = Math.round((completedCount / totalTally) * 100);
   const { areWriteInCandidatesQualified } = systemSettingsQuery.data;
-  const adjudicateButtonVariant =
-    !areWriteInCandidatesQualified || candidatesQuery.data.length > 0
-      ? 'primary'
-      : 'neutral';
+  const canAdjudicate =
+    !areWriteInCandidatesQualified || candidatesQuery.data.length > 0;
+  const adjudicateButtonVariant = !canAdjudicate
+    ? 'neutral'
+    : hasEscalatedBallots
+      ? 'secondary'
+      : 'primary';
 
   if (pendingTally === 0) {
     return (
@@ -486,14 +486,12 @@ function MultiStationCard(): JSX.Element {
   );
 }
 
-function EscalatedBallotsCallout(): JSX.Element | null {
+function EscalatedBallotsCallout({
+  escalatedPendingTally,
+}: {
+  escalatedPendingTally: number;
+}): JSX.Element {
   const { isOfficialResults } = useContext(AppContext);
-  const queueMetadataQuery =
-    getBallotAdjudicationQueueMetadata.usePollingQuery();
-
-  if (!queueMetadataQuery.isSuccess) return null;
-  const { escalatedPendingTally } = queueMetadataQuery.data;
-  if (escalatedPendingTally === 0) return null;
 
   return (
     <EscalatedCallout>
@@ -501,14 +499,14 @@ function EscalatedBallotsCallout(): JSX.Element | null {
         <Icons.Flag color="warning" /> {escalatedPendingTally}{' '}
         {pluralize('ballot', escalatedPendingTally)} escalated
       </H3>
-      <EscalatedLinkButton
+      <LinkButton
         variant="primary"
         icon="PenToSquare"
         to={routerPaths.ballotAdjudicationEscalated}
         disabled={isOfficialResults}
       >
         Adjudicate Escalated Ballots
-      </EscalatedLinkButton>
+      </LinkButton>
     </EscalatedCallout>
   );
 }
@@ -517,8 +515,14 @@ export function AdjudicationStartScreen(): JSX.Element {
   const { isOfficialResults } = useContext(AppContext);
   const systemSettingsQuery = getSystemSettings.useQuery();
   const multiStationQuery = isMultiStationAdjudicationEnabled.useQuery();
+  const queueMetadataQuery =
+    getBallotAdjudicationQueueMetadata.usePollingQuery();
 
-  if (!systemSettingsQuery.isSuccess || !multiStationQuery.isSuccess) {
+  if (
+    !systemSettingsQuery.isSuccess ||
+    !multiStationQuery.isSuccess ||
+    !queueMetadataQuery.isSuccess
+  ) {
     return (
       <NavigationScreen title="Adjudication">
         <Loading isFullscreen />
@@ -530,13 +534,22 @@ export function AdjudicationStartScreen(): JSX.Element {
   const isMultiStationEnabled = multiStationQuery.data;
   const showMultiStationCard = isMultiStationEnabled && !isOfficialResults;
   const hasOtherCards = areWriteInCandidatesQualified || showMultiStationCard;
+  const { escalatedPendingTally } = queueMetadataQuery.data;
+  const hasEscalatedBallots = escalatedPendingTally > 0;
 
   return (
     <NavigationScreen title="Adjudication">
       <CardStack>
-        <EscalatedBallotsCallout />
+        {hasEscalatedBallots && (
+          <EscalatedBallotsCallout
+            escalatedPendingTally={escalatedPendingTally}
+          />
+        )}
         {areWriteInCandidatesQualified && <WriteInCandidatesCard />}
-        <BallotAdjudicationCard showHeader={hasOtherCards} />
+        <BallotAdjudicationCard
+          showHeader={hasOtherCards}
+          hasEscalatedBallots={hasEscalatedBallots}
+        />
         {showMultiStationCard && <MultiStationCard />}
       </CardStack>
     </NavigationScreen>

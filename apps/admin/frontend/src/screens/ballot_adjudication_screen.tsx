@@ -946,7 +946,13 @@ function BallotView({
           actions={
             <ModalActions>
               <Button
-                variant="primary"
+                variant="neutral"
+                onPress={() => setPendingEscalate(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="warning"
                 icon="Flag"
                 onPress={() => {
                   const { action } = pendingEscalate;
@@ -955,12 +961,6 @@ function BallotView({
                 }}
               >
                 Escalate
-              </Button>
-              <Button
-                variant="neutral"
-                onPress={() => setPendingEscalate(null)}
-              >
-                Cancel
               </Button>
             </ModalActions>
           }
