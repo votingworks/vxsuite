@@ -146,6 +146,7 @@ test('getAdjudicationQueue returns a properly ordered queue', async () => {
     markThresholds: {
       marginal: 0.05,
       definite: 0.1,
+      writeInInkAreaMm2: 8,
     },
   };
   await configureMachine(

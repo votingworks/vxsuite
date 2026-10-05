@@ -358,7 +358,8 @@ export function SystemSettingsForm({
                     ...systemSettings,
                     markThresholds: {
                       // @coverage-defer
-                      ...(systemSettings.markThresholds || { marginal: 0 }),
+                      ...(systemSettings.markThresholds ||
+                        DEFAULT_MARK_THRESHOLDS),
                       // @coverage-defer
                       definite: Number.isNaN(definite)
                         ? DEFAULT_MARK_THRESHOLDS.definite
@@ -383,9 +384,8 @@ export function SystemSettingsForm({
                     ...systemSettings,
                     markThresholds: {
                       // @coverage-defer
-                      ...(systemSettings.markThresholds || {
-                        definite: 0,
-                      }),
+                      ...(systemSettings.markThresholds ||
+                        DEFAULT_MARK_THRESHOLDS),
                       // @coverage-defer
                       marginal: Number.isNaN(marginal)
                         ? DEFAULT_MARK_THRESHOLDS.marginal
@@ -401,30 +401,27 @@ export function SystemSettingsForm({
               />
             </InputGroup>
             {isScoringUnmarkedWriteIns && (
-              <InputGroup label="Write-In Area Threshold">
+              <InputGroup label="Write-In Ink Area Threshold (mm²)">
                 <input
                   type="number"
-                  value={systemSettings.markThresholds.writeInTextArea}
+                  value={systemSettings.markThresholds.writeInInkAreaMm2}
                   onChange={(e) => {
-                    const writeInTextArea = e.target.valueAsNumber;
+                    const writeInInkAreaMm2 = e.target.valueAsNumber;
                     setSystemSettings({
                       ...systemSettings,
                       markThresholds: {
                         // @coverage-defer
-                        ...(systemSettings.markThresholds || {
-                          definite: 0,
-                          marginal: 0,
-                        }),
+                        ...(systemSettings.markThresholds ||
+                          DEFAULT_MARK_THRESHOLDS),
                         // @coverage-defer
-                        writeInTextArea: Number.isNaN(writeInTextArea)
-                          ? undefined
-                          : writeInTextArea,
+                        writeInInkAreaMm2: Number.isNaN(writeInInkAreaMm2)
+                          ? DEFAULT_MARK_THRESHOLDS.writeInInkAreaMm2
+                          : writeInInkAreaMm2,
                       },
                     });
                   }}
-                  step={0.005}
+                  step={0.5}
                   min={0}
-                  max={1}
                   disabled={!isEditing}
                   required
                 />

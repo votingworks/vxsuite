@@ -444,7 +444,11 @@ const batchId = 'batch-1';
 const indexInBatch = 19;
 const ballotAuditId = `${batchId}_0023`;
 const castVoteRecordId = unsafeParse(BallotIdSchema, '1234');
-const markThresholds: MarkThresholds = { marginal: 0.05, definite: 0.15 };
+const markThresholds: MarkThresholds = {
+  marginal: 0.05,
+  definite: 0.15,
+  writeInInkAreaMm2: 8,
+};
 
 test('buildCastVoteRecord - BMD ballot', () => {
   const castVoteRecord = buildCastVoteRecord({

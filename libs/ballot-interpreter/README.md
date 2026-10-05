@@ -298,7 +298,10 @@ follows:
    total pixels within the quadrilateral area. This ratio represents how much of
    the write-in area contains ink or markings.
 
-The score is later compared to a threshold to determine whether handwriting is
-present, but the core function simply computes the score and lets the caller
-decide how to interpret it. This enables detection of write-in votes even when
-the corresponding bubble is not filled in.
+The score, multiplied by the area's physical size from the timing-mark grid, is
+later compared to the `writeInInkAreaMm2` mark threshold, an amount of ink in
+mm², to determine whether handwriting is present; the core function simply
+computes the score and lets the caller decide how to interpret it. A physical
+amount means the same handwriting decides every write-in area regardless of its
+size or the scan's resolution. This enables detection of write-in votes even
+when the corresponding bubble is not filled in.

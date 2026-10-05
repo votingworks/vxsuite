@@ -96,14 +96,14 @@ test('election, mark threshold provided', () => {
         markThresholds={{
           definite: 0.07,
           marginal: 0.05,
-          writeInTextArea: 0.05,
+          writeInInkAreaMm2: 8,
         }}
       />
     </ConfigurationSection>
   );
 
   screen.getByText(`Mark Threshold: 0.07`);
-  screen.getByText(`Write-in Threshold: 0.05`);
+  screen.getByText(`Write-in Threshold: 8 mm²`);
 });
 
 test('election, mark threshold properly truncated', () => {
@@ -118,14 +118,14 @@ test('election, mark threshold properly truncated', () => {
         markThresholds={{
           definite: 0.12345678,
           marginal: 0.05,
-          writeInTextArea: 0.87654321,
+          writeInInkAreaMm2: 8.87654321,
         }}
       />
     </ConfigurationSection>
   );
 
   screen.getByText(`Mark Threshold: 0.1234`);
-  screen.getByText(`Write-in Threshold: 0.8765`);
+  screen.getByText(`Write-in Threshold: 8.8765 mm²`);
 });
 
 describe('AllBallotStylesSection', () => {

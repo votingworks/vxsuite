@@ -171,10 +171,10 @@ export function MarkThresholdsSection({
       <P>
         <SuccessIcon /> Mark Threshold: {truncate(markThresholds.definite, 4)}
       </P>
-      {markThresholds.writeInTextArea && (
+      {markThresholds.writeInInkAreaMm2 && (
         <P>
           <SuccessIcon /> Write-in Threshold:{' '}
-          {truncate(markThresholds.writeInTextArea, 4)}
+          {truncate(markThresholds.writeInInkAreaMm2, 4)} mm²
         </P>
       )}
     </React.Fragment>

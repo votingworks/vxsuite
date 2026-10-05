@@ -34,21 +34,59 @@ const AuthSettingsSchema: z.ZodType<AuthSettings> = z.object({
   startingCardLockoutDurationSeconds: StartingCardLockoutDurationSecondsSchema,
 });
 
+/** Side of one timing-mark grid cell: four marks per inch. */
+const GRID_UNIT_MM = 25.4 / 4;
+
+/** Area of one square timing-mark grid cell. */
+export const SQUARE_GRID_UNIT_MM2 = GRID_UNIT_MM * GRID_UNIT_MM;
+
+/**
+ * Area of the write-in box on the New Hampshire state ballot templates, 4.3 by
+ * 0.9 grid units, the smallest in use. Fractional write-in thresholds from
+ * before the threshold was an ink area are rescaled against it, so no box
+ * becomes less sensitive than it was.
+ */
+const REFERENCE_WRITE_IN_AREA_MM2 = 4.3 * 0.9 * SQUARE_GRID_UNIT_MM2;
+
+/** Converts a legacy fraction-of-the-box write-in threshold to an ink area. */
+export function legacyWriteInAreaFractionToMm2(fraction: number): number {
+  return Math.round(fraction * REFERENCE_WRITE_IN_AREA_MM2 * 100) / 100;
+}
+
+const DEFAULT_UNMARKED_WRITE_IN_INK_AREA_MM2 = 4;
+
 export interface MarkThresholds {
   readonly marginal: number;
   readonly definite: number;
-  readonly writeInTextArea?: number;
+  /** How much ink, in mm², a write-in area must hold to count as a write-in. */
+  readonly writeInInkAreaMm2: number;
 }
 
-export const MarkThresholdsSchema: z.ZodSchema<MarkThresholds> = z
+export const MarkThresholdsSchema: z.ZodType<MarkThresholds> = z
   .object({
     marginal: z.number().min(0).max(1),
     definite: z.number().min(0).max(1),
+    writeInInkAreaMm2: z.number().min(0).optional(),
+    /** A fraction of the write-in area, from before the threshold was an ink area. */
     writeInTextArea: z.number().min(0).max(1).optional(),
   })
   .refine(
     ({ marginal, definite }) => marginal <= definite,
     'marginal mark threshold must be less than or equal to definite mark threshold'
+  )
+  .transform(
+    ({
+      writeInTextArea,
+      writeInInkAreaMm2,
+      ...thresholds
+    }): MarkThresholds => ({
+      ...thresholds,
+      writeInInkAreaMm2:
+        writeInInkAreaMm2 ??
+        (writeInTextArea === undefined
+          ? DEFAULT_UNMARKED_WRITE_IN_INK_AREA_MM2
+          : legacyWriteInAreaFractionToMm2(writeInTextArea)),
+    })
   );
 
 const PRINT_MODES = [
@@ -378,8 +416,6 @@ export function safeParseSystemSettings(
   return safeParseJson(value, SystemSettingsSchema);
 }
 
-const DEFAULT_UNMARKED_WRITE_IN_THRESHOLD = 0.025;
-
 /**
  * These are our defaults assuming marginal mark adjudication is disabled. The marginal threshold
  * is irrelevant in this case.
@@ -387,7 +423,7 @@ const DEFAULT_UNMARKED_WRITE_IN_THRESHOLD = 0.025;
 export const DEFAULT_MARK_THRESHOLDS: Readonly<MarkThresholds> = {
   marginal: 0.05,
   definite: 0.07,
-  writeInTextArea: DEFAULT_UNMARKED_WRITE_IN_THRESHOLD,
+  writeInInkAreaMm2: DEFAULT_UNMARKED_WRITE_IN_INK_AREA_MM2,
 };
 
 /**
@@ -398,7 +434,7 @@ export const DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED: Readonl
   {
     marginal: 0.05,
     definite: 0.1,
-    writeInTextArea: DEFAULT_UNMARKED_WRITE_IN_THRESHOLD,
+    writeInInkAreaMm2: DEFAULT_UNMARKED_WRITE_IN_INK_AREA_MM2,
   };
 
 /**

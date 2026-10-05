@@ -61,16 +61,16 @@ export function getContestVoteOptionsForCandidateContest(
   return options;
 }
 
-type MarkThresholdsOptionalMarginal = Omit<MarkThresholds, 'marginal'> &
+type MarkThresholdsOptionalMarginal = Pick<MarkThresholds, 'definite'> &
   Partial<Pick<MarkThresholds, 'marginal'>>;
 
 export function getMarkStatus(
   markScore: BallotTargetMark['score'],
-  markThresholds: MarkThresholds
+  markThresholds: Pick<MarkThresholds, 'definite' | 'marginal'>
 ): MarkStatus;
 export function getMarkStatus(
   markScore: BallotTargetMark['score'],
-  markThresholds: Omit<MarkThresholds, 'marginal'>
+  markThresholds: Pick<MarkThresholds, 'definite'>
 ): Exclude<MarkStatus, typeof MarkStatus.Marginal>;
 export function getMarkStatus(
   markScore: BallotTargetMark['score'],

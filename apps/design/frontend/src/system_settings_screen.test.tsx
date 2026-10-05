@@ -314,7 +314,9 @@ test('setting write-in text area threshold', async () => {
 
   userEvent.click(editButton);
 
-  expect(screen.queryByText('Write-In Area Threshold')).not.toBeInTheDocument();
+  expect(
+    screen.queryByText('Write-In Ink Area Threshold (mm²)')
+  ).not.toBeInTheDocument();
 
   // VxCentralScan adjudication reason triggers the write-in area threshold input
   const centralScanContainer = screen.getByRole('group', {
@@ -325,9 +327,11 @@ test('setting write-in text area threshold', async () => {
     { name: 'Unmarked Write-In' }
   );
   userEvent.click(centralScanUnmarkedWriteIn);
-  await screen.findByText('Write-In Area Threshold');
+  await screen.findByText('Write-In Ink Area Threshold (mm²)');
   userEvent.click(centralScanUnmarkedWriteIn);
-  expect(screen.queryByText('Write-In Area Threshold')).not.toBeInTheDocument();
+  expect(
+    screen.queryByText('Write-In Ink Area Threshold (mm²)')
+  ).not.toBeInTheDocument();
 
   // VxScan adjudication reason triggers the write-in area threshold input
   const scanContainer = screen.getByRole('group', { name: 'VxScan' });
@@ -337,21 +341,21 @@ test('setting write-in text area threshold', async () => {
     })
   );
 
-  await screen.findByText('Write-In Area Threshold');
+  await screen.findByText('Write-In Ink Area Threshold (mm²)');
   const thresholdInput = screen.getByRole('spinbutton', {
-    name: 'Write-In Area Threshold',
+    name: 'Write-In Ink Area Threshold (mm²)',
   });
   expect(thresholdInput).toHaveValue(
-    electionRecord.systemSettings.markThresholds.writeInTextArea
+    electionRecord.systemSettings.markThresholds.writeInInkAreaMm2
   );
 
-  // change from 0.025 to 0.045
-  userEvent.type(thresholdInput, '{backspace}{backspace}45');
+  // change from 8 to 10
+  userEvent.type(thresholdInput, '{selectall}10');
   const updatedSystemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
     markThresholds: {
       ...DEFAULT_SYSTEM_SETTINGS.markThresholds,
-      writeInTextArea: 0.045,
+      writeInInkAreaMm2: 10,
     },
     precinctScanAdjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
   };
@@ -366,7 +370,7 @@ test('setting write-in text area threshold', async () => {
   await screen.findByRole('button', { name: 'Edit' });
 
   expect(thresholdInput).toHaveValue(
-    updatedSystemSettings.markThresholds.writeInTextArea
+    updatedSystemSettings.markThresholds.writeInInkAreaMm2
   );
 });
 
