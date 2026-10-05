@@ -165,6 +165,22 @@ describe('Button', () => {
     expect(onPress).toHaveBeenCalledWith(['foo', 'bar']);
   });
 
+  test('variant warning', () => {
+    const theme = makeTheme({
+      colorMode: 'desktop',
+      sizeMode: 'desktop',
+    });
+    render(
+      <Button onPress={vi.fn()} variant="warning">
+        I’m a warning button!
+      </Button>,
+      { vxTheme: theme }
+    );
+    const button = screen.getButton('I’m a warning button!');
+    expect(button).toHaveStyleRule('background-color', theme.colors.warning);
+    expect(button).toHaveStyleRule('color', theme.colors.onWarning);
+  });
+
   test('variant danger', () => {
     const theme = makeTheme({
       colorMode: 'contrastMedium',
@@ -212,6 +228,7 @@ describe('Button', () => {
     const theme = makeTheme({ colorMode: 'desktop', sizeMode: 'desktop' });
     const expectedBackgroundColors: Record<ButtonColor, string> = {
       primary: theme.colors.container,
+      warning: theme.colors.container,
       danger: theme.colors.container,
       neutral: theme.colors.container,
       inverseNeutral: theme.colors.inverseContainer,
