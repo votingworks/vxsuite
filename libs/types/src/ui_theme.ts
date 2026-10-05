@@ -67,11 +67,13 @@ export interface ColorTheme {
   readonly neutral: ColorString;
   readonly onNeutral: ColorString;
 
+  readonly warning: ColorString;
+  readonly onWarning: ColorString;
+  readonly warningContainer: ColorString;
+
   readonly danger: ColorString;
   readonly onDanger: ColorString;
   readonly dangerContainer: ColorString;
-
-  readonly warningContainer: ColorString;
 
   readonly inverseBackground: ColorString;
   readonly onInverse: ColorString;
