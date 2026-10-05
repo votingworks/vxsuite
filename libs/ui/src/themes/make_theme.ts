@@ -97,7 +97,7 @@ export const DesktopPalette = {
   Orange30: 'hsl(28, 100%, 73%)',
   Orange40: 'hsl(28, 100%, 53%)',
   Orange50: 'hsl(28, 100%, 38%)',
-  Orange60: 'hsl(28, 100%, 35%)',
+  Orange60: 'hsl(28, 100%, 34%)',
   Orange70: 'hsl(28, 100%, 28%)',
   Orange80: 'hsl(28, 100%, 22%)',
   Orange90: 'hsl(28, 100%, 18%)',
@@ -183,11 +183,15 @@ function expandToFullColorTheme(theme: TouchscreenColorTheme): ColorTheme {
     neutral: theme.background,
     onNeutral: theme.onBackground,
 
+    // Not currently used in touchscreen themes, so we haven't worked out colors
+    // for warning styles yet (besides warningAccent)
+    warning: theme.background,
+    warningContainer: theme.background,
+    onWarning: theme.onBackground,
+
     danger: theme.danger,
     onDanger: theme.background,
     dangerContainer: theme.background,
-
-    warningContainer: theme.background,
 
     inverseBackground: theme.onBackground,
     onInverse: theme.background,
@@ -256,11 +260,13 @@ export const colorThemes: Record<ColorMode, ColorTheme> = {
     neutral: DesktopPalette.Gray80,
     onNeutral: DesktopPalette.Gray0,
 
+    warning: DesktopPalette.Orange60,
+    onWarning: DesktopPalette.Gray0,
+    warningContainer: DesktopPalette.Orange10,
+
     danger: DesktopPalette.Red80,
     onDanger: DesktopPalette.Gray0,
     dangerContainer: DesktopPalette.Red10,
-
-    warningContainer: DesktopPalette.Orange10,
 
     inverseBackground: DesktopPalette.Gray95,
     onInverse: DesktopPalette.Gray0,

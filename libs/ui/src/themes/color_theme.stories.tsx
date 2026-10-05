@@ -276,6 +276,9 @@ export function ColorThemes(): JSX.Element {
           }}
         >
           <H4>Warning Container</H4>
+          <div style={{ color: colors.warning }}>
+            Warning - <ContrastTag />
+          </div>
           <div style={{ color: colors.onBackground }}>
             On background - <ContrastTag />
           </div>
@@ -358,6 +361,18 @@ export function ColorThemes(): JSX.Element {
           <H4>Danger</H4>
           <div style={{ color: colors.onDanger }}>
             On danger - <ContrastTag />
+          </div>
+        </RoundedRect>
+        <RoundedRect
+          style={{
+            backgroundColor: colors.warning,
+            color: colors.onWarning,
+            border: outlineIfTouchscreen,
+          }}
+        >
+          <H4>Warning</H4>
+          <div style={{ color: colors.onWarning }}>
+            On warning - <ContrastTag />
           </div>
         </RoundedRect>
       </Section>
