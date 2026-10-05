@@ -50,6 +50,7 @@ import {
   type Printer,
   renderToPdf,
   awaitJobSettlement,
+  type JobSettlementMonitor,
 } from '@votingworks/printing';
 import type { PrintCalibration } from '@votingworks/hmpb';
 import {
@@ -123,6 +124,27 @@ function isTestModeAvailable(store: Store): boolean {
 export function buildApi(ctx: Context) {
   const { auth, logger, printer, usbDrive, workspace, barcodeClient } = ctx;
   const { store } = workspace;
+
+  const jobMonitors = new Map<PrintJobId, JobSettlementMonitor>();
+
+  function monitorJobSettlement(
+    jobId: PrintJobId,
+    onSettled: (status: PrintJobStatus) => Promise<void>
+  ): void {
+    jobMonitors.set(
+      jobId,
+      awaitJobSettlement({
+        jobId,
+        printer,
+        onSettled: async (status) => {
+          await onSettled(status);
+          // The printer reports the same terminal status from here on, and the
+          // bookkeeping onSettled performs is done, so stop masking it.
+          jobMonitors.delete(jobId);
+        },
+      })
+    );
+  }
 
   // Bumped whenever the printed ballot count is reset
   // e.g. by switching ballot casting mode. This prevents the following:
@@ -232,7 +254,10 @@ export function buildApi(ctx: Context) {
     getPrintJobStatus(input: {
       jobId: PrintJobId;
     }): Result<PrintJobStatus, Error> {
-      return printer.getJobStatus(input.jobId);
+      const monitor = jobMonitors.get(input.jobId);
+      return monitor
+        ? ok(monitor.getStatus())
+        : printer.getJobStatus(input.jobId);
     },
 
     getBarcodeConnected(): boolean {
@@ -428,24 +453,18 @@ export function buildApi(ctx: Context) {
         printer,
         ...input,
       });
-      awaitJobSettlement({
-        jobId,
-        printer,
-        onSettled: async (status) => {
-          const sentToPrinter = status.outcome === 'sent-to-printer';
-          if (sentToPrinter) {
-            countPrintedBallot(generation);
-          }
-          await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
-            message: sentToPrinter
-              ? 'Ballot printed'
-              : 'Ballot failed to print',
-            disposition: sentToPrinter ? 'success' : 'failure',
-            ballotStyleId: input.ballotStyleId,
-            precinctId: input.precinctId,
-            ...(status.reason ? { reason: status.reason } : {}),
-          });
-        },
+      monitorJobSettlement(jobId, async (status) => {
+        const sentToPrinter = status.outcome === 'sent-to-printer';
+        if (sentToPrinter) {
+          countPrintedBallot(generation);
+        }
+        await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
+          message: sentToPrinter ? 'Ballot printed' : 'Ballot failed to print',
+          disposition: sentToPrinter ? 'success' : 'failure',
+          ballotStyleId: input.ballotStyleId,
+          precinctId: input.precinctId,
+          ...(status.reason ? { reason: status.reason } : {}),
+        });
       });
       return jobId;
     },
@@ -469,24 +488,20 @@ export function buildApi(ctx: Context) {
         printer,
         ...input,
       });
-      awaitJobSettlement({
-        jobId,
-        printer,
-        onSettled: async (status) => {
-          const sentToPrinter = status.outcome === 'sent-to-printer';
-          if (sentToPrinter) {
-            countPrintedBallot(generation);
-          }
-          await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
-            message: sentToPrinter
-              ? 'Blank ballot printed'
-              : 'Blank ballot failed to print',
-            disposition: sentToPrinter ? 'success' : 'failure',
-            ballotStyleId: input.ballotStyleId,
-            precinctId: input.precinctId,
-            ...(status.reason ? { reason: status.reason } : {}),
-          });
-        },
+      monitorJobSettlement(jobId, async (status) => {
+        const sentToPrinter = status.outcome === 'sent-to-printer';
+        if (sentToPrinter) {
+          countPrintedBallot(generation);
+        }
+        await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
+          message: sentToPrinter
+            ? 'Blank ballot printed'
+            : 'Blank ballot failed to print',
+          disposition: sentToPrinter ? 'success' : 'failure',
+          ballotStyleId: input.ballotStyleId,
+          precinctId: input.precinctId,
+          ...(status.reason ? { reason: status.reason } : {}),
+        });
       });
       return jobId;
     },

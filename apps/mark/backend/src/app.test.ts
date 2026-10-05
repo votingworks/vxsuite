@@ -731,6 +731,36 @@ test('print job status', async () => {
   );
 });
 
+test('a terminal print job status implies the ballot count is already written', async () => {
+  const electionDefinition = electionGeneralDefinition;
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
+  await configureMachine(
+    mockUsbDrive,
+    electionDefinition,
+    electionGeneralFixtures.uiStrings
+  );
+  await expectElectionState({ ballotsPrintedCount: 0 });
+
+  const jobId = await apiClient.printBallot({
+    precinctId: '21',
+    ballotStyleId: electionDefinition.election.ballotStyles[0]!.id,
+    votes: generateMockVotes(electionDefinition.election),
+    languageCode: 'en',
+  });
+
+  // A client polling job status must never observe a terminal outcome before
+  // the count it implies has been written, so read the count at the moment the
+  // outcome is first observed rather than afterwards.
+  let countAtTerminal: number | undefined;
+  await vi.waitFor(async () => {
+    const status = await apiClient.getPrintJobStatus({ jobId });
+    expect(status.unsafeUnwrap().outcome).not.toEqual('in-progress');
+    countAtTerminal = (await apiClient.getElectionState()).ballotsPrintedCount;
+  }, PRINT_SETTLEMENT_WAIT_OPTIONS);
+
+  expect(countAtTerminal).toEqual(1);
+});
+
 test('printing ballots', async () => {
   const electionDefinition = getMockMultiLanguageElectionDefinition(
     electionGeneralDefinition,

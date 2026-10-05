@@ -15,6 +15,13 @@ export interface AwaitJobSettlementContext {
 /** A running settlement watch, which the caller can cancel. */
 export interface JobSettlementMonitor {
   stop(): void;
+
+  /**
+   * The job's status as callers should see it. Stays `in-progress` until
+   * `onSettled` has finished, so a terminal status implies any bookkeeping
+   * `onSettled` performs is already done.
+   */
+  getStatus(): PrintJobStatus;
 }
 
 /**
@@ -26,6 +33,7 @@ export function awaitJobSettlement({
   onSettled,
 }: AwaitJobSettlementContext): JobSettlementMonitor {
   let pollTimer: NodeJS.Timeout;
+  let settledStatus: PrintJobStatus | undefined;
 
   function stop(): void {
     clearInterval(pollTimer);
@@ -38,6 +46,7 @@ export function awaitJobSettlement({
       await printer.clearJobQueue();
     }
     await onSettled(status);
+    settledStatus = status;
   }
 
   async function poll(): Promise<void> {
@@ -49,6 +58,10 @@ export function awaitJobSettlement({
         statusResult.err().message
       );
       stop();
+      settledStatus = {
+        outcome: 'failed',
+        reason: statusResult.err().message,
+      };
       return;
     }
 
@@ -63,5 +76,8 @@ export function awaitJobSettlement({
     void poll();
   }, JOB_SETTLEMENT_POLL_INTERVAL_MS);
 
-  return { stop };
+  return {
+    stop,
+    getStatus: () => settledStatus ?? { outcome: 'in-progress' },
+  };
 }
