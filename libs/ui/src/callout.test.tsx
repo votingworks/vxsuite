@@ -14,7 +14,8 @@ test('Callout shows a card with an icon and children', () => {
   const contents = screen.getByText('This is a warning');
   screen.getByRole('img', { hidden: true });
   expect(contents.parentElement).toHaveStyleRule(
-    `background-color: ${theme.colors.warningContainer}`
+    'background-color',
+    theme.colors.warningContainer
   );
 });
 
