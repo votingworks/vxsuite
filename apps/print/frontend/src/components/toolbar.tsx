@@ -12,6 +12,7 @@ import {
   ToolbarButtons,
   Toolbar as ToolbarContainer,
   getBlockingPrinterStateReason,
+  isPrinterTonerLow,
 } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 
@@ -20,10 +21,6 @@ import type {
   PrinterStatus as PrinterStatusType,
 } from '@votingworks/types';
 import { ejectUsbDrive, getDeviceStatuses, logOut } from '../api.js';
-
-// The printer is set to default to 2%, but we warn at 5%
-// to be extra careful about low toner making ballots unscannable
-const LOW_TONER_LEVEL = 5;
 
 export const BLOCKING_PRINTER_STATE_REASON_LABELS: Readonly<
   Record<IppPrinterStateReason, string>
@@ -133,16 +130,7 @@ function PrinterStatus({ status }: { status: PrinterStatusType }) {
   }
 
   // @coverage-defer
-  const cartridgeMarkerInfo = richStatus.markerInfos.find(
-    (markerInfo) =>
-      markerInfo.type === 'toner-cartridge' &&
-      markerInfo.name === 'black cartridge'
-  );
-  // @coverage-defer
-  if (
-    cartridgeMarkerInfo?.level &&
-    cartridgeMarkerInfo.level <= LOW_TONER_LEVEL
-  ) {
+  if (isPrinterTonerLow(status)) {
     return (
       <BasePrinterStatus
         icon={<Icons.Warning color="inverseWarning" />}

@@ -111,3 +111,35 @@ export function getBlockingPrinterStateReason(
     .map(stripSeveritySuffix)
     .find((reason) => BLOCKING_PRINTER_STATE_REASONS.has(reason));
 }
+
+// The printer is set to default to 2%, but we warn at 5%
+// to be extra careful about low toner making ballots unscannable
+export const LOW_TONER_LEVEL = 5;
+
+const LOW_TONER_PRINTER_STATE_REASONS: ReadonlySet<IppPrinterStateReason> =
+  new Set(['toner-low', 'marker-supply-low']);
+
+export function isPrinterTonerLow(printerStatus: PrinterStatus): boolean {
+  if (!printerStatus.connected || !printerStatus.richStatus) {
+    return false;
+  }
+
+  const { markerInfos, stateReasons } = printerStatus.richStatus;
+  const cartridgeMarkerInfo = markerInfos.find(
+    (markerInfo) =>
+      markerInfo.type === 'toner-cartridge' &&
+      markerInfo.name === 'black cartridge'
+  );
+  if (
+    cartridgeMarkerInfo &&
+    // Negative levels are IPP codes for an unavailable or unknown level
+    cartridgeMarkerInfo.level >= 0 &&
+    cartridgeMarkerInfo.level <= LOW_TONER_LEVEL
+  ) {
+    return true;
+  }
+
+  return stateReasons
+    .map(stripSeveritySuffix)
+    .some((reason) => LOW_TONER_PRINTER_STATE_REASONS.has(reason));
+}
