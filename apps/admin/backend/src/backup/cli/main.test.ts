@@ -78,13 +78,17 @@ async function makeWorkspace(logger: BaseLogger): Promise<Workspace> {
   const electionPackageHash = createHash('sha256')
     .update(electionPackage.asBuffer())
     .digest('hex');
+
+  const { ballotHash, electionData } = readElectionDefinition();
   const electionId = await workspace.store.addElection({
-    electionData: readElectionDefinition().electionData,
+    electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath,
     electionPackageHash,
   });
   workspace.store.setCurrentElectionId(electionId);
+
   return workspace;
 }
 

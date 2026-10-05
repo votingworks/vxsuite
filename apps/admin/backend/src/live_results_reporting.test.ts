@@ -93,6 +93,7 @@ async function setupStore(
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionId = await store.addElection({
     electionData: electionDefinition.electionData,
+    ballotHash: electionDefinition.ballotHash,
     systemSettingsData: JSON.stringify(systemSettings),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',

@@ -312,6 +312,7 @@ test('client receives and caches election data from configured host', async () =
   const electionDefinition = readElectionGeneralDefinition();
   const electionId = await store.addElection({
     electionData: electionDefinition.electionData,
+    ballotHash: electionDefinition.ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile({ content: 'test' }),
     electionPackageHash: 'test-hash',
@@ -352,6 +353,7 @@ test('client logs out when host election is unconfigured', async () => {
   const electionDefinition = readElectionGeneralDefinition();
   const electionId = await store.addElection({
     electionData: electionDefinition.electionData,
+    ballotHash: electionDefinition.ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile({ content: 'test' }),
     electionPackageHash: 'test-hash',
@@ -387,6 +389,7 @@ async function addElectionWithAdjudicableCvrs(
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData: electionDefinition.electionData,
+    ballotHash: electionDefinition.ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile({ content: 'test' }),
     electionPackageHash: 'test-hash',

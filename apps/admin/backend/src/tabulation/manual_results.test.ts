@@ -55,8 +55,12 @@ test('isFilterCompatibleWithManualResults', () => {
 describe('tabulateManualResults & tabulateManualBallotCounts', () => {
   test('on incompatible filter', async () => {
     const store = Store.memoryStore(makeTemporaryDirectory());
+
+    const { ballotHash, electionData } =
+      electionTwoPartyPrimaryFixtures.readElectionDefinition();
     const electionId = await store.addElection({
-      electionData: electionTwoPartyPrimaryFixtures.electionJson.asText(),
+      electionData,
+      ballotHash,
       systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
       electionPackageSourceFilePath: makeTemporaryFile(),
       electionPackageHash: 'test-election-package-hash',
@@ -83,9 +87,10 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
     const store = Store.memoryStore(makeTemporaryDirectory());
     const electionDefinition =
       electionTwoPartyPrimaryFixtures.readElectionDefinition();
-    const { election, electionData } = electionDefinition;
+    const { ballotHash, election, electionData } = electionDefinition;
     const electionId = await store.addElection({
       electionData,
+      ballotHash,
       systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
       electionPackageSourceFilePath: makeTemporaryFile(),
       electionPackageHash: 'test-election-package-hash',
