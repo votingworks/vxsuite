@@ -716,6 +716,7 @@ function buildApi({
           electionPackage;
         const electionId = await store.addElection({
           electionData: electionDefinition.electionData,
+          ballotHash: electionDefinition.ballotHash,
           systemSettingsData: JSON.stringify(systemSettings),
           electionPackageSourceFilePath: electionPackageFilePath,
           electionPackageHash,
