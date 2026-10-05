@@ -2,7 +2,7 @@ import { test, expect } from 'vitest';
 import { stringify } from 'csv-stringify/sync';
 import { parse } from 'csv-parse/sync';
 import { err } from '@votingworks/basics';
-import { safeParseElectionDefinition } from '@votingworks/types';
+import { createElectionDefinition } from '@votingworks/test-utils';
 import {
   generateAllPrecinctsTallyReport,
   generateAllPrecinctsTallyReportMetadataRow,
@@ -23,59 +23,55 @@ const generalElection = convertMsElection(
   readFixture('ms-sems-election-general-ballot-measures-10.csv'),
   readFixture('ms-sems-election-candidates-general-ballot-measures-10.csv')
 );
-const generalElectionDefinition = safeParseElectionDefinition(
-  JSON.stringify({
-    ...generalElection,
-    // Add a dummy ballot style and polling place to satisfy validation
-    ballotStyles: [
-      {
-        id: 'dummy',
-        groupId: 'dummy',
-        precincts: [],
-        districts: [],
-        languages: ['en'],
-      },
-    ],
-    pollingPlaces: [
-      {
-        id: 'dummy',
-        name: 'dummy',
-        precincts: {},
-        type: 'election_day',
-      },
-    ],
-  })
-).unsafeUnwrap();
+const generalElectionDefinition = createElectionDefinition({
+  ...generalElection,
+  // Add a dummy ballot style and polling place to satisfy validation
+  ballotStyles: [
+    {
+      id: 'dummy',
+      groupId: 'dummy',
+      precincts: [],
+      districts: [],
+      languages: ['en'],
+    },
+  ],
+  pollingPlaces: [
+    {
+      id: 'dummy',
+      name: 'dummy',
+      precincts: {},
+      type: 'election_day',
+    },
+  ],
+});
 
 const primaryElection = convertMsElection(
   'election-id-2',
   readFixture('ms-sems-election-primary-60.csv'),
   readFixture('ms-sems-election-candidates-primary-60.csv')
 );
-const primaryElectionDefinition = safeParseElectionDefinition(
-  JSON.stringify({
-    ...primaryElection,
-    // Add a dummy ballot style and polling place to satisfy validation
-    ballotStyles: [
-      {
-        id: 'dummy',
-        groupId: 'dummy',
-        precincts: [],
-        districts: [],
-        partyId: primaryElection.parties[0]!.id,
-        languages: ['en'],
-      },
-    ],
-    pollingPlaces: [
-      {
-        id: 'dummy',
-        name: 'dummy',
-        precincts: {},
-        type: 'election_day',
-      },
-    ],
-  })
-).unsafeUnwrap();
+const primaryElectionDefinition = createElectionDefinition({
+  ...primaryElection,
+  // Add a dummy ballot style and polling place to satisfy validation
+  ballotStyles: [
+    {
+      id: 'dummy',
+      groupId: 'dummy',
+      precincts: [],
+      districts: [],
+      partyId: primaryElection.parties[0]!.id,
+      languages: ['en'],
+    },
+  ],
+  pollingPlaces: [
+    {
+      id: 'dummy',
+      name: 'dummy',
+      precincts: {},
+      type: 'election_day',
+    },
+  ],
+});
 
 test('convert general election results', () => {
   const allPrecinctsTallyReportContents = generateAllPrecinctsTallyReport(

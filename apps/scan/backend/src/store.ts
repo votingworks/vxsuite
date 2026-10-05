@@ -13,7 +13,7 @@ import {
   type PollsState as PollsStateType,
   PollsStateSchema,
   safeParse,
-  safeParseElectionDefinition,
+  safeParseElection,
   safeParseJson,
   type SheetOf,
   type SystemSettings,
@@ -219,21 +219,30 @@ export class Store {
    */
   getElectionRecord(): ElectionRecord | undefined {
     if (this.cachedElectionRecord === undefined) {
-      const electionRow = this.client.one(
+      const row = this.client.one(
         `
-      select
-        election_data as electionData,
-        election_package_hash as electionPackageHash
-      from election
-      `
-      ) as { electionData: string; electionPackageHash: string } | undefined;
+        select
+          ballot_hash as ballotHash,
+          election_data as electionData,
+          election_package_hash as electionPackageHash
+        from election
+        `
+      ) as
+        | {
+            ballotHash: string;
+            electionData: string;
+            electionPackageHash: string;
+          }
+        | undefined;
 
-      this.cachedElectionRecord = electionRow
+      this.cachedElectionRecord = row
         ? {
-            electionDefinition: safeParseElectionDefinition(
-              electionRow.electionData
-            ).unsafeUnwrap(),
-            electionPackageHash: electionRow.electionPackageHash,
+            electionDefinition: {
+              ballotHash: row.ballotHash,
+              election: safeParseElection(row.electionData).unsafeUnwrap(),
+              electionData: row.electionData,
+            },
+            electionPackageHash: row.electionPackageHash,
           }
         : null;
     }

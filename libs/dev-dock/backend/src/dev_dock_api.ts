@@ -24,7 +24,7 @@ import {
   type GrayImageData,
   type PrinterConfig,
   type PrinterStatus,
-  safeParseElectionDefinition,
+  safeParseElection,
   safeParseSystemSettings,
   type SheetOf,
   type UserRole,
@@ -266,10 +266,9 @@ async function setElection(
     resolvedPath = inputAbsolutePath;
   }
 
-  const electionDefinition =
-    safeParseElectionDefinition(electionData).unsafeUnwrap();
+  const election = safeParseElection(electionData).unsafeUnwrap();
   const electionInfo: DevDockElectionInfo = {
-    title: electionDefinition.election.title,
+    title: election.title,
     inputPath,
     resolvedPath,
     arePollWorkerCardPinsEnabled:

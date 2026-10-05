@@ -1,10 +1,12 @@
 import {
+  hashElectionData,
   type Election,
   type ElectionDefinition,
-  safeParseElectionDefinition,
 } from '@votingworks/types';
 import { generateBallotStyleId } from './ballot_styles.js';
 
+// [TODO] Move to libs/test-utils and consolidate with
+// apps/mark/integration-testing/e2e/support/election.ts
 export function getMockMultiLanguageElectionDefinition(
   electionDefinition: ElectionDefinition,
   languages: string[]
@@ -23,7 +25,9 @@ export function getMockMultiLanguageElectionDefinition(
       }))
     ),
   };
-  return safeParseElectionDefinition(
-    JSON.stringify(modifiedElection)
-  ).unsafeUnwrap();
+
+  const electionData = JSON.stringify(modifiedElection);
+  const ballotHash = hashElectionData(electionData);
+
+  return { ballotHash, election: modifiedElection, electionData };
 }

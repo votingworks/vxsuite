@@ -100,6 +100,7 @@ export const Sha256Hash: z.ZodSchema<string> = z
   .string()
   .nonempty()
   .refine(
+    // @coverage-defer
     (hash) => /^[0-9a-f]*$/i.test(hash),
     'Hashes must be hex strings containing only 0-9 and a-f'
   );

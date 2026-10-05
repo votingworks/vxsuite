@@ -18,7 +18,7 @@ import { Client as DbClient } from '@votingworks/db';
 import type { BaseLogger } from '@votingworks/logging';
 import {
   type ElectionDefinition,
-  safeParseElectionDefinition,
+  safeParseElection,
   type SystemSettings,
   safeParseSystemSettings,
   type PollsState,
@@ -105,21 +105,30 @@ export class Store {
    * Gets the current election definition and election package hash.
    */
   getElectionRecord(): ElectionRecord | undefined {
-    const electionRow = this.client.one(
+    const row = this.client.one(
       `
       select
+        ballot_hash as ballotHash,
         election_data as electionData,
         election_package_hash as electionPackageHash
       from election
       `
-    ) as { electionData: string; electionPackageHash: string } | undefined;
+    ) as
+      | {
+          ballotHash: string;
+          electionData: string;
+          electionPackageHash: string;
+        }
+      | undefined;
 
     return (
-      electionRow && {
-        electionDefinition: safeParseElectionDefinition(
-          electionRow.electionData
-        ).unsafeUnwrap(),
-        electionPackageHash: electionRow.electionPackageHash,
+      row && {
+        electionDefinition: {
+          ballotHash: row.ballotHash,
+          election: safeParseElection(row.electionData).unsafeUnwrap(),
+          electionData: row.electionData,
+        },
+        electionPackageHash: row.electionPackageHash,
       }
     );
   }

@@ -20,7 +20,6 @@ import {
   type UiStringsPackage,
   constructElectionKey,
   safeParseElection,
-  safeParseElectionDefinition,
   safeParseSystemSettings,
   testCdfBallotDefinition,
 } from '@votingworks/types';
@@ -29,6 +28,7 @@ import {
   mockPollWorkerUser,
   mockSessionExpiresAt,
   zipFile,
+  parseElectionDefinition,
 } from '@votingworks/test-utils';
 import {
   electionTwoPartyPrimaryFixtures,
@@ -323,8 +323,7 @@ test('readElectionPackageFromFile loads election strings from CDF', async () => 
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ParsedElectionPackageWithHash>({
     electionPackage: {
-      electionDefinition:
-        safeParseElectionDefinition(testCdfElectionData).unsafeUnwrap(),
+      electionDefinition: parseElectionDefinition(testCdfElectionData),
       metadata: LATEST_METADATA,
       uiStringAudioIds: {},
       systemSettings: DEFAULT_SYSTEM_SETTINGS,

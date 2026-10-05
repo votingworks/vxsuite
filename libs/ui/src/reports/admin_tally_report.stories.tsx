@@ -9,7 +9,8 @@ import {
   Tabulation,
   getBallotStyle,
   getContests,
-  safeParseElectionDefinition,
+  type ElectionDefinition,
+  safeParseElection,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import electionTwoPartyPrimaryData from '@fixtures/electionTwoPartyPrimary/election.json?raw';
@@ -19,9 +20,11 @@ import {
 } from './admin_tally_report.js';
 import { PrintedReportPreview } from './layout.js';
 
-const electionTwoPartyPrimaryDefinition = safeParseElectionDefinition(
-  electionTwoPartyPrimaryData
-).unsafeUnwrap();
+const electionTwoPartyPrimaryDefinition: ElectionDefinition = {
+  ballotHash: 'cafef00d',
+  election: safeParseElection(electionTwoPartyPrimaryData).unsafeUnwrap(),
+  electionData: 'irrelevant',
+};
 const { election } = electionTwoPartyPrimaryDefinition;
 const { contests } = election;
 

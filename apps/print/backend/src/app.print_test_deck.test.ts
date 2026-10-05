@@ -9,11 +9,11 @@ import type { Buffer } from 'node:buffer';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import type { Server } from 'node:http';
 import {
-  safeParseElectionDefinition,
   BallotType,
   type ElectionDefinition,
   type EncodedBallotEntry,
 } from '@votingworks/types';
+import { parseElectionDefinition } from '@votingworks/test-utils';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
@@ -85,9 +85,9 @@ async function loadMsElectionFixture(paperSize: 'letter' | 'legal'): Promise<{
           '../../../libs/hmpb/fixtures/nh-general-election/legal'
         );
 
-  const electionDefinition = safeParseElectionDefinition(
+  const electionDefinition = parseElectionDefinition(
     await readFile(join(fixtureDir, 'election.json'), 'utf-8')
-  ).unsafeUnwrap();
+  );
   const blankBallotPdf = await readFile(join(fixtureDir, 'blank-ballot.pdf'));
   return { electionDefinition, blankBallotPdf };
 }

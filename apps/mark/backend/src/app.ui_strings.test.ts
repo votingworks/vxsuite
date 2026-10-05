@@ -9,7 +9,6 @@ import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import {
   constructElectionKey,
-  safeParseElectionDefinition,
   testCdfBallotDefinition,
 } from '@votingworks/types';
 import {
@@ -20,6 +19,7 @@ import {
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
+  parseElectionDefinition,
 } from '@votingworks/test-utils';
 import { type MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { createMockPrinterHandler } from '@votingworks/printing';
@@ -51,9 +51,9 @@ beforeEach(() => {
 });
 
 const mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
-const electionDefinition = safeParseElectionDefinition(
+const electionDefinition = parseElectionDefinition(
   JSON.stringify(testCdfBallotDefinition)
-).unsafeUnwrap();
+);
 
 afterEach(() => {
   workspace.reset();

@@ -1,7 +1,6 @@
 import { expect, test } from 'vitest';
 import * as fc from 'fast-check';
 import { assert, find, ok } from '@votingworks/basics';
-import { sha256 } from './sha256.js';
 import {
   ballotPaperDimensions,
   getBallotStyle,
@@ -44,7 +43,6 @@ import {
   type CandidateContest,
   CandidateSchema,
   type CandidateVote,
-  ElectionDefinitionSchema,
   PartyIdSchema,
   WriteInIdSchema,
   type YesNoContest,
@@ -62,10 +60,7 @@ import {
   testCdfBallotDefinition,
   testVxfElection,
 } from './cdf/ballot-definition/fixtures.js';
-import {
-  safeParseElection,
-  safeParseElectionDefinition,
-} from './election_parsing.js';
+import { safeParseElection } from './election_parsing.js';
 import { normalizeVxfAfterCdfConversion } from '../test/cdf_conversion_helpers.js';
 
 test('can build votes from a candidate ID', () => {
@@ -640,26 +635,6 @@ test('getCandidatePartiesDescription', () => {
   ).toThrowError(/not-a-listed-party/);
 });
 
-test('ElectionDefinitionSchema', () => {
-  const electionData = JSON.stringify(election);
-
-  expect(() => {
-    unsafeParse(ElectionDefinitionSchema, {
-      ballotHash: 'abc',
-      electionData,
-      election: electionTwoPartyPrimary,
-    });
-  }).toThrowError(/hash/);
-
-  expect(
-    unsafeParse(ElectionDefinitionSchema, {
-      ballotHash: sha256(electionData),
-      electionData,
-      election,
-    }).election
-  ).toEqual(election);
-});
-
 test('BallotStyleSchema with ballot style languages', () => {
   const ballotStyle = {
     districts: ['district1', 'district2'],
@@ -677,12 +652,6 @@ test('BallotStyleSchema with ballot style languages', () => {
 });
 
 test('formatBallotHash', () => {
-  const electionDefinition = safeParseElectionDefinition(
-    JSON.stringify(election)
-  ).unsafeUnwrap();
-  expect(electionDefinition.ballotHash).toContain(
-    formatBallotHash(electionDefinition.ballotHash)
-  );
   expect(formatBallotHash('1234567890abcdef')).toEqual('1234567');
 });
 

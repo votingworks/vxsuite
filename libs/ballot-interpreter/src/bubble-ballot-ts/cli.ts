@@ -12,12 +12,13 @@ import {
   type ElectionDefinition,
   mapSheet,
   type MarkThresholds,
-  safeParseElectionDefinition,
+  safeParseElection,
   safeParseJson,
   type SheetOf,
   type SystemSettings,
   safeParseSystemSettings,
   safeParseNumber,
+  hashElectionData,
 } from '@votingworks/types';
 import { jsonStream } from '@votingworks/utils';
 import Sqlite3 from 'better-sqlite3';
@@ -276,15 +277,24 @@ function tryReadElectionFromElectionTable(
   db: Sqlite3.Database
 ): Optional<ElectionDefinition> {
   try {
-    const electionData = (
-      db
-        .prepare('SELECT election_data as electionData FROM election LIMIT 1')
-        .get() as Optional<{ electionData: string }>
-    )?.electionData?.toString();
+    const res = db
+      .prepare(
+        `
+          SELECT
+            ballot_hash as ballotHash,
+            election_data as electionData
+          FROM election
+          LIMIT 1
+        `
+      )
+      .get() as Optional<{ ballotHash: string; electionData: string }>;
 
-    return electionData
-      ? safeParseElectionDefinition(electionData).ok()
-      : undefined;
+    if (!res) return undefined;
+
+    const { ballotHash, electionData } = res;
+    const election = safeParseElection(electionData).unsafeUnwrap();
+
+    return { ballotHash, election, electionData };
   } catch {
     return undefined;
   }
@@ -688,22 +698,24 @@ export async function main(args: string[], io: IO = process): Promise<number> {
     });
   }
 
+  // [TODO] This will need to read from an election package ZIP instead, or
+  // receive an explicit ballot hash, to support split-file elections.
   if (electionDefinitionPath && systemSettingsPath) {
-    const parseElectionDefinitionResult = safeParseElectionDefinition(
-      await fs.readFile(electionDefinitionPath, 'utf8')
-    );
+    const electionData = await fs.readFile(electionDefinitionPath, 'utf8');
+    const ballotHash = hashElectionData(electionData);
+    const parseElectionResult = safeParseElection(electionData);
 
-    if (parseElectionDefinitionResult.isErr()) {
+    if (parseElectionResult.isErr()) {
       io.stderr.write(
         `Error parsing election definition: ${
-          parseElectionDefinitionResult.err().message
+          parseElectionResult.err().message
         }\n`
       );
       usage(io.stderr);
       return 1;
     }
 
-    const electionDefinition = parseElectionDefinitionResult.ok();
+    const election = parseElectionResult.ok();
 
     const parseSystemSettingsResult = safeParseSystemSettings(
       await fs.readFile(systemSettingsPath, 'utf8')
@@ -723,7 +735,7 @@ export async function main(args: string[], io: IO = process): Promise<number> {
     const systemSettings = parseSystemSettingsResult.ok();
     if (ballotPathSideA && ballotPathSideB) {
       return await interpretFiles(
-        electionDefinition,
+        { ballotHash, election, electionData },
         systemSettings,
         [ballotPathSideA, ballotPathSideB],
         {
@@ -740,7 +752,7 @@ export async function main(args: string[], io: IO = process): Promise<number> {
     }
     if (castVoteRecordFolderPath) {
       await interpretCastVoteRecordFolder(
-        electionDefinition,
+        { ballotHash, election, electionData },
         systemSettings,
         castVoteRecordFolderPath,
         {

@@ -23,7 +23,12 @@ import {
   readElectionGeneralDefinition,
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
-import { suppressingConsoleOutput, zipFile } from '@votingworks/test-utils';
+import {
+  createElectionDefinition,
+  createElectionDefinitionCdf,
+  suppressingConsoleOutput,
+  zipFile,
+} from '@votingworks/test-utils';
 import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   ELECTION_PACKAGE_FOLDER,
@@ -50,8 +55,6 @@ import {
   type UiStringsPackage,
   type VotesDict,
   anyPollingPlace,
-  convertVxfElectionToCdfBallotDefinition,
-  safeParseElectionDefinition,
   safeParseSystemSettings,
 } from '@votingworks/types';
 import type { MockUsbDrive } from '@votingworks/usb-drive';
@@ -352,10 +355,7 @@ test('configureElectionPackageFromUsb cleans up when audio clip streaming fails'
 
 test('configure with CDF election', async () => {
   const electionGeneral = readElectionGeneral();
-  const cdfElection = convertVxfElectionToCdfBallotDefinition(electionGeneral);
-  const cdfElectionDefinition = safeParseElectionDefinition(
-    JSON.stringify(cdfElection)
-  ).unsafeUnwrap();
+  const cdfElectionDefinition = createElectionDefinitionCdf(electionGeneral);
   mockElectionManagerAuth(mockAuth, cdfElectionDefinition);
   await setUpUsbAndConfigureElection(cdfElectionDefinition);
 
@@ -663,9 +663,7 @@ test.each([
       }),
     };
 
-    const electionDefinition = safeParseElectionDefinition(
-      JSON.stringify(election)
-    ).unsafeUnwrap();
+    const electionDefinition = createElectionDefinition(election);
 
     assert(!!idContestWithTermDescription);
     const config = await configureForTestElection(electionDefinition, {

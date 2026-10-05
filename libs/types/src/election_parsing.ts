@@ -3,11 +3,7 @@ import type { z } from 'zod/v4';
 import { sha256 } from './sha256.js';
 import { safeParseCdfBallotDefinition } from './cdf/ballot-definition/convert.js';
 import type * as Cdf from './cdf/ballot-definition/index.js';
-import {
-  type Election,
-  type ElectionDefinition,
-  ElectionSchema,
-} from './election.js';
+import { type Election, ElectionSchema } from './election.js';
 import { safeParse, safeParseJson } from './generic.js';
 
 /**
@@ -81,44 +77,6 @@ export function safeParseElection(
   return ok(result.ok().vxfElection);
 }
 
-interface ExtendedElectionDefinition {
-  cdfElection?: Cdf.BallotDefinition;
-  electionDefinition: ElectionDefinition;
-}
-
-/**
- * Parses `value` as a JSON `Election`, computing the ballot hash if the
- * result is `Ok`.
- */
-function safeParseElectionDefinitionExtended(
-  value: string
-): Result<ExtendedElectionDefinition, z.ZodError | SyntaxError> {
-  const result = safeParseElectionExtended(value);
-  return result.isErr()
-    ? result
-    : ok({
-        cdfElection: result.ok().cdfElection,
-        electionDefinition: {
-          election: result.ok().vxfElection,
-          electionData: value,
-
-          // [TODO](https://github.com/votingworks/vxsuite/issues/9217): Move
-          // hashing out of the parsing path. It will be computed only at export
-          // and configuration time, from multiple election package files, and
-          // sourced from the app DBs.
-          ballotHash: sha256(value),
-        },
-      });
-}
-
-/**
- * Parses `value` as a JSON `Election`, computing the ballot hash if the
- * result is `Ok`.
- */
-export function safeParseElectionDefinition(
-  value: string
-): Result<ElectionDefinition, z.ZodError | SyntaxError> {
-  const result = safeParseElectionDefinitionExtended(value);
-
-  return result.isErr() ? result : ok(result.ok().electionDefinition);
+export function hashElectionData(data: string): string {
+  return sha256(data);
 }

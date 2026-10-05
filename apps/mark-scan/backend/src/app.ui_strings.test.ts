@@ -7,10 +7,8 @@ import {
   runUiStringMachineDeconfigurationTests,
 } from '@votingworks/backend';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
-import {
-  safeParseElectionDefinition,
-  testCdfBallotDefinition,
-} from '@votingworks/types';
+import { testCdfBallotDefinition } from '@votingworks/types';
+import { parseElectionDefinition } from '@votingworks/test-utils';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
@@ -44,9 +42,9 @@ beforeEach(() => {
 });
 
 const mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
-const electionDefinition = safeParseElectionDefinition(
+const electionDefinition = parseElectionDefinition(
   JSON.stringify(testCdfBallotDefinition)
-).unsafeUnwrap();
+);
 
 afterEach(() => {
   workspace.reset();
