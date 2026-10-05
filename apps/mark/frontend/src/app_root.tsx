@@ -36,6 +36,7 @@ import {
   PatDeviceCalibrationPage,
   Keybinding,
   getBlockingPrinterStateReason,
+  isPrinterTonerLow,
 } from '@votingworks/ui';
 
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
@@ -693,6 +694,7 @@ export function AppRoot(): JSX.Element | null {
         electionDefinition={electionDefinition}
         electionPackageHash={assertDefined(electionPackageHash)}
         isLiveMode={!isTestMode}
+        isPrinterTonerLow={isPrinterTonerLow(printerStatus)}
         pollingPlaceId={pollingPlaceId}
         pollsState={pollsState}
       />
