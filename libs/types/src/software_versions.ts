@@ -13,7 +13,6 @@ import {
   type ContestId,
   ContestIdSchema,
   type Election,
-  type ElectionDefinition,
   ElectionSchema,
   JurisdictionSchema,
   type PartyId,
@@ -42,7 +41,7 @@ import {
   RectSchema,
 } from './geometry.js';
 import { pollingPlacesGenerateFromPrecincts } from './polling_places.js';
-import { hashElectionData, safeParseElection } from './election_parsing.js';
+import { safeParseElection } from './election_parsing.js';
 import { type Id, IdSchema, safeParse, safeParseJson } from './generic.js';
 import {
   ElectionStringKey,
@@ -428,42 +427,26 @@ function convertV4p0ElectionToLatest(election: ElectionV4p0): Election {
   };
 }
 
-type ElectionDefinitionV4p0 = Omit<ElectionDefinition, 'election'> & {
-  election: ElectionV4p0;
-};
-
-export function safeParseElectionDefinitionV4p0(
+export function safeParseElectionV4p0(
   value: string
-): Result<ElectionDefinitionV4p0, z.ZodError | SyntaxError> {
-  const valueJson = safeParseJson(value);
-  if (valueJson.isErr()) return valueJson;
-  const election = safeParse(ElectionV4p0Schema, valueJson.ok());
-  if (election.isErr()) return election;
-  return ok({
-    election: election.ok(),
-    electionData: value,
-    ballotHash: hashElectionData(value),
-  });
+): Result<ElectionV4p0, z.ZodError | SyntaxError> {
+  const jsonResult = safeParseJson(value);
+  if (jsonResult.isErr()) return jsonResult;
+
+  return safeParse(ElectionV4p0Schema, jsonResult.ok());
 }
 
-// [TODO] Return an `Election` and move hashing into the caller, when needed.
-export function safeParseElectionDefinitionForAnySoftwareVersion(
+export function safeParseElectionAnyVersion(
   value: string
-): Result<ElectionDefinition, z.ZodError | SyntaxError> {
+): Result<Election, z.ZodError | SyntaxError> {
   const latestResult = safeParseElection(value);
-  if (latestResult.isOk())
-    return ok({
-      ballotHash: hashElectionData(value),
-      election: latestResult.ok(),
-      electionData: value,
-    });
+  if (latestResult.isOk()) {
+    return latestResult;
+  }
 
-  const v4p0Result = safeParseElectionDefinitionV4p0(value);
+  const v4p0Result = safeParseElectionV4p0(value);
   if (v4p0Result.isOk()) {
-    return ok({
-      ...v4p0Result.ok(),
-      election: convertV4p0ElectionToLatest(v4p0Result.ok().election),
-    });
+    return ok(convertV4p0ElectionToLatest(v4p0Result.ok()));
   }
 
   return latestResult;

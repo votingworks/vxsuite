@@ -5,8 +5,8 @@ import type { Election, SheetPositions } from './election.js';
 import { safeParseElection } from './election_parsing.js';
 import {
   convertLatestElectionToV4p0,
-  safeParseElectionDefinitionForAnySoftwareVersion,
-  safeParseElectionDefinitionV4p0,
+  safeParseElectionAnyVersion,
+  safeParseElectionV4p0,
 } from './software_versions.js';
 import { election, primaryElection } from '../test/election.js';
 
@@ -163,49 +163,35 @@ test('convertLatestElectionToV4p0 leaves additionalHashInput untouched when ther
   );
 });
 
-test('safeParseElectionDefinitionV4p0', () => {
-  const electionDefinition = safeParseElectionDefinitionV4p0(
+test('safeParseElectionV4p0', () => {
+  const electionV4p0 = safeParseElectionV4p0(
     v4p0PrimaryElectionData
   ).unsafeUnwrap();
-  expect(electionDefinition.election).toEqual(
-    convertLatestElectionToV4p0(primaryElection)
-  );
-  expect(electionDefinition.electionData).toEqual(v4p0PrimaryElectionData);
-  expect(electionDefinition.ballotHash).toMatchInlineSnapshot(
-    `"2eed58532057418228ff007d96c26a6d43529a5cf7d4e04ec925c3ae27861f30"`
-  );
+  expect(electionV4p0).toEqual(convertLatestElectionToV4p0(primaryElection));
 
-  expect(
-    safeParseElectionDefinitionV4p0(closedPrimaryElectionData).err()
-  ).toBeInstanceOf(z.ZodError);
-  expect(safeParseElectionDefinitionV4p0('not json').err()).toBeInstanceOf(
-    SyntaxError
+  expect(safeParseElectionV4p0(closedPrimaryElectionData).err()).toBeInstanceOf(
+    z.ZodError
   );
+  expect(safeParseElectionV4p0('not json').err()).toBeInstanceOf(SyntaxError);
   const badDateElectionData = JSON.stringify({
     ...convertLatestElectionToV4p0(primaryElection),
     date: 'not-a-date',
   });
-  expect(
-    safeParseElectionDefinitionV4p0(badDateElectionData).err()
-  ).toBeInstanceOf(z.ZodError);
+  expect(safeParseElectionV4p0(badDateElectionData).err()).toBeInstanceOf(
+    z.ZodError
+  );
 });
 
-test('safeParseElectionDefinitionForAnySoftwareVersion', () => {
+test('safeParseElectionAnyVersion', () => {
   expect(
-    safeParseElectionDefinitionForAnySoftwareVersion(
-      generalElectionData
-    ).unsafeUnwrap().election
+    safeParseElectionAnyVersion(generalElectionData).unsafeUnwrap()
   ).toEqual(election);
   expect(
-    safeParseElectionDefinitionForAnySoftwareVersion(
-      closedPrimaryElectionData
-    ).unsafeUnwrap().election
+    safeParseElectionAnyVersion(closedPrimaryElectionData).unsafeUnwrap()
   ).toEqual(primaryElection);
 
   expect(
-    safeParseElectionDefinitionForAnySoftwareVersion(
-      v4p0PrimaryElectionData
-    ).unsafeUnwrap().election
+    safeParseElectionAnyVersion(v4p0PrimaryElectionData).unsafeUnwrap()
   ).toEqual(primaryElection);
 
   // When the input is invalid for every version, the error returned is the
@@ -214,8 +200,7 @@ test('safeParseElectionDefinitionForAnySoftwareVersion', () => {
     ...primaryElection,
     type: 'not-a-real-type',
   });
-  const result =
-    safeParseElectionDefinitionForAnySoftwareVersion(invalidElectionData);
+  const result = safeParseElectionAnyVersion(invalidElectionData);
   expect(result.err()).toEqual(safeParseElection(invalidElectionData).err());
 });
 
@@ -232,16 +217,12 @@ test('v4.0 ballot styles may omit languages; conversion to latest defaults them 
   });
 
   // The v4.0 schema accepts ballot styles without `languages`.
-  const v4p0Parsed =
-    safeParseElectionDefinitionV4p0(v4p0ElectionData).unsafeUnwrap();
-  expect(v4p0Parsed.election.ballotStyles[0]?.languages).toBeUndefined();
+  const v4p0Parsed = safeParseElectionV4p0(v4p0ElectionData).unsafeUnwrap();
+  expect(v4p0Parsed.ballotStyles[0]?.languages).toBeUndefined();
 
   // Converting to the latest version fills in ['en'] so the now-required field
   // is satisfied.
-  const upgraded =
-    safeParseElectionDefinitionForAnySoftwareVersion(
-      v4p0ElectionData
-    ).unsafeUnwrap().election;
+  const upgraded = safeParseElectionAnyVersion(v4p0ElectionData).unsafeUnwrap();
   expect(upgraded.ballotStyles.length).toBeGreaterThan(0);
   for (const ballotStyle of upgraded.ballotStyles) {
     expect(ballotStyle.languages).toEqual(['en']);
@@ -257,16 +238,12 @@ test('v4.0 elections may omit polling places; conversion to latest defaults one 
   const v4p0ElectionData = JSON.stringify(withoutPollingPlaces);
 
   // The v4.0 schema accepts elections without `pollingPlaces`.
-  const v4p0Parsed =
-    safeParseElectionDefinitionV4p0(v4p0ElectionData).unsafeUnwrap();
-  expect(v4p0Parsed.election.pollingPlaces).toBeUndefined();
+  const v4p0Parsed = safeParseElectionV4p0(v4p0ElectionData).unsafeUnwrap();
+  expect(v4p0Parsed.pollingPlaces).toBeUndefined();
 
   // Converting to the latest version generates an election-day polling place
   // per precinct so the now-required field is satisfied.
-  const upgraded =
-    safeParseElectionDefinitionForAnySoftwareVersion(
-      v4p0ElectionData
-    ).unsafeUnwrap().election;
+  const upgraded = safeParseElectionAnyVersion(v4p0ElectionData).unsafeUnwrap();
   expect(upgraded.pollingPlaces).toEqual(
     primaryElection.precincts.map((precinct) => ({
       id: `${precinct.id}-polling-place`,
@@ -341,9 +318,9 @@ test('ballot positions round-trip through the v4.0 gridLayouts shape', () => {
   expect(v4p0Election.ballotStyles[0]).not.toHaveProperty('ballotPositions');
 
   // Converting back reconstructs the identical ballotPositions.
-  const roundTripped = safeParseElectionDefinitionForAnySoftwareVersion(
+  const roundTripped = safeParseElectionAnyVersion(
     JSON.stringify(v4p0Election)
-  ).unsafeUnwrap().election;
+  ).unsafeUnwrap();
   expect(roundTripped.ballotStyles[0]?.ballotPositions).toEqual(
     ballotPositions
   );

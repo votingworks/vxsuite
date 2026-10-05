@@ -57,7 +57,7 @@ import {
   isPrecinctCount,
   isSplitCounts,
   type PrecinctRegisteredVoterCountEntry,
-  safeParseElectionDefinitionForAnySoftwareVersion,
+  safeParseElectionAnyVersion,
   type SoftwareVersion,
   type ElectionType,
   straightPartyNotYetImplemented,
@@ -1326,18 +1326,16 @@ export class Store {
     }
 
     // Parse the election data
-    const parseResult = safeParseElectionDefinitionForAnySoftwareVersion(
-      row.electionData
-    );
+    const parseResult = safeParseElectionAnyVersion(row.electionData);
     if (parseResult.isErr()) {
       return err('election-out-of-date');
     }
-    const electionDefinition = parseResult.ok();
 
-    // Verify the ballot hash matches the sha256 of the election data
-    assert(electionDefinition.ballotHash === row.ballotHash);
-
-    return ok(electionDefinition);
+    return ok({
+      ballotHash: row.ballotHash,
+      election: parseResult.ok(),
+      electionData: row.electionData,
+    });
   }
 
   async getElectionJurisdiction(electionId: ElectionId): Promise<Jurisdiction> {
