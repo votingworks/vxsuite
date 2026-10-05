@@ -13,6 +13,7 @@ const FONT_SIZE_REM = 1;
 export const BUTTON_COLORS = [
   'primary',
   'neutral',
+  'warning',
   'danger',
   'inversePrimary',
   'inverseNeutral',
@@ -36,6 +37,7 @@ const buttonVariants = {
   neutral: { color: 'neutral', fill: 'outlined' },
   primary: { color: 'primary', fill: 'filled' },
   secondary: { color: 'primary', fill: 'tinted' },
+  warning: { color: 'warning', fill: 'filled' },
   danger: { color: 'danger', fill: 'filled' },
   inverseNeutral: { color: 'inverseNeutral', fill: 'outlined' },
   inversePrimary: { color: 'inversePrimary', fill: 'filled' },
@@ -165,6 +167,24 @@ function colorAndFillStyles(p: ThemedStyledButtonProps): CSSObject {
       },
     },
 
+    warning: {
+      filled: {
+        backgroundColor: colors.warning,
+        color: colors.onWarning,
+      },
+      tinted: {
+        backgroundColor: colors.warningContainer,
+        color: colors.warning,
+      },
+      outlined: {
+        borderColor: colors.warning,
+        color: colors.warning,
+      },
+      transparent: {
+        color: colors.warning,
+      },
+    },
+
     danger: {
       filled: {
         backgroundColor: colors.danger,
@@ -253,6 +273,7 @@ function hoverStyles(p: ThemedStyledButtonProps): CSSObject {
           backgroundColor: {
             primary: colors.primaryContainer,
             neutral: rgba(colors.neutral, 0.1),
+            warning: colors.warningContainer,
             danger: colors.dangerContainer,
             inversePrimary: rgba(colors.onInverse, 0.1),
             inverseNeutral: rgba(colors.onInverse, 0.1),
