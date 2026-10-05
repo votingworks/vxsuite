@@ -946,7 +946,7 @@ function BallotView({
           actions={
             <ModalActions>
               <Button
-                variant="primary"
+                variant="warning"
                 icon="Flag"
                 onPress={() => {
                   const { action } = pendingEscalate;
