@@ -9,10 +9,10 @@ import {
 const printTestPage = vi.fn();
 const logTestPrintOutcome = vi.fn();
 
-function renderButton(isPrinterConnected = true) {
+function renderButton(isPrinterReady = true) {
   return render(
     <PrintTestPageButton
-      isPrinterConnected={isPrinterConnected}
+      isPrinterReady={isPrinterReady}
       printTestPage={printTestPage}
       logTestPrintOutcome={logTestPrintOutcome}
     />
@@ -37,7 +37,7 @@ test('renders print test page button', async () => {
   await screen.findByRole('button', { name: 'Print Test Page' });
 });
 
-test('button is disabled when printer is not connected', async () => {
+test('button is disabled when printer is not ready', async () => {
   renderButton(false);
 
   const button = await screen.findByRole('button', { name: 'Print Test Page' });

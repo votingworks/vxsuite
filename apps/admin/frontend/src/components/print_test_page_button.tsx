@@ -16,7 +16,7 @@ export function PrintTestPageButton(): JSX.Element {
 
   return (
     <SharedPrintTestPageButton
-      isPrinterConnected={isPrinterConnected}
+      isPrinterReady={isPrinterConnected}
       printTestPage={() => printTestPageMutation.mutate()}
       logTestPrintOutcome={(input) =>
         addDiagnosticRecordMutation.mutate({ type: 'test-print', ...input })

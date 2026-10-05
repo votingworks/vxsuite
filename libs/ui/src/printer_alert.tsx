@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import type { PrinterRichStatus, PrinterStatus } from '@votingworks/types';
+import type { PrinterStatus } from '@votingworks/types';
+import type { Optional } from '@votingworks/basics';
 import {
   IPP_PRINTER_STATE_REASON_MESSAGES,
+  getBlockingPrinterStateReason,
   parseHighestPriorityIppPrinterStateReason,
 } from './utils/printer_state_reasons.js';
 import { Modal } from './modal.js';
@@ -9,37 +11,44 @@ import { Icons } from './icons.js';
 import { P } from './typography.js';
 import { Button } from './button.js';
 
+function getPrinterBlockedReason(
+  printerStatus?: PrinterStatus
+): Optional<string> {
+  if (
+    printerStatus &&
+    printerStatus.connected === true &&
+    printerStatus.richStatus &&
+    printerStatus.richStatus.state === 'stopped'
+  ) {
+    const reason = parseHighestPriorityIppPrinterStateReason(
+      printerStatus.richStatus.stateReasons
+    );
+
+    // There can be 'other-error' blips without a specific message.
+    // Don't show to avoid flickering.
+    return reason === 'other' ? undefined : reason;
+  }
+
+  return undefined;
+}
+
 export function PrinterAlert({
   printerStatus,
 }: {
   printerStatus?: PrinterStatus;
 }): JSX.Element | null {
-  const [alertStatus, setAlertStatus] = useState<PrinterRichStatus>();
+  const alertReason =
+    (printerStatus && getBlockingPrinterStateReason(printerStatus)) ??
+    getPrinterBlockedReason(printerStatus);
+  const [dismissedReason, setDismissedReason] = useState<string>();
 
   useEffect(() => {
-    if (
-      printerStatus &&
-      printerStatus.connected === true &&
-      printerStatus.richStatus &&
-      printerStatus.richStatus.state === 'stopped'
-    ) {
-      setAlertStatus(printerStatus.richStatus);
-    } else {
-      setAlertStatus(undefined);
+    if (!alertReason) {
+      setDismissedReason(undefined);
     }
-  }, [printerStatus]);
+  }, [alertReason]);
 
-  if (!alertStatus) {
-    return null;
-  }
-
-  const stoppedReason = parseHighestPriorityIppPrinterStateReason(
-    alertStatus.stateReasons
-  );
-
-  // There can be 'other-error' blips without a specific message, so it's not
-  // worth showing.
-  if (!stoppedReason || stoppedReason === 'other') {
+  if (!alertReason || alertReason === dismissedReason) {
     return null;
   }
 
@@ -50,9 +59,9 @@ export function PrinterAlert({
           <Icons.Warning color="warning" /> Printer Alert
         </React.Fragment>
       }
-      content={<P>{IPP_PRINTER_STATE_REASON_MESSAGES[stoppedReason]}</P>}
+      content={<P>{IPP_PRINTER_STATE_REASON_MESSAGES[alertReason]}</P>}
       actions={
-        <Button onPress={() => setAlertStatus(undefined)}>Dismiss</Button>
+        <Button onPress={() => setDismissedReason(alertReason)}>Dismiss</Button>
       }
     />
   );
