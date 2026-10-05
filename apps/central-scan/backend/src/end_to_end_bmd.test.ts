@@ -72,14 +72,16 @@ test('going through the whole process works - BMD', async () => {
 
         expect(status.batches[0]!.count).toEqual(1);
 
-        const ballotImagesPathEntries = await readdir(
-          workspace.ballotImagesPath,
-          { recursive: true, withFileTypes: true }
+        const batchId = status.batches[0]!.id;
+        expect(await readdir(workspace.ballotImagesPath)).toEqual([
+          `batch-${batchId}`,
+        ]);
+        const batchImagesPathEntries = await readdir(
+          workspace.batchImagesPath(batchId)
         );
-        expect(ballotImagesPathEntries).toHaveLength(2);
-        for (const entry of ballotImagesPathEntries) {
-          expect(entry.isFile()).toEqual(true);
-          expect(entry.name).toMatch(/.*\.png$/);
+        expect(batchImagesPathEntries).toHaveLength(2);
+        for (const entry of batchImagesPathEntries) {
+          expect(entry).toMatch(/.*\.png$/);
         }
       }
 

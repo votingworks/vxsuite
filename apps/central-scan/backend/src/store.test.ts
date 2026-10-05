@@ -138,6 +138,33 @@ test('get/set scanner as backed up', () => {
   expect(store.getScannerBackupTimestamp()).toBeFalsy();
 });
 
+test('getAllBatchIds includes unfinished and deleted batches', () => {
+  const store = Store.fileStore(
+    makeTemporaryFile(),
+    mockBaseLogger({ fn: vi.fn })
+  );
+  store.reset();
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+    ballotHash,
+  });
+  store.setPollingPlaceId(anyPollingPlace(election).id);
+  expect(store.getAllBatchIds()).toEqual([]);
+
+  const finishedBatchId = store.addBatch();
+  store.finishBatch(finishedBatchId);
+  const deletedBatchId = store.addBatch();
+  store.finishBatch(deletedBatchId);
+  store.deleteBatch(deletedBatchId);
+  const unfinishedBatchId = store.addBatch();
+
+  expect(store.getAllBatchIds().sort()).toEqual(
+    [finishedBatchId, deletedBatchId, unfinishedBatchId].sort()
+  );
+});
+
 test('batch cleanup works correctly', () => {
   const dbFile = makeTemporaryFile();
   const store = Store.fileStore(dbFile, mockBaseLogger({ fn: vi.fn }));

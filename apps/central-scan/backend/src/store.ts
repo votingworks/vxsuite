@@ -683,6 +683,16 @@ export class Store {
   }
 
   /**
+   * Lists the IDs of all batches
+   */
+  getAllBatchIds(): string[] {
+    const rows = this.client.all('select id from batches') as Array<{
+      id: string;
+    }>;
+    return rows.map(({ id }) => id);
+  }
+
+  /**
    * Gets all batches, including their sheet count.
    */
   getBatches(): BatchInfo[] {
