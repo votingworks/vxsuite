@@ -2,16 +2,9 @@
   "extends": "../../../tsconfig.shared.json",
   "compilerOptions": {
     "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "jsx": "react-jsx",
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "esnext",
-    "moduleResolution": "bundler",
-    "noEmit": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "noFallthroughCasesInSwitch": true
+    "moduleResolution": "bundler"
   },
   "exclude": [],
   "include": ["src", "prodserver", "script", "test", "types"],

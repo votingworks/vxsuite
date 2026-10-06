@@ -4,18 +4,10 @@
   "exclude": [],
   "compilerOptions": {
     "allowJs": true,
-    "allowSyntheticDefaultImports": true,
     "composite": true,
     "checkJs": true,
-    "jsx": "react-jsx",
-    "esModuleInterop": true,
     "lib": ["esnext"],
-    "module": "node20",
-    "moduleResolution": "node16",
-    "noEmit": true,
-    "noUnusedParameters": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true
+    "noUnusedParameters": true
   },
   "references": [
     { "path": "../../../libs/auth/tsconfig.build.json" },

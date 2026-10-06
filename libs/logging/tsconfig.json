@@ -1,16 +1,10 @@
 {
   "extends": "../../tsconfig.shared.json",
   "compilerOptions": {
-    "module": "node16",
     "lib": ["dom", "dom.iterable", "esnext"],
     "composite": true,
-    "noEmit": true,
     "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true
+    "noImplicitReturns": true
   },
   "include": ["src"],
   "exclude": [],

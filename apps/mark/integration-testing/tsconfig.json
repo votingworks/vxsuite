@@ -3,16 +3,7 @@
   "compilerOptions": {
     "isolatedModules": false,
     "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "jsx": "react-jsx",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "module": "node16",
-    "moduleResolution": "node16",
-    "noEmit": true,
-    "noFallthroughCasesInSwitch": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true
+    "lib": ["dom", "dom.iterable", "esnext"]
   },
   "include": ["**/*.ts"],
   "exclude": [],

@@ -3,16 +3,10 @@
   "include": ["src", "src/**/*.json", "test"],
   "exclude": [],
   "compilerOptions": {
-    "module": "node20",
     "lib": ["dom", "dom.iterable", "esnext"],
     "composite": true,
-    "noEmit": true,
     "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true
+    "noImplicitReturns": true
   },
   "references": [
     { "path": "../../libs/auth/tsconfig.build.json" },
