@@ -1,5 +1,4 @@
 export * from './artifact_authentication.js';
-export * as cac from './cac/index.js';
 export type { Card, CardStatus } from './card.js';
 export * from './cast_vote_record_hashes.js';
 export type {

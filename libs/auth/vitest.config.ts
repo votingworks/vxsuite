@@ -5,7 +5,6 @@ export default defineConfig({
     setupFiles: ['test/setup.ts'],
     coverage: {
       exclude: [
-        'src/cac/index.ts',
         'src/index.ts',
         'src/integration_test_utils.ts',
         'src/intermediate-scripts/**',

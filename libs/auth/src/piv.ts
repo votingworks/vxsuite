@@ -14,7 +14,6 @@ import { STATUS_WORD } from './apdu.js';
  */
 export const CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER = {
   ECC256: 0x11,
-  RSA2048: 0x07,
 } as const;
 
 /**
@@ -37,8 +36,6 @@ export const GENERATE_ASYMMETRIC_KEY_PAIR = {
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER_TEMPLATE_TAG: 0xac,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER_TAG: 0x80,
   RESPONSE_TAG: Buffer.of(0x7f, 0x49),
-  RESPONSE_RSA_MODULUS_TAG: 0x81,
-  RESPONSE_RSA_EXPONENT_TAG: 0x82,
   RESPONSE_ECC_POINT_TAG: 0x86,
 } as const;
 
@@ -111,34 +108,6 @@ export function isIncorrectPinStatusWord(statusWord: [Byte, Byte]): boolean {
   const [sw1, sw2] = statusWord;
   // eslint-disable-next-line no-bitwise
   return sw1 === STATUS_WORD.VERIFY_FAIL.SW1 && sw2 >> 4 === 0x0c;
-}
-
-/**
- * The security-condition-not-satisfied status word is returned when an operation requiring PIN
- * verification is attempted without PIN verification.
- */
-export function isSecurityConditionNotSatisfiedStatusWord(
-  statusWord: [Byte, Byte]
-): boolean {
-  const [sw1, sw2] = statusWord;
-  return (
-    sw1 === STATUS_WORD.SECURITY_CONDITION_NOT_SATISFIED.SW1 &&
-    sw2 === STATUS_WORD.SECURITY_CONDITION_NOT_SATISFIED.SW2
-  );
-}
-
-/**
- * When checking the PIN, the card will return this status word if the PIN
- * length is correct.
- */
-export function isIncorrectDataFieldParameters(
-  statusWord: [Byte, Byte]
-): boolean {
-  const [sw1, sw2] = statusWord;
-  return (
-    sw1 === STATUS_WORD.INCORRECT_DATA_FIELD_PARAMETERS.SW1 &&
-    sw2 === STATUS_WORD.INCORRECT_DATA_FIELD_PARAMETERS.SW2
-  );
 }
 
 /**
