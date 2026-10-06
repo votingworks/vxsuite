@@ -1,7 +1,6 @@
 import React from 'react';
 import type { ElectionDefinition, PollsState } from '@votingworks/types';
 import {
-  Callout,
   IPP_PRINTER_STATE_REASON_MESSAGES,
   Main,
   Screen,
@@ -11,6 +10,7 @@ import {
   P,
   TestModeBanner,
   type CardInsertionDirection,
+  Icons,
 } from '@votingworks/ui';
 
 import { throwIllegalValue } from '@votingworks/basics';
@@ -74,9 +74,10 @@ export function InsertCardScreen({
         </P>
         {mainText}
         {isPrinterTonerLow && pollsState !== 'polls_closed_final' && (
-          <Callout icon="Warning" color="warning">
+          <P>
+            <Icons.Warning color="warning" />{' '}
             {IPP_PRINTER_STATE_REASON_MESSAGES['toner-low']}
-          </Callout>
+          </P>
         )}
       </Main>
       <ElectionInfoBar
