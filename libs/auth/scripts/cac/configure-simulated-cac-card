@@ -1,5 +1,0 @@
-#!/usr/bin/env node
-
-import { main } from '../../build/scripts/cac/configure_simulated_cac_card.js';
-
-main();

@@ -2,4 +2,4 @@
 
 import { main } from '../build/scripts/check_pin.js';
 
-main(process.argv.slice(2));
+main();

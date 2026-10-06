@@ -1,5 +1,0 @@
-#!/usr/bin/env node
-
-import { main } from '../../build/scripts/cac/cac_get_cert.js';
-
-main(process.argv.slice(2));
