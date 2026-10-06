@@ -72,6 +72,19 @@ const LargeText = styled.div`
   line-height: 1;
 `;
 
+const EscalatedCallout = styled(UiCard).attrs({ color: 'warning' })`
+  h3 {
+    margin: 0;
+  }
+
+  > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+`;
+
 const EmptyTableMessage = styled.div`
   display: flex;
   justify-content: center;
@@ -224,8 +237,10 @@ function WriteInCandidatesCard(): JSX.Element | null {
 
 function BallotAdjudicationCard({
   showHeader,
+  hasEscalatedBallots,
 }: {
   showHeader: boolean;
+  hasEscalatedBallots: boolean;
 }): JSX.Element {
   const { isOfficialResults } = useContext(AppContext);
   const queueMetadataQuery =
@@ -273,10 +288,13 @@ function BallotAdjudicationCard({
   const completedCount = totalTally - pendingTally;
   const percentComplete = Math.round((completedCount / totalTally) * 100);
   const { areWriteInCandidatesQualified } = systemSettingsQuery.data;
-  const adjudicateButtonVariant =
-    !areWriteInCandidatesQualified || candidatesQuery.data.length > 0
-      ? 'primary'
-      : 'neutral';
+  const canAdjudicate =
+    !areWriteInCandidatesQualified || candidatesQuery.data.length > 0;
+  const adjudicateButtonVariant = !canAdjudicate
+    ? 'neutral'
+    : hasEscalatedBallots
+      ? 'secondary'
+      : 'primary';
 
   if (pendingTally === 0) {
     return (
@@ -468,12 +486,43 @@ function MultiStationCard(): JSX.Element {
   );
 }
 
+function EscalatedBallotsCallout({
+  escalatedPendingTally,
+}: {
+  escalatedPendingTally: number;
+}): JSX.Element {
+  const { isOfficialResults } = useContext(AppContext);
+
+  return (
+    <EscalatedCallout>
+      <H3>
+        <Icons.Flag color="warning" /> {escalatedPendingTally}{' '}
+        {pluralize('ballot', escalatedPendingTally)} escalated
+      </H3>
+      <LinkButton
+        variant="primary"
+        icon="PenToSquare"
+        to={routerPaths.ballotAdjudicationEscalated}
+        disabled={isOfficialResults}
+      >
+        Adjudicate Escalated Ballots
+      </LinkButton>
+    </EscalatedCallout>
+  );
+}
+
 export function AdjudicationStartScreen(): JSX.Element {
   const { isOfficialResults } = useContext(AppContext);
   const systemSettingsQuery = getSystemSettings.useQuery();
   const multiStationQuery = isMultiStationAdjudicationEnabled.useQuery();
+  const queueMetadataQuery =
+    getBallotAdjudicationQueueMetadata.usePollingQuery();
 
-  if (!systemSettingsQuery.isSuccess || !multiStationQuery.isSuccess) {
+  if (
+    !systemSettingsQuery.isSuccess ||
+    !multiStationQuery.isSuccess ||
+    !queueMetadataQuery.isSuccess
+  ) {
     return (
       <NavigationScreen title="Adjudication">
         <Loading isFullscreen />
@@ -485,12 +534,22 @@ export function AdjudicationStartScreen(): JSX.Element {
   const isMultiStationEnabled = multiStationQuery.data;
   const showMultiStationCard = isMultiStationEnabled && !isOfficialResults;
   const hasOtherCards = areWriteInCandidatesQualified || showMultiStationCard;
+  const { escalatedPendingTally } = queueMetadataQuery.data;
+  const hasEscalatedBallots = escalatedPendingTally > 0;
 
   return (
     <NavigationScreen title="Adjudication">
       <CardStack>
+        {hasEscalatedBallots && (
+          <EscalatedBallotsCallout
+            escalatedPendingTally={escalatedPendingTally}
+          />
+        )}
         {areWriteInCandidatesQualified && <WriteInCandidatesCard />}
-        <BallotAdjudicationCard showHeader={hasOtherCards} />
+        <BallotAdjudicationCard
+          showHeader={hasOtherCards}
+          hasEscalatedBallots={hasEscalatedBallots}
+        />
         {showMultiStationCard && <MultiStationCard />}
       </CardStack>
     </NavigationScreen>

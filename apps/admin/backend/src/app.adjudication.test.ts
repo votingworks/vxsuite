@@ -738,6 +738,90 @@ test('getNextCvrIdForBallotAdjudication advances past the current ballot', async
   ).toEqual(adjudicationQueue[2]);
 });
 
+test('escalated-only queue and next-ballot lookup on the host', async () => {
+  const { auth, apiClient, workspace } = buildTestEnvironment();
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { castVoteRecordExport } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
+  const systemSettings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
+  };
+  await configureMachine(
+    apiClient,
+    auth,
+    electionDefinition,
+    undefined,
+    systemSettings
+  );
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: castVoteRecordExport.asDirectoryPath(),
+    })
+  ).unsafeUnwrap();
+  const electionId = assertDefined(workspace.store.getCurrentElectionId());
+
+  const queue = await apiClient.getBallotAdjudicationQueue();
+  expect(queue.length).toBeGreaterThan(2);
+  const firstCvrId = assertDefined(queue[0]);
+  const thirdCvrId = assertDefined(queue[2]);
+  expect(
+    await apiClient.getBallotAdjudicationQueue({ escalatedOnly: true })
+  ).toEqual([]);
+  expect(
+    await apiClient.getNextCvrIdForBallotAdjudication({ escalatedOnly: true })
+  ).toEqual(null);
+
+  workspace.store.escalateCvrBallot({ electionId, cvrId: thirdCvrId });
+  workspace.store.escalateCvrBallot({ electionId, cvrId: firstCvrId });
+
+  expect(await apiClient.getBallotAdjudicationQueue()).toEqual(queue);
+  expect(
+    await apiClient.getBallotAdjudicationQueue({ escalatedOnly: true })
+  ).toEqual([firstCvrId, thirdCvrId]);
+  expect(
+    (await apiClient.getBallotAdjudicationQueueMetadata()).escalatedPendingTally
+  ).toEqual(2);
+  expect(
+    await apiClient.getNextCvrIdForBallotAdjudication({ escalatedOnly: true })
+  ).toEqual(firstCvrId);
+  expect(
+    await apiClient.getNextCvrIdForBallotAdjudication({
+      afterCvrId: firstCvrId,
+      escalatedOnly: true,
+    })
+  ).toEqual(thirdCvrId);
+  expect(
+    await apiClient.getNextCvrIdForBallotAdjudication({
+      afterCvrId: thirdCvrId,
+      escalatedOnly: true,
+    })
+  ).toEqual(firstCvrId);
+
+  expect(
+    await apiClient.adjudicateCvr({ cvrId: firstCvrId, contests: [] })
+  ).toEqual(ok());
+  expect(
+    await apiClient.getBallotAdjudicationQueue({ escalatedOnly: true })
+  ).toEqual([thirdCvrId]);
+  expect(
+    (await apiClient.getBallotAdjudicationQueueMetadata()).escalatedPendingTally
+  ).toEqual(1);
+  expect(
+    await apiClient.getNextCvrIdForBallotAdjudication({
+      afterCvrId: firstCvrId,
+      escalatedOnly: true,
+    })
+  ).toEqual(thirdCvrId);
+  expect(
+    await apiClient.getNextCvrIdForBallotAdjudication({
+      afterCvrId: thirdCvrId,
+      escalatedOnly: true,
+    })
+  ).toEqual(thirdCvrId);
+});
+
 test('host claimAndLoadBallot returns data and bypasses claim when multi-station is off', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const electionDefinition =
@@ -1214,6 +1298,7 @@ test('adjudicating write-ins changes their status and is reflected in tallies', 
   expect(await apiClient.getBallotAdjudicationQueueMetadata()).toEqual({
     pendingTally: 62,
     totalTally: 62,
+    escalatedPendingTally: 0,
   });
   await expectContestResults({
     type: 'candidate',
