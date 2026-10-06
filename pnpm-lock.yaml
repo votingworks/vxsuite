@@ -5440,9 +5440,6 @@ importers:
       '@votingworks/monorepo-utils':
         specifier: workspace:*
         version: link:../libs/monorepo-utils
-      concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
       matcher:
         specifier: '4'
         version: 4.0.0
