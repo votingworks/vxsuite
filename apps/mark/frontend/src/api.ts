@@ -21,6 +21,7 @@ import type { DiagnosticType } from '@votingworks/types';
 
 const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
 export const INTERNAL_HARDWARE_POLLING_INTERVAL_MS = 3000;
+export const ELECTION_STATE_POLLING_INTERVAL_MS = 500;
 
 export type ApiClient = grout.Client<Api>;
 
@@ -208,7 +209,11 @@ export const getElectionState = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getElectionState());
+    return useQuery(this.queryKey(), () => apiClient.getElectionState(), {
+      // The ballot count is incremented when a print job settles, which happens
+      // asynchronously on the backend
+      refetchInterval: ELECTION_STATE_POLLING_INTERVAL_MS,
+    });
   },
 } as const;
 
@@ -380,24 +385,14 @@ export const setPollsState = {
 export const printBallot = {
   useMutation() {
     const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.printBallot, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(getElectionState.queryKey());
-      },
-    });
+    return useMutation(apiClient.printBallot);
   },
 } as const;
 
 export const printBlankBallot = {
   useMutation() {
     const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.printBlankBallot, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(getElectionState.queryKey());
-      },
-    });
+    return useMutation(apiClient.printBlankBallot);
   },
 } as const;
 
