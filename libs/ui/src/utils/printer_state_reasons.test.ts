@@ -1,9 +1,15 @@
 import { describe, expect, test } from 'vitest';
-import type { PrinterConfig, PrinterStatus } from '@votingworks/types';
+import type {
+  IppMarkerInfo,
+  PrinterConfig,
+  PrinterStatus,
+} from '@votingworks/types';
 import {
   BLOCKING_PRINTER_STATE_REASONS,
   IPP_PRINTER_STATE_REASON_MESSAGES,
+  LOW_TONER_LEVEL,
   getBlockingPrinterStateReason,
+  isPrinterTonerLow,
   parseHighestPriorityIppPrinterStateReason,
 } from './printer_state_reasons.js';
 
@@ -16,11 +22,28 @@ const MOCK_PRINTER_CONFIG: PrinterConfig = {
   supportsIpp: true,
 };
 
-function getMockPrinterStatus(stateReasons: string[] = []): PrinterStatus {
+function getMockPrinterStatus(
+  stateReasons: string[] = [],
+  markerInfos: IppMarkerInfo[] = []
+): PrinterStatus {
   return {
     connected: true,
     config: MOCK_PRINTER_CONFIG,
-    richStatus: { state: 'idle', stateReasons, markerInfos: [] },
+    richStatus: { state: 'idle', stateReasons, markerInfos },
+  };
+}
+
+function getMockMarkerInfo(
+  overrides: Partial<IppMarkerInfo> = {}
+): IppMarkerInfo {
+  return {
+    name: 'black cartridge',
+    color: '#000000',
+    type: 'toner-cartridge',
+    lowLevel: 2,
+    highLevel: 100,
+    level: 100,
+    ...overrides,
   };
 }
 
@@ -132,5 +155,83 @@ describe('getBlockingPrinterStateReason', () => {
     for (const reason of BLOCKING_PRINTER_STATE_REASONS) {
       expect(IPP_PRINTER_STATE_REASON_MESSAGES[reason]).toBeDefined();
     }
+  });
+});
+
+describe('isPrinterTonerLow', () => {
+  test('is low at or below the low toner level', () => {
+    expect(
+      isPrinterTonerLow(
+        getMockPrinterStatus(
+          [],
+          [getMockMarkerInfo({ level: LOW_TONER_LEVEL })]
+        )
+      )
+    ).toEqual(true);
+  });
+
+  test('is not low above the low toner level', () => {
+    expect(
+      isPrinterTonerLow(
+        getMockPrinterStatus(
+          [],
+          [getMockMarkerInfo({ level: LOW_TONER_LEVEL + 1 })]
+        )
+      )
+    ).toEqual(false);
+  });
+
+  test('is low at 0', () => {
+    expect(
+      isPrinterTonerLow(
+        getMockPrinterStatus([], [getMockMarkerInfo({ level: 0 })])
+      )
+    ).toEqual(true);
+  });
+
+  test('is not low when the level is unavailable or unknown', () => {
+    for (const level of [-1, -2, -3]) {
+      expect(
+        isPrinterTonerLow(
+          getMockPrinterStatus([], [getMockMarkerInfo({ level })])
+        )
+      ).toEqual(false);
+    }
+  });
+
+  test('ignores markers other than the black toner cartridge', () => {
+    expect(
+      isPrinterTonerLow(
+        getMockPrinterStatus(
+          [],
+          [
+            getMockMarkerInfo({ name: 'cyan cartridge', level: 0 }),
+            getMockMarkerInfo({ type: 'waste-toner', level: 0 }),
+          ]
+        )
+      )
+    ).toEqual(false);
+  });
+
+  test('is low when the printer reports low toner', () => {
+    expect(
+      isPrinterTonerLow(getMockPrinterStatus(['toner-low-warning']))
+    ).toEqual(true);
+    expect(
+      isPrinterTonerLow(getMockPrinterStatus(['marker-supply-low-report']))
+    ).toEqual(true);
+  });
+
+  test('is not low for other reasons', () => {
+    expect(
+      isPrinterTonerLow(getMockPrinterStatus(['media-low-warning']))
+    ).toEqual(false);
+  });
+
+  test('is not low without rich status', () => {
+    expect(
+      isPrinterTonerLow({ connected: true, config: MOCK_PRINTER_CONFIG })
+    ).toEqual(false);
+    expect(isPrinterTonerLow({ connected: false })).toEqual(false);
   });
 });

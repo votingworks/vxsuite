@@ -87,3 +87,50 @@ test('renders test mode banner in test mode', () => {
 
   screen.getByText(/test ballot mode/i);
 });
+
+describe('low toner message', () => {
+  const LOW_TONER_MESSAGE =
+    'The printer is low on toner. Replace toner cartridge.';
+
+  test('shows when toner is low', () => {
+    render(
+      <InsertCardScreen
+        electionDefinition={electionDefinition}
+        electionPackageHash="package-hash"
+        isLiveMode
+        isPrinterTonerLow
+        pollsState="polls_open"
+      />
+    );
+
+    screen.getByRole('heading', { name: 'Insert Card' });
+    screen.getByText(LOW_TONER_MESSAGE);
+  });
+
+  test('hides when toner is not low', () => {
+    render(
+      <InsertCardScreen
+        electionDefinition={electionDefinition}
+        electionPackageHash="package-hash"
+        isLiveMode
+        pollsState="polls_open"
+      />
+    );
+
+    expect(screen.queryByText(LOW_TONER_MESSAGE)).not.toBeInTheDocument();
+  });
+
+  test('hides after polls are closed', () => {
+    render(
+      <InsertCardScreen
+        electionDefinition={electionDefinition}
+        electionPackageHash="package-hash"
+        isLiveMode
+        isPrinterTonerLow
+        pollsState="polls_closed_final"
+      />
+    );
+
+    expect(screen.queryByText(LOW_TONER_MESSAGE)).not.toBeInTheDocument();
+  });
+});

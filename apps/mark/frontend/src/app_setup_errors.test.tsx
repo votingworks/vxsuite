@@ -34,6 +34,7 @@ afterEach(() => {
 });
 
 const insertCardScreenText = 'Insert Card';
+const lowTonerMessage = 'The printer is low on toner. Replace toner cartridge.';
 
 describe('Displays setup warning messages and errors screens', () => {
   test('Displays internal connection problem if Accessible Controller connection is lost', async () => {
@@ -183,7 +184,41 @@ describe('Displays setup warning messages and errors screens', () => {
         },
       });
     });
-    await advanceTimersAndPromises();
+    await screen.findByText(lowTonerMessage);
+    screen.getByText(insertCardScreenText);
+  });
+
+  test('shows a low toner message from the toner level without blocking voting', async () => {
+    apiMock.expectGetMachineConfig();
+    apiMock.expectGetElectionRecord(electionGeneralDefinition);
+    apiMock.expectGetElectionState({
+      pollingPlaceId: pollingPlace.id,
+      pollsState: 'polls_open',
+    });
+
+    render(<App apiClient={apiMock.mockApiClient} />);
+    await screen.findByText(insertCardScreenText);
+    expect(screen.queryByText(lowTonerMessage)).not.toBeInTheDocument();
+
+    act(() => {
+      apiMock.setPrinterStatus({
+        richStatus: {
+          state: 'idle',
+          stateReasons: [],
+          markerInfos: [
+            {
+              name: 'black cartridge',
+              color: '#000000',
+              type: 'toner-cartridge',
+              lowLevel: 2,
+              highLevel: 100,
+              level: 4,
+            },
+          ],
+        },
+      });
+    });
+    await screen.findByText(lowTonerMessage);
     screen.getByText(insertCardScreenText);
   });
 

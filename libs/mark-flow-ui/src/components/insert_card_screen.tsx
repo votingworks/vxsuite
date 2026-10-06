@@ -1,6 +1,7 @@
 import React from 'react';
 import type { ElectionDefinition, PollsState } from '@votingworks/types';
 import {
+  IPP_PRINTER_STATE_REASON_MESSAGES,
   Main,
   Screen,
   ElectionInfoBar,
@@ -9,6 +10,7 @@ import {
   P,
   TestModeBanner,
   type CardInsertionDirection,
+  Icons,
 } from '@votingworks/ui';
 
 import { throwIllegalValue } from '@votingworks/basics';
@@ -18,6 +20,7 @@ interface Props {
   electionDefinition: ElectionDefinition;
   electionPackageHash: string;
   isLiveMode: boolean;
+  isPrinterTonerLow?: boolean;
   pollingPlaceId?: string;
   pollsState: PollsState;
 }
@@ -27,6 +30,7 @@ export function InsertCardScreen({
   electionDefinition,
   electionPackageHash,
   isLiveMode,
+  isPrinterTonerLow,
   pollingPlaceId,
   pollsState,
 }: Props): JSX.Element | null {
@@ -69,6 +73,12 @@ export function InsertCardScreen({
           <InsertCardImage cardInsertionDirection={cardInsertionDirection} />
         </P>
         {mainText}
+        {isPrinterTonerLow && pollsState !== 'polls_closed_final' && (
+          <P>
+            <Icons.Warning color="warning" />{' '}
+            {IPP_PRINTER_STATE_REASON_MESSAGES['toner-low']}
+          </P>
+        )}
       </Main>
       <ElectionInfoBar
         electionDefinition={electionDefinition}
