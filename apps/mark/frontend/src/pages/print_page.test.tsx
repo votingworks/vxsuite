@@ -2,7 +2,11 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render as renderWithBallotContext } from '../../test/test_utils.js';
-import { createQueryClient, getPrintJobStatus } from '../api.js';
+import {
+  createQueryClient,
+  getElectionState,
+  getPrintJobStatus,
+} from '../api.js';
 import { screen, waitFor } from '../../test/react_testing_library.js';
 import { PrintPage } from './print_page.js';
 import {
@@ -102,5 +106,23 @@ test('clears the settled job status so a reused job id is not read from cache', 
 
   await waitFor(() => {
     expect(queryClient.getQueryData(queryKey)).toBeUndefined();
+  });
+});
+
+test('invalidates the election state once the job settles, so the ballot count is re-read', async () => {
+  const queryClient = createQueryClient();
+  const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
+
+  apiMock.setPrintJobStatus({ outcome: 'sent-to-printer' });
+  renderWithBallotContext(provideApi(apiMock, <PrintPage />, queryClient), {
+    ballotStyleId: '12',
+    precinctId: '23',
+    hasPrintedBallot: true,
+    printJobId: MOCK_PRINT_JOB_ID,
+    resetBallot: vi.fn(),
+  });
+
+  await waitFor(() => {
+    expect(invalidateQueries).toHaveBeenCalledWith(getElectionState.queryKey());
   });
 });

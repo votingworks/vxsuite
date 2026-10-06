@@ -17,7 +17,7 @@ import {
   createSystemCallApi,
   createUiStringsApi,
 } from '@votingworks/ui';
-import type { DiagnosticType } from '@votingworks/types';
+import type { DiagnosticType, PrintJobId } from '@votingworks/types';
 
 const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
 export const INTERNAL_HARDWARE_POLLING_INTERVAL_MS = 3000;
@@ -97,8 +97,6 @@ export const getPrinterStatus = {
     });
   },
 } as const;
-
-export const getPrintJobStatus = createPrintJobStatusApi(useApiClient);
 
 export const getAccessibleControllerConnected = {
   queryKey(): QueryKey {
@@ -209,6 +207,28 @@ export const getElectionState = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getElectionState());
+  },
+} as const;
+
+const printJobStatusApi = createPrintJobStatusApi(useApiClient);
+
+export const getPrintJobStatus = {
+  ...printJobStatusApi,
+  useQuery(jobId?: PrintJobId) {
+    const queryClient = useQueryClient();
+    const query = printJobStatusApi.useQuery(jobId);
+
+    // The backend writes the ballot count before reporting a terminal status,
+    // so by the time we see one the count is ready to re-read.
+    const outcome = query.data?.ok()?.outcome;
+    const hasSettled = outcome !== undefined && outcome !== 'in-progress';
+    React.useEffect(() => {
+      if (hasSettled) {
+        void queryClient.invalidateQueries(getElectionState.queryKey());
+      }
+    }, [hasSettled, queryClient]);
+
+    return query;
   },
 } as const;
 
@@ -380,24 +400,14 @@ export const setPollsState = {
 export const printBallot = {
   useMutation() {
     const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.printBallot, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(getElectionState.queryKey());
-      },
-    });
+    return useMutation(apiClient.printBallot);
   },
 } as const;
 
 export const printBlankBallot = {
   useMutation() {
     const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.printBlankBallot, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(getElectionState.queryKey());
-      },
-    });
+    return useMutation(apiClient.printBlankBallot);
   },
 } as const;
 
