@@ -45,12 +45,7 @@ import {
 } from '@votingworks/backend';
 import { LogEventId, type Logger } from '@votingworks/logging';
 import type { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
-import {
-  PrintSides,
-  type Printer,
-  renderToPdf,
-  awaitJobSettlement,
-} from '@votingworks/printing';
+import { PrintSides, type Printer, renderToPdf } from '@votingworks/printing';
 import type { PrintCalibration } from '@votingworks/hmpb';
 import {
   createSummaryBallotTestDeck,
@@ -428,24 +423,18 @@ export function buildApi(ctx: Context) {
         printer,
         ...input,
       });
-      awaitJobSettlement({
-        jobId,
-        printer,
-        onSettled: async (status) => {
-          const sentToPrinter = status.outcome === 'sent-to-printer';
-          if (sentToPrinter) {
-            countPrintedBallot(generation);
-          }
-          await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
-            message: sentToPrinter
-              ? 'Ballot printed'
-              : 'Ballot failed to print',
-            disposition: sentToPrinter ? 'success' : 'failure',
-            ballotStyleId: input.ballotStyleId,
-            precinctId: input.precinctId,
-            ...(status.reason ? { reason: status.reason } : {}),
-          });
-        },
+      printer.awaitJobSettlement(jobId, async (status) => {
+        const sentToPrinter = status.outcome === 'sent-to-printer';
+        if (sentToPrinter) {
+          countPrintedBallot(generation);
+        }
+        await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
+          message: sentToPrinter ? 'Ballot printed' : 'Ballot failed to print',
+          disposition: sentToPrinter ? 'success' : 'failure',
+          ballotStyleId: input.ballotStyleId,
+          precinctId: input.precinctId,
+          ...(status.reason ? { reason: status.reason } : {}),
+        });
       });
       return jobId;
     },
@@ -469,24 +458,20 @@ export function buildApi(ctx: Context) {
         printer,
         ...input,
       });
-      awaitJobSettlement({
-        jobId,
-        printer,
-        onSettled: async (status) => {
-          const sentToPrinter = status.outcome === 'sent-to-printer';
-          if (sentToPrinter) {
-            countPrintedBallot(generation);
-          }
-          await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
-            message: sentToPrinter
-              ? 'Blank ballot printed'
-              : 'Blank ballot failed to print',
-            disposition: sentToPrinter ? 'success' : 'failure',
-            ballotStyleId: input.ballotStyleId,
-            precinctId: input.precinctId,
-            ...(status.reason ? { reason: status.reason } : {}),
-          });
-        },
+      printer.awaitJobSettlement(jobId, async (status) => {
+        const sentToPrinter = status.outcome === 'sent-to-printer';
+        if (sentToPrinter) {
+          countPrintedBallot(generation);
+        }
+        await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
+          message: sentToPrinter
+            ? 'Blank ballot printed'
+            : 'Blank ballot failed to print',
+          disposition: sentToPrinter ? 'success' : 'failure',
+          ballotStyleId: input.ballotStyleId,
+          precinctId: input.precinctId,
+          ...(status.reason ? { reason: status.reason } : {}),
+        });
       });
       return jobId;
     },

@@ -1,6 +1,7 @@
+import type { Result } from '@votingworks/basics';
 import type { PrintJobId, PrintJobStatus } from '@votingworks/types';
 import { rootDebug } from '../utils/debug.js';
-import type { Printer } from './types.js';
+import type { JobSettlementMonitor } from './types.js';
 
 const debug = rootDebug.extend('await-job-settlement');
 
@@ -8,13 +9,16 @@ export const JOB_SETTLEMENT_POLL_INTERVAL_MS = 500;
 
 export interface AwaitJobSettlementContext {
   jobId: PrintJobId;
-  printer: Printer;
-  onSettled: (status: PrintJobStatus) => Promise<void>;
-}
 
-/** A running settlement watch, which the caller can cancel. */
-export interface JobSettlementMonitor {
-  stop(): void;
+  /**
+   * Reads the job's status as the printer sees it, without settlement masking.
+   * Only a printer implementation should supply this; exposing it to callers is
+   * what allows them to observe a terminal status before `onSettled` has run.
+   */
+  getRawStatus: () => Result<PrintJobStatus, Error>;
+
+  clearJobQueue: () => Promise<void>;
+  onSettled: (status: PrintJobStatus) => Promise<void>;
 }
 
 /**
@@ -22,10 +26,12 @@ export interface JobSettlementMonitor {
  */
 export function awaitJobSettlement({
   jobId,
-  printer,
+  getRawStatus,
+  clearJobQueue,
   onSettled,
 }: AwaitJobSettlementContext): JobSettlementMonitor {
   let pollTimer: NodeJS.Timeout;
+  let settledStatus: PrintJobStatus | undefined;
 
   function stop(): void {
     clearInterval(pollTimer);
@@ -35,13 +41,14 @@ export function awaitJobSettlement({
     stop();
     debug('job %d settled: %o', jobId, status);
     if (status.outcome === 'failed') {
-      await printer.clearJobQueue();
+      await clearJobQueue();
     }
     await onSettled(status);
+    settledStatus = status;
   }
 
   async function poll(): Promise<void> {
-    const statusResult = printer.getJobStatus(jobId);
+    const statusResult = getRawStatus();
     if (statusResult.isErr()) {
       debug(
         'err fetching status for job %d, giving up: %s',
@@ -49,6 +56,10 @@ export function awaitJobSettlement({
         statusResult.err().message
       );
       stop();
+      settledStatus = {
+        outcome: 'failed',
+        reason: statusResult.err().message,
+      };
       return;
     }
 
@@ -63,5 +74,8 @@ export function awaitJobSettlement({
     void poll();
   }, JOB_SETTLEMENT_POLL_INTERVAL_MS);
 
-  return { stop };
+  return {
+    stop,
+    getStatus: () => settledStatus ?? { outcome: 'in-progress' },
+  };
 }

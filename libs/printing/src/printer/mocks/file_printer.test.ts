@@ -10,6 +10,7 @@ import {
 import { err, sleep } from '@votingworks/basics';
 import { PDFDocument } from 'pdf-lib';
 import type { PrinterStatus } from '@votingworks/types';
+import { JOB_SETTLEMENT_POLL_INTERVAL_MS } from '../await_job_settlement.js';
 import {
   MOCK_HP_PRINTER_DIR,
   MOCK_PRINTER_OUTPUT_DIR,
@@ -182,4 +183,29 @@ test('tracks each print as sent to the printer', async () => {
 
 test('clearing the job queue is a no-op', async () => {
   await expect(new MockFilePrinter().clearJobQueue()).resolves.toBeUndefined();
+});
+
+test('a settlement watch masks the job status until it settles', async () => {
+  vi.useFakeTimers({ shouldAdvanceTime: false });
+  try {
+    const filePrinter = new MockFilePrinter();
+    getMockFilePrinterHandler().connectPrinter(HP_4001_PRINTER_CONFIG);
+    const jobId = await filePrinter.print({ data: Buffer.from('test') });
+
+    const onSettled = vi.fn(() => Promise.resolve());
+    filePrinter.awaitJobSettlement(jobId, onSettled);
+
+    expect(filePrinter.getJobStatus(jobId).unsafeUnwrap()).toEqual({
+      outcome: 'in-progress',
+    });
+
+    await vi.advanceTimersByTimeAsync(JOB_SETTLEMENT_POLL_INTERVAL_MS);
+
+    expect(onSettled).toHaveBeenCalledWith({ outcome: 'sent-to-printer' });
+    expect(filePrinter.getJobStatus(jobId).unsafeUnwrap()).toEqual({
+      outcome: 'sent-to-printer',
+    });
+  } finally {
+    vi.useRealTimers();
+  }
 });

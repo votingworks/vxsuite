@@ -36,7 +36,8 @@ afterEach(() => {
 function start() {
   return awaitJobSettlement({
     jobId: JOB_ID,
-    printer: mockPrinterHandler.printer,
+    getRawStatus: () => mockPrinterHandler.getRawJobStatus(JOB_ID),
+    clearJobQueue: () => mockPrinterHandler.printer.clearJobQueue(),
     onSettled,
   });
 }
@@ -85,7 +86,7 @@ test('settling a failed job results in queue cleared', async () => {
 
 test('gives up when the job is no longer tracked', async () => {
   // No status is tracked for this job, as happens once its status is discarded
-  const getJobStatus = vi.spyOn(mockPrinterHandler.printer, 'getJobStatus');
+  const getJobStatus = vi.spyOn(mockPrinterHandler, 'getRawJobStatus');
   start();
 
   // Polled once, found no status, and stopped
@@ -110,4 +111,51 @@ test('stop() halts polling without settling', async () => {
 
   expect(onSettled).not.toHaveBeenCalled();
   expect(clearJobQueue).not.toHaveBeenCalled();
+});
+
+test('does not report a terminal status until onSettled has finished', async () => {
+  const observed: Array<PrintJobStatus['outcome']> = [];
+  let releaseOnSettled: () => void = () => {};
+  const settledPromise = new Promise<void>((resolve) => {
+    releaseOnSettled = resolve;
+  });
+  onSettled = vi.fn(() => settledPromise);
+
+  mockPrinterHandler.setJobStatus(JOB_ID, { outcome: 'sent-to-printer' });
+  const monitor = start();
+
+  await advancePolls();
+  observed.push(monitor.getStatus().outcome);
+
+  releaseOnSettled();
+  await settledPromise;
+  await advancePolls();
+  observed.push(monitor.getStatus().outcome);
+
+  expect(observed).toEqual(['in-progress', 'sent-to-printer']);
+});
+
+test('reports a failed status once onSettled has finished', async () => {
+  mockPrinterHandler.setJobStatus(JOB_ID, {
+    outcome: 'failed',
+    reason: 'Unable to send data to printer.',
+  });
+  const monitor = start();
+
+  expect(monitor.getStatus()).toEqual({ outcome: 'in-progress' });
+
+  await advancePolls();
+
+  expect(monitor.getStatus()).toEqual({
+    outcome: 'failed',
+    reason: 'Unable to send data to printer.',
+  });
+});
+
+test('reports failed when the status query gives up', async () => {
+  const monitor = start();
+
+  await advancePolls();
+
+  expect(monitor.getStatus().outcome).toEqual('failed');
 });

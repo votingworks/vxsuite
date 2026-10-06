@@ -46,10 +46,38 @@ export type PrintProps = PrintOptions & {
 
 export type PrintFunction = (props: PrintProps) => Promise<PrintJobId>;
 
+/** A running settlement watch, which the caller can cancel. */
+export interface JobSettlementMonitor {
+  stop(): void;
+
+  /**
+   * The job's status as callers should see it. Stays `in-progress` until
+   * `onSettled` has finished, so a terminal status implies any bookkeeping
+   * `onSettled` performs is already done.
+   */
+  getStatus(): PrintJobStatus;
+}
+
 export interface Printer {
   status: () => Promise<PrinterStatus>;
   print: PrintFunction;
+
+  /**
+   * The job's status, held at `in-progress` while a settlement watch started by
+   * {@link Printer.awaitJobSettlement} is still running its `onSettled`. A
+   * terminal status therefore implies that bookkeeping is complete.
+   */
   getJobStatus: (jobId: PrintJobId) => Result<PrintJobStatus, Error>;
+
+  /**
+   * Watches a submitted job until it reaches a terminal state, then runs
+   * `onSettled` before the job's status is reported as terminal.
+   */
+  awaitJobSettlement: (
+    jobId: PrintJobId,
+    onSettled: (status: PrintJobStatus) => Promise<void>
+  ) => JobSettlementMonitor;
+
   clearJobQueue: () => Promise<void>;
 }
 

@@ -1,4 +1,4 @@
-import { err, ok } from '@votingworks/basics';
+import { type Result, err, ok } from '@votingworks/basics';
 import { tmpName } from 'tmp-promise';
 import { writeFile } from 'node:fs/promises';
 import { rmSync } from 'node:fs';
@@ -9,6 +9,7 @@ import type {
   PrintJobStatus,
 } from '@votingworks/types';
 import type { MockPrintJob, PrintProps, Printer } from '../types.js';
+import { createSettlementRegistry } from '../settlement_registry.js';
 import { createMockJobId, getMockConnectedPrinterStatus } from './fixtures.js';
 
 /**
@@ -22,6 +23,10 @@ export interface MemoryPrinterHandler {
   disconnectPrinter(): void;
   getPrintJobHistory(): MockPrintJob[];
   setJobStatus(jobId: PrintJobId, status: PrintJobStatus): void;
+
+  /** The job's status without settlement masking, for driving a watch directly. */
+  getRawJobStatus(jobId: PrintJobId): Result<PrintJobStatus, Error>;
+
   getLastPrintPath(): string | undefined;
   cleanup(): void;
 }
@@ -69,15 +74,26 @@ export function createMockPrinterHandler(): MemoryPrinterHandler {
     return jobId;
   }
 
+  function getRawStatus(jobId: PrintJobId): Result<PrintJobStatus, Error> {
+    const status = mockPrinterState.jobs.get(jobId);
+    return status
+      ? ok(status)
+      : err(new Error(`no status tracked for print job ${jobId}`));
+  }
+
+  const settlement = createSettlementRegistry({
+    getRawStatus,
+    // Late-bound so a spy on `printer.clearJobQueue` is observed.
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    clearJobQueue: () => printer.clearJobQueue(),
+  });
+
   const printer: Printer = {
     status: () => Promise.resolve(mockPrinterState.status),
     print: mockPrint,
-    getJobStatus: (jobId) => {
-      const status = mockPrinterState.jobs.get(jobId);
-      return status
-        ? ok(status)
-        : err(new Error(`no status tracked for print job ${jobId}`));
-    },
+    getJobStatus: (jobId) => settlement.getJobStatus(jobId),
+    awaitJobSettlement: (jobId, onSettled) =>
+      settlement.awaitJobSettlement(jobId, onSettled),
     clearJobQueue: () => Promise.resolve(),
   } satisfies Printer;
 
@@ -100,6 +116,10 @@ export function createMockPrinterHandler(): MemoryPrinterHandler {
 
     setJobStatus(jobId: PrintJobId, status: PrintJobStatus) {
       mockPrinterState.jobs.set(jobId, status);
+    },
+
+    getRawJobStatus(jobId: PrintJobId) {
+      return getRawStatus(jobId);
     },
 
     getLastPrintPath() {

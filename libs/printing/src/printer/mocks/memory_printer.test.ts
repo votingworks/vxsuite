@@ -1,10 +1,11 @@
-import { expect, test } from 'vitest';
-import { err } from '@votingworks/basics';
+import { expect, test, vi } from 'vitest';
+import { err, ok } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { HP_4001_PRINTER_CONFIG, PrintSides } from '../index.js';
 import { createMockPrinterHandler } from './memory_printer.js';
+import { JOB_SETTLEMENT_POLL_INTERVAL_MS } from '../await_job_settlement.js';
 import { MOCK_PRINTER_RICH_STATUS } from './fixtures.js';
 
 test('memory printer', async () => {
@@ -89,4 +90,35 @@ test('tracks job status and lets tests override it', async () => {
 test('clearing the job queue is a no-op', async () => {
   const { printer } = createMockPrinterHandler();
   await expect(printer.clearJobQueue()).resolves.toBeUndefined();
+});
+
+test('a settlement watch masks the status and clears the queue on failure', async () => {
+  vi.useFakeTimers({ shouldAdvanceTime: false });
+  try {
+    const handler = createMockPrinterHandler();
+    handler.connectPrinter(HP_4001_PRINTER_CONFIG);
+    const jobId = await handler.printer.print({ data: Buffer.of() });
+    handler.setJobStatus(jobId, { outcome: 'failed', reason: 'Jammed.' });
+
+    const clearJobQueue = vi.spyOn(handler.printer, 'clearJobQueue');
+    const onSettled = vi.fn(() => Promise.resolve());
+    handler.printer.awaitJobSettlement(jobId, onSettled);
+
+    expect(handler.printer.getJobStatus(jobId)).toEqual(
+      ok({ outcome: 'in-progress' })
+    );
+
+    await vi.advanceTimersByTimeAsync(JOB_SETTLEMENT_POLL_INTERVAL_MS);
+
+    expect(clearJobQueue).toHaveBeenCalled();
+    expect(onSettled).toHaveBeenCalledWith({
+      outcome: 'failed',
+      reason: 'Jammed.',
+    });
+    expect(handler.printer.getJobStatus(jobId)).toEqual(
+      ok({ outcome: 'failed', reason: 'Jammed.' })
+    );
+  } finally {
+    vi.useRealTimers();
+  }
 });

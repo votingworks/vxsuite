@@ -27,7 +27,13 @@ import type {
   PrintJobStatus,
 } from '@votingworks/types';
 import { getMockStateRootDir } from '@votingworks/utils';
-import { type PrintProps, PrintSides, type Printer } from '../types.js';
+import {
+  type JobSettlementMonitor,
+  type PrintProps,
+  PrintSides,
+  type Printer,
+} from '../types.js';
+import { createSettlementRegistry } from '../settlement_registry.js';
 import { createMockJobId, getMockConnectedPrinterStatus } from './fixtures.js';
 
 export const MOCK_PRINTER_STATE_FILENAME = 'state.json';
@@ -142,11 +148,27 @@ export class MockFilePrinter implements Printer {
     return Promise.resolve(readFromMockFile());
   }
 
+  private readonly settlement = createSettlementRegistry({
+    getRawStatus: (jobId) => {
+      const status = this.jobs.get(jobId);
+      return status
+        ? ok(status)
+        : err(new Error(`no status tracked for print job ${jobId}`));
+    },
+    // @coverage-exclude: this printer only ever reports jobs as sent, so a
+    // settlement watch never takes the failure path that clears the queue.
+    clearJobQueue: () => this.clearJobQueue(),
+  });
+
   getJobStatus(jobId: PrintJobId): Result<PrintJobStatus, Error> {
-    const status = this.jobs.get(jobId);
-    return status
-      ? ok(status)
-      : err(new Error(`no status tracked for print job ${jobId}`));
+    return this.settlement.getJobStatus(jobId);
+  }
+
+  awaitJobSettlement(
+    jobId: PrintJobId,
+    onSettled: (status: PrintJobStatus) => Promise<void>
+  ): JobSettlementMonitor {
+    return this.settlement.awaitJobSettlement(jobId, onSettled);
   }
 
   clearJobQueue(): Promise<void> {

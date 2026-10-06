@@ -18,6 +18,7 @@ import {
 } from './index.js';
 import { MockFilePrinter } from './mocks/file_printer.js';
 import { startPrintJobMonitor } from './job_monitor.js';
+import { JOB_SETTLEMENT_POLL_INTERVAL_MS } from './await_job_settlement.js';
 
 const featureFlagMock = getFeatureFlagMock();
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
@@ -423,4 +424,42 @@ test('logs a failed queue clear with the underlying error', async () => {
       error: expect.stringContaining('unknown destination'),
     }
   );
+});
+
+test('a settlement watch masks the status and clears the queue on failure', async () => {
+  const printer = detectPrinter(mockBaseLogger({ fn: vi.fn }));
+  const uri = `${HP_4001_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
+  mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
+  mockConfigurePrinter
+    .expectCallWith({ uri, config: HP_4001_PRINTER_CONFIG })
+    .returns(undefined);
+  mockGetPrinterRichStatus.expectCallWith().returns(undefined);
+  await printer.status();
+
+  mockPrintData
+    .expectCallWith({ data: Buffer.of(), raw: {} })
+    .returns(MOCK_JOB_ID);
+  const jobId = await printer.print({ data: Buffer.of() });
+
+  vi.useFakeTimers({ shouldAdvanceTime: false });
+  try {
+    const onSettled = vi.fn(() => Promise.resolve());
+    printer.awaitJobSettlement(jobId, onSettled);
+
+    const [monitorContext] = vi.mocked(startPrintJobMonitor).mock.calls[0]!;
+    monitorContext.setStatus({ outcome: 'failed', reason: 'Jammed.' });
+
+    mockCancelAllJobs.expectCallWith().returns(ok());
+    await vi.advanceTimersByTimeAsync(JOB_SETTLEMENT_POLL_INTERVAL_MS);
+
+    expect(onSettled).toHaveBeenCalledWith({
+      outcome: 'failed',
+      reason: 'Jammed.',
+    });
+    expect(printer.getJobStatus(jobId)).toEqual(
+      ok({ outcome: 'failed', reason: 'Jammed.' })
+    );
+  } finally {
+    vi.useRealTimers();
+  }
 });

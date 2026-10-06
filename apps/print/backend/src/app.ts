@@ -50,7 +50,6 @@ import {
 } from '@votingworks/test-decks';
 import { generateSignedHashValidationQrCodeValue } from '@votingworks/auth';
 import {
-  awaitJobSettlement,
   type JobSettlementMonitor,
   cleanupCachedBrowser,
   concatenatePdfs,
@@ -118,13 +117,9 @@ export function buildApi(ctx: AppContext) {
     jobId: PrintJobId,
     onSettled: (status: PrintJobStatus) => Promise<void>
   ): void {
-    const monitor = awaitJobSettlement({
-      jobId,
-      printer,
-      onSettled: async (status) => {
-        activeJobMonitors.delete(monitor);
-        await onSettled(status);
-      },
+    const monitor = printer.awaitJobSettlement(jobId, async (status) => {
+      activeJobMonitors.delete(monitor);
+      await onSettled(status);
     });
     activeJobMonitors.add(monitor);
   }

@@ -20,6 +20,7 @@ import { getPrinterConfig, getPrinterSpecificOptions } from './supported.js';
 import { MockFilePrinter } from './mocks/file_printer.js';
 import { CUPS_DEFAULT_IPP_URI, getPrinterRichStatus } from './status.js';
 import { startPrintJobMonitor } from './job_monitor.js';
+import { createSettlementRegistry } from './settlement_registry.js';
 
 const debug = rootDebug.extend('manager');
 
@@ -36,6 +37,30 @@ export function detectPrinter(logger: BaseLogger): Printer {
   }
 
   const printerDevice: PrinterDevice = { lastPrint: 0, jobs: new Map() };
+
+  async function clearJobQueue(): Promise<void> {
+    const cancelResult = await cancelAllJobs();
+    if (cancelResult.isErr()) {
+      logger.log(LogEventId.PrinterClearQueueRequest, 'system', {
+        disposition: 'failure',
+        error: extractErrorMessage(cancelResult.err()),
+      });
+    } else {
+      logger.log(LogEventId.PrinterClearQueueRequest, 'system', {
+        disposition: 'success',
+      });
+    }
+  }
+
+  const settlement = createSettlementRegistry({
+    getRawStatus: (jobId) => {
+      const status = printerDevice.jobs.get(jobId);
+      return status
+        ? ok(status)
+        : err(new Error(`no status tracked for print job ${jobId}`));
+    },
+    clearJobQueue: () => clearJobQueue(),
+  });
 
   return {
     status: async () => {
@@ -136,25 +161,11 @@ export function detectPrinter(logger: BaseLogger): Printer {
       return jobId;
     },
 
-    getJobStatus: (jobId) => {
-      const status = printerDevice.jobs.get(jobId);
-      return status
-        ? ok(status)
-        : err(new Error(`no status tracked for print job ${jobId}`));
-    },
+    getJobStatus: (jobId) => settlement.getJobStatus(jobId),
 
-    clearJobQueue: async () => {
-      const cancelResult = await cancelAllJobs();
-      if (cancelResult.isErr()) {
-        logger.log(LogEventId.PrinterClearQueueRequest, 'system', {
-          disposition: 'failure',
-          error: extractErrorMessage(cancelResult.err()),
-        });
-      } else {
-        logger.log(LogEventId.PrinterClearQueueRequest, 'system', {
-          disposition: 'success',
-        });
-      }
-    },
+    awaitJobSettlement: (jobId, onSettled) =>
+      settlement.awaitJobSettlement(jobId, onSettled),
+
+    clearJobQueue,
   };
 }
