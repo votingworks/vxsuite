@@ -75,13 +75,15 @@ export function* checkTsconfig(
     ...otherCompilerOptions
   } = tsconfig.compilerOptions ?? {};
 
-  if (noEmit !== !isBuild) {
+  // `tsconfig.shared.json` sets `noEmit: true`; only build configs may re-enable
+  // emit, and they must do so explicitly.
+  if (isBuild ? noEmit !== false : noEmit !== undefined) {
     yield {
       kind: 'InvalidPropertyValue',
       tsconfigPath,
       propertyKeyPath: 'compilerOptions.noEmit',
       actualValue: noEmit,
-      expectedValue: !isBuild,
+      expectedValue: isBuild ? false : 'inherited (unset)',
     };
   }
 

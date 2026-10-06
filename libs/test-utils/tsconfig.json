@@ -3,12 +3,8 @@
   "include": ["src"],
   "exclude": [],
   "compilerOptions": {
-    "module": "node16",
     "composite": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "skipLibCheck": true
+    "lib": ["dom", "dom.iterable", "esnext"]
   },
   "references": [
     { "path": "../../libs/coverage-check/tsconfig.build.json" },

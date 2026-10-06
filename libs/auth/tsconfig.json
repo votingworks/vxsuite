@@ -4,11 +4,7 @@
   "exclude": [],
   "compilerOptions": {
     "composite": true,
-    "esModuleInterop": true,
-    "lib": ["dom", "esnext"],
-    "module": "node16",
-    "noEmit": true,
-    "skipLibCheck": true
+    "lib": ["dom", "esnext"]
   },
   "references": [
     { "path": "../../libs/coverage-check/tsconfig.build.json" },

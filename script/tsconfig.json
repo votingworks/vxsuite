@@ -2,13 +2,8 @@
   "extends": "../tsconfig.shared.json",
   "compilerOptions": {
     "target": "ES2018",
-    "esModuleInterop": true,
     "lib": ["ESNext"],
-    "jsx": "react-jsx",
-    "module": "nodenext",
-    "noEmit": true,
-    "allowImportingTsExtensions": true,
-    "strict": true
+    "allowImportingTsExtensions": true
   },
   "include": ["src"],
   "references": [

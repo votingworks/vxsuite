@@ -31,6 +31,24 @@
     "noPropertyAccessFromIndexSignature": true,
 
     // Treat `[…]` property accesses as potentially undefined.
-    "noUncheckedIndexedAccess": true
+    "noUncheckedIndexedAccess": true,
+
+    // Disallow falling through non-empty `switch` cases.
+    "noFallthroughCasesInSwitch": true,
+
+    // Node ESM/CJS module semantics; frontends override with `esnext`/`bundler`.
+    "module": "node20",
+
+    // Allow importing JSON files.
+    "resolveJsonModule": true,
+
+    // Use the automatic React 17+ JSX runtime.
+    "jsx": "react-jsx",
+
+    // Type-check only; `tsconfig.build.json` files re-enable emit.
+    "noEmit": true,
+
+    // Don't type-check `.d.ts` files from dependencies.
+    "skipLibCheck": true
   }
 }

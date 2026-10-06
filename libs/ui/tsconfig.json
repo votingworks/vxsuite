@@ -1,13 +1,8 @@
 {
   "extends": "../../tsconfig.shared.json",
   "compilerOptions": {
-    "module": "node16",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "jsx": "react-jsx",
     "composite": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
     "paths": { "@fixtures/*": ["../fixtures/data/*"] }
   },
   "include": ["scripts", "src", "test", ".storybook/*"],
