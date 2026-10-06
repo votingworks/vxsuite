@@ -109,12 +109,8 @@ impl Election {
 #[serde(rename_all = "camelCase")]
 pub struct BallotStyle {
     pub id: BallotStyleId,
-    pub group_id: BallotStyleGroupId,
-    pub precincts: Vec<PrecinctId>,
     pub districts: Vec<DistrictId>,
     pub party_id: Option<PartyId>,
-    #[serde(default)]
-    pub languages: Vec<String>,
     #[serde(default)]
     pub ballot_positions: Option<Vec<SheetPositions>>,
 }
@@ -753,11 +749,8 @@ mod tests {
             title: "Test".to_string(),
             ballot_styles: vec![BallotStyle {
                 id: BallotStyleId::from("bs-1".to_string()),
-                group_id: BallotStyleGroupId::from("bs-1".to_string()),
-                precincts: vec![],
                 districts: vec![],
                 party_id: None,
-                languages: vec![],
                 ballot_positions: Some(vec![(vec![contest], vec![])]),
             }],
             precincts: vec![],
@@ -833,11 +826,8 @@ mod tests {
             title: "Test".to_string(),
             ballot_styles: vec![BallotStyle {
                 id: BallotStyleId::from("bs-1".to_string()),
-                group_id: BallotStyleGroupId::from("bs-1".to_string()),
-                precincts: vec![],
                 districts: vec![],
                 party_id: None,
-                languages: vec![],
                 ballot_positions: None,
             }],
             precincts: vec![],

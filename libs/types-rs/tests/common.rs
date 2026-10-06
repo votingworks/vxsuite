@@ -3,9 +3,8 @@ use proptest::prelude::*;
 use types_rs::{
     ballot_card::BallotType,
     election::{
-        BallotStyle, BallotStyleGroupId, BallotStyleId, Candidate, CandidateContest, Contest,
-        ContestId, DistrictId, Election, NamedCandidate, OptionId, Precinct, PrecinctId,
-        YesNoContest, YesNoOption,
+        BallotStyle, BallotStyleId, Candidate, CandidateContest, Contest, ContestId, DistrictId,
+        Election, NamedCandidate, OptionId, Precinct, PrecinctId, YesNoContest, YesNoOption,
     },
 };
 
@@ -15,11 +14,8 @@ pub fn simple_election() -> Election {
         title: "Test Election".to_owned(),
         ballot_styles: vec![BallotStyle {
             id: BallotStyleId::from("bs-1".to_owned()),
-            group_id: BallotStyleGroupId::from("bsg-1".to_owned()),
-            precincts: vec![PrecinctId::from("p-1".to_owned())],
             districts: vec![DistrictId::from("d-1".to_owned())],
             party_id: None,
-            languages: vec![],
             ballot_positions: None,
         }],
         precincts: vec![Precinct {

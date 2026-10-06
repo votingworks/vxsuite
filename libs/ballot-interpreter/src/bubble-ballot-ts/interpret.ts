@@ -11,7 +11,11 @@ import {
 } from '@votingworks/types';
 import type { BridgeInterpretOptions } from '../../index.js';
 import { napi } from './napi.js';
-import type { BridgeInterpretResult, HmpbInterpretResult } from './types.js';
+import type {
+  BridgeInterpretResult,
+  HmpbInterpretResult,
+  BridgeElection,
+} from './types.js';
 
 /**
  * Options for interpreting a ballot at the bridge layer.
@@ -102,8 +106,19 @@ export async function interpret(
 ): Promise<HmpbInterpretResult> {
   const bridgeOptions = buildBridgeOptions(options);
   const [sideA, sideB] = options.ballotImages;
-  const { election } = options.electionDefinition;
   let result: BridgeInterpretResult;
+
+  const election: BridgeElection = {
+    ballotStyles: options.electionDefinition.election.ballotStyles.map((b) => ({
+      id: b.id,
+      ballotPositions: b.ballotPositions,
+      districts: b.districts,
+      partyId: b.partyId,
+    })),
+    contests: options.electionDefinition.election.contests,
+    precincts: options.electionDefinition.election.precincts,
+    title: options.electionDefinition.election.title,
+  };
 
   if (typeof sideA === 'string' && typeof sideB === 'string') {
     result = await napi.interpretPaths(election, sideA, sideB, bridgeOptions);

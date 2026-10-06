@@ -20,9 +20,13 @@ const electionGridLayoutNewHampshireTestBallotDefinition =
   electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
 test('interpret with bad election data', async () => {
+  const baseDefinition = electionGridLayoutNewHampshireTestBallotDefinition;
   const electionDefinition: ElectionDefinition = {
-    ...electionGridLayoutNewHampshireTestBallotDefinition,
-    election: { bad: 'election' } as unknown as Election,
+    ...baseDefinition,
+    election: {
+      ...baseDefinition.election,
+      title: undefined,
+    } as unknown as Election,
   };
 
   await expect(

@@ -27,7 +27,7 @@ test('no debug', async () => {
   }));
 
   expect(interpretPathsMock).toHaveBeenCalledWith(
-    electionDefinition.election,
+    expect.anything(),
     'a.jpeg',
     'b.jpeg',
     expect.any(Object)
@@ -52,7 +52,7 @@ test('debug with image paths', async () => {
   }));
 
   expect(interpretPathsMock).toHaveBeenCalledWith(
-    electionDefinition.election,
+    expect.anything(),
     'a.jpeg',
     'b.jpeg',
     expect.any(Object)

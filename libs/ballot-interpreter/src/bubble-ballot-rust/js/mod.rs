@@ -203,7 +203,7 @@ fn to_json<T: Serialize>(value: &T) -> napi::Result<serde_json::Value> {
 }
 
 #[napi(
-    ts_args_type = "election: Election, sideAImagePath: string, sideBImagePath: string, options: BridgeInterpretOptions",
+    ts_args_type = "election: BridgeElection, sideAImagePath: string, sideBImagePath: string, options: BridgeInterpretOptions",
     ts_return_type = "Promise<BridgeInterpretResult>"
 )]
 pub async fn interpret_paths(
@@ -239,7 +239,7 @@ pub async fn interpret_paths(
 // unused_async: napi-rs requires `async fn` to return a Promise in JS.
 #[allow(clippy::too_many_arguments, clippy::unused_async)]
 #[napi(
-    ts_args_type = "election: Election, sideAImageWidth: number, sideAImageHeight: number, sideAImageData: Buffer | Uint8ClampedArray, sideBImageWidth: number, sideBImageHeight: number, sideBImageData: Buffer | Uint8ClampedArray, options: BridgeInterpretOptions",
+    ts_args_type = "election: BridgeElection, sideAImageWidth: number, sideAImageHeight: number, sideAImageData: Buffer | Uint8ClampedArray, sideBImageWidth: number, sideBImageHeight: number, sideBImageData: Buffer | Uint8ClampedArray, options: BridgeInterpretOptions",
     ts_return_type = "Promise<BridgeInterpretResult>"
 )]
 pub async fn interpret_images(

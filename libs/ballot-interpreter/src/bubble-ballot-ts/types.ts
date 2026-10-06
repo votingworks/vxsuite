@@ -7,6 +7,9 @@ import type {
   Side,
   BallotType,
   ContestId,
+  Election,
+  BallotStyle,
+  SheetPositions,
 } from '@votingworks/types';
 import type { EnumValues, Optional, Result } from '@votingworks/basics';
 
@@ -469,3 +472,20 @@ export interface RustBubbleBallotMetadata {
  * Result of decoding raw bubble ballot metadata bytes via the Rust decoder.
  */
 export type BridgeDecodeBubbleBallotMetadataResult = RustBubbleBallotMetadata;
+
+// NOTE: Keep in sync with libs/types-rs/src/election.rs
+export type BridgeElection = Pick<
+  Election,
+  'contests' | 'precincts' | 'title'
+> & {
+  ballotStyles: readonly BridgeBallotStyle[];
+};
+
+// NOTE: Keep in sync with libs/types-rs/src/election.rs
+export type BridgeBallotStyle = Pick<
+  BallotStyle,
+  'id' | 'districts' | 'partyId'
+> & {
+  // eslint-disable-next-line vx/gts-use-optionals
+  ballotPositions: readonly SheetPositions[] | undefined;
+};
