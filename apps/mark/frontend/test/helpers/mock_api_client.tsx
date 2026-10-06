@@ -72,6 +72,7 @@ type MockApiClient = Omit<
   | 'getPatInputConnected'
   | 'getDiskSpaceSummary'
   | 'getPrintJobStatus'
+  | 'getElectionState'
 > & {
   // Because these are polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
@@ -83,6 +84,7 @@ type MockApiClient = Omit<
   getPatInputConnected: Mock;
   getDiskSpaceSummary: Mock;
   getPrintJobStatus: Mock;
+  getElectionState: Mock;
 };
 
 function createMockApiClient(): MockApiClient {
@@ -182,6 +184,10 @@ export function createApiMock() {
   const electionStateRef: { current: ElectionState } = {
     current: initialElectionState,
   };
+
+  mockApiClient.getElectionState = vi.fn(() =>
+    Promise.resolve({ ...electionStateRef.current })
+  );
 
   return {
     mockApiClient,
@@ -339,9 +345,6 @@ export function createApiMock() {
             ...electionState,
           }
         : initialElectionState;
-      mockApiClient.getElectionState
-        .expectCallWith()
-        .resolves(electionStateRef.current);
     },
 
     expectSetPollsState(pollsState: PollsState) {

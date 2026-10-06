@@ -316,7 +316,7 @@ test('navigates to diagnostics screen and back', async () => {
   apiMock.expectGetUsbPortStatus();
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
-  apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
+  apiMock.expectGetElectionState({
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,

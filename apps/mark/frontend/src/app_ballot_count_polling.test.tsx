@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi, type Mock } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { anyPollingPlace } from '@votingworks/types';
 import type { ElectionState } from '@votingworks/mark-backend';
@@ -41,7 +41,7 @@ test('picks up a ballot count written by the backend', async () => {
     ballotsPrintedCount: 0,
     pollsState: 'polls_open',
   };
-  (apiMock.mockApiClient.getElectionState as unknown as Mock) = vi.fn(() =>
+  apiMock.mockApiClient.getElectionState.mockImplementation(() =>
     Promise.resolve({ ...electionState })
   );
 
