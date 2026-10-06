@@ -52,6 +52,7 @@ export async function copy(
   // `prepare` resolved this election ID against the same snapshot, so its
   // metadata is necessarily there.
   const electionMetadata = assertDefined(store.getElectionMetadata(electionId));
+  const cvrCount = store.getCastVoteRecordCount(electionId);
 
   for (const file of source.listStagedFiles()) {
     options.onProgressEvent?.({
@@ -129,12 +130,13 @@ export async function copy(
   const machineConfig = getMachineConfig();
 
   return ok(
-    new BackupManifest(
+    new BackupManifest({
       softwareVersion,
-      machineConfig.machineId,
-      DateTime.now().toISO(),
-      electionMetadata,
-      backupManifestEntries
-    )
+      machineId: machineConfig.machineId,
+      createdAt: DateTime.now().toISO(),
+      election: electionMetadata,
+      cvrCount,
+      files: backupManifestEntries,
+    })
   );
 }

@@ -87,6 +87,7 @@ test('copies staged files to the backup directory and builds a manifest', async 
   expect(manifest.machineId).toEqual(DEV_MACHINE_ID);
   expect(manifest.softwareVersion).toEqual(LATEST_SOFTWARE_VERSION);
   expect(manifest.election).toEqual(electionMetadata);
+  expect(manifest.cvrCount).toEqual(1);
 
   // Progress events bracket the copy with 0/total and total/total, and each
   // in-between event names the file currently being copied.

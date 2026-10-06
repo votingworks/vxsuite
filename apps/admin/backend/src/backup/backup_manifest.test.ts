@@ -28,6 +28,7 @@ const validStruct: BackupManifestStruct = {
   machineId: 'VX-00-001',
   createdAt: '2026-08-18T12:00:00.000Z',
   election,
+  cvrCount: 2,
   files: [
     { path: 'data/election.db', hash: hashA, size: 1024 },
     { path: 'logs/vx-logs.log', hash: hashB, size: 0 },
@@ -41,6 +42,7 @@ test('parses a valid manifest struct', () => {
   expect(parsed.machineId).toEqual('VX-00-001');
   expect(parsed.createdAt).toEqual('2026-08-18T12:00:00.000Z');
   expect(parsed.election).toEqual(election);
+  expect(parsed.cvrCount).toEqual(2);
   expect(parsed.files).toEqual(validStruct.files);
 });
 
@@ -124,6 +126,12 @@ test.each([-1, 1.5])('rejects manifest entry size: %j', (size) => {
   ).toEqual(err(expect.anything()));
 });
 
+test.each([-1, 1.5])('rejects manifest cvrCount: %j', (cvrCount) => {
+  expect(
+    safeParse(BackupManifestStructSchema, { ...validStruct, cvrCount })
+  ).toEqual(err(expect.anything()));
+});
+
 test('BackupManifest exposes the struct fields', () => {
   const parsed = unsafeParse(BackupManifestStructSchema, validStruct);
   const manifest = BackupManifest.fromStruct(parsed);
@@ -131,6 +139,7 @@ test('BackupManifest exposes the struct fields', () => {
   expect(manifest.machineId).toEqual('VX-00-001');
   expect(manifest.createdAt).toEqual('2026-08-18T12:00:00.000Z');
   expect(manifest.election).toEqual(election);
+  expect(manifest.cvrCount).toEqual(2);
   expect(manifest.files).toEqual(parsed.files);
 });
 
@@ -141,12 +150,13 @@ test('BackupManifest round-trips through toJSON', () => {
 });
 
 test('toJSON fails fast on an invalid manifest', () => {
-  const manifest = new BackupManifest(
-    '4.0.0',
-    'VX-00-001',
-    '2026-08-18T12:00:00.000Z',
+  const manifest = new BackupManifest({
+    softwareVersion: '4.0.0',
+    machineId: 'VX-00-001',
+    createdAt: '2026-08-18T12:00:00.000Z',
     election,
-    [{ path: '../outside', hash: hashA, size: 1 }]
-  );
+    cvrCount: 2,
+    files: [{ path: '../outside', hash: hashA, size: 1 }],
+  });
   expect(() => manifest.toJSON()).toThrow(z.ZodError);
 });

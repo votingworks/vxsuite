@@ -30,25 +30,26 @@ import type { ProgressEvent } from '../progress.js';
 
 function makeManifest(): BackupManifest {
   const { election } = electionFamousNames2021Fixtures.readElectionDefinition();
-  return new BackupManifest(
-    LATEST_SOFTWARE_VERSION,
-    DEV_MACHINE_ID,
-    DateTime.now().toISO(),
-    {
+  return new BackupManifest({
+    softwareVersion: LATEST_SOFTWARE_VERSION,
+    machineId: DEV_MACHINE_ID,
+    createdAt: DateTime.now().toISO(),
+    election: {
       id: election.id,
       title: election.title,
       date: election.date,
       jurisdictionName: election.jurisdiction.name,
       state: election.state,
     },
-    [
+    cvrCount: 3,
+    files: [
       {
         path: 'workspace/data.db',
         size: 3,
         hash: 'a'.repeat(64),
       },
-    ]
-  );
+    ],
+  });
 }
 
 function makeBackupDirectory(): string {

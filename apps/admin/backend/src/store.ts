@@ -1267,6 +1267,19 @@ export class Store implements BaseStore {
     )?.id;
   }
 
+  getCastVoteRecordCount(electionId: Id): number {
+    return (
+      this.client.one(
+        `
+          select count(*) as cvrCount
+          from cvrs
+          where election_id = ?
+        `,
+        electionId
+      ) as { cvrCount: number }
+    ).cvrCount;
+  }
+
   getCastVoteRecordCountByFileId(fileId: Id): number {
     return (
       this.client.one(

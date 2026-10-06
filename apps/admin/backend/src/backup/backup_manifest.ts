@@ -77,6 +77,7 @@ export const BackupManifestStructSchema = z.object({
   machineId: z.string().nonempty(),
   createdAt: Iso8601DateTimeSchema,
   election: ElectionMetadataSchema,
+  cvrCount: z.number().int().nonnegative(),
   files: BackupManifestEntrySchema.array(),
 });
 
@@ -95,30 +96,27 @@ export class BackupManifest {
   private readonly manifestMachineId: string;
   private readonly manifestCreatedAt: Iso8601Timestamp;
   private readonly manifestElection: ElectionMetadata;
+  private readonly manifestCvrCount: number;
   private readonly manifestFiles: BackupManifestEntry[];
 
-  constructor(
-    manifestSoftwareVersion: string,
-    manifestMachineId: string,
-    manifestCreatedAt: Iso8601Timestamp,
-    manifestElection: ElectionMetadata,
-    manifestFiles: BackupManifestEntry[]
-  ) {
-    this.manifestSoftwareVersion = manifestSoftwareVersion;
-    this.manifestMachineId = manifestMachineId;
-    this.manifestCreatedAt = manifestCreatedAt;
-    this.manifestElection = manifestElection;
-    this.manifestFiles = manifestFiles;
+  constructor({
+    softwareVersion,
+    machineId,
+    createdAt,
+    election,
+    cvrCount,
+    files,
+  }: Omit<BackupManifestStruct, 'version'>) {
+    this.manifestSoftwareVersion = softwareVersion;
+    this.manifestMachineId = machineId;
+    this.manifestCreatedAt = createdAt;
+    this.manifestElection = election;
+    this.manifestCvrCount = cvrCount;
+    this.manifestFiles = files;
   }
 
   static fromStruct(data: BackupManifestStruct): BackupManifest {
-    return new BackupManifest(
-      data.softwareVersion,
-      data.machineId,
-      data.createdAt,
-      data.election,
-      data.files
-    );
+    return new BackupManifest(data);
   }
 
   get softwareVersion(): string {
@@ -137,6 +135,10 @@ export class BackupManifest {
     return this.manifestElection;
   }
 
+  get cvrCount(): number {
+    return this.manifestCvrCount;
+  }
+
   get files(): readonly BackupManifestEntry[] {
     return this.manifestFiles;
   }
@@ -148,6 +150,7 @@ export class BackupManifest {
       machineId: this.manifestMachineId,
       createdAt: this.manifestCreatedAt.toString(),
       election: this.manifestElection,
+      cvrCount: this.manifestCvrCount,
       files: [...this.manifestFiles],
     };
 
