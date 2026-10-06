@@ -31,6 +31,7 @@ test('uses appropriate headers', async () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -235,9 +236,11 @@ test('uses appropriate headers', async () => {
 
 test('includes rows for empty but known result groups', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const { ballotHash, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -260,9 +263,11 @@ test('includes rows for empty but known result groups', async () => {
 
 test('included contests are specific to each results group', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const { ballotHash, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -299,9 +304,11 @@ test('included contests are specific to each results group', async () => {
 
 test('included contests are restricted by the overall export filter', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const { ballotHash, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -328,9 +335,11 @@ test('included contests are restricted by the overall export filter', async () =
 
 test('does not include results groups when they are excluded by the filter', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionData = electionTwoPartyPrimaryFixtures.electionJson.asText();
+  const { ballotHash, electionData } =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -375,9 +384,10 @@ test('incorporates manual data', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { election, electionData } = electionDefinition;
+  const { ballotHash, election, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -486,9 +496,10 @@ test('includes regulate-fishing row when votes include the third yesno option', 
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { electionData } = electionDefinition;
+  const { ballotHash, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -538,9 +549,10 @@ test('includes regulate-fishing in manual results when manual tallies set for th
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { election, electionData } = electionDefinition;
+  const { ballotHash, election, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -597,9 +609,10 @@ test('separate rows for manual data when grouping by an incompatible dimension',
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { election, electionData } = electionDefinition;
+  const { ballotHash, election, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -782,10 +795,11 @@ test('separate rows for manual data when grouping by an incompatible dimension',
 
 test('ballots cast rows reflect per-contest ballot counts across ballot styles', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const { electionData } =
+  const { ballotHash, electionData } =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -847,9 +861,10 @@ test('ballots cast rows reflect per-contest ballot counts across ballot styles',
 test('filter reduced to no values exports a CSV with no rows', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition = readElectionGeneralDefinition();
-  const { electionData, election } = electionDefinition;
+  const { ballotHash, electionData, election } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',

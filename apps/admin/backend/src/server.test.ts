@@ -239,6 +239,7 @@ test('logs when there is stored election results data present at startup', async
     electionGridLayoutNewHampshireTestBallotFixtures;
   const electionId = await workspace.store.addElection({
     electionData: electionDefinition.electionData,
+    ballotHash: electionDefinition.ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',

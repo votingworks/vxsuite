@@ -158,9 +158,10 @@ test('tabulateWriteInTallies', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { election, electionData } = electionDefinition;
+  const { ballotHash, election, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageSourceFilePath: makeTemporaryFile(),
     electionPackageHash: 'test-election-package-hash',
@@ -474,9 +475,10 @@ test('tabulateWriteInTallies in qualified mode - unadjudicated qualified candida
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { electionData } = electionDefinition;
+  const { ballotHash, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify({
       ...DEFAULT_SYSTEM_SETTINGS,
       areWriteInCandidatesQualified: true,
@@ -550,9 +552,10 @@ test('tabulateWriteInTallies in qualified mode - preserves adjudicated tallies w
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { electionData } = electionDefinition;
+  const { ballotHash, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
+    ballotHash,
     systemSettingsData: JSON.stringify({
       ...DEFAULT_SYSTEM_SETTINGS,
       areWriteInCandidatesQualified: true,
