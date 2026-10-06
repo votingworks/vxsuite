@@ -15,6 +15,8 @@ const election: ElectionMetadata = {
   id: 'election-1',
   title: 'General Election',
   date: new DateWithoutTime('2026-11-03'),
+  jurisdictionName: 'Franklin County',
+  state: 'State of Hamilton',
 };
 
 const hashA = '0a'.repeat(32);
@@ -50,6 +52,18 @@ test('rejects an unknown manifest version', () => {
     })
   ).toEqual(err(expect.anything()));
 });
+
+test.each(['title', 'jurisdictionName', 'state'] as const)(
+  'rejects an empty election %s',
+  (field) => {
+    expect(
+      safeParse(BackupManifestStructSchema, {
+        ...validStruct,
+        election: { ...election, [field]: '' },
+      })
+    ).toEqual(err(expect.anything()));
+  }
+);
 
 test.each([
   '',

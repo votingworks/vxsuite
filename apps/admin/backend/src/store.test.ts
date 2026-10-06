@@ -201,6 +201,8 @@ test('reads election metadata without parsing the election definition', async ()
     id: election.id,
     title: election.title,
     date: election.date,
+    jurisdictionName: election.jurisdiction.name,
+    state: election.state,
   });
   expect(store.getElectionBasedSubfolderName(electionId)).toEqual(
     generateElectionBasedSubfolderName(election, electionDefinition.ballotHash)
@@ -232,6 +234,8 @@ test('reads election metadata from a CDF election definition', async () => {
     id: election.id,
     title: election.title,
     date: election.date,
+    jurisdictionName: election.jurisdiction.name,
+    state: election.state,
   });
   expect(store.getElectionBasedSubfolderName(electionId)).toEqual(
     generateElectionBasedSubfolderName(

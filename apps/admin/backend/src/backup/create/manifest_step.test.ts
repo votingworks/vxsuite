@@ -34,7 +34,13 @@ function makeManifest(): BackupManifest {
     LATEST_SOFTWARE_VERSION,
     DEV_MACHINE_ID,
     DateTime.now().toISO(),
-    { id: election.id, title: election.title, date: election.date },
+    {
+      id: election.id,
+      title: election.title,
+      date: election.date,
+      jurisdictionName: election.jurisdiction.name,
+      state: election.state,
+    },
     [
       {
         path: 'workspace/data.db',

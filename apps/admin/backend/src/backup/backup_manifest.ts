@@ -26,6 +26,8 @@ export const ElectionMetadataSchema = z.object({
   id: ElectionIdSchema,
   title: z.string().nonempty(),
   date: DateWithoutTimeSchema,
+  jurisdictionName: z.string().nonempty(),
+  state: z.string().nonempty(),
 });
 
 /**

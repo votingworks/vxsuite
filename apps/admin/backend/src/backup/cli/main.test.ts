@@ -104,6 +104,8 @@ async function writeManifest(backupPath: string): Promise<void> {
         id: 'election-1',
         title: 'General Election',
         date: new DateWithoutTime('2026-11-03'),
+        jurisdictionName: 'Franklin County',
+        state: 'State of Hamilton',
       },
       [{ path: 'data/election.db', hash: '0a'.repeat(32), size: 1024 }]
     )
