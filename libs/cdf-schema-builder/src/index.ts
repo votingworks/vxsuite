@@ -34,7 +34,7 @@ function writeDocumentation(
 function writeEnumType(enumeration: Enum, out: NodeJS.WritableStream): void {
   writeDocumentation(enumeration.documentation, out);
 
-  out.write(`export enum ${enumeration.name} {`);
+  out.write(`export const ${enumeration.name} = {`);
 
   // @coverage-defer
   if (enumeration.values.length > 0) {
@@ -43,13 +43,18 @@ function writeEnumType(enumeration: Enum, out: NodeJS.WritableStream): void {
 
   for (const [i, { documentation, value }] of enumeration.values.entries()) {
     writeDocumentation(documentation, out, '  ');
-    out.write(`  ${makeIdentifier(value)} = '${value}',\n`);
+    out.write(`  ${makeIdentifier(value)}: '${value}',\n`);
     if (i !== enumeration.values.length - 1) {
       out.write('\n');
     }
   }
 
-  out.write(`}\n\n`);
+  out.write(`} as const;\n\n`);
+
+  writeDocumentation(enumeration.documentation, out);
+  out.write(
+    `export type ${enumeration.name} = (typeof ${enumeration.name})[keyof typeof ${enumeration.name}];\n\n`
+  );
 
   writeDocumentation(`Schema for {@link ${enumeration.name}}.`, out);
   out.write(

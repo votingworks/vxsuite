@@ -638,7 +638,7 @@ export function convertVxfElectionToCdfBallotDefinition(
                 {
                   '@type': 'BallotDefinition.OptionPosition',
                   Sheet: position.sheetNumber,
-                  Side: position.side as Cdf.BallotSideType,
+                  Side: position.side,
                   X: position.column,
                   Y: position.row,
                   H: 0,
@@ -664,7 +664,7 @@ export function convertVxfElectionToCdfBallotDefinition(
                   {
                     '@type': 'BallotDefinition.OptionPosition',
                     Sheet: position.sheetNumber,
-                    Side: position.side as Cdf.BallotSideType,
+                    Side: position.side,
                     // Technically these should be in inches, not grid
                     // coordinates, since that's the measurement unit
                     // specified in the ballot format, but grid coordinates
@@ -686,7 +686,7 @@ export function convertVxfElectionToCdfBallotDefinition(
                   {
                     '@type': 'BallotDefinition.WriteInPosition',
                     Sheet: position.sheetNumber,
-                    Side: position.side as Cdf.BallotSideType,
+                    Side: position.side,
                     // Note that these are in grid coordinates
                     X: position.writeInArea.x,
                     Y: position.writeInArea.y,
@@ -712,7 +712,7 @@ export function convertVxfElectionToCdfBallotDefinition(
             {
               '@type': 'BallotDefinition.OptionPosition',
               Sheet: position.sheetNumber,
-              Side: position.side as Cdf.BallotSideType,
+              Side: position.side,
 
               // Technically these should be in inches, not grid
               // coordinates, since that's the measurement unit
@@ -738,7 +738,7 @@ export function convertVxfElectionToCdfBallotDefinition(
                   {
                     '@type': 'BallotDefinition.WriteInPosition',
                     Sheet: position.sheetNumber,
-                    Side: position.side as Cdf.BallotSideType,
+                    Side: position.side,
                     // Note that these are in grid coordinates
                     X: position.writeInArea.x,
                     Y: position.writeInArea.y,
@@ -799,7 +799,7 @@ export function convertVxfElectionToCdfBallotDefinition(
             Value: vxfElection.id,
           },
         ],
-        Type: vxfElection.type as Cdf.ElectionType,
+        Type: vxfElection.type,
         Name: text(vxfElection.title, ElectionStringKey.ELECTION_TITLE),
 
         Candidate: vxfElection.contests

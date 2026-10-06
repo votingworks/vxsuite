@@ -21,6 +21,9 @@
     // Make it easier for non-`tsc` tooling to use `imports` as-is.
     "verbatimModuleSyntax": true,
 
+    // Only allow TS syntax that can become JS by deleting types.
+    "erasableSyntaxOnly": true,
+
     // Don't allow both e.g. "foo.ts" and "Foo.ts" for the same file.
     "forceConsistentCasingInFileNames": true,
 

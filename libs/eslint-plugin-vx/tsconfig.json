@@ -10,8 +10,7 @@
     "noEmit": true,
     "composite": true,
     "skipLibCheck": true,
-    "allowImportingTsExtensions": true,
-    "erasableSyntaxOnly": true
+    "allowImportingTsExtensions": true
   },
   "include": ["src", "tests"],
   "exclude": [],

@@ -723,7 +723,8 @@ export class LocalStore extends Store {
   }
 
   getEventCountUniqueByVoter(
-    eventType: EventType.VoterNameChange | EventType.VoterAddressChange
+    eventType:
+      typeof EventType.VoterNameChange | typeof EventType.VoterAddressChange
   ): number {
     const row = this.client.one(
       `

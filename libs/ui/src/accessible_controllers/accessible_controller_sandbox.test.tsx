@@ -53,7 +53,8 @@ function simulateKeyPress(key: string) {
   });
 }
 
-type MockIllustrationButton = Keybinding.PAGE_NEXT | Keybinding.PAGE_PREVIOUS;
+type MockIllustrationButton =
+  typeof Keybinding.PAGE_NEXT | typeof Keybinding.PAGE_PREVIOUS;
 type MockIllustrationProps =
   AccessibleControllerIllustrationProps<MockIllustrationButton>;
 

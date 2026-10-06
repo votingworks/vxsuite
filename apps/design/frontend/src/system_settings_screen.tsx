@@ -202,7 +202,10 @@ export function SystemSettingsForm({
     saveSettings();
   }
 
-  const adjudicationReasonOptions = [
+  const adjudicationReasonOptions: Array<{
+    label: string;
+    value: AdjudicationReason;
+  }> = [
     { label: 'Overvote', value: AdjudicationReason.Overvote },
     { label: 'Undervote', value: AdjudicationReason.Undervote },
     { label: 'Marginal Mark', value: AdjudicationReason.MarginalMark },

@@ -1,4 +1,4 @@
-import { assert, deferredQueue } from '@votingworks/basics';
+import { assert, deferredQueue, type EnumValues } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { join } from 'node:path';
 import { dirSync } from 'tmp';
@@ -52,16 +52,20 @@ export interface BatchScanner {
   scanSheets(options?: ScanOptions): BatchControl;
 }
 
-export enum ScannerImageFormat {
-  JPEG = 'jpeg',
-  PNG = 'png',
-}
+export const ScannerImageFormat = {
+  JPEG: 'jpeg',
+  PNG: 'png',
+} as const;
 
-export enum ScannerMode {
-  Lineart = 'lineart',
-  Gray = 'gray',
-  Color = 'color',
-}
+export type ScannerImageFormat = EnumValues<typeof ScannerImageFormat>;
+
+export const ScannerMode = {
+  Lineart: 'lineart',
+  Gray: 'gray',
+  Color: 'color',
+} as const;
+
+export type ScannerMode = EnumValues<typeof ScannerMode>;
 
 export interface Options {
   format?: ScannerImageFormat;

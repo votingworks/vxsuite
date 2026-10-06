@@ -89,12 +89,14 @@ export type HtmlColorString = string;
  */
 export const HtmlColorStringSchema: z.ZodSchema<HtmlColorString> = z.string().regex(/[0-9a-f]{6}/);
 
-export enum BallotDefinitionVersion {
+export const BallotDefinitionVersion = {
   /**
    * For version 1.0.0 of this specification.
    */
-  v1_0_0 = '1.0.0',
-}
+  v1_0_0: '1.0.0',
+} as const;
+
+export type BallotDefinitionVersion = (typeof BallotDefinitionVersion)[keyof typeof BallotDefinitionVersion];
 
 /**
  * Schema for {@link BallotDefinitionVersion}.
@@ -104,17 +106,22 @@ export const BallotDefinitionVersionSchema = z.enum(BallotDefinitionVersion);
 /**
  * The side of a ballot sheet.
  */
-export enum BallotSideType {
+export const BallotSideType = {
   /**
    * The back of the ballot sheet.
    */
-  Back = 'back',
+  Back: 'back',
 
   /**
    * The front of the ballot sheet
    */
-  Front = 'front',
-}
+  Front: 'front',
+} as const;
+
+/**
+ * The side of a ballot sheet.
+ */
+export type BallotSideType = (typeof BallotSideType)[keyof typeof BallotSideType];
 
 /**
  * Schema for {@link BallotSideType}.
@@ -124,17 +131,22 @@ export const BallotSideTypeSchema = z.enum(BallotSideType);
 /**
  * Enumeration for the type of election in the BallotDefinition class.
  */
-export enum ElectionType {
+export const ElectionType = {
   /**
    * Election in which all eligible voters, regardless of party affiliation, are permitted to select candidates to fill public office and/or vote on ballot measures.
    */
-  General = 'general',
+  General: 'general',
 
   /**
    * Election held to determine which candidates qualify to appear as contest options in subsequent elections.
    */
-  Primary = 'primary',
-}
+  Primary: 'primary',
+} as const;
+
+/**
+ * Enumeration for the type of election in the BallotDefinition class.
+ */
+export type ElectionType = (typeof ElectionType)[keyof typeof ElectionType];
 
 /**
  * Schema for {@link ElectionType}.
@@ -144,37 +156,42 @@ export const ElectionTypeSchema = z.enum(ElectionType);
 /**
  * Enumeration for election data-related codes in the ExternalIdentifier class .
  */
-export enum IdentifierType {
+export const IdentifierType = {
   /**
    * For FIPS codes.
    */
-  Fips = 'fips',
+  Fips: 'fips',
 
   /**
    * For a code that is specific to a county or other similar locality.
    */
-  LocalLevel = 'local-level',
+  LocalLevel: 'local-level',
 
   /**
    * For a code that is used at the national level other than “fips” or “ocd-id”.
    */
-  NationalLevel = 'national-level',
+  NationalLevel: 'national-level',
 
   /**
    * For Open Civic Data identifiers.
    */
-  OcdId = 'ocd-id',
+  OcdId: 'ocd-id',
 
   /**
    * Used when the type of code is not included in this enumeration.
    */
-  Other = 'other',
+  Other: 'other',
 
   /**
    * For a code that is specific to a state.
    */
-  StateLevel = 'state-level',
-}
+  StateLevel: 'state-level',
+} as const;
+
+/**
+ * Enumeration for election data-related codes in the ExternalIdentifier class .
+ */
+export type IdentifierType = (typeof IdentifierType)[keyof typeof IdentifierType];
 
 /**
  * Schema for {@link IdentifierType}.
@@ -184,27 +201,32 @@ export const IdentifierTypeSchema = z.enum(IdentifierType);
 /**
  * The measurement unit for describing the location of content on a ballot.
  */
-export enum MeasurementUnitType {
+export const MeasurementUnitType = {
   /**
    * inches
    */
-  In = 'in',
+  In: 'in',
 
   /**
    * millimeters
    */
-  Mm = 'mm',
+  Mm: 'mm',
 
   /**
    * picas
    */
-  Pc = 'pc',
+  Pc: 'pc',
 
   /**
    * points (1/72 inch)
    */
-  Pt = 'pt',
-}
+  Pt: 'pt',
+} as const;
+
+/**
+ * The measurement unit for describing the location of content on a ballot.
+ */
+export type MeasurementUnitType = (typeof MeasurementUnitType)[keyof typeof MeasurementUnitType];
 
 /**
  * Schema for {@link MeasurementUnitType}.
@@ -214,17 +236,22 @@ export const MeasurementUnitTypeSchema = z.enum(MeasurementUnitType);
 /**
  * The orientation of a ballot sheet.
  */
-export enum OrientationType {
+export const OrientationType = {
   /**
    * Orient the sheet so that the ballot content print across the long edge of the paper.
    */
-  Landscape = 'landscape',
+  Landscape: 'landscape',
 
   /**
    * Orient the sheet so that the ballot content print across the short edge of the paper.
    */
-  Portrait = 'portrait',
-}
+  Portrait: 'portrait',
+} as const;
+
+/**
+ * The orientation of a ballot sheet.
+ */
+export type OrientationType = (typeof OrientationType)[keyof typeof OrientationType];
 
 /**
  * Schema for {@link OrientationType}.
@@ -234,71 +261,80 @@ export const OrientationTypeSchema = z.enum(OrientationType);
 /**
  * Enumeration for the type of geopolitical unit in the ReportingUnit class.
  */
-export enum ReportingUnitType {
+export const ReportingUnitType = {
   /**
    * Used for a county and/or for the district that encompasses it. In AK, used for counties that are called boroughs. In LA, used for parishes.
    */
-  County = 'county',
+  County: 'county',
 
   /**
    * Used for a polling place.
    */
-  PollingPlace = 'polling-place',
+  PollingPlace: 'polling-place',
 
   /**
    * Used also for “Ward” or “District” when these terms are used interchangeably with “Precinct”.
    */
-  Precinct = 'precinct',
+  Precinct: 'precinct',
 
   /**
    * Used for splits of precincts.
    */
-  SplitPrecinct = 'split-precinct',
+  SplitPrecinct: 'split-precinct',
 
   /**
    * Used for a state and/or for the district that encompasses it.
    */
-  State = 'state',
+  State: 'state',
 
   /**
    * Used for other types of reporting units not included in this enumeration.
    */
-  Other = 'other',
-}
+  Other: 'other',
+} as const;
+
+/**
+ * Enumeration for the type of geopolitical unit in the ReportingUnit class.
+ */
+export type ReportingUnitType = (typeof ReportingUnitType)[keyof typeof ReportingUnitType];
 
 /**
  * Schema for {@link ReportingUnitType}.
  */
 export const ReportingUnitTypeSchema = z.enum(ReportingUnitType);
 
-export enum SelectionCaptureMethod {
+export const SelectionCaptureMethod = {
   /**
    * For a read method that uses the mCDF encoded using a symbology.
    */
-  Mcdf = 'mcdf',
+  Mcdf: 'mcdf',
 
   /**
    * For a read method that uses optical mark recognition.
    */
-  Omr = 'omr',
-}
+  Omr: 'omr',
+} as const;
+
+export type SelectionCaptureMethod = (typeof SelectionCaptureMethod)[keyof typeof SelectionCaptureMethod];
 
 /**
  * Schema for {@link SelectionCaptureMethod}.
  */
 export const SelectionCaptureMethodSchema = z.enum(SelectionCaptureMethod);
 
-export enum ShapeType {
+export const ShapeType = {
   /**
    * For an ellipse shape
    */
-  Ellipse = 'ellipse',
+  Ellipse: 'ellipse',
 
   /**
    * For a rectangle shape
    */
-  Rectangle = 'rectangle',
-}
+  Rectangle: 'rectangle',
+} as const;
+
+export type ShapeType = (typeof ShapeType)[keyof typeof ShapeType];
 
 /**
  * Schema for {@link ShapeType}.

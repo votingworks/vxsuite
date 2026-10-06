@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { throwIllegalValue } from '@votingworks/basics';
+import { throwIllegalValue, type EnumValues } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import type { LogExportFormat } from '@votingworks/logging';
 import { Button } from './button.js';
@@ -16,12 +16,14 @@ export interface ExportLogsModalProps {
   onClose: () => void;
 }
 
-enum ModalState {
-  Error = 'error',
-  Saving = 'saving',
-  Done = 'done',
-  Init = 'init',
-}
+const ModalState = {
+  Error: 'error',
+  Saving: 'saving',
+  Done: 'done',
+  Init: 'init',
+} as const;
+
+type ModalState = EnumValues<typeof ModalState>;
 
 export function ExportLogsModal({
   usbDriveStatus,
@@ -30,7 +32,7 @@ export function ExportLogsModal({
   const api = useSystemCallApi();
 
   const exportLogsToUsbMutation = api.exportLogsToUsb.useMutation();
-  const [currentState, setCurrentState] = useState(ModalState.Init);
+  const [currentState, setCurrentState] = useState<ModalState>(ModalState.Init);
   const [errorMessage, setErrorMessage] = useState('');
   const [currentFormat, setCurrentFormat] = useState<LogExportFormat>('vxf');
 

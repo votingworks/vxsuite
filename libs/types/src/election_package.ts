@@ -1,4 +1,5 @@
 import z from 'zod/v4';
+import type { EnumValues } from '@votingworks/basics';
 import {
   type BallotStyleId,
   BallotStyleIdSchema,
@@ -16,17 +17,21 @@ import type { UiStringAudioIdsPackage } from './ui_string_audio_ids.js';
 import type { UiStringsPackage } from './ui_string_translations.js';
 import { BALLOT_MODES, type BaseBallotProps } from './hmpb.js';
 
-export enum ElectionPackageFileName {
-  APP_STRINGS = 'appStrings.json',
-  AUDIO_CLIPS = 'audioClips.jsonl',
-  AUDIO_IDS = 'audioIds.json',
-  BALLOT_POSITIONS = 'ballotPositions.jsonl',
-  BALLOTS = 'ballots.jsonl',
-  ELECTION = 'election.json',
-  METADATA = 'metadata.json',
-  REGISTERED_VOTER_COUNTS = 'registeredVoterCounts.json',
-  SYSTEM_SETTINGS = 'systemSettings.json',
-}
+export const ElectionPackageFileName = {
+  APP_STRINGS: 'appStrings.json',
+  AUDIO_CLIPS: 'audioClips.jsonl',
+  AUDIO_IDS: 'audioIds.json',
+  BALLOT_POSITIONS: 'ballotPositions.jsonl',
+  BALLOTS: 'ballots.jsonl',
+  ELECTION: 'election.json',
+  METADATA: 'metadata.json',
+  REGISTERED_VOTER_COUNTS: 'registeredVoterCounts.json',
+  SYSTEM_SETTINGS: 'systemSettings.json',
+} as const;
+
+export type ElectionPackageFileName = EnumValues<
+  typeof ElectionPackageFileName
+>;
 
 export interface ElectionPackage {
   ballots?: EncodedBallotEntry[];

@@ -34,7 +34,7 @@ export type NhStateBallotProps = Omit<BaseBallotProps, 'compact'> & {
     | { variant?: undefined }
     | {
         variant: NhStateBallotVariant;
-        ballotType: BallotType.Absentee;
+        ballotType: typeof BallotType.Absentee;
         ballotMode: 'official';
       }
   );

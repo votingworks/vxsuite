@@ -92,20 +92,23 @@ export const BallotPageLayoutSchema: z.ZodSchema<BallotPageLayout> = z.object({
   contests: z.array(BallotPageContestLayoutSchema),
 });
 
-export enum MarkStatus {
-  Marked = 'marked',
-  Unmarked = 'unmarked',
-  Marginal = 'marginal',
-}
-export const MarkStatusSchema: z.ZodSchema<MarkStatus> = z.enum(MarkStatus);
+export const MarkStatus = {
+  Marked: 'marked',
+  Unmarked: 'unmarked',
+  Marginal: 'marginal',
+} as const;
 
-export enum WriteInAreaStatus {
-  Filled = 'filled',
-  Unfilled = 'unfilled',
-  Ignored = 'ignored',
-}
-export const WriteInAreaStatusSchema: z.ZodSchema<WriteInAreaStatus> =
-  z.enum(WriteInAreaStatus);
+export const MarkStatusSchema = z.enum(MarkStatus);
+export type MarkStatus = z.output<typeof MarkStatusSchema>;
+
+export const WriteInAreaStatus = {
+  Filled: 'filled',
+  Unfilled: 'unfilled',
+  Ignored: 'ignored',
+} as const;
+
+export const WriteInAreaStatusSchema = z.enum(WriteInAreaStatus);
+export type WriteInAreaStatus = z.output<typeof WriteInAreaStatusSchema>;
 
 export type SheetOf<T> = readonly [T, T];
 

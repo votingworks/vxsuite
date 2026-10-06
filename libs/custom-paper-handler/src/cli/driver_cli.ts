@@ -1,7 +1,12 @@
 /* eslint-disable no-console */
 
 import { createInterface } from 'node:readline';
-import { assert, assertDefined, sleep } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  sleep,
+  type EnumValues,
+} from '@votingworks/basics';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { getPaperHandlerDriver } from '../driver/helpers.js';
@@ -19,23 +24,24 @@ import {
  * Usage: ./bin/driver-cli command
  */
 
-enum Command {
-  InitPrinter = 'init-printer', // Raw init printer command
-  SetDefaults = 'set-defaults', // Sets some defaults needed to operate printer
-  Status = 'status',
-  EjectFront = 'eject-front',
-  EjectBack = 'eject-back',
-  LoadPaper = 'load-paper',
-  Park = 'park',
-  EnablePrint = 'enable-print',
-  PrintSampleBallot = 'print-sample-ballot',
-  PrintSampleBallotShorthand = 'p',
-  ResetScan = 'reset-scan',
-  Help = 'help',
-  Scan = 'scan',
-  SetScanDirection = 'set-scan-dir',
-  FlushTransferInGeneric = 'flush-in',
-}
+const Command = {
+  InitPrinter: 'init-printer', // Raw init printer command
+  SetDefaults: 'set-defaults', // Sets some defaults needed to operate printer
+  Status: 'status',
+  EjectFront: 'eject-front',
+  EjectBack: 'eject-back',
+  LoadPaper: 'load-paper',
+  Park: 'park',
+  EnablePrint: 'enable-print',
+  PrintSampleBallot: 'print-sample-ballot',
+  PrintSampleBallotShorthand: 'p',
+  ResetScan: 'reset-scan',
+  Help: 'help',
+  Scan: 'scan',
+  SetScanDirection: 'set-scan-dir',
+  FlushTransferInGeneric: 'flush-in',
+} as const;
+type Command = EnumValues<typeof Command>;
 const commandList = Object.values(Command);
 
 function printUsage() {
@@ -151,7 +157,7 @@ export async function main(): Promise<number> {
 
   const initialArgs = process.argv;
 
-  let maxPrintWidth = MaxPrintWidthDots.BMD_155;
+  let maxPrintWidth: MaxPrintWidthDots = MaxPrintWidthDots.BMD_155;
   if (initialArgs.includes('--bmd150')) {
     maxPrintWidth = MaxPrintWidthDots.BMD_150;
   }

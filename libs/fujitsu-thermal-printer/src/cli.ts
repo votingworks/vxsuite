@@ -1,7 +1,11 @@
 /* eslint-disable vx/no-floating-results */
 /* eslint-disable no-console */
 
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  throwIllegalValue,
+  type EnumValues,
+} from '@votingworks/basics';
 import { loadImageData } from '@votingworks/image-utils';
 import { BaseLogger, LogSource, Logger } from '@votingworks/logging';
 import { safeParseInt } from '@votingworks/types';
@@ -17,13 +21,16 @@ import { PAGE_DOTS_WIDTH } from './printing.js';
  */
 
 // @coverage-defer
-enum Command {
-  GetStatus = 'status',
-  PollStatus = 'poll',
-  AdvancePaper = 'advance',
-  Print = 'print',
-  PrintFixture = 'print-fixture',
-}
+const Command = {
+  GetStatus: 'status',
+  PollStatus: 'poll',
+  AdvancePaper: 'advance',
+  Print: 'print',
+  PrintFixture: 'print-fixture',
+} as const;
+
+type Command = EnumValues<typeof Command>;
+
 // @coverage-defer
 const commandList = Object.values(Command);
 

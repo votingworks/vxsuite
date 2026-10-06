@@ -1,31 +1,37 @@
 import { z } from 'zod/v4';
-import { mapObject, mergeObjects } from '@votingworks/basics';
+import { mapObject, mergeObjects, type EnumValues } from '@votingworks/basics';
 import type { Dictionary } from './generic.js';
 
 /**
  * Voter-facing election string content that need to be translated and/or
  * spoken.
  */
-export enum ElectionStringKey {
-  BALLOT_LANGUAGE = 'ballotLanguage',
-  BALLOT_STYLE_ID = 'ballotStyleId',
-  CANDIDATE_DESIGNATION = 'candidateDesignation',
-  CANDIDATE_NAME = 'candidateName',
-  CONTEST_DESCRIPTION = 'contestDescription',
-  CONTEST_OPTION_LABEL = 'contestOptionLabel',
-  CONTEST_TERM = 'contestTerm',
-  CONTEST_TITLE = 'contestTitle',
-  DISTRICT_NAME = 'districtName',
-  ELECTION_DATE = 'electionDate',
-  ELECTION_TITLE = 'electionTitle',
-  JURISDICTION_NAME = 'jurisdictionName',
-  PARTY_FULL_NAME = 'partyFullName',
-  PARTY_NAME = 'partyName',
-  POLLING_PLACE_NAME = 'pollingPlaceName',
-  PRECINCT_NAME = 'precinctName',
-  PRECINCT_SPLIT_NAME = 'precinctSplitName',
-  STATE_NAME = 'stateName',
-}
+export const ElectionStringKey = {
+  BALLOT_LANGUAGE: 'ballotLanguage',
+  BALLOT_STYLE_ID: 'ballotStyleId',
+  CANDIDATE_DESIGNATION: 'candidateDesignation',
+  CANDIDATE_NAME: 'candidateName',
+  CONTEST_DESCRIPTION: 'contestDescription',
+  CONTEST_OPTION_LABEL: 'contestOptionLabel',
+  CONTEST_TERM: 'contestTerm',
+  CONTEST_TITLE: 'contestTitle',
+  DISTRICT_NAME: 'districtName',
+  ELECTION_DATE: 'electionDate',
+  ELECTION_TITLE: 'electionTitle',
+  JURISDICTION_NAME: 'jurisdictionName',
+  PARTY_FULL_NAME: 'partyFullName',
+  PARTY_NAME: 'partyName',
+  POLLING_PLACE_NAME: 'pollingPlaceName',
+  PRECINCT_NAME: 'precinctName',
+  PRECINCT_SPLIT_NAME: 'precinctSplitName',
+  STATE_NAME: 'stateName',
+} as const;
+
+/**
+ * Voter-facing election string content that need to be translated and/or
+ * spoken.
+ */
+export type ElectionStringKey = EnumValues<typeof ElectionStringKey>;
 
 /**
  * Map of UI string key to related translation in a given language.

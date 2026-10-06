@@ -72,22 +72,27 @@ export const FractionalNumberSchema: z.ZodSchema<FractionalNumber> = z.string().
 /**
  * Used in SelectionPosition::IsAllocable to indicate whether the SelectionPosition::NumberVotes should be allocated to the underlying contest option counter.
  */
-export enum AllocationStatus {
+export const AllocationStatus = {
   /**
    * To not allocate votes to the contest option's accumulator.
    */
-  No = 'no',
+  No: 'no',
 
   /**
    * When the decision to allocate votes is unknown, such as when the adjudication is needed.
    */
-  Unknown = 'unknown',
+  Unknown: 'unknown',
 
   /**
    * To allocate votes to the contest option's accumulator.
    */
-  Yes = 'yes',
-}
+  Yes: 'yes',
+} as const;
+
+/**
+ * Used in SelectionPosition::IsAllocable to indicate whether the SelectionPosition::NumberVotes should be allocated to the underlying contest option counter.
+ */
+export type AllocationStatus = (typeof AllocationStatus)[keyof typeof AllocationStatus];
 
 /**
  * Schema for {@link AllocationStatus}.
@@ -97,17 +102,22 @@ export const AllocationStatusSchema = z.enum(AllocationStatus);
 /**
  * Used in CVRSnapshot::Status to identify the status of the CVR.
  */
-export enum CVRStatus {
+export const CVRStatus = {
   /**
    * To indicate that the CVR needs to be adjudicated.
    */
-  NeedsAdjudication = 'needs-adjudication',
+  NeedsAdjudication: 'needs-adjudication',
 
   /**
    * Used in conjunction with CVRSnapshot::OtherStatus when no other value in this enumeration applies.
    */
-  Other = 'other',
-}
+  Other: 'other',
+} as const;
+
+/**
+ * Used in CVRSnapshot::Status to identify the status of the CVR.
+ */
+export type CVRStatus = (typeof CVRStatus)[keyof typeof CVRStatus];
 
 /**
  * Schema for {@link CVRStatus}.
@@ -117,22 +127,27 @@ export const CVRStatusSchema = z.enum(CVRStatus);
 /**
  * Used in CVRSnapshot::Type to indicate the type of snapshot.
  */
-export enum CVRType {
+export const CVRType = {
   /**
    * Has been adjudicated.
    */
-  Interpreted = 'interpreted',
+  Interpreted: 'interpreted',
 
   /**
    * After contest rules applied.
    */
-  Modified = 'modified',
+  Modified: 'modified',
 
   /**
    * As scanned, no contest rules applied.
    */
-  Original = 'original',
-}
+  Original: 'original',
+} as const;
+
+/**
+ * Used in CVRSnapshot::Type to indicate the type of snapshot.
+ */
+export type CVRType = (typeof CVRType)[keyof typeof CVRType];
 
 /**
  * Schema for {@link CVRType}.
@@ -142,12 +157,17 @@ export const CVRTypeSchema = z.enum(CVRType);
 /**
  * To identify the version of the CVR specification being used, i.e., version 1.0.0.  This will need to be updated for different versions of the specification.
  */
-export enum CastVoteRecordVersion {
+export const CastVoteRecordVersion = {
   /**
    * Fixed value for the version of this specification.
    */
-  v1_0_0 = '1.0.0',
-}
+  v1_0_0: '1.0.0',
+} as const;
+
+/**
+ * To identify the version of the CVR specification being used, i.e., version 1.0.0.  This will need to be updated for different versions of the specification.
+ */
+export type CastVoteRecordVersion = (typeof CastVoteRecordVersion)[keyof typeof CastVoteRecordVersion];
 
 /**
  * Schema for {@link CastVoteRecordVersion}.
@@ -157,27 +177,32 @@ export const CastVoteRecordVersionSchema = z.enum(CastVoteRecordVersion);
 /**
  * Used in CVRContestSelection::Status to identify the status of a contest selection in the CVR.
  */
-export enum ContestSelectionStatus {
+export const ContestSelectionStatus = {
   /**
    * To indicate that the contest selection was generated per contest rules.
    */
-  GeneratedRules = 'generated-rules',
+  GeneratedRules: 'generated-rules',
 
   /**
    * To indicate that the contest selection was invalidated by the generating device because of contest rules.
    */
-  InvalidatedRules = 'invalidated-rules',
+  InvalidatedRules: 'invalidated-rules',
 
   /**
    * To indicate that the contest selection was flagged by the generating device for adjudication.
    */
-  NeedsAdjudication = 'needs-adjudication',
+  NeedsAdjudication: 'needs-adjudication',
 
   /**
    * Used in conjunction with CVRContestSelection::OtherStatus when no other value in this enumeration applies.
    */
-  Other = 'other',
-}
+  Other: 'other',
+} as const;
+
+/**
+ * Used in CVRContestSelection::Status to identify the status of a contest selection in the CVR.
+ */
+export type ContestSelectionStatus = (typeof ContestSelectionStatus)[keyof typeof ContestSelectionStatus];
 
 /**
  * Schema for {@link ContestSelectionStatus}.
@@ -187,32 +212,37 @@ export const ContestSelectionStatusSchema = z.enum(ContestSelectionStatus);
 /**
  * Used in CVRContest::Status to identify the status of a contest in which contest selection(s) were made.
  */
-export enum ContestStatus {
+export const ContestStatus = {
   /**
    * To indicate that the contest has been invalidated by the generating device because of contest rules.
    */
-  InvalidatedRules = 'invalidated-rules',
+  InvalidatedRules: 'invalidated-rules',
 
   /**
    * For a CVRContest with no SelectionPosition, i.e. to specify the position contains no marks or other indications.
    */
-  NotIndicated = 'not-indicated',
+  NotIndicated: 'not-indicated',
 
   /**
    * Used in conjunction with CVRContest::OtherStatus when no other value in this enumeration applies.
    */
-  Other = 'other',
+  Other: 'other',
 
   /**
    * To indicate that the contest was overvoted.
    */
-  Overvoted = 'overvoted',
+  Overvoted: 'overvoted',
 
   /**
    * To indicate that the contest was undervoted.
    */
-  Undervoted = 'undervoted',
-}
+  Undervoted: 'undervoted',
+} as const;
+
+/**
+ * Used in CVRContest::Status to identify the status of a contest in which contest selection(s) were made.
+ */
+export type ContestStatus = (typeof ContestStatus)[keyof typeof ContestStatus];
 
 /**
  * Schema for {@link ContestStatus}.
@@ -222,27 +252,32 @@ export const ContestStatusSchema = z.enum(ContestStatus);
 /**
  * Used in Hash::Type to indicate the type of hash being used for an image file.
  */
-export enum HashType {
+export const HashType = {
   /**
    * To indicate that the MD6 message digest algorithm is being used.
    */
-  Md6 = 'md6',
+  Md6: 'md6',
 
   /**
    * Used in conjunction with Hash::OtherType when no other value in this enumeration applies.
    */
-  Other = 'other',
+  Other: 'other',
 
   /**
    * To indicate that the SHA 256-bit signature is being used.
    */
-  Sha256 = 'sha-256',
+  Sha256: 'sha-256',
 
   /**
    * To indicate that the SHA 512-bit (32-byte) signature is being used.
    */
-  Sha512 = 'sha-512',
-}
+  Sha512: 'sha-512',
+} as const;
+
+/**
+ * Used in Hash::Type to indicate the type of hash being used for an image file.
+ */
+export type HashType = (typeof HashType)[keyof typeof HashType];
 
 /**
  * Schema for {@link HashType}.
@@ -252,37 +287,42 @@ export const HashTypeSchema = z.enum(HashType);
 /**
  * Used in Code::Type to indicate the type of code/identifier being used.
  */
-export enum IdentifierType {
+export const IdentifierType = {
   /**
    * To indicate that the identifier is a FIPS code.
    */
-  Fips = 'fips',
+  Fips: 'fips',
 
   /**
    * To indicate that the identifier is from a local-level scheme, i.e., unique to a county or city.
    */
-  LocalLevel = 'local-level',
+  LocalLevel: 'local-level',
 
   /**
    * To indicate that the identifier is from a national-level scheme other than FIPS or OCD-ID.
    */
-  NationalLevel = 'national-level',
+  NationalLevel: 'national-level',
 
   /**
    * To indicate that the identifier is from the OCD-ID scheme.
    */
-  OcdId = 'ocd-id',
+  OcdId: 'ocd-id',
 
   /**
    * Used in conjunction with Code::OtherType when no other value in this enumeration applies.
    */
-  Other = 'other',
+  Other: 'other',
 
   /**
    * To indicate that the identifier is from a state-level scheme, i.e., unique to a particular state.
    */
-  StateLevel = 'state-level',
-}
+  StateLevel: 'state-level',
+} as const;
+
+/**
+ * Used in Code::Type to indicate the type of code/identifier being used.
+ */
+export type IdentifierType = (typeof IdentifierType)[keyof typeof IdentifierType];
 
 /**
  * Schema for {@link IdentifierType}.
@@ -292,22 +332,27 @@ export const IdentifierTypeSchema = z.enum(IdentifierType);
 /**
  * Used in SelectionPosition::HasIndication to identify whether a selection indication is present.
  */
-export enum IndicationStatus {
+export const IndicationStatus = {
   /**
    * There is no selection indication.
    */
-  No = 'no',
+  No: 'no',
 
   /**
    * It is unknown whether there is a selection indication, e.g., used for ambiguous marks.
    */
-  Unknown = 'unknown',
+  Unknown: 'unknown',
 
   /**
    * There is a selection indication present.
    */
-  Yes = 'yes',
-}
+  Yes: 'yes',
+} as const;
+
+/**
+ * Used in SelectionPosition::HasIndication to identify whether a selection indication is present.
+ */
+export type IndicationStatus = (typeof IndicationStatus)[keyof typeof IndicationStatus];
 
 /**
  * Schema for {@link IndicationStatus}.
@@ -317,27 +362,32 @@ export const IndicationStatusSchema = z.enum(IndicationStatus);
 /**
  * Used in SelectionPosition::Status to identify the status of a selection indication.
  */
-export enum PositionStatus {
+export const PositionStatus = {
   /**
    * Used if the indication was adjudicated.
    */
-  Adjudicated = 'adjudicated',
+  Adjudicated: 'adjudicated',
 
   /**
    * Used if the indication was generated by the creating device per contest rules.
    */
-  GeneratedRules = 'generated-rules',
+  GeneratedRules: 'generated-rules',
 
   /**
    * Used if the indication was invalidated by the creating device because of contest rules.
    */
-  InvalidatedRules = 'invalidated-rules',
+  InvalidatedRules: 'invalidated-rules',
 
   /**
    * Used in conjunction with SelectionPosition::OtherStatus when no other value in this enumeration applies.
    */
-  Other = 'other',
-}
+  Other: 'other',
+} as const;
+
+/**
+ * Used in SelectionPosition::Status to identify the status of a selection indication.
+ */
+export type PositionStatus = (typeof PositionStatus)[keyof typeof PositionStatus];
 
 /**
  * Schema for {@link PositionStatus}.
@@ -347,32 +397,37 @@ export const PositionStatusSchema = z.enum(PositionStatus);
 /**
  * Used in CastVoteRecordReport::ReportType to indicate the type of the CVR report.
  */
-export enum ReportType {
+export const ReportType = {
   /**
    * To indicate that the report contains adjudications.
    */
-  Adjudicated = 'adjudicated',
+  Adjudicated: 'adjudicated',
 
   /**
    * To indicate that the report is an aggregation of device reports.
    */
-  Aggregated = 'aggregated',
+  Aggregated: 'aggregated',
 
   /**
    * To indicate that the report is an export from a device such as a scanner.
    */
-  OriginatingDeviceExport = 'originating-device-export',
+  OriginatingDeviceExport: 'originating-device-export',
 
   /**
    * Used in conjunction with CastVoteRecordReport::OtherReportType when no other value in this enumeration applies.
    */
-  Other = 'other',
+  Other: 'other',
 
   /**
    * To indicate that the report is the result of a ranked choice voting round.
    */
-  RcvRound = 'rcv-round',
-}
+  RcvRound: 'rcv-round',
+} as const;
+
+/**
+ * Used in CastVoteRecordReport::ReportType to indicate the type of the CVR report.
+ */
+export type ReportType = (typeof ReportType)[keyof typeof ReportType];
 
 /**
  * Schema for {@link ReportType}.
@@ -382,37 +437,42 @@ export const ReportTypeSchema = z.enum(ReportType);
 /**
  * Used in GpUnit::Type to indicate a type of political geography.
  */
-export enum ReportingUnitType {
+export const ReportingUnitType = {
   /**
    * To indicate a combined precinct.
    */
-  CombinedPrecinct = 'combined-precinct',
+  CombinedPrecinct: 'combined-precinct',
 
   /**
    * Used in conjunction with GpUnit::OtherType when no other value in this enumeration applies.
    */
-  Other = 'other',
+  Other: 'other',
 
   /**
    * To indicate a polling place.
    */
-  PollingPlace = 'polling-place',
+  PollingPlace: 'polling-place',
 
   /**
    * To indicate a precinct.
    */
-  Precinct = 'precinct',
+  Precinct: 'precinct',
 
   /**
    * To indicate a split-precinct.
    */
-  SplitPrecinct = 'split-precinct',
+  SplitPrecinct: 'split-precinct',
 
   /**
    * To indicate a vote-center.
    */
-  VoteCenter = 'vote-center',
-}
+  VoteCenter: 'vote-center',
+} as const;
+
+/**
+ * Used in GpUnit::Type to indicate a type of political geography.
+ */
+export type ReportingUnitType = (typeof ReportingUnitType)[keyof typeof ReportingUnitType];
 
 /**
  * Schema for {@link ReportingUnitType}.
@@ -422,62 +482,67 @@ export const ReportingUnitTypeSchema = z.enum(ReportingUnitType);
 /**
  * Used in Contest::VoteVariation to indicate the vote variation (vote method) used to tabulate the contest.
  */
-export enum VoteVariation {
+export const VoteVariation = {
   /**
    * To indicate approval voting.
    */
-  Approval = 'approval',
+  Approval: 'approval',
 
   /**
    * To indicate the borda count method.
    */
-  Borda = 'borda',
+  Borda: 'borda',
 
   /**
    * To indicate cumulative voting.
    */
-  Cumulative = 'cumulative',
+  Cumulative: 'cumulative',
 
   /**
    * To indicate majority voting.
    */
-  Majority = 'majority',
+  Majority: 'majority',
 
   /**
    * To indicate the N of M voting method.
    */
-  NOfM = 'n-of-m',
+  NOfM: 'n-of-m',
 
   /**
    * Used in conjunction with Contest::OtherVoteVariation when no other value in this enumeration applies.
    */
-  Other = 'other',
+  Other: 'other',
 
   /**
    * To indicate plurality voting.
    */
-  Plurality = 'plurality',
+  Plurality: 'plurality',
 
   /**
    * To indicate proportional voting.
    */
-  Proportional = 'proportional',
+  Proportional: 'proportional',
 
   /**
    * To indicate range voting.
    */
-  Range = 'range',
+  Range: 'range',
 
   /**
    * To indicate Ranked Choice Voting (RCV).
    */
-  Rcv = 'rcv',
+  Rcv: 'rcv',
 
   /**
    * To indicate the super majority voting method.
    */
-  SuperMajority = 'super-majority',
-}
+  SuperMajority: 'super-majority',
+} as const;
+
+/**
+ * Used in Contest::VoteVariation to indicate the vote variation (vote method) used to tabulate the contest.
+ */
+export type VoteVariation = (typeof VoteVariation)[keyof typeof VoteVariation];
 
 /**
  * Schema for {@link VoteVariation}.

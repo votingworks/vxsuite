@@ -70,7 +70,8 @@ function TestHookWrapper(props: { children: React.ReactNode }) {
 
 function useTestHook() {
   const [authStatus, setMockAuth] = React.useState(VOTER_AUTH);
-  const [mockLanguage, setMockLanguage] = React.useState(ENGLISH);
+  const [mockLanguage, setMockLanguage] =
+    React.useState<TestLanguageCode>(ENGLISH);
   const [mockAudioEnabled, setMockAudioEnabled] = React.useState(true);
 
   mockUseCurrentLanguage.mockReturnValue(mockLanguage);

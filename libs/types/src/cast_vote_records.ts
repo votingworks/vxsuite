@@ -1,5 +1,6 @@
 import { z } from 'zod/v4';
 
+import type { EnumValues } from '@votingworks/basics';
 import {
   type CastVoteRecordReport,
   CastVoteRecordReportSchema,
@@ -29,11 +30,15 @@ export const CVRSnapshotOtherStatusSchema: z.ZodSchema<CVRSnapshotOtherStatus> =
     ballotType: BallotTypeSchema,
   });
 
-export enum CastVoteRecordExportFileName {
-  CAST_VOTE_RECORD_REPORT = 'cast-vote-record-report.json',
-  METADATA = 'metadata.json',
-  REJECTED_SHEET_SUB_DIRECTORY_NAME_PREFIX = 'rejected-',
-}
+export const CastVoteRecordExportFileName = {
+  CAST_VOTE_RECORD_REPORT: 'cast-vote-record-report.json',
+  METADATA: 'metadata.json',
+  REJECTED_SHEET_SUB_DIRECTORY_NAME_PREFIX: 'rejected-',
+} as const;
+
+export type CastVoteRecordExportFileName = EnumValues<
+  typeof CastVoteRecordExportFileName
+>;
 
 export interface CastVoteRecordBatchMetadata {
   readonly id: string;

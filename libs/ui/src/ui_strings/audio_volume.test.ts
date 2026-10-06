@@ -41,7 +41,7 @@ test('VVSG 2.0 gain increments requirement', async () => {
   // Increase volume from `MINIMUM` through `MAXIMUM` and track gain deltas:
   const gainDeltas: number[] = [];
   let previousVolume: AudioVolume;
-  let currentVolume = AudioVolume.MINIMUM;
+  let currentVolume: AudioVolume = AudioVolume.MINIMUM;
   await waitFor(() => {
     previousVolume = currentVolume;
     currentVolume = getIncreasedVolume(previousVolume);

@@ -4,6 +4,7 @@ import {
   type ComponentType,
   type ReactNode,
 } from 'react';
+import type { EnumValues } from '@votingworks/basics';
 import { styled } from '../../styled.js';
 
 import { P, Font } from '../../typography.js';
@@ -52,11 +53,13 @@ export interface PatDeviceIdentificationPageProps {
 // Using explicit step IDs instead of a numeric index to ensure that the
 // dependent `appStrings` are updated accordingly if steps are ever added or
 // removed.
-enum StepId {
-  ONE = 'one',
-  TWO = 'two',
-  THREE = 'three',
-}
+const StepId = {
+  ONE: 'one',
+  TWO: 'two',
+  THREE: 'three',
+} as const;
+
+type StepId = EnumValues<typeof StepId>;
 
 const ReadOnLoad = styled(BaseReadOnLoad)`
   display: flex;
@@ -70,7 +73,7 @@ export function PatDeviceIdentificationPage({
   onExitCalibration,
   ScreenWrapper,
 }: PatDeviceIdentificationPageProps): JSX.Element {
-  const [currentStepId, setCurrentStepId] = useState(StepId.ONE);
+  const [currentStepId, setCurrentStepId] = useState<StepId>(StepId.ONE);
 
   const goToStep2 = useCallback(() => setCurrentStepId(StepId.TWO), []);
   const goToStep3 = useCallback(() => setCurrentStepId(StepId.THREE), []);

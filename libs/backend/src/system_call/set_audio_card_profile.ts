@@ -1,4 +1,4 @@
-import { ok, type Result, sleep } from '@votingworks/basics';
+import { type EnumValues, ok, type Result, sleep } from '@votingworks/basics';
 import { LogEventId, type Logger } from '@votingworks/logging';
 import { pactl } from './pulse_audio.js';
 import type { NODE_ENV } from '../globals.js';
@@ -16,10 +16,16 @@ export interface SetAudioCardProfileParams {
  * Audio card profiles for v4 VxMark/VxScan. These are fairly
  * hardware-specific and are not all guaranteed to be available on other setups.
  */
-export enum AudioCardProfile {
-  ANALOG = 'output:analog-stereo',
-  HDMI = 'output:hdmi-stereo',
-}
+export const AudioCardProfile = {
+  ANALOG: 'output:analog-stereo',
+  HDMI: 'output:hdmi-stereo',
+} as const;
+
+/**
+ * Audio card profiles for v4 VxMark/VxScan. These are fairly
+ * hardware-specific and are not all guaranteed to be available on other setups.
+ */
+export type AudioCardProfile = EnumValues<typeof AudioCardProfile>;
 
 /** {@link setAudioCardProfile} result. */
 export type SetAudioCardProfileResult = Result<void, string>;

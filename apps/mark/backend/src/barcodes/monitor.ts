@@ -7,7 +7,7 @@ import { spawn } from 'node:child_process';
 import util from 'node:util';
 
 import { parentPort } from 'node:worker_threads';
-import { sleep } from '@votingworks/basics';
+import { sleep, type EnumValues } from '@votingworks/basics';
 import { BaseLogger, LogEventId, LogSource } from '@votingworks/logging';
 import type { ScanEvent } from './types.js';
 
@@ -162,10 +162,12 @@ function onError(error: unknown) {
   parentPort?.postMessage({ type: 'status', connected: false });
 }
 
-enum Cmd {
-  STARTUP_BEEPER_OFF = 'BEPPWR0',
-  PROGRAMMING_BARCODE_SECURITY_ENABLE = 'MNUENA0',
-}
+const Cmd = {
+  STARTUP_BEEPER_OFF: 'BEPPWR0',
+  PROGRAMMING_BARCODE_SECURITY_ENABLE: 'MNUENA0',
+} as const;
+
+type Cmd = EnumValues<typeof Cmd>;
 
 async function configure(scanner: hid.HID) {
   await sendCommand(scanner, Cmd.STARTUP_BEEPER_OFF);

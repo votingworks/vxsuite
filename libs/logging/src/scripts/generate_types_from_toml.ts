@@ -30,11 +30,12 @@ function* generateEnum(
   name: string,
   entries: Map<string, string>
 ): Generator<string> {
-  yield `export enum ${name} {\n`;
+  yield `export const ${name} = {\n`;
   for (const [enumMember, value] of entries) {
-    yield `${enumMember} = ${JSON.stringify(value)},\n`;
+    yield `${enumMember}: ${JSON.stringify(value)},\n`;
   }
-  yield '}\n';
+  yield '} as const;\n';
+  yield `export type ${name} = (typeof ${name})[keyof typeof ${name}];\n`;
 }
 
 function* generateLogDetails(config: LoggingConfig): Generator<string> {

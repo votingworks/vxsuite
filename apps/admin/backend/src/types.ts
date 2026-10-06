@@ -24,6 +24,7 @@ import {
 } from '@votingworks/types';
 import type { RegisterScannerError } from '@votingworks/networking';
 import { z } from 'zod/v4';
+import type { EnumValues } from '@votingworks/basics';
 
 export type { ExportDataResult, ExportDataError } from '@votingworks/backend';
 
@@ -64,13 +65,16 @@ export type RegistrationErrorType =
   RegisterScannerError['type'] | RegisterAdjudicationStationError['type'];
 
 /** Connection status for a client machine in a multi-station setup. */
-export enum ClientConnectionStatus {
-  Offline = 'offline',
-  OnlineWaitingForHost = 'online-waiting-for-host',
-  OnlineConnectedToHost = 'online-connected-to-host',
-  OnlineMultipleHostsDetected = 'online-multiple-hosts-detected',
-  OnlineIncompatibleHostVersion = 'online-incompatible-host-version',
-}
+export const ClientConnectionStatus = {
+  Offline: 'offline',
+  OnlineWaitingForHost: 'online-waiting-for-host',
+  OnlineConnectedToHost: 'online-connected-to-host',
+  OnlineMultipleHostsDetected: 'online-multiple-hosts-detected',
+  OnlineIncompatibleHostVersion: 'online-incompatible-host-version',
+} as const;
+
+/** Connection status for a client machine in a multi-station setup. */
+export type ClientConnectionStatus = EnumValues<typeof ClientConnectionStatus>;
 
 /** A record of a machine in the multi-station machines table. */
 export interface MachineRecord {

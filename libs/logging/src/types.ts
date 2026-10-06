@@ -5,6 +5,7 @@ import {
   UserRoleSchema,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
+import type { EnumValues } from '@votingworks/basics';
 import {
   AppName,
   LogEventId,
@@ -12,11 +13,14 @@ import {
   LogSource,
 } from './log_event_enums.js';
 
-export enum LogDispositionStandardTypes {
-  Success = 'success',
-  Failure = 'failure',
-  NotApplicable = 'na',
-}
+export const LogDispositionStandardTypes = {
+  Success: 'success',
+  Failure: 'failure',
+  NotApplicable: 'na',
+} as const;
+export type LogDispositionStandardTypes = EnumValues<
+  typeof LogDispositionStandardTypes
+>;
 
 export type LoggingUserRole = UserRole | 'vx-staff' | 'system' | 'unknown';
 export type LogDisposition = LogDispositionStandardTypes | string;

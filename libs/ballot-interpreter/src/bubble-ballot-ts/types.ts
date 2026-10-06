@@ -8,7 +8,7 @@ import type {
   BallotType,
   ContestId,
 } from '@votingworks/types';
-import type { Optional, Result } from '@votingworks/basics';
+import type { EnumValues, Optional, Result } from '@votingworks/basics';
 
 /*
  * Many of these types are from the Rust code.
@@ -265,10 +265,16 @@ export interface GridLocation {
  * Possible sides of a card, used when we know a side is the front or back and
  * not just "side A" or "side B".
  */
-export enum BallotSide {
-  Front = 'front',
-  Back = 'back',
-}
+export const BallotSide = {
+  Front: 'front',
+  Back: 'back',
+} as const;
+
+/**
+ * Possible sides of a card, used when we know a side is the front or back and
+ * not just "side A" or "side B".
+ */
+export type BallotSide = EnumValues<typeof BallotSide>;
 
 /**
  * Information about the size and number of various physical features on a
@@ -284,13 +290,16 @@ export interface Geometry {
 }
 
 /** Ballot card orientation. */
-export enum Orientation {
+export const Orientation = {
   /** The ballot card is portrait and right-side up. */
-  Portrait = 'portrait',
+  Portrait: 'portrait',
 
   /** The ballot card is portrait and upside down. */
-  PortraitReversed = 'portrait-reversed',
-}
+  PortraitReversed: 'portrait-reversed',
+} as const;
+
+/** Ballot card orientation. */
+export type Orientation = EnumValues<typeof Orientation>;
 
 /** A coordinate in a grid. Units are typically either pixels or timing marks. */
 export interface Point<T> {

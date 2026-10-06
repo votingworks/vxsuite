@@ -1,20 +1,24 @@
+import type { EnumValues } from '@votingworks/basics';
 import { z } from 'zod/v4';
 
 /* IETF language tags for supported VxSuite languages.  */
-export enum LanguageCode {
-  ARABIC = 'ar',
-  BENGALI = 'bn',
-  CHINESE_SIMPLIFIED = 'zh-Hans',
-  CHINESE_TRADITIONAL = 'zh-Hant',
-  ENGLISH = 'en',
-  SPANISH = 'es-US',
-}
+export const LanguageCode = {
+  ARABIC: 'ar',
+  BENGALI: 'bn',
+  CHINESE_SIMPLIFIED: 'zh-Hans',
+  CHINESE_TRADITIONAL: 'zh-Hant',
+  ENGLISH: 'en',
+  SPANISH: 'es-US',
+} as const;
 
-export const LanguageCodeSchema: z.ZodType<LanguageCode> = z.enum(LanguageCode);
+/* IETF language tags for supported VxSuite languages.  */
+export type LanguageCode = EnumValues<typeof LanguageCode>;
+
+export const LanguageCodeSchema = z.enum(LanguageCode);
 
 export type NonEnglishLanguageCode = Exclude<
   LanguageCode,
-  LanguageCode.ENGLISH
+  typeof LanguageCode.ENGLISH
 >;
 
 export function isLanguageCode(value: string): value is LanguageCode {

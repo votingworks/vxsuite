@@ -1,11 +1,14 @@
 import type { DefaultTheme } from 'styled-components';
+import type { EnumValues } from '@votingworks/basics';
 import type { IconName } from '../icons.js';
 
-export enum ActionKey {
-  DELETE = 'delete',
-  CANCEL = 'cancel',
-  ACCEPT = 'accept',
-}
+export const ActionKey = {
+  DELETE: 'delete',
+  CANCEL: 'cancel',
+  ACCEPT: 'accept',
+} as const;
+
+export type ActionKey = EnumValues<typeof ActionKey>;
 
 export interface Key {
   audioLanguageOverride?: string;

@@ -3,6 +3,7 @@ import {
   type DateWithoutTime,
   iter,
   deepEqual,
+  type EnumValues,
 } from '@votingworks/basics';
 import { z } from 'zod/v4';
 import {
@@ -694,21 +695,22 @@ export const JurisdictionSchema: z.ZodSchema<Jurisdiction> = z.object({
   name: z.string().nonempty(),
 });
 
-export enum HmpbBallotPaperSize {
-  Letter = 'letter',
-  Legal = 'legal',
-  Custom17 = 'custom-8.5x17',
-  Custom18 = 'custom-8.5x18',
-  Custom19 = 'custom-8.5x19',
-  Custom20 = 'custom-8.5x20',
-  Custom22 = 'custom-8.5x22',
-}
-export const HmpbBallotPaperSizeSchema: z.ZodSchema<HmpbBallotPaperSize> =
-  z.enum(HmpbBallotPaperSize);
+export const HmpbBallotPaperSize = {
+  Letter: 'letter',
+  Legal: 'legal',
+  Custom17: 'custom-8.5x17',
+  Custom18: 'custom-8.5x18',
+  Custom19: 'custom-8.5x19',
+  Custom20: 'custom-8.5x20',
+  Custom22: 'custom-8.5x22',
+} as const;
+export type HmpbBallotPaperSize = EnumValues<typeof HmpbBallotPaperSize>;
+export const HmpbBallotPaperSizeSchema = z.enum(HmpbBallotPaperSize);
 
-export enum BmdBallotPaperSize {
-  Vsap150Thermal = 'vsap-150-thermal',
-}
+export const BmdBallotPaperSize = {
+  Vsap150Thermal: 'vsap-150-thermal',
+} as const;
+export type BmdBallotPaperSize = EnumValues<typeof BmdBallotPaperSize>;
 export const BmdBallotPaperSizeSchema: z.ZodSchema<BmdBallotPaperSize> =
   z.enum(BmdBallotPaperSize);
 
@@ -723,17 +725,18 @@ export const BallotLayoutSchema: z.ZodSchema<BallotLayout> = z.object({
   metadataEncoding: z.enum(['qr-code']),
 });
 
-// Hand-marked paper & adjudication
-export enum AdjudicationReason {
-  MarginalMark = 'MarginalMark',
-  Overvote = 'Overvote',
-  Undervote = 'Undervote',
-  BlankBallot = 'BlankBallot',
-  UnmarkedWriteIn = 'UnmarkedWriteIn',
-  CrossoverVoting = 'CrossoverVoting',
-}
-export const AdjudicationReasonSchema: z.ZodSchema<AdjudicationReason> =
-  z.enum(AdjudicationReason);
+/** Hand-marked paper & adjudication */
+export const AdjudicationReason = {
+  MarginalMark: 'MarginalMark',
+  Overvote: 'Overvote',
+  Undervote: 'Undervote',
+  BlankBallot: 'BlankBallot',
+  UnmarkedWriteIn: 'UnmarkedWriteIn',
+  CrossoverVoting: 'CrossoverVoting',
+} as const;
+/** Hand-marked paper & adjudication */
+export type AdjudicationReason = EnumValues<typeof AdjudicationReason>;
+export const AdjudicationReasonSchema = z.enum(AdjudicationReason);
 export interface Signature {
   image: string;
   caption: string;
@@ -1108,12 +1111,13 @@ export type ElectionSerializationFormat =
 export const ElectionSerializationFormatSchema: z.ZodSchema<ElectionSerializationFormat> =
   z.enum(ELECTION_SERIALIZATION_FORMATS);
 
-export enum BallotType {
-  Precinct = 'precinct',
-  Absentee = 'absentee',
-  Provisional = 'provisional',
-}
-export const BallotTypeSchema: z.ZodSchema<BallotType> = z.enum(BallotType);
+export const BallotType = {
+  Precinct: 'precinct',
+  Absentee: 'absentee',
+  Provisional: 'provisional',
+} as const;
+export type BallotType = EnumValues<typeof BallotType>;
+export const BallotTypeSchema = z.enum(BallotType);
 
 // Updating this value is a breaking change.
 export const BallotTypeMaximumValue = 2 ** 4 - 1;
@@ -1208,7 +1212,7 @@ export const VotesDictSchema: z.ZodSchema<VotesDict> = z.record(
 );
 
 export interface MarginalMarkAdjudicationReasonInfo {
-  type: AdjudicationReason.MarginalMark;
+  type: typeof AdjudicationReason.MarginalMark;
   contestId: ContestId;
   optionId: ContestOptionId;
 }
@@ -1220,7 +1224,7 @@ export const MarginalMarkAdjudicationReasonInfoSchema: z.ZodSchema<MarginalMarkA
   });
 
 export interface OvervoteAdjudicationReasonInfo {
-  type: AdjudicationReason.Overvote;
+  type: typeof AdjudicationReason.Overvote;
   contestId: ContestId;
   optionIds: ReadonlyArray<ContestOption['id']>;
   expected: number;
@@ -1234,7 +1238,7 @@ export const OvervoteAdjudicationReasonInfoSchema: z.ZodSchema<OvervoteAdjudicat
   });
 
 export interface UndervoteAdjudicationReasonInfo {
-  type: AdjudicationReason.Undervote;
+  type: typeof AdjudicationReason.Undervote;
   contestId: ContestId;
   optionIds: ReadonlyArray<ContestOption['id']>;
   expected: number;
@@ -1248,7 +1252,7 @@ export const UndervoteAdjudicationReasonInfoSchema: z.ZodSchema<UndervoteAdjudic
   });
 
 export interface BlankBallotAdjudicationReasonInfo {
-  type: AdjudicationReason.BlankBallot;
+  type: typeof AdjudicationReason.BlankBallot;
 }
 export const BlankBallotAdjudicationReasonInfoSchema: z.ZodSchema<BlankBallotAdjudicationReasonInfo> =
   z.object({
@@ -1256,7 +1260,7 @@ export const BlankBallotAdjudicationReasonInfoSchema: z.ZodSchema<BlankBallotAdj
   });
 
 export interface CrossoverVotingAdjudicationReasonInfo {
-  type: AdjudicationReason.CrossoverVoting;
+  type: typeof AdjudicationReason.CrossoverVoting;
 }
 export const CrossoverVotingAdjudicationReasonInfoSchema: z.ZodSchema<CrossoverVotingAdjudicationReasonInfo> =
   z.object({

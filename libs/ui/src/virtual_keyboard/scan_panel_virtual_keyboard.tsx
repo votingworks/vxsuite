@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { DefaultTheme, StyledComponent } from 'styled-components';
+import type { EnumValues } from '@votingworks/basics';
 import { styled } from '../styled.js';
 import { Icons } from '../icons.js';
 import { appStrings } from '../ui_strings/index.js';
@@ -309,11 +310,13 @@ export const US_ENGLISH_SCAN_PANEL_KEYMAP: ScanPanelKeyMap = {
   ],
 };
 
-enum SelectionLevel {
-  Rows,
-  ScanPanels,
-  Keys,
-}
+const SelectionLevel = {
+  Rows: 0,
+  ScanPanels: 1,
+  Keys: 2,
+} as const;
+
+type SelectionLevel = EnumValues<typeof SelectionLevel>;
 
 export function ScanPanelVirtualKeyboard({
   onBackspace,

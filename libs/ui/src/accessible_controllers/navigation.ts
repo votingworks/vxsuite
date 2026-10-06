@@ -1,11 +1,14 @@
+import type { EnumValues } from '@votingworks/basics';
 import { FOCUSABLE_AUDIO_CLASS_NAME } from '../focusable_audio.js';
 
-export enum PageNavigationButtonId {
-  NEXT = 'next',
-  NEXT_AFTER_CONFIRM = 'next_after_confirm',
-  PREVIOUS = 'previous',
-  PREVIOUS_AFTER_CONFIRM = 'previous_after_confirm',
-}
+export const PageNavigationButtonId = {
+  NEXT: 'next',
+  NEXT_AFTER_CONFIRM: 'next_after_confirm',
+  PREVIOUS: 'previous',
+  PREVIOUS_AFTER_CONFIRM: 'previous_after_confirm',
+} as const;
+
+export type PageNavigationButtonId = EnumValues<typeof PageNavigationButtonId>;
 
 const TAB_ENABLED_ELEMENT_SELECTORS = [
   'button:not([aria-hidden="true"]):not([disabled]):not([tabindex="-1"])',
