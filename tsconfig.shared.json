@@ -39,6 +39,8 @@
     // Disallow falling through non-empty `switch` cases.
     "noFallthroughCasesInSwitch": true,
 
+    "noUnusedParameters": true,
+
     // Node ESM/CJS module semantics; frontends override with `esnext`/`bundler`.
     "module": "node20",
 

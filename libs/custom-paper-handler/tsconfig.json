@@ -4,7 +4,6 @@
   "exclude": [],
   "compilerOptions": {
     "composite": true,
-    "noUnusedParameters": true,
     "noImplicitReturns": true
   },
   "references": [

@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.shared.json",
   "compilerOptions": {
-    "noUnusedParameters": true,
     "composite": true
   },
   "include": ["src", "src/data/*.json", "test"],

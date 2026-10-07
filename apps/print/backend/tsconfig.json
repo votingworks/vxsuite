@@ -3,8 +3,7 @@
   "include": ["scripts", "src", "test"],
   "exclude": [],
   "compilerOptions": {
-    "composite": true,
-    "noUnusedParameters": true
+    "composite": true
   },
   "references": [
     { "path": "../../../libs/auth/tsconfig.build.json" },
