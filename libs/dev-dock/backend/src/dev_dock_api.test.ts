@@ -776,6 +776,7 @@ test('mock spec', async () => {
     printerConfig: 'fujitsu',
     hasAccessibleControllerMock: false,
     hasBarcodeMock: false,
+    hasBarcodeScanMock: false,
     hasPatInputMock: false,
     hasQuickConfigure: false,
   });
@@ -786,6 +787,7 @@ test('mock spec', async () => {
     setAccessibleControllerConnected: vi.fn(),
     getBarcodeConnected: vi.fn(),
     setBarcodeConnected: vi.fn(),
+    emitBarcodeScan: vi.fn(),
     getPatInputConnected: vi.fn(),
     setPatInputConnected: vi.fn(),
     quickConfigure: {
@@ -800,9 +802,26 @@ test('mock spec', async () => {
     printerConfig: 'fujitsu',
     hasAccessibleControllerMock: true,
     hasBarcodeMock: true,
+    hasBarcodeScanMock: true,
     hasPatInputMock: true,
     hasQuickConfigure: true,
   });
+});
+
+test('emitBarcodeScan forwards the payload to the host app', async () => {
+  const emitBarcodeScan = vi.fn();
+  const { apiClient } = setup({ printerConfig: 'fujitsu', emitBarcodeScan });
+
+  await apiClient.emitBarcodeScan({ payload: '{"ballotStyleId":"1_en"}' });
+  expect(emitBarcodeScan).toHaveBeenCalledWith('{"ballotStyleId":"1_en"}');
+});
+
+test('emitBarcodeScan does nothing when the host app has no barcode scan mock', async () => {
+  const { apiClient } = setup({ printerConfig: 'fujitsu' });
+
+  await expect(
+    apiClient.emitBarcodeScan({ payload: '{"ballotStyleId":"1_en"}' })
+  ).resolves.toBeUndefined();
 });
 
 test('hardware mock status endpoints for barcode, accessible controller, and pat', async () => {
