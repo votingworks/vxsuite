@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+/* eslint-disable no-restricted-globals -- this test runs under jsdom */
 import { expect, test } from 'vitest';
 import './vitest_setup.js';
 

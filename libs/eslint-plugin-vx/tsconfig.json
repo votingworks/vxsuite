@@ -2,7 +2,6 @@
   "extends": "../../tsconfig.shared.json",
   "compilerOptions": {
     "jsx": "preserve",
-    "lib": ["ES2022"],
     "composite": true,
     "allowImportingTsExtensions": true
   },

@@ -535,10 +535,11 @@ function ScreenshotControls({
   useEffect(() => {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <>
+    <React.Fragment>
       <ScreenshotButton
         onClick={captureScreenshot}
         disabled={!window.kiosk}
@@ -551,7 +552,7 @@ function ScreenshotControls({
           title="Save Screenshot"
           onOverlayClick={() => setScreenshotToSave(undefined)}
           content={
-            <>
+            <React.Fragment>
               <P>The image will be saved to the Downloads folder as:</P>
               <input
                 type="text"
@@ -571,10 +572,10 @@ function ScreenshotControls({
                 }
                 autoComplete="off"
               />
-            </>
+            </React.Fragment>
           }
           actions={
-            <>
+            <React.Fragment>
               <Button
                 autoFocus
                 onPress={onSaveScreenshot}
@@ -593,11 +594,11 @@ function ScreenshotControls({
               >
                 Cancel
               </Button>
-            </>
+            </React.Fragment>
           }
         />
       )}
-    </>
+    </React.Fragment>
   );
 }
 
@@ -759,7 +760,7 @@ function HardwareMockControls() {
     accessibleControllerConnected: false,
   };
   return (
-    <>
+    <React.Fragment>
       <IconButton
         isActive={status.barcodeConnected}
         disabled={!isBarcodeMockEnabled}
@@ -811,7 +812,7 @@ function HardwareMockControls() {
           </UsbMocksDisabledMessage>
         )}
       </IconButton>
-    </>
+    </React.Fragment>
   );
 }
 
@@ -1325,6 +1326,7 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
   useEffect(() => {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!getMockSpecQuery.isSuccess || !getDockSideQuery.isSuccess) return null;

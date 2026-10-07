@@ -51,6 +51,7 @@ export function createScreenshotNamer(testInfo: TestInfo): ScreenshotNamer {
  * For elements away from the edges the clamp is a no-op, so the ring keeps its
  * original look.
  */
+/* eslint-disable no-restricted-globals -- runs in the browser */
 function addHighlightOverlay(elOrEls: Element | Element[]): void {
   const els = Array.isArray(elOrEls) ? elOrEls : [elOrEls];
   const rects = els.map((el) => el.getBoundingClientRect());
@@ -87,6 +88,7 @@ function addHighlightOverlay(elOrEls: Element | Element[]): void {
   `;
   document.body.appendChild(overlay);
 }
+/* eslint-enable no-restricted-globals */
 
 export function buildIntegrationTestHelper(page: Page, namer: ScreenshotNamer) {
   async function screenshot(name: string, args: PageScreenshotOptions = {}) {
@@ -131,6 +133,7 @@ export function buildIntegrationTestHelper(page: Page, namer: ScreenshotNamer) {
 
   async function removeFocusHighlight() {
     await page.evaluate(() => {
+      // eslint-disable-next-line no-restricted-globals
       const overlay = document.querySelector('[data-focus-highlight="true"]');
       overlay?.remove();
     });
@@ -166,6 +169,7 @@ export function buildIntegrationTestHelper(page: Page, namer: ScreenshotNamer) {
 
   async function measureOverflow(selector: string): Promise<number | null> {
     return page.evaluate((sel) => {
+      // eslint-disable-next-line no-restricted-globals
       const element = document.querySelector(sel);
       if (!element) return null;
       return element.scrollHeight - element.clientHeight;

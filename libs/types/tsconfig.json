@@ -3,7 +3,6 @@
   "include": ["src", "test"],
   "exclude": [],
   "compilerOptions": {
-    "lib": ["esnext"],
     "composite": true
   },
   "references": [
