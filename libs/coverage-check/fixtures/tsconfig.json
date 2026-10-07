@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "target": "ES2019",
     "module": "esnext",
     "moduleResolution": "bundler",
     "strict": true,

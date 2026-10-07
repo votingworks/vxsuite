@@ -1,7 +1,6 @@
 {
   "extends": "../tsconfig.shared.json",
   "compilerOptions": {
-    "target": "ES2018",
     "allowImportingTsExtensions": true
   },
   "include": ["src"],
