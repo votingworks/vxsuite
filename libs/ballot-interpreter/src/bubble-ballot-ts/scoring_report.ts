@@ -58,6 +58,10 @@ function formatScore(score: number): string {
   return `${Math.round(score * 10_000) / 100}%`;
 }
 
+function formatInkArea(inkAreaMm2: number): string {
+  return `${Math.round(inkAreaMm2 * 100) / 100} mm²`;
+}
+
 function fillTextWithBackground({
   context,
   text,
@@ -130,7 +134,7 @@ function annotateBallotImageScores(
   if (scoreType === 'write-ins') {
     const writeInColor = 'darkgreen';
     for (const writeIn of interpretation.writeIns) {
-      const { shape, score } = writeIn;
+      const { shape, inkAreaMm2 } = writeIn;
       const bounds = getQuadrilateralBounds(shape);
       context.strokeStyle = writeInColor;
       context.lineWidth = lineWidth;
@@ -150,11 +154,11 @@ function annotateBallotImageScores(
       context.lineTo(Math.round(shape.topLeft.x), Math.round(shape.topLeft.y));
       context.stroke();
 
-      const scoreText = formatScore(score);
+      const fillText = formatInkArea(inkAreaMm2);
       fillTextWithBackground({
         context,
-        text: scoreText,
-        x: bounds.left - context.measureText(scoreText).width - 15,
+        text: fillText,
+        x: bounds.left - context.measureText(fillText).width - 15,
         y: bounds.top,
         backgroundColor: writeInColor,
         textColor: 'white',

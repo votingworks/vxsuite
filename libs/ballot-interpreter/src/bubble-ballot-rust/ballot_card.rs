@@ -755,18 +755,30 @@ impl Geometry {
     }
 
     /// Gets the distance from the center of one timing mark to the center of
+    /// one of its horizontal neighbors.
+    pub fn horizontal_timing_mark_center_to_center_distance(&self) -> Inch {
+        self.timing_mark_horizontal_spacing + self.timing_mark_size.width
+    }
+
+    /// Gets the distance from the center of one timing mark to the center of
     /// one of its horizontal neighbors, in pixels.
     #[must_use]
     pub fn horizontal_timing_mark_center_to_center_pixel_distance(&self) -> SubPixelUnit {
-        (self.timing_mark_horizontal_spacing + self.timing_mark_size.width)
+        self.horizontal_timing_mark_center_to_center_distance()
             .pixels(self.pixels_per_inch)
+    }
+
+    /// Gets the distance from the center of one timing mark to the center of
+    /// one of its vertical neighbors.
+    pub fn vertical_timing_mark_center_to_center_distance(&self) -> Inch {
+        self.timing_mark_vertical_spacing + self.timing_mark_size.height
     }
 
     /// Gets the distance from the center of one timing mark to the center of
     /// one of its vertical neighbors, in pixels.
     #[must_use]
     pub fn vertical_timing_mark_center_to_center_pixel_distance(&self) -> SubPixelUnit {
-        (self.timing_mark_vertical_spacing + self.timing_mark_size.height)
+        self.vertical_timing_mark_center_to_center_distance()
             .pixels(self.pixels_per_inch)
     }
 
@@ -1085,6 +1097,38 @@ mod tests {
                 expected_timing_mark_spacing,
             );
         }
+    }
+
+    #[test]
+    fn test_timing_mark_center_to_center_distance_mm() {
+        fn approx_eq(a: f32, b: f32) -> bool {
+            (a - b).abs() < 1e-3
+        }
+
+        let letter = PaperInfo::scanned_letter().compute_geometry();
+        assert!(approx_eq(
+            letter
+                .horizontal_timing_mark_center_to_center_distance()
+                .to_mm()
+                .get(),
+            6.095
+        ));
+        assert!(approx_eq(
+            letter
+                .vertical_timing_mark_center_to_center_distance()
+                .to_mm()
+                .get(),
+            6.734
+        ));
+
+        let custom22 = PaperInfo::scanned_custom22().compute_geometry();
+        assert!(approx_eq(
+            custom22
+                .vertical_timing_mark_center_to_center_distance()
+                .to_mm()
+                .get(),
+            6.533
+        ));
     }
 
     #[test]

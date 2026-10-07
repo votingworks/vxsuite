@@ -70,7 +70,6 @@ import {
 } from './bubble-ballot-ts/index.js';
 import type { InterpreterOptions } from './types.js';
 import { normalizeBallotMode } from './validation.js';
-import { writeInAreaInkMm2 } from './write_in_area_ink.js';
 import { shouldSkipSummaryBallotInterpretation } from './should_skip_summary_ballot_interpretation.js';
 
 const debug = makeDebug('ballot-interpreter:scan:interpreter');
@@ -179,8 +178,7 @@ function aggregateContestOptionScores({
       ? findScoredWriteInAreaForGridPosition(writeIns, gridPosition)
       : undefined;
     const writeInAreaStatus = scoredWriteInArea
-      ? writeInAreaInkMm2(scoredWriteInArea) >=
-        options.markThresholds.writeInInkAreaMm2
+      ? scoredWriteInArea.inkAreaMm2 >= options.markThresholds.writeInInkAreaMm2
         ? WriteInAreaStatus.Filled
         : WriteInAreaStatus.Unfilled
       : WriteInAreaStatus.Ignored;

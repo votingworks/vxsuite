@@ -206,7 +206,7 @@ test('fills in the write-in ink area threshold, converting a legacy fraction', (
   ).toEqual({ marginal: 0.05, definite: 0.07, writeInInkAreaMm2: 12 });
   expect(
     parse({ marginal: 0.05, definite: 0.07, writeInTextArea: 0.025 })
-  ).toEqual({ marginal: 0.05, definite: 0.07, writeInInkAreaMm2: 3.9 });
+  ).toEqual({ marginal: 0.05, definite: 0.07, writeInInkAreaMm2: 3.97 });
   expect(parse({ marginal: 0.05, definite: 0.07, writeInTextArea: 0 })).toEqual(
     { marginal: 0.05, definite: 0.07, writeInInkAreaMm2: 0 }
   );

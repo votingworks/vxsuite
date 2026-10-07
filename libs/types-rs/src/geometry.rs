@@ -1,6 +1,6 @@
 use std::{
     fmt::Display,
-    ops::{Add, AddAssign, Sub},
+    ops::{Add, AddAssign, Div, Mul, Sub},
 };
 
 use serde::{Deserialize, Serialize};
@@ -124,18 +124,126 @@ pub enum Direction {
     Right,
 }
 
+const MM_PER_INCH: f32 = 25.4;
+const MM2_PER_INCH2: f32 = MM_PER_INCH * MM_PER_INCH;
+
 f32_newtype!(Inch);
 
 impl Inch {
+    pub fn to_mm(self) -> Mm {
+        Mm(self.0 * MM_PER_INCH)
+    }
+
     #[must_use]
     pub fn pixels(self, ppi: u32) -> SubPixelUnit {
         self.0 * ppi as SubPixelUnit
     }
 }
 
+impl Mul for Inch {
+    type Output = Inch2;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        Inch2(self.0 * rhs.0)
+    }
+}
+
 impl Display for Inch {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} in", self.0)
+        match f.precision() {
+            Some(precision) => write!(f, "{:.precision$} in", self.0),
+            None => write!(f, "{} in", self.0),
+        }
+    }
+}
+
+f32_newtype!(Inch2);
+
+impl Inch2 {
+    pub fn to_mm2(self) -> Mm2 {
+        Mm2(self.0 * MM2_PER_INCH2)
+    }
+
+    #[must_use]
+    pub fn pixels(self, ppi: u32) -> SubPixelUnit {
+        self.0 * ppi as SubPixelUnit * ppi as SubPixelUnit
+    }
+}
+
+impl Div<Inch> for Inch2 {
+    type Output = Inch;
+
+    fn div(self, rhs: Inch) -> Self::Output {
+        Inch(self.0 / rhs.0)
+    }
+}
+
+impl Display for Inch2 {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match f.precision() {
+            Some(precision) => write!(f, "{:.precision$} in²", self.0),
+            None => write!(f, "{} in²", self.0),
+        }
+    }
+}
+
+f32_newtype!(Mm);
+
+impl Mm {
+    pub fn to_inch(self) -> Inch {
+        Inch(self.0 / MM_PER_INCH)
+    }
+
+    #[must_use]
+    pub fn pixels(self, ppi: u32) -> SubPixelUnit {
+        self.to_inch().pixels(ppi)
+    }
+}
+
+impl Mul for Mm {
+    type Output = Mm2;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        Mm2(self.0 * rhs.0)
+    }
+}
+
+impl Display for Mm {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match f.precision() {
+            Some(precision) => write!(f, "{:.precision$} mm", self.0),
+            None => write!(f, "{} mm", self.0),
+        }
+    }
+}
+
+f32_newtype!(Mm2);
+
+impl Mm2 {
+    pub fn to_inch2(self) -> Inch2 {
+        Inch2(self.0 / MM2_PER_INCH2)
+    }
+
+    #[must_use]
+    pub fn pixels(self, ppi: u32) -> SubPixelUnit {
+        self.to_inch2().pixels(ppi)
+    }
+}
+
+impl Div<Mm> for Mm2 {
+    type Output = Mm;
+
+    fn div(self, rhs: Mm) -> Self::Output {
+        Mm(self.0 / rhs.0)
+    }
+}
+
+impl Display for Mm2 {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match f.precision() {
+            Some(precision) => write!(f, "{:.precision$} mm²", self.0),
+            None => write!(f, "{} mm²", self.0),
+        }
     }
 }
 
@@ -668,6 +776,41 @@ impl Quadrilateral {
 
         ab >= 0.0 && bc >= 0.0 && cd >= 0.0 && da >= 0.0
             || ab <= 0.0 && bc <= 0.0 && cd <= 0.0 && da <= 0.0
+    }
+}
+
+#[cfg(test)]
+mod unit_tests {
+    use super::*;
+
+    fn approx_eq(a: f32, b: f32) -> bool {
+        (a - b).abs() < 1e-3
+    }
+
+    #[test]
+    fn inch_and_mm_round_trip() {
+        assert!(approx_eq(Inch::new(1.0).to_mm().get(), 25.4));
+        assert!(approx_eq(Mm::new(25.4).to_inch().get(), 1.0));
+        assert!(approx_eq(Inch2::new(1.0).to_mm2().get(), 645.16));
+        assert!(approx_eq(Mm2::new(645.16).to_inch2().get(), 1.0));
+    }
+
+    #[test]
+    fn length_products_and_quotients() {
+        let area = Inch::new(2.0) * Inch::new(3.0);
+        assert!(approx_eq(area.get(), 6.0));
+        assert!(approx_eq((area / Inch::new(3.0)).get(), 2.0));
+
+        let area = Mm::new(2.0) * Mm::new(3.0);
+        assert!(approx_eq(area.get(), 6.0));
+        assert!(approx_eq((area / Mm::new(3.0)).get(), 2.0));
+    }
+
+    #[test]
+    fn pixels_scale_with_ppi() {
+        assert!(approx_eq(Mm::new(25.4).pixels(200), 200.0));
+        assert!(approx_eq(Inch2::new(1.0).pixels(200), 40_000.0));
+        assert!(approx_eq(Mm2::new(645.16).pixels(200), 40_000.0));
     }
 }
 

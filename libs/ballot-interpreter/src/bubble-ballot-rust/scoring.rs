@@ -8,7 +8,7 @@ use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use serde::Serialize;
 use types_rs::ballot_card::BallotSide;
 use types_rs::election::{GridLayout, GridLocation, GridPosition, UnitIntervalValue};
-use types_rs::geometry::{PixelPosition, PixelUnit, Point, Quadrilateral, Rect, SubPixelUnit};
+use types_rs::geometry::{Mm2, PixelPosition, PixelUnit, Point, Quadrilateral, Rect, SubPixelUnit};
 
 use crate::ballot_card::BallotImage;
 use crate::debug;
@@ -625,7 +625,9 @@ pub(crate) fn score_bubble_mark(
 pub struct ScoredPositionArea {
     pub grid_position: GridPosition,
     pub shape: Quadrilateral,
-    pub score: UnitIntervalScore,
+    /// Ink in the area on paper.
+    #[serde(rename = "inkAreaMm2")]
+    pub ink_area: Mm2,
 }
 
 pub type ScoredPositionAreas = Vec<ScoredPositionArea>;
@@ -683,12 +685,16 @@ fn score_write_in_area(
         bottom_right: bottom_right_corner,
     };
     let counted = count_pixels_in_shape(img, &shape);
-    let score = UnitIntervalScore(counted.ratio());
+    let geometry = &timing_marks.geometry;
+    let physical_area = (geometry.horizontal_timing_mark_center_to_center_distance()
+        * write_in_area.width)
+        * (geometry.vertical_timing_mark_center_to_center_distance() * write_in_area.height);
+    let ink_area = physical_area.to_mm2() * counted.ratio();
 
     Some(ScoredPositionArea {
         grid_position: grid_position.clone(),
         shape,
-        score,
+        ink_area,
     })
 }
 

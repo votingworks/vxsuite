@@ -734,7 +734,7 @@ pub fn draw_scored_write_in_areas(
 
         let (option_text_width, option_text_height) = text_size(scale, font, option_text.as_str());
 
-        let score_text = scored_write_in_area.score.to_string();
+        let score_text = format!("{:.2}", scored_write_in_area.ink_area);
         let (score_text_width, score_text_height) = text_size(scale, font, score_text.as_str());
         let bounds = scored_write_in_area.shape.bounds();
 

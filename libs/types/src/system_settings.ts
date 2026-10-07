@@ -34,19 +34,22 @@ const AuthSettingsSchema: z.ZodType<AuthSettings> = z.object({
   startingCardLockoutDurationSeconds: StartingCardLockoutDurationSecondsSchema,
 });
 
-/** Side of one timing-mark grid cell: four marks per inch. */
-const GRID_UNIT_MM = 25.4 / 4;
-
-/** Area of one square timing-mark grid cell. */
-export const SQUARE_GRID_UNIT_MM2 = GRID_UNIT_MM * GRID_UNIT_MM;
+/**
+ * Timing-mark pitch on letter paper. The grid is nominally four marks per inch,
+ * but the scan margins and mark size make cells 6.095mm wide, and their height
+ * depends on the paper size.
+ */
+const LETTER_GRID_COLUMN_MM = 6.095;
+const LETTER_GRID_ROW_MM = 6.734;
 
 /**
  * Area of the write-in box on the New Hampshire state ballot templates, 4.3 by
- * 0.9 grid units, the smallest in use. Fractional write-in thresholds from
- * before the threshold was an ink area are rescaled against it, so no box
- * becomes less sensitive than it was.
+ * 0.9 grid units on letter paper, the smallest in use. Fractional write-in
+ * thresholds from before the threshold was an ink area are rescaled against it,
+ * so no box becomes less sensitive than it was.
  */
-const REFERENCE_WRITE_IN_AREA_MM2 = 4.3 * 0.9 * SQUARE_GRID_UNIT_MM2;
+const REFERENCE_WRITE_IN_AREA_MM2 =
+  4.3 * LETTER_GRID_COLUMN_MM * 0.9 * LETTER_GRID_ROW_MM;
 
 /** Converts a legacy fraction-of-the-box write-in threshold to an ink area. */
 export function legacyWriteInAreaFractionToMm2(fraction: number): number {

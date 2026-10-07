@@ -588,7 +588,7 @@ mod test {
         ballot_card::{BallotType, PageNumber},
         bubble_ballot::PartialBallotHash,
         election::{BallotStyleId, ContestId, OptionId, PrecinctId},
-        geometry::{PixelPosition, Rect},
+        geometry::{Mm2, PixelPosition, Rect},
     };
 
     use crate::{
@@ -852,7 +852,7 @@ mod test {
                 assert_eq!(first.write_ins.len(), second.write_ins.len());
                 for (first_area, second_area) in first.write_ins.iter().zip(&second.write_ins) {
                     assert_eq!(
-                        first_area.score, second_area.score,
+                        first_area.ink_area, second_area.ink_area,
                         "{bit_depth:?} {side} {} write-in score",
                         first_area.grid_position
                     );
@@ -1122,7 +1122,7 @@ mod test {
 
         for write_in in front.write_ins {
             // no write-ins are written in, so the scores should be low
-            assert!(write_in.score < UnitIntervalScore(0.01));
+            assert!(write_in.ink_area < Mm2::new(0.5));
         }
     }
 

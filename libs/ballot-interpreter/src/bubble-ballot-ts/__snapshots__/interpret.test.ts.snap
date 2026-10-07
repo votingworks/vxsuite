@@ -1558,7 +1558,7 @@ exports[`score write in areas 1`] = `
       },
       "writeInIndex": 0,
     },
-    "score": 0.05630188807845116,
+    "inkAreaMm2": 18.023820877075195,
     "shape": {
       "bottomLeft": {
         "x": 183.42340087890625,
@@ -1594,7 +1594,7 @@ exports[`score write in areas 1`] = `
       },
       "writeInIndex": 0,
     },
-    "score": 0,
+    "inkAreaMm2": 0,
     "shape": {
       "bottomLeft": {
         "x": 183.42340087890625,
@@ -1630,7 +1630,7 @@ exports[`score write in areas 1`] = `
       },
       "writeInIndex": 0,
     },
-    "score": 0.05707527697086334,
+    "inkAreaMm2": 18.271404266357422,
     "shape": {
       "bottomLeft": {
         "x": 690.2671508789062,
@@ -1666,7 +1666,7 @@ exports[`score write in areas 1`] = `
       },
       "writeInIndex": 0,
     },
-    "score": 0,
+    "inkAreaMm2": 0,
     "shape": {
       "bottomLeft": {
         "x": 690.2671508789062,
@@ -1702,7 +1702,7 @@ exports[`score write in areas 1`] = `
       },
       "writeInIndex": 0,
     },
-    "score": 0.05549389496445656,
+    "inkAreaMm2": 17.765159606933594,
     "shape": {
       "bottomLeft": {
         "x": 1197.11083984375,
@@ -1743,7 +1743,7 @@ exports[`score write in areas 2`] = `
       },
       "writeInIndex": 0,
     },
-    "score": 0,
+    "inkAreaMm2": 0,
     "shape": {
       "bottomLeft": {
         "x": 183.42340087890625,
@@ -1779,7 +1779,7 @@ exports[`score write in areas 2`] = `
       },
       "writeInIndex": 0,
     },
-    "score": 0,
+    "inkAreaMm2": 0,
     "shape": {
       "bottomLeft": {
         "x": 690.2671508789062,
@@ -1815,7 +1815,7 @@ exports[`score write in areas 2`] = `
       },
       "writeInIndex": 1,
     },
-    "score": 0,
+    "inkAreaMm2": 0,
     "shape": {
       "bottomLeft": {
         "x": 690.2671508789062,
@@ -1851,7 +1851,7 @@ exports[`score write in areas 2`] = `
       },
       "writeInIndex": 2,
     },
-    "score": 0.05723905563354492,
+    "inkAreaMm2": 18.323833465576172,
     "shape": {
       "bottomLeft": {
         "x": 690.2671508789062,
@@ -1887,7 +1887,7 @@ exports[`score write in areas 2`] = `
       },
       "writeInIndex": 3,
     },
-    "score": 0,
+    "inkAreaMm2": 0,
     "shape": {
       "bottomLeft": {
         "x": 690.2671508789062,
@@ -1923,7 +1923,7 @@ exports[`score write in areas 2`] = `
       },
       "writeInIndex": 0,
     },
-    "score": 0,
+    "inkAreaMm2": 0,
     "shape": {
       "bottomLeft": {
         "x": 1197.11083984375,
@@ -1959,7 +1959,7 @@ exports[`score write in areas 2`] = `
       },
       "writeInIndex": 1,
     },
-    "score": 0,
+    "inkAreaMm2": 0,
     "shape": {
       "bottomLeft": {
         "x": 1197.11083984375,
@@ -1995,7 +1995,7 @@ exports[`score write in areas 2`] = `
       },
       "writeInIndex": 2,
     },
-    "score": 0,
+    "inkAreaMm2": 0,
     "shape": {
       "bottomLeft": {
         "x": 1197.11083984375,
@@ -2031,7 +2031,7 @@ exports[`score write in areas 2`] = `
       },
       "writeInIndex": 3,
     },
-    "score": 0,
+    "inkAreaMm2": 0,
     "shape": {
       "bottomLeft": {
         "x": 1197.11083984375,
