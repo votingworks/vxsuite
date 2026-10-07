@@ -54,7 +54,8 @@ function simulateKeyPress(key: string) {
 }
 
 type MockIllustrationButton =
-  typeof Keybinding.PAGE_NEXT | typeof Keybinding.PAGE_PREVIOUS;
+  | typeof Keybinding.PAGE_NEXT
+  | typeof Keybinding.PAGE_PREVIOUS;
 type MockIllustrationProps =
   AccessibleControllerIllustrationProps<MockIllustrationButton>;
 

@@ -17,7 +17,8 @@ import { ApiProvider } from './api_provider.js';
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
 let setMockControllerHelpTriggered:
-  ((shouldShowHelp: boolean) => void) | undefined;
+  | ((shouldShowHelp: boolean) => void)
+  | undefined;
 
 vi.mock(import('@votingworks/ui'), async (importActual) => ({
   ...(await importActual()),

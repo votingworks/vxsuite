@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "build": "pnpm install && pnpm -w vx-task it-deps $npm_package_name && make build",
-    "format": "prettier --write .",
+    "format": "oxfmt --write",
     "lint": "pnpm -w vx-task lint $npm_package_name",
     "lint:fix": "eslint --cache --fix .",
     "lint:self": "eslint --cache .",

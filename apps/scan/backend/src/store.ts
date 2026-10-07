@@ -126,7 +126,10 @@ function sheetRowToSheet(row: SheetRow): Sheet {
 }
 
 export type ElectricalTestingComponent =
-  'card' | 'printer' | 'scanner' | 'usbDrive';
+  | 'card'
+  | 'printer'
+  | 'scanner'
+  | 'usbDrive';
 
 /**
  * Manages a data store for imported ballot image batches and cast vote records
@@ -289,7 +292,8 @@ export class Store {
    */
   getJurisdiction(): string | undefined {
     const electionRow = this.client.one('select jurisdiction from election') as
-      { jurisdiction: string } | undefined;
+      | { jurisdiction: string }
+      | undefined;
     return electionRow?.jurisdiction;
   }
 
@@ -488,7 +492,8 @@ export class Store {
    */
   getPollingPlaceId(): Optional<string> {
     const row = this.client.one('select polling_place_id from election') as
-      { polling_place_id: string | null } | undefined;
+      | { polling_place_id: string | null }
+      | undefined;
 
     return row?.polling_place_id || undefined;
   }
@@ -956,7 +961,8 @@ export class Store {
   getSystemSettings(): SystemSettings | undefined {
     if (this.cachedSystemSettings === undefined) {
       const result = this.client.one(`select data from system_settings`) as
-        { data: string } | undefined;
+        | { data: string }
+        | undefined;
 
       this.cachedSystemSettings = result
         ? safeParseSystemSettings(result.data).unsafeUnwrap()

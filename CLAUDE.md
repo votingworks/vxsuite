@@ -368,8 +368,8 @@ fn.assertComplete(); // verify all expected calls were made (usually in afterEac
 
 ## Code Style
 
-- **Prettier:** single quotes, trailing commas (es5), semicolons, prose wrap
-  always
+- **Formatter:** oxfmt (Prettier-compatible; config in `.oxfmtrc.jsonc`): single
+  quotes, trailing commas (es5), semicolons, 80 columns, prose wrap always
 - **ESLint:** Airbnb base + @typescript-eslint + custom `eslint-plugin-vx`
   (based on Google TypeScript Style Guide)
 - **Stylelint:** standard config with styled-components support

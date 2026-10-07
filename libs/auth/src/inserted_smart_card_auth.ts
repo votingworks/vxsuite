@@ -278,10 +278,9 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
       this.authStatus.reason === 'no_card';
 
     // Allow if poll worker is logged in, or if skipPollWorkerCheck is true and no card is inserted
-    if (!(
-      isPollWorkerLoggedIn ||
-      (input.skipPollWorkerCheck && isNoCardMode)
-    )) {
+    if (
+      !(isPollWorkerLoggedIn || (input.skipPollWorkerCheck && isNoCardMode))
+    ) {
       return;
     }
 

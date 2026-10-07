@@ -6,7 +6,7 @@
     "package.json",
     "tsconfig.shared.json",
     "vitest.config.shared.mts",
-    ".prettierrc.js",
+    ".oxfmtrc.jsonc",
     "stylelint.shared.js"
   ],
   // Identifies the toolchain the artifacts were built with (in CI, the Docker

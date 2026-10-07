@@ -309,7 +309,8 @@ function bubbleMark(page: PDFPage, originTopLeft: [number, number]): void {
 }
 
 type MarkInfo =
-  { writeInName?: undefined } | { writeInArea: Rect; writeInName: string };
+  | { writeInName?: undefined }
+  | { writeInArea: Rect; writeInName: string };
 
 /**
  * Determines if this grid position should be marked based on the votes.

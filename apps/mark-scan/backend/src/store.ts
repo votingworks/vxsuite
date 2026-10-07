@@ -172,7 +172,8 @@ export class Store {
    */
   getJurisdiction(): string | undefined {
     const electionRow = this.client.one('select jurisdiction from election') as
-      { jurisdiction: string } | undefined;
+      | { jurisdiction: string }
+      | undefined;
     return electionRow?.jurisdiction;
   }
 
@@ -229,7 +230,8 @@ export class Store {
    */
   getSystemSettings(): SystemSettings | undefined {
     const result = this.client.one(`select data from system_settings`) as
-      { data: string } | undefined;
+      | { data: string }
+      | undefined;
 
     if (!result) return undefined;
     return safeParseSystemSettings(result.data).unsafeUnwrap();
@@ -244,7 +246,8 @@ export class Store {
    */
   getPollingPlaceId(): Optional<string> {
     const row = this.client.one('select polling_place_id from election') as
-      { polling_place_id: string | null } | undefined;
+      | { polling_place_id: string | null }
+      | undefined;
 
     return row?.polling_place_id || undefined;
   }

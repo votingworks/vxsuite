@@ -38,7 +38,10 @@ export interface CancelBackupError {
  * Possible expected errors that can occur when creating a backup.
  */
 export type CreateBackupError =
-  PrepareError | WriteBackupError | CancelBackupError | SwapError;
+  | PrepareError
+  | WriteBackupError
+  | CancelBackupError
+  | SwapError;
 
 /**
  * Error codes we expect from writing a backup to its target: the drive filling

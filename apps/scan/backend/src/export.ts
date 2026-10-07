@@ -25,11 +25,13 @@ export async function encryptBallotAuditId(
   systemSettings: SystemSettings,
   sheet: Sheet
 ): Promise<Sheet> {
-  if (!(
-    systemSettings.precinctScanEnableBallotAuditIds &&
-    sheet.type === 'accepted' &&
-    sheet.interpretation[0].type === 'InterpretedHmpbPage'
-  )) {
+  if (
+    !(
+      systemSettings.precinctScanEnableBallotAuditIds &&
+      sheet.type === 'accepted' &&
+      sheet.interpretation[0].type === 'InterpretedHmpbPage'
+    )
+  ) {
     return sheet;
   }
   const ballotAuditIdFromMetadata =

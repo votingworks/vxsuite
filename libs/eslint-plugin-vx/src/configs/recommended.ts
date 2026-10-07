@@ -61,12 +61,11 @@ export default function buildRecommended(
         '**/*.config.mjs',
         // Re-enable playwright.config.ts so integration-testing overrides work.
         '!playwright.config.ts',
-        // Dotfile tooling configs (lint-staged, prettier, stylelint, etc.)
+        // Dotfile tooling configs (lint-staged, stylelint, etc.)
         '.lintstagedrc.js',
         '.lintstagedrc.cjs',
         '.lintstagedrc.shared.js',
         '.pnpmfile.cjs',
-        '.prettierrc.js',
         '.stylelintrc.js',
         '.stylelintrc.cjs',
         '.stylelintrc-css.js',

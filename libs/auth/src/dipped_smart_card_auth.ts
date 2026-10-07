@@ -35,7 +35,8 @@ import { computeCardLockoutEndTime } from './lockout.js';
 import { computeSessionEndTime } from './sessions.js';
 
 type CheckPinResponseExtended =
-  CheckPinResponse | { response: 'error'; error: unknown };
+  | CheckPinResponse
+  | { response: 'error'; error: unknown };
 
 type AuthAction =
   | { type: 'check_card_reader'; cardStatus: CardStatus }

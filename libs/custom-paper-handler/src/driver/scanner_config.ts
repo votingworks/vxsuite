@@ -2,7 +2,10 @@ import { Uint16toUint8, Uint32toUint8, type Uint8 } from '../bits.js';
 import type { ConfigureScannerCommand } from './coders.js';
 
 export type PaperMovementAfterScan =
-  'hold_ticket' | 'move_forward' | 'move_back' | 'move_park';
+  | 'hold_ticket'
+  | 'move_forward'
+  | 'move_back'
+  | 'move_park';
 export type ScanLight = 'red' | 'green' | 'blue' | 'white';
 export type ScanDataFormat = 'BW' | 'grayscale';
 export type Resolution = 100 | 150 | 200 | 250 | 300;

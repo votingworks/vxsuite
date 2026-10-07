@@ -51,7 +51,8 @@ export const CandidateContestCompressedTallySchema: z.ZodSchema<CandidateContest
     CandidateContestWithoutWriteInsCompressedTallySchema,
   ]);
 export type CompressedTallyEntry =
-  YesNoContestCompressedTally | CandidateContestCompressedTally;
+  | YesNoContestCompressedTally
+  | CandidateContestCompressedTally;
 export type CompressedTally = CompressedTallyEntry[];
 export const CompressedTallySchema: z.ZodSchema<CompressedTally> = z.array(
   z.union([

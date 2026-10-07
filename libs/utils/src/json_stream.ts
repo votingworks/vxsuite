@@ -30,7 +30,11 @@ export interface JsonStreamOptions {
  * A JSON-serializable value that can be streamed as a series of strings.
  */
 export type JsonStreamInput<T> =
-  WithArraysAsIterables<T> | null | string | number | boolean;
+  | WithArraysAsIterables<T>
+  | null
+  | string
+  | number
+  | boolean;
 
 /**
  * Represents raw JSON for a previously stringified value.

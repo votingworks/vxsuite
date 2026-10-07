@@ -48,7 +48,9 @@ export type StraightPartyContestResults = ContestResultsBase & {
  * some cast vote record attributes.
  */
 export type ContestResults =
-  YesNoContestResults | CandidateContestResults | StraightPartyContestResults;
+  | YesNoContestResults
+  | CandidateContestResults
+  | StraightPartyContestResults;
 
 export type VotingMethod = `${BallotType}` | 'early_voting';
 export const SUPPORTED_VOTING_METHODS: VotingMethod[] = [
@@ -131,7 +133,8 @@ export interface CastVoteRecordAttributes {
  * scanned, similar to HMPB sheet accounting.
  */
 export type Card =
-  { type: 'bmd'; sheetNumber?: number } | { type: 'hmpb'; sheetNumber: number };
+  | { type: 'bmd'; sheetNumber?: number }
+  | { type: 'hmpb'; sheetNumber: number };
 
 export const MANUAL_BATCH_ID = 'NO_BATCH__MANUAL';
 export const MANUAL_SCANNER_ID = 'NO_SCANNER__MANUAL';

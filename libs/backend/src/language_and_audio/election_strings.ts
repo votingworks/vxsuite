@@ -49,7 +49,8 @@ interface ElectionStringConfigTranslatable {
 }
 
 type ElectionStringConfig =
-  ElectionStringConfigNotTranslatable | ElectionStringConfigTranslatable;
+  | ElectionStringConfigNotTranslatable
+  | ElectionStringConfigTranslatable;
 
 const electionStringConfigs: Record<ElectionStringKey, ElectionStringConfig> = {
   [ElectionStringKey.BALLOT_LANGUAGE]: {

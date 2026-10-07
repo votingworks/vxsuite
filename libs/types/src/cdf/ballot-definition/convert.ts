@@ -1434,52 +1434,51 @@ export function convertCdfBallotDefinitionToVxfElection(
 
       // Extract orderedCandidatesByContest from OrderedContent if available
       const orderedCandidatesByContest:
-        Record<Vxf.ContestId, Vxf.OrderedCandidateOption[]> | undefined =
-        ballotStyle.OrderedContent
-          ? Object.fromEntries(
-              ballotStyle.OrderedContent.filter((orderedContest) => {
-                const contest = find(
-                  election.Contest,
-                  (c) => c['@id'] === orderedContest.ContestId
-                );
-                return contest['@type'] === 'BallotDefinition.CandidateContest';
-              }).map((orderedContest) => {
-                const contest = find(
-                  election.Contest,
-                  (c) => c['@id'] === orderedContest.ContestId
-                ) as Cdf.CandidateContest;
-                const candidateOptions =
-                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                  orderedContest.Physical[0]!.PhysicalContestOption.filter(
-                    (option) => !option.WriteInPosition
-                  ).map((option) => {
-                    const candidateId = convertOptionId(
-                      orderedContest.ContestId,
-                      option.ContestOptionId
-                    );
-                    const contestOption = find(
-                      contest.ContestOption,
-                      (o) => o['@id'] === option.ContestOptionId
-                    );
-                    const orderedOption: Vxf.OrderedCandidateOption = {
-                      id: candidateId,
-                    };
-                    // Include partyIds if this represents a cross-endorsed candidate
-                    // We will always represent multi-endorsed candidates with a single ordered candidate option
-                    // when converting from CDF to VXF
-                    if (
-                      contestOption.EndorsementPartyIds &&
-                      contestOption.EndorsementPartyIds.length > 0
-                    ) {
-                      orderedOption.partyIds =
-                        contestOption.EndorsementPartyIds;
-                    }
-                    return orderedOption;
-                  });
-                return [orderedContest.ContestId, candidateOptions];
-              })
-            )
-          : undefined;
+        | Record<Vxf.ContestId, Vxf.OrderedCandidateOption[]>
+        | undefined = ballotStyle.OrderedContent
+        ? Object.fromEntries(
+            ballotStyle.OrderedContent.filter((orderedContest) => {
+              const contest = find(
+                election.Contest,
+                (c) => c['@id'] === orderedContest.ContestId
+              );
+              return contest['@type'] === 'BallotDefinition.CandidateContest';
+            }).map((orderedContest) => {
+              const contest = find(
+                election.Contest,
+                (c) => c['@id'] === orderedContest.ContestId
+              ) as Cdf.CandidateContest;
+              const candidateOptions =
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                orderedContest.Physical[0]!.PhysicalContestOption.filter(
+                  (option) => !option.WriteInPosition
+                ).map((option) => {
+                  const candidateId = convertOptionId(
+                    orderedContest.ContestId,
+                    option.ContestOptionId
+                  );
+                  const contestOption = find(
+                    contest.ContestOption,
+                    (o) => o['@id'] === option.ContestOptionId
+                  );
+                  const orderedOption: Vxf.OrderedCandidateOption = {
+                    id: candidateId,
+                  };
+                  // Include partyIds if this represents a cross-endorsed candidate
+                  // We will always represent multi-endorsed candidates with a single ordered candidate option
+                  // when converting from CDF to VXF
+                  if (
+                    contestOption.EndorsementPartyIds &&
+                    contestOption.EndorsementPartyIds.length > 0
+                  ) {
+                    orderedOption.partyIds = contestOption.EndorsementPartyIds;
+                  }
+                  return orderedOption;
+                });
+              return [orderedContest.ContestId, candidateOptions];
+            })
+          )
+        : undefined;
 
       return {
         id: ballotStyleId,

@@ -22,7 +22,10 @@ import { ReportGeneratedMetadata } from './report_generated_metadata.js';
 import type { FillerColumn } from './ballot_count_report.js';
 
 type AttributeColumnId =
-  'precinctName' | 'precinctSplitName' | 'party' | 'language';
+  | 'precinctName'
+  | 'precinctSplitName'
+  | 'party'
+  | 'language';
 interface AttributeColumn {
   type: 'attribute';
   id: AttributeColumnId;

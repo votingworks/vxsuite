@@ -17,7 +17,6 @@
   },
   "devDependencies": {
     "@types/node": "24.13.3",
-    "prettier": "3.9.6",
     "typescript": "npm:@typescript/typescript6@6.0.2"
   },
   "packageManager": "pnpm@12.9.1"

@@ -64,7 +64,10 @@ export type UserType = User['type'];
 export type ExternalElectionSource = 'ms-sems';
 
 export type ElectionStatus =
-  'notStarted' | 'inProgress' | 'ballotsFinalized' | 'ballotsApproved';
+  | 'notStarted'
+  | 'inProgress'
+  | 'ballotsFinalized'
+  | 'ballotsApproved';
 
 export interface ElectionListing {
   jurisdictionId: string;
@@ -212,10 +215,13 @@ export interface QuickReportedPollStatus {
 }
 
 export type GetExportedElectionError =
-  'no-election-export-found' | 'election-out-of-date';
+  | 'no-election-export-found'
+  | 'election-out-of-date';
 
 export type ResultsReportingError =
-  'invalid-payload' | 'invalid-signature' | GetExportedElectionError;
+  | 'invalid-payload'
+  | 'invalid-signature'
+  | GetExportedElectionError;
 
 export const RESULTS_REPORTING_PATH = '/report';
 export type ResultsReportingPath = typeof RESULTS_REPORTING_PATH;

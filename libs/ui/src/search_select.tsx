@@ -140,7 +140,8 @@ export interface SearchSelectSingleProps<
 }
 
 export type SearchSelectProps<T = string> =
-  SearchSelectSingleProps<T> | SearchSelectMultiProps<T>;
+  | SearchSelectSingleProps<T>
+  | SearchSelectMultiProps<T>;
 
 function findOption<T = string>(
   options: Array<SelectOption<T>>,

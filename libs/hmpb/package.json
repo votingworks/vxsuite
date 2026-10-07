@@ -22,7 +22,7 @@
     "build:self": "tsc --build tsconfig.build.json && cp -R ./src/fonts ./build",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
-    "format": "prettier '**/*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
+    "format": "oxfmt --write",
     "generate-fixtures": "pnpm build:self && DEBUG=hmpb:ballot_fixtures ./bin/generate-fixtures",
     "generate-vxprint-test-print": "pnpm build:self && ./bin/generate-vxprint-test-print",
     "lint": "pnpm -w vx-task lint $npm_package_name",

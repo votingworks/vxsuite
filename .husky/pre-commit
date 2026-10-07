@@ -1,4 +1,6 @@
 #!/bin/bash
 . "$(dirname "$0")/_/husky.sh"
 
-pnpm exec lint-staged
+# --relative: oxfmt matches no files when given absolute paths from a nested
+# lint-staged config's directory.
+pnpm exec lint-staged --relative

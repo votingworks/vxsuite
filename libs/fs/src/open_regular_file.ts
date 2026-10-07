@@ -8,7 +8,8 @@ import { open } from './open_file.js';
  * would not hand back a file.
  */
 export type OpenRegularFileError =
-  { type: 'OpenFileError'; error: Error } | { type: 'NotRegularFile' };
+  | { type: 'OpenFileError'; error: Error }
+  | { type: 'NotRegularFile' };
 
 /**
  * Opens a path, refusing anything that is not a regular file.

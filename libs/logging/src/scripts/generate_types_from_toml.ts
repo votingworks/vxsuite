@@ -182,9 +182,9 @@ async function main(): Promise<void> {
     yield* generateGetLogEventTypeDocumentation(config);
   }, out);
 
-  const { stderr } = await execFile('prettier', ['--write', filepath]);
+  const { stderr } = await execFile('oxfmt', ['--write', filepath]);
   if (stderr) {
-    throw new Error(`Error running eslint: ${stderr}`);
+    throw new Error(`Error running oxfmt: ${stderr}`);
   }
 
   if (check) {
