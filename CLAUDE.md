@@ -139,7 +139,14 @@ pnpm lint:fix
 # Or from the repo root using --filter
 pnpm --filter @votingworks/<package-name> lint
 pnpm --filter @votingworks/<package-name> lint:fix
+
+# Format everything with oxfmt (from repo root), or check without writing
+pnpm format
+pnpm format:check
 ```
+
+Formatting is applied by the lint-staged pre-commit hook and verified in CI by
+the `validate-monorepo` job's "Check Formatting" step.
 
 ### Type Checking
 

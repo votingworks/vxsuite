@@ -561,6 +561,10 @@ ${rustJobLines.map((line) => `  ${line}\n`).join('')}
           name: Validate
           command: |
             ./script/validate-monorepo
+      - run:
+          name: Check Formatting
+          command: |
+            pnpm format:check
 ${turboCacheSaveSteps('      ').join('\n')}
 
 ${generateNotifyGalleryJob()
