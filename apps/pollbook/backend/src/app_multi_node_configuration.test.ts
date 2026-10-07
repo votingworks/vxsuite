@@ -399,9 +399,11 @@ test('one pollbook can be configured from another pollbook automatically as an e
 
       pollbookContext2!.mockUsbDrive.usbDrive.eject.expectCallWith().resolves();
       void pollbookContext2!.localApiClient.unconfigure();
-      expect(
-        (await pollbookContext2!.localApiClient.getElection()).err()
-      ).toEqual('recently-unconfigured');
+      await extendedWaitFor(async () => {
+        expect(
+          (await pollbookContext2!.localApiClient.getElection()).err()
+        ).toEqual('recently-unconfigured');
+      });
       vi.advanceTimersByTime(UNCONFIGURE_LOCKOUT_TIMEOUT);
       expect(
         (await pollbookContext2!.localApiClient.getElection()).err()
