@@ -1,0 +1,23 @@
+import type { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
+
+export const shorthands: ColumnDefinitions | undefined = undefined;
+
+export function up(pgm: MigrationBuilder): void {
+  pgm.addColumns(
+    'elections',
+    {
+      test_decks_task_id: {
+        type: 'text',
+        references: 'background_tasks(id)',
+        referencesConstraintName: 'fk_test_decks_background_tasks',
+        onDelete: 'SET NULL',
+      },
+      test_decks_url: { type: 'text' },
+    },
+    {
+      // These columns were missing from the prod DB, so they also appear in the
+      // 'init' migration script.
+      ifNotExists: true,
+    }
+  );
+}

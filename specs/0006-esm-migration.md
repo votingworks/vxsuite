@@ -92,9 +92,11 @@ config and would never find a `.cjs` one — i18next-parser searches for
 `i18next-parser.config.{js,mjs,json,ts,yaml,yml}` — so that config has to become
 ESM (`export default`) rather than be renamed. And a whole directory that must
 stay CJS can get its own `package.json` containing `{ "type": "commonjs" }`,
-which is how VxDesign's node-pg-migrate migrations keep working: the runner
-loads them with `require`, and renaming 50 files would have tripped the
-migration-immutability guard that tracks them by name.
+which is how VxDesign's node-pg-migrate migrations kept working at first: the
+runner loads them with `require`, and renaming 50 files would have tripped the
+migration-immutability guard as it then stood. (They have since become ESM `.ts`
+files, which `require` handles natively on Node 24, and the guard now compares
+migration names without their extension, as node-pg-migrate records them.)
 
 That directory `package.json` is then a new file in a directory some tool
 enumerates, and it may not be ignored. node-pg-migrate's default ignore pattern
