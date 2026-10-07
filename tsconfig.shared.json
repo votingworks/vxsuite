@@ -1,4 +1,7 @@
 {
+  // Ambient declarations every package needs; `include` only adds to this.
+  "files": ["types/css.d.ts", "types/env.d.ts"],
+
   "compilerOptions": {
     // Allow use of newer APIs since we're in recent enough versions of
     // NodeJS/Electron.
