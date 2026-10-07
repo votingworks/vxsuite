@@ -17,6 +17,7 @@ import {
   generateBallotStyleId,
   getBallotStyleGroup,
   getBallotStyleGroupsForPrecinctOrSplit,
+  getDefaultLanguageBallotStyleAndLanguage,
   getGroupedBallotStyles,
   getPrecinctsAndSplitsForBallotStyle,
   getRelatedBallotStyle,
@@ -248,6 +249,34 @@ describe('ballot style groups', () => {
         targetBallotStyleLanguage: 'es-US',
       }).err()
     ).toMatch('not found');
+  });
+
+  test('getDefaultLanguageBallotStyleAndLanguage', () => {
+    const election: Election = {
+      ...electionGeneral,
+      ballotStyles: [style1English, style1Spanish],
+    };
+
+    expect(
+      getDefaultLanguageBallotStyleAndLanguage({
+        election,
+        ballotStyleId: style1Spanish.id,
+      })
+    ).toEqual({ ballotStyleId: style1English.id, languageCode: 'es-US' });
+
+    expect(
+      getDefaultLanguageBallotStyleAndLanguage({
+        election,
+        ballotStyleId: style1English.id,
+      })
+    ).toEqual({ ballotStyleId: style1English.id, languageCode: 'en' });
+
+    expect(
+      getDefaultLanguageBallotStyleAndLanguage({
+        election,
+        ballotStyleId: 'does-not-exist',
+      })
+    ).toBeUndefined();
   });
 });
 

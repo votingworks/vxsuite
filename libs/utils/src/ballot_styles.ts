@@ -12,6 +12,7 @@ import {
   type BallotStyleGroupId,
   type BallotStyleId,
   type BallotStyleGroup,
+  type LanguageCode,
   type Party,
   type Election,
   type PrecinctOrSplit,
@@ -142,6 +143,33 @@ export function getBallotStyleGroup({
   return getGroupedBallotStyles(election.ballotStyles).find(
     (group) => group.id === ballotStyleGroupId
   );
+}
+
+/**
+ * Returns the default-language ballot style ID of the given ballot style's
+ * group, along with the given ballot style's language.
+ *
+ * @example
+ * getDefaultLanguageBallotStyleAndLanguage({ election, ballotStyleId: '1_es-US' });
+ * // => { ballotStyleId: '1_en', languageCode: 'es-US' }
+ */
+export function getDefaultLanguageBallotStyleAndLanguage({
+  election,
+  ballotStyleId,
+}: {
+  election: Election;
+  ballotStyleId: BallotStyleId;
+}): { ballotStyleId: BallotStyleId; languageCode: LanguageCode } | undefined {
+  const ballotStyle = election.ballotStyles.find((b) => b.id === ballotStyleId);
+  if (!ballotStyle) return undefined;
+
+  const group = assertDefined(
+    getBallotStyleGroup({ election, ballotStyleGroupId: ballotStyle.groupId })
+  );
+  return {
+    ballotStyleId: group.defaultLanguageBallotStyle.id,
+    languageCode: assertDefined(ballotStyle.languages[0]) as LanguageCode,
+  };
 }
 
 function hasMatchingDistrictIds(
