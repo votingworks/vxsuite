@@ -103,3 +103,26 @@ test('an unformatted drive is reported as bad_format', () => {
   platform.insertDrive(UsbDiskDevPathSchema.decode('/dev/sdb'));
   expect(handler.status()).toEqual({ status: 'error', reason: 'bad_format' });
 });
+
+test('a handler creates its drive with the requested filesystem type', () => {
+  const defaultHandler = getMockUsbDriveHandler();
+  expect(defaultHandler.getDiskPath()).toEqual(
+    UsbDiskDevPathSchema.decode('/dev/sdb')
+  );
+  expect(defaultHandler.getFilesystemType()).toEqual('exfat');
+
+  const backupHandler = getMockUsbDriveHandler('sdc', 'ext4');
+  expect(backupHandler.getDiskPath()).toEqual(
+    UsbDiskDevPathSchema.decode('/dev/sdc')
+  );
+  expect(backupHandler.getFilesystemType()).toEqual('ext4');
+
+  backupHandler.insert();
+  const platform = new SimulatedUsbPlatform(getMockUsbDirPath());
+  expect(platform.getSimulatedDrives()).toEqual([
+    expect.objectContaining({
+      diskPath: '/dev/sdc',
+      partition: expect.objectContaining({ fstype: 'ext4' }),
+    }),
+  ]);
+});

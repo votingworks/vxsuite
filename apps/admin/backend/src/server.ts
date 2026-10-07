@@ -19,6 +19,7 @@ import {
 } from '@votingworks/utils';
 import {
   detectMultiUsbDriveFromEnv,
+  getMockUsbDriveHandler,
   type MultiUsbDrive,
 } from '@votingworks/usb-drive';
 import {
@@ -295,6 +296,14 @@ export async function start(options: StartOptions = {}): Promise<Server> {
 
   useDevDockRouter(app, express, {
     printerConfig: HP_4001_PRINTER_CONFIG,
+    mockBackupUsbDrive:
+      isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE
+      ) &&
+      isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE)
+        ? // @coverage-exclude
+          getMockUsbDriveHandler('sdc', 'ext4')
+        : undefined,
   });
 
   startCpuMetricsLogging(baseLogger);

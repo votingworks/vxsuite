@@ -49,6 +49,7 @@ import {
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 import { Button, Modal, P, VxThemeProvider } from '@votingworks/ui';
+import type { UsbDrivePurpose } from '@votingworks/usb-drive';
 import { UsbDriveIcon } from './usb_drive_icon.js';
 import { Colors } from './colors.js';
 import { FujitsuPrinterMockControl } from './fujitsu_printer_mock.js';
@@ -368,42 +369,45 @@ const UsbMocksDisabledMessage = styled.div`
 `;
 
 const UsbDriveDevLabel = styled.div`
-  font-size: 0.5em;
+  font-size: 0.75em;
   text-align: center;
   color: ${Colors.TEXT};
 `;
 
-function UsbDriveMockControls() {
+function UsbDriveMockControls({ purpose }: { purpose: UsbDrivePurpose }) {
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
-  const getUsbDriveStatusQuery = useQuery(['getUsbDriveStatus'], () =>
-    apiClient.getUsbDriveStatus()
+  const getUsbDriveStatusQuery = useQuery(['getUsbDriveStatus', purpose], () =>
+    apiClient.getUsbDriveStatus({ purpose })
   );
   const insertUsbDriveMutation = useMutation(apiClient.insertUsbDrive, {
     onSuccess: async () =>
-      await queryClient.invalidateQueries(['getUsbDriveStatus']),
+      await queryClient.invalidateQueries(['getUsbDriveStatus', purpose]),
   });
   const removeUsbDriveMutation = useMutation(apiClient.removeUsbDrive, {
     onSuccess: async () =>
-      await queryClient.invalidateQueries(['getUsbDriveStatus']),
+      await queryClient.invalidateQueries(['getUsbDriveStatus', purpose]),
   });
   const clearUsbDriveMutation = useMutation(apiClient.clearUsbDrive, {
     onSuccess: async () =>
-      await queryClient.invalidateQueries(['getUsbDriveStatus']),
+      await queryClient.invalidateQueries(['getUsbDriveStatus', purpose]),
   });
 
   const [isUsbDriveRecentlyCleared, setIsUsbDriveRecentlyCleared] =
     useState(false);
 
   function handleClearClick() {
-    clearUsbDriveMutation.mutate(undefined, {
-      onSuccess: () => {
-        setIsUsbDriveRecentlyCleared(true);
-        setTimeout(() => {
-          setIsUsbDriveRecentlyCleared(false);
-        }, 1500);
-      },
-    });
+    clearUsbDriveMutation.mutate(
+      { purpose },
+      {
+        onSuccess: () => {
+          setIsUsbDriveRecentlyCleared(true);
+          setTimeout(() => {
+            setIsUsbDriveRecentlyCleared(false);
+          }, 1500);
+        },
+      }
+    );
   }
 
   const isFeatureEnabled = isFeatureFlagEnabled(
@@ -419,13 +423,17 @@ function UsbDriveMockControls() {
 
   return (
     <React.Fragment>
+      <div>
+        <UsbDriveDevLabel>{drive.diskPath}</UsbDriveDevLabel>
+        <UsbDriveDevLabel>{drive.fstype}</UsbDriveDevLabel>
+      </div>
       <div style={{ position: 'relative' }}>
         <UsbDriveControl
           onClick={() => {
             if (isInserted) {
-              removeUsbDriveMutation.mutate();
+              removeUsbDriveMutation.mutate({ purpose });
             } else {
-              insertUsbDriveMutation.mutate();
+              insertUsbDriveMutation.mutate({ purpose });
             }
           }}
           isInserted={isInserted}
@@ -440,7 +448,6 @@ function UsbDriveMockControls() {
           )}
         </UsbDriveControl>
       </div>
-      <UsbDriveDevLabel>{drive.diskPath}</UsbDriveDevLabel>
       <UsbDriveClearButton
         onClick={() => handleClearClick()}
         disabled={controlsDisabled}
@@ -1370,8 +1377,13 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
             </Row>
           </Column>
           <Column>
-            <UsbDriveMockControls />
+            <UsbDriveMockControls purpose="data" />
           </Column>
+          {mockSpec.mockBackupUsbDrive && (
+            <Column>
+              <UsbDriveMockControls purpose="backup" />
+            </Column>
+          )}
           <Column>
             <IconsGrid>
               <ScreenshotControls containerRef={containerRef} />

@@ -138,7 +138,9 @@ test('does not mount dev dock endpoints when feature flag is disabled', async ()
   );
   const { apiClient } = setup();
   await expect(apiClient.getElection()).rejects.toThrow();
-  await expect(apiClient.getUsbDriveStatus()).rejects.toThrow();
+  await expect(
+    apiClient.getUsbDriveStatus({ purpose: 'data' })
+  ).rejects.toThrow();
   await expect(apiClient.getCardStatus()).rejects.toThrow();
 });
 
@@ -434,32 +436,47 @@ test('poll worker card has a PIN when the election package enables them', async 
 
 test('usb drive mock endpoints', async () => {
   const { apiClient } = setup();
-  await expect(apiClient.getUsbDriveStatus()).resolves.toEqual({
+  await expect(
+    apiClient.getUsbDriveStatus({ purpose: 'data' })
+  ).resolves.toEqual({
     diskPath: UsbDiskDevPathSchema.decode('/dev/sdb'),
+    fstype: 'exfat',
     status: 'removed',
   });
 
-  await apiClient.insertUsbDrive();
-  await expect(apiClient.getUsbDriveStatus()).resolves.toEqual({
+  await apiClient.insertUsbDrive({ purpose: 'data' });
+  await expect(
+    apiClient.getUsbDriveStatus({ purpose: 'data' })
+  ).resolves.toEqual({
     diskPath: UsbDiskDevPathSchema.decode('/dev/sdb'),
+    fstype: 'exfat',
     status: 'inserted',
   });
 
-  await apiClient.clearUsbDrive();
-  await expect(apiClient.getUsbDriveStatus()).resolves.toEqual({
+  await apiClient.clearUsbDrive({ purpose: 'data' });
+  await expect(
+    apiClient.getUsbDriveStatus({ purpose: 'data' })
+  ).resolves.toEqual({
     diskPath: UsbDiskDevPathSchema.decode('/dev/sdb'),
+    fstype: 'exfat',
     status: 'inserted',
   });
 
-  await apiClient.removeUsbDrive();
-  await expect(apiClient.getUsbDriveStatus()).resolves.toEqual({
+  await apiClient.removeUsbDrive({ purpose: 'data' });
+  await expect(
+    apiClient.getUsbDriveStatus({ purpose: 'data' })
+  ).resolves.toEqual({
     diskPath: UsbDiskDevPathSchema.decode('/dev/sdb'),
+    fstype: 'exfat',
     status: 'removed',
   });
 
-  await apiClient.clearUsbDrive();
-  await expect(apiClient.getUsbDriveStatus()).resolves.toEqual({
+  await apiClient.clearUsbDrive({ purpose: 'data' });
+  await expect(
+    apiClient.getUsbDriveStatus({ purpose: 'data' })
+  ).resolves.toEqual({
     diskPath: UsbDiskDevPathSchema.decode('/dev/sdb'),
+    fstype: 'exfat',
     status: 'removed',
   });
 });
@@ -478,7 +495,9 @@ test("mounts with a default VxDesign export directory, since apps don't provide 
     baseUrl: `http://localhost:${port}/dock`,
   });
 
-  await expect(apiClient.getUsbDriveStatus()).resolves.toMatchObject({
+  await expect(
+    apiClient.getUsbDriveStatus({ purpose: 'data' })
+  ).resolves.toMatchObject({
     status: 'removed',
   });
 });
@@ -533,7 +552,9 @@ test('quickConfigure requires an election package to be selected', async () => {
   });
 
   await expect(apiClient.quickConfigure()).rejects.toThrow();
-  await expect(apiClient.getUsbDriveStatus()).resolves.toMatchObject({
+  await expect(
+    apiClient.getUsbDriveStatus({ purpose: 'data' })
+  ).resolves.toMatchObject({
     status: 'removed',
   });
 });
@@ -655,7 +676,9 @@ test('quickConfigure rejects apps that do not support it', async () => {
   // Configuring is the point, so an app that can't be configured shouldn't be
   // left with a staged package and a card it never used.
   await expect(apiClient.quickConfigure()).rejects.toThrow();
-  await expect(apiClient.getUsbDriveStatus()).resolves.toMatchObject({
+  await expect(
+    apiClient.getUsbDriveStatus({ purpose: 'data' })
+  ).resolves.toMatchObject({
     status: 'removed',
   });
 });
@@ -698,7 +721,9 @@ test('quickConfigure stages the selected election package and keeps it selected'
   await apiClient.quickConfigure();
   clearInterval(mounter);
 
-  await expect(apiClient.getUsbDriveStatus()).resolves.toMatchObject({
+  await expect(
+    apiClient.getUsbDriveStatus({ purpose: 'data' })
+  ).resolves.toMatchObject({
     status: 'inserted',
   });
 
@@ -747,6 +772,7 @@ test('mock spec', async () => {
   expect(await apiClient1.getMockSpec()).toEqual({
     mockPdiScanner: false,
     mockBatchScanner: false,
+    mockBackupUsbDrive: false,
     printerConfig: 'fujitsu',
     hasAccessibleControllerMock: false,
     hasBarcodeMock: false,
@@ -770,6 +796,7 @@ test('mock spec', async () => {
   expect(await apiClient2.getMockSpec()).toEqual({
     mockPdiScanner: false,
     mockBatchScanner: false,
+    mockBackupUsbDrive: false,
     printerConfig: 'fujitsu',
     hasAccessibleControllerMock: true,
     hasBarcodeMock: true,
@@ -1315,4 +1342,63 @@ test('mock batch scanner - mock spec reports mockBatchScanner', async () => {
   const { apiClient } = setup({ mockBatchScanner }, devDockDir);
   const spec = await apiClient.getMockSpec();
   expect(spec.mockBatchScanner).toEqual(true);
+});
+
+test('backup usb drive mock endpoints', async () => {
+  const { apiClient } = setup({
+    mockBackupUsbDrive: getMockUsbDriveHandler('sdc', 'ext4'),
+  });
+  await expect(apiClient.getMockSpec()).resolves.toMatchObject({
+    mockBackupUsbDrive: true,
+  });
+
+  await expect(
+    apiClient.getUsbDriveStatus({ purpose: 'backup' })
+  ).resolves.toEqual({
+    diskPath: UsbDiskDevPathSchema.decode('/dev/sdc'),
+    fstype: 'ext4',
+    status: 'removed',
+  });
+
+  await apiClient.insertUsbDrive({ purpose: 'backup' });
+  await expect(
+    apiClient.getUsbDriveStatus({ purpose: 'backup' })
+  ).resolves.toEqual({
+    diskPath: UsbDiskDevPathSchema.decode('/dev/sdc'),
+    fstype: 'ext4',
+    status: 'inserted',
+  });
+  await expect(
+    apiClient.getUsbDriveStatus({ purpose: 'data' })
+  ).resolves.toEqual({
+    diskPath: UsbDiskDevPathSchema.decode('/dev/sdb'),
+    fstype: 'exfat',
+    status: 'removed',
+  });
+
+  await apiClient.insertUsbDrive({ purpose: 'data' });
+  await apiClient.clearUsbDrive({ purpose: 'backup' });
+  await expect(
+    apiClient.getUsbDriveStatus({ purpose: 'backup' })
+  ).resolves.toEqual({
+    diskPath: UsbDiskDevPathSchema.decode('/dev/sdc'),
+    fstype: 'ext4',
+    status: 'inserted',
+  });
+
+  await apiClient.removeUsbDrive({ purpose: 'backup' });
+  await expect(
+    apiClient.getUsbDriveStatus({ purpose: 'backup' })
+  ).resolves.toEqual({
+    diskPath: UsbDiskDevPathSchema.decode('/dev/sdc'),
+    fstype: 'ext4',
+    status: 'removed',
+  });
+  await expect(
+    apiClient.getUsbDriveStatus({ purpose: 'data' })
+  ).resolves.toEqual({
+    diskPath: UsbDiskDevPathSchema.decode('/dev/sdb'),
+    fstype: 'exfat',
+    status: 'inserted',
+  });
 });
