@@ -13,6 +13,13 @@ REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT" >/dev/null 2>&1
 MODE="${1:-auto}"
 
+# Migration names, without the file extension (node-pg-migrate records them in
+# the database that way), as of the given commit.
+list_migrations() { # <commit>
+  git ls-tree -r --name-only "$1" -- "$MIGRATION_DIR" |
+    grep -E '\.[jt]s$' | sed -E 's/\.[jt]s$//' | sort -u || true
+}
+
 validate_commits_vs_origin_main() {
   # Fetch origin/main if needed
   git rev-parse --verify --quiet origin/main >/dev/null ||
@@ -30,12 +37,9 @@ validate_commits_vs_origin_main() {
   # Clean tempfiles on exit
   trap 'rm -f "$merge_base_tempfile" "$origin_main_tempfile" "$head_tempfile"' EXIT
 
-  list_migrations() { # <commit> <outfile>
-    git ls-tree -r --name-only "$1" -- "$MIGRATION_DIR" | grep -E '\.js$' | sort -u >"$2" || true
-  }
-  list_migrations "$merge_base" "$merge_base_tempfile"
-  list_migrations origin/main "$origin_main_tempfile"
-  list_migrations HEAD "$head_tempfile"
+  list_migrations "$merge_base" >"$merge_base_tempfile"
+  list_migrations origin/main >"$origin_main_tempfile"
+  list_migrations HEAD >"$head_tempfile"
 
   # Diff against the rev where this branch split from main (the merge base).
   # Migrations on main from after that split must not count as deletions.
@@ -70,9 +74,14 @@ validate_head_vs_prev_commit() {
   git rev-parse --verify --quiet HEAD~1 >/dev/null ||
     git fetch --no-tags --depth=2 origin main:refs/remotes/origin/main
 
+  prev_tempfile="$(mktemp)"
+  head_tempfile="$(mktemp)"
+  trap 'rm -f "$prev_tempfile" "$head_tempfile"' EXIT
+  list_migrations HEAD~1 >"$prev_tempfile"
+  list_migrations HEAD >"$head_tempfile"
+
   # Check: migrations from previous commit must not be deleted or renamed
-  # Use directory path (not glob) since deleted/renamed files don't exist on disk
-  deleted_or_renamed="$(git diff --diff-filter=DR --name-only HEAD~1..HEAD -- "$MIGRATION_DIR" | grep -E '\.js$' || true)"
+  deleted_or_renamed="$(comm -23 "$prev_tempfile" "$head_tempfile" || true)"
   if [[ -n "$deleted_or_renamed" ]]; then
     echo "Commit deletes or renames migration(s):"
     printf "%s\n" "$deleted_or_renamed"
@@ -80,13 +89,10 @@ validate_head_vs_prev_commit() {
     exit 1
   fi
 
-  added_migrations="$(git diff --diff-filter=A --name-only HEAD~1..HEAD -- "$MIGRATION_DIR" | grep -E '\.js$' || true)"
+  added_migrations="$(comm -13 "$prev_tempfile" "$head_tempfile" || true)"
   [[ -z "$added_migrations" ]] && exit 0
 
-  prev_newest_migration="$(
-    git ls-tree -r --name-only HEAD~1 -- "$MIGRATION_DIR" |
-      grep -E '\.js$' | sort | tail -n1 || true
-  )"
+  prev_newest_migration="$(tail -n1 "$prev_tempfile" || true)"
 
   # Ensure all added migrations are timestamped after previous newest migration
   fail=0

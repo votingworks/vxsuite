@@ -3,9 +3,7 @@
   "include": ["migrations", "scripts", "src", "test"],
   "exclude": [],
   "compilerOptions": {
-    "allowJs": true,
     "composite": true,
-    "checkJs": true,
     "noUnusedParameters": true
   },
   "references": [

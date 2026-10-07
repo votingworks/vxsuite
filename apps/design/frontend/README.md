@@ -89,7 +89,7 @@ pnpm db:migrations:create descriptive-name-for-migration
 
 The above will create a file in `apps/design/backend/migrations` with the
 provided name and timestamp prefix. e.g.
-`1742239962751_descriptive-name-for-migration.js`. Edit the file to define all
+`1742239962751_descriptive-name-for-migration.ts`. Edit the file to define all
 the necessary schema changes. If you need help, take a look at previous
 migration scripts, or the
 [`node-pg-migrate`](https://salsita.github.io/node-pg-migrate/migrations/)

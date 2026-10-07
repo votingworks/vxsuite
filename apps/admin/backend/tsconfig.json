@@ -3,7 +3,6 @@
   "include": ["src", "test", "benchmarks"],
   "exclude": [],
   "compilerOptions": {
-    "allowJs": true,
     "composite": true,
     "noUnusedParameters": true
   },
