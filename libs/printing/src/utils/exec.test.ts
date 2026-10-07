@@ -5,8 +5,8 @@ import { Readable } from 'node:stream';
 import { err, iter, ok, sleep } from '@votingworks/basics';
 import { exec } from './exec.js';
 
-const argsWorkerPath = join(import.meta.dirname, '../../test/args_worker.js');
-const echoWorkerPath = join(import.meta.dirname, '../../test/echo_worker.js');
+const argsWorkerPath = join(import.meta.dirname, '../../test/args_worker.ts');
+const echoWorkerPath = join(import.meta.dirname, '../../test/echo_worker.ts');
 
 test('command with no args', async () => {
   const execPromise = exec('date');
