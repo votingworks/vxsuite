@@ -5,7 +5,6 @@
   "compilerOptions": {
     "allowJs": true,
     "composite": true,
-    "lib": ["esnext", "dom"],
     "noUnusedParameters": true
   },
   "references": [

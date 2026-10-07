@@ -92,7 +92,8 @@ export async function* pdfToImages(
     canvas.height = viewport.height;
 
     await page.render({
-      canvas,
+      // pdfjs's types want a DOM canvas; it only uses the 2D drawing API.
+      canvas: canvas as unknown as HTMLCanvasElement,
       viewport,
       background,
     }).promise;

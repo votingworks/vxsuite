@@ -4,7 +4,11 @@
     // NodeJS/Electron, but don't yet target ES2021 syntax since some of our
     // tooling can't handle it (i.e. react-scripts).
     "target": "ES2019",
-    "lib": ["ES2021"],
+
+    // Browser and Node packages share this config, so every package sees the
+    // DOM types; ESLint's `no-restricted-globals` keeps browser-only globals
+    // out of non-browser packages.
+    "lib": ["dom", "dom.iterable", "esnext"],
 
     // TypeScript 7 changed the `types` default from automatically including all
     // installed `@types/*` packages to an empty list. Restore the previous

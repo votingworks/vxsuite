@@ -49,6 +49,7 @@ export function createDocument(pageHandle: PageHandle) {
       // than running JS directly in the browser. We use `evaluate` to run the
       // given function in the browser and return the result.
       /* istanbul ignore next - code is evaluated in browser and doesn't work with coverage */
+      /* eslint-disable no-restricted-globals -- runs in the browser */
       await pageHandle.page().evaluate(
         // eslint-disable-next-line @typescript-eslint/no-shadow
         ([selector, content]) => {
@@ -91,6 +92,7 @@ export function createDocument(pageHandle: PageHandle) {
         },
         [selector, htmlContent]
       );
+      /* eslint-enable no-restricted-globals */
     },
 
     /**
@@ -112,6 +114,7 @@ export function createDocument(pageHandle: PageHandle) {
       return await pageHandle.page().evaluate(
         // eslint-disable-next-line @typescript-eslint/no-shadow
         (selector) => {
+          // eslint-disable-next-line no-restricted-globals
           const nodes = Array.from(document.querySelectorAll(selector));
           return nodes.map((node) => {
             const bounds = node.getBoundingClientRect();

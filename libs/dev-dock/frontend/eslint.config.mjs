@@ -1,7 +1,7 @@
-import { recommended } from 'eslint-plugin-vx';
+import { react } from 'eslint-plugin-vx';
 
 export default [
-  ...recommended,
+  ...react,
   {
     rules: {
       'vx/gts-jsdoc': 'off',

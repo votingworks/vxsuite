@@ -6,7 +6,6 @@
     "allowJs": true,
     "composite": true,
     "checkJs": true,
-    "lib": ["esnext"],
     "noUnusedParameters": true
   },
   "references": [

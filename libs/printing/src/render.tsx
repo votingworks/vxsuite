@@ -62,11 +62,11 @@ const CONTENT_WRAPPER_ID = 'content-wrapper';
 /* istanbul ignore next - code is evaluated in browser and doesn't work with coverage */
 function getContentHeight(page: Page): Promise<number> {
   return page.evaluate(() => {
-    const rect = (
-      document.getElementById(
-        'content-wrapper' // CONTENT_WRAPPER_ID not defined in this scope
-      ) as HTMLElement
-    ).getBoundingClientRect();
+    // eslint-disable-next-line no-restricted-globals
+    const wrapper = document.getElementById(
+      'content-wrapper' // CONTENT_WRAPPER_ID not defined in this scope
+    ) as HTMLElement;
+    const rect = wrapper.getBoundingClientRect();
     return rect.height + rect.top;
   });
 }

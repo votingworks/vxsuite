@@ -3,7 +3,6 @@
   "include": ["src", "src/**/*.json", "test"],
   "exclude": [],
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
     "composite": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true

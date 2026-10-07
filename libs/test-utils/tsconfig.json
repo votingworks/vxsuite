@@ -3,8 +3,7 @@
   "include": ["src"],
   "exclude": [],
   "compilerOptions": {
-    "composite": true,
-    "lib": ["dom", "dom.iterable", "esnext"]
+    "composite": true
   },
   "references": [
     { "path": "../../libs/coverage-check/tsconfig.build.json" },

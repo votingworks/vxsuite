@@ -7,6 +7,7 @@ import { createWriteStream, createReadStream } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
+import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
 import { pipeline } from 'node:stream/promises';
 import {
   NETWORK_EVENT_LIMIT,
@@ -317,10 +318,14 @@ export class PeerStore extends Store {
         return err('pollbook-connection-problem');
       }
       // Save to a temp file. The global `fetch` returns a web `ReadableStream`
-      // body, so adapt it to a Node stream for `pipeline`.
+      // body, so adapt it to a Node stream for `pipeline`. Its type is the DOM
+      // one from `lib`, which `fromWeb` does not accept.
       assert(response.body !== null);
       const fileStream = createWriteStream(tempPath);
-      await pipeline(Readable.fromWeb(response.body), fileStream);
+      await pipeline(
+        Readable.fromWeb(response.body as NodeReadableStream<Uint8Array>),
+        fileStream
+      );
       // Read and parse the pollbook package
       const pollbookPackageResult = await readPollbookPackage(tempPath);
       if (pollbookPackageResult.isErr()) {

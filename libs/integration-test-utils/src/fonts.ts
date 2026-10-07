@@ -18,10 +18,12 @@ export function defineFontInstallationTest(): void {
 
     // Wait for fonts to load:
     await page.evaluate(
+      // eslint-disable-next-line no-restricted-globals
       async () => await document.fonts.load(`1rem 'Vx Roboto'`)
     );
 
     expect(
+      // eslint-disable-next-line no-restricted-globals
       await page.evaluate(() => document.fonts.check(`1rem 'Vx Roboto'`))
     ).toEqual(true);
   });

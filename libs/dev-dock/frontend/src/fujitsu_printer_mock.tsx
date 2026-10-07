@@ -2,7 +2,7 @@ import type { PrinterStatus } from '@votingworks/fujitsu-thermal-printer';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import styled from 'styled-components';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import React from 'react';
+import type React from 'react';
 import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,

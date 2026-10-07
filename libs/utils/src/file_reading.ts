@@ -1,44 +1,5 @@
 import JsZip, { type JSZipObject } from 'jszip';
-import { Buffer } from 'node:buffer';
-
-// @coverage-defer
-export function readFileAsyncAsString(file: File): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const { result } = reader;
-      resolve(typeof result === 'string' ? result : '');
-    };
-    reader.onerror = () => {
-      reject(reader.error);
-    };
-    reader.readAsText(file);
-  });
-}
-
-// @coverage-defer
-export function readFile(file: File): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onerror =
-      // @coverage-exclude
-      () => {
-        reject(reader.error);
-      };
-
-    reader.onload = () => {
-      if (!reader.result) {
-        resolve(Buffer.from([]));
-        return;
-      }
-
-      resolve(Buffer.from(reader.result as ArrayBuffer));
-    };
-
-    reader.readAsArrayBuffer(file);
-  });
-}
+import type { Buffer } from 'node:buffer';
 
 /**
  * Builds a zip archive from named files. Entries are stored uncompressed —

@@ -5,7 +5,6 @@
   "compilerOptions": {
     "allowJs": true,
     "composite": true,
-    "lib": ["dom", "dom.iterable", "esnext"],
     "noUnusedParameters": true
   },
   "references": [

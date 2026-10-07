@@ -202,6 +202,7 @@ async function measureBallotHeight(
 
   // Measure actual content height
   const contentHeight = await page.evaluate((wrapperId: string) => {
+    // eslint-disable-next-line no-restricted-globals
     const wrapper = document.getElementById(wrapperId);
     if (!wrapper) return 0;
     const rect = wrapper.getBoundingClientRect();

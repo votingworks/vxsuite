@@ -4,7 +4,6 @@
   "exclude": [],
   "compilerOptions": {
     "allowJs": true,
-    "lib": ["esnext"],
     "composite": true
   },
   "references": [

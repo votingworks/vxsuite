@@ -3,7 +3,6 @@
   "include": ["src/ts", "test"],
   "exclude": [],
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
     "composite": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true

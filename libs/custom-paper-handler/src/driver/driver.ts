@@ -257,7 +257,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     // @coverage-defer
     // Status choices are limited but 'babble' approximately fits the context. If this point is reached,
     // the host has received an unexpectedly large number of junk responses.
-    return new USBInTransferResult('babble');
+    return { status: 'babble' };
   }
 
   // @coverage-defer

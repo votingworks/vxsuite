@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.shared.json",
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
     "noUnusedParameters": true,
     "composite": true
   },

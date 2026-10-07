@@ -2,8 +2,7 @@
   "extends": "../../../tsconfig.shared.json",
   "compilerOptions": {
     "isolatedModules": false,
-    "allowJs": true,
-    "lib": ["dom", "dom.iterable", "esnext"]
+    "allowJs": true
   },
   "include": ["**/*.ts"],
   "exclude": [],

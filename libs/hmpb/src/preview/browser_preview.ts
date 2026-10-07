@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals -- runs in the browser */
 import './polyfills.js';
 import {
   type BaseBallotProps,

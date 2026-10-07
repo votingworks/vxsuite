@@ -14,6 +14,18 @@ const compat = new FlatCompat({ baseDirectory: import.meta.dirname });
 /** TypeScript source extensions, for rules that must not apply to JS files. */
 const TS_FILES = ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts'];
 
+/**
+ * Globals that exist in browsers but not in Node. The shared tsconfig includes
+ * the DOM lib for every package, so TypeScript alone no longer catches
+ * non-browser code reaching for e.g. `window` or `document`.
+ */
+const BROWSER_ONLY_GLOBALS = Object.keys(globals.browser)
+  .filter((name) => !(name in globals.node))
+  .map((name) => ({
+    name,
+    message: `'${name}' is a browser-only global; this package is not browser code.`,
+  }));
+
 export interface RecommendedOptions {
   /**
    * Include the React/JSX layer: the full airbnb config instead of airbnb-base,
@@ -258,7 +270,7 @@ export default function buildRecommended(
               'prompt',
               'print',
             ]
-          : ['error', 'Buffer'],
+          : ['error', 'Buffer', ...BROWSER_ONLY_GLOBALS],
         'no-restricted-properties': [
           'error',
           {

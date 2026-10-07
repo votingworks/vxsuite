@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals -- runs in the browser */
 import { Buffer } from 'node:buffer';
 import ReactDomServer from 'react-dom/server';
 import {
