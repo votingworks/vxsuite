@@ -3,8 +3,7 @@
   "include": ["src", "src/data/*.json", "src/data/*.zip", "test"],
   "exclude": [],
   "compilerOptions": {
-    "composite": true,
-    "noImplicitReturns": true
+    "composite": true
   },
   "references": [
     { "path": "../../libs/coverage-check/tsconfig.build.json" },

@@ -3,8 +3,7 @@
   "include": ["src/ts", "test"],
   "exclude": [],
   "compilerOptions": {
-    "composite": true,
-    "noImplicitReturns": true
+    "composite": true
   },
   "references": [
     { "path": "../../libs/coverage-check/tsconfig.build.json" },

@@ -1,8 +1,7 @@
 {
   "extends": "../../tsconfig.shared.json",
   "compilerOptions": {
-    "composite": true,
-    "noImplicitReturns": true
+    "composite": true
   },
   "include": ["src"],
   "exclude": [],
