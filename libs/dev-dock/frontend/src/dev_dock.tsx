@@ -494,7 +494,7 @@ interface ScreenshotToSaveProps {
   fileName: string;
 }
 
-const ScreenshotModal = styled(Modal)`
+const DevDockModal = styled(Modal)`
   background-color: ${Colors.BACKGROUND};
   border-color: ${Colors.BORDER} !important;
   color: ${Colors.TEXT} !important;
@@ -543,7 +543,7 @@ function SaveFileModal({
   });
 
   return (
-    <ScreenshotModal
+    <DevDockModal
       title={title}
       onOverlayClick={cancel}
       content={
@@ -876,6 +876,85 @@ function HardwareMockControls() {
           </UsbMocksDisabledMessage>
         )}
       </IconButton>
+    </React.Fragment>
+  );
+}
+
+function BarcodeScanMockControl() {
+  const apiClient = useApiClient();
+  const emitBarcodeScanMutation = useMutation(apiClient.emitBarcodeScan);
+  const [isOpen, setIsOpen] = useState(false);
+  const [payload, setPayload] = useState('{"ballotStyleId":""}');
+  const isBarcodeMockEnabled = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER
+  );
+
+  function onScan() {
+    emitBarcodeScanMutation.mutate({ payload });
+    setIsOpen(false);
+  }
+
+  return (
+    <React.Fragment>
+      <IconButton
+        isActive={false}
+        disabled={!isBarcodeMockEnabled}
+        onClick={() => setIsOpen(true)}
+        aria-label="Barcode Scan"
+      >
+        <FontAwesomeIcon icon={faQrcode} size="2xl" />
+        <span>Scan</span>
+        {!isBarcodeMockEnabled && (
+          <UsbMocksDisabledMessage>
+            <p>Hardware mock disabled</p>
+          </UsbMocksDisabledMessage>
+        )}
+      </IconButton>
+      {isOpen && (
+        <DevDockModal
+          title="Barcode Scan"
+          onOverlayClick={() => setIsOpen(false)}
+          content={
+            <React.Fragment>
+              <P>Barcode contents:</P>
+              <input
+                type="text"
+                value={payload}
+                aria-label="Barcode Contents"
+                onChange={(e) => setPayload(e.target.value)}
+                onKeyDown={(e) => {
+                  // Prevent keyDown event from triggering PAT "1" and "2" signals
+                  e.stopPropagation();
+                }}
+                autoComplete="off"
+                style={{ width: '100%' }}
+              />
+            </React.Fragment>
+          }
+          actions={
+            <React.Fragment>
+              <Button
+                autoFocus
+                onPress={onScan}
+                style={{
+                  backgroundColor: Colors.ACTIVE,
+                  color: Colors.BACKGROUND,
+                }}
+              >
+                Scan
+              </Button>
+              <Button
+                onPress={() => setIsOpen(false)}
+                style={{
+                  backgroundColor: 'white',
+                }}
+              >
+                Cancel
+              </Button>
+            </React.Fragment>
+          }
+        />
+      )}
     </React.Fragment>
   );
 }
@@ -1240,7 +1319,7 @@ function ScreenRecordingControls({
         <FontAwesomeIcon icon={isRecording ? faStop : faVideo} size="2x" />
       </RecordingButton>
       {errorMessage && (
-        <ScreenshotModal
+        <DevDockModal
           title="Screen Recording Failed"
           onOverlayClick={dismissError}
           content={<P>{errorMessage}</P>}
@@ -1647,6 +1726,7 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
               {(mockSpec.hasBarcodeMock || mockSpec.hasPatInputMock) && (
                 <HardwareMockControls />
               )}
+              {mockSpec.hasBarcodeScanMock && <BarcodeScanMockControl />}
               {mockSpec.hasQuickConfigure && isQuickConfigureEnabled && (
                 <QuickConfigureButton />
               )}
