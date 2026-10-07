@@ -146,22 +146,6 @@ test('it works', () => {
 });
 ```
 
-### tsconfig settings
-
-Grout works out of the box with our default `tsconfig.json` settings. However,
-you can enable VS Code's "Go to Definition" feature by turning on
-`compilerOptions.declarationMap` in your server-side `tsconfig.build.json`. This
-will allow you to Cmd+Click on a method name in the client code and jump to the
-server-side implementation.
-
-```json
-{
-  "compilerOptions": {
-    "declarationMap": true
-  }
-}
-```
-
 ## HTTP Transport Details
 
 Grout uses HTTP POST requests for all RPC method calls.

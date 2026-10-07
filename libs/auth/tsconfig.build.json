@@ -5,7 +5,6 @@
   "compilerOptions": {
     "tsBuildInfoFile": "build/tsconfig.build.tsbuildinfo",
     "declaration": true,
-    "declarationMap": true,
     "noEmit": false,
     "outDir": "build",
     "rootDir": "src"
