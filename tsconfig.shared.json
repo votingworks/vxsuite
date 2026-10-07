@@ -1,9 +1,8 @@
 {
   "compilerOptions": {
     // Allow use of newer APIs since we're in recent enough versions of
-    // NodeJS/Electron, but don't yet target ES2021 syntax since some of our
-    // tooling can't handle it (i.e. react-scripts).
-    "target": "ES2019",
+    // NodeJS/Electron.
+    "target": "es2025",
 
     // Browser and Node packages share this config, so every package sees the
     // DOM types; ESLint's `no-restricted-globals` keeps browser-only globals
