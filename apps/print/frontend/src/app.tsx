@@ -46,9 +46,7 @@ import { PollWorkerApp } from './poll_worker_app.js';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker.js';
 
 function AppRoot({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  logger,
-
+  logger: _logger,
   apiClient,
 }: {
   logger: BaseLogger;

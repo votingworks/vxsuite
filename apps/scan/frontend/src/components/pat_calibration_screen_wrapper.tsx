@@ -69,8 +69,7 @@ export function PatCalibrationScreenWrapper({
   centerContent,
   actionButtons,
   // hideMenuButtons is required by PatDeviceCalibrationPage interface but not used in VxScan
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  hideMenuButtons,
+  hideMenuButtons: _hideMenuButtons,
 }: {
   children: React.ReactNode;
   centerContent?: boolean;

@@ -7,10 +7,7 @@ import type { Mocked, vi } from 'vitest';
 import type { MachineCustomCertFields } from './certs.js';
 import { DEV_JURISDICTION } from './jurisdictions.js';
 import type { DippedSmartCardAuthApi } from './dipped_smart_card_auth_api.js';
-import type {
-  InsertedSmartCardAuthApi,
-  InsertedSmartCardAuthMachineState,
-} from './inserted_smart_card_auth_api.js';
+import type { InsertedSmartCardAuthApi } from './inserted_smart_card_auth_api.js';
 
 /**
  * Builds a mock dipped smart card auth instance for application-level tests
@@ -37,8 +34,7 @@ export function buildMockInsertedSmartCardAuth(
   fn: typeof vi.fn
 ): Mocked<InsertedSmartCardAuthApi> {
   return {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    getAuthStatus: fn((machineState: InsertedSmartCardAuthMachineState) =>
+    getAuthStatus: fn(() =>
       Promise.resolve(InsertedSmartCardAuthTypes.DEFAULT_AUTH_STATUS)
     ),
     checkPin: fn(),

@@ -10,7 +10,7 @@ function hasText(text: string, node: HTMLElement) {
 
 export function withMarkup<T>(query: Query<T>) {
   return (text: string): T =>
-    query((content: string, node: Element | null) => {
+    query((_content: string, node: Element | null) => {
       if (!node || !(node instanceof HTMLElement)) return false;
       const childrenDontHaveText = Array.from(node.children).every(
         (child) => !hasText(text, child as HTMLElement)

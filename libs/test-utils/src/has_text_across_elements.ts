@@ -2,7 +2,7 @@
 import type { Matcher } from '@testing-library/react';
 
 export function hasTextAcrossElements(text: string | RegExp): Matcher {
-  function matcher(content: string, node: Element | null) {
+  function matcher(_content: string, node: Element | null) {
     function hasText(n: Element) {
       if (typeof text === 'string') {
         return n.textContent === text;
