@@ -196,6 +196,7 @@ export interface MockSpec {
   // Optional hardware mocks provided by the host app
   getBarcodeConnected?: () => boolean;
   setBarcodeConnected?: (connected: boolean) => void;
+  emitBarcodeScan?: (payload: string) => void;
   getPatInputConnected?: () => boolean;
   setPatInputConnected?: (connected: boolean) => void;
   getAccessibleControllerConnected?: () => boolean;
@@ -210,6 +211,7 @@ interface SerializableMockSpec extends Omit<
   | 'mockBatchScanner'
   | 'mockBackupUsbDrive'
   | 'setBarcodeConnected'
+  | 'emitBarcodeScan'
   | 'setAccessibleControllerConnected'
   | 'setPatInputConnected'
   | 'getBarcodeConnected'
@@ -221,6 +223,7 @@ interface SerializableMockSpec extends Omit<
   mockBatchScanner?: boolean;
   mockBackupUsbDrive?: boolean;
   hasBarcodeMock?: boolean;
+  hasBarcodeScanMock?: boolean;
   hasPatInputMock?: boolean;
   hasAccessibleControllerMock?: boolean;
   hasQuickConfigure?: boolean;
@@ -398,6 +401,7 @@ function buildApi(
         hasBarcodeMock:
           Boolean(mockSpec.getBarcodeConnected) &&
           Boolean(mockSpec.setBarcodeConnected),
+        hasBarcodeScanMock: Boolean(mockSpec.emitBarcodeScan),
         hasAccessibleControllerMock:
           Boolean(mockSpec.getAccessibleControllerConnected) &&
           Boolean(mockSpec.setAccessibleControllerConnected),
@@ -628,6 +632,10 @@ function buildApi(
 
     setBarcodeConnected(input: { connected: boolean }): void {
       mockSpec.setBarcodeConnected?.(input.connected);
+    },
+
+    emitBarcodeScan(input: { payload: string }): void {
+      mockSpec.emitBarcodeScan?.(input.payload);
     },
 
     setAccessibleControllerConnected(input: { connected: boolean }): void {
