@@ -294,11 +294,14 @@ follows:
    coordinates, computing the four corners of the write-in area as a
    quadrilateral (to account for skew and distortion).
 
-2. **Score Computation**: The score is the ratio of dark (foreground) pixels to
-   total pixels within the quadrilateral area. This ratio represents how much of
-   the write-in area contains ink or markings.
+2. **Ink Area Computation**: The ratio of dark (foreground) pixels to total
+   pixels within the quadrilateral is multiplied by the area's physical size,
+   its width and height in grid units times the timing-mark pitch for the
+   detected paper size, giving the amount of ink in mm².
 
-The score is later compared to a threshold to determine whether handwriting is
-present, but the core function simply computes the score and lets the caller
-decide how to interpret it. This enables detection of write-in votes even when
-the corresponding bubble is not filled in.
+The ink area is later compared to the `writeInInkAreaMm2` mark threshold to
+determine whether handwriting is present; the core function simply computes the
+ink area and lets the caller decide how to interpret it. A physical amount means
+the same handwriting decides every write-in area regardless of its size, its
+shape, or the scan's resolution. This enables detection of write-in votes even
+when the corresponding bubble is not filled in.

@@ -2747,6 +2747,7 @@ test('get/update system settings', async () => {
     markThresholds: {
       definite: 0.9,
       marginal: 0.8,
+      writeInInkAreaMm2: 8,
     },
     precinctScanAdjudicationReasons: [AdjudicationReason.Overvote],
     centralScanAdjudicationReasons: [
@@ -2774,6 +2775,7 @@ test('get/update system settings', async () => {
           markThresholds: {
             definite: 1.1, // Must be <= 1
             marginal: 1.1,
+            writeInInkAreaMm2: 8,
           },
         },
       })

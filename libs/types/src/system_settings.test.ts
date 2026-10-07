@@ -3,6 +3,7 @@ import { err, ok } from '@votingworks/basics';
 import { z } from 'zod/v4';
 
 import {
+  DEFAULT_MARK_THRESHOLDS,
   DEFAULT_SYSTEM_SETTINGS,
   safeParseSystemSettings,
 } from './system_settings.js';
@@ -185,4 +186,44 @@ test('parses supported ballot image bit depths only', () => {
       ).unsafeUnwrapErr()
     ).toBeInstanceOf(z.ZodError);
   }
+});
+
+test('fills in the write-in ink area threshold, converting a legacy fraction', () => {
+  function parse(markThresholds: object) {
+    return safeParseSystemSettings(
+      JSON.stringify({ ...DEFAULT_SYSTEM_SETTINGS, markThresholds })
+    ).unsafeUnwrap().markThresholds;
+  }
+
+  expect(DEFAULT_MARK_THRESHOLDS.writeInInkAreaMm2).toEqual(4);
+  expect(parse({ marginal: 0.05, definite: 0.07 })).toEqual({
+    marginal: 0.05,
+    definite: 0.07,
+    writeInInkAreaMm2: 4,
+  });
+  expect(
+    parse({ marginal: 0.05, definite: 0.07, writeInInkAreaMm2: 12 })
+  ).toEqual({ marginal: 0.05, definite: 0.07, writeInInkAreaMm2: 12 });
+  expect(
+    parse({ marginal: 0.05, definite: 0.07, writeInTextArea: 0.025 })
+  ).toEqual({ marginal: 0.05, definite: 0.07, writeInInkAreaMm2: 3.97 });
+  expect(parse({ marginal: 0.05, definite: 0.07, writeInTextArea: 0 })).toEqual(
+    { marginal: 0.05, definite: 0.07, writeInInkAreaMm2: 0 }
+  );
+  expect(
+    parse({
+      marginal: 0.05,
+      definite: 0.07,
+      writeInTextArea: 0.025,
+      writeInInkAreaMm2: 12,
+    })
+  ).toEqual({ marginal: 0.05, definite: 0.07, writeInInkAreaMm2: 12 });
+  expect(
+    safeParseSystemSettings(
+      JSON.stringify({
+        ...DEFAULT_SYSTEM_SETTINGS,
+        markThresholds: { marginal: 0.05, definite: 0.07, writeInTextArea: 2 },
+      })
+    ).unsafeUnwrapErr()
+  ).toBeInstanceOf(z.ZodError);
 });

@@ -56,6 +56,7 @@ test('going through the whole process works - HMPB', async () => {
           markThresholds: {
             definite: 0.08,
             marginal: 0.05,
+            writeInInkAreaMm2: 8,
           },
         },
       })

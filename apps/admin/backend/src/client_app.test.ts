@@ -155,6 +155,7 @@ test('getSystemSettings returns cached settings from host', async () => {
     markThresholds: {
       definite: 0.12,
       marginal: 0.08,
+      writeInInkAreaMm2: 8,
     },
   };
   env.workspace.clientStore.setCachedSystemSettings(customSettings);

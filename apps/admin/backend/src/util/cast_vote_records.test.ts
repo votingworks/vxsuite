@@ -257,7 +257,7 @@ test('marginal mark', () => {
       mockVotes(),
       0,
       { 'best-animal-mammal': { fox: 0.15 } },
-      { marginal: 0.12, definite: 0.2, writeInTextArea: 0.12 }
+      { marginal: 0.12, definite: 0.2, writeInInkAreaMm2: 8 }
     )
   ).toEqual<CastVoteRecordAdjudicationFlags>({
     isBlank: false,
@@ -276,7 +276,7 @@ test('no marginal mark when scores are above definite', () => {
       mockVotes(),
       0,
       { 'best-animal-mammal': { fox: 0.5 } },
-      { marginal: 0.12, definite: 0.2, writeInTextArea: 0.12 }
+      { marginal: 0.12, definite: 0.2, writeInInkAreaMm2: 8 }
     )
   ).toEqual<CastVoteRecordAdjudicationFlags>({
     isBlank: false,
@@ -323,7 +323,7 @@ const candidateContest = assertDefined(
 const DEFAULT_THRESHOLDS: MarkThresholds = {
   marginal: 0.05,
   definite: 0.07,
-  writeInTextArea: 0.05,
+  writeInInkAreaMm2: 8,
 };
 
 // eslint-disable-next-line vx/gts-object-literal-types

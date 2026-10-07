@@ -37,7 +37,7 @@ import {
 import {
   type Election,
   type ElectionDefinition,
-  type MarkThresholds,
+  DEFAULT_MARK_THRESHOLDS,
   type PageInterpretation,
   type PageInterpretationType,
   pollingPlaceFromElection,
@@ -1236,11 +1236,7 @@ export function buildMachine(
                     electionDefinition.election.precincts[0]!.id,
                   ]);
 
-                  const markThresholds: MarkThresholds = {
-                    marginal: 0.05,
-                    definite: 0.07,
-                    writeInTextArea: 0.05,
-                  };
+                  const markThresholds = DEFAULT_MARK_THRESHOLDS;
 
                   return interpretSimplexBmdBallot(
                     (

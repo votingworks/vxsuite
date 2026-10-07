@@ -878,7 +878,7 @@ test('adjudication', async ({ page }, testInfo) => {
       AdjudicationReason.MarginalMark,
       AdjudicationReason.BlankBallot,
     ],
-    markThresholds: { marginal: 0.05, definite: 0.1 },
+    markThresholds: { marginal: 0.05, definite: 0.1, writeInInkAreaMm2: 8 },
   };
 
   const { screenshot, screenshotWithButtonHighlight } =

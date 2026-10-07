@@ -139,9 +139,6 @@ function shouldScoreWriteIns(options: InterpreterOptions): boolean {
   );
 }
 
-// TODO: Replace usage of this with write-in thresholds specific to each write-in
-const TEMPORARY_DEFAULT_WRITE_IN_AREA_THRESHOLD = 0.05;
-
 /**
  * Determining marks, adjudication status, and and unmarked write-ins share similar
  * checks and thresholds, so we aggregate information here as a conversion intermediary.
@@ -180,12 +177,8 @@ function aggregateContestOptionScores({
     const scoredWriteInArea = expectScoredWriteInArea
       ? findScoredWriteInAreaForGridPosition(writeIns, gridPosition)
       : undefined;
-    const writeInTextAreaThreshold =
-      options.markThresholds.writeInTextArea ??
-      // @coverage-exclude
-      TEMPORARY_DEFAULT_WRITE_IN_AREA_THRESHOLD;
     const writeInAreaStatus = scoredWriteInArea
-      ? scoredWriteInArea.score >= writeInTextAreaThreshold
+      ? scoredWriteInArea.inkAreaMm2 >= options.markThresholds.writeInInkAreaMm2
         ? WriteInAreaStatus.Filled
         : WriteInAreaStatus.Unfilled
       : WriteInAreaStatus.Ignored;

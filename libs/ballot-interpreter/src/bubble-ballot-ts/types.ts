@@ -137,7 +137,7 @@ export type ScoredBubbleMarks = Array<
 export interface ScoredPositionArea {
   gridPosition: GridPosition;
   shape: Quadrilateral;
-  score: UnitIntervalScore;
+  inkAreaMm2: number;
 }
 
 /** Metadata from the ballot card. */
