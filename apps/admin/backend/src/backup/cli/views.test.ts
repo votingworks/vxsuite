@@ -22,7 +22,10 @@ const manifest = BackupManifest.fromStruct(
       id: 'election-1',
       title: 'General Election',
       date: '2026-11-03',
+      jurisdictionName: 'Franklin County',
+      state: 'State of Hamilton',
     },
+    cvrCount: 1,
     files: [
       { path: 'data/election.db', hash: '0a'.repeat(32), size: 1024 },
       { path: 'logs/vx-logs.log', hash: '1b'.repeat(32), size: 512 },

@@ -96,17 +96,20 @@ const MANIFEST_CREATED_AT = '2026-08-18T12:00:00.000Z';
 
 async function writeManifest(backupPath: string): Promise<void> {
   const manifestFileContents = JSON.stringify(
-    new BackupManifest(
-      '4.0.0',
-      'VX-00-001',
-      MANIFEST_CREATED_AT,
-      {
+    new BackupManifest({
+      softwareVersion: '4.0.0',
+      machineId: 'VX-00-001',
+      createdAt: MANIFEST_CREATED_AT,
+      election: {
         id: 'election-1',
         title: 'General Election',
         date: new DateWithoutTime('2026-11-03'),
+        jurisdictionName: 'Franklin County',
+        state: 'State of Hamilton',
       },
-      [{ path: 'data/election.db', hash: '0a'.repeat(32), size: 1024 }]
-    )
+      cvrCount: 1,
+      files: [{ path: 'data/election.db', hash: '0a'.repeat(32), size: 1024 }],
+    })
   );
   await writeSignedManifest(backupPath, manifestFileContents);
 }

@@ -201,6 +201,8 @@ test('reads election metadata without parsing the election definition', async ()
     id: election.id,
     title: election.title,
     date: election.date,
+    jurisdictionName: election.jurisdiction.name,
+    state: election.state,
   });
   expect(store.getElectionBasedSubfolderName(electionId)).toEqual(
     generateElectionBasedSubfolderName(election, electionDefinition.ballotHash)
@@ -232,6 +234,8 @@ test('reads election metadata from a CDF election definition', async () => {
     id: election.id,
     title: election.title,
     date: election.date,
+    jurisdictionName: election.jurisdiction.name,
+    state: election.state,
   });
   expect(store.getElectionBasedSubfolderName(electionId)).toEqual(
     generateElectionBasedSubfolderName(
@@ -563,6 +567,73 @@ test('getScannerImportCounts groups cvr and batch counts by scanner', async () =
     'scanner-1': { cvrCount: 3, batchCount: 2 },
     'scanner-2': { cvrCount: 1, batchCount: 1 },
   });
+});
+
+test('getCastVoteRecordCount counts the CVRs of one election', async () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const electionId = await store.addElection({
+    electionData: electionDefinition.electionData,
+    ballotHash: electionDefinition.ballotHash,
+    systemSettingsData,
+    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageHash: 'test-election-package-hash',
+  });
+  const otherElectionDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+  const otherElectionId = await store.addElection({
+    electionData: otherElectionDefinition.electionData,
+    ballotHash: otherElectionDefinition.ballotHash,
+    systemSettingsData,
+    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageHash: 'other-election-package-hash',
+  });
+
+  expect(store.getCastVoteRecordCount(electionId)).toEqual(0);
+  expect(store.getCastVoteRecordCount(otherElectionId)).toEqual(0);
+
+  function mockCvrs(
+    election: Election,
+    batchId: string,
+    count: number
+  ): MockCastVoteRecordFile {
+    const ballotStyleGroup = assertDefined(
+      getGroupedBallotStyles(election.ballotStyles)[0]
+    );
+    const precinct = assertDefined(election.precincts[0]);
+    return [
+      {
+        ballotStyleGroupId: ballotStyleGroup.id,
+        batchId,
+        scannerId: 'scanner-1',
+        precinctId: precinct.id,
+        votingMethod: 'precinct',
+        votes: {},
+        card: { type: 'bmd' },
+        multiplier: count,
+      },
+    ];
+  }
+  addMockCvrFileToStore({
+    electionId,
+    store,
+    mockCastVoteRecordFile: mockCvrs(electionDefinition.election, 'batch-1', 3),
+    pollingPlaceId: 'polling-place-1',
+  });
+  addMockCvrFileToStore({
+    electionId: otherElectionId,
+    store,
+    mockCastVoteRecordFile: mockCvrs(
+      otherElectionDefinition.election,
+      'batch-2',
+      1
+    ),
+    pollingPlaceId: 'polling-place-1',
+  });
+
+  expect(store.getCastVoteRecordCount(electionId)).toEqual(3);
+  expect(store.getCastVoteRecordCount(otherElectionId)).toEqual(1);
 });
 
 test('getWriteInCandidates returns no candidates for an empty contestIds filter', async () => {

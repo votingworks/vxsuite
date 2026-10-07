@@ -535,13 +535,21 @@ export class Store implements BaseStore {
       select
         election_data ->> '$.id' as id,
         election_data ->> '$.title' as title,
-        election_data ->> '$.date' as date
+        election_data ->> '$.date' as date,
+        election_data ->> '$.jurisdiction.name' as jurisdictionName,
+        election_data ->> '$.state' as state
       from elections
       where id = ?
       `,
       electionId
     ) as
-      | { id: ElectionId | null; title: string | null; date: string | null }
+      | {
+          id: ElectionId | null;
+          title: string | null;
+          date: string | null;
+          jurisdictionName: string | null;
+          state: string | null;
+        }
       | undefined;
 
     if (!row) {
@@ -550,7 +558,13 @@ export class Store implements BaseStore {
 
     // As in {@link getElectionKey}, a CDF election has none of these fields at
     // the top level, so fall back to parsing it. CDF need not be fast.
-    if (!(row.id && row.title && row.date)) {
+    if (!(
+      row.id &&
+      row.title &&
+      row.date &&
+      row.jurisdictionName &&
+      row.state
+    )) {
       const { election } = assertDefined(
         this.getElection(electionId)
       ).electionDefinition;
@@ -559,6 +573,8 @@ export class Store implements BaseStore {
         id: election.id,
         title: election.title,
         date: election.date,
+        jurisdictionName: election.jurisdiction.name,
+        state: election.state,
       };
     }
 
@@ -566,6 +582,8 @@ export class Store implements BaseStore {
       id: row.id,
       title: row.title,
       date: new DateWithoutTime(row.date),
+      jurisdictionName: row.jurisdictionName,
+      state: row.state,
     };
   }
 
@@ -1247,6 +1265,19 @@ export class Store implements BaseStore {
         sha256Hash
       ) as { id: Id } | undefined
     )?.id;
+  }
+
+  getCastVoteRecordCount(electionId: Id): number {
+    return (
+      this.client.one(
+        `
+          select count(*) as cvrCount
+          from cvrs
+          where election_id = ?
+        `,
+        electionId
+      ) as { cvrCount: number }
+    ).cvrCount;
   }
 
   getCastVoteRecordCountByFileId(fileId: Id): number {
