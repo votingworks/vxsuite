@@ -1,8 +1,7 @@
 {
   "extends": "../../../tsconfig.shared.json",
   "compilerOptions": {
-    "isolatedModules": false,
-    "allowJs": true
+    "isolatedModules": false
   },
   "include": ["**/*.ts"],
   "exclude": [],
