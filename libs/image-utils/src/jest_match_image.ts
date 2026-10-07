@@ -7,6 +7,16 @@ import { dirname } from 'node:path';
 import pixelmatch from 'pixelmatch';
 import { createImageData, writeImageData } from './image_data.js';
 
+declare module 'vitest' {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface Matchers<R, T> {
+    toMatchImage(
+      expected: RgbaImageData,
+      options?: ToMatchImageOptions
+    ): Promise<void>;
+  }
+}
+
 /**
  * Options for the `toMatchImage` custom Jest matcher.
  */

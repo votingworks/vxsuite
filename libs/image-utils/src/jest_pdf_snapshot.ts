@@ -1,4 +1,5 @@
 import type * as vitest from 'vitest';
+import type { MatchImageSnapshotOptions } from 'jest-image-snapshot';
 import { assert } from '@votingworks/basics';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
@@ -6,6 +7,15 @@ import { basename, dirname, join } from 'node:path';
 import { getPdfPageCount, pdfToImages } from './pdf_to_images.js';
 import { toImageBuffer } from './image_data.js';
 import { normalizePdf } from './normalize_pdf.js';
+
+declare module 'vitest' {
+  // `jest-image-snapshot` only declares its matcher on Jest's `jest.Matchers`.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface Matchers<R, T> {
+    toMatchImageSnapshot(options?: MatchImageSnapshotOptions): R;
+    toMatchPdfSnapshot(options?: ToMatchPdfSnapshotOptions): Promise<void>;
+  }
+}
 
 /**
  * Options for `toMatchPdfSnapshot`.
