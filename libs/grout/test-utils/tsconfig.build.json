@@ -10,7 +10,7 @@
     "declaration": true
   },
   "references": [
-    { "path": "../../../libs/coverage-check/tsconfig.build.json" },
+    { "path": "../../coverage-check/tsconfig.build.json" },
     { "path": "../../grout/tsconfig.build.json" },
     { "path": "../../test-utils/tsconfig.build.json" }
   ]

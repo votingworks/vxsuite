@@ -9,5 +9,5 @@
     "outDir": "build",
     "declaration": true
   },
-  "references": [{ "path": "../../libs/coverage-check/tsconfig.build.json" }]
+  "references": [{ "path": "../coverage-check/tsconfig.build.json" }]
 }

@@ -8,7 +8,7 @@
   "include": ["src", "test"],
   "exclude": [],
   "references": [
-    { "path": "../../libs/coverage-check/tsconfig.build.json" },
+    { "path": "../coverage-check/tsconfig.build.json" },
     { "path": "../basics/tsconfig.build.json" },
     { "path": "../fixtures/tsconfig.build.json" },
     { "path": "../monorepo-utils/tsconfig.build.json" },

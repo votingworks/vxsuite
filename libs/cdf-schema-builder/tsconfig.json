@@ -6,7 +6,7 @@
   "include": ["src", "src/data/*.json", "test"],
   "exclude": [],
   "references": [
-    { "path": "../../libs/coverage-check/tsconfig.build.json" },
+    { "path": "../coverage-check/tsconfig.build.json" },
     { "path": "../basics/tsconfig.build.json" }
   ]
 }
