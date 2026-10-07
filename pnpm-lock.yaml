@@ -3662,6 +3662,9 @@ importers:
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../test-utils
+      '@votingworks/usb-drive':
+        specifier: workspace:*
+        version: link:../../usb-drive
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../eslint-plugin-vx

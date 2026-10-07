@@ -1,6 +1,8 @@
 import {
   mountedUsbDriveStatus,
   UsbDiskDevPathSchema,
+  type UsbDiskDevPath,
+  type UsbDriveFilesystemType,
   type UsbDriveStatus,
   type UsbPartitionMountpoint,
 } from '../types.js';
@@ -27,11 +29,14 @@ export interface MockUsbDriveHandler {
    * independent of whether the drive is currently inserted or mounted.
    */
   getDataPath: () => UsbPartitionMountpoint;
+  getDiskPath: () => UsbDiskDevPath;
+  getFilesystemType: () => UsbDriveFilesystemType;
   cleanup: () => void;
 }
 
 export function getMockUsbDriveHandler(
-  diskName = DEFAULT_DISK_NAME
+  diskName = DEFAULT_DISK_NAME,
+  fstype: UsbDriveFilesystemType = 'exfat'
 ): MockUsbDriveHandler {
   const platform = new SimulatedUsbPlatform(getMockUsbDirPath());
   const diskPath = UsbDiskDevPathSchema.decode(`/dev/${diskName}`);
@@ -56,7 +61,7 @@ export function getMockUsbDriveHandler(
     insert: (contents?: MockFileTree) => {
       const drive = findDrive();
       if (!drive) {
-        platform.createDrive({ diskPath, fstype: 'exfat', contents });
+        platform.createDrive({ diskPath, fstype, contents });
       } else if (contents) {
         platform.replaceDriveData(diskPath, contents);
       }
@@ -75,6 +80,8 @@ export function getMockUsbDriveHandler(
       }
     },
     getDataPath: () => platform.storagePath(diskPath),
+    getDiskPath: () => diskPath,
+    getFilesystemType: () => fstype,
     cleanup: () => {
       if (findDrive()) {
         platform.deleteDrive(diskPath);

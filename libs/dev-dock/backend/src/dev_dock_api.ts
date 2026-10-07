@@ -16,6 +16,7 @@ import {
   assertDefined,
   iter,
   sleep,
+  throwIllegalValue,
 } from '@votingworks/basics';
 import {
   asSheet,
@@ -48,10 +49,12 @@ import { getMostRecentElectionPackageFilepath } from '@votingworks/backend';
 import {
   getMockUsbDirPath,
   getMockUsbDriveHandler,
+  getUsbDrivePurpose,
   type MockUsbDriveHandler,
   SimulatedUsbPlatform,
   type UsbDiskDevPath,
-  UsbDiskDevPathSchema,
+  type UsbDriveFilesystemType,
+  type UsbDrivePurpose,
 } from '@votingworks/usb-drive';
 import {
   getMockFileFujitsuPrinterHandler,
@@ -93,6 +96,7 @@ export const DEV_DOCK_SIDES: readonly DevDockSide[] = [
 export type DevDockUsbDriveStatus = 'inserted' | 'removed';
 export interface DevDockUsbDriveInfo {
   diskPath: UsbDiskDevPath;
+  fstype: UsbDriveFilesystemType;
   status: DevDockUsbDriveStatus;
 }
 export interface DevDockElectionOption {
@@ -119,9 +123,6 @@ export interface DevDockElectionInfo extends DevDockElectionOption {
 }
 
 export const MOCK_USB_DRIVE_DISK_NAME = 'sdb';
-export const MOCK_USB_DRIVE_DEV_PATH = UsbDiskDevPathSchema.decode(
-  `/dev/${MOCK_USB_DRIVE_DISK_NAME}`
-);
 
 export const DEFAULT_DEV_DOCK_ELECTION_INPUT_PATH =
   './libs/fixtures/data/electionGeneral/election.json';
@@ -191,6 +192,7 @@ export interface MockSpec {
   printerConfig?: PrinterConfig | 'fujitsu';
   mockPdiScanner?: MockScanner;
   mockBatchScanner?: MockBatchScannerApi;
+  mockBackupUsbDrive?: MockUsbDriveHandler;
   // Optional hardware mocks provided by the host app
   getBarcodeConnected?: () => boolean;
   setBarcodeConnected?: (connected: boolean) => void;
@@ -206,6 +208,7 @@ interface SerializableMockSpec extends Omit<
   MockSpec,
   | 'mockPdiScanner'
   | 'mockBatchScanner'
+  | 'mockBackupUsbDrive'
   | 'setBarcodeConnected'
   | 'setAccessibleControllerConnected'
   | 'setPatInputConnected'
@@ -216,6 +219,7 @@ interface SerializableMockSpec extends Omit<
 > {
   mockPdiScanner?: boolean;
   mockBatchScanner?: boolean;
+  mockBackupUsbDrive?: boolean;
   hasBarcodeMock?: boolean;
   hasPatInputMock?: boolean;
   hasAccessibleControllerMock?: boolean;
@@ -362,12 +366,35 @@ function buildApi(
   // across page reloads but resets when the backend restarts.
   let dockSide: DevDockSide = 'top';
 
+  if (mockSpec.mockBackupUsbDrive) {
+    assert(
+      mockSpec.mockBackupUsbDrive.getDiskPath() !==
+        usbDriveHandler.getDiskPath()
+    );
+    assert(
+      getUsbDrivePurpose(mockSpec.mockBackupUsbDrive.getFilesystemType()) ===
+        'backup'
+    );
+  }
+
+  function usbHandler(purpose: UsbDrivePurpose) {
+    switch (purpose) {
+      case 'data':
+        return usbDriveHandler;
+      case 'backup':
+        return assertDefined(mockSpec.mockBackupUsbDrive);
+      default:
+        throwIllegalValue(purpose);
+    }
+  }
+
   return grout.createApi({
     getMockSpec(): SerializableMockSpec {
       return {
         printerConfig: mockSpec.printerConfig,
         mockPdiScanner: Boolean(mockSpec.mockPdiScanner),
         mockBatchScanner: Boolean(mockSpec.mockBatchScanner),
+        mockBackupUsbDrive: Boolean(mockSpec.mockBackupUsbDrive),
         hasBarcodeMock:
           Boolean(mockSpec.getBarcodeConnected) &&
           Boolean(mockSpec.setBarcodeConnected),
@@ -476,22 +503,29 @@ function buildApi(
       await removeCard();
     },
 
-    getUsbDriveStatus(): DevDockUsbDriveInfo {
+    getUsbDriveStatus(input: {
+      purpose: UsbDrivePurpose;
+    }): DevDockUsbDriveInfo {
+      const handler = usbHandler(input.purpose);
       const status =
-        usbDriveHandler.status().status === 'no_drive' ? 'removed' : 'inserted';
-      return { diskPath: MOCK_USB_DRIVE_DEV_PATH, status };
+        handler.status().status === 'no_drive' ? 'removed' : 'inserted';
+      return {
+        diskPath: handler.getDiskPath(),
+        fstype: handler.getFilesystemType(),
+        status,
+      };
     },
 
-    insertUsbDrive(): void {
-      usbDriveHandler.insert();
+    insertUsbDrive(input: { purpose: UsbDrivePurpose }): void {
+      usbHandler(input.purpose).insert();
     },
 
-    removeUsbDrive(): void {
-      usbDriveHandler.remove();
+    removeUsbDrive(input: { purpose: UsbDrivePurpose }): void {
+      usbHandler(input.purpose).remove();
     },
 
-    clearUsbDrive(): void {
-      usbDriveHandler.clearData();
+    clearUsbDrive(input: { purpose: UsbDrivePurpose }): void {
+      usbHandler(input.purpose).clearData();
     },
 
     async quickConfigure(): Promise<void> {

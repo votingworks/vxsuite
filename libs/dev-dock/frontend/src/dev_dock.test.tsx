@@ -90,8 +90,8 @@ beforeEach(() => {
   mockApiClient.getDockSide.expectCallWith().resolves('top');
   mockApiClient.getCardStatus.expectCallWith().resolves(noCardStatus);
   mockApiClient.getUsbDriveStatus
-    .expectRepeatedCallsWith()
-    .resolves({ diskPath: mockDiskPath, status: 'removed' });
+    .expectRepeatedCallsWith({ purpose: 'data' })
+    .resolves({ diskPath: mockDiskPath, fstype: 'exfat', status: 'removed' });
   mockApiClient.getAvailableElections.expectRepeatedCallsWith().resolves([
     {
       title: 'electionGeneral',
@@ -288,28 +288,31 @@ test('USB drive controls', async () => {
     name: 'USB Drive /dev/sdb',
   });
   await waitFor(() => expect(usbDriveControl).toBeEnabled());
+  expect(
+    screen.queryByRole('button', { name: 'USB Drive /dev/sdc' })
+  ).toBeNull();
 
-  mockApiClient.insertUsbDrive.expectCallWith().resolves();
+  mockApiClient.insertUsbDrive.expectCallWith({ purpose: 'data' }).resolves();
   mockApiClient.getUsbDriveStatus
-    .expectCallWith()
-    .resolves({ diskPath: mockDiskPath, status: 'inserted' });
+    .expectCallWith({ purpose: 'data' })
+    .resolves({ diskPath: mockDiskPath, fstype: 'exfat', status: 'inserted' });
   userEvent.click(usbDriveControl);
   await waitFor(() => mockApiClient.assertComplete());
 
-  mockApiClient.removeUsbDrive.expectCallWith().resolves();
+  mockApiClient.removeUsbDrive.expectCallWith({ purpose: 'data' }).resolves();
   mockApiClient.getUsbDriveStatus
-    .expectCallWith()
-    .resolves({ diskPath: mockDiskPath, status: 'removed' });
+    .expectCallWith({ purpose: 'data' })
+    .resolves({ diskPath: mockDiskPath, fstype: 'exfat', status: 'removed' });
   userEvent.click(usbDriveControl);
   await waitFor(() => mockApiClient.assertComplete());
 
   const clearUsbDriveButton = screen.getByRole('button', {
     name: 'Clear',
   });
-  mockApiClient.clearUsbDrive.expectCallWith().resolves();
+  mockApiClient.clearUsbDrive.expectCallWith({ purpose: 'data' }).resolves();
   mockApiClient.getUsbDriveStatus
-    .expectCallWith()
-    .resolves({ diskPath: mockDiskPath, status: 'removed' });
+    .expectCallWith({ purpose: 'data' })
+    .resolves({ diskPath: mockDiskPath, fstype: 'exfat', status: 'removed' });
   userEvent.click(clearUsbDriveButton);
   await waitFor(() => mockApiClient.assertComplete());
 });
@@ -1151,4 +1154,52 @@ test('polls for newly exported elections', async () => {
   });
 
   vi.useRealTimers();
+});
+
+test('backup USB drive controls', async () => {
+  mockApiClient.getMockSpec.reset();
+  mockApiClient.getMockSpec
+    .expectCallWith()
+    .resolves({ mockBackupUsbDrive: true });
+  const backupDiskPath = '/dev/sdc' as DevDockUsbDriveInfo['diskPath'];
+  mockApiClient.getUsbDriveStatus.reset();
+  mockApiClient.getUsbDriveStatus
+    .expectCallWith({ purpose: 'data' })
+    .resolves({ diskPath: mockDiskPath, fstype: 'exfat', status: 'removed' });
+  mockApiClient.getUsbDriveStatus
+    .expectCallWith({ purpose: 'backup' })
+    .resolves({ diskPath: backupDiskPath, fstype: 'ext4', status: 'removed' });
+  renderDock(mockApiClient);
+
+  const backupDriveControl = await screen.findByRole('button', {
+    name: 'USB Drive /dev/sdc',
+  });
+  await waitFor(() => expect(backupDriveControl).toBeEnabled());
+  screen.getByRole('button', { name: 'USB Drive /dev/sdb' });
+  screen.getByText('exfat');
+  screen.getByText('ext4');
+
+  mockApiClient.insertUsbDrive.expectCallWith({ purpose: 'backup' }).resolves();
+  mockApiClient.getUsbDriveStatus
+    .expectCallWith({ purpose: 'backup' })
+    .resolves({ diskPath: backupDiskPath, fstype: 'ext4', status: 'inserted' });
+  userEvent.click(backupDriveControl);
+  await waitFor(() => mockApiClient.assertComplete());
+
+  mockApiClient.removeUsbDrive.expectCallWith({ purpose: 'backup' }).resolves();
+  mockApiClient.getUsbDriveStatus
+    .expectCallWith({ purpose: 'backup' })
+    .resolves({ diskPath: backupDiskPath, fstype: 'ext4', status: 'removed' });
+  userEvent.click(backupDriveControl);
+  await waitFor(() => mockApiClient.assertComplete());
+
+  const [, clearBackupDriveButton] = screen.getAllByRole('button', {
+    name: 'Clear',
+  });
+  mockApiClient.clearUsbDrive.expectCallWith({ purpose: 'backup' }).resolves();
+  mockApiClient.getUsbDriveStatus
+    .expectCallWith({ purpose: 'backup' })
+    .resolves({ diskPath: backupDiskPath, fstype: 'ext4', status: 'removed' });
+  userEvent.click(assertDefined(clearBackupDriveButton));
+  await waitFor(() => mockApiClient.assertComplete());
 });
