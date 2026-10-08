@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import * as fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID as uuid } from 'node:crypto';
-import { assert, assertDefined, err, ok, sleep } from '@votingworks/basics';
+import { assert, assertDefined, err, ok } from '@votingworks/basics';
 import {
   makeTemporaryDirectory,
   readElectionTwoPartyPrimaryDefinition,
@@ -93,10 +93,17 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.useRealTimers();
   fs.rmSync(tempDirectoryPath, { recursive: true });
   clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
   mockUsbDrive.assertComplete();
 });
+
+/** Export directory names have one-second resolution. */
+function advanceClockToNextExportDirectoryName(): void {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(Date.now() + 1000);
+}
 
 const sheet1Id = uuid();
 const sheet2Id = uuid();
@@ -550,10 +557,8 @@ test('precinct scanner full export', async () => {
     ].sort();
     expect(exportDirectoryContents).toEqual(expectedExportDirectoryContents);
 
-    // Sleep 1 second after the first export to guarantee that the second export directory has a
-    // different name than the first
     if (i === 0) {
-      await sleep(1000);
+      advanceClockToNextExportDirectoryName();
     }
 
     // Export one more record after the second export and verify that it's added to the second
@@ -624,9 +629,7 @@ test('central scanner multiple-sheet export, subsequent exports', async () => {
   ].sort();
   expect(exportDirectoryContents).toEqual(expectedExportDirectoryContents);
 
-  // Sleep 1 second to guarantee that the second export directory has a different name than the
-  // first
-  await sleep(1000);
+  advanceClockToNextExportDirectoryName();
 
   // Reject a sheet and push a new export, which should include the rejected sheet
   sheets.push(newRejectedSheet(sheet4Id));
