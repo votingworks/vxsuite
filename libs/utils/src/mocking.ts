@@ -19,11 +19,11 @@ export function getMockStateRootDir(repoRoot: string): string {
 }
 
 /**
- * Returns VxDesign's development workspace, where it writes exported election
+ * Returns VxHub's development workspace, where it writes exported election
  * packages and ballots.
  *
- * Shared so that dev tooling reading those exports (the dev dock) and VxDesign
- * itself agree on one location. Note that VxDesign also honors a `WORKSPACE`
+ * Shared so that dev tooling reading those exports (the dev dock) and VxHub
+ * itself agree on one location. Note that VxHub also honors a `WORKSPACE`
  * environment variable, which other processes can't discover — so a custom
  * workspace won't be visible to dev tooling.
  */

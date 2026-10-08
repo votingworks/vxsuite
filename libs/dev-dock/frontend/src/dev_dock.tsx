@@ -110,7 +110,7 @@ function ElectionControl(): JSX.Element | null {
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
   const getElectionQuery = useElectionQuery();
-  // Polled so that a fresh VxDesign export shows up without reloading the app.
+  // Polled so that a fresh VxHub export shows up without reloading the app.
   const availableElectionsQuery = useQuery(
     ['getAvailableElections'],
     // @coverage-defer

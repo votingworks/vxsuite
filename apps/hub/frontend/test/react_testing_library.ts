@@ -14,7 +14,7 @@ import { onTestFinished } from 'vitest';
 export * from '@testing-library/react';
 
 // makeRender's defaults are for voter-facing apps; override to match
-// VxDesign's desktop production theme.
+// VxHub's desktop production theme.
 const baseRender = makeRender(onTestFinished);
 export function render(
   ui: React.ReactElement,

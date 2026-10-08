@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # start-with-mock-circleci.sh
 #
-# Starts VxDesign with automated QA pointed at a CircleCI stand-in on
+# Starts VxHub with automated QA pointed at a CircleCI stand-in on
 # localhost, either the mock server (`pnpm mock-circleci-server`) or the vx-qa
 # repo's `serve` mode. See ../README.md.
 #
