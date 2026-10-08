@@ -22,7 +22,7 @@ loadEnvVarsFromDotenvFiles();
 // @coverage-exclude
 async function main(): Promise<void> {
   const workspacePath = path.resolve(assertDefined(WORKSPACE));
-  const logger = new BaseLogger(LogSource.VxDesignWorker);
+  const logger = new BaseLogger(LogSource.VxHubWorker);
   const workspace = createWorkspace(workspacePath, logger);
   const { store } = workspace;
 
@@ -36,7 +36,7 @@ async function main(): Promise<void> {
   });
   const translator = new GoogleCloudTranslatorWithDbCache({ store });
 
-  process.stdout.write('VxDesign background worker running\n');
+  process.stdout.write('VxHub background worker running\n');
   await worker.start({
     fileStorageClient,
     speechSynthesizer,
@@ -53,7 +53,7 @@ async function main(): Promise<void> {
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main().catch((error) => {
     process.stderr.write(
-      `Error starting VxDesign background worker:\n${error.stack}\n`
+      `Error starting VxHub background worker:\n${error.stack}\n`
     );
     process.exitCode = 1;
   });
