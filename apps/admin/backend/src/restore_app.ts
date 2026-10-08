@@ -18,7 +18,7 @@ import type { MachineModeController } from './machine_mode.js';
 import type { AppMode, BaseStore, MachineMode } from './types.js';
 import { constructAuthMachineState } from './util/auth.js';
 import { BackupRoot, type ListBackupsError } from './backup/backup_root.js';
-import type { ProgressEvent } from './backup/progress.js';
+import type { RestoreProgressEvent } from './backup/progress.js';
 import { restoreBackup } from './backup/restore/index.js';
 import type { RestoreError } from './backup/restore/types.js';
 
@@ -58,7 +58,7 @@ export type ListAvailableBackupsError =
  */
 export type RestoreStatus =
   | { state: 'idle' }
-  | { state: 'restoring'; backupPath: string; progress?: ProgressEvent }
+  | { state: 'restoring'; backupPath: string; progress?: RestoreProgressEvent }
   | { state: 'restored'; backupPath: string }
   | { state: 'failed'; backupPath: string; error: RestoreError };
 

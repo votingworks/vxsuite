@@ -214,7 +214,7 @@ test('reports progress, refuses a second restore, and can be cancelled', async (
   const restoreHeld = deferred<void>();
   const restoreFinished = deferred<void>();
   vi.mocked(restoreBackup).mockImplementationOnce(async (options) => {
-    options.onProgressEvent?.({ type: 'preparing' });
+    options.onProgressEvent?.({ type: '1_preparing' });
     restoreHeld.resolve();
     await restoreFinished.promise;
     return options.signal?.aborted
@@ -228,7 +228,7 @@ test('reports progress, refuses a second restore, and can be cancelled', async (
   expect(await apiClient.getRestoreStatus()).toEqual({
     state: 'restoring',
     backupPath,
-    progress: { type: 'preparing' },
+    progress: { type: '1_preparing' },
   });
   expect((await apiClient.restoreBackup({ backupPath })).err()).toEqual({
     type: 'restore-in-progress',

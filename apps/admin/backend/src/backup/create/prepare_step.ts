@@ -188,7 +188,7 @@ export async function prepare(
   const { logger, onProgressEvent, signal, target, workspace } = options;
   const minAvailableStorageBytes =
     options.minAvailableStorageBytes ?? DEFAULT_MIN_AVAILABLE_STORAGE_BYTES;
-  onProgressEvent?.({ type: 'preparing' });
+  onProgressEvent?.({ type: '1_preparing' });
 
   if (signal?.aborted) {
     return err(CANCELLED_ERROR);
@@ -279,7 +279,7 @@ export async function prepare(
     const snapshotResult = await workspace.store.backupTo(dbSnapshotPath, {
       signal,
       onProgress: (progress) =>
-        onProgressEvent?.({ type: 'db_snapshot', progress }),
+        onProgressEvent?.({ type: '2_db_snapshot', progress }),
     });
     if (snapshotResult.isErr()) {
       return err(
@@ -317,7 +317,7 @@ export async function prepare(
         await stagingArea.linkWorkspaceFile(ballotImagePath);
         linkedCount += 1;
         onProgressEvent?.({
-          type: 'staging_files',
+          type: '3_staging_files',
           progress: linkedCount / snapshotBallotImagePaths.length,
         });
       })

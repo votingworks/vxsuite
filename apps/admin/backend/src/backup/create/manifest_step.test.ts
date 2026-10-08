@@ -26,7 +26,7 @@ import {
   BackupManifestStructSchema,
 } from '../backup_manifest.js';
 import { writeManifest } from './manifest_step.js';
-import type { ProgressEvent } from '../progress.js';
+import type { BackupProgressEvent } from '../progress.js';
 
 function makeManifest(): BackupManifest {
   const { election } = electionFamousNames2021Fixtures.readElectionDefinition();
@@ -61,7 +61,7 @@ function makeBackupDirectory(): string {
 test('writes a manifest alongside a signature that authenticates it', async () => {
   const backupPath = makeBackupDirectory();
   const manifest = makeManifest();
-  const progressEvents: ProgressEvent[] = [];
+  const progressEvents: BackupProgressEvent[] = [];
 
   (
     await writeManifest({
@@ -72,7 +72,7 @@ test('writes a manifest alongside a signature that authenticates it', async () =
     })
   ).unsafeUnwrap();
 
-  expect(progressEvents).toEqual([{ type: 'writing_manifest' }]);
+  expect(progressEvents).toEqual([{ type: '5_writing_manifest' }]);
 
   const manifestPath = join(backupPath, VXADMIN_BACKUP_MANIFEST_FILE_NAME);
   expect(

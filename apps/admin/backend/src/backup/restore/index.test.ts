@@ -56,7 +56,7 @@ import {
   BackupManifestStructSchema,
 } from '../backup_manifest.js';
 import { restoreBackup } from './index.js';
-import type { ProgressEvent } from '../progress.js';
+import type { RestoreProgressEvent } from '../progress.js';
 
 vi.setConfig({ testTimeout: 30_000 });
 
@@ -224,7 +224,7 @@ test('restore copies the database, ballot images, and election packages', async 
   ).unsafeUnwrap();
 
   const workspacePath = makeUnconfiguredWorkspacePath();
-  const events: ProgressEvent[] = [];
+  const events: RestoreProgressEvent[] = [];
   expect(
     await restoreBackup({
       backup: created.path,
@@ -236,14 +236,20 @@ test('restore copies the database, ballot images, and election packages', async 
 
   // Progress walks through the phases in order, and the copy events account
   // for every file and byte the manifest promised.
-  expect(events[0]).toEqual({ type: 'preparing' });
-  expect(events.at(-2)).toEqual({ type: 'verifying' });
-  expect(events.at(-1)).toEqual({ type: 'flushing_workspace' });
-  const copyEvents = events.filter((event) => event.type === 'copy_files');
+  const phases = events
+    .map((event) => event.type)
+    .filter((type, i, types) => type !== types[i - 1]);
+  expect(phases).toEqual([
+    '1_preparing',
+    '2_copying_files',
+    '3_verifying',
+    '4_flushing_workspace',
+  ]);
+  const copyEvents = events.filter((event) => event.type === '2_copying_files');
   const manifest = await readBackupManifest(new Backup(created.path));
   expect(copyEvents[0]).toMatchObject({ copiedCount: 0, copiedBytes: 0 });
   expect(copyEvents.at(-1)).toEqual({
-    type: 'copy_files',
+    type: '2_copying_files',
     copiedCount: manifest.files.length,
     totalCount: manifest.files.length,
     copiedBytes: iter(manifest.files).sum(({ size }) => size),
@@ -898,7 +904,7 @@ test('restore clears whatever an unconfigured workspace already holds', async ()
     'left over from before'
   );
 
-  const events: ProgressEvent[] = [];
+  const events: RestoreProgressEvent[] = [];
   expect(
     await restoreBackup({
       backup: backup.path,
@@ -915,7 +921,7 @@ test('restore clears whatever an unconfigured workspace already holds', async ()
   expect(
     events.some(
       (event) =>
-        event.type === 'copy_files' &&
+        event.type === '2_copying_files' &&
         event.current !== undefined &&
         event.copiedBytes > 0 &&
         event.copiedCount < event.totalCount
@@ -1125,7 +1131,7 @@ test('a restore cancelled between files empties the workspace it had claimed', a
       signal: controller.signal,
       onProgressEvent(event) {
         // Abort once one file has landed, so files remain to be copied.
-        if (event.type === 'copy_files' && event.copiedCount === 1) {
+        if (event.type === '2_copying_files' && event.copiedCount === 1) {
           controller.abort();
         }
       },
@@ -1156,7 +1162,7 @@ test('a restore cancelled partway through a file empties the workspace', async (
         // copied, so the abort has to be noticed by the copy itself rather
         // than by the loop around it.
         if (
-          event.type === 'copy_files' &&
+          event.type === '2_copying_files' &&
           event.current !== undefined &&
           event.copiedBytes > 0 &&
           event.copiedCount < event.totalCount

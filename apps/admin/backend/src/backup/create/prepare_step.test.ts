@@ -352,8 +352,8 @@ test('stages a database snapshot, election package, and ballot images', async ()
   ).toEqual(true);
   expect(stagedPaths.some((p) => p.endsWith('-front'))).toEqual(true);
 
-  expect(progressEvents.map((e) => e.type)).toContain('db_snapshot');
-  expect(progressEvents.map((e) => e.type)).toContain('staging_files');
+  expect(progressEvents.map((e) => e.type)).toContain('2_db_snapshot');
+  expect(progressEvents.map((e) => e.type)).toContain('3_staging_files');
 
   await stagingArea.cleanup();
   // the original file must be untouched by staging
@@ -442,7 +442,7 @@ test('cancels partway through snapshotting the database', async () => {
     logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     signal: controller.signal,
     onProgressEvent: (event) => {
-      if (event.type === 'db_snapshot') {
+      if (event.type === '2_db_snapshot') {
         controller.abort();
       }
     },
@@ -468,7 +468,7 @@ test('cancels after staging files, before measuring the target', async () => {
     logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     signal: controller.signal,
     onProgressEvent: (event) => {
-      if (event.type === 'staging_files') {
+      if (event.type === '3_staging_files') {
         controller.abort();
       }
     },

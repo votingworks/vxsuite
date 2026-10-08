@@ -9,7 +9,7 @@ import { BackupRoot } from '../backup_root.js';
 import { StyledPrinter } from './styled_printer.js';
 import { type DisplayProgress, ProgressDisplay } from './progress_display.js';
 import * as views from './views.js';
-import type { ProgressEvent } from '../progress.js';
+import type { BackupProgressEvent, RestoreProgressEvent } from '../progress.js';
 import { createBackup } from '../create/index.js';
 import { openWorkspace, type Workspace } from '../../util/workspace.js';
 import { restoreBackup } from '../restore/index.js';
@@ -171,35 +171,41 @@ export async function main(
   }
 }
 
+type CliProgressEvent = BackupProgressEvent | RestoreProgressEvent;
+
 /**
  * What each backup step is called on screen. A `Record` over the event union
  * so that adding an event without a label fails to compile.
  */
-const PROGRESS_LABELS: Record<ProgressEvent['type'], string> = {
-  preparing: 'Preparing',
-  db_snapshot: 'Snapshotting database',
-  staging_files: 'Staging files',
-  copy_files: 'Copying files',
-  writing_manifest: 'Writing manifest',
-  flushing_backup: 'Flushing to device',
-  swapping_backup: 'Swapping into place',
-  verifying: 'Verifying restored files',
-  flushing_workspace: 'Flushing to disk',
+const PROGRESS_LABELS: Record<CliProgressEvent['type'], string> = {
+  '1_preparing': 'Preparing',
+  '2_db_snapshot': 'Snapshotting database',
+  '3_staging_files': 'Staging files',
+  '4_copying_files': 'Copying files',
+  '5_writing_manifest': 'Writing manifest',
+  '6_flushing_backup': 'Flushing to device',
+  '7_swapping_backup': 'Swapping into place',
+  '8_flushing_swap': 'Flushing to device',
+
+  '2_copying_files': 'Copying files',
+  '3_verifying': 'Verifying restored files',
+  '4_flushing_workspace': 'Flushing to disk',
 };
 
-function displayProgress(event: ProgressEvent): DisplayProgress {
+function displayProgress(event: CliProgressEvent): DisplayProgress {
   const label = PROGRESS_LABELS[event.type];
 
   switch (event.type) {
-    case 'copy_files':
+    case '4_copying_files':
+    case '2_copying_files':
       return {
         label,
         bytesCompleted: event.copiedBytes,
         bytesTotal: event.totalBytes,
       };
 
-    case 'db_snapshot':
-    case 'staging_files':
+    case '2_db_snapshot':
+    case '3_staging_files':
       return { label, fraction: event.progress };
 
     default:

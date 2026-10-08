@@ -26,7 +26,7 @@ export async function swap(
 ): Promise<Result<void, SwapError>> {
   const { inProgressBackup, backup, target } = options;
 
-  options.onProgressEvent?.({ type: 'flushing_backup' });
+  options.onProgressEvent?.({ type: '6_flushing_backup' });
   const flushBeforeSwapResult = await syncFilesystem(target);
   if (flushBeforeSwapResult.isErr()) {
     return err({
@@ -37,7 +37,7 @@ export async function swap(
     });
   }
 
-  options.onProgressEvent?.({ type: 'swapping_backup' });
+  options.onProgressEvent?.({ type: '7_swapping_backup' });
 
   if (existsSync(backup)) {
     const exchangeResult = exchangePaths(backup, inProgressBackup);
@@ -55,7 +55,7 @@ export async function swap(
 
   await rm(inProgressBackup, { recursive: true, force: true });
 
-  options.onProgressEvent?.({ type: 'flushing_backup' });
+  options.onProgressEvent?.({ type: '8_flushing_swap' });
   const flushAfterSwapResult = await syncFilesystem(target);
   if (flushAfterSwapResult.isErr()) {
     return err({
