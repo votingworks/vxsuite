@@ -123,6 +123,29 @@ test('get/set test mode', () => {
   expect(store.getTestMode()).toEqual(true);
 });
 
+test('get/set imprinting status', () => {
+  const store = Store.memoryStore();
+
+  expect(store.getIsImprintingEnabled()).toEqual(true);
+  expect(() => store.setIsImprintingEnabled(false)).toThrow(
+    'Cannot set imprinting status without an election'
+  );
+
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+    ballotHash,
+  });
+  expect(store.getIsImprintingEnabled()).toEqual(true);
+
+  store.setIsImprintingEnabled(false);
+  expect(store.getIsImprintingEnabled()).toEqual(false);
+
+  store.setIsImprintingEnabled(true);
+  expect(store.getIsImprintingEnabled()).toEqual(true);
+});
+
 test('get/set scanner as backed up', () => {
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({

@@ -251,6 +251,48 @@ test('imprint prefix is unique across pauses within a batch', async () => {
   ]);
 });
 
+test('does not imprint when imprinting is disabled, even when an imprinter is attached', async () => {
+  const scanner = makeMockScanner();
+  const { machine, workspace, logger } = await setup(scanner);
+  configureElection(workspace);
+  workspace.store.setIsImprintingEnabled(false);
+  vi.spyOn(scanner, 'isImprinterAttached').mockResolvedValue(true);
+  const scanSheets = vi.spyOn(scanner, 'scanSheets');
+
+  scanner.withNextScannerSession().end();
+  await machine.startBatch();
+  await waitForStatus(machine, {
+    state: 'paused',
+    pauseReason: { type: 'tray-empty' },
+  });
+
+  expect(scanSheets).toHaveBeenCalledWith(
+    expect.objectContaining({ imprintIdPrefix: undefined })
+  );
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.ImprinterStatus,
+    'system',
+    { message: 'Imprinter is attached, but imprinting is disabled.' }
+  );
+
+  vi.spyOn(scanner, 'isImprinterAttached').mockResolvedValue(false);
+  scanner.withNextScannerSession().end();
+  await machine.resumeBatch();
+  await waitForStatus(machine, {
+    state: 'paused',
+    pauseReason: { type: 'tray-empty' },
+  });
+
+  expect(scanSheets).toHaveBeenLastCalledWith(
+    expect.objectContaining({ imprintIdPrefix: undefined })
+  );
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.ImprinterStatus,
+    'system',
+    { message: 'Imprinter is not attached, and imprinting is disabled.' }
+  );
+});
+
 test('discarding a paused batch deletes it', async () => {
   const scanner = makeMockScanner();
   const { machine, workspace, logger } = await setup(scanner);

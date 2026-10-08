@@ -799,3 +799,70 @@ test('reports whether the scanner is attached', async () => {
     });
   });
 });
+
+test('setIsImprintingEnabled', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  await withApp(async ({ auth, apiClient, scanner, workspace, logger }) => {
+    mockElectionManagerAuth(auth, electionDefinition);
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
+      jurisdiction,
+      electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
+    });
+    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+    await apiClient.setPollingPlaceId({ id: '23-polling-place' });
+
+    expect(await apiClient.getImprintingStatus()).toEqual({
+      isImprinterAttached: false,
+      isImprintingEnabled: true,
+    });
+
+    await apiClient.setIsImprintingEnabled({ isImprintingEnabled: false });
+    expect(await apiClient.getImprintingStatus()).toEqual({
+      isImprinterAttached: false,
+      isImprintingEnabled: false,
+    });
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.ImprintingToggled,
+      {
+        disposition: 'success',
+        message: 'User disabled imprinting.',
+      }
+    );
+
+    await apiClient.setIsImprintingEnabled({ isImprintingEnabled: true });
+    expect(await apiClient.getImprintingStatus()).toEqual({
+      isImprinterAttached: false,
+      isImprintingEnabled: true,
+    });
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.ImprintingToggled,
+      {
+        disposition: 'success',
+        message: 'User enabled imprinting.',
+      }
+    );
+
+    const imprinterCheck = deferred<boolean>();
+    vi.spyOn(scanner, 'isImprinterAttached').mockReturnValueOnce(
+      imprinterCheck.promise
+    );
+    scanner.withNextScannerSession().end();
+    const starting = apiClient.scanBatch();
+    await waitForStatus(apiClient, { state: 'scanning' });
+    await expect(
+      apiClient.setIsImprintingEnabled({ isImprintingEnabled: false })
+    ).rejects.toThrow(
+      'Attempting to change imprinting while a batch is in progress'
+    );
+    expect(await apiClient.getImprintingStatus()).toEqual({
+      isImprinterAttached: false,
+      isImprintingEnabled: true,
+    });
+
+    imprinterCheck.resolve(false);
+    await starting;
+  });
+});
