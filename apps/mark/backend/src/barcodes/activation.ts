@@ -2,7 +2,7 @@ import util from 'node:util';
 
 import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, type Logger } from '@votingworks/logging';
-import { isCardlessVoterAuth } from '@votingworks/utils';
+import { isPollWorkerAuth } from '@votingworks/utils';
 import { assert, find } from '@votingworks/basics';
 import {
   type SystemSettings,
@@ -43,8 +43,8 @@ function getQrBallotActivationEnabled(
 }
 
 /**
- * [BMD] On any barcode scan event, simulate selecting a ballot style
- * and starting a voter session.
+ * [BMD] When a poll worker is logged in, starts a voter session for the ballot
+ * style in a scanned QR code.
  * This feature is gated behind the `bmdEnableQrBallotActivation` system setting.
  */
 export function setUpBarcodeActivation(ctx: Context): void {
@@ -90,7 +90,14 @@ export function setUpBarcodeActivation(ctx: Context): void {
       authStatus: JSON.stringify(authStatus),
     });
 
-    if (isCardlessVoterAuth(authStatus)) {
+    if (!isPollWorkerAuth(authStatus)) {
+      return ctx.logger.logAsCurrentRole(LogEventId.Info, {
+        message:
+          'barcode scan detected without a poll worker logged in - ignoring',
+      });
+    }
+
+    if (authStatus.cardlessVoterUser) {
       return ctx.logger.logAsCurrentRole(LogEventId.Info, {
         message: 'barcode scan detected during voter session - ignoring',
       });
@@ -142,7 +149,6 @@ export function setUpBarcodeActivation(ctx: Context): void {
       await ctx.auth.startCardlessVoterSession(machineState, {
         ballotStyleId: ballotStyle.id,
         precinctId,
-        skipPollWorkerCheck: true,
       });
 
       // Verify the session was actually started
