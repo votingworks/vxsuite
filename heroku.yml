@@ -4,7 +4,7 @@ build:
     worker: Dockerfile.vxdesign
 release:
   command:
-    - . /root/.bashrc && pnpm -dir=/vx/code/vxsuite/apps/design/backend
+    - . /root/.bashrc && pnpm --dir=/vx/code/vxsuite/apps/design/backend
       db:migrations:run --no-reject-unauthorized
   image: web
 run:
