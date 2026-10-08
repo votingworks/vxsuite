@@ -66,7 +66,7 @@ async function main(): Promise<number> {
     );
   }
   const workspacePath = resolve(WORKSPACE);
-  const baseLogger = new BaseLogger(LogSource.VxDesignService);
+  const baseLogger = new BaseLogger(LogSource.VxHubService);
   const workspace = createWorkspace(workspacePath, baseLogger);
   const { store } = workspace;
 
@@ -106,7 +106,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   void main()
     .catch((error) => {
       // eslint-disable-next-line no-console
-      console.error(`Error starting VxDesign backend: ${error.stack}`);
+      console.error(`Error starting VxHub backend: ${error.stack}`);
       return 1;
     })
     .then((code) => {

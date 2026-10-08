@@ -10,7 +10,7 @@ async function main(): Promise<void> {
 
   const workspace = createWorkspace(
     resolve(assertDefined(WORKSPACE)),
-    new BaseLogger(LogSource.VxDesignService)
+    new BaseLogger(LogSource.VxHubService)
   );
   const jurisdictions = await workspace.store.listJurisdictions();
   console.log('✅ Jurisdictions:', jurisdictions);

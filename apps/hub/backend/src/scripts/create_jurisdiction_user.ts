@@ -28,7 +28,7 @@ async function main(): Promise<void> {
 
   const workspace = createWorkspace(
     resolve(assertDefined(WORKSPACE)),
-    new BaseLogger(LogSource.VxDesignService)
+    new BaseLogger(LogSource.VxHubService)
   );
 
   const jurisdiction = await workspace.store.getJurisdiction(jurisdictionId);

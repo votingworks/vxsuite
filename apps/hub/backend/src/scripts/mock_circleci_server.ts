@@ -216,14 +216,14 @@ server.listen(PORT, () => {
   console.log(`Webhook secret: ${WEBHOOK_SECRET}`);
   console.log(`Final status:   ${SHOULD_FAIL ? 'failure' : 'success'}`);
   console.log('');
-  console.log('Start VxDesign with:');
+  console.log('Start VxHub with:');
   console.log('');
   console.log(
     `  CIRCLECI_BASE_URL=http://localhost:${PORT} CIRCLECI_WEBHOOK_SECRET=${WEBHOOK_SECRET} \\`
   );
   console.log('  pnpm -C apps/hub/backend start-with-mock-circleci');
   console.log('');
-  console.log('Then export an election in VxDesign.');
+  console.log('Then export an election in VxHub.');
   console.log(line);
   console.log('');
 });

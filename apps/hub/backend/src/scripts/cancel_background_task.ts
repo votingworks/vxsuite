@@ -4,7 +4,7 @@ import { Db } from '../db/db.js';
 
 async function main(): Promise<void> {
   loadEnvVarsFromDotenvFiles();
-  const logger = new BaseLogger(LogSource.VxDesignService);
+  const logger = new BaseLogger(LogSource.VxHubService);
   const db = new Db(logger);
   const result = await db.withClient(async (client) =>
     client.query(

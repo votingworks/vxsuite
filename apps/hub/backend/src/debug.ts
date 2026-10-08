@@ -3,4 +3,4 @@ import debug from 'debug';
 /**
  * All debuggers should extend this one.
  */
-export const rootDebug = debug('design-backend');
+export const rootDebug = debug('hub-backend');
