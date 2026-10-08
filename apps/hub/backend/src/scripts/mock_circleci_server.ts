@@ -221,7 +221,7 @@ server.listen(PORT, () => {
   console.log(
     `  CIRCLECI_BASE_URL=http://localhost:${PORT} CIRCLECI_WEBHOOK_SECRET=${WEBHOOK_SECRET} \\`
   );
-  console.log('  pnpm -C apps/design/backend start-with-mock-circleci');
+  console.log('  pnpm -C apps/hub/backend start-with-mock-circleci');
   console.log('');
   console.log('Then export an election in VxDesign.');
   console.log(line);
