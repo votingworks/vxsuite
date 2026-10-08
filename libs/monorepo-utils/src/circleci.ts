@@ -376,13 +376,6 @@ function generateCircleCiFilteredAppConfigForPackage(
     '            # script/prune-turbo-cache uses them to trim the cache before',
     '            # it is saved.',
     `            echo 'export TURBO_RUN_SUMMARY=true' >> $BASH_ENV`,
-    '      - run:',
-    '          name: Fix node-gyp gyp entrypoint permissions',
-    '          command: |',
-    '            # TODO: Remove once we upgrade past pnpm 11.10, which ships',
-    '            # node-gyp with the gyp entrypoints executable.',
-    '            # See https://github.com/pnpm/pnpm/issues/12455',
-    '            chmod +x "$(npm root -g)/pnpm/dist/node_modules/node-gyp/gyp/gyp" "$(npm root -g)/pnpm/dist/node_modules/node-gyp/gyp/gyp_main.py"',
     '      - checkout',
     '      # Edit this comment somehow in order to invalidate the CircleCI cache.',
     '      # Since the contents of this file affect the cache key, editing only a',
@@ -414,13 +407,16 @@ function generateCircleCiFilteredAppConfigForPackage(
     '                  pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum',
     '                  "pnpm-lock.yaml" }}',
     '                paths:',
-    '                  - /root/.local/share/pnpm/store/v10',
+    '                  - /root/.local/share/pnpm/store/v11',
     '                  - /root/.cache/ms-playwright',
     ...turboCacheRestoreSteps('            '),
     '      - restore_cache:',
     '          name: Restore Cargo Cache',
     '          key:',
     '            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/Cargo.lock" }}',
+    '      - run:',
+    '          name: Install Rust Toolchain',
+    '          command: rustup toolchain install',
     '      - run:',
     '          name: Install Rust Dependencies',
     '          command: pnpm --recursive install:rust-addon',
@@ -606,13 +602,6 @@ commands:
             # script/prune-turbo-cache uses them to trim the cache before it
             # is saved.
             echo 'export TURBO_RUN_SUMMARY=true' >> $BASH_ENV
-      - run:
-          name: Fix node-gyp gyp entrypoint permissions
-          command: |
-            # TODO: Remove once we upgrade past pnpm 11.10, which ships
-            # node-gyp with the gyp entrypoints executable.
-            # See https://github.com/pnpm/pnpm/issues/12455
-            chmod +x "$(npm root -g)/pnpm/dist/node_modules/node-gyp/gyp/gyp" "$(npm root -g)/pnpm/dist/node_modules/node-gyp/gyp/gyp_main.py"
       - checkout
       # Edit this comment somehow in order to invalidate the CircleCI cache.
       # Since the contents of this file affect the cache key, editing only a
@@ -642,13 +631,16 @@ commands:
                 key:
                   pnpm-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
                 paths:
-                  - /root/.local/share/pnpm/store/v10
+                  - /root/.local/share/pnpm/store/v11
                   - /root/.cache/ms-playwright
 ${turboCacheRestoreSteps('            ').join('\n')}
       - restore_cache:
           name: Restore Cargo Cache
           key:
             cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/Cargo.lock" }}
+      - run:
+          name: Install Rust Toolchain
+          command: rustup toolchain install
       - run:
           name: Install Rust Dependencies
           command: pnpm --recursive install:rust-addon
