@@ -510,6 +510,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-status](#system-status)
 **Description:** The persistent lifetime count of accepted sheets could not be incremented.
 **Machines:** vx-scan, vx-central-scan
+### lifetime-sheet-count-read-error
+**Type:** [system-status](#system-status)
+**Description:** The persistent lifetime count of accepted sheets could not be read.
+**Machines:** vx-scan
 ### sound-toggled
 **Type:** [application-status](#application-status)
 **Description:** Sounds on the precinct scanner were toggled on or off as indicated.

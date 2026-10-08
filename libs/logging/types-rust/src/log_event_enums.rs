@@ -363,6 +363,8 @@ pub enum EventId {
     ScannerStateChanged,
     #[serde(rename = "lifetime-sheet-count-increment-error")]
     LifetimeSheetCountIncrementError,
+    #[serde(rename = "lifetime-sheet-count-read-error")]
+    LifetimeSheetCountReadError,
     #[serde(rename = "sound-toggled")]
     SoundToggled,
     #[serde(rename = "double-sheet-toggled")]
