@@ -313,8 +313,8 @@ jobs:
                 paths:
                   - .turbo/cache
 
-  # @votingworks/design-backend
-  test-apps-design-backend:
+  # @votingworks/hub-backend
+  test-apps-hub-backend:
     executor: nodejs_postgres
     resource_class: xlarge
     steps:
@@ -323,21 +323,21 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir apps/design/backend build
+            pnpm --dir apps/hub/backend build
       - run:
           name: Lint
           command: |
-            pnpm --dir apps/design/backend lint
+            pnpm --dir apps/hub/backend lint
       - run:
           name: Test
           command: |
-            pnpm --dir apps/design/backend test:ci
+            pnpm --dir apps/hub/backend test:ci
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: apps/design/backend/reports/
+          path: apps/hub/backend/reports/
       - store_artifacts:
-          path: apps/design/backend/src/__image_snapshots__/__diff_output__/
+          path: apps/hub/backend/src/__image_snapshots__/__diff_output__/
       - when:
           condition:
             or:
@@ -355,8 +355,8 @@ jobs:
                 paths:
                   - .turbo/cache
 
-  # @votingworks/design-frontend
-  test-apps-design-frontend:
+  # @votingworks/hub-frontend
+  test-apps-hub-frontend:
     executor: nodejs
     resource_class: xlarge
     steps:
@@ -365,19 +365,19 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir apps/design/frontend build
+            pnpm --dir apps/hub/frontend build
       - run:
           name: Lint
           command: |
-            pnpm --dir apps/design/frontend lint
+            pnpm --dir apps/hub/frontend lint
       - run:
           name: Test
           command: |
-            pnpm --dir apps/design/frontend test:run
+            pnpm --dir apps/hub/frontend test:run
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: apps/design/frontend/reports/
+          path: apps/hub/frontend/reports/
       - when:
           condition:
             or:
@@ -2582,10 +2582,10 @@ workflows:
       - test-apps-central-scan-integration-testing:
           context:
             - screenshots-publishing
-      - test-apps-design-backend:
+      - test-apps-hub-backend:
           context:
             - screenshots-publishing
-      - test-apps-design-frontend:
+      - test-apps-hub-frontend:
           context:
             - screenshots-publishing
       - test-apps-mark-scan-backend:
