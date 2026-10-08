@@ -359,6 +359,8 @@ pub enum EventId {
     ScannerEvent,
     #[serde(rename = "scanner-state-machine-transition")]
     ScannerStateChanged,
+    #[serde(rename = "scan-count-increment-error")]
+    ScanCountIncrementError,
     #[serde(rename = "sound-toggled")]
     SoundToggled,
     #[serde(rename = "double-sheet-toggled")]
