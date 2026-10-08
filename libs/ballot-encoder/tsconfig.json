@@ -1,13 +1,12 @@
 {
   "extends": "../../tsconfig.shared.json",
   "compilerOptions": {
-    "noUnusedParameters": true,
     "composite": true
   },
   "include": ["src", "src/data/*.json", "test"],
   "exclude": [],
   "references": [
-    { "path": "../../libs/coverage-check/tsconfig.build.json" },
+    { "path": "../coverage-check/tsconfig.build.json" },
     { "path": "../basics/tsconfig.build.json" },
     { "path": "../fixtures/tsconfig.build.json" },
     { "path": "../types/tsconfig.build.json" }

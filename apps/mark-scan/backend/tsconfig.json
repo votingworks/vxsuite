@@ -3,8 +3,7 @@
   "include": ["src", "test"],
   "exclude": [],
   "compilerOptions": {
-    "composite": true,
-    "noUnusedParameters": true
+    "composite": true
   },
   "references": [
     { "path": "../../../libs/ballot-encoder/tsconfig.build.json" },

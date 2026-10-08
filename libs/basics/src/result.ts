@@ -58,16 +58,14 @@ class Ok<T> {
   /**
    * Returns the contained value.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  okOrElse<E>(fn: (error: E) => void): T {
+  okOrElse<E>(_fn: (error: E) => void): T {
     return this.value;
   }
 
   /**
    * Returns the contained value.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  assertOk(message: string): T {
+  assertOk(_message: string): T {
     return this.value;
   }
 
@@ -168,8 +166,7 @@ class Err<E> {
   /**
    * Returns the contained error.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  assertErr(message: string): E {
+  assertErr(_message: string): E {
     return this.error;
   }
 

@@ -7,11 +7,10 @@
     "noEmit": false,
     "rootDir": "src",
     "outDir": "build",
-    "declaration": true,
-    "declarationMap": true
+    "declaration": true
   },
   "references": [
-    { "path": "../../libs/coverage-check/tsconfig.build.json" },
+    { "path": "../coverage-check/tsconfig.build.json" },
     { "path": "../basics/tsconfig.build.json" },
     { "path": "../types/tsconfig.build.json" }
   ]

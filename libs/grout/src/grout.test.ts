@@ -418,12 +418,12 @@ test('client errors if response is not JSON', async () => {
     },
   });
   const app = express();
-  app.post('/api/getStuff', (req, res) => {
+  app.post('/api/getStuff', (_req, res) => {
     // Send valid JSON, but not the right Content-type
     res.set('Content-Type', 'text/plain');
     res.send('42');
   });
-  app.post('/api/getMoreStuff', (req, res) => {
+  app.post('/api/getMoreStuff', (_req, res) => {
     // No Content-type header
     res.end('42');
   });
@@ -450,7 +450,7 @@ test('client handles non-JSON error responses', async () => {
     },
   });
   const app = express();
-  app.post('/api/getStuff', (req, res) => {
+  app.post('/api/getStuff', (_req, res) => {
     res.set('Content-Type', 'application/json');
     // Send invalid JSON (empty response body)
     res.status(500).send();
@@ -471,7 +471,7 @@ test('client handles other server errors', async () => {
     },
   });
   const app = express();
-  app.post('/api/getStuff', (req, res) => {
+  app.post('/api/getStuff', (_req, res) => {
     res.status(500).send();
   });
   const server = app.listen();

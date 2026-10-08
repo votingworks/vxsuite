@@ -39,6 +39,9 @@
     // Disallow falling through non-empty `switch` cases.
     "noFallthroughCasesInSwitch": true,
 
+    // Flag unused function parameters for removal or require leading `_`.
+    "noUnusedParameters": true,
+
     // Node ESM/CJS module semantics; frontends override with `esnext`/`bundler`.
     "module": "node20",
 

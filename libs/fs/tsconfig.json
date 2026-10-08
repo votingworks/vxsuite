@@ -3,18 +3,16 @@
   "include": ["src", "src/data/*.json", "test"],
   "exclude": [],
   "compilerOptions": {
-    "composite": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true
+    "composite": true
   },
   "references": [
-    { "path": "../../libs/basics/tsconfig.build.json" },
-    { "path": "../../libs/coverage-check/tsconfig.build.json" },
-    { "path": "../../libs/fixtures/tsconfig.build.json" },
-    { "path": "../../libs/logging/tsconfig.build.json" },
-    { "path": "../../libs/test-utils/tsconfig.build.json" },
-    { "path": "../../libs/types/tsconfig.build.json" },
-    { "path": "../../libs/utils/tsconfig.build.json" },
+    { "path": "../basics/tsconfig.build.json" },
+    { "path": "../coverage-check/tsconfig.build.json" },
+    { "path": "../fixtures/tsconfig.build.json" },
+    { "path": "../logging/tsconfig.build.json" },
+    { "path": "../test-utils/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../utils/tsconfig.build.json" },
     { "path": "../grout/tsconfig.build.json" }
   ]
 }

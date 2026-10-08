@@ -3,9 +3,7 @@
   "include": ["src", "test"],
   "exclude": [],
   "compilerOptions": {
-    "composite": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true
+    "composite": true
   },
   "references": []
 }

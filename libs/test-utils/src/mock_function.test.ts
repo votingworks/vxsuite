@@ -7,7 +7,7 @@ import {
 } from './mock_function.js';
 
 describe('mockFunction', () => {
-  function add(num1: number, num2: number): number {
+  function add(_num1: number, _num2: number): number {
     throw new Error('Not implemented');
   }
 
@@ -71,13 +71,13 @@ describe('mockFunction', () => {
 
   test('supports all different types of arguments', () => {
     function funcWithManyTypes(
-      a: string,
-      b: number,
-      c: boolean,
-      d: null,
-      e: undefined,
-      f: { foo: string },
-      g: number[]
+      _a: string,
+      _b: number,
+      _c: boolean,
+      _d: null,
+      _e: undefined,
+      _f: { foo: string },
+      _g: number[]
     ): string {
       throw new Error('Not implemented');
     }
@@ -135,7 +135,7 @@ describe('mockFunction', () => {
 
   test('supports async functions', async () => {
     // eslint-disable-next-line @typescript-eslint/require-await
-    async function addAsync(num1: number, num2: number): Promise<number> {
+    async function addAsync(_num1: number, _num2: number): Promise<number> {
       throw new Error('Not implemented');
     }
     const addMock = mockFunction<typeof addAsync>('addAsync');

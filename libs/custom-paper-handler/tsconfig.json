@@ -3,18 +3,16 @@
   "include": ["src", "test", "examples"],
   "exclude": [],
   "compilerOptions": {
-    "composite": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true
+    "composite": true
   },
   "references": [
-    { "path": "../../libs/basics/tsconfig.build.json" },
-    { "path": "../../libs/coverage-check/tsconfig.build.json" },
-    { "path": "../../libs/message-coder/tsconfig.build.json" },
-    { "path": "../../libs/fixtures/tsconfig.build.json" },
-    { "path": "../../libs/image-utils/tsconfig.build.json" },
-    { "path": "../../libs/test-utils/tsconfig.build.json" },
-    { "path": "../../libs/types/tsconfig.build.json" },
-    { "path": "../../libs/utils/tsconfig.build.json" }
+    { "path": "../basics/tsconfig.build.json" },
+    { "path": "../coverage-check/tsconfig.build.json" },
+    { "path": "../message-coder/tsconfig.build.json" },
+    { "path": "../fixtures/tsconfig.build.json" },
+    { "path": "../image-utils/tsconfig.build.json" },
+    { "path": "../test-utils/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../utils/tsconfig.build.json" }
   ]
 }

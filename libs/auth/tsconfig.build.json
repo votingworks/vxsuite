@@ -5,13 +5,12 @@
   "compilerOptions": {
     "tsBuildInfoFile": "build/tsconfig.build.tsbuildinfo",
     "declaration": true,
-    "declarationMap": true,
     "noEmit": false,
     "outDir": "build",
     "rootDir": "src"
   },
   "references": [
-    { "path": "../../libs/coverage-check/tsconfig.build.json" },
+    { "path": "../coverage-check/tsconfig.build.json" },
     { "path": "../basics/tsconfig.build.json" },
     { "path": "../db/tsconfig.build.json" },
     { "path": "../fixtures/tsconfig.build.json" },
