@@ -379,7 +379,6 @@ export class Store {
     ) as { isTestMode: number } | undefined;
 
     if (!electionRow) {
-      // test mode will be the default once an election is defined
       return true;
     }
 
@@ -395,6 +394,30 @@ export class Store {
     }
 
     this.client.run('update election set is_test_mode = ?', testMode ? 1 : 0);
+  }
+
+  getIsImprintingEnabled(): boolean {
+    const electionRow = this.client.one(
+      'select is_imprinting_enabled as isImprintingEnabled from election'
+    ) as { isImprintingEnabled: number } | undefined;
+
+    if (!electionRow) {
+      return true;
+    }
+
+    return Boolean(electionRow.isImprintingEnabled);
+  }
+
+  setIsImprintingEnabled(isImprintingEnabled: boolean): void {
+    assert(
+      this.hasElection(),
+      'Cannot set imprinting status without an election.'
+    );
+
+    this.client.run(
+      'update election set is_imprinting_enabled = ?',
+      isImprintingEnabled ? 1 : 0
+    );
   }
 
   getBallotPaperSizeForElection(): HmpbBallotPaperSize {
