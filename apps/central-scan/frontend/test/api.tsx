@@ -163,6 +163,23 @@ export function createApiMock(
       apiClient.getTestMode.expectRepeatedCallsWith().resolves(testMode);
     },
 
+    expectGetImprintingStatus(
+      imprintingStatus = {
+        isImprinterAttached: true,
+        isImprintingEnabled: true,
+      }
+    ) {
+      apiClient.getImprintingStatus
+        .expectRepeatedCallsWith()
+        .resolves(imprintingStatus);
+    },
+
+    expectSetIsImprintingEnabled(isImprintingEnabled: boolean) {
+      apiClient.setIsImprintingEnabled
+        .expectCallWith({ isImprintingEnabled })
+        .resolves();
+    },
+
     expectGetPollingPlaceId(pollingPlaceId: string | null = null) {
       apiClient.getPollingPlaceId
         .expectRepeatedCallsWith()

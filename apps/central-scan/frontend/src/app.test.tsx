@@ -301,6 +301,7 @@ test('deleting a batch removes it from the table', async () => {
 });
 
 test('configuring election from usb election package works end to end', async () => {
+  apiMock.expectGetImprintingStatus();
   apiMock.expectGetTestMode(true);
   apiMock.expectGetElectionRecord(null);
 
@@ -472,6 +473,7 @@ test('system administrator can log in and unconfigure machine', async () => {
 });
 
 test('election settings are locked while a batch is open', async () => {
+  apiMock.expectGetImprintingStatus();
   apiMock.expectGetTestMode(true);
   apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.setStatus(
