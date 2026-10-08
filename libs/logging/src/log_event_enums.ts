@@ -180,6 +180,7 @@ export const LogEventId = {
   FujitsuScanBatchComplete: 'fujitsu-scan-batch-complete',
   FujitsuScanMessage: 'fujitsu-scan-message',
   ImprinterStatus: 'imprinter-status',
+  ImprintingToggled: 'imprinting-toggled',
   CentralScanNetworkStatus: 'central-scan-network-status',
   ElectionPackageLoadedFromUsb: 'election-package-load-from-usb-complete',
   ExportCastVoteRecordsInit: 'export-cast-vote-records-init',
@@ -1032,6 +1033,14 @@ const ImprinterStatus: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxCentralScan],
 };
 
+const ImprintingToggled: LogDetails = {
+  eventId: LogEventId.ImprintingToggled,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'User has enabled or disabled imprinting on scanned ballots',
+  restrictInDocumentationToApps: [AppName.VxCentralScan],
+};
+
 const CentralScanNetworkStatus: LogDetails = {
   eventId: LogEventId.CentralScanNetworkStatus,
   eventType: LogEventType.ApplicationStatus,
@@ -1849,6 +1858,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return FujitsuScanMessage;
     case LogEventId.ImprinterStatus:
       return ImprinterStatus;
+    case LogEventId.ImprintingToggled:
+      return ImprintingToggled;
     case LogEventId.CentralScanNetworkStatus:
       return CentralScanNetworkStatus;
     case LogEventId.ElectionPackageLoadedFromUsb:
