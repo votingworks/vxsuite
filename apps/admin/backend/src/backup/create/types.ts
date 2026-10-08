@@ -3,12 +3,12 @@ import type { BackupStagingArea } from '../staging_area.js';
 import type { Store } from '../../store.js';
 import type { BackupManifest } from '../backup_manifest.js';
 import type { Workspace } from '../../util/workspace.js';
-import type { ProgressTracking } from '../progress.js';
+import type { BackupProgressEvent, ProgressTracking } from '../progress.js';
 
 /**
  * Options for preparing a backup to copy from the given workspace to a target.
  */
-export interface PrepareBackupOptions extends ProgressTracking {
+export interface PrepareBackupOptions extends ProgressTracking<BackupProgressEvent> {
   /**
    * The workspace to back up with an already-open client for the database.
    * Using the same database as the running app means backups do not get
@@ -36,7 +36,7 @@ export interface PrepareBackupOptions extends ProgressTracking {
 /**
  * Options for copying files from a backup staging area to a target.
  */
-export interface CopyBackupOptions extends ProgressTracking {
+export interface CopyBackupOptions extends ProgressTracking<BackupProgressEvent> {
   /**
    * The database ID of the election to be backed up.
    */
@@ -71,7 +71,7 @@ export interface CopyBackupOptions extends ProgressTracking {
 /**
  * Options for writing and signing a backup's manifest.
  */
-export interface WriteManifestOptions extends ProgressTracking {
+export interface WriteManifestOptions extends ProgressTracking<BackupProgressEvent> {
   /**
    * The manifest describing the backup's copied files.
    */
@@ -87,7 +87,7 @@ export interface WriteManifestOptions extends ProgressTracking {
 /**
  * Options for swapping a finished backup into its final location.
  */
-export interface SwapBackupOptions extends ProgressTracking {
+export interface SwapBackupOptions extends ProgressTracking<BackupProgressEvent> {
   /**
    * Directory path of the finished backup awaiting its final location.
    */

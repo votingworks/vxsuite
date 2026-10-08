@@ -14,7 +14,7 @@ import {
 } from '../../../test/backup.js';
 import { prepare } from './prepare_step.js';
 import { copy } from './copy_step.js';
-import type { ProgressEvent } from '../progress.js';
+import type { BackupProgressEvent } from '../progress.js';
 
 vi.setConfig({ testTimeout: 30_000 });
 
@@ -49,7 +49,7 @@ test('copies staged files to the backup directory and builds a manifest', async 
   const { electionId, source, snapshotStore } = prepareResult.unsafeUnwrap();
 
   const backupPath = join(makeTemporaryDirectory(), 'backup');
-  const progressEvents: ProgressEvent[] = [];
+  const progressEvents: BackupProgressEvent[] = [];
 
   const electionMetadata = assertDefined(
     snapshotStore.getElectionMetadata(electionId)
@@ -92,17 +92,17 @@ test('copies staged files to the backup directory and builds a manifest', async 
   // Progress events bracket the copy with 0/total and total/total, and each
   // in-between event names the file currently being copied.
   expect(progressEvents.at(0)).toMatchObject({
-    type: 'copy_files',
+    type: '4_copying_files',
     copiedCount: 0,
     totalCount: stagedFiles.length,
   });
   expect(progressEvents.at(-1)).toMatchObject({
-    type: 'copy_files',
+    type: '4_copying_files',
     copiedCount: stagedFiles.length,
     totalCount: stagedFiles.length,
   });
   const namedFiles = progressEvents
-    .filter((event) => event.type === 'copy_files' && event.current)
+    .filter((event) => event.type === '4_copying_files' && event.current)
     .reduce(
       (set, event) => set.add((event as { current: string }).current),
       new Set<string>()
@@ -115,7 +115,7 @@ test('copies staged files to the backup directory and builds a manifest', async 
 });
 
 interface CopyFilesEvent {
-  type: 'copy_files';
+  type: '4_copying_files';
   current?: string;
   copiedCount: number;
   totalCount: number;
@@ -139,7 +139,7 @@ async function copyWithProgress(
     source,
     snapshotStore: store,
   } = prepareResult.unsafeUnwrap();
-  const events: ProgressEvent[] = [];
+  const events: BackupProgressEvent[] = [];
 
   (
     await copy({
@@ -157,7 +157,7 @@ async function copyWithProgress(
   await source.cleanup();
 
   return {
-    events: events.filter((event) => event.type === 'copy_files'),
+    events: events.filter((event) => event.type === '4_copying_files'),
     fileCount,
   };
 }
@@ -267,7 +267,7 @@ test('stops copying when cancelled between files', async () => {
     onProgressEvent(event) {
       // Abort once the first file has landed, so the copy stops with files
       // still to go rather than after it would have finished anyway.
-      if (event.type === 'copy_files' && event.copiedCount === 1) {
+      if (event.type === '4_copying_files' && event.copiedCount === 1) {
         controller.abort();
       }
     },

@@ -63,7 +63,7 @@ async function tryRestoreBackup(
   options: RestoreBackupOptions
 ): Promise<Result<void, RestoreError>> {
   const { logger, onProgressEvent, signal, workspacePath } = options;
-  onProgressEvent?.({ type: 'preparing' });
+  onProgressEvent?.({ type: '1_preparing' });
 
   if (signal?.aborted) {
     return err(CANCELLED_ERROR);
@@ -117,7 +117,7 @@ async function tryRestoreBackup(
       return copyResult;
     }
 
-    onProgressEvent?.({ type: 'verifying' });
+    onProgressEvent?.({ type: '3_verifying' });
     const verifyResult = verifyRestoredWorkspace({
       manifest,
       workspacePath,
@@ -130,7 +130,7 @@ async function tryRestoreBackup(
     // Flushed before the restore state is cleared: clearing it declares the
     // restore complete, which must not happen while the restored files live
     // only in the page cache.
-    onProgressEvent?.({ type: 'flushing_workspace' });
+    onProgressEvent?.({ type: '4_flushing_workspace' });
     const flushResult = await flushRestoredWorkspace(workspacePath);
     succeeded = flushResult.isOk();
     return flushResult;

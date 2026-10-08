@@ -40,7 +40,7 @@ export async function copy(
   const totalBytes = source.fileSizeBytes;
   const backupManifestEntries: BackupManifestEntry[] = [];
   options.onProgressEvent?.({
-    type: 'copy_files',
+    type: '4_copying_files',
     copiedCount,
     totalCount,
     copiedBytes,
@@ -56,7 +56,7 @@ export async function copy(
 
   for (const file of source.listStagedFiles()) {
     options.onProgressEvent?.({
-      type: 'copy_files',
+      type: '4_copying_files',
       current: file.relativePath,
       copiedCount,
       totalCount,
@@ -79,7 +79,7 @@ export async function copy(
         if (fileCopiedBytes - reportedSize >= progressEventIntervalBytes) {
           reportedSize = fileCopiedBytes;
           options.onProgressEvent?.({
-            type: 'copy_files',
+            type: '4_copying_files',
             current: file.relativePath,
             copiedCount: baseCopiedCount,
             totalCount,
@@ -119,7 +119,7 @@ export async function copy(
     `BUG: not all files copied!? copied bytes ${copiedBytes} != total bytes ${totalBytes}`
   );
   options.onProgressEvent?.({
-    type: 'copy_files',
+    type: '4_copying_files',
     copiedCount,
     totalCount,
     copiedBytes,

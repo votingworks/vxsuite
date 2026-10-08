@@ -10,7 +10,7 @@ import {
   type SyscallError,
 } from '@votingworks/fs';
 import { swap } from './swap_step.js';
-import type { ProgressEvent } from '../progress.js';
+import type { BackupProgressEvent } from '../progress.js';
 
 vi.mock(import('@votingworks/fs'), async () => {
   const { mockFs } = await import('../../../test/mock_fs.js');
@@ -31,7 +31,7 @@ test('renames the in-progress backup into place when there is none yet', async (
     'new'
   );
   const backup = join(target, 'election');
-  const progressEvents: ProgressEvent[] = [];
+  const progressEvents: BackupProgressEvent[] = [];
 
   expect(
     await swap({
@@ -44,9 +44,9 @@ test('renames the in-progress backup into place when there is none yet', async (
   ).toEqual(ok());
 
   expect(progressEvents).toEqual([
-    { type: 'flushing_backup' },
-    { type: 'swapping_backup' },
-    { type: 'flushing_backup' },
+    { type: '6_flushing_backup' },
+    { type: '7_swapping_backup' },
+    { type: '8_flushing_swap' },
   ]);
   expect(readFileSync(join(backup, 'manifest.json'), 'utf-8')).toEqual('new');
   expect(existsSync(inProgressBackup)).toEqual(false);

@@ -1,4 +1,4 @@
-import type { ProgressTracking } from '../progress.js';
+import type { ProgressTracking, RestoreProgressEvent } from '../progress.js';
 
 /**
  * Possible expected errors that can occur when restoring a backup.
@@ -23,7 +23,7 @@ export type RestoreError =
 /**
  * Options for restoring a backup into a workspace.
  */
-export interface RestoreBackupOptions extends ProgressTracking {
+export interface RestoreBackupOptions extends ProgressTracking<RestoreProgressEvent> {
   /**
    * Path to a directory containing a valid and signed backup.
    */

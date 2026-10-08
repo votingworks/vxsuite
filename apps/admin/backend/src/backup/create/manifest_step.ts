@@ -14,7 +14,7 @@ export async function writeManifest(
   options: WriteManifestOptions
 ): Promise<Result<void, WriteFileError>> {
   const { manifest, backup } = options;
-  options.onProgressEvent?.({ type: 'writing_manifest' });
+  options.onProgressEvent?.({ type: '5_writing_manifest' });
 
   const manifestFileContents = JSON.stringify(manifest, null, 2);
   const signatureFile = await prepareSignatureFile({

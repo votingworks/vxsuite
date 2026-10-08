@@ -22,6 +22,7 @@ import { copy } from './copy_step.js';
 import { writeManifest } from './manifest_step.js';
 import { swap } from './swap_step.js';
 import { BackupManifestStructSchema } from '../backup_manifest.js';
+import type { BackupProgressEvent } from '../progress.js';
 
 vi.mock(import('@votingworks/fs'), async () =>
   (await import('../../../test/mock_fs.js')).mockFs()
@@ -448,7 +449,7 @@ test('cancelling after the copy finishes stops before the manifest is written', 
       // The event announcing the last file copied: everything is written but
       // nothing has been signed or swapped into place yet.
       if (
-        event.type === 'copy_files' &&
+        event.type === '4_copying_files' &&
         event.copiedCount === event.totalCount
       ) {
         controller.abort();
@@ -487,7 +488,7 @@ test('a backup already in place survives a cancelled attempt to replace it', asy
     logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
     signal: controller.signal,
     onProgressEvent(event) {
-      if (event.type === 'db_snapshot') {
+      if (event.type === '2_db_snapshot') {
         controller.abort();
       }
     },
@@ -503,5 +504,35 @@ test('a backup already in place survives a cancelled attempt to replace it', asy
   expect(readdirSync(backupPath).sort()).toEqual(backupContentsBefore);
   expect(readdirSync(new BackupRoot(target).pathFor('.'))).toEqual([
     relative(new BackupRoot(target).pathFor('.'), backupPath),
+  ]);
+});
+
+test('a backup reports its phases in order', async () => {
+  const workspace = await makeConfiguredWorkspace();
+  addCvrWithBallotImage(workspace);
+  const target = makeTemporaryDirectory();
+  const phases: Array<BackupProgressEvent['type']> = [];
+
+  const result = await createBackup({
+    workspace,
+    target,
+    logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+    onProgressEvent(event) {
+      if (phases.at(-1) !== event.type) {
+        phases.push(event.type);
+      }
+    },
+  });
+
+  result.unsafeUnwrap();
+  expect(phases).toEqual([
+    '1_preparing',
+    '2_db_snapshot',
+    '3_staging_files',
+    '4_copying_files',
+    '5_writing_manifest',
+    '6_flushing_backup',
+    '7_swapping_backup',
+    '8_flushing_swap',
   ]);
 });

@@ -14,7 +14,7 @@ import {
   BACKUP_WORKSPACE_DIR,
   type BackupManifest,
 } from '../backup_manifest.js';
-import type { ProgressEvent } from '../progress.js';
+import type { RestoreProgressEvent } from '../progress.js';
 import type { RestoreError } from './types.js';
 
 /**
@@ -52,7 +52,7 @@ export async function copyBackupFiles({
   backup: AuthenticatedBackup;
   manifest: BackupManifest;
   workspacePath: string;
-  onProgressEvent?: (event: ProgressEvent) => void;
+  onProgressEvent?: (event: RestoreProgressEvent) => void;
   signal?: AbortSignal;
   progressEventIntervalBytes?: number;
 }): Promise<Result<void, RestoreError>> {
@@ -62,7 +62,7 @@ export async function copyBackupFiles({
   const totalCount = manifest.files.length;
   const totalBytes = iter(manifest.files).sum((file) => file.size);
   onProgressEvent?.({
-    type: 'copy_files',
+    type: '2_copying_files',
     copiedCount,
     totalCount,
     copiedBytes,
@@ -71,7 +71,7 @@ export async function copyBackupFiles({
 
   for (const file of manifest.files) {
     onProgressEvent?.({
-      type: 'copy_files',
+      type: '2_copying_files',
       current: file.path,
       copiedCount,
       totalCount,
@@ -100,7 +100,7 @@ export async function copyBackupFiles({
         if (fileBytes - lastReportedFileBytes >= progressEventIntervalBytes) {
           lastReportedFileBytes = fileBytes;
           onProgressEvent?.({
-            type: 'copy_files',
+            type: '2_copying_files',
             current: file.path,
             copiedCount: copiedCountBeforeFile,
             totalCount,
@@ -175,7 +175,7 @@ export async function copyBackupFiles({
     copiedCount += 1;
     copiedBytes += size;
     onProgressEvent?.({
-      type: 'copy_files',
+      type: '2_copying_files',
       copiedCount,
       totalCount,
       copiedBytes,
