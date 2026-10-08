@@ -48,7 +48,7 @@
     "@votingworks/usb-drive": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "debug": "4.3.4",
-    "express": "4.18.2",
+    "express": "4.22.0",
     "luxon": "^3.0.0",
     "node-hid": "^2.1.2",
     "react": "18.3.1",

@@ -55,7 +55,7 @@
     "csv-parse": "^7.0.2",
     "csv-stringify": "^6.4.0",
     "debug": "4.3.4",
-    "express": "4.18.2",
+    "express": "4.22.0",
     "helmet": "^8.1.0",
     "jsbarcode": "^3.11.6",
     "luxon": "^3.0.0",
