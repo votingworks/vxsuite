@@ -1,6 +1,8 @@
+import { incrementScanCount } from '@votingworks/backend';
 import { err, ok, typedAs } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
+import { LogEventId } from '@votingworks/logging';
 import { mockScannerStatus } from '@votingworks/pdi-scanner';
 import {
   AdjudicationReason,
@@ -32,12 +34,18 @@ vi.setConfig({ testTimeout: 20_000 });
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
+vi.mock(import('@votingworks/backend'), async (importActual) => ({
+  ...(await importActual()),
+  incrementScanCount: vi.fn().mockResolvedValue(undefined),
+}));
+
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 
 beforeEach(() => {
+  vi.mocked(incrementScanCount).mockClear();
   mockFeatureFlagger.resetFeatureFlags();
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
@@ -52,6 +60,7 @@ test('configure and scan hmpb', async () => {
       mockUsbDrive,
       mockAuth,
       logger,
+      workspace,
       clock,
     }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
@@ -87,6 +96,9 @@ test('configure and scan hmpb', async () => {
         state: 'accepted',
         interpretation,
         ballotsCounted: 1,
+      });
+      expect(incrementScanCount).toHaveBeenCalledExactlyOnceWith({
+        devRoot: workspace.path,
       });
 
       await apiClient.readyForNextBallot();
@@ -334,6 +346,7 @@ test('ballot with wrong election rejected', async () => {
 
       // Make sure the ballot was still recorded in the db for backup purposes
       expect(Array.from(workspace.store.forEachSheet())).toHaveLength(1);
+      expect(incrementScanCount).not.toHaveBeenCalled();
     }
   );
 });
@@ -687,6 +700,63 @@ test('disconnect scanner errors absorbed in unrecoverable_error state', async ()
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'unrecoverable_error' });
       expect(mockScanner.client.connect).not.toHaveBeenCalled();
+    }
+  );
+});
+
+test('logs failure to increment the scan count', async () => {
+  vi.mocked(incrementScanCount).mockRejectedValueOnce(
+    new Error('error: corrupt count in /vx/config/scan-count')
+  );
+
+  await withApp(
+    async ({
+      apiClient,
+      mockScanner,
+      mockUsbDrive,
+      mockAuth,
+      logger,
+      clock,
+    }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+        },
+        pollingPlaceId: POLLING_PLACE_ID_COMPLETE_HMPB,
+      });
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+
+      await simulateScan(
+        apiClient,
+        mockScanner,
+        await ballotImages.completeHmpb()
+      );
+
+      const interpretation: SheetInterpretation = { type: 'ValidSheet' };
+      await waitForStatus(apiClient, { state: 'accepting', interpretation });
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
+      clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
+      await waitForStatus(apiClient, {
+        state: 'accepted',
+        interpretation,
+        ballotsCounted: 1,
+      });
+
+      expect(incrementScanCount).toHaveBeenCalledOnce();
+      await vi.waitFor(() =>
+        expect(logger.log).toHaveBeenCalledWith(
+          LogEventId.ScanCountIncrementError,
+          'system',
+          {
+            disposition: 'failure',
+            message: 'Unable to increment persistent scan count.',
+            errorDetails: 'error: corrupt count in /vx/config/scan-count',
+          }
+        )
+      );
     }
   );
 });

@@ -31,7 +31,10 @@ import {
 } from '@votingworks/types';
 import type { UsbDrive } from '@votingworks/usb-drive';
 import { time, type Timer } from '@votingworks/utils';
-import { exportCastVoteRecordsToUsbDrive } from '@votingworks/backend';
+import {
+  exportCastVoteRecordsToUsbDrive,
+  incrementScanCount,
+} from '@votingworks/backend';
 import { ImageData } from 'canvas';
 import { randomUUID as uuid } from 'node:crypto';
 import {
@@ -399,6 +402,16 @@ function buildMachine({
     return Boolean(
       assertDefined(store.getSystemSettings()).precinctScanEnableShoeshineMode
     );
+  }
+
+  function incrementPersistentScanCount(): void {
+    void incrementScanCount({ devRoot: workspace.path }).catch((error) => {
+      logger.log(LogEventId.ScanCountIncrementError, 'system', {
+        disposition: 'failure',
+        message: 'Unable to increment persistent scan count.',
+        errorDetails: extractErrorMessage(error),
+      });
+    });
   }
 
   function createPollingChildMachine(
@@ -944,6 +957,7 @@ function buildMachine({
           id: 'accepted',
           entry: async (context) => {
             scanAndInterpretTimer?.checkpoint('accepted');
+            incrementPersistentScanCount();
             await recordScannedSheet({
               workspace,
               usbDrive,
