@@ -865,7 +865,10 @@ function BarcodeScanMockControl() {
                 value={payload}
                 aria-label="Barcode Contents"
                 onChange={(e) => setPayload(e.target.value)}
-                onKeyDown={(e) => e.stopPropagation()}
+                onKeyDown={(e) => {
+                  // Prevent keyDown event from triggering PAT "1" and "2" signals
+                  e.stopPropagation();
+                }}
                 autoComplete="off"
                 style={{ width: '100%' }}
               />
