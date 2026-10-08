@@ -46,7 +46,7 @@ import styled, { useTheme } from 'styled-components';
 import type {
   GetExportedElectionError,
   QuickReportedPollStatus,
-} from '@votingworks/design-backend';
+} from '@votingworks/hub-backend';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import { type ElectionIdParams, routes } from './routes.js';
 import {

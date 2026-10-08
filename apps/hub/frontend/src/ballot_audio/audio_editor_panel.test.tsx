@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 
-import type { TtsStringDefault } from '@votingworks/design-backend';
+import type { TtsStringDefault } from '@votingworks/hub-backend';
 import {
   type Contest,
   ElectionStringKey,

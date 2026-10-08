@@ -14,7 +14,7 @@ import { Buffer } from 'node:buffer';
 import { useParams } from 'react-router-dom';
 import type { ElectionSerializationFormat } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
-import type { BallotTemplateId } from '@votingworks/design-backend';
+import type { BallotTemplateId } from '@votingworks/hub-backend';
 import {
   exportElectionPackage,
   exportTestDecks,

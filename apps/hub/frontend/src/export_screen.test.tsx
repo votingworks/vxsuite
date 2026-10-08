@@ -8,7 +8,7 @@ import { Buffer, File as NodeFile } from 'node:buffer';
 import type {
   BackgroundTask,
   StateFeaturesConfig,
-} from '@votingworks/design-backend';
+} from '@votingworks/hub-backend';
 import {
   provideApi,
   createMockApiClient,

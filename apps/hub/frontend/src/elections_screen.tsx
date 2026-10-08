@@ -4,7 +4,7 @@ import React from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
-import type { ElectionListing } from '@votingworks/design-backend';
+import type { ElectionListing } from '@votingworks/hub-backend';
 import {
   listElections,
   createElection,

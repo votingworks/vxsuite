@@ -22,7 +22,7 @@ import {
 import { useState } from 'react';
 import styled from 'styled-components';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
-import type { BallotTemplateId } from '@votingworks/design-backend';
+import type { BallotTemplateId } from '@votingworks/hub-backend';
 import {
   getBallotsFinalizedAt,
   getBallotLayoutSettings,

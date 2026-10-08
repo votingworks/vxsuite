@@ -10,7 +10,7 @@ import type {
   JurisdictionUser,
   OrganizationUser,
   SupportUser,
-} from '@votingworks/design-backend';
+} from '@votingworks/hub-backend';
 import {
   createMockClient,
   type MockClient,

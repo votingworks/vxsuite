@@ -4,7 +4,7 @@ import type {
   BackgroundTask,
   MainExportTaskMetadata,
   TestDecksTaskMetadata,
-} from '@votingworks/design-backend';
+} from '@votingworks/hub-backend';
 import { assert, sleep } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import { downloadFile } from './utils.js';

@@ -7,7 +7,7 @@ import { Button, Card, H3, P } from '@votingworks/ui';
 import type {
   MainExportTaskMetadata,
   TestDecksTaskMetadata,
-} from '@votingworks/design-backend';
+} from '@votingworks/hub-backend';
 import * as api from './api.js';
 import type { ElectionIdParams } from './routes.js';
 import { downloadFile } from './utils.js';

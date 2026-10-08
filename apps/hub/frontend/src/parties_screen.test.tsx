@@ -9,7 +9,7 @@ import {
 } from '@votingworks/types';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import { readElectionGeneral } from '@votingworks/fixtures';
-import type { DuplicatePartyError } from '@votingworks/design-backend';
+import type { DuplicatePartyError } from '@votingworks/hub-backend';
 import {
   type MockApiClient,
   createMockApiClient,

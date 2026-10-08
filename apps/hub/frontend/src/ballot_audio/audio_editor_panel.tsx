@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import React from 'react';
 
 import { assertDefined } from '@votingworks/basics';
-import type { TtsStringDefault } from '@votingworks/design-backend';
+import type { TtsStringDefault } from '@votingworks/hub-backend';
 import { ElectionStringKey, type YesNoContest } from '@votingworks/types';
 
 import { LinkButton, type LinkButtonProps } from '@votingworks/ui';
