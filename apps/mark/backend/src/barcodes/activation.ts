@@ -58,10 +58,6 @@ export function setUpBarcodeActivation(ctx: Context): void {
   });
 
   ctx.barcodeClient.on('scan', async (data) => {
-    ctx.logger.log(LogEventId.Info, 'system', {
-      message: `got scan: ${data}`,
-    });
-
     const barcode = new TextDecoder().decode(data);
     if (barcode.trim().length === 0) return;
 
