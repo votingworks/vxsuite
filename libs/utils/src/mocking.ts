@@ -29,5 +29,5 @@ export function getMockStateRootDir(repoRoot: string): string {
  */
 // @coverage-defer
 export function getDesignDevWorkspaceDir(repoRoot: string): string {
-  return join(repoRoot, 'apps/design/backend/dev-workspace');
+  return join(repoRoot, 'apps/hub/backend/dev-workspace');
 }
