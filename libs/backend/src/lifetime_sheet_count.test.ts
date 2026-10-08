@@ -1,20 +1,21 @@
 import { execFile as execFileCallback } from 'node:child_process';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
-import { range } from '@votingworks/basics';
+import { err, ok, range } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { beforeEach, expect, test, vi } from 'vitest';
-import { execFile } from '../exec.js';
-import { intermediateScript } from '../intermediate_scripts.js';
+import { execFile } from './exec.js';
+import { intermediateScript } from './intermediate_scripts.js';
 import {
   getLifetimeSheetCountFilePath,
   incrementLifetimeSheetCount,
-} from './increment_lifetime_sheet_count.js';
+  readLifetimeSheetCount,
+} from './lifetime_sheet_count.js';
 
 vi.mock(
-  import('../exec.js'),
-  async (importActual): Promise<typeof import('../exec.js')> => ({
+  import('./exec.js'),
+  async (importActual): Promise<typeof import('./exec.js')> => ({
     ...(await importActual()),
     execFile: vi.fn(),
   })
@@ -62,6 +63,63 @@ test('getLifetimeSheetCountFilePath uses devRoot in integration tests', () => {
   vi.stubEnv('IS_INTEGRATION_TEST', 'true');
   expect(getLifetimeSheetCountFilePath({ devRoot: '/dev-root' })).toEqual(
     '/dev-root/lifetime-sheet-count'
+  );
+});
+
+test('readLifetimeSheetCount returns 0 when the file does not exist', async () => {
+  expect(
+    await readLifetimeSheetCount({ devRoot: makeTemporaryDirectory() })
+  ).toEqual(ok(0));
+});
+
+test('readLifetimeSheetCount returns the count from the file', async () => {
+  const devRoot = makeTemporaryDirectory();
+  writeFileSync(join(devRoot, 'lifetime-sheet-count'), '42\n');
+  expect(await readLifetimeSheetCount({ devRoot })).toEqual(ok(42));
+});
+
+test('readLifetimeSheetCount reads from VX_CONFIG_ROOT in production', async () => {
+  const configRoot = makeTemporaryDirectory();
+  writeFileSync(join(configRoot, 'lifetime-sheet-count'), '7\n');
+  vi.stubEnv('NODE_ENV', 'production');
+  vi.stubEnv('VX_CONFIG_ROOT', configRoot);
+  expect(
+    await readLifetimeSheetCount({ devRoot: makeTemporaryDirectory() })
+  ).toEqual(ok(7));
+});
+
+test.each(['', ' \n', 'abc\n', '-1\n', '1.5\n', '0x10\n', '1e3\n'])(
+  'readLifetimeSheetCount rejects corrupt contents %j',
+  async (contents) => {
+    const devRoot = makeTemporaryDirectory();
+    writeFileSync(join(devRoot, 'lifetime-sheet-count'), contents);
+    expect(await readLifetimeSheetCount({ devRoot })).toEqual(
+      err(expect.stringMatching(/^Error reading lifetime sheet count: /))
+    );
+  }
+);
+
+test('readLifetimeSheetCount rejects a count beyond the safe integer range', async () => {
+  const devRoot = makeTemporaryDirectory();
+  writeFileSync(join(devRoot, 'lifetime-sheet-count'), '9'.repeat(20));
+  expect(await readLifetimeSheetCount({ devRoot })).toEqual(
+    err(expect.stringMatching(/^Error reading lifetime sheet count: /))
+  );
+});
+
+test('readLifetimeSheetCount rejects a file that is too large', async () => {
+  const devRoot = makeTemporaryDirectory();
+  writeFileSync(join(devRoot, 'lifetime-sheet-count'), '1'.repeat(1025));
+  expect(await readLifetimeSheetCount({ devRoot })).toEqual(
+    err('Error reading lifetime sheet count: FileExceedsMaxSize')
+  );
+});
+
+test('readLifetimeSheetCount rejects a path that is not a regular file', async () => {
+  const devRoot = makeTemporaryDirectory();
+  mkdirSync(join(devRoot, 'lifetime-sheet-count'));
+  expect(await readLifetimeSheetCount({ devRoot })).toEqual(
+    err('Error reading lifetime sheet count: NotRegularFile')
   );
 });
 
@@ -162,4 +220,11 @@ test('increment-lifetime-sheet-count script refuses unexpected paths via sudo', 
     stderr: expect.stringMatching(/refusing to write to file via sudo/),
   });
   expect(existsSync(lifetimeSheetCountFilePath)).toEqual(false);
+});
+
+test('readLifetimeSheetCount reads the count written by the script', async () => {
+  const devRoot = makeTemporaryDirectory();
+  await runScript([join(devRoot, 'lifetime-sheet-count')]);
+  await runScript([join(devRoot, 'lifetime-sheet-count')]);
+  expect(await readLifetimeSheetCount({ devRoot })).toEqual(ok(2));
 });
