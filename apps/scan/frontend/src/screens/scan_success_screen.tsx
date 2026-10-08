@@ -4,21 +4,12 @@ import { Screen } from '../components/layout.js';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout.js';
 
 interface Props {
-  scannedBallotCount: number;
   isTestMode: boolean;
 }
 
-export function ScanSuccessScreen({
-  scannedBallotCount,
-  isTestMode,
-}: Props): JSX.Element {
+export function ScanSuccessScreen({ isTestMode }: Props): JSX.Element {
   return (
-    <Screen
-      centerContent
-      ballotCountOverride={scannedBallotCount}
-      voterFacing
-      showTestModeBanner={isTestMode}
-    >
+    <Screen centerContent voterFacing showTestModeBanner={isTestMode}>
       <FullScreenPromptLayout
         title={appStrings.titleScannerSuccessScreen()}
         image={

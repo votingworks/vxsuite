@@ -69,7 +69,6 @@ function renderScreen(props: Partial<PollWorkerScreenProps> = {}) {
       <PollWorkerScreen
         electionDefinition={electionFamousNames2021Fixtures.readElectionDefinition()}
         startNewVoterSession={startNewVoterSessionMock}
-        scannedBallotCount={0}
         {...props}
       />
     )
@@ -80,9 +79,7 @@ describe('transitions from polls closed initial', () => {
   beforeEach(async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
     apiMock.expectGetQuickResultsReportingUrl([]);
-    renderScreen({
-      scannedBallotCount: 0,
-    });
+    renderScreen();
     await screen.findByText('Do you want to open the polls?');
   });
 
@@ -129,9 +126,7 @@ describe('transitions from polls closed initial', () => {
 describe('transitions from polls open', () => {
   beforeEach(async () => {
     apiMock.expectGetPollsInfo('polls_open');
-    renderScreen({
-      scannedBallotCount: 7,
-    });
+    renderScreen();
     await screen.findByText('Do you want to close the polls?');
   });
 
@@ -235,9 +230,7 @@ describe('transitions from polls open', () => {
 describe('transitions from polls paused', () => {
   beforeEach(async () => {
     apiMock.expectGetPollsInfo('polls_paused');
-    renderScreen({
-      scannedBallotCount: 7,
-    });
+    renderScreen();
     await screen.findByText('Do you want to resume voting?');
   });
 
@@ -290,9 +283,7 @@ describe('transitions from polls paused', () => {
 
 test('no transitions from polls closed final', async () => {
   apiMock.expectGetPollsInfo('polls_closed_final');
-  renderScreen({
-    scannedBallotCount: 0,
-  });
+  renderScreen();
   await screen.findByText(/Voting is complete/);
 
   // There should only be the power down, print previous report, and signed hash buttons
@@ -313,9 +304,7 @@ test('no transitions from polls closed final', async () => {
 test('polls closed final shows quick results code when configured', async () => {
   apiMock.expectGetQuickResultsReportingUrl(['https://example.com/qr']);
   apiMock.expectGetPollsInfo('polls_closed_final');
-  renderScreen({
-    scannedBallotCount: 0,
-  });
+  renderScreen();
   await screen.findByText(/Voting is complete/);
 
   expect(screen.queryAllByRole('button')).toHaveLength(4);
@@ -332,9 +321,7 @@ test('polls closed final shows quick results code when configured', async () => 
 test('polls open shows quick results code when configured', async () => {
   apiMock.expectGetQuickResultsReportingUrl(['https://example.com/qr']);
   apiMock.expectGetPollsInfo('polls_open');
-  renderScreen({
-    scannedBallotCount: 0,
-  });
+  renderScreen();
   const menu = await screen.findButton('Menu');
   userEvent.click(menu);
   await screen.findByText(/Close the polls/);
@@ -354,10 +341,13 @@ test('polls open shows quick results code when configured', async () => {
 
 // confirm that we have an alert and logging that meet VVSG 2.0 1.1.3-B
 test('there is a warning if we attempt to open polls with ballots scanned', async () => {
+  apiMock.mockApiClient.getScannerStatus.reset();
   apiMock.expectGetPollsInfo('polls_closed_initial');
-  renderScreen({
-    scannedBallotCount: 1,
+  apiMock.expectGetScannerStatus({
+    ballotsCounted: 1,
+    state: 'waiting_for_ballot',
   });
+  renderScreen();
   await screen.findByText('Do you want to open the polls?');
   apiMock.expectOpenPolls(err('ballots-already-scanned'));
   apiMock.expectGetPollsInfo('polls_closed_initial');

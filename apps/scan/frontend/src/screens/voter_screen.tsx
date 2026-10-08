@@ -122,7 +122,6 @@ export function VoterScreen({
 
   const sharedScreenProps = {
     isTestMode,
-    scannedBallotCount: scannerStatus.ballotsCounted,
   } as const;
 
   // @coverage-defer

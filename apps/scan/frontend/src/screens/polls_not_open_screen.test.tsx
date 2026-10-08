@@ -28,7 +28,10 @@ beforeEach(() => {
     electionDefinition,
     pollingPlaceId: pollingPlace.id,
   });
-  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.expectGetScannerStatus({
+    ...statusNoPaper,
+    ballotsCounted: TEST_BALLOT_COUNT,
+  });
 });
 
 afterEach(() => {
@@ -42,7 +45,6 @@ function renderScreen(props: Partial<PollsNotOpenScreenProps> = {}) {
       <PollsNotOpenScreen
         isTestMode={false}
         pollsState="polls_closed_initial"
-        scannedBallotCount={TEST_BALLOT_COUNT}
         {...props}
       />
     )

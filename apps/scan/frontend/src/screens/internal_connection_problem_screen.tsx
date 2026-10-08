@@ -16,25 +16,19 @@ function PrinterErrorMessage({
     : appStrings.notePrinterHardwareError();
 }
 interface Props {
-  scannedBallotCount?: number;
   printerStatus: PrinterStatus;
   isScannerConnected: boolean;
   isPollWorkerAuth: boolean;
 }
 
 export function InternalConnectionProblemScreen({
-  scannedBallotCount,
   printerStatus,
   isScannerConnected,
   isPollWorkerAuth,
 }: Props): JSX.Element {
   const isPrinterConnectedSuccessfully = printerStatus.state !== 'error';
   return (
-    <ScreenMainCenterChild
-      ballotCountOverride={scannedBallotCount}
-      voterFacing
-      showTestModeBanner={false}
-    >
+    <ScreenMainCenterChild voterFacing showTestModeBanner={false}>
       <CenteredText>
         <H1>{appStrings.titleInternalConnectionProblem()}</H1>
         {!isScannerConnected && <P>{appStrings.noteScannerDisconnected()}</P>}

@@ -41,6 +41,7 @@ import {
   useApiClient,
   getConfig,
   getQuickResultsReportingUrl,
+  getScannerStatus,
 } from '../api.js';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout.js';
 import {
@@ -285,7 +286,6 @@ function getPollsTransitioningText(pollsTransitionType: PollsTransitionType) {
 
 export interface PollWorkerScreenProps {
   electionDefinition: ElectionDefinition;
-  scannedBallotCount: number;
   startNewVoterSession: () => void;
 }
 
@@ -307,7 +307,6 @@ function PollWorkerScreenContents({
   electionDefinition,
   pollsInfo,
   startNewVoterSession,
-  scannedBallotCount,
 }: PollWorkerScreenProps & {
   pollsInfo: PrecinctScannerPollsInfo;
 }): JSX.Element {
@@ -315,6 +314,7 @@ function PollWorkerScreenContents({
   const now = useNow();
   const pollsInfoQuery = getPollsInfo.useQuery();
   const configQuery = getConfig.useQuery();
+  const scannerStatusQuery = getScannerStatus.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const printerStatusQuery = getPrinterStatus.useQuery();
   const openPollsMutation = openPollsApi.useMutation();
@@ -566,7 +566,8 @@ function PollWorkerScreenContents({
 
   const allowReprintingReport =
     pollsInfo.pollsState !== 'polls_closed_initial' &&
-    pollsInfo.lastPollsTransition.ballotCount === scannedBallotCount;
+    pollsInfo.lastPollsTransition.ballotCount ===
+      scannerStatusQuery.data?.ballotsCounted;
 
   if (isShowingBallotsAlreadyScannedScreen) {
     return BallotsAlreadyScannedScreen;

@@ -23,10 +23,7 @@ afterEach(() => {
 
 test('render correct unreadable ballot screen', async () => {
   render(
-    provideApi(
-      apiMock,
-      <ScanErrorScreen error="unreadable" isTestMode scannedBallotCount={42} />
-    )
+    provideApi(apiMock, <ScanErrorScreen error="unreadable" isTestMode />)
   );
   await screen.findByText('Ballot Scan Failed');
   await screen.findByText(
@@ -39,11 +36,7 @@ test('render correct test ballot error screen when we are in test mode', async (
   render(
     provideApi(
       apiMock,
-      <ScanErrorScreen
-        error="invalid_test_mode"
-        isTestMode
-        scannedBallotCount={42}
-      />
+      <ScanErrorScreen error="invalid_test_mode" isTestMode />
     )
   );
   await screen.findByText('Official Ballot');
@@ -57,11 +50,7 @@ test('render correct test ballot error screen when we are in live mode', async (
   render(
     provideApi(
       apiMock,
-      <ScanErrorScreen
-        error="invalid_test_mode"
-        isTestMode={false}
-        scannedBallotCount={42}
-      />
+      <ScanErrorScreen error="invalid_test_mode" isTestMode={false} />
     )
   );
   await screen.findByText('Test Ballot');
@@ -73,14 +62,7 @@ test('render correct test ballot error screen when we are in live mode', async (
 
 test('render correct invalid precinct screen', async () => {
   render(
-    provideApi(
-      apiMock,
-      <ScanErrorScreen
-        error="invalid_precinct"
-        isTestMode
-        scannedBallotCount={42}
-      />
-    )
+    provideApi(apiMock, <ScanErrorScreen error="invalid_precinct" isTestMode />)
   );
   await screen.findByText('Wrong Precinct');
   await screen.findByText(
@@ -93,11 +75,7 @@ test('render correct invalid ballot hash screen', async () => {
   render(
     provideApi(
       apiMock,
-      <ScanErrorScreen
-        error="invalid_ballot_hash"
-        isTestMode={false}
-        scannedBallotCount={42}
-      />
+      <ScanErrorScreen error="invalid_ballot_hash" isTestMode={false} />
     )
   );
   await screen.findByText('Wrong Election');
@@ -111,11 +89,7 @@ test('warning when scanner needs cleaning', async () => {
   render(
     provideApi(
       apiMock,
-      <ScanErrorScreen
-        error="vertical_streaks_detected"
-        isTestMode
-        scannedBallotCount={42}
-      />
+      <ScanErrorScreen error="vertical_streaks_detected" isTestMode />
     )
   );
   await screen.findByText('Scanner Needs Cleaning');
@@ -127,14 +101,7 @@ test('warning when scanner needs cleaning', async () => {
 
 test('warning when ballot was printed with the wrong scale', async () => {
   render(
-    provideApi(
-      apiMock,
-      <ScanErrorScreen
-        error="invalid_scale"
-        isTestMode
-        scannedBallotCount={42}
-      />
-    )
+    provideApi(apiMock, <ScanErrorScreen error="invalid_scale" isTestMode />)
   );
   await screen.findByText('Ballot Scale Error');
   await screen.findByText(
@@ -146,11 +113,7 @@ test('double feed error screen', async () => {
   render(
     provideApi(
       apiMock,
-      <ScanErrorScreen
-        error="double_feed_detected"
-        isTestMode
-        scannedBallotCount={42}
-      />
+      <ScanErrorScreen error="double_feed_detected" isTestMode />
     )
   );
   await screen.findByText('Multiple Sheets Detected');
@@ -162,11 +125,7 @@ test('recoverable error screen', async () => {
   render(
     provideApi(
       apiMock,
-      <ScanErrorScreen
-        error="paper_in_back_after_reconnect"
-        isTestMode
-        scannedBallotCount={42}
-      />
+      <ScanErrorScreen error="paper_in_back_after_reconnect" isTestMode />
     )
   );
   await screen.findByText('Scanner Error');
@@ -180,12 +139,7 @@ test('restart required', async () => {
   render(
     provideApi(
       apiMock,
-      <ScanErrorScreen
-        restartRequired
-        error="client_error"
-        isTestMode
-        scannedBallotCount={42}
-      />
+      <ScanErrorScreen restartRequired error="client_error" isTestMode />
     )
   );
   await screen.findByText('Scanner Error');

@@ -6,20 +6,17 @@ import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout.
 export interface PollsNotOpenScreenProps {
   isTestMode: boolean;
   pollsState: Omit<PollsState, 'polls_open'>;
-  scannedBallotCount: number;
 }
 
 export function PollsNotOpenScreen({
   isTestMode,
   pollsState,
-  scannedBallotCount,
 }: PollsNotOpenScreenProps): JSX.Element {
   return (
     <Screen
       centerContent
       showTestModeBanner={isTestMode}
       infoBarMode="pollworker"
-      ballotCountOverride={scannedBallotCount}
       voterFacing={false}
     >
       <FullScreenPromptLayout

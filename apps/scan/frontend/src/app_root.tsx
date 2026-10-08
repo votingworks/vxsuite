@@ -329,7 +329,6 @@ export function AppRoot(): JSX.Element | null {
   if (isInternalConnectionProblem) {
     return (
       <InternalConnectionProblemScreen
-        scannedBallotCount={scannerStatus.ballotsCounted}
         isScannerConnected={scannerStatus.state !== 'disconnected'}
         printerStatus={printerStatus}
         isPollWorkerAuth={isPollWorkerAuth(authStatus)}
@@ -363,7 +362,6 @@ export function AppRoot(): JSX.Element | null {
       <PollWorkerScreen
         electionDefinition={electionDefinition}
         startNewVoterSession={sessionSettingsManager.startNewSession}
-        scannedBallotCount={scannerStatus.ballotsCounted}
       />
     );
   }
@@ -389,11 +387,7 @@ export function AppRoot(): JSX.Element | null {
 
   if (pollsState !== 'polls_open') {
     return (
-      <PollsNotOpenScreen
-        isTestMode={isTestMode}
-        pollsState={pollsState}
-        scannedBallotCount={scannerStatus.ballotsCounted}
-      />
+      <PollsNotOpenScreen isTestMode={isTestMode} pollsState={pollsState} />
     );
   }
 
