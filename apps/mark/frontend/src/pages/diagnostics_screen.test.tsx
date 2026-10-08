@@ -63,7 +63,7 @@ afterEach(() => {
 test('renders diagnostics screen with all sections', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
-  apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
+  apiMock.expectGetElectionState({
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -98,7 +98,7 @@ test('renders diagnostics screen with all sections', async () => {
 test('navigating to and from system audio diagnostic - pass', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
-  apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
+  apiMock.expectGetElectionState({
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -135,7 +135,7 @@ test('navigating to and from system audio diagnostic - pass', async () => {
 test('navigating to and from system audio diagnostic - fail', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
-  apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
+  apiMock.expectGetElectionState({
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -172,7 +172,7 @@ test('navigating to and from system audio diagnostic - fail', async () => {
 test('navigating to and from system audio diagnostic - cancel', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
-  apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
+  apiMock.expectGetElectionState({
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -198,7 +198,7 @@ test('navigating to and from system audio diagnostic - cancel', async () => {
 test('navigating to and from headphone input diagnostic - pass', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
-  apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
+  apiMock.expectGetElectionState({
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -235,7 +235,7 @@ test('navigating to and from headphone input diagnostic - pass', async () => {
 test('navigating to and from headphone input diagnostic - fail', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
-  apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
+  apiMock.expectGetElectionState({
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -272,7 +272,7 @@ test('navigating to and from headphone input diagnostic - fail', async () => {
 test('navigating to and from headphone input diagnostic - cancel', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
-  apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
+  apiMock.expectGetElectionState({
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -298,7 +298,7 @@ test('navigating to and from headphone input diagnostic - cancel', async () => {
 test('navigating to and from PAT input diagnostic - pass', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
-  apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
+  apiMock.expectGetElectionState({
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -348,7 +348,7 @@ test('navigating to and from PAT input diagnostic - pass', async () => {
 test('navigating to and from PAT input diagnostic - cancel', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
-  apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
+  apiMock.expectGetElectionState({
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -386,7 +386,7 @@ test('navigating to and from PAT input diagnostic - cancel', async () => {
 test('navigating to and from barcode reader diagnostic - fail', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
-  apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
+  apiMock.expectGetElectionState({
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -429,7 +429,7 @@ test('navigating to and from barcode reader diagnostic - fail', async () => {
 test('navigating to and from barcode reader diagnostic - cancel', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
-  apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
+  apiMock.expectGetElectionState({
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -458,7 +458,7 @@ test('navigating to and from barcode reader diagnostic - cancel', async () => {
 test('UPS diagnostic - pass', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
-  apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
+  apiMock.expectGetElectionState({
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -495,7 +495,7 @@ test('UPS diagnostic - pass', async () => {
 test('UPS diagnostic - fail', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
-  apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
+  apiMock.expectGetElectionState({
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -535,7 +535,6 @@ test('election configuration info', async () => {
 
   apiMock.mockApiClient.getElectionRecord.reset();
   apiMock.expectGetElectionRecord(electionDefinition);
-  apiMock.mockApiClient.getElectionState.reset();
   apiMock.expectGetElectionState({ pollingPlaceId: pollingPlace!.id });
   apiMock.expectGetMachineConfig();
 
@@ -549,7 +548,7 @@ test('election configuration info', async () => {
 test('navigating to and from accessible controller diagnostic', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
-  apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
+  apiMock.expectGetElectionState({
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,
@@ -605,7 +604,7 @@ test('navigating to and from accessible controller diagnostic', async () => {
 test('navigating to and from accessible controller diagnostic - fail', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.mockApiClient.getElectionRecord.expectCallWith().resolves(null);
-  apiMock.mockApiClient.getElectionState.expectCallWith().resolves({
+  apiMock.expectGetElectionState({
     pollsState: 'polls_closed_initial',
     ballotsPrintedCount: 0,
     isTestMode: true,

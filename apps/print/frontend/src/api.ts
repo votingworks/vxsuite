@@ -17,6 +17,8 @@ import {
 } from '@votingworks/ui';
 import type { BallotType, LanguageCode } from '@votingworks/types';
 
+export const BALLOT_PRINT_COUNTS_POLLING_INTERVAL_MS = 500;
+
 export type ApiClient = grout.Client<Api>;
 
 // @coverage-defer
@@ -196,9 +198,9 @@ export const getBallotPrintCounts = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getBallotPrintCounts(), {
-      // Counts are incremented when a print job settles, which happens on the
-      // backend with no corresponding frontend mutation to invalidate on.
-      staleTime: 0,
+      // The ballot count is incremented when a print job settles, which happens
+      // asynchronously on the backend
+      refetchInterval: BALLOT_PRINT_COUNTS_POLLING_INTERVAL_MS,
     });
   },
 } as const;
@@ -219,11 +221,6 @@ export const checkPin = {
 } as const;
 
 export const printBallot = {
-  /*
-   * If this mutation is called from a component that also displays a print count,
-   * the component should `useEffect` to invalidate the `getBallotPrintCounts` query
-   * once print job status === 'sent-to-printer'
-   */
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.printBallot);
