@@ -1,4 +1,4 @@
-import { LogEventId, type Logger } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 import {
   Admin,
   ElectionPackageFileName,
@@ -168,11 +168,16 @@ import {
 } from './reports/tally_report.js';
 import { printTestPage } from './reports/test_print.js';
 import { saveReadinessReport } from './reports/readiness.js';
-import { constructAuthMachineState } from './util/auth.js';
+import { constructAuthMachineState, getUserRole } from './util/auth.js';
 import { parseElectionResultsReportingFile } from './tabulation/election_results_reporting.js';
 import { generateReportsDirectoryPath } from './util/filenames.js';
 import { getHostServiceName } from './networking.js';
 import { timeout } from './util/timeout.js';
+import {
+  startBackup,
+  type BackupController,
+  type BackupStatus,
+} from './backup/create/index.js';
 
 const debug = rootDebug.extend('app');
 
@@ -213,6 +218,10 @@ function buildApi({
   const usbDriveAdapter = createUsbDriveAdapter(multiUsbDrive, (drives) =>
     findDriveByPurpose(drives, 'data')
   );
+  const backupDriveAdapter = createUsbDriveAdapter(multiUsbDrive, (drives) =>
+    findDriveByPurpose(drives, 'backup')
+  );
+  let currentBackup: BackupController | undefined;
 
   // Backs the `waitForUsbDriveChange` long-poll. `usbDriveChangeSeq` is a
   // monotonic counter bumped on every change; `nextUsbDriveChange` resolves to
@@ -1656,6 +1665,36 @@ function buildApi({
         pollingPlaceId: input.pollingPlaceId,
       });
       return urls;
+    },
+
+    async getBackupDriveStatus(): Promise<UsbDriveStatus> {
+      return backupDriveAdapter.status();
+    },
+
+    async startBackup(): Promise<void> {
+      assert(!currentBackup, 'Cannot start multiple backups at once');
+      const backupDriveStatus = await backupDriveAdapter.status();
+      assert(backupDriveStatus.status === 'mounted');
+      const role = await getUserRole(auth, store);
+      currentBackup = startBackup({
+        workspace,
+        target: backupDriveStatus.mountpoint,
+        // Capture the current user role since they may log out during the backup
+        logger: Logger.from(logger, () => Promise.resolve(role)),
+      });
+    },
+
+    getBackupStatus(): BackupStatus | null {
+      return currentBackup?.status() ?? null;
+    },
+
+    abortBackup(): void {
+      currentBackup?.abort();
+    },
+
+    finishBackup(): void {
+      assert(currentBackup?.status().status === 'ended');
+      currentBackup = undefined;
     },
 
     ...createSystemCallApi({
