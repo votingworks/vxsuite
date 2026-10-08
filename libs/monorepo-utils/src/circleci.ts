@@ -78,7 +78,7 @@ function turboCacheSaveSteps(indent: string): string[] {
   ];
 }
 
-const POSTGRES_PACKAGES: string[] = ['apps/design/backend'];
+const POSTGRES_PACKAGES: string[] = ['apps/hub/backend'];
 // The following packages are only tested when there is a change to its directory.
 const PACKAGES_ONLY_TEST_ON_CHANGES = ['apps/pollbook/backend'];
 
