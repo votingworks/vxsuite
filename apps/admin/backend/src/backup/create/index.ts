@@ -14,7 +14,10 @@ import type { PrepareBackupOptions } from './types.js';
 import { copy } from './copy_step.js';
 import { writeManifest } from './manifest_step.js';
 import { swap, type SwapError } from './swap_step.js';
-import type { BackupManifest } from '../backup_manifest.js';
+import type {
+  BackupManifest,
+  BackupManifestStruct,
+} from '../backup_manifest.js';
 import { BackupRoot } from '../backup_root.js';
 
 /**
@@ -62,7 +65,7 @@ const EXPECTED_WRITE_ERROR_CODES: readonly string[] = [
  */
 export interface CreatedBackup {
   path: string;
-  manifest: BackupManifest;
+  manifest: BackupManifestStruct;
 }
 
 /**
@@ -271,5 +274,5 @@ async function tryCreateBackup(
     return swapResult;
   }
 
-  return ok({ path: backupPath, manifest });
+  return ok({ path: backupPath, manifest: manifest.toJSON() });
 }
