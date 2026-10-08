@@ -18,4 +18,4 @@ CIRCLECI_API_TOKEN="${CIRCLECI_API_TOKEN:-test-token}" \
   CIRCLECI_BASE_URL="${CIRCLECI_BASE_URL:-http://localhost:9000}" \
   CIRCLECI_QA_ORG_IDS="${CIRCLECI_QA_ORG_IDS:-votingworks}" \
   BASE_URL="${BASE_URL:-http://localhost:3000}" \
-  exec pnpm -C apps/design/frontend start
+  exec pnpm -C apps/hub/frontend start
