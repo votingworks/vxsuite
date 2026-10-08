@@ -3,12 +3,12 @@ import type { Logger } from '@votingworks/logging';
 /**
  * Basic options for all backup and restore steps.
  */
-export interface ProgressTracking {
+export interface ProgressTracking<Event> {
   /**
    * When given this callback will be called repeatedly as the operation
    * progresses.
    */
-  onProgressEvent?: (event: ProgressEvent) => void;
+  onProgressEvent?: (event: Event) => void;
 
   /**
    * Where to send log messages during the operation.
@@ -29,26 +29,32 @@ export interface ProgressTracking {
   signal?: AbortSignal;
 }
 
+interface CopyingFilesProgress {
+  current?: string;
+  copiedCount: number;
+  totalCount: number;
+  copiedBytes: number;
+  totalBytes: number;
+}
+
 /**
- * All expected events that may occur while creating or restoring a backup. The
- * two operations share the vocabulary where the work is the same (`preparing`,
- * `copy_files`), so a progress display can serve both; the remaining phases
- * each belong to one side.
+ * Progress event for each step of the backup process.
  */
-export type ProgressEvent =
-  | { type: 'preparing' }
-  | { type: 'db_snapshot'; progress: number }
-  | { type: 'staging_files'; progress: number }
-  | {
-      type: 'copy_files';
-      current?: string;
-      copiedCount: number;
-      totalCount: number;
-      copiedBytes: number;
-      totalBytes: number;
-    }
-  | { type: 'writing_manifest' }
-  | { type: 'flushing_backup' }
-  | { type: 'swapping_backup' }
-  | { type: 'verifying' }
-  | { type: 'flushing_workspace' };
+export type BackupProgressEvent =
+  | { type: '1_preparing' }
+  | { type: '2_db_snapshot'; progress: number }
+  | { type: '3_staging_files'; progress: number }
+  | ({ type: '4_copying_files' } & CopyingFilesProgress)
+  | { type: '5_writing_manifest' }
+  | { type: '6_flushing_backup' }
+  | { type: '7_swapping_backup' }
+  | { type: '8_flushing_swap' };
+
+/**
+ * Progress event for each step of the restore process.
+ */
+export type RestoreProgressEvent =
+  | { type: '1_preparing' }
+  | ({ type: '2_copying_files' } & CopyingFilesProgress)
+  | { type: '3_verifying' }
+  | { type: '4_flushing_workspace' };
