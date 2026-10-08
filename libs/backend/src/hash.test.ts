@@ -10,11 +10,12 @@ import { HashingPassthrough } from './hash.js';
 
 test('HashingPassthrough - matches regular hasher output', async () => {
   const phrase = Buffer.of(0xca, 0xfe);
-  const nPhrases = 100 * 1024; // Need this to be large enough to need draining.
-  const chunks = Array.from({ length: nPhrases }, () => phrase);
+  const chunk = Buffer.alloc(1024, phrase);
+  const nChunks = 100; // Need this to be large enough to need draining.
+  const chunks = Array.from({ length: nChunks }, () => chunk);
 
   const referenceHash = createHash('sha256');
-  for (const chunk of chunks) referenceHash.update(chunk);
+  for (const c of chunks) referenceHash.update(c);
 
   const hashingStream = new HashingPassthrough(createHash('sha256'));
   const { outputPath, outputStream } = tempFile();
@@ -23,7 +24,9 @@ test('HashingPassthrough - matches regular hasher output', async () => {
   expect(hashingStream.digest('hex')).toEqual(referenceHash.digest('hex'));
 
   const output = readFileSync(outputPath);
-  expect(output).toEqual(Buffer.alloc(nPhrases * phrase.length, phrase));
+  expect(output.toString('hex')).toEqual(
+    Buffer.alloc(nChunks * chunk.length, phrase).toString('hex')
+  );
 });
 
 test('HashingPassthrough - handles string chunks', async () => {
