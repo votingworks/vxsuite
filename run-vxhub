@@ -3,7 +3,7 @@
 set -euo pipefail
 
 if [[ "${#}" -ne 1 || "${1}" != "web" && "${1}" != "worker" ]]; then
-  echo "Usage: run-vxdesign <web|worker>"
+  echo "Usage: run-vxhub <web|worker>"
   exit 1
 fi
 
@@ -19,7 +19,7 @@ mkdir -p "$(dirname "${GOOGLE_APPLICATION_CREDENTIALS}")"
 echo "${GOOGLE_APPLICATION_CREDENTIALS_CONTENTS}" > "${GOOGLE_APPLICATION_CREDENTIALS}"
 
 if [[ "${APP}" == "web" ]]; then
-  node /vx/code/vxsuite/apps/design/backend/build/index.js
+  node /vx/code/vxsuite/apps/hub/backend/build/index.js
 elif [[ "${APP}" == "worker" ]]; then
-  node --max-old-space-size=8192 /vx/code/vxsuite/apps/design/backend/build/worker/index.js
+  node --max-old-space-size=8192 /vx/code/vxsuite/apps/hub/backend/build/worker/index.js
 fi
