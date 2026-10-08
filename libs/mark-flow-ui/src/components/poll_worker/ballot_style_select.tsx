@@ -25,6 +25,8 @@ export interface BallotStyleSelectProps {
   disabled?: boolean;
   /** Highlights the button for this ballot style, if any, as selected. */
   selectedBallotStyleId?: BallotStyleId;
+  /** Shows this precinct or split, if any, as selected. */
+  selectedPrecinctOrSplitId?: PrecinctId | PrecinctSplitId;
 }
 
 export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
@@ -34,12 +36,13 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
     onSelect,
     disabled,
     selectedBallotStyleId,
+    selectedPrecinctOrSplitId,
   } = props;
 
   // Only used for primary elections
-  const [selectedPrecinctOrSplitId, setSelectedPrecinctOrSplitId] = useState<
-    PrecinctId | PrecinctSplitId
-  >();
+  const [pendingPrecinctOrSplitId, setPendingPrecinctOrSplitId] = useState<
+    PrecinctId | PrecinctSplitId | undefined
+  >(selectedPrecinctOrSplitId);
 
   function getBallotStyleForPrecinctOrSplit(precinctOrSplit: PrecinctOrSplit) {
     const ballotStyleGroups = getBallotStyleGroupsForPrecinctOrSplit({
@@ -91,7 +94,7 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
                 value: precinctOrSplit.precinct.id,
               }
         )}
-        value=""
+        value={selectedPrecinctOrSplitId ?? ''}
         onChange={(value) => {
           const precinctOrSplit = find(
             configuredPrecinctsAndSplits,
@@ -114,12 +117,12 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
   const selectedPrecinctOrSplit =
     configuredPrecinctsAndSplits.length === 1
       ? configuredPrecinctsAndSplits[0]
-      : selectedPrecinctOrSplitId &&
+      : pendingPrecinctOrSplitId &&
         find(
           configuredPrecinctsAndSplits,
           (precinctOrSplit) =>
-            precinctOrSplit.split?.id === selectedPrecinctOrSplitId ||
-            precinctOrSplit.precinct.id === selectedPrecinctOrSplitId
+            precinctOrSplit.split?.id === pendingPrecinctOrSplitId ||
+            precinctOrSplit.precinct.id === pendingPrecinctOrSplitId
         );
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -138,8 +141,8 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
                   value: precinctOrSplit.precinct.id,
                 }
           )}
-          value={selectedPrecinctOrSplitId}
-          onChange={setSelectedPrecinctOrSplitId}
+          value={pendingPrecinctOrSplitId}
+          onChange={setPendingPrecinctOrSplitId}
           style={{ width: '100%' }}
           disabled={disabled}
         />

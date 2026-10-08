@@ -112,6 +112,21 @@ describe('general election', () => {
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenLastCalledWith(p2.id, ballotStyle1!.id);
   });
+
+  test('shows the selected precinct or split', () => {
+    const [p1, p2] = election.precincts;
+    assert(hasSplits(p2!));
+
+    renderSelect({
+      election,
+      onSelect: vi.fn(),
+      configuredPrecinctsAndSplits: toPrecinctsOrSplitList([p1!, p2]),
+      selectedPrecinctOrSplitId: p2.splits[1]!.id,
+    });
+
+    expect(screen.queryByText('Select ballot style…')).toBeNull();
+    screen.getByText(p2.splits[1]!.name);
+  });
 });
 
 describe('primary election', () => {
@@ -215,6 +230,26 @@ describe('primary election', () => {
     userEvent.click(screen.getButton('Fish'));
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenLastCalledWith(p4.id, '4-F_en');
+  });
+
+  test('shows the selected precinct or split and its ballot styles', () => {
+    const [p1, , , p4] = election.precincts;
+    assert(hasSplits(p4!));
+    const onSelect = vi.fn();
+
+    renderSelect({
+      election,
+      onSelect,
+      configuredPrecinctsAndSplits: toPrecinctsOrSplitList([p1!, p4]),
+      selectedPrecinctOrSplitId: p4.splits[0]!.id,
+    });
+
+    expect(screen.queryByText("Select voter's precinct…")).toBeNull();
+    screen.getByText(p4.splits[0]!.name);
+
+    userEvent.click(screen.getButton('Fish'));
+    expect(onSelect).toHaveBeenCalledOnce();
+    expect(onSelect).toHaveBeenLastCalledWith(p4.id, '3-F_en');
   });
 });
 
