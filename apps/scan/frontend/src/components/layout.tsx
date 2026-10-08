@@ -36,7 +36,6 @@ const ELECTION_BAR_HIDDEN_SIZE_MODES: ReadonlySet<SizeMode> = new Set([
 
 export interface ScreenProps {
   actionButtons?: React.ReactNode;
-  ballotCountOverride?: number;
   hideBallotCount?: boolean;
   centerContent?: boolean;
   children: React.ReactNode;
@@ -145,7 +144,6 @@ export function Screen(props: ScreenProps): JSX.Element | null {
     actionButtons,
     children,
     hideBallotCount: hideBallotCountFromProps,
-    ballotCountOverride,
     centerContent,
     infoBarMode,
     hideInfoBar: hideInfoBarFromProps,
@@ -210,8 +208,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
     );
   }
 
-  const ballotCount =
-    ballotCountOverride ?? scannerStatusQuery.data?.ballotsCounted;
+  const ballotCount = scannerStatusQuery.data?.ballotsCounted;
 
   const hideInfoBar =
     hideInfoBarFromProps ||

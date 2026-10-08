@@ -356,7 +356,6 @@ export function ElectionManagerScreen({
   return (
     <Screen
       infoBarMode="admin"
-      ballotCountOverride={scannerStatus.ballotsCounted}
       title="Election Manager Menu"
       voterFacing={false}
       showTestModeBanner={false}

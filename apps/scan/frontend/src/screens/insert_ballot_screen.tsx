@@ -3,18 +3,13 @@ import { Screen } from '../components/layout.js';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout.js';
 
 interface Props {
-  scannedBallotCount: number;
   isTestMode: boolean;
 }
 
-export function InsertBallotScreen({
-  scannedBallotCount,
-  isTestMode,
-}: Props): JSX.Element {
+export function InsertBallotScreen({ isTestMode }: Props): JSX.Element {
   return (
     <Screen
       centerContent
-      ballotCountOverride={scannedBallotCount}
       voterFacing
       showTestModeBanner={isTestMode}
       // Don't read aloud "Insert your ballot" to ensure that prior "Your ballot was counted" audio

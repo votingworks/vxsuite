@@ -11,24 +11,14 @@ import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout.
 
 interface Props {
   error?: PrecinctScannerErrorType;
-  scannedBallotCount: number;
   isTestMode: boolean;
 }
 
 // @coverage-defer
-export function ScanJamScreen({
-  error,
-  scannedBallotCount,
-  isTestMode,
-}: Props): JSX.Element {
+export function ScanJamScreen({ error, isTestMode }: Props): JSX.Element {
   const isOutfeedBlocked = error === 'outfeed_blocked';
   return (
-    <Screen
-      centerContent
-      ballotCountOverride={scannedBallotCount}
-      voterFacing
-      showTestModeBanner={isTestMode}
-    >
+    <Screen centerContent voterFacing showTestModeBanner={isTestMode}>
       <FullScreenPromptLayout
         title={
           isOutfeedBlocked

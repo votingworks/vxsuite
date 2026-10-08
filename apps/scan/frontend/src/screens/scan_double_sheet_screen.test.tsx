@@ -22,12 +22,7 @@ afterEach(() => {
 });
 
 test('renders double sheet screen as expected', async () => {
-  render(
-    provideApi(
-      apiMock,
-      <ScanDoubleSheetScreen scannedBallotCount={42} isTestMode={false} />
-    )
-  );
+  render(provideApi(apiMock, <ScanDoubleSheetScreen isTestMode={false} />));
   await screen.findByText('Multiple Sheets Detected');
   await screen.findByText('Remove your ballot and insert one sheet at a time.');
 });
