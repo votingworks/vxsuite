@@ -16,7 +16,7 @@ import {
   waitFor,
   within,
 } from '@testing-library/react';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, deferred } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import {
   createMockClient,
@@ -596,10 +596,15 @@ test('barcode scan mock control', async () => {
   const input = screen.getByRole('textbox', { name: 'Barcode Contents' });
   userEvent.clear(input);
   userEvent.type(input, 'test-barcode');
+  const emitBarcodeScanDeferred = deferred<void>();
   mockApiClient.emitBarcodeScan
     .expectCallWith({ payload: 'test-barcode' })
-    .resolves();
+    .returns(emitBarcodeScanDeferred.promise);
   userEvent.click(screen.getByRole('button', { name: 'Scan' }));
+  await waitFor(() => mockApiClient.assertComplete());
+  screen.getByRole('alertdialog');
+
+  emitBarcodeScanDeferred.resolve();
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });

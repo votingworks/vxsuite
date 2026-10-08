@@ -823,6 +823,15 @@ function HardwareMockControls() {
   );
 }
 
+const BarcodeContentsInput = styled.input`
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid ${Colors.BORDER};
+  color: ${Colors.TEXT};
+`;
+
 function BarcodeScanMockControl() {
   const apiClient = useApiClient();
   const emitBarcodeScanMutation = useMutation(apiClient.emitBarcodeScan);
@@ -832,8 +841,8 @@ function BarcodeScanMockControl() {
     BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER
   );
 
-  function onScan() {
-    emitBarcodeScanMutation.mutate({ payload });
+  async function onScan() {
+    await emitBarcodeScanMutation.mutateAsync({ payload });
     setIsOpen(false);
   }
 
@@ -860,7 +869,7 @@ function BarcodeScanMockControl() {
           content={
             <React.Fragment>
               <P>Barcode contents:</P>
-              <input
+              <BarcodeContentsInput
                 type="text"
                 value={payload}
                 aria-label="Barcode Contents"
@@ -870,7 +879,6 @@ function BarcodeScanMockControl() {
                   e.stopPropagation();
                 }}
                 autoComplete="off"
-                style={{ width: '100%' }}
               />
             </React.Fragment>
           }
