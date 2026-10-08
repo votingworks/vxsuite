@@ -1,6 +1,6 @@
 import { assert } from '@votingworks/basics';
 import { unsafeParse } from '@votingworks/types';
-import { getDesignDevWorkspaceDir } from '@votingworks/utils';
+import { getHubDevWorkspaceDir } from '@votingworks/utils';
 import { join } from 'node:path';
 import { z } from 'zod/v4';
 
@@ -135,7 +135,7 @@ export const WORKSPACE =
   // @coverage-defer
   (NODE_ENV === 'development'
     ? // Shared with dev tooling that reads VxDesign's exports.
-      getDesignDevWorkspaceDir(join(import.meta.dirname, '../../../..'))
+      getHubDevWorkspaceDir(join(import.meta.dirname, '../../../..'))
     : undefined);
 
 /**

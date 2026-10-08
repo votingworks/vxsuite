@@ -6,7 +6,7 @@ import { ELECTION_PACKAGE_FOLDER } from '@votingworks/utils';
 import {
   QUICK_CONFIGURE_ELECTION_DIR,
   STAGED_ELECTION_PACKAGE_FILE_NAME,
-  findLatestVxDesignElectionPackage,
+  findLatestVxHubElectionPackage,
   stageElectionPackageOnMockUsbDrive,
 } from './quick_configure.js';
 
@@ -16,15 +16,15 @@ function writeFileWithModifiedTime(path: string, mtime: Date): void {
   fs.utimesSync(path, mtime, mtime);
 }
 
-test('findLatestVxDesignElectionPackage returns undefined when VxDesign has not exported anything', async () => {
+test('findLatestVxHubElectionPackage returns undefined when VxHub has not exported anything', async () => {
   const searchDir = join(makeTemporaryDirectory(), 'dev-workspace');
-  expect(await findLatestVxDesignElectionPackage(searchDir)).toBeUndefined();
+  expect(await findLatestVxHubElectionPackage(searchDir)).toBeUndefined();
 
   fs.mkdirSync(searchDir);
-  expect(await findLatestVxDesignElectionPackage(searchDir)).toBeUndefined();
+  expect(await findLatestVxHubElectionPackage(searchDir)).toBeUndefined();
 });
 
-test('findLatestVxDesignElectionPackage picks the newest package across jurisdictions', async () => {
+test('findLatestVxHubElectionPackage picks the newest package across jurisdictions', async () => {
   const searchDir = makeTemporaryDirectory();
   writeFileWithModifiedTime(
     join(searchDir, 'jurisdiction-a/election-package-aaa-111.zip'),
@@ -40,12 +40,10 @@ test('findLatestVxDesignElectionPackage picks the newest package across jurisdic
     new Date('2026-02-01')
   );
 
-  expect(await findLatestVxDesignElectionPackage(searchDir)).toEqual(
-    newestPath
-  );
+  expect(await findLatestVxHubElectionPackage(searchDir)).toEqual(newestPath);
 });
 
-test('findLatestVxDesignElectionPackage ignores ballot zips and loose files', async () => {
+test('findLatestVxHubElectionPackage ignores ballot zips and loose files', async () => {
   const searchDir = makeTemporaryDirectory();
   const packagePath = join(
     searchDir,
@@ -72,9 +70,7 @@ test('findLatestVxDesignElectionPackage ignores ballot zips and loose files', as
   );
   fs.mkdirSync(join(searchDir, 'jurisdiction-a/election-package-eee-555.zip'));
 
-  expect(await findLatestVxDesignElectionPackage(searchDir)).toEqual(
-    packagePath
-  );
+  expect(await findLatestVxHubElectionPackage(searchDir)).toEqual(packagePath);
 });
 
 test('stageElectionPackageOnMockUsbDrive writes the layout machines look for', () => {

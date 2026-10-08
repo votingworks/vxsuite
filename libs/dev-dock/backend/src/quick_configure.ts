@@ -27,7 +27,7 @@ const ELECTION_PACKAGE_FILE_PREFIX = 'election-package-';
  * jurisdictions. Ballot zips are written to the same directories, so only files
  * named like election packages are considered.
  */
-export async function findLatestVxDesignElectionPackage(
+export async function findLatestVxHubElectionPackage(
   searchDir: string
 ): Promise<Optional<string>> {
   const electionPackages: FileSystemEntry[] = [];

@@ -35,7 +35,7 @@ import {
   readFromMockFile as readFromCardMockFile,
 } from '@votingworks/auth';
 import {
-  getDesignDevWorkspaceDir,
+  getHubDevWorkspaceDir,
   getMockStateRootDir,
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
@@ -72,7 +72,7 @@ import {
 import { getPdfPageCount, pdfToImages } from '@votingworks/image-utils/pdf';
 import { execFile } from './utils.js';
 import {
-  findLatestVxDesignElectionPackage,
+  findLatestVxHubElectionPackage,
   stageElectionPackageOnMockUsbDrive,
 } from './quick_configure.js';
 
@@ -143,7 +143,7 @@ export const DEFAULT_DEV_DOCK_DIR = getMockStateRootDir(REPO_ROOT);
  * Where VxDesign writes its exports in development, one subdirectory per
  * jurisdiction.
  */
-export const DESIGN_EXPORT_DIR = getDesignDevWorkspaceDir(REPO_ROOT);
+export const HUB_EXPORT_DIR = getHubDevWorkspaceDir(REPO_ROOT);
 
 // Convert paths relative to the VxSuite root to absolute paths
 export function electionPathToAbsolute(path: string): string {
@@ -356,7 +356,7 @@ interface PdiScannerSheetQueueState {
 function buildApi(
   devDockDir: string,
   mockSpec: MockSpec,
-  designExportDir: string
+  hubExportDir: string
 ) {
   const printerHandler = getMockFilePrinterHandler();
   const usbDriveHandler = getMockUsbDriveHandler(MOCK_USB_DRIVE_DISK_NAME);
@@ -474,21 +474,19 @@ function buildApi(
         })
         .toArray();
 
-      const latestVxDesignElectionPackagePath =
-        await findLatestVxDesignElectionPackage(designExportDir);
-      const vxDesignElections: DevDockElectionOption[] =
-        latestVxDesignElectionPackagePath
+      const latestVxHubElectionPackagePath =
+        await findLatestVxHubElectionPackage(hubExportDir);
+      const vxHubElections: DevDockElectionOption[] =
+        latestVxHubElectionPackagePath
           ? [
               {
-                title: `VxDesign: ${basename(
-                  latestVxDesignElectionPackagePath
-                )}`,
-                inputPath: latestVxDesignElectionPackagePath,
+                title: `VxHub: ${basename(latestVxHubElectionPackagePath)}`,
+                inputPath: latestVxHubElectionPackagePath,
               },
             ]
           : [];
 
-      return [...vxDesignElections, ...usbElections, ...fixtureElections];
+      return [...vxHubElections, ...usbElections, ...fixtureElections];
     },
 
     getCardStatus(): CardStatus {
@@ -808,7 +806,7 @@ export function useDevDockRouter(
   mockSpec: MockSpec,
   // @coverage-exclude
   devDockDir: string = DEFAULT_DEV_DOCK_DIR,
-  designExportDir: string = DESIGN_EXPORT_DIR
+  hubExportDir: string = HUB_EXPORT_DIR
 ): void {
   if (!isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_DEV_DOCK)) {
     return;
@@ -826,7 +824,7 @@ export function useDevDockRouter(
     writeDevDockFileContents(devDockFilePath, {});
   }
 
-  const api = buildApi(devDockDir, mockSpec, designExportDir);
+  const api = buildApi(devDockDir, mockSpec, hubExportDir);
 
   // Set a default election if one is not already set
   // @coverage-defer

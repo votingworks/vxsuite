@@ -18,12 +18,12 @@ function isTiptapError(event: Sentry.ErrorEvent): boolean {
 if (process.env.NODE_ENV === 'production') {
   /* eslint-disable no-underscore-dangle */
   const envVars = window as unknown as {
-    _vxdesign_sentry_dsn: string;
-    _vxdesign_deploy_env: string;
+    _vxhub_sentry_dsn: string;
+    _vxhub_deploy_env: string;
   };
   Sentry.init({
-    dsn: envVars._vxdesign_sentry_dsn,
-    environment: envVars._vxdesign_deploy_env,
+    dsn: envVars._vxhub_sentry_dsn,
+    environment: envVars._vxhub_deploy_env,
     integrations: [Sentry.browserTracingIntegration()],
     tracesSampleRate: 0.2,
     beforeSend(event) {
