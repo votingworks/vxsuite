@@ -4,7 +4,7 @@ import { File as NodeFile } from 'node:buffer';
 import { afterEach, beforeEach, test, expect } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import { within } from '@testing-library/react';
-import type { Jurisdiction } from '@votingworks/design-backend';
+import type { Jurisdiction } from '@votingworks/hub-backend';
 import {
   type MockApiClient,
   jurisdiction,

@@ -9,10 +9,7 @@ import {
 } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
 import { throwIllegalValue } from '@votingworks/basics';
-import type {
-  ElectionListing,
-  ElectionStatus,
-} from '@votingworks/design-backend';
+import type { ElectionListing, ElectionStatus } from '@votingworks/hub-backend';
 import { useMemo } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 import * as api from '../api.js';

@@ -4,7 +4,7 @@ import type {
   StateFeaturesConfig,
   UserFeaturesConfig,
   ResultsReportingPath,
-} from '@votingworks/design-backend';
+} from '@votingworks/hub-backend';
 import type {
   ElectionId,
   ElectionStringKey,

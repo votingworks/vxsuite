@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 
 import { sleep } from '@votingworks/basics';
-import type { StateFeaturesConfig } from '@votingworks/design-backend';
+import type { StateFeaturesConfig } from '@votingworks/hub-backend';
 
 import { act, render, screen } from '../../test/react_testing_library.js';
 import { AudioLinkButton } from './audio_link_button.js';

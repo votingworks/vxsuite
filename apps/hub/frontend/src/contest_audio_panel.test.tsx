@@ -2,10 +2,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { createMemoryHistory } from 'history';
 import { Route, Router, Switch } from 'react-router-dom';
 
-import type {
-  ElectionInfo,
-  TtsStringDefault,
-} from '@votingworks/design-backend';
+import type { ElectionInfo, TtsStringDefault } from '@votingworks/hub-backend';
 import { ElectionStringKey, LanguageCode } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 

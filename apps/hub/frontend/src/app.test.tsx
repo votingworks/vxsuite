@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import { typedAs } from '@votingworks/basics';
-import type { AuthErrorCode } from '@votingworks/design-backend';
+import type { AuthErrorCode } from '@votingworks/hub-backend';
 import {
   type MockApiClient,
   createMockApiClient,

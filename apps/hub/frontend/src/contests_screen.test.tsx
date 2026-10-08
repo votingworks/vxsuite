@@ -27,7 +27,7 @@ import {
   find,
   ok,
 } from '@votingworks/basics';
-import type { StateFeaturesConfig } from '@votingworks/design-backend';
+import type { StateFeaturesConfig } from '@votingworks/hub-backend';
 import {
   type MockApiClient,
   createMockApiClient,

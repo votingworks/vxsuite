@@ -1,6 +1,6 @@
 import React from 'react';
 import * as grout from '@votingworks/grout';
-import type { UnauthenticatedApi } from '@votingworks/design-backend';
+import type { UnauthenticatedApi } from '@votingworks/hub-backend';
 import { useMutation } from '@tanstack/react-query';
 
 export type UnauthenticatedApiClient = grout.Client<UnauthenticatedApi>;

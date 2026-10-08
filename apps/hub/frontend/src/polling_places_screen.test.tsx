@@ -1,5 +1,5 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import type { StateFeaturesConfig } from '@votingworks/design-backend';
+import type { StateFeaturesConfig } from '@votingworks/hub-backend';
 import { createMemoryHistory, type History } from 'history';
 import {
   DEFAULT_SYSTEM_SETTINGS,

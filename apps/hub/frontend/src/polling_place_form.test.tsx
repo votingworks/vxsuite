@@ -1,5 +1,5 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import type { SetPollingPlaceError } from '@votingworks/design-backend';
+import type { SetPollingPlaceError } from '@votingworks/hub-backend';
 import {
   ElectionStringKey,
   type PollingPlace,

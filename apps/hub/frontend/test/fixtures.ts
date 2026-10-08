@@ -4,7 +4,7 @@ import {
   type ElectionRecord,
   type Jurisdiction,
   createBlankElection,
-} from '@votingworks/design-backend';
+} from '@votingworks/hub-backend';
 import {
   type BallotLanguageConfigs,
   type Candidate,

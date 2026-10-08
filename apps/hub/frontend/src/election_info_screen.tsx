@@ -15,7 +15,7 @@ import {
   P,
   SegmentedButton,
 } from '@votingworks/ui';
-import type { ElectionInfo } from '@votingworks/design-backend';
+import type { ElectionInfo } from '@votingworks/hub-backend';
 import { Route, Switch, useHistory, useParams } from 'react-router-dom';
 import { z } from 'zod/v4';
 import { DateWithoutTime, throwIllegalValue } from '@votingworks/basics';

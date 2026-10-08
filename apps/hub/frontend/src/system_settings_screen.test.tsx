@@ -6,7 +6,7 @@ import {
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { assert, assertDefined, mapObject } from '@votingworks/basics';
-import type { UserFeaturesConfig } from '@votingworks/design-backend';
+import type { UserFeaturesConfig } from '@votingworks/hub-backend';
 import {
   fireEvent,
   render,

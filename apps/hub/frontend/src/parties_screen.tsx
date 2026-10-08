@@ -9,7 +9,7 @@ import {
 } from '@votingworks/ui';
 import { Route, Switch, useParams, useHistory } from 'react-router-dom';
 import { ElectionStringKey, type Party } from '@votingworks/types';
-import type { DuplicatePartyError } from '@votingworks/design-backend';
+import type { DuplicatePartyError } from '@votingworks/hub-backend';
 import styled from 'styled-components';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import {

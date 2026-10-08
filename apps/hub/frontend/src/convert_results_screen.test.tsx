@@ -6,7 +6,7 @@ import fileDownload from 'js-file-download';
 import type {
   ConvertMsResultsError,
   GetExportedElectionError,
-} from '@votingworks/design-backend';
+} from '@votingworks/hub-backend';
 import {
   createMockApiClient,
   type MockApiClient,

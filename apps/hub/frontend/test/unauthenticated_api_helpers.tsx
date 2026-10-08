@@ -1,5 +1,5 @@
 import type React from 'react';
-import type { UnauthenticatedApi } from '@votingworks/design-backend';
+import type { UnauthenticatedApi } from '@votingworks/hub-backend';
 import {
   createMockClient,
   type MockClient,

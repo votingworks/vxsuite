@@ -5,7 +5,7 @@ import {
   type ElectionId,
   DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
-import type { ElectionRecord } from '@votingworks/design-backend';
+import type { ElectionRecord } from '@votingworks/hub-backend';
 import {
   provideApi,
   createMockApiClient,
