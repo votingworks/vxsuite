@@ -1,7 +1,7 @@
 import { basename } from 'node:path';
 import { extractErrorMessage, iter } from '@votingworks/basics';
 import { format } from '@votingworks/utils';
-import type { BackupManifest } from '../backup_manifest.js';
+import type { BackupManifestStruct } from '../backup_manifest.js';
 import type { StyledPrinter } from './styled_printer.js';
 
 const LABEL_WIDTH = 8;
@@ -20,7 +20,7 @@ function label(printer: StyledPrinter, text: string): string {
  */
 export function backupInfo(
   printer: StyledPrinter,
-  { path, manifest }: { path: string; manifest: BackupManifest }
+  { path, manifest }: { path: string; manifest: BackupManifestStruct }
 ): void {
   printer.println(printer.style(['bold', 'cyan'], `● ${basename(path)}`));
   printer.println(

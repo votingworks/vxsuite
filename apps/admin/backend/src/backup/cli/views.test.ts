@@ -4,7 +4,6 @@ import { unsafeParse } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 import {
   BACKUP_MANIFEST_VERSION,
-  BackupManifest,
   BackupManifestStructSchema,
 } from '../backup_manifest.js';
 import { StyledPrinter } from './styled_printer.js';
@@ -12,26 +11,24 @@ import { backupInfo, unreadableManifest } from './views.js';
 
 const CREATED_AT = '2026-08-18T12:00:00.000Z';
 
-const manifest = BackupManifest.fromStruct(
-  unsafeParse(BackupManifestStructSchema, {
-    version: BACKUP_MANIFEST_VERSION,
-    softwareVersion: '4.0.0',
-    machineId: 'VX-00-001',
-    createdAt: CREATED_AT,
-    election: {
-      id: 'election-1',
-      title: 'General Election',
-      date: '2026-11-03',
-      jurisdictionName: 'Franklin County',
-      state: 'State of Hamilton',
-    },
-    cvrCount: 1,
-    files: [
-      { path: 'data/election.db', hash: '0a'.repeat(32), size: 1024 },
-      { path: 'logs/vx-logs.log', hash: '1b'.repeat(32), size: 512 },
-    ],
-  })
-);
+const manifest = unsafeParse(BackupManifestStructSchema, {
+  version: BACKUP_MANIFEST_VERSION,
+  softwareVersion: '4.0.0',
+  machineId: 'VX-00-001',
+  createdAt: CREATED_AT,
+  election: {
+    id: 'election-1',
+    title: 'General Election',
+    date: '2026-11-03',
+    jurisdictionName: 'Franklin County',
+    state: 'State of Hamilton',
+  },
+  cvrCount: 1,
+  files: [
+    { path: 'data/election.db', hash: '0a'.repeat(32), size: 1024 },
+    { path: 'logs/vx-logs.log', hash: '1b'.repeat(32), size: 512 },
+  ],
+});
 
 test('backupInfo renders a tree-style backup summary', () => {
   const stream = mockWritable();
