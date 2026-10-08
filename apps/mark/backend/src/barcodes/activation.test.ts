@@ -6,6 +6,7 @@ import {
 } from '@votingworks/auth';
 import {
   mockLogger,
+  LogEventId,
   LogSource,
   type Logger,
   mockBaseLogger,
@@ -33,6 +34,7 @@ import { setUpBarcodeActivation } from './activation.js';
 import { createWorkspace, type Workspace } from '../util/workspace.js';
 import { getUserRole } from '../util/auth.js';
 import type { BarcodeReader } from './types.js';
+import type { BallotStyleQrCode } from './ballot_style_qr_code.js';
 
 const featureFlagMock = getFeatureFlagMock();
 vi.mock('@votingworks/utils', async (importActual) => ({
@@ -48,6 +50,10 @@ type MockBarcodeClient = EventEmitter<{
 
 function createMockBarcodeClient(): MockBarcodeClient {
   return new EventEmitter();
+}
+
+function encodeQrCode(qrCode: BallotStyleQrCode): Uint8Array {
+  return new TextEncoder().encode(JSON.stringify(qrCode));
 }
 
 function buildMockLogger(
@@ -82,6 +88,8 @@ describe('setUpBarcodeActivation', () => {
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { election } = electionDefinition;
   const [pollingPlace] = assertDefined(election.pollingPlaces);
+  const ballotStyleId = pollingPlaceBallotStyles(election, pollingPlace!)[0]!
+    .id;
 
   beforeEach(() => {
     workspace = createWorkspace(
@@ -343,7 +351,7 @@ describe('setUpBarcodeActivation', () => {
 
     setUpBarcodeActivation(ctx);
 
-    mockBarcodeClient.emit('scan', new TextEncoder().encode('test-barcode'));
+    mockBarcodeClient.emit('scan', encodeQrCode({ ballotStyleId }));
 
     await sleep(0);
     expect(mockAuth.startCardlessVoterSession).toHaveBeenCalled();
@@ -401,7 +409,7 @@ describe('setUpBarcodeActivation', () => {
 
     setUpBarcodeActivation(ctx);
 
-    mockBarcodeClient.emit('scan', new TextEncoder().encode('test-barcode'));
+    mockBarcodeClient.emit('scan', encodeQrCode({ ballotStyleId }));
 
     await vi.waitFor(() => {
       expect(logger.log).toHaveBeenCalledWith(
@@ -411,6 +419,98 @@ describe('setUpBarcodeActivation', () => {
           message: 'failed to start voter session',
           disposition: 'failure',
         })
+      );
+    });
+  });
+
+  function setUpActivePollingPlace(): void {
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
+      jurisdiction: TEST_JURISDICTION,
+      electionPackageHash: 'test-hash',
+      ballotHash: electionDefinition.ballotHash,
+    });
+    workspace.store.setSystemSettings({
+      ...DEFAULT_SYSTEM_SETTINGS,
+      bmdEnableQrBallotActivation: true,
+    });
+    workspace.store.setPollingPlaceId(pollingPlace!.id);
+    workspace.store.setPollsState('polls_open');
+    vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
+      status: 'logged_out',
+      reason: 'no_card',
+    });
+    setUpBarcodeActivation({
+      auth: mockAuth,
+      barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
+      logger,
+      workspace,
+    });
+  }
+
+  test('ignores scans that are not ballot style QR codes', async () => {
+    setUpActivePollingPlace();
+
+    mockBarcodeClient.emit('scan', new TextEncoder().encode('test-barcode'));
+
+    await vi.waitFor(() => {
+      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+        LogEventId.BarcodeScanned,
+        expect.objectContaining({
+          message: 'Scanned barcode is not a ballot style QR code.',
+          disposition: 'failure',
+        })
+      );
+    });
+    expect(mockAuth.startCardlessVoterSession).not.toHaveBeenCalled();
+  });
+
+  test.each<{ description: string; qrCode: BallotStyleQrCode }>([
+    {
+      description: 'a ballot style from another polling place',
+      qrCode: {
+        ballotStyleId: election.ballotStyles.find(
+          (bs) => bs.id !== ballotStyleId
+        )!.id,
+      },
+    },
+    {
+      description: 'a precinct outside the ballot style',
+      qrCode: {
+        ballotStyleId,
+        precinctId: election.precincts.find(
+          (p) => !pollingPlacePrecinctIds(pollingPlace!).has(p.id)
+        )!.id,
+      },
+    },
+  ])('ignores scans for $description', async ({ qrCode }) => {
+    setUpActivePollingPlace();
+
+    mockBarcodeClient.emit('scan', encodeQrCode(qrCode));
+
+    await vi.waitFor(() => {
+      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+        LogEventId.BarcodeScanned,
+        expect.objectContaining({
+          message:
+            'Scanned ballot style is not available at the configured polling place.',
+          disposition: 'failure',
+        })
+      );
+    });
+    expect(mockAuth.startCardlessVoterSession).not.toHaveBeenCalled();
+  });
+
+  test('starts voter session with the scanned precinct', async () => {
+    setUpActivePollingPlace();
+    const [precinctId] = pollingPlacePrecinctIds(pollingPlace!);
+
+    mockBarcodeClient.emit('scan', encodeQrCode({ ballotStyleId, precinctId }));
+
+    await vi.waitFor(() => {
+      expect(mockAuth.startCardlessVoterSession).toHaveBeenCalledWith(
+        expect.anything(),
+        { ballotStyleId, precinctId, skipPollWorkerCheck: true }
       );
     });
   });

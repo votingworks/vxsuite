@@ -13,6 +13,10 @@ import {
 } from '@votingworks/types';
 
 import type { BarcodeReader } from './types.js';
+import {
+  type BallotStyleQrCode,
+  parseBallotStyleQrCode,
+} from './ballot_style_qr_code.js';
 import type { Workspace } from '../util/workspace.js';
 import { constructAuthMachineState } from '../util/auth.js';
 import type { AudioPlayerInterface } from '../audio/player.js';
@@ -96,11 +100,31 @@ export function setUpBarcodeActivation(ctx: Context): void {
       });
     }
 
+    const parseResult = parseBallotStyleQrCode(barcode);
+    if (parseResult.isErr()) {
+      return ctx.logger.logAsCurrentRole(LogEventId.BarcodeScanned, {
+        message: 'Scanned barcode is not a ballot style QR code.',
+        disposition: 'failure',
+      });
+    }
+
+    const qrCode = parseResult.ok();
     const { election } = electionRecord.electionDefinition;
-    const { ballotStyle, precinctId } = ballotStyleForPollingPlace(
+    const selection = ballotStyleForPollingPlace(
       election,
+      qrCode,
       pollingPlaceId
     );
+    if (!selection) {
+      return ctx.logger.logAsCurrentRole(LogEventId.BarcodeScanned, {
+        message:
+          'Scanned ballot style is not available at the configured polling place.',
+        disposition: 'failure',
+        ballotStyleId: qrCode.ballotStyleId,
+        precinctId: qrCode.precinctId,
+      });
+    }
+    const { ballotStyle, precinctId } = selection;
 
     void ctx.logger.logAsCurrentRole(LogEventId.Info, {
       ballotStyleId: ballotStyle.id,
@@ -152,12 +176,27 @@ export function setUpBarcodeActivation(ctx: Context): void {
   });
 }
 
-function ballotStyleForPollingPlace(election: Election, placeId?: string) {
+function ballotStyleForPollingPlace(
+  election: Election,
+  qrCode: BallotStyleQrCode,
+  placeId?: string
+) {
   assert(!!placeId);
   const place = pollingPlaceFromElection(election, placeId);
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const ballotStyle = pollingPlaceBallotStyles(election, place)[0]!;
-  const precinctId = find(ballotStyle.precincts, (p) => p in place.precincts);
+  const ballotStyle = pollingPlaceBallotStyles(election, place).find(
+    (bs) => bs.id === qrCode.ballotStyleId
+  );
+  if (!ballotStyle) return undefined;
+
+  const precinctId =
+    qrCode.precinctId ??
+    find(ballotStyle.precincts, (p) => p in place.precincts);
+  if (
+    !ballotStyle.precincts.includes(precinctId) ||
+    !(precinctId in place.precincts)
+  ) {
+    return undefined;
+  }
 
   return { ballotStyle, precinctId };
 }
