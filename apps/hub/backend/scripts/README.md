@@ -23,8 +23,8 @@ them in Heroku for the appropriate app (`vxdesign-staging` or
 
 ```sh
 heroku run bash -a <app-name>
-/vx/code/vxsuite $ cd apps/design/backend/
-/vx/code/vxsuite/apps/design/backend $ pnpm <script-name>
+/vx/code/vxsuite $ cd apps/hub/backend/
+/vx/code/vxsuite/apps/hub/backend $ pnpm <script-name>
 ```
 
 ### Create Organization
@@ -159,7 +159,7 @@ pnpm list-user-jurisdictions "someone@example.com"
 ### Send Welcome Email
 
 This sends out a repurposed "change password" email as a "welcome" email,
-allowing the user to set their password and log in to VxDesign.
+allowing the user to set their password and log in to VxHub.
 
 **NOTE:** There's currently no check for whether or not an existing user has
 already set their password and logged in, so this is best used new users (or for

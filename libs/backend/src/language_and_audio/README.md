@@ -4,10 +4,10 @@
 
 We've created a
 [Google Cloud service account](https://cloud.google.com/iam/docs/service-account-overview)
-for VxDesign that has access to the Google Cloud Translation and Text-to-Speech
-APIs. VxDesign will be deployed with the VxDesign service account key.
+for VxHub that has access to the Google Cloud Translation and Text-to-Speech
+APIs. VxHub will be deployed with the `vxdesign` service account key.
 
-For local development, VotingWorks employees can impersonate the VxDesign
+For local development, VotingWorks employees can impersonate the `vxdesign`
 service account. To do this, you'll need to
 [install the Google Cloud CLI](https://cloud.google.com/sdk/docs/install-sdk)
 and run the following command:

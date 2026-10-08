@@ -1,15 +1,15 @@
-# VxDesign Backend
+# VxHub Backend
 
-This backend is used by the [VxDesign frontend](../frontend) and isn't intended
-to be run on its own. The best way to develop on the backend is by running the
+This backend is used by the [VxHub frontend](../frontend) and isn't intended to
+be run on its own. The best way to develop on the backend is by running the
 frontend.
 
 ## Automated QA
 
-When an election package export completes, VxDesign can trigger a CircleCI
-pipeline in the [vx-qa](https://github.com/votingworks/vx-qa) project to run
-automated QA against the exported package. The integration is off by default and
-turns on only when the environment is configured.
+When an election package export completes, VxHub can trigger a CircleCI pipeline
+in the [vx-qa](https://github.com/votingworks/vx-qa) project to run automated QA
+against the exported package. The integration is off by default and turns on
+only when the environment is configured.
 
 All of the configuration is read in [`src/qa_config.ts`](./src/qa_config.ts),
 which is the single source of truth for these variables.
@@ -48,19 +48,19 @@ pipeline. It sends back a series of status updates that mimic a real QA run.
 **Terminal 1** — start the mock server:
 
 ```bash
-pnpm -C apps/design/backend mock-circleci-server
+pnpm -C apps/hub/backend mock-circleci-server
 ```
 
 Options: `--delay <ms>` between updates (default 3000), `--fail` to simulate a
 failure.
 
-**Terminal 2** — start VxDesign pointed at the mock server:
+**Terminal 2** — start VxHub pointed at the mock server:
 
 ```bash
-pnpm -C apps/design/backend start-with-mock-circleci
+pnpm -C apps/hub/backend start-with-mock-circleci
 ```
 
-Then export an election in VxDesign and watch the status updates appear in the
+Then export an election in VxHub and watch the status updates appear in the
 Proofing Status UI.
 
 ### Testing with the vx-qa Serve Mode
@@ -68,11 +68,11 @@ Proofing Status UI.
 The [vx-qa](https://github.com/votingworks/vx-qa) repo includes a `serve`
 subcommand that acts as a CircleCI stand-in. Unlike the mock server above, this
 runs the **real QA workflow** locally — it downloads the election package from
-VxDesign, scans ballots, validates tallies, and sends real status updates back
-via webhook.
+VxHub, scans ballots, validates tallies, and sends real status updates back via
+webhook.
 
-Because the QA workflow starts VxAdmin and VxScan on port 3000, VxDesign must
-run on a different port (e.g. 4000 via `FRONTEND_PORT`).
+Because the QA workflow starts VxAdmin and VxScan on port 3000, VxHub must run
+on a different port (e.g. 4000 via `FRONTEND_PORT`).
 
 **Terminal 1** — start the vx-qa serve mode (from the vx-qa repo):
 
@@ -84,23 +84,22 @@ A
 [`serve-config.json`](https://github.com/votingworks/vx-qa/blob/main/serve-config.json)
 is included in the vx-qa repo. Edit `vxsuite.ref` to match the VxSuite version
 you want to test against. The `election.source` field is ignored — it gets
-overridden by the election package URL from VxDesign.
+overridden by the election package URL from VxHub.
 
 Options: `--port <port>` (default 9000), `--webhook-secret <secret>` (default
 `test-secret`), `--no-headless` for headed mode, `--limit-ballots <n>` and
 `--limit-manual-tallies <n>` for faster test runs.
 
-**Terminal 2** — start VxDesign pointed at the vx-qa server. The same launcher
-as above works, with the ports overridden:
+**Terminal 2** — start VxHub pointed at the vx-qa server. The same launcher as
+above works, with the ports overridden:
 
 ```bash
 FRONTEND_PORT=4000 BASE_URL=http://localhost:4000 \
-  pnpm -C apps/design/backend start-with-mock-circleci
+  pnpm -C apps/hub/backend start-with-mock-circleci
 ```
 
-Then export an election in VxDesign. The vx-qa server will pick up the export,
-run the full QA workflow, and send status updates back to VxDesign as it
-progresses.
+Then export an election in VxHub. The vx-qa server will pick up the export, run
+the full QA workflow, and send status updates back to VxHub as it progresses.
 
 ### Testing with Real CircleCI
 
@@ -116,7 +115,7 @@ ngrok http 3000
 
 Note the `https://...ngrok-free.app` forwarding URL.
 
-**Terminal 2** — start VxDesign with the CircleCI environment variables:
+**Terminal 2** — start VxHub with the CircleCI environment variables:
 
 ```bash
 CIRCLECI_API_TOKEN=<your personal CircleCI API token> \
@@ -125,7 +124,7 @@ CIRCLECI_API_TOKEN=<your personal CircleCI API token> \
   CIRCLECI_BRANCH=<branch to run, e.g. main> \
   CIRCLECI_QA_ORG_IDS=<organization IDs to run QA for> \
   BASE_URL=https://<your-subdomain>.ngrok-free.app \
-  pnpm -C apps/design/frontend start
+  pnpm -C apps/hub/frontend start
 ```
 
 Where `BASE_URL` is the ngrok forwarding URL and the `CIRCLECI_*` variables are

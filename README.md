@@ -17,7 +17,7 @@ Includes software for:
   (marked by hand or by BMD)
 - [VxPollBook](./apps/pollbook/frontend) — An electronic poll book application
   for checking in voters
-- [VxDesign](./apps/design/frontend) — An application for designing ballots
+- [VxHub](./apps/hub/frontend) — An application for designing ballots
 - [VxPrint](./apps/print/frontend) — An application for printing ballots
 
 VxAdmin and VxCentralScan comprise the "central system." VxMark/VxMarkScan and
@@ -26,8 +26,8 @@ VxScan comprise the "precinct system."
 VxPollBook, while also deployed in precincts, is certified and acquired
 separately.
 
-VxDesign exists separate from the other apps and is managed by VotingWorks
-rather than deployed on hardware into locales.
+VxHub exists separate from the other apps and is managed by VotingWorks rather
+than deployed on hardware into locales.
 
 See https://voting.works for more information about VotingWorks.
 
