@@ -502,6 +502,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)
 **Description:** Scanner state machine transitioned states.
 **Machines:** vx-scan, vx-central-scan
+### scan-count-increment-error
+**Type:** [system-status](#system-status)
+**Description:** The persistent lifetime count of accepted ballots could not be incremented.
+**Machines:** vx-scan, vx-central-scan
 ### sound-toggled
 **Type:** [application-status](#application-status)
 **Description:** Sounds on the precinct scanner were toggled on or off as indicated.

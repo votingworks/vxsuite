@@ -824,6 +824,12 @@ eventType = "application-status"
 documentationMessage = "Scanner state machine transitioned states."
 restrictInDocumentationToApps = ["vx-scan", "vx-central-scan"]
 
+[Events.ScanCountIncrementError]
+eventId = "scan-count-increment-error"
+eventType = "system-status"
+documentationMessage = "The persistent lifetime count of accepted ballots could not be incremented."
+restrictInDocumentationToApps = ["vx-scan", "vx-central-scan"]
+
 [Events.SoundToggled]
 eventId = "sound-toggled"
 eventType = "application-status"
