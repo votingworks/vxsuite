@@ -637,7 +637,7 @@ IDs are logged with each log to identify the log being written.
 ### api-call
 **Type:** [application-action](#application-action)
 **Description:** An API call was made.
-**Machines:** vx-design
+**Machines:** vx-hub
 ### socket-client-connect-init
 **Type:** [application-action](#application-action)
 **Description:** An application attempted to connect a client to a socket.

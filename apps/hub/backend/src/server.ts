@@ -12,7 +12,7 @@ export function start(context: AppContext): void {
 
   app.listen(PORT, () => {
     // eslint-disable-next-line no-console
-    console.log(`VxDesign backend running at http://localhost:${PORT}/`);
+    console.log(`VxHub backend running at http://localhost:${PORT}/`);
     // eslint-disable-next-line no-console
     console.log(QaConfig.fromEnv()?.summary() ?? 'Automated QA: disabled');
   });
