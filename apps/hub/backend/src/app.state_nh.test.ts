@@ -228,7 +228,7 @@ test.each<{
       })
     ).unsafeUnwrap();
 
-    // IDs are updated after loading into VxDesign so we can't refer to the original election
+    // IDs are updated after loading into VxHub so we can't refer to the original election
     // definition IDs
     const contests = await apiClient.listContests({ electionId });
     const precincts = await apiClient.listPrecincts({ electionId });

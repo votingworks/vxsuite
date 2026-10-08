@@ -1,4 +1,4 @@
-# Docker Image for VxDesign deployments.
+# Docker Image for VxHub deployments.
 
 # [TODO] Pull from votingworks/cimg-debian12 instead.
 # [Update] Attempted the switch and ran into an issue with having to re-push the

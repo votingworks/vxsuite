@@ -11,7 +11,7 @@ const debug = rootDebug.extend('speech');
 
 /**
  * An implementation of {@link GoogleCloudSpeechSynthesizer} that uses the
- * local db in the VxDesign backend for caching
+ * local db in the VxHub backend for caching
  */
 export class GoogleCloudSpeechSynthesizerWithDbCache extends GoogleCloudSpeechSynthesizer {
   private readonly store: Store;

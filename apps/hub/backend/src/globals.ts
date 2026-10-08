@@ -134,7 +134,7 @@ export const WORKSPACE =
   process.env.WORKSPACE ??
   // @coverage-defer
   (NODE_ENV === 'development'
-    ? // Shared with dev tooling that reads VxDesign's exports.
+    ? // Shared with dev tooling that reads VxHub's exports.
       getHubDevWorkspaceDir(join(import.meta.dirname, '../../../..'))
     : undefined);
 

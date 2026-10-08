@@ -45,7 +45,7 @@ export async function processNextBackgroundTaskIfAny(
 }
 
 /**
- * Starts the VxDesign background worker. Note that, as currently implemented, it's only safe to
+ * Starts the VxHub background worker. Note that, as currently implemented, it's only safe to
  * run one instance of the worker.
  */
 export async function start(

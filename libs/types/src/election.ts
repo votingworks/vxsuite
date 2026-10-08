@@ -118,7 +118,7 @@ export interface Candidate {
   readonly partyIds?: readonly PartyId[];
   readonly isWriteIn?: boolean;
   readonly writeInIndex?: number;
-  // Structured name properties are supported only in VxDesign.
+  // Structured name properties are supported only in VxHub.
   readonly firstName?: string;
   readonly middleName?: string;
   readonly lastName?: string;

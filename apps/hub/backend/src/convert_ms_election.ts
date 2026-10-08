@@ -130,7 +130,7 @@ export function convertMsElection(
   semsElectionFileContents: string,
   semsCandidateFileContents: string
 ): Election {
-  // Ensure all of the SEMS IDs are unique within each table in the VxDesign
+  // Ensure all of the SEMS IDs are unique within each table in the VxHub
   // database so they can be used as primary keys.
   function uniqueId(id: string): string {
     assert(!id.includes(MS_ID_SEPARATOR));
@@ -177,7 +177,7 @@ export function convertMsElection(
   );
   const districts: District[] = districtRows.map(({ id, label }) => ({
     id: uniqueId(id),
-    // SEMS allows duplicate district labels, but VxDesign requires district
+    // SEMS allows duplicate district labels, but VxHub requires district
     // names within an election to be unique, so qualify duplicates with
     // district IDs
     name: duplicateLabels.has(label) ? `${label} (${id})` : label,
