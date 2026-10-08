@@ -13,7 +13,8 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
-import type { BooleanEnvironmentVariableName } from '@votingworks/utils';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import {
   anyPollingPlace,
   constructElectionKey,
@@ -36,7 +37,9 @@ import {
 import {
   mockCastVoteRecordFileRecord,
   mockManualResultsMetadata,
+  mockSavedBackupStatus,
 } from '../test/api_mock_data.js';
+import { DEFAULT_QUERY_REFETCH_INTERVAL } from './utils/globals.js';
 import { MARK_RESULTS_OFFICIAL_BUTTON_TEXT } from './components/mark_official_button.js';
 
 const featureFlagMock = vi.hoisted(() => {
@@ -636,4 +639,54 @@ test('network status in toolbar', async () => {
 
   apiMock.expectGetNetworkStatus({ multipleHostsDetected: true });
   await screen.findByText('Network Error');
+});
+
+test('a running backup is shown again after the machine is locked and unlocked', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE
+  );
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
+  renderApp();
+  await apiMock.authenticateAsElectionManager(electionDefinition);
+
+  apiMock.apiClient.getBackupDriveStatus
+    .expectRepeatedCallsWith()
+    .resolves(mockUsbDriveStatus('mounted'));
+  userEvent.click(screen.getButton('Save Backup'));
+  let modal = await screen.findByRole('alertdialog');
+  apiMock.apiClient.startBackup.expectCallWith().resolves();
+  userEvent.click(within(modal).getButton('Save Backup'));
+  apiMock.setBackupStatus({
+    status: 'in-progress',
+    lastProgressEvent: { type: '1_preparing' },
+  });
+  await within(modal).findByRole('heading', { name: 'Saving Backup' });
+
+  apiMock.expectLogOut();
+  userEvent.click(within(modal).getButton('Lock Machine'));
+  await apiMock.logOut();
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+
+  apiMock.setAuthStatus({
+    status: 'logged_in',
+    user: mockElectionManagerUser({
+      electionKey: constructElectionKey(electionDefinition.election),
+    }),
+    sessionExpiresAt: mockSessionExpiresAt(),
+  });
+  modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', { name: 'Saving Backup' });
+
+  apiMock.setBackupStatus(mockSavedBackupStatus);
+  vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
+  await within(modal).findByRole('heading', { name: 'Backup Saved' });
+  apiMock.apiClient.finishBackup.expectCallWith().resolves();
+  userEvent.click(within(modal).getButton('Close'));
+  apiMock.setBackupStatus(null);
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
 });

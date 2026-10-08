@@ -266,6 +266,72 @@ export const formatUsbDrive = {
   },
 } as const;
 
+// Backup
+
+export const getBackupDriveStatus = {
+  queryKey(): QueryKey {
+    return ['getBackupDriveStatus'];
+  },
+  usePollingQuery() {
+    const apiClient = useApiClient();
+    return usePollingQuery(
+      this.queryKey(),
+      () => apiClient.getBackupDriveStatus(),
+      DEFAULT_QUERY_REFETCH_INTERVAL
+    );
+  },
+} as const;
+
+export const getBackupStatus = {
+  queryKey(): QueryKey {
+    return ['getBackupStatus'];
+  },
+  usePollingQuery() {
+    const apiClient = useApiClient();
+    return usePollingQuery(
+      this.queryKey(),
+      () => apiClient.getBackupStatus(),
+      DEFAULT_QUERY_REFETCH_INTERVAL
+    );
+  },
+} as const;
+
+export const startBackup = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.startBackup, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getBackupStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const abortBackup = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.abortBackup, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getBackupStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const finishBackup = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.finishBackup, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getBackupStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
 // Queries
 
 type QueryInput<Method extends keyof ApiClient> = Parameters<
