@@ -1,4 +1,4 @@
-# VxDesign
+# VxHub
 
 An application for designing ballots.
 
@@ -15,7 +15,7 @@ to authenticate with Google Cloud for language and audio file generation.
 
 ### PostgreSQL Version
 
-VxDesign expects PostgreSQL version 16.6. Debian 12
+VxHub expects PostgreSQL version 16.6. Debian 12
 [defaults](https://packages.debian.org/bookworm/postgresql) to PostgreSQL
 version 15.
 
@@ -37,8 +37,7 @@ sudo apt install postgresql-16 postgresql-client-16
 ### Initializing the database
 
 Before running the app or any server tests for the first time, you'll need to
-set up the DB schema by running the following command from
-`apps/design/backend`:
+set up the DB schema by running the following command from `apps/hub/backend`:
 
 ```sh
 pnpm db:reset-dev
@@ -48,7 +47,7 @@ This will create a Postgres database called `design`, with a username `design`
 and password `design`. The above command can also be run to reset the DB and
 start from a clean slate, if necessary. If simply updating your local DB after
 pulling in newly merged migrations, run the following command from
-`apps/design/backend`:
+`apps/hub/backend`:
 
 ```sh
 pnpm db:migrations:run-dev
@@ -60,7 +59,7 @@ If you need to modify the schema for a task/new feature, see
 ### Viewing the database schema
 
 To view the current schema for your local dev DB, run the following command from
-`apps/design/backend`:
+`apps/hub/backend`:
 
 ```sh
 pnpm db:schema-dev
@@ -78,17 +77,16 @@ pnpm db:schema postgres://<username>:<password>@<hostname>:<port>/<db_name>
 
 The database schema is managed with
 [node-pg-migrate](https://salsita.github.io/node-pg-migrate/getting-started),
-which reads migration scripts from the `apps/design/backend/migrations`
-directory.
+which reads migration scripts from the `apps/hub/backend/migrations` directory.
 
-To create a new migration, run the following command from `apps/design/backend`:
+To create a new migration, run the following command from `apps/hub/backend`:
 
 ```sh
 pnpm db:migrations:create descriptive-name-for-migration
 ```
 
-The above will create a file in `apps/design/backend/migrations` with the
-provided name and timestamp prefix. e.g.
+The above will create a file in `apps/hub/backend/migrations` with the provided
+name and timestamp prefix. e.g.
 `1742239962751_descriptive-name-for-migration.ts`. Edit the file to define all
 the necessary schema changes. If you need help, take a look at previous
 migration scripts, or the
@@ -105,7 +103,7 @@ documentation.
 > approaches to updating the schema.
 
 To test a new migration locally, run the following command from
-`apps/design/backend`:
+`apps/hub/backend`:
 
 ```sh
 pnpm db:migrations:run-dev
@@ -120,7 +118,7 @@ DATABASE_URL=... pnpm db:migrations:run
 ```
 
 To undo the most recent migration for dev iteration, run the following command
-from `apps/design/backend`:
+from `apps/hub/backend`:
 
 > [!IMPORTANT]
 >
@@ -140,7 +138,7 @@ DATABASE_URL=... pnpm db:migrations:undo-last
 
 ## Running the app
 
-In `apps/design/frontend`, run the following:
+In `apps/hub/frontend`, run the following:
 
 ```sh
 pnpm start

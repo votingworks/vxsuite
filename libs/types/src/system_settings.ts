@@ -447,7 +447,7 @@ export const DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED: Readonl
 export const DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE = 0.985;
 
 /**
- * For actual customer-specific defaults, see apps/design/backend/src/system_settings.ts.
+ * For actual customer-specific defaults, see apps/hub/backend/src/system_settings.ts.
  */
 export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   auth: {
