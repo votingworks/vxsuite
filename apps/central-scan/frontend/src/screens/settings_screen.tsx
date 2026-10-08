@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 import { assert, assertDefined } from '@votingworks/basics';
 import {
   Caption,
@@ -8,6 +8,7 @@ import {
   Icons,
   P,
   PollingPlacePicker,
+  SegmentedButton,
   SetClockButton,
   SignedHashValidationButton,
   UnconfigureMachineButton,
@@ -19,8 +20,10 @@ import { ToggleTestModeButton } from '../components/toggle_test_mode_button.js';
 import { AppContext } from '../contexts/app_context.js';
 import {
   ejectUsbDrive,
+  getImprintingStatus,
   getPollingPlaceId,
   logOut,
+  setIsImprintingEnabled,
   setPollingPlaceId,
   unconfigure,
   useApiClient,
@@ -53,6 +56,8 @@ export function SettingsScreen({
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const pollingPlaceIdQuery = getPollingPlaceId.useQuery();
   const setPollingPlaceIdMutation = setPollingPlaceId.useMutation();
+  const imprintingStatusQuery = getImprintingStatus.useQuery();
+  const setIsImprintingEnabledMutation = setIsImprintingEnabled.useMutation();
 
   const { election } = assertDefined(electionDefinition);
   const pollingPlaces = assertDefined(election.pollingPlaces);
@@ -68,6 +73,7 @@ export function SettingsScreen({
   }
 
   const isEditingElectionSettingsDisabled = isBatchOpen || !canUnconfigure;
+  const imprintingStatus = imprintingStatusQuery.data;
 
   return (
     <NavigationScreen title="Settings">
@@ -109,6 +115,58 @@ export function SettingsScreen({
         <Caption>
           <Icons.Warning color="warning" /> You cannot change the polling place
           once ballots have been scanned.
+        </Caption>
+      )}
+
+      <H2>Imprinting</H2>
+      <P>
+        {!imprintingStatus ? (
+          <Icons.Loading />
+        ) : imprintingStatus.isImprinterAttached ? (
+          <React.Fragment>
+            <Icons.Done color="success" /> Imprinter detected
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <Icons.Info /> Imprinter not detected. Ballots won’t be imprinted,
+            even if imprinting is enabled below.
+          </React.Fragment>
+        )}
+      </P>
+      <P>
+        <SegmentedButton
+          disabled={
+            !imprintingStatus ||
+            setIsImprintingEnabledMutation.isLoading ||
+            isBatchOpen
+          }
+          label="Imprinting"
+          hideLabel
+          onChange={(optionId) =>
+            setIsImprintingEnabledMutation.mutate({
+              isImprintingEnabled: optionId === 'enabled',
+            })
+          }
+          options={[
+            {
+              id: 'enabled',
+              label: 'Imprinting Enabled',
+            },
+            { id: 'disabled', label: 'Imprinting Disabled' },
+          ]}
+          selectedOptionId={
+            !imprintingStatus
+              ? undefined
+              : imprintingStatus.isImprintingEnabled
+                ? 'enabled'
+                : 'disabled'
+          }
+        />
+      </P>
+      {isBatchOpen && (
+        <Caption>
+          <Icons.Warning color="warning" /> You cannot toggle imprinting while a
+          batch is in progress.
         </Caption>
       )}
 
