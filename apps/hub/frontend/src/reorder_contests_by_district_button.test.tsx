@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, test } from 'vitest';
 import { within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateWithoutTime } from '@votingworks/basics';
-import type { ElectionInfo } from '@votingworks/design-backend';
+import type { ElectionInfo } from '@votingworks/hub-backend';
 import {
   type CandidateContest,
   type Contest,

@@ -9,7 +9,7 @@ import {
 import { Buffer } from 'node:buffer';
 import { createMemoryHistory } from 'history';
 import { assertDefined, DateWithoutTime, err, ok } from '@votingworks/basics';
-import type { ElectionInfo } from '@votingworks/design-backend';
+import type { ElectionInfo } from '@votingworks/hub-backend';
 import {
   type MockApiClient,
   createMockApiClient,

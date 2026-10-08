@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 
-import type { BackgroundTask, ExportQaRun } from '@votingworks/design-backend';
+import type { BackgroundTask, ExportQaRun } from '@votingworks/hub-backend';
 import { format } from '@votingworks/utils';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { sleep } from '@votingworks/basics';

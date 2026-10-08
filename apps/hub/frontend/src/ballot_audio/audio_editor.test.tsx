@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 
-import type { TtsStringDefault } from '@votingworks/design-backend';
+import type { TtsStringDefault } from '@votingworks/hub-backend';
 import { ElectionStringKey } from '@votingworks/types';
 
 import { TtsTextEditor, type TtsTextEditorProps } from './tts_text_editor.js';

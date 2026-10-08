@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { cleanup, screen, waitFor } from '@testing-library/react';
 import { assertDefined, err, ok } from '@votingworks/basics';
 import { buildElectionResultsFixture } from '@votingworks/utils';
-import type { ReceivedReportInfo } from '@votingworks/design-backend';
+import type { ReceivedReportInfo } from '@votingworks/hub-backend';
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
 import type { Election, PollingPlace } from '@votingworks/types';
 import { render } from '../test/react_testing_library.js';

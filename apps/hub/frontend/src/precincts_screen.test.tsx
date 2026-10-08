@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import type { ElectionRecord } from '@votingworks/design-backend';
+import type { ElectionRecord } from '@votingworks/hub-backend';
 import { Buffer } from 'node:buffer';
 import { createMemoryHistory, type MemoryHistory } from 'history';
 import {

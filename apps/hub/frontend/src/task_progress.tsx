@@ -1,6 +1,6 @@
 import type React from 'react';
 
-import type { BackgroundTask } from '@votingworks/design-backend';
+import type { BackgroundTask } from '@votingworks/hub-backend';
 import { Card, H4, P, ProgressBar } from '@votingworks/ui';
 
 export interface TaskProgressProps {

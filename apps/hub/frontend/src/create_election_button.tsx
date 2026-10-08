@@ -8,7 +8,7 @@ import {
 } from '@votingworks/ui';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import type { Jurisdiction } from '@votingworks/design-backend';
+import type { Jurisdiction } from '@votingworks/hub-backend';
 import { generateId } from './utils.js';
 import * as api from './api.js';
 

@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import React from 'react';
 
 import { throwIllegalValue } from '@votingworks/basics';
-import type { TtsStringDefault } from '@votingworks/design-backend';
+import type { TtsStringDefault } from '@votingworks/hub-backend';
 import { ElectionStringKey, type TtsExportSource } from '@votingworks/types';
 import { H3, P, RadioGroup, type RadioGroupOption } from '@votingworks/ui';
 

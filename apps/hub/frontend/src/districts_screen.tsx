@@ -13,7 +13,7 @@ import styled from 'styled-components';
 
 import { type District, ElectionStringKey } from '@votingworks/types';
 
-import type { DuplicateDistrictError } from '@votingworks/design-backend';
+import type { DuplicateDistrictError } from '@votingworks/hub-backend';
 import { assertDefined } from '@votingworks/basics';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import {

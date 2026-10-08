@@ -3,7 +3,7 @@ import type {
   Api,
   AuthErrorCode,
   ElectionUpload,
-} from '@votingworks/design-backend';
+} from '@votingworks/hub-backend';
 import type { NhStateBallotVariant } from '@votingworks/hmpb';
 import * as grout from '@votingworks/grout';
 import {

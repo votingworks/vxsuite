@@ -1,6 +1,6 @@
 import { test, beforeEach, afterEach, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import type { ElectionListing } from '@votingworks/design-backend';
+import type { ElectionListing } from '@votingworks/hub-backend';
 import { createMemoryHistory } from 'history';
 import { useState } from 'react';
 import {

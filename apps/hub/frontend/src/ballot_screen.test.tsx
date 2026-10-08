@@ -4,7 +4,7 @@ import {
   type CandidateContest,
   type YesNoContest,
 } from '@votingworks/types';
-import type { BallotTemplateId } from '@votingworks/design-backend';
+import type { BallotTemplateId } from '@votingworks/hub-backend';
 import type { DocumentProps, PageProps } from 'react-pdf';
 import { type ReactNode, useEffect } from 'react';
 import { ok, err } from '@votingworks/basics';

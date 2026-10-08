@@ -8,7 +8,7 @@ import {
   type PollingPlace,
   type Precinct,
 } from '@votingworks/types';
-import type { ElectionInfo } from '@votingworks/design-backend';
+import type { ElectionInfo } from '@votingworks/hub-backend';
 import userEvent from '@testing-library/user-event';
 import { DateWithoutTime, sleep } from '@votingworks/basics';
 import { createMemoryHistory } from 'history';

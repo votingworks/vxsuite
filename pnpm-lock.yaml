@@ -1173,12 +1173,12 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
-      '@votingworks/design-backend':
-        specifier: workspace:*
-        version: link:../backend
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
+      '@votingworks/hub-backend':
+        specifier: workspace:*
+        version: link:../backend
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types

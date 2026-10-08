@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, Redirect } from 'react-router-dom';
 
-import type { TtsStringDefault } from '@votingworks/design-backend';
+import type { TtsStringDefault } from '@votingworks/hub-backend';
 import { ElectionStringKey, LanguageCode } from '@votingworks/types';
 import { H2 } from '@votingworks/ui';
 

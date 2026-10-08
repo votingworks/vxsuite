@@ -15,7 +15,7 @@ import {
   type ContestResultsSummaries,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import type { QuickReportedPollStatus } from '@votingworks/design-backend';
+import type { QuickReportedPollStatus } from '@votingworks/hub-backend';
 import { err, ok } from '@votingworks/basics';
 import { render } from '../test/react_testing_library.js';
 import {

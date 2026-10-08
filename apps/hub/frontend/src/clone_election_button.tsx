@@ -2,10 +2,7 @@ import { assertDefined } from '@votingworks/basics';
 import { P, Button, Modal, Font, SearchSelect } from '@votingworks/ui';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import type {
-  ElectionListing,
-  Jurisdiction,
-} from '@votingworks/design-backend';
+import type { ElectionListing, Jurisdiction } from '@votingworks/hub-backend';
 import * as api from './api.js';
 import { Tooltip, TooltipContainer } from './tooltip.js';
 

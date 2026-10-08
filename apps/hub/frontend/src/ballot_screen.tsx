@@ -28,7 +28,7 @@ import {
 } from '@votingworks/ui';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { format } from '@votingworks/utils';
-import type { BallotTemplateId } from '@votingworks/design-backend';
+import type { BallotTemplateId } from '@votingworks/hub-backend';
 import type { NhStateBallotVariant } from '@votingworks/hmpb';
 import {
   getBallotPreviewPdf,
