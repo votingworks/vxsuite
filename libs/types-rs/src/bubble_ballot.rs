@@ -191,7 +191,7 @@ pub mod ballot_hash_serde {
     }
 }
 
-/// The `VxSuite` version and encoded [`Metadata`] targets. `VxDesign` still
+/// The `VxSuite` version and encoded [`Metadata`] targets. `VxHub` still
 /// renders v4.0 ballots, which use a different prelude and a narrower ballot
 /// style index than v4.1.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
@@ -380,7 +380,7 @@ pub type PartialBallotHash = [u8; PARTIAL_BALLOT_HASH_BYTE_LENGTH];
 pub const PRELUDE: &[u8; 3] = b"VB\x01";
 
 /// The first bytes of a v4.0 encoded bubble ballot metadata. [`Metadata`] does
-/// not decode this format, but `VxDesign` still renders it, so payloads
+/// not decode this format, but `VxHub` still renders it, so payloads
 /// starting with it can appear on scanned ballots and must be recognized as
 /// ours.
 pub const PRELUDE_V4P0: &[u8; 3] = b"VP\x02";

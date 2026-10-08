@@ -2064,7 +2064,7 @@ test('quick results clears previous partial reports when pollingPlaceId changes'
   );
 });
 
-test('LiveReports uses modified exported election, not original vxdesign election', async () => {
+test('LiveReports uses modified exported election, not original VxHub election', async () => {
   const {
     unauthenticatedApiClient,
     apiClient,

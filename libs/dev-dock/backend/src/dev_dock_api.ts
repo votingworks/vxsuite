@@ -140,7 +140,7 @@ const REPO_ROOT = join(import.meta.dirname, '../../../..');
 export const DEFAULT_DEV_DOCK_DIR = getMockStateRootDir(REPO_ROOT);
 
 /**
- * Where VxDesign writes its exports in development, one subdirectory per
+ * Where VxHub writes its exports in development, one subdirectory per
  * jurisdiction.
  */
 export const HUB_EXPORT_DIR = getHubDevWorkspaceDir(REPO_ROOT);

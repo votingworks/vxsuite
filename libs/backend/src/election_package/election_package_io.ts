@@ -270,7 +270,7 @@ async function parseElectionPackage(
 
   // UI String Audio IDs:
   //
-  // Audio files are optional: VxDesign omits audioIds.json and
+  // Audio files are optional: VxHub omits audioIds.json and
   // audioClips.jsonl when audio isn't included in an export, so packages in
   // the field may not have them. Default to empty when absent.
 

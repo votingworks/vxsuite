@@ -2,7 +2,7 @@
  * Mock CircleCI server for testing the QA integration.
  *
  * This server:
- * 1. Receives pipeline trigger requests from VxDesign
+ * 1. Receives pipeline trigger requests from VxHub
  * 2. Responds with a mock pipeline ID
  * 3. Sends a series of webhook callbacks mimicking real vx-qa status updates
  *

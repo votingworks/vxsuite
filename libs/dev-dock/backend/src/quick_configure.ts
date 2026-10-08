@@ -23,7 +23,7 @@ export const STAGED_ELECTION_PACKAGE_FILE_NAME = 'election-package.zip';
 const ELECTION_PACKAGE_FILE_PREFIX = 'election-package-';
 
 /**
- * Finds the most recently exported VxDesign election package across all
+ * Finds the most recently exported VxHub election package across all
  * jurisdictions. Ballot zips are written to the same directories, so only files
  * named like election packages are considered.
  */
@@ -33,7 +33,7 @@ export async function findLatestVxHubElectionPackage(
   const electionPackages: FileSystemEntry[] = [];
 
   // Depth 2 covers `<search dir>/<jurisdiction>/<package>.zip`. Errors mean
-  // VxDesign hasn't written anything here yet, which is not a failure.
+  // VxHub hasn't written anything here yet, which is not a failure.
   for await (const result of listDirectory(searchDir, { depth: 2 })) {
     if (result.isErr()) continue;
 

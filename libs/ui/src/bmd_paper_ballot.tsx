@@ -57,7 +57,7 @@ export type MachineType = 'mark' | 'markScan';
  * Maximum number of contests we can reasonably fit on a single page of a BMD
  * paper ballot without sacrificing too much readability.
  *
- * TODO(kofi): Enforce this limit in VxDesign.
+ * TODO(kofi): Enforce this limit in VxHub.
  */
 export const MAX_BMD_PAPER_BALLOT_CONTESTS = 135;
 

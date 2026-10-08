@@ -7,7 +7,7 @@ import { format } from '@votingworks/utils';
 
 // The ballotLanguage strings for a single display language: every supported
 // language's name as rendered in `displayLanguageCode`. Unlike most election
-// strings, these aren't machine-translated via the cloud translator; VxDesign
+// strings, these aren't machine-translated via the cloud translator; VxHub
 // generates them from the Intl API via the same `format.languageDisplayName`
 // util we use here.
 function ballotLanguageNames(

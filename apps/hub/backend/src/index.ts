@@ -73,8 +73,8 @@ async function main(): Promise<number> {
   const auth0 = authEnabled() ? Auth0Client.init() : Auth0Client.dev();
 
   // We reuse the VxSuite logging library, but it doesn't matter if we meet VVSG
-  // requirements in VxDesign, so we can use it a bit loosely. For example, the
-  // VxSuite user roles don't match VxDesign's user roles and the "current user"
+  // requirements in VxHub, so we can use it a bit loosely. For example, the
+  // VxSuite user roles don't match VxHub's user roles and the "current user"
   // isn't known outside of an API request, so we just log as "system".
   const logger = Logger.from(baseLogger, () => Promise.resolve('system'));
 

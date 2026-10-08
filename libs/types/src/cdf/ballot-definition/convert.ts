@@ -1424,7 +1424,7 @@ export function convertCdfBallotDefinitionToVxfElection(
 
       const idParts = ballotStyleId.split('_');
 
-      // Check if this is a VxDesign formatted Id_LanguageCode Ballot Id.
+      // Check if this is a VxHub formatted Id_LanguageCode Ballot Id.
       // If so extract the group ID from the first part of the Id.
       const useExtractedGroupId =
         ballotStyle.Language &&

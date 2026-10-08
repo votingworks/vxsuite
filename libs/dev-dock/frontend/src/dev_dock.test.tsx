@@ -1135,7 +1135,7 @@ test('polls for newly exported elections', async () => {
     screen.queryByRole('option', { name: 'VxHub: election-package-new.zip' })
   ).toBeNull();
 
-  // A VxDesign export made after the dock loaded should appear on its own.
+  // A VxHub export made after the dock loaded should appear on its own.
   mockApiClient.getAvailableElections.reset();
   mockApiClient.getAvailableElections.expectRepeatedCallsWith().resolves([
     {
