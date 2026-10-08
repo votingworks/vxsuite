@@ -28,6 +28,6 @@ export function getMockStateRootDir(repoRoot: string): string {
  * workspace won't be visible to dev tooling.
  */
 // @coverage-defer
-export function getDesignDevWorkspaceDir(repoRoot: string): string {
+export function getHubDevWorkspaceDir(repoRoot: string): string {
   return join(repoRoot, 'apps/hub/backend/dev-workspace');
 }
