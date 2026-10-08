@@ -73,7 +73,7 @@ COPY . .
 RUN . ~/.bashrc && . ~/.cargo/env && pnpm install --frozen-lockfile
 
 ENV NODE_ENV="production"
-RUN . ~/.bashrc && . ~/.cargo/env && pnpm --dir apps/design/frontend build:prod
+RUN . ~/.bashrc && . ~/.cargo/env && pnpm --dir apps/hub/frontend build:prod
 
 EXPOSE 80
 EXPOSE 3000
