@@ -1,4 +1,8 @@
-import { assert, assertDefined } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  extractErrorMessage,
+} from '@votingworks/basics';
 import {
   type AdjudicationReasonInfo,
   DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
@@ -29,6 +33,7 @@ import {
   type InterpreterFrom,
 } from 'xstate';
 import { waitFor } from 'xstate/lib/waitFor.js';
+import { incrementScanCount } from '@votingworks/backend';
 import type {
   BatchControl,
   BatchScanner,
@@ -270,6 +275,16 @@ function buildMachine({
     return { sheetId, interpretation: sheetInterpretation };
   }
 
+  function incrementScanCountAction(): void {
+    void incrementScanCount({ devRoot: workspace.path }).catch((error) => {
+      logger.log(LogEventId.ScanCountIncrementError, 'system', {
+        disposition: 'failure',
+        message: 'Unable to increment persistent scan count.',
+        errorDetails: extractErrorMessage(error),
+      });
+    });
+  }
+
   async function endBatch(batchContext: BatchContext): Promise<void> {
     const { control, rawImageDirectory } = batchContext;
     try {
@@ -421,6 +436,7 @@ function buildMachine({
                 event.data.interpretation.type === 'ValidSheet' &&
                 context.pauseReason?.type === 'manual',
               target: 'paused',
+              actions: incrementScanCountAction,
             },
             {
               cond: (
@@ -428,6 +444,7 @@ function buildMachine({
                 event: DoneEvent<typeof interpretAndSaveSheet>
               ) => event.data.interpretation.type === 'ValidSheet',
               target: 'scanningSheet',
+              actions: incrementScanCountAction,
             },
             {
               target: 'sheetNeedsReview',
@@ -445,7 +462,10 @@ function buildMachine({
 
       sheetNeedsReview: {
         on: {
-          ACCEPT_SHEET: 'paused',
+          ACCEPT_SHEET: {
+            target: 'paused',
+            actions: incrementScanCountAction,
+          },
           REJECT_SHEET: {
             target: 'paused',
             actions: (context) => {

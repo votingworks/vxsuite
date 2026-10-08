@@ -1,3 +1,4 @@
+import { incrementScanCount } from '@votingworks/backend';
 import { assertDefined, deferred, iter } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
@@ -42,6 +43,12 @@ const ANY_BALLOT_IMAGE = {
 vi.setConfig({ testTimeout: 20000 });
 
 const featureFlagMock = getFeatureFlagMock();
+
+vi.mock(import('@votingworks/backend'), async (importActual) => ({
+  ...(await importActual()),
+  incrementScanCount: vi.fn().mockResolvedValue(undefined),
+}));
+
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
@@ -49,6 +56,7 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 }));
 
 beforeEach(() => {
+  vi.mocked(incrementScanCount).mockClear();
   featureFlagMock.resetFeatureFlags();
 });
 
@@ -104,6 +112,10 @@ test('scanBatch with multiple sheets', async () => {
       startedAt: expect.any(String),
       endedAt: undefined,
       pollingPlaceId: '23-polling-place',
+    });
+    expect(incrementScanCount).toHaveBeenCalledTimes(3);
+    expect(incrementScanCount).toHaveBeenCalledWith({
+      devRoot: workspace.path,
     });
 
     await apiClient.saveBatch();
@@ -291,6 +303,7 @@ test('pausing while a sheet is being interpreted pauses after it', async () => {
       pauseReason: { type: 'manual' },
     });
     expect(status.batches[0]!.count).toEqual(1);
+    expect(incrementScanCount).toHaveBeenCalledOnce();
   });
 });
 
@@ -443,11 +456,13 @@ test('rejectSheet after invalid ballot', async () => {
         pollingPlaceId: 'central-scanning',
       });
     }
+    expect(incrementScanCount).toHaveBeenCalledOnce();
     await apiClient.rejectSheet();
     expect(await apiClient.getStatus()).toMatchObject({
       state: 'paused',
       pauseReason: { type: 'review', sheetId },
     });
+    expect(incrementScanCount).toHaveBeenCalledOnce();
     scanner
       .withNextScannerSession()
       .sheet({ frontPath: bmdFixture.sheet[0], backPath: bmdFixture.sheet[1] })
@@ -472,6 +487,7 @@ test('rejectSheet after invalid ballot', async () => {
         pollingPlaceId: 'central-scanning',
       });
     }
+    expect(incrementScanCount).toHaveBeenCalledTimes(2);
   });
 });
 
@@ -654,11 +670,15 @@ test('accepting a sheet that needs review keeps it and continues scanning', asyn
       }),
       expect.any(Function)
     );
+    expect(incrementScanCount).not.toHaveBeenCalled();
 
     await apiClient.acceptSheet();
     expect(await apiClient.getStatus()).toMatchObject({
       state: 'paused',
       pauseReason: { type: 'review', sheetId },
+    });
+    expect(incrementScanCount).toHaveBeenCalledExactlyOnceWith({
+      devRoot: workspace.path,
     });
     scanner.withNextScannerSession().end();
     await apiClient.resumeBatch();
@@ -717,6 +737,50 @@ test('rejects ballots whose precinct is not in the selected polling place', asyn
       type: 'InvalidPrecinctPage',
       metadata: expect.objectContaining({ precinctId: '23' }),
     });
+    expect(incrementScanCount).not.toHaveBeenCalled();
+  });
+});
+
+test('logs failure to increment the scan count', async () => {
+  vi.mocked(incrementScanCount).mockRejectedValueOnce(
+    new Error('corrupt scan count')
+  );
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  const bmdFixture = await generateBmdBallotFixture();
+  await withApp(async ({ auth, apiClient, scanner, workspace, logger }) => {
+    mockElectionManagerAuth(auth, electionDefinition);
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
+      jurisdiction,
+      electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
+    });
+    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+    await apiClient.setTestMode({ testMode: true });
+    await apiClient.setPollingPlaceId({ id: '23-polling-place' });
+
+    scanner
+      .withNextScannerSession()
+      .sheet({ frontPath: bmdFixture.sheet[0], backPath: bmdFixture.sheet[1] })
+      .end();
+    await apiClient.scanBatch();
+    const status = await waitForStatus(apiClient, {
+      state: 'paused',
+      pauseReason: { type: 'tray-empty' },
+    });
+    expect(status.batches[0]!.count).toEqual(1);
+    await vi.waitFor(() =>
+      expect(logger.log).toHaveBeenCalledWith(
+        LogEventId.ScanCountIncrementError,
+        'system',
+        {
+          disposition: 'failure',
+          message: 'Unable to increment persistent scan count.',
+          errorDetails: 'corrupt scan count',
+        }
+      )
+    );
   });
 });
 
