@@ -226,7 +226,9 @@ test('continuous CVR export with a mode switch in between', async () => {
       await apiClient.setTestMode({ isTestMode: true });
       (await apiClient.openPolls()).unsafeUnwrap();
 
-      await scanBallot(mockScanner, clock, apiClient, workspace.store, 0);
+      await scanBallot(mockScanner, clock, apiClient, workspace.store, 0, {
+        initialLifetimeSheetsCounted: 2,
+      });
 
       // Expect two export directories, one from before the mode switch and one from after
       const exportDirectoryPaths = await getCastVoteRecordExportDirectoryPaths(

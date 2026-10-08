@@ -43,15 +43,21 @@ const waitForExpect = createRequire(import.meta.url)(
   'wait-for-expect'
 ) as typeof import('wait-for-expect').default;
 
+export interface ExpectedScannerStatus extends Partial<PrecinctScannerStatus> {
+  state: PrecinctScannerState;
+}
+
 export async function expectStatus(
   apiClient: grout.Client<Api>,
-  expectedStatus: {
-    state: PrecinctScannerState;
-  } & Partial<PrecinctScannerStatus>
+  expectedStatus: ExpectedScannerStatus
 ): Promise<void> {
   const status = await apiClient.getScannerStatus();
   expect(status).toEqual({
     ballotsCounted: 0,
+    lifetimeSheetsCounted:
+      expectedStatus.lifetimeSheetsCounted ??
+      expectedStatus.ballotsCounted ??
+      0,
     error: undefined,
     interpretation: undefined,
     ...expectedStatus,
@@ -60,9 +66,7 @@ export async function expectStatus(
 
 export async function waitForStatus(
   apiClient: grout.Client<Api>,
-  status: {
-    state: PrecinctScannerState;
-  } & Partial<PrecinctScannerStatus>
+  status: ExpectedScannerStatus
 ): Promise<void> {
   await waitForExpect(async () => {
     await expectStatus(apiClient, status);

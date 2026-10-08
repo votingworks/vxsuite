@@ -28,6 +28,7 @@ export type InterpretationResult = SheetInterpretationWithPages & {
 
 export interface PrecinctScannerStatus extends PrecinctScannerMachineStatus {
   ballotsCounted: number;
+  lifetimeSheetsCounted: number;
 }
 
 export interface PrecinctScannerConfig {
