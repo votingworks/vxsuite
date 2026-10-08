@@ -12,6 +12,7 @@ export function intermediateScript(
     | 'reboot-to-bios'
     | 'reboot-to-vendor-menu'
     | 'set-clock'
+    | 'increment-scan-count'
 ): string {
   // Prefix with ../src since we're actually in ../build at runtime
   return path.join(import.meta.dirname, '../intermediate-scripts', script);

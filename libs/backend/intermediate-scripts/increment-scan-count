@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage() {
+  echo 'Usage: increment-scan-count <file>'
+}
+
+if ! [[ "${#}" -eq 1 ]]; then
+  usage >&2
+  exit 1
+fi
+
+case "${1}" in
+-h | --help)
+  usage
+  exit 0
+  ;;
+esac
+
+scan_count_file="${1}"
+
+# `sudo` always sets `SUDO_USER`, so callers can't bypass this when elevating.
+if [[ -n "${SUDO_USER:-}" && "${scan_count_file}" != /vx/config/scan-count ]]; then
+  echo "error: refusing to write to file via sudo: ${scan_count_file} (expected /vx/config/scan-count)" >&2
+  exit 1
+fi
+
+scan_count_dir="$(dirname "${scan_count_file}")"
+
+# Lock dir (held until exit) not the file since it's replaced by `mv` below.
+exec 9<"${scan_count_dir}"
+flock --exclusive --timeout 10 9
+
+# Only allow digits so `$(( … ))` below doesn't evaluate the contents as code.
+scan_count=0
+if [[ -e "${scan_count_file}" ]]; then
+  scan_count=$(<"${scan_count_file}")
+  if ! [[ "${scan_count}" =~ ^[0-9]+$ ]]; then
+    echo "error: corrupt count in ${scan_count_file}" >&2
+    exit 1
+  fi
+fi
+
+# Ensure there's always a valid count in the file, whether old or new.
+scan_count_file_tmp="${scan_count_file}.tmp"
+echo $((scan_count + 1)) >"${scan_count_file_tmp}"
+sync "${scan_count_file_tmp}"
+mv "${scan_count_file_tmp}" "${scan_count_file}"
+sync "${scan_count_dir}"
