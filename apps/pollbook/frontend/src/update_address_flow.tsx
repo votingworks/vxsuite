@@ -28,7 +28,9 @@ import {
 import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals.js';
 
 type UpdateAddressFlowState =
-  { step: 'update' } | { step: 'printing' } | { step: 'success' };
+  | { step: 'update' }
+  | { step: 'printing' }
+  | { step: 'success' };
 
 function createBlankAddress(): VoterAddressChangeRequest {
   return {

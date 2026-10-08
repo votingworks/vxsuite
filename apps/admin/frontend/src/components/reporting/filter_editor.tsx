@@ -243,7 +243,8 @@ function convertFilterRowsToTabulationFilter(
         break;
       case 'reporting-status':
         filter.reportingStatus = filterValues[0] as
-          Admin.ReportingStatus | undefined;
+          | Admin.ReportingStatus
+          | undefined;
         break;
       case 'district':
         filter.districtIds = filterValues;

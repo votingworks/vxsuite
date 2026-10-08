@@ -4,7 +4,11 @@ import type { SizeMode } from '@votingworks/types';
 import { styled } from './styled.js';
 
 export type JustifyContent =
-  'start' | 'center' | 'space-between' | 'space-around' | 'space-evenly';
+  | 'start'
+  | 'center'
+  | 'space-between'
+  | 'space-around'
+  | 'space-evenly';
 
 export interface MainProps {
   padded?: boolean;

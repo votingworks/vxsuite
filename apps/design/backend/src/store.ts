@@ -241,7 +241,9 @@ export type DuplicatePrecinctError =
   | 'duplicate-split-districts';
 
 export type DuplicatePartyErrorCode =
-  'duplicate-name' | 'duplicate-full-name' | 'duplicate-abbrev';
+  | 'duplicate-name'
+  | 'duplicate-full-name'
+  | 'duplicate-abbrev';
 
 export interface DuplicatePartyError {
   code: DuplicatePartyErrorCode;
@@ -249,7 +251,9 @@ export interface DuplicatePartyError {
 }
 
 export type DuplicateContestError =
-  'duplicate-contest' | 'duplicate-candidate' | 'duplicate-option';
+  | 'duplicate-contest'
+  | 'duplicate-candidate'
+  | 'duplicate-option';
 
 export type SetPollingPlaceError = 'duplicate-name' | 'invalid-precinct';
 

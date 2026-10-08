@@ -95,12 +95,14 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
   const precinctRoutes = routes.election(electionId).precincts;
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
-  if (!(
-    getStateFeaturesQuery.isSuccess &&
-    listDistrictsQuery.isSuccess &&
-    getBallotsFinalizedAtQuery.isSuccess &&
-    getElectionInfoQuery.isSuccess
-  )) {
+  if (
+    !(
+      getStateFeaturesQuery.isSuccess &&
+      listDistrictsQuery.isSuccess &&
+      getBallotsFinalizedAtQuery.isSuccess &&
+      getElectionInfoQuery.isSuccess
+    )
+  ) {
     return null;
   }
 

@@ -1020,7 +1020,9 @@ type DraftStraightPartyContest = Omit<StraightPartyContest, 'districtId'> & {
 };
 
 type DraftContest =
-  DraftCandidateContest | DraftYesNoContest | DraftStraightPartyContest;
+  | DraftCandidateContest
+  | DraftYesNoContest
+  | DraftStraightPartyContest;
 
 function draftCandidateFromCandidate(candidate: Candidate): DraftCandidate {
   // @coverage-defer

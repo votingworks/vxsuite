@@ -2519,6 +2519,10 @@ jobs:
           name: Validate
           command: |
             ./script/validate-monorepo
+      - run:
+          name: Check Formatting
+          command: |
+            pnpm format:check
       - when:
           condition:
             or:

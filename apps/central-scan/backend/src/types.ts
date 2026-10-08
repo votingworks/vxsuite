@@ -5,7 +5,9 @@ export interface MachineConfig {
   codeVersion: string;
 }
 export type BatchPauseReason =
-  { type: 'tray-empty' } | { type: 'review'; sheetId: Id } | { type: 'manual' };
+  | { type: 'tray-empty' }
+  | { type: 'review'; sheetId: Id }
+  | { type: 'manual' };
 
 export type BatchScannerMachineStatus =
   | { state: 'idle' }

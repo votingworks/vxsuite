@@ -62,7 +62,8 @@ export interface RegisterAdjudicationStationError {
 
 /** Error type for host to machine connection */
 export type RegistrationErrorType =
-  RegisterScannerError['type'] | RegisterAdjudicationStationError['type'];
+  | RegisterScannerError['type']
+  | RegisterAdjudicationStationError['type'];
 
 /** Connection status for a client machine in a multi-station setup. */
 export const ClientConnectionStatus = {
@@ -433,7 +434,8 @@ export interface AdjudicatedCvr {
  * A fully adjudicated candidate or write-in option
  */
 export type AdjudicatedContestOption =
-  AdjudicatedOfficialOption | AdjudicatedWriteInOption;
+  | AdjudicatedOfficialOption
+  | AdjudicatedWriteInOption;
 
 interface AdjudicatedOfficialOption {
   type: 'official-option';
@@ -651,7 +653,8 @@ export type ImportCastVoteRecordsError =
  * An error encountered during import of an Election Results Reporting file.
  */
 export type ImportElectionResultsReportingError =
-  { type: 'parsing-failed' } | { type: 'conversion-failed' };
+  | { type: 'parsing-failed' }
+  | { type: 'conversion-failed' };
 
 /**
  * Errors returned by client proxy endpoints and peer API endpoints

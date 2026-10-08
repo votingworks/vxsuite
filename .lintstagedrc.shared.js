@@ -2,7 +2,7 @@
 
 const base = {
   '*.+(js|cjs|mjs|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)':
-    ['prettier --write'],
+    ['oxfmt --no-error-on-unmatched-pattern --write'],
   '*.+(js|jsx|ts|tsx)': ['eslint --cache --quiet --fix'],
   // skip_children keeps rustfmt from recursively formatting a staged file's
   // out-of-line child modules, which may not be staged. The parser edition

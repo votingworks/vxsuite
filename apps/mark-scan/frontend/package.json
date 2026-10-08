@@ -15,7 +15,7 @@
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
     "dev:server": "vite --clearScreen false",
-    "format": "prettier '**/*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
+    "format": "oxfmt --write",
     "lint": "pnpm -w vx-task lint $npm_package_name",
     "lint:fix": "pnpm type-check && eslint --cache . --fix && pnpm stylelint:run:fix",
     "lint:self": "pnpm type-check && eslint --cache . && pnpm stylelint:run",

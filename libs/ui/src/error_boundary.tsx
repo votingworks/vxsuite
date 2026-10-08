@@ -9,7 +9,8 @@ import { Caption, H1, P } from './typography.js';
 
 type Props = React.PropsWithChildren<{
   errorMessage:
-    React.ReactNode | (({ error }: { error: unknown }) => React.ReactNode);
+    | React.ReactNode
+    | (({ error }: { error: unknown }) => React.ReactNode);
   logger?: BaseLogger;
 }>;
 

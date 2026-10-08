@@ -13,7 +13,10 @@ import type { ExportDataError } from '@votingworks/admin-backend';
 import { act, screen, within } from '../../test/react_testing_library.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { ExportElectionPackageModalButton } from './export_election_package_modal_button.js';
-import { type ApiMock, createApiMock } from '../../test/helpers/mock_api_client.js';
+import {
+  type ApiMock,
+  createApiMock,
+} from '../../test/helpers/mock_api_client.js';
 import { AppContext } from '../contexts/app_context.js';
 
 let apiMock: ApiMock;

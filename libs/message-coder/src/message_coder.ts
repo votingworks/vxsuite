@@ -17,7 +17,9 @@ import type {
  */
 type MessageCoderParts<T> = {
   [K in keyof T]:
-    Coder<T[K]> | LiteralCoder<Array<string | number | Buffer>> | PaddingCoder;
+    | Coder<T[K]>
+    | LiteralCoder<Array<string | number | Buffer>>
+    | PaddingCoder;
 };
 type PropsMatching<T, V> = {
   [P in keyof T]: T[P] extends V ? P : never;

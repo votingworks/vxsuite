@@ -29,7 +29,10 @@ export interface LoggedOut {
 export interface CheckingPin {
   readonly status: 'checking_pin';
   readonly user:
-    VendorUser | SystemAdministratorUser | ElectionManagerUser | PollWorkerUser;
+    | VendorUser
+    | SystemAdministratorUser
+    | ElectionManagerUser
+    | PollWorkerUser;
   readonly error?: { error: unknown; erroredAt: Date };
   readonly lockedOutUntil?: Date;
   readonly wrongPinEnteredAt?: Date;
@@ -38,7 +41,10 @@ export interface CheckingPin {
 export interface RemoveCard {
   readonly status: 'remove_card';
   readonly user:
-    VendorUser | SystemAdministratorUser | ElectionManagerUser | PollWorkerUser;
+    | VendorUser
+    | SystemAdministratorUser
+    | ElectionManagerUser
+    | PollWorkerUser;
   readonly sessionExpiresAt: Date;
 }
 

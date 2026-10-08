@@ -331,7 +331,8 @@ export function certDetailsToCardDetails(
  */
 export function certDetailsToCardDetails(
   cardIdentityCertDetails:
-    SystemAdministratorCardCustomCertFields | ElectionCardCustomCertFields,
+    | SystemAdministratorCardCustomCertFields
+    | ElectionCardCustomCertFields,
   programmingMachineCertAuthorityCertDetails: MachineCustomCertFields
 ): ProgrammedCardDetails;
 

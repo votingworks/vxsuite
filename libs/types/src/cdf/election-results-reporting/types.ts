@@ -7,21 +7,30 @@ import type {
 
 export function isBallotMeasureContest(
   contest:
-    PartyContest | BallotMeasureContest | CandidateContest | RetentionContest
+    | PartyContest
+    | BallotMeasureContest
+    | CandidateContest
+    | RetentionContest
 ): contest is BallotMeasureContest {
   return contest['@type'] === 'ElectionResults.BallotMeasureContest';
 }
 
 export function isRetentionContest(
   contest:
-    PartyContest | BallotMeasureContest | CandidateContest | RetentionContest
+    | PartyContest
+    | BallotMeasureContest
+    | CandidateContest
+    | RetentionContest
 ): contest is RetentionContest {
   return contest['@type'] === 'ElectionResults.RetentionContest';
 }
 
 export function isCandidateContest(
   contest:
-    PartyContest | BallotMeasureContest | CandidateContest | RetentionContest
+    | PartyContest
+    | BallotMeasureContest
+    | CandidateContest
+    | RetentionContest
 ): contest is CandidateContest {
   return contest['@type'] === 'ElectionResults.CandidateContest';
 }

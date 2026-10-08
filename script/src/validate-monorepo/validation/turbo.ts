@@ -33,7 +33,8 @@ export interface MissingCargoBinaryOutputIssue {
 }
 
 export type ValidationIssue =
-  UntrackedCargoPathDependencyIssue | MissingCargoBinaryOutputIssue;
+  | UntrackedCargoPathDependencyIssue
+  | MissingCargoBinaryOutputIssue;
 
 export type ValidationIssueKind = ValidationIssue['kind'];
 

@@ -118,7 +118,11 @@ function findPresentPartition(
  * Actions that can artificially fail with injected faults.
  */
 export type FaultType =
-  'mountPartition' | 'unmountPartition' | 'formatDrive' | 'sync' | 'getSpace';
+  | 'mountPartition'
+  | 'unmountPartition'
+  | 'formatDrive'
+  | 'sync'
+  | 'getSpace';
 
 class SimulatedUsbPlatformFaults {
   private readonly faults = new Map<

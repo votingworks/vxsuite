@@ -724,7 +724,8 @@ export class LocalStore extends Store {
 
   getEventCountUniqueByVoter(
     eventType:
-      typeof EventType.VoterNameChange | typeof EventType.VoterAddressChange
+      | typeof EventType.VoterNameChange
+      | typeof EventType.VoterAddressChange
   ): number {
     const row = this.client.one(
       `

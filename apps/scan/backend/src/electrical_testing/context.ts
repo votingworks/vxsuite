@@ -12,7 +12,10 @@ import type { ScanningSession } from './analysis/scan.js';
 import type { SimpleScannerClient } from './simple_scanner_client.js';
 
 export type ScanningMode =
-  'shoe-shine' | 'manual-front' | 'manual-rear' | 'disabled';
+  | 'shoe-shine'
+  | 'manual-front'
+  | 'manual-rear'
+  | 'disabled';
 
 export interface ServerContext {
   card: Card;

@@ -21,7 +21,9 @@ const ScanPanelDisplay = styled.div<StyledComponentProps>`
 `;
 
 export type ScanPanelRenderOption =
-  'button-enabled' | 'button-disabled' | 'container';
+  | 'button-enabled'
+  | 'button-disabled'
+  | 'container';
 
 interface ScanPanelProps {
   children?: ReactNode;

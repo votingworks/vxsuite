@@ -33,7 +33,6 @@
     "@vitest/coverage-istanbul": "5.0.2",
     "@votingworks/coverage-check": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
-    "prettier": "3.9.6",
     "sort-package-json": "^1.50.0",
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "vitest": "5.0.2"

@@ -3,7 +3,7 @@
 // eslint can't resolve when run by lint-staged.
 module.exports = {
   '*.+(js|jsx|ts|tsx|css|graphql|json|less|md|mdx|sass|scss|yaml|yml)': [
-    'prettier --write',
+    'oxfmt --no-error-on-unmatched-pattern --write',
   ],
   'package.json': ['sort-package-json'],
 };

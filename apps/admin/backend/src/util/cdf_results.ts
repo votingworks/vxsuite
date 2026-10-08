@@ -162,7 +162,8 @@ function buildCandidateContest(
 }
 
 type ReportContest =
-  ResultsReporting.BallotMeasureContest | ResultsReporting.CandidateContest;
+  | ResultsReporting.BallotMeasureContest
+  | ResultsReporting.CandidateContest;
 
 function buildContests(
   election: Election,

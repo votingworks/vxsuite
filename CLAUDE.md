@@ -139,7 +139,14 @@ pnpm lint:fix
 # Or from the repo root using --filter
 pnpm --filter @votingworks/<package-name> lint
 pnpm --filter @votingworks/<package-name> lint:fix
+
+# Format everything with oxfmt (from repo root), or check without writing
+pnpm format
+pnpm format:check
 ```
+
+Formatting is applied by the lint-staged pre-commit hook and verified in CI by
+the `validate-monorepo` job's "Check Formatting" step.
 
 ### Type Checking
 
@@ -368,8 +375,8 @@ fn.assertComplete(); // verify all expected calls were made (usually in afterEac
 
 ## Code Style
 
-- **Prettier:** single quotes, trailing commas (es5), semicolons, prose wrap
-  always
+- **Formatter:** oxfmt (Prettier-compatible; config in `.oxfmtrc.jsonc`): single
+  quotes, trailing commas (es5), semicolons, 80 columns, prose wrap always
 - **ESLint:** Airbnb base + @typescript-eslint + custom `eslint-plugin-vx`
   (based on Google TypeScript Style Guide)
 - **Stylelint:** standard config with styled-components support

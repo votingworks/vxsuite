@@ -558,13 +558,9 @@ export class Store implements BaseStore {
 
     // As in {@link getElectionKey}, a CDF election has none of these fields at
     // the top level, so fall back to parsing it. CDF need not be fast.
-    if (!(
-      row.id &&
-      row.title &&
-      row.date &&
-      row.jurisdictionName &&
-      row.state
-    )) {
+    if (
+      !(row.id && row.title && row.date && row.jurisdictionName && row.state)
+    ) {
       const { election } = assertDefined(
         this.getElection(electionId)
       ).electionDefinition;
@@ -1621,14 +1617,16 @@ export class Store implements BaseStore {
     if (existingCvr) {
       // Existing cast vote records are expected, but existing cast vote records
       // with new data indicate a bad or inappropriately manipulated file
-      if (!(
-        existingCvr.ballotStyleGroupId === cvr.ballotStyleGroupId &&
-        existingCvr.ballotType === cvr.votingMethod &&
-        existingCvr.batchId === cvr.batchId &&
-        existingCvr.precinctId === cvr.precinctId &&
-        existingCvr.sheetNumber === cvrSheetNumber &&
-        existingCvr.votes === serializedVotes
-      )) {
+      if (
+        !(
+          existingCvr.ballotStyleGroupId === cvr.ballotStyleGroupId &&
+          existingCvr.ballotType === cvr.votingMethod &&
+          existingCvr.batchId === cvr.batchId &&
+          existingCvr.precinctId === cvr.precinctId &&
+          existingCvr.sheetNumber === cvrSheetNumber &&
+          existingCvr.votes === serializedVotes
+        )
+      ) {
         return err({
           type: 'ballot-id-already-exists-with-different-data',
         });

@@ -270,7 +270,8 @@ function getValidContestOptions(contest: Contest): ContestOptionId[] {
 }
 
 export type ContestReferenceError =
-  'contest-not-found' | 'contest-option-not-found';
+  | 'contest-not-found'
+  | 'contest-option-not-found';
 
 /**
  * Checks whether all the contest and contest options referenced in a cast vote record are indeed a

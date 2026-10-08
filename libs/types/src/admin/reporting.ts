@@ -83,4 +83,5 @@ export type PartySplitTallyReportResults = TallyReportResultsBase & {
  * Data necessary to display a frontend tally report.
  */
 export type TallyReportResults =
-  SingleTallyReportResults | PartySplitTallyReportResults;
+  | SingleTallyReportResults
+  | PartySplitTallyReportResults;

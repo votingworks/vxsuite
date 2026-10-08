@@ -9,7 +9,14 @@ import { NODE_ENV } from '../globals.js';
  * Types supported for query value substitution.
  */
 export type Bindable =
-  boolean | string | number | bigint | Buffer | Date | null | undefined;
+  | boolean
+  | string
+  | number
+  | bigint
+  | Buffer
+  | Date
+  | null
+  | undefined;
 
 /**
  * Manages a client connection to a PostgreSQL database.

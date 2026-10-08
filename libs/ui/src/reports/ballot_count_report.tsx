@@ -1,8 +1,4 @@
-import {
-  Admin,
-  type ElectionDefinition,
-  Tabulation,
-} from '@votingworks/types';
+import { Admin, type ElectionDefinition, Tabulation } from '@votingworks/types';
 import {
   type Optional,
   assert,
@@ -79,7 +75,10 @@ export interface FillerColumn {
 }
 
 export type Column =
-  AttributeColumn | BallotCountColumn | SheetCountColumn | FillerColumn;
+  | AttributeColumn
+  | BallotCountColumn
+  | SheetCountColumn
+  | FillerColumn;
 
 const COLUMN_LABELS: Record<AttributeColumnId | BallotCountColumnId, string> = {
   precinct: 'Precinct',
@@ -304,10 +303,12 @@ function getCellClass(
       }
 
       // remove extra lines except side edge of sheet count area
-      if (!(
-        (column.type === 'sheet-count' && column.id === 0) ||
-        column.id === 'total'
-      )) {
+      if (
+        !(
+          (column.type === 'sheet-count' && column.id === 0) ||
+          column.id === 'total'
+        )
+      ) {
         classes.push('no-left-border');
       }
     }

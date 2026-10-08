@@ -966,7 +966,9 @@ export class JavaCard implements Card {
    */
   async retrieveCertByIdentifier(
     certIdentifier:
-      'cardVxCert' | 'cardIdentityCert' | 'programmingMachineCertAuthorityCert'
+      | 'cardVxCert'
+      | 'cardIdentityCert'
+      | 'programmingMachineCertAuthorityCert'
   ): Promise<Buffer> {
     await this.selectApplet();
 

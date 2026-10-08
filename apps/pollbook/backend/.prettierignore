@@ -1,7 +1,0 @@
-.build
-.circleci/config.yml
-android
-build
-coverage
-ios
-node_modules
