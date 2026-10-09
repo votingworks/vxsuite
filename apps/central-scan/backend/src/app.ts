@@ -37,6 +37,7 @@ import type { BatchScannerStateMachine } from './scanner.js';
 import type { Workspace } from './util/workspace.js';
 import type {
   BallotImage,
+  ImprintingStatus,
   MachineConfig,
   NetworkStatus,
   ScanStatus,
@@ -289,6 +290,27 @@ function buildApi({
       void logger.logAsCurrentRole(LogEventId.PollingPlaceChanged, {
         disposition: 'success',
         message: `User set the polling place for the machine to ${name}`,
+      });
+    },
+
+    async getImprintingStatus(): Promise<ImprintingStatus> {
+      return {
+        isImprinterDetected: await scanner.isImprinterDetected(),
+        isImprintingEnabled: store.getIsImprintingEnabled(),
+      };
+    },
+
+    setIsImprintingEnabled(input: { isImprintingEnabled: boolean }): void {
+      assert(
+        machine.status().state === 'idle',
+        'Attempting to change imprinting while a batch is in progress'
+      );
+      store.setIsImprintingEnabled(input.isImprintingEnabled);
+      void logger.logAsCurrentRole(LogEventId.ImprintingToggled, {
+        disposition: 'success',
+        message: input.isImprintingEnabled
+          ? 'User enabled imprinting.'
+          : 'User disabled imprinting.',
       });
     },
 

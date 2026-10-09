@@ -87,3 +87,8 @@ export interface NetworkStatus {
   isEnabled: boolean;
   connection: NetworkConnectionInfo;
 }
+
+export interface ImprintingStatus {
+  isImprinterDetected: boolean;
+  isImprintingEnabled: boolean;
+}

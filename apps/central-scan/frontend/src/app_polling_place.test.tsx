@@ -48,6 +48,7 @@ function logInAsElectionManager(electionForKey: ElectionDefinition) {
 test('warns and disables scanning when no polling place is selected', async () => {
   apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetPollingPlaceId(null);
+  apiMock.expectGetImprintingStatus();
   render(<App apiClient={apiMock.apiClient} />);
 
   await screen.findByText('VxCentralScan Locked');

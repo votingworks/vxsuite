@@ -19,6 +19,7 @@ beforeEach(() => {
   apiMock.expectGetTestMode(false);
   apiMock.setStatus();
   apiMock.expectGetPollingPlaceId();
+  apiMock.expectGetImprintingStatus();
 });
 
 afterEach(() => {
@@ -173,5 +174,66 @@ test('disables the polling place picker after scanning has begun', async () => {
   expect(screen.getByLabelText('Select a polling place…')).toBeDisabled();
   screen.getByText(
     'You cannot change the polling place once ballots have been scanned.'
+  );
+});
+
+test('imprinting status', async () => {
+  renderScreen();
+
+  apiMock.expectGetImprintingStatus({
+    isImprinterDetected: true,
+    isImprintingEnabled: true,
+  });
+  await screen.findByText('Imprinter detected');
+  await vi.waitFor(() =>
+    expect(
+      screen.getByRole('option', { name: 'Imprinting Enabled' })
+    ).toHaveAttribute('aria-selected', 'true')
+  );
+
+  apiMock.expectGetImprintingStatus({
+    isImprinterDetected: false,
+    isImprintingEnabled: true,
+  });
+  await screen.findByText(
+    'Imprinter not detected. Ballots won’t be imprinted, even if imprinting is enabled below.'
+  );
+
+  apiMock.expectSetIsImprintingEnabled(false);
+  apiMock.expectGetImprintingStatus({
+    isImprinterDetected: true,
+    isImprintingEnabled: false,
+  });
+  userEvent.click(screen.getByRole('option', { name: 'Imprinting Disabled' }));
+  await vi.waitFor(() =>
+    expect(
+      screen.getByRole('option', { name: 'Imprinting Disabled' })
+    ).toHaveAttribute('aria-selected', 'true')
+  );
+
+  apiMock.expectSetIsImprintingEnabled(true);
+  apiMock.expectGetImprintingStatus({
+    isImprinterDetected: true,
+    isImprintingEnabled: true,
+  });
+  userEvent.click(screen.getByRole('option', { name: 'Imprinting Enabled' }));
+  await vi.waitFor(() =>
+    expect(
+      screen.getByRole('option', { name: 'Imprinting Enabled' })
+    ).toHaveAttribute('aria-selected', 'true')
+  );
+});
+
+test('disables the imprinting toggle when a batch is open', async () => {
+  renderScreen({ isBatchOpen: true });
+
+  expect(
+    await screen.findByRole('option', { name: 'Imprinting Enabled' })
+  ).toBeDisabled();
+  expect(
+    await screen.findByRole('option', { name: 'Imprinting Disabled' })
+  ).toBeDisabled();
+  screen.getByText(
+    'You cannot toggle imprinting while a batch is in progress.'
   );
 });

@@ -574,9 +574,9 @@ test('fujitsu scanner calls scanimage to determine if imprinter is attached', as
   });
 
   exec.mockReturnValueOnce(scanimage);
-  const isImprinterAttachedPromise = scanner.isImprinterAttached();
+  const isImprinterDetectedPromise = scanner.isImprinterDetected();
   scanimage.emit('close', 0, null);
-  await expect(isImprinterAttachedPromise).resolves.toEqual(true);
+  await expect(isImprinterDetectedPromise).resolves.toEqual(true);
 });
 
 test('fujitsu scanner calls scanimage to determine if imprinter is attached handles unattached state as expected', async () => {
@@ -586,7 +586,7 @@ test('fujitsu scanner calls scanimage to determine if imprinter is attached hand
   });
 
   exec.mockReturnValueOnce(scanimage);
-  const isImprinterAttachedPromise = scanner.isImprinterAttached();
+  const isImprinterDetectedPromise = scanner.isImprinterDetected();
   const chunks = [
     'some text\n',
     // intentionally split the error message across chunks
@@ -602,7 +602,7 @@ test('fujitsu scanner calls scanimage to determine if imprinter is attached hand
 
   // ensure we don't resolve until the process has exited
   let hasResolved = false;
-  void isImprinterAttachedPromise.then(() => {
+  void isImprinterDetectedPromise.then(() => {
     hasResolved = true;
   });
   await sleep(10);
@@ -610,6 +610,6 @@ test('fujitsu scanner calls scanimage to determine if imprinter is attached hand
   scanimage.emit('close', 0, null);
 
   // now we should have resolved
-  await expect(isImprinterAttachedPromise).resolves.toEqual(false);
+  await expect(isImprinterDetectedPromise).resolves.toEqual(false);
   expect(hasResolved).toEqual(true);
 });

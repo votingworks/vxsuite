@@ -730,6 +730,12 @@ eventType = "application-status"
 documentationMessage = "Indicates the status of the imprinter, namely whether or not it is registering as attached."
 restrictInDocumentationToApps = ["vx-central-scan"]
 
+[Events.ImprintingToggled]
+eventId = "imprinting-toggled"
+eventType = "user-action"
+documentationMessage = "User has enabled or disabled imprinting on scanned ballots"
+restrictInDocumentationToApps = ["vx-central-scan"]
+
 [Events.CentralScanNetworkStatus]
 eventId = "central-scan-network-status"
 eventType = "application-status"

@@ -117,6 +117,24 @@ export const getTestMode = {
   },
 } as const;
 
+// Polling to catch changes to the imprinter attachment status. Need not be
+// super frequent since this will rarely change.
+const IMPRINTING_STATUS_POLLING_INTERVAL_MS = 2000;
+
+export const getImprintingStatus = {
+  queryKey(): QueryKey {
+    return ['getImprintingStatus'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return usePollingQuery(
+      this.queryKey(),
+      () => apiClient.getImprintingStatus(),
+      IMPRINTING_STATUS_POLLING_INTERVAL_MS
+    );
+  },
+} as const;
+
 export const getSystemSettings = {
   queryKey(): QueryKey {
     return ['getSystemSettings'];
@@ -137,7 +155,7 @@ export const getMachineConfig = {
   },
 } as const;
 
-export const NETWORK_STATUS_POLLING_INTERVAL_MS = 1000;
+const NETWORK_STATUS_POLLING_INTERVAL_MS = 1000;
 
 export const getNetworkStatus = {
   queryKey(): QueryKey {
@@ -237,6 +255,18 @@ export const setTestMode = {
     return useMutation(apiClient.setTestMode, {
       async onSuccess() {
         await queryClient.invalidateQueries(getTestMode.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const setIsImprintingEnabled = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setIsImprintingEnabled, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getImprintingStatus.queryKey());
       },
     });
   },

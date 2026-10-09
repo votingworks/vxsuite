@@ -91,7 +91,7 @@ export function makeMockScanner(): MockScanner {
       return true;
     },
 
-    async isImprinterAttached(): Promise<boolean> {
+    async isImprinterDetected(): Promise<boolean> {
       return Promise.resolve(false);
     },
 

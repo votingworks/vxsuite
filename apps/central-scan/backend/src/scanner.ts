@@ -114,19 +114,31 @@ function buildMachine({
     batchId: Id,
     chunkIndex: number
   ): Promise<BatchContext> {
-    const hasImprinter = await scanner.isImprinterAttached();
-    logger.log(LogEventId.ImprinterStatus, 'system', {
-      message: `Imprinter is ${hasImprinter ? 'attached' : 'not attached'}.`,
-    });
+    const isImprinterDetected = await scanner.isImprinterDetected();
+    const isImprintingEnabled = store.getIsImprintingEnabled();
+    const shouldImprint = isImprinterDetected && isImprintingEnabled;
+
+    let message = '';
+    if (isImprinterDetected) {
+      message = isImprintingEnabled
+        ? 'Imprinter is attached, and imprinting is enabled.'
+        : 'Imprinter is attached, but imprinting is disabled.';
+    } else {
+      message = isImprintingEnabled
+        ? 'Imprinting is enabled, but imprinter is not attached.'
+        : 'Imprinter is not attached, and imprinting is disabled.';
+    }
+    logger.log(LogEventId.ImprinterStatus, 'system', { message });
+
     return {
       control: scanner.scanSheets({
         directory: rawImageDirectory,
         pageSize: store.getBallotPaperSizeForElection(),
-        // If the imprinter is attached, imprint an ID prefixed by the batch ID
+        // When imprinting, imprint an ID prefixed by the batch ID
         // and chunk index. The scanner restarts its imprint counter each time
         // we tell it to start a batch, so we add a chunk index to ensure unique
         // imprint IDs within our logical batch.
-        imprintIdPrefix: hasImprinter ? `${batchId}_${chunkIndex}` : undefined,
+        imprintIdPrefix: shouldImprint ? `${batchId}_${chunkIndex}` : undefined,
       }),
       rawImageDirectory,
       chunkIndex,
