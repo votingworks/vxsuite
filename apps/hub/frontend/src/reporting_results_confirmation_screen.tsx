@@ -164,7 +164,7 @@ function ReportHeader({
   return (
     <div style={{ flexDirection: 'column', gap: '1rem', display: 'flex' }}>
       <Callout icon="Done" color="primary">
-        The {lowerCasedReportTitle} has been sent to VxDesign.
+        The {lowerCasedReportTitle} has been sent to VxHub.
       </Callout>
       {!isLive && (
         <div>
@@ -517,8 +517,8 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
         <ResultsScreen screenTitle="Error Sending Report">
           <MainContent>
             <Callout color="danger" icon="Danger">
-              Wrong election. Confirm VxScan and VxDesign are configured with
-              the same election package.
+              Wrong election. Confirm VxScan and VxHub are configured with the
+              same election package.
             </Callout>
           </MainContent>
         </ResultsScreen>
