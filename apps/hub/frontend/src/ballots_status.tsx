@@ -61,8 +61,8 @@ export function BallotsStatus(): React.ReactNode {
   if (ballotStyles.length === 0) {
     return (
       <Callout color="neutral" icon={<Icons.Info />} title="Ballots Incomplete">
-        VxDesign will create ballot styles for your election once you have
-        created districts, precincts, and contests.
+        VxHub will create ballot styles for your election once you have created
+        districts, precincts, and contests.
       </Callout>
     );
   }
