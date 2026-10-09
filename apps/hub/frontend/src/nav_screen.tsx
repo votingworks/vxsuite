@@ -102,7 +102,7 @@ export function NavScreen({
     <Screen flexDirection="row">
       <LeftNav style={{ width: '14rem' }}>
         <Link to="/">
-          <AppLogo appName="VxDesign" />
+          <AppLogo appName="VxHub" />
         </Link>
         {navContent}
       </LeftNav>

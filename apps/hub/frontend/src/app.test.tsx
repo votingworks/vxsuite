@@ -63,7 +63,7 @@ test('API errors show an error screen', async () => {
     userEvent.click(screen.getByRole('button', { name: 'Create Election' }));
 
     await screen.findByText('Something went wrong');
-    const appLink = screen.getByRole('link', { name: 'VxDesign' });
+    const appLink = screen.getByRole('link', { name: 'VxHub' });
     expect(appLink).toHaveAttribute('href', '/');
   });
 });
