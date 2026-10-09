@@ -181,7 +181,7 @@ test('imprinting status', async () => {
   renderScreen();
 
   apiMock.expectGetImprintingStatus({
-    isImprinterAttached: true,
+    isImprinterDetected: true,
     isImprintingEnabled: true,
   });
   await screen.findByText('Imprinter detected');
@@ -192,7 +192,7 @@ test('imprinting status', async () => {
   );
 
   apiMock.expectGetImprintingStatus({
-    isImprinterAttached: false,
+    isImprinterDetected: false,
     isImprintingEnabled: true,
   });
   await screen.findByText(
@@ -201,7 +201,7 @@ test('imprinting status', async () => {
 
   apiMock.expectSetIsImprintingEnabled(false);
   apiMock.expectGetImprintingStatus({
-    isImprinterAttached: true,
+    isImprinterDetected: true,
     isImprintingEnabled: false,
   });
   userEvent.click(screen.getByRole('option', { name: 'Imprinting Disabled' }));
@@ -213,7 +213,7 @@ test('imprinting status', async () => {
 
   apiMock.expectSetIsImprintingEnabled(true);
   apiMock.expectGetImprintingStatus({
-    isImprinterAttached: true,
+    isImprinterDetected: true,
     isImprintingEnabled: true,
   });
   userEvent.click(screen.getByRole('option', { name: 'Imprinting Enabled' }));

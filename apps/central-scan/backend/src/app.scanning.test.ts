@@ -236,7 +236,7 @@ test('pausing while the batch is starting pauses after the first sheet', async (
     await apiClient.setPollingPlaceId({ id: '23-polling-place' });
 
     const imprinterCheck = deferred<boolean>();
-    vi.spyOn(scanner, 'isImprinterAttached').mockReturnValueOnce(
+    vi.spyOn(scanner, 'isImprinterDetected').mockReturnValueOnce(
       imprinterCheck.promise
     );
     scanner
@@ -815,13 +815,13 @@ test('setIsImprintingEnabled', async () => {
     await apiClient.setPollingPlaceId({ id: '23-polling-place' });
 
     expect(await apiClient.getImprintingStatus()).toEqual({
-      isImprinterAttached: false,
+      isImprinterDetected: false,
       isImprintingEnabled: true,
     });
 
     await apiClient.setIsImprintingEnabled({ isImprintingEnabled: false });
     expect(await apiClient.getImprintingStatus()).toEqual({
-      isImprinterAttached: false,
+      isImprinterDetected: false,
       isImprintingEnabled: false,
     });
     expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
@@ -834,7 +834,7 @@ test('setIsImprintingEnabled', async () => {
 
     await apiClient.setIsImprintingEnabled({ isImprintingEnabled: true });
     expect(await apiClient.getImprintingStatus()).toEqual({
-      isImprinterAttached: false,
+      isImprinterDetected: false,
       isImprintingEnabled: true,
     });
     expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
@@ -846,7 +846,7 @@ test('setIsImprintingEnabled', async () => {
     );
 
     const imprinterCheck = deferred<boolean>();
-    vi.spyOn(scanner, 'isImprinterAttached').mockReturnValueOnce(
+    vi.spyOn(scanner, 'isImprinterDetected').mockReturnValueOnce(
       imprinterCheck.promise
     );
     scanner.withNextScannerSession().end();
@@ -858,7 +858,7 @@ test('setIsImprintingEnabled', async () => {
       'Attempting to change imprinting while a batch is in progress'
     );
     expect(await apiClient.getImprintingStatus()).toEqual({
-      isImprinterAttached: false,
+      isImprinterDetected: false,
       isImprintingEnabled: true,
     });
 

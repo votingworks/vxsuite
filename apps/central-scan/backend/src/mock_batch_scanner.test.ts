@@ -18,7 +18,7 @@ function createScanner(): MockBatchScanner {
 test('initial status checks pass as expected', async () => {
   const scanner = createScanner();
   expect(scanner.isAttached()).toEqual(true);
-  expect(await scanner.isImprinterAttached()).toEqual(false);
+  expect(await scanner.isImprinterDetected()).toEqual(false);
   expect(scanner.getStatus()).toEqual({ sheetCount: 0, errorQueued: false });
 });
 

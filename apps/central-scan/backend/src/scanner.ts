@@ -114,12 +114,12 @@ function buildMachine({
     batchId: Id,
     chunkIndex: number
   ): Promise<BatchContext> {
-    const isImprinterAttached = await scanner.isImprinterAttached();
+    const isImprinterDetected = await scanner.isImprinterDetected();
     const isImprintingEnabled = store.getIsImprintingEnabled();
-    const shouldImprint = isImprinterAttached && isImprintingEnabled;
+    const shouldImprint = isImprinterDetected && isImprintingEnabled;
 
     let message = '';
-    if (isImprinterAttached) {
+    if (isImprinterDetected) {
       message = isImprintingEnabled
         ? 'Imprinter is attached, and imprinting is enabled.'
         : 'Imprinter is attached, but imprinting is disabled.';

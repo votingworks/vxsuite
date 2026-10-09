@@ -60,7 +60,7 @@ export class MockBatchScanner implements BatchScanner, MockBatchScannerApi {
     return true;
   }
 
-  isImprinterAttached(): Promise<boolean> {
+  isImprinterDetected(): Promise<boolean> {
     return Promise.resolve(false);
   }
 

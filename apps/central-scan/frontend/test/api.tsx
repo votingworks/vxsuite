@@ -165,7 +165,7 @@ export function createApiMock(
 
     expectGetImprintingStatus(
       imprintingStatus = {
-        isImprinterAttached: true,
+        isImprinterDetected: true,
         isImprintingEnabled: true,
       }
     ) {

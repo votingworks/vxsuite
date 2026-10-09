@@ -48,7 +48,7 @@ export interface ScanOptions {
 
 export interface BatchScanner {
   isAttached(): boolean;
-  isImprinterAttached(): Promise<boolean>;
+  isImprinterDetected(): Promise<boolean>;
   scanSheets(options?: ScanOptions): BatchControl;
 }
 
@@ -105,7 +105,7 @@ export class FujitsuScanner implements BatchScanner {
     );
   }
 
-  isImprinterAttached(): Promise<boolean> {
+  isImprinterDetected(): Promise<boolean> {
     return new Promise((resolve) => {
       const process = streamExecFile('scanimage', [
         '--device-name',

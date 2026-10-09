@@ -183,7 +183,7 @@ test('resuming a paused batch restarts the scanner session', async () => {
   });
 
   const imprinterCheck = deferred<boolean>();
-  vi.spyOn(scanner, 'isImprinterAttached').mockReturnValueOnce(
+  vi.spyOn(scanner, 'isImprinterDetected').mockReturnValueOnce(
     imprinterCheck.promise
   );
   const sheetHeldInScanner = deferred<void>();
@@ -205,7 +205,7 @@ test('imprint prefix is unique across pauses within a batch', async () => {
   const scanner = makeMockScanner();
   const { machine, workspace } = await setup(scanner);
   configureElection(workspace);
-  vi.spyOn(scanner, 'isImprinterAttached').mockResolvedValue(true);
+  vi.spyOn(scanner, 'isImprinterDetected').mockResolvedValue(true);
   const scanSheets = vi.spyOn(scanner, 'scanSheets');
 
   scanner.withNextScannerSession().end();
@@ -256,7 +256,7 @@ test('does not imprint when imprinting is disabled, even when an imprinter is at
   const { machine, workspace, logger } = await setup(scanner);
   configureElection(workspace);
   workspace.store.setIsImprintingEnabled(false);
-  vi.spyOn(scanner, 'isImprinterAttached').mockResolvedValue(true);
+  vi.spyOn(scanner, 'isImprinterDetected').mockResolvedValue(true);
   const scanSheets = vi.spyOn(scanner, 'scanSheets');
 
   scanner.withNextScannerSession().end();
@@ -275,7 +275,7 @@ test('does not imprint when imprinting is disabled, even when an imprinter is at
     { message: 'Imprinter is attached, but imprinting is disabled.' }
   );
 
-  vi.spyOn(scanner, 'isImprinterAttached').mockResolvedValue(false);
+  vi.spyOn(scanner, 'isImprinterDetected').mockResolvedValue(false);
   scanner.withNextScannerSession().end();
   await machine.resumeBatch();
   await waitForStatus(machine, {

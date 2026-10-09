@@ -295,7 +295,7 @@ function buildApi({
 
     async getImprintingStatus(): Promise<ImprintingStatus> {
       return {
-        isImprinterAttached: await scanner.isImprinterAttached(),
+        isImprinterDetected: await scanner.isImprinterDetected(),
         isImprintingEnabled: store.getIsImprintingEnabled(),
       };
     },

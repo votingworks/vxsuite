@@ -122,7 +122,7 @@ export function SettingsScreen({
       <P>
         {!imprintingStatus ? (
           <Icons.Loading />
-        ) : imprintingStatus.isImprinterAttached ? (
+        ) : imprintingStatus.isImprinterDetected ? (
           <React.Fragment>
             <Icons.Done color="success" /> Imprinter detected
           </React.Fragment>

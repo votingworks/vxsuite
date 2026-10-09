@@ -89,6 +89,6 @@ export interface NetworkStatus {
 }
 
 export interface ImprintingStatus {
-  isImprinterAttached: boolean;
+  isImprinterDetected: boolean;
   isImprintingEnabled: boolean;
 }
