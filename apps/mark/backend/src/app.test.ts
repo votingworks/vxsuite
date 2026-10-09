@@ -593,6 +593,39 @@ test('"test" mode', async () => {
   await expectElectionState({ isTestMode: true });
 });
 
+test('barcode activation mode', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  await configureMachine(mockUsbDrive, electionDefinition, undefined, {
+    allowPrintingBlankBallotsFromVxMark: true,
+  });
+
+  expect(await apiClient.getBarcodeActivationMode()).toEqual('voter_session');
+
+  await apiClient.setBarcodeActivationMode({ mode: 'ballot_printing' });
+  expect(await apiClient.getBarcodeActivationMode()).toEqual('ballot_printing');
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(LogEventId.Info, {
+    disposition: 'success',
+    message: 'User set the barcode activation mode to ballot_printing',
+  });
+
+  await apiClient.setBarcodeActivationMode({ mode: 'voter_session' });
+  expect(await apiClient.getBarcodeActivationMode()).toEqual('voter_session');
+});
+
+test('barcode activation mode is voter_session when ballot printing is not allowed', async () => {
+  const electionDefinition =
+    electionFamousNames2021Fixtures.readElectionDefinition();
+  await configureMachine(mockUsbDrive, electionDefinition);
+
+  await expect(
+    apiClient.setBarcodeActivationMode({ mode: 'ballot_printing' })
+  ).rejects.toThrow('Ballot printing is not enabled in the system settings');
+
+  workspace.store.setBarcodeActivationMode('ballot_printing');
+  expect(await apiClient.getBarcodeActivationMode()).toEqual('voter_session');
+});
+
 test('isTestModeAvailable is true when the print flow does not need pre-rendered ballots', async () => {
   // Summary mode (the default) renders ballots on the fly, so test mode is
   // available even without pre-rendered test ballots.

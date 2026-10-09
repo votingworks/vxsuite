@@ -9,6 +9,8 @@ create table election (
   is_test_mode integer not null default true,
   polls_state text not null default 'polls_closed_initial',
   ballots_printed_count integer not null default 0,
+  barcode_activation_mode text not null default 'voter_session'
+    check (barcode_activation_mode in ('voter_session', 'ballot_printing')),
   created_at text not null default current_timestamp
 ) strict;
 

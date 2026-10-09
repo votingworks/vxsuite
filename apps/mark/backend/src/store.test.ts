@@ -238,3 +238,28 @@ test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage',
     }),
   ]);
 });
+
+test('get/set barcode activation mode', () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const store = Store.memoryStore();
+
+  expect(store.getBarcodeActivationMode()).toEqual('voter_session');
+  expect(() => store.setBarcodeActivationMode('ballot_printing')).toThrow(
+    'Cannot set barcode activation mode without an election.'
+  );
+
+  store.setElectionAndJurisdiction({
+    electionData: electionDefinition.electionData,
+    jurisdiction,
+    electionPackageHash: 'test-election-package-hash',
+    ballotHash: electionDefinition.ballotHash,
+  });
+  expect(store.getBarcodeActivationMode()).toEqual('voter_session');
+
+  store.setBarcodeActivationMode('ballot_printing');
+  expect(store.getBarcodeActivationMode()).toEqual('ballot_printing');
+
+  store.setBarcodeActivationMode('voter_session');
+  expect(store.getBarcodeActivationMode()).toEqual('voter_session');
+});
