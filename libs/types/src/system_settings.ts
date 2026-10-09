@@ -408,7 +408,7 @@ export interface SystemSettings extends z.infer<typeof SystemSettingsSchema> {}
 // To enforce that this type matches its schema exactly, we infer the type from
 // the schema rather than defining them in parallel. We use this approach for
 // top-level schemas for input to the certified system to ensure that the data
-// exported from VxDesign exactly matches what the machines parse as input.
+// exported from VxHub exactly matches what the machines parse as input.
 
 /**
  * Parses `value` as JSON `SystemSettings` or returns an error if input is malformed
@@ -447,7 +447,7 @@ export const DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED: Readonl
 export const DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE = 0.985;
 
 /**
- * For actual customer-specific defaults, see apps/design/backend/src/system_settings.ts.
+ * For actual customer-specific defaults, see apps/hub/backend/src/system_settings.ts.
  */
 export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   auth: {

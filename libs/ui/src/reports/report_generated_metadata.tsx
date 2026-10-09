@@ -28,7 +28,7 @@ export function ReportGeneratedMetadata({
       <LabeledValue
         label="Election ID"
         value={
-          // Test deck tally reports (generated in VxDesign) don't yet have an
+          // Test deck tally reports (generated in VxHub) don't yet have an
           // election package hash, so we just show the ballot hash. In all
           // other cases we show both.
           electionPackageHash

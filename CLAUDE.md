@@ -11,7 +11,7 @@ contains 8 applications and 30+ shared libraries managed with pnpm workspaces.
 apps/           # 8 voting system applications
   admin/        # Election administration
   central-scan/ # Central ballot scanning
-  design/       # Election design (VxDesign) — see note below
+  hub/          # Election design (VxHub) — see note below
   mark/         # Ballot marking device
   mark-scan/    # Combined mark + scan device
   pollbook/     # Electronic pollbook
@@ -51,10 +51,10 @@ Each app typically has `frontend/`, `backend/`, and optionally
 - **Rust:** Used in performance-critical libs (ballot-interpreter, pdi-scanner,
   logging)
 
-**VxDesign exception:** VxDesign (`apps/design/`) is the only publicly-hosted
-application in the monorepo. Unlike the other apps which run on air-gapped
-hardware with better-sqlite3, VxDesign uses PostgreSQL and has different
-infrastructure patterns (e.g. database migrations, cloud deployment).
+**VxHub exception:** VxHub (`apps/hub/`) is the only publicly-hosted application
+in the monorepo. Unlike the other apps which run on air-gapped hardware with
+better-sqlite3, VxHub uses PostgreSQL and has different infrastructure patterns
+(e.g. database migrations, cloud deployment).
 
 ## Commands
 
@@ -122,7 +122,7 @@ directive check locally from a package directory:
 pnpm test:run --coverage    # or: CI=true pnpm test:run
 ```
 
-VxDesign keeps a dedicated `test:ci` for its Postgres/migration CI steps.
+VxHub keeps a dedicated `test:ci` for its Postgres/migration CI steps.
 
 ### Linting & Formatting
 
@@ -435,7 +435,7 @@ to the directory structure:
 | VxAdmin backend / admin-backend      | `@votingworks/admin-backend`        | `apps/admin/backend/`        |
 | VxMark / mark-frontend               | `@votingworks/mark-frontend`        | `apps/mark/frontend/`        |
 | VxCentralScan / central-scan-backend | `@votingworks/central-scan-backend` | `apps/central-scan/backend/` |
-| VxDesign / design-frontend           | `@votingworks/design-frontend`      | `apps/design/frontend/`      |
+| VxHub / hub-frontend                 | `@votingworks/hub-frontend`         | `apps/hub/frontend/`         |
 
 **General pattern:**
 

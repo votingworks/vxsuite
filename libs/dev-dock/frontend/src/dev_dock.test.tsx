@@ -988,7 +988,7 @@ function expectSelectedElectionPackage() {
   mockApiClient.getElection.reset();
   mockApiClient.getElection.expectCallWith().resolves({
     title: 'Famous Names',
-    inputPath: '/design/exports/election-package-abc-123.zip',
+    inputPath: '/hub/exports/election-package-abc-123.zip',
     resolvedPath: '/full-path',
     arePollWorkerCardPinsEnabled: false,
     isElectionPackage: true,
@@ -1132,15 +1132,15 @@ test('polls for newly exported elections', async () => {
   renderDock(mockApiClient);
   await screen.findByRole('option', { name: /electionGeneral/ });
   expect(
-    screen.queryByRole('option', { name: 'VxDesign: election-package-new.zip' })
+    screen.queryByRole('option', { name: 'VxHub: election-package-new.zip' })
   ).toBeNull();
 
-  // A VxDesign export made after the dock loaded should appear on its own.
+  // A VxHub export made after the dock loaded should appear on its own.
   mockApiClient.getAvailableElections.reset();
   mockApiClient.getAvailableElections.expectRepeatedCallsWith().resolves([
     {
-      title: 'VxDesign: election-package-new.zip',
-      inputPath: '/design/exports/election-package-new.zip',
+      title: 'VxHub: election-package-new.zip',
+      inputPath: '/hub/exports/election-package-new.zip',
     },
     {
       title: 'electionGeneral',
@@ -1150,7 +1150,7 @@ test('polls for newly exported elections', async () => {
 
   await vi.advanceTimersByTimeAsync(5000);
   await screen.findByRole('option', {
-    name: 'VxDesign: election-package-new.zip',
+    name: 'VxHub: election-package-new.zip',
   });
 
   vi.useRealTimers();

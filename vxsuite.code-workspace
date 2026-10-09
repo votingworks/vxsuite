@@ -25,12 +25,12 @@
       "path": "apps/central-scan/integration-testing"
     },
     {
-      "name": "apps/design/backend",
-      "path": "apps/design/backend"
+      "name": "apps/hub/backend",
+      "path": "apps/hub/backend"
     },
     {
-      "name": "apps/design/frontend",
-      "path": "apps/design/frontend"
+      "name": "apps/hub/frontend",
+      "path": "apps/hub/frontend"
     },
     {
       "name": "apps/mark/backend",

@@ -1,0 +1,31 @@
+import type React from 'react';
+import type { UnauthenticatedApi } from '@votingworks/hub-backend';
+import {
+  createMockClient,
+  type MockClient,
+} from '@votingworks/grout-test-utils';
+import { TestErrorBoundary } from '@votingworks/ui';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { UnauthenticatedApiClientContext } from '../src/public_api.js';
+import { createQueryClient } from '../src/api.js';
+
+export type MockUnauthenticatedApiClient = MockClient<UnauthenticatedApi>;
+
+export function createMockUnauthenticatedApiClient(): MockUnauthenticatedApiClient {
+  return createMockClient<UnauthenticatedApi>();
+}
+
+export function provideUnauthenticatedApi(
+  apiMock: ReturnType<typeof createMockUnauthenticatedApiClient>,
+  children: React.ReactNode
+): JSX.Element {
+  return (
+    <TestErrorBoundary>
+      <UnauthenticatedApiClientContext.Provider value={apiMock}>
+        <QueryClientProvider client={createQueryClient()}>
+          {children}
+        </QueryClientProvider>
+      </UnauthenticatedApiClientContext.Provider>
+    </TestErrorBoundary>
+  );
+}

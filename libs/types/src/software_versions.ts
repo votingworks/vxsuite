@@ -56,7 +56,7 @@ export const SoftwareVersionSchema: z.ZodType<SoftwareVersion> =
 
 // v4.0 used `county` (and the `countyName` ballot-string key) where v4.1+ uses
 // `jurisdiction` (and `jurisdictionName`). Drop `jurisdiction` from the v4.0
-// shape and use `county` instead, so VxDesign can export elections compatible
+// shape and use `county` instead, so VxHub can export elections compatible
 // with deployed v4.0 software.
 const { jurisdiction: _jurisdiction, ...electionShapeForV4p0 } =
   ElectionSchema.shape;
@@ -64,7 +64,7 @@ const { jurisdiction: _jurisdiction, ...electionShapeForV4p0 } =
 // v4.0 stored ballot geometry as a flat `gridLayouts` array on the election
 // (one shared `optionBoundsFromTargetMark` outset + flat grid positions). v4.1+
 // moves this onto each ballot style as hierarchical `ballotPositions` with
-// per-option/contest bounds. Keep the old shape here so VxDesign can export
+// per-option/contest bounds. Keep the old shape here so VxHub can export
 // elections compatible with deployed v4.0 software, and convert between them.
 interface GridPositionOptionV4p0 {
   readonly type: 'option';

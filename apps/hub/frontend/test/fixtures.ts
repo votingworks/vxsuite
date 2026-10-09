@@ -1,0 +1,150 @@
+import {
+  type ElectionInfo,
+  type ElectionListing,
+  type ElectionRecord,
+  type Jurisdiction,
+  createBlankElection,
+} from '@votingworks/hub-backend';
+import {
+  type BallotLanguageConfigs,
+  type Candidate,
+  DEFAULT_SYSTEM_SETTINGS,
+  type Election,
+  type Id,
+  isCombinedBallotPrimary,
+  LanguageCode,
+} from '@votingworks/types';
+import {
+  electionCombinedBallotPrimaryFixtures,
+  electionPrimaryPrecinctSplitsFixtures,
+  readElectionGeneral,
+} from '@votingworks/fixtures';
+import { generateBallotStyles } from '@votingworks/hmpb';
+import { generateId } from '../src/utils.js';
+
+function splitCandidateName(candidate: Candidate): Candidate {
+  if (!candidate.firstName) {
+    const [firstPart, ...middleParts] = candidate.name.split(' ');
+    return {
+      ...candidate,
+      firstName: firstPart || undefined,
+      lastName: middleParts.pop() || undefined,
+      middleName: middleParts.join(' ') || undefined,
+    };
+  }
+  return candidate;
+}
+
+export function makeElectionRecord(
+  baseElection: Election,
+  jurisdictionId: Id
+): ElectionRecord {
+  const ballotLanguageConfigs: BallotLanguageConfigs = [
+    { languages: [LanguageCode.ENGLISH] },
+  ];
+  const contests = baseElection.contests.map((contest) =>
+    contest.type === 'candidate'
+      ? {
+          ...contest,
+          candidates: contest.candidates.map(splitCandidateName),
+        }
+      : contest
+  );
+  const ballotStyles = generateBallotStyles({
+    ballotLanguageConfigs,
+    contests,
+    electionType: baseElection.type,
+    isMiCombinedBallotPrimary: isCombinedBallotPrimary(baseElection),
+    parties: baseElection.parties,
+    precincts: [...baseElection.precincts],
+    ballotTemplateId: 'VxDefaultBallot',
+    electionId: baseElection.id,
+  });
+  const election: Election = {
+    ...baseElection,
+    ballotStyles,
+    contests,
+  };
+  return {
+    election,
+    isMiCombinedBallotPrimary: isCombinedBallotPrimary(baseElection),
+    systemSettings: DEFAULT_SYSTEM_SETTINGS,
+    createdAt: new Date().toISOString(),
+    ballotLanguageConfigs,
+    ballotTemplateId: 'VxDefaultBallot',
+    ballotsFinalizedAt: null,
+    jurisdictionId,
+  };
+}
+
+export function electionInfoFromElection(election: Election): ElectionInfo {
+  return {
+    jurisdictionId: `jurisdiction-${election.id}`,
+    electionId: election.id,
+    title: election.title,
+    date: election.date,
+    type: election.type,
+    isMiCombinedBallotPrimary: isCombinedBallotPrimary(election),
+    state: election.state,
+    jurisdictionName: election.jurisdiction.name,
+    seal: election.seal,
+    signatureImage: election.signature?.image,
+    signatureCaption: election.signature?.caption,
+    languageCodes: [LanguageCode.ENGLISH],
+  };
+}
+
+export function electionInfoFromRecord(record: ElectionRecord): ElectionInfo {
+  return {
+    ...electionInfoFromElection(record.election),
+    jurisdictionId: record.jurisdictionId,
+  };
+}
+
+export function electionListing(
+  electionRecord: ElectionRecord
+): ElectionListing {
+  const { election, jurisdictionId } = electionRecord;
+  return {
+    jurisdictionId,
+    jurisdictionName: `${jurisdictionId} Name`,
+    electionId: election.id,
+    title: election.title,
+    date: election.date,
+    type: election.type,
+    state: election.state,
+    status: 'inProgress',
+  };
+}
+
+export function blankElectionRecord(
+  jurisdiction: Jurisdiction
+): ElectionRecord {
+  return makeElectionRecord(
+    createBlankElection(generateId(), jurisdiction),
+    jurisdiction.id
+  );
+}
+export function blankElectionInfo(jurisdiction: Jurisdiction): ElectionInfo {
+  return electionInfoFromElection(blankElectionRecord(jurisdiction).election);
+}
+export function generalElectionRecord(jurisdictionId: Id): ElectionRecord {
+  return makeElectionRecord(readElectionGeneral(), jurisdictionId);
+}
+export function primaryElectionRecord(jurisdictionId: Id): ElectionRecord {
+  return makeElectionRecord(
+    electionPrimaryPrecinctSplitsFixtures.readElection(),
+    jurisdictionId
+  );
+}
+export function combinedBallotPrimaryElectionRecord(
+  jurisdictionId: Id
+): ElectionRecord {
+  return makeElectionRecord(
+    electionCombinedBallotPrimaryFixtures.readElection(),
+    jurisdictionId
+  );
+}
+export function generalElectionInfo(jurisdictionId: Id): ElectionInfo {
+  return electionInfoFromRecord(generalElectionRecord(jurisdictionId));
+}

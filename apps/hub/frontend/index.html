@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Another election tool from VotingWorks" />
+    <link rel="stylesheet" href="/fonts/noto-emoji.css" />
+    <title>VotingWorks VxDesign</title>
+    <script type="text/javascript">
+      // Inject environment variables from the Node backend by rendering
+      // this HTML page as a template
+      window._vxhub_deploy_env = '{{ DEPLOY_ENV }}';
+      window._vxhub_sentry_dsn = '{{ SENTRY_DSN }}';
+    </script>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./src/index.tsx"></script>
+  </body>
+</html>

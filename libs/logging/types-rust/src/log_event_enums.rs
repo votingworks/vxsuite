@@ -27,8 +27,8 @@ pub enum AppName {
     VxAdmin,
     #[serde(rename = "vx-central-scan")]
     VxCentralScan,
-    #[serde(rename = "vx-design")]
-    VxDesign,
+    #[serde(rename = "vx-hub")]
+    VxHub,
     #[serde(rename = "vx-pollbook")]
     VxPollBook,
 }
@@ -49,10 +49,10 @@ pub enum Source {
     VxCentralScanFrontendServer,
     #[serde(rename = "vx-central-scan-service")]
     VxCentralScanService,
-    #[serde(rename = "vx-design-service")]
-    VxDesignService,
-    #[serde(rename = "vx-design-worker")]
-    VxDesignWorker,
+    #[serde(rename = "vx-hub-service")]
+    VxHubService,
+    #[serde(rename = "vx-hub-worker")]
+    VxHubWorker,
     #[serde(rename = "vx-scan-frontend")]
     VxScanFrontend,
     #[serde(rename = "vx-scan-frontend-server")]
