@@ -50,7 +50,7 @@
     "@votingworks/utils": "workspace:*",
     "csv-stringify": "^6.4.0",
     "debug": "4.3.4",
-    "express": "4.18.2",
+    "express": "4.22.0",
     "lodash.memoize": "^4.1.2",
     "lru_map": "^0.4.1",
     "luxon": "^3.0.0",

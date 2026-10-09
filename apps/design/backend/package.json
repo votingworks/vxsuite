@@ -80,7 +80,7 @@
     "csv-parse": "^7.0.2",
     "csv-stringify": "^6.4.0",
     "debug": "4.3.4",
-    "express": "4.18.2",
+    "express": "4.22.0",
     "express-openid-connect": "2.17.1",
     "nanoid": "^3.3.7",
     "node-pg-migrate": "^7.9.1",
