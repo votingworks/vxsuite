@@ -381,3 +381,54 @@ test('does not show enable USB ports button when USB ports are enabled', async (
     screen.queryByRole('button', { name: 'Enable USB Ports' })
   ).not.toBeInTheDocument();
 });
+
+test('can switch the barcode activation mode when QR activation and ballot printing are enabled', async () => {
+  apiMock.expectGetSystemSettings({
+    ...DEFAULT_SYSTEM_SETTINGS,
+    bmdEnableQrBallotActivation: true,
+    allowPrintingBlankBallotsFromVxMark: true,
+  });
+  apiMock.expectGetUsbPortStatus();
+  apiMock.expectGetBarcodeActivationMode('voter_session');
+  renderScreen();
+
+  const votingSessionOption = await screen.findByRole('option', {
+    name: 'Voting Session',
+  });
+  expect(votingSessionOption).toHaveAttribute('aria-selected', 'true');
+
+  apiMock.expectSetBarcodeActivationMode('ballot_printing');
+  apiMock.expectGetBarcodeActivationMode('ballot_printing');
+  userEvent.click(screen.getByRole('option', { name: 'Print Ballot' }));
+  await vi.waitFor(() =>
+    expect(
+      screen.getByRole('option', { name: 'Print Ballot' })
+    ).toHaveAttribute('aria-selected', 'true')
+  );
+});
+
+test.each([
+  {
+    bmdEnableQrBallotActivation: true,
+    allowPrintingBlankBallotsFromVxMark: false,
+  },
+  {
+    bmdEnableQrBallotActivation: false,
+    allowPrintingBlankBallotsFromVxMark: true,
+  },
+])(
+  'does not show the barcode activation mode toggle with %o',
+  async (settings) => {
+    apiMock.expectGetSystemSettings({
+      ...DEFAULT_SYSTEM_SETTINGS,
+      ...settings,
+    });
+    apiMock.expectGetUsbPortStatus();
+    renderScreen();
+
+    await screen.findByRole('option', { name: 'Test Ballot Mode' });
+    expect(
+      screen.queryByRole('option', { name: 'Voting Session' })
+    ).not.toBeInTheDocument();
+  }
+);
