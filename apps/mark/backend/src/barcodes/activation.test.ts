@@ -6,6 +6,7 @@ import {
 } from '@votingworks/auth';
 import {
   mockLogger,
+  LogEventId,
   LogSource,
   type Logger,
   mockBaseLogger,
@@ -13,7 +14,9 @@ import {
 import tmp from 'tmp';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
+  type CardlessVoterUser,
   DEFAULT_SYSTEM_SETTINGS,
+  type InsertedSmartCardAuth,
   pollingPlaceBallotStyles,
   pollingPlacePrecinctIds,
   type SystemSettings,
@@ -25,14 +28,16 @@ import {
 } from '@votingworks/utils';
 import {
   mockCardlessVoterUser,
+  mockPollWorkerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 
-import { assertDefined, sleep } from '@votingworks/basics';
+import { assertDefined, iter, sleep } from '@votingworks/basics';
 import { setUpBarcodeActivation } from './activation.js';
 import { createWorkspace, type Workspace } from '../util/workspace.js';
 import { getUserRole } from '../util/auth.js';
 import type { BarcodeReader } from './types.js';
+import type { BallotStyleQrCode } from './ballot_style_qr_code.js';
 
 const featureFlagMock = getFeatureFlagMock();
 vi.mock('@votingworks/utils', async (importActual) => ({
@@ -48,6 +53,21 @@ type MockBarcodeClient = EventEmitter<{
 
 function createMockBarcodeClient(): MockBarcodeClient {
   return new EventEmitter();
+}
+
+function encodeQrCode(qrCode: BallotStyleQrCode): Uint8Array {
+  return new TextEncoder().encode(JSON.stringify(qrCode));
+}
+
+function pollWorkerAuthStatus(
+  cardlessVoterUser?: CardlessVoterUser
+): InsertedSmartCardAuth.PollWorkerLoggedIn {
+  return {
+    status: 'logged_in',
+    user: mockPollWorkerUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
+    cardlessVoterUser,
+  };
 }
 
 function buildMockLogger(
@@ -68,6 +88,11 @@ interface Context {
   workspace: Workspace;
 }
 
+interface IgnoredScanTestSpec {
+  readonly description: string;
+  readonly authStatus: InsertedSmartCardAuth.AuthStatus;
+}
+
 beforeEach(() => {
   featureFlagMock.resetFeatureFlags();
 });
@@ -82,6 +107,8 @@ describe('setUpBarcodeActivation', () => {
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { election } = electionDefinition;
   const [pollingPlace] = assertDefined(election.pollingPlaces);
+  const ballotStyleId = pollingPlaceBallotStyles(election, pollingPlace!)[0]!
+    .id;
 
   beforeEach(() => {
     workspace = createWorkspace(
@@ -262,12 +289,10 @@ describe('setUpBarcodeActivation', () => {
     workspace.store.setPollingPlaceId(pollingPlace!.id);
     workspace.store.setPollsState('polls_open');
 
-    // Mock that there's already a cardless voter session active
-    vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
-      status: 'logged_in',
-      user: mockCardlessVoterUser(),
-      sessionExpiresAt: mockSessionExpiresAt(),
-    });
+    // Mock a poll worker logged in while a cardless voter session is active
+    vi.mocked(mockAuth.getAuthStatus).mockResolvedValue(
+      pollWorkerAuthStatus(mockCardlessVoterUser())
+    );
 
     const ctx: Context = {
       auth: mockAuth,
@@ -278,7 +303,7 @@ describe('setUpBarcodeActivation', () => {
 
     setUpBarcodeActivation(ctx);
 
-    mockBarcodeClient.emit('scan', new TextEncoder().encode('test-barcode'));
+    mockBarcodeClient.emit('scan', encodeQrCode({ ballotStyleId }));
 
     await vi.waitFor(() => {
       expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
@@ -309,24 +334,21 @@ describe('setUpBarcodeActivation', () => {
     workspace.store.setPollingPlaceId(pollingPlace!.id);
     workspace.store.setPollsState('polls_open');
 
-    // Mock no current auth session initially, then voter session after start
     let sessionStarted = false;
-    vi.mocked(mockAuth.getAuthStatus).mockImplementation(() => {
-      if (sessionStarted) {
-        return Promise.resolve({
-          status: 'logged_in' as const,
-          user: mockCardlessVoterUser({
-            ballotStyleId: election.ballotStyles[0]!.id,
-            precinctId: election.ballotStyles[0]!.precincts[0],
-          }),
-          sessionExpiresAt: mockSessionExpiresAt(),
-        });
-      }
-      return Promise.resolve({
-        status: 'logged_out' as const,
-        reason: 'no_card' as const,
-      });
-    });
+    vi.mocked(mockAuth.getAuthStatus).mockImplementation(() =>
+      Promise.resolve(
+        pollWorkerAuthStatus(
+          sessionStarted
+            ? mockCardlessVoterUser({
+                ballotStyleId,
+                precinctId: iter(
+                  pollingPlacePrecinctIds(pollingPlace!)
+                ).first(),
+              })
+            : undefined
+        )
+      )
+    );
 
     const mockStartSession = vi.mocked(mockAuth.startCardlessVoterSession);
     mockStartSession.mockImplementation(() => {
@@ -343,7 +365,7 @@ describe('setUpBarcodeActivation', () => {
 
     setUpBarcodeActivation(ctx);
 
-    mockBarcodeClient.emit('scan', new TextEncoder().encode('test-barcode'));
+    mockBarcodeClient.emit('scan', encodeQrCode({ ballotStyleId }));
 
     await sleep(0);
     expect(mockAuth.startCardlessVoterSession).toHaveBeenCalled();
@@ -355,7 +377,7 @@ describe('setUpBarcodeActivation', () => {
     const startSessionInput = mockStartSession.mock.calls[0]![1];
     expect(ballotStyleIds).toContain(startSessionInput.ballotStyleId);
     expect(precinctIds).toContain(startSessionInput.precinctId);
-    expect(startSessionInput.skipPollWorkerCheck).toEqual(true);
+    expect(startSessionInput).not.toHaveProperty('skipPollWorkerCheck');
 
     expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
       expect.any(String),
@@ -383,10 +405,7 @@ describe('setUpBarcodeActivation', () => {
     workspace.store.setPollingPlaceId(pollingPlace!.id);
     workspace.store.setPollsState('polls_open');
 
-    vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
-      status: 'logged_out',
-      reason: 'no_card',
-    });
+    vi.mocked(mockAuth.getAuthStatus).mockResolvedValue(pollWorkerAuthStatus());
 
     vi.mocked(mockAuth.startCardlessVoterSession).mockRejectedValue(
       new Error('Failed to start session')
@@ -401,7 +420,7 @@ describe('setUpBarcodeActivation', () => {
 
     setUpBarcodeActivation(ctx);
 
-    mockBarcodeClient.emit('scan', new TextEncoder().encode('test-barcode'));
+    mockBarcodeClient.emit('scan', encodeQrCode({ ballotStyleId }));
 
     await vi.waitFor(() => {
       expect(logger.log).toHaveBeenCalledWith(
@@ -411,6 +430,126 @@ describe('setUpBarcodeActivation', () => {
           message: 'failed to start voter session',
           disposition: 'failure',
         })
+      );
+    });
+  });
+
+  function setUpActivePollingPlace(): void {
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
+      jurisdiction: TEST_JURISDICTION,
+      electionPackageHash: 'test-hash',
+      ballotHash: electionDefinition.ballotHash,
+    });
+    workspace.store.setSystemSettings({
+      ...DEFAULT_SYSTEM_SETTINGS,
+      bmdEnableQrBallotActivation: true,
+    });
+    workspace.store.setPollingPlaceId(pollingPlace!.id);
+    workspace.store.setPollsState('polls_open');
+    vi.mocked(mockAuth.getAuthStatus).mockResolvedValue(pollWorkerAuthStatus());
+    setUpBarcodeActivation({
+      auth: mockAuth,
+      barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
+      logger,
+      workspace,
+    });
+  }
+
+  test.each<IgnoredScanTestSpec>([
+    {
+      description: 'no card is inserted',
+      authStatus: { status: 'logged_out', reason: 'no_card' },
+    },
+    {
+      description: 'a voter session is active without a poll worker card',
+      authStatus: {
+        status: 'logged_in',
+        user: mockCardlessVoterUser(),
+        sessionExpiresAt: mockSessionExpiresAt(),
+      },
+    },
+  ])('ignores scans when $description', async ({ authStatus }) => {
+    setUpActivePollingPlace();
+    vi.mocked(mockAuth.getAuthStatus).mockResolvedValue(authStatus);
+
+    mockBarcodeClient.emit('scan', encodeQrCode({ ballotStyleId }));
+
+    await vi.waitFor(() => {
+      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+        LogEventId.Info,
+        expect.objectContaining({
+          message:
+            'barcode scan detected without a poll worker logged in - ignoring',
+        })
+      );
+    });
+    expect(mockAuth.startCardlessVoterSession).not.toHaveBeenCalled();
+  });
+
+  test('ignores scans that are not ballot style QR codes', async () => {
+    setUpActivePollingPlace();
+
+    mockBarcodeClient.emit('scan', new TextEncoder().encode('test-barcode'));
+
+    await vi.waitFor(() => {
+      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+        LogEventId.BarcodeScanned,
+        expect.objectContaining({
+          message: 'Scanned barcode is not a ballot style QR code.',
+          disposition: 'failure',
+        })
+      );
+    });
+    expect(mockAuth.startCardlessVoterSession).not.toHaveBeenCalled();
+  });
+
+  test.each<{ description: string; qrCode: BallotStyleQrCode }>([
+    {
+      description: 'a ballot style from another polling place',
+      qrCode: {
+        ballotStyleId: election.ballotStyles.find(
+          (bs) => bs.id !== ballotStyleId
+        )!.id,
+      },
+    },
+    {
+      description: 'a precinct outside the ballot style',
+      qrCode: {
+        ballotStyleId,
+        precinctId: election.precincts.find(
+          (p) => !pollingPlacePrecinctIds(pollingPlace!).has(p.id)
+        )!.id,
+      },
+    },
+  ])('ignores scans for $description', async ({ qrCode }) => {
+    setUpActivePollingPlace();
+
+    mockBarcodeClient.emit('scan', encodeQrCode(qrCode));
+
+    await vi.waitFor(() => {
+      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+        LogEventId.BarcodeScanned,
+        expect.objectContaining({
+          message:
+            'Scanned ballot style is not available at the configured polling place.',
+          disposition: 'failure',
+        })
+      );
+    });
+    expect(mockAuth.startCardlessVoterSession).not.toHaveBeenCalled();
+  });
+
+  test('starts voter session with the scanned precinct', async () => {
+    setUpActivePollingPlace();
+    const [precinctId] = pollingPlacePrecinctIds(pollingPlace!);
+
+    mockBarcodeClient.emit('scan', encodeQrCode({ ballotStyleId, precinctId }));
+
+    await vi.waitFor(() => {
+      expect(mockAuth.startCardlessVoterSession).toHaveBeenCalledWith(
+        expect.anything(),
+        { ballotStyleId, precinctId }
       );
     });
   });
