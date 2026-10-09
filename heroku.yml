@@ -1,12 +1,12 @@
 build:
   docker:
-    web: Dockerfile.vxdesign
-    worker: Dockerfile.vxdesign
+    web: Dockerfile.vxhub
+    worker: Dockerfile.vxhub
 release:
   command:
-    - . /root/.bashrc && pnpm --dir=/vx/code/vxsuite/apps/design/backend
+    - . /root/.bashrc && pnpm --dir=/vx/code/vxsuite/apps/hub/backend
       db:migrations:run --no-reject-unauthorized
   image: web
 run:
-  web: ./run-vxdesign web
-  worker: ./run-vxdesign worker
+  web: ./run-vxhub web
+  worker: ./run-vxhub worker

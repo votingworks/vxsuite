@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+# ci-validate-migrations.sh
+# Usage:
+#   ./ci-validate-migrations.sh vs-origin-main  # validate feature branch migrations vs origin/main
+#   ./ci-validate-migrations.sh on-origin-main  # validate main branch migrations vs HEAD~1
+#   ./ci-validate-migrations.sh                 # auto: detects current branch
+
+set -euo pipefail
+export LC_ALL=C
+
+MIGRATION_DIR="${MIGRATION_DIR:-apps/hub/backend/migrations}"
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT" >/dev/null 2>&1
+MODE="${1:-auto}"
+
+# Migration names, without the file extension (node-pg-migrate records them in
+# the database that way), as of the given commit.
+list_migrations() { # <commit>
+  git ls-tree -r --name-only "$1" -- "$MIGRATION_DIR" |
+    grep -E '\.[jt]s$' | sed -E 's/\.[jt]s$//' | sort -u || true
+}
+
+validate_commits_vs_origin_main() {
+  # Fetch origin/main if needed
+  git rev-parse --verify --quiet origin/main >/dev/null ||
+    git fetch --no-tags origin main:refs/remotes/origin/main
+
+  merge_base="$(git merge-base origin/main HEAD)" || {
+    echo "No common ancestor between origin/main and HEAD." >&2
+    echo "This check requires a clone with full history." >&2
+    exit 1
+  }
+
+  merge_base_tempfile="$(mktemp)"
+  origin_main_tempfile="$(mktemp)"
+  head_tempfile="$(mktemp)"
+  # Clean tempfiles on exit
+  trap 'rm -f "$merge_base_tempfile" "$origin_main_tempfile" "$head_tempfile"' EXIT
+
+  list_migrations "$merge_base" >"$merge_base_tempfile"
+  list_migrations origin/main >"$origin_main_tempfile"
+  list_migrations HEAD >"$head_tempfile"
+
+  # Diff against the rev where this branch split from main (the merge base).
+  # Migrations on main from after that split must not count as deletions.
+  missing_migrations="$(comm -23 "$merge_base_tempfile" "$head_tempfile" || true)"
+  added_migrations="$(comm -13 "$merge_base_tempfile" "$head_tempfile" || true)"
+
+  # Check: migrations from main must not be deleted
+  if [[ -n "$missing_migrations" ]]; then
+    echo "Branch deletes migration(s) from main:"
+    printf "%s\n" "$missing_migrations"
+    echo "Migrations must not be deleted once merged to main."
+    exit 1
+  fi
+
+  # Check: If any added migration has a timestamp earlier than main’s newest
+  latest_migration_on_main="$(tail -n1 "$origin_main_tempfile" || true)"
+  if [[ -n "$added_migrations" && -n "$latest_migration_on_main" ]]; then
+    fail=0
+    for f in $added_migrations; do
+      if [[ ! "$f" > "$latest_migration_on_main" ]]; then
+        echo "Migration '$f' must have a timestamp prefix after '$latest_migration_on_main'."
+        echo "Regenerate the migration with a current timestamp."
+        fail=1
+      fi
+    done
+    if [[ "$fail" -eq 1 ]]; then exit 1; fi
+  fi
+}
+
+validate_head_vs_prev_commit() {
+  # Ensure we have the previous commit
+  git rev-parse --verify --quiet HEAD~1 >/dev/null ||
+    git fetch --no-tags --depth=2 origin main:refs/remotes/origin/main
+
+  prev_tempfile="$(mktemp)"
+  head_tempfile="$(mktemp)"
+  trap 'rm -f "$prev_tempfile" "$head_tempfile"' EXIT
+  list_migrations HEAD~1 >"$prev_tempfile"
+  list_migrations HEAD >"$head_tempfile"
+
+  # Check: migrations from previous commit must not be deleted or renamed
+  deleted_or_renamed="$(comm -23 "$prev_tempfile" "$head_tempfile" || true)"
+  if [[ -n "$deleted_or_renamed" ]]; then
+    echo "Commit deletes or renames migration(s):"
+    printf "%s\n" "$deleted_or_renamed"
+    echo "Migrations must not be deleted or renamed once merged to main."
+    exit 1
+  fi
+
+  added_migrations="$(comm -13 "$prev_tempfile" "$head_tempfile" || true)"
+  [[ -z "$added_migrations" ]] && exit 0
+
+  prev_newest_migration="$(tail -n1 "$prev_tempfile" || true)"
+
+  # Ensure all added migrations are timestamped after previous newest migration
+  fail=0
+  for f in $added_migrations; do
+    if [[ ! "$f" > "$prev_newest_migration" ]]; then
+      echo "Migration '$f' must have timestamp after '$prev_newest_migration'"
+      echo "Regenerate the migration with a current timestamp."
+      fail=1
+    fi
+  done
+  if [[ "$fail" -eq 1 ]]; then exit 1; fi
+}
+
+case "$MODE" in
+vs-origin-main) validate_commits_vs_origin_main ;;
+on-origin-main) validate_head_vs_prev_commit ;;
+auto)
+  # Auto-detect if current branch is main and choose appropriate validation
+  current_branch="$(git rev-parse --abbrev-ref HEAD)"
+  case "$current_branch" in
+  main) validate_head_vs_prev_commit ;;
+  *) validate_commits_vs_origin_main ;;
+  esac
+  ;;
+*)
+  echo "Usage: $0 [vs-origin-main|on-origin-main]" >&2
+  exit 2
+  ;;
+esac
+

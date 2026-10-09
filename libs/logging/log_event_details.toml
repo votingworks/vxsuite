@@ -13,8 +13,8 @@ name = 'vx-admin'
 [Apps.VxCentralScan]
 name = 'vx-central-scan'
 
-[Apps.VxDesign]
-name = 'vx-design'
+[Apps.VxHub]
+name = 'vx-hub'
 
 [Apps.VxPollBook]
 name = 'vx-pollbook'
@@ -40,11 +40,11 @@ source = 'vx-central-scan-frontend-server'
 [LogSources.VxCentralScanService]
 source = 'vx-central-scan-service'
 
-[LogSources.VxDesignService]
-source = 'vx-design-service'
+[LogSources.VxHubService]
+source = 'vx-hub-service'
 
-[LogSources.VxDesignWorker]
-source = 'vx-design-worker'
+[LogSources.VxHubWorker]
+source = 'vx-hub-worker'
 
 [LogSources.VxScanFrontend]
 source = 'vx-scan-frontend'
@@ -1027,7 +1027,7 @@ defaultMessage = "A background task has reported its status."
 eventId = "api-call"
 eventType = "application-action"
 documentationMessage = "An API call was made."
-restrictInDocumentationToApps = ["vx-design"]
+restrictInDocumentationToApps = ["vx-hub"]
 
 [Events.SocketClientConnectInit]
 eventId = "socket-client-connect-init"

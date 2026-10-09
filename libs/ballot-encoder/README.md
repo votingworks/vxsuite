@@ -264,8 +264,8 @@ carry their own layout, described above. Given `E` (an `Election`) and `C` (a
 `encodeHmpbBallotPageMetadata` takes a `SoftwareVersion`. Passing `'v4.0'`
 selects the deprecated `BubbleBallotPreludeV4p0` (the bytes `V`, `P` and version
 `2`) and caps the ballot style index at `MAXIMUM_BALLOT_STYLE_INDEX_V4_0`,
-making that field 13 bits rather than 16. This exists so VxDesign can still
-render v4.0 ballots; new code should not use it.
+making that field 13 bits rather than 16. This exists so VxHub can still render
+v4.0 ballots; new code should not use it.
 
 ## Related Documentation
 

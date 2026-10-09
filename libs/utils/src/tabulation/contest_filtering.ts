@@ -86,7 +86,7 @@ export function getContestsForPrecinct(
 
 /**
  * An alternative to getContestsForPrecinct that takes an Election instead of an ElectionDefinition.
- * This is useful in contexts where we don't have an ElectionDefinition, such as the VxDesign app.
+ * This is useful in contexts where we don't have an ElectionDefinition, such as the VxHub app.
  */
 export function getContestsForPrecinctAndElection(
   election: Election,
