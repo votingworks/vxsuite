@@ -1,7 +1,6 @@
 import { Buffer } from 'node:buffer';
 import { z } from 'zod/v4';
-import { throwIllegalValue } from '@votingworks/basics';
-import { asBoolean } from '@votingworks/utils';
+import { asBoolean, throwIllegalValue } from '@votingworks/basics';
 
 /**
  * An SSL key stored in a file
