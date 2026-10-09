@@ -197,8 +197,6 @@ export function Caption(props: FontProps): JSX.Element {
  * (e.g. in HMPBs).
  */
 interface RichTextProps {
-  /** [TODO] Remove after March ballot production run. */
-  __tempOverrideImgMaxWidth?: string;
   tableBorderWidth?: string;
   tableBorderColor?: string;
   tableHeaderBackgroundColor?: string;
@@ -261,9 +259,7 @@ export const richTextStyles = css<RichTextProps>`
   }
 
   img {
-    max-width: ${(p) =>
-      // eslint-disable-next-line no-underscore-dangle
-      p.__tempOverrideImgMaxWidth || '100%'};
+    max-width: 100%;
     height: auto;
   }
 `;
