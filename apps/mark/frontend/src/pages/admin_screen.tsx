@@ -83,6 +83,15 @@ export function AdminScreen({
   const selectPollingPlace = api.setPollingPlaceId.useMutation().mutateAsync;
   const setTestModeMutation = setTestMode.useMutation();
   const systemSettingsQuery = api.getSystemSettings.useQuery();
+  const isBarcodeActivationModeSelectable = Boolean(
+    systemSettingsQuery.data?.bmdEnableQrBallotActivation &&
+    systemSettingsQuery.data.allowPrintingBlankBallotsFromVxMark
+  );
+  const barcodeActivationModeQuery = api.getBarcodeActivationMode.useQuery({
+    enabled: isBarcodeActivationModeSelectable,
+  });
+  const setBarcodeActivationModeMutation =
+    api.setBarcodeActivationMode.useMutation();
   const [isConfirmingModeSwitch, setIsConfirmingModeSwitch] = useState(false);
   const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(false);
   const [isTestDeckScreenOpen, setIsTestDeckScreenOpen] = useState(false);
@@ -157,6 +166,22 @@ export function AdminScreen({
             required for test mode.
           </P>
         )}
+        {isBarcodeActivationModeSelectable &&
+          barcodeActivationModeQuery.isSuccess && (
+            <P>
+              <SegmentedButton
+                label="Barcode Activation Mode"
+                onChange={(mode) =>
+                  setBarcodeActivationModeMutation.mutate({ mode })
+                }
+                options={[
+                  { id: 'voter_session', label: 'Voting Session' },
+                  { id: 'ballot_printing', label: 'Print Ballot' },
+                ]}
+                selectedOptionId={barcodeActivationModeQuery.data}
+              />
+            </P>
+          )}
         <P>
           <UnconfigureMachineButton
             unconfigureMachine={unconfigureMachineAndEjectUsb}
