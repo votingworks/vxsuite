@@ -7,7 +7,12 @@ import { CONFIG } from './constants.js';
 import type { Layout, MisvoteWarningsProps } from './types.js';
 
 export function useLayoutConfig(props: MisvoteWarningsProps): Layout {
-  const { blankContests, overvoteContests, partiallyVotedContests } = props;
+  const {
+    blankContests,
+    marginalMarkContests,
+    overvoteContests,
+    partiallyVotedContests,
+  } = props;
   const { sizeMode } = useTheme();
   assert(isTouchSizeMode(sizeMode));
   const config = CONFIG[sizeMode];
@@ -15,6 +20,7 @@ export function useLayoutConfig(props: MisvoteWarningsProps): Layout {
   return React.useMemo(() => {
     const numCards = [
       blankContests,
+      marginalMarkContests,
       overvoteContests,
       partiallyVotedContests,
     ].filter((contests) => contests.length > 0).length;
@@ -27,6 +33,7 @@ export function useLayoutConfig(props: MisvoteWarningsProps): Layout {
 
     const maxContestListLength = Math.max(
       blankContests.length,
+      marginalMarkContests.length,
       overvoteContests.length,
       partiallyVotedContests.length
     );
@@ -43,5 +50,11 @@ export function useLayoutConfig(props: MisvoteWarningsProps): Layout {
       numCardsPerRow,
       showSummaryInPreview,
     };
-  }, [config, blankContests, overvoteContests, partiallyVotedContests]);
+  }, [
+    config,
+    blankContests,
+    marginalMarkContests,
+    overvoteContests,
+    partiallyVotedContests,
+  ]);
 }

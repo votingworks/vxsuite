@@ -316,6 +316,14 @@ export const ballotImages = {
         Uint8Array.from(await readFile(vxFamousNamesFixtures.markedBallotPath))
       )
     ),
+  marginalMarkHmpb: async () =>
+    toGrayscaleSheet(
+      await pdfToImageSheet(
+        Uint8Array.from(
+          await readFile(vxFamousNamesFixtures.marginalMarkBallotPath)
+        )
+      )
+    ),
   wrongElectionBmd: async () =>
     toGrayscaleSheet(
       await pdfToImageSheet(

@@ -2,6 +2,7 @@ import type { Contest } from '@votingworks/types';
 
 export interface MisvoteWarningsProps {
   blankContests: readonly Contest[];
+  marginalMarkContests: readonly Contest[];
   overvoteContests: readonly Contest[];
   partiallyVotedContests: readonly Contest[];
 }

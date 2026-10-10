@@ -34,7 +34,11 @@ import {
 import { join } from 'node:path';
 import makeDebug from 'debug';
 import { pdfToImages } from '@votingworks/image-utils/pdf';
-import { createTestVotes, markBallotDocument } from './mark_ballot.js';
+import {
+  createTestVotes,
+  type MarginalMark,
+  markBallotDocument,
+} from './mark_ballot.js';
 import {
   allBaseBallotProps,
   type ElectionSerializationOptions,
@@ -97,6 +101,7 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
   const dir = join(fixturesDir, 'vx-famous-names');
   const blankBallotPath = join(dir, 'blank-ballot.pdf');
   const markedBallotPath = join(dir, 'marked-ballot.pdf');
+  const marginalMarkBallotPath = join(dir, 'marginal-mark-ballot.pdf');
   const blankOfficialBallotPath = join(dir, 'blank-official-ballot.pdf');
   const markedOfficialBallotPath = join(dir, 'marked-official-ballot.pdf');
   const sampleBallotPath = join(dir, 'sample-ballot.pdf');
@@ -126,6 +131,24 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
   const contests = getContests({ election, ballotStyle });
   const { votes } = createTestVotes(contests);
 
+  // The marked ballot plus one partially filled bubble on an unvoted option
+  // of the first candidate contest.
+  const marginalMarkContest = assertDefined(
+    contests.find((c): c is CandidateContest => c.type === 'candidate')
+  );
+  const marginalMarkContestVotes = votes[marginalMarkContest.id] as Candidate[];
+  const marginalMarks: MarginalMark[] = [
+    {
+      contestId: marginalMarkContest.id,
+      optionId: assertDefined(
+        marginalMarkContest.candidates.find(
+          (candidate) =>
+            !marginalMarkContestVotes.some((vote) => vote.id === candidate.id)
+        )
+      ).id,
+    },
+  ];
+
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
 
@@ -134,6 +157,8 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
     electionDefinition,
     blankBallotPath,
     markedBallotPath,
+    marginalMarkBallotPath,
+    marginalMarks,
     blankOfficialBallotPath,
     markedOfficialBallotPath,
     allBallotProps,
@@ -192,6 +217,7 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
       const {
         blankBallotPdf,
         markedBallotPdf,
+        marginalMarkBallotPdf,
         blankOfficialBallotPdf,
         markedOfficialBallotPdf,
         sampleBallotPdf,
@@ -211,6 +237,26 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
         await markBallotDocument(ballotDocument, votes);
         // eslint-disable-next-line @typescript-eslint/no-shadow
         const markedBallotPdf = await ballotDocument.renderToPdf();
+
+        debug(`Generating: ${marginalMarkBallotPath}`);
+        const marginalMarkBallotDocument =
+          await renderer.documentFromPath(testLayoutPath);
+        await renderBallotPdfWithMetadataQrCode(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          allBallotPropsTest[0]!,
+          marginalMarkBallotDocument,
+          electionDefinition,
+          LATEST_SOFTWARE_VERSION
+        );
+        await markBallotDocument(
+          marginalMarkBallotDocument,
+          votes,
+          undefined,
+          marginalMarks
+        );
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        const marginalMarkBallotPdf =
+          await marginalMarkBallotDocument.renderToPdf();
 
         // Generate official mode ballots
         const officialBallotDocument =
@@ -245,6 +291,7 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
         return {
           blankBallotPdf,
           markedBallotPdf,
+          marginalMarkBallotPdf,
           blankOfficialBallotPdf,
           markedOfficialBallotPdf,
           sampleBallotPdf,
@@ -289,6 +336,7 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
         markedOfficialBallotPath,
         blankBallotPdf,
         markedBallotPdf,
+        marginalMarkBallotPdf,
         blankOfficialBallotPdf,
         markedOfficialBallotPdf,
         blankBallotPageImages,

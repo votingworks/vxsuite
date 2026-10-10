@@ -94,6 +94,7 @@ test('overvote', async () => {
   expect(vi.mocked(MisvoteWarnings)).toBeCalledWith(
     {
       blankContests: [],
+      marginalMarkContests: [],
       overvoteContests: [contest],
       partiallyVotedContests: [],
     },
@@ -136,6 +137,7 @@ test('overvote when casting overvotes is disallowed', async () => {
   expect(vi.mocked(MisvoteWarnings)).toBeCalledWith(
     {
       blankContests: [],
+      marginalMarkContests: [],
       overvoteContests: [contest],
       partiallyVotedContests: [],
     },
@@ -220,6 +222,7 @@ test('undervote no votes', async () => {
   expect(vi.mocked(MisvoteWarnings)).toBeCalledWith(
     {
       blankContests: [contest],
+      marginalMarkContests: [],
       overvoteContests: [],
       partiallyVotedContests: [],
     },
@@ -259,6 +262,7 @@ test('undervote by 1', async () => {
   expect(vi.mocked(MisvoteWarnings)).toBeCalledWith(
     {
       blankContests: [],
+      marginalMarkContests: [],
       overvoteContests: [],
       partiallyVotedContests: [contest],
     },
@@ -294,6 +298,7 @@ test('multiple undervotes', async () => {
   expect(vi.mocked(MisvoteWarnings)).toBeCalledWith(
     {
       blankContests: [],
+      marginalMarkContests: [],
       overvoteContests: [],
       partiallyVotedContests: contests,
     },
@@ -307,4 +312,138 @@ test('multiple undervotes', async () => {
   userEvent.click(castBallotButton);
   expect(castBallotButton).toBeDisabled();
   expect(returnBallotButton).toBeDisabled();
+});
+
+test('marginal mark', async () => {
+  apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
+  const contest = electionGeneralDefinition.election.contests.find(
+    (c): c is CandidateContest => c.type === 'candidate'
+  )!;
+
+  renderScreen({
+    adjudicationReasonInfo: [
+      {
+        type: AdjudicationReason.MarginalMark,
+        contestId: contest.id,
+        optionId: contest.candidates[0]!.id,
+      },
+    ],
+  });
+
+  await screen.findByRole('heading', { name: 'Review Your Ballot' });
+  screen.getByTestId('mockMisvoteWarnings');
+  expect(vi.mocked(MisvoteWarnings)).toBeCalledWith(
+    {
+      blankContests: [],
+      marginalMarkContests: [contest],
+      overvoteContests: [],
+      partiallyVotedContests: [],
+    },
+    {}
+  );
+
+  const castBallotButton = screen.getButton('Cast Ballot');
+  const returnBallotButton = screen.getButton('Return Ballot');
+  expect(isButtonVariantPrimary(returnBallotButton)).toEqual(true);
+  expect(isButtonVariantPrimary(castBallotButton)).toEqual(false);
+  userEvent.click(castBallotButton);
+  expect(castBallotButton).toBeDisabled();
+  expect(returnBallotButton).toBeDisabled();
+});
+
+test('marginal mark takes precedence over an undervote in the same contest', async () => {
+  const candidateContests = electionGeneralDefinition.election.contests.filter(
+    (c): c is CandidateContest => c.type === 'candidate'
+  );
+  const blankContest = candidateContests.find((c) => c.id === 'president')!;
+  const partiallyVotedContest = candidateContests.find(
+    (c) => c.id === 'city-council'
+  )!;
+  const otherContest = candidateContests.find((c) => c.id === 'senator')!;
+
+  renderScreen({
+    adjudicationReasonInfo: [
+      {
+        type: AdjudicationReason.MarginalMark,
+        contestId: blankContest.id,
+        optionId: blankContest.candidates[0]!.id,
+      },
+      {
+        type: AdjudicationReason.Undervote,
+        contestId: blankContest.id,
+        expected: blankContest.seats,
+        optionIds: [],
+      },
+      {
+        type: AdjudicationReason.MarginalMark,
+        contestId: partiallyVotedContest.id,
+        optionId: partiallyVotedContest.candidates[0]!.id,
+      },
+      {
+        type: AdjudicationReason.MarginalMark,
+        contestId: partiallyVotedContest.id,
+        optionId: partiallyVotedContest.candidates[1]!.id,
+      },
+      {
+        type: AdjudicationReason.Undervote,
+        contestId: partiallyVotedContest.id,
+        expected: partiallyVotedContest.seats,
+        optionIds: [partiallyVotedContest.candidates[2]!.id],
+      },
+      {
+        type: AdjudicationReason.Undervote,
+        contestId: otherContest.id,
+        expected: otherContest.seats,
+        optionIds: [],
+      },
+    ],
+  });
+
+  await screen.findByRole('heading', { name: 'Review Your Ballot' });
+  expect(vi.mocked(MisvoteWarnings)).toBeCalledWith(
+    {
+      blankContests: [otherContest],
+      marginalMarkContests: [blankContest, partiallyVotedContest],
+      overvoteContests: [],
+      partiallyVotedContests: [],
+    },
+    {}
+  );
+
+  expect(isButtonVariantPrimary(screen.getButton('Return Ballot'))).toEqual(
+    true
+  );
+});
+
+test('overvote takes precedence over a marginal mark in the same contest', async () => {
+  const contest = electionGeneralDefinition.election.contests.find(
+    (c): c is CandidateContest => c.type === 'candidate'
+  )!;
+
+  renderScreen({
+    adjudicationReasonInfo: [
+      {
+        type: AdjudicationReason.Overvote,
+        contestId: contest.id,
+        optionIds: contest.candidates.slice(0, 2).map(({ id }) => id),
+        expected: 1,
+      },
+      {
+        type: AdjudicationReason.MarginalMark,
+        contestId: contest.id,
+        optionId: contest.candidates[2]!.id,
+      },
+    ],
+  });
+
+  await screen.findByRole('heading', { name: 'Review Your Ballot' });
+  expect(vi.mocked(MisvoteWarnings)).toBeCalledWith(
+    {
+      blankContests: [],
+      marginalMarkContests: [],
+      overvoteContests: [contest],
+      partiallyVotedContests: [],
+    },
+    {}
+  );
 });

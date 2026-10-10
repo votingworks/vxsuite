@@ -33,7 +33,12 @@ const Container = styled.div<ContainerProps>`
 `;
 
 export function WarningDetails(props: MisvoteWarningsProps): JSX.Element {
-  const { blankContests, overvoteContests, partiallyVotedContests } = props;
+  const {
+    blankContests,
+    marginalMarkContests,
+    overvoteContests,
+    partiallyVotedContests,
+  } = props;
   const layout = useLayoutConfig(props);
 
   return (
@@ -75,6 +80,19 @@ export function WarningDetails(props: MisvoteWarningsProps): JSX.Element {
             overvoteContests.length === 1
               ? appStrings.noteScannerOvervoteContestsCardSingular()
               : appStrings.noteScannerOvervoteContestsCardPlural()
+          }
+        />
+      )}
+
+      {marginalMarkContests.length > 0 && (
+        <ContestList
+          contests={marginalMarkContests}
+          maxColumns={layout.maxColumnsPerCard}
+          title={appStrings.titleScannerMarginalMarkWarning()}
+          helpNote={
+            marginalMarkContests.length === 1
+              ? appStrings.noteScannerMarginalMarkContestsCardSingular()
+              : appStrings.noteScannerMarginalMarkContestsCardPlural()
           }
         />
       )}

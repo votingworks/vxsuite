@@ -91,14 +91,11 @@ export async function markBallotDocument(
                   />
                 );
               }
-              /* @coverage-exclude: marginal marks are only rendered when
-                 generating fixtures via @votingworks/integration-test-utils */
               const marginalMark = marginalMarks?.find(
                 (mark) =>
                   mark.contestId === optionInfo.contestId &&
                   mark.optionId === optionInfo.optionId
               );
-              // @coverage-exclude
               return marginalMark ? (
                 <BubbleShape
                   key={optionInfo.optionId}

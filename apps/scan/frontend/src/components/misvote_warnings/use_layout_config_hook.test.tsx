@@ -21,6 +21,7 @@ beforeEach(() => {
 test('varies according to size mode', () => {
   const props: MisvoteWarningsProps = {
     blankContests: generateContests(2),
+    marginalMarkContests: [],
     overvoteContests: generateContests(1),
     partiallyVotedContests: generateContests(3),
   };
@@ -45,6 +46,7 @@ test('sets numCardsPerRow appropriately', () => {
   const { rerender } = render(
     <TestComponent
       blankContests={generateContests(1)}
+      marginalMarkContests={[]}
       overvoteContests={generateContests(1)}
       partiallyVotedContests={generateContests(1)}
     />,
@@ -59,6 +61,7 @@ test('sets numCardsPerRow appropriately', () => {
   rerender(
     <TestComponent
       blankContests={generateContests(1)}
+      marginalMarkContests={[]}
       overvoteContests={[]}
       partiallyVotedContests={[]}
     />
@@ -78,6 +81,7 @@ test('sets maxColumnsPerCard appropriately', () => {
   const { rerender } = render(
     <TestComponent
       blankContests={generateContests(1)}
+      marginalMarkContests={[]}
       overvoteContests={generateContests(1)}
       partiallyVotedContests={generateContests(1)}
     />,
@@ -93,6 +97,7 @@ test('sets maxColumnsPerCard appropriately', () => {
   rerender(
     <TestComponent
       blankContests={generateContests(1)}
+      marginalMarkContests={[]}
       overvoteContests={[]}
       partiallyVotedContests={[]}
     />
@@ -116,6 +121,7 @@ test('sets showSummaryInPreview appropriately', () => {
   const { rerender } = render(
     <TestComponent
       blankContests={generateContests(1)}
+      marginalMarkContests={[]}
       overvoteContests={generateContests(1)}
       partiallyVotedContests={generateContests(1)}
     />,
@@ -131,6 +137,7 @@ test('sets showSummaryInPreview appropriately', () => {
   rerender(
     <TestComponent
       blankContests={generateContests(config.maxPreviewContestRows + 1)}
+      marginalMarkContests={[]}
       overvoteContests={generateContests(1)}
       partiallyVotedContests={[]}
     />
@@ -147,6 +154,7 @@ test('sets showSummaryInPreview appropriately', () => {
       blankContests={generateContests(
         config.maxPreviewContestRows * config.maxColumnsPerCard
       )}
+      marginalMarkContests={[]}
       overvoteContests={[]}
       partiallyVotedContests={[]}
     />
@@ -161,6 +169,7 @@ test('sets showSummaryInPreview appropriately', () => {
   rerender(
     <TestComponent
       blankContests={generateContests(config.maxPreviewContestRows)}
+      marginalMarkContests={[]}
       overvoteContests={[]}
       partiallyVotedContests={generateContests(config.maxPreviewContestRows)}
     />

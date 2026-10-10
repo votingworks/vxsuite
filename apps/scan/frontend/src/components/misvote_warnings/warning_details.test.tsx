@@ -65,21 +65,23 @@ test('renders all relevant warnings', () => {
     showSummaryInPreview: true,
   });
 
-  const contests = generateContests(6);
+  const contests = generateContests(8);
   const blankContests = contests.slice(0, 3);
   const partiallyVotedContests = contests.slice(3, 5);
-  const overvoteContests = contests.slice(5);
+  const overvoteContests = contests.slice(5, 6);
+  const marginalMarkContests = contests.slice(6);
 
   render(
     <WarningDetails
       blankContests={blankContests}
+      marginalMarkContests={marginalMarkContests}
       overvoteContests={overvoteContests}
       partiallyVotedContests={partiallyVotedContests}
     />
   );
 
   const contestLists = screen.getAllByTestId('mockContestList');
-  expect(contestLists).toHaveLength(3);
+  expect(contestLists).toHaveLength(4);
 
   expectMockContestListProps(contestLists[0]!, {
     title: /no votes/i,
@@ -101,6 +103,13 @@ test('renders all relevant warnings', () => {
     maxColumns: 2,
     contests: overvoteContests,
   });
+
+  expectMockContestListProps(contestLists[3]!, {
+    title: /marks that may not be counted/i,
+    helpNote: /fill in the ovals completely/i,
+    maxColumns: 2,
+    contests: marginalMarkContests,
+  });
 });
 
 test('omits warnings with no contests', () => {
@@ -115,6 +124,7 @@ test('omits warnings with no contests', () => {
   render(
     <WarningDetails
       blankContests={[]}
+      marginalMarkContests={[]}
       overvoteContests={overvoteContests}
       partiallyVotedContests={[]}
     />
@@ -127,5 +137,31 @@ test('omits warnings with no contests', () => {
     helpNote: /votes in these contests will not be counted/i,
     maxColumns: 3,
     contests: overvoteContests,
+  });
+});
+
+test('renders singular marginal mark note', () => {
+  vi.mocked(useLayoutConfig).mockReturnValue({
+    maxColumnsPerCard: 3,
+    numCardsPerRow: 1,
+    showSummaryInPreview: false,
+  });
+
+  const marginalMarkContests = generateContests(1);
+
+  render(
+    <WarningDetails
+      blankContests={[]}
+      marginalMarkContests={marginalMarkContests}
+      overvoteContests={[]}
+      partiallyVotedContests={[]}
+    />
+  );
+
+  expectMockContestListProps(screen.getByTestId('mockContestList'), {
+    title: /marks that may not be counted/i,
+    helpNote: /fill in the oval completely/i,
+    maxColumns: 3,
+    contests: marginalMarkContests,
   });
 });

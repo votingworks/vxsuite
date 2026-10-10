@@ -10,7 +10,12 @@ import { WarningDetailsModalButton } from './warning_details_modal_button.js';
 import type { MisvoteWarningsProps } from './types.js';
 
 export function WarningsSummary(props: MisvoteWarningsProps): JSX.Element {
-  const { blankContests, overvoteContests, partiallyVotedContests } = props;
+  const {
+    blankContests,
+    marginalMarkContests,
+    overvoteContests,
+    partiallyVotedContests,
+  } = props;
 
   return (
     <React.Fragment>
@@ -39,6 +44,14 @@ export function WarningsSummary(props: MisvoteWarningsProps): JSX.Element {
             <ListItem>
               {appStrings.labelContestsWithTooManyVotes()}{' '}
               <NumberString weight="bold" value={overvoteContests.length} />
+            </ListItem>
+          </Caption>
+        )}
+        {marginalMarkContests.length > 0 && (
+          <Caption>
+            <ListItem>
+              {appStrings.labelContestsWithMarksThatMayNotCount()}{' '}
+              <NumberString weight="bold" value={marginalMarkContests.length} />
             </ListItem>
           </Caption>
         )}

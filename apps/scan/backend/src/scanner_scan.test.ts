@@ -7,6 +7,7 @@ import { mockScannerStatus } from '@votingworks/pdi-scanner';
 import {
   AdjudicationReason,
   type AdjudicationReasonInfo,
+  DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED,
   DEFAULT_SYSTEM_SETTINGS,
   type SheetInterpretation,
 } from '@votingworks/types';
@@ -290,6 +291,62 @@ test('ballot needs review - accept', async () => {
         interpretation,
       });
       expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith('toRear');
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
+      clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
+
+      await waitForStatus(apiClient, {
+        state: 'accepted',
+        interpretation,
+        ballotsCounted: 1,
+      });
+    }
+  );
+});
+
+test('ballot needs review - marginal mark', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+          systemSettings: {
+            ...DEFAULT_SYSTEM_SETTINGS,
+            markThresholds:
+              DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED,
+            precinctScanAdjudicationReasons: [AdjudicationReason.MarginalMark],
+          },
+        },
+        pollingPlaceId: POLLING_PLACE_ID_OVERVOTE_HMPB,
+      });
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+
+      await simulateScan(
+        apiClient,
+        mockScanner,
+        await ballotImages.marginalMarkHmpb()
+      );
+
+      const interpretation: SheetInterpretation = {
+        type: 'NeedsReviewSheet',
+        reasons: vxFamousNamesFixtures.marginalMarks.map(
+          ({ contestId, optionId }) =>
+            typedAs<AdjudicationReasonInfo>({
+              type: AdjudicationReason.MarginalMark,
+              contestId,
+              optionId,
+            })
+        ),
+      };
+      await waitForStatus(apiClient, { state: 'needs_review', interpretation });
+
+      await apiClient.acceptBallot();
+      await expectStatus(apiClient, {
+        state: 'accepting_after_review',
+        interpretation,
+      });
       mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
 
