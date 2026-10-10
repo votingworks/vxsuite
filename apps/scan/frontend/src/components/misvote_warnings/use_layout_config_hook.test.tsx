@@ -21,6 +21,7 @@ beforeEach(() => {
 test('varies according to size mode', () => {
   const props: MisvoteWarningsProps = {
     blankContests: generateContests(2),
+    marginalMarkContests: [],
     overvoteContests: generateContests(1),
     partiallyVotedContests: generateContests(3),
   };
@@ -45,6 +46,7 @@ test('sets numCardsPerRow appropriately', () => {
   const { rerender } = render(
     <TestComponent
       blankContests={generateContests(1)}
+      marginalMarkContests={[]}
       overvoteContests={generateContests(1)}
       partiallyVotedContests={generateContests(1)}
     />,
@@ -59,6 +61,7 @@ test('sets numCardsPerRow appropriately', () => {
   rerender(
     <TestComponent
       blankContests={generateContests(1)}
+      marginalMarkContests={[]}
       overvoteContests={[]}
       partiallyVotedContests={[]}
     />
@@ -78,6 +81,7 @@ test('sets maxColumnsPerCard appropriately', () => {
   const { rerender } = render(
     <TestComponent
       blankContests={generateContests(1)}
+      marginalMarkContests={[]}
       overvoteContests={generateContests(1)}
       partiallyVotedContests={generateContests(1)}
     />,
@@ -93,6 +97,7 @@ test('sets maxColumnsPerCard appropriately', () => {
   rerender(
     <TestComponent
       blankContests={generateContests(1)}
+      marginalMarkContests={[]}
       overvoteContests={[]}
       partiallyVotedContests={[]}
     />
@@ -116,6 +121,7 @@ test('sets showSummaryInPreview appropriately', () => {
   const { rerender } = render(
     <TestComponent
       blankContests={generateContests(1)}
+      marginalMarkContests={[]}
       overvoteContests={generateContests(1)}
       partiallyVotedContests={generateContests(1)}
     />,
@@ -127,10 +133,35 @@ test('sets showSummaryInPreview appropriately', () => {
     })
   );
 
+  // Should be true when all four warning types are present, at every size:
+  for (const mode of [
+    'touchSmall',
+    'touchMedium',
+    'touchLarge',
+    'touchExtraLarge',
+  ] as const) {
+    render(
+      <TestComponent
+        blankContests={generateContests(1)}
+        marginalMarkContests={generateContests(1)}
+        overvoteContests={generateContests(1)}
+        partiallyVotedContests={generateContests(1)}
+      />,
+      { vxTheme: { sizeMode: mode } }
+    );
+    expect(hookResult).toEqual(
+      expect.objectContaining<Partial<Layout>>({
+        numCardsPerRow: CONFIG[mode].maxCardsPerRow,
+        showSummaryInPreview: true,
+      })
+    );
+  }
+
   // Should be true if any of the cards wouldn't fit vertically:
   rerender(
     <TestComponent
       blankContests={generateContests(config.maxPreviewContestRows + 1)}
+      marginalMarkContests={[]}
       overvoteContests={generateContests(1)}
       partiallyVotedContests={[]}
     />
@@ -147,6 +178,7 @@ test('sets showSummaryInPreview appropriately', () => {
       blankContests={generateContests(
         config.maxPreviewContestRows * config.maxColumnsPerCard
       )}
+      marginalMarkContests={[]}
       overvoteContests={[]}
       partiallyVotedContests={[]}
     />
@@ -161,6 +193,7 @@ test('sets showSummaryInPreview appropriately', () => {
   rerender(
     <TestComponent
       blankContests={generateContests(config.maxPreviewContestRows)}
+      marginalMarkContests={[]}
       overvoteContests={[]}
       partiallyVotedContests={generateContests(config.maxPreviewContestRows)}
     />

@@ -3,6 +3,7 @@ import {
   AdjudicationReason,
   type ElectionDefinition,
   type AdjudicationReasonInfo,
+  type MarginalMarkAdjudicationReasonInfo,
   type OvervoteAdjudicationReasonInfo,
   type UndervoteAdjudicationReasonInfo,
   type Contest,
@@ -27,6 +28,7 @@ import { MisvoteWarnings } from '../components/misvote_warnings/index.js';
 interface MisvoteWarningScreenProps {
   electionDefinition: ElectionDefinition;
   systemSettings: SystemSettings;
+  marginalMarks: readonly MarginalMarkAdjudicationReasonInfo[];
   overvotes: readonly OvervoteAdjudicationReasonInfo[];
   undervotes: readonly UndervoteAdjudicationReasonInfo[];
   isTestMode: boolean;
@@ -35,6 +37,7 @@ interface MisvoteWarningScreenProps {
 function MisvoteWarningScreen({
   electionDefinition,
   systemSettings,
+  marginalMarks,
   overvotes,
   undervotes,
   isTestMode,
@@ -56,6 +59,7 @@ function MisvoteWarningScreen({
   const blankContestIds = new Set<string>();
   const partiallyVotedContestIds = new Set<string>();
   const overvoteContestIds = new Set<string>();
+  const marginalMarkContestIds = new Set<string>();
 
   for (const undervote of undervotes) {
     if (undervote.optionIds.length === 0) {
@@ -69,12 +73,26 @@ function MisvoteWarningScreen({
     overvoteContestIds.add(overvote.contestId);
   }
 
-  // Then, map IDs to contests in the election:
+  for (const marginalMark of marginalMarks) {
+    marginalMarkContestIds.add(marginalMark.contestId);
+  }
+
   const blankContests: Contest[] = [];
   const partiallyVotedContests: Contest[] = [];
   const overvoteContests: Contest[] = [];
+  const marginalMarkContests: Contest[] = [];
 
   for (const contest of contests) {
+    if (overvoteContestIds.has(contest.id)) {
+      overvoteContests.push(contest);
+      continue;
+    }
+
+    if (marginalMarkContestIds.has(contest.id)) {
+      marginalMarkContests.push(contest);
+      continue;
+    }
+
     if (blankContestIds.has(contest.id)) {
       blankContests.push(contest);
       continue;
@@ -84,18 +102,14 @@ function MisvoteWarningScreen({
       partiallyVotedContests.push(contest);
       continue;
     }
-
-    if (overvoteContestIds.has(contest.id)) {
-      overvoteContests.push(contest);
-      continue;
-    }
   }
 
-  // If there are overvotes, we nudge the voter toward returning the ballot.
-  // Given that undervotes are often intentional, we don't discourage casting
-  // the ballot in that case. Note that completely blank ballots are handled
-  // by another component.
-  const returnBallotButtonIsPrimary = overvoteContests.length > 0;
+  // If there are overvotes or marginal marks, we nudge the voter toward
+  // returning the ballot. Given that undervotes are often intentional, we
+  // don't discourage casting the ballot in that case. Note that completely
+  // blank ballots are handled by another component.
+  const returnBallotButtonIsPrimary =
+    overvoteContests.length > 0 || marginalMarkContests.length > 0;
 
   return (
     <Screen
@@ -134,6 +148,7 @@ function MisvoteWarningScreen({
     >
       <MisvoteWarnings
         blankContests={blankContests}
+        marginalMarkContests={marginalMarkContests}
         overvoteContests={overvoteContests}
         partiallyVotedContests={partiallyVotedContests}
       />
@@ -329,6 +344,7 @@ export function ScanWarningScreen({
 }: Props): JSX.Element {
   let isBlank = false;
   let isCrossover = false;
+  const marginalMarkReasons: MarginalMarkAdjudicationReasonInfo[] = [];
   const overvoteReasons: OvervoteAdjudicationReasonInfo[] = [];
   const undervoteReasons: UndervoteAdjudicationReasonInfo[] = [];
 
@@ -338,6 +354,8 @@ export function ScanWarningScreen({
       isBlank = true;
     } else if (reason.type === AdjudicationReason.CrossoverVoting) {
       isCrossover = true;
+    } else if (reason.type === AdjudicationReason.MarginalMark) {
+      marginalMarkReasons.push(reason);
     } else if (reason.type === AdjudicationReason.Overvote) {
       overvoteReasons.push(reason);
     } else if (reason.type === AdjudicationReason.Undervote) {
@@ -353,11 +371,16 @@ export function ScanWarningScreen({
     return <BlankBallotWarningScreen isTestMode={isTestMode} />;
   }
 
-  if (undervoteReasons.length > 0 || overvoteReasons.length > 0) {
+  if (
+    undervoteReasons.length > 0 ||
+    overvoteReasons.length > 0 ||
+    marginalMarkReasons.length > 0
+  ) {
     return (
       <MisvoteWarningScreen
         electionDefinition={electionDefinition}
         systemSettings={systemSettings}
+        marginalMarks={marginalMarkReasons}
         undervotes={undervoteReasons}
         overvotes={overvoteReasons}
         isTestMode={isTestMode}

@@ -896,6 +896,12 @@ export const appStrings = {
     <UiString uiStringKey="labelContests">contests</UiString>
   ),
 
+  labelContestsWithFaintMarks: () => (
+    <UiString uiStringKey="labelContestsWithFaintMarks">
+      Contests with faint marks that will not be counted:
+    </UiString>
+  ),
+
   labelContestsWithNoVotes: () => (
     <UiString uiStringKey="labelContestsWithNoVotes">
       Contests with no votes marked:
@@ -1314,6 +1320,18 @@ export const appStrings = {
     </UiString>
   ),
 
+  noteScannerMarginalMarkContestsCardPlural: () => (
+    <UiString uiStringKey="noteScannerMarginalMarkContestsCardPlural">
+      Fill in the ovals completely for your votes in these contests to count.
+    </UiString>
+  ),
+
+  noteScannerMarginalMarkContestsCardSingular: () => (
+    <UiString uiStringKey="noteScannerMarginalMarkContestsCardSingular">
+      Fill in the oval completely for your vote in this contest to count.
+    </UiString>
+  ),
+
   noteScannerOvervoteContestsCardPlural: () => (
     <UiString uiStringKey="noteScannerOvervoteContestsCardPlural">
       Your votes in these contests will not be counted.
@@ -1618,6 +1636,12 @@ export const appStrings = {
   titleScannerBallotWarningsScreen: () => (
     <UiString uiStringKey="titleScannerBallotWarningsScreen">
       Review Your Ballot
+    </UiString>
+  ),
+
+  titleScannerMarginalMarkWarning: () => (
+    <UiString uiStringKey="titleScannerMarginalMarkWarning">
+      Faint marks that will not be counted:
     </UiString>
   ),
 
@@ -2265,11 +2289,12 @@ export const appStrings = {
   voterHelpScreenContentMisvoteScreen: () => (
     <UiString uiStringKey="voterHelpScreenContentMisvoteScreen">
       There were potential issues detected on your ballot. The screen lists the
-      contests which have overvotes, undervotes, or no votes at all. If there
-      are many contests, you may have to select “View Contests” to view the full
-      list. If you want to make changes on your ballot, press “Return Ballot” to
-      return your paper ballot for your review. When marking your ballot, follow
-      the instructions at the beginning of the ballot.
+      contests which have overvotes, undervotes, no votes at all, or faint marks
+      that will not be counted. If there are many contests, you may have to
+      select “View Contests” to view the full list. If you want to make changes
+      on your ballot, press “Return Ballot” to return your paper ballot for your
+      review. When marking your ballot, follow the instructions at the beginning
+      of the ballot.
     </UiString>
   ),
 

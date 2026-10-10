@@ -22,14 +22,16 @@ test('renders modal on button press', () => {
     <div data-testid="mockWarningDetails" />
   ));
 
-  const contests = generateContests(6);
+  const contests = generateContests(7);
   const blankContests = contests.slice(0, 3);
   const partiallyVotedContests = contests.slice(3, 5);
-  const overvoteContests = contests.slice(5);
+  const overvoteContests = contests.slice(5, 6);
+  const marginalMarkContests = contests.slice(6);
 
   render(
     <WarningDetailsModalButton
       blankContests={blankContests}
+      marginalMarkContests={marginalMarkContests}
       overvoteContests={overvoteContests}
       partiallyVotedContests={partiallyVotedContests}
     />
@@ -40,7 +42,12 @@ test('renders modal on button press', () => {
 
   screen.getByTestId('mockWarningDetails');
   expect(vi.mocked(WarningDetails)).toBeCalledWith(
-    { blankContests, overvoteContests, partiallyVotedContests },
+    {
+      blankContests,
+      marginalMarkContests,
+      overvoteContests,
+      partiallyVotedContests,
+    },
     {}
   );
 });
@@ -53,6 +60,7 @@ test('renders modal with focusable audio content', () => {
   render(
     <WarningDetailsModalButton
       blankContests={[]}
+      marginalMarkContests={[]}
       overvoteContests={[]}
       partiallyVotedContests={[]}
     />
@@ -75,6 +83,7 @@ test('closes modal', () => {
   render(
     <WarningDetailsModalButton
       blankContests={[]}
+      marginalMarkContests={[]}
       overvoteContests={[]}
       partiallyVotedContests={[]}
     />

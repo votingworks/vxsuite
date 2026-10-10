@@ -7,6 +7,7 @@ test('renders all relevant warnings', () => {
   render(
     <WarningsSummary
       blankContests={generateContests(3)}
+      marginalMarkContests={generateContests(4)}
       overvoteContests={generateContests(2)}
       partiallyVotedContests={generateContests(1)}
     />
@@ -17,6 +18,7 @@ test('renders all relevant warnings', () => {
     expect.stringMatching(/no votes.+3/i),
     expect.stringMatching(/one or more votes remaining.+1/i),
     expect.stringMatching(/too many votes.+2/i),
+    expect.stringMatching(/faint marks that will not be counted.+4/i),
   ]);
 });
 
@@ -24,6 +26,7 @@ test('omits warnings with no contests listed', () => {
   render(
     <WarningsSummary
       blankContests={[]}
+      marginalMarkContests={[]}
       overvoteContests={generateContests(2)}
       partiallyVotedContests={[]}
     />
