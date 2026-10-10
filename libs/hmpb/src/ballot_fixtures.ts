@@ -132,9 +132,13 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
   const { votes } = createTestVotes(contests);
 
   // The marked ballot plus one partially filled bubble on an unvoted option
-  // of the first candidate contest.
+  // of the first undervoted candidate contest, so the marginal mark is the
+  // only reason that contest reads as undervoted.
   const marginalMarkContest = assertDefined(
-    contests.find((c): c is CandidateContest => c.type === 'candidate')
+    contests.find(
+      (c): c is CandidateContest =>
+        c.type === 'candidate' && (votes[c.id] as Candidate[]).length < c.seats
+    )
   );
   const marginalMarkContestVotes = votes[marginalMarkContest.id] as Candidate[];
   const marginalMarks: MarginalMark[] = [
