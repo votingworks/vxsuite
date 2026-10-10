@@ -50,7 +50,7 @@ export function WarningsSummary(props: MisvoteWarningsProps): JSX.Element {
         {marginalMarkContests.length > 0 && (
           <Caption>
             <ListItem>
-              {appStrings.labelContestsWithMarksThatMayNotCount()}{' '}
+              {appStrings.labelContestsWithFaintMarks()}{' '}
               <NumberString weight="bold" value={marginalMarkContests.length} />
             </ListItem>
           </Caption>

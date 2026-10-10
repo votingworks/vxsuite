@@ -18,7 +18,7 @@ test('renders all relevant warnings', () => {
     expect.stringMatching(/no votes.+3/i),
     expect.stringMatching(/one or more votes remaining.+1/i),
     expect.stringMatching(/too many votes.+2/i),
-    expect.stringMatching(/marks that may not be counted.+4/i),
+    expect.stringMatching(/faint marks that will not be counted.+4/i),
   ]);
 });
 

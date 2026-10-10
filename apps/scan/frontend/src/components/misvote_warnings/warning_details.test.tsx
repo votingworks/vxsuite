@@ -105,7 +105,7 @@ test('renders all relevant warnings', () => {
   });
 
   expectMockContestListProps(contestLists[3]!, {
-    title: /marks that may not be counted/i,
+    title: /faint marks that will not be counted/i,
     helpNote: /fill in the ovals completely/i,
     maxColumns: 2,
     contests: marginalMarkContests,
@@ -159,7 +159,7 @@ test('renders singular marginal mark note', () => {
   );
 
   expectMockContestListProps(screen.getByTestId('mockContestList'), {
-    title: /marks that may not be counted/i,
+    title: /faint marks that will not be counted/i,
     helpNote: /fill in the oval completely/i,
     maxColumns: 3,
     contests: marginalMarkContests,
