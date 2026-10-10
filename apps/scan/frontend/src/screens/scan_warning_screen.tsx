@@ -77,10 +77,6 @@ function MisvoteWarningScreen({
     marginalMarkContestIds.add(marginalMark.contestId);
   }
 
-  // Then, map IDs to contests in the election. A contest is listed under only
-  // its most significant warning: an overvote means votes won't count; a
-  // marginal mark usually explains why a contest reads as undervoted, and
-  // tells the voter how to fix it.
   const blankContests: Contest[] = [];
   const partiallyVotedContests: Contest[] = [];
   const overvoteContests: Contest[] = [];

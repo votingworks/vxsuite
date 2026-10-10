@@ -133,6 +133,30 @@ test('sets showSummaryInPreview appropriately', () => {
     })
   );
 
+  // Should be true when all four warning types are present, at every size:
+  for (const mode of [
+    'touchSmall',
+    'touchMedium',
+    'touchLarge',
+    'touchExtraLarge',
+  ] as const) {
+    render(
+      <TestComponent
+        blankContests={generateContests(1)}
+        marginalMarkContests={generateContests(1)}
+        overvoteContests={generateContests(1)}
+        partiallyVotedContests={generateContests(1)}
+      />,
+      { vxTheme: { sizeMode: mode } }
+    );
+    expect(hookResult).toEqual(
+      expect.objectContaining<Partial<Layout>>({
+        numCardsPerRow: CONFIG[mode].maxCardsPerRow,
+        showSummaryInPreview: true,
+      })
+    );
+  }
+
   // Should be true if any of the cards wouldn't fit vertically:
   rerender(
     <TestComponent
