@@ -718,6 +718,78 @@ test('accepting a sheet that needs review keeps it and continues scanning', asyn
   });
 });
 
+test('sends a sheet with marginal marks for review when enabled', async () => {
+  const { electionDefinition, misvotedBallot } = vxFamousNamesFixtures;
+  const [frontImageData, backImageData] = asSheet(
+    await iter(
+      pdfToImages(
+        Uint8Array.from(
+          await readFile(vxFamousNamesFixtures.misvotedBallotPath)
+        ),
+        { scale: 200 / 72 }
+      )
+    )
+      .map(({ page }) => page)
+      .toArray()
+  );
+  const frontPath = makeTemporaryPath();
+  const backPath = makeTemporaryPath();
+  await writeImageData(frontPath, frontImageData);
+  await writeImageData(backPath, backImageData);
+
+  await withApp(async ({ auth, apiClient, scanner, workspace }) => {
+    mockElectionManagerAuth(auth, electionDefinition);
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
+      jurisdiction,
+      electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
+    });
+    workspace.store.setSystemSettings({
+      ...DEFAULT_SYSTEM_SETTINGS,
+      // Wide enough gap between the marginal and definite thresholds that
+      // every partially filled bubble on the fixture scores as marginal.
+      markThresholds: {
+        ...DEFAULT_SYSTEM_SETTINGS.markThresholds,
+        marginal: 0.03,
+        definite: 0.15,
+      },
+      centralScanAdjudicationReasons: [AdjudicationReason.MarginalMark],
+    });
+    await apiClient.setTestMode({ testMode: true });
+    await apiClient.setPollingPlaceId({ id: 'central-scanning' });
+
+    scanner.withNextScannerSession().sheet({ frontPath, backPath }).end();
+
+    await apiClient.scanBatch();
+    const { sheetId } = await waitForStatus(apiClient, {
+      state: 'needsReview',
+    });
+    expect(await apiClient.getSheetForReview({ sheetId })).toMatchObject({
+      sheetInterpretation: {
+        type: 'NeedsReviewSheet',
+        reasons: misvotedBallot.marginalMarks.map(
+          ({ contestId, optionId }) => ({
+            type: AdjudicationReason.MarginalMark,
+            contestId,
+            optionId,
+          })
+        ),
+      },
+    });
+
+    await apiClient.acceptSheet();
+    scanner.withNextScannerSession().end();
+    await apiClient.resumeBatch();
+    await waitForStatus(apiClient, {
+      state: 'paused',
+      pauseReason: { type: 'tray-empty' },
+    });
+    await apiClient.saveBatch();
+    expect(workspace.store.getBallotsCounted()).toEqual(1);
+  });
+});
+
 test('rejects ballots whose precinct is not in the selected polling place', async () => {
   // The famous names fixture's ballot is for precinct '23'. Select the
   // '20-polling-place' location (which covers only precinct '20') so the
