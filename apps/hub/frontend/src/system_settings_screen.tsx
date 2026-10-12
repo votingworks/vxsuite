@@ -213,11 +213,6 @@ export function SystemSettingsForm({
     { label: 'Unmarked Write-In', value: AdjudicationReason.UnmarkedWriteIn },
   ];
 
-  const scannerAdjudicationReasonOptions = adjudicationReasonOptions.filter(
-    // Not implemented
-    (option) => option.value !== AdjudicationReason.MarginalMark
-  );
-
   const adminAdjudicationReasonOptions = adjudicationReasonOptions.filter(
     // UnmarkedWriteIn is excluded from adminAdjudicationReasons because
     // admin will surface all unmarked write-ins that the scanner tags.
@@ -251,7 +246,7 @@ export function SystemSettingsForm({
           <Column style={{ gap: '1.5rem' }}>
             <CheckboxGroup
               label="VxScan"
-              options={scannerAdjudicationReasonOptions}
+              options={adjudicationReasonOptions}
               // @coverage-defer
               value={systemSettings.precinctScanAdjudicationReasons ?? []}
               onChange={(value) =>
@@ -279,7 +274,7 @@ export function SystemSettingsForm({
             />
             <CheckboxGroup
               label="VxCentralScan"
-              options={scannerAdjudicationReasonOptions}
+              options={adjudicationReasonOptions}
               // @coverage-defer
               value={systemSettings.centralScanAdjudicationReasons ?? []}
               onChange={(value) =>

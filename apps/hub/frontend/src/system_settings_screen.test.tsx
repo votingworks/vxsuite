@@ -220,14 +220,15 @@ test('adjudication reasons', async () => {
   for (const machine of ['VxScan', 'VxCentralScan']) {
     const select = screen.getByRole('group', { name: machine });
     const options = within(select).getAllByRole('checkbox');
-    expect(options).toHaveLength(4);
+    expect(options).toHaveLength(5);
     for (const option of options) {
       expect(option).not.toBeChecked();
     }
     expect(options[0]).toHaveTextContent('Overvote');
     expect(options[1]).toHaveTextContent('Undervote');
-    expect(options[2]).toHaveTextContent('Blank Ballot');
-    expect(options[3]).toHaveTextContent('Unmarked Write-In');
+    expect(options[2]).toHaveTextContent('Marginal Mark');
+    expect(options[3]).toHaveTextContent('Blank Ballot');
+    expect(options[4]).toHaveTextContent('Unmarked Write-In');
 
     userEvent.click(options[0]!);
     expect(options[0]).toBeChecked();
@@ -685,7 +686,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
   const allCheckboxes = document.body.querySelectorAll('[role=checkbox]');
   const allControls = [...allTextBoxes, ...allCheckboxes];
 
-  expect(allControls).toHaveLength(48);
+  expect(allControls).toHaveLength(50);
 
   for (const control of allControls) {
     expect(control).toBeDisabled();
