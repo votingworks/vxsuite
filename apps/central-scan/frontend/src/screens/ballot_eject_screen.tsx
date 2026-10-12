@@ -278,6 +278,24 @@ export function BallotEjectScreen({
       };
     }
 
+    if (reasons.some((r) => r.type === AdjudicationReason.MarginalMark)) {
+      return {
+        header: 'Marginal Mark',
+        body: (
+          <P>
+            The last scanned ballot was not tabulated because a marginal mark
+            was detected. Marginal marks are not counted as votes.
+          </P>
+        ),
+        allowBallotDuplication: true,
+        highlightedContestIds: new Set(
+          reasons
+            .filter((reason) => reason.type === AdjudicationReason.MarginalMark)
+            .map((reason) => reason.contestId)
+        ),
+      };
+    }
+
     // @coverage-defer
     return unreadableEjectInfo;
   })();

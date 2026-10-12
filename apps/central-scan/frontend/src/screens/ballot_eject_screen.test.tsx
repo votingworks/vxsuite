@@ -277,6 +277,87 @@ test('says the ballot sheet is blank if it is', async () => {
   userEvent.click(screen.getByText('Tabulate Ballot'));
 });
 
+test('says the ballot sheet has a marginal mark if it does', async () => {
+  apiMock.expectGetSheetForReview(
+    SHEET_ID,
+    buildSheetForReview(
+      {
+        type: 'NeedsReviewSheet',
+        reasons: [
+          {
+            type: AdjudicationReason.MarginalMark,
+            contestId: '1',
+            optionId: 'a',
+          },
+          {
+            type: AdjudicationReason.MarginalMark,
+            contestId: '2',
+            optionId: 'b',
+          },
+        ],
+      },
+      [['1', '3'], ['2']]
+    )
+  );
+
+  renderInAppContext(<BallotEjectScreen isTestMode sheetId={SHEET_ID} />, {
+    apiMock,
+  });
+
+  await screen.findByText('Marginal Mark');
+  screen.getByText(
+    'The last scanned ballot was not tabulated because a marginal mark was detected. Marginal marks are not counted as votes.'
+  );
+  screen.getByText(
+    'Remove the ballot for manual adjudication or choose to tabulate it anyway.'
+  );
+
+  const ballotImages = screen.getAllByRole('img', { name: /ballot/i });
+  expect(ballotImages[0]!.querySelectorAll('div')).toHaveLength(1);
+  expect(ballotImages[1]!.querySelectorAll('div')).toHaveLength(1);
+
+  apiMock.expectRejectSheet();
+  userEvent.click(screen.getByText('Confirm Ballot Removed'));
+
+  apiMock.expectAcceptSheet();
+  userEvent.click(screen.getByText('Tabulate Ballot'));
+});
+
+test('reports an undervote ahead of a marginal mark', async () => {
+  apiMock.expectGetSheetForReview(
+    SHEET_ID,
+    buildSheetForReview(
+      {
+        type: 'NeedsReviewSheet',
+        reasons: [
+          {
+            type: AdjudicationReason.MarginalMark,
+            contestId: '1',
+            optionId: 'a',
+          },
+          {
+            type: AdjudicationReason.Undervote,
+            contestId: '1',
+            optionIds: [],
+            expected: 1,
+          },
+        ],
+      },
+      [['1'], []]
+    )
+  );
+
+  renderInAppContext(<BallotEjectScreen isTestMode sheetId={SHEET_ID} />, {
+    apiMock,
+  });
+
+  await screen.findByText('Undervote');
+  expect(screen.queryByText('Marginal Mark')).not.toBeInTheDocument();
+
+  apiMock.expectRejectSheet();
+  userEvent.click(screen.getByText('Confirm Ballot Removed'));
+});
+
 test('says the ballot sheet has crossover voting if it does', async () => {
   apiMock.expectGetSheetForReview(
     SHEET_ID,
