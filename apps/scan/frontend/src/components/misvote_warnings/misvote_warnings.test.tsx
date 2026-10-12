@@ -21,10 +21,11 @@ vi.mock('./use_layout_config_hook', async () => ({
   useLayoutConfig: vi.fn(),
 }));
 
-const contests = generateContests(6);
+const contests = generateContests(7);
 const blankContests = contests.slice(0, 3);
 const partiallyVotedContests = contests.slice(3, 5);
-const overvoteContests = contests.slice(5);
+const overvoteContests = contests.slice(5, 6);
+const marginalMarkContests = contests.slice(6);
 
 beforeEach(() => {
   vi.mocked(WarningDetails).mockImplementation(() => (
@@ -50,6 +51,7 @@ test('renders summary when necessary', () => {
   render(
     <MisvoteWarnings
       blankContests={blankContests}
+      marginalMarkContests={marginalMarkContests}
       overvoteContests={overvoteContests}
       partiallyVotedContests={partiallyVotedContests}
     />
@@ -59,7 +61,12 @@ test('renders summary when necessary', () => {
 
   screen.getByTestId('mockWarningsSummary');
   expect(vi.mocked(WarningsSummary)).toBeCalledWith(
-    { blankContests, overvoteContests, partiallyVotedContests },
+    {
+      blankContests,
+      marginalMarkContests,
+      overvoteContests,
+      partiallyVotedContests,
+    },
     {}
   );
 });
@@ -74,6 +81,7 @@ test('renders details when possible', () => {
   render(
     <MisvoteWarnings
       blankContests={blankContests}
+      marginalMarkContests={marginalMarkContests}
       overvoteContests={overvoteContests}
       partiallyVotedContests={partiallyVotedContests}
     />
@@ -83,7 +91,12 @@ test('renders details when possible', () => {
 
   screen.getByTestId('mockWarningDetails');
   expect(vi.mocked(WarningDetails)).toBeCalledWith(
-    { blankContests, overvoteContests, partiallyVotedContests },
+    {
+      blankContests,
+      marginalMarkContests,
+      overvoteContests,
+      partiallyVotedContests,
+    },
     {}
   );
 });
