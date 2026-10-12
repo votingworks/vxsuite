@@ -52,6 +52,7 @@ async function generateVxFamousNamesFixtures(rendererPool: RendererPool) {
   await mkdir(fixtures.dir, { recursive: true });
   await writeFile(fixtures.blankBallotPath, generated.blankBallotPdf);
   await writeFile(fixtures.markedBallotPath, generated.markedBallotPdf);
+  await writeFile(fixtures.misvotedBallotPath, generated.misvotedBallotPdf);
   await writeFile(
     fixtures.blankOfficialBallotPath,
     generated.blankOfficialBallotPdf
