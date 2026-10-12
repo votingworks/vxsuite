@@ -298,6 +298,67 @@ test('ballot needs review - accept', async () => {
   );
 });
 
+test('ballot needs review - marginal mark', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
+        electionPackage: {
+          electionDefinition: vxFamousNamesFixtures.electionDefinition,
+          systemSettings: {
+            ...DEFAULT_SYSTEM_SETTINGS,
+            // Wide enough gap between the marginal and definite thresholds that
+            // every partially filled bubble on the fixture scores as marginal.
+            markThresholds: {
+              ...DEFAULT_SYSTEM_SETTINGS.markThresholds,
+              marginal: 0.03,
+              definite: 0.15,
+            },
+            precinctScanAdjudicationReasons: [AdjudicationReason.MarginalMark],
+          },
+        },
+        pollingPlaceId: POLLING_PLACE_ID_OVERVOTE_HMPB,
+      });
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+
+      await simulateScan(
+        apiClient,
+        mockScanner,
+        await ballotImages.misvotedHmpb()
+      );
+
+      const interpretation: SheetInterpretation = {
+        type: 'NeedsReviewSheet',
+        reasons: vxFamousNamesFixtures.misvotedBallot.marginalMarks.map(
+          ({ contestId, optionId }) =>
+            typedAs<AdjudicationReasonInfo>({
+              type: AdjudicationReason.MarginalMark,
+              contestId,
+              optionId,
+            })
+        ),
+      };
+      await waitForStatus(apiClient, { state: 'needs_review', interpretation });
+
+      await apiClient.acceptBallot();
+      await expectStatus(apiClient, {
+        state: 'accepting_after_review',
+        interpretation,
+      });
+      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
+      clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
+
+      await waitForStatus(apiClient, {
+        state: 'accepted',
+        interpretation,
+        ballotsCounted: 1,
+      });
+    }
+  );
+});
+
 test('ballot with wrong election rejected', async () => {
   await withApp(
     async ({
