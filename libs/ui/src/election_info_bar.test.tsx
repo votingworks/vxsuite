@@ -58,24 +58,24 @@ describe('ElectionInfoBar', () => {
 
   test('Renders lifetime sheet count outside voter mode', () => {
     render(<ElectionInfoBar mode="pollworker" lifetimeSheetsCounted={1234} />);
-    const label = screen.getByText('Lifetime Sheet Count');
+    const label = screen.getByText('Lifetime Scans');
     expect(label.parentElement?.lastChild).toHaveTextContent('1,234');
   });
 
   test('Renders a zero lifetime sheet count', () => {
     render(<ElectionInfoBar mode="admin" lifetimeSheetsCounted={0} />);
-    const label = screen.getByText('Lifetime Sheet Count');
+    const label = screen.getByText('Lifetime Scans');
     expect(label.parentElement?.lastChild).toHaveTextContent('0');
   });
 
   test('Omits lifetime sheet count when not provided', () => {
     render(<ElectionInfoBar mode="admin" />);
-    expect(screen.queryByText('Lifetime Sheet Count')).not.toBeInTheDocument();
+    expect(screen.queryByText('Lifetime Scans')).not.toBeInTheDocument();
   });
 
   test('Omits lifetime sheet count in voter mode', () => {
     render(<ElectionInfoBar mode="voter" lifetimeSheetsCounted={1234} />);
-    expect(screen.queryByText('Lifetime Sheet Count')).not.toBeInTheDocument();
+    expect(screen.queryByText('Lifetime Scans')).not.toBeInTheDocument();
   });
 
   test('Renders with polling place selection', () => {
@@ -167,12 +167,12 @@ describe('VerticalElectionInfoBar', () => {
         lifetimeSheetsCounted={1234}
       />
     );
-    screen.getByText(hasTextAcrossElements('Lifetime Sheet Count: 1,234'));
+    screen.getByText(hasTextAcrossElements('Lifetime Scans: 1,234'));
   });
 
   test('Renders lifetime sheet count without election information', () => {
     render(<VerticalElectionInfoBar mode="admin" lifetimeSheetsCounted={0} />);
-    screen.getByText(hasTextAcrossElements('Lifetime Sheet Count: 0'));
+    screen.getByText(hasTextAcrossElements('Lifetime Scans: 0'));
   });
 
   test('Omits lifetime sheet count in voter mode', () => {
@@ -183,7 +183,7 @@ describe('VerticalElectionInfoBar', () => {
         lifetimeSheetsCounted={1234}
       />
     );
-    expect(screen.queryByText(/Lifetime Sheet Count/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Lifetime Scans/)).not.toBeInTheDocument();
   });
 
   test('Renders with polling place selection', () => {

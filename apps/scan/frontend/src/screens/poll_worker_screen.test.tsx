@@ -348,7 +348,7 @@ test('shows lifetime sheet count in the info bar', async () => {
   });
   renderScreen();
   await screen.findByText('Do you want to open the polls?');
-  const label = await screen.findByText('Lifetime Sheet Count');
+  const label = await screen.findByText('Lifetime Scans');
   expect(label.parentElement?.lastChild).toHaveTextContent('1,234');
 });
 

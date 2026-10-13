@@ -83,7 +83,7 @@ describe('PollsNotOpenScreen', () => {
   test('hides lifetime sheet count', async () => {
     renderScreen();
     await screen.findByText('Franklin County');
-    expect(screen.queryByText('Lifetime Sheet Count')).not.toBeInTheDocument();
+    expect(screen.queryByText('Lifetime Scans')).not.toBeInTheDocument();
   });
 
   test('shows election info in footer', async () => {

@@ -106,7 +106,7 @@ export function SystemInfo({
   const lifetimeSheetsCountedInfo =
     mode !== 'voter' && typeof lifetimeSheetsCounted === 'number' ? (
       <Caption noWrap>
-        <LabelledText label="Lifetime Sheet Count">
+        <LabelledText label="Lifetime Scans">
           <Font weight="bold">{format.count(lifetimeSheetsCounted)}</Font>
         </LabelledText>
       </Caption>
@@ -213,7 +213,7 @@ export function VerticalElectionInfoBar({
   const lifetimeSheetsCountedInfo = mode !== 'voter' &&
     typeof lifetimeSheetsCounted === 'number' && (
       <div>
-        Lifetime Sheet Count:{' '}
+        Lifetime Scans:{' '}
         <Font weight="semiBold">{format.count(lifetimeSheetsCounted)}</Font>
       </div>
     );

@@ -117,7 +117,7 @@ test('shows lifetime sheet count in the info bar', async () => {
 
   render(<App apiClient={apiMock.apiClient} />);
   await authenticateAsElectionManager(electionDefinition);
-  await screen.findByText(hasTextAcrossElements('Lifetime Sheet Count: 1,234'));
+  await screen.findByText(hasTextAcrossElements('Lifetime Scans: 1,234'));
 });
 
 test('shows the ballot eject screen while a sheet needs review', async () => {
