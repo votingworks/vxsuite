@@ -6,7 +6,11 @@ import { ScannerDiagnosticScreen } from './scanner_diagnostic_screen.js';
 test('scanner diagnostic prompt - insert blank sheet', () => {
   render(
     <ScannerDiagnosticScreen
-      scannerStatus={{ state: 'scanner_diagnostic.running', ballotsCounted: 0 }}
+      scannerStatus={{
+        state: 'scanner_diagnostic.running',
+        ballotsCounted: 0,
+        lifetimeSheetsCounted: 0,
+      }}
       onClose={vi.fn()}
     />
   );
@@ -19,7 +23,11 @@ test('scanner diagnostic done - test scan successful', () => {
   const onClose = vi.fn();
   render(
     <ScannerDiagnosticScreen
-      scannerStatus={{ state: 'scanner_diagnostic.done', ballotsCounted: 0 }}
+      scannerStatus={{
+        state: 'scanner_diagnostic.done',
+        ballotsCounted: 0,
+        lifetimeSheetsCounted: 0,
+      }}
       onClose={onClose}
     />
   );
@@ -37,6 +45,7 @@ test('scanner diagnostic done - test scan failed', () => {
       scannerStatus={{
         state: 'scanner_diagnostic.done',
         ballotsCounted: 0,
+        lifetimeSheetsCounted: 0,
         error: 'scanner_diagnostic_failed',
       }}
       onClose={onClose}

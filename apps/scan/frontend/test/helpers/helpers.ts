@@ -6,6 +6,7 @@ export function scannerStatus(
   return {
     state: 'waiting_for_ballot',
     ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
     ...props,
   };
 }

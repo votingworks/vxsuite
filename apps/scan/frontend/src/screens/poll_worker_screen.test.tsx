@@ -345,6 +345,7 @@ test('there is a warning if we attempt to open polls with ballots scanned', asyn
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetScannerStatus({
     ballotsCounted: 1,
+    lifetimeSheetsCounted: 1,
     state: 'waiting_for_ballot',
   });
   renderScreen();
