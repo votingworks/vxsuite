@@ -1,3 +1,4 @@
+export * from './as_boolean.js';
 export * from './assert.js';
 export * from './buffers.js';
 export * as collections from './collections.js';

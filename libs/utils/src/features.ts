@@ -1,4 +1,4 @@
-import { asBoolean } from './as_boolean.js';
+import { asBoolean } from '@votingworks/basics';
 import {
   type BooleanEnvironmentVariableName,
   getEnvironmentVariable,

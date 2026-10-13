@@ -4,7 +4,6 @@ import path from 'node:path';
 import { Readable, type Stream } from 'node:stream';
 import { type FileResult, fileSync } from 'tmp';
 import { z } from 'zod/v4';
-import { unsafeParse } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import {
   type FileKey,
@@ -379,7 +378,7 @@ const CreateCertInputSchema: z.ZodSchema<CreateCertInput> = z.object({
  * Parses a JSON string as a CreateCertInput, throwing an error if parsing fails
  */
 export function parseCreateCertInput(value: string): CreateCertInput {
-  return unsafeParse(CreateCertInputSchema, JSON.parse(value));
+  return CreateCertInputSchema.parse(JSON.parse(value));
 }
 
 /**
@@ -487,7 +486,7 @@ const SignMessageInputExcludingMessageSchema: z.ZodSchema<SignMessageInputExclud
 export function parseSignMessageInputExcludingMessage(
   value: string
 ): SignMessageInputExcludingMessage {
-  return unsafeParse(SignMessageInputExcludingMessageSchema, JSON.parse(value));
+  return SignMessageInputExcludingMessageSchema.parse(JSON.parse(value));
 }
 
 /**
