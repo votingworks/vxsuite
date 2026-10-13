@@ -4,6 +4,7 @@ import {
   formatElectionHashes,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
+import { format } from '@votingworks/utils';
 import { styled } from './styled.js';
 import { Seal } from './seal.js';
 import { Caption, Font } from './typography.js';
@@ -90,6 +91,7 @@ interface SystemInfoProps {
   electionPackageHash?: string;
   codeVersion?: string;
   machineId?: string;
+  lifetimeSheetsCounted?: number;
 }
 
 export function SystemInfo({
@@ -99,7 +101,17 @@ export function SystemInfo({
   electionPackageHash,
   codeVersion,
   machineId,
+  lifetimeSheetsCounted,
 }: SystemInfoProps): JSX.Element {
+  const lifetimeSheetsCountedInfo =
+    mode !== 'voter' && typeof lifetimeSheetsCounted === 'number' ? (
+      <Caption noWrap>
+        <LabelledText label="Lifetime Sheet Count">
+          <Font weight="bold">{format.count(lifetimeSheetsCounted)}</Font>
+        </LabelledText>
+      </Caption>
+    ) : null;
+
   const codeVersionInfo =
     mode !== 'voter' && codeVersion ? (
       <Caption noWrap>
@@ -133,6 +145,7 @@ export function SystemInfo({
 
   return (
     <SystemInfoContainer>
+      {lifetimeSheetsCountedInfo}
       {codeVersionInfo}
       {machineIdInfo}
       {electionIdInfo}
@@ -147,6 +160,7 @@ export interface ElectionInfoBarProps {
   codeVersion?: string;
   machineId?: string;
   pollingPlaceId?: string;
+  lifetimeSheetsCounted?: number;
 }
 
 export function ElectionInfoBar({
@@ -156,6 +170,7 @@ export function ElectionInfoBar({
   codeVersion,
   machineId,
   pollingPlaceId,
+  lifetimeSheetsCounted,
 }: ElectionInfoBarProps): JSX.Element {
   return (
     <InfoBar data-testid="electionInfoBar">
@@ -171,6 +186,7 @@ export function ElectionInfoBar({
         electionPackageHash={electionPackageHash}
         codeVersion={codeVersion}
         machineId={machineId}
+        lifetimeSheetsCounted={lifetimeSheetsCounted}
       />
     </InfoBar>
   );
@@ -191,23 +207,36 @@ export function VerticalElectionInfoBar({
   codeVersion,
   machineId,
   pollingPlaceId,
+  lifetimeSheetsCounted,
   inverse,
 }: ElectionInfoBarProps & { inverse?: boolean }): JSX.Element {
+  const lifetimeSheetsCountedInfo = mode !== 'voter' &&
+    typeof lifetimeSheetsCounted === 'number' && (
+      <div>
+        Lifetime Sheet Count:{' '}
+        <Font weight="semiBold">{format.count(lifetimeSheetsCounted)}</Font>
+      </div>
+    );
+
+  const codeVersionInfo = mode !== 'voter' && codeVersion && (
+    <div>
+      Version: <Font weight="semiBold">{codeVersion}</Font>
+    </div>
+  );
+
+  const machineIdInfo = mode !== 'voter' && machineId && (
+    <div>
+      Machine ID: <Font weight="semiBold">{machineId}</Font>
+    </div>
+  );
+
   if (!electionDefinition) {
     return (
       <VerticalBar inverse={inverse}>
         <Caption>
-          {mode !== 'voter' && codeVersion && (
-            <div>
-              Version: <Font weight="semiBold">{codeVersion}</Font>
-            </div>
-          )}
-
-          {mode !== 'voter' && machineId && (
-            <div>
-              Machine ID: <Font weight="semiBold">{machineId}</Font>
-            </div>
-          )}
+          {lifetimeSheetsCountedInfo}
+          {codeVersionInfo}
+          {machineIdInfo}
         </Caption>
       </VerticalBar>
     );
@@ -239,17 +268,9 @@ export function VerticalElectionInfoBar({
       </ElectionInfoContainer>
 
       <Caption>
-        {mode !== 'voter' && codeVersion && (
-          <div>
-            Version: <Font weight="semiBold">{codeVersion}</Font>
-          </div>
-        )}
-
-        {mode !== 'voter' && machineId && (
-          <div>
-            Machine ID: <Font weight="semiBold">{machineId}</Font>
-          </div>
-        )}
+        {lifetimeSheetsCountedInfo}
+        {codeVersionInfo}
+        {machineIdInfo}
 
         <div>
           Election ID:{' '}
