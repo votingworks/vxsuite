@@ -23,7 +23,7 @@ import {
   type ExportDataResult,
   withElectionPackageZip,
   getScanAllowedExportPatterns,
-  readLifetimeSheetCount,
+  createLifetimeSheetCountReader,
 } from '@votingworks/backend';
 import {
   assert,
@@ -100,7 +100,10 @@ export function buildApi({
   logger: Logger;
 }) {
   const { store } = workspace;
-  let lastLifetimeSheetCountReadError: string | undefined;
+  const readLifetimeSheetCount = createLifetimeSheetCountReader({
+    devRoot: workspace.path,
+    logger,
+  });
 
   return grout.createApi({
     getMachineConfig,
@@ -464,24 +467,11 @@ export function buildApi({
     async getScannerStatus(): Promise<PrecinctScannerStatus> {
       const machineStatus = machine.status();
       const ballotsCounted = store.getBallotsCounted();
-      const readLifetimeSheetCountResult = await readLifetimeSheetCount({
-        devRoot: workspace.path,
-      });
-      const lifetimeSheetCountReadError = readLifetimeSheetCountResult.err();
-      if (
-        lifetimeSheetCountReadError !== undefined &&
-        lifetimeSheetCountReadError !== lastLifetimeSheetCountReadError
-      ) {
-        logger.log(LogEventId.LifetimeSheetCountReadError, 'system', {
-          disposition: 'failure',
-          message: lifetimeSheetCountReadError,
-        });
-      }
-      lastLifetimeSheetCountReadError = lifetimeSheetCountReadError;
+      const lifetimeSheetsCounted = await readLifetimeSheetCount();
       return {
         ...machineStatus,
         ballotsCounted,
-        lifetimeSheetsCounted: readLifetimeSheetCountResult.ok() ?? 0,
+        lifetimeSheetsCounted,
       };
     },
 

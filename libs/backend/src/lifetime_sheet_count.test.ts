@@ -4,10 +4,12 @@ import { join } from 'node:path';
 import { promisify } from 'node:util';
 import { err, ok, range } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { execFile } from './exec.js';
 import { intermediateScript } from './intermediate_scripts.js';
 import {
+  createLifetimeSheetCountReader,
   getLifetimeSheetCountFilePath,
   incrementLifetimeSheetCount,
   readLifetimeSheetCount,
@@ -121,6 +123,36 @@ test('readLifetimeSheetCount rejects a path that is not a regular file', async (
   expect(await readLifetimeSheetCount({ devRoot })).toEqual(
     err('Error reading lifetime sheet count: NotRegularFile')
   );
+});
+
+test('createLifetimeSheetCountReader falls back to 0 and logs each distinct error once', async () => {
+  const devRoot = makeTemporaryDirectory();
+  const filePath = getLifetimeSheetCountFilePath({ devRoot });
+  const logger = mockBaseLogger({ fn: vi.fn });
+  const readCount = createLifetimeSheetCountReader({ devRoot, logger });
+
+  writeFileSync(filePath, 'abc\n');
+  expect(await readCount()).toEqual(0);
+  expect(await readCount()).toEqual(0);
+  expect(logger.log).toHaveBeenCalledExactlyOnceWith(
+    LogEventId.LifetimeSheetCountReadError,
+    'system',
+    {
+      disposition: 'failure',
+      message: 'Error reading lifetime sheet count: invalid count: "abc"',
+    }
+  );
+
+  writeFileSync(filePath, '-1\n');
+  expect(await readCount()).toEqual(0);
+  expect(logger.log).toHaveBeenCalledTimes(2);
+
+  writeFileSync(filePath, '3\n');
+  expect(await readCount()).toEqual(3);
+
+  writeFileSync(filePath, '-1\n');
+  expect(await readCount()).toEqual(0);
+  expect(logger.log).toHaveBeenCalledTimes(3);
 });
 
 test('incrementLifetimeSheetCount runs the script via sudo in production', async () => {

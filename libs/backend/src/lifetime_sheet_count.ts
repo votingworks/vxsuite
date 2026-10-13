@@ -12,6 +12,7 @@ import {
   type Result,
 } from '@votingworks/basics';
 import { safeParseInt } from '@votingworks/types';
+import { type BaseLogger, LogEventId } from '@votingworks/logging';
 import { execFile } from './exec.js';
 import { intermediateScript } from './intermediate_scripts.js';
 
@@ -80,6 +81,33 @@ export async function readLifetimeSheetCount({
   }
 
   return err(`Error reading lifetime sheet count: ${error}`);
+}
+
+/**
+ * Creates a reader for the lifetime sheet count that returns 0 when the count
+ * can't be read, logging each distinct read error once.
+ */
+export function createLifetimeSheetCountReader({
+  devRoot,
+  logger,
+}: {
+  devRoot: string;
+  logger: BaseLogger;
+}): () => Promise<number> {
+  let lastError: string | undefined;
+
+  return async () => {
+    const result = await readLifetimeSheetCount({ devRoot });
+    const error = result.err();
+    if (error !== undefined && error !== lastError) {
+      logger.log(LogEventId.LifetimeSheetCountReadError, 'system', {
+        disposition: 'failure',
+        message: error,
+      });
+    }
+    lastError = error;
+    return result.ok() ?? 0;
+  };
 }
 
 /**
