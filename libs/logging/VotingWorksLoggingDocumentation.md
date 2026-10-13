@@ -513,7 +513,7 @@ IDs are logged with each log to identify the log being written.
 ### lifetime-sheet-count-read-error
 **Type:** [system-status](#system-status)
 **Description:** The persistent lifetime count of accepted sheets could not be read.
-**Machines:** vx-scan
+**Machines:** vx-scan, vx-central-scan
 ### sound-toggled
 **Type:** [application-status](#application-status)
 **Description:** Sounds on the precinct scanner were toggled on or off as indicated.

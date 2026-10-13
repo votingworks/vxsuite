@@ -840,7 +840,7 @@ restrictInDocumentationToApps = ["vx-scan", "vx-central-scan"]
 eventId = "lifetime-sheet-count-read-error"
 eventType = "system-status"
 documentationMessage = "The persistent lifetime count of accepted sheets could not be read."
-restrictInDocumentationToApps = ["vx-scan"]
+restrictInDocumentationToApps = ["vx-scan", "vx-central-scan"]
 
 [Events.SoundToggled]
 eventId = "sound-toggled"

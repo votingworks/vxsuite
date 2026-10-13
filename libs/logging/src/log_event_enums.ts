@@ -1188,7 +1188,7 @@ const LifetimeSheetCountReadError: LogDetails = {
   eventType: LogEventType.SystemStatus,
   documentationMessage:
     'The persistent lifetime count of accepted sheets could not be read.',
-  restrictInDocumentationToApps: [AppName.VxScan],
+  restrictInDocumentationToApps: [AppName.VxScan, AppName.VxCentralScan],
 };
 
 const SoundToggled: LogDetails = {
