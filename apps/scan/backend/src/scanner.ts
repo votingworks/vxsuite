@@ -33,7 +33,7 @@ import type { UsbDrive } from '@votingworks/usb-drive';
 import { time, type Timer } from '@votingworks/utils';
 import {
   exportCastVoteRecordsToUsbDrive,
-  incrementScanCount,
+  incrementLifetimeSheetCount,
 } from '@votingworks/backend';
 import { ImageData } from 'canvas';
 import { randomUUID as uuid } from 'node:crypto';
@@ -404,14 +404,16 @@ function buildMachine({
     );
   }
 
-  function incrementPersistentScanCount(): void {
-    void incrementScanCount({ devRoot: workspace.path }).catch((error) => {
-      logger.log(LogEventId.ScanCountIncrementError, 'system', {
-        disposition: 'failure',
-        message: 'Unable to increment persistent scan count.',
-        errorDetails: extractErrorMessage(error),
-      });
-    });
+  function incrementLifetimeSheetCountAction(): void {
+    void incrementLifetimeSheetCount({ devRoot: workspace.path }).catch(
+      (error) => {
+        logger.log(LogEventId.LifetimeSheetCountIncrementError, 'system', {
+          disposition: 'failure',
+          message: 'Unable to increment lifetime sheet count.',
+          errorDetails: extractErrorMessage(error),
+        });
+      }
+    );
   }
 
   function createPollingChildMachine(
@@ -957,7 +959,7 @@ function buildMachine({
           id: 'accepted',
           entry: async (context) => {
             scanAndInterpretTimer?.checkpoint('accepted');
-            incrementPersistentScanCount();
+            incrementLifetimeSheetCountAction();
             await recordScannedSheet({
               workspace,
               usbDrive,

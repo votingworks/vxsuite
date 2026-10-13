@@ -5,9 +5,9 @@ export type { LogsResultType } from './export_logs_to_usb.js';
 export { getBatteryInfo } from './get_battery_info.js';
 export type { BatteryInfo } from './get_battery_info.js';
 export {
-  getScanCountFilePath,
-  incrementScanCount,
-} from './increment_scan_count.js';
+  getLifetimeSheetCountFilePath,
+  incrementLifetimeSheetCount,
+} from './increment_lifetime_sheet_count.js';
 export { AUDIO_DEVICE_DEFAULT_SINK } from './pulse_audio.js';
 export * from './set_audio_card_profile.js';
 export {

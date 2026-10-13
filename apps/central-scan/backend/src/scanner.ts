@@ -33,7 +33,7 @@ import {
   type InterpreterFrom,
 } from 'xstate';
 import { waitFor } from 'xstate/lib/waitFor.js';
-import { incrementScanCount } from '@votingworks/backend';
+import { incrementLifetimeSheetCount } from '@votingworks/backend';
 import type {
   BatchControl,
   BatchScanner,
@@ -287,14 +287,16 @@ function buildMachine({
     return { sheetId, interpretation: sheetInterpretation };
   }
 
-  function incrementScanCountAction(): void {
-    void incrementScanCount({ devRoot: workspace.path }).catch((error) => {
-      logger.log(LogEventId.ScanCountIncrementError, 'system', {
-        disposition: 'failure',
-        message: 'Unable to increment persistent scan count.',
-        errorDetails: extractErrorMessage(error),
-      });
-    });
+  function incrementLifetimeSheetCountAction(): void {
+    void incrementLifetimeSheetCount({ devRoot: workspace.path }).catch(
+      (error) => {
+        logger.log(LogEventId.LifetimeSheetCountIncrementError, 'system', {
+          disposition: 'failure',
+          message: 'Unable to increment lifetime sheet count.',
+          errorDetails: extractErrorMessage(error),
+        });
+      }
+    );
   }
 
   async function endBatch(batchContext: BatchContext): Promise<void> {
@@ -448,7 +450,7 @@ function buildMachine({
                 event.data.interpretation.type === 'ValidSheet' &&
                 context.pauseReason?.type === 'manual',
               target: 'paused',
-              actions: incrementScanCountAction,
+              actions: incrementLifetimeSheetCountAction,
             },
             {
               cond: (
@@ -456,7 +458,7 @@ function buildMachine({
                 event: DoneEvent<typeof interpretAndSaveSheet>
               ) => event.data.interpretation.type === 'ValidSheet',
               target: 'scanningSheet',
-              actions: incrementScanCountAction,
+              actions: incrementLifetimeSheetCountAction,
             },
             {
               target: 'sheetNeedsReview',
@@ -476,7 +478,7 @@ function buildMachine({
         on: {
           ACCEPT_SHEET: {
             target: 'paused',
-            actions: incrementScanCountAction,
+            actions: incrementLifetimeSheetCountAction,
           },
           REJECT_SHEET: {
             target: 'paused',
