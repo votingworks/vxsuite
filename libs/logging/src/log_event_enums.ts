@@ -196,7 +196,7 @@ export const LogEventId = {
   ScannerBatchEnded: 'scanner-batch-ended',
   ScannerEvent: 'scanner-state-machine-event',
   ScannerStateChanged: 'scanner-state-machine-transition',
-  ScanCountIncrementError: 'scan-count-increment-error',
+  LifetimeSheetCountIncrementError: 'lifetime-sheet-count-increment-error',
   SoundToggled: 'sound-toggled',
   DoubleSheetDetectionToggled: 'double-sheet-toggled',
   ContinuousExportToggled: 'continuous-export-toggled',
@@ -1174,11 +1174,11 @@ const ScannerStateChanged: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxScan, AppName.VxCentralScan],
 };
 
-const ScanCountIncrementError: LogDetails = {
-  eventId: LogEventId.ScanCountIncrementError,
+const LifetimeSheetCountIncrementError: LogDetails = {
+  eventId: LogEventId.LifetimeSheetCountIncrementError,
   eventType: LogEventType.SystemStatus,
   documentationMessage:
-    'The persistent lifetime count of accepted ballots could not be incremented.',
+    'The persistent lifetime count of accepted sheets could not be incremented.',
   restrictInDocumentationToApps: [AppName.VxScan, AppName.VxCentralScan],
 };
 
@@ -1890,8 +1890,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ScannerEvent;
     case LogEventId.ScannerStateChanged:
       return ScannerStateChanged;
-    case LogEventId.ScanCountIncrementError:
-      return ScanCountIncrementError;
+    case LogEventId.LifetimeSheetCountIncrementError:
+      return LifetimeSheetCountIncrementError;
     case LogEventId.SoundToggled:
       return SoundToggled;
     case LogEventId.DoubleSheetDetectionToggled:

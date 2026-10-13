@@ -506,9 +506,9 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)
 **Description:** Scanner state machine transitioned states.
 **Machines:** vx-scan, vx-central-scan
-### scan-count-increment-error
+### lifetime-sheet-count-increment-error
 **Type:** [system-status](#system-status)
-**Description:** The persistent lifetime count of accepted ballots could not be incremented.
+**Description:** The persistent lifetime count of accepted sheets could not be incremented.
 **Machines:** vx-scan, vx-central-scan
 ### sound-toggled
 **Type:** [application-status](#application-status)

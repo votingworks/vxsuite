@@ -1,4 +1,4 @@
-import { incrementScanCount } from '@votingworks/backend';
+import { incrementLifetimeSheetCount } from '@votingworks/backend';
 import { err, ok, typedAs } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
@@ -36,7 +36,7 @@ const mockFeatureFlagger = getFeatureFlagMock();
 
 vi.mock(import('@votingworks/backend'), async (importActual) => ({
   ...(await importActual()),
-  incrementScanCount: vi.fn().mockResolvedValue(undefined),
+  incrementLifetimeSheetCount: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
@@ -45,7 +45,7 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 }));
 
 beforeEach(() => {
-  vi.mocked(incrementScanCount).mockClear();
+  vi.mocked(incrementLifetimeSheetCount).mockClear();
   mockFeatureFlagger.resetFeatureFlags();
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
@@ -97,7 +97,7 @@ test('configure and scan hmpb', async () => {
         interpretation,
         ballotsCounted: 1,
       });
-      expect(incrementScanCount).toHaveBeenCalledExactlyOnceWith({
+      expect(incrementLifetimeSheetCount).toHaveBeenCalledExactlyOnceWith({
         devRoot: workspace.path,
       });
 
@@ -346,7 +346,7 @@ test('ballot with wrong election rejected', async () => {
 
       // Make sure the ballot was still recorded in the db for backup purposes
       expect(Array.from(workspace.store.forEachSheet())).toHaveLength(1);
-      expect(incrementScanCount).not.toHaveBeenCalled();
+      expect(incrementLifetimeSheetCount).not.toHaveBeenCalled();
     }
   );
 });
@@ -704,9 +704,9 @@ test('disconnect scanner errors absorbed in unrecoverable_error state', async ()
   );
 });
 
-test('logs failure to increment the scan count', async () => {
-  vi.mocked(incrementScanCount).mockRejectedValueOnce(
-    new Error('error: corrupt count in /vx/config/scan-count')
+test('logs failure to increment the lifetime sheet count', async () => {
+  vi.mocked(incrementLifetimeSheetCount).mockRejectedValueOnce(
+    new Error('error: corrupt count in /vx/config/lifetime-sheet-count')
   );
 
   await withApp(
@@ -745,15 +745,16 @@ test('logs failure to increment the scan count', async () => {
         ballotsCounted: 1,
       });
 
-      expect(incrementScanCount).toHaveBeenCalledOnce();
+      expect(incrementLifetimeSheetCount).toHaveBeenCalledOnce();
       await vi.waitFor(() =>
         expect(logger.log).toHaveBeenCalledWith(
-          LogEventId.ScanCountIncrementError,
+          LogEventId.LifetimeSheetCountIncrementError,
           'system',
           {
             disposition: 'failure',
-            message: 'Unable to increment persistent scan count.',
-            errorDetails: 'error: corrupt count in /vx/config/scan-count',
+            message: 'Unable to increment lifetime sheet count.',
+            errorDetails:
+              'error: corrupt count in /vx/config/lifetime-sheet-count',
           }
         )
       );

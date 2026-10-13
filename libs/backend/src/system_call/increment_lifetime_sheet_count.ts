@@ -12,31 +12,35 @@ function isProductionMachine(): boolean {
 }
 
 /**
- * Gets the location of the persistent scan count file: under `VX_CONFIG_ROOT`
+ * Gets the location of the lifetime sheet count file: under `VX_CONFIG_ROOT`
  * on production machines, otherwise under `devRoot`.
  */
-export function getScanCountFilePath({ devRoot }: { devRoot: string }): string {
+export function getLifetimeSheetCountFilePath({
+  devRoot,
+}: {
+  devRoot: string;
+}): string {
   return path.join(
     isProductionMachine() ? getRequiredEnvVar('VX_CONFIG_ROOT') : devRoot,
-    'scan-count'
+    'lifetime-sheet-count'
   );
 }
 
 /**
- * Increments the persistent scan count on this machine.
+ * Increments the lifetime sheet count on this machine.
  */
-export async function incrementScanCount({
+export async function incrementLifetimeSheetCount({
   devRoot,
 }: {
   devRoot: string;
 }): Promise<void> {
-  const script = intermediateScript('increment-scan-count');
-  const scanCountFilePath = getScanCountFilePath({ devRoot });
+  const script = intermediateScript('increment-lifetime-sheet-count');
+  const lifetimeSheetCountFilePath = getLifetimeSheetCountFilePath({ devRoot });
   try {
     if (isProductionMachine()) {
-      await execFile('sudo', [script, scanCountFilePath]);
+      await execFile('sudo', [script, lifetimeSheetCountFilePath]);
     } else {
-      await execFile(script, [scanCountFilePath]);
+      await execFile(script, [lifetimeSheetCountFilePath]);
     }
   } catch (err) {
     const error = err as Error;
