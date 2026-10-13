@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { err } from '@votingworks/basics';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { assert, deferred, err } from '@votingworks/basics';
 import { dirname, join, relative } from 'node:path';
 import { readdirSync, readFileSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
@@ -16,7 +16,7 @@ import {
   mockDiskSpace,
 } from '../../../test/backup.js';
 import { Store } from '../../store.js';
-import { createBackup } from './index.js';
+import { createBackup, startBackup } from './index.js';
 import { BackupRoot } from '../backup_root.js';
 import { copy } from './copy_step.js';
 import { writeManifest } from './manifest_step.js';
@@ -535,4 +535,101 @@ test('a backup reports its phases in order', async () => {
     '7_swapping_backup',
     '8_flushing_swap',
   ]);
+});
+
+describe('startBackup/BackupController', () => {
+  test('status()', async () => {
+    const workspace = await makeConfiguredWorkspace();
+    const target = makeTemporaryDirectory();
+    const copyMayFinish = deferred<void>();
+    const realCopy = vi.mocked(copy).getMockImplementation()!;
+    vi.mocked(copy).mockImplementationOnce(async (options) => {
+      options.onProgressEvent?.({
+        type: '4_copying_files',
+        copiedCount: 0,
+        totalCount: 2,
+        copiedBytes: 0,
+        totalBytes: 1024,
+      });
+      await copyMayFinish.promise;
+      return realCopy(options);
+    });
+
+    const controller = startBackup({
+      workspace,
+      target,
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+    });
+    expect(controller.status()).toEqual({ status: 'starting' });
+
+    await vi.waitFor(() =>
+      expect(controller.status()).toEqual({
+        status: 'in-progress',
+        lastProgressEvent: {
+          type: '4_copying_files',
+          copiedCount: 0,
+          totalCount: 2,
+          copiedBytes: 0,
+          totalBytes: 1024,
+        },
+      })
+    );
+
+    copyMayFinish.resolve();
+    await vi.waitFor(
+      () => expect(controller.status().status).toEqual('ended'),
+      { timeout: 5_000 }
+    );
+    const status = controller.status();
+    assert(status.status === 'ended');
+    const electionRecord = workspace.store.getElection(
+      workspace.store.getCurrentElectionId()!
+    )!;
+    const created = status.result.unsafeUnwrap();
+    expect(created.path).toEqual(
+      new BackupRoot(target).pathFor(
+        generateElectionBasedSubfolderName(
+          electionRecord.electionDefinition.election,
+          electionRecord.electionDefinition.ballotHash
+        )
+      )
+    );
+  });
+
+  test('abort()', async () => {
+    const workspace = await makeConfiguredWorkspace();
+    const target = makeTemporaryDirectory();
+    const copyStarted = deferred<void>();
+    const copyMayFinish = deferred<void>();
+    const realCopy = vi.mocked(copy).getMockImplementation()!;
+    vi.mocked(copy).mockImplementationOnce(async (options) => {
+      copyStarted.resolve();
+      await copyMayFinish.promise;
+      return realCopy(options);
+    });
+
+    const controller = startBackup({
+      workspace,
+      target,
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+    });
+    await copyStarted.promise;
+    controller.abort();
+    copyMayFinish.resolve();
+
+    await vi.waitFor(
+      () => expect(controller.status().status).toEqual('ended'),
+      {
+        timeout: 5_000,
+      }
+    );
+    const status = controller.status();
+    assert(status.status === 'ended');
+    expect(status.result.err()).toEqual({
+      type: 'cancelled',
+      message: 'Backup cancelled',
+    });
+    controller.abort();
+    expect(controller.status()).toEqual(status);
+  });
 });

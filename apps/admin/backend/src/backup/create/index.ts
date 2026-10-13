@@ -11,10 +11,14 @@ import { LogEventId } from '@votingworks/logging';
 import type { CopyFileError, WriteFileError } from '@votingworks/fs';
 import { prepare, type PrepareError } from './prepare_step.js';
 import type { PrepareBackupOptions } from './types.js';
+import type { BackupProgressEvent } from '../progress.js';
 import { copy } from './copy_step.js';
 import { writeManifest } from './manifest_step.js';
 import { swap, type SwapError } from './swap_step.js';
-import type { BackupManifest } from '../backup_manifest.js';
+import type {
+  BackupManifest,
+  BackupManifestStruct,
+} from '../backup_manifest.js';
 import { BackupRoot } from '../backup_root.js';
 
 /**
@@ -62,7 +66,57 @@ const EXPECTED_WRITE_ERROR_CODES: readonly string[] = [
  */
 export interface CreatedBackup {
   path: string;
-  manifest: BackupManifest;
+  manifest: BackupManifestStruct;
+}
+
+/**
+ * The status of a backup started with {@link startBackup}.
+ */
+export type BackupStatus =
+  | { status: 'starting' }
+  | { status: 'in-progress'; lastProgressEvent: BackupProgressEvent }
+  | {
+      status: 'ended';
+      result: Result<CreatedBackup, CreateBackupError>;
+    };
+
+/**
+ * A controller for monitoring/aborting the progress of a backup started with {@link startBackup}.
+ */
+export interface BackupController {
+  status(): BackupStatus;
+  abort(): void;
+}
+
+/**
+ * Starts a backup and returns a {@link BackupController} for monitoring its progress and
+ * aborting it if necessary.
+ */
+export function startBackup(
+  options: Pick<PrepareBackupOptions, 'workspace' | 'target' | 'logger'>
+): BackupController {
+  const abortController = new AbortController();
+  let status: BackupStatus = { status: 'starting' };
+  void createBackup({
+    ...options,
+    onProgressEvent: (event) => {
+      status = { status: 'in-progress', lastProgressEvent: event };
+    },
+    signal: abortController.signal,
+  }).then((result) => {
+    status = {
+      status: 'ended',
+      result,
+    };
+  });
+  return {
+    status() {
+      return status;
+    },
+    abort() {
+      abortController.abort();
+    },
+  };
 }
 
 /**
@@ -271,5 +325,5 @@ async function tryCreateBackup(
     return swapResult;
   }
 
-  return ok({ path: backupPath, manifest });
+  return ok({ path: backupPath, manifest: manifest.toJSON() });
 }

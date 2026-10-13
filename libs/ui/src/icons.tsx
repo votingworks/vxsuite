@@ -106,6 +106,7 @@ import {
   faClock,
   faHeadphones,
   faRotateLeft,
+  faBoxArchive,
 } from '@fortawesome/free-solid-svg-icons';
 import { faUsb } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -280,6 +281,10 @@ export const Icons = {
 
   Backspace(props) {
     return <FaIcon {...props} flipInRtlMode={false} type={faDeleteLeft} />;
+  },
+
+  Backup(props) {
+    return <FaIcon {...props} flipInRtlMode={false} type={faBoxArchive} />;
   },
 
   BatteryFull(props) {

@@ -18,6 +18,7 @@ import type {
   TallyReportSpec,
   TallyReportWarning,
   ManualResultsMetadata,
+  BackupStatus,
 } from '@votingworks/admin-backend';
 import type { BatteryInfo } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
@@ -74,6 +75,7 @@ type MockApiClient = Omit<
   | 'getDiskSpaceSummary'
   | 'isMultiStationAdjudicationEnabled'
   | 'getCastVoteRecordsDataVersion'
+  | 'getBackupStatus'
 > & {
   // Because these are polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
@@ -85,6 +87,7 @@ type MockApiClient = Omit<
   // Polled continuously by the tally screen's CvrDataRefresher, so a
   // standard vitest mock avoids forcing every test to set an expectation.
   getCastVoteRecordsDataVersion: Mock;
+  getBackupStatus: Mock;
 };
 
 export function createMockApiClient(): MockApiClient {
@@ -102,6 +105,9 @@ export function createMockApiClient(): MockApiClient {
   );
   (mockApiClient.getCastVoteRecordsDataVersion as unknown as Mock) = vi.fn(() =>
     Promise.resolve(0)
+  );
+  (mockApiClient.getBackupStatus as unknown as Mock) = vi.fn(() =>
+    Promise.resolve(null)
   );
   // The USB drive watcher long-polls this continuously. Default it to a
   // never-resolving promise; `createApiMock` replaces it with a controllable
@@ -888,6 +894,10 @@ export function createApiMock(
 
     setCastVoteRecordsDataVersion(version: number): void {
       apiClient.getCastVoteRecordsDataVersion.mockResolvedValue(version);
+    },
+
+    setBackupStatus(status: BackupStatus | null): void {
+      apiClient.getBackupStatus.mockResolvedValue(status);
     },
 
     expectGetScannerImportCounts(

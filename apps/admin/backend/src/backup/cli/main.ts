@@ -366,7 +366,7 @@ async function list(
 
     views.backupInfo(printer, {
       path: backup.path,
-      manifest: readManifestResult.ok(),
+      manifest: readManifestResult.ok().toJSON(),
     });
   }
 

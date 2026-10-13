@@ -10,6 +10,7 @@ import {
   type DippedSmartCardAuth,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import {
   type ApiMock,
   createApiMock,
@@ -17,6 +18,17 @@ import {
 import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { screen, waitFor, within } from '../../test/react_testing_library.js';
 import { ElectionScreen } from './election_screen.js';
+
+const featureFlagMock = vi.hoisted(() => {
+  // eslint-disable-next-line global-require
+  const { getFeatureFlagMock } = require('@votingworks/utils');
+  return getFeatureFlagMock();
+});
+vi.mock('@votingworks/utils', async (importActual) => ({
+  ...(await importActual()),
+  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+    featureFlagMock.isEnabled(flag),
+}));
 
 const electionDefinition = readElectionGeneralDefinition();
 const { election } = electionDefinition;
@@ -34,6 +46,7 @@ beforeEach(() => {
 afterEach(() => {
   vi.useRealTimers();
   apiMock.assertComplete();
+  featureFlagMock.resetFeatureFlags();
 });
 
 describe('as System Admin', () => {
@@ -124,5 +137,38 @@ describe('as election manager', () => {
     screen.getByText('November 3, 2020');
 
     screen.getButton('Save Election Package');
+  });
+});
+
+describe('Save Backup', () => {
+  const auth: DippedSmartCardAuth.ElectionManagerLoggedIn = {
+    status: 'logged_in',
+    user: mockElectionManagerUser({
+      electionKey: constructElectionKey(election),
+    }),
+    sessionExpiresAt: mockSessionExpiresAt(),
+  };
+
+  test('is offered when backup and restore are enabled', () => {
+    featureFlagMock.enableFeatureFlag(
+      BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE
+    );
+    renderInAppContext(<ElectionScreen />, {
+      apiMock,
+      auth,
+      electionDefinition,
+    });
+    screen.getButton('Save Backup');
+  });
+
+  test('is hidden when backup and restore are disabled', () => {
+    renderInAppContext(<ElectionScreen />, {
+      apiMock,
+      auth,
+      electionDefinition,
+    });
+    expect(
+      screen.queryByRole('button', { name: 'Save Backup' })
+    ).not.toBeInTheDocument();
   });
 });
