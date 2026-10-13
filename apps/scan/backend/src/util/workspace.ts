@@ -1,7 +1,12 @@
 import { mkdirSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import type { Optional } from '@votingworks/basics';
-import { getDiskSpaceSummaries, getNodeEnv } from '@votingworks/backend';
+import {
+  createLifetimeSheetCounter,
+  getDiskSpaceSummaries,
+  getNodeEnv,
+  type LifetimeSheetCounter,
+} from '@votingworks/backend';
 import { type BaseLogger, LogEventId } from '@votingworks/logging';
 import { type DiskSpaceSummary, Mutex } from '@votingworks/utils';
 import { Store } from '../store.js';
@@ -31,6 +36,11 @@ export interface Workspace {
    * The store associated with the workspace.
    */
   readonly store: Store;
+
+  /**
+   * The persistent count of sheets accepted by this machine.
+   */
+  readonly lifetimeSheetCounter: LifetimeSheetCounter;
 
   /**
    * A mutex to ensure that continuous export operations happen sequentially and do not interleave.
@@ -74,12 +84,18 @@ export function createWorkspace(
   const dbPath = join(resolvedRoot, 'ballots.db');
   const store = options.store || Store.fileStore(dbPath, logger);
 
+  const lifetimeSheetCounter = createLifetimeSheetCounter({
+    devRoot: resolvedRoot,
+    logger,
+  });
+
   return {
     path: resolvedRoot,
     ballotImagesPath,
     scannedImagesPath,
     uploadsPath,
     store,
+    lifetimeSheetCounter,
     continuousExportMutex: new Mutex(),
     resetElectionSession() {
       store.resetElectionSession();

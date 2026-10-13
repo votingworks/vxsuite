@@ -31,10 +31,7 @@ import {
 } from '@votingworks/types';
 import type { UsbDrive } from '@votingworks/usb-drive';
 import { time, type Timer } from '@votingworks/utils';
-import {
-  exportCastVoteRecordsToUsbDrive,
-  incrementLifetimeSheetCount,
-} from '@votingworks/backend';
+import { exportCastVoteRecordsToUsbDrive } from '@votingworks/backend';
 import { ImageData } from 'canvas';
 import { randomUUID as uuid } from 'node:crypto';
 import {
@@ -405,15 +402,7 @@ function buildMachine({
   }
 
   function incrementLifetimeSheetCountAction(): void {
-    void incrementLifetimeSheetCount({ devRoot: workspace.path }).catch(
-      (error) => {
-        logger.log(LogEventId.LifetimeSheetCountIncrementError, 'system', {
-          disposition: 'failure',
-          message: 'Unable to increment lifetime sheet count.',
-          errorDetails: extractErrorMessage(error),
-        });
-      }
-    );
+    void workspace.lifetimeSheetCounter.increment();
   }
 
   function createPollingChildMachine(

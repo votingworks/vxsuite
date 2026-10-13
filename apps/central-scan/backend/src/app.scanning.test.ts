@@ -1,7 +1,4 @@
-import {
-  getLifetimeSheetCountFilePath,
-  incrementLifetimeSheetCount,
-} from '@votingworks/backend';
+import { getLifetimeSheetCountFilePath } from '@votingworks/backend';
 import { assertDefined, deferred, iter } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
@@ -47,11 +44,6 @@ vi.setConfig({ testTimeout: 20000 });
 
 const featureFlagMock = getFeatureFlagMock();
 
-vi.mock(import('@votingworks/backend'), async (importActual) => ({
-  ...(await importActual()),
-  incrementLifetimeSheetCount: vi.fn().mockResolvedValue(undefined),
-}));
-
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
@@ -59,7 +51,6 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
 }));
 
 beforeEach(() => {
-  vi.mocked(incrementLifetimeSheetCount).mockClear();
   featureFlagMock.resetFeatureFlags();
 });
 
@@ -75,8 +66,6 @@ function hasLoggedMachineEvent(logger: Logger, eventType: string): boolean {
 
 test('getStatus includes lifetime sheet count', async () => {
   await withApp(async ({ apiClient, workspace }) => {
-    expect((await apiClient.getStatus()).lifetimeSheetsCounted).toEqual(0);
-
     await writeFile(
       getLifetimeSheetCountFilePath({ devRoot: workspace.path }),
       '42\n'
@@ -85,40 +74,13 @@ test('getStatus includes lifetime sheet count', async () => {
   });
 });
 
-test('getStatus defaults lifetime sheet count to 0 and logs once when it cannot be read', async () => {
-  await withApp(async ({ apiClient, workspace, logger }) => {
-    const lifetimeSheetCountFilePath = getLifetimeSheetCountFilePath({
-      devRoot: workspace.path,
-    });
-    function lifetimeSheetCountReadErrorLogs() {
-      return vi
-        .mocked(logger.log)
-        .mock.calls.filter(
-          ([eventId]) => eventId === LogEventId.LifetimeSheetCountReadError
-        );
-    }
-
-    await writeFile(lifetimeSheetCountFilePath, 'not a number\n');
+test('getStatus defaults lifetime sheet count to 0 when it cannot be read', async () => {
+  await withApp(async ({ apiClient, workspace }) => {
+    await writeFile(
+      getLifetimeSheetCountFilePath({ devRoot: workspace.path }),
+      'not a number\n'
+    );
     expect((await apiClient.getStatus()).lifetimeSheetsCounted).toEqual(0);
-    expect((await apiClient.getStatus()).lifetimeSheetsCounted).toEqual(0);
-    expect(lifetimeSheetCountReadErrorLogs()).toEqual([
-      [
-        LogEventId.LifetimeSheetCountReadError,
-        'system',
-        {
-          disposition: 'failure',
-          message:
-            'Error reading lifetime sheet count: invalid count: "not a number"',
-        },
-      ],
-    ]);
-
-    await writeFile(lifetimeSheetCountFilePath, '3\n');
-    expect((await apiClient.getStatus()).lifetimeSheetsCounted).toEqual(3);
-
-    await writeFile(lifetimeSheetCountFilePath, 'not a number\n');
-    expect((await apiClient.getStatus()).lifetimeSheetsCounted).toEqual(0);
-    expect(lifetimeSheetCountReadErrorLogs()).toHaveLength(2);
   });
 });
 
@@ -131,6 +93,9 @@ test('scanBatch with multiple sheets', async () => {
     backPath: bmdFixture.sheet[1],
   };
   await withApp(async ({ auth, apiClient, scanner, workspace }) => {
+    const incrementLifetimeSheetCount = vi
+      .spyOn(workspace.lifetimeSheetCounter, 'increment')
+      .mockResolvedValue();
     mockElectionManagerAuth(auth, electionDefinition);
     workspace.store.setElectionAndJurisdiction({
       electionData: electionDefinition.electionData,
@@ -166,9 +131,6 @@ test('scanBatch with multiple sheets', async () => {
       pollingPlaceId: '23-polling-place',
     });
     expect(incrementLifetimeSheetCount).toHaveBeenCalledTimes(3);
-    expect(incrementLifetimeSheetCount).toHaveBeenCalledWith({
-      devRoot: workspace.path,
-    });
 
     await apiClient.saveBatch();
     const status = await apiClient.getStatus();
@@ -324,6 +286,9 @@ test('pausing while a sheet is being interpreted pauses after it', async () => {
     backPath: bmdFixture.sheet[1],
   };
   await withApp(async ({ auth, apiClient, scanner, workspace }) => {
+    const incrementLifetimeSheetCount = vi
+      .spyOn(workspace.lifetimeSheetCounter, 'increment')
+      .mockResolvedValue();
     mockElectionManagerAuth(auth, electionDefinition);
     workspace.store.setElectionAndJurisdiction({
       electionData: electionDefinition.electionData,
@@ -462,6 +427,9 @@ test('rejectSheet after invalid ballot', async () => {
     electionFamousNames2021Fixtures.readElectionDefinition();
   const bmdFixture = await generateBmdBallotFixture();
   await withApp(async ({ auth, apiClient, scanner, workspace }) => {
+    const incrementLifetimeSheetCount = vi
+      .spyOn(workspace.lifetimeSheetCounter, 'increment')
+      .mockResolvedValue();
     mockElectionManagerAuth(auth, electionDefinition);
     workspace.store.setElectionAndJurisdiction({
       electionData: electionDefinition.electionData,
@@ -663,6 +631,9 @@ test('accepting a sheet that needs review keeps it and continues scanning', asyn
   await writeImageData(backPath, backImageData);
 
   await withApp(async ({ auth, apiClient, scanner, workspace, logger }) => {
+    const incrementLifetimeSheetCount = vi
+      .spyOn(workspace.lifetimeSheetCounter, 'increment')
+      .mockResolvedValue();
     mockElectionManagerAuth(auth, electionDefinition);
     workspace.store.setElectionAndJurisdiction({
       electionData: electionDefinition.electionData,
@@ -729,9 +700,7 @@ test('accepting a sheet that needs review keeps it and continues scanning', asyn
       state: 'paused',
       pauseReason: { type: 'review', sheetId },
     });
-    expect(incrementLifetimeSheetCount).toHaveBeenCalledExactlyOnceWith({
-      devRoot: workspace.path,
-    });
+    expect(incrementLifetimeSheetCount).toHaveBeenCalledOnce();
     scanner.withNextScannerSession().end();
     await apiClient.resumeBatch();
     await waitForStatus(apiClient, {
@@ -760,6 +729,9 @@ test('rejects ballots whose precinct is not in the selected polling place', asyn
   };
 
   await withApp(async ({ auth, apiClient, scanner, workspace }) => {
+    const incrementLifetimeSheetCount = vi
+      .spyOn(workspace.lifetimeSheetCounter, 'increment')
+      .mockResolvedValue();
     mockElectionManagerAuth(auth, bmdFixture.electionDefinition);
     workspace.store.setElectionAndJurisdiction({
       electionData: bmdFixture.electionDefinition.electionData,
@@ -790,49 +762,6 @@ test('rejects ballots whose precinct is not in the selected polling place', asyn
       metadata: expect.objectContaining({ precinctId: '23' }),
     });
     expect(incrementLifetimeSheetCount).not.toHaveBeenCalled();
-  });
-});
-
-test('logs failure to increment the lifetime sheet count', async () => {
-  vi.mocked(incrementLifetimeSheetCount).mockRejectedValueOnce(
-    new Error('corrupt lifetime sheet count')
-  );
-  const electionDefinition =
-    electionFamousNames2021Fixtures.readElectionDefinition();
-  const bmdFixture = await generateBmdBallotFixture();
-  await withApp(async ({ auth, apiClient, scanner, workspace, logger }) => {
-    mockElectionManagerAuth(auth, electionDefinition);
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
-      jurisdiction,
-      electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
-    });
-    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
-    await apiClient.setTestMode({ testMode: true });
-    await apiClient.setPollingPlaceId({ id: '23-polling-place' });
-
-    scanner
-      .withNextScannerSession()
-      .sheet({ frontPath: bmdFixture.sheet[0], backPath: bmdFixture.sheet[1] })
-      .end();
-    await apiClient.scanBatch();
-    const status = await waitForStatus(apiClient, {
-      state: 'paused',
-      pauseReason: { type: 'tray-empty' },
-    });
-    expect(status.batches[0]!.count).toEqual(1);
-    await vi.waitFor(() =>
-      expect(logger.log).toHaveBeenCalledWith(
-        LogEventId.LifetimeSheetCountIncrementError,
-        'system',
-        {
-          disposition: 'failure',
-          message: 'Unable to increment lifetime sheet count.',
-          errorDetails: 'corrupt lifetime sheet count',
-        }
-      )
-    );
   });
 });
 

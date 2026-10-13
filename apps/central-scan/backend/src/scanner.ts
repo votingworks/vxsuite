@@ -1,8 +1,4 @@
-import {
-  assert,
-  assertDefined,
-  extractErrorMessage,
-} from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import {
   type AdjudicationReasonInfo,
   DEFAULT_MINIMUM_DETECTED_BALLOT_SCALE,
@@ -33,7 +29,6 @@ import {
   type InterpreterFrom,
 } from 'xstate';
 import { waitFor } from 'xstate/lib/waitFor.js';
-import { incrementLifetimeSheetCount } from '@votingworks/backend';
 import type {
   BatchControl,
   BatchScanner,
@@ -288,15 +283,7 @@ function buildMachine({
   }
 
   function incrementLifetimeSheetCountAction(): void {
-    void incrementLifetimeSheetCount({ devRoot: workspace.path }).catch(
-      (error) => {
-        logger.log(LogEventId.LifetimeSheetCountIncrementError, 'system', {
-          disposition: 'failure',
-          message: 'Unable to increment lifetime sheet count.',
-          errorDetails: extractErrorMessage(error),
-        });
-      }
-    );
+    void workspace.lifetimeSheetCounter.increment();
   }
 
   async function endBatch(batchContext: BatchContext): Promise<void> {

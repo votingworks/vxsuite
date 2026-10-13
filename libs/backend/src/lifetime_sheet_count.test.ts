@@ -2,14 +2,14 @@ import { execFile as execFileCallback } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
-import { err, ok, range } from '@votingworks/basics';
+import { deferred, err, ok, range } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { execFile } from './exec.js';
 import { intermediateScript } from './intermediate_scripts.js';
 import {
-  createLifetimeSheetCountReader,
+  createLifetimeSheetCounter,
   getLifetimeSheetCountFilePath,
   incrementLifetimeSheetCount,
   readLifetimeSheetCount,
@@ -125,36 +125,6 @@ test('readLifetimeSheetCount rejects a path that is not a regular file', async (
   );
 });
 
-test('createLifetimeSheetCountReader falls back to 0 and logs each distinct error once', async () => {
-  const devRoot = makeTemporaryDirectory();
-  const filePath = getLifetimeSheetCountFilePath({ devRoot });
-  const logger = mockBaseLogger({ fn: vi.fn });
-  const readCount = createLifetimeSheetCountReader({ devRoot, logger });
-
-  writeFileSync(filePath, 'abc\n');
-  expect(await readCount()).toEqual(0);
-  expect(await readCount()).toEqual(0);
-  expect(logger.log).toHaveBeenCalledExactlyOnceWith(
-    LogEventId.LifetimeSheetCountReadError,
-    'system',
-    {
-      disposition: 'failure',
-      message: 'Error reading lifetime sheet count: invalid count: "abc"',
-    }
-  );
-
-  writeFileSync(filePath, '-1\n');
-  expect(await readCount()).toEqual(0);
-  expect(logger.log).toHaveBeenCalledTimes(2);
-
-  writeFileSync(filePath, '3\n');
-  expect(await readCount()).toEqual(3);
-
-  writeFileSync(filePath, '-1\n');
-  expect(await readCount()).toEqual(0);
-  expect(logger.log).toHaveBeenCalledTimes(3);
-});
-
 test('incrementLifetimeSheetCount runs the script via sudo in production', async () => {
   stubProductionEnv();
   await incrementLifetimeSheetCount({ devRoot: '/dev-root' });
@@ -259,4 +229,100 @@ test('readLifetimeSheetCount reads the count written by the script', async () =>
   await runScript([join(devRoot, 'lifetime-sheet-count')]);
   await runScript([join(devRoot, 'lifetime-sheet-count')]);
   expect(await readLifetimeSheetCount({ devRoot })).toEqual(ok(2));
+});
+
+function setUpCounter() {
+  const devRoot = makeTemporaryDirectory();
+  const filePath = getLifetimeSheetCountFilePath({ devRoot });
+  const logger = mockBaseLogger({ fn: vi.fn });
+  const counter = createLifetimeSheetCounter({ devRoot, logger });
+  return { filePath, logger, counter };
+}
+
+test('LifetimeSheetCounter falls back to 0 and logs each distinct read error once', async () => {
+  const { filePath, logger, counter } = setUpCounter();
+
+  writeFileSync(filePath, 'abc\n');
+  expect(await counter.get()).toEqual(0);
+  expect(await counter.get()).toEqual(0);
+  expect(logger.log).toHaveBeenCalledExactlyOnceWith(
+    LogEventId.LifetimeSheetCountReadError,
+    'system',
+    {
+      disposition: 'failure',
+      message: 'Error reading lifetime sheet count: invalid count: "abc"',
+    }
+  );
+
+  writeFileSync(filePath, '-1\n');
+  expect(await counter.get()).toEqual(0);
+  expect(logger.log).toHaveBeenCalledTimes(2);
+
+  writeFileSync(filePath, '3\n');
+  expect(await counter.get()).toEqual(3);
+});
+
+test('LifetimeSheetCounter caches a successful read', async () => {
+  const { filePath, counter } = setUpCounter();
+
+  writeFileSync(filePath, '3\n');
+  expect(await counter.get()).toEqual(3);
+  writeFileSync(filePath, '7\n');
+  expect(await counter.get()).toEqual(3);
+});
+
+test('LifetimeSheetCounter increments the cached count and the file', async () => {
+  const { filePath, counter } = setUpCounter();
+
+  writeFileSync(filePath, '3\n');
+  expect(await counter.get()).toEqual(3);
+  await counter.increment();
+  expect(await counter.get()).toEqual(4);
+  expect(execMock).toHaveBeenCalledExactlyOnceWith(SCRIPT_PATH_MATCHER, [
+    filePath,
+  ]);
+});
+
+test('LifetimeSheetCounter logs a failed increment and re-reads the file', async () => {
+  const { filePath, logger, counter } = setUpCounter();
+  execMock.mockRejectedValueOnce(new Error('boom'));
+
+  writeFileSync(filePath, '3\n');
+  expect(await counter.get()).toEqual(3);
+  await counter.increment();
+  expect(logger.log).toHaveBeenCalledExactlyOnceWith(
+    LogEventId.LifetimeSheetCountIncrementError,
+    'system',
+    {
+      disposition: 'failure',
+      message: 'Unable to increment lifetime sheet count.',
+      errorDetails: 'boom',
+    }
+  );
+  expect(await counter.get()).toEqual(3);
+});
+
+test('LifetimeSheetCounter does not cache a read that overlaps an increment', async () => {
+  const { filePath, counter } = setUpCounter();
+
+  writeFileSync(filePath, '3\n');
+  const read = counter.get();
+  await counter.increment();
+  await read;
+  writeFileSync(filePath, '7\n');
+  expect(await counter.get()).toEqual(7);
+});
+
+test('LifetimeSheetCounter does not cache a read during a pending increment', async () => {
+  const { filePath, counter } = setUpCounter();
+  const script = deferred<{ stdout: string; stderr: string }>();
+  execMock.mockReturnValueOnce(script.promise as ReturnType<typeof execFile>);
+
+  writeFileSync(filePath, '3\n');
+  const increment = counter.increment();
+  expect(await counter.get()).toEqual(3);
+  script.resolve({ stdout: '', stderr: '' });
+  await increment;
+  writeFileSync(filePath, '7\n');
+  expect(await counter.get()).toEqual(7);
 });

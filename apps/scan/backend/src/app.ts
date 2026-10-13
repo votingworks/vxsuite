@@ -23,7 +23,6 @@ import {
   type ExportDataResult,
   withElectionPackageZip,
   getScanAllowedExportPatterns,
-  createLifetimeSheetCountReader,
 } from '@votingworks/backend';
 import {
   assert,
@@ -100,10 +99,6 @@ export function buildApi({
   logger: Logger;
 }) {
   const { store } = workspace;
-  const readLifetimeSheetCount = createLifetimeSheetCountReader({
-    devRoot: workspace.path,
-    logger,
-  });
 
   return grout.createApi({
     getMachineConfig,
@@ -467,7 +462,7 @@ export function buildApi({
     async getScannerStatus(): Promise<PrecinctScannerStatus> {
       const machineStatus = machine.status();
       const ballotsCounted = store.getBallotsCounted();
-      const lifetimeSheetsCounted = await readLifetimeSheetCount();
+      const lifetimeSheetsCounted = await workspace.lifetimeSheetCounter.get();
       return {
         ...machineStatus,
         ballotsCounted,

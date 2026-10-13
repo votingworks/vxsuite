@@ -1,12 +1,8 @@
 import { writeFileSync } from 'node:fs';
-import {
-  getLifetimeSheetCountFilePath,
-  incrementLifetimeSheetCount,
-} from '@votingworks/backend';
+import { getLifetimeSheetCountFilePath } from '@votingworks/backend';
 import { err, ok, typedAs } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
-import { LogEventId } from '@votingworks/logging';
 import { mockScannerStatus } from '@votingworks/pdi-scanner';
 import {
   AdjudicationReason,
@@ -38,21 +34,12 @@ vi.setConfig({ testTimeout: 20_000 });
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
-vi.mock(import('@votingworks/backend'), async (importActual) => {
-  const actual = await importActual();
-  return {
-    ...actual,
-    incrementLifetimeSheetCount: vi.fn(actual.incrementLifetimeSheetCount),
-  };
-});
-
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
   isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
 }));
 
 beforeEach(() => {
-  vi.mocked(incrementLifetimeSheetCount).mockClear();
   mockFeatureFlagger.resetFeatureFlags();
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
@@ -70,6 +57,10 @@ test('configure and scan hmpb', async () => {
       workspace,
       clock,
     }) => {
+      const incrementLifetimeSheetCount = vi.spyOn(
+        workspace.lifetimeSheetCounter,
+        'increment'
+      );
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         testMode: true,
         electionPackage: {
@@ -104,9 +95,7 @@ test('configure and scan hmpb', async () => {
         interpretation,
         ballotsCounted: 1,
       });
-      expect(incrementLifetimeSheetCount).toHaveBeenCalledExactlyOnceWith({
-        devRoot: workspace.path,
-      });
+      expect(incrementLifetimeSheetCount).toHaveBeenCalledOnce();
 
       await apiClient.readyForNextBallot();
       await waitForStatus(apiClient, {
@@ -319,6 +308,10 @@ test('ballot with wrong election rejected', async () => {
       workspace,
       clock,
     }) => {
+      const incrementLifetimeSheetCount = vi.spyOn(
+        workspace.lifetimeSheetCounter,
+        'increment'
+      );
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -711,106 +704,14 @@ test('disconnect scanner errors absorbed in unrecoverable_error state', async ()
   );
 });
 
-test('logs failure to increment the lifetime sheet count', async () => {
-  vi.mocked(incrementLifetimeSheetCount).mockRejectedValueOnce(
-    new Error('error: corrupt count in /vx/config/lifetime-sheet-count')
-  );
-
-  await withApp(
-    async ({
-      apiClient,
-      mockScanner,
-      mockUsbDrive,
-      mockAuth,
-      logger,
-      clock,
-    }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        testMode: true,
-        electionPackage: {
-          electionDefinition: vxFamousNamesFixtures.electionDefinition,
-        },
-        pollingPlaceId: POLLING_PLACE_ID_COMPLETE_HMPB,
-      });
-
-      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
-
-      await simulateScan(
-        apiClient,
-        mockScanner,
-        await ballotImages.completeHmpb()
-      );
-
-      const interpretation: SheetInterpretation = { type: 'ValidSheet' };
-      await waitForStatus(apiClient, { state: 'accepting', interpretation });
-      mockScanner.setScannerStatus(mockScannerStatus.idleScanningDisabled);
-      clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
-      await waitForStatus(apiClient, {
-        state: 'accepted',
-        interpretation,
-        ballotsCounted: 1,
-        lifetimeSheetsCounted: 0,
-      });
-
-      expect(incrementLifetimeSheetCount).toHaveBeenCalledOnce();
-      await vi.waitFor(() =>
-        expect(logger.log).toHaveBeenCalledWith(
-          LogEventId.LifetimeSheetCountIncrementError,
-          'system',
-          {
-            disposition: 'failure',
-            message: 'Unable to increment lifetime sheet count.',
-            errorDetails:
-              'error: corrupt count in /vx/config/lifetime-sheet-count',
-          }
-        )
-      );
-    }
-  );
-});
-
-test('defaults the lifetime count to 0 and logs once when it cannot be read', async () => {
-  await withApp(async ({ apiClient, workspace, logger }) => {
-    const lifetimeSheetCountFilePath = getLifetimeSheetCountFilePath({
-      devRoot: workspace.path,
-    });
-    function lifetimeSheetCountReadErrorLogs() {
-      return vi
-        .mocked(logger.log)
-        .mock.calls.filter(
-          ([eventId]) => eventId === LogEventId.LifetimeSheetCountReadError
-        );
-    }
-
-    writeFileSync(lifetimeSheetCountFilePath, 'not a number\n');
-    expect((await apiClient.getScannerStatus()).lifetimeSheetsCounted).toEqual(
-      0
+test('defaults the lifetime count to 0 when it cannot be read', async () => {
+  await withApp(async ({ apiClient, workspace }) => {
+    writeFileSync(
+      getLifetimeSheetCountFilePath({ devRoot: workspace.path }),
+      'not a number\n'
     );
     expect((await apiClient.getScannerStatus()).lifetimeSheetsCounted).toEqual(
       0
     );
-    expect(lifetimeSheetCountReadErrorLogs()).toEqual([
-      [
-        LogEventId.LifetimeSheetCountReadError,
-        'system',
-        {
-          disposition: 'failure',
-          message:
-            'Error reading lifetime sheet count: invalid count: "not a number"',
-        },
-      ],
-    ]);
-
-    writeFileSync(lifetimeSheetCountFilePath, '3\n');
-    expect((await apiClient.getScannerStatus()).lifetimeSheetsCounted).toEqual(
-      3
-    );
-
-    writeFileSync(lifetimeSheetCountFilePath, 'not a number\n');
-    expect((await apiClient.getScannerStatus()).lifetimeSheetsCounted).toEqual(
-      0
-    );
-    expect(lifetimeSheetCountReadErrorLogs()).toHaveLength(2);
   });
 });

@@ -7,6 +7,7 @@ import {
 import { readFile } from '@votingworks/fs';
 import {
   err,
+  extractErrorMessage,
   isNonExistentFileOrDirectoryError,
   ok,
   type Result,
@@ -84,33 +85,6 @@ export async function readLifetimeSheetCount({
 }
 
 /**
- * Creates a reader for the lifetime sheet count that returns 0 when the count
- * can't be read, logging each distinct read error once.
- */
-export function createLifetimeSheetCountReader({
-  devRoot,
-  logger,
-}: {
-  devRoot: string;
-  logger: BaseLogger;
-}): () => Promise<number> {
-  let lastError: string | undefined;
-
-  return async () => {
-    const result = await readLifetimeSheetCount({ devRoot });
-    const error = result.err();
-    if (error !== undefined && error !== lastError) {
-      logger.log(LogEventId.LifetimeSheetCountReadError, 'system', {
-        disposition: 'failure',
-        message: error,
-      });
-    }
-    lastError = error;
-    return result.ok() ?? 0;
-  };
-}
-
-/**
  * Increments the lifetime sheet count on this machine.
  */
 export async function incrementLifetimeSheetCount({
@@ -133,4 +107,81 @@ export async function incrementLifetimeSheetCount({
       throw error;
     }
   }
+}
+
+/** Reads and increments the lifetime sheet count, caching it in memory. */
+export interface LifetimeSheetCounter {
+  /** Returns the count, or 0 if it can't be read. */
+  get(): Promise<number>;
+
+  /** Increments the count, logging any failure. */
+  increment(): Promise<void>;
+}
+
+/**
+ * Creates a {@link LifetimeSheetCounter}. Each distinct read error is logged
+ * once.
+ */
+export function createLifetimeSheetCounter({
+  devRoot,
+  logger,
+}: {
+  devRoot: string;
+  logger: BaseLogger;
+}): LifetimeSheetCounter {
+  let cachedCount: number | undefined;
+  let lastReadError: string | undefined;
+  let pendingIncrements = 0;
+  let incrementEvents = 0;
+
+  async function get(): Promise<number> {
+    if (cachedCount !== undefined) {
+      return cachedCount;
+    }
+
+    const incrementEventsBeforeRead = incrementEvents;
+    const result = await readLifetimeSheetCount({ devRoot });
+    const error = result.err();
+    if (error !== undefined && error !== lastReadError) {
+      logger.log(LogEventId.LifetimeSheetCountReadError, 'system', {
+        disposition: 'failure',
+        message: error,
+      });
+    }
+    lastReadError = error;
+
+    // A read that overlaps an increment may see the file before or after it.
+    if (
+      result.isOk() &&
+      pendingIncrements === 0 &&
+      incrementEvents === incrementEventsBeforeRead
+    ) {
+      cachedCount = result.ok();
+    }
+    return result.ok() ?? 0;
+  }
+
+  async function increment(): Promise<void> {
+    pendingIncrements += 1;
+    incrementEvents += 1;
+    if (cachedCount !== undefined) {
+      cachedCount += 1;
+    }
+
+    try {
+      await incrementLifetimeSheetCount({ devRoot });
+    } catch (error) {
+      cachedCount = undefined;
+      logger.log(LogEventId.LifetimeSheetCountIncrementError, 'system', {
+        disposition: 'failure',
+        message: 'Unable to increment lifetime sheet count.',
+        errorDetails: extractErrorMessage(error),
+      });
+    } finally {
+      pendingIncrements -= 1;
+      incrementEvents += 1;
+    }
+  }
+
+  return { get, increment };
 }
