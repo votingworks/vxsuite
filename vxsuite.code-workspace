@@ -339,7 +339,8 @@
       "**/*.tsbuildinfo": true,
       "**/.jestcache": true
     },
-    "typescript.tsdk": "vxsuite/node_modules/typescript/lib",
+    "js/ts.experimental.useTsgo": true,
+    "js/ts.tsdk.path": "node_modules/@typescript/native",
     "editor.tabSize": 2
   },
   "extensions": {
@@ -349,7 +350,8 @@
       "stylelint.vscode-stylelint",
       "streetsidesoftware.code-spell-checker",
       "rust-lang.rust-analyzer",
-      "tamasfe.even-better-toml"
+      "tamasfe.even-better-toml",
+      "TypeScriptTeam.native-preview"
     ]
   }
 }
