@@ -110,6 +110,16 @@ test('renders without crashing', () => {
   render(<App apiClient={apiMock.apiClient} />);
 });
 
+test('shows lifetime sheet count in the info bar', async () => {
+  apiMock.expectGetTestMode(true);
+  apiMock.expectGetElectionRecord(electionDefinition);
+  apiMock.setStatus(mockStatus({ lifetimeSheetsCounted: 1234 }));
+
+  render(<App apiClient={apiMock.apiClient} />);
+  await authenticateAsElectionManager(electionDefinition);
+  await screen.findByText(hasTextAcrossElements('Lifetime Sheet Count: 1,234'));
+});
+
 test('shows the ballot eject screen while a sheet needs review', async () => {
   const images = [
     {
