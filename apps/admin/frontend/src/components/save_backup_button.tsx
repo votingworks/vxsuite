@@ -3,23 +3,30 @@ import styled from 'styled-components';
 import {
   BatteryStatus,
   Button,
+  Callout,
+  Card,
   DateTimeDisplay,
+  Font,
   LockMachineButton,
   Modal,
   type ModalProps,
+  P,
   ProgressBar,
   Toolbar,
   ToolbarButtons,
 } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
+import type { BackupStatus } from '@votingworks/admin-backend';
 import { sharedLogOut, systemCallApi } from '../shared_api.js';
 import {
   abortBackup,
   finishBackup,
   getBackupDriveStatus,
   getBackupStatus,
+  getLastBackupOnDrive,
   startBackup,
 } from '../api.js';
+import { BackupDetails } from './backup_details.js';
 
 // During the save backup flow, which is a modal that takes over the screen, we
 // still want to show the usual toolbar at the top so that users can lock the
@@ -67,56 +74,111 @@ function ModalWithToolbar({ content, ...props }: ModalProps): JSX.Element {
   );
 }
 
-function SaveBackupModal({
+function StartBackupModal({
   onClose,
 }: {
   onClose: () => void;
 }): JSX.Element | null {
   const getBackupDriveStatusQuery = getBackupDriveStatus.usePollingQuery();
-  const getBackupStatusQuery = getBackupStatus.usePollingQuery();
+  const getLastBackupOnDriveQuery = getLastBackupOnDrive.useQuery(
+    getBackupDriveStatusQuery.data
+  );
   const startBackupMutation = startBackup.useMutation();
-  const abortBackupMutation = abortBackup.useMutation();
-  const finishBackupMutation = finishBackup.useMutation();
 
-  if (!getBackupDriveStatusQuery.isSuccess || !getBackupStatusQuery.isSuccess) {
+  if (
+    !getBackupDriveStatusQuery.isSuccess ||
+    !getLastBackupOnDriveQuery.isSuccess
+  ) {
     return null;
   }
-
   const backupDriveStatus = getBackupDriveStatusQuery.data;
-  const backupStatus = getBackupStatusQuery.data;
+  const lastBackupOnDrive = getLastBackupOnDriveQuery.data;
 
-  if (!backupStatus) {
-    if (backupDriveStatus.status !== 'mounted') {
-      return (
-        <ModalWithToolbar
-          title="Insert Backup Drive"
-          content={<div>Insert a backup USB drive to continue.</div>}
-          actions={<Button onPress={onClose}>Cancel</Button>}
-          onOverlayClick={onClose}
-        />
-      );
-    }
+  if (
+    backupDriveStatus.status !== 'mounted' ||
+    // When a backup drive is inserted, keep showing the "Insert Backup Drive"
+    // UI until we load the last backup on the new drive
+    getLastBackupOnDriveQuery.isPreviousData
+  ) {
     return (
       <ModalWithToolbar
-        title="Save Backup"
-        content={<div>Last Backup: TODO</div>}
-        actions={
-          <React.Fragment>
-            <Button
-              variant="primary"
-              onPress={() => startBackupMutation.mutate()}
-              disabled={startBackupMutation.isLoading}
-            >
-              Save Backup
-            </Button>
-            <Button onPress={onClose} disabled={startBackupMutation.isLoading}>
-              Cancel
-            </Button>
-          </React.Fragment>
-        }
+        title="Insert Backup Drive"
+        content={<div>Insert a backup USB drive to continue.</div>}
+        actions={<Button onPress={onClose}>Cancel</Button>}
         onOverlayClick={onClose}
       />
     );
+  }
+
+  const lastBackupContent = (() => {
+    if (lastBackupOnDrive.isErr()) {
+      return (
+        <Callout color="warning" icon="Warning">
+          Failed to load last backup on drive. You may still save a new backup,
+          overwriting any existing backup.
+        </Callout>
+      );
+    }
+    const manifest = lastBackupOnDrive.ok();
+    if (!manifest) {
+      return (
+        <Card>
+          <div>
+            <Font weight="semiBold">Last Backup on Drive:</Font> None
+          </div>
+        </Card>
+      );
+    }
+    return (
+      <div>
+        <P>
+          <Font weight="semiBold">Last Backup on Drive</Font>
+        </P>
+        <BackupDetails manifest={manifest} />
+      </div>
+    );
+  })();
+
+  return (
+    <ModalWithToolbar
+      title="Save Backup"
+      content={
+        <div>
+          <P>Save a backup to the inserted backup drive.</P>
+          {lastBackupContent}
+        </div>
+      }
+      actions={
+        <React.Fragment>
+          <Button
+            variant="primary"
+            onPress={() => startBackupMutation.mutate()}
+            disabled={startBackupMutation.isLoading}
+          >
+            Save Backup
+          </Button>
+          <Button onPress={onClose} disabled={startBackupMutation.isLoading}>
+            Cancel
+          </Button>
+        </React.Fragment>
+      }
+      onOverlayClick={onClose}
+    />
+  );
+}
+
+function SaveBackupFlowModal({
+  backupStatus,
+  onClose,
+}: {
+  backupStatus?: BackupStatus | null;
+  onClose: () => void;
+}): JSX.Element | null {
+  const abortBackupMutation = abortBackup.useMutation();
+  const finishBackupMutation = finishBackup.useMutation();
+
+  if (!backupStatus) {
+    return <StartBackupModal onClose={onClose} />;
   }
 
   switch (backupStatus.status) {
@@ -179,6 +241,7 @@ function SaveBackupModal({
           }
           actions={
             <Button
+              key="cancel"
               icon="Cancel"
               variant="danger"
               onPress={() => abortBackupMutation.mutate()}
@@ -193,15 +256,24 @@ function SaveBackupModal({
 
     case 'ended': {
       function finishBackupAndClose() {
-        finishBackupMutation.mutate(undefined, { onSuccess: onClose });
+        onClose();
+        finishBackupMutation.mutate();
       }
       if (backupStatus.result.isOk()) {
         return (
           <ModalWithToolbar
             title="Backup Saved"
-            content={<div>You may remove the backup drive.</div>}
+            content={
+              <div>
+                <BackupDetails manifest={backupStatus.result.ok().manifest} />
+                <div style={{ marginTop: '0.5rem' }}>
+                  You may remove the backup drive.
+                </div>
+              </div>
+            }
             actions={
               <Button
+                key="close"
                 onPress={finishBackupAndClose}
                 disabled={finishBackupMutation.isLoading}
               >
@@ -223,6 +295,7 @@ function SaveBackupModal({
             }
             actions={
               <Button
+                key="close"
                 onPress={finishBackupAndClose}
                 disabled={finishBackupMutation.isLoading}
               >
@@ -240,6 +313,7 @@ function SaveBackupModal({
           content={<div>The backup failed. Please try again.</div>}
           actions={
             <Button
+              key="close"
               onPress={finishBackupAndClose}
               disabled={finishBackupMutation.isLoading}
             >
@@ -267,7 +341,10 @@ export function SaveBackupButton(): JSX.Element {
         Save Backup
       </Button>
       {(isModalOpen || isBackupInProgress) && (
-        <SaveBackupModal onClose={() => setIsModalOpen(false)} />
+        <SaveBackupFlowModal
+          backupStatus={getBackupStatusQuery.data}
+          onClose={() => setIsModalOpen(false)}
+        />
       )}
     </React.Fragment>
   );

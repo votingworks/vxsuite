@@ -282,6 +282,31 @@ export const getBackupDriveStatus = {
   },
 } as const;
 
+export const getLastBackupOnDrive = {
+  queryKey(mountpoint?: UsbPartitionMountpoint): QueryKey {
+    return ['getLastBackupOnDrive', mountpoint];
+  },
+  useQuery(backupDriveStatus?: UsbDriveStatus) {
+    const apiClient = useApiClient();
+    const mountpoint =
+      backupDriveStatus?.status === 'mounted'
+        ? backupDriveStatus.mountpoint
+        : undefined;
+    return useQuery(
+      this.queryKey(mountpoint),
+      () => apiClient.getLastBackupOnDrive(),
+      {
+        enabled: backupDriveStatus !== undefined,
+        // Always fetch fresh since the backup drive could have changed
+        cacheTime: 0,
+        // When a backup drive is inserted, keep showing the "Insert Backup
+        // Drive" UI until we load the query result for the new drive
+        keepPreviousData: true,
+      }
+    );
+  },
+} as const;
+
 export const getBackupStatus = {
   queryKey(): QueryKey {
     return ['getBackupStatus'];

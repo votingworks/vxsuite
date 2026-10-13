@@ -655,6 +655,7 @@ test('a running backup is shown again after the machine is locked and unlocked',
   apiMock.apiClient.getBackupDriveStatus
     .expectRepeatedCallsWith()
     .resolves(mockUsbDriveStatus('mounted'));
+  apiMock.expectGetLastBackupOnDrive(null);
   userEvent.click(screen.getButton('Save Backup'));
   let modal = await screen.findByRole('alertdialog');
   apiMock.apiClient.startBackup.expectCallWith().resolves();
@@ -663,7 +664,8 @@ test('a running backup is shown again after the machine is locked and unlocked',
     status: 'in-progress',
     lastProgressEvent: { type: '1_preparing' },
   });
-  await within(modal).findByRole('heading', { name: 'Saving Backup' });
+  await screen.findByRole('heading', { name: 'Saving Backup' });
+  modal = screen.getByRole('alertdialog');
 
   apiMock.expectLogOut();
   userEvent.click(within(modal).getButton('Lock Machine'));
