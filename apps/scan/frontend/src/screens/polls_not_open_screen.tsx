@@ -17,6 +17,7 @@ export function PollsNotOpenScreen({
       centerContent
       showTestModeBanner={isTestMode}
       infoBarMode="pollworker"
+      hideLifetimeSheetCount
       voterFacing={false}
     >
       <FullScreenPromptLayout

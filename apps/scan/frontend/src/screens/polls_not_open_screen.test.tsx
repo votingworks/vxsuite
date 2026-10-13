@@ -80,10 +80,10 @@ describe('PollsNotOpenScreen', () => {
     await screen.findByText(TEST_BALLOT_COUNT);
   });
 
-  test('shows lifetime sheet count', async () => {
+  test('hides lifetime sheet count', async () => {
     renderScreen();
-    const label = await screen.findByText('Lifetime Sheet Count');
-    expect(label.parentElement?.lastChild).toHaveTextContent('1,234');
+    await screen.findByText('Franklin County');
+    expect(screen.queryByText('Lifetime Sheet Count')).not.toBeInTheDocument();
   });
 
   test('shows election info in footer', async () => {
