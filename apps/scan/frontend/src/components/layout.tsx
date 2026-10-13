@@ -112,6 +112,7 @@ function ElectionInfoBar({
   codeVersion,
   machineId,
   showEarlyVotingBanner,
+  lifetimeSheetsCounted,
 }: ElectionInfoBarProps & { showEarlyVotingBanner: boolean }): JSX.Element {
   return (
     <InfoBar>
@@ -133,6 +134,7 @@ function ElectionInfoBar({
           electionPackageHash={electionPackageHash}
           codeVersion={codeVersion}
           machineId={machineId}
+          lifetimeSheetsCounted={lifetimeSheetsCounted}
         />
       </div>
     </InfoBar>
@@ -209,6 +211,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
   }
 
   const ballotCount = scannerStatusQuery.data?.ballotsCounted;
+  const lifetimeSheetsCounted = scannerStatusQuery.data?.lifetimeSheetsCounted;
 
   const hideInfoBar =
     hideInfoBarFromProps ||
@@ -276,6 +279,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
           codeVersion={codeVersion}
           machineId={machineId}
           showEarlyVotingBanner={showEarlyVotingBanner}
+          lifetimeSheetsCounted={lifetimeSheetsCounted}
         />
       )}
     </ScreenBase>
