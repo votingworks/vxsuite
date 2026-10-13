@@ -1,4 +1,7 @@
-import { incrementLifetimeSheetCount } from '@votingworks/backend';
+import {
+  getLifetimeSheetCountFilePath,
+  incrementLifetimeSheetCount,
+} from '@votingworks/backend';
 import { assertDefined, deferred, iter } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
@@ -21,7 +24,7 @@ import {
 } from '@votingworks/utils';
 import { LogEventId, type Logger } from '@votingworks/logging';
 import { existsSync } from 'node:fs';
-import { readdir, readFile } from 'node:fs/promises';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth.js';
 import { generateBmdBallotFixture } from '../test/helpers/ballots.js';
@@ -69,6 +72,55 @@ function hasLoggedMachineEvent(logger: Logger, eventType: string): boolean {
         logData?.message === `Event: ${eventType}`
     );
 }
+
+test('getStatus includes lifetime sheet count', async () => {
+  await withApp(async ({ apiClient, workspace }) => {
+    expect((await apiClient.getStatus()).lifetimeSheetsCounted).toEqual(0);
+
+    await writeFile(
+      getLifetimeSheetCountFilePath({ devRoot: workspace.path }),
+      '42\n'
+    );
+    expect((await apiClient.getStatus()).lifetimeSheetsCounted).toEqual(42);
+  });
+});
+
+test('getStatus defaults lifetime sheet count to 0 and logs once when it cannot be read', async () => {
+  await withApp(async ({ apiClient, workspace, logger }) => {
+    const lifetimeSheetCountFilePath = getLifetimeSheetCountFilePath({
+      devRoot: workspace.path,
+    });
+    function lifetimeSheetCountReadErrorLogs() {
+      return vi
+        .mocked(logger.log)
+        .mock.calls.filter(
+          ([eventId]) => eventId === LogEventId.LifetimeSheetCountReadError
+        );
+    }
+
+    await writeFile(lifetimeSheetCountFilePath, 'not a number\n');
+    expect((await apiClient.getStatus()).lifetimeSheetsCounted).toEqual(0);
+    expect((await apiClient.getStatus()).lifetimeSheetsCounted).toEqual(0);
+    expect(lifetimeSheetCountReadErrorLogs()).toEqual([
+      [
+        LogEventId.LifetimeSheetCountReadError,
+        'system',
+        {
+          disposition: 'failure',
+          message:
+            'Error reading lifetime sheet count: invalid count: "not a number"',
+        },
+      ],
+    ]);
+
+    await writeFile(lifetimeSheetCountFilePath, '3\n');
+    expect((await apiClient.getStatus()).lifetimeSheetsCounted).toEqual(3);
+
+    await writeFile(lifetimeSheetCountFilePath, 'not a number\n');
+    expect((await apiClient.getStatus()).lifetimeSheetsCounted).toEqual(0);
+    expect(lifetimeSheetCountReadErrorLogs()).toHaveLength(2);
+  });
+});
 
 test('scanBatch with multiple sheets', async () => {
   const electionDefinition =

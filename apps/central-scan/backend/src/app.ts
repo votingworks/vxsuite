@@ -9,6 +9,7 @@ import {
   exportCastVoteRecordsToUsbDrive,
   type ElectionRecord,
   withElectionPackageZip,
+  readLifetimeSheetCount,
 } from '@votingworks/backend';
 import {
   type ElectionPackageConfigurationError,
@@ -71,6 +72,7 @@ function buildApi({
   machine,
 }: Exclude<AppOptions, 'allowedExportPatterns'>) {
   const { store } = workspace;
+  let lastLifetimeSheetCountReadError: string | undefined;
 
   async function clearAllBallotData(): Promise<void> {
     assert(machine.status().state === 'idle');
@@ -314,12 +316,27 @@ function buildApi({
       });
     },
 
-    getStatus(): ScanStatus {
+    async getStatus(): Promise<ScanStatus> {
+      const readLifetimeSheetCountResult = await readLifetimeSheetCount({
+        devRoot: workspace.path,
+      });
+      const lifetimeSheetCountReadError = readLifetimeSheetCountResult.err();
+      if (
+        lifetimeSheetCountReadError !== undefined &&
+        lifetimeSheetCountReadError !== lastLifetimeSheetCountReadError
+      ) {
+        logger.log(LogEventId.LifetimeSheetCountReadError, 'system', {
+          disposition: 'failure',
+          message: lifetimeSheetCountReadError,
+        });
+      }
+      lastLifetimeSheetCountReadError = lifetimeSheetCountReadError;
       return {
         ...machine.status(),
         isScannerAttached: scanner.isAttached(),
         batches: store.getBatches(),
         canUnconfigure: store.getCanUnconfigure(),
+        lifetimeSheetsCounted: readLifetimeSheetCountResult.ok() ?? 0,
       };
     },
 
