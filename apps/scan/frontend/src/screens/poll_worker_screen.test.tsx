@@ -339,12 +339,26 @@ test('polls open shows quick results code when configured', async () => {
   expect(qrCode).toBeInTheDocument();
 });
 
+test('shows lifetime sheet count in the info bar', async () => {
+  apiMock.mockApiClient.getScannerStatus.reset();
+  apiMock.expectGetPollsInfo('polls_closed_initial');
+  apiMock.expectGetScannerStatus({
+    ...statusNoPaper,
+    lifetimeSheetsCounted: 1234,
+  });
+  renderScreen();
+  await screen.findByText('Do you want to open the polls?');
+  const label = await screen.findByText('Lifetime Scans');
+  expect(label.parentElement?.lastChild).toHaveTextContent('1,234');
+});
+
 // confirm that we have an alert and logging that meet VVSG 2.0 1.1.3-B
 test('there is a warning if we attempt to open polls with ballots scanned', async () => {
   apiMock.mockApiClient.getScannerStatus.reset();
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetScannerStatus({
     ballotsCounted: 1,
+    lifetimeSheetsCounted: 1,
     state: 'waiting_for_ballot',
   });
   renderScreen();

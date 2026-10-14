@@ -61,6 +61,7 @@ const defaultConfig: PrecinctScannerConfig = {
 export const statusNoPaper: PrecinctScannerStatus = {
   state: 'waiting_for_ballot',
   ballotsCounted: 0,
+  lifetimeSheetsCounted: 0,
 };
 
 type MockApiClient = Omit<MockClient<Api>, 'getDiskSpaceSummary'> & {

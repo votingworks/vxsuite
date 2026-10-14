@@ -56,6 +56,28 @@ describe('ElectionInfoBar', () => {
     expect(machineIdLabel.parentElement?.lastChild).toHaveTextContent('0000');
   });
 
+  test('Renders lifetime sheet count outside voter mode', () => {
+    render(<ElectionInfoBar mode="pollworker" lifetimeSheetsCounted={1234} />);
+    const label = screen.getByText('Lifetime Scans');
+    expect(label.parentElement?.lastChild).toHaveTextContent('1,234');
+  });
+
+  test('Renders a zero lifetime sheet count', () => {
+    render(<ElectionInfoBar mode="admin" lifetimeSheetsCounted={0} />);
+    const label = screen.getByText('Lifetime Scans');
+    expect(label.parentElement?.lastChild).toHaveTextContent('0');
+  });
+
+  test('Omits lifetime sheet count when not provided', () => {
+    render(<ElectionInfoBar mode="admin" />);
+    expect(screen.queryByText('Lifetime Scans')).not.toBeInTheDocument();
+  });
+
+  test('Omits lifetime sheet count in voter mode', () => {
+    render(<ElectionInfoBar mode="voter" lifetimeSheetsCounted={1234} />);
+    expect(screen.queryByText('Lifetime Scans')).not.toBeInTheDocument();
+  });
+
   test('Renders with polling place selection', () => {
     const place = pollingPlaces[0]!;
 
@@ -134,6 +156,34 @@ describe('VerticalElectionInfoBar', () => {
     );
     screen.getByText(hasTextAcrossElements('Version: DEV'));
     screen.getByText(hasTextAcrossElements('Machine ID: 0000'));
+  });
+
+  test('Renders lifetime sheet count outside voter mode', () => {
+    render(
+      <VerticalElectionInfoBar
+        electionDefinition={electionGeneralDefinition}
+        electionPackageHash={mockElectionPackageHash}
+        mode="admin"
+        lifetimeSheetsCounted={1234}
+      />
+    );
+    screen.getByText(hasTextAcrossElements('Lifetime Scans: 1,234'));
+  });
+
+  test('Renders lifetime sheet count without election information', () => {
+    render(<VerticalElectionInfoBar mode="admin" lifetimeSheetsCounted={0} />);
+    screen.getByText(hasTextAcrossElements('Lifetime Scans: 0'));
+  });
+
+  test('Omits lifetime sheet count in voter mode', () => {
+    render(
+      <VerticalElectionInfoBar
+        electionDefinition={electionGeneralDefinition}
+        electionPackageHash={mockElectionPackageHash}
+        lifetimeSheetsCounted={1234}
+      />
+    );
+    expect(screen.queryByText(/Lifetime Scans/)).not.toBeInTheDocument();
   });
 
   test('Renders with polling place selection', () => {

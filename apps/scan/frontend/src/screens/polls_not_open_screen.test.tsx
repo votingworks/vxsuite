@@ -15,6 +15,7 @@ import {
 } from '../../test/helpers/mock_api_client.js';
 
 const TEST_BALLOT_COUNT = 50;
+const TEST_LIFETIME_SHEET_COUNT = 1234;
 
 let apiMock: ApiMock;
 
@@ -31,6 +32,7 @@ beforeEach(() => {
   apiMock.expectGetScannerStatus({
     ...statusNoPaper,
     ballotsCounted: TEST_BALLOT_COUNT,
+    lifetimeSheetsCounted: TEST_LIFETIME_SHEET_COUNT,
   });
 });
 
@@ -76,6 +78,12 @@ describe('PollsNotOpenScreen', () => {
   test('shows ballot count', async () => {
     renderScreen();
     await screen.findByText(TEST_BALLOT_COUNT);
+  });
+
+  test('hides lifetime sheet count', async () => {
+    renderScreen();
+    await screen.findByText('Franklin County');
+    expect(screen.queryByText('Lifetime Scans')).not.toBeInTheDocument();
   });
 
   test('shows election info in footer', async () => {

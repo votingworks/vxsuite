@@ -1,6 +1,10 @@
 import { mkdirSync, readdirSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { getDiskSpaceSummaries } from '@votingworks/backend';
+import {
+  createLifetimeSheetCounter,
+  getDiskSpaceSummaries,
+  type LifetimeSheetCounter,
+} from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import type { Id } from '@votingworks/types';
 import type { BaseLogger } from '@votingworks/logging';
@@ -31,6 +35,11 @@ export interface Workspace {
    * The store associated with the workspace.
    */
   readonly store: Store;
+
+  /**
+   * The persistent count of sheets accepted by this machine.
+   */
+  readonly lifetimeSheetCounter: LifetimeSheetCounter;
 
   /**
    * Zero out the data in the workspace, but leave the configuration.
@@ -74,12 +83,18 @@ export function createWorkspace(root: string, logger: BaseLogger): Workspace {
     return join(ballotImagesPath, `${BATCH_IMAGES_DIRECTORY_PREFIX}${batchId}`);
   }
 
+  const lifetimeSheetCounter = createLifetimeSheetCounter({
+    devRoot: resolvedRoot,
+    logger,
+  });
+
   return {
     path: resolvedRoot,
     ballotImagesPath,
     batchImagesPath,
     uploadsPath,
     store,
+    lifetimeSheetCounter,
     resetElectionSession() {
       store.resetElectionSession();
       rmSync(ballotImagesPath, { recursive: true, force: true });

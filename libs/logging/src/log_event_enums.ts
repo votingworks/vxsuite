@@ -197,6 +197,7 @@ export const LogEventId = {
   ScannerEvent: 'scanner-state-machine-event',
   ScannerStateChanged: 'scanner-state-machine-transition',
   LifetimeSheetCountIncrementError: 'lifetime-sheet-count-increment-error',
+  LifetimeSheetCountReadError: 'lifetime-sheet-count-read-error',
   SoundToggled: 'sound-toggled',
   DoubleSheetDetectionToggled: 'double-sheet-toggled',
   ContinuousExportToggled: 'continuous-export-toggled',
@@ -1182,6 +1183,14 @@ const LifetimeSheetCountIncrementError: LogDetails = {
   restrictInDocumentationToApps: [AppName.VxScan, AppName.VxCentralScan],
 };
 
+const LifetimeSheetCountReadError: LogDetails = {
+  eventId: LogEventId.LifetimeSheetCountReadError,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage:
+    'The persistent lifetime count of accepted sheets could not be read.',
+  restrictInDocumentationToApps: [AppName.VxScan, AppName.VxCentralScan],
+};
+
 const SoundToggled: LogDetails = {
   eventId: LogEventId.SoundToggled,
   eventType: LogEventType.ApplicationStatus,
@@ -1892,6 +1901,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ScannerStateChanged;
     case LogEventId.LifetimeSheetCountIncrementError:
       return LifetimeSheetCountIncrementError;
+    case LogEventId.LifetimeSheetCountReadError:
+      return LifetimeSheetCountReadError;
     case LogEventId.SoundToggled:
       return SoundToggled;
     case LogEventId.DoubleSheetDetectionToggled:

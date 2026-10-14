@@ -9,6 +9,7 @@ export const DEFAULT_STATUS: ScanStatus = {
   isScannerAttached: true,
   canUnconfigure: true,
   batches: [],
+  lifetimeSheetsCounted: 0,
 };
 
 export function mockStatus<

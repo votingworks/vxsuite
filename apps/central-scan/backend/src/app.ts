@@ -314,12 +314,14 @@ function buildApi({
       });
     },
 
-    getStatus(): ScanStatus {
+    async getStatus(): Promise<ScanStatus> {
+      const lifetimeSheetsCounted = await workspace.lifetimeSheetCounter.get();
       return {
         ...machine.status(),
         isScannerAttached: scanner.isAttached(),
         batches: store.getBatches(),
         canUnconfigure: store.getCanUnconfigure(),
+        lifetimeSheetsCounted,
       };
     },
 

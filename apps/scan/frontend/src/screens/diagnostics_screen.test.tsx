@@ -99,7 +99,11 @@ test('renders scanner status and diagnostic result', async () => {
   apiMock.expectGetMostRecentUpsDiagnostic();
   apiMock.expectGetMostRecentPrinterDiagnostic();
   apiMock.expectGetConfig();
-  apiMock.expectGetScannerStatus({ state: 'disconnected', ballotsCounted: 0 });
+  apiMock.expectGetScannerStatus({
+    state: 'disconnected',
+    ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
+  });
 
   renderScreen();
 
@@ -157,7 +161,11 @@ test('can run scanner diagnostic flow', async () => {
   apiMock.expectGetMostRecentPrinterDiagnostic();
   apiMock.expectGetMostRecentUpsDiagnostic();
   apiMock.expectGetConfig();
-  apiMock.expectGetScannerStatus({ state: 'paused', ballotsCounted: 0 });
+  apiMock.expectGetScannerStatus({
+    state: 'paused',
+    ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
+  });
 
   renderScreen();
 
@@ -170,6 +178,7 @@ test('can run scanner diagnostic flow', async () => {
   apiMock.expectGetScannerStatus({
     state: 'scanner_diagnostic.running',
     ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
   });
   await screen.findByRole('heading', { name: 'Scanner Diagnostic' });
   screen.getByRole('heading', { name: 'Insert Blank Sheet' });
@@ -177,6 +186,7 @@ test('can run scanner diagnostic flow', async () => {
   apiMock.expectGetScannerStatus({
     state: 'scanner_diagnostic.done',
     ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
   });
   await screen.findByText('Test Scan Successful');
 
@@ -184,6 +194,7 @@ test('can run scanner diagnostic flow', async () => {
   apiMock.expectGetScannerStatus({
     state: 'paused',
     ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
   });
   apiMock.expectGetMostRecentScannerDiagnostic({
     type: 'blank-sheet-scan',

@@ -37,6 +37,7 @@ const ELECTION_BAR_HIDDEN_SIZE_MODES: ReadonlySet<SizeMode> = new Set([
 export interface ScreenProps {
   actionButtons?: React.ReactNode;
   hideBallotCount?: boolean;
+  hideLifetimeSheetCount?: boolean;
   centerContent?: boolean;
   children: React.ReactNode;
   infoBarMode?: InfoBarMode;
@@ -112,6 +113,7 @@ function ElectionInfoBar({
   codeVersion,
   machineId,
   showEarlyVotingBanner,
+  lifetimeSheetsCounted,
 }: ElectionInfoBarProps & { showEarlyVotingBanner: boolean }): JSX.Element {
   return (
     <InfoBar>
@@ -133,6 +135,7 @@ function ElectionInfoBar({
           electionPackageHash={electionPackageHash}
           codeVersion={codeVersion}
           machineId={machineId}
+          lifetimeSheetsCounted={lifetimeSheetsCounted}
         />
       </div>
     </InfoBar>
@@ -144,6 +147,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
     actionButtons,
     children,
     hideBallotCount: hideBallotCountFromProps,
+    hideLifetimeSheetCount,
     centerContent,
     infoBarMode,
     hideInfoBar: hideInfoBarFromProps,
@@ -209,6 +213,9 @@ export function Screen(props: ScreenProps): JSX.Element | null {
   }
 
   const ballotCount = scannerStatusQuery.data?.ballotsCounted;
+  const lifetimeSheetsCounted = hideLifetimeSheetCount
+    ? undefined
+    : scannerStatusQuery.data?.lifetimeSheetsCounted;
 
   const hideInfoBar =
     hideInfoBarFromProps ||
@@ -276,6 +283,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
           codeVersion={codeVersion}
           machineId={machineId}
           showEarlyVotingBanner={showEarlyVotingBanner}
+          lifetimeSheetsCounted={lifetimeSheetsCounted}
         />
       )}
     </ScreenBase>

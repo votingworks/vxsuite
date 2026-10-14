@@ -202,7 +202,11 @@ test('disables location picker if any ballots have been cast', async () => {
 
   renderScreen({
     electionDefinition: electionGeneralDefinition,
-    scannerStatus: { ballotsCounted: 1, state: 'waiting_for_ballot' },
+    scannerStatus: {
+      ballotsCounted: 1,
+      lifetimeSheetsCounted: 1,
+      state: 'waiting_for_ballot',
+    },
   });
   await waitFor(apiMock.mockApiClient.assertComplete);
 

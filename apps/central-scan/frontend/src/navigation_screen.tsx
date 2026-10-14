@@ -32,7 +32,7 @@ import type {
 } from '@votingworks/types';
 import { Link, useRouteMatch } from 'react-router-dom';
 import { AppContext } from './contexts/app_context.js';
-import { ejectUsbDrive, logOut, systemCallApi } from './api.js';
+import { ejectUsbDrive, getStatus, logOut, systemCallApi } from './api.js';
 import { NetworkStatusIndicator } from './components/network_status_indicator.js';
 
 interface Props {
@@ -139,6 +139,7 @@ export function NavigationScreen({
     machineConfig,
     auth,
   } = useContext(AppContext);
+  const statusQuery = getStatus.usePollingQuery();
   const currentRoute = useRouteMatch();
   const navItems = getNavItems(auth, electionDefinition);
   const showToolbar =
@@ -172,6 +173,7 @@ export function NavigationScreen({
             electionPackageHash={electionPackageHash}
             codeVersion={machineConfig.codeVersion}
             machineId={machineConfig.machineId}
+            lifetimeSheetsCounted={statusQuery.data?.lifetimeSheetsCounted}
             inverse
           />
         </div>

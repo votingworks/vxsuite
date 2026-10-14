@@ -1100,6 +1100,7 @@ test('double feed detection calibration success', async () => {
   apiMock.expectGetScannerStatus({
     state: 'calibrating_double_feed_detection.double_sheet',
     ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
   });
   await screen.findByRole('heading', {
     name: 'Double Sheet Detection Calibration',
@@ -1112,12 +1113,14 @@ test('double feed detection calibration success', async () => {
   apiMock.expectGetScannerStatus({
     state: 'calibrating_double_feed_detection.single_sheet',
     ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
   });
   await screen.findByText('Insert One Blank Sheet');
 
   apiMock.expectGetScannerStatus({
     state: 'calibrating_double_feed_detection.done',
     ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
   });
   await screen.findByText('Calibration Complete');
 
@@ -1127,6 +1130,7 @@ test('double feed detection calibration success', async () => {
   apiMock.expectGetScannerStatus({
     state: 'paused',
     ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
   });
   await screen.findByRole('heading', { name: 'Polls Closed' });
 });
@@ -1148,6 +1152,7 @@ test('double feed detection calibration failure', async () => {
   apiMock.expectGetScannerStatus({
     state: 'calibrating_double_feed_detection.double_sheet',
     ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
   });
   await screen.findByRole('heading', {
     name: 'Double Sheet Detection Calibration',
@@ -1158,6 +1163,7 @@ test('double feed detection calibration failure', async () => {
     state: 'calibrating_double_feed_detection.done',
     error: 'double_feed_calibration_timed_out',
     ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
   });
   await screen.findByText('Calibration Timed Out');
 
@@ -1165,6 +1171,7 @@ test('double feed detection calibration failure', async () => {
     state: 'calibrating_double_feed_detection.done',
     error: 'unexpected_event',
     ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
   });
   await screen.findByText('Calibration Failed');
 
@@ -1174,6 +1181,7 @@ test('double feed detection calibration failure', async () => {
   apiMock.expectGetScannerStatus({
     state: 'paused',
     ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
   });
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 });
@@ -1195,6 +1203,7 @@ test('image sensor calibration success', async () => {
   apiMock.expectGetScannerStatus({
     state: 'calibrating_image_sensors.calibrating',
     ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
   });
   await screen.findByRole('heading', {
     name: 'Image Sensor Calibration',
@@ -1207,6 +1216,7 @@ test('image sensor calibration success', async () => {
   apiMock.expectGetScannerStatus({
     state: 'calibrating_image_sensors.done',
     ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
   });
   await screen.findByText('Calibration Complete');
 
@@ -1216,6 +1226,7 @@ test('image sensor calibration success', async () => {
   apiMock.expectGetScannerStatus({
     state: 'paused',
     ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
   });
   await screen.findByRole('heading', { name: 'Polls Closed' });
 });
@@ -1237,6 +1248,7 @@ test('image sensor calibration failure', async () => {
   apiMock.expectGetScannerStatus({
     state: 'calibrating_image_sensors.calibrating',
     ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
   });
   await screen.findByRole('heading', {
     name: 'Image Sensor Calibration',
@@ -1247,6 +1259,7 @@ test('image sensor calibration failure', async () => {
     state: 'calibrating_image_sensors.done',
     error: 'image_sensor_calibration_timed_out',
     ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
   });
   await screen.findByText('Calibration Timed Out');
 
@@ -1254,6 +1267,7 @@ test('image sensor calibration failure', async () => {
     state: 'calibrating_image_sensors.done',
     error: 'unexpected_event',
     ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
   });
   await screen.findByText('Calibration Failed');
 
@@ -1263,6 +1277,7 @@ test('image sensor calibration failure', async () => {
   apiMock.expectGetScannerStatus({
     state: 'paused',
     ballotsCounted: 0,
+    lifetimeSheetsCounted: 0,
   });
   await screen.findByRole('heading', { name: 'System Administrator Menu' });
 });
@@ -1401,7 +1416,11 @@ test.each<{
     description: 'scanner cover opened',
     systemSettings: {},
     usbDriveStatus: 'mounted',
-    scannerStatus: { ballotsCounted: 0, state: 'cover_open' },
+    scannerStatus: {
+      ballotsCounted: 0,
+      lifetimeSheetsCounted: 0,
+      state: 'cover_open',
+    },
     doesAccessibilityInputDisconnect: false,
     expectedHeading: 'Scanner Cover is Open',
     isAlarmExpected: true,
@@ -1410,7 +1429,11 @@ test.each<{
     description: 'scanner cover opened, alarms disabled',
     systemSettings: { precinctScanDisableAlarms: true },
     usbDriveStatus: 'mounted',
-    scannerStatus: { ballotsCounted: 0, state: 'cover_open' },
+    scannerStatus: {
+      ballotsCounted: 0,
+      lifetimeSheetsCounted: 0,
+      state: 'cover_open',
+    },
     doesAccessibilityInputDisconnect: false,
     expectedHeading: 'Scanner Cover is Open',
     isAlarmExpected: false,

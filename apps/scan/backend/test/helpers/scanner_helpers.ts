@@ -119,10 +119,15 @@ export async function simulateScan(
   apiClient: grout.Client<Api>,
   mockScanner: MockPdiScannerClient,
   images: SheetOf<GrayImageData>,
-  ballotsCounted = 0
+  ballotsCounted = 0,
+  lifetimeSheetsCounted = ballotsCounted
 ): Promise<void> {
   mockScanner.emitEvent({ event: 'scanStart' });
-  await expectStatus(apiClient, { state: 'scanning', ballotsCounted });
+  await expectStatus(apiClient, {
+    state: 'scanning',
+    ballotsCounted,
+    lifetimeSheetsCounted,
+  });
   mockScanner.setScannerStatus(mockScannerStatus.documentInRear);
   mockScanner.emitEvent({
     event: 'scanComplete',
@@ -340,24 +345,30 @@ export async function scanBallot(
   options: {
     waitForContinuousExportToUsbDrive?: boolean;
     ballotImages?: SheetOf<GrayImageData>;
+    initialLifetimeSheetsCounted?: number;
   } = {}
 ): Promise<void> {
+  const initialLifetimeSheetsCounted =
+    options.initialLifetimeSheetsCounted ?? initialBallotsCounted;
   clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
   await waitForStatus(apiClient, {
     state: 'waiting_for_ballot',
     ballotsCounted: initialBallotsCounted,
+    lifetimeSheetsCounted: initialLifetimeSheetsCounted,
   });
 
   await simulateScan(
     apiClient,
     mockScanner,
     options.ballotImages ?? (await ballotImages.completeBmd()),
-    initialBallotsCounted
+    initialBallotsCounted,
+    initialLifetimeSheetsCounted
   );
 
   await waitForStatus(apiClient, {
     state: 'accepting',
     ballotsCounted: initialBallotsCounted,
+    lifetimeSheetsCounted: initialLifetimeSheetsCounted,
     interpretation: { type: 'ValidSheet' },
   });
 
@@ -369,6 +380,7 @@ export async function scanBallot(
     state: 'accepted',
     interpretation: { type: 'ValidSheet' },
     ballotsCounted: initialBallotsCounted + 1,
+    lifetimeSheetsCounted: initialLifetimeSheetsCounted + 1,
   });
 
   await apiClient.readyForNextBallot();
@@ -376,6 +388,7 @@ export async function scanBallot(
   await waitForStatus(apiClient, {
     state: 'waiting_for_ballot',
     ballotsCounted: initialBallotsCounted + 1,
+    lifetimeSheetsCounted: initialLifetimeSheetsCounted + 1,
   });
 
   if (options.waitForContinuousExportToUsbDrive ?? true) {

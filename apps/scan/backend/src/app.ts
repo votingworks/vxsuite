@@ -459,12 +459,14 @@ export function buildApi({
       return printWriteInImageReport({ store, printer });
     },
 
-    getScannerStatus(): PrecinctScannerStatus {
+    async getScannerStatus(): Promise<PrecinctScannerStatus> {
       const machineStatus = machine.status();
       const ballotsCounted = store.getBallotsCounted();
+      const lifetimeSheetsCounted = await workspace.lifetimeSheetCounter.get();
       return {
         ...machineStatus,
         ballotsCounted,
+        lifetimeSheetsCounted,
       };
     },
 

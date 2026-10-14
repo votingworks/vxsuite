@@ -20,6 +20,7 @@ let apiMock: ApiMock;
 
 beforeEach(() => {
   apiMock = createApiMock();
+  apiMock.setStatus();
 });
 
 afterEach(() => {

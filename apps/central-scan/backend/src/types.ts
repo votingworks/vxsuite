@@ -20,6 +20,7 @@ export type ScanStatus = BatchScannerMachineStatus & {
   isScannerAttached: boolean;
   batches: BatchInfo[];
   canUnconfigure: boolean;
+  lifetimeSheetsCounted: number;
 };
 
 export interface BallotImage {
