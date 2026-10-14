@@ -1,14 +1,14 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { mockKiosk } from '@votingworks/test-utils';
-import { deferred, err } from '@votingworks/basics';
+import { deferred, err, ok } from '@votingworks/basics';
 import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { screen, waitFor, within } from '../../test/react_testing_library.js';
 
 import { UnconfiguredScreen } from './unconfigured_screen.js';
-import { createQueryClient } from '../api.js';
+import { type ApiClient, createQueryClient } from '../api.js';
 import {
   type ApiMock,
   createApiMock,
@@ -105,8 +105,15 @@ test('configures from election packages on USB drive', async () => {
       .map((td) => td.textContent)
   ).toEqual(['election-package-2.zip', '01/01/2023 01:00:00 AM', '']);
 
-  apiMock.expectConfigure(electionPackages[0]!.path);
+  const configure = deferred<Awaited<ReturnType<ApiClient['configure']>>>();
+  apiMock.apiClient.configure
+    .expectCallWith({ electionFilePath: electionPackages[0]!.path })
+    .returns(configure.promise);
   userEvent.click(screen.getByText('election-package-1.zip'));
+  await waitFor(() =>
+    expect(screen.getButton('Restore from Backup...')).toBeDisabled()
+  );
+  configure.resolve(ok({ electionId: 'anything' }));
   await vi.waitFor(() => apiMock.assertComplete());
 });
 

@@ -181,14 +181,18 @@ function SelectElectionPackage({
               Select Other File...
             </Button>
           )}
-          <RebootInRestoreModeButton />
+          <RebootInRestoreModeButton disabled={configureMutation.isLoading} />
         </div>
       </div>
     </React.Fragment>
   );
 }
 
-function RebootInRestoreModeButton(): JSX.Element | null {
+function RebootInRestoreModeButton({
+  disabled,
+}: {
+  disabled?: boolean;
+}): JSX.Element | null {
   const rebootInRestoreModeMutation = rebootInRestoreMode.useMutation();
   const [isConfirming, setIsConfirming] = React.useState(false);
 
@@ -210,7 +214,7 @@ function RebootInRestoreModeButton(): JSX.Element | null {
 
   return (
     <React.Fragment>
-      <Button onPress={() => setIsConfirming(true)}>
+      <Button onPress={() => setIsConfirming(true)} disabled={disabled}>
         Restore from Backup...
       </Button>
       {isConfirming && (
