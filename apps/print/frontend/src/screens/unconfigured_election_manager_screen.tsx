@@ -1,23 +1,28 @@
-// @coverage-defer-file
+import { useState } from 'react';
 import {
   UnconfiguredElectionScreen,
   useQueryChangeListener,
 } from '@votingworks/ui';
+import type { Result } from '@votingworks/basics';
+import type {
+  ElectionDefinition,
+  ElectionPackageConfigurationError,
+} from '@votingworks/types';
 import { configureElectionPackageFromUsb, getDeviceStatuses } from '../api.js';
 import { ScreenWrapper } from '../components/screen_wrapper.js';
 
 export function UnconfiguredElectionManagerScreen(): JSX.Element | null {
   const deviceStatusesQuery = getDeviceStatuses.useQuery();
   const configure = configureElectionPackageFromUsb.useMutation();
+  const [configureResult, setConfigureResult] =
+    useState<Result<ElectionDefinition, ElectionPackageConfigurationError>>();
 
   useQueryChangeListener(deviceStatusesQuery, {
-    onChange: (newDeviceStatuses, previousDeviceStatuses) => {
-      if (
-        newDeviceStatuses.usbDrive?.status === 'mounted' &&
-        previousDeviceStatuses?.usbDrive?.status !== 'mounted'
-      ) {
-        configure.mutate();
-      }
+    select: ({ usbDrive }) => usbDrive.status,
+    onChange: async (usbDriveStatus) => {
+      if (usbDriveStatus !== 'mounted') return;
+      setConfigureResult(undefined);
+      setConfigureResult(await configure.mutateAsync());
     },
   });
 
@@ -27,7 +32,7 @@ export function UnconfiguredElectionManagerScreen(): JSX.Element | null {
 
   const { usbDrive } = deviceStatusesQuery.data;
 
-  const backendError = configure.data?.err();
+  const backendError = configureResult?.err();
   return (
     <ScreenWrapper authType="election_manager" centerChild>
       <UnconfiguredElectionScreen

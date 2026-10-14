@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, test, vi } from 'vitest';
+import React from 'react';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import {
@@ -41,6 +42,33 @@ test('renders an error if election package config endpoint returns an error', as
   apiMock.expectGetElectionState();
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
   await screen.findByText('Configuring VxMarkScan from USB drive…');
+  await screen.findByText(
+    'The most recent election package found is for a different election.'
+  );
+});
+
+test('configures from an already-inserted USB drive in strict mode', async () => {
+  apiMock.expectGetMachineConfig({
+    screenOrientation: 'portrait',
+  });
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetElectionRecord(null);
+  apiMock.expectGetElectionState();
+  apiMock.setAuthStatusElectionManagerLoggedIn(readElectionGeneralDefinition());
+  apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
+  apiMock.expectConfigureElectionPackageFromUsbError({
+    type: 'election_key_mismatch',
+  });
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetElectionRecord(null);
+  apiMock.expectGetElectionState();
+
+  render(
+    <React.StrictMode>
+      <App apiClient={apiMock.mockApiClient} />
+    </React.StrictMode>
+  );
+
   await screen.findByText(
     'The most recent election package found is for a different election.'
   );

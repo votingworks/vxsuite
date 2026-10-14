@@ -168,7 +168,6 @@ function UsbControllerButton({ status }: { status: UsbDriveStatus }) {
         // @coverage-defer
         onPress={() => ejectUsbMutation.mutate()}
         color="inverseNeutral"
-        // @coverage-defer
         disabled={extendedUsbDriveStatus !== 'mounted' || isEjecting}
       >
         {text}

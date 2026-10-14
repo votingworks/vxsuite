@@ -50,7 +50,6 @@ export function ScreenWrapper({
   const pollingPlaceId = getPollingPlaceIdQuery.data;
   const { enableTestDeckPrinting } = getSystemSettingsQuery.data;
 
-  // @coverage-defer
   const showNavItems = electionRecord !== null || authType === 'system_admin';
   const navRoutes = Object.values(routeMap[authType]).filter((route) =>
     route.path === electionManagerRoutes.testDecks.path

@@ -1,10 +1,15 @@
+import { useState } from 'react';
 import {
   UnconfiguredElectionScreen,
   Main,
   Screen,
   useQueryChangeListener,
 } from '@votingworks/ui';
-import { assert } from '@votingworks/basics';
+import { assert, type Result } from '@votingworks/basics';
+import type {
+  ElectionDefinition,
+  ElectionPackageConfigurationError,
+} from '@votingworks/types';
 import { configureElectionPackageFromUsb, getUsbDriveStatus } from '../api.js';
 
 /**
@@ -17,17 +22,19 @@ export function UnconfiguredElectionScreenWrapper(): JSX.Element {
   // this component until the USB drive query succeeds.
   assert(usbDriveStatusQuery.isSuccess);
   const configure = configureElectionPackageFromUsb.useMutation();
+  const [configureResult, setConfigureResult] =
+    useState<Result<ElectionDefinition, ElectionPackageConfigurationError>>();
 
   useQueryChangeListener(usbDriveStatusQuery, {
     select: ({ status }) => status,
-    onChange: (newStatus) => {
-      if (newStatus === 'mounted') {
-        configure.mutate();
-      }
+    onChange: async (newStatus) => {
+      if (newStatus !== 'mounted') return;
+      setConfigureResult(undefined);
+      setConfigureResult(await configure.mutateAsync());
     },
   });
 
-  const backendError = configure.data?.err();
+  const backendError = configureResult?.err();
   return (
     <Screen>
       <Main centerChild>
