@@ -56,6 +56,8 @@ import {
   type SystemSettings,
   type BallotPositions,
   BallotPositionsSchema,
+  BallotCandidateOrderingsSchema,
+  type BallotCandidateOrderings,
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import type { z } from 'zod/v4';
@@ -484,6 +486,20 @@ export function streamBallotPositions(
     zip,
     ElectionPackageFileName.BALLOT_POSITIONS,
     BallotPositionsSchema
+  );
+}
+
+/**
+ * Streams candidate orderings from the election package, one ballot style at a
+ * time.
+ */
+export function streamCandidateOrderings(
+  zip: ElectionPackageZip
+): AsyncIterable<BallotCandidateOrderings> {
+  return streamElectionPackageJsonlEntry(
+    zip,
+    ElectionPackageFileName.CANDIDATE_ORDERINGS,
+    BallotCandidateOrderingsSchema
   );
 }
 
