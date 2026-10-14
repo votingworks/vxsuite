@@ -45,7 +45,8 @@ import { BackupsScreen } from '../screens/backups_screen.js';
 import { CvrDataRefresher } from './cvr_data_refresher.js';
 
 export function AppRoutes(): JSX.Element | null {
-  const { electionDefinition, auth } = useContext(AppContext);
+  const { electionDefinition, electionPackageHash, machineConfig, auth } =
+    useContext(AppContext);
   const election = electionDefinition?.election;
   const apiClient = useApiClient();
   const checkPinMutation = checkPin.useMutation();
@@ -85,7 +86,13 @@ export function AppRoutes(): JSX.Element | null {
       auth.reason === 'machine_locked' ||
       auth.reason === 'machine_locked_by_session_expiry'
     ) {
-      return <MachineLockedScreen />;
+      return (
+        <MachineLockedScreen
+          electionDefinition={electionDefinition}
+          electionPackageHash={electionPackageHash}
+          machineConfig={machineConfig}
+        />
+      );
     }
     return (
       <InvalidCardScreen
