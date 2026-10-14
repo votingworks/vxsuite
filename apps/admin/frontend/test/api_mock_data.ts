@@ -1,5 +1,6 @@
 import { DateWithoutTime, ok } from '@votingworks/basics';
 import type {
+  BackupManifestStruct,
   BackupStatus,
   CastVoteRecordFileMetadata,
   CastVoteRecordFileRecord,
@@ -77,24 +78,26 @@ export const mockManualResultsMetadata: ManualResultsMetadata[] = [
   },
 ];
 
+export const mockBackupManifest: BackupManifestStruct = {
+  version: 1,
+  softwareVersion: '4.1.0',
+  machineId: '0000',
+  createdAt: '2026-10-08T12:00:00.000Z',
+  election: {
+    id: 'election-general',
+    title: 'General Election',
+    date: new DateWithoutTime('2020-11-03'),
+    jurisdictionName: 'Franklin County',
+    state: 'State of Hamilton',
+  },
+  cvrCount: 0,
+  files: [],
+};
+
 export const mockSavedBackupStatus: BackupStatus = {
   status: 'ended',
   result: ok({
     path: '/media/vx/backup/vxadmin-backups/example-county_general-election_abc123',
-    manifest: {
-      version: 1,
-      softwareVersion: '4.1.0',
-      machineId: '0000',
-      createdAt: '2026-10-08T12:00:00.000Z',
-      election: {
-        id: 'election-general',
-        title: 'General Election',
-        date: new DateWithoutTime('2020-11-03'),
-        jurisdictionName: 'Franklin County',
-        state: 'State of Hamilton',
-      },
-      cvrCount: 0,
-      files: [],
-    },
+    manifest: mockBackupManifest,
   }),
 };

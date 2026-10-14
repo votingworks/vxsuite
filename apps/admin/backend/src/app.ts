@@ -178,6 +178,10 @@ import {
   type BackupController,
   type BackupStatus,
 } from './backup/create/index.js';
+import { BackupRoot, type ListBackupsError } from './backup/backup_root.js';
+import type { BackupManifestStruct } from './backup/backup_manifest.js';
+import type { ReadManifestError } from './backup/backup_manifest_file.js';
+import type { BackupOpenError } from './backup/backup.js';
 
 const debug = rootDebug.extend('app');
 
@@ -1669,6 +1673,36 @@ function buildApi({
 
     async getBackupDriveStatus(): Promise<UsbDriveStatus> {
       return backupDriveAdapter.status();
+    },
+
+    async getLastBackupOnDrive(): Promise<
+      Result<
+        BackupManifestStruct | null,
+        ListBackupsError | BackupOpenError | ReadManifestError
+      >
+    > {
+      const backupDriveStatus = await backupDriveAdapter.status();
+      if (backupDriveStatus.status !== 'mounted') return ok(null);
+      const electionBackupName = assertDefined(
+        store.getElectionBasedSubfolderName(
+          loadCurrentElectionIdOrThrow(workspace)
+        )
+      );
+      const backupRoot = new BackupRoot(backupDriveStatus.mountpoint);
+      const backups = await backupRoot.listBackups();
+      if (backups.isErr()) return backups;
+      const lastBackup = backups
+        .ok()
+        .find(
+          (backup) => backup.path === backupRoot.pathFor(electionBackupName)
+        );
+      if (!lastBackup) return ok(null);
+      const openResult = await lastBackup.open();
+      if (openResult.isErr()) return openResult;
+      await using openedBackup = openResult.ok();
+      const manifest = await openedBackup.readManifest();
+      if (manifest.isErr()) return manifest;
+      return ok(manifest.ok().toJSON());
     },
 
     async startBackup(): Promise<void> {

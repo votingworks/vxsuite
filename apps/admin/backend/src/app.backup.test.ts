@@ -1,8 +1,12 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { existsSync } from 'node:fs';
+import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { assert, deferred } from '@votingworks/basics';
-import { readElectionGeneralDefinition } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  readElectionGeneralDefinition,
+} from '@votingworks/fixtures';
+import { prepareSignatureFile } from '@votingworks/auth';
 import { LogEventId } from '@votingworks/logging';
 import { generateElectionBasedSubfolderName } from '@votingworks/utils';
 import {
@@ -14,6 +18,7 @@ import {
 } from '../test/app.js';
 import { mockDiskSpace } from '../test/backup.js';
 import { copy } from './backup/create/copy_step.js';
+import { Backup } from './backup/backup.js';
 
 vi.setConfig({ testTimeout: 30_000 });
 
@@ -203,4 +208,90 @@ test('finishing a backup clears its status so another can start', async () => {
   await apiClient.startBackup();
   const status = await waitForBackupToEnd();
   status.result.unsafeUnwrap();
+});
+
+test('getLastBackupOnDrive gets the last backup matching the current election', async () => {
+  const { apiClient, auth } = env;
+  await configureMachine(apiClient, auth, electionDefinition);
+  expect((await apiClient.getLastBackupOnDrive()).unsafeUnwrap()).toBeNull();
+  await attachBackupDrive();
+  expect((await apiClient.getLastBackupOnDrive()).unsafeUnwrap()).toBeNull();
+
+  await apiClient.startBackup();
+  const status = await waitForBackupToEnd();
+  await apiClient.finishBackup();
+  const lastBackup = (await apiClient.getLastBackupOnDrive()).unsafeUnwrap();
+  expect(lastBackup).toEqual(status.result.unsafeUnwrap().manifest);
+  expect(lastBackup).toMatchObject({
+    machineId: '0000',
+    cvrCount: 0,
+    election: {
+      id: 'election-general',
+      title: 'General Election',
+      jurisdictionName: 'Franklin County',
+      state: 'State of Hamilton',
+    },
+  });
+
+  await apiClient.unconfigure();
+  await configureMachine(
+    apiClient,
+    auth,
+    electionFamousNames2021Fixtures.readElectionDefinition()
+  );
+  expect((await apiClient.getLastBackupOnDrive()).unsafeUnwrap()).toBeNull();
+
+  await apiClient.startBackup();
+  await waitForBackupToEnd();
+  await apiClient.finishBackup();
+  expect((await apiClient.getLastBackupOnDrive()).unsafeUnwrap()).toMatchObject(
+    {
+      election: {
+        id: 'election-famous-names',
+        title: 'Lincoln Municipal General Election',
+      },
+    }
+  );
+});
+
+test('getLastBackupOnDrive returns errors', async () => {
+  const { apiClient, auth } = env;
+  await configureMachine(apiClient, auth, electionDefinition);
+  const mountpoint = await attachBackupDrive();
+  const backupsPath = join(mountpoint, 'vxadmin-backups');
+
+  writeFileSync(backupsPath, '');
+  expect((await apiClient.getLastBackupOnDrive()).err()).toEqual({
+    type: 'not-directory',
+    message: `${backupsPath} is not a directory`,
+  });
+  rmSync(backupsPath);
+
+  const backupPath = join(
+    backupsPath,
+    generateElectionBasedSubfolderName(
+      electionDefinition.election,
+      electionDefinition.ballotHash
+    )
+  );
+  mkdirSync(backupPath, { recursive: true });
+  expect((await apiClient.getLastBackupOnDrive()).err()).toMatchObject({
+    type: 'read-failed',
+  });
+
+  const manifestFileContents = JSON.stringify({ version: 99 });
+  const signatureFile = await prepareSignatureFile({
+    type: 'vxadmin_backup',
+    context: 'export',
+    manifestFileContents,
+  });
+  writeFileSync(new Backup(backupPath).manifestPath, manifestFileContents);
+  writeFileSync(
+    join(backupPath, signatureFile.fileName),
+    signatureFile.fileContents
+  );
+  expect((await apiClient.getLastBackupOnDrive()).err()).toMatchObject({
+    type: 'unsupported-version',
+    version: 99,
+  });
 });

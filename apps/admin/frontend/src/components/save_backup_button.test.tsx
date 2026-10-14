@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { err } from '@votingworks/basics';
+import { deferred, err, ok } from '@votingworks/basics';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import type {
   BackupProgressEvent,
@@ -14,10 +14,17 @@ import {
 import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { screen, waitFor, within } from '../../test/react_testing_library.js';
 import { DEFAULT_QUERY_REFETCH_INTERVAL } from '../utils/globals.js';
-import { mockSavedBackupStatus } from '../../test/api_mock_data.js';
+import {
+  mockBackupManifest,
+  mockSavedBackupStatus,
+} from '../../test/api_mock_data.js';
 import { SaveBackupButton } from './save_backup_button.js';
 
 const electionDefinition = readElectionGeneralDefinition();
+
+type LastBackupOnDrive = Awaited<
+  ReturnType<ApiMock['apiClient']['getLastBackupOnDrive']>
+>;
 
 let apiMock: ApiMock;
 
@@ -50,6 +57,7 @@ test('asks for a backup drive when none is attached', async () => {
   apiMock.apiClient.getBackupDriveStatus
     .expectRepeatedCallsWith()
     .resolves(mockUsbDriveStatus('no_drive'));
+  apiMock.expectGetLastBackupOnDrive(null);
   renderButton();
 
   userEvent.click(screen.getButton('Save Backup'));
@@ -65,18 +73,33 @@ test('continues once a backup drive is inserted', async () => {
   apiMock.apiClient.getBackupDriveStatus
     .expectRepeatedCallsWith()
     .resolves(mockUsbDriveStatus('no_drive'));
+  apiMock.expectGetLastBackupOnDrive(null);
   renderButton();
 
   userEvent.click(screen.getButton('Save Backup'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Insert Backup Drive' });
 
+  const { promise, resolve } = deferred<LastBackupOnDrive>();
   apiMock.apiClient.getBackupDriveStatus
     .expectRepeatedCallsWith()
     .resolves(mockUsbDriveStatus('mounted'));
+  apiMock.apiClient.getLastBackupOnDrive.expectCallWith().returns(promise);
   vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
+  await waitFor(() => apiMock.assertComplete());
+  within(modal).getByRole('heading', { name: 'Insert Backup Drive' });
+  expect(
+    within(modal).queryByRole('heading', { name: 'Save Backup' })
+  ).not.toBeInTheDocument();
+
+  resolve(ok(mockBackupManifest));
   await within(modal).findByRole('heading', { name: 'Save Backup' });
-  within(modal).getButton('Save Backup');
+  within(modal).getByRole('heading', {
+    name: 'General Election · November 3, 2020',
+  });
+  within(modal).getByText('Last Backup on Drive');
+  expect(within(modal).queryByText('None')).not.toBeInTheDocument();
+  expect(within(modal).getButton('Save Backup')).toBeEnabled();
 });
 
 test.each<{ event: BackupProgressEvent; text: string; width: string }>([
@@ -129,9 +152,6 @@ test.each<{ event: BackupProgressEvent; text: string; width: string }>([
 ])(
   'shows the phase of a backup at $event.type',
   async ({ event, text, width }) => {
-    apiMock.apiClient.getBackupDriveStatus
-      .expectRepeatedCallsWith()
-      .resolves(mockUsbDriveStatus('mounted'));
     apiMock.setBackupStatus({
       status: 'in-progress',
       lastProgressEvent: event,
@@ -151,20 +171,33 @@ test('saves a backup and shows its progress', async () => {
   apiMock.apiClient.getBackupDriveStatus
     .expectRepeatedCallsWith()
     .resolves(mockUsbDriveStatus('mounted'));
+  const firstRead = deferred<LastBackupOnDrive>();
+  apiMock.apiClient.getLastBackupOnDrive
+    .expectCallWith()
+    .returns(firstRead.promise);
   renderButton();
 
   userEvent.click(screen.getButton('Save Backup'));
+  await waitFor(() => apiMock.assertComplete());
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  firstRead.resolve(ok(null));
   let modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Save Backup' });
+  within(modal).getByText('Save a backup to the inserted backup drive.');
+  within(modal).getByText('Last Backup on Drive:');
+  within(modal).getByText('None');
   userEvent.click(within(modal).getButton('Cancel'));
   await expectModalClosed();
 
+  apiMock.expectGetLastBackupOnDrive(null);
   userEvent.click(screen.getButton('Save Backup'));
   modal = await screen.findByRole('alertdialog');
+  within(modal).getByText('None');
   apiMock.apiClient.startBackup.expectCallWith().resolves();
   userEvent.click(within(modal).getButton('Save Backup'));
   apiMock.setBackupStatus({ status: 'starting' });
-  await within(modal).findByRole('heading', { name: 'Saving Backup' });
+  await screen.findByRole('heading', { name: 'Saving Backup' });
+  modal = screen.getByRole('alertdialog');
   within(modal).getByText('Preparing to save backup');
   expect(within(modal).getByRole('progressbar').firstElementChild).toHaveStyle(
     'width: 0%'
@@ -195,18 +228,31 @@ test('saves a backup and shows its progress', async () => {
 
   pollBackupStatus(mockSavedBackupStatus);
   await within(modal).findByRole('heading', { name: 'Backup Saved' });
+  within(modal).getByRole('heading', {
+    name: 'General Election · November 3, 2020',
+  });
   within(modal).getByText('You may remove the backup drive.');
 
   apiMock.apiClient.finishBackup.expectCallWith().resolves();
   userEvent.click(within(modal).getButton('Close'));
   apiMock.setBackupStatus(null);
   await expectModalClosed();
+
+  const reopenRead = deferred<LastBackupOnDrive>();
+  apiMock.apiClient.getLastBackupOnDrive
+    .expectCallWith()
+    .returns(reopenRead.promise);
+  userEvent.click(screen.getButton('Save Backup'));
+  await waitFor(() => apiMock.assertComplete());
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  reopenRead.resolve(ok(mockBackupManifest));
+  modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', {
+    name: 'General Election · November 3, 2020',
+  });
 });
 
 test('cancels a running backup', async () => {
-  apiMock.apiClient.getBackupDriveStatus
-    .expectRepeatedCallsWith()
-    .resolves(mockUsbDriveStatus('mounted'));
   apiMock.setBackupStatus({
     status: 'in-progress',
     lastProgressEvent: { type: '1_preparing' },
@@ -234,9 +280,6 @@ test('cancels a running backup', async () => {
 });
 
 test('reports a failed backup', async () => {
-  apiMock.apiClient.getBackupDriveStatus
-    .expectRepeatedCallsWith()
-    .resolves(mockUsbDriveStatus('mounted'));
   apiMock.setBackupStatus({
     status: 'ended',
     result: err({
@@ -257,12 +300,57 @@ test('reports a failed backup', async () => {
 });
 
 test('a finished backup is shown even if the backup drive is gone', async () => {
-  apiMock.apiClient.getBackupDriveStatus
-    .expectRepeatedCallsWith()
-    .resolves(mockUsbDriveStatus('no_drive'));
   apiMock.setBackupStatus(mockSavedBackupStatus);
   renderButton();
 
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Backup Saved' });
+});
+
+test('reads the last backup again when the drive is reinserted', async () => {
+  apiMock.apiClient.getBackupDriveStatus
+    .expectRepeatedCallsWith()
+    .resolves(mockUsbDriveStatus('mounted'));
+  apiMock.expectGetLastBackupOnDrive(null);
+  renderButton();
+
+  userEvent.click(screen.getButton('Save Backup'));
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText('None');
+
+  apiMock.apiClient.getBackupDriveStatus
+    .expectRepeatedCallsWith()
+    .resolves(mockUsbDriveStatus('no_drive'));
+  apiMock.expectGetLastBackupOnDrive(null);
+  vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
+  await within(modal).findByRole('heading', { name: 'Insert Backup Drive' });
+
+  apiMock.apiClient.getBackupDriveStatus
+    .expectRepeatedCallsWith()
+    .resolves(mockUsbDriveStatus('mounted'));
+  apiMock.expectGetLastBackupOnDrive(mockBackupManifest);
+  vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
+  await within(modal).findByRole('heading', {
+    name: 'General Election · November 3, 2020',
+  });
+});
+
+test('warns when the last backup on the drive cannot be read', async () => {
+  apiMock.apiClient.getBackupDriveStatus
+    .expectRepeatedCallsWith()
+    .resolves(mockUsbDriveStatus('mounted'));
+  apiMock.apiClient.getLastBackupOnDrive.expectCallWith().resolves(
+    err({
+      type: 'authentication-failed',
+      message: 'signature verification failed',
+    })
+  );
+  renderButton();
+
+  userEvent.click(screen.getButton('Save Backup'));
+  const modal = await screen.findByRole('alertdialog');
+  await within(modal).findByText(
+    'Failed to load last backup on drive. You may still save a new backup, overwriting any existing backup.'
+  );
+  expect(within(modal).getButton('Save Backup')).toBeEnabled();
 });
