@@ -442,10 +442,7 @@ export interface BallotStyle {
   readonly districts: readonly DistrictId[];
   readonly partyId?: PartyId;
   readonly languages: readonly string[];
-  readonly orderedCandidatesByContest?: Record<
-    ContestId,
-    OrderedCandidateOption[]
-  >;
+  readonly orderedCandidatesByContest?: CandidateOrderings;
   /**
    * The grid positions (bubble centers and bounding boxes) of every contest and
    * option on this ballot style's HMPB, organized by sheet. Absent for ballot
@@ -462,12 +459,13 @@ export interface BallotStyleGroup {
   readonly ballotStyles: readonly BallotStyle[];
   readonly precincts: readonly PrecinctId[];
   readonly districts: readonly DistrictId[];
-  readonly orderedCandidatesByContest?: Record<
-    ContestId,
-    OrderedCandidateOption[]
-  >;
+  readonly orderedCandidatesByContest?: CandidateOrderings;
   readonly partyId?: PartyId;
 }
+
+export type CandidateOrderings = Record<ContestId, OrderedCandidateOption[]>;
+export const CandidateOrderingsSchema: z.ZodSchema<CandidateOrderings> =
+  z.record(z.string(), z.array(OrderedCandidateOptionSchema));
 
 /**
  * A measurement in timing-mark grid units (relative to the timing mark grid,
@@ -593,6 +591,16 @@ export const BallotPositionsSchema: z.ZodSchema<BallotPositions> = z.object({
   positions: z.array(SheetPositionsSchema),
 });
 
+export interface BallotCandidateOrderings {
+  ballotStyleId: BallotStyleId;
+  orderings: CandidateOrderings;
+}
+export const BallotCandidateOrderingsSchema: z.ZodSchema<BallotCandidateOrderings> =
+  z.object({
+    ballotStyleId: IdSchema,
+    orderings: CandidateOrderingsSchema,
+  });
+
 // GridPosition is the ballot interpreter's per-mark output type: it tags a
 // scored bubble with the contest/option it represents and where the bubble sits
 // on the timing-mark grid. It is NOT part of the election definition (ballot
@@ -664,9 +672,7 @@ export const BallotStyleSchema = z.object({
   districts: z.array(DistrictIdSchema),
   partyId: PartyIdSchema.optional(),
   languages: z.array(z.string()),
-  orderedCandidatesByContest: z
-    .record(z.string(), z.array(OrderedCandidateOptionSchema))
-    .optional(),
+  orderedCandidatesByContest: CandidateOrderingsSchema.optional(),
   ballotPositions: z.array(SheetPositionsSchema).optional(),
 }) satisfies z.ZodType<BallotStyle>;
 export const BallotStylesSchema = z

@@ -36,6 +36,7 @@ import {
   LATEST_SOFTWARE_VERSION,
   type SystemSettings,
   type BallotPositions,
+  type BallotCandidateOrderings,
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
@@ -422,6 +423,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
   emitProgress?: (label: string, progress: number, total: number) => void
 ): Promise<{
   ballotPositionsPath?: string;
+  candidateOrderingsPath?: string;
   layoutPaths: string[];
   electionDefinition: ElectionDefinition;
 }> {
@@ -534,8 +536,6 @@ export async function layOutBallotsAndCreateElectionDefinition<
       return contest;
     });
 
-  const election: Election = { ...baseElection, contests };
-
   const isSplitElectionDef =
     serializationOptions.format === 'vxf' &&
     systemSettings.splitElectionDefinition;
@@ -543,7 +543,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
   // [TODO] Replace with a software version check when setting is on by default.
   if (!isSplitElectionDef) {
     const electionDefinition = electionWithBallotPositions(
-      election,
+      { ...baseElection, contests },
       positionsByBallotStyle,
       serializationOptions
     );
@@ -551,6 +551,14 @@ export async function layOutBallotsAndCreateElectionDefinition<
     return { electionDefinition, layoutPaths };
   }
 
+  const election: Election = {
+    ...baseElection,
+    ballotStyles: baseElection.ballotStyles.map((bs) => ({
+      ...bs,
+      orderedCandidatesByContest: undefined,
+    })),
+    contests,
+  };
   const electionData = serializeElection(election, serializationOptions);
 
   function* ballotPositionLines() {
@@ -563,18 +571,35 @@ export async function layOutBallotsAndCreateElectionDefinition<
     }
   }
 
+  function* candidateOrderingLines() {
+    for (const b of baseElection.ballotStyles) {
+      const orderings = b.orderedCandidatesByContest;
+      if (!orderings) continue;
+
+      const data: BallotCandidateOrderings = { ballotStyleId: b.id, orderings };
+      yield `${JSON.stringify(data)}\n`;
+    }
+  }
+
   const ballotPositionsFile = await writeAndHashScratchFile(scratchDir, {
     data: Readable.from(ballotPositionLines()),
     extension: 'jsonl',
   });
 
+  const candidateOrderingsFile = await writeAndHashScratchFile(scratchDir, {
+    data: Readable.from(candidateOrderingLines()),
+    extension: 'jsonl',
+  });
+
   const ballotHash = computeBallotHashVxf({
     ballotPositions: ballotPositionsFile.hash,
+    candidateOrderings: candidateOrderingsFile.hash,
     election: createHash('sha256').update(electionData).digest('hex'),
   });
 
   return {
     ballotPositionsPath: ballotPositionsFile.path,
+    candidateOrderingsPath: candidateOrderingsFile.path,
     electionDefinition: { ballotHash, election, electionData },
     layoutPaths,
   };
@@ -614,22 +639,22 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
 ): Promise<{
   ballotPaths: string[];
   ballotPositionsPath?: string;
+  candidateOrderingsPath?: string;
   electionDefinition: ElectionDefinition;
 }> {
-  const { ballotPositionsPath, layoutPaths, electionDefinition } =
-    await layOutBallotsAndCreateElectionDefinition(
-      rendererPool,
-      template,
-      ballotProps,
-      electionSerializationOptions,
-      systemSettings,
-      scratchDir,
-      emitProgress
-    );
+  const res = await layOutBallotsAndCreateElectionDefinition(
+    rendererPool,
+    template,
+    ballotProps,
+    electionSerializationOptions,
+    systemSettings,
+    scratchDir,
+    emitProgress
+  );
 
   const ballotPaths = await rendererPool.runTasks(
     iter(ballotProps)
-      .zip(layoutPaths)
+      .zip(res.layoutPaths)
       .map(([props, layoutPath]) => async (renderer: Renderer) => {
         const document = await renderer.documentFromPath(layoutPath);
 
@@ -644,7 +669,7 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
         const pdf = await renderBallotPdfWithMetadataQrCode(
           props,
           document,
-          electionDefinition,
+          res.electionDefinition,
           electionSerializationOptions.version
         );
 
@@ -659,8 +684,9 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
 
   return {
     ballotPaths,
-    ballotPositionsPath,
-    electionDefinition,
+    ballotPositionsPath: res.ballotPositionsPath,
+    candidateOrderingsPath: res.candidateOrderingsPath,
+    electionDefinition: res.electionDefinition,
   };
 }
 

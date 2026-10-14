@@ -199,9 +199,11 @@ test('read from file - SystemSettings.splitElectionDefinition = true', async () 
   };
 
   const ballotPositionsJsonl = 'content irrelevant\n'.repeat(10);
+  const candidateOrderingsJsonl = 'also irrelevant\n'.repeat(10);
   const ballotHash = createHash('sha256')
     .update(sha256Hex(electionData))
     .update(sha256Hex(ballotPositionsJsonl))
+    .update(sha256Hex(candidateOrderingsJsonl))
     .digest('hex');
 
   const electionDefinition: ElectionDefinition = {
@@ -213,6 +215,7 @@ test('read from file - SystemSettings.splitElectionDefinition = true', async () 
   const zipPath = makeTemporaryFile({
     content: await electionPackageZip({
       [ElectionPackageFileName.BALLOT_POSITIONS]: ballotPositionsJsonl,
+      [ElectionPackageFileName.CANDIDATE_ORDERINGS]: candidateOrderingsJsonl,
       [ElectionPackageFileName.ELECTION]: electionData,
       [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(settings),
     }),

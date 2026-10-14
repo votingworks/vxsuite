@@ -23,6 +23,7 @@ export const ElectionPackageFileName = {
   AUDIO_IDS: 'audioIds.json',
   BALLOT_POSITIONS: 'ballotPositions.jsonl',
   BALLOTS: 'ballots.jsonl',
+  CANDIDATE_ORDERINGS: 'candidateOrderings.jsonl',
   ELECTION: 'election.json',
   METADATA: 'metadata.json',
   REGISTERED_VOTER_COUNTS: 'registeredVoterCounts.json',

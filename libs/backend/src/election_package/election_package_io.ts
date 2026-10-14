@@ -687,6 +687,7 @@ export async function parseAndHashElection(
 
   const ballotHash = computeBallotHashVxf({
     ballotPositions: await hashZipEntry(zip, Entry.BALLOT_POSITIONS),
+    candidateOrderings: await hashZipEntry(zip, Entry.CANDIDATE_ORDERINGS),
     election: electionHash,
   });
 
@@ -698,6 +699,7 @@ export async function parseAndHashElection(
  */
 export interface ElectionFileHashes {
   ballotPositions: string;
+  candidateOrderings: string;
   election: string;
 }
 
@@ -712,6 +714,7 @@ export function computeBallotHashVxf(hashes: ElectionFileHashes): string {
   return createHash('sha256')
     .update(hashes.election)
     .update(hashes.ballotPositions)
+    .update(hashes.candidateOrderings)
     .digest('hex');
 }
 

@@ -23,6 +23,8 @@ import {
   BallotPositionsSchema,
   ElectionPackageFileName,
   type BallotPositions,
+  BallotCandidateOrderingsSchema,
+  unsafeParseJson,
 } from '@votingworks/types';
 import {
   assert,
@@ -514,7 +516,7 @@ test('fails on inconsistent ballot positions for matching styles', async () => {
 });
 
 test('writes separate ballot meta files when `splitElectionDefinition` setting is on', async () => {
-  const fixtures = vxGeneralElectionFixtures;
+  const fixtures = nhGeneralElectionFixtures;
   const allProps = assertDefined(fixtures.fixtureSpecs[0]?.allBallotProps);
 
   const props1 = assertDefined(allProps[0]);
@@ -539,6 +541,7 @@ test('writes separate ballot meta files when `splitElectionDefinition` setting i
 
   for (const bs of res.electionDefinition.election.ballotStyles) {
     expect(bs.ballotPositions).toBeUndefined();
+    expect(bs.orderedCandidatesByContest).toBeUndefined();
   }
 
   const ballotPositionsJsonl = loadPositionsJsonl(res.ballotPositionsPath);
@@ -547,12 +550,25 @@ test('writes separate ballot meta files when `splitElectionDefinition` setting i
   expect(ballotPositions[0]?.ballotStyleId).toEqual(props1.ballotStyleId);
   expect(ballotPositions[1]?.ballotStyleId).toEqual(props2.ballotStyleId);
 
+  const candidateOrderingsJsonl = readFileSync(
+    assertDefined(res.candidateOrderingsPath, 'no candidate orderings path'),
+    'utf8'
+  );
+  const candidateOrderings = candidateOrderingsJsonl
+    .trim()
+    .split('\n')
+    .map((l) => unsafeParseJson(l, BallotCandidateOrderingsSchema));
+
+  expect(candidateOrderings[0]?.ballotStyleId).toEqual(props1.ballotStyleId);
+  expect(candidateOrderings[1]?.ballotStyleId).toEqual(props2.ballotStyleId);
+
   // Make sure ballot hashes match after round trip through ZIP package:
 
   const zipData = await zipFile({
     [ElectionPackageFileName.ELECTION]: res.electionDefinition.electionData,
     [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(settings),
     [ElectionPackageFileName.BALLOT_POSITIONS]: ballotPositionsJsonl,
+    [ElectionPackageFileName.CANDIDATE_ORDERINGS]: candidateOrderingsJsonl,
   });
 
   const zipFilePath = makeTemporaryFile({ content: zipData });
@@ -568,7 +584,7 @@ test('writes separate ballot meta files when `splitElectionDefinition` setting i
 });
 
 test('writes single-file election when `splitElectionDefinition` setting is off', async () => {
-  const fixtures = vxGeneralElectionFixtures;
+  const fixtures = nhGeneralElectionFixtures;
   const props = assertDefined(fixtures.fixtureSpecs[0]?.allBallotProps);
 
   const props1 = assertDefined(props[0]);
