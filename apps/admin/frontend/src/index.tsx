@@ -13,30 +13,34 @@ import {
   AppErrorBoundary,
   SystemCallContextProvider,
 } from '@votingworks/ui';
-import { assert } from '@votingworks/basics';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import { LogSource, BaseLogger } from '@votingworks/logging';
-import { App as ServerApp } from './app.js';
+import { App as HostApp } from './app.js';
 import { ClientApp } from './client/client_app.js';
+import { RestoreApp } from './restore/restore_app.js';
 import { createApiClient } from './api.js';
 import {
   SharedApiClientContext,
   createSharedQueryClient,
-  getMachineMode,
-  isMultiStationAdjudicationEnabled,
+  getAppMode,
   systemCallApi,
 } from './shared_api.js';
 
 function PrimaryApp(): JSX.Element | null {
-  const machineModeQuery = getMachineMode.useQuery();
-  const isMultiStationEnabledQuery =
-    isMultiStationAdjudicationEnabled.useQuery();
-  if (!machineModeQuery.isSuccess || !isMultiStationEnabledQuery.isSuccess) {
+  const appModeQuery = getAppMode.useQuery();
+  if (!appModeQuery.isSuccess) {
     return null;
   }
-  if (machineModeQuery.data === 'client' && isMultiStationEnabledQuery.data) {
-    return <ClientApp />;
+  switch (appModeQuery.data) {
+    case 'host':
+      return <HostApp />;
+    case 'client':
+      return <ClientApp />;
+    case 'restore':
+      return <RestoreApp />;
+    default:
+      throwIllegalValue(appModeQuery);
   }
-  return <ServerApp />;
 }
 
 const apiClient = createApiClient();

@@ -1,7 +1,7 @@
 import { ElectionInfoBar, Main, Screen, H1, H3 } from '@votingworks/ui';
-import { useContext } from 'react';
 import styled from 'styled-components';
-import { AppContext } from '../contexts/app_context.js';
+import type { ElectionDefinition } from '@votingworks/types';
+import type { MachineConfig } from '@votingworks/admin-backend';
 
 const LockedImage = styled.img`
   margin-right: auto;
@@ -10,9 +10,15 @@ const LockedImage = styled.img`
   height: 20vw;
 `;
 
-export function MachineLockedScreen(): JSX.Element {
-  const { electionDefinition, electionPackageHash, machineConfig } =
-    useContext(AppContext);
+export function MachineLockedScreen({
+  electionDefinition,
+  electionPackageHash,
+  machineConfig,
+}: {
+  electionDefinition?: ElectionDefinition;
+  electionPackageHash?: string;
+  machineConfig: MachineConfig;
+}): JSX.Element {
   return (
     <Screen>
       <Main centerChild>
