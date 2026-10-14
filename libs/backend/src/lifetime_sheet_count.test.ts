@@ -239,13 +239,13 @@ function setUpCounter() {
   return { filePath, logger, counter };
 }
 
-test('LifetimeSheetCounter falls back to 0 and logs each distinct read error once', async () => {
+test('LifetimeSheetCounter falls back to 0', async () => {
   const { filePath, logger, counter } = setUpCounter();
 
   writeFileSync(filePath, 'abc\n');
   expect(await counter.get()).toEqual(0);
   expect(await counter.get()).toEqual(0);
-  expect(logger.log).toHaveBeenCalledExactlyOnceWith(
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.LifetimeSheetCountReadError,
     'system',
     {
@@ -256,7 +256,14 @@ test('LifetimeSheetCounter falls back to 0 and logs each distinct read error onc
 
   writeFileSync(filePath, '-1\n');
   expect(await counter.get()).toEqual(0);
-  expect(logger.log).toHaveBeenCalledTimes(2);
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.LifetimeSheetCountReadError,
+    'system',
+    {
+      disposition: 'failure',
+      message: 'Error reading lifetime sheet count: invalid count: "-1"',
+    }
+  );
 
   writeFileSync(filePath, '3\n');
   expect(await counter.get()).toEqual(3);

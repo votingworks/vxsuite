@@ -130,7 +130,6 @@ export function createLifetimeSheetCounter({
   logger: BaseLogger;
 }): LifetimeSheetCounter {
   let cachedCount: number | undefined;
-  let lastReadError: string | undefined;
   let pendingIncrements = 0;
   let incrementEvents = 0;
 
@@ -142,13 +141,12 @@ export function createLifetimeSheetCounter({
     const incrementEventsBeforeRead = incrementEvents;
     const result = await readLifetimeSheetCount({ devRoot });
     const error = result.err();
-    if (error !== undefined && error !== lastReadError) {
+    if (error !== undefined) {
       logger.log(LogEventId.LifetimeSheetCountReadError, 'system', {
         disposition: 'failure',
         message: error,
       });
     }
-    lastReadError = error;
 
     // A read that overlaps an increment may see the file before or after it.
     if (
