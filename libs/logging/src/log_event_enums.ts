@@ -24,7 +24,7 @@ export const AppName = {
   VxMarkScan: 'vx-mark-scan',
   VxAdmin: 'vx-admin',
   VxCentralScan: 'vx-central-scan',
-  VxDesign: 'vx-design',
+  VxHub: 'vx-hub',
   VxPollBook: 'vx-pollbook',
 } as const;
 export type AppName = (typeof AppName)[keyof typeof AppName];
@@ -36,8 +36,8 @@ export const LogSource = {
   VxCentralScanFrontend: 'vx-central-scan-frontend',
   VxCentralScanFrontendServer: 'vx-central-scan-frontend-server',
   VxCentralScanService: 'vx-central-scan-service',
-  VxDesignService: 'vx-design-service',
-  VxDesignWorker: 'vx-design-worker',
+  VxHubService: 'vx-hub-service',
+  VxHubWorker: 'vx-hub-worker',
   VxScanFrontend: 'vx-scan-frontend',
   VxScanFrontendServer: 'vx-scan-frontend-server',
   VxScanBackend: 'vx-scan-backend',
@@ -1429,7 +1429,7 @@ const ApiCall: LogDetails = {
   eventId: LogEventId.ApiCall,
   eventType: LogEventType.ApplicationAction,
   documentationMessage: 'An API call was made.',
-  restrictInDocumentationToApps: [AppName.VxDesign],
+  restrictInDocumentationToApps: [AppName.VxHub],
 };
 
 const SocketClientConnectInit: LogDetails = {

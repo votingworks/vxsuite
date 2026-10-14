@@ -219,7 +219,7 @@ function handleInvalidInput(
  *   (VxScan, VxAdmin, etc.) where bad input should never happen and indicates
  *   a serious problem.
  * - 'error': Returns a 400 response. Appropriate for publicly-hosted
- *   applications (VxDesign) where bad input can come from external clients.
+ *   applications (VxHub) where bad input can come from external clients.
  */
 export type InvalidInputBehavior = 'crash' | 'error';
 

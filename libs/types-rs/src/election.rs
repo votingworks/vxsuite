@@ -475,7 +475,7 @@ struct JsonCandidate {
     party_ids: Option<Vec<PartyId>>,
     is_write_in: Option<bool>,
     write_in_index: Option<u32>,
-    // Structured name properties are supported only in VxDesign.
+    // Structured name properties are supported only in VxHub.
     first_name: Option<String>,
     middle_name: Option<String>,
     last_name: Option<String>,

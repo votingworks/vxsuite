@@ -19,7 +19,7 @@ import { setUiString } from './utils.js';
 /**
  * Extracts strings defined on a list of "precinct splits".
  * @param precincts A list of {@link Precinct}.
- * @returns A catalog of strings defined by the user in VxDesign.
+ * @returns A catalog of strings defined by the user in VxHub.
  */
 export function getUserDefinedHmpbStrings(
   precincts: readonly Precinct[]

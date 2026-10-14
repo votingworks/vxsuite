@@ -78,7 +78,7 @@ function turboCacheSaveSteps(indent: string): string[] {
   ];
 }
 
-const POSTGRES_PACKAGES: string[] = ['apps/design/backend'];
+const POSTGRES_PACKAGES: string[] = ['apps/hub/backend'];
 // The following packages are only tested when there is a change to its directory.
 const PACKAGES_ONLY_TEST_ON_CHANGES = ['apps/pollbook/backend'];
 
@@ -105,7 +105,7 @@ function generateTestJobForNodeJsPackage(
   const needsPostgres = POSTGRES_PACKAGES.includes(pkg.relativePath);
   // CI runs each package's `test:run` (vitest once; coverage enforced via the
   // shared config's `CI` gate), falling back to `test` for packages without one
-  // (the Playwright integration-testing suites). VxDesign keeps a dedicated
+  // (the Playwright integration-testing suites). VxHub keeps a dedicated
   // `test:ci` for its Postgres/migration CI steps; prefer it when present.
   const testScript = pkg.packageJson?.scripts?.['test:ci']
     ? 'test:ci'

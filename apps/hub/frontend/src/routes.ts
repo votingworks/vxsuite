@@ -1,0 +1,236 @@
+import { typedAs } from '@votingworks/basics';
+import type {
+  ElectionInfo,
+  StateFeaturesConfig,
+  UserFeaturesConfig,
+  ResultsReportingPath,
+} from '@votingworks/hub-backend';
+import type {
+  ElectionId,
+  ElectionStringKey,
+  SystemSettings,
+} from '@votingworks/types';
+import type { Route } from '@votingworks/ui';
+
+export const resultsRoutes = {
+  root: {
+    title: 'Results Reported',
+    path: typedAs<ResultsReportingPath>('/report'),
+  },
+} as const;
+
+export const routes = {
+  root: {
+    title: 'Elections',
+    path: '/',
+  },
+  election: (id: string) => {
+    const root = `/elections/${id}`;
+    return {
+      root: {
+        title: 'Election',
+        path: root,
+      },
+      electionInfo: {
+        root: {
+          title: 'Election Info',
+          path: `${root}/info`,
+        },
+        audio: (p: { stringKey: ':stringKey' | ElectionStringKey }) =>
+          `${root}/info/audio/${p.stringKey}`,
+      },
+      districts: {
+        root: {
+          title: 'Districts',
+          path: `${root}/districts`,
+        },
+        audio: (p: {
+          stringKey: ':stringKey' | ElectionStringKey;
+          subkey: ':subkey' | (string & {});
+        }) => `${root}/districts/audio/${p.stringKey}/${p.subkey}`,
+        edit: {
+          title: 'Edit District',
+          path: `${root}/districts/edit`,
+        },
+      },
+      precincts: {
+        root: {
+          title: 'Precincts',
+          path: `${root}/precincts`,
+        },
+        add: {
+          title: 'Add Precinct',
+          path: `${root}/precincts/add`,
+        },
+        audio: (p: {
+          precinctId: ':precinctId' | (string & {});
+          stringKey: ':stringKey' | ElectionStringKey;
+          subkey: ':subkey' | (string & {});
+        }) =>
+          `${root}/precincts/${p.precinctId}/audio/${p.stringKey}/${p.subkey}`,
+        edit: (precinctId: string) => ({
+          title: 'Edit Precinct',
+          path: `${root}/precincts/${precinctId}/edit`,
+        }),
+        view: (precinctId: string) => ({
+          title: 'Precinct Info',
+          path: `${root}/precincts/${precinctId}`,
+        }),
+      },
+      pollingPlaces: {
+        root: {
+          title: 'Polling Places',
+          path: `${root}/polling-places`,
+        },
+
+        add: `${root}/polling-places/add`,
+
+        audio: (p: {
+          placeId: ':placeId' | (string & {});
+          stringKey: ':stringKey' | ElectionStringKey;
+        }) => `${root}/polling-places/${p.placeId}/audio/${p.stringKey}`,
+
+        edit: (placeId: ':placeId' | (string & {})) =>
+          `${root}/polling-places/${placeId}/edit`,
+
+        view: (placeId: ':placeId' | (string & {})) =>
+          `${root}/polling-places/${placeId}`,
+      },
+      parties: {
+        root: {
+          title: 'Parties',
+          path: `${root}/parties`,
+        },
+        audio: (p: {
+          stringKey: ':stringKey' | ElectionStringKey;
+          subkey: ':subkey' | (string & {});
+        }) => `${root}/parties/audio/${p.stringKey}/${p.subkey}`,
+        edit: {
+          title: 'Parties',
+          path: `${root}/parties/edit`,
+        },
+      },
+      contests: {
+        root: {
+          title: 'Contests',
+          path: `${root}/contests`,
+        },
+        add: {
+          title: 'Add Contest',
+          path: `${root}/contests/add`,
+        },
+        audio: (p: {
+          contestId: ':contestId' | (string & {});
+          stringKey: ':stringKey' | ElectionStringKey;
+          subkey: ':subkey' | (string & {});
+        }) =>
+          `${root}/contests/${p.contestId}/audio/${p.stringKey}/${p.subkey}`,
+        edit: (contestId: string) => ({
+          title: 'Edit Contest',
+          path: `${root}/contests/${contestId}/edit`,
+        }),
+        view: (contestId: string) => ({
+          title: 'Edit Contest',
+          path: `${root}/contests/${contestId}`,
+        }),
+      },
+      ballots: {
+        root: {
+          title: 'Proof Ballots',
+          path: `${root}/ballots`,
+        },
+        ballotStyles: {
+          title: 'Ballot Styles',
+          path: `${root}/ballots/ballot-styles`,
+        },
+        ballotLayout: {
+          title: 'Ballot Layout',
+          path: `${root}/ballots/layout`,
+        },
+        viewBallot: (ballotStyleId: string, precinctId: string) => ({
+          title: 'View Ballot',
+          path: `${root}/ballots/${ballotStyleId}/${precinctId}`,
+        }),
+      },
+      systemSettings: {
+        title: 'System Settings',
+        path: `${root}/system-settings`,
+      },
+      export: {
+        title: 'Export',
+        path: `${root}/export`,
+      },
+      downloads: {
+        title: 'Downloads',
+        path: `${root}/downloads`,
+      },
+      reports: {
+        root: {
+          title: 'Live Reports',
+          path: `${root}/reports`,
+        },
+        votingGroup: (votingGroup: string) => ({
+          title: 'Voting Group',
+          path: `${root}/reports/group/${votingGroup}`,
+        }),
+        allPrecinctResults: {
+          title: 'All Precincts Tally Report',
+          path: `${root}/reports/tally-all-precincts`,
+        },
+        byPrecinctResults: (precinctId: string) => ({
+          title: 'Tally Report by Precinct',
+          path: `${root}/reports/tally-by-precinct/${precinctId}`,
+        }),
+      },
+      convertResults: {
+        title: 'Convert Results',
+        path: `${root}/convert-results`,
+      },
+    };
+  },
+} as const;
+
+export interface ElectionIdParams {
+  electionId: ElectionId;
+}
+export const electionParamRoutes = routes.election(':electionId');
+
+export const rootNavRoutes: Route[] = [];
+
+export function electionNavRoutes(
+  electionInfo: ElectionInfo,
+  systemSettings: SystemSettings,
+  stateFeatures: StateFeaturesConfig
+): Route[] {
+  const r = routes.election(electionInfo.electionId);
+
+  const nav: Array<Route | undefined | false> = [
+    r.electionInfo.root,
+    r.districts.root,
+    r.precincts.root,
+    stateFeatures.EDIT_POLLING_PLACES && r.pollingPlaces.root,
+    r.parties.root,
+    r.contests.root,
+    r.ballots.root,
+    r.downloads,
+    !!systemSettings.quickResultsReportingUrl && r.reports.root,
+    electionInfo.externalSource === 'ms-sems' && r.convertResults,
+  ];
+
+  return nav.filter((route) => !!route);
+}
+
+// For screens only relevant for internal users
+export function adminElectionNavRoutes(
+  electionInfo: ElectionInfo,
+  userFeatures: UserFeaturesConfig
+): Route[] {
+  const r = routes.election(electionInfo.electionId);
+
+  const nav: Array<Route | undefined | false> = [
+    userFeatures.SYSTEM_SETTINGS_SCREEN && r.systemSettings,
+    userFeatures.EXPORT_SCREEN && r.export,
+  ];
+
+  return nav.filter((route) => !!route);
+}

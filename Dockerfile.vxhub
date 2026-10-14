@@ -1,0 +1,82 @@
+# Docker Image for VxHub deployments.
+
+# [TODO] Pull from votingworks/cimg-debian12 instead.
+# [Update] Attempted the switch and ran into an issue with having to re-push the
+# CI image separately to the Heroku-hosted registry (can't point to Dockerhub),
+# which complicates the process a bit. Worth revisiting later, but will depend
+# on the plan for https://github.com/votingworks/vxsuite/issues/6261.
+FROM bitnami/minideb:bookworm
+
+# Essentials
+RUN apt update && apt install -y --no-install-recommends \
+  ca-certificates \
+  curl \
+  git \
+  ssh \
+  sudo \
+  tar \
+  xz-utils \
+  zip \
+  unzip
+
+# VxSuite transitive deps:
+RUN sudo apt update && apt install -y --no-install-recommends \
+  build-essential \
+  g++ \
+  gcc \
+  ghostscript \
+  libasound2  \
+  libatspi2.0-0 \
+  libcairo2-dev \
+  libdrm2\
+  libgbm1 \
+  libgif-dev \
+  libglib2.0-bin \
+  libgtk-3-0 \
+  libjpeg-dev \
+  libnotify4 \
+  libpango1.0-dev \
+  libpcsclite-dev \
+  libpcsclite1 \
+  libpixman-1-dev \
+  libpng-dev \
+  libsane \
+  libsane-common \
+  libsane-hpaio \
+  libsane1 \
+  libudev-dev \
+  libusb-1.0-0-dev \
+  libxss1 \
+  libxtst6 \
+  linux-kbuild-6.1 \
+  make \
+  pkg-config \
+  poppler-utils \
+  python3
+
+WORKDIR /vx/code/vxsuite
+COPY .nvmrc package.json ./
+
+ARG TARGETARCH
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && \
+  . ~/.bashrc && \
+  nvm install && \
+  . ~/.bashrc && \
+  node -v && \
+  npm i -g pnpm@12.8.1 && \
+  pnpm -v
+
+RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain=1.98.0 -y
+
+COPY . .
+
+RUN . ~/.bashrc && . ~/.cargo/env && pnpm install --frozen-lockfile
+
+ENV NODE_ENV="production"
+RUN . ~/.bashrc && . ~/.cargo/env && pnpm --dir apps/hub/frontend build:prod
+
+EXPOSE 80
+EXPOSE 3000
+EXPOSE 3001
+
+ENV HOME="/root"

@@ -81,7 +81,7 @@ export function createUiStringStore(dbClient: DbClient): UiStringsStore {
           // TODO(https://github.com/votingworks/vxsuite/issues/6700):
           // This is due to a switch from using plain base64 strings to using
           // data URLs in the client. This can/should be moved upstream to when
-          // we synthesize audio in VxDesign - in the meantime, this provides
+          // we synthesize audio in VxHub - in the meantime, this provides
           // backwards compatibility with existing election packages.
           clip.dataBase64 = `data:audio/mp3;base64,${clip.dataBase64}`;
         }
@@ -170,7 +170,7 @@ export function createUiStringStore(dbClient: DbClient): UiStringsStore {
         // TODO(https://github.com/votingworks/vxsuite/issues/6700):
         // This is due to a switch from using plain base64 strings to using
         // data URLs in the client. This can/should be moved upstream to when
-        // we synthesize audio in VxDesign - in the meantime, this provides
+        // we synthesize audio in VxHub - in the meantime, this provides
         // backwards compatibility with existing election packages.
         dataBase64 = `data:audio/mp3;base64,${dataBase64}`;
       }

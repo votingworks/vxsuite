@@ -107,17 +107,17 @@ let server: Server;
 function setup(
   mockSpec: MockSpec = {},
   devDockDir: string = makeTemporaryDirectory({ prefix: 'dev-dock-test-' }),
-  designExportDir: string = makeTemporaryDirectory({
-    prefix: 'design-export-test-',
+  hubExportDir: string = makeTemporaryDirectory({
+    prefix: 'hub-export-test-',
   })
 ) {
   const app = express();
-  useDevDockRouter(app, express, mockSpec, devDockDir, designExportDir);
+  useDevDockRouter(app, express, mockSpec, devDockDir, hubExportDir);
   server = app.listen();
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/dock`;
   const apiClient = grout.createClient<Api>({ baseUrl });
-  return { apiClient, devDockDir, designExportDir };
+  return { apiClient, devDockDir, hubExportDir };
 }
 
 beforeEach(() => {
@@ -481,7 +481,7 @@ test('usb drive mock endpoints', async () => {
   });
 });
 
-test("mounts with a default VxDesign export directory, since apps don't provide one", async () => {
+test("mounts with a default VxHub export directory, since apps don't provide one", async () => {
   const app = express();
   useDevDockRouter(
     app,
@@ -502,11 +502,11 @@ test("mounts with a default VxDesign export directory, since apps don't provide 
   });
 });
 
-async function writeVxDesignElectionPackage(
-  designExportDir: string,
+async function writeVxHubElectionPackage(
+  hubExportDir: string,
   fileName = 'election-package-aaa-111.zip'
 ): Promise<string> {
-  const jurisdictionDir = join(designExportDir, 'dev-jurisdiction-DEMO');
+  const jurisdictionDir = join(hubExportDir, 'dev-jurisdiction-DEMO');
   fs.mkdirSync(jurisdictionDir, { recursive: true });
   const packagePath = join(jurisdictionDir, fileName);
   fs.writeFileSync(
@@ -518,16 +518,13 @@ async function writeVxDesignElectionPackage(
   return packagePath;
 }
 
-test('lists the latest VxDesign election package', async () => {
-  const designExportDir = makeTemporaryDirectory({
-    prefix: 'design-export-test-',
+test('lists the latest VxHub election package', async () => {
+  const hubExportDir = makeTemporaryDirectory({
+    prefix: 'hub-export-test-',
   });
-  await writeVxDesignElectionPackage(
-    designExportDir,
-    'election-package-old.zip'
-  );
-  const latestPath = await writeVxDesignElectionPackage(
-    designExportDir,
+  await writeVxHubElectionPackage(hubExportDir, 'election-package-old.zip');
+  const latestPath = await writeVxHubElectionPackage(
+    hubExportDir,
     'election-package-new.zip'
   );
   fs.utimesSync(latestPath, new Date('2030-01-01'), new Date('2030-01-01'));
@@ -535,12 +532,12 @@ test('lists the latest VxDesign election package', async () => {
   const { apiClient } = setup(
     {},
     makeTemporaryDirectory({ prefix: 'dev-dock-test-' }),
-    designExportDir
+    hubExportDir
   );
 
   const elections = await apiClient.getAvailableElections();
   expect(elections[0]).toEqual({
-    title: 'VxDesign: election-package-new.zip',
+    title: 'VxHub: election-package-new.zip',
     inputPath: latestPath,
   });
 });
@@ -561,10 +558,10 @@ test('quickConfigure requires an election package to be selected', async () => {
 
 // Note: This test overwrites the global mock card state.
 test('quickConfigure clears the card and unconfigures after staging, before programming the new card', async () => {
-  const designExportDir = makeTemporaryDirectory({
-    prefix: 'design-export-test-',
+  const hubExportDir = makeTemporaryDirectory({
+    prefix: 'hub-export-test-',
   });
-  const packagePath = await writeVxDesignElectionPackage(designExportDir);
+  const packagePath = await writeVxHubElectionPackage(hubExportDir);
   const stagedElectionPackagePath = join(
     getMockUsbDriveHandler().getDataPath(),
     QUICK_CONFIGURE_ELECTION_DIR,
@@ -583,7 +580,7 @@ test('quickConfigure clears the card and unconfigures after staging, before prog
   const { apiClient } = setup(
     { quickConfigure: { unconfigure, configure: () => Promise.resolve() } },
     makeTemporaryDirectory({ prefix: 'dev-dock-test-' }),
-    designExportDir
+    hubExportDir
   );
   await apiClient.setElection({ inputPath: packagePath });
   await apiClient.insertCard({ role: 'election_manager' });
@@ -611,10 +608,10 @@ test('quickConfigure clears the card and unconfigures after staging, before prog
 
 // Note: This test overwrites the global mock card state.
 test('quickConfigure configures the machine once its drive is mounted, then removes the card', async () => {
-  const designExportDir = makeTemporaryDirectory({
-    prefix: 'design-export-test-',
+  const hubExportDir = makeTemporaryDirectory({
+    prefix: 'hub-export-test-',
   });
-  const packagePath = await writeVxDesignElectionPackage(designExportDir);
+  const packagePath = await writeVxHubElectionPackage(hubExportDir);
 
   const usbDriveHandler = getMockUsbDriveHandler();
   const platform = new SimulatedUsbPlatform(getMockUsbDirPath());
@@ -635,7 +632,7 @@ test('quickConfigure configures the machine once its drive is mounted, then remo
   const { apiClient } = setup(
     { quickConfigure: { unconfigure: () => Promise.resolve(), configure } },
     makeTemporaryDirectory({ prefix: 'dev-dock-test-' }),
-    designExportDir
+    hubExportDir
   );
   await apiClient.setElection({ inputPath: packagePath });
 
@@ -661,15 +658,15 @@ test('quickConfigure configures the machine once its drive is mounted, then remo
 });
 
 test('quickConfigure rejects apps that do not support it', async () => {
-  const designExportDir = makeTemporaryDirectory({
-    prefix: 'design-export-test-',
+  const hubExportDir = makeTemporaryDirectory({
+    prefix: 'hub-export-test-',
   });
-  const packagePath = await writeVxDesignElectionPackage(designExportDir);
+  const packagePath = await writeVxHubElectionPackage(hubExportDir);
 
   const { apiClient } = setup(
     {},
     makeTemporaryDirectory({ prefix: 'dev-dock-test-' }),
-    designExportDir
+    hubExportDir
   );
   await apiClient.setElection({ inputPath: packagePath });
 
@@ -685,10 +682,10 @@ test('quickConfigure rejects apps that do not support it', async () => {
 
 // Note: This test overwrites the global mock card state.
 test('quickConfigure stages the selected election package and keeps it selected', async () => {
-  const designExportDir = makeTemporaryDirectory({
-    prefix: 'design-export-test-',
+  const hubExportDir = makeTemporaryDirectory({
+    prefix: 'hub-export-test-',
   });
-  const packagePath = await writeVxDesignElectionPackage(designExportDir);
+  const packagePath = await writeVxHubElectionPackage(hubExportDir);
   const electionPackage = electionFamousNames2021Fixtures.toElectionPackage();
 
   let cardDetailsAtConfigure: Optional<CardStatus>;
@@ -703,7 +700,7 @@ test('quickConfigure stages the selected election package and keeps it selected'
       },
     },
     makeTemporaryDirectory({ prefix: 'dev-dock-test-' }),
-    designExportDir
+    hubExportDir
   );
   await apiClient.setElection({ inputPath: packagePath });
 

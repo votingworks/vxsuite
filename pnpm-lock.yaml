@@ -969,7 +969,7 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
 
-  apps/design/backend:
+  apps/hub/backend:
     dependencies:
       '@aws-sdk/client-s3':
         specifier: ^3.735.0
@@ -1120,7 +1120,7 @@ importers:
         specifier: 5.0.2
         version: 5.0.2(@opentelemetry/api@1.9.0)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
-  apps/design/frontend:
+  apps/hub/frontend:
     dependencies:
       '@sentry/browser':
         specifier: ^8.51.0
@@ -1173,12 +1173,12 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
-      '@votingworks/design-backend':
-        specifier: workspace:*
-        version: link:../backend
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
+      '@votingworks/hub-backend':
+        specifier: workspace:*
+        version: link:../backend
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types

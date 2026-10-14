@@ -1,0 +1,42 @@
+import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
+import util from 'node:util';
+import { resolve } from 'node:path';
+import { BaseLogger, LogSource } from '@votingworks/logging';
+import { assertDefined } from '@votingworks/basics';
+import { createWorkspace } from '../workspace.js';
+import { WORKSPACE } from '../globals.js';
+import { generateId } from '../utils.js';
+import type { Organization } from '../types.js';
+
+const USAGE = `Usage: pnpm create-organization "<name>"`;
+
+async function main(): Promise<void> {
+  loadEnvVarsFromDotenvFiles();
+  const {
+    positionals: [name],
+  } = util.parseArgs({
+    allowPositionals: true,
+    args: process.argv.slice(2),
+  });
+  if (!name) {
+    console.log(USAGE);
+    process.exit(0);
+  }
+
+  const workspace = createWorkspace(
+    resolve(assertDefined(WORKSPACE)),
+    new BaseLogger(LogSource.VxHubService)
+  );
+
+  const organization: Organization = { id: generateId(), name };
+  await workspace.store.createOrganization(organization);
+
+  console.log('✅ Organization created:', organization);
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

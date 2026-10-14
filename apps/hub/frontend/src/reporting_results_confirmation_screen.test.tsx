@@ -1,0 +1,670 @@
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { cleanup, screen, waitFor } from '@testing-library/react';
+import { assertDefined, err, ok } from '@votingworks/basics';
+import { buildElectionResultsFixture } from '@votingworks/utils';
+import type { ReceivedReportInfo } from '@votingworks/hub-backend';
+import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
+import type { Election, PollingPlace } from '@votingworks/types';
+import { render } from '../test/react_testing_library.js';
+import { generalElectionRecord } from '../test/fixtures.js';
+import { ReportingResultsConfirmationScreen } from './reporting_results_confirmation_screen.js';
+import {
+  createMockUnauthenticatedApiClient,
+  type MockUnauthenticatedApiClient,
+  provideUnauthenticatedApi,
+} from '../test/unauthenticated_api_helpers.js';
+
+const electionRecord = generalElectionRecord('test-jurisdiction');
+const { election } = electionRecord;
+const generalPollingPlaceId = assertDefined(election.pollingPlaces?.[0]).id;
+
+// Election with the first polling place re-typed as `absentee`, used to verify
+// that the close-polls confirmation screen titles itself "Tally Report" when
+// the polling place is absentee.
+const absenteeElection: Election = {
+  ...election,
+  pollingPlaces: assertDefined(election.pollingPlaces).map(
+    (p, i): PollingPlace => (i === 0 ? { ...p, type: 'absentee' } : p)
+  ),
+};
+
+// Election with the first polling place re-typed as `early_voting`, used to
+// verify that the voting-type label renders "Early Voting" for an early-voting
+// polling place.
+const earlyVotingElection: Election = {
+  ...election,
+  pollingPlaces: assertDefined(election.pollingPlaces).map(
+    (p, i): PollingPlace => (i === 0 ? { ...p, type: 'early_voting' } : p)
+  ),
+};
+
+let apiMock: MockUnauthenticatedApiClient;
+
+// Mock window.location.search
+Object.defineProperty(window, 'location', {
+  value: {
+    search: '',
+  },
+  writable: true,
+});
+
+// Helper to set URL parameters
+function setUrlParams(params: Record<string, string>) {
+  const searchParams = new URLSearchParams(params);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window.location as any).search = `?${searchParams.toString()}`;
+}
+
+// Mock data for different report types
+const mockPollsOpenReport: ReceivedReportInfo = {
+  pollsTransitionType: 'open_polls',
+  ballotHash: 'abc123def456',
+  machineId: 'VxScan-001',
+  isLive: true,
+  pollsTransitionTime: new Date('2024-11-05T08:00:00Z'),
+  election,
+  pollingPlaceId: generalPollingPlaceId,
+
+  isPartial: false,
+  ballotCount: 42,
+};
+
+const mockPollsPausedReport: ReceivedReportInfo = {
+  pollsTransitionType: 'pause_voting',
+  ballotHash: 'abc123def456',
+  machineId: 'VxScan-001',
+  isLive: true,
+  pollsTransitionTime: new Date('2024-11-05T12:00:00Z'),
+  election: earlyVotingElection,
+  pollingPlaceId: generalPollingPlaceId,
+
+  isPartial: false,
+  ballotCount: 108,
+};
+
+const mockVotingResumedReport: ReceivedReportInfo = {
+  pollsTransitionType: 'resume_voting',
+  ballotHash: 'abc123def456',
+  machineId: 'VxScan-001',
+  isLive: true,
+  pollsTransitionTime: new Date('2024-11-05T13:00:00Z'),
+  election,
+  pollingPlaceId: generalPollingPlaceId,
+
+  isPartial: false,
+  ballotCount: 150,
+};
+
+const mockPollsClosedReportGeneral: ReceivedReportInfo = {
+  pollsTransitionType: 'close_polls',
+  ballotHash: 'abc123def456',
+  machineId: 'VxScan-001',
+  isLive: true,
+  pollsTransitionTime: new Date('2024-11-05T20:00:00Z'),
+  election,
+  pollingPlaceId: generalPollingPlaceId,
+
+  contestResultsByPrecinct: {
+    [election.precincts[0]!.id]: buildElectionResultsFixture({
+      election,
+      contestResultsSummaries: {},
+      cardCounts: {
+        bmd: [],
+        hmpb: [],
+      },
+      includeGenericWriteIn: false,
+    }).contestResults,
+  },
+  isPartial: false,
+};
+
+const mockPollsClosedPartialReportGeneral: ReceivedReportInfo = {
+  pollsTransitionType: 'close_polls',
+  ballotHash: 'abc123def456',
+  machineId: 'VxScan-001',
+  isLive: true,
+  pollsTransitionTime: new Date('2024-11-05T20:00:00Z'),
+  election,
+  pollingPlaceId: generalPollingPlaceId,
+
+  isPartial: true,
+  numPages: 4,
+  pageIndex: 1,
+};
+
+const primaryElection = electionPrimaryPrecinctSplitsFixtures.readElection();
+const primaryPollingPlaceId = assertDefined(
+  primaryElection.pollingPlaces?.[0]
+).id;
+
+const mockPollsClosedReportPrimary: ReceivedReportInfo = {
+  pollsTransitionType: 'close_polls',
+  ballotHash: 'abc123def456',
+  machineId: 'VxScan-002',
+  isLive: true,
+  pollsTransitionTime: new Date('2024-11-05T20:00:00Z'),
+  election: primaryElection,
+  pollingPlaceId: primaryPollingPlaceId,
+  contestResultsByPrecinct: {
+    [primaryElection.precincts[0]!.id]: buildElectionResultsFixture({
+      election: primaryElection,
+      contestResultsSummaries: {},
+      cardCounts: {
+        bmd: [],
+        hmpb: [],
+      },
+      includeGenericWriteIn: false,
+    }).contestResults,
+  },
+  isPartial: false,
+};
+
+beforeEach(() => {
+  // Reset mocks
+  vi.clearAllMocks();
+  apiMock = createMockUnauthenticatedApiClient();
+});
+
+afterEach(() => {
+  apiMock.assertComplete();
+  cleanup();
+  // Reset URL
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window.location as any).search = '';
+});
+
+const invalidParameterTestCases: Array<{
+  description: string;
+  params: Record<string, string>;
+}> = [
+  {
+    description: 'payload parameter is missing',
+    params: { s: 'test-signature', c: 'test-certificate' },
+  },
+  {
+    description: 'signature parameter is missing',
+    params: { p: 'test-payload', c: 'test-certificate' },
+  },
+  {
+    description: 'certificate parameter is missing',
+    params: { p: 'test-payload', s: 'test-signature' },
+  },
+  {
+    description: 'no parameters are provided',
+    params: {},
+  },
+];
+
+test.each(invalidParameterTestCases)(
+  'Screen shows Invalid Request when $description',
+  ({ params }) => {
+    setUrlParams(params);
+
+    apiMock.processQrCodeReport.reset(); // should not be called
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    screen.getByRole('heading', { name: 'Error Sending Report' });
+    screen.getByText('Invalid request. Please try scanning the QR code again.');
+  }
+);
+
+describe('ReportingResultsConfirmationScreen with proper parameters', () => {
+  beforeEach(() => {
+    setUrlParams({
+      p: 'test-payload',
+      s: 'test-signature',
+      c: 'test-certificate',
+    });
+  });
+
+  test('shows Invalid Signature error when signature verification fails', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(err('invalid-signature'));
+
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      screen.getByRole('heading', { name: 'Error Sending Report' });
+      screen.getByText(
+        'Signature not verified. Please try scanning the QR code again.'
+      );
+    });
+  });
+
+  test('shows No Election Found error when election is not found', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(err('no-election-export-found'));
+
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      screen.getByRole('heading', { name: 'Error Sending Report' });
+      screen.getByText(
+        'Wrong election. Confirm VxScan and VxDesign are configured with the same election package.'
+      );
+    });
+  });
+
+  test('shows Election Out of Date error when election is no longer compatible', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(err('election-out-of-date'));
+
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      screen.getByRole('heading', { name: 'Error Sending Report' });
+      screen.getByText(
+        'This election is no longer compatible with Live Reports. Please export a new election package to continue using Live Reports.'
+      );
+    });
+  });
+
+  test('shows Invalid Request for other error types', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(err('invalid-payload'));
+
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      screen.getByRole('heading', { name: 'Error Sending Report' });
+      screen.getByText(
+        'Invalid request. Please try scanning the QR code again.'
+      );
+    });
+  });
+
+  test('displays polls open report correctly', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(ok(mockPollsOpenReport));
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      screen.getByRole('heading', { name: 'Polls Opened Report Sent' });
+      screen.getByText('The polls opened report has been sent to VxDesign.');
+    });
+
+    screen.getByText('VxScan-001');
+    screen.getByText(/abc123d/);
+    screen.getByText(/Nov 5, 2024/);
+    screen.getByText(/Ballots Scanned/);
+    screen.getByText(/42/);
+    screen.getByText('Election Day');
+
+    expect(screen.queryByText('Test Report')).toBeNull();
+  });
+
+  test('polls open report shows test mode banner for test reports', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(
+        ok({
+          ...mockPollsOpenReport,
+          isLive: false,
+        })
+      );
+
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      screen.getByText('Test Report');
+    });
+  });
+
+  test('displays polls paused report correctly', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(ok(mockPollsPausedReport));
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      screen.getByRole('heading', { name: 'Voting Paused Report Sent' });
+      screen.getByText('The voting paused report has been sent to VxDesign.');
+    });
+
+    screen.getByText('VxScan-001');
+    screen.getByText(/abc123d/);
+    screen.getByText(/Nov 5, 2024/);
+    screen.getByText(/Ballots Scanned/);
+    screen.getByText(/108/);
+    screen.getByText('Early Voting');
+
+    expect(screen.queryByText('Test Report')).toBeNull();
+  });
+
+  test('polls paused report shows test mode banner for test reports', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(
+        ok({
+          ...mockPollsPausedReport,
+          isLive: false,
+        })
+      );
+
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      screen.getByText('Test Report');
+    });
+  });
+
+  test('displays voting resumed report correctly', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(ok(mockVotingResumedReport));
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      screen.getByRole('heading', { name: 'Voting Resumed Report Sent' });
+      screen.getByText('The voting resumed report has been sent to VxDesign.');
+    });
+
+    screen.getByText('VxScan-001');
+    screen.getByText(/abc123d/);
+    screen.getByText(/Nov 5, 2024/);
+    screen.getByText(/Ballots Scanned/);
+    screen.getByText(/150/);
+    screen.getByText('Election Day');
+  });
+
+  test('displays partial polls closed report correctly - general election', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(ok(mockPollsClosedPartialReportGeneral));
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      screen.getByRole('heading', {
+        name: 'Polls Closed Report Part 2/4 Sent',
+      });
+      screen.getByText(
+        /Part 2\/4 of the polls closed report has been received\. Send the next part to continue\./
+      );
+    });
+
+    screen.getByText('VxScan-001');
+    screen.getByText(/abc123d/);
+
+    // Check that contest results tables are not rendered
+    const tables = screen.queryAllByRole('table');
+    expect(tables.length).toEqual(0);
+  });
+
+  test('displays "Tally Report" header for absentee polls closed reports', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(
+        ok({
+          ...mockPollsClosedReportGeneral,
+          election: absenteeElection,
+        })
+      );
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      screen.getByRole('heading', { name: 'Tally Report Sent' });
+      screen.getByText('The tally report has been sent to VxDesign.');
+    });
+
+    screen.getByText('Absentee');
+
+    expect(
+      screen.queryByRole('heading', { name: 'Polls Closed Report Sent' })
+    ).toBeNull();
+  });
+
+  test('displays "Tally Report" header for absentee partial polls closed reports', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(
+        ok({
+          ...mockPollsClosedPartialReportGeneral,
+          election: absenteeElection,
+        })
+      );
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      screen.getByRole('heading', {
+        name: 'Tally Report Part 2/4 Sent',
+      });
+      screen.getByText(
+        /Part 2\/4 of the tally report has been received\. Send the next part to continue\./
+      );
+    });
+  });
+
+  test('displays polls closed report correctly - general election', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(ok(mockPollsClosedReportGeneral));
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      screen.getByRole('heading', { name: 'Polls Closed Report Sent' });
+      screen.getByText('The polls closed report has been sent to VxDesign.');
+    });
+
+    screen.getByText('VxScan-001');
+    screen.getByText(/abc123d/);
+    screen.getByText('Election Day');
+
+    // Precinct heading for the single precinct in this polling place
+    screen.getByRole('heading', { name: 'Center Springfield' });
+
+    const tables = screen.getAllByRole('table');
+    expect(tables.length).toBeGreaterThan(0);
+
+    expect(
+      screen.queryByRole('heading', { name: 'Nonpartisan Contests' })
+    ).toBeNull();
+
+    for (const contest of election.contests) {
+      expect(screen.getAllByText(contest.title).length).toBeGreaterThan(0);
+    }
+  });
+
+  test('polls closed report shows test mode banner for test reports', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(
+        ok({
+          ...mockPollsClosedReportGeneral,
+          isLive: false,
+        })
+      );
+
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      screen.getByText('Test Report');
+    });
+  });
+
+  test('polls closed report handles single precinct primary properly', async () => {
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(ok(mockPollsClosedReportPrimary));
+
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      screen.getByRole('heading', { name: 'Polls Closed Report Sent' });
+      screen.getByText('The polls closed report has been sent to VxDesign.');
+    });
+
+    screen.getByText('VxScan-002');
+    screen.getByText(/abc123d/);
+
+    // Check that contest results tables are rendered
+    const tables = screen.getAllByRole('table');
+    expect(tables.length).toBeGreaterThan(0);
+
+    // At least some contests should be rendered for the reported precinct
+    expect(tables.length).toBeGreaterThan(0);
+  });
+
+  test('polls closed report shows multiple precinct sections for multi-precinct polling place', async () => {
+    const multiPrecinctPollingPlace: PollingPlace = {
+      id: 'multi-precinct-polling-place',
+      name: 'Springfield Community Center',
+      type: 'election_day',
+      precincts: {
+        [election.precincts[0]!.id]: { type: 'whole' },
+        [election.precincts[1]!.id]: { type: 'whole' },
+      },
+    };
+    const multiPrecinctElection: Election = {
+      ...election,
+      pollingPlaces: [
+        ...(election.pollingPlaces ?? []),
+        multiPrecinctPollingPlace,
+      ],
+    };
+    const emptyContestResults = buildElectionResultsFixture({
+      election: multiPrecinctElection,
+      contestResultsSummaries: {},
+      cardCounts: { bmd: [], hmpb: [] },
+      includeGenericWriteIn: false,
+    }).contestResults;
+
+    const mockReport: ReceivedReportInfo = {
+      pollsTransitionType: 'close_polls',
+      ballotHash: 'abc123def456',
+      machineId: 'VxScan-001',
+      isLive: true,
+      pollsTransitionTime: new Date('2024-11-05T20:00:00Z'),
+      election: multiPrecinctElection,
+      pollingPlaceId: multiPrecinctPollingPlace.id,
+      contestResultsByPrecinct: {
+        [election.precincts[0]!.id]: emptyContestResults,
+        [election.precincts[1]!.id]: emptyContestResults,
+      },
+      isPartial: false,
+    };
+
+    apiMock.processQrCodeReport
+      .expectCallWith({
+        payload: 'test-payload',
+        signature: 'test-signature',
+        certificate: 'test-certificate',
+      })
+      .resolves(ok(mockReport));
+
+    render(
+      provideUnauthenticatedApi(apiMock, <ReportingResultsConfirmationScreen />)
+    );
+
+    await waitFor(() => {
+      screen.getByRole('heading', { name: 'Polls Closed Report Sent' });
+    });
+
+    // Polling place name is displayed
+    screen.getByText('Springfield Community Center');
+
+    // Both precinct section headings are rendered
+    screen.getByRole('heading', { name: election.precincts[0]!.name });
+    screen.getByRole('heading', { name: election.precincts[1]!.name });
+
+    // Contest tables appear for both precincts
+    const tables = screen.getAllByRole('table');
+    expect(tables.length).toBeGreaterThan(1);
+  });
+});

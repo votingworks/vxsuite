@@ -98,7 +98,7 @@ export const SummaryBallotPrelude: readonly Uint8[] = [
 
 /**
  * @deprecated
- * The bytes a v4.0 bubble ballot starts with. Retained so VxDesign can render
+ * The bytes a v4.0 bubble ballot starts with. Retained so VxHub can render
  * v4.0 bubble ballots.
  */
 export const BubbleBallotPreludeV4p0: readonly Uint8[] = [
@@ -107,7 +107,7 @@ export const BubbleBallotPreludeV4p0: readonly Uint8[] = [
 
 /**
  * @deprecated
- * Maximum ballot style index that we can encode. Retained so VxDesign can
+ * Maximum ballot style index that we can encode. Retained so VxHub can
  * render v4.0 bubble ballots.
  */
 export const MAXIMUM_BALLOT_STYLE_INDEX_V4_0 = 4096;
