@@ -332,6 +332,13 @@ export const finishBackup = {
   },
 } as const;
 
+export const rebootInRestoreMode = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.rebootInRestoreMode);
+  },
+} as const;
+
 // Queries
 
 type QueryInput<Method extends keyof ApiClient> = Parameters<

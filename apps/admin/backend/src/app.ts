@@ -60,6 +60,7 @@ import {
   createSystemCallApi,
   getNodeEnv,
   readElectionPackageFromFile,
+  reboot,
 } from '@votingworks/backend';
 import {
   type FileSystemEntry,
@@ -323,7 +324,7 @@ function buildApi({
       });
     },
 
-    async scheduleRestoreMode(): Promise<void> {
+    async rebootInRestoreMode(): Promise<void> {
       assert(
         isFeatureFlagEnabled(
           BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE
@@ -341,6 +342,7 @@ function buildApi({
         message: 'Machine will start in restore mode on its next boot.',
         disposition: 'success',
       });
+      await reboot(logger);
     },
 
     getNetworkStatus(): {

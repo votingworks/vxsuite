@@ -9,14 +9,23 @@ import {
   Icons,
   Loading,
   LoadingButton,
+  Modal,
   Table,
   UsbDriveImage,
 } from '@votingworks/ui';
 import type { FileSystemEntry } from '@votingworks/fs';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
-import { systemLimitViolationToString } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+  systemLimitViolationToString,
+} from '@votingworks/utils';
 import { NavigationScreen } from '../components/navigation_screen.js';
-import { configure, listPotentialElectionPackagesOnUsbDrive } from '../api.js';
+import {
+  configure,
+  listPotentialElectionPackagesOnUsbDrive,
+  rebootInRestoreMode,
+} from '../api.js';
 import { AppContext } from '../contexts/app_context.js';
 import { TIME_FORMAT } from '../config/globals.js';
 
@@ -161,7 +170,7 @@ function SelectElectionPackage({
             </tbody>
           </Table>
         )}
-        <div>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
           {configureMutation.isLoading && source?.type === 'file-picker' ? (
             <LoadingButton>Loading...</LoadingButton>
           ) : (
@@ -172,8 +181,59 @@ function SelectElectionPackage({
               Select Other File...
             </Button>
           )}
+          <RebootInRestoreModeButton />
         </div>
       </div>
+    </React.Fragment>
+  );
+}
+
+function RebootInRestoreModeButton(): JSX.Element | null {
+  const rebootInRestoreModeMutation = rebootInRestoreMode.useMutation();
+  const [isConfirming, setIsConfirming] = React.useState(false);
+
+  if (
+    !isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE
+    )
+  ) {
+    return null;
+  }
+
+  function closeModal() {
+    setIsConfirming(false);
+  }
+
+  const isRestarting =
+    rebootInRestoreModeMutation.isLoading ||
+    rebootInRestoreModeMutation.isSuccess;
+
+  return (
+    <React.Fragment>
+      <Button onPress={() => setIsConfirming(true)}>
+        Restore from Backup...
+      </Button>
+      {isConfirming && (
+        <Modal
+          title="Enter Restore Mode"
+          content="VxAdmin will restart in Restore Mode, where you can select a backup to restore from."
+          actions={
+            <React.Fragment>
+              <Button
+                variant="primary"
+                onPress={() => rebootInRestoreModeMutation.mutate()}
+                disabled={isRestarting}
+              >
+                Restart in Restore Mode
+              </Button>
+              <Button onPress={closeModal} disabled={isRestarting}>
+                Cancel
+              </Button>
+            </React.Fragment>
+          }
+          onOverlayClick={closeModal}
+        />
+      )}
     </React.Fragment>
   );
 }
@@ -199,7 +259,11 @@ export function UnconfiguredScreen(): JSX.Element {
         <FullScreenMessage
           title="Insert a USB drive containing an election package"
           image={<UsbDriveImage />}
-        />
+        >
+          <div style={{ position: 'fixed', bottom: '1rem', right: '1rem' }}>
+            <RebootInRestoreModeButton />
+          </div>
+        </FullScreenMessage>
       ) : (
         <SelectElectionPackage
           potentialElectionPackageFiles={potentialElectionPackagesResult.ok()}
