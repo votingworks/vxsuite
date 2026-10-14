@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { mockSystemAdministratorUser } from '@votingworks/test-utils';
 import {
@@ -191,6 +192,49 @@ test('app can load and configure from a usb stick', async () => {
   apiMock.removeCard();
 
   await screen.findByText('Polls Closed');
+});
+
+test('configures from an already-inserted USB drive in strict mode', async () => {
+  apiMock.authenticateAsElectionManager(electionGeneralDefinition);
+  apiMock.expectGetConfig({ electionDefinition: undefined });
+  apiMock.expectGetPollsInfo('polls_closed_initial');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatus();
+  apiMock.mockApiClient.configureFromElectionPackageOnUsbDrive
+    .expectCallWith()
+    .resolves(err({ type: 'no_election_package' }));
+  apiMock.expectGetConfig({ electionDefinition: undefined });
+  render(
+    <React.StrictMode>
+      <App apiClient={apiMock.mockApiClient} noAudio />
+    </React.StrictMode>
+  );
+
+  await screen.findByText(
+    'No signed election package found on the inserted USB drive. Save a signed election package in VxAdmin.'
+  );
+});
+
+test('waits for election manager auth to configure', async () => {
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
+  apiMock.expectGetConfig({ electionDefinition: undefined });
+  apiMock.expectGetPollsInfo('polls_closed_initial');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatus();
+  renderApp();
+  await screen.findByText('Only election managers can configure VxScan.');
+
+  apiMock.mockApiClient.configureFromElectionPackageOnUsbDrive
+    .expectCallWith()
+    .resolves(err({ type: 'no_election_package' }));
+  apiMock.expectGetConfig({ electionDefinition: undefined });
+  apiMock.authenticateAsElectionManager(electionGeneralDefinition);
+
+  await screen.findByText(
+    'No signed election package found on the inserted USB drive. Save a signed election package in VxAdmin.'
+  );
 });
 
 test('election manager must set polling place', async () => {

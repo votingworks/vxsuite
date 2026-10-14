@@ -118,7 +118,6 @@ export const hasTestBallots = {
 } as const;
 
 export const configureElectionPackageFromUsb = {
-  // @coverage-defer
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
