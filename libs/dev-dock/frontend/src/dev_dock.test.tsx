@@ -367,6 +367,45 @@ test('screenshot flow', async () => {
   });
 });
 
+test('Enter saves the screenshot from the file name input', async () => {
+  renderDock(mockApiClient);
+  document.title = 'VotingWorks VxAdmin';
+  userEvent.click(
+    await screen.findByRole('button', { name: 'Capture Screenshot' })
+  );
+  await screen.findByText('Save Screenshot');
+
+  const fileNameInput = screen.getByRole('textbox', {
+    name: 'Screenshot File Name',
+  });
+  userEvent.clear(fileNameInput);
+  userEvent.type(fileNameInput, ' test.png ');
+  mockApiClient.saveScreenshotForApp
+    .expectCallWith({ fileName: 'test.png', screenshot: Uint8Array.of() })
+    .resolves();
+  userEvent.keyboard('{Enter}');
+
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+});
+
+test('Enter on a focused modal button activates that button', async () => {
+  renderDock(mockApiClient);
+  document.title = 'VotingWorks VxAdmin';
+  userEvent.click(
+    await screen.findByRole('button', { name: 'Capture Screenshot' })
+  );
+  await screen.findByText('Save Screenshot');
+
+  screen.getByRole('button', { name: 'Cancel' }).focus();
+  userEvent.keyboard('{Enter}');
+
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+});
+
 test('Cmd+K starts screenshot flow', async () => {
   renderDock(mockApiClient);
   await screen.findByRole('button', { name: 'Capture Screenshot' });
@@ -1111,6 +1150,256 @@ test('dock side is loaded from the backend', async () => {
     'aria-pressed',
     'false'
   );
+});
+
+function dockContainer(): HTMLElement {
+  return assertDefined(
+    screen
+      .getByLabelText(/^(Start|Stop) Screen Recording$/)
+      .closest<HTMLElement>('[dir="ltr"]')
+  );
+}
+
+class FakeMediaRecorder extends EventTarget {
+  static instances: FakeMediaRecorder[] = [];
+
+  static supportedMimeTypes = ['video/mp4;codecs=avc1', 'video/webm'];
+
+  static isTypeSupported(mimeType: string): boolean {
+    return FakeMediaRecorder.supportedMimeTypes.includes(mimeType);
+  }
+
+  private readonly options: MediaRecorderOptions;
+
+  private timeslice?: number;
+
+  constructor(_stream: MediaStream, options: MediaRecorderOptions) {
+    super();
+    this.options = options;
+    FakeMediaRecorder.instances.push(this);
+  }
+
+  get mimeType(): string | undefined {
+    return this.options.mimeType;
+  }
+
+  get startedTimeslice(): number | undefined {
+    return this.timeslice;
+  }
+
+  start(timeslice: number): void {
+    this.timeslice = timeslice;
+  }
+
+  emitData(...bytes: number[]): void {
+    const event = new Event('dataavailable');
+    Object.assign(event, {
+      data: {
+        arrayBuffer: () => Promise.resolve(Uint8Array.from(bytes).buffer),
+      },
+    });
+    this.dispatchEvent(event);
+  }
+
+  stop(): void {
+    this.emitData(9);
+    this.dispatchEvent(new Event('stop'));
+  }
+}
+
+interface FakeTrack extends EventTarget {
+  stop: () => void;
+}
+
+function mockDisplayMedia(): { track: FakeTrack } {
+  const track = Object.assign(new EventTarget(), { stop: vi.fn() });
+  const stream: Record<'getTracks' | 'getVideoTracks', () => FakeTrack[]> = {
+    getTracks: () => [track],
+    getVideoTracks: () => [track],
+  };
+  vi.mocked(navigator.mediaDevices.getDisplayMedia).mockResolvedValue(
+    stream as unknown as MediaStream
+  );
+  return { track };
+}
+
+async function startRecording(): Promise<FakeMediaRecorder> {
+  mockApiClient.beginScreenRecording.expectCallWith().resolves();
+  userEvent.click(
+    await screen.findByRole('button', { name: 'Start Screen Recording' })
+  );
+  await screen.findByLabelText('Stop Screen Recording');
+  return assertDefined(FakeMediaRecorder.instances.at(-1));
+}
+
+describe('screen recording', () => {
+  beforeEach(() => {
+    document.title = 'VotingWorks VxScan';
+    FakeMediaRecorder.instances = [];
+    FakeMediaRecorder.supportedMimeTypes = [
+      'video/mp4;codecs=avc1',
+      'video/webm',
+    ];
+    vi.stubGlobal('MediaRecorder', FakeMediaRecorder);
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getDisplayMedia: vi.fn() },
+    });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  test('streams chunks to the backend and stops with Ctrl+C', async () => {
+    const { track } = mockDisplayMedia();
+    renderDock(mockApiClient);
+    await screen.findByRole('button', { name: 'Toggle Dock' });
+
+    const recorder = await startRecording();
+    expect(recorder.mimeType).toEqual('video/mp4;codecs=avc1');
+    expect(recorder.startedTimeslice).toEqual(1000);
+    expect(dockContainer()).toHaveClass('closed');
+    expect(dockContainer()).toHaveClass('hidden');
+    expect(
+      screen.queryByRole('button', { name: 'Toggle Dock' })
+    ).not.toBeInTheDocument();
+
+    userEvent.keyboard('{Meta>}d{/Meta}');
+    expect(dockContainer()).not.toHaveClass('hidden');
+    userEvent.keyboard('{Meta>}d{/Meta}');
+    expect(dockContainer()).toHaveClass('hidden');
+
+    mockApiClient.appendScreenRecording
+      .expectCallWith({ data: Uint8Array.of(1, 2) })
+      .resolves();
+    mockApiClient.appendScreenRecording
+      .expectCallWith({ data: Uint8Array.of(9) })
+      .resolves();
+    recorder.emitData(1, 2);
+    userEvent.keyboard('{Meta>}j{/Meta}');
+    userEvent.keyboard('{Control>}x{/Control}');
+    userEvent.keyboard('{Control>}c{/Control}');
+
+    await screen.findByText('Save Screen Recording');
+    expect(track.stop).toHaveBeenCalled();
+    expect(dockContainer()).toHaveClass('closed');
+    const fileNameInput = screen.getByRole<HTMLInputElement>('textbox', {
+      name: 'Screen Recording File Name',
+    });
+    expect(fileNameInput.value).toMatch(/^Recording-VxScan-.*\.mp4$/);
+
+    userEvent.clear(fileNameInput);
+    userEvent.type(fileNameInput, 'demo.mp4');
+    mockApiClient.saveScreenRecording
+      .expectCallWith({ fileName: 'demo.mp4' })
+      .resolves();
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => {
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    });
+    await screen.findByRole('button', { name: 'Toggle Dock' });
+  });
+
+  test('Super+. stops a webm recording, which can be discarded', async () => {
+    FakeMediaRecorder.supportedMimeTypes = ['video/webm'];
+    mockDisplayMedia();
+    renderDock(mockApiClient);
+    const recorder = await startRecording();
+    expect(recorder.mimeType).toEqual('video/webm');
+
+    mockApiClient.appendScreenRecording
+      .expectCallWith({ data: Uint8Array.of(9) })
+      .resolves();
+    userEvent.keyboard('{Meta>}.{/Meta}');
+    await screen.findByText('Save Screen Recording');
+    expect(
+      screen.getByRole<HTMLInputElement>('textbox', {
+        name: 'Screen Recording File Name',
+      }).value
+    ).toMatch(/\.webm$/);
+
+    mockApiClient.discardScreenRecording.expectCallWith().resolves();
+    userEvent.click(screen.getByRole('button', { name: 'Discard' }));
+    await waitFor(() => {
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    });
+  });
+
+  test('stop button and ending the capture both stop the recording', async () => {
+    const { track } = mockDisplayMedia();
+    renderDock(mockApiClient);
+    await startRecording();
+
+    userEvent.keyboard('{Meta>}d{/Meta}');
+    mockApiClient.appendScreenRecording
+      .expectCallWith({ data: Uint8Array.of(9) })
+      .resolves();
+    userEvent.click(
+      screen.getByRole('button', { name: 'Stop Screen Recording' })
+    );
+    track.dispatchEvent(new Event('ended'));
+    await screen.findByText('Save Screen Recording');
+
+    mockApiClient.discardScreenRecording.expectCallWith().resolves();
+    userEvent.keyboard('{Escape}');
+    await waitFor(() => {
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    });
+
+    const { track: secondTrack } = mockDisplayMedia();
+    await startRecording();
+    mockApiClient.appendScreenRecording
+      .expectCallWith({ data: Uint8Array.of(9) })
+      .resolves();
+    secondTrack.dispatchEvent(new Event('ended'));
+    await screen.findByText('Save Screen Recording');
+  });
+
+  test('reports a failed upload and discards the recording', async () => {
+    mockDisplayMedia();
+    renderDock(mockApiClient);
+    await startRecording();
+
+    mockApiClient.appendScreenRecording
+      .expectCallWith({ data: Uint8Array.of(9) })
+      .throws(new Error('disk full'));
+    mockApiClient.discardScreenRecording.expectCallWith().resolves();
+    userEvent.keyboard('{Control>}c{/Control}');
+
+    await screen.findByText('Saving the screen recording failed: disk full');
+    userEvent.click(screen.getByRole('button', { name: 'Close' }));
+    await waitFor(() => {
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    });
+  });
+
+  test.each([
+    [
+      new DOMException('Not supported', 'NotSupportedError'),
+      'This browser does not allow the page to record itself. Run a kiosk-browser that supports recording with --allow-devtools.',
+    ],
+    [
+      new DOMException('Permission denied', 'NotAllowedError'),
+      'Screen recording was cancelled.',
+    ],
+    [new Error('boom'), 'Screen recording failed: boom'],
+  ])('reports capture failure %s', async (error, message) => {
+    vi.mocked(navigator.mediaDevices.getDisplayMedia).mockRejectedValue(error);
+    renderDock(mockApiClient);
+    userEvent.click(
+      await screen.findByRole('button', { name: 'Start Screen Recording' })
+    );
+
+    await screen.findByText('Screen Recording Failed');
+    screen.getByText(message);
+    expect(dockContainer()).toHaveClass('closed');
+    expect(dockContainer()).not.toHaveClass('hidden');
+    userEvent.click(screen.getByRole('button', { name: 'Close' }));
+    await waitFor(() => {
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    });
+  });
 });
 
 test('handle toggles the dock open and closed', async () => {
