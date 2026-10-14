@@ -1,8 +1,10 @@
 import { find } from '@votingworks/basics';
 import {
+  type BallotStyleId,
   type BaseBallotProps,
   type ElectionDefinition,
   LATEST_SOFTWARE_VERSION,
+  type SheetPositions,
 } from '@votingworks/types';
 import {
   generateTestDeckCastVoteRecords,
@@ -89,10 +91,12 @@ export function precinctTallyReportFileName(precinctName: string): string {
  * - One tally report per precinct
  */
 export async function createTestDeckTallyReports({
+  ballotPositions,
   electionDefinition,
   generatedAtTime = new Date(),
   includeSummaryBallots,
 }: {
+  ballotPositions: Map<BallotStyleId, readonly SheetPositions[]>;
   electionDefinition: ElectionDefinition;
   generatedAtTime?: Date;
   includeSummaryBallots: boolean;
@@ -101,6 +105,7 @@ export async function createTestDeckTallyReports({
   const reports = new Map<string, Uint8Array>();
 
   const cvrs = generateTestDeckCastVoteRecords(election, {
+    getBallotPositions: (ballotStyle) => ballotPositions.get(ballotStyle.id),
     includeBubbleBallots: true,
     includeSummaryBallots,
   });

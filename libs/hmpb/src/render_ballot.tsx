@@ -402,12 +402,30 @@ export interface ScratchDir {
 }
 
 /**
+ * {@link layOutBallotsAndCreateElectionDefinition} result.
+ */
+export interface ElectionAndBallotLayouts {
+  /**
+   * For split-file elections. Scratch file path for `ballotPositions.jsonl`.
+   */
+  ballotPositionsPath?: string;
+
+  /**
+   * For split-file elections. Scratch file path for `candidateOrderings.jsonl`.
+   */
+  candidateOrderingsPath?: string;
+
+  /**
+   * Scratch file paths for the HTML content of each ballot.
+   */
+  layoutPaths: string[];
+
+  electionDefinition: ElectionDefinition;
+}
+
+/**
  * Given a {@link BallotPageTemplate} and a list of ballot props, lays out
- * each ballot for each set of props. Then, extracts the grid layout from the
- * ballot and creates an election definition.
- *
- * Returns the path to the HTML content for each ballot (stored in
- * {@link scratchDir}) alongside the election definition.
+ * each ballot for each set of props and creates an election definition.
  *
  * Note: This function does not insert metadata QR codes into the ballots.
  */
@@ -421,17 +439,54 @@ export async function layOutBallotsAndCreateElectionDefinition<
   systemSettings: SystemSettings,
   scratchDir: ScratchDir,
   emitProgress?: (label: string, progress: number, total: number) => void
-): Promise<{
-  ballotPositionsPath?: string;
-  candidateOrderingsPath?: string;
-  layoutPaths: string[];
-  electionDefinition: ElectionDefinition;
-}> {
+): Promise<ElectionAndBallotLayouts> {
   assert(ballotProps.length > 0, 'No ballot props provided');
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const baseElection = ballotProps[0]!.election;
   assert(ballotProps.every((props) => props.election === baseElection));
 
+  const layout = await layOutBallots(
+    rendererPool,
+    template,
+    ballotProps,
+    scratchDir,
+    emitProgress
+  );
+
+  const electionRes = await createElectionDefinition({
+    ballotPositions: layout.ballotPositions,
+    baseElection,
+    scratchDir,
+    serializationOptions,
+    systemSettings,
+    template,
+  });
+
+  return {
+    ballotPositionsPath: electionRes.ballotPositionsPath,
+    candidateOrderingsPath: electionRes.candidateOrderingsPath,
+    electionDefinition: electionRes.electionDefinition,
+    layoutPaths: layout.layoutPaths,
+  };
+}
+
+/**
+ * Given a {@link BallotPageTemplate} and a list of ballot props, lays out each
+ * ballot for each set of props.
+ *
+ * Note: This function does not insert metadata QR codes into the ballots.
+ */
+export async function layOutBallots<P extends BaseBallotProps>(
+  rendererPool: RendererPool,
+  template: BallotPageTemplate<P>,
+  ballotProps: P[],
+  scratchDir: ScratchDir,
+  emitProgress?: (label: string, progress: number, total: number) => void
+): Promise<{
+  ballotPositions: Map<BallotStyleId, SheetPositions[]>;
+  /** Scratch file paths for the HTML content of each ballot. */
+  layoutPaths: string[];
+}> {
   const positionsByBallotStyle = new Map<BallotStyleId, SheetPositions[]>();
 
   const layoutPaths = await rendererPool.runTasks(
@@ -494,7 +549,32 @@ export async function layOutBallotsAndCreateElectionDefinition<
     }
   }
 
-  const contests = baseElection.contests
+  return {
+    ballotPositions: positionsByBallotStyle,
+    layoutPaths,
+  };
+}
+
+/**
+ * Creates an election definition from the given base election and ballot
+ * positions.
+ *
+ * For split-file election definitions, metadata files are staged to disk in
+ * `scratchDir`.
+ */
+export async function createElectionDefinition<P extends BaseBallotProps>(p: {
+  ballotPositions: Map<BallotStyleId, SheetPositions[]>;
+  baseElection: Election;
+  scratchDir: ScratchDir;
+  serializationOptions: ElectionSerializationOptions;
+  systemSettings: SystemSettings;
+  template: BallotPageTemplate<P>;
+}): Promise<{
+  ballotPositionsPath?: string;
+  candidateOrderingsPath?: string;
+  electionDefinition: ElectionDefinition;
+}> {
+  const contests = p.baseElection.contests
     // Temporary workaround for candidate rotation to ensure that VxMark's voting
     // flow and tally reports in VxAdmin/VxScan list candidates in the same order
     // that they appear on the HMPB. (Eventually, we should use the gridLayouts
@@ -504,9 +584,9 @@ export async function layOutBallotsAndCreateElectionDefinition<
     // orderedCandidatesByContest ordering, change the election definition to also
     // have that ordering of candidates.
     .map((contest) => {
-      if (template.isAllBubbleBallot) return contest;
+      if (p.template.isAllBubbleBallot) return contest;
       if (contest.type !== 'candidate') return contest;
-      const ballotStylesWithContest = baseElection.ballotStyles.filter(
+      const ballotStylesWithContest = p.baseElection.ballotStyles.filter(
         ({ orderedCandidatesByContest: orderedDisplayCandidatesByContest }) =>
           orderedDisplayCandidatesByContest &&
           contest.id in orderedDisplayCandidatesByContest
@@ -537,33 +617,33 @@ export async function layOutBallotsAndCreateElectionDefinition<
     });
 
   const isSplitElectionDef =
-    serializationOptions.format === 'vxf' &&
-    systemSettings.splitElectionDefinition;
+    p.serializationOptions.format === 'vxf' &&
+    p.systemSettings.splitElectionDefinition;
 
   // [TODO] Replace with a software version check when setting is on by default.
   if (!isSplitElectionDef) {
     const electionDefinition = electionWithBallotPositions(
-      { ...baseElection, contests },
-      positionsByBallotStyle,
-      serializationOptions
+      { ...p.baseElection, contests },
+      p.ballotPositions,
+      p.serializationOptions
     );
 
-    return { electionDefinition, layoutPaths };
+    return { electionDefinition };
   }
 
   const election: Election = {
-    ...baseElection,
-    ballotStyles: baseElection.ballotStyles.map((bs) => ({
+    ...p.baseElection,
+    ballotStyles: p.baseElection.ballotStyles.map((bs) => ({
       ...bs,
       orderedCandidatesByContest: undefined,
     })),
     contests,
   };
-  const electionData = serializeElection(election, serializationOptions);
+  const electionData = serializeElection(election, p.serializationOptions);
 
   function* ballotPositionLines() {
     for (const bs of election.ballotStyles) {
-      const positions = positionsByBallotStyle.get(bs.id);
+      const positions = p.ballotPositions.get(bs.id);
       if (!positions) continue;
 
       const data: BallotPositions = { ballotStyleId: bs.id, positions };
@@ -572,7 +652,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
   }
 
   function* candidateOrderingLines() {
-    for (const b of baseElection.ballotStyles) {
+    for (const b of p.baseElection.ballotStyles) {
       const orderings = b.orderedCandidatesByContest;
       if (!orderings) continue;
 
@@ -581,12 +661,12 @@ export async function layOutBallotsAndCreateElectionDefinition<
     }
   }
 
-  const ballotPositionsFile = await writeAndHashScratchFile(scratchDir, {
+  const ballotPositionsFile = await writeAndHashScratchFile(p.scratchDir, {
     data: Readable.from(ballotPositionLines()),
     extension: 'jsonl',
   });
 
-  const candidateOrderingsFile = await writeAndHashScratchFile(scratchDir, {
+  const candidateOrderingsFile = await writeAndHashScratchFile(p.scratchDir, {
     data: Readable.from(candidateOrderingLines()),
     extension: 'jsonl',
   });
@@ -601,7 +681,6 @@ export async function layOutBallotsAndCreateElectionDefinition<
     ballotPositionsPath: ballotPositionsFile.path,
     candidateOrderingsPath: candidateOrderingsFile.path,
     electionDefinition: { ballotHash, election, electionData },
-    layoutPaths,
   };
 }
 
