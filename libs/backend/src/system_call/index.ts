@@ -22,3 +22,4 @@ export {
 } from './set_default_audio.js';
 export * from './set_builtin_audio_port.js';
 export * from './disk_space_summaries.js';
+export { reboot } from './reboot.js';

@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { reboot } from '@votingworks/backend';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
@@ -22,9 +23,15 @@ vi.mock(import('@votingworks/utils'), async (importActual) => ({
     featureFlagMock.isEnabled(flag),
 }));
 
+vi.mock(import('@votingworks/backend'), async (importActual) => ({
+  ...(await importActual()),
+  reboot: vi.fn(),
+}));
+
 let env: ReturnType<typeof buildTestEnvironment>;
 
 beforeEach(() => {
+  vi.mocked(reboot).mockReset();
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE
   );
@@ -43,8 +50,12 @@ test('a host describes itself as one', async () => {
 
 test('scheduling restore mode asks the next boot to start there', async () => {
   const { apiClient, logger, workspace } = env;
+  vi.mocked(reboot).mockImplementation(() => {
+    expect(getRestoreState(workspace.path)).toEqual('scheduled');
+    return Promise.resolve();
+  });
 
-  await apiClient.scheduleRestoreMode();
+  await apiClient.rebootInRestoreMode();
 
   expect(getRestoreState(workspace.path)).toEqual('scheduled');
   expect(logger.log).toHaveBeenCalledWith(
@@ -52,6 +63,7 @@ test('scheduling restore mode asks the next boot to start there', async () => {
     'system_administrator',
     expect.objectContaining({ disposition: 'success' })
   );
+  expect(reboot).toHaveBeenCalledWith(logger);
 });
 
 test('restore mode cannot be scheduled while an election is configured', async () => {
@@ -59,11 +71,12 @@ test('restore mode cannot be scheduled while an election is configured', async (
   await configureMachine(apiClient, auth, readElectionGeneralDefinition());
 
   await suppressingConsoleOutput(() =>
-    expect(apiClient.scheduleRestoreMode()).rejects.toThrow(
+    expect(apiClient.rebootInRestoreMode()).rejects.toThrow(
       'Cannot restore while an election is configured.'
     )
   );
   expect(getRestoreState(workspace.path)).toBeUndefined();
+  expect(reboot).not.toHaveBeenCalled();
 });
 
 test('restore mode cannot be scheduled from a client', async () => {
@@ -71,11 +84,12 @@ test('restore mode cannot be scheduled from a client', async () => {
   await apiClient.setMachineMode({ mode: 'client' });
 
   await suppressingConsoleOutput(() =>
-    expect(apiClient.scheduleRestoreMode()).rejects.toThrow(
+    expect(apiClient.rebootInRestoreMode()).rejects.toThrow(
       'Only a host can be restored.'
     )
   );
   expect(getRestoreState(workspace.path)).toBeUndefined();
+  expect(reboot).not.toHaveBeenCalled();
 });
 
 test('restore mode cannot be scheduled unless backup and restore are enabled', async () => {
@@ -83,9 +97,10 @@ test('restore mode cannot be scheduled unless backup and restore are enabled', a
   featureFlagMock.resetFeatureFlags();
 
   await suppressingConsoleOutput(() =>
-    expect(apiClient.scheduleRestoreMode()).rejects.toThrow(
+    expect(apiClient.rebootInRestoreMode()).rejects.toThrow(
       'Backup and restore are not enabled.'
     )
   );
   expect(getRestoreState(workspace.path)).toBeUndefined();
+  expect(reboot).not.toHaveBeenCalled();
 });

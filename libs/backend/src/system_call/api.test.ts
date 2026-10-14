@@ -1,6 +1,13 @@
 /* eslint-disable prefer-regex-literals */
 
-import { beforeEach, expect, test, vi, afterEach } from 'vitest';
+import {
+  beforeEach,
+  expect,
+  onTestFinished,
+  test,
+  vi,
+  afterEach,
+} from 'vitest';
 import { type MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { LogEventId, type MockLogger, mockLogger } from '@votingworks/logging';
 import type { DiskSpaceSummary } from '@votingworks/utils';
@@ -74,6 +81,7 @@ afterEach(() => {
     ...process.env,
     TZ: actualTimezone,
   };
+  vi.unstubAllEnvs();
 });
 
 test('exportLogsToUsb', async () => {
@@ -152,7 +160,8 @@ test('powerDown', async () => {
   ]);
 });
 
-test('reboot', async () => {
+test('reboot runs the script via sudo in production', async () => {
+  vi.stubEnv('NODE_ENV', 'production');
   await api.reboot();
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
     LogEventId.RebootMachine,
@@ -165,6 +174,24 @@ test('reboot', async () => {
       new RegExp('^/.*/libs/backend/intermediate-scripts/reboot$')
     ),
   ]);
+});
+
+test('reboot exits the process in development', async () => {
+  vi.stubEnv('NODE_ENV', 'development');
+  const exit = vi.spyOn(process, 'exit').mockImplementation(() => {
+    throw new Error('process.exit');
+  });
+  onTestFinished(() => exit.mockRestore());
+
+  await expect(api.reboot()).rejects.toThrow('process.exit');
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.RebootMachine,
+    {
+      message: 'User rebooted the machine.',
+    }
+  );
+  expect(exit).toHaveBeenCalledWith(0);
+  expect(execFile).not.toHaveBeenCalled();
 });
 
 test('setClock', async () => {

@@ -1,26 +1,43 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { mockKiosk } from '@votingworks/test-utils';
-import { err } from '@votingworks/basics';
+import { deferred, err, ok } from '@votingworks/basics';
+import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
-import { screen, within } from '../../test/react_testing_library.js';
+import { screen, waitFor, within } from '../../test/react_testing_library.js';
 
 import { UnconfiguredScreen } from './unconfigured_screen.js';
+import { type ApiClient, createQueryClient } from '../api.js';
 import {
   type ApiMock,
   createApiMock,
 } from '../../test/helpers/mock_api_client.js';
 
+const featureFlagMock = vi.hoisted(() => {
+  // eslint-disable-next-line global-require
+  const { getFeatureFlagMock } = require('@votingworks/utils');
+  return getFeatureFlagMock();
+});
+vi.mock('@votingworks/utils', async (importActual) => ({
+  ...(await importActual()),
+  isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+    featureFlagMock.isEnabled(flag),
+}));
+
 let apiMock: ApiMock;
 
 beforeEach(() => {
   vi.unstubAllEnvs();
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.ENABLE_ADMIN_BACKUP_RESTORE
+  );
   apiMock = createApiMock();
 });
 
 afterEach(() => {
   apiMock.assertComplete();
+  featureFlagMock.resetFeatureFlags();
 });
 
 test('prompts user to insert USB drive', async () => {
@@ -88,8 +105,15 @@ test('configures from election packages on USB drive', async () => {
       .map((td) => td.textContent)
   ).toEqual(['election-package-2.zip', '01/01/2023 01:00:00 AM', '']);
 
-  apiMock.expectConfigure(electionPackages[0]!.path);
+  const configure = deferred<Awaited<ReturnType<ApiClient['configure']>>>();
+  apiMock.apiClient.configure
+    .expectCallWith({ electionFilePath: electionPackages[0]!.path })
+    .returns(configure.promise);
   userEvent.click(screen.getByText('election-package-1.zip'));
+  await waitFor(() =>
+    expect(screen.getButton('Restore from Backup...')).toBeDisabled()
+  );
+  configure.resolve(ok({ electionId: 'anything' }));
   await vi.waitFor(() => apiMock.assertComplete());
 });
 
@@ -202,4 +226,72 @@ test('shows configuration error', async () => {
     );
   userEvent.click(screen.getByText('election-package.zip'));
   await screen.findByText('Invalid metadata file.');
+});
+
+test('has Restore from Backup button when no USB drive inserted', async () => {
+  const queryClient = createQueryClient();
+  apiMock.apiClient.listPotentialElectionPackagesOnUsbDrive
+    .expectCallWith()
+    .resolves(err({ type: 'no-entity', message: 'No USB drive found' }));
+  renderInAppContext(<UnconfiguredScreen />, {
+    apiMock,
+    queryClient,
+    usbDriveStatus: mockUsbDriveStatus('no_drive'),
+  });
+  await screen.findByText('Insert a USB drive containing an election package');
+
+  userEvent.click(screen.getButton('Restore from Backup...'));
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText('Enter Restore Mode');
+  within(modal).getByText(
+    'VxAdmin will restart in Restore Mode, where you can select a backup to restore from.'
+  );
+
+  const reboot = deferred<void>();
+  apiMock.apiClient.rebootInRestoreMode
+    .expectCallWith()
+    .returns(reboot.promise);
+  userEvent.click(within(modal).getButton('Restart in Restore Mode'));
+  await waitFor(() =>
+    expect(within(modal).getButton('Restart in Restore Mode')).toBeDisabled()
+  );
+  expect(within(modal).getButton('Cancel')).toBeDisabled();
+
+  reboot.resolve();
+  await waitFor(() => expect(queryClient.isMutating()).toEqual(0));
+  expect(within(modal).getButton('Restart in Restore Mode')).toBeDisabled();
+  expect(within(modal).getButton('Cancel')).toBeDisabled();
+});
+
+test('has Restore from Backup button with election package list', async () => {
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
+  renderInAppContext(<UnconfiguredScreen />, {
+    apiMock,
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
+  });
+  await screen.findByText(
+    'No election packages found on the inserted USB drive.'
+  );
+
+  userEvent.click(screen.getButton('Restore from Backup...'));
+  const modal = await screen.findByRole('alertdialog');
+  userEvent.click(within(modal).getButton('Cancel'));
+  await vi.waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+});
+
+test('hides Restore from Backup when backup and restore are disabled', async () => {
+  featureFlagMock.resetFeatureFlags();
+  apiMock.apiClient.listPotentialElectionPackagesOnUsbDrive
+    .expectCallWith()
+    .resolves(err({ type: 'no-entity', message: 'No USB drive found' }));
+  renderInAppContext(<UnconfiguredScreen />, {
+    apiMock,
+    usbDriveStatus: mockUsbDriveStatus('no_drive'),
+  });
+  await screen.findByText('Insert a USB drive containing an election package');
+  expect(
+    screen.queryByRole('button', { name: 'Restore from Backup...' })
+  ).not.toBeInTheDocument();
 });
