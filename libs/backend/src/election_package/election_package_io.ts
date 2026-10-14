@@ -56,6 +56,8 @@ import {
   type SystemSettings,
   type BallotPositions,
   BallotPositionsSchema,
+  BallotCandidateOrderingsSchema,
+  type BallotCandidateOrderings,
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import type { z } from 'zod/v4';
@@ -488,6 +490,20 @@ export function streamBallotPositions(
 }
 
 /**
+ * Streams candidate orderings from the election package, one ballot style at a
+ * time.
+ */
+export function streamCandidateOrderings(
+  zip: ElectionPackageZip
+): AsyncIterable<BallotCandidateOrderings> {
+  return streamElectionPackageJsonlEntry(
+    zip,
+    ElectionPackageFileName.CANDIDATE_ORDERINGS,
+    BallotCandidateOrderingsSchema
+  );
+}
+
+/**
  * Finds the most recent election package ZIP in a directory. In practice this
  * is the root of a USB drive mount.
  */
@@ -687,6 +703,7 @@ export async function parseAndHashElection(
 
   const ballotHash = computeBallotHashVxf({
     ballotPositions: await hashZipEntry(zip, Entry.BALLOT_POSITIONS),
+    candidateOrderings: await hashZipEntry(zip, Entry.CANDIDATE_ORDERINGS),
     election: electionHash,
   });
 
@@ -698,6 +715,7 @@ export async function parseAndHashElection(
  */
 export interface ElectionFileHashes {
   ballotPositions: string;
+  candidateOrderings: string;
   election: string;
 }
 
@@ -712,6 +730,7 @@ export function computeBallotHashVxf(hashes: ElectionFileHashes): string {
   return createHash('sha256')
     .update(hashes.election)
     .update(hashes.ballotPositions)
+    .update(hashes.candidateOrderings)
     .digest('hex');
 }
 

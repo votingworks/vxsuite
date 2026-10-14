@@ -73,6 +73,14 @@ export function unsafeParse<T>(parser: z.ZodType<T>, value: unknown): T {
 }
 
 /**
+ * @throws if JSON parsing or schema validation fails.
+ */
+// @coverage-exclude: Tested via consumers.
+export function unsafeParseJson<T>(text: string, parser: z.ZodType<T>): T {
+  return safeParseJson(text, parser).unsafeUnwrap();
+}
+
+/**
  * Parser `value` using `parser` or return `undefined` if parsing fails.
  */
 export function maybeParse<T>(

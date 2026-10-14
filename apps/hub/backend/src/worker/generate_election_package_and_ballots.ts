@@ -344,23 +344,25 @@ async function generate(
   }
 
   const serializationOptions: ElectionSerializationOptions = {
-    // [TODO] Can remove once candidate orderings are moved to a separate file.
-    // This mitigates the effects of the large election JSON in the meantime.
     compact: systemSettings.splitElectionDefinition,
     format: electionSerializationFormat,
     version: jurisdiction.softwareVersion,
   };
 
-  const { electionDefinition, ballotPaths, ballotPositionsPath } =
-    await renderAllBallotPdfsAndCreateElectionDefinition(
-      rendererPool,
-      ballotTemplates[ballotTemplateId],
-      allBallotProps,
-      serializationOptions,
-      systemSettings,
-      scratchDir,
-      emitProgress
-    );
+  const {
+    electionDefinition,
+    ballotPaths,
+    ballotPositionsPath,
+    candidateOrderingsPath,
+  } = await renderAllBallotPdfsAndCreateElectionDefinition(
+    rendererPool,
+    ballotTemplates[ballotTemplateId],
+    allBallotProps,
+    serializationOptions,
+    systemSettings,
+    scratchDir,
+    emitProgress
+  );
 
   const calibrationSheetPdf = await rendererPool.runTask((renderer) =>
     renderCalibrationSheetPdf(renderer, election.ballotLayout.paperSize)
@@ -371,8 +373,6 @@ async function generate(
   await rendererPool.close().catch(console.error);
 
   electionPackageZip.addEntry(electionDefinition.electionData, {
-    // [TODO] Can remove once candidate orderings are moved to a separate file.
-    // This mitigates the effects of the large election JSON in the meantime.
     compress: systemSettings.splitElectionDefinition,
     name: ElectionPackageFileName.ELECTION,
   });
@@ -381,6 +381,13 @@ async function generate(
     electionPackageZip.addEntryFromPath(ballotPositionsPath, {
       compress: true,
       name: ElectionPackageFileName.BALLOT_POSITIONS,
+    });
+  }
+
+  if (candidateOrderingsPath) {
+    electionPackageZip.addEntryFromPath(candidateOrderingsPath, {
+      compress: true,
+      name: ElectionPackageFileName.CANDIDATE_ORDERINGS,
     });
   }
 

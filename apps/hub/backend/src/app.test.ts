@@ -24,6 +24,7 @@ import {
   makeTemporaryPath,
   readElectionTwoPartyPrimaryDefinition,
   makeTemporaryFile,
+  electionGridLayoutNewHampshireTestBallotFixtures,
 } from '@votingworks/fixtures';
 import {
   type BallotMode,
@@ -70,6 +71,8 @@ import {
   type EncodedBallotEntry,
   type UiStringAudioClip,
   BallotPositionsSchema,
+  BallotCandidateOrderingsSchema,
+  unsafeParseJson,
 } from '@votingworks/types';
 import {
   ballotStyleHasPrecinctOrSplit,
@@ -4419,8 +4422,8 @@ test('Election package export with VxDefaultBallot drops signature field', async
 });
 
 test('export - with `splitElectionDefinition` setting on', async () => {
-  const fixtures = electionFamousNames2021Fixtures;
-  const { electionData } = fixtures.readElectionDefinition();
+  const fixtures = electionGridLayoutNewHampshireTestBallotFixtures;
+  const electionData = fixtures.electionJson.asText();
 
   const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp({
     organizations,
@@ -4472,6 +4475,7 @@ test('export - with `splitElectionDefinition` setting on', async () => {
   const Entry = ElectionPackageFileName;
   const zip = await openElectionPackageZipBuffer(pkg);
   const pkgPositionsJsonl = await zip.readEntryText(Entry.BALLOT_POSITIONS);
+  const pkgOrderingsJsonl = await zip.readEntryText(Entry.CANDIDATE_ORDERINGS);
 
   const parsedPositions = pkgPositionsJsonl
     .trim()
@@ -4482,6 +4486,17 @@ test('export - with `splitElectionDefinition` setting on', async () => {
 
   for (let i = 0; i < parsedPositions.length; i += 1) {
     expect(parsedPositions[i]?.ballotStyleId).toEqual(ballotStyles[i]?.id);
+  }
+
+  const parsedOrderings = pkgOrderingsJsonl
+    .trim()
+    .split('\n')
+    .map((l) => unsafeParseJson(l, BallotCandidateOrderingsSchema));
+
+  expect(parsedOrderings).toHaveLength(ballotStyles.length);
+
+  for (let i = 0; i < parsedOrderings.length; i += 1) {
+    expect(parsedOrderings[i]?.ballotStyleId).toEqual(ballotStyles[i]?.id);
   }
 
   // Expect a compact election.json, to reduce bloat from candidate orderings.

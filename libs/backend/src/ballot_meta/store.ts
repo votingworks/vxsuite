@@ -1,7 +1,10 @@
 import {
-  safeParseJson,
+  CandidateOrderingsSchema,
+  unsafeParseJson,
   SheetPositionsSchema,
+  type BallotCandidateOrderings,
   type BallotPositions,
+  type CandidateOrderings,
   type Election,
   type SheetPositions,
   type SystemSettings,
@@ -10,6 +13,7 @@ import type { Client } from '@votingworks/db';
 import z from 'zod';
 import {
   streamBallotPositions,
+  streamCandidateOrderings,
   type ElectionPackageZip,
 } from '../election_package/election_package_io.js';
 
@@ -19,6 +23,20 @@ export class BallotMetaStore {
 
   constructor(client: Client) {
     this.client = client;
+  }
+
+  /**
+   * Retrieves candidate orderings, or `null` if not found.
+   */
+  getCandidateOrderings(styleId: string): CandidateOrderings | null {
+    const row = this.client.one(
+      `select orderings from candidate_orderings where style_id = ?`,
+      styleId
+    ) as { orderings: string } | undefined;
+
+    if (!row) return null;
+
+    return unsafeParseJson(row.orderings, CandidateOrderingsSchema);
   }
 
   /**
@@ -32,11 +50,33 @@ export class BallotMetaStore {
 
     if (!row) return null;
 
-    const parseRes = safeParseJson(
-      row.positions,
-      z.array(SheetPositionsSchema)
-    );
-    return parseRes.unsafeUnwrap();
+    return unsafeParseJson(row.positions, z.array(SheetPositionsSchema));
+  }
+
+  /**
+   * Imports candidate orderings from an election package.
+   */
+  async importCandidateOrderings(
+    zip: ElectionPackageZip,
+    election: Election,
+    settings: SystemSettings
+  ): Promise<void> {
+    if (!settings.splitElectionDefinition) {
+      for (const bs of election.ballotStyles) {
+        if (!bs.orderedCandidatesByContest) continue;
+
+        addCandidateOrderings(this.client, {
+          ballotStyleId: bs.id,
+          orderings: bs.orderedCandidatesByContest,
+        });
+      }
+
+      return;
+    }
+
+    for await (const co of streamCandidateOrderings(zip)) {
+      addCandidateOrderings(this.client, co);
+    }
   }
 
   /**
@@ -64,6 +104,14 @@ export class BallotMetaStore {
       addPositions(this.client, bp);
     }
   }
+}
+
+function addCandidateOrderings(c: Client, b: BallotCandidateOrderings): void {
+  c.run(
+    `insert into candidate_orderings ( style_id, orderings ) values (?, ?)`,
+    b.ballotStyleId,
+    JSON.stringify(b.orderings)
+  );
 }
 
 function addPositions(client: Client, b: BallotPositions): void {

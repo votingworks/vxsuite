@@ -2,8 +2,10 @@ import { Client } from '@votingworks/db';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageFileName,
+  type BallotCandidateOrderings,
   type BallotPositions,
   type BallotStyle,
+  type CandidateOrderings,
   type ContestPosition,
   type Election,
   type SystemSettings,
@@ -32,12 +34,25 @@ const contestPos2: ContestPosition = {
   options: [],
 };
 
+const candidateOrderings1: CandidateOrderings = {
+  'contest-1': [{ id: 'candidate-1', partyIds: ['party-1'] }],
+};
+
+const candidateOrderings2: CandidateOrderings = {
+  'contest-4': [{ id: 'candidate-4', partyIds: ['party-4'] }],
+  'contest-2': [
+    { id: 'candidate-3', partyIds: ['party-3'] },
+    { id: 'candidate-2', partyIds: ['party-2'] },
+  ],
+};
+
 const style1: BallotStyle = {
   ...assertDefined(baseElection.ballotStyles[0]),
   ballotPositions: [
     [[contestPos1], []],
     [[contestPos2], []],
   ],
+  orderedCandidatesByContest: candidateOrderings1,
 };
 
 const style2: BallotStyle = {
@@ -46,9 +61,10 @@ const style2: BallotStyle = {
     [[contestPos2], []],
     [[contestPos1], []],
   ],
+  orderedCandidatesByContest: candidateOrderings2,
 };
 
-test('non-split election definition - imports from parsed election', async () => {
+test('non-split election definition - imports positions from parsed election', async () => {
   const settings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
     splitElectionDefinition: false,
@@ -79,7 +95,7 @@ test('non-split election definition - imports from parsed election', async () =>
   expect(store.getPositions('invalid')).toBeNull();
 });
 
-test('split election definition - imports from ballotPositions.jsonl', async () => {
+test('split election definition - imports positions from ballotPositions.jsonl', async () => {
   const settings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
     splitElectionDefinition: true,
@@ -107,6 +123,83 @@ test('split election definition - imports from ballotPositions.jsonl', async () 
   expect(store.getPositions(style2.id)).toEqual(style2.ballotPositions);
   expect(store.getPositions('invalid')).toBeNull();
 });
+
+test('single-file election - imports candidate orderings from parsed election', async () => {
+  const settings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    splitElectionDefinition: false,
+  };
+
+  const style3NoOrderings: BallotStyle = {
+    ...style2,
+    id: 'style 3 - no orderings',
+    orderedCandidatesByContest: undefined,
+  };
+
+  const election: Election = {
+    ...baseElection,
+    ballotStyles: [style1, style2, style3NoOrderings],
+  };
+
+  const client = Client.memoryClient(`${import.meta.dirname}/schema.sql`);
+  const store = new BallotMetaStore(client);
+
+  const pkgFile = makeTemporaryFile({ content: await zipFile({}) });
+  await withElectionPackageZip(pkgFile, async (zip) => {
+    await store.importCandidateOrderings(zip, election, settings);
+  });
+
+  expect(store.getCandidateOrderings(style1.id)).toEqual(
+    style1.orderedCandidatesByContest
+  );
+  expect(store.getCandidateOrderings(style2.id)).toEqual(
+    style2.orderedCandidatesByContest
+  );
+  expect(store.getCandidateOrderings(style3NoOrderings.id)).toBeNull();
+  expect(store.getCandidateOrderings('invalid')).toBeNull();
+});
+
+test('split-file election - imports orderings from candidateOrderings.jsonl', async () => {
+  const settings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    splitElectionDefinition: true,
+  };
+
+  const election: Election = { ...baseElection, ballotStyles: [] };
+
+  const client = Client.memoryClient(`${import.meta.dirname}/schema.sql`);
+  const store = new BallotMetaStore(client);
+
+  const pkgData = await zipFile({
+    [ElectionPackageFileName.CANDIDATE_ORDERINGS]: [
+      JSON.stringify(candidateOrderingsFromBallotStyle(style1)),
+      JSON.stringify(candidateOrderingsFromBallotStyle(style2)),
+      '',
+    ].join('\n'),
+  });
+
+  const pkgFile = makeTemporaryFile({ content: pkgData });
+  await withElectionPackageZip(pkgFile, async (zip) => {
+    await store.importCandidateOrderings(zip, election, settings);
+  });
+
+  expect(store.getCandidateOrderings(style1.id)).toEqual(
+    style1.orderedCandidatesByContest
+  );
+  expect(store.getCandidateOrderings(style2.id)).toEqual(
+    style2.orderedCandidatesByContest
+  );
+  expect(store.getCandidateOrderings('invalid')).toBeNull();
+});
+
+function candidateOrderingsFromBallotStyle(
+  bs: BallotStyle
+): BallotCandidateOrderings {
+  return {
+    ballotStyleId: bs.id,
+    orderings: assertDefined(bs.orderedCandidatesByContest),
+  };
+}
 
 function positionsFromBallotStyle(bs: BallotStyle): BallotPositions {
   return {
