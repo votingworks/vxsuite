@@ -21,6 +21,8 @@ import {
   getGroupIdFromBallotStyleId,
   straightPartyNotYetImplemented,
   type Admin,
+  type SheetPositions,
+  type BallotStyle,
 } from '@votingworks/types';
 import {
   combineElectionResults,
@@ -213,11 +215,18 @@ interface BallotContestLayout {
   contestIdsBySheet: Array<ContestId[]>;
 }
 
-function getBallotContestLayouts(election: Election): BallotContestLayout[] {
+export type GetBallotPositionsFn = (
+  bs: BallotStyle
+) => readonly SheetPositions[] | null | undefined;
+
+function getBallotContestLayouts(
+  election: Election,
+  getBallotPositions: GetBallotPositionsFn
+): BallotContestLayout[] {
   return election.ballotStyles.map((ballotStyle) => {
     const gridPositions = gridPositionsFromBallotPositions(
       assertDefined(
-        ballotStyle.ballotPositions,
+        getBallotPositions(ballotStyle),
         `ballotStyle '${ballotStyle.id}' is missing ballotPositions`
       )
     );
@@ -243,7 +252,13 @@ function getBallotContestLayouts(election: Election): BallotContestLayout[] {
 
 export function generateTestDeckCastVoteRecords(
   election: Election,
-  options: { includeSummaryBallots: boolean; includeBubbleBallots: boolean }
+  options:
+    | { includeSummaryBallots: boolean; includeBubbleBallots: false }
+    | {
+        includeSummaryBallots: boolean;
+        includeBubbleBallots: true;
+        getBallotPositions: GetBallotPositionsFn;
+      }
 ): Tabulation.CastVoteRecord[] {
   const { includeSummaryBallots, includeBubbleBallots } = options;
 
@@ -272,7 +287,7 @@ export function generateTestDeckCastVoteRecords(
     : [];
 
   const ballotContestLayouts: BallotContestLayout[] = includeBubbleBallots
-    ? getBallotContestLayouts(election)
+    ? getBallotContestLayouts(election, options.getBallotPositions)
     : [];
 
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);

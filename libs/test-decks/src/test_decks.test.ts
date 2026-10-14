@@ -284,6 +284,7 @@ describe('getTallyReportResults', () => {
     const election = electionFamousNames2021Fixtures.readElection();
 
     const cvrs = generateTestDeckCastVoteRecords(election, {
+      getBallotPositions: (style) => style.ballotPositions,
       includeSummaryBallots: false,
       includeBubbleBallots: true,
     });
@@ -327,6 +328,7 @@ describe('getTallyReportResults', () => {
     const election = electionFamousNames2021Fixtures.readElection();
 
     const cvrs = generateTestDeckCastVoteRecords(election, {
+      getBallotPositions: (style) => style.ballotPositions,
       includeSummaryBallots: true,
       includeBubbleBallots: true,
     });
@@ -366,6 +368,7 @@ describe('getTallyReportResults', () => {
     const election = electionPrimaryPrecinctSplitsFixtures.readElection();
 
     const cvrs = generateTestDeckCastVoteRecords(election, {
+      getBallotPositions: (style) => style.ballotPositions,
       includeSummaryBallots: false,
       includeBubbleBallots: true,
     });
@@ -421,6 +424,7 @@ describe('getTallyReportResults', () => {
     const election = electionPrimaryPrecinctSplitsFixtures.readElection();
 
     const cvrs = generateTestDeckCastVoteRecords(election, {
+      getBallotPositions: (style) => style.ballotPositions,
       includeSummaryBallots: true,
       includeBubbleBallots: true,
     });
@@ -474,6 +478,7 @@ describe('getTallyReportResults', () => {
     assert(precinct);
 
     const cvrs = generateTestDeckCastVoteRecords(election, {
+      getBallotPositions: (style) => style.ballotPositions,
       includeSummaryBallots: false,
       includeBubbleBallots: true,
     });
@@ -521,6 +526,7 @@ describe('getTallyReportResults', () => {
     assert(precinct);
 
     const cvrs = generateTestDeckCastVoteRecords(election, {
+      getBallotPositions: (style) => style.ballotPositions,
       includeSummaryBallots: false,
       includeBubbleBallots: true,
     });
