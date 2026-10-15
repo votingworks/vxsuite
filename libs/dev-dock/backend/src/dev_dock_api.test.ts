@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import express from 'express';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
+import { homedir } from 'node:os';
 import * as grout from '@votingworks/grout';
 import {
   vxFamousNamesFixtures,
@@ -59,6 +60,7 @@ import {
   SimulatedUsbPlatform,
   UsbDiskDevPathSchema,
 } from '@votingworks/usb-drive';
+import { ScreenRecordingFile } from './screen_recording.js';
 import {
   type Api,
   useDevDockRouter,
@@ -109,10 +111,18 @@ function setup(
   devDockDir: string = makeTemporaryDirectory({ prefix: 'dev-dock-test-' }),
   hubExportDir: string = makeTemporaryDirectory({
     prefix: 'hub-export-test-',
-  })
+  }),
+  screenRecordingFile: ScreenRecordingFile = new ScreenRecordingFile()
 ) {
   const app = express();
-  useDevDockRouter(app, express, mockSpec, devDockDir, hubExportDir);
+  useDevDockRouter(
+    app,
+    express,
+    mockSpec,
+    devDockDir,
+    hubExportDir,
+    screenRecordingFile
+  );
   server = app.listen();
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/dock`;
@@ -155,6 +165,32 @@ test('dock side endpoints', async () => {
     apiClient.setDockSide({ side: 'diagonal' as DevDockSide })
   ).rejects.toThrow();
   await expect(apiClient.getDockSide()).resolves.toEqual('left');
+});
+
+test('screen recording endpoints', async () => {
+  const screenRecordingFile = new ScreenRecordingFile();
+  vi.spyOn(screenRecordingFile, 'save');
+  const { apiClient } = setup(
+    undefined,
+    undefined,
+    undefined,
+    screenRecordingFile
+  );
+
+  await apiClient.beginScreenRecording();
+  await apiClient.appendScreenRecording({ data: Uint8Array.of(1, 2) });
+  await expect(
+    apiClient.saveScreenRecording({ fileName: '../Recording.mp4' })
+  ).rejects.toThrow();
+  await apiClient.discardScreenRecording();
+
+  vi.mocked(screenRecordingFile.save).mockResolvedValue();
+  await apiClient.beginScreenRecording();
+  await apiClient.saveScreenRecording({ fileName: 'Recording.mp4' });
+  expect(screenRecordingFile.save).toHaveBeenCalledWith(
+    join(homedir(), 'Downloads', 'Recording.mp4')
+  );
+  await apiClient.discardScreenRecording();
 });
 
 // Note: This test overwrites the global mock card state.
