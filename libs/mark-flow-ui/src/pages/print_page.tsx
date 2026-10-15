@@ -21,7 +21,6 @@ export function PrintPage({ print }: PrintPageProps): JSX.Element {
   const printLock = useLock();
 
   const printBallot = useCallback(() => {
-    // @coverage-exclude
     if (!printLock.lock()) return;
     print();
   }, [print, printLock]);

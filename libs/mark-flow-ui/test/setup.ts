@@ -3,7 +3,7 @@ import '@votingworks/test-utils/vitest-setup';
 import { configure } from '@testing-library/react';
 import '@votingworks/fixtures/vitest-setup';
 
-configure({ asyncUtilTimeout: 5_000 });
+configure({ asyncUtilTimeout: 5_000, reactStrictMode: true });
 
 beforeEach(() => {
   globalThis.print = vi.fn(() => {

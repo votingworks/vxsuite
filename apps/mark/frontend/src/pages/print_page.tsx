@@ -40,15 +40,14 @@ export function PrintPage(): JSX.Element {
       assert(ballotStyleId !== undefined);
       assert(precinctId !== undefined);
       setHasPrintedBallot();
-      printBallotMutation.mutate(
-        {
+      void printBallotMutation
+        .mutateAsync({
           languageCode,
           precinctId,
           ballotStyleId,
           votes,
-        },
-        { onSuccess: setPrintJobId }
-      );
+        })
+        .then(setPrintJobId);
     }
   }
 

@@ -11,10 +11,10 @@ assert(rootElement);
 const root = createRoot(rootElement);
 
 root.render(
-  <React.Fragment>
+  <React.StrictMode>
     <App />
     <DevDock />
-  </React.Fragment>
+  </React.StrictMode>
 );
 
 focusVisible();

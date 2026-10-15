@@ -328,6 +328,7 @@ test('displays read-only straight party contest', async () => {
 test('adding a candidate contest (general election)', async () => {
   const { election } = electionWithNoContestsRecord;
   const electionId = election.id;
+  idFactory.next(); // Discarded by StrictMode's double render of the blank form
   const newContest: CandidateContest = {
     id: idFactory.next(),
     type: 'candidate',
@@ -775,6 +776,7 @@ test.each(nameTestSpecs)(
   async ({ firstName, middleName, lastName, expectedNormalizedName }) => {
     const { election } = electionWithNoContestsRecord;
     const electionId = election.id;
+    idFactory.next(); // Discarded by StrictMode's double render of the blank form
     const newContest: CandidateContest = {
       id: idFactory.next(),
       type: 'candidate',
@@ -965,6 +967,7 @@ test('adding a ballot measure', async () => {
   const electionRecord = generalElectionRecord(jurisdiction.id);
   const { election } = electionRecord;
   const electionId = election.id;
+  idFactory.next(); // Discarded by StrictMode's double render of the blank form
   const id = idFactory.next();
   idFactory.next(); // Skip over the extra ballot measure ID created when switching to ballot measure type
   const newContest: YesNoContest = {

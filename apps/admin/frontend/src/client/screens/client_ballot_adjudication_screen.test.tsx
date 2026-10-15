@@ -140,12 +140,15 @@ function expectGlobalDataLoaderQueries(): void {
 
 // Sets up the initial-mount claim+load call. The client always claims the
 // next available ballot ({}); the host decides which cvrId that is, returned
-// here as `cvrId`. Tests that want to override the result (e.g. claim-failure
-// flows) skip this and mock directly.
+// here as `cvrId`. StrictMode's remount repeats the call, which the host
+// answers with the machine's existing claim. Tests that want to override the
+// result (e.g. claim-failure flows) skip this and mock directly.
 function expectInitialClaimAndLoad(cvrId: string): void {
-  apiMock.apiClient.claimAndLoadBallot
-    .expectCallWith({})
-    .resolves(ok({ cvrId, data: makeBallotData(cvrId) }));
+  for (let i = 0; i < 2; i += 1) {
+    apiMock.apiClient.claimAndLoadBallot
+      .expectCallWith({})
+      .resolves(ok({ cvrId, data: makeBallotData(cvrId) }));
+  }
 }
 
 test('claims the next available ballot on mount', async () => {

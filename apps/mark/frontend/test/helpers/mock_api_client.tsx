@@ -412,7 +412,7 @@ export function createApiMock() {
     },
 
     expectClearLastBarcodeScan() {
-      mockApiClient.clearLastBarcodeScan.expectCallWith().resolves();
+      mockApiClient.clearLastBarcodeScan.expectRepeatedCallsWith().resolves();
     },
 
     expectGetMostRecentBarcodeScan(

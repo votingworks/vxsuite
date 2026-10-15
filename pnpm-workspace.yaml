@@ -41,6 +41,7 @@ overrides:
 
 patchedDependencies:
   '@fortawesome/react-fontawesome@3.5.0': patches/@fortawesome__react-fontawesome@3.5.0.patch
+  react-modal@3.16.1: patches/react-modal@3.16.1.patch
 
 # typescript-eslint runs against the classic compiler API from the
 # `@typescript/typescript6` alias (see CLAUDE.md), which satisfies its

@@ -233,7 +233,7 @@ function setupBasicMocks({
 }) {
   apiMock.expectGetBallotAdjudicationQueue(queue);
   apiMock.expectGetNextCvrIdForBallotAdjudication(nextCvrId);
-  apiMock.expectClaimAndLoadBallot(
+  apiMock.expectInitialClaimAndLoadBallot(
     { cvrId: adjudicationData.cvrId },
     adjudicationData
   );
@@ -339,7 +339,7 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
   );
   apiMock.expectGetSystemSettings();
 
-  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData1);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData1);
 
   apiMock.apiClient.getBallotImages
     .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
@@ -431,7 +431,7 @@ test('opens to the back side when the only pending contest is on the back', asyn
 
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
-  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
   apiMock.apiClient.getBallotImages
     .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
     .resolves(makeHmpbBallotImages(CVR_ID_1));
@@ -473,7 +473,7 @@ test('default side flips to next pending after confirming a contest', async () =
 
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
-  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
   apiMock.apiClient.getBallotImages
     .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
     .resolves(makeHmpbBallotImages(CVR_ID_1));
@@ -547,7 +547,7 @@ test('escalated-only queue shows the escalation banner and advances within escal
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1, undefined, {
     escalatedOnly: true,
   });
-  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
   apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
   apiMock.expectGetWriteInCandidates(
     [],
@@ -671,7 +671,7 @@ test('skip / back / exit prompt to discard when the user has unsaved adjudicatio
   // (Back only renders past the first ballot in the queue).
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_2);
-  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_2 }, adjData2);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_2 }, adjData2);
   apiMock.apiClient.getBallotImages
     .expectRepeatedCallsWith({ cvrId: CVR_ID_2 })
     .resolves(makeHmpbBallotImages(CVR_ID_2));
@@ -738,7 +738,7 @@ test('re-opening a Confirmed contest preserves the in-progress adjudication', as
 
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
-  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
   apiMock.apiClient.getBallotImages
     .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
     .resolves(makeHmpbBallotImages(CVR_ID_1));
@@ -832,7 +832,7 @@ test('confirmation modal back returns and accept anyway resolves and navigates t
 
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
-  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
   apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
   apiMock.expectGetWriteInCandidates(
     [],
@@ -925,7 +925,7 @@ test('clicking a contest opens contest adjudication screen', async () => {
   // Use HMPB images so zoo-council-mammal is on front, best-animal-mammal on back
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
-  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
   apiMock.apiClient.getBallotImages
     .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
     .resolves(makeHmpbBallotImages(CVR_ID_1));
@@ -1026,7 +1026,7 @@ test('contest hover highlights pending yellow, resolved purple, and back-side no
 
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
-  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
   apiMock.apiClient.getBallotImages
     .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
     .resolves(ballotImages);
@@ -1129,7 +1129,7 @@ test('hovering a crossover voted contest shows the warning highlight', async () 
 
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
-  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
   apiMock.apiClient.getBallotImages
     .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
     .resolves(ballotImages);
@@ -1206,7 +1206,7 @@ test('accept advances to next ballot and blank ballot callout states', async () 
 
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2, CVR_ID_3]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
-  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData1);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData1);
   apiMock.expectGetWriteInCandidates(
     [],
     adjData1.contests.map((c) => c.contestId)
@@ -1303,7 +1303,7 @@ test('accept on the last ballot wraps back to an earlier unresolved ballot', asy
   apiMock.apiClient.getNextCvrIdForBallotAdjudication
     .expectOptionalRepeatedCallsWith()
     .resolves(CVR_ID_2);
-  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_2 }, adjData2);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_2 }, adjData2);
   apiMock.apiClient.getBallotImages
     .expectRepeatedCallsWith({ cvrId: CVR_ID_2 })
     .resolves(bmdImages(CVR_ID_2));
@@ -1377,7 +1377,7 @@ test('contest list shows correct status line captions', async () => {
 
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
-  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
   apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
   apiMock.expectGetWriteInCandidates(
     [],
@@ -1450,7 +1450,7 @@ test('contest list suppresses undervote captions when not in system settings', a
 
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
-  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
   apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
   apiMock.expectGetWriteInCandidates(
     [],
@@ -1649,7 +1649,7 @@ test('contest list shows correct option resolution bullets', async () => {
 
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
-  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
   apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
   apiMock.expectGetWriteInCandidates(
     [
@@ -1989,7 +1989,7 @@ test('multi-station mode claims ballots on mount and releases on navigation', as
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
 
   // Data loader queries for ballot 1
-  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData1);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData1);
   apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
   apiMock.expectGetWriteInCandidates(
     [],
@@ -2044,7 +2044,7 @@ test('Skip onto a ballot claimed by another machine shows read-only overlay and 
   apiMock.expectGetSystemSettings();
 
   // Initial mount on FIRST_CVR_ID.
-  apiMock.expectClaimAndLoadBallot({ cvrId: FIRST_CVR_ID }, adjData1);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: FIRST_CVR_ID }, adjData1);
   apiMock.expectGetBallotImages({ cvrId: FIRST_CVR_ID }, true);
 
   renderInAppContext(<BallotAdjudicationScreenWrapper />, {
@@ -2089,7 +2089,7 @@ test('write-in candidates added by another station appear while adjudicating', a
 
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
-  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
   apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
   apiMock.expectGetWriteInCandidates([], [contestId]);
   apiMock.expectGetSystemSettings();
@@ -2142,7 +2142,7 @@ test('navigating to the next ballot never shows the previous ballot data', async
 
   apiMock.expectGetBallotAdjudicationQueue([FIRST_CVR_ID, SECOND_CVR_ID]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(FIRST_CVR_ID);
-  apiMock.expectClaimAndLoadBallot({ cvrId: FIRST_CVR_ID }, adjData1);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: FIRST_CVR_ID }, adjData1);
   apiMock.expectGetBallotImages({ cvrId: FIRST_CVR_ID }, true);
   apiMock.expectGetWriteInCandidates([], ['zoo-council-mammal']);
   apiMock.expectGetSystemSettings();
@@ -2198,7 +2198,7 @@ test('accept advances past a ballot claimed by another station', async () => {
 
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2, CVR_ID_3]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_1);
-  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData1);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData1);
   apiMock.expectGetBallotImages({ cvrId: CVR_ID_1 }, true);
   apiMock.expectGetWriteInCandidates([], ['zoo-council-mammal']);
   apiMock.expectGetSystemSettings();
@@ -2532,7 +2532,7 @@ test('straight party derived votes update when the straight party contest is adj
     adjData.contests.map((c) => c.contestId)
   );
   apiMock.expectGetSystemSettings();
-  apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
+  apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData);
   apiMock.apiClient.getBallotImages
     .expectRepeatedCallsWith({ cvrId: CVR_ID_1 })
     .resolves(ballotImages);

@@ -15,7 +15,7 @@ assert(rootElement);
 const root = createRoot(rootElement);
 
 root.render(
-  <React.Fragment>
+  <React.StrictMode>
     {isFeatureFlagEnabled(
       BooleanEnvironmentVariableName.ENABLE_HARDWARE_TEST_APP
     ) ? (
@@ -26,5 +26,5 @@ root.render(
         <DevDock />
       </React.Fragment>
     )}
-  </React.Fragment>
+  </React.StrictMode>
 );

@@ -19,7 +19,7 @@ expect.extend({ toHaveStyleRule: buildToHaveStyleRule(expect) });
 
 beforeEach(cleanup);
 
-configure({ asyncUtilTimeout: 5_000 });
+configure({ asyncUtilTimeout: 5_000, reactStrictMode: true });
 
 afterAll(() => {
   vi.useRealTimers();

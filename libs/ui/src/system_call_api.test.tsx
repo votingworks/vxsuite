@@ -131,15 +131,16 @@ describe('React Query API calls the right client methods', () => {
 });
 
 test('useSystemCallApi throws if not wrapped in SystemCallContextProvider', () => {
+  let error: unknown;
   renderHook(() => {
     try {
       useSystemCallApi();
     } catch (e) {
-      expect((e as Error).message).toEqual(
-        'the SystemCall API was not provided'
-      );
+      error = e;
     }
   });
 
-  expect.assertions(1);
+  expect((error as Error).message).toEqual(
+    'the SystemCall API was not provided'
+  );
 });
