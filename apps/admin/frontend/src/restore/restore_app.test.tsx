@@ -6,7 +6,7 @@ import {
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { DEV_MACHINE_ID, type DippedSmartCardAuth } from '@votingworks/types';
-import { SystemCallContextProvider } from '@votingworks/ui';
+import { DEFAULT_QUERY_REFETCH_INTERVAL } from '../utils/globals.js';
 import {
   render,
   screen,
@@ -17,7 +17,6 @@ import {
   createRestoreApiMock,
   type RestoreApiMock,
 } from '../../test/helpers/mock_restore_api_client.js';
-import { SharedApiClientContext, systemCallApi } from '../shared_api.js';
 import { type ApiClient, createQueryClient } from './api.js';
 import { RestoreApp } from './restore_app.js';
 
@@ -45,13 +44,7 @@ afterEach(() => {
 
 function renderRestoreApp() {
   const apiClient = apiMock.apiClient as unknown as ApiClient;
-  return render(
-    <SharedApiClientContext.Provider value={apiClient}>
-      <SystemCallContextProvider api={systemCallApi}>
-        <RestoreApp apiClient={apiClient} queryClient={queryClient} />
-      </SystemCallContextProvider>
-    </SharedApiClientContext.Provider>
-  );
+  return render(<RestoreApp apiClient={apiClient} queryClient={queryClient} />);
 }
 
 test('asks for a system administrator card while locked', async () => {
@@ -107,6 +100,7 @@ test('walks through the card reader, PIN, and remove-card states', async () => {
 
 test('shows the restore screen to a system administrator', async () => {
   apiMock.setAuthStatus(SYSTEM_ADMINISTRATOR_AUTH);
+  apiMock.setBackupDriveStatus('no_drive');
   renderRestoreApp();
 
   await screen.findByRole('heading', { name: 'Restore from Backup' });
@@ -115,8 +109,27 @@ test('shows the restore screen to a system administrator', async () => {
   screen.getButton('Exit Restore Mode');
 });
 
+test('asks for a backup USB drive until one is inserted', async () => {
+  apiMock.setAuthStatus(SYSTEM_ADMINISTRATOR_AUTH);
+  apiMock.setBackupDriveStatus('no_drive');
+  renderRestoreApp();
+
+  await screen.findByText('Insert a backup USB drive');
+
+  apiMock.setBackupDriveStatus('mounted');
+  vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
+  await waitFor(() =>
+    expect(screen.queryByText('Insert a backup USB drive')).toBeNull()
+  );
+
+  apiMock.setBackupDriveStatus('no_drive');
+  vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
+  await screen.findByText('Insert a backup USB drive');
+});
+
 test('locks the machine on request', async () => {
   apiMock.setAuthStatus(SYSTEM_ADMINISTRATOR_AUTH);
+  apiMock.setBackupDriveStatus('no_drive');
   apiMock.apiClient.logOut.expectCallWith().resolves();
   renderRestoreApp();
 

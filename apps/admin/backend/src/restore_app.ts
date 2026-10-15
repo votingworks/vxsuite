@@ -13,9 +13,7 @@ import {
   type UsbDriveStatus,
 } from '@votingworks/usb-drive';
 import { getMachineConfig } from './machine_config.js';
-import { isMultiStationAdjudicationEnabled } from './multi_station_config.js';
-import type { MachineModeController } from './machine_mode.js';
-import type { AppMode, BaseStore, MachineMode } from './types.js';
+import type { AppMode, BaseStore } from './types.js';
 import { constructAuthMachineState } from './util/auth.js';
 import { BackupRoot, type ListBackupsError } from './backup/backup_root.js';
 import type { RestoreProgressEvent } from './backup/progress.js';
@@ -73,17 +71,15 @@ export type RestoreModeError =
 function buildRestoreApi({
   auth,
   workspacePath,
-  machineMode,
   logger,
   multiUsbDrive,
 }: {
   auth: DippedSmartCardAuthApi;
   workspacePath: string;
-  machineMode: MachineModeController;
   logger: Logger;
   multiUsbDrive: MultiUsbDrive;
 }) {
-  const usbDriveAdapter = createUsbDriveAdapter(multiUsbDrive, (drives) =>
+  const backupDriveAdapter = createUsbDriveAdapter(multiUsbDrive, (drives) =>
     findDriveByPurpose(drives, 'backup')
   );
 
@@ -93,7 +89,7 @@ function buildRestoreApi({
   async function listAvailableBackups(): Promise<
     Result<AvailableBackup[], ListAvailableBackupsError>
   > {
-    const usbDriveStatus = await usbDriveAdapter.status();
+    const usbDriveStatus = await backupDriveAdapter.status();
     if (usbDriveStatus.status !== 'mounted') {
       return err({
         type: 'no-usb-drive',
@@ -122,14 +118,6 @@ function buildRestoreApi({
       return RESTORE_MODE_STORE.getAppMode();
     },
 
-    getMachineMode(): MachineMode {
-      return machineMode.get();
-    },
-
-    isMultiStationAdjudicationEnabled(): boolean {
-      return isMultiStationAdjudicationEnabled();
-    },
-
     getAuthStatus(): Promise<DippedSmartCardAuth.AuthStatus> {
       return auth.getAuthStatus(constructAuthMachineState(RESTORE_MODE_STORE));
     },
@@ -152,12 +140,8 @@ function buildRestoreApi({
       );
     },
 
-    getUsbDriveStatus(): Promise<UsbDriveStatus> {
-      return usbDriveAdapter.status();
-    },
-
-    async ejectUsbDrive(): Promise<void> {
-      return await usbDriveAdapter.eject();
+    getBackupDriveStatus(): Promise<UsbDriveStatus> {
+      return backupDriveAdapter.status();
     },
 
     listAvailableBackups,
@@ -216,7 +200,7 @@ function buildRestoreApi({
     },
 
     ...createSystemCallApi({
-      usbDrive: usbDriveAdapter,
+      usbDrive: backupDriveAdapter,
       logger,
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,
@@ -241,13 +225,11 @@ export type RestoreApi = ReturnType<typeof buildRestoreApi>;
 export function buildRestoreApp({
   auth,
   workspacePath,
-  machineMode,
   logger,
   multiUsbDrive,
 }: {
   auth: DippedSmartCardAuthApi;
   workspacePath: string;
-  machineMode: MachineModeController;
   logger: Logger;
   multiUsbDrive: MultiUsbDrive;
 }): Application {
@@ -255,7 +237,6 @@ export function buildRestoreApp({
   const api = buildRestoreApi({
     auth,
     workspacePath,
-    machineMode,
     logger,
     multiUsbDrive,
   });

@@ -4,6 +4,7 @@ import type { RestoreApi } from '@votingworks/admin-backend';
 import * as grout from '@votingworks/grout';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
+  createSystemCallApi,
   QUERY_CLIENT_DEFAULT_OPTIONS,
   usePollingQuery,
 } from '@votingworks/ui';
@@ -14,6 +15,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
+import { DEFAULT_QUERY_REFETCH_INTERVAL } from '../utils/globals.js';
 
 export type ApiClient = grout.Client<RestoreApi>;
 
@@ -37,6 +39,8 @@ export function useApiClient(): ApiClient {
 export function createQueryClient(): QueryClient {
   return new QueryClient({ defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS });
 }
+
+export const systemCallApi = createSystemCallApi(useApiClient);
 
 export const getMachineConfig = {
   queryKey(): QueryKey {
@@ -105,5 +109,19 @@ export const updateSessionExpiry = {
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
       },
     });
+  },
+} as const;
+
+export const getBackupDriveStatus = {
+  queryKey(): QueryKey {
+    return ['getBackupDriveStatus'];
+  },
+  usePollingQuery() {
+    const apiClient = useApiClient();
+    return usePollingQuery(
+      this.queryKey(),
+      () => apiClient.getBackupDriveStatus(),
+      DEFAULT_QUERY_REFETCH_INTERVAL
+    );
   },
 } as const;

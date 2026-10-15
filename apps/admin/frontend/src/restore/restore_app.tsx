@@ -1,14 +1,18 @@
 import { type QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BatteryLowAlert, LowDiskSpaceWarning } from '@votingworks/ui';
+import {
+  BatteryLowAlert,
+  LowDiskSpaceWarning,
+  SystemCallContextProvider,
+} from '@votingworks/ui';
 import { RestoreAppRoot } from './restore_app_root.js';
 import {
   type ApiClient,
   ApiClientContext,
   createApiClient,
   createQueryClient,
+  systemCallApi,
 } from './api.js';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker.js';
-import { SharedApiClientContext } from '../shared_api.js';
 
 const defaultApiClient = createApiClient();
 const defaultQueryClient = createQueryClient();
@@ -26,14 +30,14 @@ export function RestoreApp({
 }: RestoreAppProps): JSX.Element {
   return (
     <ApiClientContext.Provider value={apiClient}>
-      <SharedApiClientContext.Provider value={apiClient}>
+      <SystemCallContextProvider api={systemCallApi}>
         <QueryClientProvider client={queryClient}>
           <RestoreAppRoot />
           <SessionTimeLimitTracker />
           <LowDiskSpaceWarning />
           <BatteryLowAlert />
         </QueryClientProvider>
-      </SharedApiClientContext.Provider>
+      </SystemCallContextProvider>
     </ApiClientContext.Provider>
   );
 }

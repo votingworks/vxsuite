@@ -82,5 +82,5 @@ export function RestoreAppRoot(): JSX.Element | null {
     );
   }
 
-  return <RestoreScreen machineConfig={machineConfig} />;
+  return <RestoreScreen />;
 }

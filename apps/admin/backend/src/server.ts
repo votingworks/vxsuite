@@ -279,7 +279,6 @@ export async function start(options: StartOptions = {}): Promise<Server> {
         logger,
         multiUsbDrive,
         workspacePath,
-        machineMode,
       });
 
       baseLogger.log(LogEventId.AdminRestoreModeEntered, 'system', {

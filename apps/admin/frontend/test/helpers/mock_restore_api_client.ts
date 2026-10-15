@@ -4,6 +4,8 @@ import {
 } from '@votingworks/grout-test-utils';
 import type { MachineConfig, RestoreApi } from '@votingworks/admin-backend';
 import { DEV_MACHINE_ID, type DippedSmartCardAuth } from '@votingworks/types';
+import { mockUsbDriveStatus } from '@votingworks/ui';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { type Mock, vi } from 'vitest';
 
 type MockRestoreApiClient = Omit<
@@ -29,6 +31,7 @@ export interface RestoreApiMock {
   apiClient: MockRestoreApiClient;
   assertComplete(): void;
   setAuthStatus(authStatus: DippedSmartCardAuth.AuthStatus): void;
+  setBackupDriveStatus(status: UsbDriveStatus['status']): void;
   expectGetMachineConfig(machineConfig?: MachineConfig): void;
 }
 
@@ -42,6 +45,12 @@ export function createRestoreApiMock(
 
     setAuthStatus(authStatus) {
       apiClient.getAuthStatus.expectRepeatedCallsWith().resolves(authStatus);
+    },
+
+    setBackupDriveStatus(status) {
+      apiClient.getBackupDriveStatus
+        .expectRepeatedCallsWith()
+        .resolves(mockUsbDriveStatus(status));
     },
 
     expectGetMachineConfig(

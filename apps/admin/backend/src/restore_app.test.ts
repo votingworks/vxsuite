@@ -23,7 +23,6 @@ import {
 } from '../test/app.js';
 import { makeBackup, mockDiskSpace } from '../test/backup.js';
 import { restoreBackup } from './backup/restore/index.js';
-import { FileBackedMachineModeController } from './machine_mode.js';
 import {
   buildRestoreApp,
   type RestoreApi,
@@ -63,17 +62,27 @@ function buildRestoreTestEnvironment() {
     workspacePath,
     logger,
     multiUsbDrive,
-    machineMode: FileBackedMachineModeController.forWorkspace(workspacePath),
   });
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
   const apiClient = grout.createClient<RestoreApi>({
     baseUrl: `http://localhost:${port}/api`,
   });
+  const backupDriveClient: Parameters<typeof attachUsbDrive>[0] = {
+    getUsbDriveStatus: () => apiClient.getBackupDriveStatus(),
+  };
 
   mockSystemAdministratorAuth(auth);
 
-  return { auth, workspacePath, logger, apiClient, server, usbPlatform };
+  return {
+    auth,
+    workspacePath,
+    logger,
+    apiClient,
+    backupDriveClient,
+    server,
+    usbPlatform,
+  };
 }
 
 let env: ReturnType<typeof buildRestoreTestEnvironment>;
@@ -94,12 +103,15 @@ afterEach(() => {
  */
 async function insertBackupDrive(
   backup: { path: string },
-  apiClient: grout.Client<RestoreApi>,
-  usbPlatform: SimulatedUsbPlatform
+  {
+    apiClient,
+    backupDriveClient,
+    usbPlatform,
+  }: ReturnType<typeof buildRestoreTestEnvironment>
 ): Promise<string> {
   // A backup lives at `<root>/vxadmin-backups/<name>`; the drive gets the root.
   await attachUsbDrive(
-    apiClient,
+    backupDriveClient,
     usbPlatform,
     dirname(dirname(backup.path)),
     'ext4'
@@ -115,8 +127,6 @@ test('describes itself as restore mode', async () => {
   const { apiClient } = env;
 
   expect(await apiClient.getAppMode()).toEqual('restore');
-  expect(await apiClient.getMachineMode()).toEqual('host');
-  expect(await apiClient.isMultiStationAdjudicationEnabled()).toEqual(false);
   expect(await apiClient.getMachineConfig()).toEqual({
     machineId: DEV_MACHINE_ID,
     codeVersion: 'dev',
@@ -151,7 +161,9 @@ test('auth runs against an unconfigured machine', async () => {
 test('has no backups to offer without a USB drive', async () => {
   const { apiClient } = env;
 
-  expect(await apiClient.getUsbDriveStatus()).toEqual({ status: 'no_drive' });
+  expect(await apiClient.getBackupDriveStatus()).toEqual({
+    status: 'no_drive',
+  });
   expect((await apiClient.listAvailableBackups()).err()).toEqual({
     type: 'no-usb-drive',
     message: 'No USB drive is inserted',
@@ -165,9 +177,9 @@ test('has no backups to offer without a USB drive', async () => {
 });
 
 test('restores a backup from the inserted USB drive', async () => {
-  const { apiClient, workspacePath, usbPlatform, logger } = env;
+  const { apiClient, workspacePath, logger } = env;
   const backup = await makeBackup();
-  const backupPath = await insertBackupDrive(backup, apiClient, usbPlatform);
+  const backupPath = await insertBackupDrive(backup, env);
 
   // Restore mode has opened nothing in the workspace.
   expect(
@@ -184,15 +196,12 @@ test('restores a backup from the inserted USB drive', async () => {
   // starts after a reboot.
   using restored = openWorkspace(workspacePath, logger);
   expect(restored.store.getCurrentElectionId()).toBeDefined();
-
-  await apiClient.ejectUsbDrive();
-  expect((await apiClient.getUsbDriveStatus()).status).toEqual('ejected');
 });
 
 test('restores only a backup that is on the inserted USB drive', async () => {
-  const { apiClient, usbPlatform } = env;
+  const { apiClient } = env;
   const backup = await makeBackup();
-  await insertBackupDrive(backup, apiClient, usbPlatform);
+  await insertBackupDrive(backup, env);
 
   // The same backup, but where it was made rather than on the drive.
   expect(
@@ -205,9 +214,9 @@ test('restores only a backup that is on the inserted USB drive', async () => {
 });
 
 test('reports progress, refuses a second restore, and can be cancelled', async () => {
-  const { apiClient, usbPlatform } = env;
+  const { apiClient } = env;
   const backup = await makeBackup();
-  const backupPath = await insertBackupDrive(backup, apiClient, usbPlatform);
+  const backupPath = await insertBackupDrive(backup, env);
 
   // Holds the restore at a point of our choosing, so that what the API does
   // while one is running can be observed.
@@ -253,9 +262,9 @@ test('reports progress, refuses a second restore, and can be cancelled', async (
 });
 
 test('passes on a drive whose backups directory is something else', async () => {
-  const { apiClient, usbPlatform } = env;
+  const { apiClient, backupDriveClient, usbPlatform } = env;
   await attachUsbDrive(
-    apiClient,
+    backupDriveClient,
     usbPlatform,
     { 'vxadmin-backups': Buffer.from('not a directory') },
     'ext4'
