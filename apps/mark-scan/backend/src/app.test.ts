@@ -1,6 +1,7 @@
 import {
   afterEach,
   beforeEach,
+  describe,
   expect,
   type MockInstance,
   test,
@@ -27,6 +28,7 @@ import {
   createElectionDefinition,
   createElectionDefinitionCdf,
   suppressingConsoleOutput,
+  toSplitFileElection,
   zipFile,
 } from '@votingworks/test-utils';
 import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
@@ -82,7 +84,7 @@ import {
   mockPollWorkerAuth,
 } from '../test/auth_helpers.js';
 import { PatConnectionStatusReader } from './pat-input/connection_status_reader.js';
-import { createWorkspace } from './util/workspace.js';
+import { createWorkspace, type Workspace } from './util/workspace.js';
 
 const TEST_POLLING_INTERVAL_MS = 15;
 
@@ -112,6 +114,7 @@ let driver: MockPaperHandlerDriver;
 let patConnectionStatusReader: PatConnectionStatusReader;
 let logger: Logger;
 let clock: SimulatedClock;
+let workspace: Workspace;
 let readSignedElectionPackageFromDirectorySpy: MockInstance<
   typeof backendLib.readSignedElectionPackageFromDirectory
 >;
@@ -149,6 +152,7 @@ beforeEach(async () => {
   stateMachine = result.stateMachine;
   driver = result.driver;
   clock = result.clock;
+  workspace = result.workspace;
 
   readSignedElectionPackageFromDirectorySpy = vi.spyOn(
     backendLib,
@@ -258,6 +262,73 @@ test('configureElectionPackageFromUsb reads to and writes from store', async () 
     electionPackageHash: expect.any(String),
   });
 });
+
+describe('configure populates ballot meta store', () => {
+  const fixtures = electionFamousNames2021Fixtures;
+  const electionDefinition = fixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+
+  test('for single-file elections', async () => {
+    mockElectionManagerAuth(mockAuth, electionDefinition);
+
+    await configureFromUsb({
+      electionDefinition,
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        splitElectionDefinition: false,
+      },
+    });
+
+    const metaStore = workspace.store.getBallotMetaStore();
+
+    for (const bs of election.ballotStyles) {
+      expect(metaStore.getCandidateOrderings(bs.id)).toEqual(
+        bs.orderedCandidatesByContest
+      );
+    }
+  });
+
+  test('for split-file elections', async () => {
+    mockElectionManagerAuth(mockAuth, electionDefinition);
+
+    const splitElection = toSplitFileElection(election);
+
+    await configureFromUsb({
+      ballotPositions: splitElection.ballotPositions,
+      candidateOrderings: splitElection.candidateOrderings,
+      electionDefinition: {
+        ballotHash: 'unused',
+        election: splitElection.election,
+        electionData: JSON.stringify(splitElection.election),
+      },
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        splitElectionDefinition: true,
+      },
+    });
+
+    const electionRecord = workspace.store.getElectionRecord();
+    const storedElection = electionRecord?.electionDefinition.election;
+    expect(storedElection).toEqual(splitElection.election);
+
+    const metaStore = workspace.store.getBallotMetaStore();
+
+    for (const bs of election.ballotStyles) {
+      expect(metaStore.getCandidateOrderings(bs.id)).toEqual(
+        bs.orderedCandidatesByContest
+      );
+    }
+
+    // Ballot positions are unused in MarkScan:
+    expect(() => metaStore.getPositions('irrelevant')).toThrow(/no such table/);
+  });
+});
+
+async function configureFromUsb(pkg: backendLib.PartialElectionPackage) {
+  mockUsbDrive.insertUsbDrive(await mockElectionPackageFileTree(pkg));
+  const res = await apiClient.configureElectionPackageFromUsb();
+  res.unsafeUnwrap();
+}
 
 test('unconfigureMachine deletes system settings and election definition', async () => {
   const electionDefinition =
@@ -748,11 +819,11 @@ test('addDiagnosticRecord', async () => {
 });
 
 test('startPaperHandlerDiagnostic fails test if no state machine', async () => {
-  const workspace = createWorkspace(
+  const ws = createWorkspace(
     makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn })
   );
-  const app = buildApp(mockAuth, logger, workspace, mockUsbDrive.usbDrive);
+  const app = buildApp(mockAuth, logger, ws, mockUsbDrive.usbDrive);
   const serverNoStateMachine = app.listen();
   const { port } = serverNoStateMachine.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/api`;

@@ -12,7 +12,6 @@ import {
 import type { SystemSettings } from './system_settings.js';
 import type { ElectionPackageMetadata } from './election_package_metadata.js';
 import type { ElectionRegisteredVoterCounts } from './registered_voter_counts.js';
-import type { UiStringAudioClips } from './ui_string_audio_clips.js';
 import type { UiStringAudioIdsPackage } from './ui_string_audio_ids.js';
 import type { UiStringsPackage } from './ui_string_translations.js';
 import { BALLOT_MODES, type BaseBallotProps } from './hmpb.js';
@@ -35,12 +34,10 @@ export type ElectionPackageFileName = EnumValues<
 >;
 
 export interface ElectionPackage {
-  ballots?: EncodedBallotEntry[];
   electionDefinition: ElectionDefinition;
   metadata: ElectionPackageMetadata;
   registeredVoterCounts?: ElectionRegisteredVoterCounts;
   systemSettings: SystemSettings;
-  uiStringAudioClips: UiStringAudioClips;
   uiStringAudioIds: UiStringAudioIdsPackage;
   uiStrings: UiStringsPackage;
 }
