@@ -1,5 +1,5 @@
+/* eslint-disable no-param-reassign */
 import { beforeEach, expect, test, vi } from 'vitest';
-import set from 'lodash.set';
 import { Buffer } from 'node:buffer';
 import * as fs from 'node:fs';
 import path from 'node:path';
@@ -243,14 +243,13 @@ test.each<{
   {
     description: 'invalid write-in field',
     modifications: {
-      castVoteRecordModifier: (castVoteRecord) =>
-        castVoteRecord.BallotImage
-          ? set(
-              castVoteRecord,
-              'BallotImage[0].Location',
-              'file:reference-that-write-in-field-will-not-match.jpg'
-            )
-          : castVoteRecord,
+      castVoteRecordModifier: (castVoteRecord) => {
+        if (castVoteRecord.BallotImage) {
+          castVoteRecord.BallotImage[0]!.Location =
+            'file:reference-that-write-in-field-will-not-match.jpg';
+        }
+        return castVoteRecord;
+      },
       numCastVoteRecordsToKeep: 10,
     },
     expectedErrorSubType: 'invalid-write-in-field',
@@ -258,10 +257,10 @@ test.each<{
   {
     description: 'invalid ballot image field, extra ballot image',
     modifications: {
-      castVoteRecordModifier: (castVoteRecord) =>
-        castVoteRecord.BallotImage
-          ? set(castVoteRecord, 'BallotImage[2]', castVoteRecord.BallotImage[0])
-          : castVoteRecord,
+      castVoteRecordModifier: (castVoteRecord) => {
+        castVoteRecord.BallotImage?.push(castVoteRecord.BallotImage[0]!);
+        return castVoteRecord;
+      },
       numCastVoteRecordsToKeep: 10,
     },
     expectedErrorSubType: 'invalid-ballot-image-field',
@@ -269,10 +268,12 @@ test.each<{
   {
     description: 'invalid ballot image field, undefined first hash',
     modifications: {
-      castVoteRecordModifier: (castVoteRecord) =>
-        castVoteRecord.BallotImage
-          ? set(castVoteRecord, 'BallotImage[0].Hash', undefined)
-          : castVoteRecord,
+      castVoteRecordModifier: (castVoteRecord) => {
+        if (castVoteRecord.BallotImage) {
+          castVoteRecord.BallotImage[0]!.Hash = undefined;
+        }
+        return castVoteRecord;
+      },
       numCastVoteRecordsToKeep: 10,
     },
     expectedErrorSubType: 'invalid-ballot-image-field',
@@ -280,10 +281,12 @@ test.each<{
   {
     description: 'invalid ballot image field, undefined second hash',
     modifications: {
-      castVoteRecordModifier: (castVoteRecord) =>
-        castVoteRecord.BallotImage
-          ? set(castVoteRecord, 'BallotImage[1].Hash', undefined)
-          : castVoteRecord,
+      castVoteRecordModifier: (castVoteRecord) => {
+        if (castVoteRecord.BallotImage) {
+          castVoteRecord.BallotImage[1]!.Hash = undefined;
+        }
+        return castVoteRecord;
+      },
       numCastVoteRecordsToKeep: 10,
     },
     expectedErrorSubType: 'invalid-ballot-image-field',
@@ -291,10 +294,12 @@ test.each<{
   {
     description: 'invalid ballot image field, undefined first hash value',
     modifications: {
-      castVoteRecordModifier: (castVoteRecord) =>
-        castVoteRecord.BallotImage
-          ? set(castVoteRecord, 'BallotImage[0].Hash.Value', '')
-          : castVoteRecord,
+      castVoteRecordModifier: (castVoteRecord) => {
+        if (castVoteRecord.BallotImage) {
+          castVoteRecord.BallotImage[0]!.Hash!.Value = '';
+        }
+        return castVoteRecord;
+      },
       numCastVoteRecordsToKeep: 10,
     },
     expectedErrorSubType: 'invalid-ballot-image-field',
@@ -302,10 +307,12 @@ test.each<{
   {
     description: 'invalid ballot image field, undefined second hash value',
     modifications: {
-      castVoteRecordModifier: (castVoteRecord) =>
-        castVoteRecord.BallotImage
-          ? set(castVoteRecord, 'BallotImage[1].Hash.Value', '')
-          : castVoteRecord,
+      castVoteRecordModifier: (castVoteRecord) => {
+        if (castVoteRecord.BallotImage) {
+          castVoteRecord.BallotImage[1]!.Hash!.Value = '';
+        }
+        return castVoteRecord;
+      },
       numCastVoteRecordsToKeep: 10,
     },
     expectedErrorSubType: 'invalid-ballot-image-field',
@@ -314,14 +321,13 @@ test.each<{
     description:
       'invalid ballot image field, first hash value does not include layout hash',
     modifications: {
-      castVoteRecordModifier: (castVoteRecord) =>
-        castVoteRecord.BallotImage
-          ? set(
-              castVoteRecord,
-              'BallotImage[0].Hash.Value',
-              getImageHash(castVoteRecord.BallotImage[0]!)
-            )
-          : castVoteRecord,
+      castVoteRecordModifier: (castVoteRecord) => {
+        if (castVoteRecord.BallotImage) {
+          const ballotImage = castVoteRecord.BallotImage[0]!;
+          ballotImage.Hash!.Value = getImageHash(ballotImage);
+        }
+        return castVoteRecord;
+      },
       numCastVoteRecordsToKeep: 10,
     },
     expectedErrorSubType: 'invalid-ballot-image-field',
@@ -330,14 +336,13 @@ test.each<{
     description:
       'invalid ballot image field, second hash value does not include layout hash',
     modifications: {
-      castVoteRecordModifier: (castVoteRecord) =>
-        castVoteRecord.BallotImage
-          ? set(
-              castVoteRecord,
-              'BallotImage[1].Hash.Value',
-              getImageHash(castVoteRecord.BallotImage[1]!)
-            )
-          : castVoteRecord,
+      castVoteRecordModifier: (castVoteRecord) => {
+        if (castVoteRecord.BallotImage) {
+          const ballotImage = castVoteRecord.BallotImage[1]!;
+          ballotImage.Hash!.Value = getImageHash(ballotImage);
+        }
+        return castVoteRecord;
+      },
       numCastVoteRecordsToKeep: 10,
     },
     expectedErrorSubType: 'invalid-ballot-image-field',
