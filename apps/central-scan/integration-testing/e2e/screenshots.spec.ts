@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 import { expect, test } from '@playwright/test';
-import { sleep } from '@votingworks/basics';
+import { assertDefined, sleep } from '@votingworks/basics';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { getMockUsbDriveHandler } from '@votingworks/usb-drive';
 import {
@@ -85,7 +85,15 @@ test('screenshots', async ({ page }, testInfo) => {
       AdjudicationReason.Overvote,
       AdjudicationReason.Undervote,
       AdjudicationReason.BlankBallot,
+      AdjudicationReason.MarginalMark,
     ],
+    // Wide enough gap between the marginal and definite thresholds that
+    // every rendered marginal mark scores as marginal.
+    markThresholds: {
+      ...DEFAULT_SYSTEM_SETTINGS.markThresholds,
+      marginal: 0.03,
+      definite: 0.15,
+    },
     centralScanEnablePollWorkerRole: true,
   };
 
@@ -103,12 +111,21 @@ test('screenshots', async ({ page }, testInfo) => {
     ballotStyleId: BALLOT_STYLE_ID,
     precinctId: PRECINCT_ID,
   } as const;
-  const [fullPdf, overvotePdf, blankPdf, undervotePdf] =
+  // Marginal mark: a fully voted ballot plus a faint mark on an unvoted
+  // candidate, so no other adjudication reason applies.
+  const marginalMarks = [
+    {
+      contestId: singleSeatContest.id,
+      optionId: assertDefined(singleSeatContest.candidates[1]).id,
+    },
+  ];
+  const [fullPdf, overvotePdf, blankPdf, undervotePdf, marginalMarkPdf] =
     await renderMarkedBallots([
       { ...ballotSpec, votes: fullVotes },
       { ...ballotSpec, votes: withOvervote(fullVotes, singleSeatContest) },
       { ...ballotSpec, votes: {} },
       { ...ballotSpec, votes: withUndervote(fullVotes, singleSeatContest) },
+      { ...ballotSpec, votes: fullVotes, marginalMarks },
     ]);
   // An "unreadable" sheet that still looks like a ballot: a folded corner
   // obscures the timing marks, with the ballot's real back page behind it.
@@ -273,6 +290,8 @@ test('screenshots', async ({ page }, testInfo) => {
       blankPdf!,
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       undervotePdf!,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      marginalMarkPdf!,
       // Front + back of the folded-corner sheet; the dev dock pairs trailing
       // image paths into a single sheet (after the PDFs above).
       foldedCornerSheet.frontPath,
@@ -285,6 +304,7 @@ test('screenshots', async ({ page }, testInfo) => {
     ['Overvote', 'adjudication-overvote'],
     ['Blank Ballot', 'adjudication-blank-ballot'],
     ['Undervote', 'adjudication-undervote'],
+    ['Marginal Mark', 'adjudication-marginal-mark'],
     ['Unreadable', 'adjudication-unreadable'],
   ]);
   while (remainingEjectStates.size > 0) {

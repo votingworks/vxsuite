@@ -312,7 +312,15 @@ test('voting', async ({ page }, testInfo) => {
       AdjudicationReason.BlankBallot,
       AdjudicationReason.Undervote,
       AdjudicationReason.Overvote,
+      AdjudicationReason.MarginalMark,
     ],
+    // Wide enough gap between the marginal and definite thresholds that
+    // every rendered marginal mark scores as marginal.
+    markThresholds: {
+      ...DEFAULT_SYSTEM_SETTINGS.markThresholds,
+      marginal: 0.03,
+      definite: 0.15,
+    },
     // Hide help button and disable screen reader (also hides Audio settings tab).
     disableVoterHelpButtons: true,
     precinctScanDisableScreenReaderAudio: true,
@@ -349,6 +357,14 @@ test('voting', async ({ page }, testInfo) => {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const overvoteVotes = withOvervote(fullVotes, singleSeatContest!);
 
+  // Marginal marks: a fully voted ballot plus a faint mark on an unvoted
+  // candidate in two single-seat contests, so no other warning applies.
+  const marginalMarks = singleSeatContests.slice(0, 2).map((contest) => ({
+    contestId: contest.id,
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    optionId: contest.candidates[contest.seats]!.id,
+  }));
+
   // Mixed: overvote several single-seat contests, blank others, undervote
   // the multi-seat contests — enough problems to trigger the summary view.
   const mixedVotes = [
@@ -377,6 +393,7 @@ test('voting', async ({ page }, testInfo) => {
     blankPdf,
     undervotePdf,
     overvotePdf,
+    marginalMarkPdf,
     mixedPdf,
     wrongElectionPdf,
   ] = await renderMarkedBallots([
@@ -384,6 +401,7 @@ test('voting', async ({ page }, testInfo) => {
     { ...ballotSpec, votes: {} },
     { ...ballotSpec, votes: undervoteVotes },
     { ...ballotSpec, votes: overvoteVotes },
+    { ...ballotSpec, votes: fullVotes, marginalMarks },
     { ...ballotSpec, votes: mixedVotes },
     {
       ...ballotSpec,
@@ -506,6 +524,13 @@ test('voting', async ({ page }, testInfo) => {
   mockPdiScannerHandler.insertSheet(overvotePdf!);
   await waitForReviewScreen();
   await screenshot('overvote-warning');
+  await page.getByRole('button', { name: 'Cast Ballot' }).click();
+
+  // Marginal mark warning.
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  mockPdiScannerHandler.insertSheet(marginalMarkPdf!);
+  await waitForReviewScreen();
+  await screenshot('marginal-mark-warning');
   await page.getByRole('button', { name: 'Cast Ballot' }).click();
 
   // Mixed overvote + undervote warning.
