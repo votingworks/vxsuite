@@ -1,5 +1,6 @@
-import { expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import type {
+  BallotStyle,
   Candidate,
   CandidateContest,
   Contest,
@@ -7,10 +8,12 @@ import type {
   PartyId,
   StraightPartyContest,
   Tabulation,
+  VotesDict,
 } from '@votingworks/types';
 import { assertDefined, find } from '@votingworks/basics';
 import { electionStraightPartyFixtures } from '@votingworks/fixtures';
 import {
+  makeDerivedStraightPartyVotesExplicit,
   deriveStraightPartyVotes,
   deriveStraightPartyVotesForContest,
   selectedStraightPartyId,
@@ -23,8 +26,9 @@ import {
 const baseElection = electionStraightPartyFixtures.readElection();
 const { id: districtId } = assertDefined(baseElection.districts[0]);
 
-function candidate(id: string, partyId: string): Candidate {
-  return { id, name: id, partyIds: [partyId] };
+function candidate(id: string, partyIdOrIds: string | string[]): Candidate {
+  const partyIds = Array.isArray(partyIdOrIds) ? partyIdOrIds : [partyIdOrIds];
+  return { id, name: id, partyIds };
 }
 
 const straightPartyContest: StraightPartyContest = {
@@ -530,3 +534,108 @@ test.each<TestCase>([
     }
   }
 );
+
+describe('makeDerivedStraightPartyVotesExplicit', () => {
+  const election = buildElection([
+    straightPartyContest,
+    candidateContest('president', 1, [
+      candidate('candidate-a', 'party-1'),
+      candidate('candidate-b', 'party-2'),
+    ]),
+    candidateContest('governor', 1, [
+      candidate('candidate-c', 'party-1'),
+      candidate('candidate-d', 'party-2'),
+    ]),
+    candidateContest('state-board', 2, [
+      candidate('candidate-e', 'party-1'),
+      candidate('candidate-f', 'party-2'),
+      candidate('candidate-g', 'party-2'),
+    ]),
+    candidateContest('senator', 1, [
+      candidate('candidate-h', ['party-1', 'party-2']), // Cross-endorsed
+      candidate('candidate-i', 'party-3'),
+    ]),
+    candidateContest('representative', 1, [
+      candidate('candidate-j', 'party-1'),
+      candidate('candidate-k', 'party-2'),
+      candidate('candidate-l', 'party-3'),
+    ]),
+    candidateContest('mayor', 1, [
+      candidate('candidate-m', 'party-1'),
+      candidate('candidate-n', 'party-3'),
+    ]),
+    {
+      id: 'measure',
+      type: 'yesno',
+      districtId,
+      title: 'measure',
+      description: 'measure',
+      options: [
+        { id: 'measure-yes', label: 'Yes' },
+        { id: 'measure-no', label: 'No' },
+      ],
+    },
+  ]);
+  const ballotStyle: BallotStyle = {
+    id: 'ballot-style-1',
+    groupId: 'ballot-style-1',
+    precincts: [],
+    languages: ['en'],
+    districts: [districtId],
+    orderedCandidatesByContest: {
+      senator: [
+        { id: 'candidate-h', partyIds: ['party-1'] },
+        { id: 'candidate-h', partyIds: ['party-2'] },
+        { id: 'candidate-i' },
+      ],
+    },
+  };
+
+  test('returns votes unchanged without a straight party selection', () => {
+    const votes: VotesDict = {};
+    expect(
+      makeDerivedStraightPartyVotesExplicit({ election, ballotStyle, votes })
+    ).toEqual<VotesDict>({});
+  });
+
+  test('makes derived straight party votes explicit (no preexisting explicit votes)', () => {
+    const votes: VotesDict = {
+      'straight-party': ['party-2'],
+    };
+    expect(
+      makeDerivedStraightPartyVotesExplicit({ election, ballotStyle, votes })
+    ).toEqual<VotesDict>({
+      'straight-party': ['party-2'],
+      president: [candidate('candidate-b', 'party-2')],
+      governor: [candidate('candidate-d', 'party-2')],
+      'state-board': [
+        candidate('candidate-f', 'party-2'),
+        candidate('candidate-g', 'party-2'),
+      ],
+      senator: [candidate('candidate-h', 'party-2')],
+      representative: [candidate('candidate-k', 'party-2')],
+    });
+  });
+
+  test('makes derived straight party votes explicit (some preexisting explicit votes)', () => {
+    const votes: VotesDict = {
+      'straight-party': ['party-2'],
+      president: [candidate('candidate-a', 'party-1')],
+      'state-board': [candidate('candidate-f', 'party-2')],
+      senator: [candidate('candidate-h', 'party-1')],
+    };
+    expect(
+      makeDerivedStraightPartyVotesExplicit({ election, ballotStyle, votes })
+    ).toEqual<VotesDict>({
+      'straight-party': ['party-2'],
+      president: [candidate('candidate-a', 'party-1')],
+      governor: [candidate('candidate-d', 'party-2')],
+      'state-board': [
+        candidate('candidate-f', 'party-2'),
+        candidate('candidate-g', 'party-2'),
+      ],
+      senator: [candidate('candidate-h', 'party-1')],
+      representative: [candidate('candidate-k', 'party-2')],
+    });
+  });
+});
