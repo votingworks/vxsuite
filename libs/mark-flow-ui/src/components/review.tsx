@@ -30,6 +30,7 @@ import {
 } from '@votingworks/ui';
 
 import {
+  deriveStraightPartyVotesFromOrderedCandidates,
   getSingleYesNoVote,
   selectedStraightPartyId,
 } from '@votingworks/utils';
@@ -44,10 +45,7 @@ import type { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_con
 import { CandidateInfoCaption } from './candidate_info_caption.js';
 import { CandidateName } from './candidate_name.js';
 import { WriteInCandidateName } from './write_in_candidate_name.js';
-import {
-  deriveStraightPartyVotesFromOrderedCandidates,
-  numVotesRemaining,
-} from '../utils/vote.js';
+import { numVotesRemaining } from '../utils/vote.js';
 
 const Contest = styled.div`
   display: block;
