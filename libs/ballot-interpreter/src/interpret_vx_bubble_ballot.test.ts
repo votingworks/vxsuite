@@ -49,8 +49,10 @@ import {
   unmarkedWriteInsForSheet,
   votesForSheet,
 } from '../test/helpers/interpretation.js';
-import { interpretSheet } from './interpret.js';
-import type { InterpreterOptions } from './types.js';
+import {
+  interpretSheet,
+  type AutoDetectInterpreterOptions,
+} from './interpret.js';
 import { normalizeBallotMode } from './validation.js';
 
 vi.mock('./validation');
@@ -76,6 +78,7 @@ describe('HMPB - VX Famous Names', () => {
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
+        electionHasBallotPositions: true,
       },
       images
     );
@@ -126,6 +129,7 @@ describe('HMPB - VX Famous Names', () => {
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
+        electionHasBallotPositions: true,
       },
       images
     );
@@ -154,6 +158,7 @@ describe('HMPB - VX Famous Names', () => {
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
+        electionHasBallotPositions: true,
       },
       images
     );
@@ -174,6 +179,7 @@ describe('HMPB - VX Famous Names', () => {
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
+        electionHasBallotPositions: true,
       },
       images
     );
@@ -192,6 +198,7 @@ describe('HMPB - VX Famous Names', () => {
         testMode: false,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
+        electionHasBallotPositions: true,
       },
       images
     );
@@ -203,12 +210,13 @@ describe('HMPB - VX Famous Names', () => {
   test('normalizes ballot mode', async () => {
     const images = asSheet(await pdfToPageImages(blankBallotPath).toArray());
 
-    const options: InterpreterOptions = {
+    const options: AutoDetectInterpreterOptions = {
       electionDefinition,
       validPrecinctIds: new Set([precinctId]),
       testMode: false,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
+      electionHasBallotPositions: true,
     };
 
     const blankPageInterpretation: PageInterpretation = { type: 'BlankPage' };
@@ -249,6 +257,7 @@ describe('HMPB - VX Famous Names', () => {
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
+        electionHasBallotPositions: true,
       },
       [streakImage, backImage]
     );
@@ -411,6 +420,7 @@ for (const spec of vxGeneralElectionFixtures.fixtureSpecs) {
             testMode: false,
             markThresholds: DEFAULT_MARK_THRESHOLDS,
             adjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
+            electionHasBallotPositions: true,
           },
           sheetImages
         );
@@ -505,6 +515,7 @@ describe('HMPB - VX primary election', () => {
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
+          electionHasBallotPositions: true,
         },
         images
       );
@@ -553,6 +564,7 @@ describe('HMPB - VX primary election', () => {
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
+          electionHasBallotPositions: true,
         },
         images
       );
@@ -585,6 +597,7 @@ describe('HMPB - VX primary election', () => {
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
+        electionHasBallotPositions: true,
       },
       [frontImage, backImage]
     );
@@ -616,6 +629,7 @@ describe('HMPB - VX primary election', () => {
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
+        electionHasBallotPositions: true,
       },
       [frontImage, backImage]
     );
@@ -654,6 +668,7 @@ for (const spec of nhGeneralElectionFixtures.fixtureSpecs) {
             testMode: false,
             markThresholds: DEFAULT_MARK_THRESHOLDS,
             adjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
+            electionHasBallotPositions: true,
           },
           sheetImages
         );
@@ -742,6 +757,7 @@ describe('HMPB - MI general election (straight party contest)', () => {
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
+          electionHasBallotPositions: true,
         },
         sheetImages
       );
@@ -781,6 +797,7 @@ test('Non-consecutive page numbers', async () => {
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
+      electionHasBallotPositions: true,
     },
     [frontImage!, backImage!]
   );
@@ -841,6 +858,7 @@ test('Spoofed-hash ballot whose grid exceeds detected timing-mark grid is reject
       testMode: false,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
+      electionHasBallotPositions: true,
     },
     letterImages
   );
@@ -887,6 +905,7 @@ test('Ballot audit IDs', async () => {
       testMode,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
+      electionHasBallotPositions: true,
     },
     images
   );
@@ -944,6 +963,7 @@ describe('Contest option bounds', () => {
         testMode: false,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
+        electionHasBallotPositions: true,
       },
       images
     );
@@ -1006,6 +1026,7 @@ describe('Contest option bounds', () => {
         testMode: false,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
+        electionHasBallotPositions: true,
       },
       images
     );

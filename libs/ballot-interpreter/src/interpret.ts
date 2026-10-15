@@ -45,7 +45,6 @@ import {
 import {
   allContestOptions,
   convertMarksToVotesDict,
-  electionHasBallotPositions,
   time,
 } from '@votingworks/utils';
 import makeDebug from 'debug';
@@ -792,17 +791,21 @@ function chooseInterpretationToUse(
     : hmpbInterpretation;
 }
 
+export type AutoDetectInterpreterOptions = InterpreterOptions & {
+  electionHasBallotPositions: boolean;
+};
+
 /**
  * Interpret a sheet of ballot images.
  */
 export async function interpretSheet(
-  options: InterpreterOptions,
+  options: AutoDetectInterpreterOptions,
   sheet: SheetOf<ImageData>
 ): Promise<SheetOf<PageInterpretation>> {
   const timer = time(debug, 'interpretSheet');
 
   try {
-    const hmpb = electionHasBallotPositions(options.electionDefinition.election)
+    const hmpb = options.electionHasBallotPositions
       ? await interpretHmpb(sheet, options)
       : undefined;
 
@@ -856,7 +859,7 @@ export async function interpretSheet(
  * Interpret a ballot sheet and save the images to their final storage location.
  */
 export async function interpretSheetAndSaveImages(
-  interpreterOptions: InterpreterOptions,
+  interpreterOptions: AutoDetectInterpreterOptions,
   sheet: SheetOf<ImageData>,
   sheetId: Id,
   ballotImagesPath: string

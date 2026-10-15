@@ -39,7 +39,6 @@ import {
   allContestOptions,
   buildCVRSnapshotBallotTypeMetadata,
   CachedElectionLookups,
-  electionHasBallotPositions,
   hasWriteIns,
 } from '@votingworks/utils';
 import {
@@ -140,10 +139,6 @@ export function generateBallotPageLayouts(
   election: Election,
   metadata: BallotMetadata
 ): readonly BallotPageLayout[] {
-  if (!electionHasBallotPositions(election)) {
-    return [];
-  }
-
   const ballotStyle = assertDefined(
     getBallotStyle({
       election,
@@ -151,12 +146,7 @@ export function generateBallotPageLayouts(
     })
   );
 
-  // @coverage-defer
-  if (!ballotStyle.ballotPositions) {
-    throw new Error(
-      `no ballot positions found for ballot style ${metadata.ballotStyleId}`
-    );
-  }
+  if (!ballotStyle.ballotPositions) return [];
 
   const gridPositions = gridPositionsFromBallotPositions(
     ballotStyle.ballotPositions
@@ -221,12 +211,12 @@ export function* generateCvrs({
   const { election } = electionDefinition;
   const { ballotStyles } = election;
 
-  // Currently we can generate only BMD ballots for elections without ballot
-  // positions. For elections with ballot positions we just generate HMPB
+  // Currently we can generate only BMD ballots for styles without ballot
+  // positions. For styles with ballot positions we just generate HMPB
   // ballots for simplicity but could generate BMD.
-  const bmdBallots = !electionHasBallotPositions(election);
-
   for (const ballotStyle of ballotStyles) {
+    const bmdBallots = !ballotStyle.ballotPositions;
+
     const { precincts: precinctIds, id: ballotStyleId, partyId } = ballotStyle;
     // For each contest, determine all possible contest choices
     const contests = getContests({

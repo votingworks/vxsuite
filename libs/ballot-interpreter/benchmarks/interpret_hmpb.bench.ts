@@ -25,6 +25,7 @@ test('Blank HMPB', async () => {
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
+          electionHasBallotPositions: true,
         },
         ballotImages
       );
@@ -48,6 +49,7 @@ test('Marked HMPB', async () => {
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
+          electionHasBallotPositions: true,
         },
         ballotImages
       );

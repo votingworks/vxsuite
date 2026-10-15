@@ -38,10 +38,7 @@ import {
   streamElectionPackageBallots,
   withElectionPackageZip,
 } from '@votingworks/backend';
-import {
-  electionHasBallotPositions,
-  isElectionManagerAuth,
-} from '@votingworks/utils';
+import { isElectionManagerAuth } from '@votingworks/utils';
 import {
   generateTestDeckBallots,
   generateTestDeckCastVoteRecords,
@@ -720,7 +717,7 @@ export function buildApi(ctx: AppContext) {
         return 0;
       }
       const { election } = electionRecord.electionDefinition;
-      if (!electionHasBallotPositions(election)) {
+      if (!store.getBallotMetaStore().hasPositions()) {
         return 0;
       }
 

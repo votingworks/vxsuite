@@ -39,8 +39,11 @@ import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { loadImageMetadata, toImageBuffer } from '@votingworks/image-utils';
 import { readFile } from 'node:fs/promises';
 import { pdfToPageImages } from '../test/helpers/interpretation.js';
-import { interpretSheet, interpretSimplexBmdBallot } from './interpret.js';
-import type { InterpreterOptions } from './types.js';
+import {
+  interpretSheet,
+  interpretSimplexBmdBallot,
+  type AutoDetectInterpreterOptions,
+} from './interpret.js';
 import { normalizeBallotMode } from './validation.js';
 import { rotateImageData180 } from './summary-ballot/utils/rotate.js';
 
@@ -371,6 +374,7 @@ describe('VX BMD interpretation', () => {
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
+        electionHasBallotPositions: true,
       },
       validBmdSheet
     );
@@ -385,6 +389,7 @@ describe('VX BMD interpretation', () => {
         testMode: false,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
+        electionHasBallotPositions: true,
       },
       validBmdSheet
     );
@@ -400,6 +405,7 @@ describe('VX BMD interpretation', () => {
         validPrecinctIds: new Set(['20']),
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
+        electionHasBallotPositions: true,
       },
       validBmdSheet
     );
@@ -415,6 +421,7 @@ describe('VX BMD interpretation', () => {
         validPrecinctIds: new Set([precinctId]),
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
+        electionHasBallotPositions: true,
       },
       validBmdSheet
     );
@@ -433,6 +440,7 @@ describe('VX BMD interpretation', () => {
         validPrecinctIds: new Set([precinctId]),
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
+        electionHasBallotPositions: false,
       },
       validBmdSheet
     );
@@ -478,6 +486,7 @@ describe('VX BMD interpretation', () => {
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
         frontNormalizedImageOutputPath: outputPath,
+        electionHasBallotPositions: true,
       },
       extendedSheet
     );
@@ -508,6 +517,7 @@ describe('VX BMD interpretation', () => {
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
+        electionHasBallotPositions: true,
       },
       [bmdBlankPage, bmdBlankPage]
     );
@@ -524,6 +534,7 @@ describe('VX BMD interpretation', () => {
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
+        electionHasBallotPositions: true,
       },
       [bmdSummaryBallotPage, bmdSummaryBallotPage]
     );
@@ -547,10 +558,11 @@ describe('VX BMD interpretation', () => {
   });
 
   test('normalizes ballot modes', async () => {
-    const options: InterpreterOptions = {
+    const options: AutoDetectInterpreterOptions = {
       adjudicationReasons: [],
       allowOfficialBallotsInTestMode: true,
       electionDefinition,
+      electionHasBallotPositions: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       validPrecinctIds: new Set([precinctId]),
       testMode: true,

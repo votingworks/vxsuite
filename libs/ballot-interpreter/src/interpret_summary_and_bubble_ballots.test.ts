@@ -50,6 +50,7 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
+      electionHasBallotPositions: true,
     },
     bmdBallot
   );
@@ -73,6 +74,7 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
+      electionHasBallotPositions: true,
     },
     hmpbBallot
   );
@@ -114,6 +116,7 @@ test('interpret BMD ballot with test/official ballot mode mismatch error', async
       testMode: false,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
+      electionHasBallotPositions: false,
     },
     bmdBallot
   );
