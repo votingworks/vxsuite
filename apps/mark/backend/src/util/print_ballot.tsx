@@ -26,6 +26,7 @@ import {
   type SheetPositions,
 } from '@votingworks/types';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
+import { makeDerivedStraightPartyVotesExplicit } from '@votingworks/utils';
 import {
   BmdPaperBallot,
   BackendLanguageContextProvider,
@@ -58,21 +59,38 @@ export interface PrintBallotProps extends ClientParams {
 type PrintBlankBallotProps = Omit<PrintBallotProps, 'votes' | 'languageCode'>;
 
 export async function printBallot(p: PrintBallotProps): Promise<PrintJobId> {
-  const { printer, store, precinctId, ballotStyleId, votes, languageCode } = p;
+  const { election } = assertDefined(
+    p.store.getElectionRecord()
+  ).electionDefinition;
+  const ballotStyle = assertDefined(
+    getBallotStyle({ ballotStyleId: p.ballotStyleId, election })
+  );
+  const pWithDerivedVotes: PrintBallotProps = {
+    ...p,
+    votes: makeDerivedStraightPartyVotesExplicit({
+      election,
+      ballotStyle,
+      votes: p.votes,
+    }),
+  };
 
-  const systemSettings = assertDefined(store.getSystemSettings());
+  const systemSettings = assertDefined(p.store.getSystemSettings());
   const printMode = systemSettings.bmdPrintMode ?? 'summary';
 
   switch (printMode) {
     case 'summary':
-      break;
+      return printSummaryBallot(pWithDerivedVotes);
     case 'marks_on_preprinted_ballot':
-      return printMarkOverlay(p);
+      return printMarkOverlay(pWithDerivedVotes);
     case 'bubble_ballot':
-      return printBubbleBallot(p);
+      return printBubbleBallot(pWithDerivedVotes);
     default:
       throwIllegalValue(printMode, 'bmdPrintMode');
   }
+}
+
+async function printSummaryBallot(p: PrintBallotProps): Promise<PrintJobId> {
+  const { printer, store, precinctId, ballotStyleId, votes, languageCode } = p;
 
   const { electionDefinition } = assertDefined(store.getElectionRecord());
   const { election } = electionDefinition;

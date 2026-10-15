@@ -1,7 +1,10 @@
 import { describe, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 
-import { electionGeneralFixtures } from '@votingworks/fixtures';
+import {
+  electionGeneralFixtures,
+  electionStraightPartyFixtures,
+} from '@votingworks/fixtures';
 import {
   generateMarkOverlay,
   NO_PRINT_CALIBRATION,
@@ -10,6 +13,7 @@ import {
 } from '@votingworks/hmpb';
 import {
   BallotType,
+  type CandidateContest,
   type ContestPosition,
   type ElectionDefinition,
   getContests,
@@ -35,7 +39,7 @@ import {
   filterVotesForContests,
 } from '@votingworks/ui';
 import type { BallotMetaStore, UiStringsStore } from '@votingworks/backend';
-import { assertDefined, ok } from '@votingworks/basics';
+import { assertDefined, find, ok } from '@votingworks/basics';
 import { mockConstructor } from '@votingworks/test-utils';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import type { Store } from '../store.js';
@@ -573,6 +577,87 @@ describe(`printMode === "bubble_ballot"`, () => {
         },
       ],
     ]);
+  });
+});
+
+describe('straight party votes', () => {
+  const electionDefinition =
+    electionStraightPartyFixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+  const ballotStyle = election.ballotStyles[0]!;
+  const precinctId = ballotStyle.precincts[0]!;
+  const votes: VotesDict = { 'straight-party-ticket': ['0'] };
+  const president = find(
+    getContests({ ballotStyle, election }),
+    (c): c is CandidateContest => c.id === 'president'
+  );
+  const derivedPresidentVote = [
+    find(president.candidates, (c) => c.id === 'barchi-hallaren'),
+  ];
+
+  function printWithMode(bmdPrintMode: SystemSettings['bmdPrintMode']) {
+    return printBallot({
+      ballotStyleId: ballotStyle.id,
+      languageCode: 'en',
+      precinctId,
+      printer: mockPrinter({ print: vi.fn<PrintFunction>() }),
+      store: mockStore({
+        getBallot: () => ({
+          ballotStyleId: ballotStyle.id,
+          precinctId,
+          ballotType: BallotType.Precinct,
+          ballotMode: 'official' as const,
+          encodedBallot: '',
+        }),
+        getBallotMetaStore: () =>
+          mockBallotMetaStore({ getPositions: () => mockPositions }),
+        getElectionRecord: () => ({
+          electionDefinition,
+          electionPackageHash: 'unused',
+        }),
+        getPrintCalibration: () => NO_PRINT_CALIBRATION,
+        getSystemSettings: () => {
+          const settings: Partial<SystemSettings> = { bmdPrintMode };
+          return settings as SystemSettings;
+        },
+        getTestMode: () => false,
+        getUiStringsStore: () =>
+          mockUiStringsStore({ getAllUiStrings: () => ({}) }),
+      }),
+      votes,
+    });
+  }
+
+  test('summary ballot includes derived votes', async () => {
+    vi.mocked(BackendLanguageContextProvider).mockImplementation((p) => (
+      <div>{p.children}</div>
+    ));
+    vi.mocked(BmdPaperBallot).mockImplementation(() => <div />);
+    vi.mocked(renderToPdf).mockResolvedValue(ok(Uint8Array.of()));
+    vi.mocked(getPdfPageCount).mockResolvedValue(1);
+    vi.mocked(encodeSummaryBallotPage).mockClear();
+
+    await printWithMode('summary');
+
+    const [, encodeParams] = vi.mocked(encodeSummaryBallotPage).mock.calls[0]!;
+    expect(encodeParams.votes['straight-party-ticket']).toEqual(['0']);
+    expect(encodeParams.votes['president']).toEqual(derivedPresidentVote);
+    const [{ document }] = vi.mocked(renderToPdf).mock.lastCall!;
+    const ballot = (document as JSX.Element).props.children as JSX.Element;
+    expect(ballot.props).toMatchObject({ votes: encodeParams.votes });
+  });
+
+  test.each<SystemSettings['bmdPrintMode']>([
+    'bubble_ballot',
+    'marks_on_preprinted_ballot',
+  ])('%s includes derived votes', async (bmdPrintMode) => {
+    vi.mocked(generateMarkOverlay).mockResolvedValue(Uint8Array.of());
+
+    await printWithMode(bmdPrintMode);
+
+    const [params] = vi.mocked(generateMarkOverlay).mock.lastCall!;
+    expect(params.votes['straight-party-ticket']).toEqual(['0']);
+    expect(params.votes['president']).toEqual(derivedPresidentVote);
   });
 });
 
