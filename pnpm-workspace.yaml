@@ -33,6 +33,7 @@ overrides:
   'brace-expansion@2': ^2.0.2
   canvas: 3.2.3
   'eslint-plugin-storybook>@typescript-eslint/types': 8.70.0
+  'fetch-mock>path-to-regexp': ^3.3.0
   graceful-fs: ^4.2.9
   nan: ^2.28.0
   'postcss-styled-syntax>@typescript-eslint/typescript-estree': 8.70.0

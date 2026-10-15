@@ -168,6 +168,7 @@ overrides:
   brace-expansion@2: ^2.0.2
   canvas: 3.2.3
   eslint-plugin-storybook>@typescript-eslint/types: 8.70.0
+  fetch-mock>path-to-regexp: ^3.3.0
   graceful-fs: ^4.2.9
   nan: ^2.28.0
   postcss-styled-syntax>@typescript-eslint/typescript-estree: 8.70.0
@@ -12414,11 +12415,11 @@ packages:
   path-to-regexp@0.1.13:
     resolution: {integrity: sha512-A/AGNMFN3c8bOlvV9RreMdrv7jsmF9XIfDeCd87+I8RNg6s78BhJxMu69NEMHBSJFxKidViTEdruRwEk/WIKqA==}
 
-  path-to-regexp@1.8.0:
-    resolution: {integrity: sha512-n43JRhlUKUAlibEJhPeir1ncUID16QnEjNpwzNdO3Lm4ywrBpBZ5oLD0I6br9evr1Y9JTqwRtAh7JLoOzAQdVA==}
+  path-to-regexp@1.9.0:
+    resolution: {integrity: sha512-xIp7/apCFJuUHdDLWe8O1HIkb0kQrOMb/0u6FXQjemHn/ii5LrIzU6bdECnsiTF/GjZkMEKg1xdiZwNqDYlZ6g==}
 
-  path-to-regexp@2.4.0:
-    resolution: {integrity: sha512-G6zHoVqC6GGTQkZwF4lkuEyMbVOjoBKAEybQUypI1WTkqinCOrq2x6U2+phkJ1XsEMTy4LjtwPI7HW+NVrRR2w==}
+  path-to-regexp@3.3.0:
+    resolution: {integrity: sha512-qyCH421YQPS2WFDxDjftfc1ZR5WKQzVzqsp4n9M2kQhVOo/ByahFoUNJfl58kOcEGfQ//7weFTDhm+ss8Ecxgw==}
 
   path-type@4.0.0:
     resolution: {integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==}
@@ -19710,7 +19711,7 @@ snapshots:
       is-subset: 0.1.1
       lodash.isequal: 4.5.0
       node-fetch: 2.7.0
-      path-to-regexp: 2.4.0
+      path-to-regexp: 3.3.0
       querystring: 0.2.1
       whatwg-url: 6.5.0
     transitivePeerDependencies:
@@ -22043,11 +22044,11 @@ snapshots:
 
   path-to-regexp@0.1.13: {}
 
-  path-to-regexp@1.8.0:
+  path-to-regexp@1.9.0:
     dependencies:
       isarray: 0.0.1
 
-  path-to-regexp@2.4.0: {}
+  path-to-regexp@3.3.0: {}
 
   path-type@4.0.0: {}
 
@@ -22579,7 +22580,7 @@ snapshots:
       history: 4.10.1
       hoist-non-react-statics: 3.3.2
       loose-envify: 1.4.0
-      path-to-regexp: 1.8.0
+      path-to-regexp: 1.9.0
       prop-types: 15.8.1
       react: 18.3.1
       react-is: 16.13.1
