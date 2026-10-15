@@ -4,7 +4,7 @@ import {
   computeCastVoteRecordRootHashFromScratch,
   SIGNATURE_FILE_EXTENSION,
 } from '@votingworks/auth';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, type DeepMutable } from '@votingworks/basics';
 import {
   type BatchInfo,
   CastVoteRecordExportFileName,
@@ -55,13 +55,11 @@ export function readCastVoteRecord(castVoteRecordDirectoryPath: string): {
   return { castVoteRecord, castVoteRecordReportContents };
 }
 
-type NotReadOnly<T> = { -readonly [P in keyof T]: NotReadOnly<T[P]> };
-
 /**
  * The second input to {@link modifyCastVoteRecordExport}
  */
 export interface CastVoteRecordExportModifications {
-  castVoteRecordModifier?: (castVoteRecord: NotReadOnly<CVR.CVR>) => CVR.CVR;
+  castVoteRecordModifier?: (castVoteRecord: DeepMutable<CVR.CVR>) => CVR.CVR;
   castVoteRecordReportMetadataModifier?: (
     castVoteRecordReportMetadata: CVR.CastVoteRecordReport
   ) => CVR.CastVoteRecordReport;
@@ -120,7 +118,7 @@ export async function modifyCastVoteRecordExport(
       ),
       JSON.stringify({
         ...JSON.parse(castVoteRecordReportContents),
-        CVR: [castVoteRecordModifier(castVoteRecord as NotReadOnly<CVR.CVR>)],
+        CVR: [castVoteRecordModifier(castVoteRecord as DeepMutable<CVR.CVR>)],
       })
     );
   }

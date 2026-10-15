@@ -65,7 +65,6 @@
     "@types/express": "4.17.14",
     "@types/jest-image-snapshot": "^6.4.0",
     "@types/lodash.memoize": "^4.1.9",
-    "@types/lodash.set": "^4.3.7",
     "@types/luxon": "^3.0.0",
     "@types/node": "24.13.3",
     "@types/object-hash": "^3.0.6",
@@ -80,7 +79,6 @@
     "esbuild": "0.28.1",
     "eslint-plugin-vx": "workspace:*",
     "jest-image-snapshot": "^6.4.0",
-    "lodash.set": "^4.3.2",
     "sort-package-json": "^1.50.0",
     "vitest": "5.0.2"
   },

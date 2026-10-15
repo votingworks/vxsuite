@@ -1,6 +1,5 @@
 import { expect, test } from 'vitest';
-import set from 'lodash.set';
-import { ok } from '@votingworks/basics';
+import { type DeepMutable, ok } from '@votingworks/basics';
 import {
   election,
   electionTwoPartyPrimary,
@@ -110,217 +109,142 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
     },
   };
 
-  const expectedCdfBallotDefinition = structuredClone(testCdfBallotDefinition);
+  const expectedCdfBallotDefinition = structuredClone(
+    testCdfBallotDefinition
+  ) as DeepMutable<typeof testCdfBallotDefinition>;
+
+  const cdfElection = expectedCdfBallotDefinition.Election[0]!;
+  const candidates = cdfElection.Candidate!;
+  const gpUnits = expectedCdfBallotDefinition.GpUnit;
 
   // Candidate names
-  set(
-    expectedCdfBallotDefinition,
-    ['Election', 0, 'Candidate', 0, 'BallotName', 'Text'],
-    [
-      languageString('Sherlock Holmes', 'en'),
-      languageString('Sherlock Holmes', 'es-US'),
-      languageString('Sherlock Holmes', 'zh-Hans'),
-    ]
-  );
-  set(
-    expectedCdfBallotDefinition,
-    ['Election', 0, 'Candidate', 1, 'BallotName', 'Text'],
-    [
-      languageString('Thomas Edison', 'en'),
-      languageString('Thomas Edison', 'es-US'),
-      languageString('Thomas Edison', 'zh-Hans'),
-    ]
-  );
-  set(
-    expectedCdfBallotDefinition,
-    ['Election', 0, 'Candidate', 2, 'BallotName', 'Text'],
-    [
-      languageString('Winston Churchill', 'en'),
-      languageString('Winston Churchill', 'es-US'),
-      languageString('Winston Churchill', 'zh-Hans'),
-    ]
-  );
+  candidates[0]!.BallotName.Text = [
+    languageString('Sherlock Holmes', 'en'),
+    languageString('Sherlock Holmes', 'es-US'),
+    languageString('Sherlock Holmes', 'zh-Hans'),
+  ];
+  candidates[1]!.BallotName.Text = [
+    languageString('Thomas Edison', 'en'),
+    languageString('Thomas Edison', 'es-US'),
+    languageString('Thomas Edison', 'zh-Hans'),
+  ];
+  candidates[2]!.BallotName.Text = [
+    languageString('Winston Churchill', 'en'),
+    languageString('Winston Churchill', 'es-US'),
+    languageString('Winston Churchill', 'zh-Hans'),
+  ];
 
   // Candidate designations
-  set(
-    expectedCdfBallotDefinition,
-    ['Election', 0, 'Candidate', 0, 'CampaignSlogan', 'Text'],
-    [
-      languageString('Member of City Council', 'en'),
-      languageString('Miembro del Concejo Municipal', 'es-US'),
-      languageString('市议会议员', 'zh-Hans'),
-    ]
-  );
+  candidates[0]!.CampaignSlogan!.Text = [
+    languageString('Member of City Council', 'en'),
+    languageString('Miembro del Concejo Municipal', 'es-US'),
+    languageString('市议会议员', 'zh-Hans'),
+  ];
+
+  const ballotMeasureContest = cdfElection
+    .Contest[1] as DeepMutable<Cdf.BallotMeasureContest>;
 
   // Contest descriptions
-  set(
-    expectedCdfBallotDefinition,
-    ['Election', 0, 'Contest', 1, 'FullText', 'Text'],
-    [
-      languageString('Should we do this thing?', 'en'),
-      languageString('¿Deberíamos hacer esto?', 'es-US'),
-    ]
-  );
+  ballotMeasureContest.FullText.Text = [
+    languageString('Should we do this thing?', 'en'),
+    languageString('¿Deberíamos hacer esto?', 'es-US'),
+  ];
 
   // Contest option labels
-  set(
-    expectedCdfBallotDefinition,
-    ['Election', 0, 'Contest', 1, 'ContestOption', 0, 'Selection', 'Text'],
-    [languageString('Yes', 'en'), languageString('Sí', 'es-US')]
-  );
-  set(
-    expectedCdfBallotDefinition,
-    ['Election', 0, 'Contest', 1, 'ContestOption', 1, 'Selection', 'Text'],
-    [languageString('No', 'en'), languageString('No', 'es-US')]
-  );
+  ballotMeasureContest.ContestOption[0]!.Selection.Text = [
+    languageString('Yes', 'en'),
+    languageString('Sí', 'es-US'),
+  ];
+  ballotMeasureContest.ContestOption[1]!.Selection.Text = [
+    languageString('No', 'en'),
+    languageString('No', 'es-US'),
+  ];
 
   // Contest titles
-  set(
-    expectedCdfBallotDefinition,
-    ['Election', 0, 'Contest', 0, 'BallotTitle', 'Text'],
-    [languageString('Mayor', 'en'), languageString('Alcalde', 'es-US')]
-  );
-  set(
-    expectedCdfBallotDefinition,
-    ['Election', 0, 'Contest', 1, 'BallotTitle', 'Text'],
-    [
-      languageString('Proposition 1', 'en'),
-      languageString('Proposición 1', 'es-US'),
-    ]
-  );
-  set(
-    expectedCdfBallotDefinition,
-    ['Election', 0, 'Contest', 2, 'BallotTitle', 'Text'],
-    [languageString('Controller', 'en'), languageString('Controlador', 'es-US')]
-  );
+  cdfElection.Contest[0]!.BallotTitle.Text = [
+    languageString('Mayor', 'en'),
+    languageString('Alcalde', 'es-US'),
+  ];
+  cdfElection.Contest[1]!.BallotTitle.Text = [
+    languageString('Proposition 1', 'en'),
+    languageString('Proposición 1', 'es-US'),
+  ];
+  cdfElection.Contest[2]!.BallotTitle.Text = [
+    languageString('Controller', 'en'),
+    languageString('Controlador', 'es-US'),
+  ];
 
   // County name
-  set(
-    expectedCdfBallotDefinition,
-    ['GpUnit', 1, 'Name', 'Text'],
-    [
-      languageString('Franklin County', 'en'),
-      languageString('Condado de Franklin', 'es-US'),
-    ]
-  );
+  gpUnits[1]!.Name.Text = [
+    languageString('Franklin County', 'en'),
+    languageString('Condado de Franklin', 'es-US'),
+  ];
 
   // District names
-  set(
-    expectedCdfBallotDefinition,
-    ['GpUnit', 2, 'Name', 'Text'],
-    [
-      languageString('City of Lincoln', 'en'),
-      languageString('Ciudad de Lincoln', 'es-US'),
-    ]
-  );
-  set(
-    expectedCdfBallotDefinition,
-    ['GpUnit', 3, 'Name', 'Text'],
-    [
-      languageString('City of Washington', 'en'),
-      languageString('Ciudad de Washington', 'es-US'),
-    ]
-  );
+  gpUnits[2]!.Name.Text = [
+    languageString('City of Lincoln', 'en'),
+    languageString('Ciudad de Lincoln', 'es-US'),
+  ];
+  gpUnits[3]!.Name.Text = [
+    languageString('City of Washington', 'en'),
+    languageString('Ciudad de Washington', 'es-US'),
+  ];
 
   // Election title
-  set(
-    expectedCdfBallotDefinition,
-    ['Election', 0, 'Name', 'Text'],
-    [
-      languageString('Lincoln Municipal General Election', 'en'),
-      languageString('Elección General Municipal de Lincoln', 'es-US'),
-    ]
-  );
+  cdfElection.Name.Text = [
+    languageString('Lincoln Municipal General Election', 'en'),
+    languageString('Elección General Municipal de Lincoln', 'es-US'),
+  ];
 
   // Party full names
-  set(
-    expectedCdfBallotDefinition,
-    ['Party', 0, 'Name', 'Text'],
-    [
-      languageString('Democratic Party', 'en'),
-      languageString('Partido Democrático', 'es-US'),
-    ]
-  );
-  set(
-    expectedCdfBallotDefinition,
-    ['Party', 1, 'Name', 'Text'],
-    [
-      languageString('Republican Party', 'en'),
-      languageString('Partido Republicano', 'es-US'),
-    ]
-  );
+  expectedCdfBallotDefinition.Party[0]!.Name.Text = [
+    languageString('Democratic Party', 'en'),
+    languageString('Partido Democrático', 'es-US'),
+  ];
+  expectedCdfBallotDefinition.Party[1]!.Name.Text = [
+    languageString('Republican Party', 'en'),
+    languageString('Partido Republicano', 'es-US'),
+  ];
 
   // Polling place names
-  set(
-    expectedCdfBallotDefinition,
-    ['GpUnit', 8, 'Name', 'Text'],
-    [
-      languageString('North Lincoln (Partial)', 'en'),
-      languageString('Norte de Lincoln (Parcial)', 'es-US'),
-    ]
-  );
-  set(
-    expectedCdfBallotDefinition,
-    ['GpUnit', 9, 'Name', 'Text'],
-    [
-      languageString('South Lincoln', 'en'),
-      languageString('Sur de Lincoln', 'es-US'),
-    ]
-  );
-  set(
-    expectedCdfBallotDefinition,
-    ['GpUnit', 10, 'Name', 'Text'],
-    [
-      languageString('Early Voting', 'en'),
-      languageString('Voto anticipado', 'es-US'),
-    ]
-  );
+  gpUnits[8]!.Name.Text = [
+    languageString('North Lincoln (Partial)', 'en'),
+    languageString('Norte de Lincoln (Parcial)', 'es-US'),
+  ];
+  gpUnits[9]!.Name.Text = [
+    languageString('South Lincoln', 'en'),
+    languageString('Sur de Lincoln', 'es-US'),
+  ];
+  gpUnits[10]!.Name.Text = [
+    languageString('Early Voting', 'en'),
+    languageString('Voto anticipado', 'es-US'),
+  ];
 
   // Precinct names
-  set(
-    expectedCdfBallotDefinition,
-    ['GpUnit', 4, 'Name', 'Text'],
-    [
-      languageString('North Lincoln', 'en'),
-      languageString('Norte de Lincoln', 'es-US'),
-    ]
-  );
-  set(
-    expectedCdfBallotDefinition,
-    ['GpUnit', 5, 'Name', 'Text'],
-    [
-      languageString('South Lincoln', 'en'),
-      languageString('Sur de Lincoln', 'es-US'),
-    ]
-  );
+  gpUnits[4]!.Name.Text = [
+    languageString('North Lincoln', 'en'),
+    languageString('Norte de Lincoln', 'es-US'),
+  ];
+  gpUnits[5]!.Name.Text = [
+    languageString('South Lincoln', 'en'),
+    languageString('Sur de Lincoln', 'es-US'),
+  ];
 
   // Precinct split names
-  set(
-    expectedCdfBallotDefinition,
-    ['GpUnit', 6, 'Name', 'Text'],
-    [
-      languageString('North Lincoln - Split 1', 'en'),
-      languageString('Norte de Lincoln - División 1', 'es-US'),
-    ]
-  );
-  set(
-    expectedCdfBallotDefinition,
-    ['GpUnit', 7, 'Name', 'Text'],
-    [
-      languageString('North Lincoln - Split 2', 'en'),
-      languageString('Norte de Lincoln - División 2', 'es-US'),
-    ]
-  );
+  gpUnits[6]!.Name.Text = [
+    languageString('North Lincoln - Split 1', 'en'),
+    languageString('Norte de Lincoln - División 1', 'es-US'),
+  ];
+  gpUnits[7]!.Name.Text = [
+    languageString('North Lincoln - Split 2', 'en'),
+    languageString('Norte de Lincoln - División 2', 'es-US'),
+  ];
 
   // State name
-  set(
-    expectedCdfBallotDefinition,
-    ['GpUnit', 0, 'Name', 'Text'],
-    [
-      languageString('State of Hamilton', 'en'),
-      languageString('Estado de Hamilton', 'es-US'),
-    ]
-  );
+  gpUnits[0]!.Name.Text = [
+    languageString('State of Hamilton', 'en'),
+    languageString('Estado de Hamilton', 'es-US'),
+  ];
 
   expect(
     convertVxfElectionToCdfBallotDefinition({

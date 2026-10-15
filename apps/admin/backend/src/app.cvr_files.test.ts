@@ -1,6 +1,6 @@
+/* eslint-disable no-param-reassign */
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
-import set from 'lodash.set';
 import { err, ok, assert } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
@@ -839,12 +839,11 @@ test.each<{
   {
     description: 'non-existent contest',
     modifications: {
-      castVoteRecordModifier: (castVoteRecord) =>
-        set(
-          castVoteRecord,
-          'CVRSnapshot[0].CVRContest[0].ContestId',
-          'non-existent-contest-id'
-        ),
+      castVoteRecordModifier: (castVoteRecord) => {
+        castVoteRecord.CVRSnapshot[0]!.CVRContest[0]!.ContestId =
+          'non-existent-contest-id';
+        return castVoteRecord;
+      },
       numCastVoteRecordsToKeep: 1,
     },
     expectedErrorSubType: 'contest-not-found',
@@ -852,17 +851,16 @@ test.each<{
   {
     description: 'incorrect image hash',
     modifications: {
-      castVoteRecordModifier: (castVoteRecord) =>
-        castVoteRecord.BallotImage
-          ? set(
-              castVoteRecord,
-              'BallotImage[0].Hash.Value',
-              combineImageAndLayoutHashes(
-                'badhash',
-                getLayoutHash(castVoteRecord.BallotImage[0]!)
-              )
-            )
-          : castVoteRecord,
+      castVoteRecordModifier: (castVoteRecord) => {
+        if (castVoteRecord.BallotImage) {
+          const ballotImage = castVoteRecord.BallotImage[0]!;
+          ballotImage.Hash!.Value = combineImageAndLayoutHashes(
+            'badhash',
+            getLayoutHash(ballotImage)
+          );
+        }
+        return castVoteRecord;
+      },
       numCastVoteRecordsToKeep: 10,
     },
     expectedErrorSubType: 'incorrect-image-hash',
@@ -870,17 +868,16 @@ test.each<{
   {
     description: 'incorrect layout file hash',
     modifications: {
-      castVoteRecordModifier: (castVoteRecord) =>
-        castVoteRecord.BallotImage
-          ? set(
-              castVoteRecord,
-              'BallotImage[0].Hash.Value',
-              combineImageAndLayoutHashes(
-                getImageHash(castVoteRecord.BallotImage[0]!),
-                'badhash'
-              )
-            )
-          : castVoteRecord,
+      castVoteRecordModifier: (castVoteRecord) => {
+        if (castVoteRecord.BallotImage) {
+          const ballotImage = castVoteRecord.BallotImage[0]!;
+          ballotImage.Hash!.Value = combineImageAndLayoutHashes(
+            getImageHash(ballotImage),
+            'badhash'
+          );
+        }
+        return castVoteRecord;
+      },
       numCastVoteRecordsToKeep: 10,
     },
     expectedErrorSubType: 'incorrect-layout-file-hash',
