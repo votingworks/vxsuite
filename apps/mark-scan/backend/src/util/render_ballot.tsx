@@ -14,6 +14,7 @@ import {
   type VotesDict,
 } from '@votingworks/types';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
+import { addDerivedStraightPartyVotes } from '@votingworks/utils';
 
 import { assertDefined } from '@votingworks/basics';
 import { randomUUID } from 'node:crypto';
@@ -119,7 +120,7 @@ export async function renderBallot({
   store,
   precinctId,
   ballotStyleId,
-  votes,
+  votes: votesWithoutDerivedVotes,
   languageCode,
 }: RenderBallotProps): Promise<Uint8Array> {
   const { electionDefinition } = assertDefined(store.getElectionRecord());
@@ -128,6 +129,11 @@ export async function renderBallot({
   const ballotStyle = assertDefined(
     getBallotStyle({ election: electionDefinition.election, ballotStyleId })
   );
+  const votes = addDerivedStraightPartyVotes({
+    election: electionDefinition.election,
+    ballotStyle,
+    votes: votesWithoutDerivedVotes,
+  });
   const contests = getContests({
     election: electionDefinition.election,
     ballotStyle,
