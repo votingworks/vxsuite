@@ -1,0 +1,29 @@
+diff --git a/lib/components/ModalPortal.js b/lib/components/ModalPortal.js
+index 07e27aafea5c094055c101ce79510e9559560fbe..e0403edfcf22b51b621b1bab857368707e04b549 100644
+--- a/lib/components/ModalPortal.js
++++ b/lib/components/ModalPortal.js
+@@ -129,6 +129,7 @@ var ModalPortal = function (_Component) {
+       }
+ 
+       _portalOpenInstances2.default.deregister(_this);
++      _this.hasOpened = false;
+     };
+ 
+     _this.open = function () {
+@@ -313,7 +314,7 @@ var ModalPortal = function (_Component) {
+   }, {
+     key: "componentWillUnmount",
+     value: function componentWillUnmount() {
+-      if (this.state.isOpen) {
++      if (this.state.isOpen || this.hasOpened) {
+         this.afterClose();
+       }
+       clearTimeout(this.closeTimer);
+@@ -343,6 +344,7 @@ var ModalPortal = function (_Component) {
+       }
+ 
+       _portalOpenInstances2.default.register(this);
++      this.hasOpened = true;
+     }
+ 
+     // Don't steal focus from inner elements
