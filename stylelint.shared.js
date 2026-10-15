@@ -3,6 +3,9 @@ module.exports = {
   extends: ['stylelint-config-standard'],
   customSyntax: 'postcss-styled-syntax',
   rules: {
+    // `rgba` matches the legacy notation below, and the autofix rewrites JS
+    // calls like polished's `rgba()` inside interpolations.
+    'color-function-alias-notation': null,
     // We use color functions (e.g. rgb) in nested JS that, being JS, need comma-separated
     // parameters. "Modern" notation in CSS is space-separated parameters. "Legacy"
     // notation enforces comma-separated parameters.
@@ -22,5 +25,7 @@ module.exports = {
     // "prefix" notation:
     //         @media (min-width: 600px)
     'media-feature-range-notation': 'prefix',
+    // Styled components often use an empty template literal, e.g. with `.attrs()`.
+    'no-empty-source': null,
   },
 };

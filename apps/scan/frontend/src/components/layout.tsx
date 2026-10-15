@@ -68,7 +68,7 @@ function getSpacingValueRem(p: { theme: DefaultTheme }) {
 const ButtonBar = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-gap: ${(p) => getSpacingValueRem(p)}rem;
+  gap: ${(p) => getSpacingValueRem(p)}rem;
   padding: ${(p) => getSpacingValueRem(p)}rem;
 
   & > * {

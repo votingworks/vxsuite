@@ -84,7 +84,7 @@ const NoPartiesCallout = styled(Callout)`
 
 const PartyList = styled.div`
   display: grid;
-  grid-gap: 1rem;
+  gap: 1rem;
   grid-template-columns: 3fr 2fr 1fr min-content;
   width: 100%;
   max-width: 40rem;

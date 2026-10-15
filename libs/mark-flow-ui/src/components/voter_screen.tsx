@@ -70,7 +70,7 @@ const Footer = styled(ButtonBar)`
 const ButtonGrid = styled.div`
   align-items: center;
   display: grid;
-  grid-gap: ${(p) => getButtonBarSpacingRem(p)}rem;
+  gap: ${(p) => getButtonBarSpacingRem(p)}rem;
 
   & > * {
     height: 100%;

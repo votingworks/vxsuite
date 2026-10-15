@@ -52,7 +52,7 @@ const maxLinesStyles = css<FontProps>`
 `;
 
 const breakWordStyles = css`
-  word-break: break-word;
+  overflow-wrap: anywhere;
 `;
 
 const fontStyles = css<FontProps>`
@@ -273,11 +273,9 @@ export const RichText = styled.div<RichTextProps>`
 `;
 
 export const SpanBreakWord = styled.span`
-  word-break: break-word;
-  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
 `;
 
 export const DivBreakWord = styled.div`
-  word-break: break-word;
-  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
 `;

@@ -13,7 +13,7 @@ const Container = styled.div`
   line-height: 0.8;
   padding: 0.35rem 0.3rem;
   width: 100%;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
 `;
 
 const Value = styled.span`

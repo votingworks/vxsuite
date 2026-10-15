@@ -299,7 +299,7 @@ const Container = styled.div`
 const ButtonGrid = styled.div`
   display: grid;
   grid-auto-rows: 1fr;
-  grid-gap: max(${(p) => p.theme.sizes.minTouchAreaSeparationPx}px, 0.25rem);
+  gap: max(${(p) => p.theme.sizes.minTouchAreaSeparationPx}px, 0.25rem);
   grid-template-columns: 1fr 1fr;
 `;
 

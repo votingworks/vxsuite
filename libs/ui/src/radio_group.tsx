@@ -103,7 +103,7 @@ interface OptionsContainerProps {
 const OptionsContainer = styled.span<OptionsContainerProps>`
   align-items: stretch;
   display: grid;
-  grid-gap: ${(p) =>
+  gap: ${(p) =>
     // @coverage-exclude
     p.theme.sizeMode === 'touchExtraLarge' ? '0.25rem' : '0.5rem'};
   grid-template-columns: ${(p) =>

@@ -42,9 +42,7 @@ const Form = styled.form`
   ${cssThemedScrollbars}
 `;
 
-const TextMirror = styled.pre`
-  /* stylelint-disable no-empty-source */
-`;
+const TextMirror = styled.pre``;
 
 const TextArea = styled.textarea<{ editable: boolean }>`
   :disabled {

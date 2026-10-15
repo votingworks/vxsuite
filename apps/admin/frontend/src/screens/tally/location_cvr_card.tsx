@@ -34,14 +34,13 @@ export const IconLabel = styled(Caption)`
 `;
 
 export const IconSection = styled.div`
-  align-items: center;
+  place-items: center center;
   background-color: #f7f7f7;
   display: grid;
   font-size: 1.25rem;
   gap: 0.25rem;
   grid-template-rows: min-content min-content;
   height: 100%;
-  justify-items: center;
   padding: 1rem;
 `;
 

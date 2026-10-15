@@ -14,7 +14,7 @@ import { reportColors } from './layout.js';
 
 const Contest = styled.div`
   margin: 2.5em 0;
-  page-break-inside: avoid;
+  break-inside: avoid;
 
   h3 {
     margin-top: 0;
@@ -57,7 +57,7 @@ const ContestTable = styled.table`
     padding: 0.25em;
     text-align: left;
     font-weight: 400;
-    word-break: break-word;
+    overflow-wrap: anywhere;
   }
 
   & th.indent {

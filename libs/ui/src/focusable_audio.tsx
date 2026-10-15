@@ -31,9 +31,7 @@ export type FocusableAudioProps<T extends ElementType> = Omit<
   replayOnClick?: boolean;
 };
 
-const DefaultContainer = styled.div`
-  /* stylelint-disable no-empty-source */
-`;
+const DefaultContainer = styled.div``;
 
 /**
  * Renders a screen-reader-compatible focusable block that is inserted into the
