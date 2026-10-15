@@ -6,7 +6,6 @@ export * from './pins.js';
 export * from './cast_vote_records.js';
 export * from './date.js';
 export * from './disk_space_summary.js';
-export * from './elections.js';
 export * from './env_vars.js';
 export * from './environment_variable.js';
 export * as format from './format.js';
