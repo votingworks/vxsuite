@@ -1,5 +1,6 @@
-import { expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import type {
+  BallotStyle,
   Candidate,
   CandidateContest,
   Contest,
@@ -7,10 +8,12 @@ import type {
   PartyId,
   StraightPartyContest,
   Tabulation,
+  VotesDict,
 } from '@votingworks/types';
 import { assertDefined, find } from '@votingworks/basics';
 import { electionStraightPartyFixtures } from '@votingworks/fixtures';
 import {
+  addDerivedStraightPartyVotes,
   deriveStraightPartyVotes,
   deriveStraightPartyVotesForContest,
   selectedStraightPartyId,
@@ -530,3 +533,81 @@ test.each<TestCase>([
     }
   }
 );
+
+describe('addDerivedStraightPartyVotes', () => {
+  const crossEndorsedCandidate: Candidate = {
+    id: 'candidate-x',
+    name: 'candidate-x',
+    partyIds: ['party-1', 'party-2'],
+  };
+  const election = buildElection([
+    straightPartyContest,
+    candidateContest('senator', 1, [
+      crossEndorsedCandidate,
+      candidate('candidate-b', 'party-3'),
+    ]),
+    candidateContest('state-board', 2, [
+      candidate('candidate-c', 'party-1'),
+      candidate('candidate-d', 'party-2'),
+      candidate('candidate-e', 'party-2'),
+    ]),
+    candidateContest('regent', 1, [
+      candidate('candidate-f', 'party-1'),
+      candidate('candidate-g', 'party-2'),
+    ]),
+    {
+      id: 'measure',
+      type: 'yesno',
+      districtId,
+      title: 'measure',
+      description: 'measure',
+      options: [
+        { id: 'measure-yes', label: 'Yes' },
+        { id: 'measure-no', label: 'No' },
+      ],
+    },
+  ]);
+  const ballotStyle: BallotStyle = {
+    id: 'ballot-style-1',
+    groupId: 'ballot-style-1',
+    precincts: [],
+    languages: ['en'],
+    districts: [districtId],
+    orderedCandidatesByContest: {
+      senator: [
+        { id: 'candidate-x', partyIds: ['party-1'] },
+        { id: 'candidate-x', partyIds: ['party-2'] },
+        { id: 'candidate-b' },
+      ],
+    },
+  };
+
+  test('returns votes unchanged without a straight party selection', () => {
+    const votes: VotesDict = { regent: [] };
+    expect(
+      addDerivedStraightPartyVotes({ election, ballotStyle, votes })
+    ).toEqual(votes);
+  });
+
+  test('adds derived votes as explicit votes', () => {
+    const regentVote = [candidate('candidate-g', 'party-2')];
+    const votes: VotesDict = {
+      'straight-party': ['party-2'],
+      'state-board': [],
+      regent: regentVote,
+      measure: ['measure-yes'],
+    };
+    expect(
+      addDerivedStraightPartyVotes({ election, ballotStyle, votes })
+    ).toEqual<VotesDict>({
+      'straight-party': ['party-2'],
+      senator: [{ ...crossEndorsedCandidate, partyIds: ['party-2'] }],
+      'state-board': [
+        candidate('candidate-d', 'party-2'),
+        candidate('candidate-e', 'party-2'),
+      ],
+      regent: regentVote,
+      measure: ['measure-yes'],
+    });
+  });
+});

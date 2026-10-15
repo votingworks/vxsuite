@@ -6,6 +6,7 @@ import {
   type Contest,
   type ContestOptionId,
   type Election,
+  getContests,
   getOrderedCandidatesForContestInBallotStyle,
   type PartyId,
   type StraightPartyVote,
@@ -115,4 +116,37 @@ export function deriveStraightPartyVotesFromOrderedCandidates({
         Boolean(candidate.partyIds?.includes(assertDefined(straightPartyId)))
     )
   );
+}
+
+/**
+ * Adds the candidate votes implied by a straight party selection as explicit
+ * votes, e.g. for printing them on a BMD ballot.
+ */
+export function addDerivedStraightPartyVotes({
+  election,
+  ballotStyle,
+  votes,
+}: {
+  election: Election;
+  ballotStyle: BallotStyle;
+  votes: VotesDict;
+}): VotesDict {
+  const straightPartyId = selectedStraightPartyId(election, votes);
+  if (!straightPartyId) return votes;
+
+  const votesWithDerivedVotes: VotesDict = { ...votes };
+  for (const contest of getContests({ election, ballotStyle })) {
+    if (contest.type !== 'candidate') continue;
+    const vote = (votes[contest.id] ?? []) as CandidateVote;
+    const derivedVotes = deriveStraightPartyVotesFromOrderedCandidates({
+      contest,
+      vote,
+      ballotStyle,
+      selectedStraightPartyId: straightPartyId,
+    });
+    if (derivedVotes.length > 0) {
+      votesWithDerivedVotes[contest.id] = [...vote, ...derivedVotes];
+    }
+  }
+  return votesWithDerivedVotes;
 }
