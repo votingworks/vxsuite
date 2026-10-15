@@ -1,8 +1,13 @@
+import { useState } from 'react';
 import {
   UnconfiguredElectionScreen,
   useQueryChangeListener,
 } from '@votingworks/ui';
-import { assert } from '@votingworks/basics';
+import { assert, type Result } from '@votingworks/basics';
+import type {
+  ElectionDefinition,
+  ElectionPackageConfigurationError,
+} from '@votingworks/types';
 import {
   configureFromElectionPackageOnUsbDrive,
   getUsbDriveStatus,
@@ -23,17 +28,19 @@ export function UnconfiguredElectionScreenWrapper({
 
   const configureMutation =
     configureFromElectionPackageOnUsbDrive.useMutation();
+  const [configureResult, setConfigureResult] =
+    useState<Result<ElectionDefinition, ElectionPackageConfigurationError>>();
 
   useQueryChangeListener(usbDriveStatusQuery, {
     select: ({ status }) => status,
-    onChange: (newStatus) => {
-      if (newStatus === 'mounted') {
-        configureMutation.mutate();
-      }
+    onChange: async (newStatus) => {
+      if (newStatus !== 'mounted') return;
+      setConfigureResult(undefined);
+      setConfigureResult(await configureMutation.mutateAsync());
     },
   });
 
-  const error = configureMutation.data?.err();
+  const error = configureResult?.err();
 
   return (
     <NavigationScreen>

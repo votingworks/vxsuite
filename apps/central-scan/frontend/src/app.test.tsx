@@ -1,4 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import React from 'react';
+import { err } from '@votingworks/basics';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   mockElectionManagerUser,
@@ -359,6 +361,30 @@ test('configuring election from usb election package works end to end', async ()
   userEvent.click(screen.getButton('Delete All Election Data'));
   screen.getByText('Unconfiguring Machine');
   await screen.findByText('Insert a USB drive containing an election package');
+});
+
+test('configures from an already-inserted USB drive in strict mode', async () => {
+  apiMock.expectGetTestMode(true);
+  apiMock.expectGetElectionRecord(null);
+  apiMock.setAuthStatus({
+    status: 'logged_in',
+    user: mockElectionManagerUser({ electionKey }),
+    sessionExpiresAt: mockSessionExpiresAt(),
+  });
+  apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
+  apiMock.apiClient.configureFromElectionPackageOnUsbDrive
+    .expectCallWith()
+    .resolves(err({ type: 'no_election_package' }));
+
+  render(
+    <React.StrictMode>
+      <App apiClient={apiMock.apiClient} />
+    </React.StrictMode>
+  );
+
+  await screen.findByText(
+    'No signed election package found on the inserted USB drive. Save a signed election package in VxAdmin.'
+  );
 });
 
 test('authentication works', async () => {
