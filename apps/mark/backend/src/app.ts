@@ -350,6 +350,8 @@ export function buildApi(ctx: Context) {
       const { electionDefinition, systemSettings } = electionPackage;
       assert(systemSettings);
 
+      const { election } = electionDefinition;
+
       // Ballots and audio clips are both streamed from the package, so open it
       // once and stream both entries over the same open file.
       await withElectionPackageZip(filePath, async (zip) => {
@@ -370,7 +372,11 @@ export function buildApi(ctx: Context) {
 
           await store
             .getBallotMetaStore()
-            .importPositions(zip, electionDefinition.election, systemSettings);
+            .importPositions(zip, election, systemSettings);
+
+          await store
+            .getBallotMetaStore()
+            .importCandidateOrderings(zip, election, systemSettings);
 
           // The machine defaults to test mode, but if test mode isn't available
           // for this election package (no test ballots for a print flow that

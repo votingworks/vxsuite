@@ -239,6 +239,10 @@ function buildApi({
           await store
             .getBallotMetaStore()
             .importPositions(zip, election, systemSettings);
+
+          await store
+            .getBallotMetaStore()
+            .importCandidateOrderings(zip, election, systemSettings);
         });
 
         const absenteePollingPlaces = assertDefined(

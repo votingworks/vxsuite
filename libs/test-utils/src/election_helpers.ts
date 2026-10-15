@@ -15,6 +15,8 @@ import {
   convertVxfElectionToCdfBallotDefinition,
   safeParseElection,
   hashElectionData,
+  type BallotPositions,
+  type BallotCandidateOrderings,
 } from '@votingworks/types';
 
 /**
@@ -228,4 +230,43 @@ export function createMockVotes(
     }
   }
   return votes;
+}
+
+// @coverage-exclude: tested via callers.
+export function toSplitFileElection(e: Election): {
+  ballotPositions: BallotPositions[];
+  candidateOrderings: BallotCandidateOrderings[];
+  election: Election;
+} {
+  const ballotPositions: BallotPositions[] = [];
+  const candidateOrderings: BallotCandidateOrderings[] = [];
+
+  for (const bs of e.ballotStyles) {
+    if (bs.ballotPositions) {
+      ballotPositions.push({
+        ballotStyleId: bs.id,
+        positions: bs.ballotPositions,
+      });
+    }
+
+    if (bs.orderedCandidatesByContest) {
+      candidateOrderings.push({
+        ballotStyleId: bs.id,
+        orderings: bs.orderedCandidatesByContest,
+      });
+    }
+  }
+
+  return {
+    ballotPositions,
+    candidateOrderings,
+    election: {
+      ...e,
+      ballotStyles: e.ballotStyles.map((bs) => ({
+        ...bs,
+        ballotPositions: undefined,
+        orderedCandidatesByContest: undefined,
+      })),
+    },
+  };
 }

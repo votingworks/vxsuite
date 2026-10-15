@@ -230,6 +230,10 @@ export function buildApi({
               .getBallotMetaStore()
               .importPositions(zip, election, systemSettings);
 
+            await store
+              .getBallotMetaStore()
+              .importCandidateOrderings(zip, election, systemSettings);
+
             await configureUiStringAudioClipsStreaming({
               zip,
               store: store.getUiStringsStore(),

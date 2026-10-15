@@ -1,8 +1,12 @@
 import {
+  type BallotCandidateOrderings,
+  type BallotPositions,
   DEFAULT_SYSTEM_SETTINGS,
   type ElectionPackage,
   ElectionPackageFileName,
+  type EncodedBallotEntry,
   LATEST_METADATA,
+  type UiStringAudioClips,
 } from '@votingworks/types';
 import type { Buffer } from 'node:buffer';
 import {
@@ -19,7 +23,12 @@ import { zipFile } from '@votingworks/test-utils';
  * intentionally missing files to exercise reader error paths.
  */
 export type PartialElectionPackage = Partial<ElectionPackage> &
-  Pick<ElectionPackage, 'electionDefinition'>;
+  Pick<ElectionPackage, 'electionDefinition'> & {
+    ballots?: EncodedBallotEntry[];
+    ballotPositions?: BallotPositions[];
+    candidateOrderings?: BallotCandidateOrderings[];
+    uiStringAudioClips?: UiStringAudioClips;
+  };
 
 /**
  * Builds an election package zip archive from a ElectionPackage object.
@@ -69,6 +78,20 @@ export function createElectionPackageZipArchive(
   if (electionPackage.ballots && electionPackage.ballots.length > 0) {
     zipContents[ElectionPackageFileName.BALLOTS] = electionPackage.ballots
       .map((ballot) => JSON.stringify(ballot))
+      .join('\n');
+  }
+
+  const Entry = ElectionPackageFileName;
+
+  if (electionPackage.ballotPositions) {
+    zipContents[Entry.BALLOT_POSITIONS] = electionPackage.ballotPositions
+      .map((bp) => JSON.stringify(bp))
+      .join('\n');
+  }
+
+  if (electionPackage.candidateOrderings) {
+    zipContents[Entry.CANDIDATE_ORDERINGS] = electionPackage.candidateOrderings
+      .map((co) => JSON.stringify(co))
       .join('\n');
   }
 

@@ -87,6 +87,7 @@ interface MockAppContents {
   patConnectionStatusReader: PatConnectionStatusReaderInterface;
   driver: MockPaperHandlerDriver;
   clock: SimulatedClock;
+  workspace: Workspace;
 }
 
 export interface CreateAppOptions {
@@ -144,6 +145,7 @@ export async function createApp(
     patConnectionStatusReader,
     driver,
     clock,
+    workspace,
   };
 }
 

@@ -24,6 +24,12 @@ create table ballot_positions (
   positions text not null -- JSON string of SheetPositions[]
 ) strict;
 
+create table candidate_orderings (
+  style_id text primary key,
+  orderings text not null -- JSON string of CandidateOrderings
+) strict;
+
+
 create table batches (
   batch_number integer primary key autoincrement,
   id text unique,
