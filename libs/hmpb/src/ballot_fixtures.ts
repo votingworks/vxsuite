@@ -34,7 +34,12 @@ import {
 import { join } from 'node:path';
 import makeDebug from 'debug';
 import { pdfToImages } from '@votingworks/image-utils/pdf';
-import { createTestVotes, markBallotDocument } from './mark_ballot.js';
+import {
+  createTestVotes,
+  type MarginalMark,
+  markBallotDocument,
+  type UnmarkedWriteInVote,
+} from './mark_ballot.js';
 import {
   allBaseBallotProps,
   type ElectionSerializationOptions,
@@ -97,6 +102,7 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
   const dir = join(fixturesDir, 'vx-famous-names');
   const blankBallotPath = join(dir, 'blank-ballot.pdf');
   const markedBallotPath = join(dir, 'marked-ballot.pdf');
+  const misvotedBallotPath = join(dir, 'misvoted-ballot.pdf');
   const blankOfficialBallotPath = join(dir, 'blank-official-ballot.pdf');
   const markedOfficialBallotPath = join(dir, 'marked-official-ballot.pdf');
   const sampleBallotPath = join(dir, 'sample-ballot.pdf');
@@ -126,6 +132,47 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
   const contests = getContests({ election, ballotStyle });
   const { votes } = createTestVotes(contests);
 
+  function candidate(contestId: string, candidateId: string): Candidate {
+    const contest = assertDefined(
+      contests.find((c): c is CandidateContest => c.id === contestId)
+    );
+    return assertDefined(contest.candidates.find((c) => c.id === candidateId));
+  }
+  const misvotedBallot: {
+    votes: VotesDict;
+    unmarkedWriteIns: UnmarkedWriteInVote[];
+    marginalMarks: MarginalMark[];
+  } = {
+    votes: {
+      mayor: [
+        candidate('mayor', 'sherlock-holmes'),
+        candidate('mayor', 'thomas-edison'),
+      ],
+      controller: [],
+      attorney: [candidate('attorney', 'john-snow')],
+      'public-works-director': [],
+      'chief-of-police': [candidate('chief-of-police', 'natalie-portman')],
+      'parks-and-recreation-director': [],
+      'board-of-alderman': [
+        candidate('board-of-alderman', 'helen-keller'),
+        candidate('board-of-alderman', 'steve-jobs'),
+      ],
+      'city-council': [
+        candidate('city-council', 'marie-curie'),
+        candidate('city-council', 'indiana-jones'),
+      ],
+    },
+    unmarkedWriteIns: [
+      { contestId: 'attorney', writeInIndex: 0, name: 'Write-In' },
+    ],
+    marginalMarks: [
+      { contestId: 'public-works-director', optionId: 'benjamin-franklin' },
+      { contestId: 'chief-of-police', optionId: 'frank-sinatra' },
+      { contestId: 'city-council', optionId: 'mona-lisa' },
+      { contestId: 'city-council', optionId: 'jackie-chan' },
+    ],
+  };
+
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
 
@@ -134,6 +181,8 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
     electionDefinition,
     blankBallotPath,
     markedBallotPath,
+    misvotedBallotPath,
+    misvotedBallot,
     blankOfficialBallotPath,
     markedOfficialBallotPath,
     allBallotProps,
@@ -192,6 +241,7 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
       const {
         blankBallotPdf,
         markedBallotPdf,
+        misvotedBallotPdf,
         blankOfficialBallotPdf,
         markedOfficialBallotPdf,
         sampleBallotPdf,
@@ -211,6 +261,25 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
         await markBallotDocument(ballotDocument, votes);
         // eslint-disable-next-line @typescript-eslint/no-shadow
         const markedBallotPdf = await ballotDocument.renderToPdf();
+
+        debug(`Generating: ${misvotedBallotPath}`);
+        const misvotedBallotDocument =
+          await renderer.documentFromPath(testLayoutPath);
+        await renderBallotPdfWithMetadataQrCode(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          allBallotPropsTest[0]!,
+          misvotedBallotDocument,
+          electionDefinition,
+          LATEST_SOFTWARE_VERSION
+        );
+        await markBallotDocument(
+          misvotedBallotDocument,
+          misvotedBallot.votes,
+          misvotedBallot.unmarkedWriteIns,
+          misvotedBallot.marginalMarks
+        );
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        const misvotedBallotPdf = await misvotedBallotDocument.renderToPdf();
 
         // Generate official mode ballots
         const officialBallotDocument =
@@ -245,6 +314,7 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
         return {
           blankBallotPdf,
           markedBallotPdf,
+          misvotedBallotPdf,
           blankOfficialBallotPdf,
           markedOfficialBallotPdf,
           sampleBallotPdf,
@@ -289,6 +359,7 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
         markedOfficialBallotPath,
         blankBallotPdf,
         markedBallotPdf,
+        misvotedBallotPdf,
         blankOfficialBallotPdf,
         markedOfficialBallotPdf,
         blankBallotPageImages,

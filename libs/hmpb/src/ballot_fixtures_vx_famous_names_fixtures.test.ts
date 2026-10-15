@@ -35,6 +35,10 @@ test('famous names fixtures', async () => {
     fixtures.markedBallotPath
   );
   await expectToMatchSavedPdf(
+    generated.misvotedBallotPdf,
+    fixtures.misvotedBallotPath
+  );
+  await expectToMatchSavedPdf(
     generated.blankOfficialBallotPdf,
     fixtures.blankOfficialBallotPath
   );

@@ -4,7 +4,12 @@ import { WarningDetails } from './warning_details.js';
 import type { MisvoteWarningsProps } from './types.js';
 
 export function MisvoteWarnings(props: MisvoteWarningsProps): JSX.Element {
-  const { blankContests, overvoteContests, partiallyVotedContests } = props;
+  const {
+    blankContests,
+    marginalMarkContests,
+    overvoteContests,
+    partiallyVotedContests,
+  } = props;
   const layout = useLayoutConfig(props);
 
   // Show a summary of warnings with button to view details if we can't fit all
@@ -13,6 +18,7 @@ export function MisvoteWarnings(props: MisvoteWarningsProps): JSX.Element {
     return (
       <WarningsSummary
         blankContests={blankContests}
+        marginalMarkContests={marginalMarkContests}
         overvoteContests={overvoteContests}
         partiallyVotedContests={partiallyVotedContests}
       />
@@ -22,6 +28,7 @@ export function MisvoteWarnings(props: MisvoteWarningsProps): JSX.Element {
   return (
     <WarningDetails
       blankContests={blankContests}
+      marginalMarkContests={marginalMarkContests}
       overvoteContests={overvoteContests}
       partiallyVotedContests={partiallyVotedContests}
     />

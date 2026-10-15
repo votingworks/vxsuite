@@ -13,7 +13,12 @@ import { WarningDetails } from './warning_details.js';
 export function WarningDetailsModalButton(
   props: MisvoteWarningsProps
 ): JSX.Element {
-  const { blankContests, overvoteContests, partiallyVotedContests } = props;
+  const {
+    blankContests,
+    marginalMarkContests,
+    overvoteContests,
+    partiallyVotedContests,
+  } = props;
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   if (isModalOpen) {
@@ -27,6 +32,7 @@ export function WarningDetailsModalButton(
           <WithScrollButtons focusable>
             <WarningDetails
               blankContests={blankContests}
+              marginalMarkContests={marginalMarkContests}
               overvoteContests={overvoteContests}
               partiallyVotedContests={partiallyVotedContests}
             />
