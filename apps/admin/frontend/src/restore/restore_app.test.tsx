@@ -6,7 +6,6 @@ import {
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { DEV_MACHINE_ID, type DippedSmartCardAuth } from '@votingworks/types';
-import { SystemCallContextProvider } from '@votingworks/ui';
 import {
   render,
   screen,
@@ -17,7 +16,6 @@ import {
   createRestoreApiMock,
   type RestoreApiMock,
 } from '../../test/helpers/mock_restore_api_client.js';
-import { SharedApiClientContext, systemCallApi } from '../shared_api.js';
 import { type ApiClient, createQueryClient } from './api.js';
 import { RestoreApp } from './restore_app.js';
 
@@ -45,13 +43,7 @@ afterEach(() => {
 
 function renderRestoreApp() {
   const apiClient = apiMock.apiClient as unknown as ApiClient;
-  return render(
-    <SharedApiClientContext.Provider value={apiClient}>
-      <SystemCallContextProvider api={systemCallApi}>
-        <RestoreApp apiClient={apiClient} queryClient={queryClient} />
-      </SystemCallContextProvider>
-    </SharedApiClientContext.Provider>
-  );
+  return render(<RestoreApp apiClient={apiClient} queryClient={queryClient} />);
 }
 
 test('asks for a system administrator card while locked', async () => {

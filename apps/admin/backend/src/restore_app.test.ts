@@ -23,7 +23,6 @@ import {
 } from '../test/app.js';
 import { makeBackup, mockDiskSpace } from '../test/backup.js';
 import { restoreBackup } from './backup/restore/index.js';
-import { FileBackedMachineModeController } from './machine_mode.js';
 import {
   buildRestoreApp,
   type RestoreApi,
@@ -63,7 +62,6 @@ function buildRestoreTestEnvironment() {
     workspacePath,
     logger,
     multiUsbDrive,
-    machineMode: FileBackedMachineModeController.forWorkspace(workspacePath),
   });
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
@@ -115,8 +113,6 @@ test('describes itself as restore mode', async () => {
   const { apiClient } = env;
 
   expect(await apiClient.getAppMode()).toEqual('restore');
-  expect(await apiClient.getMachineMode()).toEqual('host');
-  expect(await apiClient.isMultiStationAdjudicationEnabled()).toEqual(false);
   expect(await apiClient.getMachineConfig()).toEqual({
     machineId: DEV_MACHINE_ID,
     codeVersion: 'dev',
@@ -184,9 +180,6 @@ test('restores a backup from the inserted USB drive', async () => {
   // starts after a reboot.
   using restored = openWorkspace(workspacePath, logger);
   expect(restored.store.getCurrentElectionId()).toBeDefined();
-
-  await apiClient.ejectUsbDrive();
-  expect((await apiClient.getUsbDriveStatus()).status).toEqual('ejected');
 });
 
 test('restores only a backup that is on the inserted USB drive', async () => {

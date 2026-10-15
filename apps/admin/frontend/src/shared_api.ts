@@ -15,8 +15,9 @@ import {
 import { getAuthStatus, getUsbDriveStatus } from './api.js';
 
 /**
- * Methods shared between host (Api), client (ClientApi), and restore mode
- * (RestoreApi) backends.
+ * Methods shared between host (Api) and client (ClientApi). Restore mode
+ * only shares `getAppMode`, so we can switch to the RestoreApi client when in
+ * restore mode.
  */
 type SharedMethods =
   | 'logOut'
@@ -30,7 +31,7 @@ type SharedMethods =
 
 export type SharedApiClient = Pick<grout.Client<Api>, SharedMethods> &
   Pick<grout.Client<ClientApi>, SharedMethods> &
-  Pick<grout.Client<RestoreApi>, SharedMethods>;
+  Pick<grout.Client<RestoreApi>, 'getAppMode'>;
 
 export const SharedApiClientContext = React.createContext<
   SharedApiClient | undefined

@@ -4,6 +4,7 @@ import type { RestoreApi } from '@votingworks/admin-backend';
 import * as grout from '@votingworks/grout';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
+  createSystemCallApi,
   QUERY_CLIENT_DEFAULT_OPTIONS,
   usePollingQuery,
 } from '@votingworks/ui';
@@ -37,6 +38,8 @@ export function useApiClient(): ApiClient {
 export function createQueryClient(): QueryClient {
   return new QueryClient({ defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS });
 }
+
+export const systemCallApi = createSystemCallApi(useApiClient);
 
 export const getMachineConfig = {
   queryKey(): QueryKey {

@@ -15,8 +15,12 @@ import {
   VerticalElectionInfoBar,
 } from '@votingworks/ui';
 import { Header } from '../../components/navigation_screen.js';
-import { systemCallApi } from '../../shared_api.js';
-import { getAuthStatus, getMachineConfig, logOut } from '../api.js';
+import {
+  getAuthStatus,
+  getMachineConfig,
+  logOut,
+  systemCallApi,
+} from '../api.js';
 import { ScreenWithBanner } from './restore_mode_banner.js';
 
 const Body = styled.div`
