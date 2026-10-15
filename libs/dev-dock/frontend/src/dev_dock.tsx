@@ -41,6 +41,8 @@ import {
   faGift,
   faPrint,
   faQrcode,
+  faStop,
+  faVideo,
   faXmark,
   type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
@@ -480,6 +482,13 @@ const ScreenshotButton = styled.button`
   }
 `;
 
+/** "VotingWorks VxAdmin" -> "VxAdmin" */
+function getAppName(): string {
+  const appName = document.title.replace('VotingWorks', '').trim();
+  assert(/^[a-z0-9]+$/i.test(appName));
+  return appName;
+}
+
 interface ScreenshotToSaveProps {
   screenshot: Uint8Array<ArrayBufferLike>;
   fileName: string;
@@ -490,6 +499,91 @@ const ScreenshotModal = styled(Modal)`
   border-color: ${Colors.BORDER} !important;
   color: ${Colors.TEXT} !important;
 `;
+
+function SaveFileModal({
+  title,
+  description,
+  fileName,
+  fileNameLabel,
+  cancelLabel,
+  onChangeFileName,
+  onSave,
+  onCancel,
+}: {
+  title: string;
+  description: string;
+  fileName: string;
+  fileNameLabel: string;
+  cancelLabel: string;
+  onChangeFileName: (fileName: string) => void;
+  onSave: (fileName: string) => void | Promise<void>;
+  onCancel: () => void | Promise<void>;
+}): JSX.Element {
+  function cancel(): void {
+    void onCancel();
+  }
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent): void {
+      if (
+        event.key === 'Enter' &&
+        !(event.target instanceof HTMLButtonElement)
+      ) {
+        void onSave(fileName.trim());
+      } else if (event.key === 'Escape') {
+        cancel();
+      } else {
+        return;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    window.addEventListener('keydown', onKeyDown, true);
+    return () => window.removeEventListener('keydown', onKeyDown, true);
+  });
+
+  return (
+    <ScreenshotModal
+      title={title}
+      onOverlayClick={cancel}
+      content={
+        <React.Fragment>
+          <P>{description}</P>
+          <input
+            type="text"
+            value={fileName}
+            aria-label={fileNameLabel}
+            onChange={(e) => onChangeFileName(e.target.value)}
+            onBlur={(e) => onChangeFileName(e.target.value.trim())}
+            autoComplete="off"
+          />
+        </React.Fragment>
+      }
+      actions={
+        <React.Fragment>
+          <Button
+            autoFocus
+            onPress={() => void onSave(fileName.trim())}
+            style={{
+              backgroundColor: Colors.ACTIVE,
+              color: Colors.BACKGROUND,
+            }}
+          >
+            Save
+          </Button>
+          <Button
+            onPress={cancel}
+            style={{
+              backgroundColor: 'white',
+            }}
+          >
+            {cancelLabel}
+          </Button>
+        </React.Fragment>
+      }
+    />
+  );
+}
 
 function ScreenshotControls({
   containerRef,
@@ -515,19 +609,19 @@ function ScreenshotControls({
     assert(window.kiosk);
     const screenshot = await window.kiosk.captureScreenshot();
 
-    // "VotingWorks VxAdmin" -> "VxAdmin"
-    const appName = document.title.replace('VotingWorks', '').trim();
-    assert(/^[a-z0-9]+$/i.test(appName));
-    const defaultFileName = `Screenshot-${appName}-${new Date().toISOString()}.png`;
+    const defaultFileName = `Screenshot-${getAppName()}-${new Date().toISOString()}.png`;
 
     setScreenshotToSave({ screenshot, fileName: defaultFileName });
     // eslint-disable-next-line no-param-reassign
     containerRef.current.style.visibility = 'visible';
   }
 
-  async function onSaveScreenshot() {
+  async function onSaveScreenshot(fileName: string) {
     assert(screenshotToSave);
-    await saveScreenshotForAppMutation.mutateAsync(screenshotToSave);
+    await saveScreenshotForAppMutation.mutateAsync({
+      ...screenshotToSave,
+      fileName,
+    });
     setScreenshotToSave(undefined);
   }
 
@@ -555,54 +649,17 @@ function ScreenshotControls({
         <FontAwesomeIcon icon={faCamera} size="2x" />
       </ScreenshotButton>
       {screenshotToSave && (
-        <ScreenshotModal
+        <SaveFileModal
           title="Save Screenshot"
-          onOverlayClick={() => setScreenshotToSave(undefined)}
-          content={
-            <React.Fragment>
-              <P>The image will be saved to the Downloads folder as:</P>
-              <input
-                type="text"
-                value={screenshotToSave.fileName}
-                aria-label="Screenshot File Name"
-                onChange={(e) =>
-                  setScreenshotToSave({
-                    ...screenshotToSave,
-                    fileName: e.target.value,
-                  })
-                }
-                onBlur={(e) =>
-                  setScreenshotToSave({
-                    ...screenshotToSave,
-                    fileName: e.target.value.trim(),
-                  })
-                }
-                autoComplete="off"
-              />
-            </React.Fragment>
+          description="The image will be saved to the Downloads folder as:"
+          fileName={screenshotToSave.fileName}
+          fileNameLabel="Screenshot File Name"
+          cancelLabel="Cancel"
+          onChangeFileName={(fileName) =>
+            setScreenshotToSave({ ...screenshotToSave, fileName })
           }
-          actions={
-            <React.Fragment>
-              <Button
-                autoFocus
-                onPress={onSaveScreenshot}
-                style={{
-                  backgroundColor: Colors.ACTIVE,
-                  color: Colors.BACKGROUND,
-                }}
-              >
-                Save
-              </Button>
-              <Button
-                onPress={() => setScreenshotToSave(undefined)}
-                style={{
-                  backgroundColor: 'white',
-                }}
-              >
-                Cancel
-              </Button>
-            </React.Fragment>
-          }
+          onSave={onSaveScreenshot}
+          onCancel={() => setScreenshotToSave(undefined)}
         />
       )}
     </React.Fragment>
@@ -1030,6 +1087,192 @@ function PdiScannerMockControl() {
   );
 }
 
+const RecordingButton = styled(ScreenshotButton)<{ isRecording: boolean }>`
+  ${(props) =>
+    props.isRecording &&
+    css`
+      color: ${Colors.DANGER};
+      border-color: ${Colors.DANGER};
+    `}
+`;
+
+const MP4_RECORDING_FORMAT = {
+  mimeType: 'video/mp4;codecs=avc1',
+  extension: 'mp4',
+} as const;
+const WEBM_RECORDING_FORMAT = {
+  mimeType: 'video/webm',
+  extension: 'webm',
+} as const;
+
+/** How often recorded video is streamed to the backend. */
+const RECORDING_CHUNK_INTERVAL_MS = 1000;
+
+interface ActiveRecording {
+  readonly mediaRecorder: MediaRecorder;
+  readonly stream: MediaStream;
+  readonly extension: string;
+  uploads: Promise<void>;
+}
+
+function describeRecordingStartError(error: unknown): string {
+  if (error instanceof DOMException && error.name === 'NotSupportedError') {
+    return 'This browser does not allow the page to record itself. Run a kiosk-browser that supports recording with --allow-devtools.';
+  }
+  if (error instanceof DOMException && error.name === 'NotAllowedError') {
+    return 'Screen recording was cancelled.';
+  }
+  return `Screen recording failed: ${extractErrorMessage(error)}`;
+}
+
+function ScreenRecordingControls({
+  isRecording,
+  setIsRecording,
+}: {
+  isRecording: boolean;
+  setIsRecording: (isRecording: boolean) => void;
+}): JSX.Element {
+  const apiClient = useApiClient();
+  const saveMutation = useMutation(apiClient.saveScreenRecording);
+  const discardMutation = useMutation(apiClient.discardScreenRecording);
+
+  const activeRecordingRef = useRef<ActiveRecording>();
+  const [errorMessage, setErrorMessage] = useState<string>();
+  function dismissError() {
+    setErrorMessage(undefined);
+  }
+  const [fileNameToSave, setFileNameToSave] = useState<string>();
+
+  async function stopRecording() {
+    const activeRecording = activeRecordingRef.current;
+    if (!activeRecording) return;
+    activeRecordingRef.current = undefined;
+
+    const { mediaRecorder, stream } = activeRecording;
+    await new Promise((resolve) => {
+      mediaRecorder.addEventListener('stop', resolve);
+      mediaRecorder.stop();
+    });
+    for (const track of stream.getTracks()) track.stop();
+    setIsRecording(false);
+
+    try {
+      await activeRecording.uploads;
+    } catch (error) {
+      setErrorMessage(
+        `Saving the screen recording failed: ${extractErrorMessage(error)}`
+      );
+      await apiClient.discardScreenRecording();
+      return;
+    }
+    setFileNameToSave(
+      `Recording-${getAppName()}-${new Date().toISOString()}.${
+        activeRecording.extension
+      }`
+    );
+  }
+
+  async function startRecording() {
+    setIsRecording(true);
+    const captureOptions: DisplayMediaStreamOptions & {
+      preferCurrentTab: boolean;
+    } = { video: { frameRate: 30 }, audio: false, preferCurrentTab: true };
+    let stream: MediaStream;
+    try {
+      stream = await navigator.mediaDevices.getDisplayMedia(captureOptions);
+    } catch (error) {
+      setIsRecording(false);
+      setErrorMessage(describeRecordingStartError(error));
+      return;
+    }
+
+    const format = MediaRecorder.isTypeSupported(MP4_RECORDING_FORMAT.mimeType)
+      ? MP4_RECORDING_FORMAT
+      : WEBM_RECORDING_FORMAT;
+    await apiClient.beginScreenRecording();
+    const activeRecording: ActiveRecording = {
+      mediaRecorder: new MediaRecorder(stream, { mimeType: format.mimeType }),
+      stream,
+      extension: format.extension,
+      uploads: Promise.resolve(),
+    };
+    activeRecording.mediaRecorder.addEventListener('dataavailable', (event) => {
+      activeRecording.uploads = activeRecording.uploads.then(async () =>
+        apiClient.appendScreenRecording({
+          data: new Uint8Array(await event.data.arrayBuffer()),
+        })
+      );
+    });
+    for (const track of stream.getVideoTracks()) {
+      track.addEventListener('ended', () => void stopRecording());
+    }
+    activeRecordingRef.current = activeRecording;
+    activeRecording.mediaRecorder.start(RECORDING_CHUNK_INTERVAL_MS);
+  }
+
+  useEffect(() => {
+    if (!isRecording) return;
+    function onKeyDown(event: KeyboardEvent): void {
+      const key = event.key.toLowerCase();
+      if (
+        (key === 'c' && event.ctrlKey && !event.metaKey) ||
+        (key === '.' && event.metaKey)
+      ) {
+        event.preventDefault();
+        event.stopPropagation();
+        void stopRecording();
+      }
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRecording]);
+
+  return (
+    <React.Fragment>
+      <RecordingButton
+        isRecording={isRecording}
+        onClick={isRecording ? stopRecording : startRecording}
+        aria-label={
+          isRecording ? 'Stop Screen Recording' : 'Start Screen Recording'
+        }
+      >
+        <FontAwesomeIcon icon={isRecording ? faStop : faVideo} size="2x" />
+      </RecordingButton>
+      {errorMessage && (
+        <ScreenshotModal
+          title="Screen Recording Failed"
+          onOverlayClick={dismissError}
+          content={<P>{errorMessage}</P>}
+          actions={
+            <Button autoFocus onPress={dismissError}>
+              Close
+            </Button>
+          }
+        />
+      )}
+      {fileNameToSave !== undefined && (
+        <SaveFileModal
+          title="Save Screen Recording"
+          description="The video will be saved to the Downloads folder as:"
+          fileName={fileNameToSave}
+          fileNameLabel="Screen Recording File Name"
+          cancelLabel="Discard"
+          onChangeFileName={setFileNameToSave}
+          onSave={async (fileName) => {
+            await saveMutation.mutateAsync({ fileName });
+            setFileNameToSave(undefined);
+          }}
+          onCancel={async () => {
+            setFileNameToSave(undefined);
+            await discardMutation.mutateAsync();
+          }}
+        />
+      )}
+    </React.Fragment>
+  );
+}
+
 const DOCK_SIDES: readonly DevDockSide[] = ['top', 'right', 'bottom', 'left'];
 
 /* When closed, the dock slides off-screen far enough to hide its shadow, and
@@ -1107,6 +1350,10 @@ const Container = styled.div<{ side: DevDockSide }>`
   transition: all 0.15s ease-out;
   &.closed {
     transition: all 0.15s ease-out;
+  }
+  &.hidden {
+    visibility: hidden;
+    transition: none;
   }
   ${(props) => CONTAINER_SIDE_STYLES[props.side]}
 `;
@@ -1316,9 +1563,10 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
   const getDockSideQuery = useQuery(['getDockSide'], () =>
     apiClient.getDockSide()
   );
+  const [isRecording, setIsRecording] = useState(false);
+  const isHidden = !isOpen && isRecording;
 
   function onKeyDown(event: KeyboardEvent): void {
-    // @coverage-defer
     if (event.key.toLowerCase() === 'd' && event.metaKey) {
       event.preventDefault();
       event.stopPropagation();
@@ -1360,7 +1608,7 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
     <Container
       aria-hidden={!enableAccessibleNav}
       ref={containerRef}
-      className={isOpen ? '' : 'closed'}
+      className={[isOpen ? '' : 'closed', isHidden ? 'hidden' : ''].join(' ')}
       side={side}
       // Don't flip the dev dock when using an RTL language
       dir="ltr"
@@ -1387,6 +1635,13 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
           <Column>
             <IconsGrid>
               <ScreenshotControls containerRef={containerRef} />
+              <ScreenRecordingControls
+                isRecording={isRecording}
+                setIsRecording={(newIsRecording) => {
+                  if (newIsRecording) setIsOpen(false);
+                  setIsRecording(newIsRecording);
+                }}
+              />
               {mockSpec.printerConfig &&
                 mockSpec.printerConfig !== 'fujitsu' && <PrinterMockControl />}
               {(mockSpec.hasBarcodeMock || mockSpec.hasPatInputMock) && (
@@ -1406,17 +1661,19 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
           {mockSpec.mockBatchScanner && <BatchScannerMockControl />}
         </Row>
       </Content>
-      <Handle
-        id="handle"
-        side={side}
-        aria-label="Toggle Dock"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <FontAwesomeIcon
-          icon={HANDLE_CARET_ICONS[side][isOpen ? 'open' : 'closed']}
-          size="lg"
-        />
-      </Handle>
+      {!isRecording && (
+        <Handle
+          id="handle"
+          side={side}
+          aria-label="Toggle Dock"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <FontAwesomeIcon
+            icon={HANDLE_CARET_ICONS[side][isOpen ? 'open' : 'closed']}
+            size="lg"
+          />
+        </Handle>
+      )}
     </Container>
   );
 }

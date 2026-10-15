@@ -16,3 +16,16 @@ project or workspace.
 In order to use the mock printer, you need to set
 `REACT_APP_VX_USE_MOCK_PRINTER=TRUE`. Prints are saved to the `dev-workspace`
 directory in `libs/fujitsu-thermal-printer` or `libs/printing`.
+
+## Screen Recording
+
+The video button records the app's own page with `getDisplayMedia` and
+`MediaRecorder` (mp4 if supported, otherwise webm), streaming it to the backend,
+then offers to save it to the Downloads folder. Native windows such as file
+dialogs are not captured.
+
+In kiosk-browser this requires a version that allows the page to record itself,
+run with `--allow-devtools`. In Chrome, pick the current tab when prompted.
+
+While recording, the dock is hidden. `Super+D` still toggles it, and `Ctrl+C` or
+`Super+.` stops the recording.

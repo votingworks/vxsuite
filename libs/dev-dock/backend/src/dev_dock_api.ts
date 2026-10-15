@@ -71,6 +71,7 @@ import {
 } from '@votingworks/image-utils';
 import { getPdfPageCount, pdfToImages } from '@votingworks/image-utils/pdf';
 import { execFile } from './utils.js';
+import { ScreenRecordingFile } from './screen_recording.js';
 import {
   findLatestVxHubElectionPackage,
   stageElectionPackageOnMockUsbDrive,
@@ -356,7 +357,8 @@ interface PdiScannerSheetQueueState {
 function buildApi(
   devDockDir: string,
   mockSpec: MockSpec,
-  hubExportDir: string
+  hubExportDir: string,
+  screenRecordingFile: ScreenRecordingFile
 ) {
   const printerHandler = getMockFilePrinterHandler();
   const usbDriveHandler = getMockUsbDriveHandler(MOCK_USB_DRIVE_DISK_NAME);
@@ -574,6 +576,27 @@ function buildApi(
     }): Promise<void> {
       const downloadsPath = join(homedir(), 'Downloads');
       await writeFile(join(downloadsPath, fileName), screenshot);
+    },
+
+    beginScreenRecording(): Promise<void> {
+      return screenRecordingFile.begin();
+    },
+
+    appendScreenRecording({ data }: { data: Uint8Array }): Promise<void> {
+      return screenRecordingFile.append(data);
+    },
+
+    async saveScreenRecording({
+      fileName,
+    }: {
+      fileName: string;
+    }): Promise<void> {
+      assert(basename(fileName) === fileName);
+      await screenRecordingFile.save(join(homedir(), 'Downloads', fileName));
+    },
+
+    discardScreenRecording(): Promise<void> {
+      return screenRecordingFile.discard();
     },
 
     getPrinterStatus(): PrinterStatus {
@@ -806,7 +829,8 @@ export function useDevDockRouter(
   mockSpec: MockSpec,
   // @coverage-exclude
   devDockDir: string = DEFAULT_DEV_DOCK_DIR,
-  hubExportDir: string = HUB_EXPORT_DIR
+  hubExportDir: string = HUB_EXPORT_DIR,
+  screenRecordingFile: ScreenRecordingFile = new ScreenRecordingFile()
 ): void {
   if (!isFeatureFlagEnabled(BooleanEnvironmentVariableName.ENABLE_DEV_DOCK)) {
     return;
@@ -824,7 +848,7 @@ export function useDevDockRouter(
     writeDevDockFileContents(devDockFilePath, {});
   }
 
-  const api = buildApi(devDockDir, mockSpec, hubExportDir);
+  const api = buildApi(devDockDir, mockSpec, hubExportDir, screenRecordingFile);
 
   // Set a default election if one is not already set
   // @coverage-defer
