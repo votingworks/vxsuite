@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import {
   LoadingAnimation,
   Main,
@@ -481,17 +480,14 @@ export function ReportingResultsConfirmationScreen(): JSX.Element | null {
   const certificate = queryParams.get('c');
 
   const {
-    mutate: processQrCodeReportMutate,
     data: reportResult,
     isLoading,
     error,
-  } = processQrCodeReport.useMutation();
-
-  useEffect(() => {
-    if (payload && signature && certificate) {
-      processQrCodeReportMutate({ payload, signature, certificate });
-    }
-  }, [payload, signature, certificate, processQrCodeReportMutate]);
+  } = processQrCodeReport.useQuery(
+    payload && signature && certificate
+      ? { payload, signature, certificate }
+      : undefined
+  );
 
   if (
     !payload ||
