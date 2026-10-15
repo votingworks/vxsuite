@@ -105,7 +105,8 @@ import {
   allBaseBallotProps,
   ballotTemplates,
   hmpbStringsCatalog,
-  layOutBallotsAndCreateElectionDefinition,
+  layOutBallots,
+  createElectionDefinition,
   renderAllBallotPdfsAndCreateElectionDefinition,
   generateBallotStyles,
   type ScratchDir,
@@ -228,12 +229,11 @@ vi.mock(import('@votingworks/hmpb'), async (importActual) => {
   const original = await importActual();
   return {
     ...original,
+    createElectionDefinition: vi.fn(original.createElectionDefinition),
     renderAllBallotPdfsAndCreateElectionDefinition: vi.fn(
       original.renderAllBallotPdfsAndCreateElectionDefinition
     ),
-    layOutBallotsAndCreateElectionDefinition: vi.fn(
-      original.layOutBallotsAndCreateElectionDefinition
-    ),
+    layOutBallots: vi.fn(original.layOutBallots),
   } as unknown as typeof original;
 });
 
@@ -4561,7 +4561,6 @@ test('Export test decks', async () => {
   for (const file of Object.values(zip.files)) {
     expect(await file.async('text')).toContain('%PDF');
   }
-  expect(layOutBallotsAndCreateElectionDefinition).toHaveBeenCalledTimes(1);
   const expectedBallotProps = ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precincts.map((precinctId) => ({
       election: expect.objectContaining({ id: electionId }),
@@ -4572,15 +4571,25 @@ test('Export test decks', async () => {
       compact: false,
     }))
   );
-  expect(layOutBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
+  expect(layOutBallots).toHaveBeenCalledExactlyOnceWith(
     expect.any(Object), // Renderer
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
-    { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
-    await apiClient.getSystemSettings({ electionId }),
     ANY_SCRATCH_DIR,
     expect.any(Function) // emitProgress callback
   );
+
+  const layoutRes = vi.mocked(layOutBallots).mock.settledResults[0];
+  assert(layoutRes?.type === 'fulfilled');
+
+  expect(createElectionDefinition).toHaveBeenCalledWith({
+    ballotPositions: layoutRes.value.ballotPositions,
+    baseElection: expect.objectContaining({ id: electionId }),
+    scratchDir: ANY_SCRATCH_DIR,
+    serializationOptions: { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    systemSettings: await apiClient.getSystemSettings({ electionId }),
+    template: ballotTemplates.VxDefaultBallot,
+  });
 
   await backendWaitFor(
     async () => {
@@ -4607,6 +4616,60 @@ test('Export test decks', async () => {
       })
     ).rejects.toThrow('auth:forbidden');
   });
+});
+
+test('split-file election: package export and test deck ballot hashes match', async () => {
+  const ctx = await setupApp({ organizations, jurisdictions, users });
+  ctx.auth0.setLoggedInUser(nonVxUser);
+
+  const fixtures = electionGridLayoutNewHampshireTestBallotFixtures;
+  const electionFileContents = fixtures.readElectionDefinition().electionData;
+
+  const electionId = (
+    await ctx.apiClient.loadElection({
+      newId: 'new-election-id',
+      jurisdictionId: nonVxJurisdiction.id,
+      upload: { format: 'vxf', electionFileContents },
+    })
+  ).unsafeUnwrap();
+
+  await ctx.apiClient.updateSystemSettings({
+    electionId,
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      splitElectionDefinition: true,
+    },
+  });
+
+  const { officialBallotsUrl } = await exportElectionPackage({
+    apiClient: ctx.apiClient,
+    electionId,
+    electionSerializationFormat: 'vxf',
+    fileStorageClient: ctx.fileStorageClient,
+    numAuditIdBallots: undefined,
+    shouldExportAudio: false,
+    shouldExportSampleBallots: false,
+    shouldExportTestBallots: false,
+    workspace: ctx.workspace,
+  });
+
+  const testDeckFileName = await exportTestDecks({
+    apiClient: ctx.apiClient,
+    electionId,
+    electionSerializationFormat: 'vxf',
+    fileStorageClient: ctx.fileStorageClient,
+    workspace: ctx.workspace,
+  });
+
+  function hashFromPath(filePath: string) {
+    const stem = path.basename(filePath, path.extname(filePath));
+    assert(stem.length > 0);
+    return stem.split('-').at(-1);
+  }
+
+  const officialHashPartial = hashFromPath(assertDefined(officialBallotsUrl));
+  const testDeckHashPartial = hashFromPath(testDeckFileName);
+  expect(testDeckHashPartial).toEqual(officialHashPartial);
 });
 
 test.each([

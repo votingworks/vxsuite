@@ -18,6 +18,8 @@ import {
   getBallotStyleGroupsForPrecinctOrSplit,
 } from '@votingworks/utils';
 import {
+  type BallotStyle,
+  type BallotStyleId,
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
   type Election,
@@ -25,6 +27,7 @@ import {
   hasSplits,
   LanguageCode,
   LATEST_SOFTWARE_VERSION,
+  type SheetPositions,
 } from '@votingworks/types';
 import { generateTestDeckBallots } from '@votingworks/test-decks';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
@@ -188,6 +191,7 @@ describe('createTestDeckTallyReports', () => {
     const { election } = electionDefinition;
 
     const reports = await createTestDeckTallyReports({
+      ballotPositions: makeBallotPositionsMap(election.ballotStyles),
       electionDefinition,
       generatedAtTime: new Date('2021-01-01T00:00:00.000'),
       includeSummaryBallots: false,
@@ -225,6 +229,7 @@ describe('createTestDeckTallyReports', () => {
     const { election } = electionDefinition;
 
     const reports = await createTestDeckTallyReports({
+      ballotPositions: makeBallotPositionsMap(election.ballotStyles),
       electionDefinition,
       generatedAtTime: new Date('2021-01-01T00:00:00.000'),
       includeSummaryBallots: true,
@@ -271,8 +276,10 @@ describe('createTestDeckTallyReports', () => {
       ...baseElectionDefinition,
       election: singlePrecinctElection,
     };
+    const { election } = singlePrecinctElectionDefinition;
 
     const reports = await createTestDeckTallyReports({
+      ballotPositions: makeBallotPositionsMap(election.ballotStyles),
       electionDefinition: singlePrecinctElectionDefinition,
       generatedAtTime: new Date('2021-01-01T00:00:00.000'),
       includeSummaryBallots: false,
@@ -288,4 +295,15 @@ describe('createTestDeckTallyReports', () => {
 
 function makeScratchDir(): ScratchDir {
   return { path: makeTemporaryDirectory() };
+}
+
+function makeBallotPositionsMap(ballotStyles: readonly BallotStyle[]) {
+  const map = new Map<BallotStyleId, readonly SheetPositions[]>();
+
+  for (const bs of ballotStyles) {
+    if (!bs.ballotPositions) continue;
+    map.set(bs.id, bs.ballotPositions);
+  }
+
+  return map;
 }

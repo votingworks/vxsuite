@@ -790,6 +790,7 @@ export function buildApi(ctx: AppContext) {
       const allCvrs = generateTestDeckCastVoteRecords(election, {
         includeSummaryBallots: false,
         includeBubbleBallots: true,
+        getBallotPositions: (style) => ballotMetaStore.getPositions(style.id),
       });
 
       const reportPrecinctIds: Array<PrecinctId | undefined> = (() => {

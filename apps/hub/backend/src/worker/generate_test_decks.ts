@@ -10,14 +10,15 @@ import {
 import { translateBallotStrings } from '@votingworks/backend';
 import {
   ballotTemplates,
+  createElectionDefinition,
   createPlaywrightRendererPool,
   type ElectionSerializationOptions,
   hmpbStringsCatalog,
-  layOutBallotsAndCreateElectionDefinition,
+  layOutBallots,
   type RendererPool,
   type ScratchDir,
 } from '@votingworks/hmpb';
-import { iter } from '@votingworks/basics';
+import { assert, assertDefined, iter } from '@votingworks/basics';
 import path from 'node:path';
 import z from 'zod/v4';
 import {
@@ -121,20 +122,30 @@ async function generate(
       props.ballotMode === 'test' && props.ballotType === BallotType.Precinct
   );
   const serializationOptions: ElectionSerializationOptions = {
+    compact: systemSettings.splitElectionDefinition,
     format: electionSerializationFormat,
     version: jurisdiction.softwareVersion,
   };
 
-  const { electionDefinition, layoutPaths } =
-    await layOutBallotsAndCreateElectionDefinition(
-      rendererPool,
-      ballotTemplates[ballotTemplateId],
-      testBallotProps,
-      serializationOptions,
-      systemSettings,
-      scratchDir,
-      emitProgress
-    );
+  const baseElection = assertDefined(testBallotProps[0]).election;
+  assert(testBallotProps.every((p) => p.election === baseElection));
+
+  const { ballotPositions, layoutPaths } = await layOutBallots(
+    rendererPool,
+    ballotTemplates[ballotTemplateId],
+    testBallotProps,
+    scratchDir,
+    emitProgress
+  );
+
+  const { electionDefinition } = await createElectionDefinition({
+    baseElection,
+    ballotPositions,
+    template: ballotTemplates[ballotTemplateId],
+    serializationOptions,
+    systemSettings,
+    scratchDir,
+  });
 
   const ballots = iter(testBallotProps)
     .zip(layoutPaths)
@@ -230,6 +241,7 @@ async function generate(
   }
 
   const tallyReports = await createTestDeckTallyReports({
+    ballotPositions,
     electionDefinition,
     includeSummaryBallots: shouldGenerateSummaryBallots,
   });
