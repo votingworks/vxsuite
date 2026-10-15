@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
 import type {
+  BallotStyle,
   Candidate,
   CandidateContest,
   Contest,
@@ -7,12 +8,15 @@ import type {
   PartyId,
   StraightPartyContest,
   Tabulation,
+  VotesDict,
 } from '@votingworks/types';
 import { assertDefined, find } from '@votingworks/basics';
 import { electionStraightPartyFixtures } from '@votingworks/fixtures';
 import {
+  applyStraightPartyVotes,
   deriveStraightPartyVotes,
   deriveStraightPartyVotesForContest,
+  deriveStraightPartyVotesFromOrderedCandidates,
   selectedStraightPartyId,
 } from './straight_party.js';
 
@@ -530,3 +534,107 @@ test.each<TestCase>([
     }
   }
 );
+
+function ballotStyleFor(
+  election: Election,
+  orderedCandidatesByContest?: BallotStyle['orderedCandidatesByContest']
+): BallotStyle {
+  return {
+    ...assertDefined(election.ballotStyles[0]),
+    districts: [districtId],
+    orderedCandidatesByContest,
+  };
+}
+
+test('applyStraightPartyVotes leaves votes alone without a straight party selection', () => {
+  const votes: VotesDict = { senator: [candidate('candidate-b', 'party-2')] };
+  expect(
+    applyStraightPartyVotes({
+      election: noStraightPartyElection,
+      ballotStyle: ballotStyleFor(noStraightPartyElection),
+      votes,
+    })
+  ).toEqual(votes);
+  expect(
+    applyStraightPartyVotes({
+      election: simpleVoteForOneElection,
+      ballotStyle: ballotStyleFor(simpleVoteForOneElection),
+      votes: { ...votes, 'straight-party': [] },
+    })
+  ).toEqual({ ...votes, 'straight-party': [] });
+});
+
+test('applyStraightPartyVotes fills in the straight party candidates as explicit votes', () => {
+  const election = buildElection([
+    ...simpleVoteForOneElection.contests,
+    ...nonpartisanElection.contests.filter((c) => c.id !== 'senator'),
+  ]);
+  const votes: VotesDict = {
+    'straight-party': ['party-1'],
+    senator: [candidate('candidate-b', 'party-2')],
+    measure: ['measure-yes'],
+  };
+  expect(
+    applyStraightPartyVotes({
+      election,
+      ballotStyle: ballotStyleFor(election),
+      votes,
+    })
+  ).toEqual({
+    'straight-party': ['party-1'],
+    senator: [candidate('candidate-b', 'party-2')],
+    representative: [candidate('candidate-f', 'party-1')],
+    measure: ['measure-yes'],
+  });
+});
+
+test('applyStraightPartyVotes picks the endorsing party option for a cross-endorsed candidate', () => {
+  const nonpartisan: Candidate = { id: 'candidate-n', name: 'candidate-n' };
+  const crossEndorsed: Candidate = {
+    id: 'candidate-x',
+    name: 'candidate-x',
+    partyIds: ['party-1', 'party-2'],
+  };
+  const election = buildElection([
+    straightPartyContest,
+    candidateContest('senator', 1, [nonpartisan, crossEndorsed]),
+  ]);
+  const ballotStyle = ballotStyleFor(election, {
+    senator: [
+      { id: 'candidate-n' },
+      { id: 'candidate-x', partyIds: ['party-1'] },
+      { id: 'candidate-x', partyIds: ['party-2'] },
+    ],
+  });
+  const contest = find(
+    election.contests,
+    (c): c is CandidateContest => c.id === 'senator'
+  );
+
+  expect(
+    deriveStraightPartyVotesFromOrderedCandidates({
+      contest,
+      vote: [],
+      ballotStyle,
+      selectedStraightPartyId: 'party-2',
+    })
+  ).toEqual([{ ...crossEndorsed, partyIds: ['party-2'] }]);
+  expect(
+    deriveStraightPartyVotesFromOrderedCandidates({
+      contest,
+      vote: [],
+      ballotStyle,
+    })
+  ).toEqual([]);
+
+  expect(
+    applyStraightPartyVotes({
+      election,
+      ballotStyle,
+      votes: { 'straight-party': ['party-2'] },
+    })
+  ).toEqual({
+    'straight-party': ['party-2'],
+    senator: [{ ...crossEndorsed, partyIds: ['party-2'] }],
+  });
+});

@@ -1,15 +1,22 @@
-import type {
-  Contest,
-  ContestOptionId,
-  Election,
-  PartyId,
-  StraightPartyVote,
-  Tabulation,
-  VotesDict,
+import {
+  type BallotStyle,
+  type Candidate,
+  type CandidateContest,
+  type CandidateVote,
+  type Contest,
+  type ContestOptionId,
+  type Election,
+  getContests,
+  getOrderedCandidatesForContestInBallotStyle,
+  type PartyId,
+  type StraightPartyVote,
+  type Tabulation,
+  type VotesDict,
 } from '@votingworks/types';
 import {
   assert,
   assertDefined,
+  find,
   mapObject,
   type Optional,
 } from '@votingworks/basics';
@@ -73,4 +80,74 @@ export function deriveStraightPartyVotesForContest(
   return remainingSeats >= unselectedStraightPartyCandidateIds.length
     ? unselectedStraightPartyCandidateIds
     : [];
+}
+
+/**
+ * Returns the candidate options with derived votes from a straight party
+ * selection. This matters for cross-endorsed candidates, which have multiple
+ * candidate options - one per endorsing party - so we need the candidate option
+ * that matches the selected party.
+ */
+export function deriveStraightPartyVotesFromOrderedCandidates({
+  contest,
+  vote,
+  ballotStyle,
+  selectedStraightPartyId: straightPartyId,
+}: {
+  contest: CandidateContest;
+  vote: CandidateVote;
+  ballotStyle: BallotStyle;
+  selectedStraightPartyId?: PartyId;
+}): Candidate[] {
+  const derivedVotes = deriveStraightPartyVotesForContest(
+    contest,
+    vote.map((candidate) => candidate.id),
+    straightPartyId
+  );
+  const orderedCandidates = getOrderedCandidatesForContestInBallotStyle({
+    contest,
+    ballotStyle,
+  });
+  return derivedVotes.map((candidateId) =>
+    find(
+      orderedCandidates,
+      (candidate) =>
+        candidate.id === candidateId &&
+        Boolean(candidate.partyIds?.includes(assertDefined(straightPartyId)))
+    )
+  );
+}
+
+/**
+ * Adds the candidate votes implied by a straight-party selection to the votes
+ * dict as explicit selections, so a BMD prints and encodes them the same way
+ * as selections the voter made directly.
+ */
+export function applyStraightPartyVotes({
+  election,
+  ballotStyle,
+  votes,
+}: {
+  election: Election;
+  ballotStyle: BallotStyle;
+  votes: VotesDict;
+}): VotesDict {
+  const straightPartyId = selectedStraightPartyId(election, votes);
+  if (!straightPartyId) return votes;
+
+  const appliedVotes: VotesDict = { ...votes };
+  for (const contest of getContests({ election, ballotStyle })) {
+    if (contest.type !== 'candidate') continue;
+    const vote = (votes[contest.id] ?? []) as CandidateVote;
+    const derivedVotes = deriveStraightPartyVotesFromOrderedCandidates({
+      contest,
+      vote,
+      ballotStyle,
+      selectedStraightPartyId: straightPartyId,
+    });
+    if (derivedVotes.length > 0) {
+      appliedVotes[contest.id] = [...vote, ...derivedVotes];
+    }
+  }
+  return appliedVotes;
 }

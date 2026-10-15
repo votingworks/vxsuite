@@ -1,7 +1,10 @@
 import { describe, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 
-import { electionGeneralFixtures } from '@votingworks/fixtures';
+import {
+  electionGeneralFixtures,
+  electionStraightPartyFixtures,
+} from '@votingworks/fixtures';
 import {
   generateMarkOverlay,
   NO_PRINT_CALIBRATION,
@@ -10,6 +13,7 @@ import {
 } from '@votingworks/hmpb';
 import {
   BallotType,
+  type CandidateContest,
   type ContestPosition,
   type ElectionDefinition,
   getContests,
@@ -35,7 +39,7 @@ import {
   filterVotesForContests,
 } from '@votingworks/ui';
 import type { BallotMetaStore, UiStringsStore } from '@votingworks/backend';
-import { assertDefined, ok } from '@votingworks/basics';
+import { assertDefined, find, ok } from '@votingworks/basics';
 import { mockConstructor } from '@votingworks/test-utils';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import type { Store } from '../store.js';
@@ -251,6 +255,99 @@ describe(`printMode === "summary"`, () => {
         },
       ],
     ]);
+  });
+
+  test('prints straight party selections as explicit candidate votes', async () => {
+    const electionDefinition =
+      electionStraightPartyFixtures.readElectionDefinition();
+    const { election } = electionDefinition;
+    const ballotStyle = find(election.ballotStyles, (bs) => bs.id === '5');
+    const precinctId = assertDefined(ballotStyle.precincts[0]);
+    const straightPartyId = '0';
+    function candidatesFor(contestId: string) {
+      return find(
+        election.contests,
+        (c): c is CandidateContest =>
+          c.type === 'candidate' && c.id === contestId
+      ).candidates;
+    }
+    function candidateFor(contestId: string) {
+      return find(candidatesFor(contestId), (c) =>
+        Boolean(c.partyIds?.includes(straightPartyId))
+      );
+    }
+    const otherPartyRepresentative = find(
+      candidatesFor('representative-district-6'),
+      (c) => !c.partyIds?.includes(straightPartyId)
+    );
+    const clientVotes: VotesDict = {
+      'straight-party-ticket': [straightPartyId],
+      'representative-district-6': [otherPartyRepresentative],
+    };
+    const expectedVotes = expect.objectContaining({
+      'straight-party-ticket': [straightPartyId],
+      'representative-district-6': [otherPartyRepresentative],
+      president: [candidateFor('president')],
+      'lieutenant-governor': [candidateFor('lieutenant-governor')],
+    });
+
+    const mockPdf = Uint8Array.of(0xca, 0xfe);
+    vi.mocked(renderToPdf).mockImplementation((spec) => {
+      expect(spec).toEqual<RenderSpec>({
+        document: (
+          <BackendLanguageContextProvider
+            currentLanguageCode="en"
+            uiStringsPackage={{}}
+          >
+            <BmdPaperBallot
+              electionDefinition={electionDefinition}
+              ballotStyleId={ballotStyle.id}
+              precinctId={precinctId}
+              votes={expectedVotes}
+              isLiveMode
+              machineType="mark"
+              pageNumber={1}
+              totalPages={1}
+              contestsForPage={getContests({ ballotStyle, election })}
+              encodedBallot={expect.any(Uint8Array)}
+            />
+          </BackendLanguageContextProvider>
+        ),
+      });
+      return Promise.resolve(ok(mockPdf));
+    });
+    vi.mocked(getPdfPageCount).mockResolvedValue(1);
+
+    const mockPrint = vi.fn<PrintFunction>();
+    await printBallot({
+      ballotStyleId: ballotStyle.id,
+      languageCode: 'en',
+      precinctId,
+      printer: mockPrinter({ print: mockPrint }),
+      store: mockStore({
+        getElectionRecord: () => ({
+          electionDefinition,
+          electionPackageHash: 'unused',
+        }),
+        getSystemSettings: () => {
+          const settings: Partial<SystemSettings> = {
+            bmdPrintMode: 'summary',
+          };
+          return settings as SystemSettings;
+        },
+        getTestMode: () => false,
+        getUiStringsStore: () =>
+          mockUiStringsStore({ getAllUiStrings: () => ({}) }),
+      }),
+      votes: clientVotes,
+    });
+
+    expect(renderToPdf).toHaveBeenCalledTimes(1);
+    expect(encodeSummaryBallotPage).toHaveBeenCalledWith(
+      election,
+      expect.objectContaining({ votes: expectedVotes })
+    );
+    expect(mockPrint).toHaveBeenCalledTimes(1);
   });
 
   test('prints multi-page summary ballot with correct page structure', async () => {

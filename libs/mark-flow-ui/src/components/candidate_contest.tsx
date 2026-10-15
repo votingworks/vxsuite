@@ -40,6 +40,7 @@ import {
   useIsPatDeviceConnected,
 } from '@votingworks/ui';
 import { assert, assertDefined, deepEqual } from '@votingworks/basics';
+import { deriveStraightPartyVotesFromOrderedCandidates } from '@votingworks/utils';
 
 import type { UpdateVoteFunction } from '../config/types.js';
 
@@ -48,10 +49,7 @@ import { ChoicesGrid } from './contest_screen_layout.js';
 import { ContestHeader } from './contest_header.js';
 import { CandidateName } from './candidate_name.js';
 import { WriteInCandidateName } from './write_in_candidate_name.js';
-import {
-  deriveStraightPartyVotesFromOrderedCandidates,
-  numVotesRemaining,
-} from '../utils/vote.js';
+import { numVotesRemaining } from '../utils/vote.js';
 import { CandidateInfoCaption } from './candidate_info_caption.js';
 
 export interface WriteInCharacterLimitAcrossContests {

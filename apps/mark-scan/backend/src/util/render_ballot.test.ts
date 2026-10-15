@@ -1,12 +1,14 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
+  electionStraightPartyFixtures,
   makeTemporaryDirectory,
   readElectionGeneralDefinition,
   systemSettings,
 } from '@votingworks/fixtures';
 import {
   anyPollingPlace,
+  type CandidateContest,
   pollingPlaceBallotStyles,
   safeParseSystemSettings,
   TEST_JURISDICTION,
@@ -18,7 +20,8 @@ import {
   NoLayoutOptionError,
   ORDERED_BMD_BALLOT_LAYOUTS,
 } from '@votingworks/ui';
-import { assert, err, ok } from '@votingworks/basics';
+import { assert, assertDefined, err, find, ok } from '@votingworks/basics';
+import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import { renderBallot } from './render_ballot.js';
 import { createWorkspace, type Workspace } from './workspace.js';
 
@@ -31,6 +34,14 @@ vi.mock(import('@votingworks/image-utils/pdf'), async (importActual) => ({
     throw new Error('Unexpected call to getPdfPageCount during this test');
   }),
 }));
+
+vi.mock(import('@votingworks/ballot-encoder'), async (importActual) => {
+  const actual = await importActual();
+  return {
+    ...actual,
+    encodeSummaryBallotPage: vi.fn(actual.encodeSummaryBallotPage),
+  };
+});
 
 vi.mock(import('@votingworks/ui'), async (importActual) => ({
   ...(await importActual()),
@@ -136,5 +147,52 @@ test('tries all layouts beginning with a slightly compacted layout and errors if
 
   expect(getLayout).toHaveBeenCalledTimes(
     ORDERED_BMD_BALLOT_LAYOUTS.markScan.length - 1
+  );
+});
+
+test('prints straight party selections as explicit candidate votes', async () => {
+  const electionDefinition =
+    electionStraightPartyFixtures.readElectionDefinition();
+  const { election } = electionDefinition;
+  workspace.store.setElectionAndJurisdiction({
+    electionData: electionDefinition.electionData,
+    jurisdiction: TEST_JURISDICTION,
+    electionPackageHash: 'test-election-package-hash',
+    ballotHash: electionDefinition.ballotHash,
+  });
+  const straightPartyBallotStyle = find(
+    election.ballotStyles,
+    (bs) => bs.id === '5'
+  );
+  const straightPartyId = '0';
+  const president = find(
+    election.contests,
+    (c): c is CandidateContest => c.id === 'president'
+  );
+  const presidentCandidate = find(president.candidates, (c) =>
+    Boolean(c.partyIds?.includes(straightPartyId))
+  );
+
+  vi.mocked(getLayout).mockReturnValue(
+    ok(assertDefined(ORDERED_BMD_BALLOT_LAYOUTS.markScan[0]))
+  );
+  vi.mocked(getPdfPageCount).mockResolvedValue(1);
+
+  await renderBallot({
+    store: workspace.store,
+    precinctId: assertDefined(straightPartyBallotStyle.precincts[0]),
+    ballotStyleId: straightPartyBallotStyle.id,
+    votes: { 'straight-party-ticket': [straightPartyId] },
+    languageCode: TestLanguageCode.ENGLISH,
+  });
+
+  expect(encodeSummaryBallotPage).toHaveBeenCalledWith(
+    election,
+    expect.objectContaining({
+      votes: expect.objectContaining({
+        'straight-party-ticket': [straightPartyId],
+        president: [presidentCandidate],
+      }),
+    })
   );
 });

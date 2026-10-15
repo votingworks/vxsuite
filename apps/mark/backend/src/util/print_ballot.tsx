@@ -26,6 +26,7 @@ import {
   type SheetPositions,
 } from '@votingworks/types';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
+import { applyStraightPartyVotes } from '@votingworks/utils';
 import {
   BmdPaperBallot,
   BackendLanguageContextProvider,
@@ -57,8 +58,23 @@ export interface PrintBallotProps extends ClientParams {
 
 type PrintBlankBallotProps = Omit<PrintBallotProps, 'votes' | 'languageCode'>;
 
-export async function printBallot(p: PrintBallotProps): Promise<PrintJobId> {
-  const { printer, store, precinctId, ballotStyleId, votes, languageCode } = p;
+export async function printBallot(
+  clientParams: PrintBallotProps
+): Promise<PrintJobId> {
+  const { printer, store, precinctId, ballotStyleId, languageCode } =
+    clientParams;
+
+  const { electionDefinition } = assertDefined(store.getElectionRecord());
+  const { election } = electionDefinition;
+  const ballotStyle = assertDefined(
+    getBallotStyle({ ballotStyleId, election })
+  );
+  const votes = applyStraightPartyVotes({
+    election,
+    ballotStyle,
+    votes: clientParams.votes,
+  });
+  const p: PrintBallotProps = { ...clientParams, votes };
 
   const systemSettings = assertDefined(store.getSystemSettings());
   const printMode = systemSettings.bmdPrintMode ?? 'summary';
@@ -74,14 +90,9 @@ export async function printBallot(p: PrintBallotProps): Promise<PrintJobId> {
       throwIllegalValue(printMode, 'bmdPrintMode');
   }
 
-  const { electionDefinition } = assertDefined(store.getElectionRecord());
-  const { election } = electionDefinition;
   const isLiveMode = !store.getTestMode();
   const uiStringsPackage = store.getUiStringsStore().getAllUiStrings();
 
-  const ballotStyle = assertDefined(
-    getBallotStyle({ ballotStyleId, election })
-  );
   const allContests = getContests({ ballotStyle, election });
   const ballotAuditId = uuid();
 
