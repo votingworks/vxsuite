@@ -104,6 +104,7 @@ beforeEach(() => {
 });
 
 test('adding a precinct', async () => {
+  idFactory.next(); // Discarded by StrictMode's double render of the blank form
   const newPrecinct: Precinct = {
     id: idFactory.next(),
     name: 'New Precinct',
@@ -673,6 +674,7 @@ test('error message for duplicate precinct name', async () => {
     election.precincts[0]!.name
   );
 
+  idFactory.next(); // Discarded by StrictMode's double render of the blank form
   apiMock.createPrecinct
     .expectCallWith({
       electionId,
@@ -735,6 +737,7 @@ test('error message for duplicate precinct split name', async () => {
   await userEvent.type(within(split1Card!).getByLabelText('Name'), 'Split 1');
   await userEvent.type(within(split2Card!).getByLabelText('Name'), 'Split 1');
 
+  idFactory.next(); // Discarded by StrictMode's double render of the blank form
   apiMock.createPrecinct
     .expectCallWith({
       electionId,
@@ -819,6 +822,7 @@ test('error message for splits with the same districts', async () => {
   await userEvent.type(within(split1Card!).getByLabelText('Name'), 'Split 1');
   await userEvent.type(within(split2Card!).getByLabelText('Name'), 'Split 2');
 
+  idFactory.next(); // Discarded by StrictMode's double render of the blank form
   apiMock.createPrecinct
     .expectCallWith({
       electionId,

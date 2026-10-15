@@ -3,7 +3,10 @@ import '@votingworks/test-utils/vitest-setup';
 import '@votingworks/fixtures/vitest-setup';
 
 import { TextEncoder } from 'node:util';
+import { configure } from '@testing-library/react';
 import { makeIdFactory } from './id_helpers.js';
+
+configure({ reactStrictMode: true });
 
 // Deterministic ID generation
 const idFactory = makeIdFactory();

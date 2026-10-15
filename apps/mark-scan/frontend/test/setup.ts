@@ -7,7 +7,7 @@ import { TextDecoder, TextEncoder } from 'node:util';
 import { cleanup, configure } from './react_testing_library.js';
 import '../src/polyfills.js';
 
-configure({ asyncUtilTimeout: 5_000 });
+configure({ asyncUtilTimeout: 5_000, reactStrictMode: true });
 
 beforeEach(() => {
   globalThis.print = vi.fn(() => {

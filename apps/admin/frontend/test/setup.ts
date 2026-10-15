@@ -8,7 +8,7 @@ import {
   setMockPdfNumPages,
 } from './react_pdf_mocks.js';
 
-configure({ asyncUtilTimeout: 5_000 });
+configure({ asyncUtilTimeout: 5_000, reactStrictMode: true });
 
 // Don't load the real react-pdf: importing it evaluates pdfjs-dist, which
 // requires browser APIs (e.g. DOMMatrix) that jsdom doesn't provide.

@@ -122,7 +122,7 @@ test('plays clips in order', async () => {
   act(() => deferredPlayClip2.resolve());
 
   // Verify handling of repeated audio (clip #2 -> clip #3):
-  await waitFor(() => expect(mockOfNewAudioPlayer).toHaveBeenCalledTimes(3));
+  await waitFor(() => expect(mockPlayer.play).toHaveBeenCalledTimes(3));
   expect(mockOfNewAudioPlayer).toHaveBeenLastCalledWith<[AudioPlayerParams]>({
     clip: { id: 'def', dataBase64: 'data-for-def', languageCode: SPANISH },
     output: mockGainNode,
@@ -133,8 +133,8 @@ test('plays clips in order', async () => {
     DEFAULT_PLAYBACK_RATE
   );
   expect(mockPlayer.play).toHaveBeenCalledTimes(3);
-  expect(mockOfNewAudioPlayer).toHaveBeenCalledTimes(3);
   expect(onDone).not.toHaveBeenCalled();
+  const numPlayersCreated = mockOfNewAudioPlayer.mock.calls.length;
 
   // Simulate end of the audio queue and expect a final `stop` call for cleanup:
   mockPlayer.play.mockReset();
@@ -145,7 +145,7 @@ test('plays clips in order', async () => {
   expect(onDone).toHaveBeenCalledTimes(1);
 
   // Expect no aditional player instantiations.
-  expect(mockOfNewAudioPlayer).toHaveBeenCalledTimes(3);
+  expect(mockOfNewAudioPlayer).toHaveBeenCalledTimes(numPlayersCreated);
 });
 
 test('works without an onDone prop value', async () => {
