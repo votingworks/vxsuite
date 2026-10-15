@@ -234,9 +234,6 @@ vi.mock(import('@votingworks/hmpb'), async (importActual) => {
       original.renderAllBallotPdfsAndCreateElectionDefinition
     ),
     layOutBallots: vi.fn(original.layOutBallots),
-    layOutBallotsAndCreateElectionDefinition: vi.fn(
-      original.layOutBallotsAndCreateElectionDefinition
-    ),
   } as unknown as typeof original;
 });
 
