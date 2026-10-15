@@ -1,6 +1,5 @@
 import type React from 'react';
 import styled from 'styled-components';
-import type { MachineConfig } from '@votingworks/admin-backend';
 import {
   AppLogo,
   BatteryStatus,
@@ -17,7 +16,7 @@ import {
 } from '@votingworks/ui';
 import { Header } from '../../components/navigation_screen.js';
 import { systemCallApi } from '../../shared_api.js';
-import { getAuthStatus, logOut } from '../api.js';
+import { getAuthStatus, getMachineConfig, logOut } from '../api.js';
 import { ScreenWithBanner } from './restore_mode_banner.js';
 
 const Body = styled.div`
@@ -26,16 +25,15 @@ const Body = styled.div`
 
 export function RestoreNavScreen({
   title,
-  machineConfig,
   children,
 }: {
   title: string;
-  machineConfig: MachineConfig;
   children: React.ReactNode;
 }): JSX.Element {
   const authStatusQuery = getAuthStatus.usePollingQuery();
   const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
   const logOutMutation = logOut.useMutation();
+  const machineConfigQuery = getMachineConfig.useQuery();
 
   return (
     <ScreenWithBanner>
@@ -45,8 +43,8 @@ export function RestoreNavScreen({
           <div style={{ marginTop: 'auto' }}>
             <VerticalElectionInfoBar
               mode="admin"
-              codeVersion={machineConfig.codeVersion}
-              machineId={machineConfig.machineId}
+              codeVersion={machineConfigQuery.data?.codeVersion}
+              machineId={machineConfigQuery.data?.machineId}
               inverse
             />
           </div>
