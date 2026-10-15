@@ -195,6 +195,8 @@ export function buildApi(
       const { electionDefinition, systemSettings } = electionPackage;
       assert(systemSettings);
 
+      const { election } = electionDefinition;
+
       // [TODO] Cancel the transaction if the user logs out while configuring,
       // since large packages can take a while to import.
       await workspace.store.withTransaction(async () => {
@@ -219,12 +221,16 @@ export function buildApi(
           store: workspace.store.getUiStringsStore(),
         });
 
-        await withElectionPackageZip(filePath, (zip) =>
-          configureUiStringAudioClipsStreaming({
+        await withElectionPackageZip(filePath, async (zip) => {
+          await store
+            .getBallotMetaStore()
+            .importCandidateOrderings(zip, election, systemSettings);
+
+          await configureUiStringAudioClipsStreaming({
             zip,
             store: workspace.store.getUiStringsStore(),
-          })
-        );
+          });
+        });
       });
 
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {

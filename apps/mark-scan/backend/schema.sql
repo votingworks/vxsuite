@@ -13,6 +13,12 @@ create table election (
   created_at text not null default current_timestamp
 ) strict;
 
+create table candidate_orderings (
+  style_id text primary key,
+  orderings text not null -- JSON string of CandidateOrderings
+) strict;
+
+
 create table system_settings (
   -- enforce singleton table
   id integer primary key check (id = 1),

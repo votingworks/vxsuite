@@ -3,6 +3,7 @@
 //
 
 import {
+  BallotMetaStore,
   type UiStringsStore,
   addDiagnosticRecord,
   createUiStringStore,
@@ -46,10 +47,12 @@ export type ElectricalTestingComponent = 'card' | 'paperHandler' | 'usbDrive';
  */
 export class Store {
   private readonly client: DbClient;
+  private readonly ballotMetaStore: BallotMetaStore;
   private readonly uiStringsStore: UiStringsStore;
 
   private constructor(client: DbClient, uiStringsStore: UiStringsStore) {
     this.client = client;
+    this.ballotMetaStore = new BallotMetaStore(this.client);
     this.uiStringsStore = uiStringsStore;
   }
 
@@ -92,6 +95,10 @@ export class Store {
    */
   reset(): void {
     this.client.reset();
+  }
+
+  getBallotMetaStore(): BallotMetaStore {
+    return this.ballotMetaStore;
   }
 
   /**
