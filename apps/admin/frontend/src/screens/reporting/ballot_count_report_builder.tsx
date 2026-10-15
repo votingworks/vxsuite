@@ -1,11 +1,7 @@
 import { P } from '@votingworks/ui';
 import { useContext, useState } from 'react';
 import { assert } from '@votingworks/basics';
-import {
-  getMaxSheetsPerBallot,
-  isElectionManagerAuth,
-  isGroupByEmpty,
-} from '@votingworks/utils';
+import { isElectionManagerAuth, isGroupByEmpty } from '@votingworks/utils';
 import type { Admin, Tabulation } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context.js';
 import { NavigationScreen } from '../../components/navigation_screen.js';
@@ -78,7 +74,11 @@ export function BallotCountReportBuilder(): JSX.Element {
     allowedFilters.push('party');
     allowedGroupBys.push('groupByParty');
   }
-  const maxSheetsPerBallot = getMaxSheetsPerBallot(election);
+
+  // [TODO] Fetch from server.
+  const maxSheetsPerBallot = Math.max(
+    ...election.ballotStyles.map((b) => b.ballotPositions?.length ?? 0)
+  );
   if (maxSheetsPerBallot && maxSheetsPerBallot > 1) {
     allowedGroupBys.push('includeSheetCounts');
   }

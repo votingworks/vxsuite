@@ -60,6 +60,8 @@ function buildBallotCountReport({
         displayedFilter: filter,
       };
 
+  const { ballotStyles } = electionDefinition.election;
+
   return BallotCountReport({
     title,
     isOfficial: isOfficialResults,
@@ -72,6 +74,10 @@ function buildBallotCountReport({
     groupBy,
     includeSheetCounts,
     cardCountsList: allCardCounts,
+    // [TODO] Fetch from DB.
+    maxSheetsPerBallot: Math.max(
+      ...ballotStyles.map((b) => b.ballotPositions?.length ?? 0)
+    ),
   });
 }
 

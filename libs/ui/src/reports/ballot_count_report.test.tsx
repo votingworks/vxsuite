@@ -150,6 +150,7 @@ test('can render all attribute columns', () => {
         groupByScanner: true,
         groupByBatch: true,
       }}
+      maxSheetsPerBallot={1}
       cardCountsList={maximalAttributeCardCountsList}
     />
   );
@@ -213,6 +214,7 @@ test('can render all attribute columns', () => {
         groupByVotingMethod: true,
         groupByBatch: true,
       }}
+      maxSheetsPerBallot={1}
       cardCountsList={maximalAttributeCardCountsList.map((cardCounts) => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { scannerId, partyId, ...rest } = cardCounts;
@@ -258,6 +260,7 @@ test('shows manual counts', () => {
         groupByPrecinct: true,
         groupByParty: true,
       }}
+      maxSheetsPerBallot={1}
       cardCountsList={primaryPrecinctCardCountsList}
     />
   );
@@ -328,6 +331,7 @@ test('shows HMPB sheet counts', () => {
       }}
       cardCountsList={votingMethodCardCountsList}
       includeSheetCounts
+      maxSheetsPerBallot={3}
     />
   );
 
@@ -397,6 +401,7 @@ test('shows separate manual rows when group by is not compatible with manual res
       groupBy={{
         groupByBatch: true,
       }}
+      maxSheetsPerBallot={1}
       cardCountsList={batchCardCountsList}
     />
   );
@@ -461,6 +466,7 @@ test('shows batch date groups including manual tallies sentinel', () => {
       electionPackageHash="test-election-package-hash"
       scannerBatches={mockScannerBatches}
       groupBy={{ groupByBatchDate: true }}
+      maxSheetsPerBallot={1}
       cardCountsList={batchDateCardCountsList}
     />
   );
@@ -514,6 +520,7 @@ test('ungrouped case', () => {
       electionPackageHash="test-election-package-hash"
       scannerBatches={mockScannerBatches}
       groupBy={{}}
+      maxSheetsPerBallot={1}
       cardCountsList={[cardCounts]}
     />
   );
@@ -535,6 +542,7 @@ test('election info, metadata, and custom filters', () => {
       electionPackageHash="test-election-package-hash"
       scannerBatches={mockScannerBatches}
       groupBy={{}}
+      maxSheetsPerBallot={1}
       cardCountsList={[]}
       customFilter={{
         precinctIds: ['precinct-1'],
@@ -573,6 +581,7 @@ test('"test" mode banner', () => {
       electionPackageHash="test-election-package-hash"
       scannerBatches={mockScannerBatches}
       groupBy={{}}
+      maxSheetsPerBallot={1}
       cardCountsList={[]}
     />
   );
@@ -606,6 +615,7 @@ test('titles', () => {
         electionPackageHash="test-election-package-hash"
         scannerBatches={mockScannerBatches}
         groupBy={{}}
+        maxSheetsPerBallot={1}
         cardCountsList={[]}
         customFilter={{
           precinctIds: ['precinct-1'],
@@ -642,6 +652,7 @@ test('shows reporting status groups', () => {
       electionPackageHash="test-election-package-hash"
       scannerBatches={mockScannerBatches}
       groupBy={{ groupByReportingStatus: true }}
+      maxSheetsPerBallot={1}
       cardCountsList={reportingStatusCardCountsList}
     />
   );

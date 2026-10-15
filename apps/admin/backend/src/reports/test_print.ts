@@ -85,6 +85,7 @@ export async function printTestPage({
       groupByPrecinct: true,
     },
     cardCountsList: allMockCardCounts,
+    maxSheetsPerBallot: 1,
   });
 
   try {

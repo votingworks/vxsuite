@@ -12,7 +12,6 @@ import {
   determinePartyId,
   format,
   getBallotCount,
-  getMaxSheetsPerBallot,
   getGroupKey,
   CachedElectionLookups,
   isGroupByEmpty,
@@ -446,12 +445,14 @@ function BallotCountTable({
   cardCountsList,
   groupBy,
   includeSheetCounts,
+  maxSheetsPerBallot,
 }: {
   electionDefinition: ElectionDefinition;
   scannerBatches: LabeledScannerBatch[];
   cardCountsList: Tabulation.GroupList<Tabulation.CardCounts>;
   groupBy: Tabulation.GroupBy;
   includeSheetCounts: boolean;
+  maxSheetsPerBallot: number;
 }): JSX.Element {
   const { election } = electionDefinition;
 
@@ -500,7 +501,7 @@ function BallotCountTable({
   // election. it's the caller's responsibility to check the election definition
   if (includeSheetCounts) {
     // @coverage-exclude: trivial default value
-    const sheetCount = getMaxSheetsPerBallot(election) ?? 1;
+    const sheetCount = maxSheetsPerBallot || 1;
     for (let i = 0; i < sheetCount; i += 1) {
       columns.push({ type: 'sheet-count', id: i });
     }
@@ -624,6 +625,7 @@ export interface BallotCountReportProps {
   includeSheetCounts?: boolean;
   customFilter?: Admin.FrontendReportingFilter;
   generatedAtTime?: Date;
+  maxSheetsPerBallot: number;
 }
 
 export function BallotCountReport({
@@ -639,6 +641,7 @@ export function BallotCountReport({
   includeSheetCounts,
   customFilter,
   generatedAtTime = new Date(),
+  maxSheetsPerBallot,
 }: BallotCountReportProps): JSX.Element {
   const { election } = electionDefinition;
 
@@ -669,6 +672,7 @@ export function BallotCountReport({
           cardCountsList={cardCountsList}
           groupBy={groupBy}
           includeSheetCounts={includeSheetCounts ?? false}
+          maxSheetsPerBallot={maxSheetsPerBallot}
         />
       </PrintedReport>
     </ThemeProvider>
