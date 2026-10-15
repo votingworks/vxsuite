@@ -485,7 +485,7 @@ interface ScreenshotToSaveProps {
   fileName: string;
 }
 
-const ScreenshotModal = styled(Modal)`
+const DevDockModal = styled(Modal)`
   background-color: ${Colors.BACKGROUND};
   border-color: ${Colors.BORDER} !important;
   color: ${Colors.TEXT} !important;
@@ -555,7 +555,7 @@ function ScreenshotControls({
         <FontAwesomeIcon icon={faCamera} size="2x" />
       </ScreenshotButton>
       {screenshotToSave && (
-        <ScreenshotModal
+        <DevDockModal
           title="Save Screenshot"
           onOverlayClick={() => setScreenshotToSave(undefined)}
           content={
@@ -819,6 +819,93 @@ function HardwareMockControls() {
           </UsbMocksDisabledMessage>
         )}
       </IconButton>
+    </React.Fragment>
+  );
+}
+
+const BarcodeContentsInput = styled.input`
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid ${Colors.BORDER};
+  color: ${Colors.TEXT};
+`;
+
+function BarcodeScanMockControl() {
+  const apiClient = useApiClient();
+  const emitBarcodeScanMutation = useMutation(apiClient.emitBarcodeScan);
+  const [isOpen, setIsOpen] = useState(false);
+  const [payload, setPayload] = useState('{"ballotStyleId":""}');
+  const isBarcodeMockEnabled = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER
+  );
+
+  async function onScan() {
+    await emitBarcodeScanMutation.mutateAsync({ payload });
+    setIsOpen(false);
+  }
+
+  return (
+    <React.Fragment>
+      <IconButton
+        isActive={false}
+        disabled={!isBarcodeMockEnabled}
+        onClick={() => setIsOpen(true)}
+        aria-label="Barcode Scan"
+      >
+        <FontAwesomeIcon icon={faQrcode} size="2xl" />
+        <span>Scan</span>
+        {!isBarcodeMockEnabled && (
+          <UsbMocksDisabledMessage>
+            <p>Hardware mock disabled</p>
+          </UsbMocksDisabledMessage>
+        )}
+      </IconButton>
+      {isOpen && (
+        <DevDockModal
+          title="Barcode Scan"
+          onOverlayClick={() => setIsOpen(false)}
+          content={
+            <React.Fragment>
+              <P>Barcode contents:</P>
+              <BarcodeContentsInput
+                type="text"
+                value={payload}
+                aria-label="Barcode Contents"
+                onChange={(e) => setPayload(e.target.value)}
+                onKeyDown={(e) => {
+                  // Prevent keyDown event from triggering PAT "1" and "2" signals
+                  e.stopPropagation();
+                }}
+                autoComplete="off"
+              />
+            </React.Fragment>
+          }
+          actions={
+            <React.Fragment>
+              <Button
+                autoFocus
+                onPress={onScan}
+                style={{
+                  backgroundColor: Colors.ACTIVE,
+                  color: Colors.BACKGROUND,
+                }}
+              >
+                Scan
+              </Button>
+              <Button
+                onPress={() => setIsOpen(false)}
+                style={{
+                  backgroundColor: 'white',
+                }}
+              >
+                Cancel
+              </Button>
+            </React.Fragment>
+          }
+        />
+      )}
     </React.Fragment>
   );
 }
@@ -1392,6 +1479,7 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
               {(mockSpec.hasBarcodeMock || mockSpec.hasPatInputMock) && (
                 <HardwareMockControls />
               )}
+              {mockSpec.hasBarcodeScanMock && <BarcodeScanMockControl />}
               {mockSpec.hasQuickConfigure && isQuickConfigureEnabled && (
                 <QuickConfigureButton />
               )}

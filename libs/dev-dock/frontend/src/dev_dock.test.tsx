@@ -16,7 +16,7 @@ import {
   waitFor,
   within,
 } from '@testing-library/react';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, deferred } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
 import {
   createMockClient,
@@ -558,6 +558,74 @@ test('hardware mock controls: toggle barcode, PAT input, and accessible controll
   });
   userEvent.click(accessibleButton);
   await waitFor(() => mockApiClient.assertComplete());
+});
+
+test('barcode scan mock control', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER
+  );
+  mockApiClient.getMockSpec.reset();
+  mockApiClient.getMockSpec
+    .expectCallWith()
+    .resolves({ hasBarcodeScanMock: true });
+
+  renderDock(mockApiClient);
+  const scanButton = await screen.findByRole('button', {
+    name: 'Barcode Scan',
+  });
+
+  userEvent.click(scanButton);
+  await screen.findByRole('alertdialog');
+  expect(screen.getByRole('textbox', { name: 'Barcode Contents' })).toHaveValue(
+    '{"ballotStyleId":""}'
+  );
+  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+
+  userEvent.click(scanButton);
+  await screen.findByRole('alertdialog');
+  userEvent.keyboard('{Escape}');
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+
+  userEvent.click(scanButton);
+  await screen.findByRole('alertdialog');
+  const input = screen.getByRole('textbox', { name: 'Barcode Contents' });
+  userEvent.clear(input);
+  userEvent.type(input, 'test-barcode');
+  const emitBarcodeScanDeferred = deferred<void>();
+  mockApiClient.emitBarcodeScan
+    .expectCallWith({ payload: 'test-barcode' })
+    .returns(emitBarcodeScanDeferred.promise);
+  userEvent.click(screen.getByRole('button', { name: 'Scan' }));
+  await waitFor(() => mockApiClient.assertComplete());
+  screen.getByRole('alertdialog');
+
+  emitBarcodeScanDeferred.resolve();
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+  await waitFor(() => mockApiClient.assertComplete());
+});
+
+test('barcode scan mock control disabled when feature flag disabled', async () => {
+  featureFlagMock.disableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_BARCODE_READER
+  );
+  mockApiClient.getMockSpec.reset();
+  mockApiClient.getMockSpec
+    .expectCallWith()
+    .resolves({ hasBarcodeScanMock: true });
+
+  renderDock(mockApiClient);
+
+  expect(
+    await screen.findByRole('button', { name: 'Barcode Scan' })
+  ).toBeDisabled();
+  screen.getByText('Hardware mock disabled');
 });
 
 test('hardware mock controls disabled when feature flags disabled', async () => {

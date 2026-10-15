@@ -18,7 +18,6 @@ export class MockBarcodeClient
     return this.connected;
   }
 
-  // For future: allow emitting scan data when UI selects an image or payload
   emitScan(data: Uint8Array): void {
     this.emit('scan', data);
   }
