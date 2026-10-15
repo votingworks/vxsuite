@@ -79,7 +79,7 @@ function buildRestoreApi({
   logger: Logger;
   multiUsbDrive: MultiUsbDrive;
 }) {
-  const usbDriveAdapter = createUsbDriveAdapter(multiUsbDrive, (drives) =>
+  const backupDriveAdapter = createUsbDriveAdapter(multiUsbDrive, (drives) =>
     findDriveByPurpose(drives, 'backup')
   );
 
@@ -89,7 +89,7 @@ function buildRestoreApi({
   async function listAvailableBackups(): Promise<
     Result<AvailableBackup[], ListAvailableBackupsError>
   > {
-    const usbDriveStatus = await usbDriveAdapter.status();
+    const usbDriveStatus = await backupDriveAdapter.status();
     if (usbDriveStatus.status !== 'mounted') {
       return err({
         type: 'no-usb-drive',
@@ -140,8 +140,8 @@ function buildRestoreApi({
       );
     },
 
-    getUsbDriveStatus(): Promise<UsbDriveStatus> {
-      return usbDriveAdapter.status();
+    getBackupDriveStatus(): Promise<UsbDriveStatus> {
+      return backupDriveAdapter.status();
     },
 
     listAvailableBackups,
@@ -200,7 +200,7 @@ function buildRestoreApi({
     },
 
     ...createSystemCallApi({
-      usbDrive: usbDriveAdapter,
+      usbDrive: backupDriveAdapter,
       logger,
       machineId: getMachineConfig().machineId,
       codeVersion: getMachineConfig().codeVersion,

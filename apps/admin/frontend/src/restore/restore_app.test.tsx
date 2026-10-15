@@ -6,6 +6,7 @@ import {
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { DEV_MACHINE_ID, type DippedSmartCardAuth } from '@votingworks/types';
+import { DEFAULT_QUERY_REFETCH_INTERVAL } from '../utils/globals.js';
 import {
   render,
   screen,
@@ -99,6 +100,7 @@ test('walks through the card reader, PIN, and remove-card states', async () => {
 
 test('shows the restore screen to a system administrator', async () => {
   apiMock.setAuthStatus(SYSTEM_ADMINISTRATOR_AUTH);
+  apiMock.setBackupDriveStatus('no_drive');
   renderRestoreApp();
 
   await screen.findByRole('heading', { name: 'Restore from Backup' });
@@ -107,8 +109,27 @@ test('shows the restore screen to a system administrator', async () => {
   screen.getButton('Exit Restore Mode');
 });
 
+test('asks for a backup USB drive until one is inserted', async () => {
+  apiMock.setAuthStatus(SYSTEM_ADMINISTRATOR_AUTH);
+  apiMock.setBackupDriveStatus('no_drive');
+  renderRestoreApp();
+
+  await screen.findByText('Insert a backup USB drive');
+
+  apiMock.setBackupDriveStatus('mounted');
+  vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
+  await waitFor(() =>
+    expect(screen.queryByText('Insert a backup USB drive')).toBeNull()
+  );
+
+  apiMock.setBackupDriveStatus('no_drive');
+  vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
+  await screen.findByText('Insert a backup USB drive');
+});
+
 test('locks the machine on request', async () => {
   apiMock.setAuthStatus(SYSTEM_ADMINISTRATOR_AUTH);
+  apiMock.setBackupDriveStatus('no_drive');
   apiMock.apiClient.logOut.expectCallWith().resolves();
   renderRestoreApp();
 

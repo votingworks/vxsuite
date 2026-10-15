@@ -15,6 +15,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
+import { DEFAULT_QUERY_REFETCH_INTERVAL } from '../utils/globals.js';
 
 export type ApiClient = grout.Client<RestoreApi>;
 
@@ -108,5 +109,19 @@ export const updateSessionExpiry = {
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
       },
     });
+  },
+} as const;
+
+export const getBackupDriveStatus = {
+  queryKey(): QueryKey {
+    return ['getBackupDriveStatus'];
+  },
+  usePollingQuery() {
+    const apiClient = useApiClient();
+    return usePollingQuery(
+      this.queryKey(),
+      () => apiClient.getBackupDriveStatus(),
+      DEFAULT_QUERY_REFETCH_INTERVAL
+    );
   },
 } as const;
