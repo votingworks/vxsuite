@@ -256,7 +256,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
     await waitFor(() => {
       screen.getByRole('heading', { name: 'Error Sending Report' });
       screen.getByText(
-        'Wrong election. Confirm VxScan and VxDesign are configured with the same election package.'
+        'Wrong election. Confirm VxScan and VxHub are configured with the same election package.'
       );
     });
   });
@@ -317,7 +317,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
 
     await waitFor(() => {
       screen.getByRole('heading', { name: 'Polls Opened Report Sent' });
-      screen.getByText('The polls opened report has been sent to VxDesign.');
+      screen.getByText('The polls opened report has been sent to VxHub.');
     });
 
     screen.getByText('VxScan-001');
@@ -367,7 +367,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
 
     await waitFor(() => {
       screen.getByRole('heading', { name: 'Voting Paused Report Sent' });
-      screen.getByText('The voting paused report has been sent to VxDesign.');
+      screen.getByText('The voting paused report has been sent to VxHub.');
     });
 
     screen.getByText('VxScan-001');
@@ -417,7 +417,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
 
     await waitFor(() => {
       screen.getByRole('heading', { name: 'Voting Resumed Report Sent' });
-      screen.getByText('The voting resumed report has been sent to VxDesign.');
+      screen.getByText('The voting resumed report has been sent to VxHub.');
     });
 
     screen.getByText('VxScan-001');
@@ -476,7 +476,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
 
     await waitFor(() => {
       screen.getByRole('heading', { name: 'Tally Report Sent' });
-      screen.getByText('The tally report has been sent to VxDesign.');
+      screen.getByText('The tally report has been sent to VxHub.');
     });
 
     screen.getByText('Absentee');
@@ -527,7 +527,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
 
     await waitFor(() => {
       screen.getByRole('heading', { name: 'Polls Closed Report Sent' });
-      screen.getByText('The polls closed report has been sent to VxDesign.');
+      screen.getByText('The polls closed report has been sent to VxHub.');
     });
 
     screen.getByText('VxScan-001');
@@ -587,7 +587,7 @@ describe('ReportingResultsConfirmationScreen with proper parameters', () => {
 
     await waitFor(() => {
       screen.getByRole('heading', { name: 'Polls Closed Report Sent' });
-      screen.getByText('The polls closed report has been sent to VxDesign.');
+      screen.getByText('The polls closed report has been sent to VxHub.');
     });
 
     screen.getByText('VxScan-002');
