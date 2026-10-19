@@ -19,6 +19,7 @@ import { BackupRoot, type ListBackupsError } from './backup/backup_root.js';
 import type { RestoreProgressEvent } from './backup/progress.js';
 import { restoreBackup } from './backup/restore/index.js';
 import type { RestoreError } from './backup/restore/types.js';
+import type { ReadManifestResult } from './backup/backup.js';
 
 /**
  * What restore mode presents to auth in place of a store: no election, so the
@@ -41,14 +42,8 @@ export const RESTORE_MODE_STORE: BaseStore = {
 export interface AvailableBackup {
   name: string;
   path: string;
+  manifestResult: ReadManifestResult;
 }
-
-/**
- * Why the backups on the inserted USB drive could not be listed.
- */
-export type ListAvailableBackupsError =
-  | ListBackupsError
-  | { type: 'no-usb-drive'; message: string };
 
 /**
  * Where the restore stands. Progress arrives through this rather than through
@@ -87,27 +82,21 @@ function buildRestoreApi({
   let abortController: AbortController | undefined;
 
   async function listAvailableBackups(): Promise<
-    Result<AvailableBackup[], ListAvailableBackupsError>
+    Result<AvailableBackup[], ListBackupsError>
   > {
     const usbDriveStatus = await backupDriveAdapter.status();
-    if (usbDriveStatus.status !== 'mounted') {
-      return err({
-        type: 'no-usb-drive',
-        message: 'No USB drive is inserted',
-      });
-    }
-
-    const listResult = await new BackupRoot(
-      usbDriveStatus.mountpoint
-    ).listBackups();
-    if (listResult.isErr()) {
-      return listResult;
-    }
-
+    if (usbDriveStatus.status !== 'mounted') return ok([]);
+    const backupRoot = new BackupRoot(usbDriveStatus.mountpoint);
+    const backups = await backupRoot.listBackups();
+    if (backups.isErr()) return backups;
     return ok(
-      listResult
-        .ok()
-        .map((backup) => ({ name: basename(backup.path), path: backup.path }))
+      await Promise.all(
+        backups.ok().map(async (backup) => ({
+          name: basename(backup.path),
+          path: backup.path,
+          manifestResult: await backup.readManifest(),
+        }))
+      )
     );
   }
 

@@ -1,8 +1,8 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
-import { existsSync } from 'node:fs';
+import { existsSync, mkdirSync } from 'node:fs';
 import type { AddressInfo } from 'node:net';
-import { basename, dirname, join } from 'node:path';
+import { dirname, join } from 'node:path';
 import {
   buildMockDippedSmartCardAuth,
   DEV_JURISDICTION,
@@ -117,9 +117,12 @@ async function insertBackupDrive(
     'ext4'
   );
   const listed = (await apiClient.listAvailableBackups()).unsafeUnwrap();
-  expect(listed).toEqual([
-    { name: basename(backup.path), path: expect.any(String) },
-  ]);
+  expect(listed).toHaveLength(1);
+  expect(listed[0]!.manifestResult.unsafeUnwrap()).toMatchObject({
+    version: 1,
+    machineId: DEV_MACHINE_ID,
+    cvrCount: 1,
+  });
   return listed[0]!.path;
 }
 
@@ -164,15 +167,12 @@ test('has no backups to offer without a USB drive', async () => {
   expect(await apiClient.getBackupDriveStatus()).toEqual({
     status: 'no_drive',
   });
-  expect((await apiClient.listAvailableBackups()).err()).toEqual({
-    type: 'no-usb-drive',
-    message: 'No USB drive is inserted',
-  });
+  expect((await apiClient.listAvailableBackups()).unsafeUnwrap()).toEqual([]);
   expect(
     (await apiClient.restoreBackup({ backupPath: '/nowhere' })).err()
   ).toMatchObject({
     type: 'backup-read-failed',
-    message: 'No USB drive is inserted',
+    message: '/nowhere is not a backup on the inserted USB drive',
   });
 });
 
@@ -279,4 +279,24 @@ test('passes on a drive whose backups directory is something else', async () => 
     type: 'backup-read-failed',
     message: expect.stringContaining('is not a directory'),
   });
+});
+
+test('lists a backup whose manifest cannot be read alongside the rest', async () => {
+  const { apiClient } = env;
+  const backupPath = await insertBackupDrive(await makeBackup(), env);
+  const unreadablePath = join(dirname(backupPath), 'unreadable');
+  mkdirSync(unreadablePath);
+
+  const listed = (await apiClient.listAvailableBackups()).unsafeUnwrap();
+  expect(listed.map((backup) => backup.path).sort()).toEqual(
+    [backupPath, unreadablePath].sort()
+  );
+  expect(
+    listed.find((backup) => backup.path === backupPath)?.manifestResult.isOk()
+  ).toEqual(true);
+  expect(
+    listed
+      .find((backup) => backup.path === unreadablePath)
+      ?.manifestResult.err()
+  ).toMatchObject({ type: 'read-failed' });
 });

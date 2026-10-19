@@ -14,7 +14,6 @@ export type { BackupProgressEvent } from './backup/progress.js';
 export type { ClientApi } from './client_app.js';
 export type {
   AvailableBackup,
-  ListAvailableBackupsError,
   RestoreApi,
   RestoreModeError,
   RestoreStatus,
