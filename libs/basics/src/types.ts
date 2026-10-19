@@ -12,3 +12,6 @@ export type Optional<T> = T | undefined;
  * Gets the possible values of an `as const`-style enumeration.
  */
 export type EnumValues<T> = T[keyof T];
+
+/** Recursively removes `readonly` from all properties. */
+export type DeepMutable<T> = { -readonly [K in keyof T]: DeepMutable<T[K]> };
