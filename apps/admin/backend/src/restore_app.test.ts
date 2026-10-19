@@ -8,8 +8,9 @@ import {
   DEV_JURISDICTION,
   type DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { deferred, err, ok } from '@votingworks/basics';
+import { assert, deferred, err, ok } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import { LogEventId } from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
 import { DEFAULT_SYSTEM_SETTINGS, DEV_MACHINE_ID } from '@votingworks/types';
 import {
@@ -19,10 +20,12 @@ import {
 import {
   attachUsbDrive,
   buildMockLogger,
+  mockMachineLocked,
   mockSystemAdministratorAuth,
 } from '../test/app.js';
 import { makeBackup, mockDiskSpace } from '../test/backup.js';
-import { restoreBackup } from './backup/restore/index.js';
+import { copyBackupFiles } from './backup/restore/copy_step.js';
+import type { RestoreStatus } from './backup/restore/index.js';
 import {
   buildRestoreApp,
   type RestoreApi,
@@ -44,10 +47,12 @@ vi.mock(
 );
 
 vi.mock(
-  import('./backup/restore/index.js'),
-  async (importActual): Promise<typeof import('./backup/restore/index.js')> => {
+  import('./backup/restore/copy_step.js'),
+  async (
+    importActual
+  ): Promise<typeof import('./backup/restore/copy_step.js')> => {
     const actual = await importActual();
-    return { ...actual, restoreBackup: vi.fn(actual.restoreBackup) };
+    return { ...actual, copyBackupFiles: vi.fn(actual.copyBackupFiles) };
   }
 );
 
@@ -126,6 +131,41 @@ async function insertBackupDrive(
   return listed[0]!.path;
 }
 
+function holdNextCopy() {
+  const copyStarted = deferred<void>();
+  const copyMayFinish = deferred<void>();
+  const realCopy = vi.mocked(copyBackupFiles).getMockImplementation()!;
+  vi.mocked(copyBackupFiles).mockImplementationOnce(async (options) => {
+    options.onProgressEvent?.({
+      type: '2_copying_files',
+      copiedCount: 0,
+      totalCount: 2,
+      copiedBytes: 0,
+      totalBytes: 1024,
+    });
+    copyStarted.resolve();
+    await copyMayFinish.promise;
+    return realCopy(options);
+  });
+  return {
+    copyStarted: copyStarted.promise,
+    finishCopy: () => copyMayFinish.resolve(),
+  };
+}
+
+async function waitForRestoreToEnd(
+  apiClient: grout.Client<RestoreApi>
+): Promise<Extract<RestoreStatus, { status: 'ended' }>> {
+  return await vi.waitFor(
+    async () => {
+      const status = await apiClient.getRestoreStatus();
+      assert(status?.status === 'ended');
+      return status;
+    },
+    { timeout: 10_000 }
+  );
+}
+
 test('describes itself as restore mode', async () => {
   const { apiClient } = env;
 
@@ -134,7 +174,7 @@ test('describes itself as restore mode', async () => {
     machineId: DEV_MACHINE_ID,
     codeVersion: 'dev',
   });
-  expect(await apiClient.getRestoreStatus()).toEqual({ state: 'idle' });
+  expect(await apiClient.getRestoreStatus()).toBeNull();
 });
 
 test('auth runs against an unconfigured machine', async () => {
@@ -168,29 +208,45 @@ test('has no backups to offer without a USB drive', async () => {
     status: 'no_drive',
   });
   expect((await apiClient.listAvailableBackups()).unsafeUnwrap()).toEqual([]);
-  expect(
-    (await apiClient.restoreBackup({ backupPath: '/nowhere' })).err()
-  ).toMatchObject({
-    type: 'backup-read-failed',
-    message: '/nowhere is not a backup on the inserted USB drive',
-  });
 });
 
-test('restores a backup from the inserted USB drive', async () => {
-  const { apiClient, workspacePath, logger } = env;
+test('restores a backup from the inserted USB drive and reports it as it runs', async () => {
+  const { apiClient, auth, workspacePath, logger } = env;
   const backup = await makeBackup();
   const backupPath = await insertBackupDrive(backup, env);
+  const { copyStarted, finishCopy } = holdNextCopy();
 
   // Restore mode has opened nothing in the workspace.
   expect(
     existsSync(join(workspacePath, ADMIN_WORKSPACE_DATABASE_NAME))
   ).toEqual(false);
+  expect(await apiClient.getRestoreStatus()).toBeNull();
 
-  expect(await apiClient.restoreBackup({ backupPath })).toEqual(ok());
+  await apiClient.startRestore({ backupPath });
+  await copyStarted;
   expect(await apiClient.getRestoreStatus()).toEqual({
-    state: 'restored',
-    backupPath,
+    status: 'in-progress',
+    lastProgressEvent: {
+      type: '2_copying_files',
+      copiedCount: 0,
+      totalCount: 2,
+      copiedBytes: 0,
+      totalBytes: 1024,
+    },
   });
+  await expect(apiClient.startRestore({ backupPath })).rejects.toThrow();
+  await expect(apiClient.finishRestore()).rejects.toThrow();
+
+  mockMachineLocked(auth);
+  finishCopy();
+  const status = await waitForRestoreToEnd(apiClient);
+  expect(status.result).toEqual(ok());
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.BackupRestoreComplete,
+    'system_administrator',
+    expect.objectContaining({ disposition: 'success' }),
+    undefined
+  );
 
   // The workspace holds the backup; the machine that reads it is the one that
   // starts after a reboot.
@@ -198,67 +254,33 @@ test('restores a backup from the inserted USB drive', async () => {
   expect(restored.store.getCurrentElectionId()).toBeDefined();
 });
 
-test('restores only a backup that is on the inserted USB drive', async () => {
-  const { apiClient } = env;
-  const backup = await makeBackup();
-  await insertBackupDrive(backup, env);
-
-  // The same backup, but where it was made rather than on the drive.
-  expect(
-    (await apiClient.restoreBackup({ backupPath: backup.path })).err()
-  ).toMatchObject({
-    type: 'backup-read-failed',
-    message: expect.stringContaining('not a backup on the inserted USB drive'),
-  });
-  expect(await apiClient.getRestoreStatus()).toEqual({ state: 'idle' });
-});
-
-test('reports progress, refuses a second restore, and can be cancelled', async () => {
-  const { apiClient } = env;
+test('a restore can be cancelled, and finishing it makes way for another', async () => {
+  const { apiClient, workspacePath } = env;
   const backup = await makeBackup();
   const backupPath = await insertBackupDrive(backup, env);
+  const { copyStarted, finishCopy } = holdNextCopy();
 
-  // Holds the restore at a point of our choosing, so that what the API does
-  // while one is running can be observed.
-  const restoreHeld = deferred<void>();
-  const restoreFinished = deferred<void>();
-  vi.mocked(restoreBackup).mockImplementationOnce(async (options) => {
-    options.onProgressEvent?.({ type: '1_preparing' });
-    restoreHeld.resolve();
-    await restoreFinished.promise;
-    return options.signal?.aborted
-      ? err({ type: 'cancelled', message: 'Restore cancelled' })
-      : ok();
-  });
-
-  const restorePromise = apiClient.restoreBackup({ backupPath });
-  await restoreHeld.promise;
-
-  expect(await apiClient.getRestoreStatus()).toEqual({
-    state: 'restoring',
-    backupPath,
-    progress: { type: '1_preparing' },
-  });
-  expect((await apiClient.restoreBackup({ backupPath })).err()).toEqual({
-    type: 'restore-in-progress',
-    message: 'Another restore is already replacing the workspace',
-  });
-
-  await apiClient.cancelRestore();
-  restoreFinished.resolve();
-
-  expect((await restorePromise).err()).toEqual({
-    type: 'cancelled',
-    message: 'Restore cancelled',
-  });
-  expect(await apiClient.getRestoreStatus()).toEqual({
-    state: 'failed',
-    backupPath,
-    error: { type: 'cancelled', message: 'Restore cancelled' },
-  });
+  await apiClient.startRestore({ backupPath });
+  await copyStarted;
+  await apiClient.abortRestore();
+  finishCopy();
+  const status = await waitForRestoreToEnd(apiClient);
+  expect(status.result).toEqual(
+    err({ type: 'cancelled', message: 'Restore cancelled' })
+  );
+  expect(
+    existsSync(join(workspacePath, ADMIN_WORKSPACE_DATABASE_NAME))
+  ).toEqual(false);
 
   // Cancelling with nothing running is a no-op.
-  await apiClient.cancelRestore();
+  await apiClient.abortRestore();
+  expect(await apiClient.getRestoreStatus()).toEqual(status);
+
+  await apiClient.finishRestore();
+  expect(await apiClient.getRestoreStatus()).toBeNull();
+
+  await apiClient.startRestore({ backupPath });
+  expect((await waitForRestoreToEnd(apiClient)).result).toEqual(ok());
 });
 
 test('passes on a drive whose backups directory is something else', async () => {
@@ -272,12 +294,6 @@ test('passes on a drive whose backups directory is something else', async () => 
 
   expect((await apiClient.listAvailableBackups()).err()).toMatchObject({
     type: 'not-directory',
-  });
-  expect(
-    (await apiClient.restoreBackup({ backupPath: '/nowhere' })).err()
-  ).toMatchObject({
-    type: 'backup-read-failed',
-    message: expect.stringContaining('is not a directory'),
   });
 });
 
