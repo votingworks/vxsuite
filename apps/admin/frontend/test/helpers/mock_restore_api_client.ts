@@ -2,11 +2,20 @@ import {
   createMockClient,
   type MockClient,
 } from '@votingworks/grout-test-utils';
-import type { MachineConfig, RestoreApi } from '@votingworks/admin-backend';
+import type {
+  MachineConfig,
+  RestoreApi,
+  RestoreStatus,
+} from '@votingworks/admin-backend';
 import { DEV_MACHINE_ID, type DippedSmartCardAuth } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { type Mock, vi } from 'vitest';
+import type { ApiClient } from '../../src/restore/api.js';
+
+type ListAvailableBackupsResult = Awaited<
+  ReturnType<ApiClient['listAvailableBackups']>
+>;
 
 type MockRestoreApiClient = Omit<
   MockClient<RestoreApi>,
@@ -32,6 +41,8 @@ export interface RestoreApiMock {
   assertComplete(): void;
   setAuthStatus(authStatus: DippedSmartCardAuth.AuthStatus): void;
   setBackupDriveStatus(status: UsbDriveStatus['status']): void;
+  setRestoreStatus(status: RestoreStatus | null): void;
+  expectListAvailableBackups(result: ListAvailableBackupsResult): void;
   expectGetMachineConfig(machineConfig?: MachineConfig): void;
 }
 
@@ -51,6 +62,14 @@ export function createRestoreApiMock(
       apiClient.getBackupDriveStatus
         .expectRepeatedCallsWith()
         .resolves(mockUsbDriveStatus(status));
+    },
+
+    setRestoreStatus(status) {
+      apiClient.getRestoreStatus.expectRepeatedCallsWith().resolves(status);
+    },
+
+    expectListAvailableBackups(result) {
+      apiClient.listAvailableBackups.expectCallWith().resolves(result);
     },
 
     expectGetMachineConfig(
