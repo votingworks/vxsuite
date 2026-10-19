@@ -101,8 +101,8 @@ export async function restoreBackup(
  * Reported when the caller cancelled the restore.
  */
 const CANCELLED_ERROR: RestoreError = {
-  type: 'cancelled',
-  message: 'Restore cancelled',
+  type: 'canceled',
+  message: 'Restore canceled',
 };
 
 async function tryRestoreBackup(

@@ -12,7 +12,7 @@ process.on('SIGINT', () => {
     process.exit(CANCELLED_EXIT_CODE);
   }
 
-  process.stderr.write('\nCancelling… press Ctrl-C again to exit now.\n');
+  process.stderr.write('\nCanceling… press Ctrl-C again to exit now.\n');
   controller.abort();
 });
 

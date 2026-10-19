@@ -323,11 +323,11 @@ test('cancels a running restore', async () => {
   abort.resolve();
   apiMock.setRestoreStatus({
     status: 'ended',
-    result: err({ type: 'cancelled', message: 'Restore cancelled' }),
+    result: err({ type: 'canceled', message: 'Restore canceled' }),
   });
   vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
-  await screen.findByRole('heading', { name: 'Restore Cancelled' });
-  screen.getByText('The restore was cancelled.');
+  await screen.findByRole('heading', { name: 'Restore Canceled' });
+  screen.getByText('The restore was canceled.');
 
   const finish = deferred<void>();
   apiMock.apiClient.finishRestore.expectCallWith().returns(finish.promise);
@@ -469,7 +469,7 @@ test('a cancelled restore can be closed without the backup drive', async () => {
   apiMock.setBackupDriveStatus('no_drive');
   apiMock.setRestoreStatus({
     status: 'ended',
-    result: err({ type: 'cancelled', message: 'Restore cancelled' }),
+    result: err({ type: 'canceled', message: 'Restore canceled' }),
   });
   apiMock.apiClient.finishRestore.expectCallWith().resolves();
   renderRestoreApp();

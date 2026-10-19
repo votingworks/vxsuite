@@ -176,8 +176,8 @@ test('a backup can be aborted while it runs', async () => {
 
   const status = await waitForBackupToEnd();
   expect(status.result.err()).toEqual({
-    type: 'cancelled',
-    message: 'Backup cancelled',
+    type: 'canceled',
+    message: 'Backup canceled',
   });
   expect(
     existsSync(

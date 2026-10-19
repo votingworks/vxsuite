@@ -1094,13 +1094,13 @@ test('a restore cancelled before it starts leaves the workspace alone', async ()
       logger,
       signal: AbortSignal.abort(),
     })
-  ).toEqual(err({ type: 'cancelled', message: 'Restore cancelled' }));
+  ).toEqual(err({ type: 'canceled', message: 'Restore canceled' }));
 
   expect(listWorkspace(workspacePath)).toEqual(contentsBefore);
   expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
     LogEventId.BackupRestoreComplete,
     'system_administrator',
-    expect.objectContaining({ disposition: 'failure', errorType: 'cancelled' })
+    expect.objectContaining({ disposition: 'failure', errorType: 'canceled' })
   );
 });
 
@@ -1125,7 +1125,7 @@ test('a restore cancelled while vetting the backup leaves the workspace alone', 
       logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
       signal: controller.signal,
     })
-  ).toEqual(err({ type: 'cancelled', message: 'Restore cancelled' }));
+  ).toEqual(err({ type: 'canceled', message: 'Restore canceled' }));
 
   // Nothing was claimed, so what the operator had is what they still have.
   expect(listWorkspace(workspacePath)).toEqual(contentsBefore);
@@ -1149,7 +1149,7 @@ test('a restore cancelled between files empties the workspace it had claimed', a
         }
       },
     })
-  ).toEqual(err({ type: 'cancelled', message: 'Restore cancelled' }));
+  ).toEqual(err({ type: 'canceled', message: 'Restore canceled' }));
 
   // A partly-restored workspace is not something to leave behind: it must be
   // as empty as a failed restore leaves it, and the marker must be gone with
@@ -1184,7 +1184,7 @@ test('a restore cancelled partway through a file empties the workspace', async (
         }
       },
     })
-  ).toEqual(err({ type: 'cancelled', message: 'Restore cancelled' }));
+  ).toEqual(err({ type: 'canceled', message: 'Restore canceled' }));
 
   expect(listWorkspace(workspacePath)).toEqual([]);
 });
@@ -1359,7 +1359,7 @@ describe('startRestore/RestoreController', () => {
     const status = controller.status();
     assert(status.status === 'ended');
     expect(status.result).toEqual(
-      err({ type: 'cancelled', message: 'Restore cancelled' })
+      err({ type: 'canceled', message: 'Restore canceled' })
     );
     expect(listWorkspace(workspacePath)).toEqual([]);
 

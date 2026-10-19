@@ -244,13 +244,13 @@ function SaveBackupFlowModal({
           />
         );
       }
-      if (backupStatus.result.err().type === 'cancelled') {
+      if (backupStatus.result.err().type === 'canceled') {
         return (
           <Modal
-            title="Backup Cancelled"
+            title="Backup Canceled"
             content={
               <div>
-                The backup was cancelled. You may remove the backup drive.
+                The backup was canceled. You may remove the backup drive.
               </div>
             }
             actions={

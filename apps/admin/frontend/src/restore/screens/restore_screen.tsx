@@ -187,11 +187,11 @@ function RestoreProgressModal({
           />
         );
       }
-      if (restoreStatus.result.err().type === 'cancelled') {
+      if (restoreStatus.result.err().type === 'canceled') {
         return (
           <Modal
-            title="Restore Cancelled"
-            content={<P>The restore was cancelled.</P>}
+            title="Restore Canceled"
+            content={<P>The restore was canceled.</P>}
             actions={
               <Button
                 onPress={finishRestoreAndClose}

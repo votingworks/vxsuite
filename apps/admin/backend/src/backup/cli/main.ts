@@ -276,8 +276,8 @@ async function create(
     // Leave the bar where it stopped: it says which step was interrupted.
     display.finish();
 
-    if (error.type === 'cancelled') {
-      stderr.write('Cancelled. No backup was written.\n');
+    if (error.type === 'canceled') {
+      stderr.write('Canceled. No backup was written.\n');
       return CANCELLED_EXIT_CODE;
     }
 
@@ -407,8 +407,8 @@ async function restore(
     // Leave the bar where it stopped: it says which step was interrupted.
     display.finish();
 
-    if (error.type === 'cancelled') {
-      stderr.write('Cancelled. No backup was restored.\n');
+    if (error.type === 'canceled') {
+      stderr.write('Canceled. No backup was restored.\n');
       return CANCELLED_EXIT_CODE;
     }
 

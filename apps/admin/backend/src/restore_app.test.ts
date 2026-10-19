@@ -266,7 +266,7 @@ test('a restore can be cancelled, and finishing it makes way for another', async
   finishCopy();
   const status = await waitForRestoreToEnd(apiClient);
   expect(status.result).toEqual(
-    err({ type: 'cancelled', message: 'Restore cancelled' })
+    err({ type: 'canceled', message: 'Restore canceled' })
   );
   expect(
     existsSync(join(workspacePath, ADMIN_WORKSPACE_DATABASE_NAME))
