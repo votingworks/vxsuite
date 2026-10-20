@@ -40,6 +40,9 @@ import {
   type EncodedBallotEntry,
   LATEST_METADATA,
   BallotType,
+  pollingPlaceBallotStyles,
+  type BallotStyleId,
+  type PrecinctId,
 } from '@votingworks/types';
 import {
   ELECTION_PACKAGE_FOLDER,
@@ -75,10 +78,13 @@ import {
 import type { Workspace } from './util/workspace.js';
 import { getMockAudioPlayer, type Player } from './audio/player.js';
 import type { MockBarcodeClient } from './barcodes/mock_client.js';
+import { encodeBallotStyleQrCode } from '../test/barcode_helpers.js';
 
 const electionGeneralDefinition =
   electionGeneralFixtures.readElectionDefinition();
 const { election: electionGeneral } = electionGeneralDefinition;
+const electionFamousNamesDefinition =
+  electionFamousNames2021Fixtures.readElectionDefinition();
 const mockFeatureFlagger = getFeatureFlagMock();
 const PRINT_SETTLEMENT_WAIT_OPTIONS = {
   timeout: JOB_SETTLEMENT_POLL_INTERVAL_MS * 10,
@@ -662,6 +668,234 @@ test('cannot set ballot printing barcode activation mode when ballot printing is
     apiClient.setBarcodeActivationMode({ mode: 'ballot_printing' })
   ).rejects.toThrow('Ballot printing is not enabled in the system settings');
   expect(await apiClient.getBarcodeActivationMode()).toEqual('voter_session');
+});
+
+function mockPollWorkerSession(sessionExpiresAt: Date) {
+  vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
+    status: 'logged_in',
+    user: mockPollWorkerUser({
+      electionKey: constructElectionKey(electionFamousNamesDefinition.election),
+    }),
+    sessionExpiresAt,
+  });
+}
+
+function emitBallotStyleScan(qrCode: {
+  ballotStyleId: BallotStyleId;
+  precinctId: PrecinctId;
+}) {
+  mockBarcodeClient.emitScan(
+    new TextEncoder().encode(encodeBallotStyleQrCode(qrCode))
+  );
+}
+
+async function setUpBarcodeActivation(
+  mode: 'voter_session' | 'ballot_printing'
+) {
+  const { election } = electionFamousNamesDefinition;
+  await configureMachine(
+    mockUsbDrive,
+    electionFamousNamesDefinition,
+    undefined,
+    {
+      bmdEnableQrBallotActivation: true,
+      allowPrintingBlankBallotsFromVxMark: true,
+    }
+  );
+  const place = assertDefined(
+    election.pollingPlaces?.find(
+      (p) => pollingPlaceBallotStyles(election, p).length >= 2
+    )
+  );
+  await apiClient.setPollingPlaceId({ id: place.id });
+  await apiClient.setPollsState({ pollsState: 'polls_open' });
+  await apiClient.setBarcodeActivationMode({ mode });
+
+  const [firstRequest, secondRequest] = pollingPlaceBallotStyles(
+    election,
+    place
+  ).map((ballotStyle) => ({
+    ballotStyleId: ballotStyle.id,
+    precinctId: assertDefined(
+      ballotStyle.precincts.find((id) => id in place.precincts)
+    ),
+  }));
+  const sessionExpiresAt = new Date('2030-01-01T00:00:00Z');
+  mockPollWorkerSession(sessionExpiresAt);
+
+  return {
+    sessionExpiresAt,
+    firstRequest: assertDefined(firstRequest),
+    secondRequest: assertDefined(secondRequest),
+  };
+}
+
+test('a barcode scan in ballot printing mode creates a pending print request', async () => {
+  const { firstRequest } = await setUpBarcodeActivation('ballot_printing');
+  expect(await apiClient.getPendingBarcodePrintRequest()).toBeNull();
+
+  emitBallotStyleScan(firstRequest);
+  await vi.waitFor(async () =>
+    expect(await apiClient.getPendingBarcodePrintRequest()).toEqual(
+      firstRequest
+    )
+  );
+  expect(mockAuth.startCardlessVoterSession).not.toHaveBeenCalled();
+
+  await apiClient.clearPendingBarcodePrintRequest();
+  expect(await apiClient.getPendingBarcodePrintRequest()).toBeNull();
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(LogEventId.Info, {
+    message: 'Pending barcode ballot print request was cleared',
+  });
+});
+
+test('a barcode scan while a print request is pending is ignored', async () => {
+  const { firstRequest, secondRequest } =
+    await setUpBarcodeActivation('ballot_printing');
+
+  emitBallotStyleScan(firstRequest);
+  await vi.waitFor(async () =>
+    expect(await apiClient.getPendingBarcodePrintRequest()).toEqual(
+      firstRequest
+    )
+  );
+
+  emitBallotStyleScan(secondRequest);
+  await vi.waitFor(() =>
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.BarcodeScanned,
+      expect.objectContaining({ ...secondRequest, disposition: 'failure' })
+    )
+  );
+  expect(await apiClient.getPendingBarcodePrintRequest()).toEqual(firstRequest);
+});
+
+test('a pending print request is dropped when the poll worker session ends', async () => {
+  const { firstRequest, sessionExpiresAt } =
+    await setUpBarcodeActivation('ballot_printing');
+
+  emitBallotStyleScan(firstRequest);
+  await vi.waitFor(async () =>
+    expect(await apiClient.getPendingBarcodePrintRequest()).toEqual(
+      firstRequest
+    )
+  );
+  mockNoCard();
+  expect(await apiClient.getPendingBarcodePrintRequest()).toBeNull();
+  mockPollWorkerSession(sessionExpiresAt);
+  expect(await apiClient.getPendingBarcodePrintRequest()).toBeNull();
+
+  emitBallotStyleScan(firstRequest);
+  await vi.waitFor(async () =>
+    expect(await apiClient.getPendingBarcodePrintRequest()).toEqual(
+      firstRequest
+    )
+  );
+  mockPollWorkerSession(new Date(sessionExpiresAt.getTime() + 1000));
+  expect(await apiClient.getPendingBarcodePrintRequest()).toBeNull();
+});
+
+test('a barcode scan replaces a pending print request from an earlier poll worker session', async () => {
+  const { firstRequest, secondRequest, sessionExpiresAt } =
+    await setUpBarcodeActivation('ballot_printing');
+
+  emitBallotStyleScan(firstRequest);
+  await vi.waitFor(() =>
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.Info,
+      expect.objectContaining({ ...firstRequest, disposition: 'success' })
+    )
+  );
+
+  mockPollWorkerSession(new Date(sessionExpiresAt.getTime() + 1000));
+  emitBallotStyleScan(secondRequest);
+  await vi.waitFor(() =>
+    expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+      LogEventId.Info,
+      expect.objectContaining({ ...secondRequest, disposition: 'success' })
+    )
+  );
+  expect(await apiClient.getPendingBarcodePrintRequest()).toEqual(
+    secondRequest
+  );
+});
+
+test('a pending print request survives a poll worker session extension', async () => {
+  const { firstRequest, sessionExpiresAt } =
+    await setUpBarcodeActivation('ballot_printing');
+
+  emitBallotStyleScan(firstRequest);
+  await vi.waitFor(async () =>
+    expect(await apiClient.getPendingBarcodePrintRequest()).toEqual(
+      firstRequest
+    )
+  );
+
+  const extendedSessionExpiresAt = new Date(
+    sessionExpiresAt.getTime() + 60 * 60 * 1000
+  );
+  await apiClient.updateSessionExpiry({
+    sessionExpiresAt: extendedSessionExpiresAt,
+  });
+  mockPollWorkerSession(extendedSessionExpiresAt);
+  expect(await apiClient.getPendingBarcodePrintRequest()).toEqual(firstRequest);
+});
+
+test('a session extension without a pending print request does not create one', async () => {
+  const { sessionExpiresAt } = await setUpBarcodeActivation('ballot_printing');
+  const extendedSessionExpiresAt = new Date(
+    sessionExpiresAt.getTime() + 60 * 60 * 1000
+  );
+  await apiClient.updateSessionExpiry({
+    sessionExpiresAt: extendedSessionExpiresAt,
+  });
+  mockPollWorkerSession(extendedSessionExpiresAt);
+  expect(await apiClient.getPendingBarcodePrintRequest()).toBeNull();
+});
+
+test.each<{
+  description: string;
+  clear: () => Promise<void>;
+}>([
+  {
+    description: 'polls state change',
+    clear: () => apiClient.setPollsState({ pollsState: 'polls_paused' }),
+  },
+  {
+    description: 'barcode activation mode change',
+    clear: () => apiClient.setBarcodeActivationMode({ mode: 'voter_session' }),
+  },
+  {
+    description: 'unconfiguring the machine',
+    clear: () => apiClient.unconfigureMachine(),
+  },
+])('a pending print request is cleared by $description', async ({ clear }) => {
+  const { firstRequest, sessionExpiresAt } =
+    await setUpBarcodeActivation('ballot_printing');
+
+  emitBallotStyleScan(firstRequest);
+  await vi.waitFor(async () =>
+    expect(await apiClient.getPendingBarcodePrintRequest()).toEqual(
+      firstRequest
+    )
+  );
+
+  await clear();
+  mockPollWorkerSession(sessionExpiresAt);
+  expect(await apiClient.getPendingBarcodePrintRequest()).toBeNull();
+});
+
+test('a barcode scan in voter session mode does not create a pending print request', async () => {
+  const { firstRequest } = await setUpBarcodeActivation('voter_session');
+
+  emitBallotStyleScan(firstRequest);
+  await vi.waitFor(() =>
+    expect(mockAuth.startCardlessVoterSession).toHaveBeenCalledWith(
+      expect.anything(),
+      firstRequest
+    )
+  );
+  expect(await apiClient.getPendingBarcodePrintRequest()).toBeNull();
 });
 
 test('isTestModeAvailable is true when the print flow does not need pre-rendered ballots', async () => {
