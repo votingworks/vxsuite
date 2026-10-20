@@ -54,7 +54,7 @@ impl InterpretFixture {
 
     fn load(&self) -> color_eyre::Result<(GrayImage, GrayImage, ScanInterpreter)> {
         let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        let fixture_path = manifest_dir.join("../hmpb/fixtures").join(self.dir);
+        let fixture_path = manifest_dir.join("../../hmpb/fixtures").join(self.dir);
         let election_bytes = std::fs::read(manifest_dir.join(self.election_json))?;
         let election: Election = serde_json::from_slice(&election_bytes)?;
 
@@ -105,19 +105,19 @@ impl Display for InterpretFixture {
 #[divan::bench(args = [
     InterpretFixture::new(
         "vx-general-election/letter-en",
-        "../hmpb/fixtures/vx-general-election/letter-en/election.json",
+        "../../hmpb/fixtures/vx-general-election/letter-en/election.json",
         "blank-ballot",
         1,
     ),
     InterpretFixture::new(
         "vx-general-election/letter-en",
-        "../hmpb/fixtures/vx-general-election/letter-en/election.json",
+        "../../hmpb/fixtures/vx-general-election/letter-en/election.json",
         "blank-ballot",
         3,
     ),
     InterpretFixture::new(
         "vx-famous-names",
-        "../fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json",
+        "../../fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json",
         "marked-ballot",
         1,
     ),
@@ -139,13 +139,13 @@ fn interpret(bencher: Bencher, fixture: InterpretFixture) {
 #[divan::bench(args = [
     InterpretFixture::new(
         "vx-general-election/letter-en",
-        "../hmpb/fixtures/vx-general-election/letter-en/election.json",
+        "../../hmpb/fixtures/vx-general-election/letter-en/election.json",
         "blank-ballot",
         1,
     ),
     InterpretFixture::new(
         "vx-famous-names",
-        "../fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json",
+        "../../fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json",
         "marked-ballot",
         1,
     ),
@@ -170,13 +170,13 @@ fn find_timing_marks(bencher: Bencher, fixture: InterpretFixture) {
 #[divan::bench(args = [
     InterpretFixture::new(
         "vx-general-election/letter-en",
-        "../hmpb/fixtures/vx-general-election/letter-en/election.json",
+        "../../hmpb/fixtures/vx-general-election/letter-en/election.json",
         "blank-ballot",
         1,
     ),
     InterpretFixture::new(
         "vx-famous-names",
-        "../fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json",
+        "../../fixtures/data/electionFamousNames2021/electionGeneratedWithGridLayoutsEnglishOnly.json",
         "marked-ballot",
         1,
     ),

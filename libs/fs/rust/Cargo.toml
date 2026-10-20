@@ -5,7 +5,6 @@ version = "0.0.0"
 
 [lib]
 crate-type = ["cdylib"]
-path = "src/rust/lib.rs"
 
 [dependencies]
 napi.workspace = true

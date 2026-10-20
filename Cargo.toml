@@ -6,9 +6,9 @@ members = [
   "apps/mark-scan/fai-100-controller",
   "apps/mark-scan/pat-device-input",
   "apps/pollbook/barcode-scanner-daemon",
-  "libs/fs",
-  "libs/logging",
-  "libs/logging-utils",
+  "libs/fs/rust",
+  "libs/logging/rust",
+  "libs/logging-utils/rust",
 ]
 exclude = [
   "libs/ballot-interpreter",
@@ -27,7 +27,7 @@ color-eyre = "0.6.2"
 crc16 = "0.4.0"
 ctrlc = "3.4.2"
 flate2 = "1.1.1"
-vx-logging = { path = "libs/logging" }
+vx-logging = { path = "libs/logging/rust" }
 daemon-utils = { path = "apps/mark-scan/daemon-utils" }
 napi = { version = "3.8.0", default-features = false, features = [
   "napi4",

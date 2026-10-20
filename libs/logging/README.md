@@ -31,7 +31,7 @@ Each log has its own entry in the `LogEventId` enum and corresponding
 [`log_event_details.toml`](log_event_details.toml). Resulting TypeScript types
 and Rust enums are found in the generated files
 [log_event_enums.ts](src/log_event_enums.ts) and
-[log_event_enums.rs](types-rust/src/log_event_enums.rs) respectively.
+[log_event_enums.rs](rust/src/log_event_enums.rs) respectively.
 
 To add a log event, add a new entry to `log_event_details.toml`. Each entry must
 specify `eventId`, `eventType` and `documentationMessage`. If you are logging an

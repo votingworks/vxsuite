@@ -1,7 +1,7 @@
 # pdictl session recordings
 
 Recordings of real scanner sessions, replayed as regression tests by the
-`replay_recorded_fixtures` test in `src/rust/main.rs`.
+`replay_recorded_fixtures` test in `src/main.rs`.
 
 Two kinds of files live here:
 
@@ -30,14 +30,14 @@ it (or the app driving it) with the `PDICTL_RECORD` environment variable set:
 
 ```sh
 cargo build --release --features recording
-PDICTL_RECORD=normal-scan.jsonl ./target/release/pdictl
+PDICTL_RECORD=normal-scan.jsonl ../target/release/pdictl
 ```
 
 Every entry crossing pdictl's boundaries — stdin commands, raw scanner packets,
 outgoing packets, stdout frames — is appended to the file in observed order,
 stamped with milliseconds since the recording started (useful for latency
 analysis, e.g. image-chunk arrival to `scanComplete` frame; ignored by replay).
-See `src/rust/recording.rs` for the format.
+See `src/recording.rs` for the format.
 
 ## Replaying
 

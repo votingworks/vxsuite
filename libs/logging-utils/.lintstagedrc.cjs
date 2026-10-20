@@ -22,5 +22,5 @@ module.exports = {
       ? [`eslint --cache --quiet --fix ${filtered.join(' ')}`]
       : [];
   },
-  '*.rs': ['bash -c  "cargo clippy"'],
+  '*.rs': ['bash -c "cargo clippy -p logging-utils"'],
 };

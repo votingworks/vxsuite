@@ -38,12 +38,18 @@ dependencies and build our projects.
 The Rust crates are split across independent Cargo workspaces so that
 rust-analyzer only loads the crates relevant to what you're working on:
 
-| Workspace              | Directory                  | Crates                                                                                                                    |
-| ---------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| Root (daemons/logging) | `/`                        | `vx-logging`, `logging-utils`, `daemon-utils`, `controllerd`, `fai100-controllerd`, `patinputd`, `barcode-scanner-daemon` |
-| ballot-interpreter     | `libs/ballot-interpreter/` | `ballot-interpreter` (+ `types-rs` as a path dep)                                                                         |
-| pdi-scanner            | `libs/pdi-scanner/`        | `pdi-scanner`                                                                                                             |
-| types-rs               | `libs/types-rs/`           | `types-rs`                                                                                                                |
+| Workspace              | Directory                       | Crates                                                                                                                    |
+| ---------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Root (daemons/logging) | `/`                             | `vx-logging`, `logging-utils`, `daemon-utils`, `controllerd`, `fai100-controllerd`, `patinputd`, `barcode-scanner-daemon` |
+| ballot-interpreter     | `libs/ballot-interpreter/rust/` | `ballot-interpreter` (+ `types-rs` as a path dep)                                                                         |
+| pdi-scanner            | `libs/pdi-scanner/rust/`        | `pdi-scanner`                                                                                                             |
+| types-rs               | `libs/types-rs/`                | `types-rs`                                                                                                                |
+
+In a package that also has a `package.json`, the crate lives in a `rust/`
+subdirectory rather than next to `package.json`. rust-analyzer scans and watches
+everything under a crate's directory, following symlinks, so a crate directory
+that contains `node_modules` makes it crawl pnpm's workspace symlinks across the
+whole monorepo, which can take minutes and tens of GB of memory.
 
 **Run cargo commands from the workspace directory for the crate you're working
 on**, not from the repo root. Running `cargo test` from the repo root only tests
@@ -51,11 +57,11 @@ the daemon/logging crates.
 
 ```sh
 # If working on ballot-interpreter:
-cd libs/ballot-interpreter
+cd libs/ballot-interpreter/rust
 cargo test
 
 # If working on pdi-scanner:
-cd libs/pdi-scanner
+cd libs/pdi-scanner/rust
 cargo test
 
 # If working on daemon crates:
@@ -83,8 +89,11 @@ This should provide you with most of the features you need, including code
 completion, formatting, and linting.
 
 rust-analyzer auto-discovers the workspace from the file you open. If you open a
-file in `libs/ballot-interpreter/`, it loads only that workspace. If you open a
-file in `libs/logging/`, it loads the root (daemon/logging) workspace.
+file in `libs/ballot-interpreter/rust/`, it loads only that workspace. If you
+open a file in `libs/logging/rust/`, it loads the root (daemon/logging)
+workspace. VS Code's rust-analyzer instead discovers workspaces from the
+workspace folders, so `vxsuite.code-workspace` lists each sub-workspace's
+`rust/` directory as its own folder.
 
 ### Formatting
 

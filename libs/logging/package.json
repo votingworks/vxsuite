@@ -27,7 +27,7 @@
     "build:self": "tsc --build tsconfig.build.json",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
-    "install:rust-addon": "cargo fetch",
+    "install:rust-addon": "cargo fetch --manifest-path rust/Cargo.toml",
     "lint": "pnpm -w vx-task lint $npm_package_name",
     "lint:fix": "pnpm type-check && eslint --cache . --fix",
     "lint:self": "pnpm type-check && eslint --cache .",

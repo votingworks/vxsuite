@@ -122,7 +122,7 @@ Because no bubbles may appear in the timing mark area, bubble coordinates
 effectively begin at (1, 1).
 
 The implementation uses a "corners" algorithm
-([timing_marks/corner_finding.rs](./src/bubble-ballot-rust/timing_marks/corner_finding.rs))
+([timing_marks/corner_finding.rs](./rust/src/timing_marks/corner_finding.rs))
 that starts by identifying the four corners of the ballot grid and then walks
 along each border to find all timing marks.
 
@@ -131,31 +131,31 @@ along each border to find all timing marks.
 The timing mark detection process consists of three main steps:
 
 1. **Shape Finding**
-   ([shape_finding/mod.rs](./src/bubble-ballot-rust/timing_marks/shape_finding/mod.rs)):
-   The algorithm scans the ballot image column by column within an inset region
-   from each edge. For each column, it groups contiguous black pixels vertically
-   and filters groups by height to match expected timing mark dimensions.
-   Adjacent columns with similar vertical ranges are merged into shapes. These
-   shapes are then smoothed using a median filter to eliminate bumps from stray
-   marks or debris. Finally, shapes are filtered to ensure they match expected
-   timing mark size and aspect ratio.
+   ([shape_finding/mod.rs](./rust/src/timing_marks/shape_finding/mod.rs)): The
+   algorithm scans the ballot image column by column within an inset region from
+   each edge. For each column, it groups contiguous black pixels vertically and
+   filters groups by height to match expected timing mark dimensions. Adjacent
+   columns with similar vertical ranges are merged into shapes. These shapes are
+   then smoothed using a median filter to eliminate bumps from stray marks or
+   debris. Finally, shapes are filtered to ensure they match expected timing
+   mark size and aspect ratio.
 
 2. **Corner Finding**
-   ([corner_finding.rs](./src/bubble-ballot-rust/timing_marks/corner_finding.rs)):
-   For each of the four corners (top-left, top-right, bottom-left,
-   bottom-right), the algorithm identifies candidate corner groupings. Each
-   grouping consists of three timing marks: the corner mark itself, plus one
-   mark along the adjacent row and one along the adjacent column. Candidates are
-   sorted by distance from the expected corner location. The algorithm selects
-   the first grouping where all three marks meet minimum quality thresholds. If
-   no such grouping is found, an error is returned.
+   ([corner_finding.rs](./rust/src/timing_marks/corner_finding.rs)): For each of
+   the four corners (top-left, top-right, bottom-left, bottom-right), the
+   algorithm identifies candidate corner groupings. Each grouping consists of
+   three timing marks: the corner mark itself, plus one mark along the adjacent
+   row and one along the adjacent column. Candidates are sorted by distance from
+   the expected corner location. The algorithm selects the first grouping where
+   all three marks meet minimum quality thresholds. If no such grouping is
+   found, an error is returned.
 
 3. **Border Finding**
-   ([border_finding.rs](./src/bubble-ballot-rust/timing_marks/border_finding.rs)):
-   After corners are identified, the algorithm finds timing marks along each
-   border by "walking" from one corner to the other. Starting at a corner mark,
-   it computes a unit vector pointing toward the opposite corner with length
-   equal to the expected timing mark spacing. At each step, it searches for the
+   ([border_finding.rs](./rust/src/timing_marks/border_finding.rs)): After
+   corners are identified, the algorithm finds timing marks along each border by
+   "walking" from one corner to the other. Starting at a corner mark, it
+   computes a unit vector pointing toward the opposite corner with length equal
+   to the expected timing mark spacing. At each step, it searches for the
    closest candidate mark within a tolerance of the expected spacing. If no mark
    is found within this tolerance, an error is returned. This continues until
    the ending corner is reached. Finally, the algorithm validates that each
@@ -203,9 +203,9 @@ standard base64 or URL-safe base64.
 ### Score Bubble Marks
 
 Bubble marks are scored to determine which bubbles are filled in. The scoring
-process ([scoring.rs](src/bubble-ballot-rust/scoring.rs)) consists of searching
-for the best template match starting at the expected location, then computing a
-score for how filled in the bubble is.
+process ([scoring.rs](rust/src/scoring.rs)) consists of searching for the best
+template match starting at the expected location, then computing a score for how
+filled in the bubble is.
 
 #### Bubble Locating
 
@@ -285,8 +285,7 @@ Write-ins are scored to determine whether any have handwriting. The write-in
 area is encoded in the election definition per contest option and is a rectangle
 specified using the same grid as bubble marks.
 
-The scoring process ([scoring.rs](src/bubble-ballot-rust/scoring.rs)) works as
-follows:
+The scoring process ([scoring.rs](rust/src/scoring.rs)) works as follows:
 
 1. **Locate Write-In Area**: The write-in area is defined as a rectangle with
    coordinates `(x, y, width, height)` in the timing mark grid. The algorithm

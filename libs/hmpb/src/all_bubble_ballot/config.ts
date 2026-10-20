@@ -17,7 +17,7 @@ export interface AllBubbleBallotConfig {
 /**
  * Corresponds to the NH Accuvote ballot grid, which we mimic so that our
  * interpreter can support both Accuvote-style ballots and our ballots.
- * This formula is replicated in libs/ballot-interpreter/src/ballot_card.rs.
+ * This formula is replicated in libs/ballot-interpreter/rust/src/ballot_card.rs.
  */
 export function allBubbleBallotConfig(
   paperSize: HmpbBallotPaperSize

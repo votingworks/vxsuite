@@ -21,7 +21,6 @@ edition = "2024"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-path = "src/bubble-ballot-rust/lib.rs"
 
 [[bin]]
 name = "interpret"
@@ -66,7 +65,7 @@ zedbar = { version = "0.5.1", default-features = false, features = ["qrcode"] }
 base64 = "0.22.0"
 thiserror = "1.0.50"
 tokio = { version = "1.44.2", features = ["fs", "macros"] }
-types-rs = { path = "../types-rs" }
+types-rs = { path = "../../types-rs" }
 
 [build-dependencies]
 napi-build = "2.3.1"

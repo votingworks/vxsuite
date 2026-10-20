@@ -24,15 +24,15 @@ edition = "2024"
 
 [lib]
 name = "pdi_scanner"
-path = "src/rust/lib.rs"
+path = "src/lib.rs"
 
 [[bin]]
 name = "pdictl"
-path = "src/rust/main.rs"
+path = "src/main.rs"
 
 [[bin]]
 name = "pdi-parse-traffic"
-path = "src/rust/parse_traffic.rs"
+path = "src/parse_traffic.rs"
 
 [dependencies]
 base64 = "0.22.0"
@@ -62,7 +62,7 @@ tokio = { version = "1.44.2", features = [
 ] }
 
 [features]
-# Compiles in the session-recording taps (see src/rust/recording.rs). Off by
+# Compiles in the session-recording taps (see src/recording.rs). Off by
 # default so production builds physically lack the ability to record; enabled
 # for all test builds via the self-referential dev-dependency below.
 recording = ["dep:flate2"]

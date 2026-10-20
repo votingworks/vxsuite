@@ -112,7 +112,7 @@ export type BmdPrintMode = (typeof PRINT_MODES)[number];
  * See {@link SystemSettings.maxCumulativeStreakWidth}.
  *
  * NOTE: This value must match DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH in
- * libs/ballot-interpreter/src/bubble-ballot-rust/interpret.rs
+ * libs/ballot-interpreter/rust/src/interpret.rs
  */
 export const DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH = 5;
 
@@ -121,7 +121,7 @@ export const DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH = 5;
  * See {@link SystemSettings.retryStreakWidthThreshold}.
  *
  * NOTE: This value must match DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD in
- * libs/ballot-interpreter/src/bubble-ballot-rust/interpret.rs
+ * libs/ballot-interpreter/rust/src/interpret.rs
  */
 export const DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD = 1;
 
@@ -135,7 +135,7 @@ export type BallotImageBitDepth = (typeof BALLOT_IMAGE_BIT_DEPTHS)[number];
 
 /**
  * NOTE: This value must match the default `BallotImageBitDepth` in
- * libs/ballot-interpreter/src/bubble-ballot-rust/image_utils.rs
+ * libs/ballot-interpreter/rust/src/image_utils.rs
  */
 export const DEFAULT_BALLOT_IMAGE_BIT_DEPTH: BallotImageBitDepth = 2;
 
