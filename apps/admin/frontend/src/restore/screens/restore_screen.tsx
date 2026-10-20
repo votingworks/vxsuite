@@ -64,7 +64,6 @@ function StartRestoreModal({
       actions={
         <React.Fragment>
           <Button
-            icon="Done"
             variant="primary"
             onPress={() =>
               startRestoreMutation.mutate({ backupPath: backup.path })
