@@ -529,7 +529,7 @@ test('create reports a cancelled backup rather than a failed one', async () => {
   );
 
   expect(code).toEqual(CANCELLED_EXIT_CODE);
-  expect(stderr).toContain('Cancelled. No backup was written.');
+  expect(stderr).toContain('Canceled. No backup was written.');
   expect(stdout).toEqual('');
   expect(readdirSync(target)).toEqual([]);
 });
@@ -556,7 +556,7 @@ test('restore cancelled before it starts destroys nothing in the workspace', asy
   );
 
   expect(code).toEqual(CANCELLED_EXIT_CODE);
-  expect(stderr).toContain('Cancelled. No backup was restored.');
+  expect(stderr).toContain('Canceled. No backup was restored.');
   expect(stdout).toEqual('');
   // Opening the workspace creates the directories a workspace has, but
   // nothing that was already there is touched.

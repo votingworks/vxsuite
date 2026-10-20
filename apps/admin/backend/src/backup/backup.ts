@@ -15,6 +15,8 @@ import {
 } from '@votingworks/basics';
 import { copyFile, type CopyFileError } from '@votingworks/fs';
 import { AuthenticatedBackup } from './authenticated_backup.js';
+import type { ReadManifestError } from './backup_manifest_file.js';
+import type { BackupManifestStruct } from './backup_manifest.js';
 
 const BACKUP_MANIFEST_MAX_SIZE = 100_000_000; // 100 MB
 const BACKUP_MANIFEST_SIGNATURE_MAX_SIZE = 100_000; // 100 KB
@@ -27,6 +29,14 @@ const BACKUP_MANIFEST_SIGNATURE_MAX_SIZE = 100_000; // 100 KB
 export type BackupOpenError =
   | { type: 'read-failed'; message: string }
   | { type: 'authentication-failed'; message: string };
+
+/**
+ * The result of attempting to open a backup and read its manifest.
+ */
+export type ReadManifestResult = Result<
+  BackupManifestStruct,
+  BackupOpenError | ReadManifestError
+>;
 
 /**
  * Helper for managing a complete on-disk backup.
@@ -127,6 +137,18 @@ export class Backup {
       }
     }
   }
+
+  /**
+   * Opens the backup and reads its manifest.
+   */
+  async readManifest(): Promise<ReadManifestResult> {
+    const openResult = await this.open();
+    if (openResult.isErr()) return openResult;
+    await using openedBackup = openResult.ok();
+    const manifest = await openedBackup.readManifest();
+    if (manifest.isErr()) return manifest;
+    return ok(manifest.ok().toJSON());
+  }
 }
 
 /**
@@ -142,7 +164,7 @@ function describeCopyFileError(path: string, error: CopyFileError): string {
     /* @coverage-exclude: opening a backup passes no signal, so there is
        nothing to cancel it */
     case 'Cancelled': {
-      return `Reading ${path} was cancelled`;
+      return `Reading ${path} was canceled`;
     }
 
     case 'SourceNotRegularFile': {

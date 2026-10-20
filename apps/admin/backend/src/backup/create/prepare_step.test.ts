@@ -391,8 +391,8 @@ test('cancels before doing any work when the signal is already aborted', async (
   });
 
   expect(result.err()).toEqual({
-    type: 'cancelled',
-    message: 'Backup cancelled',
+    type: 'canceled',
+    message: 'Backup canceled',
   });
 
   // Nothing was claimed, so a later run has no leftovers to reclaim.
@@ -426,8 +426,8 @@ test('cancels before snapshotting the database', async () => {
   });
 
   expect(result.err()).toEqual({
-    type: 'cancelled',
-    message: 'Backup cancelled',
+    type: 'canceled',
+    message: 'Backup canceled',
   });
 });
 
@@ -449,8 +449,8 @@ test('cancels partway through snapshotting the database', async () => {
   });
 
   expect(result.err()).toEqual({
-    type: 'cancelled',
-    message: 'Backup cancelled',
+    type: 'canceled',
+    message: 'Backup canceled',
   });
 
   // The snapshot the aborted backup was writing is not left behind.
@@ -475,8 +475,8 @@ test('cancels after staging files, before measuring the target', async () => {
   });
 
   expect(result.err()).toEqual({
-    type: 'cancelled',
-    message: 'Backup cancelled',
+    type: 'canceled',
+    message: 'Backup canceled',
   });
 
   expect(existsSync(BackupStagingArea.pathIn(workspace.path))).toEqual(false);

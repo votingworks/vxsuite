@@ -28,8 +28,8 @@ const DEFAULT_PROGRESS_EVENT_INTERVAL_BYTES = 8_000_000; // 8 MB
  * Reported when the caller cancelled the restore.
  */
 const CANCELLED_ERROR: RestoreError = {
-  type: 'cancelled',
-  message: 'Restore cancelled',
+  type: 'canceled',
+  message: 'Restore canceled',
 };
 
 /**

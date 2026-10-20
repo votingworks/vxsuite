@@ -1,19 +1,12 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import {
-  BatteryStatus,
   Button,
   Callout,
   Card,
-  DateTimeDisplay,
   Font,
-  LockMachineButton,
-  Modal,
   type ModalProps,
   P,
   ProgressBar,
-  Toolbar,
-  ToolbarButtons,
 } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
 import type { BackupStatus } from '@votingworks/admin-backend';
@@ -27,49 +20,16 @@ import {
   startBackup,
 } from '../api.js';
 import { BackupDetails } from './backup_details.js';
+import { ModalWithToolbar } from './modal_with_toolbar.js';
 
-// During the save backup flow, which is a modal that takes over the screen, we
-// still want to show the usual toolbar at the top so that users can lock the
-// machine (if the backup is taking a while). We also include basic status info
-// (battery, time), but not the full toolbar.
-
-const FixedToolbar = styled(Toolbar)`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-`;
-
-function FlowToolbar(): JSX.Element {
+function Modal(props: ModalProps): JSX.Element {
   const logOutMutation = sharedLogOut.useMutation();
   const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
   return (
-    <FixedToolbar>
-      {batteryInfoQuery.isSuccess && batteryInfoQuery.data && (
-        <BatteryStatus batteryInfo={batteryInfoQuery.data} />
-      )}
-      <DateTimeDisplay />
-      <ToolbarButtons>
-        <LockMachineButton onLock={() => logOutMutation.mutate()} />
-      </ToolbarButtons>
-    </FixedToolbar>
-  );
-}
-
-function ModalWithToolbar({ content, ...props }: ModalProps): JSX.Element {
-  // A bit of an odd approach here: we render the toolbar inside the modal
-  // content, but use CSS to fix it to the top of the screen. This has the
-  // advantage that it automatically renders above the modal's overlay, avoiding
-  // any z-index issues.
-  return (
-    <Modal
+    <ModalWithToolbar
       {...props}
-      content={
-        <React.Fragment>
-          <FlowToolbar />
-          {content}
-        </React.Fragment>
-      }
+      batteryInfo={batteryInfoQuery.data}
+      onLock={() => logOutMutation.mutate()}
     />
   );
 }
@@ -101,7 +61,7 @@ function StartBackupModal({
     getLastBackupOnDriveQuery.isPreviousData
   ) {
     return (
-      <ModalWithToolbar
+      <Modal
         title="Insert Backup Drive"
         content={<div>Insert a backup USB drive to continue.</div>}
         actions={<Button onPress={onClose}>Cancel</Button>}
@@ -140,7 +100,7 @@ function StartBackupModal({
   })();
 
   return (
-    <ModalWithToolbar
+    <Modal
       title="Save Backup"
       content={
         <div>
@@ -226,7 +186,7 @@ function SaveBackupFlowModal({
         }
       })();
       return (
-        <ModalWithToolbar
+        <Modal
           title="Saving Backup"
           content={
             <div
@@ -261,7 +221,7 @@ function SaveBackupFlowModal({
       }
       if (backupStatus.result.isOk()) {
         return (
-          <ModalWithToolbar
+          <Modal
             title="Backup Saved"
             content={
               <div>
@@ -284,13 +244,13 @@ function SaveBackupFlowModal({
           />
         );
       }
-      if (backupStatus.result.err().type === 'cancelled') {
+      if (backupStatus.result.err().type === 'canceled') {
         return (
-          <ModalWithToolbar
-            title="Backup Cancelled"
+          <Modal
+            title="Backup Canceled"
             content={
               <div>
-                The backup was cancelled. You may remove the backup drive.
+                The backup was canceled. You may remove the backup drive.
               </div>
             }
             actions={
@@ -306,9 +266,8 @@ function SaveBackupFlowModal({
           />
         );
       }
-      // TODO show error details?
       return (
-        <ModalWithToolbar
+        <Modal
           title="Backup Failed"
           content={<div>The backup failed. Please try again.</div>}
           actions={

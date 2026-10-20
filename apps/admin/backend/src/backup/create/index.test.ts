@@ -423,14 +423,14 @@ test('a cancelled copy leaves no partial backup behind', async () => {
   });
 
   expect(result.err()).toEqual({
-    type: 'cancelled',
-    message: 'Backup cancelled',
+    type: 'canceled',
+    message: 'Backup canceled',
   });
   expect(readdirSync(new BackupRoot(target).pathFor('.'))).toEqual([]);
   expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
     LogEventId.BackupCreateComplete,
     'system_administrator',
-    expect.objectContaining({ disposition: 'failure', errorType: 'cancelled' })
+    expect.objectContaining({ disposition: 'failure', errorType: 'canceled' })
   );
 });
 
@@ -458,8 +458,8 @@ test('cancelling after the copy finishes stops before the manifest is written', 
   });
 
   expect(result.err()).toEqual({
-    type: 'cancelled',
-    message: 'Backup cancelled',
+    type: 'canceled',
+    message: 'Backup canceled',
   });
   expect(vi.mocked(writeManifest)).not.toHaveBeenCalled();
 
@@ -495,8 +495,8 @@ test('a backup already in place survives a cancelled attempt to replace it', asy
   });
 
   expect(secondResult.err()).toEqual({
-    type: 'cancelled',
-    message: 'Backup cancelled',
+    type: 'canceled',
+    message: 'Backup canceled',
   });
 
   // Cancelling replaces nothing: the backup the operator already had is the
@@ -626,8 +626,8 @@ describe('startBackup/BackupController', () => {
     const status = controller.status();
     assert(status.status === 'ended');
     expect(status.result.err()).toEqual({
-      type: 'cancelled',
-      message: 'Backup cancelled',
+      type: 'canceled',
+      message: 'Backup canceled',
     });
     controller.abort();
     expect(controller.status()).toEqual(status);

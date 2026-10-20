@@ -125,3 +125,65 @@ export const getBackupDriveStatus = {
     );
   },
 } as const;
+
+export const listAvailableBackups = {
+  queryKey(): QueryKey {
+    return ['listAvailableBackups'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.listBackups(), {
+      cacheTime: 0,
+    });
+  },
+} as const;
+
+export const getRestoreStatus = {
+  queryKey(): QueryKey {
+    return ['getRestoreStatus'];
+  },
+  usePollingQuery() {
+    const apiClient = useApiClient();
+    return usePollingQuery(
+      this.queryKey(),
+      () => apiClient.getRestoreStatus(),
+      DEFAULT_QUERY_REFETCH_INTERVAL
+    );
+  },
+} as const;
+
+export const startRestore = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.startRestore, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getRestoreStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const abortRestore = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.abortRestore, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getRestoreStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const finishRestore = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.finishRestore, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getRestoreStatus.queryKey());
+      },
+    });
+  },
+} as const;

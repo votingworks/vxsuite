@@ -1,11 +1,11 @@
 import express, { type Application } from 'express';
-import { basename, resolve } from 'node:path';
+import { basename } from 'node:path';
 import * as grout from '@votingworks/grout';
 import type { DippedSmartCardAuthApi } from '@votingworks/auth';
 import type { DippedSmartCardAuth } from '@votingworks/types';
-import { err, ok, type Result } from '@votingworks/basics';
+import { assert, ok, type Result } from '@votingworks/basics';
 import { createSystemCallApi } from '@votingworks/backend';
-import type { Logger } from '@votingworks/logging';
+import { Logger } from '@votingworks/logging';
 import {
   createUsbDriveAdapter,
   findDriveByPurpose,
@@ -14,11 +14,15 @@ import {
 } from '@votingworks/usb-drive';
 import { getMachineConfig } from './machine_config.js';
 import type { AppMode, BaseStore } from './types.js';
-import { constructAuthMachineState } from './util/auth.js';
+import { constructAuthMachineState, getUserRole } from './util/auth.js';
 import { BackupRoot, type ListBackupsError } from './backup/backup_root.js';
-import type { RestoreProgressEvent } from './backup/progress.js';
-import { restoreBackup } from './backup/restore/index.js';
-import type { RestoreError } from './backup/restore/types.js';
+import {
+  startRestore,
+  type RestoreController,
+  type RestoreStatus,
+} from './backup/restore/index.js';
+import type { ReadManifestResult } from './backup/backup.js';
+import type { BackupManifestStruct } from './backup/backup_manifest.js';
 
 /**
  * What restore mode presents to auth in place of a store: no election, so the
@@ -36,37 +40,22 @@ export const RESTORE_MODE_STORE: BaseStore = {
 };
 
 /**
- * A backup on the inserted USB drive that may be restored.
+ * A backup listing on the inserted USB drive, with a manifest read result.
+ */
+export interface BackupListing {
+  name: string;
+  path: string;
+  manifestResult: ReadManifestResult;
+}
+
+/**
+ * A backup that is available for restore, with its manifest.
  */
 export interface AvailableBackup {
   name: string;
   path: string;
+  manifest: BackupManifestStruct;
 }
-
-/**
- * Why the backups on the inserted USB drive could not be listed.
- */
-export type ListAvailableBackupsError =
-  | ListBackupsError
-  | { type: 'no-usb-drive'; message: string };
-
-/**
- * Where the restore stands. Progress arrives through this rather than through
- * the `restoreBackup` call, which returns only when the restore is over.
- */
-export type RestoreStatus =
-  | { state: 'idle' }
-  | { state: 'restoring'; backupPath: string; progress?: RestoreProgressEvent }
-  | { state: 'restored'; backupPath: string }
-  | { state: 'failed'; backupPath: string; error: RestoreError };
-
-/**
- * Why the restore API refused or failed a restore: whatever the restore itself
- * reports, or that one is already running.
- */
-export type RestoreModeError =
-  | RestoreError
-  | { type: 'restore-in-progress'; message: string };
 
 function buildRestoreApi({
   auth,
@@ -83,33 +72,7 @@ function buildRestoreApi({
     findDriveByPurpose(drives, 'backup')
   );
 
-  let status: RestoreStatus = { state: 'idle' };
-  let abortController: AbortController | undefined;
-
-  async function listAvailableBackups(): Promise<
-    Result<AvailableBackup[], ListAvailableBackupsError>
-  > {
-    const usbDriveStatus = await backupDriveAdapter.status();
-    if (usbDriveStatus.status !== 'mounted') {
-      return err({
-        type: 'no-usb-drive',
-        message: 'No USB drive is inserted',
-      });
-    }
-
-    const listResult = await new BackupRoot(
-      usbDriveStatus.mountpoint
-    ).listBackups();
-    if (listResult.isErr()) {
-      return listResult;
-    }
-
-    return ok(
-      listResult
-        .ok()
-        .map((backup) => ({ name: basename(backup.path), path: backup.path }))
-    );
-  }
+  let currentRestore: RestoreController | undefined;
 
   return grout.createApi({
     getMachineConfig,
@@ -144,59 +107,47 @@ function buildRestoreApi({
       return backupDriveAdapter.status();
     },
 
-    listAvailableBackups,
-
-    getRestoreStatus(): RestoreStatus {
-      return status;
+    async listBackups(): Promise<Result<BackupListing[], ListBackupsError>> {
+      const usbDriveStatus = await backupDriveAdapter.status();
+      if (usbDriveStatus.status !== 'mounted') return ok([]);
+      const backupRoot = new BackupRoot(usbDriveStatus.mountpoint);
+      const backups = await backupRoot.listBackups();
+      if (backups.isErr()) return backups;
+      return ok(
+        await Promise.all(
+          backups.ok().map(async (backup) => ({
+            name: basename(backup.path),
+            path: backup.path,
+            manifestResult: await backup.readManifest(),
+          }))
+        )
+      );
     },
 
-    async restoreBackup(input: {
-      backupPath: string;
-    }): Promise<Result<void, RestoreModeError>> {
-      if (status.state === 'restoring') {
-        return err({
-          type: 'restore-in-progress',
-          message: 'Another restore is already replacing the workspace',
-        });
-      }
-
-      const availableResult = await listAvailableBackups();
-      if (availableResult.isErr()) {
-        return err({
-          type: 'backup-read-failed',
-          message: availableResult.err().message,
-        });
-      }
-      const backupPath = resolve(input.backupPath);
-      if (!availableResult.ok().some((backup) => backup.path === backupPath)) {
-        return err({
-          type: 'backup-read-failed',
-          message: `${input.backupPath} is not a backup on the inserted USB drive`,
-        });
-      }
-
-      abortController = new AbortController();
-      status = { state: 'restoring', backupPath };
-
-      const result = await restoreBackup({
-        backup: backupPath,
+    async startRestore(input: { backupPath: string }): Promise<void> {
+      assert(!currentRestore, 'Cannot start multiple restores at once');
+      const backupDriveStatus = await backupDriveAdapter.status();
+      assert(backupDriveStatus.status === 'mounted');
+      const role = await getUserRole(auth, RESTORE_MODE_STORE);
+      currentRestore = startRestore({
+        backup: input.backupPath,
         workspacePath,
-        logger,
-        signal: abortController.signal,
-        onProgressEvent: (progress) => {
-          status = { state: 'restoring', backupPath, progress };
-        },
+        // Capture the current user role since they may log out during the restore
+        logger: Logger.from(logger, () => Promise.resolve(role)),
       });
-
-      abortController = undefined;
-      status = result.isOk()
-        ? { state: 'restored', backupPath }
-        : { state: 'failed', backupPath, error: result.err() };
-      return result;
     },
 
-    cancelRestore(): void {
-      abortController?.abort();
+    getRestoreStatus(): RestoreStatus | null {
+      return currentRestore?.status() ?? null;
+    },
+
+    abortRestore(): void {
+      currentRestore?.abort();
+    },
+
+    finishRestore(): void {
+      assert(currentRestore?.status().status === 'ended');
+      currentRestore = undefined;
     },
 
     ...createSystemCallApi({

@@ -34,7 +34,7 @@ export interface WriteBackupError {
  * Reported when the caller cancelled the backup.
  */
 export interface CancelBackupError {
-  type: 'cancelled';
+  type: 'canceled';
   message: string;
 }
 
@@ -160,8 +160,8 @@ export async function createBackup(
  * Reported when the caller cancelled the backup.
  */
 const CANCELLED_ERROR: CreateBackupError = {
-  type: 'cancelled',
-  message: 'Backup cancelled',
+  type: 'canceled',
+  message: 'Backup canceled',
 };
 
 const NOT_REGULAR_FILE_MESSAGE =

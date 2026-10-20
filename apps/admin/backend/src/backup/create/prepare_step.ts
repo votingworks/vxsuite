@@ -33,7 +33,7 @@ async function statOrUndefined(path: string): Promise<Stats | undefined> {
  */
 export type PrepareError =
   | {
-      type: 'cancelled';
+      type: 'canceled';
       message: string;
     }
   | {
@@ -84,8 +84,8 @@ export type PrepareError =
  * Reported when the caller cancelled the backup.
  */
 const CANCELLED_ERROR: PrepareError = {
-  type: 'cancelled',
-  message: 'Backup cancelled',
+  type: 'canceled',
+  message: 'Backup canceled',
 };
 
 /**

@@ -1699,12 +1699,7 @@ function buildApi({
           (backup) => backup.path === backupRoot.pathFor(electionBackupName)
         );
       if (!lastBackup) return ok(null);
-      const openResult = await lastBackup.open();
-      if (openResult.isErr()) return openResult;
-      await using openedBackup = openResult.ok();
-      const manifest = await openedBackup.readManifest();
-      if (manifest.isErr()) return manifest;
-      return ok(manifest.ok().toJSON());
+      return lastBackup.readManifest();
     },
 
     async startBackup(): Promise<void> {

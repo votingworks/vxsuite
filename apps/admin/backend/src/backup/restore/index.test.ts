@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -17,7 +17,14 @@ import {
   electionFamousNames2021Fixtures,
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
-import { assertDefined, err, iter, ok } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  deferred,
+  err,
+  iter,
+  ok,
+} from '@votingworks/basics';
 import { LogEventId, mockLogger } from '@votingworks/logging';
 import {
   authenticateArtifactUsingSignatureFile,
@@ -55,7 +62,8 @@ import {
   type BackupManifestStruct,
   BackupManifestStructSchema,
 } from '../backup_manifest.js';
-import { restoreBackup } from './index.js';
+import { restoreBackup, startRestore } from './index.js';
+import { copyBackupFiles } from './copy_step.js';
 import type { RestoreProgressEvent } from '../progress.js';
 
 vi.setConfig({ testTimeout: 30_000 });
@@ -74,6 +82,11 @@ vi.mock(
 vi.mock(import('@votingworks/fs'), async () =>
   (await import('../../../test/mock_fs.js')).mockFs()
 );
+
+vi.mock(import('./copy_step.js'), async (importActual) => {
+  const actual = await importActual();
+  return { ...actual, copyBackupFiles: vi.fn(actual.copyBackupFiles) };
+});
 
 beforeEach(() => {
   mockDiskSpace();
@@ -1081,13 +1094,13 @@ test('a restore cancelled before it starts leaves the workspace alone', async ()
       logger,
       signal: AbortSignal.abort(),
     })
-  ).toEqual(err({ type: 'cancelled', message: 'Restore cancelled' }));
+  ).toEqual(err({ type: 'canceled', message: 'Restore canceled' }));
 
   expect(listWorkspace(workspacePath)).toEqual(contentsBefore);
   expect(vi.mocked(logger.log)).toHaveBeenCalledWith(
     LogEventId.BackupRestoreComplete,
     'system_administrator',
-    expect.objectContaining({ disposition: 'failure', errorType: 'cancelled' })
+    expect.objectContaining({ disposition: 'failure', errorType: 'canceled' })
   );
 });
 
@@ -1112,7 +1125,7 @@ test('a restore cancelled while vetting the backup leaves the workspace alone', 
       logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
       signal: controller.signal,
     })
-  ).toEqual(err({ type: 'cancelled', message: 'Restore cancelled' }));
+  ).toEqual(err({ type: 'canceled', message: 'Restore canceled' }));
 
   // Nothing was claimed, so what the operator had is what they still have.
   expect(listWorkspace(workspacePath)).toEqual(contentsBefore);
@@ -1136,7 +1149,7 @@ test('a restore cancelled between files empties the workspace it had claimed', a
         }
       },
     })
-  ).toEqual(err({ type: 'cancelled', message: 'Restore cancelled' }));
+  ).toEqual(err({ type: 'canceled', message: 'Restore canceled' }));
 
   // A partly-restored workspace is not something to leave behind: it must be
   // as empty as a failed restore leaves it, and the marker must be gone with
@@ -1171,7 +1184,7 @@ test('a restore cancelled partway through a file empties the workspace', async (
         }
       },
     })
-  ).toEqual(err({ type: 'cancelled', message: 'Restore cancelled' }));
+  ).toEqual(err({ type: 'canceled', message: 'Restore canceled' }));
 
   expect(listWorkspace(workspacePath)).toEqual([]);
 });
@@ -1265,4 +1278,92 @@ test('restore refuses a manifest naming a file in the control directory', async 
   });
 
   expect(listWorkspace(workspacePath)).toEqual(contentsBefore);
+});
+
+describe('startRestore/RestoreController', () => {
+  test('status()', async () => {
+    const backup = await makeBackup();
+    const workspacePath = makeUnconfiguredWorkspacePath();
+    const copyMayFinish = deferred<void>();
+    const realCopy = vi.mocked(copyBackupFiles).getMockImplementation()!;
+    vi.mocked(copyBackupFiles).mockImplementationOnce(async (options) => {
+      options.onProgressEvent?.({
+        type: '2_copying_files',
+        copiedCount: 0,
+        totalCount: 2,
+        copiedBytes: 0,
+        totalBytes: 1024,
+      });
+      await copyMayFinish.promise;
+      return realCopy(options);
+    });
+
+    const controller = startRestore({
+      backup: backup.path,
+      workspacePath,
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+    });
+    expect(controller.status()).toEqual({ status: 'starting' });
+
+    await vi.waitFor(() =>
+      expect(controller.status()).toEqual({
+        status: 'in-progress',
+        lastProgressEvent: {
+          type: '2_copying_files',
+          copiedCount: 0,
+          totalCount: 2,
+          copiedBytes: 0,
+          totalBytes: 1024,
+        },
+      })
+    );
+
+    copyMayFinish.resolve();
+    await vi.waitFor(
+      () => expect(controller.status().status).toEqual('ended'),
+      { timeout: 5_000 }
+    );
+    const status = controller.status();
+    assert(status.status === 'ended');
+    expect(status.result).toEqual(ok());
+    expect(listWorkspace(workspacePath)).toContain(
+      ADMIN_WORKSPACE_DATABASE_NAME
+    );
+  });
+
+  test('abort()', async () => {
+    const backup = await makeBackup();
+    const workspacePath = makeUnconfiguredWorkspacePath();
+    const copyStarted = deferred<void>();
+    const copyMayFinish = deferred<void>();
+    const realCopy = vi.mocked(copyBackupFiles).getMockImplementation()!;
+    vi.mocked(copyBackupFiles).mockImplementationOnce(async (options) => {
+      copyStarted.resolve();
+      await copyMayFinish.promise;
+      return realCopy(options);
+    });
+
+    const controller = startRestore({
+      backup: backup.path,
+      workspacePath,
+      logger: mockLogger({ fn: vi.fn, role: 'system_administrator' }),
+    });
+    await copyStarted.promise;
+    controller.abort();
+    copyMayFinish.resolve();
+
+    await vi.waitFor(
+      () => expect(controller.status().status).toEqual('ended'),
+      { timeout: 5_000 }
+    );
+    const status = controller.status();
+    assert(status.status === 'ended');
+    expect(status.result).toEqual(
+      err({ type: 'canceled', message: 'Restore canceled' })
+    );
+    expect(listWorkspace(workspacePath)).toEqual([]);
+
+    controller.abort();
+    expect(controller.status()).toEqual(status);
+  });
 });

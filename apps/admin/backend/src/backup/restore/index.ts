@@ -15,6 +15,52 @@ import {
   flushRestoredWorkspace,
   verifyRestoredWorkspace,
 } from './verify_step.js';
+import type { RestoreProgressEvent } from '../progress.js';
+
+/**
+ * The status of a restore started with {@link startRestore}.
+ */
+export type RestoreStatus =
+  | { status: 'starting' }
+  | { status: 'in-progress'; lastProgressEvent: RestoreProgressEvent }
+  | { status: 'ended'; result: Result<void, RestoreError> };
+
+/**
+ * A controller for monitoring/aborting the progress of a restore started with {@link startRestore}.
+ */
+export interface RestoreController {
+  status(): RestoreStatus;
+  abort(): void;
+}
+
+/**
+ * Starts a restore and returns a {@link RestoreController} for monitoring its progress and
+ * aborting it if necessary.
+ */
+export function startRestore(options: RestoreBackupOptions): RestoreController {
+  const abortController = new AbortController();
+  let status: RestoreStatus = { status: 'starting' };
+  void restoreBackup({
+    ...options,
+    onProgressEvent: (event) => {
+      status = { status: 'in-progress', lastProgressEvent: event };
+    },
+    signal: abortController.signal,
+  }).then((result) => {
+    status = {
+      status: 'ended',
+      result,
+    };
+  });
+  return {
+    status() {
+      return status;
+    },
+    abort() {
+      abortController.abort();
+    },
+  };
+}
 
 /**
  * Restores a backup from disk, typically an external USB drive. Includes the
@@ -55,8 +101,8 @@ export async function restoreBackup(
  * Reported when the caller cancelled the restore.
  */
 const CANCELLED_ERROR: RestoreError = {
-  type: 'cancelled',
-  message: 'Restore cancelled',
+  type: 'canceled',
+  message: 'Restore canceled',
 };
 
 async function tryRestoreBackup(

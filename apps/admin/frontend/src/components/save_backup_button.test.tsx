@@ -266,11 +266,11 @@ test('cancels a running backup', async () => {
   userEvent.click(within(modal).getButton('Cancel Backup'));
   pollBackupStatus({
     status: 'ended',
-    result: err({ type: 'cancelled', message: 'Backup cancelled' }),
+    result: err({ type: 'canceled', message: 'Backup canceled' }),
   });
-  await within(modal).findByRole('heading', { name: 'Backup Cancelled' });
+  await within(modal).findByRole('heading', { name: 'Backup Canceled' });
   within(modal).getByText(
-    'The backup was cancelled. You may remove the backup drive.'
+    'The backup was canceled. You may remove the backup drive.'
   );
 
   apiMock.apiClient.finishBackup.expectCallWith().resolves();
