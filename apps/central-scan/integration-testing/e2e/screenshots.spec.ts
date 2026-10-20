@@ -132,10 +132,11 @@ test('screenshots', async ({ page }, testInfo) => {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const foldedCornerSheet = await renderFoldedCornerSheet(fullPdf!);
 
-  async function saveBatch() {
+  async function saveBatch(screenshotName?: string) {
     await page
       .getByRole('button', { name: 'Save Batch' })
       .waitFor({ timeout: 60000 });
+    if (screenshotName) await screenshot(screenshotName);
     await page.getByRole('button', { name: 'Save Batch' }).click();
     await page
       .getByRole('alertdialog')
@@ -146,16 +147,26 @@ test('screenshots', async ({ page }, testInfo) => {
 
   // Scans a batch of counted (fully-voted) ballots and waits for it to finish.
   let expectedSheets = 0;
-  async function scanCountedBatch(paths: string[]) {
+  async function scanCountedBatch(
+    paths: string[],
+    screenshots: { inProgress?: string; complete?: string } = {}
+  ) {
     await devDockClient.batchScannerClearBallots();
     await devDockClient.batchScannerLoadBallots({ paths });
     await page.getByRole('button', { name: 'Start Scanning' }).click();
+    if (screenshots.inProgress) {
+      await page.getByText('Scanning', { exact: true }).waitFor();
+      await expect(page.getByTestId('batch-sheet-count')).not.toHaveText('0', {
+        timeout: 60000,
+      });
+      await screenshot(screenshots.inProgress);
+    }
     expectedSheets += paths.length;
     await expect(page.getByTestId('total-sheets')).toHaveText(
       String(expectedSheets),
       { timeout: 60000 }
     );
-    await saveBatch();
+    await saveBatch(screenshots.complete);
   }
 
   // Unconfigured: insert election manager card.
@@ -208,6 +219,10 @@ test('screenshots', async ({ page }, testInfo) => {
     'Official Ballot Mode',
     'em-settings-official-ballot-mode-button'
   );
+  await screenshotWithButtonHighlight(
+    'Imprinting Disabled',
+    'em-settings-imprinting-disabled-button'
+  );
   const officialModeOption = page.getByRole('option', {
     name: 'Official Ballot Mode',
   });
@@ -238,6 +253,10 @@ test('screenshots', async ({ page }, testInfo) => {
   await page.getByRole('button', { name: 'Scan Ballots' }).click();
   await page.getByRole('heading', { name: 'Scan Ballots' }).waitFor();
   await screenshot('scan-ballots-empty');
+  await screenshotWithLocatorHighlight(
+    page.getByTestId('batch-summary-stats'),
+    'scan-ballots-empty-batch-stats-highlight'
+  );
   await screenshotWithButtonHighlight(
     'Start Scanning',
     'scan-ballots-empty-start-scanning-button'
@@ -247,10 +266,16 @@ test('screenshots', async ({ page }, testInfo) => {
   // real use.
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   await scanCountedBatch(Array.from({ length: 9 }, () => fullPdf!));
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  await scanCountedBatch(Array.from({ length: 18 }, () => fullPdf!));
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  await scanCountedBatch(Array.from({ length: 6 }, () => fullPdf!));
+  await scanCountedBatch(
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    Array.from({ length: 18 }, () => fullPdf!),
+    { inProgress: 'scan-ballots-scanning' }
+  );
+  await scanCountedBatch(
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    Array.from({ length: 6 }, () => fullPdf!),
+    { complete: 'scan-ballots-batch-complete' }
+  );
   await screenshot('scan-ballots-with-batches');
 
   await page.getByRole('button', { name: 'Batch History' }).click();
