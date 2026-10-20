@@ -99,6 +99,11 @@ export interface UserFeaturesConfig {
    */
   VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING?: boolean;
   /**
+   * Allow the user to toggle QR ballot activation on VxMark.
+   * Requires the system settings screen to be enabled.
+   */
+  VXMARK_QR_BALLOT_ACTIVATION_SYSTEM_SETTING?: boolean;
+  /**
    * Allow the user to enable the poll worker role for VxCentralScan.
    * Requires the system settings screen to be enabled.
    */
@@ -237,6 +242,7 @@ const vxUserFeaturesConfig: UserFeaturesConfig = {
   VOTER_HELP_BUTTONS_SYSTEM_SETTING: true,
   VXCENTRALSCAN_POLL_WORKER_ROLE_SYSTEM_SETTING: true,
   VXMARK_PRINT_BLANK_BALLOTS_SYSTEM_SETTING: true,
+  VXMARK_QR_BALLOT_ACTIVATION_SYSTEM_SETTING: true,
   VXSCAN_ALARMS_SYSTEM_SETTING: true,
   VXSCAN_NUMBER_OF_REPORT_COPIES_SYSTEM_SETTING: true,
   VXSCAN_SCREEN_READER_AUDIO_SYSTEM_SETTING: true,
