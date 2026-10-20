@@ -9,6 +9,7 @@ import {
   type SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
   type Election,
+  type InsertedSmartCardAuth,
   type PrecinctId,
   pollingPlaceBallotStyles,
   pollingPlaceFromElection,
@@ -19,6 +20,7 @@ import {
   type BallotStyleQrCode,
   parseBallotStyleQrCode,
 } from './ballot_style_qr_code.js';
+import type { BarcodePrintRequest } from './activation_mode.js';
 import type { Workspace } from '../util/workspace.js';
 import { constructAuthMachineState } from '../util/auth.js';
 import type { AudioPlayerInterface } from '../audio/player.js';
@@ -29,6 +31,10 @@ interface Context {
   barcodeClient?: BarcodeReader;
   logger: Logger;
   workspace: Workspace;
+  requestBallotPrint: (
+    request: BarcodePrintRequest,
+    pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn
+  ) => boolean;
 }
 
 /**
@@ -45,8 +51,9 @@ function getQrBallotActivationEnabled(
 }
 
 /**
- * [BMD] When a poll worker is logged in, starts a voter session for the ballot
- * style in a scanned QR code.
+ * [BMD] When a poll worker is logged in, starts a voter session or requests a
+ * ballot print for the ballot style in a scanned QR code, depending on the
+ * barcode activation mode.
  * This feature is gated behind the `bmdEnableQrBallotActivation` system setting.
  */
 export function setUpBarcodeActivation(ctx: Context): void {
@@ -136,11 +143,11 @@ export function setUpBarcodeActivation(ctx: Context): void {
       case 'voter_session':
         return startVoterSession(ctx, ballotStyle.id, precinctId);
       case 'ballot_printing':
-        return ctx.logger.logAsCurrentRole(LogEventId.Info, {
-          message: 'barcode scan detected in ballot printing mode',
-          ballotStyleId: ballotStyle.id,
-          precinctId,
-        });
+        return handleBallotPrintScan(
+          ctx,
+          { ballotStyleId: ballotStyle.id, precinctId },
+          authStatus
+        );
       default:
         throwIllegalValue(mode);
     }
@@ -148,6 +155,28 @@ export function setUpBarcodeActivation(ctx: Context): void {
 
   ctx.logger.log(LogEventId.Info, 'system', {
     message: 'listening for barcode scans...',
+  });
+}
+
+async function handleBallotPrintScan(
+  ctx: Context,
+  request: BarcodePrintRequest,
+  pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn
+): Promise<void> {
+  if (!ctx.requestBallotPrint(request, pollWorkerAuth)) {
+    return ctx.logger.logAsCurrentRole(LogEventId.BarcodeScanned, {
+      message:
+        'barcode scan detected while a ballot print request is pending - ignoring',
+      disposition: 'failure',
+      ...request,
+    });
+  }
+
+  void ctx.audioPlayer?.play('success');
+  return ctx.logger.logAsCurrentRole(LogEventId.Info, {
+    message: 'barcode scan detected - ballot print requested',
+    disposition: 'success',
+    ...request,
   });
 }
 

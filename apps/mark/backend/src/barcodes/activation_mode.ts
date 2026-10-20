@@ -1,5 +1,7 @@
 import {
+  type BallotStyleId,
   DEFAULT_SYSTEM_SETTINGS,
+  type PrecinctId,
   type SystemSettings,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
@@ -24,4 +26,13 @@ export function isBarcodeBallotPrintingAllowed(
   systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS
 ): boolean {
   return !!systemSettings.allowPrintingBlankBallotsFromVxMark;
+}
+
+/**
+ * A ballot to print, from a ballot style barcode scanned in `ballot_printing`
+ * mode.
+ */
+export interface BarcodePrintRequest {
+  readonly ballotStyleId: BallotStyleId;
+  readonly precinctId: PrecinctId;
 }
