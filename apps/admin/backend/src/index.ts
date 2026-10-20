@@ -12,7 +12,11 @@ export type { BackupStatus } from './backup/create/index.js';
 export type { BackupManifestStruct } from './backup/backup_manifest.js';
 export type { BackupProgressEvent } from './backup/progress.js';
 export type { ClientApi } from './client_app.js';
-export type { AvailableBackup, RestoreApi } from './restore_app.js';
+export type {
+  BackupListing,
+  AvailableBackup,
+  RestoreApi,
+} from './restore_app.js';
 export type { RestoreStatus } from './backup/restore/index.js';
 export type { PeerApi } from './peer_app.js';
 export type { TallyReportSpec } from './reports/tally_report.js';

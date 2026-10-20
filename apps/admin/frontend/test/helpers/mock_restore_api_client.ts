@@ -13,9 +13,7 @@ import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { type Mock, vi } from 'vitest';
 import type { ApiClient } from '../../src/restore/api.js';
 
-type ListAvailableBackupsResult = Awaited<
-  ReturnType<ApiClient['listAvailableBackups']>
->;
+type ListAvailableBackupsResult = Awaited<ReturnType<ApiClient['listBackups']>>;
 
 type MockRestoreApiClient = Omit<
   MockClient<RestoreApi>,
@@ -69,7 +67,7 @@ export function createRestoreApiMock(
     },
 
     expectListAvailableBackups(result) {
-      apiClient.listAvailableBackups.expectCallWith().resolves(result);
+      apiClient.listBackups.expectCallWith().resolves(result);
     },
 
     expectGetMachineConfig(

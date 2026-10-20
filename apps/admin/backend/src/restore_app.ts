@@ -22,6 +22,7 @@ import {
   type RestoreStatus,
 } from './backup/restore/index.js';
 import type { ReadManifestResult } from './backup/backup.js';
+import type { BackupManifestStruct } from './backup/backup_manifest.js';
 
 /**
  * What restore mode presents to auth in place of a store: no election, so the
@@ -39,12 +40,21 @@ export const RESTORE_MODE_STORE: BaseStore = {
 };
 
 /**
- * A backup on the inserted USB drive that may be restored.
+ * A backup listing on the inserted USB drive, with a manifest read result.
+ */
+export interface BackupListing {
+  name: string;
+  path: string;
+  manifestResult: ReadManifestResult;
+}
+
+/**
+ * A backup that is available for restore, with its manifest.
  */
 export interface AvailableBackup {
   name: string;
   path: string;
-  manifestResult: ReadManifestResult;
+  manifest: BackupManifestStruct;
 }
 
 function buildRestoreApi({
@@ -97,9 +107,7 @@ function buildRestoreApi({
       return backupDriveAdapter.status();
     },
 
-    async listAvailableBackups(): Promise<
-      Result<AvailableBackup[], ListBackupsError>
-    > {
+    async listBackups(): Promise<Result<BackupListing[], ListBackupsError>> {
       const usbDriveStatus = await backupDriveAdapter.status();
       if (usbDriveStatus.status !== 'mounted') return ok([]);
       const backupRoot = new BackupRoot(usbDriveStatus.mountpoint);

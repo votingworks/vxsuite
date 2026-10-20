@@ -121,7 +121,7 @@ async function insertBackupDrive(
     dirname(dirname(backup.path)),
     'ext4'
   );
-  const listed = (await apiClient.listAvailableBackups()).unsafeUnwrap();
+  const listed = (await apiClient.listBackups()).unsafeUnwrap();
   expect(listed).toHaveLength(1);
   expect(listed[0]!.manifestResult.unsafeUnwrap()).toMatchObject({
     version: 1,
@@ -207,7 +207,7 @@ test('has no backups to offer without a USB drive', async () => {
   expect(await apiClient.getBackupDriveStatus()).toEqual({
     status: 'no_drive',
   });
-  expect((await apiClient.listAvailableBackups()).unsafeUnwrap()).toEqual([]);
+  expect((await apiClient.listBackups()).unsafeUnwrap()).toEqual([]);
 });
 
 test('restores a backup from the inserted USB drive and reports it as it runs', async () => {
@@ -292,7 +292,7 @@ test('passes on a drive whose backups directory is something else', async () => 
     'ext4'
   );
 
-  expect((await apiClient.listAvailableBackups()).err()).toMatchObject({
+  expect((await apiClient.listBackups()).err()).toMatchObject({
     type: 'not-directory',
   });
 });
@@ -303,7 +303,7 @@ test('lists a backup whose manifest cannot be read alongside the rest', async ()
   const unreadablePath = join(dirname(backupPath), 'unreadable');
   mkdirSync(unreadablePath);
 
-  const listed = (await apiClient.listAvailableBackups()).unsafeUnwrap();
+  const listed = (await apiClient.listBackups()).unsafeUnwrap();
   expect(listed.map((backup) => backup.path).sort()).toEqual(
     [backupPath, unreadablePath].sort()
   );

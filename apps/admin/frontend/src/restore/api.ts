@@ -132,7 +132,7 @@ export const listAvailableBackups = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.listAvailableBackups(), {
+    return useQuery(this.queryKey(), () => apiClient.listBackups(), {
       cacheTime: 0,
     });
   },

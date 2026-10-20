@@ -5,10 +5,7 @@ import {
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import type {
-  AvailableBackup,
-  RestoreStatus,
-} from '@votingworks/admin-backend';
+import type { BackupListing, RestoreStatus } from '@votingworks/admin-backend';
 import { DEV_MACHINE_ID, type DippedSmartCardAuth } from '@votingworks/types';
 import { AUTH_STATUS_POLLING_INTERVAL_MS } from '@votingworks/ui';
 import { DEFAULT_QUERY_REFETCH_INTERVAL } from '../utils/globals.js';
@@ -36,13 +33,13 @@ const SYSTEM_ADMINISTRATOR_AUTH: DippedSmartCardAuth.AuthStatus = {
   programmableCard: { status: 'no_card' },
 };
 
-const BACKUP: AvailableBackup = {
+const BACKUP: BackupListing = {
   name: 'sample-county_general-election_abc123',
   path: '/media/vx/backup/vxadmin-backups/sample-county_general-election_abc123',
   manifestResult: ok(mockBackupManifest),
 };
 
-const OLDER_BACKUP: AvailableBackup = {
+const OLDER_BACKUP: BackupListing = {
   name: 'sample-county_older-election_def456',
   path: '/media/vx/backup/vxadmin-backups/sample-county_older-election_def456',
   manifestResult: ok({

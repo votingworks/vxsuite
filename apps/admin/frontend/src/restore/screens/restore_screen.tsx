@@ -58,7 +58,7 @@ function StartRestoreModal({
       content={
         <React.Fragment>
           <P>Restore from this backup?</P>
-          <BackupDetails manifest={backup.manifestResult.unsafeUnwrap()} />
+          <BackupDetails manifest={backup.manifest} />
         </React.Fragment>
       }
       actions={
@@ -295,23 +295,27 @@ function BackupList({
   const [okBackups, errBackups] = iter(backups).partition((backup) =>
     backup.manifestResult.isOk()
   );
+  const availableBackups = okBackups.map((backup) => ({
+    ...backup,
+    manifest: backup.manifestResult.unsafeUnwrap(),
+  }));
   // eslint-disable-next-line vx/no-array-sort-mutation
-  okBackups.sort(
+  availableBackups.sort(
     (a, b) =>
-      new Date(b.manifestResult.unsafeUnwrap().createdAt).getTime() -
-      new Date(a.manifestResult.unsafeUnwrap().createdAt).getTime()
+      new Date(b.manifest.createdAt).getTime() -
+      new Date(a.manifest.createdAt).getTime()
   );
 
   return (
     <div>
       <H2 style={{ marginBottom: '1rem' }}>Select a backup to restore from</H2>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        {okBackups.map((backup) => (
+        {availableBackups.map((backup) => (
           <BackupItem
             key={backup.path}
             onClick={() => setBackupToConfirm(backup)}
           >
-            <BackupDetails manifest={backup.manifestResult.unsafeUnwrap()} />
+            <BackupDetails manifest={backup.manifest} />
           </BackupItem>
         ))}
         {errBackups.length > 0 && (
