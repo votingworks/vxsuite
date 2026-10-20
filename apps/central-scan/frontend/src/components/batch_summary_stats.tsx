@@ -52,7 +52,7 @@ export function BatchSummaryStats({
     .sum();
 
   return (
-    <Stats>
+    <Stats data-testid="batch-summary-stats">
       <StatCard>
         <Stat
           label="Total Batches"
