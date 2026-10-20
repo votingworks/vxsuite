@@ -203,7 +203,6 @@ function RestoreProgressModal({
           />
         );
       }
-      // TODO do we want to show more detailed error info?
       return (
         <Modal
           title="Restore Failed"

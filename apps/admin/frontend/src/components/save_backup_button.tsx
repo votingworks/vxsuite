@@ -266,7 +266,6 @@ function SaveBackupFlowModal({
           />
         );
       }
-      // TODO show error details?
       return (
         <Modal
           title="Backup Failed"
