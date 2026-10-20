@@ -18,7 +18,7 @@ export const TallyReportColumns = styled.div`
 
 export const PrintedReport = styled.section`
   font-size: 12px;
-  page-break-after: always;
+  break-after: page;
 
   @media print {
     font-size: 12px;

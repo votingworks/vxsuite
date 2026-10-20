@@ -317,10 +317,11 @@ const Ballot = styled.div<BallotProps>`
   line-height: 1;
   font-family: ${VX_DEFAULT_FONT_FAMILY_DECLARATION};
   font-size: ${DEFAULT_FONT_SIZE_PTS}pt !important;
-  page-break-after: always;
+  break-after: page;
 
   @page {
     margin: 0.375in;
+    /* stylelint-disable-next-line at-rule-descriptor-value-no-unknown */
     size: ${(props) => {
       // @coverage-defer
       switch (props.sheetSize) {
@@ -398,7 +399,7 @@ const QrCodeContainer = styled.div`
 
       & strong {
         font-size: 1.25em;
-        word-break: break-word;
+        overflow-wrap: anywhere;
       }
     }
   }
@@ -418,7 +419,6 @@ const ContestContainer = styled.div`
   border-bottom: 0.01em solid #000;
   padding: 0.25em 0;
   break-inside: avoid;
-  page-break-inside: avoid;
 `;
 
 const ContestTitle = styled.div`

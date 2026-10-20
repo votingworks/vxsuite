@@ -44,8 +44,7 @@ export function ReportElectionInfo({
 export const ReportMetadata = styled.p<{ wrapItems?: boolean }>`
   display: flex;
   flex-wrap: ${({ wrapItems }) => (wrapItems ? 'wrap' : 'nowrap')};
-  column-gap: ${({ wrapItems }) => (wrapItems ? '1.5em' : '1em')};
-  row-gap: ${({ wrapItems }) => (wrapItems ? '0.25em' : '0')};
+  gap: ${({ wrapItems }) => (wrapItems ? '0.25em 1.5em' : '0 1em')};
 
   > * {
     white-space: nowrap;

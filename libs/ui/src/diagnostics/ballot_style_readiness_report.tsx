@@ -24,20 +24,18 @@ const BallotStyleInfoList = styled.div`
 
 const BallotStyleInfo = styled.div`
   max-width: 100%;
-  page-break-inside: avoid;
+  break-inside: avoid;
 `;
 
 const BallotStyleInfoContent = styled.div`
   align-items: baseline;
   display: grid;
-  grid-gap: 0.5rem;
+  gap: 0.5rem;
   grid-template-columns: max-content minmax(min-content, max-content);
   max-width: 100%;
 `;
 
-const BallotStyleDetailLabel = styled(Font)`
-  align-self: right;
-`;
+const BallotStyleDetailLabel = styled(Font)``;
 
 interface BallotStyleDetailValuesProps {
   numColumns: number;
@@ -46,7 +44,7 @@ interface BallotStyleDetailValuesProps {
 const BallotStyleDetailValues = styled.div<BallotStyleDetailValuesProps>`
   display: grid;
   flex-direction: column;
-  grid-gap: 0.5rem 1rem;
+  gap: 0.5rem 1rem;
   grid-template-columns: repeat(
     ${(p) => p.numColumns},
     minmax(min-content, max-content)

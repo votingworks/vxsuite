@@ -83,7 +83,7 @@ const BallotsPrintedGrid = styled.div<{
   display: grid;
   grid-template-columns: ${({ columns }) =>
     columns.map((c) => getColumnWidth(c)).join(' ')};
-  page-break-inside: auto;
+  break-inside: auto;
   font-size: 14px;
 
   span {

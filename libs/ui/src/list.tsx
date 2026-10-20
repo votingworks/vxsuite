@@ -28,7 +28,7 @@ function getSpacingValueRem(p: { theme: DefaultTheme }) {
 
 const Container = styled.ul<ContainerProps>`
   display: grid;
-  grid-gap: ${(p) => getSpacingValueRem(p)}rem;
+  gap: ${(p) => getSpacingValueRem(p)}rem;
   grid-template-columns: repeat(${(p) => p.numColumns}, 1fr);
   margin: 0;
   padding: 0;

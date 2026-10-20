@@ -7,7 +7,7 @@ import { ReportTable } from './layout.js';
 
 const Container = styled.div`
   margin-top: 1.5em;
-  page-break-inside: avoid;
+  break-inside: avoid;
 `;
 
 const SectionTitle = styled.p`

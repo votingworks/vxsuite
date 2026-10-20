@@ -110,8 +110,7 @@ const DownloadCardContents = styled.div`
   height: 100%;
 
   > :last-child {
-    align-self: center;
-    justify-self: end;
+    place-self: center end;
   }
 
   @media (min-width: 40rem) {

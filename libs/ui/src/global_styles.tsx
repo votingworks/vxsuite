@@ -8,7 +8,6 @@ import { ICON_FLIP_IN_RTL_MODE_CLASS_NAME } from './icons.js';
 // updated to use that component.
 export const AUDIO_ONLY_STYLES = css`
   clip-path: polygon(0 0, 0 0, 0 0);
-  clip: rect(1px, 1px, 1px, 1px);
   height: 1px;
   overflow: hidden;
   position: absolute !important;

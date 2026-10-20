@@ -23,7 +23,7 @@ const Container = styled.div<ContainerProps>`
   display: grid;
   flex-direction: column;
   grid-template-columns: repeat(${(p) => p.numCardsPerRow}, 1fr);
-  grid-gap: ${(p) => CONTENT_SPACING_VALUES_REM[p.theme.sizeMode]}rem;
+  gap: ${(p) => CONTENT_SPACING_VALUES_REM[p.theme.sizeMode]}rem;
 
   /**
    * Necessary to ensure that scroll buttons properly display when content overflows. Leave 40vh

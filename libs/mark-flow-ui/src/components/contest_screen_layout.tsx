@@ -12,7 +12,7 @@ export const ChoicesGrid = styled.div.attrs({
 })`
   display: grid;
   grid-auto-rows: minmax(auto, 1fr);
-  grid-gap: 0.5rem;
+  gap: 0.5rem;
 
   /*
    * Add a little vertical padding to account for focus outlines on the contest

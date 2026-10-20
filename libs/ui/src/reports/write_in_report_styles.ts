@@ -2,7 +2,7 @@ import { styled } from '../styled.js';
 
 export const ContestSection = styled.div`
   margin-top: 1.5em;
-  page-break-inside: avoid;
+  break-inside: avoid;
 `;
 
 export const ContestHeading = styled.h2`

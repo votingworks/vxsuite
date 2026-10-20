@@ -104,30 +104,22 @@ function StatusLine({
 
 const StatusLineNeedsAdjudication = styled(StatusLine).attrs({
   icon: <Icons.PenToSquare color="warning" fixedWidth />,
-})`
-  /* stylelint-disable-next-line no-empty-source */
-`;
+})``;
 
 const StatusLineWarning = styled(StatusLine).attrs({
   icon: <Icons.Warning color="warning" fixedWidth />,
   color: 'primary',
-})`
-  /* stylelint-disable-next-line no-empty-source */
-`;
+})``;
 
 const StatusLineConfirmed = styled(StatusLine).attrs({
   icon: <Icons.Done fixedWidth />,
   color: 'primary',
-})`
-  /* stylelint-disable-next-line no-empty-source */
-`;
+})``;
 
 const StatusLineAdjudicated = styled(StatusLine).attrs({
   icon: <Icons.PenToSquare fixedWidth />,
   color: 'primary',
-})`
-  /* stylelint-disable-next-line no-empty-source */
-`;
+})``;
 
 function getVotesAllowed(contest: Contest): number {
   return contest.type === 'candidate' ? contest.seats : 1;

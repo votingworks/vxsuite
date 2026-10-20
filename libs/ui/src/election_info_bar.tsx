@@ -12,13 +12,12 @@ import { LabelledText } from './labelled_text.js';
 import { electionStrings, PollingPlaceName } from './ui_strings/index.js';
 
 export const InfoBar = styled.div`
-  align-content: flex-end;
+  place-content: flex-end space-between;
   align-items: center;
   border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
     ${(p) => p.theme.colors.onBackground};
   display: flex;
   gap: 0.5rem;
-  justify-content: space-between;
   padding: 0.25rem;
 `;
 
@@ -30,12 +29,11 @@ const ElectionInfoContainer = styled.div`
 `;
 
 const SystemInfoContainer = styled.div`
-  align-content: flex-end;
+  place-content: flex-end flex-end;
   flex: 1;
   display: flex;
   flex-wrap: nowrap;
   gap: 0.75rem;
-  justify-content: flex-end;
 `;
 
 export type InfoBarMode = 'voter' | 'pollworker' | 'admin';

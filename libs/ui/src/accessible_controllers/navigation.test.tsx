@@ -8,9 +8,7 @@ import {
 } from './navigation.js';
 import { FocusableAudio } from '../focusable_audio.js';
 
-const TestButton = styled.button.attrs({ type: 'button' })`
-  /* stylelint-disable no-empty-source */
-`;
+const TestButton = styled.button.attrs({ type: 'button' })``;
 
 test('advanceElementFocus', () => {
   render(

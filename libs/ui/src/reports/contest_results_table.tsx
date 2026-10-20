@@ -43,7 +43,7 @@ const MetadataLabel = styled.p`
 
 const ContestContainer = styled.div`
   margin: 2.5em 0;
-  page-break-inside: avoid;
+  break-inside: avoid;
 `;
 
 const ContestTable = styled(ReportTable)`
@@ -68,7 +68,6 @@ const ContestTable = styled(ReportTable)`
     padding: 0.25em 0.625em;
     padding-right: 0;
     text-align: right;
-    white-space: no-wrap;
   }
 
   & th {
@@ -84,7 +83,7 @@ const ContestTable = styled(ReportTable)`
     &:first-child {
       padding-left: 0.25em;
       text-align: left;
-      word-break: break-word;
+      overflow-wrap: anywhere;
     }
 
     &:not(:first-child) {

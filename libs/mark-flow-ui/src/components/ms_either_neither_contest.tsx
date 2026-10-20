@@ -25,7 +25,7 @@ import { ContestHeader } from './contest_header.js';
 const ChoicesGrid = styled.div`
   display: grid;
   grid-auto-rows: minmax(auto, 1fr);
-  grid-gap: 0.5rem;
+  gap: 0.5rem;
   grid-template:
     'either-neither-label divider pick-one-label' auto
     'either-option divider first-option' auto
