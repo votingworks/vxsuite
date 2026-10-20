@@ -18,6 +18,9 @@ import type { MachineConfig } from '@votingworks/mark-backend';
 import { pollWorkerComponents } from '@votingworks/mark-flow-ui';
 import React from 'react';
 import {
+  clearPendingBarcodePrintRequest,
+  getBarcodeActivationMode,
+  getPendingBarcodePrintRequest,
   getSystemSettings,
   setPollsState,
   setTestMode,
@@ -73,10 +76,26 @@ export function PollWorkerScreen({
   const systemSettingsQuery = getSystemSettings.useQuery();
   const setPollsStateMutation = setPollsState.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
-
   const allowPrintingBlankBallots = Boolean(
     systemSettingsQuery.data?.allowPrintingBlankBallotsFromVxMark
   );
+  const barcodeActivationModeQuery = getBarcodeActivationMode.useQuery({
+    enabled: Boolean(
+      allowPrintingBlankBallots &&
+      systemSettingsQuery.data?.bmdEnableQrBallotActivation
+    ),
+  });
+  const isBarcodeBallotPrintingEnabled =
+    barcodeActivationModeQuery.data === 'ballot_printing';
+  const pendingBarcodePrintRequestQuery =
+    getPendingBarcodePrintRequest.useQuery({
+      enabled: isBarcodeBallotPrintingEnabled,
+    });
+  const clearPendingBarcodePrintRequestMutation =
+    clearPendingBarcodePrintRequest.useMutation();
+  const barcodePrintRequest = isBarcodeBallotPrintingEnabled
+    ? (pendingBarcodePrintRequestQuery.data ?? undefined)
+    : undefined;
 
   const onChooseBallotStyle = React.useCallback(
     (precinctId: PrecinctId, ballotStyleId: BallotStyleId) => {
@@ -121,7 +140,7 @@ export function PollWorkerScreen({
     );
   }
 
-  if (showPrintBlankBallotScreen) {
+  if (showPrintBlankBallotScreen || barcodePrintRequest) {
     return (
       <PrintBlankBallotScreen
         isLiveMode={isLiveMode}
@@ -130,7 +149,13 @@ export function PollWorkerScreen({
         electionDefinition={electionDefinition}
         machineConfig={machineConfig}
         pollingPlaceId={pollingPlaceId}
-        onBackButtonPress={() => setShowPrintBlankBallotScreen(false)}
+        barcodePrintRequest={barcodePrintRequest}
+        onExit={() => {
+          setShowPrintBlankBallotScreen(false);
+          if (barcodePrintRequest) {
+            clearPendingBarcodePrintRequestMutation.mutate();
+          }
+        }}
       />
     );
   }

@@ -12,10 +12,14 @@ import {
 import { assertDefined } from '@votingworks/basics';
 import {
   format,
+  getDefaultLanguageBallotStyleAndLanguage,
   getLanguageOptions,
   getRelatedBallotStyle,
 } from '@votingworks/utils';
-import type { MachineConfig } from '@votingworks/mark-backend';
+import type {
+  BarcodePrintRequest,
+  MachineConfig,
+} from '@votingworks/mark-backend';
 import { pollWorkerComponents } from '@votingworks/mark-flow-ui';
 import {
   Button,
@@ -44,6 +48,32 @@ const Contents = styled.div`
   gap: 1rem;
 `;
 
+interface BallotSelection {
+  readonly precinctId: PrecinctId;
+  readonly ballotStyleId: BallotStyleId;
+}
+
+interface LockedBallotSelection {
+  readonly selection: BallotSelection;
+  readonly languageCode: LanguageCode;
+}
+
+function lockedSelectionForBarcodePrintRequest(
+  election: Election,
+  request: BarcodePrintRequest
+): LockedBallotSelection {
+  const { ballotStyleId, languageCode } = assertDefined(
+    getDefaultLanguageBallotStyleAndLanguage({
+      election,
+      ballotStyleId: request.ballotStyleId,
+    })
+  );
+  return {
+    selection: { precinctId: request.precinctId, ballotStyleId },
+    languageCode,
+  };
+}
+
 export interface PrintBlankBallotScreenProps {
   isLiveMode: boolean;
   electionPackageHash: string;
@@ -51,7 +81,12 @@ export interface PrintBlankBallotScreenProps {
   election: Election;
   machineConfig: MachineConfig;
   pollingPlaceId: string;
-  onBackButtonPress: () => void;
+  /**
+   * A ballot requested by a barcode scan. When set, the ballot options are
+   * locked to it and the screen exits once its print finishes.
+   */
+  barcodePrintRequest?: BarcodePrintRequest;
+  onExit: () => void;
 }
 
 export function PrintBlankBallotScreen({
@@ -61,21 +96,33 @@ export function PrintBlankBallotScreen({
   election,
   machineConfig,
   pollingPlaceId,
-  onBackButtonPress,
+  barcodePrintRequest,
+  onExit,
 }: PrintBlankBallotScreenProps): JSX.Element {
   const { BallotStyleSelect } = pollWorkerComponents;
   const printBlankBallotMutation = printBlankBallot.useMutation();
 
   const [jobId, setJobId] = React.useState<PrintJobId>();
+  const [isBarcodePrint, setIsBarcodePrint] = React.useState(false);
+  const hasStartedPrint =
+    printBlankBallotMutation.isLoading || jobId !== undefined;
 
   const printJobStatusQuery = getPrintJobStatus.useQuery(jobId);
 
-  const [selection, setSelection] = React.useState<{
-    precinctId: PrecinctId;
-    ballotStyleId: BallotStyleId;
-  }>();
-  const [selectedLanguage, setSelectedLanguage] =
-    React.useState<LanguageCode>();
+  const [manualSelection, setManualSelection] =
+    React.useState<BallotSelection>();
+  const [manualLanguage, setManualLanguage] = React.useState<LanguageCode>();
+  const barcodeSelection = React.useMemo(
+    () =>
+      barcodePrintRequest &&
+      lockedSelectionForBarcodePrintRequest(election, barcodePrintRequest),
+    [barcodePrintRequest, election]
+  );
+  const lockedSelection =
+    hasStartedPrint && !isBarcodePrint ? undefined : barcodeSelection;
+  const isLocked = lockedSelection !== undefined;
+  const selection = lockedSelection?.selection ?? manualSelection;
+  const selectedLanguage = lockedSelection?.languageCode ?? manualLanguage;
   // Language is encoded in the ballot style ID, so the languages a ballot style
   // is available in are the ones whose language-specific variant exists in its
   // group.
@@ -103,8 +150,8 @@ export function PrintBlankBallotScreen({
 
   const onChooseBallotStyle = React.useCallback(
     (precinctId: PrecinctId, ballotStyleId: BallotStyleId) => {
-      setSelection({ precinctId, ballotStyleId });
-      setSelectedLanguage(availableLanguagesFor(ballotStyleId)[0]);
+      setManualSelection({ precinctId, ballotStyleId });
+      setManualLanguage(availableLanguagesFor(ballotStyleId)[0]);
     },
     [availableLanguagesFor]
   );
@@ -123,15 +170,29 @@ export function PrintBlankBallotScreen({
           targetBallotStyleLanguage: assertDefined(selectedLanguage),
         }).unsafeUnwrap().id
       : ballotStyleId;
+    setIsBarcodePrint(isLocked);
     startPrint(precinctId, resolvedBallotStyleId);
-  }, [election, selectedLanguage, selection, showLanguagePicker, startPrint]);
+  }, [
+    election,
+    isLocked,
+    selectedLanguage,
+    selection,
+    showLanguagePicker,
+    startPrint,
+  ]);
 
-  const hasStartedPrint =
-    printBlankBallotMutation.isLoading || jobId !== undefined;
   const printJobStatus = hasStartedPrint
     ? getPrintJobDisplayStatus(printJobStatusQuery.data)
     : undefined;
   const printOutcome = printJobStatus?.outcome;
+
+  function onPrintFinished(): void {
+    if (isLocked) {
+      onExit();
+    } else {
+      setJobId(undefined);
+    }
+  }
 
   return (
     <Screen>
@@ -139,14 +200,14 @@ export function PrintBlankBallotScreen({
       <Main padded>
         <Contents>
           <H2 as="h1">Blank Ballot Printing</H2>
-          <Button icon="Previous" onPress={onBackButtonPress}>
+          <Button icon="Previous" onPress={onExit}>
             Back
           </Button>
           <H4 as="h2">Ballot Style</H4>
           <BallotStyleSelect
             election={election}
             onSelect={onChooseBallotStyle}
-            disabled={hasStartedPrint}
+            disabled={hasStartedPrint || isLocked}
             selectedBallotStyleId={selection?.ballotStyleId}
             configuredPrecinctsAndSplits={getConfiguredPrecinctsAndSplits({
               election,
@@ -166,11 +227,11 @@ export function PrintBlankBallotScreen({
                 onChange={(value) => {
                   // @coverage-defer
                   if (value) {
-                    setSelectedLanguage(value);
+                    setManualLanguage(value);
                   }
                 }}
                 style={{ width: '100%' }}
-                disabled={hasStartedPrint}
+                disabled={hasStartedPrint || isLocked}
               />
             </React.Fragment>
           )}
@@ -190,14 +251,14 @@ export function PrintBlankBallotScreen({
         <Modal
           title="Ballot Printed"
           content={<P>Remove the printed ballot from the printer.</P>}
-          actions={<Button onPress={() => setJobId(undefined)}>Done</Button>}
+          actions={<Button onPress={onPrintFinished}>Done</Button>}
         />
       )}
       {printOutcome === 'failed' && (
         <PrintJobFailedModal
           multipleBallotsAttempted={false}
           reason={printJobStatus?.reason}
-          onClose={() => setJobId(undefined)}
+          onClose={onPrintFinished}
         />
       )}
       <ElectionInfoBar
