@@ -241,11 +241,17 @@ test('lists the backups on the drive and can select one to restore', async () =>
   );
 });
 
-test.each<{ status: RestoreStatus; text: string; progress: string }>([
+test.each<{
+  status: RestoreStatus;
+  text: string;
+  progress: string;
+  cancelable: boolean;
+}>([
   {
     status: { status: 'starting' },
     text: 'Preparing to restore backup',
     progress: '0%',
+    cancelable: true,
   },
   {
     status: {
@@ -254,6 +260,7 @@ test.each<{ status: RestoreStatus; text: string; progress: string }>([
     },
     text: 'Preparing to restore backup',
     progress: '0%',
+    cancelable: true,
   },
   {
     status: {
@@ -268,6 +275,7 @@ test.each<{ status: RestoreStatus; text: string; progress: string }>([
     },
     text: 'Restoring files from backup drive',
     progress: '25%',
+    cancelable: true,
   },
   {
     status: {
@@ -276,6 +284,7 @@ test.each<{ status: RestoreStatus; text: string; progress: string }>([
     },
     text: 'Finishing restore',
     progress: '100%',
+    cancelable: false,
   },
   {
     status: {
@@ -284,10 +293,11 @@ test.each<{ status: RestoreStatus; text: string; progress: string }>([
     },
     text: 'Finishing restore',
     progress: '100%',
+    cancelable: false,
   },
 ])(
   'shows the phase of a restore: $text at $progress',
-  async ({ status, text, progress }) => {
+  async ({ status, text, progress, cancelable }) => {
     setUnlockedWithDrive(status);
     apiMock.expectListAvailableBackups(ok([BACKUP]));
     renderRestoreApp();
@@ -298,6 +308,12 @@ test.each<{ status: RestoreStatus; text: string; progress: string }>([
     expect(
       within(modal).getByRole('progressbar').firstElementChild
     ).toHaveStyle(`width: ${progress}`);
+    const cancelButton = within(modal).getButton('Cancel Restore');
+    if (cancelable) {
+      expect(cancelButton).toBeEnabled();
+    } else {
+      expect(cancelButton).toBeDisabled();
+    }
   }
 );
 
@@ -318,6 +334,8 @@ test('cancels a running restore', async () => {
   );
 
   abort.resolve();
+  await waitFor(() => expect(queryClient.isMutating()).toEqual(0));
+  expect(within(modal).getButton('Cancel Restore')).toBeDisabled();
   apiMock.setRestoreStatus({
     status: 'ended',
     result: err({ type: 'canceled', message: 'Restore canceled' }),
