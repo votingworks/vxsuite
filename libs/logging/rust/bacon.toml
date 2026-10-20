@@ -31,7 +31,6 @@ command = [
     "clippy::cast-possible-wrap",
 ]
 need_stdout = false
-watch = ["types-rust"]
 
 [jobs.clippy-all]
 command = ["cargo", "clippy", "--all-targets", "--color", "always"]

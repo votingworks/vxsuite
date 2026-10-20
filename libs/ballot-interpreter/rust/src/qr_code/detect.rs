@@ -547,7 +547,7 @@ mod test {
 
     #[test]
     fn test_detect_qr_code() {
-        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures");
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../test/fixtures");
         let image_path = fixture_path.join("all-bubble-ballot/blank-front.jpg");
         let image = image::open(image_path).unwrap().into_luma8();
         let qr_code = detect_with_strategy(
@@ -570,7 +570,7 @@ mod test {
     #[test]
     fn test_detect_qr_code_in_skewed_image() {
         let fixture_path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/alameda-test");
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../test/fixtures/alameda-test");
         let top_path = fixture_path.join("scan-skewed-side-a.jpeg");
         let bottom_path = fixture_path.join("scan-skewed-side-b.jpeg");
         let _ = detect_with_strategy(

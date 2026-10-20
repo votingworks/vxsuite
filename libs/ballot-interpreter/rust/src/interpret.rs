@@ -646,7 +646,7 @@ mod test {
         (precinct_id, ballot_style_id): (&str, &str),
         is_test_mode: bool,
     ) -> (GrayImage, GrayImage, Options) {
-        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures");
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../test/fixtures");
         let election_path = fixture_path.join(fixture_name).join("election.json");
         let (election, expected_ballot_hash) = load_election_and_ballot_hash(&election_path);
         let bubble_template = ballot_scan_bubble_image();
@@ -683,7 +683,7 @@ mod test {
         starting_page_number: usize,
     ) -> (GrayImage, GrayImage, Options) {
         let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("../hmpb/fixtures/")
+            .join("../../hmpb/fixtures/")
             .join(fixture_name);
         let election_path = fixture_path.join("election.json");
         let (election, expected_ballot_hash) = load_election_and_ballot_hash(&election_path);
@@ -1091,7 +1091,7 @@ mod test {
     fn test_rotated_ballot_scoring_write_in_areas_no_write_ins() {
         let (_, _, mut options) = load_hmpb_fixture("vx-general-election/letter-en", 3);
         let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("test/fixtures/vx-general-election-letter");
+            .join("../test/fixtures/vx-general-election-letter");
         let (side_a_image_rotated, side_b_image_rotated) = load_ballot_card_images(
             &fixture_path.join("blank-ballot-p3-rotated-1deg.jpg"),
             &fixture_path.join("blank-ballot-p4-rotated-1deg.jpg"),
@@ -1338,7 +1338,7 @@ mod test {
         // hash so the hash check passes — we want to exercise the
         // scoring-time check, not the hash check.
         let custom_election_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("../hmpb/fixtures/vx-general-election/custom-8.5x17-en/election.json");
+            .join("../../hmpb/fixtures/vx-general-election/custom-8.5x17-en/election.json");
         let (custom_election, _) = load_election_and_ballot_hash(&custom_election_path);
         options.election = custom_election;
 
@@ -1698,7 +1698,7 @@ mod test {
     fn test_retry_streak_detection_finds_streaks() {
         // Load a real streaked ballot image
         let side_a_image = image::open(
-            "./test/fixtures/diagnostic/streaked/f82222c0-1fda-4f02-9746-fdf111886ce4-front.jpg",
+            "../test/fixtures/diagnostic/streaked/f82222c0-1fda-4f02-9746-fdf111886ce4-front.jpg",
         )
         .expect("Failed to load streaked image")
         .into_luma8();
@@ -1788,7 +1788,7 @@ mod test {
     fn test_normal_streak_threshold_catches_wide_streaks() {
         // Load a real streaked ballot image
         let side_a_image = image::open(
-            "./test/fixtures/diagnostic/streaked/f82222c0-1fda-4f02-9746-fdf111886ce4-front.jpg",
+            "../test/fixtures/diagnostic/streaked/f82222c0-1fda-4f02-9746-fdf111886ce4-front.jpg",
         )
         .expect("Failed to load streaked image")
         .into_luma8();
@@ -1817,7 +1817,7 @@ mod test {
     fn test_retry_threshold_with_different_values() {
         // Load a real streaked ballot image
         let side_a_image = image::open(
-            "./test/fixtures/diagnostic/streaked/f82222c0-1fda-4f02-9746-fdf111886ce4-front.jpg",
+            "../test/fixtures/diagnostic/streaked/f82222c0-1fda-4f02-9746-fdf111886ce4-front.jpg",
         )
         .expect("Failed to load streaked image")
         .into_luma8();

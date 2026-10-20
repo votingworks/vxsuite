@@ -142,25 +142,25 @@ mod test {
 
     fixture_test!(
         test_blank_20lb_white_passes,
-        "./test/fixtures/diagnostic/blank/20lb",
+        "../test/fixtures/diagnostic/blank/20lb",
         true
     );
 
     fixture_test!(
         test_blank_40lb_white_passes,
-        "./test/fixtures/diagnostic/blank/40lb",
+        "../test/fixtures/diagnostic/blank/40lb",
         true
     );
 
     fixture_test!(
         test_blank_manilla_passes,
-        "./test/fixtures/diagnostic/blank/manilla",
+        "../test/fixtures/diagnostic/blank/manilla",
         true
     );
 
     fixture_test!(
         test_streaked_paper_fails,
-        "./test/fixtures/diagnostic/streaked",
+        "../test/fixtures/diagnostic/streaked",
         false
     );
 
@@ -174,7 +174,7 @@ mod test {
 
     #[test]
     fn test_non_blank_paper_fails() {
-        let img = image::open("./test/fixtures/all-bubble-ballot/blank-front.jpg")
+        let img = image::open("../test/fixtures/all-bubble-ballot/blank-front.jpg")
             .ok()
             .map(DynamicImage::into_luma8)
             .unwrap();

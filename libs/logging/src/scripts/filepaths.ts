@@ -20,7 +20,7 @@ export const rustEnumsTemplateFilepath = join(
 );
 export const rustEnumsOutputFilepath = join(
   packageRoot,
-  'types-rust/src/log_event_enums.rs'
+  'rust/src/log_event_enums.rs'
 );
 
 export const markdownDocumentationFilepath = join(

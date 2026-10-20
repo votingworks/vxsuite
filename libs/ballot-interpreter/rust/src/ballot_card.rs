@@ -1019,7 +1019,7 @@ mod tests {
     #[test]
     fn test_reread_normalized_export_binarizes_like_the_original() {
         let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("test/fixtures/104h-2025-04/imprinter-front.png");
+            .join("../test/fixtures/104h-2025-04/imprinter-front.png");
         let scan = image::open(path).unwrap().into_luma8();
         let original = BallotImage::from_image(scan, None).unwrap();
         let expected = threshold(original.image(), original.threshold());

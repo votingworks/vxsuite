@@ -129,6 +129,10 @@
       "path": "libs/ballot-interpreter"
     },
     {
+      "name": "libs/ballot-interpreter/rust",
+      "path": "libs/ballot-interpreter/rust"
+    },
+    {
       "name": "libs/basics",
       "path": "libs/basics"
     },
@@ -203,6 +207,10 @@
     {
       "name": "libs/pdi-scanner",
       "path": "libs/pdi-scanner"
+    },
+    {
+      "name": "libs/pdi-scanner/rust",
+      "path": "libs/pdi-scanner/rust"
     },
     {
       "name": "libs/custom-paper-handler",

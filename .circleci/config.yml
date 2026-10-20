@@ -2465,30 +2465,30 @@ jobs:
           name: Check Formatting
           command: |
             (cd . && cargo fmt --check)
-            (cd libs/ballot-interpreter && cargo fmt --check)
+            (cd libs/ballot-interpreter/rust && cargo fmt --check)
             (cd libs/types-rs && cargo fmt --check)
-            (cd libs/pdi-scanner && cargo fmt --check)
+            (cd libs/pdi-scanner/rust && cargo fmt --check)
       - run:
           name: Build
           command: |
             cargo build --manifest-path ./Cargo.toml
-            cargo build --manifest-path libs/ballot-interpreter/Cargo.toml
+            cargo build --manifest-path libs/ballot-interpreter/rust/Cargo.toml
             cargo build --manifest-path libs/types-rs/Cargo.toml
-            cargo build --manifest-path libs/pdi-scanner/Cargo.toml
+            cargo build --manifest-path libs/pdi-scanner/rust/Cargo.toml
       - run:
           name: Lint
           command: |
             cargo clippy --all-targets --manifest-path ./Cargo.toml
-            cargo clippy --all-targets --manifest-path libs/ballot-interpreter/Cargo.toml
+            cargo clippy --all-targets --manifest-path libs/ballot-interpreter/rust/Cargo.toml
             cargo clippy --all-targets --manifest-path libs/types-rs/Cargo.toml
-            cargo clippy --all-targets --manifest-path libs/pdi-scanner/Cargo.toml
+            cargo clippy --all-targets --manifest-path libs/pdi-scanner/rust/Cargo.toml
       - run:
           name: Test
           command: |
             cargo test --manifest-path ./Cargo.toml
-            cargo test --manifest-path libs/ballot-interpreter/Cargo.toml
+            cargo test --manifest-path libs/ballot-interpreter/rust/Cargo.toml
             cargo test --manifest-path libs/types-rs/Cargo.toml
-            cargo test --manifest-path libs/pdi-scanner/Cargo.toml
+            cargo test --manifest-path libs/pdi-scanner/rust/Cargo.toml
 
 
   shellcheck:
@@ -2817,7 +2817,7 @@ commands:
       - restore_cache:
           name: Restore Cargo Cache
           key:
-            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/Cargo.lock" }}
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/rust/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/rust/Cargo.lock" }}
       - run:
           name: Install Rust Toolchain
           command: rustup toolchain install
@@ -2827,6 +2827,6 @@ commands:
       - save_cache:
           name: Save Cargo Cache
           key:
-            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/Cargo.lock" }}
+            cargo-cache-{{ checksum ".circleci/config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/rust/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/rust/Cargo.lock" }}
           paths:
             - /root/.cargo
