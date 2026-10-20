@@ -723,7 +723,7 @@ pub fn draw_scored_write_in_areas(
         canvas,
         &[
             (DARK_GREEN, "Write-In Area Bounds"),
-            (ORANGE, "Write-In Area Score (100% = completely filled)"),
+            (ORANGE, "Write-In Ink Area (mm²)"),
         ],
         Point::new(10, 10),
     );
