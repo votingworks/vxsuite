@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   asElectionDefinition,
+  electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import {
@@ -28,6 +29,10 @@ import {
   getRelatedBallotStyle,
 } from '@votingworks/utils';
 import { pollWorkerComponents } from '@votingworks/mark-flow-ui';
+import type {
+  BarcodeActivationMode,
+  BarcodePrintRequest,
+} from '@votingworks/mark-backend';
 import { createQueryClient, getPrintJobStatus } from '../api.js';
 import {
   act,
@@ -56,8 +61,8 @@ const MockSectionSessionStart = vi.spyOn(
   'SectionSessionStart'
 );
 
-const MOCK_BALLOT_STYLE_PRECINCT_ID = 'precinct-1' as PrecinctId;
-const MOCK_BALLOT_STYLE_ID = 'ballot-style-1' as BallotStyleId;
+const MOCK_BALLOT_STYLE_PRECINCT_ID = '21' as PrecinctId;
+const MOCK_BALLOT_STYLE_ID = '5' as BallotStyleId;
 const MockBallotStyleSelect = vi.spyOn(
   pollWorkerComponents,
   'BallotStyleSelect'
@@ -388,12 +393,12 @@ const englishBallotStyle = assertDefined(
   )
 );
 
-function mockBallotStyleSelectReturning(ballotStyleId: BallotStyleId) {
+function mockBallotStyleSelectReturning(
+  ballotStyleId: BallotStyleId,
+  precinctId: PrecinctId = MOCK_BALLOT_STYLE_PRECINCT_ID
+) {
   MockBallotStyleSelect.mockImplementation(({ onSelect }) => (
-    <button
-      type="button"
-      onClick={() => onSelect(MOCK_BALLOT_STYLE_PRECINCT_ID, ballotStyleId)}
-    >
+    <button type="button" onClick={() => onSelect(precinctId, ballotStyleId)}>
       Mock Select Ballot Style
     </button>
   ));
@@ -490,3 +495,280 @@ test('clears a settled blank ballot job status so a reused job id is not read fr
     expect(queryClient.getQueryData(queryKey)).toBeUndefined();
   });
 });
+
+const scannedBallotStyle = assertDefined(election.ballotStyles[0]);
+const scannedBarcodePrintRequest: BarcodePrintRequest = {
+  ballotStyleId: scannedBallotStyle.id,
+  precinctId: assertDefined(scannedBallotStyle.precincts[0]),
+};
+
+function lastBallotStyleSelectProps() {
+  return assertDefined(MockBallotStyleSelect.mock.lastCall)[0];
+}
+
+interface LockedBallotStyleSelection {
+  selectedBallotStyleId: BallotStyleId;
+  selectedPrecinctOrSplitId?: string;
+}
+
+function expectLockedBallotStyleSelect(selection: LockedBallotStyleSelection) {
+  expect(lastBallotStyleSelectProps()).toMatchObject({
+    lockedToSelection: true,
+    ...selection,
+  });
+}
+
+const scannedBallotStyleSelection: LockedBallotStyleSelection = {
+  selectedBallotStyleId: scannedBarcodePrintRequest.ballotStyleId,
+  selectedPrecinctOrSplitId: scannedBarcodePrintRequest.precinctId,
+};
+
+function expectBarcodePrint(request = scannedBarcodePrintRequest) {
+  apiMock.mockApiClient.printBlankBallot
+    .expectCallWith(request)
+    .resolves(MOCK_PRINT_JOB_ID);
+}
+
+async function expectPollWorkerMenu() {
+  await screen.findByText('Print Blank Ballot');
+  expect(screen.queryByText('Blank Ballot Printing')).toBeNull();
+}
+
+function expectBarcodeBallotPrinting(
+  mode: BarcodeActivationMode = 'ballot_printing'
+) {
+  apiMock.expectGetSystemSettings({
+    ...DEFAULT_SYSTEM_SETTINGS,
+    allowPrintingBlankBallotsFromVxMark: true,
+    bmdEnableQrBallotActivation: true,
+  });
+  apiMock.expectGetBarcodeActivationMode(mode);
+}
+
+test('a pending barcode print request opens the print screen with the scanned options locked', async () => {
+  expectBarcodeBallotPrinting();
+  apiMock.setPendingBarcodePrintRequest(scannedBarcodePrintRequest);
+  expectBarcodePrint();
+
+  renderScreen();
+
+  await screen.findByText('Blank Ballot Printing');
+  expectLockedBallotStyleSelect(scannedBallotStyleSelection);
+
+  fireEvent.click(screen.getByText('Print Ballot'));
+  await screen.findByText('Ballot Printed');
+  expect(
+    apiMock.mockApiClient.clearPendingBarcodePrintRequest
+  ).not.toHaveBeenCalled();
+
+  fireEvent.click(screen.getByText('Done'));
+  await expectPollWorkerMenu();
+  expect(
+    apiMock.mockApiClient.clearPendingBarcodePrintRequest
+  ).toHaveBeenCalledTimes(1);
+});
+
+test('returns to the poll worker menu after a failed barcode print', async () => {
+  expectBarcodeBallotPrinting();
+  apiMock.setPendingBarcodePrintRequest(scannedBarcodePrintRequest);
+  apiMock.setPrintJobStatus({ outcome: 'failed', reason: 'printer-error' });
+  expectBarcodePrint();
+
+  renderScreen();
+
+  fireEvent.click(await screen.findByText('Print Ballot'));
+  await screen.findByText('Ballot Not Printed');
+  userEvent.click(screen.getByRole('button', { name: 'Close' }));
+
+  await expectPollWorkerMenu();
+  expect(
+    apiMock.mockApiClient.clearPendingBarcodePrintRequest
+  ).toHaveBeenCalledTimes(1);
+});
+
+test('Back clears a pending barcode print request', async () => {
+  expectBarcodeBallotPrinting();
+  apiMock.setPendingBarcodePrintRequest(scannedBarcodePrintRequest);
+
+  renderScreen();
+
+  fireEvent.click(await screen.findByText('Back'));
+  await expectPollWorkerMenu();
+  expect(
+    apiMock.mockApiClient.clearPendingBarcodePrintRequest
+  ).toHaveBeenCalledTimes(1);
+});
+
+test('a barcode print request locks the language to the scanned ballot style', async () => {
+  const spanishBallotStyle = getRelatedBallotStyle({
+    ballotStyles: multiLanguageElection.ballotStyles,
+    sourceBallotStyleId: englishBallotStyle.id,
+    targetBallotStyleLanguage: 'es-US',
+  }).unsafeUnwrap();
+  const request: BarcodePrintRequest = {
+    ballotStyleId: spanishBallotStyle.id,
+    precinctId: assertDefined(spanishBallotStyle.precincts[0]),
+  };
+  expectBarcodeBallotPrinting();
+  apiMock.setPendingBarcodePrintRequest(request);
+  expectBarcodePrint(request);
+
+  renderScreen(
+    {},
+    mockPollWorkerAuth(multiLanguageDefinition),
+    multiLanguageDefinition
+  );
+
+  await screen.findByText(
+    format.languageDisplayName({ languageCode: 'es-US' })
+  );
+  expectLockedBallotStyleSelect({
+    selectedBallotStyleId: englishBallotStyle.id,
+  });
+  expect(screen.getByLabelText('Ballot language')).toBeDisabled();
+
+  fireEvent.click(screen.getByText('Print Ballot'));
+  await screen.findByText('Ballot Printed');
+});
+
+test('a barcode scan fills in the manual print screen', async () => {
+  expectBarcodeBallotPrinting();
+  expectBarcodePrint();
+
+  renderScreen();
+
+  fireEvent.click(await screen.findByText('Print Blank Ballot'));
+  fireEvent.click(screen.getByText('Mock Select Ballot Style'));
+  expect(lastBallotStyleSelectProps()).toMatchObject({
+    disabled: false,
+    selectedBallotStyleId: MOCK_BALLOT_STYLE_ID,
+  });
+
+  apiMock.setPendingBarcodePrintRequest(scannedBarcodePrintRequest);
+  await waitFor(() =>
+    expectLockedBallotStyleSelect(scannedBallotStyleSelection)
+  );
+
+  fireEvent.click(screen.getByText('Print Ballot'));
+  await screen.findByText('Ballot Printed');
+  fireEvent.click(screen.getByText('Done'));
+  await expectPollWorkerMenu();
+});
+
+test('a barcode scan during a manual print is dropped once the manual print finishes', async () => {
+  expectBarcodeBallotPrinting();
+  apiMock.mockApiClient.printBlankBallot
+    .expectCallWith({
+      precinctId: MOCK_BALLOT_STYLE_PRECINCT_ID,
+      ballotStyleId: MOCK_BALLOT_STYLE_ID,
+    })
+    .resolves(MOCK_PRINT_JOB_ID);
+
+  renderScreen();
+
+  fireEvent.click(await screen.findByText('Print Blank Ballot'));
+  fireEvent.click(screen.getByText('Mock Select Ballot Style'));
+  fireEvent.click(screen.getByText('Print Ballot'));
+  await screen.findByText('Ballot Printed');
+
+  apiMock.setPendingBarcodePrintRequest(scannedBarcodePrintRequest);
+  await waitFor(() =>
+    expectLockedBallotStyleSelect(scannedBallotStyleSelection)
+  );
+  screen.getByText('Ballot Printed');
+
+  fireEvent.click(screen.getByText('Done'));
+  await expectPollWorkerMenu();
+  expect(
+    apiMock.mockApiClient.clearPendingBarcodePrintRequest
+  ).toHaveBeenCalledTimes(1);
+});
+
+test.each<{ description: string; expectSettings: () => void }>([
+  {
+    description: 'QR ballot activation is disabled',
+    expectSettings: () => expectSystemSettings(true),
+  },
+  {
+    description: 'the barcode activation mode is voter session',
+    expectSettings: () => expectBarcodeBallotPrinting('voter_session'),
+  },
+])(
+  'does not poll for barcode print requests when $description',
+  async ({ expectSettings }) => {
+    expectSettings();
+    apiMock.setPendingBarcodePrintRequest(scannedBarcodePrintRequest);
+
+    renderScreen();
+
+    await expectPollWorkerMenu();
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(
+      apiMock.mockApiClient.getPendingBarcodePrintRequest
+    ).not.toHaveBeenCalled();
+    expect(screen.queryByText('Blank Ballot Printing')).toBeNull();
+  }
+);
+
+test('a barcode print request for a split precinct in a primary selects the split, party, and language', async () => {
+  const splitsDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+  expectBarcodeBallotPrinting();
+  apiMock.setPendingBarcodePrintRequest({
+    ballotStyleId: '4-F_zh-Hant',
+    precinctId: 'precinct-c2',
+  });
+
+  renderScreen(
+    { pollingPlaceId: 'precinct-c2-polling-place' },
+    mockPollWorkerAuth(splitsDefinition),
+    splitsDefinition
+  );
+
+  await screen.findByText('Blank Ballot Printing');
+  expectLockedBallotStyleSelect({
+    selectedBallotStyleId: '4-F_en',
+    selectedPrecinctOrSplitId: 'precinct-c2-split-2',
+  });
+  screen.getByText(format.languageDisplayName({ languageCode: 'zh-Hant' }));
+});
+
+test.each<{
+  description: string;
+  ballotStyleId: BallotStyleId;
+  precinctId: PrecinctId;
+  expectedPrecinctOrSplitId: string;
+}>([
+  {
+    description: 'precinct',
+    ballotStyleId: '12',
+    precinctId: '23',
+    expectedPrecinctOrSplitId: '23',
+  },
+  {
+    description: 'split',
+    ballotStyleId: '5',
+    precinctId: '21',
+    expectedPrecinctOrSplitId: '21-1',
+  },
+])(
+  'shows the manually selected $description in the ballot style picker',
+  async ({ ballotStyleId, precinctId, expectedPrecinctOrSplitId }) => {
+    mockBallotStyleSelectReturning(ballotStyleId, precinctId);
+    expectSystemSettings(true);
+
+    renderScreen();
+
+    fireEvent.click(await screen.findByText('Print Blank Ballot'));
+    expect(
+      lastBallotStyleSelectProps().selectedPrecinctOrSplitId
+    ).toBeUndefined();
+
+    fireEvent.click(screen.getByText('Mock Select Ballot Style'));
+    expect(lastBallotStyleSelectProps()).toMatchObject({
+      lockedToSelection: false,
+      selectedBallotStyleId: ballotStyleId,
+      selectedPrecinctOrSplitId: expectedPrecinctOrSplitId,
+    });
+  }
+);
