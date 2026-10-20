@@ -172,7 +172,7 @@ test('status and configuration', async () => {
   isDeviceAttachedMock.mockReturnValue(false);
   mockCancelAllJobs.expectCallWith().returns(ok());
   expect(await printer.status()).toEqual({ connected: false });
-  expect(logger.log).toHaveBeenCalledTimes(2);
+  expect(logger.log).toHaveBeenCalledTimes(3);
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.PrinterConfigurationRemoved,
     'system',
@@ -384,6 +384,49 @@ test('still reports the disconnect when clearing the queue fails', async () => {
   );
 
   expect(await printer.status()).toEqual({ connected: false });
+});
+
+test('logs an accepted print request with its job id', async () => {
+  const logger = mockBaseLogger({ fn: vi.fn });
+  const printer = detectPrinter(logger);
+
+  mockPrintData
+    .expectCallWith({ data: Buffer.of(), raw: {} })
+    .returns(MOCK_JOB_ID);
+  await printer.print({ data: Buffer.of() });
+
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.PrinterPrintRequest,
+    'system',
+    {
+      message: 'Submitted print job to CUPS',
+      disposition: 'success',
+      jobId: MOCK_JOB_ID,
+    }
+  );
+});
+
+test('logs a rejected print request and rethrows', async () => {
+  const logger = mockBaseLogger({ fn: vi.fn });
+  const printer = detectPrinter(logger);
+
+  mockPrintData
+    .expectCallWith({ data: Buffer.of(), raw: {} })
+    .throws(new Error('lp: Error - no default destination available.'));
+  await expect(printer.print({ data: Buffer.of() })).rejects.toThrow(
+    'lp: Error - no default destination available.'
+  );
+
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.PrinterPrintRequest,
+    'system',
+    {
+      message: 'Failed to submit print job to CUPS',
+      disposition: 'failure',
+      error: 'lp: Error - no default destination available.',
+    }
+  );
+  expect(startPrintJobMonitor).not.toHaveBeenCalled();
 });
 
 test('logs a successful queue clear', async () => {

@@ -123,9 +123,24 @@ export function detectPrinter(logger: BaseLogger): Printer {
             assertDefined(getPrinterConfig(printerDevice.uri))
           )
         : {};
-      const jobId = await printData({
-        ...props,
-        raw: { ...printerOptions, ...raw },
+      let jobId: PrintJobId;
+      try {
+        jobId = await printData({
+          ...props,
+          raw: { ...printerOptions, ...raw },
+        });
+      } catch (error) {
+        logger.log(LogEventId.PrinterPrintRequest, 'system', {
+          message: 'Failed to submit print job to CUPS',
+          disposition: 'failure',
+          error: extractErrorMessage(error),
+        });
+        throw error;
+      }
+      logger.log(LogEventId.PrinterPrintRequest, 'system', {
+        message: 'Submitted print job to CUPS',
+        disposition: 'success',
+        jobId,
       });
       startPrintJobMonitor({
         jobId,
