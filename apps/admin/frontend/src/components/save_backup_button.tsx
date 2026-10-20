@@ -148,39 +148,48 @@ function SaveBackupFlowModal({
         backupStatus.status === 'in-progress'
           ? backupStatus.lastProgressEvent
           : undefined;
-      const progressContent = (() => {
+      const { progressContent, canAbort } = (() => {
         switch (progressEvent?.type) {
           case undefined:
           case '1_preparing':
           case '2_db_snapshot':
           case '3_staging_files':
-            return (
-              <React.Fragment>
-                <ProgressBar progress={0} />
-                <div>Preparing to save backup</div>
-              </React.Fragment>
-            );
+            return {
+              progressContent: (
+                <React.Fragment>
+                  <ProgressBar progress={0} />
+                  <div>Preparing to save backup</div>
+                </React.Fragment>
+              ),
+              canAbort: true,
+            };
           case '4_copying_files':
-            return (
-              <React.Fragment>
-                <ProgressBar
-                  progress={
-                    progressEvent.copiedBytes / progressEvent.totalBytes
-                  }
-                />
-                <div>Saving files to backup drive</div>
-              </React.Fragment>
-            );
+            return {
+              progressContent: (
+                <React.Fragment>
+                  <ProgressBar
+                    progress={
+                      progressEvent.copiedBytes / progressEvent.totalBytes
+                    }
+                  />
+                  <div>Saving files to backup drive</div>
+                </React.Fragment>
+              ),
+              canAbort: true,
+            };
           case '5_writing_manifest':
           case '6_flushing_backup':
           case '7_swapping_backup':
           case '8_flushing_swap':
-            return (
-              <React.Fragment>
-                <ProgressBar progress={1} />
-                <div>Finishing saving backup</div>
-              </React.Fragment>
-            );
+            return {
+              progressContent: (
+                <React.Fragment>
+                  <ProgressBar progress={1} />
+                  <div>Finishing saving backup</div>
+                </React.Fragment>
+              ),
+              canAbort: false,
+            };
           default:
             throwIllegalValue(progressEvent);
         }
@@ -205,7 +214,11 @@ function SaveBackupFlowModal({
               icon="Cancel"
               variant="danger"
               onPress={() => abortBackupMutation.mutate()}
-              disabled={abortBackupMutation.isLoading}
+              disabled={
+                abortBackupMutation.isLoading ||
+                abortBackupMutation.isSuccess ||
+                !canAbort
+              }
             >
               Cancel Backup
             </Button>

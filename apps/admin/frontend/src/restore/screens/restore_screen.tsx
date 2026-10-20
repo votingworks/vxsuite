@@ -100,35 +100,44 @@ function RestoreProgressModal({
         restoreStatus.status === 'in-progress'
           ? restoreStatus.lastProgressEvent
           : undefined;
-      const progressContent = (() => {
+      const { progressContent, canAbort } = (() => {
         switch (progressEvent?.type) {
           case undefined:
           case '1_preparing':
-            return (
-              <React.Fragment>
-                <ProgressBar progress={0} />
-                <div>Preparing to restore backup</div>
-              </React.Fragment>
-            );
+            return {
+              progressContent: (
+                <React.Fragment>
+                  <ProgressBar progress={0} />
+                  <div>Preparing to restore backup</div>
+                </React.Fragment>
+              ),
+              canAbort: true,
+            };
           case '2_copying_files':
-            return (
-              <React.Fragment>
-                <ProgressBar
-                  progress={
-                    progressEvent.copiedBytes / progressEvent.totalBytes
-                  }
-                />
-                <div>Restoring files from backup drive</div>
-              </React.Fragment>
-            );
+            return {
+              progressContent: (
+                <React.Fragment>
+                  <ProgressBar
+                    progress={
+                      progressEvent.copiedBytes / progressEvent.totalBytes
+                    }
+                  />
+                  <div>Restoring files from backup drive</div>
+                </React.Fragment>
+              ),
+              canAbort: true,
+            };
           case '3_verifying':
           case '4_flushing_workspace':
-            return (
-              <React.Fragment>
-                <ProgressBar progress={1} />
-                <div>Finishing restore</div>
-              </React.Fragment>
-            );
+            return {
+              progressContent: (
+                <React.Fragment>
+                  <ProgressBar progress={1} />
+                  <div>Finishing restore</div>
+                </React.Fragment>
+              ),
+              canAbort: false,
+            };
           default:
             throwIllegalValue(progressEvent);
         }
@@ -152,7 +161,11 @@ function RestoreProgressModal({
               icon="Cancel"
               variant="danger"
               onPress={() => abortRestoreMutation.mutate()}
-              disabled={abortRestoreMutation.isLoading}
+              disabled={
+                abortRestoreMutation.isLoading ||
+                abortRestoreMutation.isSuccess ||
+                !canAbort
+              }
             >
               Cancel Restore
             </Button>

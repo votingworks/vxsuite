@@ -1,10 +1,8 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import type { QueryClient } from '@tanstack/react-query';
 import { deferred, err, ok } from '@votingworks/basics';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import type {
-  BackupProgressEvent,
-  BackupStatus,
-} from '@votingworks/admin-backend';
+import type { BackupStatus } from '@votingworks/admin-backend';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import {
@@ -18,6 +16,7 @@ import {
   mockBackupManifest,
   mockSavedBackupStatus,
 } from '../../test/api_mock_data.js';
+import { createQueryClient } from '../api.js';
 import { SaveBackupButton } from './save_backup_button.js';
 
 const electionDefinition = readElectionGeneralDefinition();
@@ -38,8 +37,12 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-function renderButton() {
-  renderInAppContext(<SaveBackupButton />, { apiMock, electionDefinition });
+function renderButton(queryClient?: QueryClient) {
+  renderInAppContext(<SaveBackupButton />, {
+    apiMock,
+    electionDefinition,
+    queryClient,
+  });
 }
 
 function pollBackupStatus(status: BackupStatus | null) {
@@ -102,60 +105,100 @@ test('continues once a backup drive is inserted', async () => {
   expect(within(modal).getButton('Save Backup')).toBeEnabled();
 });
 
-test.each<{ event: BackupProgressEvent; text: string; width: string }>([
+test.each<{
+  status: BackupStatus;
+  text: string;
+  width: string;
+  cancelable: boolean;
+}>([
   {
-    event: { type: '1_preparing' },
+    status: { status: 'starting' },
     text: 'Preparing to save backup',
     width: '0%',
+    cancelable: true,
   },
   {
-    event: { type: '2_db_snapshot', progress: 0.5 },
+    status: {
+      status: 'in-progress',
+      lastProgressEvent: { type: '1_preparing' },
+    },
     text: 'Preparing to save backup',
     width: '0%',
+    cancelable: true,
   },
   {
-    event: { type: '3_staging_files', progress: 0.5 },
+    status: {
+      status: 'in-progress',
+      lastProgressEvent: { type: '2_db_snapshot', progress: 0.5 },
+    },
     text: 'Preparing to save backup',
     width: '0%',
+    cancelable: true,
   },
   {
-    event: {
-      type: '4_copying_files',
-      copiedCount: 1,
-      totalCount: 2,
-      copiedBytes: 256,
-      totalBytes: 1024,
+    status: {
+      status: 'in-progress',
+      lastProgressEvent: { type: '3_staging_files', progress: 0.5 },
+    },
+    text: 'Preparing to save backup',
+    width: '0%',
+    cancelable: true,
+  },
+  {
+    status: {
+      status: 'in-progress',
+      lastProgressEvent: {
+        type: '4_copying_files',
+        copiedCount: 1,
+        totalCount: 2,
+        copiedBytes: 256,
+        totalBytes: 1024,
+      },
     },
     text: 'Saving files to backup drive',
     width: '25%',
+    cancelable: true,
   },
   {
-    event: { type: '5_writing_manifest' },
+    status: {
+      status: 'in-progress',
+      lastProgressEvent: { type: '5_writing_manifest' },
+    },
     text: 'Finishing saving backup',
     width: '100%',
+    cancelable: false,
   },
   {
-    event: { type: '6_flushing_backup' },
+    status: {
+      status: 'in-progress',
+      lastProgressEvent: { type: '6_flushing_backup' },
+    },
     text: 'Finishing saving backup',
     width: '100%',
+    cancelable: false,
   },
   {
-    event: { type: '7_swapping_backup' },
+    status: {
+      status: 'in-progress',
+      lastProgressEvent: { type: '7_swapping_backup' },
+    },
     text: 'Finishing saving backup',
     width: '100%',
+    cancelable: false,
   },
   {
-    event: { type: '8_flushing_swap' },
+    status: {
+      status: 'in-progress',
+      lastProgressEvent: { type: '8_flushing_swap' },
+    },
     text: 'Finishing saving backup',
     width: '100%',
+    cancelable: false,
   },
 ])(
-  'shows the phase of a backup at $event.type',
-  async ({ event, text, width }) => {
-    apiMock.setBackupStatus({
-      status: 'in-progress',
-      lastProgressEvent: event,
-    });
+  'shows the phase of a backup: $text at $width',
+  async ({ status, text, width, cancelable }) => {
+    apiMock.setBackupStatus(status);
     renderButton();
 
     const modal = await screen.findByRole('alertdialog');
@@ -164,6 +207,12 @@ test.each<{ event: BackupProgressEvent; text: string; width: string }>([
     expect(
       within(modal).getByRole('progressbar').firstElementChild
     ).toHaveStyle(`width: ${width}`);
+    const cancelButton = within(modal).getButton('Cancel Backup');
+    if (cancelable) {
+      expect(cancelButton).toBeEnabled();
+    } else {
+      expect(cancelButton).toBeDisabled();
+    }
   }
 );
 
@@ -257,13 +306,23 @@ test('cancels a running backup', async () => {
     status: 'in-progress',
     lastProgressEvent: { type: '1_preparing' },
   });
-  renderButton();
+  const queryClient = createQueryClient();
+  renderButton(queryClient);
 
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Saving Backup' });
 
-  apiMock.apiClient.abortBackup.expectCallWith().resolves();
+  const abort = deferred<void>();
+  apiMock.apiClient.abortBackup.expectCallWith().returns(abort.promise);
   userEvent.click(within(modal).getButton('Cancel Backup'));
+  await waitFor(() =>
+    expect(within(modal).getButton('Cancel Backup')).toBeDisabled()
+  );
+
+  abort.resolve();
+  await waitFor(() => expect(queryClient.isMutating()).toEqual(0));
+  expect(within(modal).getButton('Cancel Backup')).toBeDisabled();
+
   pollBackupStatus({
     status: 'ended',
     result: err({ type: 'canceled', message: 'Backup canceled' }),
