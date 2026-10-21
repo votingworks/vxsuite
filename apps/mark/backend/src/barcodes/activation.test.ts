@@ -434,7 +434,9 @@ describe('setUpBarcodeActivation', () => {
     });
   });
 
-  function setUpActivePollingPlace(): void {
+  function setUpActivePollingPlace(
+    systemSettingsOverrides: Partial<SystemSettings> = {}
+  ): void {
     workspace.store.setElectionAndJurisdiction({
       electionData: electionDefinition.electionData,
       jurisdiction: TEST_JURISDICTION,
@@ -444,6 +446,7 @@ describe('setUpBarcodeActivation', () => {
     workspace.store.setSystemSettings({
       ...DEFAULT_SYSTEM_SETTINGS,
       bmdEnableQrBallotActivation: true,
+      ...systemSettingsOverrides,
     });
     workspace.store.setPollingPlaceId(pollingPlace!.id);
     workspace.store.setPollsState('polls_open');
@@ -552,5 +555,22 @@ describe('setUpBarcodeActivation', () => {
         { ballotStyleId, precinctId }
       );
     });
+  });
+
+  test('only logs the scan in ballot printing mode', async () => {
+    setUpActivePollingPlace({ allowPrintingBlankBallotsFromVxMark: true });
+    workspace.store.setBarcodeActivationMode('ballot_printing');
+    const [precinctId] = pollingPlacePrecinctIds(pollingPlace!);
+
+    mockBarcodeClient.emit('scan', encodeQrCode({ ballotStyleId, precinctId }));
+
+    await vi.waitFor(() => {
+      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(LogEventId.Info, {
+        message: 'barcode scan detected in ballot printing mode',
+        ballotStyleId,
+        precinctId,
+      });
+    });
+    expect(mockAuth.startCardlessVoterSession).not.toHaveBeenCalled();
   });
 });

@@ -75,6 +75,10 @@ import { constructAuthMachineState } from './util/auth.js';
 import type { ElectionRecord, Store } from './store.js';
 import type * as barcodes from './barcodes/index.js';
 import { setUpBarcodeActivation } from './barcodes/activation.js';
+import {
+  type BarcodeActivationMode,
+  isBarcodeBallotPrintingAllowed,
+} from './barcodes/activation_mode.js';
 import type { AudioPlayerInterface, SoundName } from './audio/player.js';
 import { saveReadinessReport } from './readiness_report.js';
 import { printTestPage } from './util/print_test_page.js';
@@ -623,6 +627,23 @@ export function buildApi(ctx: Context) {
       void logger.logAsCurrentRole(LogEventId.PollingPlaceChanged, {
         disposition: 'success',
         message: `User set the polling place for the machine to ${name}`,
+      });
+    },
+
+    getBarcodeActivationMode(): BarcodeActivationMode {
+      return store.getBarcodeActivationMode();
+    },
+
+    setBarcodeActivationMode(input: { mode: BarcodeActivationMode }): void {
+      assert(
+        input.mode !== 'ballot_printing' ||
+          isBarcodeBallotPrintingAllowed(store.getSystemSettings()),
+        'Ballot printing is not enabled in the system settings'
+      );
+      store.setBarcodeActivationMode(input.mode);
+      void logger.logAsCurrentRole(LogEventId.Info, {
+        disposition: 'success',
+        message: `User set the barcode activation mode to ${input.mode}`,
       });
     },
 

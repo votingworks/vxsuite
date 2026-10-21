@@ -37,6 +37,11 @@ import {
 import { join } from 'node:path';
 import type { PrintCalibration } from '@votingworks/hmpb';
 import { DateTime } from 'luxon';
+import {
+  type BarcodeActivationMode,
+  BarcodeActivationModeSchema,
+  DEFAULT_BARCODE_ACTIVATION_MODE,
+} from './barcodes/activation_mode.js';
 
 const SchemaPath = join(import.meta.dirname, '../schema.sql');
 
@@ -369,6 +374,35 @@ export class Store {
       'update election set ballots_printed_count = ?',
       ballotsPrintedCount
     );
+  }
+
+  /**
+   * Gets the stored barcode ballot activation mode.
+   */
+  getBarcodeActivationMode(): BarcodeActivationMode {
+    const electionRow = this.client.one(
+      'select barcode_activation_mode as rawBarcodeActivationMode from election'
+    ) as { rawBarcodeActivationMode: string } | undefined;
+
+    if (!electionRow) {
+      return DEFAULT_BARCODE_ACTIVATION_MODE;
+    }
+
+    return safeParse(
+      BarcodeActivationModeSchema,
+      electionRow.rawBarcodeActivationMode
+    ).unsafeUnwrap();
+  }
+
+  /**
+   * Sets the barcode ballot activation mode.
+   */
+  setBarcodeActivationMode(mode: BarcodeActivationMode): void {
+    assert(
+      this.hasElection(),
+      'Cannot set barcode activation mode without an election.'
+    );
+    this.client.run('update election set barcode_activation_mode = ?', mode);
   }
 
   getPrintCalibration(): PrintCalibration {

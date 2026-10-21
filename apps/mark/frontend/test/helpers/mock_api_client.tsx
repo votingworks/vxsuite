@@ -7,6 +7,7 @@ import {
 } from '@votingworks/grout-test-utils';
 import type {
   Api,
+  BarcodeActivationMode,
   MachineConfig,
   ElectionState,
   PrintBallotProps,
@@ -349,6 +350,16 @@ export function createApiMock() {
 
     expectSetPollsState(pollsState: PollsState) {
       mockApiClient.setPollsState.expectCallWith({ pollsState }).resolves();
+    },
+
+    expectGetBarcodeActivationMode(mode: BarcodeActivationMode) {
+      mockApiClient.getBarcodeActivationMode.expectCallWith().resolves(mode);
+    },
+
+    expectSetBarcodeActivationMode(mode: BarcodeActivationMode) {
+      mockApiClient.setBarcodeActivationMode
+        .expectCallWith({ mode })
+        .resolves();
     },
 
     expectSetTestMode(isTestMode: boolean) {

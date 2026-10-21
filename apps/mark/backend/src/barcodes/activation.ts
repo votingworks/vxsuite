@@ -3,11 +3,13 @@ import util from 'node:util';
 import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, type Logger } from '@votingworks/logging';
 import { isPollWorkerAuth } from '@votingworks/utils';
-import { assert, find } from '@votingworks/basics';
+import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import {
+  type BallotStyleId,
   type SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
   type Election,
+  type PrecinctId,
   pollingPlaceBallotStyles,
   pollingPlaceFromElection,
 } from '@votingworks/types';
@@ -129,53 +131,73 @@ export function setUpBarcodeActivation(ctx: Context): void {
     }
     const { ballotStyle, precinctId } = selection;
 
-    void ctx.logger.logAsCurrentRole(LogEventId.Info, {
-      ballotStyleId: ballotStyle.id,
-      disposition: 'success',
-      message: 'barcode scan detected - starting voter session',
-      precinctId,
-    });
-
-    try {
-      const machineState = constructAuthMachineState(ctx.workspace);
-      ctx.logger.log(LogEventId.Info, 'system', {
-        message: `starting cardless voter session with machine state`,
-        machineState: JSON.stringify(machineState),
-
-        ballotStyleId: ballotStyle.id,
-        precinctId,
-      });
-
-      await ctx.auth.startCardlessVoterSession(machineState, {
-        ballotStyleId: ballotStyle.id,
-        precinctId,
-      });
-
-      // Verify the session was actually started
-      const newAuthStatus = await ctx.auth.getAuthStatus(machineState);
-      ctx.logger.log(LogEventId.Info, 'system', {
-        message: `auth status AFTER starting session: ${newAuthStatus.status}`,
-        authStatusAfter: JSON.stringify(newAuthStatus),
-      });
-
-      void ctx.logger.logAsCurrentRole(LogEventId.Info, {
-        message: 'voter session started successfully',
-        disposition: 'success',
-      });
-
-      void ctx.audioPlayer?.play('success');
-    } catch (error) {
-      ctx.logger.log(LogEventId.UnknownError, 'system', {
-        message: 'failed to start voter session',
-        error: util.inspect(error),
-        disposition: 'failure',
-      });
+    const mode = ctx.workspace.store.getBarcodeActivationMode();
+    switch (mode) {
+      case 'voter_session':
+        return startVoterSession(ctx, ballotStyle.id, precinctId);
+      case 'ballot_printing':
+        return ctx.logger.logAsCurrentRole(LogEventId.Info, {
+          message: 'barcode scan detected in ballot printing mode',
+          ballotStyleId: ballotStyle.id,
+          precinctId,
+        });
+      default:
+        throwIllegalValue(mode);
     }
   });
 
   ctx.logger.log(LogEventId.Info, 'system', {
     message: 'listening for barcode scans...',
   });
+}
+
+async function startVoterSession(
+  ctx: Context,
+  ballotStyleId: BallotStyleId,
+  precinctId: PrecinctId
+): Promise<void> {
+  void ctx.logger.logAsCurrentRole(LogEventId.Info, {
+    ballotStyleId,
+    disposition: 'success',
+    message: 'barcode scan detected - starting voter session',
+    precinctId,
+  });
+
+  try {
+    const machineState = constructAuthMachineState(ctx.workspace);
+    ctx.logger.log(LogEventId.Info, 'system', {
+      message: `starting cardless voter session with machine state`,
+      machineState: JSON.stringify(machineState),
+
+      ballotStyleId,
+      precinctId,
+    });
+
+    await ctx.auth.startCardlessVoterSession(machineState, {
+      ballotStyleId,
+      precinctId,
+    });
+
+    // Verify the session was actually started
+    const newAuthStatus = await ctx.auth.getAuthStatus(machineState);
+    ctx.logger.log(LogEventId.Info, 'system', {
+      message: `auth status AFTER starting session: ${newAuthStatus.status}`,
+      authStatusAfter: JSON.stringify(newAuthStatus),
+    });
+
+    void ctx.logger.logAsCurrentRole(LogEventId.Info, {
+      message: 'voter session started successfully',
+      disposition: 'success',
+    });
+
+    void ctx.audioPlayer?.play('success');
+  } catch (error) {
+    ctx.logger.log(LogEventId.UnknownError, 'system', {
+      message: 'failed to start voter session',
+      error: util.inspect(error),
+      disposition: 'failure',
+    });
+  }
 }
 
 function ballotStyleForPollingPlace(
