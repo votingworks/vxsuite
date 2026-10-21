@@ -29,7 +29,7 @@ import type {
   WriteInCandidateRecord,
   WriteInRecord,
 } from '@votingworks/admin-backend';
-import { allContestOptions, getBallotStyleGroup } from '@votingworks/utils';
+import { getBallotStyleGroup, uniqueContestOptions } from '@votingworks/utils';
 import { assertDefined, find } from '@votingworks/basics';
 import {
   fireEvent,
@@ -232,7 +232,10 @@ function buildContestAdjudicationData({
             (!contestPartyId || bs.partyId === contestPartyId)
         )
       );
-  const options = [...allContestOptions(contest, ballotStyleGroup)].map(
+
+  const candidateOrderings = ballotStyleGroup.orderedCandidatesByContest;
+
+  const options = [...uniqueContestOptions(contest, candidateOrderings)].map(
     (option) => ({
       definition: option,
       scannedVote: votes.includes(option.id),

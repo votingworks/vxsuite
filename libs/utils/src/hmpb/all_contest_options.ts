@@ -1,121 +1,71 @@
-import {
-  assert,
-  assertDefined,
-  find,
-  throwIllegalValue,
-  uniqueBy,
-} from '@votingworks/basics';
+import { assert, find, throwIllegalValue } from '@votingworks/basics';
 import {
   type Contest,
-  type BallotStyle,
-  type BallotStyleGroup,
   type CandidateContest,
   type CandidateContestOption,
   type ContestOption,
-  getOrderedCandidatesForContestInBallotStyle,
+  getOrderedCandidates,
   type YesNoContest,
   type YesNoContestOption,
   type StraightPartyContest,
   type StraightPartyContestOption,
   type Election,
+  type OptionalCandidateOrderings,
 } from '@votingworks/types';
 
+export const WRITE_IN_ID_PREFIX = 'write-in-';
+
 /**
- * Enumerates all contest options in the order they would appear on a HMPB,
- * including all instances of multi-endorsed candidates.
- * For candidate contests, respects ballot style-specific candidate rotation.
+ * All straight-party contest options, in the order they would appear on a HMPB.
  */
-export function allContestOptionsWithMultiEndorsements(
+export function* allStraightPartyOptions(
+  contest: StraightPartyContest
+): Generator<StraightPartyContestOption> {
+  for (const id of contest.optionIds) {
+    yield { type: 'straight-party', id, contestId: contest.id };
+  }
+}
+
+/**
+ * All ballot measure options, in the order they would appear on a HMPB.
+ */
+export function* allYesNoOptions(
+  contest: YesNoContest
+): Generator<YesNoContestOption> {
+  for (const { id } of contest.options) {
+    yield { type: 'yesno', id, contestId: contest.id };
+  }
+}
+
+/**
+ * All unique candidate contest options, in the order they would appear on a
+ * HMPB.
+ *
+ * Respects ballot style-specific candidate rotation, but simplifies
+ * multi-endorsed candidates to the first appearance.
+ */
+export function* uniqueCandidateOptions(
   contest: CandidateContest,
-  ballotStyle: BallotStyle | BallotStyleGroup
-): Generator<CandidateContestOption>;
-/**
- * Enumerates all contest options in the order they would appear on a HMPB.
- */
-export function allContestOptionsWithMultiEndorsements(
-  contest: YesNoContest,
-  ballotStyle?: BallotStyle | BallotStyleGroup
-): Generator<YesNoContestOption>;
-/**
- * Enumerates all contest options in the order they would appear on a HMPB.
- */
-export function allContestOptionsWithMultiEndorsements(
-  contest: StraightPartyContest,
-  ballotStyle?: BallotStyle | BallotStyleGroup
-): Generator<StraightPartyContestOption>;
-/**
- * Enumerates all contest options in the order they would appear on a HMPB,
- * including all instances of multi-endorsed candidates.
- * For candidate contests, respects ballot style-specific candidate rotation.
- */
-export function allContestOptionsWithMultiEndorsements(
-  contest: Contest,
-  ballotStyle: BallotStyle | BallotStyleGroup
-): Generator<ContestOption>;
-/**
- * Enumerates all contest options in the order they would appear on a HMPB,
- * including all instances of multi-endorsed candidates.
- * For candidate contests, respects ballot style-specific candidate rotation.
- */
-export function* allContestOptionsWithMultiEndorsements(
-  contest: Contest,
-  ballotStyle?: BallotStyle | BallotStyleGroup
-): Generator<ContestOption> {
-  switch (contest.type) {
-    case 'candidate': {
-      // ballotStyle is guaranteed to be defined for CandidateContest by the function overload
-      const orderedCandidates = getOrderedCandidatesForContestInBallotStyle({
-        contest,
-        ballotStyle: assertDefined(ballotStyle),
-      });
+  orderings: OptionalCandidateOrderings
+): Generator<CandidateContestOption> {
+  const seenIds = new Set<string>();
+  for (const { id } of getOrderedCandidates({ contest, orderings })) {
+    if (seenIds.has(id)) continue;
 
-      for (const candidate of orderedCandidates) {
-        yield {
-          type: 'candidate',
-          id: candidate.id,
-          contestId: contest.id,
-          isWriteIn: false,
-        };
-      }
+    seenIds.add(id);
+    yield { type: 'candidate', id, contestId: contest.id, isWriteIn: false };
+  }
 
-      if (contest.allowWriteIns) {
-        for (let i = 0; i < contest.seats; i += 1) {
-          yield {
-            type: 'candidate',
-            id: `write-in-${i}`,
-            contestId: contest.id,
-            isWriteIn: true,
-            writeInIndex: i,
-          };
-        }
-      }
-      break;
-    }
+  if (!contest.allowWriteIns) return;
 
-    case 'yesno': {
-      for (const option of contest.options) {
-        yield {
-          type: 'yesno',
-          id: option.id,
-          contestId: contest.id,
-        };
-      }
-      break;
-    }
-
-    case 'straight-party': {
-      for (const partyId of contest.optionIds) {
-        yield {
-          type: 'straight-party',
-          id: partyId,
-          contestId: contest.id,
-        };
-      }
-      break;
-    }
-
-    default:
-      throwIllegalValue(contest, 'type');
+  for (let i = 0; i < contest.seats; i += 1) {
+    yield {
+      type: 'candidate',
+      id: `${WRITE_IN_ID_PREFIX}${i}`,
+      contestId: contest.id,
+      isWriteIn: true,
+      writeInIndex: i,
+    };
   }
 }
 
@@ -124,52 +74,23 @@ export function* allContestOptionsWithMultiEndorsements(
  * For candidate contests, respects ballot style-specific candidate rotation, but simplifies multi-endorsed
  * candidates to the first appearance.
  */
-export function allContestOptions(
-  contest: CandidateContest,
-  ballotStyle: BallotStyle | BallotStyleGroup
-): Generator<CandidateContestOption>;
-/**
- * Enumerates all contest options in the order they would appear on a HMPB.
- */
-export function allContestOptions(
-  contest: YesNoContest,
-  ballotStyle?: BallotStyle | BallotStyleGroup
-): Generator<YesNoContestOption>;
-/**
- * Enumerates all contest options in the order they would appear on a HMPB.
- */
-export function allContestOptions(
-  contest: StraightPartyContest,
-  ballotStyle?: BallotStyle | BallotStyleGroup
-): Generator<StraightPartyContestOption>;
-/**
- * Enumerates all contest options in the order they would appear on a HMPB.
- * For candidate contests, respects ballot style-specific candidate rotation.
- */
-export function allContestOptions(
+export function* uniqueContestOptions(
   contest: Contest,
-  ballotStyle: BallotStyle | BallotStyleGroup
-): Generator<ContestOption>;
-/**
- * Enumerates all contest options in the order they would appear on a HMPB.
- * For candidate contests, respects ballot style-specific candidate rotation, but simplifies multi-endorsed
- * candidates to the first appearance.
- */
-export function* allContestOptions(
-  contest: Contest,
-  ballotStyle?: BallotStyle | BallotStyleGroup
+  candidateOrderings: OptionalCandidateOrderings
 ): Generator<ContestOption> {
-  // Get all options including multi-endorsed duplicates, then de-duplicate by id
-  yield* uniqueBy(
-    Array.from(
-      allContestOptionsWithMultiEndorsements(
-        contest,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        ballotStyle!
-      )
-    ),
-    (option) => option.id
-  );
+  switch (contest.type) {
+    case 'candidate':
+      return yield* uniqueCandidateOptions(contest, candidateOrderings);
+
+    case 'yesno':
+      return yield* allYesNoOptions(contest);
+
+    case 'straight-party':
+      return yield* allStraightPartyOptions(contest);
+
+    default:
+      throwIllegalValue(contest, 'type');
+  }
 }
 
 /**

@@ -15,7 +15,10 @@ import {
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { assert, find } from '@votingworks/basics';
-import { allContestOptions } from '@votingworks/utils';
+import {
+  allStraightPartyOptions,
+  uniqueContestOptions,
+} from '@votingworks/utils';
 import { getAllPossibleAdjudicationReasons } from './adjudication_reasons.js';
 
 const electionTwoPartyPrimaryDefinition =
@@ -57,6 +60,9 @@ const ballotStyleFish =
     (bs) => bs.id === '2F'
   )!;
 
+const mammalOrderings = ballotStyleMammal.orderedCandidatesByContest;
+const fishOrderings = ballotStyleFish.orderedCandidatesByContest;
+
 type GetAllPossibleAdjudicationReasonsOptionStatus = Parameters<
   typeof getAllPossibleAdjudicationReasons
 >[1][0];
@@ -68,10 +74,10 @@ function generateMockContestOptionScores(
     { markStatus?: MarkStatus; writeInAreaStatus?: WriteInAreaStatus }
   >
 ): GetAllPossibleAdjudicationReasonsOptionStatus[] {
-  return [ballotStyleMammal, ballotStyleFish].reduce(
-    (found, bs) => [
+  return [mammalOrderings, fishOrderings].reduce(
+    (found, orderings) => [
       ...found,
-      ...[...allContestOptions(contest, bs)].map((option) => ({
+      ...[...uniqueContestOptions(contest, orderings)].map((option) => ({
         option,
         markStatus: overrides[option.id]?.markStatus ?? MarkStatus.Unmarked,
         writeInAreaStatus:
@@ -411,9 +417,7 @@ describe('straight-party contest', () => {
   function scoresForMarkedParties(
     markedPartyIds: readonly string[]
   ): GetAllPossibleAdjudicationReasonsOptionStatus[] {
-    return [
-      ...allContestOptions(straightPartyContest, straightPartyBallotStyle),
-    ].map((option) => ({
+    return [...allStraightPartyOptions(straightPartyContest)].map((option) => ({
       option,
       markStatus: markedPartyIds.includes(option.id)
         ? MarkStatus.Marked
