@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   asElectionDefinition,
+  electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
 import {
@@ -60,8 +61,8 @@ const MockSectionSessionStart = vi.spyOn(
   'SectionSessionStart'
 );
 
-const MOCK_BALLOT_STYLE_PRECINCT_ID = 'precinct-1' as PrecinctId;
-const MOCK_BALLOT_STYLE_ID = 'ballot-style-1' as BallotStyleId;
+const MOCK_BALLOT_STYLE_PRECINCT_ID = '21' as PrecinctId;
+const MOCK_BALLOT_STYLE_ID = '5' as BallotStyleId;
 const MockBallotStyleSelect = vi.spyOn(
   pollWorkerComponents,
   'BallotStyleSelect'
@@ -526,6 +527,7 @@ test('a pending barcode print request opens the print screen with the scanned op
   expect(lastBallotStyleSelectProps()).toMatchObject({
     disabled: true,
     selectedBallotStyleId: scannedBallotStyle.id,
+    selectedPrecinctOrSplitId: scannedBarcodePrintRequest.precinctId,
   });
 
   fireEvent.click(screen.getByText('Print Ballot'));
@@ -694,3 +696,27 @@ test.each<{ description: string; expectSettings: () => void }>([
     expect(screen.queryByText('Blank Ballot Printing')).toBeNull();
   }
 );
+
+test('a barcode print request for a split precinct selects the matching split', async () => {
+  const splitsDefinition =
+    electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+  const request: BarcodePrintRequest = {
+    ballotStyleId: '4-F_zh-Hant',
+    precinctId: 'precinct-c2',
+  };
+  expectBarcodeBallotPrinting();
+  apiMock.setPendingBarcodePrintRequest(request);
+
+  renderScreen(
+    { pollingPlaceId: 'precinct-c2-polling-place' },
+    mockPollWorkerAuth(splitsDefinition),
+    splitsDefinition
+  );
+
+  await screen.findByText('Blank Ballot Printing');
+  expect(lastBallotStyleSelectProps()).toMatchObject({
+    disabled: true,
+    selectedBallotStyleId: '4-F_en',
+    selectedPrecinctOrSplitId: 'precinct-c2-split-2',
+  });
+});

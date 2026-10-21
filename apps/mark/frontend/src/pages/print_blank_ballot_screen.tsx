@@ -8,12 +8,15 @@ import {
   type LanguageCode,
   type PrecinctId,
   type PrintJobId,
+  getBallotStyle,
+  type PrecinctSplitId,
 } from '@votingworks/types';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, find } from '@votingworks/basics';
 import {
   format,
   getDefaultLanguageBallotStyleAndLanguage,
   getLanguageOptions,
+  getPrecinctsAndSplitsForBallotStyle,
   getRelatedBallotStyle,
 } from '@votingworks/utils';
 import type {
@@ -72,6 +75,20 @@ function lockedSelectionForBarcodePrintRequest(
     selection: { precinctId: request.precinctId, ballotStyleId },
     languageCode,
   };
+}
+
+function precinctOrSplitIdForSelection(
+  election: Election,
+  selection: BallotSelection
+): PrecinctId | PrecinctSplitId {
+  const ballotStyle = assertDefined(
+    getBallotStyle({ election, ballotStyleId: selection.ballotStyleId })
+  );
+  const precinctOrSplit = find(
+    getPrecinctsAndSplitsForBallotStyle({ election, ballotStyle }),
+    ({ precinct }) => precinct.id === selection.precinctId
+  );
+  return precinctOrSplit.split?.id ?? precinctOrSplit.precinct.id;
 }
 
 export interface PrintBlankBallotScreenProps {
@@ -205,10 +222,14 @@ export function PrintBlankBallotScreen({
           </Button>
           <H4 as="h2">Ballot Style</H4>
           <BallotStyleSelect
+            key={isLocked ? 'locked' : 'manual'}
             election={election}
             onSelect={onChooseBallotStyle}
             disabled={hasStartedPrint || isLocked}
             selectedBallotStyleId={selection?.ballotStyleId}
+            selectedPrecinctOrSplitId={
+              selection && precinctOrSplitIdForSelection(election, selection)
+            }
             configuredPrecinctsAndSplits={getConfiguredPrecinctsAndSplits({
               election,
               pollingPlaceId,

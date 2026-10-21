@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { readElectionGeneralDefinition } from '@votingworks/fixtures';
+import {
+  electionPrimaryPrecinctSplitsFixtures,
+  readElectionGeneralDefinition,
+} from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import {
   type BallotStyleId,
@@ -7,6 +10,8 @@ import {
   type PrecinctId,
 } from '@votingworks/types';
 import { find } from '@votingworks/basics';
+import { format } from '@votingworks/utils';
+import type { BarcodePrintRequest } from '@votingworks/mark-backend';
 import { render, screen } from '../test/react_testing_library.js';
 import { App } from './app.js';
 import {
@@ -69,4 +74,55 @@ test('a scanned barcode prints one ballot and returns to the poll worker menu', 
   expect(
     apiMock.mockApiClient.clearPendingBarcodePrintRequest
   ).toHaveBeenCalledTimes(1);
+});
+
+const splitsDefinition =
+  electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
+const splitBarcodePrintRequest: BarcodePrintRequest = {
+  ballotStyleId: '4-F_zh-Hant',
+  precinctId: 'precinct-c2',
+};
+
+function renderSplitsElectionAsPollWorker() {
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetSystemSettings({
+    ...DEFAULT_SYSTEM_SETTINGS,
+    allowPrintingBlankBallotsFromVxMark: true,
+    bmdEnableQrBallotActivation: true,
+  });
+  apiMock.expectGetBarcodeActivationMode('ballot_printing');
+  apiMock.expectGetElectionRecord(splitsDefinition);
+  apiMock.expectGetElectionState({
+    pollingPlaceId: 'precinct-c2-polling-place',
+    pollsState: 'polls_open',
+  });
+
+  render(<App apiClient={apiMock.mockApiClient} />);
+  apiMock.setAuthStatusPollWorkerLoggedIn(splitsDefinition);
+}
+
+async function expectLockedSplitBallot() {
+  await screen.findByText('Precinct 4 - Split 2');
+  expect(screen.getButton('Fish')).toBeDisabled();
+  screen.getByText(format.languageDisplayName({ languageCode: 'zh-Hant' }));
+  expect(screen.getByLabelText('Ballot language')).toBeDisabled();
+}
+
+test('a scanned barcode for a split precinct shows the scanned split, party, and language', async () => {
+  renderSplitsElectionAsPollWorker();
+  apiMock.setPendingBarcodePrintRequest(splitBarcodePrintRequest);
+
+  await screen.findByText('Blank Ballot Printing');
+  await expectLockedSplitBallot();
+});
+
+test('a scanned barcode fills in a split precinct on the open manual print screen', async () => {
+  renderSplitsElectionAsPollWorker();
+
+  userEvent.click(await screen.findButton('Print Blank Ballot'));
+  await screen.findByText('Blank Ballot Printing');
+  expect(screen.queryByText('Precinct 4 - Split 2')).toBeNull();
+
+  apiMock.setPendingBarcodePrintRequest(splitBarcodePrintRequest);
+  await expectLockedSplitBallot();
 });
