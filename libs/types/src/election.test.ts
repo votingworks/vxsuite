@@ -27,8 +27,8 @@ import {
   getGroupIdFromBallotStyleId,
   getPrecinctSplitById,
   getAllPrecinctsAndSplits,
-  getOrderedCandidatesForContestInBallotStyle,
-  getCandidateVoteSortedForBallotStyleRotation,
+  getOrderedCandidates,
+  getSortedCandidateVote,
 } from './election_utils.js';
 import {
   election,
@@ -50,7 +50,7 @@ import {
   hasSplits,
   type DistrictId,
   type Precinct,
-  type BallotStyle,
+  type CandidateOrderings,
   type Election,
   type PollingPlace,
   PollingPlacesSchema,
@@ -826,7 +826,7 @@ test('getAllPrecinctsAndSplits sorts with numeric-aware locale comparison', () =
   ]);
 });
 
-test('getOrderedCandidatesForContestInBallotStyle returns original candidates when orderedCandidatesByContest is not set', () => {
+test('getOrderedCandidates returns original candidates when orderedCandidatesByContest is not set', () => {
   const ballotStyle = getBallotStyle({
     ballotStyleId: '1',
     election,
@@ -845,9 +845,9 @@ test('getOrderedCandidatesForContestInBallotStyle returns original candidates wh
     ],
   };
 
-  const orderedCandidates = getOrderedCandidatesForContestInBallotStyle({
+  const orderedCandidates = getOrderedCandidates({
     contest: candidateContestWithMoreCandidates,
-    ballotStyle,
+    orderings: ballotStyle.orderedCandidatesByContest,
   });
 
   expect(orderedCandidates).toEqual(
@@ -855,7 +855,7 @@ test('getOrderedCandidatesForContestInBallotStyle returns original candidates wh
   );
 });
 
-test('getOrderedCandidatesForContestInBallotStyle returns ordered candidates when specified', () => {
+test('getOrderedCandidates returns ordered candidates when specified', () => {
   const candidateContest = election.contests.find(
     (c): c is CandidateContest => c.id === 'CC'
   )!;
@@ -870,21 +870,11 @@ test('getOrderedCandidatesForContestInBallotStyle returns ordered candidates whe
     ],
   };
 
-  // Create a ballot style with ordered candidates (reversed order)
-  const ballotStyleWithOrdering: BallotStyle = {
-    id: '1',
-    groupId: '1',
-    districts: ['D'],
-    precincts: ['P'],
-    languages: ['en'],
-    orderedCandidatesByContest: {
+  const orderedCandidates = getOrderedCandidates({
+    contest: candidateContestWithMoreCandidates,
+    orderings: {
       CC: [{ id: 'A' }, { id: 'B' }, { id: 'C' }, { id: 'D' }, { id: 'E' }],
     },
-  };
-
-  const orderedCandidates = getOrderedCandidatesForContestInBallotStyle({
-    contest: candidateContestWithMoreCandidates,
-    ballotStyle: ballotStyleWithOrdering,
   });
 
   expect(orderedCandidates).toEqual([
@@ -896,7 +886,7 @@ test('getOrderedCandidatesForContestInBallotStyle returns ordered candidates whe
   ]);
 });
 
-test('getOrderedCandidatesForContestInBallotStyle handles different orderings', () => {
+test('getOrderedCandidates handles different orderings', () => {
   const presidentContest: CandidateContest = {
     type: 'candidate',
     id: 'president',
@@ -925,26 +915,18 @@ test('getOrderedCandidatesForContestInBallotStyle handles different orderings', 
     ],
   };
 
-  const ballotStyleWithOrdering: BallotStyle = {
-    id: '1',
-    groupId: '1',
-    districts: ['D'],
-    precincts: ['P'],
-    languages: ['en'],
-    orderedCandidatesByContest: {
-      president: [{ id: 'carol' }, { id: 'alice' }, { id: 'bob' }],
-      mayor: [{ id: 'frank' }, { id: 'dave' }, { id: 'eve' }],
-    },
+  const orderings: CandidateOrderings = {
+    president: [{ id: 'carol' }, { id: 'alice' }, { id: 'bob' }],
+    mayor: [{ id: 'frank' }, { id: 'dave' }, { id: 'eve' }],
   };
 
-  const orderedPresidentCandidates =
-    getOrderedCandidatesForContestInBallotStyle({
-      contest: presidentContest,
-      ballotStyle: ballotStyleWithOrdering,
-    });
-  const orderedMayorCandidates = getOrderedCandidatesForContestInBallotStyle({
+  const orderedPresidentCandidates = getOrderedCandidates({
+    contest: presidentContest,
+    orderings,
+  });
+  const orderedMayorCandidates = getOrderedCandidates({
     contest: mayorContest,
-    ballotStyle: ballotStyleWithOrdering,
+    orderings,
   });
 
   expect(orderedPresidentCandidates.map((c) => c.id)).toEqual([
@@ -959,7 +941,7 @@ test('getOrderedCandidatesForContestInBallotStyle handles different orderings', 
   ]);
 });
 
-test('getOrderedCandidatesForContestInBallotStyle preserves original ordering when contest not in orderedCandidatesByContest', () => {
+test('getOrderedCandidates falls back to original order when no explicit ordering given', () => {
   const contest1: CandidateContest = {
     type: 'candidate',
     id: 'contest-1',
@@ -987,24 +969,17 @@ test('getOrderedCandidatesForContestInBallotStyle preserves original ordering wh
   };
 
   // Only order contest-1, leave contest-2 unordered
-  const ballotStyleWithPartialOrdering: BallotStyle = {
-    id: '1',
-    groupId: '1',
-    districts: ['D'],
-    precincts: ['P'],
-    languages: ['en'],
-    orderedCandidatesByContest: {
-      'contest-1': [{ id: 'bob' }, { id: 'alice' }],
-    },
+  const orderings: CandidateOrderings = {
+    'contest-1': [{ id: 'bob' }, { id: 'alice' }],
   };
 
-  const orderedCandidates1 = getOrderedCandidatesForContestInBallotStyle({
+  const orderedCandidates1 = getOrderedCandidates({
     contest: contest1,
-    ballotStyle: ballotStyleWithPartialOrdering,
+    orderings,
   });
-  const orderedCandidates2 = getOrderedCandidatesForContestInBallotStyle({
+  const orderedCandidates2 = getOrderedCandidates({
     contest: contest2,
-    ballotStyle: ballotStyleWithPartialOrdering,
+    orderings,
   });
 
   // contest-1 should be reordered
@@ -1014,17 +989,14 @@ test('getOrderedCandidatesForContestInBallotStyle preserves original ordering wh
   expect(orderedCandidates2.map((c) => c.id)).toEqual(['carol', 'dave']);
 });
 
-test('getOrderedCandidatesForContestInBallotStyle with primary election', () => {
+test('getOrderedCandidates with primary election', () => {
   const mammalContest = electionTwoPartyPrimary.contests.find(
     (c): c is CandidateContest => c.id === 'best-animal-mammal'
   )!;
 
-  const ballotStyleWithOrdering: BallotStyle = {
-    ...getBallotStyle({
-      ballotStyleId: '1M',
-      election: electionTwoPartyPrimary,
-    })!,
-    orderedCandidatesByContest: {
+  const orderedCandidates = getOrderedCandidates({
+    contest: mammalContest,
+    orderings: {
       'best-animal-mammal': [
         {
           id: mammalContest.candidates[2]!.id,
@@ -1040,11 +1012,6 @@ test('getOrderedCandidatesForContestInBallotStyle with primary election', () => 
         },
       ],
     },
-  };
-
-  const orderedCandidates = getOrderedCandidatesForContestInBallotStyle({
-    contest: mammalContest,
-    ballotStyle: ballotStyleWithOrdering,
   });
 
   expect(orderedCandidates.map((c) => c.id)).toEqual([
@@ -1054,7 +1021,7 @@ test('getOrderedCandidatesForContestInBallotStyle with primary election', () => 
   ]);
 });
 
-test('getOrderedCandidatesForContestInBallotStyle handles cross-endorsed candidates represented by multiple options', () => {
+test('getOrderedCandidates handles cross-endorsed candidates represented by multiple options', () => {
   // Create a candidate cross-endorsed by multiple parties
   const testContest: CandidateContest = {
     type: 'candidate',
@@ -1075,13 +1042,8 @@ test('getOrderedCandidatesForContestInBallotStyle handles cross-endorsed candida
   };
 
   // Create two DisplayCandidates for Alice, one for each party
-  const ballotStyleWithCrossEndorsement: BallotStyle = {
-    id: '1',
-    groupId: '1',
-    districts: ['D'],
-    precincts: ['P'],
-    languages: ['en'],
-    orderedCandidatesByContest: {
+  const candidates = getOrderedCandidates({
+    orderings: {
       governor: [
         { id: 'alice', partyIds: ['party-a'] }, // Alice as Party A candidate
         { id: 'bob', partyIds: ['party-c'] },
@@ -1089,10 +1051,6 @@ test('getOrderedCandidatesForContestInBallotStyle handles cross-endorsed candida
         { id: 'carol', partyIds: ['party-a'] },
       ],
     },
-  };
-
-  const candidates = getOrderedCandidatesForContestInBallotStyle({
-    ballotStyle: ballotStyleWithCrossEndorsement,
     contest: testContest,
   });
 
@@ -1143,23 +1101,14 @@ test('getOrderedContests handles cross-endorsed candidates represented by one op
   };
 
   // Create two DisplayCandidates for Alice, one for each party
-  const ballotStyleWithCrossEndorsement: BallotStyle = {
-    id: '1',
-    groupId: '1',
-    districts: ['D'],
-    precincts: ['P'],
-    languages: ['en'],
-    orderedCandidatesByContest: {
+  const candidates = getOrderedCandidates({
+    orderings: {
       governor: [
         { id: 'alice', partyIds: ['party-a', 'party-b'] }, // Alice as Party A and B candidate
         { id: 'bob', partyIds: ['party-c'] },
         { id: 'carol', partyIds: ['party-a'] },
       ],
     },
-  };
-
-  const candidates = getOrderedCandidatesForContestInBallotStyle({
-    ballotStyle: ballotStyleWithCrossEndorsement,
     contest: testContest,
   });
 
@@ -1184,7 +1133,7 @@ test('getOrderedContests handles cross-endorsed candidates represented by one op
   });
 });
 
-test('getCandidateVoteSortedForBallotStyleRotation sorts votes according to ballot style rotation', () => {
+test('getSortedCandidateVote sorts votes according to ballot style rotation', () => {
   const testContest: CandidateContest = {
     type: 'candidate',
     id: 'president',
@@ -1200,22 +1149,6 @@ test('getCandidateVoteSortedForBallotStyleRotation sorts votes according to ball
     ],
   };
 
-  const ballotStyleWithOrdering: BallotStyle = {
-    id: '1',
-    groupId: '1',
-    districts: ['D'],
-    precincts: ['P'],
-    languages: ['en'],
-    orderedCandidatesByContest: {
-      president: [
-        { id: 'carol' },
-        { id: 'dave' },
-        { id: 'alice' },
-        { id: 'bob' },
-      ],
-    },
-  };
-
   // Vote in original order: alice, bob, carol
   const inputVote: CandidateVote = [
     { id: 'alice', name: 'Alice' },
@@ -1223,17 +1156,24 @@ test('getCandidateVoteSortedForBallotStyleRotation sorts votes according to ball
     { id: 'carol', name: 'Carol' },
   ];
 
-  const sortedVote = getCandidateVoteSortedForBallotStyleRotation({
+  const sortedVote = getSortedCandidateVote({
     inputVote,
     contest: testContest,
-    ballotStyle: ballotStyleWithOrdering,
+    orderings: {
+      president: [
+        { id: 'carol' },
+        { id: 'dave' },
+        { id: 'alice' },
+        { id: 'bob' },
+      ],
+    },
   });
 
   // Should be sorted according to ballot style ordering: carol, alice, bob
   expect(sortedVote.map((c) => c.id)).toEqual(['carol', 'alice', 'bob']);
 });
 
-test('getCandidateVoteSortedForBallotStyleRotation preserves order when no rotation is specified', () => {
+test('getSortedCandidateVote preserves order when no rotation is specified', () => {
   const testContest: CandidateContest = {
     type: 'candidate',
     id: 'president',
@@ -1248,31 +1188,23 @@ test('getCandidateVoteSortedForBallotStyleRotation preserves order when no rotat
     ],
   };
 
-  const ballotStyleNoOrdering: BallotStyle = {
-    id: '1',
-    groupId: '1',
-    districts: ['D'],
-    precincts: ['P'],
-    languages: ['en'],
-  };
-
   const inputVote: CandidateVote = [
     { id: 'bob', name: 'Bob' },
     { id: 'carol', name: 'Carol' },
     { id: 'alice', name: 'Alice' },
   ];
 
-  const sortedVote = getCandidateVoteSortedForBallotStyleRotation({
+  const sortedVote = getSortedCandidateVote({
     inputVote,
     contest: testContest,
-    ballotStyle: ballotStyleNoOrdering,
+    orderings: null,
   });
 
   // Should preserve original vote order since contest candidates will be in original order
   expect(sortedVote.map((c) => c.id)).toEqual(['alice', 'bob', 'carol']);
 });
 
-test('getCandidateVoteSortedForBallotStyleRotation handles write-in candidates at the end', () => {
+test('getSortedCandidateVote handles write-in candidates at the end', () => {
   const testContest: CandidateContest = {
     type: 'candidate',
     id: 'president',
@@ -1287,17 +1219,6 @@ test('getCandidateVoteSortedForBallotStyleRotation handles write-in candidates a
     ],
   };
 
-  const ballotStyleWithOrdering: BallotStyle = {
-    id: '1',
-    groupId: '1',
-    districts: ['D'],
-    precincts: ['P'],
-    languages: ['en'],
-    orderedCandidatesByContest: {
-      president: [{ id: 'carol' }, { id: 'alice' }, { id: 'bob' }],
-    },
-  };
-
   // Vote includes a write-in candidate
   const inputVote: CandidateVote = [
     { id: 'write-in-John', name: 'John Doe', isWriteIn: true },
@@ -1305,10 +1226,12 @@ test('getCandidateVoteSortedForBallotStyleRotation handles write-in candidates a
     { id: 'alice', name: 'Alice' },
   ];
 
-  const sortedVote = getCandidateVoteSortedForBallotStyleRotation({
+  const sortedVote = getSortedCandidateVote({
     inputVote,
     contest: testContest,
-    ballotStyle: ballotStyleWithOrdering,
+    orderings: {
+      president: [{ id: 'carol' }, { id: 'alice' }, { id: 'bob' }],
+    },
   });
 
   // Should sort regular candidates by ballot style order, write-in at the end
@@ -1319,7 +1242,7 @@ test('getCandidateVoteSortedForBallotStyleRotation handles write-in candidates a
   ]);
 });
 
-test('getCandidateVoteSortedForBallotStyleRotation handles multiple write-in candidates', () => {
+test('getSortedCandidateVote handles multiple write-in candidates', () => {
   const testContest: CandidateContest = {
     type: 'candidate',
     id: 'president',
@@ -1333,17 +1256,6 @@ test('getCandidateVoteSortedForBallotStyleRotation handles multiple write-in can
     ],
   };
 
-  const ballotStyleWithOrdering: BallotStyle = {
-    id: '1',
-    groupId: '1',
-    districts: ['D'],
-    precincts: ['P'],
-    languages: ['en'],
-    orderedCandidatesByContest: {
-      president: [{ id: 'bob' }, { id: 'alice' }],
-    },
-  };
-
   // Vote includes multiple write-in candidates
   const inputVote: CandidateVote = [
     { id: 'write-in-Jane', name: 'Jane Doe', isWriteIn: true },
@@ -1352,10 +1264,10 @@ test('getCandidateVoteSortedForBallotStyleRotation handles multiple write-in can
     { id: 'bob', name: 'Bob' },
   ];
 
-  const sortedVote = getCandidateVoteSortedForBallotStyleRotation({
+  const sortedVote = getSortedCandidateVote({
     inputVote,
     contest: testContest,
-    ballotStyle: ballotStyleWithOrdering,
+    orderings: { president: [{ id: 'bob' }, { id: 'alice' }] },
   });
 
   // Regular candidates sorted by ballot style order, write-ins preserve their relative order at the end
@@ -1367,7 +1279,7 @@ test('getCandidateVoteSortedForBallotStyleRotation handles multiple write-in can
   ]);
 });
 
-test('getCandidateVoteSortedForBallotStyleRotation handles only write-in votes', () => {
+test('getSortedCandidateVote handles only write-in votes', () => {
   const testContest: CandidateContest = {
     type: 'candidate',
     id: 'president',
@@ -1381,27 +1293,16 @@ test('getCandidateVoteSortedForBallotStyleRotation handles only write-in votes',
     ],
   };
 
-  const ballotStyleWithOrdering: BallotStyle = {
-    id: '1',
-    groupId: '1',
-    districts: ['D'],
-    precincts: ['P'],
-    languages: ['en'],
-    orderedCandidatesByContest: {
-      president: [{ id: 'bob' }, { id: 'alice' }],
-    },
-  };
-
   // Vote only contains write-in candidates
   const inputVote: CandidateVote = [
     { id: 'write-in-John', name: 'John Doe', isWriteIn: true },
     { id: 'write-in-Jane', name: 'Jane Doe', isWriteIn: true },
   ];
 
-  const sortedVote = getCandidateVoteSortedForBallotStyleRotation({
+  const sortedVote = getSortedCandidateVote({
     inputVote,
     contest: testContest,
-    ballotStyle: ballotStyleWithOrdering,
+    orderings: { president: [{ id: 'bob' }, { id: 'alice' }] },
   });
 
   // Should preserve original order of write-ins
@@ -1411,7 +1312,7 @@ test('getCandidateVoteSortedForBallotStyleRotation handles only write-in votes',
   ]);
 });
 
-test('getCandidateVoteSortedForBallotStyleRotation handles empty vote', () => {
+test('getSortedCandidateVote handles empty vote', () => {
   const testContest: CandidateContest = {
     type: 'candidate',
     id: 'president',
@@ -1425,23 +1326,12 @@ test('getCandidateVoteSortedForBallotStyleRotation handles empty vote', () => {
     ],
   };
 
-  const ballotStyleWithOrdering: BallotStyle = {
-    id: '1',
-    groupId: '1',
-    districts: ['D'],
-    precincts: ['P'],
-    languages: ['en'],
-    orderedCandidatesByContest: {
-      president: [{ id: 'bob' }, { id: 'alice' }],
-    },
-  };
-
   const inputVote: CandidateVote = [];
 
-  const sortedVote = getCandidateVoteSortedForBallotStyleRotation({
+  const sortedVote = getSortedCandidateVote({
     inputVote,
     contest: testContest,
-    ballotStyle: ballotStyleWithOrdering,
+    orderings: { president: [{ id: 'bob' }, { id: 'alice' }] },
   });
 
   expect(sortedVote).toEqual([]);

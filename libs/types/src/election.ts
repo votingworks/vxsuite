@@ -467,6 +467,10 @@ export type CandidateOrderings = Record<ContestId, OrderedCandidateOption[]>;
 export const CandidateOrderingsSchema: z.ZodSchema<CandidateOrderings> =
   z.record(z.string(), z.array(OrderedCandidateOptionSchema));
 
+export type OptionalCandidateOrderings = CandidateOrderings | null | undefined;
+
+export const NO_CANDIDATE_ORDERINGS: OptionalCandidateOrderings = null;
+
 /**
  * A measurement in timing-mark grid units (relative to the timing mark grid,
  * where 1 unit is the distance between adjacent timing marks).

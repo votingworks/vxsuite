@@ -32,6 +32,7 @@ import {
   hasSplits,
   type PrecinctOrSplit,
   type CandidateVote,
+  type OptionalCandidateOrderings,
 } from './election.js';
 
 /**
@@ -56,9 +57,7 @@ export function getContests({
 }
 
 /**
- * Gets the ordered candidates for a specific contest based on the ballot style's
- * orderedCandidatesByContest field. Returns the candidates in the order specified
- * for ballot rotation, or in their original order if no rotation is specified.
+ * @deprecated Use {@link getOrderedCandidates}
  */
 export function getOrderedCandidatesForContestInBallotStyle({
   contest,
@@ -67,14 +66,26 @@ export function getOrderedCandidatesForContestInBallotStyle({
   contest: CandidateContest;
   ballotStyle: BallotStyle | BallotStyleGroup;
 }): readonly Candidate[] {
-  const candidateOrdering =
-    ballotStyle.orderedCandidatesByContest?.[contest.id];
-  if (!candidateOrdering) {
-    return contest.candidates;
-  }
+  return getOrderedCandidates({
+    contest,
+    orderings: ballotStyle.orderedCandidatesByContest,
+  });
+}
+
+/**
+ * Returns the contest's candidates in the order specified for ballot rotation,
+ * or in their original order if no rotation is specified.
+ */
+export function getOrderedCandidates(p: {
+  contest: CandidateContest;
+  orderings: OptionalCandidateOrderings;
+}): readonly Candidate[] {
+  const candidateOrdering = p.orderings?.[p.contest.id];
+  if (!candidateOrdering) return p.contest.candidates;
+
   return candidateOrdering.map(({ id, partyIds }) => {
     const candidate = assertDefined(
-      contest.candidates.find((c) => c.id === id)
+      p.contest.candidates.find((c) => c.id === id)
     );
     if (!partyIds) {
       return candidate;
@@ -88,6 +99,10 @@ export function getOrderedCandidatesForContestInBallotStyle({
   });
 }
 
+/**
+ * @deprecated Use {@link getSortedCandidateVote}
+ */
+// @coverage-defer: removing soon.
 export function getCandidateVoteSortedForBallotStyleRotation({
   inputVote,
   contest,
@@ -97,11 +112,21 @@ export function getCandidateVoteSortedForBallotStyleRotation({
   contest: CandidateContest;
   ballotStyle: BallotStyle;
 }): CandidateVote {
-  const orderedCandidates = getOrderedCandidatesForContestInBallotStyle({
+  return getSortedCandidateVote({
+    orderings: ballotStyle.orderedCandidatesByContest,
     contest,
-    ballotStyle,
+    inputVote,
   });
-  return [...inputVote].sort((a, b) => {
+}
+
+export function getSortedCandidateVote(p: {
+  contest: CandidateContest;
+  inputVote: CandidateVote;
+  orderings: OptionalCandidateOrderings;
+}): CandidateVote {
+  const orderedCandidates = getOrderedCandidates(p);
+
+  return [...p.inputVote].sort((a, b) => {
     const aIndex = orderedCandidates.findIndex((c) => deepEqual(a, c));
     const bIndex = orderedCandidates.findIndex((c) => deepEqual(b, c));
 
