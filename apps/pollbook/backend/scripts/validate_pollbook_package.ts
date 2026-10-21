@@ -1,15 +1,116 @@
 /**
- * Validates that a pollbook package zip will load in VxPollBook by running it
- * through the exact same code paths the backend uses when it finds a package on
- * a USB drive: `readPollbookPackage` followed by
+ * validate-pollbook-package: a pass/fail check that a pollbook package zip will
+ * load in VxPollBook, without needing a machine or a USB drive.
+ *
+ * It runs the package through the exact code paths the backend uses when it
+ * finds a package on a USB drive: `readPollbookPackage` followed by
  * `LocalStore.setElectionAndVoters` (into an in-memory SQLite store), then a
- * few read-back queries the frontend relies on.
+ * few read-back queries the frontend relies on. On top of that it inspects the
+ * zip directly so it can explain failures the app would surface only as a
+ * generic "usb-configuration-error" (or, worse, silently ignore).
  *
- * Usage:
- *   ./scripts/validate-pollbook-package <path-to-zip-or-dir> [...more]
+ * This script lives only on the `pollbook-package-harness` branch, which is
+ * based on the VxPollBook v1.2.1 release branch, not on `main`.
  *
- * Directories are scanned the same way the USB polling loop scans a mounted
- * drive: only files named `pollbook-package*.zip` are considered.
+ * =============================================================================
+ * SETUP (coming from `main`)
+ * =============================================================================
+ *
+ * This branch pins an older toolchain than `main` (Node 20.16.0 in `.nvmrc`,
+ * pnpm 8.15.5 in `packageManager`) and a different dependency tree, so a
+ * `node_modules` built for `main` will not work here. Use a separate git
+ * worktree so you don't have to reinstall when switching back:
+ *
+ *   git fetch origin pollbook-package-harness
+ *   git worktree add ../vxsuite-pollbook-harness pollbook-package-harness
+ *   cd ../vxsuite-pollbook-harness
+ *   nvm use                   # picks up Node 20 from .nvmrc; `main` is on 24
+ *   corepack pnpm install     # corepack picks up pnpm 8 from package.json
+ *   corepack pnpm --filter @votingworks/pollbook-backend build
+ *
+ * Use `corepack pnpm`, not a globally installed pnpm 12: the newer pnpm will
+ * rewrite `pnpm-lock.yaml` into a format this branch can't read. The install
+ * compiles native modules (better-sqlite3, pcsclite, canvas) for Node 20, so
+ * it takes a few minutes. The build step builds the backend's workspace
+ * dependencies; the script itself is transpiled on the fly, so there's no
+ * need to rebuild after editing this file.
+ *
+ * If you checked the branch out in your existing clone instead, run the same
+ * `nvm use` / `corepack pnpm install` / build steps there, and repeat them
+ * (with `nvm use` and plain `pnpm install`) when you go back to `main`.
+ *
+ * Smoke test: the fixture package below should print `RESULT: PASS`. (It must
+ * be renamed because the town-consistency check requires the filename to
+ * contain the election's jurisdiction, "Townville".)
+ *
+ *   cp libs/fixtures/data/electionSimpleSinglePrecinct/pollbook-package-mock-town.zip \
+ *      /tmp/pollbook-package-townville.zip
+ *   ./apps/pollbook/backend/scripts/validate-pollbook-package /tmp/pollbook-package-townville.zip
+ *
+ * =============================================================================
+ * USAGE
+ * =============================================================================
+ *
+ *   ./apps/pollbook/backend/scripts/validate-pollbook-package <zip-or-dir> [...more]
+ *
+ * Run it from the repo root. Each argument is a package zip or a directory;
+ * directories are scanned the same way the USB polling loop scans a mounted
+ * drive, so only files named `pollbook-package*.zip` are considered. If a
+ * directory holds several, the script notes which one the app would load
+ * (the most recently modified) and checks all of them.
+ *
+ * Output per package:
+ *   ✔  a check that passed
+ *   ⚠  a warning: the package will load, but look at it (e.g. voters with a
+ *      party other than DEM/REP/UND, blank names, postal town differing from
+ *      the jurisdiction)
+ *   ✘  a failure: the app would refuse the package, or load it in a way the
+ *      customer doesn't want
+ *      (indented lines without a marker are informational: election title,
+ *      precincts, voter counts by precinct and party, zip entry names, ...)
+ *   RESULT: PASS / FAIL, then a Summary line per package when more than one
+ *   was given. Exit code is 0 only if every package passed.
+ *
+ * A PASS means VxPollBook would configure itself from this package. It does
+ * NOT check that voter addresses match the street file, or anything about the
+ * election definition beyond it parsing, so still open the package in the app
+ * and search for a few voters before shipping it.
+ *
+ * =============================================================================
+ * WHAT A PACKAGE HAS TO LOOK LIKE (and the failures you'll see otherwise)
+ * =============================================================================
+ *
+ * Filename: `pollbook-package<anything>.zip`, and <anything> must contain the
+ * town/city name from the election definition's `county.name`
+ * (e.g. `pollbook-package-barnstead-2026-09-08.zip`). The USB poll loop
+ * ignores any other filename; the town check guards against zipping up the
+ * wrong customer's files.
+ *
+ * Zip entries (top level, matched by prefix + extension):
+ *   election*.json      the election definition
+ *   voters*.csv         the voter file
+ *   streetNames*.csv    the street file -- NOTE the camelCase: a file called
+ *                       `street-names.csv` or `streets.csv` is NOT found
+ *
+ * CSV headers: matched after camelCasing (`Voter ID` -> `voterId`), with no
+ * validation in the app. The script warns about expected columns that are
+ * missing and lists unrecognized ones; eyeball the latter for typos. In
+ * particular, if the `Voter ID` header is wrong every row is dropped and the
+ * app reports only a bare `ReadFileError`.
+ *
+ * Multi-precinct elections: voters and streets need a `Ward` or `District`
+ * column whose value is the trailing number of a precinct name
+ * (`Ward 3` -> precinct "... 3"), and precinct names must end in distinct
+ * numbers.
+ *
+ * Duplicate voter IDs (after zero-padding) are a FAIL: the insert hits a
+ * UNIQUE constraint, `setElectionAndVoters` returns `already-configured`, the
+ * USB loop ignores that, and the machine silently stays unconfigured.
+ *
+ * Street file: the `Town` column must match the jurisdiction (FAIL);
+ * `Postal City/Town` only warns, because NH postal towns legitimately differ
+ * from the municipal town (e.g. "CENTER BARNSTEAD" in Barnstead).
+ * `Side` should be EVEN/ODD/ALL.
  */
 import { basename, join } from 'node:path';
 import { readdir, stat } from 'node:fs/promises';
@@ -46,7 +147,10 @@ const usageMessage = `Usage: validate-pollbook-package <zip-or-directory> [...mo
 
 Checks that each pollbook package will load in VxPollBook by running it through
 the backend's own parsing (readPollbookPackage) and configuration
-(LocalStore.setElectionAndVoters) code. Exits non-zero if any package fails.`;
+(LocalStore.setElectionAndVoters) code. Exits non-zero if any package fails.
+
+Setup instructions, how to read the output, and the package format rules are in
+the comment at the top of scripts/validate_pollbook_package.ts.`;
 
 /**
  * Mirrors `toCamelCase` in src/pollbook_package.ts (not exported there).
