@@ -27,7 +27,7 @@ import {
   startRestore,
   systemCallApi,
 } from '../api.js';
-import { BackupDetails } from '../../components/backup_details.js';
+import { BackupDetailsCard } from '../../components/backup_details_card.js';
 import { ModalWithToolbar } from '../../components/modal_with_toolbar.js';
 
 function Modal(props: ModalProps): JSX.Element {
@@ -58,7 +58,7 @@ function StartRestoreModal({
       content={
         <React.Fragment>
           <P>Restore from this backup?</P>
-          <BackupDetails manifest={backup.manifest} />
+          <BackupDetailsCard manifest={backup.manifest} />
         </React.Fragment>
       }
       actions={
@@ -327,7 +327,7 @@ function BackupList({
             key={backup.path}
             onClick={() => setBackupToConfirm(backup)}
           >
-            <BackupDetails manifest={backup.manifest} />
+            <BackupDetailsCard manifest={backup.manifest} />
           </BackupItem>
         ))}
         {errBackups.length > 0 && (

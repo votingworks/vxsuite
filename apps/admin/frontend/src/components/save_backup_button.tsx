@@ -19,7 +19,7 @@ import {
   getLastBackupOnDrive,
   startBackup,
 } from '../api.js';
-import { BackupDetails } from './backup_details.js';
+import { BackupDetailsCard } from './backup_details_card.js';
 import { ModalWithToolbar } from './modal_with_toolbar.js';
 
 function Modal(props: ModalProps): JSX.Element {
@@ -94,7 +94,7 @@ function StartBackupModal({
         <P>
           <Font weight="semiBold">Last Backup on Drive</Font>
         </P>
-        <BackupDetails manifest={manifest} />
+        <BackupDetailsCard manifest={manifest} />
       </div>
     );
   })();
@@ -238,7 +238,9 @@ function SaveBackupFlowModal({
             title="Backup Saved"
             content={
               <div>
-                <BackupDetails manifest={backupStatus.result.ok().manifest} />
+                <BackupDetailsCard
+                  manifest={backupStatus.result.ok().manifest}
+                />
                 <div style={{ marginTop: '0.5rem' }}>
                   You may remove the backup drive.
                 </div>

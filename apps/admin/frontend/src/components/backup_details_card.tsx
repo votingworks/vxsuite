@@ -19,7 +19,7 @@ const MutedText = styled.div`
   color: ${(p) => p.theme.colors.onBackgroundMuted};
 `;
 
-export function BackupDetails({
+export function BackupDetailsCard({
   manifest,
 }: {
   manifest: BackupManifestStruct;
