@@ -41,7 +41,6 @@ import { DiagnosticsScreen } from '../screens/diagnostics_screen.js';
 import { AdjudicationStartScreen } from '../screens/adjudication_start_screen.js';
 import { BallotAdjudicationScreenWrapper as BallotAdjudicationScreen } from '../screens/ballot_adjudication_screen.js';
 import { WriteInCandidatesScreen } from '../screens/write_in_candidates_screen.js';
-import { BackupsScreen } from '../screens/backups_screen.js';
 import { CvrDataRefresher } from './cvr_data_refresher.js';
 
 export function AppRoutes(): JSX.Element | null {
@@ -132,9 +131,6 @@ export function AppRoutes(): JSX.Element | null {
         </Route>
         <Route exact path={routerPaths.hardwareDiagnostics}>
           <DiagnosticsScreen />
-        </Route>
-        <Route exact path={routerPaths.backups}>
-          <BackupsScreen />
         </Route>
         <Redirect to={routerPaths.election} />
       </Switch>
