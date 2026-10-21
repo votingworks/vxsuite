@@ -149,6 +149,20 @@ test('BackupManifest round-trips through toJSON', () => {
   expect(manifest.toJSON()).toEqual(validStruct);
 });
 
+test('BackupManifest.toDetails leaves out the file list', () => {
+  const parsed = unsafeParse(BackupManifestStructSchema, {
+    ...validStruct,
+    cvrCount: 3,
+  });
+  const manifest = BackupManifest.fromStruct(parsed);
+  expect(manifest.toDetails()).toEqual({
+    machineId: 'VX-00-001',
+    createdAt: '2026-08-18T12:00:00.000Z',
+    election,
+    cvrCount: 3,
+  });
+});
+
 test('toJSON fails fast on an invalid manifest', () => {
   const manifest = new BackupManifest({
     softwareVersion: '4.0.0',
