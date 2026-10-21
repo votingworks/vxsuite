@@ -1,3 +1,21 @@
+import { assert } from './assert.js';
+
+/**
+ * Returns the index of the first element satisfying {@link predicate}.
+ *
+ * @throws iff no matching element is found.
+ */
+export function assertFindIndex<T>(
+  array: readonly T[],
+  predicate: (t: T) => boolean,
+  message?: string
+): number {
+  const index = array.findIndex(predicate);
+  assert(index > -1, message);
+
+  return index;
+}
+
 /**
  * Finds an element in `array` that matches `predicate`, optionally returning
  * `defaultValue` if no element matches.

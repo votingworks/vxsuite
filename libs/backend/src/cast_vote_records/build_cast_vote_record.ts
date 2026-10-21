@@ -8,7 +8,6 @@ import {
 import {
   type BallotId,
   type BallotMark,
-  type BallotStyleId,
   type BallotType,
   type Candidate,
   type CandidateContest,
@@ -20,6 +19,8 @@ import {
   type InterpretedHmpbPage,
   MarkStatus,
   type MarkThresholds,
+  NO_CANDIDATE_ORDERINGS,
+  type OptionalCandidateOrderings,
   type SheetOf,
   type StraightPartyContest,
   type StraightPartyVote,
@@ -114,13 +115,9 @@ function countUndervotes(votes: Vote, votesAllowed: number): number {
 function buildCVRBallotMeasureContest({
   contest,
   vote,
-  electionDefinition,
-  ballotStyleId,
 }: {
   contest: YesNoContest;
   vote: YesNoVote;
-  electionDefinition: ElectionDefinition;
-  ballotStyleId: BallotStyleId;
 }): CVR.CVRContest {
   const votesAllowed = 1;
   const overvotes = countOvervotes(vote, votesAllowed);
@@ -143,9 +140,8 @@ function buildCVRBallotMeasureContest({
       ContestSelectionId: optionId,
       // include position on the ballot per VVSG 2.0 1.1.5-C.2
       OptionPosition: CachedElectionLookups.getOptionPosition(
-        electionDefinition,
-        ballotStyleId,
-        contest.id,
+        NO_CANDIDATE_ORDERINGS,
+        contest,
         optionId
       ),
       Status: overvoted
@@ -183,15 +179,13 @@ type CVRContestRequiredBallotPageOptions =
 
 function buildCVRCandidateContest({
   contest,
-  electionDefinition,
-  ballotStyleId,
+  candidateOrderings,
   vote,
   unmarkedWriteIns,
   options,
 }: {
   contest: CandidateContest;
-  electionDefinition: ElectionDefinition;
-  ballotStyleId: BallotStyleId;
+  candidateOrderings: OptionalCandidateOrderings;
   vote: CandidateVote;
   unmarkedWriteIns?: InterpretedHmpbPage['unmarkedWriteIns'];
   options: CVRContestRequiredBallotPageOptions;
@@ -261,9 +255,8 @@ function buildCVRCandidateContest({
         ContestSelectionId: candidate.id,
         // include position on the ballot per VVSG 2.0 1.1.5-C.2
         OptionPosition: CachedElectionLookups.getOptionPosition(
-          electionDefinition,
-          ballotStyleId,
-          contest.id,
+          candidateOrderings,
+          contest,
           candidate.id
         ),
         Status: selectionStatuses.length > 0 ? selectionStatuses : undefined,
@@ -313,9 +306,8 @@ function buildCVRCandidateContest({
         '@type': 'CVR.CVRContestSelection',
         ContestSelectionId: unmarkedWriteIn.optionId,
         OptionPosition: CachedElectionLookups.getOptionPosition(
-          electionDefinition,
-          ballotStyleId,
-          contest.id,
+          candidateOrderings,
+          contest,
           unmarkedWriteIn.optionId
         ),
         Status: [CVR.ContestSelectionStatus.NeedsAdjudication],
@@ -352,13 +344,9 @@ function buildCVRCandidateContest({
 
 function buildCVRStraightPartyContest({
   contest,
-  electionDefinition,
-  ballotStyleId,
   vote,
 }: {
   contest: StraightPartyContest;
-  electionDefinition: ElectionDefinition;
-  ballotStyleId: BallotStyleId;
   vote: StraightPartyVote;
 }): CVR.CVRContest {
   const votesAllowed = 1;
@@ -382,9 +370,8 @@ function buildCVRStraightPartyContest({
       ContestSelectionId: partyId,
       // include position on the ballot per VVSG 2.0 1.1.5-C.2
       OptionPosition: CachedElectionLookups.getOptionPosition(
-        electionDefinition,
-        ballotStyleId,
-        contest.id,
+        NO_CANDIDATE_ORDERINGS,
+        contest,
         partyId
       ),
       Status: overvoted
@@ -417,13 +404,13 @@ export function buildCVRContestsFromVotes({
   votes,
   unmarkedWriteIns,
   electionDefinition,
-  ballotStyleId,
+  candidateOrderings,
   options,
 }: {
   votes: VotesDict;
   unmarkedWriteIns?: InterpretedHmpbPage['unmarkedWriteIns'];
   electionDefinition: ElectionDefinition;
-  ballotStyleId: BallotStyleId;
+  candidateOrderings: OptionalCandidateOrderings;
   options: CVRContestRequiredBallotPageOptions;
 }): CVR.CVRContest[] {
   const cvrContests: CVR.CVRContest[] = [];
@@ -446,8 +433,6 @@ export function buildCVRContestsFromVotes({
           buildCVRBallotMeasureContest({
             contest,
             vote: contestVote as YesNoVote,
-            electionDefinition,
-            ballotStyleId,
           })
         );
         break;
@@ -455,8 +440,7 @@ export function buildCVRContestsFromVotes({
         cvrContests.push(
           buildCVRCandidateContest({
             contest,
-            electionDefinition,
-            ballotStyleId,
+            candidateOrderings,
             vote: contestVote as CandidateVote,
             unmarkedWriteIns: contestUnmarkedWriteIns,
             options,
@@ -467,8 +451,6 @@ export function buildCVRContestsFromVotes({
         cvrContests.push(
           buildCVRStraightPartyContest({
             contest,
-            electionDefinition,
-            ballotStyleId,
             vote: contestVote as StraightPartyVote,
           })
         );
@@ -498,14 +480,14 @@ function buildOriginalSnapshot({
   marks,
   markThresholds,
   electionDefinition,
-  ballotStyleId,
+  candidateOrderings,
   ballotType,
 }: {
   castVoteRecordId: string;
   marks: BallotMark[];
   markThresholds: MarkThresholds;
   electionDefinition: ElectionDefinition;
-  ballotStyleId: BallotStyleId;
+  candidateOrderings: OptionalCandidateOrderings;
   ballotType: BallotType;
 }): CVR.CVRSnapshot {
   const marksByContest = iter(marks).toMap((mark) => mark.contestId);
@@ -524,9 +506,11 @@ function buildOriginalSnapshot({
           ContestSelectionId: mark.optionId,
           // include position on the ballot per VVSG 2.0 1.1.5-C.2
           OptionPosition: CachedElectionLookups.getOptionPosition(
-            electionDefinition,
-            ballotStyleId,
-            mark.contestId,
+            candidateOrderings,
+            CachedElectionLookups.getContestById(
+              electionDefinition,
+              mark.contestId
+            ),
             mark.optionId
           ),
           SelectionPosition: [
@@ -601,10 +585,12 @@ export function buildCastVoteRecord({
       ? rest.interpretation.metadata
       : rest.interpretations[0].metadata;
 
-  const ballotParty = getBallotStyle({
-    ballotStyleId: ballotMetadata.ballotStyleId,
-    election,
-  })?.partyId;
+  const ballotStyle = assertDefined(
+    getBallotStyle({ ballotStyleId: ballotMetadata.ballotStyleId, election }),
+    `ballot style ${ballotMetadata.ballotStyleId} not found`
+  );
+  const ballotParty = ballotStyle.partyId;
+  const candidateOrderings = ballotStyle.orderedCandidatesByContest;
 
   const cvrMetadata: Omit<CVR.CVR, 'CVRSnapshot' | 'CurrentSnapshotId'> = {
     '@type': 'CVR.CVR',
@@ -625,12 +611,6 @@ export function buildCastVoteRecord({
   if (rest.ballotMarkingMode === 'machine') {
     const { interpretation, images } = rest;
 
-    const ballotStyle = getBallotStyle({
-      ballotStyleId: ballotMetadata.ballotStyleId,
-      election,
-    });
-    assert(ballotStyle);
-
     return {
       ...cvrMetadata,
       BallotAuditId: interpretation.metadata.ballotAuditId,
@@ -645,7 +625,7 @@ export function buildCastVoteRecord({
           CVRContest: buildCVRContestsFromVotes({
             votes: interpretation.votes,
             electionDefinition,
-            ballotStyleId: ballotMetadata.ballotStyleId,
+            candidateOrderings,
             options: {
               ballotMarkingMode: 'machine',
             },
@@ -677,7 +657,7 @@ export function buildCastVoteRecord({
         votes: interpretations[0].votes,
         unmarkedWriteIns: interpretations[0].unmarkedWriteIns,
         electionDefinition,
-        ballotStyleId: ballotMetadata.ballotStyleId,
+        candidateOrderings,
         options: {
           ballotMarkingMode: 'hand',
           image: images?.[0],
@@ -687,7 +667,7 @@ export function buildCastVoteRecord({
         votes: interpretations[1].votes,
         unmarkedWriteIns: interpretations[1].unmarkedWriteIns,
         electionDefinition,
-        ballotStyleId: ballotMetadata.ballotStyleId,
+        candidateOrderings,
         options: {
           ballotMarkingMode: 'hand',
           image: images?.[1],
@@ -712,7 +692,7 @@ export function buildCastVoteRecord({
         ],
         markThresholds,
         electionDefinition,
-        ballotStyleId: ballotMetadata.ballotStyleId,
+        candidateOrderings,
         ballotType: ballotMetadata.ballotType,
       }),
     ],

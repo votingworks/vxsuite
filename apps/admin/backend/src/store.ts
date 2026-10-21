@@ -72,7 +72,6 @@ import { dirname, join, sep } from 'node:path';
 import type { Buffer } from 'node:buffer';
 import { randomUUID as uuid } from 'node:crypto';
 import {
-  allContestOptions,
   asSqliteBool,
   fromSqliteBool,
   generateElectionBasedSubfolderName,
@@ -81,6 +80,7 @@ import {
   getOfficialCandidateNameLookup,
   inferPartyFromVotes,
   partisanContests,
+  uniqueContestOptions,
   type SqliteBool,
 } from '@votingworks/utils';
 import {
@@ -3040,6 +3040,9 @@ export class Store implements BaseStore {
       })
     );
 
+    // [TODO] Fetch from DB.
+    const candidateOrderings = ballotStyleGroup.orderedCandidatesByContest;
+
     const writeInsByKey = new Map(
       writeInRecords.map((r) => [`${r.contestId}:${r.optionId}`, r])
     );
@@ -3057,7 +3060,9 @@ export class Store implements BaseStore {
     const contests: ContestAdjudicationData[] = [];
     const adjudicatedContests: AdjudicatedCvrContest[] = [];
     for (const contest of ballotStyleContests) {
-      const contestOptions = [...allContestOptions(contest, ballotStyleGroup)];
+      const contestOptions = [
+        ...uniqueContestOptions(contest, candidateOrderings),
+      ];
       const contestVotes = assertDefined(votes[contest.id]);
       const contestMarkScores = markScores?.[contest.id];
 

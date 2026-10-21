@@ -9,7 +9,7 @@ import {
   WriteInAreaStatus,
 } from '@votingworks/types';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
-import { allContestOptions } from '@votingworks/utils';
+import { uniqueContestOptions } from '@votingworks/utils';
 
 function rankMarkStatus(markStatus: MarkStatus): number {
   switch (markStatus) {
@@ -103,6 +103,7 @@ export function getAllPossibleAdjudicationReasons(
 ): AdjudicationReasonInfo[] {
   if (contests.length === 0) return [];
 
+  const candidateOrderings = ballotStyle.orderedCandidatesByContest;
   const reasons: AdjudicationReasonInfo[] = [];
 
   let isBlankBallot = true;
@@ -121,7 +122,7 @@ export function getAllPossibleAdjudicationReasons(
       id: ContestOption['id'];
     }> = [];
 
-    for (const option of allContestOptions(contest, ballotStyle)) {
+    for (const option of uniqueContestOptions(contest, candidateOrderings)) {
       // there may be multiple scores for a given contest option if they have
       // multiple positions on the ballot, such as a candidate endorsed by
       // two candidates.

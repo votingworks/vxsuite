@@ -46,7 +46,7 @@ import {
   format,
   getBallotStyleGroup,
   areContestResultsValid,
-  allContestOptions,
+  uniqueCandidateOptions,
   contestOptionName,
 } from '@votingworks/utils';
 
@@ -555,6 +555,8 @@ function ContestForm({
     getBallotStyleGroup({ election, ballotStyleGroupId })
   );
 
+  const candidateOrderings = ballotStyleGroup.orderedCandidatesByContest;
+
   const contests = getContests({
     election,
     ballotStyle: ballotStyleGroup,
@@ -835,7 +837,7 @@ function ContestForm({
           <ContestSection>
             {contest.type === 'candidate' && (
               <React.Fragment>
-                {[...allContestOptions(contest, ballotStyleGroup)]
+                {[...uniqueCandidateOptions(contest, candidateOrderings)]
                   .filter((c) => !c.isWriteIn)
                   .map((candidate) => (
                     <ContestDataRow key={candidate.id}>

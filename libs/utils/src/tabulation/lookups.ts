@@ -1,22 +1,27 @@
-import { assert, assertDefined } from '@votingworks/basics';
 import {
-  type Contest,
-  type BallotStyle,
-  type BallotStyleGroupId,
-  type BallotStyleId,
-  type District,
-  type Election,
-  type ElectionDefinition,
-  type BallotStyleGroup,
-  type Party,
-  type PollingPlace,
-  type Precinct,
-  type PrecinctId,
-  getBallotStyle,
-  type ContestId,
+  assert,
+  assertDefined,
+  assertFindIndex,
+  throwIllegalValue,
+} from '@votingworks/basics';
+import type {
+  Contest,
+  BallotStyle,
+  BallotStyleGroupId,
+  BallotStyleId,
+  District,
+  Election,
+  ElectionDefinition,
+  BallotStyleGroup,
+  Party,
+  PollingPlace,
+  Precinct,
+  PrecinctId,
+  OptionalCandidateOrderings,
+  CandidateContest,
 } from '@votingworks/types';
 import { getGroupedBallotStyles } from '../ballot_styles.js';
-import { allContestOptionsWithMultiEndorsements } from '../hmpb/all_contest_options.js';
+import { WRITE_IN_ID_PREFIX } from '../hmpb/all_contest_options.js';
 
 /**
  * Creates a lookup function for getting some election metadata based on a key.
@@ -158,100 +163,57 @@ export const getBallotStylesByPrecinctId = createElectionMetadataLookupFunction(
 );
 
 /**
- * A helper type for caching option positions.
- * Maps ballotStyleId -> contestId -> optionId -> position
- */
-type OptionPositionLookup = Record<
-  BallotStyleId,
-  Record<ContestId, Record<string, number>>
->;
-
-/**
- * Builds a lookup map for option positions on the ballot for all contests
- * in a specific ballot style. This respects ballot style-specific candidate ordering.
- * For multi-endorsed candidates, always returns the position of the first occurrence.
- * This is used internally by getOptionPosition and is cached.
- */
-function buildOptionPositionLookupForBallotStyle(
-  election: Election,
-  ballotStyleId: BallotStyleId
-): Record<string, Record<string, number>> {
-  const ballotStyle = assertDefined(
-    getBallotStyle({ ballotStyleId, election }),
-    `Ballot style ${ballotStyleId} not found`
-  );
-
-  const lookup: Record<string, Record<string, number>> = {};
-  for (const contest of election.contests) {
-    const contestMap: Record<string, number> = {};
-    let position = 0;
-
-    // Iterate through all options in ballot order, including multi-endorsed duplicates
-    for (const option of allContestOptionsWithMultiEndorsements(
-      contest,
-      ballotStyle
-    )) {
-      // For multi-endorsed candidates, only store the first occurrence
-      if (contestMap[option.id] === undefined) {
-        contestMap[option.id] = position;
-      }
-      position += 1;
-    }
-
-    lookup[contest.id] = contestMap;
-  }
-  return lookup;
-}
-
-// Cache for option position lookups by ballot hash and ballot style
-const optionPositionLookupCache: Record<string, OptionPositionLookup> = {};
-
-/**
  * Gets the zero-indexed position of a contest option on the ballot for a specific ballot style.
  * For candidates, this is the position in the ballot-style-specific candidate ordering.
  * For multi-endorsed candidates that appear multiple times, returns the first occurrence.
  * For yes/no contests, yes=0 and no=1.
  * For write-ins, positions are after all candidates.
- *
- * This function builds and caches the position map on first call for each election and ballot style.
  */
 export function getOptionPosition(
-  electionDefinition: ElectionDefinition,
-  ballotStyleId: BallotStyleId,
-  contestId: string,
+  candidateOrderings: OptionalCandidateOrderings,
+  contest: Contest,
   optionId: string
 ): number {
-  const { ballotHash } = electionDefinition;
+  switch (contest.type) {
+    case 'candidate': {
+      const ordering = candidateOrderings?.[contest.id] ?? contest.candidates;
 
-  // Check if we have the lookup cached for this election
-  let electionLookup = optionPositionLookupCache[ballotHash];
-  if (!electionLookup) {
-    electionLookup = {};
-    optionPositionLookupCache[ballotHash] = electionLookup;
+      if (contest.allowWriteIns && optionId.startsWith(WRITE_IN_ID_PREFIX)) {
+        return ordering.length + parseWriteInIndex({ contest, optionId });
+      }
+
+      return assertFindIndex(
+        ordering,
+        (candidate) => candidate.id === optionId,
+        `candidate ${optionId} not in contest ${contest.id}`
+      );
+    }
+
+    case 'straight-party':
+      return assertFindIndex(
+        contest.optionIds,
+        (id) => id === optionId,
+        `option ${optionId} not in contest ${contest.id}`
+      );
+
+    case 'yesno':
+      return assertFindIndex(
+        contest.options,
+        (o) => o.id === optionId,
+        `option ${optionId} not in contest ${contest.id}`
+      );
+
+    default:
+      throwIllegalValue(contest, 'type');
   }
+}
 
-  // Check if we have the lookup cached for this ballot style
-  let ballotStyleLookup = electionLookup[ballotStyleId];
-  if (!ballotStyleLookup) {
-    // Build and cache the lookup for this ballot style
-    ballotStyleLookup = buildOptionPositionLookupForBallotStyle(
-      electionDefinition.election,
-      ballotStyleId
-    );
-    electionLookup[ballotStyleId] = ballotStyleLookup;
-  }
+function parseWriteInIndex(p: { contest: CandidateContest; optionId: string }) {
+  const indexStr = p.optionId.substring(WRITE_IN_ID_PREFIX.length);
+  assert(/^\d+$/.test(indexStr), `invalid write-in ID: ${p.optionId}`);
 
-  const contestOptions = ballotStyleLookup[contestId];
-  assert(
-    contestOptions,
-    `Contest ${contestId} not found in option position lookup for ballot style ${ballotStyleId}`
-  );
+  const i = Number.parseInt(indexStr, 10);
+  assert(i < p.contest.seats, `write-in index out of bounds: ${p.optionId}`);
 
-  const position = contestOptions[optionId];
-  assert(
-    position !== undefined,
-    `Option ${optionId} not found in contest ${contestId} for ballot style ${ballotStyleId}`
-  );
-
-  return position;
+  return i;
 }

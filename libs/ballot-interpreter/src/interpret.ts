@@ -43,10 +43,10 @@ import {
   type RgbaImageData,
 } from '@votingworks/types';
 import {
-  allContestOptions,
   convertMarksToVotesDict,
   electionHasBallotPositions,
   time,
+  uniqueContestOptions,
 } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { join } from 'node:path';
@@ -97,8 +97,9 @@ function getContestOptionForGridPosition(
   gridPosition: GridPosition,
   ballotStyle: BallotStyle
 ): ContestOption {
+  const candidateOrderings = ballotStyle.orderedCandidatesByContest;
   const contest = find(contests, (c) => c.id === gridPosition.contestId);
-  const option = iter(allContestOptions(contest, ballotStyle)).find((o) =>
+  const option = uniqueContestOptions(contest, candidateOrderings).find((o) =>
     gridPosition.type === 'option'
       ? o.id === gridPosition.optionId
       : o.type === 'candidate' && o.writeInIndex === gridPosition.writeInIndex
@@ -370,11 +371,13 @@ function convertContestLayouts(
     ];
   }
 
+  const candidateOrderings = ballotStyle.orderedCandidatesByContest;
+
   function convertContestOptionLayout(
     contest: Contest,
     { bounds, optionId }: InterpretedContestOptionLayout
   ): BallotPageContestOptionLayout {
-    const option = iter(allContestOptions(contest, ballotStyle)).find(
+    const option = uniqueContestOptions(contest, candidateOrderings).find(
       (o) => o.id === optionId
     );
     assert(option, `option ${optionId} not found`);

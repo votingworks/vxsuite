@@ -1,10 +1,22 @@
 import { expect, test, describe } from 'vitest';
-import type { ElectionDefinition } from '@votingworks/types';
+import {
+  NO_CANDIDATE_ORDERINGS,
+  type CandidateContest,
+  type CandidateOrderings,
+  type Contest,
+  type Election,
+  type ElectionDefinition,
+  type OptionalCandidateOrderings,
+  type StraightPartyContest,
+  type YesNoContest,
+} from '@votingworks/types';
 import {
   electionPrimaryPrecinctSplitsFixtures,
   readElectionTwoPartyPrimaryDefinition,
   electionFamousNames2021Fixtures,
+  electionStraightPartyFixtures,
 } from '@votingworks/fixtures';
+import { assert, find } from '@votingworks/basics';
 import {
   getContestById,
   getPartyById,
@@ -139,72 +151,67 @@ test('getBallotStylesByPrecinct', () => {
 });
 
 test('getOptionPosition returns correct positions for all contest options', () => {
-  const electionDefinition = electionTwoPartyPrimaryDefinition;
-  const ballotStyleId = '2F'; // Fish party ballot style
+  const { election } = electionTwoPartyPrimaryDefinition;
+
+  const contestAquariumCouncil = assertFindContest({
+    election,
+    id: 'aquarium-council-fish',
+  });
+
+  const contestFishing = assertFindContest({
+    election,
+    id: 'fishing',
+  });
+
+  const contestZooCouncil = assertFindContest({
+    election,
+    id: 'zoo-council-mammal',
+  });
 
   // Test a few key positions to verify the lookup works correctly
   expect(
     getOptionPosition(
-      electionDefinition,
-      ballotStyleId,
-      'aquarium-council-fish',
+      NO_CANDIDATE_ORDERINGS,
+      contestAquariumCouncil,
       'manta-ray'
     )
   ).toEqual(0);
   expect(
     getOptionPosition(
-      electionDefinition,
-      ballotStyleId,
-      'aquarium-council-fish',
+      NO_CANDIDATE_ORDERINGS,
+      contestAquariumCouncil,
       'pufferfish'
     )
   ).toEqual(1);
   expect(
     getOptionPosition(
-      electionDefinition,
-      ballotStyleId,
-      'aquarium-council-fish',
+      NO_CANDIDATE_ORDERINGS,
+      contestAquariumCouncil,
       'write-in-0'
     )
   ).toEqual(4);
   expect(
     getOptionPosition(
-      electionDefinition,
-      ballotStyleId,
-      'aquarium-council-fish',
+      NO_CANDIDATE_ORDERINGS,
+      contestAquariumCouncil,
       'write-in-1'
     )
   ).toEqual(5);
 
   // Test yes/no contest
   expect(
-    getOptionPosition(
-      electionDefinition,
-      ballotStyleId,
-      'fishing',
-      'ban-fishing'
-    )
+    getOptionPosition(NO_CANDIDATE_ORDERINGS, contestFishing, 'ban-fishing')
   ).toEqual(0);
   expect(
-    getOptionPosition(
-      electionDefinition,
-      ballotStyleId,
-      'fishing',
-      'allow-fishing'
-    )
+    getOptionPosition(NO_CANDIDATE_ORDERINGS, contestFishing, 'allow-fishing')
   ).toEqual(1);
 
   // Test contest with many write-ins
   expect(
-    getOptionPosition(electionDefinition, '1M', 'zoo-council-mammal', 'zebra')
+    getOptionPosition(NO_CANDIDATE_ORDERINGS, contestZooCouncil, 'zebra')
   ).toEqual(0);
   expect(
-    getOptionPosition(
-      electionDefinition,
-      '1M',
-      'zoo-council-mammal',
-      'write-in-2'
-    )
+    getOptionPosition(NO_CANDIDATE_ORDERINGS, contestZooCouncil, 'write-in-2')
   ).toEqual(6);
 
   // Verify full structure by checking all options for a contest
@@ -219,205 +226,150 @@ test('getOptionPosition returns correct positions for all contest options', () =
   for (let i = 0; i < aquariumOptions.length; i += 1) {
     expect(
       getOptionPosition(
-        electionDefinition,
-        ballotStyleId,
-        'aquarium-council-fish',
+        NO_CANDIDATE_ORDERINGS,
+        contestAquariumCouncil,
         aquariumOptions[i]!
       )
     ).toEqual(i);
   }
 });
 
-describe('getOptionPosition with ballot-style-specific candidate rotation', () => {
-  test('returns different positions for the same candidate in different ballot styles', () => {
-    // Use the Famous Names election which has different candidate rotations per ballot style
-    const electionDefinition =
-      electionFamousNames2021Fixtures.baseElection_DEPRECATED.readElectionDefinition();
-    const contestId = 'mayor';
+test('getOptionPosition throws on invalid option IDs', () => {
+  const fixtures = electionStraightPartyFixtures;
+  const election = fixtures.readElection();
 
-    // Ballot style 1-1 has the order (from electionBase.json):
-    // 1. sherlock-holmes (Democrat - party ID "0")
-    // 2. sherlock-holmes (Liberty - party ID "2")
-    // 3. thomas-edison (Republican - party ID "1")
-    // For multi-endorsed candidates, we return the first occurrence (position 0)
-    const ballotStyle11 = '1-1';
-    expect(
-      getOptionPosition(
-        electionDefinition,
-        ballotStyle11,
-        contestId,
-        'sherlock-holmes'
-      )
-    ).toEqual(0); // First occurrence position
-    expect(
-      getOptionPosition(
-        electionDefinition,
-        ballotStyle11,
-        contestId,
-        'thomas-edison'
-      )
-    ).toEqual(2); // After both sherlock-holmes entries
+  const candidateContest: CandidateContest = {
+    ...find<Contest, CandidateContest>(
+      election.contests,
+      (c) => c.type === 'candidate'
+    ),
+    allowWriteIns: true,
+  };
+  const ballotMeasure = find<Contest, YesNoContest>(
+    election.contests,
+    (c) => c.type === 'yesno'
+  );
+  const straightPartyContest = find<Contest, StraightPartyContest>(
+    election.contests,
+    (c) => c.type === 'straight-party'
+  );
 
-    // Ballot style 1-2 has a different order:
-    // 1. sherlock-holmes (Liberty - party ID "2")
-    // 2. thomas-edison (Republican - party ID "1")
-    // 3. sherlock-holmes (Democrat - party ID "0")
-    // For multi-endorsed candidates, we return the first occurrence (position 0)
-    const ballotStyle12 = '1-2';
-    expect(
-      getOptionPosition(
-        electionDefinition,
-        ballotStyle12,
-        contestId,
-        'sherlock-holmes'
-      )
-    ).toEqual(0); // First occurrence position
-    expect(
-      getOptionPosition(
-        electionDefinition,
-        ballotStyle12,
-        contestId,
-        'thomas-edison'
-      )
-    ).toEqual(1);
-
-    // Ballot style 1-4 has yet another order:
-    // 1. thomas-edison (Republican - party ID "1")
-    // 2. sherlock-holmes (Liberty - party ID "2")
-    // 3. sherlock-holmes (Democrat - party ID "0")
-    // For multi-endorsed candidates, we return the first occurrence (position 1)
-    const ballotStyle14 = '1-4';
-    expect(
-      getOptionPosition(
-        electionDefinition,
-        ballotStyle14,
-        contestId,
-        'thomas-edison'
-      )
-    ).toEqual(0);
-    expect(
-      getOptionPosition(
-        electionDefinition,
-        ballotStyle14,
-        contestId,
-        'sherlock-holmes'
-      )
-    ).toEqual(1); // First occurrence position
+  expectThrows({
+    contest: ballotMeasure,
+    optionId: 'invalid-1',
+    msg: /option invalid-1 not in contest/,
   });
 
-  test('returns different positions for multi-candidate contests with rotation', () => {
-    const electionDefinition =
-      electionFamousNames2021Fixtures.baseElection_DEPRECATED.readElectionDefinition();
-    const contestId = 'attorney';
+  expectThrows({
+    contest: straightPartyContest,
+    optionId: 'invalid-1',
+    msg: /option invalid-1 not in contest/,
+  });
 
-    // Ballot style 1-1 has the order:
-    // 1. john-snow (Republican - party ID "1")
-    // 2. mark-twain (Green - party ID "3")
-    const ballotStyle11 = '1-1';
-    expect(
-      getOptionPosition(
-        electionDefinition,
-        ballotStyle11,
-        contestId,
-        'john-snow'
-      )
-    ).toEqual(0);
-    expect(
-      getOptionPosition(
-        electionDefinition,
-        ballotStyle11,
-        contestId,
-        'mark-twain'
-      )
-    ).toEqual(1);
+  expectThrows({
+    contest: candidateContest,
+    optionId: 'invalid-1',
+    msg: /candidate invalid-1 not in contest/,
+  });
 
-    // Ballot style 1-2 has a different order:
-    // 1. mark-twain (Green - party ID "3")
-    // 2. john-snow (Republican - party ID "1")
-    const ballotStyle12 = '1-2';
-    expect(
-      getOptionPosition(
-        electionDefinition,
-        ballotStyle12,
-        contestId,
-        'mark-twain'
-      )
-    ).toEqual(0);
-    expect(
-      getOptionPosition(
-        electionDefinition,
-        ballotStyle12,
-        contestId,
-        'john-snow'
-      )
-    ).toEqual(1);
+  for (const optionId of ['write-in-1a', 'write-in-aa', 'write-in-']) {
+    expectThrows({
+      contest: candidateContest,
+      optionId,
+      msg: /invalid write-in ID/,
+    });
+  }
 
-    // Ballot style 1-4 has the same order as 1-2:
-    // 1. mark-twain (Green - party ID "3")
-    // 2. john-snow (Republican - party ID "1")
-    const ballotStyle14 = '1-4';
-    expect(
-      getOptionPosition(
-        electionDefinition,
-        ballotStyle14,
-        contestId,
-        'mark-twain'
-      )
-    ).toEqual(0);
-    expect(
-      getOptionPosition(
-        electionDefinition,
-        ballotStyle14,
-        contestId,
-        'john-snow'
-      )
-    ).toEqual(1);
+  expectThrows({
+    contest: candidateContest,
+    optionId: 'write-in-101',
+    msg: /write-in index out of bounds/,
+  });
+
+  function expectThrows(p: {
+    contest: Contest;
+    optionId: string;
+    msg: string | RegExp;
+  }) {
+    expect(() =>
+      getOptionPosition(NO_CANDIDATE_ORDERINGS, p.contest, p.optionId)
+    ).toThrow(p.msg);
+  }
+});
+
+describe('getOptionPosition with ballot-style-specific candidate rotation', () => {
+  const fixtures = electionFamousNames2021Fixtures;
+  const election = fixtures.readElection();
+  const contest = assertFindContest({ election, id: 'mayor' });
+  assert(contest.type === 'candidate');
+
+  function position(
+    orderings: OptionalCandidateOrderings,
+    candidateId: string
+  ) {
+    return getOptionPosition(orderings, contest, candidateId);
+  }
+
+  const order1: CandidateOrderings = {
+    [contest.id]: [
+      { id: 'sherlock-holmes', partyIds: ['0'] },
+      { id: 'sherlock-holmes', partyIds: ['2'] },
+      { id: 'thomas-edison', partyIds: ['1'] },
+    ],
+  };
+
+  const order2: CandidateOrderings = {
+    [contest.id]: [
+      { id: 'thomas-edison', partyIds: ['1'] },
+      { id: 'sherlock-holmes', partyIds: ['2'] },
+      { id: 'sherlock-holmes', partyIds: ['0'] },
+    ],
+  };
+
+  const order3: CandidateOrderings = {
+    [contest.id]: [
+      { id: 'thomas-edison', partyIds: ['1'] },
+      { id: 'sherlock-holmes', partyIds: ['2'] },
+    ],
+  };
+
+  test('returns candidate positions based on ballot style ordering', () => {
+    expect(position(order1, 'sherlock-holmes')).toEqual(0);
+    expect(position(order1, 'thomas-edison')).toEqual(2);
+
+    expect(position(order2, 'sherlock-holmes')).toEqual(1);
+    expect(position(order2, 'thomas-edison')).toEqual(0);
   });
 
   test('write-in positions are after all candidates regardless of rotation', () => {
-    const electionDefinition =
-      electionFamousNames2021Fixtures.baseElection_DEPRECATED.readElectionDefinition();
-    const contestId = 'attorney'; // 1-seat contest with 2 candidates
-
-    // For all ballot styles, write-in-0 should be at position 2 (after 2 candidates)
-    expect(
-      getOptionPosition(electionDefinition, '1-1', contestId, 'write-in-0')
-    ).toEqual(2);
-    expect(
-      getOptionPosition(electionDefinition, '1-2', contestId, 'write-in-0')
-    ).toEqual(2);
-    expect(
-      getOptionPosition(electionDefinition, '1-4', contestId, 'write-in-0')
-    ).toEqual(2);
+    expect(position(order1, 'write-in-0')).toEqual(3);
+    expect(position(order2, 'write-in-0')).toEqual(3);
+    expect(position(order3, 'write-in-0')).toEqual(2);
   });
 
-  test('caching works correctly across different ballot styles', () => {
-    const electionDefinition =
-      electionFamousNames2021Fixtures.baseElection_DEPRECATED.readElectionDefinition();
-    const contestId = 'mayor';
+  test('throws on invalid option IDs', () => {
+    expectThrows({
+      optionId: 'invalid-1',
+      msg: /candidate invalid-1 not in contest/,
+    });
 
-    // Call multiple times to ensure caching doesn't cause issues
-    const position1 = getOptionPosition(
-      electionDefinition,
-      '1-1',
-      contestId,
-      'thomas-edison'
-    );
-    const position2 = getOptionPosition(
-      electionDefinition,
-      '1-4',
-      contestId,
-      'thomas-edison'
-    );
-    const position3 = getOptionPosition(
-      electionDefinition,
-      '1-1',
-      contestId,
-      'thomas-edison'
-    );
+    for (const optionId of ['write-in-1a', 'write-in-aa', 'write-in-']) {
+      expectThrows({ optionId, msg: /invalid write-in ID/ });
+    }
 
-    expect(position1).toEqual(2); // position in ballot style 1-1 (after 2 sherlock-holmes entries)
-    expect(position2).toEqual(0); // different position in ballot style 1-4 (first)
-    expect(position3).toEqual(2); // should get cached value for 1-1
+    expectThrows({
+      optionId: 'write-in-101',
+      msg: /write-in index out of bounds/,
+    });
+
+    function expectThrows(p: { optionId: string; msg: string | RegExp }) {
+      expect(() => getOptionPosition(order1, contest, p.optionId)).toThrow(
+        p.msg
+      );
+    }
   });
 });
+
+function assertFindContest(p: { election: Election; id: string }) {
+  return find(p.election.contests, (c) => c.id === p.id);
+}
