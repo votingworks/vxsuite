@@ -89,6 +89,16 @@ export interface BackupManifestStruct extends z.infer<
 > {}
 
 /**
+ * A slimmed down backup manifest with just the data needed for the frontend to
+ * display it. Namely, removes the file list, which could be quite large and
+ * slow things down if included in a polled query response.
+ */
+export interface BackupDetails extends Pick<
+  BackupManifestStruct,
+  'election' | 'cvrCount' | 'machineId' | 'createdAt'
+> {}
+
+/**
  * An in-memory representation of a backup's `manifest.json`.
  */
 export class BackupManifest {
@@ -158,5 +168,14 @@ export class BackupManifest {
     BackupManifestStructSchema.parse(manifest);
 
     return manifest;
+  }
+
+  toDetails(): BackupDetails {
+    return {
+      election: this.manifestElection,
+      cvrCount: this.manifestCvrCount,
+      machineId: this.manifestMachineId,
+      createdAt: this.manifestCreatedAt.toString(),
+    };
   }
 }

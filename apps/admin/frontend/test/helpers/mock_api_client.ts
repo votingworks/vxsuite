@@ -18,7 +18,7 @@ import type {
   TallyReportSpec,
   TallyReportWarning,
   ManualResultsMetadata,
-  BackupManifestStruct,
+  BackupDetails,
   BackupStatus,
 } from '@votingworks/admin-backend';
 import type { BatteryInfo } from '@votingworks/backend';
@@ -901,8 +901,8 @@ export function createApiMock(
       apiClient.getBackupStatus.mockResolvedValue(status);
     },
 
-    expectGetLastBackupOnDrive(manifest: BackupManifestStruct | null): void {
-      apiClient.getLastBackupOnDrive.expectCallWith().resolves(ok(manifest));
+    expectGetLastBackupOnDrive(details: BackupDetails | null): void {
+      apiClient.getLastBackupOnDrive.expectCallWith().resolves(ok(details));
     },
 
     expectGetScannerImportCounts(

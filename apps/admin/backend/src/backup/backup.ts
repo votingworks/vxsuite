@@ -16,7 +16,7 @@ import {
 import { copyFile, type CopyFileError } from '@votingworks/fs';
 import { AuthenticatedBackup } from './authenticated_backup.js';
 import type { ReadManifestError } from './backup_manifest_file.js';
-import type { BackupManifestStruct } from './backup_manifest.js';
+import type { BackupDetails } from './backup_manifest.js';
 
 const BACKUP_MANIFEST_MAX_SIZE = 100_000_000; // 100 MB
 const BACKUP_MANIFEST_SIGNATURE_MAX_SIZE = 100_000; // 100 KB
@@ -31,10 +31,10 @@ export type BackupOpenError =
   | { type: 'authentication-failed'; message: string };
 
 /**
- * The result of attempting to open a backup and read its manifest.
+ * The result of attempting to open a backup and read its details.
  */
-export type ReadManifestResult = Result<
-  BackupManifestStruct,
+export type ReadBackupDetailsResult = Result<
+  BackupDetails,
   BackupOpenError | ReadManifestError
 >;
 
@@ -139,15 +139,15 @@ export class Backup {
   }
 
   /**
-   * Opens the backup and reads its manifest.
+   * Opens the backup and reads its manifest, returning the backup details.
    */
-  async readManifest(): Promise<ReadManifestResult> {
+  async readDetails(): Promise<ReadBackupDetailsResult> {
     const openResult = await this.open();
     if (openResult.isErr()) return openResult;
     await using openedBackup = openResult.ok();
     const manifest = await openedBackup.readManifest();
     if (manifest.isErr()) return manifest;
-    return ok(manifest.ok().toJSON());
+    return ok(manifest.ok().toDetails());
   }
 }
 

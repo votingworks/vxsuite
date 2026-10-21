@@ -1,6 +1,6 @@
 import { DateWithoutTime, ok } from '@votingworks/basics';
 import type {
-  BackupManifestStruct,
+  BackupDetails,
   BackupStatus,
   CastVoteRecordFileMetadata,
   CastVoteRecordFileRecord,
@@ -78,9 +78,7 @@ export const mockManualResultsMetadata: ManualResultsMetadata[] = [
   },
 ];
 
-export const mockBackupManifest: BackupManifestStruct = {
-  version: 1,
-  softwareVersion: '4.1.0',
+export const mockBackupDetails: BackupDetails = {
   machineId: '0000',
   createdAt: '2026-10-08T12:00:00.000Z',
   election: {
@@ -91,13 +89,12 @@ export const mockBackupManifest: BackupManifestStruct = {
     state: 'State of Hamilton',
   },
   cvrCount: 0,
-  files: [],
 };
 
 export const mockSavedBackupStatus: BackupStatus = {
   status: 'ended',
   result: ok({
     path: '/media/vx/backup/vxadmin-backups/example-county_general-election_abc123',
-    manifest: mockBackupManifest,
+    details: mockBackupDetails,
   }),
 };

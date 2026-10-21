@@ -13,7 +13,7 @@ import { renderInAppContext } from '../../test/render_in_app_context.js';
 import { screen, waitFor, within } from '../../test/react_testing_library.js';
 import { DEFAULT_QUERY_REFETCH_INTERVAL } from '../utils/globals.js';
 import {
-  mockBackupManifest,
+  mockBackupDetails,
   mockSavedBackupStatus,
 } from '../../test/api_mock_data.js';
 import { createQueryClient } from '../api.js';
@@ -95,7 +95,7 @@ test('continues once a backup drive is inserted', async () => {
     within(modal).queryByRole('heading', { name: 'Save Backup' })
   ).not.toBeInTheDocument();
 
-  resolve(ok(mockBackupManifest));
+  resolve(ok(mockBackupDetails));
   await within(modal).findByRole('heading', { name: 'Save Backup' });
   within(modal).getByRole('heading', {
     name: 'General Election · November 3, 2020',
@@ -294,7 +294,7 @@ test('saves a backup and shows its progress', async () => {
   userEvent.click(screen.getButton('Save Backup'));
   await waitFor(() => apiMock.assertComplete());
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-  reopenRead.resolve(ok(mockBackupManifest));
+  reopenRead.resolve(ok(mockBackupDetails));
   modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', {
     name: 'General Election · November 3, 2020',
@@ -387,7 +387,7 @@ test('reads the last backup again when the drive is reinserted', async () => {
   apiMock.apiClient.getBackupDriveStatus
     .expectRepeatedCallsWith()
     .resolves(mockUsbDriveStatus('mounted'));
-  apiMock.expectGetLastBackupOnDrive(mockBackupManifest);
+  apiMock.expectGetLastBackupOnDrive(mockBackupDetails);
   vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
   await within(modal).findByRole('heading', {
     name: 'General Election · November 3, 2020',

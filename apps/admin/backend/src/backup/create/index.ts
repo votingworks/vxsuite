@@ -15,10 +15,7 @@ import type { BackupProgressEvent } from '../progress.js';
 import { copy } from './copy_step.js';
 import { writeManifest } from './manifest_step.js';
 import { swap, type SwapError } from './swap_step.js';
-import type {
-  BackupManifest,
-  BackupManifestStruct,
-} from '../backup_manifest.js';
+import type { BackupDetails, BackupManifest } from '../backup_manifest.js';
 import { BackupRoot } from '../backup_root.js';
 
 /**
@@ -66,7 +63,7 @@ const EXPECTED_WRITE_ERROR_CODES: readonly string[] = [
  */
 export interface CreatedBackup {
   path: string;
-  manifest: BackupManifestStruct;
+  manifest: BackupManifest;
 }
 
 /**
@@ -77,7 +74,10 @@ export type BackupStatus =
   | { status: 'in-progress'; lastProgressEvent: BackupProgressEvent }
   | {
       status: 'ended';
-      result: Result<CreatedBackup, CreateBackupError>;
+      result: Result<
+        { path: string; details: BackupDetails },
+        CreateBackupError
+      >;
     };
 
 /**
@@ -106,7 +106,12 @@ export function startBackup(
   }).then((result) => {
     status = {
       status: 'ended',
-      result,
+      result: result.isOk()
+        ? ok({
+            path: result.ok().path,
+            details: result.ok().manifest.toDetails(),
+          })
+        : result,
     };
   });
   return {
@@ -325,5 +330,5 @@ async function tryCreateBackup(
     return swapResult;
   }
 
-  return ok({ path: backupPath, manifest: manifest.toJSON() });
+  return ok({ path: backupPath, manifest });
 }
