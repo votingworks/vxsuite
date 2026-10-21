@@ -99,6 +99,11 @@ export interface Context {
   printer: Printer;
 }
 
+interface PendingBarcodePrint {
+  request: BarcodePrintRequest;
+  sessionExpiresAt: Date;
+}
+
 interface TestDeckError {
   type: 'no_test_deck_generated';
 }
@@ -153,9 +158,7 @@ export function buildApi(ctx: Context) {
     lastBarcodeScanTimestamp = new Date();
   });
 
-  let pendingBarcodePrint:
-    | { request: BarcodePrintRequest; sessionExpiresAt: Date }
-    | undefined;
+  let pendingBarcodePrint: PendingBarcodePrint | undefined;
 
   function clearPendingBarcodePrint(): void {
     pendingBarcodePrint = undefined;
