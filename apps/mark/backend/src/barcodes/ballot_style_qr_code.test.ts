@@ -1,18 +1,20 @@
 import { expect, test } from 'vitest';
 import { z } from 'zod/v4';
-import { parseBallotStyleQrCode } from './ballot_style_qr_code.js';
+import {
+  type BallotStyleQrCode,
+  parseBallotStyleQrCode,
+} from './ballot_style_qr_code.js';
+import { encodeBallotStyleQrCode } from '../../test/barcode_helpers.js';
 
 test('parses a ballot style ID', () => {
-  expect(
-    parseBallotStyleQrCode('{"ballotStyleId":"1_en"}').unsafeUnwrap()
-  ).toEqual({ ballotStyleId: '1_en' });
+  expect(parseBallotStyleQrCode('{"bId":"1_en"}').unsafeUnwrap()).toEqual({
+    ballotStyleId: '1_en',
+  });
 });
 
 test('parses a ballot style ID and precinct ID', () => {
   expect(
-    parseBallotStyleQrCode(
-      '{"ballotStyleId":"1_en","precinctId":"precinct-1"}'
-    ).unsafeUnwrap()
+    parseBallotStyleQrCode('{"bId":"1_en","pId":"precinct-1"}').unsafeUnwrap()
   ).toEqual({ ballotStyleId: '1_en', precinctId: 'precinct-1' });
 });
 
@@ -21,10 +23,21 @@ test('rejects invalid JSON', () => {
 });
 
 test.each([
-  ['missing ballot style ID', '{"precinctId":"precinct-1"}'],
-  ['non-string ballot style ID', '{"ballotStyleId":1}'],
-  ['non-string precinct ID', '{"ballotStyleId":"1_en","precinctId":1}'],
+  ['missing ballot style ID', '{"pId":"precinct-1"}'],
+  ['non-string ballot style ID', '{"bId":1}'],
+  ['non-string precinct ID', '{"bId":"1_en","pId":1}'],
+  ['full-length keys', '{"ballotStyleId":"1_en"}'],
   ['non-object', '"1_en"'],
 ])('rejects %s', (_, text) => {
   expect(parseBallotStyleQrCode(text).err()).toBeInstanceOf(z.ZodError);
+});
+
+test('round-trips through encode and parse', () => {
+  const qrCode: BallotStyleQrCode = {
+    ballotStyleId: '4-F_zh-Hant',
+    precinctId: 'precinct-c2',
+  };
+  expect(
+    parseBallotStyleQrCode(encodeBallotStyleQrCode(qrCode)).unsafeUnwrap()
+  ).toEqual(qrCode);
 });
