@@ -58,7 +58,7 @@ function StartRestoreModal({
       content={
         <React.Fragment>
           <P>Restore from this backup?</P>
-          <BackupDetailsCard manifest={backup.manifest} />
+          <BackupDetailsCard details={backup.details} />
         </React.Fragment>
       }
       actions={
@@ -305,17 +305,17 @@ function BackupList({
   }
 
   const [okBackups, errBackups] = iter(backups).partition((backup) =>
-    backup.manifestResult.isOk()
+    backup.detailsResult.isOk()
   );
   const availableBackups = okBackups.map((backup) => ({
     ...backup,
-    manifest: backup.manifestResult.unsafeUnwrap(),
+    details: backup.detailsResult.unsafeUnwrap(),
   }));
   // eslint-disable-next-line vx/no-array-sort-mutation
   availableBackups.sort(
     (a, b) =>
-      new Date(b.manifest.createdAt).getTime() -
-      new Date(a.manifest.createdAt).getTime()
+      new Date(b.details.createdAt).getTime() -
+      new Date(a.details.createdAt).getTime()
   );
 
   return (
@@ -327,7 +327,7 @@ function BackupList({
             key={backup.path}
             onClick={() => setBackupToConfirm(backup)}
           >
-            <BackupDetailsCard manifest={backup.manifest} />
+            <BackupDetailsCard details={backup.details} />
           </BackupItem>
         ))}
         {errBackups.length > 0 && (

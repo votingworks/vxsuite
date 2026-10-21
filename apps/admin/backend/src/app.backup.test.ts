@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { assert, deferred } from '@votingworks/basics';
+import { assert, DateWithoutTime, deferred } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   readElectionGeneralDefinition,
@@ -221,13 +221,15 @@ test('getLastBackupOnDrive gets the last backup matching the current election', 
   const status = await waitForBackupToEnd();
   await apiClient.finishBackup();
   const lastBackup = (await apiClient.getLastBackupOnDrive()).unsafeUnwrap();
-  expect(lastBackup).toEqual(status.result.unsafeUnwrap().manifest);
-  expect(lastBackup).toMatchObject({
+  expect(lastBackup).toEqual(status.result.unsafeUnwrap().details);
+  expect(lastBackup).toEqual({
     machineId: '0000',
+    createdAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/),
     cvrCount: 0,
     election: {
       id: 'election-general',
       title: 'General Election',
+      date: new DateWithoutTime('2020-11-03'),
       jurisdictionName: 'Franklin County',
       state: 'State of Hamilton',
     },

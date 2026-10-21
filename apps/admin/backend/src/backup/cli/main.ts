@@ -287,7 +287,11 @@ async function create(
 
   // Replace the bar with what `list` would show for the backup just written.
   display.clear();
-  views.backupInfo(new StyledPrinter(stdout), createBackupResult.ok());
+  const { path, manifest } = createBackupResult.ok();
+  views.backupInfo(new StyledPrinter(stdout), {
+    path,
+    manifest: manifest.toJSON(),
+  });
 
   return 0;
 }

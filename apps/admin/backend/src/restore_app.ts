@@ -21,8 +21,8 @@ import {
   type RestoreController,
   type RestoreStatus,
 } from './backup/restore/index.js';
-import type { ReadManifestResult } from './backup/backup.js';
-import type { BackupManifestStruct } from './backup/backup_manifest.js';
+import type { ReadBackupDetailsResult } from './backup/backup.js';
+import type { BackupDetails } from './backup/backup_manifest.js';
 
 /**
  * What restore mode presents to auth in place of a store: no election, so the
@@ -40,21 +40,21 @@ export const RESTORE_MODE_STORE: BaseStore = {
 };
 
 /**
- * A backup listing on the inserted USB drive, with a manifest read result.
+ * A backup listing on the inserted USB drive, with the result of reading its details.
  */
 export interface BackupListing {
   name: string;
   path: string;
-  manifestResult: ReadManifestResult;
+  detailsResult: ReadBackupDetailsResult;
 }
 
 /**
- * A backup that is available for restore, with its manifest.
+ * A backup that is available for restore, with its details.
  */
 export interface AvailableBackup {
   name: string;
   path: string;
-  manifest: BackupManifestStruct;
+  details: BackupDetails;
 }
 
 function buildRestoreApi({
@@ -118,7 +118,7 @@ function buildRestoreApi({
           backups.ok().map(async (backup) => ({
             name: basename(backup.path),
             path: backup.path,
-            manifestResult: await backup.readManifest(),
+            detailsResult: await backup.readDetails(),
           }))
         )
       );

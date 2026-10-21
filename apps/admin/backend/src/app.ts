@@ -180,7 +180,7 @@ import {
   type BackupStatus,
 } from './backup/create/index.js';
 import { BackupRoot, type ListBackupsError } from './backup/backup_root.js';
-import type { BackupManifestStruct } from './backup/backup_manifest.js';
+import type { BackupDetails } from './backup/backup_manifest.js';
 import type { ReadManifestError } from './backup/backup_manifest_file.js';
 import type { BackupOpenError } from './backup/backup.js';
 
@@ -1679,7 +1679,7 @@ function buildApi({
 
     async getLastBackupOnDrive(): Promise<
       Result<
-        BackupManifestStruct | null,
+        BackupDetails | null,
         ListBackupsError | BackupOpenError | ReadManifestError
       >
     > {
@@ -1699,7 +1699,7 @@ function buildApi({
           (backup) => backup.path === backupRoot.pathFor(electionBackupName)
         );
       if (!lastBackup) return ok(null);
-      return lastBackup.readManifest();
+      return lastBackup.readDetails();
     },
 
     async startBackup(): Promise<void> {

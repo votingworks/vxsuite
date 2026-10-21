@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { Card, H3, Icons } from '@votingworks/ui';
 import { format } from '@votingworks/utils';
-import type { BackupManifestStruct } from '@votingworks/admin-backend';
+import type { BackupDetails } from '@votingworks/admin-backend';
 
 const BackupDetailsContent = styled.div`
   display: flex;
@@ -20,11 +20,11 @@ const MutedText = styled.div`
 `;
 
 export function BackupDetailsCard({
-  manifest,
+  details,
 }: {
-  manifest: BackupManifestStruct;
+  details: BackupDetails;
 }): JSX.Element {
-  const { election } = manifest;
+  const { election, cvrCount, machineId, createdAt } = details;
   return (
     <Card>
       <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -40,12 +40,11 @@ export function BackupDetailsCard({
             {election.jurisdictionName}, {election.state}
           </div>
           <div>
-            {format.count(manifest.cvrCount)}{' '}
-            {manifest.cvrCount === 1 ? 'CVR' : 'CVRs'}
+            {format.count(cvrCount)} {cvrCount === 1 ? 'CVR' : 'CVRs'}
           </div>
           <MutedText>
-            Machine {manifest.machineId} ·{' '}
-            {format.localeShortDateAndTime(new Date(manifest.createdAt))}
+            Machine {machineId} ·{' '}
+            {format.localeShortDateAndTime(new Date(createdAt))}
           </MutedText>
         </BackupDetailsContent>
       </div>

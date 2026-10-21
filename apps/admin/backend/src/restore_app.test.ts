@@ -9,7 +9,10 @@ import {
   type DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
 import { assert, deferred, err, ok } from '@votingworks/basics';
-import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  makeTemporaryDirectory,
+} from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
 import { DEFAULT_SYSTEM_SETTINGS, DEV_MACHINE_ID } from '@votingworks/types';
@@ -37,6 +40,8 @@ import {
 } from './util/workspace.js';
 
 vi.setConfig({ testTimeout: 30_000 });
+
+const { election } = electionFamousNames2021Fixtures.readElectionDefinition();
 
 vi.mock(
   import('@votingworks/backend'),
@@ -123,10 +128,17 @@ async function insertBackupDrive(
   );
   const listed = (await apiClient.listBackups()).unsafeUnwrap();
   expect(listed).toHaveLength(1);
-  expect(listed[0]!.manifestResult.unsafeUnwrap()).toMatchObject({
-    version: 1,
+  expect(listed[0]!.detailsResult.unsafeUnwrap()).toEqual({
     machineId: DEV_MACHINE_ID,
+    createdAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/),
     cvrCount: 1,
+    election: {
+      id: election.id,
+      title: election.title,
+      date: election.date,
+      jurisdictionName: election.jurisdiction.name,
+      state: election.state,
+    },
   });
   return listed[0]!.path;
 }
@@ -308,11 +320,9 @@ test('lists a backup whose manifest cannot be read alongside the rest', async ()
     [backupPath, unreadablePath].sort()
   );
   expect(
-    listed.find((backup) => backup.path === backupPath)?.manifestResult.isOk()
+    listed.find((backup) => backup.path === backupPath)?.detailsResult.isOk()
   ).toEqual(true);
   expect(
-    listed
-      .find((backup) => backup.path === unreadablePath)
-      ?.manifestResult.err()
+    listed.find((backup) => backup.path === unreadablePath)?.detailsResult.err()
   ).toMatchObject({ type: 'read-failed' });
 });

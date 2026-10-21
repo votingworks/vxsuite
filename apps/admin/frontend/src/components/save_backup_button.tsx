@@ -79,8 +79,8 @@ function StartBackupModal({
         </Callout>
       );
     }
-    const manifest = lastBackupOnDrive.ok();
-    if (!manifest) {
+    const details = lastBackupOnDrive.ok();
+    if (!details) {
       return (
         <Card>
           <div>
@@ -94,7 +94,7 @@ function StartBackupModal({
         <P>
           <Font weight="semiBold">Last Backup on Drive</Font>
         </P>
-        <BackupDetailsCard manifest={manifest} />
+        <BackupDetailsCard details={details} />
       </div>
     );
   })();
@@ -238,9 +238,7 @@ function SaveBackupFlowModal({
             title="Backup Saved"
             content={
               <div>
-                <BackupDetailsCard
-                  manifest={backupStatus.result.ok().manifest}
-                />
+                <BackupDetailsCard details={backupStatus.result.ok().details} />
                 <div style={{ marginTop: '0.5rem' }}>
                   You may remove the backup drive.
                 </div>

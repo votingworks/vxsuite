@@ -19,7 +19,7 @@ import {
   createRestoreApiMock,
   type RestoreApiMock,
 } from '../../test/helpers/mock_restore_api_client.js';
-import { mockBackupManifest } from '../../test/api_mock_data.js';
+import { mockBackupDetails } from '../../test/api_mock_data.js';
 import { type ApiClient, createQueryClient } from './api.js';
 import { RestoreApp } from './restore_app.js';
 
@@ -36,16 +36,16 @@ const SYSTEM_ADMINISTRATOR_AUTH: DippedSmartCardAuth.AuthStatus = {
 const BACKUP: BackupListing = {
   name: 'sample-county_general-election_abc123',
   path: '/media/vx/backup/vxadmin-backups/sample-county_general-election_abc123',
-  manifestResult: ok(mockBackupManifest),
+  detailsResult: ok(mockBackupDetails),
 };
 
 const OLDER_BACKUP: BackupListing = {
   name: 'sample-county_older-election_def456',
   path: '/media/vx/backup/vxadmin-backups/sample-county_older-election_def456',
-  manifestResult: ok({
-    ...mockBackupManifest,
+  detailsResult: ok({
+    ...mockBackupDetails,
     createdAt: '2026-09-08T12:00:00.000Z',
-    election: { ...mockBackupManifest.election, title: 'Older Election' },
+    election: { ...mockBackupDetails.election, title: 'Older Election' },
   }),
 };
 
@@ -410,7 +410,7 @@ test('warns about backups on the drive that cannot be read', async () => {
       {
         name: 'corrupt-missing-manifest',
         path: '/media/vx/backup/vxadmin-backups/corrupt-missing-manifest',
-        manifestResult: err({ type: 'read-failed', message: 'ENOENT' }),
+        detailsResult: err({ type: 'read-failed', message: 'ENOENT' }),
       },
     ])
   );
