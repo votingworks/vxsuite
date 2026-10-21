@@ -38,6 +38,7 @@ import { createWorkspace, type Workspace } from '../util/workspace.js';
 import { getUserRole } from '../util/auth.js';
 import type { BarcodeReader } from './types.js';
 import type { BallotStyleQrCode } from './ballot_style_qr_code.js';
+import { encodeBallotStyleQrCode } from '../../test/barcode_helpers.js';
 
 const featureFlagMock = getFeatureFlagMock();
 vi.mock('@votingworks/utils', async (importActual) => ({
@@ -56,7 +57,7 @@ function createMockBarcodeClient(): MockBarcodeClient {
 }
 
 function encodeQrCode(qrCode: BallotStyleQrCode): Uint8Array {
-  return new TextEncoder().encode(JSON.stringify(qrCode));
+  return new TextEncoder().encode(encodeBallotStyleQrCode(qrCode));
 }
 
 function pollWorkerAuthStatus(
