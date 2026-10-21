@@ -235,6 +235,9 @@ export function* generateCvrs({
       ballotStyle,
       election,
     });
+
+    const candidateOrderings = ballotStyle.orderedCandidatesByContest;
+
     for (const ballotType of [BallotType.Absentee, BallotType.Precinct]) {
       for (const precinctId of precinctIds) {
         const ballotPageLayouts = bmdBallots
@@ -327,7 +330,7 @@ export function* generateCvrs({
                     Type: CVR.CVRType.Original,
                     CVRContest: buildCVRContestsFromVotes({
                       electionDefinition,
-                      ballotStyleId,
+                      candidateOrderings,
                       votes,
                       options: {
                         ballotMarkingMode: 'machine',
@@ -424,7 +427,7 @@ export function* generateCvrs({
                       CVRContest: [
                         ...buildCVRContestsFromVotes({
                           electionDefinition,
-                          ballotStyleId,
+                          candidateOrderings,
                           votes: frontVotes,
                           options: {
                             ballotMarkingMode: 'hand',
@@ -439,7 +442,7 @@ export function* generateCvrs({
                         }),
                         ...buildCVRContestsFromVotes({
                           electionDefinition,
-                          ballotStyleId,
+                          candidateOrderings,
                           votes: backVotes,
                           options: {
                             ballotMarkingMode: 'hand',
@@ -489,9 +492,8 @@ export function* generateCvrs({
                                   ContestSelectionId: optionId,
                                   OptionPosition:
                                     CachedElectionLookups.getOptionPosition(
-                                      electionDefinition,
-                                      ballotStyleId,
-                                      contestId,
+                                      candidateOrderings,
+                                      contest,
                                       optionId
                                     ),
                                   SelectionPosition: [

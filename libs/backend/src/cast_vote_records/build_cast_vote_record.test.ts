@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { assert, find } from '@votingworks/basics';
+import { assert, assertDefined, find } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   readElectionStraightPartyDefinition,
@@ -10,6 +10,7 @@ import {
   BallotType,
   type CandidateContest,
   CVR,
+  getBallotStyle,
   type MarkThresholds,
   unsafeParse,
 } from '@votingworks/types';
@@ -43,10 +44,14 @@ const mammalCouncilContest = find(
 ) as CandidateContest;
 
 describe('buildCVRContestsFromVotes', () => {
+  const candidateOrderings = assertDefined(
+    getBallotStyle({ ballotStyleId: '1M', election })
+  ).orderedCandidatesByContest;
+
   test('builds well-formed ballot measure contest (yes vote)', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
-      ballotStyleId: '1M',
+      candidateOrderings,
       votes: { [fishingContest.id]: [fishingContest.options[0].id] },
       options: { ballotMarkingMode: 'machine' },
     });
@@ -84,7 +89,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('ballot measure contest is correct for no vote', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
-      ballotStyleId: '1M',
+      candidateOrderings,
       votes: { [fishingContest.id]: [fishingContest.options[1].id] },
       options: { ballotMarkingMode: 'machine' },
     });
@@ -107,7 +112,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('ballot measure contest is correct for overvote', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
-      ballotStyleId: '1M',
+      candidateOrderings,
       votes: { [fishingContest.id]: ['ban-fishing', 'allow-fishing'] },
       options: { ballotMarkingMode: 'hand' },
     });
@@ -138,7 +143,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('ballot measure contest is correct for undervote', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
-      ballotStyleId: '1M',
+      candidateOrderings,
       votes: { [fishingContest.id]: [] },
       options: { ballotMarkingMode: 'machine' },
     });
@@ -158,7 +163,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('builds well-formed candidate contest', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
-      ballotStyleId: '1M',
+      candidateOrderings,
       votes: {
         [mammalCouncilContest.id]: mammalCouncilContest.candidates.slice(0, 3),
       },
@@ -232,7 +237,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('candidate contest includes appropriate information when not indicated', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
-      ballotStyleId: '1M',
+      candidateOrderings,
       votes: { [mammalCouncilContest.id]: [] },
       options: { ballotMarkingMode: 'machine' },
     });
@@ -252,7 +257,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('candidate contest includes appropriate information when undervoted', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
-      ballotStyleId: '1M',
+      candidateOrderings,
       votes: {
         [mammalCouncilContest.id]: [mammalCouncilContest.candidates[0]!],
       },
@@ -271,7 +276,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('candidate contest includes appropriate information when overvoted', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
-      ballotStyleId: '1M',
+      candidateOrderings,
       votes: {
         [mammalCouncilContest.id]: mammalCouncilContest.candidates.slice(0, 4),
       },
@@ -306,7 +311,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('overvoted write-in has both InvalidatedRules and NeedsAdjudication status', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
-      ballotStyleId: '1M',
+      candidateOrderings,
       votes: {
         [mammalCouncilContest.id]: [
           ...mammalCouncilContest.candidates.slice(0, 3),
@@ -339,7 +344,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('candidate contest includes appropriate information for HMPB write-in', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
-      ballotStyleId: '1M',
+      candidateOrderings,
       votes: {
         [mammalCouncilContest.id]: [
           {
@@ -395,7 +400,7 @@ describe('buildCVRContestsFromVotes', () => {
   test('candidate contest includes appropriate information for BMD write-in', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition,
-      ballotStyleId: '1M',
+      candidateOrderings,
       votes: {
         [mammalCouncilContest.id]: [
           {
@@ -890,6 +895,14 @@ describe('buildCVRContestsFromVotes with candidate rotation', () => {
     electionFamousNames2021Fixtures.readElectionDefinition();
   const { election: famousNamesElection } = famousNamesElectionDefinition;
 
+  const rotation1 = assertDefined(
+    getBallotStyle({ ballotStyleId: '1-1', election: famousNamesElection })
+  ).orderedCandidatesByContest;
+
+  const rotation4 = assertDefined(
+    getBallotStyle({ ballotStyleId: '1-4', election: famousNamesElection })
+  ).orderedCandidatesByContest;
+
   const mayorContest = find(
     famousNamesElection.contests,
     (contest) => contest.id === 'mayor'
@@ -904,7 +917,7 @@ describe('buildCVRContestsFromVotes with candidate rotation', () => {
     // Ballot style 1-1 order: john-snow (position 0), mark-twain (position 1)
     const result = buildCVRContestsFromVotes({
       electionDefinition: famousNamesElectionDefinition,
-      ballotStyleId: '1-1',
+      candidateOrderings: rotation1,
       votes: {
         [mayorContest.id]: [
           find(mayorContest.candidates, (c) => c.id === 'sherlock-holmes'),
@@ -948,7 +961,7 @@ describe('buildCVRContestsFromVotes with candidate rotation', () => {
     // Make sure that a vote for a candidate after the multi-endorsed candidate has the proper index.
     const result2 = buildCVRContestsFromVotes({
       electionDefinition: famousNamesElectionDefinition,
-      ballotStyleId: '1-1',
+      candidateOrderings: rotation1,
       votes: {
         [mayorContest.id]: [
           find(mayorContest.candidates, (c) => c.id === 'thomas-edison'),
@@ -967,12 +980,10 @@ describe('buildCVRContestsFromVotes with candidate rotation', () => {
     });
   });
 
-  test('OptionPosition reflects ballot style 1-2 rotation', () => {
-    // Ballot style 1-2 order: mark-twain (position 0), john-snow (position 1)
-    // The positions are rotated compared to ballot style 1-1
+  test('OptionPosition reflects ballot style 1-4 rotation', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition: famousNamesElectionDefinition,
-      ballotStyleId: '1-4',
+      candidateOrderings: rotation4,
       votes: {
         [mayorContest.id]: [
           find(mayorContest.candidates, (c) => c.id === 'sherlock-holmes'),
@@ -1018,12 +1029,16 @@ describe('buildCVRContestsFromVotes with candidate rotation', () => {
 describe('buildCVRContestsFromVotes with straight party contest', () => {
   const straightPartyElectionDefinition = readElectionStraightPartyDefinition();
   const straightPartyContestId = 'straight-party-ticket';
-  const ballotStyleId = '12';
+
+  const candidateOrderings = getBallotStyle({
+    ballotStyleId: '12',
+    election: straightPartyElectionDefinition.election,
+  })!.orderedCandidatesByContest;
 
   test('single party selection', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition: straightPartyElectionDefinition,
-      ballotStyleId,
+      candidateOrderings,
       votes: { [straightPartyContestId]: ['3'] },
       options: { ballotMarkingMode: 'machine' },
     });
@@ -1058,7 +1073,7 @@ describe('buildCVRContestsFromVotes with straight party contest', () => {
   test('undervote', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition: straightPartyElectionDefinition,
-      ballotStyleId,
+      candidateOrderings,
       votes: { [straightPartyContestId]: [] },
       options: { ballotMarkingMode: 'machine' },
     });
@@ -1077,7 +1092,7 @@ describe('buildCVRContestsFromVotes with straight party contest', () => {
   test('overvote', () => {
     const result = buildCVRContestsFromVotes({
       electionDefinition: straightPartyElectionDefinition,
-      ballotStyleId,
+      candidateOrderings,
       votes: { [straightPartyContestId]: ['3', '7'] },
       options: { ballotMarkingMode: 'machine' },
     });

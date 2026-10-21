@@ -22,6 +22,7 @@ import {
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
   DEV_MACHINE_ID,
+  getBallotStyle,
   type PageInterpretationWithFiles,
   type SheetOf,
   TEST_JURISDICTION,
@@ -74,11 +75,13 @@ let sheet: SheetOf<PageInterpretationWithFiles>;
 
 beforeAll(async () => {
   const hmpbFixture = await generateHmpbFixture();
+  const { ballotHash, election } = hmpbFixture.electionDefinition;
+
   const [frontImagePath, backImagePath] = hmpbFixture.sheet;
   const metadata: BallotMetadata = {
-    ballotHash: vxFamousNamesFixtures.electionDefinition.ballotHash,
+    ballotHash,
     ballotType: BallotType.Precinct,
-    ballotStyleId: '12',
+    ballotStyleId: getBallotStyle({ ballotStyleId: '1-1', election })!.id,
     precinctId: '23',
     isTestMode: false,
   };
