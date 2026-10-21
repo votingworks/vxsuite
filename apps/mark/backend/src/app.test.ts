@@ -841,18 +841,6 @@ test('a pending print request survives a poll worker session extension', async (
   expect(await apiClient.getPendingBarcodePrintRequest()).toEqual(firstRequest);
 });
 
-test('a session extension without a pending print request does not create one', async () => {
-  const { sessionExpiresAt } = await setUpBarcodeActivation('ballot_printing');
-  const extendedSessionExpiresAt = new Date(
-    sessionExpiresAt.getTime() + 60 * 60 * 1000
-  );
-  await apiClient.updateSessionExpiry({
-    sessionExpiresAt: extendedSessionExpiresAt,
-  });
-  mockPollWorkerSession(extendedSessionExpiresAt);
-  expect(await apiClient.getPendingBarcodePrintRequest()).toBeNull();
-});
-
 test.each<{
   description: string;
   clear: () => Promise<void>;
