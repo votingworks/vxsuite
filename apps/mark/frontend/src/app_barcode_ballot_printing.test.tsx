@@ -60,7 +60,10 @@ test('a scanned barcode prints one ballot and returns to the poll worker menu', 
 
   apiMock.setPendingBarcodePrintRequest({ ballotStyleId, precinctId });
   await screen.findByText('Blank Ballot Printing');
-  expect(screen.getButton(precinct.name)).toBeDisabled();
+  expect(screen.getButton(precinct.name)).toHaveAttribute(
+    'data-variant',
+    'primary'
+  );
 
   apiMock.mockApiClient.printBlankBallot
     .expectCallWith({ ballotStyleId, precinctId })
@@ -103,7 +106,8 @@ function renderSplitsElectionAsPollWorker() {
 
 async function expectLockedSplitBallot() {
   await screen.findByText('Precinct 4 - Split 2');
-  expect(screen.getButton('Fish')).toBeDisabled();
+  expect(screen.getButton('Fish')).toHaveAttribute('data-variant', 'primary');
+  expect(screen.getButton('Mammal')).toBeDisabled();
   screen.getByText(format.languageDisplayName({ languageCode: 'zh-Hant' }));
   expect(screen.getByLabelText('Ballot language')).toBeDisabled();
 }

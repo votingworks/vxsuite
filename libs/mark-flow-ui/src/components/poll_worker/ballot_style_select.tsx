@@ -27,6 +27,11 @@ export interface BallotStyleSelectProps {
   selectedBallotStyleId?: BallotStyleId;
   /** Shows this precinct or split, if any, as selected. */
   selectedPrecinctOrSplitId?: PrecinctId | PrecinctSplitId;
+  /**
+   * Shows the selection without allowing it to change: the selected button
+   * stays highlighted while the other buttons and dropdowns are disabled.
+   */
+  lockedToSelection?: boolean;
 }
 
 export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
@@ -37,7 +42,24 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
     disabled,
     selectedBallotStyleId,
     selectedPrecinctOrSplitId,
+    lockedToSelection,
   } = props;
+  const isDropdownDisabled = disabled || lockedToSelection;
+
+  function isBallotStyleButtonDisabled(ballotStyleId: BallotStyleId): boolean {
+    return Boolean(
+      disabled || (lockedToSelection && ballotStyleId !== selectedBallotStyleId)
+    );
+  }
+
+  function selectBallotStyle(
+    precinctId: PrecinctId,
+    ballotStyleId: BallotStyleId
+  ): void {
+    if (!lockedToSelection) {
+      onSelect(precinctId, ballotStyleId);
+    }
+  }
 
   // Only used for primary elections
   const [pendingPrecinctOrSplitId, setPendingPrecinctOrSplitId] = useState<
@@ -68,9 +90,9 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
       ).id;
       return (
         <Button
-          onPress={() => onSelect(precinct.id, ballotStyleId)}
+          onPress={() => selectBallotStyle(precinct.id, ballotStyleId)}
           rightIcon="Next"
-          disabled={disabled}
+          disabled={isBallotStyleButtonDisabled(ballotStyleId)}
           variant={
             ballotStyleId === selectedBallotStyleId ? 'primary' : 'neutral'
           }
@@ -109,7 +131,7 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
           );
         }}
         style={{ width: '100%' }}
-        disabled={disabled}
+        disabled={isDropdownDisabled}
       />
     );
   }
@@ -144,7 +166,7 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
           value={pendingPrecinctOrSplitId}
           onChange={setPendingPrecinctOrSplitId}
           style={{ width: '100%' }}
-          disabled={disabled}
+          disabled={isDropdownDisabled}
         />
       )}
 
@@ -162,9 +184,12 @@ export function BallotStyleSelect(props: BallotStyleSelectProps): JSX.Element {
                 <Button
                   key={ballotStyleId}
                   onPress={() =>
-                    onSelect(selectedPrecinctOrSplit.precinct.id, ballotStyleId)
+                    selectBallotStyle(
+                      selectedPrecinctOrSplit.precinct.id,
+                      ballotStyleId
+                    )
                   }
-                  disabled={disabled}
+                  disabled={isBallotStyleButtonDisabled(ballotStyleId)}
                   variant={
                     ballotStyleId === selectedBallotStyleId
                       ? 'primary'

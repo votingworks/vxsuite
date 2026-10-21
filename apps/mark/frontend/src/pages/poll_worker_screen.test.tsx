@@ -525,7 +525,7 @@ test('a pending barcode print request opens the print screen with the scanned op
 
   await screen.findByText('Blank Ballot Printing');
   expect(lastBallotStyleSelectProps()).toMatchObject({
-    disabled: true,
+    lockedToSelection: true,
     selectedBallotStyleId: scannedBallotStyle.id,
     selectedPrecinctOrSplitId: scannedBarcodePrintRequest.precinctId,
   });
@@ -598,7 +598,7 @@ test('a barcode print request locks the language to the scanned ballot style', a
     format.languageDisplayName({ languageCode: 'es-US' })
   );
   expect(lastBallotStyleSelectProps()).toMatchObject({
-    disabled: true,
+    lockedToSelection: true,
     selectedBallotStyleId: englishBallotStyle.id,
   });
   expect(screen.getByLabelText('Ballot language')).toBeDisabled();
@@ -623,7 +623,7 @@ test('a barcode scan fills in the manual print screen', async () => {
   apiMock.setPendingBarcodePrintRequest(scannedBarcodePrintRequest);
   await waitFor(() =>
     expect(lastBallotStyleSelectProps()).toMatchObject({
-      disabled: true,
+      lockedToSelection: true,
       selectedBallotStyleId: scannedBallotStyle.id,
     })
   );
@@ -663,7 +663,7 @@ test('a barcode scan during a manual print applies after the print modal is dism
   fireEvent.click(screen.getByText('Done'));
   await waitFor(() =>
     expect(lastBallotStyleSelectProps()).toMatchObject({
-      disabled: true,
+      lockedToSelection: true,
       selectedBallotStyleId: scannedBallotStyle.id,
     })
   );
@@ -715,7 +715,7 @@ test('a barcode print request for a split precinct selects the matching split', 
 
   await screen.findByText('Blank Ballot Printing');
   expect(lastBallotStyleSelectProps()).toMatchObject({
-    disabled: true,
+    lockedToSelection: true,
     selectedBallotStyleId: '4-F_en',
     selectedPrecinctOrSplitId: 'precinct-c2-split-2',
   });

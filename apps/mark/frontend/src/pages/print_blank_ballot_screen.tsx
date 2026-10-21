@@ -225,7 +225,8 @@ export function PrintBlankBallotScreen({
             key={isLocked ? 'locked' : 'manual'}
             election={election}
             onSelect={onChooseBallotStyle}
-            disabled={hasStartedPrint || isLocked}
+            disabled={hasStartedPrint}
+            lockedToSelection={isLocked}
             selectedBallotStyleId={selection?.ballotStyleId}
             selectedPrecinctOrSplitId={
               selection && precinctOrSplitIdForSelection(election, selection)
