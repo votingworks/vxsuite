@@ -25,6 +25,16 @@ test('no base title', async () => {
   });
 });
 
+test('unset base title', async () => {
+  setBaseTitle(undefined);
+  const { unmount } = renderHook(() => useTitle('My Page'));
+  expect(document.title).toEqual('My Page');
+  unmount();
+  await waitFor(() => {
+    expect(document.title).toEqual('');
+  });
+});
+
 test('single title part', async () => {
   const { unmount } = renderHook(() => useTitle('My Page'));
   expect(document.title).toEqual('My Page – My Site');

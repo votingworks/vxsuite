@@ -150,6 +150,9 @@ test('minimum detected scale', async () => {
     minimumDetectedBallotScaleOverrideInput,
     '{Control>}a{/Control}0.995'
   );
+  await userEvent.clear(minimumDetectedBallotScaleOverrideInput);
+  expect(minimumDetectedBallotScaleOverrideInput).toHaveValue(null);
+  await userEvent.type(minimumDetectedBallotScaleOverrideInput, '0.995');
 
   const updatedSystemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
@@ -465,7 +468,7 @@ test('setting auth settings', async () => {
     systemSettings.auth.overallSessionTimeLimitHours
   );
   await userEvent.clear(timeLimitInput);
-  await userEvent.type(timeLimitInput, '11');
+  await userEvent.type(timeLimitInput, '{Control>}a{/Control}11');
   const element = await within(authContainer).findByRole('spinbutton', {
     name: 'Overall Session Time Limit (Hours)',
   });
@@ -1355,9 +1358,12 @@ test('validates streak width threshold must be less than max cumulative width', 
 
   // Set max width to 5 and retry threshold to 5 (invalid: should be less than)
   await userEvent.clear(maxCumulativeStreakWidthInput);
-  await userEvent.type(maxCumulativeStreakWidthInput, '5');
+  await userEvent.type(maxCumulativeStreakWidthInput, '{Control>}a{/Control}5');
   await userEvent.clear(retryStreakWidthThresholdInput);
-  await userEvent.type(retryStreakWidthThresholdInput, '5');
+  await userEvent.type(
+    retryStreakWidthThresholdInput,
+    '{Control>}a{/Control}5'
+  );
 
   // The retry threshold input should have a validation error
   expect(retryStreakWidthThresholdInput.validity.valid).toEqual(false);
@@ -1367,7 +1373,10 @@ test('validates streak width threshold must be less than max cumulative width', 
 
   // Fix it by making retry threshold less than max width
   await userEvent.clear(retryStreakWidthThresholdInput);
-  await userEvent.type(retryStreakWidthThresholdInput, '3');
+  await userEvent.type(
+    retryStreakWidthThresholdInput,
+    '{Control>}a{/Control}3'
+  );
 
   // Now both inputs should be valid
   expect(maxCumulativeStreakWidthInput.validity.valid).toEqual(true);

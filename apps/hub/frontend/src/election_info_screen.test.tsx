@@ -178,6 +178,7 @@ test('edit and save election', async () => {
   await userEvent.type(titleInput, 'New Title');
   expect(titleInput).toHaveValue('New Title');
 
+  await userEvent.clear(dateInput);
   await userEvent.type(dateInput, '2023-09-06');
   expect(dateInput).toHaveValue('2023-09-06');
 

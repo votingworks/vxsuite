@@ -37,9 +37,9 @@ test('calls onChange when content changes', async () => {
   const editor = await screen.findByTestId('rich-text-editor');
   expect(editor).toHaveTextContent('');
 
-  await userEvent.type(editor.querySelector('.tiptap')!, 'Content');
+  await userEvent.type(editor.querySelector('.tiptap p')!, 'Content');
   await screen.findByText('Content');
-  expect(onChange).toHaveBeenCalledTimes(1);
+  expect(onChange).toHaveBeenCalledTimes('Content'.length);
   expect(onChange).toHaveBeenLastCalledWith('<p>Content</p>');
 });
 

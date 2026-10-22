@@ -363,7 +363,7 @@ describe('ImageInput', () => {
         />
       );
       const input = screen.getByLabelText<HTMLInputElement>('Upload');
-      await userEvent.upload(input, imageFile);
+      await userEvent.setup({ applyAccept: false }).upload(input, imageFile);
       await waitFor(() =>
         expect(input.validationMessage).toEqual(expectedMessage)
       );
