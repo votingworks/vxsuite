@@ -4,13 +4,15 @@ import React from 'react';
 
 import { ServerStyleSheet } from 'styled-components';
 import {
+  ROBOTO_REGULAR_FONT_DECLARATIONS,
+  ROBOTO_ITALIC_FONT_DECLARATIONS,
   GlobalStyles,
   VxThemeProvider,
   FONT_AWESOME_STYLES,
 } from '@votingworks/ui';
 import { err, ok, type Result } from '@votingworks/basics';
 import { getOrCreateCachedBrowser } from './browser.js';
-import { acquirePage, INLINE_FONT_DECLARATIONS } from './page_pool.js';
+import { acquirePage } from './page_pool.js';
 
 const PLAYWRIGHT_PIXELS_PER_INCH = 96;
 const MAX_HTML_CHARACTERS = 10_000_000;
@@ -60,9 +62,7 @@ const CONTENT_WRAPPER_ID = 'content-wrapper';
 
 /* istanbul ignore next - code is evaluated in browser and doesn't work with coverage */
 function getContentHeight(page: Page): Promise<number> {
-  return page.evaluate(async () => {
-    // eslint-disable-next-line no-restricted-globals
-    await document.fonts.ready;
+  return page.evaluate(() => {
     // eslint-disable-next-line no-restricted-globals
     const wrapper = document.getElementById(
       'content-wrapper' // CONTENT_WRAPPER_ID not defined in this scope
@@ -105,9 +105,7 @@ export async function renderToPdf(
   const specs = Array.isArray(spec) ? spec : [spec];
 
   const browser = browserOverride ?? (await getOrCreateCachedBrowser());
-  const { page, fontDeclarations, release } = await acquirePage(browser, {
-    hasHeader: specs.some((s) => s.headerTemplate),
-  });
+  const { page, release } = await acquirePage(browser);
 
   const buffers: Uint8Array[] = [];
 
@@ -160,7 +158,12 @@ export async function renderToPdf(
         <head>
           <style
             type="text/css"
-            dangerouslySetInnerHTML={{ __html: fontDeclarations }}
+            dangerouslySetInnerHTML={{
+              __html: [
+                ROBOTO_REGULAR_FONT_DECLARATIONS,
+                ROBOTO_ITALIC_FONT_DECLARATIONS,
+              ].join('\n'),
+            }}
           />
           <style
             type="text/css"
@@ -203,7 +206,12 @@ export async function renderToPdf(
           <div>
             <style
               type="text/css"
-              dangerouslySetInnerHTML={{ __html: INLINE_FONT_DECLARATIONS }}
+              dangerouslySetInnerHTML={{
+                __html: [
+                  ROBOTO_REGULAR_FONT_DECLARATIONS,
+                  ROBOTO_ITALIC_FONT_DECLARATIONS,
+                ].join('\n'),
+              }}
             />
             {styleHeaderElement}
             <div dangerouslySetInnerHTML={{ __html: headerElementHtml }} />
