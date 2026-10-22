@@ -36,7 +36,7 @@ const ALL_PLACES = [
 describe('dropdown contents', () => {
   interface Spec {
     mode: PollingPlacePickerMode;
-    prep?: () => void;
+    prep?: () => Promise<void>;
   }
 
   const specs: Spec[] = [
@@ -59,7 +59,7 @@ describe('dropdown contents', () => {
         />
       );
 
-      spec.prep?.();
+      await spec.prep?.();
 
       const dropdown = getDropdown();
       const selectEl = dropdown.closest('.search-select');
@@ -86,7 +86,7 @@ describe('dropdown contents', () => {
         />
       );
 
-      spec.prep?.();
+      await spec.prep?.();
 
       const dropdown = getDropdown();
       const selectEl = dropdown.closest('.search-select');
@@ -109,7 +109,7 @@ describe('dropdown contents', () => {
         />
       );
 
-      spec.prep?.();
+      await spec.prep?.();
 
       const dropdown = getDropdown();
       const selectEl = dropdown.closest('.search-select');
@@ -133,7 +133,7 @@ describe('dropdown contents', () => {
         />
       );
 
-      spec.prep?.();
+      await spec.prep?.();
 
       await userEvent.click(getDropdown());
       expect(getAllOptions().map((opt) => opt.textContent)).toEqual([

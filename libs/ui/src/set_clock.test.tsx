@@ -132,9 +132,9 @@ describe('PickDateTimeModal', () => {
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
-  test('can set any valid date & time', { timeout: 30_000 }, () => {
-    fc.assert(
-      fc.property(
+  test('can set any valid date & time', { timeout: 30_000 }, async () => {
+    await fc.assert(
+      fc.asyncProperty(
         arbitraryDateTime({
           minYear: MIN_YEAR,
           maxYear: MAX_YEAR,
