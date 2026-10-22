@@ -184,7 +184,7 @@ test('default mode - changing selection triggers callback', async () => {
 
 test('confirmation_required mode e2e', async () => {
   const deferredSave = deferred<void>();
-  const mockSelectPlace = vi.fn().mockReturnValueOnce(deferredSave);
+  const mockSelectPlace = vi.fn().mockReturnValueOnce(deferredSave.promise);
 
   render(
     <PollingPlacePicker

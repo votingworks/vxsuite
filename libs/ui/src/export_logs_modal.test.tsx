@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
-import { err, ok } from '@votingworks/basics';
+import { deferred, err, ok } from '@votingworks/basics';
+import type { LogsResultType } from '@votingworks/backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { userEvent } from '@testing-library/user-event';
 import { screen } from '../test/react_testing_library.js';
@@ -42,13 +43,15 @@ test('render no usb found screen when there is not a mounted usb drive', async (
 });
 
 test('successful save default logs flow', async () => {
-  mockApiClient.exportLogsToUsb.mockResolvedValueOnce(ok());
+  const exportLogsToUsb = deferred<LogsResultType>();
+  mockApiClient.exportLogsToUsb.mockReturnValueOnce(exportLogsToUsb.promise);
 
   render(<ExportLogsButton usbDriveStatus={mockUsbDriveStatus('mounted')} />);
   await userEvent.click(screen.getByText('Save Logs'));
   await screen.findByRole('heading', { name: 'Save Logs' });
   await userEvent.click(screen.getByText('Save'));
   await screen.findByText(/Saving Logs/);
+  exportLogsToUsb.resolve(ok());
   await screen.findByText(/Logs Saved/);
 
   await userEvent.click(screen.getByText('Close'));
@@ -59,7 +62,8 @@ test('successful save default logs flow', async () => {
 });
 
 test('successful save cdf logs flow', async () => {
-  mockApiClient.exportLogsToUsb.mockResolvedValueOnce(ok());
+  const exportLogsToUsb = deferred<LogsResultType>();
+  mockApiClient.exportLogsToUsb.mockReturnValueOnce(exportLogsToUsb.promise);
 
   render(<ExportLogsButton usbDriveStatus={mockUsbDriveStatus('mounted')} />);
   await userEvent.click(screen.getByText('Save Logs'));
@@ -72,6 +76,7 @@ test('successful save cdf logs flow', async () => {
 
   await userEvent.click(screen.getByText('Save'));
   await screen.findByText(/Saving Logs/);
+  exportLogsToUsb.resolve(ok());
   await screen.findByText(/Logs Saved/);
   await userEvent.click(screen.getByText('Close'));
   expect(screen.queryByRole('alertdialog')).toBeFalsy();
@@ -81,7 +86,8 @@ test('successful save cdf logs flow', async () => {
 });
 
 test('successful save error logs flow', async () => {
-  mockApiClient.exportLogsToUsb.mockResolvedValueOnce(ok());
+  const exportLogsToUsb = deferred<LogsResultType>();
+  mockApiClient.exportLogsToUsb.mockReturnValueOnce(exportLogsToUsb.promise);
 
   render(<ExportLogsButton usbDriveStatus={mockUsbDriveStatus('mounted')} />);
   await userEvent.click(screen.getByText('Save Logs'));
@@ -94,6 +100,7 @@ test('successful save error logs flow', async () => {
 
   await userEvent.click(screen.getByText('Save'));
   await screen.findByText(/Saving Logs/);
+  exportLogsToUsb.resolve(ok());
   await screen.findByText(/Logs Saved/);
 
   await userEvent.click(screen.getByText('Close'));

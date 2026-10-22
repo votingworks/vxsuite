@@ -201,7 +201,6 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText('Insert Card');
 
   // ---------------
 
@@ -310,14 +309,17 @@ test('MarkAndPrint end-to-end flow', async () => {
     },
   });
   apiMock.expectGetElectionState({ ballotsPrintedCount: 1 });
+  apiMock.setPrintJobStatus({ outcome: 'in-progress' });
   await userEvent.click(screen.getByText(/Print My ballot/i));
-  screen.getByText(/Printing Your Ballot/i);
+  await screen.findByText(/Printing Your Ballot/i);
+  apiMock.setPrintJobStatus({ outcome: 'sent-to-printer' });
 
   // The session ends once the job reaches the printer
   await screen.findByText('You’re Almost Done');
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   await userEvent.click(screen.getByText('Done'));
   apiMock.setAuthStatusLoggedOut();
+  await screen.findByText('Insert Card');
 
   // ---------------
 

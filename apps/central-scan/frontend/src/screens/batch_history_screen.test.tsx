@@ -320,13 +320,14 @@ test('Delete All Batches button', async () => {
   await userEvent.click(screen.getButton('Delete All Batches'));
 
   // confirmation
-  apiMock.expectClearBallotData();
+  const clearBallotData = apiMock.expectClearBallotDataDeferred();
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Delete All Batches' });
   await userEvent.click(within(modal).getButton('Delete All Batches'));
 
   // progress message
   await screen.findByText('Deleting Batches');
+  clearBallotData.resolve();
   await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );

@@ -162,8 +162,10 @@ test('poll worker selects ballot style, voter votes', async () => {
   apiMock.expectGetElectionState({
     ballotsPrintedCount: 1,
   });
+  apiMock.setPrintJobStatus({ outcome: 'in-progress' });
   await userEvent.click(screen.getByText(/Print My ballot/i));
-  screen.getByText(/Printing Your Ballot/i);
+  await screen.findByText(/Printing Your Ballot/i);
+  apiMock.setPrintJobStatus({ outcome: 'sent-to-printer' });
 
   // Reset Ballot is called once the job reaches the printer
   // Show Verify and Scan Instructions

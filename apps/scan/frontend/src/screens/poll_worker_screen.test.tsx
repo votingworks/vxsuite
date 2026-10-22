@@ -85,10 +85,11 @@ describe('transitions from polls closed initial', () => {
 
   test('open polls happy path', async () => {
     apiMock.expectOpenPolls();
-    apiMock.expectPrintReportSection(0).resolve();
+    const printReportSection = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_open');
     await userEvent.click(screen.getByText('Open Polls'));
     await screen.findByText('Opening Polls…');
+    printReportSection.resolve();
     await screen.findByText('Polls Opened');
     await screen.findByText('Reprint Polls Opened Report');
     expect(screen.queryByText('Send Polls Opened Report')).toBeNull();
@@ -96,11 +97,12 @@ describe('transitions from polls closed initial', () => {
 
   test('open polls from landing screen', async () => {
     apiMock.expectOpenPolls();
-    apiMock.expectPrintReportSection(0).resolve();
+    const printReportSection = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_open');
     await userEvent.click(screen.getByText('Menu'));
     await userEvent.click(await screen.findByText('Open Polls'));
     await screen.findByText('Opening Polls…');
+    printReportSection.resolve();
     await screen.findByText('Polls Opened');
     await screen.findByText('Reprint Polls Opened Report');
     expect(screen.queryByText('Send Polls Opened Report')).toBeNull();
@@ -109,10 +111,11 @@ describe('transitions from polls closed initial', () => {
   test('open polls happy path with vxqr', async () => {
     apiMock.expectOpenPolls();
     apiMock.expectGetQuickResultsReportingUrl(['https://example.com/qr']);
-    apiMock.expectPrintReportSection(0).resolve();
+    const printReportSection = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_open');
     await userEvent.click(screen.getByText('Open Polls'));
     await screen.findByText('Opening Polls…');
+    printReportSection.resolve();
     await screen.findByText('Polls Opened');
     await screen.findByText('Reprint Polls Opened Report');
     await userEvent.click(screen.getButton('Send Polls Opened Report'));
@@ -132,10 +135,11 @@ describe('transitions from polls open', () => {
 
   test('close polls happy path', async () => {
     apiMock.expectClosePolls();
-    apiMock.expectPrintReportSection(0).resolve();
+    const printReportSection = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_closed_final');
     await userEvent.click(screen.getByText('Close Polls'));
     await screen.findByText('Closing Polls…');
+    printReportSection.resolve();
     await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
     await screen.findByText('Reprint Polls Closed Report');
@@ -144,11 +148,12 @@ describe('transitions from polls open', () => {
 
   test('close polls from landing screen', async () => {
     apiMock.expectClosePolls();
-    apiMock.expectPrintReportSection(0).resolve();
+    const printReportSection = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_closed_final');
     await userEvent.click(screen.getByText('Menu'));
     await userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');
+    printReportSection.resolve();
     await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
     await screen.findByText('Reprint Polls Closed Report');
@@ -158,10 +163,11 @@ describe('transitions from polls open', () => {
   test('close polls happy path with vxqr', async () => {
     apiMock.expectClosePolls();
     apiMock.expectGetQuickResultsReportingUrl(['https://example.com/qr']);
-    apiMock.expectPrintReportSection(0).resolve();
+    const printReportSection = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_closed_final');
     await userEvent.click(screen.getByText('Close Polls'));
     await screen.findByText('Closing Polls…');
+    printReportSection.resolve();
     await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
     await screen.findByText('Reprint Polls Closed Report');
@@ -177,10 +183,11 @@ describe('transitions from polls open', () => {
       'https://example.com/qr1',
       'https://example.com/qr2',
     ]);
-    apiMock.expectPrintReportSection(0).resolve();
+    const printReportSection = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_closed_final');
     await userEvent.click(screen.getByText('Close Polls'));
     await screen.findByText('Closing Polls…');
+    printReportSection.resolve();
     await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
     await screen.findByText('Reprint Polls Closed Report');
@@ -200,11 +207,12 @@ describe('transitions from polls open', () => {
 
   test('pause voting', async () => {
     apiMock.expectPauseVoting();
-    apiMock.expectPrintReportSection(0).resolve();
+    const printReportSection = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_paused');
     await userEvent.click(screen.getByText('Menu'));
     await userEvent.click(await screen.findByText('Pause Voting'));
     await screen.findByText('Pausing Voting…');
+    printReportSection.resolve();
     await screen.findByText('Voting Paused');
     expect(screen.queryByText('Send Voting Paused Report')).toBeNull();
   });
@@ -212,11 +220,12 @@ describe('transitions from polls open', () => {
   test('pause voting happy path with live results', async () => {
     apiMock.expectPauseVoting();
     apiMock.expectGetQuickResultsReportingUrl(['https://example.com/qr']);
-    apiMock.expectPrintReportSection(0).resolve();
+    const printReportSection = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_paused');
     await userEvent.click(screen.getByText('Menu'));
     await userEvent.click(await screen.findByText('Pause Voting'));
     await screen.findByText('Pausing Voting…');
+    printReportSection.resolve();
     await screen.findByText('Voting Paused');
     await screen.findByText('Reprint Voting Paused Report');
     await userEvent.click(screen.getButton('Send Voting Paused Report'));
@@ -236,30 +245,33 @@ describe('transitions from polls paused', () => {
 
   test('resume voting happy path', async () => {
     apiMock.expectResumeVoting();
-    apiMock.expectPrintReportSection(0).resolve();
+    const printReportSection = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_open', { type: 'resume_voting' });
     await userEvent.click(screen.getByText('Resume Voting'));
     await screen.findByText('Resuming Voting…');
+    printReportSection.resolve();
     await screen.findByText('Voting Resumed');
   });
 
   test('resume voting from landing screen', async () => {
     apiMock.expectResumeVoting();
-    apiMock.expectPrintReportSection(0).resolve();
+    const printReportSection = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_open', { type: 'resume_voting' });
     await userEvent.click(screen.getByText('Menu'));
     await userEvent.click(await screen.findByText('Resume Voting'));
     await screen.findByText('Resuming Voting…');
+    printReportSection.resolve();
     await screen.findByText('Voting Resumed');
   });
 
   test('resume voting happy path with vxqr', async () => {
     apiMock.expectResumeVoting();
     apiMock.expectGetQuickResultsReportingUrl(['https://example.com/qr']);
-    apiMock.expectPrintReportSection(0).resolve();
+    const printReportSection = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_open', { type: 'resume_voting' });
     await userEvent.click(screen.getByText('Resume Voting'));
     await screen.findByText('Resuming Voting…');
+    printReportSection.resolve();
     await screen.findByText('Voting Resumed');
     await screen.findByText('Reprint Voting Resumed Report');
     await userEvent.click(screen.getButton('Send Voting Resumed Report'));
@@ -271,11 +283,12 @@ describe('transitions from polls paused', () => {
 
   test('close polls from landing screen', async () => {
     apiMock.expectClosePolls();
-    apiMock.expectPrintReportSection(0).resolve();
+    const printReportSection = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_closed_final');
     await userEvent.click(screen.getByText('Menu'));
     await userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');
+    printReportSection.resolve();
     await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
@@ -451,9 +464,10 @@ describe('write-in image report', () => {
 
     expect(await screen.findAllByRole('button')).toHaveLength(4);
     const button = await screen.findByText('Print Write-In Image Report');
-    apiMock.expectPrintWriteInImageReport().resolve();
+    const printWriteInImageReport = apiMock.expectPrintWriteInImageReport();
     await userEvent.click(button);
     await screen.findByText('Printing Report…');
+    printWriteInImageReport.resolve();
     await screen.findByText('Write-In Image Report Printed');
     screen.getButton('Reprint Write-In Image Report');
     screen.getButton('Done');
@@ -775,10 +789,11 @@ describe('does not need usb drive attached to transition polls if continuous exp
     ).not.toBeInTheDocument();
 
     apiMock.expectOpenPolls();
-    apiMock.expectPrintReportSection(0).resolve();
+    const printReportSection = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_open');
     await userEvent.click(screen.getButton('Open Polls'));
     await screen.findByText('Opening Polls…');
+    printReportSection.resolve();
     await screen.findByText('Polls Opened');
   });
 
@@ -795,10 +810,11 @@ describe('does not need usb drive attached to transition polls if continuous exp
 
     await userEvent.click(screen.getButton('Menu'));
     apiMock.expectOpenPolls();
-    apiMock.expectPrintReportSection(0).resolve();
+    const printReportSection = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_open');
     await userEvent.click(screen.getButton('Open Polls'));
     await screen.findByText('Opening Polls…');
+    printReportSection.resolve();
     await screen.findByText('Polls Opened');
   });
 
@@ -815,10 +831,11 @@ describe('does not need usb drive attached to transition polls if continuous exp
 
     await userEvent.click(screen.getButton('Menu'));
     apiMock.expectPauseVoting();
-    apiMock.expectPrintReportSection(0).resolve();
+    const printReportSection = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_paused');
     await userEvent.click(screen.getButton('Pause Voting'));
     await screen.findByText('Pausing Voting…');
+    printReportSection.resolve();
     await screen.findByText('Voting Paused');
   });
 
@@ -834,10 +851,11 @@ describe('does not need usb drive attached to transition polls if continuous exp
     ).not.toBeInTheDocument();
 
     apiMock.expectResumeVoting();
-    apiMock.expectPrintReportSection(0).resolve();
+    const printReportSection = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_open');
     await userEvent.click(screen.getButton('Resume Voting'));
     await screen.findByText('Resuming Voting…');
+    printReportSection.resolve();
     await screen.findByText('Voting Resumed');
   });
 
@@ -854,10 +872,11 @@ describe('does not need usb drive attached to transition polls if continuous exp
 
     await userEvent.click(screen.getButton('Menu'));
     apiMock.expectResumeVoting();
-    apiMock.expectPrintReportSection(0).resolve();
+    const printReportSection = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_open');
     await userEvent.click(screen.getButton('Resume Voting'));
     await screen.findByText('Resuming Voting…');
+    printReportSection.resolve();
     await screen.findByText('Voting Resumed');
   });
 
@@ -873,10 +892,11 @@ describe('does not need usb drive attached to transition polls if continuous exp
     ).not.toBeInTheDocument();
 
     apiMock.expectClosePolls();
-    apiMock.expectPrintReportSection(0).resolve();
+    const printReportSection = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_closed_final');
     await userEvent.click(screen.getButton('Close Polls'));
     await screen.findByText('Closing Polls…');
+    printReportSection.resolve();
     await screen.findByText('Polls Closed');
   });
 
@@ -893,10 +913,11 @@ describe('does not need usb drive attached to transition polls if continuous exp
 
     await userEvent.click(screen.getButton('Menu'));
     apiMock.expectClosePolls();
-    apiMock.expectPrintReportSection(0).resolve();
+    const printReportSection = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_closed_final');
     await userEvent.click(screen.getButton('Close Polls'));
     await screen.findByText('Closing Polls…');
+    printReportSection.resolve();
     await screen.findByText('Polls Closed');
   });
 
@@ -913,10 +934,11 @@ describe('does not need usb drive attached to transition polls if continuous exp
 
     await userEvent.click(screen.getButton('Menu'));
     apiMock.expectClosePolls();
-    apiMock.expectPrintReportSection(0).resolve();
+    const printReportSection = apiMock.expectPrintReportSection(0);
     apiMock.expectGetPollsInfo('polls_closed_final');
     await userEvent.click(screen.getButton('Close Polls'));
     await screen.findByText('Closing Polls…');
+    printReportSection.resolve();
     await screen.findByText('Polls Closed');
   });
 });

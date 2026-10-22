@@ -352,7 +352,9 @@ test('configuring election from usb election package works end to end', async ()
   await userEvent.click(screen.getButton('Unconfigure Machine'));
   await screen.findByRole('heading', { name: 'Unconfigure Machine' });
 
-  apiMock.expectUnconfigure({ ignoreBackupRequirement: false });
+  const unconfigure = apiMock.expectUnconfigureDeferred({
+    ignoreBackupRequirement: false,
+  });
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetSystemSettings();
   apiMock.expectGetTestMode(true);
@@ -360,6 +362,7 @@ test('configuring election from usb election package works end to end', async ()
 
   await userEvent.click(screen.getButton('Delete All Election Data'));
   screen.getByText('Unconfiguring Machine');
+  unconfigure.resolve();
   await screen.findByText('Insert a USB drive containing an election package');
 });
 
