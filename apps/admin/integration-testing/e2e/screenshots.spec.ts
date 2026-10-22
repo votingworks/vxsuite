@@ -92,8 +92,17 @@ test.beforeEach(async ({ page }) => {
   await forceLogOutAndResetElectionDefinition(page);
   getMockFilePrinterHandler().cleanup();
   getMockUsbDriveHandler().cleanup();
+  getMockBackupUsbDriveHandler().cleanup();
   await page.clock.install();
 });
+
+/**
+ * VxAdmin tells a backup drive from a data drive by its filesystem, so the
+ * mock backup drive is a second simulated drive formatted ext4.
+ */
+function getMockBackupUsbDriveHandler() {
+  return getMockUsbDriveHandler('sdc', 'ext4');
+}
 
 test('system administrator', async ({ page }, testInfo) => {
   const namer = createScreenshotNamer(testInfo);
@@ -1183,4 +1192,96 @@ test('manual results', async ({ page }, testInfo) => {
     namer,
     name: 'manual-results-tally-report',
   });
+});
+
+test('backups', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
+  const usbHandler = getMockUsbDriveHandler();
+  const backupDriveHandler = getMockBackupUsbDriveHandler();
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+  const { election, electionData } = electionDefinition;
+  const electionPackage = await zipFile({
+    [ElectionPackageFileName.ELECTION]: electionData,
+    [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
+    [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
+      DEFAULT_SYSTEM_SETTINGS
+    ),
+    [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
+  });
+  const electionPackageFileName = 'election-package.zip';
+
+  const { screenshot, screenshotWithButtonHighlight } =
+    buildIntegrationTestHelper(page, namer);
+
+  await page.goto('/');
+  await logInAsSystemAdministrator(page);
+  await page.getByText(/Insert a USB drive/).waitFor();
+
+  // Restoring starts from the unconfigured election screen.
+  await screenshotWithButtonHighlight(
+    'Restore from Backup...',
+    'restore-from-backup-button'
+  );
+  await page.getByRole('button', { name: 'Restore from Backup...' }).click();
+  await page.getByRole('heading', { name: 'Enter Restore Mode' }).waitFor();
+  await screenshot('enter-restore-mode-modal');
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Cancel' })
+    .click();
+
+  usbHandler.insert({
+    [electionPackageFileName]: electionPackage,
+  });
+  await page.getByText(electionPackageFileName).click();
+  await page.getByRole('heading', { name: election.title }).waitFor();
+
+  await screenshotWithButtonHighlight('Save Backup', 'save-backup-button');
+  await page.getByRole('button', { name: 'Save Backup' }).click();
+  await page.getByRole('heading', { name: 'Connect Backup Drive' }).waitFor();
+  await screenshot('save-backup-connect-backup-drive');
+
+  backupDriveHandler.insert();
+  await page.getByText('Last Backup on Drive:').waitFor();
+  await screenshot('save-backup-modal');
+
+  // The mock drive is a local directory, so a real backup finishes before the
+  // progress dialog can be captured. Answer the status poll with a mid-copy
+  // status until the capture is taken, then let the real status through.
+  await page.route('**/api/getBackupStatus', (route) =>
+    route.fulfill({
+      json: {
+        status: 'in-progress',
+        lastProgressEvent: {
+          type: '4_copying_files',
+          copiedBytes: 1_300_000_000,
+          totalBytes: 2_300_000_000,
+        },
+      },
+    })
+  );
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Save Backup' })
+    .click();
+  await page.getByText('Saving files to backup drive').waitFor();
+  await screenshot('save-backup-in-progress');
+  await page.unroute('**/api/getBackupStatus');
+
+  await page.getByRole('heading', { name: 'Backup Saved' }).waitFor();
+  await screenshot('backup-saved');
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Close' })
+    .click();
+
+  // Reopening shows the backup just saved as the last backup on the drive.
+  await page.getByRole('button', { name: 'Save Backup' }).click();
+  await page.getByText('Last Backup on Drive').waitFor();
+  await screenshot('save-backup-modal-last-backup');
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Cancel' })
+    .click();
 });
