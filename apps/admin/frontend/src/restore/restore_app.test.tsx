@@ -135,25 +135,25 @@ test('shows the restore screen to a system administrator', async () => {
   screen.getButton('Exit Restore Mode');
 });
 
-test('asks for a backup USB drive until one is inserted', async () => {
+test('asks for a backup drive until one is connected', async () => {
   apiMock.setAuthStatus(SYSTEM_ADMINISTRATOR_AUTH);
   apiMock.setBackupDriveStatus('no_drive');
   apiMock.setRestoreStatus(null);
   apiMock.expectListAvailableBackups(ok([]));
   renderRestoreApp();
 
-  await screen.findByText('Insert a backup USB drive');
+  await screen.findByText('Connect a backup drive');
 
   apiMock.setBackupDriveStatus('mounted');
   vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
   await waitFor(() =>
-    expect(screen.queryByText('Insert a backup USB drive')).toBeNull()
+    expect(screen.queryByText('Connect a backup drive')).toBeNull()
   );
-  await screen.findByText('No backups found on the inserted backup drive');
+  await screen.findByText('No backups found on the connected backup drive');
 
   apiMock.setBackupDriveStatus('no_drive');
   vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
-  await screen.findByText('Insert a backup USB drive');
+  await screen.findByText('Connect a backup drive');
 });
 
 test('locks the machine on request', async () => {
@@ -390,7 +390,7 @@ test('prompts to restart once the backup is restored', async () => {
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Restore Complete' });
   within(modal).getByText(
-    'You may remove the backup drive. Restart VxAdmin to continue.'
+    'You may disconnect the backup drive. Restart VxAdmin to continue.'
   );
   within(modal).getButton('Restart').click();
   await waitFor(() =>
@@ -426,7 +426,7 @@ test('shows a message when the drive holds no backups', async () => {
   apiMock.expectListAvailableBackups(ok([]));
   renderRestoreApp();
 
-  await screen.findByText('No backups found on the inserted backup drive');
+  await screen.findByText('No backups found on the connected backup drive');
 });
 
 test('warns when backups cannot be listed', async () => {
@@ -437,7 +437,7 @@ test('warns when backups cannot be listed', async () => {
   renderRestoreApp();
 
   await screen.findByText(
-    'Failed to load backups from the inserted backup drive'
+    'Failed to load backups from the connected backup drive'
   );
 });
 
@@ -465,7 +465,7 @@ test('shows in-progress restore after the machine is locked and unlocked', async
   await screen.findByRole('heading', { name: 'Restoring from Backup' });
 });
 
-test('shows in-progress restore even if backup drive is removed', async () => {
+test('shows in-progress restore even if backup drive is disconnected', async () => {
   apiMock.setAuthStatus(SYSTEM_ADMINISTRATOR_AUTH);
   apiMock.setBackupDriveStatus('no_drive');
   apiMock.setRestoreStatus({
@@ -474,7 +474,7 @@ test('shows in-progress restore even if backup drive is removed', async () => {
   });
   renderRestoreApp();
 
-  await screen.findByText('Insert a backup USB drive');
+  await screen.findByText('Connect a backup drive');
   await screen.findByRole('heading', { name: 'Restoring from Backup' });
   screen.getByText('Finishing restore');
 });
