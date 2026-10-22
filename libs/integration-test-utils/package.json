@@ -31,21 +31,13 @@
   "dependencies": {
     "@playwright/test": "1.55.1",
     "@votingworks/auth": "workspace:*",
-    "@votingworks/backend": "workspace:*",
-    "@votingworks/ballot-interpreter": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/grout": "workspace:*",
-    "@votingworks/hmpb": "workspace:*",
-    "@votingworks/image-utils": "workspace:*",
-    "@votingworks/types": "workspace:*",
-    "@votingworks/usb-drive": "workspace:*",
-    "@votingworks/utils": "workspace:*",
-    "tmp": "^0.2.6"
+    "@votingworks/types": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "24.13.3",
-    "@types/tmp": "0.2.4",
     "@vitest/coverage-istanbul": "5.0.2",
     "@votingworks/coverage-check": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
