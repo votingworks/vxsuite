@@ -135,6 +135,14 @@ const partialStateBoardElection = buildElection([
   ]),
 ]);
 
+const crossEndorsedElection = buildElection([
+  straightPartyContest,
+  candidateContest('council', 2, [
+    candidate('candidate-a', ['party-1', 'party-2']),
+    candidate('candidate-b', 'party-2'),
+  ]),
+]);
+
 // An election with a non-partisan office (a candidate with no party) and a
 // ballot measure, neither of which a straight party vote should affect.
 const nonpartisanElection = buildElection([
@@ -486,6 +494,20 @@ test.each<TestCase>([
       'state-board': ['write-in-0', 'candidate-e'],
     },
     expectedDerivedVotes: { 'state-board': ['candidate-e'] },
+  },
+  {
+    name: 'a cross-endorsed candidate marked under multiple parties occupies one seat',
+    election: crossEndorsedElection,
+    inputVotes: {
+      'straight-party': ['party-2'],
+      council: ['candidate-a', 'candidate-a'],
+    },
+    expectedParty: 'party-2',
+    expectedVotes: {
+      'straight-party': ['party-2'],
+      council: ['candidate-a', 'candidate-a', 'candidate-b'],
+    },
+    expectedDerivedVotes: { council: ['candidate-b'] },
   },
   {
     name: 'non-partisan offices and ballot measures derive nothing',

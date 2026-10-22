@@ -19,6 +19,7 @@ import {
   find,
   mapObject,
   type Optional,
+  unique,
 } from '@votingworks/basics';
 
 export function deriveStraightPartyVotes(
@@ -69,7 +70,7 @@ export function deriveStraightPartyVotesForContest(
   if (!(contest.type === 'candidate' && straightPartyId)) {
     return [];
   }
-  const remainingSeats = contest.seats - votedOptionIds.length;
+  const remainingSeats = contest.seats - unique(votedOptionIds).length;
   const unselectedStraightPartyCandidateIds = contest.candidates
     .filter(
       (candidate) =>
