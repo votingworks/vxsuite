@@ -1,4 +1,12 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import {
+  beforeEach,
+  describe,
+  expect,
+  type Mock,
+  type Mocked,
+  test,
+  vi,
+} from 'vitest';
 import { EventEmitter } from 'node:events';
 import {
   buildMockInsertedSmartCardAuth,
@@ -38,6 +46,8 @@ import { createWorkspace, type Workspace } from '../util/workspace.js';
 import { getUserRole } from '../util/auth.js';
 import type { BarcodeReader } from './types.js';
 import type { BallotStyleQrCode } from './ballot_style_qr_code.js';
+import type { BarcodePrintRequest } from './activation_mode.js';
+import { getMockAudioPlayer, type Player } from '../audio/player.js';
 import { encodeBallotStyleQrCode } from '../../test/barcode_helpers.js';
 
 const featureFlagMock = getFeatureFlagMock();
@@ -87,6 +97,12 @@ interface Context {
   barcodeClient?: BarcodeReader;
   logger: Logger;
   workspace: Workspace;
+  requestBallotPrint: Mock<
+    (
+      request: BarcodePrintRequest,
+      pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn
+    ) => boolean
+  >;
 }
 
 interface IgnoredScanTestSpec {
@@ -103,6 +119,7 @@ describe('setUpBarcodeActivation', () => {
   let mockAuth: InsertedSmartCardAuthApi;
   let logger: Logger;
   let mockBarcodeClient: MockBarcodeClient;
+  let mockRequestBallotPrint: Context['requestBallotPrint'];
 
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
@@ -119,6 +136,7 @@ describe('setUpBarcodeActivation', () => {
     mockAuth = buildMockInsertedSmartCardAuth(vi.fn);
     logger = buildMockLogger(mockAuth, workspace);
     mockBarcodeClient = createMockBarcodeClient();
+    mockRequestBallotPrint = vi.fn(() => true);
   });
 
   test('does nothing when barcodeClient is not provided', () => {
@@ -127,6 +145,7 @@ describe('setUpBarcodeActivation', () => {
       barcodeClient: undefined,
       logger,
       workspace,
+      requestBallotPrint: mockRequestBallotPrint,
     };
 
     // Should not throw and should not set up any listeners
@@ -139,6 +158,7 @@ describe('setUpBarcodeActivation', () => {
       barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
       logger,
       workspace,
+      requestBallotPrint: mockRequestBallotPrint,
     };
 
     setUpBarcodeActivation(ctx);
@@ -154,6 +174,7 @@ describe('setUpBarcodeActivation', () => {
       barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
       logger,
       workspace,
+      requestBallotPrint: mockRequestBallotPrint,
     };
 
     setUpBarcodeActivation(ctx);
@@ -176,6 +197,7 @@ describe('setUpBarcodeActivation', () => {
       barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
       logger,
       workspace,
+      requestBallotPrint: mockRequestBallotPrint,
     };
 
     setUpBarcodeActivation(ctx);
@@ -212,6 +234,7 @@ describe('setUpBarcodeActivation', () => {
       barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
       logger,
       workspace,
+      requestBallotPrint: mockRequestBallotPrint,
     };
 
     setUpBarcodeActivation(ctx);
@@ -255,6 +278,7 @@ describe('setUpBarcodeActivation', () => {
       barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
       logger,
       workspace,
+      requestBallotPrint: mockRequestBallotPrint,
     };
 
     setUpBarcodeActivation(ctx);
@@ -300,6 +324,7 @@ describe('setUpBarcodeActivation', () => {
       barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
       logger,
       workspace,
+      requestBallotPrint: mockRequestBallotPrint,
     };
 
     setUpBarcodeActivation(ctx);
@@ -362,6 +387,7 @@ describe('setUpBarcodeActivation', () => {
       barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
       logger,
       workspace,
+      requestBallotPrint: mockRequestBallotPrint,
     };
 
     setUpBarcodeActivation(ctx);
@@ -417,6 +443,7 @@ describe('setUpBarcodeActivation', () => {
       barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
       logger,
       workspace,
+      requestBallotPrint: mockRequestBallotPrint,
     };
 
     setUpBarcodeActivation(ctx);
@@ -457,6 +484,7 @@ describe('setUpBarcodeActivation', () => {
       barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
       logger,
       workspace,
+      requestBallotPrint: mockRequestBallotPrint,
     });
   }
 
@@ -558,19 +586,72 @@ describe('setUpBarcodeActivation', () => {
     });
   });
 
-  test('only logs the scan in ballot printing mode', async () => {
-    setUpActivePollingPlace({ allowPrintingBlankBallotsFromVxMark: true });
+  test('requests a ballot print in ballot printing mode', async () => {
+    const mockAudioPlayer = getMockAudioPlayer() as Mocked<Player>;
+    const mockPlay = vi.spyOn(mockAudioPlayer, 'play');
+    workspace.store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
+      jurisdiction: TEST_JURISDICTION,
+      electionPackageHash: 'test-hash',
+      ballotHash: electionDefinition.ballotHash,
+    });
+    workspace.store.setSystemSettings({
+      ...DEFAULT_SYSTEM_SETTINGS,
+      bmdEnableQrBallotActivation: true,
+      allowPrintingBlankBallotsFromVxMark: true,
+    });
+    workspace.store.setPollingPlaceId(pollingPlace!.id);
+    workspace.store.setPollsState('polls_open');
     workspace.store.setBarcodeActivationMode('ballot_printing');
+    const authStatus = pollWorkerAuthStatus();
+    vi.mocked(mockAuth.getAuthStatus).mockResolvedValue(authStatus);
+    setUpBarcodeActivation({
+      audioPlayer: mockAudioPlayer,
+      auth: mockAuth,
+      barcodeClient: mockBarcodeClient as unknown as BarcodeReader,
+      logger,
+      workspace,
+      requestBallotPrint: mockRequestBallotPrint,
+    });
     const [precinctId] = pollingPlacePrecinctIds(pollingPlace!);
 
     mockBarcodeClient.emit('scan', encodeQrCode({ ballotStyleId, precinctId }));
 
     await vi.waitFor(() => {
       expect(logger.logAsCurrentRole).toHaveBeenCalledWith(LogEventId.Info, {
-        message: 'barcode scan detected in ballot printing mode',
+        message: 'barcode scan detected - ballot print requested',
+        disposition: 'success',
         ballotStyleId,
         precinctId,
       });
+    });
+    expect(mockRequestBallotPrint).toHaveBeenCalledWith(
+      { ballotStyleId, precinctId },
+      authStatus
+    );
+    expect(mockPlay).toHaveBeenCalledWith('success');
+    expect(mockAuth.startCardlessVoterSession).not.toHaveBeenCalled();
+  });
+
+  test('ignores a ballot print scan that is not accepted', async () => {
+    setUpActivePollingPlace({ allowPrintingBlankBallotsFromVxMark: true });
+    workspace.store.setBarcodeActivationMode('ballot_printing');
+    mockRequestBallotPrint.mockReturnValue(false);
+    const [precinctId] = pollingPlacePrecinctIds(pollingPlace!);
+
+    mockBarcodeClient.emit('scan', encodeQrCode({ ballotStyleId, precinctId }));
+
+    await vi.waitFor(() => {
+      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+        LogEventId.BarcodeScanned,
+        {
+          message:
+            'barcode scan detected while a ballot print request is pending - ignoring',
+          disposition: 'failure',
+          ballotStyleId,
+          precinctId,
+        }
+      );
     });
     expect(mockAuth.startCardlessVoterSession).not.toHaveBeenCalled();
   });

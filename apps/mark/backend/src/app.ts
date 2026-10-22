@@ -31,7 +31,7 @@ import {
   type Tabulation,
   type InsertedSmartCardAuth,
 } from '@votingworks/types';
-import { isElectionManagerAuth } from '@votingworks/utils';
+import { isElectionManagerAuth, isPollWorkerAuth } from '@votingworks/utils';
 
 import {
   createUiStringsApi,
@@ -77,6 +77,7 @@ import type * as barcodes from './barcodes/index.js';
 import { setUpBarcodeActivation } from './barcodes/activation.js';
 import {
   type BarcodeActivationMode,
+  type BarcodePrintRequest,
   isBarcodeBallotPrintingAllowed,
 } from './barcodes/activation_mode.js';
 import type { AudioPlayerInterface, SoundName } from './audio/player.js';
@@ -96,6 +97,11 @@ export interface Context {
   workspace: Workspace;
   usbDrive: UsbDrive;
   printer: Printer;
+}
+
+interface PendingBarcodePrint {
+  request: BarcodePrintRequest;
+  sessionExpiresAt: Date;
 }
 
 interface TestDeckError {
@@ -150,6 +156,33 @@ export function buildApi(ctx: Context) {
   barcodeClient.on('scan', (scanData: Uint8Array) => {
     lastBarcodeScanData = new TextDecoder().decode(scanData);
     lastBarcodeScanTimestamp = new Date();
+  });
+
+  let pendingBarcodePrint: PendingBarcodePrint | undefined;
+
+  function clearPendingBarcodePrint(): void {
+    pendingBarcodePrint = undefined;
+  }
+
+  function isPendingBarcodePrintForSession(sessionExpiresAt: Date): boolean {
+    return (
+      pendingBarcodePrint?.sessionExpiresAt.getTime() ===
+      sessionExpiresAt.getTime()
+    );
+  }
+
+  setUpBarcodeActivation({
+    ...ctx,
+    requestBallotPrint(request, pollWorkerAuth) {
+      if (isPendingBarcodePrintForSession(pollWorkerAuth.sessionExpiresAt)) {
+        return false;
+      }
+      pendingBarcodePrint = {
+        request,
+        sessionExpiresAt: pollWorkerAuth.sessionExpiresAt,
+      };
+      return true;
+    },
   });
 
   async function printTestDeckTallyReport(
@@ -270,6 +303,12 @@ export function buildApi(ctx: Context) {
     },
 
     updateSessionExpiry(input: { sessionExpiresAt: Date }) {
+      if (pendingBarcodePrint) {
+        pendingBarcodePrint = {
+          ...pendingBarcodePrint,
+          sessionExpiresAt: input.sessionExpiresAt,
+        };
+      }
       return auth.updateSessionExpiry(constructAuthMachineState(workspace), {
         sessionExpiresAt: input.sessionExpiresAt,
       });
@@ -308,6 +347,7 @@ export function buildApi(ctx: Context) {
 
     async unconfigureMachine() {
       endCardlessVoterSessionIfAny();
+      clearPendingBarcodePrint();
       workspace.store.reset();
       // Re-enable USB ports in case they were auto-disabled while an alarm was
       // active (see setup_printer_page). Otherwise they remain silently
@@ -579,6 +619,7 @@ export function buildApi(ctx: Context) {
       const oldPollsState = store.getPollsState();
 
       store.setPollsState(newPollsState);
+      clearPendingBarcodePrint();
 
       assert(newPollsState !== 'polls_closed_initial');
       const logEvent = (() => {
@@ -641,9 +682,34 @@ export function buildApi(ctx: Context) {
         'Ballot printing is not enabled in the system settings'
       );
       store.setBarcodeActivationMode(input.mode);
+      clearPendingBarcodePrint();
       void logger.logAsCurrentRole(LogEventId.Info, {
         disposition: 'success',
         message: `User set the barcode activation mode to ${input.mode}`,
+      });
+    },
+
+    async getPendingBarcodePrintRequest(): Promise<BarcodePrintRequest | null> {
+      if (!pendingBarcodePrint) return null;
+
+      const authStatus = await auth.getAuthStatus(
+        constructAuthMachineState(workspace)
+      );
+      if (
+        !isPollWorkerAuth(authStatus) ||
+        !isPendingBarcodePrintForSession(authStatus.sessionExpiresAt)
+      ) {
+        clearPendingBarcodePrint();
+        return null;
+      }
+
+      return pendingBarcodePrint.request;
+    },
+
+    clearPendingBarcodePrintRequest(): void {
+      clearPendingBarcodePrint();
+      void logger.logAsCurrentRole(LogEventId.Info, {
+        message: 'Pending barcode ballot print request was cleared',
       });
     },
 
@@ -752,8 +818,6 @@ export type Api = ReturnType<typeof buildApi>;
 export function buildApp(ctx: Context, api = buildApi(ctx)): Application {
   const app: Application = express();
   app.use('/api', grout.buildRouter(api, express));
-
-  setUpBarcodeActivation(ctx);
 
   return app;
 }

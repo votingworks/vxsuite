@@ -29,7 +29,10 @@ import { MockBarcodeClient } from './barcodes/mock_client.js';
 import { newAudioPlayer } from './audio/player.js';
 
 export type { Api } from './app.js';
-export type { BarcodeActivationMode } from './barcodes/activation_mode.js';
+export type {
+  BarcodeActivationMode,
+  BarcodePrintRequest,
+} from './barcodes/activation_mode.js';
 export type { PrintCalibration } from '@votingworks/hmpb';
 export type {
   ElectricalTestingApi,
