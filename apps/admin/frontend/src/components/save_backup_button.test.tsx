@@ -65,8 +65,8 @@ test('asks for a backup drive when none is attached', async () => {
 
   userEvent.click(screen.getButton('Save Backup'));
   const modal = await screen.findByRole('alertdialog');
-  within(modal).getByRole('heading', { name: 'Insert Backup Drive' });
-  within(modal).getByText('Insert a backup USB drive to continue.');
+  within(modal).getByRole('heading', { name: 'Connect Backup Drive' });
+  within(modal).getByText('Connect a backup drive to continue.');
 
   userEvent.click(within(modal).getButton('Cancel'));
   await expectModalClosed();
@@ -81,7 +81,7 @@ test('continues once a backup drive is inserted', async () => {
 
   userEvent.click(screen.getButton('Save Backup'));
   const modal = await screen.findByRole('alertdialog');
-  within(modal).getByRole('heading', { name: 'Insert Backup Drive' });
+  within(modal).getByRole('heading', { name: 'Connect Backup Drive' });
 
   const { promise, resolve } = deferred<LastBackupOnDrive>();
   apiMock.apiClient.getBackupDriveStatus
@@ -90,7 +90,7 @@ test('continues once a backup drive is inserted', async () => {
   apiMock.apiClient.getLastBackupOnDrive.expectCallWith().returns(promise);
   vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
   await waitFor(() => apiMock.assertComplete());
-  within(modal).getByRole('heading', { name: 'Insert Backup Drive' });
+  within(modal).getByRole('heading', { name: 'Connect Backup Drive' });
   expect(
     within(modal).queryByRole('heading', { name: 'Save Backup' })
   ).not.toBeInTheDocument();
@@ -232,7 +232,7 @@ test('saves a backup and shows its progress', async () => {
   firstRead.resolve(ok(null));
   let modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Save Backup' });
-  within(modal).getByText('Save a backup to the inserted backup drive.');
+  within(modal).getByText('Save a backup to the connected backup drive.');
   within(modal).getByText('Last Backup on Drive:');
   within(modal).getByText('None');
   userEvent.click(within(modal).getButton('Cancel'));
@@ -280,7 +280,7 @@ test('saves a backup and shows its progress', async () => {
   within(modal).getByRole('heading', {
     name: 'General Election · November 3, 2020',
   });
-  within(modal).getByText('You may remove the backup drive.');
+  within(modal).getByText('You may disconnect the backup drive.');
 
   apiMock.apiClient.finishBackup.expectCallWith().resolves();
   userEvent.click(within(modal).getButton('Close'));
@@ -329,7 +329,7 @@ test('cancels a running backup', async () => {
   });
   await within(modal).findByRole('heading', { name: 'Backup Canceled' });
   within(modal).getByText(
-    'The backup was canceled. You may remove the backup drive.'
+    'The backup was canceled. You may disconnect the backup drive.'
   );
 
   apiMock.apiClient.finishBackup.expectCallWith().resolves();
@@ -382,7 +382,7 @@ test('reads the last backup again when the drive is reinserted', async () => {
     .resolves(mockUsbDriveStatus('no_drive'));
   apiMock.expectGetLastBackupOnDrive(null);
   vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
-  await within(modal).findByRole('heading', { name: 'Insert Backup Drive' });
+  await within(modal).findByRole('heading', { name: 'Connect Backup Drive' });
 
   apiMock.apiClient.getBackupDriveStatus
     .expectRepeatedCallsWith()

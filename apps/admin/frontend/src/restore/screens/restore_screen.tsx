@@ -184,7 +184,8 @@ function RestoreProgressModal({
             title="Restore Complete"
             content={
               <P>
-                You may remove the backup drive. Restart VxAdmin to continue.
+                You may disconnect the backup drive. Restart VxAdmin to
+                continue.
               </P>
             }
             actions={
@@ -289,7 +290,7 @@ function BackupList({
   if (listBackupsResult.isErr()) {
     return (
       <Callout icon="Danger" color="danger">
-        Failed to load backups from the inserted backup drive
+        Failed to load backups from the connected backup drive
       </Callout>
     );
   }
@@ -299,7 +300,7 @@ function BackupList({
   if (backups.length === 0) {
     return (
       <Callout icon="Info" color="neutral">
-        No backups found on the inserted backup drive
+        No backups found on the connected backup drive
       </Callout>
     );
   }
@@ -384,7 +385,7 @@ export function RestoreScreen(): JSX.Element | null {
     return (
       <RestoreNavScreen title={title}>
         <FullScreenMessage
-          title="Insert a backup USB drive"
+          title="Connect a backup drive"
           image={<UsbDriveImage />}
         />
         {restoreStatus && (

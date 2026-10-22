@@ -56,14 +56,14 @@ function StartBackupModal({
 
   if (
     backupDriveStatus.status !== 'mounted' ||
-    // When a backup drive is inserted, keep showing the "Insert Backup Drive"
+    // When a backup drive is connected, keep showing the "Connect Backup Drive"
     // UI until we load the last backup on the new drive
     getLastBackupOnDriveQuery.isPreviousData
   ) {
     return (
       <Modal
-        title="Insert Backup Drive"
-        content={<div>Insert a backup USB drive to continue.</div>}
+        title="Connect Backup Drive"
+        content={<div>Connect a backup drive to continue.</div>}
         actions={<Button onPress={onClose}>Cancel</Button>}
         onOverlayClick={onClose}
       />
@@ -104,7 +104,7 @@ function StartBackupModal({
       title="Save Backup"
       content={
         <div>
-          <P>Save a backup to the inserted backup drive.</P>
+          <P>Save a backup to the connected backup drive.</P>
           {lastBackupContent}
         </div>
       }
@@ -240,7 +240,7 @@ function SaveBackupFlowModal({
               <div>
                 <BackupDetailsCard details={backupStatus.result.ok().details} />
                 <div style={{ marginTop: '0.5rem' }}>
-                  You may remove the backup drive.
+                  You may disconnect the backup drive.
                 </div>
               </div>
             }
@@ -263,7 +263,7 @@ function SaveBackupFlowModal({
             title="Backup Canceled"
             content={
               <div>
-                The backup was canceled. You may remove the backup drive.
+                The backup was canceled. You may disconnect the backup drive.
               </div>
             }
             actions={
