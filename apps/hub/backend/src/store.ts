@@ -395,6 +395,61 @@ function hasDuplicateOptionLabels(contest: YesNoContest): boolean {
   return new Set(labels).size !== labels.length;
 }
 
+function candidateFullName(candidate: {
+  readonly firstName?: string | null;
+  readonly middleName?: string | null;
+  readonly lastName?: string | null;
+}): string {
+  return [candidate.firstName, candidate.middleName, candidate.lastName]
+    .filter(Boolean)
+    .join(' ');
+}
+
+function isCrossEndorsement(a: Candidate, b: Candidate): boolean {
+  const aPartyIds = a.partyIds ?? [];
+  const bPartyIds = b.partyIds ?? [];
+  return (
+    candidateFullName(a) === candidateFullName(b) &&
+    aPartyIds.length > 0 &&
+    bPartyIds.length > 0 &&
+    !aPartyIds.some((partyId) => bPartyIds.includes(partyId))
+  );
+}
+
+function hasDuplicateCandidates(contest: CandidateContest): boolean {
+  return contest.candidates.some((candidate, i) =>
+    contest.candidates
+      .slice(i + 1)
+      .some(
+        (other) =>
+          candidateFullName(candidate) === candidateFullName(other) &&
+          !isCrossEndorsement(candidate, other)
+      )
+  );
+}
+
+function mergeCrossEndorsedCandidates(
+  candidates: readonly Candidate[]
+): Candidate[] {
+  return candidates.reduce<Candidate[]>((merged, candidate) => {
+    const endorsed = merged.find((m) => isCrossEndorsement(m, candidate));
+    if (!endorsed) {
+      return [...merged, candidate];
+    }
+    return merged.map((m) =>
+      m === endorsed
+        ? {
+            ...m,
+            partyIds: [
+              ...assertDefined(m.partyIds),
+              ...assertDefined(candidate.partyIds),
+            ],
+          }
+        : m
+    );
+  }, []);
+}
+
 async function insertContest(
   client: Client,
   electionId: ElectionId,
@@ -1123,6 +1178,12 @@ export class Store {
         designation: string | null;
         partyIds: PartyId[];
       }>;
+      const stateFeaturesConfig = getStateFeaturesConfig({
+        stateCode: electionRow.jurisdictionStateCode,
+      });
+      const hasStraightPartyVoting =
+        stateFeaturesConfig.STRAIGHT_PARTY_VOTING &&
+        electionRow.type === 'general';
       const contests: Contest[] = contestRows.map((row) => {
         assert(
           row.type !== 'straight-party',
@@ -1139,13 +1200,7 @@ export class Store {
                 middleName: candidate.middleName || undefined,
                 lastName: candidate.lastName || undefined,
                 designation: candidate.designation || undefined,
-                name: [
-                  candidate.firstName,
-                  candidate.middleName,
-                  candidate.lastName,
-                ]
-                  .filter(Boolean)
-                  .join(' '),
+                name: candidateFullName(candidate),
                 partyIds:
                   candidate.partyIds.length > 0
                     ? candidate.partyIds
@@ -1160,7 +1215,9 @@ export class Store {
               allowWriteIns: assertDefined(row.allowWriteIns),
               partyId: row.partyId ?? undefined,
               termDescription: row.termDescription ?? undefined,
-              candidates,
+              candidates: hasStraightPartyVoting
+                ? mergeCrossEndorsedCandidates(candidates)
+                : candidates,
             });
           }
           case 'yesno': {
@@ -1207,13 +1264,7 @@ export class Store {
 
       const pollingPlaces = await this.listPollingPlaces(electionId);
 
-      const stateFeaturesConfig = getStateFeaturesConfig({
-        stateCode: electionRow.jurisdictionStateCode,
-      });
-      if (
-        stateFeaturesConfig.STRAIGHT_PARTY_VOTING &&
-        electionRow.type === 'general'
-      ) {
+      if (hasStraightPartyVoting) {
         // The straight party contest's district must be on every ballot style
         // so the contest appears on every ballot.
         const district = districts.find((d) =>
@@ -2106,9 +2157,6 @@ export class Store {
     if (isDuplicateKeyError(error, 'contests_unique_index')) {
       return err('duplicate-contest');
     }
-    if (isDuplicateKeyError(error, 'candidates_unique_index')) {
-      return err('duplicate-candidate');
-    }
     throw error;
   }
 
@@ -2118,6 +2166,9 @@ export class Store {
   ): Promise<Result<void, DuplicateContestError>> {
     if (contest.type === 'yesno' && hasDuplicateOptionLabels(contest)) {
       return err('duplicate-option');
+    }
+    if (contest.type === 'candidate' && hasDuplicateCandidates(contest)) {
+      return err('duplicate-candidate');
     }
     try {
       await this.db.withClient((client) =>
@@ -2138,6 +2189,9 @@ export class Store {
   ): Promise<Result<void, DuplicateContestError>> {
     if (contest.type === 'yesno' && hasDuplicateOptionLabels(contest)) {
       return err('duplicate-option');
+    }
+    if (contest.type === 'candidate' && hasDuplicateCandidates(contest)) {
+      return err('duplicate-candidate');
     }
     try {
       await this.db.withClient((client) =>

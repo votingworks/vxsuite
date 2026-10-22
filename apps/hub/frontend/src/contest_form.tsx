@@ -287,7 +287,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
         case 'duplicate-candidate':
           return (
             <Callout icon="Danger" color="danger">
-              Candidates must have different names.
+              Candidates with the same name must have different parties.
             </Callout>
           );
         case 'duplicate-option':
