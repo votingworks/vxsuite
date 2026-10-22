@@ -230,7 +230,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/admin/backend:
     dependencies:
@@ -372,7 +372,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/admin/frontend:
     dependencies:
@@ -520,7 +520,7 @@ importers:
         version: 5.1.26
       '@vitejs/plugin-react':
         specifier: ^6.1.1
-        version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 6.1.1(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@vitest/coverage-istanbul':
         specifier: 5.0.2
         version: 5.0.2(vitest@5.0.2)
@@ -564,11 +564,11 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vite:
-        specifier: 8.0.16
-        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
+        specifier: 8.1.6
+        version: 8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/admin/frontend/prodserver:
     dependencies:
@@ -759,7 +759,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/central-scan/frontend:
     dependencies:
@@ -856,7 +856,7 @@ importers:
         version: 5.1.26
       '@vitejs/plugin-react':
         specifier: ^6.1.1
-        version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 6.1.1(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@vitest/coverage-istanbul':
         specifier: 5.0.2
         version: 5.0.2(vitest@5.0.2)
@@ -903,11 +903,11 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vite:
-        specifier: 8.0.16
-        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
+        specifier: 8.1.6
+        version: 8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/central-scan/frontend/prodserver:
     dependencies:
@@ -1113,7 +1113,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/hub/frontend:
     dependencies:
@@ -1276,7 +1276,7 @@ importers:
         version: 0.2.4
       '@vitejs/plugin-react':
         specifier: ^6.1.1
-        version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 6.1.1(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@vitest/coverage-istanbul':
         specifier: 5.0.2
         version: 5.0.2(vitest@5.0.2)
@@ -1317,11 +1317,11 @@ importers:
         specifier: ^0.2.6
         version: 0.2.7
       vite:
-        specifier: 8.0.16
-        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
+        specifier: 8.1.6
+        version: 8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/mark-scan/backend:
     dependencies:
@@ -1457,7 +1457,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/mark-scan/frontend:
     dependencies:
@@ -1593,7 +1593,7 @@ importers:
         version: 5.1.26
       '@vitejs/plugin-react':
         specifier: ^6.1.1
-        version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 6.1.1(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@vitest/coverage-istanbul':
         specifier: 5.0.2
         version: 5.0.2(vitest@5.0.2)
@@ -1628,11 +1628,11 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vite:
-        specifier: 8.0.16
-        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
+        specifier: 8.1.6
+        version: 8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/mark-scan/frontend/prodserver:
     dependencies:
@@ -1811,7 +1811,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/mark/frontend:
     dependencies:
@@ -1944,7 +1944,7 @@ importers:
         version: 5.1.26
       '@vitejs/plugin-react':
         specifier: ^6.1.1
-        version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 6.1.1(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@vitest/coverage-istanbul':
         specifier: 5.0.2
         version: 5.0.2(vitest@5.0.2)
@@ -1979,11 +1979,11 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vite:
-        specifier: 8.0.16
-        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
+        specifier: 8.1.6
+        version: 8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/mark/frontend/prodserver:
     dependencies:
@@ -2128,7 +2128,7 @@ importers:
         version: 5.3.11(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       zod:
         specifier: 4.4.3
         version: 4.4.3
@@ -2319,7 +2319,7 @@ importers:
         version: 0.2.4
       '@vitejs/plugin-react':
         specifier: ^6.1.1
-        version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 6.1.1(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@vitest/coverage-istanbul':
         specifier: 5.0.2
         version: 5.0.2(vitest@5.0.2)
@@ -2360,11 +2360,11 @@ importers:
         specifier: ^0.2.6
         version: 0.2.7
       vite:
-        specifier: 8.0.16
-        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
+        specifier: 8.1.6
+        version: 8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/pollbook/frontend/prodserver:
     dependencies:
@@ -2439,7 +2439,7 @@ importers:
         version: 5.3.11(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       zod:
         specifier: 4.4.3
         version: 4.4.3
@@ -2591,7 +2591,7 @@ importers:
         version: 5.1.26
       '@vitejs/plugin-react':
         specifier: ^6.1.1
-        version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 6.1.1(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@vitest/coverage-istanbul':
         specifier: 5.0.2
         version: 5.0.2(vitest@5.0.2)
@@ -2626,11 +2626,11 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vite:
-        specifier: 8.0.16
-        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
+        specifier: 8.1.6
+        version: 8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/print/frontend/prodserver:
     dependencies:
@@ -2824,7 +2824,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       wait-for-expect:
         specifier: ^3.0.2
         version: 3.0.2
@@ -2945,7 +2945,7 @@ importers:
         version: 5.1.26
       '@vitejs/plugin-react':
         specifier: ^6.1.1
-        version: 6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 6.1.1(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@vitest/coverage-istanbul':
         specifier: 5.0.2
         version: 5.0.2(vitest@5.0.2)
@@ -2989,11 +2989,11 @@ importers:
         specifier: ^1.50.0
         version: 1.53.1
       vite:
-        specifier: 8.0.16
-        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
+        specifier: 8.1.6
+        version: 8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   apps/scan/frontend/prodserver:
     dependencies:
@@ -3146,7 +3146,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/backend:
     dependencies:
@@ -3243,7 +3243,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/ballot-encoder:
     dependencies:
@@ -3280,7 +3280,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/ballot-interpreter:
     dependencies:
@@ -3323,7 +3323,7 @@ importers:
     devDependencies:
       '@napi-rs/cli':
         specifier: ^3.5.1
-        version: 3.5.1(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)(@types/node@24.13.3)(node-addon-api@8.3.1)(supports-color@5.5.0)
+        version: 3.5.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@24.13.3)(node-addon-api@8.3.1)(supports-color@5.5.0)
       '@types/better-sqlite3':
         specifier: 9.6.0
         version: 9.6.0
@@ -3377,7 +3377,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/basics:
     dependencies:
@@ -3411,7 +3411,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/bmd-ballot-fixtures:
     dependencies:
@@ -3481,7 +3481,7 @@ importers:
         version: 0.12.4
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/cdf-schema-builder:
     dependencies:
@@ -3521,7 +3521,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/coverage-check:
     dependencies:
@@ -3543,7 +3543,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/custom-paper-handler:
     dependencies:
@@ -3601,7 +3601,7 @@ importers:
         version: link:../eslint-plugin-vx
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/db:
     dependencies:
@@ -3650,7 +3650,7 @@ importers:
         version: 0.2.7
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/dev-dock/backend:
     dependencies:
@@ -3726,7 +3726,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/dev-dock/frontend:
     dependencies:
@@ -3826,7 +3826,7 @@ importers:
         version: 5.3.11(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/eslint-plugin-vx:
     dependencies:
@@ -3911,7 +3911,7 @@ importers:
         version: 18.3.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/fixture-generators:
     dependencies:
@@ -3993,7 +3993,7 @@ importers:
         version: link:../eslint-plugin-vx
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/fixtures:
     dependencies:
@@ -4027,7 +4027,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/fs:
     dependencies:
@@ -4055,7 +4055,7 @@ importers:
     devDependencies:
       '@napi-rs/cli':
         specifier: ^3.5.1
-        version: 3.5.1(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)(@types/node@24.13.3)(node-addon-api@8.3.1)(supports-color@8.1.1)
+        version: 3.5.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.0)(@types/node@24.13.3)(node-addon-api@8.3.1)(supports-color@8.1.1)
       '@types/debug':
         specifier: 4.1.12
         version: 4.1.12
@@ -4091,7 +4091,7 @@ importers:
         version: 0.2.7
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/fujitsu-thermal-printer:
     dependencies:
@@ -4152,7 +4152,7 @@ importers:
         version: link:../eslint-plugin-vx
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/grout:
     dependencies:
@@ -4198,7 +4198,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/grout/test-utils:
     dependencies:
@@ -4226,7 +4226,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/hmpb:
     dependencies:
@@ -4343,11 +4343,11 @@ importers:
         specifier: ^0.12.4
         version: 0.12.4
       vite:
-        specifier: 8.0.16
-        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
+        specifier: 8.1.6
+        version: 8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/image-utils:
     dependencies:
@@ -4417,7 +4417,7 @@ importers:
         version: 2.23.2
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/integration-test-utils:
     dependencies:
@@ -4481,7 +4481,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/logging:
     dependencies:
@@ -4545,13 +4545,13 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/logging-utils:
     devDependencies:
       '@napi-rs/cli':
         specifier: ^3.5.1
-        version: 3.5.1(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)(@types/node@24.13.3)(node-addon-api@8.3.1)(supports-color@8.1.1)
+        version: 3.5.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.0)(@types/node@24.13.3)(node-addon-api@8.3.1)(supports-color@8.1.1)
       '@types/node':
         specifier: 24.13.3
         version: 24.13.3
@@ -4584,7 +4584,7 @@ importers:
         version: 0.2.7
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/mark-flow-ui:
     dependencies:
@@ -4704,11 +4704,11 @@ importers:
         specifier: ^0.12.4
         version: 0.12.4
       vite:
-        specifier: 8.0.16
-        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
+        specifier: 8.1.6
+        version: 8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/message-coder:
     dependencies:
@@ -4733,7 +4733,7 @@ importers:
         version: 2.23.2
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/monorepo-utils:
     dependencies:
@@ -4761,7 +4761,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/networking:
     dependencies:
@@ -4813,7 +4813,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/pdi-scanner:
     dependencies:
@@ -4856,7 +4856,7 @@ importers:
         version: link:../eslint-plugin-vx
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/printing:
     dependencies:
@@ -4962,7 +4962,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/test-decks:
     dependencies:
@@ -5041,7 +5041,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/test-utils:
     dependencies:
@@ -5111,7 +5111,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/types:
     dependencies:
@@ -5163,7 +5163,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/ui:
     dependencies:
@@ -5260,13 +5260,13 @@ importers:
         version: 10.5.10(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))
       '@storybook/addon-docs':
         specifier: 10.5.10
-        version: 10.5.10(@types/react-dom@18.3.0)(@types/react@18.3.3)(esbuild@0.28.1)(rollup@3.29.5)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 10.5.10(@types/react-dom@18.3.0)(@types/react@18.3.3)(esbuild@0.28.1)(rollup@3.29.5)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@storybook/addon-links':
         specifier: 10.5.10
         version: 10.5.10(@types/react@18.3.3)(react@18.3.1)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))
       '@storybook/react-vite':
         specifier: 10.5.10
-        version: 10.5.10(@types/react-dom@18.3.0)(@types/react@18.3.3)(@typescript/typescript6@6.0.2)(esbuild@0.28.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@3.29.5)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))(supports-color@5.5.0)(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 10.5.10(@types/react-dom@18.3.0)(@types/react@18.3.3)(@typescript/typescript6@6.0.2)(esbuild@0.28.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@3.29.5)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))(supports-color@5.5.0)(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@tanstack/react-query':
         specifier: 4.32.1
         version: 4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -5421,11 +5421,11 @@ importers:
         specifier: ^0.12.4
         version: 0.12.4
       vite:
-        specifier: 8.0.16
-        version: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
+        specifier: 8.1.6
+        version: 8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       vitest-styled-components:
         specifier: ^1.0.0
         version: 1.0.0(styled-components@5.3.11(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1))
@@ -5486,7 +5486,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/utils:
     dependencies:
@@ -5562,7 +5562,7 @@ importers:
         version: 1.53.1
       vitest:
         specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   script:
     dependencies:
@@ -5988,6 +5988,9 @@ packages:
   '@emnapi/core@1.11.0':
     resolution: {integrity: sha512-l9Oo58x0HOP5znGzVhYW9U3e5wVuA4LAZU2AGezTmkhO1CgQRFDhDg4nneHsu/t3WniXg9QrG2nIXL/ZS8ln8Q==}
 
+  '@emnapi/core@1.11.1':
+    resolution: {integrity: sha512-RSvbQmHzdKzNsLYa/wHrbc3KN4sYLKAdPZxqiM2HATqv/SBk2/ENSHpvXGaLOMcsAyz0poEGqkmmKYG3OWiJEQ==}
+
   '@emnapi/core@1.9.2':
     resolution: {integrity: sha512-UC+ZhH3XtczQYfOlu3lNEkdW/p4dsJ1r/bP7H8+rhao3TTTMO1ATq/4DdIi23XuGoFY+Cz0JmCbdVl0hz9jZcA==}
 
@@ -5996,6 +5999,9 @@ packages:
 
   '@emnapi/runtime@1.11.0':
     resolution: {integrity: sha512-55coeOFKHv1ywEcUXJtWU5f+Jr/W5tZDvZig8DLKSwUN1JpROQ4rk/SNOQiFWmaR/VKF4zuFyW1B8JduOSv6Pg==}
+
+  '@emnapi/runtime@1.11.1':
+    resolution: {integrity: sha512-vgj7R3y3Wgx24IQaGPA/R6YFXLHVMOZ0uVEyIQPaWs+rd1AzfEMXlAC22FYwO1XkKR6NPsq7mUandH8oIRdZFw==}
 
   '@emnapi/runtime@1.9.2':
     resolution: {integrity: sha512-3U4+MIWHImeyu1wnmVygh5WlgfYDtyf0k8AbLhMFxOipihf6nrWC4syIm/SwEeec0mNSafiiNnMJwbza/Is6Lw==}
@@ -7525,8 +7531,8 @@ packages:
   '@oxc-project/types@0.127.0':
     resolution: {integrity: sha512-aIYXQBo4lCbO4z0R3FHeucQHpF46l2LbMdxRvqvuRuW2OxdnSkcng5B8+K12spgLDj93rtN3+J2Vac/TIO+ciQ==}
 
-  '@oxc-project/types@0.133.0':
-    resolution: {integrity: sha512-KzkdCd6Uxqnf6l3HOw1xfatAlUURA0g14cvBYFyJ5SaNOQbOUvBr9PKArcPcrNIeRsBdgcUzOGrhKveVpvOIGA==}
+  '@oxc-project/types@0.139.0':
+    resolution: {integrity: sha512-r9gHphtCs+1M7J0pw6Sn/hh/Wpa/iQrOOkrNAlVLF/gHq+/CJmHIWKKUUhdWjcD6CIa8idarspCsASiXCXvFUw==}
 
   '@oxc-project/types@0.152.0':
     resolution: {integrity: sha512-oM/5rLBm2tPkg0iBgkH/FOeR3PCDpY19GTgAZjMFM8h9WI9VW7cLgzp6nwtarYKmovavIQZ+Fe/RKX/8C8O/Rw==}
@@ -7801,97 +7807,97 @@ packages:
   '@protobufjs/utf8@1.1.2':
     resolution: {integrity: sha512-b1UQwcEZ4yCnMCD8DAL1VlbvBJE9/IX4FTIp7BG1xYpf29SLazLSrqUkj4w7Y5y7cCVP6E5tcqqcI0xemPkHug==}
 
-  '@rolldown/binding-android-arm64@1.0.3':
-    resolution: {integrity: sha512-454rs7jHngixp/NMxd5srYD57OnzSlZ/eFTETjORQHLwJG1lRtmNOJcBerZlfu4GjKqeq8aCCIQrMdHyhI51Hw==}
+  '@rolldown/binding-android-arm64@1.1.5':
+    resolution: {integrity: sha512-lZg8fqIv2v7FF237bwMgzGZEJvGL79/s5knJ/i6FmsGF4XXlzccZ4jb+TrFIxtSSxFtIpdsgrPZeMk1I9AFcyQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [android]
 
-  '@rolldown/binding-darwin-arm64@1.0.3':
-    resolution: {integrity: sha512-PcAhP+ynjURNyy8SKGl5DQP94aGuB/7JrXJb/t7P+hanXvQVMWzUvRRhBAcg/lNRadBhoUPqSoP4xw5tR/KBEA==}
+  '@rolldown/binding-darwin-arm64@1.1.5':
+    resolution: {integrity: sha512-51Bnx9pNiMRKSUNtBfySkNJ9vMU9Hh3I1ozDd6gyPPYzaXCfnptUcEZxXGYFn+ul2dtcMUiqGR1Yai2K10uoTw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [darwin]
 
-  '@rolldown/binding-darwin-x64@1.0.3':
-    resolution: {integrity: sha512-9YpfeUvSE2RS7wysJ81uOZkXJz7f7Q55H2Gvp3VEw/EsahqDtrphrZ0EwDLK5vvKOzaCrBsjF8JmnMLcUt78Gg==}
+  '@rolldown/binding-darwin-x64@1.1.5':
+    resolution: {integrity: sha512-Tm+gbfC0aHu1tBA/JvKQh32S0K6YgCHkiAF4/W6xX0K0RmNuc94VeK419dJoE65R5aRxmo+noZQSWrAMF6yb6g==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [darwin]
 
-  '@rolldown/binding-freebsd-x64@1.0.3':
-    resolution: {integrity: sha512-yB1IlAsSNHncV6SCTL27/MVGR5htvQsoGxIv5KMGXALp+Ll1wYsn+x98M9MW7qa+NdSbvrrY7ANI4wLJ0n1e6g==}
+  '@rolldown/binding-freebsd-x64@1.1.5':
+    resolution: {integrity: sha512-JMzDKCCXq93YccG5gz3hvOs1oXRKAf0XYpfOS88e+wZrC8Iugj6j68867vrYZkvpDDpKn/KoKORThmchMpF6TA==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [freebsd]
 
-  '@rolldown/binding-linux-arm-gnueabihf@1.0.3':
-    resolution: {integrity: sha512-Yi30IVAAfLUCy2MseFjbB1jAMDl1VMCAas5StnYp8da9+CKvMd2H2cbEjWcw5NPaPqzvYkVIaF1nNUG+b7u/sw==}
+  '@rolldown/binding-linux-arm-gnueabihf@1.1.5':
+    resolution: {integrity: sha512-uML21j2K5TfPGutKxub+M+nLjZIrWjXQ5Grx4lCe/nimTj9B4L63zHpjXLl4y0L3mcm2htEQIb06oCG/szerNw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm]
     os: [linux]
 
-  '@rolldown/binding-linux-arm64-gnu@1.0.3':
-    resolution: {integrity: sha512-jsO7R8To+AdlYgUmN5sHSCZbfhtMBkO0WUx8iORQnPcMMdgr7qM2DQmMwgabs3GhNztdmoKkMKQFHD6DTMCIQw==}
+  '@rolldown/binding-linux-arm64-gnu@1.1.5':
+    resolution: {integrity: sha512-navSiuTMogvnQoZoM/v+l3ZWo50/NTwSHSzheABx/RCnmUPaKwq9qSo4Br2OYRs21+Fz8uFqITZM3H4opOB0/Q==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@rolldown/binding-linux-arm64-musl@1.0.3':
-    resolution: {integrity: sha512-VWkUHwWriDciit80wleYwKILoR/KMvxh/IdwS/paX+ZgpuRpCrKLUdadJbc0NpBEiyhpYawsJ73j9aCvOH+f7Q==}
+  '@rolldown/binding-linux-arm64-musl@1.1.5':
+    resolution: {integrity: sha512-lAryqH7IteztmCXQXk0etKj4wBQ7Gx5S6LjKhsgp9zb8I5bsuvU/2llH1hDQcjsFeqIsovMVN339/8pUDDBXxA==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
 
-  '@rolldown/binding-linux-ppc64-gnu@1.0.3':
-    resolution: {integrity: sha512-5f1laC0SlIR0yDbFCd8acUhvJIag6N3zC5P7oUPN6wX0aOma+uKJ0wBDH5aq7I1PVI2ttTlhJwzwRIBnLiSGEg==}
+  '@rolldown/binding-linux-ppc64-gnu@1.1.5':
+    resolution: {integrity: sha512-fsK/sNBnxzBlL4O1JNrZakVQxPspqpED5dLtNsZS9oOKmtSpdNIzxH2kkol5HYTWJN47sE20ztMJPxfZ89qGOg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [ppc64]
     os: [linux]
     libc: [glibc]
 
-  '@rolldown/binding-linux-s390x-gnu@1.0.3':
-    resolution: {integrity: sha512-Iq4ko0r4XsgbrF/LunNgHtAGLRRVE2kXonAXQ/MV0mC6jQpMOhW1SvtZja2EhC/kd05++bP78dsqBeIQyYJ6Yg==}
+  '@rolldown/binding-linux-s390x-gnu@1.1.5':
+    resolution: {integrity: sha512-gLYb4BIadlfTOYT5gO503n8zQjXflgzpD0FcyKh0Mzx3rqCZKnHoJWV9xe1KXUJ5lx2JfcSHr/mhzS0PC/McAA==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [s390x]
     os: [linux]
     libc: [glibc]
 
-  '@rolldown/binding-linux-x64-gnu@1.0.3':
-    resolution: {integrity: sha512-B8m6tD5+/N5FeNQFbKlLA/2yVq9ycQP1SeedyEYYKWBNR3ZQbkvIUcNnDNM03lO1l5F2roiiFJGgvoLLyZXtSg==}
+  '@rolldown/binding-linux-x64-gnu@1.1.5':
+    resolution: {integrity: sha512-FjcpEKUyJygHgs1o50VYNvkt5+7Le/VEdYt0AkRpkL33MnyQfwr8l5mXwMmfmTbyMPr5vJLC+8/Gd9gXnwU1QQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@rolldown/binding-linux-x64-musl@1.0.3':
-    resolution: {integrity: sha512-pSdpdUJHkuCxun9LE7jvgUB9qsRgaiyNNCX7m/AvHTcq67AiT/Yhoxvw5zPfhrM8k/BfP8ce/hMOpthKDpEUow==}
+  '@rolldown/binding-linux-x64-musl@1.1.5':
+    resolution: {integrity: sha512-Me+PfPI2TMeOQk0gYWfLQZtTktrmzbr8cDboqX83XKc7UrgAi55gF+2dUkWdxd19n55Essp2yeca+O9N5rBxHg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@rolldown/binding-openharmony-arm64@1.0.3':
-    resolution: {integrity: sha512-OXXS3RKJgX2uLwM+gYyuH5omcH8fL1LJs96pZGgtetVCahON57+d4SJHzTgZiOjxgGkSnpXpOsWuPDGAKAigEg==}
+  '@rolldown/binding-openharmony-arm64@1.1.5':
+    resolution: {integrity: sha512-yc5WrLzXks6zCQfn9Oxr8pORKyl/pF+QjHmW/Qx3qu0oyrrNC+y2JLTU1E2rcWYAmzlnqngWXHQjy51VzW70Vw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [openharmony]
 
-  '@rolldown/binding-wasm32-wasi@1.0.3':
-    resolution: {integrity: sha512-JTtb8BWFynicNSoPrehsCzBtOKjZ6jhMiPFEmOiuXg1Fl8dn2KHQob+GuPSGR0dryQa1PQJbzjF3dqO/whhjLg==}
+  '@rolldown/binding-wasm32-wasi@1.1.5':
+    resolution: {integrity: sha512-VbQGPX2b4r48TAMIM2cjgluIM1HYutm4pcTEJsle7iEP7sB1dFqtPLBVbdLAZCxy1txCcPxf4QFf4v8uvltPqA==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [wasm32]
 
-  '@rolldown/binding-win32-arm64-msvc@1.0.3':
-    resolution: {integrity: sha512-gEdFFEN70A/jxb2svrWsN3aDL7OUtmvlOy+6fa2jxG8K0wQ1ZbdeLGnidov6Yu5/733dI5ySfzFlQ/cb0bSz1g==}
+  '@rolldown/binding-win32-arm64-msvc@1.1.5':
+    resolution: {integrity: sha512-gHv82k63z4qpV5+Q1y/12KrK0ltWBukVDI8nZcbT7Tt/ZlOIVwppazneq0F93oDxTo3IgAMEDIoQh3E2n6mVsw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [win32]
 
-  '@rolldown/binding-win32-x64-msvc@1.0.3':
-    resolution: {integrity: sha512-eXB7CHuaQdqmJcc3koCNtNPmT/bj2gc999kUFgBxG8Ac0NdgXc4rkCHhqrgrhN3zddvvvrgzj1e90SuSfmyIXA==}
+  '@rolldown/binding-win32-x64-msvc@1.1.5':
+    resolution: {integrity: sha512-tTZuDBPw85tEN5PQi1pnEBzDy0Z49HtScLAbD5t6hyeU92A95pRWaSMw1GZZi/RwgSgUIl0xrSlXIT/9QzvYSA==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [win32]
@@ -12918,8 +12924,8 @@ packages:
     deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
-  rolldown@1.0.3:
-    resolution: {integrity: sha512-i00lAJ2ks1BYr7rjNjKC7BcqAS7nVfiT3QX1SI5aY+AFHblCmaUf9OE9dbdzDvW6dJxbi2ZCZiy9v3CcwOiX3g==}
+  rolldown@1.1.5:
+    resolution: {integrity: sha512-t9z29cJjXf/vxQ8dyhCSpt6H6aSwHTk8cT5I3iy6SMXuFpk5mB6PL6XfC8PCwrPTx93udwKUm9HRteAlTGBLiA==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
 
@@ -13736,13 +13742,13 @@ packages:
     resolution: {integrity: sha512-0QwqXteBNXgnLCdWdvPQBX6FXRHtIH3VhJPTd5Lwn28tJXc34YqSCWUmkOvtJHBmB3gGoPtrOKk3Ts8/kEZ9aA==}
     engines: {node: '>=10.13.0'}
 
-  vite@8.0.16:
-    resolution: {integrity: sha512-h9bXPmJichP5fLmVQo3PyaGSDE2n3aPuomeAlVRm0JLmt4rY6zmPKd59HYI4LNW8oTK7tlTsuC7l/m7awx9Jcw==}
+  vite@8.1.6:
+    resolution: {integrity: sha512-aRAHIxx5SW5zc1sMqFwJU/t5qaFfXb5Hj0J7W0VXihu/X99+346tz6080tO1T1xVIJORX/b3zVTXGFqUXh35uw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
       '@types/node': ^20.19.0 || >=22.12.0
-      '@vitejs/devtools': ^0.1.18
+      '@vitejs/devtools': ^0.3.0
       esbuild: ^0.27.0 || ^0.28.0
       jiti: '>=1.21.0'
       less: ^4.0.0
@@ -14674,6 +14680,12 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
+  '@emnapi/core@1.11.1':
+    dependencies:
+      '@emnapi/wasi-threads': 1.2.2
+      tslib: 2.8.1
+    optional: true
+
   '@emnapi/core@1.9.2':
     dependencies:
       '@emnapi/wasi-threads': 1.2.1
@@ -14686,6 +14698,11 @@ snapshots:
     optional: true
 
   '@emnapi/runtime@1.11.0':
+    dependencies:
+      tslib: 2.8.1
+    optional: true
+
+  '@emnapi/runtime@1.11.1':
     dependencies:
       tslib: 2.8.1
     optional: true
@@ -15437,11 +15454,11 @@ snapshots:
       '@types/yargs': 17.0.22
       chalk: 4.1.2
 
-  '@joshwooding/vite-plugin-react-docgen-typescript@0.7.0(@typescript/typescript6@6.0.2)(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))':
+  '@joshwooding/vite-plugin-react-docgen-typescript@0.7.0(@typescript/typescript6@6.0.2)(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))':
     dependencies:
       glob: 13.0.6
       react-docgen-typescript: 2.2.2(@typescript/typescript6@6.0.2)
-      vite: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
+      vite: 8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
     optionalDependencies:
       typescript: '@typescript/typescript6@6.0.2'
 
@@ -15536,11 +15553,11 @@ snapshots:
       '@napi-rs/canvas-win32-arm64-msvc': 0.1.100
       '@napi-rs/canvas-win32-x64-msvc': 0.1.100
 
-  '@napi-rs/cli@3.5.1(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)(@types/node@24.13.3)(node-addon-api@8.3.1)(supports-color@5.5.0)':
+  '@napi-rs/cli@3.5.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.0)(@types/node@24.13.3)(node-addon-api@8.3.1)(supports-color@8.1.1)':
     dependencies:
       '@inquirer/prompts': 8.3.0(@types/node@24.13.3)
-      '@napi-rs/cross-toolchain': 1.0.3(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)(supports-color@5.5.0)
-      '@napi-rs/wasm-tools': 1.0.1(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)
+      '@napi-rs/cross-toolchain': 1.0.3(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.0)(supports-color@8.1.1)
+      '@napi-rs/wasm-tools': 1.0.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.0)
       '@octokit/rest': 22.0.1
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       colorette: 2.0.20
@@ -15568,11 +15585,11 @@ snapshots:
       - node-addon-api
       - supports-color
 
-  '@napi-rs/cli@3.5.1(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)(@types/node@24.13.3)(node-addon-api@8.3.1)(supports-color@8.1.1)':
+  '@napi-rs/cli@3.5.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@24.13.3)(node-addon-api@8.3.1)(supports-color@5.5.0)':
     dependencies:
       '@inquirer/prompts': 8.3.0(@types/node@24.13.3)
-      '@napi-rs/cross-toolchain': 1.0.3(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)(supports-color@8.1.1)
-      '@napi-rs/wasm-tools': 1.0.1(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)
+      '@napi-rs/cross-toolchain': 1.0.3(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(supports-color@5.5.0)
+      '@napi-rs/wasm-tools': 1.0.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
       '@octokit/rest': 22.0.1
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       colorette: 2.0.20
@@ -15583,7 +15600,7 @@ snapshots:
       semver: 7.8.5
       typanion: 3.14.0
     optionalDependencies:
-      '@emnapi/runtime': 1.11.0
+      '@emnapi/runtime': 1.11.1
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@napi-rs/cross-toolchain-arm64-target-aarch64'
@@ -15600,21 +15617,21 @@ snapshots:
       - node-addon-api
       - supports-color
 
-  '@napi-rs/cross-toolchain@1.0.3(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)(supports-color@5.5.0)':
+  '@napi-rs/cross-toolchain@1.0.3(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.0)(supports-color@8.1.1)':
     dependencies:
-      '@napi-rs/lzma': 1.4.5(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)
-      '@napi-rs/tar': 1.1.0(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)
-      debug: 4.4.3(supports-color@5.5.0)
+      '@napi-rs/lzma': 1.4.5(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.0)
+      '@napi-rs/tar': 1.1.0(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.0)
+      debug: 4.4.3(supports-color@8.1.1)
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@emnapi/runtime'
       - supports-color
 
-  '@napi-rs/cross-toolchain@1.0.3(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)(supports-color@8.1.1)':
+  '@napi-rs/cross-toolchain@1.0.3(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(supports-color@5.5.0)':
     dependencies:
-      '@napi-rs/lzma': 1.4.5(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)
-      '@napi-rs/tar': 1.1.0(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)
-      debug: 4.4.3(supports-color@8.1.1)
+      '@napi-rs/lzma': 1.4.5(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
+      '@napi-rs/tar': 1.1.0(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
+      debug: 4.4.3(supports-color@5.5.0)
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@emnapi/runtime'
@@ -15659,9 +15676,17 @@ snapshots:
   '@napi-rs/lzma-linux-x64-musl@1.4.5':
     optional: true
 
-  '@napi-rs/lzma-wasm32-wasi@1.4.5(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)':
+  '@napi-rs/lzma-wasm32-wasi@1.4.5(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.0)':
     dependencies:
-      '@napi-rs/wasm-runtime': 1.1.6(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)
+      '@napi-rs/wasm-runtime': 1.1.6(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.0)
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
+    optional: true
+
+  '@napi-rs/lzma-wasm32-wasi@1.4.5(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)':
+    dependencies:
+      '@napi-rs/wasm-runtime': 1.1.6(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@emnapi/runtime'
@@ -15676,7 +15701,7 @@ snapshots:
   '@napi-rs/lzma-win32-x64-msvc@1.4.5':
     optional: true
 
-  '@napi-rs/lzma@1.4.5(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)':
+  '@napi-rs/lzma@1.4.5(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.0)':
     optionalDependencies:
       '@napi-rs/lzma-android-arm-eabi': 1.4.5
       '@napi-rs/lzma-android-arm64': 1.4.5
@@ -15691,7 +15716,30 @@ snapshots:
       '@napi-rs/lzma-linux-s390x-gnu': 1.4.5
       '@napi-rs/lzma-linux-x64-gnu': 1.4.5
       '@napi-rs/lzma-linux-x64-musl': 1.4.5
-      '@napi-rs/lzma-wasm32-wasi': 1.4.5(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)
+      '@napi-rs/lzma-wasm32-wasi': 1.4.5(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.0)
+      '@napi-rs/lzma-win32-arm64-msvc': 1.4.5
+      '@napi-rs/lzma-win32-ia32-msvc': 1.4.5
+      '@napi-rs/lzma-win32-x64-msvc': 1.4.5
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
+
+  '@napi-rs/lzma@1.4.5(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)':
+    optionalDependencies:
+      '@napi-rs/lzma-android-arm-eabi': 1.4.5
+      '@napi-rs/lzma-android-arm64': 1.4.5
+      '@napi-rs/lzma-darwin-arm64': 1.4.5
+      '@napi-rs/lzma-darwin-x64': 1.4.5
+      '@napi-rs/lzma-freebsd-x64': 1.4.5
+      '@napi-rs/lzma-linux-arm-gnueabihf': 1.4.5
+      '@napi-rs/lzma-linux-arm64-gnu': 1.4.5
+      '@napi-rs/lzma-linux-arm64-musl': 1.4.5
+      '@napi-rs/lzma-linux-ppc64-gnu': 1.4.5
+      '@napi-rs/lzma-linux-riscv64-gnu': 1.4.5
+      '@napi-rs/lzma-linux-s390x-gnu': 1.4.5
+      '@napi-rs/lzma-linux-x64-gnu': 1.4.5
+      '@napi-rs/lzma-linux-x64-musl': 1.4.5
+      '@napi-rs/lzma-wasm32-wasi': 1.4.5(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
       '@napi-rs/lzma-win32-arm64-msvc': 1.4.5
       '@napi-rs/lzma-win32-ia32-msvc': 1.4.5
       '@napi-rs/lzma-win32-x64-msvc': 1.4.5
@@ -15735,9 +15783,17 @@ snapshots:
   '@napi-rs/tar-linux-x64-musl@1.1.0':
     optional: true
 
-  '@napi-rs/tar-wasm32-wasi@1.1.0(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)':
+  '@napi-rs/tar-wasm32-wasi@1.1.0(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.0)':
     dependencies:
-      '@napi-rs/wasm-runtime': 1.1.6(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)
+      '@napi-rs/wasm-runtime': 1.1.6(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.0)
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
+    optional: true
+
+  '@napi-rs/tar-wasm32-wasi@1.1.0(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)':
+    dependencies:
+      '@napi-rs/wasm-runtime': 1.1.6(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@emnapi/runtime'
@@ -15752,7 +15808,7 @@ snapshots:
   '@napi-rs/tar-win32-x64-msvc@1.1.0':
     optional: true
 
-  '@napi-rs/tar@1.1.0(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)':
+  '@napi-rs/tar@1.1.0(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.0)':
     optionalDependencies:
       '@napi-rs/tar-android-arm-eabi': 1.1.0
       '@napi-rs/tar-android-arm64': 1.1.0
@@ -15766,7 +15822,29 @@ snapshots:
       '@napi-rs/tar-linux-s390x-gnu': 1.1.0
       '@napi-rs/tar-linux-x64-gnu': 1.1.0
       '@napi-rs/tar-linux-x64-musl': 1.1.0
-      '@napi-rs/tar-wasm32-wasi': 1.1.0(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)
+      '@napi-rs/tar-wasm32-wasi': 1.1.0(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.0)
+      '@napi-rs/tar-win32-arm64-msvc': 1.1.0
+      '@napi-rs/tar-win32-ia32-msvc': 1.1.0
+      '@napi-rs/tar-win32-x64-msvc': 1.1.0
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
+
+  '@napi-rs/tar@1.1.0(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)':
+    optionalDependencies:
+      '@napi-rs/tar-android-arm-eabi': 1.1.0
+      '@napi-rs/tar-android-arm64': 1.1.0
+      '@napi-rs/tar-darwin-arm64': 1.1.0
+      '@napi-rs/tar-darwin-x64': 1.1.0
+      '@napi-rs/tar-freebsd-x64': 1.1.0
+      '@napi-rs/tar-linux-arm-gnueabihf': 1.1.0
+      '@napi-rs/tar-linux-arm64-gnu': 1.1.0
+      '@napi-rs/tar-linux-arm64-musl': 1.1.0
+      '@napi-rs/tar-linux-ppc64-gnu': 1.1.0
+      '@napi-rs/tar-linux-s390x-gnu': 1.1.0
+      '@napi-rs/tar-linux-x64-gnu': 1.1.0
+      '@napi-rs/tar-linux-x64-musl': 1.1.0
+      '@napi-rs/tar-wasm32-wasi': 1.1.0(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
       '@napi-rs/tar-win32-arm64-msvc': 1.1.0
       '@napi-rs/tar-win32-ia32-msvc': 1.1.0
       '@napi-rs/tar-win32-x64-msvc': 1.1.0
@@ -15785,6 +15863,20 @@ snapshots:
     dependencies:
       '@emnapi/core': 1.11.0
       '@emnapi/runtime': 1.11.0
+      '@tybys/wasm-util': 0.10.3
+    optional: true
+
+  '@napi-rs/wasm-runtime@1.1.6(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.0)':
+    dependencies:
+      '@emnapi/core': 1.11.1
+      '@emnapi/runtime': 1.11.0
+      '@tybys/wasm-util': 0.10.3
+    optional: true
+
+  '@napi-rs/wasm-runtime@1.1.6(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)':
+    dependencies:
+      '@emnapi/core': 1.11.1
+      '@emnapi/runtime': 1.11.1
       '@tybys/wasm-util': 0.10.3
     optional: true
 
@@ -15822,9 +15914,17 @@ snapshots:
   '@napi-rs/wasm-tools-linux-x64-musl@1.0.1':
     optional: true
 
-  '@napi-rs/wasm-tools-wasm32-wasi@1.0.1(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)':
+  '@napi-rs/wasm-tools-wasm32-wasi@1.0.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.0)':
     dependencies:
-      '@napi-rs/wasm-runtime': 1.1.6(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)
+      '@napi-rs/wasm-runtime': 1.1.6(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.0)
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
+    optional: true
+
+  '@napi-rs/wasm-tools-wasm32-wasi@1.0.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)':
+    dependencies:
+      '@napi-rs/wasm-runtime': 1.1.6(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@emnapi/runtime'
@@ -15839,7 +15939,7 @@ snapshots:
   '@napi-rs/wasm-tools-win32-x64-msvc@1.0.1':
     optional: true
 
-  '@napi-rs/wasm-tools@1.0.1(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)':
+  '@napi-rs/wasm-tools@1.0.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.0)':
     optionalDependencies:
       '@napi-rs/wasm-tools-android-arm-eabi': 1.0.1
       '@napi-rs/wasm-tools-android-arm64': 1.0.1
@@ -15850,7 +15950,26 @@ snapshots:
       '@napi-rs/wasm-tools-linux-arm64-musl': 1.0.1
       '@napi-rs/wasm-tools-linux-x64-gnu': 1.0.1
       '@napi-rs/wasm-tools-linux-x64-musl': 1.0.1
-      '@napi-rs/wasm-tools-wasm32-wasi': 1.0.1(@emnapi/core@1.11.0)(@emnapi/runtime@1.11.0)
+      '@napi-rs/wasm-tools-wasm32-wasi': 1.0.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.0)
+      '@napi-rs/wasm-tools-win32-arm64-msvc': 1.0.1
+      '@napi-rs/wasm-tools-win32-ia32-msvc': 1.0.1
+      '@napi-rs/wasm-tools-win32-x64-msvc': 1.0.1
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
+
+  '@napi-rs/wasm-tools@1.0.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)':
+    optionalDependencies:
+      '@napi-rs/wasm-tools-android-arm-eabi': 1.0.1
+      '@napi-rs/wasm-tools-android-arm64': 1.0.1
+      '@napi-rs/wasm-tools-darwin-arm64': 1.0.1
+      '@napi-rs/wasm-tools-darwin-x64': 1.0.1
+      '@napi-rs/wasm-tools-freebsd-x64': 1.0.1
+      '@napi-rs/wasm-tools-linux-arm64-gnu': 1.0.1
+      '@napi-rs/wasm-tools-linux-arm64-musl': 1.0.1
+      '@napi-rs/wasm-tools-linux-x64-gnu': 1.0.1
+      '@napi-rs/wasm-tools-linux-x64-musl': 1.0.1
+      '@napi-rs/wasm-tools-wasm32-wasi': 1.0.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
       '@napi-rs/wasm-tools-win32-arm64-msvc': 1.0.1
       '@napi-rs/wasm-tools-win32-ia32-msvc': 1.0.1
       '@napi-rs/wasm-tools-win32-x64-msvc': 1.0.1
@@ -16060,7 +16179,7 @@ snapshots:
 
   '@oxc-project/types@0.127.0': {}
 
-  '@oxc-project/types@0.133.0': {}
+  '@oxc-project/types@0.139.0': {}
 
   '@oxc-project/types@0.152.0': {}
 
@@ -16220,53 +16339,53 @@ snapshots:
 
   '@protobufjs/utf8@1.1.2': {}
 
-  '@rolldown/binding-android-arm64@1.0.3':
+  '@rolldown/binding-android-arm64@1.1.5':
     optional: true
 
-  '@rolldown/binding-darwin-arm64@1.0.3':
+  '@rolldown/binding-darwin-arm64@1.1.5':
     optional: true
 
-  '@rolldown/binding-darwin-x64@1.0.3':
+  '@rolldown/binding-darwin-x64@1.1.5':
     optional: true
 
-  '@rolldown/binding-freebsd-x64@1.0.3':
+  '@rolldown/binding-freebsd-x64@1.1.5':
     optional: true
 
-  '@rolldown/binding-linux-arm-gnueabihf@1.0.3':
+  '@rolldown/binding-linux-arm-gnueabihf@1.1.5':
     optional: true
 
-  '@rolldown/binding-linux-arm64-gnu@1.0.3':
+  '@rolldown/binding-linux-arm64-gnu@1.1.5':
     optional: true
 
-  '@rolldown/binding-linux-arm64-musl@1.0.3':
+  '@rolldown/binding-linux-arm64-musl@1.1.5':
     optional: true
 
-  '@rolldown/binding-linux-ppc64-gnu@1.0.3':
+  '@rolldown/binding-linux-ppc64-gnu@1.1.5':
     optional: true
 
-  '@rolldown/binding-linux-s390x-gnu@1.0.3':
+  '@rolldown/binding-linux-s390x-gnu@1.1.5':
     optional: true
 
-  '@rolldown/binding-linux-x64-gnu@1.0.3':
+  '@rolldown/binding-linux-x64-gnu@1.1.5':
     optional: true
 
-  '@rolldown/binding-linux-x64-musl@1.0.3':
+  '@rolldown/binding-linux-x64-musl@1.1.5':
     optional: true
 
-  '@rolldown/binding-openharmony-arm64@1.0.3':
+  '@rolldown/binding-openharmony-arm64@1.1.5':
     optional: true
 
-  '@rolldown/binding-wasm32-wasi@1.0.3':
+  '@rolldown/binding-wasm32-wasi@1.1.5':
     dependencies:
-      '@emnapi/core': 1.10.0
-      '@emnapi/runtime': 1.10.0
-      '@napi-rs/wasm-runtime': 1.1.6(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      '@emnapi/core': 1.11.1
+      '@emnapi/runtime': 1.11.1
+      '@napi-rs/wasm-runtime': 1.1.6(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
     optional: true
 
-  '@rolldown/binding-win32-arm64-msvc@1.0.3':
+  '@rolldown/binding-win32-arm64-msvc@1.1.5':
     optional: true
 
-  '@rolldown/binding-win32-x64-msvc@1.0.3':
+  '@rolldown/binding-win32-x64-msvc@1.1.5':
     optional: true
 
   '@rolldown/pluginutils@1.0.1': {}
@@ -16435,10 +16554,10 @@ snapshots:
       axe-core: 4.13.0
       storybook: 10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1)
 
-  '@storybook/addon-docs@10.5.10(@types/react-dom@18.3.0)(@types/react@18.3.3)(esbuild@0.28.1)(rollup@3.29.5)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))':
+  '@storybook/addon-docs@10.5.10(@types/react-dom@18.3.0)(@types/react@18.3.3)(esbuild@0.28.1)(rollup@3.29.5)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))':
     dependencies:
       '@mdx-js/react': 3.1.1(@types/react@18.3.3)(react@18.3.1)
-      '@storybook/csf-plugin': 10.5.10(esbuild@0.28.1)(rollup@3.29.5)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+      '@storybook/csf-plugin': 10.5.10(esbuild@0.28.1)(rollup@3.29.5)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@storybook/icons': 2.1.0(react@18.3.1)
       '@storybook/react-dom-shim': 10.5.10(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))
       react: 18.3.1
@@ -16462,25 +16581,25 @@ snapshots:
       '@types/react': 18.3.3
       react: 18.3.1
 
-  '@storybook/builder-vite@10.5.10(esbuild@0.28.1)(rollup@3.29.5)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))':
+  '@storybook/builder-vite@10.5.10(esbuild@0.28.1)(rollup@3.29.5)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))':
     dependencies:
-      '@storybook/csf-plugin': 10.5.10(esbuild@0.28.1)(rollup@3.29.5)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+      '@storybook/csf-plugin': 10.5.10(esbuild@0.28.1)(rollup@3.29.5)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       storybook: 10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1)
       ts-dedent: 2.2.0
-      vite: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
+      vite: 8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
     transitivePeerDependencies:
       - esbuild
       - rollup
       - webpack
 
-  '@storybook/csf-plugin@10.5.10(esbuild@0.28.1)(rollup@3.29.5)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))':
+  '@storybook/csf-plugin@10.5.10(esbuild@0.28.1)(rollup@3.29.5)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))':
     dependencies:
       storybook: 10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1)
       unplugin: 2.3.11
     optionalDependencies:
       esbuild: 0.28.1
       rollup: 3.29.5
-      vite: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
+      vite: 8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
 
   '@storybook/global@5.0.0': {}
 
@@ -16497,11 +16616,11 @@ snapshots:
       '@types/react': 18.3.3
       '@types/react-dom': 18.3.0
 
-  '@storybook/react-vite@10.5.10(@types/react-dom@18.3.0)(@types/react@18.3.3)(@typescript/typescript6@6.0.2)(esbuild@0.28.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@3.29.5)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))(supports-color@5.5.0)(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))':
+  '@storybook/react-vite@10.5.10(@types/react-dom@18.3.0)(@types/react@18.3.3)(@typescript/typescript6@6.0.2)(esbuild@0.28.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@3.29.5)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))(supports-color@5.5.0)(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))':
     dependencies:
-      '@joshwooding/vite-plugin-react-docgen-typescript': 0.7.0(@typescript/typescript6@6.0.2)(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+      '@joshwooding/vite-plugin-react-docgen-typescript': 0.7.0(@typescript/typescript6@6.0.2)(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@rollup/pluginutils': 5.0.3(rollup@3.29.5)
-      '@storybook/builder-vite': 10.5.10(esbuild@0.28.1)(rollup@3.29.5)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+      '@storybook/builder-vite': 10.5.10(esbuild@0.28.1)(rollup@3.29.5)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       '@storybook/react': 10.5.10(@types/react-dom@18.3.0)(@types/react@18.3.3)(@typescript/typescript6@6.0.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1))(supports-color@5.5.0)
       empathic: 2.0.1
       magic-string: 0.30.21
@@ -16511,7 +16630,7 @@ snapshots:
       resolve: 1.22.12
       storybook: 10.5.10(@types/react@18.3.3)(prettier@3.9.6)(react@18.3.1)
       tsconfig-paths: 4.2.0
-      vite: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
+      vite: 8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
     optionalDependencies:
       typescript: '@typescript/typescript6@6.0.2'
     transitivePeerDependencies:
@@ -17322,10 +17441,10 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.12.2':
     optional: true
 
-  '@vitejs/plugin-react@6.1.1(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))':
+  '@vitejs/plugin-react@6.1.1(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
-      vite: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
+      vite: 8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
 
   '@vitest/coverage-istanbul@5.0.2(vitest@5.0.2)':
     dependencies:
@@ -17338,7 +17457,7 @@ snapshots:
       magicast: 0.5.5
       obug: 2.2.1
       tinyrainbow: 3.1.1
-      vitest: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+      vitest: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
 
   '@vitest/eslint-plugin@1.6.27(@typescript-eslint/eslint-plugin@8.70.0(@typescript-eslint/parser@8.70.0(@typescript/typescript6@6.0.2)(eslint@9.39.5(supports-color@8.1.1))(supports-color@8.1.1))(@typescript/typescript6@6.0.2)(eslint@9.39.5(supports-color@8.1.1))(supports-color@8.1.1))(@typescript/typescript6@6.0.2)(eslint@9.39.5(supports-color@8.1.1))(supports-color@8.1.1)(vitest@5.0.2)':
     dependencies:
@@ -17348,7 +17467,7 @@ snapshots:
     optionalDependencies:
       '@typescript-eslint/eslint-plugin': 8.70.0(@typescript-eslint/parser@8.70.0(@typescript/typescript6@6.0.2)(eslint@9.39.5(supports-color@8.1.1))(supports-color@8.1.1))(@typescript/typescript6@6.0.2)(eslint@9.39.5(supports-color@8.1.1))(supports-color@8.1.1)
       typescript: '@typescript/typescript6@6.0.2'
-      vitest: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+      vitest: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
     transitivePeerDependencies:
       - supports-color
 
@@ -17380,14 +17499,14 @@ snapshots:
       '@vitest/istanbul-lib-coverage': 1.0.2
       obug: 2.2.1
 
-  '@vitest/mocker@5.0.2(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))':
+  '@vitest/mocker@5.0.2(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       '@vitest/spy': 5.0.2
       estree-walker: 3.0.3
       magic-string: 1.4.2
     optionalDependencies:
-      vite: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
+      vite: 8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
 
   '@vitest/pretty-format@3.2.4':
     dependencies:
@@ -22339,26 +22458,26 @@ snapshots:
     dependencies:
       glob: 7.2.3
 
-  rolldown@1.0.3:
+  rolldown@1.1.5:
     dependencies:
-      '@oxc-project/types': 0.133.0
+      '@oxc-project/types': 0.139.0
       '@rolldown/pluginutils': 1.0.1
     optionalDependencies:
-      '@rolldown/binding-android-arm64': 1.0.3
-      '@rolldown/binding-darwin-arm64': 1.0.3
-      '@rolldown/binding-darwin-x64': 1.0.3
-      '@rolldown/binding-freebsd-x64': 1.0.3
-      '@rolldown/binding-linux-arm-gnueabihf': 1.0.3
-      '@rolldown/binding-linux-arm64-gnu': 1.0.3
-      '@rolldown/binding-linux-arm64-musl': 1.0.3
-      '@rolldown/binding-linux-ppc64-gnu': 1.0.3
-      '@rolldown/binding-linux-s390x-gnu': 1.0.3
-      '@rolldown/binding-linux-x64-gnu': 1.0.3
-      '@rolldown/binding-linux-x64-musl': 1.0.3
-      '@rolldown/binding-openharmony-arm64': 1.0.3
-      '@rolldown/binding-wasm32-wasi': 1.0.3
-      '@rolldown/binding-win32-arm64-msvc': 1.0.3
-      '@rolldown/binding-win32-x64-msvc': 1.0.3
+      '@rolldown/binding-android-arm64': 1.1.5
+      '@rolldown/binding-darwin-arm64': 1.1.5
+      '@rolldown/binding-darwin-x64': 1.1.5
+      '@rolldown/binding-freebsd-x64': 1.1.5
+      '@rolldown/binding-linux-arm-gnueabihf': 1.1.5
+      '@rolldown/binding-linux-arm64-gnu': 1.1.5
+      '@rolldown/binding-linux-arm64-musl': 1.1.5
+      '@rolldown/binding-linux-ppc64-gnu': 1.1.5
+      '@rolldown/binding-linux-s390x-gnu': 1.1.5
+      '@rolldown/binding-linux-x64-gnu': 1.1.5
+      '@rolldown/binding-linux-x64-musl': 1.1.5
+      '@rolldown/binding-openharmony-arm64': 1.1.5
+      '@rolldown/binding-wasm32-wasi': 1.1.5
+      '@rolldown/binding-win32-arm64-msvc': 1.1.5
+      '@rolldown/binding-win32-x64-msvc': 1.1.5
 
   rollup@3.29.5:
     optionalDependencies:
@@ -23403,12 +23522,12 @@ snapshots:
       - bare-abort-controller
       - react-native-b4a
 
-  vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2):
+  vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2):
     dependencies:
       lightningcss: 1.32.0
       picomatch: 4.0.7
       postcss: 8.5.26
-      rolldown: 1.0.3
+      rolldown: 1.1.5
       tinyglobby: 0.2.17
     optionalDependencies:
       '@types/node': 24.13.3
@@ -23422,10 +23541,10 @@ snapshots:
       css-tree: 3.1.0
       styled-components: 5.3.11(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
 
-  vitest@5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)):
+  vitest@5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@5.5.0))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.2(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+      '@vitest/mocker': 5.0.2(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       chai: 6.2.2
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
@@ -23436,7 +23555,7 @@ snapshots:
       tinybench: 6.2.0
       tinyexec: 1.3.1
       tinyglobby: 0.2.17
-      vite: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
+      vite: 8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       why-is-node-running: 3.2.2
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
@@ -23446,10 +23565,10 @@ snapshots:
     transitivePeerDependencies:
       - msw
 
-  vitest@5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)):
+  vitest@5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.13.3)(@vitest/coverage-istanbul@5.0.2)(jsdom@20.0.1(canvas@3.2.3)(supports-color@8.1.1))(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.2(vite@8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
+      '@vitest/mocker': 5.0.2(vite@8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2))
       chai: 6.2.2
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
@@ -23460,7 +23579,7 @@ snapshots:
       tinybench: 6.2.0
       tinyexec: 1.3.1
       tinyglobby: 0.2.17
-      vite: 8.0.16(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
+      vite: 8.1.6(@types/node@24.13.3)(esbuild@0.28.1)(yaml@2.8.2)
       why-is-node-running: 3.2.2
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
