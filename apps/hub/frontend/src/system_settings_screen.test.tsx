@@ -4,7 +4,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   type SystemSettings,
 } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { assert, assertDefined, mapObject } from '@votingworks/basics';
 import type { UserFeaturesConfig } from '@votingworks/hub-backend';
 import {
@@ -90,12 +90,12 @@ test('mark thresholds', async () => {
     electionRecord.systemSettings.markThresholds.marginal
   );
 
-  userEvent.click(editButton);
+  await userEvent.click(editButton);
 
   // change from 0.07 to 0.08
-  userEvent.type(definiteInput, '{backspace}8');
+  await userEvent.type(definiteInput, '{Backspace}8');
   // change from 0.05 to 0.06
-  userEvent.type(marginalInput, '{backspace}6');
+  await userEvent.type(marginalInput, '{Backspace}6');
 
   const updatedSystemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
@@ -111,7 +111,7 @@ test('mark thresholds', async () => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(updatedSystemSettings);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await screen.findByRole('button', { name: 'Edit' });
 
@@ -144,9 +144,12 @@ test('minimum detected scale', async () => {
   expect(minimumDetectedBallotScaleOverrideInput).toBeDisabled();
   expect(minimumDetectedBallotScaleOverrideInput).toHaveValue(null);
 
-  userEvent.click(editButton);
+  await userEvent.click(editButton);
 
-  userEvent.type(minimumDetectedBallotScaleOverrideInput, '{selectall}0.995');
+  await userEvent.type(
+    minimumDetectedBallotScaleOverrideInput,
+    '{Control>}a{/Control}0.995'
+  );
 
   const updatedSystemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
@@ -158,7 +161,7 @@ test('minimum detected scale', async () => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(updatedSystemSettings);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await screen.findByRole('button', { name: 'Edit' });
 });
@@ -179,7 +182,7 @@ test('ballot image bit depth', async () => {
     '2-bit (Black, White, and Two Grays)'
   );
 
-  userEvent.click(editButton);
+  await userEvent.click(editButton);
   await expectSearchSelectValueThenEditValue(
     section,
     'Ballot Image Bit Depth',
@@ -197,7 +200,7 @@ test('ballot image bit depth', async () => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(updatedSystemSettings);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await screen.findByRole('button', { name: 'Edit' });
 });
@@ -214,7 +217,7 @@ test('adjudication reasons', async () => {
     expect(option).toBeDisabled();
   }
 
-  userEvent.click(editButton);
+  await userEvent.click(editButton);
 
   screen.getByRole('heading', { name: 'Adjudication Reasons' });
   for (const machine of ['VxScan', 'VxCentralScan']) {
@@ -230,7 +233,7 @@ test('adjudication reasons', async () => {
     expect(options[3]).toHaveTextContent('Blank Ballot');
     expect(options[4]).toHaveTextContent('Unmarked Write-In');
 
-    userEvent.click(options[0]!);
+    await userEvent.click(options[0]!);
     expect(options[0]).toBeChecked();
   }
 
@@ -245,28 +248,28 @@ test('adjudication reasons', async () => {
   expect(options[2]).toHaveTextContent('Marginal Mark');
   expect(options[3]).toHaveTextContent('Blank Ballot');
 
-  userEvent.click(options[0]!);
+  await userEvent.click(options[0]!);
   expect(options[0]).toBeChecked();
 
   const disallowOvervotes = screen.getByRole('checkbox', {
     name: 'Disallow Casting Overvotes',
   });
   expect(disallowOvervotes).not.toBeChecked();
-  userEvent.click(disallowOvervotes);
+  await userEvent.click(disallowOvervotes);
   expect(disallowOvervotes).toBeChecked();
 
   const limitToFlaggedContests = screen.getByRole('checkbox', {
     name: 'Limit Adjudication to Flagged Contests',
   });
   expect(limitToFlaggedContests).not.toBeChecked();
-  userEvent.click(limitToFlaggedContests);
+  await userEvent.click(limitToFlaggedContests);
   expect(limitToFlaggedContests).toBeChecked();
 
   const countOnlyAfterAdjudication = screen.getByRole('checkbox', {
     name: 'Count VxCentralScan Ballots Only After Adjudication',
   });
   expect(countOnlyAfterAdjudication).not.toBeChecked();
-  userEvent.click(countOnlyAfterAdjudication);
+  await userEvent.click(countOnlyAfterAdjudication);
   expect(countOnlyAfterAdjudication).toBeChecked();
 
   const updatedSystemSettings: SystemSettings = {
@@ -284,7 +287,7 @@ test('adjudication reasons', async () => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(updatedSystemSettings);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await screen.findByRole('button', { name: 'Edit' });
 
@@ -313,7 +316,7 @@ test('setting write-in text area threshold', async () => {
   await screen.findByRole('heading', { name: 'System Settings' });
   const editButton = await screen.findByRole('button', { name: 'Edit' });
 
-  userEvent.click(editButton);
+  await userEvent.click(editButton);
 
   expect(
     screen.queryByText('Write-In Ink Area Threshold (mm²)')
@@ -327,16 +330,16 @@ test('setting write-in text area threshold', async () => {
     'checkbox',
     { name: 'Unmarked Write-In' }
   );
-  userEvent.click(centralScanUnmarkedWriteIn);
+  await userEvent.click(centralScanUnmarkedWriteIn);
   await screen.findByText('Write-In Ink Area Threshold (mm²)');
-  userEvent.click(centralScanUnmarkedWriteIn);
+  await userEvent.click(centralScanUnmarkedWriteIn);
   expect(
     screen.queryByText('Write-In Ink Area Threshold (mm²)')
   ).not.toBeInTheDocument();
 
   // VxScan adjudication reason triggers the write-in area threshold input
   const scanContainer = screen.getByRole('group', { name: 'VxScan' });
-  userEvent.click(
+  await userEvent.click(
     within(scanContainer).getByRole('checkbox', {
       name: 'Unmarked Write-In',
     })
@@ -351,7 +354,7 @@ test('setting write-in text area threshold', async () => {
   );
 
   // change from 8 to 10
-  userEvent.type(thresholdInput, '{selectall}10');
+  await userEvent.type(thresholdInput, '{Control>}a{/Control}10');
   const updatedSystemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
     markThresholds: {
@@ -366,7 +369,7 @@ test('setting write-in text area threshold', async () => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(updatedSystemSettings);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await screen.findByRole('button', { name: 'Edit' });
 
@@ -395,22 +398,22 @@ async function expectSearchSelectValueThenEditValue(
   expectComboBoxValue(container, elementName, initialValue);
 
   // Click SearchSelect
-  userEvent.click(within(container).getByLabelText(elementName));
+  await userEvent.click(within(container).getByLabelText(elementName));
 
   // Wait for option to render and select it
   const targetChoice = await screen.findByText(endingValue);
   expect(targetChoice).toBeDefined();
-  userEvent.click(targetChoice);
+  await userEvent.click(targetChoice);
 
   expectComboBoxValue(container, elementName, endingValue);
 }
 
-function expectUncheckedThenCheck(container: HTMLElement, name: string) {
+async function expectUncheckedThenCheck(container: HTMLElement, name: string) {
   const checkboxElement = within(container).getByRole('checkbox', {
     name,
   });
   expect(checkboxElement).not.toBeChecked();
-  userEvent.click(checkboxElement);
+  await userEvent.click(checkboxElement);
   expect(checkboxElement).toBeChecked();
 }
 
@@ -423,7 +426,7 @@ test('setting auth settings', async () => {
   await screen.findByRole('heading', { name: 'System Settings' });
   const editButton = await screen.findByRole('button', { name: 'Edit' });
 
-  userEvent.click(editButton);
+  await userEvent.click(editButton);
 
   expect(screen.queryByText('Authentication')).toBeInTheDocument();
   const authHeading = screen.getByRole('heading', {
@@ -432,7 +435,7 @@ test('setting auth settings', async () => {
   expect(authHeading).toBeDefined();
   const authContainer = assertDefined(authHeading.parentElement);
 
-  expectUncheckedThenCheck(authContainer, 'Enable Poll Worker PINs');
+  await expectUncheckedThenCheck(authContainer, 'Enable Poll Worker PINs');
 
   await expectSearchSelectValueThenEditValue(
     authContainer,
@@ -461,8 +464,8 @@ test('setting auth settings', async () => {
   expect(timeLimitInput).toHaveValue(
     systemSettings.auth.overallSessionTimeLimitHours
   );
-  userEvent.clear(timeLimitInput);
-  userEvent.type(timeLimitInput, '11');
+  await userEvent.clear(timeLimitInput);
+  await userEvent.type(timeLimitInput, '11');
   const element = await within(authContainer).findByRole('spinbutton', {
     name: 'Overall Session Time Limit (Hours)',
   });
@@ -484,7 +487,7 @@ test('setting auth settings', async () => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(updatedSystemSettings);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await screen.findByRole('button', { name: 'Edit' });
 
@@ -503,7 +506,7 @@ test('setting "other" system settings', async () => {
   await screen.findByRole('heading', { name: 'System Settings' });
   const editButton = await screen.findByRole('button', { name: 'Edit' });
 
-  userEvent.click(editButton);
+  await userEvent.click(editButton);
 
   expect(screen.queryByText('Other')).toBeInTheDocument();
   const otherHeading = screen.getByRole('heading', {
@@ -521,7 +524,7 @@ test('setting "other" system settings', async () => {
   ];
 
   for (const label of checkboxLabels) {
-    expectUncheckedThenCheck(otherContainer, label);
+    await expectUncheckedThenCheck(otherContainer, label);
   }
 
   const updatedSystemSettings: SystemSettings = {
@@ -538,7 +541,7 @@ test('setting "other" system settings', async () => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(updatedSystemSettings);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await screen.findByRole('button', { name: 'Edit' });
 
@@ -564,7 +567,7 @@ test('setting number of report copies on VxScan', async () => {
   // Empty (rather than a hardcoded 1) when unset, so it can be cleared/retyped
   expect(input).toHaveValue(null);
 
-  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
   fireEvent.change(input, { target: { value: '3' } });
 
@@ -578,7 +581,7 @@ test('setting number of report copies on VxScan', async () => {
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(updatedSystemSettings);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await screen.findByRole('button', { name: 'Edit' });
   expect(input).toHaveValue(3);
@@ -598,7 +601,7 @@ test('number of report copies can be cleared to remove the setting', async () =>
   });
   expect(input).toHaveValue(3);
 
-  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
   // Clearing the input is allowed and removes the setting (defaulting to one
   // copy on the machine)
@@ -615,7 +618,7 @@ test('number of report copies can be cleared to remove the setting', async () =>
   apiMock.getSystemSettings
     .expectCallWith({ electionId })
     .resolves(updatedSystemSettings);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await screen.findByRole('button', { name: 'Edit' });
   expect(input).toHaveValue(null);
@@ -646,16 +649,16 @@ test('cancelling', async () => {
 
   await screen.findByRole('heading', { name: 'System Settings' });
   const editButton = await screen.findByRole('button', { name: 'Edit' });
-  userEvent.click(editButton);
+  await userEvent.click(editButton);
 
   const allowOfficialBallots = screen.getByRole('checkbox', {
     name: 'Allow Official Ballots in Test Mode',
   });
   expect(allowOfficialBallots).not.toBeChecked();
-  userEvent.click(allowOfficialBallots);
+  await userEvent.click(allowOfficialBallots);
   expect(allowOfficialBallots).toBeChecked();
 
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   screen.getByRole('button', { name: 'Edit' });
   expect(
     screen.getByRole('checkbox', {
@@ -692,7 +695,7 @@ test('all controls are disabled until clicking "Edit"', async () => {
     expect(control).toBeDisabled();
   }
 
-  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
   // Re-query for all controls because the Polls Closed input is
   // re-rendered after clicking "Edit"
@@ -755,7 +758,7 @@ describe('BMD print mode', () => {
     renderScreen();
     await screen.findByText('VxMark Print Mode');
 
-    userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
     const section = assertDefined(
       screen.getByRole('heading', { name: 'Other' }).parentElement
@@ -778,7 +781,7 @@ describe('BMD print mode', () => {
       .expectCallWith({ electionId })
       .resolves(mockSettingsFinal);
 
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
   });
 
   test('omits default value from saved settings', async () => {
@@ -796,7 +799,7 @@ describe('BMD print mode', () => {
     renderScreen();
     await screen.findByText('VxMark Print Mode');
 
-    userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
     const section = assertDefined(
       screen.getByRole('heading', { name: 'Other' }).parentElement
@@ -819,7 +822,7 @@ describe('BMD print mode', () => {
       .expectCallWith({ electionId })
       .resolves(mockSettingsFinal);
 
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     expectComboBoxValue(
       section,
@@ -996,8 +999,8 @@ test.each<{
     } else {
       screen.getByText(checkboxLabel);
 
-      userEvent.click(editButton);
-      userEvent.click(
+      await userEvent.click(editButton);
+      await userEvent.click(
         screen.getByRole('checkbox', { name: checkboxLabel, checked: false })
       );
 
@@ -1013,11 +1016,13 @@ test.each<{
         .expectCallWith({ electionId })
         .resolves(updatedSystemSettings);
 
-      userEvent.click(screen.getByRole('button', { name: 'Save' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Save' }));
       screen.getByRole('checkbox', { name: checkboxLabel, checked: true });
 
-      userEvent.click(await screen.findByRole('button', { name: 'Edit' }));
-      userEvent.click(
+      await userEvent.click(
+        await screen.findByRole('button', { name: 'Edit' })
+      );
+      await userEvent.click(
         screen.getByRole('checkbox', { name: checkboxLabel, checked: true })
       );
 
@@ -1032,7 +1037,7 @@ test.each<{
         .expectCallWith({ electionId })
         .resolves(electionRecord.systemSettings);
 
-      userEvent.click(screen.getByRole('button', { name: 'Save' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Save' }));
       await screen.findByRole('button', { name: 'Edit' });
       screen.getByRole('checkbox', { name: checkboxLabel, checked: false });
     }
@@ -1048,7 +1053,7 @@ describe('election day polls close time', () => {
     await screen.findByRole('heading', { name: 'System Settings' });
     const editButton = await screen.findByRole('button', { name: 'Edit' });
 
-    userEvent.click(editButton);
+    await userEvent.click(editButton);
 
     const disallowClosingPolls = screen.getByRole('checkbox', {
       name: 'Disallow Closing Polls Before Election Day Polls Close Time',
@@ -1080,8 +1085,8 @@ describe('election day polls close time', () => {
     await screen.findByRole('heading', { name: 'System Settings' });
     const editButton = await screen.findByRole('button', { name: 'Edit' });
 
-    userEvent.click(editButton);
-    userEvent.click(
+    await userEvent.click(editButton);
+    await userEvent.click(
       screen.getByRole('checkbox', {
         name: 'Disallow Closing Polls Before Election Day Polls Close Time',
         checked: false,
@@ -1099,7 +1104,7 @@ describe('election day polls close time', () => {
       .expectCallWith({ electionId })
       .resolves(updatedSettings);
 
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     screen.getByRole('checkbox', {
       name: 'Disallow Closing Polls Before Election Day Polls Close Time',
       checked: true,
@@ -1118,8 +1123,8 @@ describe('election day polls close time', () => {
     await screen.findByRole('heading', { name: 'System Settings' });
     const editButton = await screen.findByRole('button', { name: 'Edit' });
 
-    userEvent.click(editButton);
-    userEvent.click(
+    await userEvent.click(editButton);
+    await userEvent.click(
       screen.getByRole('checkbox', {
         name: 'Disallow VxAdmin Tabulation Before Election Day Polls Close Time',
         checked: false,
@@ -1137,7 +1142,7 @@ describe('election day polls close time', () => {
       .expectCallWith({ electionId })
       .resolves(updatedSettings);
 
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     screen.getByRole('checkbox', {
       name: 'Disallow VxAdmin Tabulation Before Election Day Polls Close Time',
       checked: true,
@@ -1162,7 +1167,7 @@ describe('election day polls close time', () => {
     expect(input).toBeDisabled();
     expect(input).toHaveValue('20:00');
 
-    userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
     const inputAfterEdit = screen.getByLabelText<HTMLInputElement>(
       'Election Day Polls Close Time'
     );
@@ -1182,7 +1187,7 @@ describe('election day polls close time', () => {
       .expectCallWith({ electionId })
       .resolves(updatedSettings);
 
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await screen.findByRole('button', { name: 'Edit' });
     expect(
       screen.getByLabelText<HTMLInputElement>('Election Day Polls Close Time')
@@ -1201,7 +1206,7 @@ describe('election day polls close time', () => {
     await screen.findByRole('heading', { name: 'System Settings' });
     const editButton = await screen.findByRole('button', { name: 'Edit' });
 
-    userEvent.click(editButton);
+    await userEvent.click(editButton);
     const input = screen.getByLabelText('Election Day Polls Close Time');
     fireEvent.change(input, { target: { value: '' } });
 
@@ -1218,7 +1223,7 @@ describe('election day polls close time', () => {
       .expectCallWith({ electionId })
       .resolves(updatedSettings);
 
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await screen.findByRole('button', { name: 'Edit' });
   });
 
@@ -1236,7 +1241,7 @@ describe('election day polls close time', () => {
     await screen.findByRole('heading', { name: 'System Settings' });
     const editButton = await screen.findByRole('button', { name: 'Edit' });
 
-    userEvent.click(editButton);
+    await userEvent.click(editButton);
 
     const disallowClosingPolls = screen.getByRole('checkbox', {
       name: 'Disallow Closing Polls Before Election Day Polls Close Time',
@@ -1268,7 +1273,7 @@ describe('election day polls close time', () => {
       .expectCallWith({ electionId })
       .resolves(updatedSettings);
 
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await screen.findByRole('button', { name: 'Edit' });
   });
 
@@ -1284,17 +1289,17 @@ describe('election day polls close time', () => {
     await screen.findByRole('heading', { name: 'System Settings' });
     const editButton = await screen.findByRole('button', { name: 'Edit' });
 
-    userEvent.click(editButton);
+    await userEvent.click(editButton);
     const input = screen.getByLabelText('Election Day Polls Close Time');
     fireEvent.change(input, { target: { value: '08:00' } });
 
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await screen.findByRole('heading', {
       name: 'Polls Close Time Is In The Morning',
     });
 
     // Cancelling dismisses the modal without saving
-    userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(
       screen.queryByRole('heading', {
         name: 'Polls Close Time Is In The Morning',
@@ -1302,7 +1307,7 @@ describe('election day polls close time', () => {
     ).not.toBeInTheDocument();
 
     // Confirming saves
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await screen.findByRole('heading', {
       name: 'Polls Close Time Is In The Morning',
     });
@@ -1318,7 +1323,7 @@ describe('election day polls close time', () => {
       .expectCallWith({ electionId })
       .resolves(updatedSettings);
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole('button', { name: 'Save', hidden: false })
     );
     await screen.findByRole('button', { name: 'Edit' });
@@ -1333,7 +1338,7 @@ test('validates streak width threshold must be less than max cumulative width', 
   await screen.findByRole('heading', { name: 'System Settings' });
   const editButton = await screen.findByRole('button', { name: 'Edit' });
 
-  userEvent.click(editButton);
+  await userEvent.click(editButton);
 
   const maxCumulativeStreakWidthInput = screen.getByRole<HTMLInputElement>(
     'spinbutton',
@@ -1349,10 +1354,10 @@ test('validates streak width threshold must be less than max cumulative width', 
   );
 
   // Set max width to 5 and retry threshold to 5 (invalid: should be less than)
-  userEvent.clear(maxCumulativeStreakWidthInput);
-  userEvent.type(maxCumulativeStreakWidthInput, '5');
-  userEvent.clear(retryStreakWidthThresholdInput);
-  userEvent.type(retryStreakWidthThresholdInput, '5');
+  await userEvent.clear(maxCumulativeStreakWidthInput);
+  await userEvent.type(maxCumulativeStreakWidthInput, '5');
+  await userEvent.clear(retryStreakWidthThresholdInput);
+  await userEvent.type(retryStreakWidthThresholdInput, '5');
 
   // The retry threshold input should have a validation error
   expect(retryStreakWidthThresholdInput.validity.valid).toEqual(false);
@@ -1361,8 +1366,8 @@ test('validates streak width threshold must be less than max cumulative width', 
   );
 
   // Fix it by making retry threshold less than max width
-  userEvent.clear(retryStreakWidthThresholdInput);
-  userEvent.type(retryStreakWidthThresholdInput, '3');
+  await userEvent.clear(retryStreakWidthThresholdInput);
+  await userEvent.type(retryStreakWidthThresholdInput, '3');
 
   // Now both inputs should be valid
   expect(maxCumulativeStreakWidthInput.validity.valid).toEqual(true);

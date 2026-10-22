@@ -1,6 +1,6 @@
 import { beforeEach, afterEach, test, expect, vi } from 'vitest';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { err, ok } from '@votingworks/basics';
 import fileDownload from 'js-file-download';
 import type {
@@ -89,13 +89,13 @@ test('convert results flow', async () => {
         ballotHash: mockBallotHash,
       })
     );
-  userEvent.upload(
+  await userEvent.upload(
     screen.getByLabelText('Upload Tally Report CSV'),
     allPrecinctsTallyReportFile
   );
 
   await screen.findByText('Results Converted');
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('button', { name: 'Download SEMS Results File' })
   );
 
@@ -132,7 +132,7 @@ test.each(Object.entries(errorMessages))(
         allPrecinctsTallyReportContents,
       })
       .resolves(err(errorCode as ErrorCode));
-    userEvent.upload(
+    await userEvent.upload(
       screen.getByLabelText('Upload Tally Report CSV'),
       allPrecinctsTallyReportFile
     );
@@ -151,7 +151,7 @@ test('shows error message on unexpected conversion error', async () => {
       allPrecinctsTallyReportContents,
     })
     .resolves(err(new Error('unexpected error')));
-  userEvent.upload(
+  await userEvent.upload(
     screen.getByLabelText('Upload Tally Report CSV'),
     allPrecinctsTallyReportFile
   );

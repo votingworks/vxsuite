@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import type { SimpleServerStatus } from '@votingworks/mark-scan-backend';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import type { DiagnosticRecord } from '@votingworks/types';
 import { render, screen } from '../../../test/react_testing_library.js';
 import {
@@ -124,7 +124,7 @@ test('success state can close the screen', async () => {
   expect(onClose).toHaveBeenCalledTimes(0);
   apiMock.setPaperHandlerState('paper_handler_diagnostic.success');
   renderScreen();
-  userEvent.click(await screen.findByText('Exit'));
+  await userEvent.click(await screen.findByText('Exit'));
 
   expect(onClose).toHaveBeenCalledTimes(1);
 });
@@ -133,7 +133,7 @@ test('failure state can close the screen', async () => {
   expect(onClose).toHaveBeenCalledTimes(0);
   apiMock.setPaperHandlerState('paper_handler_diagnostic.failure');
   renderScreen();
-  userEvent.click(await screen.findByText('Exit'));
+  await userEvent.click(await screen.findByText('Exit'));
 
   expect(onClose).toHaveBeenCalledTimes(1);
 });

@@ -6,7 +6,7 @@ import {
   LanguageSettingsScreen,
   VoterSettings,
 } from '@votingworks/ui';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen } from '../../test/react_testing_library.js';
 import { VoterScreen } from './voter_screen.js';
 import { VoterSettingsButton } from './voter_settings_button.js';
@@ -23,7 +23,7 @@ vi.mock('./voter_settings_button', async () => ({
   VoterSettingsButton: vi.fn(),
 }));
 
-test('renders language settings button/screen', () => {
+test('renders language settings button/screen', async () => {
   vi.mocked(LanguageSettingsButton).mockImplementation((props) => (
     <Button data-testid="mockLanguageSettingsButton" onPress={props.onPress} />
   ));
@@ -54,7 +54,7 @@ test('renders language settings button/screen', () => {
   // Open the language settings screen:
   //
 
-  userEvent.click(screen.getByTestId('mockLanguageSettingsButton'));
+  await userEvent.click(screen.getByTestId('mockLanguageSettingsButton'));
 
   screen.getByText('Language Settings Screen');
   expect(screen.queryByText('Some Voter Screen')).not.toBeInTheDocument();
@@ -66,7 +66,7 @@ test('renders language settings button/screen', () => {
   // Close the language settings screen:
   //
 
-  userEvent.click(screen.getByTestId('closeMockLanguageSettingsScreen'));
+  await userEvent.click(screen.getByTestId('closeMockLanguageSettingsScreen'));
 
   screen.getByText('Some Voter Screen');
   screen.getByTestId('mockLanguageSettingsButton');
@@ -75,7 +75,7 @@ test('renders language settings button/screen', () => {
   ).not.toBeInTheDocument();
 });
 
-test('renders voter settings button/screen', () => {
+test('renders voter settings button/screen', async () => {
   vi.mocked(VoterSettingsButton).mockImplementation((props) => (
     <Button data-testid="mockVoterSettingsButton" onPress={props.onPress} />
   ));
@@ -104,7 +104,7 @@ test('renders voter settings button/screen', () => {
   // Open the voter settings screen:
   //
 
-  userEvent.click(screen.getByTestId('mockVoterSettingsButton'));
+  await userEvent.click(screen.getByTestId('mockVoterSettingsButton'));
 
   screen.getByText('Voter Settings Screen');
   expect(screen.queryByText('Some Voter Screen')).not.toBeInTheDocument();
@@ -116,14 +116,14 @@ test('renders voter settings button/screen', () => {
   // Close the voter settings screen:
   //
 
-  userEvent.click(screen.getByTestId('closeMockVoterSettingsScreen'));
+  await userEvent.click(screen.getByTestId('closeMockVoterSettingsScreen'));
 
   screen.getByText('Some Voter Screen');
   screen.getByTestId('mockVoterSettingsButton');
   expect(screen.queryByText('Voter Settings Screen')).not.toBeInTheDocument();
 });
 
-test('renders voter help button if relevant input is provided', () => {
+test('renders voter help button if relevant input is provided', async () => {
   function VoterHelpScreen({ onClose }: { onClose: () => void }): JSX.Element {
     return (
       <div>
@@ -139,9 +139,9 @@ test('renders voter help button if relevant input is provided', () => {
   );
 
   screen.getByRole('heading', { name: 'Voter Screen' });
-  userEvent.click(screen.getByRole('button', { name: 'Help' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Help' }));
   screen.getByRole('heading', { name: 'Voter Help Screen' });
-  userEvent.click(screen.getByRole('button', { name: 'Close' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Close' }));
   expect(
     screen.queryByRole('heading', { name: 'Voter Help Screen' })
   ).not.toBeInTheDocument();

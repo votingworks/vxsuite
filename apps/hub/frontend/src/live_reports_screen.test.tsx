@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, vi, test } from 'vitest';
 import { createMemoryHistory } from 'history';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { cleanup, screen, waitFor } from '@testing-library/react';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -543,7 +543,7 @@ describe('Voting group cards', () => {
     await screen.findByRole('heading', { name: 'Live Reports' });
 
     // Click Election Day tab
-    userEvent.click(screen.getByRole('tab', { name: 'Election Day' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'Election Day' }));
 
     // Should see election day polling places (wait for query to update)
     await screen.findByText(`${election.precincts[0]!.name} Polling Place`);
@@ -595,7 +595,7 @@ describe('Voting group cards', () => {
     await screen.findByRole('heading', { name: 'Live Reports' });
 
     // Click Early Voting tab
-    userEvent.click(screen.getByRole('tab', { name: 'Early Voting' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'Early Voting' }));
 
     // Should see only the early voting polling place (wait for query to update)
     await screen.findByText('City Hall Early Voting');
@@ -644,7 +644,7 @@ describe('Voting group cards', () => {
     await screen.findByRole('heading', { name: 'Live Reports' });
 
     // Click Absentee tab
-    userEvent.click(screen.getByRole('tab', { name: 'Absentee Voting' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'Absentee Voting' }));
 
     // Should see only the absentee polling place (wait for query to update)
     await screen.findByText('County Clerk Absentee');
@@ -785,7 +785,7 @@ describe('Voting group cards', () => {
     await screen.findByRole('heading', { name: 'Live Reports' });
 
     // Navigate to Election Day group
-    userEvent.click(screen.getByRole('tab', { name: 'Election Day' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'Election Day' }));
     await waitFor(() => {
       expect(screen.getByTestId('polls-open-count')).toHaveTextContent('0');
     });
@@ -793,13 +793,15 @@ describe('Voting group cards', () => {
     expect(screen.getByTestId('no-reports-sent-count')).toHaveTextContent('0');
 
     // Click "All Voting Groups" tab to go back to overview
-    userEvent.click(screen.getByRole('tab', { name: 'All Voting Groups' }));
+    await userEvent.click(
+      screen.getByRole('tab', { name: 'All Voting Groups' })
+    );
     await waitFor(() => {
       expect(screen.queryByTestId('overview-card-absentee')).not.toBeNull();
     });
 
     // Navigate to Absentee
-    userEvent.click(screen.getByRole('tab', { name: 'Absentee Voting' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'Absentee Voting' }));
     await waitFor(() => {
       expect(screen.queryByTestId('polls-open-count')).toBeNull();
     });
@@ -859,20 +861,22 @@ describe('Voting group cards', () => {
     screen.getByText(/VxScan-001: Polls Closed/);
 
     // Navigate to Election Day group — only election day entries
-    userEvent.click(screen.getByRole('tab', { name: 'Election Day' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'Election Day' }));
     await waitFor(() => {
       expect(screen.queryByText(/VxAdmin-001: Polls Closed/)).toBeNull();
     });
     screen.getByText(/VxScan-001: Polls Closed/);
 
     // Click "All Voting Groups" tab to go back to overview
-    userEvent.click(screen.getByRole('tab', { name: 'All Voting Groups' }));
+    await userEvent.click(
+      screen.getByRole('tab', { name: 'All Voting Groups' })
+    );
     await waitFor(() => {
       expect(screen.queryByTestId('overview-card-absentee')).not.toBeNull();
     });
 
     // Navigate to Absentee — only absentee entries
-    userEvent.click(screen.getByRole('tab', { name: 'Absentee Voting' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'Absentee Voting' }));
     await waitFor(() => {
       expect(screen.queryByText(/VxScan-001: Polls Closed/)).toBeNull();
     });
@@ -1215,7 +1219,7 @@ describe('Results navigation and display', () => {
     const viewTallyReportsLink = screen.getByRole('button', {
       name: 'View Tally Reports',
     });
-    userEvent.click(viewTallyReportsLink);
+    await userEvent.click(viewTallyReportsLink);
 
     // Wait for the results page to load
     await screen.findAllByText(/Unofficial.*Tally Report/);
@@ -1237,11 +1241,11 @@ describe('Results navigation and display', () => {
     const precinctSelect = screen.getByRole('combobox', {
       name: 'Select precinct',
     });
-    userEvent.click(precinctSelect);
+    await userEvent.click(precinctSelect);
     const option = await screen.findByRole('option', {
       name: election.precincts[0]!.name,
     });
-    userEvent.click(option);
+    await userEvent.click(option);
 
     // At least some contests should be rendered for this precinct
     await waitFor(() => {
@@ -1316,7 +1320,7 @@ describe('Results navigation and display', () => {
       .resolves(ok(mockAllPrecinctsResults));
 
     // Click the view tally reports link - this should trigger navigation and API call
-    userEvent.click(viewFullReportButton);
+    await userEvent.click(viewFullReportButton);
 
     // Wait for the API call to be made, confirming navigation attempt worked
     await screen.findAllByText('Unofficial Tally Report');
@@ -1399,7 +1403,7 @@ describe('Results navigation and display', () => {
       .resolves(ok(mockAllPrecinctsResults));
 
     // Click the view tally reports link - this should trigger navigation and API call
-    userEvent.click(viewFullReportButton);
+    await userEvent.click(viewFullReportButton);
 
     // Wait for the API call to be made, confirming navigation attempt worked
     await screen.findAllByText('Unofficial Tally Report');
@@ -1485,7 +1489,7 @@ describe('Results navigation and display', () => {
     const viewTallyReportsLink = screen.getByRole('button', {
       name: 'View Tally Reports',
     });
-    userEvent.click(viewTallyReportsLink);
+    await userEvent.click(viewTallyReportsLink);
 
     // Wait for the results page to load
     await screen.findAllByText('Unofficial Tally Report');
@@ -1507,11 +1511,11 @@ describe('Results navigation and display', () => {
     const precinctSelect = screen.getByRole('combobox', {
       name: 'Select precinct',
     });
-    userEvent.click(precinctSelect);
+    await userEvent.click(precinctSelect);
     const option = await screen.findByRole('option', {
       name: primaryElection.precincts[0]!.name,
     });
-    userEvent.click(option);
+    await userEvent.click(option);
 
     // In a primary election, show party headers
     // At least some contests and party headers should be rendered
@@ -1566,7 +1570,7 @@ describe('Results navigation and display', () => {
     expect(deleteButton).toBeEnabled();
 
     // Click the delete button to open the modal
-    userEvent.click(deleteButton);
+    await userEvent.click(deleteButton);
 
     // Should see the confirmation modal
     await screen.findByRole('heading', { name: 'Delete All Reports' });
@@ -1575,7 +1579,7 @@ describe('Results navigation and display', () => {
     );
 
     const closeButton = screen.getByRole('button', { name: /cancel/i });
-    userEvent.click(closeButton);
+    await userEvent.click(closeButton);
 
     // Modal should close after clicking cancel
     await waitFor(() => {
@@ -1585,7 +1589,7 @@ describe('Results navigation and display', () => {
     });
 
     // Reopen the modal
-    userEvent.click(deleteButton);
+    await userEvent.click(deleteButton);
 
     await screen.findByRole('heading', { name: 'Delete All Reports' });
 
@@ -1598,7 +1602,7 @@ describe('Results navigation and display', () => {
     const confirmDeleteButton = screen.getByTestId(
       'confirm-delete-data-button'
     );
-    userEvent.click(confirmDeleteButton);
+    await userEvent.click(confirmDeleteButton);
 
     // Modal should close after the deletion
     await waitFor(() => {
@@ -1740,7 +1744,9 @@ describe('Edge cases', () => {
         precinctSelection: ALL_PRECINCTS_SELECTION,
       })
       .resolves(ok(allPrecinctsResults));
-    userEvent.click(screen.getByRole('button', { name: 'View Tally Reports' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'View Tally Reports' })
+    );
     await screen.findAllByText(/Unofficial.*Tally Report/);
 
     // Select a single precinct
@@ -1756,8 +1762,8 @@ describe('Edge cases', () => {
     const precinctSelect = screen.getByRole('combobox', {
       name: 'Select precinct',
     });
-    userEvent.click(precinctSelect);
-    userEvent.click(
+    await userEvent.click(precinctSelect);
+    await userEvent.click(
       await screen.findByRole('option', {
         name: election.precincts[0]!.name,
       })
@@ -1773,8 +1779,10 @@ describe('Edge cases', () => {
         precinctSelection: ALL_PRECINCTS_SELECTION,
       })
       .resolves(ok(allPrecinctsResults));
-    userEvent.click(screen.getByRole('combobox', { name: 'Select precinct' }));
-    userEvent.click(
+    await userEvent.click(
+      screen.getByRole('combobox', { name: 'Select precinct' })
+    );
+    await userEvent.click(
       await screen.findByRole('option', { name: 'All Precincts' })
     );
     await waitFor(() => {
@@ -1811,7 +1819,9 @@ describe('Edge cases', () => {
       })
       .resolves(err('election-out-of-date'));
 
-    userEvent.click(screen.getByRole('button', { name: 'View Tally Reports' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'View Tally Reports' })
+    );
 
     await screen.findByText(
       /This election is no longer compatible with Live Reports/
@@ -1853,7 +1863,9 @@ describe('Edge cases', () => {
       })
       .resolves(ok(emptyResults));
 
-    userEvent.click(screen.getByRole('button', { name: 'View Tally Reports' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'View Tally Reports' })
+    );
 
     await screen.findByText('No results reported.');
   });

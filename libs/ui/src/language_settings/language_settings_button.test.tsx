@@ -61,7 +61,7 @@ test('fires onPress event', async () => {
   render(<LanguageSettingsButton onPress={onPress} />);
   expect(onPress).not.toHaveBeenCalled();
 
-  userEvent.click(await screen.findButton(/English/));
+  await userEvent.click(await screen.findButton(/English/));
   expect(onPress).toHaveBeenCalledTimes(1);
 });
 

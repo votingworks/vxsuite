@@ -6,7 +6,7 @@ import type {
 import { expect, test, beforeEach, afterEach, vi, type Mock } from 'vitest';
 import type { ComponentProps } from 'react';
 import { electionMultiPartyPrimaryFixtures } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { type ApiMock, createApiMock } from '../test/mock_api_client.js';
 import { renderInAppContext } from '../test/render_in_app_context.js';
 import { SelectPartyScreen } from './select_party_screen.js';
@@ -89,12 +89,12 @@ const parties = [
 test.each(parties)('can select $label party', async ({ party, label }) => {
   await renderComponent();
 
-  userEvent.click(screen.getButton(label));
+  await userEvent.click(screen.getButton(label));
 
   const confirmButton = screen.getButton('Confirm Check-In');
   await vi.waitFor(() => expect(confirmButton).not.toBeDisabled());
 
-  userEvent.click(confirmButton);
+  await userEvent.click(confirmButton);
 
   expect(onConfirmCheckIn).toHaveBeenCalledOnce();
   expect(onConfirmCheckIn).toHaveBeenLastCalledWith(
@@ -114,7 +114,7 @@ test.each(parties)(
     // more idiomatic to use a styled radio input for this component but
     // `Button` gives us the styles we want out of the box.
     expect(firstPartyButton).toHaveStyle('background-color: transparent');
-    userEvent.click(firstPartyButton);
+    await userEvent.click(firstPartyButton);
     // After selection, the button's background should be filled, not transparent
     await vi.waitFor(() =>
       expect(firstPartyButton).not.toHaveStyle('background-color: transparent')
@@ -122,7 +122,7 @@ test.each(parties)(
 
     const secondPartyButton = screen.getButton(label);
     expect(secondPartyButton).toHaveStyle('background-color: transparent');
-    userEvent.click(secondPartyButton);
+    await userEvent.click(secondPartyButton);
     await vi.waitFor(() =>
       expect(secondPartyButton).not.toHaveStyle('background-color: transparent')
     );
@@ -130,7 +130,7 @@ test.each(parties)(
     const confirmButton = screen.getButton('Confirm Check-In');
     await vi.waitFor(() => expect(confirmButton).not.toBeDisabled());
 
-    userEvent.click(confirmButton);
+    await userEvent.click(confirmButton);
 
     expect(onConfirmCheckIn).toHaveBeenCalledOnce();
     expect(onConfirmCheckIn).toHaveBeenLastCalledWith(
@@ -144,6 +144,6 @@ test.each(parties)(
 test('onBack is called when "Back" is clicked', async () => {
   await renderComponent();
 
-  userEvent.click(screen.getButton('Back'));
+  await userEvent.click(screen.getButton('Back'));
   expect(onBack).toHaveBeenCalledOnce();
 });

@@ -1,5 +1,5 @@
 import { test, beforeEach, afterEach, expect } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import type { ElectionListing } from '@votingworks/hub-backend';
 import { createMemoryHistory } from 'history';
 import { useState } from 'react';
@@ -111,7 +111,7 @@ test('lists elections', async () => {
   expect(filterInput).toHaveFocus();
 
   // Search for general election title
-  userEvent.type(filterInput, general.election.title);
+  await userEvent.type(filterInput, general.election.title);
 
   let filteredRows = within(table).getAllByRole('row').slice(1);
   expect(filteredRows).toHaveLength(1);
@@ -120,13 +120,13 @@ test('lists elections', async () => {
   ).toBeInTheDocument();
 
   // Search for non-existent jurisdiction
-  userEvent.clear(filterInput);
-  userEvent.type(filterInput, 'jurisdiction0');
+  await userEvent.clear(filterInput);
+  await userEvent.type(filterInput, 'jurisdiction0');
   filteredRows = within(table).getAllByRole('row').slice(1);
   expect(filteredRows).toHaveLength(0);
 
   // Clear search to show all rows again
-  userEvent.click(
+  await userEvent.click(
     within(filterInput.parentElement!).getByRole('button', { name: /Clear/ })
   );
   expect(filterInput).toHaveFocus();
@@ -140,7 +140,7 @@ test('lists elections', async () => {
     within(rows[1]!).getByText(primary.election.title)
   ).toBeInTheDocument();
 
-  userEvent.click(within(rows[0]!).getAllByRole('cell')[0]!);
+  await userEvent.click(within(rows[0]!).getAllByRole('cell')[0]!);
   await waitFor(() => {
     expect(history.location.pathname).toEqual(
       `/elections/${general.election.id}`
@@ -208,7 +208,7 @@ test('sort elections by status and jurisdiction', async () => {
 
   // Test sorting by Status (ascending)
   const statusHeader = within(table).getByRole('button', { name: /status/i });
-  userEvent.click(statusHeader);
+  await userEvent.click(statusHeader);
 
   // Ascending alphabetical order
   expect(columnValues(0)).toEqual([
@@ -219,7 +219,7 @@ test('sort elections by status and jurisdiction', async () => {
   ]);
 
   // Test sorting by Status (descending)
-  userEvent.click(statusHeader);
+  await userEvent.click(statusHeader);
 
   // Reverse order
   expect(columnValues(0)).toEqual([
@@ -230,7 +230,7 @@ test('sort elections by status and jurisdiction', async () => {
   ]);
 
   // Test sorting by Status (third click - unsorted, back to original order)
-  userEvent.click(statusHeader);
+  await userEvent.click(statusHeader);
 
   // Back to original order
   expect(columnValues(0)).toEqual([
@@ -244,7 +244,7 @@ test('sort elections by status and jurisdiction', async () => {
   const jurisdictionHeader = within(table).getByRole('button', {
     name: /jurisdiction/i,
   });
-  userEvent.click(jurisdictionHeader);
+  await userEvent.click(jurisdictionHeader);
 
   // Alpha Jurisdiction, VotingWorks, Zeta Jurisdiction (alphabetical)
   expect(columnValues(1)).toEqual([
@@ -255,7 +255,7 @@ test('sort elections by status and jurisdiction', async () => {
   ]);
 
   // Test sorting by Jurisdiction (descending)
-  userEvent.click(jurisdictionHeader);
+  await userEvent.click(jurisdictionHeader);
   expect(columnValues(1)).toEqual([
     'Zeta Jurisdiction',
     'VotingWorks',
@@ -264,7 +264,7 @@ test('sort elections by status and jurisdiction', async () => {
   ]);
 
   // Test sorting by Jurisdiction (third click - unsorted, back to original order)
-  userEvent.click(jurisdictionHeader);
+  await userEvent.click(jurisdictionHeader);
   // Back to original order
   expect(columnValues(1)).toEqual([
     'Alpha Jurisdiction',

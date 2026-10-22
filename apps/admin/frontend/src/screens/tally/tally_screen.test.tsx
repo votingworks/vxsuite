@@ -4,7 +4,7 @@ import {
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { assertDefined } from '@votingworks/basics';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { screen, waitFor } from '../../../test/react_testing_library.js';
@@ -95,7 +95,7 @@ test('has tabs for CVRs and Manual Tallies', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetManualResultsMetadata([]);
 
-  userEvent.click(screen.getByRole('tab', { name: 'Manual Tallies' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'Manual Tallies' }));
   await screen.findByText('No manual tallies entered.');
 });
 

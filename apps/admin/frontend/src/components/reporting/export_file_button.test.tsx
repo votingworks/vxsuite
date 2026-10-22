@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { ExportDataResult } from '@votingworks/admin-backend';
 import { ok } from '@votingworks/basics';
@@ -91,7 +91,7 @@ test('overall flow', async () => {
   });
 
   const button = await screen.findButton('Export Me!');
-  userEvent.click(button);
+  await userEvent.click(button);
   const modal = await screen.findByRole('alertdialog');
   await within(modal).findByText('Save Title Case File Label');
   const expectedFileName =
@@ -112,12 +112,12 @@ test('overall flow', async () => {
     )
   );
 
-  userEvent.click(within(modal).getButton('Save'));
+  await userEvent.click(within(modal).getButton('Save'));
   await screen.findByText('Title Case File Label Saved');
   screen.getByText(
     'Sentence case file label successfully saved to the inserted USB drive.'
   );
-  userEvent.click(within(modal).getButton('Close'));
+  await userEvent.click(within(modal).getButton('Close'));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
   expect(vitestMockMutate).toHaveBeenCalledTimes(1);
@@ -127,14 +127,14 @@ test('overall flow', async () => {
   });
 
   // confirm that, upon re-opening the modal, its state has reset
-  userEvent.click(screen.getButton('Export Me!'));
+  await userEvent.click(screen.getButton('Export Me!'));
   const newModal = await screen.findByRole('alertdialog');
   within(newModal).getByText('Save Title Case File Label');
   // timestamp is now different, reflecting when we re-opened the modal
   within(newModal).getByText(
     'unofficial-full-election-success__2021-01-01_00-00-10.txt'
   );
-  userEvent.click(within(modal).getButton('Close'));
+  await userEvent.click(within(modal).getButton('Close'));
 
   expect(vitestMockMutate).toHaveBeenCalledTimes(1);
 });

@@ -5,7 +5,7 @@ import {
   asElectionDefinition,
   readElectionStraightParty,
 } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen, within } from '../test/react_testing_library.js';
 import { App } from './app.js';
@@ -53,26 +53,26 @@ test('voting and changing a straight party contest', async () => {
     ballotStyleId: '12',
     precinctId: precinctId!,
   });
-  userEvent.click(await screen.findByText('Start Voting'));
+  await userEvent.click(await screen.findByText('Start Voting'));
   await advanceTimersAndPromises();
   screen.getByRole('heading', { name: 'Straight Party' });
 
   // Select a party
-  userEvent.click(screen.getByText('Federalist Party'));
+  await userEvent.click(screen.getByText('Federalist Party'));
   await advanceTimersAndPromises();
   screen.getByRole('option', { name: /Federalist Party/, selected: true });
 
   // Selecting a different party is blocked until the first is deselected
-  userEvent.click(screen.getByText('Liberty Party'));
+  await userEvent.click(screen.getByText('Liberty Party'));
   await advanceTimersAndPromises();
   within(screen.getByRole('alertdialog')).getByText(/first deselect/i);
-  userEvent.click(screen.getByText('Continue'));
+  await userEvent.click(screen.getByText('Continue'));
   await advanceTimersAndPromises();
   screen.getByRole('option', { name: /Liberty Party/, selected: false });
 
   // Advancing to the first candidate contest shows the party's candidate as a
   // derived selection that fills the single seat.
-  userEvent.click(screen.getByText('Next'));
+  await userEvent.click(screen.getByText('Next'));
   await advanceTimersAndPromises();
   screen.getByRole('heading', { name: /President/i });
   const candidateButton = screen
@@ -85,23 +85,23 @@ test('voting and changing a straight party contest', async () => {
   );
 
   // Going back to the straight party contest, the selection persists.
-  userEvent.click(screen.getByText('Back'));
+  await userEvent.click(screen.getByText('Back'));
   await advanceTimersAndPromises();
   screen.getByRole('heading', { name: 'Straight Party' });
 
   // Deselecting the party clears the selection
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('option', { name: /Federalist Party/, selected: true })
   );
   await advanceTimersAndPromises();
   screen.getByRole('option', { name: /Federalist Party/, selected: false });
 
   // Selecting a different party changes which candidate is derived
-  userEvent.click(screen.getByText('Liberty Party'));
+  await userEvent.click(screen.getByText('Liberty Party'));
   await advanceTimersAndPromises();
   screen.getByRole('option', { name: /Liberty Party/, selected: true });
 
-  userEvent.click(screen.getByText('Next'));
+  await userEvent.click(screen.getByText('Next'));
   await advanceTimersAndPromises();
   screen.getByRole('heading', { name: /President/i });
   expect(

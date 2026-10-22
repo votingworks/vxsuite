@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
 import { render as renderWithBallotContext } from '../../test/test_utils.js';
@@ -37,7 +37,7 @@ test('calls invalidateBallot if voter indicates their ballot is incorrect', asyn
 
   await screen.findByText('Review Your Votes');
   apiMock.expectGetInterpretation(mockInterpretation);
-  userEvent.click(screen.getByText('My Ballot is Incorrect'));
+  await userEvent.click(screen.getByText('My Ballot is Incorrect'));
   await vi.waitFor(() => {
     apiMock.mockApiClient.assertComplete();
   });

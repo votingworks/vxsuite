@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   type ElectionSerializationFormat,
@@ -112,7 +112,7 @@ async function exportAndVerifyTestDecks(
     task: testDecksTask,
   });
 
-  userEvent.click(screen.getButton('Export Test Decks'));
+  await userEvent.click(screen.getButton('Export Test Decks'));
   await screen.findByText('Exporting Test Decks');
   screen.getByText('Starting');
   expect(screen.getByRole('progressbar').firstChild).toHaveStyle({
@@ -208,7 +208,9 @@ test('export election package and ballots', async () => {
   apiMock.getElectionPackage.expectCallWith({ electionId }).resolves({
     task: electionPackageTask,
   });
-  userEvent.click(screen.getButton('Export Election Package and Ballots'));
+  await userEvent.click(
+    screen.getButton('Export Election Package and Ballots')
+  );
 
   await screen.findByText('Exporting Election Package and Ballots');
   expect(
@@ -252,7 +254,7 @@ test('with audio export checked', async () => {
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('checkbox', {
       name: 'Include audio',
       checked: false,
@@ -282,7 +284,9 @@ test('with audio export checked', async () => {
       taskName: 'generate_election_package',
     },
   });
-  userEvent.click(screen.getButton('Export Election Package and Ballots'));
+  await userEvent.click(
+    screen.getButton('Export Election Package and Ballots')
+  );
 
   await screen.findByText('Exporting Election Package and Ballots');
   // 'export election package and ballots' fully covers export flow
@@ -311,7 +315,9 @@ test('export election package error handling', async () => {
       taskName: 'generate_election_package',
     },
   });
-  userEvent.click(screen.getButton('Export Election Package and Ballots'));
+  await userEvent.click(
+    screen.getButton('Export Election Package and Ballots')
+  );
 
   await screen.findByText('Exporting Election Package and Ballots');
   expect(
@@ -347,7 +353,7 @@ test('with sample ballots export checked', async () => {
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('checkbox', {
       name: 'Include sample ballots',
       checked: false,
@@ -377,7 +383,9 @@ test('with sample ballots export checked', async () => {
       taskName: 'generate_election_package',
     },
   });
-  userEvent.click(screen.getButton('Export Election Package and Ballots'));
+  await userEvent.click(
+    screen.getButton('Export Election Package and Ballots')
+  );
 
   await screen.findByText('Exporting Election Package and Ballots');
   // 'export election package and ballots' fully covers export flow
@@ -387,7 +395,7 @@ test('with test ballots export checked', async () => {
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('checkbox', {
       name: 'Include test ballots',
       checked: false,
@@ -416,7 +424,9 @@ test('with test ballots export checked', async () => {
       taskName: 'generate_election_package',
     },
   });
-  userEvent.click(screen.getButton('Export Election Package and Ballots'));
+  await userEvent.click(
+    screen.getButton('Export Election Package and Ballots')
+  );
 });
 
 test('using CDF', async () => {
@@ -425,7 +435,7 @@ test('using CDF', async () => {
   renderScreen();
   await screen.findAllByRole('heading', { name: 'Export' });
 
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('checkbox', {
       name: 'Format election using CDF',
       checked: false,
@@ -460,9 +470,11 @@ test('using CDF', async () => {
       taskName: 'generate_election_package',
     },
   });
-  userEvent.click(screen.getButton('Export Election Package and Ballots'));
+  await userEvent.click(
+    screen.getButton('Export Election Package and Ballots')
+  );
 
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('checkbox', {
       name: 'Format election using CDF',
       checked: true,
@@ -501,13 +513,15 @@ test('export ballots with audit ballot IDs', async () => {
     'Number of Audit IDs to Generate'
   );
   expect(numAuditIdBallotsInput).toBeDisabled();
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('checkbox', { name: 'Generate audit IDs for ballots' })
   );
   expect(numAuditIdBallotsInput).toBeEnabled();
   expect(numAuditIdBallotsInput).toHaveValue(1);
-  userEvent.type(numAuditIdBallotsInput, '0'); // Add 0 after 1 to make it 10
-  userEvent.click(screen.getButton('Export Election Package and Ballots'));
+  await userEvent.type(numAuditIdBallotsInput, '0'); // Add 0 after 1 to make it 10
+  await userEvent.click(
+    screen.getButton('Export Election Package and Ballots')
+  );
 
   await screen.findByText('Exporting Election Package and Ballots');
 });
@@ -525,13 +539,13 @@ test('decrypt ballot audit IDs in CVRs', async () => {
   expect(cvrZipInput).toBeDisabled();
 
   const secretKey = 'test-secret-key';
-  userEvent.type(secretKeyInput, secretKey);
+  await userEvent.type(secretKeyInput, secretKey);
   expect(cvrZipInput).toBeEnabled();
   const cvrZipFileContents = Buffer.from('test cvr zip file contents');
   apiMock.decryptCvrBallotAuditIds
     .expectCallWith({ secretKey, cvrZipFileContents })
     .resolves(Buffer.from('decrypted cvr zip file contents'));
-  userEvent.upload(
+  await userEvent.upload(
     cvrZipInput,
     new File([cvrZipFileContents], 'cvr-export.zip', {
       type: 'application/zip',
@@ -576,8 +590,8 @@ test('set ballot template', async () => {
     })
     .resolves();
   apiMock.getBallotTemplate.expectCallWith({ electionId }).resolves('NhBallot');
-  userEvent.click(select);
-  userEvent.click(screen.getByText('New Hampshire Local Ballot'));
+  await userEvent.click(select);
+  await userEvent.click(screen.getByText('New Hampshire Local Ballot'));
 
   await waitFor(() => {
     apiMock.assertComplete();

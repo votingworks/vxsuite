@@ -9,7 +9,7 @@ import {
   asElectionDefinition,
   readElectionGeneral,
 } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library.js';
 import { App } from './app.js';
 
@@ -72,7 +72,7 @@ test('Single Seat Contest', async () => {
   });
 
   // Go to First Contest
-  userEvent.click(await screen.findByText('Start Voting'));
+  await userEvent.click(await screen.findByText('Start Voting'));
 
   // ====================== END CONTEST SETUP ====================== //
 

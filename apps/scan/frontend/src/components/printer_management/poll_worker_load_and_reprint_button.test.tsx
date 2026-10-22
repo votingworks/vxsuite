@@ -1,5 +1,5 @@
 import { beforeEach, afterEach, vi, test, expect } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   type ApiMock,
   createApiMock,
@@ -46,7 +46,7 @@ test('with paper loaded, simply a reprint button', async () => {
   const reprint = vi.fn();
   renderButton({ reprint });
 
-  userEvent.click(await screen.findButton('Reprint'));
+  await userEvent.click(await screen.findButton('Reprint'));
 
   expect(reprint).toHaveBeenCalled();
 });
@@ -84,7 +84,7 @@ test('happy path (if loading paper)', async () => {
   apiMock.setPrinterStatus({ state: 'no-paper' });
   renderButton();
 
-  userEvent.click(await screen.findButton('Load Paper'));
+  await userEvent.click(await screen.findButton('Load Paper'));
   await screen.findByRole('alertdialog');
   screen.getByText('Remove Paper Roll Holder');
 
@@ -94,7 +94,7 @@ test('happy path (if loading paper)', async () => {
   apiMock.setPrinterStatus({ state: 'idle' });
   await screen.findByText('Paper Detected');
 
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
@@ -106,7 +106,7 @@ test('error or user error during loading flow', async () => {
   apiMock.setPrinterStatus({ state: 'no-paper' });
   renderButton();
 
-  userEvent.click(await screen.findButton('Load Paper'));
+  await userEvent.click(await screen.findButton('Load Paper'));
   await screen.findByRole('alertdialog');
   screen.getByText('Remove Paper Roll Holder');
   await screen.findByRole('alertdialog');
@@ -120,18 +120,18 @@ test('error or user error during loading flow', async () => {
   apiMock.setPrinterStatus({ state: 'error', type: 'disconnected' });
   await screen.findByText('Printer Error');
 
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
 });
 
 test('cancel loading flow', async () => {
   apiMock.setPrinterStatus({ state: 'no-paper' });
   renderButton();
 
-  userEvent.click(await screen.findButton('Load Paper'));
+  await userEvent.click(await screen.findButton('Load Paper'));
   await screen.findByRole('alertdialog');
   screen.getByText('Remove Paper Roll Holder');
 
-  userEvent.click(screen.getButton('Cancel'));
+  await userEvent.click(screen.getButton('Cancel'));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });

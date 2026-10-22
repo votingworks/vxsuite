@@ -54,7 +54,7 @@ test('button is enabled when printer is connected', async () => {
 test('shows printing modal when starting print', async () => {
   renderButton();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Print Test Page' })
   );
 
@@ -65,7 +65,7 @@ test('shows printing modal when starting print', async () => {
 test('shows verification modal after print delay', async () => {
   renderButton();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Print Test Page' })
   );
 
@@ -84,7 +84,7 @@ test('shows verification modal after print delay', async () => {
 test('confirm button is disabled until outcome is selected', async () => {
   renderButton();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Print Test Page' })
   );
 
@@ -94,7 +94,7 @@ test('confirm button is disabled until outcome is selected', async () => {
   const confirmButton = screen.getByRole('button', { name: 'Confirm' });
   expect(confirmButton).toBeDisabled();
 
-  userEvent.click(screen.getByText('Pass'));
+  await userEvent.click(screen.getByText('Pass'));
   await waitFor(() => {
     expect(confirmButton).not.toBeDisabled();
   });
@@ -103,15 +103,15 @@ test('confirm button is disabled until outcome is selected', async () => {
 test('selecting pass and confirming logs pass outcome', async () => {
   renderButton();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Print Test Page' })
   );
 
   vi.advanceTimersByTime(TEST_PAGE_PRINT_DELAY_SECONDS * 1000 + 100);
 
   await screen.findByText('Test Page Printed');
-  userEvent.click(screen.getByText('Pass'));
-  userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+  await userEvent.click(screen.getByText('Pass'));
+  await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
   await waitFor(() => {
     expect(screen.queryByText('Test Page Printed')).not.toBeInTheDocument();
@@ -122,15 +122,15 @@ test('selecting pass and confirming logs pass outcome', async () => {
 test('selecting fail and confirming logs fail outcome and shows failure modal', async () => {
   renderButton();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Print Test Page' })
   );
 
   vi.advanceTimersByTime(TEST_PAGE_PRINT_DELAY_SECONDS * 1000 + 100);
 
   await screen.findByText('Test Page Printed');
-  userEvent.click(screen.getByText('Fail'));
-  userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+  await userEvent.click(screen.getByText('Fail'));
+  await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
   await screen.findByText('Test Print Failed');
   screen.getByText(
@@ -143,18 +143,18 @@ test('selecting fail and confirming logs fail outcome and shows failure modal', 
 test('closing failure modal returns to initial state', async () => {
   renderButton();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Print Test Page' })
   );
 
   vi.advanceTimersByTime(TEST_PAGE_PRINT_DELAY_SECONDS * 1000 + 100);
 
   await screen.findByText('Test Page Printed');
-  userEvent.click(screen.getByText('Fail'));
-  userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+  await userEvent.click(screen.getByText('Fail'));
+  await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
   await screen.findByText('Test Print Failed');
-  userEvent.click(screen.getByRole('button', { name: 'Close' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Close' }));
 
   await waitFor(() => {
     expect(screen.queryByText('Test Print Failed')).not.toBeInTheDocument();
@@ -165,14 +165,14 @@ test('closing failure modal returns to initial state', async () => {
 test('canceling verification modal returns to initial state', async () => {
   renderButton();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Print Test Page' })
   );
 
   vi.advanceTimersByTime(TEST_PAGE_PRINT_DELAY_SECONDS * 1000 + 100);
 
   await screen.findByText('Test Page Printed');
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
   await waitFor(() => {
     expect(screen.queryByText('Test Page Printed')).not.toBeInTheDocument();

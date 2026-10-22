@@ -1,5 +1,5 @@
 import { test, beforeEach, afterEach, vi, expect } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import type { Anomaly } from '@votingworks/pollbook-backend';
 import { screen, waitFor } from '../test/react_testing_library.js';
 import {
@@ -135,7 +135,7 @@ test('clicking Acknowledge button dismisses the anomaly', async () => {
   const acknowledgeButton = screen.getByRole('button', { name: 'Dismiss' });
   expect(acknowledgeButton).toBeInTheDocument();
 
-  userEvent.click(acknowledgeButton);
+  await userEvent.click(acknowledgeButton);
 
   // Wait for the mutation to be called
   await waitFor(() => {
@@ -236,7 +236,7 @@ test('clicking Dismiss button dismisses InvalidRegistrationCheckIn anomaly', asy
   const dismissButton = screen.getByRole('button', { name: 'Dismiss' });
   expect(dismissButton).toBeInTheDocument();
 
-  userEvent.click(dismissButton);
+  await userEvent.click(dismissButton);
 
   // Wait for the mutation to be called
   await waitFor(() => {

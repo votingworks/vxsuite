@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
@@ -58,7 +58,7 @@ test('print report', async () => {
   await screen.findByText('Mock Voter Turnout Report');
 
   apiMock.apiClient.printVoterTurnoutReport.expectCallWith().resolves();
-  userEvent.click(screen.getButton('Print Report'));
+  await userEvent.click(screen.getButton('Print Report'));
   await vi.runOnlyPendingTimersAsync();
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 });
@@ -82,11 +82,11 @@ test('export report PDF', async () => {
         'unofficial-full-election-voter-turnout-report__2021-01-01_00-00-00.pdf',
     })
     .resolves(ok([]));
-  userEvent.click(screen.getButton('Export Report PDF'));
+  await userEvent.click(screen.getButton('Export Report PDF'));
   const exportModal = await screen.findByRole('alertdialog');
-  userEvent.click(within(exportModal).getButton('Save'));
+  await userEvent.click(within(exportModal).getButton('Save'));
   await screen.findByText('Voter Turnout Report Saved');
-  userEvent.click(within(exportModal).getButton('Close'));
+  await userEvent.click(within(exportModal).getButton('Close'));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 });
 

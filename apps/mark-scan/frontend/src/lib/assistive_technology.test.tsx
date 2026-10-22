@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { Keybinding } from '@votingworks/ui';
 import { simulateKeyPress } from '@votingworks/ui/test-utils';
 import { render, screen, waitFor } from '../../test/react_testing_library.js';
@@ -63,7 +63,7 @@ test('accessible controller handling works', async () => {
   await screen.findByText('Start Voting');
   screen.getByText(/Center Springfield/);
   // Go to First Contest
-  simulateKeyPress(Keybinding.PAGE_NEXT);
+  await simulateKeyPress(Keybinding.PAGE_NEXT);
   await screen.findByText(contest0.title);
   // Confirm first contest only has 1 seat
   expect(contest0.seats).toEqual(1);
@@ -71,63 +71,63 @@ test('accessible controller handling works', async () => {
   // Test navigation by accessible controller keyboard event interface. The
   // first focusable element is the contest metadata, which voters can navigate
   // to in order to replay the contest information audio.
-  simulateKeyPress(Keybinding.FOCUS_NEXT);
+  await simulateKeyPress(Keybinding.FOCUS_NEXT);
   expect(getActiveElement()).toHaveTextContent(contest0.title);
-  simulateKeyPress(Keybinding.FOCUS_NEXT);
+  await simulateKeyPress(Keybinding.FOCUS_NEXT);
   expect(getActiveElement()).toHaveTextContent(contest0candidate0!.name);
-  simulateKeyPress(Keybinding.FOCUS_NEXT);
+  await simulateKeyPress(Keybinding.FOCUS_NEXT);
   expect(getActiveElement()).toHaveTextContent(contest0candidate1!.name);
-  simulateKeyPress(Keybinding.FOCUS_PREVIOUS);
+  await simulateKeyPress(Keybinding.FOCUS_PREVIOUS);
   expect(getActiveElement()).toHaveTextContent(contest0candidate0!.name);
 
   // test the edge case of rolling over
-  await waitFor(() => {
-    simulateKeyPress(Keybinding.FOCUS_PREVIOUS);
+  await waitFor(async () => {
+    await simulateKeyPress(Keybinding.FOCUS_PREVIOUS);
     expect(getActiveElement()).toHaveTextContent(contest0candidate1!.name);
   });
-  await waitFor(() => {
-    simulateKeyPress(Keybinding.FOCUS_NEXT);
+  await waitFor(async () => {
+    await simulateKeyPress(Keybinding.FOCUS_NEXT);
     expect(getActiveElement()).toHaveTextContent(contest0candidate0!.name);
   });
 
-  simulateKeyPress(Keybinding.PAGE_NEXT);
+  await simulateKeyPress(Keybinding.PAGE_NEXT);
   await advanceTimersAndPromises();
   // Go up first without focus, then down once, should be same as down once:
   // both land on the contest metadata (the first focusable element).
-  simulateKeyPress(Keybinding.FOCUS_PREVIOUS);
-  simulateKeyPress(Keybinding.FOCUS_NEXT);
+  await simulateKeyPress(Keybinding.FOCUS_PREVIOUS);
+  await simulateKeyPress(Keybinding.FOCUS_NEXT);
   expect(getActiveElement()).toHaveTextContent(contest1.title);
   // Navigating down once more reaches the first contest option.
-  simulateKeyPress(Keybinding.FOCUS_NEXT);
+  await simulateKeyPress(Keybinding.FOCUS_NEXT);
   expect(getActiveElement()).toHaveTextContent(contest1candidate0!.name);
-  simulateKeyPress(Keybinding.PAGE_PREVIOUS);
+  await simulateKeyPress(Keybinding.PAGE_PREVIOUS);
   await advanceTimersAndPromises();
 
   // Get focus again, past the contest metadata, onto the first option.
-  simulateKeyPress(Keybinding.FOCUS_NEXT);
+  await simulateKeyPress(Keybinding.FOCUS_NEXT);
   expect(getActiveElement()).toHaveTextContent(contest0.title);
-  simulateKeyPress(Keybinding.FOCUS_NEXT);
+  await simulateKeyPress(Keybinding.FOCUS_NEXT);
   expect(getActiveElement()).toHaveTextContent(contest0candidate0!.name);
 
   // select candidate
-  simulateKeyPress(Keybinding.SELECT);
+  await simulateKeyPress(Keybinding.SELECT);
   await screen.findByRole('option', {
     name: new RegExp(contest0candidate0!.name),
     selected: true,
   });
 
-  simulateKeyPress(Keybinding.SELECT);
+  await simulateKeyPress(Keybinding.SELECT);
   await screen.findByRole('option', {
     name: new RegExp(contest0candidate0!.name),
     selected: false,
   });
 
   // Confirm 'Okay' is only active element on page. Modal is "true" modal.
-  userEvent.click(screen.getByText(contest0candidate0!.name));
-  userEvent.click(screen.getByText(contest0candidate1!.name));
-  simulateKeyPress(Keybinding.FOCUS_NEXT); // selects Okay button
-  simulateKeyPress(Keybinding.FOCUS_NEXT); // Okay button should still be selected
-  simulateKeyPress(Keybinding.FOCUS_NEXT); // Okay button should still be selected
+  await userEvent.click(screen.getByText(contest0candidate0!.name));
+  await userEvent.click(screen.getByText(contest0candidate1!.name));
+  await simulateKeyPress(Keybinding.FOCUS_NEXT); // selects Okay button
+  await simulateKeyPress(Keybinding.FOCUS_NEXT); // Okay button should still be selected
+  await simulateKeyPress(Keybinding.FOCUS_NEXT); // Okay button should still be selected
   expect(screen.getButton(/Continue/i)).toHaveFocus();
   await advanceTimersAndPromises();
 });
@@ -151,7 +151,7 @@ test('auto-focuses "next" button on contest screen after voting', async () => {
     precinctId,
   });
 
-  userEvent.click(await screen.findButton('Start Voting'));
+  await userEvent.click(await screen.findButton('Start Voting'));
 
   await screen.findByText(contest0.title);
 
@@ -160,15 +160,15 @@ test('auto-focuses "next" button on contest screen after voting', async () => {
 
   // Test navigation by PAT input keyboard event interface. The first focusable
   // element is the contest metadata, followed by the contest options.
-  simulateKeyPress(Keybinding.PAT_MOVE);
+  await simulateKeyPress(Keybinding.PAT_MOVE);
   expect(getActiveElement()).toHaveTextContent(contest0.title);
-  simulateKeyPress(Keybinding.PAT_MOVE);
+  await simulateKeyPress(Keybinding.PAT_MOVE);
   expect(getActiveElement()).toHaveTextContent(contest0candidate0!.name);
-  simulateKeyPress(Keybinding.PAT_MOVE);
+  await simulateKeyPress(Keybinding.PAT_MOVE);
   expect(getActiveElement()).toHaveTextContent(contest0candidate1!.name);
 
   // select candidate
-  simulateKeyPress(Keybinding.PAT_SELECT);
+  await simulateKeyPress(Keybinding.PAT_SELECT);
   await screen.findByRole('option', {
     name: new RegExp(contest0candidate1!.name),
     selected: true,

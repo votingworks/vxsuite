@@ -3,7 +3,7 @@ import { getContestDistrictName } from '@votingworks/types';
 
 import { readElectionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import { assert, assertDefined, find } from '@votingworks/basics';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   fireEvent,
   render,
@@ -73,7 +73,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   });
 
   // Go to First Contest
-  userEvent.click(await screen.findByText('Start Voting'));
+  await userEvent.click(await screen.findByText('Start Voting'));
   await advanceTimersAndPromises();
 
   // ====================== END CONTEST SETUP ====================== //

@@ -4,7 +4,7 @@ import { Route, Router, Switch } from 'react-router-dom';
 
 import type { ElectionInfo, TtsStringDefault } from '@votingworks/hub-backend';
 import { ElectionStringKey, LanguageCode } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import { createMockApiClient, provideApi } from '../test/api_helpers.js';
 import { PartyAudioPanel } from './party_audio_panel.js';
@@ -92,7 +92,7 @@ for (const s of specs) {
       ttsDefault: s.ttsDefaults[s.expectedEditor.ttsDefaultIndex],
     });
 
-    userEvent.click(screen.getButton('Close'));
+    await userEvent.click(screen.getButton('Close'));
     expect(history.location.pathname).toEqual(partyRoutes.root.path);
   });
 }

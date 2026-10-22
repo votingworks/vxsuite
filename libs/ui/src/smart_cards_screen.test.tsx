@@ -202,7 +202,9 @@ test('Insert blank card, program election manager card', async () => {
   const deferredProgram = deferred<ProgramResult>();
   mockApiClient.programCard.mockReturnValueOnce(deferredProgram.promise);
 
-  userEvent.click(await screen.findButton('Program Election Manager Card'));
+  await userEvent.click(
+    await screen.findButton('Program Election Manager Card')
+  );
   await advancePromises();
   expect(mockApiClient.programCard).toHaveBeenCalledWith({
     userRole: 'election_manager',
@@ -241,7 +243,7 @@ test('Insert blank card, program poll worker card, PINs disabled', async () => {
 
   const deferredProgram = deferred<ProgramResult>();
   mockApiClient.programCard.mockReturnValueOnce(deferredProgram.promise);
-  userEvent.click(screen.getButton('Program Poll Worker Card'));
+  await userEvent.click(screen.getButton('Program Poll Worker Card'));
   await advancePromises();
   expect(mockApiClient.programCard).toHaveBeenCalledWith({
     userRole: 'poll_worker',
@@ -274,23 +276,23 @@ test('Insert blank card, program system administrator card', async () => {
 
   await screen.findByText('Blank Card');
 
-  userEvent.click(screen.getButton('Program System Administrator Card'));
+  await userEvent.click(screen.getButton('Program System Administrator Card'));
   let confirmModal = await screen.findByRole('alertdialog');
   within(confirmModal).getByRole('heading', {
     name: 'Program System Administrator Card',
   });
-  userEvent.click(within(confirmModal).getButton('Cancel'));
+  await userEvent.click(within(confirmModal).getButton('Cancel'));
   await vi.waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
-  userEvent.click(screen.getButton('Program System Administrator Card'));
+  await userEvent.click(screen.getButton('Program System Administrator Card'));
   confirmModal = await screen.findByRole('alertdialog');
 
   const deferredProgram = deferred<ProgramResult>();
   mockApiClient.programCard.mockImplementationOnce(
     () => deferredProgram.promise
   );
-  userEvent.click(
+  await userEvent.click(
     within(confirmModal).getButton('Program System Administrator Card')
   );
   await advancePromises();
@@ -353,14 +355,14 @@ test('Insert blank card, program system administrator card when machine is not c
 
   await screen.findByText('Blank Card');
 
-  userEvent.click(screen.getButton('Program System Administrator Card'));
+  await userEvent.click(screen.getButton('Program System Administrator Card'));
   const confirmModal = await screen.findByRole('alertdialog');
 
   const deferredProgram = deferred<ProgramResult>();
   mockApiClient.programCard.mockImplementationOnce(
     () => deferredProgram.promise
   );
-  userEvent.click(
+  await userEvent.click(
     within(confirmModal).getButton('Program System Administrator Card')
   );
   await advancePromises();
@@ -408,7 +410,7 @@ test('Insert election manager card, unprogram', async () => {
 
   const deferredUnprogram = deferred<UnprogramResult>();
   mockApiClient.unprogramCard.mockReturnValue(deferredUnprogram.promise);
-  userEvent.click(screen.getButton('Unprogram Card'));
+  await userEvent.click(screen.getButton('Unprogram Card'));
 
   await advancePromises();
   expect(mockApiClient.unprogramCard).toHaveBeenCalledOnce();
@@ -446,7 +448,7 @@ test('Insert election manager card, reset PIN', async () => {
 
   const deferredProgram = deferred<ProgramResult>();
   mockApiClient.programCard.mockReturnValueOnce(deferredProgram.promise);
-  userEvent.click(screen.getButton('Reset Card PIN'));
+  await userEvent.click(screen.getButton('Reset Card PIN'));
   await advancePromises();
   expect(mockApiClient.programCard).toHaveBeenCalledWith({
     userRole: 'election_manager',
@@ -477,7 +479,7 @@ test('Insert poll worker card (PINs disabled), unprogram', async () => {
 
   const deferredUnprogram = deferred<UnprogramResult>();
   mockApiClient.unprogramCard.mockReturnValueOnce(deferredUnprogram.promise);
-  userEvent.click(screen.getButton('Unprogram Card'));
+  await userEvent.click(screen.getButton('Unprogram Card'));
 
   await advancePromises();
   expect(mockApiClient.unprogramCard).toHaveBeenCalledOnce();
@@ -511,7 +513,7 @@ test('Insert poll worker card (PINs enabled), reset PIN', async () => {
 
   const deferredProgram = deferred<ProgramResult>();
   mockApiClient.programCard.mockReturnValueOnce(deferredProgram.promise);
-  userEvent.click(screen.getButton('Reset Card PIN'));
+  await userEvent.click(screen.getButton('Reset Card PIN'));
 
   await advancePromises();
   expect(mockApiClient.programCard).toHaveBeenCalledWith({
@@ -542,21 +544,21 @@ test('Insert system administrator card, reset PIN', async () => {
 
   expect(screen.queryButton('Unprogram Card')).not.toBeInTheDocument();
 
-  userEvent.click(screen.getButton('Reset Card PIN'));
+  await userEvent.click(screen.getButton('Reset Card PIN'));
   let confirmModal = await screen.findByRole('alertdialog');
   within(confirmModal).getByRole('heading', {
     name: 'Reset System Administrator Card PIN',
   });
-  userEvent.click(within(confirmModal).getButton('Cancel'));
+  await userEvent.click(within(confirmModal).getButton('Cancel'));
   await vi.waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
-  userEvent.click(screen.getButton('Reset Card PIN'));
+  await userEvent.click(screen.getButton('Reset Card PIN'));
   confirmModal = await screen.findByRole('alertdialog');
 
   const deferredProgram = deferred<ProgramResult>();
   mockApiClient.programCard.mockReturnValueOnce(deferredProgram.promise);
-  userEvent.click(
+  await userEvent.click(
     within(confirmModal).getButton('Reset System Administrator Card PIN')
   );
 
@@ -684,7 +686,9 @@ test('Error programming election manager card', async () => {
 
   mockApiClient.programCard.mockResolvedValueOnce(err(new Error('test error')));
 
-  userEvent.click(await screen.findButton('Program Election Manager Card'));
+  await userEvent.click(
+    await screen.findButton('Program Election Manager Card')
+  );
 
   await screen.findByText(
     'Error programming election manager card. Please try again.'
@@ -702,7 +706,7 @@ test('Error programming poll worker card', async () => {
 
   mockApiClient.programCard.mockResolvedValueOnce(err(new Error('test error')));
 
-  userEvent.click(await screen.findButton('Program Poll Worker Card'));
+  await userEvent.click(await screen.findButton('Program Poll Worker Card'));
 
   await screen.findByText(
     'Error programming poll worker card. Please try again.'
@@ -720,9 +724,13 @@ test('Error programming system administrator card', async () => {
 
   mockApiClient.programCard.mockResolvedValueOnce(err(new Error('test error')));
 
-  userEvent.click(await screen.findButton('Program System Administrator Card'));
+  await userEvent.click(
+    await screen.findButton('Program System Administrator Card')
+  );
   // Click confirmation
-  userEvent.click(await screen.findButton('Program System Administrator Card'));
+  await userEvent.click(
+    await screen.findButton('Program System Administrator Card')
+  );
 
   await screen.findByText(
     'Error programming system administrator card. Please try again.'
@@ -744,7 +752,7 @@ test('Error unprogramming election manager card', async () => {
     err(new Error('test error'))
   );
 
-  userEvent.click(await screen.findButton('Unprogram Card'));
+  await userEvent.click(await screen.findButton('Unprogram Card'));
 
   await screen.findByText(
     'Error unprogramming election manager card. Please try again.'
@@ -761,7 +769,7 @@ test('Error unprogramming poll worker card', async () => {
     err(new Error('test error'))
   );
 
-  userEvent.click(await screen.findButton('Unprogram Card'));
+  await userEvent.click(await screen.findButton('Unprogram Card'));
 
   await screen.findByText(
     'Error unprogramming poll worker card. Please try again.'
@@ -779,7 +787,7 @@ test('Error resetting election manager card PIN', async () => {
   );
 
   mockApiClient.programCard.mockResolvedValueOnce(err(new Error('test error')));
-  userEvent.click(await screen.findButton('Reset Card PIN'));
+  await userEvent.click(await screen.findButton('Reset Card PIN'));
 
   await screen.findByText(
     'Error resetting election manager card PIN. Please try again.'
@@ -800,7 +808,7 @@ test('Error resetting poll worker card PIN', async () => {
   );
 
   mockApiClient.programCard.mockResolvedValueOnce(err(new Error('test error')));
-  userEvent.click(await screen.findButton('Reset Card PIN'));
+  await userEvent.click(await screen.findButton('Reset Card PIN'));
 
   await screen.findByText(
     'Error resetting poll worker card PIN. Please try again.'
@@ -820,8 +828,8 @@ test('Error resetting system administrator card PIN', async () => {
   );
 
   mockApiClient.programCard.mockResolvedValueOnce(err(new Error('test error')));
-  userEvent.click(await screen.findButton('Reset Card PIN'));
-  userEvent.click(
+  await userEvent.click(await screen.findButton('Reset Card PIN'));
+  await userEvent.click(
     await screen.findButton('Reset System Administrator Card PIN')
   );
 
@@ -855,7 +863,7 @@ test.each([
     );
 
     mockApiClient.programCard.mockResolvedValueOnce(err(new Error('Whoa!')));
-    userEvent.click(await screen.findButton(buttonToPress));
+    await userEvent.click(await screen.findButton(buttonToPress));
 
     await screen.findByText(expectedErrorMessage);
 

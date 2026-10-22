@@ -1,7 +1,7 @@
 import type React from 'react';
 import { expect, test } from 'vitest';
 import { Route, Router } from 'react-router-dom';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 
 import { sleep } from '@votingworks/basics';
@@ -24,7 +24,7 @@ test('navigates to given href', async () => {
     />
   );
 
-  userEvent.click(await screen.findButton('Preview or Edit Audio'));
+  await userEvent.click(await screen.findButton('Preview or Edit Audio'));
   expect(history.location.pathname).toEqual('/audio/edit');
 });
 
@@ -38,7 +38,7 @@ test('shows tooltip on hover', async () => {
     />
   );
 
-  userEvent.hover(await screen.findButton('Preview or Edit Audio'));
+  await userEvent.hover(await screen.findButton('Preview or Edit Audio'));
   screen.getByText('Preview/Edit Audio');
 });
 

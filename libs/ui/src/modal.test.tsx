@@ -97,12 +97,12 @@ describe('Modal', () => {
     expect(content).not.toHaveStyle({ padding: '2rem' });
   });
 
-  test('handles overlay click', () => {
+  test('handles overlay click', async () => {
     const onOverlayClick = vi.fn();
     const { baseElement } = render(
       <Modal content="Content" onOverlayClick={onOverlayClick} />
     );
-    userEvent.click(
+    await userEvent.click(
       baseElement.getElementsByClassName('ReactModal__Overlay')[0]!
     );
     expect(onOverlayClick).toHaveBeenCalledTimes(1);

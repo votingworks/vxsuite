@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 
 import type { PollingPlace } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import { render, screen } from '../test/react_testing_library.js';
 import { PollingPlaceList } from './polling_place_list.js';
@@ -106,7 +106,7 @@ test('renders selected pollingPlace, emits event on select', async () => {
 
   expect(mockOnSelect).not.toHaveBeenCalled();
 
-  userEvent.click(
+  await userEvent.click(
     getOption(with3Precincts, '3 Precincts', { selected: false })
   );
   expect(mockOnSelect).toHaveBeenCalledWith(with3Precincts.id);

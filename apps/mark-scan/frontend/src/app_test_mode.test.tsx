@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   asElectionDefinition,
   readElectionGeneral,
@@ -51,7 +51,7 @@ test('Prompts to change from test mode to live mode on election day', async () =
   await screen.findByText(
     'Switch to Official Ballot Mode and reset the Ballots Printed count?'
   );
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('button', { name: 'Switch to Official Ballot Mode' })
   );
   await waitFor(() =>

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, test } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import type { InsertedSmartCardAuth } from '@votingworks/types';
 import type { VxRenderResult } from '@votingworks/ui/test-utils';
@@ -61,13 +61,13 @@ describe('with poll worker auth', () => {
     screen.getByText('Remember to spoil the ballot.');
   });
 
-  test('calls confirmInvalidateBallot when button is clicked', () => {
+  test('calls confirmInvalidateBallot when button is clicked', async () => {
     const electionDefinition = electionGeneralDefinition;
     apiMock.expectConfirmInvalidateBallot();
     const auth = mockPollWorkerAuth(electionDefinition);
     renderWithAuthAndBallotContext(auth, false);
 
-    userEvent.click(screen.getByText('Continue'));
+    await userEvent.click(screen.getByText('Continue'));
   });
 });
 

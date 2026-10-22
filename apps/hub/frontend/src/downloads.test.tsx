@@ -6,7 +6,7 @@ import type {
   TestDecksTaskMetadata,
 } from '@votingworks/hub-backend';
 import { assert, sleep } from '@votingworks/basics';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { downloadFile } from './utils.js';
 import {
   createMockApiClient,
@@ -77,7 +77,7 @@ test('all downloads available', async () => {
     cardIndex += 1;
 
     within(card).getByRole('heading', { name: spec.title });
-    userEvent.click(within(card).getButton('Download'));
+    await userEvent.click(within(card).getButton('Download'));
     expect(mockDownloadFile).toHaveBeenLastCalledWith(spec.url);
   }
 });
@@ -100,7 +100,7 @@ test('only test decks available', async () => {
   const cardTitle = await screen.findByRole('heading');
   expect(cardTitle).toHaveTextContent('L&A Test Decks');
 
-  userEvent.click(screen.getButton('Download'));
+  await userEvent.click(screen.getButton('Download'));
   expect(mockDownloadFile).toHaveBeenLastCalledWith(testDecksTask.url);
 });
 
@@ -126,7 +126,8 @@ test('only subset of main downloads available', async () => {
     'Official Ballots',
   ]);
 
-  for (const btn of screen.getAllButtons('Download')) userEvent.click(btn);
+  for (const btn of screen.getAllButtons('Download'))
+    await userEvent.click(btn);
   expect(mockDownloadFile.mock.calls).toEqual([
     [mainTask.electionPackageUrl],
     [mainTask.officialBallotsUrl],

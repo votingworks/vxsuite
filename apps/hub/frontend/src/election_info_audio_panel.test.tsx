@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { createMemoryHistory } from 'history';
 import { Route, Router, Switch } from 'react-router-dom';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import type { ElectionInfo, TtsStringDefault } from '@votingworks/hub-backend';
 import { ElectionStringKey, LanguageCode } from '@votingworks/types';
@@ -88,7 +88,7 @@ describe('valid string keys', () => {
         ttsDefault: s.expectedEditor.ttsDefault,
       });
 
-      userEvent.click(screen.getButton('Close'));
+      await userEvent.click(screen.getButton('Close'));
       expect(history.location.pathname).toEqual(electionInfoRoutes.root.path);
     });
   }

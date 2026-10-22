@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import type { PrinterConfig } from '@votingworks/types';
 import { ok } from '@votingworks/basics';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
@@ -124,14 +124,14 @@ test('displays printer state and allows diagnostic', async () => {
   await expectTextWithIcon('No test print on record', 'circle-info');
 
   apiMock.apiClient.printTestPage.expectCallWith().resolves();
-  userEvent.click(screen.getButton('Print Test Page'));
+  await userEvent.click(screen.getButton('Print Test Page'));
   await screen.findByText('Printing Test Page');
   act(() => {
     vi.advanceTimersByTime(TEST_PAGE_PRINT_DELAY_SECONDS * 1000);
   });
   await screen.findByText('Test Page Printed');
   expect(screen.getButton('Confirm')).toBeDisabled();
-  userEvent.click(screen.getByRole('radio', { name: /Fail/ }));
+  await userEvent.click(screen.getByRole('radio', { name: /Fail/ }));
   expect(screen.getButton('Confirm')).toBeEnabled();
   apiMock.expectAddDiagnosticRecord({
     type: 'test-print',
@@ -142,9 +142,9 @@ test('displays printer state and allows diagnostic', async () => {
     outcome: 'fail',
     timestamp: new Date('2022-06-22T12:00:00.000').getTime(),
   });
-  userEvent.click(screen.getButton('Confirm'));
+  await userEvent.click(screen.getButton('Confirm'));
   await screen.findByText('Test Print Failed');
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
   expect(screen.queryByRole('alertdialog')).toBeNull();
   await expectTextWithIcon(
     'Test print failed, 6/22/2022, 12:00:00 PM',
@@ -152,13 +152,13 @@ test('displays printer state and allows diagnostic', async () => {
   );
 
   apiMock.apiClient.printTestPage.expectCallWith().resolves();
-  userEvent.click(screen.getButton('Print Test Page'));
+  await userEvent.click(screen.getButton('Print Test Page'));
   await screen.findByText('Printing Test Page');
   act(() => {
     vi.advanceTimersByTime(TEST_PAGE_PRINT_DELAY_SECONDS * 1000);
   });
   await screen.findByText('Test Page Printed');
-  userEvent.click(screen.getByRole('radio', { name: /Pass/ }));
+  await userEvent.click(screen.getByRole('radio', { name: /Pass/ }));
   apiMock.expectAddDiagnosticRecord({
     type: 'test-print',
     outcome: 'pass',
@@ -168,7 +168,7 @@ test('displays printer state and allows diagnostic', async () => {
     outcome: 'pass',
     timestamp: new Date('2022-06-22T12:01:00.000').getTime(),
   });
-  userEvent.click(screen.getButton('Confirm'));
+  await userEvent.click(screen.getButton('Confirm'));
   expect(screen.queryByRole('alertdialog')).toBeNull();
   await expectTextWithIcon(
     'Test print successful, 6/22/2022, 12:01:00 PM',
@@ -275,10 +275,10 @@ test('saving the readiness report', async () => {
     apiMock,
   });
 
-  userEvent.click(await screen.findButton('Save Readiness Report'));
+  await userEvent.click(await screen.findButton('Save Readiness Report'));
   const modal = await screen.findByRole('alertdialog');
   apiMock.apiClient.saveReadinessReport
     .expectCallWith()
     .resolves(ok(['mock.pdf']));
-  userEvent.click(within(modal).getByText('Save'));
+  await userEvent.click(within(modal).getByText('Save'));
 });

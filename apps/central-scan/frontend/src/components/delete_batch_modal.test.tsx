@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { type ApiMock, createApiMock, provideApi } from '../../test/api.js';
 import { render, screen } from '../../test/react_testing_library.js';
 import { DeleteBatchModal } from './delete_batch_modal.js';
@@ -28,7 +28,7 @@ test('allows canceling', async () => {
   await screen.findByText('Delete ‘Batch 1’');
   expect(onClose).not.toHaveBeenCalled();
 
-  userEvent.click(screen.getByText('Cancel'));
+  await userEvent.click(screen.getByText('Cancel'));
   expect(onClose).toHaveBeenCalled();
 });
 
@@ -46,7 +46,7 @@ test('closes on success', async () => {
   expect(onClose).not.toHaveBeenCalled();
 
   apiMock.expectDeleteBatch({ batchId: 'a' });
-  userEvent.click(screen.getByText('Delete Batch'));
+  await userEvent.click(screen.getByText('Delete Batch'));
   await vi.waitFor(() => {
     expect(onClose).toHaveBeenCalled();
   });

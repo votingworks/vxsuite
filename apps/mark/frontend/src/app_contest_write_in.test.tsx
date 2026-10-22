@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { ContestPage, type ContestPageProps } from '@votingworks/mark-flow-ui';
 import {
@@ -109,7 +109,7 @@ test('Single Seat Contest with Write In', async () => {
   });
 
   // Go to First Contest
-  userEvent.click(await screen.findByText('Start Voting'));
+  await userEvent.click(await screen.findByText('Start Voting'));
   advanceTimers();
 
   // ====================== END CONTEST SETUP ====================== //

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { deferred } from '@votingworks/basics';
 import type { ScanDiagnosticOutcome } from '@votingworks/central-scan-backend';
 import { type ApiMock, createApiMock } from '../../test/api.js';
@@ -48,7 +48,7 @@ test('disabled behavior', async () => {
     expect(button).toBeEnabled();
   });
 
-  userEvent.click(button);
+  await userEvent.click(button);
   await screen.findButton('Scan');
 
   apiMock.setStatus(mockStatus({ isScannerAttached: false }));
@@ -62,15 +62,15 @@ test('happy path', async () => {
   apiMock.setStatus(mockStatus({}, { state: 'idle' }));
   renderInAppContext(<TestScanButton />, { apiMock });
   const button = await screen.findButton('Perform Test Scan');
-  userEvent.click(button);
+  await userEvent.click(button);
   screen.getByText('Test Scan Diagnostic');
   const { promise, resolve } = deferred<ScanDiagnosticOutcome>();
   apiMock.apiClient.performScanDiagnostic.expectCallWith().returns(promise);
-  userEvent.click(screen.getByText('Scan'));
+  await userEvent.click(screen.getByText('Scan'));
   await screen.findByText('Scanning');
   resolve('pass');
   await screen.findByText('Test Scan Successful');
-  userEvent.click(screen.getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
   expect(screen.queryByRole('alertdialog')).toBeNull();
 });
 
@@ -78,10 +78,10 @@ test('fail because no paper', async () => {
   apiMock.setStatus(mockStatus({}, { state: 'idle' }));
   renderInAppContext(<TestScanButton />, { apiMock });
   const button = await screen.findButton('Perform Test Scan');
-  userEvent.click(button);
+  await userEvent.click(button);
   screen.getByText('Test Scan Diagnostic');
   apiMock.apiClient.performScanDiagnostic.expectCallWith().resolves('no-paper');
-  userEvent.click(screen.getByText('Scan'));
+  await userEvent.click(screen.getByText('Scan'));
   await screen.findByText(/no paper was detected/);
 });
 
@@ -89,9 +89,9 @@ test('fail because no bad image', async () => {
   apiMock.setStatus(mockStatus({}, { state: 'idle' }));
   renderInAppContext(<TestScanButton />, { apiMock });
   const button = await screen.findButton('Perform Test Scan');
-  userEvent.click(button);
+  await userEvent.click(button);
   screen.getByText('Test Scan Diagnostic');
   apiMock.apiClient.performScanDiagnostic.expectCallWith().resolves('fail');
-  userEvent.click(screen.getByText('Scan'));
+  await userEvent.click(screen.getByText('Scan'));
   await screen.findByText(/Defects were detected/);
 });

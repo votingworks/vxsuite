@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { err } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { screen } from '@testing-library/react';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { ExportResultsModal } from './export_results_modal.js';
@@ -37,7 +37,7 @@ test('render insert USB screen when there is not a valid, mounted usb drive', as
     await screen.findByText('No USB Drive Detected');
     screen.getByText('Insert a USB drive in order to save CVRs.');
 
-    userEvent.click(screen.getByText('Cancel'));
+    await userEvent.click(screen.getByText('Cancel'));
     expect(closeFn).toHaveBeenCalled();
     unmount();
   }
@@ -52,14 +52,14 @@ test('render export modal when a usb drive is mounted as expected and allows exp
   await screen.findByText('Save CVRs');
 
   apiMock.expectExportCastVoteRecords();
-  userEvent.click(screen.getByText('Save'));
+  await userEvent.click(screen.getByText('Save'));
   await screen.findByText('CVRs Saved');
 
-  userEvent.click(screen.getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
   expect(closeFn).toHaveBeenCalled();
 
   apiMock.expectEjectUsbDrive();
-  userEvent.click(screen.getByText('Eject USB'));
+  await userEvent.click(screen.getByText('Eject USB'));
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('ejected'));
   await screen.findByText('USB Drive Ejected');
 });
@@ -75,10 +75,10 @@ test('render export modal with errors when appropriate', async () => {
   apiMock.apiClient.exportCastVoteRecordsToUsbDrive
     .expectCallWith()
     .resolves(err({ type: 'file-system-error' }));
-  userEvent.click(screen.getByText('Save'));
+  await userEvent.click(screen.getByText('Save'));
   await screen.findByText('Failed to Save CVRs');
   await screen.findByText('Unable to write to USB drive.');
 
-  userEvent.click(screen.getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
   expect(closeFn).toHaveBeenCalled();
 });

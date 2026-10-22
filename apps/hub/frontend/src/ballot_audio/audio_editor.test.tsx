@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import type { TtsStringDefault } from '@votingworks/hub-backend';
 import { ElectionStringKey } from '@votingworks/types';
@@ -120,14 +120,14 @@ test('supports switching between text and phonetic editing', async () => {
   mockApi.assertComplete();
 
   // Switch to text:
-  userEvent.click(screen.getButton('Text-To-Speech'));
+  await userEvent.click(screen.getButton('Text-To-Speech'));
   screen.getByTestId(TEXT_EDITOR_TEST_ID);
   expect(
     screen.queryByText(PHONETIC_EDITOR_PLACEHOLDER)
   ).not.toBeInTheDocument();
 
   // Switch back to phonetic:
-  userEvent.click(screen.getButton('Phonetic'));
+  await userEvent.click(screen.getButton('Phonetic'));
   screen.getByText(PHONETIC_EDITOR_PLACEHOLDER);
   expect(screen.queryByTestId(TEXT_EDITOR_TEST_ID)).not.toBeInTheDocument();
 });

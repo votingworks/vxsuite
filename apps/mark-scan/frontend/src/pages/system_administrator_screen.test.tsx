@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { formatElectionHashes } from '@votingworks/types';
 import { screen, waitFor } from '../../test/react_testing_library.js';
@@ -78,7 +78,7 @@ test('Can set date and time', async () => {
   );
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior
-  userEvent.click(screen.getButton('Set Date and Time'));
+  await userEvent.click(screen.getButton('Set Date and Time'));
   apiMock.mockApiClient.setClock
     .expectCallWith({
       isoDatetime: '2020-10-31T00:00:00.000-08:00',
@@ -86,7 +86,7 @@ test('Can set date and time', async () => {
     })
     .resolves();
   apiMock.expectLogOut();
-  userEvent.click(screen.getButton('Save'));
+  await userEvent.click(screen.getButton('Save'));
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
@@ -121,9 +121,9 @@ test('navigates to Diagnostics screen', async () => {
   apiMock.expectGetMostRecentDiagnostic('uninterruptible-power-supply');
   apiMock.expectGetMarkScanBmdModel();
 
-  userEvent.click(screen.getButton('Diagnostics'));
+  await userEvent.click(screen.getButton('Diagnostics'));
   screen.getByRole('heading', { name: 'Diagnostics' });
 
-  userEvent.click(await screen.findButton('Back'));
+  await userEvent.click(await screen.findButton('Back'));
   screen.getButton('Diagnostics');
 });

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
@@ -50,7 +50,7 @@ test('renders provided data', async () => {
   );
 
   apiMock.apiClient.printWriteInAdjudicationReport.expectCallWith().resolves();
-  userEvent.click(screen.getButton('Print Report'));
+  await userEvent.click(screen.getButton('Print Report'));
   await vi.runOnlyPendingTimersAsync();
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
@@ -61,11 +61,11 @@ test('renders provided data', async () => {
         'unofficial-full-election-write-in-adjudication-report__2021-01-01_00-00-00.pdf',
     })
     .resolves(ok([]));
-  userEvent.click(screen.getButton('Export Report PDF'));
+  await userEvent.click(screen.getButton('Export Report PDF'));
   const exportModal = await screen.findByRole('alertdialog');
-  userEvent.click(within(exportModal).getButton('Save'));
+  await userEvent.click(within(exportModal).getButton('Save'));
   await screen.findByText('Write-In Adjudication Report Saved');
-  userEvent.click(within(exportModal).getButton('Close'));
+  await userEvent.click(within(exportModal).getButton('Close'));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 });
 

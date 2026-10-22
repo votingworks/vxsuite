@@ -6,7 +6,7 @@ import { render, screen } from '../test/react_testing_library.js';
 import { RouterTabBar } from './tabs.js';
 import { makeTheme } from './themes/make_theme.js';
 
-test('RouterTabBar navigates on click and shows active tab', () => {
+test('RouterTabBar navigates on click and shows active tab', async () => {
   const history = createMemoryHistory({ initialEntries: ['/tab1'] });
   const tabs = [
     { title: 'Tab 1', path: '/tab1' },
@@ -24,7 +24,9 @@ test('RouterTabBar navigates on click and shows active tab', () => {
   expect(tab1).toHaveStyle({ backgroundColor: theme.colors.primaryContainer });
   expect(tab2).toHaveStyle({ backgroundColor: theme.colors.container });
 
-  userEvent.click(screen.getByRole('tab', { name: 'Tab 2', selected: false }));
+  await userEvent.click(
+    screen.getByRole('tab', { name: 'Tab 2', selected: false })
+  );
 
   tab1 = screen.getByRole('tab', { name: 'Tab 1', selected: false });
   tab2 = screen.getByRole('tab', { name: 'Tab 2', selected: true });

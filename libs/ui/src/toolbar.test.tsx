@@ -58,10 +58,10 @@ test('DateTimeDisplay renders current date and time', () => {
   screen.getByText(/Jan 15/);
 });
 
-test('LockMachineButton calls onLock when pressed', () => {
+test('LockMachineButton calls onLock when pressed', async () => {
   const onLock = vi.fn();
   render(<LockMachineButton onLock={onLock} />);
-  userEvent.click(screen.getByRole('button', { name: 'Lock Machine' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Lock Machine' }));
   expect(onLock).toHaveBeenCalledTimes(1);
 });
 
@@ -74,7 +74,7 @@ test('Toolbar renders children', () => {
   screen.getByText('test content');
 });
 
-test('UsbEjectButton ejects a mounted drive', () => {
+test('UsbEjectButton ejects a mounted drive', async () => {
   const onEject = vi.fn();
   render(
     <UsbEjectButton
@@ -85,7 +85,7 @@ test('UsbEjectButton ejects a mounted drive', () => {
   );
   const button = screen.getByRole('button', { name: /Eject USB/ });
   expect(button).toBeEnabled();
-  userEvent.click(button);
+  await userEvent.click(button);
   expect(onEject).toHaveBeenCalledTimes(1);
 });
 

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { MARK_CONTROLLER_ILLUSTRATION_HIGHLIGHT_CLASS_NAME } from '@votingworks/ui';
 import { fireEvent, render, screen } from '../../test/react_testing_library.js';
 import {
@@ -99,7 +99,7 @@ test('fails when a button is reported not working', async () => {
     outcome: 'fail',
     message: 'down button is not working.',
   });
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('button', { name: 'Down Button is Not Working' })
   );
 
@@ -109,7 +109,9 @@ test('fails when a button is reported not working', async () => {
 test('cancel', async () => {
   renderScreen();
 
-  userEvent.click(await screen.findByRole('button', { name: 'Cancel Test' }));
+  await userEvent.click(
+    await screen.findByRole('button', { name: 'Cancel Test' })
+  );
 
   expect(onCancel).toHaveBeenCalledTimes(1);
   expect(onComplete).not.toHaveBeenCalled();

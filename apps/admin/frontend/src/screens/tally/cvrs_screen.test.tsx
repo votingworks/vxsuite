@@ -6,7 +6,7 @@ import type {
 } from '@votingworks/admin-backend';
 
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import { CvrsScreen } from './cvrs_screen.js';
@@ -71,7 +71,7 @@ test('location name search box filters location list', async () => {
   }
 
   const emptyInput = screen.getByPlaceholderText('Search Locations');
-  userEvent.type(emptyInput, place2!.name.toLowerCase());
+  await userEvent.type(emptyInput, place2!.name.toLowerCase());
 
   screen.getByDisplayValue(place2!.name.toLowerCase());
   screen.getButton(new RegExp(place2!.name));
@@ -109,7 +109,7 @@ test('location filter buttons filter location list', async () => {
   screen.getByRole('option', { name: `All ${nLocations}`, selected: true });
   screen.getByRole('option', { name: `Pending ${nPending}`, selected: false });
 
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('option', { name: 'Loaded 1', selected: false })
   );
   screen.getByRole('option', { name: 'Loaded 1', selected: true });
@@ -148,10 +148,10 @@ test('search input and filter buttons are both used for filtering', async () => 
   }
 
   const emptyInput = screen.getByPlaceholderText('Search Locations');
-  userEvent.type(emptyInput, loadedPlace.name);
+  await userEvent.type(emptyInput, loadedPlace.name);
   screen.getButton(new RegExp(loadedPlace.name));
 
-  userEvent.click(screen.getByRole('option', { name: /Pending/ }));
+  await userEvent.click(screen.getByRole('option', { name: /Pending/ }));
   expect(
     screen.queryButton(new RegExp(loadedPlace.name))
   ).not.toBeInTheDocument();
@@ -173,12 +173,12 @@ test('load button opens import panel', async () => {
   expect(screen.queryByText(/Load CVRs/)).not.toBeInTheDocument();
 
   api.expectListCastVoteRecordFilesOnUsb([]);
-  userEvent.click(screen.getButton('Load'));
+  await userEvent.click(screen.getButton('Load'));
 
   await waitFor(() => api.assertComplete());
   screen.getByText(/Load CVRs/);
 
-  userEvent.click(screen.getButton('Done'));
+  await userEvent.click(screen.getButton('Done'));
   expect(screen.queryByText(/Load CVRs/)).not.toBeInTheDocument();
 });
 
@@ -204,12 +204,12 @@ test('delete button opens confirmation modal', async () => {
   expect(screen.queryButton(/Remove All CVRs/)).not.toBeInTheDocument();
 
   api.expectGetManualResultsMetadata([]);
-  userEvent.click(screen.getButton('Remove All'));
+  await userEvent.click(screen.getButton('Remove All'));
 
   await waitFor(() => api.assertComplete());
   screen.getButton(/Remove All CVRs/);
 
-  userEvent.click(screen.getButton('Cancel'));
+  await userEvent.click(screen.getButton('Cancel'));
   expect(screen.queryButton(/Remove All CVRs/)).not.toBeInTheDocument();
 });
 
@@ -272,11 +272,11 @@ describe('single-import deletion', () => {
 
     await waitFor(() => api.assertComplete());
 
-    userEvent.click(screen.getButton(new RegExp(place1!.name)));
+    await userEvent.click(screen.getButton(new RegExp(place1!.name)));
     const deleteButtons = screen.getAllButtons(/Remove CVR File/);
     expect(deleteButtons).toHaveLength(2);
 
-    userEvent.click(deleteButtons[1]!);
+    await userEvent.click(deleteButtons[1]!);
     const modal = within(await screen.findByRole('alertdialog'));
     modal.getByText(
       new RegExp(`${file2.numCvrsImported} CVRs.+will be permanently deleted`)
@@ -286,7 +286,7 @@ describe('single-import deletion', () => {
     api.expectGetCastVoteRecordFileMode('test');
     api.expectGetCastVoteRecordFiles([file1]);
 
-    userEvent.click(modal.getButton('Remove'));
+    await userEvent.click(modal.getButton('Remove'));
     await waitFor(() => api.assertComplete());
 
     // Expect panel still open and now reflects updated file list (single file):
@@ -314,11 +314,11 @@ describe('single-import deletion', () => {
 
     await waitFor(() => api.assertComplete());
 
-    userEvent.click(screen.getButton(new RegExp(place1!.name)));
-    userEvent.click(screen.getButton(/Remove CVR File/));
+    await userEvent.click(screen.getButton(new RegExp(place1!.name)));
+    await userEvent.click(screen.getButton(/Remove CVR File/));
 
     const modal = within(await screen.findByRole('alertdialog'));
-    userEvent.click(modal.getButton('Cancel'));
+    await userEvent.click(modal.getButton('Cancel'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
     api.assertComplete();
@@ -346,7 +346,7 @@ describe('single-import deletion', () => {
 
     await waitFor(() => api.assertComplete());
 
-    userEvent.click(screen.getButton(new RegExp(place1!.name)));
+    await userEvent.click(screen.getButton(new RegExp(place1!.name)));
     expect(screen.queryButton(/Remove CVR File/)).not.toBeInTheDocument();
   });
 });

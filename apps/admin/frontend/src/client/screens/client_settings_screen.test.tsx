@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
@@ -98,7 +98,7 @@ test('shows restart screen after switching to host mode', async () => {
     name: 'Switch to Host Mode',
   });
   apiMock.apiClient.setMachineMode.expectCallWith({ mode: 'host' }).resolves();
-  userEvent.click(switchButton);
+  await userEvent.click(switchButton);
   await screen.findByText(/VxAdmin switched to host mode\./);
   screen.getByText(/Restart VxAdmin to continue\./);
   screen.getByRole('button', { name: 'Restart' });

@@ -3,7 +3,7 @@ import {
   type BooleanEnvironmentVariableName as Feature,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { formatElectionHashes, type PollsState } from '@votingworks/types';
 import {
@@ -84,14 +84,14 @@ test('renders date and time settings modal', async () => {
   const startDate = 'Sat, Oct 31, 2020, 12:00 AM AKDT';
 
   renderScreen();
-  userEvent.click(await screen.findButton('Set Date and Time'));
+  await userEvent.click(await screen.findButton('Set Date and Time'));
 
   within(screen.getByTestId('modal')).getByText(startDate);
 
   const selectYear = screen.getByTestId('selectYear');
   const optionYear =
     within(selectYear).getByText<HTMLOptionElement>('2025').value;
-  userEvent.selectOptions(selectYear, optionYear);
+  await userEvent.selectOptions(selectYear, optionYear);
 
   // Save Date and Timezone
   apiMock.mockApiClient.setClock
@@ -103,7 +103,9 @@ test('renders date and time settings modal', async () => {
   apiMock.expectLogOut();
   // eslint-disable-next-line @typescript-eslint/require-await
   await act(async () => {
-    userEvent.click(within(screen.getByTestId('modal')).getByText('Save'));
+    await userEvent.click(
+      within(screen.getByTestId('modal')).getByText('Save')
+    );
   });
 });
 
@@ -131,14 +133,14 @@ test('wires up location picker', async () => {
 test('renders a save logs button with no usb', async () => {
   renderScreen({ usbDriveStatus: mockUsbDriveStatus('no_drive') });
   const saveLogsButton = await screen.findByText('Save Logs');
-  userEvent.click(saveLogsButton);
+  await userEvent.click(saveLogsButton);
   await screen.findByText('No USB Drive Detected');
 });
 
 test('renders a save logs button with usb mounted', async () => {
   renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
   const saveLogsButton = await screen.findByText('Save Logs');
-  userEvent.click(saveLogsButton);
+  await userEvent.click(saveLogsButton);
   await screen.findByText('Select a log format:');
 });
 
@@ -148,8 +150,8 @@ test('Unconfigure will eject usb', async () => {
   });
   const unconfigureButton = await screen.findByText('Unconfigure Machine');
   apiMock.expectEjectUsbDrive();
-  userEvent.click(unconfigureButton);
-  userEvent.click(screen.getButton('Delete All Election Data'));
+  await userEvent.click(unconfigureButton);
+  await userEvent.click(screen.getButton('Delete All Election Data'));
 });
 
 test('Shows election info', () => {
@@ -176,9 +178,9 @@ test('Shows diagnostics button and renders screen after click', async () => {
   apiMock.expectGetMarkScanBmdModel();
 
   const diagnosticsButton = await screen.findByText('Diagnostics');
-  userEvent.click(diagnosticsButton);
+  await userEvent.click(diagnosticsButton);
   await screen.findByRole('heading', { name: 'Diagnostics' });
-  userEvent.click(screen.getByText('Back'));
+  await userEvent.click(screen.getByText('Back'));
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 });
 
@@ -188,11 +190,15 @@ test('switching to official ballot mode with ballots printed', async () => {
     isTestMode: true,
   });
 
-  userEvent.click(screen.getByRole('option', { name: 'Official Ballot Mode' }));
+  await userEvent.click(
+    screen.getByRole('option', { name: 'Official Ballot Mode' })
+  );
   const modal = await screen.findByRole('alertdialog');
 
   apiMock.expectSetTestMode(false);
-  userEvent.click(within(modal).getButton('Switch to Official Ballot Mode'));
+  await userEvent.click(
+    within(modal).getButton('Switch to Official Ballot Mode')
+  );
 });
 
 test('switching to test ballot mode with ballots printed', async () => {
@@ -201,29 +207,35 @@ test('switching to test ballot mode with ballots printed', async () => {
     isTestMode: false,
   });
 
-  userEvent.click(screen.getByRole('option', { name: 'Test Ballot Mode' }));
+  await userEvent.click(
+    screen.getByRole('option', { name: 'Test Ballot Mode' })
+  );
   const modal = await screen.findByRole('alertdialog');
 
   apiMock.expectSetTestMode(true);
-  userEvent.click(within(modal).getButton('Switch to Test Ballot Mode'));
+  await userEvent.click(within(modal).getButton('Switch to Test Ballot Mode'));
 });
 
-test('switching to official ballot mode without ballots printed', () => {
+test('switching to official ballot mode without ballots printed', async () => {
   renderScreen({
     ballotsPrintedCount: 0,
     isTestMode: true,
   });
 
   apiMock.expectSetTestMode(false);
-  userEvent.click(screen.getByRole('option', { name: 'Official Ballot Mode' }));
+  await userEvent.click(
+    screen.getByRole('option', { name: 'Official Ballot Mode' })
+  );
 });
 
-test('switching to test ballot mode without ballots printed', () => {
+test('switching to test ballot mode without ballots printed', async () => {
   renderScreen({
     ballotsPrintedCount: 0,
     isTestMode: false,
   });
 
   apiMock.expectSetTestMode(true);
-  userEvent.click(screen.getByRole('option', { name: 'Test Ballot Mode' }));
+  await userEvent.click(
+    screen.getByRole('option', { name: 'Test Ballot Mode' })
+  );
 });

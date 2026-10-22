@@ -9,7 +9,7 @@ import {
   VoterHelpScreenP,
 } from './voter_help_screen.js';
 
-test('VoterHelpScreen', () => {
+test('VoterHelpScreen', async () => {
   const onClose = vi.fn();
   render(
     <VoterHelpScreen onClose={onClose}>
@@ -24,6 +24,6 @@ test('VoterHelpScreen', () => {
   screen.getByRole('heading', { name: 'Subsection' });
   screen.getByText('Content');
   const closeButton = screen.getByRole('button', { name: 'Close' });
-  userEvent.click(closeButton);
+  await userEvent.click(closeButton);
   expect(onClose).toHaveBeenCalledTimes(1);
 });

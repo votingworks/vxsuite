@@ -1,6 +1,6 @@
 import { describe, test, beforeEach, afterEach, vi, expect } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   PollbookConnectionStatus,
   type PollbookServiceInfo,
@@ -157,13 +157,13 @@ describe('Election tab', () => {
     // Try to configure from the "bad" election and mimic an error
     apiMock.expectConfigureOverNetwork('TEST-04', 'invalid-pollbook-package');
     const configureBad = await within(rows[1]!).findByText('Configure');
-    userEvent.click(configureBad);
+    await userEvent.click(configureBad);
     await screen.findByText(/Error during configuration. Please try again./);
 
     // Try to configure from the "good" election and mimic success
     apiMock.expectConfigureOverNetwork('TEST-01');
     const configureGood = await within(rows[0]!).findByText('Configure');
-    userEvent.click(configureGood);
+    await userEvent.click(configureGood);
   });
 
   test('shows precinct select and allows changing configured precinct', async () => {
@@ -189,8 +189,8 @@ describe('Election tab', () => {
 
     apiMock.expectSetConfiguredPrecinct(newPrecinctId);
 
-    userEvent.click(screen.getByText('Select Precinct…'));
-    userEvent.click(screen.getByText(precincts[1]!.name));
+    await userEvent.click(screen.getByText('Select Precinct…'));
+    await userEvent.click(screen.getByText(precincts[1]!.name));
 
     // Wait for the value to update
     await vi.waitFor(() => {
@@ -209,7 +209,7 @@ describe('Settings tab', () => {
     const settingsTabButton = await screen.findByRole('button', {
       name: 'Settings',
     });
-    userEvent.click(settingsTabButton);
+    await userEvent.click(settingsTabButton);
 
     await screen.findByRole('heading', { name: 'Settings' });
   }
@@ -237,7 +237,7 @@ describe('Settings tab', () => {
     await renderSettingsTab();
 
     // Full functionality tested in libs/ui/src/export_logs_modal.test.tsx
-    userEvent.click(screen.getByRole('button', { name: 'Save Logs' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save Logs' }));
     await screen.findByRole('heading', { name: 'Save Logs' });
     screen.getByText('Select a log format:');
   });
@@ -246,7 +246,9 @@ describe('Settings tab', () => {
     await renderSettingsTab();
 
     // Full functionality tested in libs/ui/src/set_clock.test.tsx
-    userEvent.click(screen.getByRole('button', { name: 'Set Date and Time' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Set Date and Time' })
+    );
     await screen.findByRole('heading', { name: 'Set Date and Time' });
   });
 
@@ -254,7 +256,9 @@ describe('Settings tab', () => {
     await renderSettingsTab();
 
     // Full functionality tested in libs/ui/src/format_usb_modal.test.tsx
-    userEvent.click(screen.getByRole('button', { name: 'Format USB Drive' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Format USB Drive' })
+    );
     await screen.findByRole('heading', { name: 'Format USB Drive' });
     await screen.findByText(
       'Formatting will delete all files on the USB drive. Back up USB drive files before formatting.'

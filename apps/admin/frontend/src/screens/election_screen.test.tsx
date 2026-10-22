@@ -9,7 +9,7 @@ import {
   constructElectionKey,
   type DippedSmartCardAuth,
 } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import {
   type ApiMock,
@@ -88,21 +88,25 @@ describe('as System Admin', () => {
       isOfficialResults: true,
     });
 
-    userEvent.click(screen.getButton('Revert Election Results to Unofficial'));
+    await userEvent.click(
+      screen.getButton('Revert Election Results to Unofficial')
+    );
     let confirmModal = await screen.findByRole('alertdialog');
     within(confirmModal).getByRole('heading', {
       name: 'Revert Election Results to Unofficial',
     });
 
-    userEvent.click(within(confirmModal).getButton('Cancel'));
+    await userEvent.click(within(confirmModal).getButton('Cancel'));
     await waitFor(() => {
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     });
 
     apiMock.apiClient.revertResultsToUnofficial.expectCallWith().resolves();
-    userEvent.click(screen.getButton('Revert Election Results to Unofficial'));
+    await userEvent.click(
+      screen.getButton('Revert Election Results to Unofficial')
+    );
     confirmModal = await screen.findByRole('alertdialog');
-    userEvent.click(
+    await userEvent.click(
       within(confirmModal).getButton('Revert Election Results to Unofficial')
     );
     await waitFor(() => {

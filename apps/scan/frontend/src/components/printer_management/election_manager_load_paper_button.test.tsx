@@ -1,5 +1,5 @@
 import { beforeEach, afterEach, expect, test } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { err } from '@votingworks/basics';
 import {
   type ApiMock,
@@ -43,7 +43,7 @@ async function openModal() {
   await waitFor(() => {
     expect(loadPaperButton).toBeEnabled();
   });
-  userEvent.click(loadPaperButton);
+  await userEvent.click(loadPaperButton);
 }
 
 test('happy path', async () => {
@@ -63,7 +63,7 @@ test('happy path', async () => {
 
   const testPrint = apiMock.expectPrintTestPage();
   screen.getButton('Cancel'); // option to cancel is there
-  userEvent.click(screen.getButton('Print Test Page'));
+  await userEvent.click(screen.getButton('Print Test Page'));
 
   await screen.findByText('Printing');
 
@@ -71,7 +71,7 @@ test('happy path', async () => {
   await screen.findByText('Test Page Printed');
 
   apiMock.expectLogTestPrintOutcome('pass');
-  userEvent.click(screen.getButton('Pass'));
+  await userEvent.click(screen.getButton('Pass'));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
@@ -128,7 +128,7 @@ test('hardware error on test print', async () => {
       type: 'disconnected',
     })
   );
-  userEvent.click(screen.getButton('Print Test Page'));
+  await userEvent.click(screen.getButton('Print Test Page'));
   await screen.findByText('Printing');
 
   testPrint.resolve();
@@ -152,12 +152,12 @@ test('out of paper on test print', async () => {
       state: 'no-paper',
     })
   );
-  userEvent.click(screen.getButton('Print Test Page'));
+  await userEvent.click(screen.getButton('Print Test Page'));
   await screen.findByText('Printing');
 
   testPrint.resolve();
   await screen.findByText('Print Failed');
 
-  userEvent.click(screen.getButton('Retry'));
+  await userEvent.click(screen.getButton('Retry'));
   await screen.findByText('Remove Paper Roll Holder');
 });

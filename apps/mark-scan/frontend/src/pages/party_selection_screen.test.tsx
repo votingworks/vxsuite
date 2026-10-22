@@ -3,7 +3,7 @@ import { Route } from 'react-router-dom';
 import { electionCombinedBallotPrimaryFixtures } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import type { CandidateContest, VotesDict } from '@votingworks/types';
 import { screen, within } from '../../test/react_testing_library.js';
 import { render } from '../../test/test_utils.js';
@@ -47,7 +47,7 @@ test('Next button enabled once a party is selected', () => {
   expect(screen.getButton(/next/i)).toBeEnabled();
 });
 
-test('selecting a party calls selectParty with the party id', () => {
+test('selecting a party calls selectParty with the party id', async () => {
   const selectParty = vi.fn();
   render(<Route path="/party-selection" component={PartySelectionScreen} />, {
     electionDefinition,
@@ -55,11 +55,13 @@ test('selecting a party calls selectParty with the party id', () => {
     selectParty,
   });
 
-  userEvent.click(screen.getByRole('radio', { name: 'Republican Party' }));
+  await userEvent.click(
+    screen.getByRole('radio', { name: 'Republican Party' })
+  );
   expect(selectParty).toHaveBeenCalledWith('republican-party');
 });
 
-test('Back button navigates to start screen', () => {
+test('Back button navigates to start screen', async () => {
   const history = createMemoryHistory({ initialEntries: ['/party-selection'] });
   render(<Route path="/party-selection" component={PartySelectionScreen} />, {
     electionDefinition,
@@ -67,11 +69,11 @@ test('Back button navigates to start screen', () => {
     route: '/party-selection',
   });
 
-  userEvent.click(screen.getButton(/back/i));
+  await userEvent.click(screen.getButton(/back/i));
   expect(history.location.pathname).toEqual('/');
 });
 
-test('Next button navigates to first contest when a party is selected', () => {
+test('Next button navigates to first contest when a party is selected', async () => {
   const history = createMemoryHistory({ initialEntries: ['/party-selection'] });
   render(<Route path="/party-selection" component={PartySelectionScreen} />, {
     electionDefinition,
@@ -80,11 +82,11 @@ test('Next button navigates to first contest when a party is selected', () => {
     selectedPartyId: 'democratic-party',
   });
 
-  userEvent.click(screen.getButton(/next/i));
+  await userEvent.click(screen.getButton(/next/i));
   expect(history.location.pathname).toEqual('/contests/0');
 });
 
-test('changing party with votes cast prompts confirmation before clearing votes', () => {
+test('changing party with votes cast prompts confirmation before clearing votes', async () => {
   const selectParty = vi.fn();
   const votes: VotesDict = {
     [democraticGovernor.id]: [democraticGovernor.candidates[0]!],
@@ -98,25 +100,29 @@ test('changing party with votes cast prompts confirmation before clearing votes'
   });
 
   // Tapping a different party opens the modal without changing the party yet.
-  userEvent.click(screen.getByRole('radio', { name: 'Republican Party' }));
+  await userEvent.click(
+    screen.getByRole('radio', { name: 'Republican Party' })
+  );
   let modal = screen.getByRole('alertdialog');
   within(modal).getByText(/clear all of your votes/i);
   expect(selectParty).not.toHaveBeenCalled();
 
   // Cancel closes the modal and leaves the party unchanged.
-  userEvent.click(within(modal).getButton(/cancel/i));
+  await userEvent.click(within(modal).getButton(/cancel/i));
   expect(screen.queryByRole('alertdialog')).toBeNull();
   expect(selectParty).not.toHaveBeenCalled();
 
   // Reopening and confirming applies the new party.
-  userEvent.click(screen.getByRole('radio', { name: 'Republican Party' }));
+  await userEvent.click(
+    screen.getByRole('radio', { name: 'Republican Party' })
+  );
   modal = screen.getByRole('alertdialog');
-  userEvent.click(within(modal).getButton(/^change party/i));
+  await userEvent.click(within(modal).getButton(/^change party/i));
   expect(selectParty).toHaveBeenCalledWith('republican-party');
   expect(screen.queryByRole('alertdialog')).toBeNull();
 });
 
-test('changing party with no votes cast skips the confirmation modal', () => {
+test('changing party with no votes cast skips the confirmation modal', async () => {
   const selectParty = vi.fn();
   render(<Route path="/party-selection" component={PartySelectionScreen} />, {
     electionDefinition,
@@ -125,12 +131,14 @@ test('changing party with no votes cast skips the confirmation modal', () => {
     selectParty,
   });
 
-  userEvent.click(screen.getByRole('radio', { name: 'Republican Party' }));
+  await userEvent.click(
+    screen.getByRole('radio', { name: 'Republican Party' })
+  );
   expect(screen.queryByRole('alertdialog')).toBeNull();
   expect(selectParty).toHaveBeenCalledWith('republican-party');
 });
 
-test('entering from review shows a Review button until a vote-clearing change is confirmed', () => {
+test('entering from review shows a Review button until a vote-clearing change is confirmed', async () => {
   const selectParty = vi.fn();
   const votes: VotesDict = {
     [democraticGovernor.id]: [democraticGovernor.candidates[0]!],
@@ -152,13 +160,19 @@ test('entering from review shows a Review button until a vote-clearing change is
   expect(screen.queryButton(/^next$/i)).toBeNull();
 
   // Cancelling a vote-clearing change keeps review mode.
-  userEvent.click(screen.getByRole('radio', { name: 'Republican Party' }));
-  userEvent.click(within(screen.getByRole('alertdialog')).getButton(/cancel/i));
+  await userEvent.click(
+    screen.getByRole('radio', { name: 'Republican Party' })
+  );
+  await userEvent.click(
+    within(screen.getByRole('alertdialog')).getButton(/cancel/i)
+  );
   screen.getButton(/review/i);
 
   // Confirming the change clears votes and switches to the standard footer.
-  userEvent.click(screen.getByRole('radio', { name: 'Republican Party' }));
-  userEvent.click(
+  await userEvent.click(
+    screen.getByRole('radio', { name: 'Republican Party' })
+  );
+  await userEvent.click(
     within(screen.getByRole('alertdialog')).getButton(/^change party/i)
   );
   expect(selectParty).toHaveBeenCalledWith('republican-party');

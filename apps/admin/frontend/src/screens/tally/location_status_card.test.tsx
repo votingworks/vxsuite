@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { pollingPlaceTypeName } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen } from '../../../test/react_testing_library.js';
 import { LocationStatusCard } from './location_status_card.js';
 
@@ -64,7 +64,7 @@ test('location with multi-scanner imports', () => {
   screen.getByText('2,048');
 });
 
-test('emits onPress event on click', () => {
+test('emits onPress event on click', async () => {
   const onPress = vi.fn();
   const id = 'south';
 
@@ -82,6 +82,6 @@ test('emits onPress event on click', () => {
   );
 
   expect(onPress).not.toHaveBeenCalled();
-  userEvent.click(screen.getButton(/Vx South/));
+  await userEvent.click(screen.getButton(/Vx South/));
   expect(onPress).toHaveBeenCalledExactlyOnceWith(id);
 });

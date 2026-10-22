@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { advancePromises, mockKiosk } from '@votingworks/test-utils';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { err, ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
@@ -25,7 +25,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-test('render no usb found screen when there is not a valid mounted usb drive', () => {
+test('render no usb found screen when there is not a valid mounted usb drive', async () => {
   const usbStatuses: Array<UsbDriveStatus['status']> = [
     'no_drive',
     'ejected',
@@ -52,7 +52,7 @@ test('render no usb found screen when there is not a valid mounted usb drive', (
     );
     screen.getByText('No USB Drive Detected');
 
-    userEvent.click(screen.getButton('Cancel'));
+    await userEvent.click(screen.getButton('Cancel'));
     expect(closeFn).toHaveBeenCalled();
 
     unmount();
@@ -83,7 +83,7 @@ test('happy usb path - save to default location', async () => {
   // component to set the usb drive path in useEffect
   await advancePromises();
 
-  userEvent.click(screen.getButton('Save'));
+  await userEvent.click(screen.getButton('Save'));
   await vi.waitFor(() => {
     expect(saveFile).toHaveBeenCalledWith({
       filename: 'export.csv',
@@ -128,7 +128,7 @@ test('shows success screen if success and resets mutation on close', async () =>
     }
   );
   screen.getByText('Batch Export Saved');
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
   await vi.waitFor(() => {
     expect(resetSaveFileResult).toBeCalled();
   });

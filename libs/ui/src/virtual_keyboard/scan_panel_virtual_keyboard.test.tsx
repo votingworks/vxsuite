@@ -95,13 +95,13 @@ test('fires key events', { timeout: 30_000 }, async () => {
       for (const key of panel.keys) {
         // Click the relevant row. After each keypress focus will reset and
         // rows, not individual keys, will be clickable again.
-        userEvent.click(
+        await userEvent.click(
           screen.getByText(
             hasTextAcrossElements(new RegExp(`^${rowSearchValue}`))
           )
         );
         // Click the relevant scan panel
-        userEvent.click(
+        await userEvent.click(
           screen.getByText(
             hasTextAcrossElements(new RegExp(`^${panelSearchValue}`))
           )
@@ -119,7 +119,7 @@ test('fires key events', { timeout: 30_000 }, async () => {
         // significantly slower, especially with this many iterations.
         // The "custom keymap" test below verifies that the keys are rendered as
         // accessible buttons.
-        userEvent.click(
+        await userEvent.click(
           screen.getByText(hasTextAcrossElements(expectedButtonContent))
         );
         expect(onKeyPress).lastCalledWith(key.value);
@@ -127,31 +127,31 @@ test('fires key events', { timeout: 30_000 }, async () => {
     }
   }
 
-  function clickLastRowAndScanPanel() {
+  async function clickLastRowAndScanPanel() {
     // The last row has only one scan panel, so we click the "same" button twice
     // Click row
-    userEvent.click(screen.getButton(/^space delete/));
+    await userEvent.click(screen.getButton(/^space delete/));
     // Click scan panel
-    userEvent.click(screen.getButton(/^space delete/));
+    await userEvent.click(screen.getButton(/^space delete/));
   }
 
-  clickLastRowAndScanPanel();
+  await clickLastRowAndScanPanel();
   const spaceBar = screen.getButton(
     `space ${getMockAudioOnlyTextPrefix(SPANISH)} space`
   );
-  userEvent.click(spaceBar);
+  await userEvent.click(spaceBar);
   expect(onKeyPress).lastCalledWith(' ');
 
-  clickLastRowAndScanPanel();
+  await clickLastRowAndScanPanel();
   expect(onBackspace).not.toHaveBeenCalled();
 
-  userEvent.click(
+  await userEvent.click(
     screen.getButton(`delete ${getMockAudioOnlyTextPrefix(SPANISH)} delete`)
   );
   expect(onBackspace).toHaveBeenCalled();
 });
 
-test('supports tab and enter keypresses to navigate the keyboard', () => {
+test('supports tab and enter keypresses to navigate the keyboard', async () => {
   const onKeyPress = vi.fn();
   const onBackspace = vi.fn();
 
@@ -167,38 +167,38 @@ test('supports tab and enter keypresses to navigate the keyboard', () => {
     hasTextAcrossElements(new RegExp(`^${firstRow}`))
   );
   expect(firstRowElement).toHaveFocus();
-  userEvent.tab();
+  await userEvent.tab();
   expect(
     screen.getByText(hasTextAcrossElements(new RegExp(`^${secondRow}`)))
   ).toHaveFocus();
-  userEvent.tab();
+  await userEvent.tab();
   expect(
     screen.getByText(hasTextAcrossElements(new RegExp(`^${thirdRow}`)))
   ).toHaveFocus();
-  userEvent.tab();
+  await userEvent.tab();
   expect(
     screen.getByText(hasTextAcrossElements(new RegExp(`^${fourthRow}`)))
   ).toHaveFocus();
   // The next tab event will focus the whole keyboard, so tab twice to cycle around
-  userEvent.tab();
-  userEvent.tab();
+  await userEvent.tab();
+  await userEvent.tab();
   expect(firstRowElement).toHaveFocus();
 
-  userEvent.keyboard('{enter}');
+  await userEvent.keyboard('{Enter}');
   expect(screen.getByText(hasTextAcrossElements(/^QWER/))).toHaveFocus();
-  userEvent.tab();
+  await userEvent.tab();
   expect(screen.getByText(hasTextAcrossElements(/^TYU/))).toHaveFocus();
-  userEvent.keyboard('{enter}');
+  await userEvent.keyboard('{Enter}');
   // Need to use slower getButton here because getByText will find the child <span>
   expect(
     screen.getButton(`T ${getMockAudioOnlyTextPrefix(ENGLISH)} T`)
   ).toHaveFocus();
   expect(onKeyPress).not.toHaveBeenCalled();
-  userEvent.keyboard('{enter}');
+  await userEvent.keyboard('{Enter}');
   expect(onKeyPress).toHaveBeenCalledWith('T');
 });
 
-test('allows row/panel selection if at least one key is enabled', () => {
+test('allows row/panel selection if at least one key is enabled', async () => {
   const onKeyPress = vi.fn();
   const onBackspace = vi.fn();
 
@@ -217,18 +217,18 @@ test('allows row/panel selection if at least one key is enabled', () => {
   expect(spaceDelRowButton).not.toBeDisabled();
 
   // Click to activate the "space"/"delete" row:
-  userEvent.click(spaceDelRowButton);
+  await userEvent.click(spaceDelRowButton);
 
   // Click again to activate the "space"/"delete" panel:
   // [TODO] This UX could be improved to require only one click to split
   // the row, since there are only 2 keys here.
-  userEvent.click(screen.getButton(/^space delete/));
+  await userEvent.click(screen.getButton(/^space delete/));
 
   expect(screen.getButton(/space/)).toBeDisabled();
   expect(screen.getButton(/delete/)).not.toBeDisabled();
 });
 
-test("doesn't fire key events for disabled keys", () => {
+test("doesn't fire key events for disabled keys", async () => {
   const mPanel = 'BNM';
 
   const onKeyPress = vi.fn();
@@ -242,18 +242,18 @@ test("doesn't fire key events for disabled keys", () => {
     />
   );
 
-  userEvent.click(
+  await userEvent.click(
     screen.getByText(hasTextAcrossElements(new RegExp(`^${thirdRow}`)))
   );
-  userEvent.click(
+  await userEvent.click(
     screen.getByText(hasTextAcrossElements(new RegExp(`^${mPanel}`)))
   );
 
-  userEvent.click(screen.getButton(/\bM\b/));
+  await userEvent.click(screen.getButton(/\bM\b/));
   expect(onKeyPress).not.toHaveBeenCalled();
 });
 
-test('custom keymap', () => {
+test('custom keymap', async () => {
   const onKeyPress = vi.fn();
   const onBackspace = vi.fn();
 
@@ -282,18 +282,18 @@ test('custom keymap', () => {
   );
 
   // Click twice, once for row and once for scan panel
-  userEvent.click(screen.getByText(hasTextAcrossElements(/^😂magic/)));
-  userEvent.click(screen.getByText(hasTextAcrossElements(/^😂magic/)));
+  await userEvent.click(screen.getByText(hasTextAcrossElements(/^😂magic/)));
+  await userEvent.click(screen.getByText(hasTextAcrossElements(/^😂magic/)));
 
-  userEvent.click(
+  await userEvent.click(
     screen.getButton(`😂 ${getMockAudioOnlyTextPrefix(ENGLISH)} lol`)
   );
   expect(onKeyPress).lastCalledWith('😂');
 
   // Click row and panel again after focus has reset
-  userEvent.click(screen.getByText(hasTextAcrossElements(/^😂magic/)));
-  userEvent.click(screen.getByText(hasTextAcrossElements(/^😂magic/)));
-  userEvent.click(
+  await userEvent.click(screen.getByText(hasTextAcrossElements(/^😂magic/)));
+  await userEvent.click(screen.getByText(hasTextAcrossElements(/^😂magic/)));
+  await userEvent.click(
     screen.getButton(`magic ${getMockAudioOnlyTextPrefix(ENGLISH)} magic`)
   );
   expect(onKeyPress).lastCalledWith('✨');

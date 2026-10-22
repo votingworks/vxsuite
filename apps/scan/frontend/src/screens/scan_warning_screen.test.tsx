@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
@@ -105,7 +105,7 @@ test('overvote', async () => {
   const returnBallotButton = screen.getButton('Return Ballot');
   expect(isButtonVariantPrimary(returnBallotButton)).toEqual(true);
   expect(isButtonVariantPrimary(castBallotButton)).toEqual(false);
-  userEvent.click(castBallotButton);
+  await userEvent.click(castBallotButton);
   expect(castBallotButton).toBeDisabled();
   expect(returnBallotButton).toBeDisabled();
 });
@@ -148,7 +148,7 @@ test('overvote when casting overvotes is disallowed', async () => {
     screen.queryByRole('button', { name: 'Cast Ballot' })
   ).not.toBeInTheDocument();
 
-  userEvent.click(screen.getByRole('button', { name: 'Return Ballot' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Return Ballot' }));
 });
 
 test('crossover voting (cast ballot)', async () => {
@@ -166,7 +166,7 @@ test('crossover voting (cast ballot)', async () => {
   const returnBallotButton = screen.getButton('Return Ballot');
   expect(isButtonVariantPrimary(returnBallotButton)).toEqual(true);
   expect(isButtonVariantPrimary(castBallotButton)).toEqual(false);
-  userEvent.click(castBallotButton);
+  await userEvent.click(castBallotButton);
   expect(castBallotButton).toBeDisabled();
   expect(returnBallotButton).toBeDisabled();
 });
@@ -178,7 +178,7 @@ test('crossover voting (return ballot)', async () => {
   });
 
   await screen.findByRole('heading', { name: 'Review Your Ballot' });
-  userEvent.click(screen.getByRole('button', { name: 'Return Ballot' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Return Ballot' }));
 });
 
 test('blank ballot', async () => {
@@ -195,7 +195,7 @@ test('blank ballot', async () => {
   const returnBallotButton = screen.getButton('Return Ballot');
   expect(isButtonVariantPrimary(returnBallotButton)).toEqual(true);
   expect(isButtonVariantPrimary(castBallotButton)).toEqual(false);
-  userEvent.click(castBallotButton);
+  await userEvent.click(castBallotButton);
   expect(castBallotButton).toBeDisabled();
   expect(returnBallotButton).toBeDisabled();
 });
@@ -233,7 +233,7 @@ test('undervote no votes', async () => {
   const returnBallotButton = screen.getButton('Return Ballot');
   expect(isButtonVariantPrimary(castBallotButton)).toEqual(true);
   expect(isButtonVariantPrimary(returnBallotButton)).toEqual(false);
-  userEvent.click(castBallotButton);
+  await userEvent.click(castBallotButton);
   expect(castBallotButton).toBeDisabled();
   expect(returnBallotButton).toBeDisabled();
 });
@@ -273,7 +273,7 @@ test('undervote by 1', async () => {
   const returnBallotButton = screen.getButton('Return Ballot');
   expect(isButtonVariantPrimary(castBallotButton)).toEqual(true);
   expect(isButtonVariantPrimary(returnBallotButton)).toEqual(false);
-  userEvent.click(castBallotButton);
+  await userEvent.click(castBallotButton);
   expect(castBallotButton).toBeDisabled();
   expect(returnBallotButton).toBeDisabled();
 });
@@ -309,7 +309,7 @@ test('multiple undervotes', async () => {
   const returnBallotButton = screen.getButton('Return Ballot');
   expect(isButtonVariantPrimary(castBallotButton)).toEqual(true);
   expect(isButtonVariantPrimary(returnBallotButton)).toEqual(false);
-  userEvent.click(castBallotButton);
+  await userEvent.click(castBallotButton);
   expect(castBallotButton).toBeDisabled();
   expect(returnBallotButton).toBeDisabled();
 });
@@ -346,7 +346,7 @@ test('marginal mark', async () => {
   const returnBallotButton = screen.getButton('Return Ballot');
   expect(isButtonVariantPrimary(returnBallotButton)).toEqual(true);
   expect(isButtonVariantPrimary(castBallotButton)).toEqual(false);
-  userEvent.click(castBallotButton);
+  await userEvent.click(castBallotButton);
   expect(castBallotButton).toBeDisabled();
   expect(returnBallotButton).toBeDisabled();
 });

@@ -1,5 +1,5 @@
 import { vi, beforeEach, afterEach, test, expect, describe } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   electionTwoPartyPrimaryFixtures,
   readElectionGeneralDefinition,
@@ -93,12 +93,12 @@ test('renders date and time settings modal', async () => {
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-  userEvent.click(screen.getByRole('tab', { name: 'More' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'More' }));
 
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior
   // Open Modal and change date
-  userEvent.click(await screen.findButton('Set Date and Time'));
+  await userEvent.click(await screen.findButton('Set Date and Time'));
 
   within(screen.getByTestId('modal')).getByText(
     'Sat, Oct 31, 2020, 12:00 AM AKDT'
@@ -107,7 +107,7 @@ test('renders date and time settings modal', async () => {
   const selectYear = screen.getByTestId('selectYear');
   const optionYear =
     within(selectYear).getByText<HTMLOptionElement>('2025').value;
-  userEvent.selectOptions(selectYear, optionYear);
+  await userEvent.selectOptions(selectYear, optionYear);
 
   // Save Date and Timezone
   apiMock.mockApiClient.setClock
@@ -119,7 +119,9 @@ test('renders date and time settings modal', async () => {
   apiMock.expectLogOut();
   // eslint-disable-next-line @typescript-eslint/require-await
   await act(async () => {
-    userEvent.click(within(screen.getByTestId('modal')).getByText('Save'));
+    await userEvent.click(
+      within(screen.getByTestId('modal')).getByText('Save')
+    );
   });
 });
 
@@ -236,15 +238,15 @@ test('unconfigure ejects a usb drive', async () => {
   });
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-  userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
 
   apiMock.mockApiClient.unconfigureElection.expectCallWith().resolves();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetConfig({ electionDefinition: undefined });
   apiMock.expectGetPollsInfo();
   apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
-  userEvent.click(screen.getButton('Unconfigure Machine'));
-  userEvent.click(screen.getButton('Delete All Election Data'));
+  await userEvent.click(screen.getButton('Unconfigure Machine'));
+  await userEvent.click(screen.getButton('Delete All Election Data'));
   await waitFor(() => {
     apiMock.mockApiClient.assertComplete();
   });
@@ -260,9 +262,9 @@ test('when sounds are not muted, shows a button to mute sounds', async () => {
     .resolves();
   apiMock.expectGetConfig({ isSoundMuted: true });
 
-  userEvent.click(screen.getByRole('tab', { name: 'More' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'More' }));
 
-  userEvent.click(screen.getByRole('button', { name: 'Mute Sounds' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Mute Sounds' }));
   await screen.findByRole('button', { name: 'Unmute Sounds' });
 });
 
@@ -276,9 +278,9 @@ test('when sounds are muted, shows a button to unmute sounds', async () => {
     .resolves();
   apiMock.expectGetConfig({ isSoundMuted: false });
 
-  userEvent.click(screen.getByRole('tab', { name: 'More' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'More' }));
 
-  userEvent.click(screen.getByRole('button', { name: 'Unmute Sounds' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Unmute Sounds' }));
   await screen.findByRole('button', { name: 'Mute Sounds' });
 });
 
@@ -287,7 +289,7 @@ test('shows double feed detection toggle', async () => {
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-  userEvent.click(screen.getByRole('tab', { name: 'Scanner' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'Scanner' }));
 
   await screen.findByText('Disable Double Sheet Detection');
 });
@@ -297,7 +299,7 @@ test('prompts to enable double feed detection when disabled', async () => {
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-  userEvent.click(screen.getByRole('tab', { name: 'Scanner' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'Scanner' }));
 
   await screen.findByText('Enable Double Sheet Detection');
 });
@@ -307,13 +309,15 @@ test('disables double feed detection properly', async () => {
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-  userEvent.click(screen.getByRole('tab', { name: 'Scanner' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'Scanner' }));
 
   apiMock.mockApiClient.setIsDoubleFeedDetectionDisabled
     .expectCallWith({ isDoubleFeedDetectionDisabled: true })
     .resolves();
   apiMock.expectGetConfig({ isDoubleFeedDetectionDisabled: true });
-  userEvent.click(await screen.findButton('Disable Double Sheet Detection'));
+  await userEvent.click(
+    await screen.findButton('Disable Double Sheet Detection')
+  );
   await screen.findButton('Enable Double Sheet Detection');
   await screen.findByText('Enable Double Sheet Detection');
 });
@@ -323,14 +327,14 @@ test('when continuous export is enabled, shows a button to pause continuous expo
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-  userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
 
   apiMock.mockApiClient.setIsContinuousExportEnabled
     .expectCallWith({ isContinuousExportEnabled: false })
     .resolves();
   apiMock.expectGetConfig({ isContinuousExportEnabled: false });
 
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('button', { name: 'Pause Continuous CVR Export' })
   );
   await screen.findByRole('button', { name: 'Resume Continuous CVR Export' });
@@ -341,14 +345,14 @@ test('when continuous export is paused, shows a button to resume continuous expo
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-  userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
 
   apiMock.mockApiClient.setIsContinuousExportEnabled
     .expectCallWith({ isContinuousExportEnabled: true })
     .resolves();
   apiMock.expectGetConfig({ isContinuousExportEnabled: true });
 
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('button', { name: 'Resume Continuous CVR Export' })
   );
   await screen.findByRole('button', { name: 'Pause Continuous CVR Export' });
@@ -358,7 +362,7 @@ test('when ballot audit IDs not enabled, doesnt show button to save secret key',
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
-  userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
   expect(
     screen.queryByRole('button', { name: 'Save Ballot Audit ID Secret Key' })
   ).not.toBeInTheDocument();
@@ -374,19 +378,19 @@ test('when ballot audit IDs enabled, shows a button to save secret key', async (
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-  userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
 
   apiMock.mockApiClient.saveBallotAuditIdSecretKey
     .expectCallWith()
     .resolves(ok(['test-export-path']));
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('button', { name: 'Save Ballot Audit ID Secret Key' })
   );
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', {
     name: 'Ballot Audit ID Secret Key Saved',
   });
-  userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
+  await userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
@@ -402,14 +406,14 @@ test('shows error if saving ballot audit ID secret key fails', async () => {
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-  userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
 
   apiMock.mockApiClient.saveBallotAuditIdSecretKey
     .expectCallWith()
     .resolves(
       err({ type: 'missing-usb-drive', message: 'No USB drive found' })
     );
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('button', { name: 'Save Ballot Audit ID Secret Key' })
   );
   const modal = await screen.findByRole('alertdialog');
@@ -417,7 +421,7 @@ test('shows error if saving ballot audit ID secret key fails', async () => {
     name: 'Failed to Save Ballot Audit ID Secret Key',
   });
   within(modal).getByText('No USB drive found');
-  userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
+  await userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
@@ -451,7 +455,7 @@ test.each(ballotCastingPeriodButtonDisabledTestCases)(
     renderScreen({ scannerStatus: { ...statusNoPaper, ballotsCounted: 0 } });
     await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-    userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
 
     await screen.findByRole('option', {
       name: 'Early Voting',
@@ -475,7 +479,7 @@ test('switching mode when no ballots have been counted', async () => {
   renderScreen({ scannerStatus: { ...statusNoPaper, ballotsCounted: 0 } });
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-  userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
 
   await screen.findByRole('option', {
     name: 'Test Ballot Mode',
@@ -490,7 +494,7 @@ test('switching mode when no ballots have been counted', async () => {
   apiMock.expectSetTestMode(false);
   apiMock.expectGetConfig({ isTestMode: false });
   apiMock.expectGetPollsInfo();
-  userEvent.click(officialBallotModeButton);
+  await userEvent.click(officialBallotModeButton);
   const testBallotModeButton = await screen.findByRole('option', {
     name: 'Test Ballot Mode',
     selected: false,
@@ -504,7 +508,7 @@ test('switching mode when no ballots have been counted', async () => {
   apiMock.expectSetTestMode(true);
   apiMock.expectGetConfig({ isTestMode: true });
   apiMock.expectGetPollsInfo();
-  userEvent.click(testBallotModeButton);
+  await userEvent.click(testBallotModeButton);
   await screen.findByRole('option', {
     name: 'Test Ballot Mode',
     selected: true,
@@ -520,7 +524,7 @@ test('switching to official mode when ballots have been counted', async () => {
   renderScreen({ scannerStatus: { ...statusNoPaper, ballotsCounted: 1 } });
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-  userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
 
   await screen.findByRole('option', {
     name: 'Test Ballot Mode',
@@ -531,7 +535,7 @@ test('switching to official mode when ballots have been counted', async () => {
     selected: false,
   });
 
-  userEvent.click(officialBallotModeButton);
+  await userEvent.click(officialBallotModeButton);
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', {
     name: 'Switch to Official Ballot Mode',
@@ -539,7 +543,9 @@ test('switching to official mode when ballots have been counted', async () => {
   apiMock.expectSetTestMode(false);
   apiMock.expectGetConfig({ isTestMode: false });
   apiMock.expectGetPollsInfo();
-  userEvent.click(within(modal).getButton('Switch to Official Ballot Mode'));
+  await userEvent.click(
+    within(modal).getButton('Switch to Official Ballot Mode')
+  );
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
@@ -558,7 +564,7 @@ test('switching to test mode when ballots have been counted', async () => {
   renderScreen({ scannerStatus: { ...statusNoPaper, ballotsCounted: 1 } });
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-  userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
 
   await screen.findByRole('option', {
     name: 'Official Ballot Mode',
@@ -570,22 +576,22 @@ test('switching to test mode when ballots have been counted', async () => {
   });
 
   // Cancel the first time
-  userEvent.click(testBallotModeButton);
+  await userEvent.click(testBallotModeButton);
   let modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Switch to Test Ballot Mode' });
-  userEvent.click(within(modal).getButton('Cancel'));
+  await userEvent.click(within(modal).getButton('Cancel'));
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
 
   // Proceed the second time
-  userEvent.click(testBallotModeButton);
+  await userEvent.click(testBallotModeButton);
   modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Switch to Test Ballot Mode' });
   apiMock.expectSetTestMode(true);
   apiMock.expectGetConfig({ isTestMode: true });
   apiMock.expectGetPollsInfo();
-  userEvent.click(within(modal).getButton('Switch to Test Ballot Mode'));
+  await userEvent.click(within(modal).getButton('Switch to Test Ballot Mode'));
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
@@ -608,7 +614,7 @@ test('machine cannot be switched to test mode if CVR sync is required', async ()
   renderScreen({ scannerStatus: { ...statusNoPaper, ballotsCounted: 1 } });
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-  userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
 
   screen.getByText(
     'Cast vote records (CVRs) need to be synced to the inserted USB drive before you can modify the machine configuration. ' +
@@ -631,7 +637,7 @@ test('machine *can* be switched to official mode, even if CVR sync is required',
   renderScreen({ scannerStatus: { ...statusNoPaper, ballotsCounted: 1 } });
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-  userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
 
   await screen.findByRole('option', {
     name: 'Test Ballot Mode',
@@ -646,9 +652,11 @@ test('machine *can* be switched to official mode, even if CVR sync is required',
   apiMock.expectGetConfig({ isTestMode: false });
   apiMock.expectGetPollsInfo();
   apiMock.expectGetUsbDriveStatus('mounted');
-  userEvent.click(officialBallotModeButton);
+  await userEvent.click(officialBallotModeButton);
   const modal = await screen.findByRole('alertdialog');
-  userEvent.click(within(modal).getButton('Switch to Official Ballot Mode'));
+  await userEvent.click(
+    within(modal).getButton('Switch to Official Ballot Mode')
+  );
 
   await screen.findByRole('option', {
     name: 'Test Ballot Mode',
@@ -669,7 +677,7 @@ test('machine cannot be unconfigured if CVR sync is required and in official mod
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-  userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
 
   screen.getByText(
     'Cast vote records (CVRs) need to be synced to the inserted USB drive before you can modify the machine configuration. ' +
@@ -691,7 +699,7 @@ test('machine *can* be unconfigured if CVR sync is required but in test mode', a
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-  userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'Configuration' }));
 
   expect(
     screen.getByRole('button', {
@@ -708,13 +716,13 @@ test('renders buttons for saving logs', async () => {
   });
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
-  userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
   apiMock.mockApiClient.exportLogsToUsb
     .expectCallWith({ format: 'vxf' })
     .resolves(ok());
-  userEvent.click(screen.getByText('Save Logs'));
-  userEvent.click(screen.getByText('Save'));
+  await userEvent.click(screen.getByText('Save Logs'));
+  await userEvent.click(screen.getByText('Save'));
   await screen.findByText('Logs Saved');
 });
 
@@ -731,11 +739,11 @@ test('shows diagnostics button and renders screen after click', async () => {
   });
 
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
-  userEvent.click(screen.getByRole('tab', { name: 'More' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'More' }));
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
-  userEvent.click(screen.getByText('Diagnostics'));
+  await userEvent.click(screen.getByText('Diagnostics'));
   await screen.findByRole('heading', { name: 'Diagnostics' });
-  userEvent.click(screen.getByText('Back'));
+  await userEvent.click(screen.getByText('Back'));
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 });
 
@@ -758,19 +766,19 @@ describe('printer management', () => {
     const tab = await screen.findByRole('tab', { name: 'Printer' });
     const [icon] = within(tab).getAllByRole('img', { hidden: true });
     expect(icon).toHaveAttribute('data-icon', 'triangle-exclamation');
-    userEvent.click(tab);
+    await userEvent.click(tab);
 
     screen.getByText('The printer is not loaded with paper.');
 
     // load paper flow
-    userEvent.click(screen.getButton('Load Paper'));
+    await userEvent.click(screen.getButton('Load Paper'));
     await screen.findByRole('alertdialog');
     screen.getByText('Remove Paper Roll Holder');
     apiMock.setPrinterStatus({ state: 'cover-open' });
     await screen.findByText('Load New Paper Roll');
     apiMock.setPrinterStatus({ state: 'idle' });
     await screen.findByText('Paper Detected');
-    userEvent.click(screen.getButton('Cancel'));
+    await userEvent.click(screen.getButton('Cancel'));
     await waitFor(() => {
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     });
@@ -780,12 +788,12 @@ describe('printer management', () => {
 
     // print test page flow
     const testPrint = apiMock.expectPrintTestPage();
-    userEvent.click(await screen.findButton('Print Test Page'));
+    await userEvent.click(await screen.findButton('Print Test Page'));
     await screen.findByText('Printing');
     testPrint.resolve();
     await screen.findByText('Test Page Printed');
     apiMock.expectLogTestPrintOutcome('pass');
-    userEvent.click(screen.getButton('Pass'));
+    await userEvent.click(screen.getButton('Pass'));
     await waitFor(() => {
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     });
@@ -822,7 +830,7 @@ describe('printer management', () => {
       await screen.findByRole('heading', { name: 'Election Manager Menu' });
 
       const tab = await screen.findByRole('tab', { name: 'Printer' });
-      userEvent.click(tab);
+      await userEvent.click(tab);
 
       screen.getByText(message);
     }

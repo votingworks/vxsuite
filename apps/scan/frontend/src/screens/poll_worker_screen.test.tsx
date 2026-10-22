@@ -11,7 +11,7 @@ import {
   type BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import {
   electionFamousNames2021Fixtures,
@@ -87,7 +87,7 @@ describe('transitions from polls closed initial', () => {
     apiMock.expectOpenPolls();
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open');
-    userEvent.click(screen.getByText('Open Polls'));
+    await userEvent.click(screen.getByText('Open Polls'));
     await screen.findByText('Opening Polls…');
     await screen.findByText('Polls Opened');
     await screen.findByText('Reprint Polls Opened Report');
@@ -98,8 +98,8 @@ describe('transitions from polls closed initial', () => {
     apiMock.expectOpenPolls();
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open');
-    userEvent.click(screen.getByText('Menu'));
-    userEvent.click(await screen.findByText('Open Polls'));
+    await userEvent.click(screen.getByText('Menu'));
+    await userEvent.click(await screen.findByText('Open Polls'));
     await screen.findByText('Opening Polls…');
     await screen.findByText('Polls Opened');
     await screen.findByText('Reprint Polls Opened Report');
@@ -111,14 +111,14 @@ describe('transitions from polls closed initial', () => {
     apiMock.expectGetQuickResultsReportingUrl(['https://example.com/qr']);
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open');
-    userEvent.click(screen.getByText('Open Polls'));
+    await userEvent.click(screen.getByText('Open Polls'));
     await screen.findByText('Opening Polls…');
     await screen.findByText('Polls Opened');
     await screen.findByText('Reprint Polls Opened Report');
-    userEvent.click(screen.getButton('Send Polls Opened Report'));
+    await userEvent.click(screen.getButton('Send Polls Opened Report'));
     const qrCode = screen.getByTestId('quick-results-code');
     expect(qrCode).toBeInTheDocument();
-    userEvent.click(screen.getButton('Done'));
+    await userEvent.click(screen.getButton('Done'));
     await screen.findByText('Close Polls');
   });
 });
@@ -134,7 +134,7 @@ describe('transitions from polls open', () => {
     apiMock.expectClosePolls();
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
-    userEvent.click(screen.getByText('Close Polls'));
+    await userEvent.click(screen.getByText('Close Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
@@ -146,8 +146,8 @@ describe('transitions from polls open', () => {
     apiMock.expectClosePolls();
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
-    userEvent.click(screen.getByText('Menu'));
-    userEvent.click(await screen.findByText('Close Polls'));
+    await userEvent.click(screen.getByText('Menu'));
+    await userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
@@ -160,15 +160,15 @@ describe('transitions from polls open', () => {
     apiMock.expectGetQuickResultsReportingUrl(['https://example.com/qr']);
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
-    userEvent.click(screen.getByText('Close Polls'));
+    await userEvent.click(screen.getByText('Close Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
     await screen.findByText('Reprint Polls Closed Report');
-    userEvent.click(screen.getButton('Send Polls Closed Report'));
+    await userEvent.click(screen.getButton('Send Polls Closed Report'));
     const qrCode = screen.getByTestId('quick-results-code');
     expect(qrCode).toBeInTheDocument();
-    userEvent.click(screen.getButton('Done'));
+    await userEvent.click(screen.getButton('Done'));
   });
 
   test('close polls happy path with multi-page vxqr', async () => {
@@ -179,31 +179,31 @@ describe('transitions from polls open', () => {
     ]);
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
-    userEvent.click(screen.getByText('Close Polls'));
+    await userEvent.click(screen.getByText('Close Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
     await screen.findByText('Reprint Polls Closed Report');
-    userEvent.click(screen.getButton('Send Polls Closed Report'));
+    await userEvent.click(screen.getButton('Send Polls Closed Report'));
     const qrCode = screen.getByTestId('quick-results-code');
     expect(qrCode).toBeInTheDocument();
     expect(qrCode).toHaveAttribute('data-value', 'https://example.com/qr1');
     expect(screen.queryByText('Done')).toBeNull();
     screen.queryByText('1 / 2');
-    userEvent.click(screen.getButton('Next'));
+    await userEvent.click(screen.getButton('Next'));
     screen.queryByText('2 / 2');
     const qrCode2 = screen.getByTestId('quick-results-code');
     expect(qrCode2).toBeInTheDocument();
     expect(qrCode2).toHaveAttribute('data-value', 'https://example.com/qr2');
-    userEvent.click(screen.getButton('Done'));
+    await userEvent.click(screen.getButton('Done'));
   });
 
   test('pause voting', async () => {
     apiMock.expectPauseVoting();
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_paused');
-    userEvent.click(screen.getByText('Menu'));
-    userEvent.click(await screen.findByText('Pause Voting'));
+    await userEvent.click(screen.getByText('Menu'));
+    await userEvent.click(await screen.findByText('Pause Voting'));
     await screen.findByText('Pausing Voting…');
     await screen.findByText('Voting Paused');
     expect(screen.queryByText('Send Voting Paused Report')).toBeNull();
@@ -214,15 +214,15 @@ describe('transitions from polls open', () => {
     apiMock.expectGetQuickResultsReportingUrl(['https://example.com/qr']);
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_paused');
-    userEvent.click(screen.getByText('Menu'));
-    userEvent.click(await screen.findByText('Pause Voting'));
+    await userEvent.click(screen.getByText('Menu'));
+    await userEvent.click(await screen.findByText('Pause Voting'));
     await screen.findByText('Pausing Voting…');
     await screen.findByText('Voting Paused');
     await screen.findByText('Reprint Voting Paused Report');
-    userEvent.click(screen.getButton('Send Voting Paused Report'));
+    await userEvent.click(screen.getButton('Send Voting Paused Report'));
     const qrCode = await screen.findByTestId('quick-results-code');
     expect(qrCode).toBeInTheDocument();
-    userEvent.click(screen.getButton('Done'));
+    await userEvent.click(screen.getButton('Done'));
     await screen.findByText('Resume Voting');
   });
 });
@@ -238,7 +238,7 @@ describe('transitions from polls paused', () => {
     apiMock.expectResumeVoting();
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open', { type: 'resume_voting' });
-    userEvent.click(screen.getByText('Resume Voting'));
+    await userEvent.click(screen.getByText('Resume Voting'));
     await screen.findByText('Resuming Voting…');
     await screen.findByText('Voting Resumed');
   });
@@ -247,8 +247,8 @@ describe('transitions from polls paused', () => {
     apiMock.expectResumeVoting();
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open', { type: 'resume_voting' });
-    userEvent.click(screen.getByText('Menu'));
-    userEvent.click(await screen.findByText('Resume Voting'));
+    await userEvent.click(screen.getByText('Menu'));
+    await userEvent.click(await screen.findByText('Resume Voting'));
     await screen.findByText('Resuming Voting…');
     await screen.findByText('Voting Resumed');
   });
@@ -258,14 +258,14 @@ describe('transitions from polls paused', () => {
     apiMock.expectGetQuickResultsReportingUrl(['https://example.com/qr']);
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open', { type: 'resume_voting' });
-    userEvent.click(screen.getByText('Resume Voting'));
+    await userEvent.click(screen.getByText('Resume Voting'));
     await screen.findByText('Resuming Voting…');
     await screen.findByText('Voting Resumed');
     await screen.findByText('Reprint Voting Resumed Report');
-    userEvent.click(screen.getButton('Send Voting Resumed Report'));
+    await userEvent.click(screen.getButton('Send Voting Resumed Report'));
     const qrCode = screen.getByTestId('quick-results-code');
     expect(qrCode).toBeInTheDocument();
-    userEvent.click(screen.getButton('Done'));
+    await userEvent.click(screen.getButton('Done'));
     await screen.findByText('Close Polls');
   });
 
@@ -273,8 +273,8 @@ describe('transitions from polls paused', () => {
     apiMock.expectClosePolls();
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
-    userEvent.click(screen.getByText('Menu'));
-    userEvent.click(await screen.findByText('Close Polls'));
+    await userEvent.click(screen.getByText('Menu'));
+    await userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls Closed');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
@@ -313,7 +313,7 @@ test('polls closed final shows quick results code when configured', async () => 
   screen.getButton('Signed Hash Validation');
 
   const qrButton = screen.getButton('Send Polls Closed Report');
-  userEvent.click(qrButton);
+  await userEvent.click(qrButton);
   const qrCode = screen.getByTestId('quick-results-code');
   expect(qrCode).toBeInTheDocument();
 });
@@ -323,7 +323,7 @@ test('polls open shows quick results code when configured', async () => {
   apiMock.expectGetPollsInfo('polls_open');
   renderScreen();
   const menu = await screen.findButton('Menu');
-  userEvent.click(menu);
+  await userEvent.click(menu);
   await screen.findByText(/Close the polls/);
 
   expect(screen.queryAllByRole('button')).toHaveLength(6);
@@ -334,7 +334,7 @@ test('polls open shows quick results code when configured', async () => {
   screen.getButton('Signed Hash Validation');
 
   const qrButton = screen.getButton('Send Polls Opened Report');
-  userEvent.click(qrButton);
+  await userEvent.click(qrButton);
   const qrCode = screen.getByTestId('quick-results-code');
   expect(qrCode).toBeInTheDocument();
 });
@@ -365,7 +365,7 @@ test('there is a warning if we attempt to open polls with ballots scanned', asyn
   await screen.findByText('Do you want to open the polls?');
   apiMock.expectOpenPolls(err('ballots-already-scanned'));
   apiMock.expectGetPollsInfo('polls_closed_initial');
-  userEvent.click(screen.getByText('Open Polls'));
+  await userEvent.click(screen.getByText('Open Polls'));
   await screen.findByText('Ballots Already Scanned');
 });
 
@@ -374,7 +374,7 @@ describe('reprinting previous report', () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
     renderScreen({});
 
-    userEvent.click(await screen.findByText('Menu'));
+    await userEvent.click(await screen.findByText('Menu'));
     expect(screen.getAllByRole('button').map((b) => b.textContent)).toEqual([
       'Open Polls',
       'Signed Hash Validation',
@@ -386,13 +386,15 @@ describe('reprinting previous report', () => {
     apiMock.expectGetPollsInfo('polls_open');
     renderScreen({});
 
-    userEvent.click(await screen.findByText('Menu'));
+    await userEvent.click(await screen.findByText('Menu'));
     const button = await screen.findByText('Print Polls Opened Report');
     expect(button).toBeEnabled();
     apiMock.expectPrintReportSection(0).resolve();
-    userEvent.click(button);
+    await userEvent.click(button);
     apiMock.expectPrintReportSection(0).resolve();
-    userEvent.click(await screen.findButton('Reprint Polls Opened Report'));
+    await userEvent.click(
+      await screen.findButton('Reprint Polls Opened Report')
+    );
     await screen.findButton('Reprint Polls Opened Report');
   });
 
@@ -400,11 +402,11 @@ describe('reprinting previous report', () => {
     apiMock.expectGetPollsInfo('polls_paused');
     renderScreen({});
 
-    userEvent.click(await screen.findByText('Menu'));
+    await userEvent.click(await screen.findByText('Menu'));
     const button = await screen.findByText('Print Voting Paused Report');
     expect(button).toBeEnabled();
     apiMock.expectPrintReportSection(0).resolve();
-    userEvent.click(button);
+    await userEvent.click(button);
     await screen.findButton('Reprint Voting Paused Report');
   });
 
@@ -412,11 +414,11 @@ describe('reprinting previous report', () => {
     apiMock.expectGetPollsInfo('polls_open', { type: 'resume_voting' });
     renderScreen({});
 
-    userEvent.click(await screen.findByText('Menu'));
+    await userEvent.click(await screen.findByText('Menu'));
     const button = await screen.findByText('Print Voting Resumed Report');
     expect(button).toBeEnabled();
     apiMock.expectPrintReportSection(0).resolve();
-    userEvent.click(button);
+    await userEvent.click(button);
     await screen.findButton('Reprint Voting Resumed Report');
   });
 
@@ -427,7 +429,7 @@ describe('reprinting previous report', () => {
     const button = await screen.findByText('Print Polls Closed Report');
     expect(button).toBeEnabled();
     apiMock.expectPrintReportSection(0).resolve();
-    userEvent.click(button);
+    await userEvent.click(button);
     await screen.findButton('Reprint Polls Closed Report');
   });
 });
@@ -450,7 +452,7 @@ describe('write-in image report', () => {
     expect(await screen.findAllByRole('button')).toHaveLength(4);
     const button = await screen.findByText('Print Write-In Image Report');
     apiMock.expectPrintWriteInImageReport().resolve();
-    userEvent.click(button);
+    await userEvent.click(button);
     await screen.findByText('Printing Report…');
     await screen.findByText('Write-In Image Report Printed');
     screen.getButton('Reprint Write-In Image Report');
@@ -465,7 +467,7 @@ describe('write-in image report', () => {
     apiMock
       .expectPrintWriteInImageReport({ state: 'error', type: 'disconnected' })
       .resolve();
-    userEvent.click(button);
+    await userEvent.click(button);
     await screen.findByText('Printing Stopped');
     screen.getButton('Reprint Write-In Image Report');
     screen.getButton('Done');
@@ -477,7 +479,7 @@ describe('write-in image report', () => {
 
     const button = await screen.findByText('Print Write-In Image Report');
     apiMock.expectPrintWriteInImageReport({ state: 'no-paper' }).resolve();
-    userEvent.click(button);
+    await userEvent.click(button);
     await screen.findByText('Printing Stopped');
     await screen.findByText(/ran out of paper/);
   });
@@ -488,9 +490,9 @@ describe('write-in image report', () => {
 
     const button = await screen.findByText('Print Write-In Image Report');
     apiMock.expectPrintWriteInImageReport().resolve();
-    userEvent.click(button);
+    await userEvent.click(button);
     await screen.findByText('Write-In Image Report Printed');
-    userEvent.click(screen.getButton('Done'));
+    await userEvent.click(screen.getButton('Done'));
     await screen.findByText(/Voting is complete/);
   });
 });
@@ -509,7 +511,7 @@ describe('must have printer attached to transition polls and print reports', () 
     const { resolve } = apiMock.expectPrintReportSection(0);
     resolve();
     apiMock.expectGetPollsInfo('polls_open');
-    userEvent.click(screen.getByText('Open Polls'));
+    await userEvent.click(screen.getByText('Open Polls'));
     await screen.findByText('Reprint Polls Opened Report');
 
     apiMock.setPrinterStatus({ state: 'error', type: 'disconnected' });
@@ -526,7 +528,7 @@ describe('must have printer attached to transition polls and print reports', () 
     await screen.findByText('The printer is disconnected');
 
     // Go to screen with all options available
-    userEvent.click(screen.getByText('Menu'));
+    await userEvent.click(screen.getByText('Menu'));
     // Check that Open Polls is disabled
     expect(screen.getButton('Open Polls')).toBeDisabled();
 
@@ -540,7 +542,7 @@ describe('must have printer attached to transition polls and print reports', () 
       expect(screen.getButton('Open Polls')).toBeEnabled();
     });
 
-    userEvent.click(screen.getByText('Open Polls'));
+    await userEvent.click(screen.getByText('Open Polls'));
     await screen.findByText('Reprint Polls Opened Report');
 
     apiMock.setPrinterStatus({ state: 'error', type: 'disconnected' });
@@ -558,7 +560,7 @@ describe('must have printer attached to transition polls and print reports', () 
     const { resolve } = apiMock.expectPrintReportSection(0);
     resolve();
     apiMock.expectGetPollsInfo('polls_open');
-    userEvent.click(await screen.findByText('Open Polls'));
+    await userEvent.click(await screen.findByText('Open Polls'));
     expect(
       await screen.findByText('Reprint Polls Opened Report')
     ).toBeEnabled();
@@ -583,7 +585,7 @@ describe('must have printer attached to transition polls and print reports', () 
     const { resolve } = apiMock.expectPrintReportSection(0);
     resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
-    userEvent.click(screen.getByText('Close Polls'));
+    await userEvent.click(screen.getByText('Close Polls'));
     await screen.findByText('Reprint Polls Closed Report');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
@@ -594,7 +596,7 @@ describe('must have printer attached to transition polls and print reports', () 
     renderScreen({});
     await screen.findByText('The printer is disconnected');
 
-    userEvent.click(screen.getByText('Menu'));
+    await userEvent.click(screen.getByText('Menu'));
 
     expect(screen.getButton('Close Polls')).toBeDisabled();
 
@@ -607,7 +609,7 @@ describe('must have printer attached to transition polls and print reports', () 
     const { resolve } = apiMock.expectPrintReportSection(0);
     resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
-    userEvent.click(screen.getByText('Close Polls'));
+    await userEvent.click(screen.getByText('Close Polls'));
     await screen.findByText('Reprint Polls Closed Report');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
@@ -629,7 +631,7 @@ describe('must have usb drive attached to transition polls', () => {
     apiMock.expectOpenPolls();
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open');
-    userEvent.click(screen.getByText('Open Polls'));
+    await userEvent.click(screen.getByText('Open Polls'));
     await screen.findByText('Reprint Polls Opened Report');
   });
 
@@ -642,7 +644,7 @@ describe('must have usb drive attached to transition polls', () => {
     await screen.findByText('Insert a USB drive to continue.');
 
     // Go to screen with all options available
-    userEvent.click(screen.getByText('Menu'));
+    await userEvent.click(screen.getByText('Menu'));
     // Check that Open Polls is disabled
     expect(screen.getButton('Open Polls')).toBeDisabled();
 
@@ -655,7 +657,7 @@ describe('must have usb drive attached to transition polls', () => {
       expect(screen.getButton('Open Polls')).toBeEnabled();
     });
 
-    userEvent.click(screen.getByText('Open Polls'));
+    await userEvent.click(screen.getByText('Open Polls'));
     await screen.findByText('Reprint Polls Opened Report');
   });
 
@@ -675,7 +677,7 @@ describe('must have usb drive attached to transition polls', () => {
     apiMock.expectResumeVoting();
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open');
-    userEvent.click(screen.getByText('Resume Voting'));
+    await userEvent.click(screen.getByText('Resume Voting'));
     await screen.findByText('Voting Resumed');
   });
 
@@ -686,7 +688,7 @@ describe('must have usb drive attached to transition polls', () => {
     renderScreen({});
 
     await screen.findByText('Insert a USB drive to continue.');
-    userEvent.click(screen.getByText('Menu'));
+    await userEvent.click(screen.getByText('Menu'));
 
     expect(screen.getButton('Resume Voting')).toBeDisabled();
     expect(screen.getButton('Close Polls')).toBeDisabled();
@@ -700,7 +702,7 @@ describe('must have usb drive attached to transition polls', () => {
     apiMock.expectClosePolls();
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
-    userEvent.click(screen.getByText('Close Polls'));
+    await userEvent.click(screen.getByText('Close Polls'));
     await screen.findByText('Reprint Polls Closed Report');
   });
 
@@ -720,7 +722,7 @@ describe('must have usb drive attached to transition polls', () => {
     apiMock.expectClosePolls();
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
-    userEvent.click(screen.getByText('Close Polls'));
+    await userEvent.click(screen.getByText('Close Polls'));
     await screen.findByText('Reprint Polls Closed Report');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
@@ -732,7 +734,7 @@ describe('must have usb drive attached to transition polls', () => {
     renderScreen({});
     await screen.findByText('Insert a USB drive to continue.');
 
-    userEvent.click(screen.getByText('Menu'));
+    await userEvent.click(screen.getByText('Menu'));
 
     expect(screen.getButton('Close Polls')).toBeDisabled();
     // Allow pausing in unexpected situations.
@@ -746,7 +748,7 @@ describe('must have usb drive attached to transition polls', () => {
     apiMock.expectClosePolls();
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
-    userEvent.click(screen.getByText('Close Polls'));
+    await userEvent.click(screen.getByText('Close Polls'));
     await screen.findByText('Reprint Polls Closed Report');
     expect(startNewVoterSessionMock).toHaveBeenCalledTimes(1);
   });
@@ -775,7 +777,7 @@ describe('does not need usb drive attached to transition polls if continuous exp
     apiMock.expectOpenPolls();
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open');
-    userEvent.click(screen.getButton('Open Polls'));
+    await userEvent.click(screen.getButton('Open Polls'));
     await screen.findByText('Opening Polls…');
     await screen.findByText('Polls Opened');
   });
@@ -791,11 +793,11 @@ describe('does not need usb drive attached to transition polls if continuous exp
       screen.queryByText('Insert a USB drive to continue.')
     ).not.toBeInTheDocument();
 
-    userEvent.click(screen.getButton('Menu'));
+    await userEvent.click(screen.getButton('Menu'));
     apiMock.expectOpenPolls();
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open');
-    userEvent.click(screen.getButton('Open Polls'));
+    await userEvent.click(screen.getButton('Open Polls'));
     await screen.findByText('Opening Polls…');
     await screen.findByText('Polls Opened');
   });
@@ -811,11 +813,11 @@ describe('does not need usb drive attached to transition polls if continuous exp
       screen.queryByText('Insert a USB drive to continue.')
     ).not.toBeInTheDocument();
 
-    userEvent.click(screen.getButton('Menu'));
+    await userEvent.click(screen.getButton('Menu'));
     apiMock.expectPauseVoting();
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_paused');
-    userEvent.click(screen.getButton('Pause Voting'));
+    await userEvent.click(screen.getButton('Pause Voting'));
     await screen.findByText('Pausing Voting…');
     await screen.findByText('Voting Paused');
   });
@@ -834,7 +836,7 @@ describe('does not need usb drive attached to transition polls if continuous exp
     apiMock.expectResumeVoting();
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open');
-    userEvent.click(screen.getButton('Resume Voting'));
+    await userEvent.click(screen.getButton('Resume Voting'));
     await screen.findByText('Resuming Voting…');
     await screen.findByText('Voting Resumed');
   });
@@ -850,11 +852,11 @@ describe('does not need usb drive attached to transition polls if continuous exp
       screen.queryByText('Insert a USB drive to continue.')
     ).not.toBeInTheDocument();
 
-    userEvent.click(screen.getButton('Menu'));
+    await userEvent.click(screen.getButton('Menu'));
     apiMock.expectResumeVoting();
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_open');
-    userEvent.click(screen.getButton('Resume Voting'));
+    await userEvent.click(screen.getButton('Resume Voting'));
     await screen.findByText('Resuming Voting…');
     await screen.findByText('Voting Resumed');
   });
@@ -873,7 +875,7 @@ describe('does not need usb drive attached to transition polls if continuous exp
     apiMock.expectClosePolls();
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
-    userEvent.click(screen.getButton('Close Polls'));
+    await userEvent.click(screen.getButton('Close Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls Closed');
   });
@@ -889,11 +891,11 @@ describe('does not need usb drive attached to transition polls if continuous exp
       screen.queryByText('Insert a USB drive to continue.')
     ).not.toBeInTheDocument();
 
-    userEvent.click(screen.getButton('Menu'));
+    await userEvent.click(screen.getButton('Menu'));
     apiMock.expectClosePolls();
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
-    userEvent.click(screen.getButton('Close Polls'));
+    await userEvent.click(screen.getButton('Close Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls Closed');
   });
@@ -909,11 +911,11 @@ describe('does not need usb drive attached to transition polls if continuous exp
       screen.queryByText('Insert a USB drive to continue.')
     ).not.toBeInTheDocument();
 
-    userEvent.click(screen.getButton('Menu'));
+    await userEvent.click(screen.getButton('Menu'));
     apiMock.expectClosePolls();
     apiMock.expectPrintReportSection(0).resolve();
     apiMock.expectGetPollsInfo('polls_closed_final');
-    userEvent.click(screen.getButton('Close Polls'));
+    await userEvent.click(screen.getButton('Close Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls Closed');
   });
@@ -935,7 +937,7 @@ describe('report printing', () => {
     // close polls to trigger first section to print
     await screen.findByText('Do you want to open the polls?');
     // Opening polls will cause this to be refetched
-    userEvent.click(screen.getByText('Open Polls'));
+    await userEvent.click(screen.getByText('Open Polls'));
     await screen.findByText('Opening Polls…');
     resolve();
     await screen.findByText('Polls Opened');
@@ -945,7 +947,7 @@ describe('report printing', () => {
 
     // try reprinting that report
     const { resolve: resolveReprint } = apiMock.expectPrintReportSection(0);
-    userEvent.click(screen.getButton('Reprint Polls Opened Report'));
+    await userEvent.click(screen.getButton('Reprint Polls Opened Report'));
     await screen.findByText('Printing Report…');
     resolveReprint();
     await screen.findByText('Polls Opened');
@@ -953,10 +955,10 @@ describe('report printing', () => {
       'Report printed. Remove the poll worker card once you have printed all necessary reports.'
     );
 
-    userEvent.click(screen.getButton('Send Polls Opened Report'));
+    await userEvent.click(screen.getButton('Send Polls Opened Report'));
     const qrCode = screen.getByTestId('quick-results-code');
     expect(qrCode).toBeInTheDocument();
-    userEvent.click(screen.getButton('Done'));
+    await userEvent.click(screen.getButton('Done'));
     await screen.findByText('Close Polls');
   });
 
@@ -979,7 +981,7 @@ describe('report printing', () => {
     });
 
     await screen.findByText('Do you want to open the polls?');
-    userEvent.click(screen.getByText('Open Polls'));
+    await userEvent.click(screen.getByText('Open Polls'));
     // The first page prints during the transition (total pages unknown until it
     // returns)
     await screen.findByText('Opening Polls…');
@@ -988,7 +990,7 @@ describe('report printing', () => {
     await screen.findByText(/Finished printing report 1 of 3/);
 
     // Remaining pages print one at a time so the poll worker can tear each off
-    userEvent.click(screen.getButton('Print Next Report'));
+    await userEvent.click(screen.getButton('Print Next Report'));
     await screen.findByText(/Printing report 2 of 3/);
     resolvePage2();
     await screen.findByText(/Finished printing report 2 of 3/);
@@ -996,13 +998,13 @@ describe('report printing', () => {
     // A misprinted page can be reprinted before advancing to the next page
     const { resolve: resolveReprintPage2 } =
       apiMock.expectPrintReportSection(1);
-    userEvent.click(screen.getButton('Print Previous Report'));
+    await userEvent.click(screen.getButton('Print Previous Report'));
     await screen.findByText(/Printing report 2 of 3/);
     resolveReprintPage2();
     await screen.findByText(/Finished printing report 2 of 3/);
 
     const { resolve: resolvePage3 } = apiMock.expectPrintReportSection(2);
-    userEvent.click(screen.getButton('Print Next Report'));
+    await userEvent.click(screen.getButton('Print Next Report'));
     await screen.findByText(/Printing report 3 of 3/);
     resolvePage3();
     await screen.findByText(/Report printed/);
@@ -1014,24 +1016,24 @@ describe('report printing', () => {
       undefined,
       3
     );
-    userEvent.click(screen.getButton('Reprint Polls Opened Report'));
+    await userEvent.click(screen.getButton('Reprint Polls Opened Report'));
     await screen.findByText('Printing Report…');
     resolveReprint1();
     await screen.findByText(/Finished printing report 1 of 3/);
     const { resolve: resolveReprint2 } = apiMock.expectPrintReportSection(1);
-    userEvent.click(screen.getButton('Print Next Report'));
+    await userEvent.click(screen.getButton('Print Next Report'));
     resolveReprint2();
     await screen.findByText(/Finished printing report 2 of 3/);
     const { resolve: resolveReprint3 } = apiMock.expectPrintReportSection(2);
-    userEvent.click(screen.getButton('Print Next Report'));
+    await userEvent.click(screen.getButton('Print Next Report'));
     resolveReprint3();
     await screen.findByText(/Report printed/);
 
     // We should also get an option to report polls open at this point via VxQR
-    userEvent.click(screen.getButton('Send Polls Opened Report'));
+    await userEvent.click(screen.getButton('Send Polls Opened Report'));
     const qrCode = screen.getByTestId('quick-results-code');
     expect(qrCode).toBeInTheDocument();
-    userEvent.click(screen.getButton('Done'));
+    await userEvent.click(screen.getButton('Done'));
     await screen.findByText('Close Polls');
   });
 
@@ -1044,11 +1046,11 @@ describe('report printing', () => {
 
     // pause voting flow
     await screen.findByText('Do you want to close the polls?');
-    userEvent.click(screen.getByText('Menu'));
+    await userEvent.click(screen.getByText('Menu'));
     apiMock.expectGetPollsInfo('polls_paused');
     apiMock.expectPauseVoting();
     const { resolve: resolveReport } = apiMock.expectPrintReportSection(0);
-    userEvent.click(screen.getButton('Pause Voting'));
+    await userEvent.click(screen.getButton('Pause Voting'));
     await screen.findByText('Pausing Voting…');
     resolveReport();
     await screen.findByText('Voting Paused');
@@ -1058,7 +1060,7 @@ describe('report printing', () => {
     expect(screen.getAllByRole('button')).toHaveLength(1); // only one reprint button
     const { resolve: resolveReprintReport } =
       apiMock.expectPrintReportSection(0);
-    userEvent.click(screen.getButton('Reprint Voting Paused Report'));
+    await userEvent.click(screen.getButton('Reprint Voting Paused Report'));
     resolveReprintReport();
     await screen.findByText('Voting Paused');
     screen.getByText(/Voting Paused Report/);
@@ -1085,14 +1087,14 @@ describe('report printing', () => {
       3
     );
     apiMock.setPrinterStatus({ state: 'no-paper' });
-    userEvent.click(screen.getByText('Open Polls'));
+    await userEvent.click(screen.getByText('Open Polls'));
     await screen.findByText('Opening Polls…');
     resolve();
     await screen.findByText('Printing Stopped');
     screen.getByText(/out of paper/);
 
     // reloading flow
-    userEvent.click(await screen.findButton('Load Paper'));
+    await userEvent.click(await screen.findButton('Load Paper'));
     await screen.findByRole('alertdialog');
     screen.getByText('Remove Paper Roll Holder');
 
@@ -1102,23 +1104,25 @@ describe('report printing', () => {
     apiMock.setPrinterStatus();
     await screen.findByText('Paper Detected');
 
-    userEvent.click(screen.getButton('Close'));
+    await userEvent.click(screen.getButton('Close'));
     await waitFor(() => {
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     });
 
     // reprinting resumes the report, one page at a time
     const { resolve: resolveReprint1 } = apiMock.expectPrintReportSection(0);
-    userEvent.click(await screen.findButton('Reprint Polls Opened Report'));
+    await userEvent.click(
+      await screen.findButton('Reprint Polls Opened Report')
+    );
     await screen.findByText(/Printing report 1 of 3/);
     resolveReprint1();
     await screen.findByText(/Finished printing report 1 of 3/);
     const { resolve: resolveReprint2 } = apiMock.expectPrintReportSection(1);
-    userEvent.click(screen.getButton('Print Next Report'));
+    await userEvent.click(screen.getButton('Print Next Report'));
     resolveReprint2();
     await screen.findByText(/Finished printing report 2 of 3/);
     const { resolve: resolveReprint3 } = apiMock.expectPrintReportSection(2);
-    userEvent.click(screen.getButton('Print Next Report'));
+    await userEvent.click(screen.getButton('Print Next Report'));
     resolveReprint3();
     await screen.findByText('Polls Opened');
     await screen.findByText(/Report printed/);
@@ -1139,7 +1143,7 @@ describe('report printing', () => {
       state: 'error',
       type: 'disconnected',
     });
-    userEvent.click(screen.getByText('Open Polls'));
+    await userEvent.click(screen.getByText('Open Polls'));
     await screen.findByText('Opening Polls…');
     resolve();
     await screen.findByText('Printing Stopped');
@@ -1167,8 +1171,8 @@ describe('report printing', () => {
     apiMock.setPrinterStatus({ state: 'no-paper' });
     renderScreen({});
 
-    userEvent.click(await screen.findByText('Menu'));
-    userEvent.click(await screen.findByText('Load Printer Paper'));
+    await userEvent.click(await screen.findByText('Menu'));
+    await userEvent.click(await screen.findByText('Load Printer Paper'));
     await screen.findByText('Remove Paper Roll Holder');
   });
 
@@ -1177,9 +1181,9 @@ describe('report printing', () => {
     apiMock.setPrinterStatus();
     renderScreen({});
 
-    userEvent.click(await screen.findByText('Menu'));
+    await userEvent.click(await screen.findByText('Menu'));
     const { resolve } = apiMock.expectPrintReportSection(0);
-    userEvent.click(await screen.findButton('Print Polls Opened Report'));
+    await userEvent.click(await screen.findButton('Print Polls Opened Report'));
     resolve();
     await screen.findButton('Reprint Polls Opened Report');
   });
@@ -1210,7 +1214,7 @@ describe('multiple report copies', () => {
     });
 
     await screen.findByText('Do you want to close the polls?');
-    userEvent.click(screen.getByText('Close Polls'));
+    await userEvent.click(screen.getByText('Close Polls'));
 
     // First copy prints during the transition
     await screen.findByText('Closing Polls…');
@@ -1219,7 +1223,7 @@ describe('multiple report copies', () => {
     await screen.findByText(/Finished printing report 1 of 2/);
 
     // The next copy is printed via the page button so it can be torn off
-    userEvent.click(screen.getButton('Print Next Report'));
+    await userEvent.click(screen.getButton('Print Next Report'));
     await screen.findByText(/Printing report 2 of 2/);
     resolvePage2();
     await screen.findByText(/Report printed/);
@@ -1244,14 +1248,14 @@ describe('multiple report copies', () => {
     });
 
     await screen.findByText('Do you want to close the polls?');
-    userEvent.click(screen.getByText('Close Polls'));
+    await userEvent.click(screen.getByText('Close Polls'));
 
     // First page prints during the transition; each subsequent page via the button
     await screen.findByText('Closing Polls…');
     resolvers[0]!.resolve();
     await screen.findByText(/Finished printing report 1 of 6/);
     for (let page = 2; page <= 6; page += 1) {
-      userEvent.click(screen.getButton('Print Next Report'));
+      await userEvent.click(screen.getButton('Print Next Report'));
       await screen.findByText(new RegExp(`Printing report ${page} of 6`));
       resolvers[page - 1]!.resolve();
       if (page < 6) {
@@ -1281,7 +1285,7 @@ describe('multiple report copies', () => {
     });
 
     await screen.findByText('Do you want to close the polls?');
-    userEvent.click(screen.getByText('Close Polls'));
+    await userEvent.click(screen.getByText('Close Polls'));
 
     await screen.findByText('Closing Polls…');
     resolve();
@@ -1292,14 +1296,14 @@ describe('multiple report copies', () => {
     // Once the error is resolved the poll worker can pick up where they left
     // off: reprint the failed page...
     const { resolve: resolveRetry } = apiMock.expectPrintReportSection(0);
-    userEvent.click(screen.getButton('Reprint Polls Closed Report'));
+    await userEvent.click(screen.getButton('Reprint Polls Closed Report'));
     await screen.findByText(/Printing report 1 of 2/);
     resolveRetry();
     await screen.findByText(/Finished printing report 1 of 2/);
 
     // ...and continue with the remaining copy
     const { resolve: resolvePage2 } = apiMock.expectPrintReportSection(0);
-    userEvent.click(screen.getButton('Print Next Report'));
+    await userEvent.click(screen.getButton('Print Next Report'));
     await screen.findByText(/Printing report 2 of 2/);
     resolvePage2();
     await screen.findByText(/Report printed/);
@@ -1314,20 +1318,20 @@ describe('multiple report copies', () => {
     });
 
     await screen.findByText('Do you want to close the polls?');
-    userEvent.click(screen.getByText('Menu'));
+    await userEvent.click(screen.getByText('Menu'));
     apiMock.expectGetPollsInfo('polls_paused');
     apiMock.expectPauseVoting();
     // A paused report is a single section even in a primary, but the copies
     // setting still applies: 1 section × 2 copies = 2 reports
     const { resolve: resolveCopy1 } = apiMock.expectPrintReportSection(0);
-    userEvent.click(screen.getButton('Pause Voting'));
+    await userEvent.click(screen.getButton('Pause Voting'));
     await screen.findByText('Pausing Voting…');
     resolveCopy1();
     await screen.findByText('Voting Paused');
     await screen.findByText(/Finished printing report 1 of 2/);
 
     const { resolve: resolveCopy2 } = apiMock.expectPrintReportSection(0);
-    userEvent.click(screen.getButton('Print Next Report'));
+    await userEvent.click(screen.getButton('Print Next Report'));
     await screen.findByText(/Printing report 2 of 2/);
     resolveCopy2();
     await screen.findByText(/Report printed/);
@@ -1339,11 +1343,11 @@ test('Signed hash validation', async () => {
   apiMock.expectGetPollsInfo('polls_open');
   renderScreen({});
 
-  userEvent.click(await screen.findByText('Menu'));
+  await userEvent.click(await screen.findByText('Menu'));
   expect(screen.queryByText('Signed Hash Validation')).toBeTruthy();
 
   apiMock.expectGenerateSignedHashValidationQrCodeValue();
-  userEvent.click(screen.getByText('Signed Hash Validation'));
+  await userEvent.click(screen.getByText('Signed Hash Validation'));
   await screen.findByText('Done');
 });
 
@@ -1479,7 +1483,7 @@ describe('election day polls close time enforcement', () => {
       const pauseVotingButton = await screen.findButton('Pause Voting');
       expect(pauseVotingButton).toHaveAttribute('data-variant', 'primary');
 
-      userEvent.click(await screen.findByText('Menu'));
+      await userEvent.click(await screen.findByText('Menu'));
       await screen.findByText(/Polls cannot be closed until/);
       await screen.findByText(/8:00 PM/);
       expect(screen.getButton('Close Polls')).toBeDisabled();
@@ -1503,7 +1507,7 @@ describe('election day polls close time enforcement', () => {
       const resumeVotingButton = await screen.findButton('Resume Voting');
       expect(resumeVotingButton).toHaveAttribute('data-variant', 'primary');
 
-      userEvent.click(await screen.findByText('Menu'));
+      await userEvent.click(await screen.findByText('Menu'));
       await screen.findByText(/Polls cannot be closed until/);
       await screen.findByText(/8:00 PM/);
       expect(screen.getButton('Close Polls')).toBeDisabled();
@@ -1523,7 +1527,7 @@ describe('election day polls close time enforcement', () => {
       apiMock.expectGetPollsInfo('polls_open');
       renderScreen({});
 
-      userEvent.click(await screen.findByText('Menu'));
+      await userEvent.click(await screen.findByText('Menu'));
       // "Close Polls" should be the primary button
       const closePollsButton = await screen.findButton('Close Polls');
       expect(closePollsButton).toHaveAttribute('data-variant', 'primary');

@@ -3,7 +3,7 @@ import { userEvent } from './user_event.js';
 import { render, screen } from '../test/react_testing_library.js';
 import { PrintJobFailedModal } from './print_job_failed_modal.js';
 
-test('single ballot, with a reason', () => {
+test('single ballot, with a reason', async () => {
   const onClose = vi.fn();
   render(
     <PrintJobFailedModal
@@ -17,7 +17,7 @@ test('single ballot, with a reason', () => {
   screen.getByText('There was a problem with the printer.');
   screen.getByText('Printer is out of paper.');
 
-  userEvent.click(screen.getByRole('button', { name: 'Close' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Close' }));
   expect(onClose).toHaveBeenCalledTimes(1);
 });
 

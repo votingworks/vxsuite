@@ -22,20 +22,20 @@ test('renders expected subcomponents', () => {
   screen.getByRole('radiogroup', { name: 'Color Contrast Settings' });
 });
 
-test('changes tab pane on tab bar events', () => {
+test('changes tab pane on tab bar events', async () => {
   render(<VoterSettings onClose={vi.fn()} />);
 
   screen.getByRole('radiogroup', { name: 'Color Contrast Settings' });
 
-  userEvent.click(screen.getByRole('tab', { name: /size/i }));
+  await userEvent.click(screen.getByRole('tab', { name: /size/i }));
 
   screen.getByRole('radiogroup', { name: 'Text Size Settings' });
 });
 
-test('renders "Audio" tab when enabled', () => {
+test('renders "Audio" tab when enabled', async () => {
   render(<VoterSettings onClose={vi.fn()} allowAudioVideoOnlyToggles />);
 
-  userEvent.click(screen.getByRole('tab', { name: /Audio/i }));
+  await userEvent.click(screen.getByRole('tab', { name: /Audio/i }));
   screen.getByRole('button', { name: 'Enable Audio-Only Mode' });
 });
 
@@ -47,7 +47,7 @@ test('does not render "Audio" tab when not enabled', () => {
   expect(screen.queryByText('Audio')).toBeNull();
 });
 
-test('resets button resets all voter settings', () => {
+test('resets button resets all voter settings', async () => {
   let currentTheme: UiTheme | null = null;
 
   function TestComponent(): JSX.Element {
@@ -72,11 +72,11 @@ test('resets button resets all voter settings', () => {
     })
   );
 
-  userEvent.click(screen.getByRole('tab', { name: /color/i }));
-  userEvent.click(screen.getByRole('radio', { name: /gray text/i }));
+  await userEvent.click(screen.getByRole('tab', { name: /color/i }));
+  await userEvent.click(screen.getByRole('radio', { name: /gray text/i }));
 
-  userEvent.click(screen.getByRole('tab', { name: /size/i }));
-  userEvent.click(screen.getByRole('radio', { name: /small/i }));
+  await userEvent.click(screen.getByRole('tab', { name: /size/i }));
+  await userEvent.click(screen.getByRole('radio', { name: /small/i }));
 
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<UiTheme>>({
@@ -87,7 +87,7 @@ test('resets button resets all voter settings', () => {
 
   expect(mockAudioControls.reset).not.toHaveBeenCalled();
 
-  userEvent.click(screen.getButton('Reset'));
+  await userEvent.click(screen.getButton('Reset'));
 
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<UiTheme>>({
@@ -99,13 +99,13 @@ test('resets button resets all voter settings', () => {
   expect(mockAudioControls.reset).toHaveBeenCalledTimes(1);
 });
 
-test('done button fires onClose event', () => {
+test('done button fires onClose event', async () => {
   const onClose = vi.fn();
   render(<VoterSettings onClose={onClose} />);
 
   expect(onClose).not.toHaveBeenCalled();
 
-  userEvent.click(screen.getButton('Done'));
+  await userEvent.click(screen.getButton('Done'));
 
   expect(onClose).toHaveBeenCalled();
 });

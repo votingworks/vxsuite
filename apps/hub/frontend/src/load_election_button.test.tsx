@@ -1,5 +1,5 @@
 import { createMemoryHistory } from 'history';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { File as NodeFile } from 'node:buffer';
 import { afterEach, beforeEach, test, expect } from 'vitest';
 import { err, ok } from '@votingworks/basics';
@@ -68,7 +68,7 @@ test('single jurisdiction: VXF', async () => {
   apiMock.listJurisdictions.expectCallWith().resolves([jurisdiction]);
   const history = renderButton();
   const button = await screen.findByRole('button', { name: 'Load Election' });
-  userEvent.click(button);
+  await userEvent.click(button);
 
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Load Election' });
@@ -85,7 +85,7 @@ test('single jurisdiction: VXF', async () => {
   const electionFileInput = within(modal).getByLabelText(
     'Select Election File…'
   );
-  userEvent.upload(electionFileInput, mockElectionFile);
+  await userEvent.upload(electionFileInput, mockElectionFile);
 
   const newId = idFactory.next();
   idFactory.reset();
@@ -99,7 +99,7 @@ test('single jurisdiction: VXF', async () => {
       },
     })
     .resolves(ok(newId));
-  userEvent.click(loadButton);
+  await userEvent.click(loadButton);
 
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
@@ -111,7 +111,7 @@ test('single jurisdiction: MS SEMS', async () => {
   apiMock.listJurisdictions.expectCallWith().resolves([msJurisdiction]);
   const history = renderButton();
   const button = await screen.findByRole('button', { name: 'Load Election' });
-  userEvent.click(button);
+  await userEvent.click(button);
 
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Load Election' });
@@ -119,7 +119,7 @@ test('single jurisdiction: MS SEMS', async () => {
     within(modal).queryByLabelText('Jurisdiction')
   ).not.toBeInTheDocument();
   // Defaults to MS SEMS format, with option to select VXF
-  userEvent.click(within(modal).getByText('Mississippi SEMS'));
+  await userEvent.click(within(modal).getByText('Mississippi SEMS'));
   screen.getByText('VotingWorks');
 
   const loadButton = within(modal).getByRole('button', {
@@ -133,7 +133,7 @@ test('single jurisdiction: MS SEMS', async () => {
   const electionFileInput = within(modal).getByLabelText(
     'Select Election File…'
   );
-  userEvent.upload(electionFileInput, mockElectionCsv);
+  await userEvent.upload(electionFileInput, mockElectionCsv);
 
   const candidateFileInput = within(modal).getByLabelText(
     'Select Candidate File…'
@@ -142,7 +142,7 @@ test('single jurisdiction: MS SEMS', async () => {
   const mockCandidateFile = new File([mockCandidateData], 'candidates.txt', {
     type: 'text/csv',
   });
-  userEvent.upload(candidateFileInput, mockCandidateFile);
+  await userEvent.upload(candidateFileInput, mockCandidateFile);
 
   const newId = idFactory.next();
   idFactory.reset();
@@ -157,7 +157,7 @@ test('single jurisdiction: MS SEMS', async () => {
       },
     })
     .resolves(ok(newId));
-  userEvent.click(loadButton);
+  await userEvent.click(loadButton);
 
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
@@ -172,7 +172,7 @@ test('multi-jurisdiction user sees jurisdiction selector', async () => {
   renderButton();
 
   const button = await screen.findByRole('button', { name: 'Load Election' });
-  userEvent.click(button);
+  await userEvent.click(button);
 
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Load Election' });
@@ -180,7 +180,7 @@ test('multi-jurisdiction user sees jurisdiction selector', async () => {
     name: /Jurisdiction/,
   });
   within(modal).getByText(jurisdiction.name);
-  userEvent.click(jurisdictionSelect);
+  await userEvent.click(jurisdictionSelect);
   const jurisdictionOptions = await screen.findAllByRole('option');
   expect(jurisdictionOptions.map((o) => o.textContent)).toEqual([
     jurisdiction.name,
@@ -188,12 +188,12 @@ test('multi-jurisdiction user sees jurisdiction selector', async () => {
     msJurisdiction.name,
   ]);
   // Select MS jurisdiction to show format selector
-  userEvent.click(jurisdictionOptions[2]!);
+  await userEvent.click(jurisdictionOptions[2]!);
 
   // Format selector defaults to MS SEMS. Switch to VXF.
   within(modal).getByRole('combobox', { name: /Format/ });
-  userEvent.click(within(modal).getByText('Mississippi SEMS'));
-  userEvent.click(screen.getByRole('option', { name: 'VotingWorks' }));
+  await userEvent.click(within(modal).getByText('Mississippi SEMS'));
+  await userEvent.click(screen.getByRole('option', { name: 'VotingWorks' }));
 
   apiMock.loadElection
     .expectCallWith({
@@ -209,9 +209,11 @@ test('multi-jurisdiction user sees jurisdiction selector', async () => {
   const electionFileInput = within(modal).getByLabelText(
     'Select Election File…'
   );
-  userEvent.upload(electionFileInput, mockElectionFile);
+  await userEvent.upload(electionFileInput, mockElectionFile);
 
-  userEvent.click(within(modal).getByRole('button', { name: 'Load Election' }));
+  await userEvent.click(
+    within(modal).getByRole('button', { name: 'Load Election' })
+  );
 
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
@@ -222,10 +224,10 @@ test('close modal', async () => {
   apiMock.listJurisdictions.expectCallWith().resolves([jurisdiction]);
   renderButton();
   const button = await screen.findByRole('button', { name: 'Load Election' });
-  userEvent.click(button);
+  await userEvent.click(button);
 
   const modal = await screen.findByRole('alertdialog');
-  userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
@@ -235,12 +237,14 @@ test('shows error message on upload failure', async () => {
   apiMock.listJurisdictions.expectCallWith().resolves([jurisdiction]);
   const history = renderButton();
 
-  userEvent.click(await screen.findByRole('button', { name: 'Load Election' }));
+  await userEvent.click(
+    await screen.findByRole('button', { name: 'Load Election' })
+  );
   const modal = await screen.findByRole('alertdialog');
   const electionFileInput = within(modal).getByLabelText(
     'Select Election File…'
   );
-  userEvent.upload(electionFileInput, mockElectionFile);
+  await userEvent.upload(electionFileInput, mockElectionFile);
 
   const newId = idFactory.next();
   idFactory.reset();
@@ -255,7 +259,9 @@ test('shows error message on upload failure', async () => {
       },
     })
     .resolves(err(new Error('mock error message')));
-  userEvent.click(within(modal).getByRole('button', { name: 'Load Election' }));
+  await userEvent.click(
+    within(modal).getByRole('button', { name: 'Load Election' })
+  );
 
   await screen.findByRole('heading', { name: 'Error Loading Election' });
   const errorModal = screen.getByRole('alertdialog');
@@ -263,7 +269,7 @@ test('shows error message on upload failure', async () => {
   within(errorModal).getByText(errorMessage);
 
   const closeButton = within(errorModal).getByRole('button', { name: 'Close' });
-  userEvent.click(closeButton);
+  await userEvent.click(closeButton);
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });

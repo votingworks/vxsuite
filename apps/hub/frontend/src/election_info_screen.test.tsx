@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   type ElectionId,
@@ -120,7 +120,7 @@ test('newly created election starts in edit mode', async () => {
   expect(screen.queryByText('Signature')).not.toBeInTheDocument();
 
   screen.getByRole('button', { name: 'Save' });
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
   screen.getByRole('button', { name: 'Edit' });
 });
@@ -172,28 +172,30 @@ test('edit and save election', async () => {
   );
   expect(within(sealInput).getByLabelText('Upload Seal Image')).toBeDisabled();
 
-  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
-  userEvent.clear(titleInput);
-  userEvent.type(titleInput, 'New Title');
+  await userEvent.clear(titleInput);
+  await userEvent.type(titleInput, 'New Title');
   expect(titleInput).toHaveValue('New Title');
 
-  userEvent.type(dateInput, '2023-09-06');
+  await userEvent.type(dateInput, '2023-09-06');
   expect(dateInput).toHaveValue('2023-09-06');
 
-  userEvent.click(within(typeInput).getByRole('option', { name: 'Primary' }));
+  await userEvent.click(
+    within(typeInput).getByRole('option', { name: 'Primary' })
+  );
   within(typeInput).getByRole('option', { name: 'General', selected: false });
   within(typeInput).getByRole('option', { name: 'Primary', selected: true });
 
-  userEvent.clear(stateInput);
-  userEvent.type(stateInput, 'New State');
+  await userEvent.clear(stateInput);
+  await userEvent.type(stateInput, 'New State');
   expect(stateInput).toHaveValue('New State');
 
-  userEvent.clear(jurisdictionInput);
-  userEvent.type(jurisdictionInput, 'New County');
+  await userEvent.clear(jurisdictionInput);
+  await userEvent.type(jurisdictionInput, 'New County');
   expect(jurisdictionInput).toHaveValue('New County');
 
-  userEvent.upload(
+  await userEvent.upload(
     within(sealInput).getByLabelText('Upload Seal Image'),
     new File(['<svg>updated seal</svg>'], 'new_seal.svg', {
       type: 'image/svg+xml',
@@ -216,7 +218,7 @@ test('edit and save election', async () => {
     'checkbox',
     { name: 'Spanish' }
   );
-  userEvent.click(spanishBallotLanguageCheckbox);
+  await userEvent.click(spanishBallotLanguageCheckbox);
 
   const updatedElectionInfo: ElectionInfo = {
     jurisdictionId: electionRecord.jurisdictionId,
@@ -237,7 +239,7 @@ test('edit and save election', async () => {
     .expectCallWith({ electionId })
     .resolves(updatedElectionInfo);
 
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
   await screen.findByRole('button', { name: 'Edit' });
 });
 
@@ -266,9 +268,9 @@ test('edit and save election - nhBallotTemplate signature upload', async () => {
   expect(signatureCaptionInput).toHaveValue('');
   expect(signatureCaptionInput).toBeDisabled();
 
-  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
-  userEvent.upload(
+  await userEvent.upload(
     within(signatureInput).getByLabelText('Upload Signature Image'),
     new File(['<svg>updated signature</svg>'], 'new_signature.svg', {
       type: 'image/svg+xml',
@@ -283,7 +285,7 @@ test('edit and save election - nhBallotTemplate signature upload', async () => {
     )
   );
 
-  userEvent.type(signatureCaptionInput, 'New Signature Caption');
+  await userEvent.type(signatureCaptionInput, 'New Signature Caption');
   expect(signatureCaptionInput).toHaveValue('New Signature Caption');
 
   const updatedElectionInfo: ElectionInfo = {
@@ -305,7 +307,7 @@ test('edit and save election - nhBallotTemplate signature upload', async () => {
     .expectCallWith({ electionId })
     .resolves(updatedElectionInfo);
 
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
   await screen.findByRole('button', { name: 'Edit' });
 });
 
@@ -350,13 +352,13 @@ test('cancel update', async () => {
   renderScreen(electionId);
   await screen.findByRole('heading', { name: 'Election Info' });
 
-  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
   const titleInput = screen.getByLabelText('Title');
-  userEvent.clear(titleInput);
-  userEvent.type(titleInput, 'New Title');
+  await userEvent.clear(titleInput);
+  await userEvent.type(titleInput, 'New Title');
 
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
   expect(titleInput).toHaveValue(electionRecord.election.title);
 });
@@ -380,12 +382,14 @@ test('delete election', async () => {
 
   apiMock.deleteElection.expectCallWith({ electionId }).resolves();
 
-  userEvent.click(screen.getByRole('button', { name: 'Delete Election' }));
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Delete Election' })
+  );
   await screen.findByRole('heading', { name: 'Delete Election' });
   screen.getByText(
     'Are you sure you want to delete this election? This action cannot be undone.'
   );
-  userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
 
   // Redirects to elections list
   await waitFor(() =>
@@ -435,7 +439,7 @@ test('elections with external source have limited editable fields', async () => 
   renderScreen(electionId);
   await screen.findByRole('heading', { name: 'Election Info' });
 
-  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
   // Title, State, and Jurisdiction should be editable
   const titleInput = screen.getByLabelText('Title');
@@ -477,19 +481,19 @@ test('handles duplicate title+date error', async () => {
   renderScreen(electionId);
   await screen.findByRole('heading', { name: 'Election Info' });
 
-  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
   apiMock.updateElectionInfo
     .expectCallWith(electionInfoFromElection(electionRecord.election))
     .resolves(err('duplicate-title-and-date'));
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
   const expectedMessage =
     'There is already an election with the same title and date.';
   await screen.findByText(expectedMessage);
 
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   expect(screen.queryByText(expectedMessage)).not.toBeInTheDocument();
-  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
   expect(screen.queryByText(expectedMessage)).not.toBeInTheDocument();
 });
 
@@ -516,10 +520,10 @@ test('election type selector with features.COMBINED_BALLOT_PRIMARIES enabled', a
   within(typeInput).getByRole('option', { name: 'Closed Primary' });
   within(typeInput).getByRole('option', { name: 'Open Primary' });
 
-  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
   // Select Open Primary
-  userEvent.click(
+  await userEvent.click(
     within(typeInput).getByRole('option', { name: 'Open Primary' })
   );
   const combinedBallotPrimaryInfo: ElectionInfo = {
@@ -533,12 +537,12 @@ test('election type selector with features.COMBINED_BALLOT_PRIMARIES enabled', a
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(combinedBallotPrimaryInfo);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
   await screen.findByRole('option', { name: 'Open Primary', selected: true });
 
   // Select Closed Primary
-  userEvent.click(screen.getByRole('button', { name: 'Edit' }));
-  userEvent.click(
+  await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+  await userEvent.click(
     within(typeInput).getByRole('option', { name: 'Closed Primary' })
   );
   const closedPrimaryInfo: ElectionInfo = {
@@ -550,7 +554,7 @@ test('election type selector with features.COMBINED_BALLOT_PRIMARIES enabled', a
   apiMock.getElectionInfo
     .expectCallWith({ electionId })
     .resolves(closedPrimaryInfo);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
   await screen.findByRole('option', { name: 'Closed Primary', selected: true });
 });
 
@@ -597,7 +601,7 @@ describe('audio editing', () => {
       const inputGroup = assertDefined(input.closest('label'));
       const button = within(inputGroup).getButton(/preview or edit audio/i);
 
-      userEvent.click(button);
+      await userEvent.click(button);
 
       await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
       expect(history.location.pathname).toEqual(

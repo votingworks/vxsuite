@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { useState } from 'react';
 import { assertDefined, ok } from '@votingworks/basics';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { ElectionIdSchema, unsafeParse } from '@votingworks/types';
 import type { ElectionListing } from '@votingworks/hub-backend';
@@ -106,7 +106,7 @@ test('with no elections, creating a new election', async () => {
   const createElectionButton = screen.getByRole('button', {
     name: 'Create Election',
   });
-  userEvent.click(createElectionButton);
+  await userEvent.click(createElectionButton);
   await waitFor(() => {
     expect(history.location.pathname).toEqual(`/elections/${ELECTION_ID}`);
   });
@@ -120,7 +120,7 @@ test('with no elections, loading an election', async () => {
   const { history } = renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });
 
-  userEvent.click(screen.getByRole('button', { name: 'Load Election' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Load Election' }));
   const modal = await screen.findByRole('alertdialog');
   const loadElectionInput = within(modal).getByLabelText(
     'Select Election File…'
@@ -131,7 +131,7 @@ test('with no elections, loading an election', async () => {
   });
   // JSDOM's File doesn't implement File.text
   file.text = () => Promise.resolve(electionData);
-  userEvent.upload(loadElectionInput, file);
+  await userEvent.upload(loadElectionInput, file);
 
   apiMock.loadElection
     .expectCallWith({
@@ -146,7 +146,7 @@ test('with no elections, loading an election', async () => {
   apiMock.listElections
     .expectCallWith()
     .resolves([electionListing(electionRecord)]);
-  userEvent.click(screen.getByRole('button', { name: 'Load Election' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Load Election' }));
 
   await waitFor(() => {
     expect(history.location.pathname).toEqual(
@@ -225,7 +225,7 @@ test('clicking an election item navigates to the election', async () => {
   const { history } = renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });
 
-  userEvent.click(getElectionItem(general.election.title));
+  await userEvent.click(getElectionItem(general.election.title));
   expect(history.location.pathname).toEqual(
     `/elections/${general.election.id}`
   );
@@ -299,7 +299,7 @@ test('elections list for user with multiple jurisdictions', async () => {
 
   // Can filter by jurisdiction name
   const filterInput = screen.getByLabelText(/filter elections/i);
-  userEvent.type(filterInput, 'jurisdiction2 Name');
+  await userEvent.type(filterInput, 'jurisdiction2 Name');
 
   expect(getElectionItemTitles()).toEqual(['Untitled Election']);
 });

@@ -8,7 +8,7 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library.js';
 import { App } from './app.js';
 import { type ApiMock, createApiMock } from '../test/api.js';
@@ -58,7 +58,7 @@ test('warns and disables scanning when no polling place is selected', async () =
   expect(screen.getButton('Start Scanning')).toBeDisabled();
 
   // The user can navigate to the settings screen to select a polling place.
-  userEvent.click(screen.getByText('Settings'));
+  await userEvent.click(screen.getByText('Settings'));
   await screen.findByRole('heading', { name: 'Polling Place' });
 });
 

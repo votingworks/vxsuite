@@ -4,7 +4,7 @@ import {
   readElectionStraightParty,
   readElectionWithMsEitherNeither,
 } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { assert, find } from '@votingworks/basics';
 import type {
   CandidateContest,
@@ -100,7 +100,7 @@ test('candidate contest reflects straight party derived votes', () => {
   within(button).getByText(/straight party vote/i);
 });
 
-test('write-in character limit across contests', () => {
+test('write-in character limit across contests', async () => {
   const singleSeatCandidateContests = electionGeneral.contests.filter(
     (c) => c.type === 'candidate' && c.seats === 1
   ) as CandidateContest[];
@@ -154,7 +154,7 @@ test('write-in character limit across contests', () => {
   );
 
   screen.getByText(manySeatCandidateContests[1]!.title);
-  userEvent.click(
+  await userEvent.click(
     screen.getByText('add write-in candidate').closest('button')!
   );
   const modal = within(screen.getByRole('alertdialog'));
@@ -181,7 +181,7 @@ test('yesno contest', () => {
   // Tested further in yes_no_contest.test.tsx
 });
 
-test('renders ms-either-neither contests', () => {
+test('renders ms-either-neither contests', async () => {
   const updateVote = vi.fn();
   render(
     <Contest
@@ -194,13 +194,15 @@ test('renders ms-either-neither contests', () => {
   );
 
   screen.getByText('Ballot Measure 1');
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('option', { name: /for approval of either/i })
   );
   expect(updateVote).toHaveBeenCalledWith('750000015', [
     msEitherNeitherContest.eitherOption.id,
   ]);
-  userEvent.click(screen.getByRole('option', { name: /for alternative/i }));
+  await userEvent.click(
+    screen.getByRole('option', { name: /for alternative/i })
+  );
   expect(updateVote).toHaveBeenCalledWith('750000016', [
     msEitherNeitherContest.secondOption.id,
   ]);

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { anyPollingPlace } from '@votingworks/types';
 import { screen, within } from '../test/react_testing_library.js';
@@ -54,9 +54,9 @@ test('full polls flow', async () => {
     pollsState: 'polls_open',
   });
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
-  userEvent.click(await screen.findByText('Open Polls'));
+  await userEvent.click(await screen.findByText('Open Polls'));
   const openModal = await screen.findByRole('alertdialog');
-  userEvent.click(within(openModal).getButton('Open Polls'));
+  await userEvent.click(within(openModal).getButton('Open Polls'));
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
@@ -68,9 +68,9 @@ test('full polls flow', async () => {
     pollsState: 'polls_paused',
   });
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
-  userEvent.click(await screen.findByText('Pause Voting'));
+  await userEvent.click(await screen.findByText('Pause Voting'));
   const pauseModal = await screen.findByRole('alertdialog');
-  userEvent.click(within(pauseModal).getButton('Pause Voting'));
+  await userEvent.click(within(pauseModal).getButton('Pause Voting'));
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Voting Paused');
@@ -82,9 +82,9 @@ test('full polls flow', async () => {
     pollsState: 'polls_open',
   });
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
-  userEvent.click(await screen.findByText('Resume Voting'));
+  await userEvent.click(await screen.findByText('Resume Voting'));
   const resumeModal = await screen.findByRole('alertdialog');
-  userEvent.click(within(resumeModal).getButton('Resume Voting'));
+  await userEvent.click(within(resumeModal).getButton('Resume Voting'));
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');
@@ -96,9 +96,9 @@ test('full polls flow', async () => {
     pollsState: 'polls_closed_final',
   });
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
-  userEvent.click(screen.getByText('Close Polls'));
+  await userEvent.click(screen.getByText('Close Polls'));
   const closeModal = await screen.findByRole('alertdialog');
-  userEvent.click(within(closeModal).getButton('Close Polls'));
+  await userEvent.click(within(closeModal).getButton('Close Polls'));
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Polls Closed');
@@ -124,9 +124,9 @@ test('can close polls from paused', async () => {
     pollsState: 'polls_closed_final',
   });
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
-  userEvent.click(screen.getByText('Close Polls'));
+  await userEvent.click(screen.getByText('Close Polls'));
   const closeModal = await screen.findByRole('alertdialog');
-  userEvent.click(within(closeModal).getButton('Close Polls'));
+  await userEvent.click(within(closeModal).getButton('Close Polls'));
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Polls Closed');
@@ -175,9 +175,9 @@ test('can reset polls to paused with system administrator card', async () => {
     pollsState: 'polls_paused',
   });
 
-  userEvent.click(await screen.findByText('Reset Polls to Paused'));
+  await userEvent.click(await screen.findByText('Reset Polls to Paused'));
   const modal = await screen.findByRole('alertdialog');
-  userEvent.click(
+  await userEvent.click(
     await within(modal).findByRole('button', { name: 'Reset Polls to Paused' })
   );
   await vi.waitFor(() => {

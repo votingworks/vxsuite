@@ -6,7 +6,7 @@ import {
 } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { screen } from '../../test/react_testing_library.js';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config.js';
 
@@ -47,7 +47,7 @@ test('Renders ReviewScreen in Landscape orientation', () => {
   screen.getByText('Review Your Votes');
 });
 
-test('View All mode shows both back button and print button', () => {
+test('View All mode shows both back button and print button', async () => {
   const history = createMemoryHistory({
     initialEntries: ['/review?fromContest=3'],
   });
@@ -61,11 +61,11 @@ test('View All mode shows both back button and print button', () => {
 
   screen.getByText('Review Your Votes');
   screen.getButton(/print my ballot/i);
-  userEvent.click(screen.getButton(/back/i));
+  await userEvent.click(screen.getButton(/back/i));
   expect(history.location.pathname).toEqual('/contests/3');
 });
 
-test('View All mode navigates to contest without review hash', () => {
+test('View All mode navigates to contest without review hash', async () => {
   const history = createMemoryHistory({
     initialEntries: ['/review?fromContest=3'],
   });
@@ -78,12 +78,12 @@ test('View All mode navigates to contest without review hash', () => {
   });
 
   const firstContestTitle = electionGeneral.contests[0]!.title;
-  userEvent.click(screen.getByText(firstContestTitle));
+  await userEvent.click(screen.getByText(firstContestTitle));
   expect(history.location.pathname).toEqual('/contests/0');
   expect(history.location.hash).toEqual('');
 });
 
-test('final review mode navigates to contest with review hash', () => {
+test('final review mode navigates to contest with review hash', async () => {
   const history = createMemoryHistory({
     initialEntries: ['/review'],
   });
@@ -96,7 +96,7 @@ test('final review mode navigates to contest with review hash', () => {
   });
 
   const firstContestTitle = electionGeneral.contests[0]!.title;
-  userEvent.click(screen.getByText(firstContestTitle));
+  await userEvent.click(screen.getByText(firstContestTitle));
   expect(history.location.pathname).toEqual('/contests/0');
   expect(history.location.hash).toEqual('#review');
 });
@@ -114,7 +114,7 @@ test('renders as voter screen', () => {
   screen.getByTestId(MARK_FLOW_UI_VOTER_SCREEN_TEST_ID);
 });
 
-test('combined ballot primary review screen shows party row and links to party selection', () => {
+test('combined ballot primary review screen shows party row and links to party selection', async () => {
   const history = createMemoryHistory({ initialEntries: ['/review'] });
   renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
     history,
@@ -131,6 +131,6 @@ test('combined ballot primary review screen shows party row and links to party s
   expect(screen.getAllByText('Party')).toHaveLength(2);
   expect(screen.getAllByText('Democratic Party')).toHaveLength(2);
 
-  userEvent.click(screen.getButton(/change party/i));
+  await userEvent.click(screen.getButton(/change party/i));
   expect(history.location.pathname).toEqual('/party-selection');
 });

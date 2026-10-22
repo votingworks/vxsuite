@@ -1,7 +1,7 @@
 import React from 'react';
 import { vi, beforeEach, afterEach, test, expect } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { assertDefined } from '@votingworks/basics';
 import {
   type ApiMock,
@@ -173,7 +173,7 @@ test('can run scanner diagnostic flow', async () => {
     expect(screen.getButton('Perform Test Scan')).toBeEnabled();
   });
   apiMock.mockApiClient.beginScannerDiagnostic.expectCallWith().resolves();
-  userEvent.click(screen.getButton('Perform Test Scan'));
+  await userEvent.click(screen.getButton('Perform Test Scan'));
 
   apiMock.expectGetScannerStatus({
     state: 'scanner_diagnostic.running',
@@ -201,7 +201,7 @@ test('can run scanner diagnostic flow', async () => {
     outcome: 'pass',
     timestamp: new Date('2024-01-01T00:00:00').getTime(),
   });
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
 
   await screen.findByText('Test scan successful, 1/1/2024, 12:00:00 AM');
 });
@@ -216,14 +216,14 @@ test('can enter load paper flow and print test page flow', async () => {
   renderScreen();
 
   // can enter loading flow
-  userEvent.click(await screen.findButton('Load Paper'));
+  await userEvent.click(await screen.findButton('Load Paper'));
   await screen.findByText('Remove Paper Roll Holder');
-  userEvent.click(screen.getButton('Cancel'));
+  await userEvent.click(screen.getButton('Cancel'));
 
   // can enter test print flow
   apiMock.expectGetMostRecentPrinterDiagnostic();
   apiMock.expectPrintTestPage().resolve();
-  userEvent.click(await screen.findButton('Print Test Page'));
+  await userEvent.click(await screen.findButton('Print Test Page'));
   await screen.findByText('Test Page Printed');
 });
 
@@ -237,16 +237,16 @@ test('can save readiness report', async () => {
 
   renderScreen();
 
-  userEvent.click(await screen.findButton('Save Readiness Report'));
+  await userEvent.click(await screen.findButton('Save Readiness Report'));
   await screen.findByText(
     'The readiness report will be saved to the inserted USB drive.'
   );
-  userEvent.click(screen.getButton('Save'));
+  await userEvent.click(screen.getButton('Save'));
   await screen.findByText('Readiness Report Saved');
   screen.getByText(/report.pdf/);
-  userEvent.click(await screen.findButton('Close'));
+  await userEvent.click(await screen.findButton('Close'));
 
   // confirm modal resets after exiting
-  userEvent.click(await screen.findButton('Save Readiness Report'));
+  await userEvent.click(await screen.findButton('Save Readiness Report'));
   await screen.findByRole('heading', { name: 'Save Readiness Report' });
 });

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import type { QualifiedWriteInCandidateRecord } from '@votingworks/admin-backend';
 import type { Election } from '@votingworks/types';
 import { screen, within, waitFor } from '../../test/react_testing_library.js';
@@ -63,7 +63,7 @@ describe('contest list', () => {
     await screen.findByText(/You have not added any write-in candidates/);
 
     // Click on Senate
-    userEvent.click(screen.getByText(/Senate/));
+    await userEvent.click(screen.getByText(/Senate/));
 
     // Should show Nemo
     await screen.findByDisplayValue('Nemo');
@@ -142,11 +142,13 @@ describe('view mode', () => {
 });
 
 describe('edit mode', () => {
-  test('Add Candidate enters edit mode with an empty input', () => {
+  test('Add Candidate enters edit mode with an empty input', async () => {
     expectGetQualifiedWriteInCandidates();
     renderTab();
 
-    userEvent.click(screen.getByRole('button', { name: 'Add Candidate' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Add Candidate' })
+    );
 
     // Should be in edit mode with Cancel and Save buttons
     screen.getByRole('button', { name: 'Cancel' });
@@ -167,7 +169,7 @@ describe('edit mode', () => {
     ]);
     renderTab();
 
-    userEvent.click(
+    await userEvent.click(
       await screen.findByRole('button', { name: 'Edit Candidates' })
     );
 
@@ -190,21 +192,23 @@ describe('edit mode', () => {
     ]);
     renderTab();
 
-    userEvent.click(
+    await userEvent.click(
       await screen.findByRole('button', { name: 'Edit Candidates' })
     );
-    userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
     // Back to view mode
     screen.getByRole('button', { name: 'Edit Candidates' });
     expect(screen.getByDisplayValue('Alice')).toBeDisabled();
   });
 
-  test('Add Candidate is disabled when an empty input exists', () => {
+  test('Add Candidate is disabled when an empty input exists', async () => {
     expectGetQualifiedWriteInCandidates();
     renderTab();
 
-    userEvent.click(screen.getByRole('button', { name: 'Add Candidate' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Add Candidate' })
+    );
 
     // Button should be disabled since there's an empty input
     expect(
@@ -216,8 +220,10 @@ describe('edit mode', () => {
     expectGetQualifiedWriteInCandidates();
     renderTab();
 
-    userEvent.click(screen.getByRole('button', { name: 'Add Candidate' }));
-    userEvent.type(screen.getByRole('textbox'), 'Alice');
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Add Candidate' })
+    );
+    await userEvent.type(screen.getByRole('textbox'), 'Alice');
 
     apiMock.apiClient.updateQualifiedWriteInCandidates
       .expectCallWith({
@@ -226,7 +232,7 @@ describe('edit mode', () => {
       })
       .resolves({ affectedBallotCount: 0 });
 
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(() => {
       // Should exit edit mode on success
@@ -246,10 +252,10 @@ describe('edit mode', () => {
     ]);
     renderTab();
 
-    userEvent.click(
+    await userEvent.click(
       await screen.findByRole('button', { name: 'Edit Candidates' })
     );
-    userEvent.click(screen.getByRole('button', { name: 'Delete Alice' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Delete Alice' }));
 
     // Alice should be removed from the list
     expect(screen.queryByDisplayValue('Alice')).not.toBeInTheDocument();
@@ -267,10 +273,10 @@ describe('edit mode', () => {
     ]);
     renderTab();
 
-    userEvent.click(
+    await userEvent.click(
       await screen.findByRole('button', { name: 'Edit Candidates' })
     );
-    userEvent.click(screen.getByRole('button', { name: 'Delete Alice' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Delete Alice' }));
 
     // Modal should appear
     const modal = screen.getByRole('alertdialog');
@@ -278,7 +284,7 @@ describe('edit mode', () => {
     within(modal).getByText(/Votes have already been adjudicated/);
 
     // Confirm deletion
-    userEvent.click(
+    await userEvent.click(
       within(modal).getByRole('button', { name: 'Delete Candidate' })
     );
 
@@ -298,13 +304,15 @@ describe('edit mode', () => {
     ]);
     renderTab();
 
-    userEvent.click(
+    await userEvent.click(
       await screen.findByRole('button', { name: 'Edit Candidates' })
     );
-    userEvent.click(screen.getByRole('button', { name: 'Delete Alice' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Delete Alice' }));
 
     const modal = screen.getByRole('alertdialog');
-    userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
+    await userEvent.click(
+      within(modal).getByRole('button', { name: 'Cancel' })
+    );
 
     // Alice should still be in the list
     screen.getByDisplayValue('Alice');
@@ -312,19 +320,23 @@ describe('edit mode', () => {
 });
 
 describe('validation', () => {
-  test('shows error for duplicate candidate names', () => {
+  test('shows error for duplicate candidate names', async () => {
     expectGetQualifiedWriteInCandidates();
     renderTab();
 
     // Add two candidates with the same name
-    userEvent.click(screen.getByRole('button', { name: 'Add Candidate' }));
-    userEvent.type(screen.getAllByRole('textbox')[0]!, 'Alice');
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Add Candidate' })
+    );
+    await userEvent.type(screen.getAllByRole('textbox')[0]!, 'Alice');
 
     // Need to enable the add button by filling in the first input
-    userEvent.click(screen.getByRole('button', { name: 'Add Candidate' }));
-    userEvent.type(screen.getAllByRole('textbox')[1]!, 'Alice');
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Add Candidate' })
+    );
+    await userEvent.type(screen.getAllByRole('textbox')[1]!, 'Alice');
 
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     screen.getByText('There is already a candidate with the same name.');
   });
@@ -341,37 +353,41 @@ describe('validation', () => {
     ]);
     renderTab();
 
-    userEvent.click(
+    await userEvent.click(
       await screen.findByRole('button', { name: 'Edit Candidates' })
     );
 
     const input = screen.getByDisplayValue('Alice');
-    userEvent.clear(input);
-    userEvent.type(input, 'Alicia');
+    await userEvent.clear(input);
+    await userEvent.type(input, 'Alicia');
 
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     screen.getByText(
       /This candidate has adjudicated votes, so its name cannot be changed/
     );
   });
 
-  test('editing a field clears its error', () => {
+  test('editing a field clears its error', async () => {
     expectGetQualifiedWriteInCandidates();
     renderTab();
 
     // Create duplicate
-    userEvent.click(screen.getByRole('button', { name: 'Add Candidate' }));
-    userEvent.type(screen.getAllByRole('textbox')[0]!, 'Alice');
-    userEvent.click(screen.getByRole('button', { name: 'Add Candidate' }));
-    userEvent.type(screen.getAllByRole('textbox')[1]!, 'Alice');
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Add Candidate' })
+    );
+    await userEvent.type(screen.getAllByRole('textbox')[0]!, 'Alice');
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Add Candidate' })
+    );
+    await userEvent.type(screen.getAllByRole('textbox')[1]!, 'Alice');
 
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     screen.getByText('There is already a candidate with the same name.');
 
     // Edit the second input to fix the duplicate
-    userEvent.clear(screen.getAllByRole('textbox')[1]!);
-    userEvent.type(screen.getAllByRole('textbox')[1]!, 'Bob');
+    await userEvent.clear(screen.getAllByRole('textbox')[1]!);
+    await userEvent.type(screen.getAllByRole('textbox')[1]!, 'Bob');
 
     expect(
       screen.queryByText('There is already a candidate with the same name.')

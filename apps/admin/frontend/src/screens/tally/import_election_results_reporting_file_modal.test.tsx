@@ -12,7 +12,7 @@ import {
   type Result,
 } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   mockKiosk,
   mockSessionExpiresAt,
@@ -110,12 +110,12 @@ test('can upload an ERR file and close modal', async () => {
     canceled: false,
     filePaths: [filepath],
   });
-  userEvent.click(screen.getByText('Select File…'));
+  await userEvent.click(screen.getByText('Select File…'));
 
   await screen.findByText('Results Imported');
 
   expect(closeFn).toHaveBeenCalledTimes(0);
-  userEvent.click(await screen.findByText('Close'));
+  await userEvent.click(await screen.findByText('Close'));
   expect(closeFn).toHaveBeenCalledTimes(1);
 });
 
@@ -149,7 +149,7 @@ test.each(usbStatuses)(
     );
 
     expect(closeFn).toHaveBeenCalledTimes(0);
-    userEvent.click(screen.getByText('Cancel'));
+    await userEvent.click(screen.getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
   }
 );
@@ -189,7 +189,7 @@ test('loading state', async () => {
     canceled: false,
     filePaths: [filepath],
   });
-  userEvent.click(screen.getByText('Select File…'));
+  await userEvent.click(screen.getByText('Select File…'));
 
   await screen.findByText('Importing Results');
 
@@ -252,13 +252,13 @@ test.each(errorTests)(
       canceled: false,
       filePaths: [filepath],
     });
-    userEvent.click(screen.getByText('Select File…'));
+    await userEvent.click(screen.getByText('Select File…'));
 
     await screen.findByText('Failed to Import Results');
     screen.getByText(message);
 
     expect(closeFn).toHaveBeenCalledTimes(0);
-    userEvent.click(screen.getByText('Close'));
+    await userEvent.click(screen.getByText('Close'));
     expect(closeFn).toHaveBeenCalledTimes(1);
   }
 );
@@ -290,7 +290,7 @@ test('handles no file input', async () => {
     canceled: true,
     filePaths: [],
   });
-  userEvent.click(screen.getByText('Select File…'));
+  await userEvent.click(screen.getByText('Select File…'));
   await waitFor(() => expect(closeFn).toHaveBeenCalledTimes(1));
 });
 

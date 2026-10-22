@@ -3,7 +3,7 @@ import {
   electionFamousNames2021Fixtures,
   electionSimpleSinglePrecinctFixtures,
 } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { UsbPartitionMountpointSchema } from '@votingworks/usb-drive';
 import { screen } from '../test/react_testing_library.js';
 import {
@@ -50,7 +50,7 @@ describe('Voters tab', () => {
 
     // Election Manager search should include inactive voters
     apiMock.expectSearchVotersNull({});
-    userEvent.click(await screen.findButton('Voters'));
+    await userEvent.click(await screen.findButton('Voters'));
 
     await screen.findByRole('heading', { name: 'Voters' });
 
@@ -65,15 +65,15 @@ describe('Voters tab', () => {
     );
 
     const lastNameInput = screen.getByLabelText('Last Name');
-    userEvent.clear(lastNameInput);
-    userEvent.type(lastNameInput, 'AD');
+    await userEvent.clear(lastNameInput);
+    await userEvent.type(lastNameInput, 'AD');
     const firstNameInput = screen.getByLabelText('First Name');
-    userEvent.type(firstNameInput, 'ABI');
+    await userEvent.type(firstNameInput, 'ABI');
 
     await screen.findByText(/Adams, Abigail/i);
 
     apiMock.expectGetVoter(voter);
-    userEvent.click(screen.getButton('View Details'));
+    await userEvent.click(screen.getButton('View Details'));
 
     await screen.findByRole('heading', { name: 'Voter Details' });
   });
@@ -101,8 +101,8 @@ describe('ElectionScreen precinct selection', () => {
 
     apiMock.expectSetConfiguredPrecinct(newPrecinctId);
 
-    userEvent.click(screen.getByText('Select Precinct…'));
-    userEvent.click(screen.getByText(precincts[1]!.name));
+    await userEvent.click(screen.getByText('Select Precinct…'));
+    await userEvent.click(screen.getByText(precincts[1]!.name));
 
     // Wait for the value to update
     await vi.waitFor(() => {
@@ -162,8 +162,8 @@ describe('ElectionScreen precinct selection', () => {
 
     apiMock.expectSetConfiguredPrecinct(precincts[1]!.id, new Error('test'));
 
-    userEvent.click(screen.getByText('Select Precinct…'));
-    userEvent.click(screen.getByText(precincts[1]!.name));
+    await userEvent.click(screen.getByText('Select Precinct…'));
+    await userEvent.click(screen.getByText(precincts[1]!.name));
 
     const selectDisabled = await screen.findByLabelText('Select Precinct');
     expect(selectDisabled).toBeInTheDocument();
@@ -192,7 +192,7 @@ describe('Settings tab', () => {
     const settingsTabButton = await screen.findByRole('button', {
       name: 'Settings',
     });
-    userEvent.click(settingsTabButton);
+    await userEvent.click(settingsTabButton);
 
     await screen.findByRole('heading', { name: 'Settings' });
   }
@@ -202,7 +202,7 @@ describe('Settings tab', () => {
 
     // Full functionality tested in libs/ui/src/export_logs_modal.test.tsx
     const saveLogsButton = await screen.findButton('Save Logs');
-    userEvent.click(saveLogsButton);
+    await userEvent.click(saveLogsButton);
     await screen.findByRole('heading', { name: 'Save Logs' });
     screen.getByText('Select a log format:');
   });
@@ -211,7 +211,9 @@ describe('Settings tab', () => {
     await renderSettingsTab();
 
     // Full functionality tested in libs/ui/src/set_clock.test.tsx
-    userEvent.click(screen.getByRole('button', { name: 'Set Date and Time' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Set Date and Time' })
+    );
     await screen.findByRole('heading', { name: 'Set Date and Time' });
   });
 

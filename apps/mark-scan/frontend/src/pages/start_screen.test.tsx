@@ -12,7 +12,7 @@ import {
   PatDeviceContextProvider,
 } from '@votingworks/ui';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { screen, waitFor } from '../../test/react_testing_library.js';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config.js';
 import { render } from '../../test/test_utils.js';
@@ -163,10 +163,10 @@ test('renders voter help button', async () => {
   });
 
   const voterHelpScreenHeading = 'Voter Instructions';
-  userEvent.click(await screen.findByRole('button', { name: 'Help' }));
+  await userEvent.click(await screen.findByRole('button', { name: 'Help' }));
   await screen.findByRole('heading', { name: voterHelpScreenHeading });
   screen.getByRole('heading', { name: 'Start Screen' });
-  userEvent.click(screen.getByRole('button', { name: 'Close' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Close' }));
   await waitFor(() =>
     expect(
       screen.queryByRole('heading', { name: voterHelpScreenHeading })

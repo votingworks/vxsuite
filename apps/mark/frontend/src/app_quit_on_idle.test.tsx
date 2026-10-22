@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { createMocks as createReactIdleTimerMocks } from 'react-idle-timer';
 import {
   IDLE_RESET_TIMEOUT_SECONDS,
@@ -53,10 +53,10 @@ test('Voter idle timeout', async () => {
   });
 
   // Let idle timeout kick in and acknowledge
-  userEvent.click(await screen.findByText('Start Voting'));
+  await userEvent.click(await screen.findByText('Start Voting'));
   await advanceTimersAndPromises(IDLE_TIMEOUT_SECONDS);
   screen.getByText('Are you still voting?');
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('button', { name: 'Yes, I’m still voting.' })
   );
   await vi.waitFor(() =>

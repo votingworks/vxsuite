@@ -11,7 +11,7 @@ const { mockApiClient, render } = newTestContext({
 test('renders as expected.', async () => {
   render(<PowerDownButton />);
 
-  userEvent.click(screen.getByText('Power Down'));
+  await userEvent.click(screen.getByText('Power Down'));
   await screen.findByText(/Powering Down/);
   await waitFor(() => expect(mockApiClient.powerDown).toHaveBeenCalledTimes(1));
 });

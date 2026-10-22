@@ -7,7 +7,7 @@ import type {
   VotesDict,
 } from '@votingworks/types';
 import { QueryClientProvider } from '@tanstack/react-query';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { deferred, typedAs } from '@votingworks/basics';
 
 import { advancePromises } from '@votingworks/test-utils';
@@ -67,7 +67,7 @@ describe('with valid interpretation loaded', () => {
     expect(mockSetVotes).not.toHaveBeenCalled();
     expect(mockActivateCardlessVoter).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getButton('Review Ballot'));
+    await userEvent.click(screen.getButton('Review Ballot'));
     await advancePromises();
 
     expect(mockApiClient.returnPreprintedBallot).not.toHaveBeenCalled();
@@ -89,7 +89,7 @@ describe('with valid interpretation loaded', () => {
     expect(mockSetVotes).not.toHaveBeenCalled();
     expect(mockActivateCardlessVoter).not.toHaveBeenCalled();
 
-    userEvent.click(screen.getButton('Return Ballot'));
+    await userEvent.click(screen.getButton('Return Ballot'));
     await advancePromises();
 
     expect(

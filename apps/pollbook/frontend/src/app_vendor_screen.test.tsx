@@ -1,7 +1,7 @@
 import { test, beforeEach, afterEach, expect, vi } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import type { ElectionDefinition } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen, within } from '../test/react_testing_library.js';
 import { App } from './app.js';
 import { type ApiMock, createApiMock } from '../test/mock_api_client.js';
@@ -45,13 +45,13 @@ test('vendor screen', async () => {
 
   // Test "Lock Machine" button
   apiMock.mockApiClient.logOut.expectCallWith().resolves();
-  userEvent.click(lockMachineButton);
+  await userEvent.click(lockMachineButton);
 
   // Test "Reboot to Vendor Menu" button
   apiMock.authenticateAsVendor();
   const rebootButton = await screen.findButton('Reboot to Vendor Menu');
   apiMock.mockApiClient.rebootToVendorMenu.expectCallWith().resolves();
-  userEvent.click(rebootButton);
+  await userEvent.click(rebootButton);
 });
 
 test('vendor screen unconfigure', async () => {
@@ -62,14 +62,14 @@ test('vendor screen unconfigure', async () => {
 
   const unconfigureButton = await screen.findButton('Unconfigure Machine');
 
-  userEvent.click(unconfigureButton);
+  await userEvent.click(unconfigureButton);
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Unconfigure Machine' });
 
   apiMock.expectUnconfigureElection();
   apiMock.setElection();
 
-  userEvent.click(
+  await userEvent.click(
     within(modal).getByRole('button', { name: 'Delete All Election Data' })
   );
   await screen.findByText('Unconfiguring Machine');

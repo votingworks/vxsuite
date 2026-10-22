@@ -2,7 +2,7 @@ import { vi, beforeEach, afterEach, test, expect } from 'vitest';
 import { err } from '@votingworks/basics';
 
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { render, waitFor } from '../../test/react_testing_library.js';
 import {
@@ -39,7 +39,7 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-test('render no usb found screen when there is not a compatible mounted usb drive', () => {
+test('render no usb found screen when there is not a compatible mounted usb drive', async () => {
   const usbStatuses: Array<UsbDriveStatus['status']> = [
     'no_drive',
     'ejected',
@@ -57,7 +57,7 @@ test('render no usb found screen when there is not a compatible mounted usb driv
     getByText('No USB Drive Detected');
     getByText('Insert a USB drive in order to save CVRs.');
 
-    userEvent.click(getByText('Cancel'));
+    await userEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalled();
 
     unmount();
@@ -73,12 +73,12 @@ test('render export modal when a usb drive is mounted as expected and allows exp
   getByText('Save CVRs');
 
   apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'full_export' });
-  userEvent.click(getByText('Save'));
+  await userEvent.click(getByText('Save'));
   await waitFor(() => getByText('CVRs Saved'));
 
   apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
-  userEvent.click(getByText('Eject USB'));
-  userEvent.click(getByText('Cancel'));
+  await userEvent.click(getByText('Eject USB'));
+  await userEvent.click(getByText('Cancel'));
 
   rerender(
     provideApi(
@@ -103,11 +103,11 @@ test('render export modal with errors when appropriate', async () => {
   apiMock.mockApiClient.exportCastVoteRecordsToUsbDrive
     .expectCallWith({ mode: 'full_export' })
     .resolves(err({ type: 'file-system-error' }));
-  userEvent.click(getByText('Save'));
+  await userEvent.click(getByText('Save'));
   await waitFor(() =>
     getByText('Failed to save CVRs. Unable to write to USB drive.')
   );
 
-  userEvent.click(getByText('Close'));
+  await userEvent.click(getByText('Close'));
   expect(onClose).toHaveBeenCalled();
 });

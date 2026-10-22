@@ -9,7 +9,7 @@ import {
   type Precinct,
 } from '@votingworks/types';
 import type { ElectionInfo } from '@votingworks/hub-backend';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { DateWithoutTime, sleep } from '@votingworks/basics';
 import { createMemoryHistory } from 'history';
 import { routes } from './routes.js';
@@ -130,14 +130,14 @@ test('ballots ready to finalize', async () => {
   api.assertComplete();
 
   expect(soleHeading).toHaveTextContent('Ballots Not Finalized');
-  userEvent.click(screen.getButton(/finalize/i));
+  await userEvent.click(screen.getButton(/finalize/i));
   const confirmModal = screen.getByRole('alertdialog');
 
   api.finalizeBallots.expectCallWith({ electionId }).resolves();
   mockFinalizedAt(api, new Date());
   mockApprovedAt(api, null);
 
-  userEvent.click(within(confirmModal).getButton(/finalize/i));
+  await userEvent.click(within(confirmModal).getButton(/finalize/i));
 
   await sleep(0);
   api.assertComplete();
@@ -160,10 +160,10 @@ test('start finalize and cancel', async () => {
   await screen.findByRole('heading', { name: 'Ballots Not Finalized' });
   api.assertComplete();
 
-  userEvent.click(screen.getButton(/finalize/i));
+  await userEvent.click(screen.getButton(/finalize/i));
   const confirmModal = screen.getByRole('alertdialog');
 
-  userEvent.click(within(confirmModal).getButton(/cancel/i));
+  await userEvent.click(within(confirmModal).getButton(/cancel/i));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
   api.assertComplete();
@@ -186,14 +186,14 @@ test('start finalize and confirm', async () => {
   await screen.findByRole('heading', { name: 'Ballots Not Finalized' });
   api.assertComplete();
 
-  userEvent.click(screen.getButton(/finalize/i));
+  await userEvent.click(screen.getButton(/finalize/i));
   const confirmModal = screen.getByRole('alertdialog');
 
   api.finalizeBallots.expectCallWith({ electionId }).resolves();
   mockFinalizedAt(api, new Date());
   mockApprovedAt(api, null);
 
-  userEvent.click(within(confirmModal).getButton(/finalize/i));
+  await userEvent.click(within(confirmModal).getButton(/finalize/i));
 
   await sleep(0);
   api.assertComplete();
@@ -218,7 +218,7 @@ test.each([false, true])(
     renderUi(api);
 
     await screen.findByRole('heading', { name: 'Ballots Not Finalized' });
-    userEvent.click(screen.getButton(/finalize/i));
+    await userEvent.click(screen.getButton(/finalize/i));
 
     const modal = await screen.findByRole('alertdialog');
     within(modal).getByText(
@@ -274,7 +274,7 @@ test('ballots approved', async () => {
   expect(soleHeading).toHaveTextContent('Ready for Download');
   const downloadsLink = screen.getButton(/downloads/i);
 
-  userEvent.click(downloadsLink);
+  await userEvent.click(downloadsLink);
 
   const downloadsUrlPath = routes.election(electionId).downloads.path;
   expect(history.location.pathname).toEqual(downloadsUrlPath);

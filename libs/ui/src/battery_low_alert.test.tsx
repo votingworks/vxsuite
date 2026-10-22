@@ -39,7 +39,7 @@ test(`warning when battery drops`, async () => {
   within(warning).getByText(
     `The battery is at 10% and is not charging. Please connect the power supply.`
   );
-  userEvent.click(within(warning).getButton('Dismiss'));
+  await userEvent.click(within(warning).getButton('Dismiss'));
   expect(screen.queryByRole('alertdialog')).toBeNull();
 
   // doesn't warn again if we haven't hit the next threshold
@@ -66,7 +66,7 @@ test(`warning when battery drops`, async () => {
   within(secondWarning).getByText(
     `The battery is at 5% and is not charging. Please connect the power supply.`
   );
-  userEvent.click(within(secondWarning).getButton('Dismiss'));
+  await userEvent.click(within(secondWarning).getButton('Dismiss'));
   expect(screen.queryByRole('alertdialog')).toBeNull();
 });
 

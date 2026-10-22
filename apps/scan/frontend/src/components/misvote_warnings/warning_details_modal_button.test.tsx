@@ -1,5 +1,5 @@
 import { afterEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { within } from '@testing-library/react';
 import { assert } from '@votingworks/basics';
 import { FOCUSABLE_AUDIO_CLASS_NAME } from '@votingworks/ui';
@@ -17,7 +17,7 @@ afterEach(() => {
   vi.resetAllMocks();
 });
 
-test('renders modal on button press', () => {
+test('renders modal on button press', async () => {
   vi.mocked(WarningDetails).mockImplementation(() => (
     <div data-testid="mockWarningDetails" />
   ));
@@ -38,7 +38,7 @@ test('renders modal on button press', () => {
   );
   expect(screen.queryByTestId('mockWarningDetails')).not.toBeInTheDocument();
 
-  userEvent.click(screen.getButton(/view contests/i));
+  await userEvent.click(screen.getButton(/view contests/i));
 
   screen.getByTestId('mockWarningDetails');
   expect(vi.mocked(WarningDetails)).toBeCalledWith(
@@ -52,7 +52,7 @@ test('renders modal on button press', () => {
   );
 });
 
-test('renders modal with focusable audio content', () => {
+test('renders modal with focusable audio content', async () => {
   vi.mocked(WarningDetails).mockImplementation(() => (
     <div data-testid="mockWarningDetails" />
   ));
@@ -66,7 +66,7 @@ test('renders modal with focusable audio content', () => {
     />
   );
 
-  userEvent.click(screen.getButton(/view contests/i));
+  await userEvent.click(screen.getButton(/view contests/i));
 
   const focusableAudioEl = document.getElementsByClassName(
     FOCUSABLE_AUDIO_CLASS_NAME
@@ -75,7 +75,7 @@ test('renders modal with focusable audio content', () => {
   within(focusableAudioEl).getByTestId('mockWarningDetails');
 });
 
-test('closes modal', () => {
+test('closes modal', async () => {
   vi.mocked(WarningDetails).mockImplementation(() => (
     <div data-testid="mockWarningDetails" />
   ));
@@ -90,9 +90,9 @@ test('closes modal', () => {
   );
   expect(screen.queryByTestId('mockWarningDetails')).not.toBeInTheDocument();
 
-  userEvent.click(screen.getButton(/view contests/i));
+  await userEvent.click(screen.getButton(/view contests/i));
   screen.getByTestId('mockWarningDetails');
 
-  userEvent.click(screen.getButton(/close/i));
+  await userEvent.click(screen.getButton(/close/i));
   expect(screen.queryByTestId('mockWarningDetails')).not.toBeInTheDocument();
 });

@@ -1,11 +1,11 @@
 import { expect, test, vi } from 'vitest';
 import type { Tabulation } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { GroupByEditor } from './group_by_editor.js';
 import { screen } from '../../../test/react_testing_library.js';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 
-test('GroupByEditor', () => {
+test('GroupByEditor', async () => {
   const setGroupBy = vi.fn();
   const setIncludeSheetCounts = vi.fn();
   const groupBy: Tabulation.GroupBy = {
@@ -49,14 +49,14 @@ test('GroupByEditor', () => {
     expect(button).toHaveTextContent(label);
   }
 
-  userEvent.click(screen.getByText('Ballot Style'));
+  await userEvent.click(screen.getByText('Ballot Style'));
   expect(setGroupBy).toHaveBeenCalledWith({
     ...groupBy,
     groupByBallotStyle: true,
   });
   expect(setIncludeSheetCounts).toHaveBeenCalledWith(true);
 
-  userEvent.click(screen.getByText('Sheet'));
+  await userEvent.click(screen.getByText('Sheet'));
   expect(setGroupBy).toHaveBeenCalledWith(groupBy);
   expect(setIncludeSheetCounts).toHaveBeenCalledWith(false);
 });

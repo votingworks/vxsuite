@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   type ApiMock,
   createApiMock,
@@ -49,8 +49,8 @@ test('select precinct and view report', async () => {
     },
     pdfContent: 'Precinct 1 Tally Report Mock Preview',
   });
-  userEvent.click(screen.getByLabelText('Select Precinct'));
-  userEvent.click(screen.getByText('Precinct 1'));
+  await userEvent.click(screen.getByLabelText('Select Precinct'));
+  await userEvent.click(screen.getByText('Precinct 1'));
 
   await screen.findByText('Precinct 1 Tally Report Mock Preview');
 
@@ -63,6 +63,6 @@ test('select precinct and view report', async () => {
     },
     pdfContent: 'Precinct 2 Tally Report Mock Preview',
   });
-  userEvent.click(screen.getByLabelText('Select Precinct'));
-  userEvent.click(screen.getByText('Precinct 2'));
+  await userEvent.click(screen.getByLabelText('Select Precinct'));
+  await userEvent.click(screen.getByText('Precinct 2'));
 });

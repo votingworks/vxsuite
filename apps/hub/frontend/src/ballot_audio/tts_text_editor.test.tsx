@@ -1,7 +1,7 @@
 import type React from 'react';
 import { expect, test } from 'vitest';
 
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { deferred, sleep } from '@votingworks/basics';
 import type { TtsEdit } from '@votingworks/types';
 
@@ -113,12 +113,12 @@ test('enables save and reset button when applicable', async () => {
   expect(screen.getButton(/save/i)).toBeDisabled();
   expect(screen.getButton(/reset/i)).toBeDisabled();
 
-  userEvent.type(screen.getByRole('textbox'), 'li');
+  await userEvent.type(screen.getByRole('textbox'), 'li');
   expect(screen.getByRole('textbox')).toHaveValue('CAli');
   expect(screen.getButton(/save/i)).toBeEnabled();
   expect(screen.getButton(/reset/i)).toBeEnabled();
 
-  userEvent.clear(screen.getByRole('textbox'));
+  await userEvent.clear(screen.getByRole('textbox'));
   expect(screen.getByRole('textbox')).toHaveValue('');
   expect(screen.getButton(/save/i)).toBeDisabled();
   expect(screen.getButton(/reset/i)).toBeEnabled();
@@ -156,11 +156,11 @@ test('reset button restores saved state', async () => {
 
   expect(screen.getByRole('textbox')).toHaveValue('California');
 
-  userEvent.clear(screen.getByRole('textbox'));
-  userEvent.type(screen.getByRole('textbox'), 'CA');
+  await userEvent.clear(screen.getByRole('textbox'));
+  await userEvent.type(screen.getByRole('textbox'), 'CA');
   expect(screen.getByRole('textbox')).toHaveValue('CA');
 
-  userEvent.click(screen.getButton(/reset/i));
+  await userEvent.click(screen.getButton(/reset/i));
   expect(screen.getByRole('textbox')).toHaveValue('California');
 });
 
@@ -190,8 +190,8 @@ test('save button updates backend data, refreshes content', async () => {
   mockApi.assertComplete();
 
   expect(screen.getByRole('textbox')).toHaveValue('CA');
-  userEvent.clear(screen.getByRole('textbox'));
-  userEvent.type(screen.getByRole('textbox'), '  California  ');
+  await userEvent.clear(screen.getByRole('textbox'));
+  await userEvent.type(screen.getByRole('textbox'), '  California  ');
 
   const expectedEdit: TtsEdit = {
     exportSource: 'text',
@@ -213,7 +213,7 @@ test('save button updates backend data, refreshes content', async () => {
     })
     .returns(deferredSet.promise);
 
-  userEvent.click(screen.getButton(/save/i));
+  await userEvent.click(screen.getButton(/save/i));
   await sleep(0);
   expect(screen.getByRole('textbox')).toBeDisabled();
   expect(screen.getButton(/saving/i)).toBeDisabled();

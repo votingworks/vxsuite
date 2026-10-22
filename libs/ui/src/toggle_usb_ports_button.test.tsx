@@ -13,20 +13,24 @@ test('ToggleUsbPortsButton interactions', async () => {
   render(<ToggleUsbPortsButton />);
 
   // Click to disable USB ports but cancel in the confirmation modal
-  userEvent.click(screen.getByRole('button', { name: 'Disable USB Ports' }));
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Disable USB Ports' })
+  );
   let modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Disable USB Ports' });
-  userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
   expect(mockApiClient.toggleUsbPorts).not.toHaveBeenCalled();
 
   // Click to disable USB ports and confirm in the confirmation modal
-  userEvent.click(screen.getByRole('button', { name: 'Disable USB Ports' }));
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Disable USB Ports' })
+  );
   modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Disable USB Ports' });
-  userEvent.click(
+  await userEvent.click(
     within(modal).getByRole('button', { name: 'Disable USB Ports' })
   );
   mockApiClient.getUsbPortStatus.mockResolvedValue({ enabled: false });
@@ -39,7 +43,9 @@ test('ToggleUsbPortsButton interactions', async () => {
   });
 
   // Re-enable USB ports
-  userEvent.click(screen.getByRole('button', { name: 'Enable USB Ports' }));
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Enable USB Ports' })
+  );
   mockApiClient.getUsbPortStatus.mockResolvedValue({ enabled: true });
   await screen.findByRole('button', { name: 'Disable USB Ports' });
   expect(mockApiClient.toggleUsbPorts).toHaveBeenCalledTimes(2);

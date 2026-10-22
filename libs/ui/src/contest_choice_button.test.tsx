@@ -29,7 +29,7 @@ test('uses optional aria-label as accessible name', () => {
   screen.getByRole('option', { name: 'The Queen of Kings' });
 });
 
-test('fires press event with choice value', () => {
+test('fires press event with choice value', async () => {
   const onPress = vi.fn();
 
   render(
@@ -38,12 +38,12 @@ test('fires press event with choice value', () => {
 
   expect(onPress).not.toBeCalled();
 
-  userEvent.click(screen.getByRole('option'));
+  await userEvent.click(screen.getByRole('option'));
 
   expect(onPress).toBeCalledWith('cleo');
 });
 
-test('has accessible "selected" state', () => {
+test('has accessible "selected" state', async () => {
   render(
     <ContestChoiceButton
       isSelected
@@ -53,7 +53,7 @@ test('has accessible "selected" state', () => {
     />
   );
 
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('option', { name: 'Cleopatra', selected: true })
   );
 });

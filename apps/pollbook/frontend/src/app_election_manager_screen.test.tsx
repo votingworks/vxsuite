@@ -8,7 +8,7 @@ import type {
 } from '@votingworks/types';
 import { electionMultiPartyPrimaryFixtures } from '@votingworks/fixtures';
 
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   type ApiMock,
   createApiMock,
@@ -92,7 +92,7 @@ test('basic e2e registration flow works', async () => {
   const registrationTab = await screen.findByRole('button', {
     name: 'Registration',
   });
-  userEvent.click(registrationTab);
+  await userEvent.click(registrationTab);
 
   await screen.findByText('Connect printer to continue.');
 
@@ -105,35 +105,35 @@ test('basic e2e registration flow works', async () => {
 
   // Set name
   const lastNameInput = await screen.findByLabelText('Last Name');
-  userEvent.type(lastNameInput, voter.lastName);
+  await userEvent.type(lastNameInput, voter.lastName);
   const firstNameInput = screen.getByLabelText('First Name');
-  userEvent.type(firstNameInput, voter.firstName);
+  await userEvent.type(firstNameInput, voter.firstName);
 
   // Set invalid street address
   const streetNumberInput = screen.getByLabelText('Street Number');
-  userEvent.type(streetNumberInput, '4000');
-  userEvent.click(screen.getByLabelText('Street Name'));
-  userEvent.keyboard('[Enter]');
+  await userEvent.type(streetNumberInput, '4000');
+  await userEvent.click(screen.getByLabelText('Street Name'));
+  await userEvent.keyboard('[Enter]');
   await screen.findByText(/Invalid address/);
 
   // Set street address for a different precinct
-  userEvent.clear(streetNumberInput);
-  userEvent.type(streetNumberInput, '2500');
+  await userEvent.clear(streetNumberInput);
+  await userEvent.type(streetNumberInput, '2500');
   await screen.findByText(
     /This address is associated with a different precinct/
   );
 
   // Set valid street address
-  userEvent.clear(streetNumberInput);
-  userEvent.type(streetNumberInput, '1000');
+  await userEvent.clear(streetNumberInput);
+  await userEvent.type(streetNumberInput, '1000');
 
   // Set party affiliation
-  userEvent.click(screen.getByLabelText('Party Affiliation'));
-  userEvent.keyboard('[Enter]');
+  await userEvent.click(screen.getByLabelText('Party Affiliation'));
+  await userEvent.keyboard('[Enter]');
 
   apiMock.expectRegisterVoter(registrationData, false, voter);
 
-  userEvent.click(screen.getByRole('button', { name: 'Add Voter' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Add Voter' }));
 
   await screen.findByText('Give the voter their receipt.');
   act(() => {

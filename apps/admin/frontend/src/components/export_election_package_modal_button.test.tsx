@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { useContext, useState } from 'react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { type Result, deferred, err, ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
@@ -56,13 +56,13 @@ test.each<{
       usbDriveStatus: mockUsbDriveStatus(usbStatus),
       apiMock,
     });
-    userEvent.click(screen.getButton('Save Election Package'));
+    await userEvent.click(screen.getButton('Save Election Package'));
     await vi.waitFor(() => screen.getByText('No USB Drive Detected'));
     screen.getByText(
       'Insert a USB drive in order to save the election package.'
     );
 
-    userEvent.click(screen.getButton('Cancel'));
+    await userEvent.click(screen.getButton('Cancel'));
     await vi.waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
@@ -86,7 +86,7 @@ test('Modal renders export confirmation screen when usb detected', async () => {
     usbDriveStatus: mockUsbDriveStatus('mounted'),
     apiMock,
   });
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Save Election Package' })
   );
   const modal = await screen.findByRole('alertdialog');
@@ -97,10 +97,10 @@ test('Modal renders export confirmation screen when usb detected', async () => {
 
   const { promise, resolve } = deferred<Result<void, ExportDataError>>();
   apiMock.apiClient.saveElectionPackageToUsb.expectCallWith().returns(promise);
-  userEvent.click(within(modal).getButton('Save'));
+  await userEvent.click(within(modal).getButton('Save'));
   expect(await within(modal).findButton('Saving...')).toBeDisabled();
   // Clicking outside the modal should not close it while the save is in progress.
-  userEvent.click(modal.parentElement!);
+  await userEvent.click(modal.parentElement!);
   screen.getByRole('alertdialog');
   resolve(ok());
   await within(modal).findByText('Election Package Saved');
@@ -110,9 +110,9 @@ test('Modal renders export confirmation screen when usb detected', async () => {
   );
 
   apiMock.expectEjectUsbDrive();
-  userEvent.click(screen.getButton('Eject USB'));
+  await userEvent.click(screen.getButton('Eject USB'));
 
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
   await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
@@ -135,12 +135,12 @@ test('Modal keeps showing the save in progress as the USB drive fills up', async
 
   apiMock.expectGetElectionPackageSize(GIB);
   renderInAppContext(<WithUsbDriveStatus />, { apiMock });
-  userEvent.click(screen.getButton('Save Election Package'));
+  await userEvent.click(screen.getButton('Save Election Package'));
   const modal = await screen.findByRole('alertdialog');
 
   const { promise, resolve } = deferred<Result<void, ExportDataError>>();
   apiMock.apiClient.saveElectionPackageToUsb.expectCallWith().returns(promise);
-  userEvent.click(await within(modal).findButton('Save'));
+  await userEvent.click(await within(modal).findButton('Save'));
   await within(modal).findButton('Saving...');
 
   act(() =>
@@ -163,20 +163,20 @@ test('Modal renders error message appropriately', async () => {
     apiMock,
     usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
-  userEvent.click(screen.getButton('Save Election Package'));
+  await userEvent.click(screen.getButton('Save Election Package'));
   await screen.findByRole('heading', { name: 'Save Election Package' });
 
   apiMock.expectSaveElectionPackageToUsb(
     err({ type: 'missing-usb-drive', message: '' })
   );
-  userEvent.click(await screen.findButton('Save'));
+  await userEvent.click(await screen.findButton('Save'));
 
   await screen.findByRole('heading', {
     name: 'Failed to Save Election Package',
   });
   screen.getByText(/An error occurred: No USB drive detected/);
 
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
   await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
@@ -189,7 +189,7 @@ test('Modal waits for the election package size before offering to save', async 
     apiMock,
     usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
-  userEvent.click(screen.getButton('Save Election Package'));
+  await userEvent.click(screen.getButton('Save Election Package'));
   await screen.findByRole('heading', { name: 'Save Election Package' });
   expect(
     screen.queryByRole('button', { name: 'Save' })
@@ -212,7 +212,7 @@ test('Modal tells a system administrator to format the USB drive from Settings w
       availableBytes: 32 * GIB,
     }),
   });
-  userEvent.click(screen.getButton('Save Election Package'));
+  await userEvent.click(screen.getButton('Save Election Package'));
   const modal = await screen.findByRole('alertdialog');
   await within(modal).findByRole('heading', {
     name: 'Election Package Too Large for USB Drive',
@@ -231,7 +231,7 @@ test('Modal tells a system administrator to format the USB drive from Settings w
       .map((button) => button.textContent)
   ).toEqual(['Close']);
 
-  userEvent.click(within(modal).getButton('Close'));
+  await userEvent.click(within(modal).getButton('Close'));
   await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
@@ -248,12 +248,12 @@ test('Modal tells an election manager to ask for formatting when the package exc
       availableBytes: 32 * GIB,
     }),
   });
-  userEvent.click(screen.getButton('Save Election Package'));
+  await userEvent.click(screen.getButton('Save Election Package'));
   await screen.findByRole('heading', {
     name: 'Election Package Too Large for USB Drive',
   });
   screen.getByText(/Ask a system administrator to reformat the USB drive/);
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
 });
 
 test('Modal explains when the USB drive is too full', async () => {
@@ -266,7 +266,7 @@ test('Modal explains when the USB drive is too full', async () => {
       availableBytes: 2 * GIB,
     }),
   });
-  userEvent.click(screen.getButton('Save Election Package'));
+  await userEvent.click(screen.getButton('Save Election Package'));
   await screen.findByRole('heading', {
     name: 'Not Enough Space on USB Drive',
   });
@@ -275,7 +275,7 @@ test('Modal explains when the USB drive is too full', async () => {
   screen.getByText(
     /Remove files from the USB drive or reformat it from the Settings screen to continue\./
   );
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
 });
 
 test('Modal tells an election manager to remove files when the USB drive is too full', async () => {
@@ -287,12 +287,12 @@ test('Modal tells an election manager to remove files when the USB drive is too 
       availableBytes: 2 * GIB,
     }),
   });
-  userEvent.click(screen.getButton('Save Election Package'));
+  await userEvent.click(screen.getButton('Save Election Package'));
   await screen.findByRole('heading', {
     name: 'Not Enough Space on USB Drive',
   });
   screen.getByText(/Remove files from the USB drive to continue\./);
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
 });
 
 test('Modal explains when the USB drive is too small to ever fit the package, even if reformatted', async () => {
@@ -307,14 +307,14 @@ test('Modal explains when the USB drive is too small to ever fit the package, ev
       availableBytes: 4 * GIB,
     }),
   });
-  userEvent.click(screen.getButton('Save Election Package'));
+  await userEvent.click(screen.getButton('Save Election Package'));
   await screen.findByRole('heading', {
     name: 'USB Drive Too Small',
   });
   screen.getByText(/the USB drive can only hold/);
   screen.getByText('4.0 GB');
   screen.getByText(/Use a larger USB drive\./);
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
 });
 
 test.each<{ error: ExportDataError; message: string }>([
@@ -332,9 +332,9 @@ test.each<{ error: ExportDataError; message: string }>([
     apiMock,
     usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
-  userEvent.click(screen.getButton('Save Election Package'));
+  await userEvent.click(screen.getButton('Save Election Package'));
   apiMock.expectSaveElectionPackageToUsb(err(error));
-  userEvent.click(await screen.findButton('Save'));
+  await userEvent.click(await screen.findButton('Save'));
   await screen.findByRole('heading', {
     name: 'Failed to Save Election Package',
   });

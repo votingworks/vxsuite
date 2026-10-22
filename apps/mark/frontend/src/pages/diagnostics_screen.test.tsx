@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, test, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { mockUsbDriveStatus, Keybinding } from '@votingworks/ui';
 import { getFeatureFlagMock } from '@votingworks/utils';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
@@ -112,7 +112,7 @@ test('navigating to and from system audio diagnostic - pass', async () => {
 
   renderScreen();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Test System Audio' })
   );
   await screen.findByRole('heading', { name: 'System Audio Test' });
@@ -127,7 +127,9 @@ test('navigating to and from system audio diagnostic - pass', async () => {
     timestamp: new Date('2022-03-23T11:23:00.000').getTime(),
   });
 
-  userEvent.click(screen.getByRole('button', { name: 'Sound Is Audible' }));
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Sound Is Audible' })
+  );
   await screen.findByRole('heading', { name: 'System Diagnostics' });
   await screen.findByText(/System Audio test passed/);
 });
@@ -149,7 +151,7 @@ test('navigating to and from system audio diagnostic - fail', async () => {
 
   renderScreen();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Test System Audio' })
   );
   await screen.findByRole('heading', { name: 'System Audio Test' });
@@ -164,7 +166,9 @@ test('navigating to and from system audio diagnostic - fail', async () => {
     timestamp: new Date('2022-03-23T11:23:00.000').getTime(),
   });
 
-  userEvent.click(screen.getByRole('button', { name: 'Sound Is Not Audible' }));
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Sound Is Not Audible' })
+  );
   await screen.findByRole('heading', { name: 'System Diagnostics' });
   await screen.findByText(/System Audio test failed/);
 });
@@ -186,12 +190,12 @@ test('navigating to and from system audio diagnostic - cancel', async () => {
 
   renderScreen();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Test System Audio' })
   );
   await screen.findByRole('heading', { name: 'System Audio Test' });
 
-  userEvent.click(screen.getByRole('button', { name: 'Cancel Test' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel Test' }));
   await screen.findByRole('heading', { name: 'System Diagnostics' });
 });
 
@@ -212,7 +216,7 @@ test('navigating to and from headphone input diagnostic - pass', async () => {
 
   renderScreen();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Test Headphone Input' })
   );
   await screen.findByRole('heading', { name: 'Headphone Input Test' });
@@ -227,7 +231,9 @@ test('navigating to and from headphone input diagnostic - pass', async () => {
     timestamp: new Date('2022-03-23T11:23:00.000').getTime(),
   });
 
-  userEvent.click(screen.getByRole('button', { name: 'Sound Is Audible' }));
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Sound Is Audible' })
+  );
   await screen.findByRole('heading', { name: 'System Diagnostics' });
   await screen.findByText(/Headphone Input test passed/);
 });
@@ -249,7 +255,7 @@ test('navigating to and from headphone input diagnostic - fail', async () => {
 
   renderScreen();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Test Headphone Input' })
   );
   await screen.findByRole('heading', { name: 'Headphone Input Test' });
@@ -264,7 +270,9 @@ test('navigating to and from headphone input diagnostic - fail', async () => {
     timestamp: new Date('2022-03-23T11:23:00.000').getTime(),
   });
 
-  userEvent.click(screen.getByRole('button', { name: 'Sound Is Not Audible' }));
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Sound Is Not Audible' })
+  );
   await screen.findByRole('heading', { name: 'System Diagnostics' });
   await screen.findByText(/Headphone Input test failed/);
 });
@@ -286,12 +294,12 @@ test('navigating to and from headphone input diagnostic - cancel', async () => {
 
   renderScreen();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Test Headphone Input' })
   );
   await screen.findByRole('heading', { name: 'Headphone Input Test' });
 
-  userEvent.click(screen.getByRole('button', { name: 'Cancel Test' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel Test' }));
   await screen.findByRole('heading', { name: 'System Diagnostics' });
 });
 
@@ -312,7 +320,7 @@ test('navigating to and from PAT input diagnostic - pass', async () => {
 
   renderScreen();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Test PAT Input' })
   );
   await screen.findByText('Personal Assistive Technology Input Test');
@@ -339,7 +347,7 @@ test('navigating to and from PAT input diagnostic - pass', async () => {
     outcome: 'pass',
     timestamp: new Date('2022-03-23T11:23:00.000').getTime(),
   });
-  userEvent.click(screen.getByRole('button', { name: 'Exit' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Exit' }));
 
   await screen.findByRole('heading', { name: 'System Diagnostics' });
   await screen.findByText(/PAT Input test passed/);
@@ -362,7 +370,7 @@ test('navigating to and from PAT input diagnostic - cancel', async () => {
 
   renderScreen();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Test PAT Input' })
   );
   await screen.findByText('Personal Assistive Technology Input Test');
@@ -379,7 +387,7 @@ test('navigating to and from PAT input diagnostic - cancel', async () => {
     timestamp: new Date('2022-03-23T11:23:00.000').getTime(),
   });
 
-  userEvent.click(screen.getByRole('button', { name: 'Cancel Test' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel Test' }));
   await screen.findByRole('heading', { name: 'System Diagnostics' });
 });
 
@@ -403,7 +411,7 @@ test('navigating to and from barcode reader diagnostic - fail', async () => {
   apiMock.expectClearLastBarcodeScan();
   apiMock.expectGetMostRecentBarcodeScan(null);
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Test Barcode Reader' })
   );
   await screen.findByRole('heading', { name: 'Barcode Reader Test' });
@@ -419,7 +427,7 @@ test('navigating to and from barcode reader diagnostic - fail', async () => {
     timestamp: new Date('2022-03-23T11:23:00.000').getTime(),
   });
 
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('button', { name: 'Barcode Reader Is Not Working' })
   );
   await screen.findByRole('heading', { name: 'System Diagnostics' });
@@ -446,12 +454,12 @@ test('navigating to and from barcode reader diagnostic - cancel', async () => {
   apiMock.expectClearLastBarcodeScan();
   apiMock.expectGetMostRecentBarcodeScan(null);
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Test Barcode Reader' })
   );
   await screen.findByRole('heading', { name: 'Barcode Reader Test' });
 
-  userEvent.click(screen.getByRole('button', { name: 'Cancel Test' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel Test' }));
   await screen.findByRole('heading', { name: 'System Diagnostics' });
 });
 
@@ -472,7 +480,7 @@ test('UPS diagnostic - pass', async () => {
 
   renderScreen();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', {
       name: 'Test Uninterruptible Power Supply',
     })
@@ -488,7 +496,7 @@ test('UPS diagnostic - pass', async () => {
     timestamp: new Date('2022-03-23T11:23:00.000').getTime(),
   });
 
-  userEvent.click(screen.getByRole('button', { name: 'Yes' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Yes' }));
   await screen.findByRole('heading', { name: 'System Diagnostics' });
 });
 
@@ -509,7 +517,7 @@ test('UPS diagnostic - fail', async () => {
 
   renderScreen();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', {
       name: 'Test Uninterruptible Power Supply',
     })
@@ -525,7 +533,7 @@ test('UPS diagnostic - fail', async () => {
     timestamp: new Date('2022-03-23T11:23:00.000').getTime(),
   });
 
-  userEvent.click(screen.getByRole('button', { name: 'No' }));
+  await userEvent.click(screen.getByRole('button', { name: 'No' }));
   await screen.findByRole('heading', { name: 'System Diagnostics' });
 });
 
@@ -562,7 +570,7 @@ test('navigating to and from accessible controller diagnostic', async () => {
 
   renderScreen();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Test Accessible Controller' })
   );
   await screen.findByRole('heading', { name: 'Accessible Controller Test' });
@@ -593,11 +601,11 @@ test('navigating to and from accessible controller diagnostic', async () => {
   await screen.findByRole('heading', { name: 'System Diagnostics' });
   await screen.findByText(/Accessible Controller test passed/);
 
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('button', { name: 'Test Accessible Controller' })
   );
   await screen.findByRole('heading', { name: 'Accessible Controller Test' });
-  userEvent.click(screen.getByRole('button', { name: 'Cancel Test' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel Test' }));
   await screen.findByRole('heading', { name: 'System Diagnostics' });
 });
 
@@ -618,7 +626,7 @@ test('navigating to and from accessible controller diagnostic - fail', async () 
 
   renderScreen();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Test Accessible Controller' })
   );
   await screen.findByRole('heading', { name: 'Accessible Controller Test' });
@@ -640,7 +648,7 @@ test('navigating to and from accessible controller diagnostic - fail', async () 
     timestamp: new Date('2022-03-23T11:23:00.000').getTime(),
   });
 
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('button', { name: 'Down Button is Not Working' })
   );
   await screen.findByRole('heading', { name: 'System Diagnostics' });

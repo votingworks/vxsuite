@@ -4,7 +4,7 @@ import {
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   type ApiMock,
   createApiMock,
@@ -46,18 +46,18 @@ test('offers reporting status filter and grouping when withholding is enabled', 
   });
 
   expect(screen.getButton('Generate Report')).toBeDisabled();
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('checkbox', { name: 'Reporting Status' })
   );
   expect(screen.getButton('Generate Report')).toBeEnabled();
 
-  userEvent.click(screen.getByText('Add Filter'));
-  userEvent.click(screen.getByLabelText('Select New Filter Type'));
-  userEvent.click(
+  await userEvent.click(screen.getByText('Add Filter'));
+  await userEvent.click(screen.getByLabelText('Select New Filter Type'));
+  await userEvent.click(
     within(screen.getByTestId('filter-editor')).getByText('Reporting Status')
   );
-  userEvent.click(screen.getByLabelText('Select Filter Values'));
-  userEvent.click(screen.getByText('Counted'));
+  await userEvent.click(screen.getByLabelText('Select Filter Values'));
+  await userEvent.click(screen.getByText('Counted'));
 
   // the selected status must reach the backend, not just the filter editor
   apiMock.expectGetBallotCountReportPreview({
@@ -71,7 +71,7 @@ test('offers reporting status filter and grouping when withholding is enabled', 
   await vi.waitFor(() => {
     expect(screen.getButton('Generate Report')).toBeEnabled();
   });
-  userEvent.click(screen.getButton('Generate Report'));
+  await userEvent.click(screen.getButton('Generate Report'));
   await screen.findByText('Counted Ballots Ballot Count Report');
 });
 
@@ -96,8 +96,8 @@ test('happy path', async () => {
   expect(screen.getButton('Print Report')).toBeDisabled();
 
   // Add Filter
-  userEvent.click(screen.getByText('Add Filter'));
-  userEvent.click(screen.getByLabelText('Select New Filter Type'));
+  await userEvent.click(screen.getByText('Add Filter'));
+  await userEvent.click(screen.getByLabelText('Select New Filter Type'));
   expect(
     within(screen.getByTestId('filter-editor')).queryByText('Party')
   ).toBeInTheDocument(); // party should be option for primaries, although we don't select it now
@@ -108,12 +108,12 @@ test('happy path', async () => {
   expect(
     screen.queryByRole('checkbox', { name: 'Reporting Status' })
   ).not.toBeInTheDocument();
-  userEvent.click(
+  await userEvent.click(
     within(screen.getByTestId('filter-editor')).getByText('Voting Method')
   );
   screen.getByText('is');
-  userEvent.click(screen.getByLabelText('Select Filter Values'));
-  userEvent.click(screen.getByText('Absentee'));
+  await userEvent.click(screen.getByLabelText('Select Filter Values'));
+  await userEvent.click(screen.getByText('Absentee'));
 
   await vi.waitFor(() => {
     expect(screen.getButton('Generate Report')).toBeEnabled();
@@ -122,10 +122,10 @@ test('happy path', async () => {
 
   // Add Group By
   const precinctCheckbox = screen.getByRole('checkbox', { name: 'Precinct' });
-  userEvent.click(precinctCheckbox);
+  await userEvent.click(precinctCheckbox);
   expect(precinctCheckbox).toBeChecked();
   const partyCheckbox = screen.getByRole('checkbox', { name: 'Party' });
-  userEvent.click(partyCheckbox);
+  await userEvent.click(partyCheckbox);
   expect(partyCheckbox).toBeChecked();
 
   // Load Preview
@@ -142,16 +142,16 @@ test('happy path', async () => {
     },
     pdfContent: 'Test Unofficial Absentee Ballot Ballot Count Report',
   });
-  userEvent.click(screen.getButton('Generate Report'));
+  await userEvent.click(screen.getButton('Generate Report'));
 
   await screen.findByText(
     'Test Unofficial Absentee Ballot Ballot Count Report'
   );
 
   // Change Report Parameters
-  userEvent.click(screen.getByLabelText('Remove Absentee'));
-  userEvent.click(screen.getByLabelText('Select Filter Values'));
-  userEvent.click(
+  await userEvent.click(screen.getByLabelText('Remove Absentee'));
+  await userEvent.click(screen.getByLabelText('Select Filter Values'));
+  await userEvent.click(
     within(screen.getByTestId('filter-editor')).getByText('Precinct')
   );
 
@@ -169,14 +169,14 @@ test('happy path', async () => {
     },
     pdfContent: 'Test Unofficial Precinct Ballot Ballot Count Report',
   });
-  userEvent.click(screen.getByText('Generate Report'));
+  await userEvent.click(screen.getByText('Generate Report'));
 
   await screen.findByText(
     'Test Unofficial Precinct Ballot Ballot Count Report'
   );
 });
 
-test('does not show party options for non-primary elections', () => {
+test('does not show party options for non-primary elections', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
 
@@ -194,8 +194,8 @@ test('does not show party options for non-primary elections', () => {
   expect(screen.queryByLabelText('Party')).not.toBeInTheDocument();
 
   // no filter
-  userEvent.click(screen.getByText('Add Filter'));
-  userEvent.click(screen.getByLabelText('Select New Filter Type'));
+  await userEvent.click(screen.getByText('Add Filter'));
+  await userEvent.click(screen.getByLabelText('Select New Filter Type'));
   expect(
     within(screen.getByTestId('filter-editor')).queryByText('Party')
   ).not.toBeInTheDocument();

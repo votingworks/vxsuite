@@ -4,7 +4,7 @@ import {
   readElectionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { Tabulation } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { renderInAppContext } from '../../../test/render_in_app_context.js';
 import { FilterEditor } from './filter_editor.js';
 import { screen, within } from '../../../test/react_testing_library.js';
@@ -28,7 +28,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-test('precinct, voting method, ballot style selection (general flow)', () => {
+test('precinct, voting method, ballot style selection (general flow)', async () => {
   const { election } = electionTwoPartyPrimaryDefinition;
   const onChange = vi.fn();
 
@@ -46,57 +46,57 @@ test('precinct, voting method, ballot style selection (general flow)', () => {
   );
 
   // Add filter row, precinct
-  userEvent.click(screen.getButton('Add Filter'));
+  await userEvent.click(screen.getButton('Add Filter'));
   expect(onChange).not.toHaveBeenCalled();
-  userEvent.click(screen.getByLabelText('Select New Filter Type'));
-  userEvent.click(screen.getByText('Precinct'));
+  await userEvent.click(screen.getByLabelText('Select New Filter Type'));
+  await userEvent.click(screen.getByText('Precinct'));
   expect(onChange).toHaveBeenNthCalledWith(1, { precinctIds: [] });
-  userEvent.click(screen.getByLabelText('Select Filter Values'));
-  userEvent.click(screen.getByText('Precinct 1'));
+  await userEvent.click(screen.getByLabelText('Select Filter Values'));
+  await userEvent.click(screen.getByText('Precinct 1'));
   expect(onChange).toHaveBeenNthCalledWith(2, { precinctIds: ['precinct-1'] });
 
   // Edit selections in filter row
-  userEvent.click(screen.getByLabelText('Select Filter Values'));
-  userEvent.click(screen.getByText('Precinct 2'));
+  await userEvent.click(screen.getByLabelText('Select Filter Values'));
+  await userEvent.click(screen.getByText('Precinct 2'));
   expect(onChange).toHaveBeenNthCalledWith(3, {
     precinctIds: ['precinct-1', 'precinct-2'],
   });
-  userEvent.click(screen.getByLabelText('Remove Precinct 1'));
+  await userEvent.click(screen.getByLabelText('Remove Precinct 1'));
   expect(onChange).toHaveBeenNthCalledWith(4, {
     precinctIds: ['precinct-2'],
   });
 
   // Add another filter row, voting method
-  userEvent.click(screen.getByText('Add Filter'));
-  userEvent.click(screen.getByLabelText('Select New Filter Type'));
-  userEvent.click(screen.getByText('Voting Method'));
+  await userEvent.click(screen.getByText('Add Filter'));
+  await userEvent.click(screen.getByLabelText('Select New Filter Type'));
+  await userEvent.click(screen.getByText('Voting Method'));
   expect(onChange).toHaveBeenNthCalledWith(5, {
     precinctIds: ['precinct-2'],
     votingMethods: [],
   });
-  userEvent.click(
+  await userEvent.click(
     within(
       screen.getByTestId('filter-editor-row-voting-method')
     ).getByLabelText('Select Filter Values')
   );
-  userEvent.click(screen.getByText('Absentee'));
+  await userEvent.click(screen.getByText('Absentee'));
   expect(onChange).toHaveBeenNthCalledWith(6, {
     precinctIds: ['precinct-2'],
     votingMethods: ['absentee'],
   });
 
   // Edit type of existing filter row, ballot style
-  userEvent.click(
+  await userEvent.click(
     within(
       screen.getByTestId('filter-editor-row-voting-method')
     ).getByLabelText('Edit Filter Type')
   );
-  userEvent.click(screen.getByText('Ballot Style'));
+  await userEvent.click(screen.getByText('Ballot Style'));
   expect(onChange).toHaveBeenNthCalledWith(7, {
     precinctIds: ['precinct-2'],
     ballotStyleGroupIds: [],
   });
-  userEvent.click(
+  await userEvent.click(
     within(screen.getByTestId('filter-editor-row-ballot-style')).getByLabelText(
       'Select Filter Values'
     )
@@ -105,7 +105,7 @@ test('precinct, voting method, ballot style selection (general flow)', () => {
   screen.getByText('District 1 - Fish');
 
   // Remove filter row
-  userEvent.click(
+  await userEvent.click(
     within(screen.getByTestId('filter-editor-row-precinct')).getByLabelText(
       'Remove Filter'
     )
@@ -155,31 +155,31 @@ test('scanner, batch selection', async () => {
   );
 
   // add scanner filter
-  userEvent.click(screen.getButton('Add Filter'));
-  userEvent.click(screen.getByLabelText('Select New Filter Type'));
-  userEvent.click(screen.getByText('Scanner'));
+  await userEvent.click(screen.getButton('Add Filter'));
+  await userEvent.click(screen.getByLabelText('Select New Filter Type'));
+  await userEvent.click(screen.getByText('Scanner'));
   expect(onChange).toHaveBeenNthCalledWith(1, { scannerIds: [] });
-  userEvent.click(screen.getByLabelText('Select Filter Values'));
+  await userEvent.click(screen.getByLabelText('Select Filter Values'));
   await screen.findByText('scanner-1'); // list populates after query completes
   screen.getByText('scanner-2');
-  userEvent.click(screen.getByText('scanner-1'));
+  await userEvent.click(screen.getByText('scanner-1'));
   expect(onChange).toHaveBeenNthCalledWith(2, { scannerIds: ['scanner-1'] });
 
   // switch to batch filter
-  userEvent.click(screen.getByLabelText('Edit Filter Type'));
-  userEvent.click(screen.getByText('Batch'));
+  await userEvent.click(screen.getByLabelText('Edit Filter Type'));
+  await userEvent.click(screen.getByText('Batch'));
   expect(onChange).toHaveBeenNthCalledWith(3, { batchIds: [] });
-  userEvent.click(screen.getByLabelText('Select Filter Values'));
+  await userEvent.click(screen.getByLabelText('Select Filter Values'));
   screen.getByText('Scanner scanner-1, Batch 1');
   screen.getByText('Scanner scanner-1, Batch 2');
   screen.getByText('Scanner scanner-2, Batch 3');
-  userEvent.click(screen.getByText('Scanner scanner-1, Batch 1'));
+  await userEvent.click(screen.getByText('Scanner scanner-1, Batch 1'));
   expect(onChange).toHaveBeenNthCalledWith(4, {
     batchIds: ['12345678-0000-0000-0000-000000000000'],
   });
 });
 
-test('party selection', () => {
+test('party selection', async () => {
   const { election } = electionTwoPartyPrimaryDefinition;
   const onChange = vi.fn();
 
@@ -197,19 +197,19 @@ test('party selection', () => {
   );
 
   // add scanner filter
-  userEvent.click(screen.getButton('Add Filter'));
-  userEvent.click(screen.getByLabelText('Select New Filter Type'));
-  userEvent.click(screen.getByText('Party'));
+  await userEvent.click(screen.getButton('Add Filter'));
+  await userEvent.click(screen.getByLabelText('Select New Filter Type'));
+  await userEvent.click(screen.getByText('Party'));
   expect(onChange).toHaveBeenNthCalledWith(1, { partyIds: [] });
-  userEvent.click(screen.getByLabelText('Select Filter Values'));
+  await userEvent.click(screen.getByLabelText('Select Filter Values'));
   screen.getByText('Mammal');
   screen.getByText('Fish');
   expect(screen.queryByText('No Party')).toBeNull();
-  userEvent.click(screen.getByText('Mammal'));
+  await userEvent.click(screen.getByText('Mammal'));
   expect(onChange).toHaveBeenNthCalledWith(2, { partyIds: ['0'] });
 });
 
-test('combined ballot primary party selection includes "No Party"', () => {
+test('combined ballot primary party selection includes "No Party"', async () => {
   const { election } = electionCombinedBallotPrimaryDefinition;
   const onChange = vi.fn();
 
@@ -226,21 +226,21 @@ test('combined ballot primary party selection includes "No Party"', () => {
     }
   );
 
-  userEvent.click(screen.getButton('Add Filter'));
-  userEvent.click(screen.getByLabelText('Select New Filter Type'));
-  userEvent.click(screen.getByText('Party'));
+  await userEvent.click(screen.getButton('Add Filter'));
+  await userEvent.click(screen.getByLabelText('Select New Filter Type'));
+  await userEvent.click(screen.getByText('Party'));
   expect(onChange).toHaveBeenNthCalledWith(1, { partyIds: [] });
-  userEvent.click(screen.getByLabelText('Select Filter Values'));
+  await userEvent.click(screen.getByLabelText('Select Filter Values'));
   screen.getByText('Democratic');
   screen.getByText('Republican');
   screen.getByText('Libertarian');
-  userEvent.click(screen.getByText('No Party'));
+  await userEvent.click(screen.getByText('No Party'));
   expect(onChange).toHaveBeenNthCalledWith(2, {
     partyIds: [Tabulation.NO_PARTY_ID],
   });
 });
 
-test('adjudication status selection', () => {
+test('adjudication status selection', async () => {
   const { election } = electionTwoPartyPrimaryDefinition;
   const onChange = vi.fn();
 
@@ -258,23 +258,23 @@ test('adjudication status selection', () => {
   );
 
   // add adjudication status filter
-  userEvent.click(screen.getButton('Add Filter'));
-  userEvent.click(screen.getByLabelText('Select New Filter Type'));
-  userEvent.click(screen.getByText('Adjudication Status'));
+  await userEvent.click(screen.getButton('Add Filter'));
+  await userEvent.click(screen.getByLabelText('Select New Filter Type'));
+  await userEvent.click(screen.getByText('Adjudication Status'));
   expect(onChange).toHaveBeenNthCalledWith(1, { adjudicationFlags: [] });
-  userEvent.click(screen.getByLabelText('Select Filter Values'));
+  await userEvent.click(screen.getByLabelText('Select Filter Values'));
   screen.getByText('Blank Ballot');
   screen.getByText('Overvote');
   screen.getByText('Undervote');
   screen.getByText('Write-In');
   expect(screen.queryByText('Crossover Vote')).toBeNull();
-  userEvent.click(screen.getByText('Blank Ballot'));
+  await userEvent.click(screen.getByText('Blank Ballot'));
   expect(onChange).toHaveBeenNthCalledWith(2, {
     adjudicationFlags: ['isBlank'],
   });
 });
 
-test('adjudication status selection includes "Crossover Vote" in combined ballot primary', () => {
+test('adjudication status selection includes "Crossover Vote" in combined ballot primary', async () => {
   const { election } = readElectionCombinedBallotPrimaryDefinition();
   const onChange = vi.fn();
 
@@ -291,17 +291,17 @@ test('adjudication status selection includes "Crossover Vote" in combined ballot
     }
   );
 
-  userEvent.click(screen.getButton('Add Filter'));
-  userEvent.click(screen.getByLabelText('Select New Filter Type'));
-  userEvent.click(screen.getByText('Adjudication Status'));
-  userEvent.click(screen.getByLabelText('Select Filter Values'));
-  userEvent.click(screen.getByText('Crossover Vote'));
+  await userEvent.click(screen.getButton('Add Filter'));
+  await userEvent.click(screen.getByLabelText('Select New Filter Type'));
+  await userEvent.click(screen.getByText('Adjudication Status'));
+  await userEvent.click(screen.getByLabelText('Select Filter Values'));
+  await userEvent.click(screen.getByText('Crossover Vote'));
   expect(onChange).toHaveBeenLastCalledWith({
     adjudicationFlags: ['hasCrossoverVote'],
   });
 });
 
-test('reporting status filter', () => {
+test('reporting status filter', async () => {
   const { election } = electionTwoPartyPrimaryDefinition;
   const onChange = vi.fn();
 
@@ -318,26 +318,26 @@ test('reporting status filter', () => {
     }
   );
 
-  userEvent.click(screen.getButton('Add Filter'));
-  userEvent.click(screen.getByLabelText('Select New Filter Type'));
-  userEvent.click(screen.getByText('Reporting Status'));
+  await userEvent.click(screen.getButton('Add Filter'));
+  await userEvent.click(screen.getByLabelText('Select New Filter Type'));
+  await userEvent.click(screen.getByText('Reporting Status'));
   expect(onChange).toHaveBeenNthCalledWith(1, { reportingStatus: undefined });
-  userEvent.click(screen.getByLabelText('Select Filter Values'));
+  await userEvent.click(screen.getByLabelText('Select Filter Values'));
   screen.getByText('Counted');
-  userEvent.click(screen.getByText('Not Counted'));
+  await userEvent.click(screen.getByText('Not Counted'));
   expect(onChange).toHaveBeenNthCalledWith(2, {
     reportingStatus: 'notCounted',
   });
 
   // only one status can be selected; choosing another replaces it
-  userEvent.click(screen.getByLabelText('Select Filter Values'));
-  userEvent.click(screen.getByText('Counted'));
+  await userEvent.click(screen.getByLabelText('Select Filter Values'));
+  await userEvent.click(screen.getByText('Counted'));
   expect(onChange).toHaveBeenNthCalledWith(3, {
     reportingStatus: 'counted',
   });
 });
 
-test('district filter', () => {
+test('district filter', async () => {
   const { election } = electionTwoPartyPrimaryDefinition;
   const onChange = vi.fn();
 
@@ -355,18 +355,18 @@ test('district filter', () => {
   );
 
   // add adjudication status filter
-  userEvent.click(screen.getButton('Add Filter'));
-  userEvent.click(screen.getByLabelText('Select New Filter Type'));
-  userEvent.click(screen.getByText('District'));
+  await userEvent.click(screen.getButton('Add Filter'));
+  await userEvent.click(screen.getByLabelText('Select New Filter Type'));
+  await userEvent.click(screen.getByText('District'));
   expect(onChange).toHaveBeenNthCalledWith(1, { districtIds: [] });
-  userEvent.click(screen.getByLabelText('Select Filter Values'));
-  userEvent.click(screen.getByText('District 1'));
+  await userEvent.click(screen.getByLabelText('Select Filter Values'));
+  await userEvent.click(screen.getByText('District 1'));
   expect(onChange).toHaveBeenNthCalledWith(2, {
     districtIds: ['district-1'],
   });
 });
 
-test('polling place filter', () => {
+test('polling place filter', async () => {
   const { election } = electionTwoPartyPrimaryDefinition;
   const onChange = vi.fn();
 
@@ -383,20 +383,20 @@ test('polling place filter', () => {
     }
   );
 
-  userEvent.click(screen.getButton('Add Filter'));
-  userEvent.click(screen.getByLabelText('Select New Filter Type'));
-  userEvent.click(screen.getByText('Polling Place'));
+  await userEvent.click(screen.getButton('Add Filter'));
+  await userEvent.click(screen.getByLabelText('Select New Filter Type'));
+  await userEvent.click(screen.getByText('Polling Place'));
   expect(onChange).toHaveBeenNthCalledWith(1, { pollingPlaceIds: [] });
-  userEvent.click(screen.getByLabelText('Select Filter Values'));
+  await userEvent.click(screen.getByLabelText('Select Filter Values'));
   // labeled with the polling place type to disambiguate places that share a
   // name with their precinct
-  userEvent.click(screen.getByText('Precinct 1 (Election Day)'));
+  await userEvent.click(screen.getByText('Precinct 1 (Election Day)'));
   expect(onChange).toHaveBeenNthCalledWith(2, {
     pollingPlaceIds: ['precinct-1-polling-place'],
   });
 });
 
-test('can cancel adding a filter', () => {
+test('can cancel adding a filter', async () => {
   const { election } = electionTwoPartyPrimaryDefinition;
   const onChange = vi.fn();
 
@@ -413,8 +413,8 @@ test('can cancel adding a filter', () => {
     }
   );
 
-  userEvent.click(screen.getButton('Add Filter'));
-  userEvent.click(screen.getByLabelText('Cancel Add Filter'));
+  await userEvent.click(screen.getButton('Add Filter'));
+  await userEvent.click(screen.getByLabelText('Cancel Add Filter'));
   screen.getByText('Add Filter');
   expect(onChange).not.toHaveBeenCalled();
 });

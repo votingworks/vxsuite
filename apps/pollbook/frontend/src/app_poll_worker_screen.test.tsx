@@ -1,5 +1,5 @@
 import { describe, expect, test, beforeEach, afterEach, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import type { Voter, Election, ElectionDefinition } from '@votingworks/types';
 import {
   electionFamousNames2021Fixtures,
@@ -78,7 +78,7 @@ describe('PollWorkerScreen', () => {
 
     apiMock.expectSearchVotersTooMany({ firstName: '', lastName: 'SM' }, 153);
     const lastNameInput = screen.getByLabelText('Last Name');
-    userEvent.type(lastNameInput, 'SM');
+    await userEvent.type(lastNameInput, 'SM');
     await screen.findByText(
       'Voters matched: 153. Refine your search further to view results.'
     );
@@ -95,10 +95,10 @@ describe('PollWorkerScreen', () => {
       { firstName: 'ABI', lastName: 'AD' },
       [voter, voterWrongPrecinct]
     );
-    userEvent.clear(lastNameInput);
-    userEvent.type(lastNameInput, 'AD');
+    await userEvent.clear(lastNameInput);
+    await userEvent.type(lastNameInput, 'AD');
     const firstNameInput = screen.getByLabelText('First Name');
-    userEvent.type(firstNameInput, 'ABI');
+    await userEvent.type(firstNameInput, 'ABI');
     const firstRow = await screen.findByTestId('voter-row#123');
     within(firstRow).getByText(/Adams, Abigail/i);
     within(firstRow).getByText(
@@ -117,13 +117,13 @@ describe('PollWorkerScreen', () => {
     within(checkInButtonWrongPrecinct).getByText('View Details');
 
     apiMock.expectGetVoter(voter);
-    userEvent.click(checkInButton);
+    await userEvent.click(checkInButton);
     await screen.findByText('Confirm Voter Identity');
 
     const confirmButton = screen.getByText('Confirm Check-In');
     apiMock.expectCheckInVoter(voter, 'NOT_APPLICABLE');
     apiMock.expectGetVoter(voter);
-    userEvent.click(confirmButton);
+    await userEvent.click(confirmButton);
     await screen.findByText('Voter Checked In');
 
     apiMock.expectSearchVotersWithResults({ firstName: '', lastName: '' }, []);
@@ -166,9 +166,9 @@ describe('PollWorkerScreen', () => {
     );
 
     const lastNameInput = screen.getByLabelText('Last Name');
-    userEvent.type(lastNameInput, 'AD');
+    await userEvent.type(lastNameInput, 'AD');
     const firstNameInput = screen.getByLabelText('First Name');
-    userEvent.type(firstNameInput, 'ABI');
+    await userEvent.type(firstNameInput, 'ABI');
 
     const firstRow = await screen.findByTestId('voter-row#123');
     within(firstRow).getByText(/Adams, Abigail/i);
@@ -180,32 +180,32 @@ describe('PollWorkerScreen', () => {
 
     // Start check-in flow for voter
     apiMock.expectGetVoter(voter);
-    userEvent.click(checkInButton);
+    await userEvent.click(checkInButton);
     await screen.findByRole('heading', { name: 'Confirm Voter Identity' });
 
     // Confirm Identity button should advance to Select Party screen
     const confirmIdentityButton = screen.getButton('Confirm Identity');
-    userEvent.click(confirmIdentityButton);
+    await userEvent.click(confirmIdentityButton);
 
     await screen.findByRole('heading', { name: 'Select Party' });
 
     // Back button should return to Confirm Identity screen
-    userEvent.click(screen.getButton('Back'));
+    await userEvent.click(screen.getButton('Back'));
     await screen.findByRole('heading', { name: 'Confirm Voter Identity' });
 
     // Go forward again to Select Party screen
-    userEvent.click(screen.getButton('Confirm Identity'));
+    await userEvent.click(screen.getButton('Confirm Identity'));
     const confirmCheckInButton = screen.getButton('Confirm Check-In');
 
     // Can't confirm check-in without party selection
     expect(confirmCheckInButton).toBeDisabled();
-    userEvent.click(screen.getButton('Democratic'));
+    await userEvent.click(screen.getButton('Democratic'));
     expect(confirmCheckInButton).not.toBeDisabled();
 
     // Can check in once a party is selected
     apiMock.expectCheckInVoter(voter, 'DEM');
     apiMock.expectGetVoter(voter);
-    userEvent.click(confirmCheckInButton);
+    await userEvent.click(confirmCheckInButton);
     await screen.findByText('Voter Checked In');
 
     apiMock.expectSearchVotersWithResults({ firstName: '', lastName: '' }, []);
@@ -241,10 +241,10 @@ describe('PollWorkerScreen', () => {
       [voter]
     );
     const lastNameInput = screen.getByLabelText('Last Name');
-    userEvent.clear(lastNameInput);
-    userEvent.type(lastNameInput, 'AD');
+    await userEvent.clear(lastNameInput);
+    await userEvent.type(lastNameInput, 'AD');
     const firstNameInput = screen.getByLabelText('First Name');
-    userEvent.type(firstNameInput, 'ABI');
+    await userEvent.type(firstNameInput, 'ABI');
     const firstRow = await vi.waitFor(() =>
       screen.getByTestId('voter-row#123')
     );
@@ -424,7 +424,7 @@ describe('PollWorkerScreen', () => {
 
       apiMock.expectSearchVotersTooMany({ firstName: '', lastName: 'SM' }, 153);
       const lastNameInput = screen.getByLabelText('Last Name');
-      userEvent.type(lastNameInput, 'SM');
+      await userEvent.type(lastNameInput, 'SM');
       await screen.findByText(
         'Voters matched: 153. Refine your search further to view results.'
       );
@@ -435,21 +435,21 @@ describe('PollWorkerScreen', () => {
         { firstName: 'ABI', lastName: 'AD' },
         [voter]
       );
-      userEvent.clear(lastNameInput);
-      userEvent.type(lastNameInput, 'AD');
+      await userEvent.clear(lastNameInput);
+      await userEvent.type(lastNameInput, 'AD');
       const firstNameInput = screen.getByLabelText('First Name');
-      userEvent.type(firstNameInput, 'ABI');
+      await userEvent.type(firstNameInput, 'ABI');
       await screen.findByText(/Adams, Abigail/i);
       const checkInButton = screen.getByTestId('check-in-button#123');
       within(checkInButton).getByText('Start Check-In');
 
       apiMock.expectGetVoter(voter);
-      userEvent.click(checkInButton);
+      await userEvent.click(checkInButton);
       await screen.findByText('Confirm Voter Identity');
 
       const confirmButton = screen.getByText('Confirm Check-In');
       apiMock.expectCheckInVoterError(voter, testCase.error, 'NOT_APPLICABLE');
-      userEvent.click(confirmButton);
+      await userEvent.click(confirmButton);
       await screen.findByText(testCase.expectedMessage);
 
       unmount();

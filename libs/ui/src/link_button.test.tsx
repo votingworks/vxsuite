@@ -6,7 +6,7 @@ import { userEvent } from './user_event.js';
 import { fireEvent, render, screen } from '../test/react_testing_library.js';
 import { LinkButton } from './link_button.js';
 
-test('navigates to page', () => {
+test('navigates to page', async () => {
   const history = createMemoryHistory();
   render(
     <Router history={history}>
@@ -14,11 +14,11 @@ test('navigates to page', () => {
     </Router>
   );
   expect(history.location.pathname).toEqual('/');
-  userEvent.click(screen.getByText('Go Somewhere'));
+  await userEvent.click(screen.getByText('Go Somewhere'));
   expect(history.location.pathname).toEqual('/somewhere');
 });
 
-test('navigates back', () => {
+test('navigates back', async () => {
   const history = createMemoryHistory();
   history.push('/somewhere');
   render(
@@ -27,7 +27,7 @@ test('navigates back', () => {
     </Router>
   );
   expect(history.location.pathname).toEqual('/somewhere');
-  userEvent.click(screen.getByText('Go Back'));
+  await userEvent.click(screen.getByText('Go Back'));
   expect(history.location.pathname).toEqual('/');
 });
 

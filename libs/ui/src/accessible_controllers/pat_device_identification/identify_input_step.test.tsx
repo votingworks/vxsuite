@@ -28,7 +28,7 @@ const testSpecs: Array<{
 
 test.each(testSpecs)(
   'confirms when $desiredInput is triggered',
-  ({ desiredInput, desiredKey }) => {
+  async ({ desiredInput, desiredKey }) => {
     const onStepCompleted = vi.fn();
     render(
       <IdentifyInputStep
@@ -40,21 +40,21 @@ test.each(testSpecs)(
     screen.getByRole('heading', {
       name: `Identify the "${desiredInput}" Input`,
     });
-    userEvent.keyboard(desiredKey);
+    await userEvent.keyboard(desiredKey);
     screen.getByRole('heading', {
       name: `Input Identified: "${desiredInput}"`,
     });
     screen.getByText('Activate the input again to continue.');
 
     expect(onStepCompleted).not.toHaveBeenCalled();
-    userEvent.keyboard(desiredKey);
+    await userEvent.keyboard(desiredKey);
     expect(onStepCompleted).toHaveBeenCalled();
   }
 );
 
 test.each(testSpecs)(
   'when desired input is $desiredInput, warns when $otherInput is triggered',
-  ({ desiredInput, desiredKey, otherInput, otherKey }) => {
+  async ({ desiredInput, desiredKey, otherInput, otherKey }) => {
     const onStepCompleted = vi.fn();
     render(
       <IdentifyInputStep
@@ -66,11 +66,11 @@ test.each(testSpecs)(
     screen.getByRole('heading', {
       name: `Identify the "${desiredInput}" Input`,
     });
-    userEvent.keyboard(otherKey);
+    await userEvent.keyboard(otherKey);
     screen.getByRole('heading', { name: `Input Activated: "${otherInput}"` });
     screen.getByText('Activate the other input.');
 
-    userEvent.keyboard(desiredKey);
+    await userEvent.keyboard(desiredKey);
     screen.getByRole('heading', {
       name: `Input Identified: "${desiredInput}"`,
     });
@@ -78,13 +78,13 @@ test.each(testSpecs)(
   }
 );
 
-test('non-PAT keys are ignored', () => {
+test('non-PAT keys are ignored', async () => {
   const onStepCompleted = vi.fn();
   render(
     <IdentifyInputStep inputName="Move" onStepCompleted={onStepCompleted} />
   );
 
-  userEvent.keyboard('3');
+  await userEvent.keyboard('3');
   screen.getByRole('heading', { name: 'Identify the "Move" Input' });
   expect(onStepCompleted).not.toBeCalled();
 });

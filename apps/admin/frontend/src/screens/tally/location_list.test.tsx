@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 
 import type { PollingPlace } from '@votingworks/types';
 import type { CastVoteRecordFileRecord } from '@votingworks/admin-backend';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import { render, screen } from '../../../test/react_testing_library.js';
 import { LocationList } from './location_list.js';
@@ -55,12 +55,12 @@ test('renders given locations', () => {
   screen.getButton(/^Place 2.*no cvrs.*0$/i);
 });
 
-test('toggles location CVR details on click', () => {
+test('toggles location CVR details on click', async () => {
   render(
     <LocationList locationCvrs={locationCvrsMap} locations={[place1, place2]} />
   );
 
-  userEvent.click(screen.getButton(/place 1/i));
+  await userEvent.click(screen.getButton(/place 1/i));
   expect(screen.getAllByRole('listitem').map((li) => li.textContent)).toEqual([
     ['11/7/2020, 8:00 AM', ' USB • Scanner SCAN-0001', '100'].join(''),
     ['11/7/2020, 9:00 AM', ' USB • Scanners: SCAN-0001, SCAN-0002', '400'].join(
@@ -68,19 +68,19 @@ test('toggles location CVR details on click', () => {
     ),
   ]);
 
-  userEvent.click(screen.getButton(/Place 1/i));
+  await userEvent.click(screen.getButton(/Place 1/i));
   expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
 });
 
-test('closes location CVR details on close button', () => {
+test('closes location CVR details on close button', async () => {
   render(
     <LocationList locationCvrs={locationCvrsMap} locations={[place1, place2]} />
   );
 
-  userEvent.click(screen.getButton(/Place 2/i));
+  await userEvent.click(screen.getButton(/Place 2/i));
   screen.getByText(/No files/);
 
-  userEvent.click(screen.getButton('Close Panel'));
+  await userEvent.click(screen.getButton('Close Panel'));
   expect(screen.queryByText(/No files/)).not.toBeInTheDocument();
 });
 

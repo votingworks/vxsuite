@@ -5,7 +5,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   type SystemSettings,
 } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { render, screen, waitFor } from '../test/react_testing_library.js';
 import { App } from './app.js';
@@ -57,13 +57,13 @@ test('poll worker sees only Scan Ballots and Batch History', async () => {
   screen.getButton('Lock Machine');
   expect(screen.queryByText('Eject USB')).not.toBeInTheDocument();
 
-  userEvent.click(screen.getButton('Batch History'));
+  await userEvent.click(screen.getButton('Batch History'));
   await screen.findByRole('heading', { name: 'Batch History' });
-  userEvent.click(screen.getButton('Scan Ballots'));
+  await userEvent.click(screen.getButton('Scan Ballots'));
   await screen.findByRole('heading', { name: 'Scan Ballots' });
 
   apiMock.expectLogOut();
-  userEvent.click(screen.getButton('Lock Machine'));
+  await userEvent.click(screen.getButton('Lock Machine'));
   apiMock.setAuthStatus({ status: 'logged_out', reason: 'machine_locked' });
   await screen.findByText('VxCentralScan Locked');
 });
@@ -129,7 +129,7 @@ test('poll worker can adjudicate a sheet that needs review', async () => {
   );
 
   apiMock.expectRejectSheet();
-  userEvent.click(screen.getButton('Confirm Ballot Removed'));
+  await userEvent.click(screen.getButton('Confirm Ballot Removed'));
   apiMock.setStatus(
     mockStatus(
       { batches: [mockBatch({ id: 'batch-id', endedAt: undefined })] },

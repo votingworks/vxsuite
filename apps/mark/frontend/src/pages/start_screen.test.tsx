@@ -9,7 +9,7 @@ import { createMemoryHistory } from 'history';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
 import { PageNavigationButtonId } from '@votingworks/ui';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { screen } from '../../test/react_testing_library.js';
 import { render } from '../../test/test_utils.js';
 import { StartScreen } from './start_screen.js';
@@ -89,7 +89,7 @@ test('renders repeated audio-only intro prompt', () => {
   );
 });
 
-test('Start navigates to first contest for elections that are not combined ballot primaries', () => {
+test('Start navigates to first contest for elections that are not combined ballot primaries', async () => {
   const electionDefinition = readElectionGeneralDefinition();
   const history = createMemoryHistory({ initialEntries: ['/'] });
 
@@ -101,11 +101,11 @@ test('Start navigates to first contest for elections that are not combined ballo
     route: '/',
   });
 
-  userEvent.click(screen.getButton(/start voting/i));
+  await userEvent.click(screen.getButton(/start voting/i));
   expect(history.location.pathname).toEqual('/contests/0');
 });
 
-test('Start navigates to party selection for combined ballot primary elections', () => {
+test('Start navigates to party selection for combined ballot primary elections', async () => {
   const electionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const history = createMemoryHistory({ initialEntries: ['/'] });
@@ -118,6 +118,6 @@ test('Start navigates to party selection for combined ballot primary elections',
     route: '/',
   });
 
-  userEvent.click(screen.getButton(/start voting/i));
+  await userEvent.click(screen.getButton(/start voting/i));
   expect(history.location.pathname).toEqual('/party-selection');
 });

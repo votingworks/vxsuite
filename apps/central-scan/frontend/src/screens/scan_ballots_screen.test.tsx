@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { deferred } from '@votingworks/basics';
 import type { BatchPauseReason } from '@votingworks/central-scan-backend';
 import { screen, within } from '../../test/react_testing_library.js';
@@ -81,7 +81,7 @@ test('idle: Start Scanning starts a new batch', async () => {
 
   const scanning = deferred<void>();
   apiMock.apiClient.scanBatch.expectCallWith().returns(scanning.promise);
-  userEvent.click(screen.getButton('Start Scanning'));
+  await userEvent.click(screen.getButton('Start Scanning'));
   await vi.waitFor(() =>
     expect(screen.getButton('Start Scanning')).toBeDisabled()
   );
@@ -108,7 +108,7 @@ test('scanning: pauses on request', async () => {
 
   const pausing = deferred<void>();
   apiMock.apiClient.pauseBatch.expectCallWith().returns(pausing.promise);
-  userEvent.click(screen.getButton('Pause Scanning'));
+  await userEvent.click(screen.getButton('Pause Scanning'));
   await vi.waitFor(() => expect(screen.getButton('Pausing…')).toBeDisabled());
   pausing.resolve();
   await vi.waitFor(() =>
@@ -127,7 +127,7 @@ test('paused after the tray emptied: Save, Continue, or Discard', async () => {
 
   const resuming = deferred<void>();
   apiMock.apiClient.resumeBatch.expectCallWith().returns(resuming.promise);
-  userEvent.click(screen.getButton('Continue Scanning'));
+  await userEvent.click(screen.getButton('Continue Scanning'));
   await vi.waitFor(() =>
     expect(screen.getButton('Continue Scanning')).toBeDisabled()
   );
@@ -188,18 +188,18 @@ test('paused with the scanner disconnected: Continue is disabled', () => {
 test('saving a batch keeps the confirmation open until the save completes', async () => {
   renderScreen({ status: pausedStatus({ type: 'tray-empty' }) });
 
-  userEvent.click(screen.getButton('Save Batch'));
+  await userEvent.click(screen.getButton('Save Batch'));
   let modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Save Batch' });
   within(modal).getByText('All 3 sheets scanned in this batch will be saved.');
-  userEvent.click(within(modal).getButton('Cancel'));
+  await userEvent.click(within(modal).getButton('Cancel'));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
-  userEvent.click(screen.getButton('Save Batch'));
+  await userEvent.click(screen.getButton('Save Batch'));
   modal = await screen.findByRole('alertdialog');
   const saving = deferred<void>();
   apiMock.apiClient.saveBatch.expectCallWith().returns(saving.promise);
-  userEvent.click(within(modal).getButton('Save Batch'));
+  await userEvent.click(within(modal).getButton('Save Batch'));
   await vi.waitFor(() =>
     expect(within(modal).getButton('Save Batch')).toBeDisabled()
   );
@@ -221,7 +221,7 @@ test('saving a batch mentions VxAdmin when networking is enabled', async () => {
   });
   renderScreen({ status: pausedStatus({ type: 'tray-empty' }) });
 
-  userEvent.click(screen.getButton('Save Batch'));
+  await userEvent.click(screen.getButton('Save Batch'));
   const modal = await screen.findByRole('alertdialog');
   await within(modal).findByText(
     'All 3 sheets scanned in this batch will be saved and sent to VxAdmin.'
@@ -231,20 +231,20 @@ test('saving a batch mentions VxAdmin when networking is enabled', async () => {
 test('discarding a batch keeps the confirmation open until the discard completes', async () => {
   renderScreen({ status: pausedStatus({ type: 'manual' }) });
 
-  userEvent.click(screen.getButton('Discard Batch'));
+  await userEvent.click(screen.getButton('Discard Batch'));
   let modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Discard Batch' });
   within(modal).getByText(
     'All sheets scanned in this batch will be permanently discarded.'
   );
-  userEvent.click(within(modal).getButton('Close'));
+  await userEvent.click(within(modal).getButton('Close'));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
-  userEvent.click(screen.getButton('Discard Batch'));
+  await userEvent.click(screen.getButton('Discard Batch'));
   modal = await screen.findByRole('alertdialog');
   const discarding = deferred<void>();
   apiMock.apiClient.discardBatch.expectCallWith().returns(discarding.promise);
-  userEvent.click(within(modal).getButton('Discard Batch'));
+  await userEvent.click(within(modal).getButton('Discard Batch'));
   await vi.waitFor(() =>
     expect(within(modal).getButton('Discard Batch')).toBeDisabled()
   );
@@ -269,10 +269,10 @@ test('error: Discard is the only action', async () => {
     screen.queryByRole('button', { name: 'Pause Scanning' })
   ).not.toBeInTheDocument();
 
-  userEvent.click(screen.getButton('Discard Batch'));
+  await userEvent.click(screen.getButton('Discard Batch'));
   const modal = await screen.findByRole('alertdialog');
   apiMock.expectDiscardBatch();
-  userEvent.click(within(modal).getButton('Discard Batch'));
+  await userEvent.click(within(modal).getButton('Discard Batch'));
   await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );

@@ -1,5 +1,5 @@
 import { expect, test, describe, beforeEach, afterEach, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   electionSimpleSinglePrecinctFixtures,
   electionMultiPartyPrimaryFixtures,
@@ -246,8 +246,8 @@ describe('GeneralElectionStatistics', () => {
         totalNewRegistrations: 20,
         totalAbsenteeCheckIns: 40,
       });
-    act(() => {
-      userEvent.click(demButton);
+    await act(async () => {
+      await userEvent.click(demButton);
     });
 
     await waitFor(() => {
@@ -366,8 +366,8 @@ describe('PrimaryElectionStatistics', () => {
 
     // Click on Undeclared filter (it has role="option") - use the first one in the content area
     const undButton = screen.getByRole('option', { name: 'Und' });
-    act(() => {
-      userEvent.click(undButton);
+    await act(async () => {
+      await userEvent.click(undButton);
     });
 
     await waitFor(() => {
@@ -456,8 +456,8 @@ describe('ThroughputChart', () => {
     // Click 30m interval button (it has role="option" not "button") - use the last one which should be in the chart area
     const thirtyMinButtons = screen.getAllByRole('option', { name: '30m' });
     const thirtyMinButton = thirtyMinButtons[thirtyMinButtons.length - 1]!; // Use the last one (chart area)
-    act(() => {
-      userEvent.click(thirtyMinButton);
+    await act(async () => {
+      await userEvent.click(thirtyMinButton);
     });
 
     await waitFor(() => {

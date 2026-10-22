@@ -53,19 +53,19 @@ test('displays all available languages', async () => {
   expect(languageButtons[1]).toHaveAccessibleName('简体中文');
   expect(languageButtons[2]).toHaveAccessibleName('Selected: Español');
 
-  userEvent.click(languageButtons[1]!);
+  await userEvent.click(languageButtons[1]!);
   await screen.findByRole('radio', {
     checked: true,
     name: 'Selected: 简体中文',
   });
 });
 
-test('fires onDone event on "Done" button press', () => {
+test('fires onDone event on "Done" button press', async () => {
   const onDone = vi.fn();
 
   renderWithoutContext(<LanguageSettingsScreen onDone={onDone} />);
   expect(onDone).not.toHaveBeenCalled();
 
-  userEvent.click(screen.getButton('Done'));
+  await userEvent.click(screen.getButton('Done'));
   expect(onDone).toHaveBeenCalledTimes(1);
 });

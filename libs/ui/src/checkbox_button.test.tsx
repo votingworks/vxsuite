@@ -3,35 +3,35 @@ import { userEvent } from './user_event.js';
 import { render, screen } from '../test/react_testing_library.js';
 import { CheckboxButton } from './checkbox_button.js';
 
-test('checks', () => {
+test('checks', async () => {
   const onChange = vi.fn();
 
   render(<CheckboxButton label="Yes?" onChange={onChange} isChecked={false} />);
 
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('checkbox', { name: 'Yes?', checked: false })
   );
   expect(onChange).toHaveBeenLastCalledWith(true);
 });
 
-test('unchecks', () => {
+test('unchecks', async () => {
   const onChange = vi.fn();
 
   render(<CheckboxButton label="Yes?" onChange={onChange} isChecked />);
 
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('checkbox', { name: 'Yes?', checked: true })
   );
   expect(onChange).toHaveBeenLastCalledWith(false);
 });
 
-test('disabled', () => {
+test('disabled', async () => {
   const onChange = vi.fn();
 
   render(
     <CheckboxButton label="Yes?" onChange={onChange} isChecked disabled />
   );
 
-  userEvent.click(screen.getByRole('checkbox', { name: 'Yes?' }));
+  await userEvent.click(screen.getByRole('checkbox', { name: 'Yes?' }));
   expect(onChange).not.toHaveBeenCalled();
 });

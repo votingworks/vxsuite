@@ -23,24 +23,24 @@ function ControllerNumberInput({
   );
 }
 
-test('calls onChange when valid number is entered', () => {
+test('calls onChange when valid number is entered', async () => {
   const onChange = vi.fn();
   render(<ControllerNumberInput initialValue={42} onChange={onChange} />);
 
   expect(screen.getByDisplayValue('42')).toBeInTheDocument();
   const input = screen.getByRole('textbox');
-  userEvent.clear(input);
-  userEvent.type(input, '123');
+  await userEvent.clear(input);
+  await userEvent.type(input, '123');
 
   expect(onChange).toHaveBeenLastCalledWith(123);
 });
 
-test('ignores invalid input', () => {
+test('ignores invalid input', async () => {
   const onChange = vi.fn();
   render(<ControllerNumberInput initialValue="" onChange={onChange} />);
 
   const input = screen.getByRole('textbox');
-  userEvent.type(input, 'abc');
+  await userEvent.type(input, 'abc');
 
   expect(onChange).not.toHaveBeenCalled();
 });

@@ -4,7 +4,7 @@ import type {
   ValidStreetInfo,
   VoterRegistrationRequest,
 } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   electionFamousNames2021Fixtures,
   electionSimpleSinglePrecinctFixtures,
@@ -85,18 +85,27 @@ test('renders and disables submit until required fields are filled', async () =>
   expect(addButton).toBeDisabled();
 
   // Fill in required fields
-  userEvent.type(screen.getByRole('textbox', { name: 'First Name' }), 'John');
-  userEvent.type(screen.getByRole('textbox', { name: 'Last Name' }), 'Doe');
-  userEvent.type(screen.getByRole('textbox', { name: 'Street Number' }), '10');
-  userEvent.click(screen.getByLabelText('Street Name'));
-  userEvent.keyboard('[Enter]');
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'First Name' }),
+    'John'
+  );
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'Last Name' }),
+    'Doe'
+  );
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'Street Number' }),
+    '10'
+  );
+  await userEvent.click(screen.getByLabelText('Street Name'));
+  await userEvent.keyboard('[Enter]');
 
   // Still disabled
   expect(addButton).toBeDisabled();
 
   // Select party
-  userEvent.click(screen.getByLabelText('Party Affiliation'));
-  userEvent.keyboard('[ArrowDown][Enter]');
+  await userEvent.click(screen.getByLabelText('Party Affiliation'));
+  await userEvent.keyboard('[ArrowDown][Enter]');
 
   expect(addButton).not.toBeDisabled();
 });
@@ -130,20 +139,29 @@ test('shows duplicate name modal and allows override', async () => {
   await renderComponent();
 
   // Fill in required fields
-  userEvent.type(screen.getByRole('textbox', { name: 'First Name' }), 'Jane');
-  userEvent.type(screen.getByRole('textbox', { name: 'Last Name' }), 'Smith');
-  userEvent.type(screen.getByRole('textbox', { name: 'Street Number' }), '10');
-  userEvent.click(screen.getByLabelText('Street Name'));
-  userEvent.keyboard('[Enter]');
-  userEvent.click(screen.getByLabelText('Party Affiliation'));
-  userEvent.keyboard('[ArrowDown][Enter]');
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'First Name' }),
+    'Jane'
+  );
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'Last Name' }),
+    'Smith'
+  );
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'Street Number' }),
+    '10'
+  );
+  await userEvent.click(screen.getByLabelText('Street Name'));
+  await userEvent.keyboard('[Enter]');
+  await userEvent.click(screen.getByLabelText('Party Affiliation'));
+  await userEvent.keyboard('[ArrowDown][Enter]');
 
   // Simulate duplicate name error
   apiMock.expectRegisterVoterError(mockRegistrationData, false, [
     createMockVoter('test-duplicate-id', 'Jane', 'Smith', '23'),
   ]);
 
-  userEvent.click(screen.getByTestId('add-voter-btn'));
+  await userEvent.click(screen.getByTestId('add-voter-btn'));
   await screen.findByText('Duplicate Name Detected');
   screen.getByText(
     /There is already a voter with the name Jane Smith in North Lincoln/
@@ -156,7 +174,7 @@ test('shows duplicate name modal and allows override', async () => {
     createMockVoter('created', 'Jane', 'Smith', '23')
   );
 
-  userEvent.click(screen.getByTestId('confirm-duplicate-btn'));
+  await userEvent.click(screen.getByTestId('confirm-duplicate-btn'));
   await screen.findByText('Voter Added');
   screen.getByText('Give the voter their receipt.');
 });
@@ -178,13 +196,22 @@ test('shows duplicate name modal and allows override - single precinct election'
   await renderComponent();
 
   // Fill in required fields
-  userEvent.type(screen.getByRole('textbox', { name: 'First Name' }), 'Jane');
-  userEvent.type(screen.getByRole('textbox', { name: 'Last Name' }), 'Smith');
-  userEvent.type(screen.getByRole('textbox', { name: 'Street Number' }), '10');
-  userEvent.click(screen.getByLabelText('Street Name'));
-  userEvent.keyboard('[Enter]');
-  userEvent.click(screen.getByLabelText('Party Affiliation'));
-  userEvent.keyboard('[ArrowDown][Enter]');
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'First Name' }),
+    'Jane'
+  );
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'Last Name' }),
+    'Smith'
+  );
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'Street Number' }),
+    '10'
+  );
+  await userEvent.click(screen.getByLabelText('Street Name'));
+  await userEvent.keyboard('[Enter]');
+  await userEvent.click(screen.getByLabelText('Party Affiliation'));
+  await userEvent.keyboard('[ArrowDown][Enter]');
 
   // Simulate duplicate name error
   apiMock.expectRegisterVoterError(
@@ -196,7 +223,7 @@ test('shows duplicate name modal and allows override - single precinct election'
     [createMockVoter('test-duplicate-id', 'Jane', 'Smith', singlePrecinctId)]
   );
 
-  userEvent.click(screen.getByTestId('add-voter-btn'));
+  await userEvent.click(screen.getByTestId('add-voter-btn'));
   await screen.findByText('Duplicate Name Detected');
   screen.getByText(
     /There is already a voter with the name Jane Smith. Please confirm this is not a duplicate registration./
@@ -212,7 +239,7 @@ test('shows duplicate name modal and allows override - single precinct election'
     createMockVoter('created', 'Jane', 'Smith', singlePrecinctId)
   );
 
-  userEvent.click(screen.getByTestId('confirm-duplicate-btn'));
+  await userEvent.click(screen.getByTestId('confirm-duplicate-btn'));
   await screen.findByText('Voter Added');
   screen.getByText('Give the voter their receipt.');
 });
@@ -224,14 +251,23 @@ test('shows duplicate name modal and allows override - many matches include prec
   await renderComponent();
 
   // Fill in required fields
-  userEvent.type(screen.getByRole('textbox', { name: 'First Name' }), 'Jane');
-  userEvent.type(screen.getByRole('textbox', { name: 'Last Name' }), 'Smith');
-  userEvent.type(screen.getByRole('textbox', { name: 'Street Number' }), '10');
-  userEvent.click(screen.getByLabelText('Street Name'));
-  userEvent.keyboard('[Enter]');
-  userEvent.click(screen.getByLabelText('Party Affiliation'));
-  userEvent.click(screen.getByLabelText('Party Affiliation'));
-  userEvent.keyboard('[ArrowDown][Enter]');
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'First Name' }),
+    'Jane'
+  );
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'Last Name' }),
+    'Smith'
+  );
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'Street Number' }),
+    '10'
+  );
+  await userEvent.click(screen.getByLabelText('Street Name'));
+  await userEvent.keyboard('[Enter]');
+  await userEvent.click(screen.getByLabelText('Party Affiliation'));
+  await userEvent.click(screen.getByLabelText('Party Affiliation'));
+  await userEvent.keyboard('[ArrowDown][Enter]');
 
   // Simulate duplicate name error
   apiMock.expectRegisterVoterError(mockRegistrationData, false, [
@@ -240,7 +276,7 @@ test('shows duplicate name modal and allows override - many matches include prec
     createMockVoter('created3', 'Jane', 'Smith', '22'),
   ]);
 
-  userEvent.click(screen.getButton('Add Voter'));
+  await userEvent.click(screen.getButton('Add Voter'));
   await screen.findByText('Duplicate Name Detected');
   screen.getByText(
     /There is already a voter with the name Jane Smith in North Lincoln/
@@ -253,7 +289,7 @@ test('shows duplicate name modal and allows override - many matches include prec
     createMockVoter('created', 'Jane', 'Smith', '23')
   );
 
-  userEvent.click(screen.getByTestId('confirm-duplicate-btn'));
+  await userEvent.click(screen.getByTestId('confirm-duplicate-btn'));
   await screen.findByText('Voter Added');
   await screen.findAllByText('Give the voter their receipt.');
 });
@@ -265,21 +301,30 @@ test('shows duplicate name modal and allows override - one match out of precinct
   await renderComponent();
 
   // Fill in required fields
-  userEvent.type(screen.getByRole('textbox', { name: 'First Name' }), 'Jane');
-  userEvent.type(screen.getByRole('textbox', { name: 'Last Name' }), 'Smith');
-  userEvent.type(screen.getByRole('textbox', { name: 'Street Number' }), '10');
-  userEvent.click(screen.getByLabelText('Street Name'));
-  userEvent.keyboard('[Enter]');
-  userEvent.click(screen.getByLabelText('Party Affiliation'));
-  userEvent.click(screen.getByLabelText('Party Affiliation'));
-  userEvent.keyboard('[ArrowDown][Enter]');
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'First Name' }),
+    'Jane'
+  );
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'Last Name' }),
+    'Smith'
+  );
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'Street Number' }),
+    '10'
+  );
+  await userEvent.click(screen.getByLabelText('Street Name'));
+  await userEvent.keyboard('[Enter]');
+  await userEvent.click(screen.getByLabelText('Party Affiliation'));
+  await userEvent.click(screen.getByLabelText('Party Affiliation'));
+  await userEvent.keyboard('[ArrowDown][Enter]');
 
   // Simulate duplicate name error
   apiMock.expectRegisterVoterError(mockRegistrationData, false, [
     createMockVoter('created2', 'Jane', 'Smith', '22'),
   ]);
 
-  userEvent.click(screen.getButton('Add Voter'));
+  await userEvent.click(screen.getButton('Add Voter'));
   await screen.findByText('Duplicate Name Detected');
   screen.getByText(
     /There is already a voter with the name Jane Smith in South Lincoln/
@@ -292,7 +337,7 @@ test('shows duplicate name modal and allows override - one match out of precinct
     createMockVoter('created', 'Jane', 'Smith', '23')
   );
 
-  userEvent.click(screen.getByTestId('confirm-duplicate-btn'));
+  await userEvent.click(screen.getByTestId('confirm-duplicate-btn'));
   await screen.findByText('Voter Added');
   await screen.findAllByText('Give the voter their receipt.');
 });
@@ -304,14 +349,23 @@ test('shows duplicate name modal and allows override - many matches out of preci
   await renderComponent();
 
   // Fill in required fields
-  userEvent.type(screen.getByRole('textbox', { name: 'First Name' }), 'Jane');
-  userEvent.type(screen.getByRole('textbox', { name: 'Last Name' }), 'Smith');
-  userEvent.type(screen.getByRole('textbox', { name: 'Street Number' }), '10');
-  userEvent.click(screen.getByLabelText('Street Name'));
-  userEvent.keyboard('[Enter]');
-  userEvent.click(screen.getByLabelText('Party Affiliation'));
-  userEvent.click(screen.getByLabelText('Party Affiliation'));
-  userEvent.keyboard('[ArrowDown][Enter]');
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'First Name' }),
+    'Jane'
+  );
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'Last Name' }),
+    'Smith'
+  );
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'Street Number' }),
+    '10'
+  );
+  await userEvent.click(screen.getByLabelText('Street Name'));
+  await userEvent.keyboard('[Enter]');
+  await userEvent.click(screen.getByLabelText('Party Affiliation'));
+  await userEvent.click(screen.getByLabelText('Party Affiliation'));
+  await userEvent.keyboard('[ArrowDown][Enter]');
 
   // Simulate duplicate name error
   apiMock.expectRegisterVoterError(mockRegistrationData, false, [
@@ -319,7 +373,7 @@ test('shows duplicate name modal and allows override - many matches out of preci
     createMockVoter('created2', 'Jane', 'Smith', '21'),
   ]);
 
-  userEvent.click(screen.getButton('Add Voter'));
+  await userEvent.click(screen.getButton('Add Voter'));
   await screen.findByText('Duplicate Name Detected');
   screen.getByText(
     /There are already 2 voters with the name JANE SMITH in other precincts/
@@ -332,7 +386,7 @@ test('shows duplicate name modal and allows override - many matches out of preci
     createMockVoter('created', 'Jane', 'Smith', '23')
   );
 
-  userEvent.click(screen.getByTestId('confirm-duplicate-btn'));
+  await userEvent.click(screen.getByTestId('confirm-duplicate-btn'));
   await screen.findByText('Voter Added');
   await screen.findAllByText('Give the voter their receipt.');
 });
@@ -344,13 +398,22 @@ test('shows success message after registration - no duplicate warning', async ()
   await renderComponent();
 
   // Fill in required fields
-  userEvent.type(screen.getByRole('textbox', { name: 'First Name' }), 'Jane');
-  userEvent.type(screen.getByRole('textbox', { name: 'Last Name' }), 'Smith');
-  userEvent.type(screen.getByRole('textbox', { name: 'Street Number' }), '10');
-  userEvent.click(screen.getByLabelText('Street Name'));
-  userEvent.keyboard('[Enter]');
-  userEvent.click(screen.getByLabelText('Party Affiliation'));
-  userEvent.keyboard('[ArrowDown][Enter]');
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'First Name' }),
+    'Jane'
+  );
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'Last Name' }),
+    'Smith'
+  );
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'Street Number' }),
+    '10'
+  );
+  await userEvent.click(screen.getByLabelText('Street Name'));
+  await userEvent.keyboard('[Enter]');
+  await userEvent.click(screen.getByLabelText('Party Affiliation'));
+  await userEvent.keyboard('[ArrowDown][Enter]');
 
   apiMock.expectRegisterVoter(
     mockRegistrationData,
@@ -358,7 +421,7 @@ test('shows success message after registration - no duplicate warning', async ()
     createMockVoter('created', 'Jane', 'Smith', '23')
   );
 
-  userEvent.click(screen.getButton('Add Voter'));
+  await userEvent.click(screen.getButton('Add Voter'));
   await screen.findByText('Voter Added');
   screen.getByText('Give the voter their receipt.');
 });
@@ -370,13 +433,22 @@ test('shows invalid address warning', async () => {
   await renderComponent();
 
   // Fill in required fields
-  userEvent.type(screen.getByRole('textbox', { name: 'First Name' }), 'Jane');
-  userEvent.type(screen.getByRole('textbox', { name: 'Last Name' }), 'Smith');
-  userEvent.type(screen.getByRole('textbox', { name: 'Street Number' }), '55');
-  userEvent.click(screen.getByLabelText('Street Name'));
-  userEvent.keyboard('[Enter]');
-  userEvent.click(screen.getByLabelText('Party Affiliation'));
-  userEvent.keyboard('[ArrowDown][Enter]');
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'First Name' }),
+    'Jane'
+  );
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'Last Name' }),
+    'Smith'
+  );
+  await userEvent.type(
+    screen.getByRole('textbox', { name: 'Street Number' }),
+    '55'
+  );
+  await userEvent.click(screen.getByLabelText('Street Name'));
+  await userEvent.keyboard('[Enter]');
+  await userEvent.click(screen.getByLabelText('Party Affiliation'));
+  await userEvent.keyboard('[ArrowDown][Enter]');
   const addButton = screen.getButton('Add Voter');
   expect(addButton).toBeDisabled();
 
@@ -385,8 +457,8 @@ test('shows invalid address warning', async () => {
   const streetNumberInput = screen.getByRole('textbox', {
     name: 'Street Number',
   });
-  userEvent.clear(streetNumberInput);
-  userEvent.type(streetNumberInput, '10');
+  await userEvent.clear(streetNumberInput);
+  await userEvent.type(streetNumberInput, '10');
 
   await vi.waitFor(() => expect(addButton).not.toBeDisabled());
 });

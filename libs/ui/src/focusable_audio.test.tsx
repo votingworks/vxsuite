@@ -93,7 +93,7 @@ test('suppresses the outline during the read-on-load focus, then enables it', ()
   expect(container).not.toHaveStyle({ outline: 'none' });
 });
 
-test('replays the whole block on click when `replayOnClick` is set', () => {
+test('replays the whole block on click when `replayOnClick` is set', async () => {
   render(
     <FocusableAudio replayOnClick>
       <button type="button">child</button>
@@ -105,11 +105,11 @@ test('replays the whole block on click when `replayOnClick` is set', () => {
 
   // Clicking a descendant re-targets a focus event at the block itself, so the
   // screen reader reads the whole block rather than just the clicked element.
-  userEvent.click(screen.getButton('child'));
+  await userEvent.click(screen.getButton('child'));
   expect(focusTargets).toContain(block);
 });
 
-test('does not re-target focus on click without `replayOnClick`', () => {
+test('does not re-target focus on click without `replayOnClick`', async () => {
   render(
     <FocusableAudio>
       <button type="button">child</button>
@@ -119,6 +119,6 @@ test('does not re-target focus on click without `replayOnClick`', () => {
   const block = document.querySelector(`.${FOCUSABLE_AUDIO_CLASS_NAME}`)!;
   const focusTargets = trackBlockFocusTargets(block);
 
-  userEvent.click(screen.getButton('child'));
+  await userEvent.click(screen.getButton('child'));
   expect(focusTargets).not.toContain(block);
 });

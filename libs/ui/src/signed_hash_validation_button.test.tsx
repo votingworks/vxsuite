@@ -42,7 +42,7 @@ test('SignedHashValidationButton', async () => {
   const expectedSuccessMessage =
     'Scan this QR code at https://check.voting.works';
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Signed Hash Validation' })
   );
   let modal = await screen.findByRole('alertdialog');
@@ -66,7 +66,7 @@ test('SignedHashValidationButton', async () => {
   screen.getByText(hasTextAcrossElements('Date: 1/1/2024'));
   screen.getByText(hasTextAcrossElements('Time: 12:00:00 PM'));
 
-  userEvent.click(within(modal).getByRole('button', { name: 'Done' }));
+  await userEvent.click(within(modal).getByRole('button', { name: 'Done' }));
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
@@ -76,7 +76,7 @@ test('SignedHashValidationButton', async () => {
     date: new Date('1/1/2024, 12:01:00 PM'),
   });
 
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('button', { name: 'Signed Hash Validation' })
   );
   modal = await screen.findByRole('alertdialog');

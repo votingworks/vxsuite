@@ -2,7 +2,7 @@
 import { expect, test, vi } from 'vitest';
 
 import { pollingPlaceTypeName } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import { render, screen } from '../../../test/react_testing_library.js';
 import { LocationImportCard } from './location_import_card.js';
@@ -57,7 +57,7 @@ test('test-mode import with multi-scanner batches', () => {
   screen.getByText('2,048');
 });
 
-test('emits onPress event on click', () => {
+test('emits onPress event on click', async () => {
   const onPress = vi.fn();
   const path = '/dev/sdb/south/metadata.json';
 
@@ -77,7 +77,7 @@ test('emits onPress event on click', () => {
   );
 
   expect(onPress).not.toHaveBeenCalled();
-  userEvent.click(screen.getButton(/Vx South/));
+  await userEvent.click(screen.getButton(/Vx South/));
   expect(onPress).toHaveBeenCalledExactlyOnceWith(path);
 });
 

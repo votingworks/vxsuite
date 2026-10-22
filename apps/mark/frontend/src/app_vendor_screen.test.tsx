@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 
 import {
@@ -41,7 +41,7 @@ test('vendor screen', async () => {
   expect(unconfigureButton).toBeDisabled();
 
   apiMock.expectRebootToVendorMenu();
-  userEvent.click(rebootButton);
+  await userEvent.click(rebootButton);
 });
 
 test('vendor screen unconfigure', async () => {
@@ -54,7 +54,7 @@ test('vendor screen unconfigure', async () => {
   apiMock.setAuthStatusVendorLoggedIn();
   const unconfigureButton = await screen.findButton('Unconfigure Machine');
 
-  userEvent.click(unconfigureButton);
+  await userEvent.click(unconfigureButton);
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Unconfigure Machine' });
 
@@ -62,7 +62,7 @@ test('vendor screen unconfigure', async () => {
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
   apiMock.expectGetSystemSettings();
-  userEvent.click(
+  await userEvent.click(
     within(modal).getByRole('button', { name: 'Delete All Election Data' })
   );
 

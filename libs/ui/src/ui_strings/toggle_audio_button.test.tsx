@@ -19,12 +19,12 @@ test('status text corresponds to audio state', async () => {
   await screen.findAllByText('Audio is on');
   expect(getAudioContext()!.isEnabled).toEqual(true);
 
-  userEvent.click(screen.getButton(/mute audio/i));
+  await userEvent.click(screen.getButton(/mute audio/i));
 
   await screen.findAllByText('Audio is muted');
   expect(getAudioContext()!.isEnabled).toEqual(false);
 
-  userEvent.click(screen.getButton(/unmute audio/i));
+  await userEvent.click(screen.getButton(/unmute audio/i));
 
   await screen.findAllByText('Audio is on');
   expect(getAudioContext()!.isEnabled).toEqual(true);

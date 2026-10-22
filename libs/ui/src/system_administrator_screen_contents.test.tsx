@@ -110,7 +110,7 @@ test.each(renderTestCases)(
   }
 );
 
-test('Quit button makes expected call', () => {
+test('Quit button makes expected call', async () => {
   vi.mocked(isVxDev).mockImplementation(() => true);
   window.kiosk = mockKiosk(vi.fn);
   const unconfigureMachine = vi.fn();
@@ -124,11 +124,11 @@ test('Quit button makes expected call', () => {
     />
   );
 
-  userEvent.click(screen.getByRole('button', { name: 'Quit' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Quit' }));
   expect(window.kiosk.quit).toBeCalledTimes(1);
 });
 
-test('Quit button does nothing when kiosk is undefined', () => {
+test('Quit button does nothing when kiosk is undefined', async () => {
   vi.mocked(isVxDev).mockImplementation(() => true);
   window.kiosk = undefined;
   const unconfigureMachine = vi.fn();
@@ -142,7 +142,7 @@ test('Quit button does nothing when kiosk is undefined', () => {
     />
   );
 
-  userEvent.click(screen.getByRole('button', { name: 'Quit' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Quit' }));
 });
 
 test('Unconfigure Machine button is disabled when the machine is not configured', () => {
@@ -206,9 +206,11 @@ test('Set Date and Time button', async () => {
     />
   );
 
-  userEvent.click(screen.getByRole('button', { name: 'Set Date and Time' }));
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Set Date and Time' })
+  );
   screen.getByRole('heading', { name: 'Set Date and Time' });
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
   await waitForElementToBeRemoved(screen.queryByRole('alertdialog'));
   expect(logOut).toBeCalledTimes(1);
 });

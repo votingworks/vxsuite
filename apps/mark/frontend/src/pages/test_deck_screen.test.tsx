@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { deferred } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library.js';
@@ -57,7 +57,7 @@ test('back button calls onBackButtonPress', async () => {
   const onBackButtonPress = vi.fn();
   renderScreen({ onBackButtonPress });
 
-  userEvent.click(await screen.findByRole('button', { name: 'Back' }));
+  await userEvent.click(await screen.findByRole('button', { name: 'Back' }));
   expect(onBackButtonPress).toHaveBeenCalledTimes(1);
 });
 
@@ -66,7 +66,7 @@ test('prints all test decks', async () => {
   renderScreen();
 
   apiMock.mockApiClient.printTestDeck.expectCallWith({}).resolves();
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Print All Test Decks' })
   );
 });
@@ -81,15 +81,15 @@ test('clicking the "Print Precinct Test Deck" button calls printTestDeck', async
   expect(printPrecinctButton).toBeDisabled();
 
   const precinct = electionDefinition.election.precincts[0]!;
-  userEvent.click(screen.getByText('Select a precinct…'));
-  userEvent.click(screen.getByText(precinct.name));
+  await userEvent.click(screen.getByText('Select a precinct…'));
+  await userEvent.click(screen.getByText(precinct.name));
 
   await vi.waitFor(() => expect(printPrecinctButton).toBeEnabled());
 
   apiMock.mockApiClient.printTestDeck
     .expectCallWith({ precinctId: precinct.id })
     .resolves();
-  userEvent.click(printPrecinctButton);
+  await userEvent.click(printPrecinctButton);
 });
 
 test('disables the print buttons while a test deck is printing', async () => {
@@ -104,7 +104,7 @@ test('disables the print buttons while a test deck is printing', async () => {
   const printAllButton = await screen.findByRole('button', {
     name: 'Print All Test Decks',
   });
-  userEvent.click(printAllButton);
+  await userEvent.click(printAllButton);
 
   await vi.waitFor(() => expect(printAllButton).toBeDisabled());
 
@@ -124,7 +124,7 @@ test('shows a "Printing..." message and icon on the button while printing', asyn
   const printAllButton = await screen.findByRole('button', {
     name: 'Print All Test Decks',
   });
-  userEvent.click(printAllButton);
+  await userEvent.click(printAllButton);
 
   const printingButton = await screen.findByRole('button', {
     name: 'Printing...',
@@ -150,7 +150,7 @@ test('disables the precinct select while printing', async () => {
   const precinctSelect = await screen.findByLabelText('Select a precinct');
   expect(precinctSelect).toBeEnabled();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Print All Test Decks' })
   );
 
@@ -165,8 +165,8 @@ test('shows "Printing..." only on the precinct button and reverts after settling
   renderScreen();
 
   const precinct = electionDefinition.election.precincts[0]!;
-  userEvent.click(await screen.findByText('Select a precinct…'));
-  userEvent.click(screen.getByText(precinct.name));
+  await userEvent.click(await screen.findByText('Select a precinct…'));
+  await userEvent.click(screen.getByText(precinct.name));
 
   const printPrecinctButton = await screen.findByRole('button', {
     name: 'Print Precinct Test Deck',
@@ -177,7 +177,7 @@ test('shows "Printing..." only on the precinct button and reverts after settling
   apiMock.mockApiClient.printTestDeck
     .expectCallWith({ precinctId: precinct.id })
     .returns(printDeferred.promise);
-  userEvent.click(printPrecinctButton);
+  await userEvent.click(printPrecinctButton);
 
   // Only the precinct button shows the spinner; the "all" button keeps its
   // label.

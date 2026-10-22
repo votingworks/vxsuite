@@ -2,7 +2,7 @@ import { expect, test, vi } from 'vitest';
 import { readElectionStraightParty } from '@votingworks/fixtures';
 import type { StraightPartyContest as StraightPartyContestInterface } from '@votingworks/types';
 import { find } from '@votingworks/basics';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { act } from '@testing-library/react';
 import { screen, within, render } from '../../test/react_testing_library.js';
 import { StraightPartyContest } from './straight_party_contest.js';
@@ -19,7 +19,7 @@ function getOption(accessibleName: string | RegExp) {
   return screen.getByRole('option', { name: accessibleName });
 }
 
-test('selecting a party', () => {
+test('selecting a party', async () => {
   const updateVote = vi.fn();
   render(
     <StraightPartyContest
@@ -31,12 +31,12 @@ test('selecting a party', () => {
 
   screen.getByRole('heading', { name: contest.title });
 
-  userEvent.click(getOption(/Federalist Party/i));
+  await userEvent.click(getOption(/Federalist Party/i));
   expect(updateVote).toHaveBeenCalledTimes(1);
   expect(updateVote).toHaveBeenCalledWith(contest.id, [FEDERALIST_PARTY_ID]);
 });
 
-test('deselecting the selected party', () => {
+test('deselecting the selected party', async () => {
   const updateVote = vi.fn();
   render(
     <StraightPartyContest
@@ -47,12 +47,12 @@ test('deselecting the selected party', () => {
     />
   );
 
-  userEvent.click(getOption(/Selected option.+Federalist Party/i));
+  await userEvent.click(getOption(/Selected option.+Federalist Party/i));
   expect(updateVote).toHaveBeenCalledTimes(1);
   expect(updateVote).toHaveBeenCalledWith(contest.id, []);
 });
 
-test('attempting to overvote shows a warning and does not change the vote', () => {
+test('attempting to overvote shows a warning and does not change the vote', async () => {
   const updateVote = vi.fn();
   render(
     <StraightPartyContest
@@ -63,15 +63,15 @@ test('attempting to overvote shows a warning and does not change the vote', () =
     />
   );
 
-  userEvent.click(getOption(/^Liberty Party/i));
+  await userEvent.click(getOption(/^Liberty Party/i));
   expect(updateVote).not.toHaveBeenCalled();
   within(screen.getByRole('alertdialog')).getByText(/first deselect/i);
 
-  userEvent.click(screen.getByText('Continue'));
+  await userEvent.click(screen.getByText('Continue'));
   expect(screen.queryByRole('alertdialog')).toEqual(null);
 });
 
-test('audio cues for selected and deselected options', () => {
+test('audio cues for selected and deselected options', async () => {
   vi.useFakeTimers();
   const updateVote = vi.fn();
   const { rerender } = render(
@@ -87,7 +87,7 @@ test('audio cues for selected and deselected options', () => {
   getOption(/^Federalist Party/i);
 
   // Select the party
-  userEvent.click(getOption(/^Federalist Party/i));
+  await userEvent.click(getOption(/^Federalist Party/i));
   rerender(
     <StraightPartyContest
       election={election}
@@ -101,7 +101,7 @@ test('audio cues for selected and deselected options', () => {
   );
 
   // Deselect the party
-  userEvent.click(getOption(/Selected option.+Federalist Party/i));
+  await userEvent.click(getOption(/Selected option.+Federalist Party/i));
   rerender(
     <StraightPartyContest
       election={election}

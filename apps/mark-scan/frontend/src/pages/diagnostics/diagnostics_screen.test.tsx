@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   MARK_SCAN_CONTROLLER_ILLUSTRATION_HIGHLIGHT_CLASS_NAME,
   mockUsbDriveStatus,
@@ -152,7 +152,7 @@ test('BMD 155 falls back to PAT device connection status', async () => {
 test('accessible controller diagnostic - pass', async () => {
   renderScreen();
 
-  userEvent.click(await screen.findButton('Test Accessible Controller'));
+  await userEvent.click(await screen.findButton('Test Accessible Controller'));
 
   screen.getByRole('heading', { name: 'Accessible Controller Test' });
 
@@ -189,16 +189,16 @@ test('accessible controller diagnostic - pass', async () => {
 test('accessible controller diagnostic - cancel', async () => {
   renderScreen();
 
-  userEvent.click(await screen.findButton('Test Accessible Controller'));
+  await userEvent.click(await screen.findButton('Test Accessible Controller'));
 
-  userEvent.click(await screen.findButton('Cancel Test'));
+  await userEvent.click(await screen.findButton('Cancel Test'));
   screen.getByRole('heading', { name: 'Diagnostics' });
 });
 
 test('accessible controller diagnostic - fail', async () => {
   renderScreen();
 
-  userEvent.click(await screen.findButton('Test Accessible Controller'));
+  await userEvent.click(await screen.findButton('Test Accessible Controller'));
 
   apiMock.expectAddDiagnosticRecord({
     type: 'mark-scan-accessible-controller',
@@ -211,7 +211,7 @@ test('accessible controller diagnostic - fail', async () => {
     message: 'up button is not working.',
     timestamp: new Date('2022-03-23T11:23:00.000').getTime(),
   });
-  userEvent.click(await screen.findButton('Up Button is Not Working'));
+  await userEvent.click(await screen.findButton('Up Button is Not Working'));
 
   screen.getByRole('heading', { name: 'Diagnostics' });
   await screen.findByText(
@@ -238,17 +238,17 @@ test('election information', async () => {
 test('saving report', async () => {
   renderScreen();
 
-  userEvent.click(await screen.findButton('Save Readiness Report'));
+  await userEvent.click(await screen.findButton('Save Readiness Report'));
   apiMock.mockApiClient.saveReadinessReport
     .expectCallWith()
     .resolves(ok(['mock-file.pdf']));
-  userEvent.click(await screen.findButton('Save'));
+  await userEvent.click(await screen.findButton('Save'));
   await screen.findByText('Readiness Report Saved');
   screen.getByText(/mock-file.pdf/);
-  userEvent.click(await screen.findButton('Close'));
+  await userEvent.click(await screen.findButton('Close'));
 
   // confirm modal resets after exiting
-  userEvent.click(await screen.findButton('Save Readiness Report'));
+  await userEvent.click(await screen.findButton('Save Readiness Report'));
   await screen.findByRole('heading', { name: 'Save Readiness Report' });
 });
 
@@ -257,7 +257,7 @@ test('pressing the button to start the paper handler diagnostic calls the right 
 
   renderScreen();
 
-  userEvent.click(await screen.findButton('Test Printer-Scanner'));
+  await userEvent.click(await screen.findButton('Test Printer-Scanner'));
   apiMock.setPaperHandlerState('paper_handler_diagnostic.prompt_for_paper');
   await screen.findByText('Insert a sheet of ballot paper.');
 });
@@ -267,7 +267,7 @@ test('ending paper handler diagnostic refetches the diagnostic record', async ()
   apiMock.expectStopPaperHandlerDiagnostic();
 
   renderScreen();
-  userEvent.click(await screen.findButton('Test Printer-Scanner'));
+  await userEvent.click(await screen.findButton('Test Printer-Scanner'));
 
   apiMock.setPaperHandlerState('paper_handler_diagnostic.success');
 
@@ -276,7 +276,7 @@ test('ending paper handler diagnostic refetches the diagnostic record', async ()
     outcome: 'pass',
     timestamp: new Date('2022-03-23T11:23:00.000').getTime(),
   });
-  userEvent.click(await screen.findButton('Exit'));
+  await userEvent.click(await screen.findButton('Exit'));
 
   await screen.findByText(/test passed/);
   expectDiagnosticResult(
@@ -290,21 +290,21 @@ test('ending paper handler diagnostic refetches the diagnostic record', async ()
 test('PAT diagnostic success', async () => {
   renderScreen();
 
-  userEvent.click(await screen.findButton('Test PAT Input'));
+  await userEvent.click(await screen.findButton('Test PAT Input'));
   apiMock.setPaperHandlerState('pat_device_connected');
   await screen.findByText('Personal Assistive Technology Input Test');
   screen.getByText('Connect PAT Device');
 
   // Continue past instructions
-  userEvent.keyboard(Keybinding.PAT_MOVE);
+  await userEvent.keyboard(Keybinding.PAT_MOVE);
 
   // Identify first input
-  userEvent.keyboard(Keybinding.PAT_MOVE);
-  userEvent.keyboard(Keybinding.PAT_MOVE);
+  await userEvent.keyboard(Keybinding.PAT_MOVE);
+  await userEvent.keyboard(Keybinding.PAT_MOVE);
 
   // Identify second input
-  userEvent.keyboard(Keybinding.PAT_SELECT);
-  userEvent.keyboard(Keybinding.PAT_SELECT);
+  await userEvent.keyboard(Keybinding.PAT_SELECT);
+  await userEvent.keyboard(Keybinding.PAT_SELECT);
 
   screen.getByText('Test Passed');
 
@@ -314,13 +314,13 @@ test('PAT diagnostic success', async () => {
   });
   apiMock.expectGetMostRecentDiagnostic('mark-scan-pat-input');
   apiMock.expectSetPatDeviceIsCalibrated();
-  userEvent.click(screen.getByText('Exit'));
+  await userEvent.click(screen.getByText('Exit'));
 });
 
 test('PAT diagnostic early exit', async () => {
   renderScreen();
 
-  userEvent.click(await screen.findButton('Test PAT Input'));
+  await userEvent.click(await screen.findButton('Test PAT Input'));
   apiMock.setPaperHandlerState('pat_device_connected');
   await screen.findByText('Personal Assistive Technology Input Test');
 
@@ -332,7 +332,7 @@ test('PAT diagnostic early exit', async () => {
   apiMock.expectGetMostRecentDiagnostic('mark-scan-pat-input');
   apiMock.expectSetPatDeviceIsCalibrated();
 
-  userEvent.click(screen.getByText('Cancel Test'));
+  await userEvent.click(screen.getByText('Cancel Test'));
 });
 
 test('navigating to and from headphone diagnostic', async () => {
@@ -343,12 +343,12 @@ test('navigating to and from headphone diagnostic', async () => {
 
   renderScreen();
 
-  userEvent.click(await screen.findButton('Test Front Headphone Input'));
+  await userEvent.click(await screen.findButton('Test Front Headphone Input'));
   await screen.findByText('Front Headphone Input Test');
 
   // Failure case is tested in headphone_input_diagnostic_screen.test.tsx
   apiMock.expectGetMostRecentDiagnostic('mark-scan-headphone-input');
-  userEvent.click(screen.getByText('Sound Is Audible'));
+  await userEvent.click(screen.getByText('Sound Is Audible'));
   await screen.findByText('Diagnostics');
 });
 
@@ -360,11 +360,13 @@ test('UPS diagnostic - passing test', async () => {
 
   renderScreen();
 
-  userEvent.click(await screen.findButton('Test Uninterruptible Power Supply'));
+  await userEvent.click(
+    await screen.findButton('Test Uninterruptible Power Supply')
+  );
   await screen.findByText('Uninterruptible Power Supply Test');
 
   apiMock.expectGetMostRecentDiagnostic('uninterruptible-power-supply');
-  userEvent.click(screen.getByText('UPS Is Fully Charged'));
+  await userEvent.click(screen.getByText('UPS Is Fully Charged'));
   await screen.findByText('Diagnostics');
 });
 
@@ -376,10 +378,12 @@ test('UPS diagnostic - failing test', async () => {
 
   renderScreen();
 
-  userEvent.click(await screen.findButton('Test Uninterruptible Power Supply'));
+  await userEvent.click(
+    await screen.findButton('Test Uninterruptible Power Supply')
+  );
   await screen.findByText('Uninterruptible Power Supply Test');
 
   apiMock.expectGetMostRecentDiagnostic('uninterruptible-power-supply');
-  userEvent.click(screen.getByText('UPS Is Not Fully Charged'));
+  await userEvent.click(screen.getByText('UPS Is Not Fully Charged'));
   await screen.findByText('Diagnostics');
 });

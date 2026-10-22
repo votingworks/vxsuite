@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import type { PollingPlace, VotesDict } from '@votingworks/types';
 import { find } from '@votingworks/basics';
@@ -64,7 +64,7 @@ test('poll worker selects ballot style, voter votes', async () => {
 
   // Poll worker deactivates ballot style
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
-  userEvent.click(await screen.findByText('Deactivate Voting Session'));
+  await userEvent.click(await screen.findByText('Deactivate Voting Session'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await screen.findByText('Start a New Voting Session');
 
@@ -72,7 +72,7 @@ test('poll worker selects ballot style, voter votes', async () => {
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
-  userEvent.click(await screen.findButton(precinct.name));
+  await userEvent.click(await screen.findButton(precinct.name));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
@@ -89,11 +89,11 @@ test('poll worker selects ballot style, voter votes', async () => {
   // Voter Ballot Style is active
   await findByTextWithMarkup('Number of contests on your ballot: 20');
   screen.getByText('Center Springfield');
-  userEvent.click(screen.getByText('Start Voting'));
+  await userEvent.click(screen.getByText('Start Voting'));
 
   // Voter votes in first contest
-  userEvent.click(screen.getByText(presidentContest.candidates[0]!.name));
-  userEvent.click(screen.getByText('Next'));
+  await userEvent.click(screen.getByText(presidentContest.candidates[0]!.name));
+  await userEvent.click(screen.getByText('Next'));
 
   // Poll worker inserts card and sees message that there are votes
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
@@ -106,7 +106,7 @@ test('poll worker selects ballot style, voter votes', async () => {
 
   // Poll worker resets ballot to remove votes
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
-  userEvent.click(screen.getByText('Reset Ballot'));
+  await userEvent.click(screen.getByText('Reset Ballot'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
 
   // Back on poll worker screen
@@ -116,7 +116,7 @@ test('poll worker selects ballot style, voter votes', async () => {
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
-  userEvent.click(screen.getButton(precinct.name));
+  await userEvent.click(screen.getButton(precinct.name));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: '12',
@@ -134,7 +134,7 @@ test('poll worker selects ballot style, voter votes', async () => {
   // Voter Ballot Style is active
   await findByTextWithMarkup('Number of contests on your ballot: 20');
   screen.getByText('Center Springfield');
-  userEvent.click(screen.getByText('Start Voting'));
+  await userEvent.click(screen.getByText('Start Voting'));
 
   // Voter makes selection in first contest and then advances to review screen
   for (let i = 0; i < voterContests.length; i += 1) {
@@ -144,9 +144,11 @@ test('poll worker selects ballot style, voter votes', async () => {
 
     // Vote for a candidate contest
     if (title === presidentContest.title) {
-      userEvent.click(screen.getByText(presidentContest.candidates[0]!.name));
+      await userEvent.click(
+        screen.getByText(presidentContest.candidates[0]!.name)
+      );
     }
-    userEvent.click(screen.getByText('Next'));
+    await userEvent.click(screen.getByText('Next'));
   }
 
   // Advance to print ballot
@@ -160,7 +162,7 @@ test('poll worker selects ballot style, voter votes', async () => {
   apiMock.expectGetElectionState({
     ballotsPrintedCount: 1,
   });
-  userEvent.click(screen.getByText(/Print My ballot/i));
+  await userEvent.click(screen.getByText(/Print My ballot/i));
   screen.getByText(/Printing Your Ballot/i);
 
   // Reset Ballot is called once the job reaches the printer
@@ -204,16 +206,18 @@ test('poll worker card insertion during printing does not cause duplicate print'
     precinctId,
   });
   await findByTextWithMarkup('Number of contests on your ballot: 20');
-  userEvent.click(screen.getByText('Start Voting'));
+  await userEvent.click(screen.getByText('Start Voting'));
 
   // Voter makes a selection and navigates to review
   for (let i = 0; i < voterContests.length; i += 1) {
     const { title } = voterContests[i]!;
     await screen.findByRole('heading', { name: title });
     if (title === presidentContest.title) {
-      userEvent.click(screen.getByText(presidentContest.candidates[0]!.name));
+      await userEvent.click(
+        screen.getByText(presidentContest.candidates[0]!.name)
+      );
     }
-    userEvent.click(screen.getByText('Next'));
+    await userEvent.click(screen.getByText('Next'));
   }
 
   // Voter clicks print — only one printBallot call should ever be made
@@ -224,7 +228,7 @@ test('poll worker card insertion during printing does not cause duplicate print'
   });
   apiMock.expectGetElectionState({ ballotsPrintedCount: 1 });
   apiMock.setPrintJobStatus({ outcome: 'in-progress' });
-  userEvent.click(screen.getByText(/Print My ballot/i));
+  await userEvent.click(screen.getByText(/Print My ballot/i));
   await screen.findByText(/Printing Your Ballot/i);
 
   // Poll worker inserts card while ballot is printing
@@ -288,7 +292,7 @@ test('in multi-precinct location, poll worker must select a precinct first', asy
   // Activate Voter Session for Cardless Voter
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await screen.findByText('Start a New Voting Session');
-  userEvent.click(screen.getByText('Select ballot style…'));
+  await userEvent.click(screen.getByText('Select ballot style…'));
 
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
@@ -310,7 +314,7 @@ test('in multi-precinct location, poll worker must select a precinct first', asy
   // Voter Ballot Style is active
   await findByTextWithMarkup('Number of contests on your ballot: 20');
   screen.getByText('Center Springfield');
-  userEvent.click(screen.getByText('Start Voting'));
+  await userEvent.click(screen.getByText('Start Voting'));
 });
 
 test('a failed print ends the voter session', async () => {
@@ -328,14 +332,16 @@ test('a failed print ends the voter session', async () => {
     precinctId,
   });
 
-  userEvent.click(await screen.findByText('Start Voting'));
+  await userEvent.click(await screen.findByText('Start Voting'));
 
   for (const { title } of voterContests) {
     await screen.findByRole('heading', { name: title });
     if (title === presidentContest.title) {
-      userEvent.click(screen.getByText(presidentContest.candidates[0]!.name));
+      await userEvent.click(
+        screen.getByText(presidentContest.candidates[0]!.name)
+      );
     }
-    userEvent.click(screen.getByText('Next'));
+    await userEvent.click(screen.getByText('Next'));
   }
 
   const votes: VotesDict = {
@@ -348,13 +354,13 @@ test('a failed print ends the voter session', async () => {
     outcome: 'failed',
     reason: 'Unable to send data to printer.',
   });
-  userEvent.click(await screen.findByText(/Print My ballot/i));
+  await userEvent.click(await screen.findByText(/Print My ballot/i));
 
   await screen.findByText(/Printing Your Ballot/i);
   await screen.findByText('Ballot Not Printed');
 
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
-  userEvent.click(screen.getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
 
   apiMock.setAuthStatusLoggedOut();
   await screen.findByText('Insert Card');

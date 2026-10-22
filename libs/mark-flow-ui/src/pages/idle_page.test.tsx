@@ -1,5 +1,5 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   act,
   render,
@@ -34,7 +34,7 @@ test('shows a countdown when there is little time left', async () => {
 test('calls onDismiss when the button is clicked', async () => {
   const onDismiss = vi.fn();
   render(<IdlePage onDismiss={onDismiss} />);
-  userEvent.click(await screen.findByRole('button'));
+  await userEvent.click(await screen.findByRole('button'));
   expect(onDismiss).toHaveBeenCalled();
 });
 

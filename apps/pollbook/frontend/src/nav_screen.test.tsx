@@ -5,7 +5,7 @@ import {
   type PollbookServiceInfo,
 } from '@votingworks/pollbook-backend';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { screen, within } from '../test/react_testing_library.js';
 import { type ApiMock, createApiMock } from '../test/mock_api_client.js';
 import { DeviceStatusBar } from './nav_screen.js';
@@ -59,10 +59,10 @@ test('renders network status as expected - when unconfigured', async () => {
   expect(icons[0]!.getAttribute('data-icon')).toEqual('tower-broadcast');
   expect(icons[1]!.getAttribute('data-icon')).toEqual('triangle-exclamation');
 
-  userEvent.click(icons[0]!);
+  await userEvent.click(icons[0]!);
   await screen.findByText('Network Details');
   await screen.findByText('Network is offline.');
-  userEvent.click(screen.getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
 
   // Test setting the network online
   apiMock.setNetworkOnline([]);
@@ -73,10 +73,10 @@ test('renders network status as expected - when unconfigured', async () => {
     hidden: true,
   });
   expect(icon.getAttribute('data-icon')).toEqual('tower-broadcast');
-  userEvent.click(icon);
+  await userEvent.click(icon);
   await screen.findByText('Network Details');
   await screen.findByText('No poll books found.');
-  userEvent.click(screen.getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
   // Test with other pollbooks on the network
   apiMock.setNetworkOnline([
     {
@@ -113,7 +113,7 @@ test('renders network status as expected - when unconfigured', async () => {
   await within(networkElement).findByText('3');
 
   // Open the network modal
-  userEvent.click(icon);
+  await userEvent.click(icon);
   await screen.findByText('Network Details');
 
   // The table of pollbooks loads
@@ -165,7 +165,7 @@ test('renders network status as expected - when unconfigured', async () => {
   expect(iconElement4.getAttribute('data-icon')).toEqual('circle-exclamation');
   expect(within(pollbookRows[4]!).getByText('0005')).toBeInTheDocument();
 
-  userEvent.click(screen.getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
 });
 
 test('renders network status as expected - when configured', async () => {
@@ -186,10 +186,10 @@ test('renders network status as expected - when configured', async () => {
   expect(icons[0]!.getAttribute('data-icon')).toEqual('tower-broadcast');
   expect(icons[1]!.getAttribute('data-icon')).toEqual('triangle-exclamation');
 
-  userEvent.click(icons[0]!);
+  await userEvent.click(icons[0]!);
   await screen.findByText('Network Details');
   await screen.findByText('Network is offline.');
-  userEvent.click(screen.getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
 
   // Test setting the network online
   apiMock.setNetworkOnline([]);
@@ -200,10 +200,10 @@ test('renders network status as expected - when configured', async () => {
     hidden: true,
   });
   expect(icon.getAttribute('data-icon')).toEqual('tower-broadcast');
-  userEvent.click(icon);
+  await userEvent.click(icon);
   await screen.findByText('Network Details');
   await screen.findByText('No poll books found.');
-  userEvent.click(screen.getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
   // Test with other pollbooks on the network
   apiMock.setNetworkOnline([
     {
@@ -246,7 +246,7 @@ test('renders network status as expected - when configured', async () => {
   await within(networkElement).findByText('4');
 
   // Open the network modal
-  userEvent.click(icon);
+  await userEvent.click(icon);
   await screen.findByText('Network Details');
 
   // The table of pollbooks loads
@@ -327,7 +327,7 @@ test('renders network status as expected - when configured', async () => {
   expect(iconElement5.getAttribute('data-icon')).toEqual('circle-exclamation');
   expect(within(pollbookRows[5]!).getByText('0005')).toBeInTheDocument();
 
-  userEvent.click(screen.getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
 });
 
 test('renders barcode scanner status warning when scanner is disconnected', async () => {

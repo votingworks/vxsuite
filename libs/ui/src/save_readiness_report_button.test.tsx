@@ -48,7 +48,7 @@ test('USB drive not mounted', async () => {
     </QueryClientProvider>
   );
 
-  userEvent.click(screen.getButton('Save Readiness Report'));
+  await userEvent.click(screen.getButton('Save Readiness Report'));
   await screen.findByRole('heading', { name: 'No USB Drive Detected' });
   screen.getByText('Insert a USB drive in order to save the readiness report.');
   screen.getByAltText('usb'); // confirm passed USB image is displayed
@@ -61,19 +61,19 @@ test('happy path', async () => {
     </QueryClientProvider>
   );
 
-  userEvent.click(screen.getButton('Save Readiness Report'));
+  await userEvent.click(screen.getButton('Save Readiness Report'));
   await screen.findByRole('heading', { name: 'Save Readiness Report' });
 
   const { resolve, promise } = deferred<ExportDataResult>();
   mockMutate.mockReturnValue(promise);
-  userEvent.click(screen.getButton('Save'));
+  await userEvent.click(screen.getButton('Save'));
   await screen.findByText('Saving Report');
 
   resolve(ok(['mock-file.pdf']));
   await screen.findByRole('heading', { name: 'Readiness Report Saved' });
   screen.getByText(/mock-file.pdf/);
 
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
 });
 
 test('error path', async () => {
@@ -83,12 +83,12 @@ test('error path', async () => {
     </QueryClientProvider>
   );
 
-  userEvent.click(screen.getButton('Save Readiness Report'));
+  await userEvent.click(screen.getButton('Save Readiness Report'));
   await screen.findByRole('heading', { name: 'Save Readiness Report' });
 
   const { resolve, promise } = deferred<ExportDataResult>();
   mockMutate.mockReturnValue(promise);
-  userEvent.click(screen.getButton('Save'));
+  await userEvent.click(screen.getButton('Save'));
   await screen.findByText('Saving Report');
 
   resolve(
@@ -110,16 +110,16 @@ test('mutation resets on close', async () => {
     </QueryClientProvider>
   );
 
-  userEvent.click(screen.getButton('Save Readiness Report'));
+  await userEvent.click(screen.getButton('Save Readiness Report'));
   await screen.findByRole('heading', { name: 'Save Readiness Report' });
 
   mockMutate.mockResolvedValueOnce(ok(['mock-file.pdf']));
-  userEvent.click(screen.getButton('Save'));
+  await userEvent.click(screen.getButton('Save'));
   await screen.findByRole('heading', { name: 'Readiness Report Saved' });
   screen.getByText(/mock-file.pdf/);
 
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
 
-  userEvent.click(await screen.findButton('Save Readiness Report'));
+  await userEvent.click(await screen.findButton('Save Readiness Report'));
   await screen.findByRole('heading', { name: 'Save Readiness Report' });
 });

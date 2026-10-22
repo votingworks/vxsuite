@@ -12,7 +12,7 @@ test('renders all available voter settings tabs', () => {
   within(tabList).getByRole('tab', { name: 'Text Size', selected: true });
 });
 
-test('fires change event with settings pane id', () => {
+test('fires change event with settings pane id', async () => {
   const onChange = vi.fn();
   render(
     <TabBar
@@ -24,11 +24,15 @@ test('fires change event with settings pane id', () => {
 
   expect(onChange).not.toHaveBeenCalled();
 
-  userEvent.click(screen.getByRole('tab', { name: 'Color', selected: false }));
+  await userEvent.click(
+    screen.getByRole('tab', { name: 'Color', selected: false })
+  );
 
   expect(onChange).toHaveBeenCalledWith<[SettingsPaneId]>('voterSettingsColor');
 
-  userEvent.click(screen.getByRole('tab', { name: 'Audio', selected: false }));
+  await userEvent.click(
+    screen.getByRole('tab', { name: 'Audio', selected: false })
+  );
 
   expect(onChange).toHaveBeenCalledWith<[SettingsPaneId]>('voterSettingsAudio');
 });

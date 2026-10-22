@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   type ApiMock,
   createApiMock,
@@ -42,16 +42,18 @@ test('mark results as official', async () => {
   });
 
   // open and close modal
-  userEvent.click(screen.getButton(MARK_RESULTS_OFFICIAL_BUTTON_TEXT));
+  await userEvent.click(screen.getButton(MARK_RESULTS_OFFICIAL_BUTTON_TEXT));
   let modal = await screen.findByRole('alertdialog');
-  userEvent.click(within(modal).getButton('Cancel'));
+  await userEvent.click(within(modal).getButton('Cancel'));
   await vi.waitFor(() => expect(modal).not.toBeInTheDocument());
 
   // open and mark official
-  userEvent.click(screen.getButton(MARK_RESULTS_OFFICIAL_BUTTON_TEXT));
+  await userEvent.click(screen.getButton(MARK_RESULTS_OFFICIAL_BUTTON_TEXT));
   modal = await screen.findByRole('alertdialog');
   apiMock.expectMarkResultsOfficial();
-  userEvent.click(within(modal).getButton(MARK_RESULTS_OFFICIAL_BUTTON_TEXT));
+  await userEvent.click(
+    within(modal).getButton(MARK_RESULTS_OFFICIAL_BUTTON_TEXT)
+  );
   await vi.waitFor(() => expect(modal).not.toBeInTheDocument());
 });
 

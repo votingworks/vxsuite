@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { Route } from 'react-router-dom';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { screen } from '../../test/react_testing_library.js';
 
@@ -8,7 +8,7 @@ import { render } from '../../test/test_utils.js';
 
 import { NotFoundPage } from './not_found_page.js';
 
-test('renders NotFoundPage', () => {
+test('renders NotFoundPage', async () => {
   const resetBallot = vi.fn();
   render(<Route path="/" component={NotFoundPage} />, {
     resetBallot,
@@ -18,6 +18,6 @@ test('renders NotFoundPage', () => {
   screen.getByText(
     hasTextAcrossElements('No page exists at /foobar-not-found-path.')
   );
-  userEvent.click(screen.getByText('Start Over'));
+  await userEvent.click(screen.getByText('Start Over'));
   expect(resetBallot).toHaveBeenCalled();
 });

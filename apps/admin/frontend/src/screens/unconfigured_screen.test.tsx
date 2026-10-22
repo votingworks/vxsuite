@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { mockKiosk } from '@votingworks/test-utils';
 import { deferred, err, ok } from '@votingworks/basics';
 import { BooleanEnvironmentVariableName } from '@votingworks/utils';
@@ -109,7 +109,7 @@ test('configures from election packages on USB drive', async () => {
   apiMock.apiClient.configure
     .expectCallWith({ electionFilePath: electionPackages[0]!.path })
     .returns(configure.promise);
-  userEvent.click(screen.getByText('election-package-1.zip'));
+  await userEvent.click(screen.getByText('election-package-1.zip'));
   await waitFor(() =>
     expect(screen.getButton('Restore from Backup...')).toBeDisabled()
   );
@@ -134,7 +134,7 @@ test('configures from selected file', async () => {
   await screen.findByRole('heading', { name: 'Election' });
 
   apiMock.expectConfigure('/path/to/election-package.zip');
-  userEvent.click(screen.getButton('Select Other File...'));
+  await userEvent.click(screen.getButton('Select Other File...'));
   await vi.waitFor(() => apiMock.assertComplete());
   expect(kiosk.showOpenDialog).toHaveBeenCalledWith({
     properties: ['openFile'],
@@ -161,7 +161,7 @@ test('allows configuring from json in development', async () => {
   await screen.findByRole('heading', { name: 'Election' });
 
   apiMock.expectConfigure('/path/to/election-definition.json');
-  userEvent.click(screen.getButton('Select Other File...'));
+  await userEvent.click(screen.getButton('Select Other File...'));
   await vi.waitFor(() => apiMock.assertComplete());
   expect(kiosk.showOpenDialog).toHaveBeenCalledWith({
     properties: ['openFile'],
@@ -191,7 +191,7 @@ test('shows configuration error', async () => {
         message: 'Bad zip',
       })
     );
-  userEvent.click(screen.getByText('election-package.zip'));
+  await userEvent.click(screen.getByText('election-package.zip'));
   await screen.findByText('Invalid election package zip file.');
 
   apiMock.apiClient.configure
@@ -202,7 +202,7 @@ test('shows configuration error', async () => {
         message: 'Bad election',
       })
     );
-  userEvent.click(screen.getByText('election-package.zip'));
+  await userEvent.click(screen.getByText('election-package.zip'));
   await screen.findByText('Invalid election definition file.');
 
   apiMock.apiClient.configure
@@ -213,7 +213,7 @@ test('shows configuration error', async () => {
         message: 'Bad system settings',
       })
     );
-  userEvent.click(screen.getByText('election-package.zip'));
+  await userEvent.click(screen.getByText('election-package.zip'));
   await screen.findByText('Invalid system settings file.');
 
   apiMock.apiClient.configure
@@ -224,7 +224,7 @@ test('shows configuration error', async () => {
         message: 'Bad metatdata',
       })
     );
-  userEvent.click(screen.getByText('election-package.zip'));
+  await userEvent.click(screen.getByText('election-package.zip'));
   await screen.findByText('Invalid metadata file.');
 });
 
@@ -240,7 +240,7 @@ test('has Restore from Backup button when no USB drive inserted', async () => {
   });
   await screen.findByText('Insert a USB drive containing an election package');
 
-  userEvent.click(screen.getButton('Restore from Backup...'));
+  await userEvent.click(screen.getButton('Restore from Backup...'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Enter Restore Mode');
   within(modal).getByText(
@@ -251,7 +251,7 @@ test('has Restore from Backup button when no USB drive inserted', async () => {
   apiMock.apiClient.rebootInRestoreMode
     .expectCallWith()
     .returns(reboot.promise);
-  userEvent.click(within(modal).getButton('Restart in Restore Mode'));
+  await userEvent.click(within(modal).getButton('Restart in Restore Mode'));
   await waitFor(() =>
     expect(within(modal).getButton('Restart in Restore Mode')).toBeDisabled()
   );
@@ -273,9 +273,9 @@ test('has Restore from Backup button with election package list', async () => {
     'No election packages found on the inserted USB drive.'
   );
 
-  userEvent.click(screen.getButton('Restore from Backup...'));
+  await userEvent.click(screen.getButton('Restore from Backup...'));
   const modal = await screen.findByRole('alertdialog');
-  userEvent.click(within(modal).getButton('Cancel'));
+  await userEvent.click(within(modal).getButton('Cancel'));
   await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );

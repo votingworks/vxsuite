@@ -6,7 +6,7 @@ import {
 } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { screen } from '../../test/react_testing_library.js';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config.js';
 
@@ -33,7 +33,7 @@ test('Renders ContestScreen', () => {
   screen.getByRole('button', { name: 'Settings' });
 });
 
-test('View All button navigates to review page', () => {
+test('View All button navigates to review page', async () => {
   const history = createMemoryHistory({ initialEntries: ['/contests/0'] });
 
   renderWithBallotContext(
@@ -46,7 +46,7 @@ test('View All button navigates to review page', () => {
     }
   );
 
-  userEvent.click(screen.getButton(/view all/i));
+  await userEvent.click(screen.getButton(/view all/i));
   expect(history.location.pathname).toEqual('/review');
   expect(history.location.search).toEqual('?fromContest=0');
 });
@@ -126,7 +126,7 @@ test('renders as voter screen', () => {
   screen.getByTestId(MARK_FLOW_UI_VOTER_SCREEN_TEST_ID);
 });
 
-test('Back from first contest goes to start screen when no party selected', () => {
+test('Back from first contest goes to start screen when no party selected', async () => {
   const history = createMemoryHistory({ initialEntries: ['/contests/0'] });
 
   renderWithBallotContext(
@@ -139,11 +139,11 @@ test('Back from first contest goes to start screen when no party selected', () =
     }
   );
 
-  userEvent.click(screen.getButton(/back/i));
+  await userEvent.click(screen.getButton(/back/i));
   expect(history.location.pathname).toEqual('/');
 });
 
-test('Back from first contest goes to party selection when a party is selected', () => {
+test('Back from first contest goes to party selection when a party is selected', async () => {
   const electionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const history = createMemoryHistory({ initialEntries: ['/contests/0'] });
@@ -161,6 +161,6 @@ test('Back from first contest goes to party selection when a party is selected',
     }
   );
 
-  userEvent.click(screen.getButton(/back/i));
+  await userEvent.click(screen.getButton(/back/i));
   expect(history.location.pathname).toEqual('/party-selection');
 });

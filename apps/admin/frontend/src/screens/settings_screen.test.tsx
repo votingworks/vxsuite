@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import type { BooleanEnvironmentVariableName } from '@votingworks/utils';
 import {
   mockElectionManagerUser,
@@ -65,10 +65,15 @@ describe('as System Admin', () => {
     screen.getByRole('heading', { name: 'Date and Time' });
 
     // Clock setting is tested fully in libs/ui/src/set_clock.test.tsx
-    userEvent.click(screen.getByRole('button', { name: 'Set Date and Time' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Set Date and Time' })
+    );
     const modal = screen.getByRole('alertdialog');
     within(modal).getByText('Wed, Jun 22, 2022, 12:00 AM AKDT');
-    userEvent.selectOptions(within(modal).getByTestId('selectYear'), '2023');
+    await userEvent.selectOptions(
+      within(modal).getByTestId('selectYear'),
+      '2023'
+    );
     apiMock.apiClient.setClock
       .expectCallWith({
         isoDatetime: '2023-06-22T00:00:00.000-08:00',
@@ -76,7 +81,7 @@ describe('as System Admin', () => {
       })
       .resolves();
     apiMock.expectLogOut();
-    userEvent.click(within(modal).getByRole('button', { name: 'Save' }));
+    await userEvent.click(within(modal).getByRole('button', { name: 'Save' }));
     await vi.waitFor(() => {
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     });
@@ -95,10 +100,10 @@ describe('as System Admin', () => {
       .resolves(ok());
 
     // Log saving is tested fully in src/components/export_logs_modal.test.tsx
-    userEvent.click(screen.getButton('Save Logs'));
+    await userEvent.click(screen.getButton('Save Logs'));
     await screen.findByText('Select a log format:');
-    userEvent.click(screen.getButton('Save'));
-    userEvent.click(await screen.findButton('Close'));
+    await userEvent.click(screen.getButton('Save'));
+    await userEvent.click(await screen.findButton('Close'));
     await vi.waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
@@ -164,7 +169,7 @@ describe('multi-station mode', () => {
     apiMock.apiClient.setMachineMode
       .expectCallWith({ mode: 'client' })
       .resolves();
-    userEvent.click(
+    await userEvent.click(
       await screen.findByRole('button', {
         name: 'Switch to Adjudication Station Mode',
       })
@@ -186,11 +191,13 @@ describe('as election manager', () => {
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 
-  test('Date and time', () => {
+  test('Date and time', async () => {
     renderInAppContext(<SettingsScreen />, { apiMock, auth });
     screen.getByRole('heading', { name: 'Date and Time' });
-    userEvent.click(screen.getByRole('button', { name: 'Set Date and Time' }));
-    userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Set Date and Time' })
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     // Clock setting is tested fully in libs/ui/src/set_clock.test.tsx
 
     // Shouldn't have System-Admin-only sections
@@ -214,10 +221,10 @@ describe('as election manager', () => {
       .resolves(ok());
 
     // Log saving is tested fully in src/components/export_logs_modal.test.tsx
-    userEvent.click(screen.getButton('Save Logs'));
+    await userEvent.click(screen.getButton('Save Logs'));
     await screen.findByText('Select a log format:');
-    userEvent.click(screen.getButton('Save'));
-    userEvent.click(await screen.findButton('Close'));
+    await userEvent.click(screen.getButton('Save'));
+    await userEvent.click(await screen.findButton('Close'));
     await vi.waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, test, vi } from 'vitest';
 
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { anyPollingPlace } from '@votingworks/types';
 import {
@@ -60,7 +60,7 @@ test('Single Seat Contest', async () => {
   });
 
   // Go to First Contest
-  userEvent.click(await screen.findByText('Start Voting'));
+  await userEvent.click(await screen.findByText('Start Voting'));
   await advanceTimersAndPromises();
 
   // ====================== END CONTEST SETUP ====================== //

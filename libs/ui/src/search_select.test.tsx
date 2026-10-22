@@ -56,7 +56,7 @@ function ControlledMultiSelect({
   );
 }
 
-test('single and not searchable', () => {
+test('single and not searchable', async () => {
   render(
     <ControlledSingleSelect
       isSearchable={false}
@@ -77,7 +77,7 @@ test('single and not searchable', () => {
   }
 
   // open dropdown using arrow
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('button', {
       hidden: true,
     })
@@ -87,7 +87,7 @@ test('single and not searchable', () => {
   }
 
   // close dropdown using arrow
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('button', {
       hidden: true,
     })
@@ -99,23 +99,23 @@ test('single and not searchable', () => {
   screen.getByText('Pick a fruit');
 
   // open dropdown by clicking input
-  userEvent.click(screen.getByLabelText('Choose Fruit'));
+  await userEvent.click(screen.getByLabelText('Choose Fruit'));
   for (const option of options) {
     screen.getByRole('option', { name: option.label });
   }
 
   // make selection, which should close dropdown and hide other options
-  userEvent.click(screen.getByText('Apple'));
+  await userEvent.click(screen.getByText('Apple'));
   expect(screen.queryByText('Banana')).not.toBeInTheDocument();
   screen.getByText('Apple');
 
   // typing should do nothing
-  userEvent.click(screen.getByText('Apple'));
-  userEvent.keyboard('Papaya');
+  await userEvent.click(screen.getByText('Apple'));
+  await userEvent.keyboard('Papaya');
   expect(screen.queryByText('Papaya')).not.toBeInTheDocument();
 
   // make another selection
-  userEvent.click(screen.getByRole('option', { name: 'Banana' }));
+  await userEvent.click(screen.getByRole('option', { name: 'Banana' }));
   expect(screen.queryByText('Apple')).not.toBeInTheDocument();
   screen.getByText('Banana');
 });
@@ -135,13 +135,13 @@ test('single and searchable', async () => {
   }
 
   // open dropdown
-  userEvent.click(screen.getByLabelText('Choose Fruit'));
+  await userEvent.click(screen.getByLabelText('Choose Fruit'));
   for (const option of options) {
     await screen.findByRole('option', { name: option.label });
   }
 
   // narrow search
-  userEvent.keyboard('ap');
+  await userEvent.keyboard('ap');
   await screen.findByText('Apple');
   await screen.findByText('Grape');
   expect(screen.queryByText('Banana')).not.toBeInTheDocument();
@@ -149,23 +149,23 @@ test('single and searchable', async () => {
   expect(screen.queryByText('Pear')).not.toBeInTheDocument();
 
   // narrow search too far
-  userEvent.keyboard('w');
+  await userEvent.keyboard('w');
   for (const option of options) {
     expect(screen.queryByText(option.label)).not.toBeInTheDocument();
   }
   screen.getByText('No options');
 
   // fix search
-  userEvent.keyboard('{Backspace}');
-  userEvent.click(screen.getByText('Apple'));
+  await userEvent.keyboard('{Backspace}');
+  await userEvent.click(screen.getByText('Apple'));
   screen.getByText('Apple');
 
   // we can search after the selection, and re-select
-  userEvent.click(screen.getByText('Apple'));
-  userEvent.keyboard('pea');
+  await userEvent.click(screen.getByText('Apple'));
+  await userEvent.keyboard('pea');
   screen.getByText('Pear');
   expect(screen.queryByText('Apple')).not.toBeInTheDocument();
-  userEvent.click(screen.getByText('Pear'));
+  await userEvent.click(screen.getByText('Pear'));
   screen.getByText('Pear');
 });
 
@@ -183,7 +183,7 @@ test('single disabled', () => {
   screen.getByText('Apple');
 });
 
-test('multi and not searchable', () => {
+test('multi and not searchable', async () => {
   render(
     <ControlledMultiSelect
       isSearchable={false}
@@ -200,25 +200,25 @@ test('multi and not searchable', () => {
   }
 
   // open dropdown
-  userEvent.click(screen.getByLabelText('Choose Fruit'));
+  await userEvent.click(screen.getByLabelText('Choose Fruit'));
   for (const option of options) {
     screen.getByRole('option', { name: option.label });
   }
 
   // make selection, which should close dropdown and show selection
-  userEvent.click(screen.getByText('Apple'));
+  await userEvent.click(screen.getByText('Apple'));
   expect(screen.queryByText('Banana')).not.toBeInTheDocument();
   screen.getByText('Apple');
 
   // re-open dropdown and make additional selection, so two values are selected
-  userEvent.click(screen.getByLabelText('Choose Fruit'));
-  userEvent.click(screen.getByText('Banana'));
+  await userEvent.click(screen.getByLabelText('Choose Fruit'));
+  await userEvent.click(screen.getByText('Banana'));
   screen.getByText('Apple');
   screen.getByText('Banana');
   expect(screen.queryByText('Grape')).not.toBeInTheDocument();
 
   // remove a selection
-  userEvent.click(screen.getByLabelText('Remove Apple'));
+  await userEvent.click(screen.getByLabelText('Remove Apple'));
   screen.getByText('Banana');
   expect(screen.queryByText('Apple')).not.toBeInTheDocument();
 });
@@ -238,13 +238,13 @@ test('multi and searchable', async () => {
   }
 
   // open dropdown
-  userEvent.click(screen.getByLabelText('Choose Fruit'));
+  await userEvent.click(screen.getByLabelText('Choose Fruit'));
   for (const option of options) {
     await screen.findByRole('option', { name: option.label });
   }
 
   // narrow search
-  userEvent.keyboard('ap');
+  await userEvent.keyboard('ap');
   await screen.findByText('Apple');
   await screen.findByText('Grape');
   expect(screen.queryByText('Banana')).not.toBeInTheDocument();
@@ -252,22 +252,22 @@ test('multi and searchable', async () => {
   expect(screen.queryByText('Pear')).not.toBeInTheDocument();
 
   // narrow search too far
-  userEvent.keyboard('w');
+  await userEvent.keyboard('w');
   for (const option of options) {
     expect(screen.queryByText(option.label)).not.toBeInTheDocument();
   }
   screen.getByText('No options');
 
   // fix search
-  userEvent.keyboard('{Backspace}');
-  userEvent.click(screen.getByText('Apple'));
+  await userEvent.keyboard('{Backspace}');
+  await userEvent.click(screen.getByText('Apple'));
   screen.getByText('Apple');
 
   // search for second selection
-  userEvent.click(screen.getByLabelText('Choose Fruit'));
-  userEvent.keyboard('bana');
+  await userEvent.click(screen.getByLabelText('Choose Fruit'));
+  await userEvent.keyboard('bana');
   screen.getByText('Banana');
-  userEvent.click(screen.getByText('Banana'));
+  await userEvent.click(screen.getByText('Banana'));
 });
 
 test('multi disabled', () => {
@@ -285,7 +285,7 @@ test('multi disabled', () => {
   screen.getByText('Pear');
 });
 
-test('empty option', () => {
+test('empty option', async () => {
   render(
     <ControlledSingleSelect
       options={[{ value: '', label: 'None' }, ...options]}
@@ -295,13 +295,13 @@ test('empty option', () => {
   );
 
   screen.getByText('Apple');
-  userEvent.click(screen.getByText('Apple'));
-  userEvent.click(screen.getByText('None'));
+  await userEvent.click(screen.getByText('Apple'));
+  await userEvent.click(screen.getByText('None'));
   expect(screen.queryByText('Apple')).not.toBeInTheDocument();
   screen.getByText('None');
 });
 
-test('complex value type uses deep equality', () => {
+test('complex value type uses deep equality', async () => {
   render(
     <ControlledSingleSelect
       options={[
@@ -314,8 +314,8 @@ test('complex value type uses deep equality', () => {
   );
 
   screen.getByText('Red Apple');
-  userEvent.click(screen.getByText('Red Apple'));
-  userEvent.click(screen.getByText('Green Apple'));
+  await userEvent.click(screen.getByText('Red Apple'));
+  await userEvent.click(screen.getByText('Green Apple'));
   screen.getByText('Green Apple');
   expect(screen.queryByText('Red Apple')).not.toBeInTheDocument();
 });
@@ -352,13 +352,13 @@ test('dropdown arrow opens and closes the menu on touchscreens', () => {
   }
 });
 
-test('a11y', () => {
+test('a11y', async () => {
   render(
     <ControlledSingleSelect options={options} aria-label="Choose Fruit" />
   );
 
   const combobox = screen.getByRole('combobox', { name: 'Choose Fruit' });
-  userEvent.click(combobox);
+  await userEvent.click(combobox);
   const listbox = screen.getByRole('listbox');
   expect(combobox).toHaveAttribute('aria-expanded', 'true');
   expect(combobox).toHaveAttribute('aria-controls', listbox.id);
@@ -368,7 +368,7 @@ test('a11y', () => {
     name: 'Apple',
     selected: false,
   });
-  userEvent.click(appleOption);
+  await userEvent.click(appleOption);
   expect(combobox).toHaveAttribute('aria-expanded', 'false');
   // Note: since menu is closed, options are removed from DOM, so we can't test
   // aria-selected="true" here

@@ -16,19 +16,19 @@ test('calls logOutcome & closes modal on user confirmation', async () => {
     <UpsDiagnosticModalButton isLoading={false} logOutcome={logOutcome} />
   );
 
-  userEvent.click(screen.getButton('Test Uninterruptible Power Supply'));
+  await userEvent.click(screen.getButton('Test Uninterruptible Power Supply'));
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).toBeInTheDocument()
   );
-  userEvent.click(screen.getButton('Yes'));
+  await userEvent.click(screen.getButton('Yes'));
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
   expect(logOutcome).toHaveBeenCalledWith({ outcome: 'pass' });
 
   // Re-open the modal to test the "No" path:
-  userEvent.click(screen.getButton('Test Uninterruptible Power Supply'));
-  userEvent.click(screen.getButton('No'));
+  await userEvent.click(screen.getButton('Test Uninterruptible Power Supply'));
+  await userEvent.click(screen.getButton('No'));
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );

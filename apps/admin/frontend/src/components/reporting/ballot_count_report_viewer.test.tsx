@@ -3,7 +3,7 @@ import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { BallotCountReportSpec } from '@votingworks/admin-backend';
 import { ok } from '@votingworks/basics';
@@ -122,7 +122,7 @@ test('when auto-generation is off, it requires a button press to load the report
     pdfContent: 'Unofficial Full Election Ballot Count Report',
   });
 
-  userEvent.click(screen.getButton('Generate Report'));
+  await userEvent.click(screen.getButton('Generate Report'));
   await screen.findByText('Unofficial Full Election Ballot Count Report');
   expect(screen.getButton('Generate Report')).toBeDisabled();
   for (const buttonLabel of ACTION_BUTTON_LABELS) {
@@ -239,7 +239,7 @@ test('printing report', async () => {
     returnValue: undefined,
     deferred: true,
   });
-  userEvent.click(screen.getButton('Print Report'));
+  await userEvent.click(screen.getButton('Print Report'));
   const modal = await screen.findByRole('alertdialog');
   await within(modal).findByText('Printing');
   resolve();
@@ -286,7 +286,7 @@ test('exporting PDF', async () => {
 
   await screen.findByText('Unofficial Full Election Ballot Count Report');
 
-  userEvent.click(screen.getButton('Export Report PDF'));
+  await userEvent.click(screen.getButton('Export Report PDF'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Save Ballot Count Report');
   within(modal).getByText(
@@ -301,7 +301,7 @@ test('exporting PDF', async () => {
     returnValue: ok([]),
     deferred: true,
   });
-  userEvent.click(within(modal).getButton('Save'));
+  await userEvent.click(within(modal).getButton('Save'));
   await screen.findByText('Saving Ballot Count Report');
   resolve();
   await screen.findByText('Ballot Count Report Saved');
@@ -344,7 +344,7 @@ test('exporting CSV', async () => {
 
   await screen.findByText('Unofficial Full Election Ballot Count Report');
 
-  userEvent.click(screen.getButton('Export Report CSV'));
+  await userEvent.click(screen.getButton('Export Report CSV'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Save Ballot Count Report');
   within(modal).getByText(
@@ -359,7 +359,7 @@ test('exporting CSV', async () => {
     returnValue: ok([]),
     deferred: true,
   });
-  userEvent.click(within(modal).getButton('Save'));
+  await userEvent.click(within(modal).getButton('Save'));
   await screen.findByText('Saving Ballot Count Report');
   resolve();
   await screen.findByText('Ballot Count Report Saved');

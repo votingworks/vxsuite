@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   render,
   within,
@@ -54,7 +54,7 @@ test('vendor screen', async () => {
 
   // Test "Lock Machine" button
   apiMock.expectLogOut();
-  userEvent.click(lockMachineButton);
+  await userEvent.click(lockMachineButton);
   apiMock.setAuthStatus({ status: 'logged_out', reason: 'machine_locked' });
   await screen.findByText(lockScreenText);
 
@@ -62,7 +62,7 @@ test('vendor screen', async () => {
   await apiMock.authenticateAsVendor(lockScreenText);
   const rebootButton = await screen.findButton('Reboot to Vendor Menu');
   apiMock.expectRebootToVendorMenu();
-  userEvent.click(rebootButton);
+  await userEvent.click(rebootButton);
 });
 
 test('vendor screen unconfigure is disabled while a batch is open', async () => {
@@ -91,7 +91,7 @@ test('vendor screen unconfigure', async () => {
   await apiMock.authenticateAsVendor();
   const unconfigureButton = await screen.findButton('Unconfigure Machine');
 
-  userEvent.click(unconfigureButton);
+  await userEvent.click(unconfigureButton);
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Unconfigure Machine' });
 
@@ -101,7 +101,7 @@ test('vendor screen unconfigure', async () => {
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetTestMode(true);
   apiMock.setStatus();
-  userEvent.click(
+  await userEvent.click(
     within(modal).getByRole('button', { name: 'Delete All Election Data' })
   );
 

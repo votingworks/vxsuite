@@ -3,7 +3,7 @@ import {
   electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import type { BallotStyleId, PollingPlace } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { fireEvent, render, screen } from '../test/react_testing_library.js';
@@ -68,7 +68,7 @@ test('Cardless Voting Flow', async () => {
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   apiMock.expectSetAcceptingPaperState();
-  userEvent.click(screen.getButton('Center Springfield'));
+  await userEvent.click(screen.getButton('Center Springfield'));
 
   apiMock.setPaperHandlerState('accepting_paper');
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
@@ -84,7 +84,7 @@ test('Cardless Voting Flow', async () => {
   // Poll worker cancels
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
   const cancelButton = await screen.findByText('Cancel Voting Session');
-  userEvent.click(cancelButton);
+  await userEvent.click(cancelButton);
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await screen.findByText('Start a New Voting Session');
 
@@ -93,7 +93,7 @@ test('Cardless Voting Flow', async () => {
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   apiMock.expectSetAcceptingPaperState();
-  userEvent.click(screen.getButton('Center Springfield'));
+  await userEvent.click(screen.getButton('Center Springfield'));
 
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
@@ -142,7 +142,7 @@ test('Cardless Voting Flow', async () => {
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   apiMock.expectSetAcceptingPaperState();
-  userEvent.click(screen.getButton('Center Springfield'));
+  await userEvent.click(screen.getButton('Center Springfield'));
 
   mockLoadPaper();
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
@@ -200,7 +200,7 @@ test('Cardless Voting Flow', async () => {
   await screen.findByText('Review Your Votes');
   apiMock.expectValidateBallot();
   apiMock.expectGetInterpretation(mockInterpretation);
-  userEvent.click(screen.getByText('Cast My Ballot'));
+  await userEvent.click(screen.getByText('Cast My Ballot'));
 
   apiMock.setPaperHandlerState('ejecting_to_rear');
   await screen.findByText('Casting Ballot...');
@@ -246,13 +246,13 @@ test('in multi-precinct location, poll worker must select a precinct', async () 
   // Activate Voter Session for Cardless Voter
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await screen.findByText('Start a New Voting Session');
-  userEvent.click(screen.getByText('Select ballot style…'));
+  await userEvent.click(screen.getByText('Select ballot style…'));
 
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
   apiMock.expectSetAcceptingPaperState();
-  userEvent.click(screen.getByText('Center Springfield'));
+  await userEvent.click(screen.getByText('Center Springfield'));
 
   apiMock.setPaperHandlerState('accepting_paper');
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
@@ -284,13 +284,13 @@ test('selecting a precinct split', async () => {
   // Activate Voter Session for Cardless Voter
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await screen.findByText('Start a New Voting Session');
-  userEvent.click(screen.getByText('Select ballot style…'));
+  await userEvent.click(screen.getByText('Select ballot style…'));
 
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '5', precinctId: '21' })
     .resolves();
   apiMock.expectSetAcceptingPaperState();
-  userEvent.click(screen.getByText('North Springfield - Split 1'));
+  await userEvent.click(screen.getByText('North Springfield - Split 1'));
 
   apiMock.setPaperHandlerState('accepting_paper');
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
@@ -347,14 +347,14 @@ test('primary election', async () => {
   // Activate Voter Session for Cardless Voter
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   await screen.findByText('Start a New Voting Session');
-  userEvent.click(screen.getByText("Select voter's precinct…"));
-  userEvent.click(screen.getByText('Precinct 4 - Split 1'));
+  await userEvent.click(screen.getByText("Select voter's precinct…"));
+  await userEvent.click(screen.getByText('Precinct 4 - Split 1'));
 
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith(expectedCardlessVoterArgs)
     .resolves();
   apiMock.expectSetAcceptingPaperState();
-  userEvent.click(screen.getButton('Mammal'));
+  await userEvent.click(screen.getButton('Mammal'));
 
   apiMock.setPaperHandlerState('accepting_paper');
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {

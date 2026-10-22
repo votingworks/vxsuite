@@ -1,5 +1,5 @@
 import { expect, test, beforeEach, afterEach, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import type {
   AamvaDocument,
   VoterSearchParams,
@@ -103,7 +103,7 @@ test('shows a message when the barcode scanner client reports an unknown documen
   screen.getByText(
     'Unable to read the scanned barcode. Please try scanning again or enter the name manually.'
   );
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
 
   // Recommended pattern per github.com/vitest-dev/vitest/discussions/6560
   await expect
@@ -184,7 +184,7 @@ test('after an ID scan with "hidden" fields, shows full name and "Edit Search" b
     [mockVoter, otherMockVoter]
   );
 
-  userEvent.click(editSearchButton);
+  await userEvent.click(editSearchButton);
 
   // After clicking button, full name input and "Edit Search" button should not be rendered
   expect(screen.queryByTestId('scanned-id-input')).toBeNull();

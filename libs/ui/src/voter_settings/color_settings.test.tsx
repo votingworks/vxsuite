@@ -56,7 +56,7 @@ test('renders with specified color options', () => {
   });
 });
 
-test('option selections trigger theme updates', () => {
+test('option selections trigger theme updates', async () => {
   let currentTheme: UiTheme | null = null;
 
   function TestComponent(): JSX.Element {
@@ -86,7 +86,7 @@ test('option selections trigger theme updates', () => {
     })
   );
 
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('radio', { name: /gray text.+dark background/i })
   );
 

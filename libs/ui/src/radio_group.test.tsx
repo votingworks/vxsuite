@@ -4,7 +4,7 @@ import { render, screen, within } from '../test/react_testing_library.js';
 import { RadioGroup } from './index.js';
 import { makeTheme } from './themes/make_theme.js';
 
-test('renders all provided options', () => {
+test('renders all provided options', async () => {
   const onChange = vi.fn();
 
   render(
@@ -31,11 +31,13 @@ test('renders all provided options', () => {
   withinGroup.getByRole('radio', { name: 'Jack of Diamonds', checked: true });
   withinGroup.getByRole('radio', { name: 'Two of Spades', checked: false });
 
-  userEvent.click(withinGroup.getByRole('radio', { name: 'Four of Hearts' }));
+  await userEvent.click(
+    withinGroup.getByRole('radio', { name: 'Four of Hearts' })
+  );
   expect(onChange).toBeCalledWith('hearts-4');
 });
 
-test('disabled', () => {
+test('disabled', async () => {
   const onChange = vi.fn();
 
   render(
@@ -52,7 +54,7 @@ test('disabled', () => {
   );
 
   const disabledOption = screen.getByRole('radio', { name: 'Six of Clubs' });
-  userEvent.click(disabledOption);
+  await userEvent.click(disabledOption);
 
   expect(onChange).not.toHaveBeenCalled();
 });
@@ -121,7 +123,7 @@ test('forwards className for styled-components support', () => {
   );
 });
 
-test('works with accessible controller interaction pattern', () => {
+test('works with accessible controller interaction pattern', async () => {
   const onChange = vi.fn();
 
   render(
@@ -143,11 +145,11 @@ test('works with accessible controller interaction pattern', () => {
   expect(screen.getAllByRole('radio', { hidden: true })).toHaveLength(2);
 
   screen.getButton('Jack of Diamonds');
-  userEvent.click(screen.getButton('Four of Hearts'));
+  await userEvent.click(screen.getButton('Four of Hearts'));
   expect(onChange).toBeCalledWith('hearts-4');
 });
 
-test('does not fire onChange when re-selecting current option (native radio input)', () => {
+test('does not fire onChange when re-selecting current option (native radio input)', async () => {
   const onChange = vi.fn();
 
   render(
@@ -162,13 +164,13 @@ test('does not fire onChange when re-selecting current option (native radio inpu
     />
   );
 
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('radio', { name: 'Jack of Diamonds', checked: true })
   );
   expect(onChange).not.toHaveBeenCalled();
 });
 
-test('does not fire onChange when re-selecting current option (touchscreen)', () => {
+test('does not fire onChange when re-selecting current option (touchscreen)', async () => {
   const onChange = vi.fn();
 
   render(
@@ -184,6 +186,6 @@ test('does not fire onChange when re-selecting current option (touchscreen)', ()
     { vxTheme: { screenType: 'elo15' } }
   );
 
-  userEvent.click(screen.getButton('Jack of Diamonds'));
+  await userEvent.click(screen.getButton('Jack of Diamonds'));
   expect(onChange).not.toHaveBeenCalled();
 });

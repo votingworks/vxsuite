@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, test } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { screen } from '../../test/react_testing_library.js';
 import { render } from '../../test/test_utils.js';
 import {
@@ -19,7 +19,7 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-test('continue button', () => {
+test('continue button', async () => {
   render(
     <ApiProvider apiClient={apiMock.mockApiClient} noAudio>
       <RemoveInvalidatedBallotPage paperPresent={false} />
@@ -28,5 +28,5 @@ test('continue button', () => {
 
   apiMock.expectConfirmInvalidateBallot();
 
-  userEvent.click(screen.getByText('Continue'));
+  await userEvent.click(screen.getByText('Continue'));
 });

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, test } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { App } from './app.js';
 import { render, screen } from '../test/react_testing_library.js';
 import {
@@ -23,10 +23,10 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-test('renders overlay when audio-only mode is enabled', () => {
+test('renders overlay when audio-only mode is enabled', async () => {
   render(<App apiClient={apiMock.mockApiClient} />, {
     vxTheme: { isVisualModeDisabled: true },
   });
 
-  userEvent.click(screen.getByText('Exit Audio-Only Mode'));
+  await userEvent.click(screen.getByText('Exit Audio-Only Mode'));
 });
