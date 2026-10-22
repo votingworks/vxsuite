@@ -47,12 +47,12 @@ export function createDocument(pageHandle: PageHandle) {
         ReactDomServer.renderToString(<>{style}</>) + elementHtml;
       // Using the Playwright API to query/manipulate the DOM is much slower
       // than running JS directly in the browser. We use `evaluate` to run the
-      // given function in the browser and return the result.
+      // given function in the browser.
       /* istanbul ignore next - code is evaluated in browser and doesn't work with coverage */
       /* eslint-disable no-restricted-globals -- runs in the browser */
       await pageHandle.page().evaluate(
         // eslint-disable-next-line @typescript-eslint/no-shadow
-        ([selector, content]) => {
+        async ([selector, content]) => {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const node = document.querySelector(selector!);
           if (!node) {
@@ -62,20 +62,10 @@ export function createDocument(pageHandle: PageHandle) {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           node.innerHTML = content!;
 
-          // After we set the innerHTML, we need to wait for the DOM to finish
-          // updating with the new content.
+          // Reading layout forces fonts to start loading.
+          node.getBoundingClientRect();
+          const fontsPromise = document.fonts.ready;
 
-          // requestAnimationFrame will call the supplied callback before the
-          // next repaint, so we call it twice to wait for exactly one repaint
-          // to occur.
-          const repaintPromise = new Promise<void>((resolve) => {
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => {
-                resolve();
-              });
-            });
-          });
-          // We also wait for all images to load.
           const imagesLoadPromise = Promise.all(
             Array.from(node.querySelectorAll('img')).map((img) => {
               if (img.complete) {
@@ -88,7 +78,9 @@ export function createDocument(pageHandle: PageHandle) {
             })
           );
 
-          return Promise.all([repaintPromise, imagesLoadPromise]);
+          // Only return once we're sure that fonts and images have settled so
+          // callers can be sure it's safe to use.
+          await Promise.all([fontsPromise, imagesLoadPromise]);
         },
         [selector, htmlContent]
       );
