@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { sleep } from '@votingworks/basics';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import {
   render,
   screen,
@@ -23,21 +23,25 @@ test('UnconfigureMachineButton interactions', async () => {
   render(<UnconfigureMachineButton unconfigureMachine={unconfigureMachine} />);
 
   // Cancel the first time
-  userEvent.click(screen.getByRole('button', { name: 'Unconfigure Machine' }));
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Unconfigure Machine' })
+  );
   let modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', {
     name: 'Unconfigure Machine',
   });
-  userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
   await waitFor(() => expect(modal).not.toBeInTheDocument());
 
   // Proceed the second time
-  userEvent.click(screen.getByRole('button', { name: 'Unconfigure Machine' }));
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Unconfigure Machine' })
+  );
   modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', {
     name: 'Unconfigure Machine',
   });
-  userEvent.click(
+  await userEvent.click(
     within(modal).getByRole('button', {
       name: 'Delete All Election Data',
     })
@@ -64,9 +68,11 @@ test('UnconfigureMachineButton does not sleep when not necessary', async () => {
   });
   render(<UnconfigureMachineButton unconfigureMachine={unconfigureMachine} />);
 
-  userEvent.click(screen.getByRole('button', { name: 'Unconfigure Machine' }));
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Unconfigure Machine' })
+  );
   const modal = await screen.findByRole('alertdialog');
-  userEvent.click(
+  await userEvent.click(
     within(modal).getByRole('button', {
       name: 'Delete All Election Data',
     })

@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, expect, test, vi } from 'vitest';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import {
   cleanup,
   fireEvent,
@@ -97,7 +97,7 @@ test('shows ejected if recently ejected', () => {
   expect(eject).not.toHaveBeenCalled();
 });
 
-test('shows ejecting if ejecting', () => {
+test('shows ejecting if ejecting', async () => {
   const eject = vi.fn();
   const { container, getByText } = render(
     <UsbControllerButton
@@ -108,6 +108,6 @@ test('shows ejecting if ejecting', () => {
   );
 
   expect(container.firstChild).toHaveTextContent('Ejecting...');
-  userEvent.click(getByText('Ejecting...'));
+  await userEvent.click(getByText('Ejecting...'));
   expect(eject).not.toHaveBeenCalled();
 });

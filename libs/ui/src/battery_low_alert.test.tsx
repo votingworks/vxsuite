@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { screen, within } from '../test/react_testing_library.js';
 import { newTestContext } from '../test/test_context.js';
 import { BatteryLowAlert } from './battery_low_alert.js';
@@ -39,7 +39,7 @@ test(`warning when battery drops`, async () => {
   within(warning).getByText(
     `The battery is at 10% and is not charging. Please connect the power supply.`
   );
-  userEvent.click(within(warning).getButton('Dismiss'));
+  await userEvent.click(within(warning).getButton('Dismiss'));
   expect(screen.queryByRole('alertdialog')).toBeNull();
 
   // doesn't warn again if we haven't hit the next threshold
@@ -66,7 +66,7 @@ test(`warning when battery drops`, async () => {
   within(secondWarning).getByText(
     `The battery is at 5% and is not charging. Please connect the power supply.`
   );
-  userEvent.click(within(secondWarning).getButton('Dismiss'));
+  await userEvent.click(within(secondWarning).getButton('Dismiss'));
   expect(screen.queryByRole('alertdialog')).toBeNull();
 });
 

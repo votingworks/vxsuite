@@ -3,7 +3,7 @@ import type { UiTheme } from '@votingworks/types';
 import { ThemeConsumer } from 'styled-components';
 import { mockUseAudioControls } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
-import { userEvent } from '../user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { act, screen, waitFor } from '../../test/react_testing_library.js';
 import { AudioSettings } from './audio_settings.js';
 import { newTestContext } from '../../test/test_context.js';
@@ -66,7 +66,7 @@ test('visual mode is disabled when button is pressed', async () => {
   expect(currentTheme!.isVisualModeDisabled).toEqual(false);
   expect(onEnterAudioOnlyMode).not.toHaveBeenCalled();
 
-  userEvent.click(screen.getButton('Enable Audio-Only Mode'));
+  await userEvent.click(screen.getButton('Enable Audio-Only Mode'));
 
   expect(currentTheme!.isVisualModeDisabled).toEqual(true);
   screen.getButton('Exit Audio-Only Mode');
@@ -98,14 +98,14 @@ describe('volume controls', () => {
 
     const btnIncrease = screen.getButton(/50% volume.+increase.+volume/i);
     expect(mockAudioControls.increaseVolume).not.toHaveBeenCalled();
-    userEvent.click(btnIncrease);
-    userEvent.click(btnIncrease);
+    await userEvent.click(btnIncrease);
+    await userEvent.click(btnIncrease);
     expect(mockAudioControls.increaseVolume).toHaveBeenCalledTimes(2);
 
     const btnDecrease = screen.getButton(/50% volume.+decrease.+volume/i);
     expect(mockAudioControls.decreaseVolume).not.toHaveBeenCalled();
-    userEvent.click(btnDecrease);
-    userEvent.click(btnDecrease);
+    await userEvent.click(btnDecrease);
+    await userEvent.click(btnDecrease);
     expect(mockAudioControls.decreaseVolume).toHaveBeenCalledTimes(2);
   });
 
@@ -146,14 +146,14 @@ describe('rate controls', () => {
 
     const btnIncrease = screen.getButton(/increase.+100%.+speech.+rate/i);
     expect(mockAudioControls.increasePlaybackRate).not.toHaveBeenCalled();
-    userEvent.click(btnIncrease);
-    userEvent.click(btnIncrease);
+    await userEvent.click(btnIncrease);
+    await userEvent.click(btnIncrease);
     expect(mockAudioControls.increasePlaybackRate).toHaveBeenCalledTimes(2);
 
     const btnDecrease = screen.getButton(/decrease.+100%.+speech.+rate/i);
     expect(mockAudioControls.decreasePlaybackRate).not.toHaveBeenCalled();
-    userEvent.click(btnDecrease);
-    userEvent.click(btnDecrease);
+    await userEvent.click(btnDecrease);
+    await userEvent.click(btnDecrease);
     expect(mockAudioControls.decreasePlaybackRate).toHaveBeenCalledTimes(2);
   });
 

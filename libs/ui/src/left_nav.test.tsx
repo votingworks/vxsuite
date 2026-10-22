@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { Link, Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import {
   AppLogo,
   LeftNav,
@@ -12,7 +12,7 @@ import {
 } from './left_nav.js';
 import { render, screen } from '../test/react_testing_library.js';
 
-test('LeftNav renders a list of nav items in a sidebar', () => {
+test('LeftNav renders a list of nav items in a sidebar', async () => {
   const history = createMemoryHistory();
   render(
     <Router history={history}>
@@ -39,12 +39,12 @@ test('LeftNav renders a list of nav items in a sidebar', () => {
 
   expect(history.location.pathname).toEqual('/');
 
-  userEvent.click(screen.getByRole('button', { name: 'Foo' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Foo' }));
   expect(history.location.pathname).toEqual('/foo');
 
-  userEvent.click(screen.getByRole('button', { name: 'Bar' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Bar' }));
   expect(history.location.pathname).toEqual('/bar');
 
-  userEvent.click(screen.getByRole('link', { name: 'VxApp' }));
+  await userEvent.click(screen.getByRole('link', { name: 'VxApp' }));
   expect(history.location.pathname).toEqual('/');
 });

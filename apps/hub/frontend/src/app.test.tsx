@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { typedAs } from '@votingworks/basics';
 import type { AuthErrorCode } from '@votingworks/hub-backend';
 import {
@@ -40,7 +40,9 @@ test('Shows user info and logout button', async () => {
   within(header).getByText(user.name);
 
   Object.defineProperty(window, 'location', { value: { assign: vi.fn() } });
-  userEvent.click(within(header).getByRole('button', { name: 'Log Out' }));
+  await userEvent.click(
+    within(header).getByRole('button', { name: 'Log Out' })
+  );
   await waitFor(() => {
     expect(window.location.assign).toHaveBeenCalledWith('/auth/logout');
   });
@@ -60,7 +62,9 @@ test('API errors show an error screen', async () => {
         id: 'test-random-id-1',
       })
       .throws(new Error('API error'));
-    userEvent.click(screen.getByRole('button', { name: 'Create Election' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Create Election' })
+    );
 
     await screen.findByText('Something went wrong');
     const appLink = screen.getByRole('link', { name: 'VxDesign' });
@@ -94,7 +98,9 @@ test('API forbidden errors show a page not found error screen', async () => {
         id: 'test-random-id-1',
       })
       .throws({ message: typedAs<AuthErrorCode>('auth:forbidden') });
-    userEvent.click(screen.getByRole('button', { name: 'Create Election' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Create Election' })
+    );
     await screen.findByText('Page not found');
   });
 });

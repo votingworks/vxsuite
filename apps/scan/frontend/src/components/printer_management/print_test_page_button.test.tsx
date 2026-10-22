@@ -1,5 +1,5 @@
 import { beforeEach, afterEach, test, expect } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { err } from '@votingworks/basics';
 import {
   type ApiMock,
@@ -33,7 +33,7 @@ test('successful print', async () => {
   renderButton();
 
   const testPrint = apiMock.expectPrintTestPage();
-  userEvent.click(await screen.findButton('Print Test Page'));
+  await userEvent.click(await screen.findButton('Print Test Page'));
 
   await screen.findByText('Printing');
 
@@ -41,7 +41,7 @@ test('successful print', async () => {
   await screen.findByText('Test Page Printed');
 
   apiMock.expectLogTestPrintOutcome('pass');
-  userEvent.click(screen.getButton('Pass'));
+  await userEvent.click(screen.getButton('Pass'));
 
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
@@ -53,7 +53,7 @@ test('completed print that user indicates is a failure', async () => {
   renderButton();
 
   const testPrint = apiMock.expectPrintTestPage();
-  userEvent.click(await screen.findButton('Print Test Page'));
+  await userEvent.click(await screen.findButton('Print Test Page'));
 
   await screen.findByText('Printing');
 
@@ -61,10 +61,10 @@ test('completed print that user indicates is a failure', async () => {
   await screen.findByText('Test Page Printed');
 
   apiMock.expectLogTestPrintOutcome('fail');
-  userEvent.click(screen.getButton('Fail'));
+  await userEvent.click(screen.getButton('Fail'));
   await screen.findByText('Test Print Failed');
 
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
@@ -75,7 +75,7 @@ test('out of paper / misaligned print', async () => {
   renderButton();
 
   const testPrint = apiMock.expectPrintTestPage(err({ state: 'no-paper' }));
-  userEvent.click(await screen.findButton('Print Test Page'));
+  await userEvent.click(await screen.findButton('Print Test Page'));
 
   await screen.findByText('Printing');
 
@@ -90,7 +90,7 @@ test('printer error during print', async () => {
   const testPrint = apiMock.expectPrintTestPage(
     err({ state: 'error', type: 'disconnected' })
   );
-  userEvent.click(await screen.findButton('Print Test Page'));
+  await userEvent.click(await screen.findButton('Print Test Page'));
 
   await screen.findByText('Printing');
 

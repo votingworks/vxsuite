@@ -14,7 +14,7 @@ import {
   readElectionStraightParty,
 } from '@votingworks/fixtures';
 
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import {
   AccessibilityMode,
@@ -98,7 +98,7 @@ const candidateContestWithWriteIns = electionDefinition.election.contests.find(
 )! as CandidateContestInterface;
 
 beforeEach(() => {
-  vi.useFakeTimers();
+  vi.useFakeTimers({ shouldAdvanceTime: true });
   setUpMockVirtualKeyboard();
 });
 
@@ -168,7 +168,7 @@ test('shows up-to-date vote counter - multi-seat contest', () => {
 });
 
 describe('supports single-seat contest', () => {
-  test('allows any candidate to be selected when no candidate is selected', () => {
+  test('allows any candidate to be selected when no candidate is selected', async () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
@@ -180,23 +180,23 @@ describe('supports single-seat contest', () => {
       />
     );
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByText(candidateContest.candidates[0]!.name).closest('button')!
     );
     expect(updateVote).toHaveBeenCalledTimes(1);
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByText(candidateContest.candidates[1]!.name).closest('button')!
     );
     expect(updateVote).toHaveBeenCalledTimes(2);
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByText(candidateContest.candidates[2]!.name).closest('button')!
     );
     expect(updateVote).toHaveBeenCalledTimes(3);
   });
 
-  test('advances focus to "Next" button when selection is made with accessible device', () => {
+  test('advances focus to "Next" button when selection is made with accessible device', async () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
@@ -213,7 +213,7 @@ describe('supports single-seat contest', () => {
       .closest('button')!;
     candidateButton.focus();
     expect(candidateButton).toHaveFocus();
-    userEvent.keyboard('[Enter]');
+    await userEvent.keyboard('[Enter]');
     expect(updateVote).toHaveBeenCalledTimes(1);
     expect(updateVote).toHaveBeenCalledWith(candidateContest.id, [
       {
@@ -224,7 +224,7 @@ describe('supports single-seat contest', () => {
     ]);
   });
 
-  test("doesn't allow other candidates to be selected when a candidate is selected", () => {
+  test("doesn't allow other candidates to be selected when a candidate is selected", async () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
@@ -241,17 +241,17 @@ describe('supports single-seat contest', () => {
       selected: true,
     });
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByText(candidateContest.candidates[1]!.name).closest('button')!
     );
     expect(updateVote).not.toHaveBeenCalled();
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByText(candidateContest.candidates[2]!.name).closest('button')!
     );
     expect(updateVote).not.toHaveBeenCalled();
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByText(candidateContest.candidates[0]!.name).closest('button')!
     );
     expect(updateVote).toHaveBeenCalled();
@@ -259,7 +259,7 @@ describe('supports single-seat contest', () => {
 });
 
 describe('supports multi-seat contests', () => {
-  test('allows a second candidate to be selected when one is selected', () => {
+  test('allows a second candidate to be selected when one is selected', async () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
@@ -284,21 +284,21 @@ describe('supports multi-seat contests', () => {
       selected: false,
     });
 
-    userEvent.click(
+    await userEvent.click(
       screen
         .getByText(candidateContestWithMultipleSeats.candidates[1]!.name)
         .closest('button')!
     );
     expect(updateVote).toHaveBeenCalledTimes(1);
 
-    userEvent.click(
+    await userEvent.click(
       screen
         .getByText(candidateContestWithMultipleSeats.candidates[2]!.name)
         .closest('button')!
     );
     expect(updateVote).toHaveBeenCalledTimes(2);
 
-    userEvent.click(
+    await userEvent.click(
       screen
         .getByText(candidateContestWithMultipleSeats.candidates[0]!.name)
         .closest('button')!
@@ -308,7 +308,7 @@ describe('supports multi-seat contests', () => {
 });
 
 describe('supports write-in candidates', () => {
-  test('updates votes when a write-in candidate is selected', () => {
+  test('updates votes when a write-in candidate is selected', async () => {
     const { fireBackspaceEvent, fireKeyPressEvents } =
       setUpMockVirtualKeyboard();
 
@@ -327,7 +327,7 @@ describe('supports write-in candidates', () => {
       />
     );
     expect(mockOnOpenWriteInKeyboard).not.toHaveBeenCalled();
-    userEvent.click(
+    await userEvent.click(
       screen.getByText('add write-in candidate').closest('button')!
     );
 
@@ -347,7 +347,7 @@ describe('supports write-in candidates', () => {
     modal.getByText(hasTextAcrossElements(/characters remaining: 27/i));
 
     expect(mockOnCloseWriteInKeyboard).not.toHaveBeenCalled();
-    userEvent.click(modal.getByText('Accept'));
+    await userEvent.click(modal.getByText('Accept'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(mockOnCloseWriteInKeyboard).toHaveBeenCalled();
 
@@ -361,7 +361,7 @@ describe('supports write-in candidates', () => {
     ]);
   });
 
-  test('calls cancel and accept handlers when buttons are pressed', () => {
+  test('calls cancel and accept handlers when buttons are pressed', async () => {
     const { fireBackspaceEvent, fireKeyPressEvents } =
       setUpMockVirtualKeyboard();
 
@@ -380,7 +380,7 @@ describe('supports write-in candidates', () => {
       />
     );
     expect(mockOnOpenWriteInKeyboard).not.toHaveBeenCalled();
-    userEvent.click(
+    await userEvent.click(
       screen.getByText('add write-in candidate').closest('button')!
     );
 
@@ -400,7 +400,7 @@ describe('supports write-in candidates', () => {
     modal.getByText(hasTextAcrossElements(/characters remaining: 27/i));
 
     expect(mockOnCloseWriteInKeyboard).not.toHaveBeenCalled();
-    userEvent.click(modal.getByText('Accept'));
+    await userEvent.click(modal.getByText('Accept'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(mockOnCloseWriteInKeyboard).toHaveBeenCalled();
 
@@ -414,7 +414,7 @@ describe('supports write-in candidates', () => {
     ]);
   });
 
-  test('renders a virtual keyboard with scan panels when switch scanning is enabled', () => {
+  test('renders a virtual keyboard with scan panels when switch scanning is enabled', async () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
@@ -426,7 +426,7 @@ describe('supports write-in candidates', () => {
         accessibilityMode={AccessibilityMode.SWITCH_SCANNING}
       />
     );
-    userEvent.click(
+    await userEvent.click(
       screen.getByText('add write-in candidate').closest('button')!
     );
 
@@ -441,7 +441,7 @@ describe('supports write-in candidates', () => {
     modal.getButton(/^Q W E R T Y U I O P/);
   });
 
-  test('displays warning when deselecting a write-in candidate', () => {
+  test('displays warning when deselecting a write-in candidate', async () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
@@ -458,11 +458,11 @@ describe('supports write-in candidates', () => {
         updateVote={updateVote}
       />
     );
-    userEvent.click(screen.getByText('LIZARD PEOPLE').closest('button')!);
+    await userEvent.click(screen.getByText('LIZARD PEOPLE').closest('button')!);
 
     const modal = within(screen.getByRole('alertdialog'));
     modal.getByText(/do you want to deselect/i);
-    userEvent.click(modal.getByText('Yes'));
+    await userEvent.click(modal.getByText('Yes'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(updateVote).toHaveBeenCalledWith(
       candidateContestWithWriteIns.id,
@@ -470,7 +470,7 @@ describe('supports write-in candidates', () => {
     );
   });
 
-  test('displays warning if write-in candidate name is too long', () => {
+  test('displays warning if write-in candidate name is too long', async () => {
     const { fireKeyPressEvents } = setUpMockVirtualKeyboard();
 
     const updateVote = vi.fn();
@@ -483,7 +483,7 @@ describe('supports write-in candidates', () => {
         updateVote={updateVote}
       />
     );
-    userEvent.click(
+    await userEvent.click(
       screen.getByText('add write-in candidate').closest('button')!
     );
 
@@ -494,11 +494,11 @@ describe('supports write-in candidates', () => {
     });
     fireKeyPressEvents('JACOB JOHANSON JINGLEHEIMMER SCHMIDTT');
     modal.getByText(hasTextAcrossElements(/characters remaining: 3/i));
-    userEvent.click(modal.getByText('Cancel'));
+    await userEvent.click(modal.getByText('Cancel'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
-  test('displays a warning when attempting to add more write-in candidates than seats', () => {
+  test('displays a warning when attempting to add more write-in candidates than seats', async () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
@@ -515,13 +515,13 @@ describe('supports write-in candidates', () => {
         updateVote={updateVote}
       />
     );
-    userEvent.click(
+    await userEvent.click(
       screen.getByText('add write-in candidate').closest('button')!
     );
 
     const modal = within(screen.getByRole('alertdialog'));
     modal.getByText(/you must first deselect/i);
-    userEvent.click(modal.getByText('Continue'));
+    await userEvent.click(modal.getByText('Continue'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
@@ -549,7 +549,7 @@ describe('supports write-in candidates', () => {
     },
   ])(
     'prevents writing more than the allowed number of characters (when the write-in character limit across contests is not the limiting factor)',
-    ({ writeInCharacterLimitAcrossContests }) => {
+    async ({ writeInCharacterLimitAcrossContests }) => {
       const { checkIsKeyDisabled, fireKeyPressEvents } =
         setUpMockVirtualKeyboard();
 
@@ -566,7 +566,7 @@ describe('supports write-in candidates', () => {
           }
         />
       );
-      userEvent.click(
+      await userEvent.click(
         screen.getByText('add write-in candidate').closest('button')!
       );
 
@@ -587,7 +587,7 @@ describe('supports write-in candidates', () => {
 
       expect(checkIsKeyDisabled(SPACE_BAR_KEY)).toEqual(true);
       expect(checkIsKeyDisabled(DELETE_KEY)).toEqual(false);
-      userEvent.click(modal.getByText('Accept'));
+      await userEvent.click(modal.getByText('Accept'));
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
       expect(updateVote).toHaveBeenCalledWith(candidateContestWithWriteIns.id, [
@@ -601,7 +601,7 @@ describe('supports write-in candidates', () => {
     }
   );
 
-  test('prevents writing more than the allowed number of characters (when the write-in character limit across contests is the limiting factor)', () => {
+  test('prevents writing more than the allowed number of characters (when the write-in character limit across contests is the limiting factor)', async () => {
     const { checkIsKeyDisabled, fireKeyPressEvents } =
       setUpMockVirtualKeyboard();
 
@@ -619,7 +619,7 @@ describe('supports write-in candidates', () => {
         }}
       />
     );
-    userEvent.click(
+    await userEvent.click(
       screen.getByText('add write-in candidate').closest('button')!
     );
 
@@ -638,7 +638,7 @@ describe('supports write-in candidates', () => {
 
     expect(checkIsKeyDisabled(SPACE_BAR_KEY)).toEqual(true);
     expect(checkIsKeyDisabled(DELETE_KEY)).toEqual(false);
-    userEvent.click(modal.getByText('Accept'));
+    await userEvent.click(modal.getByText('Accept'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
     expect(updateVote).toHaveBeenCalledWith(candidateContestWithWriteIns.id, [
@@ -651,7 +651,7 @@ describe('supports write-in candidates', () => {
     ]);
   });
 
-  test('onExitTop focuses Cancel; onExitBottom focuses Accept when text entered, Cancel when empty', () => {
+  test('onExitTop focuses Cancel; onExitBottom focuses Accept when text entered, Cancel when empty', async () => {
     const { fireKeyPressEvents, fireExitTop, fireExitBottom } =
       setUpMockVirtualKeyboard();
 
@@ -665,7 +665,7 @@ describe('supports write-in candidates', () => {
         updateVote={updateVote}
       />
     );
-    userEvent.click(
+    await userEvent.click(
       screen.getByText('add write-in candidate').closest('button')!
     );
 
@@ -691,7 +691,7 @@ describe('supports write-in candidates', () => {
     );
   });
 
-  test('focuses newly added write-in candidate after modal closes', () => {
+  test('focuses newly added write-in candidate after modal closes', async () => {
     const { fireKeyPressEvents } = setUpMockVirtualKeyboard();
 
     const contest: TypeCandidateContest = {
@@ -725,11 +725,11 @@ describe('supports write-in candidates', () => {
       );
     });
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByText('add write-in candidate').closest('button')!
     );
     fireKeyPressEvents('LIZARD');
-    userEvent.click(screen.getButton('Accept'));
+    await userEvent.click(screen.getButton('Accept'));
 
     const writeInButton = document.querySelector(
       '[data-write-in-id="write-in-lizard"] button'
@@ -737,7 +737,7 @@ describe('supports write-in candidates', () => {
     expect(writeInButton).toHaveFocus();
   });
 
-  test('maintains sequential write-in indices', () => {
+  test('maintains sequential write-in indices', async () => {
     const { fireKeyPressEvents } = setUpMockVirtualKeyboard();
 
     const contest: TypeCandidateContest = {
@@ -766,20 +766,20 @@ describe('supports write-in candidates', () => {
       />
     );
 
-    function selectCandidate(candidate: Candidate) {
-      userEvent.click(screen.getByText(candidate.name, { exact: false }));
+    async function selectCandidate(candidate: Candidate) {
+      await userEvent.click(screen.getByText(candidate.name, { exact: false }));
     }
 
-    function addWriteIn(writeInName: string) {
-      userEvent.click(screen.getByText('add write-in candidate'));
+    async function addWriteIn(writeInName: string) {
+      await userEvent.click(screen.getByText('add write-in candidate'));
       fireKeyPressEvents(writeInName);
-      userEvent.click(screen.getButton('Accept'));
+      await userEvent.click(screen.getButton('Accept'));
     }
 
-    addWriteIn('FOO');
-    selectCandidate(contest.candidates[0]!);
-    addWriteIn('BAR');
-    addWriteIn('BAZ');
+    await addWriteIn('FOO');
+    await selectCandidate(contest.candidates[0]!);
+    await addWriteIn('BAR');
+    await addWriteIn('BAZ');
     expect(votes).toEqual([
       { id: 'write-in-foo', isWriteIn: true, name: 'FOO', writeInIndex: 0 },
       contest.candidates[0],
@@ -787,8 +787,8 @@ describe('supports write-in candidates', () => {
       { id: 'write-in-baz', isWriteIn: true, name: 'BAZ', writeInIndex: 2 },
     ]);
 
-    userEvent.click(screen.getByRole('option', { name: /BAR/ }));
-    userEvent.click(screen.getButton('Yes'));
+    await userEvent.click(screen.getByRole('option', { name: /BAR/ }));
+    await userEvent.click(screen.getButton('Yes'));
     expect(votes).toEqual([
       { id: 'write-in-foo', isWriteIn: true, name: 'FOO', writeInIndex: 0 },
       contest.candidates[0],
@@ -798,7 +798,7 @@ describe('supports write-in candidates', () => {
 });
 
 describe('audio cues', () => {
-  test('updates the screen reader text to indicate selection state', () => {
+  test('updates the screen reader text to indicate selection state', async () => {
     const updateVote = vi.fn<UpdateVoteFunction>();
     const twoSeatContest: CandidateContestInterface = {
       ...candidateContest,
@@ -839,7 +839,7 @@ describe('audio cues', () => {
     );
 
     // select the first candidate to update the vote and trigger audio prompt:
-    userEvent.click(firstCandidateChoice);
+    await userEvent.click(firstCandidateChoice);
     screen.getByRole('option', {
       name: new RegExp(
         `Selected.+${candidateA!.name}.+votes remaining.+1`,
@@ -875,7 +875,7 @@ describe('audio cues', () => {
       selected: false,
     });
 
-    userEvent.click(secondCandidateChoice);
+    await userEvent.click(secondCandidateChoice);
 
     screen.getByRole('option', {
       name: new RegExp(
@@ -886,7 +886,7 @@ describe('audio cues', () => {
     });
 
     // deselect the first candidate:
-    userEvent.click(firstCandidateChoice);
+    await userEvent.click(firstCandidateChoice);
     screen.getByRole('option', {
       name: new RegExp(
         `Deselected.+${candidateA!.name}.+votes remaining.+1`,
@@ -1232,7 +1232,7 @@ describe('cross-endorsed candidates', () => {
     within(buttons[1]!).getByText('Liberty');
   });
 
-  test('selecting cross-endorsed candidate stores specific party IDs from selected option', () => {
+  test('selecting cross-endorsed candidate stores specific party IDs from selected option', async () => {
     const contest: CandidateContestInterface = {
       type: 'candidate',
       id: 'governor',
@@ -1285,7 +1285,7 @@ describe('cross-endorsed candidates', () => {
     const buttons = screen.getAllByRole('option');
 
     // Click first Alice option (as Democrat - party 0)
-    userEvent.click(buttons[0]!);
+    await userEvent.click(buttons[0]!);
 
     expect(updateVote).toHaveBeenCalledWith('governor', [
       {
@@ -1296,7 +1296,7 @@ describe('cross-endorsed candidates', () => {
     ]);
   });
 
-  test('selecting cross-endorsed candidate as different party stores different party ID', () => {
+  test('selecting cross-endorsed candidate as different party stores different party ID', async () => {
     const contest: CandidateContestInterface = {
       type: 'candidate',
       id: 'governor',
@@ -1349,7 +1349,7 @@ describe('cross-endorsed candidates', () => {
     const buttons = screen.getAllByRole('option');
 
     // Click third Alice option (as Republican - party 1)
-    userEvent.click(buttons[2]!);
+    await userEvent.click(buttons[2]!);
 
     expect(updateVote).toHaveBeenCalledWith('governor', [
       {
@@ -1360,7 +1360,7 @@ describe('cross-endorsed candidates', () => {
     ]);
   });
 
-  test('deselecting a specific cross-endorsed option removes only that option', () => {
+  test('deselecting a specific cross-endorsed option removes only that option', async () => {
     const contest: CandidateContestInterface = {
       type: 'candidate',
       id: 'governor',
@@ -1419,12 +1419,12 @@ describe('cross-endorsed candidates', () => {
     });
 
     // Click to deselect
-    userEvent.click(buttons[0]!);
+    await userEvent.click(buttons[0]!);
 
     expect(updateVote).toHaveBeenCalledWith('governor', []);
   });
 
-  test('in multi-seat contest, cross-endorsed candidate can be selected under different parties without triggering overvote', () => {
+  test('in multi-seat contest, cross-endorsed candidate can be selected under different parties without triggering overvote', async () => {
     const contest: CandidateContestInterface = {
       type: 'candidate',
       id: 'council',
@@ -1477,7 +1477,7 @@ describe('cross-endorsed candidates', () => {
     const buttons = screen.getAllByRole('option');
 
     // Select Alice as Democrat
-    userEvent.click(buttons[0]!);
+    await userEvent.click(buttons[0]!);
     expect(updateVote).toHaveBeenCalledWith('council', [
       { id: 'alice', name: 'Alice Anderson', partyIds: ['0'] },
     ]);
@@ -1574,14 +1574,14 @@ describe('straight party derived votes', () => {
     ).not.toBeInTheDocument();
   });
 
-  test('tapping a derived candidate makes it an explicit selection', () => {
+  test('tapping a derived candidate makes it an explicit selection', async () => {
     const updateVote = vi.fn();
     renderContest({
       selectedStraightPartyId: federalistPartyId,
       updateVote,
     });
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByText(federalistCandidate!.name).closest('button')!
     );
     expect(updateVote).toHaveBeenCalledWith(presidentContest.id, [
@@ -1589,7 +1589,7 @@ describe('straight party derived votes', () => {
     ]);
   });
 
-  test('allows overriding the derived candidate with a different candidate', () => {
+  test('allows overriding the derived candidate with a different candidate', async () => {
     const updateVote = vi.fn();
     renderContest({
       selectedStraightPartyId: federalistPartyId,
@@ -1598,7 +1598,7 @@ describe('straight party derived votes', () => {
 
     // Even though the seat is filled by a derived vote, a different candidate
     // remains selectable because the voter still has a direct selection to make.
-    userEvent.click(
+    await userEvent.click(
       screen.getByText(libertyCandidate!.name).closest('button')!
     );
     expect(updateVote).toHaveBeenCalledWith(presidentContest.id, [
@@ -1606,7 +1606,7 @@ describe('straight party derived votes', () => {
     ]);
   });
 
-  test('derives all of a party’s candidates in a multi-seat contest, leaving remaining seats votable', () => {
+  test('derives all of a party’s candidates in a multi-seat contest, leaving remaining seats votable', async () => {
     const updateVote = vi.fn();
     renderContest({
       contest: countyCommissionersContest,
@@ -1630,13 +1630,15 @@ describe('straight party derived votes', () => {
     );
 
     // A non-party candidate is still selectable
-    userEvent.click(screen.getByText('Charlene Hennessey').closest('button')!);
+    await userEvent.click(
+      screen.getByText('Charlene Hennessey').closest('button')!
+    );
     expect(updateVote).toHaveBeenCalledWith(countyCommissionersContest.id, [
       expect.objectContaining({ id: 'hennessey' }),
     ]);
   });
 
-  test('keeps the write-in option available when derived votes fill every seat', () => {
+  test('keeps the write-in option available when derived votes fill every seat', async () => {
     // The Liberty party (id '1') has four candidates
     renderContest({
       contest: countyCommissionersContest,
@@ -1647,7 +1649,7 @@ describe('straight party derived votes', () => {
       hasTextAcrossElements(/votes remaining in this contest: 0/i)
     );
     // The write-in option stays enabled
-    userEvent.click(
+    await userEvent.click(
       screen.getByText('add write-in candidate').closest('button')!
     );
     screen.getByTestId('MockVirtualKeyboard');

@@ -1,5 +1,5 @@
 import { test, expect, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen } from '../../test/react_testing_library.js';
 import { ScannerDiagnosticScreen } from './scanner_diagnostic_screen.js';
 
@@ -19,7 +19,7 @@ test('scanner diagnostic prompt - insert blank sheet', () => {
   screen.getByText('Insert a blank sheet into the scanner.');
 });
 
-test('scanner diagnostic done - test scan successful', () => {
+test('scanner diagnostic done - test scan successful', async () => {
   const onClose = vi.fn();
   render(
     <ScannerDiagnosticScreen
@@ -34,11 +34,11 @@ test('scanner diagnostic done - test scan successful', () => {
 
   screen.getByRole('heading', { name: 'Scanner Diagnostic' });
   screen.getByRole('heading', { name: 'Test Scan Successful' });
-  userEvent.click(screen.getByRole('button', { name: 'Close' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Close' }));
   expect(onClose).toHaveBeenCalled();
 });
 
-test('scanner diagnostic done - test scan failed', () => {
+test('scanner diagnostic done - test scan failed', async () => {
   const onClose = vi.fn();
   render(
     <ScannerDiagnosticScreen
@@ -57,6 +57,6 @@ test('scanner diagnostic done - test scan failed', () => {
   screen.getByText(
     'The test scan was not blank. Make sure you used a blank sheet. The scanner may need to be cleaned.'
   );
-  userEvent.click(screen.getByRole('button', { name: 'Close' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Close' }));
   expect(onClose).toHaveBeenCalled();
 });

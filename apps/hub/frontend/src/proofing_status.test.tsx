@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import type { BackgroundTask, ExportQaRun } from '@votingworks/hub-backend';
 import { format } from '@votingworks/utils';
@@ -215,7 +215,7 @@ test('finalized and approved', async () => {
   const mockClipboardCopy = vi.fn();
   mockClipboard(mockClipboardCopy);
 
-  userEvent.click(screen.getButton(/copy url/i));
+  await userEvent.click(screen.getButton(/copy url/i));
 
   expect(mockClipboardCopy).toHaveBeenCalledWith(downloadsUrl);
 });
@@ -237,7 +237,7 @@ test('approve button action', async () => {
   mockApprovedAt(api, approvedAt);
   api.getBaseUrl.expectCallWith().resolves('https://foo.com');
 
-  userEvent.click(screen.getButton(/approve/i));
+  await userEvent.click(screen.getButton(/approve/i));
 
   await screen.findByText(/foo.com/);
   api.assertComplete();
@@ -264,24 +264,24 @@ test('unfinalize button action', async () => {
   mockLatestQaRun(api, undefined);
 
   // Begin to unfinalize but cancel
-  userEvent.click(screen.getButton(/unfinalize/i));
+  await userEvent.click(screen.getButton(/unfinalize/i));
   let modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Unfinalize Ballots' });
   const cancelButton = within(modal).getByRole('button', { name: /cancel/i });
-  userEvent.click(cancelButton);
+  await userEvent.click(cancelButton);
   await waitFor(() => expect(modal).not.toBeInTheDocument());
 
   // Fully unfinalize
-  userEvent.click(screen.getButton(/unfinalize/i));
+  await userEvent.click(screen.getButton(/unfinalize/i));
   modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Unfinalize Ballots' });
   const confirmButton = within(modal).getByRole('button', {
     name: /unfinalize ballots/i,
   });
   expect(confirmButton).toBeDisabled();
-  userEvent.type(within(modal).getByLabelText('Reason'), 'A reason');
+  await userEvent.type(within(modal).getByLabelText('Reason'), 'A reason');
   expect(confirmButton).toBeEnabled();
-  userEvent.click(confirmButton);
+  await userEvent.click(confirmButton);
   await waitFor(() => expect(modal).not.toBeInTheDocument());
   await screen.findByText('Ballots not finalized');
 
@@ -462,7 +462,7 @@ test('approve button shows warning when QA is in progress', async () => {
   await screen.findByText('Proofing Status');
   api.assertComplete();
 
-  userEvent.click(screen.getButton(/approve/i));
+  await userEvent.click(screen.getButton(/approve/i));
 
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('QA Check Incomplete');
@@ -471,19 +471,19 @@ test('approve button shows warning when QA is in progress', async () => {
   );
 
   // Can cancel
-  userEvent.click(within(modal).getButton('Cancel'));
+  await userEvent.click(within(modal).getButton('Cancel'));
   await sleep(0);
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
   // Or approve anyway - click again to reopen modal
-  userEvent.click(screen.getButton(/approve/i));
+  await userEvent.click(screen.getButton(/approve/i));
   const modalAgain = await screen.findByRole('alertdialog');
 
   api.approveBallots.expectCallWith({ electionId }).resolves();
   mockApprovedAt(api, approvedAt);
   api.getBaseUrl.expectCallWith().resolves('https://foo.com');
 
-  userEvent.click(within(modalAgain).getButton('Approve Anyway'));
+  await userEvent.click(within(modalAgain).getButton('Approve Anyway'));
 
   await screen.findByText(/foo.com/);
   api.assertComplete();
@@ -506,7 +506,7 @@ test('approve button shows warning when QA failed', async () => {
   await screen.findByText('Proofing Status');
   api.assertComplete();
 
-  userEvent.click(screen.getButton(/approve/i));
+  await userEvent.click(screen.getButton(/approve/i));
 
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('QA Check Incomplete');
@@ -523,7 +523,7 @@ test('approve button shows warning when QA failed', async () => {
   mockApprovedAt(api, approvedAt);
   api.getBaseUrl.expectCallWith().resolves('https://foo.com');
 
-  userEvent.click(within(modal).getButton('Approve Anyway'));
+  await userEvent.click(within(modal).getButton('Approve Anyway'));
 
   await screen.findByText(/foo.com/);
   api.assertComplete();
@@ -549,7 +549,7 @@ test('approve button works normally when QA succeeded', async () => {
   mockApprovedAt(api, approvedAt);
   api.getBaseUrl.expectCallWith().resolves('https://foo.com');
 
-  userEvent.click(screen.getButton(/approve/i));
+  await userEvent.click(screen.getButton(/approve/i));
 
   await screen.findByText(/foo.com/);
   api.assertComplete();

@@ -209,7 +209,6 @@ function ElectionInfoForm({
                 });
                 setDraftDate(undefined);
               } catch {
-                // @coverage-defer
                 setDraftDate(e.target.value);
               }
             }}

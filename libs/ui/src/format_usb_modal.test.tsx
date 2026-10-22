@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-query';
 import { act } from '@testing-library/react';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library.js';
 import {
   FormatUsbButton,
@@ -77,12 +77,12 @@ test('formatting', async () => {
     </QueryClientProvider>
   );
 
-  userEvent.click(screen.getButton('Format USB Drive'));
+  await userEvent.click(screen.getButton('Format USB Drive'));
   await screen.findByRole('heading', { name: 'Format USB Drive' });
   screen.getByText(
     'Formatting will delete all files on the USB drive. Back up USB drive files before formatting.'
   );
-  userEvent.click(screen.getButton('Format USB Drive'));
+  await userEvent.click(screen.getButton('Format USB Drive'));
   await screen.findByText(
     'USB drive successfully formatted. It can now be used with VotingWorks components.'
   );
@@ -96,11 +96,11 @@ test('ejecting after formatting', async () => {
     </QueryClientProvider>
   );
 
-  userEvent.click(screen.getButton('Format USB Drive'));
+  await userEvent.click(screen.getButton('Format USB Drive'));
   await screen.findByRole('heading', { name: 'Format USB Drive' });
-  userEvent.click(screen.getButton('Format USB Drive'));
+  await userEvent.click(screen.getButton('Format USB Drive'));
   await screen.findByRole('heading', { name: 'USB Drive Formatted' });
-  userEvent.click(screen.getButton('Eject USB'));
+  await userEvent.click(screen.getButton('Eject USB'));
   await vi.waitFor(() => expect(mockEject).toHaveBeenCalledOnce());
 });
 
@@ -111,9 +111,9 @@ test('modal open and close', async () => {
     </QueryClientProvider>
   );
 
-  userEvent.click(screen.getButton('Format USB Drive'));
+  await userEvent.click(screen.getButton('Format USB Drive'));
   await screen.findByRole('heading', { name: 'Format USB Drive' });
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
   expect(
     screen.queryByRole('heading', { name: 'Format USB Drive' })
   ).toBeNull();
@@ -126,7 +126,7 @@ test('already-formatted usb drives', async () => {
     </QueryClientProvider>
   );
 
-  userEvent.click(screen.getButton('Format USB Drive'));
+  await userEvent.click(screen.getButton('Format USB Drive'));
   await screen.findByRole('heading', { name: 'Format USB Drive' });
   screen.getByText('fully compatible');
 });
@@ -143,7 +143,7 @@ test('FAT32 usb drives are partially compatible', async () => {
     </QueryClientProvider>
   );
 
-  userEvent.click(screen.getButton('Format USB Drive'));
+  await userEvent.click(screen.getButton('Format USB Drive'));
   await screen.findByRole('heading', { name: 'Format USB Drive' });
   screen.getByText(/already compatible with VotingWorks components/);
   screen.getByText(/can't store individual files larger than/);
@@ -159,10 +159,10 @@ test('no usb drive inserted shows prompt', async () => {
     </QueryClientProvider>
   );
 
-  userEvent.click(screen.getButton('Format USB Drive'));
+  await userEvent.click(screen.getButton('Format USB Drive'));
   await screen.findByRole('heading', { name: 'No USB Drive Detected' });
   screen.getByText('Insert a USB drive you would like to format.');
-  userEvent.click(screen.getButton('Cancel'));
+  await userEvent.click(screen.getButton('Cancel'));
   expect(
     screen.queryByRole('heading', { name: 'No USB Drive Detected' })
   ).toBeNull();
@@ -177,9 +177,9 @@ test('done screen shown even when status becomes no_drive during formatting', as
     </QueryClientProvider>
   );
 
-  userEvent.click(screen.getButton('Format USB Drive'));
+  await userEvent.click(screen.getButton('Format USB Drive'));
   await screen.findByRole('heading', { name: 'Format USB Drive' });
-  userEvent.click(screen.getButton('Format USB Drive'));
+  await userEvent.click(screen.getButton('Format USB Drive'));
 
   // Despite status becoming no_drive during formatting, done screen must appear
   await screen.findByText(
@@ -210,9 +210,9 @@ test('error during formatting', async () => {
     </QueryClientProvider>
   );
 
-  userEvent.click(screen.getButton('Format USB Drive'));
+  await userEvent.click(screen.getButton('Format USB Drive'));
   await screen.findByRole('heading', { name: 'Format USB Drive' });
-  userEvent.click(screen.getButton('Format USB Drive'));
+  await userEvent.click(screen.getButton('Format USB Drive'));
   await screen.findByRole('heading', { name: 'Failed to Format USB Drive' });
   screen.getByText('Failed to format USB drive: disk write failed');
 });

@@ -1,6 +1,6 @@
 import type React from 'react';
 import { expect, test, vi } from 'vitest';
-import { userEvent } from '../../user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen } from '../../../test/react_testing_library.js';
 import { Keybinding } from '../../keybindings.js';
 import {
@@ -24,17 +24,17 @@ function MockScreenWrapper({
   );
 }
 
-function identifyInputs(): void {
+async function identifyInputs(): Promise<void> {
   // Continue past instructions
-  userEvent.keyboard(Keybinding.PAT_MOVE);
+  await userEvent.keyboard(Keybinding.PAT_MOVE);
 
   // Identify first input
-  userEvent.keyboard(Keybinding.PAT_MOVE);
-  userEvent.keyboard(Keybinding.PAT_MOVE);
+  await userEvent.keyboard(Keybinding.PAT_MOVE);
+  await userEvent.keyboard(Keybinding.PAT_MOVE);
 
   // Identify second input
-  userEvent.keyboard(Keybinding.PAT_SELECT);
-  userEvent.keyboard(Keybinding.PAT_SELECT);
+  await userEvent.keyboard(Keybinding.PAT_SELECT);
+  await userEvent.keyboard(Keybinding.PAT_SELECT);
 
   screen.getByText('Device Inputs Identified');
 }
@@ -55,30 +55,30 @@ function renderComponent(props: Partial<PatDeviceCalibrationPageProps> = {}) {
   return { ...renderResult, onSuccessfulCalibration, onSkipCalibration };
 }
 
-test('can restart the device ID flow', () => {
+test('can restart the device ID flow', async () => {
   renderComponent();
 
   screen.getByText('Personal Assistive Technology Device Identification');
 
-  identifyInputs();
-  userEvent.click(screen.getByText('Back'));
+  await identifyInputs();
+  await userEvent.click(screen.getByText('Back'));
 
   screen.getByText('Test Your Device');
 });
 
-test('calls onSkipCalibration if "Skip" button is pressed', () => {
+test('calls onSkipCalibration if "Skip" button is pressed', async () => {
   const { onSkipCalibration } = renderComponent();
 
   screen.getByText('Personal Assistive Technology Device Identification');
-  userEvent.click(screen.getByText('Skip Identification'));
+  await userEvent.click(screen.getByText('Skip Identification'));
   expect(onSkipCalibration).toHaveBeenCalledTimes(1);
 });
-test('calls onSuccessfulCalibration if "Continue" button is pressed', () => {
+test('calls onSuccessfulCalibration if "Continue" button is pressed', async () => {
   const { onSuccessfulCalibration } = renderComponent();
 
   screen.getByText('Personal Assistive Technology Device Identification');
 
-  identifyInputs();
-  userEvent.click(screen.getByText('Continue'));
+  await identifyInputs();
+  await userEvent.click(screen.getByText('Continue'));
   expect(onSuccessfulCalibration).toHaveBeenCalledTimes(1);
 });

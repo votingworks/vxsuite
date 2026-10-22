@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { formatElectionHashes } from '@votingworks/types';
 import { act, screen } from '../../test/react_testing_library.js';
@@ -83,7 +83,7 @@ test('Can set date and time', async () => {
   );
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior
-  userEvent.click(screen.getButton('Set Date and Time'));
+  await userEvent.click(screen.getButton('Set Date and Time'));
   apiMock.mockApiClient.setClock
     .expectCallWith({
       isoDatetime: '2020-10-31T00:00:00.000-08:00',
@@ -91,13 +91,13 @@ test('Can set date and time', async () => {
     })
     .resolves();
   apiMock.expectLogOut();
-  userEvent.click(screen.getButton('Save'));
+  await userEvent.click(screen.getButton('Save'));
   await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
 });
 
-test('navigates to Diagnostics screen', () => {
+test('navigates to Diagnostics screen', async () => {
   let onBackButtonPress: (() => void) | undefined;
   vi.mocked(DiagnosticsScreen).mockImplementation((props) => {
     ({ onBackButtonPress } = props);
@@ -122,7 +122,7 @@ test('navigates to Diagnostics screen', () => {
 
   screen.getByText('System Administrator Menu');
 
-  userEvent.click(screen.getButton('Diagnostics'));
+  await userEvent.click(screen.getButton('Diagnostics'));
   screen.getByTestId('MockDiagnosticsScreen');
   expect(
     screen.queryByText('System Administrator Menu')

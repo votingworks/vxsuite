@@ -1,6 +1,6 @@
 import { beforeEach, expect, type Mock, test, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 
 import {
   render,
@@ -20,7 +20,16 @@ let mockUnconfigureMachine: Mock;
 beforeEach(() => {
   mockApiClient = {
     generateSignedHashValidationQrCodeValue: vi.fn(() =>
-      Promise.resolve({ data: '' })
+      Promise.resolve({
+        qrCodeValue: 'qr-code-value',
+        qrCodeInputs: {
+          combinedElectionHash: 'combined-election-hash',
+          date: new Date('1/1/2024, 12:00:00 PM'),
+          machineId: 'machine-id',
+          softwareVersion: 'software-version',
+          systemHash: ''.padEnd(44, '='),
+        },
+      })
     ),
     rebootToVendorMenu: vi.fn(),
   };
@@ -28,7 +37,7 @@ beforeEach(() => {
   mockUnconfigureMachine = vi.fn();
 });
 
-test('Signed Hash Validation', () => {
+test('Signed Hash Validation', async () => {
   render(
     <QueryClientProvider client={new QueryClient()}>
       <VendorScreen
@@ -44,7 +53,7 @@ test('Signed Hash Validation', () => {
     name: 'Signed Hash Validation',
   });
 
-  userEvent.click(signedHashValidationButton);
+  await userEvent.click(signedHashValidationButton);
 
   expect(
     mockApiClient.generateSignedHashValidationQrCodeValue
@@ -54,7 +63,7 @@ test('Signed Hash Validation', () => {
   expect(mockUnconfigureMachine).not.toHaveBeenCalled();
 });
 
-test('rebooting to vendor menu', () => {
+test('rebooting to vendor menu', async () => {
   render(
     <VendorScreen
       apiClient={mockApiClient}
@@ -68,7 +77,7 @@ test('rebooting to vendor menu', () => {
     name: 'Reboot to Vendor Menu',
   });
 
-  userEvent.click(rebootToVendorMenuButton);
+  await userEvent.click(rebootToVendorMenuButton);
 
   expect(
     mockApiClient.generateSignedHashValidationQrCodeValue
@@ -92,10 +101,10 @@ test('unconfiguring machine', async () => {
     name: 'Unconfigure Machine',
   });
 
-  userEvent.click(unconfigureMachineButton);
+  await userEvent.click(unconfigureMachineButton);
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Unconfigure Machine' });
-  userEvent.click(
+  await userEvent.click(
     within(modal).getByRole('button', { name: 'Delete All Election Data' })
   );
   await waitFor(() =>
@@ -110,7 +119,7 @@ test('unconfiguring machine', async () => {
   expect(mockUnconfigureMachine).toHaveBeenCalledTimes(1);
 });
 
-test('locking machine', () => {
+test('locking machine', async () => {
   render(
     <VendorScreen
       apiClient={mockApiClient}
@@ -124,7 +133,7 @@ test('locking machine', () => {
     name: 'Lock Machine',
   });
 
-  userEvent.click(lockMachineButton);
+  await userEvent.click(lockMachineButton);
 
   expect(
     mockApiClient.generateSignedHashValidationQrCodeValue

@@ -5,7 +5,7 @@ import {
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   type ApiMock,
   MOCK_PRINTER_CONFIG,
@@ -66,7 +66,7 @@ test('shows alert with message which can be dismissed', async () => {
   await screen.findByText(
     "The printer's door is open. Close the printer's door."
   );
-  userEvent.click(screen.getButton('Dismiss'));
+  await userEvent.click(screen.getButton('Dismiss'));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 });
 

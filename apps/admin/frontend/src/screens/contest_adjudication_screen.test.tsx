@@ -17,7 +17,7 @@ import {
   type BallotPageLayout,
   type HmpbBallotPageMetadata,
 } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import type {
   AdjudicatedContestOption,
   AdjudicatedContestOptions,
@@ -408,7 +408,7 @@ describe('hmpb write-in adjudication', () => {
     confirmButton = screen.getByRole('button', { name: /confirm/i });
     expect(confirmButton).toBeEnabled();
 
-    userEvent.click(confirmButton);
+    await userEvent.click(confirmButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest({
@@ -450,7 +450,7 @@ describe('hmpb write-in adjudication', () => {
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
 
     const elephantDropdownItem = getDropdownItemByLabel('Elephant');
-    userEvent.click(elephantDropdownItem!);
+    await userEvent.click(elephantDropdownItem!);
 
     const elephantCheckbox = screen.getByRole('checkbox', {
       checked: false,
@@ -461,7 +461,7 @@ describe('hmpb write-in adjudication', () => {
     confirmButton = screen.getByRole('button', { name: /confirm/i });
     expect(confirmButton).toBeEnabled();
 
-    userEvent.click(confirmButton);
+    await userEvent.click(confirmButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest({
@@ -515,16 +515,16 @@ describe('hmpb write-in adjudication', () => {
     expect(screen.getAllByText(/kangaroo/i)).toHaveLength(1);
     expect(screen.getAllByText(/kangaroo/i)).toHaveLength(1);
 
-    userEvent.type(writeInSearchSelect, 'e');
+    await userEvent.type(writeInSearchSelect, 'e');
 
     expect(screen.queryByText(/press enter to add: e/i)).toBeInTheDocument();
     expect(screen.queryByText(/invalid/i)).not.toBeInTheDocument();
     expect(screen.getAllByText(/elephant/i)).toHaveLength(2);
     expect(screen.getAllByText(/lion/i)).toHaveLength(1);
 
-    userEvent.clear(writeInSearchSelect);
+    await userEvent.clear(writeInSearchSelect);
     // case insensitive filter
-    userEvent.type(writeInSearchSelect, 'OLIVER');
+    await userEvent.type(writeInSearchSelect, 'OLIVER');
 
     expect(screen.queryByText(/press enter to add:/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/invalid/i)).not.toBeInTheDocument();
@@ -532,12 +532,12 @@ describe('hmpb write-in adjudication', () => {
     expect(screen.getAllByText(/oliver/i)).toHaveLength(2);
 
     const oliverDropdownItem = getDropdownItemByLabel('oliver');
-    userEvent.click(oliverDropdownItem!);
+    await userEvent.click(oliverDropdownItem!);
 
     confirmButton = getButtonByName('confirm');
     expect(confirmButton).toBeEnabled();
 
-    userEvent.click(confirmButton);
+    await userEvent.click(confirmButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest({
@@ -578,7 +578,7 @@ describe('hmpb write-in adjudication', () => {
 
     // test max name length
     let writeInSearchSelect = screen.getByRole('combobox');
-    userEvent.type(
+    await userEvent.type(
       writeInSearchSelect,
       'a'.repeat(MAX_WRITE_IN_NAME_LENGTH + 1)
     );
@@ -586,11 +586,11 @@ describe('hmpb write-in adjudication', () => {
       screen.queryByText(/entry exceeds max character length/i)
     ).toBeInTheDocument();
     // enter should not select anything since there is no valid option
-    userEvent.keyboard('{Enter}');
+    await userEvent.keyboard('{Enter}');
 
     writeInSearchSelect = screen.getByRole('combobox');
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
-    userEvent.clear(writeInSearchSelect);
+    await userEvent.clear(writeInSearchSelect);
 
     // review dropdown options
     writeInSearchSelect = screen.getByRole('combobox');
@@ -600,26 +600,26 @@ describe('hmpb write-in adjudication', () => {
     expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
     expect(screen.queryByText(/oliver/i)).toBeInTheDocument();
 
-    userEvent.type(writeInSearchSelect, 'siena');
+    await userEvent.type(writeInSearchSelect, 'siena');
 
     expect(screen.queryByText(/invalid/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/oliver/i)).not.toBeInTheDocument();
 
     // add new candidate
     const addNewItem = getAddCandidateItem();
-    userEvent.click(addNewItem);
+    await userEvent.click(addNewItem);
 
     // once that candidate is added, they should be included in the next dropdown search
     writeInSearchSelect = screen.getByRole('combobox');
-    userEvent.type(writeInSearchSelect, 'sie');
+    await userEvent.type(writeInSearchSelect, 'sie');
     // even though we've only partially typed the name, the full name should be
     // highlighted in the dropdown
-    userEvent.keyboard('{Enter}');
+    await userEvent.keyboard('{Enter}');
 
     confirmButton = getButtonByName('confirm');
     expect(confirmButton).toBeEnabled();
 
-    userEvent.click(confirmButton);
+    await userEvent.click(confirmButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest({
@@ -662,7 +662,7 @@ describe('hmpb write-in adjudication', () => {
     ).not.toBeInTheDocument();
 
     // Type a name that doesn't match any existing candidate
-    userEvent.type(writeInSearchSelect, 'NewCandidate');
+    await userEvent.type(writeInSearchSelect, 'NewCandidate');
 
     // "Press enter to add" option should not appear
     expect(screen.queryByText(/press enter to add/i)).not.toBeInTheDocument();
@@ -728,7 +728,7 @@ describe('bmd write-in adjudication', () => {
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
 
     const invalidMarkItem = getInvalidMarkItem();
-    userEvent.click(invalidMarkItem);
+    await userEvent.click(invalidMarkItem);
 
     expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
 
@@ -737,7 +737,7 @@ describe('bmd write-in adjudication', () => {
       .filter((el) => !(el as HTMLInputElement).disabled)[0]!;
     expect(writeInCheckbox).not.toBeChecked();
 
-    userEvent.click(writeInCheckbox);
+    await userEvent.click(writeInCheckbox);
     writeInCheckbox = screen.getByRole('checkbox', {
       name: /machine-marked-mock-text/i,
     });
@@ -751,12 +751,12 @@ describe('bmd write-in adjudication', () => {
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
 
     const oliverItem = getDropdownItemByLabel('oliver');
-    userEvent.click(oliverItem!);
+    await userEvent.click(oliverItem!);
 
     confirmButton = screen.getByRole('button', { name: /confirm/i });
     expect(confirmButton).toBeEnabled();
 
-    userEvent.click(confirmButton);
+    await userEvent.click(confirmButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest({
@@ -800,44 +800,44 @@ describe('vote adjudication', () => {
     // check that previous vote adjudication is loaded properly along with caption
     expect(getCheckboxByName('lion')).toBeChecked();
     expect(screen.queryByText(/undetected mark/i)).toBeInTheDocument();
-    userEvent.click(getCheckboxByName('lion'));
+    await userEvent.click(getCheckboxByName('lion'));
     expect(screen.queryByText(/undetected mark/i)).toBeNull();
-    userEvent.click(getCheckboxByName('lion'));
+    await userEvent.click(getCheckboxByName('lion'));
     expect(getCheckboxByName('lion')).toBeChecked();
     expect(screen.queryByText(/undetected mark/i)).toBeInTheDocument();
 
     // check that an overvote is created if all candidates are selected
     expect(screen.queryByText(/overvote/i)).toBeNull();
-    userEvent.click(getCheckboxByName('zebra'));
-    userEvent.click(getCheckboxByName('elephant'));
+    await userEvent.click(getCheckboxByName('zebra'));
+    await userEvent.click(getCheckboxByName('elephant'));
     expect(screen.queryByText(/overvote/i)).toBeInTheDocument();
 
     // remove the overvote, cause an undervote
     expect(screen.queryByText(/undervote/i)).toBeNull();
-    userEvent.click(getCheckboxByName('zebra'));
-    userEvent.click(getCheckboxByName('elephant'));
+    await userEvent.click(getCheckboxByName('zebra'));
+    await userEvent.click(getCheckboxByName('elephant'));
     expect(screen.queryByText(/overvote/i)).toBeNull();
     expect(screen.queryByText(/undervote/i)).toBeInTheDocument();
 
     // check caption for new vote adjudication from true to false
     expect(getCheckboxByName('kangaroo')).toBeChecked();
     expect(screen.queryByText(/invalid/i)).toBeNull();
-    userEvent.click(getCheckboxByName('kangaroo'));
+    await userEvent.click(getCheckboxByName('kangaroo'));
     expect(getCheckboxByName('kangaroo')).not.toBeChecked();
     expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
 
     // caption disappears when undone
-    userEvent.click(getCheckboxByName('kangaroo'));
+    await userEvent.click(getCheckboxByName('kangaroo'));
     expect(getCheckboxByName('kangaroo')).toBeChecked();
     expect(screen.queryByText(/invalid/i)).toBeNull();
 
     // remove kangaroo so there is some change, enabling the primary button
-    userEvent.click(getCheckboxByName('kangaroo'));
+    await userEvent.click(getCheckboxByName('kangaroo'));
 
     const primaryButton = screen.getByRole('button', { name: /confirm/i });
     expect(primaryButton).toBeEnabled();
 
-    userEvent.click(primaryButton);
+    await userEvent.click(primaryButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest({
@@ -916,8 +916,8 @@ describe('vote adjudication', () => {
     expect(noCheckbox).not.toBeChecked();
 
     // resolve marginal mark by dismissing — confirms the mark is not a valid vote
-    userEvent.click(getButtonByName('dismiss'));
-    userEvent.click(getButtonByName('confirm'));
+    await userEvent.click(getButtonByName('dismiss'));
+    await userEvent.click(getButtonByName('confirm'));
     await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 });
@@ -974,13 +974,13 @@ describe('unmarked and undetected write-ins', () => {
 
     // first, test marking them all as valid to cause an overvote
     let checkboxes = screen.getAllByRole('checkbox', { name: /write-in/i });
-    for (const box of checkboxes) userEvent.click(box);
+    for (const box of checkboxes) await userEvent.click(box);
     checkboxes = screen.getAllByRole('checkbox', { name: /write-in/i });
     for (const box of checkboxes) expect(box).toBeChecked();
     expect(screen.queryByText(/overvote/i)).toBeInTheDocument();
 
     // now, test un-marking them all via the checkbox
-    for (const box of checkboxes) userEvent.click(box);
+    for (const box of checkboxes) await userEvent.click(box);
     checkboxes = screen.getAllByRole('checkbox', { name: /write-in/i });
     for (const box of checkboxes) expect(box).not.toBeChecked();
     expect(screen.queryByText(/overvote/i)).not.toBeInTheDocument();
@@ -989,7 +989,7 @@ describe('unmarked and undetected write-ins', () => {
     expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
 
     // toggle back on, and then enter values via searchSelects
-    for (const box of checkboxes) userEvent.click(box);
+    for (const box of checkboxes) await userEvent.click(box);
     const searchSelects = screen.getAllByRole('combobox');
     const selections = ['Elephant', 'Lion', 'Zebra'];
     for (const [i, select] of searchSelects.entries()) {
@@ -998,7 +998,7 @@ describe('unmarked and undetected write-ins', () => {
       expect(confirmButton).toBeDisabled();
       fireEvent.keyDown(select, { key: 'ArrowDown' });
       const dropdownItem = getDropdownItemByLabel(selections[i]!);
-      userEvent.click(dropdownItem!);
+      await userEvent.click(dropdownItem!);
     }
 
     // check the captions for the unmarked and undetected write-ins being marked valid.
@@ -1010,7 +1010,7 @@ describe('unmarked and undetected write-ins', () => {
     confirmButton = getButtonByName('confirm');
     expect(confirmButton).toBeEnabled();
 
-    userEvent.click(confirmButton);
+    await userEvent.click(confirmButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest({
@@ -1085,7 +1085,7 @@ describe('ballot image viewer', () => {
     expect(zoomButton).toBeEnabled();
 
     // Zoom out to show the entire ballot
-    userEvent.click(zoomButton);
+    await userEvent.click(zoomButton);
     ballotImage = screen.getByRole('img', {
       name: /ballot/i,
     });
@@ -1094,7 +1094,7 @@ describe('ballot image viewer', () => {
     expect(zoomButton).toHaveTextContent(/Zoom In/);
 
     // Zoom back in
-    userEvent.click(zoomButton);
+    await userEvent.click(zoomButton);
     ballotImage = screen.getByRole('img', {
       name: /ballot with section highlighted/i,
     });
@@ -1105,7 +1105,7 @@ describe('ballot image viewer', () => {
     // Entering a write-in while zoomed in should change the focused area
     let writeInSearchSelect = screen.getByRole('combobox');
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'false');
-    userEvent.click(writeInSearchSelect);
+    await userEvent.click(writeInSearchSelect);
     writeInSearchSelect = screen.getByRole('combobox');
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
     ballotImage = screen.getByRole('img', {
@@ -1120,7 +1120,7 @@ describe('ballot image viewer', () => {
     });
 
     // Escape key should remove focus from write-in
-    userEvent.keyboard('{Escape}');
+    await userEvent.keyboard('{Escape}');
     writeInSearchSelect = screen.getByRole('combobox');
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'false');
     ballotImage = await screen.findByRole('img', {
@@ -1277,31 +1277,31 @@ describe('double votes', () => {
     // via their official checkbox
     const writeInSearchSelect = screen.getAllByRole('combobox')[0]!;
     fireEvent.keyDown(writeInSearchSelect, { key: 'ArrowDown' });
-    userEvent.type(writeInSearchSelect, 'Kangaroo');
+    await userEvent.type(writeInSearchSelect, 'Kangaroo');
     // the select should be highlighting the 'add' option
-    userEvent.keyboard('{Enter}');
+    await userEvent.keyboard('{Enter}');
 
     let modal = await screen.findByRole('alertdialog');
     expect(screen.queryByText(/double vote detected/i)).toBeInTheDocument();
     let modalCancelButton = within(modal).getByRole('button', {
       name: /cancel/i,
     });
-    userEvent.click(modalCancelButton);
+    await userEvent.click(modalCancelButton);
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
     // now select a different official candidate twice via write-ins
     // to trigger another double vote
     const writeInSearchSelects = screen.getAllByRole('combobox');
     for (const select of writeInSearchSelects) {
-      userEvent.type(select, 'Lion');
-      userEvent.keyboard('{Enter}');
+      await userEvent.type(select, 'Lion');
+      await userEvent.keyboard('{Enter}');
     }
     modal = await screen.findByRole('alertdialog');
     expect(screen.queryByText(/double vote detected/i)).toBeInTheDocument();
     modalCancelButton = within(modal).getByRole('button', {
       name: /cancel/i,
     });
-    userEvent.click(modalCancelButton);
+    await userEvent.click(modalCancelButton);
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
@@ -1330,8 +1330,8 @@ describe('double votes', () => {
     const writeInSearchSelects = screen.getAllByRole('combobox');
     for (const select of writeInSearchSelects) {
       fireEvent.keyDown(select, { key: 'ArrowDown' });
-      userEvent.type(select, 'oliver');
-      userEvent.keyboard('{Enter}');
+      await userEvent.type(select, 'oliver');
+      await userEvent.keyboard('{Enter}');
     }
 
     const modal = await screen.findByRole('alertdialog');
@@ -1339,7 +1339,7 @@ describe('double votes', () => {
     const modalCancelButton = within(modal).getByRole('button', {
       name: /cancel/i,
     });
-    userEvent.click(modalCancelButton);
+    await userEvent.click(modalCancelButton);
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
@@ -1368,8 +1368,8 @@ describe('double votes', () => {
     const writeInSearchSelects = screen.getAllByRole('combobox');
     for (const select of writeInSearchSelects) {
       fireEvent.keyDown(select, { key: 'ArrowDown' });
-      userEvent.type(select, 'new');
-      userEvent.keyboard('{Enter}');
+      await userEvent.type(select, 'new');
+      await userEvent.keyboard('{Enter}');
     }
 
     const modal = await screen.findByRole('alertdialog');
@@ -1377,7 +1377,7 @@ describe('double votes', () => {
     const modalCancelButton = within(modal).getByRole('button', {
       name: /cancel/i,
     });
-    userEvent.click(modalCancelButton);
+    await userEvent.click(modalCancelButton);
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 });
@@ -1414,24 +1414,24 @@ describe('unsaved changes', () => {
     let elephantCheckbox = getCheckboxByName('elephant');
     expect(elephantCheckbox).not.toBeChecked();
 
-    userEvent.click(elephantCheckbox);
+    await userEvent.click(elephantCheckbox);
     elephantCheckbox = getCheckboxByName('elephant');
     expect(elephantCheckbox).toBeChecked();
 
     const cancelButton = getButtonByName('cancel');
-    userEvent.click(cancelButton);
+    await userEvent.click(cancelButton);
 
     let modal = await screen.findByRole('alertdialog');
     const modalBackButton = within(modal).getByRole('button', {
       name: /back/i,
     });
-    userEvent.click(modalBackButton);
+    await userEvent.click(modalBackButton);
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(elephantCheckbox).toBeChecked();
 
-    userEvent.click(cancelButton);
+    await userEvent.click(cancelButton);
     modal = await screen.findByRole('alertdialog');
-    userEvent.keyboard('{Enter}');
+    await userEvent.keyboard('{Enter}');
 
     await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
@@ -1470,7 +1470,7 @@ describe('unsaved changes', () => {
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'true');
 
     const elephantDropdownItem = getDropdownItemByLabel('Elephant');
-    userEvent.click(elephantDropdownItem!);
+    await userEvent.click(elephantDropdownItem!);
 
     writeInSearchSelect = screen.getByRole('combobox');
     expect(writeInSearchSelect).toHaveAttribute('aria-expanded', 'false');
@@ -1479,24 +1479,24 @@ describe('unsaved changes', () => {
     elephantItems = screen.getAllByText('Elephant');
     expect(elephantItems).toHaveLength(2);
 
-    userEvent.click(cancelButton);
+    await userEvent.click(cancelButton);
 
     let modal = await screen.findByRole('alertdialog');
     const modalBackButton = within(modal).getByRole('button', {
       name: /back/i,
     });
-    userEvent.click(modalBackButton);
+    await userEvent.click(modalBackButton);
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
     elephantItems = screen.getAllByText('Elephant');
     expect(elephantItems).toHaveLength(2);
 
-    userEvent.click(cancelButton);
+    await userEvent.click(cancelButton);
     modal = await screen.findByRole('alertdialog');
     const modalDiscardButton = within(modal).getByRole('button', {
       name: /discard changes/i,
     });
-    userEvent.click(modalDiscardButton);
+    await userEvent.click(modalDiscardButton);
     await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 });
@@ -1531,7 +1531,7 @@ describe('marginal mark adjudication', () => {
     // address one marginal mark by clicking it's checkbox, making it valid
     expect(screen.queryByText(/valid/i)).toBeNull();
     expect(getCheckboxByName('kangaroo')).not.toBeChecked();
-    userEvent.click(getCheckboxByName('kangaroo'));
+    await userEvent.click(getCheckboxByName('kangaroo'));
     expect(getCheckboxByName('kangaroo')).toBeChecked();
 
     // check adjudication caption, removal of one flag
@@ -1541,7 +1541,7 @@ describe('marginal mark adjudication', () => {
     // address the other by dismissing the flag, making it invalid
     expect(screen.queryByText(/invalid/i)).toBeNull();
     expect(getCheckboxByName('elephant')).not.toBeChecked();
-    userEvent.click(getButtonByName('dismiss'));
+    await userEvent.click(getButtonByName('dismiss'));
     expect(getCheckboxByName('elephant')).not.toBeChecked();
 
     // check adjudication caption, removal of last flag
@@ -1549,7 +1549,7 @@ describe('marginal mark adjudication', () => {
     expect(screen.queryByText(/review marginal mark/i)).toBeNull();
     expect(getButtonByName('confirm')).toBeEnabled();
 
-    userEvent.click(getButtonByName('confirm'));
+    await userEvent.click(getButtonByName('confirm'));
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest({
@@ -1599,7 +1599,7 @@ describe('marginal mark adjudication', () => {
     expect(screen.queryByText(/ambiguous write-in/i)).toBeNull();
 
     // Click the checkbox to adjudicate as valid vote
-    userEvent.click(writeIn0Checkbox);
+    await userEvent.click(writeIn0Checkbox);
     expect(
       screen.getAllByRole('checkbox', {
         name: /write-in/i,
@@ -1607,7 +1607,7 @@ describe('marginal mark adjudication', () => {
     ).toBeChecked();
 
     // Click again to adjudicate as invalid
-    userEvent.click(writeIn0Checkbox);
+    await userEvent.click(writeIn0Checkbox);
     expect(
       screen.getAllByRole('checkbox', {
         name: /write-in/i,
@@ -1619,7 +1619,7 @@ describe('marginal mark adjudication', () => {
     expect(screen.queryByText(/invalid/i)).toBeInTheDocument();
 
     // Click again to bring back the search select, adjudicate as candidate
-    userEvent.click(writeIn0Checkbox);
+    await userEvent.click(writeIn0Checkbox);
     expect(screen.getByRole('combobox')).toHaveAttribute(
       'aria-expanded',
       'false'
@@ -1629,11 +1629,11 @@ describe('marginal mark adjudication', () => {
       'aria-expanded',
       'true'
     );
-    userEvent.click(getDropdownItemByLabel('Elephant')!);
+    await userEvent.click(getDropdownItemByLabel('Elephant')!);
 
     expect(getButtonByName('confirm')).toBeEnabled();
 
-    userEvent.click(getButtonByName('confirm'));
+    await userEvent.click(getButtonByName('confirm'));
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(onConfirmContest).toHaveBeenCalledWith(
       formAdjudicatedCvrContest({
@@ -1715,7 +1715,7 @@ describe('candidate ordering', () => {
     within(dropdownOptions[1]!).getByText(/Thomas Edison/i);
 
     // Close the dropdown
-    userEvent.keyboard('{Escape}');
+    await userEvent.keyboard('{Escape}');
   });
 
   test('candidate ordering respects ballot style rotation for a different ballot style', async () => {

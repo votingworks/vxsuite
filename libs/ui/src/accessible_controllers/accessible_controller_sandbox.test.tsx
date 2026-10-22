@@ -46,8 +46,8 @@ function newRenderer() {
   };
 }
 
-function simulateKeyPress(key: string) {
-  baseSimulateKeyPress(key);
+async function simulateKeyPress(key: string) {
+  await baseSimulateKeyPress(key);
   act(() => {
     vi.advanceTimersByTime(0);
   });
@@ -98,17 +98,17 @@ test('provides audio feedback for all relevant buttons', async () => {
   expectLastMockScreenReaderContent('instructionsBmdControllerSandboxMarkScan');
   expectMockIllustrationProps(undefined);
 
-  act(() => simulateKeyPress(Keybinding.PAGE_NEXT));
+  await simulateKeyPress(Keybinding.PAGE_NEXT);
   expectLastMockScreenReaderContent('helpBmdControllerButtonPageNext');
   expectMockIllustrationProps(Keybinding.PAGE_NEXT);
 
-  act(() => simulateKeyPress(Keybinding.PAGE_PREVIOUS));
+  await simulateKeyPress(Keybinding.PAGE_PREVIOUS);
   expectLastMockScreenReaderContent('helpBmdControllerButtonPagePrevious');
   expectMockIllustrationProps(Keybinding.PAGE_PREVIOUS);
 
   // Expect no screen reader events for unconfigured keybindings:
-  act(() => simulateKeyPress(Keybinding.FOCUS_NEXT));
-  act(() => simulateKeyPress(Keybinding.SELECT));
+  await simulateKeyPress(Keybinding.FOCUS_NEXT);
+  await simulateKeyPress(Keybinding.SELECT);
   expectLastMockScreenReaderContent('helpBmdControllerButtonPagePrevious');
   expectMockIllustrationProps(undefined);
 });

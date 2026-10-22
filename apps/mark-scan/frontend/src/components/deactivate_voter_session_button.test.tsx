@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen } from '../../test/react_testing_library.js';
 import {
   ResetVoterSessionButton,
@@ -30,13 +30,13 @@ function renderButton(
   };
 }
 
-test('calls reset API on press', () => {
+test('calls reset API on press', async () => {
   const { mockMutate } = renderButton(<ResetVoterSessionButton />, {
     isMutationInProgress: false,
   });
   expect(mockMutate).not.toHaveBeenCalled();
 
-  userEvent.click(screen.getButton(/deactivate/i));
+  await userEvent.click(screen.getButton(/deactivate/i));
   expect(mockMutate).toHaveBeenCalled();
 });
 

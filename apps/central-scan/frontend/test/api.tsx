@@ -25,7 +25,7 @@ import { SystemCallContextProvider, TestErrorBoundary } from '@votingworks/ui';
 import type { BatteryInfo } from '@votingworks/backend';
 import type { DiskSpaceSummary } from '@votingworks/utils';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { ok } from '@votingworks/basics';
+import { deferred, type Deferred, ok } from '@votingworks/basics';
 import {
   mockPollWorkerUser,
   mockSessionExpiresAt,
@@ -247,12 +247,28 @@ export function createApiMock(
       apiClient.unconfigure.expectCallWith(input).resolves();
     },
 
+    /** Like `expectUnconfigure`, but the caller controls when it resolves. */
+    expectUnconfigureDeferred(input: {
+      ignoreBackupRequirement: boolean;
+    }): Deferred<void> {
+      const result = deferred<void>();
+      apiClient.unconfigure.expectCallWith(input).returns(result.promise);
+      return result;
+    },
+
     expectDeleteBatch(input: { batchId: string }) {
       apiClient.deleteBatch.expectCallWith(input).resolves();
     },
 
     expectClearBallotData() {
       apiClient.clearBallotData.expectCallWith().resolves();
+    },
+
+    /** Like `expectClearBallotData`, but the caller controls when it resolves. */
+    expectClearBallotDataDeferred(): Deferred<void> {
+      const result = deferred<void>();
+      apiClient.clearBallotData.expectCallWith().returns(result.promise);
+      return result;
     },
 
     expectGetMostRecentScannerDiagnostic(diagnostic?: DiagnosticRecord) {

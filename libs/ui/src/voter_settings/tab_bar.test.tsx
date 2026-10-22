@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { userEvent } from '../user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen, within } from '../../test/react_testing_library.js';
 import { TabBar } from './tab_bar.js';
 import type { SettingsPaneId } from './types.js';
@@ -12,7 +12,7 @@ test('renders all available voter settings tabs', () => {
   within(tabList).getByRole('tab', { name: 'Text Size', selected: true });
 });
 
-test('fires change event with settings pane id', () => {
+test('fires change event with settings pane id', async () => {
   const onChange = vi.fn();
   render(
     <TabBar
@@ -24,11 +24,15 @@ test('fires change event with settings pane id', () => {
 
   expect(onChange).not.toHaveBeenCalled();
 
-  userEvent.click(screen.getByRole('tab', { name: 'Color', selected: false }));
+  await userEvent.click(
+    screen.getByRole('tab', { name: 'Color', selected: false })
+  );
 
   expect(onChange).toHaveBeenCalledWith<[SettingsPaneId]>('voterSettingsColor');
 
-  userEvent.click(screen.getByRole('tab', { name: 'Audio', selected: false }));
+  await userEvent.click(
+    screen.getByRole('tab', { name: 'Audio', selected: false })
+  );
 
   expect(onChange).toHaveBeenCalledWith<[SettingsPaneId]>('voterSettingsAudio');
 });

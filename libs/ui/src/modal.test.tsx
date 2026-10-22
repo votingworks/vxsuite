@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import React from 'react';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen, within } from '../test/react_testing_library.js';
 import { Modal, ModalWidth } from './modal.js';
 import { Button } from './button.js';
@@ -97,12 +97,12 @@ describe('Modal', () => {
     expect(content).not.toHaveStyle({ padding: '2rem' });
   });
 
-  test('handles overlay click', () => {
+  test('handles overlay click', async () => {
     const onOverlayClick = vi.fn();
     const { baseElement } = render(
       <Modal content="Content" onOverlayClick={onOverlayClick} />
     );
-    userEvent.click(
+    await userEvent.click(
       baseElement.getElementsByClassName('ReactModal__Overlay')[0]!
     );
     expect(onOverlayClick).toHaveBeenCalledTimes(1);

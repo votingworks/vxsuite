@@ -2,7 +2,7 @@ import { expect, test, beforeEach, afterEach } from 'vitest';
 import type React from 'react';
 import { createMemoryHistory } from 'history';
 import { ok } from '@votingworks/basics';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   createMockApiClient,
   type MockApiClient,
@@ -68,7 +68,7 @@ test('creates election for single jurisdiction user', async () => {
     .resolves(ok(newId));
 
   const button = await screen.findByRole('button', { name: 'Create Election' });
-  userEvent.click(button);
+  await userEvent.click(button);
 
   await waitFor(() =>
     expect(history.location.pathname).toEqual(`/elections/${newId}`)
@@ -83,7 +83,7 @@ test('shows modal with jurisdiction selector for multi-jurisdiction user', async
   const history = renderButton();
 
   const button = await screen.findByRole('button', { name: 'Create Election' });
-  userEvent.click(button);
+  await userEvent.click(button);
 
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Create Election' });
@@ -91,12 +91,12 @@ test('shows modal with jurisdiction selector for multi-jurisdiction user', async
     name: 'Jurisdiction',
   });
   within(modal).getByText(jurisdiction.name);
-  userEvent.click(jurisdictionSelect);
+  await userEvent.click(jurisdictionSelect);
   const jurisdictionOptions = await screen.findAllByRole('option');
   expect(jurisdictionOptions.map((o) => o.textContent)).toEqual(
     multiJurisdictionUser.jurisdictions.map((j) => j.name)
   );
-  userEvent.click(jurisdictionOptions[1]!);
+  await userEvent.click(jurisdictionOptions[1]!);
 
   const newId = idFactory.next();
   apiMock.createElection
@@ -109,7 +109,7 @@ test('shows modal with jurisdiction selector for multi-jurisdiction user', async
   const createButton = within(modal).getByRole('button', {
     name: 'Confirm',
   });
-  userEvent.click(createButton);
+  await userEvent.click(createButton);
 
   await waitFor(() =>
     expect(history.location.pathname).toEqual(`/elections/${newId}`)
@@ -123,6 +123,6 @@ test('shows modal with jurisdiction selector for organization user', async () =>
     .resolves([jurisdiction, jurisdiction2]);
   renderButton();
   const button = await screen.findByRole('button', { name: 'Create Election' });
-  userEvent.click(button);
+  await userEvent.click(button);
   await screen.findByRole('alertdialog');
 });

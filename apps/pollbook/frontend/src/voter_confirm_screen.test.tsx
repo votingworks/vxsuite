@@ -6,7 +6,7 @@ import type {
   ValidStreetInfo,
   VoterIdentificationMethod,
 } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   electionMultiPartyPrimaryFixtures,
   electionSimpleSinglePrecinctFixtures,
@@ -142,7 +142,7 @@ test.each(testVoters)(
     const confirmButton = screen.getButton('Confirm Check-In');
     expect(confirmButton).not.toBeDisabled();
 
-    userEvent.click(confirmButton);
+    await userEvent.click(confirmButton);
 
     const expectedIdentification: VoterIdentificationMethod = {
       type: 'default',
@@ -203,7 +203,7 @@ test('happy path - active voter check-in in absentee mode', async () => {
   expect(screen.queryByText('Out-of-State ID')).toBeNull();
 
   const confirmButton = screen.getButton('Confirm Check-In');
-  userEvent.click(confirmButton);
+  await userEvent.click(confirmButton);
 
   const expectedIdentification: VoterIdentificationMethod = { type: 'default' };
   const expectedParty = voter.party;
@@ -220,7 +220,7 @@ test('out-of-state identification method', async () => {
   const outOfStateCheckbox = screen.getByRole('checkbox', {
     name: 'Out-of-State ID',
   });
-  userEvent.click(outOfStateCheckbox);
+  await userEvent.click(outOfStateCheckbox);
 
   // Confirm button should be disabled until state is selected
   const confirmButton = screen.getButton('Confirm Check-In');
@@ -228,13 +228,13 @@ test('out-of-state identification method', async () => {
 
   // Select a state
   const stateSelect = screen.getByLabelText('Select state');
-  userEvent.click(stateSelect);
+  await userEvent.click(stateSelect);
   const californiaOption = await screen.findByText('CA - California');
-  userEvent.click(californiaOption);
+  await userEvent.click(californiaOption);
 
   // Now confirm button should be enabled
   expect(confirmButton).not.toBeDisabled();
-  userEvent.click(confirmButton);
+  await userEvent.click(confirmButton);
 
   const expectedIdentification: VoterIdentificationMethod = {
     type: 'outOfStateLicense',
@@ -253,7 +253,7 @@ test('inactive voter confirmation modal - confirm check-in', async () => {
   await renderComponent({ voterOverride: inactiveVoter });
 
   const confirmButton = screen.getButton('Confirm Check-In');
-  userEvent.click(confirmButton);
+  await userEvent.click(confirmButton);
 
   // Modal should appear
   await screen.findByRole('heading', {
@@ -266,7 +266,7 @@ test('inactive voter confirmation modal - confirm check-in', async () => {
   // Find the modal and click confirm button within it
   const modal = screen.getByRole('alertdialog');
   const modalConfirmButton = within(modal).getButton('Confirm Check-In');
-  userEvent.click(modalConfirmButton);
+  await userEvent.click(modalConfirmButton);
 
   const expectedIdentification: VoterIdentificationMethod = { type: 'default' };
   const expectedParty = voter.party;
@@ -282,7 +282,7 @@ test('inactive voter confirmation modal - close modal', async () => {
   await renderComponent({ voterOverride: inactiveVoter });
 
   const confirmButton = screen.getButton('Confirm Check-In');
-  userEvent.click(confirmButton);
+  await userEvent.click(confirmButton);
 
   // Modal should appear
   await screen.findByRole('heading', {
@@ -292,7 +292,7 @@ test('inactive voter confirmation modal - close modal', async () => {
   // Find the modal and click close button within it
   const modal = screen.getByRole('alertdialog');
   const closeButton = within(modal).getButton('Cancel');
-  userEvent.click(closeButton);
+  await userEvent.click(closeButton);
 
   // Modal should close and onConfirmCheckIn should not be called
   await waitFor(() => {
@@ -305,7 +305,7 @@ test('cancel button calls onCancel', async () => {
   await renderComponent();
 
   const cancelButton = screen.getButton('Cancel');
-  userEvent.click(cancelButton);
+  await userEvent.click(cancelButton);
 
   expect(onCancel).toHaveBeenCalled();
 });
@@ -329,7 +329,7 @@ test('update domicile address button opens address flow', async () => {
   await renderComponent();
 
   const updateAddressButton = screen.getButton('Update Domicile Address');
-  userEvent.click(updateAddressButton);
+  await userEvent.click(updateAddressButton);
 
   // Should show the address update flow
   await screen.findByRole('heading', { name: 'Update Voter Domicile Address' });
@@ -339,7 +339,7 @@ test('update mailing address button opens address flow', async () => {
   await renderComponent();
 
   const updateAddressButton = screen.getButton('Update Mailing Address');
-  userEvent.click(updateAddressButton);
+  await userEvent.click(updateAddressButton);
 
   // Should show the address update flow
   await screen.findByRole('heading', { name: 'Update Voter Mailing Address' });
@@ -503,23 +503,23 @@ test('unchecking out-of-state ID returns to default identification', async () =>
   const outOfStateCheckbox = screen.getByRole('checkbox', {
     name: 'Out-of-State ID',
   });
-  userEvent.click(outOfStateCheckbox);
+  await userEvent.click(outOfStateCheckbox);
 
   // Select a state
   const stateSelect = screen.getByLabelText('Select state');
-  userEvent.click(stateSelect);
+  await userEvent.click(stateSelect);
   const californiaOption = await screen.findByText('CA - California');
-  userEvent.click(californiaOption);
+  await userEvent.click(californiaOption);
 
   // Uncheck the out-of-state ID checkbox
-  userEvent.click(outOfStateCheckbox);
+  await userEvent.click(outOfStateCheckbox);
 
   // State select should disappear and confirm should work with default
   expect(screen.queryByLabelText('Select state')).toBeNull();
 
   const confirmButton = screen.getButton('Confirm Check-In');
   expect(confirmButton).not.toBeDisabled();
-  userEvent.click(confirmButton);
+  await userEvent.click(confirmButton);
 
   const expectedIdentification: VoterIdentificationMethod = { type: 'default' };
   const expectedParty = voter.party;
@@ -594,7 +594,7 @@ test('requires ballot party selection if voter party is undeclared', async () =>
   await renderComponent({ voterOverride: undeclaredVoter });
 
   const confirmButton = screen.getButton('Confirm Identity');
-  userEvent.click(confirmButton);
+  await userEvent.click(confirmButton);
   expect(onConfirmVoterIdentity).toHaveBeenCalledOnce();
   expect(onConfirmVoterIdentity).toHaveBeenLastCalledWith(mockVoterId, {
     type: 'default',

@@ -1,5 +1,5 @@
 import { describe, expect, test, vi, afterEach } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { Buffer } from 'node:buffer';
 import {
   fireEvent,
@@ -33,7 +33,7 @@ describe('ImageInput', () => {
       />
     );
     const input = screen.getByLabelText('Upload');
-    userEvent.upload(input, svgFile);
+    await userEvent.upload(input, svgFile);
     await waitFor(() =>
       expect(onChange).toHaveBeenCalledWith(sanitizedContents)
     );
@@ -61,7 +61,7 @@ describe('ImageInput', () => {
     );
   });
 
-  test('when required, blocks form submission if no value given', () => {
+  test('when required, blocks form submission if no value given', async () => {
     const onChange = vi.fn();
     const onSubmit = vi.fn((e) => e.preventDefault());
     render(
@@ -77,11 +77,11 @@ describe('ImageInput', () => {
       </form>
     );
     const submitButton = screen.getByRole('button', { name: 'Submit' });
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
-  test('when required, does not block form submission if it has a value', () => {
+  test('when required, does not block form submission if it has a value', async () => {
     const onChange = vi.fn();
     const onSubmit = vi.fn((e) => e.preventDefault());
     render(
@@ -98,7 +98,7 @@ describe('ImageInput', () => {
       </form>
     );
     const submitButton = screen.getByRole('button', { name: 'Submit' });
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
     expect(onSubmit).toHaveBeenCalled();
   });
 
@@ -156,7 +156,7 @@ describe('ImageInput', () => {
         );
 
         const input = screen.getByLabelText('Upload');
-        userEvent.upload(input, imageFile);
+        await userEvent.upload(input, imageFile);
         await waitFor(() =>
           expect(onChange).toHaveBeenCalledWith(
             `<svg xmlns="http://www.w3.org/2000/svg" width="${imageWidth}" height="${imageHeight}" viewBox="0 0 ${imageWidth} ${imageHeight}">
@@ -202,7 +202,7 @@ describe('ImageInput', () => {
         />
       );
 
-      userEvent.upload(screen.getByLabelText('Upload'), svgImageFile);
+      await userEvent.upload(screen.getByLabelText('Upload'), svgImageFile);
       await waitFor(() =>
         expect(onChange)
           .toHaveBeenCalledWith(`<svg xmlns="http://www.w3.org/2000/svg" width="${imageWidth}" height="${imageHeight}" viewBox="0 0 ${imageWidth} ${imageHeight}">
@@ -236,7 +236,7 @@ describe('ImageInput', () => {
         />
       );
       const input = screen.getByLabelText<HTMLInputElement>('Upload');
-      userEvent.upload(
+      await userEvent.upload(
         input,
         new File([''], 'image.png', { type: 'image/png' })
       );
@@ -267,7 +267,7 @@ describe('ImageInput', () => {
         />
       );
       const input = screen.getByLabelText<HTMLInputElement>('Upload');
-      userEvent.upload(
+      await userEvent.upload(
         input,
         new File([''], 'image.png', { type: 'image/png' })
       );
@@ -297,7 +297,7 @@ describe('ImageInput', () => {
         },
       });
       const input = screen.getByLabelText<HTMLInputElement>('Upload');
-      userEvent.upload(
+      await userEvent.upload(
         input,
         new File([''], 'image.png', { type: 'image/png' })
       );
@@ -363,7 +363,7 @@ describe('ImageInput', () => {
         />
       );
       const input = screen.getByLabelText<HTMLInputElement>('Upload');
-      userEvent.upload(input, imageFile);
+      await userEvent.setup({ applyAccept: false }).upload(input, imageFile);
       await waitFor(() =>
         expect(input.validationMessage).toEqual(expectedMessage)
       );
@@ -384,7 +384,7 @@ describe('ImageInput', () => {
     );
 
     const input = screen.getByLabelText<HTMLInputElement>('Upload');
-    userEvent.upload(input, tooLargeFile);
+    await userEvent.upload(input, tooLargeFile);
     await waitFor(() => {
       expect(input.validationMessage).toEqual(
         'Image file size must be less than 5 MB'
@@ -404,7 +404,7 @@ describe('ImageInput', () => {
       />
     );
     const removeButton = screen.getByRole('button', { name: 'Remove' });
-    userEvent.click(removeButton);
+    await userEvent.click(removeButton);
     await waitFor(() => expect(onChange).toHaveBeenCalledWith(undefined));
   });
 });

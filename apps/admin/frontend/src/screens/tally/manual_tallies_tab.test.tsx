@@ -8,7 +8,7 @@ import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { getGroupedBallotStyles } from '@votingworks/utils';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { screen, within } from '../../../test/react_testing_library.js';
@@ -66,7 +66,7 @@ test('initial table without manual tallies & adding a manual tally - primary ele
   expect(screen.getButton('Enter Tallies')).toBeDisabled();
   expect(screen.getByLabelText('Voting Method')).toBeDisabled();
 
-  userEvent.click(screen.getByLabelText('Ballot Style'));
+  await userEvent.click(screen.getByLabelText('Ballot Style'));
   const ballotStyleOptions = screen.getByText(
     'Precinct 1 - Mammal'
   ).parentElement!;
@@ -84,21 +84,21 @@ test('initial table without manual tallies & adding a manual tally - primary ele
     'Precinct 4 - Split 2 - Mammal',
     'Precinct 4 - Split 2 - Fish',
   ]);
-  userEvent.click(screen.getByText('Precinct 1 - Mammal'));
+  await userEvent.click(screen.getByText('Precinct 1 - Mammal'));
 
   expect(screen.getButton('Enter Tallies')).toBeDisabled();
 
-  userEvent.click(screen.getByLabelText('Voting Method'));
+  await userEvent.click(screen.getByLabelText('Voting Method'));
   const votingMethodOptions = screen.getByText('Absentee').parentElement!;
-  userEvent.click(within(votingMethodOptions).getByText('Precinct'));
+  await userEvent.click(within(votingMethodOptions).getByText('Precinct'));
 
   // Modal for uploading an ERR file. Functionality tested at component level.
-  userEvent.click(screen.getButton('Import Results'));
+  await userEvent.click(screen.getButton('Import Results'));
   screen.getByText('Insert a USB drive in order to import a results file.');
-  userEvent.click(screen.getByText('Cancel'));
+  await userEvent.click(screen.getByText('Cancel'));
 
   // Entering data manually
-  userEvent.click(screen.getButton('Enter Tallies'));
+  await userEvent.click(screen.getButton('Enter Tallies'));
   expect(history.location.pathname).toEqual(
     '/tally/manual/1-Ma/precinct/precinct-c1-w1-1'
   );
@@ -131,7 +131,7 @@ test('adding a manual tally - general election', async () => {
   expect(screen.getButton('Enter Tallies')).toBeDisabled();
   expect(screen.getByLabelText('Voting Method')).toBeDisabled();
 
-  userEvent.click(screen.getByLabelText('Ballot Style'));
+  await userEvent.click(screen.getByLabelText('Ballot Style'));
   const ballotStyleOptions =
     screen.getByText('Center Springfield').parentElement!;
   expect(
@@ -141,20 +141,20 @@ test('adding a manual tally - general election', async () => {
     'North Springfield - Split 1',
     'North Springfield - Split 2',
   ]);
-  userEvent.click(screen.getByText('North Springfield - Split 1'));
+  await userEvent.click(screen.getByText('North Springfield - Split 1'));
 
   expect(screen.getButton('Enter Tallies')).toBeDisabled();
 
-  userEvent.click(screen.getByLabelText('Voting Method'));
-  userEvent.click(screen.getByText('Absentee'));
+  await userEvent.click(screen.getByLabelText('Voting Method'));
+  await userEvent.click(screen.getByText('Absentee'));
 
   // Modal for uploading an ERR file. Functionality tested at component level.
-  userEvent.click(screen.getButton('Import Results'));
+  await userEvent.click(screen.getButton('Import Results'));
   screen.getByText('Insert a USB drive in order to import a results file.');
-  userEvent.click(screen.getByText('Cancel'));
+  await userEvent.click(screen.getByText('Cancel'));
 
   // Entering data manually
-  userEvent.click(screen.getButton('Enter Tallies'));
+  await userEvent.click(screen.getButton('Enter Tallies'));
   expect(history.location.pathname).toEqual('/tally/manual/5/absentee/21');
 });
 
@@ -176,7 +176,7 @@ test('link to edit an existing tally', async () => {
   await screen.findByText('Total Manual Ballot Count: 10');
   expect(screen.getButton('Remove All Manual Tallies')).not.toBeDisabled();
 
-  userEvent.click(screen.getButton('Edit'));
+  await userEvent.click(screen.getButton('Edit'));
   expect(history.location.pathname).toEqual(
     '/tally/manual/1-Ma/precinct/precinct-c1-w1-1'
   );
@@ -232,7 +232,7 @@ test('delete an existing tally', async () => {
   await screen.findByText('Total Manual Ballot Count: 10');
   expect(screen.getButton('Remove All Manual Tallies')).toBeEnabled();
 
-  userEvent.click(screen.getButton('Remove'));
+  await userEvent.click(screen.getButton('Remove'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText(
     hasTextAcrossElements(/Ballot Style: Precinct 1 - Mammal/)
@@ -246,7 +246,7 @@ test('delete an existing tally', async () => {
     votingMethod: 'precinct',
   });
   apiMock.expectGetManualResultsMetadata([]);
-  userEvent.click(screen.getButton('Remove Manual Tallies'));
+  await userEvent.click(screen.getButton('Remove Manual Tallies'));
   await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
@@ -285,12 +285,12 @@ test('full table & clearing all data', async () => {
   expect(screen.getAllButtons('Remove')).toHaveLength(20);
 
   // clearing all results
-  userEvent.click(screen.getButton('Remove All Manual Tallies'));
+  await userEvent.click(screen.getButton('Remove All Manual Tallies'));
   const modal = await screen.findByRole('alertdialog');
 
   apiMock.expectDeleteAllManualResults();
   apiMock.expectGetManualResultsMetadata([]);
-  userEvent.click(within(modal).getButton('Remove All Manual Tallies'));
+  await userEvent.click(within(modal).getButton('Remove All Manual Tallies'));
 
   await screen.findByText('Enter Tallies');
   screen.getByLabelText('Ballot Style');
@@ -329,10 +329,10 @@ test('voting method dropdown includes early voting when enabled in system settin
 
   await screen.findByText('No manual tallies entered.');
 
-  userEvent.click(screen.getByLabelText('Ballot Style'));
-  userEvent.click(screen.getByText('Center Springfield'));
+  await userEvent.click(screen.getByLabelText('Ballot Style'));
+  await userEvent.click(screen.getByText('Center Springfield'));
 
-  userEvent.click(screen.getByLabelText('Voting Method'));
+  await userEvent.click(screen.getByLabelText('Voting Method'));
   const votingMethodOptions = assertDefined(
     screen.getByText('Early Voting').parentElement
   );

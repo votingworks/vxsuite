@@ -8,7 +8,7 @@ import {
   useBallotStyleManager,
   useSessionSettingsManager,
 } from '@votingworks/mark-flow-ui';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { screen, waitFor } from '../test/react_testing_library.js';
 import { advanceTimersAndPromises } from '../test/helpers/timers.js';
 import { render } from '../test/test_utils.js';
@@ -166,12 +166,12 @@ test('PAT device tutorial is shown when PAT key is pressed during voter session'
   await screen.findByText('Start Voting');
 
   // Pressing a non PAT button doesn't trigger the PAT tutorial
-  userEvent.keyboard('0');
+  await userEvent.keyboard('0');
   // No page change
   await screen.findByText('Start Voting');
 
   // Press PAT key '1' (PAT_MOVE) to trigger PAT tutorial
-  userEvent.keyboard('1');
+  await userEvent.keyboard('1');
 
   // PAT calibration page should be shown
   await screen.findByText(
@@ -200,7 +200,7 @@ test('PAT device tutorial can be skipped', async () => {
   await screen.findByText('Start Voting');
 
   // Press PAT key to trigger PAT tutorial
-  userEvent.keyboard('2');
+  await userEvent.keyboard('2');
 
   // PAT calibration page should be shown
   await screen.findByText(
@@ -208,7 +208,7 @@ test('PAT device tutorial can be skipped', async () => {
   );
 
   // Skip the tutorial
-  userEvent.click(screen.getByRole('button', { name: /skip/i }));
+  await userEvent.click(screen.getByRole('button', { name: /skip/i }));
 
   // Should return to voter screen
   await screen.findByText('Start Voting');
@@ -229,7 +229,7 @@ test('PAT device tutorial is not triggered when not in voter session', async () 
   await screen.findByText('Insert Card');
 
   // Press PAT key - should NOT trigger tutorial since not in voter session
-  userEvent.keyboard('1');
+  await userEvent.keyboard('1');
 
   // Should still be on insert card screen (no PAT calibration page)
   expect(

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { err, ok } from '@votingworks/basics';
 import type { PollingPlace } from '@votingworks/types';
 import {
@@ -127,20 +127,20 @@ test('shows dropdown when multiple polling places match and allows changing the 
   });
 
   const select = await screen.findByLabelText('Select polling place');
-  userEvent.click(select);
-  userEvent.click(await screen.findByText('County Absentee'));
+  await userEvent.click(select);
+  await userEvent.click(await screen.findByText('County Absentee'));
 
   const qrContainer = await screen.findByTestId('live-results-code');
   expect(within(qrContainer).getByText('1 / 2')).toBeInTheDocument();
 
-  userEvent.click(screen.getButton('Next'));
+  await userEvent.click(screen.getButton('Next'));
   await within(qrContainer).findByText('2 / 2');
   expect(qrContainer.querySelector('[data-value]')).toHaveAttribute(
     'data-value',
     'https://example.com/results?p=BBB'
   );
 
-  userEvent.click(screen.getButton('Previous'));
+  await userEvent.click(screen.getButton('Previous'));
   await within(qrContainer).findByText('1 / 2');
   expect(qrContainer.querySelector('[data-value]')).toHaveAttribute(
     'data-value',
@@ -151,8 +151,8 @@ test('shows dropdown when multiple polling places match and allows changing the 
   apiMock.expectGetLiveResultsReportingUrls(DOWNTOWN_ELECTION_DAY.id, [
     'https://example.com/results?p=CCC',
   ]);
-  userEvent.click(screen.getByLabelText('Select polling place'));
-  userEvent.click(await screen.findByText('Downtown Election Day'));
+  await userEvent.click(screen.getByLabelText('Select polling place'));
+  await userEvent.click(await screen.findByText('Downtown Election Day'));
 
   const newQrContainer = await screen.findByTestId('live-results-code');
   await waitFor(() =>

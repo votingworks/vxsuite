@@ -17,7 +17,7 @@ import {
   type ElectionDefinition,
   formatElectionHashes,
 } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { render, within, screen } from '../test/react_testing_library.js';
 import { App } from './app.js';
@@ -169,7 +169,7 @@ test('shows the ballot eject screen while a sheet needs review', async () => {
   await screen.findByRole('heading', { name: 'Blank Ballot' });
 
   apiMock.expectRejectSheet();
-  userEvent.click(screen.getButton('Confirm Ballot Removed'));
+  await userEvent.click(screen.getButton('Confirm Ballot Removed'));
   apiMock.setStatus(
     mockStatus(
       { batches: [mockBatch({ id: 'batch-id', endedAt: undefined })] },
@@ -198,10 +198,10 @@ test('a batch pauses when the tray empties, continues, and is saved', async () =
     endedAt: undefined,
   });
   apiMock.expectScanBatch();
+  await userEvent.click(screen.getButton('Start Scanning'));
   apiMock.setStatus(
     mockStatus({ batches: [batch] }, { state: 'scanning', batchId: 'a' })
   );
-  userEvent.click(screen.getButton('Start Scanning'));
   await screen.findByText('Scanning');
   expect(screen.getByTestId('batch-sheet-count')).toHaveTextContent('2');
 
@@ -214,13 +214,13 @@ test('a batch pauses when the tray empties, continues, and is saved', async () =
   await screen.findByText('Input tray empty');
 
   apiMock.expectResumeBatch();
+  await userEvent.click(screen.getButton('Continue Scanning'));
   apiMock.setStatus(
     mockStatus(
       { batches: [{ ...batch, count: 3 }] },
       { state: 'scanning', batchId: 'a' }
     )
   );
-  userEvent.click(screen.getButton('Continue Scanning'));
   await screen.findByText('Scanning');
   expect(screen.getByTestId('batch-sheet-count')).toHaveTextContent('3');
 
@@ -232,21 +232,21 @@ test('a batch pauses when the tray empties, continues, and is saved', async () =
   );
   await screen.findByText('Input tray empty');
 
-  userEvent.click(screen.getButton('Save Batch'));
+  await userEvent.click(screen.getButton('Save Batch'));
   const modal = await screen.findByRole('alertdialog');
   apiMock.expectSaveBatch();
+  await userEvent.click(within(modal).getButton('Save Batch'));
   apiMock.setStatus(
     mockStatus({
       batches: [{ ...batch, count: 3, endedAt: new Date(0).toISOString() }],
     })
   );
-  userEvent.click(within(modal).getButton('Save Batch'));
   await screen.findByText('Ready to Scan');
   await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
 
-  userEvent.click(screen.getByText('Batch History'));
+  await userEvent.click(screen.getByText('Batch History'));
   await screen.findByText('Batch 1');
   expect(screen.getByTestId('total-sheets')).toHaveTextContent('3');
 });
@@ -263,22 +263,22 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
   render(<App apiClient={apiMock.apiClient} />);
   await authenticateAsElectionManager(electionDefinition);
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
-  userEvent.click(screen.getButton('Batch History'));
+  await userEvent.click(screen.getButton('Batch History'));
   await screen.findByRole('heading', { name: 'Batch History' });
 
   // wait for the config to load
   const saveButton = screen.getButton('Save CVRs');
   await vi.waitFor(() => expect(saveButton).toBeEnabled());
-  userEvent.click(saveButton);
+  await userEvent.click(saveButton);
   await screen.findByRole('alertdialog');
   apiMock.expectExportCastVoteRecords();
-  userEvent.click(await screen.findByText('Save'));
+  await userEvent.click(await screen.findByText('Save'));
   await screen.findByText('CVRs Saved');
-  userEvent.click(screen.getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
 
   expect(screen.queryByRole('alertdialog')).toEqual(null);
 
-  userEvent.click(screen.getButton('Scan Ballots'));
+  await userEvent.click(screen.getButton('Scan Ballots'));
   await screen.findByRole('heading', { name: 'Scan Ballots' });
 });
 
@@ -291,24 +291,24 @@ test('deleting a batch removes it from the table', async () => {
 
   render(<App apiClient={apiMock.apiClient} />);
   await authenticateAsElectionManager(electionDefinition);
-  userEvent.click(screen.getButton('Batch History'));
+  await userEvent.click(screen.getButton('Batch History'));
   await screen.findByRole('heading', { name: 'Batch History' });
   await screen.findByText('Batch 2');
 
-  userEvent.click(screen.getAllButtons('Delete')[1]!);
+  await userEvent.click(screen.getAllButtons('Delete')[1]!);
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Delete ‘Batch 2’' });
 
   apiMock.expectDeleteBatch({ batchId: 'b' });
   apiMock.setStatus(mockStatus({ batches: [batch1] }));
-  userEvent.click(within(modal).getButton('Delete Batch'));
+  await userEvent.click(within(modal).getButton('Delete Batch'));
 
   await vi.waitFor(() =>
     expect(screen.queryByText('Batch 2')).not.toBeInTheDocument()
   );
   screen.getByText('Batch 1');
 
-  userEvent.click(screen.getButton('Scan Ballots'));
+  await userEvent.click(screen.getButton('Scan Ballots'));
   await screen.findByRole('heading', { name: 'Scan Ballots' });
 });
 
@@ -347,19 +347,22 @@ test('configuring election from usb election package works end to end', async ()
   // Remove USB drive
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('no_drive'));
 
-  userEvent.click(screen.getButton('Settings'));
+  await userEvent.click(screen.getButton('Settings'));
   screen.getByRole('heading', { name: 'Settings' });
-  userEvent.click(screen.getButton('Unconfigure Machine'));
+  await userEvent.click(screen.getButton('Unconfigure Machine'));
   await screen.findByRole('heading', { name: 'Unconfigure Machine' });
 
-  apiMock.expectUnconfigure({ ignoreBackupRequirement: false });
+  const unconfigure = apiMock.expectUnconfigureDeferred({
+    ignoreBackupRequirement: false,
+  });
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetSystemSettings();
   apiMock.expectGetTestMode(true);
   apiMock.expectEjectUsbDrive();
 
-  userEvent.click(screen.getButton('Delete All Election Data'));
+  await userEvent.click(screen.getButton('Delete All Election Data'));
   screen.getByText('Unconfiguring Machine');
+  unconfigure.resolve();
   await screen.findByText('Insert a USB drive containing an election package');
 });
 
@@ -414,12 +417,12 @@ test('authentication works', async () => {
   });
   await screen.findByText('Enter Card PIN');
   apiMock.expectCheckPin('111111');
-  userEvent.click(screen.getByText('1'));
-  userEvent.click(screen.getByText('1'));
-  userEvent.click(screen.getByText('1'));
-  userEvent.click(screen.getByText('1'));
-  userEvent.click(screen.getByText('1'));
-  userEvent.click(screen.getByText('1'));
+  await userEvent.click(screen.getByText('1'));
+  await userEvent.click(screen.getByText('1'));
+  await userEvent.click(screen.getByText('1'));
+  await userEvent.click(screen.getByText('1'));
+  await userEvent.click(screen.getByText('1'));
+  await userEvent.click(screen.getByText('1'));
   apiMock.setAuthStatus({
     status: 'checking_pin',
     user: mockElectionManagerUser({ electionKey }),
@@ -450,12 +453,12 @@ test('authentication works', async () => {
   });
   await screen.findByText('Enter Card PIN');
   apiMock.expectCheckPin('123456');
-  userEvent.click(screen.getByText('1'));
-  userEvent.click(screen.getByText('2'));
-  userEvent.click(screen.getByText('3'));
-  userEvent.click(screen.getByText('4'));
-  userEvent.click(screen.getByText('5'));
-  userEvent.click(screen.getByText('6'));
+  await userEvent.click(screen.getByText('1'));
+  await userEvent.click(screen.getByText('2'));
+  await userEvent.click(screen.getByText('3'));
+  await userEvent.click(screen.getByText('4'));
+  await userEvent.click(screen.getByText('5'));
+  await userEvent.click(screen.getByText('6'));
 
   // 'Remove Card' screen is shown after successful authentication.
   apiMock.setAuthStatus({
@@ -475,7 +478,7 @@ test('authentication works', async () => {
 
   // Lock the machine
   apiMock.expectLogOut();
-  userEvent.click(screen.getByText('Lock Machine'));
+  await userEvent.click(screen.getByText('Lock Machine'));
   apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'machine_locked',
@@ -495,14 +498,14 @@ test('system administrator can log in and unconfigure machine', async () => {
   expect(screen.queryByText('Test Ballot Mode')).not.toBeInTheDocument();
   const unconfigureMachineButton = screen.getButton('Unconfigure Machine');
 
-  userEvent.click(unconfigureMachineButton);
+  await userEvent.click(unconfigureMachineButton);
   const modal = await screen.findByRole('alertdialog');
 
   apiMock.expectUnconfigure({ ignoreBackupRequirement: true });
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetSystemSettings();
   apiMock.expectGetTestMode(true);
-  userEvent.click(within(modal).getButton('Delete All Election Data'));
+  await userEvent.click(within(modal).getButton('Delete All Election Data'));
   await vi.waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   }, 5000);
@@ -526,7 +529,7 @@ test('election settings are locked while a batch is open', async () => {
   await authenticateAsElectionManager(electionDefinition);
   await screen.findByText('Input tray empty');
 
-  userEvent.click(screen.getButton('Settings'));
+  await userEvent.click(screen.getButton('Settings'));
   await screen.findByRole('heading', { name: 'Settings' });
   expect(screen.getButton('Unconfigure Machine')).toBeDisabled();
   screen.getByText(
@@ -582,7 +585,7 @@ test('error boundary', async () => {
     await authenticateAsElectionManager(electionDefinition);
 
     apiMock.apiClient.logOut.expectCallWith().throws(new Error('Whoa!'));
-    userEvent.click(screen.getByText('Lock Machine'));
+    await userEvent.click(screen.getByText('Lock Machine'));
     await screen.findByText('Something went wrong');
   });
 });
@@ -601,7 +604,7 @@ test('battery display and alert', async () => {
   apiMock.setBatteryInfo({ level: 0.1, discharging: true });
   const warning = await screen.findByRole('alertdialog');
   within(warning).getByText('Low Battery');
-  userEvent.click(within(warning).getByText('Dismiss'));
+  await userEvent.click(within(warning).getByText('Dismiss'));
 
   // updated battery level in nav bar
   await screen.findByText('10%');

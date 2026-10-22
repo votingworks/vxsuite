@@ -3,7 +3,7 @@ import { expect, test, vi } from 'vitest';
 import type { CastVoteRecordFileRecord as CvrImport } from '@votingworks/admin-backend';
 
 import { deferred } from '@votingworks/basics';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { screen, waitFor } from '../../../test/react_testing_library';
 import { RemoveImportModal } from './remove_import_modal';
 import { renderInAppContext } from '../../../test/render_in_app_context';
@@ -59,7 +59,7 @@ test('loading state', async () => {
     { apiMock: api }
   );
 
-  userEvent.click(screen.getButton('Remove'));
+  await userEvent.click(screen.getButton('Remove'));
   await waitFor(() => api.assertComplete());
 
   expect(screen.getButton('Removing')).toBeDisabled();

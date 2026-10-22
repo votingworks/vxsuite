@@ -4,7 +4,7 @@ import { Route, Router, Switch } from 'react-router-dom';
 
 import type { ElectionInfo, TtsStringDefault } from '@votingworks/hub-backend';
 import { ElectionStringKey, LanguageCode } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import { createMockApiClient, provideApi } from '../test/api_helpers.js';
 import { DistrictAudioPanel } from './district_audio_panel.js';
@@ -54,7 +54,7 @@ test(`renders for ElectionStringKey.DISTRICT_NAME`, async () => {
     ttsDefault: ttsDefaults[1],
   });
 
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
   expect(history.location.pathname).toEqual(districtRoutes.root.path);
 });
 

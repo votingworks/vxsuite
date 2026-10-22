@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 import { expect, test, vi } from 'vitest';
 import { assertDefined, ok } from '@votingworks/basics';
 import { UsbPartitionMountpointSchema } from '@votingworks/usb-drive';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { screen } from '../test/react_testing_library.js';
 import { ElectricalTestingScreen } from './electrical_testing_screen.js';
 import { Icons } from './icons.js';
@@ -47,11 +47,11 @@ test('single task', async () => {
   expect(buttons).toHaveLength(1);
 
   // Toggle the task once.
-  userEvent.click(buttons[0]!);
+  await userEvent.click(buttons[0]!);
   expect(toggleIsRunning).toHaveBeenCalledOnce();
 
   // Clicking again calls again.
-  userEvent.click(buttons[0]!);
+  await userEvent.click(buttons[0]!);
   expect(toggleIsRunning).toHaveBeenCalledTimes(2);
 });
 
@@ -97,12 +97,12 @@ test('multiple tasks', async () => {
   expect(buttons).toHaveLength(2);
 
   // Toggle the second task once.
-  userEvent.click(buttons[1]!);
+  await userEvent.click(buttons[1]!);
   expect(toggleIsRunning1).not.toHaveBeenCalled();
   expect(toggleIsRunning2).toHaveBeenCalledOnce();
 
   // Clicking again calls again.
-  userEvent.click(buttons[1]!);
+  await userEvent.click(buttons[1]!);
   expect(toggleIsRunning1).not.toHaveBeenCalled();
   expect(toggleIsRunning2).toHaveBeenCalledTimes(2);
 });
@@ -129,7 +129,7 @@ test('power down', async () => {
   const buttons = await screen.findAllByRole('button');
   const powerDownButton = buttons.pop()!;
   expect(powerDownButton).toHaveTextContent('Power Down');
-  userEvent.click(powerDownButton);
+  await userEvent.click(powerDownButton);
   expect(powerDown).toHaveBeenCalledOnce();
 });
 
@@ -155,12 +155,12 @@ test('save logs', async () => {
   const saveLogsButton = buttons.pop();
   expect(saveLogsButton).toHaveTextContent('Save Logs');
 
-  userEvent.click(assertDefined(saveLogsButton));
+  await userEvent.click(assertDefined(saveLogsButton));
   await screen.findByRole('heading', { name: 'Save Logs' });
-  userEvent.click(screen.getByText('Save'));
+  await userEvent.click(screen.getByText('Save'));
   await screen.findByText('Logs Saved');
 
-  userEvent.click(screen.getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
   expect(screen.queryByRole('alertdialog')).toBeFalsy();
 
   expect(mockApiClient.exportLogsToUsb).toHaveBeenCalledTimes(1);

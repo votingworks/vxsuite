@@ -10,7 +10,7 @@ import {
   type PrecinctOrSplit,
 } from '@votingworks/types';
 
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import { assert } from '@votingworks/basics';
 import { render, screen } from '../../../test/react_testing_library.js';
@@ -23,7 +23,7 @@ describe('general election', () => {
   const electionGeneralDefinition = readElectionGeneralDefinition();
   const { election } = electionGeneralDefinition;
 
-  test('single precinct configuration', () => {
+  test('single precinct configuration', async () => {
     const precinct = election.precincts[0]!;
     const ballotStyle = election.ballotStyles[0]!;
     const onSelect = vi.fn();
@@ -34,7 +34,7 @@ describe('general election', () => {
       configuredPrecinctsAndSplits: toPrecinctsOrSplitList([precinct]),
     });
 
-    userEvent.click(screen.getButton(precinct.name));
+    await userEvent.click(screen.getButton(precinct.name));
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenCalledWith(precinct.id, ballotStyle.id);
   });
@@ -56,7 +56,7 @@ describe('general election', () => {
     );
   });
 
-  test('single precinct configuration with splits', () => {
+  test('single precinct configuration with splits', async () => {
     const precinct = election.precincts[1]!;
     assert(hasSplits(precinct));
     const [ballotStyle1, ballotStyle2] = election.ballotStyles;
@@ -68,20 +68,20 @@ describe('general election', () => {
       configuredPrecinctsAndSplits: toPrecinctsOrSplitList([precinct]),
     });
 
-    userEvent.click(screen.getByText('Select ballot style…'));
-    userEvent.click(screen.getByText(precinct.splits[0]!.name));
+    await userEvent.click(screen.getByText('Select ballot style…'));
+    await userEvent.click(screen.getByText(precinct.splits[0]!.name));
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenLastCalledWith(precinct.id, ballotStyle2!.id);
 
     onSelect.mockClear();
 
-    userEvent.click(screen.getByText(precinct.splits[0]!.name));
-    userEvent.click(screen.getByText(precinct.splits[1]!.name));
+    await userEvent.click(screen.getByText(precinct.splits[0]!.name));
+    await userEvent.click(screen.getByText(precinct.splits[1]!.name));
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenLastCalledWith(precinct.id, ballotStyle1!.id);
   });
 
-  test('multiple precincts/splits', () => {
+  test('multiple precincts/splits', async () => {
     const [p1, p2] = election.precincts;
     assert(hasSplits(p2!));
     const [ballotStyle1, ballotStyle2] = election.ballotStyles;
@@ -93,22 +93,22 @@ describe('general election', () => {
       configuredPrecinctsAndSplits: toPrecinctsOrSplitList([p1!, p2]),
     });
 
-    userEvent.click(screen.getByText('Select ballot style…'));
-    userEvent.click(screen.getByText(p1!.name));
+    await userEvent.click(screen.getByText('Select ballot style…'));
+    await userEvent.click(screen.getByText(p1!.name));
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenLastCalledWith(p1!.id, ballotStyle1!.id);
 
     onSelect.mockClear();
 
-    userEvent.click(screen.getByText(p1!.name));
-    userEvent.click(screen.getByText(p2.splits[0]!.name));
+    await userEvent.click(screen.getByText(p1!.name));
+    await userEvent.click(screen.getByText(p2.splits[0]!.name));
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenLastCalledWith(p2.id, ballotStyle2!.id);
 
     onSelect.mockClear();
 
-    userEvent.click(screen.getByText(p2.splits[0]!.name));
-    userEvent.click(screen.getByText(p2.splits[1]!.name));
+    await userEvent.click(screen.getByText(p2.splits[0]!.name));
+    await userEvent.click(screen.getByText(p2.splits[1]!.name));
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenLastCalledWith(p2.id, ballotStyle1!.id);
   });
@@ -134,7 +134,7 @@ describe('primary election', () => {
     electionPrimaryPrecinctSplitsFixtures.readElectionDefinition();
   const { election } = electionDefinitionPrimary;
 
-  test('single precinct configuration', () => {
+  test('single precinct configuration', async () => {
     const precinct = election.precincts[0]!;
 
     const onSelect = vi.fn();
@@ -147,7 +147,7 @@ describe('primary election', () => {
 
     screen.getByText('Select ballot style:');
     screen.getButton('Fish');
-    userEvent.click(screen.getButton('Mammal'));
+    await userEvent.click(screen.getButton('Mammal'));
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenCalledWith(precinct.id, '1-Ma_en');
   });
@@ -169,7 +169,7 @@ describe('primary election', () => {
     expect(screen.getButton('Fish')).toHaveAttribute('data-variant', 'neutral');
   });
 
-  test('single precinct configuration with splits', () => {
+  test('single precinct configuration with splits', async () => {
     const [, , , precinct] = election.precincts;
     assert(hasSplits(precinct!));
     const onSelect = vi.fn();
@@ -180,25 +180,25 @@ describe('primary election', () => {
       configuredPrecinctsAndSplits: toPrecinctsOrSplitList([precinct]),
     });
 
-    userEvent.click(screen.getByText("Select voter's precinct…"));
-    userEvent.click(screen.getByText(precinct.splits[0]!.name));
+    await userEvent.click(screen.getByText("Select voter's precinct…"));
+    await userEvent.click(screen.getByText(precinct.splits[0]!.name));
     screen.getByText('Select ballot style:');
     screen.getButton('Fish');
-    userEvent.click(screen.getButton('Mammal'));
+    await userEvent.click(screen.getButton('Mammal'));
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenLastCalledWith(precinct.id, '3-Ma_en');
 
     onSelect.mockClear();
 
-    userEvent.click(screen.getByText(precinct.splits[0]!.name));
-    userEvent.click(screen.getByText(precinct.splits[1]!.name));
+    await userEvent.click(screen.getByText(precinct.splits[0]!.name));
+    await userEvent.click(screen.getByText(precinct.splits[1]!.name));
     screen.getByText('Select ballot style:');
-    userEvent.click(screen.getButton('Fish'));
+    await userEvent.click(screen.getButton('Fish'));
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenLastCalledWith(precinct.id, '4-F_en');
   });
 
-  test('all precincts configuration', () => {
+  test('all precincts configuration', async () => {
     const [p1, , , p4] = election.precincts;
     assert(hasSplits(p4!));
     const onSelect = vi.fn();
@@ -209,30 +209,30 @@ describe('primary election', () => {
       configuredPrecinctsAndSplits: toPrecinctsOrSplitList([p1!, p4]),
     });
 
-    userEvent.click(screen.getByText("Select voter's precinct…"));
-    userEvent.click(screen.getByText(p1!.name));
-    userEvent.click(screen.getButton('Mammal'));
+    await userEvent.click(screen.getByText("Select voter's precinct…"));
+    await userEvent.click(screen.getByText(p1!.name));
+    await userEvent.click(screen.getButton('Mammal'));
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenLastCalledWith(p1!.id, '1-Ma_en');
 
     onSelect.mockClear();
 
-    userEvent.click(screen.getByText(p1!.name));
-    userEvent.click(screen.getByText(p4.splits[0]!.name));
-    userEvent.click(screen.getButton('Mammal'));
+    await userEvent.click(screen.getByText(p1!.name));
+    await userEvent.click(screen.getByText(p4.splits[0]!.name));
+    await userEvent.click(screen.getButton('Mammal'));
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenLastCalledWith(p4.id, '3-Ma_en');
 
     onSelect.mockClear();
 
-    userEvent.click(screen.getByText(p4.splits[0]!.name));
-    userEvent.click(screen.getByText(p4.splits[1]!.name));
-    userEvent.click(screen.getButton('Fish'));
+    await userEvent.click(screen.getByText(p4.splits[0]!.name));
+    await userEvent.click(screen.getByText(p4.splits[1]!.name));
+    await userEvent.click(screen.getButton('Fish'));
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenLastCalledWith(p4.id, '4-F_en');
   });
 
-  test('shows the selected precinct or split and its ballot styles', () => {
+  test('shows the selected precinct or split and its ballot styles', async () => {
     const [p1, , , p4] = election.precincts;
     assert(hasSplits(p4!));
     const onSelect = vi.fn();
@@ -247,7 +247,7 @@ describe('primary election', () => {
     expect(screen.queryByText("Select voter's precinct…")).toBeNull();
     screen.getByText(p4.splits[0]!.name);
 
-    userEvent.click(screen.getButton('Fish'));
+    await userEvent.click(screen.getButton('Fish'));
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenLastCalledWith(p4.id, '3-F_en');
   });
@@ -258,7 +258,7 @@ describe('combined ballot primary election', () => {
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
   const { election } = electionDefinitionCombinedBallotPrimary;
 
-  test('single precinct configuration', () => {
+  test('single precinct configuration', async () => {
     const precinct = election.precincts[0]!;
     const onSelect = vi.fn();
 
@@ -270,12 +270,12 @@ describe('combined ballot primary election', () => {
 
     // No party picker — pressing the precinct button immediately selects the
     // precinct's single (partyless) ballot style.
-    userEvent.click(screen.getButton(precinct.name));
+    await userEvent.click(screen.getButton(precinct.name));
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenCalledWith(precinct.id, 'ballot-style-1');
   });
 
-  test('multiple precincts configuration', () => {
+  test('multiple precincts configuration', async () => {
     const [p1, p2] = election.precincts;
     const onSelect = vi.fn();
 
@@ -285,8 +285,8 @@ describe('combined ballot primary election', () => {
       configuredPrecinctsAndSplits: toPrecinctsOrSplitList([p1!, p2!]),
     });
 
-    userEvent.click(screen.getByText('Select ballot style…'));
-    userEvent.click(screen.getByText(p2!.name));
+    await userEvent.click(screen.getByText('Select ballot style…'));
+    await userEvent.click(screen.getByText(p2!.name));
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenLastCalledWith(p2!.id, 'ballot-style-2');
   });

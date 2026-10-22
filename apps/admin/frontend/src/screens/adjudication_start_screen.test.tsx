@@ -6,7 +6,7 @@ import type {
   MachineRecord,
   QualifiedWriteInCandidateRecord,
 } from '@votingworks/admin-backend';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { Admin, DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { act, screen, within } from '../../test/react_testing_library.js';
@@ -178,7 +178,7 @@ test('shows a callout linking to the escalated queue when ballots are escalated'
   });
 
   await screen.findByText('2 ballots escalated');
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('button', { name: 'Adjudicate Escalated Ballots' })
   );
   expect(history.location.pathname).toEqual(
@@ -222,7 +222,7 @@ describe('multi-station adjudication', () => {
       .expectCallWith({ enabled: true })
       .resolves();
     apiMock.expectGetIsClientAdjudicationEnabled(true);
-    userEvent.click(enableButton);
+    await userEvent.click(enableButton);
 
     await screen.findByRole('button', { name: 'Disable' });
   });

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { MIN_TIME_TO_UNCONFIGURE_MACHINE_MS } from '@votingworks/ui';
@@ -86,13 +86,13 @@ test('clicking "Unconfigure Machine" calls backend', async () => {
   expect(screen.queryByText(/election settings/)).not.toBeInTheDocument();
 
   // initial button
-  userEvent.click(screen.getButton('Unconfigure Machine'));
+  await userEvent.click(screen.getButton('Unconfigure Machine'));
 
   // confirmation
   apiMock.expectUnconfigure({ ignoreBackupRequirement: false });
   apiMock.expectEjectUsbDrive();
   screen.getByRole('heading', { name: 'Unconfigure Machine' });
-  userEvent.click(await screen.findButton('Delete All Election Data'));
+  await userEvent.click(await screen.findButton('Delete All Election Data'));
 
   // progress message
   await screen.findByText('Unconfiguring Machine');
@@ -111,7 +111,9 @@ test('clicking "Unconfigure Machine" calls backend', async () => {
 });
 
 test('clicking "Update Date and Time" shows modal to set clock', async () => {
-  vi.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000'));
+  vi.useFakeTimers({ shouldAdvanceTime: true }).setSystemTime(
+    new Date('2020-10-31T00:00:00.000')
+  );
 
   renderScreen();
 
@@ -119,7 +121,9 @@ test('clicking "Update Date and Time" shows modal to set clock', async () => {
 
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior
-  userEvent.click(screen.getByRole('button', { name: 'Set Date and Time' }));
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Set Date and Time' })
+  );
 
   // Open modal
   const modal = screen.getByRole('alertdialog');
@@ -127,7 +131,7 @@ test('clicking "Update Date and Time" shows modal to set clock', async () => {
 
   // Change date
   const selectYear = screen.getByTestId('selectYear');
-  userEvent.selectOptions(selectYear, '2025');
+  await userEvent.selectOptions(selectYear, '2025');
 
   // Save date
   apiMock.apiClient.setClock
@@ -137,7 +141,7 @@ test('clicking "Update Date and Time" shows modal to set clock', async () => {
     })
     .resolves();
   apiMock.expectLogOut();
-  userEvent.click(within(modal).getByRole('button', { name: 'Save' }));
+  await userEvent.click(within(modal).getByRole('button', { name: 'Save' }));
   await vi.waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
@@ -155,8 +159,8 @@ test('shows a polling place picker when the election has polling places', async 
   );
 
   await screen.findByRole('heading', { name: 'Polling Place' });
-  userEvent.click(screen.getByLabelText('Select a polling place…'));
-  userEvent.click(screen.getByText('Central Scanning'));
+  await userEvent.click(screen.getByLabelText('Select a polling place…'));
+  await userEvent.click(screen.getByText('Central Scanning'));
   await vi.waitFor(() => apiMock.assertComplete());
 });
 
@@ -204,7 +208,9 @@ test('imprinting status', async () => {
     isImprinterDetected: true,
     isImprintingEnabled: false,
   });
-  userEvent.click(screen.getByRole('option', { name: 'Imprinting Disabled' }));
+  await userEvent.click(
+    screen.getByRole('option', { name: 'Imprinting Disabled' })
+  );
   await vi.waitFor(() =>
     expect(
       screen.getByRole('option', { name: 'Imprinting Disabled' })
@@ -216,7 +222,9 @@ test('imprinting status', async () => {
     isImprinterDetected: true,
     isImprintingEnabled: true,
   });
-  userEvent.click(screen.getByRole('option', { name: 'Imprinting Enabled' }));
+  await userEvent.click(
+    screen.getByRole('option', { name: 'Imprinting Enabled' })
+  );
   await vi.waitFor(() =>
     expect(
       screen.getByRole('option', { name: 'Imprinting Enabled' })

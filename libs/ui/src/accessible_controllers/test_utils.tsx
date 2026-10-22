@@ -1,5 +1,5 @@
-import { userEvent } from '../user_event.js';
+import { userEvent } from '@testing-library/user-event';
 
-export function simulateKeyPress(key: string): void {
-  userEvent.keyboard(key.length === 1 ? key : `{${key}}`);
+export async function simulateKeyPress(key: string): Promise<void> {
+  await userEvent.keyboard(key.length === 1 ? key : `{${key}}`);
 }

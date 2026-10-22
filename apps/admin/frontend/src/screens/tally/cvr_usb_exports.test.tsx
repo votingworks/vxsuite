@@ -6,7 +6,7 @@ import type {
 } from '@votingworks/admin-backend';
 
 import { assert } from '@votingworks/basics';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen } from '../../../test/react_testing_library.js';
 import type { CvrImporter } from './cvr_importer.js';
 import {
@@ -132,7 +132,7 @@ test('shows import cards for available exports', () => {
   expect(screen.getButton(label2)).toBeEnabled();
 });
 
-test('import card clicks trigger import request', () => {
+test('import card clicks trigger import request', async () => {
   const importer: CvrImporter = {
     state: 'init',
     electionDefinition,
@@ -145,7 +145,7 @@ test('import card clicks trigger import request', () => {
   render(<CvrUsbExports importer={importer} />);
   expect(importer.import).not.toHaveBeenCalled();
 
-  userEvent.click(screen.getButton(new RegExp(location2!.name)));
+  await userEvent.click(screen.getButton(new RegExp(location2!.name)));
   expect(importer.import).toHaveBeenCalledExactlyOnceWith({
     path: location2Export.path,
   });

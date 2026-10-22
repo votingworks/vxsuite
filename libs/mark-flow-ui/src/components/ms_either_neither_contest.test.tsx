@@ -1,7 +1,7 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { readElectionWithMsEitherNeither } from '@votingworks/fixtures';
 import { find } from '@votingworks/basics';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   type MsEitherNeitherContest as MsEitherNeitherContestType,
   mergeMsEitherNeitherContests,
@@ -24,7 +24,7 @@ const contest = find(
 );
 
 beforeEach(() => {
-  vi.useFakeTimers();
+  vi.useFakeTimers({ shouldAdvanceTime: true });
 });
 
 test('renders', () => {
@@ -63,7 +63,7 @@ test('renders with vote', () => {
   expect(eitherButton).toHaveAttribute('aria-selected');
 });
 
-test('voting for either/neither', () => {
+test('voting for either/neither', async () => {
   const updateVote = vi.fn();
   render(
     <MsEitherNeitherContest
@@ -80,12 +80,12 @@ test('voting for either/neither', () => {
     .getByText(/^against both/i)
     .closest('button')!;
 
-  userEvent.click(eitherButton);
+  await userEvent.click(eitherButton);
   expect(updateVote).toHaveBeenCalledWith(contest.eitherNeitherContestId, [
     contest.eitherOption.id,
   ]);
 
-  userEvent.click(neitherButton);
+  await userEvent.click(neitherButton);
   expect(updateVote).toHaveBeenCalledWith(contest.eitherNeitherContestId, [
     contest.neitherOption.id,
   ]);
@@ -102,7 +102,7 @@ test.each([
   [undefined, contest.secondOption.id],
 ] as const)(
   'voting with existing votes: %s/%s',
-  (eitherNeitherContestVote, pickOneContestVote) => {
+  async (eitherNeitherContestVote, pickOneContestVote) => {
     const updateVote = vi.fn();
     render(
       <MsEitherNeitherContest
@@ -131,7 +131,7 @@ test.each([
       .getByText(/^for alternative/i)
       .closest('button')!;
 
-    userEvent.click(eitherButton);
+    await userEvent.click(eitherButton);
     expect(updateVote).toHaveBeenCalledWith(
       contest.eitherNeitherContestId,
       eitherNeitherContestVote === contest.eitherOption.id
@@ -139,7 +139,7 @@ test.each([
         : [contest.eitherOption.id]
     );
 
-    userEvent.click(neitherButton);
+    await userEvent.click(neitherButton);
     expect(updateVote).toHaveBeenCalledWith(
       contest.eitherNeitherContestId,
       eitherNeitherContestVote === contest.neitherOption.id
@@ -147,7 +147,7 @@ test.each([
         : [contest.neitherOption.id]
     );
 
-    userEvent.click(pickFirstButton);
+    await userEvent.click(pickFirstButton);
     expect(updateVote).toHaveBeenCalledWith(
       contest.pickOneContestId,
       pickOneContestVote === contest.firstOption.id
@@ -155,7 +155,7 @@ test.each([
         : [contest.firstOption.id]
     );
 
-    userEvent.click(pickSecondButton);
+    await userEvent.click(pickSecondButton);
     expect(updateVote).toHaveBeenCalledWith(
       contest.pickOneContestId,
       pickOneContestVote === contest.secondOption.id
@@ -165,7 +165,7 @@ test.each([
   }
 );
 
-test('audio cues', () => {
+test('audio cues', async () => {
   const updateVote = vi.fn();
   const { rerender } = render(
     <MsEitherNeitherContest
@@ -258,7 +258,7 @@ test('audio cues', () => {
       updateVote={updateVote}
     />
   );
-  userEvent.click(eitherButton);
+  await userEvent.click(eitherButton);
   rerender(
     <MsEitherNeitherContest
       election={electionWithMsEitherNeither}
@@ -290,7 +290,7 @@ test('audio cues', () => {
       updateVote={updateVote}
     />
   );
-  userEvent.click(neitherButton);
+  await userEvent.click(neitherButton);
   rerender(
     <MsEitherNeitherContest
       election={electionWithMsEitherNeither}
@@ -322,7 +322,7 @@ test('audio cues', () => {
       updateVote={updateVote}
     />
   );
-  userEvent.click(pickFirstButton);
+  await userEvent.click(pickFirstButton);
   rerender(
     <MsEitherNeitherContest
       election={electionWithMsEitherNeither}
@@ -354,7 +354,7 @@ test('audio cues', () => {
       updateVote={updateVote}
     />
   );
-  userEvent.click(pickSecondButton);
+  await userEvent.click(pickSecondButton);
   rerender(
     <MsEitherNeitherContest
       election={electionWithMsEitherNeither}

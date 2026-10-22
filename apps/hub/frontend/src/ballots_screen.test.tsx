@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   HmpbBallotPaperSize,
   type ElectionId,
@@ -263,7 +263,7 @@ describe('Ballot layout tab', () => {
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
 
-    userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
 
     const paperSizeRadioGroup = await screen.findByRole('radiogroup', {
       name: 'Paper Size',
@@ -304,11 +304,11 @@ describe('Ballot layout tab', () => {
     expect(within(densityRadioGroup).getByLabelText('Default')).toBeChecked();
 
     // Edit
-    userEvent.click(screen.getByRole('button', { name: /Edit/ }));
+    await userEvent.click(screen.getByRole('button', { name: /Edit/ }));
 
-    userEvent.click(screen.getByLabelText('8.5 x 17 inches'));
+    await userEvent.click(screen.getByLabelText('8.5 x 17 inches'));
     expect(screen.getByLabelText('8.5 x 17 inches')).toBeChecked();
-    userEvent.click(screen.getByLabelText('Compact'));
+    await userEvent.click(screen.getByLabelText('Compact'));
     expect(screen.getByLabelText('Compact')).toBeChecked();
 
     // Save
@@ -323,7 +323,7 @@ describe('Ballot layout tab', () => {
       paperSize: HmpbBallotPaperSize.Custom17,
       compact: true,
     });
-    userEvent.click(screen.getByRole('button', { name: /Save/ }));
+    await userEvent.click(screen.getByRole('button', { name: /Save/ }));
     await screen.findByRole('button', { name: /Edit/ });
 
     expect(screen.getByLabelText('8.5 x 17 inches')).toBeChecked();
@@ -344,7 +344,7 @@ describe('Ballot layout tab', () => {
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
 
-    userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
 
     const paperSizeRadioGroup = await screen.findByRole('radiogroup', {
       name: 'Paper Size',
@@ -378,7 +378,7 @@ describe('Ballot layout tab', () => {
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
 
-    userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
 
     await screen.findByRole('radiogroup', { name: 'Paper Size' });
     expect(
@@ -398,7 +398,7 @@ describe('Ballot layout tab', () => {
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
 
-    userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
 
     await screen.findByRole('radiogroup', { name: 'Paper Size' });
     expect(
@@ -419,15 +419,17 @@ describe('Ballot layout tab', () => {
     renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Proof Ballots' });
 
-    userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
-    userEvent.click(await screen.findByRole('button', { name: /Edit/ }));
+    await userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));
+    await userEvent.click(await screen.findByRole('button', { name: /Edit/ }));
     expect(screen.getByLabelText('8.5 x 11 inches (Letter)')).toBeChecked();
-    userEvent.click(screen.getByLabelText('8.5 x 14 inches (Legal)'));
+    await userEvent.click(screen.getByLabelText('8.5 x 14 inches (Legal)'));
     expect(screen.getByLabelText('8.5 x 14 inches (Legal)')).toBeChecked();
-    userEvent.click(screen.getByLabelText('Compact'));
+    await userEvent.click(screen.getByLabelText('Compact'));
     expect(screen.getByLabelText('Compact')).toBeChecked();
 
-    userEvent.click(await screen.findByRole('button', { name: /Cancel/ }));
+    await userEvent.click(
+      await screen.findByRole('button', { name: /Cancel/ })
+    );
     screen.getByRole('button', { name: /Edit/ });
     expect(screen.getByLabelText('8.5 x 11 inches (Letter)')).toBeChecked();
     expect(screen.getByLabelText('8.5 x 14 inches (Legal)')).not.toBeChecked();

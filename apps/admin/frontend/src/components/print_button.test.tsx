@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { screen, within, act } from '../../test/react_testing_library.js';
 import { renderInAppContext } from '../../test/render_in_app_context.js';
 import {
@@ -33,7 +33,7 @@ test('happy path flow', async () => {
   await vi.waitFor(() => expect(screen.getButton('Print')).not.toBeDisabled());
 
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-  userEvent.click(screen.getButton('Print'));
+  await userEvent.click(screen.getButton('Print'));
   await within(screen.getByRole('alertdialog')).findByText('Printing');
   expect(mockPrint).toHaveBeenCalledTimes(1);
   act(() => {
@@ -55,16 +55,16 @@ test('prompts user to attach printer if not connected', async () => {
   await vi.waitFor(() => expect(screen.getButton('Print')).not.toBeDisabled());
 
   // try printing and give up (press "Close")
-  userEvent.click(screen.getButton('Print'));
+  await userEvent.click(screen.getButton('Print'));
   let modal = screen.getByRole('alertdialog');
   within(modal).getByText('The printer is not connected.');
   expect(mockPrint).not.toHaveBeenCalled();
   expect(within(modal).getButton('Continue')).toBeDisabled();
-  userEvent.click(within(modal).getButton('Close'));
+  await userEvent.click(within(modal).getButton('Close'));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
   // try printing and connect printer (press "Continue")
-  userEvent.click(screen.getButton('Print'));
+  await userEvent.click(screen.getButton('Print'));
   modal = screen.getByRole('alertdialog');
   expect(within(modal).getButton('Continue')).toBeDisabled();
   apiMock.setPrinterStatus({
@@ -73,7 +73,7 @@ test('prompts user to attach printer if not connected', async () => {
   await vi.waitFor(() => {
     expect(within(modal).getButton('Continue')).not.toBeDisabled();
   });
-  userEvent.click(within(modal).getButton('Continue'));
+  await userEvent.click(within(modal).getButton('Continue'));
   await screen.findByText('Printing');
   expect(mockPrint).toHaveBeenCalledTimes(1);
 });
@@ -91,7 +91,7 @@ test('has option to not show the default progress modal', async () => {
   );
   await vi.waitFor(() => expect(screen.getButton('Print')).not.toBeDisabled());
 
-  userEvent.click(screen.getButton('Print'));
+  await userEvent.click(screen.getButton('Print'));
   expect(mockPrint).toHaveBeenCalled();
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   expect(screen.queryByText('Printing')).not.toBeInTheDocument();

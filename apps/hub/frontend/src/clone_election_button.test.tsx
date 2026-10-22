@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { createMemoryHistory } from 'history';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import type { ElectionId } from '@votingworks/types';
 import { sleep } from '@votingworks/basics';
 import {
@@ -76,7 +76,9 @@ test('clones immediately when user has exactly one jurisdiction', async () => {
     })
     .resolves(newElectionId);
 
-  userEvent.click(await screen.findButton(`Make a copy of ${election.title}`));
+  await userEvent.click(
+    await screen.findButton(`Make a copy of ${election.title}`)
+  );
   await sleep(0); // Allow redirect to resolve
   expect(history.location.pathname).toEqual(`/elections/${newElectionId}`);
 });
@@ -92,11 +94,13 @@ test('shows jurisdiction picker when user has more than one jurisdiction', async
     <CloneElectionButton election={electionListing(electionRecord)} />
   );
 
-  userEvent.click(await screen.findButton(`Make a copy of ${election.title}`));
+  await userEvent.click(
+    await screen.findButton(`Make a copy of ${election.title}`)
+  );
   const modal = await screen.findByRole('alertdialog');
 
-  userEvent.click(within(modal).getByRole('combobox'));
-  userEvent.click(screen.getByText(jurisdiction2.name));
+  await userEvent.click(within(modal).getByRole('combobox'));
+  await userEvent.click(screen.getByText(jurisdiction2.name));
 
   const newElectionId = 'new-election' as ElectionId;
   mockGenerateId.mockReturnValue(newElectionId);
@@ -108,7 +112,7 @@ test('shows jurisdiction picker when user has more than one jurisdiction', async
     })
     .resolves(newElectionId);
 
-  userEvent.click(screen.getButton('Confirm'));
+  await userEvent.click(screen.getButton('Confirm'));
   await sleep(0); // Allow redirect to resolve
   expect(history.location.pathname).toEqual(`/elections/${newElectionId}`);
 });
@@ -123,7 +127,9 @@ test('shows jurisdiction picker for organization users', async () => {
   renderButton(
     <CloneElectionButton election={electionListing(electionRecord)} />
   );
-  userEvent.click(await screen.findButton(`Make a copy of ${election.title}`));
+  await userEvent.click(
+    await screen.findButton(`Make a copy of ${election.title}`)
+  );
   await screen.findByRole('alertdialog');
 });
 

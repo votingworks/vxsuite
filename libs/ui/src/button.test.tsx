@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 import React from 'react';
 import type { ColorMode, SizeMode } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { fireEvent, render, screen } from '../test/react_testing_library.js';
 import {
   BUTTON_VARIANTS,
@@ -39,7 +39,7 @@ function percentToPx(percent: string): number {
 }
 
 describe('Button', () => {
-  test('renders all available variants', () => {
+  test('renders all available variants', async () => {
     for (const variant of BUTTON_VARIANTS) {
       const onPress = vi.fn();
 
@@ -51,7 +51,7 @@ describe('Button', () => {
 
       expect(onPress).not.toHaveBeenCalled();
 
-      userEvent.click(screen.getButton(`${variant} button`));
+      await userEvent.click(screen.getButton(`${variant} button`));
 
       expect(onPress).toHaveBeenCalled();
     }
@@ -137,7 +137,7 @@ describe('Button', () => {
     }
   });
 
-  test('does not apply hover styling for touch themes', () => {
+  test('does not apply hover styling for touch themes', async () => {
     const theme = makeTheme({
       colorMode: 'contrastHighLight',
       sizeMode: 'touchSmall',
@@ -145,13 +145,13 @@ describe('Button', () => {
     render(<Button onPress={vi.fn()}>Hover me</Button>, { vxTheme: theme });
     const button = screen.getButton('Hover me');
     const buttonStyles = window.getComputedStyle(button);
-    userEvent.hover(button);
+    await userEvent.hover(button);
     expect(JSON.stringify(window.getComputedStyle(button))).toEqual(
       JSON.stringify(buttonStyles)
     );
   });
 
-  test('propagates click/tap events with specified event value', () => {
+  test('propagates click/tap events with specified event value', async () => {
     const onPress = vi.fn((_value: [string, string]) => undefined);
     render(
       <Button onPress={onPress} value={['foo', 'bar']}>
@@ -159,7 +159,7 @@ describe('Button', () => {
       </Button>
     );
 
-    userEvent.click(screen.getButton('Click me'));
+    await userEvent.click(screen.getButton('Click me'));
 
     expect(onPress).toHaveBeenCalledWith(['foo', 'bar']);
   });
@@ -196,7 +196,7 @@ describe('Button', () => {
     expect(button).toHaveStyleRule('color', theme.colors.onDanger);
   });
 
-  test('disabled button', () => {
+  test('disabled button', async () => {
     const onPress = vi.fn();
 
     render(
@@ -212,7 +212,7 @@ describe('Button', () => {
     expect(disabledButton).toBeDisabled();
 
     // Ignores click/tap events:
-    userEvent.click(disabledButton);
+    await userEvent.click(disabledButton);
     fireEvent.touchStart(
       disabledButton,
       createTouchStartEventProperties(100, 100)
@@ -350,13 +350,13 @@ describe('Button', () => {
     expect(screen.getButton('Confirm')).toHaveFocus();
   });
 
-  test('handles clicks and touches', () => {
+  test('handles clicks and touches', async () => {
     const onPress = vi.fn();
     render(<Button onPress={onPress}>Test Button</Button>);
     const button = screen.getButton('Test Button');
 
     // Keyboard (also Accessible Controller) fire click event which calls onPress.
-    userEvent.click(button);
+    await userEvent.click(button);
     expect(onPress).toHaveBeenCalledTimes(1);
 
     // TouchEnd close to TouchStart calls onPress.
@@ -382,29 +382,29 @@ describe('Button', () => {
     );
   });
 
-  test('triggers form submit with type submit', () => {
+  test('triggers form submit with type submit', async () => {
     const onSubmit = vi.fn();
     render(
       <form onSubmit={onSubmit}>
         <Button type="submit">Submit</Button>
       </form>
     );
-    userEvent.click(screen.getButton('Submit'));
+    await userEvent.click(screen.getButton('Submit'));
     expect(onSubmit).toHaveBeenCalled();
   });
 
-  test('triggers form reset with type reset', () => {
+  test('triggers form reset with type reset', async () => {
     const onReset = vi.fn();
     render(
       <form onReset={onReset}>
         <Button type="reset">Reset</Button>
       </form>
     );
-    userEvent.click(screen.getButton('Reset'));
+    await userEvent.click(screen.getButton('Reset'));
     expect(onReset).toHaveBeenCalled();
   });
 
-  test('still calls onPress with type submit', () => {
+  test('still calls onPress with type submit', async () => {
     const onPress = vi.fn();
     render(
       <form>
@@ -413,11 +413,11 @@ describe('Button', () => {
         </Button>
       </form>
     );
-    userEvent.click(screen.getButton('Submit'));
+    await userEvent.click(screen.getButton('Submit'));
     expect(onPress).toHaveBeenCalled();
   });
 
-  test('still passes a value to onPress with type submit', () => {
+  test('still passes a value to onPress with type submit', async () => {
     const onPress = vi.fn();
     render(
       <form>
@@ -426,11 +426,11 @@ describe('Button', () => {
         </Button>
       </form>
     );
-    userEvent.click(screen.getButton('Submit'));
+    await userEvent.click(screen.getButton('Submit'));
     expect(onPress).toHaveBeenCalledWith('foo');
   });
 
-  test('still calls onPress with type reset', () => {
+  test('still calls onPress with type reset', async () => {
     const onPress = vi.fn();
     render(
       <form>
@@ -439,11 +439,11 @@ describe('Button', () => {
         </Button>
       </form>
     );
-    userEvent.click(screen.getButton('Reset'));
+    await userEvent.click(screen.getButton('Reset'));
     expect(onPress).toHaveBeenCalled();
   });
 
-  test('still passes a value to onPress with type reset', () => {
+  test('still passes a value to onPress with type reset', async () => {
     const onPress = vi.fn();
     render(
       <form>
@@ -452,11 +452,11 @@ describe('Button', () => {
         </Button>
       </form>
     );
-    userEvent.click(screen.getButton('Reset'));
+    await userEvent.click(screen.getButton('Reset'));
     expect(onPress).toHaveBeenCalledWith('foo');
   });
 
-  test('does not trigger form submit when disabled', () => {
+  test('does not trigger form submit when disabled', async () => {
     const onSubmit = vi.fn();
     render(
       <form onSubmit={onSubmit}>
@@ -465,11 +465,11 @@ describe('Button', () => {
         </Button>
       </form>
     );
-    userEvent.click(screen.getButton('Submit'));
+    await userEvent.click(screen.getButton('Submit'));
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
-  test('does not trigger form reset when disabled', () => {
+  test('does not trigger form reset when disabled', async () => {
     const onReset = vi.fn();
     render(
       <form onReset={onReset}>
@@ -478,11 +478,11 @@ describe('Button', () => {
         </Button>
       </form>
     );
-    userEvent.click(screen.getButton('Reset'));
+    await userEvent.click(screen.getButton('Reset'));
     expect(onReset).not.toHaveBeenCalled();
   });
 
-  test('prevents event propagation when requested', () => {
+  test('prevents event propagation when requested', async () => {
     const onClickParent = vi.fn();
 
     render(
@@ -492,7 +492,7 @@ describe('Button', () => {
       </div>
     );
 
-    userEvent.click(screen.getButton('Propagate'));
+    await userEvent.click(screen.getButton('Propagate'));
     expect(onClickParent).toHaveBeenCalled();
 
     onClickParent.mockReset();
@@ -506,7 +506,7 @@ describe('Button', () => {
       </div>
     );
 
-    userEvent.click(screen.getButton('No Propagate'));
+    await userEvent.click(screen.getButton('No Propagate'));
     expect(onClickParent).not.toHaveBeenCalled();
   });
 });

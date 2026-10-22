@@ -10,7 +10,7 @@ import { type ReactNode, useEffect } from 'react';
 import { ok, err } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   type MockApiClient,
   createMockApiClient,
@@ -145,33 +145,33 @@ test('shows a PDF ballot preview', async () => {
   screen.getByText('100%');
 
   const zoomInButton = screen.getByRole('button', { name: 'Zoom In' });
-  userEvent.click(zoomInButton);
+  await userEvent.click(zoomInButton);
   screen.getByText('125%');
-  userEvent.click(zoomInButton);
+  await userEvent.click(zoomInButton);
   screen.getByText('150%');
-  userEvent.click(zoomInButton);
+  await userEvent.click(zoomInButton);
   screen.getByText('175%');
-  userEvent.click(zoomInButton);
+  await userEvent.click(zoomInButton);
   screen.getByText('200%');
-  userEvent.click(zoomInButton);
+  await userEvent.click(zoomInButton);
   screen.getByText('200%');
 
   const zoomOutButton = screen.getByRole('button', { name: 'Zoom Out' });
-  userEvent.click(zoomOutButton);
+  await userEvent.click(zoomOutButton);
   screen.getByText('175%');
-  userEvent.click(zoomOutButton);
+  await userEvent.click(zoomOutButton);
   screen.getByText('150%');
-  userEvent.click(zoomOutButton);
+  await userEvent.click(zoomOutButton);
   screen.getByText('125%');
-  userEvent.click(zoomOutButton);
+  await userEvent.click(zoomOutButton);
   screen.getByText('100%');
-  userEvent.click(zoomOutButton);
+  await userEvent.click(zoomOutButton);
   screen.getByText('75%');
-  userEvent.click(zoomOutButton);
+  await userEvent.click(zoomOutButton);
   screen.getByText('50%');
-  userEvent.click(zoomOutButton);
+  await userEvent.click(zoomOutButton);
   screen.getByText('25%');
-  userEvent.click(zoomOutButton);
+  await userEvent.click(zoomOutButton);
   screen.getByText('25%');
 
   screen.getByText(ballotStyle.id);
@@ -226,7 +226,7 @@ test('changes ballot type', async () => {
         fileName: 'mock absentee ballot.pdf',
       })
     );
-  userEvent.click(absenteeRadioOption);
+  await userEvent.click(absenteeRadioOption);
   await screen.findByText('mock absentee ballot pdf');
   screen.getByRole('radio', { name: 'Absentee', checked: true });
 });
@@ -282,7 +282,7 @@ test('changes tabulation mode', async () => {
         fileName: 'mock test ballot.pdf',
       })
     );
-  userEvent.click(testRadioOption);
+  await userEvent.click(testRadioOption);
   await screen.findByText('mock test ballot pdf');
   screen.getByRole('radio', { name: 'L&A Test Ballot', checked: true });
 });
@@ -343,7 +343,7 @@ test('NhStateBallot template: Federal Office Only option locks mode to Official'
         fileName: 'mock test ballot.pdf',
       })
     );
-  userEvent.click(testRadioOption);
+  await userEvent.click(testRadioOption);
   await screen.findByText('mock test ballot pdf');
 
   apiMock.getBallotPreviewPdf
@@ -361,7 +361,7 @@ test('NhStateBallot template: Federal Office Only option locks mode to Official'
         fileName: 'mock foo ballot.pdf',
       })
     );
-  userEvent.click(fooRadioOption);
+  await userEvent.click(fooRadioOption);
   await screen.findByText('mock foo ballot pdf');
   screen.getByRole('radio', { name: 'Federal Office Only', checked: true });
   expect(testRadioOption).toBeDisabled();

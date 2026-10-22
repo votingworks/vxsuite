@@ -3,7 +3,7 @@ import { afterEach, expect, test, vi } from 'vitest';
 import { createMemoryHistory, type MemoryHistory } from 'history';
 import { Router, Route } from 'react-router-dom';
 import { assert, typedAs } from '@votingworks/basics';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   createMockApiClient,
   type MockApiClient,
@@ -203,13 +203,13 @@ test('navigates on select', async () => {
     screen.queryByRole('option', { selected: true })
   ).not.toBeInTheDocument();
 
-  userEvent.click(getOption(yesNoContest2, district2));
+  await userEvent.click(getOption(yesNoContest2, district2));
   getOption(yesNoContest2, district2, { selected: true });
   expect(history.location.pathname).toEqual(
     contestRoutes.view(yesNoContest2.id).path
   );
 
-  userEvent.click(getOption(candidateContest1, district1));
+  await userEvent.click(getOption(candidateContest1, district1));
   getOption(candidateContest1, district1, { selected: true });
   getOption(yesNoContest2, district2, { selected: false });
   expect(history.location.pathname).toEqual(
@@ -307,8 +307,10 @@ test('supports reordering', async () => {
   ).toBeDisabled();
   expect(screen.getButton(`Move Down: ${yesNoContest2.title}`)).toBeDisabled();
 
-  userEvent.click(screen.getButton(`Move Up: ${yesNoContest2.title}`));
-  userEvent.click(screen.getButton(`Move Down: ${candidateContest1.title}`));
+  await userEvent.click(screen.getButton(`Move Up: ${yesNoContest2.title}`));
+  await userEvent.click(
+    screen.getButton(`Move Down: ${candidateContest1.title}`)
+  );
 
   expect(reorder.mock.calls).toEqual<Array<[ReorderParams]>>([
     [{ id: yesNoContest2.id, direction: -1 }],

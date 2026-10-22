@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { anyPollingPlace } from '@votingworks/types';
 import { screen, waitFor, within } from '../test/react_testing_library.js';
@@ -55,8 +55,8 @@ test('full polls flow', async () => {
     pollsState: 'polls_open',
   });
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
-  userEvent.click(screen.getByText('Open Polls'));
-  userEvent.click(
+  await userEvent.click(screen.getByText('Open Polls'));
+  await userEvent.click(
     within(await screen.findByRole('alertdialog')).getButton('Open Polls')
   );
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
@@ -70,8 +70,8 @@ test('full polls flow', async () => {
     pollsState: 'polls_paused',
   });
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
-  userEvent.click(screen.getByText('Pause Voting'));
-  userEvent.click(
+  await userEvent.click(screen.getByText('Pause Voting'));
+  await userEvent.click(
     within(await screen.findByRole('alertdialog')).getButton('Pause Voting')
   );
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
@@ -85,8 +85,8 @@ test('full polls flow', async () => {
     pollsState: 'polls_open',
   });
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
-  userEvent.click(screen.getByText('Resume Voting'));
-  userEvent.click(
+  await userEvent.click(screen.getByText('Resume Voting'));
+  await userEvent.click(
     within(await screen.findByRole('alertdialog')).getButton('Resume Voting')
   );
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
@@ -100,8 +100,8 @@ test('full polls flow', async () => {
     pollsState: 'polls_closed_final',
   });
   await screen.findByText(hasTextAcrossElements('Polls: Open'));
-  userEvent.click(screen.getByText('Close Polls'));
-  userEvent.click(
+  await userEvent.click(screen.getByText('Close Polls'));
+  await userEvent.click(
     within(await screen.findByRole('alertdialog')).getButton('Close Polls')
   );
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
@@ -129,8 +129,8 @@ test('can close from paused', async () => {
     pollsState: 'polls_closed_final',
   });
   await screen.findByText(hasTextAcrossElements('Polls: Paused'));
-  userEvent.click(screen.getByText('Close Polls'));
-  userEvent.click(
+  await userEvent.click(screen.getByText('Close Polls'));
+  await userEvent.click(
     within(await screen.findByRole('alertdialog')).getButton('Close Polls')
   );
   await screen.findByText(hasTextAcrossElements('Polls: Closed'));
@@ -181,9 +181,9 @@ test('can reset polls to paused with system administrator card', async () => {
     pollsState: 'polls_paused',
   });
 
-  userEvent.click(await screen.findByText('Reset Polls to Paused'));
+  await userEvent.click(await screen.findByText('Reset Polls to Paused'));
   const modal = await screen.findByRole('alertdialog');
-  userEvent.click(within(modal).getButton('Reset Polls to Paused'));
+  await userEvent.click(within(modal).getButton('Reset Polls to Paused'));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });

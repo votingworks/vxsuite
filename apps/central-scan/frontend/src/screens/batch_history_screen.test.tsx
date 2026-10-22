@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import type { ScanStatus } from '@votingworks/central-scan-backend';
@@ -153,7 +153,7 @@ test('shows a failed batch with a retry button', async () => {
   apiMock.apiClient.retrySendBatchToAdmin
     .expectCallWith({ batchId: 'failed-batch' })
     .resolves();
-  userEvent.click(within(row!).getButton('Retry'));
+  await userEvent.click(within(row!).getButton('Retry'));
   await vi.waitFor(() => apiMock.assertComplete());
 });
 
@@ -205,7 +205,7 @@ test('shows a batch removed from VxAdmin with a resend button', async () => {
   apiMock.apiClient.resendBatchToAdmin
     .expectCallWith({ batchId: 'removed' })
     .resolves();
-  userEvent.click(within(rows[1]!).getButton('Resend'));
+  await userEvent.click(within(rows[1]!).getButton('Resend'));
   await vi.waitFor(() => apiMock.assertComplete());
 });
 
@@ -292,21 +292,21 @@ test('Save CVRs opens the export modal', async () => {
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
   renderScreen({ status: mockStatus({ batches: [mockBatch()] }) });
 
-  userEvent.click(screen.getButton('Save CVRs'));
+  await userEvent.click(screen.getButton('Save CVRs'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Save CVRs' });
 });
 
-test('Delete All Batches is not allowed when canUnconfigure is false', () => {
+test('Delete All Batches is not allowed when canUnconfigure is false', async () => {
   const status: ScanStatus = mockStatus({
     canUnconfigure: false,
     batches: [mockBatch()],
   });
   renderScreen({ status });
 
-  userEvent.click(screen.getButton('Delete All Batches'));
+  await userEvent.click(screen.getButton('Delete All Batches'));
   screen.getByRole('heading', { name: 'CVR Backup Required' });
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 });
 
@@ -317,16 +317,17 @@ test('Delete All Batches button', async () => {
   renderScreen({ status });
 
   // initial button
-  userEvent.click(screen.getButton('Delete All Batches'));
+  await userEvent.click(screen.getButton('Delete All Batches'));
 
   // confirmation
-  apiMock.expectClearBallotData();
+  const clearBallotData = apiMock.expectClearBallotDataDeferred();
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Delete All Batches' });
-  userEvent.click(within(modal).getButton('Delete All Batches'));
+  await userEvent.click(within(modal).getButton('Delete All Batches'));
 
   // progress message
   await screen.findByText('Deleting Batches');
+  clearBallotData.resolve();
   await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
@@ -361,7 +362,7 @@ test('disables Retry while the retry request is in flight', async () => {
   apiMock.apiClient.retrySendBatchToAdmin
     .expectCallWith({ batchId: 'failed-batch' })
     .returns(new Promise<void>(() => {}));
-  userEvent.click(within(row!).getButton('Retry'));
+  await userEvent.click(within(row!).getButton('Retry'));
   await vi.waitFor(() =>
     expect(within(row!).getButton('Retry')).toBeDisabled()
   );
@@ -387,7 +388,7 @@ test('disables Resend while the resend request is in flight', async () => {
   apiMock.apiClient.resendBatchToAdmin
     .expectCallWith({ batchId: 'removed' })
     .returns(new Promise<void>(() => {}));
-  userEvent.click(within(row!).getButton('Resend'));
+  await userEvent.click(within(row!).getButton('Resend'));
   await vi.waitFor(() =>
     expect(within(row!).getButton('Resend')).toBeDisabled()
   );

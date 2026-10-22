@@ -8,7 +8,7 @@ import type {
 } from '@votingworks/admin-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { mockKiosk } from '@votingworks/test-utils';
 import { deferred, err, ok, type Result, sleep } from '@votingworks/basics';
 
@@ -77,7 +77,7 @@ test('shows "no USB" callout', async () => {
   screen.getByText('No USB Drive Detected');
 
   expect(onClose).not.toHaveBeenCalled();
-  userEvent.click(screen.getButton('Done'));
+  await userEvent.click(screen.getButton('Done'));
   expect(onClose).toHaveBeenCalledOnce();
 });
 
@@ -97,7 +97,7 @@ test('shows alert modal on import errors', async () => {
   mockImportResult(api, location2Export.path, err(error));
   mockModeUnlocked(api);
 
-  userEvent.click(screen.getButton(new RegExp(location2!.name)));
+  await userEvent.click(screen.getButton(new RegExp(location2!.name)));
   await waitFor(() => api.assertComplete());
 
   const modal = screen.getByRole('alertdialog');
@@ -107,7 +107,7 @@ test('shows alert modal on import errors', async () => {
   );
   expect(modal).toHaveTextContent(errorMessage(error));
 
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
   await sleep(0);
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 });
@@ -124,14 +124,14 @@ test('shows alert modal on duplicate import', async () => {
   mockImportResult(api, location1Export.path, ok(res));
   mockModeUnlocked(api);
 
-  userEvent.click(screen.getButton(new RegExp(location1!.name)));
+  await userEvent.click(screen.getButton(new RegExp(location1!.name)));
   await waitFor(() => api.assertComplete());
 
   const modal = screen.getByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Duplicate Export' });
   expect(modal).toHaveTextContent('ignored as a duplicate');
 
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
   await sleep(0);
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 });
@@ -157,14 +157,14 @@ describe('shows alert modal on partial import', () => {
     mockImportResult(api, location1Export.path, ok(res));
     mockModeOfficial(api, []);
 
-    userEvent.click(screen.getButton(new RegExp(location1!.name)));
+    await userEvent.click(screen.getButton(new RegExp(location1!.name)));
     await waitFor(() => api.assertComplete());
 
     const modal = screen.getByRole('alertdialog');
     within(modal).getByRole('heading', { name: content.heading });
     expect(modal).toHaveTextContent(content.body);
 
-    userEvent.click(screen.getButton('Close'));
+    await userEvent.click(screen.getButton('Close'));
     await sleep(0);
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   }
@@ -220,7 +220,7 @@ test('no alerts on successful, full import', async () => {
   mockImportResult(api, location1Export.path, ok(res));
   mockModeOfficial(api, []);
 
-  userEvent.click(screen.getButton(new RegExp(location1!.name)));
+  await userEvent.click(screen.getButton(new RegExp(location1!.name)));
   await waitFor(() => api.assertComplete());
 
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
@@ -242,7 +242,7 @@ test('disables controls while importing', async () => {
     .expectCallWith({ path: location1Export.path })
     .returns(deferredRes.promise);
 
-  userEvent.click(screen.getButton(new RegExp(location1!.name)));
+  await userEvent.click(screen.getButton(new RegExp(location1!.name)));
   await waitFor(() => api.assertComplete());
 
   expect(screen.getButton(new RegExp(location1!.name))).toBeDisabled();
@@ -273,7 +273,7 @@ test('supports manual file selection', async () => {
   mockImportResult(api, mockPath, ok(res));
   mockModeOfficial(api, []);
 
-  userEvent.click(screen.getButton(/Select CVR Export Manually/));
+  await userEvent.click(screen.getButton(/Select CVR Export Manually/));
   await waitFor(() => api.assertComplete());
 });
 
@@ -290,7 +290,7 @@ test('handles user cancellation in manual file selection', async () => {
     filePaths: [],
   });
 
-  userEvent.click(screen.getButton(/Select CVR Export Manually/));
+  await userEvent.click(screen.getButton(/Select CVR Export Manually/));
   await waitFor(() => api.assertComplete());
 });
 

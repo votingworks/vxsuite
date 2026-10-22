@@ -9,7 +9,7 @@ import {
   type PrinterStatus,
 } from '@votingworks/types';
 import { err, ok } from '@votingworks/basics';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen } from '../../test/react_testing_library.js';
 import { PRINT_HANDOFF_MODAL_LINGER_SECONDS } from '../constants.js';
 import {
@@ -112,7 +112,9 @@ test('disables printing and labels the printer status when the printer is blocke
   });
   renderScreen({ isElectionManagerAuth: true });
 
-  userEvent.click(await screen.findByRole('option', { name: 'North Lincoln' }));
+  await userEvent.click(
+    await screen.findByRole('option', { name: 'North Lincoln' })
+  );
   await screen.findByText('Cover Open');
   expect(screen.getByRole('button', { name: /Print Ballot/ })).toBeDisabled();
   expect(
@@ -136,8 +138,10 @@ function expectPrintBallot() {
 }
 
 async function selectPrecinctAndPrint() {
-  userEvent.click(await screen.findByRole('option', { name: 'North Lincoln' }));
-  userEvent.click(screen.getByRole('button', { name: /Print Ballot/ }));
+  await userEvent.click(
+    await screen.findByRole('option', { name: 'North Lincoln' })
+  );
+  await userEvent.click(screen.getByRole('button', { name: /Print Ballot/ }));
 }
 
 test('shows a dismissable modal when the print job fails', async () => {
@@ -153,7 +157,7 @@ test('shows a dismissable modal when the print job fails', async () => {
   await screen.findByRole('heading', { name: 'Ballot Not Printed' });
   expect(screen.queryByText('Printing')).not.toBeInTheDocument();
   screen.getByText('Printer is out of paper.');
-  userEvent.click(screen.getByRole('button', { name: 'Close' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Close' }));
 
   await vi.waitFor(() => {
     expect(
@@ -253,10 +257,10 @@ test('print all ballot styles closes its modal while device statuses keep changi
     .resolves(ok({ outcome: 'sent-to-printer' }));
   renderScreen({ isElectionManagerAuth: true });
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Print All Ballot Styles' })
   );
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: /Print 2 Ballot Styles/ })
   );
 
@@ -277,7 +281,7 @@ test('disables the open print all confirm action when the printer becomes blocke
     .resolves(2);
   renderScreen({ isElectionManagerAuth: true });
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Print All Ballot Styles' })
   );
   const confirmButton = await screen.findByRole('button', {

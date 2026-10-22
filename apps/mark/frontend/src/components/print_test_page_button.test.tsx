@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen, waitFor } from '../../test/react_testing_library.js';
 import {
   type ApiMock,
@@ -54,7 +54,7 @@ test('shows printing modal when starting print', async () => {
   apiMock.mockApiClient.printTestPage.expectCallWith().resolves();
   renderButton();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Print Test Page' })
   );
 
@@ -65,7 +65,7 @@ test('shows verification modal after print delay', async () => {
   apiMock.mockApiClient.printTestPage.expectCallWith().resolves();
   renderButton();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Print Test Page' })
   );
 
@@ -86,7 +86,7 @@ test('confirm button is disabled until outcome is selected', async () => {
   apiMock.mockApiClient.printTestPage.expectCallWith().resolves();
   renderButton();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Print Test Page' })
   );
 
@@ -97,7 +97,7 @@ test('confirm button is disabled until outcome is selected', async () => {
   expect(confirmButton).toBeDisabled();
 
   // Select pass option
-  userEvent.click(screen.getByText('Pass'));
+  await userEvent.click(screen.getByText('Pass'));
   await waitFor(() => {
     expect(confirmButton).not.toBeDisabled();
   });
@@ -111,15 +111,15 @@ test('selecting pass and confirming records pass outcome', async () => {
   });
   renderButton();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Print Test Page' })
   );
 
   vi.advanceTimersByTime(TEST_PAGE_PRINT_DELAY_SECONDS * 1000 + 100);
 
   await screen.findByText('Test Page Printed');
-  userEvent.click(screen.getByText('Pass'));
-  userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+  await userEvent.click(screen.getByText('Pass'));
+  await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
   // Modal should close
   await waitFor(() => {
@@ -135,15 +135,15 @@ test('selecting fail and confirming records fail outcome and shows failure modal
   });
   renderButton();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Print Test Page' })
   );
 
   vi.advanceTimersByTime(TEST_PAGE_PRINT_DELAY_SECONDS * 1000 + 100);
 
   await screen.findByText('Test Page Printed');
-  userEvent.click(screen.getByText('Fail'));
-  userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+  await userEvent.click(screen.getByText('Fail'));
+  await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
   // Should show failure modal
   await screen.findByText('Test Print Failed');
@@ -161,18 +161,18 @@ test('closing failure modal returns to initial state', async () => {
   });
   renderButton();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Print Test Page' })
   );
 
   vi.advanceTimersByTime(TEST_PAGE_PRINT_DELAY_SECONDS * 1000 + 100);
 
   await screen.findByText('Test Page Printed');
-  userEvent.click(screen.getByText('Fail'));
-  userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+  await userEvent.click(screen.getByText('Fail'));
+  await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
   await screen.findByText('Test Print Failed');
-  userEvent.click(screen.getByRole('button', { name: 'Close' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Close' }));
 
   // Modal should close and button should be visible again
   await waitFor(() => {
@@ -185,14 +185,14 @@ test('canceling verification modal returns to initial state', async () => {
   apiMock.mockApiClient.printTestPage.expectCallWith().resolves();
   renderButton();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Print Test Page' })
   );
 
   vi.advanceTimersByTime(TEST_PAGE_PRINT_DELAY_SECONDS * 1000 + 100);
 
   await screen.findByText('Test Page Printed');
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
   // Modal should close
   await waitFor(() => {

@@ -5,7 +5,7 @@ import {
   TestLanguageCode,
 } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
-import { userEvent } from '../user_event.js';
+import { userEvent } from '@testing-library/user-event';
 
 import {
   act,
@@ -95,7 +95,7 @@ test('fires key events', async () => {
       // significantly slower, especially with this many iterations.
       // The "custom keymap" test below verifies that the keys are rendered as
       // accessible buttons.
-      userEvent.click(
+      await userEvent.click(
         screen.getByText(hasTextAcrossElements(expectedButtonContent))
       );
       expect(onKeyPress).lastCalledWith(key.value);
@@ -105,18 +105,18 @@ test('fires key events', async () => {
   const spaceBar = screen.getButton(
     `space ${getMockAudioOnlyTextPrefix(SPANISH)} space`
   );
-  userEvent.click(spaceBar);
+  await userEvent.click(spaceBar);
   expect(onKeyPress).lastCalledWith(' ');
 
   expect(onBackspace).not.toHaveBeenCalled();
 
-  userEvent.click(
+  await userEvent.click(
     screen.getButton(`delete ${getMockAudioOnlyTextPrefix(SPANISH)} delete`)
   );
   expect(onBackspace).toHaveBeenCalled();
 });
 
-test("doesn't fire key events for disabled keys", () => {
+test("doesn't fire key events for disabled keys", async () => {
   const onKeyPress = vi.fn();
   const onBackspace = vi.fn();
 
@@ -130,11 +130,11 @@ test("doesn't fire key events for disabled keys", () => {
     />
   );
 
-  userEvent.click(screen.getButton(/\bM\b/));
+  await userEvent.click(screen.getButton(/\bM\b/));
   expect(onKeyPress).not.toHaveBeenCalled();
 });
 
-test('custom keymap', () => {
+test('custom keymap', async () => {
   const onKeyPress = vi.fn();
   const onBackspace = vi.fn();
 
@@ -160,12 +160,12 @@ test('custom keymap', () => {
     />
   );
 
-  userEvent.click(
+  await userEvent.click(
     screen.getButton(`😂 ${getMockAudioOnlyTextPrefix(ENGLISH)} lol`)
   );
   expect(onKeyPress).lastCalledWith('😂');
 
-  userEvent.click(
+  await userEvent.click(
     screen.getButton(`magic ${getMockAudioOnlyTextPrefix(ENGLISH)} magic`)
   );
   expect(onKeyPress).lastCalledWith('✨');
@@ -203,7 +203,7 @@ async function pressKeyAndExpectFocus(
   keyToPress: string,
   expectedFocusedKey: string
 ) {
-  userEvent.keyboard(keyToPress);
+  await userEvent.keyboard(keyToPress);
   await expectFocus(expectedFocusedKey);
 }
 
@@ -224,7 +224,7 @@ test('navigation with left and right arrow', async () => {
   );
 
   // Click Q to establish focus in the keyboard before arrow navigation begins
-  userEvent.click(await screen.findButton(/\bQ\b/));
+  await userEvent.click(await screen.findButton(/\bQ\b/));
   await expectFocus('Q');
 
   for (const row of TEST_ROWS) {
@@ -267,20 +267,20 @@ test('navigation with up and down arrow', async () => {
   );
 
   // Click Q to establish focus in the keyboard before arrow navigation begins
-  userEvent.click(await screen.findButton(/\bQ\b/));
+  await userEvent.click(await screen.findButton(/\bQ\b/));
   await expectFocus('Q');
 
   // Go down through all rows; down from the last row calls onExitBottom
   await pressKeyAndExpectFocus('[ArrowDown]', 'A');
   await pressKeyAndExpectFocus('[ArrowDown]', 'Z');
   await pressKeyAndExpectFocus('[ArrowDown]', 'space');
-  userEvent.keyboard('[ArrowDown]');
+  await userEvent.keyboard('[ArrowDown]');
   expect(onExitBottom).toHaveBeenCalledOnce();
 
   // Go up through all rows; up from the first row calls onExitTop
   await pressKeyAndExpectFocus('[ArrowUp]', 'Z');
   await pressKeyAndExpectFocus('[ArrowUp]', 'A');
   await pressKeyAndExpectFocus('[ArrowUp]', 'Q');
-  userEvent.keyboard('[ArrowUp]');
+  await userEvent.keyboard('[ArrowUp]');
   expect(onExitTop).toHaveBeenCalledOnce();
 });

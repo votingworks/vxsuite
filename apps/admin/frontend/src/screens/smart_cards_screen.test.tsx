@@ -9,7 +9,7 @@ import {
   type DippedSmartCardAuth,
 } from '@votingworks/types';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { deferred, ok } from '@votingworks/basics';
 import {
   type ApiMock,
@@ -96,7 +96,7 @@ test('Insert blank card, program election manager card', async () => {
   apiMock.apiClient.programCard
     .expectCallWith({ userRole: 'election_manager' })
     .returns(deferredProgram.promise);
-  userEvent.click(screen.getButton('Program Election Manager Card'));
+  await userEvent.click(screen.getButton('Program Election Manager Card'));
   await vi.waitFor(() => {
     expect(screen.getButton('Program Election Manager Card')).toBeDisabled();
   });

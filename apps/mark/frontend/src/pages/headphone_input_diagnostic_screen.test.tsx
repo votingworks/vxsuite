@@ -6,7 +6,7 @@ import {
   test,
   vi,
 } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { fireEvent, render, screen } from '../../test/react_testing_library.js';
 import {
   type ApiMock,
@@ -75,7 +75,9 @@ test('renders headphone input diagnostic screen', () => {
 test('pressing play causes the audio file to play', async () => {
   const { playSpy } = renderScreen();
 
-  userEvent.click(await screen.findByRole('button', { name: 'Play Audio' }));
+  await userEvent.click(
+    await screen.findByRole('button', { name: 'Play Audio' })
+  );
 
   expect(playSpy).toHaveBeenCalledTimes(1);
 });
@@ -83,7 +85,9 @@ test('pressing play causes the audio file to play', async () => {
 test('play button is disabled when sound is playing', async () => {
   const { audioElement, playSpy } = renderScreen();
 
-  userEvent.click(await screen.findByRole('button', { name: 'Play Audio' }));
+  await userEvent.click(
+    await screen.findByRole('button', { name: 'Play Audio' })
+  );
 
   expect(playSpy).toHaveBeenCalledTimes(1);
   const playingButton = await screen.findByRole('button', {
@@ -106,7 +110,7 @@ test('user confirms sound is audible - passes test', async () => {
   });
   renderScreen();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Sound Is Audible' })
   );
 
@@ -121,7 +125,7 @@ test('user confirms sound is not audible - fails test', async () => {
   });
   renderScreen();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Sound Is Not Audible' })
   );
 
@@ -132,7 +136,9 @@ test('pressing cancel calls onCancel', async () => {
   expect(onCancel).toHaveBeenCalledTimes(0);
   renderScreen();
 
-  userEvent.click(await screen.findByRole('button', { name: 'Cancel Test' }));
+  await userEvent.click(
+    await screen.findByRole('button', { name: 'Cancel Test' })
+  );
 
   expect(onCancel).toHaveBeenCalledTimes(1);
 });

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireHudsonFixtures,
@@ -111,7 +111,7 @@ test('configuring with an election definition', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
 
-  userEvent.click(screen.getByText(electionPackage.name));
+  await userEvent.click(screen.getByText(electionPackage.name));
   await screen.findAllByText(electionDefinition.election.title);
   screen.getByText(
     hasTextAcrossElements(
@@ -258,12 +258,12 @@ test('marking results as official', async () => {
   apiMock.expectGetManualResultsMetadata([]);
   apiMock.expectGetTotalBallotCount(1000);
   apiMock.expectGetRegisteredVoterCounts(null);
-  userEvent.click(screen.getButton('Reports'));
+  await userEvent.click(screen.getButton('Reports'));
   screen.getByRole('heading', { name: 'Unofficial Tally Reports' });
   screen.getByRole('heading', { name: 'Unofficial Ballot Count Reports' });
 
   // mark results official
-  userEvent.click(screen.getButton('Reports'));
+  await userEvent.click(screen.getButton('Reports'));
   apiMock.expectMarkResultsOfficial();
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
@@ -275,8 +275,8 @@ test('marking results as official', async () => {
   await vi.waitFor(() => {
     expect(markOfficialButton).toBeEnabled();
   });
-  userEvent.click(markOfficialButton);
-  userEvent.click(
+  await userEvent.click(markOfficialButton);
+  await userEvent.click(
     within(await screen.findByRole('alertdialog')).getButton(
       MARK_RESULTS_OFFICIAL_BUTTON_TEXT
     )
@@ -306,9 +306,11 @@ test('reverting results to unofficial', async () => {
     electionDefinition,
     isOfficialResults: false,
   });
-  userEvent.click(screen.getButton('Revert Election Results to Unofficial'));
+  await userEvent.click(
+    screen.getButton('Revert Election Results to Unofficial')
+  );
   const confirmModal = await screen.findByRole('alertdialog');
-  userEvent.click(
+  await userEvent.click(
     within(confirmModal).getButton('Revert Election Results to Unofficial')
   );
 
@@ -334,8 +336,8 @@ test('unconfiguring clears all cached data', async () => {
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetManualResultsMetadata(mockManualResultsMetadata);
-  userEvent.click(screen.getButton('Tally'));
-  userEvent.click(screen.getByRole('tab', { name: 'Manual Tallies' }));
+  await userEvent.click(screen.getButton('Tally'));
+  await userEvent.click(screen.getByRole('tab', { name: 'Manual Tallies' }));
 
   await apiMock.logOut();
   await apiMock.authenticateAsSystemAdministrator();
@@ -357,7 +359,7 @@ test('unconfiguring clears all cached data', async () => {
   apiMock.expectConfigure(electionPackage.path);
   apiMock.expectGetSystemSettings();
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  userEvent.click(screen.getByText(electionPackage.name));
+  await userEvent.click(screen.getByText(electionPackage.name));
   await screen.findAllByText(electionDefinition.election.title);
 
   await apiMock.logOut();
@@ -378,8 +380,8 @@ test('unconfiguring clears all cached data', async () => {
       ballotStyleGroupId: electionDefinition.election.ballotStyles[0]!.groupId,
     },
   ]);
-  userEvent.click(screen.getButton('Tally'));
-  userEvent.click(screen.getByRole('tab', { name: 'Manual Tallies' }));
+  await userEvent.click(screen.getButton('Tally'));
+  await userEvent.click(screen.getByRole('tab', { name: 'Manual Tallies' }));
 });
 
 test('clearing results', async () => {
@@ -402,7 +404,7 @@ test('clearing results', async () => {
   renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
-  userEvent.click(screen.getByText('Tally'));
+  await userEvent.click(screen.getByText('Tally'));
   await screen.findByText('Election Results are Official');
   expect(screen.queryButton('Load')).not.toBeInTheDocument();
   expect(screen.queryButton('Remove All CVRs')).not.toBeInTheDocument();
@@ -412,9 +414,9 @@ test('clearing results', async () => {
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
-  userEvent.click(screen.getButton('Remove All Tallies'));
+  await userEvent.click(screen.getButton('Remove All Tallies'));
   const confirmModal = await screen.findByRole('alertdialog');
-  userEvent.click(within(confirmModal).getButton('Remove All Tallies'));
+  await userEvent.click(within(confirmModal).getButton('Remove All Tallies'));
 
   await vi.waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
@@ -457,14 +459,14 @@ test('election manager UI has expected nav', async () => {
   renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 
-  userEvent.click(screen.getButton('Election'));
+  await userEvent.click(screen.getButton('Election'));
   await screen.findByRole('heading', { name: 'Election' });
 
-  userEvent.click(screen.getButton('Tally'));
+  await userEvent.click(screen.getButton('Tally'));
   await screen.findByRole('tab', { name: 'Cast Vote Records' });
 
   apiMock.expectGetRegisteredVoterCounts(null);
-  userEvent.click(screen.getByText('Reports'));
+  await userEvent.click(screen.getByText('Reports'));
   await screen.findByRole('heading', { name: 'Election Reports' });
   screen.getByRole('button', { name: 'Lock Machine' });
 
@@ -479,12 +481,12 @@ test('system administrator UI has expected nav', async () => {
   renderApp();
   await apiMock.authenticateAsSystemAdministrator();
 
-  userEvent.click(screen.getButton('Election'));
+  await userEvent.click(screen.getButton('Election'));
   await screen.findByRole('heading', { name: 'Election' });
-  userEvent.click(screen.getButton('Smart Cards'));
+  await userEvent.click(screen.getButton('Smart Cards'));
   await screen.findByRole('heading', { name: 'Smart Cards' });
   apiMock.expectGetUsbPortStatus();
-  userEvent.click(screen.getButton('Settings'));
+  await userEvent.click(screen.getButton('Settings'));
   await screen.findByRole('heading', { name: 'Settings' });
   screen.getByRole('button', { name: 'Lock Machine' });
 });
@@ -543,9 +545,9 @@ test('usb formatting flows', async () => {
 
   // navigate to modal
   apiMock.expectGetUsbPortStatus();
-  userEvent.click(screen.getByText('Settings'));
+  await userEvent.click(screen.getByText('Settings'));
   screen.getByText('USB Formatting');
-  userEvent.click(screen.getButton('Format USB Drive'));
+  await userEvent.click(screen.getButton('Format USB Drive'));
 
   // initial prompt to insert USB drive
   const initialModal = await screen.findByRole('alertdialog');
@@ -557,50 +559,52 @@ test('usb formatting flows', async () => {
   const formatModal = screen.getByRole('alertdialog');
   within(formatModal).getByText(/fully compatible/);
   apiMock.expectFormatUsbDrive();
-  userEvent.click(within(formatModal).getButton('Format USB Drive'));
+  await userEvent.click(within(formatModal).getButton('Format USB Drive'));
   await within(formatModal).findByText('USB Drive Formatted');
   apiMock.expectEjectUsbDrive();
-  userEvent.click(within(formatModal).getButton('Eject USB'));
+  await userEvent.click(within(formatModal).getButton('Eject USB'));
   apiMock.expectGetUsbDriveStatus('ejected');
   await within(formatModal).findByText('USB Ejected');
 
   // Close the done modal; wait for drive status to be 'error' before re-opening
   // so that the format confirm screen appears.
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
   apiMock.expectGetUsbDriveStatus('error');
   await screen.findByText('No USB');
 
   // Format another USB, this time in an incompatible format
-  userEvent.click(screen.getButton('Format USB Drive'));
+  await userEvent.click(screen.getButton('Format USB Drive'));
   await screen.findByRole('heading', { name: 'Format USB Drive' });
   const incompatibleModal = screen.getByRole('alertdialog');
   within(incompatibleModal).getByText(/not compatible/);
   apiMock.expectFormatUsbDrive();
-  userEvent.click(within(incompatibleModal).getButton('Format USB Drive'));
+  await userEvent.click(
+    within(incompatibleModal).getButton('Format USB Drive')
+  );
   apiMock.expectGetUsbDriveStatus('mounted');
   await within(incompatibleModal).findByText('USB Drive Formatted');
   await within(incompatibleModal).findButton('Eject USB');
 
   // Close the done modal; wait for drive status to be 'error' before re-opening
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
   apiMock.expectGetUsbDriveStatus('error');
   await screen.findByText('No USB');
 
   // Error handling
-  userEvent.click(screen.getButton('Format USB Drive'));
+  await userEvent.click(screen.getButton('Format USB Drive'));
   apiMock.apiClient.formatUsbDrive
     .expectCallWith()
     .resolves(err(new Error('unable to format')));
   await screen.findByRole('heading', { name: 'Format USB Drive' });
   const errorModal = screen.getByRole('alertdialog');
-  userEvent.click(within(errorModal).getButton('Format USB Drive'));
+  await userEvent.click(within(errorModal).getButton('Format USB Drive'));
   await within(errorModal).findByText('Failed to Format USB Drive');
   within(errorModal).getByText(/unable to format/);
 
   // Close the error modal; re-open with no USB drive
-  userEvent.click(screen.getButton('Close'));
+  await userEvent.click(screen.getButton('Close'));
   apiMock.expectGetUsbDriveStatus('no_drive');
-  userEvent.click(screen.getButton('Format USB Drive'));
+  await userEvent.click(screen.getButton('Format USB Drive'));
   await screen.findByText('No USB Drive Detected');
 });
 
@@ -656,10 +660,10 @@ test('a running backup is shown again after the machine is locked and unlocked',
     .expectRepeatedCallsWith()
     .resolves(mockUsbDriveStatus('mounted'));
   apiMock.expectGetLastBackupOnDrive(null);
-  userEvent.click(screen.getButton('Save Backup'));
+  await userEvent.click(screen.getButton('Save Backup'));
   let modal = await screen.findByRole('alertdialog');
   apiMock.apiClient.startBackup.expectCallWith().resolves();
-  userEvent.click(within(modal).getButton('Save Backup'));
+  await userEvent.click(within(modal).getButton('Save Backup'));
   apiMock.setBackupStatus({
     status: 'in-progress',
     lastProgressEvent: { type: '1_preparing' },
@@ -668,7 +672,7 @@ test('a running backup is shown again after the machine is locked and unlocked',
   modal = screen.getByRole('alertdialog');
 
   apiMock.expectLogOut();
-  userEvent.click(within(modal).getButton('Lock Machine'));
+  await userEvent.click(within(modal).getButton('Lock Machine'));
   await apiMock.logOut();
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
@@ -686,7 +690,7 @@ test('a running backup is shown again after the machine is locked and unlocked',
   vi.advanceTimersByTime(DEFAULT_QUERY_REFETCH_INTERVAL);
   await within(modal).findByRole('heading', { name: 'Backup Saved' });
   apiMock.apiClient.finishBackup.expectCallWith().resolves();
-  userEvent.click(within(modal).getButton('Close'));
+  await userEvent.click(within(modal).getButton('Close'));
   apiMock.setBackupStatus(null);
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();

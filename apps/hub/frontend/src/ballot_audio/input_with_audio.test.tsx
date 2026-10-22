@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import type React from 'react';
 import { assert } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library.js';
@@ -11,7 +11,7 @@ import {
 
 vi.mock('./audio_link_button.js');
 
-test('passes through input props', () => {
+test('passes through input props', async () => {
   const onChange = vi.fn((event: React.ChangeEvent<HTMLInputElement>) => {
     assert(event.target instanceof HTMLInputElement);
     expect(event.target.value).toEqual('hello!');
@@ -39,7 +39,7 @@ test('passes through input props', () => {
 
   const input = screen.getByRole('textbox', { name: 'test_input' });
   expect(input).toHaveValue('hello');
-  userEvent.type(input, '!');
+  await userEvent.type(input, '!');
   expect(onChange).toHaveBeenCalled();
 });
 

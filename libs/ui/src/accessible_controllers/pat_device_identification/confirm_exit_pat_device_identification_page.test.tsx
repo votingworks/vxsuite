@@ -1,6 +1,6 @@
 import type React from 'react';
 import { expect, test, vi } from 'vitest';
-import { userEvent } from '../../user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen } from '../../../test/react_testing_library.js';
 import { ConfirmExitPatDeviceIdentificationPage } from './confirm_exit_pat_device_identification_page.js';
 
@@ -20,7 +20,7 @@ function MockScreenWrapper({
   );
 }
 
-test('calls provided Back and Continue functions', () => {
+test('calls provided Back and Continue functions', async () => {
   const backFn = vi.fn();
   const continueFn = vi.fn();
 
@@ -34,10 +34,10 @@ test('calls provided Back and Continue functions', () => {
 
   screen.getByText('Device Inputs Identified');
   expect(backFn).not.toHaveBeenCalled();
-  userEvent.click(screen.getByText('Back'));
+  await userEvent.click(screen.getByText('Back'));
   expect(backFn).toHaveBeenCalled();
 
   expect(continueFn).not.toHaveBeenCalled();
-  userEvent.click(screen.getByText('Continue'));
+  await userEvent.click(screen.getByText('Continue'));
   expect(continueFn).toHaveBeenCalled();
 });

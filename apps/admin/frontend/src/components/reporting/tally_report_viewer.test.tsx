@@ -3,7 +3,7 @@ import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { TallyReportSpec } from '@votingworks/admin-backend';
 import { ok } from '@votingworks/basics';
@@ -112,7 +112,7 @@ test('when auto-generation is off, it requires a button press to load the report
     reportSpec: MOCK_REPORT_SPEC,
     pdfContent: 'Unofficial Lincoln Municipal General Election Tally Report',
   });
-  userEvent.click(screen.getButton('Generate Report'));
+  await userEvent.click(screen.getButton('Generate Report'));
   await screen.findByText(
     'Unofficial Lincoln Municipal General Election Tally Report'
   );
@@ -210,7 +210,7 @@ test('printing report', async () => {
     returnValue: undefined,
     deferred: true,
   });
-  userEvent.click(screen.getButton('Print Report'));
+  await userEvent.click(screen.getButton('Print Report'));
   const modal = await screen.findByRole('alertdialog');
   await within(modal).findByText('Printing');
   resolve();
@@ -250,7 +250,7 @@ test('exporting PDF', async () => {
     'Unofficial Lincoln Municipal General Election Tally Report'
   );
 
-  userEvent.click(screen.getButton('Export Report PDF'));
+  await userEvent.click(screen.getButton('Export Report PDF'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Save Tally Report');
   within(modal).getByText(
@@ -265,7 +265,7 @@ test('exporting PDF', async () => {
     returnValue: ok([]),
     deferred: true,
   });
-  userEvent.click(within(modal).getButton('Save'));
+  await userEvent.click(within(modal).getButton('Save'));
   await screen.findByText('Saving Tally Report');
   resolve();
   await screen.findByText('Tally Report Saved');
@@ -301,7 +301,7 @@ test('exporting CSV', async () => {
     'Unofficial Lincoln Municipal General Election Tally Report'
   );
 
-  userEvent.click(screen.getButton('Export Report CSV'));
+  await userEvent.click(screen.getButton('Export Report CSV'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Save Tally Report');
   within(modal).getByText(
@@ -317,7 +317,7 @@ test('exporting CSV', async () => {
     returnValue: ok([]),
     deferred: true,
   });
-  userEvent.click(within(modal).getButton('Save'));
+  await userEvent.click(within(modal).getButton('Save'));
   await screen.findByText('Saving Tally Report');
   resolve();
   await screen.findByText('Tally Report Saved');
@@ -358,7 +358,7 @@ test('when full election report - allows CDF export and includes signature lines
     'Unofficial Lincoln Municipal General Election Tally Report'
   );
 
-  userEvent.click(screen.getButton('Export CDF Report'));
+  await userEvent.click(screen.getButton('Export CDF Report'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByText('Save CDF Election Results Report');
   within(modal).getByText(
@@ -372,7 +372,7 @@ test('when full election report - allows CDF export and includes signature lines
     returnValue: ok([]),
     deferred: true,
   });
-  userEvent.click(within(modal).getButton('Save'));
+  await userEvent.click(within(modal).getButton('Save'));
   await screen.findByText('Saving CDF Election Results Report');
   resolve();
   await screen.findByText('CDF Election Results Report Saved');

@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { createPortal } from 'react-dom';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { assertDefined } from '@votingworks/basics';
 import { fireEvent, render, screen } from '../test/react_testing_library.js';
 import { CardList, CardListItem } from './card_list.js';
@@ -33,13 +33,13 @@ test('renders all three slots', () => {
   screen.getButton('action');
 });
 
-test('pressed on click', () => {
+test('pressed on click', async () => {
   const onPress = renderCardListItem();
-  userEvent.click(screen.getByText('content'));
+  await userEvent.click(screen.getByText('content'));
   expect(onPress).toHaveBeenCalledTimes(1);
 });
 
-test('not pressed on clicks in children rendered in portals', () => {
+test('not pressed on clicks in children rendered in portals', async () => {
   const onPress = vi.fn();
   render(
     <CardList>
@@ -52,21 +52,21 @@ test('not pressed on clicks in children rendered in portals', () => {
       />
     </CardList>
   );
-  userEvent.click(screen.getButton('portal action'));
+  await userEvent.click(screen.getButton('portal action'));
   expect(onPress).not.toHaveBeenCalled();
 });
 
-test('pressed with Enter or Space, but not other keys', () => {
+test('pressed with Enter or Space, but not other keys', async () => {
   const onPress = renderCardListItem();
   getItem().focus();
 
-  userEvent.keyboard('{Enter}');
+  await userEvent.keyboard('{Enter}');
   expect(onPress).toHaveBeenCalledTimes(1);
 
-  userEvent.keyboard(' ');
+  await userEvent.keyboard(' ');
   expect(onPress).toHaveBeenCalledTimes(2);
 
-  userEvent.keyboard('a');
+  await userEvent.keyboard('a');
   expect(onPress).toHaveBeenCalledTimes(2);
 });
 

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render as renderWithBallotContext } from '../../test/test_utils.js';
 import { createQueryClient, getPrintJobStatus } from '../api.js';
@@ -61,7 +61,7 @@ test('closing the failure modal ends the voter session', async () => {
     )
   );
 
-  userEvent.click(screen.getByText('Close'));
+  await userEvent.click(screen.getByText('Close'));
 
   await waitFor(() => {
     expect(endVoterSession).toHaveBeenCalledTimes(1);

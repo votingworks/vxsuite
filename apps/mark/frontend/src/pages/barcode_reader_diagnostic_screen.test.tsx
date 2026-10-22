@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen, waitFor } from '../../test/react_testing_library.js';
 import {
   type ApiMock,
@@ -74,7 +74,7 @@ test('passes test when barcode is detected', async () => {
 
   renderScreen();
   await screen.findByText('Barcode scan data received successfully.');
-  userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Back' }));
 
   await waitFor(() => {
     expect(onComplete).toHaveBeenCalledTimes(1);
@@ -92,7 +92,7 @@ test('user marks barcode reader as not working - fails test', async () => {
 
   renderScreen();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Barcode Reader Is Not Working' })
   );
 
@@ -106,7 +106,9 @@ test('pressing cancel calls onCancel', async () => {
 
   renderScreen();
 
-  userEvent.click(await screen.findByRole('button', { name: 'Cancel Test' }));
+  await userEvent.click(
+    await screen.findByRole('button', { name: 'Cancel Test' })
+  );
 
   expect(onCancel).toHaveBeenCalledTimes(1);
 });

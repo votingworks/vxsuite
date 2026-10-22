@@ -4,7 +4,7 @@ import {
   readElectionTwoPartyPrimary,
 } from '@votingworks/fixtures';
 import type { YesNoContest as YesNoContestInterface } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   useIsPatDeviceConnected,
   WithScrollButtons,
@@ -41,7 +41,7 @@ beforeEach(() => {
   mockUseIsPatDeviceConnected.mockReturnValue(false);
 });
 
-test('voting for both yes and no', () => {
+test('voting for both yes and no', async () => {
   const updateVote = vi.fn();
   render(
     <YesNoContest
@@ -62,14 +62,18 @@ test('voting for both yes and no', () => {
   expect(descriptions.length).toEqual(1);
 
   const contestChoices = screen.getByTestId('contest-choices');
-  userEvent.click(within(contestChoices).getByText('YES').closest('button')!);
+  await userEvent.click(
+    within(contestChoices).getByText('YES').closest('button')!
+  );
   expect(updateVote).toHaveBeenCalledTimes(1);
 
-  userEvent.click(within(contestChoices).getByText('NO').closest('button')!);
+  await userEvent.click(
+    within(contestChoices).getByText('NO').closest('button')!
+  );
   expect(updateVote).toHaveBeenCalledTimes(2);
 });
 
-test('changing votes', () => {
+test('changing votes', async () => {
   const updateVote = vi.fn();
   render(
     <YesNoContest
@@ -80,13 +84,15 @@ test('changing votes', () => {
     />
   );
   const contestChoices = screen.getByTestId('contest-choices');
-  userEvent.click(within(contestChoices).getByText('NO').closest('button')!);
+  await userEvent.click(
+    within(contestChoices).getByText('NO').closest('button')!
+  );
   within(screen.getByRole('alertdialog')).getByText(/first deselect/i);
-  userEvent.click(screen.getByText('Continue'));
+  await userEvent.click(screen.getByText('Continue'));
 });
 
-test('audio cue for vote', () => {
-  vi.useFakeTimers();
+test('audio cue for vote', async () => {
+  vi.useFakeTimers({ shouldAdvanceTime: true });
 
   const updateVote = vi.fn();
   const { rerender } = render(
@@ -101,7 +107,7 @@ test('audio cue for vote', () => {
 
   // initial state just has a description of the choice
   getOption(/Ballot Measure 3.+yes/i);
-  userEvent.click(yesButton);
+  await userEvent.click(yesButton);
 
   // manually handle updating the vote
   rerender(
@@ -119,7 +125,7 @@ test('audio cue for vote', () => {
   );
 
   // unselect the choice
-  userEvent.click(yesButton);
+  await userEvent.click(yesButton);
 
   // manually handle updating the vote
   rerender(
@@ -207,7 +213,7 @@ test('shows all 3 option buttons when contest has 3 options', () => {
   within(contestChoices).getByText('REGULATE');
 });
 
-test('clicking REGULATE selects the regulate-fishing option', () => {
+test('clicking REGULATE selects the regulate-fishing option', async () => {
   const updateVote = vi.fn();
   render(
     <YesNoContest
@@ -218,13 +224,13 @@ test('clicking REGULATE selects the regulate-fishing option', () => {
   );
 
   const contestChoices = screen.getByTestId('contest-choices');
-  userEvent.click(
+  await userEvent.click(
     within(contestChoices).getByText('REGULATE').closest('button')!
   );
   expect(updateVote).toHaveBeenCalledWith(contest.id, ['regulate-fishing']);
 });
 
-test('switching from YES to REGULATE shows overvote alert', () => {
+test('switching from YES to REGULATE shows overvote alert', async () => {
   const updateVote = vi.fn();
   render(
     <YesNoContest
@@ -236,11 +242,11 @@ test('switching from YES to REGULATE shows overvote alert', () => {
   );
 
   const contestChoices = screen.getByTestId('contest-choices');
-  userEvent.click(
+  await userEvent.click(
     within(contestChoices).getByText('REGULATE').closest('button')!
   );
   within(screen.getByRole('alertdialog')).getByText(/first deselect/i);
-  userEvent.click(screen.getByText('Continue'));
+  await userEvent.click(screen.getByText('Continue'));
 });
 
 test('renders rich text', () => {

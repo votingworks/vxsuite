@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   type ApiMock,
   createApiMock,
@@ -42,14 +42,14 @@ test('happy path', async () => {
   expect(screen.getButton('Print Report')).toBeDisabled();
 
   // Add Filter
-  userEvent.click(screen.getByText('Add Filter'));
-  userEvent.click(screen.getByLabelText('Select New Filter Type'));
-  userEvent.click(
+  await userEvent.click(screen.getByText('Add Filter'));
+  await userEvent.click(screen.getByLabelText('Select New Filter Type'));
+  await userEvent.click(
     within(screen.getByTestId('filter-editor')).getByText('Voting Method')
   );
   screen.getByText('is');
-  userEvent.click(screen.getByLabelText('Select Filter Values'));
-  userEvent.click(screen.getByText('Absentee'));
+  await userEvent.click(screen.getByLabelText('Select Filter Values'));
+  await userEvent.click(screen.getByText('Absentee'));
 
   await vi.waitFor(() => {
     expect(screen.getButton('Generate Report')).toBeEnabled();
@@ -58,7 +58,7 @@ test('happy path', async () => {
 
   // Add Group By
   const precinctCheckbox = screen.getByRole('checkbox', { name: 'Precinct' });
-  userEvent.click(precinctCheckbox);
+  await userEvent.click(precinctCheckbox);
   expect(precinctCheckbox).toBeChecked();
 
   // Load Preview
@@ -74,13 +74,13 @@ test('happy path', async () => {
     },
     pdfContent: 'Absentee Ballot Tally Report Mock Preview',
   });
-  userEvent.click(screen.getButton('Generate Report'));
+  await userEvent.click(screen.getButton('Generate Report'));
   await screen.findByText('Absentee Ballot Tally Report Mock Preview');
 
   // Change Report Parameters
-  userEvent.click(screen.getByLabelText('Remove Absentee'));
-  userEvent.click(screen.getByLabelText('Select Filter Values'));
-  userEvent.click(
+  await userEvent.click(screen.getByLabelText('Remove Absentee'));
+  await userEvent.click(screen.getByLabelText('Select Filter Values'));
+  await userEvent.click(
     within(screen.getByTestId('filter-editor')).getByText('Precinct')
   );
 
@@ -97,7 +97,7 @@ test('happy path', async () => {
     },
     pdfContent: 'Precinct Ballot Tally Report Mock Preview',
   });
-  userEvent.click(screen.getButton('Generate Report'));
+  await userEvent.click(screen.getButton('Generate Report'));
 
   await screen.findByText('Precinct Ballot Tally Report Mock Preview');
 });

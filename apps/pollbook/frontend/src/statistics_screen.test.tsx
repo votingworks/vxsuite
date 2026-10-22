@@ -1,5 +1,5 @@
 import { expect, test, describe, beforeEach, afterEach, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   electionSimpleSinglePrecinctFixtures,
   electionMultiPartyPrimaryFixtures,
@@ -11,7 +11,7 @@ import type {
 } from '@votingworks/types';
 import { type ApiMock, createApiMock } from '../test/mock_api_client.js';
 import { renderInAppContext } from '../test/render_in_app_context.js';
-import { act, screen, waitFor } from '../test/react_testing_library.js';
+import { screen, waitFor } from '../test/react_testing_library.js';
 import {
   StatisticsScreen,
   GeneralElectionStatistics,
@@ -246,9 +246,7 @@ describe('GeneralElectionStatistics', () => {
         totalNewRegistrations: 20,
         totalAbsenteeCheckIns: 40,
       });
-    act(() => {
-      userEvent.click(demButton);
-    });
+    await userEvent.click(demButton);
 
     await waitFor(() => {
       screen.getByText('400');
@@ -366,9 +364,7 @@ describe('PrimaryElectionStatistics', () => {
 
     // Click on Undeclared filter (it has role="option") - use the first one in the content area
     const undButton = screen.getByRole('option', { name: 'Und' });
-    act(() => {
-      userEvent.click(undButton);
-    });
+    await userEvent.click(undButton);
 
     await waitFor(() => {
       expect(screen.getByText('Declared Party')).toBeInTheDocument();
@@ -456,9 +452,7 @@ describe('ThroughputChart', () => {
     // Click 30m interval button (it has role="option" not "button") - use the last one which should be in the chart area
     const thirtyMinButtons = screen.getAllByRole('option', { name: '30m' });
     const thirtyMinButton = thirtyMinButtons[thirtyMinButtons.length - 1]!; // Use the last one (chart area)
-    act(() => {
-      userEvent.click(thirtyMinButton);
-    });
+    await userEvent.click(thirtyMinButton);
 
     await waitFor(() => {
       const chartData = screen.getAllByTestId('chart-data')[0]!;

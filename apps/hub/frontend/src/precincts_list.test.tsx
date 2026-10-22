@@ -4,7 +4,7 @@ import { Router, Route } from 'react-router-dom';
 
 import { within } from '@testing-library/react';
 import type { Precinct, PrecinctSplit } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import { createMockApiClient, provideApi } from '../test/api_helpers.js';
 import { PrecinctList } from './precincts_list.js';
@@ -76,7 +76,7 @@ test('renders selected precinct based on URL, navigates on select', async () => 
     getOption(with3Splits, '3 Splits'),
   ]);
 
-  userEvent.click(
+  await userEvent.click(
     getOption(with2Districts, '2 Districts', { selected: false })
   );
 
@@ -86,7 +86,9 @@ test('renders selected precinct based on URL, navigates on select', async () => 
     precinctRoutes.view(with2Districts.id).path
   );
 
-  userEvent.click(getOption(with3Splits, '3 Splits', { selected: false }));
+  await userEvent.click(
+    getOption(with3Splits, '3 Splits', { selected: false })
+  );
 
   getOption(with3Splits, '3 Splits', { selected: true });
   getOption(with2Districts, '2 Districts', { selected: false });

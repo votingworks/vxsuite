@@ -1,6 +1,6 @@
 import { vi, beforeEach, afterEach, test, expect } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { deferred, err, ok } from '@votingworks/basics';
 
 import {
@@ -79,7 +79,7 @@ test('CVR sync modal success case', async () => {
   apiMock.mockApiClient.exportCastVoteRecordsToUsbDrive
     .expectCallWith({ mode: 'recovery_export' })
     .returns(deferredExport.promise);
-  userEvent.click(screen.getByRole('button', { name: 'Sync CVRs' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Sync CVRs' }));
   const modal = await screen.findByRole('alertdialog');
   expect(setShouldStayOnCastVoteRecordSyncRequiredScreen).toHaveBeenCalledTimes(
     1
@@ -93,7 +93,7 @@ test('CVR sync modal success case', async () => {
   await within(modal).findByText('CVR Sync Complete');
   within(modal).getByText('Voters may continue casting ballots.');
 
-  userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
+  await userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
   expect(setShouldStayOnCastVoteRecordSyncRequiredScreen).toHaveBeenCalledTimes(
     2
   );
@@ -117,7 +117,7 @@ test('CVR sync modal error case', async () => {
   apiMock.mockApiClient.exportCastVoteRecordsToUsbDrive
     .expectCallWith({ mode: 'recovery_export' })
     .resolves(err({ type: 'file-system-error', message: '' }));
-  userEvent.click(screen.getByRole('button', { name: 'Sync CVRs' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Sync CVRs' }));
   const modal = await screen.findByRole('alertdialog');
   expect(setShouldStayOnCastVoteRecordSyncRequiredScreen).toHaveBeenCalledTimes(
     1
@@ -128,7 +128,7 @@ test('CVR sync modal error case', async () => {
   await within(modal).findByText('CVR Sync Error');
   within(modal).getByText('Try inserting a different USB drive.');
 
-  userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
+  await userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );

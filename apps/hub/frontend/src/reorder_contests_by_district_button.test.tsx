@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test } from 'vitest';
 import { within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { DateWithoutTime } from '@votingworks/basics';
 import type { ElectionInfo } from '@votingworks/hub-backend';
 import {
@@ -236,15 +236,15 @@ test('reorders districts and saves', async () => {
 
   renderButton();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Reorder Contests by District' })
   );
   let modal = await screen.findByRole('alertdialog');
 
-  userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
   await waitFor(() => expect(modal).not.toBeInTheDocument());
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Reorder Contests by District' })
   );
   modal = await screen.findByRole('alertdialog');
@@ -264,14 +264,14 @@ test('reorders districts and saves', async () => {
   ).toBeDisabled();
 
   // Move District B up --> B, A, C
-  userEvent.click(
+  await userEvent.click(
     within(modal).getByRole('button', {
       name: `Move Up: ${testDistrictB.name}`,
     })
   );
 
   // Move District A down --> B, C, A
-  userEvent.click(
+  await userEvent.click(
     within(modal).getByRole('button', {
       name: `Move Down: ${testDistrictA.name}`,
     })
@@ -292,7 +292,7 @@ test('reorders districts and saves', async () => {
   apiMock.listDistricts
     .expectCallWith({ electionId: testElectionId })
     .resolves(testDistricts);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await waitFor(() => expect(modal).not.toBeInTheDocument());
 });
@@ -313,7 +313,7 @@ test('initial district order is based on the order of appearance in contests', a
 
   renderButton();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Reorder Contests by District' })
   );
   const modal = await screen.findByRole('alertdialog');

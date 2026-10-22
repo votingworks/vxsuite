@@ -18,7 +18,7 @@ import {
   mockPollWorkerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import { assertDefined, DateWithoutTime, err } from '@votingworks/basics';
 import type { QueryClient } from '@tanstack/react-query';
@@ -155,7 +155,7 @@ test('renders PollWorkerScreen', () => {
   screen.getByText('Power Down');
 });
 
-test('switching out of test mode on election day', () => {
+test('switching out of test mode on election day', async () => {
   const electionDefinition = asElectionDefinition({
     ...election,
     date: DateWithoutTime.today(),
@@ -170,7 +170,7 @@ test('switching out of test mode on election day', () => {
   screen.getByText(
     'Switch to Official Ballot Mode and reset the Ballots Printed count?'
   );
-  userEvent.click(screen.getByText('Switch to Official Ballot Mode'));
+  await userEvent.click(screen.getByText('Switch to Official Ballot Mode'));
 });
 
 test('keeping test mode on election day', () => {
@@ -428,10 +428,10 @@ test('prints a blank ballot in the language chosen from the dropdown', async () 
   screen.getByText('Language');
 
   // Choose Spanish from the language dropdown (defaults to English).
-  userEvent.click(
+  await userEvent.click(
     screen.getByText(format.languageDisplayName({ languageCode: 'en' }))
   );
-  userEvent.click(
+  await userEvent.click(
     screen.getByText(format.languageDisplayName({ languageCode: 'es-US' }))
   );
 

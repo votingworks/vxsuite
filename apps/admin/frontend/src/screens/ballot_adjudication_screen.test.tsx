@@ -27,7 +27,7 @@ import {
   HIGHLIGHT_PRIMARY_BACKGROUND,
   HIGHLIGHT_WARNING_BACKGROUND,
 } from '@votingworks/ui';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
 import { Route, Switch } from 'react-router-dom';
 import { assertDefined, err } from '@votingworks/basics';
@@ -375,7 +375,7 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
       .find((b) => !(b as HTMLButtonElement).disabled);
     return assertDefined(button);
   }
-  userEvent.click(enabledViewButton());
+  await userEvent.click(enabledViewButton());
   // Re-query inside waitFor so a stale node reference (if React replaces the
   // button across renders) can't hide a successful state flip.
   await waitFor(() =>
@@ -385,7 +385,7 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
   );
 
   // switch back to front side
-  userEvent.click(enabledViewButton());
+  await userEvent.click(enabledViewButton());
   await waitFor(() =>
     expect(
       screen.getByRole('img', { name: /ballot/i }).style.backgroundImage
@@ -395,25 +395,25 @@ test('ballot navigation supports back, skip, exit, and side switching', async ()
   // skip to second ballot
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_1 });
   apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_2 }, adjData2);
-  userEvent.click(screen.getByRole('button', { name: /Skip/ }));
+  await userEvent.click(screen.getByRole('button', { name: /Skip/ }));
   await screen.findByText('Ballot 2 of 3');
   expect(screen.getByRole('button', { name: /Back/ })).toBeEnabled();
 
   // skip to third (last) ballot
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_2 });
   apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_3 }, adjData3);
-  userEvent.click(screen.getByRole('button', { name: /Skip/ }));
+  await userEvent.click(screen.getByRole('button', { name: /Skip/ }));
   await screen.findByText('Ballot 3 of 3');
 
   // back to second ballot — staleTime: 0 triggers a refetch
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_3 });
   apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_2 }, adjData2);
-  userEvent.click(screen.getByRole('button', { name: /Back/ }));
+  await userEvent.click(screen.getByRole('button', { name: /Back/ }));
   await screen.findByText('Ballot 2 of 3');
 
   // exit navigates to adjudication start screen
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_2 });
-  userEvent.click(screen.getByRole('button', { name: /Exit/ }));
+  await userEvent.click(screen.getByRole('button', { name: /Exit/ }));
   await waitFor(() =>
     expect(history.location.pathname).toEqual('/adjudication')
   );
@@ -497,10 +497,10 @@ test('default side flips to next pending after confirming a contest', async () =
   );
 
   // Confirm the front contest -> next pending is on the back -> flip to back.
-  userEvent.click(screen.getByText('Zoo Council'));
+  await userEvent.click(screen.getByText('Zoo Council'));
   await screen.findByRole('button', { name: /Confirm/ });
-  userEvent.click(screen.getByRole('checkbox', { name: /lion/i }));
-  userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
+  await userEvent.click(screen.getByRole('checkbox', { name: /lion/i }));
+  await userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
   await waitFor(() =>
     expect(
       screen.getByRole('img', { name: /ballot/i }).style.backgroundImage
@@ -508,10 +508,10 @@ test('default side flips to next pending after confirming a contest', async () =
   );
 
   // Confirm the back contest -> nothing pending -> falls back to front.
-  userEvent.click(screen.getByText('Best Animal'));
+  await userEvent.click(screen.getByText('Best Animal'));
   await screen.findByRole('button', { name: /Confirm/ });
-  userEvent.click(screen.getByRole('checkbox', { name: /horse/i }));
-  userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
+  await userEvent.click(screen.getByRole('checkbox', { name: /horse/i }));
+  await userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
   await waitFor(() =>
     expect(
       screen.getByRole('img', { name: /ballot/i }).style.backgroundImage
@@ -590,7 +590,7 @@ test('escalated-only queue shows the escalation banner and advances within escal
     .expectRepeatedCallsWith()
     .resolves([]);
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_1 });
-  userEvent.click(screen.getByRole('button', { name: /Accept/ }));
+  await userEvent.click(screen.getByRole('button', { name: /Accept/ }));
 
   await waitFor(() =>
     expect(history.location.pathname).toEqual(routerPaths.adjudication)
@@ -626,7 +626,7 @@ test('escalate action confirms before escalating and warns about unsaved adjudic
     screen.queryByRole('button', { name: /Skip/ })
   ).not.toBeInTheDocument();
 
-  userEvent.click(screen.getByRole('button', { name: /Escalate/ }));
+  await userEvent.click(screen.getByRole('button', { name: /Escalate/ }));
   let modal = await screen.findByRole('alertdialog');
   within(modal).getByText(
     'Are you sure you want to escalate this ballot for election manager review?'
@@ -634,24 +634,28 @@ test('escalate action confirms before escalating and warns about unsaved adjudic
   expect(
     within(modal).queryByText(/will be discarded/)
   ).not.toBeInTheDocument();
-  userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
   expect(onEscalate).not.toHaveBeenCalled();
 
-  userEvent.click(screen.getByText('Zoo Council'));
+  await userEvent.click(screen.getByText('Zoo Council'));
   await screen.findByRole('button', { name: /Confirm/ });
-  userEvent.click(screen.getByRole('checkbox', { name: /lion/i }));
-  userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
+  await userEvent.click(screen.getByRole('checkbox', { name: /lion/i }));
+  await userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
 
-  userEvent.click(await screen.findByRole('button', { name: /Escalate/ }));
+  await userEvent.click(
+    await screen.findByRole('button', { name: /Escalate/ })
+  );
   modal = await screen.findByRole('alertdialog');
   within(modal).getByText(
     'Your unsaved adjudications for this ballot will be discarded.'
   );
   expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
-  userEvent.click(within(modal).getByRole('button', { name: /Escalate/ }));
+  await userEvent.click(
+    within(modal).getByRole('button', { name: /Escalate/ })
+  );
   await waitFor(() => expect(onEscalate).toHaveBeenCalledTimes(1));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 });
@@ -691,25 +695,25 @@ test('skip / back / exit prompt to discard when the user has unsaved adjudicatio
 
   await screen.findByText('Ballot 2 of 2');
 
-  userEvent.click(screen.getByText('Zoo Council'));
+  await userEvent.click(screen.getByText('Zoo Council'));
   await screen.findByRole('button', { name: /Confirm/ });
-  userEvent.click(screen.getByRole('checkbox', { name: /lion/i }));
-  userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
+  await userEvent.click(screen.getByRole('checkbox', { name: /lion/i }));
+  await userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
   await screen.findByText('Ballot 2 of 2');
 
   // Skip with un-Accepted edits prompts the discard modal; modal Back
   // keeps the user on this ballot and preserves the buffer.
-  userEvent.click(screen.getByRole('button', { name: /Skip/ }));
+  await userEvent.click(screen.getByRole('button', { name: /Skip/ }));
   await screen.findByText('Unsaved Changes');
-  userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Back' }));
   await waitFor(() => {
     expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
   });
 
   // Exit triggers the same prompt; modal Back again preserves the buffer.
-  userEvent.click(screen.getByRole('button', { name: /Exit/ }));
+  await userEvent.click(screen.getByRole('button', { name: /Exit/ }));
   await screen.findByText('Unsaved Changes');
-  userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Back' }));
   await waitFor(() => {
     expect(screen.queryByText('Unsaved Changes')).not.toBeInTheDocument();
   });
@@ -718,9 +722,9 @@ test('skip / back / exit prompt to discard when the user has unsaved adjudicatio
   // navigation proceeds to ballot 1.
   apiMock.expectReleaseBallotAdjudicationClaim({ cvrId: CVR_ID_2 });
   apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData1);
-  userEvent.click(screen.getByRole('button', { name: /^Back$/ }));
+  await userEvent.click(screen.getByRole('button', { name: /^Back$/ }));
   await screen.findByText('Unsaved Changes');
-  userEvent.click(screen.getByRole('button', { name: /Discard/ }));
+  await userEvent.click(screen.getByRole('button', { name: /Discard/ }));
   await screen.findByText('Ballot 1 of 2');
 
   apiMock.apiClient.releaseBallotAdjudicationClaim
@@ -754,16 +758,16 @@ test('re-opening a Confirmed contest preserves the in-progress adjudication', as
 
   await screen.findByText(/Ballot ID/);
 
-  userEvent.click(screen.getByText('Zoo Council'));
+  await userEvent.click(screen.getByText('Zoo Council'));
   await screen.findByRole('button', { name: /Confirm/ });
   expect(screen.getByRole('checkbox', { name: /lion/i })).not.toBeChecked();
-  userEvent.click(screen.getByRole('checkbox', { name: /lion/i }));
+  await userEvent.click(screen.getByRole('checkbox', { name: /lion/i }));
   expect(screen.getByRole('checkbox', { name: /lion/i })).toBeChecked();
-  userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
+  await userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
   await screen.findByText('Ballot 1 of 1');
 
   // Re-open the same contest and verify the lion vote is still selected.
-  userEvent.click(screen.getByText('Zoo Council'));
+  await userEvent.click(screen.getByText('Zoo Council'));
   await screen.findByRole('button', { name: /Confirm/ });
   expect(screen.getByRole('checkbox', { name: /lion/i })).toBeChecked();
 
@@ -861,19 +865,19 @@ test('confirmation modal back returns and accept anyway resolves and navigates t
   await screen.findByText(/Ballot ID/);
 
   // click Accept -> modal appears
-  userEvent.click(screen.getByRole('button', { name: /Accept/ }));
+  await userEvent.click(screen.getByRole('button', { name: /Accept/ }));
   await screen.findByText('Incomplete Adjudication');
 
   // click Back in modal -> returns to ballot screen
   const modal = screen.getByRole('alertdialog');
-  userEvent.click(within(modal).getByRole('button', { name: 'Back' }));
+  await userEvent.click(within(modal).getByRole('button', { name: 'Back' }));
   await waitFor(() => {
     expect(screen.queryByText('Incomplete Adjudication')).toBeNull();
   });
   screen.getByText(/Ballot ID/);
 
   // click Accept again -> modal reappears
-  userEvent.click(screen.getByRole('button', { name: /Accept/ }));
+  await userEvent.click(screen.getByRole('button', { name: /Accept/ }));
   await screen.findByText('Incomplete Adjudication');
 
   // click Accept Anyway -> resolves ballot and navigates to start screen
@@ -907,7 +911,7 @@ test('confirmation modal back returns and accept anyway resolves and navigates t
     .expectRepeatedCallsWith()
     .resolves([]);
 
-  userEvent.click(screen.getByRole('button', { name: 'Accept Anyway' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Accept Anyway' }));
 
   // verify start screen shows the completed state
   await screen.findByText('All ballots adjudicated');
@@ -943,20 +947,20 @@ test('clicking a contest opens contest adjudication screen', async () => {
   await screen.findByText('Zoo Council');
 
   // click front-side contest to open contest adjudication
-  userEvent.click(screen.getByText('Zoo Council'));
+  await userEvent.click(screen.getByText('Zoo Council'));
   await screen.findByText(/Votes cast:/);
 
   // cancel returns to ballot adjudication screen
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   await screen.findByText('Zoo Council');
   screen.getByText('Best Animal');
 
   // click back-side contest to open contest adjudication with side='back'
-  userEvent.click(screen.getByText('Best Animal'));
+  await userEvent.click(screen.getByText('Best Animal'));
   await screen.findByText(/Votes cast:/);
 
   // cancel returns to ballot adjudication screen
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   await screen.findByText('Zoo Council');
 
   // keyboard: pressing an unrelated key does nothing
@@ -1236,7 +1240,7 @@ test('accept advances to next ballot and blank ballot callout states', async () 
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2, CVR_ID_3]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_2, CVR_ID_1);
   apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_2 }, adjData2Unresolved);
-  userEvent.click(screen.getByRole('button', { name: /Accept/ }));
+  await userEvent.click(screen.getByRole('button', { name: /Accept/ }));
 
   // Ballot 2: blank, unresolved -> "Blank Ballot Detected"
   await screen.findByText('Ballot 2 of 3');
@@ -1247,11 +1251,11 @@ test('accept advances to next ballot and blank ballot callout states', async () 
   expect(ballotImage.style.backgroundImage).toContain(
     `mock-front-image-${CVR_ID_2}`
   );
-  userEvent.click(screen.getByRole('button', { name: 'View Back' }));
+  await userEvent.click(screen.getByRole('button', { name: 'View Back' }));
   expect(ballotImage.style.backgroundImage).toContain(
     `mock-back-image-${CVR_ID_2}`
   );
-  userEvent.click(screen.getByRole('button', { name: 'View Front' }));
+  await userEvent.click(screen.getByRole('button', { name: 'View Front' }));
   expect(ballotImage.style.backgroundImage).toContain(
     `mock-front-image-${CVR_ID_2}`
   );
@@ -1263,7 +1267,7 @@ test('accept advances to next ballot and blank ballot callout states', async () 
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2, CVR_ID_3]);
   apiMock.expectGetNextCvrIdForBallotAdjudication(CVR_ID_3, CVR_ID_2);
   apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_3 }, adjData3);
-  userEvent.click(screen.getByRole('button', { name: /Accept/ }));
+  await userEvent.click(screen.getByRole('button', { name: /Accept/ }));
 
   // Ballot 3: blank with adjudicated vote -> "Blank Ballot Resolved"
   await screen.findByText('Ballot 3 of 3');
@@ -1336,7 +1340,7 @@ test('accept on the last ballot wraps back to an earlier unresolved ballot', asy
     .resolves(CVR_ID_1);
   apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_1 }, adjData1);
 
-  userEvent.click(screen.getByRole('button', { name: /Accept/ }));
+  await userEvent.click(screen.getByRole('button', { name: /Accept/ }));
 
   await screen.findByText('Ballot 1 of 2');
 
@@ -2011,7 +2015,7 @@ test('multi-station mode claims ballots on mount and releases on navigation', as
   apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_2 }, adjData2);
   apiMock.expectGetBallotImages({ cvrId: CVR_ID_2 }, true);
 
-  userEvent.click(screen.getByRole('button', { name: /Skip/ }));
+  await userEvent.click(screen.getByRole('button', { name: /Skip/ }));
   await screen.findByText('Ballot 2 of 2');
   apiMock.apiClient.releaseBallotAdjudicationClaim
     .expectOptionalRepeatedCallsWith({ cvrId: CVR_ID_2 })
@@ -2066,7 +2070,7 @@ test('Skip onto a ballot claimed by another machine shows read-only overlay and 
     .resolves(err({ type: 'claim-failed' }));
   apiMock.expectGetBallotImages({ cvrId: CLAIMED_CVR_ID }, true);
 
-  userEvent.click(screen.getByRole('button', { name: /Skip/ }));
+  await userEvent.click(screen.getByRole('button', { name: /Skip/ }));
   await screen.findByText('Ballot 2 of 2');
   await screen.findByText(
     'This ballot is currently being adjudicated by another machine.'
@@ -2100,7 +2104,7 @@ test('write-in candidates added by another station appear while adjudicating', a
   });
 
   await screen.findByText('Zoo Council');
-  userEvent.click(screen.getByText('Zoo Council'));
+  await userEvent.click(screen.getByText('Zoo Council'));
   await screen.findByText(/Votes cast:/);
 
   // Open the write-in combobox — no write-in candidates exist yet
@@ -2163,7 +2167,7 @@ test('navigating to the next ballot never shows the previous ballot data', async
   apiMock.expectGetBallotImages({ cvrId: SECOND_CVR_ID }, true);
   apiMock.expectGetWriteInCandidates([], ['best-animal-mammal']);
 
-  userEvent.click(screen.getByRole('button', { name: /Skip/ }));
+  await userEvent.click(screen.getByRole('button', { name: /Skip/ }));
   await screen.findByText('Ballot 2 of 2');
   await screen.findByText('Ballot ID: bbbb');
   await screen.findByText('Best Animal');
@@ -2227,7 +2231,7 @@ test('accept advances past a ballot claimed by another station', async () => {
   apiMock.expectClaimAndLoadBallot({ cvrId: CVR_ID_3 }, adjData3);
   apiMock.expectGetBallotImages({ cvrId: CVR_ID_3 }, true);
 
-  userEvent.click(screen.getByRole('button', { name: /Accept/ }));
+  await userEvent.click(screen.getByRole('button', { name: /Accept/ }));
   await screen.findByText('Ballot 3 of 3');
 
   apiMock.apiClient.releaseBallotAdjudicationClaim
@@ -2545,7 +2549,7 @@ test('straight party derived votes update when the straight party contest is adj
   await screen.findByText(/Ballot ID:/);
 
   // Federalist candidate in President should show as a derived vote
-  userEvent.click(screen.getByText('President and Vice-President'));
+  await userEvent.click(screen.getByText('President and Vice-President'));
   expect(
     await screen.findByRole('checkbox', { name: /Barchi/i })
   ).toHaveTextContent('Federalist Party - Straight party vote');
@@ -2554,16 +2558,20 @@ test('straight party derived votes update when the straight party contest is adj
     screen.getByRole('checkbox', { name: /Cramer/i })
   ).not.toHaveTextContent('Straight party vote');
   expect(screen.getByRole('checkbox', { name: /Cramer/i })).not.toBeChecked();
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
   // Adjudicate the straight party contest from Federalist to People's Party
-  userEvent.click(await screen.findByText('Straight Party'));
-  userEvent.click(await screen.findByRole('checkbox', { name: /Federalist/i }));
-  userEvent.click(screen.getByRole('checkbox', { name: /People/i }));
-  userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
+  await userEvent.click(await screen.findByText('Straight Party'));
+  await userEvent.click(
+    await screen.findByRole('checkbox', { name: /Federalist/i })
+  );
+  await userEvent.click(screen.getByRole('checkbox', { name: /People/i }));
+  await userEvent.click(screen.getByRole('button', { name: /Confirm/ }));
 
   // The derived vote has updated to the People's Party candidate
-  userEvent.click(await screen.findByText('President and Vice-President'));
+  await userEvent.click(
+    await screen.findByText('President and Vice-President')
+  );
   expect(
     await screen.findByRole('checkbox', { name: /Cramer/i })
   ).toHaveTextContent('Straight party vote');

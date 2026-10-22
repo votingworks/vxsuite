@@ -1,5 +1,5 @@
 import { expect, test, vi, describe } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { Buffer } from 'node:buffer';
 import { fireEvent, render, screen } from '../test/react_testing_library.js';
 import {
@@ -37,9 +37,9 @@ test('calls onChange when content changes', async () => {
   const editor = await screen.findByTestId('rich-text-editor');
   expect(editor).toHaveTextContent('');
 
-  userEvent.type(editor.querySelector('.tiptap')!, 'Content');
+  await userEvent.type(editor.querySelector('.tiptap p')!, 'Content');
   await screen.findByText('Content');
-  expect(onChange).toHaveBeenCalledTimes(1);
+  expect(onChange).toHaveBeenCalledTimes('Content'.length);
   expect(onChange).toHaveBeenLastCalledWith('<p>Content</p>');
 });
 
@@ -51,7 +51,7 @@ test('bold', async () => {
   await screen.findByText('Content');
 
   const boldButton = screen.getByRole('button', { name: 'Bold' });
-  userEvent.click(boldButton);
+  await userEvent.click(boldButton);
   type(editor, ' bold');
   await screen.findByText('Content bold');
   expect(onChange).toHaveBeenLastCalledWith(
@@ -67,7 +67,7 @@ test('italic', async () => {
   await screen.findByText('Content');
 
   const italicButton = screen.getByRole('button', { name: 'Italic' });
-  userEvent.click(italicButton);
+  await userEvent.click(italicButton);
   type(editor, ' italic');
   await screen.findByText('Content italic');
   expect(onChange).toHaveBeenLastCalledWith('<p>Content<em> italic</em></p>');
@@ -81,7 +81,7 @@ test('underline', async () => {
   await screen.findByText('Content');
 
   const underlineButton = screen.getByRole('button', { name: 'Underline' });
-  userEvent.click(underlineButton);
+  await userEvent.click(underlineButton);
   type(editor, ' underline');
   await screen.findByText('Content underline');
   expect(onChange).toHaveBeenLastCalledWith('<p>Content<u> underline</u></p>');
@@ -97,7 +97,7 @@ test('strikethrough', async () => {
   const strikethroughButton = screen.getByRole('button', {
     name: 'Strikethrough',
   });
-  userEvent.click(strikethroughButton);
+  await userEvent.click(strikethroughButton);
   type(editor, ' strikethrough');
   await screen.findByText('Content strikethrough');
   expect(onChange).toHaveBeenLastCalledWith(
@@ -111,7 +111,7 @@ test('bullet list', async () => {
   await screen.findByText('Content');
 
   const bulletListButton = screen.getByRole('button', { name: 'Bullet List' });
-  userEvent.click(bulletListButton);
+  await userEvent.click(bulletListButton);
   const item = await screen.findByRole('listitem');
   expect(item).toHaveTextContent('Content');
   expect(onChange).toHaveBeenLastCalledWith('<ul><li><p>Content</p></li></ul>');
@@ -123,7 +123,7 @@ test('number list', async () => {
   await screen.findByText('Content');
 
   const numberListButton = screen.getByRole('button', { name: 'Number List' });
-  userEvent.click(numberListButton);
+  await userEvent.click(numberListButton);
   const item = await screen.findByRole('listitem');
   expect(item).toHaveTextContent('Content');
   expect(onChange).toHaveBeenLastCalledWith('<ol><li><p>Content</p></li></ol>');
@@ -147,24 +147,24 @@ test('table', async () => {
   }
 
   const tableButton = screen.getByRole('button', { name: 'Table' });
-  userEvent.click(tableButton);
+  await userEvent.click(tableButton);
   const table = await screen.findByRole('table');
   expect(table).toBeInTheDocument();
   expect(onChange).toHaveBeenLastCalledWith(
     '<table style="min-width: 0px;"><colgroup><col style="min-width: 0px;"><col style="min-width: 0px;"><col style="min-width: 0px;"></colgroup><tbody><tr><th><p></p></th><th><p></p></th><th><p></p></th></tr><tr><td><p></p></td><td><p></p></td><td><p></p></td></tr><tr><td><p></p></td><td><p></p></td><td><p></p></td></tr></tbody></table><p>Content</p>'
   );
 
-  userEvent.click(screen.getByRole('button', { name: 'Remove Row' }));
-  userEvent.click(screen.getByRole('button', { name: 'Remove Row' }));
-  userEvent.click(screen.getByRole('button', { name: 'Add Row' }));
-  userEvent.click(screen.getByRole('button', { name: 'Remove Column' }));
-  userEvent.click(screen.getByRole('button', { name: 'Remove Column' }));
-  userEvent.click(screen.getByRole('button', { name: 'Add Column' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Remove Row' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Remove Row' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Add Row' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Remove Column' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Remove Column' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Add Column' }));
   expect(onChange).toHaveBeenLastCalledWith(
     '<table style="min-width: 0px;"><colgroup><col style="min-width: 0px;"><col style="min-width: 0px;"></colgroup><tbody><tr><td><p></p></td><td><p></p></td></tr><tr><td><p></p></td><td><p></p></td></tr></tbody></table><p>Content</p>'
   );
 
-  userEvent.click(tableButton);
+  await userEvent.click(tableButton);
   expect(screen.queryByRole('table')).not.toBeInTheDocument();
   for (const label of tableRowColControlLabels) {
     expect(
@@ -184,7 +184,7 @@ test('image', async () => {
     type: 'image/svg+xml',
   });
   const input = screen.getByLabelText('Insert Image');
-  userEvent.upload(input, imageFile);
+  await userEvent.upload(input, imageFile);
 
   await screen.findByRole('img');
   expect(onChange).toHaveBeenLastCalledWith(
@@ -204,7 +204,7 @@ test('image too big error', async () => {
     type: 'image/svg+xml',
   });
   const input = screen.getByLabelText('Insert Image');
-  userEvent.upload(input, largeFile);
+  await userEvent.upload(input, largeFile);
 
   await screen.findByText('Image file size must be less than 5 MB');
 });
@@ -398,7 +398,7 @@ test('disabled', async () => {
     'false'
   );
 
-  userEvent.type(editor.querySelector('.tiptap')!, ' More Content');
+  await userEvent.type(editor.querySelector('.tiptap')!, ' More Content');
   expect(onChange).not.toHaveBeenCalled();
 
   for (const button of screen.getAllByRole('button')) {

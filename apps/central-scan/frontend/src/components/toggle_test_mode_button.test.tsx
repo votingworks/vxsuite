@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen, within } from '../../test/react_testing_library.js';
 import { ToggleTestModeButton } from './toggle_test_mode_button.js';
 import { type ApiMock, createApiMock, provideApi } from '../../test/api.js';
@@ -45,7 +45,7 @@ test('toggling when there are no ballots', async () => {
 
   apiMock.expectSetTestMode(false);
   apiMock.expectGetTestMode(false);
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('option', { name: 'Official Ballot Mode' })
   );
 
@@ -56,7 +56,7 @@ test('toggling when there are no ballots', async () => {
 
   apiMock.expectSetTestMode(true);
   apiMock.expectGetTestMode(true);
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('option', { name: 'Test Ballot Mode' })
   );
 
@@ -89,7 +89,7 @@ test('toggling with ballots, modal confirmation', async () => {
     selected: false,
   });
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('option', { name: 'Test Ballot Mode' })
   );
   const modal = await screen.findByRole('alertdialog');
@@ -97,14 +97,14 @@ test('toggling with ballots, modal confirmation', async () => {
 
   apiMock.expectSetTestMode(true);
   apiMock.expectGetTestMode(true);
-  userEvent.click(within(modal).getButton('Switch to Test Ballot Mode'));
+  await userEvent.click(within(modal).getButton('Switch to Test Ballot Mode'));
   await screen.findByRole('option', {
     name: 'Test Ballot Mode',
     selected: true,
   });
   expect(modal).not.toBeInTheDocument();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('option', { name: 'Official Ballot Mode' })
   );
   await screen.findByRole('heading', {
@@ -113,7 +113,7 @@ test('toggling with ballots, modal confirmation', async () => {
 
   apiMock.expectSetTestMode(false);
   apiMock.expectGetTestMode(false);
-  userEvent.click(screen.getButton('Switch to Official Ballot Mode'));
+  await userEvent.click(screen.getButton('Switch to Official Ballot Mode'));
   await screen.findByRole('option', {
     name: 'Test Ballot Mode',
     selected: false,

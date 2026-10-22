@@ -7,7 +7,7 @@ import {
   type PollingPlace,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   type MockApiClient,
   createMockApiClient,
@@ -157,7 +157,7 @@ test('enter and exit "add" mode', async () => {
   await waitFor(() => api.assertComplete());
   expectRootRoute(history);
 
-  userEvent.click(screen.getButton('Add Polling Place'));
+  await userEvent.click(screen.getButton('Add Polling Place'));
   expectAddRoute(history);
 
   const props = expectFormWithProps({ editing: true, savedPlace: undefined });
@@ -175,7 +175,7 @@ test('switch from "add" to "view" mode', async () => {
   await waitFor(() => api.assertComplete());
   expectRootRoute(history);
 
-  userEvent.click(screen.getButton('Add Polling Place'));
+  await userEvent.click(screen.getButton('Add Polling Place'));
   expectAddRoute(history);
 
   const props = expectFormWithProps({ editing: true, savedPlace: undefined });

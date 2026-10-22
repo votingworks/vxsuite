@@ -1,5 +1,5 @@
 import { vi, test, expect } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { sleep } from '@votingworks/basics';
 import {
   render as baseRender,
@@ -33,7 +33,7 @@ test('shows modal and plays sound on press', async () => {
 
   apiMock.expectPlaySound('success');
 
-  userEvent.click(screen.getButton('Test Sound'));
+  await userEvent.click(screen.getButton('Test Sound'));
   within(screen.getByRole('alertdialog')).getByText(/did you hear/i);
 
   await sleep(0);
@@ -46,14 +46,14 @@ test('logs outcomes & closes modal on user confirmation', async () => {
 
   render(<AudioDiagnosticModalButton />);
 
-  userEvent.click(screen.getButton('Test Sound'));
+  await userEvent.click(screen.getButton('Test Sound'));
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).toBeInTheDocument()
   );
   apiMock.mockApiClient.assertComplete();
 
   apiMock.expectLogAudioDiagnosticOutcome('pass');
-  userEvent.click(screen.getButton('Yes'));
+  await userEvent.click(screen.getButton('Yes'));
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
@@ -61,8 +61,8 @@ test('logs outcomes & closes modal on user confirmation', async () => {
 
   // Re-open the modal to test the "No" path:
   apiMock.expectLogAudioDiagnosticOutcome('fail');
-  userEvent.click(screen.getButton('Test Sound'));
-  userEvent.click(screen.getButton('No'));
+  await userEvent.click(screen.getButton('Test Sound'));
+  await userEvent.click(screen.getButton('No'));
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );

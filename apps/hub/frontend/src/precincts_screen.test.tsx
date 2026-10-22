@@ -11,7 +11,7 @@ import {
   type PrecinctWithoutSplits,
   hasSplits,
 } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { assert, assertDefined, err, ok } from '@votingworks/basics';
 import {
   type MockApiClient,
@@ -122,13 +122,13 @@ test('adding a precinct', async () => {
   expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
   screen.getByTestId(PRECINCT_LIST_TEST_ID);
 
-  userEvent.click(screen.getByRole('button', { name: 'Add Precinct' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Add Precinct' }));
   await screen.findByRole('heading', { name: 'Add Precinct' });
 
-  userEvent.type(screen.getByLabelText('Name'), newPrecinct.name);
+  await userEvent.type(screen.getByLabelText('Name'), newPrecinct.name);
 
   for (const districtId of newPrecinct.districtIds) {
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole('checkbox', {
         name: election.districts.find((d) => d.id === districtId)!.name,
       })
@@ -148,7 +148,7 @@ test('adding a precinct', async () => {
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await expectViewModePrecinct(history, newPrecinct);
 });
@@ -211,16 +211,16 @@ test('editing a precinct - adding splits in NH', async () => {
   const history = renderScreen(electionId);
   await navigateToPrecinctView(history, savedPrecinct.id);
 
-  userEvent.click(screen.getButton('Edit'));
+  await userEvent.click(screen.getButton('Edit'));
   await screen.findByRole('heading', { name: 'Edit Precinct' });
 
   const nameInput = screen.getByLabelText('Name');
   expect(nameInput).toHaveValue(savedPrecinct.name);
-  userEvent.clear(nameInput);
-  userEvent.type(nameInput, changedPrecinct.name);
+  await userEvent.clear(nameInput);
+  await userEvent.type(nameInput, changedPrecinct.name);
 
-  userEvent.click(screen.getByRole('button', { name: 'Add Split' }));
-  userEvent.click(screen.getByRole('button', { name: 'Add Split' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Add Split' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Add Split' }));
 
   const splitCards = screen
     .getAllByRole('button', { name: 'Remove Split' })
@@ -230,14 +230,14 @@ test('editing a precinct - adding splits in NH', async () => {
 
   const split1NameInput = within(split1Card!).getByLabelText('Name');
   expect(split1NameInput).toHaveValue('');
-  userEvent.type(split1NameInput, changedPrecinct.splits[0]!.name);
+  await userEvent.type(split1NameInput, changedPrecinct.splits[0]!.name);
 
   // Selected districts carry over to first precinct split
   within(split1Card!).getByRole('checkbox', {
     name: election.districts[0]!.name,
     checked: true,
   });
-  userEvent.click(
+  await userEvent.click(
     within(split1Card!).getByRole('checkbox', {
       name: election.districts[1]!.name,
       checked: true,
@@ -254,20 +254,20 @@ test('editing a precinct - adding splits in NH', async () => {
       checked: false,
     });
   }
-  userEvent.click(
+  await userEvent.click(
     within(split2Card!).getByRole('button', { name: 'Remove Split' })
   );
 
   const split3NameInput = within(split3Card!).getByLabelText('Name');
   expect(split3NameInput).toHaveValue('');
-  userEvent.type(split3NameInput, changedPrecinct.splits[1]!.name);
+  await userEvent.type(split3NameInput, changedPrecinct.splits[1]!.name);
   for (const district of election.districts) {
     within(split3Card!).getByRole('checkbox', {
       name: district.name,
       checked: false,
     });
   }
-  userEvent.click(
+  await userEvent.click(
     within(split3Card!).getByRole('checkbox', {
       name: election.districts[1]!.name,
     })
@@ -278,14 +278,14 @@ test('editing a precinct - adding splits in NH', async () => {
     'Election Title Override'
   );
   expect(split3ElectionTitleOverrideInput).toHaveValue('');
-  userEvent.type(
+  await userEvent.type(
     split3ElectionTitleOverrideInput,
     assertDefined(changedPrecinct.splits[1]!.electionTitleOverride)
   );
   const split3ElectionSealOverrideInput = within(split3Card!).getByLabelText(
     'Upload Seal Image'
   ).parentElement!;
-  userEvent.upload(
+  await userEvent.upload(
     split3ElectionSealOverrideInput,
     new File([sealImage], 'seal.svg', {
       type: 'image/svg+xml',
@@ -302,7 +302,7 @@ test('editing a precinct - adding splits in NH', async () => {
     'Signature Caption Override'
   );
   expect(split3ClerkSignatureCaption).toHaveValue('');
-  userEvent.type(
+  await userEvent.type(
     split3ClerkSignatureCaption,
     assertDefined(changedPrecinct.splits[1]!.clerkSignatureCaption)
   );
@@ -310,7 +310,7 @@ test('editing a precinct - adding splits in NH', async () => {
   const signatureInput = within(split3Card!).getByLabelText(
     'Upload Signature Image'
   ).parentElement!;
-  userEvent.upload(
+  await userEvent.upload(
     signatureInput,
     new File([signatureImage], 'signature.svg', {
       type: 'image/svg+xml',
@@ -340,7 +340,7 @@ test('editing a precinct - adding splits in NH', async () => {
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await expectViewModePrecinct(history, changedPrecinct);
 });
@@ -369,7 +369,7 @@ test('editing a precinct - removing splits', async () => {
     .getAllByRole('button', { name: 'Remove Split' })
     .map((button) => button.closest('div')!);
   const [split1Card] = splitCards;
-  userEvent.click(
+  await userEvent.click(
     within(split1Card!).getByRole('button', { name: 'Remove Split' })
   );
   expect(
@@ -407,7 +407,7 @@ test('editing a precinct - removing splits', async () => {
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);
-  userEvent.type(screen.getByLabelText('Name'), '{enter}');
+  await userEvent.type(screen.getByLabelText('Name'), '{Enter}');
 
   await expectViewModePrecinct(history, changedPrecinct);
 });
@@ -454,16 +454,16 @@ test('editing a precinct - removing splits preserves last split voter count', as
     .map((button) => assertDefined(button.closest('div')));
   const [split1Card, split2Card] = splitCards;
 
-  userEvent.type(
+  await userEvent.type(
     within(split1Card!).getByLabelText('Registered Voters'),
     '200'
   );
-  userEvent.type(
+  await userEvent.type(
     within(split2Card!).getByLabelText('Registered Voters'),
     '400'
   );
 
-  userEvent.click(
+  await userEvent.click(
     within(split1Card!).getByRole('button', { name: 'Remove Split' })
   );
   expect(
@@ -486,7 +486,7 @@ test('editing a precinct - removing splits preserves last split voter count', as
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await expectViewModePrecinct(history, precinctWithoutSplits);
 });
@@ -523,10 +523,14 @@ test('deleting a precinct', async () => {
     .resolves(election.districts);
 
   // Initiate the deletion
-  userEvent.click(screen.getByRole('button', { name: 'Delete Precinct' }));
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Delete Precinct' })
+  );
 
   // Confirm the deletion in the modal
-  userEvent.click(screen.getByRole('button', { name: 'Delete Precinct' }));
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Delete Precinct' })
+  );
 
   await expectViewModePrecinct(history, remainingPrecincts[0]!);
 });
@@ -589,7 +593,7 @@ test('add/delete/editing associated districts of precincts/splits is disabled fo
   // Delete Precinct button should not be visible
   expect(screen.queryButton('Delete Precinct')).not.toBeInTheDocument();
 
-  userEvent.click(screen.getButton('Edit'));
+  await userEvent.click(screen.getButton('Edit'));
   await screen.findByRole('heading', { name: 'Edit Precinct' });
 
   // Add Split button should not be visible
@@ -604,7 +608,7 @@ test('add/delete/editing associated districts of precincts/splits is disabled fo
   // --- Test precinct with splits ---
   await navigateToPrecinctView(history, precinctWithSplits.id);
 
-  userEvent.click(screen.getButton('Edit'));
+  await userEvent.click(screen.getButton('Edit'));
   await screen.findByRole('heading', { name: 'Edit Precinct' });
 
   // Add Split button should not be visible
@@ -633,17 +637,19 @@ test('cancelling', async () => {
   const precinct1 = election.precincts[0]!;
   await navigateToPrecinctEdit(history, precinct1.id);
 
-  userEvent.click(screen.getByRole('button', { name: 'Delete Precinct' }));
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Delete Precinct' })
+  );
   await screen.findByRole('heading', { name: 'Delete Precinct' });
   // Cancel in confirm delete modal
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   await screen.findByRole('heading', { name: 'Edit Precinct' });
   expect(
     screen.queryByRole('heading', { name: 'Delete Precinct' })
   ).not.toBeInTheDocument();
 
   // Cancel edit precinct
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   await expectViewModePrecinct(history, precinct1);
 });
 
@@ -658,9 +664,14 @@ test('error message for duplicate precinct name', async () => {
   const history = renderScreen(electionId);
   await screen.findByRole('heading', { name: 'Precincts' });
 
-  userEvent.click(await screen.findByRole('button', { name: 'Add Precinct' }));
+  await userEvent.click(
+    await screen.findByRole('button', { name: 'Add Precinct' })
+  );
   await screen.findByRole('heading', { name: 'Add Precinct' });
-  userEvent.type(screen.getByLabelText('Name'), election.precincts[0]!.name);
+  await userEvent.type(
+    screen.getByLabelText('Name'),
+    election.precincts[0]!.name
+  );
 
   apiMock.createPrecinct
     .expectCallWith({
@@ -672,16 +683,16 @@ test('error message for duplicate precinct name', async () => {
       },
     })
     .resolves(err('duplicate-precinct-name'));
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
   await screen.findByText('There is already a precinct with the same name.');
 
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
   await navigateToPrecinctEdit(history, election.precincts[0]!.id);
   const nameInput = screen.getByLabelText('Name');
   expect(nameInput).toHaveValue(election.precincts[0]!.name);
-  userEvent.clear(nameInput);
-  userEvent.type(nameInput, election.precincts[1]!.name);
+  await userEvent.clear(nameInput);
+  await userEvent.type(nameInput, election.precincts[1]!.name);
 
   apiMock.updatePrecinct
     .expectCallWith({
@@ -692,7 +703,7 @@ test('error message for duplicate precinct name', async () => {
       },
     })
     .resolves(err('duplicate-precinct-name'));
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
   await screen.findByText('There is already a precinct with the same name.');
 });
 
@@ -710,17 +721,19 @@ test('error message for duplicate precinct split name', async () => {
   const history = renderScreen(electionId);
 
   await screen.findByRole('heading', { name: 'Precincts' });
-  userEvent.click(await screen.findByRole('button', { name: 'Add Precinct' }));
+  await userEvent.click(
+    await screen.findByRole('button', { name: 'Add Precinct' })
+  );
   await screen.findByRole('heading', { name: 'Add Precinct' });
-  userEvent.type(screen.getByLabelText('Name'), 'New Precinct');
-  userEvent.click(screen.getByRole('button', { name: 'Add Split' }));
+  await userEvent.type(screen.getByLabelText('Name'), 'New Precinct');
+  await userEvent.click(screen.getByRole('button', { name: 'Add Split' }));
   const splitCards = screen
     .getAllByRole('button', { name: 'Remove Split' })
     .map((button) => button.closest('div')!);
   expect(splitCards).toHaveLength(2);
   const [split1Card, split2Card] = splitCards;
-  userEvent.type(within(split1Card!).getByLabelText('Name'), 'Split 1');
-  userEvent.type(within(split2Card!).getByLabelText('Name'), 'Split 1');
+  await userEvent.type(within(split1Card!).getByLabelText('Name'), 'Split 1');
+  await userEvent.type(within(split2Card!).getByLabelText('Name'), 'Split 1');
 
   apiMock.createPrecinct
     .expectCallWith({
@@ -743,10 +756,10 @@ test('error message for duplicate precinct split name', async () => {
       },
     })
     .resolves(err('duplicate-split-name'));
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
   await screen.findByText('Precinct splits must have different names.');
 
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
   await navigateToPrecinctEdit(history, savedPrecinct.id);
   const savedSplitCards = screen
@@ -756,8 +769,8 @@ test('error message for duplicate precinct split name', async () => {
   const savedSplit1NameInput = within(savedSplitCards[0]!).getByLabelText(
     'Name'
   );
-  userEvent.clear(savedSplit1NameInput);
-  userEvent.type(savedSplit1NameInput, savedPrecinct.splits[1]!.name);
+  await userEvent.clear(savedSplit1NameInput);
+  await userEvent.type(savedSplit1NameInput, savedPrecinct.splits[1]!.name);
 
   apiMock.updatePrecinct
     .expectCallWith({
@@ -774,7 +787,7 @@ test('error message for duplicate precinct split name', async () => {
       },
     })
     .resolves(err('duplicate-split-name'));
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
   await screen.findByText('Precinct splits must have different names.');
 });
 
@@ -792,17 +805,19 @@ test('error message for splits with the same districts', async () => {
   renderScreen(electionId);
 
   await screen.findByRole('heading', { name: 'Precincts' });
-  userEvent.click(await screen.findByRole('button', { name: 'Add Precinct' }));
+  await userEvent.click(
+    await screen.findByRole('button', { name: 'Add Precinct' })
+  );
   await screen.findByRole('heading', { name: 'Add Precinct' });
-  userEvent.type(screen.getByLabelText('Name'), 'New Precinct');
-  userEvent.click(screen.getByRole('button', { name: 'Add Split' }));
+  await userEvent.type(screen.getByLabelText('Name'), 'New Precinct');
+  await userEvent.click(screen.getByRole('button', { name: 'Add Split' }));
   const splitCards = screen
     .getAllByRole('button', { name: 'Remove Split' })
     .map((button) => button.closest('div')!);
   expect(splitCards).toHaveLength(2);
   const [split1Card, split2Card] = splitCards;
-  userEvent.type(within(split1Card!).getByLabelText('Name'), 'Split 1');
-  userEvent.type(within(split2Card!).getByLabelText('Name'), 'Split 2');
+  await userEvent.type(within(split1Card!).getByLabelText('Name'), 'Split 1');
+  await userEvent.type(within(split2Card!).getByLabelText('Name'), 'Split 2');
 
   apiMock.createPrecinct
     .expectCallWith({
@@ -825,7 +840,7 @@ test('error message for splits with the same districts', async () => {
       },
     })
     .resolves(err('duplicate-split-districts'));
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
   await screen.findByText(
     'Each precinct split must have a different set of districts.'
   );
@@ -879,7 +894,7 @@ describe('audio editing', () => {
       const inputGroup = assertDefined(input.closest('label'));
       const button = within(inputGroup).getButton(/preview or edit audio/i);
 
-      userEvent.click(button);
+      await userEvent.click(button);
 
       await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
       expect(history.location.pathname).toEqual(
@@ -1036,17 +1051,19 @@ test('saves registered voter counts for a precinct with splits', async () => {
     .map((button) => button.closest('div')!);
   const [split1Card, split2Card] = splitCards;
 
-  userEvent.type(
+  await userEvent.type(
     within(split1Card!).getByLabelText('Registered Voters'),
     '500'
   );
 
-  userEvent.type(
+  await userEvent.type(
     within(split2Card!).getByLabelText('Registered Voters'),
     '300'
   );
 
-  userEvent.clear(within(split1Card!).getByLabelText('Registered Voters'));
+  await userEvent.clear(
+    within(split1Card!).getByLabelText('Registered Voters')
+  );
 
   apiMock.updatePrecinct
     .expectCallWith({
@@ -1061,7 +1078,7 @@ test('saves registered voter counts for a precinct with splits', async () => {
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await expectViewModePrecinct(history, savedPrecinct);
 });
@@ -1081,8 +1098,8 @@ test('clears registered voter count for a precinct without splits', async () => 
   await navigateToPrecinctEdit(history, savedPrecinct.id);
 
   const voterCountInput = screen.getByLabelText('Registered Voters');
-  userEvent.type(voterCountInput, '100');
-  userEvent.clear(voterCountInput);
+  await userEvent.type(voterCountInput, '100');
+  await userEvent.clear(voterCountInput);
 
   apiMock.updatePrecinct
     .expectCallWith({
@@ -1096,7 +1113,7 @@ test('clears registered voter count for a precinct without splits', async () => 
   apiMock.listDistricts
     .expectCallWith({ electionId })
     .resolves(election.districts);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await expectViewModePrecinct(history, savedPrecinct);
 });

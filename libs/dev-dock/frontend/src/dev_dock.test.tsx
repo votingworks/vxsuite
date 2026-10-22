@@ -17,7 +17,7 @@ import {
   within,
 } from '@testing-library/react';
 import { assertDefined, deferred } from '@votingworks/basics';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   createMockClient,
   type MockClient,
@@ -169,7 +169,7 @@ test('card mock controls', async () => {
     .expectCallWith({ role: 'system_administrator' })
     .resolves();
   mockApiClient.getCardStatus.expectCallWith().resolves(systemAdminCardStatus);
-  userEvent.click(systemAdminControl);
+  await userEvent.click(systemAdminControl);
   await waitFor(() => {
     expect(electionManagerControl).toBeDisabled();
     expect(pollWorkerControl).toBeDisabled();
@@ -178,7 +178,7 @@ test('card mock controls', async () => {
   // Remove system admin card
   mockApiClient.removeCard.expectCallWith().resolves();
   mockApiClient.getCardStatus.expectCallWith().resolves(noCardStatus);
-  userEvent.click(systemAdminControl);
+  await userEvent.click(systemAdminControl);
   await waitFor(() => {
     expect(electionManagerControl).toBeEnabled();
     expect(pollWorkerControl).toBeEnabled();
@@ -191,7 +191,7 @@ test('card mock controls', async () => {
   mockApiClient.getCardStatus
     .expectCallWith()
     .resolves(electionManagerCardStatus);
-  userEvent.click(electionManagerControl);
+  await userEvent.click(electionManagerControl);
   await waitFor(() => {
     expect(systemAdminControl).toBeDisabled();
     expect(pollWorkerControl).toBeDisabled();
@@ -200,7 +200,7 @@ test('card mock controls', async () => {
   // Remove election manager card
   mockApiClient.removeCard.expectCallWith().resolves();
   mockApiClient.getCardStatus.expectCallWith().resolves(noCardStatus);
-  userEvent.click(electionManagerControl);
+  await userEvent.click(electionManagerControl);
   await waitFor(() => {
     expect(systemAdminControl).toBeEnabled();
     expect(pollWorkerControl).toBeEnabled();
@@ -209,7 +209,7 @@ test('card mock controls', async () => {
   // Insert poll worker card
   mockApiClient.insertCard.expectCallWith({ role: 'poll_worker' }).resolves();
   mockApiClient.getCardStatus.expectCallWith().resolves(pollWorkerCardStatus);
-  userEvent.click(pollWorkerControl);
+  await userEvent.click(pollWorkerControl);
   await waitFor(() => {
     expect(systemAdminControl).toBeDisabled();
     expect(electionManagerControl).toBeDisabled();
@@ -218,7 +218,7 @@ test('card mock controls', async () => {
   // Remove poll worker card
   mockApiClient.removeCard.expectCallWith().resolves();
   mockApiClient.getCardStatus.expectCallWith().resolves(noCardStatus);
-  userEvent.click(pollWorkerControl);
+  await userEvent.click(pollWorkerControl);
   await waitFor(() => {
     expect(systemAdminControl).toBeEnabled();
     expect(electionManagerControl).toBeEnabled();
@@ -271,7 +271,7 @@ test('election selector', async () => {
     arePollWorkerCardPinsEnabled: false,
     isElectionPackage: false,
   });
-  userEvent.selectOptions(
+  await userEvent.selectOptions(
     electionSelector,
     screen.getByRole('option', { name: /electionFamousNames2021/ })
   );
@@ -296,14 +296,14 @@ test('USB drive controls', async () => {
   mockApiClient.getUsbDriveStatus
     .expectCallWith({ purpose: 'data' })
     .resolves({ diskPath: mockDiskPath, fstype: 'exfat', status: 'inserted' });
-  userEvent.click(usbDriveControl);
+  await userEvent.click(usbDriveControl);
   await waitFor(() => mockApiClient.assertComplete());
 
   mockApiClient.removeUsbDrive.expectCallWith({ purpose: 'data' }).resolves();
   mockApiClient.getUsbDriveStatus
     .expectCallWith({ purpose: 'data' })
     .resolves({ diskPath: mockDiskPath, fstype: 'exfat', status: 'removed' });
-  userEvent.click(usbDriveControl);
+  await userEvent.click(usbDriveControl);
   await waitFor(() => mockApiClient.assertComplete());
 
   const clearUsbDriveButton = screen.getByRole('button', {
@@ -313,7 +313,7 @@ test('USB drive controls', async () => {
   mockApiClient.getUsbDriveStatus
     .expectCallWith({ purpose: 'data' })
     .resolves({ diskPath: mockDiskPath, fstype: 'exfat', status: 'removed' });
-  userEvent.click(clearUsbDriveButton);
+  await userEvent.click(clearUsbDriveButton);
   await waitFor(() => mockApiClient.assertComplete());
 });
 
@@ -352,15 +352,15 @@ test('screenshot flow', async () => {
     })
     .resolves();
 
-  userEvent.click(screenshotButton);
+  await userEvent.click(screenshotButton);
 
   await screen.findByText('Save Screenshot');
   const screenshotFileNameInput = screen.getByRole('textbox', {
     name: 'Screenshot File Name',
   });
-  userEvent.clear(screenshotFileNameInput);
-  userEvent.type(screenshotFileNameInput, 'test.png');
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.clear(screenshotFileNameInput);
+  await userEvent.type(screenshotFileNameInput, 'test.png');
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
@@ -370,7 +370,7 @@ test('screenshot flow', async () => {
 test('Enter saves the screenshot from the file name input', async () => {
   renderDock(mockApiClient);
   document.title = 'VotingWorks VxAdmin';
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Capture Screenshot' })
   );
   await screen.findByText('Save Screenshot');
@@ -378,12 +378,12 @@ test('Enter saves the screenshot from the file name input', async () => {
   const fileNameInput = screen.getByRole('textbox', {
     name: 'Screenshot File Name',
   });
-  userEvent.clear(fileNameInput);
-  userEvent.type(fileNameInput, ' test.png ');
+  await userEvent.clear(fileNameInput);
+  await userEvent.type(fileNameInput, ' test.png ');
   mockApiClient.saveScreenshotForApp
     .expectCallWith({ fileName: 'test.png', screenshot: Uint8Array.of() })
     .resolves();
-  userEvent.keyboard('{Enter}');
+  await userEvent.keyboard('{Enter}');
 
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
@@ -393,13 +393,13 @@ test('Enter saves the screenshot from the file name input', async () => {
 test('Enter on a focused modal button activates that button', async () => {
   renderDock(mockApiClient);
   document.title = 'VotingWorks VxAdmin';
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Capture Screenshot' })
   );
   await screen.findByText('Save Screenshot');
 
   screen.getByRole('button', { name: 'Cancel' }).focus();
-  userEvent.keyboard('{Enter}');
+  await userEvent.keyboard('{Enter}');
 
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
@@ -411,7 +411,7 @@ test('Cmd+K starts screenshot flow', async () => {
   await screen.findByRole('button', { name: 'Capture Screenshot' });
 
   document.title = 'VotingWorks VxAdmin';
-  userEvent.keyboard('{Meta>}k{/Meta}');
+  await userEvent.keyboard('{Meta>}k{/Meta}');
   await screen.findByText('Save Screenshot');
 });
 
@@ -422,10 +422,10 @@ test('Esc dismisses screenshot modal', async () => {
   });
 
   document.title = 'VotingWorks VxAdmin';
-  userEvent.click(screenshotButton);
+  await userEvent.click(screenshotButton);
   await screen.findByText('Save Screenshot');
 
-  userEvent.keyboard('{Escape}');
+  await userEvent.keyboard('{Escape}');
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
@@ -439,10 +439,10 @@ test('screenshot modal renders without an outer ThemeProvider', async () => {
   });
 
   document.title = 'VotingWorks VxAdmin';
-  userEvent.click(screenshotButton);
+  await userEvent.click(screenshotButton);
   await screen.findByText('Save Screenshot');
 
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
@@ -455,12 +455,12 @@ test('Save button is auto-focused when screenshot modal opens', async () => {
   });
 
   document.title = 'VotingWorks VxAdmin';
-  userEvent.click(screenshotButton);
+  await userEvent.click(screenshotButton);
   await screen.findByText('Save Screenshot');
 
   expect(screen.getByRole('button', { name: 'Save' })).toHaveFocus();
 
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
@@ -489,14 +489,14 @@ test('printer mock control', async () => {
     connected: true,
     config: mockPrinterConfig,
   });
-  userEvent.click(printerButton);
+  await userEvent.click(printerButton);
   await waitFor(() => mockApiClient.assertComplete());
 
   mockApiClient.disconnectPrinter.expectCallWith().resolves();
   mockApiClient.getPrinterStatus.expectCallWith().resolves({
     connected: false,
   });
-  userEvent.click(printerButton);
+  await userEvent.click(printerButton);
   await waitFor(() => mockApiClient.assertComplete());
 
   featureFlagMock.disableFeatureFlag(
@@ -524,7 +524,7 @@ test('printer mock when disabled', async () => {
 
   expect(printerButton).toBeDisabled();
   screen.getByText('Printer mock disabled');
-  userEvent.click(printerButton);
+  await userEvent.click(printerButton);
 });
 
 test('hardware mock controls: toggle barcode, PAT input, and accessible controller', async () => {
@@ -571,7 +571,7 @@ test('hardware mock controls: toggle barcode, PAT input, and accessible controll
     patInputConnected: false,
     accessibleControllerConnected: false,
   });
-  userEvent.click(barcodeButton);
+  await userEvent.click(barcodeButton);
   await waitFor(() => mockApiClient.assertComplete());
 
   // Toggle PAT input
@@ -583,7 +583,7 @@ test('hardware mock controls: toggle barcode, PAT input, and accessible controll
     patInputConnected: true,
     accessibleControllerConnected: false,
   });
-  userEvent.click(patButton);
+  await userEvent.click(patButton);
   await waitFor(() => mockApiClient.assertComplete());
 
   // Toggle Accessible Controller
@@ -595,7 +595,7 @@ test('hardware mock controls: toggle barcode, PAT input, and accessible controll
     patInputConnected: true,
     accessibleControllerConnected: true,
   });
-  userEvent.click(accessibleButton);
+  await userEvent.click(accessibleButton);
   await waitFor(() => mockApiClient.assertComplete());
 });
 
@@ -613,33 +613,33 @@ test('barcode scan mock control', async () => {
     name: 'Barcode Scan',
   });
 
-  userEvent.click(scanButton);
+  await userEvent.click(scanButton);
   await screen.findByRole('alertdialog');
   expect(screen.getByRole('textbox', { name: 'Barcode Contents' })).toHaveValue(
     '{"bId":""}'
   );
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
-  userEvent.click(scanButton);
+  await userEvent.click(scanButton);
   await screen.findByRole('alertdialog');
-  userEvent.keyboard('{Escape}');
+  await userEvent.keyboard('{Escape}');
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
-  userEvent.click(scanButton);
+  await userEvent.click(scanButton);
   await screen.findByRole('alertdialog');
   const input = screen.getByRole('textbox', { name: 'Barcode Contents' });
-  userEvent.clear(input);
-  userEvent.type(input, 'test-barcode');
+  await userEvent.clear(input);
+  await userEvent.type(input, 'test-barcode');
   const emitBarcodeScanDeferred = deferred<void>();
   mockApiClient.emitBarcodeScan
     .expectCallWith({ payload: 'test-barcode' })
     .returns(emitBarcodeScanDeferred.promise);
-  userEvent.click(screen.getByRole('button', { name: 'Scan' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Scan' }));
   await waitFor(() => mockApiClient.assertComplete());
   screen.getByRole('alertdialog');
 
@@ -753,7 +753,7 @@ describe('fujitsu printer mock', () => {
     mockApiClient.getFujitsuPrinterStatus.expectCallWith().resolves({
       state: 'no-paper',
     });
-    userEvent.selectOptions(dropdown, screen.getByText('no-paper'));
+    await userEvent.selectOptions(dropdown, screen.getByText('no-paper'));
     await waitFor(() => {
       expect(dropdown).toHaveValue('no-paper');
     });
@@ -807,7 +807,7 @@ describe('PDI scanner mock', () => {
     mockApiClient.pdiScannerGetStatus
       .expectRepeatedCallsWith()
       .resolves(IDLE_PDI_STATUS);
-    userEvent.click(insertBallotButton);
+    await userEvent.click(insertBallotButton);
 
     mockApiClient.pdiScannerGetStatus.expectRepeatedCallsWith().resolves({
       sheetStatus: 'sheetInserted',
@@ -836,7 +836,7 @@ describe('PDI scanner mock', () => {
     );
 
     mockApiClient.pdiScannerRemoveSheet.expectCallWith().resolves();
-    userEvent.click(removeBallotButton);
+    await userEvent.click(removeBallotButton);
 
     mockApiClient.pdiScannerGetStatus
       .expectRepeatedCallsWith()
@@ -866,7 +866,7 @@ describe('PDI scanner mock', () => {
     mockApiClient.pdiScannerGetStatus
       .expectRepeatedCallsWith()
       .resolves(IDLE_PDI_STATUS);
-    userEvent.click(insertBallotButton);
+    await userEvent.click(insertBallotButton);
 
     // After insert, queue becomes active with multi-sheet progress
     mockApiClient.pdiScannerGetStatus.expectRepeatedCallsWith().resolves({
@@ -889,7 +889,7 @@ describe('PDI scanner mock', () => {
     mockApiClient.pdiScannerGetStatus
       .expectRepeatedCallsWith()
       .resolves(IDLE_PDI_STATUS);
-    userEvent.click(clearButton);
+    await userEvent.click(clearButton);
 
     // Should go back to showing Insert Ballot; wait for all mocks to be
     // consumed by the refetch interval
@@ -908,7 +908,7 @@ describe('PDI scanner mock', () => {
       canceled: true,
       filePaths: [],
     });
-    userEvent.click(insertBallotButton);
+    await userEvent.click(insertBallotButton);
     await waitFor(() => {
       expect(kiosk.showOpenDialog).toHaveBeenCalled();
       mockApiClient.assertComplete();
@@ -954,7 +954,7 @@ describe('batch scanner mock', () => {
     mockApiClient.batchScannerGetStatus
       .expectRepeatedCallsWith()
       .resolves({ sheetCount: 2, errorQueued: false });
-    userEvent.click(loadButton);
+    await userEvent.click(loadButton);
 
     const queuedText = await screen.findByText(/2 sheet\(s\) queued/);
     // Get the Clear button within the batch scanner section (not the USB Clear)
@@ -967,7 +967,7 @@ describe('batch scanner mock', () => {
     mockApiClient.batchScannerGetStatus
       .expectRepeatedCallsWith()
       .resolves({ sheetCount: 0, errorQueued: false });
-    userEvent.click(clearButton);
+    await userEvent.click(clearButton);
     await waitFor(() => {
       expect(screen.queryByText(/sheet\(s\) queued/)).not.toBeInTheDocument();
     });
@@ -992,7 +992,7 @@ describe('batch scanner mock', () => {
       canceled: true,
       filePaths: [],
     });
-    userEvent.click(loadButton);
+    await userEvent.click(loadButton);
     await waitFor(() => {
       expect(kiosk.showOpenDialog).toHaveBeenCalled();
       mockApiClient.assertComplete();
@@ -1055,7 +1055,7 @@ describe('batch scanner mock', () => {
     mockApiClient.batchScannerGetStatus
       .expectRepeatedCallsWith()
       .resolves({ sheetCount: 0, errorQueued: true });
-    userEvent.click(errorButton);
+    await userEvent.click(errorButton);
 
     const cancelButton = await screen.findByRole('button', {
       name: 'Cancel Error',
@@ -1068,7 +1068,7 @@ describe('batch scanner mock', () => {
     mockApiClient.batchScannerGetStatus
       .expectRepeatedCallsWith()
       .resolves({ sheetCount: 0, errorQueued: false });
-    userEvent.click(cancelButton);
+    await userEvent.click(cancelButton);
 
     await screen.findByRole('button', { name: 'Queue Error' });
   });
@@ -1115,7 +1115,7 @@ test('quick configure button', async () => {
   mockApiClient.quickConfigure
     .expectCallWith()
     .throws(new Error('Election package exceeds system limits'));
-  userEvent.click(quickConfigureButton);
+  await userEvent.click(quickConfigureButton);
   await screen.findByText('Election package exceeds system limits');
 
   const reload = vi.fn();
@@ -1124,7 +1124,7 @@ test('quick configure button', async () => {
     reload,
   });
   mockApiClient.quickConfigure.expectCallWith().resolves();
-  userEvent.click(quickConfigureButton);
+  await userEvent.click(quickConfigureButton);
   await waitFor(() => expect(reload).toHaveBeenCalledTimes(1));
 });
 
@@ -1164,7 +1164,7 @@ test('dock position menu moves the dock to a chosen side', async () => {
   });
 
   // Open the menu and move the dock to the bottom
-  userEvent.click(positionButton);
+  await userEvent.click(positionButton);
   expect(screen.getByRole('button', { name: 'Top' })).toHaveAttribute(
     'aria-pressed',
     'true'
@@ -1172,7 +1172,7 @@ test('dock position menu moves the dock to a chosen side', async () => {
 
   mockApiClient.setDockSide.expectCallWith({ side: 'bottom' }).resolves();
   mockApiClient.getDockSide.expectCallWith().resolves('bottom');
-  userEvent.click(screen.getByRole('button', { name: 'Bottom' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Bottom' }));
 
   // The menu closes on selection
   expect(
@@ -1180,7 +1180,7 @@ test('dock position menu moves the dock to a chosen side', async () => {
   ).not.toBeInTheDocument();
 
   // Reopening shows the new side as active
-  userEvent.click(positionButton);
+  await userEvent.click(positionButton);
   await waitFor(() => {
     expect(screen.getByRole('button', { name: 'Bottom' })).toHaveAttribute(
       'aria-pressed',
@@ -1189,15 +1189,15 @@ test('dock position menu moves the dock to a chosen side', async () => {
   });
 
   // Selecting the current side just closes the menu without a backend call
-  userEvent.click(screen.getByRole('button', { name: 'Bottom' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Bottom' }));
   expect(
     screen.queryByRole('button', { name: 'Bottom' })
   ).not.toBeInTheDocument();
 
   // The menu can be toggled closed with the gear button
-  userEvent.click(positionButton);
+  await userEvent.click(positionButton);
   screen.getByRole('button', { name: 'Top' });
-  userEvent.click(positionButton);
+  await userEvent.click(positionButton);
   expect(screen.queryByRole('button', { name: 'Top' })).not.toBeInTheDocument();
 });
 
@@ -1209,7 +1209,7 @@ test('dock side is loaded from the backend', async () => {
   const positionButton = await screen.findByRole('button', {
     name: 'Dock Position',
   });
-  userEvent.click(positionButton);
+  await userEvent.click(positionButton);
   expect(screen.getByRole('button', { name: 'Left' })).toHaveAttribute(
     'aria-pressed',
     'true'
@@ -1293,7 +1293,7 @@ function mockDisplayMedia(): { track: FakeTrack } {
 
 async function startRecording(): Promise<FakeMediaRecorder> {
   mockApiClient.beginScreenRecording.expectCallWith().resolves();
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Start Screen Recording' })
   );
   await screen.findByLabelText('Stop Screen Recording');
@@ -1333,9 +1333,9 @@ describe('screen recording', () => {
       screen.queryByRole('button', { name: 'Toggle Dock' })
     ).not.toBeInTheDocument();
 
-    userEvent.keyboard('{Meta>}d{/Meta}');
+    await userEvent.keyboard('{Meta>}d{/Meta}');
     expect(dockContainer()).not.toHaveClass('hidden');
-    userEvent.keyboard('{Meta>}d{/Meta}');
+    await userEvent.keyboard('{Meta>}d{/Meta}');
     expect(dockContainer()).toHaveClass('hidden');
 
     mockApiClient.appendScreenRecording
@@ -1345,9 +1345,9 @@ describe('screen recording', () => {
       .expectCallWith({ data: Uint8Array.of(9) })
       .resolves();
     recorder.emitData(1, 2);
-    userEvent.keyboard('{Meta>}j{/Meta}');
-    userEvent.keyboard('{Control>}x{/Control}');
-    userEvent.keyboard('{Control>}c{/Control}');
+    await userEvent.keyboard('{Meta>}j{/Meta}');
+    await userEvent.keyboard('{Control>}x{/Control}');
+    await userEvent.keyboard('{Control>}c{/Control}');
 
     await screen.findByText('Save Screen Recording');
     expect(track.stop).toHaveBeenCalled();
@@ -1357,12 +1357,12 @@ describe('screen recording', () => {
     });
     expect(fileNameInput.value).toMatch(/^Recording-VxScan-.*\.mp4$/);
 
-    userEvent.clear(fileNameInput);
-    userEvent.type(fileNameInput, 'demo.mp4');
+    await userEvent.clear(fileNameInput);
+    await userEvent.type(fileNameInput, 'demo.mp4');
     mockApiClient.saveScreenRecording
       .expectCallWith({ fileName: 'demo.mp4' })
       .resolves();
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await waitFor(() => {
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     });
@@ -1379,7 +1379,7 @@ describe('screen recording', () => {
     mockApiClient.appendScreenRecording
       .expectCallWith({ data: Uint8Array.of(9) })
       .resolves();
-    userEvent.keyboard('{Meta>}.{/Meta}');
+    await userEvent.keyboard('{Meta>}.{/Meta}');
     await screen.findByText('Save Screen Recording');
     expect(
       screen.getByRole<HTMLInputElement>('textbox', {
@@ -1388,7 +1388,7 @@ describe('screen recording', () => {
     ).toMatch(/\.webm$/);
 
     mockApiClient.discardScreenRecording.expectCallWith().resolves();
-    userEvent.click(screen.getByRole('button', { name: 'Discard' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Discard' }));
     await waitFor(() => {
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     });
@@ -1399,18 +1399,18 @@ describe('screen recording', () => {
     renderDock(mockApiClient);
     await startRecording();
 
-    userEvent.keyboard('{Meta>}d{/Meta}');
+    await userEvent.keyboard('{Meta>}d{/Meta}');
     mockApiClient.appendScreenRecording
       .expectCallWith({ data: Uint8Array.of(9) })
       .resolves();
-    userEvent.click(
+    await userEvent.click(
       screen.getByRole('button', { name: 'Stop Screen Recording' })
     );
     track.dispatchEvent(new Event('ended'));
     await screen.findByText('Save Screen Recording');
 
     mockApiClient.discardScreenRecording.expectCallWith().resolves();
-    userEvent.keyboard('{Escape}');
+    await userEvent.keyboard('{Escape}');
     await waitFor(() => {
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     });
@@ -1433,10 +1433,10 @@ describe('screen recording', () => {
       .expectCallWith({ data: Uint8Array.of(9) })
       .throws(new Error('disk full'));
     mockApiClient.discardScreenRecording.expectCallWith().resolves();
-    userEvent.keyboard('{Control>}c{/Control}');
+    await userEvent.keyboard('{Control>}c{/Control}');
 
     await screen.findByText('Saving the screen recording failed: disk full');
-    userEvent.click(screen.getByRole('button', { name: 'Close' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Close' }));
     await waitFor(() => {
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     });
@@ -1455,7 +1455,7 @@ describe('screen recording', () => {
   ])('reports capture failure %s', async (error, message) => {
     vi.mocked(navigator.mediaDevices.getDisplayMedia).mockRejectedValue(error);
     renderDock(mockApiClient);
-    userEvent.click(
+    await userEvent.click(
       await screen.findByRole('button', { name: 'Start Screen Recording' })
     );
 
@@ -1463,7 +1463,7 @@ describe('screen recording', () => {
     screen.getByText(message);
     expect(dockContainer()).toHaveClass('closed');
     expect(dockContainer()).not.toHaveClass('hidden');
-    userEvent.click(screen.getByRole('button', { name: 'Close' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Close' }));
     await waitFor(() => {
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     });
@@ -1476,10 +1476,10 @@ test('handle toggles the dock open and closed', async () => {
   const container = assertDefined(handle.parentElement);
   expect(container).not.toHaveClass('closed');
 
-  userEvent.click(handle);
+  await userEvent.click(handle);
   expect(container).toHaveClass('closed');
 
-  userEvent.click(handle);
+  await userEvent.click(handle);
   expect(container).not.toHaveClass('closed');
 });
 
@@ -1540,14 +1540,14 @@ test('backup USB drive controls', async () => {
   mockApiClient.getUsbDriveStatus
     .expectCallWith({ purpose: 'backup' })
     .resolves({ diskPath: backupDiskPath, fstype: 'ext4', status: 'inserted' });
-  userEvent.click(backupDriveControl);
+  await userEvent.click(backupDriveControl);
   await waitFor(() => mockApiClient.assertComplete());
 
   mockApiClient.removeUsbDrive.expectCallWith({ purpose: 'backup' }).resolves();
   mockApiClient.getUsbDriveStatus
     .expectCallWith({ purpose: 'backup' })
     .resolves({ diskPath: backupDiskPath, fstype: 'ext4', status: 'removed' });
-  userEvent.click(backupDriveControl);
+  await userEvent.click(backupDriveControl);
   await waitFor(() => mockApiClient.assertComplete());
 
   const [, clearBackupDriveButton] = screen.getAllByRole('button', {
@@ -1557,6 +1557,6 @@ test('backup USB drive controls', async () => {
   mockApiClient.getUsbDriveStatus
     .expectCallWith({ purpose: 'backup' })
     .resolves({ diskPath: backupDiskPath, fstype: 'ext4', status: 'removed' });
-  userEvent.click(assertDefined(clearBackupDriveButton));
+  await userEvent.click(assertDefined(clearBackupDriveButton));
   await waitFor(() => mockApiClient.assertComplete());
 });

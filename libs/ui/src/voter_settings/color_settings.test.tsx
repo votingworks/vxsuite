@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import type { UiTheme } from '@votingworks/types';
 import { ThemeConsumer } from 'styled-components';
-import { userEvent } from '../user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen } from '../../test/react_testing_library.js';
 import { ColorSettings } from './color_settings.js';
 import { H1 } from '../typography.js';
@@ -56,7 +56,7 @@ test('renders with specified color options', () => {
   });
 });
 
-test('option selections trigger theme updates', () => {
+test('option selections trigger theme updates', async () => {
   let currentTheme: UiTheme | null = null;
 
   function TestComponent(): JSX.Element {
@@ -86,7 +86,7 @@ test('option selections trigger theme updates', () => {
     })
   );
 
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('radio', { name: /gray text.+dark background/i })
   );
 

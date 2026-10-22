@@ -8,7 +8,7 @@ import {
   type PrecinctWithSplits,
   type PrecinctWithoutSplits,
 } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { err, ok } from '@votingworks/basics';
 import type React from 'react';
 import {
@@ -72,7 +72,7 @@ test('add polling place', async () => {
 
   // Cancel button should trigger `exit`:
   expect(exit).not.toHaveBeenCalled();
-  userEvent.click(screen.getButton('Cancel'));
+  await userEvent.click(screen.getButton('Cancel'));
   expect(exit).toHaveBeenCalledOnce();
   exit.mockClear();
 
@@ -88,10 +88,10 @@ test('add polling place', async () => {
     screen.getByRole('checkbox', { name: precinct3.name, checked: false }),
   ]);
 
-  userEvent.type(screen.getByLabelText('Name'), 'New Place');
-  userEvent.click(screen.getByRole('radio', { name: 'Early Voting' }));
-  userEvent.click(screen.getByRole('checkbox', { name: precinct3.name }));
-  userEvent.click(screen.getByRole('checkbox', { name: precinct2.name }));
+  await userEvent.type(screen.getByLabelText('Name'), 'New Place');
+  await userEvent.click(screen.getByRole('radio', { name: 'Early Voting' }));
+  await userEvent.click(screen.getByRole('checkbox', { name: precinct3.name }));
+  await userEvent.click(screen.getByRole('checkbox', { name: precinct2.name }));
 
   expect(switchToView).not.toHaveBeenCalled();
 
@@ -109,7 +109,7 @@ test('add polling place', async () => {
     .expectCallWith({ electionId, place: expectedPlace })
     .resolves(ok());
 
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
   await waitFor(() => api.assertComplete());
   expect(switchToView).toHaveBeenCalledOnce();
   expect(exit).not.toHaveBeenCalledOnce();
@@ -189,7 +189,7 @@ test('view polling place', async () => {
 
   expect(switchToEdit).not.toHaveBeenCalled();
 
-  userEvent.click(screen.getButton('Edit'));
+  await userEvent.click(screen.getButton('Edit'));
   expect(switchToEdit).toHaveBeenCalledOnce();
 });
 
@@ -265,7 +265,7 @@ test('edit polling place', async () => {
 
   // Cancel button should trigger `switchToView`:
   expect(switchToView).not.toHaveBeenCalled();
-  userEvent.click(screen.getButton('Cancel'));
+  await userEvent.click(screen.getButton('Cancel'));
   expect(switchToView).toHaveBeenCalledExactlyOnceWith(savedPlace.id);
   switchToView.mockClear();
 
@@ -284,14 +284,14 @@ test('edit polling place', async () => {
     screen.getByRole('checkbox', { name: precinct3.name, checked: false }),
   ]);
 
-  userEvent.clear(nameInput);
-  userEvent.type(nameInput, 'Updated Place');
+  await userEvent.clear(nameInput);
+  await userEvent.type(nameInput, 'Updated Place');
 
-  userEvent.click(screen.getByRole('radio', { name: 'Absentee Voting' }));
+  await userEvent.click(screen.getByRole('radio', { name: 'Absentee Voting' }));
 
   // Select precinct1, de-select precinct2:
-  userEvent.click(screen.getByRole('checkbox', { name: precinct1.name }));
-  userEvent.click(screen.getByRole('checkbox', { name: precinct2.name }));
+  await userEvent.click(screen.getByRole('checkbox', { name: precinct1.name }));
+  await userEvent.click(screen.getByRole('checkbox', { name: precinct2.name }));
 
   expect(switchToView).not.toHaveBeenCalled();
 
@@ -306,7 +306,7 @@ test('edit polling place', async () => {
     .expectCallWith({ electionId, place: expectedPlace })
     .resolves(ok());
 
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
   await waitFor(() => api.assertComplete());
   expect(switchToView).toHaveBeenCalledOnce();
 });
@@ -347,7 +347,7 @@ test('handles API validation errors', async () => {
       .expectCallWith({ electionId, place })
       .resolves(err(code));
 
-    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     await waitFor(() => api.assertComplete());
     screen.getByText(message);
   }
@@ -380,14 +380,14 @@ test('delete polling place', async () => {
 
   await screen.findByRole('heading', { name: 'Edit Polling Place' });
 
-  userEvent.click(screen.getButton('Delete Polling Place'));
+  await userEvent.click(screen.getButton('Delete Polling Place'));
   let modal = within(screen.getByRole('alertdialog'));
   await modal.findByText(/Are you sure you want to delete this polling place/);
 
-  userEvent.click(screen.getButton('Cancel'));
+  await userEvent.click(screen.getButton('Cancel'));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
-  userEvent.click(screen.getButton('Delete Polling Place'));
+  await userEvent.click(screen.getButton('Delete Polling Place'));
   modal = within(screen.getByRole('alertdialog'));
 
   expect(exit).not.toHaveBeenCalled();
@@ -396,7 +396,7 @@ test('delete polling place', async () => {
     .expectCallWith({ electionId, id: savedPlace.id })
     .resolves();
 
-  userEvent.click(modal.getButton('Delete Polling Place'));
+  await userEvent.click(modal.getButton('Delete Polling Place'));
   await waitFor(() => api.assertComplete());
   expect(exit).toHaveBeenCalledOnce();
 });
@@ -433,17 +433,17 @@ test('bulk selection button', async () => {
   ]);
 
   // Expect "Select All" state if there's a partial selection:
-  userEvent.click(screen.getButton('Select All'));
+  await userEvent.click(screen.getButton('Select All'));
   expect(screen.getAllByRole('checkbox', { checked: true })).toEqual([
     screen.getByRole('checkbox', { name: precinct1.name }),
     screen.getByRole('checkbox', { name: precinct2.name }),
     screen.getByRole('checkbox', { name: precinct3.name }),
   ]);
 
-  userEvent.click(screen.getButton('Clear All'));
+  await userEvent.click(screen.getButton('Clear All'));
   expect(screen.queryAllByRole('checkbox', { checked: true })).toEqual([]);
 
-  userEvent.click(screen.getButton('Select All'));
+  await userEvent.click(screen.getButton('Select All'));
   expect(screen.getAllByRole('checkbox', { checked: true })).toEqual([
     screen.getByRole('checkbox', { name: precinct1.name }),
     screen.getByRole('checkbox', { name: precinct2.name }),

@@ -3,7 +3,7 @@ import { beforeEach, vi, afterEach, test, expect } from 'vitest';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import { ServerError } from '@votingworks/grout';
 import type { PrecinctScannerConfig } from '@votingworks/scan-backend';
@@ -76,11 +76,13 @@ test('backend fails to unconfigure', async () => {
   renderApp();
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
 
-  userEvent.click(await screen.findByRole('tab', { name: 'Configuration' }));
+  await userEvent.click(
+    await screen.findByRole('tab', { name: 'Configuration' })
+  );
 
   await suppressingConsoleOutput(async () => {
-    userEvent.click(await screen.findByText('Unconfigure Machine'));
-    userEvent.click(await screen.findByText('Delete All Election Data'));
+    await userEvent.click(await screen.findByText('Unconfigure Machine'));
+    await userEvent.click(await screen.findByText('Delete All Election Data'));
 
     await screen.findByText('Something went wrong');
   });
@@ -183,7 +185,7 @@ test('shows message when printer cover is open', async () => {
   apiMock.expectOpenPolls();
   apiMock.expectPrintReportSection(0).resolve();
   apiMock.expectGetPollsInfo('polls_open');
-  userEvent.click(await screen.findByText('Open Polls'));
+  await userEvent.click(await screen.findByText('Open Polls'));
 
   // Remove pollworker card
   apiMock.removeCard();
@@ -344,7 +346,7 @@ test('shows message when scanner cover is open', async () => {
   apiMock.expectOpenPolls();
   apiMock.expectPrintReportSection(0).resolve();
   apiMock.expectGetPollsInfo('polls_open');
-  userEvent.click(await screen.findByText('Open Polls'));
+  await userEvent.click(await screen.findByText('Open Polls'));
   await screen.findByText('Polls Opened');
 
   // Remove pollworker card

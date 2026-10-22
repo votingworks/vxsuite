@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 
 import { render, screen } from '../test/react_testing_library.js';
 import {
@@ -9,7 +9,7 @@ import {
   VoterHelpScreenP,
 } from './voter_help_screen.js';
 
-test('VoterHelpScreen', () => {
+test('VoterHelpScreen', async () => {
   const onClose = vi.fn();
   render(
     <VoterHelpScreen onClose={onClose}>
@@ -24,6 +24,6 @@ test('VoterHelpScreen', () => {
   screen.getByRole('heading', { name: 'Subsection' });
   screen.getByText('Content');
   const closeButton = screen.getByRole('button', { name: 'Close' });
-  userEvent.click(closeButton);
+  await userEvent.click(closeButton);
   expect(onClose).toHaveBeenCalledTimes(1);
 });

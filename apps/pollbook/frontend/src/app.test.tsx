@@ -8,7 +8,7 @@ import {
   type ElectionDefinition,
 } from '@votingworks/types';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen, within } from '../test/react_testing_library.js';
 import { App } from './app.js';
 import { type ApiMock, createApiMock } from '../test/mock_api_client.js';
@@ -168,14 +168,14 @@ test('system administrator can unconfigure', async () => {
   const unconfigureButton = await screen.findByRole('button', {
     name: 'Unconfigure Machine',
   });
-  userEvent.click(unconfigureButton);
+  await userEvent.click(unconfigureButton);
 
   const confirmButton = await screen.findByRole('button', {
     name: 'Delete All Election Data',
   });
   apiMock.setElection();
 
-  userEvent.click(confirmButton);
+  await userEvent.click(confirmButton);
 
   await screen.findByText(
     'Insert a USB drive containing a poll book package or turn on another configured machine.'

@@ -5,7 +5,7 @@ import {
   mockUseAudioControls,
   TestLanguageCode,
 } from '@votingworks/test-utils';
-import { userEvent } from '../user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { newTestContext } from '../../test/test_context.js';
 import { KeyboardShortcutHandlers } from './keyboard_shortcut_handlers.js';
 import {
@@ -53,17 +53,17 @@ test('Shift+L switches display language', async () => {
 
   expect(currentLanguage).toEqual(ENGLISH);
 
-  await act(() => userEvent.keyboard(Keybinding.SWITCH_LANGUAGE));
+  await userEvent.keyboard(Keybinding.SWITCH_LANGUAGE);
   expect(currentLanguage).toEqual(SPANISH);
 
-  await act(() => userEvent.keyboard(Keybinding.SWITCH_LANGUAGE));
+  await userEvent.keyboard(Keybinding.SWITCH_LANGUAGE);
   expect(currentLanguage).toEqual(CHINESE_SIMPLIFIED);
 
-  await act(() => userEvent.keyboard(Keybinding.SWITCH_LANGUAGE));
+  await userEvent.keyboard(Keybinding.SWITCH_LANGUAGE);
   expect(currentLanguage).toEqual(ENGLISH);
 
   // Should be a no-op without the `Shift` key modifier:
-  await act(() => userEvent.keyboard('l'));
+  await userEvent.keyboard('l');
   expect(currentLanguage).toEqual(ENGLISH);
 });
 
@@ -88,7 +88,7 @@ test.each([
 
     await act(async () => {
       const input = key.length === 1 ? key : `{${key}}`;
-      userEvent.keyboard(input);
+      await userEvent.keyboard(input);
       await advancePromises();
     });
 

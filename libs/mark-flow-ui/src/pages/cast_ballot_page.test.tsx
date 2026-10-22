@@ -1,4 +1,4 @@
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { expect, it, vi } from 'vitest';
 import { render, screen } from '../../test/react_testing_library.js';
 import { CastBallotPage } from './cast_ballot_page.js';
@@ -11,13 +11,13 @@ it('renders CastBallotPage', () => {
   screen.getByText(/scan your ballot/i);
 });
 
-it('focuses instructions when left arrow is pressed', () => {
+it('focuses instructions when left arrow is pressed', async () => {
   render(<CastBallotPage hidePostVotingInstructions={vi.fn()} />);
 
   const heading = screen.getByRole('heading', { name: /almost done/i });
   const instructionsContainer = heading.closest('div[tabindex="-1"]');
 
-  userEvent.keyboard('{ArrowLeft}');
+  await userEvent.keyboard('{ArrowLeft}');
 
   expect(instructionsContainer).toHaveFocus();
 });

@@ -6,7 +6,7 @@ import {
   test,
   vi,
 } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import type { VxRenderResult } from '@votingworks/ui/test-utils';
 import {
   fireEvent,
@@ -62,7 +62,7 @@ afterEach(() => {
 test('pressing play causes the audio file to play', async () => {
   const { playSpy } = renderScreen();
 
-  userEvent.click(await screen.findByText('Play Audio'));
+  await userEvent.click(await screen.findByText('Play Audio'));
 
   expect(playSpy).toHaveBeenCalledTimes(1);
 });
@@ -70,7 +70,7 @@ test('pressing play causes the audio file to play', async () => {
 test('play button is disabled when sound is playing', async () => {
   const { audioElement, playSpy } = renderScreen();
 
-  userEvent.click(await screen.findByText('Play Audio'));
+  await userEvent.click(await screen.findByText('Play Audio'));
 
   expect(playSpy).toHaveBeenCalledTimes(1);
   const playingButton = await screen.findByRole('button', {
@@ -92,7 +92,7 @@ test('user confirms sound is audible', async () => {
     outcome: 'pass',
   });
   renderScreen();
-  userEvent.click(await screen.findByText('Sound Is Audible'));
+  await userEvent.click(await screen.findByText('Sound Is Audible'));
 
   expect(onClose).toHaveBeenCalledTimes(1);
 });
@@ -104,7 +104,7 @@ test('user confirms sound is not audible', async () => {
     outcome: 'fail',
   });
   renderScreen();
-  userEvent.click(await screen.findByText('Sound Is Not Audible'));
+  await userEvent.click(await screen.findByText('Sound Is Not Audible'));
 
   expect(onClose).toHaveBeenCalledTimes(1);
 });

@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import type { DiskSpaceSummary } from '@votingworks/utils';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 
 import { screen, within } from '../test/react_testing_library.js';
 import { newTestContext } from '../test/test_context.js';
@@ -45,7 +45,7 @@ test('Low disk space warning', async () => {
   within(modal).getByText('Free disk space is down to 1% (97.7 MB of 9.5 GB).');
 
   // Dismissal
-  userEvent.click(within(modal).getByRole('button', { name: 'Dismiss' }));
+  await userEvent.click(within(modal).getByRole('button', { name: 'Dismiss' }));
   await vi.waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
 
   // Reappears if disk space recovers and then drops again

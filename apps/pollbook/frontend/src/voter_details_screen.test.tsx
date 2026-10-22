@@ -9,7 +9,7 @@ import type {
   VoterRegistrationRequest,
 } from '@votingworks/types';
 import { Route, Switch } from 'react-router-dom';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   electionFamousNames2021Fixtures,
   electionMultiPartyPrimaryFixtures,
@@ -97,7 +97,7 @@ describe('common functionality', () => {
 
       await renderComponent();
 
-      userEvent.click(screen.getButton(buttonName));
+      await userEvent.click(screen.getButton(buttonName));
 
       await screen.findByRole('heading', { name: 'No Printer Detected' });
     }
@@ -116,7 +116,7 @@ describe('common functionality', () => {
 
     await renderComponent();
 
-    userEvent.click(screen.getButton('Update Name'));
+    await userEvent.click(screen.getButton('Update Name'));
 
     const nameParts: InputElementChangeSpec[] = [
       {
@@ -140,7 +140,7 @@ describe('common functionality', () => {
       const partInput = await screen.findByRole('textbox', {
         name: part.domElementText,
       });
-      userEvent.type(partInput, part.newValue);
+      await userEvent.type(partInput, part.newValue);
     }
 
     const nameChangeData: VoterNameChangeRequest = {
@@ -160,10 +160,10 @@ describe('common functionality', () => {
       nameChange: { ...nameChangeData, timestamp: new Date().toISOString() },
     };
     const updateButton = screen.getButton('Confirm Name Update');
-    userEvent.click(updateButton);
+    await userEvent.click(updateButton);
 
     apiMock.expectGetVoter(updatedVoter);
-    userEvent.click(await screen.findButton('Return to Voter Details'));
+    await userEvent.click(await screen.findButton('Return to Voter Details'));
 
     await waitFor(() => {
       expect(screen.queryByText('Update Voter Name')).toBeNull();
@@ -196,19 +196,19 @@ describe('common functionality', () => {
     // Precinct information should be shown in a multi-precinct election
     await screen.findByText(precinct1.name);
 
-    userEvent.click(screen.getButton('Update Domicile Address'));
+    await userEvent.click(screen.getButton('Update Domicile Address'));
 
     await screen.findByRole('heading', {
       name: 'Update Voter Domicile Address',
     });
 
-    userEvent.click(screen.getByLabelText('Street Name'));
-    userEvent.keyboard('[Enter]');
+    await userEvent.click(screen.getByLabelText('Street Name'));
+    await userEvent.keyboard('[Enter]');
 
     const partInput = await screen.findByRole('textbox', {
       name: 'Street Number',
     });
-    userEvent.type(partInput, '1000000');
+    await userEvent.type(partInput, '1000000');
 
     await screen.findByText(/Invalid address/);
     await screen.findByText(/Franklin County/);
@@ -235,19 +235,19 @@ describe('common functionality', () => {
     await renderComponent();
 
     await screen.findByText(`${voter.streetNumber} ${voter.streetName}`);
-    userEvent.click(screen.getButton('Update Domicile Address'));
+    await userEvent.click(screen.getButton('Update Domicile Address'));
 
     await screen.findByRole('heading', {
       name: 'Update Voter Domicile Address',
     });
 
-    userEvent.click(screen.getByLabelText('Street Name'));
-    userEvent.keyboard('[Enter]');
+    await userEvent.click(screen.getByLabelText('Street Name'));
+    await userEvent.keyboard('[Enter]');
 
     const partInput = await screen.findByRole('textbox', {
       name: 'Street Number',
     });
-    userEvent.type(partInput, '42');
+    await userEvent.type(partInput, '42');
 
     await vi.waitFor(
       async () =>
@@ -291,7 +291,7 @@ describe('common functionality', () => {
     await renderComponent();
 
     await screen.findByText('200 1/2 SOMETHING STREET');
-    userEvent.click(screen.getButton('Update Domicile Address'));
+    await userEvent.click(screen.getButton('Update Domicile Address'));
 
     // Precinct information should NOT be shown in a single-precinct election
     expect(screen.queryByText(precinct1.name)).toBeNull();
@@ -300,8 +300,8 @@ describe('common functionality', () => {
       name: 'Update Voter Domicile Address',
     });
 
-    userEvent.click(screen.getByLabelText('Street Name'));
-    userEvent.keyboard('[Enter]');
+    await userEvent.click(screen.getByLabelText('Street Name'));
+    await userEvent.keyboard('[Enter]');
 
     const addressParts: InputElementChangeSpec[] = [
       {
@@ -321,7 +321,7 @@ describe('common functionality', () => {
       const partInput = await screen.findByRole('textbox', {
         name: part.domElementText,
       });
-      userEvent.type(partInput, part.newValue);
+      await userEvent.type(partInput, part.newValue);
     }
 
     const addressChangeData: VoterAddressChangeRequest = {
@@ -351,10 +351,10 @@ describe('common functionality', () => {
       },
     };
     const updateButton = screen.getButton('Confirm Domicile Address Update');
-    userEvent.click(updateButton);
+    await userEvent.click(updateButton);
 
     apiMock.expectGetVoter(updatedVoter);
-    userEvent.click(await screen.findButton('Return to Voter Details'));
+    await userEvent.click(await screen.findButton('Return to Voter Details'));
 
     await waitFor(() => {
       expect(screen.queryByText('Update Voter Domicile Address')).toBeNull();
@@ -388,14 +388,14 @@ describe('common functionality', () => {
 
     const undoCheckInReason = 'accidental check-in';
     apiMock.expectUndoVoterCheckIn(checkedInVoter, undoCheckInReason);
-    userEvent.click(await screen.findButton('Undo Check-In'));
+    await userEvent.click(await screen.findButton('Undo Check-In'));
 
     await screen.findByRole('heading', { name: 'Undo Check-In' });
     screen.getByText('Record the reason for undoing the check-in:');
     const textInput = screen.getByRole('textbox', {
       name: 'reason for undoing check-in',
     });
-    userEvent.type(textInput, undoCheckInReason);
+    await userEvent.type(textInput, undoCheckInReason);
 
     // updatedVoter should be the same as the default mock voter in this file, but
     // we make this assignment to make it clear what the expected diff is
@@ -407,7 +407,7 @@ describe('common functionality', () => {
     const undoButton = within(modal).getByRole('button', {
       name: 'Undo Check-In',
     });
-    userEvent.click(undoButton);
+    await userEvent.click(undoButton);
 
     await screen.findByText('Not Checked In');
   });
@@ -432,7 +432,7 @@ describe('common functionality', () => {
     await renderComponent();
 
     // Open the undo check-in modal
-    userEvent.click(await screen.findButton('Undo Check-In'));
+    await userEvent.click(await screen.findButton('Undo Check-In'));
     await screen.findByRole('heading', { name: 'Undo Check-In' });
 
     // Simulate another client undoing the check-in by returning voter without check-in
@@ -470,7 +470,7 @@ describe('common functionality', () => {
     const reprintButton = screen.getButton('Reprint Receipt');
     expect(reprintButton).not.toBeDisabled();
     apiMock.expectReprintReceipt(checkedInVoter);
-    userEvent.click(reprintButton);
+    await userEvent.click(reprintButton);
 
     screen.getByText('Printing');
   });
@@ -517,7 +517,7 @@ describe('common functionality', () => {
 
     const reprintButton = screen.getButton('Reprint Receipt');
     apiMock.expectReprintReceiptError(checkedInVoter);
-    userEvent.click(reprintButton);
+    await userEvent.click(reprintButton);
 
     await vi.waitFor(() => {
       screen.getByText('Error Reprinting');
@@ -531,7 +531,7 @@ describe('common functionality', () => {
     await renderComponent();
 
     const markInactiveButton = screen.getButton('Mark Voter Inactive');
-    userEvent.click(markInactiveButton);
+    await userEvent.click(markInactiveButton);
     await screen.findByText(/After a voter is marked inactive/);
 
     apiMock.expectMarkInactive(voter);
@@ -545,7 +545,7 @@ describe('common functionality', () => {
     const confirmButton = within(modal).getByRole('button', {
       name: 'Mark Voter Inactive',
     });
-    userEvent.click(confirmButton);
+    await userEvent.click(confirmButton);
   });
 
   test('mark voter inactive - error path', async () => {
@@ -555,7 +555,7 @@ describe('common functionality', () => {
     await renderComponent();
 
     const markInactiveButton = screen.getButton('Mark Voter Inactive');
-    userEvent.click(markInactiveButton);
+    await userEvent.click(markInactiveButton);
     await screen.findByText(/After a voter is marked inactive/);
 
     apiMock.expectMarkInactiveError(voter);
@@ -565,7 +565,7 @@ describe('common functionality', () => {
     const confirmButton = within(modal).getByRole('button', {
       name: 'Mark Voter Inactive',
     });
-    userEvent.click(confirmButton);
+    await userEvent.click(confirmButton);
 
     await screen.findByText('Error Marking Inactive');
   });
@@ -588,7 +588,7 @@ describe('common functionality', () => {
     await renderComponent();
 
     const markInvalidButton = screen.getButton('Delete Registration');
-    userEvent.click(markInvalidButton);
+    await userEvent.click(markInvalidButton);
     await screen.findByText(/The voter will be excluded/);
 
     apiMock.expectInvalidateRegistration(registeredVoter);
@@ -602,7 +602,7 @@ describe('common functionality', () => {
     const confirmButton = within(modal).getByRole('button', {
       name: 'Delete Registration',
     });
-    userEvent.click(confirmButton);
+    await userEvent.click(confirmButton);
 
     await screen.findByRole('heading', { name: 'Registration Deleted' });
   });
@@ -625,7 +625,7 @@ describe('common functionality', () => {
     await renderComponent();
 
     const markInvalidButton = screen.getButton('Delete Registration');
-    userEvent.click(markInvalidButton);
+    await userEvent.click(markInvalidButton);
     await screen.findByText(/The voter will be excluded/);
 
     apiMock.expectInvalidateRegistrationError(
@@ -639,7 +639,7 @@ describe('common functionality', () => {
     const confirmButton = within(modal).getByRole('button', {
       name: 'Delete Registration',
     });
-    userEvent.click(confirmButton);
+    await userEvent.click(confirmButton);
 
     await screen.findByText('Error Deleting Registration');
     await screen.findByText(
@@ -792,10 +792,10 @@ describe('common functionality', () => {
     const updateMailingAddressButton = updateMailingAddressButtons[0]!;
     // Should be enabled if precinct is configured and matches voter
     expect(updateMailingAddressButton).not.toBeDisabled();
-    userEvent.click(updateMailingAddressButton);
+    await userEvent.click(updateMailingAddressButton);
 
-    userEvent.click(screen.getByText('Select state...'));
-    userEvent.keyboard('[Enter]');
+    await userEvent.click(screen.getByText('Select state...'));
+    await userEvent.keyboard('[Enter]');
 
     const addressParts: InputElementChangeSpec[] = [
       {
@@ -833,7 +833,7 @@ describe('common functionality', () => {
       // should be disabled until all required fields are filled
       expect(updateButton).toBeDisabled();
 
-      userEvent.type(partInput, part.newValue);
+      await userEvent.type(partInput, part.newValue);
     }
 
     const mailingData: VoterMailingAddressChangeRequest = {
@@ -863,11 +863,11 @@ describe('common functionality', () => {
       },
     };
     expect(updateButton).not.toBeDisabled();
-    userEvent.click(updateButton);
+    await userEvent.click(updateButton);
 
     apiMock.expectGetVoter(updatedVoter);
     await screen.findByText('Voter Mailing Address Updated');
-    userEvent.click(await screen.findButton('Return to Voter Details'));
+    await userEvent.click(await screen.findButton('Return to Voter Details'));
 
     await waitFor(() => {
       expect(screen.queryByText('Update Voter Mailing Address')).toBeNull();
@@ -908,10 +908,10 @@ describe('common functionality', () => {
     const updateMailingAddressButton = updateMailingAddressButtons[0]!;
     // Should be enabled if precinct is configured and matches voter
     expect(updateMailingAddressButton).not.toBeDisabled();
-    userEvent.click(updateMailingAddressButton);
+    await userEvent.click(updateMailingAddressButton);
 
-    userEvent.click(screen.getByText('Select state...'));
-    userEvent.keyboard('[Enter]');
+    await userEvent.click(screen.getByText('Select state...'));
+    await userEvent.keyboard('[Enter]');
 
     const addressParts: InputElementChangeSpec[] = [
       {
@@ -943,7 +943,7 @@ describe('common functionality', () => {
       const partInput = await screen.findByRole('textbox', {
         name: part.domElementText,
       });
-      userEvent.type(partInput, part.newValue);
+      await userEvent.type(partInput, part.newValue);
     }
 
     const mailingData: VoterMailingAddressChangeRequest = {
@@ -972,12 +972,12 @@ describe('common functionality', () => {
         timestamp: new Date().toISOString(),
       },
     };
-    const updateButton = screen.getButton('Confirm Mailing Address Update');
-    userEvent.click(updateButton);
-
     apiMock.expectGetVoter(updatedVoter);
+    const updateButton = screen.getButton('Confirm Mailing Address Update');
+    await userEvent.click(updateButton);
+
     await screen.findByText('Voter Mailing Address Updated');
-    userEvent.click(await screen.findButton('Return to Voter Details'));
+    await userEvent.click(await screen.findButton('Return to Voter Details'));
 
     await waitFor(() => {
       expect(screen.queryByText('Update Voter Mailing Address')).toBeNull();

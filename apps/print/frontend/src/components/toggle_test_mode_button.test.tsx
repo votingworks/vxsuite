@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { LanguageCode } from '@votingworks/types';
 import { render, screen } from '../../test/react_testing_library';
 import {
@@ -67,7 +67,7 @@ test('toggles to test mode without confirmation when nothing has been printed', 
   await vi.waitFor(() => expect(getOption('Test Ballot Mode')).toBeEnabled());
 
   apiMock.setTestMode.expectCallWith({ testMode: true }).resolves();
-  userEvent.click(getOption('Test Ballot Mode'));
+  await userEvent.click(getOption('Test Ballot Mode'));
 
   await vi.waitFor(() => apiMock.setTestMode.assertComplete());
 });
@@ -77,14 +77,14 @@ test('confirms before toggling when ballots have been printed', async () => {
   renderButton();
 
   await vi.waitFor(() => expect(getOption('Test Ballot Mode')).toBeEnabled());
-  userEvent.click(getOption('Test Ballot Mode'));
+  await userEvent.click(getOption('Test Ballot Mode'));
 
   await screen.findByText(
     'Switching to test ballot mode will reset all official ballot print counts to zero.'
   );
 
   apiMock.setTestMode.expectCallWith({ testMode: true }).resolves();
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('button', { name: 'Switch to Test Ballot Mode' })
   );
 
@@ -96,12 +96,12 @@ test('Cancel closes the confirmation without toggling', async () => {
   renderButton();
 
   await vi.waitFor(() => expect(getOption('Test Ballot Mode')).toBeEnabled());
-  userEvent.click(getOption('Test Ballot Mode'));
+  await userEvent.click(getOption('Test Ballot Mode'));
 
   const confirmPrompt =
     'Switching to test ballot mode will reset all official ballot print counts to zero.';
   await screen.findByText(confirmPrompt);
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
   expect(screen.queryByText(confirmPrompt)).not.toBeInTheDocument();
 });
@@ -117,5 +117,5 @@ test('disables the toggle and explains why when the election package has no test
 
   // Clicking the disabled option must not switch modes. The absence of an
   // expected setTestMode mutation is verified by assertComplete().
-  userEvent.click(testOption);
+  await userEvent.click(testOption);
 });

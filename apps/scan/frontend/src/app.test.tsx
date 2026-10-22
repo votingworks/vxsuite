@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import React from 'react';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { mockSystemAdministratorUser } from '@votingworks/test-utils';
 import {
   readElectionGeneralDefinition,
@@ -187,8 +187,8 @@ test('app can load and configure from a usb stick', async () => {
     .resolves();
   apiMock.expectGetConfig({ pollingPlaceId: electionGeneralPollingPlace!.id });
   apiMock.expectGetPollsInfo('polls_closed_initial');
-  userEvent.click(screen.getByLabelText(/select a polling place/i));
-  userEvent.click(screen.getByText(electionGeneralPollingPlace!.name));
+  await userEvent.click(screen.getByLabelText(/select a polling place/i));
+  await userEvent.click(screen.getByText(electionGeneralPollingPlace!.name));
   apiMock.removeCard();
 
   await screen.findByText('Polls Closed');
@@ -262,8 +262,8 @@ test('election manager must set polling place', async () => {
   apiMock.expectGetConfig(defaultConfig);
   apiMock.expectGetPollsInfo('polls_closed_initial');
 
-  userEvent.click(screen.getByLabelText(/select a polling place/i));
-  userEvent.click(screen.getByText(electionGeneralPollingPlace!.name));
+  await userEvent.click(screen.getByLabelText(/select a polling place/i));
+  await userEvent.click(screen.getByText(electionGeneralPollingPlace!.name));
   apiMock.removeCard();
 
   // Confirm precinct is set and correct
@@ -300,7 +300,7 @@ test('election manager and poll worker configuration', async () => {
   apiMock.expectGetConfig(config);
   apiMock.expectGetPollsInfo('polls_closed_initial');
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('option', {
       name: 'Official Ballot Mode',
       selected: false,
@@ -318,8 +318,8 @@ test('election manager and poll worker configuration', async () => {
   config = { ...config, pollingPlaceId: place2!.id };
   apiMock.expectGetConfig(config);
   apiMock.expectGetPollsInfo('polls_closed_initial');
-  userEvent.click(screen.getByLabelText(/select a polling place/i));
-  userEvent.click(screen.getByText(place2!.name));
+  await userEvent.click(screen.getByLabelText(/select a polling place/i));
+  await userEvent.click(screen.getByText(place2!.name));
   apiMock.removeCard();
 
   // Open the polls
@@ -329,7 +329,7 @@ test('election manager and poll worker configuration', async () => {
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionDefinition);
-  userEvent.click(await screen.findByText('Open Polls'));
+  await userEvent.click(await screen.findByText('Open Polls'));
   await screen.findByText(
     /Remove the poll worker card once you have printed all necessary reports/
   );
@@ -344,12 +344,12 @@ test('election manager and poll worker configuration', async () => {
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.authenticateAsElectionManager(electionDefinition);
   await screen.findByText('Election Manager Menu');
-  userEvent.click(screen.getByText('Change Polling Place'));
+  await userEvent.click(screen.getByText('Change Polling Place'));
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Change Polling Place' });
-  userEvent.click(screen.getByLabelText(/select a polling place/i));
-  userEvent.click(screen.getByText(place3!.name));
-  userEvent.click(within(modal).getButton('Confirm'));
+  await userEvent.click(screen.getByLabelText(/select a polling place/i));
+  await userEvent.click(screen.getByText(place3!.name));
+  await userEvent.click(within(modal).getButton('Confirm'));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
@@ -365,7 +365,7 @@ test('election manager and poll worker configuration', async () => {
   apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to open the polls?');
-  userEvent.click(await screen.findByText('Open Polls'));
+  await userEvent.click(await screen.findByText('Open Polls'));
 
   await screen.findByText(
     /Remove the poll worker card once you have printed all necessary reports/
@@ -381,8 +381,8 @@ test('election manager and poll worker configuration', async () => {
   await screen.findByText('Election Manager Menu');
   screen.getButton('Change Polling Place');
 
-  userEvent.click(await screen.findByText('Unconfigure Machine'));
-  userEvent.click(await screen.findByText('Cancel'));
+  await userEvent.click(await screen.findByText('Unconfigure Machine'));
+  await userEvent.click(await screen.findByText('Cancel'));
 
   // Actually unconfigure
   apiMock.mockApiClient.unconfigureElection.expectCallWith().resolves();
@@ -391,8 +391,8 @@ test('election manager and poll worker configuration', async () => {
   apiMock.expectGetPollsInfo();
   apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
   apiMock.expectGetUsbDriveStatus('ejected');
-  userEvent.click(await screen.findByText('Unconfigure Machine'));
-  userEvent.click(await screen.findByText('Delete All Election Data'));
+  await userEvent.click(await screen.findByText('Unconfigure Machine'));
+  await userEvent.click(await screen.findByText('Delete All Election Data'));
   await screen.findByText('Insert a USB drive containing an election package');
 });
 
@@ -460,10 +460,11 @@ test('voter can cast a ballot that scans successfully', async () => {
 
   // Close Polls
   apiMock.expectClosePolls();
-  apiMock.expectPrintReportSection(0).resolve();
+  const printReportSection = apiMock.expectPrintReportSection(0);
   apiMock.expectGetPollsInfo('polls_closed_final');
-  userEvent.click(await screen.findByText('Close Polls'));
+  await userEvent.click(await screen.findByText('Close Polls'));
   await screen.findByText('Closing Polls…');
+  printReportSection.resolve();
   await screen.findByText('Polls Closed');
 
   // Simulate unmounted usb drive
@@ -478,11 +479,11 @@ test('voter can cast a ballot that scans successfully', async () => {
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
   await screen.findByText('Election Manager Menu');
 
-  userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
+  await userEvent.click(screen.getByRole('tab', { name: 'CVRs and Logs' }));
 
-  userEvent.click(await screen.findByText('Save CVRs'));
+  await userEvent.click(await screen.findByText('Save CVRs'));
   await screen.findByText('No USB Drive Detected');
-  userEvent.click(await screen.findByText('Cancel'));
+  await userEvent.click(await screen.findByText('Cancel'));
   expect(screen.queryByText('No USB Drive Detected')).toBeNull();
 
   // Insert Usb Drive
@@ -490,16 +491,16 @@ test('voter can cast a ballot that scans successfully', async () => {
   await waitFor(() => {
     expect(screen.getButton('Save CVRs')).toBeEnabled();
   });
-  userEvent.click(await screen.findButton('Save CVRs'));
+  await userEvent.click(await screen.findButton('Save CVRs'));
   await screen.findByRole('heading', { name: 'Save CVRs' });
 
   apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'full_export' });
-  userEvent.click(await screen.findByText('Save'));
+  await userEvent.click(await screen.findByText('Save'));
   await screen.findByText('CVRs Saved');
 
   apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
   apiMock.expectGetUsbDriveStatus('ejected');
-  userEvent.click(await screen.findByText('Eject USB'));
+  await userEvent.click(await screen.findByText('Eject USB'));
   await waitFor(() => {
     expect(screen.queryByText('Eject USB')).toBeNull();
   });
@@ -581,7 +582,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   );
   apiMock.expectPlaySound('success');
   apiMock.mockApiClient.readyForNextBallot.expectCallWith().resolves();
-  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cast Ballot' }));
   await screen.findByText('Your ballot was counted!');
 
   vi.advanceTimersByTime(DELAY_ACCEPTED_SCREEN_MS);
@@ -676,7 +677,7 @@ test('scanning is not triggered when polls closed or cards present', async () =>
   apiMock.expectOpenPolls();
   apiMock.expectPrintReportSection(0).resolve();
   apiMock.expectGetPollsInfo('polls_open');
-  userEvent.click(screen.getByText('Open Polls'));
+  await userEvent.click(screen.getByText('Open Polls'));
   await screen.findByText('Polls Opened');
 
   // Once we remove the poll worker card, scanning should start
@@ -702,13 +703,14 @@ test('poll worker can open and close polls without scanning any ballots', async 
   apiMock.expectOpenPolls();
   apiMock.expectPrintReportSection(0).resolve();
   apiMock.expectGetPollsInfo('polls_open');
-  userEvent.click(screen.getByRole('button', { name: 'Open Polls' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Open Polls' }));
   await screen.findByText('Polls Opened');
-  apiMock.expectPrintReportSection(0).resolve();
-  userEvent.click(
+  const printReportSection = apiMock.expectPrintReportSection(0);
+  await userEvent.click(
     screen.getByRole('button', { name: 'Reprint Polls Opened Report' })
   );
   await screen.findByText('Printing Report…');
+  printReportSection.resolve();
   await screen.findByText('Polls Opened');
   screen.getByRole('button', { name: 'Reprint Polls Opened Report' });
   screen.getByText('Remove the poll worker card', { exact: false });
@@ -722,13 +724,14 @@ test('poll worker can open and close polls without scanning any ballots', async 
   apiMock.expectClosePolls();
   apiMock.expectPrintReportSection(0).resolve();
   apiMock.expectGetPollsInfo('polls_closed_final');
-  userEvent.click(screen.getByRole('button', { name: 'Close Polls' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Close Polls' }));
   await screen.findByText('Polls Closed');
-  apiMock.expectPrintReportSection(0).resolve();
-  userEvent.click(
+  const printReportSection2 = apiMock.expectPrintReportSection(0);
+  await userEvent.click(
     screen.getByRole('button', { name: 'Reprint Polls Closed Report' })
   );
   await screen.findByText('Printing Report…');
+  printReportSection2.resolve();
   await screen.findByText('Polls Closed');
   screen.getByRole('button', { name: 'Reprint Polls Closed Report' });
   screen.getByText('Remove the poll worker card', { exact: false });
@@ -755,7 +758,7 @@ test('open polls, scan ballot, close polls, save results', async () => {
   apiMock.expectOpenPolls();
   apiMock.expectPrintReportSection(0).resolve();
   apiMock.expectGetPollsInfo('polls_open');
-  userEvent.click(await screen.findByText('Open Polls'));
+  await userEvent.click(await screen.findByText('Open Polls'));
   await screen.findByText(
     /Remove the poll worker card once you have printed all necessary reports/
   );
@@ -769,10 +772,11 @@ test('open polls, scan ballot, close polls, save results', async () => {
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectClosePolls();
-  apiMock.expectPrintReportSection(0).resolve();
+  const printReportSection = apiMock.expectPrintReportSection(0);
   apiMock.expectGetPollsInfo('polls_closed_final');
-  userEvent.click(await screen.findByText('Close Polls'));
+  await userEvent.click(await screen.findByText('Close Polls'));
   await screen.findByText('Closing Polls…');
+  printReportSection.resolve();
   await screen.findByText('Polls Closed');
   await screen.findByText(
     /Remove the poll worker card once you have printed all necessary reports/
@@ -798,7 +802,7 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   apiMock.expectOpenPolls();
   apiMock.expectPrintReportSection(0).resolve();
   apiMock.expectGetPollsInfo('polls_open');
-  userEvent.click(await screen.findByText('Open Polls'));
+  await userEvent.click(await screen.findByText('Open Polls'));
   await screen.findByText(
     /Remove the poll worker card once you have printed all necessary reports/
   );
@@ -809,12 +813,13 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   apiMock.expectGetQuickResultsReportingUrl();
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to close the polls?');
-  userEvent.click(await screen.findByText('Menu'));
+  await userEvent.click(await screen.findByText('Menu'));
   apiMock.expectPauseVoting();
-  apiMock.expectPrintReportSection(0).resolve();
+  const printReportSection = apiMock.expectPrintReportSection(0);
   apiMock.expectGetPollsInfo('polls_paused');
-  userEvent.click(await screen.findByText('Pause Voting'));
+  await userEvent.click(await screen.findByText('Pause Voting'));
   await screen.findByText('Pausing Voting…');
+  printReportSection.resolve();
   await screen.findByText(
     /Remove the poll worker card once you have printed all necessary reports/
   );
@@ -826,10 +831,11 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to resume voting?');
   apiMock.expectResumeVoting();
-  apiMock.expectPrintReportSection(0).resolve();
+  const printReportSection2 = apiMock.expectPrintReportSection(0);
   apiMock.expectGetPollsInfo('polls_open', { type: 'resume_voting' });
-  userEvent.click(await screen.findByText('Resume Voting'));
+  await userEvent.click(await screen.findByText('Resume Voting'));
   await screen.findByText('Resuming Voting…');
+  printReportSection2.resolve();
   await screen.findByText(
     /Remove the poll worker card once you have printed all necessary reports/
   );
@@ -841,10 +847,11 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectClosePolls();
-  apiMock.expectPrintReportSection(0).resolve();
+  const printReportSection3 = apiMock.expectPrintReportSection(0);
   apiMock.expectGetPollsInfo('polls_closed_final');
-  userEvent.click(await screen.findByText('Close Polls'));
+  await userEvent.click(await screen.findByText('Close Polls'));
   await screen.findByText('Closing Polls…');
+  printReportSection3.resolve();
   await screen.findByText(
     /Remove the poll worker card once you have printed all necessary reports/
   );
@@ -876,7 +883,7 @@ test('ballot mode banner consistently displayed in voter screens', async () => {
   apiMock.expectOpenPolls();
   apiMock.expectPrintReportSection(0).resolve();
   apiMock.expectGetPollsInfo('polls_open');
-  userEvent.click(await screen.findByText('Open Polls'));
+  await userEvent.click(await screen.findByText('Open Polls'));
   await screen.findByText('Polls Opened');
   apiMock.removeCard();
 
@@ -913,10 +920,11 @@ test('ballot mode banner consistently displayed in voter screens', async () => {
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectClosePolls();
-  apiMock.expectPrintReportSection(0).resolve();
+  const printReportSection = apiMock.expectPrintReportSection(0);
   apiMock.expectGetPollsInfo('polls_closed_final');
-  userEvent.click(await screen.findByText('Close Polls'));
+  await userEvent.click(await screen.findByText('Close Polls'));
   await screen.findByText('Closing Polls…');
+  printReportSection.resolve();
   await screen.findByText('Polls Closed');
   apiMock.removeCard();
 
@@ -946,9 +954,9 @@ test('system administrator can log in and unconfigure machine', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetConfig({ electionDefinition: undefined });
   apiMock.expectGetPollsInfo();
-  userEvent.click(unconfigureMachineButton);
+  await userEvent.click(unconfigureMachineButton);
   const modal = await screen.findByRole('alertdialog');
-  userEvent.click(
+  await userEvent.click(
     within(modal).getByRole('button', {
       name: 'Delete All Election Data',
     })
@@ -1011,13 +1019,13 @@ test('system administrator can reset polls to paused', async () => {
 
   apiMock.authenticateAsSystemAdministrator();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Reset Polls to Paused' })
   );
   const modal = await screen.findByRole('alertdialog');
   apiMock.expectResetPollsToPaused();
   apiMock.expectGetPollsInfo('polls_paused');
-  userEvent.click(
+  await userEvent.click(
     await within(modal).findByRole('button', { name: 'Reset Polls to Paused' })
   );
   await waitFor(() =>
@@ -1056,7 +1064,7 @@ test('system administrator open diagnostics screen', async () => {
 
   apiMock.authenticateAsSystemAdministrator();
 
-  userEvent.click(await screen.findButton('Diagnostics'));
+  await userEvent.click(await screen.findButton('Diagnostics'));
 });
 
 test('election manager cannot auth onto machine with different election', async () => {
@@ -1097,12 +1105,12 @@ test('requires CVR sync if necessary', async () => {
   );
 
   apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'recovery_export' });
-  userEvent.click(screen.getByRole('button', { name: 'Sync CVRs' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Sync CVRs' }));
   const modal = await screen.findByRole('alertdialog');
   await within(modal).findByText('CVR Sync Complete');
   apiMock.expectGetUsbDriveStatus('mounted');
 
-  userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
+  await userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
@@ -1136,10 +1144,12 @@ test('double feed detection calibration success', async () => {
   renderApp();
 
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
-  userEvent.click(await screen.findByRole('tab', { name: 'Scanner' }));
+  await userEvent.click(await screen.findByRole('tab', { name: 'Scanner' }));
 
   apiMock.mockApiClient.beginDoubleFeedCalibration.expectCallWith().resolves();
-  userEvent.click(await screen.findButton('Calibrate Double Sheet Detection'));
+  await userEvent.click(
+    await screen.findButton('Calibrate Double Sheet Detection')
+  );
 
   apiMock.expectGetScannerStatus({
     state: 'calibrating_double_feed_detection.double_sheet',
@@ -1169,7 +1179,7 @@ test('double feed detection calibration success', async () => {
   await screen.findByText('Calibration Complete');
 
   apiMock.mockApiClient.endDoubleFeedCalibration.expectCallWith().resolves();
-  userEvent.click(await screen.findByRole('button', { name: 'Close' }));
+  await userEvent.click(await screen.findByRole('button', { name: 'Close' }));
 
   apiMock.expectGetScannerStatus({
     state: 'paused',
@@ -1188,10 +1198,12 @@ test('double feed detection calibration failure', async () => {
   renderApp();
 
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
-  userEvent.click(await screen.findByRole('tab', { name: 'Scanner' }));
+  await userEvent.click(await screen.findByRole('tab', { name: 'Scanner' }));
 
   apiMock.mockApiClient.beginDoubleFeedCalibration.expectCallWith().resolves();
-  userEvent.click(await screen.findButton('Calibrate Double Sheet Detection'));
+  await userEvent.click(
+    await screen.findButton('Calibrate Double Sheet Detection')
+  );
 
   apiMock.expectGetScannerStatus({
     state: 'calibrating_double_feed_detection.double_sheet',
@@ -1220,7 +1232,7 @@ test('double feed detection calibration failure', async () => {
   await screen.findByText('Calibration Failed');
 
   apiMock.mockApiClient.endDoubleFeedCalibration.expectCallWith().resolves();
-  userEvent.click(await screen.findByRole('button', { name: 'Close' }));
+  await userEvent.click(await screen.findByRole('button', { name: 'Close' }));
 
   apiMock.expectGetScannerStatus({
     state: 'paused',
@@ -1242,7 +1254,7 @@ test('image sensor calibration success', async () => {
   apiMock.authenticateAsSystemAdministrator();
 
   apiMock.mockApiClient.beginImageSensorCalibration.expectCallWith().resolves();
-  userEvent.click(await screen.findButton('Calibrate Image Sensors'));
+  await userEvent.click(await screen.findButton('Calibrate Image Sensors'));
 
   apiMock.expectGetScannerStatus({
     state: 'calibrating_image_sensors.calibrating',
@@ -1265,7 +1277,7 @@ test('image sensor calibration success', async () => {
   await screen.findByText('Calibration Complete');
 
   apiMock.mockApiClient.endImageSensorCalibration.expectCallWith().resolves();
-  userEvent.click(await screen.findByRole('button', { name: 'Close' }));
+  await userEvent.click(await screen.findByRole('button', { name: 'Close' }));
 
   apiMock.expectGetScannerStatus({
     state: 'paused',
@@ -1287,7 +1299,7 @@ test('image sensor calibration failure', async () => {
   apiMock.authenticateAsSystemAdministrator();
 
   apiMock.mockApiClient.beginImageSensorCalibration.expectCallWith().resolves();
-  userEvent.click(await screen.findButton('Calibrate Image Sensors'));
+  await userEvent.click(await screen.findButton('Calibrate Image Sensors'));
 
   apiMock.expectGetScannerStatus({
     state: 'calibrating_image_sensors.calibrating',
@@ -1316,7 +1328,7 @@ test('image sensor calibration failure', async () => {
   await screen.findByText('Calibration Failed');
 
   apiMock.mockApiClient.endImageSensorCalibration.expectCallWith().resolves();
-  userEvent.click(await screen.findByRole('button', { name: 'Close' }));
+  await userEvent.click(await screen.findByRole('button', { name: 'Close' }));
 
   apiMock.expectGetScannerStatus({
     state: 'paused',
@@ -1415,12 +1427,12 @@ test('audio-only mode', async () => {
   renderApp();
   await screen.findByText(/Insert Your Ballot/i);
 
-  userEvent.click(screen.getByRole('button', { name: 'Settings' }));
-  userEvent.click(await screen.findByRole('tab', { name: 'Audio' }));
-  userEvent.click(
+  await userEvent.click(screen.getByRole('button', { name: 'Settings' }));
+  await userEvent.click(await screen.findByRole('tab', { name: 'Audio' }));
+  await userEvent.click(
     await screen.findByRole('button', { name: /Enable Audio-Only Mode/ })
   );
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', {
       name: /Exit Audio-Only Mode/,
       hidden: true, // Exit button is excluded from the screen reader targets
@@ -1604,7 +1616,7 @@ test('PAT device tutorial is shown when PAT key is pressed and can be completed'
   await screen.findByText('Insert Your Ballot');
 
   // Press PAT key '1' (PAT_MOVE) to trigger PAT tutorial
-  userEvent.keyboard('1');
+  await userEvent.keyboard('1');
   expect(setShowingPatCalibrationMock).toHaveBeenCalledWith(true);
 });
 
@@ -1653,7 +1665,7 @@ test('PAT device tutorial is not triggered when calibration is already complete'
   await screen.findByText('Insert Your Ballot');
 
   // Press PAT key - should NOT trigger tutorial since calibration is already complete
-  userEvent.keyboard('1');
+  await userEvent.keyboard('1');
   expect(setShowingPatCalibrationMock).not.toHaveBeenCalled();
 });
 
@@ -1668,9 +1680,9 @@ test('voter help button', async () => {
   const voterHelpScreenHeading = 'Voter Instructions';
   await screen.findByText('Insert Your Ballot');
   expect(screen.queryAllByRole('button')).toHaveLength(2);
-  userEvent.click(screen.getByRole('button', { name: 'Help' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Help' }));
   await screen.findByRole('heading', { name: voterHelpScreenHeading });
-  userEvent.click(screen.getByRole('button', { name: 'Close' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Close' }));
   expect(
     screen.queryByRole('heading', { name: voterHelpScreenHeading })
   ).not.toBeInTheDocument();
@@ -1725,7 +1737,7 @@ test.each([
     renderApp();
 
     await screen.findByText('Insert Your Ballot');
-    userEvent.click(screen.getButton('Settings'));
+    await userEvent.click(screen.getButton('Settings'));
     await screen.findByRole('tab', { name: 'Color' });
 
     if (isAudioTabPresent) {
@@ -1758,7 +1770,7 @@ test('keyboard nav enabled for voter settings', async () => {
   renderApp();
   await screen.findByText('Insert Your Ballot');
 
-  userEvent.click(screen.getButton('Settings'));
+  await userEvent.click(screen.getButton('Settings'));
   await act(() => fireEvent.keyDown(document, { key: Keybinding.PAT_MOVE }));
   expect(screen.getByRole('tab', { name: 'Color' })).toHaveFocus();
 

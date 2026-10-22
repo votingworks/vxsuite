@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { CheckboxGroup } from './checkbox_group.js';
 import { render, screen, within } from '../test/react_testing_library.js';
 import { Icons } from './icons.js';
@@ -18,7 +18,7 @@ test('renders a message when there are no options', () => {
   screen.getByText('No options available.');
 });
 
-test('renders and selects/unselects options', () => {
+test('renders and selects/unselects options', async () => {
   const onChange = vi.fn();
 
   render(
@@ -48,7 +48,7 @@ test('renders and selects/unselects options', () => {
   });
   withinGroup.getByRole('checkbox', { name: 'Two of Spades', checked: false });
 
-  userEvent.click(
+  await userEvent.click(
     withinGroup.getByRole('checkbox', { name: 'Four of Hearts' })
   );
   expect(onChange).toHaveBeenLastCalledWith([
@@ -57,11 +57,13 @@ test('renders and selects/unselects options', () => {
     'hearts-4',
   ]);
 
-  userEvent.click(withinGroup.getByRole('checkbox', { name: 'Six of Clubs' }));
+  await userEvent.click(
+    withinGroup.getByRole('checkbox', { name: 'Six of Clubs' })
+  );
   expect(onChange).toHaveBeenLastCalledWith(['diamonds-jack']);
 });
 
-test('disabled', () => {
+test('disabled', async () => {
   const onChange = vi.fn();
 
   render(
@@ -78,7 +80,7 @@ test('disabled', () => {
   );
 
   const option = screen.getByRole('checkbox', { name: 'Six of Clubs' });
-  userEvent.click(option);
+  await userEvent.click(option);
 
   expect(onChange).not.toHaveBeenCalled();
 });

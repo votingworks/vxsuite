@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   mockElectionManagerUser,
   hasTextAcrossElements,
@@ -92,12 +92,12 @@ test('MarkAndPrint end-to-end flow', async () => {
   });
   await screen.findByText('Enter Card PIN');
   apiMock.mockApiClient.checkPin.expectCallWith({ pin: '111111' }).resolves();
-  userEvent.click(screen.getByText('1'));
-  userEvent.click(screen.getByText('1'));
-  userEvent.click(screen.getByText('1'));
-  userEvent.click(screen.getByText('1'));
-  userEvent.click(screen.getByText('1'));
-  userEvent.click(screen.getByText('1'));
+  await userEvent.click(screen.getByText('1'));
+  await userEvent.click(screen.getByText('1'));
+  await userEvent.click(screen.getByText('1'));
+  await userEvent.click(screen.getByText('1'));
+  await userEvent.click(screen.getByText('1'));
+  await userEvent.click(screen.getByText('1'));
   apiMock.setAuthStatus({
     status: 'checking_pin',
     user: mockElectionManagerUser({ electionKey }),
@@ -107,12 +107,12 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Enter correct PIN
   apiMock.mockApiClient.checkPin.expectCallWith({ pin: '123456' }).resolves();
-  userEvent.click(screen.getByText('1'));
-  userEvent.click(screen.getByText('2'));
-  userEvent.click(screen.getByText('3'));
-  userEvent.click(screen.getByText('4'));
-  userEvent.click(screen.getByText('5'));
-  userEvent.click(screen.getByText('6'));
+  await userEvent.click(screen.getByText('1'));
+  await userEvent.click(screen.getByText('2'));
+  await userEvent.click(screen.getByText('3'));
+  await userEvent.click(screen.getByText('4'));
+  await userEvent.click(screen.getByText('5'));
+  await userEvent.click(screen.getByText('6'));
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
   apiMock.expectGetUsbPortStatus();
 
@@ -143,8 +143,8 @@ test('MarkAndPrint end-to-end flow', async () => {
     .resolves();
   apiMock.expectGetElectionState({ pollingPlaceId: pollingPlace!.id });
 
-  userEvent.click(screen.getByText(/select a polling place/i));
-  userEvent.click(screen.getByText(pollingPlace!.name));
+  await userEvent.click(screen.getByText(/select a polling place/i));
+  await userEvent.click(screen.getByText(pollingPlace!.name));
 
   await waitFor(apiMock.mockApiClient.assertComplete);
   await within(screen.getByTestId('electionInfoBar')).findByText(
@@ -156,7 +156,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectGetElectionState({
     isTestMode: false,
   });
-  userEvent.click(
+  await userEvent.click(
     screen.getByRole('option', {
       name: 'Official Ballot Mode',
       selected: false,
@@ -193,15 +193,14 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   apiMock.expectSetPollsState('polls_open');
   apiMock.expectGetElectionState({ pollsState: 'polls_open' });
-  userEvent.click(await screen.findByText('Open Polls'));
-  userEvent.click(
+  await userEvent.click(await screen.findByText('Open Polls'));
+  await userEvent.click(
     within(await screen.findByRole('alertdialog')).getButton('Open Polls')
   );
   await screen.findButton('Close Polls');
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();
-  await screen.findByText('Insert Card');
 
   // ---------------
 
@@ -220,7 +219,7 @@ test('MarkAndPrint end-to-end flow', async () => {
     .expectCallWith({ ballotStyleId, precinctId: precinctId! })
     .resolves();
 
-  userEvent.click(await screen.findButton(precinct.name));
+  await userEvent.click(await screen.findButton(precinct.name));
   await waitFor(apiMock.mockApiClient.assertComplete);
 
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
@@ -235,7 +234,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   screen.getByText(precinct.name, { exact: false });
 
   // Start Voting
-  userEvent.click(screen.getByText('Start Voting'));
+  await userEvent.click(screen.getByText('Start Voting'));
 
   // Advance through every contest
   for (let i = 0; i < voterContests.length; i += 1) {
@@ -245,17 +244,19 @@ test('MarkAndPrint end-to-end flow', async () => {
 
     // Vote for candidate contest
     if (title === presidentContest.title) {
-      userEvent.click(screen.getByText(presidentContest.candidates[0]!.name));
+      await userEvent.click(
+        screen.getByText(presidentContest.candidates[0]!.name)
+      );
     }
 
     // Vote for yesno contest
     else if (title === measure102Contest.title) {
-      userEvent.click(
+      await userEvent.click(
         within(screen.getByTestId('contest-choices')).getByText('Yes')
       );
     }
 
-    userEvent.click(screen.getByText('Next'));
+    await userEvent.click(screen.getByText('Next'));
   }
 
   // Review Screen
@@ -269,7 +270,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   ).getByText('Yes');
 
   // Change "County Commissioners" Contest
-  userEvent.click(
+  await userEvent.click(
     getByTextWithMarkup(
       `${getContestDistrictName(
         electionDefinition.election,
@@ -282,15 +283,15 @@ test('MarkAndPrint end-to-end flow', async () => {
   );
 
   // Select first candidate
-  userEvent.click(
+  await userEvent.click(
     screen.getByText(countyCommissionersContest.candidates[0]!.name)
   );
-  userEvent.click(
+  await userEvent.click(
     screen.getByText(countyCommissionersContest.candidates[1]!.name)
   );
 
   // Back to Review screen
-  userEvent.click(screen.getByText('Review'));
+  await userEvent.click(screen.getByText('Review'));
   await screen.findByText('Review Your Votes');
   screen.getByText(countyCommissionersContest.candidates[0]!.name);
   screen.getByText(countyCommissionersContest.candidates[1]!.name);
@@ -308,24 +309,27 @@ test('MarkAndPrint end-to-end flow', async () => {
     },
   });
   apiMock.expectGetElectionState({ ballotsPrintedCount: 1 });
-  userEvent.click(screen.getByText(/Print My ballot/i));
-  screen.getByText(/Printing Your Ballot/i);
+  apiMock.setPrintJobStatus({ outcome: 'in-progress' });
+  await userEvent.click(screen.getByText(/Print My ballot/i));
+  await screen.findByText(/Printing Your Ballot/i);
+  apiMock.setPrintJobStatus({ outcome: 'sent-to-printer' });
 
   // The session ends once the job reaches the printer
   await screen.findByText('You’re Almost Done');
   apiMock.mockApiClient.endCardlessVoterSession.expectCallWith().resolves();
-  userEvent.click(screen.getByText('Done'));
+  await userEvent.click(screen.getByText('Done'));
   apiMock.setAuthStatusLoggedOut();
+  await screen.findByText('Insert Card');
 
   // ---------------
 
   // Close polls with poll worker card
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
+  await userEvent.click(await screen.findByText('Close Polls'));
+  const closeModal = await screen.findByRole('alertdialog');
   apiMock.expectSetPollsState('polls_closed_final');
   apiMock.expectGetElectionState({ pollsState: 'polls_closed_final' });
-  userEvent.click(await screen.findByText('Close Polls'));
-  const closeModal = await screen.findByRole('alertdialog');
-  userEvent.click(within(closeModal).getButton('Close Polls'));
+  await userEvent.click(within(closeModal).getButton('Close Polls'));
 
   // Remove card
   apiMock.setAuthStatusLoggedOut();
@@ -348,8 +352,8 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
-  userEvent.click(screen.getByText('Unconfigure Machine'));
-  userEvent.click(screen.getButton('Delete All Election Data'));
+  await userEvent.click(screen.getByText('Unconfigure Machine'));
+  await userEvent.click(screen.getButton('Delete All Election Data'));
 
   // Default Unconfigured
   apiMock.setAuthStatusLoggedOut();
@@ -380,9 +384,9 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
-  userEvent.click(await screen.findByText('Unconfigure Machine'));
+  await userEvent.click(await screen.findByText('Unconfigure Machine'));
   const modal = await screen.findByRole('alertdialog');
-  userEvent.click(
+  await userEvent.click(
     within(modal).getByRole('button', {
       name: 'Delete All Election Data',
     })

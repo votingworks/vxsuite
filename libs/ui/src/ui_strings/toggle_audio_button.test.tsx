@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { userEvent } from '../user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { screen } from '../../test/react_testing_library.js';
 import { ToggleAudioButton } from './toggle_audio_button.js';
 import { newTestContext } from '../../test/test_context.js';
@@ -19,12 +19,12 @@ test('status text corresponds to audio state', async () => {
   await screen.findAllByText('Audio is on');
   expect(getAudioContext()!.isEnabled).toEqual(true);
 
-  userEvent.click(screen.getButton(/mute audio/i));
+  await userEvent.click(screen.getButton(/mute audio/i));
 
   await screen.findAllByText('Audio is muted');
   expect(getAudioContext()!.isEnabled).toEqual(false);
 
-  userEvent.click(screen.getButton(/unmute audio/i));
+  await userEvent.click(screen.getButton(/unmute audio/i));
 
   await screen.findAllByText('Audio is on');
   expect(getAudioContext()!.isEnabled).toEqual(true);

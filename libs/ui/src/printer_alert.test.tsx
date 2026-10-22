@@ -4,8 +4,8 @@ import type {
   PrinterConfig,
   PrinterStatus,
 } from '@votingworks/types';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library.js';
-import { userEvent } from './user_event.js';
 import { PrinterAlert } from './printer_alert.js';
 
 const MOCK_PRINTER_CONFIG: PrinterConfig = {
@@ -93,11 +93,11 @@ test('shows the highest priority reason when the printer is stopped', () => {
   screen.getByText(NO_PAPER_MESSAGE);
 });
 
-test('stays dismissed while polling returns new objects with the same reason', () => {
+test('stays dismissed while polling returns new objects with the same reason', async () => {
   const { rerender } = render(
     <PrinterAlert printerStatus={printerStatus(['media-empty-error'])} />
   );
-  userEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
   expect(queryAlert()).toBeNull();
 
   rerender(
@@ -106,11 +106,11 @@ test('stays dismissed while polling returns new objects with the same reason', (
   expect(queryAlert()).toBeNull();
 });
 
-test('shows again when the reason changes after dismissal', () => {
+test('shows again when the reason changes after dismissal', async () => {
   const { rerender } = render(
     <PrinterAlert printerStatus={printerStatus(['media-empty-error'])} />
   );
-  userEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
 
   rerender(
     <PrinterAlert printerStatus={printerStatus(['cover-open-error'])} />
@@ -123,13 +123,13 @@ test('shows a non-blocking reason when the printer is stopped', () => {
   screen.getByText('The printer is paused. Restart the printer.');
 });
 
-test('stays dismissed when a blocking reason escalates from report to error', () => {
+test('stays dismissed when a blocking reason escalates from report to error', async () => {
   const { rerender } = render(
     <PrinterAlert
       printerStatus={printerStatus(['media-empty-report'], 'idle')}
     />
   );
-  userEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
 
   rerender(
     <PrinterAlert printerStatus={printerStatus(['media-empty-error'])} />
@@ -137,11 +137,11 @@ test('stays dismissed when a blocking reason escalates from report to error', ()
   expect(queryAlert()).toBeNull();
 });
 
-test('shows the same reason again after the printer recovers', () => {
+test('shows the same reason again after the printer recovers', async () => {
   const { rerender } = render(
     <PrinterAlert printerStatus={printerStatus(['media-empty-error'])} />
   );
-  userEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
 
   rerender(<PrinterAlert printerStatus={printerStatus([], 'idle')} />);
   expect(queryAlert()).toBeNull();

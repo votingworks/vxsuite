@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { createMemoryHistory } from 'history';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   type ElectionId,
@@ -104,33 +104,33 @@ test('adding a parties to empty list', async () => {
   );
   expect(screen.getButton('Edit Parties')).toBeDisabled();
 
-  userEvent.click(screen.getByRole('button', { name: 'Add Party' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Add Party' }));
   await screen.findButton('Save');
   expect(history.location.pathname).toEqual(partyRoutes.edit.path);
 
   // Add first party:
   {
     const inputs = getInputsByRow(0);
-    userEvent.type(inputs[0]!, newParty1.fullName);
-    userEvent.type(inputs[1]!, newParty1.name);
-    userEvent.type(inputs[2]!, newParty1.abbrev);
+    await userEvent.type(inputs[0]!, newParty1.fullName);
+    await userEvent.type(inputs[1]!, newParty1.name);
+    await userEvent.type(inputs[2]!, newParty1.abbrev);
   }
 
   // Add second party:
-  userEvent.click(screen.getButton('Add Party'));
+  await userEvent.click(screen.getButton('Add Party'));
   {
     const inputs = getInputsByRow(1);
-    userEvent.type(inputs[0]!, newParty2.fullName);
-    userEvent.type(inputs[1]!, newParty2.name);
-    userEvent.type(inputs[2]!, newParty2.abbrev);
+    await userEvent.type(inputs[0]!, newParty2.fullName);
+    await userEvent.type(inputs[1]!, newParty2.name);
+    await userEvent.type(inputs[2]!, newParty2.abbrev);
   }
 
   // Add and delete third party:
-  userEvent.click(screen.getButton('Add Party'));
+  await userEvent.click(screen.getButton('Add Party'));
   {
     const inputs = getInputsByRow(2);
-    userEvent.type(inputs[0]!, 'Temporary Party');
-    userEvent.click(screen.getButton('Delete Party Temporary Party'));
+    await userEvent.type(inputs[0]!, 'Temporary Party');
+    await userEvent.click(screen.getButton('Delete Party Temporary Party'));
   }
 
   const newParties = [newParty1, newParty2];
@@ -140,7 +140,7 @@ test('adding a parties to empty list', async () => {
   expectUpdate(apiMock, { electionId, newParties }).resolves(ok());
   apiMock.listParties.expectCallWith({ electionId }).resolves(newParties);
 
-  userEvent.click(screen.getButton('Save'));
+  await userEvent.click(screen.getButton('Save'));
 
   await screen.findButton('Edit Parties');
   expectPartyInputs(newParties);
@@ -176,28 +176,30 @@ test('editing existing party list', async () => {
   await screen.findButton('Edit Parties');
   expectPartyInputs(savedParties);
 
-  userEvent.click(screen.getButton('Edit Parties'));
+  await userEvent.click(screen.getButton('Edit Parties'));
   expect(screen.queryButton('Edit Parties')).not.toBeInTheDocument();
 
   // Delete second saved party:
-  userEvent.click(screen.getButton(`Delete Party ${deletedParty.fullName}`));
+  await userEvent.click(
+    screen.getButton(`Delete Party ${deletedParty.fullName}`)
+  );
   expectPartyInputs([savedParties[0]!, savedParties[2]!]);
 
   // Update third saved party (now at row index 1):
   {
     const inputs = getInputsByRow(1);
-    userEvent.type(inputs[0]!, ' (edit)');
-    userEvent.type(inputs[1]!, ' (edit)');
-    userEvent.type(inputs[2]!, ' (edit)');
+    await userEvent.type(inputs[0]!, ' (edit)');
+    await userEvent.type(inputs[1]!, ' (edit)');
+    await userEvent.type(inputs[2]!, ' (edit)');
   }
 
   // Add new party:
-  userEvent.click(screen.getButton('Add Party'));
+  await userEvent.click(screen.getButton('Add Party'));
   {
     const inputs = getInputsByRow(2);
-    userEvent.type(inputs[0]!, newParty.fullName);
-    userEvent.type(inputs[1]!, newParty.name);
-    userEvent.type(inputs[2]!, newParty.abbrev);
+    await userEvent.type(inputs[0]!, newParty.fullName);
+    await userEvent.type(inputs[1]!, newParty.name);
+    await userEvent.type(inputs[2]!, newParty.abbrev);
   }
 
   const updatedList = [preservedParty, updatedParty, newParty];
@@ -212,7 +214,7 @@ test('editing existing party list', async () => {
 
   apiMock.listParties.expectCallWith({ electionId }).resolves(updatedList);
 
-  userEvent.click(screen.getButton('Save'));
+  await userEvent.click(screen.getButton('Save'));
   await screen.findButton('Edit Parties');
   expectPartyInputs(updatedList);
 });
@@ -267,22 +269,22 @@ test('cancelling', async () => {
 
   const history = renderScreen(electionId);
 
-  userEvent.click(await screen.findButton('Edit Parties'));
+  await userEvent.click(await screen.findButton('Edit Parties'));
   expectPartyInputs(savedParties);
 
-  userEvent.click(
+  await userEvent.click(
     screen.getButton(`Delete Party ${savedParties[1]!.fullName}`)
   );
-  userEvent.type(getInputsByRow(1)[0]!, ' (edit)');
-  userEvent.click(screen.getButton('Add Party'));
+  await userEvent.type(getInputsByRow(1)[0]!, ' (edit)');
+  await userEvent.click(screen.getButton('Add Party'));
   {
     const inputs = getInputsByRow(2);
-    userEvent.type(inputs[0]!, 'new party');
-    userEvent.type(inputs[1]!, 'new');
-    userEvent.type(inputs[2]!, 'n');
+    await userEvent.type(inputs[0]!, 'new party');
+    await userEvent.type(inputs[1]!, 'new');
+    await userEvent.type(inputs[2]!, 'n');
   }
 
-  userEvent.click(screen.getButton('Cancel'));
+  await userEvent.click(screen.getButton('Cancel'));
 
   await screen.findButton('Edit Parties');
   expectPartyInputs(savedParties);
@@ -328,14 +330,14 @@ describe('error messages', () => {
       apiMock.listParties.expectCallWith({ electionId }).resolves(savedParties);
 
       renderScreen(electionId);
-      userEvent.click(await screen.findButton('Edit Parties'));
+      await userEvent.click(await screen.findButton('Edit Parties'));
 
       expectUpdate(apiMock, {
         electionId,
         updatedParties: savedParties,
       }).resolves(err({ code: spec.code, partyId: savedParties[0]!.id }));
 
-      userEvent.click(screen.getButton('Save'));
+      await userEvent.click(screen.getButton('Save'));
 
       await screen.findByText(spec.expectedMessage);
 
@@ -343,7 +345,7 @@ describe('error messages', () => {
 
       // Editing the problem district should clear the error:
       const input = getInputsByRow(0)[spec.inputIndex]!;
-      userEvent.type(input, ' (edit)');
+      await userEvent.type(input, ' (edit)');
       expect(screen.queryByText(spec.expectedMessage)).not.toBeInTheDocument();
     });
   }
@@ -366,7 +368,7 @@ test('audio editing', async () => {
     const container = assertDefined(input.parentElement);
     const button = within(container).getButton(/preview or edit audio/i);
 
-    userEvent.click(button);
+    await userEvent.click(button);
 
     await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
     expect(history.location.pathname).toEqual(
@@ -387,7 +389,7 @@ test('audio editing', async () => {
   }
 
   // Switching to "edit" mode should close the audio panel:
-  userEvent.click(editButton);
+  await userEvent.click(editButton);
   expect(screen.queryByTestId(MOCK_AUDIO_PANEL_ID)).not.toBeInTheDocument();
   expect(screen.queryButton(/preview or edit audio/i)).not.toBeInTheDocument();
 });

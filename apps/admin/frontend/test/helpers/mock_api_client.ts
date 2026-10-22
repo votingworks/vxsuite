@@ -132,7 +132,7 @@ export function createMockApiClient(): MockApiClient {
  *  defer: true,
  * })
  *
- * userEvent.click(screen.getButton('Print'));
+ * await userEvent.click(screen.getButton('Print'));
  * await screen.findByText('Printing');
  * resolve();
  * await screen.findByText('Printed');

@@ -12,7 +12,7 @@ import type {
   YesNoContest,
 } from '@votingworks/types';
 import { assert, find } from '@votingworks/basics';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { screen, within, render } from '../../test/react_testing_library.js';
 import { mergeMsEitherNeitherContests } from '../utils/ms_either_neither_contests.js';
@@ -277,7 +277,7 @@ describe('yesno contest', () => {
 
   test.each([[contest.options[0].id], [contest.options[1].id], [undefined]])(
     'with vote: %s',
-    (vote) => {
+    async (vote) => {
       const contests = [contest];
       const returnToContest = vi.fn();
       render(
@@ -303,7 +303,7 @@ describe('yesno contest', () => {
             : 'No'
       );
 
-      userEvent.click(within(contestCard).getButton(/Change/));
+      await userEvent.click(within(contestCard).getButton(/Change/));
       expect(returnToContest).toHaveBeenCalledWith(contest.id);
     }
   );
@@ -437,11 +437,11 @@ describe('keyboard navigation', () => {
         />
       );
 
-      userEvent.tab();
+      await userEvent.tab();
       expect(
         await screen.findByTestId(`contest-wrapper-${contests[0]!.id}`)
       ).toHaveFocus();
-      userEvent.keyboard(key);
+      await userEvent.keyboard(key);
       expect(returnToContestStub).toHaveBeenCalledTimes(1);
     }
   );
@@ -710,7 +710,7 @@ describe('straight party contest', () => {
     (c): c is StraightPartyContest => c.type === 'straight-party'
   );
 
-  test('with a vote shows the selected party', () => {
+  test('with a vote shows the selected party', async () => {
     const returnToContest = vi.fn();
     render(
       <Review
@@ -732,7 +732,7 @@ describe('straight party contest', () => {
       within(contestCard).queryByText('You may still vote in this contest.')
     ).toEqual(null);
 
-    userEvent.click(within(contestCard).getButton(/Change/));
+    await userEvent.click(within(contestCard).getButton(/Change/));
     expect(returnToContest).toHaveBeenCalledWith(straightPartyContest.id);
   });
 

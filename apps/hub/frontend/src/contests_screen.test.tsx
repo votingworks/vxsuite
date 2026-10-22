@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { createMemoryHistory, type MemoryHistory } from 'history';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   type Contest,
   BallotStyleGroupIdSchema,
@@ -275,7 +275,7 @@ test('renders contest list on all sub-views', async () => {
   await expectViewModeContest(history, electionId, contests[0]!);
   expectContestListItems(contests);
 
-  userEvent.click(screen.getButton('Add Contest'));
+  await userEvent.click(screen.getButton('Add Contest'));
   await screen.findByRole('heading', { name: 'Add Contest' });
   expectContestListItems(contests);
 
@@ -373,15 +373,15 @@ test('adding a candidate contest (general election)', async () => {
   screen.getByText("You haven't added any contests to this election yet.");
 
   // Add contest
-  userEvent.click(screen.getByRole('button', { name: 'Add Contest' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Add Contest' }));
   await screen.findByRole('heading', { name: 'Add Contest' });
 
   // Set title
-  userEvent.type(screen.getByLabelText('Title'), newContest.title);
+  await userEvent.type(screen.getByLabelText('Title'), newContest.title);
 
   // Set district
-  userEvent.click(screen.getByLabelText('District'));
-  userEvent.click(screen.getByText(election.districts[0]!.name));
+  await userEvent.click(screen.getByLabelText('District'));
+  await userEvent.click(screen.getByText(election.districts[0]!.name));
 
   // Default type is candidate contest
   within(screen.getByLabelText('Type')).getByRole('option', {
@@ -392,11 +392,14 @@ test('adding a candidate contest (general election)', async () => {
   // Set seats
   const seatsInput = screen.getByLabelText('Seats');
   expect(seatsInput).toHaveValue(1);
-  userEvent.clear(seatsInput);
-  userEvent.type(seatsInput, '2');
+  await userEvent.clear(seatsInput);
+  await userEvent.type(seatsInput, '2');
 
   // Set term
-  userEvent.type(screen.getByLabelText('Term'), newContest.termDescription!);
+  await userEvent.type(
+    screen.getByLabelText('Term'),
+    newContest.termDescription!
+  );
 
   // Set write-ins allowed
   const writeInsControl = screen.getByLabelText('Write-Ins Allowed?');
@@ -404,23 +407,27 @@ test('adding a candidate contest (general election)', async () => {
     name: 'Yes',
     selected: true,
   });
-  userEvent.click(within(writeInsControl).getByRole('option', { name: 'No' }));
+  await userEvent.click(
+    within(writeInsControl).getByRole('option', { name: 'No' })
+  );
 
   // Add candidates
   screen.getByText("You haven't added any candidates to this contest yet.");
   for (const [i, candidate] of newContest.candidates.entries()) {
-    userEvent.click(screen.getByRole('button', { name: 'Add Candidate' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Add Candidate' })
+    );
     screen.getByRole('columnheader', { name: 'First Name' });
     screen.getByRole('columnheader', { name: 'Last Name' });
     screen.getByRole('columnheader', { name: 'Party' });
     const row = screen.getAllByRole('row')[i + 1]!;
 
     // Set name
-    userEvent.type(
+    await userEvent.type(
       within(row).getByLabelText(`Candidate ${i + 1} First Name`),
       'New Candidate'
     );
-    userEvent.type(
+    await userEvent.type(
       within(row).getByLabelText(`Candidate ${i + 1} Last Name`),
       `${i + 1}`
     );
@@ -428,12 +435,12 @@ test('adding a candidate contest (general election)', async () => {
     // Set party
     const partySelect = within(row).getByLabelText(`Candidate ${i + 1} Party`);
     expect(partySelect).toHaveValue('');
-    userEvent.click(partySelect);
+    await userEvent.click(partySelect);
     const party = election.parties.find(
       (p) => p.id === candidate.partyIds?.[0]
     );
     if (party) {
-      userEvent.click(within(row).getByText(party.name));
+      await userEvent.click(within(row).getByText(party.name));
     }
   }
 
@@ -446,7 +453,7 @@ test('adding a candidate contest (general election)', async () => {
     .resolves([newContest]);
   expectOtherElectionApiCalls(election);
   const saveButton = screen.getByRole('button', { name: 'Save' });
-  userEvent.click(saveButton);
+  await userEvent.click(saveButton);
 
   await expectViewModeContest(history, electionId, newContest);
   expectContestListItems([newContest]);
@@ -626,38 +633,38 @@ test('editing a candidate contest (primary election)', async () => {
   await navigateToContestView(history, electionId, savedContest.id);
   expectContestListItems(election.contests);
 
-  userEvent.click(screen.getButton('Edit'));
+  await userEvent.click(screen.getButton('Edit'));
   await screen.findByRole('heading', { name: 'Edit Contest' });
 
   // Change title
   const titleInput = screen.getByLabelText('Title');
   expect(titleInput).toHaveValue(savedContest.title);
-  userEvent.clear(titleInput);
-  userEvent.type(titleInput, updatedContest.title);
+  await userEvent.clear(titleInput);
+  await userEvent.type(titleInput, updatedContest.title);
 
   // Change district
-  userEvent.click(screen.getByText(savedDistrict.name));
-  userEvent.click(screen.getByText(updatedDistrict.name));
+  await userEvent.click(screen.getByText(savedDistrict.name));
+  await userEvent.click(screen.getByText(updatedDistrict.name));
 
   // Change party
-  userEvent.click(
+  await userEvent.click(
     within(
       screen.getByLabelText('Party').parentElement!.parentElement!
     ).getByText(savedParty.name)
   );
-  userEvent.click(screen.getByText(updatedParty.name));
+  await userEvent.click(screen.getByText(updatedParty.name));
 
   // Change seats
   const seatsInput = screen.getByLabelText('Seats');
   expect(seatsInput).toHaveValue(savedContest.seats);
-  userEvent.clear(seatsInput);
-  userEvent.type(seatsInput, updatedContest.seats.toString());
+  await userEvent.clear(seatsInput);
+  await userEvent.type(seatsInput, updatedContest.seats.toString());
 
   // Change term
   const termInput = screen.getByLabelText('Term');
   expect(termInput).toHaveValue(savedContest.termDescription ?? '');
-  userEvent.clear(termInput);
-  userEvent.type(termInput, updatedContest.termDescription!);
+  await userEvent.clear(termInput);
+  await userEvent.type(termInput, updatedContest.termDescription!);
 
   // Change write-ins allowed
   const writeInsControl = screen.getByLabelText('Write-Ins Allowed?');
@@ -665,7 +672,9 @@ test('editing a candidate contest (primary election)', async () => {
     name: 'No',
     selected: true,
   });
-  userEvent.click(within(writeInsControl).getByRole('option', { name: 'Yes' }));
+  await userEvent.click(
+    within(writeInsControl).getByRole('option', { name: 'Yes' })
+  );
 
   // Confirm candidates
   const candidateRows = screen.getAllByRole('row');
@@ -700,18 +709,20 @@ test('editing a candidate contest (primary election)', async () => {
     const input = within(candidateRows[2]!).getByLabelText(
       `Candidate 2 ${spec.labelText} Name`
     );
-    userEvent.clear(input);
-    userEvent.type(input, spec.nameValue);
+    await userEvent.clear(input);
+    await userEvent.type(input, spec.nameValue);
   }
 
   const partySelect = within(candidateRows[2]!).getByLabelText(
     'Candidate 2 Party'
   );
-  userEvent.click(partySelect);
-  userEvent.click(within(candidateRows[2]!).getByText('No Party Affiliation'));
+  await userEvent.click(partySelect);
+  await userEvent.click(
+    within(candidateRows[2]!).getByText('No Party Affiliation')
+  );
 
   // Remove candidate 1
-  userEvent.click(
+  await userEvent.click(
     within(candidateRows[1]!).getByRole('button', {
       name: 'Remove Candidate Test Candidate 1',
     })
@@ -734,7 +745,7 @@ test('editing a candidate contest (primary election)', async () => {
     .resolves([updatedContest]);
   expectOtherElectionApiCalls(election);
   const saveButton = screen.getByRole('button', { name: 'Save' });
-  userEvent.click(saveButton);
+  await userEvent.click(saveButton);
 
   await expectViewModeContest(history, electionId, updatedContest);
   expectContestListItems([updatedContest]);
@@ -803,15 +814,15 @@ test.each(nameTestSpecs)(
     screen.getByText("You haven't added any contests to this election yet.");
 
     // Add contest
-    userEvent.click(screen.getByRole('button', { name: 'Add Contest' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Add Contest' }));
     await screen.findByRole('heading', { name: 'Add Contest' });
 
     // Set title
-    userEvent.type(screen.getByLabelText('Title'), newContest.title);
+    await userEvent.type(screen.getByLabelText('Title'), newContest.title);
 
     // Set district
-    userEvent.click(screen.getByLabelText('District'));
-    userEvent.click(screen.getByText(election.districts[0]!.name));
+    await userEvent.click(screen.getByLabelText('District'));
+    await userEvent.click(screen.getByText(election.districts[0]!.name));
 
     // Default type is candidate contest
     within(screen.getByLabelText('Type')).getByRole('option', {
@@ -822,12 +833,14 @@ test.each(nameTestSpecs)(
     // Set seats
     const seatsInput = screen.getByLabelText('Seats');
     expect(seatsInput).toHaveValue(1);
-    userEvent.clear(seatsInput);
-    userEvent.type(seatsInput, '1');
+    await userEvent.clear(seatsInput);
+    await userEvent.type(seatsInput, '1');
 
     // Add candidate
     screen.getByText("You haven't added any candidates to this contest yet.");
-    userEvent.click(screen.getByRole('button', { name: 'Add Candidate' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Add Candidate' })
+    );
     screen.getByRole('columnheader', { name: 'First Name' });
     screen.getByRole('columnheader', { name: 'Last Name' });
     screen.getByRole('columnheader', { name: 'Party' });
@@ -837,18 +850,18 @@ test.each(nameTestSpecs)(
     const row = candidateRows[1]!;
 
     // Set name
-    userEvent.type(
+    await userEvent.type(
       within(row).getByLabelText(`Candidate 1 First Name`),
       firstName
     );
     if (middleName) {
-      userEvent.type(
+      await userEvent.type(
         within(row).getByLabelText(`Candidate 1 Middle Name`),
         middleName
       );
     }
     if (lastName) {
-      userEvent.type(
+      await userEvent.type(
         within(row).getByLabelText(`Candidate 1 Last Name`),
         lastName
       );
@@ -863,7 +876,7 @@ test.each(nameTestSpecs)(
       .resolves([newContest]);
     expectOtherElectionApiCalls(election);
     const saveButton = screen.getByRole('button', { name: 'Save' });
-    userEvent.click(saveButton);
+    await userEvent.click(saveButton);
 
     await expectViewModeContest(history, electionId, newContest);
     expectContestListItems([newContest]);
@@ -940,13 +953,16 @@ test('editing a candidate designation', async () => {
   expect(designationInput).toHaveValue('Mayor of Springfield');
 
   // Clearing it unsets the designation
-  userEvent.clear(designationInput);
-  userEvent.tab();
+  await userEvent.clear(designationInput);
+  await userEvent.tab();
   expect(designationInput).toHaveValue('');
 
   // Designations may contain spaces
-  userEvent.type(designationInput, updatedContest.candidates[0]!.designation!);
-  userEvent.tab();
+  await userEvent.type(
+    designationInput,
+    updatedContest.candidates[0]!.designation!
+  );
+  await userEvent.tab();
   expect(designationInput).toHaveValue('Member of City Council');
 
   apiMock.updateContest
@@ -956,7 +972,7 @@ test('editing a candidate designation', async () => {
     .expectRepeatedCallsWith({ electionId })
     .resolves([updatedContest]);
   expectOtherElectionApiCalls(election);
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await expectViewModeContest(history, electionId, updatedContest);
 });
@@ -996,24 +1012,24 @@ test('adding a ballot measure', async () => {
   await expectViewModeContest(history, electionId, election.contests[0]!);
   expectContestListItems(election.contests);
 
-  userEvent.click(screen.getByRole('button', { name: 'Add Contest' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Add Contest' }));
   await screen.findByRole('heading', { name: 'Add Contest' });
 
   // Set title
-  userEvent.type(screen.getByLabelText('Title'), newContest.title);
+  await userEvent.type(screen.getByLabelText('Title'), newContest.title);
 
   // Set district
-  userEvent.click(screen.getByLabelText('District'));
-  userEvent.click(screen.getByText(election.districts[0]!.name));
+  await userEvent.click(screen.getByLabelText('District'));
+  await userEvent.click(screen.getByText(election.districts[0]!.name));
 
   // Change type to ballot measure
-  userEvent.click(screen.getByRole('option', { name: 'Ballot Measure' }));
+  await userEvent.click(screen.getByRole('option', { name: 'Ballot Measure' }));
 
   // Set description
   const descriptionEditor = within(
     screen.getByText('Description').parentElement!
   ).getByTestId('rich-text-editor');
-  userEvent.type(
+  await userEvent.type(
     descriptionEditor.querySelector('.tiptap p')!,
     newContest.description
   );
@@ -1023,10 +1039,10 @@ test('adding a ballot measure', async () => {
   expect(inputs).toHaveLength(2);
   const [yesInput, noInput] = inputs;
   expect(screen.queryButton('Add Option')).not.toBeInTheDocument();
-  userEvent.clear(yesInput!);
-  userEvent.type(yesInput!, newContest.options[0].label);
-  userEvent.clear(noInput!);
-  userEvent.type(noInput!, newContest.options[1].label);
+  await userEvent.clear(yesInput!);
+  await userEvent.type(yesInput!, newContest.options[0].label);
+  await userEvent.clear(noInput!);
+  await userEvent.type(noInput!, newContest.options[1].label);
 
   await within(descriptionEditor).findByText(newContest.description);
   const descriptionHtml = `<p>${newContest.description}</p>`;
@@ -1047,7 +1063,7 @@ test('adding a ballot measure', async () => {
 
   expectOtherElectionApiCalls(election);
   const saveButton = screen.getByRole('button', { name: 'Save' });
-  userEvent.click(saveButton);
+  await userEvent.click(saveButton);
 
   await expectViewModeContest(history, electionId, newContest);
   expectContestListItems(updatedContests);
@@ -1095,18 +1111,18 @@ test('editing a ballot measure', async () => {
   await navigateToContestView(history, electionId, savedContest.id);
   expectContestListItems(election.contests);
 
-  userEvent.click(screen.getButton('Edit'));
+  await userEvent.click(screen.getButton('Edit'));
   await screen.findByRole('heading', { name: 'Edit Contest' });
 
   // Change title
   const titleInput = screen.getByLabelText('Title');
   expect(titleInput).toHaveValue(savedContest.title);
-  userEvent.clear(titleInput);
-  userEvent.type(titleInput, updatedContest.title);
+  await userEvent.clear(titleInput);
+  await userEvent.type(titleInput, updatedContest.title);
 
   // Change district
-  userEvent.click(screen.getByText(savedDistrict.name));
-  userEvent.click(screen.getByText(updatedDistrict.name));
+  await userEvent.click(screen.getByText(savedDistrict.name));
+  await userEvent.click(screen.getByText(updatedDistrict.name));
 
   // Change description
   const descriptionEditor = within(
@@ -1123,12 +1139,12 @@ test('editing a ballot measure', async () => {
   // Change yes and no labels
   const [yesInput, noInput] = getOptionInputs();
   expect(yesInput).toHaveValue(savedContest.options[0].label);
-  userEvent.clear(yesInput!);
-  userEvent.type(yesInput!, updatedContest.options[0].label);
+  await userEvent.clear(yesInput!);
+  await userEvent.type(yesInput!, updatedContest.options[0].label);
 
   expect(noInput).toHaveValue(savedContest.options[1].label);
-  userEvent.clear(noInput!);
-  userEvent.type(noInput!, updatedContest.options[1].label);
+  await userEvent.clear(noInput!);
+  await userEvent.type(noInput!, updatedContest.options[1].label);
 
   // Save contest
   const updatedContestWithDescriptionHtml: YesNoContest = {
@@ -1150,7 +1166,7 @@ test('editing a ballot measure', async () => {
     .resolves(updatedContestList);
   expectOtherElectionApiCalls(election);
   const saveButton = screen.getByRole('button', { name: 'Save' });
-  userEvent.click(saveButton);
+  await userEvent.click(saveButton);
 
   await expectViewModeContest(history, electionId, updatedContest);
   expectContestListItems(updatedContestList);
@@ -1175,7 +1191,7 @@ test('features.ADDITIONAL_BALLOT_MEASURE_OPTIONS enables adding/removing additio
   });
   await navigateToContestEdit(history, electionId, savedContest.id);
 
-  userEvent.click(screen.getButton('Add Option'));
+  await userEvent.click(screen.getButton('Add Option'));
   let optionInputs = getOptionInputs();
   expect(optionInputs).toHaveLength(3);
 
@@ -1184,14 +1200,14 @@ test('features.ADDITIONAL_BALLOT_MEASURE_OPTIONS enables adding/removing additio
   expect(noInput).toHaveValue(savedContest.options[1].label);
   expect(additionalInput).toHaveValue('');
 
-  userEvent.type(additionalInput!, 'Third Option');
+  await userEvent.type(additionalInput!, 'Third Option');
   expect(additionalInput).toHaveValue('Third Option');
 
-  userEvent.click(screen.getButton('Add Option'));
+  await userEvent.click(screen.getButton('Add Option'));
   const updatedOptionInputs = getOptionInputs();
   expect(updatedOptionInputs).toHaveLength(4);
   const [, , , fourthInput] = updatedOptionInputs;
-  userEvent.type(fourthInput!, 'Fourth Option');
+  await userEvent.type(fourthInput!, 'Fourth Option');
 
   const updatedContest: YesNoContest = {
     ...savedContest,
@@ -1214,7 +1230,7 @@ test('features.ADDITIONAL_BALLOT_MEASURE_OPTIONS enables adding/removing additio
     .expectCallWith({ electionId })
     .resolves(updatedContestList);
   expectOtherElectionApiCalls(election);
-  userEvent.click(screen.getButton('Save'));
+  await userEvent.click(screen.getButton('Save'));
   await expectViewModeContest(history, electionId, updatedContest);
 
   optionInputs = getOptionInputs();
@@ -1231,7 +1247,7 @@ test('features.ADDITIONAL_BALLOT_MEASURE_OPTIONS enables adding/removing additio
 
   await navigateToContestEdit(history, electionId, savedContest.id);
   const [, , thirdInput] = getOptionInputs();
-  userEvent.click(
+  await userEvent.click(
     within(thirdInput!.parentElement!).getButton('Remove Option')
   );
   const updatedContest2: YesNoContest = {
@@ -1255,7 +1271,7 @@ test('features.ADDITIONAL_BALLOT_MEASURE_OPTIONS enables adding/removing additio
     .expectCallWith({ electionId })
     .resolves(updatedContestList2);
   expectOtherElectionApiCalls(election);
-  userEvent.click(screen.getButton('Save'));
+  await userEvent.click(screen.getButton('Save'));
   await expectViewModeContest(history, electionId, updatedContest2);
 });
 
@@ -1282,14 +1298,18 @@ test('reordering contests', async () => {
   await expectViewModeContest(history, electionId, election.contests[0]!);
   assert(reorder);
 
-  userEvent.click(screen.getByRole('button', { name: 'Reorder Contests' }));
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Reorder Contests' })
+  );
   expect(screen.getByRole('button', { name: 'Add Contest' })).toBeDisabled();
   expectContestListItems(election.contests);
 
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   expectContestListItems(election.contests);
 
-  userEvent.click(screen.getByRole('button', { name: 'Reorder Contests' }));
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Reorder Contests' })
+  );
 
   const [contest1, contest2, contest3] = election.contests;
   act(() => reorder!({ id: contest1!.id, direction: 1 }));
@@ -1316,7 +1336,7 @@ test('reordering contests', async () => {
 
   expectOtherElectionApiCalls(election);
 
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await screen.findByRole('button', { name: 'Reorder Contests' });
   expectContestListItems(reorderedContests);
@@ -1352,9 +1372,9 @@ test('deleting a contest', async () => {
   expectOtherElectionApiCalls(election);
 
   // Initiate the deletion
-  userEvent.click(screen.getByRole('button', { name: 'Delete Contest' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Delete Contest' }));
   // Confirm the deletion in the modal
-  userEvent.click(screen.getByRole('button', { name: 'Delete Contest' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Delete Contest' }));
 
   // Should auto-select the first of the remaining contests:
   await expectViewModeContest(history, electionId, remainingContests[0]!);
@@ -1403,7 +1423,7 @@ test('editing contests is restricted for elections with external source', async 
   // --- Test candidate contest restrictions ---
   await navigateToContestView(history, electionId, candidateContest.id);
 
-  userEvent.click(screen.getButton('Edit'));
+  await userEvent.click(screen.getButton('Edit'));
   await screen.findByRole('heading', { name: 'Edit Contest' });
 
   // District select should be disabled
@@ -1450,7 +1470,7 @@ test('editing contests is restricted for elections with external source', async 
   // --- Test ballot measure contest restrictions ---
   await navigateToContestView(history, electionId, yesNoContest.id);
 
-  userEvent.click(screen.getButton('Edit'));
+  await userEvent.click(screen.getButton('Edit'));
   await screen.findByRole('heading', { name: 'Edit Contest' });
 
   // Type toggle should only show the current type option (Ballot Measure)
@@ -1536,14 +1556,14 @@ test('cancelling', async () => {
   await navigateToContestView(history, electionId, contest.id);
   await expectViewModeContest(history, electionId, contest);
 
-  userEvent.click(screen.getButton('Edit'));
+  await userEvent.click(screen.getButton('Edit'));
   await screen.findByRole('heading', { name: 'Edit Contest' });
 
-  userEvent.click(screen.getByRole('button', { name: 'Delete Contest' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Delete Contest' }));
   await screen.findByRole('heading', { name: 'Delete Contest' });
 
   // Cancel delete contest confirmation modal
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   await waitFor(() => {
     expect(
       screen.queryByRole('heading', { name: 'Delete Contest' })
@@ -1551,7 +1571,7 @@ test('cancelling', async () => {
   });
 
   // Make sure we reset to saved contest state after making edits
-  userEvent.type(screen.getByLabelText('Title'), ' - Edited');
+  await userEvent.type(screen.getByLabelText('Title'), ' - Edited');
   let descriptionEditor = within(
     screen.getByText('Description').parentElement!
   ).getByTestId('rich-text-editor');
@@ -1562,7 +1582,7 @@ test('cancelling', async () => {
   await within(descriptionEditor).findByText('Edited Description');
 
   // Cancel edit contest
-  userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   expect(history.location.pathname).toEqual(
     routes.election(electionId).contests.view(contest.id).path
   );
@@ -1603,7 +1623,7 @@ test('error messages for duplicate candidate contest/candidates', async () => {
       updatedContest: expectedContest,
     })
     .resolves(err('duplicate-contest'));
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await screen.findByText(
     'There is already a contest with the same district, title, seats, and term.'
@@ -1616,7 +1636,7 @@ test('error messages for duplicate candidate contest/candidates', async () => {
       updatedContest: expectedContest,
     })
     .resolves(err('duplicate-candidate'));
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await screen.findByText('Candidates must have different names.');
 });
@@ -1647,7 +1667,7 @@ test('error messages for duplicate ballot measure', async () => {
       updatedContest: ballotMeasureContest,
     })
     .resolves(err('duplicate-contest'));
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await screen.findByText(
     'There is already a contest with the same district and title.'
@@ -1660,7 +1680,7 @@ test('error messages for duplicate ballot measure', async () => {
       updatedContest: ballotMeasureContest,
     })
     .resolves(err('duplicate-option'));
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
   await screen.findByText('Options must have different labels.');
 });
@@ -1686,16 +1706,18 @@ test('error messages for candidate contest with no candidates and write-ins disa
 
   // Remove all candidates
   for (const row of screen.getAllByRole('row').slice(1)) {
-    userEvent.click(within(row).getByRole('button', { name: /Remove/ }));
+    await userEvent.click(within(row).getByRole('button', { name: /Remove/ }));
   }
   // Disallow write-ins
   const writeInsControl = screen.getByLabelText('Write-Ins Allowed?');
-  userEvent.click(within(writeInsControl).getByRole('option', { name: 'No' }));
+  await userEvent.click(
+    within(writeInsControl).getByRole('option', { name: 'No' })
+  );
   expect(
     within(writeInsControl).getByRole('option', { name: 'No' })
   ).toHaveAttribute('aria-selected', 'true');
 
-  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Save' }));
   await screen.findByText(
     /contest must have at least one candidate or allow write-ins./i
   );
@@ -1735,7 +1757,7 @@ test('disables form and shows edit button when in "view" mode', async () => {
 
   // Switch to "edit" state:
 
-  userEvent.click(screen.getButton('Edit'));
+  await userEvent.click(screen.getButton('Edit'));
 
   await screen.findButton('Save');
   screen.getButton('Cancel');
@@ -1792,7 +1814,9 @@ describe('audio editing', () => {
     const group = within(assertDefined(labelText.parentElement));
 
     group.getButton('Preview or Edit Audio: Candidate No. One');
-    userEvent.click(group.getButton('Preview or Edit Audio: Candidate Two'));
+    await userEvent.click(
+      group.getButton('Preview or Edit Audio: Candidate Two')
+    );
 
     await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
     expect(history.location.pathname).toEqual(
@@ -1860,7 +1884,7 @@ describe('audio editing', () => {
       const inputGroup = assertDefined(labelText.parentElement);
       const button = within(inputGroup).getButton(/preview or edit audio/i);
 
-      userEvent.click(button);
+      await userEvent.click(button);
 
       await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
       expect(history.location.pathname).toEqual(
@@ -1888,7 +1912,7 @@ describe('audio editing', () => {
     const yesAudioButton = within(yesInput!.parentElement!).getButton(
       /preview or edit audio/i
     );
-    userEvent.click(yesAudioButton);
+    await userEvent.click(yesAudioButton);
     await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
     expect(history.location.pathname).toEqual(
       routes.election(electionId).contests.audio({
@@ -1903,7 +1927,7 @@ describe('audio editing', () => {
     const noAudioButton = within(noInput!.parentElement!).getButton(
       /preview or edit audio/i
     );
-    userEvent.click(noAudioButton);
+    await userEvent.click(noAudioButton);
     await screen.findByTestId(MOCK_AUDIO_PANEL_ID);
     expect(history.location.pathname).toEqual(
       routes.election(electionId).contests.audio({

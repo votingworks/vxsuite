@@ -4,7 +4,7 @@ import { Route, Router, Switch } from 'react-router-dom';
 
 import type { ElectionInfo, TtsStringDefault } from '@votingworks/hub-backend';
 import { ElectionStringKey, LanguageCode } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import { createMockApiClient, provideApi } from '../test/api_helpers.js';
 import { PollingPlaceAudioPanel } from './polling_place_audio_panel.js';
@@ -54,7 +54,7 @@ test(`renders for ElectionStringKey.POLLING_PLACE_NAME`, async () => {
     ttsDefault: ttsDefaults[1],
   });
 
-  userEvent.click(screen.getButton('Polling Place Info'));
+  await userEvent.click(screen.getButton('Polling Place Info'));
   expect(history.location.pathname).toEqual(pollingPlaceRoutes.view(placeId));
 });
 

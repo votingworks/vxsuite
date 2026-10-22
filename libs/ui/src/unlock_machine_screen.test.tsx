@@ -5,7 +5,7 @@ import {
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import type { DippedSmartCardAuth } from '@votingworks/types';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 
 import { act, render, screen, waitFor } from '../test/react_testing_library.js';
 import { UnlockMachineScreen } from './unlock_machine_screen.js';
@@ -31,34 +31,34 @@ test('PIN submission', async () => {
 
   screen.getByText('- - - - - -');
 
-  userEvent.click(screen.getButton('0'));
+  await userEvent.click(screen.getButton('0'));
   screen.getByText('• - - - - -');
 
-  userEvent.click(screen.getButton('clear'));
+  await userEvent.click(screen.getButton('clear'));
   screen.getByText('- - - - - -');
 
-  userEvent.click(screen.getButton('0'));
+  await userEvent.click(screen.getButton('0'));
   screen.getByText('• - - - - -');
 
-  userEvent.click(screen.getButton('1'));
+  await userEvent.click(screen.getButton('1'));
   screen.getByText('• • - - - -');
 
-  userEvent.click(screen.getButton('2'));
+  await userEvent.click(screen.getButton('2'));
   screen.getByText('• • • - - -');
 
-  userEvent.click(screen.getButton('3'));
+  await userEvent.click(screen.getButton('3'));
   screen.getByText('• • • • - -');
 
-  userEvent.click(screen.getButton('4'));
+  await userEvent.click(screen.getButton('4'));
   screen.getByText('• • • • • -');
 
-  userEvent.click(screen.getButton('backspace'));
+  await userEvent.click(screen.getButton('backspace'));
   screen.getByText('• • • • - -');
 
-  userEvent.click(screen.getButton('4'));
+  await userEvent.click(screen.getButton('4'));
   screen.getByText('• • • • • -');
 
-  userEvent.click(screen.getButton('5'));
+  await userEvent.click(screen.getButton('5'));
   await waitFor(() => expect(checkPin).toHaveBeenNthCalledWith(1, '012345'));
   await screen.findByText('- - - - - -');
 });
@@ -95,7 +95,7 @@ test.each<{
   },
 ])(
   'Lockout - $description',
-  ({ isWrongPinEnteredAtSet, expectedPromptAfterLockoutEnds }) => {
+  async ({ isWrongPinEnteredAtSet, expectedPromptAfterLockoutEnds }) => {
     const checkPin = vi.fn();
     render(
       <UnlockMachineScreen
@@ -114,7 +114,7 @@ test.each<{
     screen.getByText('- - - - - -');
 
     // Ensure number pad entry is ignored
-    userEvent.click(screen.getButton('0'));
+    await userEvent.click(screen.getButton('0'));
     screen.getByText('- - - - - -');
 
     act(() => {
@@ -161,13 +161,13 @@ test('variable-length PIN', async () => {
   );
 
   // enter 4 digits
-  userEvent.click(screen.getButton('0'));
-  userEvent.click(screen.getButton('1'));
-  userEvent.click(screen.getButton('2'));
-  userEvent.click(screen.getButton('3'));
+  await userEvent.click(screen.getButton('0'));
+  await userEvent.click(screen.getButton('1'));
+  await userEvent.click(screen.getButton('2'));
+  await userEvent.click(screen.getButton('3'));
   expect(checkPin).not.toHaveBeenCalled();
 
   // press Enter
-  userEvent.click(screen.getButton('Enter'));
+  await userEvent.click(screen.getButton('Enter'));
   await waitFor(() => expect(checkPin).toHaveBeenCalledTimes(1));
 });

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { electionCombinedBallotPrimaryFixtures } from '@votingworks/fixtures';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import {
   anyPollingPlace,
   type BallotStyleId,
@@ -61,7 +61,7 @@ test('poll worker activates session, voter picks party and walks through ballot'
       precinctId: PRECINCT_ID,
     })
     .resolves();
-  userEvent.click(screen.getButton(PRECINCT_NAME));
+  await userEvent.click(screen.getButton(PRECINCT_NAME));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: BALLOT_STYLE_ID,
@@ -89,18 +89,18 @@ test('poll worker activates session, voter picks party and walks through ballot'
   screen.getByText(
     hasTextAcrossElements('Number of contests on your ballot: 13')
   );
-  userEvent.click(screen.getByText('Start Voting'));
+  await userEvent.click(screen.getByText('Start Voting'));
   await screen.findByRole('heading', { name: 'Choose Your Party' });
 
   // Next disabled until a party is selected
   expect(screen.getButton(/next/i)).toBeDisabled();
 
   // Select Democratic
-  userEvent.click(screen.getButton('Democratic Party'));
+  await userEvent.click(screen.getButton('Democratic Party'));
   expect(screen.getButton(/next/i)).toBeEnabled();
 
   // Advance to the first contest — only Democratic + nonpartisan contests appear.
-  userEvent.click(screen.getButton(/next/i));
+  await userEvent.click(screen.getButton(/next/i));
   await screen.findByRole('heading', { name: 'Governor' });
 
   // Walk through all contests to review. The voter should see exactly the
@@ -124,15 +124,15 @@ test('poll worker activates session, voter picks party and walks through ballot'
   ];
   for (const title of expectedContestTitles) {
     await screen.findByRole('heading', { name: title });
-    userEvent.click(screen.getButton(/next/i));
+    await userEvent.click(screen.getButton(/next/i));
   }
   await screen.findByRole('heading', { name: /review your votes/i });
 
   // From the review screen, "Change Party" lands on party selection in
   // review mode with a Review button to return
-  userEvent.click(screen.getButton(/change party/i));
+  await userEvent.click(screen.getButton(/change party/i));
   await screen.findByRole('heading', { name: 'Choose Your Party' });
-  userEvent.click(screen.getButton(/review/i));
+  await userEvent.click(screen.getButton(/review/i));
   await screen.findByRole('heading', { name: /review your votes/i });
 });
 
@@ -147,10 +147,10 @@ test('switching party clears votes from the previous party', async () => {
   await screen.findByText('Start Voting');
 
   // Pick Democratic and vote for a Democratic Governor candidate
-  userEvent.click(screen.getByText('Start Voting'));
+  await userEvent.click(screen.getByText('Start Voting'));
   await screen.findByRole('heading', { name: 'Choose Your Party' });
-  userEvent.click(screen.getButton('Democratic Party'));
-  userEvent.click(screen.getButton(/next/i));
+  await userEvent.click(screen.getButton('Democratic Party'));
+  await userEvent.click(screen.getButton(/next/i));
   await screen.findByRole('heading', { name: 'Governor' });
 
   const demGovernorContest = find(
@@ -158,18 +158,18 @@ test('switching party clears votes from the previous party', async () => {
     (c): c is CandidateContest => c.id === 'governor-democratic'
   );
   const demGovernorCandidate = demGovernorContest.candidates[0]!;
-  userEvent.click(screen.getByText(demGovernorCandidate.name));
+  await userEvent.click(screen.getByText(demGovernorCandidate.name));
 
   // Back to party selection, switch to Republican (clears votes), then back
   // to Democratic. The Democratic vote from earlier should be gone.
-  userEvent.click(screen.getButton(/back/i));
+  await userEvent.click(screen.getButton(/back/i));
   await screen.findByRole('heading', { name: 'Choose Your Party' });
-  userEvent.click(screen.getButton('Republican Party'));
+  await userEvent.click(screen.getButton('Republican Party'));
   // Confirm the change-party modal that appears because there are votes.
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: /^change party/i })
   );
-  userEvent.click(screen.getButton(/next/i));
+  await userEvent.click(screen.getButton(/next/i));
   await screen.findByRole('heading', { name: 'Governor' });
 
   // The Republican Governor candidates are shown, not the Democratic ones.
@@ -180,14 +180,14 @@ test('switching party clears votes from the previous party', async () => {
   screen.getByText(repGovernorContest.candidates[0]!.name);
   expect(screen.queryByText(demGovernorCandidate.name)).toBeNull();
 
-  userEvent.click(screen.getButton(/back/i));
+  await userEvent.click(screen.getButton(/back/i));
   await screen.findByRole('heading', { name: 'Choose Your Party' });
-  userEvent.click(screen.getButton('Democratic Party'));
-  userEvent.click(screen.getButton(/next/i));
+  await userEvent.click(screen.getButton('Democratic Party'));
+  await userEvent.click(screen.getButton(/next/i));
   await screen.findByRole('heading', { name: 'Governor' });
 
   // Jump to the review screen to inspect the Democratic Governor contest
-  userEvent.click(screen.getButton(/view all/i));
+  await userEvent.click(screen.getButton(/view all/i));
   await screen.findByRole('heading', { name: /review your votes/i });
 
   // The Democratic Governor candidate the voter previously selected should

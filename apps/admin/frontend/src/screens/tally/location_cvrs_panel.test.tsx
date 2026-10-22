@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { pollingPlaceTypeName } from '@votingworks/types';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen } from '../../../test/react_testing_library.js';
 import { LocationCvrsPanel } from './location_cvrs_panel.js';
 
@@ -74,7 +74,7 @@ test('renders import details when non-empty', () => {
   expect(screen.queryByText('No CVRs')).not.toBeInTheDocument();
 });
 
-test('emits close event when on close button press', () => {
+test('emits close event when on close button press', async () => {
   const close = vi.fn();
 
   render(
@@ -87,6 +87,6 @@ test('emits close event when on close button press', () => {
   );
 
   expect(close).not.toHaveBeenCalled();
-  userEvent.click(screen.getButton('Close Panel'));
+  await userEvent.click(screen.getButton('Close Panel'));
   expect(close).toHaveBeenCalledOnce();
 });

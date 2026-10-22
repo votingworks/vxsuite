@@ -1,21 +1,21 @@
 import { expect, test, vi } from 'vitest';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 
 import { render, screen } from '../test/react_testing_library.js';
 import { VoterHelpButton } from './voter_help_button.js';
 
-test('VoterHelpButton', () => {
+test('VoterHelpButton', async () => {
   const onPress = vi.fn();
   render(<VoterHelpButton onPress={onPress} />);
 
   const voterHelpButton = screen.getByRole('button', {
     name: 'Help',
   });
-  userEvent.click(voterHelpButton);
+  await userEvent.click(voterHelpButton);
   expect(onPress).toHaveBeenCalledTimes(1);
 });
 
-test('VoterHelpButton disabled', () => {
+test('VoterHelpButton disabled', async () => {
   const onPress = vi.fn();
   render(<VoterHelpButton disabled onPress={onPress} />);
 
@@ -23,6 +23,6 @@ test('VoterHelpButton disabled', () => {
     name: 'Help',
   });
   expect(voterHelpButton).toBeDisabled();
-  userEvent.click(voterHelpButton);
+  await userEvent.click(voterHelpButton);
   expect(onPress).toHaveBeenCalledTimes(0);
 });

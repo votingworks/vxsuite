@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen } from '../../test/react_testing_library.js';
 import {
   type ApiMock,
@@ -55,7 +55,9 @@ test('pressing play audio calls playSound API', async () => {
   apiMock.expectPlaySound('chime');
   renderScreen();
 
-  userEvent.click(await screen.findByRole('button', { name: 'Play Audio' }));
+  await userEvent.click(
+    await screen.findByRole('button', { name: 'Play Audio' })
+  );
 });
 
 test('user confirms sound is audible - passes test', async () => {
@@ -66,7 +68,7 @@ test('user confirms sound is audible - passes test', async () => {
   });
   renderScreen();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Sound Is Audible' })
   );
 
@@ -81,7 +83,7 @@ test('user confirms sound is not audible - fails test', async () => {
   });
   renderScreen();
 
-  userEvent.click(
+  await userEvent.click(
     await screen.findByRole('button', { name: 'Sound Is Not Audible' })
   );
 
@@ -92,7 +94,9 @@ test('pressing cancel calls onCancel', async () => {
   expect(onCancel).toHaveBeenCalledTimes(0);
   renderScreen();
 
-  userEvent.click(await screen.findByRole('button', { name: 'Cancel Test' }));
+  await userEvent.click(
+    await screen.findByRole('button', { name: 'Cancel Test' })
+  );
 
   expect(onCancel).toHaveBeenCalledTimes(1);
 });

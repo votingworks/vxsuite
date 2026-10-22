@@ -1,6 +1,6 @@
 import type React from 'react';
 import { test, vi } from 'vitest';
-import { userEvent } from '../../user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen } from '../../../test/react_testing_library.js';
 import { PatDeviceIdentificationPage } from './pat_device_identification_page.js';
 
@@ -13,7 +13,7 @@ function MockScreenWrapper({
   return <div data-testid="mock-screen-wrapper">{children}</div>;
 }
 
-test('advances to next step', () => {
+test('advances to next step', async () => {
   const onAllInputsIdentified = vi.fn();
   const onExitCalibration = vi.fn();
 
@@ -27,6 +27,6 @@ test('advances to next step', () => {
 
   screen.getByText('Personal Assistive Technology Device Identification');
   screen.getByText('Activate either input to continue.');
-  userEvent.keyboard('1');
+  await userEvent.keyboard('1');
   screen.getByRole('heading', { name: 'Identify the "Move" Input' });
 });

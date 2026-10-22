@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, test } from 'vitest';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { render } from '../../test/test_utils.js';
 import {
@@ -35,7 +35,7 @@ test('requires poll worker auth', () => {
   screen.getByText('Insert a poll worker card to continue.');
 });
 
-test('calls expectConfirmBallotBoxEmptied when button is clicked', () => {
+test('calls expectConfirmBallotBoxEmptied when button is clicked', async () => {
   const electionDefinition = electionGeneralDefinition;
   apiMock.expectConfirmBallotBoxEmptied();
   const authStatus = mockPollWorkerAuth(electionDefinition);
@@ -43,5 +43,5 @@ test('calls expectConfirmBallotBoxEmptied when button is clicked', () => {
     apiMock,
   });
 
-  userEvent.click(screen.getByText('Yes, Ballot Box is Empty'));
+  await userEvent.click(screen.getByText('Yes, Ballot Box is Empty'));
 });

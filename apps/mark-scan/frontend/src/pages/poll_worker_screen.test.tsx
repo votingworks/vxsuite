@@ -15,7 +15,7 @@ import {
   advancePromises,
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
-import userEvent from '@testing-library/user-event';
+import { userEvent } from '@testing-library/user-event';
 
 import { assertDefined, DateWithoutTime } from '@votingworks/basics';
 import type { SimpleServerStatus } from '@votingworks/mark-scan-backend';
@@ -117,7 +117,7 @@ test('renders PollWorkerScreen', () => {
   screen.getByText(hasTextAcrossElements('Ballots Printed: 0'));
 });
 
-test('switching out of test mode on election day', () => {
+test('switching out of test mode on election day', async () => {
   const electionDefinition = asElectionDefinition({
     ...election,
     date: DateWithoutTime.today(),
@@ -131,7 +131,7 @@ test('switching out of test mode on election day', () => {
   screen.getByText(
     'Switch to Official Ballot Mode and reset the Ballots Printed count?'
   );
-  userEvent.click(screen.getByText('Switch to Official Ballot Mode'));
+  await userEvent.click(screen.getByText('Switch to Official Ballot Mode'));
 });
 
 test('keeping test mode on election day', () => {
@@ -259,11 +259,11 @@ describe.each(blockingStates)(
 );
 
 describe('pre-printed ballots', () => {
-  test('can insert pre-printed ballots', () => {
+  test('can insert pre-printed ballots', async () => {
     renderScreen();
 
     apiMock.expectSetAcceptingPaperState(['InterpretedBmdPage']);
-    userEvent.click(screen.getButton(/insert printed ballot/i));
+    await userEvent.click(screen.getButton(/insert printed ballot/i));
   });
 
   const preprintedBallotInsertionStateContents: Partial<
