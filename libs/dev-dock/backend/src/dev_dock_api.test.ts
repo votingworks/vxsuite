@@ -845,15 +845,15 @@ test('emitBarcodeScan forwards the payload to the host app', async () => {
   const emitBarcodeScan = vi.fn();
   const { apiClient } = setup({ printerConfig: 'fujitsu', emitBarcodeScan });
 
-  await apiClient.emitBarcodeScan({ payload: '{"ballotStyleId":"1_en"}' });
-  expect(emitBarcodeScan).toHaveBeenCalledWith('{"ballotStyleId":"1_en"}');
+  await apiClient.emitBarcodeScan({ payload: '{"bId":"1_en"}' });
+  expect(emitBarcodeScan).toHaveBeenCalledWith('{"bId":"1_en"}');
 });
 
 test('emitBarcodeScan does nothing when the host app has no barcode scan mock', async () => {
   const { apiClient } = setup({ printerConfig: 'fujitsu' });
 
   await expect(
-    apiClient.emitBarcodeScan({ payload: '{"ballotStyleId":"1_en"}' })
+    apiClient.emitBarcodeScan({ payload: '{"bId":"1_en"}' })
   ).resolves.toBeUndefined();
 });
 

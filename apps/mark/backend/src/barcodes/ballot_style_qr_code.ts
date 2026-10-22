@@ -13,12 +13,12 @@ export interface BallotStyleQrCode {
   readonly precinctId?: PrecinctId;
 }
 
-export const BallotStyleQrCodeSchema: z.ZodSchema<BallotStyleQrCode> = z.object(
-  {
-    ballotStyleId: BallotStyleIdSchema,
-    precinctId: PrecinctIdSchema.optional(),
-  }
-);
+export const BallotStyleQrCodeSchema: z.ZodType<BallotStyleQrCode> = z
+  .object({
+    bId: BallotStyleIdSchema,
+    pId: PrecinctIdSchema.optional(),
+  })
+  .transform(({ bId, pId }) => ({ ballotStyleId: bId, precinctId: pId }));
 
 export function parseBallotStyleQrCode(
   text: string

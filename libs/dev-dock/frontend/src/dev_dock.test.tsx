@@ -616,7 +616,7 @@ test('barcode scan mock control', async () => {
   userEvent.click(scanButton);
   await screen.findByRole('alertdialog');
   expect(screen.getByRole('textbox', { name: 'Barcode Contents' })).toHaveValue(
-    '{"ballotStyleId":""}'
+    '{"bId":""}'
   );
   userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   await waitFor(() => {
