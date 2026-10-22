@@ -238,6 +238,18 @@ test('renders session start section', () => {
   );
 });
 
+test('disables Print Ballot until a ballot style is selected', async () => {
+  expectSystemSettings(true);
+
+  renderScreen();
+
+  fireEvent.click(await screen.findByText('Print Blank Ballot'));
+  expect(screen.getByRole('button', { name: 'Print Ballot' })).toBeDisabled();
+
+  fireEvent.click(screen.getByText('Mock Select Ballot Style'));
+  expect(screen.getByRole('button', { name: 'Print Ballot' })).toBeEnabled();
+});
+
 test('prints a blank ballot for the selected ballot style', async () => {
   expectSystemSettings(true);
   apiMock.mockApiClient.printBlankBallot
