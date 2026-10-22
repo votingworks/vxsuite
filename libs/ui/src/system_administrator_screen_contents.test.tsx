@@ -2,10 +2,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { mockKiosk } from '@votingworks/test-utils';
 import { isVxDev } from '@votingworks/utils';
 import { userEvent } from '@testing-library/user-event';
-import {
-  screen,
-  waitForElementToBeRemoved,
-} from '../test/react_testing_library.js';
+import { screen, waitFor } from '../test/react_testing_library.js';
 
 import { SystemAdministratorScreenContents } from './system_administrator_screen_contents.js';
 import { newTestContext } from '../test/test_context.js';
@@ -211,6 +208,8 @@ test('Set Date and Time button', async () => {
   );
   screen.getByRole('heading', { name: 'Set Date and Time' });
   await userEvent.click(screen.getByRole('button', { name: 'Save' }));
-  await waitForElementToBeRemoved(screen.queryByRole('alertdialog'));
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
   expect(logOut).toBeCalledTimes(1);
 });

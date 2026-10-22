@@ -8,6 +8,7 @@ import {
   type LocationPickerProps,
 } from '@votingworks/mark-flow-ui';
 import { assertDefined } from '@votingworks/basics';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { screen, within } from '../../test/react_testing_library.js';
 import { render } from '../../test/test_utils.js';
 import { election } from '../../test/helpers/election.js';
@@ -353,7 +354,7 @@ test('navigates to diagnostics screen and back', async () => {
   await screen.findByRole('heading', { name: 'Election Manager Menu' });
 });
 
-test('unconfigure handles error gracefully', async () => {
+test('unconfigure surfaces eject errors to the error boundary', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetUsbPortStatus();
   renderScreen({
@@ -364,10 +365,10 @@ test('unconfigure handles error gracefully', async () => {
   apiMock.expectEjectUsbDriveToError();
 
   await userEvent.click(unconfigureButton);
-  await userEvent.click(screen.getButton('Delete All Election Data'));
-
-  // The error should be caught and handled, no crash
-  await screen.findByText('Election Manager Menu');
+  await suppressingConsoleOutput(async () => {
+    await userEvent.click(screen.getButton('Delete All Election Data'));
+    await screen.findByText('Test Error Boundary');
+  });
 });
 
 test('shows enable USB ports button when USB ports are disabled', async () => {

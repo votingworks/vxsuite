@@ -534,7 +534,7 @@ test('loads adjudicated write-in candidates', async () => {
   ]);
   apiMock.expectGetManualResults(identifier, updatedResults);
   await userEvent.click(screen.getButton('Save & Next'));
-  await screen.findByText(`2 of ${contests.length}`);
+  await screen.findByText(`3 of ${contests.length}`);
 });
 
 test('previous/cancel button', async () => {
