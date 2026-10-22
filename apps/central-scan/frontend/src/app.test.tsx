@@ -198,10 +198,10 @@ test('a batch pauses when the tray empties, continues, and is saved', async () =
     endedAt: undefined,
   });
   apiMock.expectScanBatch();
+  await userEvent.click(screen.getButton('Start Scanning'));
   apiMock.setStatus(
     mockStatus({ batches: [batch] }, { state: 'scanning', batchId: 'a' })
   );
-  await userEvent.click(screen.getButton('Start Scanning'));
   await screen.findByText('Scanning');
   expect(screen.getByTestId('batch-sheet-count')).toHaveTextContent('2');
 
@@ -214,13 +214,13 @@ test('a batch pauses when the tray empties, continues, and is saved', async () =
   await screen.findByText('Input tray empty');
 
   apiMock.expectResumeBatch();
+  await userEvent.click(screen.getButton('Continue Scanning'));
   apiMock.setStatus(
     mockStatus(
       { batches: [{ ...batch, count: 3 }] },
       { state: 'scanning', batchId: 'a' }
     )
   );
-  await userEvent.click(screen.getButton('Continue Scanning'));
   await screen.findByText('Scanning');
   expect(screen.getByTestId('batch-sheet-count')).toHaveTextContent('3');
 
@@ -235,12 +235,12 @@ test('a batch pauses when the tray empties, continues, and is saved', async () =
   await userEvent.click(screen.getButton('Save Batch'));
   const modal = await screen.findByRole('alertdialog');
   apiMock.expectSaveBatch();
+  await userEvent.click(within(modal).getButton('Save Batch'));
   apiMock.setStatus(
     mockStatus({
       batches: [{ ...batch, count: 3, endedAt: new Date(0).toISOString() }],
     })
   );
-  await userEvent.click(within(modal).getButton('Save Batch'));
   await screen.findByText('Ready to Scan');
   await vi.waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()

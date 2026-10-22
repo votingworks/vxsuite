@@ -325,10 +325,10 @@ test('MarkAndPrint end-to-end flow', async () => {
 
   // Close polls with poll worker card
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  apiMock.expectSetPollsState('polls_closed_final');
-  apiMock.expectGetElectionState({ pollsState: 'polls_closed_final' });
   await userEvent.click(await screen.findByText('Close Polls'));
   const closeModal = await screen.findByRole('alertdialog');
+  apiMock.expectSetPollsState('polls_closed_final');
+  apiMock.expectGetElectionState({ pollsState: 'polls_closed_final' });
   await userEvent.click(within(closeModal).getButton('Close Polls'));
 
   // Remove card

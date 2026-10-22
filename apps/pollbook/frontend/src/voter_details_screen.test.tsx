@@ -972,10 +972,10 @@ describe('common functionality', () => {
         timestamp: new Date().toISOString(),
       },
     };
+    apiMock.expectGetVoter(updatedVoter);
     const updateButton = screen.getButton('Confirm Mailing Address Update');
     await userEvent.click(updateButton);
 
-    apiMock.expectGetVoter(updatedVoter);
     await screen.findByText('Voter Mailing Address Updated');
     await userEvent.click(await screen.findButton('Return to Voter Details'));
 

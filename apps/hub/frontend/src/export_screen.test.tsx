@@ -545,15 +545,14 @@ test('decrypt ballot audit IDs in CVRs', async () => {
   apiMock.decryptCvrBallotAuditIds
     .expectCallWith({ secretKey, cvrZipFileContents })
     .resolves(Buffer.from('decrypted cvr zip file contents'));
+  vi.mocked(URL.createObjectURL).mockReturnValue(
+    'decrypted cvr export object url'
+  );
   await userEvent.upload(
     cvrZipInput,
     new File([cvrZipFileContents], 'cvr-export.zip', {
       type: 'application/zip',
     })
-  );
-
-  vi.mocked(URL.createObjectURL).mockReturnValue(
-    'decrypted cvr export object url'
   );
   await waitFor(() => {
     expect(vi.mocked(URL.createObjectURL)).toHaveBeenCalledWith(
