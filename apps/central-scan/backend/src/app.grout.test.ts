@@ -186,7 +186,7 @@ test('unconfigure', async () => {
     expect(store.getBallotsCounted()).toEqual(1);
 
     // should succeed once we mock a backup
-    store.setScannerBackedUp(true);
+    store.setScannerBackedUp();
     await apiClient.unconfigure();
     expect(store.getBallotsCounted()).toEqual(0);
     expect(logger.log).toHaveBeenCalledWith(
@@ -198,6 +198,31 @@ test('unconfigure', async () => {
           'User successfully unconfigured the machine to remove the current election and all current ballot data.',
       }
     );
+  });
+});
+
+test('a failed CVR export does not count as a backup', async () => {
+  const electionDefinition =
+    electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
+
+  await withApp(async ({ apiClient, store, mockUsbDrive }) => {
+    store.setElectionAndJurisdiction({
+      electionData: electionDefinition.electionData,
+      jurisdiction,
+      electionPackageHash: 'test-election-package-hash',
+      ballotHash: electionDefinition.ballotHash,
+    });
+    store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
+    await apiClient.setTestMode({ testMode: false });
+    const batchId = store.addBatch();
+    store.addSheet(uuid(), batchId, sheet);
+    store.finishBatch(batchId);
+
+    mockUsbDrive.removeUsbDrive();
+    expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(
+      err({ type: 'missing-usb-drive' })
+    );
+    expect((await apiClient.getStatus()).canUnconfigure).toEqual(false);
   });
 });
 
@@ -310,7 +335,7 @@ test('clearing scanning data', async () => {
     expect(store.getBallotsCounted()).toEqual(1);
 
     // should succeed once we mock a backup
-    store.setScannerBackedUp(true);
+    store.setScannerBackedUp();
     await apiClient.clearBallotData();
     expect(store.getBallotsCounted()).toEqual(0);
     const clearLogs = vi

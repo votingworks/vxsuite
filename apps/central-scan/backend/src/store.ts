@@ -114,12 +114,6 @@ function sheetRowToSheet(row: SheetRow): Sheet {
     : sheetRowToRejectedSheet(row);
 }
 
-function dateTimeFromNoOffsetSqliteDate(noOffsetSqliteDate: string): DateTime {
-  return DateTime.fromFormat(noOffsetSqliteDate, 'yyyy-MM-dd HH:mm:ss', {
-    zone: 'GMT',
-  });
-}
-
 /**
  * Manages a data store for imported ballot image batches and cast vote records
  * interpreted by reading the sheets.
@@ -470,35 +464,45 @@ export class Store {
   }
 
   /**
-   * Records that batches have been backed up.
+   * Returns the current CVR revision, which advances whenever a sheet is added
+   * or a sheet or batch is deleted.
    */
-  setScannerBackedUp(backedUp = true): void {
+  getCvrRevision(): number {
+    const row = this.client.one(
+      'select cvr_revision as cvrRevision from election'
+    ) as { cvrRevision: number } | undefined;
+    return assertDefined(row).cvrRevision;
+  }
+
+  private nextCvrRevision(): number {
+    this.client.run('update election set cvr_revision = cvr_revision + 1');
+    return this.getCvrRevision();
+  }
+
+  /**
+   * Records that the CVRs as of `cvrRevision` (from {@link getCvrRevision})
+   * have been backed up.
+   */
+  setScannerBackedUp(cvrRevision = this.getCvrRevision()): void {
     // @coverage-defer
     if (!this.hasElection()) {
       throw new Error('Unconfigured scanner cannot be backed up.');
     }
 
-    if (backedUp) {
-      this.client.run(
-        'update election set scanner_backed_up_at = current_timestamp'
-      );
-    } else {
-      this.client.run('update election set scanner_backed_up_at = null');
-    }
+    this.client.run(
+      'update election set scanner_backed_up_cvr_revision = ?',
+      cvrRevision
+    );
   }
 
   /**
-   * Gets the timestamp for the last scanner backup
+   * Returns the CVR revision of the last scanner backup, if any.
    */
-  getScannerBackupTimestamp(): DateTime | undefined {
+  getScannerBackedUpCvrRevision(): number | undefined {
     const row = this.client.one(
-      'select scanner_backed_up_at as scannerBackedUpAt from election'
-    ) as { scannerBackedUpAt: string } | undefined;
-    if (!row?.scannerBackedUpAt) {
-      return undefined;
-    }
-
-    return dateTimeFromNoOffsetSqliteDate(row.scannerBackedUpAt);
+      'select scanner_backed_up_cvr_revision as revision from election'
+    ) as { revision: number | null } | undefined;
+    return row?.revision ?? undefined;
   }
 
   getBallotsCounted(): number {
@@ -534,46 +538,44 @@ export class Store {
       return true;
     }
 
-    const scannerBackedUpAt = this.getScannerBackupTimestamp();
+    const backedUpCvrRevision = this.getScannerBackedUpCvrRevision();
 
     // Require that a scanner backup has taken place
-    if (!scannerBackedUpAt) {
+    if (backedUpCvrRevision === undefined) {
       return false;
     }
 
     // Adding or deleting sheets would have updated the CVR count
-    const { maxSheetsCreatedAt, maxSheetsDeletedAt } = this.client.one(`
+    const { maxSheetsCreatedRevision, maxSheetsDeletedRevision } = this.client
+      .one(`
         select
-          max(created_at) as maxSheetsCreatedAt,
-          max(deleted_at) as maxSheetsDeletedAt
+          max(created_cvr_revision) as maxSheetsCreatedRevision,
+          max(deleted_cvr_revision) as maxSheetsDeletedRevision
         from sheets
       `) as {
-      maxSheetsCreatedAt: string;
-      maxSheetsDeletedAt: string;
+      maxSheetsCreatedRevision: number;
+      maxSheetsDeletedRevision: number | null;
     };
 
     // Deleting non-empty batches would have updated the CVR count
-    const { maxBatchesDeletedAt } = this.client.one(`
+    const { maxBatchesDeletedRevision } = this.client.one(`
       select
-        max(batches.deleted_at) as maxBatchesDeletedAt
+        max(batches.deleted_cvr_revision) as maxBatchesDeletedRevision
       from batches inner join sheets
       on sheets.batch_id = batches.id
       where sheets.deleted_at is null
     `) as {
-      maxBatchesDeletedAt: string;
+      maxBatchesDeletedRevision: number | null;
     };
 
-    const cvrsLastUpdatedDates = [
-      maxBatchesDeletedAt,
-      maxSheetsCreatedAt,
-      maxSheetsDeletedAt,
-    ]
-      .filter(Boolean)
-      .map((noOffsetSqliteDate) =>
-        dateTimeFromNoOffsetSqliteDate(noOffsetSqliteDate)
-      );
-
-    return scannerBackedUpAt >= DateTime.max(...cvrsLastUpdatedDates);
+    return (
+      backedUpCvrRevision >=
+      Math.max(
+        maxBatchesDeletedRevision ?? 0,
+        maxSheetsCreatedRevision,
+        maxSheetsDeletedRevision ?? 0
+      )
+    );
   }
 
   /**
@@ -593,9 +595,10 @@ export class Store {
           front_image_path,
           front_interpretation_json,
           back_image_path,
-          back_interpretation_json
+          back_interpretation_json,
+          created_cvr_revision
         ) values (
-          ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?
         )`,
       sheetId,
       batchId,
@@ -603,7 +606,8 @@ export class Store {
       front.imagePath,
       JSON.stringify(front.interpretation),
       back.imagePath,
-      JSON.stringify(back.interpretation)
+      JSON.stringify(back.interpretation),
+      this.nextCvrRevision()
     );
   }
 
@@ -612,7 +616,8 @@ export class Store {
    */
   deleteSheet(sheetId: string): void {
     this.client.run(
-      'update sheets set deleted_at = current_timestamp where id = ?',
+      'update sheets set deleted_at = current_timestamp, deleted_cvr_revision = ? where id = ?',
+      this.nextCvrRevision(),
       sheetId
     );
   }
@@ -623,7 +628,9 @@ export class Store {
       this.client.transaction(() => {
         // Delete batches, which will cascade delete sheets
         this.client.run('delete from batches');
-        this.setScannerBackedUp(false);
+        this.client.run(
+          'update election set cvr_revision = 0, scanner_backed_up_cvr_revision = null'
+        );
       });
       this.sendingToAdminBatchId = undefined;
     }
@@ -694,7 +701,8 @@ export class Store {
     ) as { count: number };
 
     this.client.run(
-      'update batches set deleted_at = current_timestamp where id = ?',
+      'update batches set deleted_at = current_timestamp, deleted_cvr_revision = ? where id = ?',
+      this.nextCvrRevision(),
       batchId
     );
     return count > 0;

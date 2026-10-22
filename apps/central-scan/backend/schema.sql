@@ -8,7 +8,8 @@ create table election (
   is_test_mode integer not null default true,
   is_imprinting_enabled integer not null default true,
   polling_place_id text,
-  scanner_backed_up_at text,
+  cvr_revision integer not null default 0,
+  scanner_backed_up_cvr_revision integer,
   created_at text not null default current_timestamp
 ) strict;
 
@@ -31,6 +32,7 @@ create table batches (
   started_at text default current_timestamp not null,
   ended_at text,
   deleted_at text,
+  deleted_cvr_revision integer,
   -- When this batch's cast vote records were successfully sent to a VxAdmin
   -- host over the network. Null until sent.
   sent_to_admin_at text,
@@ -62,7 +64,9 @@ create table sheets (
   back_interpretation_json text not null,
 
   created_at text default current_timestamp not null,
+  created_cvr_revision integer not null,
   deleted_at text,
+  deleted_cvr_revision integer,
 
   foreign key (batch_id)
   references batches (id)
