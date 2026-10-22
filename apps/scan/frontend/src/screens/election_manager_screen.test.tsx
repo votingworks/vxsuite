@@ -117,12 +117,7 @@ test('renders date and time settings modal', async () => {
     })
     .resolves();
   apiMock.expectLogOut();
-  // eslint-disable-next-line @typescript-eslint/require-await
-  await act(async () => {
-    await userEvent.click(
-      within(screen.getByTestId('modal')).getByText('Save')
-    );
-  });
+  await userEvent.click(within(screen.getByTestId('modal')).getByText('Save'));
 });
 
 test('location picker shown if more than one location is available', async () => {

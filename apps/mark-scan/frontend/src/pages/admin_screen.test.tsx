@@ -11,7 +11,7 @@ import {
   type LocationPickerProps,
 } from '@votingworks/mark-flow-ui';
 import { assertDefined } from '@votingworks/basics';
-import { act, screen, within } from '../../test/react_testing_library.js';
+import { screen, within } from '../../test/react_testing_library.js';
 import { render } from '../../test/test_utils.js';
 import { electionDefinition, election } from '../../test/helpers/election.js';
 
@@ -101,12 +101,7 @@ test('renders date and time settings modal', async () => {
     })
     .resolves();
   apiMock.expectLogOut();
-  // eslint-disable-next-line @typescript-eslint/require-await
-  await act(async () => {
-    await userEvent.click(
-      within(screen.getByTestId('modal')).getByText('Save')
-    );
-  });
+  await userEvent.click(within(screen.getByTestId('modal')).getByText('Save'));
 });
 
 test('wires up location picker', async () => {

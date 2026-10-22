@@ -53,17 +53,17 @@ test('Shift+L switches display language', async () => {
 
   expect(currentLanguage).toEqual(ENGLISH);
 
-  await act(async () => await userEvent.keyboard(Keybinding.SWITCH_LANGUAGE));
+  await userEvent.keyboard(Keybinding.SWITCH_LANGUAGE);
   expect(currentLanguage).toEqual(SPANISH);
 
-  await act(async () => await userEvent.keyboard(Keybinding.SWITCH_LANGUAGE));
+  await userEvent.keyboard(Keybinding.SWITCH_LANGUAGE);
   expect(currentLanguage).toEqual(CHINESE_SIMPLIFIED);
 
-  await act(async () => await userEvent.keyboard(Keybinding.SWITCH_LANGUAGE));
+  await userEvent.keyboard(Keybinding.SWITCH_LANGUAGE);
   expect(currentLanguage).toEqual(ENGLISH);
 
   // Should be a no-op without the `Shift` key modifier:
-  await act(async () => await userEvent.keyboard('l'));
+  await userEvent.keyboard('l');
   expect(currentLanguage).toEqual(ENGLISH);
 });
 

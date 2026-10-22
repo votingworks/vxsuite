@@ -92,7 +92,7 @@ test('queues up audio for <UiString>s within focus/click event targets', async (
   expectAudioActiveHookValue(false);
 
   // Should trigger audio on click events:
-  await act(async () => await userEvent.click(clickTarget));
+  await userEvent.click(clickTarget);
 
   const mockClipOutputs = await screen.findAllByTestId('mockClipOutput');
   expect(mockClipOutputs).toHaveLength(3);
@@ -145,7 +145,7 @@ test('resumes paused audio when user switches focus', async () => {
   act(() => getAudioContext()?.setIsPaused(true));
   expect(getAudioContext()?.isPaused).toEqual(true);
 
-  await act(async () => await userEvent.click(clickTarget));
+  await userEvent.click(clickTarget);
   act(() => {
     vi.advanceTimersByTime(0);
   });
@@ -172,7 +172,7 @@ test('clears audio queue on blur', async () => {
 
   const clickTarget = await screen.findByTestId('clickTarget');
   act(() => getAudioContext()?.setIsEnabled(true));
-  await act(async () => await userEvent.click(clickTarget));
+  await userEvent.click(clickTarget);
 
   const mockClipOutput = await screen.findByTestId('mockClipOutput');
   expect(mockClipOutput).toHaveTextContent(
@@ -219,7 +219,7 @@ test('triggers replay when user language is changed', async () => {
     getAudioContext()?.setIsEnabled(true);
     getLanguageContext()?.setLanguage(CHINESE_SIMPLIFIED);
   });
-  await act(async () => await userEvent.click(clickTarget));
+  await userEvent.click(clickTarget);
 
   const mockClipOutput = await screen.findByTestId('mockClipOutput');
   expect(mockClipOutput).toHaveTextContent(
@@ -250,7 +250,7 @@ test('is a no-op when audio is disabled', async () => {
 
   const clickTarget = await screen.findByTestId('clickTarget');
   act(() => getAudioContext()?.setIsEnabled(false));
-  await act(async () => await userEvent.click(clickTarget));
+  await userEvent.click(clickTarget);
   act(() => {
     vi.advanceTimersByTime(0);
   });
@@ -273,7 +273,7 @@ test('handles missing audio ID data', async () => {
 
   const clickTarget = await screen.findByTestId('clickTarget');
   act(() => getAudioContext()?.setIsEnabled(true));
-  await act(async () => await userEvent.click(clickTarget));
+  await userEvent.click(clickTarget);
   act(() => {
     vi.advanceTimersByTime(0);
   });
@@ -304,7 +304,7 @@ test('volume control API', async () => {
 
   const clickTarget = await screen.findByTestId('clickTarget');
   act(() => getAudioContext()?.setIsEnabled(true));
-  await act(async () => await userEvent.click(clickTarget));
+  await userEvent.click(clickTarget);
   act(() => {
     vi.advanceTimersByTime(0);
   });
@@ -383,7 +383,7 @@ test('playback rate control API', async () => {
 
   const clickTarget = await screen.findByTestId('clickTarget');
   act(() => getAudioContext()?.setIsEnabled(true));
-  await act(async () => await userEvent.click(clickTarget));
+  await userEvent.click(clickTarget);
   act(() => {
     vi.advanceTimersByTime(0);
   });
