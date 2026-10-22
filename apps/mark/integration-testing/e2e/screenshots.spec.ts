@@ -1,5 +1,6 @@
 import { type Page, expect, test } from '@playwright/test';
 import { mockCardRemoval } from '@votingworks/auth';
+import { deferred } from '@votingworks/basics';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import {
   clearTemporaryRootDir,
@@ -29,8 +30,11 @@ import {
   logInAsSystemAdministrator,
 } from './support/auth.js';
 import {
+  buildPreRenderedBallots,
   getFamousNamesElectionDefinition,
   getMultiLanguageGeneralElectionDefinition,
+  getVoteCenterGeneralElectionDefinition,
+  VOTE_CENTER_POLLING_PLACE_NAME,
 } from './support/election.js';
 import {
   configureMachine,
@@ -658,4 +662,88 @@ test('test decks', async ({ page }, testInfo) => {
     page.getByRole('button', { name: 'Print Precinct Test Deck' })
   ).toBeEnabled();
   await screenshot('em-test-decks-precinct-selected');
+});
+
+test('blank ballot printing', async ({ page }, testInfo) => {
+  const namer = createScreenshotNamer(testInfo);
+  // The vote center election exercises the precinct dropdown, and its
+  // multi-language ballot styles the language picker, which only appears when
+  // a ballot style is available in more than one language.
+  const electionDefinition = getVoteCenterGeneralElectionDefinition();
+  const { election } = electionDefinition;
+  const pollingPlaceName = VOTE_CENTER_POLLING_PLACE_NAME;
+  const precinctName = 'Center Springfield';
+  const helper = buildIntegrationTestHelper(page, namer);
+  const { screenshot, screenshotWithButtonHighlight } = helper;
+  // Blank ballots are printed from the pre-rendered ballots in the election
+  // package, so the package must include them for the configured ballot mode.
+  const electionPackage = await mockElectionPackageFileTree({
+    electionDefinition,
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      disableVoterHelpButtons: true,
+      allowPrintingBlankBallotsFromVxMark: true,
+    },
+    uiStrings: electionGeneralFixtures.uiStrings,
+    ballots: await buildPreRenderedBallots(electionDefinition, [
+      'official',
+      'test',
+    ]),
+  });
+
+  await page
+    .getByText('Insert an election manager card to configure VxMark')
+    .waitFor();
+  await configureMachine(page, {
+    election,
+    electionPackage,
+    pollingPlaceName,
+  });
+  mockCardRemoval();
+  await page.getByText(/poll worker card/).waitFor();
+  await openPolls(page, election);
+
+  // The button is only offered while polls are open.
+  await screenshotWithButtonHighlight(
+    'Print Blank Ballot',
+    'pw-menu-print-blank-ballot-highlighted'
+  );
+  await page.getByRole('button', { name: 'Print Blank Ballot' }).click();
+  await page.getByRole('heading', { name: 'Blank Ballot Printing' }).waitFor();
+  await screenshot('print-blank-ballot-screen');
+
+  // Choose a precinct from the dropdown; the language picker then defaults to
+  // the first available language.
+  await page.getByLabel('Select ballot precinct').click({ force: true });
+  await page.getByText(precinctName, { exact: true }).waitFor();
+  await screenshot('print-blank-ballot-precinct-dropdown-open');
+  await page.getByText(precinctName, { exact: true }).click();
+  await page.getByLabel('Ballot language').waitFor();
+  // Drop the focus ring the dropdown keeps after selection.
+  await page.getByLabel('Select ballot precinct').blur();
+  await screenshotWithButtonHighlight(
+    'Print Ballot',
+    'print-blank-ballot-options-selected'
+  );
+
+  // Hold the print job status response so the in-progress state is stable
+  // long enough to capture; the mock printer otherwise settles immediately.
+  const printJobStatusHold = deferred<void>();
+  await page.route('**/api/getPrintJobStatus', async (route) => {
+    await printJobStatusHold.promise;
+    await route.continue();
+  });
+  await page.getByRole('button', { name: 'Print Ballot' }).click();
+  await page.getByText(/Printing Ballot/).waitFor();
+  await screenshot('print-blank-ballot-in-progress');
+  printJobStatusHold.resolve();
+
+  await page.getByRole('alertdialog').getByText('Ballot Printed').waitFor();
+  await screenshot('print-blank-ballot-printed');
+  await page
+    .getByRole('alertdialog')
+    .getByRole('button', { name: 'Done' })
+    .click();
+  await page.getByRole('button', { name: 'Back' }).click();
+  await page.getByText('Poll Worker Menu').waitFor();
 });
