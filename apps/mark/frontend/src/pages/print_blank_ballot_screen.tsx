@@ -177,7 +177,7 @@ export function PrintBlankBallotScreen({
           <Button
             variant="primary"
             onPress={onPrint}
-            disabled={hasStartedPrint}
+            disabled={hasStartedPrint || !selection}
           >
             Print Ballot
           </Button>
