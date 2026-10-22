@@ -180,67 +180,12 @@ function generateTestJobForNodeJsPackage(
     if (hasPlaywrightTests) {
       lines.push(`${indent}- store_artifacts:`);
       lines.push(`${indent}    path: ${pkg.relativePath}/test-results/`);
-      // On `main` only, upload screenshots to S3 so the GitHub Actions
-      // screenshot-gallery workflow can build a browseable gallery. AWS
-      // credentials and bucket name come from the `screenshots-publishing`
-      // CircleCI context.
-      const appName = pkg.relativePath
-        .replace(/^apps\//, '')
-        .replace(/\/integration-testing$/, '');
-      lines.push(`${indent}- when:`);
-      lines.push(`${indent}    condition:`);
-      lines.push(`${indent}      equal: [ main, << pipeline.git.branch >> ]`);
-      lines.push(`${indent}    steps:`);
-      lines.push(`${indent}      - aws-cli/setup`);
-      lines.push(`${indent}      - run:`);
-      lines.push(`${indent}          name: Upload screenshots to S3`);
-      lines.push(`${indent}          command: |`);
-      lines.push(
-        `${indent}            if [ -d "${pkg.relativePath}/test-results/screenshots" ]; then`
-      );
-      lines.push(
-        `${indent}              aws s3 sync ${pkg.relativePath}/test-results/screenshots/ \\`
-      );
-      lines.push(
-        `${indent}                "s3://$SCREENSHOT_BUCKET/screenshots/${appName}/" \\`
-      );
-      lines.push(
-        `${indent}                --exclude "*" --include "*.png" --delete`
-      );
-      lines.push(`${indent}            fi`);
     }
   }
 
   lines.push(...turboCacheSaveSteps('    '));
 
   return lines;
-}
-
-const NOTIFY_GALLERY_JOB_ID = 'notify-gallery';
-
-// Screenshots are uploaded to S3 by each app's integration-testing job (see
-// the upload step in `generateTestJobForNodeJsPackage`). The gallery itself
-// is assembled by a GitHub Actions workflow
-// (.github/workflows/screenshot-gallery.yml) so that the image-processing work
-// stays off the CircleCI critical path. This job does nothing but signal
-// GitHub, via a repository dispatch, once all screenshots have been uploaded.
-// The GitHub token comes from the `screenshots-publishing` CircleCI context.
-function generateNotifyGalleryJob(): string[] {
-  return [
-    `${NOTIFY_GALLERY_JOB_ID}:`,
-    `  executor: nodejs`,
-    `  resource_class: small`,
-    `  steps:`,
-    `    - run:`,
-    `        name: Trigger screenshot gallery build on GitHub Actions`,
-    `        command: |`,
-    `          curl --fail --silent --show-error -X POST \\`,
-    `            -H "Authorization: Bearer $GALLERY_DISPATCH_TOKEN" \\`,
-    `            -H "Accept: application/vnd.github+json" \\`,
-    `            -H "X-GitHub-Api-Version: 2022-11-28" \\`,
-    `            "https://api.github.com/repos/votingworks/vxsuite/dispatches" \\`,
-    `            -d '{"event_type":"build-screenshot-gallery","client_payload":{"ref":"<< pipeline.git.branch >>","tag":"<< pipeline.git.tag >>","sha":"<< pipeline.git.revision >>"}}'`,
-  ];
 }
 
 // Rust crates are split across independent Cargo workspaces:
@@ -468,13 +413,6 @@ export function generateAllConfigs(
 
   const rustJobLines = generateTestJobForRustCrates();
 
-  const integrationTestingJobIds = iter(pnpmPackages.values())
-    .filter((pkg) =>
-      /^apps\/[^/]+\/integration-testing$/.test(pkg.relativePath)
-    )
-    .map(jobIdForPackage)
-    .toArray();
-
   const pnpmJobIds = [...pnpmJobs.keys()].map(jobIdForPackage);
   const allJobIds = [
     ...pnpmJobIds,
@@ -483,17 +421,6 @@ export function generateAllConfigs(
     'validate-monorepo',
     RUST_CRATES_JOB_ID,
   ];
-
-  const notifyGalleryWorkflowEntry = [
-    `      - ${NOTIFY_GALLERY_JOB_ID}:`,
-    `          context:`,
-    `            - screenshots-publishing`,
-    `          requires:`,
-    ...integrationTestingJobIds.map((id) => `            - ${id}`),
-    `          filters:`,
-    `            branches:`,
-    `              only: main`,
-  ].join('\n');
 
   const baseConfig = `
 # THIS FILE IS GENERATED. DO NOT EDIT IT DIRECTLY.
@@ -505,7 +432,6 @@ setup: true
 
 orbs:
   path-filtering: circleci/path-filtering@2
-  aws-cli: circleci/aws-cli@5
 
 executors:
   nodejs:
@@ -567,10 +493,6 @@ ${rustJobLines.map((line) => `  ${line}\n`).join('')}
             pnpm format:check
 ${turboCacheSaveSteps('      ').join('\n')}
 
-${generateNotifyGalleryJob()
-  .map((line) => `  ${line}`)
-  .join('\n')}
-
 workflows:
   test:
     jobs:
@@ -578,13 +500,7 @@ workflows:
 ${[...pnpmJobsToFilter.values()]
   .map((lines) => lines.map((line) => `  ${line}`).join('\n'))
   .join('\n\n')}
-${allJobIds
-  .map(
-    (jobId) =>
-      `      - ${jobId}:\n          context:\n            - screenshots-publishing`
-  )
-  .join('\n')}
-${notifyGalleryWorkflowEntry}
+${allJobIds.map((jobId) => `      - ${jobId}`).join('\n')}
 
 commands:
   checkout-and-install:

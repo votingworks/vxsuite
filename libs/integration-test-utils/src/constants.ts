@@ -5,12 +5,6 @@ export const BASE_URL = 'http://127.0.0.1:3000';
 export const OUTPUT_DIR = './test-results';
 
 /**
- * Directory where screenshots and PDF captures are written, and from which CI
- * publishes the screenshot gallery.
- */
-export const SCREENSHOTS_DIR = `${OUTPUT_DIR}/screenshots`;
-
-/**
  * Browser viewport matching the HP EliteBook's display, the desktop hardware
  * VxAdmin, VxCentralScan, and VxPrint run on. Shared so their screenshots stay
  * consistent.

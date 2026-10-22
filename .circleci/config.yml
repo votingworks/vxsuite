@@ -7,7 +7,6 @@ setup: true
 
 orbs:
   path-filtering: circleci/path-filtering@2
-  aws-cli: circleci/aws-cli@5
 
 executors:
   nodejs:
@@ -143,19 +142,6 @@ jobs:
           path: apps/admin/integration-testing/test-results/
       - when:
           condition:
-            equal: [ main, << pipeline.git.branch >> ]
-          steps:
-            - aws-cli/setup
-            - run:
-                name: Upload screenshots to S3
-                command: |
-                  if [ -d "apps/admin/integration-testing/test-results/screenshots" ]; then
-                    aws s3 sync apps/admin/integration-testing/test-results/screenshots/ \
-                      "s3://$SCREENSHOT_BUCKET/screenshots/admin/" \
-                      --exclude "*" --include "*.png" --delete
-                  fi
-      - when:
-          condition:
             or:
               - equal: [ main, << pipeline.git.branch >> ]
           steps:
@@ -283,19 +269,6 @@ jobs:
           path: apps/central-scan/integration-testing/test-results/
       - store_artifacts:
           path: apps/central-scan/integration-testing/test-results/
-      - when:
-          condition:
-            equal: [ main, << pipeline.git.branch >> ]
-          steps:
-            - aws-cli/setup
-            - run:
-                name: Upload screenshots to S3
-                command: |
-                  if [ -d "apps/central-scan/integration-testing/test-results/screenshots" ]; then
-                    aws s3 sync apps/central-scan/integration-testing/test-results/screenshots/ \
-                      "s3://$SCREENSHOT_BUCKET/screenshots/central-scan/" \
-                      --exclude "*" --include "*.png" --delete
-                  fi
       - when:
           condition:
             or:
@@ -509,19 +482,6 @@ jobs:
           path: apps/mark-scan/integration-testing/test-results/
       - when:
           condition:
-            equal: [ main, << pipeline.git.branch >> ]
-          steps:
-            - aws-cli/setup
-            - run:
-                name: Upload screenshots to S3
-                command: |
-                  if [ -d "apps/mark-scan/integration-testing/test-results/screenshots" ]; then
-                    aws s3 sync apps/mark-scan/integration-testing/test-results/screenshots/ \
-                      "s3://$SCREENSHOT_BUCKET/screenshots/mark-scan/" \
-                      --exclude "*" --include "*.png" --delete
-                  fi
-      - when:
-          condition:
             or:
               - equal: [ main, << pipeline.git.branch >> ]
           steps:
@@ -649,19 +609,6 @@ jobs:
           path: apps/mark/integration-testing/test-results/
       - store_artifacts:
           path: apps/mark/integration-testing/test-results/
-      - when:
-          condition:
-            equal: [ main, << pipeline.git.branch >> ]
-          steps:
-            - aws-cli/setup
-            - run:
-                name: Upload screenshots to S3
-                command: |
-                  if [ -d "apps/mark/integration-testing/test-results/screenshots" ]; then
-                    aws s3 sync apps/mark/integration-testing/test-results/screenshots/ \
-                      "s3://$SCREENSHOT_BUCKET/screenshots/mark/" \
-                      --exclude "*" --include "*.png" --delete
-                  fi
       - when:
           condition:
             or:
@@ -801,66 +748,6 @@ jobs:
                 paths:
                   - .turbo/cache
 
-  # @votingworks/print-integration-testing
-  test-apps-print-integration-testing:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install:
-          is_node_package: true
-      - run:
-          name: Install Browser
-          command: |
-            pnpm --dir apps/print/integration-testing exec playwright install-deps
-            pnpm --dir apps/print/integration-testing exec playwright install chromium
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/print/integration-testing build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir apps/print/integration-testing lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir apps/print/integration-testing test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: apps/print/integration-testing/test-results/
-      - store_artifacts:
-          path: apps/print/integration-testing/test-results/
-      - when:
-          condition:
-            equal: [ main, << pipeline.git.branch >> ]
-          steps:
-            - aws-cli/setup
-            - run:
-                name: Upload screenshots to S3
-                command: |
-                  if [ -d "apps/print/integration-testing/test-results/screenshots" ]; then
-                    aws s3 sync apps/print/integration-testing/test-results/screenshots/ \
-                      "s3://$SCREENSHOT_BUCKET/screenshots/print/" \
-                      --exclude "*" --include "*.png" --delete
-                  fi
-      - when:
-          condition:
-            or:
-              - equal: [ main, << pipeline.git.branch >> ]
-          steps:
-            - run:
-                name: Prune Turbo Cache
-                when: always
-                command: |
-                  ./script/prune-turbo-cache
-            - save_cache:
-                name: Save Turbo Cache
-                when: always
-                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/config.yml" }}-main-{{ .Revision }}
-                paths:
-                  - .turbo/cache
-
   # @votingworks/scan-backend
   test-apps-scan-backend:
     executor: nodejs
@@ -973,19 +860,6 @@ jobs:
           path: apps/scan/integration-testing/test-results/
       - store_artifacts:
           path: apps/scan/integration-testing/test-results/
-      - when:
-          condition:
-            equal: [ main, << pipeline.git.branch >> ]
-          steps:
-            - aws-cli/setup
-            - run:
-                name: Upload screenshots to S3
-                command: |
-                  if [ -d "apps/scan/integration-testing/test-results/screenshots" ]; then
-                    aws s3 sync apps/scan/integration-testing/test-results/screenshots/ \
-                      "s3://$SCREENSHOT_BUCKET/screenshots/scan/" \
-                      --exclude "*" --include "*.png" --delete
-                  fi
       - when:
           condition:
             or:
@@ -2540,20 +2414,6 @@ jobs:
                 paths:
                   - .turbo/cache
 
-  notify-gallery:
-    executor: nodejs
-    resource_class: small
-    steps:
-      - run:
-          name: Trigger screenshot gallery build on GitHub Actions
-          command: |
-            curl --fail --silent --show-error -X POST \
-              -H "Authorization: Bearer $GALLERY_DISPATCH_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              "https://api.github.com/repos/votingworks/vxsuite/dispatches" \
-              -d '{"event_type":"build-screenshot-gallery","client_payload":{"ref":"<< pipeline.git.branch >>","tag":"<< pipeline.git.tag >>","sha":"<< pipeline.git.revision >>"}}'
-
 workflows:
   test:
     jobs:
@@ -2564,199 +2424,65 @@ workflows:
           mapping: |
             apps/pollbook/backend/.* run-job true
           config-path: apps/pollbook/backend/.circleci/config.yml
-      - test-apps-admin-backend:
-          context:
-            - screenshots-publishing
-      - test-apps-admin-frontend:
-          context:
-            - screenshots-publishing
-      - test-apps-admin-integration-testing:
-          context:
-            - screenshots-publishing
-      - test-apps-central-scan-backend:
-          context:
-            - screenshots-publishing
-      - test-apps-central-scan-frontend:
-          context:
-            - screenshots-publishing
-      - test-apps-central-scan-integration-testing:
-          context:
-            - screenshots-publishing
-      - test-apps-hub-backend:
-          context:
-            - screenshots-publishing
-      - test-apps-hub-frontend:
-          context:
-            - screenshots-publishing
-      - test-apps-mark-scan-backend:
-          context:
-            - screenshots-publishing
-      - test-apps-mark-scan-frontend:
-          context:
-            - screenshots-publishing
-      - test-apps-mark-scan-integration-testing:
-          context:
-            - screenshots-publishing
-      - test-apps-mark-backend:
-          context:
-            - screenshots-publishing
-      - test-apps-mark-frontend:
-          context:
-            - screenshots-publishing
-      - test-apps-mark-integration-testing:
-          context:
-            - screenshots-publishing
-      - test-apps-pollbook-frontend:
-          context:
-            - screenshots-publishing
-      - test-apps-print-backend:
-          context:
-            - screenshots-publishing
-      - test-apps-print-frontend:
-          context:
-            - screenshots-publishing
-      - test-apps-print-integration-testing:
-          context:
-            - screenshots-publishing
-      - test-apps-scan-backend:
-          context:
-            - screenshots-publishing
-      - test-apps-scan-frontend:
-          context:
-            - screenshots-publishing
-      - test-apps-scan-integration-testing:
-          context:
-            - screenshots-publishing
-      - test-libs-auth:
-          context:
-            - screenshots-publishing
-      - test-libs-backend:
-          context:
-            - screenshots-publishing
-      - test-libs-ballot-encoder:
-          context:
-            - screenshots-publishing
-      - test-libs-ballot-interpreter:
-          context:
-            - screenshots-publishing
-      - test-libs-basics:
-          context:
-            - screenshots-publishing
-      - test-libs-bmd-ballot-fixtures:
-          context:
-            - screenshots-publishing
-      - test-libs-cdf-schema-builder:
-          context:
-            - screenshots-publishing
-      - test-libs-coverage-check:
-          context:
-            - screenshots-publishing
-      - test-libs-custom-paper-handler:
-          context:
-            - screenshots-publishing
-      - test-libs-db:
-          context:
-            - screenshots-publishing
-      - test-libs-dev-dock-backend:
-          context:
-            - screenshots-publishing
-      - test-libs-dev-dock-frontend:
-          context:
-            - screenshots-publishing
-      - test-libs-eslint-plugin-vx:
-          context:
-            - screenshots-publishing
-      - test-libs-fixture-generators:
-          context:
-            - screenshots-publishing
-      - test-libs-fixtures:
-          context:
-            - screenshots-publishing
-      - test-libs-fs:
-          context:
-            - screenshots-publishing
-      - test-libs-fujitsu-thermal-printer:
-          context:
-            - screenshots-publishing
-      - test-libs-grout:
-          context:
-            - screenshots-publishing
-      - test-libs-grout-test-utils:
-          context:
-            - screenshots-publishing
-      - test-libs-hmpb:
-          context:
-            - screenshots-publishing
-      - test-libs-image-utils:
-          context:
-            - screenshots-publishing
-      - test-libs-integration-test-utils:
-          context:
-            - screenshots-publishing
-      - test-libs-logging:
-          context:
-            - screenshots-publishing
-      - test-libs-logging-utils:
-          context:
-            - screenshots-publishing
-      - test-libs-mark-flow-ui:
-          context:
-            - screenshots-publishing
-      - test-libs-message-coder:
-          context:
-            - screenshots-publishing
-      - test-libs-monorepo-utils:
-          context:
-            - screenshots-publishing
-      - test-libs-networking:
-          context:
-            - screenshots-publishing
-      - test-libs-pdi-scanner:
-          context:
-            - screenshots-publishing
-      - test-libs-printing:
-          context:
-            - screenshots-publishing
-      - test-libs-test-decks:
-          context:
-            - screenshots-publishing
-      - test-libs-test-utils:
-          context:
-            - screenshots-publishing
-      - test-libs-types:
-          context:
-            - screenshots-publishing
-      - test-libs-ui:
-          context:
-            - screenshots-publishing
-      - test-libs-usb-drive:
-          context:
-            - screenshots-publishing
-      - test-libs-utils:
-          context:
-            - screenshots-publishing
-      - shellcheck:
-          context:
-            - screenshots-publishing
-      - validate-monorepo:
-          context:
-            - screenshots-publishing
-      - test-rust-crates:
-          context:
-            - screenshots-publishing
-      - notify-gallery:
-          context:
-            - screenshots-publishing
-          requires:
-            - test-apps-admin-integration-testing
-            - test-apps-central-scan-integration-testing
-            - test-apps-mark-scan-integration-testing
-            - test-apps-mark-integration-testing
-            - test-apps-print-integration-testing
-            - test-apps-scan-integration-testing
-          filters:
-            branches:
-              only: main
+      - test-apps-admin-backend
+      - test-apps-admin-frontend
+      - test-apps-admin-integration-testing
+      - test-apps-central-scan-backend
+      - test-apps-central-scan-frontend
+      - test-apps-central-scan-integration-testing
+      - test-apps-hub-backend
+      - test-apps-hub-frontend
+      - test-apps-mark-scan-backend
+      - test-apps-mark-scan-frontend
+      - test-apps-mark-scan-integration-testing
+      - test-apps-mark-backend
+      - test-apps-mark-frontend
+      - test-apps-mark-integration-testing
+      - test-apps-pollbook-frontend
+      - test-apps-print-backend
+      - test-apps-print-frontend
+      - test-apps-scan-backend
+      - test-apps-scan-frontend
+      - test-apps-scan-integration-testing
+      - test-libs-auth
+      - test-libs-backend
+      - test-libs-ballot-encoder
+      - test-libs-ballot-interpreter
+      - test-libs-basics
+      - test-libs-bmd-ballot-fixtures
+      - test-libs-cdf-schema-builder
+      - test-libs-coverage-check
+      - test-libs-custom-paper-handler
+      - test-libs-db
+      - test-libs-dev-dock-backend
+      - test-libs-dev-dock-frontend
+      - test-libs-eslint-plugin-vx
+      - test-libs-fixture-generators
+      - test-libs-fixtures
+      - test-libs-fs
+      - test-libs-fujitsu-thermal-printer
+      - test-libs-grout
+      - test-libs-grout-test-utils
+      - test-libs-hmpb
+      - test-libs-image-utils
+      - test-libs-integration-test-utils
+      - test-libs-logging
+      - test-libs-logging-utils
+      - test-libs-mark-flow-ui
+      - test-libs-message-coder
+      - test-libs-monorepo-utils
+      - test-libs-networking
+      - test-libs-pdi-scanner
+      - test-libs-printing
+      - test-libs-test-decks
+      - test-libs-test-utils
+      - test-libs-types
+      - test-libs-ui
+      - test-libs-usb-drive
+      - test-libs-utils
+      - shellcheck
+      - validate-monorepo
+      - test-rust-crates
 
 commands:
   checkout-and-install:
