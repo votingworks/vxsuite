@@ -3,7 +3,7 @@ import type { UiTheme } from '@votingworks/types';
 import { ThemeConsumer } from 'styled-components';
 import { mockUseAudioControls } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
-import { userEvent } from '../user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { act, screen, waitFor } from '../../test/react_testing_library.js';
 import { AudioSettings } from './audio_settings.js';
 import { newTestContext } from '../../test/test_context.js';

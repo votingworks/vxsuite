@@ -5,7 +5,7 @@ import {
   mockUseAudioControls,
   TestLanguageCode,
 } from '@votingworks/test-utils';
-import { userEvent } from '../user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { newTestContext } from '../../test/test_context.js';
 import { KeyboardShortcutHandlers } from './keyboard_shortcut_handlers.js';
 import {

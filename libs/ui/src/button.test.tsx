@@ -2,7 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 import React from 'react';
 import type { ColorMode, SizeMode } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { fireEvent, render, screen } from '../test/react_testing_library.js';
 import {
   BUTTON_VARIANTS,

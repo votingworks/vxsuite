@@ -5,7 +5,7 @@ import {
   TestLanguageCode,
 } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
-import { userEvent } from '../user_event.js';
+import { userEvent } from '@testing-library/user-event';
 
 import {
   act,

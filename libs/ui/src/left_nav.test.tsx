@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { Link, Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import {
   AppLogo,
   LeftNav,

@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-query';
 import { act } from '@testing-library/react';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library.js';
 import {
   FormatUsbButton,

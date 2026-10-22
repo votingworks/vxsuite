@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { Router, StaticRouter } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { fireEvent, render, screen } from '../test/react_testing_library.js';
 import { LinkButton } from './link_button.js';
 

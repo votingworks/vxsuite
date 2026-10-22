@@ -1,6 +1,6 @@
 import { beforeEach, expect, type Mock, test, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 
 import {
   render,

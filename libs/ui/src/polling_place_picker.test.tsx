@@ -1,7 +1,7 @@
 import type { PollingPlace, PollingPlaceType } from '@votingworks/types';
 import { describe, expect, test, vi } from 'vitest';
 import { deferred } from '@votingworks/basics';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen, waitFor } from '../test/react_testing_library.js';
 import {
   POLLING_PLACE_PICKER_LABEL,

@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 import { expect, test, vi } from 'vitest';
 import { assertDefined, ok } from '@votingworks/basics';
 import { UsbPartitionMountpointSchema } from '@votingworks/usb-drive';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { screen } from '../test/react_testing_library.js';
 import { ElectricalTestingScreen } from './electrical_testing_screen.js';
 import { Icons } from './icons.js';

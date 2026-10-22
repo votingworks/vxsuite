@@ -1,7 +1,7 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { mockKiosk } from '@votingworks/test-utils';
 import { isVxDev } from '@votingworks/utils';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import {
   screen,
   waitForElementToBeRemoved,

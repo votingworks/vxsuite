@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import React from 'react';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen, within } from '../test/react_testing_library.js';
 import { Modal, ModalWidth } from './modal.js';
 import { Button } from './button.js';

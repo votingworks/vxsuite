@@ -4,8 +4,8 @@ import type {
   PrinterConfig,
   PrinterStatus,
 } from '@votingworks/types';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library.js';
-import { userEvent } from './user_event.js';
 import { PrinterAlert } from './printer_alert.js';
 
 const MOCK_PRINTER_CONFIG: PrinterConfig = {

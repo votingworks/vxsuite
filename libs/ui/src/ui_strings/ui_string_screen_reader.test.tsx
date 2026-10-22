@@ -1,6 +1,6 @@
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import { TestLanguageCode } from '@votingworks/test-utils';
-import { userEvent } from '../user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { act, screen, waitFor } from '../../test/react_testing_library.js';
 import { newTestContext } from '../../test/test_context.js';
 import { type ClipParams, PlayAudioClips } from './play_audio_clips.js';

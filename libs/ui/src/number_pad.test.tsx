@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { fireEvent, render, screen } from '../test/react_testing_library.js';
 
 import { NumberPad } from './number_pad.js';

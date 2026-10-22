@@ -4,7 +4,7 @@ import { sleep } from '@votingworks/basics';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 
 import type { SignedHashValidationQrCodeValue } from '@votingworks/types';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { newTestContext } from '../test/test_context.js';
 import { SignedHashValidationButton } from './signed_hash_validation_button.js';
 

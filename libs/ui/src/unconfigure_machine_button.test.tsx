@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { sleep } from '@votingworks/basics';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import {
   render,
   screen,

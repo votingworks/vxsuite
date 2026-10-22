@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import type { UiTheme } from '@votingworks/types';
 import { ThemeConsumer } from 'styled-components';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library.js';
 import { VisualModeDisabledOverlay } from './index.js';
 

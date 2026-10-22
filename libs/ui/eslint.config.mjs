@@ -12,11 +12,7 @@ export default [
   },
   {
     // Test helpers, published as `@votingworks/ui/test-utils`.
-    files: [
-      'src/user_event.ts',
-      'src/test_utils.ts',
-      'src/themes/render_with_themes.tsx',
-    ],
+    files: ['src/**/test_utils.{ts,tsx}', 'src/themes/render_with_themes.tsx'],
     rules: {
       'import/no-extraneous-dependencies': 'off',
     },
@@ -27,7 +23,6 @@ export default [
       'src/**/*.test.{ts,tsx}',
       'src/**/*.stories.{ts,tsx}',
       'src/**/test_utils.{ts,tsx}',
-      'src/user_event.ts',
       'src/themes/render_with_themes.tsx',
     ],
     rules: {
@@ -36,7 +31,7 @@ export default [
         {
           patterns: [
             {
-              regex: '(^|/)(test_utils|user_event|render_with_themes)\\.js$',
+              regex: '(^|/)(test_utils|render_with_themes)\\.js$',
               message: 'Test helpers belong in `@votingworks/ui/test-utils`.',
             },
           ],

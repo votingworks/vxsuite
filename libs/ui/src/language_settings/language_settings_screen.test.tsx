@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import { ElectionStringKey, type UiStringsPackage } from '@votingworks/types';
 import { TestLanguageCode } from '@votingworks/test-utils';
-import { userEvent } from '../user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { newTestContext } from '../../test/test_context.js';
 import { LanguageSettingsScreen } from './language_settings_screen.js';
 import {

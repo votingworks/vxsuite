@@ -5,7 +5,7 @@ import {
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import type { DippedSmartCardAuth } from '@votingworks/types';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 
 import { act, render, screen, waitFor } from '../test/react_testing_library.js';
 import { UnlockMachineScreen } from './unlock_machine_screen.js';

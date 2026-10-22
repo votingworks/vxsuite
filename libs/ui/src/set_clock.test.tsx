@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, test, vi } from 'vitest';
 import { DateTime } from 'luxon';
 import fc from 'fast-check';
 import { arbitraryDateTime } from '@votingworks/test-utils';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import {
   act,
   cleanup,

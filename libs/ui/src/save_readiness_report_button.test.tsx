@@ -6,7 +6,7 @@ import {
   QueryClientProvider,
   useMutation,
 } from '@tanstack/react-query';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import {
   SaveReadinessReportButton,
   type SaveReadinessReportProps,

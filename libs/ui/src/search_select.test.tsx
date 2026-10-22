@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import React from 'react';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import {
   fireEvent,
   render,

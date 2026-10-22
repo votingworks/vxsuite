@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { useState } from 'react';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen } from '../test/react_testing_library.js';
 import { NumberInput } from './number_input.js';
 

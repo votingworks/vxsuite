@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { err, ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { userEvent } from './user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { screen } from '../test/react_testing_library.js';
 import { ExportLogsButton } from './export_logs_modal.js';
 import { mockUsbDriveStatus } from './test-utils/mock_usb_drive.js';

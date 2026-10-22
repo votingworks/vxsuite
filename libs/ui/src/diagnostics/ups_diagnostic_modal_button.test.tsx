@@ -1,5 +1,5 @@
 import { vi, test, expect } from 'vitest';
-import { userEvent } from '../user_event.js';
+import { userEvent } from '@testing-library/user-event';
 import { render, screen, waitFor } from '../../test/react_testing_library.js';
 import { UpsDiagnosticModalButton } from './ups_diagnostic_modal_button.js';
 
