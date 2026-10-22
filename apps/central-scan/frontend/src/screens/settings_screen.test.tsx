@@ -111,7 +111,9 @@ test('clicking "Unconfigure Machine" calls backend', async () => {
 });
 
 test('clicking "Update Date and Time" shows modal to set clock', async () => {
-  vi.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000'));
+  vi.useFakeTimers({ shouldAdvanceTime: true }).setSystemTime(
+    new Date('2020-10-31T00:00:00.000')
+  );
 
   renderScreen();
 

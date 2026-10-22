@@ -24,7 +24,7 @@ const contest = find(
 );
 
 beforeEach(() => {
-  vi.useFakeTimers();
+  vi.useFakeTimers({ shouldAdvanceTime: true });
 });
 
 test('renders', () => {

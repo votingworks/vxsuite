@@ -98,7 +98,7 @@ const candidateContestWithWriteIns = electionDefinition.election.contests.find(
 )! as CandidateContestInterface;
 
 beforeEach(() => {
-  vi.useFakeTimers();
+  vi.useFakeTimers({ shouldAdvanceTime: true });
   setUpMockVirtualKeyboard();
 });
 

@@ -72,7 +72,7 @@ test('attempting to overvote shows a warning and does not change the vote', asyn
 });
 
 test('audio cues for selected and deselected options', async () => {
-  vi.useFakeTimers();
+  vi.useFakeTimers({ shouldAdvanceTime: true });
   const updateVote = vi.fn();
   const { rerender } = render(
     <StraightPartyContest

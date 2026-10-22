@@ -92,7 +92,7 @@ test('changing votes', async () => {
 });
 
 test('audio cue for vote', async () => {
-  vi.useFakeTimers();
+  vi.useFakeTimers({ shouldAdvanceTime: true });
 
   const updateVote = vi.fn();
   const { rerender } = render(
