@@ -3302,21 +3302,12 @@ importers:
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../utils
-      better-sqlite3:
-        specifier: 12.11.1
-        version: 12.11.1
-      canvas:
-        specifier: 3.2.3
-        version: 3.2.3
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
       node-quirc:
         specifier: ^2.2.1
         version: 2.3.0
-      tmp:
-        specifier: ^0.2.6
-        version: 0.2.7
       zedbar:
         specifier: ^0.5.1
         version: 0.5.1
@@ -3324,9 +3315,6 @@ importers:
       '@napi-rs/cli':
         specifier: ^3.5.1
         version: 3.5.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@24.13.3)(node-addon-api@8.3.1)(supports-color@5.5.0)
-      '@types/better-sqlite3':
-        specifier: 9.6.0
-        version: 9.6.0
       '@types/debug':
         specifier: 4.1.12
         version: 4.1.12
@@ -3339,9 +3327,6 @@ importers:
       '@types/node-quirc':
         specifier: workspace:*
         version: link:../@types/node-quirc
-      '@types/tmp':
-        specifier: 0.2.4
-        version: 0.2.4
       '@vitest/coverage-istanbul':
         specifier: 5.0.2
         version: 5.0.2(vitest@5.0.2)
@@ -3360,6 +3345,9 @@ importers:
       '@votingworks/hmpb':
         specifier: workspace:*
         version: link:../hmpb
+      canvas:
+        specifier: 3.2.3
+        version: 3.2.3
       esbuild:
         specifier: 0.28.1
         version: 0.28.1

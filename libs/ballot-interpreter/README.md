@@ -17,45 +17,6 @@ This will build both the Rust library and the Node package.
 pnpm build
 ```
 
-## CLI
-
-The commands below run this package's compiled output, so run `pnpm build` first
-— and again after changing anything under `src/`.
-
-### bin/interpret
-
-Currently, the CLI only works for HMPB.
-
-```sh
-# Interpret a single ballot
-bin/interpret election.json system-settings.json ballot-side-a.jpeg ballot-side-b.jpeg
-
-# Interpret all ballots in a scan workspace
-bin/interpret path/to/workspace
-
-# Interpret specific sheets in a scan workspace
-bin/interpret path/to/workspace d34d-b33f
-
-# Write debug images alongside input images
-# (i.e. ballot-side-a_debug_scored_bubble_marks.png)
-bin/interpret -d election.json system-settings.json ballot-side-a.jpeg ballot-side-b.jpeg
-```
-
-### bin/scoring-report
-
-To generate a scoring report for a collection of ballot images, run:
-
-```sh
-# Score bubble marks
-bin/scoring-report -m election.json ballot-images-dir output-dir
-
-# Score write-ins
-bin/scoring-report -w election.json ballot-images-dir output-dir
-```
-
-This can be used to iteratively tune the mark thresholds/write-in area
-parameters for an election.
-
 ## Benchmarks
 
 This library includes benchmarks designed to:
