@@ -127,6 +127,35 @@ describe('general election', () => {
     expect(screen.queryByText('Select ballot style…')).toBeNull();
     screen.getByText(p2.splits[1]!.name);
   });
+
+  test('locked to the selection', async () => {
+    const [p1, p2] = election.precincts;
+    const ballotStyle = election.ballotStyles[0]!;
+    const onSelect = vi.fn();
+
+    renderSelect({
+      election,
+      onSelect,
+      configuredPrecinctsAndSplits: toPrecinctsOrSplitList([p1!]),
+      selectedBallotStyleId: ballotStyle.id,
+      lockedToSelection: true,
+    });
+
+    const button = screen.getButton(p1!.name);
+    expect(button).toHaveAttribute('data-variant', 'primary');
+    expect(button).toBeEnabled();
+    await userEvent.click(button);
+    expect(onSelect).not.toHaveBeenCalled();
+
+    renderSelect({
+      election,
+      onSelect,
+      configuredPrecinctsAndSplits: toPrecinctsOrSplitList([p1!, p2!]),
+      selectedPrecinctOrSplitId: p1!.id,
+      lockedToSelection: true,
+    });
+    expect(screen.getByLabelText('Select ballot precinct')).toBeDisabled();
+  });
 });
 
 describe('primary election', () => {
@@ -250,6 +279,30 @@ describe('primary election', () => {
     await userEvent.click(screen.getButton('Fish'));
     expect(onSelect).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenLastCalledWith(p4.id, '3-F_en');
+  });
+
+  test('locked to the selection', async () => {
+    const [p1, , , p4] = election.precincts;
+    assert(hasSplits(p4!));
+    const onSelect = vi.fn();
+
+    renderSelect({
+      election,
+      onSelect,
+      configuredPrecinctsAndSplits: toPrecinctsOrSplitList([p1!, p4]),
+      selectedPrecinctOrSplitId: p4.splits[0]!.id,
+      selectedBallotStyleId: '3-F_en',
+      lockedToSelection: true,
+    });
+
+    expect(screen.getByLabelText("Select voter's precinct")).toBeDisabled();
+    const selectedButton = screen.getButton('Fish');
+    expect(selectedButton).toHaveAttribute('data-variant', 'primary');
+    expect(selectedButton).toBeEnabled();
+    expect(screen.getButton('Mammal')).toBeDisabled();
+
+    await userEvent.click(selectedButton);
+    expect(onSelect).not.toHaveBeenCalled();
   });
 });
 

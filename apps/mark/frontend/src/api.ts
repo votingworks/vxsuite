@@ -173,6 +173,37 @@ export const clearLastBarcodeScan = {
   },
 } as const;
 
+export const getPendingBarcodePrintRequest = {
+  queryKey(): QueryKey {
+    return ['getPendingBarcodePrintRequest'];
+  },
+  useQuery(options: { enabled: boolean }) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getPendingBarcodePrintRequest(),
+      {
+        ...options,
+        refetchInterval: BARCODE_SCAN_POLLING_INTERVAL_MS,
+      }
+    );
+  },
+} as const;
+
+export const clearPendingBarcodePrintRequest = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.clearPendingBarcodePrintRequest, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getPendingBarcodePrintRequest.queryKey()
+        );
+      },
+    });
+  },
+} as const;
+
 export const getMachineConfig = {
   queryKey(): QueryKey {
     return ['getMachineConfig'];
@@ -412,12 +443,10 @@ export const getBarcodeActivationMode = {
   queryKey(): QueryKey {
     return ['getBarcodeActivationMode'];
   },
-  useQuery(options: { enabled: boolean }) {
+  useQuery() {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () => apiClient.getBarcodeActivationMode(),
-      options
+    return useQuery(this.queryKey(), () =>
+      apiClient.getBarcodeActivationMode()
     );
   },
 } as const;

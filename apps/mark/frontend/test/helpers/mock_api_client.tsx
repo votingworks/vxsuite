@@ -8,6 +8,7 @@ import {
 import type {
   Api,
   BarcodeActivationMode,
+  BarcodePrintRequest,
   MachineConfig,
   ElectionState,
   PrintBallotProps,
@@ -74,6 +75,9 @@ type MockApiClient = Omit<
   | 'getDiskSpaceSummary'
   | 'getPrintJobStatus'
   | 'getElectionState'
+  | 'getBarcodeActivationMode'
+  | 'getPendingBarcodePrintRequest'
+  | 'clearPendingBarcodePrintRequest'
 > & {
   // Because these are polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
@@ -86,6 +90,9 @@ type MockApiClient = Omit<
   getDiskSpaceSummary: Mock;
   getPrintJobStatus: Mock;
   getElectionState: Mock;
+  getBarcodeActivationMode: Mock;
+  getPendingBarcodePrintRequest: Mock;
+  clearPendingBarcodePrintRequest: Mock;
 };
 
 function createMockApiClient(): MockApiClient {
@@ -190,6 +197,20 @@ export function createApiMock() {
     Promise.resolve({ ...electionStateRef.current })
   );
 
+  let barcodeActivationMode: BarcodeActivationMode = 'voter_session';
+  mockApiClient.getBarcodeActivationMode = vi.fn(() =>
+    Promise.resolve(barcodeActivationMode)
+  );
+
+  let pendingBarcodePrintRequest: BarcodePrintRequest | null = null;
+  mockApiClient.getPendingBarcodePrintRequest = vi.fn(() =>
+    Promise.resolve(pendingBarcodePrintRequest)
+  );
+  mockApiClient.clearPendingBarcodePrintRequest = vi.fn(() => {
+    pendingBarcodePrintRequest = null;
+    return Promise.resolve();
+  });
+
   return {
     mockApiClient,
 
@@ -204,6 +225,14 @@ export function createApiMock() {
     setPatInputConnected,
 
     setBarcodeConnected,
+
+    setBarcodeActivationMode(mode: BarcodeActivationMode) {
+      barcodeActivationMode = mode;
+    },
+
+    setPendingBarcodePrintRequest(request: BarcodePrintRequest | null) {
+      pendingBarcodePrintRequest = request;
+    },
 
     setAuthStatus,
 
@@ -350,10 +379,6 @@ export function createApiMock() {
 
     expectSetPollsState(pollsState: PollsState) {
       mockApiClient.setPollsState.expectCallWith({ pollsState }).resolves();
-    },
-
-    expectGetBarcodeActivationMode(mode: BarcodeActivationMode) {
-      mockApiClient.getBarcodeActivationMode.expectCallWith().resolves(mode);
     },
 
     expectSetBarcodeActivationMode(mode: BarcodeActivationMode) {
