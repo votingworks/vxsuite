@@ -31,7 +31,7 @@ export function ErrorScreen({ error }: { error: unknown }): JSX.Element | null {
     <Row style={{ flex: 1, width: '100%' }}>
       <LeftNav style={{ width: '14rem' }}>
         <a href="/">
-          <AppLogo appName="VxDesign" />
+          <AppLogo appName="VxHub" />
         </a>
       </LeftNav>
       <Column
