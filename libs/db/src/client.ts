@@ -593,8 +593,10 @@ export class Client {
     const db = this.connect();
     if (this.schemaPath) {
       const schema = fs.readFileSync(this.schemaPath, 'utf-8');
-      this.exec(schema);
-      this.writeSchemaDigest();
+      this.transaction(() => {
+        this.exec(schema);
+        this.writeSchemaDigest();
+      });
     }
     this.logger.log(
       LogEventId.DatabaseCreateComplete,
