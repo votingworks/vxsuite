@@ -37,7 +37,10 @@ function PlayAudioClip(props: PlayAudioClipProps) {
 
     // TODO(kofi): assert that the requested clip data exists in the backend.
 
-    setAudioPlayer(newAudioPlayer({ clip, output, webAudioContext }));
+    const player = newAudioPlayer({ clip, output, webAudioContext });
+    setAudioPlayer(player);
+
+    return () => void player.stop();
   }, [clip, hasClipLoaded, output, webAudioContext]);
 
   //
@@ -69,8 +72,6 @@ function PlayAudioClip(props: PlayAudioClipProps) {
       await audioPlayer.play();
       onDoneRef.current();
     })();
-
-    return () => void audioPlayer.stop();
   }, [audioPlayer]);
 
   return null;

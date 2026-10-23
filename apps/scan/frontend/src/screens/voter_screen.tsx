@@ -1,7 +1,7 @@
 import type { ElectionDefinition, SystemSettings } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { useQueryChangeListener, useScreenReaderActive } from '@votingworks/ui';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getScannerStatus, readyForNextBallot, playSound } from '../api.js';
 import { InsertBallotScreen } from './insert_ballot_screen.js';
 import { ScanBusyScreen } from './scan_busy_screen.js';
@@ -56,12 +56,7 @@ export function VoterScreen({
     setAcceptedScreenMinDurationElapsed,
   ] = useState(false);
 
-  const acceptedScreenTimeoutRef = useRef<number>();
-  function clearTimeout() {
-    if (acceptedScreenTimeoutRef.current) {
-      window.clearTimeout(acceptedScreenTimeoutRef.current);
-    }
-  }
+  const [acceptedBallotCount, setAcceptedBallotCount] = useState(0);
 
   useQueryChangeListener(scannerStatusQuery, {
     select: (status) => status.state,
@@ -69,16 +64,20 @@ export function VoterScreen({
       if (newState === 'accepted') {
         setIsShowingAcceptedScreen(true);
         setAcceptedScreenMinDurationElapsed(false);
-        clearTimeout();
-        acceptedScreenTimeoutRef.current = window.setTimeout(
-          () => setAcceptedScreenMinDurationElapsed(true),
-          DELAY_ACCEPTED_SCREEN_MS
-        );
+        setAcceptedBallotCount((count) => count + 1);
         readyForNextBallotMutation.mutate();
       }
     },
   });
-  useEffect(() => clearTimeout, []); // Cleanup on unmount
+
+  useEffect(() => {
+    if (acceptedBallotCount === 0) return;
+    const timeout = window.setTimeout(
+      () => setAcceptedScreenMinDurationElapsed(true),
+      DELAY_ACCEPTED_SCREEN_MS
+    );
+    return () => window.clearTimeout(timeout);
+  }, [acceptedBallotCount]);
 
   // Hold the accepted screen until the "Your ballot was counted" screen reader
   // audio finishes playing — unmounting it sooner clears the audio queue and

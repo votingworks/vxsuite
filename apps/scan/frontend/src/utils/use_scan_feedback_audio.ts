@@ -15,33 +15,33 @@ export function useScanFeedbackAudio(input: UseScanFeedbackAudioInput): void {
   const { currentState, isSoundMuted, playSound } = input;
   const previousState = React.useRef<PrecinctScannerState | undefined>();
 
-  if (isSoundMuted) return;
-  if (previousState.current === currentState) return;
+  React.useEffect(() => {
+    if (isSoundMuted || previousState.current === currentState) return;
+    previousState.current = currentState;
 
-  switch (currentState) {
-    case 'accepted': {
-      playSound({ name: 'success' });
-      break;
+    switch (currentState) {
+      case 'accepted': {
+        playSound({ name: 'success' });
+        break;
+      }
+
+      case 'needs_review':
+      case 'both_sides_have_paper': {
+        playSound({ name: 'warning' });
+        break;
+      }
+
+      case 'rejecting':
+      case 'jammed':
+      case 'unrecoverable_error': {
+        playSound({ name: 'error' });
+        break;
+      }
+
+      default: {
+        // No sound
+        break;
+      }
     }
-
-    case 'needs_review':
-    case 'both_sides_have_paper': {
-      playSound({ name: 'warning' });
-      break;
-    }
-
-    case 'rejecting':
-    case 'jammed':
-    case 'unrecoverable_error': {
-      playSound({ name: 'error' });
-      break;
-    }
-
-    default: {
-      // No sound
-      break;
-    }
-  }
-
-  previousState.current = currentState;
+  }, [currentState, isSoundMuted, playSound]);
 }
