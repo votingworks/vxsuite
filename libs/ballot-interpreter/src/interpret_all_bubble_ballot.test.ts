@@ -41,6 +41,7 @@ describe.each(Object.values(HmpbBallotPaperSize))(
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [AdjudicationReason.Overvote],
+          electionHasBallotPositions: true,
         },
         images
       );
@@ -76,6 +77,7 @@ describe.each(Object.values(HmpbBallotPaperSize))(
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [AdjudicationReason.Overvote],
+          electionHasBallotPositions: true,
         },
         images
       );
@@ -110,6 +112,7 @@ describe.each(Object.values(HmpbBallotPaperSize))(
             testMode: true,
             markThresholds: DEFAULT_MARK_THRESHOLDS,
             adjudicationReasons: [AdjudicationReason.Overvote],
+            electionHasBallotPositions: true,
           },
           sheetImages
         );

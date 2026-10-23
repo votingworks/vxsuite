@@ -16,7 +16,10 @@ import { rootDebug } from './util/debug.js';
 export async function interpret(
   sheetId: string,
   sheet: SheetOf<ImageData>,
-  options: InterpreterOptions & { ballotImagesPath: string }
+  options: InterpreterOptions & {
+    ballotImagesPath: string;
+    electionHasBallotPositions: boolean;
+  }
 ): Promise<Result<SheetInterpretationWithPages, Error>> {
   const timer = time(rootDebug, `vxInterpret: ${sheetId}`);
 

@@ -34,6 +34,7 @@ test('blank sheet of paper', async () => {
       testMode: false,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
+      electionHasBallotPositions: true,
     },
     sheet
   );

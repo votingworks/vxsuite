@@ -54,6 +54,7 @@ export interface CastVoteRecordSpec {
 
 /** Options for {@link generateCastVoteRecordExport}. */
 export interface GenerateCastVoteRecordExportOptions {
+  electionHasBallotPositions: boolean;
   /** Scanner/device id recorded on each CVR. Defaults to {@link DEV_MACHINE_ID}. */
   scannerId?: string;
   /** Whether the export is a test-mode export. Defaults to `false`. */
@@ -89,6 +90,7 @@ async function renderInterpretAndWriteCvr({
   pdfPath,
   castVoteRecordId,
   castVoteRecordDirectory,
+  electionHasBallotPositions,
 }: {
   electionDefinition: ElectionDefinition;
   spec: CastVoteRecordSpec;
@@ -98,6 +100,7 @@ async function renderInterpretAndWriteCvr({
   pdfPath: string;
   castVoteRecordId: BallotId;
   castVoteRecordDirectory: string;
+  electionHasBallotPositions: boolean;
 }): Promise<CVR.CVR> {
   const pdfBytes = new Uint8Array(await fs.readFile(pdfPath));
   const pageImages: RgbaImageData[] = [];
@@ -133,6 +136,7 @@ async function renderInterpretAndWriteCvr({
       ],
       markThresholds:
         DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED,
+      electionHasBallotPositions,
     },
     sheet,
     castVoteRecordId,
@@ -203,7 +207,9 @@ async function renderInterpretAndWriteCvr({
 export async function generateCastVoteRecordExport(
   electionDefinition: ElectionDefinition,
   ballots: CastVoteRecordSpec[],
-  options: GenerateCastVoteRecordExportOptions = {}
+  options: GenerateCastVoteRecordExportOptions = {
+    electionHasBallotPositions: true,
+  }
 ): Promise<string> {
   const scannerId = options.scannerId ?? DEV_MACHINE_ID;
   const testMode = options.testMode ?? false;
@@ -279,6 +285,7 @@ export async function generateCastVoteRecordExport(
         pdfPath,
         castVoteRecordId,
         castVoteRecordDirectory,
+        electionHasBallotPositions: options.electionHasBallotPositions,
       });
 
       await fs.writeFile(

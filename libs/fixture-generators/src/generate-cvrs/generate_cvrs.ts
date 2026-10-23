@@ -38,7 +38,6 @@ import {
 import {
   buildCVRSnapshotBallotTypeMetadata,
   CachedElectionLookups,
-  electionHasBallotPositions,
   hasWriteIns,
   uniqueContestOptions,
 } from '@votingworks/utils';
@@ -140,7 +139,7 @@ export function generateBallotPageLayouts(
   election: Election,
   metadata: BallotMetadata
 ): readonly BallotPageLayout[] {
-  if (!electionHasBallotPositions(election)) {
+  if (election.ballotStyles.every((bs) => !bs.ballotPositions)) {
     return [];
   }
 
@@ -226,7 +225,7 @@ export function* generateCvrs({
   // Currently we can generate only BMD ballots for elections without ballot
   // positions. For elections with ballot positions we just generate HMPB
   // ballots for simplicity but could generate BMD.
-  const bmdBallots = !electionHasBallotPositions(election);
+  const bmdBallots = election.ballotStyles.every((bs) => !bs.ballotPositions);
 
   for (const ballotStyle of ballotStyles) {
     const { precincts: precinctIds, id: ballotStyleId, partyId } = ballotStyle;

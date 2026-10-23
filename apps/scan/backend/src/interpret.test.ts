@@ -89,6 +89,7 @@ test('treats BMD ballot with one blank side as valid', async () => {
     testMode: true,
     markThresholds: DEFAULT_MARK_THRESHOLDS,
     adjudicationReasons: [],
+    electionHasBallotPositions: true,
   });
   expect(result.ok()?.type).toEqual('ValidSheet');
 });
@@ -104,6 +105,7 @@ test('respects adjudication reasons for a BMD ballot on the front side', async (
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [AdjudicationReason.Undervote],
+      electionHasBallotPositions: true,
     }
   );
   const interpretation = assertDefined(result.ok());
@@ -130,6 +132,7 @@ test('NH interpreter of overvote yields a sheet that needs to be reviewed', asyn
     testMode: true,
     markThresholds: DEFAULT_MARK_THRESHOLDS,
     adjudicationReasons: [AdjudicationReason.Overvote],
+    electionHasBallotPositions: true,
   });
   expect(result.ok()?.type).toEqual('NeedsReviewSheet');
 });
@@ -143,6 +146,7 @@ test('NH interpreter with testMode=true', async () => {
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [AdjudicationReason.Overvote],
+      electionHasBallotPositions: true,
     })
   ).unsafeUnwrap();
   expect(sheet.type).toEqual('ValidSheet');

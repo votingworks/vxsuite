@@ -38,6 +38,7 @@ test('Blank BMD', async () => {
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
+          electionHasBallotPositions: true,
         },
         famousNamesBmdBallot
       );

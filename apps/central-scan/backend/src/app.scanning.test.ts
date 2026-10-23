@@ -1,4 +1,8 @@
-import { getLifetimeSheetCountFilePath } from '@votingworks/backend';
+import {
+  getLifetimeSheetCountFilePath,
+  mockElectionPackageFileTree,
+  type PartialElectionPackage,
+} from '@votingworks/backend';
 import { assertDefined, deferred, iter } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
@@ -13,10 +17,11 @@ import {
   type BatchInfo,
   DEFAULT_SYSTEM_SETTINGS,
   type PageInterpretation,
+  type SystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import {
-  type BooleanEnvironmentVariableName,
+  BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { LogEventId, type Logger } from '@votingworks/logging';
@@ -25,7 +30,11 @@ import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth.js';
 import { generateBmdBallotFixture } from '../test/helpers/ballots.js';
-import { waitForStatus, withApp } from '../test/helpers/setup_app.js';
+import {
+  waitForStatus,
+  withApp,
+  type TestAppContext,
+} from '../test/helpers/setup_app.js';
 import type { ScannedSheetInfo } from './fujitsu_scanner.js';
 
 const jurisdiction = TEST_JURISDICTION;
@@ -426,18 +435,15 @@ test('rejectSheet after invalid ballot', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.readElectionDefinition();
   const bmdFixture = await generateBmdBallotFixture();
-  await withApp(async ({ auth, apiClient, scanner, workspace }) => {
+  await withApp(async (ctx) => {
+    const { auth, apiClient, scanner, workspace } = ctx;
+
     const incrementLifetimeSheetCount = vi
       .spyOn(workspace.lifetimeSheetCounter, 'increment')
       .mockResolvedValue();
+
     mockElectionManagerAuth(auth, electionDefinition);
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
-      jurisdiction,
-      electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
-    });
-    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+    await configureFromUsb(ctx, { electionDefinition });
     await apiClient.setTestMode({ testMode: true });
     await apiClient.setPollingPlaceId({ id: 'central-scanning' });
 
@@ -546,19 +552,17 @@ test('scanBatch with streaked page', async () => {
   };
 
   // try with vertical streak detection enabled
-  await withApp(async ({ auth, apiClient, scanner, workspace }) => {
+  await withApp(async (ctx) => {
+    const { auth, apiClient, scanner, workspace } = ctx;
     mockElectionManagerAuth(auth, electionDefinition);
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
-      jurisdiction,
-      electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
-    });
-    workspace.store.setSystemSettings({
+
+    const systemSettings: SystemSettings = {
       ...DEFAULT_SYSTEM_SETTINGS,
       // enable vertical streak detection
       disableVerticalStreakDetection: false,
-    });
+    };
+
+    await configureFromUsb(ctx, { electionDefinition, systemSettings });
     await apiClient.setTestMode({ testMode: true });
     await apiClient.setPollingPlaceId({ id: 'central-scanning' });
 
@@ -584,19 +588,17 @@ test('scanBatch with streaked page', async () => {
   });
 
   // try again with vertical streak detection disabled
-  await withApp(async ({ auth, apiClient, scanner, workspace }) => {
+  await withApp(async (ctx) => {
+    const { auth, apiClient, scanner, workspace } = ctx;
     mockElectionManagerAuth(auth, electionDefinition);
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
-      jurisdiction,
-      electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
-    });
-    workspace.store.setSystemSettings({
+
+    const systemSettings: SystemSettings = {
       ...DEFAULT_SYSTEM_SETTINGS,
       // disable vertical streak detection
       disableVerticalStreakDetection: true,
-    });
+    };
+
+    await configureFromUsb(ctx, { electionDefinition, systemSettings });
     await apiClient.setTestMode({ testMode: true });
     await apiClient.setPollingPlaceId({ id: 'central-scanning' });
 
@@ -630,21 +632,19 @@ test('accepting a sheet that needs review keeps it and continues scanning', asyn
   await writeImageData(frontPath, frontImageData);
   await writeImageData(backPath, backImageData);
 
-  await withApp(async ({ auth, apiClient, scanner, workspace, logger }) => {
+  await withApp(async (ctx) => {
+    const { auth, apiClient, scanner, workspace, logger } = ctx;
     const incrementLifetimeSheetCount = vi
       .spyOn(workspace.lifetimeSheetCounter, 'increment')
       .mockResolvedValue();
     mockElectionManagerAuth(auth, electionDefinition);
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
-      jurisdiction,
-      electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
-    });
-    workspace.store.setSystemSettings({
+
+    const systemSettings: SystemSettings = {
       ...DEFAULT_SYSTEM_SETTINGS,
       centralScanAdjudicationReasons: [AdjudicationReason.BlankBallot],
-    });
+    };
+
+    await configureFromUsb(ctx, { electionDefinition, systemSettings });
     await apiClient.setTestMode({ testMode: true });
     await apiClient.setPollingPlaceId({ id: 'central-scanning' });
 
@@ -737,15 +737,12 @@ test('sends a sheet with marginal marks for review when enabled', async () => {
   await writeImageData(frontPath, frontImageData);
   await writeImageData(backPath, backImageData);
 
-  await withApp(async ({ auth, apiClient, scanner, workspace }) => {
+  await withApp(async (ctx) => {
+    const { auth, apiClient, scanner, workspace } = ctx;
+
     mockElectionManagerAuth(auth, electionDefinition);
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
-      jurisdiction,
-      electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
-    });
-    workspace.store.setSystemSettings({
+
+    const systemSettings: SystemSettings = {
       ...DEFAULT_SYSTEM_SETTINGS,
       // Wide enough gap between the marginal and definite thresholds that
       // every partially filled bubble on the fixture scores as marginal.
@@ -755,7 +752,9 @@ test('sends a sheet with marginal marks for review when enabled', async () => {
         definite: 0.15,
       },
       centralScanAdjudicationReasons: [AdjudicationReason.MarginalMark],
-    });
+    };
+
+    await configureFromUsb(ctx, { electionDefinition, systemSettings });
     await apiClient.setTestMode({ testMode: true });
     await apiClient.setPollingPlaceId({ id: 'central-scanning' });
 
@@ -919,3 +918,15 @@ test('setIsImprintingEnabled', async () => {
     await starting;
   });
 });
+
+async function configureFromUsb(
+  ctx: TestAppContext,
+  pkg: PartialElectionPackage
+) {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  );
+  ctx.mockUsbDrive.insertUsbDrive(await mockElectionPackageFileTree(pkg));
+  const res = await ctx.apiClient.configureFromElectionPackageOnUsbDrive();
+  res.unsafeUnwrap();
+}
