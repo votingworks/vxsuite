@@ -84,11 +84,14 @@ test('non-split election definition - imports positions from parsed election', a
   const client = Client.memoryClient(`${import.meta.dirname}/schema.sql`);
   const store = new BallotMetaStore(client);
 
+  expect(store.hasPositions()).toBeFalsy();
+
   const pkgFile = makeTemporaryFile({ content: await zipFile({}) });
   await withElectionPackageZip(pkgFile, async (zip) => {
     await store.importPositions(zip, election, settings);
   });
 
+  expect(store.hasPositions()).toBeTruthy();
   expect(store.getPositions(style1.id)).toEqual(style1.ballotPositions);
   expect(store.getPositions(style2.id)).toEqual(style2.ballotPositions);
   expect(store.getPositions(style3NoPositions.id)).toBeNull();
@@ -106,6 +109,8 @@ test('split election definition - imports positions from ballotPositions.jsonl',
   const client = Client.memoryClient(`${import.meta.dirname}/schema.sql`);
   const store = new BallotMetaStore(client);
 
+  expect(store.hasPositions()).toBeFalsy();
+
   const pkgData = await zipFile({
     [ElectionPackageFileName.BALLOT_POSITIONS]: [
       JSON.stringify(positionsFromBallotStyle(style1)),
@@ -119,6 +124,7 @@ test('split election definition - imports positions from ballotPositions.jsonl',
     await store.importPositions(zip, election, settings);
   });
 
+  expect(store.hasPositions()).toBeTruthy();
   expect(store.getPositions(style1.id)).toEqual(style1.ballotPositions);
   expect(store.getPositions(style2.id)).toEqual(style2.ballotPositions);
   expect(store.getPositions('invalid')).toBeNull();
