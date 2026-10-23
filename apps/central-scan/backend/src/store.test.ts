@@ -12,7 +12,6 @@ import {
   type SheetOf,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-import { sleep } from '@votingworks/basics';
 import type { AcceptedSheet, RejectedSheet } from '@votingworks/backend';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
@@ -25,11 +24,6 @@ import { Store } from './store.js';
 function sha256(data: string): string {
   return createHash('sha256').update(data).digest('hex');
 }
-
-// We pause in some of these tests so we need to increase the timeout
-vi.setConfig({
-  testTimeout: 20000,
-});
 
 const jurisdiction = TEST_JURISDICTION;
 const electionDefinition =
@@ -154,11 +148,9 @@ test('get/set scanner as backed up', () => {
     electionPackageHash,
     ballotHash,
   });
-  expect(store.getScannerBackupTimestamp()).toBeFalsy();
+  expect(store.getScannerBackedUpCvrRevision()).toBeUndefined();
   store.setScannerBackedUp();
-  expect(store.getScannerBackupTimestamp()).toBeTruthy();
-  store.setScannerBackedUp(false);
-  expect(store.getScannerBackupTimestamp()).toBeFalsy();
+  expect(store.getScannerBackedUpCvrRevision()).toEqual(store.getCvrRevision());
 });
 
 test('getAllBatchIds includes unfinished and deleted batches', () => {
@@ -413,7 +405,7 @@ test('canUnconfigure in test mode', () => {
   expect(store.getCanUnconfigure()).toEqual(true);
 });
 
-test('canUnconfigure not in test mode', async () => {
+test('canUnconfigure not in test mode', () => {
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({
     electionData,
@@ -454,7 +446,6 @@ test('canUnconfigure not in test mode', async () => {
   expect(store.getCanUnconfigure()).toEqual(true);
 
   // Setup second batch with second sheet
-  await sleep(1000);
   const batchId2 = store.addBatch();
   store.addSheet(uuid(), batchId2, [
     {
@@ -475,7 +466,6 @@ test('canUnconfigure not in test mode', async () => {
   expect(store.getCanUnconfigure()).toEqual(true);
 
   // Setup third batch with third sheet
-  await sleep(1000);
   const batchId3 = store.addBatch();
   const sheetId3 = uuid();
   store.addSheet(sheetId3, batchId3, [
@@ -497,26 +487,22 @@ test('canUnconfigure not in test mode', async () => {
   expect(store.getCanUnconfigure()).toEqual(true);
 
   // Cannot unconfigure after sheet deleted
-  await sleep(1000);
   store.deleteSheet(sheetId);
   expect(store.getCanUnconfigure()).toEqual(false);
   store.setScannerBackedUp();
   expect(store.getCanUnconfigure()).toEqual(true);
 
   // Can unconfigure after empty batch deleted
-  await sleep(1000);
   store.deleteBatch(batchId);
   expect(store.getCanUnconfigure()).toEqual(true);
 
   // Cannot unconfigure after non-empty batch deleted
-  await sleep(1000);
   store.deleteBatch(batchId2);
   expect(store.getCanUnconfigure()).toEqual(false);
   store.setScannerBackedUp();
   expect(store.getCanUnconfigure()).toEqual(true);
 
   // Can unconfigure if no counted ballots
-  await sleep(1000);
   store.deleteSheet(sheetId3);
   expect(store.getCanUnconfigure()).toEqual(true);
 });
@@ -807,7 +793,8 @@ test('resetElectionSession', () => {
   store.resetElectionSession();
 
   // resetElectionSession should reset election session state
-  expect(store.getScannerBackupTimestamp()).toBeFalsy();
+  expect(store.getScannerBackedUpCvrRevision()).toBeUndefined();
+  expect(store.getCvrRevision()).toEqual(0);
 
   // resetElectionSession should clear all batches
   expect(store.getBatches()).toEqual([]);
@@ -928,4 +915,44 @@ test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRe
   );
   store.clearCastVoteRecordHashes();
   expect(store.getCastVoteRecordRootHash()).toEqual('');
+});
+
+test('canUnconfigure requires backing up sheets added during a backup', () => {
+  const store = Store.memoryStore();
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+    ballotHash,
+  });
+  store.setPollingPlaceId(anyPollingPlace(election).id);
+  store.setTestMode(false);
+  const batchId = store.addBatch();
+  store.addSheet(uuid(), batchId, [
+    {
+      imagePath: '/tmp/front-1.png',
+      interpretation: { type: 'UnreadablePage' },
+    },
+    {
+      imagePath: '/tmp/back-1.png',
+      interpretation: { type: 'UnreadablePage' },
+    },
+  ]);
+
+  const cvrRevisionAtBackupStart = store.getCvrRevision();
+  store.addSheet(uuid(), batchId, [
+    {
+      imagePath: '/tmp/front-2.png',
+      interpretation: { type: 'UnreadablePage' },
+    },
+    {
+      imagePath: '/tmp/back-2.png',
+      interpretation: { type: 'UnreadablePage' },
+    },
+  ]);
+  store.setScannerBackedUp(cvrRevisionAtBackupStart);
+  expect(store.getCanUnconfigure()).toEqual(false);
+
+  store.setScannerBackedUp();
+  expect(store.getCanUnconfigure()).toEqual(true);
 });

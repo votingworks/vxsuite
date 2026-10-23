@@ -432,14 +432,13 @@ function buildApi({
       await logger.logAsCurrentRole(LogEventId.ExportCastVoteRecordsInit, {
         message: 'Exporting all accepted and rejected cast vote records...',
       });
+      const cvrRevision = store.getCvrRevision();
       const exportResult = await exportCastVoteRecordsToUsbDrive(
         store,
         usbDrive,
         store.forEachSheet(),
         { scannerType: 'central' }
       );
-      store.setScannerBackedUp();
-      // @coverage-defer
       if (exportResult.isErr()) {
         await logger.logAsCurrentRole(
           LogEventId.ExportCastVoteRecordsComplete,
@@ -450,6 +449,7 @@ function buildApi({
           }
         );
       } else {
+        store.setScannerBackedUp(cvrRevision);
         await logger.logAsCurrentRole(
           LogEventId.ExportCastVoteRecordsComplete,
           {
