@@ -240,41 +240,67 @@ export function decodeQuickResultsMessage(payload: string): DecodedFields {
   }
 }
 
-// Shared helper: sign a message, read machine cert, and build the final URL.
-async function signAndBuildUrl(
-  message: string,
-  config: SignedQuickResultsReportingConfig,
-  quickResultsReportingUrl: string,
-  maxQrCodeLength: number
-): Promise<string | null> {
-  const messageSignature = await signMessage({
-    message: Readable.from(message),
-    signingPrivateKey: config.machinePrivateKey,
-  });
-
+async function readMachineCertContent(
+  config: SignedQuickResultsReportingConfig
+): Promise<string> {
   const machineCert = await fs.readFile(config.machineCertPath);
   const certDetails = await parseCert(machineCert);
   assert(certDetails.component !== 'card');
 
   // Extract the certificate content, decode from PEM base64 to binary DER, then encode as base64url
-  const machineCertContent = machineCert
-    .toString('utf-8')
-    // Remove the standard PEM header and footer to get the base64 content
-    .replace(CERT_PEM_HEADER, '')
-    .replace(CERT_PEM_FOOTER, '');
+  return (
+    machineCert
+      .toString('utf-8')
+      // Remove the standard PEM header and footer to get the base64 content
+      .replace(CERT_PEM_HEADER, '')
+      .replace(CERT_PEM_FOOTER, '')
+  );
+}
 
+function buildUrl(
+  quickResultsReportingUrl: string,
+  message: string,
+  signature: string,
+  machineCertContent: string
+): string {
   const params = new URLSearchParams({
     p: message,
-    s: messageSignature.toString('base64url'),
+    s: signature,
     c: machineCertContent,
   });
-  const signedQuickResultsReportingUrl = `${quickResultsReportingUrl}?${params.toString()}`;
+  return `${quickResultsReportingUrl}?${params.toString()}`;
+}
+
+async function signAndBuildUrl(
+  message: string,
+  config: SignedQuickResultsReportingConfig,
+  machineCertContent: string,
+  quickResultsReportingUrl: string,
+  maxQrCodeLength: number
+): Promise<string | null> {
+  function fits(url: string): boolean {
+    return Buffer.byteLength(url, 'utf-8') <= maxQrCodeLength;
+  }
+
   if (
-    Buffer.byteLength(signedQuickResultsReportingUrl, 'utf-8') > maxQrCodeLength
+    !fits(buildUrl(quickResultsReportingUrl, message, '', machineCertContent))
   ) {
     return null;
   }
-  return signedQuickResultsReportingUrl;
+
+  const messageSignature = await signMessage({
+    message: Readable.from(message),
+    signingPrivateKey: config.machinePrivateKey,
+  });
+  const signedQuickResultsReportingUrl = buildUrl(
+    quickResultsReportingUrl,
+    message,
+    messageSignature.toString('base64url'),
+    machineCertContent
+  );
+  return fits(signedQuickResultsReportingUrl)
+    ? signedQuickResultsReportingUrl
+    : null;
 }
 
 /**
@@ -316,6 +342,7 @@ export async function generateSignedQuickResultsReportingUrl(
   let numPagesNeeded = 1; // If we need to paginate this value will be incremented.
   const secondsSince1970 = Math.round(pollsTransitionTimestamp / 1000);
   const ballotCount = getTotalBallotCount(resultsByPrecinct);
+  const machineCertContent = await readMachineCertContent(config);
 
   switch (pollsTransitionType) {
     case 'close_polls': {
@@ -346,6 +373,7 @@ export async function generateSignedQuickResultsReportingUrl(
           const url = await signAndBuildUrl(
             message,
             config,
+            machineCertContent,
             quickResultsReportingUrl,
             maxQrCodeLength
           );
@@ -384,6 +412,7 @@ export async function generateSignedQuickResultsReportingUrl(
       const url = await signAndBuildUrl(
         message,
         config,
+        machineCertContent,
         quickResultsReportingUrl,
         maxQrCodeLength
       );
