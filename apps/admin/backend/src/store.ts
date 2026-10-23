@@ -33,6 +33,7 @@ import {
   type DiagnosticRecord,
   type DistrictId,
   type Election,
+  type ElectionDefinition,
   type Id,
   type Iso8601Timestamp,
   type Precinct,
@@ -230,6 +231,10 @@ export class Store implements BaseStore {
   private readonly client: DbClient;
   private readonly ballotImagesPath: string;
   private readonly electionPackagesPath: string;
+  private cachedElection?: {
+    id: Id;
+    electionDefinition: ElectionDefinition;
+  };
 
   private constructor(
     client: DbClient,
@@ -305,6 +310,7 @@ export class Store implements BaseStore {
    * afterwards.
    */
   close(): void {
+    this.cachedElection = undefined;
     this.client.close();
   }
 
@@ -462,6 +468,7 @@ export class Store implements BaseStore {
       );
     } catch (error) {
       this.client.run(`delete from elections where id = ?`, id);
+      this.cachedElection = undefined;
 
       // Be sure to clean up the election package file in case of failure.
       // The file may not exist if the copy itself failed (e.g. the source
@@ -517,8 +524,6 @@ export class Store implements BaseStore {
       `
       select
         id,
-        ballot_hash as ballotHash,
-        election_data as electionData,
         datetime(created_at, 'localtime') as createdAt,
         is_official_results as isOfficialResults,
         election_package_hash as electionPackageHash
@@ -529,8 +534,6 @@ export class Store implements BaseStore {
     ) as
       | {
           id: Id;
-          ballotHash: string;
-          electionData: string;
           createdAt: string;
           isOfficialResults: SqliteBool;
           electionPackageHash: string;
@@ -541,15 +544,32 @@ export class Store implements BaseStore {
     }
     return {
       id: result.id,
-      electionDefinition: {
-        ballotHash: result.ballotHash,
-        election: safeParseElection(result.electionData).unsafeUnwrap(),
-        electionData: result.electionData,
-      },
+      electionDefinition: this.getElectionDefinition(result.id),
       createdAt: convertSqliteTimestampToIso8601(result.createdAt),
       isOfficialResults: result.isOfficialResults === 1,
       electionPackageHash: result.electionPackageHash,
     };
+  }
+
+  private getElectionDefinition(electionId: Id): ElectionDefinition {
+    if (this.cachedElection?.id === electionId) {
+      return this.cachedElection.electionDefinition;
+    }
+    const { ballotHash, electionData } = this.client.one(
+      `
+      select ballot_hash as ballotHash, election_data as electionData
+      from elections
+      where id = ?
+      `,
+      electionId
+    ) as { ballotHash: string; electionData: string };
+    const electionDefinition: ElectionDefinition = {
+      ballotHash,
+      election: safeParseElection(electionData).unsafeUnwrap(),
+      electionData,
+    };
+    this.cachedElection = { id: electionId, electionDefinition };
+    return electionDefinition;
   }
 
   getElectionPackageHash(electionId: string): string | undefined {
