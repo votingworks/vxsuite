@@ -87,9 +87,7 @@ export function AdminScreen({
     systemSettingsQuery.data?.bmdEnableQrBallotActivation &&
     systemSettingsQuery.data.allowPrintingBlankBallotsFromVxMark
   );
-  const barcodeActivationModeQuery = api.getBarcodeActivationMode.useQuery({
-    enabled: isBarcodeActivationModeSelectable,
-  });
+  const barcodeActivationModeQuery = api.getBarcodeActivationMode.useQuery();
   const setBarcodeActivationModeMutation =
     api.setBarcodeActivationMode.useMutation();
   const [isConfirmingModeSwitch, setIsConfirmingModeSwitch] = useState(false);

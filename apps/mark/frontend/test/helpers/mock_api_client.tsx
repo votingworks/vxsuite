@@ -75,6 +75,7 @@ type MockApiClient = Omit<
   | 'getDiskSpaceSummary'
   | 'getPrintJobStatus'
   | 'getElectionState'
+  | 'getBarcodeActivationMode'
   | 'getPendingBarcodePrintRequest'
   | 'clearPendingBarcodePrintRequest'
 > & {
@@ -89,6 +90,7 @@ type MockApiClient = Omit<
   getDiskSpaceSummary: Mock;
   getPrintJobStatus: Mock;
   getElectionState: Mock;
+  getBarcodeActivationMode: Mock;
   getPendingBarcodePrintRequest: Mock;
   clearPendingBarcodePrintRequest: Mock;
 };
@@ -195,6 +197,11 @@ export function createApiMock() {
     Promise.resolve({ ...electionStateRef.current })
   );
 
+  let barcodeActivationMode: BarcodeActivationMode = 'voter_session';
+  mockApiClient.getBarcodeActivationMode = vi.fn(() =>
+    Promise.resolve(barcodeActivationMode)
+  );
+
   let pendingBarcodePrintRequest: BarcodePrintRequest | null = null;
   mockApiClient.getPendingBarcodePrintRequest = vi.fn(() =>
     Promise.resolve(pendingBarcodePrintRequest)
@@ -218,6 +225,10 @@ export function createApiMock() {
     setPatInputConnected,
 
     setBarcodeConnected,
+
+    setBarcodeActivationMode(mode: BarcodeActivationMode) {
+      barcodeActivationMode = mode;
+    },
 
     setPendingBarcodePrintRequest(request: BarcodePrintRequest | null) {
       pendingBarcodePrintRequest = request;
@@ -368,10 +379,6 @@ export function createApiMock() {
 
     expectSetPollsState(pollsState: PollsState) {
       mockApiClient.setPollsState.expectCallWith({ pollsState }).resolves();
-    },
-
-    expectGetBarcodeActivationMode(mode: BarcodeActivationMode) {
-      mockApiClient.getBarcodeActivationMode.expectCallWith().resolves(mode);
     },
 
     expectSetBarcodeActivationMode(mode: BarcodeActivationMode) {

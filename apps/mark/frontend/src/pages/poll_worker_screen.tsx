@@ -79,12 +79,7 @@ export function PollWorkerScreen({
   const allowPrintingBlankBallots = Boolean(
     systemSettingsQuery.data?.allowPrintingBlankBallotsFromVxMark
   );
-  const barcodeActivationModeQuery = getBarcodeActivationMode.useQuery({
-    enabled: Boolean(
-      allowPrintingBlankBallots &&
-      systemSettingsQuery.data?.bmdEnableQrBallotActivation
-    ),
-  });
+  const barcodeActivationModeQuery = getBarcodeActivationMode.useQuery();
   const isBarcodeBallotPrintingEnabled =
     barcodeActivationModeQuery.data === 'ballot_printing';
   const pendingBarcodePrintRequestQuery =

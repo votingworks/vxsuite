@@ -542,7 +542,7 @@ function expectBarcodeBallotPrinting(
     allowPrintingBlankBallotsFromVxMark: true,
     bmdEnableQrBallotActivation: true,
   });
-  apiMock.expectGetBarcodeActivationMode(mode);
+  apiMock.setBarcodeActivationMode(mode);
 }
 
 test('a pending barcode print request opens the print screen with the scanned options locked', async () => {
@@ -578,7 +578,7 @@ test('returns to the poll worker menu after a failed barcode print', async () =>
 
   fireEvent.click(await screen.findByText('Print Ballot'));
   await screen.findByText('Ballot Not Printed');
-  userEvent.click(screen.getByRole('button', { name: 'Close' }));
+  await userEvent.click(screen.getByRole('button', { name: 'Close' }));
 
   await expectPollWorkerMenu();
   expect(

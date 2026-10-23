@@ -397,7 +397,6 @@ test('can switch the barcode activation mode when QR activation and ballot print
     allowPrintingBlankBallotsFromVxMark: true,
   });
   apiMock.expectGetUsbPortStatus();
-  apiMock.expectGetBarcodeActivationMode('voter_session');
   renderScreen();
 
   const votingSessionOption = await screen.findByRole('option', {
@@ -406,7 +405,7 @@ test('can switch the barcode activation mode when QR activation and ballot print
   expect(votingSessionOption).toHaveAttribute('aria-selected', 'true');
 
   apiMock.expectSetBarcodeActivationMode('ballot_printing');
-  apiMock.expectGetBarcodeActivationMode('ballot_printing');
+  apiMock.setBarcodeActivationMode('ballot_printing');
   await userEvent.click(screen.getByRole('option', { name: 'Print Ballot' }));
   await vi.waitFor(() =>
     expect(

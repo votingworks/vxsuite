@@ -49,7 +49,7 @@ test('a scanned barcode prints one ballot and returns to the poll worker menu', 
     allowPrintingBlankBallotsFromVxMark: true,
     bmdEnableQrBallotActivation: true,
   });
-  apiMock.expectGetBarcodeActivationMode('ballot_printing');
+  apiMock.setBarcodeActivationMode('ballot_printing');
   apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({ pollingPlaceId, pollsState: 'polls_open' });
 
@@ -68,9 +68,9 @@ test('a scanned barcode prints one ballot and returns to the poll worker menu', 
   apiMock.mockApiClient.printBlankBallot
     .expectCallWith({ ballotStyleId, precinctId })
     .resolves(MOCK_PRINT_JOB_ID);
-  userEvent.click(screen.getButton('Print Ballot'));
+  await userEvent.click(screen.getButton('Print Ballot'));
   await screen.findByText('Ballot Printed');
-  userEvent.click(screen.getButton('Done'));
+  await userEvent.click(screen.getButton('Done'));
 
   await screen.findByText('Start a New Voting Session');
   expect(screen.queryByText('Blank Ballot Printing')).toBeNull();
@@ -93,7 +93,7 @@ function renderSplitsElectionAsPollWorker() {
     allowPrintingBlankBallotsFromVxMark: true,
     bmdEnableQrBallotActivation: true,
   });
-  apiMock.expectGetBarcodeActivationMode('ballot_printing');
+  apiMock.setBarcodeActivationMode('ballot_printing');
   apiMock.expectGetElectionRecord(splitsDefinition);
   apiMock.expectGetElectionState({
     pollingPlaceId: 'precinct-c2-polling-place',
@@ -123,7 +123,7 @@ test('a scanned barcode for a split precinct shows the scanned split, party, and
 test('a scanned barcode fills in a split precinct on the open manual print screen', async () => {
   renderSplitsElectionAsPollWorker();
 
-  userEvent.click(await screen.findButton('Print Blank Ballot'));
+  await userEvent.click(await screen.findButton('Print Blank Ballot'));
   await screen.findByText('Blank Ballot Printing');
   expect(screen.queryByText('Precinct 4 - Split 2')).toBeNull();
 

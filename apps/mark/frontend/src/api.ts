@@ -443,12 +443,10 @@ export const getBarcodeActivationMode = {
   queryKey(): QueryKey {
     return ['getBarcodeActivationMode'];
   },
-  useQuery(options: { enabled: boolean }) {
+  useQuery() {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () => apiClient.getBarcodeActivationMode(),
-      options
+    return useQuery(this.queryKey(), () =>
+      apiClient.getBarcodeActivationMode()
     );
   },
 } as const;
