@@ -92,28 +92,40 @@ interface ScoredContestOption {
   writeInAreaStatus: WriteInAreaStatus;
 }
 
-function getContestOptionForGridPosition(
+function createContestOptionLookup(
   contests: readonly Contest[],
-  gridPosition: GridPosition,
   ballotStyle: BallotStyle
-): ContestOption {
-  const candidateOrderings = ballotStyle.orderedCandidatesByContest;
-  const contest = find(contests, (c) => c.id === gridPosition.contestId);
-  const option = uniqueContestOptions(contest, candidateOrderings).find((o) =>
-    gridPosition.type === 'option'
-      ? o.id === gridPosition.optionId
-      : o.type === 'candidate' && o.writeInIndex === gridPosition.writeInIndex
-  );
-  assert(
-    option,
-    `option not found for mark ${gridPosition.contestId}/${
-      gridPosition.type === 'option'
-        ? gridPosition.optionId
-        : `write-in-${gridPosition.writeInIndex}`
-    }`
-  );
+): (gridPosition: GridPosition) => ContestOption {
+  const optionsByContestId = new Map<ContestId, ContestOption[]>();
 
-  return option;
+  return (gridPosition) => {
+    let options = optionsByContestId.get(gridPosition.contestId);
+    if (!options) {
+      const contest = find(contests, (c) => c.id === gridPosition.contestId);
+      options = [
+        ...uniqueContestOptions(
+          contest,
+          ballotStyle.orderedCandidatesByContest
+        ),
+      ];
+      optionsByContestId.set(contest.id, options);
+    }
+    const option = options.find((o) =>
+      gridPosition.type === 'option'
+        ? o.id === gridPosition.optionId
+        : o.type === 'candidate' && o.writeInIndex === gridPosition.writeInIndex
+    );
+    assert(
+      option,
+      `option not found for mark ${gridPosition.contestId}/${
+        gridPosition.type === 'option'
+          ? gridPosition.optionId
+          : `write-in-${gridPosition.writeInIndex}`
+      }`
+    );
+
+    return option;
+  };
 }
 
 /**
@@ -157,12 +169,9 @@ function aggregateContestOptionScores({
   options: InterpreterOptions;
   ballotStyle: BallotStyle;
 }): ScoredContestOption[] {
+  const getContestOption = createContestOptionLookup(contests, ballotStyle);
   return marks.map(([gridPosition, scoredMark]) => {
-    const option = getContestOptionForGridPosition(
-      contests,
-      gridPosition,
-      ballotStyle
-    );
+    const option = getContestOption(gridPosition);
 
     assert(scoredMark, 'scoredMark must be defined');
     const markStatus =
@@ -374,12 +383,10 @@ function convertContestLayouts(
   const candidateOrderings = ballotStyle.orderedCandidatesByContest;
 
   function convertContestOptionLayout(
-    contest: Contest,
+    contestOptions: readonly ContestOption[],
     { bounds, optionId }: InterpretedContestOptionLayout
   ): BallotPageContestOptionLayout {
-    const option = uniqueContestOptions(contest, candidateOrderings).find(
-      (o) => o.id === optionId
-    );
+    const option = contestOptions.find((o) => o.id === optionId);
     assert(option, `option ${optionId} not found`);
     return {
       definition: option,
@@ -394,12 +401,15 @@ function convertContestLayouts(
 
   return contestLayouts.map(({ contestId, bounds, options }) => {
     const contest = find(contests, (c) => c.id === contestId);
+    const contestOptions = [
+      ...uniqueContestOptions(contest, candidateOrderings),
+    ];
     return {
       contestId,
       bounds: convertRect(bounds),
       corners: rectToCorners(bounds),
       options: options.map((option) =>
-        convertContestOptionLayout(contest, option)
+        convertContestOptionLayout(contestOptions, option)
       ),
     };
   });
