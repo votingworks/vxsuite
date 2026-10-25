@@ -9,7 +9,7 @@ function jobIdForPackage(pkg: PnpmPackageInfo): string {
 
 const RUST_CRATES_JOB_ID = 'test-rust-crates';
 
-const DOCKER_IMAGE = 'votingworks/cimg-debian12:4.8.0';
+const DOCKER_IMAGE = 'votingworks/cimg-debian12:4.9.0';
 
 // Turbo's on-disk cache lives at `<repo root>/.turbo/cache`. CI persists it so
 // a job restores its dependency chain instead of rebuilding it.

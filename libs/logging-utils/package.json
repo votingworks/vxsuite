@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@napi-rs/cli": "^3.5.1",
-    "@types/node": "24.13.3",
+    "@types/node": "24.19.2",
     "@types/tmp": "0.2.4",
     "@vitest/coverage-istanbul": "5.0.2",
     "@votingworks/coverage-check": "workspace:*",

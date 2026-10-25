@@ -52,7 +52,7 @@
     "@napi-rs/cli": "^3.5.1",
     "@types/debug": "4.1.12",
     "@types/jest-image-snapshot": "^6.4.0",
-    "@types/node": "24.13.3",
+    "@types/node": "24.19.2",
     "@types/node-quirc": "workspace:*",
     "@vitest/coverage-istanbul": "5.0.2",
     "@votingworks/bmd-ballot-fixtures": "workspace:*",

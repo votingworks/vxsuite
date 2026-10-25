@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@types/debug": "4.1.12",
-    "@types/node": "24.13.3",
+    "@types/node": "24.19.2",
     "@vitest/coverage-istanbul": "5.0.2",
     "@votingworks/coverage-check": "workspace:*",
     "@votingworks/test-utils": "workspace:*",

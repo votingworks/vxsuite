@@ -52,7 +52,7 @@
   },
   "devDependencies": {
     "@types/luxon": "^3.0.0",
-    "@types/node": "24.13.3",
+    "@types/node": "24.19.2",
     "@types/tmp": "0.2.4",
     "@types/yauzl": "2.10.3",
     "@vitest/coverage-istanbul": "5.0.2",

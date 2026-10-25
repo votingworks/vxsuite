@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "@types/istanbul-lib-report": "^3.0.0",
-    "@types/node": "24.13.3",
+    "@types/node": "24.19.2",
     "@vitest/coverage-istanbul": "5.0.2",
     "sort-package-json": "^1.50.0",
     "vitest": "5.0.2"
