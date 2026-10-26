@@ -63,6 +63,7 @@ import {
   type CandidateOrderings,
   unsafeParseJson,
   CandidateOrderingsSchema,
+  SystemSettingsSchema,
 } from '@votingworks/types';
 import {
   mkdirSync,
@@ -454,7 +455,7 @@ export class Store implements BaseStore {
             batchSize: candidateOrderingsBatchSize,
             election,
             electionId: id,
-            settings: this.getSystemSettings(id),
+            settings: unsafeParseJson(systemSettingsData, SystemSettingsSchema),
             zip,
           });
         }
