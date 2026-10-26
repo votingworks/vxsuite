@@ -65,11 +65,17 @@ export async function printBallot(p: PrintBallotProps): Promise<PrintJobId> {
   const ballotStyle = assertDefined(
     getBallotStyle({ ballotStyleId: p.ballotStyleId, election })
   );
+
+  const candidateOrderings = p.store
+    .getBallotMetaStore()
+    .getCandidateOrderings(p.ballotStyleId);
+
   const pWithDerivedVotes: PrintBallotProps = {
     ...p,
     votes: makeDerivedStraightPartyVotesExplicit({
       election,
       ballotStyle,
+      orderings: candidateOrderings,
       votes: p.votes,
     }),
   };

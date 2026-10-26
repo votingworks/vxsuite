@@ -14,6 +14,7 @@ import {
 import {
   BallotType,
   type CandidateContest,
+  type CandidateOrderings,
   type ContestPosition,
   type ElectionDefinition,
   getContests,
@@ -42,6 +43,7 @@ import type { BallotMetaStore, UiStringsStore } from '@votingworks/backend';
 import { assertDefined, find, ok } from '@votingworks/basics';
 import { mockConstructor } from '@votingworks/test-utils';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
+import { makeDerivedStraightPartyVotesExplicit } from '@votingworks/utils';
 import type { Store } from '../store.js';
 import { closeLayoutRenderer, printBallot } from './print_ballot.js';
 
@@ -59,6 +61,16 @@ vi.mock(import('@votingworks/ballot-encoder'), async (importActual) => {
   return {
     ...actual,
     encodeSummaryBallotPage: vi.fn(actual.encodeSummaryBallotPage),
+  };
+});
+
+vi.mock(import('@votingworks/utils'), async (importActual) => {
+  const actual = await importActual();
+  return {
+    ...actual,
+    makeDerivedStraightPartyVotesExplicit: vi.fn(
+      actual.makeDerivedStraightPartyVotesExplicit
+    ),
   };
 });
 
@@ -121,6 +133,10 @@ describe(`printMode === "marks_on_preprinted_ballot"`, () => {
             getPositions: (styleId) => {
               expect(styleId).toEqual(ballotStyle.id);
               return mockPositions;
+            },
+            getCandidateOrderings: (styleId) => {
+              expect(styleId).toEqual(ballotStyle.id);
+              return ballotStyle.orderedCandidatesByContest ?? null;
             },
           }),
         getElectionRecord: () => ({
@@ -206,6 +222,13 @@ describe(`printMode === "summary"`, () => {
       precinctId: mockPrecinctId,
       printer: mockPrinter({ print: mockPrint }),
       store: mockStore({
+        getBallotMetaStore: () =>
+          mockBallotMetaStore({
+            getCandidateOrderings: (styleId) => {
+              expect(styleId).toEqual(ballotStyle.id);
+              return ballotStyle.orderedCandidatesByContest ?? null;
+            },
+          }),
         getElectionRecord: () => ({
           electionDefinition,
           electionPackageHash: 'unused',
@@ -342,6 +365,13 @@ describe(`printMode === "summary"`, () => {
       precinctId,
       printer: mockPrinter({ print: mockPrint }),
       store: mockStore({
+        getBallotMetaStore: () =>
+          mockBallotMetaStore({
+            getCandidateOrderings: (styleId) => {
+              expect(styleId).toEqual(ballotStyle.id);
+              return ballotStyle.orderedCandidatesByContest ?? null;
+            },
+          }),
         getElectionRecord: () => ({
           electionDefinition,
           electionPackageHash: 'unused',
@@ -465,6 +495,13 @@ describe(`printMode === "summary"`, () => {
       precinctId,
       printer: mockPrinter({ print: mockPrint }),
       store: mockStore({
+        getBallotMetaStore: () =>
+          mockBallotMetaStore({
+            getCandidateOrderings: (styleId) => {
+              expect(styleId).toEqual(ballotStyle.id);
+              return ballotStyle.orderedCandidatesByContest ?? null;
+            },
+          }),
         getElectionRecord: () => ({
           electionDefinition,
           electionPackageHash: 'unused',
@@ -552,6 +589,10 @@ describe(`printMode === "bubble_ballot"`, () => {
               expect(styleId).toEqual(ballotStyle.id);
               return mockPositions;
             },
+            getCandidateOrderings: (styleId) => {
+              expect(styleId).toEqual(ballotStyle.id);
+              return ballotStyle.orderedCandidatesByContest ?? null;
+            },
           }),
         getElectionRecord: () => ({
           electionDefinition,
@@ -595,6 +636,15 @@ describe('straight party votes', () => {
     find(president.candidates, (c) => c.id === 'barchi-hallaren'),
   ];
 
+  const otherCandidate = find(
+    president.candidates,
+    (c) => c.id !== 'barchi-hallaren'
+  );
+
+  const mockCandidateOrderings: CandidateOrderings = {
+    [president.id]: [otherCandidate, derivedPresidentVote[0]!],
+  };
+
   function printWithMode(bmdPrintMode: SystemSettings['bmdPrintMode']) {
     return printBallot({
       ballotStyleId: ballotStyle.id,
@@ -610,7 +660,13 @@ describe('straight party votes', () => {
           encodedBallot: '',
         }),
         getBallotMetaStore: () =>
-          mockBallotMetaStore({ getPositions: () => mockPositions }),
+          mockBallotMetaStore({
+            getPositions: () => mockPositions,
+            getCandidateOrderings: (styleId) => {
+              expect(styleId).toEqual(ballotStyle.id);
+              return mockCandidateOrderings;
+            },
+          }),
         getElectionRecord: () => ({
           electionDefinition,
           electionPackageHash: 'unused',
@@ -645,6 +701,11 @@ describe('straight party votes', () => {
     const [{ document }] = vi.mocked(renderToPdf).mock.lastCall!;
     const ballot = (document as JSX.Element).props.children as JSX.Element;
     expect(ballot.props).toMatchObject({ votes: encodeParams.votes });
+
+    expect(
+      vi.mocked(makeDerivedStraightPartyVotesExplicit).mock.lastCall?.[0]
+        .orderings
+    ).toEqual(mockCandidateOrderings);
   });
 
   test.each<SystemSettings['bmdPrintMode']>([
@@ -658,6 +719,11 @@ describe('straight party votes', () => {
     const [params] = vi.mocked(generateMarkOverlay).mock.lastCall!;
     expect(params.votes['straight-party-ticket']).toEqual(['0']);
     expect(params.votes['president']).toEqual(derivedPresidentVote);
+
+    expect(
+      vi.mocked(makeDerivedStraightPartyVotesExplicit).mock.lastCall?.[0]
+        .orderings
+    ).toEqual(mockCandidateOrderings);
   });
 });
 

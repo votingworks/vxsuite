@@ -79,7 +79,7 @@ function CandidateContestResult({
     deriveStraightPartyVotesFromOrderedCandidates({
       contest,
       vote,
-      ballotStyle,
+      orderings: ballotStyle.orderedCandidatesByContest,
       selectedStraightPartyId,
     });
   const remainingChoices =

@@ -3,6 +3,7 @@ import type {
   BallotStyle,
   Candidate,
   CandidateContest,
+  CandidateOrderings,
   Contest,
   Election,
   PartyId,
@@ -604,19 +605,24 @@ describe('makeDerivedStraightPartyVotesExplicit', () => {
     precincts: [],
     languages: ['en'],
     districts: [districtId],
-    orderedCandidatesByContest: {
-      senator: [
-        { id: 'candidate-h', partyIds: ['party-1'] },
-        { id: 'candidate-h', partyIds: ['party-2'] },
-        { id: 'candidate-i' },
-      ],
-    },
+  };
+  const orderings: CandidateOrderings = {
+    senator: [
+      { id: 'candidate-h', partyIds: ['party-1'] },
+      { id: 'candidate-h', partyIds: ['party-2'] },
+      { id: 'candidate-i' },
+    ],
   };
 
   test('returns votes unchanged without a straight party selection', () => {
     const votes: VotesDict = {};
     expect(
-      makeDerivedStraightPartyVotesExplicit({ election, ballotStyle, votes })
+      makeDerivedStraightPartyVotesExplicit({
+        election,
+        ballotStyle,
+        orderings,
+        votes,
+      })
     ).toEqual<VotesDict>({});
   });
 
@@ -625,7 +631,12 @@ describe('makeDerivedStraightPartyVotesExplicit', () => {
       'straight-party': ['party-2'],
     };
     expect(
-      makeDerivedStraightPartyVotesExplicit({ election, ballotStyle, votes })
+      makeDerivedStraightPartyVotesExplicit({
+        election,
+        ballotStyle,
+        orderings,
+        votes,
+      })
     ).toEqual<VotesDict>({
       'straight-party': ['party-2'],
       president: [candidate('candidate-b', 'party-2')],
@@ -647,7 +658,12 @@ describe('makeDerivedStraightPartyVotesExplicit', () => {
       senator: [candidate('candidate-h', 'party-1')],
     };
     expect(
-      makeDerivedStraightPartyVotesExplicit({ election, ballotStyle, votes })
+      makeDerivedStraightPartyVotesExplicit({
+        election,
+        ballotStyle,
+        orderings,
+        votes,
+      })
     ).toEqual<VotesDict>({
       'straight-party': ['party-2'],
       president: [candidate('candidate-a', 'party-1')],

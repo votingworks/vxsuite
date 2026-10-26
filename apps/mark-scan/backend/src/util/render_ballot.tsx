@@ -129,9 +129,15 @@ export async function renderBallot({
   const ballotStyle = assertDefined(
     getBallotStyle({ election: electionDefinition.election, ballotStyleId })
   );
+
+  const candidateOrderings = store
+    .getBallotMetaStore()
+    .getCandidateOrderings(ballotStyleId);
+
   const votes = makeDerivedStraightPartyVotesExplicit({
     election: electionDefinition.election,
     ballotStyle,
+    orderings: candidateOrderings,
     votes: votesWithoutDerivedVotes,
   });
   const contests = getContests({
