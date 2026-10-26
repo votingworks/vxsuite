@@ -8,7 +8,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   anyPollingPlace,
-  type CandidateContest,
+  type CandidateOrderings,
   pollingPlaceBallotStyles,
   safeParseSystemSettings,
   TEST_JURISDICTION,
@@ -22,6 +22,8 @@ import {
 } from '@votingworks/ui';
 import { assert, err, find, ok } from '@votingworks/basics';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
+import type { BallotMetaStore } from '@votingworks/backend';
+import { makeDerivedStraightPartyVotesExplicit } from '@votingworks/utils';
 import { renderBallot } from './render_ballot.js';
 import { createWorkspace, type Workspace } from './workspace.js';
 
@@ -45,6 +47,16 @@ vi.mock(import('@votingworks/ballot-encoder'), async (importActual) => {
   return {
     ...actual,
     encodeSummaryBallotPage: vi.fn(actual.encodeSummaryBallotPage),
+  };
+});
+
+vi.mock(import('@votingworks/utils'), async (importActual) => {
+  const actual = await importActual();
+  return {
+    ...actual,
+    makeDerivedStraightPartyVotesExplicit: vi.fn(
+      actual.makeDerivedStraightPartyVotesExplicit
+    ),
   };
 });
 
@@ -168,6 +180,26 @@ test('includes votes derived from a straight party selection', async () => {
   );
   vi.mocked(getPdfPageCount).mockResolvedValueOnce(1);
 
+  const president = find(election.contests, (c) => c.id === 'president');
+  assert(president.type === 'candidate');
+
+  const { candidates } = president;
+  const candidate = find(candidates, (c) => c.id === 'barchi-hallaren');
+  const otherCandidate = find(candidates, (c) => c.id !== candidate.id);
+
+  const mockCandidateOrderings: CandidateOrderings = {
+    [president.id]: [otherCandidate, candidate],
+  };
+
+  vi.spyOn(workspace.store, 'getBallotMetaStore').mockReturnValue(
+    mockBallotMetaStore({
+      getCandidateOrderings: (styleId) => {
+        expect(styleId).toEqual(straightPartyBallotStyle.id);
+        return mockCandidateOrderings;
+      },
+    })
+  );
+
   await renderBallot({
     store: workspace.store,
     precinctId: straightPartyBallotStyle.precincts[0]!,
@@ -176,13 +208,16 @@ test('includes votes derived from a straight party selection', async () => {
     languageCode: TestLanguageCode.ENGLISH,
   });
 
-  const president = find(
-    election.contests,
-    (c): c is CandidateContest => c.id === 'president'
-  );
   const [, { votes }] = vi.mocked(encodeSummaryBallotPage).mock.lastCall!;
   expect(votes['straight-party-ticket']).toEqual(['0']);
-  expect(votes['president']).toEqual([
-    find(president.candidates, (c) => c.id === 'barchi-hallaren'),
-  ]);
+  expect(votes[president.id]).toEqual([candidate]);
+
+  expect(
+    vi.mocked(makeDerivedStraightPartyVotesExplicit).mock.lastCall?.[0]
+      .orderings
+  ).toEqual(mockCandidateOrderings);
 });
+
+function mockBallotMetaStore(mocks: Partial<BallotMetaStore>) {
+  return mocks as unknown as BallotMetaStore;
+}

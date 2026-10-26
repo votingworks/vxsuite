@@ -165,7 +165,7 @@ export function CandidateContest({
     deriveStraightPartyVotesFromOrderedCandidates({
       contest,
       vote,
-      ballotStyle,
+      orderings: ballotStyle.orderedCandidatesByContest,
       selectedStraightPartyId,
     });
   const votesRemaining = numVotesRemaining(contest, vote);

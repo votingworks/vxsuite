@@ -7,7 +7,8 @@ import {
   type ContestOptionId,
   type Election,
   getContests,
-  getOrderedCandidatesForContestInBallotStyle,
+  getOrderedCandidates,
+  type OptionalCandidateOrderings,
   type PartyId,
   type StraightPartyVote,
   type Tabulation,
@@ -92,12 +93,12 @@ export function deriveStraightPartyVotesForContest(
 export function deriveStraightPartyVotesFromOrderedCandidates({
   contest,
   vote,
-  ballotStyle,
+  orderings,
   selectedStraightPartyId: straightPartyId,
 }: {
   contest: CandidateContest;
   vote: CandidateVote;
-  ballotStyle: BallotStyle;
+  orderings: OptionalCandidateOrderings;
   selectedStraightPartyId?: PartyId;
 }): Candidate[] {
   const derivedVotes = deriveStraightPartyVotesForContest(
@@ -105,10 +106,7 @@ export function deriveStraightPartyVotesFromOrderedCandidates({
     vote.map((candidate) => candidate.id),
     straightPartyId
   );
-  const orderedCandidates = getOrderedCandidatesForContestInBallotStyle({
-    contest,
-    ballotStyle,
-  });
+  const orderedCandidates = getOrderedCandidates({ contest, orderings });
   return derivedVotes.map((candidateId) =>
     find(
       orderedCandidates,
@@ -126,10 +124,12 @@ export function deriveStraightPartyVotesFromOrderedCandidates({
 export function makeDerivedStraightPartyVotesExplicit({
   election,
   ballotStyle,
+  orderings,
   votes,
 }: {
   election: Election;
   ballotStyle: BallotStyle;
+  orderings: OptionalCandidateOrderings;
   votes: VotesDict;
 }): VotesDict {
   const straightPartyId = selectedStraightPartyId(election, votes);
@@ -142,7 +142,7 @@ export function makeDerivedStraightPartyVotesExplicit({
     const derivedVotes = deriveStraightPartyVotesFromOrderedCandidates({
       contest,
       vote,
-      ballotStyle,
+      orderings,
       selectedStraightPartyId: straightPartyId,
     });
     if (derivedVotes.length > 0) {
