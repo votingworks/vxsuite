@@ -4,7 +4,6 @@ import {
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
   readElectionTwoPartyPrimary,
-  makeTemporaryFile,
 } from '@votingworks/fixtures';
 import {
   type BallotStyleGroupId,
@@ -26,6 +25,7 @@ import {
   addMockCvrFileToStore,
 } from '../../test/mock_cvr_file.js';
 import { Store } from '../store.js';
+import { writeTempElectionZip } from '../../test/app.js';
 
 const electionTwoPartyPrimary = readElectionTwoPartyPrimary();
 
@@ -163,7 +163,9 @@ test('tabulateWriteInTallies', async () => {
     electionData,
     ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -483,7 +485,9 @@ test('tabulateWriteInTallies in qualified mode - unadjudicated qualified candida
       ...DEFAULT_SYSTEM_SETTINGS,
       areWriteInCandidatesQualified: true,
     }),
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -560,7 +564,9 @@ test('tabulateWriteInTallies in qualified mode - preserves adjudicated tallies w
       ...DEFAULT_SYSTEM_SETTINGS,
       areWriteInCandidatesQualified: true,
     }),
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);

@@ -8,7 +8,6 @@ import type { Server } from 'node:http';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   makeTemporaryDirectory,
-  makeTemporaryFile,
 } from '@votingworks/fixtures';
 import { testDetectDevices } from '@votingworks/backend';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
@@ -36,6 +35,7 @@ import {
 } from './util/workspace.js';
 import { importCastVoteRecords } from './cast_vote_records.js';
 import { startHostNetworking, startClientNetworking } from './networking.js';
+import { writeTempElectionZip } from '../test/app.js';
 
 // Mock modules that start() creates or calls internally
 const featureFlagMock = getFeatureFlagMock();
@@ -241,7 +241,9 @@ test('logs when there is stored election results data present at startup', async
     electionData: electionDefinition.electionData,
     ballotHash: electionDefinition.ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   workspace.store.setCurrentElectionId(electionId);
