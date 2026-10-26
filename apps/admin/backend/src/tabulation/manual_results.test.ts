@@ -2,7 +2,6 @@ import { describe, expect, test } from 'vitest';
 import {
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
-  makeTemporaryFile,
 } from '@votingworks/fixtures';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import {
@@ -18,6 +17,7 @@ import {
   tabulateManualResults,
 } from './manual_results.js';
 import type { ManualResultsFilter } from '../types.js';
+import { writeTempElectionZip } from '../../test/app.js';
 
 test('isFilterCompatibleWithManualResults', () => {
   expect(
@@ -56,13 +56,16 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
   test('on incompatible filter', async () => {
     const store = Store.memoryStore(makeTemporaryDirectory());
 
-    const { ballotHash, electionData } =
+    const electionDefinition =
       electionTwoPartyPrimaryFixtures.readElectionDefinition();
+    const { ballotHash, electionData } = electionDefinition;
     const electionId = await store.addElection({
       electionData,
       ballotHash,
       systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-      electionPackageSourceFilePath: makeTemporaryFile(),
+      electionPackageSourceFilePath: await writeTempElectionZip({
+        electionDefinition,
+      }),
       electionPackageHash: 'test-election-package-hash',
     });
     store.setCurrentElectionId(electionId);
@@ -92,7 +95,9 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
       electionData,
       ballotHash,
       systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-      electionPackageSourceFilePath: makeTemporaryFile(),
+      electionPackageSourceFilePath: await writeTempElectionZip({
+        electionDefinition,
+      }),
       electionPackageHash: 'test-election-package-hash',
     });
     store.setCurrentElectionId(electionId);

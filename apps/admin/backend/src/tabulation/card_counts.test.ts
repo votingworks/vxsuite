@@ -3,7 +3,6 @@ import {
   electionCombinedBallotPrimaryFixtures,
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
-  makeTemporaryFile,
 } from '@votingworks/fixtures';
 import {
   type Admin,
@@ -26,6 +25,7 @@ import {
   tabulateFullCardCounts,
   tabulateScannedCardCounts,
 } from './card_counts.js';
+import { writeTempElectionZip } from '../../test/app.js';
 
 const systemSettings: SystemSettings = {
   ...DEFAULT_SYSTEM_SETTINGS,
@@ -35,13 +35,16 @@ const systemSettingsData = JSON.stringify(systemSettings);
 
 test('tabulateScannedCardCounts - grouping', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const { ballotHash, election, electionData } =
+  const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { ballotHash, election, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
     ballotHash,
     systemSettingsData,
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -195,13 +198,16 @@ test('tabulateScannedCardCounts - grouping', async () => {
 
 test('tabulateScannedCardCounts - groupByBatchDate', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const { ballotHash, election, electionData } =
+  const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { ballotHash, election, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
     ballotHash,
     systemSettingsData,
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -307,13 +313,16 @@ test('tabulateScannedCardCounts - groupByBatchDate', async () => {
 
 test('tabulateFullCardCounts - groupByBatchDate with manual results', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const { ballotHash, election, electionData } =
+  const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { ballotHash, election, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
     ballotHash,
     systemSettingsData,
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -393,13 +402,16 @@ test('tabulateFullCardCounts - groupByBatchDate with manual results', async () =
 
 test('tabulateScannedCardCounts - merging card tallies', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const { ballotHash, election, electionData } =
+  const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { ballotHash, election, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
     ballotHash,
     systemSettingsData,
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -471,13 +483,16 @@ test('tabulateScannedCardCounts - merging card tallies', async () => {
 
 test('tabulateFullCardCounts - manual results', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const { ballotHash, election, electionData } =
+  const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { ballotHash, election, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
     ballotHash,
     systemSettingsData,
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -626,13 +641,16 @@ test('tabulateFullCardCounts - manual results', async () => {
 
 test('tabulateFullCardCounts - blankBallots', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const { ballotHash, election, electionData } =
+  const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { ballotHash, election, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
     ballotHash,
     systemSettingsData,
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -747,13 +765,16 @@ test('tabulateFullCardCounts - blankBallots', async () => {
 
 test('tabulateFullCardCounts - hasCrossoverVote filter (combined ballot primary)', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const { ballotHash, election, electionData } =
+  const electionDefinition =
     electionCombinedBallotPrimaryFixtures.readElectionDefinition();
+  const { ballotHash, election, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
     ballotHash,
     systemSettingsData,
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);

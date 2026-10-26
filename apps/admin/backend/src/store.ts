@@ -59,6 +59,11 @@ import {
   type UserRole,
   isCombinedBallotPrimary,
   type PartyId,
+  type BallotCandidateOrderings,
+  type CandidateOrderings,
+  unsafeParseJson,
+  CandidateOrderingsSchema,
+  SystemSettingsSchema,
 } from '@votingworks/types';
 import {
   mkdirSync,
@@ -86,6 +91,9 @@ import {
 import {
   addDiagnosticRecord,
   getMostRecentDiagnosticRecord,
+  streamCandidateOrderings,
+  withElectionPackageZip,
+  type ElectionPackageZip,
 } from '@votingworks/backend';
 import type { BaseLogger } from '@votingworks/logging';
 import {
@@ -387,12 +395,14 @@ export class Store implements BaseStore {
    */
   async addElection({
     ballotHash,
+    candidateOrderingsBatchSize,
     electionData,
     systemSettingsData,
     electionPackageSourceFilePath,
     electionPackageHash,
   }: {
     ballotHash: string;
+    candidateOrderingsBatchSize?: number;
     electionData: string;
     systemSettingsData: string;
     electionPackageSourceFilePath: string;
@@ -408,7 +418,7 @@ export class Store implements BaseStore {
 
     try {
       await copyFile(electionPackageSourceFilePath, electionPackageFilePath);
-      this.withTransaction(() => {
+      const election = this.withTransaction(() => {
         this.client.run(
           `
           insert into elections (
@@ -425,9 +435,34 @@ export class Store implements BaseStore {
           systemSettingsData,
           electionPackageHash
         );
-        this.createElectionMetadataRecords(id);
+
+        const storedElection = assertDefined(
+          this.getElection(id)?.electionDefinition.election
+        );
+
+        this.createElectionMetadataRecords({
+          electionId: id,
+          election: storedElection,
+        });
+
+        return storedElection;
       });
+
+      await withElectionPackageZip(
+        electionPackageSourceFilePath,
+        async (zip) => {
+          await this.importCandidateOrderings({
+            batchSize: candidateOrderingsBatchSize,
+            election,
+            electionId: id,
+            settings: unsafeParseJson(systemSettingsData, SystemSettingsSchema),
+            zip,
+          });
+        }
+      );
     } catch (error) {
+      this.client.run(`delete from elections where id = ?`, id);
+
       // Be sure to clean up the election package file in case of failure.
       // The file may not exist if the copy itself failed (e.g. the source
       // was missing), so ignore missing-file errors rather than masking the
@@ -818,12 +853,11 @@ export class Store implements BaseStore {
    * the data is already in the election data blob, we want to be able to join on
    * and query the data.
    */
-  private createElectionMetadataRecords(electionId: Id): void {
-    const electionRecord = this.getElection(electionId);
-    assert(electionRecord);
-    const {
-      electionDefinition: { election },
-    } = electionRecord;
+  private createElectionMetadataRecords(p: {
+    election: Election;
+    electionId: Id;
+  }): void {
+    const { election, electionId } = p;
 
     this.addVotingMethodRecords({ electionId });
 
@@ -996,6 +1030,103 @@ export class Store implements BaseStore {
       contest.districtId,
       contest.type === 'candidate' ? (contest.partyId ?? null) : null,
       sortIndex
+    );
+  }
+
+  /**
+   * Ballot style candidate orderings, or `null` if not found.
+   */
+  getCandidateOrderings(p: {
+    ballotStyleId: string;
+    electionId: string;
+  }): CandidateOrderings | null {
+    const row = this.client.one(
+      `
+        select orderings from candidate_orderings
+        where election_id = ? and ballot_style_id = ?
+      `,
+      p.electionId,
+      p.ballotStyleId
+    ) as { orderings: string } | undefined;
+
+    if (!row) return null;
+
+    return unsafeParseJson(row.orderings, CandidateOrderingsSchema);
+  }
+
+  private async importCandidateOrderings(p: {
+    batchSize?: number;
+    election: Election;
+    electionId: string;
+    settings: SystemSettings;
+    zip: ElectionPackageZip;
+  }): Promise<void> {
+    const { electionId } = p;
+
+    if (!p.settings.splitElectionDefinition) {
+      return this.withTransaction(() => {
+        for (const b of p.election.ballotStyles) {
+          if (!b.orderedCandidatesByContest) continue;
+
+          this.addCandidateOrderings({
+            electionId,
+            ballotOrderings: {
+              ballotStyleId: b.id,
+              orderings: b.orderedCandidatesByContest,
+            },
+          });
+        }
+      });
+    }
+
+    // Raw JSON orderings are < 20 KB in well-formed packages at the high end of
+    // current supported scale. This batch size leaves ample wiggle room for
+    // extreme cases at the edges of our system limits.
+    const DEFAULT_BATCH_SIZE = 10;
+
+    // Imported in synchronous batch transactions, since there may be
+    // networking-related DB activity happening concurrently:
+    const batchSize = p.batchSize || DEFAULT_BATCH_SIZE;
+    const batch: BallotCandidateOrderings[] = [];
+    for await (const orderings of streamCandidateOrderings(p.zip)) {
+      // [TODO] Validate orderings against referenced election entities.
+      batch.push(orderings);
+
+      if (batch.length === batchSize) {
+        this.addCandidateOrderingsBatch({ electionId, batch });
+        batch.length = 0;
+      }
+    }
+
+    this.addCandidateOrderingsBatch({ electionId, batch });
+  }
+
+  private addCandidateOrderingsBatch(p: {
+    electionId: string;
+    batch: BallotCandidateOrderings[];
+  }): void {
+    this.withTransaction(() => {
+      const { electionId } = p;
+      for (const ballotOrderings of p.batch) {
+        this.addCandidateOrderings({ electionId, ballotOrderings });
+      }
+    });
+  }
+
+  private addCandidateOrderings(p: {
+    electionId: string;
+    ballotOrderings: BallotCandidateOrderings;
+  }): void {
+    this.client.run(
+      `
+        insert into candidate_orderings
+          (election_id, ballot_style_id, orderings)
+        values
+          (?, ?, ?)
+      `,
+      p.electionId,
+      p.ballotOrderings.ballotStyleId,
+      JSON.stringify(p.ballotOrderings.orderings)
     );
   }
 

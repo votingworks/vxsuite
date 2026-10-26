@@ -3,7 +3,6 @@ import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
-  makeTemporaryFile,
 } from '@votingworks/fixtures';
 import {
   type BallotStyleGroupId,
@@ -20,6 +19,7 @@ import {
 import { iterableToString, mockFileName, parseCsv } from '../../test/csv.js';
 import { Store } from '../store.js';
 import { generateBallotCountReportCsv } from './csv_ballot_count_report.js';
+import { writeTempElectionZip } from '../../test/app.js';
 
 test('uses appropriate headers', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
@@ -30,7 +30,9 @@ test('uses appropriate headers', async () => {
     electionData,
     ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -187,12 +189,15 @@ test('uses appropriate headers', async () => {
 test('includes rows for empty but known result groups', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const fixtures = electionTwoPartyPrimaryFixtures;
-  const { ballotHash, electionData } = fixtures.readElectionDefinition();
+  const electionDefinition = fixtures.readElectionDefinition();
+  const { ballotHash, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
     ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -214,13 +219,16 @@ test('includes rows for empty but known result groups', async () => {
 
 test('does not include results groups when they are excluded by the filter', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const { ballotHash, electionData } =
+  const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { ballotHash, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
     ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -263,13 +271,16 @@ test('does not include results groups when they are excluded by the filter', asy
 
 test('excludes Manual column if no manual data exists', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const { ballotHash, electionData } =
+  const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { ballotHash, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
     ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -297,7 +308,9 @@ test('can include sheet counts', async () => {
     electionData,
     ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);

@@ -10,7 +10,6 @@ import {
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
   readElectionGeneralDefinition,
-  makeTemporaryFile,
 } from '@votingworks/fixtures';
 import {
   Admin,
@@ -35,6 +34,7 @@ import { ClientConnectionStatus, type MachineMode } from './types.js';
 import { addMockCvrFileToStore } from '../test/mock_cvr_file.js';
 import {
   buildMockLogger,
+  writeTempElectionZip,
   mockElectionManagerAuth,
   mockMachineLocked,
 } from '../test/app.js';
@@ -63,7 +63,7 @@ const mockFindAllVxAdminHostMachines = vi.mocked(findAllVxAdminHostMachines);
 const mockGetCurrentTime = vi.mocked(getCurrentTime);
 
 beforeEach(() => {
-  vi.useFakeTimers();
+  vi.useFakeTimers({ shouldAdvanceTime: true });
   vi.clearAllMocks();
   mockGetCurrentTime.mockImplementation(() => Date.now());
   mockHasOnlineInterface.mockResolvedValue(false);
@@ -314,7 +314,9 @@ test('client receives and caches election data from configured host', async () =
     electionData: electionDefinition.electionData,
     ballotHash: electionDefinition.ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: makeTemporaryFile({ content: 'test' }),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -355,7 +357,9 @@ test('client logs out when host election is unconfigured', async () => {
     electionData: electionDefinition.electionData,
     ballotHash: electionDefinition.ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: makeTemporaryFile({ content: 'test' }),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -391,7 +395,9 @@ async function addElectionWithAdjudicableCvrs(
     electionData: electionDefinition.electionData,
     ballotHash: electionDefinition.ballotHash,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: makeTemporaryFile({ content: 'test' }),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-hash',
   });
   store.setCurrentElectionId(electionId);

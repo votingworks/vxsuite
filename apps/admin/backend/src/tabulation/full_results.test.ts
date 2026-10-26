@@ -6,7 +6,6 @@ import {
   electionStraightPartyFixtures,
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
-  makeTemporaryFile,
 } from '@votingworks/fixtures';
 import {
   BooleanEnvironmentVariableName,
@@ -47,6 +46,7 @@ import {
 } from '../../test/mock_cvr_file.js';
 import { adjudicateCvr } from '../adjudication.js';
 import type { AdjudicatedContestOption, WriteInRecord } from '../types.js';
+import { writeTempElectionZip } from '../../test/app.js';
 
 const GROUP_KEY = getGroupKey({}, {});
 
@@ -123,7 +123,9 @@ test('tabulateCastVoteRecords', async () => {
     electionData,
     ballotHash,
     systemSettingsData,
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -336,13 +338,16 @@ test('tabulateCastVoteRecords', async () => {
 
 test('tabulateElectionResults - includes empty groups', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const { ballotHash, electionData } =
+  const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const { ballotHash, electionData } = electionDefinition;
   const electionId = await store.addElection({
     electionData,
     ballotHash,
     systemSettingsData,
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -378,7 +383,9 @@ test('tabulateElectionResults - write-in handling', async () => {
     electionData: electionDefinition.electionData,
     ballotHash: electionDefinition.ballotHash,
     systemSettingsData,
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -791,7 +798,9 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
     electionData,
     ballotHash,
     systemSettingsData,
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
@@ -1099,7 +1108,9 @@ test('tabulateElectionResults - imports and derives straight-party votes', async
       adminAdjudicationReasons: [AdjudicationReason.Overvote],
       enableEarlyVoting: true,
     }),
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);

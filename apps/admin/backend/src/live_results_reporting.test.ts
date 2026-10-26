@@ -2,7 +2,6 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import {
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
-  makeTemporaryFile,
 } from '@votingworks/fixtures';
 import { assert, assertDefined } from '@votingworks/basics';
 import { decodeQuickResultsMessage } from '@votingworks/auth';
@@ -27,6 +26,7 @@ import {
   addMockCvrFileToStore,
   type MockCastVoteRecordFile,
 } from '../test/mock_cvr_file.js';
+import { writeTempElectionZip } from '../test/app.js';
 
 vi.setConfig({ testTimeout: 30_000 });
 
@@ -95,7 +95,9 @@ async function setupStore(
     electionData: electionDefinition.electionData,
     ballotHash: electionDefinition.ballotHash,
     systemSettingsData: JSON.stringify(systemSettings),
-    electionPackageSourceFilePath: makeTemporaryFile(),
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      electionDefinition,
+    }),
     electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);

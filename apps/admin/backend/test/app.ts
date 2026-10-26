@@ -52,6 +52,10 @@ import {
 } from '@votingworks/fixtures';
 import type { Application } from 'express';
 import type { Server } from 'node:http';
+import {
+  createElectionPackageZipArchive,
+  type PartialElectionPackage,
+} from '@votingworks/backend';
 import type { Api, MachineMode, PeerApi } from '../src/index.js';
 import type { BaseStore } from '../src/types.js';
 import { createWorkspace, type Workspace } from '../src/util/workspace.js';
@@ -264,4 +268,15 @@ export function buildTestEnvironment(workspaceRoot?: string): TestEnvironment {
     multiUsbDrive,
     mockPrinterHandler,
   };
+}
+
+/**
+ * @returns The path to the newly created temporary file.
+ */
+export async function writeTempElectionZip(
+  pkg: PartialElectionPackage
+): Promise<string> {
+  return makeTemporaryFile({
+    content: await createElectionPackageZipArchive(pkg),
+  });
 }

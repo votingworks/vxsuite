@@ -45,6 +45,14 @@ create table ballot_styles (
     on delete cascade
 ) strict;
 
+create table candidate_orderings (
+  election_id text not null,
+  ballot_style_id text not null,
+  orderings text not null, -- JSON string of CandidateOrderings
+  primary key (election_id, ballot_style_id),
+  foreign key (election_id) references elections(id) on delete cascade
+) strict;
+
 create table ballot_styles_to_precincts(
   election_id text not null,
   ballot_style_group_id text not null,
