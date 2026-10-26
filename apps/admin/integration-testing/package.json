@@ -32,7 +32,7 @@
     "tmp": "^0.2.6"
   },
   "devDependencies": {
-    "@types/node": "24.13.3",
+    "@types/node": "24.19.2",
     "@types/tmp": "0.2.4",
     "eslint-plugin-vx": "workspace:*",
     "sort-package-json": "^1.50.0"

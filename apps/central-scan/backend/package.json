@@ -63,7 +63,7 @@
     "@types/express": "4.17.14",
     "@types/jest-image-snapshot": "^6.4.0",
     "@types/luxon": "^3.0.0",
-    "@types/node": "24.13.3",
+    "@types/node": "24.19.2",
     "@types/tmp": "0.2.4",
     "@vitest/coverage-istanbul": "5.0.2",
     "@votingworks/bmd-ballot-fixtures": "workspace:*",

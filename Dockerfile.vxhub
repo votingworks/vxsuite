@@ -60,7 +60,7 @@ COPY .nvmrc package.json ./
 ARG TARGETARCH
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && \
   . ~/.bashrc && \
-  nvm install 24.22.1 && \
+  nvm install && \
   . ~/.bashrc && \
   node -v && \
   npm i -g pnpm@12.8.1 && \

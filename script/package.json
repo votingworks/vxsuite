@@ -16,7 +16,7 @@
     "matcher": "4"
   },
   "devDependencies": {
-    "@types/node": "24.13.3",
+    "@types/node": "24.19.2",
     "typescript": "npm:@typescript/typescript6@6.0.2"
   },
   "packageManager": "pnpm@12.9.1"
