@@ -2,6 +2,7 @@ import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
 import { Buffer } from 'node:buffer';
 import {
+  electionFamousNames2021Fixtures,
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
   makeTemporaryDirectory,
@@ -19,11 +20,16 @@ import {
   type Election,
   type ElectionRegisteredVoterCounts,
   type SystemSettings,
+  type BallotCandidateOrderings,
 } from '@votingworks/types';
 import { assert, assertDefined, find, typedAs } from '@votingworks/basics';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
-import { createElectionDefinitionCdf, zipFile } from '@votingworks/test-utils';
+import {
+  createElectionDefinitionCdf,
+  toSplitFileElection,
+  zipFile,
+} from '@votingworks/test-utils';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
   generateElectionBasedSubfolderName,
@@ -41,6 +47,7 @@ import type {
 } from './types.js';
 import { getCurrentTime } from './get_current_time.js';
 import { STALE_MACHINE_THRESHOLD_MS } from './globals.js';
+import { writeTempElectionZip } from '../test/app.js';
 
 vi.mock('./get_current_time');
 
@@ -164,6 +171,123 @@ test('add an election', async () => {
 
   expect(store.getElection('nonexistent-id')).toEqual(undefined);
   expect(store.getElectionPackageFilePath('nonexistent-id')).toEqual(undefined);
+});
+
+describe('addElection populates candidate_orderings', () => {
+  const fixtures = electionFamousNames2021Fixtures;
+
+  test('for single-file elections', async () => {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+
+    const { election, electionId } = await configure(store, {
+      electionData: fixtures.electionJson.asText(),
+      settings: { ...DEFAULT_SYSTEM_SETTINGS, splitElectionDefinition: false },
+    });
+
+    assert(election.ballotStyles.some((bs) => bs.orderedCandidatesByContest));
+
+    for (const bs of election.ballotStyles) {
+      expect(
+        store.getCandidateOrderings({ ballotStyleId: bs.id, electionId })
+      ).toEqual(bs.orderedCandidatesByContest ?? null);
+
+      expect(
+        store.getCandidateOrderings({
+          ballotStyleId: bs.id,
+          electionId: 'invalid',
+        })
+      ).toBeNull();
+    }
+
+    expect(
+      store.getCandidateOrderings({ ballotStyleId: 'no-orderings', electionId })
+    ).toBeNull();
+  });
+
+  test('for split-file elections', async () => {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+
+    const splitElection = toSplitFileElection(fixtures.readElection());
+    const { candidateOrderings } = splitElection;
+
+    const candidateOrderingsBatchSize = 2;
+    assert(candidateOrderings.length > candidateOrderingsBatchSize);
+
+    const { electionId } = await configure(store, {
+      candidateOrderingsBatchSize,
+      candidateOrderings,
+      electionData: JSON.stringify(splitElection.election),
+      settings: { ...DEFAULT_SYSTEM_SETTINGS, splitElectionDefinition: true },
+    });
+
+    for (const { ballotStyleId, orderings } of candidateOrderings) {
+      expect(
+        store.getCandidateOrderings({ ballotStyleId, electionId })
+      ).toEqual(orderings);
+
+      expect(
+        store.getCandidateOrderings({ ballotStyleId, electionId: 'invalid' })
+      ).toBeNull();
+    }
+
+    expect(
+      store.getCandidateOrderings({ ballotStyleId: 'no-orderings', electionId })
+    ).toBeNull();
+  });
+
+  test('cleans up election data on error', async () => {
+    const store = Store.memoryStore(makeTemporaryDirectory());
+
+    const splitElection = toSplitFileElection(fixtures.readElection());
+    const { candidateOrderings } = splitElection;
+
+    candidateOrderings.push({
+      invalid: 'orderings',
+    } as unknown as BallotCandidateOrderings);
+
+    const res = configure(store, {
+      candidateOrderings,
+      electionData: fixtures.electionJson.asText(),
+      settings: { ...DEFAULT_SYSTEM_SETTINGS, splitElectionDefinition: true },
+    });
+
+    await expect(res).rejects.toThrow();
+    expect(store.getElections()).toHaveLength(0);
+    expect(readdirSync(store.getElectionPackagesPath())).toEqual([]);
+  });
+
+  async function configure(
+    store: Store,
+    p: {
+      candidateOrderings?: BallotCandidateOrderings[];
+      candidateOrderingsBatchSize?: number;
+      electionData: string;
+      settings: SystemSettings;
+    }
+  ) {
+    const electionId = await store.addElection({
+      ballotHash: 'ballot-hash',
+      candidateOrderingsBatchSize: p.candidateOrderingsBatchSize,
+      electionData: p.electionData,
+      electionPackageHash: 'pkg-hash',
+      electionPackageSourceFilePath: await writeTempElectionZip({
+        candidateOrderings: p.candidateOrderings,
+        electionDefinition: {
+          ballotHash: 'unused',
+          election: 'unused' as unknown as Election,
+          electionData: p.electionData,
+        },
+        systemSettings: p.settings,
+      }),
+      systemSettingsData: JSON.stringify(p.settings),
+    });
+
+    const election = assertDefined(
+      store.getElection(electionId)?.electionDefinition.election
+    );
+
+    return { election, electionId };
+  }
 });
 
 test('getElectionPackageHash()', async () => {
