@@ -4,7 +4,6 @@ import { Route } from 'react-router-dom';
 
 import {
   type BallotStyleGroupId,
-  type Election,
   getContests,
   straightPartyNotYetImplemented,
   type Tabulation,
@@ -722,35 +721,28 @@ test('candidates are ordered according to ballot style rotation', async () => {
   const testBallotStyleGroupId = '1M' as BallotStyleGroupId;
   const mammalContestId = 'best-animal-mammal';
 
-  // Create an election with a ballot style that has orderedCandidatesByContest
-  const testElection: Election = {
-    ...election,
-    ballotStyles: election.ballotStyles.map((bs) =>
-      bs.groupId === testBallotStyleGroupId
-        ? {
-            ...bs,
-            orderedCandidatesByContest: {
-              [mammalContestId]: [
-                { id: 'fox' }, // original: horse, otter, fox
-                { id: 'otter' },
-                { id: 'horse' },
-              ],
-            },
-          }
-        : bs
-    ),
-  };
+  // Set up mock candidate orderings with non-default rotation:
+  apiMock.apiClient.getCandidateOrderings.mockImplementation(
+    ({ ballotStyleId }) => {
+      if (!ballotStyleId.startsWith(testBallotStyleGroupId)) {
+        return Promise.resolve(null);
+      }
+
+      return Promise.resolve({
+        [mammalContestId]: [
+          { id: 'fox' }, // original: horse, otter, fox
+          { id: 'otter' },
+          { id: 'horse' },
+        ],
+      });
+    }
+  );
 
   const testIdentifier: ManualResultsIdentifier = {
     ballotStyleGroupId: testBallotStyleGroupId,
     votingMethod: 'absentee',
     precinctId: 'precinct-1',
   };
-
-  const testElectionDefinition = {
-    ...electionDefinition,
-    election: testElection,
-  } as const;
 
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetManualResults(testIdentifier, undefined);
@@ -765,7 +757,7 @@ test('candidates are ordered according to ballot style rotation', async () => {
           `/tally/manual/${testBallotStyleGroupId}/${testIdentifier.votingMethod}/${testIdentifier.precinctId}`,
         ],
       }),
-      electionDefinition: testElectionDefinition,
+      electionDefinition,
       apiMock,
     }
   );
@@ -811,37 +803,30 @@ test('cross-endorsed candidates appear only once in manual tallies form', async 
   const testBallotStyleGroupId = '1M' as BallotStyleGroupId;
   const mammalContestId = 'best-animal-mammal';
 
-  // Create an election with cross-endorsed candidates
+  // Set up mock candidate orderings with cross-endorsed candidates
   // (a candidate appearing multiple times with different partyIds)
-  const testElection: Election = {
-    ...election,
-    ballotStyles: election.ballotStyles.map((bs) =>
-      bs.groupId === testBallotStyleGroupId
-        ? {
-            ...bs,
-            orderedCandidatesByContest: {
-              [mammalContestId]: [
-                { id: 'otter' },
-                { id: 'fox', partyIds: ['0'] },
-                { id: 'horse' },
-                { id: 'fox', partyIds: ['1'] }, // fox appears twice with different parties
-              ],
-            },
-          }
-        : bs
-    ),
-  };
+  apiMock.apiClient.getCandidateOrderings.mockImplementation(
+    ({ ballotStyleId }) => {
+      if (!ballotStyleId.startsWith(testBallotStyleGroupId)) {
+        return Promise.resolve(null);
+      }
+
+      return Promise.resolve({
+        [mammalContestId]: [
+          { id: 'otter' },
+          { id: 'fox', partyIds: ['0'] },
+          { id: 'horse' },
+          { id: 'fox', partyIds: ['1'] }, // fox appears twice with different parties
+        ],
+      });
+    }
+  );
 
   const testIdentifier: ManualResultsIdentifier = {
     ballotStyleGroupId: testBallotStyleGroupId,
     votingMethod: 'absentee',
     precinctId: 'precinct-1',
   };
-
-  const testElectionDefinition = {
-    ...electionDefinition,
-    election: testElection,
-  } as const;
 
   apiMock.expectGetWriteInCandidates([]);
   apiMock.expectGetManualResults(testIdentifier, undefined);
@@ -856,7 +841,7 @@ test('cross-endorsed candidates appear only once in manual tallies form', async 
           `/tally/manual/${testBallotStyleGroupId}/${testIdentifier.votingMethod}/${testIdentifier.precinctId}`,
         ],
       }),
-      electionDefinition: testElectionDefinition,
+      electionDefinition,
       apiMock,
     }
   );

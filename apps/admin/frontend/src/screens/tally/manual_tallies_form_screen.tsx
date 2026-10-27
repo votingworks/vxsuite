@@ -60,6 +60,7 @@ import { routerPaths } from '../../router_paths.js';
 import { AppContext } from '../../contexts/app_context.js';
 
 import {
+  getCandidateOrderings,
   getManualResults,
   getWriteInCandidates,
   setManualResults,
@@ -544,7 +545,7 @@ function ContestForm({
 }: {
   savedWriteInCandidates: WriteInCandidateRecord[];
   savedManualResults: ManualResultsRecord;
-}): JSX.Element {
+}): React.ReactNode {
   const { precinctId, ballotStyleGroupId, votingMethod, contestId } =
     useParams<ManualTallyFormContestParams>();
   const { electionDefinition } = useContext(AppContext);
@@ -555,7 +556,9 @@ function ContestForm({
     getBallotStyleGroup({ election, ballotStyleGroupId })
   );
 
-  const candidateOrderings = ballotStyleGroup.orderedCandidatesByContest;
+  const candidateOrderingsQuery = getCandidateOrderings.useQuery({
+    ballotStyleId: ballotStyleGroup.defaultLanguageBallotStyle.id,
+  });
 
   const contests = getContests({
     election,
@@ -587,8 +590,14 @@ function ContestForm({
   const firstInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    assertDefined(firstInputRef.current).focus();
+    firstInputRef.current?.focus();
   }, []);
+
+  if (!candidateOrderingsQuery.isSuccess) {
+    return null;
+  }
+
+  const candidateOrderings = candidateOrderingsQuery.data;
 
   async function saveResults() {
     await setManualTallyMutation.mutateAsync({

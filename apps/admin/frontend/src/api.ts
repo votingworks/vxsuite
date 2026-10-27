@@ -490,7 +490,6 @@ export const getBallotImages = {
       this.queryKey(input),
       input
         ? () =>
-            // @coverage-defer
             apiClient.getBallotImages({
               cvrId: input.cvrId,
             })
@@ -586,7 +585,6 @@ export const getLiveResultsReportingUrl = {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(input),
-      // @coverage-defer
       input
         ? () => apiClient.getLiveResultsReportingUrl(input)
         : // @coverage-exclude
@@ -1252,5 +1250,15 @@ export const saveReadinessReport = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.saveReadinessReport);
+  },
+} as const;
+
+export const getCandidateOrderings = {
+  queryKey(p: { ballotStyleId: string }): QueryKey {
+    return ['getCandidateOrderings', p.ballotStyleId];
+  },
+  useQuery(p: { ballotStyleId: string }) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(p), () => apiClient.getCandidateOrderings(p));
   },
 } as const;
