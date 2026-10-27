@@ -61,9 +61,11 @@ afterEach(() => {
 function configureMachineWithEarlyVoting(
   ...[apiClient, auth, electionDefinition]: Parameters<typeof configureMachine>
 ): Promise<string> {
-  return configureMachine(apiClient, auth, electionDefinition, undefined, {
-    ...DEFAULT_SYSTEM_SETTINGS,
-    enableEarlyVoting: true,
+  return configureMachine(apiClient, auth, electionDefinition, {
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      enableEarlyVoting: true,
+    },
   });
 }
 
@@ -1392,10 +1394,11 @@ test('withholding unadjudicated central scan ballots from tallies', async () => 
     apiClient,
     auth,
     electionDefinition,
-    undefined,
     {
-      ...DEFAULT_SYSTEM_SETTINGS,
-      countCentralScanBallotsOnlyAfterAdjudication: true,
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        countCentralScanBallotsOnlyAfterAdjudication: true,
+      },
     }
   );
   mockElectionManagerAuth(auth, election);

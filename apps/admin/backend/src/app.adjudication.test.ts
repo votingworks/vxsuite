@@ -149,13 +149,9 @@ test('getAdjudicationQueue returns a properly ordered queue', async () => {
       writeInInkAreaMm2: 8,
     },
   };
-  await configureMachine(
-    apiClient,
-    auth,
-    electionDefinition,
-    undefined,
-    systemSettings
-  );
+  await configureMachine(apiClient, auth, electionDefinition, {
+    systemSettings,
+  });
 
   const contestId = 'State-Representatives-Hillsborough-District-34-b1012d38';
 
@@ -408,13 +404,9 @@ test('getBallotAdjudicationQueueMetadata', async () => {
     ...DEFAULT_SYSTEM_SETTINGS,
     adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
   };
-  await configureMachine(
-    apiClient,
-    auth,
-    electionDefinition,
-    undefined,
-    systemSettings
-  );
+  await configureMachine(apiClient, auth, electionDefinition, {
+    systemSettings,
+  });
 
   (
     await apiClient.addCastVoteRecordFile({
@@ -612,13 +604,9 @@ test('getNextCvrIdForBallotAdjudication', async () => {
     ...DEFAULT_SYSTEM_SETTINGS,
     adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
   };
-  await configureMachine(
-    apiClient,
-    auth,
-    electionDefinition,
-    undefined,
-    systemSettings
-  );
+  await configureMachine(apiClient, auth, electionDefinition, {
+    systemSettings,
+  });
   await apiClient.setIsClientAdjudicationEnabled({ enabled: true });
 
   (
@@ -680,13 +668,9 @@ test('getNextCvrIdForBallotAdjudication advances past the current ballot', async
     ...DEFAULT_SYSTEM_SETTINGS,
     adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
   };
-  await configureMachine(
-    apiClient,
-    auth,
-    electionDefinition,
-    undefined,
-    systemSettings
-  );
+  await configureMachine(apiClient, auth, electionDefinition, {
+    systemSettings,
+  });
   (
     await apiClient.addCastVoteRecordFile({
       path: castVoteRecordExport.asDirectoryPath(),
@@ -749,13 +733,9 @@ test('escalated-only queue and next-ballot lookup on the host', async () => {
     ...DEFAULT_SYSTEM_SETTINGS,
     adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
   };
-  await configureMachine(
-    apiClient,
-    auth,
-    electionDefinition,
-    undefined,
-    systemSettings
-  );
+  await configureMachine(apiClient, auth, electionDefinition, {
+    systemSettings,
+  });
   (
     await apiClient.addCastVoteRecordFile({
       path: castVoteRecordExport.asDirectoryPath(),
@@ -833,13 +813,9 @@ test('host claimAndLoadBallot returns data and bypasses claim when multi-station
     ...DEFAULT_SYSTEM_SETTINGS,
     adminAdjudicationReasons: [AdjudicationReason.MarginalMark],
   };
-  await configureMachine(
-    apiClient,
-    auth,
-    electionDefinition,
-    undefined,
-    systemSettings
-  );
+  await configureMachine(apiClient, auth, electionDefinition, {
+    systemSettings,
+  });
   (
     await apiClient.addCastVoteRecordFile({
       path: castVoteRecordExport.asDirectoryPath(),
@@ -1750,13 +1726,9 @@ test('qualified write-in candidate management', async () => {
     areWriteInCandidatesQualified: true,
   };
 
-  await configureMachine(
-    apiClient,
-    auth,
-    electionDefinition,
-    undefined,
-    systemSettings
-  );
+  await configureMachine(apiClient, auth, electionDefinition, {
+    systemSettings,
+  });
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   (
@@ -1844,13 +1816,9 @@ test('qualified write-in mode: full flow with adjudication, tally reports, and c
     areWriteInCandidatesQualified: true,
   };
 
-  await configureMachine(
-    apiClient,
-    auth,
-    electionDefinition,
-    undefined,
-    systemSettings
-  );
+  await configureMachine(apiClient, auth, electionDefinition, {
+    systemSettings,
+  });
   (
     await apiClient.addCastVoteRecordFile({
       path: castVoteRecordExport.asDirectoryPath(),
@@ -2032,13 +2000,9 @@ test('deleting a qualified write-in candidate preserves adjudicated votes on unr
     areWriteInCandidatesQualified: true,
   };
 
-  await configureMachine(
-    apiClient,
-    auth,
-    electionDefinition,
-    undefined,
-    systemSettings
-  );
+  await configureMachine(apiClient, auth, electionDefinition, {
+    systemSettings,
+  });
   (
     await apiClient.addCastVoteRecordFile({
       path: castVoteRecordExport.asDirectoryPath(),

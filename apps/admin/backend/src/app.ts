@@ -17,6 +17,7 @@ import {
   getContests,
   isCombinedBallotPrimary,
   type DippedSmartCardAuth,
+  type CandidateOrderings,
 } from '@votingworks/types';
 import {
   assert,
@@ -187,7 +188,10 @@ import type { BackupOpenError } from './backup/backup.js';
 const debug = rootDebug.extend('app');
 
 function loadCurrentElectionIdOrThrow(workspace: Workspace) {
-  return assertDefined(workspace.store.getCurrentElectionId());
+  return assertDefined(
+    workspace.store.getCurrentElectionId(),
+    'machine not configured'
+  );
 }
 
 function getCurrentElectionRecord(
@@ -1726,6 +1730,15 @@ function buildApi({
     finishBackup(): void {
       assert(currentBackup?.status().status === 'ended');
       currentBackup = undefined;
+    },
+
+    getCandidateOrderings(input: {
+      ballotStyleId: string;
+    }): CandidateOrderings | null {
+      return store.getCandidateOrderings({
+        ballotStyleId: input.ballotStyleId,
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+      });
     },
 
     ...createSystemCallApi({

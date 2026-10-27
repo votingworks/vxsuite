@@ -37,13 +37,9 @@ beforeAll(() => {
 
 test('getAuthStatus', async () => {
   const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(
-    apiClient,
-    auth,
-    electionDefinition,
-    undefined,
-    systemSettings
-  );
+  await configureMachine(apiClient, auth, electionDefinition, {
+    systemSettings,
+  });
   auth.getAuthStatus.mockClear(); // Clear mock calls from configureMachine
 
   await apiClient.getAuthStatus();
@@ -60,13 +56,9 @@ test('getAuthStatus', async () => {
 
 test('checkPin', async () => {
   const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(
-    apiClient,
-    auth,
-    electionDefinition,
-    undefined,
-    systemSettings
-  );
+  await configureMachine(apiClient, auth, electionDefinition, {
+    systemSettings,
+  });
 
   await apiClient.checkPin({ pin: '123456' });
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
@@ -86,13 +78,9 @@ test('checkPin', async () => {
 
 test('logOut', async () => {
   const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(
-    apiClient,
-    auth,
-    electionDefinition,
-    undefined,
-    systemSettings
-  );
+  await configureMachine(apiClient, auth, electionDefinition, {
+    systemSettings,
+  });
 
   await apiClient.logOut();
   expect(auth.logOut).toHaveBeenCalledTimes(1);
@@ -108,13 +96,9 @@ test('logOut', async () => {
 
 test('updateSessionExpiry', async () => {
   const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(
-    apiClient,
-    auth,
-    electionDefinition,
-    undefined,
-    systemSettings
-  );
+  await configureMachine(apiClient, auth, electionDefinition, {
+    systemSettings,
+  });
 
   await apiClient.updateSessionExpiry({
     sessionExpiresAt: DateTime.now().plus({ seconds: 60 }).toJSDate(),
@@ -136,13 +120,9 @@ test('updateSessionExpiry', async () => {
 
 test('programCard', async () => {
   const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(
-    apiClient,
-    auth,
-    electionDefinition,
-    undefined,
-    systemSettings
-  );
+  await configureMachine(apiClient, auth, electionDefinition, {
+    systemSettings,
+  });
 
   void (await apiClient.programCard({ userRole: 'system_administrator' }));
   expect(auth.programCard).toHaveBeenCalledTimes(1);
@@ -192,13 +172,9 @@ test('programCard', async () => {
 
 test('unprogramCard', async () => {
   const { apiClient, auth } = buildTestEnvironment();
-  await configureMachine(
-    apiClient,
-    auth,
-    electionDefinition,
-    undefined,
-    systemSettings
-  );
+  await configureMachine(apiClient, auth, electionDefinition, {
+    systemSettings,
+  });
 
   void (await apiClient.unprogramCard());
   expect(auth.unprogramCard).toHaveBeenCalledTimes(1);

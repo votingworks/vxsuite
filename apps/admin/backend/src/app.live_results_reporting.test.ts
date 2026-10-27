@@ -63,10 +63,11 @@ test('getLiveReportsPollingPlaces and getLiveResultsReportingUrl', async () => {
     apiClient,
     auth,
     electionDefinition,
-    undefined,
     {
-      ...DEFAULT_SYSTEM_SETTINGS,
-      quickResultsReportingUrl: 'https://results.example.com/submit',
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        quickResultsReportingUrl: 'https://results.example.com/submit',
+      },
     }
   );
   mockElectionManagerAuth(auth, electionDefinition.election);

@@ -95,6 +95,11 @@ export function createElectionPackageZipArchive(
       .join('\n');
   }
 
+  if (electionPackage.registeredVoterCounts) {
+    zipContents[ElectionPackageFileName.REGISTERED_VOTER_COUNTS] =
+      JSON.stringify(electionPackage.registeredVoterCounts);
+  }
+
   return zipFile(zipContents);
 }
 

@@ -3171,8 +3171,10 @@ export class Store implements BaseStore {
       })
     );
 
-    // [TODO] Fetch from DB.
-    const candidateOrderings = ballotStyleGroup.orderedCandidatesByContest;
+    const candidateOrderings = this.getCandidateOrderings({
+      ballotStyleId: ballotStyleGroup.defaultLanguageBallotStyle.id,
+      electionId,
+    });
 
     const writeInsByKey = new Map(
       writeInRecords.map((r) => [`${r.contestId}:${r.optionId}`, r])
