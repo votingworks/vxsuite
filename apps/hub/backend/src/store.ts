@@ -70,7 +70,10 @@ import {
 } from '@votingworks/utils';
 import { randomUUID as uuid } from 'node:crypto';
 import type { BaseLogger } from '@votingworks/logging';
-import { type BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
+import {
+  type BallotTemplateId,
+  generateBallotStylesDeprecated,
+} from '@votingworks/hmpb';
 import pg, { type DatabaseError } from 'pg';
 import type {
   ExternalElectionSource,
@@ -1194,7 +1197,7 @@ export class Store {
         (l): BallotLanguageConfig => ({ languages: [l] })
       );
 
-      const ballotStyles = generateBallotStyles({
+      const ballotStyles = generateBallotStylesDeprecated({
         ballotLanguageConfigs,
         contests,
         electionType: electionRow.type,
