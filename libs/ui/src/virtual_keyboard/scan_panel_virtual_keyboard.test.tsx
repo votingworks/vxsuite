@@ -137,7 +137,7 @@ test('fires key events', { timeout: 30_000 }, async () => {
 
   await clickLastRowAndScanPanel();
   const spaceBar = screen.getButton(
-    `space ${getMockAudioOnlyTextPrefix(SPANISH)} space`
+    `space${getMockAudioOnlyTextPrefix(SPANISH)} space`
   );
   await userEvent.click(spaceBar);
   expect(onKeyPress).lastCalledWith(' ');
@@ -191,7 +191,7 @@ test('supports tab and enter keypresses to navigate the keyboard', async () => {
   await userEvent.keyboard('{Enter}');
   // Need to use slower getButton here because getByText will find the child <span>
   expect(
-    screen.getButton(`T ${getMockAudioOnlyTextPrefix(ENGLISH)} T`)
+    screen.getButton(`T${getMockAudioOnlyTextPrefix(ENGLISH)} T`)
   ).toHaveFocus();
   expect(onKeyPress).not.toHaveBeenCalled();
   await userEvent.keyboard('{Enter}');
@@ -286,7 +286,7 @@ test('custom keymap', async () => {
   await userEvent.click(screen.getByText(hasTextAcrossElements(/^😂magic/)));
 
   await userEvent.click(
-    screen.getButton(`😂 ${getMockAudioOnlyTextPrefix(ENGLISH)} lol`)
+    screen.getButton(`😂${getMockAudioOnlyTextPrefix(ENGLISH)} lol`)
   );
   expect(onKeyPress).lastCalledWith('😂');
 
@@ -294,7 +294,7 @@ test('custom keymap', async () => {
   await userEvent.click(screen.getByText(hasTextAcrossElements(/^😂magic/)));
   await userEvent.click(screen.getByText(hasTextAcrossElements(/^😂magic/)));
   await userEvent.click(
-    screen.getButton(`magic ${getMockAudioOnlyTextPrefix(ENGLISH)} magic`)
+    screen.getButton(`magic${getMockAudioOnlyTextPrefix(ENGLISH)} magic`)
   );
   expect(onKeyPress).lastCalledWith('✨');
 });
