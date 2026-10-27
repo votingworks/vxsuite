@@ -1540,6 +1540,7 @@
   ],
   "rustJob": "test-rust-crates",
   "rustPattern": "(\\.rs|(^|/)Cargo\\.(toml|lock)|(^|/)rust-toolchain(\\.toml)?)$",
+  "passedJob": "ci-passed",
   "galleryJob": "notify-gallery",
   "galleryRequires": [
     "test-apps-admin-integration-testing",

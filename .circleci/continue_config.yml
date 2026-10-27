@@ -2581,6 +2581,16 @@ jobs:
                 paths:
                   - .turbo/cache
 
+  ci-passed:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: All selected jobs passed
+          command: |
+            true
+
   notify-gallery:
     executor: nodejs
     resource_class: small

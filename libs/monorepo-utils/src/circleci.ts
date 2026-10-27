@@ -313,6 +313,9 @@ const TOOLING_PACKAGE_PATHS = ['codemods', 'script'];
 
 const ALWAYS_RUN_JOB_IDS = ['shellcheck', 'validate-monorepo'];
 
+// The only CI status GitHub requires; it waits on every selected job.
+const CI_PASSED_JOB_ID = 'ci-passed';
+
 /**
  * What `script/ci-select-jobs` needs to map changed files to jobs.
  */
@@ -328,6 +331,8 @@ export interface JobSelection {
   /** Changed files matching this also run `rustJob`. */
   readonly rustPattern: string;
   /** Run on `main` after `galleryRequires`. */
+  /** Requires every selected job. */
+  readonly passedJob: string;
   readonly galleryJob: string;
   readonly galleryRequires: readonly string[];
 }
@@ -383,6 +388,7 @@ function generateJobSelection(
     ignoredPrefixes: ['docs/', '.github/'],
     rustJob: RUST_CRATES_JOB_ID,
     rustPattern: String.raw`(\.rs|(^|/)Cargo\.(toml|lock)|(^|/)rust-toolchain(\.toml)?)$`,
+    passedJob: CI_PASSED_JOB_ID,
     galleryJob: NOTIFY_GALLERY_JOB_ID,
     galleryRequires: testedPackages
       .filter((pkg) =>
@@ -518,6 +524,16 @@ ${rustJobLines.map((line) => `  ${line}\n`).join('')}
           command: |
             pnpm format:check
 ${turboCacheSaveSteps('      ').join('\n')}
+
+  ${CI_PASSED_JOB_ID}:
+    docker:
+      - image: cimg/base:current
+    resource_class: small
+    steps:
+      - run:
+          name: All selected jobs passed
+          command: |
+            true
 
 ${generateNotifyGalleryJob()
   .map((line) => `  ${line}`)

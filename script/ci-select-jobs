@@ -53,6 +53,8 @@ sed 's/^/  /' <<<"${jobs}" >&2
   while read -r job; do
     printf '      - %s:\n          context:\n            - screenshots-publishing\n' "${job}"
   done <<<"${jobs}"
+  printf '      - %s:\n          requires:\n' "$(jq -r .passedJob "${circleci_dir}/job_selection.json")"
+  sed 's/^/            - /' <<<"${jobs}"
   if [[ "${changed}" == null ]]; then
     printf '      - %s:\n          context:\n            - screenshots-publishing\n          requires:\n' \
       "$(jq -r .galleryJob "${circleci_dir}/job_selection.json")"

@@ -36,6 +36,8 @@ test('continue config defines every job but no workflows', () => {
   expect(continueConfig).toContain('test-rust-crates:');
   expect(continueConfig).toContain('test-apps-pollbook-backend:');
   expect(continueConfig).not.toContain('workflows:');
+  expect(continueConfig).toContain('ci-passed:');
+  expect(jobSelection.passedJob).toEqual('ci-passed');
 
   // Screenshot publishing: per-app upload step is emitted for each
   // integration-testing job, and the notify-gallery job (which triggers the
