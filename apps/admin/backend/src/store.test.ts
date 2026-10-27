@@ -21,6 +21,8 @@ import {
   type ElectionRegisteredVoterCounts,
   type SystemSettings,
   type BallotCandidateOrderings,
+  type CandidateOrderings,
+  getContests,
 } from '@votingworks/types';
 import { assert, assertDefined, find, typedAs } from '@votingworks/basics';
 import { join } from 'node:path';
@@ -1817,6 +1819,75 @@ describe('machine ballot adjudication assignments', () => {
       Admin.ClientMachineStatus.Active
     );
   });
+});
+
+test('getBallotAdjudicationData uses DB candidate orderings', async () => {
+  const store = Store.memoryStore(makeTemporaryDirectory());
+
+  const fixtures = electionFamousNames2021Fixtures;
+  const { election } = toSplitFileElection(fixtures.readElection());
+  const electionData = JSON.stringify(election);
+  const ballotStyle = assertDefined(election.ballotStyles[0]);
+
+  const settings: SystemSettings = {
+    ...DEFAULT_SYSTEM_SETTINGS,
+    splitElectionDefinition: true,
+  };
+
+  const contest = find(
+    getContests({ ballotStyle, election }),
+    (c): c is CandidateContest => c.type === 'candidate' && c.allowWriteIns
+  );
+
+  const reversedCandidates = contest.candidates.toReversed();
+  const orderings: CandidateOrderings = {
+    [contest.id]: reversedCandidates,
+  };
+
+  const electionId = await store.addElection({
+    ballotHash: 'ballot-hash',
+    electionData,
+    electionPackageHash: 'pkg-hash',
+    electionPackageSourceFilePath: await writeTempElectionZip({
+      candidateOrderings: [{ ballotStyleId: ballotStyle.id, orderings }],
+      electionDefinition: {
+        ballotHash: 'unused',
+        election: 'unused' as unknown as Election,
+        electionData,
+      },
+      systemSettings: settings,
+    }),
+    systemSettingsData: JSON.stringify(settings),
+  });
+
+  const [cvrId] = addMockCvrFileToStore({
+    electionId,
+    store,
+    mockCastVoteRecordFile: [
+      {
+        ballotStyleGroupId: ballotStyle.id,
+        batchId: 'batch-1',
+        scannerId: 'scanner-1',
+        precinctId: assertDefined(ballotStyle.precincts[0]),
+        votingMethod: 'precinct',
+        votes: { [contest.id]: [assertDefined(contest.candidates[0]).id] },
+        card: { type: 'bmd' },
+      },
+    ],
+    pollingPlaceId: 'polling-place-1',
+  });
+
+  const res = store.getBallotAdjudicationData({
+    electionId,
+    cvrId: assertDefined(cvrId),
+  });
+
+  const match = find(res.contests, (c) => c.contestId === contest.id);
+
+  expect(match.options.map((o) => o.definition.id)).toEqual([
+    ...reversedCandidates.map((c) => c.id),
+    ...Array.from({ length: contest.seats }, (_, i) => `write-in-${i}`),
+  ]);
 });
 
 describe('deleteCvrFile', () => {

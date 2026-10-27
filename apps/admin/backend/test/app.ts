@@ -7,7 +7,6 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
-  zipFile,
 } from '@votingworks/test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -15,10 +14,10 @@ import {
   type Election,
   constructElectionKey,
   type ElectionDefinition,
-  ElectionPackageFileName,
   type ElectionRegisteredVoterCounts,
-  LATEST_METADATA,
   type SystemSettings,
+  type BallotCandidateOrderings,
+  type BallotPositions,
 } from '@votingworks/types';
 import * as grout from '@votingworks/grout';
 import type { AddressInfo } from 'node:net';
@@ -134,28 +133,27 @@ export async function configureMachine(
   apiClient: grout.Client<Api>,
   auth: DippedSmartCardAuthApi,
   electionDefinition: ElectionDefinition,
-  registeredVoterCounts?: ElectionRegisteredVoterCounts,
-  systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS
+  opts: {
+    ballotPositions?: BallotPositions[];
+    candidateOrderings?: BallotCandidateOrderings[];
+    registeredVoterCounts?: ElectionRegisteredVoterCounts;
+    systemSettings?: SystemSettings;
+  } = {}
 ): Promise<string> {
   mockSystemAdministratorAuth(auth);
-  const electionPackage = await zipFile({
-    [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
-    [ElectionPackageFileName.METADATA]: JSON.stringify(LATEST_METADATA),
-    [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(systemSettings),
-    [ElectionPackageFileName.APP_STRINGS]: JSON.stringify({}),
-    ...(registeredVoterCounts
-      ? {
-          [ElectionPackageFileName.REGISTERED_VOTER_COUNTS]: JSON.stringify(
-            registeredVoterCounts
-          ),
-        }
-      : {}),
+
+  const electionPackage = await createElectionPackageZipArchive({
+    ballotPositions: opts.ballotPositions,
+    candidateOrderings: opts.candidateOrderings,
+    electionDefinition,
+    registeredVoterCounts: opts.registeredVoterCounts,
+    systemSettings: opts.systemSettings || DEFAULT_SYSTEM_SETTINGS,
   });
+
   const electionFilePath = saveTmpFile(electionPackage);
-  const { electionId } = (
-    await apiClient.configure({ electionFilePath })
-  ).unsafeUnwrap();
-  return electionId;
+  const res = (await apiClient.configure({ electionFilePath })).unsafeUnwrap();
+
+  return res.electionId;
 }
 
 export function buildMockLogger(

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { assert, assertDefined, err, ok } from '@votingworks/basics';
 import {
+  electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
   makeTemporaryFileAsync,
   readElectionGeneralDefinition,
@@ -19,10 +20,12 @@ import {
   testElectionReportUnsupportedContestType,
   Admin,
   type Tabulation,
+  type ElectionDefinition,
 } from '@votingworks/types';
 import {
   createElectionDefinitionCdf,
   suppressingConsoleOutput,
+  toSplitFileElection,
   zipFile,
 } from '@votingworks/test-utils';
 import {
@@ -907,5 +910,47 @@ describe('ERR file import', () => {
       filepath,
     });
     expect(result.err()?.type).toEqual('conversion-failed');
+  });
+});
+
+describe('getCandidateOrderings', () => {
+  const fixtures = electionFamousNames2021Fixtures;
+  const baseElection = fixtures.readElection();
+  const splitElection = toSplitFileElection(baseElection);
+
+  const electionDef: ElectionDefinition = {
+    ballotHash: 'unused',
+    election: splitElection.election,
+    electionData: JSON.stringify(splitElection.election),
+  };
+
+  test('returns orderings from store', async () => {
+    const env = buildTestEnvironment();
+
+    await configureMachine(env.apiClient, env.auth, electionDef, {
+      ballotPositions: splitElection.ballotPositions,
+      candidateOrderings: splitElection.candidateOrderings,
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        splitElectionDefinition: true,
+      },
+    });
+
+    const expected = assertDefined(splitElection.candidateOrderings[0]);
+    const actual = await env.apiClient.getCandidateOrderings({
+      ballotStyleId: expected.ballotStyleId,
+    });
+
+    expect(actual).toEqual(expected.orderings);
+  });
+
+  test('throws if machine not configured', async () => {
+    await suppressingConsoleOutput(async () => {
+      const res = buildTestEnvironment().apiClient.getCandidateOrderings({
+        ballotStyleId: 'irrelevant',
+      });
+
+      await expect(res).rejects.toThrow(/not configured/);
+    });
   });
 });
