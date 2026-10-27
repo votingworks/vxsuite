@@ -95,7 +95,11 @@ test('provides audio feedback for all relevant buttons', async () => {
 
   await screen.findByRole('heading', { name: /controller help/i });
 
-  expectLastMockScreenReaderContent('instructionsBmdControllerSandboxMarkScan');
+  await vi.waitFor(() =>
+    expectLastMockScreenReaderContent(
+      'instructionsBmdControllerSandboxMarkScan'
+    )
+  );
   expectMockIllustrationProps(undefined);
 
   await simulateKeyPress(Keybinding.PAGE_NEXT);
