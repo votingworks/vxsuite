@@ -65,8 +65,8 @@ test('job selection maps packages to the jobs they affect', () => {
   expect(packages['apps/pollbook/backend']).toContain(
     'test-apps-pollbook-backend'
   );
-  expect(packages['libs/basics']).not.toContain('test-apps-pollbook-backend');
-  expect(jobSelection.allJobs).not.toContain('test-apps-pollbook-backend');
+  expect(packages['libs/basics']).toContain('test-apps-pollbook-backend');
+  expect(jobSelection.allJobs).toContain('test-apps-pollbook-backend');
   expect(jobSelection.allJobs).toContain('test-rust-crates');
 
   expect(jobSelection.galleryRequires).toContain(

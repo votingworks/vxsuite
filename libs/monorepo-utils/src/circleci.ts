@@ -80,9 +80,6 @@ function turboCacheSaveSteps(indent: string): string[] {
 }
 
 const POSTGRES_PACKAGES: string[] = ['apps/hub/backend'];
-// Tested only when a file in the package's own directory changes: not on
-// `main`, and not when a dependency changes.
-const PACKAGES_ONLY_TEST_ON_CHANGES = ['apps/pollbook/backend'];
 
 function findImageSnapshotDirsRelativeToSrc(pkgPath: string): string[] {
   const srcPath = join(pkgPath, 'src');
@@ -365,28 +362,22 @@ function generateJobSelection(
     }
   }
   for (const pkg of testedPackages) {
-    const affectedBy = PACKAGES_ONLY_TEST_ON_CHANGES.includes(pkg.relativePath)
-      ? new Set([pkg])
-      : iter([pkg, ...appPackagesForIntegrationTests(pnpmPackages, pkg)])
-          .flatMap((root) => [
-            root,
-            ...findAllMonorepoDependencies(pnpmPackages, root),
-          ])
-          .toSet();
+    const affectedBy = iter([
+      pkg,
+      ...appPackagesForIntegrationTests(pnpmPackages, pkg),
+    ])
+      .flatMap((root) => [
+        root,
+        ...findAllMonorepoDependencies(pnpmPackages, root),
+      ])
+      .toSet();
     for (const dep of affectedBy) {
       packages[dep.relativePath]?.push(jobIdForPackage(pkg));
     }
   }
 
   return {
-    allJobs: [
-      ...testedPackages
-        .filter(
-          (pkg) => !PACKAGES_ONLY_TEST_ON_CHANGES.includes(pkg.relativePath)
-        )
-        .map(jobIdForPackage),
-      RUST_CRATES_JOB_ID,
-    ],
+    allJobs: [...testedPackages.map(jobIdForPackage), RUST_CRATES_JOB_ID],
     alwaysJobs: ALWAYS_RUN_JOB_IDS,
     packages,
     ignoredPrefixes: ['docs/', '.github/'],
