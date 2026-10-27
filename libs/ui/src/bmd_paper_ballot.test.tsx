@@ -448,7 +448,9 @@ test('BmdPaperBallot renders a large top margin for VxMarkScan prints', () => {
   });
 
   const header = screen.getByTestId('header');
-  expect(header).toHaveStyle(`margin-top: ${MAX_MARK_SCAN_TOP_MARGIN}`);
+  expect(header).toHaveStyle(
+    `margin-top: ${Number.parseFloat(MAX_MARK_SCAN_TOP_MARGIN) * 96}px`
+  );
 });
 
 test('BmdPaperBallot does not render a large top margin for VxMark prints', () => {

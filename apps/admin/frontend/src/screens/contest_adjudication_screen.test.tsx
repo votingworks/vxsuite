@@ -1115,9 +1115,9 @@ describe('ballot image viewer', () => {
       1000 * // Starting ballot image width
       (IMAGE_VIEWER_WIDTH_PX / 400) *
       0.75; // Scaled based on write-in area size
-    expect(ballotImage).toHaveStyle({
-      width: `${expectedWriteInZoomedInWidth}px`,
-    });
+    expect(
+      Number.parseFloat(window.getComputedStyle(ballotImage).width)
+    ).toBeCloseTo(expectedWriteInZoomedInWidth, 1);
 
     // Escape key should remove focus from write-in
     await userEvent.keyboard('{Escape}');

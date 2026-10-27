@@ -181,7 +181,7 @@ test('renders both ballot images with highlights on overvoted contests', async (
   const frontHighlights = ballotImages[0]!.querySelectorAll('div');
   expect(frontHighlights).toHaveLength(1);
   expect(frontHighlights[0]).toHaveStyle({
-    background: HIGHLIGHT_WARNING_BACKGROUND,
+    backgroundColor: HIGHLIGHT_WARNING_BACKGROUND,
   });
 
   // Back image has no highlights

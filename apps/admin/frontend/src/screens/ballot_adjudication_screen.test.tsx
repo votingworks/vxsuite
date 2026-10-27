@@ -1063,7 +1063,7 @@ test('contest hover highlights pending yellow, resolved purple, and back-side no
   const warningHighlight = getHighlightOverlay();
   expect(warningHighlight).not.toBeNull();
   expect(warningHighlight).toHaveStyle({
-    background: HIGHLIGHT_WARNING_BACKGROUND,
+    backgroundColor: HIGHLIGHT_WARNING_BACKGROUND,
   });
 
   // mouse leave clears highlight
@@ -1076,7 +1076,7 @@ test('contest hover highlights pending yellow, resolved purple, and back-side no
   const resolvedHighlight = getHighlightOverlay();
   expect(resolvedHighlight).not.toBeNull();
   expect(resolvedHighlight).toHaveStyle({
-    background: HIGHLIGHT_PRIMARY_BACKGROUND,
+    backgroundColor: HIGHLIGHT_PRIMARY_BACKGROUND,
   });
   fireEvent.mouseLeave(bestAnimalItem);
 
@@ -1159,7 +1159,9 @@ test('hovering a crossover voted contest shows the warning highlight', async () 
   fireEvent.mouseEnter(demGovernorItem);
   const highlight = getHighlightOverlay();
   expect(highlight).not.toBeNull();
-  expect(highlight).toHaveStyle({ background: HIGHLIGHT_WARNING_BACKGROUND });
+  expect(highlight).toHaveStyle({
+    backgroundColor: HIGHLIGHT_WARNING_BACKGROUND,
+  });
   fireEvent.mouseLeave(demGovernorItem);
 
   apiMock.apiClient.releaseBallotAdjudicationClaim

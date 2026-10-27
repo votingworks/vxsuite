@@ -37,12 +37,12 @@ for (const Component of [Caption, Font, P]) {
     );
 
     expect(screen.getByText('regular text')).toHaveStyle({
-      'font-style': undefined,
-      'white-space': Component.name === 'Pre' ? 'pre-wrap' : undefined,
+      'font-style': 'normal',
+      'white-space': Component.name === 'Pre' ? 'pre-wrap' : 'normal',
     });
 
     expect(screen.getByText('bold text')).toHaveStyle({
-      'font-style': undefined,
+      'font-style': 'normal',
       'font-weight': theme.sizes.fontWeight.bold,
     });
 
@@ -101,7 +101,7 @@ for (const Heading of [H1, H2, H3, H4, H5, H6]) {
 
     const regularHeading = screen.getByText('regular heading');
     expect(regularHeading).toHaveStyle({
-      'font-size': `${expectedSizeRem}rem`,
+      'font-size': `${expectedSizeRem * 16}px`,
     });
 
     const modifiedSemanticHeading = screen.getByText(
@@ -109,7 +109,7 @@ for (const Heading of [H1, H2, H3, H4, H5, H6]) {
     );
     expect(modifiedSemanticHeading.tagName).toEqual('H3');
     expect(modifiedSemanticHeading).toHaveStyle({
-      'font-size': `${expectedSizeRem}rem`,
+      'font-size': `${expectedSizeRem * 16}px`,
     });
 
     expect(screen.getByText('italic heading')).toHaveStyle({
@@ -150,10 +150,10 @@ test('RichText uses theme', () => {
   );
 
   expect(screen.getByText('table header')).toHaveStyle({
-    background: theme.colors.container,
+    backgroundColor: theme.colors.container,
   });
   expect(screen.getByText('table cell')).toHaveStyle({
-    borderWidth: `${theme.sizes.bordersRem.thin}rem`,
+    borderWidth: `${theme.sizes.bordersRem.thin * 16}px`,
     borderColor: theme.colors.outline,
   });
 });
@@ -181,10 +181,10 @@ test('RichText works without a theme using props instead', () => {
   );
 
   expect(screen.getByText('table header')).toHaveStyle({
-    background: 'blue',
+    backgroundColor: 'rgb(0, 0, 255)',
   });
   expect(screen.getByText('table cell')).toHaveStyle({
     borderWidth: '1px',
-    borderColor: 'red',
+    borderColor: 'rgb(255, 0, 0)',
   });
 });

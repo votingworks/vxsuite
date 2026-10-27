@@ -12,7 +12,7 @@ const IMAGE_URL = 'data:image/png;base64,';
 test('renders ballot image as background image', () => {
   render(<BallotImage imageUrl={IMAGE_URL} ballotBounds={BALLOT_BOUNDS} />);
   const ballotImage = screen.getByRole('img', { name: /ballot/i });
-  expect(ballotImage.style.backgroundImage).toEqual(`url(${IMAGE_URL})`);
+  expect(ballotImage.style.backgroundImage).toEqual(`url("${IMAGE_URL}")`);
   expect(ballotImage.style.aspectRatio).toEqual(
     `${BALLOT_BOUNDS.width} / ${BALLOT_BOUNDS.height}`
   );
@@ -53,7 +53,7 @@ test('renders highlight overlays', () => {
     left: '10%',
     width: '30%',
     height: '30%',
-    background: HIGHLIGHT_WARNING_BACKGROUND,
+    backgroundColor: HIGHLIGHT_WARNING_BACKGROUND,
   });
 
   const primaryOverlay = wrapper.children[1] as HTMLElement;
@@ -62,6 +62,6 @@ test('renders highlight overlays', () => {
     left: '50%',
     width: '30%',
     height: '30%',
-    background: HIGHLIGHT_PRIMARY_BACKGROUND,
+    backgroundColor: HIGHLIGHT_PRIMARY_BACKGROUND,
   });
 });

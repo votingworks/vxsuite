@@ -113,18 +113,22 @@ test.each(parties)(
     // Check background color as a proxy for selected state. It would be
     // more idiomatic to use a styled radio input for this component but
     // `Button` gives us the styles we want out of the box.
-    expect(firstPartyButton).toHaveStyle('background-color: transparent');
+    expect(firstPartyButton).toHaveStyle('background-color: rgba(0, 0, 0, 0)');
     await userEvent.click(firstPartyButton);
     // After selection, the button's background should be filled, not transparent
     await vi.waitFor(() =>
-      expect(firstPartyButton).not.toHaveStyle('background-color: transparent')
+      expect(firstPartyButton).not.toHaveStyle(
+        'background-color: rgba(0, 0, 0, 0)'
+      )
     );
 
     const secondPartyButton = screen.getButton(label);
-    expect(secondPartyButton).toHaveStyle('background-color: transparent');
+    expect(secondPartyButton).toHaveStyle('background-color: rgba(0, 0, 0, 0)');
     await userEvent.click(secondPartyButton);
     await vi.waitFor(() =>
-      expect(secondPartyButton).not.toHaveStyle('background-color: transparent')
+      expect(secondPartyButton).not.toHaveStyle(
+        'background-color: rgba(0, 0, 0, 0)'
+      )
     );
 
     const confirmButton = screen.getButton('Confirm Check-In');
