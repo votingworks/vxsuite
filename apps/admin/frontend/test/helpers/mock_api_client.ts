@@ -55,6 +55,7 @@ import {
   type SystemSettings,
   type Tabulation,
   DEV_MACHINE_ID,
+  type CandidateOrderings,
 } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
@@ -77,6 +78,8 @@ type MockApiClient = Omit<
   | 'isMultiStationAdjudicationEnabled'
   | 'getCastVoteRecordsDataVersion'
   | 'getBackupStatus'
+  | 'waitForUsbDriveChange'
+  | 'getCandidateOrderings'
 > & {
   // Because these are polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
@@ -88,35 +91,38 @@ type MockApiClient = Omit<
   // Polled continuously by the tally screen's CvrDataRefresher, so a
   // standard vitest mock avoids forcing every test to set an expectation.
   getCastVoteRecordsDataVersion: Mock;
+  waitForUsbDriveChange: Mock;
   getBackupStatus: Mock;
+  getCandidateOrderings: Mock<
+    (p: { ballotStyleId: string }) => Promise<CandidateOrderings | null>
+  >;
 };
 
 export function createMockApiClient(): MockApiClient {
-  const mockApiClient = createMockClient<Api>();
+  const mockApiClient = createMockClient<Api>() as unknown as MockApiClient;
   // For some reason, using an object spread to override the polling methods breaks the rest
   // of the mockApiClient, so we override like this instead
-  (mockApiClient.getBatteryInfo as unknown as Mock) = vi.fn(() =>
+  mockApiClient.getBatteryInfo = vi.fn(() =>
     Promise.resolve({ level: 1, discharging: false })
   );
-  (mockApiClient.getDiskSpaceSummary as unknown as Mock) = vi.fn(() =>
+  mockApiClient.getDiskSpaceSummary = vi.fn(() =>
     Promise.resolve({ total: 3, used: 2, available: 1 })
   );
-  (mockApiClient.isMultiStationAdjudicationEnabled as unknown as Mock) = vi.fn(
-    () => Promise.resolve(false)
+  mockApiClient.isMultiStationAdjudicationEnabled = vi.fn(() =>
+    Promise.resolve(false)
   );
-  (mockApiClient.getCastVoteRecordsDataVersion as unknown as Mock) = vi.fn(() =>
-    Promise.resolve(0)
-  );
-  (mockApiClient.getBackupStatus as unknown as Mock) = vi.fn(() =>
-    Promise.resolve(null)
-  );
+  mockApiClient.getCastVoteRecordsDataVersion = vi.fn(() => Promise.resolve(0));
+  mockApiClient.getBackupStatus = vi.fn(() => Promise.resolve(null));
   // The USB drive watcher long-polls this continuously. Default it to a
   // never-resolving promise; `createApiMock` replaces it with a controllable
   // version that reports a change whenever the expected status is updated.
-  (mockApiClient.waitForUsbDriveChange as unknown as Mock) = vi.fn(
+  mockApiClient.waitForUsbDriveChange = vi.fn(
     () => new Promise<number>(() => {})
   );
-  return mockApiClient as unknown as MockApiClient;
+
+  mockApiClient.getCandidateOrderings = vi.fn(() => Promise.resolve(null));
+
+  return mockApiClient;
 }
 
 /**
@@ -177,7 +183,7 @@ export function createApiMock(
   // has re-issued its long-poll — it simply returns the new sequence at once.
   let usbDriveChangeSeq = 0;
   let usbDriveChangeWaiter: Deferred<number> | undefined;
-  (apiClient.waitForUsbDriveChange as unknown as Mock).mockImplementation(
+  apiClient.waitForUsbDriveChange.mockImplementation(
     ({ lastSeq }: { lastSeq: number }) => {
       if (usbDriveChangeSeq > lastSeq) {
         return Promise.resolve(usbDriveChangeSeq);
