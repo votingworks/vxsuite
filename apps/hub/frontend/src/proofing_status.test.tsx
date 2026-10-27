@@ -571,15 +571,13 @@ function mockFinalizedAt(api: MockApiClient, date: Date | null) {
   api.getBallotsFinalizedAt.expectCallWith({ electionId }).resolves(date);
 }
 
-const realWindowNavigator = window.navigator;
-
 function mockClipboard(writeText: (text: string) => Promise<void>) {
   const clipboard: Partial<Clipboard> = { writeText };
-  window.navigator = {
-    ...realWindowNavigator,
-    // `navigator.clipboard` not implemented by `jsdom`:
-    clipboard: clipboard as Clipboard,
-  };
+  // `navigator.clipboard` not implemented by `jsdom`:
+  Object.defineProperty(window.navigator, 'clipboard', {
+    value: clipboard,
+    configurable: true,
+  });
 }
 
 function mockMainExports(api: MockApiClient, task?: Partial<BackgroundTask>) {
