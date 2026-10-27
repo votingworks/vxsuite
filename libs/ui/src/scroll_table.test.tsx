@@ -31,7 +31,7 @@ test('renders header and rows with table semantics and derives column sizes', ()
 
   const table = screen.getByRole('table');
   expect(table).toHaveClass('grow');
-  expect(table).toHaveStyle({ marginTop: '1rem' });
+  expect(table).toHaveStyle({ marginTop: '16px' });
   expect(table).toHaveStyleRule(
     'grid-template-columns',
     'max-content auto 1fr 0.45rem'

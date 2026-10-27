@@ -58,7 +58,7 @@ test('shows the focus outline when `showFocusIndicator` is set', () => {
   const container = screen.getByText('some audio content');
   expect(container).not.toHaveStyle({ outline: 'none' });
   // Caller-provided styles are preserved.
-  expect(container).toHaveStyle({ color: 'red' });
+  expect(container).toHaveStyle({ color: 'rgb(255, 0, 0)' });
 });
 
 function trackBlockFocusTargets(block: Element): EventTarget[] {

@@ -238,7 +238,7 @@ describe('VerticalElectionInfoBar', () => {
     );
     const infoBar = container.firstChild;
     expect(infoBar).toHaveStyle({
-      background: theme.colors.inverseBackground,
+      backgroundColor: theme.colors.inverseBackground,
       color: theme.colors.onInverse,
     });
   });

@@ -103,7 +103,7 @@ test('fires key events', async () => {
   }
 
   const spaceBar = screen.getButton(
-    `space ${getMockAudioOnlyTextPrefix(SPANISH)} space`
+    `space${getMockAudioOnlyTextPrefix(SPANISH)} space`
   );
   await userEvent.click(spaceBar);
   expect(onKeyPress).lastCalledWith(' ');
@@ -111,7 +111,7 @@ test('fires key events', async () => {
   expect(onBackspace).not.toHaveBeenCalled();
 
   await userEvent.click(
-    screen.getButton(`delete ${getMockAudioOnlyTextPrefix(SPANISH)} delete`)
+    screen.getButton(`delete${getMockAudioOnlyTextPrefix(SPANISH)} delete`)
   );
   expect(onBackspace).toHaveBeenCalled();
 });
@@ -161,12 +161,12 @@ test('custom keymap', async () => {
   );
 
   await userEvent.click(
-    screen.getButton(`😂 ${getMockAudioOnlyTextPrefix(ENGLISH)} lol`)
+    screen.getButton(`😂${getMockAudioOnlyTextPrefix(ENGLISH)} lol`)
   );
   expect(onKeyPress).lastCalledWith('😂');
 
   await userEvent.click(
-    screen.getButton(`magic ${getMockAudioOnlyTextPrefix(ENGLISH)} magic`)
+    screen.getButton(`magic${getMockAudioOnlyTextPrefix(ENGLISH)} magic`)
   );
   expect(onKeyPress).lastCalledWith('✨');
 });

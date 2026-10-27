@@ -31,9 +31,9 @@ test('TestModeBanner touch locks to medium size and contrast', () => {
     backgroundColor: TouchscreenPalette.Orange30,
   });
   // Should use touchMedium font size (px), not touchExtraLarge
-  expect(banner).toHaveStyle({
-    fontSize: `${mediumTheme.sizes.fontDefault}px`,
-  });
+  expect(
+    Number.parseFloat(window.getComputedStyle(banner!).fontSize)
+  ).toBeCloseTo(mediumTheme.sizes.fontDefault);
 });
 
 test('TestModeBanner desktop', () => {

@@ -104,7 +104,9 @@ test('desktop, inverse', () => {
     name: 'Four of Hearts',
   }).nextSibling; // Select the button that has the styling
   expect(option).toHaveStyle(`color: ${theme.colors.onInverse}`);
-  expect(option).toHaveStyle(`border-width: ${theme.sizes.bordersRem.thin}rem`);
+  expect(option).toHaveStyle(
+    `border-width: ${theme.sizes.bordersRem.thin * 16}px`
+  );
 });
 
 test('forwards className for styled-components support', () => {
