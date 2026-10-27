@@ -1108,9 +1108,9 @@ describe('report printing', () => {
       { state: 'no-paper' },
       3
     );
-    apiMock.setPrinterStatus({ state: 'no-paper' });
     await userEvent.click(screen.getByText('Open Polls'));
     await screen.findByText('Opening Polls…');
+    apiMock.setPrinterStatus({ state: 'no-paper' });
     resolve();
     await screen.findByText('Printing Stopped');
     screen.getByText(/out of paper/);
