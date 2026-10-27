@@ -300,7 +300,6 @@ describe('getCandidateOrderingSetsForNhBallot', () => {
         contests: [contest],
         precincts: electionFamousNames.precincts,
         precinctsOrSplitIds,
-        districtIds: [contest.districtId],
         electionId: electionFamousNames.id,
       };
 
@@ -349,7 +348,6 @@ describe('getCandidateOrderingSetsForNhBallot', () => {
       contests: [candidateContest, yesnoContest],
       precincts: electionFamousNames.precincts,
       precinctsOrSplitIds: [{ precinctId: precinct1!.id }],
-      districtIds: ['district-1'],
       electionId: electionFamousNames.id,
     };
 

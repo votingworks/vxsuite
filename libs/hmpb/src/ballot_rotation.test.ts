@@ -56,7 +56,6 @@ describe('getCandidateOrderingByPrecinctAlphabetical', () => {
         contests: [contest],
         precincts: [precinct],
         precinctsOrSplitIds: [{ precinctId: precinct.id }],
-        districtIds: [contest.districtId],
         electionId: 'test-election',
       };
 
@@ -99,7 +98,6 @@ describe('getCandidateOrderingByPrecinctAlphabetical', () => {
         { precinctId: precinct1.id, splitId: 'split-1' },
         { precinctId: precinct2.id },
       ],
-      districtIds: [contest.districtId],
       electionId: 'test-election',
     };
 
@@ -142,7 +140,6 @@ describe('getCandidateOrderingByPrecinctAlphabetical', () => {
       contests: [contest1, yesnoContest],
       precincts: [precinct],
       precinctsOrSplitIds: [{ precinctId: precinct.id }],
-      districtIds: ['district-1'],
       electionId: 'test-election',
     };
 
@@ -206,7 +203,6 @@ describe('getAllPossibleCandidateOrderings', () => {
         contests: [contest],
         precincts: [precinct],
         precinctsOrSplitIds: [{ precinctId: precinct.id }],
-        districtIds: [contest.districtId],
         electionId: 'test-election',
       };
 
@@ -274,7 +270,6 @@ describe('getAllPossibleCandidateOrderings', () => {
         contests: [contest],
         precincts,
         precinctsOrSplitIds,
-        districtIds: [contest.districtId],
         electionId: 'test-election',
       };
 
@@ -327,7 +322,6 @@ describe('getAllPossibleCandidateOrderings', () => {
         contests,
         precincts: [precinct],
         precinctsOrSplitIds: [{ precinctId: precinct.id }],
-        districtIds: contests.map((c) => c.districtId),
         electionId: 'test-election',
       };
 
