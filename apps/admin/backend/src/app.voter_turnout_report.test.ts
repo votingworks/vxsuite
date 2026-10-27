@@ -123,8 +123,10 @@ test('voter turnout report preview, print, and export', async () => {
   const { apiClient, auth, mockPrinterHandler, usbPlatform } =
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition, {
-    'precinct-1': 500,
-    'precinct-2': 400,
+    registeredVoterCounts: {
+      'precinct-1': 500,
+      'precinct-2': 400,
+    },
   });
   mockElectionManagerAuth(auth, electionDefinition.election);
 
@@ -164,8 +166,10 @@ test('voter turnout report logging', async () => {
   const { apiClient, auth, logger, mockPrinterHandler, usbPlatform } =
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition, {
-    'precinct-1': 500,
-    'precinct-2': 400,
+    registeredVoterCounts: {
+      'precinct-1': 500,
+      'precinct-2': 400,
+    },
   });
   mockElectionManagerAuth(auth, electionDefinition.election);
   mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
@@ -244,8 +248,10 @@ test('voter turnout report warning', async () => {
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition, {
-    'precinct-1': 500,
-    'precinct-2': 400,
+    registeredVoterCounts: {
+      'precinct-1': 500,
+      'precinct-2': 400,
+    },
   });
   mockElectionManagerAuth(auth, electionDefinition.election);
 

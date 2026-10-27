@@ -475,13 +475,9 @@ test('getSystemSettings happy path', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const { systemSettings } = electionTwoPartyPrimaryFixtures;
-  await configureMachine(
-    apiClient,
-    auth,
-    electionDefinition,
-    undefined,
-    JSON.parse(systemSettings.asText())
-  );
+  await configureMachine(apiClient, auth, electionDefinition, {
+    systemSettings: JSON.parse(systemSettings.asText()),
+  });
 
   mockSystemAdministratorAuth(auth);
 
@@ -504,12 +500,9 @@ test('getRegisteredVoterCounts', async () => {
   // returns null when unconfigured
   expect(await apiClient.getRegisteredVoterCounts()).toBeNull();
 
-  await configureMachine(
-    apiClient,
-    auth,
-    electionDefinition,
-    registeredVoterCounts
-  );
+  await configureMachine(apiClient, auth, electionDefinition, {
+    registeredVoterCounts,
+  });
   mockElectionManagerAuth(auth, electionDefinition.election);
 
   // returns counts when configured with RV data

@@ -617,10 +617,11 @@ test('withheld unadjudicated central scan ballots still appear in ballot counts'
     apiClient,
     auth,
     electionDefinition,
-    undefined,
     {
-      ...DEFAULT_SYSTEM_SETTINGS,
-      countCentralScanBallotsOnlyAfterAdjudication: true,
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        countCentralScanBallotsOnlyAfterAdjudication: true,
+      },
     }
   );
   mockElectionManagerAuth(auth, electionDefinition.election);
