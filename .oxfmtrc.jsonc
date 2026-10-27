@@ -14,7 +14,7 @@
     "*.code-workspace",
 
     // Generated files — formatting is controlled by the generator.
-    "**/.circleci/config.yml",
+    ".circleci/*",
     "pnpm-lock.yaml",
     ".github/pull_request_template.md",
     "libs/logging-utils/index.d.ts",

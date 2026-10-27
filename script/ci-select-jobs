@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+# Writes a CircleCI continuation config that runs only the jobs affected by the
+# changes between `main` and the given commit (every job on `main` itself).
+#
+# Usage: script/ci-select-jobs <commit> <output-config-path>
+
+set -euo pipefail
+
+commit="${1:?ci-select-jobs: commit required}"
+out="${2:?ci-select-jobs: output path required}"
+
+circleci_dir="$(dirname "${BASH_SOURCE[0]}")/../.circleci"
+
+if [[ "${CIRCLE_BRANCH:-}" == main ]]; then
+  changed=null
+elif base="$(git merge-base origin/main "${commit}")"; then
+  changed="$(git diff --name-only --no-renames "${base}" "${commit}" | jq -R . | jq -sc .)"
+else
+  echo "ci-select-jobs: no merge base with main; running every job" >&2
+  changed=null
+fi
+
+jobs="$(
+  jq -r --argjson changed "${changed}" '
+    . as $m
+    | def owner($file):
+        [$m.packages | keys[] | select(. as $dir | $file | startswith($dir + "/"))]
+        | max_by(length);
+      (
+        if $changed == null then $m.allJobs[]
+        else
+          $changed[]
+          | . as $file
+          | select(any($m.ignoredPrefixes[]; . as $p | $file | startswith($p)) | not)
+          | owner($file) as $dir
+          | (if $dir == null then $m.allJobs[] else $m.packages[$dir][] end),
+            (if $file | test($m.rustPattern) then $m.rustJob else empty end)
+        end
+      ),
+      $m.alwaysJobs[]
+  ' "${circleci_dir}/job_selection.json" | sort -u
+)"
+
+echo "Changed files:" >&2
+jq -r 'if . == null then "  (all)" else .[] | "  \(.)" end' <<<"${changed}" >&2
+echo "Selected jobs:" >&2
+sed 's/^/  /' <<<"${jobs}" >&2
+
+{
+  cat "${circleci_dir}/continue_config.yml"
+  printf '\n\nworkflows:\n  test:\n    jobs:\n'
+  while read -r job; do
+    printf '      - %s:\n          context:\n            - screenshots-publishing\n' "${job}"
+  done <<<"${jobs}"
+  if [[ "${changed}" == null ]]; then
+    printf '      - %s:\n          context:\n            - screenshots-publishing\n          requires:\n' \
+      "$(jq -r .galleryJob "${circleci_dir}/job_selection.json")"
+    jq -r '.galleryRequires[] | "            - \(.)"' "${circleci_dir}/job_selection.json"
+  fi
+} >"${out}"

@@ -529,8 +529,11 @@ export const saveSetting = {
 
 CI runs on CircleCI (`.circleci/config.yml`), not GitHub Actions — the two
 `.github/workflows/` files are unrelated. Every branch push builds; a PR is not
-required. One push creates two pipelines: a setup pipeline that path-filters,
-then a continuation pipeline whose workflows hold the ~60 real jobs.
+required. One push creates two pipelines: a setup pipeline whose `select-jobs`
+job runs `script/ci-select-jobs`, then a continuation pipeline holding only the
+jobs affected by the branch's changes since its merge base with `main` (every
+job on `main`). The mapping from package directories to jobs is generated into
+`.circleci/job_selection.json`; a change outside any package runs every job.
 
 ### Status
 

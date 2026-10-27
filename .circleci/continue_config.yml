@@ -1,0 +1,2669 @@
+# THIS FILE IS GENERATED. DO NOT EDIT IT DIRECTLY.
+# Run `pnpm -w generate-circleci-config` to regenerate it.
+#
+# `script/ci-select-jobs` appends the workflow for the jobs to run.
+
+version: 2.1
+
+orbs:
+  aws-cli: circleci/aws-cli@5
+
+executors:
+  nodejs:
+    docker:
+      - image: votingworks/cimg-debian12:4.9.0
+        auth:
+          username: $VX_DOCKER_USERNAME
+          password: $VX_DOCKER_PASSWORD
+
+  nodejs_postgres:
+    docker:
+      - image: votingworks/cimg-debian12:4.9.0
+        auth:
+          username: $VX_DOCKER_USERNAME
+          password: $VX_DOCKER_PASSWORD
+
+      - image: cimg/postgres:16.6
+        environment:
+          POSTGRES_USER: postgres
+
+jobs:
+  # @votingworks/admin-backend
+  test-apps-admin-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/admin/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/admin/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/admin/backend test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/admin/backend/reports/
+      - store_artifacts:
+          path: apps/admin/backend/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/admin-frontend
+  test-apps-admin-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/admin/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/admin/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/admin/frontend test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/admin/frontend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/admin-integration-testing
+  test-apps-admin-integration-testing:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Install Browser
+          command: |
+            pnpm --dir apps/admin/integration-testing exec playwright install-deps
+            pnpm --dir apps/admin/integration-testing exec playwright install chromium
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/admin/integration-testing build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/admin/integration-testing lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/admin/integration-testing test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/admin/integration-testing/test-results/
+      - store_artifacts:
+          path: apps/admin/integration-testing/test-results/
+      - when:
+          condition:
+            equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - aws-cli/setup
+            - run:
+                name: Upload screenshots to S3
+                command: |
+                  if [ -d "apps/admin/integration-testing/test-results/screenshots" ]; then
+                    aws s3 sync apps/admin/integration-testing/test-results/screenshots/ \
+                      "s3://$SCREENSHOT_BUCKET/screenshots/admin/" \
+                      --exclude "*" --include "*.png" --delete
+                  fi
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/central-scan-backend
+  test-apps-central-scan-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/central-scan/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/central-scan/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/central-scan/backend test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/central-scan/backend/reports/
+      - store_artifacts:
+          path: apps/central-scan/backend/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/central-scan-frontend
+  test-apps-central-scan-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/central-scan/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/central-scan/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/central-scan/frontend test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/central-scan/frontend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/central-scan-integration-testing
+  test-apps-central-scan-integration-testing:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Install Browser
+          command: |
+            pnpm --dir apps/central-scan/integration-testing exec playwright install-deps
+            pnpm --dir apps/central-scan/integration-testing exec playwright install chromium
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/central-scan/integration-testing build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/central-scan/integration-testing lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/central-scan/integration-testing test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/central-scan/integration-testing/test-results/
+      - store_artifacts:
+          path: apps/central-scan/integration-testing/test-results/
+      - when:
+          condition:
+            equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - aws-cli/setup
+            - run:
+                name: Upload screenshots to S3
+                command: |
+                  if [ -d "apps/central-scan/integration-testing/test-results/screenshots" ]; then
+                    aws s3 sync apps/central-scan/integration-testing/test-results/screenshots/ \
+                      "s3://$SCREENSHOT_BUCKET/screenshots/central-scan/" \
+                      --exclude "*" --include "*.png" --delete
+                  fi
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/hub-backend
+  test-apps-hub-backend:
+    executor: nodejs_postgres
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/hub/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/hub/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/hub/backend test:ci
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/hub/backend/reports/
+      - store_artifacts:
+          path: apps/hub/backend/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/hub-frontend
+  test-apps-hub-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/hub/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/hub/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/hub/frontend test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/hub/frontend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/mark-scan-backend
+  test-apps-mark-scan-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/mark-scan/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/mark-scan/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/mark-scan/backend test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/mark-scan/backend/reports/
+      - store_artifacts:
+          path: apps/mark-scan/backend/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/mark-scan-frontend
+  test-apps-mark-scan-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/mark-scan/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/mark-scan/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/mark-scan/frontend test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/mark-scan/frontend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/mark-scan-integration-testing
+  test-apps-mark-scan-integration-testing:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Install Browser
+          command: |
+            pnpm --dir apps/mark-scan/integration-testing exec playwright install-deps
+            pnpm --dir apps/mark-scan/integration-testing exec playwright install chromium
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/mark-scan/integration-testing build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/mark-scan/integration-testing lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/mark-scan/integration-testing test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/mark-scan/integration-testing/test-results/
+      - store_artifacts:
+          path: apps/mark-scan/integration-testing/test-results/
+      - when:
+          condition:
+            equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - aws-cli/setup
+            - run:
+                name: Upload screenshots to S3
+                command: |
+                  if [ -d "apps/mark-scan/integration-testing/test-results/screenshots" ]; then
+                    aws s3 sync apps/mark-scan/integration-testing/test-results/screenshots/ \
+                      "s3://$SCREENSHOT_BUCKET/screenshots/mark-scan/" \
+                      --exclude "*" --include "*.png" --delete
+                  fi
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/mark-backend
+  test-apps-mark-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/mark/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/mark/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/mark/backend test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/mark/backend/reports/
+      - store_artifacts:
+          path: apps/mark/backend/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/mark-frontend
+  test-apps-mark-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/mark/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/mark/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/mark/frontend test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/mark/frontend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/mark-integration-testing
+  test-apps-mark-integration-testing:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Install Browser
+          command: |
+            pnpm --dir apps/mark/integration-testing exec playwright install-deps
+            pnpm --dir apps/mark/integration-testing exec playwright install chromium
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/mark/integration-testing build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/mark/integration-testing lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/mark/integration-testing test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/mark/integration-testing/test-results/
+      - store_artifacts:
+          path: apps/mark/integration-testing/test-results/
+      - when:
+          condition:
+            equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - aws-cli/setup
+            - run:
+                name: Upload screenshots to S3
+                command: |
+                  if [ -d "apps/mark/integration-testing/test-results/screenshots" ]; then
+                    aws s3 sync apps/mark/integration-testing/test-results/screenshots/ \
+                      "s3://$SCREENSHOT_BUCKET/screenshots/mark/" \
+                      --exclude "*" --include "*.png" --delete
+                  fi
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/pollbook-backend
+  test-apps-pollbook-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/pollbook/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/pollbook/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/pollbook/backend test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/pollbook/backend/reports/
+      - store_artifacts:
+          path: apps/pollbook/backend/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/pollbook-frontend
+  test-apps-pollbook-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/pollbook/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/pollbook/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/pollbook/frontend test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/pollbook/frontend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/print-backend
+  test-apps-print-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/print/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/print/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/print/backend test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/print/backend/reports/
+      - store_artifacts:
+          path: apps/print/backend/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/print-frontend
+  test-apps-print-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/print/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/print/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/print/frontend test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/print/frontend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/print-integration-testing
+  test-apps-print-integration-testing:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Install Browser
+          command: |
+            pnpm --dir apps/print/integration-testing exec playwright install-deps
+            pnpm --dir apps/print/integration-testing exec playwright install chromium
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/print/integration-testing build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/print/integration-testing lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/print/integration-testing test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/print/integration-testing/test-results/
+      - store_artifacts:
+          path: apps/print/integration-testing/test-results/
+      - when:
+          condition:
+            equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - aws-cli/setup
+            - run:
+                name: Upload screenshots to S3
+                command: |
+                  if [ -d "apps/print/integration-testing/test-results/screenshots" ]; then
+                    aws s3 sync apps/print/integration-testing/test-results/screenshots/ \
+                      "s3://$SCREENSHOT_BUCKET/screenshots/print/" \
+                      --exclude "*" --include "*.png" --delete
+                  fi
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/scan-backend
+  test-apps-scan-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/scan/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/scan/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/scan/backend test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/scan/backend/reports/
+      - store_artifacts:
+          path: apps/scan/backend/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/scan-frontend
+  test-apps-scan-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/scan/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/scan/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/scan/frontend test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/scan/frontend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/scan-integration-testing
+  test-apps-scan-integration-testing:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Install Browser
+          command: |
+            pnpm --dir apps/scan/integration-testing exec playwright install-deps
+            pnpm --dir apps/scan/integration-testing exec playwright install chromium
+      - run:
+          name: Build
+          command: |
+            pnpm --dir apps/scan/integration-testing build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir apps/scan/integration-testing lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir apps/scan/integration-testing test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: apps/scan/integration-testing/test-results/
+      - store_artifacts:
+          path: apps/scan/integration-testing/test-results/
+      - when:
+          condition:
+            equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - aws-cli/setup
+            - run:
+                name: Upload screenshots to S3
+                command: |
+                  if [ -d "apps/scan/integration-testing/test-results/screenshots" ]; then
+                    aws s3 sync apps/scan/integration-testing/test-results/screenshots/ \
+                      "s3://$SCREENSHOT_BUCKET/screenshots/scan/" \
+                      --exclude "*" --include "*.png" --delete
+                  fi
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/auth
+  test-libs-auth:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/auth build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/auth lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/auth test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/auth/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/backend
+  test-libs-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/backend test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/backend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/ballot-encoder
+  test-libs-ballot-encoder:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/ballot-encoder build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/ballot-encoder lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/ballot-encoder test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/ballot-encoder/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/ballot-interpreter
+  test-libs-ballot-interpreter:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/ballot-interpreter build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/ballot-interpreter lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/ballot-interpreter test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/ballot-interpreter/reports/
+      - store_artifacts:
+          path: libs/ballot-interpreter/src/__image_snapshots__/__diff_output__/
+      - store_artifacts:
+          path: libs/ballot-interpreter/src/summary-ballot/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/basics
+  test-libs-basics:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/basics build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/basics lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/basics test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/basics/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/bmd-ballot-fixtures
+  test-libs-bmd-ballot-fixtures:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/bmd-ballot-fixtures build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/bmd-ballot-fixtures lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/bmd-ballot-fixtures test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/bmd-ballot-fixtures/reports/
+      - store_artifacts:
+          path: libs/bmd-ballot-fixtures/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/cdf-schema-builder
+  test-libs-cdf-schema-builder:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/cdf-schema-builder build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/cdf-schema-builder lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/cdf-schema-builder test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/cdf-schema-builder/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/coverage-check
+  test-libs-coverage-check:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/coverage-check build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/coverage-check lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/coverage-check test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/coverage-check/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/custom-paper-handler
+  test-libs-custom-paper-handler:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/custom-paper-handler build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/custom-paper-handler lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/custom-paper-handler test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/custom-paper-handler/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/db
+  test-libs-db:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/db build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/db lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/db test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/db/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/dev-dock-backend
+  test-libs-dev-dock-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/dev-dock/backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/dev-dock/backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/dev-dock/backend test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/dev-dock/backend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/dev-dock-frontend
+  test-libs-dev-dock-frontend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/dev-dock/frontend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/dev-dock/frontend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/dev-dock/frontend test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/dev-dock/frontend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # eslint-plugin-vx
+  test-libs-eslint-plugin-vx:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/eslint-plugin-vx build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/eslint-plugin-vx lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/eslint-plugin-vx test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/eslint-plugin-vx/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/fixture-generators
+  test-libs-fixture-generators:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/fixture-generators build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/fixture-generators lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/fixture-generators test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/fixture-generators/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/fixtures
+  test-libs-fixtures:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/fixtures build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/fixtures lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/fixtures test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/fixtures/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/fs
+  test-libs-fs:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/fs build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/fs lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/fs test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/fs/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/fujitsu-thermal-printer
+  test-libs-fujitsu-thermal-printer:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/fujitsu-thermal-printer build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/fujitsu-thermal-printer lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/fujitsu-thermal-printer test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/fujitsu-thermal-printer/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/grout
+  test-libs-grout:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/grout build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/grout lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/grout test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/grout/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/grout-test-utils
+  test-libs-grout-test-utils:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/grout/test-utils build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/grout/test-utils lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/grout/test-utils test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/grout/test-utils/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/hmpb
+  test-libs-hmpb:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/hmpb build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/hmpb lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/hmpb test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/hmpb/reports/
+      - store_artifacts:
+          path: libs/hmpb/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/image-utils
+  test-libs-image-utils:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/image-utils build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/image-utils lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/image-utils test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/image-utils/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/integration-test-utils
+  test-libs-integration-test-utils:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/integration-test-utils build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/integration-test-utils lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/integration-test-utils test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/integration-test-utils/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/logging
+  test-libs-logging:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/logging build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/logging lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/logging test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/logging/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/logging-utils
+  test-libs-logging-utils:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/logging-utils build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/logging-utils lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/logging-utils test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/logging-utils/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/mark-flow-ui
+  test-libs-mark-flow-ui:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/mark-flow-ui build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/mark-flow-ui lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/mark-flow-ui test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/mark-flow-ui/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/message-coder
+  test-libs-message-coder:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/message-coder build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/message-coder lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/message-coder test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/message-coder/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/monorepo-utils
+  test-libs-monorepo-utils:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/monorepo-utils build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/monorepo-utils lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/monorepo-utils test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/monorepo-utils/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/networking
+  test-libs-networking:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/networking build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/networking lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/networking test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/networking/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/pdi-scanner
+  test-libs-pdi-scanner:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/pdi-scanner build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/pdi-scanner lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/pdi-scanner test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/pdi-scanner/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/printing
+  test-libs-printing:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/printing build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/printing lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/printing test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/printing/reports/
+      - store_artifacts:
+          path: libs/printing/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/test-decks
+  test-libs-test-decks:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/test-decks build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/test-decks lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/test-decks test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/test-decks/reports/
+      - store_artifacts:
+          path: libs/test-decks/src/__image_snapshots__/__diff_output__/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/test-utils
+  test-libs-test-utils:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/test-utils build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/test-utils lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/test-utils test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/test-utils/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/types
+  test-libs-types:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/types build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/types lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/types test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/types/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/ui
+  test-libs-ui:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/ui build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/ui lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/ui test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/ui/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/usb-drive
+  test-libs-usb-drive:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/usb-drive build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/usb-drive lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/usb-drive test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/usb-drive/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/utils
+  test-libs-utils:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/utils build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/utils lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/utils test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/utils/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  test-rust-crates:
+    executor: 'nodejs'
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: false
+      - run:
+          name: Check Formatting
+          command: |
+            (cd . && cargo fmt --check)
+            (cd libs/ballot-interpreter/rust && cargo fmt --check)
+            (cd libs/types-rs && cargo fmt --check)
+            (cd libs/pdi-scanner/rust && cargo fmt --check)
+      - run:
+          name: Build
+          command: |
+            cargo build --manifest-path ./Cargo.toml
+            cargo build --manifest-path libs/ballot-interpreter/rust/Cargo.toml
+            cargo build --manifest-path libs/types-rs/Cargo.toml
+            cargo build --manifest-path libs/pdi-scanner/rust/Cargo.toml
+      - run:
+          name: Lint
+          command: |
+            cargo clippy --all-targets --manifest-path ./Cargo.toml
+            cargo clippy --all-targets --manifest-path libs/ballot-interpreter/rust/Cargo.toml
+            cargo clippy --all-targets --manifest-path libs/types-rs/Cargo.toml
+            cargo clippy --all-targets --manifest-path libs/pdi-scanner/rust/Cargo.toml
+      - run:
+          name: Test
+          command: |
+            cargo test --manifest-path ./Cargo.toml
+            cargo test --manifest-path libs/ballot-interpreter/rust/Cargo.toml
+            cargo test --manifest-path libs/types-rs/Cargo.toml
+            cargo test --manifest-path libs/pdi-scanner/rust/Cargo.toml
+
+
+  shellcheck:
+    executor: nodejs
+    resource_class: medium
+    steps:
+      - checkout
+      - run:
+          name: Install shellcheck
+          command: |
+            apt-get update -qq && apt-get install -y --no-install-recommends shellcheck
+      - run:
+          name: Shellcheck
+          command: |
+            script/shellcheck
+
+  validate-monorepo:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir script build
+      - run:
+          name: Validate
+          command: |
+            ./script/validate-monorepo
+      - run:
+          name: Check Formatting
+          command: |
+            pnpm format:check
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  notify-gallery:
+    executor: nodejs
+    resource_class: small
+    steps:
+      - run:
+          name: Trigger screenshot gallery build on GitHub Actions
+          command: |
+            curl --fail --silent --show-error -X POST \
+              -H "Authorization: Bearer $GALLERY_DISPATCH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/votingworks/vxsuite/dispatches" \
+              -d '{"event_type":"build-screenshot-gallery","client_payload":{"ref":"<< pipeline.git.branch >>","tag":"<< pipeline.git.tag >>","sha":"<< pipeline.git.revision >>"}}'
+
+commands:
+  checkout-and-install:
+    description: Get the code and install dependencies.
+    parameters:
+      is_node_package:
+        type: boolean
+    steps:
+      - run:
+          name: Ensure Rust tooling is in PATH
+          command: |
+            echo 'export PATH="/root/.cargo/bin:$PATH"' >> $BASH_ENV
+      - run:
+          name: Configure Turbo for CI
+          command: |
+            # Identifies the toolchain that produced cached artifacts.
+            echo 'export VX_TOOLCHAIN_ID="votingworks/cimg-debian12:4.9.0"' >> $BASH_ENV
+            # Run summaries record each task's hash under .turbo/runs;
+            # script/prune-turbo-cache uses them to trim the cache before it
+            # is saved.
+            echo 'export TURBO_RUN_SUMMARY=true' >> $BASH_ENV
+      - checkout
+      # Edit this comment somehow in order to invalidate the CircleCI cache.
+      # Since the contents of this file affect the cache key, editing only a
+      # comment will invalidate the cache without changing the behavior.
+      # last edited by Kofi 2024-09-19
+      - run:
+          name: Pre-install Node.js headers for node-gyp
+          command: |
+            # Concurrent native-module builds race to download and extract
+            # the Node headers into the shared node-gyp devdir,
+            # intermittently corrupting the header tree (builds then fail
+            # with errors inside the v8 headers). Extract the headers once
+            # up front so the concurrent builds only ever read them.
+            node "$(npm root -g)/pnpm/dist/node_modules/node-gyp/bin/node-gyp.js" install
+      - when:
+          condition: << parameters.is_node_package >>
+          steps:
+            - restore_cache:
+                name: Restore Node.js Cache
+                key:
+                  pnpm-cache-{{ checksum ".circleci/continue_config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
+            - run:
+                name: Install Node.js Dependencies
+                command: pnpm install --frozen-lockfile
+            - save_cache:
+                name: Save Node.js Cache
+                key:
+                  pnpm-cache-{{ checksum ".circleci/continue_config.yml" }}-{{ checksum "pnpm-lock.yaml" }}
+                paths:
+                  - /root/.local/share/pnpm/store/v11
+                  - /root/.cache/ms-playwright
+            - restore_cache:
+                name: Restore Turbo Cache
+                keys:
+                  - turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                  - turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-
+      - restore_cache:
+          name: Restore Cargo Cache
+          key:
+            cargo-cache-{{ checksum ".circleci/continue_config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/rust/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/rust/Cargo.lock" }}
+      - run:
+          name: Install Rust Toolchain
+          command: rustup toolchain install
+      - run:
+          name: Install Rust Dependencies
+          command: pnpm --recursive install:rust-addon
+      - save_cache:
+          name: Save Cargo Cache
+          key:
+            cargo-cache-{{ checksum ".circleci/continue_config.yml" }}-{{ checksum "Cargo.lock" }}-{{ checksum "libs/ballot-interpreter/rust/Cargo.lock" }}-{{ checksum "libs/pdi-scanner/rust/Cargo.lock" }}
+          paths:
+            - /root/.cargo
