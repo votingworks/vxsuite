@@ -85,7 +85,7 @@
     "esbuild": "0.28.1",
     "eslint-plugin-vx": "workspace:*",
     "history": "4.10.1",
-    "jsdom": "20.0.1",
+    "jsdom": "30.1.3",
     "react-app-polyfill": "3.0.0",
     "sort-package-json": "^1.50.0",
     "vite": "8.1.6",
