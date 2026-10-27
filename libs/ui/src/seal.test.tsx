@@ -16,26 +16,24 @@ test('sets styles according to props', () => {
 
   const seal = screen.getByAltText('Seal');
   expect(seal).toHaveStyle({
-    maxWidth: '7rem',
-    maxHeight: '7rem',
-    margin: '1rem',
+    maxWidth: '112px',
+    maxHeight: '112px',
+    margin: '16px',
   });
 });
 
 test('varies container styling based on UI theme', () => {
-  const lightThemeSeal = render(
-    <Seal seal={electionGeneral.seal} maxWidth="250px" />,
-    { vxTheme: { colorMode: 'contrastHighDark' } }
-  );
+  render(<Seal seal={electionGeneral.seal} maxWidth="250px" />, {
+    vxTheme: { colorMode: 'contrastMedium' },
+  });
+  render(<Seal seal={electionGeneral.seal} maxWidth="250px" />, {
+    vxTheme: { colorMode: 'contrastLow' },
+  });
 
-  const darkThemeSeal = render(
-    <Seal seal={electionGeneral.seal} maxWidth="250px" />,
-    { vxTheme: { colorMode: 'contrastHighDark' } }
+  const [lightThemeSeal, darkThemeSeal] = screen.getAllByAltText('Seal');
+  expect(window.getComputedStyle(darkThemeSeal!).backgroundColor).not.toEqual(
+    window.getComputedStyle(lightThemeSeal!).backgroundColor
   );
-
-  expect(
-    window.getComputedStyle(darkThemeSeal.container.children[0]!)
-  ).not.toEqual(window.getComputedStyle(lightThemeSeal.container.children[0]!));
 });
 
 test('renders nothing if seal is empty string (special case for CDF)', () => {
