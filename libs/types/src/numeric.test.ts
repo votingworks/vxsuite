@@ -20,7 +20,7 @@ test('safeParseNumber', () => {
   ]);
 
   expect(safeParseNumber(-Infinity).unsafeUnwrapErr().issues).toEqual([
-    expect.objectContaining({ expected: 'number', received: 'Infinity' }),
+    expect.objectContaining({ expected: 'number', received: '-Infinity' }),
   ]);
 
   fc.assert(
@@ -80,7 +80,7 @@ test('safeParseInt', () => {
   );
 
   expect(safeParseInt(-Infinity).unsafeUnwrapErr().issues).toContainEqual(
-    expect.objectContaining({ expected: 'number', received: 'Infinity' })
+    expect.objectContaining({ expected: 'number', received: '-Infinity' })
   );
 
   fc.assert(
