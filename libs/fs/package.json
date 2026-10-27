@@ -41,7 +41,7 @@
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "buffer": "^6.0.3",
-    "zod": "4.4.3"
+    "zod": "4.6.6"
   },
   "devDependencies": {
     "@napi-rs/cli": "^3.5.1",
