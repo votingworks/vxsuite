@@ -56,7 +56,7 @@ import {
   nhBallotTemplate,
 } from './ballot_templates/nh_ballot_template.js';
 import { convertPdfToCmyk } from './pdf_conversion.js';
-import { generateBallotStyles } from './ballot_styles.js';
+import { generateBallotStylesDeprecated } from './ballot_styles.js';
 import { miBallotTemplate } from './ballot_templates/mi_ballot_template.js';
 import { msBallotTemplate } from './ballot_templates/ms_ballot_template.js';
 import { nhStateBallotTemplate } from './ballot_templates/nh_state_ballot_template.js';
@@ -732,7 +732,7 @@ export const nhGeneralElectionFixtures = lazyFixtures(() => {
         paperSize,
       },
       // Regenerate ballot styles to apply rotation logic
-      ballotStyles: generateBallotStyles({
+      ballotStyles: generateBallotStylesDeprecated({
         ballotTemplateId: 'NhBallot',
         electionType: 'general',
         isMiCombinedBallotPrimary: false,
@@ -965,7 +965,7 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
       ...baseElection.ballotLayout,
       paperSize: HmpbBallotPaperSize.Letter,
     },
-    ballotStyles: generateBallotStyles({
+    ballotStyles: generateBallotStylesDeprecated({
       ballotTemplateId: 'NhStateBallot',
       electionType: 'general',
       isMiCombinedBallotPrimary: false,

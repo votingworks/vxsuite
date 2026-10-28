@@ -70,7 +70,7 @@ import {
   vxGeneralElectionFixtures,
 } from './ballot_fixtures.js';
 import { rotateCandidatesByStatute } from './ballot_templates/nh_ballot_template.js';
-import { generateBallotStyles } from './ballot_styles.js';
+import { generateBallotStylesDeprecated } from './ballot_styles.js';
 import {
   BALLOT_MEASURE_OPTION_CLASS,
   BUBBLE_CLASS,
@@ -191,7 +191,7 @@ test('reorder candidates based on rotation from template', async () => {
   const baseElection = vxFamousNamesFixtures.electionDefinition.election;
   const fixtureElection: Election = {
     ...baseElection,
-    ballotStyles: generateBallotStyles({
+    ballotStyles: generateBallotStylesDeprecated({
       ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
       electionId: baseElection.id,
       electionType: baseElection.type,

@@ -19,7 +19,7 @@ import {
   electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneral,
 } from '@votingworks/fixtures';
-import { generateBallotStyles } from '@votingworks/hmpb';
+import { generateBallotStylesDeprecated } from '@votingworks/hmpb';
 import { generateId } from '../src/utils.js';
 
 function splitCandidateName(candidate: Candidate): Candidate {
@@ -50,7 +50,7 @@ export function makeElectionRecord(
         }
       : contest
   );
-  const ballotStyles = generateBallotStyles({
+  const ballotStyles = generateBallotStylesDeprecated({
     ballotLanguageConfigs,
     contests,
     electionType: baseElection.type,

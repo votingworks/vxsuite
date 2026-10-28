@@ -108,7 +108,7 @@ import {
   layOutBallots,
   createElectionDefinition,
   renderAllBallotPdfsAndCreateElectionDefinition,
-  generateBallotStyles,
+  generateBallotStylesDeprecated,
   type ScratchDir,
 } from '@votingworks/hmpb';
 import path, { join } from 'node:path';
@@ -624,7 +624,7 @@ test('create/list/delete elections', async () => {
   expect(
     await apiClient.listBallotStyles({ electionId: sliElectionId })
   ).toEqual(
-    generateBallotStyles({
+    generateBallotStylesDeprecated({
       ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
       contests: election2Contests,
       electionType: sliElection.type,
