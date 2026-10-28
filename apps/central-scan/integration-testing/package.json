@@ -29,6 +29,8 @@
   },
   "devDependencies": {
     "@types/node": "24.19.2",
+    "@votingworks/central-scan-frontend": "workspace:*",
+    "@votingworks/central-scan-prodserver": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "sort-package-json": "^1.50.0"
   },

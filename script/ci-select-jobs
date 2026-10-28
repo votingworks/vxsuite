@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+
+# Writes a CircleCI continuation config that runs only the jobs for packages
+# `turbo ls --affected` reports between `main` and the given commit (every job
+# on `main` itself).
+#
+# Usage: script/ci-select-jobs <commit> <output-config-path>
+
+set -euo pipefail
+
+commit="${1:?ci-select-jobs: commit required}"
+out="${2:?ci-select-jobs: output path required}"
+
+circleci_dir="$(dirname "${BASH_SOURCE[0]}")/../.circleci"
+selection="${circleci_dir}/job_selection.json"
+
+function all_jobs() {
+  jq -r '.packageJobs[], .rustJob' "${selection}"
+}
+
+if [[ "${CIRCLE_BRANCH:-}" == main ]]; then
+  echo "On main; running every job" >&2
+  jobs="$(all_jobs)"
+elif ! base="$(git merge-base origin/main "${commit}")"; then
+  echo "No merge base with main; running every job" >&2
+  jobs="$(all_jobs)"
+else
+  changed="$(git diff --name-only --no-renames "${base}" "${commit}")"
+  run_all_files="$(
+    jq -r --arg changed "${changed}" '
+      .runAllPrefixes as $prefixes
+      | $changed | split("\n")[]
+      | select(. as $file | any($prefixes[]; . as $p | $file | startswith($p)))
+    ' "${selection}"
+  )"
+  if [[ -n "${run_all_files}" ]]; then
+    echo "Running every job for changes to:" >&2
+    sed 's/^/  /' <<<"${run_all_files}" >&2
+    jobs="$(all_jobs)"
+  else
+    affected="$(
+      TURBO_SCM_BASE="${base}" TURBO_SCM_HEAD="${commit}" turbo ls --affected --output=json |
+        jq -c '[.packages.items[].path]'
+    )"
+    if grep -qE '^Cargo\.(toml|lock)$' <<<"${changed}"; then
+      mapfile -t filters < <(jq -r '.rootCargoPackages[] | "--filter=...\(.)"' "${selection}")
+      affected="$(
+        turbo ls "${filters[@]}" --output=json |
+          jq -c --argjson affected "${affected}" '$affected + [.packages.items[].path] | unique'
+      )"
+    fi
+    echo "Affected packages: ${affected}" >&2
+    jobs="$(
+      jq -r --argjson affected "${affected}" --arg changed "${changed}" '
+        .rustPattern as $rust
+        | (.packageJobs[$affected[]] // empty),
+          (if $changed | split("\n") | any(test($rust)) then .rustJob else empty end)
+      ' "${selection}"
+    )"
+  fi
+fi
+
+jobs="$( (echo "${jobs}"; jq -r '.alwaysJobs[]' "${selection}") | grep -v '^$' | sort -u)"
+echo "Selected jobs:" >&2
+sed 's/^/  /' <<<"${jobs}" >&2
+
+{
+  cat "${circleci_dir}/continue_config.yml"
+  printf '\n\nworkflows:\n  test:\n    jobs:\n'
+  while read -r job; do
+    printf '      - %s:\n          context:\n            - screenshots-publishing\n' "${job}"
+  done <<<"${jobs}"
+  printf '      - %s:\n          requires:\n' "$(jq -r .passedJob "${selection}")"
+  sed 's/^/            - /' <<<"${jobs}"
+  if [[ "${CIRCLE_BRANCH:-}" == main ]]; then
+    printf '      - %s:\n          context:\n            - screenshots-publishing\n          requires:\n' \
+      "$(jq -r .galleryJob "${selection}")"
+    jq -r '.galleryRequires[] | "            - \(.)"' "${selection}"
+  fi
+} >"${out}"

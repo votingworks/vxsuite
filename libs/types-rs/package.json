@@ -1,0 +1,7 @@
+{
+  "name": "@votingworks/types-rs",
+  "version": "0.0.1-development",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "packageManager": "pnpm@12.9.1"
+}

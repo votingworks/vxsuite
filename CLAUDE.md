@@ -529,8 +529,16 @@ export const saveSetting = {
 
 CI runs on CircleCI (`.circleci/config.yml`), not GitHub Actions — the two
 `.github/workflows/` files are unrelated. Every branch push builds; a PR is not
-required. One push creates two pipelines: a setup pipeline that path-filters,
-then a continuation pipeline whose workflows hold the ~60 real jobs.
+required. One push creates two pipelines: a setup pipeline whose `select-jobs`
+job runs `script/ci-select-jobs`, then a continuation pipeline holding only the
+jobs for packages `turbo ls --affected` reports since the branch's merge base
+with `main` (every job on `main`, or when `.circleci/` or `script/` changes).
+Turbo only knows `package.json` dependencies, so a package tested through
+another one (e.g. integration tests driving their app) must declare it. Packages
+that build against the root Cargo workspace list its `Cargo.toml`/`Cargo.lock`
+as Turbo inputs, which also selects them when those files change. GitHub
+requires only the `ci-passed` status, which waits on every selected job, since
+unselected jobs post no status.
 
 ### Status
 
