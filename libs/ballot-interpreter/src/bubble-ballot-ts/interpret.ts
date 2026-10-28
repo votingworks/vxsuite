@@ -29,6 +29,7 @@ export interface InterpretOptions {
   debug?: boolean;
   frontNormalizedImageOutputPath?: string;
   backNormalizedImageOutputPath?: string;
+  ballotPositionsDbPath: string;
 }
 
 function assertImageData(imageData: unknown): asserts imageData is ImageData {
@@ -91,6 +92,7 @@ function buildBridgeOptions(options: InterpretOptions): BridgeInterpretOptions {
       options.ballotImageBitDepth ?? DEFAULT_BALLOT_IMAGE_BIT_DEPTH,
     frontNormalizedImageOutputPath: options.frontNormalizedImageOutputPath,
     backNormalizedImageOutputPath: options.backNormalizedImageOutputPath,
+    ballotPositionsDbPath: options.ballotPositionsDbPath,
   };
 }
 

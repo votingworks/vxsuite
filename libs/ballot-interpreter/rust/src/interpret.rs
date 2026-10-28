@@ -9,7 +9,7 @@ use serde::Serialize;
 use serde_with::DeserializeFromStr;
 use types_rs::ballot_card::BallotSide;
 use types_rs::bubble_ballot::{self, Metadata, MetadataMismatch, PartialBallotHash};
-use types_rs::election::{ContestId, Election};
+use types_rs::election::{BallotStyleId, ContestId, Election};
 use types_rs::geometry::PixelPosition;
 use types_rs::geometry::{PixelUnit, Size, SubGridUnit};
 use types_rs::pair::Pair;
@@ -20,6 +20,7 @@ use crate::ballot_card::Geometry;
 use crate::ballot_card::Orientation;
 use crate::ballot_card::PaperInfo;
 use crate::ballot_card::ballot_scan_bubble_image;
+use crate::ballot_positions::get_grid_layout;
 use crate::debug::draw_timing_mark_debug_image_mut;
 pub use crate::image_utils::BallotImageBitDepth;
 use crate::image_utils::Inset;
@@ -57,6 +58,7 @@ pub struct Options {
     pub retry_streak_width_threshold: PixelUnit,
     pub ballot_image_bit_depth: BallotImageBitDepth,
     pub metadata_source: MetadataSource,
+    pub ballot_positions_db_path: PathBuf,
 }
 
 #[derive(Debug, Clone)]
@@ -206,6 +208,13 @@ pub enum Error {
         actual: PartialBallotHash,
     },
 
+    #[error("grid layout lookup failed: {message}")]
+    #[serde(rename_all = "camelCase")]
+    FailedGridLayoutLookup {
+        ballot_style_id: BallotStyleId,
+        message: String,
+    },
+
     #[error("missing grid layout: front: {front:?}, back: {back:?}")]
     MissingGridLayout {
         front: BallotPageMetadata,
@@ -266,6 +275,7 @@ impl Error {
             // as bubble ballot (HMPB) metadata.
             Self::MismatchedBallotMetadata { .. }
                 | Self::InvalidBallotHash { .. }
+                | Self::FailedGridLayoutLookup { .. }
                 | Self::MissingGridLayout { .. }
                 | Self::CouldNotComputeLayout { .. }
                 | Self::GridPositionOutsideTimingMarkGrid { .. }
@@ -291,6 +301,7 @@ pub struct ScanInterpreter {
     max_cumulative_streak_width: PixelUnit,
     retry_streak_width_threshold: PixelUnit,
     ballot_image_bit_depth: BallotImageBitDepth,
+    ballot_positions_db_path: PathBuf,
 }
 
 impl ScanInterpreter {
@@ -310,6 +321,7 @@ impl ScanInterpreter {
         max_cumulative_streak_width: PixelUnit,
         retry_streak_width_threshold: PixelUnit,
         ballot_image_bit_depth: BallotImageBitDepth,
+        ballot_positions_db_path: PathBuf,
     ) -> Self {
         Self {
             election,
@@ -321,6 +333,7 @@ impl ScanInterpreter {
             max_cumulative_streak_width,
             retry_streak_width_threshold,
             ballot_image_bit_depth,
+            ballot_positions_db_path,
         }
     }
 
@@ -350,6 +363,7 @@ impl ScanInterpreter {
             retry_streak_width_threshold: self.retry_streak_width_threshold,
             ballot_image_bit_depth: self.ballot_image_bit_depth,
             metadata_source: MetadataSource::QrCode,
+            ballot_positions_db_path: self.ballot_positions_db_path.clone(),
         };
         ballot_card(side_a_image, side_b_image, &options)
     }
@@ -372,14 +386,6 @@ pub fn ballot_card(
     side_b_image: GrayImage,
     options: &Options,
 ) -> Result<InterpretedBallotCard> {
-    // v4.1+ stores ballot geometry as `ballotPositions` on each ballot style;
-    // flatten it into the per-bubble grid layouts the interpreter scores against.
-    let grid_layouts = options.election.grid_layouts();
-    if grid_layouts.is_empty() {
-        return Err(Error::InvalidElection {
-            message: "election has no ballot positions".to_owned(),
-        });
-    }
     let mut ballot_card = Pair::new(
         (
             SIDE_A_LABEL,
@@ -495,10 +501,14 @@ pub fn ballot_card(
     }
 
     let ballot_style_id = decoded_qr_codes.first().0.ballot_style_id.clone();
-    let Some(grid_layout) = grid_layouts
-        .iter()
-        .find(|layout| layout.ballot_style_id == ballot_style_id)
-    else {
+
+    let grid_layout = get_grid_layout(&options.ballot_positions_db_path, &ballot_style_id)
+        .map_err(|message| Error::FailedGridLayoutLookup {
+            ballot_style_id,
+            message,
+        })?;
+
+    let Some(grid_layout) = &grid_layout else {
         return Err(Error::MissingGridLayout {
             front: BallotPageMetadata::QrCode(decoded_qr_codes.first().0.clone()),
             back: BallotPageMetadata::QrCode(decoded_qr_codes.second().0.clone()),
@@ -665,6 +675,7 @@ mod test {
             max_cumulative_streak_width: 5,
             retry_streak_width_threshold: 1,
             ballot_image_bit_depth: BallotImageBitDepth::default(),
+            ballot_positions_db_path: "TODO".into(),
             metadata_source: provided_metadata(Metadata {
                 ballot_hash: expected_ballot_hash,
                 precinct_id: PrecinctId::from(precinct_id.to_owned()),
@@ -705,6 +716,7 @@ mod test {
             max_cumulative_streak_width: 5,
             retry_streak_width_threshold: 1,
             ballot_image_bit_depth: BallotImageBitDepth::default(),
+            ballot_positions_db_path: "TODO".into(),
             metadata_source: MetadataSource::QrCode,
         };
         (side_a_image, side_b_image, options)

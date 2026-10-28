@@ -42,6 +42,7 @@ struct JsInterpretOptions {
     max_cumulative_streak_width: u32,
     retry_streak_width_threshold: u32,
     ballot_image_bit_depth: BallotImageBitDepth,
+    ballot_positions_db_path: String,
 }
 
 /// Decodes a hex ballot hash string into a [`PartialBallotHash`]. Accepts
@@ -127,6 +128,7 @@ fn interpret(
             retry_streak_width_threshold: options.retry_streak_width_threshold,
             ballot_image_bit_depth: options.ballot_image_bit_depth,
             metadata_source: MetadataSource::QrCode,
+            ballot_positions_db_path: options.ballot_positions_db_path.into(),
         },
     );
 

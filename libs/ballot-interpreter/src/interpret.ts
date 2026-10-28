@@ -44,7 +44,6 @@ import {
 } from '@votingworks/types';
 import {
   convertMarksToVotesDict,
-  electionHasBallotPositions,
   time,
   uniqueContestOptions,
 } from '@votingworks/utils';
@@ -68,7 +67,7 @@ import {
   type ScoredPositionArea,
   writeImageDataToPng,
 } from './bubble-ballot-ts/index.js';
-import type { InterpreterOptions } from './types.js';
+import type { AutoDetectOptions, InterpreterOptions } from './types.js';
 import { normalizeBallotMode } from './validation.js';
 import { shouldSkipSummaryBallotInterpretation } from './should_skip_summary_ballot_interpretation.js';
 
@@ -576,7 +575,7 @@ function validateInterpretResults(
  */
 async function interpretHmpb(
   sheet: SheetOf<ImageData>,
-  options: InterpreterOptions
+  options: AutoDetectOptions
 ): Promise<{
   rawResult: HmpbInterpretResult;
   interpretation: SheetOf<PageInterpretation>;
@@ -592,6 +591,7 @@ async function interpretHmpb(
     ballotImageBitDepth: options.ballotImageBitDepth,
     frontNormalizedImageOutputPath: options.frontNormalizedImageOutputPath,
     backNormalizedImageOutputPath: options.backNormalizedImageOutputPath,
+    ballotPositionsDbPath: options.ballotPositionsDbPath,
   });
 
   return {
@@ -815,9 +815,10 @@ export async function interpretSheet(
   const timer = time(debug, 'interpretSheet');
 
   try {
-    const hmpb = electionHasBallotPositions(options.electionDefinition.election)
-      ? await interpretHmpb(sheet, options)
-      : undefined;
+    const hmpb =
+      options.mode === 'auto_detect'
+        ? await interpretHmpb(sheet, options)
+        : undefined;
 
     const hmpbInterpretation = hmpb?.interpretation;
 

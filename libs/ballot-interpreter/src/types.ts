@@ -8,7 +8,18 @@ import type {
 /**
  * Options for interpreting a sheet of ballot images.
  */
-export interface InterpreterOptions {
+export type InterpreterOptions = AutoDetectOptions | SummaryBallotOptions;
+
+export type AutoDetectOptions = CoreOptions & {
+  mode: 'auto_detect';
+  ballotPositionsDbPath: string;
+};
+
+export type SummaryBallotOptions = CoreOptions & {
+  mode: 'summary_ballot';
+};
+
+interface CoreOptions {
   adjudicationReasons: readonly AdjudicationReason[];
   electionDefinition: ElectionDefinition;
   allowOfficialBallotsInTestMode?: boolean;

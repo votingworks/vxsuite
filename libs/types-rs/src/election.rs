@@ -69,40 +69,6 @@ impl Election {
             .cloned()
             .collect()
     }
-
-    /// Builds the flat grid layouts used during interpretation from each ballot
-    /// style's hierarchical `ballot_positions`. v4.1+ stores ballot geometry as
-    /// `ballotPositions` (sheets -> [front, back] contests -> options) with
-    /// per-option bounds; this flattens it into the per-bubble representation
-    /// the interpreter scores against.
-    #[must_use]
-    pub fn grid_layouts(&self) -> Vec<GridLayout> {
-        self.ballot_styles
-            .iter()
-            .filter_map(|ballot_style| {
-                let ballot_positions = ballot_style.ballot_positions.as_ref()?;
-                let mut grid_positions = Vec::new();
-                for (sheet_index, (front, back)) in ballot_positions.iter().enumerate() {
-                    let sheet_number = (sheet_index + 1) as u32;
-                    for (side, contests) in [(BallotSide::Front, front), (BallotSide::Back, back)] {
-                        for contest in contests {
-                            for option in &contest.options {
-                                grid_positions.push(option.to_grid_position(
-                                    sheet_number,
-                                    side,
-                                    contest.contest_id.clone(),
-                                ));
-                            }
-                        }
-                    }
-                }
-                Some(GridLayout {
-                    ballot_style_id: ballot_style.id.clone(),
-                    grid_positions,
-                })
-            })
-            .collect()
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -115,8 +81,6 @@ pub struct BallotStyle {
     pub party_id: Option<PartyId>,
     #[serde(default)]
     pub languages: Vec<String>,
-    #[serde(default)]
-    pub ballot_positions: Option<Vec<SheetPositions>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -237,6 +201,32 @@ pub struct GridLayout {
 }
 
 impl GridLayout {
+    #[must_use]
+    pub fn from_sheet_positions(
+        ballot_style_id: BallotStyleId,
+        ballot_positions: &[SheetPositions],
+    ) -> Self {
+        let mut grid_positions = Vec::new();
+        for (sheet_index, (front, back)) in ballot_positions.iter().enumerate() {
+            let sheet_number = (sheet_index + 1) as u32;
+            for (side, contests) in [(BallotSide::Front, front), (BallotSide::Back, back)] {
+                for contest in contests {
+                    for option in &contest.options {
+                        grid_positions.push(option.to_grid_position(
+                            sheet_number,
+                            side,
+                            contest.contest_id.clone(),
+                        ));
+                    }
+                }
+            }
+        }
+        Self {
+            ballot_style_id,
+            grid_positions,
+        }
+    }
+
     pub fn write_in_positions(&self) -> impl Iterator<Item = &GridPosition> {
         self.grid_positions
             .iter()
