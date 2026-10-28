@@ -633,6 +633,12 @@ importers:
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
+      '@votingworks/admin-frontend':
+        specifier: workspace:*
+        version: link:../frontend
+      '@votingworks/admin-prodserver':
+        specifier: workspace:*
+        version: link:../frontend/prodserver
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -957,6 +963,12 @@ importers:
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
+      '@votingworks/central-scan-frontend':
+        specifier: workspace:*
+        version: link:../frontend
+      '@votingworks/central-scan-prodserver':
+        specifier: workspace:*
+        version: link:../frontend/prodserver
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -1679,6 +1691,12 @@ importers:
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
+      '@votingworks/mark-scan-frontend':
+        specifier: workspace:*
+        version: link:../frontend
+      '@votingworks/mark-scan-prodserver':
+        specifier: workspace:*
+        version: link:../frontend/prodserver
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -2036,6 +2054,12 @@ importers:
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
+      '@votingworks/mark-frontend':
+        specifier: workspace:*
+        version: link:../frontend
+      '@votingworks/mark-prodserver':
+        specifier: workspace:*
+        version: link:../frontend/prodserver
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -2683,6 +2707,12 @@ importers:
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
+      '@votingworks/print-frontend':
+        specifier: workspace:*
+        version: link:../frontend
+      '@votingworks/print-prodserver':
+        specifier: workspace:*
+        version: link:../frontend/prodserver
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
@@ -3043,6 +3073,12 @@ importers:
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
+      '@votingworks/scan-frontend':
+        specifier: workspace:*
+        version: link:../frontend
+      '@votingworks/scan-prodserver':
+        specifier: workspace:*
+        version: link:../frontend/prodserver
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx

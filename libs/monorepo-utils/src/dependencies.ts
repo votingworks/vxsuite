@@ -18,7 +18,7 @@ export function getAllDependencies(
  * Yields all monorepo dependencies for a package.
  */
 export function* findAllMonorepoDependencies(
-  pkgs: ReadonlyMap<string, PnpmPackageInfo>,
+  pkgs: Map<string, PnpmPackageInfo>,
   pkg: PnpmPackageInfo
 ): Generator<PnpmPackageInfo> {
   const yielded = new Set<PnpmPackageInfo>([pkg]);

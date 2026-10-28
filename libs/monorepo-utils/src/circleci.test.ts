@@ -53,23 +53,21 @@ test('continue config defines every job but no workflows', () => {
   );
 });
 
-test('job selection maps packages to the jobs they affect', () => {
-  const { packages } = jobSelection;
-  expect(packages['libs/basics']).toContain('test-libs-basics');
-  expect(packages['libs/basics']).toContain('test-apps-admin-backend');
-  expect(packages['libs/networking']).not.toContain('test-libs-basics');
-  expect(packages['apps/admin/frontend']).toEqual([
-    'test-apps-admin-frontend',
-    'test-apps-admin-integration-testing',
-  ]);
-  expect(packages['script']).toBeUndefined();
-
-  expect(packages['apps/pollbook/backend']).toContain(
+test('job selection maps package directories to their test jobs', () => {
+  const { packageJobs } = jobSelection;
+  expect(packageJobs['libs/basics']).toEqual('test-libs-basics');
+  expect(packageJobs['apps/pollbook/backend']).toEqual(
     'test-apps-pollbook-backend'
   );
-  expect(packages['libs/basics']).toContain('test-apps-pollbook-backend');
-  expect(jobSelection.allJobs).toContain('test-apps-pollbook-backend');
-  expect(jobSelection.allJobs).toContain('test-rust-crates');
+  expect(packageJobs['script']).toBeUndefined();
+  expect(jobSelection.rustJob).toEqual('test-rust-crates');
+  expect('libs/types-rs/src/election.rs').toMatch(
+    new RegExp(jobSelection.rustPattern)
+  );
+  expect('Cargo.lock').toMatch(new RegExp(jobSelection.rustPattern));
+  expect('libs/types/src/election.ts').not.toMatch(
+    new RegExp(jobSelection.rustPattern)
+  );
 
   expect(jobSelection.galleryRequires).toContain(
     'test-apps-admin-integration-testing'

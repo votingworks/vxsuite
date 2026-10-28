@@ -1,7 +1,6 @@
 import { basename, join } from 'node:path';
 import { existsSync, readdirSync } from 'node:fs';
 import { iter, type Optional } from '@votingworks/basics';
-import { findAllMonorepoDependencies } from './dependencies.js';
 import type { PnpmPackageInfo } from './types.js';
 
 function jobIdForPackage(pkg: PnpmPackageInfo): string {
@@ -308,84 +307,39 @@ export const CIRCLECI_JOB_SELECTION_PATH = join(
   'job_selection.json'
 );
 
-// Workspace packages that are repo tooling: a change to one runs every job.
-const TOOLING_PACKAGE_PATHS = ['codemods', 'script'];
-
 const ALWAYS_RUN_JOB_IDS = ['shellcheck', 'validate-monorepo'];
 
 // The only CI status GitHub requires; it waits on every selected job.
 const CI_PASSED_JOB_ID = 'ci-passed';
 
 /**
- * What `script/ci-select-jobs` needs to map changed files to jobs.
+ * What `script/ci-select-jobs` needs to turn `turbo ls --affected` into jobs.
  */
 export interface JobSelection {
-  /** Jobs run on `main` and for changes outside any package. */
-  readonly allJobs: readonly string[];
+  /** Package directory to its test job. */
+  readonly packageJobs: { readonly [path: string]: string };
   readonly alwaysJobs: readonly string[];
-  /** Package directory to the jobs a change in it affects. */
-  readonly packages: { readonly [path: string]: readonly string[] };
-  /** Path prefixes whose changes run no jobs. */
-  readonly ignoredPrefixes: readonly string[];
+  /** Changes under these paths, which Turbo doesn't see, run every job. */
+  readonly runAllPrefixes: readonly string[];
   readonly rustJob: string;
   /** Changed files matching this also run `rustJob`. */
   readonly rustPattern: string;
-  /** Run on `main` after `galleryRequires`. */
   /** Requires every selected job. */
   readonly passedJob: string;
+  /** Run on `main` after `galleryRequires`. */
   readonly galleryJob: string;
   readonly galleryRequires: readonly string[];
 }
 
-// Integration tests build and run their app through `make`, not through
-// `package.json` dependencies.
-function appPackagesForIntegrationTests(
-  pnpmPackages: ReadonlyMap<string, PnpmPackageInfo>,
-  pkg: PnpmPackageInfo
-): PnpmPackageInfo[] {
-  const app = /^(apps\/[^/]+)\/integration-testing$/.exec(
-    pkg.relativePath
-  )?.[1];
-  if (!app) {
-    return [];
-  }
-  return iter(pnpmPackages.values())
-    .filter(
-      (other) => other !== pkg && other.relativePath.startsWith(`${app}/`)
-    )
-    .toArray();
-}
-
 function generateJobSelection(
-  pnpmPackages: ReadonlyMap<string, PnpmPackageInfo>,
   testedPackages: readonly PnpmPackageInfo[]
 ): JobSelection {
-  const packages: Record<string, string[]> = {};
-  for (const pkg of pnpmPackages.values()) {
-    if (!TOOLING_PACKAGE_PATHS.includes(pkg.relativePath)) {
-      packages[pkg.relativePath] = [];
-    }
-  }
-  for (const pkg of testedPackages) {
-    const affectedBy = iter([
-      pkg,
-      ...appPackagesForIntegrationTests(pnpmPackages, pkg),
-    ])
-      .flatMap((root) => [
-        root,
-        ...findAllMonorepoDependencies(pnpmPackages, root),
-      ])
-      .toSet();
-    for (const dep of affectedBy) {
-      packages[dep.relativePath]?.push(jobIdForPackage(pkg));
-    }
-  }
-
   return {
-    allJobs: [...testedPackages.map(jobIdForPackage), RUST_CRATES_JOB_ID],
+    packageJobs: Object.fromEntries(
+      testedPackages.map((pkg) => [pkg.relativePath, jobIdForPackage(pkg)])
+    ),
     alwaysJobs: ALWAYS_RUN_JOB_IDS,
-    packages,
-    ignoredPrefixes: ['docs/', '.github/'],
+    runAllPrefixes: ['.circleci/', 'script/'],
     rustJob: RUST_CRATES_JOB_ID,
     rustPattern: String.raw`(\.rs|(^|/)Cargo\.(toml|lock)|(^|/)rust-toolchain(\.toml)?)$`,
     passedJob: CI_PASSED_JOB_ID,
@@ -416,13 +370,22 @@ jobs:
     resource_class: small
     steps:
       - run:
-          name: Fetch Commit Graph
+          name: Fetch Workspace Manifests
           command: |
-            # Without trees or blobs this takes seconds; \`git diff\` fetches
-            # only the trees it compares.
+            # Only commits and the files Turbo reads to build the package
+            # graph; \`git diff\` fetches the other trees it compares.
             git clone --quiet --filter=tree:0 --no-checkout https://github.com/votingworks/vxsuite.git .
             git cat-file -e "$CIRCLE_SHA1" 2>/dev/null || git fetch --quiet origin "$CIRCLE_SHA1"
-            git checkout --quiet "$CIRCLE_SHA1" -- .circleci script/ci-select-jobs
+            git sparse-checkout set --no-cone '/*.json' '/*.yaml' '**/package.json' /.circleci/ /script/ci-select-jobs
+            git checkout --quiet "$CIRCLE_SHA1"
+      - run:
+          name: Install Turbo
+          command: |
+            version="$(jq -r .devDependencies.turbo package.json)"
+            mkdir /tmp/turbo
+            curl -fsSL "https://registry.npmjs.org/@turbo/linux-64/-/linux-64-\${version}.tgz" | tar -xz -C /tmp/turbo --strip-components=1
+            sudo install /tmp/turbo/bin/turbo /usr/local/bin/turbo
+            turbo --version
       - run:
           name: Select Jobs
           command: |
@@ -609,7 +572,7 @@ ${turboCacheRestoreSteps('            ').join('\n')}
             - /root/.cargo
 `.trim();
 
-  const jobSelection = generateJobSelection(pnpmPackages, [...pnpmJobs.keys()]);
+  const jobSelection = generateJobSelection([...pnpmJobs.keys()]);
 
   return new Map([
     [CIRCLECI_CONFIG_PATH, SETUP_CONFIG],

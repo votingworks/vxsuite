@@ -15,13 +15,22 @@ jobs:
     resource_class: small
     steps:
       - run:
-          name: Fetch Commit Graph
+          name: Fetch Workspace Manifests
           command: |
-            # Without trees or blobs this takes seconds; `git diff` fetches
-            # only the trees it compares.
+            # Only commits and the files Turbo reads to build the package
+            # graph; `git diff` fetches the other trees it compares.
             git clone --quiet --filter=tree:0 --no-checkout https://github.com/votingworks/vxsuite.git .
             git cat-file -e "$CIRCLE_SHA1" 2>/dev/null || git fetch --quiet origin "$CIRCLE_SHA1"
-            git checkout --quiet "$CIRCLE_SHA1" -- .circleci script/ci-select-jobs
+            git sparse-checkout set --no-cone '/*.json' '/*.yaml' '**/package.json' /.circleci/ /script/ci-select-jobs
+            git checkout --quiet "$CIRCLE_SHA1"
+      - run:
+          name: Install Turbo
+          command: |
+            version="$(jq -r .devDependencies.turbo package.json)"
+            mkdir /tmp/turbo
+            curl -fsSL "https://registry.npmjs.org/@turbo/linux-64/-/linux-64-${version}.tgz" | tar -xz -C /tmp/turbo --strip-components=1
+            sudo install /tmp/turbo/bin/turbo /usr/local/bin/turbo
+            turbo --version
       - run:
           name: Select Jobs
           command: |

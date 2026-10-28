@@ -531,11 +531,12 @@ CI runs on CircleCI (`.circleci/config.yml`), not GitHub Actions — the two
 `.github/workflows/` files are unrelated. Every branch push builds; a PR is not
 required. One push creates two pipelines: a setup pipeline whose `select-jobs`
 job runs `script/ci-select-jobs`, then a continuation pipeline holding only the
-jobs affected by the branch's changes since its merge base with `main` (every
-job on `main`). The mapping from package directories to jobs is generated into
-`.circleci/job_selection.json`; a change outside any package runs every job.
-GitHub requires only the `ci-passed` status, which waits on every selected job,
-since unselected jobs post no status.
+jobs for packages `turbo ls --affected` reports since the branch's merge base
+with `main` (every job on `main`, or when `.circleci/` or `script/` changes).
+Turbo only knows `package.json` dependencies, so a package tested through
+another one (e.g. integration tests driving their app) must declare it. GitHub
+requires only the `ci-passed` status, which waits on every selected job, since
+unselected jobs post no status.
 
 ### Status
 
