@@ -442,6 +442,11 @@ export interface BallotStyle {
   readonly districts: readonly DistrictId[];
   readonly partyId?: PartyId;
   readonly languages: readonly string[];
+  /**
+   * @deprecated Candidate orderings will be exported in a separate
+   * election package file and imported into a dedicated DB table (see
+   * `BallotMetaStore`). Safe to use with test fixtures for now.
+   */
   readonly orderedCandidatesByContest?: CandidateOrderings;
   /**
    * The grid positions (bubble centers and bounding boxes) of every contest and
@@ -470,6 +475,10 @@ export const CandidateOrderingsSchema: z.ZodSchema<CandidateOrderings> =
 export type OptionalCandidateOrderings = CandidateOrderings | null | undefined;
 
 export const NO_CANDIDATE_ORDERINGS: OptionalCandidateOrderings = null;
+
+export type GetCandidateOrderingsFn = (
+  ballotStyle: BallotStyle
+) => OptionalCandidateOrderings;
 
 /**
  * A measurement in timing-mark grid units (relative to the timing mark grid,

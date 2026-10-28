@@ -134,7 +134,8 @@ describe('non-English ballot style', () => {
   test('ballot header', async () => {
     render(
       <BmdPaperBallot
-        ballotStyleId={spanishBallotStyle.id}
+        ballotStyle={spanishBallotStyle}
+        candidateOrderings={spanishBallotStyle.orderedCandidatesByContest}
         electionDefinition={electionDefinition}
         isLiveMode
         precinctId={spanishBallotStyle.precincts[0]!}
@@ -166,7 +167,8 @@ describe('non-English ballot style', () => {
 
     render(
       <BmdPaperBallot
-        ballotStyleId={spanishBallotStyle.id}
+        ballotStyle={spanishBallotStyle}
+        candidateOrderings={spanishBallotStyle.orderedCandidatesByContest}
         electionDefinition={{
           ...electionDefinition,
           election: { ...election, contests: [contest] },
@@ -223,7 +225,8 @@ describe('non-English ballot style', () => {
 
     render(
       <BmdPaperBallot
-        ballotStyleId={spanishBallotStyle.id}
+        ballotStyle={spanishBallotStyle}
+        candidateOrderings={spanishBallotStyle.orderedCandidatesByContest}
         electionDefinition={{
           ...electionDefinition,
           election: { ...election, contests: [contest] },
@@ -252,7 +255,8 @@ describe('non-English ballot style', () => {
     );
     render(
       <BmdPaperBallot
-        ballotStyleId={spanishBallotStyle.id}
+        ballotStyle={spanishBallotStyle}
+        candidateOrderings={spanishBallotStyle.orderedCandidatesByContest}
         electionDefinition={{
           ...electionDefinition,
           election: { ...election, contests: [contest] },
@@ -290,7 +294,8 @@ describe('non-English ballot style', () => {
 
     render(
       <BmdPaperBallot
-        ballotStyleId={spanishBallotStyle.id}
+        ballotStyle={spanishBallotStyle}
+        candidateOrderings={spanishBallotStyle.orderedCandidatesByContest}
         electionDefinition={{
           ...electionDefinition,
           election: { ...election, contests: [contest] },
@@ -341,7 +346,8 @@ describe('English ballot style', () => {
 
     const { container } = render(
       <BmdPaperBallot
-        ballotStyleId={englishBallotStyle.id}
+        ballotStyle={englishBallotStyle}
+        candidateOrderings={englishBallotStyle.orderedCandidatesByContest}
         electionDefinition={electionDefinition}
         isLiveMode
         precinctId={englishBallotStyle.precincts[0]!}
@@ -381,7 +387,8 @@ describe('English ballot style', () => {
   test('no votes', async () => {
     const { container } = render(
       <BmdPaperBallot
-        ballotStyleId={englishBallotStyle.id}
+        ballotStyle={englishBallotStyle}
+        candidateOrderings={englishBallotStyle.orderedCandidatesByContest}
         electionDefinition={electionDefinition}
         isLiveMode
         precinctId={englishBallotStyle.precincts[0]!}

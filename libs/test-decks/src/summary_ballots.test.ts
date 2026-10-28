@@ -84,6 +84,7 @@ describe('createSummaryBallotTestDeck', () => {
 
     const summaryBallotPdf = await createSummaryBallotTestDeck({
       electionDefinition,
+      getCandidateOrderings: (bs) => bs.orderedCandidatesByContest,
       ballotSpecs,
       isLiveMode: false,
     });
@@ -99,6 +100,7 @@ describe('createSummaryBallotTestDeck', () => {
 
     const summaryBallotPdf = await createSummaryBallotTestDeck({
       electionDefinition,
+      getCandidateOrderings: (bs) => bs.orderedCandidatesByContest,
       ballotSpecs: [],
       isLiveMode: false,
     });
@@ -126,7 +128,7 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
     const votes = createMockVotes([...election.contests]);
     const ballotSpecs = [
       {
-        ballotStyleId: election.ballotStyles[0]!.id,
+        ballotStyle: election.ballotStyles[0]!,
         precinctId: election.precincts[0]!.id,
         ballotFormat: 'summary' as const,
         votes,
@@ -161,6 +163,7 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
 
     const result = await createSummaryBallotTestDeck({
       electionDefinition: electionDef,
+      getCandidateOrderings: (bs) => bs.orderedCandidatesByContest,
       ballotSpecs,
       isLiveMode: false,
     });
@@ -226,13 +229,13 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
 
     const ballotSpecs = [
       {
-        ballotStyleId: election.ballotStyles[0]!.id,
+        ballotStyle: election.ballotStyles[0]!,
         precinctId: election.precincts[0]!.id,
         ballotFormat: 'summary' as const,
         votes: votes1,
       },
       {
-        ballotStyleId: election.ballotStyles[0]!.id,
+        ballotStyle: election.ballotStyles[0]!,
         precinctId: election.precincts[0]!.id,
         ballotFormat: 'summary' as const,
         votes: votes2,
@@ -284,6 +287,7 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
 
     const result = await createSummaryBallotTestDeck({
       electionDefinition: electionDef,
+      getCandidateOrderings: (bs) => bs.orderedCandidatesByContest,
       ballotSpecs,
       isLiveMode: true,
     });
@@ -330,13 +334,13 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
 
     const ballotSpecs = [
       {
-        ballotStyleId: election.ballotStyles[0]!.id,
+        ballotStyle: election.ballotStyles[0]!,
         precinctId: election.precincts[0]!.id,
         ballotFormat: 'summary' as const,
         votes: createMockVotes([...election.contests]),
       },
       {
-        ballotStyleId: election.ballotStyles[0]!.id,
+        ballotStyle: election.ballotStyles[0]!,
         precinctId: election.precincts[0]!.id,
         ballotFormat: 'summary' as const,
         votes: createMockVotes([...election.contests]),
@@ -366,6 +370,7 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
 
     await createSummaryBallotTestDeck({
       electionDefinition: electionDef,
+      getCandidateOrderings: (bs) => bs.orderedCandidatesByContest,
       ballotSpecs,
       isLiveMode: false,
       emitProgress,
@@ -385,7 +390,7 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
 
     const ballotSpecs = [
       {
-        ballotStyleId: election.ballotStyles[0]!.id,
+        ballotStyle: election.ballotStyles[0]!,
         precinctId: election.precincts[0]!.id,
         ballotFormat: 'summary' as const,
         votes: createMockVotes([...election.contests]),
@@ -408,6 +413,7 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
     await expect(
       createSummaryBallotTestDeck({
         electionDefinition: electionDef,
+        getCandidateOrderings: (bs) => bs.orderedCandidatesByContest,
         ballotSpecs,
         isLiveMode: false,
       })
@@ -437,7 +443,7 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
 
     const ballotSpecs = [
       {
-        ballotStyleId: election.ballotStyles[0]!.id,
+        ballotStyle: election.ballotStyles[0]!,
         precinctId: election.precincts[0]!.id,
         ballotFormat: 'summary' as const,
         votes,
@@ -465,6 +471,7 @@ describe('createSummaryBallotTestDeck - multi-page flow', () => {
 
     await createSummaryBallotTestDeck({
       electionDefinition: electionDef,
+      getCandidateOrderings: (bs) => bs.orderedCandidatesByContest,
       ballotSpecs,
       isLiveMode: false,
     });

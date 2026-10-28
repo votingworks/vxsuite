@@ -3,14 +3,14 @@ import ReactDom from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
 import { assert } from '@votingworks/basics';
 import {
-  type BallotStyleId,
   type ContestId,
   type Contest,
   type ElectionDefinition,
-  getBallotStyle,
   getContests,
   type UiStringsPackage,
   type VotesDict,
+  type OptionalCandidateOrderings,
+  type BallotStyle,
 } from '@votingworks/types';
 import {
   type Layout,
@@ -105,7 +105,8 @@ export interface LanguageContext {
 async function measureBallotHeight(
   page: Page,
   electionDefinition: ElectionDefinition,
-  ballotStyleId: BallotStyleId,
+  ballotStyle: BallotStyle,
+  candidateOrderings: OptionalCandidateOrderings,
   precinctId: string,
   contests: readonly Contest[],
   votes: VotesDict,
@@ -123,7 +124,8 @@ async function measureBallotHeight(
   const ballotElement = (
     <BmdPaperBallot
       electionDefinition={electionDefinition}
-      ballotStyleId={ballotStyleId}
+      ballotStyle={ballotStyle}
+      candidateOrderings={candidateOrderings}
       precinctId={precinctId}
       votes={filteredVotes}
       isLiveMode={false}
@@ -218,7 +220,8 @@ async function measureBallotHeight(
 async function findMaxContestsThatFit(
   page: Page,
   electionDefinition: ElectionDefinition,
-  ballotStyleId: BallotStyleId,
+  ballotStyle: BallotStyle,
+  candidateOrderings: OptionalCandidateOrderings,
   precinctId: string,
   contests: readonly Contest[],
   votes: VotesDict,
@@ -232,7 +235,8 @@ async function findMaxContestsThatFit(
   const allContestsHeight = await measureBallotHeight(
     page,
     electionDefinition,
-    ballotStyleId,
+    ballotStyle,
+    candidateOrderings,
     precinctId,
     contests,
     votes,
@@ -259,7 +263,8 @@ async function findMaxContestsThatFit(
     const height = await measureBallotHeight(
       page,
       electionDefinition,
-      ballotStyleId,
+      ballotStyle,
+      candidateOrderings,
       precinctId,
       testContests,
       votes,
@@ -320,7 +325,8 @@ export class SummaryBallotLayoutRenderer {
    */
   async computePageBreaks(
     electionDefinition: ElectionDefinition,
-    ballotStyleId: BallotStyleId,
+    ballotStyle: BallotStyle,
+    candidateOrderings: OptionalCandidateOrderings,
     precinctId: string,
     votes: VotesDict,
     machineType: MachineType,
@@ -331,8 +337,6 @@ export class SummaryBallotLayoutRenderer {
     assert(this.page, 'Page not initialized');
 
     const { election } = electionDefinition;
-    const ballotStyle = getBallotStyle({ ballotStyleId, election });
-    assert(ballotStyle, `invalid ballot style: ${ballotStyleId}`);
     const contests = getContests({ ballotStyle, election });
     const totalContestCount = contests.length;
 
@@ -342,7 +346,8 @@ export class SummaryBallotLayoutRenderer {
       const singlePageHeight = await measureBallotHeight(
         this.page,
         electionDefinition,
-        ballotStyleId,
+        ballotStyle,
+        candidateOrderings,
         precinctId,
         contests,
         votes,
@@ -374,7 +379,8 @@ export class SummaryBallotLayoutRenderer {
       const maxFit = await findMaxContestsThatFit(
         this.page,
         electionDefinition,
-        ballotStyleId,
+        ballotStyle,
+        candidateOrderings,
         precinctId,
         remainingContests,
         votes,
@@ -397,7 +403,7 @@ export class SummaryBallotLayoutRenderer {
       // @coverage-exclude: safety check for runaway page computation
       if (pageNumber > 20) {
         throw new Error(
-          `Too many pages computed for ballot style ${ballotStyleId}`
+          `Too many pages computed for ballot style ${ballotStyle.id}`
         );
       }
     }
@@ -415,7 +421,8 @@ export class SummaryBallotLayoutRenderer {
  */
 export async function computeSummaryBallotLayoutWithRendering(
   electionDefinition: ElectionDefinition,
-  ballotStyleId: BallotStyleId,
+  ballotStyle: BallotStyle,
+  candidateOrderings: OptionalCandidateOrderings,
   precinctId: string,
   votes: VotesDict,
   machineType: MachineType,
@@ -425,7 +432,8 @@ export async function computeSummaryBallotLayoutWithRendering(
   try {
     return await renderer.computePageBreaks(
       electionDefinition,
-      ballotStyleId,
+      ballotStyle,
+      candidateOrderings,
       precinctId,
       votes,
       machineType,

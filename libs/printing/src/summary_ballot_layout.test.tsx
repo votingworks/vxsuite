@@ -2,6 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import {
   BallotType,
+  getBallotStyle,
   type ElectionDefinition,
   type VotesDict,
 } from '@votingworks/types';
@@ -16,12 +17,15 @@ import {
   createElectionDefinition,
   createMockVotes,
 } from '@votingworks/test-utils';
+import { assertDefined } from '@votingworks/basics';
 import {
   SummaryBallotLayoutRenderer,
   type SummaryBallotPageLayout,
   computeSummaryBallotLayoutWithRendering,
 } from './summary_ballot_layout.js';
 import { renderToPdf } from './render.js';
+
+const ballotStyleId = 'ballot-style-1';
 
 describe('SummaryBallotLayoutRenderer', () => {
   test('computes single page for small election', async () => {
@@ -32,12 +36,16 @@ describe('SummaryBallotLayoutRenderer', () => {
     });
     const electionDefinition = createElectionDefinition(election);
     const votes = createMockVotes([...election.contests]);
+    const ballotStyle = assertDefined(
+      getBallotStyle({ ballotStyleId, election })
+    );
 
     const renderer = new SummaryBallotLayoutRenderer();
     try {
       const result = await renderer.computePageBreaks(
         electionDefinition,
-        'ballot-style-1',
+        ballotStyle,
+        ballotStyle.orderedCandidatesByContest,
         'precinct-1',
         votes,
         'mark'
@@ -60,12 +68,16 @@ describe('SummaryBallotLayoutRenderer', () => {
     });
     const electionDefinition = createElectionDefinition(election);
     const votes = createMockVotes([...election.contests]);
+    const ballotStyle = assertDefined(
+      getBallotStyle({ ballotStyleId, election })
+    );
 
     const renderer = new SummaryBallotLayoutRenderer();
     try {
       const result = await renderer.computePageBreaks(
         electionDefinition,
-        'ballot-style-1',
+        ballotStyle,
+        ballotStyle.orderedCandidatesByContest,
         'precinct-1',
         votes,
         'mark'
@@ -91,12 +103,16 @@ describe('SummaryBallotLayoutRenderer', () => {
     });
     const electionDefinition = createElectionDefinition(election);
     const votes = createMockVotes([...election.contests]);
+    const ballotStyle = assertDefined(
+      getBallotStyle({ ballotStyleId, election })
+    );
 
     const renderer = new SummaryBallotLayoutRenderer();
     try {
       const args = [
         electionDefinition,
-        'ballot-style-1',
+        ballotStyle,
+        ballotStyle.orderedCandidatesByContest,
         'precinct-1',
         votes,
         'mark',
@@ -144,12 +160,16 @@ describe('SummaryBallotLayoutRenderer', () => {
     });
     const electionDefinition = createElectionDefinition(election);
     const votes = createMockVotes([...election.contests]);
+    const ballotStyle = assertDefined(
+      getBallotStyle({ ballotStyleId, election })
+    );
 
     const renderer = new SummaryBallotLayoutRenderer();
     try {
       const result = await renderer.computePageBreaks(
         electionDefinition,
-        'ballot-style-1',
+        ballotStyle,
+        ballotStyle.orderedCandidatesByContest,
         'precinct-1',
         votes,
         'mark'
@@ -174,10 +194,14 @@ describe('computeSummaryBallotLayoutWithRendering', () => {
     });
     const electionDefinition = createElectionDefinition(election);
     const votes = createMockVotes([...election.contests]);
+    const ballotStyle = assertDefined(
+      getBallotStyle({ ballotStyleId, election })
+    );
 
     const result = await computeSummaryBallotLayoutWithRendering(
       electionDefinition,
-      'ballot-style-1',
+      ballotStyle,
+      ballotStyle.orderedCandidatesByContest,
       'precinct-1',
       votes,
       'mark'
@@ -199,6 +223,10 @@ describe('Multi-page summary ballot visual snapshots', () => {
     votes: VotesDict
   ): Promise<Uint8Array[]> {
     const { election } = electionDefinition;
+    const ballotStyle = assertDefined(
+      getBallotStyle({ ballotStyleId, election })
+    );
+
     const pdfs: Uint8Array[] = [];
 
     for (const pageBreak of pageBreaks) {
@@ -212,7 +240,8 @@ describe('Multi-page summary ballot visual snapshots', () => {
           <GlobalStyles />
           <BmdPaperBallot
             electionDefinition={electionDefinition}
-            ballotStyleId="ballot-style-1"
+            ballotStyle={ballotStyle}
+            candidateOrderings={ballotStyle.orderedCandidatesByContest}
             precinctId="precinct-1"
             votes={pageVotes}
             isLiveMode={false}
@@ -222,7 +251,7 @@ describe('Multi-page summary ballot visual snapshots', () => {
             contestsForPage={pageContests}
             encodedBallot={encodeSummaryBallotPage(election, {
               ballotHash: electionDefinition.ballotHash,
-              ballotStyleId: 'ballot-style-1',
+              ballotStyleId,
               precinctId: 'precinct-1',
               votes: pageVotes,
               isTestMode: true,
@@ -252,13 +281,17 @@ describe('Multi-page summary ballot visual snapshots', () => {
     });
     const electionDefinition = createElectionDefinition(election);
     const votes = createMockVotes([...election.contests]);
+    const ballotStyle = assertDefined(
+      getBallotStyle({ ballotStyleId, election })
+    );
 
     const renderer = new SummaryBallotLayoutRenderer();
     let pageBreaks: SummaryBallotPageLayout[];
     try {
       pageBreaks = await renderer.computePageBreaks(
         electionDefinition,
-        'ballot-style-1',
+        ballotStyle,
+        ballotStyle.orderedCandidatesByContest,
         'precinct-1',
         votes,
         'mark'
@@ -292,13 +325,17 @@ describe('Multi-page summary ballot visual snapshots', () => {
     });
     const electionDefinition = createElectionDefinition(election);
     const votes = createMockVotes([...election.contests]);
+    const ballotStyle = assertDefined(
+      getBallotStyle({ ballotStyleId, election })
+    );
 
     const renderer = new SummaryBallotLayoutRenderer();
     let pageBreaks: SummaryBallotPageLayout[];
     try {
       pageBreaks = await renderer.computePageBreaks(
         electionDefinition,
-        'ballot-style-1',
+        ballotStyle,
+        ballotStyle.orderedCandidatesByContest,
         'precinct-1',
         votes,
         'mark'
@@ -335,13 +372,17 @@ describe('Multi-page summary ballot visual snapshots', () => {
     });
     const electionDefinition = createElectionDefinition(election);
     const votes = createMockVotes([...election.contests]);
+    const ballotStyle = assertDefined(
+      getBallotStyle({ ballotStyleId, election })
+    );
 
     const renderer = new SummaryBallotLayoutRenderer();
     let pageBreaks: SummaryBallotPageLayout[];
     try {
       pageBreaks = await renderer.computePageBreaks(
         electionDefinition,
-        'ballot-style-1',
+        ballotStyle,
+        ballotStyle.orderedCandidatesByContest,
         'precinct-1',
         votes,
         'mark'
@@ -371,10 +412,7 @@ describe('Medium-large election summary ballot test deck', () => {
   /**
    * Creates a medium-large election with 50 contests for testing multi-page ballots.
    */
-  function createMediumLargeElection(): {
-    electionDefinition: ElectionDefinition;
-    votes: VotesDict;
-  } {
+  function createMediumLargeElection() {
     const election = createTestElection({
       numCandidateContests: 35,
       numYesNoContests: 15,
@@ -385,18 +423,24 @@ describe('Medium-large election summary ballot test deck', () => {
     const electionDefinition = createElectionDefinition(election);
     const votes = createMockVotes([...election.contests]);
 
-    return { electionDefinition, votes };
+    const ballotStyle = assertDefined(
+      getBallotStyle({ ballotStyleId, election })
+    );
+
+    return { ballotStyle, electionDefinition, votes };
   }
 
   test('computes page breaks for medium-large election', async () => {
-    const { electionDefinition, votes } = createMediumLargeElection();
+    const { ballotStyle, electionDefinition, votes } =
+      createMediumLargeElection();
 
     const renderer = new SummaryBallotLayoutRenderer();
     let pageBreaks: SummaryBallotPageLayout[];
     try {
       pageBreaks = await renderer.computePageBreaks(
         electionDefinition,
-        'ballot-style-1',
+        ballotStyle,
+        ballotStyle.orderedCandidatesByContest,
         'precinct-1',
         votes,
         'mark'
@@ -415,14 +459,16 @@ describe('Medium-large election summary ballot test deck', () => {
   });
 
   test('renders summary ballot test deck for medium-large election', async () => {
-    const { electionDefinition, votes } = createMediumLargeElection();
+    const { ballotStyle, electionDefinition, votes } =
+      createMediumLargeElection();
 
     const renderer = new SummaryBallotLayoutRenderer();
     let pageBreaks: SummaryBallotPageLayout[];
     try {
       pageBreaks = await renderer.computePageBreaks(
         electionDefinition,
-        'ballot-style-1',
+        ballotStyle,
+        ballotStyle.orderedCandidatesByContest,
         'precinct-1',
         votes,
         'mark'
@@ -445,7 +491,8 @@ describe('Medium-large election summary ballot test deck', () => {
           <GlobalStyles />
           <BmdPaperBallot
             electionDefinition={electionDefinition}
-            ballotStyleId="ballot-style-1"
+            ballotStyle={ballotStyle}
+            candidateOrderings={ballotStyle.orderedCandidatesByContest}
             precinctId="precinct-1"
             votes={pageVotes}
             isLiveMode={false}
@@ -455,7 +502,7 @@ describe('Medium-large election summary ballot test deck', () => {
             contestsForPage={pageContests}
             encodedBallot={encodeSummaryBallotPage(election, {
               ballotHash: electionDefinition.ballotHash,
-              ballotStyleId: 'ballot-style-1',
+              ballotStyleId,
               precinctId: 'precinct-1',
               votes: pageVotes,
               isTestMode: true,

@@ -1,7 +1,8 @@
 import {
-  type BallotStyleId,
+  type BallotStyle,
   BallotType,
   type ElectionDefinition,
+  type GetCandidateOrderingsFn,
 } from '@votingworks/types';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import { assertDefined } from '@votingworks/basics';
@@ -26,12 +27,14 @@ export async function createSummaryBallotTestDeck({
   isLiveMode,
   emitProgress,
   generateBallotAuditId = uuid,
+  getCandidateOrderings,
 }: {
   electionDefinition: ElectionDefinition;
   ballotSpecs: TestDeckBallot[];
   isLiveMode: boolean;
   emitProgress?: (ballotsRendered: number) => void;
   generateBallotAuditId?: () => string;
+  getCandidateOrderings: GetCandidateOrderingsFn;
 }): Promise<Uint8Array | undefined> {
   if (ballotSpecs.length === 0) {
     return undefined;
@@ -41,15 +44,12 @@ export async function createSummaryBallotTestDeck({
 
   // Helper to get contests for a specific page
   function getContestsForPage(
-    ballotStyleId: BallotStyleId,
+    ballotStyle: BallotStyle,
     pageBreaks: SummaryBallotPageLayout[],
     pageNumber: number
   ) {
     const page = assertDefined(
       pageBreaks.find((p) => p.pageNumber === pageNumber)
-    );
-    const ballotStyle = assertDefined(
-      election.ballotStyles.find((bs) => bs.id === ballotStyleId)
     );
     const allContests = ballotStyle.districts.flatMap((districtId) =>
       election.contests.filter((c) => c.districtId === districtId)
@@ -64,10 +64,13 @@ export async function createSummaryBallotTestDeck({
 
   try {
     for (const ballotSpec of ballotSpecs) {
+      const candidateOrderings = getCandidateOrderings(ballotSpec.ballotStyle);
+
       // Compute page breaks for this specific ballot with its actual votes
       const pageBreaks = await layoutRenderer.computePageBreaks(
         electionDefinition,
-        ballotSpec.ballotStyleId,
+        ballotSpec.ballotStyle,
+        candidateOrderings,
         ballotSpec.precinctId,
         ballotSpec.votes,
         'mark'
@@ -77,7 +80,7 @@ export async function createSummaryBallotTestDeck({
 
       for (const pageBreak of pageBreaks) {
         const pageContests = getContestsForPage(
-          ballotSpec.ballotStyleId,
+          ballotSpec.ballotStyle,
           pageBreaks,
           pageBreak.pageNumber
         );
@@ -85,7 +88,8 @@ export async function createSummaryBallotTestDeck({
         reactDocuments.push({
           document: React.createElement(BmdPaperBallot, {
             electionDefinition,
-            ballotStyleId: ballotSpec.ballotStyleId,
+            ballotStyle: ballotSpec.ballotStyle,
+            candidateOrderings,
             precinctId: ballotSpec.precinctId,
             votes: filterVotesForContests(ballotSpec.votes, pageContests),
             isLiveMode,
@@ -95,7 +99,7 @@ export async function createSummaryBallotTestDeck({
             contestsForPage: pageContests,
             encodedBallot: encodeSummaryBallotPage(election, {
               ballotHash: electionDefinition.ballotHash,
-              ballotStyleId: ballotSpec.ballotStyleId,
+              ballotStyleId: ballotSpec.ballotStyle.id,
               precinctId: ballotSpec.precinctId,
               votes: filterVotesForContests(ballotSpec.votes, pageContests),
               isTestMode: !isLiveMode,
