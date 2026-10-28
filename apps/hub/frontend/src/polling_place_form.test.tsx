@@ -95,6 +95,7 @@ test('add polling place', async () => {
 
   expect(switchToView).not.toHaveBeenCalled();
 
+  idFactory.next(); // Discarded by StrictMode's double render of the blank form
   const expectedPlace: PollingPlace = {
     id: idFactory.next(),
     name: 'New Place',

@@ -11,8 +11,6 @@ export function AudioDiagnosticModal(
   props: AudioDiagnosticModalProps
 ): JSX.Element {
   const { setVisible } = props;
-  const playSound = api.playSound.useMutation().mutate;
-  React.useEffect(() => playSound({ name: 'success' }), [playSound]);
 
   const { isLoading, mutate: logOutcome } =
     api.logAudioDiagnosticOutcome.useMutation();
@@ -51,14 +49,16 @@ export function AudioDiagnosticModal(
 
 export function AudioDiagnosticModalButton(): JSX.Element {
   const [modalVisible, setModalVisible] = React.useState<boolean>();
+  const playSound = api.playSound.useMutation().mutate;
+
+  function onPress() {
+    playSound({ name: 'success' });
+    setModalVisible(true);
+  }
 
   return (
     <div>
-      <Button
-        rightIcon="SoundOn"
-        onPress={setModalVisible}
-        value={!modalVisible}
-      >
+      <Button rightIcon="SoundOn" onPress={onPress}>
         Test Sound
       </Button>
 

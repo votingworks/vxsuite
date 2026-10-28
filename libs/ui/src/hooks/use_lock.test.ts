@@ -18,7 +18,7 @@ test('doesnt trigger a rerender on lock', () => {
     numRenders += 1;
     return lock;
   });
-  expect(numRenders).toEqual(1);
+  const initialNumRenders = numRenders;
   result.current.lock();
-  expect(numRenders).toEqual(1);
+  expect(numRenders).toEqual(initialNumRenders);
 });

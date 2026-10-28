@@ -178,6 +178,7 @@ pnpmfileChecksum: sha256-eJokq7EzJEMySZukx+IFLhIhOHaScrqbyNUKycTI+/k=
 
 patchedDependencies:
   '@fortawesome/react-fontawesome@3.5.0': 032ae55c6a44387cf033d69474e0a2e1cde9e7cd37dfc5c2a8159e32e1202ef3
+  react-modal@3.16.1: c9e0bf6e84052236f08880c80bff6d901297b4b55a7217ff8222c1c99cd8d350
 
 importers:
 
@@ -5270,7 +5271,7 @@ importers:
         version: 5.7.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-modal:
         specifier: ^3.16.1
-        version: 3.16.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 3.16.1(patch_hash=c9e0bf6e84052236f08880c80bff6d901297b4b55a7217ff8222c1c99cd8d350)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-router-dom:
         specifier: ^5.3.4
         version: 5.3.4(react@18.3.1)
@@ -22166,7 +22167,7 @@ snapshots:
 
   react-lifecycles-compat@3.0.4: {}
 
-  react-modal@3.16.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-modal@3.16.1(patch_hash=c9e0bf6e84052236f08880c80bff6d901297b4b55a7217ff8222c1c99cd8d350)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       exenv: 1.2.2
       prop-types: 15.8.1

@@ -1,6 +1,12 @@
 import React, { useContext } from 'react';
 import { assert } from '@votingworks/basics';
-import { Icons, P, appStrings, useCurrentLanguage } from '@votingworks/ui';
+import {
+  Icons,
+  P,
+  appStrings,
+  useCurrentLanguage,
+  useLock,
+} from '@votingworks/ui';
 import { CenteredCardPageLayout } from '@votingworks/mark-flow-ui';
 import { BallotContext } from '../contexts/ballot_context.js';
 import { printBallot } from '../api.js';
@@ -9,8 +15,10 @@ export function PrintPage(): JSX.Element | null {
   const { ballotStyleId, precinctId, votes } = useContext(BallotContext);
   const languageCode = useCurrentLanguage();
   const printBallotMutate = printBallot.useMutation().mutate;
+  const printLock = useLock();
 
   React.useEffect(() => {
+    if (!printLock.lock()) return;
     assert(ballotStyleId !== undefined);
     assert(precinctId !== undefined);
 

@@ -465,6 +465,18 @@ export function createApiMock(
         .resolves(ok({ cvrId: input.cvrId, data }));
     },
 
+    /** Expects the mount-time claim, which StrictMode's remount repeats. */
+    expectInitialClaimAndLoadBallot(
+      input: { cvrId: Id },
+      data: BallotAdjudicationData
+    ) {
+      for (let i = 0; i < 2; i += 1) {
+        apiClient.claimAndLoadBallot
+          .expectCallWith({ cvrId: input.cvrId })
+          .resolves(ok({ cvrId: input.cvrId, data }));
+      }
+    },
+
     expectGetNextCvrIdForBallotAdjudication(
       cvrId: Id | null,
       afterCvrId?: Id,
