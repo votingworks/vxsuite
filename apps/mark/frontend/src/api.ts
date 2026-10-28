@@ -389,13 +389,8 @@ export const unconfigureMachine = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(() => apiClient.unconfigureMachine(), {
-      // [TODO] Update this to clear all query data, to match other VxSuite apps.
       async onSuccess() {
-        await queryClient.invalidateQueries(getElectionRecord.queryKey());
-        await queryClient.invalidateQueries(getSystemSettings.queryKey());
-        await queryClient.invalidateQueries(getElectionState.queryKey());
-        await queryClient.invalidateQueries(['getUsbPortStatus']);
-        await uiStringsApi.onMachineConfigurationChange(queryClient);
+        await queryClient.resetQueries();
       },
     });
   },

@@ -59,6 +59,7 @@ test('vendor screen unconfigure', async () => {
   within(modal).getByRole('heading', { name: 'Unconfigure Machine' });
 
   apiMock.expectUnconfigureMachine();
+  apiMock.expectGetMachineConfig();
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
   apiMock.expectGetSystemSettings();

@@ -1,12 +1,17 @@
 import { afterAll, expect, test, vi } from 'vitest';
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, type QueryKey } from '@tanstack/react-query';
 import { ok } from '@votingworks/basics';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
+import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { renderHook } from '../test/react_testing_library.js';
 import {
   type ApiClient,
   configureElectionPackageFromUsb,
   createApiClient,
+  getBarcodeActivationMode,
+  getElectionRecord,
+  getElectionState,
+  getSystemSettings,
   uiStringsApi,
   unconfigureMachine,
 } from './api.js';
@@ -59,21 +64,28 @@ test('configureElectionPackageFromUsb', async () => {
   expect(mockOnConfigurationChange).toHaveBeenCalled();
 });
 
-test('unconfigureMachine', async () => {
+test('unconfigureMachine resets all cached query data', async () => {
   vi.mocked(mockBackendApi).unconfigureMachine.mockResolvedValueOnce();
-  const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
+  const electionDefinition = readElectionGeneralDefinition();
+  const cachedQueries: Array<[QueryKey, unknown]> = [
+    [getBarcodeActivationMode.queryKey(), 'ballot_printing'],
+    [getElectionRecord.queryKey(), { electionDefinition }],
+    [getSystemSettings.queryKey(), DEFAULT_SYSTEM_SETTINGS],
+    [getElectionState.queryKey(), { pollsState: 'polls_open' }],
+    [uiStringsApi.getAvailableLanguages.getQueryKey(), ['en', 'es-US']],
+  ];
+  for (const [queryKey, data] of cachedQueries) {
+    queryClient.setQueryData(queryKey, data);
+  }
 
   const { result } = renderHook(() => unconfigureMachine.useMutation(), {
     wrapper: QueryWrapper,
   });
 
-  expect(mockOnConfigurationChange).not.toHaveBeenCalled();
-
   result.current.mutate();
   await vi.waitFor(() => expect(result.current.isSuccess).toEqual(true));
 
-  expect(mockOnConfigurationChange).toHaveBeenCalled();
-  // USB ports may have been re-enabled on the backend, so the cached status
-  // must be invalidated for the UI to reflect it.
-  expect(invalidateQueries).toHaveBeenCalledWith(['getUsbPortStatus']);
+  for (const [queryKey] of cachedQueries) {
+    expect(queryClient.getQueryData(queryKey)).toBeUndefined();
+  }
 });

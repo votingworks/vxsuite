@@ -349,6 +349,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Unconfigure the machine
   apiMock.expectEjectUsbDrive();
   apiMock.expectUnconfigureMachine();
+  apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
@@ -381,6 +382,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Unconfigure with System Administrator card
   apiMock.setAuthStatusSystemAdministratorLoggedIn();
   apiMock.expectUnconfigureMachine();
+  apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
