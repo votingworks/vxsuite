@@ -6,6 +6,7 @@ use std::{
 };
 
 use ballot_interpreter::{
+    ballot_positions::InMemoryGridLayoutSource,
     debug::ImageDebugWriter,
     interpret::{
         BallotImageBitDepth, DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
@@ -84,6 +85,11 @@ impl Options {
     /// over the raw file bytes (matching the TS `sha256(electionData)`
     /// convention) so it agrees with the hash encoded into ballot QR codes
     /// for this election.
+    fn load_grid_layout_source(&self) -> color_eyre::Result<InMemoryGridLayoutSource> {
+        let bytes = std::fs::read(&self.election_path)?;
+        Ok(InMemoryGridLayoutSource::from_election_json(&bytes)?)
+    }
+
     fn load_election(&self) -> color_eyre::Result<(Election, PartialBallotHash)> {
         let bytes = std::fs::read(&self.election_path)?;
         let election: Election = serde_json::from_slice(&bytes)?;
@@ -381,7 +387,7 @@ fn interpret_bubble_ballot(
         options.max_cumulative_streak_width,
         options.retry_streak_width_threshold,
         options.ballot_image_bit_depth,
-        "TODO".into(),
+        options.load_grid_layout_source()?,
     );
 
     let bottom_image = options
