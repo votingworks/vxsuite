@@ -20,7 +20,7 @@ use crate::ballot_card::Geometry;
 use crate::ballot_card::Orientation;
 use crate::ballot_card::PaperInfo;
 use crate::ballot_card::ballot_scan_bubble_image;
-use crate::ballot_positions::get_grid_layout;
+pub use crate::ballot_positions::GridLayoutSource;
 use crate::debug::draw_timing_mark_debug_image_mut;
 pub use crate::image_utils::BallotImageBitDepth;
 use crate::image_utils::Inset;
@@ -41,7 +41,7 @@ pub const DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH: PixelUnit = 5;
 pub const DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD: PixelUnit = 1;
 
 #[derive(Debug, Clone)]
-pub struct Options {
+pub struct Options<G: GridLayoutSource> {
     pub election: Election,
     /// Partial ballot hash to compare against the QR-decoded hash on each
     /// side. Already sliced to [`PARTIAL_BALLOT_HASH_BYTE_LENGTH`] bytes;
@@ -58,7 +58,7 @@ pub struct Options {
     pub retry_streak_width_threshold: PixelUnit,
     pub ballot_image_bit_depth: BallotImageBitDepth,
     pub metadata_source: MetadataSource,
-    pub ballot_positions_db_path: PathBuf,
+    pub grid_layout_source: G,
 }
 
 #[derive(Debug, Clone)]
@@ -291,7 +291,7 @@ pub type Result<T, E = Error> = std::result::Result<T, E>;
 pub const SIDE_A_LABEL: &str = "side A";
 pub const SIDE_B_LABEL: &str = "side B";
 
-pub struct ScanInterpreter {
+pub struct ScanInterpreter<G: GridLayoutSource> {
     election: Election,
     expected_ballot_hash: PartialBallotHash,
     write_in_scoring: WriteInScoring,
@@ -301,10 +301,10 @@ pub struct ScanInterpreter {
     max_cumulative_streak_width: PixelUnit,
     retry_streak_width_threshold: PixelUnit,
     ballot_image_bit_depth: BallotImageBitDepth,
-    ballot_positions_db_path: PathBuf,
+    grid_layout_source: G,
 }
 
-impl ScanInterpreter {
+impl<G: GridLayoutSource + Sync> ScanInterpreter<G> {
     /// Creates a new `ScanInterpreter` with the given configuration.
     ///
     /// `expected_ballot_hash` is already sliced to
@@ -321,7 +321,7 @@ impl ScanInterpreter {
         max_cumulative_streak_width: PixelUnit,
         retry_streak_width_threshold: PixelUnit,
         ballot_image_bit_depth: BallotImageBitDepth,
-        ballot_positions_db_path: PathBuf,
+        grid_layout_source: G,
     ) -> Self {
         Self {
             election,
@@ -333,7 +333,7 @@ impl ScanInterpreter {
             max_cumulative_streak_width,
             retry_streak_width_threshold,
             ballot_image_bit_depth,
-            ballot_positions_db_path,
+            grid_layout_source,
         }
     }
 
@@ -363,7 +363,7 @@ impl ScanInterpreter {
             retry_streak_width_threshold: self.retry_streak_width_threshold,
             ballot_image_bit_depth: self.ballot_image_bit_depth,
             metadata_source: MetadataSource::QrCode,
-            ballot_positions_db_path: self.ballot_positions_db_path.clone(),
+            grid_layout_source: &self.grid_layout_source,
         };
         ballot_card(side_a_image, side_b_image, &options)
     }
@@ -381,10 +381,10 @@ type ScoringPairs = (
 ///
 /// Returns an error if the ballot card could not be interpreted.
 #[allow(clippy::too_many_lines, clippy::result_large_err)]
-pub fn ballot_card(
+pub fn ballot_card<G: GridLayoutSource + Sync>(
     side_a_image: GrayImage,
     side_b_image: GrayImage,
-    options: &Options,
+    options: &Options<G>,
 ) -> Result<InterpretedBallotCard> {
     let mut ballot_card = Pair::new(
         (
@@ -502,7 +502,9 @@ pub fn ballot_card(
 
     let ballot_style_id = decoded_qr_codes.first().0.ballot_style_id.clone();
 
-    let grid_layout = get_grid_layout(&options.ballot_positions_db_path, &ballot_style_id)
+    let grid_layout = options
+        .grid_layout_source
+        .grid_layout(&ballot_style_id)
         .map_err(|message| Error::FailedGridLayoutLookup {
             ballot_style_id,
             message,
@@ -603,6 +605,7 @@ mod test {
 
     use crate::{
         ballot_card::ballot_scan_bubble_image,
+        ballot_positions::InMemoryGridLayoutSource,
         debug::{ImageDebugWriter, monospace_font},
         draw_utils::draw_text_mut,
         qr_code,
@@ -638,6 +641,11 @@ mod test {
         (election, hash)
     }
 
+    fn load_grid_layout_source(election_path: &Path) -> InMemoryGridLayoutSource {
+        InMemoryGridLayoutSource::from_election_json(&std::fs::read(election_path).unwrap())
+            .unwrap()
+    }
+
     /// Builds a [`MetadataSource::Provided`] from a front page's metadata,
     /// inferring the back page. Used for field-captured fixtures whose QR codes
     /// predate the current metadata encoding and can no longer be decoded. The
@@ -655,7 +663,7 @@ mod test {
         (side_a_name, side_b_name): (&str, &str),
         (precinct_id, ballot_style_id): (&str, &str),
         is_test_mode: bool,
-    ) -> (GrayImage, GrayImage, Options) {
+    ) -> (GrayImage, GrayImage, Options<InMemoryGridLayoutSource>) {
         let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../test/fixtures");
         let election_path = fixture_path.join(fixture_name).join("election.json");
         let (election, expected_ballot_hash) = load_election_and_ballot_hash(&election_path);
@@ -675,7 +683,7 @@ mod test {
             max_cumulative_streak_width: 5,
             retry_streak_width_threshold: 1,
             ballot_image_bit_depth: BallotImageBitDepth::default(),
-            ballot_positions_db_path: "TODO".into(),
+            grid_layout_source: load_grid_layout_source(&election_path),
             metadata_source: provided_metadata(Metadata {
                 ballot_hash: expected_ballot_hash,
                 precinct_id: PrecinctId::from(precinct_id.to_owned()),
@@ -692,7 +700,7 @@ mod test {
     fn load_hmpb_fixture(
         fixture_name: &str,
         starting_page_number: usize,
-    ) -> (GrayImage, GrayImage, Options) {
+    ) -> (GrayImage, GrayImage, Options<InMemoryGridLayoutSource>) {
         let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("../../hmpb/fixtures/")
             .join(fixture_name);
@@ -716,7 +724,7 @@ mod test {
             max_cumulative_streak_width: 5,
             retry_streak_width_threshold: 1,
             ballot_image_bit_depth: BallotImageBitDepth::default(),
-            ballot_positions_db_path: "TODO".into(),
+            grid_layout_source: load_grid_layout_source(&election_path),
             metadata_source: MetadataSource::QrCode,
         };
         (side_a_image, side_b_image, options)
@@ -1345,7 +1353,7 @@ mod test {
         let (side_a_image, side_b_image, mut options) =
             load_hmpb_fixture("vx-general-election/letter-en", 1);
         // Override the election with the 17"-tall variant's election.json,
-        // which has gridLayouts placing contests at rows that don't exist on
+        // which has ballotPositions placing contests at rows that don't exist on
         // a letter-sized ballot's timing-mark grid. Keep the letter ballot's
         // hash so the hash check passes — we want to exercise the
         // scoring-time check, not the hash check.
@@ -1353,6 +1361,7 @@ mod test {
             .join("../../hmpb/fixtures/vx-general-election/custom-8.5x17-en/election.json");
         let (custom_election, _) = load_election_and_ballot_hash(&custom_election_path);
         options.election = custom_election;
+        options.grid_layout_source = load_grid_layout_source(&custom_election_path);
 
         match ballot_card(side_a_image, side_b_image, &options) {
             Err(Error::GridPositionOutsideTimingMarkGrid {

@@ -2,6 +2,7 @@
 
 use std::{fmt::Display, path::PathBuf};
 
+use ballot_interpreter::ballot_positions::InMemoryGridLayoutSource;
 use ballot_interpreter::interpret::{
     BallotImageBitDepth, DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH, DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
     ScanInterpreter, VerticalStreakDetection, WriteInScoring,
@@ -52,7 +53,13 @@ impl InterpretFixture {
         }
     }
 
-    fn load(&self) -> color_eyre::Result<(GrayImage, GrayImage, ScanInterpreter)> {
+    fn load(
+        &self,
+    ) -> color_eyre::Result<(
+        GrayImage,
+        GrayImage,
+        ScanInterpreter<InMemoryGridLayoutSource>,
+    )> {
         let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let fixture_path = manifest_dir.join("../../hmpb/fixtures").join(self.dir);
         let election_bytes = std::fs::read(manifest_dir.join(self.election_json))?;
@@ -87,6 +94,7 @@ impl InterpretFixture {
             DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
             DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
             BallotImageBitDepth::default(),
+            InMemoryGridLayoutSource::from_election_json(&election_bytes)?,
         );
         Ok((side_a_image, side_b_image, interpreter))
     }

@@ -4,7 +4,7 @@
 #![allow(clippy::cast_possible_wrap)]
 
 pub mod ballot_card;
-mod ballot_positions;
+pub mod ballot_positions;
 pub mod debug;
 mod diagnostic;
 mod draw_utils;

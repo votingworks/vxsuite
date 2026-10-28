@@ -18,6 +18,7 @@ use types_rs::coding;
 use types_rs::election::Election;
 
 use crate::ballot_card::{BallotPage, PaperInfo, ballot_scan_bubble_image};
+use crate::ballot_positions::SqliteGridLayoutSource;
 use crate::interpret::{
     self, BallotImageBitDepth, InterpretedBallotCard, MetadataSource, Options,
     VerticalStreakDetection, WriteInScoring, ballot_card,
@@ -128,7 +129,9 @@ fn interpret(
             retry_streak_width_threshold: options.retry_streak_width_threshold,
             ballot_image_bit_depth: options.ballot_image_bit_depth,
             metadata_source: MetadataSource::QrCode,
-            ballot_positions_db_path: options.ballot_positions_db_path.into(),
+            grid_layout_source: SqliteGridLayoutSource {
+                db_path: options.ballot_positions_db_path.into(),
+            },
         },
     );
 
