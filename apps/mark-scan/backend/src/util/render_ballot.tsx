@@ -4,6 +4,7 @@ import {
   renderToPdf,
 } from '@votingworks/printing';
 import {
+  type BallotStyle,
   type BallotStyleId,
   BallotType,
   type Election,
@@ -11,6 +12,7 @@ import {
   getBallotStyle,
   getContests,
   HmpbBallotPaperSize,
+  type OptionalCandidateOrderings,
   type VotesDict,
 } from '@votingworks/types';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
@@ -61,18 +63,16 @@ function getSheetSize(election: Election): BmdBallotSheetSize {
 export async function renderTestModeBallotWithoutLanguageContext(
   electionDefinition: ElectionDefinition,
   precinctId: string,
-  ballotStyleId: BallotStyleId,
+  ballotStyle: BallotStyle,
+  candidateOrderings: OptionalCandidateOrderings,
   votes: VotesDict
 ): Promise<Uint8Array> {
   const layout = getLayout(
     MACHINE_TYPE,
-    ballotStyleId,
+    ballotStyle,
     electionDefinition
   ).unsafeUnwrap();
 
-  const ballotStyle = assertDefined(
-    getBallotStyle({ election: electionDefinition.election, ballotStyleId })
-  );
   const contests = getContests({
     election: electionDefinition.election,
     ballotStyle,
@@ -83,7 +83,8 @@ export async function renderTestModeBallotWithoutLanguageContext(
     <BmdPaperBallot
       binarize
       electionDefinition={electionDefinition}
-      ballotStyleId={ballotStyleId}
+      ballotStyle={ballotStyle}
+      candidateOrderings={candidateOrderings}
       precinctId={precinctId}
       votes={votes}
       isLiveMode={false}
@@ -95,7 +96,7 @@ export async function renderTestModeBallotWithoutLanguageContext(
       contestsForPage={contests}
       encodedBallot={encodeSummaryBallotPage(electionDefinition.election, {
         ballotHash: electionDefinition.ballotHash,
-        ballotStyleId,
+        ballotStyleId: ballotStyle.id,
         precinctId,
         votes,
         isTestMode: true,
@@ -149,12 +150,7 @@ export async function renderBallot({
   const maxRenderAttempts = ORDERED_BMD_BALLOT_LAYOUTS.markScan.length;
 
   for (let i = 0; i < maxRenderAttempts; i += 1) {
-    const layout = getLayout(
-      MACHINE_TYPE,
-      ballotStyleId,
-      electionDefinition,
-      i
-    );
+    const layout = getLayout(MACHINE_TYPE, ballotStyle, electionDefinition, i);
 
     // Error at this stage indicates that we attempted to render with the densest layout
     // but still couldn't fit the ballot onto a single page. There are no more layouts
@@ -171,7 +167,8 @@ export async function renderBallot({
         <BmdPaperBallot
           binarize
           electionDefinition={electionDefinition}
-          ballotStyleId={ballotStyleId}
+          ballotStyle={ballotStyle}
+          candidateOrderings={candidateOrderings}
           precinctId={precinctId}
           votes={votes}
           isLiveMode={isLiveMode}
@@ -183,7 +180,7 @@ export async function renderBallot({
           contestsForPage={contests}
           encodedBallot={encodeSummaryBallotPage(electionDefinition.election, {
             ballotHash: electionDefinition.ballotHash,
-            ballotStyleId,
+            ballotStyleId: ballotStyle.id,
             precinctId,
             votes,
             isTestMode: !isLiveMode,

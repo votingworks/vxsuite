@@ -2,6 +2,7 @@ import { readElection } from '@votingworks/fs';
 import {
   type ElectionDefinition,
   ElectionPackageFileName,
+  NO_CANDIDATE_ORDERINGS,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import { generateMockVotes } from '@votingworks/utils';
@@ -26,7 +27,8 @@ export function renderDiagnosticMockBallot(
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     election.precincts[0]!.id,
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    election.ballotStyles[0]!.id,
+    election.ballotStyles[0]!,
+    NO_CANDIDATE_ORDERINGS,
     generateMockVotes(election)
   );
 }

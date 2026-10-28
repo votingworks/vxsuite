@@ -30,6 +30,7 @@ import {
   pollingPlaceFromElection,
   type Tabulation,
   type InsertedSmartCardAuth,
+  type BallotStyle,
 } from '@votingworks/types';
 import { isElectionManagerAuth, isPollWorkerAuth } from '@votingworks/utils';
 
@@ -169,6 +170,10 @@ export function buildApi(ctx: Context) {
       pendingBarcodePrint?.sessionExpiresAt.getTime() ===
       sessionExpiresAt.getTime()
     );
+  }
+
+  function getCandidateOrderings(bs: BallotStyle) {
+    return store.getBallotMetaStore().getCandidateOrderings(bs.id);
   }
 
   setUpBarcodeActivation({
@@ -562,6 +567,7 @@ export function buildApi(ctx: Context) {
         });
         const deckPdf = await createSummaryBallotTestDeck({
           electionDefinition,
+          getCandidateOrderings,
           ballotSpecs,
           isLiveMode: false,
           generateBallotAuditId: () => uuid(),

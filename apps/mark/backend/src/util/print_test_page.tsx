@@ -5,7 +5,7 @@ import {
   HmpbBallotPaperSize,
 } from '@votingworks/types';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
-import { DateWithoutTime, assertDefined } from '@votingworks/basics';
+import { DateWithoutTime, assertDefined, find } from '@votingworks/basics';
 import { type Printer, renderToPdf } from '@votingworks/printing';
 import { LogEventId, type Logger } from '@votingworks/logging';
 import { getCurrentTime } from './get_current_time.js';
@@ -98,11 +98,15 @@ export async function printTestPage({
   logger: Logger;
 }): Promise<void> {
   const mockElectionDefinition = getMockElectionDefinition();
+
+  const { ballotStyles } = mockElectionDefinition.election;
+  const ballotStyle = find(ballotStyles, (b) => b.id === 'ballot-style-0');
+
   const encodedBallot = encodeSummaryBallotPage(
     mockElectionDefinition.election,
     {
       ballotHash: mockElectionDefinition.ballotHash,
-      ballotStyleId: 'ballot-style-0',
+      ballotStyleId: ballotStyle.id,
       precinctId: 'precinct-0',
       votes: {},
       isTestMode: true,
@@ -117,7 +121,8 @@ export async function printTestPage({
   const ballot = (
     <BmdPaperBallot
       electionDefinition={mockElectionDefinition}
-      ballotStyleId={'ballot-style-0'}
+      ballotStyle={ballotStyle}
+      candidateOrderings={null}
       precinctId={'precinct-0'}
       votes={{}}
       isLiveMode={false}

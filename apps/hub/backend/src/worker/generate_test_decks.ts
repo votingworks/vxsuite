@@ -218,6 +218,7 @@ async function generate(
   for (const [precinct, ballotSpecs] of precinctSummaryBallotSpecs) {
     const summaryBallotPdf = await createSummaryBallotTestDeck({
       electionDefinition,
+      getCandidateOrderings: (bs) => bs.orderedCandidatesByContest,
       ballotSpecs,
       isLiveMode: false, // Test decks are always in test mode
       // eslint-disable-next-line no-loop-func

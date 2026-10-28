@@ -183,6 +183,10 @@ describe(`printMode === "summary"`, () => {
       <div>ballot content</div>
     ));
 
+    const mockStoreOrderings: CandidateOrderings = {
+      contest1: [{ id: 'just-needs-to-match-props' }],
+    };
+
     const mockUiStrings: UiStringsPackage = { 'es-US': { hello: 'hola' } };
     // Must be a precinct this ballot style actually covers: the encoder
     // rejects an unknown precinct rather than guessing at an index.
@@ -197,7 +201,8 @@ describe(`printMode === "summary"`, () => {
           >
             <BmdPaperBallot
               electionDefinition={electionDefinition}
-              ballotStyleId={ballotStyle.id}
+              ballotStyle={ballotStyle}
+              candidateOrderings={mockStoreOrderings}
               precinctId={mockPrecinctId}
               votes={mockVotes}
               isLiveMode
@@ -226,7 +231,7 @@ describe(`printMode === "summary"`, () => {
           mockBallotMetaStore({
             getCandidateOrderings: (styleId) => {
               expect(styleId).toEqual(ballotStyle.id);
-              return ballotStyle.orderedCandidatesByContest ?? null;
+              return mockStoreOrderings;
             },
           }),
         getElectionRecord: () => ({
