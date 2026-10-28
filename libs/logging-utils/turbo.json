@@ -1,0 +1,11 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build:self": {
+      "inputs": ["$TURBO_DEFAULT$", "../../Cargo.toml", "../../Cargo.lock"]
+    },
+    "lint:self": {
+      "inputs": ["$TURBO_DEFAULT$", "../../Cargo.toml", "../../Cargo.lock"]
+    }
+  }
+}

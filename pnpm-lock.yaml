@@ -3381,6 +3381,9 @@ importers:
       '@votingworks/hmpb':
         specifier: workspace:*
         version: link:../hmpb
+      '@votingworks/types-rs':
+        specifier: workspace:*
+        version: link:../types-rs
       canvas:
         specifier: 3.2.3
         version: 3.2.3
@@ -5188,6 +5191,8 @@ importers:
       vitest:
         specifier: 5.0.2
         version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(@vitest/coverage-istanbul@5.0.2)(jsdom@30.1.3(@noble/hashes@1.8.0)(canvas@3.2.3))(vite@8.1.6(@types/node@24.19.2)(esbuild@0.28.1)(yaml@2.8.2))
+
+  libs/types-rs: {}
 
   libs/ui:
     dependencies:

@@ -61,6 +61,10 @@ test('job selection maps package directories to their test jobs', () => {
   );
   expect(packageJobs['script']).toBeUndefined();
   expect(jobSelection.rustJob).toEqual('test-rust-crates');
+  expect(jobSelection.rootCargoPackages).toContain('@votingworks/fs');
+  expect(jobSelection.rootCargoPackages).not.toContain(
+    '@votingworks/ballot-interpreter'
+  );
   expect('libs/types-rs/src/election.rs').toMatch(
     new RegExp(jobSelection.rustPattern)
   );

@@ -1,5 +1,5 @@
-import { basename, join } from 'node:path';
-import { existsSync, readdirSync } from 'node:fs';
+import { basename, join, resolve } from 'node:path';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { iter, type Optional } from '@votingworks/basics';
 import type { PnpmPackageInfo } from './types.js';
 
@@ -324,6 +324,11 @@ export interface JobSelection {
   readonly rustJob: string;
   /** Changed files matching this also run `rustJob`. */
   readonly rustPattern: string;
+  /**
+   * Packages that build against the root Cargo workspace; a change to its
+   * `Cargo.toml` or `Cargo.lock` affects them and their dependents.
+   */
+  readonly rootCargoPackages: readonly string[];
   /** Requires every selected job. */
   readonly passedJob: string;
   /** Run on `main` after `galleryRequires`. */
@@ -331,7 +336,25 @@ export interface JobSelection {
   readonly galleryRequires: readonly string[];
 }
 
+const ROOT_CARGO_LOCK_PATH = join(CIRCLECI_DIR, '../Cargo.lock');
+
+function hasRootCargoLockInput(pkg: PnpmPackageInfo): boolean {
+  const turboJsonPath = join(pkg.path, 'turbo.json');
+  if (!existsSync(turboJsonPath)) {
+    return false;
+  }
+  const { tasks } = JSON.parse(readFileSync(turboJsonPath, 'utf-8')) as {
+    tasks: Record<string, { inputs?: string[] }>;
+  };
+  return Object.values(tasks).some((task) =>
+    task.inputs?.some(
+      (input) => resolve(pkg.path, input) === ROOT_CARGO_LOCK_PATH
+    )
+  );
+}
+
 function generateJobSelection(
+  pnpmPackages: ReadonlyMap<string, PnpmPackageInfo>,
   testedPackages: readonly PnpmPackageInfo[]
 ): JobSelection {
   return {
@@ -342,6 +365,10 @@ function generateJobSelection(
     runAllPrefixes: ['.circleci/', 'script/'],
     rustJob: RUST_CRATES_JOB_ID,
     rustPattern: String.raw`(\.rs|(^|/)Cargo\.(toml|lock)|(^|/)rust-toolchain(\.toml)?)$`,
+    rootCargoPackages: iter(pnpmPackages.values())
+      .filter(hasRootCargoLockInput)
+      .map((pkg) => pkg.name)
+      .toArray(),
     passedJob: CI_PASSED_JOB_ID,
     galleryJob: NOTIFY_GALLERY_JOB_ID,
     galleryRequires: testedPackages
@@ -572,7 +599,7 @@ ${turboCacheRestoreSteps('            ').join('\n')}
             - /root/.cargo
 `.trim();
 
-  const jobSelection = generateJobSelection([...pnpmJobs.keys()]);
+  const jobSelection = generateJobSelection(pnpmPackages, [...pnpmJobs.keys()]);
 
   return new Map([
     [CIRCLECI_CONFIG_PATH, SETUP_CONFIG],

@@ -42,6 +42,13 @@ else
       TURBO_SCM_BASE="${base}" TURBO_SCM_HEAD="${commit}" turbo ls --affected --output=json |
         jq -c '[.packages.items[].path]'
     )"
+    if grep -qE '^Cargo\.(toml|lock)$' <<<"${changed}"; then
+      mapfile -t filters < <(jq -r '.rootCargoPackages[] | "--filter=...\(.)"' "${selection}")
+      affected="$(
+        turbo ls "${filters[@]}" --output=json |
+          jq -c --argjson affected "${affected}" '$affected + [.packages.items[].path] | unique'
+      )"
+    fi
     echo "Affected packages: ${affected}" >&2
     jobs="$(
       jq -r --argjson affected "${affected}" --arg changed "${changed}" '

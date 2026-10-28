@@ -69,6 +69,10 @@
   ],
   "rustJob": "test-rust-crates",
   "rustPattern": "(\\.rs|(^|/)Cargo\\.(toml|lock)|(^|/)rust-toolchain(\\.toml)?)$",
+  "rootCargoPackages": [
+    "@votingworks/fs",
+    "@votingworks/logging-utils"
+  ],
   "passedJob": "ci-passed",
   "galleryJob": "notify-gallery",
   "galleryRequires": [
