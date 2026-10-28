@@ -108,11 +108,11 @@ export function generateBallotStyles(params: {
 
   const withParties = electionType !== 'general' && !isMiCombinedBallotPrimary;
 
-  let i = 0;
+  let i = 1; // Ballot styles are 1-indexed.
   for (const { districtIds, precinctsOrSplitIds } of districtGroups.values()) {
     if (!districtIds.some((d) => districtsWithContests.has(d))) continue;
 
-    const ballotStyleIndex = i + 1; // 1-indexed
+    const ballotStyleIndex = i;
     i += 1;
 
     const ballotStyleContests = contests.filter((contest) =>
