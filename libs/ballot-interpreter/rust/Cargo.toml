@@ -66,6 +66,7 @@ base64 = "0.22.0"
 thiserror = "1.0.50"
 tokio = { version = "1.44.2", features = ["fs", "macros"] }
 types-rs = { path = "../../types-rs" }
+rusqlite = { version = "0.40.2", features = ["bundled"] }
 
 [build-dependencies]
 napi-build = "2.3.1"
