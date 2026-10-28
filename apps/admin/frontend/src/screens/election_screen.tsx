@@ -28,7 +28,7 @@ import { RevertResultsToUnofficialButton } from '../components/mark_official_but
 import { SaveBackupButton } from '../components/save_backup_button.js';
 
 const ElectionCard = styled(Card).attrs({ color: 'neutral' })`
-  margin: 1rem 0;
+  margin: 0.9rem 0;
 
   > div {
     display: flex;
