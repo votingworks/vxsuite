@@ -16,6 +16,7 @@ import {
 import { getPdfPageCount } from '@votingworks/image-utils/pdf';
 import { TestLanguageCode } from '@votingworks/test-utils';
 import {
+  BmdPaperBallot,
   getLayout,
   NoLayoutOptionError,
   ORDERED_BMD_BALLOT_LAYOUTS,
@@ -37,10 +38,14 @@ vi.mock(import('@votingworks/image-utils/pdf'), async (importActual) => ({
   }),
 }));
 
-vi.mock(import('@votingworks/ui'), async (importActual) => ({
-  ...(await importActual()),
-  getLayout: vi.fn(),
-}));
+vi.mock(import('@votingworks/ui'), async (importActual) => {
+  const actual = await importActual();
+  return {
+    ...actual,
+    BmdPaperBallot: vi.fn(actual.BmdPaperBallot),
+    getLayout: vi.fn(),
+  };
+});
 
 vi.mock(import('@votingworks/ballot-encoder'), async (importActual) => {
   const actual = await importActual();
@@ -85,7 +90,7 @@ beforeEach(() => {
 
 test('tries as many layouts as necessary and proceeds with the first that works', async () => {
   vi.mocked(getLayout).mockImplementation(
-    (_machineType, _ballotStyleId, _electionDefinition, i) => {
+    (_machineType, _ballotStyle, _electionDefinition, i) => {
       assert(i !== undefined);
       return i >= ORDERED_BMD_BALLOT_LAYOUTS.markScan.length
         ? err(new NoLayoutOptionError(0, 0, 'markScan'))
@@ -109,7 +114,7 @@ test('tries as many layouts as necessary and proceeds with the first that works'
 
 test('tries all layouts beginning with the least compacted layout and errors if none work', async () => {
   vi.mocked(getLayout).mockImplementation(
-    (_machineType, _ballotStyleId, _electionDefinition, i) => {
+    (_machineType, _ballotStyle, _electionDefinition, i) => {
       assert(i !== undefined);
       return i >= ORDERED_BMD_BALLOT_LAYOUTS.markScan.length
         ? err(new NoLayoutOptionError(0, 0, 'markScan'))
@@ -135,7 +140,7 @@ test('tries all layouts beginning with the least compacted layout and errors if 
 
 test('tries all layouts beginning with a slightly compacted layout and errors if none work', async () => {
   vi.mocked(getLayout).mockImplementation(
-    (_machineType, _ballotStyleId, _electionDefinition, i) => {
+    (_machineType, _ballotStyle, _electionDefinition, i) => {
       assert(i !== undefined);
       // getLayout picks a first layout to try given the nature of the election itself, e.g., if
       // there are many contests, we don't even try the least compacted layout
@@ -216,6 +221,39 @@ test('includes votes derived from a straight party selection', async () => {
     vi.mocked(makeDerivedStraightPartyVotesExplicit).mock.lastCall?.[0]
       .orderings
   ).toEqual(mockCandidateOrderings);
+});
+
+test('renders with stored candidate orderings', async () => {
+  vi.mocked(getPdfPageCount).mockResolvedValue(1);
+  vi.mocked(getLayout).mockReturnValue(
+    ok(ORDERED_BMD_BALLOT_LAYOUTS.markScan[0]!)
+  );
+
+  const mockOrderings: CandidateOrderings = {
+    contest1: [{ id: 'orderedCandidate2' }, { id: 'orderedCandidate1' }],
+  };
+
+  const mockMetaStore: Partial<BallotMetaStore> = {
+    getCandidateOrderings: (styleId) => {
+      expect(styleId).toEqual(ballotStyleId);
+      return mockOrderings;
+    },
+  };
+
+  vi.spyOn(workspace.store, 'getBallotMetaStore').mockReturnValue(
+    mockMetaStore as BallotMetaStore
+  );
+
+  await renderBallot({
+    store: workspace.store,
+    precinctId: precinctId!,
+    ballotStyleId,
+    votes: {},
+    languageCode: TestLanguageCode.ENGLISH,
+  });
+
+  const ballotProps = vi.mocked(BmdPaperBallot).mock.lastCall?.[0];
+  expect(ballotProps?.candidateOrderings).toEqual(mockOrderings);
 });
 
 function mockBallotMetaStore(mocks: Partial<BallotMetaStore>) {

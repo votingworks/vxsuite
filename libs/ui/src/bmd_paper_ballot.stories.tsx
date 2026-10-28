@@ -13,7 +13,7 @@ import {
 } from '@votingworks/types';
 import { generateBallotStyleId } from '@votingworks/utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { assert, find } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import electionGeneralData from '@fixtures/electionGeneral/election.json?raw';
 import { styled } from './styled.js';
 import {
@@ -164,7 +164,8 @@ const TEST_UI_STRINGS: UiStringsPackage = {
 
 const initialArgs: BmdPaperBallotProps = {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  ballotStyleId: election.ballotStyles[0]!.id,
+  ballotStyle: election.ballotStyles[0]!,
+  candidateOrderings: null,
   electionDefinition: {
     ballotHash: 'cafef00d',
     election,
@@ -226,9 +227,12 @@ const meta: Meta<BmdPaperBallotArgs> = {
   component: Component,
   args: { ...initialArgs, numMockContests: 20 },
   argTypes: {
-    ballotStyleId: {
+    ballotStyle: {
       control: 'radio',
       options: election.ballotStyles.map((b) => b.id).sort(),
+      mapping: Object.fromEntries(
+        election.ballotStyles.map((bs) => [bs.id, bs])
+      ),
     },
     numMockContests: {
       control: {
@@ -262,13 +266,8 @@ const meta: Meta<BmdPaperBallotArgs> = {
 export default meta;
 
 export function BmdPaperBallot(props: BmdPaperBallotArgs): JSX.Element {
-  const { ballotStyleId, electionDefinition, numMockContests, votes, ...rest } =
+  const { ballotStyle, electionDefinition, numMockContests, votes, ...rest } =
     props;
-
-  const ballotStyle = find(
-    electionDefinition.election.ballotStyles,
-    (b) => b.id === ballotStyleId
-  );
 
   const contests = getContests({ ballotStyle, election }).slice(
     0,
@@ -282,7 +281,7 @@ export function BmdPaperBallot(props: BmdPaperBallotArgs): JSX.Element {
 
   return (
     <Component
-      ballotStyleId={ballotStyleId}
+      ballotStyle={ballotStyle}
       electionDefinition={{
         ...electionDefinition,
         election: {

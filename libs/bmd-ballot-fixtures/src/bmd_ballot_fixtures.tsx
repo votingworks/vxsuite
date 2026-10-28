@@ -10,6 +10,7 @@ import {
   getBallotStyle,
   getContests,
   vote,
+  type CandidateOrderings,
 } from '@votingworks/types';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
 import { BmdPaperBallot } from '@votingworks/ui';
@@ -29,6 +30,10 @@ const DEFAULT_BALLOT_AUDIT_ID = 'fixture-audit-id';
 export interface BmdBallotFixtureOptions {
   electionDefinition: ElectionDefinition;
   ballotStyleId?: BallotStyleId;
+  /**
+   * If omitted, defaults to the ballot style's embedded candidate orderings.
+   */
+  candidateOrderings?: CandidateOrderings | null;
   precinctId?: PrecinctId;
   votes?: VotesDict;
   /** Page number (1-indexed). Defaults to 1. */
@@ -106,7 +111,13 @@ export async function renderBmdBallotFixture(
         electionDefinition={electionDefinition}
         isLiveMode={isLiveMode}
         machineType="mark"
-        ballotStyleId={ballotStyle.id}
+        ballotStyle={ballotStyle}
+        candidateOrderings={
+          options.candidateOrderings === undefined
+            ? ballotStyle.orderedCandidatesByContest
+            : // @coverage-defer: dev code path, not used yet.
+              options.candidateOrderings
+        }
         precinctId={resolvedPrecinctId}
         votes={votesForPage}
         pageNumber={pageNumber}

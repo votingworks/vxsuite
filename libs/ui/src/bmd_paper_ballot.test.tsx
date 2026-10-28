@@ -1,9 +1,11 @@
 import { describe, expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
 import {
+  type BallotStyle,
   type BallotStyleId,
   type Candidate,
   type CandidateContest,
+  type CandidateOrderings,
   type ElectionDefinition,
   getBallotStyle,
   getContests,
@@ -57,6 +59,7 @@ const mockEncodedBallotData = new Uint8Array([0, 1, 2, 3]);
 function renderBmdPaperBallot({
   electionDefinition,
   ballotStyleId,
+  candidateOrderings,
   precinctId,
   votes,
   isLiveMode = false,
@@ -67,6 +70,7 @@ function renderBmdPaperBallot({
 }: {
   electionDefinition: ElectionDefinition;
   ballotStyleId: BallotStyleId;
+  candidateOrderings?: CandidateOrderings;
   precinctId: PrecinctId;
   votes: { [key: string]: string | string[] | Candidate };
   isLiveMode?: boolean;
@@ -85,7 +89,8 @@ function renderBmdPaperBallot({
   });
   return render(
     <BmdPaperBallot
-      ballotStyleId={ballotStyleId}
+      ballotStyle={ballotStyle}
+      candidateOrderings={candidateOrderings}
       electionDefinition={electionDefinition}
       isLiveMode={isLiveMode}
       precinctId={precinctId}
@@ -261,7 +266,8 @@ test('BmdPaperBallot treats missing entries in the votes dict as undervotes', ()
   render(
     <BmdPaperBallot
       electionDefinition={electionWithMsEitherNeitherDefinition}
-      ballotStyleId="1"
+      ballotStyle={ballotStyle}
+      candidateOrderings={null}
       precinctId="6525"
       isLiveMode
       votes={{}}
@@ -334,9 +340,30 @@ test('BmdPaperBallot renders remaining choices for multi-seat contests', () => {
 });
 
 test('BmdPaperBallot renders choices for multi-seat contests in rotated ballot style order', () => {
+  const { election } = electionFamousNamesDefinition;
+
+  const ballotStyle = assertDefined(
+    getBallotStyle({ ballotStyleId: '1-1', election })
+  );
+
   renderBmdPaperBallot({
-    electionDefinition: electionFamousNamesDefinition,
-    ballotStyleId: '1-1',
+    electionDefinition: {
+      ...electionFamousNamesDefinition,
+      election: {
+        ...election,
+        ballotStyles: [
+          { ...ballotStyle, orderedCandidatesByContest: undefined },
+        ],
+      },
+    },
+    ballotStyleId: ballotStyle.id,
+    candidateOrderings: {
+      'board-of-alderman': [
+        { id: 'wolfgang-amadeus-mozart' },
+        { id: 'nikola-tesla' },
+        { id: 'pablo-picasso' },
+      ],
+    },
     precinctId: '20',
     votes: {
       'board-of-alderman': [
@@ -351,9 +378,9 @@ test('BmdPaperBallot renders choices for multi-seat contests in rotated ballot s
   );
 
   // Verify the candidates appear in the rotated ballot style order
-  expect(candidateElements[0]).toHaveTextContent('Nikola Tesla');
-  expect(candidateElements[1]).toHaveTextContent('Pablo Picasso');
-  expect(candidateElements[2]).toHaveTextContent('Wolfgang Amadeus Mozart');
+  expect(candidateElements[0]).toHaveTextContent('Wolfgang Amadeus Mozart');
+  expect(candidateElements[1]).toHaveTextContent('Nikola Tesla');
+  expect(candidateElements[2]).toHaveTextContent('Pablo Picasso');
 });
 
 test('BmdPaperBallot renders seal', () => {
@@ -554,7 +581,7 @@ describe('candidate party names', () => {
 interface GetLayoutTestSpec {
   description: string;
   electionDef: ElectionDefinition;
-  ballotStyleId: BallotStyleId;
+  ballotStyle: BallotStyle;
   machineType: MachineType;
   offset?: number;
   expectation: Layout | NoLayoutOptionError;
@@ -568,7 +595,7 @@ describe('getLayout', () => {
     {
       description: 'no offset',
       electionDef: electionGeneralDefinition,
-      ballotStyleId: electionGeneralDefinition.election.ballotStyles[0]!.id,
+      ballotStyle: electionGeneralDefinition.election.ballotStyles[0]!,
       machineType: 'markScan',
       offset: 0,
       expectation: {
@@ -581,7 +608,7 @@ describe('getLayout', () => {
     {
       description: 'valid offset',
       electionDef: electionGeneralDefinition,
-      ballotStyleId: electionGeneralDefinition.election.ballotStyles[0]!.id,
+      ballotStyle: electionGeneralDefinition.election.ballotStyles[0]!,
       machineType: 'markScan',
       offset: 1,
       expectation: {
@@ -594,7 +621,7 @@ describe('getLayout', () => {
     {
       description: 'offset out of bounds',
       electionDef: electionGeneralDefinition,
-      ballotStyleId: electionGeneralDefinition.election.ballotStyles[0]!.id,
+      ballotStyle: electionGeneralDefinition.election.ballotStyles[0]!,
       machineType: 'markScan',
       offset: 21,
       expectation: new NoLayoutOptionError(20, 21, 'markScan'),
@@ -603,10 +630,10 @@ describe('getLayout', () => {
 
   test.each(testSpecs)(
     '$machineType: $description',
-    ({ electionDef, ballotStyleId, machineType, offset, expectation }) => {
+    ({ electionDef, ballotStyle, machineType, offset, expectation }) => {
       const layoutResult = getLayout(
         machineType,
-        ballotStyleId,
+        ballotStyle,
         electionDef,
         offset
       );

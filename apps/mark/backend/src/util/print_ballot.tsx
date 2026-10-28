@@ -16,12 +16,14 @@ import {
 } from '@votingworks/basics';
 import { generateMarkOverlay, NO_PRINT_CALIBRATION } from '@votingworks/hmpb';
 import {
+  type BallotStyle,
   type BallotStyleId,
   BallotType,
   type Contest,
   type Election,
   getBallotStyle,
   getContests,
+  type OptionalCandidateOrderings,
   type PrintJobId,
   type SheetPositions,
 } from '@votingworks/types';
@@ -85,27 +87,36 @@ export async function printBallot(p: PrintBallotProps): Promise<PrintJobId> {
 
   switch (printMode) {
     case 'summary':
-      return printSummaryBallot(pWithDerivedVotes);
+      return printSummaryBallot({
+        ...pWithDerivedVotes,
+        ballotStyle,
+        candidateOrderings,
+      });
+
     case 'marks_on_preprinted_ballot':
       return printMarkOverlay(pWithDerivedVotes);
+
     case 'bubble_ballot':
       return printBubbleBallot(pWithDerivedVotes);
+
     default:
       throwIllegalValue(printMode, 'bmdPrintMode');
   }
 }
 
-async function printSummaryBallot(p: PrintBallotProps): Promise<PrintJobId> {
-  const { printer, store, precinctId, ballotStyleId, votes, languageCode } = p;
+type SummaryBallotProps = Omit<PrintBallotProps, 'ballotStyleId'> & {
+  ballotStyle: BallotStyle;
+  candidateOrderings: OptionalCandidateOrderings;
+};
+
+async function printSummaryBallot(p: SummaryBallotProps): Promise<PrintJobId> {
+  const { printer, store, precinctId, ballotStyle, votes, languageCode } = p;
 
   const { electionDefinition } = assertDefined(store.getElectionRecord());
   const { election } = electionDefinition;
   const isLiveMode = !store.getTestMode();
   const uiStringsPackage = store.getUiStringsStore().getAllUiStrings();
 
-  const ballotStyle = assertDefined(
-    getBallotStyle({ ballotStyleId, election })
-  );
   const allContests = getContests({ ballotStyle, election });
   const ballotAuditId = uuid();
 
@@ -116,7 +127,7 @@ async function printSummaryBallot(p: PrintBallotProps): Promise<PrintJobId> {
   ) {
     return encodeSummaryBallotPage(election, {
       ballotHash: electionDefinition.ballotHash,
-      ballotStyleId,
+      ballotStyleId: ballotStyle.id,
       precinctId,
       votes,
       isTestMode: !isLiveMode,
@@ -137,7 +148,8 @@ async function printSummaryBallot(p: PrintBallotProps): Promise<PrintJobId> {
     >
       <BmdPaperBallot
         electionDefinition={electionDefinition}
-        ballotStyleId={ballotStyleId}
+        ballotStyle={ballotStyle}
+        candidateOrderings={p.candidateOrderings}
         precinctId={precinctId}
         votes={votes}
         isLiveMode={isLiveMode}
@@ -175,7 +187,8 @@ async function printSummaryBallot(p: PrintBallotProps): Promise<PrintJobId> {
 
   const pageBreaks = await sharedRenderer.computePageBreaks(
     electionDefinition,
-    ballotStyleId,
+    ballotStyle,
+    p.candidateOrderings,
     precinctId,
     votes,
     'mark',
@@ -203,7 +216,8 @@ async function printSummaryBallot(p: PrintBallotProps): Promise<PrintJobId> {
           >
             <BmdPaperBallot
               electionDefinition={electionDefinition}
-              ballotStyleId={ballotStyleId}
+              ballotStyle={ballotStyle}
+              candidateOrderings={p.candidateOrderings}
               precinctId={precinctId}
               votes={filterVotesForContests(votes, pageContests)}
               isLiveMode={isLiveMode}

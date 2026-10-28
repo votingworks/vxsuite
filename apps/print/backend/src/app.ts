@@ -164,7 +164,7 @@ export function buildApi(ctx: AppContext) {
       .map((spec) => ({
         spec,
         ballot: store.getBallot({
-          ballotStyleId: spec.ballotStyleId,
+          ballotStyleId: spec.ballotStyle.id,
           precinctId: spec.precinctId,
           ballotType: BallotType.Precinct,
           ballotMode: 'test',
@@ -773,8 +773,8 @@ export function buildApi(ctx: AppContext) {
               calibration: NO_PRINT_CALIBRATION,
               contests: election.contests,
               positions: assertDefined(
-                ballotMetaStore.getPositions(spec.ballotStyleId),
-                `no ballot positions for style ${spec.ballotStyleId}`
+                ballotMetaStore.getPositions(spec.ballotStyle.id),
+                `no ballot positions for style ${spec.ballotStyle.id}`
               ),
               size: election.ballotLayout.paperSize,
               votes: spec.votes,

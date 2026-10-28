@@ -14,7 +14,6 @@ import {
   type PrecinctId,
   getContests,
   type VotesDict,
-  type BallotStyleId,
   type ContestId,
   gridPositionsFromBallotPositions,
   Tabulation,
@@ -43,7 +42,7 @@ import {
 export type TestDeckBallotFormat = 'bubble' | 'summary';
 
 export interface TestDeckBallot {
-  ballotStyleId: BallotStyleId;
+  ballotStyle: BallotStyle;
   precinctId: PrecinctId;
   ballotFormat: TestDeckBallotFormat;
   votes: VotesDict;
@@ -140,7 +139,7 @@ export function generateTestDeckBallots({
           }
         }
         ballots.push({
-          ballotStyleId: ballotStyle.id,
+          ballotStyle,
           precinctId: currentPrecinctId,
           ballotFormat,
           votes,
@@ -171,7 +170,7 @@ export function generateTestDeckBallots({
               straightPartyNotYetImplemented();
             }
             ballots.push({
-              ballotStyleId: ballotStyle.id,
+              ballotStyle,
               precinctId: currentPrecinctId,
               ballotFormat,
               votes: {
@@ -191,13 +190,13 @@ export function generateTestDeckBallots({
 
         if (includeBlankBallots) {
           ballots.push({
-            ballotStyleId: ballotStyle.id,
+            ballotStyle,
             precinctId: currentPrecinctId,
             ballotFormat,
             votes: {},
           });
           ballots.push({
-            ballotStyleId: ballotStyle.id,
+            ballotStyle,
             precinctId: currentPrecinctId,
             ballotFormat,
             votes: {},
@@ -211,7 +210,7 @@ export function generateTestDeckBallots({
 }
 
 interface BallotContestLayout {
-  ballotStyleId: BallotStyleId;
+  ballotStyle: BallotStyle;
   contestIdsBySheet: Array<ContestId[]>;
 }
 
@@ -244,7 +243,7 @@ function getBallotContestLayouts(
       assertDefined(contestIdsBySheet[sheetNumber - 1]).push(contestId);
     }
     return {
-      ballotStyleId: ballotStyle.id,
+      ballotStyle,
       contestIdsBySheet,
     };
   });
@@ -297,7 +296,7 @@ export function generateTestDeckCastVoteRecords(
   // Process HMPB ballots
   for (const ballotSpec of hmpbBallotSpecs) {
     const ballotStyleGroupId = getGroupIdFromBallotStyleId({
-      ballotStyleId: ballotSpec.ballotStyleId,
+      ballotStyleId: ballotSpec.ballotStyle.id,
       election,
     });
     const CVR_ATTRIBUTES = {
@@ -311,7 +310,7 @@ export function generateTestDeckCastVoteRecords(
 
     const ballotContestLayout = find(
       ballotContestLayouts,
-      ({ ballotStyleId }) => ballotStyleId === ballotSpec.ballotStyleId
+      ({ ballotStyle }) => ballotStyle.id === ballotSpec.ballotStyle.id
     );
 
     // HMPB ballots may be multiple sheets, so generate a CVR for each sheet
@@ -333,7 +332,7 @@ export function generateTestDeckCastVoteRecords(
   // Process summary ballots
   for (const ballotSpec of summaryBallotSpecs) {
     const ballotStyleGroupId = getGroupIdFromBallotStyleId({
-      ballotStyleId: ballotSpec.ballotStyleId,
+      ballotStyleId: ballotSpec.ballotStyle.id,
       election,
     });
     const CVR_ATTRIBUTES = {

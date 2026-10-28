@@ -54,7 +54,7 @@ export async function createPrecinctTestDeck({
       const { props, layoutPath } = find(
         ballots,
         (ballot) =>
-          ballot.props.ballotStyleId === ballotSpec.ballotStyleId &&
+          ballot.props.ballotStyleId === ballotSpec.ballotStyle.id &&
           ballot.props.precinctId === ballotSpec.precinctId
       );
       const document = await renderer.documentFromPath(layoutPath);

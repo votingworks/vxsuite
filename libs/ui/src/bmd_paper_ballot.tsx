@@ -3,18 +3,17 @@ import React from 'react';
 
 import {
   type BallotStyle,
-  type BallotStyleId,
   type CandidateContest,
   type CandidateVote,
   type Contest,
   type Election,
   type ElectionDefinition,
   formatBallotHash,
-  getBallotStyle,
-  getCandidateVoteSortedForBallotStyleRotation,
+  getSortedCandidateVote,
   getContests,
   getPartyForBallotStyle,
   isCombinedBallotPrimary,
+  type OptionalCandidateOrderings,
   type OptionalYesNoVote,
   type PrecinctId,
   type StraightPartyVote,
@@ -190,20 +189,18 @@ export class NoLayoutOptionError extends Error {
 /**
  * Gets a ballot layout to render a BmdPaperBallot with.
  * @param machineType The BMD {@link MachineType}
- * @param ballotStyleId The {@link BallotStyleId} that is being rendered.
+ * @param ballotStyle The {@link BallotStyle} that is being rendered.
  * @param electionDefinition
  * @param densityOffset An integer specifying how many "steps" to increase density by selecting a denser layout. See {@link ORDERED_BMD_BALLOT_LAYOUTS}.
  * @returns A {@link Layout} selected based on the minimum number of contests, or a {@link NoLayoutOptionError} indicating the densityOffset was out of bounds.
  */
 export function getLayout(
   machineType: MachineType,
-  ballotStyleId: BallotStyleId,
+  ballotStyle: BallotStyle,
   electionDefinition: ElectionDefinition,
   densityOffset: number = 0
 ): Result<Layout, NoLayoutOptionError> {
   const { election } = electionDefinition;
-  const ballotStyle = getBallotStyle({ ballotStyleId, election });
-  assert(ballotStyle);
   const contests = getContests({ ballotStyle, election });
 
   const possibleLayoutsDescending = [
@@ -516,28 +513,28 @@ function NoSelection(props: { primaryBallotLanguage: string }): JSX.Element {
 }
 
 interface CandidateContestResultProps {
-  ballotStyle: BallotStyle;
   contest: CandidateContest;
   election: Election;
   layout: Layout;
+  orderings: OptionalCandidateOrderings;
   primaryBallotLanguage: string;
   vote?: CandidateVote;
 }
 
 function CandidateContestResult({
-  ballotStyle,
   contest,
   election,
   layout,
+  orderings,
   primaryBallotLanguage,
   vote = [],
 }: CandidateContestResultProps): JSX.Element {
   const remainingChoices = contest.seats - vote.length;
 
-  const orderedVotes = getCandidateVoteSortedForBallotStyleRotation({
+  const orderedVotes = getSortedCandidateVote({
     inputVote: vote,
     contest,
-    ballotStyle,
+    orderings,
   });
 
   return vote === undefined || vote.length === 0 ? (
@@ -653,8 +650,9 @@ function StraightPartyContestResult({
 }
 
 export interface BmdPaperBallotProps {
-  ballotStyleId: BallotStyleId;
+  ballotStyle: BallotStyle;
   binarize?: boolean;
+  candidateOrderings: OptionalCandidateOrderings;
   electionDefinition: ElectionDefinition;
   isLiveMode: boolean;
   precinctId: PrecinctId;
@@ -709,8 +707,9 @@ function qrCodeLevelOverride(
  * Renders a paper ballot as printed by a ballot-marking device
  */
 export function BmdPaperBallot({
-  ballotStyleId,
+  ballotStyle,
   binarize,
+  candidateOrderings,
   electionDefinition,
   isLiveMode,
   precinctId,
@@ -734,8 +733,7 @@ export function BmdPaperBallot({
     election: { jurisdiction, seal },
     ballotHash,
   } = electionDefinition;
-  const ballotStyle = getBallotStyle({ ballotStyleId, election });
-  assert(ballotStyle);
+  const ballotStyleId = ballotStyle.id;
   const primaryBallotLanguage = assertDefined(ballotStyle.languages[0]);
 
   // The ballot encoder canonicalizes order internally, but we still want to
@@ -758,7 +756,7 @@ export function BmdPaperBallot({
 
   const ballotLayout =
     layout ??
-    getLayout(machineType, ballotStyleId, electionDefinition).unsafeUnwrap();
+    getLayout(machineType, ballotStyle, electionDefinition).unsafeUnwrap();
 
   const numColumns = Math.ceil(
     contestsForPageInCanonicalOrder.length / ballotLayout.maxRows
@@ -925,9 +923,9 @@ export function BmdPaperBallot({
                       contest={contest}
                       election={election}
                       layout={ballotLayout}
+                      orderings={candidateOrderings}
                       primaryBallotLanguage={primaryBallotLanguage}
                       vote={votes[contest.id] as CandidateVote}
-                      ballotStyle={ballotStyle}
                     />
                   )}
                   {contest.type === 'yesno' && (
