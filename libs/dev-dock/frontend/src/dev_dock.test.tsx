@@ -32,6 +32,7 @@ import {
   mockElectionManagerUser,
   mockPollWorkerUser,
   mockKiosk,
+  mockConstructor,
 } from '@votingworks/test-utils';
 import type { CardStatus } from '@votingworks/auth';
 import type { PrinterConfig } from '@votingworks/types';
@@ -83,6 +84,7 @@ vi.mock('@votingworks/utils', async () => ({
 
 let mockApiClient: MockClient<Api>;
 let kiosk: Mocked<KioskBrowser.Kiosk>;
+const grabFrame = vi.fn();
 
 beforeEach(() => {
   mockApiClient = createMockClient<Api>();
@@ -124,11 +126,35 @@ beforeEach(() => {
   );
   kiosk = mockKiosk(vi.fn);
   window.kiosk = kiosk;
+  Object.defineProperty(navigator, 'mediaDevices', {
+    configurable: true,
+    value: { getDisplayMedia: vi.fn() },
+  });
+  mockDisplayMedia();
+  vi.stubGlobal('ImageCapture', vi.fn(mockConstructor(() => ({ grabFrame }))));
+  vi.stubGlobal(
+    'OffscreenCanvas',
+    vi.fn(
+      mockConstructor(() => ({
+        getContext: () => ({ drawImage: vi.fn() }),
+        convertToBlob: () =>
+          Promise.resolve({
+            arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+          }),
+      }))
+    )
+  );
+  grabFrame.mockResolvedValue({
+    width: 1,
+    height: 1,
+    close: vi.fn(),
+  });
 });
 
 afterEach(() => {
   mockApiClient.assertComplete();
   featureFlagMock.resetFeatureFlags();
+  vi.unstubAllGlobals();
 });
 
 test('renders nothing if dev dock is disabled', () => {
@@ -464,6 +490,59 @@ test('Save button is auto-focused when screenshot modal opens', async () => {
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
+});
+
+test.each([
+  [
+    new DOMException('Not supported', 'NotSupportedError'),
+    'This browser does not allow the page to capture itself. Run a kiosk-browser that supports it with --allow-devtools.',
+  ],
+  [
+    new DOMException('Permission denied', 'NotAllowedError'),
+    'Screenshot was cancelled.',
+  ],
+  [new Error('boom'), 'Screenshot failed: boom'],
+])('reports screenshot capture failure %s', async (error, message) => {
+  vi.mocked(navigator.mediaDevices.getDisplayMedia).mockRejectedValue(error);
+  renderDock(mockApiClient);
+  await userEvent.click(
+    await screen.findByRole('button', { name: 'Capture Screenshot' })
+  );
+
+  await screen.findByText('Screenshot Failed');
+  screen.getByText(message);
+  await userEvent.click(screen.getByRole('button', { name: 'Close' }));
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+});
+
+test('reports a failed screenshot frame grab and releases the stream', async () => {
+  const { track } = mockDisplayMedia();
+  grabFrame.mockRejectedValue(new Error('no frame'));
+  renderDock(mockApiClient);
+  await userEvent.click(
+    await screen.findByRole('button', { name: 'Capture Screenshot' })
+  );
+
+  await screen.findByText('Screenshot failed: no frame');
+  expect(track.stop).toHaveBeenCalled();
+  expect(dockContainer()).toHaveStyle({ visibility: 'visible' });
+});
+
+test('screenshot releases the capture stream', async () => {
+  const { track } = mockDisplayMedia();
+  renderDock(mockApiClient);
+  await userEvent.click(
+    await screen.findByRole('button', { name: 'Capture Screenshot' })
+  );
+
+  await screen.findByText('Save Screenshot');
+  expect(navigator.mediaDevices.getDisplayMedia).toHaveBeenCalledWith(
+    expect.objectContaining({ preferCurrentTab: true })
+  );
+  expect(track.stop).toHaveBeenCalled();
+  await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 });
 
 test('printer mock control', async () => {
@@ -1445,7 +1524,7 @@ describe('screen recording', () => {
   test.each([
     [
       new DOMException('Not supported', 'NotSupportedError'),
-      'This browser does not allow the page to record itself. Run a kiosk-browser that supports recording with --allow-devtools.',
+      'This browser does not allow the page to capture itself. Run a kiosk-browser that supports it with --allow-devtools.',
     ],
     [
       new DOMException('Permission denied', 'NotAllowedError'),

@@ -32,8 +32,6 @@ declare namespace KioskBrowser {
       filePaths: string[];
     }>;
 
-    captureScreenshot(): Promise<Uint8Array>;
-
     reboot(): Promise<void>;
   }
 }

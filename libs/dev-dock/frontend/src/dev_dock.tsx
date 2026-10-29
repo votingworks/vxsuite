@@ -585,6 +585,34 @@ function SaveFileModal({
   );
 }
 
+const DISPLAY_CAPTURE_OPTIONS: DisplayMediaStreamOptions & {
+  preferCurrentTab: boolean;
+} = { video: { frameRate: 30 }, audio: false, preferCurrentTab: true };
+
+function describeCaptureStartError(
+  error: unknown,
+  action: 'Screenshot' | 'Screen recording'
+): string {
+  if (error instanceof DOMException && error.name === 'NotSupportedError') {
+    return 'This browser does not allow the page to capture itself. Run a kiosk-browser that supports it with --allow-devtools.';
+  }
+  if (error instanceof DOMException && error.name === 'NotAllowedError') {
+    return `${action} was cancelled.`;
+  }
+  return `${action} failed: ${extractErrorMessage(error)}`;
+}
+
+/** Encodes the next frame of a display capture stream as a PNG. */
+async function grabPngFrame(stream: MediaStream): Promise<Uint8Array> {
+  const [track] = stream.getVideoTracks();
+  const frame = await new ImageCapture(assertDefined(track)).grabFrame();
+  const canvas = new OffscreenCanvas(frame.width, frame.height);
+  assertDefined(canvas.getContext('2d')).drawImage(frame, 0, 0);
+  frame.close();
+  const blob = await canvas.convertToBlob({ type: 'image/png' });
+  return new Uint8Array(await blob.arrayBuffer());
+}
+
 function ScreenshotControls({
   containerRef,
 }: {
@@ -598,22 +626,39 @@ function ScreenshotControls({
   const [screenshotToSave, setScreenshotToSave] =
     useState<ScreenshotToSaveProps>();
 
+  const [errorMessage, setErrorMessage] = useState<string>();
+  function dismissError() {
+    setErrorMessage(undefined);
+  }
+
   async function captureScreenshot() {
+    let stream: MediaStream;
+    try {
+      stream = await navigator.mediaDevices.getDisplayMedia(
+        DISPLAY_CAPTURE_OPTIONS
+      );
+    } catch (error) {
+      setErrorMessage(describeCaptureStartError(error, 'Screenshot'));
+      return;
+    }
+
     // Use a ref to the dock container to momentarily hide it during the
     // screenshot.
     assert(containerRef.current);
     // eslint-disable-next-line no-param-reassign
     containerRef.current.style.visibility = 'hidden';
-    await sleep(500);
-
-    assert(window.kiosk);
-    const screenshot = await window.kiosk.captureScreenshot();
-
-    const defaultFileName = `Screenshot-${getAppName()}-${new Date().toISOString()}.png`;
-
-    setScreenshotToSave({ screenshot, fileName: defaultFileName });
-    // eslint-disable-next-line no-param-reassign
-    containerRef.current.style.visibility = 'visible';
+    try {
+      await sleep(500);
+      const screenshot = await grabPngFrame(stream);
+      const defaultFileName = `Screenshot-${getAppName()}-${new Date().toISOString()}.png`;
+      setScreenshotToSave({ screenshot, fileName: defaultFileName });
+    } catch (error) {
+      setErrorMessage(`Screenshot failed: ${extractErrorMessage(error)}`);
+    } finally {
+      for (const track of stream.getTracks()) track.stop();
+      // eslint-disable-next-line no-param-reassign
+      containerRef.current.style.visibility = 'visible';
+    }
   }
 
   async function onSaveScreenshot(fileName: string) {
@@ -643,7 +688,6 @@ function ScreenshotControls({
     <React.Fragment>
       <ScreenshotButton
         onClick={captureScreenshot}
-        disabled={!window.kiosk}
         aria-label="Capture Screenshot"
       >
         <FontAwesomeIcon icon={faCamera} size="2x" />
@@ -660,6 +704,18 @@ function ScreenshotControls({
           }
           onSave={onSaveScreenshot}
           onCancel={() => setScreenshotToSave(undefined)}
+        />
+      )}
+      {errorMessage && (
+        <DevDockModal
+          title="Screenshot Failed"
+          onOverlayClick={dismissError}
+          content={<P>{errorMessage}</P>}
+          actions={
+            <Button autoFocus onPress={dismissError}>
+              Close
+            </Button>
+          }
         />
       )}
     </React.Fragment>
@@ -1202,16 +1258,6 @@ interface ActiveRecording {
   uploads: Promise<void>;
 }
 
-function describeRecordingStartError(error: unknown): string {
-  if (error instanceof DOMException && error.name === 'NotSupportedError') {
-    return 'This browser does not allow the page to record itself. Run a kiosk-browser that supports recording with --allow-devtools.';
-  }
-  if (error instanceof DOMException && error.name === 'NotAllowedError') {
-    return 'Screen recording was cancelled.';
-  }
-  return `Screen recording failed: ${extractErrorMessage(error)}`;
-}
-
 function ScreenRecordingControls({
   isRecording,
   setIsRecording,
@@ -1261,15 +1307,14 @@ function ScreenRecordingControls({
 
   async function startRecording() {
     setIsRecording(true);
-    const captureOptions: DisplayMediaStreamOptions & {
-      preferCurrentTab: boolean;
-    } = { video: { frameRate: 30 }, audio: false, preferCurrentTab: true };
     let stream: MediaStream;
     try {
-      stream = await navigator.mediaDevices.getDisplayMedia(captureOptions);
+      stream = await navigator.mediaDevices.getDisplayMedia(
+        DISPLAY_CAPTURE_OPTIONS
+      );
     } catch (error) {
       setIsRecording(false);
-      setErrorMessage(describeRecordingStartError(error));
+      setErrorMessage(describeCaptureStartError(error, 'Screen recording'));
       return;
     }
 
