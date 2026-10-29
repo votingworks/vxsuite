@@ -594,7 +594,7 @@ function describeCaptureStartError(
   action: 'Screenshot' | 'Screen recording'
 ): string {
   if (error instanceof DOMException && error.name === 'NotSupportedError') {
-    return 'This browser does not allow the page to capture itself. Run a kiosk-browser that supports it with --allow-devtools.';
+    return 'This browser does not allow the page to capture itself. Update kiosk-browser to 1.3.0 or later.';
   }
   if (error instanceof DOMException && error.name === 'NotAllowedError') {
     return `${action} was cancelled.`;

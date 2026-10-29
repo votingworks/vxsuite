@@ -27,8 +27,8 @@ The video button records the app's own page with `getDisplayMedia` and
 then offers to save it to the Downloads folder. Native windows such as file
 dialogs are not captured.
 
-Both require a kiosk-browser that allows the page to capture itself, run with
-`--allow-devtools`. In Chrome, pick the current tab when prompted.
+Both require kiosk-browser 1.3.0 or later. In Chrome, pick the current tab when
+prompted.
 
 While recording, the dock is hidden. `Super+D` still toggles it, and `Ctrl+C` or
 `Super+.` stops the recording.

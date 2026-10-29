@@ -495,7 +495,7 @@ test('Save button is auto-focused when screenshot modal opens', async () => {
 test.each([
   [
     new DOMException('Not supported', 'NotSupportedError'),
-    'This browser does not allow the page to capture itself. Run a kiosk-browser that supports it with --allow-devtools.',
+    'This browser does not allow the page to capture itself. Update kiosk-browser to 1.3.0 or later.',
   ],
   [
     new DOMException('Permission denied', 'NotAllowedError'),
@@ -1524,7 +1524,7 @@ describe('screen recording', () => {
   test.each([
     [
       new DOMException('Not supported', 'NotSupportedError'),
-      'This browser does not allow the page to capture itself. Run a kiosk-browser that supports it with --allow-devtools.',
+      'This browser does not allow the page to capture itself. Update kiosk-browser to 1.3.0 or later.',
     ],
     [
       new DOMException('Permission denied', 'NotAllowedError'),
