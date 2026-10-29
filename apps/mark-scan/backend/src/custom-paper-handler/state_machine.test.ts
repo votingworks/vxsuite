@@ -194,9 +194,12 @@ const SUCCESSFUL_INTERPRETATION_MOCK: SheetOf<PageInterpretation> = [
 ];
 
 async function waitForStatus(status: SimpleServerStatus) {
-  await vi.waitFor(() => {
-    expect(machine.getSimpleStatus()).toEqual(status);
-  });
+  await vi.waitFor(
+    () => {
+      expect(machine.getSimpleStatus()).toEqual(status);
+    },
+    { interval: 1 }
+  );
 }
 
 function expectMockPaperHandlerStatus(
