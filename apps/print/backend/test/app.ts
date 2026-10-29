@@ -33,7 +33,10 @@ import {
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { mockElectionPackageFileTree } from '@votingworks/backend';
+import {
+  mockElectionPackageFileTree,
+  type PartialElectionPackage,
+} from '@votingworks/backend';
 import { readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { getUserRole } from '../src/util/auth.js';
@@ -117,12 +120,12 @@ export async function configureMachine({
   electionDefinition,
   ballots,
   pollingPlaceId,
-}: {
+  systemSettings,
+  ...rest
+}: PartialElectionPackage & {
   apiClient: grout.Client<Api>;
   mockUsbDrive: MockUsbDrive;
   auth: DippedSmartCardAuthApi;
-  electionDefinition: ElectionDefinition;
-  ballots: EncodedBallotEntry[];
   pollingPlaceId?: string;
 }): Promise<void> {
   mockElectionManagerAuth(auth, electionDefinition);
@@ -130,7 +133,8 @@ export async function configureMachine({
     await mockElectionPackageFileTree({
       electionDefinition,
       ballots,
-      systemSettings: DEFAULT_SYSTEM_SETTINGS,
+      systemSettings: systemSettings || DEFAULT_SYSTEM_SETTINGS,
+      ...rest,
     })
   );
   (await apiClient.configureElectionPackageFromUsb()).unsafeUnwrap();

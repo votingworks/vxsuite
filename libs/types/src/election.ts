@@ -452,6 +452,9 @@ export interface BallotStyle {
    * The grid positions (bubble centers and bounding boxes) of every contest and
    * option on this ballot style's HMPB, organized by sheet. Absent for ballot
    * styles that have not been laid out (e.g. BMD-only or draft elections).
+   *
+   * @deprecated Ballot positions are moving to a separate DB table/election
+   * package file. See `libs/backend:BallotMetaStore`.
    */
   readonly ballotPositions?: readonly SheetPositions[];
 }

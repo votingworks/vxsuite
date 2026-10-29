@@ -5,6 +5,8 @@ import type { Election } from '@votingworks/types';
  * Whether the election carries HMPB ballot geometry, i.e. at least one ballot
  * style has `ballotPositions`. The v4.1+ replacement for checking
  * `election.gridLayouts`.
+ *
+ * @deprecated Use `libs/backend:BallotMetaStore.hasPositions()`.
  */
 export function electionHasBallotPositions(election: Election): boolean {
   return election.ballotStyles.some(
