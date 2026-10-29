@@ -523,6 +523,10 @@ export function buildApi(
       assertDefined(stateMachine).stopPaperHandlerDiagnostic();
     },
 
+    getCandidateOrderings(p: { ballotStyleId: string }) {
+      return store.getBallotMetaStore().getCandidateOrderings(p.ballotStyleId);
+    },
+
     ...buildMockPaperHandlerApi({ paperHandler }),
   });
 }

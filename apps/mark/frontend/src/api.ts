@@ -17,7 +17,7 @@ import {
   createSystemCallApi,
   createUiStringsApi,
 } from '@votingworks/ui';
-import type { DiagnosticType } from '@votingworks/types';
+import type { BallotStyle, DiagnosticType } from '@votingworks/types';
 
 const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
 export const INTERNAL_HARDWARE_POLLING_INTERVAL_MS = 3000;
@@ -555,3 +555,18 @@ export const logUpsDiagnosticOutcome = {
 } as const;
 
 export const systemCallApi = createSystemCallApi(useApiClient);
+
+export const getCandidateOrderings = {
+  queryKey(bs: BallotStyle): QueryKey {
+    // Cache key is based on group ID, since candidate orderings are consistent
+    // across a ballot style group.
+    return ['getCandidateOrderings', bs.groupId];
+  },
+
+  useQuery(bs: BallotStyle) {
+    const client = useApiClient();
+    return useQuery(this.queryKey(bs), () =>
+      client.getCandidateOrderings({ ballotStyleId: bs.id })
+    );
+  },
+} as const;

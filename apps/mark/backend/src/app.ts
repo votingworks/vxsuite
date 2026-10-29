@@ -855,6 +855,10 @@ export function buildApi(ctx: Context) {
       }
       return audioPlayer.play(input.name);
     },
+
+    getCandidateOrderings(p: { ballotStyleId: string }) {
+      return store.getBallotMetaStore().getCandidateOrderings(p.ballotStyleId);
+    },
   });
 }
 

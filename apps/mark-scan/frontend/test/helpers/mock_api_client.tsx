@@ -27,6 +27,7 @@ import {
   type SystemSettings,
   type DiagnosticType,
   constructElectionKey,
+  type CandidateOrderings,
 } from '@votingworks/types';
 import {
   mockCardlessVoterUser,
@@ -54,8 +55,9 @@ type MockApiClient = Omit<
   | 'getAuthStatus'
   | 'getPaperHandlerState'
   | 'getUsbDriveStatus'
-  | 'isPatDeviceConnected'
+  | 'getIsPatDeviceConnected'
   | 'getDiskSpaceSummary'
+  | 'getCandidateOrderings'
 > & {
   // Because these are polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
@@ -64,29 +66,33 @@ type MockApiClient = Omit<
   getUsbDriveStatus: Mock;
   getIsPatDeviceConnected: Mock;
   getDiskSpaceSummary: Mock;
+  getCandidateOrderings: Mock<
+    (p: { ballotStyleId: string }) => Promise<CandidateOrderings | null>
+  >;
 };
 
 function createMockApiClient(): MockApiClient {
-  const mockApiClient = createMockClient<Api>();
+  const mockApiClient = createMockClient<Api>() as unknown as MockApiClient;
+
   // For some reason, using an object spread to override the getAuthStatus method breaks the rest
   // of the mockApiClient, so we override like this instead
-  (mockApiClient.getAuthStatus as unknown as Mock) = vi.fn(() =>
+  mockApiClient.getAuthStatus = vi.fn(() =>
     Promise.resolve({ status: 'logged_out', reason: 'no_card' })
   );
-  (mockApiClient.getPaperHandlerState as unknown as Mock) = vi.fn(() =>
+  mockApiClient.getPaperHandlerState = vi.fn(() =>
     Promise.resolve('not_accepting_paper')
   );
-  (mockApiClient.getUsbDriveStatus as unknown as Mock) = vi.fn(() =>
+  mockApiClient.getUsbDriveStatus = vi.fn(() =>
     Promise.resolve({ status: 'no_drive' })
   );
-  (mockApiClient.getIsPatDeviceConnected as unknown as Mock) = vi.fn(() =>
-    Promise.resolve(false)
-  );
-  (mockApiClient.getDiskSpaceSummary as unknown as Mock) = vi.fn(() =>
+  mockApiClient.getIsPatDeviceConnected = vi.fn(() => Promise.resolve(false));
+  mockApiClient.getDiskSpaceSummary = vi.fn(() =>
     Promise.resolve({ total: 3, used: 2, available: 1 })
   );
 
-  return mockApiClient as unknown as MockApiClient;
+  mockApiClient.getCandidateOrderings = vi.fn(() => Promise.resolve(null));
+
+  return mockApiClient;
 }
 
 /**

@@ -15,7 +15,7 @@ import {
   createUiStringsApi,
 } from '@votingworks/ui';
 import { deepEqual } from '@votingworks/basics';
-import type { DiagnosticType } from '@votingworks/types';
+import type { BallotStyle, DiagnosticType } from '@votingworks/types';
 import {
   ACCESSIBLE_CONTROLLER_DIAGNOSTIC_POLLING_INTERVAL_MS,
   AUTH_STATUS_POLLING_INTERVAL_MS_OVERRIDE,
@@ -558,5 +558,20 @@ export const setMockPaperHandlerStatus = {
         await queryClient.invalidateQueries(getMockPaperHandlerStatus.queryKey);
       },
     });
+  },
+} as const;
+
+export const getCandidateOrderings = {
+  queryKey(bs: BallotStyle): QueryKey {
+    // Cache key is based on group ID, since candidate orderings are consistent
+    // across a ballot style group.
+    return ['getCandidateOrderings', bs.groupId];
+  },
+
+  useQuery(bs: BallotStyle) {
+    const client = useApiClient();
+    return useQuery(this.queryKey(bs), () =>
+      client.getCandidateOrderings({ ballotStyleId: bs.id })
+    );
   },
 } as const;
