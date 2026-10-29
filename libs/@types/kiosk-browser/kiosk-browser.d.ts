@@ -27,8 +27,6 @@ declare namespace KioskBrowser {
   export interface Kiosk {
     log(message: string): Promise<void>;
 
-    quit(): void;
-
     showOpenDialog(options?: OpenDialogOptions): Promise<{
       canceled: boolean;
       filePaths: string[];

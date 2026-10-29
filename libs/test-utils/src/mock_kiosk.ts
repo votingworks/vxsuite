@@ -8,7 +8,6 @@ export type MockKiosk = Mocked<KioskBrowser.Kiosk>;
  */
 export function mockKiosk(fn: typeof vi.fn): MockKiosk {
   return {
-    quit: fn(),
     log: fn(),
     captureScreenshot: fn().mockResolvedValue(Uint8Array.of()),
     showOpenDialog: fn(),
