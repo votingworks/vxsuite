@@ -104,6 +104,7 @@ describe('fixtures are up to date - run `pnpm generate-election-packages` if thi
           rendererPool,
           ballotTemplates.VxDefaultBallot,
           allBaseBallotProps(electionWithBallotStrings),
+          (bs) => bs.orderedCandidatesByContest,
           { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
           DEFAULT_SYSTEM_SETTINGS,
           { path: makeTemporaryDirectory() }

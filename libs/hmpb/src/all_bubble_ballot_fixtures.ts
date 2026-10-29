@@ -12,6 +12,7 @@ import {
   type VotesDict,
   LATEST_SOFTWARE_VERSION,
   DEFAULT_SYSTEM_SETTINGS,
+  NO_CANDIDATE_ORDERINGS,
 } from '@votingworks/types';
 import makeDebug from 'debug';
 
@@ -69,7 +70,7 @@ export function allBubbleBallotFixtures(
   const ballotProps: BaseBallotProps = {
     election,
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    ballotStyleId: election.ballotStyles[0]!.id,
+    ballotStyle: election.ballotStyles[0]!,
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     precinctId: election.precincts[0]!.id,
     ballotMode: 'test',
@@ -92,6 +93,7 @@ export function allBubbleBallotFixtures(
           rendererPool,
           allBubbleBallotTemplate(paperSize),
           [ballotProps],
+          () => NO_CANDIDATE_ORDERINGS,
           { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
           DEFAULT_SYSTEM_SETTINGS,
           scratchDir ?? { path: makeTemporaryDirectory() }

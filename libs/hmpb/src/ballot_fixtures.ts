@@ -126,9 +126,7 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
   const allBallotProps = allBallotPropsTest;
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const blankBallotProps = allBallotProps[0]!;
-  const ballotStyle = assertDefined(
-    getBallotStyle({ election, ballotStyleId: blankBallotProps.ballotStyleId })
-  );
+  const { ballotStyle } = blankBallotProps;
   const contests = getContests({ election, ballotStyle });
   const { votes } = createTestVotes(contests);
 
@@ -212,6 +210,7 @@ export const vxFamousNamesFixtures = lazyFixtures(() => {
         rendererPool,
         vxDefaultBallotTemplate,
         allBallotProps,
+        (bs) => bs.orderedCandidatesByContest,
         serializationOptions,
         DEFAULT_SYSTEM_SETTINGS,
         resolveScratchDir(scratchDir)
@@ -390,7 +389,7 @@ export const vxGeneralElectionFixtures = lazyFixtures(() => {
     const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
       ballotStyle.precincts.map((precinctId): BaseBallotProps => ({
         election,
-        ballotStyleId: ballotStyle.id,
+        ballotStyle,
         precinctId,
         ballotType: BallotType.Absentee,
         ballotMode: 'official',
@@ -466,6 +465,7 @@ export const vxGeneralElectionFixtures = lazyFixtures(() => {
             rendererPool,
             vxDefaultBallotTemplate,
             spec.allBallotProps,
+            (bs) => bs.orderedCandidatesByContest,
             serializationOptions,
             DEFAULT_SYSTEM_SETTINGS,
             resolveScratchDir(scratchDir)
@@ -475,7 +475,7 @@ export const vxGeneralElectionFixtures = lazyFixtures(() => {
             .zip(spec.allBallotProps)
             .find(
               ([, props]) =>
-                props.ballotStyleId === spec.ballotStyleId &&
+                props.ballotStyle.id === spec.ballotStyleId &&
                 props.precinctId === spec.precinctId
             )
         );
@@ -536,7 +536,7 @@ export const vxPrimaryElectionFixtures = lazyFixtures(() => {
   const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precincts.map((precinctId): BaseBallotProps => ({
       election,
-      ballotStyleId: ballotStyle.id,
+      ballotStyle,
       precinctId,
       ballotType: BallotType.Precinct,
       ballotMode: 'test',
@@ -595,6 +595,7 @@ export const vxPrimaryElectionFixtures = lazyFixtures(() => {
         rendererPool,
         vxDefaultBallotTemplate,
         allBallotProps,
+        (bs) => bs.orderedCandidatesByContest,
         serializationOptions,
         DEFAULT_SYSTEM_SETTINGS,
         resolveScratchDir(scratchDir)
@@ -613,7 +614,7 @@ export const vxPrimaryElectionFixtures = lazyFixtures(() => {
             .zip(allBallotProps)
             .find(
               ([, props]) =>
-                props.ballotStyleId === spec.ballotStyleId &&
+                props.ballotStyle.id === spec.ballotStyleId &&
                 props.precinctId === spec.precinctId
             )
         );
@@ -653,7 +654,7 @@ export const vxPrimaryElectionFixtures = lazyFixtures(() => {
               .zip(allBallotProps)
               .find(
                 ([, props]) =>
-                  props.ballotStyleId === spec.ballotStyleId &&
+                  props.ballotStyle.id === spec.ballotStyleId &&
                   props.precinctId === spec.otherPrecinctId
               )
           );
@@ -759,7 +760,7 @@ export const nhGeneralElectionFixtures = lazyFixtures(() => {
     const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
       ballotStyle.precincts.map((precinctId): BaseBallotProps => ({
         election,
-        ballotStyleId: ballotStyle.id,
+        ballotStyle,
         precinctId,
         ballotType: BallotType.Precinct,
         ballotMode: 'official',
@@ -828,6 +829,7 @@ export const nhGeneralElectionFixtures = lazyFixtures(() => {
             rendererPool,
             nhBallotTemplate,
             spec.allBallotProps,
+            (bs) => bs.orderedCandidatesByContest,
             serializationOptions,
             DEFAULT_SYSTEM_SETTINGS,
             resolveScratchDir(scratchDir)
@@ -837,7 +839,7 @@ export const nhGeneralElectionFixtures = lazyFixtures(() => {
             .zip(spec.allBallotProps)
             .find(
               ([, props]) =>
-                props.ballotStyleId === spec.ballotStyleId &&
+                props.ballotStyle.id === spec.ballotStyleId &&
                 props.precinctId === spec.precinctId
             )
         );
@@ -998,7 +1000,7 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
     (ballotStyle) =>
       ballotStyle.precincts.map((precinctId) => ({
         election,
-        ballotStyleId: ballotStyle.id,
+        ballotStyle,
         precinctId,
         ballotType: BallotType.Precinct,
         ballotMode: 'official' as const,
@@ -1059,6 +1061,7 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
         rendererPool,
         nhStateBallotTemplate,
         combinedBallotProps,
+        (bs) => bs.orderedCandidatesByContest,
         serializationOptions,
         DEFAULT_SYSTEM_SETTINGS,
         resolveScratchDir(scratchDir)
@@ -1097,7 +1100,7 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
 
       const defaultResult = await renderBallotPdf(
         (props) =>
-          props.ballotStyleId === ballotStyle.id &&
+          props.ballotStyle.id === ballotStyle.id &&
           props.precinctId === precinctId &&
           !props.isHandCount &&
           !props.variant,
@@ -1105,21 +1108,21 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
       );
       const handCountResult = await renderBallotPdf(
         (props) =>
-          props.ballotStyleId === ballotStyle.id &&
+          props.ballotStyle.id === ballotStyle.id &&
           props.precinctId === precinctId &&
           Boolean(props.isHandCount),
         { blankPath: handCountBlankBallotPath }
       );
       const federalOfficeOnlyResult = await renderBallotPdf(
         (props) =>
-          props.ballotStyleId === ballotStyle.id &&
+          props.ballotStyle.id === ballotStyle.id &&
           props.precinctId === precinctId &&
           props.variant === 'federalOfficeOnly',
         { blankPath: federalOfficeOnlyBlankBallotPath }
       );
       const uocavaResult = await renderBallotPdf(
         (props) =>
-          props.ballotStyleId === ballotStyle.id &&
+          props.ballotStyle.id === ballotStyle.id &&
           props.precinctId === precinctId &&
           props.variant === 'uocava',
         { blankPath: uocavaBlankBallotPath }
@@ -1229,11 +1232,12 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
     },
     signature: NH_STATE_TEST_SIGNATURE,
   };
+
   const allBallotProps: NhStateBallotProps[] = election.ballotStyles.flatMap(
     (ballotStyle) =>
       ballotStyle.precincts.map((precinctId) => ({
         election,
-        ballotStyleId: ballotStyle.id,
+        ballotStyle,
         precinctId,
         ballotType: BallotType.Precinct,
         ballotMode: 'official' as const,
@@ -1247,7 +1251,7 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
     const contests = getContests({ election, ballotStyle });
     const { votes, unmarkedWriteIns } = createTestVotes(contests);
     return {
-      ballotStyleId: ballotStyle.id,
+      ballotStyle,
       precinctId,
       blankBallotPath,
       markedBallotPath,
@@ -1267,7 +1271,7 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
 
   const demHandCountBallotProps: NhStateBallotProps = {
     election,
-    ballotStyleId: demParty.ballotStyleId,
+    ballotStyle: demParty.ballotStyle,
     precinctId: demParty.precinctId,
     ballotType: BallotType.Absentee,
     ballotMode: 'official',
@@ -1275,7 +1279,7 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
   };
   const demFederalOfficeOnlyBallotProps: NhStateBallotProps = {
     election,
-    ballotStyleId: demParty.ballotStyleId,
+    ballotStyle: demParty.ballotStyle,
     precinctId: demParty.precinctId,
     ballotType: BallotType.Absentee,
     ballotMode: 'official',
@@ -1283,7 +1287,7 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
   };
   const demUocavaBallotProps: NhStateBallotProps = {
     election,
-    ballotStyleId: demParty.ballotStyleId,
+    ballotStyle: demParty.ballotStyle,
     precinctId: demParty.precinctId,
     ballotType: BallotType.Absentee,
     ballotMode: 'official',
@@ -1316,6 +1320,7 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
         rendererPool,
         nhStateBallotTemplate,
         combinedBallotProps,
+        (bs) => bs.orderedCandidatesByContest,
         serializationOptions,
         DEFAULT_SYSTEM_SETTINGS,
         resolveScratchDir(scratchDir)
@@ -1360,7 +1365,7 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
 
       const demResult = await renderBallotPdf({
         match: (props) =>
-          props.ballotStyleId === demParty.ballotStyleId &&
+          props.ballotStyle.id === demParty.ballotStyle.id &&
           props.precinctId === demParty.precinctId &&
           !props.isHandCount &&
           !props.variant,
@@ -1371,7 +1376,7 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
       });
       const repResult = await renderBallotPdf({
         match: (props) =>
-          props.ballotStyleId === repParty.ballotStyleId &&
+          props.ballotStyle.id === repParty.ballotStyle.id &&
           props.precinctId === repParty.precinctId &&
           !props.isHandCount &&
           !props.variant,
@@ -1382,21 +1387,21 @@ export const nhStatePrimaryElectionFixtures = lazyFixtures(() => {
       });
       const demHandCountResult = await renderBallotPdf({
         match: (props) =>
-          props.ballotStyleId === demParty.ballotStyleId &&
+          props.ballotStyle.id === demParty.ballotStyle.id &&
           props.precinctId === demParty.precinctId &&
           Boolean(props.isHandCount),
         blankPath: demHandCountBlankBallotPath,
       });
       const demFederalOfficeOnlyResult = await renderBallotPdf({
         match: (props) =>
-          props.ballotStyleId === demParty.ballotStyleId &&
+          props.ballotStyle.id === demParty.ballotStyle.id &&
           props.precinctId === demParty.precinctId &&
           props.variant === 'federalOfficeOnly',
         blankPath: demFederalOfficeOnlyBlankBallotPath,
       });
       const demUocavaResult = await renderBallotPdf({
         match: (props) =>
-          props.ballotStyleId === demParty.ballotStyleId &&
+          props.ballotStyle.id === demParty.ballotStyle.id &&
           props.precinctId === demParty.precinctId &&
           props.variant === 'uocava',
         blankPath: demUocavaBlankBallotPath,
@@ -1432,7 +1437,7 @@ export const msGeneralElectionFixtures = lazyFixtures(() => {
   const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precincts.map((precinctId): BaseBallotProps => ({
       election,
-      ballotStyleId: ballotStyle.id,
+      ballotStyle,
       precinctId,
       ballotType: BallotType.Precinct,
       ballotMode: 'test',
@@ -1440,9 +1445,7 @@ export const msGeneralElectionFixtures = lazyFixtures(() => {
   );
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const blankBallotProps = allBallotProps[0]!;
-  const ballotStyle = assertDefined(
-    getBallotStyle({ election, ballotStyleId: blankBallotProps.ballotStyleId })
-  );
+  const { ballotStyle } = blankBallotProps;
   const contests = getContests({ election, ballotStyle });
   const { votes } = createTestVotes(contests);
 
@@ -1462,6 +1465,7 @@ export const msGeneralElectionFixtures = lazyFixtures(() => {
           rendererPool,
           msBallotTemplate,
           allBallotProps,
+          (bs) => bs.orderedCandidatesByContest,
           serializationOptions,
           DEFAULT_SYSTEM_SETTINGS,
           resolveScratchDir(scratchDir)
@@ -1525,7 +1529,7 @@ export const miClosedPrimaryElectionFixtures = lazyFixtures(() => {
   const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precincts.map((precinctId): BaseBallotProps => ({
       election,
-      ballotStyleId: ballotStyle.id,
+      ballotStyle,
       precinctId,
       ballotType: BallotType.Precinct,
       ballotMode: 'test',
@@ -1570,6 +1574,7 @@ export const miClosedPrimaryElectionFixtures = lazyFixtures(() => {
           rendererPool,
           miBallotTemplate,
           allBallotProps,
+          (bs) => bs.orderedCandidatesByContest,
           serializationOptions,
           DEFAULT_SYSTEM_SETTINGS,
           resolveScratchDir(scratchDir)
@@ -1583,7 +1588,7 @@ export const miClosedPrimaryElectionFixtures = lazyFixtures(() => {
             .zip(allBallotProps)
             .find(
               ([, props]) =>
-                props.ballotStyleId === spec.ballotStyleId &&
+                props.ballotStyle.id === spec.ballotStyleId &&
                 props.precinctId === spec.precinctId
             )
         );
@@ -1640,7 +1645,7 @@ export const miCombinedBallotPrimaryElectionFixtures = lazyFixtures(() => {
   const allBallotProps = election.ballotStyles.flatMap((bs) =>
     bs.precincts.map((pid): BaseBallotProps => ({
       election,
-      ballotStyleId: bs.id,
+      ballotStyle: bs,
       precinctId: pid,
       ballotType: BallotType.Precinct,
       ballotMode: 'test',
@@ -1669,6 +1674,7 @@ export const miCombinedBallotPrimaryElectionFixtures = lazyFixtures(() => {
           rendererPool,
           miBallotTemplate,
           allBallotProps,
+          (bs) => bs.orderedCandidatesByContest,
           serializationOptions,
           DEFAULT_SYSTEM_SETTINGS,
           resolveScratchDir(scratchDir)
@@ -1679,7 +1685,7 @@ export const miCombinedBallotPrimaryElectionFixtures = lazyFixtures(() => {
           .zip(allBallotProps)
           .find(
             ([, props]) =>
-              props.ballotStyleId === ballotStyle.id &&
+              props.ballotStyle.id === ballotStyle.id &&
               props.precinctId === precinctId
           )
       );
@@ -1719,7 +1725,7 @@ export const miGeneralElectionFixtures = lazyFixtures(() => {
   const allBallotProps = election.ballotStyles.flatMap((bs) =>
     bs.precincts.map((pid): BaseBallotProps => ({
       election,
-      ballotStyleId: bs.id,
+      ballotStyle: bs,
       precinctId: pid,
       ballotType: BallotType.Precinct,
       ballotMode: 'test',
@@ -1783,6 +1789,7 @@ export const miGeneralElectionFixtures = lazyFixtures(() => {
           rendererPool,
           miBallotTemplate,
           allBallotProps,
+          (bs) => bs.orderedCandidatesByContest,
           serializationOptions,
           DEFAULT_SYSTEM_SETTINGS,
           resolveScratchDir(scratchDir)
@@ -1793,7 +1800,7 @@ export const miGeneralElectionFixtures = lazyFixtures(() => {
           .zip(allBallotProps)
           .find(
             ([, props]) =>
-              props.ballotStyleId === ballotStyle.id &&
+              props.ballotStyle.id === ballotStyle.id &&
               props.precinctId === precinctId
           )
       );

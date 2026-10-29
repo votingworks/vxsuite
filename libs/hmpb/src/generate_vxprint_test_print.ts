@@ -1,4 +1,4 @@
-import { DateWithoutTime } from '@votingworks/basics';
+import { DateWithoutTime, find } from '@votingworks/basics';
 import {
   type BallotStyleId,
   BallotType,
@@ -6,6 +6,7 @@ import {
   type DistrictId,
   type Election,
   HmpbBallotPaperSize,
+  NO_CANDIDATE_ORDERINGS,
   type PrecinctId,
 } from '@votingworks/types';
 import { writeFile } from 'node:fs/promises';
@@ -113,6 +114,7 @@ export async function main(): Promise<number> {
 
   const resolvedOutputPath = resolve(outputPath);
   const election = makeElection();
+  const { ballotStyles } = election;
 
   process.stdout.write('Creating renderer...\n');
   const renderer = await createPlaywrightRenderer();
@@ -125,9 +127,10 @@ export async function main(): Promise<number> {
     const result = await renderBallotTemplate(
       renderer,
       ballotTemplates.VxDefaultBallot,
+      NO_CANDIDATE_ORDERINGS,
       {
         election,
-        ballotStyleId: BALLOT_STYLE_ID,
+        ballotStyle: find(ballotStyles, (b) => b.id === BALLOT_STYLE_ID),
         precinctId: PRECINCT_ID,
         ballotType: BallotType.Precinct,
         ballotMode: 'test' as const,
