@@ -28,7 +28,7 @@ export function PrintPage(): JSX.Element {
 
   const printJobStatusQuery = getPrintJobStatus.useQuery(printJobId);
 
-  function print() {
+  React.useEffect(() => {
     assert(ballotStyleId !== undefined);
     assert(precinctId !== undefined);
     void printBallotMutation
@@ -39,7 +39,8 @@ export function PrintPage(): JSX.Element {
         votes,
       })
       .then(setPrintJobId);
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const printOutcome =
     printJobId === undefined
@@ -63,7 +64,7 @@ export function PrintPage(): JSX.Element {
 
   return (
     <React.Fragment>
-      <MarkFlowPrintPage print={print} />
+      <MarkFlowPrintPage />
       {failed && (
         <Modal
           title={appStrings.titleBmdBallotNotPrinted()}

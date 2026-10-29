@@ -43,7 +43,6 @@ export * from './hooks/use_current_theme.js';
 export * from './hooks/use_headphones_plugged_in.js';
 export * from './hooks/use_key_press_tracking.js';
 export * from './hooks/use_language_controls.js';
-export * from './hooks/use_lock.js';
 export * from './hooks/use_now.js';
 export * from './hooks/use_pin_entry.js';
 export * from './hooks/use_polling_query.js';

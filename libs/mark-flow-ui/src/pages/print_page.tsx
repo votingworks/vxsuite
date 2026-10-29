@@ -1,5 +1,3 @@
-import { useEffect } from 'react';
-
 import {
   H1,
   Main,
@@ -10,18 +8,7 @@ import {
   ReadOnLoad,
 } from '@votingworks/ui';
 
-export const printingMessageTimeoutSeconds = 5;
-
-export interface PrintPageProps {
-  print: () => void;
-}
-
-export function PrintPage({ print }: PrintPageProps): JSX.Element {
-  useEffect(() => {
-    print();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+export function PrintPage(): JSX.Element {
   return (
     <Screen>
       <Main centerChild padded>
