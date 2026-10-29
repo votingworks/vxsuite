@@ -5,7 +5,7 @@ import {
   deepEqual,
   ok,
 } from '@votingworks/basics';
-import type { Contest } from '@votingworks/types';
+import type { Contest, OptionalCandidateOrderings } from '@votingworks/types';
 import type { BaseStylesProps } from './base_styles.js';
 import type { Renderer, RenderDocument, RenderScratchpad } from './renderer.js';
 import {
@@ -65,7 +65,10 @@ export type ContentComponent<P> = (
 export interface BallotPageTemplate<P extends object> {
   stylesComponent: StylesComponent<P>;
   frameComponent: FrameComponent<P>;
-  contestsForBallot: (props: P) => readonly Contest[];
+  contestsForBallot: (
+    candidateOrderings: OptionalCandidateOrderings,
+    props: P
+  ) => readonly Contest[];
   contentComponent: ContentComponent<P>;
   isAllBubbleBallot?: boolean;
 }
@@ -84,6 +87,7 @@ export interface BallotPageTemplate<P extends object> {
  */
 export async function paginateBallotContent<P extends object>(
   pageTemplate: BallotPageTemplate<P>,
+  candidateOrderings: OptionalCandidateOrderings,
   props: P,
   scratchpad: RenderScratchpad
 ): Promise<Result<JSX.Element[], BallotLayoutError>> {
@@ -117,7 +121,10 @@ export async function paginateBallotContent<P extends object>(
   }
 
   const pages: PaginatedContent[] = [];
-  let contestsToPaginate = pageTemplate.contestsForBallot(props);
+  let contestsToPaginate = pageTemplate.contestsForBallot(
+    candidateOrderings,
+    props
+  );
   assert(contestsToPaginate.length > 0, 'No contests assigned to this ballot');
 
   do {
@@ -265,12 +272,18 @@ export async function measureTimingMarkGrid(
 export async function renderBallotTemplate<P extends object>(
   renderer: Renderer,
   template: BallotPageTemplate<P>,
+  candidateOrderings: OptionalCandidateOrderings,
   props: P & BaseStylesProps
 ): Promise<Result<RenderDocument, BallotLayoutError>> {
   const scratchpad = await renderer.createScratchpad(
     template.stylesComponent(props)
   );
-  const pages = await paginateBallotContent(template, props, scratchpad);
+  const pages = await paginateBallotContent(
+    template,
+    candidateOrderings,
+    props,
+    scratchpad
+  );
   if (pages.isErr()) {
     return pages;
   }

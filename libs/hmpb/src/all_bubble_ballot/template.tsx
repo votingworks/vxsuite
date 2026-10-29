@@ -121,7 +121,7 @@ export function allBubbleBallotTemplate(
   return {
     stylesComponent: BaseStyles,
     frameComponent: BallotPageFrame,
-    contestsForBallot: (props) => props.election.contests,
+    contestsForBallot: (_, props) => props.election.contests,
     contentComponent: BallotPageContent,
     isAllBubbleBallot: true,
   };

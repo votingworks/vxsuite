@@ -1,8 +1,8 @@
-import React from 'react';
 import {
   assert,
   assertDefined,
   err,
+  find,
   iter,
   ok,
   range,
@@ -14,7 +14,6 @@ import {
   type Contest as ContestStruct,
   type BallotMode,
   type BallotStyle,
-  type BallotStyleId,
   BallotType,
   type BaseBallotProps,
   type Candidate,
@@ -29,11 +28,7 @@ import {
   type PrecinctId,
   type YesNoContest,
   ballotPaperDimensions,
-  getBallotStyle,
-  getPartyForBallotStyle,
   hasSplits,
-  getContests,
-  getOrderedCandidatesForContestInBallotStyle,
   straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import {
@@ -81,6 +76,7 @@ import { layOutInColumns } from '../layout_in_columns.js';
 import { Watermark } from './watermark.js';
 import { ArrowRightCircle } from '../svg_assets.js';
 import { BaseStyles } from '../base_styles.js';
+import * as defaults from './defaults.js';
 
 // Maps the number of candidates in a contest to the index at which to rotate
 // the candidates. These indexes are randomly selected by the state every 2
@@ -259,7 +255,7 @@ export function getCandidateOrderingSetsForNhBallot({
 function Header({
   election,
   precinctId,
-  ballotStyleId,
+  ballotStyle,
   ballotType,
   ballotMode,
 
@@ -270,7 +266,7 @@ function Header({
 }: {
   election: Election;
   precinctId: PrecinctId;
-  ballotStyleId: BallotStyleId;
+  ballotStyle: BallotStyle;
   ballotType: BallotType;
   ballotMode: BallotMode;
 } & NhPrecinctSplitOptions) {
@@ -296,7 +292,7 @@ function Header({
   const party =
     // @coverage-defer
     election.type === 'primary'
-      ? assertDefined(getPartyForBallotStyle({ election, ballotStyleId }))
+      ? find(election.parties, (p) => p.id === ballotStyle.partyId)
       : undefined;
 
   const showPrecinctName = election.precincts.length > 1;
@@ -352,7 +348,7 @@ function Header({
               <PrecinctOrSplitName
                 election={election}
                 precinctId={precinctId}
-                ballotStyleId={ballotStyleId}
+                ballotStyle={ballotStyle}
               />
             )}
           </div>
@@ -388,7 +384,7 @@ function Header({
 // Almost identical to vx_default_ballot_template BallotPageFrame except additional props are passed to Header.
 function BallotPageFrame({
   election,
-  ballotStyleId,
+  ballotStyle,
   compact,
   precinctId,
   ballotType,
@@ -416,9 +412,6 @@ function BallotPageFrame({
   }
 
   const pageDimensions = ballotPaperDimensions(election.ballotLayout.paperSize);
-  const ballotStyle = assertDefined(
-    getBallotStyle({ election, ballotStyleId })
-  );
   const languageCode = primaryLanguageCode(ballotStyle);
   // There are a number of places in the design and implementation of this
   // template that haven't yet been extended to support translations and
@@ -459,7 +452,7 @@ function BallotPageFrame({
                 <Header
                   election={election}
                   precinctId={precinctId}
-                  ballotStyleId={ballotStyleId}
+                  ballotStyle={ballotStyle}
                   ballotType={ballotType}
                   ballotMode={ballotMode}
                   electionTitleOverride={electionTitleOverride}
@@ -482,7 +475,7 @@ function BallotPageFrame({
             </div>
             <Footer
               election={election}
-              ballotStyleId={ballotStyleId}
+              ballotStyle={ballotStyle}
               precinctId={precinctId}
               pageNumber={pageNumber}
               totalPages={totalPages}
@@ -499,17 +492,11 @@ function CandidateContest({
   election,
   contest,
   compact,
-  ballotStyle,
 }: {
   election: Election;
   contest: CandidateContestStruct;
   compact?: boolean;
-  ballotStyle: BallotStyle;
 }) {
-  const candidates = getOrderedCandidatesForContestInBallotStyle({
-    contest,
-    ballotStyle,
-  });
   return (
     <Box
       style={{
@@ -533,7 +520,7 @@ function CandidateContest({
         )}
       </ContestHeader>
       <ul>
-        {candidates.map((candidate, i) => {
+        {contest.candidates.map((candidate, i) => {
           const partyText =
             // @coverage-defer
             election.type === 'primary' ? undefined : (
@@ -739,12 +726,10 @@ function Contest({
   compact,
   contest,
   election,
-  ballotStyle,
 }: {
   compact?: boolean;
   contest: ContestStruct;
   election: Election;
-  ballotStyle: BallotStyle;
   precinctId: PrecinctId;
 }) {
   // @coverage-exclude
@@ -758,7 +743,6 @@ function Contest({
           compact={compact}
           election={election}
           contest={contest}
-          ballotStyle={ballotStyle}
         />
       );
     case 'yesno':
@@ -867,14 +851,6 @@ async function splitLongBallotMeasureAcrossPages(
   });
 }
 
-function contestsForBallot(props: NhBallotProps): readonly ContestStruct[] {
-  const { election, ballotStyleId } = props;
-  const ballotStyle = assertDefined(
-    getBallotStyle({ election, ballotStyleId })
-  );
-  return getContests({ election, ballotStyle });
-}
-
 async function BallotPageContent(
   props: NhBallotProps & { dimensions: PixelDimensions },
   contests: readonly ContestStruct[],
@@ -887,10 +863,8 @@ async function BallotPageContent(
     });
   }
 
-  const { compact, election, ballotStyleId, dimensions } = props;
-  const ballotStyle = assertDefined(
-    getBallotStyle({ election, ballotStyleId })
-  );
+  const { compact, election, ballotStyle, dimensions } = props;
+
   // For now, just one section for candidate contests, one for ballot measures.
   // TODO support arbitrarily defined sections
   const contestSections = iter(contests)
@@ -914,7 +888,6 @@ async function BallotPageContent(
         contest={contest}
         election={election}
         precinctId={props.precinctId}
-        ballotStyle={ballotStyle}
       />
     ));
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -999,7 +972,6 @@ async function BallotPageContent(
         election,
         compact,
         precinctId: props.precinctId,
-        ballotStyle,
       },
       ballotStyle,
       {
@@ -1063,6 +1035,6 @@ export type NhBallotProps = BaseBallotProps & NhPrecinctSplitOptions;
 export const nhBallotTemplate: BallotPageTemplate<NhBallotProps> = {
   stylesComponent: BaseStyles,
   frameComponent: BallotPageFrame,
-  contestsForBallot,
+  contestsForBallot: defaults.contestsForBallot,
   contentComponent: BallotPageContent,
 };

@@ -1,5 +1,5 @@
-import { assertDefined, ok, throwIllegalValue } from '@votingworks/basics';
-import { type Contest, getBallotStyle, getContests } from '@votingworks/types';
+import { ok, throwIllegalValue } from '@votingworks/basics';
+import type { Contest, OptionalCandidateOrderings } from '@votingworks/types';
 import type {
   BallotPageTemplate,
   ContentComponent,
@@ -13,6 +13,7 @@ import {
   type NhStateBallotProps,
   type NhStateBallotVariant,
 } from './nh_state_ballot_components.js';
+import * as defaults from './defaults.js';
 
 const BallotPageFrame: FrameComponent<NhStateBallotProps> = (props) => {
   switch (props.election.type) {
@@ -25,16 +26,15 @@ const BallotPageFrame: FrameComponent<NhStateBallotProps> = (props) => {
   }
 };
 
-function contestsForBallot(props: NhStateBallotProps): readonly Contest[] {
-  const { election, ballotStyleId } = props;
-  const ballotStyle = assertDefined(
-    getBallotStyle({ election, ballotStyleId })
-  );
-  return getContests({ election, ballotStyle }).filter((contest) =>
-    props.variant === 'federalOfficeOnly'
-      ? isFederalOfficeContest(contest)
-      : true
-  );
+function contestsForBallot(
+  candidateOrderings: OptionalCandidateOrderings,
+  props: NhStateBallotProps
+): readonly Contest[] {
+  const contests = defaults.contestsForBallot(candidateOrderings, props);
+
+  return props.variant === 'federalOfficeOnly'
+    ? contests.filter(isFederalOfficeContest)
+    : contests;
 }
 
 const BallotPageContent: ContentComponent<NhStateBallotProps> = async (

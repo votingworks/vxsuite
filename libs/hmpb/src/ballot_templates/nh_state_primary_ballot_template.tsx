@@ -1,6 +1,7 @@
 import {
   assertDefined,
   err,
+  find,
   iter,
   ok,
   range,
@@ -12,16 +13,12 @@ import {
   type Contest as ContestStruct,
   type BallotMode,
   type BallotType,
-  type BallotStyle,
   type CandidateContest as CandidateContestStruct,
   type Election,
   type Party,
   type Precinct,
   type YesNoContest,
   ballotPaperDimensions,
-  getBallotStyle,
-  getOrderedCandidatesForContestInBallotStyle,
-  getPartyForBallotStyle,
   getPrecinctById,
   straightPartyNotYetImplemented,
 } from '@votingworks/types';
@@ -275,7 +272,7 @@ function Header({
 
 export function BallotPageFrame({
   election,
-  ballotStyleId,
+  ballotStyle,
   precinctId,
   ballotType,
   ballotMode,
@@ -296,12 +293,7 @@ export function BallotPageFrame({
   }
 
   const pageDimensions = ballotPaperDimensions(election.ballotLayout.paperSize);
-  const ballotStyle = assertDefined(
-    getBallotStyle({ election, ballotStyleId })
-  );
-  const party = assertDefined(
-    getPartyForBallotStyle({ election, ballotStyleId })
-  );
+  const party = find(election.parties, (p) => p.id === ballotStyle.partyId);
   const colorTint = colorTintForParty(party);
   const precinct = assertDefined(getPrecinctById({ election, precinctId }));
   return ok(
@@ -405,11 +397,9 @@ const ContestTitle = styled.h2`
 function CandidateContest({
   contest,
   colorTint,
-  ballotStyle,
 }: {
   contest: CandidateContestStruct;
   colorTint: ColorTint;
-  ballotStyle: BallotStyle;
 }) {
   return (
     <Box
@@ -433,10 +423,7 @@ function CandidateContest({
           borderBottom: '1px solid black',
         }}
       >
-        {getOrderedCandidatesForContestInBallotStyle({
-          contest,
-          ballotStyle,
-        }).map((candidate, i) => {
+        {contest.candidates.map((candidate, i) => {
           const optionInfo: OptionInfo = {
             type: 'option',
             contestId: contest.id,
@@ -592,12 +579,10 @@ function BallotMeasureContest({
 function Contest({
   contest,
   colorTint,
-  ballotStyle,
 }: {
   contest: ContestStruct;
   election: Election;
   colorTint: ColorTint;
-  ballotStyle: BallotStyle;
 }) {
   // @coverage-exclude
   if (contest.type === 'straight-party') {
@@ -605,13 +590,7 @@ function Contest({
   }
   switch (contest.type) {
     case 'candidate':
-      return (
-        <CandidateContest
-          contest={contest}
-          colorTint={colorTint}
-          ballotStyle={ballotStyle}
-        />
-      );
+      return <CandidateContest contest={contest} colorTint={colorTint} />;
     case 'yesno':
       return <BallotMeasureContest contest={contest} colorTint={colorTint} />;
     default:
@@ -631,13 +610,8 @@ export async function BallotPageContent(
     });
   }
 
-  const { election, ballotStyleId, dimensions } = props;
-  const ballotStyle = assertDefined(
-    getBallotStyle({ election, ballotStyleId })
-  );
-  const party = assertDefined(
-    getPartyForBallotStyle({ election, ballotStyleId })
-  );
+  const { election, ballotStyle, dimensions } = props;
+  const party = find(election.parties, (p) => p.id === ballotStyle.partyId);
   const colorTint = colorTintForParty(party);
   // One section for candidate contests, one for ballot measures
   const contestSections = iter(contests)
@@ -658,7 +632,6 @@ export async function BallotPageContent(
         contest={contest}
         election={election}
         colorTint={colorTint}
-        ballotStyle={ballotStyle}
       />
     ));
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

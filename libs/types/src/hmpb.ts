@@ -1,7 +1,7 @@
 import { assert, assertDefined } from '@votingworks/basics';
 import { z } from 'zod/v4';
 import {
-  type BallotStyleId,
+  type BallotStyle,
   type BallotType,
   type ContestId,
   type ContestOption,
@@ -34,7 +34,7 @@ export type BallotMode = (typeof BALLOT_MODES)[number];
  */
 export interface BaseBallotProps {
   election: Election;
-  ballotStyleId: BallotStyleId;
+  ballotStyle: BallotStyle;
   precinctId: PrecinctId;
   ballotType: BallotType;
   ballotMode: BallotMode;
