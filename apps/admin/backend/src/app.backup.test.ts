@@ -46,7 +46,7 @@ let env: ReturnType<typeof buildTestEnvironment>;
 
 beforeEach(() => {
   mockDiskSpace();
-  env = buildTestEnvironment();
+  env = buildTestEnvironment({ fileStore: true });
   mockSystemAdministratorAuth(env.auth);
 });
 
