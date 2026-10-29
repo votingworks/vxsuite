@@ -2,15 +2,21 @@ import { HmpbBallotPaperSize } from '@votingworks/types';
 import { join } from 'node:path';
 import { stderr } from 'node:process';
 import { afterAll, beforeAll, expect, test, vi } from 'vitest';
-import { asyncDisposable } from '@votingworks/test-utils';
 import { type Browser, chromium } from 'playwright';
+import { createServer, type ViteDevServer } from 'vite';
 import { DONE_MARKER_ID } from './preview/browser_preview.js';
 
 vi.setConfig({ testTimeout: 20_000 });
 
 let browser: Browser;
+let vite: ViteDevServer;
 
 beforeAll(async () => {
+  vite = await createServer({
+    root: join(import.meta.dirname, '../src/preview'),
+    configFile: join(import.meta.dirname, '../vite.config.ts'),
+  });
+  await vite.listen();
   browser = await chromium.launch({
     // Font hinting (https://fonts.google.com/knowledge/glossary/hinting)
     // is on by default, but causes fonts to render more awkwardly at higher
@@ -21,6 +27,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await browser?.close();
+  await vite?.close();
 });
 
 test.each([
@@ -35,17 +42,6 @@ test.each([
     },
   },
 ])('preview: $name', async ({ searchParams }) => {
-  // Start the Vite server.
-  const { createServer } = await import('vite');
-  await using vite = asyncDisposable(
-    await createServer({
-      root: join(import.meta.dirname, '../src/preview'),
-      configFile: join(import.meta.dirname, '../vite.config.ts'),
-    }),
-    (s) => s.close()
-  );
-
-  await vite.listen();
   const { port } = vite.config.server;
 
   const page = await browser.newPage({
