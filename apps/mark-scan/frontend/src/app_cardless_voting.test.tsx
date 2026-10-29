@@ -187,9 +187,10 @@ test('Cardless Voting Flow', async () => {
       president: [presidentContest.candidates[0]!],
     },
   });
-  apiMock.expectGetElectionState({
-    ballotsPrintedCount: 1,
-  });
+  apiMock.expectGetElectionState(
+    { ballotsPrintedCount: 1 },
+    { repeated: true }
+  );
   fireEvent.click(screen.getByText(/Print My ballot/i));
   screen.getByText(/Printing Your Ballot/i);
 

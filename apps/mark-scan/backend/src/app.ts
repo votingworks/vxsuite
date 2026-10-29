@@ -267,13 +267,20 @@ export function buildApi(
 
     async printBallot(input: PrintBallotProps): Promise<void> {
       assert(stateMachine);
-      store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
-
       const pdfData = await renderBallot({
         store,
         ...input,
       });
-      stateMachine.printBallot(pdfData);
+      if (!stateMachine.printBallot(pdfData)) {
+        await logger.logAsCurrentRole(LogEventId.BallotPrintRequest, {
+          message:
+            'Ignoring ballot print request while not waiting for ballot data',
+          ballotStyleId: input.ballotStyleId,
+          precinctId: input.precinctId,
+        });
+        return;
+      }
+      store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
     },
 
     getInterpretation(): PageInterpretation | null {

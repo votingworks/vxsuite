@@ -235,7 +235,7 @@ export function createApiMock() {
     },
 
     expectPrintBallot(props: PrintBallotProps): void {
-      mockApiClient.printBallot.expectCallWith(props).resolves();
+      mockApiClient.printBallot.expectRepeatedCallsWith(props).resolves();
     },
 
     expectGetInterpretation(
@@ -323,16 +323,20 @@ export function createApiMock() {
       mockApiClient.setPatDeviceIsCalibrated.expectCallWith().resolves();
     },
 
-    expectGetElectionState(electionState?: Partial<ElectionState>) {
+    expectGetElectionState(
+      electionState?: Partial<ElectionState>,
+      { repeated = false } = {}
+    ) {
       electionStateRef.current = electionState
         ? {
             ...electionStateRef.current,
             ...electionState,
           }
         : initialElectionState;
-      mockApiClient.getElectionState
-        .expectCallWith()
-        .resolves(electionStateRef.current);
+      (repeated
+        ? mockApiClient.getElectionState.expectRepeatedCallsWith()
+        : mockApiClient.getElectionState.expectCallWith()
+      ).resolves(electionStateRef.current);
     },
 
     expectSetPollsState(pollsState: PollsState) {
