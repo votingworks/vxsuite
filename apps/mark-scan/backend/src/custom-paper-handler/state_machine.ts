@@ -203,7 +203,8 @@ export interface PaperHandlerStateMachine {
   getRawDeviceStatus(): Promise<PaperHandlerStatus>;
   getSimpleStatus(): SimpleServerStatus;
   setAcceptingPaper(paperTypes: AcceptedPaperType[]): void;
-  printBallot(pdfData: Uint8Array): void;
+  /** Returns whether the machine was waiting for ballot data to print. */
+  printBallot(pdfData: Uint8Array): boolean;
   getInterpretation(): Optional<SheetOf<PageInterpretation>>;
   validateBallot(): void;
   invalidateBallot(): void;
@@ -1693,11 +1694,13 @@ export async function getPaperHandlerStateMachine({
       });
     },
 
-    printBallot(pdfData: Uint8Array): void {
-      machineService.send({
-        type: 'VOTER_INITIATED_PRINT',
-        pdfData,
-      });
+    printBallot(pdfData: Uint8Array): boolean {
+      return (
+        machineService.send({
+          type: 'VOTER_INITIATED_PRINT',
+          pdfData,
+        }).changed === true
+      );
     },
 
     getInterpretation(): Optional<SheetOf<PageInterpretation>> {

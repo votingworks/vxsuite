@@ -148,7 +148,10 @@ test('Single Seat Contest with Write In', async () => {
       ],
     },
   });
-  apiMock.expectGetElectionState({ ballotsPrintedCount: 1 });
+  apiMock.expectGetElectionState(
+    { ballotsPrintedCount: 1 },
+    { repeated: true }
+  );
   fireEvent.click(screen.getByText(/Print My ballot/i));
   advanceTimers();
   screen.getByText(/Printing Your Ballot/i);

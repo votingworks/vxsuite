@@ -634,6 +634,32 @@ async function mockLoadFlow(
   await waitForStatus('waiting_for_ballot_data');
 }
 
+test('a repeat print request while printing does not count another ballot', async () => {
+  const electionDefinition = readElectionGeneralDefinition();
+  const { pollingPlace } = await configureForTestElection(electionDefinition);
+  await mockLoadFlow(apiClient, driver);
+  const printProps = {
+    precinctId: Object.keys(pollingPlace.precincts)[0]!,
+    ballotStyleId: electionDefinition.election.ballotStyles[0]!.id,
+    votes: generateMockVotes(electionDefinition.election),
+    languageCode: 'en',
+  } as const;
+
+  await Promise.all([
+    apiClient.printBallot(printProps),
+    apiClient.printBallot(printProps),
+  ]);
+
+  await expectElectionState({ ballotsPrintedCount: 1 });
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.BallotPrintRequest,
+    expect.objectContaining({
+      message:
+        'Ignoring ballot print request while not waiting for ballot data',
+    })
+  );
+});
+
 test('ballot invalidation flow', async () => {
   const invalidateBallotMock = vi
     .spyOn(stateMachine, 'invalidateBallot')

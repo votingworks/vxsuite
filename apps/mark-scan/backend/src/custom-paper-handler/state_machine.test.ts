@@ -512,8 +512,9 @@ async function executePrintBallotAndAssert(
     mockInterpretResult.promise
   );
 
-  void machine.printBallot(printData);
+  expect(machine.printBallot(printData)).toEqual(true);
   await waitForStatus('printing_ballot');
+  expect(machine.printBallot(printData)).toEqual(false);
   expect(printBallotChunks).toHaveBeenCalledTimes(1);
 
   await waitForStatus('scanning');
