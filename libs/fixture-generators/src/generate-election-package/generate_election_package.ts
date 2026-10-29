@@ -83,6 +83,7 @@ export async function generateElectionPackage(
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       allBaseBallotProps(electionWithBallotStrings),
+      (bs) => bs.orderedCandidatesByContest,
       { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
       DEFAULT_SYSTEM_SETTINGS,
       { path: tmp.dirSync({ unsafeCleanup: true }).name }

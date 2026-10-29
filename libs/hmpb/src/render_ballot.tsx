@@ -37,6 +37,8 @@ import {
   type SystemSettings,
   type BallotPositions,
   type BallotCandidateOrderings,
+  type GetCandidateOrderingsFn,
+  type OptionalCandidateOrderings,
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
@@ -312,7 +314,7 @@ export async function renderBallotPdfWithMetadataQrCode(
       electionDefinition.election,
       {
         ballotHash: electionDefinition.ballotHash,
-        ballotStyleId: props.ballotStyleId,
+        ballotStyleId: props.ballotStyle.id,
         precinctId: props.precinctId,
         ballotType: props.ballotType,
         isTestMode: props.ballotMode !== 'official',
@@ -332,9 +334,15 @@ export async function renderBallotPdfWithMetadataQrCode(
 export async function renderBallotPreviewToPdf<P extends object>(
   renderer: Renderer,
   template: BallotPageTemplate<P>,
+  candidateOrderings: OptionalCandidateOrderings,
   props: P
 ): Promise<Result<Uint8Array, BallotLayoutError>> {
-  const result = await renderBallotTemplate(renderer, template, props);
+  const result = await renderBallotTemplate(
+    renderer,
+    template,
+    candidateOrderings,
+    props
+  );
   // @coverage-defer
   if (result.isErr()) {
     return result;
@@ -435,6 +443,7 @@ export async function layOutBallotsAndCreateElectionDefinition<
   rendererPool: RendererPool,
   template: BallotPageTemplate<P>,
   ballotProps: P[],
+  getCandidateOrderings: GetCandidateOrderingsFn,
   serializationOptions: ElectionSerializationOptions,
   systemSettings: SystemSettings,
   scratchDir: ScratchDir,
@@ -449,12 +458,14 @@ export async function layOutBallotsAndCreateElectionDefinition<
     rendererPool,
     template,
     ballotProps,
+    getCandidateOrderings,
     scratchDir,
     emitProgress
   );
 
   const electionRes = await createElectionDefinition({
     ballotPositions: layout.ballotPositions,
+    getCandidateOrderings,
     baseElection,
     scratchDir,
     serializationOptions,
@@ -480,6 +491,7 @@ export async function layOutBallots<P extends BaseBallotProps>(
   rendererPool: RendererPool,
   template: BallotPageTemplate<P>,
   ballotProps: P[],
+  getCandidateOrderings: GetCandidateOrderingsFn,
   scratchDir: ScratchDir,
   emitProgress?: (label: string, progress: number, total: number) => void
 ): Promise<{
@@ -494,13 +506,18 @@ export async function layOutBallots<P extends BaseBallotProps>(
       // We currently only need to return errors to the user in ballot preview -
       // we assume the ballot was proofed by the time this function is called.
       const document = (
-        await renderBallotTemplate(renderer, template, props)
+        await renderBallotTemplate(
+          renderer,
+          template,
+          getCandidateOrderings(props.ballotStyle),
+          props
+        )
       ).unsafeUnwrap();
 
       if (isScannedBallotStyle(props)) {
         const positions = await extractBallotPositions(
           document,
-          props.ballotStyleId,
+          props.ballotStyle.id,
           template.isAllBubbleBallot
         );
         recordBallotPositions(positions);
@@ -565,6 +582,7 @@ export async function layOutBallots<P extends BaseBallotProps>(
 export async function createElectionDefinition<P extends BaseBallotProps>(p: {
   ballotPositions: Map<BallotStyleId, SheetPositions[]>;
   baseElection: Election;
+  getCandidateOrderings: GetCandidateOrderingsFn;
   scratchDir: ScratchDir;
   serializationOptions: ElectionSerializationOptions;
   systemSettings: SystemSettings;
@@ -587,21 +605,21 @@ export async function createElectionDefinition<P extends BaseBallotProps>(p: {
       if (p.template.isAllBubbleBallot) return contest;
       if (contest.type !== 'candidate') return contest;
       const ballotStylesWithContest = p.baseElection.ballotStyles.filter(
-        ({ orderedCandidatesByContest: orderedDisplayCandidatesByContest }) =>
-          orderedDisplayCandidatesByContest &&
-          contest.id in orderedDisplayCandidatesByContest
+        (bs) => {
+          const orderings = p.getCandidateOrderings(bs);
+          return orderings && contest.id in orderings;
+        }
       );
       if (ballotStylesWithContest.length === 0) return contest;
       const [firstBallotStyle, ...restBallotStyles] = ballotStylesWithContest;
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const firstLayoutOrder = assertDefined(
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        firstBallotStyle!.orderedCandidatesByContest
-      )[contest.id]!;
+        p.getCandidateOrderings(firstBallotStyle!)?.[contest.id]
+      );
       if (
         restBallotStyles.every((ballotStyle) =>
           deepEqual(
-            assertDefined(ballotStyle.orderedCandidatesByContest)[contest.id],
+            p.getCandidateOrderings(ballotStyle)?.[contest.id],
             firstLayoutOrder
           )
         )
@@ -622,8 +640,9 @@ export async function createElectionDefinition<P extends BaseBallotProps>(p: {
 
   // [TODO] Replace with a software version check when setting is on by default.
   if (!isSplitElectionDef) {
-    const electionDefinition = electionWithBallotPositions(
+    const electionDefinition = electionWithBallotMeta(
       { ...p.baseElection, contests },
+      p.getCandidateOrderings,
       p.ballotPositions,
       p.serializationOptions
     );
@@ -653,7 +672,7 @@ export async function createElectionDefinition<P extends BaseBallotProps>(p: {
 
   function* candidateOrderingLines() {
     for (const b of p.baseElection.ballotStyles) {
-      const orderings = b.orderedCandidatesByContest;
+      const orderings = p.getCandidateOrderings(b);
       if (!orderings) continue;
 
       const data: BallotCandidateOrderings = { ballotStyleId: b.id, orderings };
@@ -684,20 +703,20 @@ export async function createElectionDefinition<P extends BaseBallotProps>(p: {
   };
 }
 
-function electionWithBallotPositions(
+function electionWithBallotMeta(
   baseElection: Election,
+  getCandidateOrderings: GetCandidateOrderingsFn,
   positionsByBallotStyle: Map<BallotStyleId, SheetPositions[]>,
   opts: ElectionSerializationOptions
 ): ElectionDefinition {
-  const ballotStyles = baseElection.ballotStyles.map((ballotStyle) => {
-    const ballotPositions = positionsByBallotStyle.get(ballotStyle.id);
+  const ballotStyles = baseElection.ballotStyles.map((bs) => ({
+    ...bs,
+    ballotPositions: positionsByBallotStyle.get(bs.id),
+    orderedCandidatesByContest: getCandidateOrderings(bs) ?? undefined,
+  }));
 
-    // @coverage-defer
-    return ballotPositions ? { ...ballotStyle, ballotPositions } : ballotStyle;
-  });
-
-  const withPositions: Election = { ...baseElection, ballotStyles };
-  const electionData = serializeElection(withPositions, opts);
+  const electionWithMeta: Election = { ...baseElection, ballotStyles };
+  const electionData = serializeElection(electionWithMeta, opts);
   const ballotHash = createHash('sha256').update(electionData).digest('hex');
   const election = safeParseElectionAnyVersion(electionData).unsafeUnwrap();
 
@@ -711,6 +730,7 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
   rendererPool: RendererPool,
   template: BallotPageTemplate<P>,
   ballotProps: P[],
+  getCandidateOrderings: GetCandidateOrderingsFn,
   electionSerializationOptions: ElectionSerializationOptions,
   systemSettings: SystemSettings,
   scratchDir: ScratchDir,
@@ -725,6 +745,7 @@ export async function renderAllBallotPdfsAndCreateElectionDefinition<
     rendererPool,
     template,
     ballotProps,
+    getCandidateOrderings,
     electionSerializationOptions,
     systemSettings,
     scratchDir,
@@ -779,9 +800,9 @@ export function allBaseBallotProps(election: Election): BaseBallotProps[] {
   return election.ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precincts.flatMap((precinctId) =>
       ballotTypes.flatMap((ballotType) =>
-        BALLOT_MODES.map((ballotMode) => ({
+        BALLOT_MODES.map((ballotMode): BaseBallotProps => ({
           election,
-          ballotStyleId: ballotStyle.id,
+          ballotStyle,
           precinctId,
           ballotType,
           ballotMode,
@@ -803,13 +824,14 @@ export async function layOutMinimalBallotsToCreateElectionDefinition<
   rendererPool: RendererPool,
   template: BallotPageTemplate<P>,
   allBallotProps: P[],
+  getCandidateOrderings: GetCandidateOrderingsFn,
   electionSerializationOptions: ElectionSerializationOptions,
   systemSettings: SystemSettings,
   scratchDir: ScratchDir
 ): Promise<ElectionDefinition> {
   const minimalBallotProps = groupBy(
     allBallotProps,
-    (props) => props.ballotStyleId
+    (props) => props.ballotStyle.id
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   ).map(([, [, props]]) => props!);
 
@@ -817,6 +839,7 @@ export async function layOutMinimalBallotsToCreateElectionDefinition<
     rendererPool,
     template,
     minimalBallotProps,
+    getCandidateOrderings,
     electionSerializationOptions,
     systemSettings,
     scratchDir

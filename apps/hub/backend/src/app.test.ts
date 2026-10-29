@@ -73,6 +73,7 @@ import {
   BallotPositionsSchema,
   BallotCandidateOrderingsSchema,
   unsafeParseJson,
+  type GetCandidateOrderingsFn,
 } from '@votingworks/types';
 import {
   ballotStyleHasPrecinctOrSplit,
@@ -108,7 +109,7 @@ import {
   layOutBallots,
   createElectionDefinition,
   renderAllBallotPdfsAndCreateElectionDefinition,
-  generateBallotStylesDeprecated,
+  generateBallotStyles,
   type ScratchDir,
 } from '@votingworks/hmpb';
 import path, { join } from 'node:path';
@@ -264,6 +265,9 @@ vi.mock(import('@votingworks/test-decks'), async (importActual) => {
 });
 
 const ANY_SCRATCH_DIR: ScratchDir = { path: expect.any(String) };
+
+const ANY_GET_CANDIDATE_ORDERINGS_FN: GetCandidateOrderingsFn =
+  expect.any(Function);
 
 const { setupApp, cleanup } = testSetupHelpers();
 
@@ -624,7 +628,7 @@ test('create/list/delete elections', async () => {
   expect(
     await apiClient.listBallotStyles({ electionId: sliElectionId })
   ).toEqual(
-    generateBallotStylesDeprecated({
+    generateBallotStyles({
       ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
       contests: election2Contests,
       electionType: sliElection.type,
@@ -633,7 +637,7 @@ test('create/list/delete elections', async () => {
       precincts: [...election2Precincts],
       ballotTemplateId: 'VxDefaultBallot',
       electionId: sliElectionId,
-    })
+    }).ballotStyles
   );
   expect(
     await apiClient.getBallotLayoutSettings({ electionId: sliElectionId })
@@ -3551,7 +3555,7 @@ test('Election package management', async () => {
     { interval: 500, retries: 3 }
   );
   const emitProgress = vi.mocked(renderAllBallotPdfsAndCreateElectionDefinition)
-    .mock.lastCall![6]!;
+    .mock.lastCall![7]!;
   emitProgress('Test progress message', 2, 10);
 
   await backendWaitFor(
@@ -3750,7 +3754,8 @@ test('Election package and ballots export', async () => {
 
   // Re-fetch ballot styles after creating the split precinct since the new
   // precinct gets assigned to an existing ballot style.
-  const ballotStyles = await apiClient.listBallotStyles({ electionId });
+  const electionRecord = await workspace.store.getElection(electionId);
+  const { ballotStyles } = electionRecord.election;
 
   // Set registered voter counts on non-split precincts before export.
   // The split precinct gets its counts set separately below since it requires
@@ -3897,9 +3902,10 @@ test('Election package and ballots export', async () => {
     // The base election's ballot styles should have been extended with ballot
     // positions. The correctness of the positions is tested by
     // libs/ballot-interpreter tests.
-    ballotStyles: expectedElection.ballotStyles.map((ballotStyle) => ({
-      ...ballotStyle,
+    ballotStyles: expectedElection.ballotStyles.map((bs) => ({
+      ...bs,
       ballotPositions: expect.any(Array),
+      orderedCandidatesByContest: electionRecord.candidateOrderings.get(bs),
     })),
   });
 
@@ -4139,7 +4145,7 @@ test('Election package and ballots export', async () => {
       ballotStyle.precincts.flatMap((precinctId) =>
         ballotCombos.map(([ballotType, ballotMode]): BaseBallotProps => ({
           election: expectedElection,
-          ballotStyleId: ballotStyle.id,
+          ballotStyle,
           precinctId,
           ballotType,
           ballotMode,
@@ -4153,6 +4159,7 @@ test('Election package and ballots export', async () => {
     expect.any(Object), // Renderer
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
+    ANY_GET_CANDIDATE_ORDERINGS_FN,
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
     await apiClient.getSystemSettings({ electionId }),
     ANY_SCRATCH_DIR,
@@ -4321,16 +4328,18 @@ test('export omits optional ballots if not enabled', async () => {
   ];
 
   const { election } = electionDefinition;
-  const expectedBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
+  const expectedBallotProps = ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precincts.flatMap((precinctId) =>
       ballotCombos.map(([ballotType, ballotMode]): BaseBallotProps => ({
         election: {
           ...election,
-          ballotStyles: election.ballotStyles.map(
-            ({ ballotPositions: _ballotPositions, ...rest }) => rest
-          ),
+          ballotStyles: election.ballotStyles.map((bs) => ({
+            ...bs,
+            ballotPositions: undefined,
+            orderedCandidatesByContest: undefined,
+          })),
         },
-        ballotStyleId: ballotStyle.id,
+        ballotStyle,
         precinctId,
         ballotType,
         ballotMode,
@@ -4344,6 +4353,7 @@ test('export omits optional ballots if not enabled', async () => {
     expect.any(Object), // Renderer
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
+    ANY_GET_CANDIDATE_ORDERINGS_FN,
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
     await apiClient.getSystemSettings({ electionId }),
     ANY_SCRATCH_DIR,
@@ -4562,9 +4572,9 @@ test('Export test decks', async () => {
     expect(await file.async('text')).toContain('%PDF');
   }
   const expectedBallotProps = ballotStyles.flatMap((ballotStyle) =>
-    ballotStyle.precincts.map((precinctId) => ({
+    ballotStyle.precincts.map((precinctId): BaseBallotProps => ({
       election: expect.objectContaining({ id: electionId }),
-      ballotStyleId: ballotStyle.id,
+      ballotStyle,
       precinctId,
       ballotType: BallotType.Precinct,
       ballotMode: 'test',
@@ -4575,6 +4585,7 @@ test('Export test decks', async () => {
     expect.any(Object), // Renderer
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
+    ANY_GET_CANDIDATE_ORDERINGS_FN,
     ANY_SCRATCH_DIR,
     expect.any(Function) // emitProgress callback
   );
@@ -4585,6 +4596,7 @@ test('Export test decks', async () => {
   expect(createElectionDefinition).toHaveBeenCalledWith({
     ballotPositions: layoutRes.value.ballotPositions,
     baseElection: expect.objectContaining({ id: electionId }),
+    getCandidateOrderings: ANY_GET_CANDIDATE_ORDERINGS_FN,
     scratchDir: ANY_SCRATCH_DIR,
     serializationOptions: { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
     systemSettings: await apiClient.getSystemSettings({ electionId }),
@@ -5070,7 +5082,7 @@ test('v4.0 elections', async () => {
   ).mock.calls;
   expect(officialBallotRenderCalls.length).toBeGreaterThan(0);
   for (const call of officialBallotRenderCalls) {
-    expect(call[3].version).toEqual('v4.0');
+    expect(call[4].version).toEqual('v4.0');
   }
 
   // Test decks aren't supported for v4.0 jurisdictions
@@ -5145,7 +5157,7 @@ test('export ballots with audit IDs', async () => {
   const ballotStyles = await apiClient.listBallotStyles({ electionId });
   const expectedBallotProps = range(1, numAuditIdBallots + 1).map(
     (i): BaseBallotProps => ({
-      ballotStyleId: ballotStyles[0]!.id,
+      ballotStyle: ballotStyles[0]!,
       precinctId: ballotStyles[0]!.precincts[0]!,
       ballotType: BallotType.Precinct,
       ballotMode: 'official',
@@ -5158,6 +5170,7 @@ test('export ballots with audit IDs', async () => {
     expect.any(Object), // Renderer
     ballotTemplates.VxDefaultBallot,
     expectedBallotProps,
+    ANY_GET_CANDIDATE_ORDERINGS_FN,
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
     {
       ...(await apiClient.getSystemSettings({ electionId })),
@@ -5327,6 +5340,7 @@ test('setBallotTemplate changes the ballot template used to render ballots', asy
     expect.any(Object), // Renderer
     ballotTemplates.NhBallot,
     expect.any(Array), // Ballot props
+    ANY_GET_CANDIDATE_ORDERINGS_FN,
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
     await apiClient.getSystemSettings({ electionId }),
     ANY_SCRATCH_DIR,
