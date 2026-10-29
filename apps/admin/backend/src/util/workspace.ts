@@ -164,17 +164,23 @@ function workspacePaths(root: string): {
 /**
  * Returns a host Workspace with ballot image storage and disk space monitoring.
  */
-export function createWorkspace(root: string, logger: BaseLogger): Workspace {
+export function createWorkspace(
+  root: string,
+  logger: BaseLogger,
+  options: { store?: Store } = {}
+): Workspace {
   const paths = workspacePaths(root);
 
   mkdirSync(paths.ballotImages, { recursive: true });
   mkdirSync(paths.electionPackages, { recursive: true });
-  const store = Store.fileStore(
-    paths.db,
-    paths.ballotImages,
-    paths.electionPackages,
-    logger
-  );
+  const store =
+    options.store ??
+    Store.fileStore(
+      paths.db,
+      paths.ballotImages,
+      paths.electionPackages,
+      logger
+    );
 
   return {
     path: paths.workspace,

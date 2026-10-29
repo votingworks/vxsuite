@@ -57,6 +57,7 @@ import {
 } from '@votingworks/backend';
 import type { Api, MachineMode, PeerApi } from '../src/index.js';
 import type { BaseStore } from '../src/types.js';
+import { Store } from '../src/store.js';
 import { createWorkspace, type Workspace } from '../src/util/workspace.js';
 import { buildApp } from '../src/app.js';
 import { buildPeerApp } from '../src/peer_app.js';
@@ -206,12 +207,18 @@ export interface TestEnvironment {
   mockPrinterHandler: MemoryPrinterHandler;
 }
 
-export function buildTestEnvironment(workspaceRoot?: string): TestEnvironment {
+export function buildTestEnvironment({
+  fileStore = false,
+}: {
+  /** Backs the store with a database file, e.g. for backups that copy it. */
+  fileStore?: boolean;
+} = {}): TestEnvironment {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
-  const resolvedWorkspaceRoot = workspaceRoot || makeTemporaryDirectory();
+  const workspaceRoot = makeTemporaryDirectory();
   const workspace = createWorkspace(
-    resolvedWorkspaceRoot,
-    mockBaseLogger({ fn: vi.fn })
+    workspaceRoot,
+    mockBaseLogger({ fn: vi.fn }),
+    fileStore ? {} : { store: Store.memoryStore(workspaceRoot) }
   );
   const logger = buildMockLogger(auth, workspace.store);
   const usbPlatform = new SimulatedUsbPlatform(makeTemporaryDirectory());
