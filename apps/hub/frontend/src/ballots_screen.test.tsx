@@ -5,7 +5,6 @@ import {
   type ElectionId,
   DEFAULT_SYSTEM_SETTINGS,
 } from '@votingworks/types';
-import type { ElectionRecord } from '@votingworks/hub-backend';
 import {
   provideApi,
   createMockApiClient,
@@ -20,6 +19,7 @@ import {
   generalElectionRecord,
   combinedBallotPrimaryElectionRecord,
   primaryElectionRecord,
+  type ElectionRecord,
 } from '../test/fixtures.js';
 import { render, screen, within } from '../test/react_testing_library.js';
 import { withRoute } from '../test/routing_helpers.js';

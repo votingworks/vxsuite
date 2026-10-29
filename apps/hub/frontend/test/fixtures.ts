@@ -1,7 +1,7 @@
 import {
+  type BallotTemplateId,
   type ElectionInfo,
   type ElectionListing,
-  type ElectionRecord,
   type Jurisdiction,
   createBlankElection,
 } from '@votingworks/hub-backend';
@@ -13,13 +13,14 @@ import {
   type Id,
   isCombinedBallotPrimary,
   LanguageCode,
+  type SystemSettings,
 } from '@votingworks/types';
 import {
   electionCombinedBallotPrimaryFixtures,
   electionPrimaryPrecinctSplitsFixtures,
   readElectionGeneral,
 } from '@votingworks/fixtures';
-import { generateBallotStylesDeprecated } from '@votingworks/hmpb';
+import { generateBallotStyles } from '@votingworks/hmpb';
 import { generateId } from '../src/utils.js';
 
 function splitCandidateName(candidate: Candidate): Candidate {
@@ -33,6 +34,13 @@ function splitCandidateName(candidate: Candidate): Candidate {
     };
   }
   return candidate;
+}
+
+export interface ElectionRecord {
+  jurisdictionId: string;
+  election: Election;
+  systemSettings: SystemSettings;
+  ballotTemplateId: BallotTemplateId;
 }
 
 export function makeElectionRecord(
@@ -50,7 +58,7 @@ export function makeElectionRecord(
         }
       : contest
   );
-  const ballotStyles = generateBallotStylesDeprecated({
+  const { ballotStyles } = generateBallotStyles({
     ballotLanguageConfigs,
     contests,
     electionType: baseElection.type,
@@ -67,12 +75,8 @@ export function makeElectionRecord(
   };
   return {
     election,
-    isMiCombinedBallotPrimary: isCombinedBallotPrimary(baseElection),
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
-    createdAt: new Date().toISOString(),
-    ballotLanguageConfigs,
     ballotTemplateId: 'VxDefaultBallot',
-    ballotsFinalizedAt: null,
     jurisdictionId,
   };
 }
