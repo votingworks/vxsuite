@@ -3,7 +3,7 @@ import {
   generateMarkOverlay,
   msGeneralElectionFixtures,
 } from '@votingworks/hmpb';
-import { assertDefined, err, ok, sleep } from '@votingworks/basics';
+import { assert, assertDefined, err, ok, sleep } from '@votingworks/basics';
 import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
@@ -1345,8 +1345,15 @@ async function makeMsElectionDefinition(): Promise<ElectionDefinition> {
 }
 
 test('getTestDeckBallotCount returns 0 when election has no gridLayouts', async () => {
-  const electionDefinition =
-    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const fixtures = electionFamousNames2021Fixtures;
+  const electionDefinition = fixtures.readElectionDefinition();
+
+  const { ballotStyles } = electionDefinition.election;
+  assert(
+    ballotStyles.some((bs) => !!bs.ballotPositions),
+    'test requires a fixture with ballot positions'
+  );
+
   const ballots = await buildBallotsForElection({
     electionDefinition,
     ballotModes: ['official'],
@@ -1357,6 +1364,15 @@ test('getTestDeckBallotCount returns 0 when election has no gridLayouts', async 
     apiClient,
     auth,
     mockUsbDrive,
+
+    // Use split-file configuration with no ballot positions, to assert that the
+    // result is based on `BallotMetaStore`.
+    ballotPositions: [],
+    candidateOrderings: [],
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      splitElectionDefinition: true,
+    },
   });
 
   expect(await apiClient.getTestDeckBallotCount({})).toEqual(0);

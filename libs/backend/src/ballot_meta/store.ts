@@ -54,6 +54,13 @@ export class BallotMetaStore {
   }
 
   /**
+   * @returns `true` if bubble ballot positions exist for any ballot style.
+   */
+  hasPositions(): boolean {
+    return Boolean(this.client.one(`select 1 from ballot_positions limit 1`));
+  }
+
+  /**
    * Imports candidate orderings from an election package.
    */
   async importCandidateOrderings(
