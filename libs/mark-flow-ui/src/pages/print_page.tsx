@@ -1,10 +1,9 @@
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 
 import {
   H1,
   Main,
   Screen,
-  useLock,
   PrintingBallotImage,
   appStrings,
   Font,
@@ -18,16 +17,10 @@ export interface PrintPageProps {
 }
 
 export function PrintPage({ print }: PrintPageProps): JSX.Element {
-  const printLock = useLock();
-
-  const printBallot = useCallback(() => {
-    if (!printLock.lock()) return;
-    print();
-  }, [print, printLock]);
-
   useEffect(() => {
-    void printBallot();
-  }, [printBallot]);
+    print();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Screen>

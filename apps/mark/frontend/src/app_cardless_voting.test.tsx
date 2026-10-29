@@ -185,7 +185,7 @@ test('poll worker selects ballot style, voter votes', async () => {
   await screen.findByText('Insert Card');
 });
 
-test('poll worker card insertion during printing does not cause duplicate print', async () => {
+test('printing resumes after poll worker card insertion during printing', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionRecord(electionDefinition);
@@ -222,7 +222,7 @@ test('poll worker card insertion during printing does not cause duplicate print'
     await userEvent.click(screen.getByText('Next'));
   }
 
-  // Voter clicks print — only one printBallot call should ever be made
+  // Voter clicks print
   apiMock.expectPrintBallot({
     ballotStyleId: '12',
     precinctId,
@@ -239,12 +239,17 @@ test('poll worker card insertion during printing does not cause duplicate print'
   });
   await screen.findByText('Voting Session Paused');
 
-  // Poll worker removes card — voter session resumes at the print screen
+  // Poll worker removes card — voter session resumes at the print screen,
+  // which re-requests the print and gets the session's existing job back
+  apiMock.expectPrintBallot({
+    ballotStyleId: '12',
+    precinctId,
+    votes: { [presidentContest.id]: [presidentContest.candidates[0]!] },
+  });
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '12',
     precinctId,
   });
-  // The print screen is shown again but no second printBallot call is made
   await screen.findByText(/Printing Your Ballot/i);
 
   // Normal session end once the job reaches the printer

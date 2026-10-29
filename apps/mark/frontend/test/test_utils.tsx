@@ -33,7 +33,6 @@ export function render(
     isCardlessVoter = false,
     isLiveMode = false,
     machineConfig = mockMachineConfig(),
-    hasPrintedBallot = false,
     printJobId,
     precinctId,
     resetBallot = vi.fn(),
@@ -52,7 +51,6 @@ export function render(
     isCardlessVoter?: boolean;
     isLiveMode?: boolean;
     machineConfig?: MachineConfig;
-    hasPrintedBallot?: boolean;
     printJobId?: PrintJobId;
     precinctId?: PrecinctId;
     resetBallot?(): void;
@@ -80,8 +78,6 @@ export function render(
             isLiveMode,
             machineConfig,
             endVoterSession,
-            hasPrintedBallot,
-            setHasPrintedBallot: () => undefined,
             printJobId,
             setPrintJobId: () => undefined,
             precinctId,

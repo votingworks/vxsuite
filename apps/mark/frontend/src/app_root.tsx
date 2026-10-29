@@ -88,7 +88,6 @@ export interface VotingState {
   showPostVotingInstructions?: boolean;
   showingPatCalibration?: boolean;
   isPatCalibrationComplete?: boolean;
-  hasPrintedBallot?: boolean;
   printJobId?: PrintJobId;
 }
 
@@ -107,7 +106,6 @@ const initialVotingState: Readonly<VotingState> = {
   showPostVotingInstructions: undefined,
   showingPatCalibration: undefined,
   isPatCalibrationComplete: undefined,
-  hasPrintedBallot: undefined,
   printJobId: undefined,
 };
 
@@ -119,7 +117,6 @@ type VotingAction =
   | { type: 'selectParty'; partyId: PartyId }
   | { type: 'showPatCalibration' }
   | { type: 'completePatCalibration' }
-  | { type: 'setHasPrintedBallot' }
   | { type: 'setPrintJobId'; printJobId: PrintJobId };
 
 function votingStateReducer(
@@ -165,8 +162,6 @@ function votingStateReducer(
         showingPatCalibration: false,
         isPatCalibrationComplete: true,
       };
-    case 'setHasPrintedBallot':
-      return { ...state, hasPrintedBallot: true };
     case 'setPrintJobId':
       return { ...state, printJobId: action.printJobId };
     default: {
@@ -187,7 +182,6 @@ export function AppRoot(): JSX.Element | null {
     selectedPartyId,
     showingPatCalibration,
     isPatCalibrationComplete,
-    hasPrintedBallot,
     printJobId,
   } = votingState;
 
@@ -324,10 +318,6 @@ export function AppRoot(): JSX.Element | null {
 
   const setPrintJobId = useCallback((newPrintJobId: PrintJobId) => {
     dispatchVotingState({ type: 'setPrintJobId', printJobId: newPrintJobId });
-  }, []);
-
-  const setHasPrintedBallot = useCallback(() => {
-    dispatchVotingState({ type: 'setHasPrintedBallot' });
   }, []);
 
   const hidePostVotingInstructions = useCallback(() => {
@@ -667,11 +657,9 @@ export function AppRoot(): JSX.Element | null {
                 isCardlessVoter: isCardlessVoterAuth(authStatus),
                 isLiveMode: !isTestMode,
                 endVoterSession,
-                hasPrintedBallot: hasPrintedBallot ?? false,
                 resetBallot,
                 selectedPartyId,
                 selectParty,
-                setHasPrintedBallot,
                 printJobId,
                 setPrintJobId,
                 updateVote,

@@ -32,7 +32,11 @@ import {
   type InsertedSmartCardAuth,
   type BallotStyle,
 } from '@votingworks/types';
-import { isElectionManagerAuth, isPollWorkerAuth } from '@votingworks/utils';
+import {
+  isCardlessVoterAuth,
+  isElectionManagerAuth,
+  isPollWorkerAuth,
+} from '@votingworks/utils';
 
 import {
   createUiStringsApi,
@@ -105,6 +109,11 @@ interface PendingBarcodePrint {
   sessionExpiresAt: Date;
 }
 
+interface VoterSessionPrint {
+  sessionId: string;
+  jobId: Promise<PrintJobId>;
+}
+
 interface TestDeckError {
   type: 'no_test_deck_generated';
 }
@@ -112,6 +121,16 @@ interface TestDeckError {
 // Track last barcode scan for diagnostics
 let lastBarcodeScanData: string | undefined;
 let lastBarcodeScanTimestamp: Date | undefined;
+
+function getCardlessVoterSessionId(
+  authStatus: InsertedSmartCardAuth.AuthStatus
+): string | undefined {
+  if (isCardlessVoterAuth(authStatus)) return authStatus.user.sessionId;
+  if (isPollWorkerAuth(authStatus)) {
+    return authStatus.cardlessVoterUser?.sessionId;
+  }
+  return undefined;
+}
 
 /**
  * Whether the machine can be put into test mode. Test mode requires test mode
@@ -160,6 +179,7 @@ export function buildApi(ctx: Context) {
   });
 
   let pendingBarcodePrint: PendingBarcodePrint | undefined;
+  let voterSessionPrint: VoterSessionPrint | undefined;
 
   function clearPendingBarcodePrint(): void {
     pendingBarcodePrint = undefined;
@@ -237,6 +257,40 @@ export function buildApi(ctx: Context) {
     getAuthStatus: /* @coverage-exclude */ () =>
       auth.getAuthStatus(constructAuthMachineState(workspace)),
   });
+
+  async function printVoterBallot(
+    input: PrintBallotProps
+  ): Promise<PrintJobId> {
+    await logger.logAsCurrentRole(LogEventId.BallotPrintRequest, {
+      message: 'Printing a ballot',
+      ballotStyleId: input.ballotStyleId,
+      precinctId: input.precinctId,
+    });
+    const generation = ballotPrintingGeneration;
+    const jobId = await printBallot({
+      store,
+      printer,
+      ...input,
+    });
+    awaitJobSettlement({
+      jobId,
+      printer,
+      onSettled: async (status) => {
+        const sentToPrinter = status.outcome === 'sent-to-printer';
+        if (sentToPrinter) {
+          countPrintedBallot(generation);
+        }
+        await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
+          message: sentToPrinter ? 'Ballot printed' : 'Ballot failed to print',
+          disposition: sentToPrinter ? 'success' : 'failure',
+          ballotStyleId: input.ballotStyleId,
+          precinctId: input.precinctId,
+          ...(status.reason ? { reason: status.reason } : {}),
+        });
+      },
+    });
+    return jobId;
+  }
 
   function endCardlessVoterSessionIfAny() {
     auth.endCardlessVoterSession(constructAuthMachineState(workspace));
@@ -472,36 +526,21 @@ export function buildApi(ctx: Context) {
     ...systemCallApi,
 
     async printBallot(input: PrintBallotProps): Promise<PrintJobId> {
-      await logger.logAsCurrentRole(LogEventId.BallotPrintRequest, {
-        message: 'Printing a ballot',
-        ballotStyleId: input.ballotStyleId,
-        precinctId: input.precinctId,
-      });
-      const generation = ballotPrintingGeneration;
-      const jobId = await printBallot({
-        store,
-        printer,
-        ...input,
-      });
-      awaitJobSettlement({
-        jobId,
-        printer,
-        onSettled: async (status) => {
-          const sentToPrinter = status.outcome === 'sent-to-printer';
-          if (sentToPrinter) {
-            countPrintedBallot(generation);
-          }
-          await logger.logAsCurrentRole(LogEventId.BallotPrintComplete, {
-            message: sentToPrinter
-              ? 'Ballot printed'
-              : 'Ballot failed to print',
-            disposition: sentToPrinter ? 'success' : 'failure',
-            ballotStyleId: input.ballotStyleId,
-            precinctId: input.precinctId,
-            ...(status.reason ? { reason: status.reason } : {}),
-          });
-        },
-      });
+      const sessionId = getCardlessVoterSessionId(
+        await auth.getAuthStatus(constructAuthMachineState(workspace))
+      );
+      assert(sessionId !== undefined, 'No cardless voter session');
+      if (voterSessionPrint?.sessionId === sessionId) {
+        await logger.logAsCurrentRole(LogEventId.BallotPrintRequest, {
+          message:
+            'Ignoring repeat ballot print request for this voter session',
+          ballotStyleId: input.ballotStyleId,
+          precinctId: input.precinctId,
+        });
+        return voterSessionPrint.jobId;
+      }
+      const jobId = printVoterBallot(input);
+      voterSessionPrint = { sessionId, jobId };
       return jobId;
     },
 
