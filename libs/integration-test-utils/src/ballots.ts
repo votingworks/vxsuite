@@ -152,11 +152,16 @@ export async function renderMarkedBallots(
     const [first] = specs;
     if (!first) return [];
 
+    const { election } = first.electionDefinition;
+    const ballotStyle = assertDefined(
+      getBallotStyle({ ballotStyleId: first.ballotStyleId, election })
+    );
+
     // All specs share the same election/style/precinct/mode so we only need
     // one layout pass regardless of how many vote variants are requested.
     const sharedBallotProps: BaseBallotProps = {
       election: first.electionDefinition.election,
-      ballotStyleId: first.ballotStyleId,
+      ballotStyle,
       precinctId: first.precinctId,
       ballotType: first.ballotType ?? BallotType.Precinct,
       ballotMode: first.ballotMode ?? 'official',
@@ -166,6 +171,7 @@ export async function renderMarkedBallots(
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       [sharedBallotProps],
+      (bs) => bs.orderedCandidatesByContest,
       { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
       DEFAULT_SYSTEM_SETTINGS,
       { path: tmp.dirSync({ unsafeCleanup: true }).name }

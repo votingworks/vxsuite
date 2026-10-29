@@ -157,12 +157,8 @@ export function createBallotPropsForTemplate(
     if (!hasSplits(precinct)) {
       return { ...props };
     }
-    const ballotStyle = find(
-      election.ballotStyles,
-      (bs) => bs.id === props.ballotStyleId
-    );
     const split = find(precinct.splits, (ps) =>
-      ballotStyleHasPrecinctOrSplit(ballotStyle, { precinct, split: ps })
+      ballotStyleHasPrecinctOrSplit(props.ballotStyle, { precinct, split: ps })
     );
     return {
       ...props,

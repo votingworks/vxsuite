@@ -2,14 +2,11 @@ import React from 'react';
 import {
   BALLOT_HASH_DISPLAY_LENGTH,
   type BallotStyle,
-  type BallotStyleId,
   type Election,
-  getBallotStyle,
-  getPartyForBallotStyle,
   type Outset,
   type PrecinctId,
 } from '@votingworks/types';
-import { assertDefined, find, range, unique } from '@votingworks/basics';
+import { find, range, unique } from '@votingworks/basics';
 import {
   electionStrings,
   InEnglish,
@@ -547,16 +544,13 @@ export function Instructions({
 
 export function PrecinctOrSplitName({
   election,
-  ballotStyleId,
+  ballotStyle,
   precinctId,
 }: {
   election: Election;
-  ballotStyleId: BallotStyleId;
+  ballotStyle: BallotStyle;
   precinctId: PrecinctId;
 }): JSX.Element {
-  const ballotStyle = assertDefined(
-    getBallotStyle({ election, ballotStyleId })
-  );
   const ballotStylePrecinctsAndSplits = getPrecinctsAndSplitsForBallotStyle({
     election,
     ballotStyle,
@@ -653,18 +647,18 @@ export function FooterVoterInstruction({
 
 export function FooterMetadata({
   election,
-  ballotStyleId,
+  ballotStyle,
   precinctId,
   electionTitleOverride,
   ballotIdentifierSize = 'small',
 }: {
   election: Election;
-  ballotStyleId: BallotStyleId;
+  ballotStyle: BallotStyle;
   precinctId: PrecinctId;
   electionTitleOverride?: React.ReactNode;
   ballotIdentifierSize?: 'small' | 'medium';
 }): JSX.Element {
-  const party = getPartyForBallotStyle({ election, ballotStyleId });
+  const party = election.parties.find((p) => p.id === ballotStyle.partyId);
   const ballotIdentifierStyling: Record<
     typeof ballotIdentifierSize,
     { fontSize: string; marginBottom: string }
@@ -673,9 +667,7 @@ export function FooterMetadata({
     medium: { fontSize: '10pt', marginBottom: '0.025in' },
   };
 
-  const languageCode = primaryLanguageCode(
-    assertDefined(getBallotStyle({ election, ballotStyleId }))
-  );
+  const languageCode = primaryLanguageCode(ballotStyle);
   const electionLanguageCodes = unique(
     election.ballotStyles.flatMap((style) => style.languages)
   );
@@ -719,7 +711,7 @@ export function FooterMetadata({
           <PrecinctOrSplitName
             election={election}
             precinctId={precinctId}
-            ballotStyleId={ballotStyleId}
+            ballotStyle={ballotStyle}
           />
           {party && (
             <React.Fragment>
@@ -738,14 +730,14 @@ export function FooterMetadata({
 
 export function Footer({
   election,
-  ballotStyleId,
+  ballotStyle,
   precinctId,
   pageNumber,
   totalPages,
   electionTitleOverride,
 }: {
   election: Election;
-  ballotStyleId: BallotStyleId;
+  ballotStyle: BallotStyle;
   precinctId: PrecinctId;
   pageNumber: number;
   totalPages?: number;
@@ -765,7 +757,7 @@ export function Footer({
       </FooterRow>
       <FooterMetadata
         election={election}
-        ballotStyleId={ballotStyleId}
+        ballotStyle={ballotStyle}
         precinctId={precinctId}
         electionTitleOverride={electionTitleOverride}
       />

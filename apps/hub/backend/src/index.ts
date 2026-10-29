@@ -19,7 +19,6 @@ export type {
   BackgroundTask,
   DuplicateDistrictError,
   DuplicatePartyError,
-  ElectionRecord,
   MainExportTaskMetadata,
   SetPollingPlaceError,
   TestDecksTaskMetadata,

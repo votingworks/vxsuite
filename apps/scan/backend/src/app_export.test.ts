@@ -421,6 +421,7 @@ test('audit ballot IDs', async () => {
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       [ballotPropsWithAuditId],
+      (bs) => bs.orderedCandidatesByContest,
       { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
       DEFAULT_SYSTEM_SETTINGS,
       { path: makeTemporaryDirectory() }

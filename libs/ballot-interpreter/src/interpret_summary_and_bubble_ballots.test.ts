@@ -36,7 +36,7 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
       await renderBmdBallotFixture({
         electionDefinition,
         precinctId: vxFamousNamesFixtures.precinctId,
-        ballotStyleId: vxFamousNamesFixtures.ballotStyleId,
+        ballotStyleId: vxFamousNamesFixtures.ballotStyle.id,
         votes: validBmdVotes,
       })
     ).toArray()
@@ -100,7 +100,7 @@ test('interpret BMD ballot with test/official ballot mode mismatch error', async
       await renderBmdBallotFixture({
         electionDefinition,
         precinctId: vxFamousNamesFixtures.precinctId,
-        ballotStyleId: vxFamousNamesFixtures.ballotStyleId,
+        ballotStyleId: vxFamousNamesFixtures.ballotStyle.id,
         votes: vxFamousNamesFixtures.votes,
       })
     ).toArray()

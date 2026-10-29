@@ -5,6 +5,7 @@ import {
   type ElectionSerializationFormat,
   ElectionSerializationFormatSchema,
   formatBallotHash,
+  type GetCandidateOrderingsFn,
   type Precinct,
 } from '@votingworks/types';
 import { translateBallotStrings } from '@votingworks/backend';
@@ -77,6 +78,7 @@ async function generate(
   const {
     ballotLanguageConfigs,
     ballotTemplateId,
+    candidateOrderings,
     jurisdictionId,
     systemSettings,
   } = electionRecord;
@@ -130,10 +132,14 @@ async function generate(
   const baseElection = assertDefined(testBallotProps[0]).election;
   assert(testBallotProps.every((p) => p.election === baseElection));
 
+  const getCandidateOrderings: GetCandidateOrderingsFn = (bs) =>
+    candidateOrderings.get(bs);
+
   const { ballotPositions, layoutPaths } = await layOutBallots(
     rendererPool,
     ballotTemplates[ballotTemplateId],
     testBallotProps,
+    getCandidateOrderings,
     scratchDir,
     emitProgress
   );
@@ -141,6 +147,7 @@ async function generate(
   const { electionDefinition } = await createElectionDefinition({
     baseElection,
     ballotPositions,
+    getCandidateOrderings,
     template: ballotTemplates[ballotTemplateId],
     serializationOptions,
     systemSettings,
@@ -218,7 +225,7 @@ async function generate(
   for (const [precinct, ballotSpecs] of precinctSummaryBallotSpecs) {
     const summaryBallotPdf = await createSummaryBallotTestDeck({
       electionDefinition,
-      getCandidateOrderings: (bs) => bs.orderedCandidatesByContest,
+      getCandidateOrderings,
       ballotSpecs,
       isLiveMode: false, // Test decks are always in test mode
       // eslint-disable-next-line no-loop-func

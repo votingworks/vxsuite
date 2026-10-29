@@ -870,6 +870,7 @@ test('Ballot audit IDs', async () => {
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       [ballotPropsWithAuditId],
+      (bs) => bs.orderedCandidatesByContest,
       { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
       DEFAULT_SYSTEM_SETTINGS,
       makeScratchDir()
@@ -914,6 +915,7 @@ describe('Contest option bounds', () => {
         rendererPool,
         ballotTemplates.VxDefaultBallot,
         ballotProps,
+        (bs) => bs.orderedCandidatesByContest,
         { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
         DEFAULT_SYSTEM_SETTINGS,
         makeScratchDir()
@@ -974,6 +976,7 @@ describe('Contest option bounds', () => {
         rendererPool,
         ballotTemplates.VxDefaultBallot,
         ballotProps,
+        (bs) => bs.orderedCandidatesByContest,
         { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
         DEFAULT_SYSTEM_SETTINGS,
         makeScratchDir()

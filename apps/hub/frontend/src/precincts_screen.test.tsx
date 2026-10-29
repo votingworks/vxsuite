@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import type { ElectionRecord } from '@votingworks/hub-backend';
 import { Buffer } from 'node:buffer';
 import { createMemoryHistory, type MemoryHistory } from 'history';
 import {
@@ -25,6 +24,7 @@ import {
 import {
   electionInfoFromElection,
   generalElectionRecord,
+  type ElectionRecord,
 } from '../test/fixtures.js';
 import { makeIdFactory } from '../test/id_helpers.js';
 import { withRoute } from '../test/routing_helpers.js';

@@ -1,7 +1,7 @@
-import React from 'react';
 import {
   assertDefined,
   err,
+  find,
   iter,
   ok,
   range,
@@ -13,17 +13,12 @@ import {
   type Contest as ContestStruct,
   type BallotMode,
   type BallotStyle,
-  type BallotStyleId,
   BallotType,
   type BaseBallotProps,
   type CandidateContest as CandidateContestStruct,
   type Election,
   type YesNoContest,
   ballotPaperDimensions,
-  getBallotStyle,
-  getContests,
-  getOrderedCandidatesForContestInBallotStyle,
-  getPartyForBallotStyle,
   straightPartyNotYetImplemented,
 } from '@votingworks/types';
 import {
@@ -63,15 +58,16 @@ import { layOutInColumns } from '../layout_in_columns.js';
 import { hmpbStrings } from '../hmpb_strings.js';
 import { Watermark } from './watermark.js';
 import { BaseStyles } from '../base_styles.js';
+import * as defaults from './defaults.js';
 
 function Header({
   election,
-  ballotStyleId,
+  ballotStyle,
   ballotType,
   ballotMode,
 }: {
   election: Election;
-  ballotStyleId: BallotStyleId;
+  ballotStyle: BallotStyle;
   ballotType: BallotType;
   ballotMode: BallotMode;
 }) {
@@ -96,7 +92,7 @@ function Header({
 
   const party =
     election.type === 'primary'
-      ? assertDefined(getPartyForBallotStyle({ election, ballotStyleId }))
+      ? find(election.parties, (p) => p.id === ballotStyle.partyId)
       : undefined;
 
   return (
@@ -140,7 +136,7 @@ function Header({
 
 function BallotPageFrame({
   election,
-  ballotStyleId,
+  ballotStyle,
   precinctId,
   ballotType,
   ballotMode,
@@ -154,9 +150,6 @@ function BallotPageFrame({
   children: JSX.Element;
 }): Result<JSX.Element, BallotLayoutError> {
   const pageDimensions = ballotPaperDimensions(election.ballotLayout.paperSize);
-  const ballotStyle = assertDefined(
-    getBallotStyle({ election, ballotStyleId })
-  );
   const languageCode = primaryLanguageCode(ballotStyle);
   return ok(
     <BackendLanguageContextProvider
@@ -187,7 +180,7 @@ function BallotPageFrame({
               <>
                 <Header
                   election={election}
-                  ballotStyleId={ballotStyleId}
+                  ballotStyle={ballotStyle}
                   ballotType={ballotType}
                   ballotMode={ballotMode}
                 />
@@ -206,7 +199,7 @@ function BallotPageFrame({
             </div>
             <Footer
               election={election}
-              ballotStyleId={ballotStyleId}
+              ballotStyle={ballotStyle}
               precinctId={precinctId}
               pageNumber={pageNumber}
               totalPages={totalPages}
@@ -221,16 +214,10 @@ function BallotPageFrame({
 function CandidateContest({
   election,
   contest,
-  ballotStyle,
 }: {
   election: Election;
   contest: CandidateContestStruct;
-  ballotStyle: BallotStyle;
 }) {
-  const candidates = getOrderedCandidatesForContestInBallotStyle({
-    contest,
-    ballotStyle,
-  });
   const voteForText = {
     1: hmpbStrings.hmpbVoteFor1,
     2: hmpbStrings.hmpbVoteFor2,
@@ -273,7 +260,7 @@ function CandidateContest({
         )}
       </ContestHeader>
       <ul>
-        {candidates.map((candidate, i) => {
+        {contest.candidates.map((candidate, i) => {
           const partyText =
             election.type === 'primary' ? undefined : (
               <CandidatePartyList
@@ -436,11 +423,9 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
 function Contest({
   contest,
   election,
-  ballotStyle,
 }: {
   contest: ContestStruct;
   election: Election;
-  ballotStyle: BallotStyle;
 }) {
   // @coverage-exclude
   if (contest.type === 'straight-party') {
@@ -448,26 +433,12 @@ function Contest({
   }
   switch (contest.type) {
     case 'candidate':
-      return (
-        <CandidateContest
-          election={election}
-          contest={contest}
-          ballotStyle={ballotStyle}
-        />
-      );
+      return <CandidateContest election={election} contest={contest} />;
     case 'yesno':
       return <BallotMeasureContest contest={contest} />;
     default:
       return throwIllegalValue(contest);
   }
-}
-
-function contestsForBallot(props: BaseBallotProps): readonly ContestStruct[] {
-  const { election, ballotStyleId } = props;
-  const ballotStyle = assertDefined(
-    getBallotStyle({ election, ballotStyleId })
-  );
-  return getContests({ election, ballotStyle });
 }
 
 async function BallotPageContent(
@@ -482,10 +453,8 @@ async function BallotPageContent(
     });
   }
 
-  const { election, ballotStyleId, dimensions } = props;
-  const ballotStyle = assertDefined(
-    getBallotStyle({ election, ballotStyleId })
-  );
+  const { election, ballotStyle, dimensions } = props;
+
   // For now, just one section for candidate contests, one for ballot measures.
   // TODO support arbitrarily defined sections
   const contestSections = iter(contests)
@@ -503,12 +472,7 @@ async function BallotPageContent(
   while (contestSections.length > 0 && heightUsed < dimensions.height) {
     const section = assertDefined(contestSections.shift());
     const contestElements = section.map((contest) => (
-      <Contest
-        key={contest.id}
-        contest={contest}
-        election={election}
-        ballotStyle={ballotStyle}
-      />
+      <Contest key={contest.id} contest={contest} election={election} />
     ));
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const numColumns = section[0]!.type === 'candidate' ? 3 : 2;
@@ -610,6 +574,6 @@ async function BallotPageContent(
 export const vxDefaultBallotTemplate: BallotPageTemplate<BaseBallotProps> = {
   stylesComponent: BaseStyles,
   frameComponent: BallotPageFrame,
-  contestsForBallot,
+  contestsForBallot: defaults.contestsForBallot,
   contentComponent: BallotPageContent,
 };

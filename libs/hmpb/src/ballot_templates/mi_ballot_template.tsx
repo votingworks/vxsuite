@@ -15,16 +15,12 @@ import {
   type Contest as ContestStruct,
   type BallotMode,
   type BallotStyle,
-  type BallotStyleId,
   type BaseBallotProps,
   type CandidateContest as CandidateContestStruct,
   type Election,
   type PrecinctId,
   type YesNoContest,
   ballotPaperDimensions,
-  getBallotStyle,
-  getContests,
-  getOrderedCandidatesForContestInBallotStyle,
   isCombinedBallotPrimary,
   type StraightPartyContest as StraightPartyContestStruct,
   type Party,
@@ -68,6 +64,7 @@ import { hmpbStrings } from '../hmpb_strings.js';
 import { Watermark } from './watermark.js';
 import { BaseStyles as BaseStylesComponent } from '../base_styles.js';
 import { ArrowDown } from '../svg_assets.js';
+import * as defaults from './defaults.js';
 
 // MI has specific ballot styling requirements (e.g. font sizes and tints for
 // various elements), so we encode those all as styled components here.
@@ -156,12 +153,12 @@ const ProposalDescription = styled.div`
 
 function Header({
   election,
-  ballotStyleId,
+  ballotStyle,
   precinctId,
   ballotMode,
 }: {
   election: Election;
-  ballotStyleId: BallotStyleId;
+  ballotStyle: BallotStyle;
   precinctId: PrecinctId;
   ballotMode: BallotMode;
 }) {
@@ -171,9 +168,6 @@ function Header({
     test: hmpbStrings.hmpbTestBallot,
   };
   const ballotTitle = ballotTitles[ballotMode];
-  const ballotStyle = assertDefined(
-    getBallotStyle({ election, ballotStyleId })
-  );
   const party = ballotStyle.partyId
     ? find(election.parties, (p) => p.id === ballotStyle.partyId)
     : undefined;
@@ -202,7 +196,7 @@ function Header({
       <PrecinctOrSplitName
         election={election}
         precinctId={precinctId}
-        ballotStyleId={ballotStyleId}
+        ballotStyle={ballotStyle}
       />
     </div>
   );
@@ -210,7 +204,7 @@ function Header({
 
 function BallotPageFrame({
   election,
-  ballotStyleId,
+  ballotStyle,
   precinctId,
   ballotMode,
   pageNumber,
@@ -223,9 +217,6 @@ function BallotPageFrame({
   children: JSX.Element;
 }): Result<JSX.Element, BallotLayoutError> {
   const pageDimensions = ballotPaperDimensions(election.ballotLayout.paperSize);
-  const ballotStyle = assertDefined(
-    getBallotStyle({ election, ballotStyleId })
-  );
   return ok(
     <BackendLanguageContextProvider
       key={pageNumber}
@@ -255,7 +246,7 @@ function BallotPageFrame({
             {pageNumber === 1 && (
               <Header
                 election={election}
-                ballotStyleId={ballotStyleId}
+                ballotStyle={ballotStyle}
                 precinctId={precinctId}
                 ballotMode={ballotMode}
               />
@@ -273,7 +264,7 @@ function BallotPageFrame({
             <div style={{ fontSize: '12pt' }}>
               <Footer
                 election={election}
-                ballotStyleId={ballotStyleId}
+                ballotStyle={ballotStyle}
                 precinctId={precinctId}
                 pageNumber={pageNumber}
                 totalPages={totalPages}
@@ -289,18 +280,12 @@ function BallotPageFrame({
 function CandidateContest({
   election,
   contest,
-  ballotStyle,
   numContestColumns,
 }: {
   election: Election;
   contest: CandidateContestStruct;
-  ballotStyle: BallotStyle;
   numContestColumns: number;
 }) {
-  const candidates = getOrderedCandidatesForContestInBallotStyle({
-    contest,
-    ballotStyle,
-  });
   const voteForText = {
     1: hmpbStrings.hmpbVoteForNotMoreThan1,
     2: hmpbStrings.hmpbVoteFor2,
@@ -332,7 +317,7 @@ function CandidateContest({
         <VoteFor>{voteForText}</VoteFor>
       </ContestHeader>
       <ul>
-        {candidates.map((candidate, i) => {
+        {contest.candidates.map((candidate, i) => {
           const optionInfo: OptionInfo = {
             type: 'option',
             contestId: contest.id,
@@ -534,12 +519,10 @@ function StraightPartyContest({
 function Contest({
   election,
   contest,
-  ballotStyle,
   numContestColumns,
 }: {
   election: Election;
   contest: ContestStruct;
-  ballotStyle: BallotStyle;
   numContestColumns: number;
 }) {
   switch (contest.type) {
@@ -548,7 +531,6 @@ function Contest({
         <CandidateContest
           election={election}
           contest={contest}
-          ballotStyle={ballotStyle}
           numContestColumns={numContestColumns}
         />
       );
@@ -572,7 +554,6 @@ type ContestSection = Section<JSX.Element, ContestElement>;
 
 function buildSubsectionsByDistrict(
   election: Election,
-  ballotStyle: BallotStyle,
   sectionContests: ContestStruct[],
   numColumns: number
 ): ContestSection['subsections'] {
@@ -594,7 +575,6 @@ function buildSubsectionsByDistrict(
         <Contest
           election={election}
           contest={contest}
-          ballotStyle={ballotStyle}
           numContestColumns={numColumns}
         />
       ),
@@ -604,7 +584,6 @@ function buildSubsectionsByDistrict(
 
 function buildSections(
   election: Election,
-  ballotStyle: BallotStyle,
   numColumns: number,
   sectionTemplates: Array<{ header: JSX.Element; contests: ContestStruct[] }>
 ): ContestSection[] {
@@ -614,7 +593,6 @@ function buildSections(
       header: section.header,
       subsections: buildSubsectionsByDistrict(
         election,
-        ballotStyle,
         section.contests,
         numColumns
       ),
@@ -624,7 +602,6 @@ function buildSections(
 function buildContestSections(
   contests: readonly ContestStruct[],
   election: Election,
-  ballotStyle: BallotStyle,
   numColumns: number
 ): ContestSection[] {
   function isPartisanCandidateContest(contest: CandidateContestStruct) {
@@ -639,7 +616,7 @@ function buildContestSections(
     }
   }
 
-  return buildSections(election, ballotStyle, numColumns, [
+  return buildSections(election, numColumns, [
     {
       header: <SectionHeader>Partisan Section</SectionHeader>,
       contests: contests.filter(
@@ -665,7 +642,6 @@ function buildContestSections(
 function buildCombinedBallotPrimaryContestSections(
   contests: readonly ContestStruct[],
   election: Election,
-  ballotStyle: BallotStyle,
   numColumns: number
 ): {
   partisanSections: ContestSection[];
@@ -709,13 +685,8 @@ function buildCombinedBallotPrimaryContestSections(
   }
 
   return {
-    partisanSections: buildSections(
-      election,
-      ballotStyle,
-      numColumns,
-      partisanSections
-    ),
-    nonPartisanSections: buildSections(election, ballotStyle, numColumns, [
+    partisanSections: buildSections(election, numColumns, partisanSections),
+    nonPartisanSections: buildSections(election, numColumns, [
       {
         header: <SectionHeader>Nonpartisan Section</SectionHeader>,
         contests: contests.filter(
@@ -815,12 +786,7 @@ async function ContestColumns({
   scratchpad: RenderScratchpad;
 }): Promise<ContestColumnsResult> {
   const numColumns = election.type === 'general' ? 4 : 2;
-  const sections = buildContestSections(
-    contests,
-    election,
-    ballotStyle,
-    numColumns
-  );
+  const sections = buildContestSections(contests, election, numColumns);
 
   const columnWidthPx = dimensions.width / numColumns;
   const measuredSections = await measureSectionElements(
@@ -870,12 +836,7 @@ async function CombinedBallotPrimaryContestColumns({
 }): Promise<ContestColumnsResult> {
   const numColumns = 4;
   const { partisanSections, nonPartisanSections } =
-    buildCombinedBallotPrimaryContestSections(
-      contests,
-      election,
-      ballotStyle,
-      numColumns
-    );
+    buildCombinedBallotPrimaryContestSections(contests, election, numColumns);
 
   const numPartisanColumns = partisanSections.length;
   const maxNumPartisanColumns = numColumns - 1;
@@ -1001,14 +962,6 @@ async function CombinedBallotPrimaryContestColumns({
   };
 }
 
-function contestsForBallot(props: BaseBallotProps): readonly ContestStruct[] {
-  const { election, ballotStyleId } = props;
-  const ballotStyle = assertDefined(
-    getBallotStyle({ election, ballotStyleId })
-  );
-  return getContests({ election, ballotStyle });
-}
-
 async function BallotPageContent(
   props: BaseBallotProps & { dimensions: PixelDimensions },
   contests: readonly ContestStruct[],
@@ -1021,10 +974,7 @@ async function BallotPageContent(
     });
   }
 
-  const { election, ballotStyleId, dimensions } = props;
-  const ballotStyle = assertDefined(
-    getBallotStyle({ election, ballotStyleId })
-  );
+  const { election, ballotStyle, dimensions } = props;
 
   const { leftoverContests, sectionsElement } = isCombinedBallotPrimary(
     election
@@ -1061,6 +1011,6 @@ async function BallotPageContent(
 export const miBallotTemplate: BallotPageTemplate<BaseBallotProps> = {
   stylesComponent: BaseStyles,
   frameComponent: BallotPageFrame,
-  contestsForBallot,
+  contestsForBallot: defaults.contestsForBallot,
   contentComponent: BallotPageContent,
 };

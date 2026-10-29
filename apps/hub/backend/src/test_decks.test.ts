@@ -80,6 +80,7 @@ describe('createPrecinctTestDeck', () => {
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       fixtures.allBallotProps,
+      (bs) => bs.orderedCandidatesByContest,
       serializationOptions,
       DEFAULT_SYSTEM_SETTINGS,
       makeScratchDir()
@@ -139,6 +140,7 @@ describe('createPrecinctTestDeck', () => {
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       ballotProps,
+      (bs) => bs.orderedCandidatesByContest,
       serializationOptions,
       DEFAULT_SYSTEM_SETTINGS,
       makeScratchDir()

@@ -13,15 +13,12 @@ import {
 import {
   type BallotMode,
   ballotPaperDimensions,
-  type BallotStyle,
   type BallotType,
   type Candidate,
   type CandidateContest as CandidateContestStruct,
   type Contest as ContestStruct,
   type ContestId,
   type Election,
-  getBallotStyle,
-  getOrderedCandidatesForContestInBallotStyle,
   type Party,
   straightPartyNotYetImplemented,
   type YesNoContest,
@@ -218,7 +215,7 @@ export function Header({
 
 export function BallotPageFrame({
   election,
-  ballotStyleId,
+  ballotStyle,
   ballotType,
   ballotMode,
   pageNumber,
@@ -238,9 +235,7 @@ export function BallotPageFrame({
   }
 
   const pageDimensions = ballotPaperDimensions(election.ballotLayout.paperSize);
-  const ballotStyle = assertDefined(
-    getBallotStyle({ election, ballotStyleId })
-  );
+
   return ok(
     <BackendLanguageContextProvider
       key={pageNumber}
@@ -457,11 +452,9 @@ function CandidateList({
 function CandidateContest({
   election,
   contest,
-  ballotStyle,
 }: {
   election: Election;
   contest: CandidateContestStruct;
-  ballotStyle: BallotStyle;
 }) {
   const seatsWord = {
     2: 'Two',
@@ -476,7 +469,7 @@ function CandidateContest({
   }[contest.seats];
 
   const candidatesByParty = groupBy(
-    getOrderedCandidatesForContestInBallotStyle({ contest, ballotStyle }),
+    contest.candidates,
     (candidate) => candidate.partyIds?.[0]
   );
   const { parties } = election;
@@ -694,10 +687,8 @@ export async function BallotPageContent(
     });
   }
 
-  const { election, ballotStyleId, dimensions } = props;
-  const ballotStyle = assertDefined(
-    getBallotStyle({ election, ballotStyleId })
-  );
+  const { election, ballotStyle, dimensions } = props;
+
   // One section for candidate contests, one for ballot measures.
   const contestSections = iter(contests)
     .partition((contest) => contest.type === 'candidate')
@@ -720,7 +711,6 @@ export async function BallotPageContent(
           key={contest.id}
           contest={contest}
           election={election}
-          ballotStyle={ballotStyle}
         />
       ) : (
         <BallotMeasureContest

@@ -206,7 +206,7 @@ function generateEncodedBallots(p: {
     (async function* generateJsonLines() {
       for (const [props, path] of iter(p.ballotProps).zip(p.ballotPaths)) {
         const encodedBallot: EncodedBallotEntry = {
-          ballotStyleId: props.ballotStyleId,
+          ballotStyleId: props.ballotStyle.id,
           precinctId: props.precinctId,
           ballotType: props.ballotType,
           ballotMode: props.ballotMode,
@@ -254,8 +254,12 @@ async function generate(
   const { store } = ctx.workspace;
 
   const electionRecord = await store.getElection(electionId);
-  const { ballotLanguageConfigs, ballotTemplateId, jurisdictionId } =
-    electionRecord;
+  const {
+    ballotLanguageConfigs,
+    ballotTemplateId,
+    candidateOrderings,
+    jurisdictionId,
+  } = electionRecord;
   let { systemSettings } = electionRecord;
   const { compact } = await store.getBallotLayoutSettings(electionId);
 
@@ -358,6 +362,7 @@ async function generate(
     rendererPool,
     ballotTemplates[ballotTemplateId],
     allBallotProps,
+    (bs) => candidateOrderings.get(bs),
     serializationOptions,
     systemSettings,
     scratchDir,

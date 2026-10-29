@@ -10,7 +10,6 @@ import {
   type BaseBallotProps,
   type CandidateContest,
   type Election,
-  getBallotStyle,
   getContests,
   LanguageCode,
   type YesNoContest,
@@ -115,12 +114,12 @@ test('allBaseBallotProps creates props for all possible ballots for an election'
   const expectedPropCombos = combinations<
     Pick<
       BaseBallotProps,
-      'ballotStyleId' | 'precinctId' | 'ballotType' | 'ballotMode'
+      'ballotStyle' | 'precinctId' | 'ballotType' | 'ballotMode'
     >
   >([
     election.ballotStyles.flatMap((ballotStyle) =>
       ballotStyle.precincts.map((precinctId) => ({
-        ballotStyleId: ballotStyle.id,
+        ballotStyle,
         precinctId,
       }))
     ),
@@ -133,7 +132,7 @@ test('allBaseBallotProps creates props for all possible ballots for an election'
 
   expect(allBallotProps).toContainEqual({
     election,
-    ballotStyleId: someBallotStyle.id,
+    ballotStyle: someBallotStyle,
     precinctId: somePrecinctId,
     ballotType: BallotType.Precinct,
     ballotMode: 'official',
@@ -157,6 +156,7 @@ test('layOutMinimalBallotsToCreateElectionDefinition', async () => {
       rendererPool,
       ballotTemplates.VxDefaultBallot,
       allBallotProps,
+      (bs) => bs.orderedCandidatesByContest,
       { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
       DEFAULT_SYSTEM_SETTINGS,
       makeScratchDir()
@@ -171,6 +171,7 @@ test('rendered ballot can convert to v4p0 election', async () => {
     rendererPool,
     ballotTemplates.VxDefaultBallot,
     allBallotProps,
+    (bs) => bs.orderedCandidatesByContest,
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
     DEFAULT_SYSTEM_SETTINGS,
     makeScratchDir()
@@ -211,6 +212,7 @@ test('reorder candidates based on rotation from template', async () => {
     rendererPool,
     ballotTemplates.NhBallot,
     allBallotProps,
+    (bs) => bs.orderedCandidatesByContest,
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
     DEFAULT_SYSTEM_SETTINGS,
     makeScratchDir()
@@ -267,6 +269,7 @@ test('v4.1: ballot measure contests with 3+ options are exported natively as yes
       rendererPool,
       ballotTemplates.NhBallot,
       allBallotProps,
+      (bs) => bs.orderedCandidatesByContest,
       { format: 'vxf', version: 'v4.1' },
       DEFAULT_SYSTEM_SETTINGS,
       makeScratchDir()
@@ -302,6 +305,7 @@ test('v4.0: ballot measure contests with 3+ options are transformed into candida
       rendererPool,
       ballotTemplates.NhBallot,
       allBallotProps,
+      (bs) => bs.orderedCandidatesByContest,
       { format: 'vxf', version: 'v4.0' },
       DEFAULT_SYSTEM_SETTINGS,
       makeScratchDir()
@@ -347,10 +351,7 @@ const templateSpecificTestCases = Object.entries(
 test.each(templateSpecificTestCases)(
   "returns contestTooLong error if contest doesn't fit on page - $templateName ($index)",
   async ({ templateName, ballotProps }) => {
-    const { election, ballotStyleId } = ballotProps;
-    const ballotStyle = assertDefined(
-      getBallotStyle({ election, ballotStyleId })
-    );
+    const { election, ballotStyle } = ballotProps;
     const oversizedContest: CandidateContest = {
       id: 'contest-oversized',
       type: 'candidate',
@@ -364,8 +365,9 @@ test.each(templateSpecificTestCases)(
       })),
     };
     const template = ballotTemplates[templateName];
+    const orderings = ballotStyle.orderedCandidatesByContest;
     const result = await rendererPool.runTask((renderer) =>
-      renderBallotTemplate(renderer, template, {
+      renderBallotTemplate(renderer, template, orderings, {
         ...ballotProps,
         election: {
           ...election,
@@ -384,9 +386,10 @@ test.each(templateSpecificTestCases)(
   'contest options are encoded correctly - $templateName ($index)',
   async ({ templateName, ballotProps }) => {
     const template = ballotTemplates[templateName];
+    const orderings = ballotProps.ballotStyle.orderedCandidatesByContest;
     const content = await rendererPool.runTask(async (renderer) => {
       const document = (
-        await renderBallotTemplate(renderer, template, ballotProps)
+        await renderBallotTemplate(renderer, template, orderings, ballotProps)
       ).unsafeUnwrap();
       return document.getContent();
     });
@@ -422,15 +425,9 @@ test.each(templateSpecificTestCases)(
     );
 
     const { election } = ballotProps;
-    const ballotStyle = assertDefined(
-      getBallotStyle({
-        election,
-        ballotStyleId: ballotProps.ballotStyleId,
-      })
-    );
     const contests = getContests({
       election,
-      ballotStyle,
+      ballotStyle: ballotProps.ballotStyle,
     });
 
     expect(
@@ -507,6 +504,7 @@ test('fails on inconsistent ballot positions for matching styles', async () => {
     rendererPool,
     vxDefaultBallotTemplate,
     [baseProps, conflictingProps],
+    (bs) => bs.orderedCandidatesByContest,
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
     DEFAULT_SYSTEM_SETTINGS,
     makeScratchDir()
@@ -522,7 +520,7 @@ test('writes separate ballot meta files when `splitElectionDefinition` setting i
   const props1 = assertDefined(allProps[0]);
   const props2 = find(
     allProps,
-    (p) => p.ballotStyleId !== props1.ballotStyleId
+    (p) => p.ballotStyle.id !== props1.ballotStyle.id
   );
 
   const settings: SystemSettings = {
@@ -534,6 +532,7 @@ test('writes separate ballot meta files when `splitElectionDefinition` setting i
     rendererPool,
     vxDefaultBallotTemplate,
     [props1, props2],
+    (bs) => bs.orderedCandidatesByContest,
     { compact: true, format: 'vxf', version: LATEST_SOFTWARE_VERSION },
     settings,
     makeScratchDir()
@@ -547,8 +546,8 @@ test('writes separate ballot meta files when `splitElectionDefinition` setting i
   const ballotPositionsJsonl = loadPositionsJsonl(res.ballotPositionsPath);
   const ballotPositions = parsePositionsJsonl(ballotPositionsJsonl);
 
-  expect(ballotPositions[0]?.ballotStyleId).toEqual(props1.ballotStyleId);
-  expect(ballotPositions[1]?.ballotStyleId).toEqual(props2.ballotStyleId);
+  expect(ballotPositions[0]?.ballotStyleId).toEqual(props1.ballotStyle.id);
+  expect(ballotPositions[1]?.ballotStyleId).toEqual(props2.ballotStyle.id);
 
   const candidateOrderingsJsonl = readFileSync(
     assertDefined(res.candidateOrderingsPath, 'no candidate orderings path'),
@@ -559,8 +558,8 @@ test('writes separate ballot meta files when `splitElectionDefinition` setting i
     .split('\n')
     .map((l) => unsafeParseJson(l, BallotCandidateOrderingsSchema));
 
-  expect(candidateOrderings[0]?.ballotStyleId).toEqual(props1.ballotStyleId);
-  expect(candidateOrderings[1]?.ballotStyleId).toEqual(props2.ballotStyleId);
+  expect(candidateOrderings[0]?.ballotStyleId).toEqual(props1.ballotStyle.id);
+  expect(candidateOrderings[1]?.ballotStyleId).toEqual(props2.ballotStyle.id);
 
   // Make sure ballot hashes match after round trip through ZIP package:
 
@@ -588,7 +587,7 @@ test('writes single-file election when `splitElectionDefinition` setting is off'
   const props = assertDefined(fixtures.fixtureSpecs[0]?.allBallotProps);
 
   const props1 = assertDefined(props[0]);
-  const props2 = find(props, (p) => p.ballotStyleId !== props1.ballotStyleId);
+  const props2 = find(props, (p) => p.ballotStyle.id !== props1.ballotStyle.id);
 
   const settings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
@@ -599,6 +598,7 @@ test('writes single-file election when `splitElectionDefinition` setting is off'
     rendererPool,
     vxDefaultBallotTemplate,
     [props1, props2],
+    (bs) => bs.orderedCandidatesByContest,
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
     settings,
     makeScratchDir()
@@ -611,8 +611,8 @@ test('writes single-file election when `splitElectionDefinition` setting is off'
     expect(style.ballotPositions?.length).greaterThan(0);
   }
 
-  expectBallotStylePositions(props1.ballotStyleId);
-  expectBallotStylePositions(props2.ballotStyleId);
+  expectBallotStylePositions(props1.ballotStyle.id);
+  expectBallotStylePositions(props2.ballotStyle.id);
   expect(res.ballotPositionsPath).toBeUndefined();
 
   // Make sure ballot hashes match after round trip through ZIP package:
@@ -635,7 +635,7 @@ test('omits ballot positions for non-scannable documents', async () => {
   const props = assertDefined(fixtures.fixtureSpecs[0]?.allBallotProps);
 
   const props1: NhStateBallotProps = { ...props[0]!, isHandCount: true };
-  const props2 = find(props, (p) => p.ballotStyleId !== props1.ballotStyleId);
+  const props2 = find(props, (p) => p.ballotStyle.id !== props1.ballotStyle.id);
 
   const settings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
@@ -646,6 +646,7 @@ test('omits ballot positions for non-scannable documents', async () => {
     rendererPool,
     vxDefaultBallotTemplate,
     [props1, props2],
+    (bs) => bs.orderedCandidatesByContest,
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
     settings,
     makeScratchDir()
@@ -654,7 +655,7 @@ test('omits ballot positions for non-scannable documents', async () => {
   const ballotPositionsJsonl = loadPositionsJsonl(res.ballotPositionsPath);
   const ballotPositions = parsePositionsJsonl(ballotPositionsJsonl);
   expect(ballotPositions).toHaveLength(1);
-  expect(ballotPositions[0]?.ballotStyleId).toEqual(props2.ballotStyleId);
+  expect(ballotPositions[0]?.ballotStyleId).toEqual(props2.ballotStyle.id);
 });
 
 function makeScratchDir(): ScratchDir {

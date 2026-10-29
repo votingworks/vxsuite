@@ -1,18 +1,19 @@
 import { readElectionGeneral } from '@votingworks/fixtures';
-import { BallotType } from '@votingworks/types';
+import { BallotType, type BaseBallotProps } from '@votingworks/types';
 import { expect, test } from 'vitest';
 import type { NhStateBallotProps } from '@votingworks/hmpb';
+import { find } from '@votingworks/basics';
 import { getBallotPdfFileName } from './utils.js';
 
 const election = readElectionGeneral();
 
 const baseProps = {
   election,
-  ballotStyleId: '12',
+  ballotStyle: find(election.ballotStyles, (b) => b.id === '12'),
   precinctId: '23',
   ballotType: BallotType.Precinct,
   ballotMode: 'official',
-} as const;
+} as const satisfies BaseBallotProps;
 
 test('getBallotPdfFileName base case replaces spaces in precinct name', () => {
   expect(getBallotPdfFileName(baseProps)).toEqual(

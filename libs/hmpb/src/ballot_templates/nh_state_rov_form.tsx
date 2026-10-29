@@ -9,9 +9,10 @@ import {
   type CandidateContest,
   type Election,
   getContests,
-  getOrderedCandidatesForContestInBallotStyle,
+  getOrderedCandidates,
   getPrecinctById,
   type HmpbBallotPaperSize,
+  type OptionalCandidateOrderings,
   type Party,
   type PartyId,
   type PrecinctId,
@@ -310,6 +311,7 @@ function FormHeader({
 interface NhStateRovFormProps {
   election: Election;
   ballotStyle: BallotStyle;
+  candidateOrderings: OptionalCandidateOrderings;
   precinctId: PrecinctId;
   paperSize: HmpbBallotPaperSize;
 }
@@ -317,6 +319,7 @@ interface NhStateRovFormProps {
 function NhStateRovFormContestsPage({
   election,
   ballotStyle,
+  candidateOrderings,
   precinctId,
   totalPages,
   paperSize,
@@ -447,9 +450,9 @@ function NhStateRovFormContestsPage({
                 <tbody>
                   {contest.type === 'candidate' &&
                     mergeCrossEndorsedCandidates(
-                      getOrderedCandidatesForContestInBallotStyle({
+                      getOrderedCandidates({
                         contest,
-                        ballotStyle,
+                        orderings: candidateOrderings,
                       })
                     ).map((candidate) => (
                       <tr key={candidate.id}>

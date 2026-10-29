@@ -87,7 +87,7 @@ async function loadConfigFromSearchParams(url: URL): Promise<Config> {
       },
       ballotStyles: [ballotStyle],
     },
-    ballotStyleId: ballotStyle.id,
+    ballotStyle,
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     precinctId: ballotStyle.precincts[0]!,
     ballotType: BallotType.Absentee,
@@ -113,8 +113,9 @@ export async function main(): Promise<void> {
     await loadConfigFromSearchParams(new URL(location.href));
 
   const renderer = createBrowserPreviewRenderer();
+  const orderings = ballotStyle.orderedCandidatesByContest;
   const document = (
-    await renderBallotTemplate(renderer, template, baseBallotProps)
+    await renderBallotTemplate(renderer, template, orderings, baseBallotProps)
   ).unsafeUnwrap();
 
   // Mark some votes

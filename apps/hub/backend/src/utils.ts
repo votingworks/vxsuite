@@ -36,7 +36,7 @@ export function getBallotPdfFileName(props: AnyBallotProps): string {
     props.ballotType,
     'ballot',
     precinct.name.replaceAll(' ', '_'),
-    props.ballotStyleId,
+    props.ballotStyle.id,
     props.ballotAuditId,
     variantSuffix,
   ]
