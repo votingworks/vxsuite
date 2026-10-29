@@ -76,9 +76,7 @@ export function SystemAdministratorScreenContents({
         <SetClockButton logOut={logOut}>Set Date and Time</SetClockButton>
         {additionalButtons}
         <ToggleUsbPortsButton />
-        {isVxDev() && (
-          <Button onPress={() => window.kiosk?.quit()}>Quit</Button>
-        )}
+        {isVxDev() && <Button onPress={() => window.close()}>Quit</Button>}
       </ButtonGrid>
       <P>{primaryText}</P>
     </React.Fragment>
