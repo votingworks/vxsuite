@@ -381,6 +381,7 @@ fn interpret_bubble_ballot(
         options.max_cumulative_streak_width,
         options.retry_streak_width_threshold,
         options.ballot_image_bit_depth,
+        "TODO".into(),
     );
 
     let bottom_image = options

@@ -407,6 +407,11 @@ export type InterpretError = { isBubbleBallot: boolean } & (
       type: 'invalidElection';
       message: string;
     }
+  | {
+      type: 'failedGridLayoutLookup';
+      ballotStyleId: string;
+      message: string;
+    }
 );
 
 /**
