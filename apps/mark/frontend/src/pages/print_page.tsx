@@ -19,8 +19,6 @@ export function PrintPage(): JSX.Element {
     votes,
     endVoterSession,
     resetBallot,
-    hasPrintedBallot,
-    setHasPrintedBallot,
     printJobId,
     setPrintJobId,
   } = useContext(BallotContext);
@@ -31,24 +29,16 @@ export function PrintPage(): JSX.Element {
   const printJobStatusQuery = getPrintJobStatus.useQuery(printJobId);
 
   function print() {
-    // We track the printed ballot state to avoid re-printing in the case where
-    // the voter flow is unmounted and re-mounted during ballot printing. This
-    // is an edge case that would require an authenticated user (e.g. poll
-    // worker) to log in and out during print. `print` is triggered by a
-    // downstream useEffect, which is why it can be called multiple times.
-    if (!hasPrintedBallot) {
-      assert(ballotStyleId !== undefined);
-      assert(precinctId !== undefined);
-      setHasPrintedBallot();
-      void printBallotMutation
-        .mutateAsync({
-          languageCode,
-          precinctId,
-          ballotStyleId,
-          votes,
-        })
-        .then(setPrintJobId);
-    }
+    assert(ballotStyleId !== undefined);
+    assert(precinctId !== undefined);
+    void printBallotMutation
+      .mutateAsync({
+        languageCode,
+        precinctId,
+        ballotStyleId,
+        votes,
+      })
+      .then(setPrintJobId);
   }
 
   const printOutcome =

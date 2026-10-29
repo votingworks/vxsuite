@@ -21,8 +21,6 @@ export interface BallotContextInterface {
   isCardlessVoter: boolean;
   isLiveMode: boolean;
   endVoterSession: () => Promise<void>;
-  hasPrintedBallot: boolean;
-  setHasPrintedBallot: () => void;
   printJobId?: PrintJobId;
   setPrintJobId: (printJobId: PrintJobId) => void;
   precinctId?: PrecinctId;

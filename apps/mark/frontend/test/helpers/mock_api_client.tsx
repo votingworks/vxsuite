@@ -397,7 +397,7 @@ export function createApiMock() {
       }
     ) {
       mockApiClient.printBallot
-        .expectCallWith({
+        .expectRepeatedCallsWith({
           languageCode: 'en',
           ...input,
         })

@@ -28,10 +28,14 @@ function renderPrintPage({
   endVoterSession = vi.fn().mockResolvedValue(undefined),
   resetBallot = vi.fn(),
 } = {}) {
+  apiMock.expectPrintBallot({
+    ballotStyleId: '12',
+    precinctId: '23',
+    votes: {},
+  });
   renderWithBallotContext(provideApi(apiMock, <PrintPage />), {
     ballotStyleId: '12',
     precinctId: '23',
-    hasPrintedBallot: true,
     printJobId: MOCK_PRINT_JOB_ID,
     endVoterSession,
     resetBallot,
@@ -84,12 +88,16 @@ test('clears the settled job status so a reused job id is not read from cache', 
 
   apiMock.setPrintJobStatus({ outcome: 'sent-to-printer' });
   const resetBallot = vi.fn();
+  apiMock.expectPrintBallot({
+    ballotStyleId: '12',
+    precinctId: '23',
+    votes: {},
+  });
   const { unmount } = renderWithBallotContext(
     provideApi(apiMock, <PrintPage />, queryClient),
     {
       ballotStyleId: '12',
       precinctId: '23',
-      hasPrintedBallot: true,
       printJobId: MOCK_PRINT_JOB_ID,
       resetBallot,
     }

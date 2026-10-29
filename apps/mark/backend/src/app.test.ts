@@ -15,6 +15,7 @@ import {
   systemSettings,
 } from '@votingworks/fixtures';
 import {
+  mockCardlessVoterUser,
   mockElectionManagerUser,
   mockPollWorkerUser,
   mockSessionExpiresAt,
@@ -142,6 +143,16 @@ function mockPollWorkerAuth(electionDefinition: ElectionDefinition) {
       user: mockPollWorkerUser({
         electionKey: constructElectionKey(electionDefinition.election),
       }),
+      sessionExpiresAt: mockSessionExpiresAt(),
+    })
+  );
+}
+
+function mockCardlessVoterAuth(sessionId = 'session-id') {
+  vi.mocked(mockAuth.getAuthStatus).mockImplementation(() =>
+    Promise.resolve({
+      status: 'logged_in',
+      user: mockCardlessVoterUser({ sessionId }),
       sessionExpiresAt: mockSessionExpiresAt(),
     })
   );
@@ -1040,6 +1051,7 @@ test('printing ballots', async () => {
 
   // vote a ballot in English
   const mockVotes = generateMockVotes(electionDefinition.election);
+  mockCardlessVoterAuth('english-session');
   await apiClient.printBallot({
     precinctId: '21',
     ballotStyleId: electionDefinition.election.ballotStyles.find((bs) =>
@@ -1063,6 +1075,7 @@ test('printing ballots', async () => {
   });
 
   // vote a ballot in Chinese
+  mockCardlessVoterAuth('chinese-session');
   await apiClient.printBallot({
     precinctId: '21',
     ballotStyleId: electionDefinition.election.ballotStyles.find((bs) =>
@@ -1091,6 +1104,7 @@ test('a ballot that fails to print does not increment the printed count', async 
 
   await expectElectionState({ ballotsPrintedCount: 0 });
 
+  mockCardlessVoterAuth();
   const jobId = await apiClient.printBallot({
     precinctId: '21',
     ballotStyleId: electionDefinition.election.ballotStyles[0]!.id,
@@ -1114,6 +1128,78 @@ test('a ballot that fails to print does not increment the printed count', async 
   }, PRINT_SETTLEMENT_WAIT_OPTIONS);
   expect(clearJobQueue).toHaveBeenCalled();
   await expectElectionState({ ballotsPrintedCount: 0 });
+});
+
+test('repeat print requests in one voter session print a single ballot', async () => {
+  const electionDefinition = electionGeneralDefinition;
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
+  await configureMachine(
+    mockUsbDrive,
+    electionDefinition,
+    electionGeneralFixtures.uiStrings
+  );
+  const printProps = {
+    precinctId: '21',
+    ballotStyleId: electionDefinition.election.ballotStyles[0]!.id,
+    votes: generateMockVotes(electionDefinition.election),
+    languageCode: 'en',
+  } as const;
+
+  mockCardlessVoterAuth('session-1');
+  const [jobId, concurrentJobId] = await Promise.all([
+    apiClient.printBallot(printProps),
+    apiClient.printBallot(printProps),
+  ]);
+  expect(concurrentJobId).toEqual(jobId);
+
+  vi.mocked(mockAuth.getAuthStatus).mockResolvedValue({
+    status: 'logged_in',
+    user: mockPollWorkerUser({
+      electionKey: constructElectionKey(electionDefinition.election),
+    }),
+    sessionExpiresAt: mockSessionExpiresAt(),
+    cardlessVoterUser: mockCardlessVoterUser({ sessionId: 'session-1' }),
+  });
+  expect(await apiClient.printBallot(printProps)).toEqual(jobId);
+  expect(mockPrinterHandler.getPrintJobHistory()).toHaveLength(1);
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.BallotPrintRequest,
+    expect.objectContaining({
+      message: 'Ignoring repeat ballot print request for this voter session',
+    })
+  );
+
+  mockCardlessVoterAuth('session-2');
+  expect(await apiClient.printBallot(printProps)).not.toEqual(jobId);
+  expect(mockPrinterHandler.getPrintJobHistory()).toHaveLength(2);
+});
+
+test('printing a ballot requires a cardless voter session', async () => {
+  const electionDefinition = electionGeneralDefinition;
+  mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);
+  await configureMachine(
+    mockUsbDrive,
+    electionDefinition,
+    electionGeneralFixtures.uiStrings
+  );
+
+  for (const mockAuthWithoutVoterSession of [
+    () => mockPollWorkerAuth(electionDefinition),
+    mockNoCard,
+  ]) {
+    mockAuthWithoutVoterSession();
+    await suppressingConsoleOutput(() =>
+      expect(
+        apiClient.printBallot({
+          precinctId: '21',
+          ballotStyleId: electionDefinition.election.ballotStyles[0]!.id,
+          votes: generateMockVotes(electionDefinition.election),
+          languageCode: 'en',
+        })
+      ).rejects.toThrow()
+    );
+  }
+  expect(mockPrinterHandler.getPrintJobHistory()).toHaveLength(0);
 });
 
 test('printing a blank ballot prints the pre-rendered base ballot PDF', async () => {
@@ -1386,6 +1472,7 @@ test('a print job that settles after a count reset does not count itself', async
   );
 
   // A ballot is still in flight...
+  mockCardlessVoterAuth();
   const jobId = await apiClient.printBallot({
     precinctId: '21',
     ballotStyleId: electionDefinition.election.ballotStyles.find((bs) =>
