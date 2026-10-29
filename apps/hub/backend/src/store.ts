@@ -70,10 +70,7 @@ import {
 } from '@votingworks/utils';
 import { randomUUID as uuid } from 'node:crypto';
 import type { BaseLogger } from '@votingworks/logging';
-import {
-  type BallotTemplateId,
-  generateBallotStylesDeprecated,
-} from '@votingworks/hmpb';
+import { type BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
 import pg, { type DatabaseError } from 'pg';
 import type {
   ExternalElectionSource,
@@ -95,10 +92,12 @@ import type { Bindable, Client } from './db/client.js';
 import { generateId } from './utils.js';
 import { getStateFeaturesConfig } from './features.js';
 import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from './globals.js';
+import { CandidateOrderingsMap } from './candidate_orderings.js';
 
 export interface ElectionRecord {
   jurisdictionId: string;
   election: Election;
+  candidateOrderings: CandidateOrderingsMap;
   isMiCombinedBallotPrimary: boolean;
   systemSettings: SystemSettings;
   createdAt: Iso8601Timestamp;
@@ -1197,7 +1196,7 @@ export class Store {
         (l): BallotLanguageConfig => ({ languages: [l] })
       );
 
-      const ballotStyles = generateBallotStylesDeprecated({
+      const { ballotStyles, candidateOrderings } = generateBallotStyles({
         ballotLanguageConfigs,
         contests,
         electionType: electionRow.type,
@@ -1274,6 +1273,7 @@ export class Store {
 
       return {
         election,
+        candidateOrderings: new CandidateOrderingsMap(candidateOrderings),
         isMiCombinedBallotPrimary: electionRow.isMiCombinedBallotPrimary,
         systemSettings,
         ballotTemplateId: electionRow.ballotTemplateId,

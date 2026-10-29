@@ -861,8 +861,12 @@ export function buildApi(ctx: AppContext) {
     }): Promise<
       Result<{ pdfData: Uint8Array; fileName: string }, BallotLayoutError>
     > {
-      const { election, ballotLanguageConfigs, ballotTemplateId } =
-        await store.getElection(input.electionId);
+      const {
+        election,
+        ballotLanguageConfigs,
+        ballotTemplateId,
+        candidateOrderings,
+      } = await store.getElection(input.electionId);
       const { compact } = await store.getBallotLayoutSettings(input.electionId);
       const systemSettings = await store.getSystemSettings(input.electionId);
       const ballotStrings = await translateBallotStrings(
@@ -888,7 +892,7 @@ export function buildApi(ctx: AppContext) {
         allBallotProps,
         (props) =>
           props.precinctId === input.precinctId &&
-          props.ballotStyleId === input.ballotStyleId &&
+          props.ballotStyle.id === input.ballotStyleId &&
           props.ballotType === input.ballotType &&
           props.ballotMode === input.ballotMode &&
           (ballotTemplateId === 'NhStateBallot'
@@ -901,6 +905,7 @@ export function buildApi(ctx: AppContext) {
         ballotPdf = await renderBallotPreviewToPdf(
           renderer,
           ballotTemplates[ballotTemplateId],
+          candidateOrderings.get(ballotProps.ballotStyle),
           // NOTE: Changing this text means you should also change the font size
           // of the <Watermark> component in the ballot template.
           { ...ballotProps, watermark: 'PROOF' }
