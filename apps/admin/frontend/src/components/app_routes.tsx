@@ -42,6 +42,8 @@ import { AdjudicationStartScreen } from '../screens/adjudication_start_screen.js
 import { BallotAdjudicationScreenWrapper as BallotAdjudicationScreen } from '../screens/ballot_adjudication_screen.js';
 import { WriteInCandidatesScreen } from '../screens/write_in_candidates_screen.js';
 import { CvrDataRefresher } from './cvr_data_refresher.js';
+import { DesignArea } from '../design/design_area.js';
+import { isElectionDesignEnabled } from '../design/design_flag.js';
 
 export function AppRoutes(): JSX.Element | null {
   const { electionDefinition, electionPackageHash, machineConfig, auth } =
@@ -132,6 +134,11 @@ export function AppRoutes(): JSX.Element | null {
         <Route exact path={routerPaths.hardwareDiagnostics}>
           <DiagnosticsScreen />
         </Route>
+        {isElectionDesignEnabled() && (
+          <Route path={routerPaths.design}>
+            <DesignArea />
+          </Route>
+        )}
         <Redirect to={routerPaths.election} />
       </Switch>
     );

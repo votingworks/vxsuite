@@ -389,6 +389,9 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
+      '@votingworks/design-ui':
+        specifier: workspace:*
+        version: link:../../../libs/design-ui
       '@votingworks/dev-dock-frontend':
         specifier: workspace:*
         version: link:../../../libs/dev-dock/frontend
@@ -537,6 +540,9 @@ importers:
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../../../libs/coverage-check
+      '@votingworks/design-backend':
+        specifier: workspace:*
+        version: link:../../../libs/design-backend
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures

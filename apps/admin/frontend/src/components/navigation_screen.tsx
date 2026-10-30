@@ -39,6 +39,7 @@ import {
 import { getNetworkStatus } from '../api.js';
 import { ClientNetworkStatusIndicator } from '../client/components/network_status_indicator.js';
 import { type NavItem, Sidebar } from './sidebar.js';
+import { isElectionDesignEnabled } from '../design/design_flag.js';
 
 function NetworkStatusIndicator(): JSX.Element | null {
   const networkStatusQuery = getNetworkStatus.usePollingQuery();
@@ -71,6 +72,9 @@ interface Props {
 
 const HOST_SYSTEM_ADMIN_NAV_ITEMS: readonly NavItem[] = [
   { label: 'Election', routerPath: routerPaths.election },
+  ...(isElectionDesignEnabled()
+    ? [{ label: 'Design', routerPath: routerPaths.design }]
+    : []),
   { label: 'Smart Cards', routerPath: routerPaths.smartcards },
   { label: 'Settings', routerPath: routerPaths.settings },
   { label: 'Diagnostics', routerPath: routerPaths.hardwareDiagnostics },

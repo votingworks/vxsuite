@@ -5,16 +5,21 @@ import {
   getStateFeaturesConfig,
   type StateCode,
   StateCodeSchema,
+  StateCodes,
   type StateFeaturesConfig,
   type Store as DesignStore,
 } from '@votingworks/design-backend';
 import * as grout from '@votingworks/grout';
-import { unsafeParse } from '@votingworks/types';
+import { type ElectionId, unsafeParse } from '@votingworks/types';
 import type { Workspace } from '../util/workspace.js';
 import { constructAuthMachineState } from '../util/auth.js';
 import { getLocalJurisdiction, LOCAL_JURISDICTION_ID } from './design_store.js';
 
 class DesignAuthError extends grout.UserError {}
+
+function withoutAudio(features: StateFeaturesConfig): StateFeaturesConfig {
+  return { ...features, AUDIO_ENABLED: false };
+}
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildDesignApi({
@@ -38,11 +43,27 @@ export function buildDesignApi({
     }
   }
 
+  const electionDefinitionMethods = buildElectionDefinitionMethods({
+    store: designStore,
+  });
+
   const methods = {
-    ...buildElectionDefinitionMethods({ store: designStore }),
+    ...electionDefinitionMethods,
+
+    async getStateFeatures(input: {
+      electionId: ElectionId;
+    }): Promise<StateFeaturesConfig> {
+      return withoutAudio(
+        await electionDefinitionMethods.getStateFeatures(input)
+      );
+    },
 
     async getLocalJurisdictionId(): Promise<string> {
       return LOCAL_JURISDICTION_ID;
+    },
+
+    listStateCodes(): readonly StateCode[] {
+      return StateCodes;
     },
 
     async getDesignStateCode(): Promise<StateCode> {
@@ -57,7 +78,9 @@ export function buildDesignApi({
     },
 
     async getLocalStateFeatures(): Promise<StateFeaturesConfig> {
-      return getStateFeaturesConfig(await getLocalJurisdiction(designStore));
+      return withoutAudio(
+        getStateFeaturesConfig(await getLocalJurisdiction(designStore))
+      );
     },
 
     listElections(): Promise<ElectionListing[]> {

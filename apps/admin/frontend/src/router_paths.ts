@@ -44,4 +44,5 @@ export const routerPaths = {
   settings: '/settings',
   hardwareDiagnostics: '/hardware-diagnostics',
   system: '/system',
+  design: '/design',
 } as const;
