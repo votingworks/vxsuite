@@ -73,6 +73,7 @@ export async function createDesignStore(logger: BaseLogger): Promise<Store> {
   );
   const store = new Store(db);
   await ensureLocalJurisdiction(store);
+  await store.failCrashedBackgroundTasks();
   return store;
 }
 

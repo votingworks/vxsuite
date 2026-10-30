@@ -1,5 +1,6 @@
 node_modules
 dev-workspace/
+dev-workspace-design-files/
 workspace-backups/
 perf/fixtures/
 *~
