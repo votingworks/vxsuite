@@ -40,6 +40,7 @@ function DesignElectionNavScreen({
     getStateFeaturesQuery.data.EDIT_POLLING_PLACES && r.pollingPlaces.root,
     r.parties.root,
     r.contests.root,
+    { title: 'Ballots', path: r.ballots.root.path },
   ].filter((route) => !!route);
 
   return (

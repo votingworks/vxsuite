@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import {
   ApiClientContext,
@@ -17,9 +17,11 @@ import {
 } from '@votingworks/design-ui';
 import { ADMIN_DESIGN_SHELL } from './admin_design_shell.js';
 import {
+  AdminQueryClientContext,
   asDesignUiApiClient,
   createAdminDesignApiClient,
 } from './design_api.js';
+import { DesignBallotsScreen } from './design_ballots_screen.js';
 import { DesignElectionsScreen } from './design_elections_screen.js';
 
 export const DESIGN_BASE_PATH = '/design';
@@ -53,6 +55,10 @@ function DesignElectionScreens(): JSX.Element {
         path={electionParamRoutes.contests.root.path}
         component={ContestsScreen}
       />
+      <Route
+        path={electionParamRoutes.ballots.root.path}
+        component={DesignBallotsScreen}
+      />
       <Redirect
         from={electionParamRoutes.root.path}
         to={electionParamRoutes.electionInfo.root.path}
@@ -62,25 +68,28 @@ function DesignElectionScreens(): JSX.Element {
 }
 
 export function DesignArea(): JSX.Element {
+  const adminQueryClient = useQueryClient();
   const [queryClient] = useState(createQueryClient);
   const [apiClient] = useState(() =>
     asDesignUiApiClient(createAdminDesignApiClient())
   );
   return (
-    <QueryClientProvider client={queryClient}>
-      <ApiClientContext.Provider value={apiClient}>
-        <DesignShellContext.Provider value={ADMIN_DESIGN_SHELL}>
-          <Switch>
-            <Route exact path={routes.root.path}>
-              <DesignElectionsScreen />
-            </Route>
-            <Route
-              path={electionParamRoutes.root.path}
-              component={DesignElectionScreens}
-            />
-          </Switch>
-        </DesignShellContext.Provider>
-      </ApiClientContext.Provider>
-    </QueryClientProvider>
+    <AdminQueryClientContext.Provider value={adminQueryClient}>
+      <QueryClientProvider client={queryClient}>
+        <ApiClientContext.Provider value={apiClient}>
+          <DesignShellContext.Provider value={ADMIN_DESIGN_SHELL}>
+            <Switch>
+              <Route exact path={routes.root.path}>
+                <DesignElectionsScreen />
+              </Route>
+              <Route
+                path={electionParamRoutes.root.path}
+                component={DesignElectionScreens}
+              />
+            </Switch>
+          </DesignShellContext.Provider>
+        </ApiClientContext.Provider>
+      </QueryClientProvider>
+    </AdminQueryClientContext.Provider>
   );
 }

@@ -19,6 +19,7 @@ import {
 } from '@votingworks/types';
 import { err, ok, type Result } from '@votingworks/basics';
 import {
+  type ElectionPackageError,
   type ExportDataError,
   readElectionPackageFromFile,
 } from '@votingworks/backend';
@@ -31,6 +32,7 @@ import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import { buildExporter } from '../util/exporter.js';
+import { configureFromElectionPackageFile } from '../configure.js';
 import type { DesignExporter } from './design_export.js';
 import { LogEventId, type Logger } from '@votingworks/logging';
 import { readFile } from 'node:fs/promises';
@@ -207,6 +209,39 @@ export function buildDesignApi({
         savedFiles.push(join(directory, fileName));
       }
       return ok(savedFiles);
+    },
+
+    async configureFromDesign(input: {
+      electionId: ElectionId;
+    }): Promise<Result<{ electionId: string }, ElectionPackageError | Error>> {
+      if (workspace.store.getCurrentElectionId()) {
+        return err(
+          new Error(
+            'VxAdmin is already configured. Unconfigure it before configuring from a design.'
+          )
+        );
+      }
+      const finalizedAt = await designStore.getBallotsFinalizedAt(
+        input.electionId
+      );
+      const { task, electionPackageUrl } = await designStore.getElectionPackage(
+        input.electionId
+      );
+      if (
+        !finalizedAt ||
+        !electionPackageUrl ||
+        !task?.completedAt ||
+        task.error ||
+        task.createdAt < finalizedAt
+      ) {
+        return err(new Error('Finalize and export ballots first.'));
+      }
+      return configureFromElectionPackageFile({
+        store: workspace.store,
+        logger,
+        electionPackageFilePath:
+          designExporter.resolveFileUrl(electionPackageUrl),
+      });
     },
 
     listElections(): Promise<ElectionListing[]> {

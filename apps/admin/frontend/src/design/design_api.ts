@@ -1,12 +1,16 @@
 import type { DesignApi } from '@votingworks/admin-backend';
 import type { StateCode } from '@votingworks/design-backend';
+import React from 'react';
 import {
   type ApiClient,
+  getBallotsFinalizedAt,
   listElections,
   useApiClient,
 } from '@votingworks/design-ui';
+import type { ElectionId } from '@votingworks/types';
 import * as grout from '@votingworks/grout';
 import {
+  type QueryClient,
   type QueryKey,
   useMutation,
   useQuery,
@@ -85,5 +89,84 @@ export const loadElectionPackage = {
         },
       }
     );
+  },
+} as const;
+
+export const AdminQueryClientContext = React.createContext<
+  QueryClient | undefined
+>(undefined);
+
+const EXPORT_POLLING_INTERVAL_MS = 1000;
+
+export const getElectionPackage = {
+  queryKey(electionId: ElectionId): QueryKey {
+    return ['getElectionPackage', electionId];
+  },
+  useQuery(electionId: ElectionId) {
+    const apiClient = useAdminDesignApiClient();
+    return useQuery(
+      this.queryKey(electionId),
+      () => apiClient.getElectionPackage({ electionId }),
+      {
+        refetchInterval: (data) =>
+          data?.task && !data.task.completedAt
+            ? EXPORT_POLLING_INTERVAL_MS
+            : false,
+      }
+    );
+  },
+} as const;
+
+export const finalizeAndExportBallots = {
+  useMutation() {
+    const apiClient = useAdminDesignApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.finalizeAndExportBallots, {
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries(
+          getBallotsFinalizedAt.queryKey(electionId)
+        );
+        await queryClient.invalidateQueries(
+          getElectionPackage.queryKey(electionId)
+        );
+        await queryClient.invalidateQueries(listElections.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const unfinalizeBallots = {
+  useMutation() {
+    const apiClient = useAdminDesignApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.unfinalizeBallots, {
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries(
+          getBallotsFinalizedAt.queryKey(electionId)
+        );
+        await queryClient.invalidateQueries(listElections.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const saveDesignExportToUsb = {
+  useMutation() {
+    const apiClient = useAdminDesignApiClient();
+    return useMutation(apiClient.saveDesignExportToUsb);
+  },
+} as const;
+
+export const configureFromDesign = {
+  useMutation() {
+    const apiClient = useAdminDesignApiClient();
+    const adminQueryClient = React.useContext(AdminQueryClientContext);
+    return useMutation(apiClient.configureFromDesign, {
+      async onSuccess(result) {
+        if (result.isOk()) {
+          await adminQueryClient?.invalidateQueries();
+        }
+      },
+    });
   },
 } as const;
