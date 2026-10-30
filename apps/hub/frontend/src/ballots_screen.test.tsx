@@ -24,7 +24,7 @@ import {
 import { render, screen, within } from '../test/react_testing_library.js';
 import { withRoute } from '../test/routing_helpers.js';
 import { BallotsScreen } from './ballots_screen.js';
-import { routes } from './routes.js';
+import { routes } from '@votingworks/design-ui';
 import { BallotsStatus } from './ballots_status.js';
 
 vi.mock('./ballots_status');

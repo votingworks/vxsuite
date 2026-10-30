@@ -32,11 +32,11 @@ import {
   within,
 } from '../test/react_testing_library.js';
 import { withRoute } from '../test/routing_helpers.js';
-import { ElectionInfoScreen } from './election_info_screen.js';
-import { routes } from './routes.js';
-import { ElectionInfoAudioPanel } from './election_info_audio_panel.js';
+import { ElectionInfoScreen } from '@votingworks/design-ui';
+import { routes } from '@votingworks/design-ui';
+import { ElectionInfoAudioPanel } from '@votingworks/design-ui';
 
-vi.mock('./election_info_audio_panel.js');
+vi.mock('@votingworks/design-ui');
 const MockAudioPanel = vi.mocked(ElectionInfoAudioPanel);
 const MOCK_AUDIO_PANEL_ID = 'MockElectionInfoAudioPanel';
 

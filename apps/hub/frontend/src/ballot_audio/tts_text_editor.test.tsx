@@ -11,7 +11,7 @@ import {
   screen,
   waitFor,
 } from '../../test/react_testing_library.js';
-import { TtsTextEditor } from './tts_text_editor.js';
+import { TtsTextEditor } from '@votingworks/design-ui';
 import {
   createMockApiClient,
   type MockApiClient,

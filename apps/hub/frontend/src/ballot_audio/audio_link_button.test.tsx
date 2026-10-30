@@ -8,9 +8,9 @@ import { sleep } from '@votingworks/basics';
 import type { StateFeaturesConfig } from '@votingworks/hub-backend';
 
 import { act, render, screen } from '../../test/react_testing_library.js';
-import { AudioLinkButton } from './audio_link_button.js';
+import { AudioLinkButton } from '@votingworks/design-ui';
 import { createMockApiClient, provideApi } from '../../test/api_helpers.js';
-import { electionParamRoutes, routes } from '../routes.js';
+import { electionParamRoutes, routes } from '@votingworks/design-ui';
 
 const electionId = 'election-1';
 

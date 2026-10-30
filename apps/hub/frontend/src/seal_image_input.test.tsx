@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { render, screen } from '../test/react_testing_library.js';
-import { SealImageInput } from './seal_image_input.js';
+import { SealImageInput } from '@votingworks/design-ui';
 
 test('uses "Upload Seal Image" button label', () => {
   render(<SealImageInput onChange={vi.fn()} />);

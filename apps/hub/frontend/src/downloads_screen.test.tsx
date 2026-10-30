@@ -1,7 +1,7 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { DownloadsScreen } from './downloads_screen.js';
-import { routes } from './routes.js';
+import { routes } from '@votingworks/design-ui';
 import { withRoute } from '../test/routing_helpers.js';
 import {
   createMockApiClient,

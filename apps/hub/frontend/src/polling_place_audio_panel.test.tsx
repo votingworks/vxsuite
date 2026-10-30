@@ -7,9 +7,9 @@ import { ElectionStringKey, LanguageCode } from '@votingworks/types';
 import { userEvent } from '@testing-library/user-event';
 
 import { createMockApiClient, provideApi } from '../test/api_helpers.js';
-import { PollingPlaceAudioPanel } from './polling_place_audio_panel.js';
-import { electionParamRoutes, routes } from './routes.js';
-import { AudioEditorPanel } from './ballot_audio/audio_editor_panel.js';
+import { PollingPlaceAudioPanel } from '@votingworks/design-ui';
+import { electionParamRoutes, routes } from '@votingworks/design-ui';
+import { AudioEditorPanel } from '@votingworks/design-ui';
 import { render, screen, waitFor } from '../test/react_testing_library.js';
 
 vi.mock('./ballot_audio/audio_editor_panel', async (importActual) => ({

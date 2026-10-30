@@ -7,7 +7,7 @@ import {
 import { TestErrorBoundary } from '@votingworks/ui';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { UnauthenticatedApiClientContext } from '../src/public_api.js';
-import { createQueryClient } from '../src/api.js';
+import { createQueryClient } from '@votingworks/design-ui';
 
 export type MockUnauthenticatedApiClient = MockClient<UnauthenticatedApi>;
 

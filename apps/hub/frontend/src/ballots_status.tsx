@@ -18,9 +18,9 @@ import {
   hasPartialRegisteredVoterCounts,
   getPrecinctsWithoutAbsenteePollingPlace,
 } from '@votingworks/types';
-import * as api from './api.js';
-import { type ElectionIdParams, routes } from './routes.js';
-import { Row } from './layout.js';
+import * as api from '@votingworks/design-ui';
+import { type ElectionIdParams, routes } from '@votingworks/design-ui';
+import { Row } from '@votingworks/design-ui';
 
 export function BallotsStatus(): React.ReactNode {
   const [isConfirmingFinalize, setIsConfirmingFinalize] = useState(false);

@@ -19,13 +19,21 @@ export const resultsRoutes = {
   },
 } as const;
 
+let routesBasePath = '';
+
+export function setRoutesBasePath(basePath: string): void {
+  routesBasePath = basePath;
+}
+
 export const routes = {
   root: {
     title: 'Elections',
-    path: '/',
+    get path(): string {
+      return routesBasePath || '/';
+    },
   },
   election: (id: string) => {
-    const root = `/elections/${id}`;
+    const root = `${routesBasePath}/elections/${id}`;
     return {
       root: {
         title: 'Election',
@@ -193,7 +201,16 @@ export const routes = {
 export interface ElectionIdParams {
   electionId: ElectionId;
 }
-export const electionParamRoutes = routes.election(':electionId');
+type ElectionRoutes = ReturnType<typeof routes.election>;
+
+export const electionParamRoutes: ElectionRoutes = new Proxy(
+  {} as ElectionRoutes,
+  {
+    get(_target, property: keyof ElectionRoutes) {
+      return routes.election(':electionId')[property];
+    },
+  }
+);
 
 export const rootNavRoutes: Route[] = [];
 

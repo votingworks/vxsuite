@@ -1187,6 +1187,9 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
+      '@votingworks/design-ui':
+        specifier: workspace:*
+        version: link:../../../libs/design-ui
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
@@ -3749,6 +3752,136 @@ importers:
       lint-staged:
         specifier: 11.0.0
         version: 11.0.0(supports-color@8.1.1)
+      sort-package-json:
+        specifier: ^1.50.0
+        version: 1.53.1
+      vitest:
+        specifier: 5.0.2
+        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(@vitest/coverage-istanbul@5.0.2)(jsdom@30.1.3(@noble/hashes@1.8.0)(canvas@3.2.3))(vite@8.1.6(@types/node@24.19.2)(esbuild@0.28.1)(yaml@2.8.2))
+
+  libs/design-ui:
+    dependencies:
+      '@tanstack/react-query':
+        specifier: 4.32.1
+        version: 4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@tiptap/extension-bold':
+        specifier: ^3.32.0
+        version: 3.32.0(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))
+      '@tiptap/extension-document':
+        specifier: ^3.32.0
+        version: 3.32.0(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))
+      '@tiptap/extension-hard-break':
+        specifier: ^3.32.0
+        version: 3.32.0(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))
+      '@tiptap/extension-image':
+        specifier: ^3.32.0
+        version: 3.32.0(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))
+      '@tiptap/extension-italic':
+        specifier: ^3.32.0
+        version: 3.32.0(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))
+      '@tiptap/extension-list':
+        specifier: ^3.32.0
+        version: 3.32.0(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))(@tiptap/pm@3.32.0)
+      '@tiptap/extension-paragraph':
+        specifier: ^3.32.0
+        version: 3.32.0(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))
+      '@tiptap/extension-strike':
+        specifier: ^3.32.0
+        version: 3.32.0(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))
+      '@tiptap/extension-table':
+        specifier: ^3.32.0
+        version: 3.32.0(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))(@tiptap/pm@3.32.0)
+      '@tiptap/extension-text':
+        specifier: ^3.32.0
+        version: 3.32.0(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))
+      '@tiptap/extension-underline':
+        specifier: ^3.32.0
+        version: 3.32.0(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))
+      '@tiptap/extensions':
+        specifier: ^3.32.0
+        version: 3.32.0(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))(@tiptap/pm@3.32.0)
+      '@tiptap/pm':
+        specifier: ^3.32.0
+        version: 3.32.0
+      '@tiptap/react':
+        specifier: ^3.32.0
+        version: 3.32.0(@floating-ui/dom@1.5.1)(@tiptap/core@3.32.0(@tiptap/pm@3.32.0))(@tiptap/pm@3.32.0)(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@votingworks/basics':
+        specifier: workspace:*
+        version: link:../basics
+      '@votingworks/design-backend':
+        specifier: workspace:*
+        version: link:../design-backend
+      '@votingworks/grout':
+        specifier: workspace:*
+        version: link:../grout
+      '@votingworks/hmpb':
+        specifier: workspace:*
+        version: link:../hmpb
+      '@votingworks/hub-backend':
+        specifier: workspace:*
+        version: link:../../apps/hub/backend
+      '@votingworks/types':
+        specifier: workspace:*
+        version: link:../types
+      '@votingworks/ui':
+        specifier: workspace:*
+        version: link:../ui
+      buffer:
+        specifier: ^6.0.3
+        version: 6.0.3
+      nanoid:
+        specifier: ^3.3.20
+        version: 3.3.20
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-flip-toolkit:
+        specifier: ^7.1.0
+        version: 7.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-router-dom:
+        specifier: ^5.3.4
+        version: 5.3.4(react@18.3.1)
+      sanitize-html:
+        specifier: ^2.17.7
+        version: 2.17.7
+      styled-components:
+        specifier: ^5.3.11
+        version: 5.3.11(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
+      use-sound:
+        specifier: 5.0.0
+        version: 5.0.0(react@18.3.1)
+      zod:
+        specifier: 4.6.6
+        version: 4.6.6
+    devDependencies:
+      '@types/node':
+        specifier: 24.19.2
+        version: 24.19.2
+      '@types/react':
+        specifier: 18.3.3
+        version: 18.3.3
+      '@types/react-router-dom':
+        specifier: ^5.3.3
+        version: 5.3.3
+      '@types/sanitize-html':
+        specifier: ^2.13.0
+        version: 2.13.0
+      '@types/styled-components':
+        specifier: ^5.1.26
+        version: 5.1.26
+      '@vitest/coverage-istanbul':
+        specifier: 5.0.2
+        version: 5.0.2(vitest@5.0.2)
+      '@votingworks/coverage-check':
+        specifier: workspace:*
+        version: link:../coverage-check
+      esbuild:
+        specifier: 0.28.1
+        version: 0.28.1
+      eslint-plugin-vx:
+        specifier: workspace:*
+        version: link:../eslint-plugin-vx
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1

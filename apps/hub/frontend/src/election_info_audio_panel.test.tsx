@@ -7,10 +7,10 @@ import type { ElectionInfo, TtsStringDefault } from '@votingworks/hub-backend';
 import { ElectionStringKey, LanguageCode } from '@votingworks/types';
 
 import { createMockApiClient, provideApi } from '../test/api_helpers.js';
-import { electionParamRoutes, routes } from './routes.js';
-import { AudioEditorPanel } from './ballot_audio/audio_editor_panel.js';
+import { electionParamRoutes, routes } from '@votingworks/design-ui';
+import { AudioEditorPanel } from '@votingworks/design-ui';
 import { render, screen, waitFor } from '../test/react_testing_library.js';
-import { ElectionInfoAudioPanel } from './election_info_audio_panel.js';
+import { ElectionInfoAudioPanel } from '@votingworks/design-ui';
 
 vi.mock('./ballot_audio/audio_editor_panel', async (importActual) => ({
   ...(await importActual()),

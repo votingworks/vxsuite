@@ -5,7 +5,7 @@ import { fireEvent, render, screen } from '../test/react_testing_library.js';
 import {
   RichTextEditor,
   sanitizeTrailingNbspOnPaste,
-} from './rich_text_editor.js';
+} from '@votingworks/design-ui';
 
 // We mostly test that the buttons in the toolbar work as expected and that
 // `onChange` works. We rely on tiptap working correctly for the actual text

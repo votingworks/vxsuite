@@ -12,7 +12,7 @@ import type { ElectionInfo } from '@votingworks/hub-backend';
 import { userEvent } from '@testing-library/user-event';
 import { DateWithoutTime, sleep } from '@votingworks/basics';
 import { createMemoryHistory } from 'history';
-import { routes } from './routes.js';
+import { routes } from '@votingworks/design-ui';
 import { withRoute } from '../test/routing_helpers.js';
 import {
   createMockApiClient,

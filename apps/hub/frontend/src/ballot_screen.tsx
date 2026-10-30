@@ -38,9 +38,9 @@ import {
   getBallotLayoutSettings,
   listBallotStyles,
   listParties,
-} from './api.js';
-import { routes } from './routes.js';
-import { FieldName as BaseFieldName, Row } from './layout.js';
+} from '@votingworks/design-ui';
+import { routes } from '@votingworks/design-ui';
+import { FieldName as BaseFieldName, Row } from '@votingworks/design-ui';
 
 // The worker is bundled from the same pdfjs-dist version react-pdf uses
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(

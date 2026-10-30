@@ -23,7 +23,7 @@ import {
   mockStateFeatures,
 } from '../test/api_helpers.js';
 import { withRoute } from '../test/routing_helpers.js';
-import { routes } from './routes.js';
+import { routes } from '@votingworks/design-ui';
 import { SystemSettingsScreen } from './system_settings_screen.js';
 import {
   electionInfoFromRecord,

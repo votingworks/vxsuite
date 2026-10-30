@@ -48,7 +48,7 @@ import type {
   QuickReportedPollStatus,
 } from '@votingworks/hub-backend';
 import { ElectionNavScreen, Header } from './nav_screen.js';
-import { type ElectionIdParams, routes } from './routes.js';
+import { type ElectionIdParams, routes } from '@votingworks/design-ui';
 import {
   deleteQuickReportingResults,
   getLiveReportsActivityLog,
@@ -56,10 +56,10 @@ import {
   getLiveReportsSummary,
   getStateFeatures,
   getSystemSettings,
-} from './api.js';
-import { useTitle } from './hooks/use_title.js';
-import { Row } from './layout.js';
-import { useSound } from './utils.js';
+} from '@votingworks/design-ui';
+import { useTitle } from '@votingworks/design-ui';
+import { Row } from '@votingworks/design-ui';
+import { useSound } from '@votingworks/design-ui';
 
 // --- Status types and helpers ---
 

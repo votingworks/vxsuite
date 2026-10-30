@@ -33,16 +33,16 @@ import {
   getElectionInfo,
   listParties,
   getStateFeatures,
-} from './api.js';
-import { Column, Form, FormActionsRow, NestedTr } from './layout.js';
+} from '@votingworks/design-ui';
+import { Column, Form, FormActionsRow, NestedTr } from '@votingworks/design-ui';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import {
   type ElectionIdParams,
   electionParamRoutes,
   routes,
-} from './routes.js';
+} from '@votingworks/design-ui';
 import { BallotScreen, paperSizeLabels } from './ballot_screen.js';
-import { useTitle } from './hooks/use_title.js';
+import { useTitle } from '@votingworks/design-ui';
 import { BallotsStatus } from './ballots_status.js';
 
 function BallotDesignForm({

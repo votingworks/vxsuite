@@ -27,12 +27,12 @@ import {
   getBallotTemplate,
   decryptCvrBallotAuditIds,
   getStateFeatures,
-} from './api.js';
+} from '@votingworks/design-ui';
 import { ElectionNavScreen, Header } from './nav_screen.js';
-import { type ElectionIdParams, routes } from './routes.js';
-import { downloadFile } from './utils.js';
-import { Column, InputGroup } from './layout.js';
-import { useTitle } from './hooks/use_title.js';
+import { type ElectionIdParams, routes } from '@votingworks/design-ui';
+import { downloadFile } from '@votingworks/design-ui';
+import { Column, InputGroup } from '@votingworks/design-ui';
+import { useTitle } from '@votingworks/design-ui';
 import { ReorderContestsByDistrictButton } from './reorder_contests_by_district_button.js';
 import { Downloads } from './downloads.js';
 import { ProofingStatus } from './proofing_status.js';

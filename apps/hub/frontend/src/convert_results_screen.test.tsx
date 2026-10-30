@@ -19,7 +19,7 @@ import {
 import { render, screen } from '../test/react_testing_library.js';
 import { withRoute } from '../test/routing_helpers.js';
 import { ConvertResultsScreen } from './convert_results_screen.js';
-import { routes } from './routes.js';
+import { routes } from '@votingworks/design-ui';
 import {
   electionInfoFromRecord,
   generalElectionRecord,

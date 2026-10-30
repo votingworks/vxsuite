@@ -16,9 +16,9 @@ import {
 import { format } from '@votingworks/utils';
 import type { BackgroundTask, ExportQaRun } from '@votingworks/hub-backend';
 
-import { type ElectionIdParams, routes } from './routes.js';
-import { InputGroup, Row } from './layout.js';
-import * as api from './api.js';
+import { type ElectionIdParams, routes } from '@votingworks/design-ui';
+import { InputGroup, Row } from '@votingworks/design-ui';
+import * as api from '@votingworks/design-ui';
 import { TaskProgress } from './task_progress.js';
 
 const Container = styled.div`

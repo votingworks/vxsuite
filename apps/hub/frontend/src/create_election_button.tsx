@@ -9,8 +9,8 @@ import {
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import type { Jurisdiction } from '@votingworks/hub-backend';
-import { generateId } from './utils.js';
-import * as api from './api.js';
+import { generateId } from '@votingworks/design-ui';
+import * as api from '@votingworks/design-ui';
 
 function CreateElectionModalForm({
   jurisdictions,

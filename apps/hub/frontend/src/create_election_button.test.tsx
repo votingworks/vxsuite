@@ -14,7 +14,7 @@ import {
   organizationUser,
 } from '../test/api_helpers.js';
 import { CreateElectionButton } from './create_election_button.js';
-import { routes } from './routes.js';
+import { routes } from '@votingworks/design-ui';
 import {
   screen,
   render,

@@ -20,12 +20,12 @@ import {
 import { electionInfoFromElection } from '../test/fixtures.js';
 import { makeIdFactory } from '../test/id_helpers.js';
 import { withRoute } from '../test/routing_helpers.js';
-import { routes } from './routes.js';
+import { routes } from '@votingworks/design-ui';
 import { render, screen, within } from '../test/react_testing_library.js';
-import { DistrictsScreen } from './districts_screen.js';
-import { DistrictAudioPanel } from './district_audio_panel.js';
+import { DistrictsScreen } from '@votingworks/design-ui';
+import { DistrictAudioPanel } from '@votingworks/design-ui';
 
-vi.mock('./district_audio_panel.js');
+vi.mock('@votingworks/design-ui');
 const MockAudioPanel = vi.mocked(DistrictAudioPanel);
 const MOCK_AUDIO_PANEL_ID = 'MockDistrictAudioPanel';
 

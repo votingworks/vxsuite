@@ -1,3 +1,8 @@
+import {
+  DesignShellContext,
+  ApiClientContext,
+  createQueryClient,
+} from '@votingworks/design-ui';
 import type React from 'react';
 import { type QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type {
@@ -17,7 +22,7 @@ import {
 } from '@votingworks/grout-test-utils';
 import { TestErrorBoundary } from '@votingworks/ui';
 import type { ElectionId } from '@votingworks/types';
-import { ApiClientContext, createQueryClient } from '../src/api.js';
+import { ElectionNavScreen, Header } from '../src/nav_screen.js';
 
 export type MockApiClient = MockClient<Api>;
 
@@ -80,9 +85,11 @@ export function provideApi(
   return (
     <TestErrorBoundary>
       <ApiClientContext.Provider value={apiMock}>
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
+        <DesignShellContext.Provider value={{ ElectionNavScreen, Header }}>
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
+        </DesignShellContext.Provider>
       </ApiClientContext.Provider>
     </TestErrorBoundary>
   );

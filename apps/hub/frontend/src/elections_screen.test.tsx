@@ -28,12 +28,12 @@ import {
 } from '../test/react_testing_library.js';
 import { withRoute } from '../test/routing_helpers.js';
 import { ElectionsScreen } from './elections_screen.js';
-import { routes } from './routes.js';
+import { routes } from '@votingworks/design-ui';
 
 // Pin all IDs to a known value for deterministic tests.
 const ID = 'ID';
 const ELECTION_ID = unsafeParse(ElectionIdSchema, ID);
-vi.mock(import('./utils.js'), async (importActual) => ({
+vi.mock(import('@votingworks/design-ui'), async (importActual) => ({
   ...(await importActual()),
   generateId: () => ID,
 }));

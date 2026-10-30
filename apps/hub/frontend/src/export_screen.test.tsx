@@ -21,20 +21,20 @@ import {
 import { render, screen, waitFor } from '../test/react_testing_library.js';
 import { withRoute } from '../test/routing_helpers.js';
 import { ExportScreen } from './export_screen.js';
-import { routes } from './routes.js';
-import { downloadFile } from './utils.js';
+import { routes } from '@votingworks/design-ui';
+import { downloadFile } from '@votingworks/design-ui';
 import {
   electionInfoFromRecord,
   generalElectionRecord,
 } from '../test/fixtures.js';
-import { BACKGROUND_TASK_POLLING_INTERVAL_MS } from './api.js';
+import { BACKGROUND_TASK_POLLING_INTERVAL_MS } from '@votingworks/design-ui';
 import { ProofingStatus } from './proofing_status.js';
 import { Downloads } from './downloads.js';
 
 const electionRecord = generalElectionRecord(jurisdiction.id);
 const electionId = electionRecord.election.id;
 
-vi.mock(import('./utils.js'), async (importActual) => ({
+vi.mock(import('@votingworks/design-ui'), async (importActual) => ({
   ...(await importActual()),
   downloadFile: vi.fn(),
 }));

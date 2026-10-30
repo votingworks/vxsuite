@@ -7,8 +7,8 @@ import type { Precinct, PrecinctSplit } from '@votingworks/types';
 import { userEvent } from '@testing-library/user-event';
 
 import { createMockApiClient, provideApi } from '../test/api_helpers.js';
-import { PrecinctList } from './precincts_list.js';
-import { electionParamRoutes, routes } from './routes.js';
+import { PrecinctList } from '@votingworks/design-ui';
+import { electionParamRoutes, routes } from '@votingworks/design-ui';
 import { render, screen } from '../test/react_testing_library.js';
 
 const electionId = 'election1';

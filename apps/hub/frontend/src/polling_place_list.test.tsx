@@ -4,7 +4,7 @@ import type { PollingPlace } from '@votingworks/types';
 import { userEvent } from '@testing-library/user-event';
 
 import { render, screen } from '../test/react_testing_library.js';
-import { PollingPlaceList } from './polling_place_list.js';
+import { PollingPlaceList } from '@votingworks/design-ui';
 
 const withNoPrecincts: PollingPlace = {
   id: 'withNoPrecincts',

@@ -10,9 +10,9 @@ import {
   listContests,
   listDistricts,
   reorderContests,
-} from './api.js';
-import { Column, Row } from './layout.js';
-import { reorderElement } from './utils.js';
+} from '@votingworks/design-ui';
+import { Column, Row } from '@votingworks/design-ui';
+import { reorderElement } from '@votingworks/design-ui';
 
 function serializeContestIds(contests: readonly Contest[]): string {
   return contests

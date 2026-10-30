@@ -23,11 +23,11 @@ import {
   waitFor,
   within,
 } from '../test/react_testing_library.js';
-import { PollingPlaceForm } from './polling_place_form.js';
-import { AudioLinkButton } from './ballot_audio/audio_link_button.js';
-import { routes } from './routes.js';
+import { PollingPlaceForm } from '@votingworks/design-ui';
+import { AudioLinkButton } from '@votingworks/design-ui';
+import { routes } from '@votingworks/design-ui';
 
-vi.mock('./ballot_audio/audio_link_button.js');
+vi.mock('@votingworks/design-ui');
 
 const MOCK_AUDIO_BUTTON_ID = 'MockAudioLinkButton';
 vi.mocked(AudioLinkButton).mockImplementation(({ to }) => (

@@ -4,16 +4,16 @@ import { userEvent } from '@testing-library/user-event';
 import type { TtsStringDefault } from '@votingworks/hub-backend';
 import { ElectionStringKey } from '@votingworks/types';
 
-import { TtsTextEditor, type TtsTextEditorProps } from './tts_text_editor.js';
+import { TtsTextEditor, type TtsTextEditorProps } from '@votingworks/design-ui';
 import {
   createMockApiClient,
   type MockApiClient,
   provideApi,
 } from '../../test/api_helpers.js';
 import { render, screen } from '../../test/react_testing_library.js';
-import { AudioEditor, type AudioEditorProps } from './audio_editor.js';
+import { AudioEditor, type AudioEditorProps } from '@votingworks/design-ui';
 
-vi.mock('./tts_text_editor.js');
+vi.mock('@votingworks/design-ui');
 
 const TEXT_EDITOR_TEST_ID = 'TtsTextEditor';
 const PHONETIC_EDITOR_PLACEHOLDER = 'TODO: Phonetic Editor';

@@ -8,9 +8,9 @@ import type {
   MainExportTaskMetadata,
   TestDecksTaskMetadata,
 } from '@votingworks/hub-backend';
-import * as api from './api.js';
-import type { ElectionIdParams } from './routes.js';
-import { downloadFile } from './utils.js';
+import * as api from '@votingworks/design-ui';
+import type { ElectionIdParams } from '@votingworks/design-ui';
+import { downloadFile } from '@votingworks/design-ui';
 
 export const DownloadsContainer = styled.div`
   display: grid;

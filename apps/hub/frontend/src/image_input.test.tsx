@@ -7,11 +7,11 @@ import {
   screen,
   waitFor,
 } from '../test/react_testing_library.js';
-import { ImageInput } from './image_input.js';
+import { ImageInput } from '@votingworks/design-ui';
 import {
   normalizeImageToSvg,
   type NormalizeParams,
-} from './image_normalization.js';
+} from '@votingworks/design-ui';
 
 vi.mock('./image_normalization', { spy: true });
 

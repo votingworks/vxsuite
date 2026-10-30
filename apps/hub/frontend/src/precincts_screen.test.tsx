@@ -28,22 +28,22 @@ import {
 } from '../test/fixtures.js';
 import { makeIdFactory } from '../test/id_helpers.js';
 import { withRoute } from '../test/routing_helpers.js';
-import { routes } from './routes.js';
+import { routes } from '@votingworks/design-ui';
 import {
   render,
   screen,
   waitFor,
   within,
 } from '../test/react_testing_library.js';
-import { PrecinctsScreen } from './precincts_screen.js';
-import { PrecinctList } from './precincts_list.js';
-import { PrecinctAudioPanel } from './precinct_audio_panel.js';
+import { PrecinctsScreen } from '@votingworks/design-ui';
+import { PrecinctList } from '@votingworks/design-ui';
+import { PrecinctAudioPanel } from '@votingworks/design-ui';
 
-vi.mock('./precincts_list.js');
+vi.mock('@votingworks/design-ui');
 const MockPrecinctList = vi.mocked(PrecinctList);
 const PRECINCT_LIST_TEST_ID = 'MockPrecinctList';
 
-vi.mock('./precinct_audio_panel.js');
+vi.mock('@votingworks/design-ui');
 const MockPrecinctAudioPanel = vi.mocked(PrecinctAudioPanel);
 const MOCK_AUDIO_PANEL_ID = 'MockPrecinctAudioPanel';
 

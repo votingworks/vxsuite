@@ -1,4 +1,3 @@
-import * as Sentry from '@sentry/browser';
 import { Buffer } from 'node:buffer';
 import sanitizeHtml from 'sanitize-html';
 import {
@@ -13,6 +12,7 @@ import {
   type NormalizeParams,
   normalizeImageToSvg,
 } from './image_normalization.js';
+import { useDesignShell } from './design_shell.js';
 
 const MAX_IMAGE_UPLOAD_BYTES = 5 * 1_000 * 1_000; // 5 MB
 
@@ -94,6 +94,7 @@ export function ImageInputButton({
   ...props
 }: ImageInputButtonProps): JSX.Element {
   const inputRef = useRef<HTMLInputElement>(null);
+  const { reportError } = useDesignShell();
 
   function handleError(msg: string) {
     onError(new Error(msg));
@@ -144,9 +145,7 @@ export function ImageInputButton({
           );
 
         case 'unexpected': {
-          Sentry.captureException(error.error, {
-            tags: { action: 'normalizeToSvg' },
-          });
+          reportError?.(error.error, { action: 'normalizeToSvg' });
 
           return handleError(
             'Something went wrong. Please refresh the page and try again.'

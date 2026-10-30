@@ -13,9 +13,9 @@ import {
   ContestList,
   type ContestListProps,
   type ReorderParams,
-} from './contest_list.js';
+} from '@votingworks/design-ui';
 import { render, screen, within } from '../test/react_testing_library.js';
-import { routes } from './routes.js';
+import { routes } from '@votingworks/design-ui';
 
 const district1: District = { id: 'district1', name: 'District 1' };
 const district2: District = { id: 'district2', name: 'District 2' };

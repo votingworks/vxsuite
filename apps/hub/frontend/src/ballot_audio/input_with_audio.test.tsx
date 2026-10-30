@@ -3,13 +3,13 @@ import { userEvent } from '@testing-library/user-event';
 import type React from 'react';
 import { assert } from '@votingworks/basics';
 import { render, screen } from '../../test/react_testing_library.js';
-import { InputWithAudio } from './input_with_audio.js';
+import { InputWithAudio } from '@votingworks/design-ui';
 import {
   AudioLinkButton,
   type AudioLinkButtonProps,
-} from './audio_link_button.js';
+} from '@votingworks/design-ui';
 
-vi.mock('./audio_link_button.js');
+vi.mock('@votingworks/design-ui');
 
 test('passes through input props', async () => {
   const onChange = vi.fn((event: React.ChangeEvent<HTMLInputElement>) => {

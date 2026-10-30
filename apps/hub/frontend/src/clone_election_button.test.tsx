@@ -20,12 +20,12 @@ import {
 } from '../test/fixtures.js';
 import { render, screen, within } from '../test/react_testing_library.js';
 import { CloneElectionButton } from './clone_election_button.js';
-import { generateId } from './utils.js';
+import { generateId } from '@votingworks/design-ui';
 import { withRoute } from '../test/routing_helpers.js';
-import { routes } from './routes.js';
-import * as api from './api.js';
+import { routes } from '@votingworks/design-ui';
+import * as api from '@votingworks/design-ui';
 
-vi.mock(import('./utils.js'), async (importActual) => ({
+vi.mock(import('@votingworks/design-ui'), async (importActual) => ({
   ...(await importActual()),
   generateId: vi.fn(),
 }));

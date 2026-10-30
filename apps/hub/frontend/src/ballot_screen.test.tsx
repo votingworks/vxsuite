@@ -23,7 +23,7 @@ import {
 } from '../test/fixtures.js';
 import { render, screen } from '../test/react_testing_library.js';
 import { withRoute } from '../test/routing_helpers.js';
-import { routes } from './routes.js';
+import { routes } from '@votingworks/design-ui';
 import { BallotScreen } from './ballot_screen.js';
 
 const electionRecord = generalElectionRecord(jurisdiction.id);

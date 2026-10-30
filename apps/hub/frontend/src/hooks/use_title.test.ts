@@ -1,6 +1,6 @@
 import { beforeEach, expect, test, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { setBaseTitle, useTitle } from './use_title.js';
+import { setBaseTitle, useTitle } from '@votingworks/design-ui';
 
 beforeEach(() => {
   setBaseTitle('My Site');

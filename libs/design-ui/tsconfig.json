@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "composite": true
+  },
+  "include": ["src"],
+  "exclude": [],
+  "references": [
+    { "path": "../basics/tsconfig.build.json" },
+    { "path": "../coverage-check/tsconfig.build.json" },
+    { "path": "../design-backend/tsconfig.build.json" },
+    { "path": "../grout/tsconfig.build.json" },
+    { "path": "../hmpb/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../ui/tsconfig.build.json" },
+    { "path": "../../apps/hub/backend/tsconfig.build.json" }
+  ]
+}

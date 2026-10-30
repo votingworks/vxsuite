@@ -7,7 +7,7 @@ import {
   type YesNoContest,
 } from '@votingworks/types';
 
-import { AudioEditor, type AudioEditorProps } from './audio_editor.js';
+import { AudioEditor, type AudioEditorProps } from '@votingworks/design-ui';
 import {
   createMockApiClient,
   type MockApiClient,
@@ -16,10 +16,10 @@ import {
 import {
   AudioEditorPanel,
   type AudioEditorPanelProps,
-} from './audio_editor_panel.js';
+} from '@votingworks/design-ui';
 import { render, screen } from '../../test/react_testing_library.js';
 
-vi.mock('./audio_editor.js');
+vi.mock('@votingworks/design-ui');
 
 const EDITOR_TEST_ID = 'TtsTextEditor';
 

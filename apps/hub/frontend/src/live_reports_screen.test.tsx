@@ -28,14 +28,14 @@ import {
   mockStateFeatures,
 } from '../test/api_helpers.js';
 import { withRoute } from '../test/routing_helpers.js';
-import { routes } from './routes.js';
+import { routes } from '@votingworks/design-ui';
 import { LiveReportsScreen } from './live_reports_screen.js';
 import {
   electionInfoFromRecord,
   generalElectionRecord,
   primaryElectionRecord,
 } from '../test/fixtures.js';
-import { VXQR_REFETCH_INTERVAL_MS } from './api.js';
+import { VXQR_REFETCH_INTERVAL_MS } from '@votingworks/design-ui';
 
 const electionRecord = generalElectionRecord(jurisdiction.id);
 const primaryElectionRecordGenerated = primaryElectionRecord(jurisdiction.id);

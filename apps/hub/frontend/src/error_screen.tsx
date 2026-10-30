@@ -6,8 +6,8 @@ import {
   LeftNav,
 } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
-import { Column, Row } from './layout.js';
-import { isAuthError } from './api.js';
+import { Column, Row } from '@votingworks/design-ui';
+import { isAuthError } from '@votingworks/design-ui';
 
 export function ErrorScreen({ error }: { error: unknown }): JSX.Element | null {
   let errorMessage = 'Something went wrong';

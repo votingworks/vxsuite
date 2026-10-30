@@ -23,7 +23,7 @@ import {
   blankElectionRecord,
 } from '../../test/fixtures.js';
 import { withRoute } from '../../test/routing_helpers.js';
-import { routes } from '../routes.js';
+import { routes } from '@votingworks/design-ui';
 import { SupportHomeScreen } from './support_home_screen.js';
 
 let apiMock: MockApiClient;

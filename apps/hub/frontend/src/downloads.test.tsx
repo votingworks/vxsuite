@@ -7,13 +7,13 @@ import type {
 } from '@votingworks/hub-backend';
 import { assert, sleep } from '@votingworks/basics';
 import { userEvent } from '@testing-library/user-event';
-import { downloadFile } from './utils.js';
+import { downloadFile } from '@votingworks/design-ui';
 import {
   createMockApiClient,
   type MockApiClient,
   provideApi,
 } from '../test/api_helpers.js';
-import { routes } from './routes.js';
+import { routes } from '@votingworks/design-ui';
 import { Downloads } from './downloads.js';
 import { render, screen, within } from '../test/react_testing_library.js';
 import { withRoute } from '../test/routing_helpers.js';

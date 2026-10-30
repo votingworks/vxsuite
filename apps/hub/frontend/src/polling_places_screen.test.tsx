@@ -22,28 +22,28 @@ import {
   generalElectionRecord,
 } from '../test/fixtures.js';
 import { withRoute } from '../test/routing_helpers.js';
-import { routes } from './routes.js';
+import { routes } from '@votingworks/design-ui';
 import { act, render, screen, waitFor } from '../test/react_testing_library.js';
-import { PollingPlacesScreen } from './polling_places_screen.js';
+import { PollingPlacesScreen } from '@votingworks/design-ui';
 import {
   PollingPlaceList,
   type PollingPlaceListProps,
-} from './polling_place_list.js';
-import { PollingPlaceAudioPanel } from './polling_place_audio_panel.js';
+} from '@votingworks/design-ui';
+import { PollingPlaceAudioPanel } from '@votingworks/design-ui';
 import {
   PollingPlaceForm,
   type PollingPlaceFormProps,
-} from './polling_place_form.js';
+} from '@votingworks/design-ui';
 
-vi.mock('./polling_place_list.js');
+vi.mock('@votingworks/design-ui');
 const MockList = vi.mocked(PollingPlaceList);
 const MOCK_LIST_ID = 'MockPollingPlaceList';
 
-vi.mock('./polling_place_audio_panel.js');
+vi.mock('@votingworks/design-ui');
 const MockAudioPanel = vi.mocked(PollingPlaceAudioPanel);
 const MOCK_AUDIO_PANEL_ID = 'MockPollingPlaceAudioPanel';
 
-vi.mock('./polling_place_form.js');
+vi.mock('@votingworks/design-ui');
 const MockForm = vi.mocked(PollingPlaceForm);
 const MOCK_FORM_ID = 'MockPollingPlaceForm';
 

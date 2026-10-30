@@ -1,13 +1,13 @@
 import { expect, test, vi } from 'vitest';
 import { sleep } from '@votingworks/basics';
 import { fireEvent, render, screen } from '../../test/react_testing_library.js';
-import { RichTextEditorWithAudio } from './rich_text_editor_with_audio.js';
+import { RichTextEditorWithAudio } from '@votingworks/design-ui';
 import {
   type AudioLinkButtonProps,
   AudioLinkButton,
-} from './audio_link_button.js';
+} from '@votingworks/design-ui';
 
-vi.mock('./audio_link_button.js');
+vi.mock('@votingworks/design-ui');
 
 test('passes through editor props', async () => {
   const onChange = vi.fn((content: string) => {

@@ -9,21 +9,31 @@ import {
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
+import * as Sentry from '@sentry/browser';
 import {
   type ApiClient,
   ApiClientContext,
+  ContestsScreen,
   createApiClient,
   createQueryClient,
+  type DesignShell,
+  DesignShellContext,
+  DistrictsScreen,
+  ElectionInfoScreen,
+  electionParamRoutes,
   getUser,
-} from './api.js';
+  PartiesScreen,
+  PollingPlacesScreen,
+  PrecinctsScreen,
+  resultsRoutes,
+  routes,
+} from '@votingworks/design-ui';
+import { ElectionNavScreen, Header } from './nav_screen.js';
 import {
   createUnauthenticatedApiClient,
   type UnauthenticatedApiClient,
   UnauthenticatedApiClientContext,
 } from './public_api.js';
-import { electionParamRoutes, routes, resultsRoutes } from './routes.js';
-import { ElectionInfoScreen } from './election_info_screen.js';
-import { ContestsScreen } from './contests_screen.js';
 import { BallotsScreen } from './ballots_screen.js';
 import { SystemSettingsScreen } from './system_settings_screen.js';
 import { ExportScreen } from './export_screen.js';
@@ -31,12 +41,8 @@ import { ErrorScreen } from './error_screen.js';
 import { ReportingResultsConfirmationScreen } from './reporting_results_confirmation_screen.js';
 import { LiveReportsScreen } from './live_reports_screen.js';
 import { ConvertResultsScreen } from './convert_results_screen.js';
-import { PartiesScreen } from './parties_screen.js';
-import { DistrictsScreen } from './districts_screen.js';
-import { PrecinctsScreen } from './precincts_screen.js';
 import { HomeScreen } from './home_screen.js';
 import { DownloadsScreen } from './downloads_screen.js';
-import { PollingPlacesScreen } from './polling_places_screen.js';
 
 // @coverage-defer
 function ElectionScreens(): JSX.Element {
@@ -112,6 +118,14 @@ function WaitForUserInfo(props: { children: React.ReactNode }) {
   return children;
 }
 
+const HUB_DESIGN_SHELL: DesignShell = {
+  ElectionNavScreen,
+  Header,
+  reportError: (error, context) => {
+    Sentry.captureException(error, { tags: context as Record<string, string> });
+  },
+};
+
 export function App({
   // @coverage-defer
   apiClient = createApiClient(),
@@ -139,6 +153,7 @@ export function App({
                 </UnauthenticatedApiClientContext.Provider>
               </Route>
               <ApiClientContext.Provider value={apiClient}>
+                <DesignShellContext.Provider value={HUB_DESIGN_SHELL}>
                 <WaitForUserInfo>
                   <Route path={routes.root.path} exact>
                     <HomeScreen
@@ -151,6 +166,7 @@ export function App({
                     component={ElectionScreens}
                   />
                 </WaitForUserInfo>
+                </DesignShellContext.Provider>
               </ApiClientContext.Provider>
             </Switch>
           </BrowserRouter>

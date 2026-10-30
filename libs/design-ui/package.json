@@ -1,0 +1,80 @@
+{
+  "name": "@votingworks/design-ui",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Election design screens shared by VxHub and VxAdmin",
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "default": "./build/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "build": "pnpm -w vx-task build $npm_package_name",
+    "build:self": "tsc --build tsconfig.build.json",
+    "clean": "pnpm -w vx-task clean $npm_package_name",
+    "clean:self": "rm -rf build",
+    "lint": "pnpm -w vx-task lint $npm_package_name",
+    "lint:fix": "pnpm type-check && eslint --cache . --fix && pnpm stylelint:run:fix",
+    "lint:self": "pnpm type-check && eslint --cache . && pnpm stylelint:run",
+    "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
+    "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
+    "test": "pnpm -w vx-task build $npm_package_name && vitest",
+    "test:run": "pnpm -w vx-task test:run $npm_package_name",
+    "test:run:self": "vitest run --passWithNoTests",
+    "type-check": "tsc --build"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "4.32.1",
+    "@tiptap/extension-bold": "^3.32.0",
+    "@tiptap/extension-document": "^3.32.0",
+    "@tiptap/extension-hard-break": "^3.32.0",
+    "@tiptap/extension-image": "^3.32.0",
+    "@tiptap/extension-italic": "^3.32.0",
+    "@tiptap/extension-list": "^3.32.0",
+    "@tiptap/extension-paragraph": "^3.32.0",
+    "@tiptap/extension-strike": "^3.32.0",
+    "@tiptap/extension-table": "^3.32.0",
+    "@tiptap/extension-text": "^3.32.0",
+    "@tiptap/extension-underline": "^3.32.0",
+    "@tiptap/extensions": "^3.32.0",
+    "@tiptap/pm": "^3.32.0",
+    "@tiptap/react": "^3.32.0",
+    "@votingworks/basics": "workspace:*",
+    "@votingworks/design-backend": "workspace:*",
+    "@votingworks/grout": "workspace:*",
+    "@votingworks/hmpb": "workspace:*",
+    "@votingworks/hub-backend": "workspace:*",
+    "@votingworks/types": "workspace:*",
+    "@votingworks/ui": "workspace:*",
+    "buffer": "^6.0.3",
+    "nanoid": "^3.3.20",
+    "react": "18.3.1",
+    "react-flip-toolkit": "^7.1.0",
+    "react-router-dom": "^5.3.4",
+    "sanitize-html": "^2.17.7",
+    "styled-components": "^5.3.11",
+    "use-sound": "5.0.0",
+    "zod": "4.6.6"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "@types/react": "18.3.3",
+    "@types/react-router-dom": "^5.3.3",
+    "@types/sanitize-html": "^2.13.0",
+    "@types/styled-components": "^5.1.26",
+    "@vitest/coverage-istanbul": "5.0.2",
+    "@votingworks/coverage-check": "workspace:*",
+    "esbuild": "0.28.1",
+    "eslint-plugin-vx": "workspace:*",
+    "sort-package-json": "^1.50.0",
+    "vitest": "5.0.2"
+  },
+  "packageManager": "pnpm@12.9.1"
+}

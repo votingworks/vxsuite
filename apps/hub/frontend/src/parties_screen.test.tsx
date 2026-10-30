@@ -21,12 +21,12 @@ import {
 import { electionInfoFromElection } from '../test/fixtures.js';
 import { render, screen, within } from '../test/react_testing_library.js';
 import { withRoute } from '../test/routing_helpers.js';
-import { routes } from './routes.js';
+import { routes } from '@votingworks/design-ui';
 import { makeIdFactory } from '../test/id_helpers.js';
-import { PartiesScreen } from './parties_screen.js';
-import { PartyAudioPanel } from './party_audio_panel.js';
+import { PartiesScreen } from '@votingworks/design-ui';
+import { PartyAudioPanel } from '@votingworks/design-ui';
 
-vi.mock('./party_audio_panel.js');
+vi.mock('@votingworks/design-ui');
 const MockAudioPanel = vi.mocked(PartyAudioPanel);
 const MOCK_AUDIO_PANEL_ID = 'MockPartyAudioPanel';
 

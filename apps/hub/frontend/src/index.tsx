@@ -3,7 +3,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { assert, isArray, isPlainObject, isString } from '@votingworks/basics';
 import { App } from './app.js';
-import { tiptapErrorContextBox } from './rich_text_editor.js';
+import { tiptapErrorContextBox } from '@votingworks/design-ui';
 
 function isTiptapError(event: Sentry.ErrorEvent): boolean {
   const extraArgs = event.extra?.['arguments'];

@@ -21,7 +21,7 @@ import {
   readElectionGeneral,
 } from '@votingworks/fixtures';
 import { generateBallotStyles } from '@votingworks/hmpb';
-import { generateId } from '../src/utils.js';
+import { generateId } from '@votingworks/design-ui';
 
 function splitCandidateName(candidate: Candidate): Candidate {
   if (!candidate.firstName) {

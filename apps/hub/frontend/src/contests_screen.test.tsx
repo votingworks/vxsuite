@@ -51,21 +51,21 @@ import {
   within,
 } from '../test/react_testing_library.js';
 import { withRoute } from '../test/routing_helpers.js';
-import { ContestsScreen } from './contests_screen.js';
-import { routes } from './routes.js';
+import { ContestsScreen } from '@votingworks/design-ui';
+import { routes } from '@votingworks/design-ui';
 import { makeIdFactory } from '../test/id_helpers.js';
 import {
   ContestList,
   type ContestListProps,
   type ReorderParams,
-} from './contest_list.js';
-import { ContestAudioPanel } from './contest_audio_panel.js';
+} from '@votingworks/design-ui';
+import { ContestAudioPanel } from '@votingworks/design-ui';
 
-vi.mock('./contest_list.js');
+vi.mock('@votingworks/design-ui');
 const MockContestList = vi.mocked(ContestList);
 const MOCK_CONTEST_LIST_ID = 'MockContestList';
 
-vi.mock('./contest_audio_panel.js');
+vi.mock('@votingworks/design-ui');
 const MockContestAudioPanel = vi.mocked(ContestAudioPanel);
 const MOCK_AUDIO_PANEL_ID = 'MockContestAudioPanel';
 
