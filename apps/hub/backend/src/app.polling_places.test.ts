@@ -11,8 +11,8 @@ import {
 import { electionGeneralFixtures } from '@votingworks/fixtures';
 import { testSetupHelpers } from '../test/helpers.js';
 import { nonVxUser, organizations, jurisdictions } from '../test/mocks.js';
-import { getStateFeaturesConfig } from './features.js';
-import type { Jurisdiction, User } from './types.js';
+import { getStateFeaturesConfig } from '@votingworks/design-backend';
+import type { Jurisdiction, User } from '@votingworks/design-backend';
 
 const { setupApp, cleanup } = testSetupHelpers();
 

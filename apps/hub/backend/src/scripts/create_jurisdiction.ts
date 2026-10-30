@@ -6,8 +6,11 @@ import { assertDefined } from '@votingworks/basics';
 import { safeParse, SoftwareVersionSchema } from '@votingworks/types';
 import { createWorkspace } from '../workspace.js';
 import { WORKSPACE } from '../globals.js';
-import { generateId } from '../utils.js';
-import { type Jurisdiction, StateCodeSchema } from '../types.js';
+import { generateId } from '@votingworks/design-backend';
+import {
+  type Jurisdiction,
+  StateCodeSchema,
+} from '@votingworks/design-backend';
 
 const USAGE = `Usage: pnpm create-jurisdiction --organizationId=<organizationId> --stateCode=<stateCode> --softwareVersion=<softwareVersion> "<name>"`;
 

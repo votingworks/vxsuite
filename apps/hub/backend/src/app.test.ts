@@ -138,17 +138,17 @@ import type {
   ElectionStatus,
   Jurisdiction,
   JurisdictionUser,
-} from './types.js';
+} from '@votingworks/design-backend';
 import type {
   MainExportTaskMetadata,
   DuplicateDistrictError,
   DuplicatePartyError,
-} from './store.js';
+} from '@votingworks/design-backend';
 import {
   getStateFeaturesConfig,
   stateFeatureConfigs,
   userFeatureConfigs,
-} from './features.js';
+} from '@votingworks/design-backend';
 import { buildApi } from './app.js';
 import {
   organizations,
@@ -171,7 +171,7 @@ import {
 import {
   SLI_DEFAULT_SYSTEM_SETTINGS,
   stateDefaultSystemSettings,
-} from './system_settings.js';
+} from '@votingworks/design-backend';
 import {
   type GenerateElectionPackageAndBallotsPayload,
   GenerateElectionPackageAndBallotsPayloadSchema,

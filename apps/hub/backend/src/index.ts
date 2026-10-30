@@ -22,7 +22,7 @@ export type {
   MainExportTaskMetadata,
   SetPollingPlaceError,
   TestDecksTaskMetadata,
-} from './store.js';
+} from '@votingworks/design-backend';
 export type {
   User,
   JurisdictionUser,
@@ -41,13 +41,13 @@ export type {
   ResultsReportingPath,
   ExportQaRun,
   ExportQaStatus,
-} from './types.js';
+} from '@votingworks/design-backend';
 export type {
   StateFeature,
   StateFeaturesConfig,
   UserFeature,
   UserFeaturesConfig,
-} from './features.js';
+} from '@votingworks/design-backend';
 export type { Api, AuthErrorCode, UnauthenticatedApi } from './app.js';
 export type { ConvertMsResultsError } from './convert_ms_results.js';
 

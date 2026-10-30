@@ -28,7 +28,7 @@ import {
   addPollingPlacesForExport,
   createBallotPropsForTemplate,
   formatElectionForExport,
-} from './ballots.js';
+} from '@votingworks/design-backend';
 import {
   miJurisdiction,
   msJurisdiction,

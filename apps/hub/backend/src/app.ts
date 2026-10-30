@@ -90,7 +90,7 @@ import type {
   TestDecksTaskMetadata,
   SetPollingPlaceError,
   Store,
-} from './store.js';
+} from '@votingworks/design-backend';
 import {
   type AggregatedLiveReportActivityLog,
   type AggregatedReportedPollsStatus,
@@ -107,7 +107,7 @@ import {
   type ResultsReportingError,
   type User,
   resultsReportingUrl,
-} from './types.js';
+} from '@votingworks/design-backend';
 import type { AppContext } from './context.js';
 import {
   auth0ClientId,
@@ -121,19 +121,19 @@ import {
 import {
   createBallotPropsForTemplate,
   defaultBallotTemplate,
-} from './ballots.js';
+} from '@votingworks/design-backend';
 import {
   getBallotPdfFileName,
   regenerateElectionIds,
   splitCandidateName,
   userCanAccessJurisdiction,
-} from './utils.js';
+} from '@votingworks/design-backend';
 import {
   type StateFeaturesConfig,
   getStateFeaturesConfig,
   getUserFeaturesConfig,
   type UserFeaturesConfig,
-} from './features.js';
+} from '@votingworks/design-backend';
 import { QaConfig } from './qa_config.js';
 import { rootDebug } from './debug.js';
 import * as ttsStrings from './tts_strings.js';
@@ -142,7 +142,7 @@ import {
   convertMsResults,
   type ConvertMsResultsError,
 } from './convert_ms_results.js';
-import { defaultSystemSettings } from './system_settings.js';
+import { defaultSystemSettings } from '@votingworks/design-backend';
 import { logActivity } from './activity_logs.js';
 
 const debug = rootDebug.extend('app');

@@ -2,7 +2,7 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 import type { BaseLogger } from '@votingworks/logging';
-import { Store } from './store.js';
+import { Store } from '@votingworks/design-backend';
 
 export interface Workspace {
   assetDirectoryPath: string;

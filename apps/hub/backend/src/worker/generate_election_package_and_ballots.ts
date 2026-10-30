@@ -50,8 +50,8 @@ import {
   addPollingPlacesForExport,
   createBallotPropsForTemplate,
   formatElectionForExport,
-} from '../ballots.js';
-import { getBallotPdfFileName } from '../utils.js';
+} from '@votingworks/design-backend';
+import { getBallotPdfFileName } from '@votingworks/design-backend';
 import {
   needsColorNormalization,
   normalizeBallotColorModeForPrinting,
@@ -61,7 +61,7 @@ import { CircleCiClient } from '../circleci_client.js';
 import type { FileStorageClient } from '../file_storage_client.js';
 import { baseUrl } from '../globals.js';
 import { QaConfig } from '../qa_config.js';
-import type { Store } from '../store.js';
+import type { Store } from '@votingworks/design-backend';
 import { rootDebug } from '../debug.js';
 import { Archiver } from './zip.js';
 

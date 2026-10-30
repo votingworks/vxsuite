@@ -4,8 +4,8 @@ import {
 } from '@votingworks/backend';
 import type { LanguageCode } from '@votingworks/types';
 import { rootDebug } from './debug.js';
-import type { Store } from './store.js';
-import { isValidPrimaryKey } from './utils.js';
+import type { Store } from '@votingworks/design-backend';
+import { isValidPrimaryKey } from '@votingworks/design-backend';
 
 const debug = rootDebug.extend('speech');
 

@@ -6,7 +6,7 @@ import type {
   Organization,
   User,
   SupportUser,
-} from '../src/types.js';
+} from '@votingworks/design-backend';
 import {
   votingWorksOrganizationId,
   sliOrganizationId,

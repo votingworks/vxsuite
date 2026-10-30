@@ -4,7 +4,7 @@ import { throwIllegalValue } from '@votingworks/basics';
 import { safeParseJson } from '@votingworks/types';
 import type { ScratchDir } from '@votingworks/hmpb';
 
-import type { BackgroundTask } from '../store.js';
+import type { BackgroundTask } from '@votingworks/design-backend';
 import type { WorkerContext } from './context.js';
 import {
   generateElectionPackageAndBallots,

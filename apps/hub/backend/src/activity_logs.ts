@@ -2,8 +2,8 @@ import * as Sentry from '@sentry/node';
 import { format } from '@votingworks/utils';
 
 import { baseUrl, slackWebhookUrl } from './globals.js';
-import type { Store } from './store.js';
-import type { User, UserType } from './types.js';
+import type { Store } from '@votingworks/design-backend';
+import type { User, UserType } from '@votingworks/design-backend';
 
 interface UserContext {
   userName: string;

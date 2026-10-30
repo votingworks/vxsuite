@@ -1,7 +1,7 @@
 import type { BaseLogger } from '@votingworks/logging';
 import { randomUUID as uuid } from 'node:crypto';
-import { Db } from '../src/db/db.js';
-import { Store } from '../src/store.js';
+import { Db } from '@votingworks/design-backend';
+import { Store } from '@votingworks/design-backend';
 
 export class TestStore {
   private readonly schemaName: string;

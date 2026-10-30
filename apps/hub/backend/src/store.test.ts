@@ -25,7 +25,7 @@ import type {
   Store,
   TaskName,
   TestDecksTaskMetadata,
-} from './store.js';
+} from '@votingworks/design-backend';
 import { TestStore } from '../test/test_store.js';
 import {
   processNextBackgroundTaskIfAny,

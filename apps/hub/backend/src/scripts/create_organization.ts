@@ -5,8 +5,8 @@ import { BaseLogger, LogSource } from '@votingworks/logging';
 import { assertDefined } from '@votingworks/basics';
 import { createWorkspace } from '../workspace.js';
 import { WORKSPACE } from '../globals.js';
-import { generateId } from '../utils.js';
-import type { Organization } from '../types.js';
+import { generateId } from '@votingworks/design-backend';
+import type { Organization } from '@votingworks/design-backend';
 
 const USAGE = `Usage: pnpm create-organization "<name>"`;
 

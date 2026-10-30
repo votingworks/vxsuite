@@ -22,18 +22,21 @@ export class Db {
   private readonly pool: Pool;
 
   private readonly logger: BaseLogger;
-  private readonly opts: { defaultSchemaName?: string };
+  private readonly opts: {
+    defaultSchemaName?: string;
+    connectionString?: string;
+  };
 
   constructor(
     logger: BaseLogger,
     // @coverage-defer
-    opts: { defaultSchemaName?: string } = {}
+    opts: { defaultSchemaName?: string; connectionString?: string } = {}
   ) {
     this.logger = logger;
     this.opts = opts;
 
     this.pool = new pg.Pool({
-      connectionString: databaseUrl(),
+      connectionString: opts.connectionString ?? databaseUrl(),
       // @coverage-defer
       ssl: NODE_ENV === 'production' && {
         rejectUnauthorized: false,

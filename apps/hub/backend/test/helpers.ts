@@ -43,7 +43,11 @@ import type {
 } from '../src/file_storage_client.js';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from '../src/speech_synthesizer.js';
 import { GoogleCloudTranslatorWithDbCache } from '../src/translator.js';
-import type { Jurisdiction, Organization, User } from '../src/types.js';
+import type {
+  Jurisdiction,
+  Organization,
+  User,
+} from '@votingworks/design-backend';
 import * as worker from '../src/worker/worker.js';
 import { createWorkspace, type Workspace } from '../src/workspace.js';
 import { TestStore } from './test_store.js';

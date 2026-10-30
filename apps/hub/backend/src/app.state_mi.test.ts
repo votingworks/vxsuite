@@ -14,7 +14,7 @@ import {
   organizations,
   users,
 } from '../test/mocks.js';
-import type { JurisdictionUser } from './types.js';
+import type { JurisdictionUser } from '@votingworks/design-backend';
 
 vi.setConfig({ testTimeout: 30_000 });
 
