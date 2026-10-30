@@ -33,12 +33,7 @@ import {
   getAllStringsForElectionPackage,
   HashingPassthrough,
 } from '@votingworks/backend';
-import {
-  find,
-  iter,
-  range,
-  throwIllegalValue,
-} from '@votingworks/basics';
+import { find, iter, range, throwIllegalValue } from '@votingworks/basics';
 import z from 'zod/v4';
 import { Readable } from 'node:stream';
 import { createHash } from 'node:crypto';
@@ -108,7 +103,7 @@ export async function generateElectionPackageAndBallots(
   emitProgress: EmitProgressFunction,
   scratchDir: ScratchDir
 ): Promise<void> {
-  const rendererPool = await createPlaywrightRendererPool();
+  const rendererPool = await createPlaywrightRendererPool(ctx.rendererPoolSize);
   try {
     await generate(ctx, payload, rendererPool, emitProgress, scratchDir);
   } finally {

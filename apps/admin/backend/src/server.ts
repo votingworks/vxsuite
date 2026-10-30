@@ -43,6 +43,7 @@ import {
 import { buildApp } from './app.js';
 import { buildDesignApi } from './design/design_api.js';
 import { createDesignStore } from './design/design_store.js';
+import { createDesignExporter } from './design/design_export.js';
 import { buildClientApp } from './client_app.js';
 import { buildPeerApp } from './peer_app.js';
 import { buildRestoreApp, RESTORE_MODE_STORE } from './restore_app.js';
@@ -206,10 +207,23 @@ export async function start(options: StartOptions = {}): Promise<Server> {
         )
       ) {
         const designStore = await createDesignStore(baseLogger);
+        const designExporter = createDesignExporter({
+          designStore,
+          filesRoot:
+            process.env.ADMIN_DESIGN_FILES_DIR ??
+            `${workspace.path}-design-files`,
+        });
         app.use(
           '/design-api',
           grout.buildRouter(
-            buildDesignApi({ auth, workspace, designStore, logger }),
+            buildDesignApi({
+              auth,
+              workspace,
+              designStore,
+              logger,
+              multiUsbDrive,
+              designExporter,
+            }),
             express
           )
         );

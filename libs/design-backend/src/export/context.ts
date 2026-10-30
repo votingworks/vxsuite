@@ -24,6 +24,7 @@ export interface ElectionPackageExportContext {
   speechSynthesizer: GoogleCloudSpeechSynthesizer;
   translator: GoogleCloudTranslator;
   workspace: { store: Store };
+  rendererPoolSize?: number;
   onElectionPackageExported?: (
     event: ElectionPackageExportedEvent
   ) => Promise<void>;

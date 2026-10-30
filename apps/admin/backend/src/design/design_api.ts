@@ -3,6 +3,7 @@ import {
   buildElectionDefinitionMethods,
   generateId,
   type ElectionListing,
+  type MainExportTaskMetadata,
   getStateFeaturesConfig,
   type StateCode,
   StateCodeSchema,
@@ -16,8 +17,21 @@ import {
   type SystemSettings,
   unsafeParse,
 } from '@votingworks/types';
-import { err, type Result } from '@votingworks/basics';
-import { readElectionPackageFromFile } from '@votingworks/backend';
+import { err, ok, type Result } from '@votingworks/basics';
+import {
+  type ExportDataError,
+  readElectionPackageFromFile,
+} from '@votingworks/backend';
+import {
+  createUsbDriveAdapter,
+  findDriveByPurpose,
+  type MultiUsbDrive,
+} from '@votingworks/usb-drive';
+import { createReadStream } from 'node:fs';
+import { stat } from 'node:fs/promises';
+import { basename, join } from 'node:path';
+import { buildExporter } from '../util/exporter.js';
+import type { DesignExporter } from './design_export.js';
 import { LogEventId, type Logger } from '@votingworks/logging';
 import { readFile } from 'node:fs/promises';
 import type { Workspace } from '../util/workspace.js';
@@ -36,12 +50,20 @@ export function buildDesignApi({
   workspace,
   designStore,
   logger,
+  multiUsbDrive,
+  designExporter,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   designStore: DesignStore;
   logger: Logger;
+  multiUsbDrive: MultiUsbDrive;
+  designExporter: DesignExporter;
 }) {
+  const usbDriveAdapter = createUsbDriveAdapter(multiUsbDrive, (drives) =>
+    findDriveByPurpose(drives, 'data')
+  );
+
   async function requireSystemAdministrator(): Promise<void> {
     const authStatus = await auth.getAuthStatus(
       constructAuthMachineState(workspace.store)
@@ -125,6 +147,66 @@ export function buildDesignApi({
         await designStore.updateSystemSettings(loadResult.ok(), systemSettings);
       }
       return loadResult;
+    },
+
+    getElectionPackage(input: {
+      electionId: ElectionId;
+    }): Promise<MainExportTaskMetadata> {
+      return designStore.getElectionPackage(input.electionId);
+    },
+
+    async finalizeAndExportBallots(input: {
+      electionId: ElectionId;
+    }): Promise<void> {
+      await designStore.setBallotsFinalizedAt({
+        electionId: input.electionId,
+        finalizedAt: new Date(),
+      });
+      await designExporter.startExport(input.electionId);
+    },
+
+    async unfinalizeBallots(input: { electionId: ElectionId }): Promise<void> {
+      await designStore.setBallotsFinalizedAt({
+        electionId: input.electionId,
+        finalizedAt: null,
+      });
+    },
+
+    async saveDesignExportToUsb(input: {
+      electionId: ElectionId;
+    }): Promise<Result<string[], ExportDataError | Error>> {
+      const exported = await designStore.getElectionPackage(input.electionId);
+      const urls = [
+        exported.electionPackageUrl,
+        exported.officialBallotsUrl,
+        exported.sampleBallotsUrl,
+        exported.testBallotsUrl,
+      ].filter((url): url is string => !!url);
+      if (!exported.electionPackageUrl) {
+        return err(new Error('Ballots have not been exported yet.'));
+      }
+      const { title } = await designStore
+        .getElection(input.electionId)
+        .then((record) => record.election);
+      const directory = join(
+        'election-design',
+        `${title.replace(/[^\w-]+/g, '-') || 'election'}-${input.electionId}`
+      );
+      const exporter = buildExporter(usbDriveAdapter);
+      const savedFiles: string[] = [];
+      for (const url of urls) {
+        const filePath = designExporter.resolveFileUrl(url);
+        const fileName = basename(filePath);
+        const result = await exporter.exportDataToUsbDrive(
+          directory,
+          fileName,
+          createReadStream(filePath),
+          { size: (await stat(filePath)).size }
+        );
+        if (result.isErr()) return result;
+        savedFiles.push(join(directory, fileName));
+      }
+      return ok(savedFiles);
     },
 
     listElections(): Promise<ElectionListing[]> {
