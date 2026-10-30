@@ -247,6 +247,9 @@ importers:
       '@votingworks/db':
         specifier: workspace:*
         version: link:../../../libs/db
+      '@votingworks/design-backend':
+        specifier: workspace:*
+        version: link:../../../libs/design-backend
       '@votingworks/dev-dock-backend':
         specifier: workspace:*
         version: link:../../../libs/dev-dock/backend

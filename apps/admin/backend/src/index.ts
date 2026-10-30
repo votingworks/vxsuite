@@ -8,6 +8,7 @@ import {
 import * as server from './server.js';
 
 export type { Api } from './app.js';
+export type { DesignApi } from './design/design_api.js';
 export type { BackupStatus } from './backup/create/index.js';
 export type { BackupDetails } from './backup/backup_manifest.js';
 export type { BackupProgressEvent } from './backup/progress.js';

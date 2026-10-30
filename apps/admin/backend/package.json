@@ -37,6 +37,7 @@
     "@votingworks/backend": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/db": "workspace:*",
+    "@votingworks/design-backend": "workspace:*",
     "@votingworks/dev-dock-backend": "workspace:*",
     "@votingworks/fs": "workspace:*",
     "@votingworks/grout": "workspace:*",

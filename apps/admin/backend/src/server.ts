@@ -1,4 +1,5 @@
 import express from 'express';
+import * as grout from '@votingworks/grout';
 import {
   LogEventId,
   BaseLogger,
@@ -40,6 +41,8 @@ import {
   resolveWorkspacePath,
 } from './util/workspace.js';
 import { buildApp } from './app.js';
+import { buildDesignApi } from './design/design_api.js';
+import { createDesignStore } from './design/design_store.js';
 import { buildClientApp } from './client_app.js';
 import { buildPeerApp } from './peer_app.js';
 import { buildRestoreApp, RESTORE_MODE_STORE } from './restore_app.js';
@@ -196,6 +199,21 @@ export async function start(options: StartOptions = {}): Promise<Server> {
         workspace,
         machineMode,
       });
+
+      if (
+        isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.ENABLE_ADMIN_ELECTION_DESIGN
+        )
+      ) {
+        const designStore = await createDesignStore(baseLogger);
+        app.use(
+          '/design-api',
+          grout.buildRouter(
+            buildDesignApi({ auth, workspace, designStore }),
+            express
+          )
+        );
+      }
 
       // Log election results data check at startup
       const electionId = workspace.store.getCurrentElectionId();

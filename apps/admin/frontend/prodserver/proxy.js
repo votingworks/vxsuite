@@ -3,7 +3,7 @@
 // (index.js, via setupProxy.js).
 
 /** Request path prefixes the frontend forwards to the backend. */
-export const PROXY_PATHS = ['/api', '/dock'];
+export const PROXY_PATHS = ['/api', '/dock', '/design-api'];
 
 /** The backend listens on the port after the frontend's. */
 export function backendTarget(frontendPort = process.env.FRONTEND_PORT) {

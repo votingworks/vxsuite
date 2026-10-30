@@ -120,6 +120,10 @@ export const BooleanEnvironmentVariableName = {
    * [In Development] Enables networking VxCentralScan to a VxAdmin host.
    */
   ENABLE_CENTRAL_SCAN_NETWORKING: 'REACT_APP_VX_ENABLE_CENTRAL_SCAN_NETWORKING',
+  /**
+   * [In Development] Enables designing elections offline within VxAdmin.
+   */
+  ENABLE_ADMIN_ELECTION_DESIGN: 'REACT_APP_VX_ENABLE_ADMIN_ELECTION_DESIGN',
 } as const;
 
 export type BooleanEnvironmentVariableName = EnumValues<
@@ -207,6 +211,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_ENABLE_ADMIN_BACKUP_RESTORE;
     case BooleanEnvironmentVariableName.ENABLE_CENTRAL_SCAN_NETWORKING:
       return process.env.REACT_APP_VX_ENABLE_CENTRAL_SCAN_NETWORKING;
+    case BooleanEnvironmentVariableName.ENABLE_ADMIN_ELECTION_DESIGN:
+      return process.env.REACT_APP_VX_ENABLE_ADMIN_ELECTION_DESIGN;
     default:
       throwIllegalValue(name);
   }
@@ -365,6 +371,12 @@ export function getBooleanEnvVarConfig(
       return {
         name,
         allowInProduction: true,
+        autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.ENABLE_ADMIN_ELECTION_DESIGN:
+      return {
+        name,
+        allowInProduction: false,
         autoEnableInDevelopment: false,
       };
     default:

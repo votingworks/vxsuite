@@ -678,6 +678,21 @@ export class Store {
     });
   }
 
+  async updateJurisdictionStateCode(
+    jurisdictionId: string,
+    stateCode: StateCode
+  ): Promise<void> {
+    await this.db.withClient(async (client) => {
+      await client.query(
+        `
+        update jurisdictions set state_code = $1 where id = $2
+        `,
+        stateCode,
+        jurisdictionId
+      );
+    });
+  }
+
   async getJurisdiction(jurisdictionId: string): Promise<Jurisdiction> {
     return this.db.withClient(async (client) => {
       const row = (
