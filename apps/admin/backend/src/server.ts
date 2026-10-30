@@ -209,7 +209,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
         app.use(
           '/design-api',
           grout.buildRouter(
-            buildDesignApi({ auth, workspace, designStore }),
+            buildDesignApi({ auth, workspace, designStore, logger }),
             express
           )
         );

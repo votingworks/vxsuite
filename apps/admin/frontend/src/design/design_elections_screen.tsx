@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import type { StateCode } from '@votingworks/design-backend';
 import {
@@ -17,6 +18,7 @@ import {
   TH,
 } from '@votingworks/ui';
 import { NavigationScreen } from '../components/navigation_screen.js';
+import { LoadElectionPackageModal } from './load_election_package_modal.js';
 import {
   getDesignStateCode,
   getLocalJurisdictionId,
@@ -54,6 +56,7 @@ export function DesignElectionsScreen(): JSX.Element | null {
   const listElectionsQuery = listElections.useQuery();
   const jurisdictionIdQuery = getLocalJurisdictionId.useQuery();
   const createElectionMutation = createElection.useMutation();
+  const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
 
   if (!listElectionsQuery.isSuccess || !jurisdictionIdQuery.isSuccess) {
     return null;
@@ -88,8 +91,14 @@ export function DesignElectionsScreen(): JSX.Element | null {
           disabled={createElectionMutation.isLoading}
         >
           Create Election
+        </Button>{' '}
+        <Button icon="Import" onPress={() => setIsLoadModalOpen(true)}>
+          Load Election Package
         </Button>
       </P>
+      {isLoadModalOpen && (
+        <LoadElectionPackageModal onClose={() => setIsLoadModalOpen(false)} />
+      )}
       {elections.length === 0 ? (
         <P>No elections yet.</P>
       ) : (

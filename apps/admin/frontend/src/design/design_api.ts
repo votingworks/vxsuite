@@ -1,6 +1,10 @@
 import type { DesignApi } from '@votingworks/admin-backend';
 import type { StateCode } from '@votingworks/design-backend';
-import { type ApiClient, useApiClient } from '@votingworks/design-ui';
+import {
+  type ApiClient,
+  listElections,
+  useApiClient,
+} from '@votingworks/design-ui';
 import * as grout from '@votingworks/grout';
 import {
   type QueryKey,
@@ -62,6 +66,22 @@ export const setDesignStateCode = {
       {
         async onSuccess() {
           await queryClient.invalidateQueries();
+        },
+      }
+    );
+  },
+} as const;
+
+export const loadElectionPackage = {
+  useMutation() {
+    const apiClient = useAdminDesignApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(
+      (input: { electionFilePath: string }) =>
+        apiClient.loadElectionPackage(input),
+      {
+        async onSuccess() {
+          await queryClient.invalidateQueries(listElections.queryKey());
         },
       }
     );
