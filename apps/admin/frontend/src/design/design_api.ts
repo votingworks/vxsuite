@@ -170,3 +170,15 @@ export const configureFromDesign = {
     });
   },
 } as const;
+
+export const duplicateElection = {
+  useMutation() {
+    const apiClient = useAdminDesignApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.duplicateElection, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(listElections.queryKey());
+      },
+    });
+  },
+} as const;

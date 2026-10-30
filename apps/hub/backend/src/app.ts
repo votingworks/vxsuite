@@ -75,13 +75,12 @@ import {
   resultsReportingUrl,
   createBallotPropsForTemplate,
   getBallotPdfFileName,
-  regenerateElectionIds,
   userCanAccessJurisdiction,
   getStateFeaturesConfig,
   getUserFeaturesConfig,
   type UserFeaturesConfig,
   buildElectionDefinitionMethods,
-  defaultSystemSettings,
+  cloneElection,
 } from '@votingworks/design-backend';
 import type { AppContext } from './context.js';
 import {
@@ -287,36 +286,14 @@ export function buildApi(ctx: AppContext) {
       },
       context: ApiContext
     ): Promise<ElectionId> {
-      const {
-        election: sourceElection,
-        isMiCombinedBallotPrimary,
-        ballotTemplateId,
-      } = await store.getElection(input.electionId);
-
       const destJurisdiction = await store.getJurisdiction(
         input.destJurisdictionId
       );
       requireJurisdictionAccess(context.user, destJurisdiction);
-
-      const stateFeatures = getStateFeaturesConfig(destJurisdiction);
-      const { districts, precincts, parties, contests, pollingPlaces } =
-        regenerateElectionIds(sourceElection, stateFeatures);
-
-      const election: Election = {
-        ...sourceElection,
-        id: input.destElectionId,
-        districts,
-        precincts,
-        parties,
-        contests,
-        pollingPlaces,
-      };
-      await store.createElection({
-        jurisdiction: destJurisdiction,
-        election,
-        isMiCombinedBallotPrimary,
-        ballotTemplateId,
-        systemSettings: defaultSystemSettings(destJurisdiction),
+      await cloneElection(store, {
+        sourceElectionId: input.electionId,
+        destElectionId: input.destElectionId,
+        destJurisdiction,
       });
       return input.destElectionId;
     },

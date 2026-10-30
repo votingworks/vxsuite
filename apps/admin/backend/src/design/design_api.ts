@@ -1,6 +1,7 @@
 import type { DippedSmartCardAuthApi } from '@votingworks/auth';
 import {
   buildElectionDefinitionMethods,
+  cloneElection,
   generateId,
   type ElectionListing,
   type MainExportTaskMetadata,
@@ -242,6 +243,18 @@ export function buildDesignApi({
         electionPackageFilePath:
           designExporter.resolveFileUrl(electionPackageUrl),
       });
+    },
+
+    async duplicateElection(input: {
+      electionId: ElectionId;
+    }): Promise<ElectionId> {
+      const destElectionId = generateId();
+      await cloneElection(designStore, {
+        sourceElectionId: input.electionId,
+        destElectionId,
+        destJurisdiction: await getLocalJurisdiction(designStore),
+      });
+      return destElectionId;
     },
 
     listElections(): Promise<ElectionListing[]> {

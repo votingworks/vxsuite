@@ -85,6 +85,44 @@ export function createBlankElection(
   };
 }
 
+export async function cloneElection(
+  store: Store,
+  {
+    sourceElectionId,
+    destElectionId,
+    destJurisdiction,
+  }: {
+    sourceElectionId: ElectionId;
+    destElectionId: ElectionId;
+    destJurisdiction: Jurisdiction;
+  }
+): Promise<void> {
+  const {
+    election: sourceElection,
+    isMiCombinedBallotPrimary,
+    ballotTemplateId,
+  } = await store.getElection(sourceElectionId);
+  const stateFeatures = getStateFeaturesConfig(destJurisdiction);
+  const { districts, precincts, parties, contests, pollingPlaces } =
+    regenerateElectionIds(sourceElection, stateFeatures);
+  const election: Election = {
+    ...sourceElection,
+    id: destElectionId,
+    districts,
+    precincts,
+    parties,
+    contests,
+    pollingPlaces,
+  };
+  await store.createElection({
+    jurisdiction: destJurisdiction,
+    election,
+    isMiCombinedBallotPrimary,
+    ballotTemplateId,
+    systemSettings: defaultSystemSettings(destJurisdiction),
+  });
+}
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildElectionDefinitionMethods({ store }: { store: Store }) {
   const methods = {

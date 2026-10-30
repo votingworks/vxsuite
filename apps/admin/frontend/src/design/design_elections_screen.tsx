@@ -20,6 +20,7 @@ import {
 import { NavigationScreen } from '../components/navigation_screen.js';
 import { LoadElectionPackageModal } from './load_election_package_modal.js';
 import {
+  duplicateElection,
   getDesignStateCode,
   getLocalJurisdictionId,
   listStateCodes,
@@ -57,6 +58,7 @@ export function DesignElectionsScreen(): JSX.Element | null {
   const jurisdictionIdQuery = getLocalJurisdictionId.useQuery();
   const createElectionMutation = createElection.useMutation();
   const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
+  const duplicateElectionMutation = duplicateElection.useMutation();
 
   if (!listElectionsQuery.isSuccess || !jurisdictionIdQuery.isSuccess) {
     return null;
@@ -122,6 +124,16 @@ export function DesignElectionsScreen(): JSX.Element | null {
                 </TD>
                 <TD>{election.status}</TD>
                 <TD>
+                  <Button
+                    onPress={() =>
+                      duplicateElectionMutation.mutate({
+                        electionId: election.electionId,
+                      })
+                    }
+                    disabled={duplicateElectionMutation.isLoading}
+                  >
+                    Duplicate
+                  </Button>{' '}
                   <LinkButton
                     to={
                       routes.election(election.electionId).electionInfo.root
