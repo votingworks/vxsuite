@@ -27,17 +27,17 @@ import {
   type TestDeckBallot,
   createSummaryBallotTestDeck,
 } from '@votingworks/test-decks';
-import type { EmitProgressFunction, WorkerContext } from './context.js';
 import {
   addPollingPlacesForExport,
   createBallotPropsForTemplate,
   formatElectionForExport,
+  Archiver,
 } from '@votingworks/design-backend';
+import type { EmitProgressFunction, WorkerContext } from './context.js';
 import {
   createPrecinctTestDeck,
   createTestDeckTallyReports,
 } from '../test_decks.js';
-import { Archiver } from './zip.js';
 
 export interface GenerateTestDecksPayload {
   electionId: ElectionId;

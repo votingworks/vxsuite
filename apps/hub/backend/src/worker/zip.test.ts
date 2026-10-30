@@ -1,7 +1,7 @@
 import { makeTemporaryFile } from '@votingworks/fixtures';
 import { expect, test } from 'vitest';
 import { buffer } from 'node:stream/consumers';
-import { Archiver } from './zip.js';
+import { Archiver } from '@votingworks/design-backend';
 
 // Success cases tested via app/worker test paths.
 

@@ -3,6 +3,7 @@ import { find } from '@votingworks/basics';
 import { electionGeneralFixtures } from '@votingworks/fixtures';
 import { readElectionPackageFromBuffer } from '@votingworks/backend';
 import { BallotType, ElectionIdSchema, unsafeParse } from '@votingworks/types';
+import type { JurisdictionUser } from '@votingworks/design-backend';
 import {
   exportElectionPackage,
   getExportedFile,
@@ -14,7 +15,6 @@ import {
   organizations,
   users,
 } from '../test/mocks.js';
-import type { JurisdictionUser } from '@votingworks/design-backend';
 
 vi.setConfig({ testTimeout: 30_000 });
 

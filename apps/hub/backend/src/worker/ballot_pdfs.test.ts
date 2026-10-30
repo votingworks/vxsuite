@@ -8,7 +8,7 @@ import {
 } from '@votingworks/hmpb';
 import { makeTemporaryFile } from '@votingworks/fixtures';
 
-import { normalizeBallotColorModeForPrinting } from './ballot_pdfs.js';
+import { normalizeBallotColorModeForPrinting } from '@votingworks/design-backend';
 
 vi.mock(import('@votingworks/hmpb'), async (importActual) => ({
   ...(await importActual()),

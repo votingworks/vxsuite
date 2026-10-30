@@ -3,9 +3,8 @@ import {
   type MinimalGoogleCloudTextToSpeechClient,
 } from '@votingworks/backend';
 import type { LanguageCode } from '@votingworks/types';
+import { type Store, isValidPrimaryKey } from '@votingworks/design-backend';
 import { rootDebug } from './debug.js';
-import type { Store } from '@votingworks/design-backend';
-import { isValidPrimaryKey } from '@votingworks/design-backend';
 
 const debug = rootDebug.extend('speech');
 

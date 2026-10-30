@@ -3697,6 +3697,9 @@ importers:
 
   libs/design-backend:
     dependencies:
+      '@types/archiver':
+        specifier: 8.0.0
+        version: 8.0.0
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../backend
@@ -3715,6 +3718,9 @@ importers:
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../utils
+      archiver:
+        specifier: 8.0.0
+        version: 8.0.0
       csv-parse:
         specifier: ^7.0.2
         version: 7.0.2

@@ -117,37 +117,22 @@ import { LogEventId } from '@votingworks/logging';
 import { readdir, readFile } from 'node:fs/promises';
 import { createSummaryBallotTestDeck } from '@votingworks/test-decks';
 import {
-  type ApiClient,
-  ELECTION_PACKAGE_FILE_NAME_REGEX,
-  exportElectionPackage,
-  exportTestDecks,
-  getExportedFile,
-  processNextBackgroundTaskIfAny,
-  testSetupHelpers,
-} from '../test/helpers.js';
-import {
-  FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
-  createPrecinctTestDeck,
-  createTestDeckTallyReports,
-  precinctTallyReportFileName,
-} from './test_decks.js';
-import type {
-  ElectionInfo,
-  ElectionInfoUpdate,
-  ElectionListing,
-  ElectionStatus,
-  Jurisdiction,
-  JurisdictionUser,
-} from '@votingworks/design-backend';
-import type {
-  MainExportTaskMetadata,
-  DuplicateDistrictError,
-  DuplicatePartyError,
-} from '@votingworks/design-backend';
-import {
+  type ElectionInfo,
+  type ElectionInfoUpdate,
+  type ElectionListing,
+  type ElectionStatus,
+  type Jurisdiction,
+  type JurisdictionUser,
+  type MainExportTaskMetadata,
+  type DuplicateDistrictError,
+  type DuplicatePartyError,
   getStateFeaturesConfig,
   stateFeatureConfigs,
   userFeatureConfigs,
+  SLI_DEFAULT_SYSTEM_SETTINGS,
+  stateDefaultSystemSettings,
+  type GenerateElectionPackageAndBallotsPayload,
+  GenerateElectionPackageAndBallotsPayloadSchema,
 } from '@votingworks/design-backend';
 import { buildApi } from './app.js';
 import {
@@ -169,13 +154,20 @@ import {
   miJurisdiction,
 } from '../test/mocks.js';
 import {
-  SLI_DEFAULT_SYSTEM_SETTINGS,
-  stateDefaultSystemSettings,
-} from '@votingworks/design-backend';
+  FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
+  createPrecinctTestDeck,
+  createTestDeckTallyReports,
+  precinctTallyReportFileName,
+} from './test_decks.js';
 import {
-  type GenerateElectionPackageAndBallotsPayload,
-  GenerateElectionPackageAndBallotsPayloadSchema,
-} from './worker/generate_election_package_and_ballots.js';
+  type ApiClient,
+  ELECTION_PACKAGE_FILE_NAME_REGEX,
+  exportElectionPackage,
+  exportTestDecks,
+  getExportedFile,
+  processNextBackgroundTaskIfAny,
+  testSetupHelpers,
+} from '../test/helpers.js';
 import {
   type GenerateTestDecksPayload,
   GenerateTestDecksPayloadSchema,

@@ -7,26 +7,14 @@ import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
 import { getSignedUrl as s3GetSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { assertDefined, err, ok, type Result } from '@votingworks/basics';
+import type { FileStorageClientError } from '@votingworks/design-backend';
 
 import { WORKSPACE } from './globals.js';
 
-// TODO: Properly enumerate error cases with FileStorageClientError type
-export type FileStorageClientError =
-  | { type: 'undefined-body' }
-  | { type: 'unknown-error' };
-
-export interface FileStorageClient {
-  readFile: (
-    filePath: string
-  ) => Promise<Result<Readable, FileStorageClientError>>;
-
-  streamFile: (filePath: string, contents: Readable) => Promise<void>;
-
-  getSignedUrl?: (
-    filePath: string,
-    expiresInSeconds?: number
-  ) => Promise<string>;
-}
+export type {
+  FileStorageClient,
+  FileStorageClientError,
+} from '@votingworks/design-backend';
 
 /**
  * A file storage client backed by S3, for deployed environments

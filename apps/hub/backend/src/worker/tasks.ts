@@ -4,12 +4,13 @@ import { throwIllegalValue } from '@votingworks/basics';
 import { safeParseJson } from '@votingworks/types';
 import type { ScratchDir } from '@votingworks/hmpb';
 
-import type { BackgroundTask } from '@votingworks/design-backend';
-import type { WorkerContext } from './context.js';
 import {
+  type BackgroundTask,
   generateElectionPackageAndBallots,
   GenerateElectionPackageAndBallotsPayloadSchema,
-} from './generate_election_package_and_ballots.js';
+} from '@votingworks/design-backend';
+import type { WorkerContext } from './context.js';
+import { triggerCircleCiQaBuild } from './export_qa.js';
 import {
   generateTestDecks,
   GenerateTestDecksPayloadSchema,
@@ -71,7 +72,22 @@ async function processTask(
       ).unsafeUnwrap();
 
       await generateElectionPackageAndBallots(
-        context,
+        {
+          ...context,
+          onElectionPackageExported: ({
+            electionId,
+            electionPackageUrl,
+            jurisdiction,
+          }) =>
+            triggerCircleCiQaBuild({
+              store: context.workspace.store,
+              electionId,
+              electionPackageUrl,
+              fileStorageClient: context.fileStorageClient,
+              organizationId: jurisdiction.organization.id,
+              vxsuiteVersion: jurisdiction.softwareVersion,
+            }),
+        },
         parsedPayload,
         emitProgress,
         scratchDir

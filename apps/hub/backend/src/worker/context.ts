@@ -14,8 +14,4 @@ export interface WorkerContext {
   logger: BaseLogger;
 }
 
-export type EmitProgressFunction = (
-  label: string,
-  progress: number,
-  total: number
-) => void;
+export type { EmitProgressFunction } from '@votingworks/design-backend';

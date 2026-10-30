@@ -1,5 +1,4 @@
 import {
-  DEPLOY_ENV,
   FRONTEND_PORT,
   NODE_ENV,
   requiredProdEnvVar,
