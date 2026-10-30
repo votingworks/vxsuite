@@ -43,8 +43,10 @@ import { getLocalJurisdiction, LOCAL_JURISDICTION_ID } from './design_store.js';
 
 class DesignAuthError extends grout.UserError {}
 
-function withoutAudio(features: StateFeaturesConfig): StateFeaturesConfig {
-  return { ...features, AUDIO_ENABLED: false };
+function withEnglishOnlyFeatures(
+  features: StateFeaturesConfig
+): StateFeaturesConfig {
+  return { ...features, AUDIO_ENABLED: false, BALLOT_LANGUAGE_CONFIG: false };
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -89,7 +91,7 @@ export function buildDesignApi({
     async getStateFeatures(input: {
       electionId: ElectionId;
     }): Promise<StateFeaturesConfig> {
-      return withoutAudio(
+      return withEnglishOnlyFeatures(
         await electionDefinitionMethods.getStateFeatures(input)
       );
     },
@@ -114,7 +116,7 @@ export function buildDesignApi({
     },
 
     async getLocalStateFeatures(): Promise<StateFeaturesConfig> {
-      return withoutAudio(
+      return withEnglishOnlyFeatures(
         getStateFeaturesConfig(await getLocalJurisdiction(designStore))
       );
     },
