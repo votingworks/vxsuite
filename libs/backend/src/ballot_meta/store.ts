@@ -9,7 +9,8 @@ import {
   type SheetPositions,
   type SystemSettings,
 } from '@votingworks/types';
-import type { Client } from '@votingworks/db';
+import { Client } from '@votingworks/db';
+import { BaseLogger, LogSource } from '@votingworks/logging';
 import z from 'zod';
 import {
   streamBallotPositions,
@@ -95,20 +96,26 @@ export class BallotMetaStore {
     settings: SystemSettings
   ): Promise<void> {
     if (!settings.splitElectionDefinition) {
-      for (const bs of election.ballotStyles) {
-        if (!bs.ballotPositions) continue; // Not a scannable ballot.
-
-        addPositions(this.client, {
-          ballotStyleId: bs.id,
-          positions: bs.ballotPositions,
-        });
-      }
-
+      this.importPositionsFromElection(election);
       return;
     }
 
     for await (const bp of streamBallotPositions(zip)) {
       addPositions(this.client, bp);
+    }
+  }
+
+  /**
+   * Imports the ballot positions embedded in a single-file election definition.
+   */
+  importPositionsFromElection(election: Election): void {
+    for (const bs of election.ballotStyles) {
+      if (!bs.ballotPositions) continue; // Not a scannable ballot.
+
+      addPositions(this.client, {
+        ballotStyleId: bs.id,
+        positions: bs.ballotPositions,
+      });
     }
   }
 }
@@ -127,4 +134,23 @@ function addPositions(client: Client, b: BallotPositions): void {
     b.ballotStyleId,
     JSON.stringify(b.positions)
   );
+}
+
+/**
+ * Creates a SQLite database at `dbPath` holding the ballot positions embedded
+ * in `election`, readable by the ballot interpreter.
+ */
+export function createBallotPositionsDb(
+  dbPath: string,
+  election: Election
+): void {
+  const client = Client.fileClient(dbPath, new BaseLogger(LogSource.System));
+  client.exec(
+    `create table ballot_positions (
+      style_id text primary key,
+      positions text not null
+    ) strict`
+  );
+  new BallotMetaStore(client).importPositionsFromElection(election);
+  client.close();
 }

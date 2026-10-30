@@ -13,7 +13,10 @@ import {
   mapSheet,
 } from '@votingworks/types';
 import { expect, test } from 'vitest';
-import { pdfToPageImages } from '../../test/helpers/interpretation.js';
+import {
+  makeBallotPositionsDb,
+  pdfToPageImages,
+} from '../../test/helpers/interpretation.js';
 import { interpret } from './interpret.js';
 
 const electionGridLayoutNewHampshireTestBallotDefinition =
@@ -26,7 +29,11 @@ test('interpret with bad election data', async () => {
   };
 
   await expect(
-    interpret({ electionDefinition, ballotImages: ['a', 'b'] })
+    interpret({
+      electionDefinition,
+      ballotImages: ['a', 'b'],
+      ballotPositionsDbPath: 'ballots.db',
+    })
   ).rejects.toThrow('missing field `title`');
 });
 
@@ -34,7 +41,11 @@ test('interpret with bad ballot image paths', async () => {
   const electionDefinition = electionGridLayoutNewHampshireTestBallotDefinition;
 
   await expect(
-    interpret({ electionDefinition, ballotImages: ['a', 'b'] })
+    interpret({
+      electionDefinition,
+      ballotImages: ['a', 'b'],
+      ballotPositionsDbPath: 'ballots.db',
+    })
   ).rejects.toThrow(/No such file or directory/);
 });
 
@@ -43,7 +54,11 @@ test('interpret `ImageData` objects', async () => {
   const ballotImages = asSheet(
     await pdfToPageImages(vxFamousNamesFixtures.markedBallotPath).toArray()
   );
-  const result = await interpret({ electionDefinition, ballotImages });
+  const result = await interpret({
+    electionDefinition,
+    ballotImages,
+    ballotPositionsDbPath: makeBallotPositionsDb(electionDefinition.election),
+  });
   expect(result).toEqual(ok(expect.anything()));
 
   const { front, back } = result.unsafeUnwrap();
@@ -347,6 +362,7 @@ test('interpret images from paths', async () => {
   const result = await interpret({
     electionDefinition,
     ballotImages: ballotImagePaths,
+    ballotPositionsDbPath: makeBallotPositionsDb(electionDefinition.election),
   });
   expect(result).toEqual(ok(expect.anything()));
 
@@ -651,6 +667,7 @@ test('score write in areas', async () => {
     electionDefinition,
     ballotImages,
     scoreWriteIns: true,
+    ballotPositionsDbPath: makeBallotPositionsDb(electionDefinition.election),
   });
   expect(result).toEqual(ok(expect.anything()));
 

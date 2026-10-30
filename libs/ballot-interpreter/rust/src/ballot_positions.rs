@@ -119,3 +119,109 @@ fn get_grid_layout(db_path: &Path, style_id: &BallotStyleId) -> Result<Option<Gr
         &positions,
     )))
 }
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod test {
+    use types_rs::election::{
+        ContestId, ContestOptionPosition, ContestPosition, GridPoint, GridRect, OptionId,
+    };
+
+    use super::*;
+
+    fn style_id(id: &str) -> BallotStyleId {
+        BallotStyleId::from(id.to_owned())
+    }
+
+    fn sheet_positions() -> Vec<SheetPositions> {
+        vec![(
+            vec![ContestPosition {
+                contest_id: ContestId::from("contest-1".to_owned()),
+                bounds: GridRect::default(),
+                options: vec![ContestOptionPosition::Option {
+                    bubble_center: GridPoint {
+                        row: 2.0,
+                        column: 3.0,
+                    },
+                    bounds: GridRect::default(),
+                    option_id: OptionId::from("option-1".to_owned()),
+                }],
+            }],
+            vec![],
+        )]
+    }
+
+    #[test]
+    fn test_sqlite_source() {
+        let dir = tempfile::tempdir().unwrap();
+        let db_path = dir.path().join("ballots.db");
+        let conn = Connection::open(&db_path).unwrap();
+        conn.execute_batch(
+            "create table ballot_positions (style_id text primary key, positions text not null)",
+        )
+        .unwrap();
+        conn.execute(
+            "insert into ballot_positions (style_id, positions) values (?, ?)",
+            ["bs-1", &serde_json::to_string(&sheet_positions()).unwrap()],
+        )
+        .unwrap();
+        conn.execute(
+            "insert into ballot_positions (style_id, positions) values (?, ?)",
+            ["bs-bad", "not json"],
+        )
+        .unwrap();
+
+        let source = SqliteGridLayoutSource { db_path };
+        let layout = source.grid_layout(&style_id("bs-1")).unwrap().unwrap();
+        assert_eq!(layout.ballot_style_id, style_id("bs-1"));
+        assert_eq!(layout.grid_positions.len(), 1);
+
+        assert!(source.grid_layout(&style_id("bs-2")).unwrap().is_none());
+
+        let err = source.grid_layout(&style_id("bs-bad")).unwrap_err();
+        assert!(
+            err.contains("parsing positions for ballot style bs-bad"),
+            "{err}"
+        );
+    }
+
+    #[test]
+    fn test_sqlite_source_missing_db() {
+        let dir = tempfile::tempdir().unwrap();
+        let source = SqliteGridLayoutSource {
+            db_path: dir.path().join("missing.db"),
+        };
+        let err = source.grid_layout(&style_id("bs-1")).unwrap_err();
+        assert!(err.contains("connecting to ballot positions DB"), "{err}");
+    }
+
+    #[test]
+    fn test_in_memory_source() {
+        let json = serde_json::json!({
+            "ballotStyles": [
+                { "id": "bs-1", "ballotPositions": sheet_positions() },
+                { "id": "bs-2" },
+            ],
+        });
+        let source =
+            InMemoryGridLayoutSource::from_election_json(json.to_string().as_bytes()).unwrap();
+        assert_eq!(
+            source
+                .grid_layout(&style_id("bs-1"))
+                .unwrap()
+                .unwrap()
+                .grid_positions
+                .len(),
+            1
+        );
+        assert!(
+            source
+                .grid_layout(&style_id("bs-2"))
+                .unwrap()
+                .unwrap()
+                .grid_positions
+                .is_empty()
+        );
+        assert!(source.grid_layout(&style_id("bs-3")).unwrap().is_none());
+    }
+}

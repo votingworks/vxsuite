@@ -24,6 +24,7 @@ test('no debug', async () => {
     electionDefinition,
     ballotImages: ['a.jpeg', 'b.jpeg'],
     debug: false,
+    ballotPositionsDbPath: 'ballots.db',
   }));
 
   expect(interpretPathsMock).toHaveBeenCalledWith(
@@ -49,6 +50,7 @@ test('debug with image paths', async () => {
     electionDefinition,
     ballotImages: ['a.jpeg', 'b.jpeg'],
     debug: true,
+    ballotPositionsDbPath: 'ballots.db',
   }));
 
   expect(interpretPathsMock).toHaveBeenCalledWith(

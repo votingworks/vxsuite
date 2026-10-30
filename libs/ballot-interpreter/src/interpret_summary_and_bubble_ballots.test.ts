@@ -11,7 +11,10 @@ import {
   asSheet,
 } from '@votingworks/types';
 import { CachedElectionLookups } from '@votingworks/utils';
-import { pdfToPageImages } from '../test/helpers/interpretation.js';
+import {
+  makeBallotPositionsDb,
+  pdfToPageImages,
+} from '../test/helpers/interpretation.js';
 import { interpretSheet } from './interpret.js';
 
 test('interpret BMD ballot for an election supporting hand-marked paper ballots', async () => {
@@ -50,6 +53,7 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
+      ballotPositionsDbPath: makeBallotPositionsDb(electionDefinition.election),
     },
     bmdBallot
   );
@@ -73,6 +77,7 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
+      ballotPositionsDbPath: makeBallotPositionsDb(electionDefinition.election),
     },
     hmpbBallot
   );
@@ -114,6 +119,7 @@ test('interpret BMD ballot with test/official ballot mode mismatch error', async
       testMode: false,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
+      ballotPositionsDbPath: makeBallotPositionsDb(electionDefinition.election),
     },
     bmdBallot
   );

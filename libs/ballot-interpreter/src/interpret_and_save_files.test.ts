@@ -19,7 +19,10 @@ import {
   type ElectionDefinition,
   asSheet,
 } from '@votingworks/types';
-import { pdfToPageImages } from '../test/helpers/interpretation.js';
+import {
+  makeBallotPositionsDb,
+  pdfToPageImages,
+} from '../test/helpers/interpretation.js';
 import { interpretSheetAndSaveImages } from './interpret.js';
 
 test('interprets ballot images and saves images for storage', async () => {
@@ -44,6 +47,7 @@ test('interprets ballot images and saves images for storage', async () => {
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
+      ballotPositionsDbPath: makeBallotPositionsDb(electionDefinition.election),
     },
     testBallot,
     'sheet-id',
@@ -71,6 +75,7 @@ test('saves images even when interpretation fails', async () => {
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
+      ballotPositionsDbPath: makeBallotPositionsDb(electionDefinition.election),
     },
     [BLANK_PAGE_IMAGE_DATA, BLANK_PAGE_IMAGE_DATA],
     'sheet-id',
@@ -110,6 +115,9 @@ test.each<{ ballotImageBitDepth?: BallotImageBitDepth; expected: number }>([
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
+        ballotPositionsDbPath: makeBallotPositionsDb(
+          electionDefinition.election
+        ),
         ballotImageBitDepth,
       },
       images,

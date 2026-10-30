@@ -8,18 +8,7 @@ import type {
 /**
  * Options for interpreting a sheet of ballot images.
  */
-export type InterpreterOptions = AutoDetectOptions | SummaryBallotOptions;
-
-export type AutoDetectOptions = CoreOptions & {
-  mode: 'auto_detect';
-  ballotPositionsDbPath: string;
-};
-
-export type SummaryBallotOptions = CoreOptions & {
-  mode: 'summary_ballot';
-};
-
-interface CoreOptions {
+export interface InterpreterOptions {
   adjudicationReasons: readonly AdjudicationReason[];
   electionDefinition: ElectionDefinition;
   allowOfficialBallotsInTestMode?: boolean;
@@ -33,4 +22,9 @@ interface CoreOptions {
   ballotImageBitDepth?: BallotImageBitDepth;
   frontNormalizedImageOutputPath?: string;
   backNormalizedImageOutputPath?: string;
+  /**
+   * Path to a SQLite database with a `ballot_positions` table (see
+   * `BallotMetaStore`). Bubble ballot interpretation is skipped when omitted.
+   */
+  ballotPositionsDbPath?: string;
 }

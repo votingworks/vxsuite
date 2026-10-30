@@ -3368,6 +3368,9 @@ importers:
       '@vitest/coverage-istanbul':
         specifier: 5.0.2
         version: 5.0.2(vitest@5.0.2)
+      '@votingworks/backend':
+        specifier: workspace:*
+        version: link:../backend
       '@votingworks/bmd-ballot-fixtures':
         specifier: workspace:*
         version: link:../bmd-ballot-fixtures

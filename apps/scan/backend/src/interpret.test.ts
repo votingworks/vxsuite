@@ -19,7 +19,11 @@ import {
 } from '@votingworks/types';
 import { assert } from 'node:console';
 import * as fs from 'node:fs/promises';
-import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import { createBallotPositionsDb } from '@votingworks/backend';
+import {
+  makeTemporaryDirectory,
+  makeTemporaryFile,
+} from '@votingworks/fixtures';
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import { interpret } from './interpret.js';
 
@@ -36,6 +40,7 @@ let ballotImages: {
   undervoteBmdBallot: SheetOf<RgbaImageData>;
 };
 let ballotImagesPath!: string;
+let ballotPositionsDbPath!: string;
 
 async function ballotAsSheet(ballotPdf: Uint8Array) {
   return asSheet(
@@ -46,6 +51,9 @@ async function ballotAsSheet(ballotPdf: Uint8Array) {
 }
 
 beforeAll(async () => {
+  ballotPositionsDbPath = makeTemporaryFile();
+  createBallotPositionsDb(ballotPositionsDbPath, electionDefinition.election);
+
   ballotImages = {
     overvoteBallot: await ballotAsSheet(
       Uint8Array.from(await fs.readFile(vxFamousNamesFixtures.markedBallotPath))
@@ -89,6 +97,7 @@ test('treats BMD ballot with one blank side as valid', async () => {
     testMode: true,
     markThresholds: DEFAULT_MARK_THRESHOLDS,
     adjudicationReasons: [],
+    ballotPositionsDbPath,
   });
   expect(result.ok()?.type).toEqual('ValidSheet');
 });
@@ -104,6 +113,7 @@ test('respects adjudication reasons for a BMD ballot on the front side', async (
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [AdjudicationReason.Undervote],
+      ballotPositionsDbPath,
     }
   );
   const interpretation = assertDefined(result.ok());
@@ -130,6 +140,7 @@ test('NH interpreter of overvote yields a sheet that needs to be reviewed', asyn
     testMode: true,
     markThresholds: DEFAULT_MARK_THRESHOLDS,
     adjudicationReasons: [AdjudicationReason.Overvote],
+    ballotPositionsDbPath,
   });
   expect(result.ok()?.type).toEqual('NeedsReviewSheet');
 });
@@ -143,6 +154,7 @@ test('NH interpreter with testMode=true', async () => {
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [AdjudicationReason.Overvote],
+      ballotPositionsDbPath,
     })
   ).unsafeUnwrap();
   expect(sheet.type).toEqual('ValidSheet');

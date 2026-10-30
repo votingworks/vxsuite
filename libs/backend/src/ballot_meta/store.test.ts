@@ -1,4 +1,5 @@
 import { Client } from '@votingworks/db';
+import { BaseLogger, LogSource } from '@votingworks/logging';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageFileName,
@@ -18,7 +19,7 @@ import {
 import { assertDefined } from '@votingworks/basics';
 import { zipFile } from '@votingworks/test-utils';
 import { withElectionPackageZip } from '../election_package/election_package_io.js';
-import { BallotMetaStore } from './store.js';
+import { BallotMetaStore, createBallotPositionsDb } from './store.js';
 
 const baseElection = electionGeneralFixtures.readElection();
 
@@ -213,3 +214,18 @@ function positionsFromBallotStyle(bs: BallotStyle): BallotPositions {
     positions: assertDefined(bs.ballotPositions),
   };
 }
+
+test('createBallotPositionsDb', () => {
+  const election: Election = {
+    ...baseElection,
+    ballotStyles: [style1, { ...style2, ballotPositions: undefined }],
+  };
+  const dbPath = makeTemporaryFile();
+  createBallotPositionsDb(dbPath, election);
+
+  const store = new BallotMetaStore(
+    Client.fileClient(dbPath, new BaseLogger(LogSource.System))
+  );
+  expect(store.getPositions(style1.id)).toEqual(style1.ballotPositions);
+  expect(store.getPositions(style2.id)).toBeNull();
+});

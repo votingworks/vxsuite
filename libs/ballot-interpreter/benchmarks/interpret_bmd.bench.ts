@@ -10,7 +10,10 @@ import {
 } from '@votingworks/bmd-ballot-fixtures';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { interpretSheet } from '../src/index.js';
-import { pdfToPageImages } from '../test/helpers/interpretation.js';
+import {
+  makeBallotPositionsDb,
+  pdfToPageImages,
+} from '../test/helpers/interpretation.js';
 import { benchmarkRegressionTest } from './benchmarking.js';
 
 const { electionDefinition, precinctId } = vxFamousNamesFixtures;
@@ -38,6 +41,9 @@ test('Blank BMD', async () => {
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
+          ballotPositionsDbPath: makeBallotPositionsDb(
+            electionDefinition.election
+          ),
         },
         famousNamesBmdBallot
       );

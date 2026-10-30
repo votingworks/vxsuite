@@ -12,6 +12,7 @@ import {
   HmpbBallotPaperSize,
 } from '@votingworks/types';
 import {
+  makeBallotPositionsDb,
   pdfToPageImages,
   sortVotesDict,
 } from '../test/helpers/interpretation.js';
@@ -41,6 +42,9 @@ describe.each(Object.values(HmpbBallotPaperSize))(
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [AdjudicationReason.Overvote],
+          ballotPositionsDbPath: makeBallotPositionsDb(
+            electionDefinition.election
+          ),
         },
         images
       );
@@ -76,6 +80,9 @@ describe.each(Object.values(HmpbBallotPaperSize))(
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [AdjudicationReason.Overvote],
+          ballotPositionsDbPath: makeBallotPositionsDb(
+            electionDefinition.election
+          ),
         },
         images
       );
@@ -110,6 +117,9 @@ describe.each(Object.values(HmpbBallotPaperSize))(
             testMode: true,
             markThresholds: DEFAULT_MARK_THRESHOLDS,
             adjudicationReasons: [AdjudicationReason.Overvote],
+            ballotPositionsDbPath: makeBallotPositionsDb(
+              electionDefinition.election
+            ),
           },
           sheetImages
         );

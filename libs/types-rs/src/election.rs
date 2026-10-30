@@ -697,7 +697,7 @@ mod tests {
 
     #[test]
     #[allow(clippy::too_many_lines)]
-    fn test_grid_layouts_from_ballot_positions() {
+    fn test_grid_layout_from_sheet_positions() {
         let option_bounds = GridRect {
             row: 1.5,
             column: 2.0,
@@ -739,25 +739,10 @@ mod tests {
                 },
             ],
         };
-        let election = Election {
-            title: "Test".to_string(),
-            ballot_styles: vec![BallotStyle {
-                id: BallotStyleId::from("bs-1".to_string()),
-                group_id: BallotStyleGroupId::from("bs-1".to_string()),
-                precincts: vec![],
-                districts: vec![],
-                party_id: None,
-                languages: vec![],
-                ballot_positions: Some(vec![(vec![contest], vec![])]),
-            }],
-            precincts: vec![],
-            mark_thresholds: None,
-            contests: vec![],
-        };
-
-        let grid_layouts = election.grid_layouts();
-        assert_eq!(grid_layouts.len(), 1);
-        let grid_layout = &grid_layouts[0];
+        let grid_layout = GridLayout::from_sheet_positions(
+            BallotStyleId::from("bs-1".to_string()),
+            &[(vec![contest], vec![])],
+        );
         assert_eq!(
             grid_layout.ballot_style_id,
             BallotStyleId::from("bs-1".to_string())
@@ -818,37 +803,10 @@ mod tests {
     }
 
     #[test]
-    fn test_grid_layouts_without_ballot_positions_is_empty() {
-        let election = Election {
-            title: "Test".to_string(),
-            ballot_styles: vec![BallotStyle {
-                id: BallotStyleId::from("bs-1".to_string()),
-                group_id: BallotStyleGroupId::from("bs-1".to_string()),
-                precincts: vec![],
-                districts: vec![],
-                party_id: None,
-                languages: vec![],
-                ballot_positions: None,
-            }],
-            precincts: vec![],
-            mark_thresholds: None,
-            contests: vec![],
-        };
-        assert!(election.grid_layouts().is_empty());
-    }
-
-    #[test]
     fn test_ballot_positions_deserialization_is_camel_case() {
         // The TypeScript renderer emits ballotPositions with camelCase fields
-        // (bubbleCenter, optionId, writeInIndex, writeInArea). Deserialize a
-        // ballot style's positions and confirm grid_layouts() flattens them.
-        let json = r#"{
-            "id": "bs-1",
-            "groupId": "bs-1",
-            "precincts": [],
-            "districts": [],
-            "languages": ["en"],
-            "ballotPositions": [
+        // (bubbleCenter, optionId, writeInIndex, writeInArea).
+        let json = r#"[
                 [
                     [
                         {
@@ -873,20 +831,12 @@ mod tests {
                     ],
                     []
                 ]
-            ]
-        }"#;
-        let ballot_style: BallotStyle = serde_json::from_str(json).unwrap();
-        let election = Election {
-            title: "Test".to_string(),
-            ballot_styles: vec![ballot_style],
-            precincts: vec![],
-            mark_thresholds: None,
-            contests: vec![],
-        };
-        let grid_layouts = election.grid_layouts();
-        assert_eq!(grid_layouts.len(), 1);
-        assert_eq!(grid_layouts[0].grid_positions.len(), 2);
-        match &grid_layouts[0].grid_positions[0] {
+        ]"#;
+        let positions: Vec<SheetPositions> = serde_json::from_str(json).unwrap();
+        let grid_layout =
+            GridLayout::from_sheet_positions(BallotStyleId::from("bs-1".to_string()), &positions);
+        assert_eq!(grid_layout.grid_positions.len(), 2);
+        match &grid_layout.grid_positions[0] {
             GridPosition::Option {
                 option_id, bounds, ..
             } => {
