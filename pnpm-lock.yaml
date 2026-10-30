@@ -3703,6 +3703,9 @@ importers:
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../utils
+      csv-parse:
+        specifier: ^7.0.2
+        version: 7.0.2
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@8.1.1)

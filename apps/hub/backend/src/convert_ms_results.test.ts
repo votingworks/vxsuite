@@ -11,7 +11,7 @@ import {
   readFixture,
   stringifyAllPrecinctsTallyReportRows,
 } from '../test/helpers.js';
-import { convertMsElection } from './convert_ms_election.js';
+import { convertMsElection } from '@votingworks/design-backend';
 import {
   convertMsResults,
   SEMS_RESULTS_COLUMNS,

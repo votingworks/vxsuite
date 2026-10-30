@@ -5,7 +5,7 @@ import {
   LATEST_SOFTWARE_VERSION,
   safeParseElection,
 } from '@votingworks/types';
-import { convertMsElection } from './convert_ms_election.js';
+import { convertMsElection } from '@votingworks/design-backend';
 import { TestStore } from '../test/test_store.js';
 import type { Jurisdiction } from '@votingworks/design-backend';
 import { readFixture } from '../test/helpers.js';

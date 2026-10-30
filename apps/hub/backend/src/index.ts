@@ -54,7 +54,7 @@ export type { ConvertMsResultsError } from './convert_ms_results.js';
 export type { BallotTemplateId } from '@votingworks/hmpb';
 
 // Frontend tests import these for generating test data
-export { createBlankElection } from './app.js';
+export { createBlankElection } from '@votingworks/design-backend';
 
 loadEnvVarsFromDotenvFiles();
 
