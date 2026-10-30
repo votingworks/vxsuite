@@ -8,6 +8,7 @@ const ballot: BallotContextInterface = {
     codeVersion: 'dev',
     screenOrientation: 'portrait',
   },
+  candidateOrderings: null,
   contests: [],
   isCardlessVoter: false,
   isLiveMode: false,

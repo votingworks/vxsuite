@@ -12,6 +12,7 @@ import {
   InsertedSmartCardAuth,
   type PrinterStatus,
   type PrintJobId,
+  type BallotStyle,
 } from '@votingworks/types';
 
 import { useHistory } from 'react-router-dom';
@@ -66,6 +67,7 @@ import {
   getAccessibleControllerConnected,
   useApiClient,
   getPatInputConnected,
+  getCandidateOrderings,
 } from './api.js';
 
 import { Ballot } from './components/ballot.js';
@@ -80,6 +82,7 @@ import { UnconfiguredScreen } from './pages/unconfigured_screen.js';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen.js';
 import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper.js';
 import { InternalConnectionProblemScreen } from './pages/internal_connection_problem_screen.js';
+import type { BallotContextInterface } from './config/types.js';
 
 export interface VotingState {
   votes?: VotesDict;
@@ -646,33 +649,28 @@ export function AppRoot(): JSX.Element | null {
         }
 
         return (
-          <AccessibleControllerHelp>
-            <BallotContext.Provider
-              value={{
-                machineConfig,
-                precinctId,
-                ballotStyleId,
-                contests,
-                electionDefinition,
-                isCardlessVoter: isCardlessVoterAuth(authStatus),
-                isLiveMode: !isTestMode,
-                endVoterSession,
-                resetBallot,
-                selectedPartyId,
-                selectParty,
-                printJobId,
-                setPrintJobId,
-                updateVote,
-                votes: votes ?? blankBallotVotes,
-              }}
-            >
-              <PatDeviceContextProvider
-                isPatDeviceConnected={Boolean(isPatCalibrationComplete)}
-              >
-                <Ballot />
-              </PatDeviceContextProvider>
-            </BallotContext.Provider>
-          </AccessibleControllerHelp>
+          <VoterFlow
+            machineConfig={machineConfig}
+            precinctId={precinctId}
+            ballotStyle={assertDefined(
+              ballotStyle,
+              'ballot style expected when voter auth is active'
+            )}
+            ballotStyleId={ballotStyleId}
+            contests={contests}
+            electionDefinition={electionDefinition}
+            isCardlessVoter={isCardlessVoterAuth(authStatus)}
+            isLiveMode={!isTestMode}
+            endVoterSession={endVoterSession}
+            resetBallot={resetBallot}
+            selectedPartyId={selectedPartyId}
+            selectParty={selectParty}
+            printJobId={printJobId}
+            setPrintJobId={setPrintJobId}
+            updateVote={updateVote}
+            votes={votes ?? blankBallotVotes}
+            isPatDeviceConnected={Boolean(isPatCalibrationComplete)}
+          />
         );
       }
     }
@@ -689,4 +687,31 @@ export function AppRoot(): JSX.Element | null {
     );
   }
   return <UnconfiguredScreen />;
+}
+
+type VoterFlowProps = Omit<BallotContextInterface, 'candidateOrderings'> & {
+  ballotStyle: BallotStyle;
+  isPatDeviceConnected: boolean;
+};
+
+function VoterFlow(props: VoterFlowProps): React.ReactNode {
+  const { ballotStyle, isPatDeviceConnected, ...rest } = props;
+
+  const candidateOrderings = getCandidateOrderings.useQuery(ballotStyle);
+
+  if (!candidateOrderings.isSuccess) {
+    return null;
+  }
+
+  return (
+    <AccessibleControllerHelp>
+      <BallotContext.Provider
+        value={{ candidateOrderings: candidateOrderings.data, ...rest }}
+      >
+        <PatDeviceContextProvider isPatDeviceConnected={isPatDeviceConnected}>
+          <Ballot />
+        </PatDeviceContextProvider>
+      </BallotContext.Provider>
+    </AccessibleControllerHelp>
+  );
 }

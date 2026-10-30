@@ -10,6 +10,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   type PrecinctId,
   type VotesDict,
+  type CandidateOrderings,
 } from '@votingworks/types';
 import type { MachineConfig } from '@votingworks/mark-scan-backend';
 
@@ -26,6 +27,7 @@ export function render(
   {
     route = '/',
     ballotStyleId,
+    candidateOrderings = null,
     electionDefinition = readElectionGeneralDefinition(),
     contests = electionDefinition.election.contests,
     endVoterSession = vi.fn(),
@@ -43,6 +45,7 @@ export function render(
   }: {
     route?: string;
     ballotStyleId?: BallotStyleId;
+    candidateOrderings?: CandidateOrderings | null;
     electionDefinition?: ElectionDefinition;
     contests?: readonly Contest[];
     endVoterSession?: () => Promise<void>;
@@ -74,6 +77,7 @@ export function render(
         <BallotContext.Provider
           value={{
             ballotStyleId,
+            candidateOrderings,
             contests,
             electionDefinition,
             isCardlessVoter,

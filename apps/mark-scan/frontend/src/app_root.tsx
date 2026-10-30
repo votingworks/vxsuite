@@ -590,6 +590,10 @@ export function AppRoot(): JSX.Element | null {
       ) {
         return (
           <VoterFlow
+            ballotStyle={assertDefined(
+              ballotStyle,
+              'ballot style expected when voter auth is active'
+            )}
             ballotStyleId={ballotStyleId}
             contests={contests}
             electionDefinition={electionDefinition}

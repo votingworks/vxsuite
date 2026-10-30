@@ -5,6 +5,7 @@ import type {
   PrecinctId,
   VotesDict,
   PrintJobId,
+  CandidateOrderings,
 } from '@votingworks/types';
 import type { MachineConfig } from '@votingworks/mark-backend';
 import type {
@@ -16,6 +17,7 @@ import type {
 export interface BallotContextInterface {
   machineConfig: MachineConfig;
   ballotStyleId?: BallotStyleId;
+  candidateOrderings: CandidateOrderings | null;
   contests: ContestsWithMsEitherNeither;
   readonly electionDefinition?: ElectionDefinition;
   isCardlessVoter: boolean;

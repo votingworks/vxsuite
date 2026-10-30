@@ -9,6 +9,9 @@ import {
   useSessionSettingsManager,
 } from '@votingworks/mark-flow-ui';
 import { userEvent } from '@testing-library/user-event';
+import type { BallotStyleId, CandidateOrderings } from '@votingworks/types';
+import { AUTH_STATUS_POLLING_INTERVAL_MS } from '@votingworks/ui';
+import { assertDefined } from '@votingworks/basics';
 import { screen, waitFor } from '../test/react_testing_library.js';
 import { advanceTimersAndPromises } from '../test/helpers/timers.js';
 import { render } from '../test/test_utils.js';
@@ -18,6 +21,9 @@ import {
   createApiMock,
 } from '../test/helpers/mock_api_client.js';
 import { buildApp } from '../test/helpers/build_app.js';
+import { Ballot } from './components/ballot.js';
+import { BallotContext } from './contexts/ballot_context.js';
+import { AppRoot } from './app_root.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
@@ -26,6 +32,11 @@ vi.mock(import('@votingworks/mark-flow-ui'), async (importActual) => ({
   useBallotStyleManager: vi.fn(),
   useSessionSettingsManager: vi.fn(),
 }));
+
+vi.mock(import('./components/ballot.js'), async (importActual) => {
+  const actual = await importActual();
+  return { ...actual, Ballot: vi.fn(actual.Ballot) };
+});
 
 let apiMock: ApiMock;
 
@@ -236,4 +247,56 @@ test('PAT device tutorial is not triggered when not in voter session', async () 
     screen.queryByText('Personal Assistive Technology Device Identification')
   ).not.toBeInTheDocument();
   screen.getByText('Insert Card');
+});
+
+test('sets/updates ballot style candidate orderings in BallotContext', async () => {
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
+  apiMock.expectGetElectionState({ pollingPlaceId, pollsState: 'polls_open' });
+
+  const { election } = electionGeneralDefinition;
+  const bs1 = assertDefined(election.ballotStyles[0]);
+  const bs2 = assertDefined(election.ballotStyles[1]);
+
+  vi.mocked(Ballot).mockThrow('unexpected Ballot render');
+
+  render(<AppRoot />, { apiMock });
+  await screen.findByText('Insert Card');
+  await waitFor(() => apiMock.mockApiClient.assertComplete());
+
+  let lastOrderings: CandidateOrderings | null | undefined;
+
+  vi.mocked(Ballot).mockImplementation(() => {
+    const ctx = React.useContext(BallotContext);
+    lastOrderings = ctx.candidateOrderings;
+
+    return <div data-testid={`MockBallot-${ctx.ballotStyleId}`} />;
+  });
+
+  const mockOrderings: Record<BallotStyleId, CandidateOrderings> = {
+    [bs1.id]: { contest1: [{ id: 'candidate2' }, { id: 'candidate1' }] },
+    [bs2.id]: { contest1: [{ id: 'candidate1' }, { id: 'candidate2' }] },
+  };
+
+  apiMock.mockApiClient.getCandidateOrderings.mockImplementation((p) =>
+    Promise.resolve(mockOrderings[p.ballotStyleId] ?? null)
+  );
+
+  async function selectBallotStyle(ballotStyleId: string) {
+    apiMock.setAuthStatusCardlessVoterLoggedIn({ ballotStyleId, precinctId });
+
+    await vi.advanceTimersByTimeAsync(AUTH_STATUS_POLLING_INTERVAL_MS);
+    screen.getByTestId(`MockBallot-${ballotStyleId}`);
+
+    apiMock.mockApiClient.assertComplete();
+  }
+
+  await selectBallotStyle(bs1.id);
+  expect(lastOrderings).toEqual(mockOrderings[bs1.id]!);
+
+  await selectBallotStyle(bs2.id);
+  expect(lastOrderings).toEqual(mockOrderings[bs2.id]!);
+
+  await selectBallotStyle(bs1.id);
+  expect(lastOrderings).toEqual(mockOrderings[bs1.id]!);
 });

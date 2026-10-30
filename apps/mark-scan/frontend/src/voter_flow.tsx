@@ -10,6 +10,7 @@ import type {
   PartyId,
   PrecinctId,
   VotesDict,
+  BallotStyle,
 } from '@votingworks/types';
 import type { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import {
@@ -33,6 +34,7 @@ export interface VoterFlowProps {
   machineConfig: MachineConfig;
   precinctId?: PrecinctId;
   ballotStyleId?: BallotStyleId;
+  ballotStyle: BallotStyle;
   isLiveMode: boolean;
   updateVote: UpdateVoteFunction;
   resetBallot: (showPostVotingInstructions?: boolean) => void;
@@ -44,12 +46,17 @@ export interface VoterFlowProps {
 }
 
 export function VoterFlow(props: VoterFlowProps): React.ReactNode {
-  const { resetBallot, stateMachineState, ...rest } = props;
+  const { ballotStyle, resetBallot, stateMachineState, ...rest } = props;
 
+  const candidateOrderings = api.getCandidateOrderings.useQuery(ballotStyle);
   const isPathDeviceConnected =
     api.getIsPatDeviceConnected.useQuery().data || false;
 
   const { shouldShowControllerSandbox } = useAccessibleControllerHelpTrigger();
+
+  if (!candidateOrderings.isSuccess) {
+    return null;
+  }
 
   if (stateMachineState === 'pat_device_connected') {
     return <PatDeviceCalibrationPageWrapper />;
@@ -76,6 +83,7 @@ export function VoterFlow(props: VoterFlowProps): React.ReactNode {
     <BallotContext.Provider
       value={{
         ...rest,
+        candidateOrderings: candidateOrderings.data,
         isCardlessVoter: true,
         resetBallot,
       }}
