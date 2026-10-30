@@ -120,6 +120,7 @@ import { getOverallElectionWriteInSummary } from './tabulation/write_ins.js';
 import { rootDebug } from './util/debug.js';
 import { tabulateTallyReportResults } from './tabulation/tally_reports.js';
 import { buildExporter } from './util/exporter.js';
+import { configureFromElectionPackageFile } from './configure.js';
 import {
   getCastVoteRecordsPath,
   importCastVoteRecords,
@@ -640,6 +641,10 @@ function buildApi({
     async configure(input: {
       electionFilePath: string;
     }): Promise<Result<{ electionId: Id }, ElectionPackageError>> {
+      assert(
+        !store.getCurrentElectionId(),
+        'Cannot configure a machine that is already configured'
+      );
       // A check for defense-in-depth
       assert(
         getNodeEnv() === 'production' && !isIntegrationTest()
@@ -711,44 +716,11 @@ function buildApi({
       }
 
       try {
-        const electionPackageResult = await readElectionPackageFromFile(
-          electionPackageFilePath
-        );
-
-        if (electionPackageResult.isErr()) {
-          const errorDetails = electionPackageResult.err();
-          await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
-            message: `Error configuring machine.`,
-            disposition: 'failure',
-            errorDetails:
-              // @coverage-defer
-              errorDetails.type === 'system-limit-violation'
-                ? systemLimitViolationToString(errorDetails.violation)
-                : JSON.stringify(errorDetails),
-          });
-          return electionPackageResult;
-        }
-        const { electionPackage, electionPackageHash } =
-          electionPackageResult.ok();
-
-        const { electionDefinition, systemSettings, registeredVoterCounts } =
-          electionPackage;
-        const electionId = await store.addElection({
-          electionData: electionDefinition.electionData,
-          ballotHash: electionDefinition.ballotHash,
-          systemSettingsData: JSON.stringify(systemSettings),
-          electionPackageSourceFilePath: electionPackageFilePath,
-          electionPackageHash,
+        return await configureFromElectionPackageFile({
+          store,
+          logger,
+          electionPackageFilePath,
         });
-        if (registeredVoterCounts) {
-          store.setRegisteredVoterCounts(electionId, registeredVoterCounts);
-        }
-        store.setCurrentElectionId(electionId);
-        await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
-          disposition: 'success',
-          newBallotHash: electionDefinition.ballotHash,
-        });
-        return ok({ electionId });
       } finally {
         // Clean up the temporary package built from a bare election.json,
         // even when configuration fails partway
