@@ -166,6 +166,52 @@ configured. Drafts live in Postgres, which unconfigure and restore never touch.
 - **Not yet clicked through in the browser.** No admin UI flow has been
   exercised in a running dev server.
 
+## UI click-through (2026-10-30)
+
+Driven in the dev server as SA. Screenshots are numbered in
+`/media/psf/Shared/screenshots/`.
+
+Worked:
+
+- Design list, create election, edit and save election info (01, 11–12).
+- All six tabs render in admin's shell (02–07).
+- Add/edit/delete: districts (13–14), precincts (15–16, 23), parties (17–18),
+  contests with candidates (19–20), polling places (21–22, 24–25).
+- Load an election package from mock USB (26–28), duplicate (29).
+- Ballots tab: finalize, export progress, exported files, save three zips to USB
+  under `election-design/<title>-<id>/` (30–33).
+- Configure VxAdmin from a design (34). Go back to Design while configured (35).
+  The Ballots tab refuses to configure again (36).
+- Unconfigure (37–38) leaves both drafts in the design list (39).
+- State from machine config via the dev dock (40–41).
+
+Broke and fixed:
+
+- DEMO showed the ballot-language picker in an English-only prototype. Admin now
+  also masks `BALLOT_LANGUAGE_CONFIG`.
+- Export output under `apps/admin/backend/dev-workspace-design-files` made
+  `turbo watch` restart the backend mid-export. It is now gitignored.
+  Interrupted export tasks are now marked failed at startup instead of showing
+  "exporting" forever.
+- The state dropdown is replaced by `$VX_CONFIG_ROOT/state-code` (written by the
+  image build). In dev it is `.mock-state/development/vx-config/state-code`, set
+  from a dev dock picker. Admin syncs the local jurisdiction's state on each
+  design request. Missing file → DEMO, which is a scratch default; production
+  should refuse.
+
+Found, not fixed:
+
+- The seal is a required browser file input. Saving election info is impossible
+  without uploading one, and there is no kiosk USB picker yet.
+- Admin's larger touch theme crowds some hub layouts: the contest form
+  empty-state card, and table action buttons wrapping.
+- The design list shows raw status enums (`inProgress`, `ballotsFinalized`).
+- Admin's unconfigured package picker lists every `.zip` on the USB, including
+  the ballot zips the design export writes.
+- Duplicated elections are titled "(Copy) …" (hub behavior).
+- Every backend source change restarts the dev backend and logs out the mock
+  card. That's normal dev behavior, but it bites scripted testing.
+
 ## Hacked vs production-ready
 
 Closest to production-ready (extract first):
