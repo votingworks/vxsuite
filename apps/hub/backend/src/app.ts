@@ -4,12 +4,8 @@ import { auth as auth0Middleware } from 'express-openid-connect';
 import path, { join } from 'node:path';
 import { Buffer } from 'node:buffer';
 import {
-  type BallotMode,
-  type Election,
-  type BallotType,
   type ElectionSerializationFormat,
   type ElectionId,
-  type BallotStyleId,
   CastVoteRecordExportFileName,
   safeParseJson,
   CastVoteRecordReportWithoutMetadataSchema,
@@ -26,23 +22,13 @@ import {
   assertDefined,
   err,
   extractErrorMessage,
-  find,
   ok,
   type Optional,
   type Result,
   throwIllegalValue,
   wrapException,
 } from '@votingworks/basics';
-import {
-  type BallotLayoutError,
-  ballotTemplates,
-  createPlaywrightRenderer,
-  hmpbStringsCatalog,
-  type NhStateBallotProps,
-  type NhStateBallotVariant,
-  renderBallotPreviewToPdf,
-} from '@votingworks/hmpb';
-import { translateBallotStrings, execFile } from '@votingworks/backend';
+import { execFile } from '@votingworks/backend';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod/v4';
 import { LogEventId } from '@votingworks/logging';
@@ -73,12 +59,11 @@ import {
   type ResultsReportingError,
   type User,
   resultsReportingUrl,
-  createBallotPropsForTemplate,
-  getBallotPdfFileName,
   userCanAccessJurisdiction,
   getStateFeaturesConfig,
   getUserFeaturesConfig,
   type UserFeaturesConfig,
+  buildBallotPreviewMethods,
   buildElectionDefinitionMethods,
   cloneElection,
 } from '@votingworks/design-backend';
@@ -147,6 +132,7 @@ export function buildApi(ctx: AppContext) {
   const { auth0, logger, workspace, translator } = ctx;
   const { store } = workspace;
   const electionDefinitionMethods = buildElectionDefinitionMethods({ store });
+  const ballotPreviewMethods = buildBallotPreviewMethods({ store, translator });
 
   async function requireElectionAccess(user: User, electionId: ElectionId) {
     const electionJurisdiction =
@@ -248,6 +234,7 @@ export function buildApi(ctx: AppContext) {
 
   const methods = {
     ...electionDefinitionMethods,
+    ...ballotPreviewMethods,
 
     async listJurisdictions(
       _input: undefined,
@@ -411,77 +398,6 @@ export function buildApi(ctx: AppContext) {
         userName: user.name,
         userType: user.type,
         electionId: input.electionId,
-      });
-    },
-
-    async getBallotPreviewPdf(input: {
-      electionId: ElectionId;
-      precinctId: string;
-      ballotStyleId: BallotStyleId;
-      ballotType: BallotType;
-      ballotMode: BallotMode;
-      variant?: NhStateBallotVariant;
-    }): Promise<
-      Result<{ pdfData: Uint8Array; fileName: string }, BallotLayoutError>
-    > {
-      const {
-        election,
-        ballotLanguageConfigs,
-        ballotTemplateId,
-        candidateOrderings,
-      } = await store.getElection(input.electionId);
-      const { compact } = await store.getBallotLayoutSettings(input.electionId);
-      const systemSettings = await store.getSystemSettings(input.electionId);
-      const ballotStrings = await translateBallotStrings(
-        translator,
-        election,
-        hmpbStringsCatalog,
-        ballotLanguageConfigs,
-        {
-          shouldTransliterateCandidateNames:
-            systemSettings.shouldTransliterateCandidateNames,
-        }
-      );
-      const electionWithBallotStrings: Election = {
-        ...election,
-        ballotStrings,
-      };
-      const allBallotProps = createBallotPropsForTemplate(
-        ballotTemplateId,
-        electionWithBallotStrings,
-        compact
-      );
-      const ballotProps = find(
-        allBallotProps,
-        (props) =>
-          props.precinctId === input.precinctId &&
-          props.ballotStyle.id === input.ballotStyleId &&
-          props.ballotType === input.ballotType &&
-          props.ballotMode === input.ballotMode &&
-          (ballotTemplateId === 'NhStateBallot'
-            ? (props as NhStateBallotProps).variant === input.variant
-            : true)
-      );
-      const renderer = await createPlaywrightRenderer();
-      let ballotPdf: Result<Uint8Array, BallotLayoutError>;
-      try {
-        ballotPdf = await renderBallotPreviewToPdf(
-          renderer,
-          ballotTemplates[ballotTemplateId],
-          candidateOrderings.get(ballotProps.ballotStyle),
-          // NOTE: Changing this text means you should also change the font size
-          // of the <Watermark> component in the ballot template.
-          { ...ballotProps, watermark: 'PROOF' }
-        );
-      } finally {
-        // eslint-disable-next-line no-console
-        renderer.close().catch(console.error);
-      }
-      if (ballotPdf.isErr()) return ballotPdf;
-
-      return ok({
-        pdfData: ballotPdf.ok(),
-        fileName: `PROOF-${getBallotPdfFileName(ballotProps)}`,
       });
     },
 
