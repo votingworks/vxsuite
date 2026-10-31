@@ -17,9 +17,12 @@ import type { DateWithoutTime } from '@votingworks/basics';
 import { z } from 'zod/v4';
 import { baseUrl } from './globals.js';
 
-export const StateCodes = ['DEMO', 'MI', 'MS', 'NH'] as const;
-export type StateCode = (typeof StateCodes)[number];
-export const StateCodeSchema: z.ZodType<StateCode> = z.enum(StateCodes);
+export {
+  StateCodes,
+  type StateCode,
+  StateCodeSchema,
+} from '@votingworks/types';
+import type { StateCode } from '@votingworks/types';
 
 export interface Organization {
   id: string;
