@@ -1,5 +1,4 @@
 import type { DesignApi } from '@votingworks/admin-backend';
-import type { StateCode } from '@votingworks/design-backend';
 import React from 'react';
 import {
   type ApiClient,
@@ -41,16 +40,6 @@ export const getLocalJurisdictionId = {
   },
 } as const;
 
-export const listStateCodes = {
-  queryKey(): QueryKey {
-    return ['listStateCodes'];
-  },
-  useQuery() {
-    const apiClient = useAdminDesignApiClient();
-    return useQuery(this.queryKey(), () => apiClient.listStateCodes());
-  },
-} as const;
-
 export const getDesignStateCode = {
   queryKey(): QueryKey {
     return ['getDesignStateCode'];
@@ -58,21 +47,6 @@ export const getDesignStateCode = {
   useQuery() {
     const apiClient = useAdminDesignApiClient();
     return useQuery(this.queryKey(), () => apiClient.getDesignStateCode());
-  },
-} as const;
-
-export const setDesignStateCode = {
-  useMutation() {
-    const apiClient = useAdminDesignApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(
-      (input: { stateCode: StateCode }) => apiClient.setDesignStateCode(input),
-      {
-        async onSuccess() {
-          await queryClient.invalidateQueries();
-        },
-      }
-    );
   },
 } as const;
 

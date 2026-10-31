@@ -24,6 +24,7 @@ import type {
   DevDockSide,
   DevDockUserRole,
 } from '@votingworks/dev-dock-backend';
+import type { StateCode } from '@votingworks/types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faArrowDown,
@@ -196,6 +197,45 @@ const SmartCardButton = styled.button<{ isInserted: boolean }>`
     border-color: ${Colors.DISABLED};
   }
 `;
+
+function StateCodeControl(): JSX.Element | null {
+  const apiClient = useApiClient();
+  const queryClient = useQueryClient();
+  const getStateCodeQuery = useQuery(['getStateCode'], () =>
+    apiClient.getStateCode()
+  );
+  const listStateCodesQuery = useQuery(['listStateCodes'], () =>
+    apiClient.listStateCodes()
+  );
+  const setStateCodeMutation = useMutation(apiClient.setStateCode, {
+    onSuccess: async () =>
+      await queryClient.invalidateQueries(['getStateCode']),
+  });
+  if (!getStateCodeQuery.isSuccess || !listStateCodesQuery.isSuccess) {
+    return null;
+  }
+  return (
+    <ElectionControlSelect
+      aria-label="State"
+      style={{ flex: 'none', width: 'auto' }}
+      value={getStateCodeQuery.data ?? ''}
+      onChange={(event) =>
+        setStateCodeMutation.mutate({
+          stateCode: event.target.value as StateCode,
+        })
+      }
+    >
+      <option value="" disabled>
+        State
+      </option>
+      {listStateCodesQuery.data.map((stateCode) => (
+        <option key={stateCode} value={stateCode}>
+          {stateCode}
+        </option>
+      ))}
+    </ElectionControlSelect>
+  );
+}
 
 function SmartCardControl({
   role,
@@ -1703,6 +1743,7 @@ function DevDock(props: { enableAccessibleNav?: boolean }) {
       <Content side={side}>
         <Row>
           <ElectionControl />
+          <StateCodeControl />
           <DockSideControl side={side} />
         </Row>
         <Row>

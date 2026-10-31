@@ -7,8 +7,6 @@ import {
   type MainExportTaskMetadata,
   getStateFeaturesConfig,
   type StateCode,
-  StateCodeSchema,
-  StateCodes,
   type StateFeaturesConfig,
   type Store as DesignStore,
 } from '@votingworks/design-backend';
@@ -22,6 +20,8 @@ import { err, ok, type Result } from '@votingworks/basics';
 import {
   type ElectionPackageError,
   type ExportDataError,
+  getDevVxConfigRoot,
+  readStateCodeConfig,
   readElectionPackageFromFile,
 } from '@votingworks/backend';
 import {
@@ -40,6 +40,12 @@ import { readFile } from 'node:fs/promises';
 import type { Workspace } from '../util/workspace.js';
 import { constructAuthMachineState } from '../util/auth.js';
 import { getLocalJurisdiction, LOCAL_JURISDICTION_ID } from './design_store.js';
+
+const DEV_VX_CONFIG_ROOT = getDevVxConfigRoot(
+  join(import.meta.dirname, '../../../../..')
+);
+
+const DEFAULT_STATE_CODE: StateCode = 'DEMO';
 
 class DesignAuthError extends grout.UserError {}
 
@@ -100,19 +106,8 @@ export function buildDesignApi({
       return LOCAL_JURISDICTION_ID;
     },
 
-    listStateCodes(): readonly StateCode[] {
-      return StateCodes;
-    },
-
     async getDesignStateCode(): Promise<StateCode> {
       return (await getLocalJurisdiction(designStore)).stateCode;
-    },
-
-    async setDesignStateCode(input: { stateCode: StateCode }): Promise<void> {
-      await designStore.updateJurisdictionStateCode(
-        LOCAL_JURISDICTION_ID,
-        unsafeParse(StateCodeSchema, input.stateCode)
-      );
     },
 
     async getLocalStateFeatures(): Promise<StateFeaturesConfig> {
@@ -266,8 +261,21 @@ export function buildDesignApi({
     },
   } as const;
 
+  async function syncStateCodeFromConfig(): Promise<void> {
+    const stateCode =
+      readStateCodeConfig({ devRoot: DEV_VX_CONFIG_ROOT }) ??
+      DEFAULT_STATE_CODE;
+    const jurisdiction = await getLocalJurisdiction(designStore);
+    if (jurisdiction.stateCode !== stateCode) {
+      await designStore.updateJurisdictionStateCode(
+        LOCAL_JURISDICTION_ID,
+        stateCode
+      );
+    }
+  }
+
   return grout.createApi(methods, {
-    before: [requireSystemAdministrator],
+    before: [requireSystemAdministrator, syncStateCodeFromConfig],
     after: [
       async ({ methodName, input }, result) => {
         if (/^(list|get)/.test(methodName)) return;

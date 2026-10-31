@@ -45,7 +45,13 @@ import {
   maybeGetFileByName,
   readTextEntry,
 } from '@votingworks/utils';
-import { getMostRecentElectionPackageFilepath } from '@votingworks/backend';
+import {
+  getDevVxConfigRoot,
+  getMostRecentElectionPackageFilepath,
+  readStateCodeConfig,
+  writeStateCodeConfig,
+} from '@votingworks/backend';
+import { type StateCode, StateCodes } from '@votingworks/types';
 import {
   getMockUsbDirPath,
   getMockUsbDriveHandler,
@@ -429,6 +435,24 @@ function buildApi(
 
     getElection(): Optional<DevDockElectionInfo> {
       return getElection(devDockDir);
+    },
+
+    getStateCode(): StateCode | null {
+      return (
+        readStateCodeConfig({ devRoot: getDevVxConfigRoot(REPO_ROOT) }) ?? null
+      );
+    },
+
+    listStateCodes(): readonly StateCode[] {
+      return StateCodes;
+    },
+
+    setStateCode(input: { stateCode: StateCode }): void {
+      assert(StateCodes.includes(input.stateCode));
+      writeStateCodeConfig({
+        devRoot: getDevVxConfigRoot(REPO_ROOT),
+        stateCode: input.stateCode,
+      });
     },
 
     async getAvailableElections(): Promise<DevDockElectionOption[]> {

@@ -1,66 +1,34 @@
 import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import type { StateCode } from '@votingworks/design-backend';
 import {
   createElection,
   generateId,
   listElections,
   routes,
 } from '@votingworks/design-ui';
-import {
-  Button,
-  H2,
-  LinkButton,
-  P,
-  SearchSelect,
-  Table,
-  TD,
-  TH,
-} from '@votingworks/ui';
+import { Button, H2, LinkButton, P, Table, TD, TH } from '@votingworks/ui';
 import { NavigationScreen } from '../components/navigation_screen.js';
 import { LoadElectionPackageModal } from './load_election_package_modal.js';
 import {
   duplicateElection,
   getDesignStateCode,
   getLocalJurisdictionId,
-  listStateCodes,
-  setDesignStateCode,
 } from './design_api.js';
-
-function StateSelect(): JSX.Element | null {
-  const stateCodeQuery = getDesignStateCode.useQuery();
-  const stateCodesQuery = listStateCodes.useQuery();
-  const setStateCodeMutation = setDesignStateCode.useMutation();
-  if (!stateCodeQuery.isSuccess || !stateCodesQuery.isSuccess) return null;
-  return (
-    <div style={{ maxWidth: '16rem' }}>
-      <SearchSelect<StateCode>
-        aria-label="State"
-        options={stateCodesQuery.data.map((stateCode) => ({
-          value: stateCode,
-          label: stateCode,
-        }))}
-        value={stateCodeQuery.data}
-        onChange={(stateCode) => {
-          if (stateCode) {
-            setStateCodeMutation.mutate({ stateCode });
-          }
-        }}
-        disabled={setStateCodeMutation.isLoading}
-      />
-    </div>
-  );
-}
 
 export function DesignElectionsScreen(): JSX.Element | null {
   const history = useHistory();
   const listElectionsQuery = listElections.useQuery();
   const jurisdictionIdQuery = getLocalJurisdictionId.useQuery();
   const createElectionMutation = createElection.useMutation();
+  const stateCodeQuery = getDesignStateCode.useQuery();
   const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
   const duplicateElectionMutation = duplicateElection.useMutation();
 
-  if (!listElectionsQuery.isSuccess || !jurisdictionIdQuery.isSuccess) {
+  if (
+    !listElectionsQuery.isSuccess ||
+    !jurisdictionIdQuery.isSuccess ||
+    !stateCodeQuery.isSuccess
+  ) {
     return null;
   }
 
@@ -82,8 +50,7 @@ export function DesignElectionsScreen(): JSX.Element | null {
 
   return (
     <NavigationScreen title="Election Design">
-      <H2>State</H2>
-      <StateSelect />
+      <P>State: {stateCodeQuery.data}</P>
       <H2>Elections</H2>
       <P>
         <Button
