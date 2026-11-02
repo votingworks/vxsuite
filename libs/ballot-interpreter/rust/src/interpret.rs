@@ -275,7 +275,6 @@ impl Error {
             // as bubble ballot (HMPB) metadata.
             Self::MismatchedBallotMetadata { .. }
                 | Self::InvalidBallotHash { .. }
-                | Self::FailedGridLayoutLookup { .. }
                 | Self::MissingGridLayout { .. }
                 | Self::CouldNotComputeLayout { .. }
                 | Self::GridPositionOutsideTimingMarkGrid { .. }

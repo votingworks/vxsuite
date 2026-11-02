@@ -137,6 +137,9 @@ fn interpret(
 
     let mut card = match interpret_result {
         Ok(card) => card,
+        Err(interpret::Error::FailedGridLayoutLookup { message, .. }) => {
+            return Err(napi::Error::from_reason(message));
+        }
         Err(err) => {
             // Don't throw `interpret::Error`, for better structured & typed handling.
             let is_bubble_ballot = err.is_bubble_ballot();

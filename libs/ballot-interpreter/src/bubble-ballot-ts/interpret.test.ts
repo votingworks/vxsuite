@@ -49,6 +49,21 @@ test('interpret with bad ballot image paths', async () => {
   ).rejects.toThrow(/No such file or directory/);
 });
 
+test('interpret with unreadable ballot positions DB', async () => {
+  const { electionDefinition } = vxFamousNamesFixtures;
+  const ballotImages = asSheet(
+    await pdfToPageImages(vxFamousNamesFixtures.markedBallotPath).toArray()
+  );
+
+  await expect(
+    interpret({
+      electionDefinition,
+      ballotImages,
+      ballotPositionsDbPath: '/nonexistent/ballots.db',
+    })
+  ).rejects.toThrow(/connecting to ballot positions DB/);
+});
+
 test('interpret `ImageData` objects', async () => {
   const { electionDefinition } = vxFamousNamesFixtures;
   const ballotImages = asSheet(
