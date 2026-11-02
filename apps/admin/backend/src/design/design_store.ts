@@ -6,15 +6,23 @@ import {
 } from '@votingworks/design-backend';
 import type { BaseLogger } from '@votingworks/logging';
 import { LATEST_SOFTWARE_VERSION } from '@votingworks/types';
+import { isNodeEnvProduction } from '@votingworks/utils';
 
 export const LOCAL_ORGANIZATION_ID = 'vxadmin-local';
 export const LOCAL_JURISDICTION_ID = 'vxadmin-local';
 const DEFAULT_STATE_CODE: StateCode = 'DEMO';
 
+const PRODUCTION_DESIGN_DATABASE_URL =
+  'postgresql://vx-services@/vxadmin_design?host=/var/run/postgresql';
+const DEVELOPMENT_DESIGN_DATABASE_URL =
+  'postgresql://design:design@localhost:5432/vxadmin_design';
+
 export function designDatabaseUrl(): string {
   return (
     process.env.ADMIN_DESIGN_DATABASE_URL ??
-    'postgresql://design:design@localhost:5432/vxadmin_design'
+    (isNodeEnvProduction()
+      ? PRODUCTION_DESIGN_DATABASE_URL
+      : DEVELOPMENT_DESIGN_DATABASE_URL)
   );
 }
 
@@ -66,15 +74,22 @@ async function ensureLocalJurisdiction(store: Store): Promise<void> {
 
 export async function createDesignStore(logger: BaseLogger): Promise<Store> {
   const databaseUrl = designDatabaseUrl();
-  await ensureDatabaseExists(logger, databaseUrl);
+  if (!isNodeEnvProduction()) {
+    await ensureDatabaseExists(logger, databaseUrl);
+  }
   const db = new Db(logger, { connectionString: databaseUrl });
-  await db.withClient((client) =>
-    client.runMigrations({ schemaName: 'public' })
-  );
-  const store = new Store(db);
-  await ensureLocalJurisdiction(store);
-  await store.failCrashedBackgroundTasks();
-  return store;
+  try {
+    await db.withClient((client) =>
+      client.runMigrations({ schemaName: 'public' })
+    );
+    const store = new Store(db);
+    await ensureLocalJurisdiction(store);
+    await store.failCrashedBackgroundTasks();
+    return store;
+  } catch (error) {
+    await db.close();
+    throw error;
+  }
 }
 
 export function getLocalJurisdiction(store: Store): Promise<Jurisdiction> {
