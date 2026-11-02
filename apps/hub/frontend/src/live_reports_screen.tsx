@@ -49,17 +49,16 @@ import type {
 } from '@votingworks/hub-backend';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import { type ElectionIdParams, routes } from '@votingworks/design-ui';
+import { getStateFeatures, getSystemSettings } from '@votingworks/design-ui';
 import {
   deleteQuickReportingResults,
   getLiveReportsActivityLog,
   getLiveResultsReports,
   getLiveReportsSummary,
-  getStateFeatures,
-  getSystemSettings,
-} from '@votingworks/design-ui';
+} from './api.js';
 import { useTitle } from '@votingworks/design-ui';
 import { Row } from '@votingworks/design-ui';
-import { useSound } from '@votingworks/design-ui';
+import { useSound } from './use_sound.js';
 
 // --- Status types and helpers ---
 

@@ -59,12 +59,10 @@
     "nanoid": "^3.3.20",
     "pdfjs-dist": "5.4.296",
     "react": "18.3.1",
-    "react-flip-toolkit": "^7.1.0",
     "react-pdf": "10.4.1",
     "react-router-dom": "^5.3.4",
     "sanitize-html": "^2.17.7",
     "styled-components": "^5.3.11",
-    "use-sound": "5.0.0",
     "zod": "4.6.6"
   },
   "devDependencies": {

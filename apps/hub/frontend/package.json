@@ -73,7 +73,6 @@
     "pdfjs-dist": "5.4.296",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "react-flip-toolkit": "^7.1.0",
     "react-pdf": "10.4.1",
     "react-router-dom": "^5.3.4",
     "sanitize-html": "^2.17.7",

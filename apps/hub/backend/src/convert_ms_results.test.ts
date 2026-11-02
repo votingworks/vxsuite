@@ -3,7 +3,7 @@ import { stringify } from 'csv-stringify/sync';
 import { parse } from 'csv-parse/sync';
 import { err } from '@votingworks/basics';
 import { createElectionDefinition } from '@votingworks/test-utils';
-import { convertMsElection } from '@votingworks/design-backend';
+import { convertMsElection } from './convert_ms_election.js';
 import {
   generateAllPrecinctsTallyReport,
   generateAllPrecinctsTallyReportMetadataRow,

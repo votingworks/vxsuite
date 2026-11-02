@@ -31,25 +31,24 @@
     "type-check": "tsc --build"
   },
   "dependencies": {
-    "@types/archiver": "8.0.0",
     "@votingworks/backend": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/hmpb": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
-    "archiver": "8.0.0",
-    "csv-parse": "^7.0.2",
     "debug": "4.3.4",
     "nanoid": "^3.3.20",
     "node-pg-migrate": "^7.9.1",
     "pg": "^8.13.1",
+    "zip-stream": "^4.1.0",
     "zod": "4.6.6"
   },
   "devDependencies": {
     "@types/debug": "4.1.12",
     "@types/node": "24.19.2",
     "@types/pg": "^8.11.10",
+    "@types/zip-stream": "workspace:*",
     "@vitest/coverage-istanbul": "5.0.2",
     "@votingworks/coverage-check": "workspace:*",
     "esbuild": "0.28.1",

@@ -1,7 +1,6 @@
 export * from './ballot_preview_api.js';
 export * from './ballots.js';
 export * from './candidate_orderings.js';
-export * from './convert_ms_election.js';
 export * from './db/client.js';
 export * from './db/db.js';
 export * from './election_definition_api.js';

@@ -77,6 +77,7 @@ import {
   DEPLOY_ENV,
   authEnabled,
 } from './globals.js';
+import { convertMsElection } from './convert_ms_election.js';
 import { QaConfig } from './qa_config.js';
 import { rootDebug } from './debug.js';
 import * as ttsStrings from './tts_strings.js';
@@ -131,7 +132,10 @@ async function isQaEnabledForElection(
 export function buildApi(ctx: AppContext) {
   const { auth0, logger, workspace, translator } = ctx;
   const { store } = workspace;
-  const electionDefinitionMethods = buildElectionDefinitionMethods({ store });
+  const electionDefinitionMethods = buildElectionDefinitionMethods({
+    store,
+    convertMsElection,
+  });
   const ballotPreviewMethods = buildBallotPreviewMethods({ store, translator });
 
   async function requireElectionAccess(user: User, electionId: ElectionId) {

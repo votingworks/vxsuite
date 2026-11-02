@@ -32,7 +32,6 @@ import {
 } from '@votingworks/types';
 import type { BallotTemplateId } from '@votingworks/hmpb';
 import { defaultBallotTemplate } from './ballots.js';
-import { convertMsElection } from './convert_ms_election.js';
 import {
   getStateFeaturesConfig,
   type StateFeaturesConfig,
@@ -123,8 +122,20 @@ export async function cloneElection(
   });
 }
 
+export type ConvertMsElection = (
+  newId: ElectionId,
+  electionFileContents: string,
+  candidateFileContents: string
+) => Election;
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function buildElectionDefinitionMethods({ store }: { store: Store }) {
+export function buildElectionDefinitionMethods({
+  store,
+  convertMsElection,
+}: {
+  store: Store;
+  convertMsElection?: ConvertMsElection;
+}) {
   const methods = {
     async loadElection(input: {
       upload: ElectionUpload;
@@ -201,6 +212,9 @@ export function buildElectionDefinitionMethods({ store }: { store: Store }) {
             }
 
             case 'ms-sems': {
+              if (!convertMsElection) {
+                throw new Error('MS SEMS import is not supported here');
+              }
               const msElection = convertMsElection(
                 input.newId,
                 input.upload.electionFileContents,

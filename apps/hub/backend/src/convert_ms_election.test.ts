@@ -6,11 +6,11 @@ import {
   safeParseElection,
 } from '@votingworks/types';
 import {
-  convertMsElection,
   type Jurisdiction,
   defaultSystemSettings,
   addPollingPlacesForExport,
 } from '@votingworks/design-backend';
+import { convertMsElection } from './convert_ms_election.js';
 import { TestStore } from '../test/test_store.js';
 import { readFixture } from '../test/helpers.js';
 import { vxOrganization } from '../test/mocks.js';

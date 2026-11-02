@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Flipped, Flipper } from 'react-flip-toolkit';
 import { Button } from '@votingworks/ui';
 import type { Contest, Party } from '@votingworks/types';
 import { useHistory, useParams } from 'react-router-dom';
@@ -121,60 +120,49 @@ export function Sublist(props: {
     <React.Fragment>
       <EntityList.Header>{title}</EntityList.Header>
 
-      {/* Flipper/Flip are used to animate the reordering of contest rows */}
-      <Items
-        // @ts-expect-error: TS doesn't think Flipper is a valid component
-        as={Flipper}
-        flipKey={contests.map((c) => c.id).join(',')}
-        // Custom spring parameters to speed up the duration of the animation
-        // See https://github.com/aholachek/react-flip-toolkit/issues/100#issuecomment-551056183
-        spring={{ stiffness: 439, damping: 42 }}
-      >
+      <Items>
         {contests.map((c, index) => (
-          // @coverage-defer
-          <Flipped key={c.id} flipId={c.id} shouldFlip={() => reordering}>
-            <Item
-              id={c.id}
-              key={c.id}
-              selected={selectedId === c.id}
-              onSelect={onSelect}
-            >
-              <Column style={{ flexGrow: 1 }}>
-                <EntityList.Caption weight="semiBold">
-                  {partyName(c, parties)}
-                </EntityList.Caption>
+          <Item
+            id={c.id}
+            key={c.id}
+            selected={selectedId === c.id}
+            onSelect={onSelect}
+          >
+            <Column style={{ flexGrow: 1 }}>
+              <EntityList.Caption weight="semiBold">
+                {partyName(c, parties)}
+              </EntityList.Caption>
 
-                <EntityList.Caption>
-                  {districtIdToName.get(c.districtId)}
-                </EntityList.Caption>
+              <EntityList.Caption>
+                {districtIdToName.get(c.districtId)}
+              </EntityList.Caption>
 
-                <EntityList.Label>{c.title}</EntityList.Label>
-              </Column>
+              <EntityList.Label>{c.title}</EntityList.Label>
+            </Column>
 
-              {reordering && (
-                <Row style={{ gap: '0.5rem', justifyContent: 'flex-end' }}>
-                  <Button
-                    aria-label={`Move Up: ${c.title}`}
-                    icon="ChevronUp"
-                    className={CLASS_REORDER_BUTTON}
-                    disabled={index === 0}
-                    disableEventPropagation
-                    onPress={reorder}
-                    value={{ id: c.id, direction: -1 }}
-                  />
-                  <Button
-                    aria-label={`Move Down: ${c.title}`}
-                    icon="ChevronDown"
-                    className={CLASS_REORDER_BUTTON}
-                    disabled={index === contests.length - 1}
-                    disableEventPropagation
-                    onPress={reorder}
-                    value={{ id: c.id, direction: 1 }}
-                  />
-                </Row>
-              )}
-            </Item>
-          </Flipped>
+            {reordering && (
+              <Row style={{ gap: '0.5rem', justifyContent: 'flex-end' }}>
+                <Button
+                  aria-label={`Move Up: ${c.title}`}
+                  icon="ChevronUp"
+                  className={CLASS_REORDER_BUTTON}
+                  disabled={index === 0}
+                  disableEventPropagation
+                  onPress={reorder}
+                  value={{ id: c.id, direction: -1 }}
+                />
+                <Button
+                  aria-label={`Move Down: ${c.title}`}
+                  icon="ChevronDown"
+                  className={CLASS_REORDER_BUTTON}
+                  disabled={index === contests.length - 1}
+                  disableEventPropagation
+                  onPress={reorder}
+                  value={{ id: c.id, direction: 1 }}
+                />
+              </Row>
+            )}
+          </Item>
         ))}
       </Items>
     </React.Fragment>

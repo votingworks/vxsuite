@@ -2,8 +2,9 @@
 
 import * as zlib from 'node:zlib';
 import { Buffer } from 'node:buffer';
-import { PassThrough, type Readable, pipeline } from 'node:stream';
-import { ZipArchive, type ZipEntryData } from 'archiver';
+import { createReadStream } from 'node:fs';
+import type { Readable } from 'node:stream';
+import ZipStream from 'zip-stream';
 
 export const FIXED_ZIP_DATE = new Date('2024-01-01T00:00:00Z');
 export const FIXED_ZIP_FILE_MODE = 0o644;
@@ -27,39 +28,14 @@ export const FIXED_ZIP_FILE_MODE = 0o644;
  * ```
  */
 export class Archiver {
-  private readonly archiver: ZipArchive;
-  private readonly outputStream = new PassThrough();
+  private readonly zip = new ZipStream({
+    zlib: { level: zlib.constants.Z_BEST_SPEED },
+  });
 
-  constructor() {
-    this.archiver = new ZipArchive({
-      level: zlib.constants.Z_BEST_SPEED,
-      store: true,
-    });
-
-    // Path-based file reads are only reported as warnings - this elevates all
-    // warnings to errors, since we don't expect any of the former in the
-    // happy path.
-    //
-    // See https://www.archiverjs.com/docs/quickstart#examples
-    this.archiver.on('warning', (error) => {
-      this.archiver.abort();
-      this.archiver.destroy(error);
-    });
-
-    pipeline(this.archiver, this.outputStream, () => {
-      // Errors handled by caller.
-    });
-  }
-
-  private makeEntryData(meta: ZipEntryMeta): ZipEntryData {
-    return {
-      ...meta,
-      // [TODO] Make determinism configurable if this is used more broadly.
-      date: FIXED_ZIP_DATE,
-      mode: FIXED_ZIP_FILE_MODE,
-      store: !meta.compress,
-    };
-  }
+  private readonly entries: Array<{
+    source: () => Buffer | Readable | string;
+    meta: ZipEntryMeta;
+  }> = [];
 
   addEntry(
     contents: Buffer | Readable | string | Uint8Array,
@@ -69,22 +45,36 @@ export class Archiver {
       contents instanceof Uint8Array && !Buffer.isBuffer(contents)
         ? Buffer.from(contents.buffer, contents.byteOffset, contents.byteLength)
         : contents;
-
-    this.archiver.append(resolvedContents, this.makeEntryData(meta));
+    this.entries.push({ source: () => resolvedContents, meta });
   }
 
   addEntryFromPath(filePath: string, meta: ZipEntryMeta): void {
-    this.archiver.file(filePath, this.makeEntryData(meta));
+    this.entries.push({ source: () => createReadStream(filePath), meta });
   }
 
   finalize(): Readable {
-    // Callers can receive completion signals via the returned output stream, so
-    // no need to expose this promise externally.
-    void this.archiver.finalize().catch((error) => {
-      this.outputStream.destroy(error);
+    void this.writeEntries().catch((error) => {
+      this.zip.destroy(error);
     });
+    return this.zip as unknown as Readable;
+  }
 
-    return this.outputStream;
+  private async writeEntries(): Promise<void> {
+    for (const { source, meta } of this.entries) {
+      await new Promise<void>((resolve, reject) => {
+        this.zip.entry(
+          source(),
+          {
+            name: meta.name,
+            date: FIXED_ZIP_DATE,
+            mode: FIXED_ZIP_FILE_MODE,
+            store: !meta.compress,
+          },
+          (error) => (error ? reject(error) : resolve())
+        );
+      });
+    }
+    this.zip.finalize();
   }
 }
 
