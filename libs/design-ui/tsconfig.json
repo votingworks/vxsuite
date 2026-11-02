@@ -15,6 +15,7 @@
     { "path": "../hmpb/tsconfig.build.json" },
     { "path": "../types/tsconfig.build.json" },
     { "path": "../ui/tsconfig.build.json" },
+    { "path": "../utils/tsconfig.build.json" },
     { "path": "../../apps/hub/backend/tsconfig.build.json" }
   ]
 }

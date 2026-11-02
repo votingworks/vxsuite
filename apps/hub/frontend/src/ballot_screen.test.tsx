@@ -24,7 +24,7 @@ import {
 import { render, screen } from '../test/react_testing_library.js';
 import { withRoute } from '../test/routing_helpers.js';
 import { routes } from '@votingworks/design-ui';
-import { BallotScreen } from './ballot_screen.js';
+import { BallotScreen } from '@votingworks/design-ui';
 
 const electionRecord = generalElectionRecord(jurisdiction.id);
 const electionId = electionRecord.election.id;

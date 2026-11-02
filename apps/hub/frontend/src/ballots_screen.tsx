@@ -41,7 +41,7 @@ import {
   electionParamRoutes,
   routes,
 } from '@votingworks/design-ui';
-import { BallotScreen, paperSizeLabels } from './ballot_screen.js';
+import { BallotScreen, paperSizeLabels } from '@votingworks/design-ui';
 import { useTitle } from '@votingworks/design-ui';
 import { BallotsStatus } from './ballots_status.js';
 

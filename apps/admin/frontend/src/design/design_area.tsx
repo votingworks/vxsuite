@@ -3,6 +3,7 @@ import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import {
   ApiClientContext,
+  BallotScreen,
   ContestsScreen,
   createQueryClient,
   DesignShellContext,
@@ -54,6 +55,15 @@ function DesignElectionScreens(): JSX.Element {
       <Route
         path={electionParamRoutes.contests.root.path}
         component={ContestsScreen}
+      />
+      <Route
+        path={
+          electionParamRoutes.ballots.viewBallot(
+            ':ballotStyleId',
+            ':precinctId'
+          ).path
+        }
+        component={BallotScreen}
       />
       <Route
         path={electionParamRoutes.ballots.root.path}

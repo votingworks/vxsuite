@@ -6,15 +6,21 @@ import {
   getBallotsFinalizedAt,
   Header,
   listBallotStyles,
+  listPrecincts,
+  routes,
 } from '@votingworks/design-ui';
 import {
   Button,
   Callout,
   H1,
   H2,
+  LinkButton,
   MainContent,
   P,
   ProgressBar,
+  Table,
+  TD,
+  TH,
 } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context.js';
 import { routerPaths } from '../router_paths.js';
@@ -31,6 +37,7 @@ export function DesignBallotsScreen(): JSX.Element | null {
   const history = useHistory();
   const { electionDefinition } = useContext(AppContext);
   const ballotStylesQuery = listBallotStyles.useQuery(electionId);
+  const precinctsQuery = listPrecincts.useQuery(electionId);
   const finalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
   const electionPackageQuery = getElectionPackage.useQuery(electionId);
   const finalizeMutation = finalizeAndExportBallots.useMutation();
@@ -40,6 +47,7 @@ export function DesignBallotsScreen(): JSX.Element | null {
 
   if (
     !ballotStylesQuery.isSuccess ||
+    !precinctsQuery.isSuccess ||
     !finalizedAtQuery.isSuccess ||
     !electionPackageQuery.isSuccess
   ) {
@@ -65,7 +73,42 @@ export function DesignBallotsScreen(): JSX.Element | null {
         <H1>Ballots</H1>
       </Header>
       <MainContent>
-        <P>Ballot styles: {ballotStylesQuery.data.length}</P>
+        <H2>Proof Ballots</H2>
+        <Table>
+          <thead>
+            <tr>
+              <TH>Precinct</TH>
+              <TH>Ballot Style</TH>
+              <TH />
+            </tr>
+          </thead>
+          <tbody>
+            {precinctsQuery.data.flatMap((precinct) =>
+              ballotStylesQuery.data
+                .filter((ballotStyle) =>
+                  ballotStyle.precincts.includes(precinct.id)
+                )
+                .map((ballotStyle) => (
+                  <tr key={precinct.id + ballotStyle.id}>
+                    <TD>{precinct.name}</TD>
+                    <TD>{ballotStyle.id}</TD>
+                    <TD>
+                      <LinkButton
+                        to={
+                          routes
+                            .election(electionId)
+                            .ballots.viewBallot(ballotStyle.id, precinct.id)
+                            .path
+                        }
+                      >
+                        View Ballot
+                      </LinkButton>
+                    </TD>
+                  </tr>
+                ))
+            )}
+          </tbody>
+        </Table>
 
         <H2>Finalize and Export</H2>
         {finalizedAt ? (

@@ -7,6 +7,7 @@ export * from './ballot_audio/rich_text_editor_with_audio.js';
 export * from './ballot_audio/routes.js';
 export * from './ballot_audio/tts_text_editor.js';
 export * from './ballot_audio/ui_string_preview.js';
+export * from './ballot_screen.js';
 export * from './contest_audio_panel.js';
 export * from './contest_form.js';
 export * from './contest_list.js';
@@ -27,10 +28,6 @@ export * from './parties_screen.js';
 export * from './party_audio_panel.js';
 export * from './polling_place_audio_panel.js';
 export * from './polling_place_form.js';
-export {
-  PollingPlaceList,
-  type PollingPlaceListProps,
-} from './polling_place_list.js';
 export * from './polling_places_screen.js';
 export * from './precinct_audio_panel.js';
 export * from './precincts_form.js';
@@ -42,3 +39,7 @@ export * from './seal_image_input.js';
 export * from './signature_image_input.js';
 export * from './tooltip.js';
 export * from './utils.js';
+export {
+  PollingPlaceList,
+  type PollingPlaceListProps,
+} from './polling_place_list.js';
