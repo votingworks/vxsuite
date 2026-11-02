@@ -156,3 +156,20 @@ export const duplicateElection = {
     });
   },
 } as const;
+
+export const getDesignAvailability = {
+  queryKey(): QueryKey {
+    return ['getDesignAvailability'];
+  },
+  useQuery() {
+    const apiClient = useAdminDesignApiClient();
+    return useQuery(
+      this.queryKey(),
+      async () => {
+        await apiClient.getLocalJurisdictionId();
+        return true;
+      },
+      { retry: false, useErrorBoundary: false }
+    );
+  },
+} as const;

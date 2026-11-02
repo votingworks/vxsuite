@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { Button, P } from '@votingworks/ui';
+import { NavigationScreen } from '../components/navigation_screen.js';
 import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import {
@@ -21,6 +23,7 @@ import {
   AdminQueryClientContext,
   asDesignUiApiClient,
   createAdminDesignApiClient,
+  getDesignAvailability,
 } from './design_api.js';
 import { DesignBallotsScreen } from './design_ballots_screen.js';
 import { DesignElectionsScreen } from './design_elections_screen.js';
@@ -75,6 +78,32 @@ function DesignElectionScreens(): JSX.Element {
       />
     </Switch>
   );
+}
+
+function DesignAvailabilityGate({
+  children,
+}: {
+  children: React.ReactNode;
+}): JSX.Element | null {
+  const availabilityQuery = getDesignAvailability.useQuery();
+  if (availabilityQuery.isLoading) return null;
+  if (availabilityQuery.isError) {
+    return (
+      <NavigationScreen title="Election Design">
+        <P>
+          Election design is unavailable because its database could not be
+          reached. The rest of VxAdmin is unaffected.
+        </P>
+        <Button
+          onPress={() => availabilityQuery.refetch()}
+          disabled={availabilityQuery.isFetching}
+        >
+          Try Again
+        </Button>
+      </NavigationScreen>
+    );
+  }
+  return <React.Fragment>{children}</React.Fragment>;
 }
 
 export function DesignArea(): JSX.Element {

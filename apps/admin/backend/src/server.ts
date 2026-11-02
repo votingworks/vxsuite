@@ -1,5 +1,4 @@
 import express from 'express';
-import * as grout from '@votingworks/grout';
 import {
   LogEventId,
   BaseLogger,
@@ -41,9 +40,7 @@ import {
   resolveWorkspacePath,
 } from './util/workspace.js';
 import { buildApp } from './app.js';
-import { buildDesignApi } from './design/design_api.js';
-import { createDesignStore } from './design/design_store.js';
-import { createDesignExporter } from './design/design_export.js';
+import { mountElectionDesign } from './design/mount_election_design.js';
 import { buildClientApp } from './client_app.js';
 import { buildPeerApp } from './peer_app.js';
 import { buildRestoreApp, RESTORE_MODE_STORE } from './restore_app.js';
@@ -206,27 +203,14 @@ export async function start(options: StartOptions = {}): Promise<Server> {
           BooleanEnvironmentVariableName.ENABLE_ADMIN_ELECTION_DESIGN
         )
       ) {
-        const designStore = await createDesignStore(baseLogger);
-        const designExporter = createDesignExporter({
-          designStore,
-          filesRoot:
-            process.env.ADMIN_DESIGN_FILES_DIR ??
-            `${workspace.path}-design-files`,
+        mountElectionDesign({
+          app,
+          auth,
+          workspace,
+          logger,
+          baseLogger,
+          multiUsbDrive,
         });
-        app.use(
-          '/design-api',
-          grout.buildRouter(
-            buildDesignApi({
-              auth,
-              workspace,
-              designStore,
-              logger,
-              multiUsbDrive,
-              designExporter,
-            }),
-            express
-          )
-        );
       }
 
       // Log election results data check at startup
