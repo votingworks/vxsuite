@@ -39,6 +39,8 @@ import {
   type BallotCandidateOrderings,
   type GetCandidateOrderingsFn,
   type OptionalCandidateOrderings,
+  type CandidateId,
+  type Candidate,
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
@@ -604,18 +606,19 @@ export async function createElectionDefinition<P extends BaseBallotProps>(p: {
     .map((contest) => {
       if (p.template.isAllBubbleBallot) return contest;
       if (contest.type !== 'candidate') return contest;
-      const ballotStylesWithContest = p.baseElection.ballotStyles.filter(
-        (bs) => {
-          const orderings = p.getCandidateOrderings(bs);
-          return orderings && contest.id in orderings;
-        }
+
+      const ballotStylesWithContest = p.baseElection.ballotStyles.filter((bs) =>
+        Boolean(p.getCandidateOrderings(bs)?.[contest.id])
       );
+
       if (ballotStylesWithContest.length === 0) return contest;
+
       const [firstBallotStyle, ...restBallotStyles] = ballotStylesWithContest;
       const firstLayoutOrder = assertDefined(
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         p.getCandidateOrderings(firstBallotStyle!)?.[contest.id]
       );
+
       if (
         restBallotStyles.every((ballotStyle) =>
           deepEqual(
@@ -624,13 +627,19 @@ export async function createElectionDefinition<P extends BaseBallotProps>(p: {
           )
         )
       ) {
-        return {
-          ...contest,
-          candidates: firstLayoutOrder.map(({ id }) =>
-            find(contest.candidates, (c) => c.id === id)
-          ),
-        };
+        const seenCandidates = new Set<CandidateId>();
+        const candidates: Candidate[] = [];
+
+        for (const { id } of firstLayoutOrder) {
+          if (seenCandidates.has(id)) continue;
+
+          candidates.push(find(contest.candidates, (c) => c.id === id));
+          seenCandidates.add(id);
+        }
+
+        return { ...contest, candidates };
       }
+
       return contest;
     });
 

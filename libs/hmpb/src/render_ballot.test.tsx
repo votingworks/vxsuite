@@ -11,7 +11,6 @@ import {
   type CandidateContest,
   type Election,
   getContests,
-  LanguageCode,
   type YesNoContest,
   LATEST_SOFTWARE_VERSION,
   straightPartyNotYetImplemented,
@@ -28,11 +27,13 @@ import {
 import {
   assert,
   assertDefined,
+  deepEqual,
   find,
   groupBy,
   iter,
   range,
   throwIllegalValue,
+  uniqueBy,
 } from '@votingworks/basics';
 import {
   parse as parseHtml,
@@ -68,8 +69,6 @@ import {
   vxFamousNamesFixtures,
   vxGeneralElectionFixtures,
 } from './ballot_fixtures.js';
-import { rotateCandidatesByStatute } from './ballot_templates/nh_ballot_template.js';
-import { generateBallotStylesDeprecated } from './ballot_styles.js';
 import {
   BALLOT_MEASURE_OPTION_CLASS,
   BUBBLE_CLASS,
@@ -188,31 +187,51 @@ test('rendered ballot can convert to v4p0 election', async () => {
   expect(() => convertLatestElectionToV4p0(election)).not.toThrow();
 });
 
-test('reorder candidates based on rotation from template', async () => {
+test('reorder candidates based on ballot style orderings', async () => {
   const baseElection = vxFamousNamesFixtures.electionDefinition.election;
+
+  const sampleBallotStyle = assertDefined(baseElection.ballotStyles[1]);
+  const sampleOrderings = sampleBallotStyle.orderedCandidatesByContest!;
+
+  assert(
+    baseElection.contests.some(
+      (c) =>
+        c.type === 'candidate' &&
+        sampleOrderings[c.id]!.length !== c.candidates.length
+    ),
+    'test requires a ballot style with cross-endorsements'
+  );
+
+  assert(
+    baseElection.contests.some((contest) => {
+      if (contest.type !== 'candidate') return false;
+
+      const orderingChanged = !deepEqual(
+        contest.candidates.map((c) => c.id),
+        uniqueBy(sampleOrderings[contest.id]!, (o) => o.id).map((o) => o.id)
+      );
+
+      return orderingChanged;
+    }),
+    'test requires a ballot style with non-default rotation'
+  );
+
   const fixtureElection: Election = {
     ...baseElection,
-    ballotStyles: generateBallotStylesDeprecated({
-      ballotLanguageConfigs: [{ languages: [LanguageCode.ENGLISH] }],
-      electionId: baseElection.id,
-      electionType: baseElection.type,
-      isMiCombinedBallotPrimary: false,
-      parties: baseElection.parties,
-      precincts: [...baseElection.precincts],
-      ballotTemplateId: 'NhBallot',
-      contests: baseElection.contests,
-    }),
     signature: {
       caption: 'test caption',
       image: '<svg xmlns="http://www.w3.org/2000/svg"/>',
     },
   };
+
   const allBallotProps = allBaseBallotProps(fixtureElection);
   const { election } = await layOutMinimalBallotsToCreateElectionDefinition(
     rendererPool,
     ballotTemplates.NhBallot,
     allBallotProps,
-    (bs) => bs.orderedCandidatesByContest,
+    // Inject the same orderings for every ballot style to trigger a re-ordering
+    // of the canonical election contest candidates.
+    () => sampleOrderings,
     { format: 'vxf', version: LATEST_SOFTWARE_VERSION },
     DEFAULT_SYSTEM_SETTINGS,
     makeScratchDir()
@@ -232,19 +251,28 @@ test('reorder candidates based on rotation from template', async () => {
     };
   }
 
-  expect(withoutBallotPositions(restElection)).toEqual(
-    withoutBallotPositions(restFixtureElection)
-  );
+  const expectedElection: typeof restElection = withoutBallotPositions({
+    ...restFixtureElection,
+    ballotStyles: fixtureElection.ballotStyles.map((bs) => ({
+      ...bs,
+      orderedCandidatesByContest: sampleOrderings,
+    })),
+  });
+  expect(withoutBallotPositions(restElection)).toEqual(expectedElection);
+
   for (const [contest, fixtureContest] of iter(contests).zip(fixtureContests)) {
     assert(contest.id === fixtureContest.id);
     assert(contest.type === 'candidate');
     assert(fixtureContest.type === 'candidate');
+
     const { candidates, ...restContest } = contest;
     const { candidates: _fixtureCandidates, ...restFixtureContest } =
       fixtureContest;
     expect(restContest).toEqual(restFixtureContest);
+
+    const ordering = sampleOrderings[contest.id]!;
     expect(candidates.map((c) => c.id)).toEqual(
-      rotateCandidatesByStatute(fixtureContest).map((c) => c.id)
+      uniqueBy(ordering, (o) => o.id).map((o) => o.id)
     );
   }
 });
