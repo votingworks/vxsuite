@@ -14,7 +14,8 @@
   },
   "files": [
     "build",
-    "intermediate-scripts"
+    "intermediate-scripts",
+    "schema"
   ],
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
