@@ -408,6 +408,10 @@ Shortcuts (option A or hacks), to fix before real PRs:
 6. Proofing: there's no ballot preview or proof viewer yet. Hub's
    `getBallotPreviewPdf` and Ballots screen are hub-only. Next candidate to
    move.
+7. Later, not now: rendering performance. The node main thread looks like the
+   export bottleneck (pool 8 is only about 15% faster than pool 4), and layout
+   is redone per ballot variant. Investigate on real VxAdmin hardware after
+   planning.
 
 ## What to pull out first
 
