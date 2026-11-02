@@ -403,10 +403,6 @@ export type InterpretError = { isBubbleBallot: boolean } & (
       label: string;
       xCoordinates: PixelPosition[];
     }
-  | {
-      type: 'invalidElection';
-      message: string;
-    }
 );
 
 /**

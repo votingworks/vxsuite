@@ -257,9 +257,6 @@ pub enum Error {
         label: String,
         x_coordinates: Vec<PixelPosition>,
     },
-
-    #[error("invalid election: {message}")]
-    InvalidElection { message: String },
 }
 
 impl Error {
