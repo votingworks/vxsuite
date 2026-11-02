@@ -1,4 +1,5 @@
 import React from 'react';
+import { Buffer } from 'node:buffer';
 import {
   BALLOT_HASH_DISPLAY_LENGTH,
   type BallotStyle,
@@ -776,3 +777,21 @@ export const ContestHeader = styled.div<ContestHeaderProps>`
 `;
 
 export const ContestTitle = 'h3';
+
+export function SvgImage({
+  svg,
+  style,
+}: {
+  svg: string;
+  style: React.CSSProperties;
+}): JSX.Element {
+  if (svg === '') {
+    return <div style={style} />;
+  }
+  return (
+    <img
+      src={`data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`}
+      style={{ objectFit: 'contain', objectPosition: 'left top', ...style }}
+    />
+  );
+}
