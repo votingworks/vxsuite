@@ -1,6 +1,7 @@
 import type {
   BallotStyleId,
   ElectionDefinition,
+  CandidateOrderings,
   PartyId,
   PrecinctId,
   VotesDict,
@@ -15,6 +16,7 @@ import type {
 export interface BallotContextInterface {
   machineConfig: MachineConfig;
   ballotStyleId?: BallotStyleId;
+  candidateOrderings: CandidateOrderings | null;
   contests: ContestsWithMsEitherNeither;
   readonly electionDefinition?: ElectionDefinition;
   isCardlessVoter: boolean;

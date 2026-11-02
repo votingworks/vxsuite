@@ -29,6 +29,7 @@ import {
   constructElectionKey,
   type DiagnosticRecord,
   type DiagnosticType,
+  type CandidateOrderings,
 } from '@votingworks/types';
 import {
   mockCardlessVoterUser,
@@ -78,6 +79,7 @@ type MockApiClient = Omit<
   | 'getBarcodeActivationMode'
   | 'getPendingBarcodePrintRequest'
   | 'clearPendingBarcodePrintRequest'
+  | 'getCandidateOrderings'
 > & {
   // Because these are polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
@@ -93,42 +95,45 @@ type MockApiClient = Omit<
   getBarcodeActivationMode: Mock;
   getPendingBarcodePrintRequest: Mock;
   clearPendingBarcodePrintRequest: Mock;
+  getCandidateOrderings: Mock<
+    (p: { ballotStyleId: string }) => Promise<CandidateOrderings | null>
+  >;
 };
 
 function createMockApiClient(): MockApiClient {
-  const mockApiClient = createMockClient<Api>();
+  const mockApiClient = createMockClient<Api>() as unknown as MockApiClient;
+
   // For some reason, using an object spread to override the polling methods breaks the rest
   // of the mockApiClient, so we override like this instead
-  (mockApiClient.getAuthStatus as unknown as Mock) = vi.fn(() =>
+  mockApiClient.getAuthStatus = vi.fn(() =>
     Promise.resolve({ status: 'logged_out', reason: 'no_card' })
   );
-  (mockApiClient.getPrinterStatus as unknown as Mock) = vi.fn(() =>
+  mockApiClient.getPrinterStatus = vi.fn(() =>
     Promise.resolve({
       connected: true,
       config: MOCK_PRINTER_CONFIG,
     })
   );
-  (mockApiClient.getUsbDriveStatus as unknown as Mock) = vi.fn(() =>
+  mockApiClient.getUsbDriveStatus = vi.fn(() =>
     Promise.resolve({ status: 'no_drive' })
   );
-  (mockApiClient.getAccessibleControllerConnected as unknown as Mock) = vi.fn(
-    () => Promise.resolve(true)
-  );
-  (mockApiClient.getBarcodeConnected as unknown as Mock) = vi.fn(() =>
+  mockApiClient.getAccessibleControllerConnected = vi.fn(() =>
     Promise.resolve(true)
   );
-  (mockApiClient.getPatInputConnected as unknown as Mock) = vi.fn(() =>
-    Promise.resolve(true)
-  );
-  (mockApiClient.getDiskSpaceSummary as unknown as Mock) = vi.fn(() =>
+  mockApiClient.getBarcodeConnected = vi.fn(() => Promise.resolve(true));
+  mockApiClient.getPatInputConnected = vi.fn(() => Promise.resolve(true));
+  mockApiClient.getDiskSpaceSummary = vi.fn(() =>
     Promise.resolve({ total: 3, used: 2, available: 1 })
   );
   // Polled while a print job is in flight. Jobs succeed unless a test says
   // otherwise, so most tests need not set this up.
-  (mockApiClient.getPrintJobStatus as unknown as Mock) = vi.fn(() =>
+  mockApiClient.getPrintJobStatus = vi.fn(() =>
     Promise.resolve(ok({ outcome: 'sent-to-printer' }))
   );
-  return mockApiClient as unknown as MockApiClient;
+
+  mockApiClient.getCandidateOrderings = vi.fn(() => Promise.resolve(null));
+
+  return mockApiClient;
 }
 
 /**

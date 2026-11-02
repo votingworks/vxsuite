@@ -8,6 +8,12 @@ import {
   useBallotStyleManager,
   useSessionSettingsManager,
 } from '@votingworks/mark-flow-ui';
+import {
+  anyPollingPlace,
+  type BallotStyleId,
+  type CandidateOrderings,
+} from '@votingworks/types';
+import { assertDefined } from '@votingworks/basics';
 import { screen, waitFor } from '../test/react_testing_library.js';
 import { advanceTimersAndPromises } from '../test/helpers/timers.js';
 import { render } from '../test/test_utils.js';
@@ -17,6 +23,10 @@ import {
   createApiMock,
 } from '../test/helpers/mock_api_client.js';
 import { buildApp } from '../test/helpers/build_app.js';
+import { Ballot } from './components/ballot.js';
+import { BallotContext } from './contexts/ballot_context.js';
+import { AppRoot } from './app_root.js';
+import { AUTH_STATUS_POLLING_INTERVAL_MS_OVERRIDE } from './constants.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 
@@ -25,6 +35,11 @@ vi.mock(import('@votingworks/mark-flow-ui'), async (importActual) => ({
   useBallotStyleManager: vi.fn(),
   useSessionSettingsManager: vi.fn(),
 }));
+
+vi.mock(import('./components/ballot.js'), async (importActual) => {
+  const actual = await importActual();
+  return { ...actual, Ballot: vi.fn(actual.Ballot) };
+});
 
 let apiMock: ApiMock;
 
@@ -139,4 +154,59 @@ test('uses ballot style management hook', async () => {
       })
     )
   );
+});
+
+test('sets/updates ballot style candidate orderings in BallotContext', async () => {
+  const pollingPlace = anyPollingPlace(electionGeneralDefinition.election);
+  const pollingPlaceId = pollingPlace.id;
+  const precinctId = assertDefined(Object.keys(pollingPlace.precincts)[0]);
+
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
+  apiMock.expectGetElectionState({ pollingPlaceId, pollsState: 'polls_open' });
+  apiMock.setPaperHandlerState('waiting_for_ballot_data');
+
+  const { election } = electionGeneralDefinition;
+  const bs1 = assertDefined(election.ballotStyles[0]);
+  const bs2 = assertDefined(election.ballotStyles[1]);
+
+  render(<AppRoot />, { apiMock });
+  await screen.findByText('Insert Card');
+  await waitFor(() => apiMock.mockApiClient.assertComplete());
+
+  let lastOrderings: CandidateOrderings | null | undefined;
+
+  vi.mocked(Ballot).mockImplementation(() => {
+    const ctx = React.useContext(BallotContext);
+    lastOrderings = ctx.candidateOrderings;
+
+    return <div data-testid={`MockBallot-${ctx.ballotStyleId}`} />;
+  });
+
+  const mockOrderings: Record<BallotStyleId, CandidateOrderings> = {
+    [bs1.id]: { contest1: [{ id: 'candidate2' }, { id: 'candidate1' }] },
+    [bs2.id]: { contest1: [{ id: 'candidate1' }, { id: 'candidate2' }] },
+  };
+
+  apiMock.mockApiClient.getCandidateOrderings.mockImplementation((p) =>
+    Promise.resolve(mockOrderings[p.ballotStyleId] ?? null)
+  );
+
+  async function selectBallotStyle(ballotStyleId: string) {
+    apiMock.setAuthStatusCardlessVoterLoggedIn({ ballotStyleId, precinctId });
+
+    await vi.advanceTimersByTimeAsync(AUTH_STATUS_POLLING_INTERVAL_MS_OVERRIDE);
+    screen.getByTestId(`MockBallot-${ballotStyleId}`);
+
+    apiMock.mockApiClient.assertComplete();
+  }
+
+  await selectBallotStyle(bs1.id);
+  expect(lastOrderings).toEqual(mockOrderings[bs1.id]!);
+
+  await selectBallotStyle(bs2.id);
+  expect(lastOrderings).toEqual(mockOrderings[bs2.id]!);
+
+  await selectBallotStyle(bs1.id);
+  expect(lastOrderings).toEqual(mockOrderings[bs1.id]!);
 });

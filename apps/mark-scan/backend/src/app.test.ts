@@ -279,12 +279,11 @@ describe('configure populates ballot meta store', () => {
       },
     });
 
-    const metaStore = workspace.store.getBallotMetaStore();
-
     for (const bs of election.ballotStyles) {
-      expect(metaStore.getCandidateOrderings(bs.id)).toEqual(
-        bs.orderedCandidatesByContest
-      );
+      const orderings = await apiClient.getCandidateOrderings({
+        ballotStyleId: bs.id,
+      });
+      expect(orderings).toEqual(bs.orderedCandidatesByContest);
     }
   });
 
@@ -314,9 +313,10 @@ describe('configure populates ballot meta store', () => {
     const metaStore = workspace.store.getBallotMetaStore();
 
     for (const bs of election.ballotStyles) {
-      expect(metaStore.getCandidateOrderings(bs.id)).toEqual(
-        bs.orderedCandidatesByContest
-      );
+      const orderings = await apiClient.getCandidateOrderings({
+        ballotStyleId: bs.id,
+      });
+      expect(orderings).toEqual(bs.orderedCandidatesByContest);
     }
 
     // Ballot positions are unused in MarkScan:

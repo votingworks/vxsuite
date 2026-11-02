@@ -7,6 +7,7 @@ import {
   type Contest,
   DEFAULT_SYSTEM_SETTINGS,
   type ElectionDefinition,
+  type CandidateOrderings,
   type PartyId,
   type PrecinctId,
   type PrintJobId,
@@ -26,6 +27,7 @@ export function render(
   {
     route = '/',
     ballotStyleId,
+    candidateOrderings = null,
     electionDefinition = readElectionGeneralDefinition(),
     contests = electionDefinition.election.contests,
     endVoterSession = vi.fn(),
@@ -44,6 +46,7 @@ export function render(
   }: {
     route?: string;
     ballotStyleId?: BallotStyleId;
+    candidateOrderings?: CandidateOrderings | null;
     electionDefinition?: ElectionDefinition;
     contests?: readonly Contest[];
     endVoterSession?: () => Promise<void>;
@@ -72,6 +75,7 @@ export function render(
         <BallotContext.Provider
           value={{
             ballotStyleId,
+            candidateOrderings,
             contests,
             electionDefinition,
             isCardlessVoter,

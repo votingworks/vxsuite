@@ -6,6 +6,7 @@ import {
 import React from 'react';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import type { SimpleServerStatus } from '@votingworks/mark-scan-backend';
+import { assertDefined } from '@votingworks/basics';
 import { act, render, screen } from '../test/react_testing_library.js';
 import { VoterFlow, type VoterFlowProps } from './voter_flow.js';
 import { mockMachineConfig } from '../test/helpers/mock_machine_config.js';
@@ -75,8 +76,10 @@ function TestContext(props: React.PropsWithChildren) {
 
 const electionDefinition = electionGeneralDefinition;
 const { contests } = electionDefinition.election;
+const ballotStyle = assertDefined(electionDefinition.election.ballotStyles[0]);
 
 const TEST_VOTER_FLOW_PROPS: VoterFlowProps = {
+  ballotStyle,
   contests,
   electionDefinition,
   endVoterSession: vi.fn(),
@@ -93,7 +96,7 @@ beforeEach(() => {
   mockApi.mockApiClient.getIsPatDeviceConnected.mockReturnValue(false);
 });
 
-test('replaces screen with accessible controller sandbox when triggered', () => {
+test('replaces screen with accessible controller sandbox when triggered', async () => {
   vi.mocked(Ballot).mockReturnValue(<div data-testid="mockBallotScreen" />);
   vi.mocked(MarkScanControllerSandbox).mockReturnValue(
     <div data-testid="mockControllerSandbox" />
@@ -105,7 +108,7 @@ test('replaces screen with accessible controller sandbox when triggered', () => 
     </TestContext>
   );
 
-  screen.getByTestId('mockBallotScreen');
+  await screen.findByTestId('mockBallotScreen');
   expect(screen.queryByTestId('mockControllerSandbox')).not.toBeInTheDocument();
 
   act(() => setMockControllerHelpTriggered!(true));
@@ -113,7 +116,7 @@ test('replaces screen with accessible controller sandbox when triggered', () => 
   expect(screen.queryByTestId('mockBallotScreen')).not.toBeInTheDocument();
 });
 
-test('replaces screen with PAT device calibration when connected', () => {
+test('replaces screen with PAT device calibration when connected', async () => {
   vi.mocked(Ballot).mockReturnValue(<div data-testid="mockBallotScreen" />);
   vi.mocked(PatDeviceCalibrationPageWrapper).mockReturnValue(
     <div data-testid="mockPatCalibrationScreen" />
@@ -125,7 +128,7 @@ test('replaces screen with PAT device calibration when connected', () => {
     </TestContext>
   );
 
-  screen.getByTestId('mockBallotScreen');
+  await screen.findByTestId('mockBallotScreen');
   expect(
     screen.queryByTestId('mockPatCalibrationScreen')
   ).not.toBeInTheDocument();
