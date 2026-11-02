@@ -575,8 +575,7 @@ function validateInterpretResults(
  */
 async function interpretHmpb(
   sheet: SheetOf<ImageData>,
-  options: InterpreterOptions,
-  ballotPositionsDbPath: string
+  options: InterpreterOptions
 ): Promise<{
   rawResult: HmpbInterpretResult;
   interpretation: SheetOf<PageInterpretation>;
@@ -592,7 +591,7 @@ async function interpretHmpb(
     ballotImageBitDepth: options.ballotImageBitDepth,
     frontNormalizedImageOutputPath: options.frontNormalizedImageOutputPath,
     backNormalizedImageOutputPath: options.backNormalizedImageOutputPath,
-    ballotPositionsDbPath,
+    ballotPositionsDbPath: assertDefined(options.ballotPositionsDbPath),
   });
 
   return {
@@ -817,7 +816,7 @@ export async function interpretSheet(
 
   try {
     const hmpb = options.ballotPositionsDbPath
-      ? await interpretHmpb(sheet, options, options.ballotPositionsDbPath)
+      ? await interpretHmpb(sheet, options)
       : undefined;
 
     const hmpbInterpretation = hmpb?.interpretation;
