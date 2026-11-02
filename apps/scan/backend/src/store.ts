@@ -167,16 +167,16 @@ export class Store {
   }
 
   /**
-   * Builds and returns a new store at `dbPath` whose election package is at
-   * `electionPackageDbPath`.
+   * Builds and returns a new store whose session is at `sessionDbPath` and
+   * whose election package is at `electionPackageDbPath`.
    */
   static fileStore(
-    dbPath: string,
+    sessionDbPath: string,
     electionPackageDbPath: string,
     logger: BaseLogger
   ): Store {
     return new Store(
-      DbClient.fileClient(dbPath, logger, SchemaPath),
+      DbClient.fileClient(sessionDbPath, logger, SchemaPath),
       ElectionPackageStore.fileStore(electionPackageDbPath, logger),
       logger
     );

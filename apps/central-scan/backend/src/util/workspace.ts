@@ -81,9 +81,9 @@ export function createWorkspace(root: string, logger: BaseLogger): Workspace {
   const uploadsPath = join(resolvedRoot, 'uploads');
   mkdirSync(ballotImagesPath, { recursive: true });
 
-  const dbPath = join(resolvedRoot, 'ballots.db');
+  const sessionDbPath = join(resolvedRoot, 'session.db');
   const electionPackageDbPath = join(resolvedRoot, 'election-package.db');
-  const store = Store.fileStore(dbPath, electionPackageDbPath, logger);
+  const store = Store.fileStore(sessionDbPath, electionPackageDbPath, logger);
 
   function batchImagesPath(batchId: Id): string {
     return join(ballotImagesPath, `${BATCH_IMAGES_DIRECTORY_PREFIX}${batchId}`);

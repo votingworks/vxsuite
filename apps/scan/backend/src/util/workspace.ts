@@ -86,10 +86,11 @@ export function createWorkspace(
   mkdirSync(ballotImagesPath, { recursive: true });
   mkdirSync(scannedImagesPath, { recursive: true });
 
-  const dbPath = join(resolvedRoot, 'ballots.db');
+  const sessionDbPath = join(resolvedRoot, 'session.db');
   const electionPackageDbPath = join(resolvedRoot, 'election-package.db');
   const store =
-    options.store || Store.fileStore(dbPath, electionPackageDbPath, logger);
+    options.store ||
+    Store.fileStore(sessionDbPath, electionPackageDbPath, logger);
 
   const lifetimeSheetCounter = createLifetimeSheetCounter({
     devRoot: resolvedRoot,
