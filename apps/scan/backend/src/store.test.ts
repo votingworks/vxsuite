@@ -487,8 +487,11 @@ test('getSheet', () => {
 });
 
 test('resetElectionSession', async () => {
-  const dbFile = makeTemporaryFile();
-  const store = Store.fileStore(dbFile, mockBaseLogger({ fn: vi.fn }));
+  const store = Store.fileStore(
+    makeTemporaryFile(),
+    makeTemporaryFile(),
+    mockBaseLogger({ fn: vi.fn })
+  );
   configureElectionNh(store);
 
   const mockUsbDrive = createMockUsbDrive();

@@ -369,12 +369,19 @@ test('unconfiguring machine', async () => {
   await withApp(
     async ({ apiClient, mockUsbDrive, workspace, mockAuth, logger }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
+      expect(workspace.store.getElectionPackageStore().hasElection()).toEqual(
+        true
+      );
 
       vi.spyOn(workspace, 'reset');
 
       await apiClient.unconfigureElection();
 
       expect(workspace.reset).toHaveBeenCalledTimes(1);
+      expect(workspace.store.hasElection()).toEqual(false);
+      expect(workspace.store.getElectionPackageStore().hasElection()).toEqual(
+        false
+      );
       expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
         LogEventId.ElectionUnconfigured,
         expect.objectContaining({

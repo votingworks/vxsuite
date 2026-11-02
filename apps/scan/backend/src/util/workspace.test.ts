@@ -1,3 +1,4 @@
+import { join } from 'node:path';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
@@ -21,6 +22,9 @@ test('createWorkspace', () => {
   const workspace = createWorkspace(dir, mockBaseLogger({ fn: vi.fn }));
   expect(workspace.path).toEqual(dir);
   expect(workspace.store).toBeInstanceOf(Store);
+  expect(workspace.electionPackageDbPath).toEqual(
+    join(dir, 'election-package.db')
+  );
 });
 
 test('SCAN_WORKSPACE takes precedence over the environment default', () => {

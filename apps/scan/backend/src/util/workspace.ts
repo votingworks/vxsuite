@@ -38,6 +38,11 @@ export interface Workspace {
   readonly store: Store;
 
   /**
+   * The database holding the imported election package.
+   */
+  readonly electionPackageDbPath: string;
+
+  /**
    * The persistent count of sheets accepted by this machine.
    */
   readonly lifetimeSheetCounter: LifetimeSheetCounter;
@@ -82,7 +87,9 @@ export function createWorkspace(
   mkdirSync(scannedImagesPath, { recursive: true });
 
   const dbPath = join(resolvedRoot, 'ballots.db');
-  const store = options.store || Store.fileStore(dbPath, logger);
+  const electionPackageDbPath = join(resolvedRoot, 'election-package.db');
+  const store =
+    options.store || Store.fileStore(dbPath, electionPackageDbPath, logger);
 
   const lifetimeSheetCounter = createLifetimeSheetCounter({
     devRoot: resolvedRoot,
@@ -95,6 +102,7 @@ export function createWorkspace(
     scannedImagesPath,
     uploadsPath,
     store,
+    electionPackageDbPath,
     lifetimeSheetCounter,
     continuousExportMutex: new Mutex(),
     resetElectionSession() {
