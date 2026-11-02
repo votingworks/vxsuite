@@ -14,13 +14,15 @@
   },
   "files": [
     "build",
-    "migrations"
+    "migrations",
+    "schema.sql"
   ],
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",
     "build:self": "tsc --build tsconfig.build.json",
     "clean": "pnpm -w vx-task clean $npm_package_name",
     "clean:self": "rm -rf build",
+    "db:generate-schema": "pnpm build:self && ./scripts/generate-schema.sh",
     "lint": "pnpm -w vx-task lint $npm_package_name",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "lint:self": "pnpm type-check && eslint .",

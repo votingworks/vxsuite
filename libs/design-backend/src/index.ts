@@ -19,3 +19,4 @@ export * from './utils.js';
 export * from './tts_api.js';
 export * from './election_design_api_type.js';
 export * from './design_providers.js';
+export * from './schema.js';
