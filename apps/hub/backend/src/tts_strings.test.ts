@@ -9,7 +9,11 @@ import {
   type TtsEditKey,
 } from '@votingworks/types';
 import type { ElectionRecord, Store } from '@votingworks/design-backend';
-import * as ttsStrings from './tts_strings.js';
+import {
+  buildTtsMethods,
+  type TtsApiContext,
+  type TtsStringDefault,
+} from '@votingworks/design-backend';
 
 test('ttsSynthesizeFromText', async () => {
   const mockSynthesizer: Mocked<SpeechSynthesizer> = {
@@ -311,7 +315,7 @@ test('ttsStringDefaults - spot checks for sort order', async () => {
   mockStore.getElection.mockResolvedValueOnce(electionRecord as ElectionRecord);
 
   const result = await api.ttsStringDefaults({ electionId: 'abc123' });
-  expect(result).toEqual<ttsStrings.TtsStringDefault[]>([
+  expect(result).toEqual<TtsStringDefault[]>([
     {
       key: ElectionStringKey.CONTEST_TITLE,
       subkey: 'contest1',
@@ -340,6 +344,6 @@ test('ttsStringDefaults - spot checks for sort order', async () => {
   ]);
 });
 
-function newApi(ctx: PartialDeep<ttsStrings.TtsApiContext>) {
-  return ttsStrings.apiMethods(ctx as ttsStrings.TtsApiContext);
+function newApi(ctx: PartialDeep<TtsApiContext>) {
+  return buildTtsMethods(ctx as TtsApiContext);
 }

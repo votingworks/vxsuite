@@ -1,9 +1,9 @@
 import React from 'react';
 import type {
-  Api,
   AuthErrorCode,
+  ElectionDesignApi,
   ElectionUpload,
-} from '@votingworks/hub-backend';
+} from '@votingworks/design-backend';
 import type { NhStateBallotVariant } from '@votingworks/hmpb';
 import * as grout from '@votingworks/grout';
 import {
@@ -28,12 +28,7 @@ import { generateId } from './utils.js';
 export const BACKGROUND_TASK_POLLING_INTERVAL_MS = 1_000;
 export const VXQR_REFETCH_INTERVAL_MS = 1_000;
 
-export type ApiClient = grout.Client<Api>;
-
-// @coverage-defer
-export function createApiClient(): ApiClient {
-  return grout.createClient<Api>({ baseUrl: '/api' });
-}
+export type ApiClient = grout.Client<ElectionDesignApi>;
 
 export const ApiClientContext = React.createContext<ApiClient | undefined>(
   undefined
@@ -92,26 +87,6 @@ export function createQueryClient(): QueryClient {
   });
 }
 
-export const getUser = {
-  queryKey(): QueryKey {
-    return ['getUser'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getUser());
-  },
-} as const;
-
-export const listJurisdictions = {
-  queryKey(): QueryKey {
-    return ['listJurisdictions'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.listJurisdictions());
-  },
-} as const;
-
 export const listElections = {
   queryKey(): QueryKey {
     return ['listElections'];
@@ -131,85 +106,6 @@ export const getElectionInfo = {
     return useQuery(this.queryKey(id), () =>
       apiClient.getElectionInfo({ electionId: id })
     );
-  },
-} as const;
-
-export const getLiveReportsSummary = {
-  queryKey(id: ElectionId): QueryKey {
-    return ['getLiveReportsSummary', id];
-  },
-  useQuery(id: ElectionId) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(id),
-      () => apiClient.getLiveReportsSummary({ electionId: id }),
-      {
-        refetchInterval: VXQR_REFETCH_INTERVAL_MS,
-        staleTime: 0,
-      }
-    );
-  },
-} as const;
-
-export const getLiveReportsActivityLog = {
-  queryKey(id: ElectionId, votingGroup?: PollingPlaceType): QueryKey {
-    return ['getLiveReportsActivityLog', id, votingGroup ?? ''];
-  },
-  useQuery(id: ElectionId, votingGroup?: PollingPlaceType) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(id, votingGroup),
-      () =>
-        apiClient.getLiveReportsActivityLog({
-          electionId: id,
-          ...(votingGroup ? { votingGroup } : {}),
-        }),
-      { refetchInterval: VXQR_REFETCH_INTERVAL_MS, staleTime: 0, cacheTime: 0 }
-    );
-  },
-} as const;
-
-export const getLiveResultsReports = {
-  queryKey(id: ElectionId, precinctSelection?: PrecinctSelection): QueryKey {
-    if (!precinctSelection) {
-      return ['getLiveResultsReports', id];
-    }
-    return [
-      'getLiveResultsReports',
-      id,
-      precinctSelection.kind === 'AllPrecincts'
-        ? ''
-        : precinctSelection.precinctId,
-    ];
-  },
-  useQuery(id: ElectionId, precinctSelection: PrecinctSelection) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(id, precinctSelection),
-      () =>
-        apiClient.getLiveResultsReports({
-          electionId: id,
-          precinctSelection,
-        }),
-      { refetchInterval: VXQR_REFETCH_INTERVAL_MS, staleTime: 0, cacheTime: 0 }
-    );
-  },
-} as const;
-
-export const deleteQuickReportingResults = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.deleteQuickReportingResults, {
-      async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(
-          getLiveResultsReports.queryKey(electionId)
-        );
-        await queryClient.invalidateQueries(
-          getLiveReportsSummary.queryKey(electionId)
-        );
-      },
-    });
   },
 } as const;
 
@@ -446,26 +342,6 @@ export const createElection = {
   },
 } as const;
 
-export const cloneElection = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(
-      (input: { id: ElectionId; jurisdictionId: string }) =>
-        apiClient.cloneElection({
-          electionId: input.id,
-          destElectionId: generateId(),
-          destJurisdictionId: input.jurisdictionId,
-        }),
-      {
-        async onSuccess() {
-          await queryClient.invalidateQueries(listElections.queryKey());
-        },
-      }
-    );
-  },
-} as const;
-
 export const updateElectionInfo = {
   useMutation() {
     const apiClient = useApiClient();
@@ -673,57 +549,6 @@ export const deleteElection = {
   },
 } as const;
 
-export const getLatestExportQaRun = {
-  queryKey(electionId: ElectionId): QueryKey {
-    return ['getLatestExportQaRun', electionId];
-  },
-  useQuery(electionId: ElectionId, options?: { isExportInProgress?: boolean }) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(electionId),
-      async () =>
-        (await apiClient.getLatestExportQaRun({ electionId })) ?? null,
-      {
-        // Poll while any QA run is in progress, or while an export is in
-        // progress (since a new QA run will be created when the export
-        // completes)
-        refetchInterval: (latestQaRun) =>
-          latestQaRun?.status === 'pending' ||
-          latestQaRun?.status === 'in_progress' ||
-          options?.isExportInProgress
-            ? BACKGROUND_TASK_POLLING_INTERVAL_MS
-            : 0,
-      }
-    );
-  },
-} as const;
-
-export const getBallotsApprovedAt = {
-  queryKey(electionId: ElectionId): QueryKey {
-    return ['getBallotsApprovedAt', electionId];
-  },
-  useQuery(electionId: ElectionId) {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(electionId), () =>
-      apiClient.getBallotsApprovedAt({ electionId })
-    );
-  },
-} as const;
-
-export const approveBallots = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.approveBallots, {
-      async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(
-          getBallotsApprovedAt.queryKey(electionId)
-        );
-      },
-    });
-  },
-} as const;
-
 export const getBallotsFinalizedAt = {
   queryKey(electionId: ElectionId): QueryKey {
     return ['getBallotsFinalizedAt', electionId];
@@ -733,50 +558,6 @@ export const getBallotsFinalizedAt = {
     return useQuery(this.queryKey(electionId), () =>
       apiClient.getBallotsFinalizedAt({ electionId })
     );
-  },
-} as const;
-
-export const finalizeBallots = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.finalizeBallots, {
-      async onSuccess(_, { electionId }) {
-        await Promise.all([
-          queryClient.invalidateQueries(
-            getBallotsApprovedAt.queryKey(electionId)
-          ),
-          queryClient.invalidateQueries(
-            getBallotsFinalizedAt.queryKey(electionId)
-          ),
-          queryClient.invalidateQueries(
-            getLatestExportQaRun.queryKey(electionId)
-          ),
-        ]);
-      },
-    });
-  },
-} as const;
-
-export const unfinalizeBallots = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.unfinalizeBallots, {
-      async onSuccess(_, { electionId }) {
-        await Promise.all([
-          queryClient.invalidateQueries(
-            getBallotsApprovedAt.queryKey(electionId)
-          ),
-          queryClient.invalidateQueries(
-            getBallotsFinalizedAt.queryKey(electionId)
-          ),
-          queryClient.invalidateQueries(
-            getLatestExportQaRun.queryKey(electionId)
-          ),
-        ]);
-      },
-    });
   },
 } as const;
 
@@ -804,82 +585,6 @@ export const getBallotPreviewPdf = {
   },
 } as const;
 
-export const getElectionPackage = {
-  queryKey(electionId: ElectionId): QueryKey {
-    return ['getElectionPackage', electionId];
-  },
-  useQuery(electionId: ElectionId) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(electionId),
-      () => apiClient.getElectionPackage({ electionId }),
-      {
-        // Poll if an export is in progress
-        refetchInterval: (result) =>
-          result?.task && !result.task.completedAt
-            ? BACKGROUND_TASK_POLLING_INTERVAL_MS
-            : 0,
-      }
-    );
-  },
-} as const;
-
-export const exportElectionPackage = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-
-    return useMutation(apiClient.exportElectionPackage, {
-      async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(
-          getElectionPackage.queryKey(electionId)
-        );
-      },
-    });
-  },
-} as const;
-
-export const getTestDecks = {
-  queryKey(electionId: ElectionId): QueryKey {
-    return ['getTestDecks', electionId];
-  },
-  useQuery(electionId: ElectionId) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(electionId),
-      () => apiClient.getTestDecks({ electionId }),
-      {
-        // Poll if an export is in progress
-        refetchInterval: (result) =>
-          result?.task && !result.task.completedAt
-            ? BACKGROUND_TASK_POLLING_INTERVAL_MS
-            : 0,
-      }
-    );
-  },
-} as const;
-
-export const exportTestDecks = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-
-    return useMutation(
-      (input: {
-        electionId: ElectionId;
-        electionSerializationFormat: ElectionSerializationFormat;
-      }) => apiClient.exportTestDecks(input),
-      {
-        async onSuccess(_, { electionId }) {
-          await queryClient.invalidateQueries(
-            getTestDecks.queryKey(electionId)
-          );
-        },
-      }
-    );
-  },
-} as const;
-
 export const setBallotTemplate = {
   useMutation() {
     const apiClient = useApiClient();
@@ -894,26 +599,6 @@ export const setBallotTemplate = {
   },
 } as const;
 
-export const getUserFeatures = {
-  queryKey(): QueryKey {
-    return ['getUserFeatures'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getUserFeatures());
-  },
-} as const;
-
-export const getResultsReportingUrl = {
-  queryKey(): QueryKey {
-    return ['getResultsReportingUrl'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getResultsReportingUrl());
-  },
-} as const;
-
 export const getStateFeatures = {
   queryKey(electionId: ElectionId): QueryKey {
     return ['getStateFeatures', electionId];
@@ -923,29 +608,5 @@ export const getStateFeatures = {
     return useQuery(this.queryKey(electionId), () =>
       apiClient.getStateFeatures({ electionId })
     );
-  },
-} as const;
-
-export const convertMsResults = {
-  useMutation() {
-    const apiClient = useApiClient();
-    return useMutation(apiClient.convertMsResults);
-  },
-} as const;
-
-export const decryptCvrBallotAuditIds = {
-  useMutation() {
-    const apiClient = useApiClient();
-    return useMutation(apiClient.decryptCvrBallotAuditIds);
-  },
-} as const;
-
-export const getBaseUrl = {
-  queryKey(): QueryKey {
-    return ['getBaseUrl'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getBaseUrl());
   },
 } as const;

@@ -12,7 +12,7 @@ import { throwIllegalValue } from '@votingworks/basics';
 import type { ElectionListing, ElectionStatus } from '@votingworks/hub-backend';
 import { useMemo } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
-import * as api from '@votingworks/design-ui';
+import * as api from '../api.js';
 import { Header, NavScreen } from '../nav_screen.js';
 import { CloneElectionButton } from '../clone_election_button.js';
 import { Column, Row } from '@votingworks/design-ui';

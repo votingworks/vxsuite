@@ -265,3 +265,13 @@ export interface UpdateQaRunStatusParams {
   circleCiWorkflowId?: string;
   jobUrl?: string;
 }
+
+export type AuthErrorCode =
+  /**
+   * The user is not logged in.
+   */
+  | 'auth:unauthorized'
+  /**
+   * The user is logged in, but does not have access to the requested resource.
+   */
+  | 'auth:forbidden';

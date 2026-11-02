@@ -1,6 +1,7 @@
 import type { DippedSmartCardAuthApi } from '@votingworks/auth';
 import {
   buildBallotPreviewMethods,
+  buildTtsMethods,
   buildElectionDefinitionMethods,
   cloneElection,
   generateId,
@@ -100,6 +101,10 @@ export function buildDesignApi({
   const methods = {
     ...electionDefinitionMethods,
     ...ballotPreviewMethods,
+    ...buildTtsMethods({
+      speechSynthesizer: designExporter.speechSynthesizer,
+      workspace: { store: designStore },
+    }),
 
     async getStateFeatures(input: {
       electionId: ElectionId;

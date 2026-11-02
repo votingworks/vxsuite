@@ -52,10 +52,9 @@ import { ElectionNavScreen, Header } from './nav_screen.js';
 import { type ElectionIdParams, routes } from '@votingworks/design-ui';
 import {
   updateSystemSettings,
-  getUserFeatures,
   getSystemSettings,
-  getResultsReportingUrl,
 } from '@votingworks/design-ui';
+import { getUserFeatures, getResultsReportingUrl } from './api.js';
 import { useTitle } from '@votingworks/design-ui';
 
 function safeParseFormValue<T>(

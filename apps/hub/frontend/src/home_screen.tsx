@@ -1,6 +1,6 @@
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import type React from 'react';
-import { getUser } from '@votingworks/design-ui';
+import { getUser } from './api.js';
 import { ElectionsScreen } from './elections_screen.js';
 import { SupportHomeScreen } from './support/support_home_screen.js';
 

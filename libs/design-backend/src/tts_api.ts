@@ -10,13 +10,13 @@ import {
   type SpeechSynthesizer,
   convertHtmlToAudioCues,
 } from '@votingworks/backend';
-import type { Workspace } from './workspace.js';
+import type { Store } from './store.js';
 
 export type DataUrl = string;
 
 export interface TtsApiContext {
   speechSynthesizer: SpeechSynthesizer;
-  workspace: Workspace;
+  workspace: { store: Store };
 }
 
 export interface TtsStringDefault {
@@ -26,7 +26,7 @@ export interface TtsStringDefault {
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function apiMethods(ctx: TtsApiContext) {
+export function buildTtsMethods(ctx: TtsApiContext) {
   return {
     ttsEditsGet(key: TtsEditKey): Promise<TtsEdit | null> {
       return ctx.workspace.store.ttsEditsGet(key);
@@ -190,6 +190,6 @@ export function apiMethods(ctx: TtsApiContext) {
   } as const;
 }
 
-export const methodsThatHandleAuthThemselves = [
+export const ttsMethodsThatHandleAuthThemselves = [
   'ttsSynthesizeFromText',
-] as const satisfies Array<keyof ReturnType<typeof apiMethods>>;
+] as const satisfies Array<keyof ReturnType<typeof buildTtsMethods>>;

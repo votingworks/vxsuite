@@ -25,6 +25,7 @@ const RENDER_POOL_SIZE = 4;
 export interface DesignExporter {
   readonly fileStorageClient: LocalDirectoryFileStorageClient;
   readonly translator: GoogleCloudTranslator;
+  readonly speechSynthesizer: GoogleCloudSpeechSynthesizer;
   startExport(electionId: ElectionId): Promise<void>;
   resolveFileUrl(url: string): string;
 }
@@ -85,6 +86,7 @@ export function createDesignExporter({
   return {
     fileStorageClient,
     translator: context.translator,
+    speechSynthesizer: context.speechSynthesizer,
 
     async startExport(electionId) {
       const jurisdiction =

@@ -14,7 +14,7 @@ import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { type ElectionIdParams, routes } from '@votingworks/design-ui';
 import { useTitle } from '@votingworks/design-ui';
 import { ElectionNavScreen, Header } from './nav_screen.js';
-import { convertMsResults } from '@votingworks/design-ui';
+import { convertMsResults } from './api.js';
 import { Column } from '@votingworks/design-ui';
 
 export function ConvertResultsScreen(): JSX.Element | null {

@@ -16,18 +16,20 @@ import type { ElectionSerializationFormat } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import type { BallotTemplateId } from '@votingworks/hub-backend';
 import {
-  exportElectionPackage,
-  exportTestDecks,
   getBallotsFinalizedAt,
   getElectionInfo,
-  getElectionPackage,
   setBallotTemplate,
-  getUserFeatures,
-  getTestDecks,
   getBallotTemplate,
-  decryptCvrBallotAuditIds,
   getStateFeatures,
 } from '@votingworks/design-ui';
+import {
+  exportElectionPackage,
+  exportTestDecks,
+  getElectionPackage,
+  getUserFeatures,
+  getTestDecks,
+  decryptCvrBallotAuditIds,
+} from './api.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import { type ElectionIdParams, routes } from '@votingworks/design-ui';
 import { downloadFile } from '@votingworks/design-ui';

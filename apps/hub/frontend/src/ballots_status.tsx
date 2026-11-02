@@ -18,7 +18,7 @@ import {
   hasPartialRegisteredVoterCounts,
   getPrecinctsWithoutAbsenteePollingPlace,
 } from '@votingworks/types';
-import * as api from '@votingworks/design-ui';
+import * as api from './api.js';
 import { type ElectionIdParams, routes } from '@votingworks/design-ui';
 import { Row } from '@votingworks/design-ui';
 

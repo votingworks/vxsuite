@@ -9,8 +9,8 @@ import {
   listElections,
   createElection,
   loadElection,
-  cloneElection,
 } from '@votingworks/design-ui';
+import { cloneElection } from './api.js';
 import { Column, Row } from '@votingworks/design-ui';
 import { Header, NavScreen } from './nav_screen.js';
 import { CreateElectionButton } from './create_election_button.js';

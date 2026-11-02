@@ -64,6 +64,8 @@ import {
   getUserFeaturesConfig,
   type UserFeaturesConfig,
   buildBallotPreviewMethods,
+  buildTtsMethods,
+  ttsMethodsThatHandleAuthThemselves,
   buildElectionDefinitionMethods,
   cloneElection,
 } from '@votingworks/design-backend';
@@ -80,7 +82,6 @@ import {
 import { convertMsElection } from './convert_ms_election.js';
 import { QaConfig } from './qa_config.js';
 import { rootDebug } from './debug.js';
-import * as ttsStrings from './tts_strings.js';
 import {
   convertMsResults,
   type ConvertMsResultsError,
@@ -93,15 +94,9 @@ export interface ApiContext {
   user: User;
 }
 
-export type AuthErrorCode =
-  /**
-   * The user is not logged in.
-   */
-  | 'auth:unauthorized'
-  /**
-   * The user is logged in, but does not have access to the requested resource.
-   */
-  | 'auth:forbidden';
+import type { AuthErrorCode } from '@votingworks/design-backend';
+
+export type { AuthErrorCode };
 
 class AuthError extends grout.UserError {
   // eslint-disable-next-line @typescript-eslint/no-useless-constructor
@@ -191,7 +186,7 @@ export function buildApi(ctx: AppContext) {
           'getResultsReportingUrl', // Doesn't need authorization, nothing private accessed
           'decryptCvrBallotAuditIds', // Doesn't need authorization, nothing private accessed
           'getBaseUrl', // Doesn't need authorization, nothing private accessed
-          ...ttsStrings.methodsThatHandleAuthThemselves,
+          ...ttsMethodsThatHandleAuthThemselves,
         ];
         assert(
           methodsThatHandleAuthThemselves.includes(methodName),
@@ -689,7 +684,7 @@ export function buildApi(ctx: AppContext) {
       return baseUrl();
     },
 
-    ...ttsStrings.apiMethods(ctx),
+    ...buildTtsMethods(ctx),
   } as const;
 
   return grout.createApi(methods, middlewares);

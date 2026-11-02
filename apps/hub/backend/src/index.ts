@@ -14,7 +14,7 @@ import {
   S3FileStorageClient,
 } from './file_storage_client.js';
 
-export type { TtsStringDefault } from './tts_strings.js';
+export type { TtsStringDefault } from '@votingworks/design-backend';
 export type {
   BackgroundTask,
   DuplicateDistrictError,

@@ -7,7 +7,7 @@ import { ElectionNavScreen, Header } from './nav_screen.js';
 import { type ElectionIdParams, routes } from '@votingworks/design-ui';
 import { useTitle } from '@votingworks/design-ui';
 import { Downloads } from './downloads.js';
-import * as api from '@votingworks/design-ui';
+import * as api from './api.js';
 import { BallotsStatus } from './ballots_status.js';
 
 export function DownloadsScreen(): React.ReactNode {

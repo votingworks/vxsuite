@@ -15,3 +15,5 @@ export * from './store.js';
 export * from './system_settings.js';
 export * from './types.js';
 export * from './utils.js';
+export * from './tts_api.js';
+export * from './election_design_api_type.js';

@@ -24,9 +24,8 @@ import {
   getElectionInfo,
   getStateFeatures,
   getSystemSettings,
-  getUser,
-  getUserFeatures,
 } from '@votingworks/design-ui';
+import { getUser, getUserFeatures } from './api.js';
 import { Row } from '@votingworks/design-ui';
 
 const UserInfo = styled.div`

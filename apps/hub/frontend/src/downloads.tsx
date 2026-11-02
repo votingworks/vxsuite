@@ -8,7 +8,7 @@ import type {
   MainExportTaskMetadata,
   TestDecksTaskMetadata,
 } from '@votingworks/hub-backend';
-import * as api from '@votingworks/design-ui';
+import * as api from './api.js';
 import type { ElectionIdParams } from '@votingworks/design-ui';
 import { downloadFile } from '@votingworks/design-ui';
 

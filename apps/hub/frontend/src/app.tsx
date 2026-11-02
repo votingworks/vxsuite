@@ -11,23 +11,21 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import * as Sentry from '@sentry/browser';
 import {
-  type ApiClient,
   ApiClientContext,
   ContestsScreen,
-  createApiClient,
   createQueryClient,
   type DesignShell,
   DesignShellContext,
   DistrictsScreen,
   ElectionInfoScreen,
   electionParamRoutes,
-  getUser,
   PartiesScreen,
   PollingPlacesScreen,
   PrecinctsScreen,
   resultsRoutes,
   routes,
 } from '@votingworks/design-ui';
+import { type ApiClient, createApiClient, getUser } from './api.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import {
   createUnauthenticatedApiClient,
@@ -154,18 +152,18 @@ export function App({
               </Route>
               <ApiClientContext.Provider value={apiClient}>
                 <DesignShellContext.Provider value={HUB_DESIGN_SHELL}>
-                <WaitForUserInfo>
-                  <Route path={routes.root.path} exact>
-                    <HomeScreen
-                      electionsFilterText={electionsFilterText}
-                      setElectionsFilterText={setElectionsFilterText}
+                  <WaitForUserInfo>
+                    <Route path={routes.root.path} exact>
+                      <HomeScreen
+                        electionsFilterText={electionsFilterText}
+                        setElectionsFilterText={setElectionsFilterText}
+                      />
+                    </Route>
+                    <Route
+                      path={electionParamRoutes.root.path}
+                      component={ElectionScreens}
                     />
-                  </Route>
-                  <Route
-                    path={electionParamRoutes.root.path}
-                    component={ElectionScreens}
-                  />
-                </WaitForUserInfo>
+                  </WaitForUserInfo>
                 </DesignShellContext.Provider>
               </ApiClientContext.Provider>
             </Switch>
