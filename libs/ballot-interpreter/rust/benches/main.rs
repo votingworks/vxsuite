@@ -2,15 +2,15 @@
 
 use std::{fmt::Display, path::PathBuf};
 
-use ballot_interpreter::ballot_positions::InMemoryGridLayoutSource;
+use ballot_interpreter::election_source::{
+    ElectionDefinition, ElectionSource, InMemoryElectionSource,
+};
 use ballot_interpreter::interpret::{
     BallotImageBitDepth, DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH, DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
     ScanInterpreter, VerticalStreakDetection, WriteInScoring,
 };
 use divan::{Bencher, black_box};
 use image::GrayImage;
-use sha2::{Digest, Sha256};
-use types_rs::{bubble_ballot::PartialBallotHash, election::Election};
 
 fn main() {
     // Run registered benchmarks.
@@ -58,20 +58,19 @@ impl InterpretFixture {
     ) -> color_eyre::Result<(
         GrayImage,
         GrayImage,
-        ScanInterpreter<InMemoryGridLayoutSource>,
+        ScanInterpreter<InMemoryElectionSource>,
     )> {
         let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let fixture_path = manifest_dir.join("../../hmpb/fixtures").join(self.dir);
-        let election_bytes = std::fs::read(manifest_dir.join(self.election_json))?;
-        let election: Election = serde_json::from_slice(&election_bytes)?;
-
-        // The ballot hash is the SHA-256 of the election.json bytes, matching
-        // the TS `sha256(electionData)` convention used when generating the
-        // fixtures' QR codes.
-        let digest = Sha256::digest(&election_bytes);
-        let mut expected_ballot_hash = PartialBallotHash::default();
-        let len = expected_ballot_hash.len();
-        expected_ballot_hash.copy_from_slice(&digest[..len]);
+        let election_source = InMemoryElectionSource::from_election_json(&std::fs::read(
+            manifest_dir.join(self.election_json),
+        )?)?;
+        let ElectionDefinition {
+            election,
+            ballot_hash: expected_ballot_hash,
+        } = election_source
+            .election_definition()
+            .map_err(color_eyre::eyre::Report::msg)?;
 
         let side_a_path = fixture_path.join(format!(
             "{}-p{}.jpg",
@@ -94,7 +93,7 @@ impl InterpretFixture {
             DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
             DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
             BallotImageBitDepth::default(),
-            InMemoryGridLayoutSource::from_election_json(&election_bytes)?,
+            election_source,
         );
         Ok((side_a_image, side_b_image, interpreter))
     }

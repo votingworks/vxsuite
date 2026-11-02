@@ -6,8 +6,11 @@ use std::{
 };
 
 use ballot_interpreter::{
-    ballot_positions::InMemoryGridLayoutSource,
     debug::ImageDebugWriter,
+    election_source::{
+        ElectionDefinition, ElectionSource, InMemoryElectionSource, SqliteElectionSource,
+        partial_ballot_hash_from_hex,
+    },
     interpret::{
         BallotImageBitDepth, DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
         DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD, ScanInterpreter, VerticalStreakDetection,
@@ -18,7 +21,6 @@ use ballot_interpreter::{
 };
 use clap::Parser;
 use crossterm::style::Stylize;
-use sha2::{Digest, Sha256};
 use types_rs::{
     ballot_card::BallotType,
     bmd::{
@@ -28,14 +30,33 @@ use types_rs::{
     },
     bubble_ballot::PartialBallotHash,
     coding,
-    election::{BallotStyleId, Candidate, Contest, ContestId, Election, PrecinctId},
+    election::{BallotStyleId, Candidate, Contest, ContestId, Election, GridLayout, PrecinctId},
 };
 
 #[derive(Debug, clap::Parser)]
 #[allow(clippy::struct_excessive_bools)]
 struct Options {
-    /// Path to an election definition file.
-    election_path: PathBuf,
+    /// Path to an election package DB holding the configured election, its
+    /// ballot hash, and its ballot positions.
+    #[clap(long, conflicts_with_all = ["election", "ballot_positions", "ballot_hash"])]
+    db: Option<PathBuf>,
+
+    /// Path to an election.json. The ballot hash is the SHA-256 of the file,
+    /// and ballot positions come from the file unless `--ballot-positions` is
+    /// given.
+    #[clap(long, required_unless_present = "db")]
+    election: Option<PathBuf>,
+
+    /// Path to a split-file election package's ballotPositions.jsonl. A
+    /// split-file election's ballot hash is a composite over the package, so
+    /// this requires `--ballot-hash`.
+    #[clap(long, requires = "ballot_hash")]
+    ballot_positions: Option<PathBuf>,
+
+    /// Ballot hash to expect in ballot QR codes, as hex, instead of the
+    /// SHA-256 of `--election`.
+    #[clap(long, requires = "election")]
+    ballot_hash: Option<String>,
 
     /// Path to an image of the top side of the scanned ballot.
     top_path: PathBuf,
@@ -79,23 +100,51 @@ struct Options {
     json: bool,
 }
 
+#[derive(Debug)]
+enum Source {
+    Sqlite(SqliteElectionSource),
+    InMemory(InMemoryElectionSource),
+}
+
+impl ElectionSource for Source {
+    fn election_definition(&self) -> Result<ElectionDefinition, String> {
+        match self {
+            Self::Sqlite(source) => source.election_definition(),
+            Self::InMemory(source) => source.election_definition(),
+        }
+    }
+
+    fn grid_layout(&self, style_id: &BallotStyleId) -> Result<Option<GridLayout>, String> {
+        match self {
+            Self::Sqlite(source) => source.grid_layout(style_id),
+            Self::InMemory(source) => source.grid_layout(style_id),
+        }
+    }
+}
+
 impl Options {
-    /// Reads the election file as bytes, computes the partial ballot hash
-    /// from those bytes, and deserializes the election and its grid layouts.
-    /// The hash is computed over the raw file bytes (matching the TS
-    /// `sha256(electionData)` convention) so it agrees with the hash encoded
-    /// into ballot QR codes for this election.
-    fn load_election(
-        &self,
-    ) -> color_eyre::Result<(Election, PartialBallotHash, InMemoryGridLayoutSource)> {
-        let bytes = std::fs::read(&self.election_path)?;
-        let election: Election = serde_json::from_slice(&bytes)?;
-        let grid_layout_source = InMemoryGridLayoutSource::from_election_json(&bytes)?;
-        let digest = Sha256::digest(&bytes);
-        let mut hash = PartialBallotHash::default();
-        let len = hash.len();
-        hash.copy_from_slice(&digest[..len]);
-        Ok((election, hash, grid_layout_source))
+    fn load_election_source(&self) -> color_eyre::Result<Source> {
+        if let Some(db_path) = &self.db {
+            return Ok(Source::Sqlite(SqliteElectionSource {
+                db_path: db_path.clone(),
+            }));
+        }
+
+        let election_path = self
+            .election
+            .as_ref()
+            .expect("clap requires --election without --db");
+        let mut source =
+            InMemoryElectionSource::from_election_json(&std::fs::read(election_path)?)?;
+        if let Some(path) = &self.ballot_positions {
+            source = source.with_ballot_positions_jsonl(&std::fs::read(path)?)?;
+        }
+        if let Some(hex) = &self.ballot_hash {
+            source = source.with_ballot_hash(
+                partial_ballot_hash_from_hex(hex).map_err(color_eyre::eyre::Report::msg)?,
+            );
+        }
+        Ok(Source::InMemory(source))
     }
 
     fn load_top_image(&self) -> color_eyre::Result<image::DynamicImage> {
@@ -112,7 +161,13 @@ impl Options {
 
 fn main() -> color_eyre::Result<()> {
     let options = Options::parse();
-    let (election, expected_ballot_hash, grid_layout_source) = options.load_election()?;
+    let election_source = options.load_election_source()?;
+    let ElectionDefinition {
+        election,
+        ballot_hash: expected_ballot_hash,
+    } = election_source
+        .election_definition()
+        .map_err(color_eyre::eyre::Report::msg)?;
 
     let start = Instant::now();
     let top_image = options.load_top_image()?.into_luma8();
@@ -144,7 +199,7 @@ fn main() -> color_eyre::Result<()> {
                     &options,
                     election,
                     expected_ballot_hash,
-                    grid_layout_source,
+                    election_source,
                     top_image,
                 )?
             }
@@ -376,7 +431,7 @@ fn interpret_bubble_ballot(
     options: &Options,
     election: Election,
     expected_ballot_hash: PartialBallotHash,
-    grid_layout_source: InMemoryGridLayoutSource,
+    election_source: Source,
     top_image: image::GrayImage,
 ) -> color_eyre::Result<i32> {
     let interpreter = ScanInterpreter::new(
@@ -392,7 +447,7 @@ fn interpret_bubble_ballot(
         options.max_cumulative_streak_width,
         options.retry_streak_width_threshold,
         options.ballot_image_bit_depth,
-        grid_layout_source,
+        election_source,
     );
 
     let bottom_image = options

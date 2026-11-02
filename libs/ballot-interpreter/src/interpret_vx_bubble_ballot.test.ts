@@ -43,7 +43,7 @@ import {
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import {
-  makeBallotPositionsDb,
+  makeInterpreterDb,
   pdfToPageImages,
   sortUnmarkedWriteIns,
   sortVotesDict,
@@ -77,9 +77,7 @@ describe('HMPB - VX Famous Names', () => {
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
-        ballotPositionsDbPath: makeBallotPositionsDb(
-          electionDefinition.election
-        ),
+        dbPath: makeInterpreterDb(electionDefinition),
       },
       images
     );
@@ -130,9 +128,7 @@ describe('HMPB - VX Famous Names', () => {
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
-        ballotPositionsDbPath: makeBallotPositionsDb(
-          electionDefinition.election
-        ),
+        dbPath: makeInterpreterDb(electionDefinition),
       },
       images
     );
@@ -149,21 +145,20 @@ describe('HMPB - VX Famous Names', () => {
 
   test('Wrong election', async () => {
     const images = asSheet(await pdfToPageImages(blankBallotPath).toArray());
+    const wrongElectionDefinition: ElectionDefinition = {
+      ...electionDefinition,
+      // Valid-hex but deliberately wrong hash.
+      ballotHash: 'f'.repeat(64),
+    };
 
     const [frontResult, backResult] = await interpretSheet(
       {
-        electionDefinition: {
-          ...electionDefinition,
-          // Valid-hex but deliberately wrong hash.
-          ballotHash: 'f'.repeat(64),
-        },
+        electionDefinition: wrongElectionDefinition,
         validPrecinctIds: new Set([precinctId]),
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
-        ballotPositionsDbPath: makeBallotPositionsDb(
-          electionDefinition.election
-        ),
+        dbPath: makeInterpreterDb(wrongElectionDefinition),
       },
       images
     );
@@ -184,9 +179,7 @@ describe('HMPB - VX Famous Names', () => {
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
-        ballotPositionsDbPath: makeBallotPositionsDb(
-          electionDefinition.election
-        ),
+        dbPath: makeInterpreterDb(electionDefinition),
       },
       images
     );
@@ -205,9 +198,7 @@ describe('HMPB - VX Famous Names', () => {
         testMode: false,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
-        ballotPositionsDbPath: makeBallotPositionsDb(
-          electionDefinition.election
-        ),
+        dbPath: makeInterpreterDb(electionDefinition),
       },
       images
     );
@@ -225,7 +216,7 @@ describe('HMPB - VX Famous Names', () => {
       testMode: false,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
-      ballotPositionsDbPath: makeBallotPositionsDb(electionDefinition.election),
+      dbPath: makeInterpreterDb(electionDefinition),
     };
 
     const blankPageInterpretation: PageInterpretation = { type: 'BlankPage' };
@@ -266,9 +257,7 @@ describe('HMPB - VX Famous Names', () => {
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
-        ballotPositionsDbPath: makeBallotPositionsDb(
-          electionDefinition.election
-        ),
+        dbPath: makeInterpreterDb(electionDefinition),
       },
       [streakImage, backImage]
     );
@@ -431,9 +420,7 @@ for (const spec of vxGeneralElectionFixtures.fixtureSpecs) {
             testMode: false,
             markThresholds: DEFAULT_MARK_THRESHOLDS,
             adjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
-            ballotPositionsDbPath: makeBallotPositionsDb(
-              electionDefinition.election
-            ),
+            dbPath: makeInterpreterDb(electionDefinition),
           },
           sheetImages
         );
@@ -528,9 +515,7 @@ describe('HMPB - VX primary election', () => {
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
-          ballotPositionsDbPath: makeBallotPositionsDb(
-            electionDefinition.election
-          ),
+          dbPath: makeInterpreterDb(electionDefinition),
         },
         images
       );
@@ -579,9 +564,7 @@ describe('HMPB - VX primary election', () => {
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
-          ballotPositionsDbPath: makeBallotPositionsDb(
-            electionDefinition.election
-          ),
+          dbPath: makeInterpreterDb(electionDefinition),
         },
         images
       );
@@ -614,9 +597,7 @@ describe('HMPB - VX primary election', () => {
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
-        ballotPositionsDbPath: makeBallotPositionsDb(
-          electionDefinition.election
-        ),
+        dbPath: makeInterpreterDb(electionDefinition),
       },
       [frontImage, backImage]
     );
@@ -648,9 +629,7 @@ describe('HMPB - VX primary election', () => {
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
-        ballotPositionsDbPath: makeBallotPositionsDb(
-          electionDefinition.election
-        ),
+        dbPath: makeInterpreterDb(electionDefinition),
       },
       [frontImage, backImage]
     );
@@ -689,9 +668,7 @@ for (const spec of nhGeneralElectionFixtures.fixtureSpecs) {
             testMode: false,
             markThresholds: DEFAULT_MARK_THRESHOLDS,
             adjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
-            ballotPositionsDbPath: makeBallotPositionsDb(
-              electionDefinition.election
-            ),
+            dbPath: makeInterpreterDb(electionDefinition),
           },
           sheetImages
         );
@@ -780,9 +757,7 @@ describe('HMPB - MI general election (straight party contest)', () => {
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
-          ballotPositionsDbPath: makeBallotPositionsDb(
-            electionDefinition.election
-          ),
+          dbPath: makeInterpreterDb(electionDefinition),
         },
         sheetImages
       );
@@ -822,7 +797,7 @@ test('Non-consecutive page numbers', async () => {
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
-      ballotPositionsDbPath: makeBallotPositionsDb(electionDefinition.election),
+      dbPath: makeInterpreterDb(electionDefinition),
     },
     [frontImage!, backImage!]
   );
@@ -883,7 +858,7 @@ test('Spoofed-hash ballot whose grid exceeds detected timing-mark grid is reject
       testMode: false,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
-      ballotPositionsDbPath: makeBallotPositionsDb(spoofed.election),
+      dbPath: makeInterpreterDb(spoofed),
     },
     letterImages
   );
@@ -931,9 +906,7 @@ test('Ballot audit IDs', async () => {
       testMode,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
-      ballotPositionsDbPath: makeBallotPositionsDb(
-        electionDefinitionModified.election
-      ),
+      dbPath: makeInterpreterDb(electionDefinitionModified),
     },
     images
   );
@@ -992,9 +965,7 @@ describe('Contest option bounds', () => {
         testMode: false,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
-        ballotPositionsDbPath: makeBallotPositionsDb(
-          electionDefinition.election
-        ),
+        dbPath: makeInterpreterDb(electionDefinition),
       },
       images
     );
@@ -1058,9 +1029,7 @@ describe('Contest option bounds', () => {
         testMode: false,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
-        ballotPositionsDbPath: makeBallotPositionsDb(
-          electionDefinition.election
-        ),
+        dbPath: makeInterpreterDb(electionDefinition),
       },
       images
     );

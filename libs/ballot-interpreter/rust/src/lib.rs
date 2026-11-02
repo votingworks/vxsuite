@@ -4,10 +4,10 @@
 #![allow(clippy::cast_possible_wrap)]
 
 pub mod ballot_card;
-pub mod ballot_positions;
 pub mod debug;
 mod diagnostic;
 mod draw_utils;
+pub mod election_source;
 mod image_utils;
 pub mod interpret;
 mod js;

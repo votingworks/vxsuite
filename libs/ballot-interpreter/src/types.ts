@@ -23,8 +23,9 @@ export interface InterpreterOptions {
   frontNormalizedImageOutputPath?: string;
   backNormalizedImageOutputPath?: string;
   /**
-   * Path to a SQLite database with a `ballot_positions` table (see
-   * `BallotMetaStore`). Bubble ballot interpretation is skipped when omitted.
+   * Path to the election package SQLite database holding the configured
+   * election and its ballot positions (see `ElectionPackageStore`). Bubble
+   * ballot interpretation is skipped when omitted.
    */
-  ballotPositionsDbPath?: string;
+  dbPath?: string;
 }

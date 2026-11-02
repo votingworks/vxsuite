@@ -11,16 +11,16 @@ import {
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { interpretSheet } from '../src/index.js';
 import {
-  makeBallotPositionsDb,
+  makeInterpreterDb,
   pdfToPageImages,
 } from '../test/helpers/interpretation.js';
 import { benchmarkRegressionTest } from './benchmarking.js';
 
 const { electionDefinition, precinctId } = vxFamousNamesFixtures;
-let ballotPositionsDbPath: string;
+let dbPath: string;
 
 beforeAll(() => {
-  ballotPositionsDbPath = makeBallotPositionsDb(electionDefinition.election);
+  dbPath = makeInterpreterDb(electionDefinition);
 });
 
 test('Blank BMD', async () => {
@@ -46,7 +46,7 @@ test('Blank BMD', async () => {
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
-          ballotPositionsDbPath,
+          dbPath,
         },
         famousNamesBmdBallot
       );

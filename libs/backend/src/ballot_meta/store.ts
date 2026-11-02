@@ -9,8 +9,7 @@ import {
   type SheetPositions,
   type SystemSettings,
 } from '@votingworks/types';
-import { Client } from '@votingworks/db';
-import { BaseLogger, LogSource } from '@votingworks/logging';
+import type { Client } from '@votingworks/db';
 import z from 'zod';
 import {
   streamBallotPositions,
@@ -134,23 +133,4 @@ function addPositions(client: Client, b: BallotPositions): void {
     b.ballotStyleId,
     JSON.stringify(b.positions)
   );
-}
-
-/**
- * Creates a SQLite database at `dbPath` holding the ballot positions embedded
- * in `election`, readable by the ballot interpreter.
- */
-export function createBallotPositionsDb(
-  dbPath: string,
-  election: Election
-): void {
-  const client = Client.fileClient(dbPath, new BaseLogger(LogSource.System));
-  client.exec(
-    `create table ballot_positions (
-      style_id text primary key,
-      positions text not null
-    ) strict`
-  );
-  new BallotMetaStore(client).importPositionsFromElection(election);
-  client.close();
 }

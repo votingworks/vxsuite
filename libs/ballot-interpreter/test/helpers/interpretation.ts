@@ -4,13 +4,13 @@ import {
   iter,
   unique,
 } from '@votingworks/basics';
-import { createBallotPositionsDb } from '@votingworks/backend';
+import { createInterpreterDb } from '@votingworks/backend';
 import { makeTemporaryFile } from '@votingworks/fixtures';
 import { voteToOptionId } from '@votingworks/hmpb';
 import { pdfToImages } from '@votingworks/image-utils/pdf';
 import type {
   ContestId,
-  Election,
+  ElectionDefinition,
   GridPosition,
   RgbaImageData,
   UnmarkedWriteIn,
@@ -19,10 +19,12 @@ import type {
 } from '@votingworks/types';
 import { readFileSync } from 'node:fs';
 
-/** Writes `election`'s ballot positions to a temporary DB and returns its path. */
-export function makeBallotPositionsDb(election: Election): string {
+/** Writes `electionDefinition` and its ballot positions to a temporary DB and returns its path. */
+export function makeInterpreterDb(
+  electionDefinition: ElectionDefinition
+): string {
   const dbPath = makeTemporaryFile();
-  createBallotPositionsDb(dbPath, election);
+  createInterpreterDb(dbPath, electionDefinition);
   return dbPath;
 }
 

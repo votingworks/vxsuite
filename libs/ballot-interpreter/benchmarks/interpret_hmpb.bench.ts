@@ -4,7 +4,7 @@ import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { asSheet, DEFAULT_MARK_THRESHOLDS } from '@votingworks/types';
 import { interpretSheet } from '../src/index.js';
 import {
-  makeBallotPositionsDb,
+  makeInterpreterDb,
   pdfToPageImages,
 } from '../test/helpers/interpretation.js';
 import { benchmarkRegressionTest } from './benchmarking.js';
@@ -12,10 +12,10 @@ import { benchmarkRegressionTest } from './benchmarking.js';
 const { electionDefinition, precinctId, blankBallotPath, markedBallotPath } =
   vxFamousNamesFixtures;
 const validPrecinctIds = new Set([assertDefined(precinctId)]);
-let ballotPositionsDbPath: string;
+let dbPath: string;
 
 beforeAll(() => {
-  ballotPositionsDbPath = makeBallotPositionsDb(electionDefinition.election);
+  dbPath = makeInterpreterDb(electionDefinition);
 });
 
 test('Blank HMPB', async () => {
@@ -33,7 +33,7 @@ test('Blank HMPB', async () => {
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
-          ballotPositionsDbPath,
+          dbPath,
         },
         ballotImages
       );
@@ -57,7 +57,7 @@ test('Marked HMPB', async () => {
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
-          ballotPositionsDbPath,
+          dbPath,
         },
         ballotImages
       );

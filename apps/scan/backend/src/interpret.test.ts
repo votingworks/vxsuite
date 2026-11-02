@@ -19,7 +19,7 @@ import {
 } from '@votingworks/types';
 import { assert } from 'node:console';
 import * as fs from 'node:fs/promises';
-import { createBallotPositionsDb } from '@votingworks/backend';
+import { createInterpreterDb } from '@votingworks/backend';
 import {
   makeTemporaryDirectory,
   makeTemporaryFile,
@@ -40,7 +40,7 @@ let ballotImages: {
   undervoteBmdBallot: SheetOf<RgbaImageData>;
 };
 let ballotImagesPath!: string;
-let ballotPositionsDbPath!: string;
+let dbPath!: string;
 
 async function ballotAsSheet(ballotPdf: Uint8Array) {
   return asSheet(
@@ -51,8 +51,8 @@ async function ballotAsSheet(ballotPdf: Uint8Array) {
 }
 
 beforeAll(async () => {
-  ballotPositionsDbPath = makeTemporaryFile();
-  createBallotPositionsDb(ballotPositionsDbPath, electionDefinition.election);
+  dbPath = makeTemporaryFile();
+  createInterpreterDb(dbPath, electionDefinition);
 
   ballotImages = {
     overvoteBallot: await ballotAsSheet(
@@ -97,7 +97,7 @@ test('treats BMD ballot with one blank side as valid', async () => {
     testMode: true,
     markThresholds: DEFAULT_MARK_THRESHOLDS,
     adjudicationReasons: [],
-    ballotPositionsDbPath,
+    dbPath,
   });
   expect(result.ok()?.type).toEqual('ValidSheet');
 });
@@ -113,7 +113,7 @@ test('respects adjudication reasons for a BMD ballot on the front side', async (
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [AdjudicationReason.Undervote],
-      ballotPositionsDbPath,
+      dbPath,
     }
   );
   const interpretation = assertDefined(result.ok());
@@ -140,7 +140,7 @@ test('NH interpreter of overvote yields a sheet that needs to be reviewed', asyn
     testMode: true,
     markThresholds: DEFAULT_MARK_THRESHOLDS,
     adjudicationReasons: [AdjudicationReason.Overvote],
-    ballotPositionsDbPath,
+    dbPath,
   });
   expect(result.ok()?.type).toEqual('NeedsReviewSheet');
 });
@@ -154,7 +154,7 @@ test('NH interpreter with testMode=true', async () => {
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [AdjudicationReason.Overvote],
-      ballotPositionsDbPath,
+      dbPath,
     })
   ).unsafeUnwrap();
   expect(sheet.type).toEqual('ValidSheet');

@@ -20,8 +20,8 @@ use crate::ballot_card::Geometry;
 use crate::ballot_card::Orientation;
 use crate::ballot_card::PaperInfo;
 use crate::ballot_card::ballot_scan_bubble_image;
-pub use crate::ballot_positions::GridLayoutSource;
 use crate::debug::draw_timing_mark_debug_image_mut;
+pub use crate::election_source::ElectionSource;
 pub use crate::image_utils::BallotImageBitDepth;
 use crate::image_utils::Inset;
 use crate::image_utils::encode_normalized_png;
@@ -41,7 +41,7 @@ pub const DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH: PixelUnit = 5;
 pub const DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD: PixelUnit = 1;
 
 #[derive(Debug, Clone)]
-pub struct Options<G: GridLayoutSource> {
+pub struct Options<S: ElectionSource> {
     pub election: Election,
     /// Partial ballot hash to compare against the QR-decoded hash on each
     /// side. Already sliced to [`PARTIAL_BALLOT_HASH_BYTE_LENGTH`] bytes;
@@ -58,7 +58,7 @@ pub struct Options<G: GridLayoutSource> {
     pub retry_streak_width_threshold: PixelUnit,
     pub ballot_image_bit_depth: BallotImageBitDepth,
     pub metadata_source: MetadataSource,
-    pub grid_layout_source: G,
+    pub election_source: S,
 }
 
 #[derive(Debug, Clone)]
@@ -287,7 +287,7 @@ pub type Result<T, E = Error> = std::result::Result<T, E>;
 pub const SIDE_A_LABEL: &str = "side A";
 pub const SIDE_B_LABEL: &str = "side B";
 
-pub struct ScanInterpreter<G: GridLayoutSource> {
+pub struct ScanInterpreter<S: ElectionSource> {
     election: Election,
     expected_ballot_hash: PartialBallotHash,
     write_in_scoring: WriteInScoring,
@@ -297,10 +297,10 @@ pub struct ScanInterpreter<G: GridLayoutSource> {
     max_cumulative_streak_width: PixelUnit,
     retry_streak_width_threshold: PixelUnit,
     ballot_image_bit_depth: BallotImageBitDepth,
-    grid_layout_source: G,
+    election_source: S,
 }
 
-impl<G: GridLayoutSource + Sync> ScanInterpreter<G> {
+impl<S: ElectionSource + Sync> ScanInterpreter<S> {
     /// Creates a new `ScanInterpreter` with the given configuration.
     ///
     /// `expected_ballot_hash` is already sliced to
@@ -317,7 +317,7 @@ impl<G: GridLayoutSource + Sync> ScanInterpreter<G> {
         max_cumulative_streak_width: PixelUnit,
         retry_streak_width_threshold: PixelUnit,
         ballot_image_bit_depth: BallotImageBitDepth,
-        grid_layout_source: G,
+        election_source: S,
     ) -> Self {
         Self {
             election,
@@ -329,7 +329,7 @@ impl<G: GridLayoutSource + Sync> ScanInterpreter<G> {
             max_cumulative_streak_width,
             retry_streak_width_threshold,
             ballot_image_bit_depth,
-            grid_layout_source,
+            election_source,
         }
     }
 
@@ -359,7 +359,7 @@ impl<G: GridLayoutSource + Sync> ScanInterpreter<G> {
             retry_streak_width_threshold: self.retry_streak_width_threshold,
             ballot_image_bit_depth: self.ballot_image_bit_depth,
             metadata_source: MetadataSource::QrCode,
-            grid_layout_source: &self.grid_layout_source,
+            election_source: &self.election_source,
         };
         ballot_card(side_a_image, side_b_image, &options)
     }
@@ -377,10 +377,10 @@ type ScoringPairs = (
 ///
 /// Returns an error if the ballot card could not be interpreted.
 #[allow(clippy::too_many_lines, clippy::result_large_err)]
-pub fn ballot_card<G: GridLayoutSource + Sync>(
+pub fn ballot_card<S: ElectionSource + Sync>(
     side_a_image: GrayImage,
     side_b_image: GrayImage,
-    options: &Options<G>,
+    options: &Options<S>,
 ) -> Result<InterpretedBallotCard> {
     let mut ballot_card = Pair::new(
         (
@@ -499,7 +499,7 @@ pub fn ballot_card<G: GridLayoutSource + Sync>(
     let ballot_style_id = decoded_qr_codes.first().0.ballot_style_id.clone();
 
     let grid_layout = options
-        .grid_layout_source
+        .election_source
         .grid_layout(&ballot_style_id)
         .map_err(|message| Error::FailedGridLayoutLookup {
             ballot_style_id,
@@ -591,19 +591,17 @@ mod test {
 
     use image::{DynamicImage, GenericImage, Luma, Rgb, imageops::FilterType};
     use itertools::Itertools;
-    use sha2::{Digest, Sha256};
     use types_rs::{
         ballot_card::{BallotType, PageNumber},
-        bubble_ballot::PartialBallotHash,
         election::{BallotStyleId, ContestId, OptionId, PrecinctId},
         geometry::{Mm2, PixelPosition, Rect},
     };
 
     use crate::{
         ballot_card::ballot_scan_bubble_image,
-        ballot_positions::InMemoryGridLayoutSource,
         debug::{ImageDebugWriter, monospace_font},
         draw_utils::draw_text_mut,
+        election_source::{ElectionDefinition, InMemoryElectionSource},
         qr_code,
         scoring::{self, UnitIntervalScore},
         timing_marks::{self, DefaultForGeometry, TimingMarks},
@@ -623,23 +621,11 @@ mod test {
             .into()
     }
 
-    /// Reads an election.json file as bytes, deserializes it, and computes the
-    /// partial ballot hash from those same bytes. The hash must come from the
-    /// raw bytes (matching the TS `sha256(electionData)` convention) so that
-    /// `expected_ballot_hash` agrees with the hash QR-encoded in the ballot.
-    fn load_election_and_ballot_hash(election_path: &Path) -> (Election, PartialBallotHash) {
-        let bytes = std::fs::read(election_path).unwrap();
-        let election: Election = serde_json::from_slice(&bytes).unwrap();
-        let digest = Sha256::digest(&bytes);
-        let mut hash = PartialBallotHash::default();
-        let len = hash.len();
-        hash.copy_from_slice(&digest[..len]);
-        (election, hash)
-    }
-
-    fn load_grid_layout_source(election_path: &Path) -> InMemoryGridLayoutSource {
-        InMemoryGridLayoutSource::from_election_json(&std::fs::read(election_path).unwrap())
-            .unwrap()
+    /// Reads an election.json file into an [`InMemoryElectionSource`], whose
+    /// ballot hash is computed from the raw bytes so it agrees with the hash
+    /// QR-encoded in the fixture ballots.
+    fn load_election_source(election_path: &Path) -> InMemoryElectionSource {
+        InMemoryElectionSource::from_election_json(&std::fs::read(election_path).unwrap()).unwrap()
     }
 
     /// Builds a [`MetadataSource::Provided`] from a front page's metadata,
@@ -659,10 +645,14 @@ mod test {
         (side_a_name, side_b_name): (&str, &str),
         (precinct_id, ballot_style_id): (&str, &str),
         is_test_mode: bool,
-    ) -> (GrayImage, GrayImage, Options<InMemoryGridLayoutSource>) {
+    ) -> (GrayImage, GrayImage, Options<InMemoryElectionSource>) {
         let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../test/fixtures");
         let election_path = fixture_path.join(fixture_name).join("election.json");
-        let (election, expected_ballot_hash) = load_election_and_ballot_hash(&election_path);
+        let election_source = load_election_source(&election_path);
+        let ElectionDefinition {
+            election,
+            ballot_hash: expected_ballot_hash,
+        } = election_source.election_definition().unwrap();
         let bubble_template = ballot_scan_bubble_image();
         let side_a_path = fixture_path.join(fixture_name).join(side_a_name);
         let side_b_path = fixture_path.join(fixture_name).join(side_b_name);
@@ -679,7 +669,7 @@ mod test {
             max_cumulative_streak_width: 5,
             retry_streak_width_threshold: 1,
             ballot_image_bit_depth: BallotImageBitDepth::default(),
-            grid_layout_source: load_grid_layout_source(&election_path),
+            election_source,
             metadata_source: provided_metadata(Metadata {
                 ballot_hash: expected_ballot_hash,
                 precinct_id: PrecinctId::from(precinct_id.to_owned()),
@@ -696,12 +686,16 @@ mod test {
     fn load_hmpb_fixture(
         fixture_name: &str,
         starting_page_number: usize,
-    ) -> (GrayImage, GrayImage, Options<InMemoryGridLayoutSource>) {
+    ) -> (GrayImage, GrayImage, Options<InMemoryElectionSource>) {
         let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("../../hmpb/fixtures/")
             .join(fixture_name);
         let election_path = fixture_path.join("election.json");
-        let (election, expected_ballot_hash) = load_election_and_ballot_hash(&election_path);
+        let election_source = load_election_source(&election_path);
+        let ElectionDefinition {
+            election,
+            ballot_hash: expected_ballot_hash,
+        } = election_source.election_definition().unwrap();
 
         let bubble_template = ballot_scan_bubble_image();
         let side_a_path = fixture_path.join(format!("blank-ballot-p{starting_page_number}.jpg"));
@@ -720,7 +714,7 @@ mod test {
             max_cumulative_streak_width: 5,
             retry_streak_width_threshold: 1,
             ballot_image_bit_depth: BallotImageBitDepth::default(),
-            grid_layout_source: load_grid_layout_source(&election_path),
+            election_source,
             metadata_source: MetadataSource::QrCode,
         };
         (side_a_image, side_b_image, options)
@@ -1355,9 +1349,12 @@ mod test {
         // scoring-time check, not the hash check.
         let custom_election_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("../../hmpb/fixtures/vx-general-election/custom-8.5x17-en/election.json");
-        let (custom_election, _) = load_election_and_ballot_hash(&custom_election_path);
-        options.election = custom_election;
-        options.grid_layout_source = load_grid_layout_source(&custom_election_path);
+        let custom_election_source = load_election_source(&custom_election_path);
+        options.election = custom_election_source
+            .election_definition()
+            .unwrap()
+            .election;
+        options.election_source = custom_election_source;
 
         match ballot_card(side_a_image, side_b_image, &options) {
             Err(Error::GridPositionOutsideTimingMarkGrid {

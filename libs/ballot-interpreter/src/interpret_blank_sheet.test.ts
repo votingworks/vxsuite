@@ -10,7 +10,7 @@ import {
 import { beforeEach, expect, test, vi } from 'vitest';
 import { interpretSheet } from './interpret.js';
 import { normalizeBallotMode } from './validation.js';
-import { makeBallotPositionsDb } from '../test/helpers/interpretation.js';
+import { makeInterpreterDb } from '../test/helpers/interpretation.js';
 
 vi.mock('./validation');
 
@@ -35,7 +35,7 @@ test('blank sheet of paper', async () => {
       testMode: false,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
-      ballotPositionsDbPath: makeBallotPositionsDb(electionDefinition.election),
+      dbPath: makeInterpreterDb(electionDefinition),
     },
     sheet
   );
