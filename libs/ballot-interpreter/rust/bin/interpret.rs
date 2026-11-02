@@ -81,23 +81,21 @@ struct Options {
 
 impl Options {
     /// Reads the election file as bytes, computes the partial ballot hash
-    /// from those bytes, and deserializes the election. The hash is computed
-    /// over the raw file bytes (matching the TS `sha256(electionData)`
-    /// convention) so it agrees with the hash encoded into ballot QR codes
-    /// for this election.
-    fn load_grid_layout_source(&self) -> color_eyre::Result<InMemoryGridLayoutSource> {
-        let bytes = std::fs::read(&self.election_path)?;
-        Ok(InMemoryGridLayoutSource::from_election_json(&bytes)?)
-    }
-
-    fn load_election(&self) -> color_eyre::Result<(Election, PartialBallotHash)> {
+    /// from those bytes, and deserializes the election and its grid layouts.
+    /// The hash is computed over the raw file bytes (matching the TS
+    /// `sha256(electionData)` convention) so it agrees with the hash encoded
+    /// into ballot QR codes for this election.
+    fn load_election(
+        &self,
+    ) -> color_eyre::Result<(Election, PartialBallotHash, InMemoryGridLayoutSource)> {
         let bytes = std::fs::read(&self.election_path)?;
         let election: Election = serde_json::from_slice(&bytes)?;
+        let grid_layout_source = InMemoryGridLayoutSource::from_election_json(&bytes)?;
         let digest = Sha256::digest(&bytes);
         let mut hash = PartialBallotHash::default();
         let len = hash.len();
         hash.copy_from_slice(&digest[..len]);
-        Ok((election, hash))
+        Ok((election, hash, grid_layout_source))
     }
 
     fn load_top_image(&self) -> color_eyre::Result<image::DynamicImage> {
@@ -114,7 +112,7 @@ impl Options {
 
 fn main() -> color_eyre::Result<()> {
     let options = Options::parse();
-    let (election, expected_ballot_hash) = options.load_election()?;
+    let (election, expected_ballot_hash, grid_layout_source) = options.load_election()?;
 
     let start = Instant::now();
     let top_image = options.load_top_image()?.into_luma8();
@@ -142,7 +140,13 @@ fn main() -> color_eyre::Result<()> {
                 eprintln!("Error: no summary ballot QR code detected");
                 1
             } else {
-                interpret_bubble_ballot(&options, election, expected_ballot_hash, top_image)?
+                interpret_bubble_ballot(
+                    &options,
+                    election,
+                    expected_ballot_hash,
+                    grid_layout_source,
+                    top_image,
+                )?
             }
         }
     };
@@ -372,6 +376,7 @@ fn interpret_bubble_ballot(
     options: &Options,
     election: Election,
     expected_ballot_hash: PartialBallotHash,
+    grid_layout_source: InMemoryGridLayoutSource,
     top_image: image::GrayImage,
 ) -> color_eyre::Result<i32> {
     let interpreter = ScanInterpreter::new(
@@ -387,7 +392,7 @@ fn interpret_bubble_ballot(
         options.max_cumulative_streak_width,
         options.retry_streak_width_threshold,
         options.ballot_image_bit_depth,
-        options.load_grid_layout_source()?,
+        grid_layout_source,
     );
 
     let bottom_image = options
