@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fmt::Debug;
+use std::io::BufRead;
 use std::path::PathBuf;
 use std::time::Duration;
 
@@ -210,16 +211,20 @@ impl InMemoryElectionSource {
         }
 
         self.grid_layouts = bytes
-            .split(|&b| b == b'\n')
-            .filter(|line| !line.iter().all(u8::is_ascii_whitespace))
+            .lines()
             .map(|line| {
-                let record: BallotPositions = serde_json::from_slice(line)?;
+                let line = line.map_err(serde_json::Error::io)?;
+                if line.trim().is_empty() {
+                    return Ok(None);
+                }
+                let record: BallotPositions = serde_json::from_str(&line)?;
                 let layout = GridLayout::from_sheet_positions(
                     record.ballot_style_id.clone(),
                     &record.positions,
                 );
-                Ok((record.ballot_style_id, layout))
+                Ok(Some((record.ballot_style_id, layout)))
             })
+            .filter_map(Result::transpose)
             .collect::<serde_json::Result<_>>()?;
         Ok(self)
     }
@@ -437,6 +442,23 @@ mod test {
             InMemoryElectionSource::from_election_json(&bytes)
                 .unwrap()
                 .with_ballot_positions_jsonl(b"not json\n")
+                .is_err()
+        );
+    }
+
+    #[test]
+    fn test_in_memory_source_with_invalid_utf8_jsonl() {
+        let bytes = election_json().to_string().into_bytes();
+        let mut jsonl =
+            serde_json::json!({ "ballotStyleId": "bs-2", "positions": sheet_positions() })
+                .to_string()
+                .into_bytes();
+        jsonl.extend_from_slice(b"\n\xff\xfe\n");
+
+        assert!(
+            InMemoryElectionSource::from_election_json(&bytes)
+                .unwrap()
+                .with_ballot_positions_jsonl(&jsonl)
                 .is_err()
         );
     }
