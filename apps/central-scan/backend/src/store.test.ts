@@ -156,6 +156,7 @@ test('get/set scanner as backed up', () => {
 test('getAllBatchIds includes unfinished and deleted batches', () => {
   const store = Store.fileStore(
     makeTemporaryFile(),
+    makeTemporaryFile(),
     mockBaseLogger({ fn: vi.fn })
   );
   store.reset();
@@ -182,7 +183,11 @@ test('getAllBatchIds includes unfinished and deleted batches', () => {
 
 test('batch cleanup works correctly', () => {
   const dbFile = makeTemporaryFile();
-  const store = Store.fileStore(dbFile, mockBaseLogger({ fn: vi.fn }));
+  const store = Store.fileStore(
+    dbFile,
+    makeTemporaryFile(),
+    mockBaseLogger({ fn: vi.fn })
+  );
 
   store.reset();
 
@@ -770,7 +775,11 @@ test('iterating over each accepted sheet includes correct batch sequence id', ()
 
 test('resetElectionSession', () => {
   const dbFile = makeTemporaryFile();
-  const store = Store.fileStore(dbFile, mockBaseLogger({ fn: vi.fn }));
+  const store = Store.fileStore(
+    dbFile,
+    makeTemporaryFile(),
+    mockBaseLogger({ fn: vi.fn })
+  );
   store.setElectionAndJurisdiction({
     electionData,
     jurisdiction,

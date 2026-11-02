@@ -8,7 +8,6 @@ import {
   readSignedElectionPackageFromDirectory,
   exportCastVoteRecordsToUsbDrive,
   type ElectionRecord,
-  withElectionPackageZip,
 } from '@votingworks/backend';
 import {
   type ElectionPackageConfigurationError,
@@ -226,27 +225,20 @@ function buildApi({
       const { election } = electionDefinition;
       assert(systemSettings);
 
-      await store.unsafeWithTransactionAsync(async () => {
-        store.setElectionAndJurisdiction({
-          electionData: electionDefinition.electionData,
-          jurisdiction: authStatus.user.jurisdiction,
-          electionPackageHash,
-          ballotHash: electionDefinition.ballotHash,
-        });
-        store.setSystemSettings(systemSettings);
+      await store.getElectionPackageStore().importElectionPackage({
+        electionPackage,
+        electionPackageHash,
+        filePath,
+        jurisdiction: authStatus.user.jurisdiction,
+        logger,
+        uiStrings: false,
+      });
 
-        await withElectionPackageZip(filePath, async (zip) => {
-          await store
-            .getBallotMetaStore()
-            .importPositions(zip, election, systemSettings);
-
-          await store
-            .getBallotMetaStore()
-            .importCandidateOrderings(zip, election, systemSettings);
-        });
+      store.withTransaction(() => {
+        store.startElectionSession();
 
         const absenteePollingPlaces = assertDefined(
-          electionDefinition.election.pollingPlaces
+          election.pollingPlaces
         ).filter((pollingPlace) => pollingPlace.type === 'absentee');
 
         if (absenteePollingPlaces.length === 1) {
