@@ -41,6 +41,7 @@ import {
   BALLOT_MEASURE_OPTION_CLASS,
   CANDIDATE_OPTION_CLASS,
   WRITE_IN_OPTION_CLASS,
+  SvgImage,
 } from '../ballot_components.js';
 import type {
   ContentComponentResult,
@@ -166,16 +167,9 @@ export function Header({
             alignItems: 'center',
           }}
         >
-          <div
-            style={{
-              height: '0.8in',
-              aspectRatio: '1 / 1',
-              backgroundImage: `url(data:image/svg+xml;base64,${Buffer.from(
-                election.seal
-              ).toString('base64')})`,
-              backgroundSize: 'contain',
-              backgroundRepeat: 'no-repeat',
-            }}
+          <SvgImage
+            svg={election.seal}
+            style={{ height: '0.8in', width: '0.8in' }}
           />
           <div
             style={{

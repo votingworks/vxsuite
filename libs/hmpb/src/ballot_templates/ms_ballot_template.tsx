@@ -9,7 +9,6 @@ import {
   type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { Buffer } from 'node:buffer';
 import {
   type Contest as ContestStruct,
   type BallotMode,
@@ -59,6 +58,7 @@ import {
   FooterRow,
   FooterVoterInstruction,
   QrCodeSlot,
+  SvgImage,
 } from '../ballot_components.js';
 import type { PixelDimensions } from '../types.js';
 import { layOutInColumns } from '../layout_in_columns.js';
@@ -111,17 +111,9 @@ function Header({
         alignItems: 'center',
       }}
     >
-      <div
-        style={{
-          height: '5rem',
-          aspectRatio: '1 / 1',
-          backgroundImage: `url(data:image/svg+xml;base64,${Buffer.from(
-            election.seal
-          ).toString('base64')})`,
-          backgroundSize: 'contain',
-          backgroundRepeat: 'no-repeat',
-          marginTop: '0.125rem',
-        }}
+      <SvgImage
+        svg={election.seal}
+        style={{ height: '5rem', width: '5rem', marginTop: '0.125rem' }}
       />
       <DualLanguageText>
         <div>

@@ -9,7 +9,6 @@ import {
   type Result,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { Buffer } from 'node:buffer';
 import {
   type Contest as ContestStruct,
   type BallotMode,
@@ -64,6 +63,7 @@ import {
   PrecinctOrSplitName,
   CANDIDATE_OPTION_CLASS,
   BALLOT_MEASURE_OPTION_CLASS,
+  SvgImage,
 } from '../ballot_components.js';
 import type {
   PixelDimensions,
@@ -315,17 +315,9 @@ function Header({
         alignItems: 'center',
       }}
     >
-      <div
-        style={{
-          height: '5rem',
-          aspectRatio: '1 / 1',
-          backgroundImage: `url(data:image/svg+xml;base64,${Buffer.from(
-            electionSealOverride ?? election.seal
-          ).toString('base64')})`,
-          backgroundSize: 'contain',
-          backgroundRepeat: 'no-repeat',
-          marginTop: '0.125rem',
-        }}
+      <SvgImage
+        svg={electionSealOverride ?? election.seal}
+        style={{ height: '5rem', width: '5rem', marginTop: '0.125rem' }}
       />
       <div style={{ flexGrow: 2 }}>
         <DualLanguageText>
@@ -357,17 +349,23 @@ function Header({
       <div style={{ flexGrow: 1 }}>
         <div
           style={{
+            position: 'relative',
             height: '3rem',
-            backgroundImage: `url(data:image/svg+xml;base64,${Buffer.from(
-              clerkSignatureImage
-            ).toString('base64')})`,
-            backgroundSize: 'contain',
-            backgroundRepeat: 'no-repeat',
             marginTop: '0.125rem',
             // @coverage-defer
             visibility: ballotMode === 'sample' ? 'hidden' : 'visible',
           }}
-        />
+        >
+          <SvgImage
+            svg={clerkSignatureImage}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+            }}
+          />
+        </div>
         <div
           style={{
             // @coverage-defer

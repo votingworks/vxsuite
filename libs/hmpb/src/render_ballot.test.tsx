@@ -204,7 +204,7 @@ test('reorder candidates based on rotation from template', async () => {
     }),
     signature: {
       caption: 'test caption',
-      image: '<svg></svg>',
+      image: '<svg xmlns="http://www.w3.org/2000/svg"/>',
     },
   };
   const allBallotProps = allBaseBallotProps(fixtureElection);

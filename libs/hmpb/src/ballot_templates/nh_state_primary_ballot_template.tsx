@@ -47,6 +47,7 @@ import {
   Colors,
   primaryLanguageCode,
   WriteInLabel,
+  SvgImage,
 } from '../ballot_components.js';
 import type { PixelDimensions } from '../types.js';
 import { layOutInColumns } from '../layout_in_columns.js';
@@ -223,16 +224,9 @@ function Header({
             alignItems: 'center',
           }}
         >
-          <div
-            style={{
-              height: '0.946in',
-              aspectRatio: '1 / 1',
-              backgroundImage: `url(data:image/svg+xml;base64,${Buffer.from(
-                election.seal
-              ).toString('base64')})`,
-              backgroundSize: 'contain',
-              backgroundRepeat: 'no-repeat',
-            }}
+          <SvgImage
+            svg={election.seal}
+            style={{ height: '0.946in', width: '0.946in' }}
           />
           <div
             style={{

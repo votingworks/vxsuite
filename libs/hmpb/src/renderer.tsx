@@ -67,15 +67,11 @@ export function createDocument(pageHandle: PageHandle) {
           const fontsPromise = document.fonts.ready;
 
           const imagesLoadPromise = Promise.all(
-            Array.from(node.querySelectorAll('img')).map((img) => {
-              if (img.complete) {
-                return Promise.resolve();
-              }
-              return new Promise<void>((resolve) => {
-                // eslint-disable-next-line no-param-reassign
-                img.onload = () => resolve();
-              });
-            })
+            Array.from(node.querySelectorAll('img')).map((img) =>
+              img.decode().catch(() => {
+                throw new Error('Image failed to load');
+              })
+            )
           );
 
           // Only return once we're sure that fonts and images have settled so

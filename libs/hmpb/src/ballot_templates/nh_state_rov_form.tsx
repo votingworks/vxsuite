@@ -1,7 +1,6 @@
 // @coverage-defer-file: no production consumer yet; tests to come with the NH delivery integration
 import React from 'react';
 import { assertDefined, find, range } from '@votingworks/basics';
-import { Buffer } from 'node:buffer';
 import {
   ballotPaperDimensions,
   type BallotStyle,
@@ -27,6 +26,7 @@ import {
   Page,
   PAGE_CLASS,
   pageMarginsInches,
+  SvgImage,
 } from '../ballot_components.js';
 import {
   type ColorTint,
@@ -276,11 +276,9 @@ function FormHeader({
     >
       <Header style={{ padding: '0.5rem' }}>
         <div style={{ display: 'flex', gap: '0.375rem', alignItems: 'center' }}>
-          <img
-            src={`data:image/svg+xml;base64,${Buffer.from(
-              election.seal
-            ).toString('base64')}`}
-            style={{ height: '5rem' }}
+          <SvgImage
+            svg={election.seal}
+            style={{ height: '5rem', width: '5rem' }}
           />
           <div>
             <h1>{title}</h1>

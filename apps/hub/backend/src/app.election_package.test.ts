@@ -958,7 +958,10 @@ test('export - polling places auto-generated when EDIT_POLLING_PLACES === false'
       ...baseElection.ballotLayout,
       paperSize: HmpbBallotPaperSize.Legal,
     },
-    signature: { caption: 'foo', image: 'bar' },
+    signature: {
+      caption: 'foo',
+      image: '<svg xmlns="http://www.w3.org/2000/svg"/>',
+    },
   };
 
   const { apiClient, workspace, fileStorageClient, auth0 } = await setupApp({
