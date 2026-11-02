@@ -1,5 +1,4 @@
 import { beforeEach, expect, test, vi } from 'vitest';
-import { mockKiosk } from '@votingworks/test-utils';
 import { isVxDev } from '@votingworks/utils';
 import { userEvent } from '@testing-library/user-event';
 import { screen, waitFor } from '../test/react_testing_library.js';
@@ -107,14 +106,13 @@ test.each(renderTestCases)(
   }
 );
 
-test('Quit button makes expected call', async () => {
+test('Quit button closes the window', async () => {
   vi.mocked(isVxDev).mockImplementation(() => true);
-  window.kiosk = mockKiosk(vi.fn);
-  const unconfigureMachine = vi.fn();
+  const closeSpy = vi.spyOn(window, 'close').mockImplementation(() => {});
   render(
     <SystemAdministratorScreenContents
       primaryText="To adjust settings for the current election, please insert an election manager card."
-      unconfigureMachine={unconfigureMachine}
+      unconfigureMachine={vi.fn()}
       isMachineConfigured
       logOut={vi.fn()}
       usbDriveStatus={mockUsbDriveStatus('mounted')}
@@ -122,24 +120,8 @@ test('Quit button makes expected call', async () => {
   );
 
   await userEvent.click(screen.getByRole('button', { name: 'Quit' }));
-  expect(window.kiosk.quit).toBeCalledTimes(1);
-});
-
-test('Quit button does nothing when kiosk is undefined', async () => {
-  vi.mocked(isVxDev).mockImplementation(() => true);
-  window.kiosk = undefined;
-  const unconfigureMachine = vi.fn();
-  render(
-    <SystemAdministratorScreenContents
-      primaryText="To adjust settings for the current election, please insert an election manager card."
-      unconfigureMachine={unconfigureMachine}
-      isMachineConfigured
-      logOut={vi.fn()}
-      usbDriveStatus={mockUsbDriveStatus('mounted')}
-    />
-  );
-
-  await userEvent.click(screen.getByRole('button', { name: 'Quit' }));
+  expect(closeSpy).toHaveBeenCalledTimes(1);
+  closeSpy.mockRestore();
 });
 
 test('Unconfigure Machine button is disabled when the machine is not configured', () => {
