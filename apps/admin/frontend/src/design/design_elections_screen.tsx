@@ -1,3 +1,5 @@
+import { throwIllegalValue } from '@votingworks/basics';
+import type { ElectionStatus } from '@votingworks/design-backend';
 import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import {
@@ -14,6 +16,20 @@ import {
   getDesignStateCode,
   getLocalJurisdictionId,
 } from './design_api.js';
+
+function electionStatusLabel(status: ElectionStatus): string {
+  switch (status) {
+    case 'notStarted':
+    case 'inProgress':
+      return 'In Progress';
+    case 'ballotsFinalized':
+    case 'ballotsApproved':
+      return 'Finalized';
+    default: {
+      throwIllegalValue(status);
+    }
+  }
+}
 
 export function DesignElectionsScreen(): JSX.Element | null {
   const history = useHistory();
@@ -89,7 +105,7 @@ export function DesignElectionsScreen(): JSX.Element | null {
                     .toMidnightDatetimeWithSystemTimezone()
                     .toLocaleDateString()}
                 </TD>
-                <TD>{election.status}</TD>
+                <TD>{electionStatusLabel(election.status)}</TD>
                 <TD>
                   <Button
                     onPress={() =>
