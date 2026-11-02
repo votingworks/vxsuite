@@ -191,8 +191,8 @@ pub struct ContestPosition {
 pub type SheetPositions = (Vec<ContestPosition>, Vec<ContestPosition>);
 
 /// The interpreter's flat per-bubble representation, built from a ballot
-/// style's [`ballot_positions`](BallotStyle::ballot_positions). Not part of the
-/// serialized election definition; only emitted as interpreter output.
+/// style's [`SheetPositions`]. Not part of the serialized election
+/// definition; only emitted as interpreter output.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GridLayout {
