@@ -56,8 +56,7 @@ impl InMemoryGridLayoutSource {
         #[serde(rename_all = "camelCase")]
         struct BallotStylePositions {
             id: BallotStyleId,
-            #[serde(default)]
-            ballot_positions: Vec<SheetPositions>,
+            ballot_positions: Option<Vec<SheetPositions>>,
         }
 
         #[derive(Deserialize)]
@@ -71,10 +70,12 @@ impl InMemoryGridLayoutSource {
             election
                 .ballot_styles
                 .into_iter()
-                .map(|style| {
-                    let layout =
-                        GridLayout::from_sheet_positions(style.id.clone(), &style.ballot_positions);
-                    (style.id, layout)
+                .filter_map(|style| {
+                    let layout = GridLayout::from_sheet_positions(
+                        style.id.clone(),
+                        &style.ballot_positions?,
+                    );
+                    Some((style.id, layout))
                 })
                 .collect(),
         ))
@@ -201,6 +202,7 @@ mod test {
             "ballotStyles": [
                 { "id": "bs-1", "ballotPositions": sheet_positions() },
                 { "id": "bs-2" },
+                { "id": "bs-3", "ballotPositions": null },
             ],
         });
         let source =
@@ -214,14 +216,8 @@ mod test {
                 .len(),
             1
         );
-        assert!(
-            source
-                .grid_layout(&style_id("bs-2"))
-                .unwrap()
-                .unwrap()
-                .grid_positions
-                .is_empty()
-        );
+        assert!(source.grid_layout(&style_id("bs-2")).unwrap().is_none());
         assert!(source.grid_layout(&style_id("bs-3")).unwrap().is_none());
+        assert!(source.grid_layout(&style_id("bs-4")).unwrap().is_none());
     }
 }
