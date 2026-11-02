@@ -769,11 +769,7 @@ export class Client {
     tempClient.create();
     tempClient.disconnect(); // Close the temporary database
 
-    // close the current database connection
-    this.disconnect();
-
-    // swap in newly created database
-    fs.renameSync(tempDbPath, dbPath);
+    this.replaceDatabaseFile(tempDbPath);
 
     this.logger.log(
       LogEventId.DatabaseResetComplete,
@@ -784,8 +780,20 @@ export class Client {
       },
       debug
     );
+  }
 
-    // reconnect to the new database
+  /**
+   * Swaps the database file at `sourcePath` in for this client's and
+   * reconnects to it. The rename is atomic, so the file is either the old
+   * database or the new one at every point.
+   */
+  replaceDatabaseFile(sourcePath: string): void {
+    assert(
+      !this.isMemoryDatabase(),
+      'cannot replace the file of an in-memory database'
+    );
+    this.disconnect();
+    fs.renameSync(sourcePath, this.getDatabasePath());
     this.connect();
   }
 
