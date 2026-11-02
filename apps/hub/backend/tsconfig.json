@@ -1,6 +1,6 @@
 {
   "extends": "../../../tsconfig.shared.json",
-  "include": ["scripts", "src", "test"],
+  "include": ["migrations", "scripts", "src", "test"],
   "exclude": [],
   "compilerOptions": {
     "composite": true

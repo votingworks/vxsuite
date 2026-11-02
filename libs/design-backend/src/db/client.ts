@@ -2,11 +2,13 @@ import { join } from 'node:path';
 import type { Buffer } from 'node:buffer';
 // Type-only: see the note in `db.ts` about `pg`'s CommonJS exports.
 import type * as pg from 'pg';
-import * as migrate from 'node-pg-migrate';
-import { assert } from '@votingworks/basics';
-import { NODE_ENV } from '../globals.js';
 
-export const MIGRATIONS_DIR = join(import.meta.dirname, '../../migrations');
+export const DESIGN_MIGRATIONS_DIR = join(
+  import.meta.dirname,
+  '../../migrations'
+);
+
+export const DESIGN_MIGRATIONS_TABLE = 'design_pgmigrations';
 
 /**
  * Types supported for query value substitution.
@@ -80,33 +82,8 @@ export class Client {
     return this.conn.query(config);
   }
 
-  async runMigrations(params: {
-    enableLogging?: boolean;
-    schemaName: string;
-    noLock?: boolean;
-  }): Promise<void> {
-    // @coverage-defer
-    if (params.noLock) {
-      assert(
-        NODE_ENV === 'test',
-        'Running migrations with `noLock` is only permitted in tests, ' +
-          'which are run against separate schemas.'
-      );
-    }
-
-    await migrate.runner({
-      createMigrationsSchema: true,
-      createSchema: true,
-      dbClient: this.conn,
-      noLock: params.noLock,
-      dir: MIGRATIONS_DIR,
-      direction: 'up',
-      // @coverage-defer
-      log: params.enableLogging ? undefined : () => {},
-      migrationsSchema: params.schemaName,
-      migrationsTable: 'pgmigrations',
-      schema: params.schemaName,
-    });
+  get pgClient(): pg.PoolClient {
+    return this.conn;
   }
 
   async withTransaction(fn: () => Promise<boolean>): Promise<boolean> {

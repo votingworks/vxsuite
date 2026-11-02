@@ -2,6 +2,7 @@ import type { BaseLogger } from '@votingworks/logging';
 import { randomUUID as uuid } from 'node:crypto';
 import { Db } from '@votingworks/design-backend';
 import { Store } from '../src/store.js';
+import { runMigrations } from '../src/migrations.js';
 
 export class TestStore {
   private readonly schemaName: string;
@@ -27,7 +28,10 @@ export class TestStore {
   async init(): Promise<void> {
     await this.db.withClient(async (client) => {
       await client.query(`drop schema if exists ${this.schemaName} cascade;`);
-      await client.runMigrations({ noLock: true, schemaName: this.schemaName });
+      await runMigrations(client, {
+        noLock: true,
+        schemaName: this.schemaName,
+      });
     });
   }
 
