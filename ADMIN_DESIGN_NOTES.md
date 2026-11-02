@@ -298,6 +298,58 @@ Findings:
 should cut that substantially. Real VxAdmin hardware numbers and the stall
 behavior are still open.
 
+## Follow-up fixes (2026-11-02)
+
+1. `Start admin election design lazily with retries so Postgres failures only disable design`:
+   - `/design-api` is mounted at once and returns 503 until the design store is
+     up.
+   - Init retries with backoff (5 s doubling to 60 s), and each attempt is
+     logged.
+   - The frontend Design area shows an "unavailable" message with **Try Again**
+     instead of erroring.
+   - Tabulation no longer waits on Postgres.
+   - **Not yet verified with Postgres down.** The test was stopped before it
+     ran.
+2. `Default admin design DB to the production unix socket and only create it in dev`:
+   - Production defaults to
+     `postgresql://vx-services@/vxadmin_design?host=/var/run/postgresql`.
+   - Dev keeps the localhost TCP default, and `ADMIN_DESIGN_DATABASE_URL` still
+     overrides both.
+   - `ensureDatabaseExists` (needs CREATEDB) runs only outside production.
+   - The DB pool is closed if init fails.
+3. `Drop archiver, use-sound, react-flip-toolkit and csv-parse from the shared design libs`:
+   - `Archiver` is reimplemented on `zip-stream@4`, which admin already ships.
+     Hub zip and worker tests pass.
+   - `useSound` moved back to hub (live reports still uses it).
+   - The contest reorder animation is removed.
+   - `convertMsElection` moved back to hub and is injected into
+     `buildElectionDefinitionMethods`.
+4. `Type design-ui against shared design API and drop its hub-backend dependency`:
+   - New `ElectionDesignApi` type in `libs/design-backend`: definition, ballot
+     preview, TTS and `listElections`.
+   - Hub's TTS methods moved to `libs/design-backend/src/tts_api.ts`.
+     `AuthErrorCode` moved too.
+   - The 21 hub-only hooks moved to hub's new `src/api.ts`, which re-exports the
+     lib.
+   - Admin's design API now also serves the TTS methods with the offline
+     synthesizer, so the client type is honest. Audio stays hidden.
+   - Hub backend tests pass (108 across app, store, worker, TTS, MS SEMS). All
+     six packages type-check.
+
+**History quirk:** commit `7de2c50d96` (benchmark notes) accidentally includes
+two staged `git mv` renames that belong to items 3 and 4: `tts_strings.ts` →
+`libs/design-backend/src/tts_api.ts`, and `convert_ms_election.ts` back to hub.
+The intermediate commits between it and `87adababea` don't build on their own.
+The branch tip is fine.
+
+**New third-party packages in admin's production install vs `main`:** 180 → 65.
+Counted from `pnpm-lock.yaml` as the transitive closure of
+`apps/admin/{backend,frontend}` prod and optional deps, by distinct package
+name. What remains: tiptap/prosemirror (about 35, rich-text editor), `pg` and
+`node-pg-migrate` with their helpers, `js-file-download` and `@pdf-lib/fontkit`.
+Gone: AWS SDK, Sentry, Auth0/openid, oxc-parser bindings, archiver, csv-parse,
+use-sound/howler, react-flip-toolkit.
+
 ## Hacked vs production-ready
 
 Closest to production-ready (extract first):
