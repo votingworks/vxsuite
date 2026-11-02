@@ -199,7 +199,26 @@ Broke and fixed:
   design request. Missing file → DEMO, which is a scratch default; production
   should refuse.
 
+Proof viewer (item 2):
+
+- `getBallotPreviewPdf` moved to `libs/design-backend`
+  (`buildBallotPreviewMethods({ store, translator })`). Hub passes its Google
+  translator and admin passes the offline one. Hub preview tests pass.
+- `ballot_screen.tsx` (react-pdf viewer) moved to `libs/design-ui`. Admin's
+  Ballots tab lists precinct × ballot style with **View Ballot** (42, 45).
+  Precinct, absentee and primary proofs render (43, 44, 46).
+- Not ported: hub's full ballots screen (ballot layout settings: paper size and
+  density, split-precinct nesting, finalize/approve status). Admin's list
+  doesn't nest splits. The viewer's **Download PDF** uses a browser download,
+  which won't work in the kiosk.
+
 Found, not fixed:
+
+- `turbo watch` (`pnpm start`) can get stuck restarting admin-backend in a loop
+  after several quick commits. `ballot-interpreter`'s napi build rewrites its
+  outputs and retriggers the watch. I worked around it by running the built
+  backend and `vite` directly (`admin-nowatch` in `.claude/launch.json`,
+  untracked). This predates this branch and is worth its own look.
 
 - The seal is a required browser file input. Saving election info is impossible
   without uploading one, and there is no kiosk USB picker yet.
