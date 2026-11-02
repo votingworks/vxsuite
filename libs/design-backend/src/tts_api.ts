@@ -10,13 +10,15 @@ import {
   type SpeechSynthesizer,
   convertHtmlToAudioCues,
 } from '@votingworks/backend';
-import type { Store } from './store.js';
+import type { ElectionStore } from './election_store.js';
+import type { TtsEditsStore } from './design_providers.js';
 
 export type DataUrl = string;
 
 export interface TtsApiContext {
   speechSynthesizer: SpeechSynthesizer;
-  workspace: { store: Store };
+  elections: ElectionStore;
+  ttsEdits: TtsEditsStore;
 }
 
 export interface TtsStringDefault {
@@ -29,19 +31,17 @@ export interface TtsStringDefault {
 export function buildTtsMethods(ctx: TtsApiContext) {
   return {
     ttsEditsGet(key: TtsEditKey): Promise<TtsEdit | null> {
-      return ctx.workspace.store.ttsEditsGet(key);
+      return ctx.ttsEdits.ttsEditsGet(key);
     },
 
     ttsEditsSet(input: TtsEditKey & { data: TtsEdit }): Promise<void> {
-      return ctx.workspace.store.ttsEditsSet(input, input.data);
+      return ctx.ttsEdits.ttsEditsSet(input, input.data);
     },
 
     async ttsStringDefaults(input: {
       electionId: string;
     }): Promise<TtsStringDefault[]> {
-      const { election } = await ctx.workspace.store.getElection(
-        input.electionId
-      );
+      const { election } = await ctx.elections.getElection(input.electionId);
 
       const strings: TtsStringDefault[] = [];
 

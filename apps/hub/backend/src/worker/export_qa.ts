@@ -1,7 +1,7 @@
 import { randomUUID as uuid } from 'node:crypto';
 import { extractErrorMessage } from '@votingworks/basics';
 import type { ElectionId, SoftwareVersion } from '@votingworks/types';
-import type { Store } from '@votingworks/design-backend';
+import type { Store } from '../store.js';
 import { CircleCiClient } from '../circleci_client.js';
 import type { FileStorageClient } from '../file_storage_client.js';
 import { baseUrl } from '../globals.js';

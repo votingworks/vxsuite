@@ -43,8 +43,9 @@ import type {
   DuplicatePartyError,
   DuplicatePrecinctError,
   SetPollingPlaceError,
-  Store,
-} from './store.js';
+  ElectionStore,
+} from './election_store.js';
+import type { DesignFeaturesProvider } from './design_providers.js';
 import { defaultSystemSettings } from './system_settings.js';
 import {
   type ElectionInfo,
@@ -85,7 +86,7 @@ export function createBlankElection(
 }
 
 export async function cloneElection(
-  store: Store,
+  store: ElectionStore,
   {
     sourceElectionId,
     destElectionId,
@@ -114,7 +115,8 @@ export async function cloneElection(
     pollingPlaces,
   };
   await store.createElection({
-    jurisdiction: destJurisdiction,
+    jurisdictionId: destJurisdiction.id,
+    stateFeatures: getStateFeaturesConfig(destJurisdiction),
     election,
     isMiCombinedBallotPrimary,
     ballotTemplateId,
@@ -131,9 +133,11 @@ export type ConvertMsElection = (
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildElectionDefinitionMethods({
   store,
+  features,
   convertMsElection,
 }: {
-  store: Store;
+  store: ElectionStore;
+  features: DesignFeaturesProvider;
   convertMsElection?: ConvertMsElection;
 }) {
   const methods = {
@@ -142,7 +146,7 @@ export function buildElectionDefinitionMethods({
       newId: ElectionId;
       jurisdictionId: string;
     }): Promise<Result<ElectionId, Error>> {
-      const jurisdiction = await store.getJurisdiction(input.jurisdictionId);
+      const jurisdiction = await features.getJurisdiction(input.jurisdictionId);
       const stateFeatures = getStateFeaturesConfig(jurisdiction);
 
       try {
@@ -233,7 +237,8 @@ export function buildElectionDefinitionMethods({
         })();
 
         await store.createElection({
-          jurisdiction,
+          jurisdictionId: jurisdiction.id,
+          stateFeatures: getStateFeaturesConfig(jurisdiction),
           election,
           isMiCombinedBallotPrimary,
           ballotTemplateId: defaultBallotTemplate(jurisdiction),
@@ -252,10 +257,11 @@ export function buildElectionDefinitionMethods({
       id: ElectionId;
       jurisdictionId: string;
     }): Promise<Result<ElectionId, Error>> {
-      const jurisdiction = await store.getJurisdiction(input.jurisdictionId);
+      const jurisdiction = await features.getJurisdiction(input.jurisdictionId);
       const election = createBlankElection(input.id, jurisdiction);
       await store.createElection({
-        jurisdiction,
+        jurisdictionId: jurisdiction.id,
+        stateFeatures: getStateFeaturesConfig(jurisdiction),
         election,
         isMiCombinedBallotPrimary: false,
         ballotTemplateId: defaultBallotTemplate(jurisdiction),
@@ -501,10 +507,7 @@ export function buildElectionDefinitionMethods({
     async getStateFeatures(input: {
       electionId: ElectionId;
     }): Promise<StateFeaturesConfig> {
-      const jurisdiction = await store.getElectionJurisdiction(
-        input.electionId
-      );
-      return getStateFeaturesConfig(jurisdiction);
+      return features.getStateFeatures(input.electionId);
     },
 
     listPollingPlaces(input: { electionId: string }): Promise<PollingPlace[]> {

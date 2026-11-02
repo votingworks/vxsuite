@@ -18,7 +18,7 @@ import type {
   ElectionId,
 } from '@votingworks/types';
 import { createBallotPropsForTemplate } from './ballots.js';
-import type { Store } from './store.js';
+import type { ElectionStore } from './election_store.js';
 import { getBallotPdfFileName } from './utils.js';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
@@ -26,7 +26,7 @@ export function buildBallotPreviewMethods({
   store,
   translator,
 }: {
-  store: Store;
+  store: ElectionStore;
   translator: GoogleCloudTranslator;
 }) {
   return {

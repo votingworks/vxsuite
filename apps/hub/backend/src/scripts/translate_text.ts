@@ -2,7 +2,7 @@ import { extractErrorMessage } from '@votingworks/basics';
 
 import { LanguageCode, type NonEnglishLanguageCode } from '@votingworks/types';
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { Store } from '@votingworks/design-backend';
+import { Store } from '../store.js';
 import { GoogleCloudTranslatorWithDbCache } from '../translator.js';
 
 const nonEnglishLanguageCodes: Set<string> = (() => {

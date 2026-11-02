@@ -2122,7 +2122,8 @@ test('LiveReports uses modified exported election, not original VxHub election',
   const reorderedElectionDefinition =
     createElectionDefinition(reorderedElection);
 
-  const internalElectionRecord = await workspace.store.getElection(electionId);
+  const internalElectionRecord =
+    await workspace.store.elections.getElection(electionId);
   expect(internalElectionRecord.election).not.toEqual(
     reorderedElectionDefinition.election
   );

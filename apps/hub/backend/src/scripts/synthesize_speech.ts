@@ -4,7 +4,7 @@ import { extractErrorMessage } from '@votingworks/basics';
 
 import { LanguageCode } from '@votingworks/types';
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { Store } from '@votingworks/design-backend';
+import { Store } from '../store.js';
 import { GoogleCloudSpeechSynthesizerWithDbCache } from '../speech_synthesizer.js';
 
 const languageCodes: string[] = Object.values(LanguageCode);

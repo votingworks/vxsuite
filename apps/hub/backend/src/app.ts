@@ -46,8 +46,6 @@ import {
 } from '@votingworks/auth';
 import {
   type MainExportTaskMetadata,
-  type TestDecksTaskMetadata,
-  type Store,
   type AggregatedLiveReportActivityLog,
   type AggregatedReportedPollsStatus,
   type AggregatedReportedResults,
@@ -69,6 +67,7 @@ import {
   buildElectionDefinitionMethods,
   cloneElection,
 } from '@votingworks/design-backend';
+import { type TestDecksTaskMetadata, type Store } from './store.js';
 import type { AppContext } from './context.js';
 import {
   auth0ClientId,
@@ -80,6 +79,7 @@ import {
   authEnabled,
 } from './globals.js';
 import { convertMsElection } from './convert_ms_election.js';
+import { createHubDesignFeatures } from './design_features.js';
 import { QaConfig } from './qa_config.js';
 import { rootDebug } from './debug.js';
 import {
@@ -127,11 +127,16 @@ async function isQaEnabledForElection(
 export function buildApi(ctx: AppContext) {
   const { auth0, logger, workspace, translator } = ctx;
   const { store } = workspace;
+  const designFeatures = createHubDesignFeatures(store);
   const electionDefinitionMethods = buildElectionDefinitionMethods({
-    store,
+    store: store.elections,
+    features: designFeatures,
     convertMsElection,
   });
-  const ballotPreviewMethods = buildBallotPreviewMethods({ store, translator });
+  const ballotPreviewMethods = buildBallotPreviewMethods({
+    store: store.elections,
+    translator,
+  });
 
   async function requireElectionAccess(user: User, electionId: ElectionId) {
     const electionJurisdiction =
@@ -276,7 +281,7 @@ export function buildApi(ctx: AppContext) {
         input.destJurisdictionId
       );
       requireJurisdictionAccess(context.user, destJurisdiction);
-      await cloneElection(store, {
+      await cloneElection(store.elections, {
         sourceElectionId: input.electionId,
         destElectionId: input.destElectionId,
         destJurisdiction,
@@ -288,19 +293,18 @@ export function buildApi(ctx: AppContext) {
       input: { electionId: ElectionId },
       { user }: ApiContext
     ): Promise<void> {
-      const precincts = await store.listPrecincts(input.electionId);
+      const precincts = await store.elections.listPrecincts(input.electionId);
 
       const jurisdiction = await store.getElectionJurisdiction(
         input.electionId
       );
       const stateFeatures = getStateFeaturesConfig(jurisdiction);
-      const { election } = await store.getElection(input.electionId);
+      const { election } = await store.elections.getElection(input.electionId);
 
       // @coverage-defer
       if (!stateFeatures.DISABLE_REGISTERED_VOTER_COUNTS) {
-        const registeredVoterCounts = await store.getRegisteredVoterCounts(
-          input.electionId
-        );
+        const registeredVoterCounts =
+          await store.elections.getRegisteredVoterCounts(input.electionId);
         assert(
           !hasPartialRegisteredVoterCounts(precincts, registeredVoterCounts),
           'Registered voter counts must be provided for all precincts and splits or none'
@@ -323,7 +327,7 @@ export function buildApi(ctx: AppContext) {
         );
       }
 
-      await store.createElectionPackageBackgroundTask({
+      await store.tasks.createElectionPackageBackgroundTask({
         electionId: input.electionId,
         electionSerializationFormat: 'vxf',
         shouldExportAudio: !!stateFeatures.AUDIO_ENABLED,
@@ -339,7 +343,7 @@ export function buildApi(ctx: AppContext) {
         await store.createTestDecksBackgroundTask(input.electionId, 'vxf');
       }
 
-      await store.setBallotsFinalizedAt({
+      await store.elections.setBallotsFinalizedAt({
         electionId: input.electionId,
         finalizedAt: new Date(),
       });
@@ -356,11 +360,11 @@ export function buildApi(ctx: AppContext) {
       input: { electionId: ElectionId; reason: string },
       { user }: ApiContext
     ): Promise<void> {
-      await store.setBallotsApprovedAt({
+      await store.elections.setBallotsApprovedAt({
         approvedAt: null,
         electionId: input.electionId,
       });
-      await store.setBallotsFinalizedAt({
+      await store.elections.setBallotsFinalizedAt({
         electionId: input.electionId,
         finalizedAt: null,
       });
@@ -377,17 +381,19 @@ export function buildApi(ctx: AppContext) {
     getBallotsApprovedAt(input: {
       electionId: ElectionId;
     }): Promise<Date | null> {
-      return store.getBallotsApprovedAt(input.electionId);
+      return store.elections.getBallotsApprovedAt(input.electionId);
     },
 
     async approveBallots(
       input: { electionId: ElectionId },
       { user }: ApiContext
     ): Promise<void> {
-      const finalizedAt = await store.getBallotsFinalizedAt(input.electionId);
+      const finalizedAt = await store.elections.getBallotsFinalizedAt(
+        input.electionId
+      );
       assert(finalizedAt, 'Ballots cannot be approved before being finalized');
 
-      await store.setBallotsApprovedAt({
+      await store.elections.setBallotsApprovedAt({
         approvedAt: new Date(),
         electionId: input.electionId,
       });
@@ -405,7 +411,7 @@ export function buildApi(ctx: AppContext) {
     }: {
       electionId: ElectionId;
     }): Promise<MainExportTaskMetadata> {
-      return store.getElectionPackage(electionId);
+      return store.tasks.getElectionPackage(electionId);
     },
 
     exportElectionPackage(input: {
@@ -416,7 +422,7 @@ export function buildApi(ctx: AppContext) {
       shouldExportTestBallots?: boolean;
       numAuditIdBallots?: number;
     }): Promise<void> {
-      return store.createElectionPackageBackgroundTask(input);
+      return store.tasks.createElectionPackageBackgroundTask(input);
     },
 
     async getLatestExportQaRun({
@@ -560,7 +566,9 @@ export function buildApi(ctx: AppContext) {
     async deleteQuickReportingResults(input: {
       electionId: ElectionId;
     }): Promise<void> {
-      const electionRecord = await store.getElection(input.electionId);
+      const electionRecord = await store.elections.getElection(
+        input.electionId
+      );
       await store.deleteQuickReportingResultsForElection(
         electionRecord.election.id
       );
@@ -684,7 +692,11 @@ export function buildApi(ctx: AppContext) {
       return baseUrl();
     },
 
-    ...buildTtsMethods(ctx),
+    ...buildTtsMethods({
+      speechSynthesizer: ctx.speechSynthesizer,
+      elections: store.elections,
+      ttsEdits: store,
+    }),
   } as const;
 
   return grout.createApi(methods, middlewares);

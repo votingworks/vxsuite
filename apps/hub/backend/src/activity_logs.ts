@@ -1,7 +1,8 @@
 import * as Sentry from '@sentry/node';
 import { format } from '@votingworks/utils';
 
-import type { Store, User, UserType } from '@votingworks/design-backend';
+import type { User, UserType } from '@votingworks/design-backend';
+import type { Store } from './store.js';
 import { baseUrl, slackWebhookUrl } from './globals.js';
 
 interface UserContext {
@@ -50,7 +51,7 @@ export async function logActivity(
   activity: Activity
 ): Promise<void> {
   const { type, userName, userType, electionId } = activity;
-  const { election } = await store.getElection(electionId);
+  const { election } = await store.elections.getElection(electionId);
   const jurisdiction = await store.getElectionJurisdiction(electionId);
 
   const message = ACTIVITY_TYPE_TO_MESSAGE[type];

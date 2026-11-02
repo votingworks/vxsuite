@@ -11,6 +11,7 @@ import {
 } from '@votingworks/design-backend';
 import type { WorkerContext } from './context.js';
 import { triggerCircleCiQaBuild } from './export_qa.js';
+import { createHubDesignFeatures } from '../design_features.js';
 import {
   generateTestDecks,
   GenerateTestDecksPayloadSchema,
@@ -47,7 +48,7 @@ async function processTask(
 ): Promise<void> {
   function emitProgress(label: string, progress: number, total: number): void {
     // @coverage-defer
-    context.workspace.store
+    context.workspace.store.tasks
       .updateBackgroundTaskProgress(taskId, {
         label,
         progress,
@@ -74,6 +75,10 @@ async function processTask(
       await generateElectionPackageAndBallots(
         {
           ...context,
+          elections: context.workspace.store.elections,
+          tasks: context.workspace.store.tasks,
+          features: createHubDesignFeatures(context.workspace.store),
+          ttsEdits: context.workspace.store,
           onElectionPackageExported: ({
             electionId,
             electionPackageUrl,

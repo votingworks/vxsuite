@@ -127,9 +127,9 @@ async function generate(
   scratchDir: ScratchDir
 ): Promise<void> {
   const { speechSynthesizer, translator } = ctx;
-  const { store } = ctx.workspace;
+  const { elections, tasks, features } = ctx;
 
-  const electionRecord = await store.getElection(electionId);
+  const electionRecord = await elections.getElection(electionId);
   const {
     ballotLanguageConfigs,
     ballotTemplateId,
@@ -137,7 +137,7 @@ async function generate(
     jurisdictionId,
   } = electionRecord;
   let { systemSettings } = electionRecord;
-  const { compact } = await store.getBallotLayoutSettings(electionId);
+  const { compact } = await elections.getBallotLayoutSettings(electionId);
 
   const officialBallotsZip = new Archiver();
   const sampleBallotsZip = new Archiver();
@@ -150,7 +150,7 @@ async function generate(
     name: ElectionPackageFileName.METADATA,
   });
 
-  const jurisdiction = await store.getJurisdiction(jurisdictionId);
+  const jurisdiction = await features.getJurisdiction(jurisdictionId);
   const election = addPollingPlacesForExport(
     electionRecord.election,
     jurisdiction,
@@ -277,7 +277,7 @@ async function generate(
   });
 
   const registeredVoterCounts =
-    await store.getRegisteredVoterCounts(electionId);
+    await elections.getRegisteredVoterCounts(electionId);
   electionPackageZip.addEntry(JSON.stringify(registeredVoterCounts, null, 2), {
     name: ElectionPackageFileName.REGISTERED_VOTER_COUNTS,
   });
@@ -286,7 +286,8 @@ async function generate(
     const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips({
       appStrings,
       electionStrings,
-      electionTtsEdits: await store.ttsEditsAll({ jurisdictionId }),
+      electionTtsEdits:
+        (await ctx.ttsEdits?.ttsEditsAll({ jurisdictionId })) ?? [],
       speechSynthesizer,
       emitProgress: (progress, total) =>
         emitProgress('Generating audio', progress, total),
@@ -379,7 +380,7 @@ async function generate(
       : undefined,
   ]);
 
-  await store.setElectionPackageExportInformation({
+  await tasks.setElectionPackageExportInformation({
     electionId,
     ballotHash: electionDefinition.ballotHash,
     electionPackageUrl,

@@ -22,10 +22,9 @@ import {
 } from '@votingworks/hmpb';
 import type {
   MainExportTaskMetadata,
-  Store,
   TaskName,
-  TestDecksTaskMetadata,
 } from '@votingworks/design-backend';
+import type { Store, TestDecksTaskMetadata } from './store.js';
 import { TestStore } from '../test/test_store.js';
 import {
   processNextBackgroundTaskIfAny,
@@ -212,35 +211,35 @@ test('Background task processing - task creation and retrieval', async () => {
   const store = testStore.getStore();
   const taskName = 'some_task_name' as TaskName;
 
-  expect(await store.getOldestQueuedBackgroundTask()).toEqual(undefined);
+  expect(await store.tasks.getOldestQueuedBackgroundTask()).toEqual(undefined);
 
-  const task1Id = await store.createBackgroundTask(taskName, {
+  const task1Id = await store.tasks.createBackgroundTask(taskName, {
     somePayload: 1,
   });
-  const task2Id = await store.createBackgroundTask(taskName, {
+  const task2Id = await store.tasks.createBackgroundTask(taskName, {
     somePayload: 2,
   });
 
-  expect(await store.getOldestQueuedBackgroundTask()).toEqual({
+  expect(await store.tasks.getOldestQueuedBackgroundTask()).toEqual({
     createdAt: expect.any(Date),
     id: task1Id,
     payload: '{"somePayload":1}',
     taskName,
   });
 
-  expect(await store.getBackgroundTask(task1Id)).toEqual({
+  expect(await store.tasks.getBackgroundTask(task1Id)).toEqual({
     createdAt: expect.any(Date),
     id: task1Id,
     payload: '{"somePayload":1}',
     taskName,
   });
-  expect(await store.getBackgroundTask(task2Id)).toEqual({
+  expect(await store.tasks.getBackgroundTask(task2Id)).toEqual({
     createdAt: expect.any(Date),
     id: task2Id,
     payload: '{"somePayload":2}',
     taskName,
   });
-  expect(await store.getBackgroundTask('non-existent-task-id')).toEqual(
+  expect(await store.tasks.getBackgroundTask('non-existent-task-id')).toEqual(
     undefined
   );
 });
@@ -249,16 +248,16 @@ test('Background task processing - starting and completing tasks', async () => {
   const store = testStore.getStore();
   const taskName = 'some_task_name' as TaskName;
 
-  expect(await store.getOldestQueuedBackgroundTask()).toEqual(undefined);
+  expect(await store.tasks.getOldestQueuedBackgroundTask()).toEqual(undefined);
 
-  const task1Id = await store.createBackgroundTask(taskName, {
+  const task1Id = await store.tasks.createBackgroundTask(taskName, {
     somePayload: 1,
   });
-  const task2Id = await store.createBackgroundTask(taskName, {
+  const task2Id = await store.tasks.createBackgroundTask(taskName, {
     somePayload: 2,
   });
 
-  expect(await store.getOldestQueuedBackgroundTask()).toEqual({
+  expect(await store.tasks.getOldestQueuedBackgroundTask()).toEqual({
     createdAt: expect.any(Date),
     id: task1Id,
     payload: '{"somePayload":1}',
@@ -266,14 +265,14 @@ test('Background task processing - starting and completing tasks', async () => {
   });
 
   // Start a task
-  await store.startBackgroundTask(task1Id);
-  expect(await store.getOldestQueuedBackgroundTask()).toEqual({
+  await store.tasks.startBackgroundTask(task1Id);
+  expect(await store.tasks.getOldestQueuedBackgroundTask()).toEqual({
     createdAt: expect.any(Date),
     id: task2Id,
     payload: '{"somePayload":2}',
     taskName,
   });
-  expect(await store.getBackgroundTask(task1Id)).toEqual({
+  expect(await store.tasks.getBackgroundTask(task1Id)).toEqual({
     createdAt: expect.any(Date),
     id: task1Id,
     payload: '{"somePayload":1}',
@@ -282,14 +281,14 @@ test('Background task processing - starting and completing tasks', async () => {
   });
 
   // Complete a task
-  await store.completeBackgroundTask(task1Id);
-  expect(await store.getOldestQueuedBackgroundTask()).toEqual({
+  await store.tasks.completeBackgroundTask(task1Id);
+  expect(await store.tasks.getOldestQueuedBackgroundTask()).toEqual({
     createdAt: expect.any(Date),
     id: task2Id,
     payload: '{"somePayload":2}',
     taskName,
   });
-  expect(await store.getBackgroundTask(task1Id)).toEqual({
+  expect(await store.tasks.getBackgroundTask(task1Id)).toEqual({
     completedAt: expect.any(Date),
     createdAt: expect.any(Date),
     id: task1Id,
@@ -299,10 +298,10 @@ test('Background task processing - starting and completing tasks', async () => {
   });
 
   // Complete a task with an error
-  await store.startBackgroundTask(task2Id);
-  await store.completeBackgroundTask(task2Id, 'Whoa!');
-  expect(await store.getOldestQueuedBackgroundTask()).toEqual(undefined);
-  expect(await store.getBackgroundTask(task2Id)).toEqual({
+  await store.tasks.startBackgroundTask(task2Id);
+  await store.tasks.completeBackgroundTask(task2Id, 'Whoa!');
+  expect(await store.tasks.getOldestQueuedBackgroundTask()).toEqual(undefined);
+  expect(await store.tasks.getBackgroundTask(task2Id)).toEqual({
     completedAt: expect.any(Date),
     createdAt: expect.any(Date),
     error: 'Whoa!',
@@ -317,26 +316,26 @@ test('Background task processing - requeuing interrupted tasks', async () => {
   const store = testStore.getStore();
   const taskName = 'some_task_name' as TaskName;
 
-  const task1Id = await store.createBackgroundTask(taskName, {
+  const task1Id = await store.tasks.createBackgroundTask(taskName, {
     somePayload: 1,
   });
-  const task2Id = await store.createBackgroundTask(taskName, {
+  const task2Id = await store.tasks.createBackgroundTask(taskName, {
     somePayload: 2,
   });
-  const task3Id = await store.createBackgroundTask(taskName, {
+  const task3Id = await store.tasks.createBackgroundTask(taskName, {
     somePayload: 3,
   });
-  const task4Id = await store.createBackgroundTask(taskName, {
+  const task4Id = await store.tasks.createBackgroundTask(taskName, {
     somePayload: 4,
   });
 
-  await store.startBackgroundTask(task1Id);
-  await store.completeBackgroundTask(task1Id);
-  await store.startBackgroundTask(task2Id);
-  await store.startBackgroundTask(task3Id);
+  await store.tasks.startBackgroundTask(task1Id);
+  await store.tasks.completeBackgroundTask(task1Id);
+  await store.tasks.startBackgroundTask(task2Id);
+  await store.tasks.startBackgroundTask(task3Id);
 
   async function expectTaskToBeQueued(taskId: string): Promise<void> {
-    const task = assertDefined(await store.getBackgroundTask(taskId));
+    const task = assertDefined(await store.tasks.getBackgroundTask(taskId));
     expect(task.startedAt).not.toBeDefined();
     expect(task.completedAt).not.toBeDefined();
   }
@@ -344,13 +343,13 @@ test('Background task processing - requeuing interrupted tasks', async () => {
   async function expectTaskToBeStartedButNotCompleted(
     taskId: string
   ): Promise<void> {
-    const task = assertDefined(await store.getBackgroundTask(taskId));
+    const task = assertDefined(await store.tasks.getBackgroundTask(taskId));
     expect(task.startedAt).toBeDefined();
     expect(task.completedAt).not.toBeDefined();
   }
 
   async function expectTaskToBeCompleted(taskId: string): Promise<void> {
-    const task = assertDefined(await store.getBackgroundTask(taskId));
+    const task = assertDefined(await store.tasks.getBackgroundTask(taskId));
     expect(task.startedAt).toBeDefined();
     expect(task.completedAt).toBeDefined();
   }
@@ -360,7 +359,7 @@ test('Background task processing - requeuing interrupted tasks', async () => {
   await expectTaskToBeStartedButNotCompleted(task3Id);
   await expectTaskToBeQueued(task4Id);
 
-  await store.requeueInterruptedBackgroundTasks();
+  await store.tasks.requeueInterruptedBackgroundTasks();
 
   await expectTaskToBeCompleted(task1Id);
   await expectTaskToBeQueued(task2Id);
@@ -372,31 +371,31 @@ test('graceful interruption - mark and requeue tasks', async () => {
   const store = testStore.getStore();
   const taskName: TaskName = 'generate_election_package';
 
-  const task1Id = await store.createBackgroundTask(taskName, {
+  const task1Id = await store.tasks.createBackgroundTask(taskName, {
     somePayload: 1,
   });
-  const task2Id = await store.createBackgroundTask(taskName, {
+  const task2Id = await store.tasks.createBackgroundTask(taskName, {
     somePayload: 2,
   });
 
-  await store.startBackgroundTask(task1Id);
-  await store.markRunningTaskAsGracefullyInterrupted();
+  await store.tasks.startBackgroundTask(task1Id);
+  await store.tasks.markRunningTaskAsGracefullyInterrupted();
 
-  let task1 = assertDefined(await store.getBackgroundTask(task1Id));
-  const task2 = assertDefined(await store.getBackgroundTask(task2Id));
+  let task1 = assertDefined(await store.tasks.getBackgroundTask(task1Id));
+  const task2 = assertDefined(await store.tasks.getBackgroundTask(task2Id));
 
   expect(task1.interruptedAt).toBeInstanceOf(Date);
   expect(task2.interruptedAt).toBeUndefined();
 
-  const crashedTasks = await store.failCrashedBackgroundTasks();
+  const crashedTasks = await store.tasks.failCrashedBackgroundTasks();
   expect(crashedTasks).toHaveLength(0);
 
   const requeuedTasks =
-    await store.requeueGracefullyInterruptedBackgroundTasks();
+    await store.tasks.requeueGracefullyInterruptedBackgroundTasks();
   expect(requeuedTasks).toHaveLength(1);
   expect(requeuedTasks[0]).toEqual(task1Id);
 
-  task1 = assertDefined(await store.getBackgroundTask(task1Id));
+  task1 = assertDefined(await store.tasks.getBackgroundTask(task1Id));
   expect(task1.startedAt).toBeUndefined();
   expect(task1.interruptedAt).toBeUndefined();
 });
@@ -611,7 +610,7 @@ test('getExportedElectionDefinition returns the exported election including reor
 
   // Verify that the last exported ballot hash matches the mocked value we returned
   const { store } = workspace;
-  const electionRecord = await store.getElection(electionId);
+  const electionRecord = await store.elections.getElection(electionId);
   expect(electionRecord.lastExportedBallotHash).toEqual(reorderedBallotHash);
 
   // Now get the exported election from the store using the election ID
@@ -666,7 +665,7 @@ test('createElectionPackageBackgroundTask clears previous export URLs', async ()
   const sampleBallotsUrl = '/files/sampleBallots.zip';
   const testBallotsUrl = '/files/testBallots.zip';
 
-  await workspace.store.setElectionPackageExportInformation({
+  await workspace.store.tasks.setElectionPackageExportInformation({
     ballotHash: 'ballot-hash',
     electionData: 'election-data',
     electionId,
@@ -676,7 +675,8 @@ test('createElectionPackageBackgroundTask clears previous export URLs', async ()
     testBallotsUrl,
   });
   {
-    const exportMeta = await workspace.store.getElectionPackage(electionId);
+    const exportMeta =
+      await workspace.store.tasks.getElectionPackage(electionId);
     expect(exportMeta).toEqual<MainExportTaskMetadata>({
       task: undefined,
 
@@ -687,12 +687,13 @@ test('createElectionPackageBackgroundTask clears previous export URLs', async ()
     });
   }
 
-  await workspace.store.createElectionPackageBackgroundTask({
+  await workspace.store.tasks.createElectionPackageBackgroundTask({
     electionId,
     electionSerializationFormat: 'vxf',
   });
   {
-    const exportMeta = await workspace.store.getElectionPackage(electionId);
+    const exportMeta =
+      await workspace.store.tasks.getElectionPackage(electionId);
     expect(exportMeta).toEqual<MainExportTaskMetadata>({
       task: expect.anything(),
     });
@@ -772,7 +773,7 @@ test('uses number-aware sorting on relevant entities', async () => {
     res.unsafeUnwrap();
   }
 
-  const { election } = await workspace.store.getElection(electionId);
+  const { election } = await workspace.store.elections.getElection(electionId);
 
   expect(election.precincts.map((p) => p.name)).toEqual([
     'precinct 3',
@@ -838,7 +839,7 @@ test('getExportedElection returns election-out-of-date error when election data 
 
   // Get the ballot hash from the stored election
   const { store } = workspace;
-  const electionRecord = await store.getElection(electionId);
+  const electionRecord = await store.elections.getElection(electionId);
   assertDefined(electionRecord.lastExportedBallotHash);
 
   // Mock parsing to return an error, simulating an outdated election schema

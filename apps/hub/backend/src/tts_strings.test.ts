@@ -8,7 +8,11 @@ import {
   type TtsEdit,
   type TtsEditKey,
 } from '@votingworks/types';
-import type { ElectionRecord, Store } from '@votingworks/design-backend';
+import type {
+  ElectionRecord,
+  ElectionStore,
+  TtsEditsStore,
+} from '@votingworks/design-backend';
 import {
   buildTtsMethods,
   type TtsApiContext,
@@ -39,7 +43,9 @@ test('ttsSynthesizeFromText', async () => {
 });
 
 test('ttsEditsGet', async () => {
-  const mockStore: Partial<Mocked<Store>> = {
+  const mockStore: Partial<
+    Mocked<TtsEditsStore & Pick<ElectionStore, 'getElection'>>
+  > = {
     ttsEditsGet: vi.fn(),
   };
 
@@ -55,7 +61,10 @@ test('ttsEditsGet', async () => {
     text: 'ratatooie',
   };
 
-  const api = newApi({ workspace: { store: mockStore } });
+  const api = newApi({
+    ttsEdits: mockStore as TtsEditsStore,
+    elections: mockStore as unknown as ElectionStore,
+  });
 
   assert(mockStore.ttsEditsGet);
   mockStore.ttsEditsGet.mockImplementationOnce((key) => {
@@ -68,14 +77,19 @@ test('ttsEditsGet', async () => {
 });
 
 test('ttsEditsSet', async () => {
-  const mockStore: Partial<Mocked<Store>> = {
+  const mockStore: Partial<
+    Mocked<TtsEditsStore & Pick<ElectionStore, 'getElection'>>
+  > = {
     ttsEditsSet: vi.fn(),
   };
 
   assert(mockStore.ttsEditsSet);
   mockStore.ttsEditsSet.mockResolvedValueOnce();
 
-  const api = newApi({ workspace: { store: mockStore } });
+  const api = newApi({
+    ttsEdits: mockStore as TtsEditsStore,
+    elections: mockStore as unknown as ElectionStore,
+  });
   const input: Parameters<typeof api.ttsEditsSet>[0] = {
     jurisdictionId: 'nh',
     languageCode: 'en',
@@ -238,8 +252,13 @@ test('ttsStringDefaults - accounts for all relevant strings', async () => {
     electionDate: [],
   };
 
-  const mockStore: Partial<Mocked<Store>> = { getElection: vi.fn() };
-  const api = newApi({ workspace: { store: mockStore } });
+  const mockStore: Partial<
+    Mocked<TtsEditsStore & Pick<ElectionStore, 'getElection'>>
+  > = { getElection: vi.fn() };
+  const api = newApi({
+    ttsEdits: mockStore as TtsEditsStore,
+    elections: mockStore as unknown as ElectionStore,
+  });
 
   assert(mockStore.getElection);
   mockStore.getElection.mockImplementationOnce((electionId) => {
@@ -274,8 +293,13 @@ test('ttsStringDefaults - new/empty election', async () => {
     title: '',
   };
 
-  const mockStore: Partial<Mocked<Store>> = { getElection: vi.fn() };
-  const api = newApi({ workspace: { store: mockStore } });
+  const mockStore: Partial<
+    Mocked<TtsEditsStore & Pick<ElectionStore, 'getElection'>>
+  > = { getElection: vi.fn() };
+  const api = newApi({
+    ttsEdits: mockStore as TtsEditsStore,
+    elections: mockStore as unknown as ElectionStore,
+  });
 
   const electionRecord: PartialDeep<ElectionRecord> = { election };
   assert(mockStore.getElection);
@@ -307,8 +331,13 @@ test('ttsStringDefaults - spot checks for sort order', async () => {
     precincts: [],
   };
 
-  const mockStore: Partial<Mocked<Store>> = { getElection: vi.fn() };
-  const api = newApi({ workspace: { store: mockStore } });
+  const mockStore: Partial<
+    Mocked<TtsEditsStore & Pick<ElectionStore, 'getElection'>>
+  > = { getElection: vi.fn() };
+  const api = newApi({
+    ttsEdits: mockStore as TtsEditsStore,
+    elections: mockStore as unknown as ElectionStore,
+  });
 
   const electionRecord: PartialDeep<ElectionRecord> = { election };
   assert(mockStore.getElection);

@@ -7,7 +7,8 @@ import {
   restoreImagesInTranslation,
 } from '@votingworks/backend';
 import type { NonEnglishLanguageCode } from '@votingworks/types';
-import { type Store, isValidPrimaryKey } from '@votingworks/design-backend';
+import { isValidPrimaryKey } from '@votingworks/design-backend';
+import { type Store } from './store.js';
 import { TranslationSourceCounts } from './translation_source_counts.js';
 
 /**

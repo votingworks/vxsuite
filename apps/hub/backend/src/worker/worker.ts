@@ -11,28 +11,28 @@ export async function processNextBackgroundTaskIfAny(
 ): Promise<{ wasTaskProcessed: boolean }> {
   const { store } = context.workspace;
 
-  const nextTask = await store.getOldestQueuedBackgroundTask();
+  const nextTask = await store.tasks.getOldestQueuedBackgroundTask();
 
   if (!nextTask) {
     return { wasTaskProcessed: false };
   }
 
-  await store.startBackgroundTask(nextTask.id);
+  await store.tasks.startBackgroundTask(nextTask.id);
   console.log(`⏳ Processing background task ${nextTask.id}...`);
   try {
     await processBackgroundTask(context, nextTask);
   } catch (error) {
     const errorMessage = extractErrorMessage(error);
     const errorStack = error instanceof Error ? error.stack : undefined;
-    await store.completeBackgroundTask(nextTask.id, errorMessage);
+    await store.tasks.completeBackgroundTask(nextTask.id, errorMessage);
     console.log(
       `❌ Error processing background task ${nextTask.id}:\n${errorMessage}\n${errorStack}`
     );
     return { wasTaskProcessed: true };
   }
-  await store.completeBackgroundTask(nextTask.id);
+  await store.tasks.completeBackgroundTask(nextTask.id);
   const completedTask = assertDefined(
-    await store.getBackgroundTask(nextTask.id)
+    await store.tasks.getBackgroundTask(nextTask.id)
   );
   const durationSeconds =
     (assertDefined(completedTask.completedAt).getTime() -
@@ -57,7 +57,7 @@ export async function start(
   async function handleSigterm() {
     console.log('Received SIGTERM, marking graceful shutdown...');
     try {
-      await store.markRunningTaskAsGracefullyInterrupted();
+      await store.tasks.markRunningTaskAsGracefullyInterrupted();
       console.log('Marked running task as gracefully interrupted');
       console.log('Graceful shutdown complete, exiting...');
     } catch (error) {
@@ -69,7 +69,7 @@ export async function start(
 
   process.on('SIGTERM', handleSigterm);
 
-  const crashedTaskIds = await store.failCrashedBackgroundTasks();
+  const crashedTaskIds = await store.tasks.failCrashedBackgroundTasks();
 
   if (crashedTaskIds.length > 0) {
     console.warn(
@@ -91,7 +91,7 @@ export async function start(
   }
 
   const requeuedTaskIds =
-    await store.requeueGracefullyInterruptedBackgroundTasks();
+    await store.tasks.requeueGracefullyInterruptedBackgroundTasks();
   if (requeuedTaskIds.length > 0) {
     console.log(
       `🔄 Requeued ${

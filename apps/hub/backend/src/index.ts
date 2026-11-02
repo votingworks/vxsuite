@@ -21,8 +21,8 @@ export type {
   DuplicatePartyError,
   MainExportTaskMetadata,
   SetPollingPlaceError,
-  TestDecksTaskMetadata,
 } from '@votingworks/design-backend';
+export type { TestDecksTaskMetadata } from './store.js';
 export type {
   User,
   JurisdictionUser,

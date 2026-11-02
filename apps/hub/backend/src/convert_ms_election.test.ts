@@ -8,6 +8,7 @@ import {
 import {
   type Jurisdiction,
   defaultSystemSettings,
+  getStateFeaturesConfig,
   addPollingPlacesForExport,
 } from '@votingworks/design-backend';
 import { convertMsElection } from './convert_ms_election.js';
@@ -37,8 +38,9 @@ afterAll(async () => {
 });
 
 async function expectValidElection(election: Election) {
-  await store.createElection({
-    jurisdiction,
+  await store.elections.createElection({
+    jurisdictionId: jurisdiction.id,
+    stateFeatures: getStateFeaturesConfig(jurisdiction),
     election,
     isMiCombinedBallotPrimary: false,
     ballotTemplateId: 'VxDefaultBallot',
@@ -46,7 +48,7 @@ async function expectValidElection(election: Election) {
   });
   // MS is a non-editing state, so the working election is stored without
   // polling places; they are generated at export. Validate the export form.
-  const stored = (await store.getElection(election.id)).election;
+  const stored = (await store.elections.getElection(election.id)).election;
   expect(
     safeParseElection(
       addPollingPlacesForExport(

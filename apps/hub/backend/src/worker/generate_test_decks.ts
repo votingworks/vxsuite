@@ -74,7 +74,7 @@ async function generate(
   scratchDir: ScratchDir
 ): Promise<void> {
   const { store } = workspace;
-  const electionRecord = await store.getElection(electionId);
+  const electionRecord = await store.elections.getElection(electionId);
   const {
     ballotLanguageConfigs,
     ballotTemplateId,
@@ -96,7 +96,7 @@ async function generate(
     jurisdiction,
     systemSettings
   );
-  const { compact } = await store.getBallotLayoutSettings(electionId);
+  const { compact } = await store.elections.getBallotLayoutSettings(electionId);
 
   // Check if summary BMD ballots should be generated
   const shouldGenerateSummaryBallots =

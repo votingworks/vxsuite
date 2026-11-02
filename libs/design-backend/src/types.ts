@@ -84,6 +84,11 @@ export interface ElectionListing {
   externalSource?: ExternalElectionSource;
 }
 
+export type ElectionListingWithoutJurisdictionName = Omit<
+  ElectionListing,
+  'jurisdictionName'
+>;
+
 export interface ElectionInfo {
   jurisdictionId: string;
   electionId: ElectionId;

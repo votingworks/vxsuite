@@ -1622,7 +1622,9 @@ test('registered voter counts are stored and retrieved for precincts and splits'
   ).unsafeUnwrap();
 
   // Verify getRegisteredVoterCounts for split precincts
-  expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
+  expect(
+    await workspace.store.elections.getRegisteredVoterCounts(electionId)
+  ).toEqual({
     'precinct-1': 750,
     'precinct-2': {
       splits: {
@@ -1633,10 +1635,12 @@ test('registered voter counts are stored and retrieved for precincts and splits'
   });
 
   // Update registered voter counts and assert update was written
-  await workspace.store.setPrecinctRegisteredVoterCounts(precinct2, {
+  await workspace.store.elections.setPrecinctRegisteredVoterCounts(precinct2, {
     splits: { 'split-1': 250, 'split-2': 350 },
   });
-  expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
+  expect(
+    await workspace.store.elections.getRegisteredVoterCounts(electionId)
+  ).toEqual({
     'precinct-1': 750,
     'precinct-2': {
       splits: {
@@ -1671,7 +1675,9 @@ test('registered voter counts are stored and retrieved for precincts and splits'
       registeredVoterCounts: { splits: { 'split-3a': 400 } },
     })
   ).unsafeUnwrap();
-  expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
+  expect(
+    await workspace.store.elections.getRegisteredVoterCounts(electionId)
+  ).toEqual({
     'precinct-1': 750,
     'precinct-2': {
       splits: {
@@ -1710,7 +1716,9 @@ test('registered voter counts are stored and retrieved for precincts and splits'
   ).unsafeUnwrap();
 
   // Precincts with no counts should not appear in getRegisteredVoterCounts
-  expect(await workspace.store.getRegisteredVoterCounts(electionId)).toEqual({
+  expect(
+    await workspace.store.elections.getRegisteredVoterCounts(electionId)
+  ).toEqual({
     'precinct-1': 750,
     'precinct-2': {
       splits: {
@@ -3746,7 +3754,8 @@ test('Election package and ballots export', async () => {
 
   // Re-fetch ballot styles after creating the split precinct since the new
   // precinct gets assigned to an existing ballot style.
-  const electionRecord = await workspace.store.getElection(electionId);
+  const electionRecord =
+    await workspace.store.elections.getElection(electionId);
   const { ballotStyles } = electionRecord.election;
 
   // Set registered voter counts on non-split precincts before export.
@@ -4445,7 +4454,7 @@ test('export - with `splitElectionDefinition` setting on', async () => {
   });
 
   const electionId = newElectionRes.unsafeUnwrap();
-  const { election } = await workspace.store.getElection(electionId);
+  const { election } = await workspace.store.elections.getElection(electionId);
   const { ballotStyles } = election;
 
   await apiClient.updateSystemSettings({

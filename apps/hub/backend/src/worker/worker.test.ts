@@ -75,7 +75,7 @@ describe('processNextBackgroundTaskIfAny', () => {
     const taskError = new Error('Task failed unexpectedly');
     const context = createMockContext();
 
-    const taskId = await store.createBackgroundTask(
+    const taskId = await store.tasks.createBackgroundTask(
       'generate_election_package',
       {}
     );
@@ -88,7 +88,7 @@ describe('processNextBackgroundTaskIfAny', () => {
 
     expect(result).toEqual({ wasTaskProcessed: true });
 
-    const task = await store.getBackgroundTask(taskId);
+    const task = await store.tasks.getBackgroundTask(taskId);
     expect(task?.startedAt).toBeDefined();
     expect(task?.completedAt).toBeDefined();
     expect(task?.error).toEqual('Task failed unexpectedly');
@@ -99,7 +99,7 @@ describe('processNextBackgroundTaskIfAny', () => {
   test('handles non-Error thrown values gracefully', async () => {
     const context = createMockContext();
 
-    const taskId = await store.createBackgroundTask(
+    const taskId = await store.tasks.createBackgroundTask(
       'generate_election_package',
       {}
     );
@@ -112,7 +112,7 @@ describe('processNextBackgroundTaskIfAny', () => {
 
     expect(result).toEqual({ wasTaskProcessed: true });
 
-    const task = await store.getBackgroundTask(taskId);
+    const task = await store.tasks.getBackgroundTask(taskId);
     expect(task?.completedAt).toBeDefined();
     expect(task?.error).toEqual('string error value');
 
@@ -125,12 +125,12 @@ describe('start', () => {
     const abortController = new AbortController();
     const context = createMockContext();
 
-    const interruptedTaskId = await store.createBackgroundTask(
+    const interruptedTaskId = await store.tasks.createBackgroundTask(
       'generate_election_package',
       {}
     );
-    await store.startBackgroundTask(interruptedTaskId);
-    await store.markRunningTaskAsGracefullyInterrupted();
+    await store.tasks.startBackgroundTask(interruptedTaskId);
+    await store.tasks.markRunningTaskAsGracefullyInterrupted();
 
     processBackgroundTaskMock.mockResolvedValue(undefined);
 
@@ -140,7 +140,7 @@ describe('start', () => {
     abortController.abort();
     await startPromise;
 
-    const task = await store.getBackgroundTask(interruptedTaskId);
+    const task = await store.tasks.getBackgroundTask(interruptedTaskId);
     expect(task?.startedAt).toBeUndefined();
     expect(task?.interruptedAt).toBeUndefined();
 
@@ -151,17 +151,17 @@ describe('start', () => {
     const abortController = new AbortController();
     const context = createMockContext();
 
-    const crashed1Id = await store.createBackgroundTask(
+    const crashed1Id = await store.tasks.createBackgroundTask(
       'generate_election_package',
       {}
     );
-    await store.startBackgroundTask(crashed1Id);
+    await store.tasks.startBackgroundTask(crashed1Id);
 
-    const crashed2Id = await store.createBackgroundTask(
+    const crashed2Id = await store.tasks.createBackgroundTask(
       'generate_test_decks',
       {}
     );
-    await store.startBackgroundTask(crashed2Id);
+    await store.tasks.startBackgroundTask(crashed2Id);
 
     const consoleWarnSpy = vi
       .spyOn(console, 'warn')
@@ -182,11 +182,11 @@ describe('start', () => {
       expect.stringContaining(crashed2Id)
     );
 
-    const task1 = await store.getBackgroundTask(crashed1Id);
+    const task1 = await store.tasks.getBackgroundTask(crashed1Id);
     expect(task1?.error).toEqual('Task crashed and was marked as failed');
     expect(task1?.completedAt).toBeDefined();
 
-    const task2 = await store.getBackgroundTask(crashed2Id);
+    const task2 = await store.tasks.getBackgroundTask(crashed2Id);
     expect(task2?.error).toEqual('Task crashed and was marked as failed');
     expect(task2?.completedAt).toBeDefined();
 
@@ -198,7 +198,7 @@ describe('start', () => {
     const abortController = new AbortController();
     const context = createMockContext();
 
-    const taskId = await store.createBackgroundTask(
+    const taskId = await store.tasks.createBackgroundTask(
       'generate_election_package',
       {}
     );
@@ -227,7 +227,7 @@ describe('start', () => {
     process.emit('SIGTERM');
     await exitPromise;
 
-    const task = await store.getBackgroundTask(taskId);
+    const task = await store.tasks.getBackgroundTask(taskId);
     expect(task?.interruptedAt).toBeDefined();
 
     expect(consoleSpy).toHaveBeenCalledWith(
@@ -279,12 +279,12 @@ describe('start', () => {
     const abortController = new AbortController();
     const context = createMockContext();
 
-    const gracefulTaskId = await store.createBackgroundTask(
+    const gracefulTaskId = await store.tasks.createBackgroundTask(
       'generate_election_package',
       {}
     );
-    await store.startBackgroundTask(gracefulTaskId);
-    await store.markRunningTaskAsGracefullyInterrupted();
+    await store.tasks.startBackgroundTask(gracefulTaskId);
+    await store.tasks.markRunningTaskAsGracefullyInterrupted();
 
     processBackgroundTaskMock.mockResolvedValue(undefined);
 
