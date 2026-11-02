@@ -231,6 +231,73 @@ Found, not fixed:
 - Every backend source change restarts the dev backend and logs out the mock
   card. That's normal dev behavior, but it bites scripted testing.
 
+## Rendering benchmark at Shawnee scale (2026-11-02)
+
+**Proxy, not VxAdmin hardware.** This was run on a Parallels VM on Apple
+Silicon: aarch64, 8 vCPU, 31 GB RAM. No VxAdmin hardware is confirmed. Real x86
+VxAdmin hardware may differ a lot per core, so these numbers need repeating on
+the real machine.
+
+Setup:
+
+- Synthetic Kansas-style county elections: 242 precincts, 87 polling places, 34
+  districts.
+- General: 51 contests (federal, state, legislative, county, 8 judicial
+  retentions, 5 school boards with vote-for-3, 9 city council, 3 questions).
+- Closed primary: 53 contests (D and R partisan slates plus one question).
+- "low" and "high" are two precinct-to-district layouts that produce different
+  ballot-style counts.
+- Each run is a real export through `generateElectionPackageAndBallots` with the
+  VxDefault template, English only, against Postgres.
+- Peak memory is the summed RSS of the node process plus all Chromium processes,
+  sampled every 0.5 s.
+- Scripts are in this session's scratchpad (`bench/`), not committed.
+
+| Run                                    | Pool | Styles | PDFs  | Wall (s)           | Layout (s) | Render (s) | Peak RSS (MB) |
+| -------------------------------------- | ---- | ------ | ----- | ------------------ | ---------- | ---------- | ------------- |
+| general-low, official + test           | 4    | 31     | 968   | 85                 | 59         | 27         | 2,216         |
+| general-low, official only             | 4    | 31     | 484   | 44                 | 30         | 14         | 2,379         |
+| general-low, official + sample + test  | 4    | 31     | 1,452 | 126                | 88         | 38         | 2,628         |
+| general-high, official + test          | 4    | 204    | 968   | 87                 | 59         | 27         | 2,529         |
+| general-high, official only            | 4    | 204    | 484   | 44                 | 30         | 14         | 2,165         |
+| general-high, official + sample + test | 4    | 204    | 1,452 | **1,399** (stall)  | 94         | **1,305**  | 2,783         |
+| general-high, official + test          | 2    | 204    | 968   | **410** (stall)    | **369**    | 41         | 2,204         |
+| general-high, official + test (re-run) | 2    | 204    | 968   | 118                | 75         | 43         | 1,821         |
+| general-high, official + test          | 8    | 204    | 968   | 74                 | 52         | 22         | 3,332         |
+| primary-low, official + test           | 4    | 62     | 1,936 | 110                | 68         | 43         | 2,900         |
+| primary-high, official + test          | 4    | 408    | 1,936 | **1,366** (stall?) | **1,323**  | 42         | 3,570         |
+
+The DEMO state profile exports official and L&A test ballots and no samples.
+PDFs = precincts × 2 ballot types (precinct, absentee) × the modes exported, and
+× 2 parties for the primary.
+
+Findings:
+
+- **Time scales with PDF count, not ballot-style count.** 31 and 204 styles take
+  the same time for the same number of PDFs. Skipping the sample and test
+  variants halves the time (968 → 484 PDFs: 87 s → 44 s).
+- **Layout is about two thirds of the time, and it is redone per variant.**
+  Layout runs once per (precinct, ballot type, mode) even though content is
+  identical within a ballot style. Laying out once per style, as the findings
+  doc suggests, is the obvious first optimization.
+- **The node main thread looks like the bottleneck.** Pool 2 → 4 → 8 gives 118 s
+  → 87 s → 74 s: 8 pages buy only 15% over 4. `top` showed the node main thread
+  at about 87% of a core during layout while Chromium pages sat at 13–33% each.
+  Pool 4 is a reasonable default; 8 costs about 800 MB more for little gain.
+- **Stalls.** Three of ten runs had one phase 10–40× slower than an otherwise
+  identical run. The pool-2 re-run was normal (118 s, 229 s CPU, so busy the
+  whole time), which points to a VM or host pause rather than real work. The
+  408-style primary stall was not re-run (stopped on request), so a real
+  slowdown at very high style counts can't be ruled out. Worth re-testing on
+  hardware, with a per-phase timeout and progress watchdog in the export task.
+- **Memory:** 1.8–3.6 GB peak for the whole process tree, growing with pool size
+  and PDF count.
+
+**Takeaway:** on this VM, a Shawnee-scale general exports in about 1.5 minutes
+(official + test, pool 4, about 2.5 GB peak). Laying out once per ballot style
+should cut that substantially. Real VxAdmin hardware numbers and the stall
+behavior are still open.
+
 ## Hacked vs production-ready
 
 Closest to production-ready (extract first):
