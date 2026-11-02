@@ -1,4 +1,4 @@
-import { test } from 'vitest';
+import { beforeAll, test } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { asSheet, DEFAULT_MARK_THRESHOLDS } from '@votingworks/types';
@@ -12,6 +12,11 @@ import { benchmarkRegressionTest } from './benchmarking.js';
 const { electionDefinition, precinctId, blankBallotPath, markedBallotPath } =
   vxFamousNamesFixtures;
 const validPrecinctIds = new Set([assertDefined(precinctId)]);
+let ballotPositionsDbPath: string;
+
+beforeAll(() => {
+  ballotPositionsDbPath = makeBallotPositionsDb(electionDefinition.election);
+});
 
 test('Blank HMPB', async () => {
   const ballotImages = asSheet(
@@ -28,9 +33,7 @@ test('Blank HMPB', async () => {
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
-          ballotPositionsDbPath: makeBallotPositionsDb(
-            electionDefinition.election
-          ),
+          ballotPositionsDbPath,
         },
         ballotImages
       );
@@ -54,9 +57,7 @@ test('Marked HMPB', async () => {
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
-          ballotPositionsDbPath: makeBallotPositionsDb(
-            electionDefinition.election
-          ),
+          ballotPositionsDbPath,
         },
         ballotImages
       );

@@ -1,4 +1,4 @@
-import { test } from 'vitest';
+import { beforeAll, test } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { asSheet, DEFAULT_MARK_THRESHOLDS } from '@votingworks/types';
@@ -17,6 +17,11 @@ import {
 import { benchmarkRegressionTest } from './benchmarking.js';
 
 const { electionDefinition, precinctId } = vxFamousNamesFixtures;
+let ballotPositionsDbPath: string;
+
+beforeAll(() => {
+  ballotPositionsDbPath = makeBallotPositionsDb(electionDefinition.election);
+});
 
 test('Blank BMD', async () => {
   const famousNamesBmdBallot = asSheet(
@@ -41,9 +46,7 @@ test('Blank BMD', async () => {
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [],
-          ballotPositionsDbPath: makeBallotPositionsDb(
-            electionDefinition.election
-          ),
+          ballotPositionsDbPath,
         },
         famousNamesBmdBallot
       );
