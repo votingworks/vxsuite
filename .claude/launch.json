@@ -1,0 +1,26 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "admin",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--dir", "apps/admin/frontend", "start"],
+      "port": 3000
+    },
+    {
+      "name": "admin-nowatch",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "(cd apps/admin/backend && VX_MACHINE_TYPE=admin NODE_ENV=development node ./build/index.js) & (cd apps/admin/frontend && pnpm dev:server); wait"
+      ],
+      "port": 3000
+    },
+    {
+      "name": "admin-frontend-only",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--dir", "apps/admin/frontend", "dev:server"],
+      "port": 3000
+    }
+  ]
+}

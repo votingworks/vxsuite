@@ -2,6 +2,219 @@
 
 Scratch branch `caro/admin-design-scratch-8e1aa9`. Not for merging.
 
+## v2: aligned with the architecture plan (2026-11-02)
+
+Plan: `vxadmin-ballot-design-scope-3718fd/research/architecture-and-pr-plan.md`.
+Everything below "Step 1" is the v1 history; this section is the current state.
+
+### Commits (oldest first)
+
+1. `93550db8f0` **Store composition.**
+   - `libs/design-backend` now holds only `ElectionStore` (election content,
+     settings, layout, template, finalize/approve, polling places,
+     list/create/delete) and `BackgroundTaskStore` (task queue plus export
+     package columns), each taking the shared `Db`.
+   - Hub's `Store` moved back to `apps/hub/backend/src/store.ts`. It composes
+     `store.elections` and `store.tasks` and keeps the hub-only methods (orgs,
+     users, jurisdictions, live reports, export QA, test decks, caches, TTS
+     edits).
+   - `ElectionStore` gets state features from an injected
+     `getStateFeatures(electionId)`. It never joins `jurisdictions`.
+     `listElections` returns rows without the jurisdiction name, and hub adds
+     the name.
+   - API builders take `store: ElectionStore` plus a
+     `DesignFeaturesProvider { getJurisdiction, getStateFeatures }`.
+     `buildTtsMethods` takes a `TtsEditsStore` (hub passes its `Store`).
+   - Export context: `{ elections, tasks, features, ttsEdits? }`.
+2. `323233c8c8` **Split migrations.**
+   - The 51 old migrations are replaced by two squashed baselines generated from
+     `pg_dump` of the old schema:
+     - lib: `libs/design-backend/migrations/1767225600000_design-baseline.ts`,
+       17 tables, under `design_pgmigrations`;
+     - hub: `apps/hub/backend/migrations/1767225600001_hub-baseline.ts`, 9
+       tables plus `jurisdictions.software_version`, `elections.test_decks_*`
+       and the `user_type`/`software_version` enums, under `hub_pgmigrations`.
+   - Each baseline adopts an existing schema (all tables present → record it and
+     do nothing), creates the schema on an empty DB, and refuses a partial one.
+   - Hub's runner (`src/migrations.ts`, `scripts/run-migrations.sh`, used by
+     `db:migrations:run` and so by `heroku.yml`) runs lib then hub.
+   - `node-pg-migrate` is now a devDependency of the lib. The lib `Client`
+     exposes `pgClient`, and the lib keeps only a dev-only runner in `src/dev/`.
+   - Verified locally on PG15:
+     - fresh lib + hub baselines `pg_dump` == old 51 migrations (119/119
+       statements, normalized for column order);
+     - on a DB built by the old 51, the runner records both baselines, leaves
+       the schema unchanged and leaves `pgmigrations` (51 rows) untouched;
+     - a partial schema is refused;
+     - hub store/app/worker/TTS/MS tests pass (99).
+3. `a40647a75e` **Generated schema.sql.**
+   - `pnpm db:generate-schema` in `libs/design-backend` runs the lib migrations
+     on a temp DB and dumps with `pg_dump` 15 (fails on another major version).
+   - It strips `\restrict`, `SET transaction_timeout` and the `search_path`
+     `set_config` line, and writes `libs/design-backend/schema.sql`.
+   - `readDesignSchema()` returns the SQL and its hash.
+4. `4e0bf31cf4` **Admin backend.**
+   - `design_db.ts` applies `schema.sql` in one transaction on an empty DB and
+     records the hash in `design_schema_version`. On a mismatch: dev drops and
+     recreates; production refuses, which shows Design as unavailable.
+   - It seeds a hard-coded org and jurisdiction.
+   - `design_state.ts` derives the state from `VX_MACHINE_JURISDICTION`
+     (`{state}.{county}`; `vx.*` → DEMO; the dev dock override wins in dev
+     only). `stateCodeForJurisdiction` gives: vx.test → DEMO, mi.ottawa → MI,
+     ks.shawnee/ca.orange/jurisdiction → no profile.
+   - `election_design_service.ts`: lazy init with retries, `/design-api` router,
+     and `getExportedElectionPackagePath` for promote.
+   - `design_export.ts` forks `export_child.ts`:
+     - one export at a time, pool cap 4, 3 GB heap;
+     - progress over IPC plus in `background_tasks`;
+     - a 5-minute no-progress watchdog that kills the child and fails the task;
+     - crashed tasks are failed at startup.
+   - The child signs the election package with `prepareSignatureFile`
+     (`<zip>.vxsig`), not the ballot zips.
+   - `configureFromDesign` is on admin's **main** API, with the unconfigured
+     check.
+   - `unfinalizeBallots` clears the export.
+   - Design ballot zips are hidden from the unconfigured package picker.
+   - `saveProofToUsb` added.
+   - Files dir: `/vx/data/admin-design-files` in production,
+     `<workspace>-design-files` in dev.
+5. `9bd36b08fb` **design-ui.**
+   - `DesignContext` (apiClient, basePath, ElectionNavScreen, Header,
+     reportError, saveFile) replaces `ApiClientContext` and
+     `DesignShellContext`.
+   - `useDesignRoutes()` is built from `basePath`; the module-level base path
+     and the `Proxy` are gone. Hub still exports root-mounted `routes` and
+     `electionParamRoutes` constants.
+   - All design query keys are prefixed with `'design'`.
+   - The proof viewer uses `saveFile` when provided.
+   - Both libs' `index.ts` now use generated named exports, with no `export *`.
+6. `baba173ab7` **Admin frontend.** One QueryClient, a `DesignContext` provider
+   at `/design`, a status gate (DB unavailable / unsupported state), and promote
+   via the main API's `configureFromDesign` hook.
+7. `2de7c110d9`, `d3a741c04a` **Click-through fixes.** Dev recreates unversioned
+   design DBs. The org/jurisdiction seed moved to init, because concurrent first
+   requests raced on `organizations_name_key`; per request only the state code
+   is updated.
+
+### Click-through (v2)
+
+Screenshots are `v2-*` in `/media/psf/Shared/screenshots/`.
+
+Verified in the browser:
+
+- list (state now from the jurisdiction), load from USB, finalize and export in
+  the forked child;
+- save to USB, which wrote the package, `.vxsig`, official and test ballot zips.
+  The `.vxsig` verifies with `authenticateArtifactUsingSignatureFile`;
+- proof PDF saved to USB via `saveFile`;
+- configure from design via the main API, return to Design while configured,
+  unconfigure leaves drafts.
+
+Found:
+
+- **The export child needs `VX_MACHINE_TYPE`** (for signing). `pnpm start` sets
+  it; my no-watch launcher didn't, so the first export failed at signing with
+  `Missing required VX_MACHINE_TYPE env var`. That's dev setup, but the child
+  should fail fast with a clear error.
+- In that failed run the backend process exited about 5 minutes after the
+  export, which matches the watchdog timing. I couldn't capture its stderr (the
+  launcher swallowed it). It didn't recur on the clean run; result below.
+
+### Code layout
+
+- `libs/design-backend`
+  - `db/` (`Db`, `Client` with `pgClient`; `DESIGN_MIGRATIONS_DIR`/`TABLE`)
+  - `election_store.ts` and `background_task_store.ts` (the shared stores)
+  - `design_providers.ts` (`DesignFeaturesProvider`, `TtsEditsStore`)
+  - `election_definition_api.ts` (`buildElectionDefinitionMethods`,
+    `cloneElection`), `ballot_preview_api.ts`, `tts_api.ts`, and
+    `election_design_api_type.ts` (`ElectionDesignApi`)
+  - state profile: `features.ts`, `ballots.ts`, `system_settings.ts`
+  - export: `export/` (generate, ballot PDFs, zip on zip-stream, context) and
+    `file_storage.ts`
+  - `migrations/` (lib baseline), `schema.sql`, `schema.ts`,
+    `scripts/generate-schema.sh`, `src/dev/run_design_migrations.ts`
+- `libs/design-ui`
+  - `design_context.tsx` (`DesignContext`, `useDesignContext`,
+    `useDesignRoutes`)
+  - `routes.ts` (`buildDesignRoutes`), `api.ts` (shared-method hooks, `'design'`
+    keys)
+  - the tab screens, forms and lists, audio panels, `ballot_screen.tsx`
+- `apps/hub/backend`
+  - `store.ts` (hub `Store` composing `elections` and `tasks`)
+  - `design_features.ts`, `migrations.ts`, `migrations/` (hub baseline),
+    `scripts/run-migrations.sh`
+  - `app.ts` spreads the builders with `store.elections` and
+    `createHubDesignFeatures(store)`; `worker/` passes the composed stores into
+    the export
+- `apps/hub/frontend`: `api.ts` (hub-only hooks, re-exports design-ui), app
+  wrapped in `DesignContext` with `basePath: ''`
+- `apps/admin/backend/src/design`
+  - `design_db.ts` (open, apply `schema.sql`, seed, state sync)
+  - `design_state.ts`, `design_features.ts`, `design_api.ts` (`/design-api`)
+  - `election_design_service.ts`, `design_export.ts` + `export_child.ts`,
+    `offline_clients.ts`
+  - `app.ts` has `configureFromDesign`
+- `apps/admin/frontend/src/design`: `design_area.tsx` (`DesignContext`, status
+  gate, routes), `admin_design_shell.tsx`, `design_api.ts` (admin-only hooks),
+  list/load/ballots screens; `api.ts` has the `configureFromDesign` hook
+
+### Still different from the plan
+
+- The method builders are still one big `buildElectionDefinitionMethods` plus
+  preview and TTS, not one builder per tab. That split is mechanical and belongs
+  with each slice.
+- `TestStore` and tests haven't moved to the libs (hub's tests still cover the
+  moved code; many hub screen tests still mock moved modules). No
+  `createMockDesignApiClient` / `renderWithDesignContext` helpers.
+- No CI changes: no `POSTGRES_PACKAGES` entry, no 15/16.6/17 matrix, no
+  `schema.sql` sync check, no CI schema-equality check, and
+  `ci-validate-migrations.sh` not updated for two dirs. The equality and
+  adoption checks were run locally only.
+- `ImageSource` is not injected. Seal and signature still use a browser file
+  input in admin.
+- Logging still uses hub's `ApiCall` event in an `after` middleware (no design
+  `LogEventId`s), per "no upfront logging work".
+- The features provider has `getJurisdiction` in addition to `getStateFeatures`,
+  and no `getUserFeatures`, since design-ui doesn't need it. `getJurisdiction`
+  is needed for state-default settings and template, and for
+  `softwareVersion`/org in the export.
+- Admin serves `buildTtsMethods` with a stub `TtsEditsStore`, so the client type
+  stays honest. Audio stays masked off.
+- Lint is not clean, and commits used `--no-verify`.
+- The intermediate commit `93550db8f0` does not type-check admin-backend; admin
+  catches up in `4e0bf31cf4`.
+
+### Plan items that should change
+
+- **Translation/TTS tables:** the plan contradicts itself. "Migrations: two
+  owners" puts `translation_cache`, `speech_synthesis_cache` and `tts_edits` in
+  hub; "Translation and audio seams" says they're "already in the shared
+  schema". I followed the migrations section (hub-owned), so admin's DB doesn't
+  have them. The translation/audio owner needs to pick one before slice 1b. If
+  audio import lands in Part 1 they probably move to the lib.
+- **Schema equality** can't be a plain `pg_dump` diff. Moving hub-only columns
+  (`elections.test_decks_*`, `jurisdictions.software_version`) into hub's
+  baseline changes column order, so the CI check must normalize column order, or
+  hub's baseline must recreate those tables (worse).
+- **`pg_dump` 15.19 emits `\restrict <random>` lines,** a 2025 security fix, so
+  the dump differs on every run. The generator and the sync check must strip
+  them along with `SET transaction_timeout`. The search_path `set_config` line
+  must also go, or admin's pooled connection keeps an empty search_path.
+- **The runner command:** `heroku.yml` appends `--no-reject-unauthorized` to
+  `db:migrations:run`, so the two-directory runner must be a script that passes
+  arguments to both runs, not an `&&` chain.
+- **Removing `node-pg-migrate` from admin** needs the lib's runner kept out of
+  its runtime entry point, because the lib `Client` imported `node-pg-migrate`
+  at module load. Worth saying in 1b.
+- **Seeding the org and jurisdiction:** do it once at init. A per-request upsert
+  races on `organizations_name_key`.
+- **The export child depends on the machine env** (`VX_MACHINE_TYPE`, cert
+  paths) for signing. 10b/10c should validate that in the parent before forking.
+- **Dev DB recreate:** "drop and recreate on hash mismatch in dev" should also
+  cover a non-empty DB with no version table, which is every existing dev DB
+  built by migrations.
+
 ## Step 1: how to share code between VxHub and VxAdmin
 
 Facts that shape the options:
