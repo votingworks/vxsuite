@@ -4137,9 +4137,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
-      expect-type:
-        specifier: ^0.15.0
-        version: 0.15.0
       express:
         specifier: 4.22.0
         version: 4.22.0(supports-color@5.5.0)
@@ -4168,9 +4165,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../eslint-plugin-vx
-      expect-type:
-        specifier: ^0.15.0
-        version: 0.15.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -10307,9 +10301,6 @@ packages:
   expand-template@2.0.3:
     resolution: {integrity: sha512-XYfuKMvj4O35f/pOXLObndIRvyQ+/+6AhODh+OKWj9S9498pHHn/IMszH+gt0fBCRWMNfk1ZSp5x3AifmnI2vg==}
     engines: {node: '>=6'}
-
-  expect-type@0.15.0:
-    resolution: {integrity: sha512-yWnriYB4e8G54M5/fAFj7rCIBiKs1HAACaY13kCz6Ku0dezjS9aMcfcdVK2X8Tv2tEV1BPz/wKfQ7WA4S/d8aA==}
 
   expect-type@1.4.0:
     resolution: {integrity: sha512-KfYbmpRm0VbLjEvVa9yGwCi9GI34xvi7A/HXYWQO65CSD2u3MczUJSuwXKFIxlGsgBQizV9q5J9NHj4VG0n+pA==}
@@ -18997,8 +18988,6 @@ snapshots:
     optional: true
 
   expand-template@2.0.3: {}
-
-  expect-type@0.15.0: {}
 
   expect-type@1.4.0: {}
 
