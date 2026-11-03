@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { mockBaseLogger } from '@votingworks/logging';
 import {
   electionStraightPartyFixtures,
@@ -11,7 +11,6 @@ import {
   type CandidateOrderings,
   pollingPlaceBallotStyles,
   safeParseSystemSettings,
-  TEST_JURISDICTION,
 } from '@votingworks/types';
 import { getPdfPageCount } from '@votingworks/image-utils/pdf';
 import { TestLanguageCode } from '@votingworks/test-utils';
@@ -27,6 +26,7 @@ import type { BallotMetaStore } from '@votingworks/backend';
 import { makeDerivedStraightPartyVotesExplicit } from '@votingworks/utils';
 import { renderBallot } from './render_ballot.js';
 import { createWorkspace, type Workspace } from './workspace.js';
+import { configureStore } from '../../test/store_helpers.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const electionGeneral = electionGeneralDefinition.election;
@@ -72,20 +72,21 @@ const [precinctId] = ballotStyle!.precincts;
 
 let workspace: Workspace;
 
-beforeEach(() => {
+beforeEach(async () => {
   const mockWorkspaceDir = makeTemporaryDirectory();
   workspace = createWorkspace(mockWorkspaceDir, mockBaseLogger({ fn: vi.fn }));
-  workspace.store.setElectionAndJurisdiction({
-    electionData: electionGeneralDefinition.electionData,
-    jurisdiction: TEST_JURISDICTION,
-    electionPackageHash: 'test-election-package-hash',
-    ballotHash: electionGeneralDefinition.ballotHash,
+  await configureStore(workspace.store, {
+    electionDefinition: electionGeneralDefinition,
+    systemSettings: safeParseSystemSettings(
+      systemSettings.asText()
+    ).unsafeUnwrap(),
+    pollingPlaceId: pollingPlace.id,
   });
-  workspace.store.setPollingPlaceId(pollingPlace.id);
-  workspace.store.setSystemSettings(
-    safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
-  );
   workspace.store.setTestMode(true);
+});
+
+afterEach(() => {
+  workspace[Symbol.dispose]();
 });
 
 test('tries as many layouts as necessary and proceeds with the first that works', async () => {
@@ -171,13 +172,8 @@ test('includes votes derived from a straight party selection', async () => {
   const electionDefinition =
     electionStraightPartyFixtures.readElectionDefinition();
   const { election } = electionDefinition;
-  workspace.store.reset();
-  workspace.store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
-    jurisdiction: TEST_JURISDICTION,
-    electionPackageHash: 'test-election-package-hash',
-    ballotHash: electionDefinition.ballotHash,
-  });
+  workspace.unconfigure();
+  await configureStore(workspace.store, { electionDefinition });
   workspace.store.setTestMode(true);
   const straightPartyBallotStyle = election.ballotStyles[0]!;
   vi.mocked(getLayout).mockReturnValue(

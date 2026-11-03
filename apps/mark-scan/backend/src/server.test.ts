@@ -45,7 +45,7 @@ test('can start server', async () => {
   expect(server.listening).toBeTruthy();
   expect(vi.mocked(initializeSystemAudio)).toHaveBeenCalled();
   server.close();
-  workspace.reset();
+  workspace[Symbol.dispose]();
 });
 
 test('can start without providing auth', async () => {
@@ -67,7 +67,7 @@ test('can start without providing auth', async () => {
   });
   expect(server.listening).toBeTruthy();
   server.close();
-  workspace.reset();
+  workspace[Symbol.dispose]();
 });
 
 test('logs device attach/un-attach events', async () => {
@@ -90,7 +90,7 @@ test('logs device attach/un-attach events', async () => {
   testDetectDevices(logger, expect);
 
   server.close();
-  workspace.reset();
+  workspace[Symbol.dispose]();
 });
 
 test('resolveDriver returns a mock driver if feature flag is on', async () => {

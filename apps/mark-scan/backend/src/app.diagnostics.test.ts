@@ -29,6 +29,7 @@ import {
   createApp,
   waitForStatus as waitForStatusHelper,
 } from '../test/app_helpers.js';
+import type { Workspace } from './util/workspace.js';
 import {
   delays,
   type PaperHandlerStateMachine,
@@ -105,6 +106,7 @@ let patConnectionStatusReader: PatConnectionStatusReader;
 let mockUsbDrive: MockUsbDrive;
 let logger: Logger;
 let clock: SimulatedClock;
+let workspace: Workspace;
 
 async function waitForStatus(
   status: string,
@@ -145,6 +147,7 @@ beforeEach(async () => {
   logger = result.logger;
   server = result.server;
   stateMachine = result.stateMachine;
+  workspace = result.workspace;
   mockUsbDrive = result.mockUsbDrive;
   driver = result.driver;
   clock = result.clock;
@@ -153,6 +156,7 @@ beforeEach(async () => {
 afterEach(async () => {
   await stateMachine.cleanUp();
   server?.close();
+  workspace[Symbol.dispose]();
 });
 
 test('diagnostic records', async () => {
