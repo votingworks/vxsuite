@@ -62,14 +62,13 @@ import {
   type UserFeaturesConfig,
   type ElectionDesignMethods,
 } from '@votingworks/design-backend';
+import { type MainExportTaskMetadata } from './design_store/background_task_store.js';
 import {
-  type MainExportTaskMetadata,
-  buildBallotPreviewMethods,
-  buildTtsMethods,
   ttsMethodsThatHandleAuthThemselves,
-  buildElectionDefinitionMethods,
+  buildElectionDesignMethods,
+  buildElectionSetupMethods,
   cloneElection,
-} from '@votingworks/design-store-pg';
+} from '@votingworks/design-backend';
 import { type TestDecksTaskMetadata, type Store } from './store.js';
 import type { AppContext } from './context.js';
 import {
@@ -131,14 +130,17 @@ export function buildApi(ctx: AppContext) {
   const { auth0, logger, workspace, translator } = ctx;
   const { store } = workspace;
   const designFeatures = createHubDesignFeatures(store);
-  const electionDefinitionMethods = buildElectionDefinitionMethods({
+  const designMethods = buildElectionDesignMethods({
+    store: store.elections,
+    features: designFeatures,
+    translator,
+    speechSynthesizer: ctx.speechSynthesizer,
+    ttsEdits: store,
+  });
+  const setupMethods = buildElectionSetupMethods({
     store: store.elections,
     features: designFeatures,
     convertMsElection,
-  });
-  const ballotPreviewMethods = buildBallotPreviewMethods({
-    store: store.elections,
-    translator,
   });
 
   async function requireElectionAccess(user: User, electionId: ElectionId) {
@@ -240,8 +242,8 @@ export function buildApi(ctx: AppContext) {
   };
 
   const methods = {
-    ...electionDefinitionMethods,
-    ...ballotPreviewMethods,
+    ...designMethods,
+    ...setupMethods,
 
     async listJurisdictions(
       _input: undefined,
@@ -694,12 +696,6 @@ export function buildApi(ctx: AppContext) {
     getBaseUrl(): string {
       return baseUrl();
     },
-
-    ...buildTtsMethods({
-      speechSynthesizer: ctx.speechSynthesizer,
-      elections: store.elections,
-      ttsEdits: store,
-    }),
   } as const;
 
   return grout.createApi(methods satisfies ElectionDesignMethods, middlewares);

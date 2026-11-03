@@ -16,7 +16,6 @@
     { "path": "../../../libs/ballot-interpreter/tsconfig.build.json" },
     { "path": "../../../libs/coverage-check/tsconfig.build.json" },
     { "path": "../../../libs/design-backend/tsconfig.build.json" },
-    { "path": "../../../libs/design-store-pg/tsconfig.build.json" },
     { "path": "../../../libs/fixtures/tsconfig.build.json" },
     { "path": "../../../libs/grout/tsconfig.build.json" },
     { "path": "../../../libs/hmpb/tsconfig.build.json" },

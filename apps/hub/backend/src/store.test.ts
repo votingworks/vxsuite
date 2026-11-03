@@ -23,7 +23,7 @@ import {
 import type {
   MainExportTaskMetadata,
   TaskName,
-} from '@votingworks/design-store-pg';
+} from './design_store/background_task_store.js';
 import type { Store, TestDecksTaskMetadata } from './store.js';
 import { TestStore } from '../test/test_store.js';
 import {

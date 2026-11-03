@@ -8,7 +8,7 @@
 set -euo pipefail
 export LC_ALL=C
 
-MIGRATION_DIR="${MIGRATION_DIR:-libs/design-backend/migrations}"
+MIGRATION_DIR="${MIGRATION_DIR:-apps/hub/backend/design-migrations}"
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT" >/dev/null 2>&1
 MODE="${1:-auto}"

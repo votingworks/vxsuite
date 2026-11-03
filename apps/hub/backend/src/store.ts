@@ -87,8 +87,8 @@ import type {
   ElectionStatus,
   ElectionInfoUpdate,
 } from '@votingworks/design-backend';
-import { Db } from '@votingworks/design-store-pg';
-import type { Bindable, Client } from '@votingworks/design-store-pg';
+import { Db } from './design_store/db/db.js';
+import type { Bindable, Client } from './design_store/db/client.js';
 import { generateId } from '@votingworks/design-backend';
 import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from '@votingworks/design-backend';
 import { CandidateOrderingsMap } from '@votingworks/design-backend';
@@ -96,8 +96,8 @@ import { getStateFeaturesConfig } from '@votingworks/design-backend';
 import {
   type BackgroundTask,
   BackgroundTaskStore,
-  ElectionStore,
-} from '@votingworks/design-store-pg';
+} from './design_store/background_task_store.js';
+import { ElectionStore } from './design_store/election_store.js';
 
 export interface TestDecksTaskMetadata {
   task?: BackgroundTask;

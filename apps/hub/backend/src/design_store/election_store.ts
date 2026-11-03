@@ -76,6 +76,7 @@ import {
   buildElectionRecord,
   contestOrderPlacingNewCandidateContest,
   contestsFromRows,
+  type DesignElectionStore,
   type DuplicateContestError,
   type DuplicateDistrictError,
   type DuplicateElectionError,
@@ -426,7 +427,7 @@ export interface ElectionStoreOptions {
   getStateFeatures(electionId: ElectionId): Promise<StateFeaturesConfig>;
 }
 
-export class ElectionStore {
+export class ElectionStore implements DesignElectionStore {
   private readonly db: Db;
   private readonly options: ElectionStoreOptions;
 

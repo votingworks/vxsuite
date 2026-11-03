@@ -74,7 +74,6 @@
     "@types/zip-stream": "workspace:*",
     "@vitest/coverage-istanbul": "5.0.2",
     "@votingworks/coverage-check": "workspace:*",
-    "@votingworks/design-store-pg": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "csv-parse": "^7.0.2",

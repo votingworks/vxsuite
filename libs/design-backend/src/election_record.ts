@@ -201,6 +201,23 @@ export function contestOrderPlacingNewCandidateContest(
   return contestIds;
 }
 
+const NH_OPTION_KEYS = [
+  'electionTitleOverride',
+  'electionSealOverride',
+  'clerkSignatureImage',
+  'clerkSignatureCaption',
+] as const satisfies ReadonlyArray<keyof NhPrecinctSplitOptions>;
+
+function canonicalNhOptions(
+  nhOptions: NhPrecinctSplitOptions
+): NhPrecinctSplitOptions {
+  const canonical: NhPrecinctSplitOptions = {};
+  for (const key of NH_OPTION_KEYS) {
+    if (nhOptions[key] !== undefined) canonical[key] = nhOptions[key];
+  }
+  return canonical;
+}
+
 export function precinctsFromRows(
   precinctRows: readonly PrecinctRow[],
   precinctSplitRows: readonly PrecinctSplitRow[]
@@ -212,7 +229,7 @@ export function precinctsFromRows(
         id: split.id,
         name: split.name,
         districtIds: split.districtIds,
-        ...split.nhOptions,
+        ...canonicalNhOptions(split.nhOptions),
       }));
     return splits.length > 0
       ? { id: row.id, name: row.name, splits }

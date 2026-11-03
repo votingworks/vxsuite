@@ -11,6 +11,8 @@ import type { Client as DbClient } from '@votingworks/db';
 import {
   type BallotTemplateId,
   buildElectionRecord,
+  type CreateElectionParams,
+  type DesignElectionStore,
   type CandidateRow,
   contestOrderPlacingNewCandidateContest,
   contestsFromRows,
@@ -191,7 +193,7 @@ export interface DesignStoreOptions {
   getStateFeatures(electionId: ElectionId): StateFeaturesConfig;
 }
 
-export class DesignStore {
+export class DesignStore implements DesignElectionStore {
   private readonly client: DbClient;
   private readonly options: DesignStoreOptions;
 
@@ -214,14 +216,7 @@ export class DesignStore {
     ballotTemplateId,
     systemSettings,
     externalSource,
-  }: {
-    stateFeatures: StateFeaturesConfig;
-    election: Election;
-    isMiCombinedBallotPrimary: boolean;
-    ballotTemplateId: BallotTemplateId;
-    systemSettings: SystemSettings;
-    externalSource?: ExternalElectionSource;
-  }): void {
+  }: CreateElectionParams): void {
     if (isMiCombinedBallotPrimary && !stateFeatures.COMBINED_BALLOT_PRIMARIES) {
       throw new Error(
         'Combined ballot primary elections are not supported for this jurisdiction'

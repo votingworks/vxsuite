@@ -4,58 +4,28 @@ import { basename, join } from 'node:path';
 import type { DippedSmartCardAuthApi } from '@votingworks/auth';
 import {
   type ExportDataError,
+  GoogleCloudSpeechSynthesizer,
   GoogleCloudTranslator,
   readElectionPackageFromFile,
 } from '@votingworks/backend';
 import { err, ok, type Result, wrapException } from '@votingworks/basics';
 import {
-  type BallotPreviewInput,
-  type BallotTemplateId,
-  type BallotPreviewResult,
+  buildElectionDesignMethods,
+  type TtsEditsStore,
   createBlankElection,
   defaultBallotTemplate,
   defaultSystemSettings,
-  type DuplicateContestError,
-  type DuplicateDistrictError,
-  type DuplicateElectionError,
-  type DuplicatePartyError,
-  type DuplicatePrecinctError,
   type ElectionDesignMethods,
-  type ElectionInfo,
-  type ElectionInfoUpdate,
-  ElectionInfoUpdateSchema,
   generateId,
   prepareLoadedElection,
-  renderBallotPreview,
-  type SetPollingPlaceError,
-  type StateFeaturesConfig,
-  ttsStringDefaultsForElection,
-  type TtsStringDefault,
 } from '@votingworks/design-backend';
 import * as grout from '@votingworks/grout';
 
 import { LogEventId, type Logger } from '@votingworks/logging';
 import {
-  type BallotStyle,
-  type Contest,
-  ContestSchema,
-  type District,
   type ElectionId,
-  type ElectionRegisteredVoterCounts,
-  getAllBallotLanguages,
-  type HmpbBallotPaperSize,
-  type Party,
-  type PollingPlace,
-  PollingPlaceSchema,
-  type Precinct,
-  type PrecinctId,
-  type PrecinctRegisteredVoterCountEntry,
-  PrecinctRegisteredVoterCountEntrySchema,
-  PrecinctSchema,
   type StateCode,
   type SystemSettings,
-  type TtsEdit,
-  unsafeParse,
 } from '@votingworks/types';
 import {
   createUsbDriveAdapter,
@@ -72,7 +42,10 @@ import {
 } from './design_features.js';
 import { getMachineDesignState } from './design_state.js';
 import type { DesignExport, DesignStore } from './design_store.js';
-import { OFFLINE_TRANSLATION_CLIENT } from './offline_clients.js';
+import {
+  OFFLINE_TEXT_TO_SPEECH_CLIENT,
+  OFFLINE_TRANSLATION_CLIENT,
+} from './offline_clients.js';
 
 export type DesignStatus =
   | { status: 'ready'; stateCode: StateCode }
@@ -100,13 +73,12 @@ function supportedStateCode(): StateCode {
   return state.stateCode;
 }
 
-function parseRegisteredVoterCounts(
-  counts?: PrecinctRegisteredVoterCountEntry
-): PrecinctRegisteredVoterCountEntry | undefined {
-  return counts !== undefined
-    ? unsafeParse(PrecinctRegisteredVoterCountEntrySchema, counts)
-    : undefined;
-}
+const UNSUPPORTED_TTS_EDITS: TtsEditsStore = {
+  ttsEditsAll: () => Promise.resolve([]),
+  ttsEditsGet: () => Promise.resolve(null),
+  ttsEditsSet: () =>
+    Promise.reject(new Error('Audio editing is not available in VxAdmin.')),
+};
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildDesignApi({
@@ -151,6 +123,7 @@ export function buildDesignApi({
   ): void {
     const jurisdiction = localJurisdiction(supportedStateCode());
     store.createElection({
+      jurisdictionId: jurisdiction.id,
       stateFeatures: englishOnlyStateFeatures(jurisdiction.stateCode),
       election,
       isMiCombinedBallotPrimary,
@@ -159,228 +132,28 @@ export function buildDesignApi({
     });
   }
 
-  const sharedMethods = {
-    getElectionInfo(input: { electionId: ElectionId }): ElectionInfo {
-      const {
-        election,
-        isMiCombinedBallotPrimary,
-        ballotLanguageConfigs,
-        jurisdictionId,
-        externalSource,
-      } = store.getElection(input.electionId);
-      return {
-        jurisdictionId,
-        electionId: election.id,
-        title: election.title,
-        date: election.date,
-        type: election.type,
-        isMiCombinedBallotPrimary,
-        state: election.state,
-        jurisdictionName: election.jurisdiction.name,
-        seal: election.seal,
-        signatureImage: election.signature?.image,
-        signatureCaption: election.signature?.caption,
-        languageCodes: getAllBallotLanguages(ballotLanguageConfigs),
-        externalSource,
-      };
+  const sharedMethods = buildElectionDesignMethods({
+    store,
+    features: {
+      getJurisdiction: () =>
+        Promise.resolve(localJurisdiction(supportedStateCode())),
+      getStateFeatures: () =>
+        Promise.resolve(englishOnlyStateFeatures(supportedStateCode())),
     },
-
-    updateElectionInfo(
-      input: ElectionInfoUpdate
-    ): Result<void, DuplicateElectionError> {
-      return store.updateElectionInfo(
-        unsafeParse(ElectionInfoUpdateSchema, input)
-      );
-    },
-
-    async deleteElection(input: { electionId: ElectionId }): Promise<void> {
-      store.deleteElection(input.electionId);
-      await designExporter.clearFiles();
-    },
-
-    listDistricts(input: { electionId: ElectionId }): readonly District[] {
-      return store.listDistricts(input.electionId);
-    },
-
-    updateDistricts(input: {
-      electionId: ElectionId;
-      deletedDistrictIds?: string[];
-      newDistricts?: District[];
-      updatedDistricts?: District[];
-    }): Result<void, DuplicateDistrictError> {
-      return store.updateDistricts(input);
-    },
-
-    listPrecincts(input: { electionId: ElectionId }): readonly Precinct[] {
-      return store.listPrecincts(input.electionId);
-    },
-
-    createPrecinct(input: {
-      electionId: ElectionId;
-      newPrecinct: Precinct;
-      registeredVoterCounts?: PrecinctRegisteredVoterCountEntry;
-    }): Result<void, DuplicatePrecinctError> {
-      const precinct = unsafeParse(PrecinctSchema, input.newPrecinct);
-      const result = store.createPrecinct(input.electionId, precinct);
-      if (result.isErr()) return result;
-      store.setPrecinctRegisteredVoterCounts(
-        precinct,
-        parseRegisteredVoterCounts(input.registeredVoterCounts)
-      );
-      return ok();
-    },
-
-    updatePrecinct(input: {
-      electionId: ElectionId;
-      updatedPrecinct: Precinct;
-      registeredVoterCounts?: PrecinctRegisteredVoterCountEntry;
-    }): Result<void, DuplicatePrecinctError> {
-      const precinct = unsafeParse(PrecinctSchema, input.updatedPrecinct);
-      const result = store.updatePrecinct(input.electionId, precinct);
-      if (result.isErr()) return result;
-      store.setPrecinctRegisteredVoterCounts(
-        precinct,
-        parseRegisteredVoterCounts(input.registeredVoterCounts)
-      );
-      return ok();
-    },
-
-    deletePrecinct(input: {
-      electionId: ElectionId;
-      precinctId: PrecinctId;
-    }): void {
-      store.deletePrecinct(input.electionId, input.precinctId);
-    },
-
-    getRegisteredVoterCounts(input: {
-      electionId: ElectionId;
-    }): ElectionRegisteredVoterCounts {
-      return store.getRegisteredVoterCounts(input.electionId);
-    },
-
-    listPollingPlaces(input: { electionId: string }): PollingPlace[] {
-      return store.listPollingPlaces(input.electionId);
-    },
-
-    setPollingPlace(input: {
-      electionId: ElectionId;
-      place: PollingPlace;
-    }): Result<void, SetPollingPlaceError> {
-      return store.setPollingPlace(
-        input.electionId,
-        unsafeParse(PollingPlaceSchema, input.place)
-      );
-    },
-
-    deletePollingPlace(input: { electionId: string; id: string }): void {
-      store.deletePollingPlace(input);
-    },
-
-    listParties(input: { electionId: ElectionId }): readonly Party[] {
-      return store.listParties(input.electionId);
-    },
-
-    updateParties(input: {
-      electionId: ElectionId;
-      deletedPartyIds?: string[];
-      newParties?: Party[];
-      updatedParties?: Party[];
-    }): Result<void, DuplicatePartyError> {
-      return store.updateParties(input);
-    },
-
-    listContests(input: { electionId: ElectionId }): readonly Contest[] {
-      return store.listContests(input.electionId);
-    },
-
-    createContest(input: {
-      electionId: ElectionId;
-      newContest: Contest;
-    }): Result<void, DuplicateContestError> {
-      return store.createContest(
-        input.electionId,
-        unsafeParse(ContestSchema, input.newContest)
-      );
-    },
-
-    updateContest(input: {
-      electionId: ElectionId;
-      updatedContest: Contest;
-    }): Result<void, DuplicateContestError> {
-      return store.updateContest(
-        input.electionId,
-        unsafeParse(ContestSchema, input.updatedContest)
-      );
-    },
-
-    reorderContests(input: {
-      electionId: ElectionId;
-      contestIds: string[];
-    }): void {
-      store.reorderContests(input.electionId, input.contestIds);
-    },
-
-    deleteContest(input: { electionId: ElectionId; contestId: string }): void {
-      store.deleteContest(input.electionId, input.contestId);
-    },
-
-    listBallotStyles(input: {
-      electionId: ElectionId;
-    }): readonly BallotStyle[] {
-      return store.listBallotStyles(input.electionId);
-    },
-
-    getBallotLayoutSettings(input: { electionId: ElectionId }): {
-      paperSize: HmpbBallotPaperSize;
-      compact: boolean;
-    } {
-      return store.getBallotLayoutSettings(input.electionId);
-    },
-
-    getBallotTemplate(input: { electionId: ElectionId }): BallotTemplateId {
-      return store.getBallotTemplate(input.electionId);
-    },
-
-    getBallotsFinalizedAt(input: { electionId: ElectionId }): Date | null {
-      return store.getBallotsFinalizedAt(input.electionId);
-    },
-
-    getBallotPreviewPdf(
-      input: BallotPreviewInput
-    ): Promise<BallotPreviewResult> {
-      return renderBallotPreview({
-        electionRecord: store.getElection(input.electionId),
-        compact: store.getBallotLayoutSettings(input.electionId).compact,
-        translator,
-        input,
-      });
-    },
-
-    getStateFeatures(): StateFeaturesConfig {
-      return englishOnlyStateFeatures(supportedStateCode());
-    },
-
-    ttsEditsGet(): TtsEdit | null {
-      return null;
-    },
-
-    ttsEditsSet(): void {
-      throw new Error('Audio editing is not available in VxAdmin.');
-    },
-
-    ttsStringDefaults(input: { electionId: string }): TtsStringDefault[] {
-      return ttsStringDefaultsForElection(
-        store.getElection(input.electionId).election
-      );
-    },
-
-    ttsSynthesizeFromText(): string {
-      throw new Error('Speech synthesis is not available in VxAdmin.');
-    },
-  } as const;
+    translator,
+    speechSynthesizer: new GoogleCloudSpeechSynthesizer({
+      textToSpeechClient: OFFLINE_TEXT_TO_SPEECH_CLIENT,
+    }),
+    ttsEdits: UNSUPPORTED_TTS_EDITS,
+  });
 
   const methods = {
     ...sharedMethods,
+
+    async deleteElection(input: { electionId: ElectionId }): Promise<void> {
+      await sharedMethods.deleteElection(input);
+      await designExporter.clearFiles();
+    },
 
     getDesignStatus(): DesignStatus {
       const state = getMachineDesignState();

@@ -1,9 +1,6 @@
 import * as migrate from 'node-pg-migrate';
-import type { Client } from '../db/client.js';
-import {
-  DESIGN_MIGRATIONS_DIR,
-  DESIGN_MIGRATIONS_TABLE,
-} from '../db/client.js';
+import type { Client } from './db/client.js';
+import { DESIGN_MIGRATIONS_DIR, DESIGN_MIGRATIONS_TABLE } from './db/client.js';
 
 export async function runDesignMigrations(
   client: Client,

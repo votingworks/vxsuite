@@ -5,7 +5,7 @@ import {
   type Client,
   DESIGN_MIGRATIONS_DIR,
   DESIGN_MIGRATIONS_TABLE,
-} from '@votingworks/design-store-pg';
+} from './design_store/db/client.js';
 import { NODE_ENV } from './globals.js';
 
 export const HUB_MIGRATIONS_DIR = join(import.meta.dirname, '../migrations');

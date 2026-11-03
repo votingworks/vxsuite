@@ -11,6 +11,17 @@ export type {
 } from './design_providers.js';
 export { renderBallotPreview } from './ballot_preview.js';
 export type {
+  CreateElectionParams,
+  DesignElectionStore,
+  MaybePromise,
+} from './design_election_store.js';
+export {
+  buildElectionDesignMethods,
+  buildElectionSetupMethods,
+  cloneElection,
+  ttsMethodsThatHandleAuthThemselves,
+} from './election_design_methods.js';
+export type {
   BallotPreviewInput,
   BallotPreviewResult,
 } from './ballot_preview.js';

@@ -133,7 +133,7 @@ import {
   type GenerateElectionPackageAndBallotsPayload,
   GenerateElectionPackageAndBallotsPayloadSchema,
 } from '@votingworks/design-backend';
-import { type MainExportTaskMetadata } from '@votingworks/design-store-pg';
+import { type MainExportTaskMetadata } from './design_store/background_task_store.js';
 import { buildApi } from './app.js';
 import {
   organizations,

@@ -1,6 +1,5 @@
-export { describeElectionStoreContract } from './election_store_contract.js';
+export { describeDesignElectionStoreTests } from './election_store_contract.js';
 export type {
-  ContractElectionStore,
-  ContractHarness,
-  ContractHarnessFactory,
+  DesignElectionStoreHarness,
+  DesignElectionStoreHarnessFactory,
 } from './election_store_contract.js';

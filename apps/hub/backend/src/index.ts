@@ -23,7 +23,7 @@ export type {
 export type {
   BackgroundTask,
   MainExportTaskMetadata,
-} from '@votingworks/design-store-pg';
+} from './design_store/background_task_store.js';
 export type { TestDecksTaskMetadata } from './store.js';
 export type {
   User,

@@ -1,0 +1,281 @@
+{
+  "election": {
+    "id": "round-trip-election",
+    "type": "general",
+    "title": "Round Trip General Election",
+    "date": "2026-11-03",
+    "jurisdiction": {
+      "id": "county-id",
+      "name": "Hillsborough County"
+    },
+    "state": "DEMO",
+    "seal": "<svg>seal</svg>",
+    "signature": {
+      "image": "<svg>signature</svg>",
+      "caption": "Town Clerk"
+    },
+    "districts": [
+      {
+        "id": "rt-district-1",
+        "name": "District 1"
+      },
+      {
+        "id": "rt-district-2",
+        "name": "District 2"
+      },
+      {
+        "id": "rt-district-3",
+        "name": "District 10"
+      }
+    ],
+    "precincts": [
+      {
+        "id": "rt-precinct-1",
+        "name": "Precinct 1",
+        "districtIds": [
+          "rt-district-1",
+          "rt-district-2"
+        ]
+      },
+      {
+        "id": "rt-precinct-2",
+        "name": "Precinct 2",
+        "splits": [
+          {
+            "id": "rt-split-1",
+            "name": "Split A",
+            "districtIds": [
+              "rt-district-1"
+            ],
+            "electionTitleOverride": "Split A Title",
+            "electionSealOverride": "<svg>split seal</svg>",
+            "clerkSignatureImage": "<svg>split signature</svg>",
+            "clerkSignatureCaption": "Split Clerk"
+          },
+          {
+            "id": "rt-split-2",
+            "name": "Split B",
+            "districtIds": [
+              "rt-district-2",
+              "rt-district-3"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "rt-precinct-3",
+        "name": "Precinct 10",
+        "districtIds": []
+      }
+    ],
+    "pollingPlaces": [
+      {
+        "id": "rt-place-1",
+        "name": "Mail Ballots",
+        "precincts": {
+          "rt-precinct-1": {
+            "type": "whole"
+          },
+          "rt-precinct-2": {
+            "type": "whole"
+          },
+          "rt-precinct-3": {
+            "type": "whole"
+          }
+        },
+        "type": "absentee"
+      },
+      {
+        "id": "rt-place-2",
+        "name": "Town Hall",
+        "precincts": {
+          "rt-precinct-1": {
+            "type": "whole"
+          }
+        },
+        "type": "early_voting"
+      },
+      {
+        "id": "rt-place-3",
+        "name": "School Gym",
+        "precincts": {
+          "rt-precinct-1": {
+            "type": "whole"
+          },
+          "rt-precinct-2": {
+            "type": "whole"
+          }
+        },
+        "type": "election_day"
+      }
+    ],
+    "ballotStyles": [
+      {
+        "id": "1_en",
+        "groupId": "1",
+        "precincts": [
+          "rt-precinct-1"
+        ],
+        "districts": [
+          "rt-district-1",
+          "rt-district-2"
+        ],
+        "languages": [
+          "en"
+        ]
+      },
+      {
+        "id": "2_en",
+        "groupId": "2",
+        "precincts": [
+          "rt-precinct-2"
+        ],
+        "districts": [
+          "rt-district-1"
+        ],
+        "languages": [
+          "en"
+        ]
+      },
+      {
+        "id": "3_en",
+        "groupId": "3",
+        "precincts": [
+          "rt-precinct-2"
+        ],
+        "districts": [
+          "rt-district-2",
+          "rt-district-3"
+        ],
+        "languages": [
+          "en"
+        ]
+      }
+    ],
+    "parties": [
+      {
+        "id": "rt-party-1",
+        "name": "Democrat",
+        "fullName": "Democratic Party",
+        "abbrev": "D"
+      },
+      {
+        "id": "rt-party-2",
+        "name": "Republican",
+        "fullName": "Republican Party",
+        "abbrev": "R"
+      }
+    ],
+    "contests": [
+      {
+        "id": "rt-contest-1",
+        "title": "City Council",
+        "type": "candidate",
+        "districtId": "rt-district-1",
+        "seats": 2,
+        "allowWriteIns": false,
+        "termDescription": "4 years",
+        "candidates": [
+          {
+            "id": "rt-candidate-1",
+            "firstName": "Ann",
+            "middleName": "B",
+            "lastName": "Alpha",
+            "designation": "Incumbent",
+            "name": "Ann B Alpha",
+            "partyIds": [
+              "rt-party-1",
+              "rt-party-2"
+            ]
+          },
+          {
+            "id": "rt-candidate-2",
+            "firstName": "Zed",
+            "lastName": "Zulu",
+            "name": "Zed Zulu",
+            "partyIds": [
+              "rt-party-2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "rt-contest-2",
+        "title": "Mayor",
+        "type": "candidate",
+        "districtId": "rt-district-2",
+        "seats": 1,
+        "allowWriteIns": true,
+        "candidates": []
+      },
+      {
+        "id": "rt-contest-3",
+        "title": "Question 1",
+        "type": "yesno",
+        "districtId": "rt-district-3",
+        "description": "<p>Shall the <strong>question</strong> pass?</p>",
+        "options": [
+          {
+            "id": "rt-option-yes",
+            "label": "Yes"
+          },
+          {
+            "id": "rt-option-no",
+            "label": "No"
+          },
+          {
+            "id": "rt-option-abstain",
+            "label": "Abstain"
+          }
+        ]
+      }
+    ],
+    "ballotLayout": {
+      "paperSize": "legal",
+      "metadataEncoding": "qr-code"
+    },
+    "ballotStrings": {}
+  },
+  "systemSettings": {
+    "auth": {
+      "arePollWorkerCardPinsEnabled": false,
+      "inactiveSessionTimeLimitMinutes": 30,
+      "numIncorrectPinAttemptsAllowedBeforeCardLockout": 5,
+      "overallSessionTimeLimitHours": 12,
+      "startingCardLockoutDurationSeconds": 15
+    },
+    "markThresholds": {
+      "marginal": 0.05,
+      "definite": 0.07,
+      "writeInInkAreaMm2": 4
+    },
+    "adminAdjudicationReasons": [],
+    "centralScanAdjudicationReasons": [],
+    "precinctScanAdjudicationReasons": [],
+    "disallowCastingOvervotes": true,
+    "maxCumulativeStreakWidth": 5,
+    "retryStreakWidthThreshold": 1
+  },
+  "ballotTemplateId": "NhBallot",
+  "ballotLanguageConfigs": [
+    {
+      "languages": [
+        "en"
+      ]
+    }
+  ],
+  "isMiCombinedBallotPrimary": false,
+  "registeredVoterCounts": {
+    "rt-precinct-1": 1200,
+    "rt-precinct-2": {
+      "splits": {
+        "rt-split-1": 300,
+        "rt-split-2": 450
+      }
+    }
+  },
+  "layout": {
+    "paperSize": "legal",
+    "compact": true
+  }
+}

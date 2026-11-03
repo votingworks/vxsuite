@@ -12,12 +12,14 @@ import type {
   ElectionRecord,
   TtsEditsStore,
 } from '@votingworks/design-backend';
-import type { ElectionStore } from '@votingworks/design-store-pg';
+import type { ElectionStore } from './design_store/election_store.js';
 import { type TtsStringDefault } from '@votingworks/design-backend';
 import {
-  buildTtsMethods,
-  type TtsApiContext,
-} from '@votingworks/design-store-pg';
+  buildElectionDesignMethods,
+  type DesignElectionStore,
+  type DesignFeaturesProvider,
+} from '@votingworks/design-backend';
+import type { GoogleCloudTranslator } from '@votingworks/backend';
 
 test('ttsSynthesizeFromText', async () => {
   const mockSynthesizer: Mocked<SpeechSynthesizer> = {
@@ -373,6 +375,19 @@ test('ttsStringDefaults - spot checks for sort order', async () => {
   ]);
 });
 
+interface TtsApiContext {
+  speechSynthesizer: SpeechSynthesizer;
+  elections: DesignElectionStore;
+  ttsEdits: TtsEditsStore;
+}
+
 function newApi(ctx: PartialDeep<TtsApiContext>) {
-  return buildTtsMethods(ctx as TtsApiContext);
+  const { speechSynthesizer, elections, ttsEdits } = ctx as TtsApiContext;
+  return buildElectionDesignMethods({
+    store: elections,
+    features: {} as DesignFeaturesProvider,
+    translator: {} as GoogleCloudTranslator,
+    speechSynthesizer,
+    ttsEdits,
+  });
 }

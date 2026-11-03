@@ -5,7 +5,7 @@ import type * as pg from 'pg';
 
 export const DESIGN_MIGRATIONS_DIR = join(
   import.meta.dirname,
-  '../../migrations'
+  '../../../design-migrations'
 );
 
 export const DESIGN_MIGRATIONS_TABLE = 'design_pgmigrations';

@@ -78,11 +78,7 @@ function turboCacheSaveSteps(indent: string): string[] {
   ];
 }
 
-const POSTGRES_PACKAGES: string[] = [
-  'apps/admin/backend',
-  'apps/hub/backend',
-  'libs/design-store-pg',
-];
+const POSTGRES_PACKAGES: string[] = ['apps/hub/backend'];
 
 function findImageSnapshotDirsRelativeToSrc(pkgPath: string): string[] {
   const srcPath = join(pkgPath, 'src');

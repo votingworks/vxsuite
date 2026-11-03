@@ -5,10 +5,8 @@ import { safeParseJson } from '@votingworks/types';
 import type { ScratchDir } from '@votingworks/hmpb';
 
 import { GenerateElectionPackageAndBallotsPayloadSchema } from '@votingworks/design-backend';
-import {
-  type BackgroundTask,
-  generateElectionPackageAndBallots,
-} from '@votingworks/design-store-pg';
+import { type BackgroundTask } from '../design_store/background_task_store.js';
+import { generateElectionPackageAndBallots } from '../design_store/export/generate_election_package_and_ballots.js';
 import type { WorkerContext } from './context.js';
 import { triggerCircleCiQaBuild } from './export_qa.js';
 import { createHubDesignFeatures } from '../design_features.js';

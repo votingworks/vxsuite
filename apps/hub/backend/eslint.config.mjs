@@ -14,7 +14,7 @@ export default [
     },
   },
   {
-    files: ['migrations/**'],
+    files: ['design-migrations/**', 'migrations/**'],
     rules: {
       'vx/gts-module-snake-case': 'off',
     },

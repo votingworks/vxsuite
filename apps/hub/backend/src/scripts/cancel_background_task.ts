@@ -1,6 +1,6 @@
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { Db } from '@votingworks/design-store-pg';
+import { Db } from '../design_store/db/db.js';
 
 async function main(): Promise<void> {
   loadEnvVarsFromDotenvFiles();

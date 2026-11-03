@@ -1,99 +1,43 @@
+import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
-import { err, ok, type Result } from '@votingworks/basics';
+import { DateWithoutTime, err, ok } from '@votingworks/basics';
 import type {
   CandidateContest,
-  Contest,
   District,
   Election,
   ElectionId,
-  ElectionRegisteredVoterCounts,
   Party,
   PollingPlace,
   Precinct,
-  PrecinctId,
-  PrecinctRegisteredVoterCountEntry,
+  SystemSettings,
   YesNoContest,
 } from '@votingworks/types';
-import type {
-  DuplicateContestError,
-  DuplicateDistrictError,
-  DuplicatePartyError,
-  DuplicatePrecinctError,
-  ElectionRecord,
-  SetPollingPlaceError,
-} from '../election_record.js';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  HmpbBallotPaperSize,
+} from '@votingworks/types';
+import type { BallotTemplateId } from '@votingworks/hmpb';
+import type { DesignElectionStore } from '../design_election_store.js';
 import { createBlankElection } from '../election_load.js';
 import {
   getStateFeaturesConfig,
   type StateFeaturesConfig,
 } from '../features.js';
 
-type MaybePromise<T> = T | Promise<T>;
-
-export interface ContractElectionStore {
-  getElection(electionId: ElectionId): MaybePromise<ElectionRecord>;
-  deleteElection(electionId: ElectionId): MaybePromise<void>;
-  updateDistricts(input: {
-    electionId: ElectionId;
-    deletedDistrictIds?: string[];
-    newDistricts?: District[];
-    updatedDistricts?: District[];
-  }): MaybePromise<Result<void, DuplicateDistrictError>>;
-  createPrecinct(
-    electionId: ElectionId,
-    precinct: Precinct
-  ): MaybePromise<Result<void, DuplicatePrecinctError>>;
-  updatePrecinct(
-    electionId: ElectionId,
-    precinct: Precinct
-  ): MaybePromise<Result<void, DuplicatePrecinctError>>;
-  deletePrecinct(
-    electionId: ElectionId,
-    precinctId: PrecinctId
-  ): MaybePromise<void>;
-  setPrecinctRegisteredVoterCounts(
-    precinct: Precinct,
-    registeredVoterCounts?: PrecinctRegisteredVoterCountEntry
-  ): MaybePromise<void>;
-  getRegisteredVoterCounts(
-    electionId: ElectionId
-  ): MaybePromise<ElectionRegisteredVoterCounts>;
-  updateParties(input: {
-    electionId: ElectionId;
-    deletedPartyIds?: string[];
-    newParties?: Party[];
-    updatedParties?: Party[];
-  }): MaybePromise<Result<void, DuplicatePartyError>>;
-  createContest(
-    electionId: ElectionId,
-    contest: Contest
-  ): MaybePromise<Result<void, DuplicateContestError>>;
-  updateContest(
-    electionId: ElectionId,
-    contest: Contest
-  ): MaybePromise<Result<void, DuplicateContestError>>;
-  reorderContests(
-    electionId: ElectionId,
-    contestIds: string[]
-  ): MaybePromise<void>;
-  deleteContest(electionId: ElectionId, contestId: string): MaybePromise<void>;
-  listPollingPlaces(electionId: ElectionId): MaybePromise<PollingPlace[]>;
-  setPollingPlace(
-    electionId: ElectionId,
-    place: PollingPlace
-  ): MaybePromise<Result<void, SetPollingPlaceError>>;
-  deletePollingPlace(p: { electionId: string; id: string }): MaybePromise<void>;
-}
-
-export interface ContractHarness {
-  store: ContractElectionStore;
-  createElection(election: Election): Promise<void>;
+export interface DesignElectionStoreHarness {
+  store: DesignElectionStore;
+  jurisdictionId: string;
   cleanUp(): Promise<void>;
 }
 
-export type ContractHarnessFactory = (
+export type DesignElectionStoreHarnessFactory = (
   stateFeatures: StateFeaturesConfig
-) => Promise<ContractHarness>;
+) => Promise<DesignElectionStoreHarness>;
+
+const ROUND_TRIP_SNAPSHOT_PATH = join(
+  import.meta.dirname,
+  '../../src/contract/__snapshots__/round_trip_election.json'
+);
 
 const BASE_FEATURES: StateFeaturesConfig = {
   ...getStateFeaturesConfig({ stateCode: 'DEMO' }),
@@ -184,21 +128,40 @@ function pollingPlace(
   };
 }
 
-export function describeElectionStoreContract(
+export function describeDesignElectionStoreTests(
   implementationName: string,
-  setup: ContractHarnessFactory
+  setup: DesignElectionStoreHarnessFactory
 ): void {
-  describe(`election store contract: ${implementationName}`, () => {
-    let harness: ContractHarness;
-    let store: ContractElectionStore;
+  describe(`DesignElectionStore: ${implementationName}`, () => {
+    let harness: DesignElectionStoreHarness;
+    let store: DesignElectionStore;
+    let features: StateFeaturesConfig;
     let electionId: ElectionId;
 
-    async function useHarness(features: StateFeaturesConfig): Promise<void> {
+    async function createElection(
+      election: Election,
+      ballotTemplateId: BallotTemplateId = 'VxDefaultBallot',
+      systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS
+    ): Promise<void> {
+      await store.createElection({
+        jurisdictionId: harness.jurisdictionId,
+        stateFeatures: features,
+        election,
+        isMiCombinedBallotPrimary: false,
+        ballotTemplateId,
+        systemSettings,
+      });
+    }
+
+    async function useHarness(
+      stateFeatures: StateFeaturesConfig
+    ): Promise<void> {
       await harness?.cleanUp();
-      harness = await setup(features);
+      features = stateFeatures;
+      harness = await setup(stateFeatures);
       store = harness.store;
       electionId = nextId('election');
-      await harness.createElection(
+      await createElection(
         createBlankElection(electionId, { name: 'County', stateCode: 'DEMO' })
       );
     }
@@ -216,7 +179,7 @@ export function describeElectionStoreContract(
     }
 
     beforeEach(async () => {
-      harness = undefined as unknown as ContractHarness;
+      harness = undefined as unknown as DesignElectionStoreHarness;
       await useHarness(BASE_FEATURES);
     });
 
@@ -255,7 +218,7 @@ export function describeElectionStoreContract(
       test('allows the same name in another election', async () => {
         await addDistricts('District 1');
         const otherElectionId = nextId('election');
-        await harness.createElection(
+        await createElection(
           createBlankElection(otherElectionId, {
             name: 'County',
             stateCode: 'DEMO',
@@ -738,6 +701,243 @@ export function describeElectionStoreContract(
       await expect(
         (async () => store.getElection(electionId))()
       ).rejects.toThrow();
+    });
+
+    describe('round trip', () => {
+      const roundTripElectionId = 'round-trip-election';
+
+      function roundTripElection(): Election {
+        const d1 = { id: 'rt-district-1', name: 'District 1' };
+        const d2 = { id: 'rt-district-2', name: 'District 2' };
+        const d10 = { id: 'rt-district-3', name: 'District 10' };
+        const dem = {
+          id: 'rt-party-1',
+          name: 'Democrat',
+          fullName: 'Democratic Party',
+          abbrev: 'D',
+        };
+        const rep = {
+          id: 'rt-party-2',
+          name: 'Republican',
+          fullName: 'Republican Party',
+          abbrev: 'R',
+        };
+        return {
+          ...createBlankElection(roundTripElectionId, {
+            name: 'Hillsborough County',
+            stateCode: 'DEMO',
+          }),
+          title: 'Round Trip General Election',
+          date: new DateWithoutTime('2026-11-03'),
+          seal: '<svg>seal</svg>',
+          signature: { image: '<svg>signature</svg>', caption: 'Town Clerk' },
+          districts: [d1, d2, d10],
+          precincts: [
+            {
+              id: 'rt-precinct-1',
+              name: 'Precinct 1',
+              districtIds: [d1.id, d2.id],
+            },
+            {
+              id: 'rt-precinct-2',
+              name: 'Precinct 2',
+              splits: [
+                {
+                  id: 'rt-split-1',
+                  name: 'Split A',
+                  districtIds: [d1.id],
+                  electionTitleOverride: 'Split A Title',
+                  electionSealOverride: '<svg>split seal</svg>',
+                  clerkSignatureImage: '<svg>split signature</svg>',
+                  clerkSignatureCaption: 'Split Clerk',
+                },
+                {
+                  id: 'rt-split-2',
+                  name: 'Split B',
+                  districtIds: [d2.id, d10.id],
+                },
+              ],
+            },
+            { id: 'rt-precinct-3', name: 'Precinct 10', districtIds: [] },
+          ],
+          parties: [dem, rep],
+          contests: [
+            {
+              id: 'rt-contest-1',
+              type: 'candidate',
+              districtId: d1.id,
+              title: 'City Council',
+              termDescription: '4 years',
+              seats: 2,
+              allowWriteIns: false,
+              candidates: [
+                {
+                  id: 'rt-candidate-1',
+                  name: 'Ann B Alpha',
+                  firstName: 'Ann',
+                  middleName: 'B',
+                  lastName: 'Alpha',
+                  designation: 'Incumbent',
+                  partyIds: [dem.id, rep.id],
+                },
+                {
+                  id: 'rt-candidate-2',
+                  name: 'Zed Zulu',
+                  firstName: 'Zed',
+                  lastName: 'Zulu',
+                  partyIds: [rep.id],
+                },
+              ],
+            },
+            {
+              id: 'rt-contest-2',
+              type: 'candidate',
+              districtId: d2.id,
+              title: 'Mayor',
+              seats: 1,
+              allowWriteIns: true,
+              candidates: [],
+            },
+            {
+              id: 'rt-contest-3',
+              type: 'yesno',
+              districtId: d10.id,
+              title: 'Question 1',
+              description: '<p>Shall the <strong>question</strong> pass?</p>',
+              options: [
+                { id: 'rt-option-yes', label: 'Yes' },
+                { id: 'rt-option-no', label: 'No' },
+                { id: 'rt-option-abstain', label: 'Abstain' },
+              ],
+            },
+          ],
+          pollingPlaces: [
+            {
+              id: 'rt-place-1',
+              name: 'Mail Ballots',
+              type: 'absentee',
+              precincts: {
+                'rt-precinct-1': { type: 'whole' },
+                'rt-precinct-2': { type: 'whole' },
+                'rt-precinct-3': { type: 'whole' },
+              },
+            },
+            {
+              id: 'rt-place-2',
+              name: 'Town Hall',
+              type: 'early_voting',
+              precincts: { 'rt-precinct-1': { type: 'whole' } },
+            },
+            {
+              id: 'rt-place-3',
+              name: 'School Gym',
+              type: 'election_day',
+              precincts: {
+                'rt-precinct-1': { type: 'whole' },
+                'rt-precinct-2': { type: 'whole' },
+              },
+            },
+          ],
+        };
+      }
+
+      const systemSettings: SystemSettings = {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        disallowCastingOvervotes: true,
+      };
+
+      async function storeRoundTripElection(): Promise<Election> {
+        const election = roundTripElection();
+        await createElection(election, 'NhBallot', systemSettings);
+        const [p1, p2] = election.precincts;
+        await store.setPrecinctRegisteredVoterCounts(p1!, 1200);
+        await store.setPrecinctRegisteredVoterCounts(p2!, {
+          splits: { 'rt-split-1': 300, 'rt-split-2': 450 },
+        });
+        await store.updateBallotLayoutSettings(
+          roundTripElectionId,
+          HmpbBallotPaperSize.Legal,
+          true
+        );
+        return election;
+      }
+
+      test('every stored field comes back unchanged', async () => {
+        const input = await storeRoundTripElection();
+        const record = await store.getElection(roundTripElectionId);
+        const { election } = record;
+
+        expect(election.title).toEqual(input.title);
+        expect(election.date).toEqual(input.date);
+        expect(election.type).toEqual(input.type);
+        expect(election.state).toEqual(input.state);
+        expect(election.jurisdiction).toEqual(input.jurisdiction);
+        expect(election.seal).toEqual(input.seal);
+        expect(election.signature).toEqual(input.signature);
+        expect(election.districts).toEqual(input.districts);
+        expect(election.precincts).toEqual(input.precincts);
+        expect(election.parties).toEqual(input.parties);
+        expect(election.contests).toEqual(input.contests);
+        expect(election.pollingPlaces).toEqual(input.pollingPlaces);
+        expect(record.systemSettings).toEqual(systemSettings);
+        expect(record.ballotTemplateId).toEqual('NhBallot');
+        expect(record.isMiCombinedBallotPrimary).toEqual(false);
+        expect(record.ballotsFinalizedAt).toBeNull();
+        expect(
+          await store.getBallotLayoutSettings(roundTripElectionId)
+        ).toEqual({ paperSize: HmpbBallotPaperSize.Legal, compact: true });
+        expect(election.ballotLayout.paperSize).toEqual(
+          HmpbBallotPaperSize.Legal
+        );
+        expect(
+          await store.getRegisteredVoterCounts(roundTripElectionId)
+        ).toEqual({
+          'rt-precinct-1': 1200,
+          'rt-precinct-2': {
+            splits: { 'rt-split-1': 300, 'rt-split-2': 450 },
+          },
+        });
+
+        const finalizedAt = new Date('2026-11-03T12:34:56.789Z');
+        await store.setBallotsFinalizedAt({
+          electionId: roundTripElectionId,
+          finalizedAt,
+        });
+        expect(await store.getBallotsFinalizedAt(roundTripElectionId)).toEqual(
+          finalizedAt
+        );
+        expect(
+          (await store.getElection(roundTripElectionId)).ballotsFinalizedAt
+        ).toEqual(finalizedAt);
+        await store.setBallotsFinalizedAt({
+          electionId: roundTripElectionId,
+          finalizedAt: null,
+        });
+        expect(
+          await store.getBallotsFinalizedAt(roundTripElectionId)
+        ).toBeNull();
+      });
+
+      test('the stored election matches the snapshot shared by every implementation', async () => {
+        await storeRoundTripElection();
+        const record = await store.getElection(roundTripElectionId);
+        await expect(
+          `${JSON.stringify(
+            {
+              election: record.election,
+              systemSettings: record.systemSettings,
+              ballotTemplateId: record.ballotTemplateId,
+              ballotLanguageConfigs: record.ballotLanguageConfigs,
+              isMiCombinedBallotPrimary: record.isMiCombinedBallotPrimary,
+              registeredVoterCounts:
+                await store.getRegisteredVoterCounts(roundTripElectionId),
+              layout: await store.getBallotLayoutSettings(roundTripElectionId),
+            },
+            null,
+            2
+          )}\n`
+        ).toMatchFileSnapshot(ROUND_TRIP_SNAPSHOT_PATH);
+      });
     });
   });
 }
