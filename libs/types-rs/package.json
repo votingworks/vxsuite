@@ -3,5 +3,5 @@
   "version": "0.0.1-development",
   "private": true,
   "license": "GPL-3.0-only",
-  "packageManager": "pnpm@12.9.1"
+  "packageManager": "pnpm@12.16.1"
 }
