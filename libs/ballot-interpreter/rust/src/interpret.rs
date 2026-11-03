@@ -21,6 +21,7 @@ use crate::ballot_card::Orientation;
 use crate::ballot_card::PaperInfo;
 use crate::ballot_card::ballot_scan_bubble_image;
 use crate::debug::draw_timing_mark_debug_image_mut;
+use crate::election_source::ElectionDefinition;
 pub use crate::election_source::ElectionSource;
 pub use crate::image_utils::BallotImageBitDepth;
 use crate::image_utils::Inset;
@@ -208,6 +209,9 @@ pub enum Error {
         actual: PartialBallotHash,
     },
 
+    #[error("election lookup failed: {message}")]
+    FailedElectionLookup { message: String },
+
     #[error("grid layout lookup failed: {message}")]
     #[serde(rename_all = "camelCase")]
     FailedGridLayoutLookup {
@@ -288,8 +292,6 @@ pub const SIDE_A_LABEL: &str = "side A";
 pub const SIDE_B_LABEL: &str = "side B";
 
 pub struct ScanInterpreter<S: ElectionSource> {
-    election: Election,
-    expected_ballot_hash: PartialBallotHash,
     write_in_scoring: WriteInScoring,
     vertical_streak_detection: VerticalStreakDetection,
     bubble_template_image: &'static GrayImage,
@@ -302,15 +304,8 @@ pub struct ScanInterpreter<S: ElectionSource> {
 
 impl<S: ElectionSource + Sync> ScanInterpreter<S> {
     /// Creates a new `ScanInterpreter` with the given configuration.
-    ///
-    /// `expected_ballot_hash` is already sliced to
-    /// [`PARTIAL_BALLOT_HASH_BYTE_LENGTH`] bytes (see
-    /// [`bubble_ballot::PartialBallotHash`]).
     #[must_use]
-    #[allow(clippy::too_many_arguments)]
     pub fn new(
-        election: Election,
-        expected_ballot_hash: PartialBallotHash,
         write_in_scoring: WriteInScoring,
         vertical_streak_detection: VerticalStreakDetection,
         minimum_detected_scale: Option<UnitIntervalScore>,
@@ -320,8 +315,6 @@ impl<S: ElectionSource + Sync> ScanInterpreter<S> {
         election_source: S,
     ) -> Self {
         Self {
-            election,
-            expected_ballot_hash,
             write_in_scoring,
             vertical_streak_detection,
             bubble_template_image: ballot_scan_bubble_image(),
@@ -333,11 +326,13 @@ impl<S: ElectionSource + Sync> ScanInterpreter<S> {
         }
     }
 
-    /// Interprets a pair of ballot card images.
+    /// Interprets a pair of ballot card images against the election currently
+    /// in the election source.
     ///
     /// # Errors
     ///
-    /// Returns an error if the images could not be interpreted.
+    /// Returns an error if the election could not be read or the images could
+    /// not be interpreted.
     #[allow(clippy::result_large_err)]
     pub fn interpret<P: Into<Option<PathBuf>>>(
         &self,
@@ -346,9 +341,16 @@ impl<S: ElectionSource + Sync> ScanInterpreter<S> {
         debug_side_a_base: P,
         debug_side_b_base: P,
     ) -> Result<InterpretedBallotCard> {
+        let ElectionDefinition {
+            election,
+            ballot_hash: expected_ballot_hash,
+        } = self
+            .election_source
+            .election_definition()
+            .map_err(|message| Error::FailedElectionLookup { message })?;
         let options = Options {
-            election: self.election.clone(),
-            expected_ballot_hash: self.expected_ballot_hash,
+            election,
+            expected_ballot_hash,
             bubble_template: self.bubble_template_image,
             debug_side_a_base: debug_side_a_base.into(),
             debug_side_b_base: debug_side_b_base.into(),

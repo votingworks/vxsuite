@@ -1,16 +1,20 @@
 #![allow(clippy::similar_names, clippy::unwrap_used)]
 
-use std::{fmt::Display, path::PathBuf};
-
-use ballot_interpreter::election_source::{
-    ElectionDefinition, ElectionSource, InMemoryElectionSource,
+use std::{
+    fmt::Display,
+    path::{Path, PathBuf},
 };
+
+use ballot_interpreter::election_source::SqliteElectionSource;
 use ballot_interpreter::interpret::{
     BallotImageBitDepth, DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH, DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
     ScanInterpreter, VerticalStreakDetection, WriteInScoring,
 };
 use divan::{Bencher, black_box};
 use image::GrayImage;
+use rusqlite::Connection;
+use sha2::{Digest, Sha256};
+use tempfile::TempDir;
 
 fn main() {
     // Run registered benchmarks.
@@ -58,19 +62,17 @@ impl InterpretFixture {
     ) -> color_eyre::Result<(
         GrayImage,
         GrayImage,
-        ScanInterpreter<InMemoryElectionSource>,
+        ScanInterpreter<SqliteElectionSource>,
+        TempDir,
     )> {
         let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let fixture_path = manifest_dir.join("../../hmpb/fixtures").join(self.dir);
-        let election_source = InMemoryElectionSource::from_election_json(&std::fs::read(
-            manifest_dir.join(self.election_json),
-        )?)?;
-        let ElectionDefinition {
-            election,
-            ballot_hash: expected_ballot_hash,
-        } = election_source
-            .election_definition()
-            .map_err(color_eyre::eyre::Report::msg)?;
+        let db_dir = tempfile::tempdir()?;
+        let db_path = db_dir.path().join("election-package.db");
+        write_election_package_db(
+            &db_path,
+            &std::fs::read_to_string(manifest_dir.join(self.election_json))?,
+        )?;
 
         let side_a_path = fixture_path.join(format!(
             "{}-p{}.jpg",
@@ -85,18 +87,46 @@ impl InterpretFixture {
         let side_b_image = image::open(&side_b_path)?.to_luma8();
 
         let interpreter = ScanInterpreter::new(
-            election,
-            expected_ballot_hash,
             WriteInScoring::Enabled,
             VerticalStreakDetection::default(),
             None,
             DEFAULT_MAX_CUMULATIVE_STREAK_WIDTH,
             DEFAULT_RETRY_STREAK_WIDTH_THRESHOLD,
             BallotImageBitDepth::default(),
-            election_source,
+            SqliteElectionSource { db_path },
         );
-        Ok((side_a_image, side_b_image, interpreter))
+        Ok((side_a_image, side_b_image, interpreter, db_dir))
     }
+}
+
+/// Writes the tables of an election package DB that the interpreter reads.
+fn write_election_package_db(db_path: &Path, election_json: &str) -> color_eyre::Result<()> {
+    let conn = Connection::open(db_path)?;
+    conn.execute_batch(
+        "create table election (election_data text not null, ballot_hash text not null);
+         create table ballot_positions (style_id text primary key, positions text not null);",
+    )?;
+    conn.execute(
+        "insert into election (election_data, ballot_hash) values (?, ?)",
+        [
+            election_json,
+            &hex::encode(Sha256::digest(election_json.as_bytes())),
+        ],
+    )?;
+
+    let election: serde_json::Value = serde_json::from_str(election_json)?;
+    for style in election["ballotStyles"].as_array().into_iter().flatten() {
+        if let (Some(id), Some(positions)) = (
+            style["id"].as_str(),
+            style.get("ballotPositions").filter(|p| !p.is_null()),
+        ) {
+            conn.execute(
+                "insert into ballot_positions (style_id, positions) values (?, ?)",
+                [id, &positions.to_string()],
+            )?;
+        }
+    }
+    Ok(())
 }
 
 impl Display for InterpretFixture {
@@ -130,7 +160,7 @@ impl Display for InterpretFixture {
     ),
 ])]
 fn interpret(bencher: Bencher, fixture: InterpretFixture) {
-    let (side_a_image, side_b_image, interpreter) = fixture.load().unwrap();
+    let (side_a_image, side_b_image, interpreter, _db_dir) = fixture.load().unwrap();
 
     bencher.bench_local(move || {
         black_box(
@@ -161,7 +191,7 @@ fn find_timing_marks(bencher: Bencher, fixture: InterpretFixture) {
     use ballot_interpreter::ballot_card::{BallotPage, PaperInfo};
     use ballot_interpreter::timing_marks::{self, DefaultForGeometry};
 
-    let (side_a_image, _, _) = fixture.load().unwrap();
+    let (side_a_image, _, _, _) = fixture.load().unwrap();
 
     bencher.bench_local(move || {
         let page =
@@ -189,7 +219,7 @@ fn find_timing_marks(bencher: Bencher, fixture: InterpretFixture) {
     ),
 ])]
 fn interpret_and_save(bencher: Bencher, fixture: InterpretFixture) {
-    let (side_a_image, side_b_image, interpreter) = fixture.load().unwrap();
+    let (side_a_image, side_b_image, interpreter, _db_dir) = fixture.load().unwrap();
     let tmp_dir = tempfile::tempdir().unwrap();
     let front_path = tmp_dir.path().join("front.png");
     let back_path = tmp_dir.path().join("back.png");

@@ -28,7 +28,6 @@ use types_rs::{
         encoding::BallotAuditId,
         votes::{CandidateVote, ContestVote},
     },
-    bubble_ballot::PartialBallotHash,
     coding,
     election::{BallotStyleId, Candidate, Contest, ContestId, Election, GridLayout, PrecinctId},
 };
@@ -162,10 +161,7 @@ impl Options {
 fn main() -> color_eyre::Result<()> {
     let options = Options::parse();
     let election_source = options.load_election_source()?;
-    let ElectionDefinition {
-        election,
-        ballot_hash: expected_ballot_hash,
-    } = election_source
+    let ElectionDefinition { election, .. } = election_source
         .election_definition()
         .map_err(color_eyre::eyre::Report::msg)?;
 
@@ -195,13 +191,7 @@ fn main() -> color_eyre::Result<()> {
                 eprintln!("Error: no summary ballot QR code detected");
                 1
             } else {
-                interpret_bubble_ballot(
-                    &options,
-                    election,
-                    expected_ballot_hash,
-                    election_source,
-                    top_image,
-                )?
+                interpret_bubble_ballot(&options, election_source, top_image)?
             }
         }
     };
@@ -429,14 +419,10 @@ fn pretty_print_contest_vote(contest: &Contest, vote: &ContestVote) {
 
 fn interpret_bubble_ballot(
     options: &Options,
-    election: Election,
-    expected_ballot_hash: PartialBallotHash,
     election_source: Source,
     top_image: image::GrayImage,
 ) -> color_eyre::Result<i32> {
     let interpreter = ScanInterpreter::new(
-        election,
-        expected_ballot_hash,
         if options.score_write_ins {
             WriteInScoring::Enabled
         } else {
