@@ -103,27 +103,37 @@ async function applyDesignSchema(db: Db): Promise<void> {
   });
 }
 
-export async function syncLocalJurisdiction(
-  db: Db,
-  stateCode: StateCode
-): Promise<void> {
+async function seedLocalJurisdiction(db: Db): Promise<void> {
   await db.withClient(async (client) => {
     await client.query(
       `insert into organizations (id, name) values ($1, $2)
-       on conflict (id) do nothing`,
+       on conflict do nothing`,
       LOCAL_ORGANIZATION_ID,
       LOCAL_ORGANIZATION_NAME
     );
     await client.query(
       `insert into jurisdictions (id, name, organization_id, state_code)
-       values ($1, $2, $3, $4)
-       on conflict (id) do update set state_code = excluded.state_code`,
+       values ($1, $2, $3, 'DEMO')
+       on conflict do nothing`,
       LOCAL_JURISDICTION_ID,
       LOCAL_JURISDICTION_NAME,
-      LOCAL_ORGANIZATION_ID,
-      stateCode
+      LOCAL_ORGANIZATION_ID
     );
   });
+}
+
+export async function syncLocalJurisdiction(
+  db: Db,
+  stateCode: StateCode
+): Promise<void> {
+  await db.withClient((client) =>
+    client.query(
+      `update jurisdictions set state_code = $1
+       where id = $2 and state_code <> $1`,
+      stateCode,
+      LOCAL_JURISDICTION_ID
+    )
+  );
 }
 
 export async function openDesignStores(
@@ -141,6 +151,7 @@ export async function openDesignStores(
   const db = new Db(logger, { connectionString: databaseUrl });
   try {
     await applyDesignSchema(db);
+    await seedLocalJurisdiction(db);
     return {
       db,
       elections: new ElectionStore(db, { getStateFeatures }),
