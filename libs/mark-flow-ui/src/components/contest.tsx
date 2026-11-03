@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import type {
   CandidateVote,
   Election,
+  OptionalCandidateOrderings,
   OptionalYesNoVote,
   StraightPartyVote,
   VotesDict,
@@ -17,9 +18,9 @@ import { StraightPartyContest } from './straight_party_contest.js';
 
 export interface ContestProps {
   /**
-   * The ballot style for the voter.
+   * Candidate orderings for the voter's ballot style.
    */
-  ballotStyleId: string;
+  candidateOrderings: OptionalCandidateOrderings;
 
   /**
    * The election the contest belongs to.
@@ -67,7 +68,7 @@ function countNumWriteInCharactersUsedAcrossContests(votes: VotesDict): number {
 }
 
 export function Contest({
-  ballotStyleId,
+  candidateOrderings,
   election,
   contest,
   votes,
@@ -90,7 +91,7 @@ export function Contest({
       {contest.type === 'candidate' && (
         <CandidateContest
           aria-live="assertive"
-          ballotStyleId={ballotStyleId}
+          orderings={candidateOrderings}
           election={election}
           contest={contest}
           vote={(vote ?? []) as CandidateVote}

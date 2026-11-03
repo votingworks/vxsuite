@@ -6,6 +6,7 @@ import type {
   CandidateVote,
   ContestId,
   ElectionDefinition,
+  OptionalCandidateOrderings,
   OptionalVote,
   PrecinctId,
   VotesDict,
@@ -37,7 +38,7 @@ import {
 import { numVotesRemaining } from '../utils/vote.js';
 
 export interface ContestPageProps {
-  ballotStyleId?: string;
+  candidateOrderings: OptionalCandidateOrderings;
   contests: ContestsWithMsEitherNeither;
   electionDefinition?: ElectionDefinition;
   accessibilityMode?: AccessibilityMode;
@@ -68,7 +69,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
   const isReviewMode = useIsReviewMode();
 
   const {
-    ballotStyleId,
+    candidateOrderings,
     contests,
     electionDefinition,
     accessibilityMode = AccessibilityMode.ATI_CONTROLLER,
@@ -102,10 +103,6 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
   assert(
     typeof precinctId === 'string',
     'precinctId is required to render ContestPage'
-  );
-  assert(
-    typeof ballotStyleId === 'string',
-    'ballotStyleId is required to render ContestPage'
   );
 
   const vote = votes[contest.id];
@@ -234,7 +231,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     >
       <Contest
         key={contest.id} // Force a re-mount for every contest to reset scroll state.
-        ballotStyleId={ballotStyleId}
+        candidateOrderings={candidateOrderings}
         election={electionDefinition.election}
         contest={contest}
         votes={votes}

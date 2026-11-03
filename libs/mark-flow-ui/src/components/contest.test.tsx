@@ -49,7 +49,7 @@ test.each([
 ])('candidate contest %s', (_, vote) => {
   render(
     <Contest
-      ballotStyleId={electionGeneral.ballotStyles[0]!.id}
+      candidateOrderings={null}
       election={electionGeneral}
       contest={candidateContest}
       votes={{
@@ -65,7 +65,7 @@ test.each([
 test('straight party contest', () => {
   render(
     <Contest
-      ballotStyleId={electionStraightParty.ballotStyles[0]!.id}
+      candidateOrderings={null}
       election={electionStraightParty}
       contest={straightPartyContest}
       votes={{
@@ -85,7 +85,7 @@ test('candidate contest reflects straight party derived votes', () => {
   );
   render(
     <Contest
-      ballotStyleId={electionStraightParty.ballotStyles[0]!.id}
+      candidateOrderings={null}
       election={electionStraightParty}
       contest={presidentContest}
       votes={{ [straightPartyContest.id]: ['0'] }}
@@ -144,7 +144,7 @@ test('write-in character limit across contests', async () => {
 
   render(
     <Contest
-      ballotStyleId={electionGeneral.ballotStyles[0]!.id}
+      candidateOrderings={null}
       election={electionGeneral}
       contest={manySeatCandidateContests[1]!}
       votes={votes}
@@ -168,7 +168,7 @@ test('write-in character limit across contests', async () => {
 test('yesno contest', () => {
   render(
     <Contest
-      ballotStyleId={electionGeneral.ballotStyles[0]!.id}
+      candidateOrderings={null}
       election={electionGeneral}
       contest={yesnoContest}
       votes={{
@@ -185,7 +185,7 @@ test('renders ms-either-neither contests', async () => {
   const updateVote = vi.fn();
   render(
     <Contest
-      ballotStyleId={electionWithMsEitherNeither.ballotStyles[0]!.id}
+      candidateOrderings={null}
       election={electionWithMsEitherNeither}
       contest={msEitherNeitherContest}
       votes={{}}
