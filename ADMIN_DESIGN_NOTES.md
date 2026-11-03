@@ -2,6 +2,303 @@
 
 Scratch branch `caro/admin-design-scratch-8e1aa9`. Not for merging.
 
+## SQLite variant (2026-11-03)
+
+Branch `caro/admin-design-sqlite-scratch-a9ac04`, cut from the prototype at
+`588b6946b8`. VxAdmin's design store is SQLite in its existing `data.db`. VxHub
+stays on Postgres. Everything below this section describes the Postgres
+prototype.
+
+### Commits
+
+1. `ebd93a4630` **Split Postgres out of `libs/design-backend`.**
+   - New `libs/design-store-pg`, by `git mv`: `Db`/`Client`, `ElectionStore`,
+     `BackgroundTaskStore`, the API builders (`buildElectionDefinitionMethods`,
+     `buildBallotPreviewMethods`, `buildTtsMethods`, `cloneElection`), the
+     migrations and the dev migration runner. It also holds the export wrapper
+     that reads the PG store and writes task results. Only hub depends on it at
+     runtime.
+   - `libs/design-backend` no longer depends on `pg` and keeps only pure code:
+     - `election_record.ts`: `ElectionRecord`, the store error types, normalized
+       row types, `buildElectionRecord` (ballot styles, candidate orderings,
+       straight-party contest, system settings), `contestsFromRows`,
+       `precinctsFromRows`, `pollingPlacesFromRows`,
+       `registeredVoterCountsFromRows`, duplicate-option and split-district
+       checks, the "new candidate contest goes before the first ballot measure"
+       ordering, and a natural-sort collator.
+     - `election_load.ts`: `prepareLoadedElection` (ID regeneration, candidate
+       name split) and `createBlankElection`.
+     - `ballot_preview.ts` (`renderBallotPreview`) and `tts_strings.ts`.
+     - The export pipeline is now
+       `renderElectionPackageAndBallots(ctx, input, payload, …)`. Its input is
+       `{ electionRecord, compact, registeredVoterCounts, jurisdiction, ttsEdits? }`
+       and it returns the URLs and hash instead of writing to a store.
+     - `election_design_api.ts`: an explicit `ElectionDesignMethods` type
+       covering only the 31 methods design-ui calls.
+   - Hub: its imports are split between the two libs, and
+     `createApi(methods satisfies ElectionDesignMethods)`. The hub-only hooks
+     (`listElections`, `createElection`, `loadElection`, `setBallotTemplate`,
+     the layout and system settings updates) moved from design-ui to hub's
+     frontend `api.ts`. `asDesignApiClient` lost its `as unknown as` cast, so
+     the client type is checked.
+   - `POSTGRES_PACKAGES` gains `libs/design-store-pg` and `apps/admin/backend`,
+     and the CircleCI config is regenerated.
+2. `93e2bbae7a` **Admin on SQLite.**
+   - `schema.sql` gets 15 `design_*` tables (204 lines). Unconfigure's
+     `store.reset()` recreates `data.db`, so it wipes the design with no extra
+     code. Rendered files go to `<workspace>/design-files`, which unconfigure
+     now also removes (`electionDesign.reset()`).
+   - `design_store.ts` is a synchronous `DesignStore` over the admin `Store`'s
+     own `DbClient` (`store.getDbClient()`). It must share that client: a second
+     connection would keep the old file open after `reset()` swaps it.
+   - `design_api.ts` implements `ElectionDesignMethods` itself over
+     `DesignStore`, plus the lifecycle methods: `getCurrentDesign`,
+     `createDesign`, `loadElectionPackage`, `discardDesign`, `finalizeBallots`,
+     `unfinalizeBallots`, `saveProofToUsb`. A `before` middleware refuses edits
+     once finalized (`design:finalized`) or activated (`design:activated`).
+     Reads and proof saving still work.
+   - Deleted: `design_db.ts` (pg connection, `schema.sql` apply, dummy
+     org/jurisdiction seed, state sync), the elections list screen, duplicate,
+     `getLocalJurisdictionId` and `listElections`.
+   - Frontend: a start screen (Create or Load, which redirects to the design
+     when one exists). The Ballots tab has Finalize/Unfinalize, Discard Election
+     and Activate, and shows a read-only callout after activation. The nav says
+     "Exit Design" instead of "All Designs".
+3. `7dbe246308` **Tests:** the parity test and the contract suite (below).
+4. `0bf5959f63` **design-ui fix:** `deleteElection` now drops all `'design'`
+   queries. Before, admin's start screen redirected back to the deleted election
+   from a stale `getCurrentDesign`.
+
+Commit 1 doesn't type-check admin on its own; commit 2 catches up.
+
+### `pg` is out of admin's closure
+
+`pnpm list --prod --depth Infinity --filter @votingworks/admin-{backend,frontend}`
+lists no `pg`, `pg-pool`, `node-pg-migrate` or `design-store-pg`. Admin has
+`design-store-pg` only as a devDependency, for the parity test.
+
+### Schema parity test
+
+`apps/admin/backend/src/design/design_schema_parity.test.ts`. It needs a running
+Postgres, like hub's tests.
+
+- **Postgres side:** runs the lib's migrations (`runDesignMigrations`) into a
+  fresh schema, then reads `information_schema.columns`, `pg_constraint` (PKs,
+  FKs with `confdeltype`) and `pg_index` (unique, non-PK, with
+  `indnullsnotdistinct`).
+- **SQLite side:** opens admin's `schema.sql` in memory and reads
+  `pragma_table_info`, `pragma_foreign_key_list` (with `on_delete`),
+  `pragma_index_list` and `pragma_index_info`. It strips the `design_` prefix.
+- **Compares** the 14 shared tables on columns, mapped types, nullability, PK,
+  FKs including on-delete, and unique column sets including NULLS NOT DISTINCT.
+- **Type map:** `jsonb`, `ARRAY`, `date`, both timestamps and enums become
+  `text`; `boolean` becomes `integer`.
+- **Table lists:** `organizations`, `jurisdictions` and `background_tasks` are
+  Postgres-only. `exports` (admin's render state) is SQLite-only.
+- **Intended differences:** `INTENDED_DIFFERENCES` has 14 entries, each with a
+  reason: 9 hub-only `elections` columns, 2 hub-only FKs, the jurisdiction
+  title/date index, and NULLS NOT DISTINCT on the contests and candidates
+  indexes.
+- **Failure output:** the test fails on any unexpected difference and also on a
+  stale allowance, i.e. an allowlisted difference that no longer exists.
+- **Mutation check:** changing an SQLite FK to `cascade`, making `abbrev`
+  nullable and dropping its unique index produced 4 readable lines, e.g.
+  `contests: foreign key (party_id) -> parties (id) on delete CASCADE only in sqlite`.
+
+### Contract suite
+
+`libs/design-backend/src/contract/election_store_contract.ts`, exported as
+`@votingworks/design-backend/contract`.
+
+- **Interface:** `ContractElectionStore`, with methods returning
+  `T | Promise<T>`. Hub's async `ElectionStore` and admin's sync `DesignStore`
+  both satisfy it structurally, with no adapters.
+- **Harnesses:**
+  - `libs/design-store-pg/src/election_store.contract.test.ts`: a fresh PG
+    schema per test.
+  - `apps/admin/backend/src/design/design_store.contract.test.ts`: an in-memory
+    `data.db`.
+- **20 cases:**
+  - Duplicates: district (create, update, rollback of a failed batch, allowed in
+    another election), precinct, split name, split district set, party name/full
+    name/abbreviation, contest, candidate, yes/no option, polling place
+    name+type.
+  - Invalid polling place precinct.
+  - Cascades: delete district (precinct and split links, contests), delete party
+    (`SET NULL` on the contest, removed from candidates), delete precinct
+    (splits, counts, polling place links), delete election.
+  - Round-tripping splits and voter counts.
+  - Generated polling place with `EDIT_POLLING_PLACES`, and the straight-party
+    contest with `STRAIGHT_PARTY_VOTING`.
+  - Ordering: natural sort of districts and precincts, district IDs within a
+    precinct, polling places by type then name, contest order, the "candidate
+    contest before ballot measures" rule, reorder, update keeping position,
+    candidate order, and reorder refusing a stale list.
+- **NULLS NOT DISTINCT in code:** `DesignStore.assertNoDuplicateContest` and
+  `assertNoDuplicateCandidate` check with `IS` comparisons. With both checks
+  disabled, 2 contract tests fail on SQLite.
+- **Result:** 20/20 on Postgres and 20/20 on SQLite.
+
+### Test runs
+
+- Hub backend: 222/222 across 25 files.
+- Admin backend: 779/780. The one failure is the known `app.test.ts`
+  "configuring with an election.json file", from the prototype's
+  assert-unconfigured change.
+- `design-store-pg`: 20/20.
+- Type-check: design-backend, design-store-pg, design-ui, hub backend and
+  frontend, admin backend and frontend.
+- Hub frontend tests not re-run; many already failed on the prototype.
+
+### Click-through
+
+Screenshots are `sqlite-01` … `sqlite-17` in `/media/psf/Shared/screenshots/`.
+
+- Start screen (01).
+- Load the Famous Names package from mock USB (02, 03).
+- All tabs read from SQLite (04–08).
+- A duplicate district name shows hub's error, mapped from the SQLite unique
+  index (09). The rename saves (10).
+- Proof PDF renders (11, 12).
+- Finalize: 16 PDFs in 1.3 s, and edits are refused with `design:finalized`
+  (13).
+- Activate configures VxAdmin (14). The design is read-only afterwards (15).
+- Unconfigure takes `design_*` rows from 1 election/8 contests/33 candidates/1
+  export to 0, and removes `design-files` (16).
+- Create blank → Delete Election goes back to the start screen (17, after the
+  design-ui fix).
+
+Dev note: another worktree's admin backend held ports 3001/3002, so this ran
+with `FRONTEND_PORT=3010` (`admin-sqlite-3010` in `.claude/launch.json`).
+
+### Size: duplicated vs shared
+
+|                                                                                                                      | Lines       |
+| -------------------------------------------------------------------------------------------------------------------- | ----------- |
+| Admin `DesignStore` (SQLite)                                                                                         | 1,522       |
+| Admin design API (shared-method implementations ≈ 300 of 556)                                                        | 556         |
+| Admin `design_*` schema                                                                                              | 204         |
+| **Duplicated in admin, total**                                                                                       | **≈ 2,030** |
+| PG counterpart: `ElectionStore` + definition builders                                                                | 1,832 + 420 |
+| Shared pure code in design-backend (derivations, load, preview, TTS strings, export, state profile, utils, API type) | ≈ 2,610     |
+| Contract suite + harnesses                                                                                           | 743 + 79    |
+| Parity test                                                                                                          | 433         |
+
+The duplication is the store and the thin API layer: SQL, row normalization and
+error mapping. Anything that decides what an election _is_ is shared: ballot
+styles, candidate orderings, straight party, ID regeneration, rendering and the
+state profile.
+
+### What was hard, and where the two can drift
+
+- **Error mapping.** Postgres reports a violated constraint's name; SQLite
+  reports only `UNIQUE constraint failed: t.c1, t.c2`. `DesignStore` maps
+  messages through `UNIQUE_INDEX_COLUMNS`, which goes stale if an index's
+  columns change. The parity test catches the index change; the contract tests
+  catch the mapping.
+- **FK errors are anonymous** in SQLite (`FOREIGN KEY constraint failed`).
+  `invalid-precinct` works only because the polling place insert has one
+  possible FK failure.
+- **NULLS NOT DISTINCT** has to be done in code for contests and candidates
+  (above).
+- **Collation.** Hub sorts with an ICU `natural_sort` collation and orders
+  parties with the database's default collation. Admin sorts in JS with
+  `Intl.Collator('en-u-kn-true')` and `Intl.Collator('en')`. Same ICU rules, but
+  a different ICU version or a Postgres DB created with `C` collation could
+  order differently. The contract tests use names that sort the same either way,
+  so case and accent ordering aren't covered.
+- **Sequences.** Postgres `ballot_order` comes from global sequences; SQLite
+  uses `max(ballot_order) + 1`. Relative order is the same; absolute values
+  differ, and SQLite can reuse values after a delete.
+- **Booleans, dates and JSON** are converted by hand in `DesignStore`. The
+  parity test checks types through the map, not encodings: `date` is
+  `YYYY-MM-DD` text and timestamps are ISO text. A wrong encoding shows up only
+  in contract round-trips.
+- **The shared client.** `DesignStore` must use the tally `Store`'s `DbClient`,
+  because `reset()` swaps the file under it.
+- **API behavior outside the store** is duplicated in admin's `design_api.ts`:
+  input `unsafeParse`, voter counts after precinct create/update, and the
+  `getElectionInfo` shape. There's no contract test at the API level, only the
+  type check.
+- **Parity test scope:** columns, keys and indexes, not defaults or CHECK
+  constraints. Admin's enum CHECKs (`polling_places.type`, `external_source`)
+  aren't compared with the Postgres enums.
+- **Hub env leaking into the shared lib.** `system_settings.ts` computes
+  `resultsReportingUrl()` at module load from `BASE_URL`. Admin tests need
+  `BASE_URL=''` (same as hub's config). In production admin, `baseUrl()` uses
+  `requiredProdEnvVar` and would throw at import without `BASE_URL`. This exists
+  in the prototype too, and must be made lazy before shipping.
+- **Hub schema changes now cost an admin change.** A hub migration that adds a
+  column to a shared table fails admin's parity test until someone mirrors it in
+  admin's `schema.sql` and `DesignStore`, or allowlists it. That's the intended
+  guard, but it's a cross-app tax on hub work.
+
+### Export pipeline coupling
+
+The pipeline only needed `getElection`, `getBallotLayoutSettings` and
+`getRegisteredVoterCounts` from the store, plus one write of the result. Taking
+an input object and returning the result removed all store coupling.
+`background_tasks` and the CircleCI hook stay in hub's wrapper. Admin feeds it
+from `DesignStore` and records progress in `design_exports`.
+
+### Would Kysely help?
+
+- **Yes, for the store, not the schema.** Kysely can run the same typed query
+  builder against Postgres and SQLite. `getElection`'s reads,
+  `insertContest`/`insertPrecinct` and the CRUD could then be written once,
+  removing most of the 1.5k duplicated lines and the hand-written row typing.
+- **Gaps it leaves:**
+  - `array_agg`/`array_remove` and the collations differ, so a few queries need
+    per-dialect code or JS post-processing (admin already does the latter).
+  - Error mapping stays per-dialect.
+  - Kysely is async. Admin's `libs/db` is sync, so admin would need a
+    better-sqlite3 Kysely dialect alongside or instead of `libs/db`, a new
+    dependency on the certified image.
+  - The schemas are still two files. Kysely's generated DB types could replace
+    much of the parity test's column checks, but not FK or index behavior.
+- **Verdict:** worth it if the SQLite path is chosen and the shared tables keep
+  changing. Not worth it just to remove duplication for Part 1.
+
+### Recommendation
+
+**SQLite for VxAdmin's design store, Postgres unchanged for hub.**
+
+- **Cost of Postgres on VxAdmin:** a new COTS database server on a certified
+  air-gapped image (5.1–5.7, an ECO question, Trusted Build), the 1b hub
+  migration split with hub production adoption risk, a separate DB that
+  unconfigure and every wipe path must clear (5.9), and Postgres in every admin
+  dev/test environment.
+- **Cost of SQLite:** about 2k lines of admin-owned store and API code that
+  mirror hub, and a permanent need to mirror hub's shared-table schema changes.
+- **What makes that drift manageable:** the parity test and the contract suite.
+  Both caught real deliberate drift on the first try.
+- **One-election scope** makes the SQLite side small: no list, copy, approve,
+  jurisdictions or task queue.
+- **Unconfigure** wipes the design for free.
+- **Reconsider** if multi-election VxAdmin, translation/audio tables or frequent
+  shared-schema churn arrive, and do the Kysely port then.
+
+Before real PRs:
+
+- Make `BASE_URL`/`sliOrganizationId` lazy in the shared lib.
+- Add an API-level admin test for the shared methods.
+- Clean up lint (the contract suite uses non-null assertions and unhandled
+  `Result`s).
+- Decide whether the design should stay in VxAdmin backups. It now rides along
+  in `data.db`, which the PRD said was out of scope; it's harmless but is a
+  change.
+
+### Smaller issues seen
+
+- The nav stage label ("Designing" / "Finalized" / "Activated (read-only)") is
+  in the DOM but not visible in admin's `LeftNav`.
+- Design-ui tabs still show Edit buttons while finalized or activated. The
+  backend refuses the edit, and the refusal reaches the error boundary as a
+  crash screen. The tabs need a read-only flag (Q17).
+- Configuring from a USB package while a design exists isn't blocked. The plan
+  says to ask to discard first.
+- The design is in VxAdmin backups now, since it lives in `data.db` (see above).
+
 ## v2: aligned with the architecture plan (2026-11-02)
 
 Plan: `vxadmin-ballot-design-scope-3718fd/research/architecture-and-pr-plan.md`.
