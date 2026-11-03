@@ -9,6 +9,118 @@ Branch `caro/admin-design-sqlite-scratch-a9ac04`, cut from the prototype at
 stays on Postgres. Everything below this section describes the Postgres
 prototype.
 
+### Current shape (after review with Caroline)
+
+Two commits on top of the ones listed under "Commits" below:
+
+- `638bab2437` restructure
+- `1632de0aa7` workspace entries and one more store test
+
+They supersede parts of that list: `libs/design-store-pg` is gone, and so is the
+parity test.
+
+- **No `libs/design-store-pg`.** Hub's Postgres store is back in hub:
+  - `apps/hub/backend/src/design_store/`: `db/`, `ElectionStore`,
+    `BackgroundTaskStore`, the export wrapper and the dev migration runner;
+  - `apps/hub/backend/design-migrations/`, still recorded under
+    `design_pgmigrations`.
+
+  Hub's `run-migrations.sh` had kept pointing at
+  `libs/design-backend/migrations`, which was empty after the first split; it
+  now uses `design-migrations`. `ci-validate-migrations.sh` defaults to
+  `design-migrations` too, but it still validates only one directory. The two
+  migration owners could now be merged back into one hub directory; that's left
+  for later.
+
+- **`DesignElectionStore` in `libs/design-backend`** is a production interface,
+  not just a test shape. Hub's `ElectionStore` and admin's `DesignStore` both
+  declare `implements DesignElectionStore`. Methods return `T | Promise<T>`, so
+  admin's store stays synchronous.
+- **The API builders are shared and typed against the interface:**
+  - `buildElectionDesignMethods` returns exactly the `ElectionDesignMethods`
+    contract that design-ui calls: info, districts, precincts and voter counts,
+    polling places, parties, contests, ballot styles and layout, the preview
+    PDF, state features and TTS.
+  - `buildElectionSetupMethods` (load, create, layout and system-settings
+    updates, template) is used by hub only.
+  - `cloneElection` and `ttsMethodsThatHandleAuthThemselves` moved too.
+  - Admin's API spreads `buildElectionDesignMethods` and overrides only
+    `deleteElection`, to also clear rendered files. Its own code is now just the
+    lifecycle: current design, create, load, discard, finalize, unfinalize and
+    proof save. `design_api.ts` went from 556 to 329 lines, none of them a copy
+    of hub logic. Hub-only methods aren't exposed (`/design-api/createElection`
+    returns 404).
+- **No schema parity test.** The two schemas may differ wherever behavior
+  doesn't depend on it. What matters is checked by the shared store tests below.
+  Admin's tests no longer need Postgres, and `apps/admin/backend` is off
+  `POSTGRES_PACKAGES`.
+- **Shared store tests:** `describeDesignElectionStoreTests` from
+  `@votingworks/design-backend/contract`, 23 cases. Hub runs them on Postgres
+  (`design_store/election_store.contract.test.ts`), admin on SQLite
+  (`design/design_store.contract.test.ts`). Each harness is about 20–40 lines
+  and returns `{ store, jurisdictionId, cleanUp }`.
+  - The 20 earlier constraint, cascade and ordering cases (see "Contract suite"
+    below).
+  - **Round trip, field by field.** A rich election goes in: NH split options, a
+    signature on `NhBallot`, candidates with middle names, designations and two
+    parties, a three-option measure, all three polling place types, split voter
+    counts, legal/compact layout, non-default system settings, and a finalize
+    timestamp set and cleared. Each field must come back unchanged.
+  - **Round trip, shared snapshot.** The stored election (including generated
+    ballot styles), settings, voter counts and layout are compared against one
+    file,
+    `libs/design-backend/src/contract/__snapshots__/round_trip_election.json`.
+    Both implementations must produce byte-identical output.
+  - **Multi-field duplicate.** A party duplicating name, full name and
+    abbreviation reports `duplicate-abbrev` on both. They agree only because
+    both check unique indexes in creation order, so the test pins it.
+- **Rule for new shared constraints:** add a case to this suite. It then fails
+  on whichever store doesn't enforce the constraint yet. This replaces the
+  parity test's structural check.
+
+What the new tests caught:
+
+- **The shared snapshot caught a real cross-store difference.** Postgres `jsonb`
+  reorders NH split option keys, while SQLite keeps insertion order. The same
+  design therefore produced different `election.json` bytes, and so a different
+  ballot hash, on hub and admin. `precinctsFromRows` now emits the options in a
+  fixed key order.
+
+  Behavior change for hub: NH elections with split overrides serialize those
+  keys in a new order, so their ballot hash changes relative to before.
+
+- **Mutation check:** dropping candidate `designation` from SQLite's insert
+  fails both round-trip tests.
+
+Runs:
+
+- Hub backend: 244/244, including the 23 store tests on Postgres.
+- Admin backend: 780/781 (the known `app.test.ts` failure) with no Postgres.
+- Type-checks: design-backend, design-ui, hub backend and frontend, admin
+  backend and frontend.
+
+Click-through after the restructure, through admin's API on the shared builders:
+load package, create precinct with voter counts, duplicate party error, info,
+TTS strings, preview PDF, finalize, render complete, activate, and edit refused
+with `design:activated`.
+
+Sizes now:
+
+- Duplicated in admin: the `DesignStore` SQL (1,517 lines) and the `design_*`
+  schema (204), about 1.7k in all.
+- Shared:
+  - the interface and builders: 135 + 340;
+  - the store tests: 952;
+  - the rest of design-backend (derivations, load, preview, TTS strings, export,
+    state profile): about 2.2k.
+- Hub's `ElectionStore`: 1,833.
+
+The Kysely point below still holds. It would remove the remaining SQL
+duplication, nothing else.
+
+Also: `libs/design-backend` and `libs/design-ui` are now in
+`vxsuite.code-workspace`.
+
 ### Commits
 
 1. `ebd93a4630` **Split Postgres out of `libs/design-backend`.**
@@ -77,7 +189,7 @@ Commit 1 doesn't type-check admin on its own; commit 2 catches up.
 lists no `pg`, `pg-pool`, `node-pg-migrate` or `design-store-pg`. Admin has
 `design-store-pg` only as a devDependency, for the parity test.
 
-### Schema parity test
+### Schema parity test (removed; see "Current shape")
 
 `apps/admin/backend/src/design/design_schema_parity.test.ts`. It needs a running
 Postgres, like hub's tests.
