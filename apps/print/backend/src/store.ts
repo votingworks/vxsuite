@@ -4,27 +4,24 @@
 
 import {
   addDiagnosticRecord,
-  BallotMetaStore,
+  type BallotMetaStore,
+  type ElectionRecord,
+  ElectionPackageStore,
   getMostRecentDiagnosticRecord,
+  type ElectionPackageInclude,
 } from '@votingworks/backend';
-import { assert, assertDefined, DateWithoutTime } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
 import type { BaseLogger } from '@votingworks/logging';
-import {
-  type ElectionDefinition,
-  safeParseElection,
-  type SystemSettings,
-  safeParseSystemSettings,
-  type ElectionKey,
-  constructElectionKey,
-  type EncodedBallotEntry,
-  type BallotType,
-  type BallotPrintCount,
-  type LanguageCode,
-  type BallotStyleId,
-  type PrecinctId,
-  type DiagnosticRecord,
-  type DiagnosticType,
+import type {
+  SystemSettings,
+  ElectionKey,
+  EncodedBallotEntry,
+  BallotType,
+  BallotPrintCount,
+  LanguageCode,
+  DiagnosticRecord,
+  DiagnosticType,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import type { BallotPrintEntry, BallotMode } from './types.js';
@@ -41,6 +38,14 @@ export type BallotPrintCountRow = Omit<
 
 const SchemaPath = join(import.meta.dirname, '../schema.sql');
 
+/** The parts of an election package this app imports. */
+export const ELECTION_PACKAGE_INCLUDE: ElectionPackageInclude = {
+  uiStrings: false,
+  ballots: true,
+  ballotPositions: true,
+  candidateOrderings: false,
+};
+
 export interface IncrementBallotPrintCountParams {
   precinctId: string;
   ballotStyleId: string;
@@ -50,23 +55,18 @@ export interface IncrementBallotPrintCountParams {
 }
 
 /**
- * ElectionRecord represents election configuration in the store.
- */
-export interface ElectionRecord {
-  electionDefinition: ElectionDefinition;
-  electionPackageHash: string;
-}
-
-/**
- * Manages a data store for imported election definition and system settings
+ * Manages the election session, backed by the imported election package.
  */
 export class Store {
   private readonly client: DbClient;
-  private readonly ballotMetaStore: BallotMetaStore;
+  private readonly electionPackageStore: ElectionPackageStore;
 
-  private constructor(client: DbClient) {
+  private constructor(
+    client: DbClient,
+    electionPackageStore: ElectionPackageStore
+  ) {
     this.client = client;
-    this.ballotMetaStore = new BallotMetaStore(this.client);
+    this.electionPackageStore = electionPackageStore;
   }
 
   getDbPath(): string {
@@ -77,43 +77,56 @@ export class Store {
    * Builds and returns a new store whose data is kept in memory.
    */
   static memoryStore(): Store {
-    const client = DbClient.memoryClient(SchemaPath);
-    return new Store(client);
+    return new Store(
+      DbClient.memoryClient(SchemaPath),
+      ElectionPackageStore.memoryStore()
+    );
   }
 
   /**
-   * Builds and returns a new store at `dbPath`.
+   * Builds and returns a new store whose session is at `sessionDbPath` and
+   * whose election package is at `electionPackageDbPath`.
    */
-  static fileStore(dbPath: string, logger: BaseLogger): Store {
-    const client = DbClient.fileClient(dbPath, logger, SchemaPath);
-    return new Store(client);
+  static fileStore(
+    sessionDbPath: string,
+    electionPackageDbPath: string,
+    logger: BaseLogger
+  ): Store {
+    return new Store(
+      DbClient.fileClient(sessionDbPath, logger, SchemaPath),
+      ElectionPackageStore.fileStore(electionPackageDbPath, logger)
+    );
   }
 
   /**
    * Runs the given function in a transaction. If the function throws an error,
-   * or the optional {@link shouldCommit} returns `false`, the transaction is
-   * rolled back. Otherwise, the transaction is committed.
+   * the transaction is rolled back. Otherwise, the transaction is committed.
    *
    * Returns the result of the function.
    */
-  withTransaction<T>(
-    fn: () => Promise<T>,
-    shouldCommit?: (res: T) => boolean
-  ): Promise<T>;
-  withTransaction<T>(fn: () => T, shouldCommit?: (res: T) => boolean): T;
-  withTransaction<T>(fn: () => T, shouldCommit?: (res: T) => boolean): T {
-    return this.client.transaction(() => fn(), shouldCommit);
+  withTransaction<T>(fn: () => T): T {
+    return this.client.transaction(() => fn());
   }
 
   /**
-   * Resets the database and any cached data in the store.
+   * Resets both databases.
    */
   reset(): void {
     this.client.reset();
+    this.electionPackageStore.reset();
+  }
+
+  close(): void {
+    this.client.close();
+    this.electionPackageStore.close();
+  }
+
+  getElectionPackageStore(): ElectionPackageStore {
+    return this.electionPackageStore;
   }
 
   getBallotMetaStore(): BallotMetaStore {
-    return this.ballotMetaStore;
+    return this.electionPackageStore.getBallotMetaStore();
   }
 
   /**
@@ -124,67 +137,26 @@ export class Store {
   }
 
   /**
-   * Gets the current election definition and election package hash.
+   * Starts the session for the imported election package, which is what makes
+   * the machine configured, so it comes after the package is imported.
    */
-  getElectionRecord(): ElectionRecord | undefined {
-    const row = this.client.one(
-      `
-      select
-        ballot_hash as ballotHash,
-        election_data as electionData,
-        election_package_hash as electionPackageHash
-      from election
-      `
-    ) as
-      | {
-          ballotHash: string;
-          electionData: string;
-          electionPackageHash: string;
-        }
-      | undefined;
-
-    return (
-      row && {
-        electionDefinition: {
-          ballotHash: row.ballotHash,
-          election: safeParseElection(row.electionData).unsafeUnwrap(),
-          electionData: row.electionData,
-        },
-        electionPackageHash: row.electionPackageHash,
-      }
-    );
+  startElectionSession(): void {
+    this.client.run('delete from election');
+    this.client.run('insert into election (id) values (1)');
   }
 
   /**
-   * Retrieves the election key (used for auth) for the current election. This
-   * method is faster than than {@link getElectionRecord} and thus more appropriate
-   * for use during auth polling.
+   * Gets the current election definition and election package hash.
+   */
+  getElectionRecord(): ElectionRecord | undefined {
+    return this.electionPackageStore.getElectionRecord();
+  }
+
+  /**
+   * Retrieves the election key (used for auth) for the current election.
    */
   getElectionKey(): ElectionKey | undefined {
-    const result = this.client.one(
-      `
-      select
-        election_data ->> 'id' as id,
-        election_data ->> 'date' as date
-      from election
-      `
-    ) as { id?: string; date?: string } | undefined;
-
-    if (!result) return undefined;
-
-    // The election might be in CDF, in which case, we won't get `id` and `date`
-    // fields, so just load and parse it to construct the key. We don't need to
-    // optimize speed for CDF.
-    if (!(result.id && result.date)) {
-      return constructElectionKey(
-        assertDefined(this.getElectionRecord()).electionDefinition.election
-      );
-    }
-
-    return {
-      id: result.id,
-      date: new DateWithoutTime(result.date),
-    };
+    return this.electionPackageStore.getElectionKey();
   }
 
   /**
@@ -210,85 +182,14 @@ export class Store {
    * Gets the current jurisdiction.
    */
   getJurisdiction(): string | undefined {
-    const electionRow = this.client.one('select jurisdiction from election') as
-      | { jurisdiction: string }
-      | undefined;
-    return electionRow?.jurisdiction;
-  }
-
-  /**
-   * Sets the current election definition and jurisdiction.
-   */
-  setElectionAndJurisdiction(input?: {
-    electionData: string;
-    jurisdiction: string;
-    electionPackageHash: string;
-    ballotHash: string;
-  }): void {
-    this.client.run('delete from election');
-    if (input) {
-      this.client.run(
-        `
-        insert into election (
-          election_data,
-          jurisdiction,
-          ballot_hash,
-          election_package_hash
-        ) values (?, ?, ?, ?)
-        `,
-        input.electionData,
-        input.jurisdiction,
-        input.ballotHash,
-        input.electionPackageHash
-      );
-    }
-  }
-
-  /**
-   * Stores the system settings.
-   */
-  setSystemSettings(systemSettings: SystemSettings): void {
-    this.client.run('delete from system_settings');
-    this.client.run(
-      `
-      insert into system_settings (data) values (?)
-      `,
-      JSON.stringify(systemSettings)
-    );
+    return this.electionPackageStore.getJurisdiction();
   }
 
   /**
    * Retrieves the system settings.
    */
   getSystemSettings(): SystemSettings | undefined {
-    const result = this.client.one(`select data from system_settings`) as
-      | { data: string }
-      | undefined;
-
-    if (!result) return undefined;
-    return safeParseSystemSettings(result.data).unsafeUnwrap();
-  }
-
-  /**
-   * Adds an encoded ballot for printing.
-   */
-  addBallot(ballot: EncodedBallotEntry): void {
-    this.client.run(
-      `
-      insert into ballots (
-        ballot_style_id,
-        precinct_id,
-        ballot_type,
-        ballot_mode,
-        encoded_ballot
-      ) values (?, ?, ?, ?, ?)
-      `,
-      ballot.ballotStyleId,
-      ballot.precinctId,
-      ballot.ballotType,
-      ballot.ballotMode,
-      ballot.encodedBallot
-    );
+    return this.electionPackageStore.getSystemSettings();
   }
 
   getBallotPrintCounts({
@@ -296,33 +197,64 @@ export class Store {
   }: {
     ballotMode: BallotMode;
   }): BallotPrintCount[] {
-    const rows = this.client.all(
+    const printCounts = this.client.all(
       `
       select
         ballot_style_id as ballotStyleId,
         precinct_id as precinctId,
-        sum(case when ballot_type = 'absentee' then print_count else 0 end) as absenteeCount,
-        sum(case when ballot_type = 'precinct' then print_count else 0 end) as precinctCount,
-        sum(print_count) as totalCount
-      from ballots
+        ballot_type as ballotType,
+        count
+      from ballot_print_counts
       where ballot_mode = ?
-      group by ballot_style_id, precinct_id
-      order by totalCount desc, precinct_id asc
       `,
       ballotMode
-    ) as BallotPrintCountRow[];
+    ) as Array<{
+      ballotStyleId: string;
+      precinctId: string;
+      ballotType: BallotType;
+      count: number;
+    }>;
+    const rowsByKey = new Map<string, BallotPrintCountRow>();
+    for (const { ballotStyleId, precinctId } of this.electionPackageStore
+      .getEncodedBallotStore()
+      .getBallotKeys({ ballotMode })) {
+      rowsByKey.set(JSON.stringify([ballotStyleId, precinctId]), {
+        ballotStyleId,
+        precinctId,
+        absenteeCount: 0,
+        precinctCount: 0,
+        totalCount: 0,
+      });
+    }
+    for (const {
+      ballotStyleId,
+      precinctId,
+      ballotType,
+      count,
+    } of printCounts) {
+      const row = rowsByKey.get(JSON.stringify([ballotStyleId, precinctId]));
+      if (!row) continue;
+      if (ballotType === 'absentee') row.absenteeCount += count;
+      if (ballotType === 'precinct') row.precinctCount += count;
+      row.totalCount += count;
+    }
     const { election } = assertDefined(
       this.getElectionRecord()
     ).electionDefinition;
 
-    return rows
+    return [...rowsByKey.values()]
+      .sort(
+        (a, b) =>
+          b.totalCount - a.totalCount ||
+          a.precinctId.localeCompare(b.precinctId)
+      )
       .map((row) => addBallotsPropsToPrintCountRow(election, row))
       .sort(sortBallotPrintCounts);
   }
 
   getTotalBallotPrintCount(): number {
     const result = this.client.one(
-      'select coalesce(sum(print_count), 0) as total from ballots'
+      'select coalesce(sum(count), 0) as total from ballot_print_counts'
     ) as { total: number };
     return result.total;
   }
@@ -335,33 +267,13 @@ export class Store {
     ballotType?: BallotType;
     languageCode?: LanguageCode;
   }): BallotPrintEntry[] {
-    const conditions: string[] = [];
-    const params: string[] = [];
-
-    conditions.push('ballot_mode = ?');
-    params.push(input.ballotMode);
-
-    if (input.ballotType) {
-      conditions.push('ballot_type = ?');
-      params.push(input.ballotType);
-    }
-
-    const whereClause = `where ${conditions.join(' and ')}`;
-
-    const rows = this.client.all(
-      `
-      select
-        id as ballotPrintId,
-        ballot_style_id as ballotStyleId,
-        precinct_id as precinctId,
-        ballot_type as ballotType,
-        ballot_mode as ballotMode,
-        encoded_ballot as encodedBallot
-      from ballots
-      ${whereClause}
-      `,
-      ...params
-    ) as BallotPrintEntry[];
+    const rows: BallotPrintEntry[] = this.electionPackageStore
+      .getEncodedBallotStore()
+      .getBallots({
+        ballotMode: input.ballotMode,
+        ballotType: input.ballotType,
+      })
+      .map(({ id, ...ballot }) => ({ ...ballot, ballotPrintId: id }));
 
     if (input.languageCode) {
       const electionRecord = assertDefined(this.getElectionRecord());
@@ -379,48 +291,22 @@ export class Store {
     return rows;
   }
 
-  getBallot({
-    ballotStyleId,
-    precinctId,
-    ballotType,
-    ballotMode,
-  }: {
+  getBallot(key: {
     ballotStyleId: string;
     precinctId: string;
     ballotType: BallotType;
     ballotMode: BallotMode;
-  }): BallotPrintEntry | null {
-    return (this.client.one(
-      `
-      select
-        ballot_style_id as ballotStyleId,
-        precinct_id as precinctId,
-        ballot_type as ballotType,
-        ballot_mode as ballotMode,
-        encoded_ballot as encodedBallot
-      from ballots
-      where
-        ballot_style_id = ? and
-        precinct_id = ? and
-        ballot_type = ? and
-        ballot_mode = ?
-      `,
-      ballotStyleId,
-      precinctId,
-      ballotType,
-      ballotMode
-    ) || null) as BallotPrintEntry | null;
+  }): EncodedBallotEntry | undefined {
+    return this.electionPackageStore.getEncodedBallotStore().getBallot(key);
   }
 
   /**
    * Whether any test ballot PDFs are present in the election package.
    */
   hasTestBallots(): boolean {
-    return (
-      this.client.one(
-        `select 1 from ballots where ballot_mode = 'test' limit 1`
-      ) !== undefined
-    );
+    return this.electionPackageStore
+      .getEncodedBallotStore()
+      .hasBallots({ ballotMode: 'test' });
   }
 
   getDistinctBallotStylesCount({
@@ -437,28 +323,17 @@ export class Store {
       return 0;
     }
 
-    const rows = this.client.all(
-      `
-      select
-        ballot_style_id as ballotStyleId,
-        precinct_id as precinctId
-      from ballots
-      where
-        ballot_type = ? and
-        ballot_mode = ?
-      `,
-      ballotType,
-      ballotMode
-    ) as Array<{ ballotStyleId: BallotStyleId; precinctId: PrecinctId }>;
     const { election } = electionRecord.electionDefinition;
-    const filteredRows = rows.filter(
-      (row) =>
-        getLanguageForBallotStyle({
-          election,
-          ballotStyleId: row.ballotStyleId,
-        }) === languageCode
-    );
-    return filteredRows.length;
+    return this.electionPackageStore
+      .getEncodedBallotStore()
+      .getBallotKeys({ ballotType, ballotMode })
+      .filter(
+        (row) =>
+          getLanguageForBallotStyle({
+            election,
+            ballotStyleId: row.ballotStyleId,
+          }) === languageCode
+      ).length;
   }
 
   /**
@@ -473,19 +348,21 @@ export class Store {
   }: IncrementBallotPrintCountParams): void {
     this.client.run(
       `
-      update ballots
-      set print_count = print_count + ?
-      where
-        precinct_id = ? and
-        ballot_style_id = ? and
-        ballot_type = ? and
-        ballot_mode = ?
+      insert into ballot_print_counts (
+        ballot_style_id,
+        precinct_id,
+        ballot_type,
+        ballot_mode,
+        count
+      ) values (?, ?, ?, ?, ?)
+      on conflict (ballot_style_id, precinct_id, ballot_type, ballot_mode)
+      do update set count = count + excluded.count
       `,
-      count,
-      precinctId,
       ballotStyleId,
+      precinctId,
       ballotType,
-      ballotMode
+      ballotMode,
+      count
     );
   }
 
@@ -520,7 +397,7 @@ export class Store {
    * Resets all ballot print counts to zero.
    */
   resetBallotPrintCounts(): void {
-    this.client.run('update ballots set print_count = 0');
+    this.client.run('delete from ballot_print_counts');
   }
 
   addDiagnosticRecord(record: Omit<DiagnosticRecord, 'timestamp'>): void {

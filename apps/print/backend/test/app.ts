@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, onTestFinished, vi } from 'vitest';
 import {
   buildMockDippedSmartCardAuth,
   type DippedSmartCardAuthApi,
@@ -37,11 +37,13 @@ import {
   mockElectionPackageFileTree,
   type PartialElectionPackage,
 } from '@votingworks/backend';
+import { importElectionPackageForTest } from '@votingworks/backend/test-utils';
 import { readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { getUserRole } from '../src/util/auth.js';
 import { createWorkspace, type Workspace } from '../src/util/workspace.js';
 import { buildApp } from '../src/app.js';
+import { ELECTION_PACKAGE_INCLUDE, type Store } from '../src/store.js';
 import type { Api } from '../src/index.js';
 
 async function getFamousNamesBallotPdfBase64s(): Promise<
@@ -111,6 +113,33 @@ export async function buildBallotsForElection({
   }
 
   return ballots;
+}
+
+/**
+ * Configures `store` from a package built from `electionPackage`, the way the
+ * app does, and starts the election session.
+ */
+export async function configureStore(
+  store: Store,
+  electionPackage: PartialElectionPackage,
+  {
+    jurisdiction = TEST_JURISDICTION,
+    pollingPlaceId,
+  }: { jurisdiction?: string; pollingPlaceId?: string } = {}
+): Promise<void> {
+  // Importing streams the package zip, which stalls under fake timers.
+  const fakeTimers = vi.isFakeTimers();
+  if (fakeTimers) vi.useRealTimers();
+  await importElectionPackageForTest(
+    store.getElectionPackageStore(),
+    electionPackage,
+    { jurisdiction, include: ELECTION_PACKAGE_INCLUDE }
+  );
+  if (fakeTimers) vi.useFakeTimers();
+  store.startElectionSession();
+  if (pollingPlaceId) {
+    store.setPollingPlaceId(pollingPlaceId);
+  }
 }
 
 export async function configureMachine({
@@ -204,6 +233,7 @@ export function buildTestEnvironment(): {
     makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn })
   );
+  onTestFinished(() => workspace[Symbol.dispose]());
   const logger = buildMockLogger(auth, workspace);
   const mockUsbDrive = createMockUsbDrive();
   const mockPrinterHandler = createMockPrinterHandler();

@@ -13,6 +13,7 @@ import { LogEventId } from '@votingworks/logging';
 import {
   ballotPaperDimensions,
   type DiagnosticRecord,
+  type EncodedBallotEntry,
   type ElectionDefinition,
   type ElectionPackageConfigurationError,
   type LanguageCode,
@@ -35,8 +36,6 @@ import {
   type ExportDataResult,
   getBatteryInfo,
   readSignedElectionPackageFromDirectory,
-  streamElectionPackageBallots,
-  withElectionPackageZip,
 } from '@votingworks/backend';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import {
@@ -70,11 +69,14 @@ import type { BallotPrintEntry, DeviceStatuses } from './types.js';
 import { getMachineConfig } from './machine_config.js';
 import { findBallotStyleId } from './util/ballot_styles.js';
 import { getCurrentTime } from './util/get_current_time.js';
-import type { IncrementBallotPrintCountParams } from './store.js';
+import {
+  ELECTION_PACKAGE_INCLUDE,
+  type IncrementBallotPrintCountParams,
+} from './store.js';
 
 interface TestDeckBallotToPrint {
   spec: TestDeckBallot;
-  ballot: BallotPrintEntry;
+  ballot: EncodedBallotEntry;
 }
 
 // Max size of combined ballots that result from the "Print all ballot styles" feature
@@ -167,7 +169,9 @@ export function buildApi(ctx: AppContext) {
           ballotMode: 'test',
         }),
       }))
-      .filter((entry): entry is TestDeckBallotToPrint => entry.ballot !== null);
+      .filter(
+        (entry): entry is TestDeckBallotToPrint => entry.ballot !== undefined
+      );
   }
 
   async function printTestDeckTallyReport(
@@ -261,62 +265,57 @@ export function buildApi(ctx: AppContext) {
       const { election } = electionDefinition;
       assert(systemSettings);
 
-      // [TODO] Cancel the transaction if the user logs out while configuring,
-      // since large packages can take a while to import.
-      return store.withTransaction(
-        async () => {
-          assert(isElectionManagerAuth(authStatus));
+      assert(isElectionManagerAuth(authStatus));
 
-          let ballotCount = 0;
+      try {
+        // [TODO] Cancel the import if the user logs out while configuring,
+        // since large packages can take a while to import.
+        await store.getElectionPackageStore().importElectionPackage({
+          electionPackage,
+          electionPackageHash,
+          filePath,
+          jurisdiction: authStatus.user.jurisdiction,
+          logger,
+          include: ELECTION_PACKAGE_INCLUDE,
+        });
 
-          await withElectionPackageZip(filePath, async (zip) => {
-            for await (const ballot of streamElectionPackageBallots(zip)) {
-              store.addBallot(ballot);
-              ballotCount += 1;
-            }
-
-            await store
-              .getBallotMetaStore()
-              .importPositions(zip, election, systemSettings);
+        if (
+          !store.getElectionPackageStore().getEncodedBallotStore().hasBallots()
+        ) {
+          workspace.unconfigure();
+          const noBallotsError: ElectionPackageConfigurationError = {
+            type: 'no_ballots',
+          };
+          await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
+            disposition: 'failure',
+            message: 'Error configuring machine.',
+            errorDetails: JSON.stringify(noBallotsError),
           });
+          return err(noBallotsError);
+        }
 
-          if (ballotCount === 0) {
-            const noBallotsError: ElectionPackageConfigurationError = {
-              type: 'no_ballots',
-            };
-            await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
-              disposition: 'failure',
-              message: 'Error configuring machine.',
-              errorDetails: JSON.stringify(noBallotsError),
-            });
-            return err(noBallotsError);
-          }
-
-          store.setElectionAndJurisdiction({
-            electionData: electionDefinition.electionData,
-            jurisdiction: authStatus.user.jurisdiction,
-            electionPackageHash,
-            ballotHash: electionDefinition.ballotHash,
-          });
-          store.setSystemSettings(systemSettings);
+        store.withTransaction(() => {
+          store.startElectionSession();
 
           if (election.pollingPlaces?.length === 1) {
-            workspace.store.setPollingPlaceId(
+            store.setPollingPlaceId(
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               election.pollingPlaces[0]!.id
             );
           }
+        });
+      } catch (error) {
+        workspace.unconfigure();
+        throw error;
+      }
 
-          await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
-            message: `Machine configured for election with hash: ${electionDefinition.ballotHash}`,
-            disposition: 'success',
-            ballotHash: electionDefinition.ballotHash,
-          });
+      await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
+        message: `Machine configured for election with hash: ${electionDefinition.ballotHash}`,
+        disposition: 'success',
+        ballotHash: electionDefinition.ballotHash,
+      });
 
-          return ok(electionDefinition);
-        },
-        (res) => res.isOk()
-      );
+      return ok(electionDefinition);
     },
 
     getElectionRecord(): ElectionRecord | null {
@@ -386,7 +385,7 @@ export function buildApi(ctx: AppContext) {
 
     unconfigureMachine(): void {
       stopJobMonitors();
-      store.reset();
+      workspace.unconfigure();
       void logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
         disposition: 'success',
       });
