@@ -1179,19 +1179,19 @@ describe('cross-endorsed candidates', () => {
           groupId: 'ballot-style-1',
           precincts: ['precinct-1'],
           districts: ['district-1'],
-          orderedCandidatesByContest: {
-            governor: [
-              { id: 'alice', partyIds: ['0', '1'] }, // Alice with both parties
-              { id: 'bob', partyIds: ['2'] },
-            ],
-          },
+          orderedCandidatesByContest: undefined,
         },
       ],
     };
 
     render(
       <CandidateContest
-        orderings={null}
+        orderings={{
+          governor: [
+            { id: 'alice', partyIds: ['0', '1'] }, // Alice with both parties
+            { id: 'bob', partyIds: ['2'] },
+          ],
+        }}
         election={election}
         contest={contest}
         vote={[]}

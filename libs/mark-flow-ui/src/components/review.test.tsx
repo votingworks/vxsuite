@@ -473,13 +473,7 @@ describe('cross-endorsed candidates', () => {
           groupId: 'ballot-style-1',
           precincts: ['precinct-1'],
           districts: ['district-1'],
-          orderedCandidatesByContest: {
-            governor: [
-              { id: 'alice', partyIds: ['0'] },
-              { id: 'bob', partyIds: ['2'] },
-              { id: 'alice', partyIds: ['1'] },
-            ],
-          },
+          orderedCandidatesByContest: undefined,
         },
       ],
     };
@@ -489,7 +483,13 @@ describe('cross-endorsed candidates', () => {
         election={election}
         contests={[contest]}
         precinctId={election.precincts[0]!.id}
-        candidateOrderings={null}
+        candidateOrderings={{
+          governor: [
+            { id: 'alice', partyIds: ['0'] },
+            { id: 'bob', partyIds: ['2'] },
+            { id: 'alice', partyIds: ['1'] },
+          ],
+        }}
         votes={{
           governor: [{ id: 'alice', name: 'Alice Anderson', partyIds: ['0'] }],
         }}
@@ -534,14 +534,7 @@ describe('cross-endorsed candidates', () => {
           groupId: 'ballot-style-1',
           precincts: ['precinct-1'],
           districts: ['district-1'],
-          orderedCandidatesByContest: {
-            council: [
-              { id: 'alice', partyIds: ['0'] },
-              { id: 'bob', partyIds: ['2'] },
-              { id: 'alice', partyIds: ['1'] },
-              { id: 'carol', partyIds: ['0'] },
-            ],
-          },
+          orderedCandidatesByContest: undefined,
         },
       ],
     };
@@ -551,7 +544,14 @@ describe('cross-endorsed candidates', () => {
         election={election}
         contests={[contest]}
         precinctId={election.precincts[0]!.id}
-        candidateOrderings={null}
+        candidateOrderings={{
+          council: [
+            { id: 'alice', partyIds: ['0'] },
+            { id: 'bob', partyIds: ['2'] },
+            { id: 'alice', partyIds: ['1'] },
+            { id: 'carol', partyIds: ['0'] },
+          ],
+        }}
         votes={{
           council: [
             { id: 'alice', name: 'Alice Anderson', partyIds: ['0'] },
@@ -595,13 +595,7 @@ describe('cross-endorsed candidates', () => {
           groupId: 'ballot-style-1',
           precincts: ['precinct-1'],
           districts: ['district-1'],
-          orderedCandidatesByContest: {
-            governor: [
-              { id: 'alice', partyIds: ['0'] },
-              { id: 'bob', partyIds: ['2'] },
-              { id: 'alice', partyIds: ['1'] },
-            ],
-          },
+          orderedCandidatesByContest: undefined,
         },
       ],
     };
@@ -611,7 +605,13 @@ describe('cross-endorsed candidates', () => {
         election={election}
         contests={[contest]}
         precinctId={election.precincts[0]!.id}
-        candidateOrderings={null}
+        candidateOrderings={{
+          governor: [
+            { id: 'alice', partyIds: ['0'] },
+            { id: 'bob', partyIds: ['2'] },
+            { id: 'alice', partyIds: ['1'] },
+          ],
+        }}
         votes={{
           governor: [
             { id: 'alice', name: 'Alice Anderson', partyIds: ['1'] },
