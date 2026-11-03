@@ -7,8 +7,8 @@ import {
   buildBatchManifest,
   buildCastVoteRecord,
   buildCastVoteRecordReportMetadata,
-  createInterpreterDb,
 } from '@votingworks/backend';
+import { createElectionPackageDbForTest } from '@votingworks/backend/test-utils';
 import { interpretSheetAndSaveImages } from '@votingworks/ballot-interpreter';
 import type { MarginalMark } from '@votingworks/hmpb';
 import { pdfToImages } from '@votingworks/image-utils/pdf';
@@ -219,11 +219,7 @@ export async function generateCastVoteRecordExport(
   );
   await fs.mkdir(exportDirectory, { recursive: true });
 
-  const dbPath = join(
-    mkdtempSync(join(tmpdir(), 'interpreter-')),
-    'interpreter.db'
-  );
-  createInterpreterDb(dbPath, electionDefinition);
+  const dbPath = await createElectionPackageDbForTest(electionDefinition);
 
   // `renderMarkedBallots` shares a single layout pass per call, so all ballots
   // in a call must share ballot style and precinct. Group accordingly while

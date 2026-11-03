@@ -35,7 +35,7 @@ test('blank sheet of paper', async () => {
       testMode: false,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
-      dbPath: makeInterpreterDb(electionDefinition),
+      dbPath: await makeInterpreterDb(electionDefinition),
     },
     sheet
   );

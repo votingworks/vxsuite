@@ -42,7 +42,7 @@ describe.each(Object.values(HmpbBallotPaperSize))(
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [AdjudicationReason.Overvote],
-          dbPath: makeInterpreterDb(electionDefinition),
+          dbPath: await makeInterpreterDb(electionDefinition),
         },
         images
       );
@@ -78,7 +78,7 @@ describe.each(Object.values(HmpbBallotPaperSize))(
           testMode: true,
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [AdjudicationReason.Overvote],
-          dbPath: makeInterpreterDb(electionDefinition),
+          dbPath: await makeInterpreterDb(electionDefinition),
         },
         images
       );
@@ -113,7 +113,7 @@ describe.each(Object.values(HmpbBallotPaperSize))(
             testMode: true,
             markThresholds: DEFAULT_MARK_THRESHOLDS,
             adjudicationReasons: [AdjudicationReason.Overvote],
-            dbPath: makeInterpreterDb(electionDefinition),
+            dbPath: await makeInterpreterDb(electionDefinition),
           },
           sheetImages
         );

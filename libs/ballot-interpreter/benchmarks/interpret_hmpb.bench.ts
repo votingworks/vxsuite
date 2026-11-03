@@ -14,8 +14,8 @@ const { electionDefinition, precinctId, blankBallotPath, markedBallotPath } =
 const validPrecinctIds = new Set([assertDefined(precinctId)]);
 let dbPath: string;
 
-beforeAll(() => {
-  dbPath = makeInterpreterDb(electionDefinition);
+beforeAll(async () => {
+  dbPath = await makeInterpreterDb(electionDefinition);
 });
 
 test('Blank HMPB', async () => {

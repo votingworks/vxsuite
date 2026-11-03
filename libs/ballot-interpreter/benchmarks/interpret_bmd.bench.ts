@@ -19,8 +19,8 @@ import { benchmarkRegressionTest } from './benchmarking.js';
 const { electionDefinition, precinctId } = vxFamousNamesFixtures;
 let dbPath: string;
 
-beforeAll(() => {
-  dbPath = makeInterpreterDb(electionDefinition);
+beforeAll(async () => {
+  dbPath = await makeInterpreterDb(electionDefinition);
 });
 
 test('Blank BMD', async () => {

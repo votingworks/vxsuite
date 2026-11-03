@@ -7,7 +7,6 @@ import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { writeImageData } from '@votingworks/image-utils';
 import {
   asSheet,
-  type ElectionDefinition,
   gridPositionsFromBallotPositions,
   mapSheet,
 } from '@votingworks/types';
@@ -22,10 +21,6 @@ const electionGridLayoutNewHampshireTestBallotDefinition =
   electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
 test('interpret with bad election data in the DB', async () => {
-  const electionDefinition: ElectionDefinition = {
-    ...electionGridLayoutNewHampshireTestBallotDefinition,
-    electionData: '{"bad":"election"}',
-  };
   const ballotImages = asSheet(
     await pdfToPageImages(vxFamousNamesFixtures.markedBallotPath).toArray()
   );
@@ -33,7 +28,10 @@ test('interpret with bad election data in the DB', async () => {
   await expect(
     interpret({
       ballotImages,
-      dbPath: makeInterpreterDb(electionDefinition),
+      dbPath: await makeInterpreterDb(
+        electionGridLayoutNewHampshireTestBallotDefinition,
+        { electionData: '{"bad":"election"}' }
+      ),
     })
   ).rejects.toThrow('parsing election: missing field `title`');
 });
@@ -44,7 +42,7 @@ test('interpret with bad ballot image paths', async () => {
   await expect(
     interpret({
       ballotImages: ['a', 'b'],
-      dbPath: makeInterpreterDb(electionDefinition),
+      dbPath: await makeInterpreterDb(electionDefinition),
     })
   ).rejects.toThrow(/No such file or directory/);
 });
@@ -69,7 +67,7 @@ test('interpret `ImageData` objects', async () => {
   );
   const result = await interpret({
     ballotImages,
-    dbPath: makeInterpreterDb(electionDefinition),
+    dbPath: await makeInterpreterDb(electionDefinition),
   });
   expect(result).toEqual(ok(expect.anything()));
 
@@ -373,7 +371,7 @@ test('interpret images from paths', async () => {
 
   const result = await interpret({
     ballotImages: ballotImagePaths,
-    dbPath: makeInterpreterDb(electionDefinition),
+    dbPath: await makeInterpreterDb(electionDefinition),
   });
   expect(result).toEqual(ok(expect.anything()));
 
@@ -677,7 +675,7 @@ test('score write in areas', async () => {
   const result = await interpret({
     ballotImages,
     scoreWriteIns: true,
-    dbPath: makeInterpreterDb(electionDefinition),
+    dbPath: await makeInterpreterDb(electionDefinition),
   });
   expect(result).toEqual(ok(expect.anything()));
 

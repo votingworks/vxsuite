@@ -95,26 +95,20 @@ export class BallotMetaStore {
     settings: SystemSettings
   ): Promise<void> {
     if (!settings.splitElectionDefinition) {
-      this.importPositionsFromElection(election);
+      for (const bs of election.ballotStyles) {
+        if (!bs.ballotPositions) continue; // Not a scannable ballot.
+
+        addPositions(this.client, {
+          ballotStyleId: bs.id,
+          positions: bs.ballotPositions,
+        });
+      }
+
       return;
     }
 
     for await (const bp of streamBallotPositions(zip)) {
       addPositions(this.client, bp);
-    }
-  }
-
-  /**
-   * Imports the ballot positions embedded in a single-file election definition.
-   */
-  importPositionsFromElection(election: Election): void {
-    for (const bs of election.ballotStyles) {
-      if (!bs.ballotPositions) continue; // Not a scannable ballot.
-
-      addPositions(this.client, {
-        ballotStyleId: bs.id,
-        positions: bs.ballotPositions,
-      });
     }
   }
 }

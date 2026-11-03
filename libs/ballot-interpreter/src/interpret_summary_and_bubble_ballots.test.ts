@@ -53,7 +53,7 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
-      dbPath: makeInterpreterDb(electionDefinition),
+      dbPath: await makeInterpreterDb(electionDefinition),
     },
     bmdBallot
   );
@@ -77,7 +77,7 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
-      dbPath: makeInterpreterDb(electionDefinition),
+      dbPath: await makeInterpreterDb(electionDefinition),
     },
     hmpbBallot
   );
@@ -119,7 +119,7 @@ test('interpret BMD ballot with test/official ballot mode mismatch error', async
       testMode: false,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
-      dbPath: makeInterpreterDb(electionDefinition),
+      dbPath: await makeInterpreterDb(electionDefinition),
     },
     bmdBallot
   );

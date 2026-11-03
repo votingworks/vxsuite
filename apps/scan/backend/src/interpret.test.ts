@@ -19,11 +19,8 @@ import {
 } from '@votingworks/types';
 import { assert } from 'node:console';
 import * as fs from 'node:fs/promises';
-import { createInterpreterDb } from '@votingworks/backend';
-import {
-  makeTemporaryDirectory,
-  makeTemporaryFile,
-} from '@votingworks/fixtures';
+import { createElectionPackageDbForTest } from '@votingworks/backend/test-utils';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import { interpret } from './interpret.js';
 
@@ -51,8 +48,7 @@ async function ballotAsSheet(ballotPdf: Uint8Array) {
 }
 
 beforeAll(async () => {
-  dbPath = makeTemporaryFile();
-  createInterpreterDb(dbPath, electionDefinition);
+  dbPath = await createElectionPackageDbForTest(electionDefinition);
 
   ballotImages = {
     overvoteBallot: await ballotAsSheet(

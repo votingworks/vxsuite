@@ -4,8 +4,7 @@ import {
   iter,
   unique,
 } from '@votingworks/basics';
-import { createInterpreterDb } from '@votingworks/backend';
-import { makeTemporaryFile } from '@votingworks/fixtures';
+import { createElectionPackageDbForTest } from '@votingworks/backend/test-utils';
 import { voteToOptionId } from '@votingworks/hmpb';
 import { pdfToImages } from '@votingworks/image-utils/pdf';
 import type {
@@ -19,13 +18,12 @@ import type {
 } from '@votingworks/types';
 import { readFileSync } from 'node:fs';
 
-/** Writes `electionDefinition` and its ballot positions to a temporary DB and returns its path. */
+/** Imports `electionDefinition` into a temporary election package DB and returns its path. */
 export function makeInterpreterDb(
-  electionDefinition: ElectionDefinition
-): string {
-  const dbPath = makeTemporaryFile();
-  createInterpreterDb(dbPath, electionDefinition);
-  return dbPath;
+  electionDefinition: ElectionDefinition,
+  electionRow?: Partial<Pick<ElectionDefinition, 'electionData' | 'ballotHash'>>
+): Promise<string> {
+  return createElectionPackageDbForTest(electionDefinition, electionRow);
 }
 
 export function pdfToPageImages(
