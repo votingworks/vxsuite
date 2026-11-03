@@ -50,6 +50,7 @@ import {
   type ScanDiagnosticOutcome,
 } from './diagnostic.js';
 import type { BatchScanner } from './fujitsu_scanner.js';
+import { ELECTION_PACKAGE_INCLUDE } from './store.js';
 
 export interface AppOptions {
   auth: DippedSmartCardAuthApi;
@@ -231,7 +232,7 @@ function buildApi({
         filePath,
         jurisdiction: authStatus.user.jurisdiction,
         logger,
-        uiStrings: false,
+        include: ELECTION_PACKAGE_INCLUDE,
       });
 
       store.withTransaction(() => {

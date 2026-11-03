@@ -38,6 +38,7 @@ import {
   type Sheet,
   addDiagnosticRecord,
   getMostRecentDiagnosticRecord,
+  type ElectionPackageInclude,
 } from '@votingworks/backend';
 import {
   clearCastVoteRecordHashes,
@@ -49,6 +50,14 @@ import { normalizeAndJoin } from './util/path.js';
 import type { NetworkConnectionInfo } from './types.js';
 
 const SchemaPath = join(import.meta.dirname, '../schema.sql');
+
+/** The parts of an election package this app imports. */
+export const ELECTION_PACKAGE_INCLUDE: ElectionPackageInclude = {
+  uiStrings: false,
+  ballots: false,
+  ballotPositions: true,
+  candidateOrderings: true,
+};
 
 const getSheetsBaseQuery = `
   select

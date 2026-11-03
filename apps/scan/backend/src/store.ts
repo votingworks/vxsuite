@@ -43,6 +43,7 @@ import {
   addDiagnosticRecord,
   clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult,
   getMostRecentDiagnosticRecord,
+  type ElectionPackageInclude,
 } from '@votingworks/backend';
 import {
   clearCastVoteRecordHashes,
@@ -66,6 +67,14 @@ import type { PollsTransition } from './types.js';
 const debug = rootDebug.extend('store');
 
 const SchemaPath = join(import.meta.dirname, '../schema.sql');
+
+/** The parts of an election package this app imports. */
+export const ELECTION_PACKAGE_INCLUDE: ElectionPackageInclude = {
+  uiStrings: true,
+  ballots: false,
+  ballotPositions: true,
+  candidateOrderings: true,
+};
 
 const getSheetsBaseQuery = `
   select

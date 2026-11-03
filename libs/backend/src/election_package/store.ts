@@ -11,6 +11,7 @@ import {
   type SystemSettings,
 } from '@votingworks/types';
 import { BallotMetaStore } from '../ballot_meta/store.js';
+import { EncodedBallotStore } from './encoded_ballot_store.js';
 import {
   createUiStringStore,
   type UiStringsStore,
@@ -35,8 +36,18 @@ export interface ElectionRecord {
 export interface ElectionPackageImport extends ParsedElectionPackageWithFilePath {
   jurisdiction: string;
   logger: BaseLogger;
-  /** Import UI strings and audio clips. Defaults to `true`. */
-  uiStrings?: boolean;
+  include: ElectionPackageInclude;
+}
+
+/** Which optional parts of an election package an app imports. */
+export interface ElectionPackageInclude {
+  /** UI strings and audio clips. */
+  readonly uiStrings: boolean;
+  /** Pre-rendered ballot PDFs. */
+  readonly ballots: boolean;
+  /** Bubble ballot positions. */
+  readonly ballotPositions: boolean;
+  readonly candidateOrderings: boolean;
 }
 
 /**
@@ -49,11 +60,13 @@ export class ElectionPackageStore {
 
   private readonly client: Client;
   private readonly ballotMetaStore: BallotMetaStore;
+  private readonly encodedBallotStore: EncodedBallotStore;
   private readonly uiStringsStore: UiStringsStore;
 
   private constructor(client: Client) {
     this.client = client;
     this.ballotMetaStore = new BallotMetaStore(client);
+    this.encodedBallotStore = new EncodedBallotStore(client);
     this.uiStringsStore = createUiStringStore(client);
   }
 
@@ -95,6 +108,10 @@ export class ElectionPackageStore {
 
   getBallotMetaStore(): BallotMetaStore {
     return this.ballotMetaStore;
+  }
+
+  getEncodedBallotStore(): EncodedBallotStore {
+    return this.encodedBallotStore;
   }
 
   getUiStringsStore(): UiStringsStore {
@@ -230,12 +247,13 @@ async function importInto(
     filePath,
     jurisdiction,
     logger,
-    uiStrings = true,
+    include,
   }: ElectionPackageImport
 ): Promise<void> {
   const { electionDefinition, systemSettings } = electionPackage;
   const { election } = electionDefinition;
   const ballotMetaStore = new BallotMetaStore(client);
+  const encodedBallotStore = new EncodedBallotStore(client);
   const uiStringsStore = createUiStringStore(client);
 
   await client.transaction(async () => {
@@ -260,18 +278,25 @@ async function importInto(
       JSON.stringify(systemSettings)
     );
 
-    if (uiStrings) {
+    if (include.uiStrings) {
       configureUiStrings({ electionPackage, logger, store: uiStringsStore });
     }
 
     await withElectionPackageZip(filePath, async (zip) => {
-      await ballotMetaStore.importPositions(zip, election, systemSettings);
-      await ballotMetaStore.importCandidateOrderings(
-        zip,
-        election,
-        systemSettings
-      );
-      if (uiStrings) {
+      if (include.ballots) {
+        await encodedBallotStore.importBallots(zip);
+      }
+      if (include.ballotPositions) {
+        await ballotMetaStore.importPositions(zip, election, systemSettings);
+      }
+      if (include.candidateOrderings) {
+        await ballotMetaStore.importCandidateOrderings(
+          zip,
+          election,
+          systemSettings
+        );
+      }
+      if (include.uiStrings) {
         await configureUiStringAudioClipsStreaming({
           zip,
           store: uiStringsStore,

@@ -8,7 +8,10 @@ import { chmodSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readElectionPackageFromFile } from './election_package/election_package_io.js';
-import { ElectionPackageStore } from './election_package/store.js';
+import {
+  ElectionPackageStore,
+  type ElectionPackageInclude,
+} from './election_package/store.js';
 import {
   createElectionPackageZipArchive,
   type PartialElectionPackage,
@@ -17,7 +20,8 @@ import {
 /**
  * Imports `electionPackage` into `store` the way configuring a machine does,
  * and returns the election package hash. `electionPackageHash` overrides the
- * hash of the zip for tests that assert on a known value.
+ * hash of the zip for tests that assert on a known value; `include` defaults
+ * every part to `true`.
  */
 export async function importElectionPackageForTest(
   store: ElectionPackageStore,
@@ -25,11 +29,11 @@ export async function importElectionPackageForTest(
   {
     jurisdiction = 'test-jurisdiction',
     electionPackageHash,
-    uiStrings,
+    include = {},
   }: {
     jurisdiction?: string;
     electionPackageHash?: string;
-    uiStrings?: boolean;
+    include?: Partial<ElectionPackageInclude>;
   } = {}
 ): Promise<string> {
   const filePath = join(
@@ -48,7 +52,13 @@ export async function importElectionPackageForTest(
     filePath,
     jurisdiction,
     logger: new BaseLogger(LogSource.System),
-    uiStrings,
+    include: {
+      uiStrings: true,
+      ballots: true,
+      ballotPositions: true,
+      candidateOrderings: true,
+      ...include,
+    },
   });
   return hash;
 }

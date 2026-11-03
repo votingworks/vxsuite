@@ -16,13 +16,18 @@ import {
   type ContestPosition,
   type Election,
   type ElectionDefinition,
+  type EncodedBallotEntry,
   type SystemSettings,
 } from '@votingworks/types';
 import { existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test, vi } from 'vitest';
 import { readElectionPackageFromFile } from './election_package_io.js';
-import { ElectionPackageStore, type ElectionPackageImport } from './store.js';
+import {
+  ElectionPackageStore,
+  type ElectionPackageImport,
+  type ElectionPackageInclude,
+} from './store.js';
 import { importElectionPackageForTest } from '../test_utils.js';
 import { createElectionPackageZipArchive } from './test_utils.js';
 
@@ -55,6 +60,12 @@ const election: Election = {
 const electionDefinition: ElectionDefinition =
   createElectionDefinition(election);
 const jurisdiction = 'jurisdiction-1';
+const INCLUDE_ALL: ElectionPackageInclude = {
+  uiStrings: true,
+  ballots: true,
+  ballotPositions: true,
+  candidateOrderings: true,
+};
 
 async function packageImport(
   systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS,
@@ -97,6 +108,7 @@ async function packageImport(
     filePath,
     jurisdiction,
     logger: mockBaseLogger({ fn: vi.fn }),
+    include: INCLUDE_ALL,
     ...options,
   };
 }
@@ -219,11 +231,119 @@ test('importElectionPackage from a split-file election', async () => {
 test('importElectionPackage without UI strings', async () => {
   const store = ElectionPackageStore.memoryStore();
   await store.importElectionPackage(
-    await packageImport(DEFAULT_SYSTEM_SETTINGS, { uiStrings: false })
+    await packageImport(DEFAULT_SYSTEM_SETTINGS, {
+      include: { ...INCLUDE_ALL, uiStrings: false },
+    })
   );
 
   expect(store.hasElection()).toEqual(true);
   expect(store.getUiStringsStore().getLanguages()).toEqual([]);
+});
+
+test('importElectionPackage without ballot positions or candidate orderings', async () => {
+  const store = ElectionPackageStore.memoryStore();
+  await store.importElectionPackage(
+    await packageImport(DEFAULT_SYSTEM_SETTINGS, {
+      include: {
+        ...INCLUDE_ALL,
+        ballotPositions: false,
+        candidateOrderings: false,
+      },
+    })
+  );
+
+  const ballotMeta = store.getBallotMetaStore();
+  expect(store.hasElection()).toEqual(true);
+  expect(ballotMeta.hasPositions()).toEqual(false);
+  expect(ballotMeta.getCandidateOrderings(style1.id)).toBeNull();
+});
+
+test('importElectionPackage with ballots', async () => {
+  const store = ElectionPackageStore.memoryStore();
+  const precinctId = assertDefined(election.precincts[0]).id;
+  const officialPrecinct: EncodedBallotEntry = {
+    ballotStyleId: style1.id,
+    precinctId,
+    ballotType: 'precinct',
+    ballotMode: 'official',
+    encodedBallot: 'official-precinct',
+  };
+  const officialAbsentee: EncodedBallotEntry = {
+    ...officialPrecinct,
+    ballotType: 'absentee',
+    encodedBallot: 'official-absentee',
+  };
+  const testPrecinct: EncodedBallotEntry = {
+    ...officialPrecinct,
+    ballotStyleId: style2.id,
+    ballotMode: 'test',
+    encodedBallot: 'test-precinct',
+  };
+  const ballots = [officialPrecinct, officialAbsentee, testPrecinct];
+  await importElectionPackageForTest(store, { electionDefinition, ballots });
+
+  const ballotStore = store.getEncodedBallotStore();
+  expect(ballotStore.hasBallots()).toEqual(true);
+  expect(ballotStore.hasBallots({ ballotMode: 'test' })).toEqual(true);
+  expect(ballotStore.hasBallots({ ballotMode: 'sample' })).toEqual(false);
+  expect(
+    ballotStore.getBallot({
+      ballotStyleId: style1.id,
+      precinctId,
+      ballotType: 'absentee',
+      ballotMode: 'official',
+    })
+  ).toEqual(officialAbsentee);
+  expect(
+    ballotStore.getBallot({
+      ballotStyleId: style2.id,
+      precinctId,
+      ballotType: 'absentee',
+      ballotMode: 'official',
+    })
+  ).toBeUndefined();
+  expect(ballotStore.getBallots()).toEqual(
+    ballots.map((ballot) => ({ ...ballot, id: expect.any(Number) }))
+  );
+  expect(ballotStore.getBallots({ ballotMode: 'official' })).toEqual([
+    { ...officialPrecinct, id: expect.any(Number) },
+    { ...officialAbsentee, id: expect.any(Number) },
+  ]);
+  expect(ballotStore.getBallotKeys({ ballotType: 'precinct' })).toEqual([
+    {
+      ballotStyleId: style1.id,
+      precinctId,
+      ballotType: 'precinct',
+      ballotMode: 'official',
+    },
+    {
+      ballotStyleId: style2.id,
+      precinctId,
+      ballotType: 'precinct',
+      ballotMode: 'test',
+    },
+  ]);
+});
+
+test('importElectionPackage without ballots', async () => {
+  const store = ElectionPackageStore.memoryStore();
+  await importElectionPackageForTest(
+    store,
+    {
+      electionDefinition,
+      ballots: [
+        {
+          ballotStyleId: style1.id,
+          precinctId: assertDefined(election.precincts[0]).id,
+          ballotType: 'precinct',
+          ballotMode: 'official',
+          encodedBallot: 'pdf',
+        },
+      ],
+    },
+    { include: { ballots: false } }
+  );
+  expect(store.getEncodedBallotStore().hasBallots()).toEqual(false);
 });
 
 test('importElectionPackage rolls back on failure', async () => {
