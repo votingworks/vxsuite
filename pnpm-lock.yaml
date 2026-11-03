@@ -353,9 +353,6 @@ importers:
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../../../libs/coverage-check
-      '@votingworks/design-store-pg':
-        specifier: workspace:*
-        version: link:../../../libs/design-store-pg
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
@@ -1015,9 +1012,6 @@ importers:
       '@votingworks/design-backend':
         specifier: workspace:*
         version: link:../../../libs/design-backend
-      '@votingworks/design-store-pg':
-        specifier: workspace:*
-        version: link:../../../libs/design-store-pg
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
@@ -3743,73 +3737,6 @@ importers:
       esbuild:
         specifier: 0.28.1
         version: 0.28.1
-      eslint-plugin-vx:
-        specifier: workspace:*
-        version: link:../eslint-plugin-vx
-      lint-staged:
-        specifier: 11.0.0
-        version: 11.0.0(supports-color@8.1.1)
-      sort-package-json:
-        specifier: ^1.50.0
-        version: 1.53.1
-      vitest:
-        specifier: 5.0.2
-        version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(@vitest/coverage-istanbul@5.0.2)(jsdom@30.1.3(@noble/hashes@1.8.0)(canvas@3.2.3))(vite@8.1.6(@types/node@24.19.2)(esbuild@0.28.1)(yaml@2.8.2))
-
-  libs/design-store-pg:
-    dependencies:
-      '@votingworks/backend':
-        specifier: workspace:*
-        version: link:../backend
-      '@votingworks/basics':
-        specifier: workspace:*
-        version: link:../basics
-      '@votingworks/design-backend':
-        specifier: workspace:*
-        version: link:../design-backend
-      '@votingworks/hmpb':
-        specifier: workspace:*
-        version: link:../hmpb
-      '@votingworks/logging':
-        specifier: workspace:*
-        version: link:../logging
-      '@votingworks/types':
-        specifier: workspace:*
-        version: link:../types
-      '@votingworks/utils':
-        specifier: workspace:*
-        version: link:../utils
-      debug:
-        specifier: 4.3.4
-        version: 4.3.4(supports-color@8.1.1)
-      node-pg-migrate:
-        specifier: ^7.9.1
-        version: 7.9.1(@types/pg@8.11.10)(pg@8.13.1)
-      pg:
-        specifier: ^8.13.1
-        version: 8.13.1
-      zod:
-        specifier: 4.6.6
-        version: 4.6.6
-    devDependencies:
-      '@types/debug':
-        specifier: 4.1.12
-        version: 4.1.12
-      '@types/node':
-        specifier: 24.19.2
-        version: 24.19.2
-      '@types/pg':
-        specifier: ^8.11.10
-        version: 8.11.10
-      '@vitest/coverage-istanbul':
-        specifier: 5.0.2
-        version: 5.0.2(vitest@5.0.2)
-      '@votingworks/coverage-check':
-        specifier: workspace:*
-        version: link:../coverage-check
-      '@votingworks/fixtures':
-        specifier: workspace:*
-        version: link:../fixtures
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx

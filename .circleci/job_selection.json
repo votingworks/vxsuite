@@ -33,7 +33,6 @@
     "libs/custom-paper-handler": "test-libs-custom-paper-handler",
     "libs/db": "test-libs-db",
     "libs/design-backend": "test-libs-design-backend",
-    "libs/design-store-pg": "test-libs-design-store-pg",
     "libs/design-ui": "test-libs-design-ui",
     "libs/dev-dock/backend": "test-libs-dev-dock-backend",
     "libs/dev-dock/frontend": "test-libs-dev-dock-frontend",
