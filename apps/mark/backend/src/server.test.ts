@@ -49,7 +49,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  workspace.reset();
+  workspace[Symbol.dispose]();
 });
 
 test('start passes context to `buildApp`', async () => {
