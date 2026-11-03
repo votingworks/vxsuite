@@ -370,3 +370,208 @@ begin
     set cvrs_data_version = data_versions.cvrs_data_version + 1
     where election_id = new.election_id;
 end;
+
+create table design_elections (
+  id text primary key,
+  system_settings_data text not null,
+  created_at text not null default current_timestamp,
+  ballot_template_id text not null,
+  ballots_finalized_at text,
+  ballot_language_codes text default '[]',
+  type text,
+  title text,
+  date text,
+  jurisdiction_name text,
+  state text,
+  seal text,
+  ballot_paper_size text,
+  ballot_compact integer not null default 0,
+  signature text,
+  jurisdiction_external_id text not null,
+  external_source text check (external_source in ('ms-sems')),
+  is_mi_combined_ballot_primary integer not null default 0
+) strict;
+
+create table design_districts (
+  id text primary key,
+  election_id text not null,
+  name text not null,
+  created_at text not null default current_timestamp,
+  foreign key (election_id) references design_elections(id)
+    on delete cascade
+) strict;
+
+create unique index design_districts_election_id_name_unique_index
+  on design_districts (election_id, name);
+
+create table design_precincts (
+  id text primary key,
+  election_id text not null,
+  name text not null,
+  created_at text not null default current_timestamp,
+  foreign key (election_id) references design_elections(id)
+    on delete cascade
+) strict;
+
+create unique index design_precincts_election_id_name_unique_index
+  on design_precincts (election_id, name);
+
+create table design_precinct_splits (
+  id text primary key,
+  precinct_id text not null,
+  name text not null,
+  nh_options text not null,
+  created_at text not null default current_timestamp,
+  foreign key (precinct_id) references design_precincts(id)
+    on delete cascade
+) strict;
+
+create unique index design_precinct_splits_precinct_id_name_unique_index
+  on design_precinct_splits (precinct_id, name);
+
+create table design_districts_precincts (
+  district_id text not null,
+  precinct_id text not null,
+  primary key (district_id, precinct_id),
+  foreign key (district_id) references design_districts(id)
+    on delete cascade,
+  foreign key (precinct_id) references design_precincts(id)
+    on delete cascade
+) strict;
+
+create table design_districts_precinct_splits (
+  district_id text not null,
+  precinct_split_id text not null,
+  primary key (district_id, precinct_split_id),
+  foreign key (district_id) references design_districts(id)
+    on delete cascade,
+  foreign key (precinct_split_id) references design_precinct_splits(id)
+    on delete cascade
+) strict;
+
+create table design_precinct_registered_voter_counts (
+  precinct_id text primary key,
+  count integer not null,
+  foreign key (precinct_id) references design_precincts(id)
+    on delete cascade
+) strict;
+
+create table design_precinct_split_registered_voter_counts (
+  split_id text primary key,
+  count integer not null,
+  foreign key (split_id) references design_precinct_splits(id)
+    on delete cascade
+) strict;
+
+create table design_parties (
+  id text primary key,
+  election_id text not null,
+  name text not null,
+  full_name text not null,
+  abbrev text not null,
+  created_at text not null default current_timestamp,
+  foreign key (election_id) references design_elections(id)
+    on delete cascade
+) strict;
+
+create unique index design_parties_election_id_name_unique_index
+  on design_parties (election_id, name);
+create unique index design_parties_election_id_full_name_unique_index
+  on design_parties (election_id, full_name);
+create unique index design_parties_election_id_abbrev_unique_index
+  on design_parties (election_id, abbrev);
+
+create table design_contests (
+  id text primary key,
+  election_id text not null,
+  title text not null,
+  type text not null,
+  district_id text not null,
+  seats integer,
+  allow_write_ins integer,
+  party_id text,
+  term_description text,
+  description text,
+  yes_option_id text,
+  yes_option_label text,
+  no_option_id text,
+  no_option_label text,
+  ballot_order integer not null unique,
+  created_at text not null default current_timestamp,
+  additional_options text,
+  foreign key (election_id) references design_elections(id)
+    on delete cascade,
+  foreign key (district_id) references design_districts(id)
+    on delete cascade,
+  foreign key (party_id) references design_parties(id)
+    on delete set null
+) strict;
+
+create unique index design_contests_unique_index
+  on design_contests (district_id, title, seats, term_description, party_id);
+
+create table design_candidates (
+  id text primary key,
+  contest_id text not null,
+  first_name text,
+  middle_name text,
+  last_name text,
+  ballot_order integer not null unique,
+  created_at text not null default current_timestamp,
+  designation text,
+  foreign key (contest_id) references design_contests(id)
+    on delete cascade
+) strict;
+
+create unique index design_candidates_unique_index
+  on design_candidates (contest_id, first_name, middle_name, last_name);
+
+create table design_candidates_parties (
+  candidate_id text not null,
+  party_id text not null,
+  primary key (candidate_id, party_id),
+  foreign key (candidate_id) references design_candidates(id)
+    on delete cascade,
+  foreign key (party_id) references design_parties(id)
+    on delete cascade
+) strict;
+
+create table design_polling_places (
+  id text primary key,
+  created_at text not null default current_timestamp,
+  election_id text not null,
+  name text not null,
+  type text not null
+    check (type in ('absentee', 'early_voting', 'election_day')),
+  foreign key (election_id) references design_elections(id)
+    on delete cascade
+) strict;
+
+create unique index design_polling_places_uniq_election_id_name_type
+  on design_polling_places (election_id, name, type);
+
+create table design_polling_places_precincts (
+  polling_place_id text not null,
+  precinct_id text not null,
+  primary key (polling_place_id, precinct_id),
+  foreign key (polling_place_id) references design_polling_places(id)
+    on delete cascade,
+  foreign key (precinct_id) references design_precincts(id)
+    on delete cascade
+) strict;
+
+create table design_exports (
+  election_id text primary key,
+  status text not null check (status in ('running', 'complete', 'failed')),
+  progress text,
+  error text,
+  started_at text not null,
+  completed_at text,
+  ballot_hash text,
+  election_package_path text,
+  official_ballots_path text,
+  test_ballots_path text,
+  sample_ballots_path text,
+  foreign key (election_id) references design_elections(id)
+    on delete cascade
+) strict;

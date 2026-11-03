@@ -228,7 +228,7 @@ function buildApi({
   printer: Printer;
   electionDesign?: Pick<
     ElectionDesignService,
-    'getExportedElectionPackagePath'
+    'getExportedElectionPackagePath' | 'reset'
   >;
 }) {
   const { store } = workspace;
@@ -752,10 +752,9 @@ function buildApi({
       if (!electionDesign) {
         return err(new Error('Election design is not enabled.'));
       }
-      const packagePathResult =
-        await electionDesign.getExportedElectionPackagePath(
-          input.designElectionId
-        );
+      const packagePathResult = electionDesign.getExportedElectionPackagePath(
+        input.designElectionId
+      );
       if (packagePathResult.isErr()) return packagePathResult;
       return configureFromElectionPackageFile({
         store,
@@ -766,6 +765,7 @@ function buildApi({
 
     async unconfigure(): Promise<void> {
       await store.reset();
+      await electionDesign?.reset();
       await logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
         disposition: 'success',
       });
@@ -1785,7 +1785,7 @@ export function buildApp({
   printer: Printer;
   electionDesign?: Pick<
     ElectionDesignService,
-    'getExportedElectionPackagePath'
+    'getExportedElectionPackagePath' | 'reset'
   >;
 }): Application {
   const app: Application = express();

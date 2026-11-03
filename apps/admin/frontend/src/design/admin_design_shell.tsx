@@ -2,6 +2,7 @@ import type React from 'react';
 import type { ElectionId } from '@votingworks/types';
 import {
   AppLogo,
+  Caption,
   LeftNav,
   Main,
   MainHeader,
@@ -18,6 +19,14 @@ import {
   useDesignRoutes,
 } from '@votingworks/design-ui';
 import { useRouteMatch } from 'react-router-dom';
+import { type CurrentDesign, getCurrentDesign } from './design_api.js';
+
+function designStageLabel(design: CurrentDesign | null): string {
+  if (!design) return '';
+  if (design.activated) return 'Activated (read-only)';
+  if (design.ballotsFinalizedAt) return 'Finalized';
+  return 'Designing';
+}
 
 function DesignElectionNavScreen({
   electionId,
@@ -28,11 +37,17 @@ function DesignElectionNavScreen({
 }): JSX.Element | null {
   const currentRoute = useRouteMatch();
   const routes = useDesignRoutes();
+  const currentDesignQuery = getCurrentDesign.useQuery();
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
   const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
-  if (!getElectionInfoQuery.isSuccess || !getStateFeaturesQuery.isSuccess) {
+  if (
+    !getElectionInfoQuery.isSuccess ||
+    !getStateFeaturesQuery.isSuccess ||
+    !currentDesignQuery.isSuccess
+  ) {
     return null;
   }
+  const currentDesign = currentDesignQuery.data;
   const r = routes.election(electionId);
   const navRoutes = [
     r.electionInfo.root,
@@ -48,6 +63,9 @@ function DesignElectionNavScreen({
     <Screen flexDirection="row">
       <LeftNav style={{ width: '14rem' }}>
         <AppLogo appName="VxAdmin" />
+        <Caption style={{ padding: '0 1rem' }}>
+          {designStageLabel(currentDesign)}
+        </Caption>
         <NavList>
           {navRoutes.map(({ path, title }) => (
             <NavListItem key={path}>
@@ -58,8 +76,8 @@ function DesignElectionNavScreen({
           ))}
           <NavDivider />
           <NavListItem>
-            <NavLink to={routes.root.path} icon="ChevronLeft">
-              All Designs
+            <NavLink to="/" icon="ChevronLeft">
+              Exit Design
             </NavLink>
           </NavListItem>
         </NavList>

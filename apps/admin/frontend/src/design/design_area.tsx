@@ -22,7 +22,7 @@ import {
   saveProofToUsb,
 } from './design_api.js';
 import { DesignBallotsScreen } from './design_ballots_screen.js';
-import { DesignElectionsScreen } from './design_elections_screen.js';
+import { DesignStartScreen } from './design_start_screen.js';
 
 export const DESIGN_BASE_PATH = '/design';
 
@@ -101,7 +101,7 @@ function DesignRoutes(): JSX.Element {
   return (
     <Switch>
       <Route exact path={routes.root.path}>
-        <DesignElectionsScreen />
+        <DesignStartScreen />
       </Route>
       <Route
         path={routes.election(':electionId').root.path}

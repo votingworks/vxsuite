@@ -245,6 +245,10 @@ export class Store implements BaseStore {
     return this.client.getDatabasePath();
   }
 
+  getDbClient(): DbClient {
+    return this.client;
+  }
+
   getBallotImagesPath(): string {
     return this.ballotImagesPath;
   }

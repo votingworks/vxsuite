@@ -2,18 +2,19 @@ import type { DesignApi } from '@votingworks/admin-backend';
 import {
   type ApiClient,
   getBallotsFinalizedAt,
-  listElections,
   useApiClient,
 } from '@votingworks/design-ui';
 import * as grout from '@votingworks/grout';
-import type { ElectionId } from '@votingworks/types';
 import { Buffer } from 'node:buffer';
 import {
+  type QueryClient,
   type QueryKey,
   useMutation,
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
+
+export type { CurrentDesign } from '@votingworks/admin-backend';
 
 export type AdminDesignApiClient = grout.Client<DesignApi>;
 
@@ -22,7 +23,7 @@ export function createAdminDesignApiClient(): AdminDesignApiClient {
 }
 
 export function asDesignUiApiClient(client: AdminDesignApiClient): ApiClient {
-  return client as unknown as ApiClient;
+  return client;
 }
 
 function useAdminDesignApiClient(): AdminDesignApiClient {
@@ -49,13 +50,34 @@ export const getDesignStatus = {
   },
 } as const;
 
-export const getLocalJurisdictionId = {
+const EXPORT_POLLING_INTERVAL_MS = 1000;
+
+export const getCurrentDesign = {
   queryKey(): QueryKey {
-    return ['design', 'getLocalJurisdictionId'];
+    return ['design', 'getCurrentDesign'];
   },
   useQuery() {
     const apiClient = useAdminDesignApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getLocalJurisdictionId());
+    return useQuery(this.queryKey(), () => apiClient.getCurrentDesign(), {
+      refetchInterval: (data) =>
+        data?.export?.status === 'running' ? EXPORT_POLLING_INTERVAL_MS : false,
+    });
+  },
+} as const;
+
+async function invalidateDesignQueries(queryClient: QueryClient) {
+  await queryClient.invalidateQueries(['design']);
+}
+
+export const createDesign = {
+  useMutation() {
+    const apiClient = useAdminDesignApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.createDesign, {
+      async onSuccess() {
+        await invalidateDesignQueries(queryClient);
+      },
+    });
   },
 } as const;
 
@@ -63,52 +85,36 @@ export const loadElectionPackage = {
   useMutation() {
     const apiClient = useAdminDesignApiClient();
     const queryClient = useQueryClient();
-    return useMutation(
-      (input: { electionFilePath: string }) =>
-        apiClient.loadElectionPackage(input),
-      {
-        async onSuccess() {
-          await queryClient.invalidateQueries(listElections.queryKey());
-        },
-      }
-    );
+    return useMutation(apiClient.loadElectionPackage, {
+      async onSuccess() {
+        await invalidateDesignQueries(queryClient);
+      },
+    });
   },
 } as const;
 
-const EXPORT_POLLING_INTERVAL_MS = 1000;
-
-export const getElectionPackage = {
-  queryKey(electionId: ElectionId): QueryKey {
-    return ['design', 'getElectionPackage', electionId];
-  },
-  useQuery(electionId: ElectionId) {
-    const apiClient = useAdminDesignApiClient();
-    return useQuery(
-      this.queryKey(electionId),
-      () => apiClient.getElectionPackage({ electionId }),
-      {
-        refetchInterval: (data) =>
-          data?.task && !data.task.completedAt
-            ? EXPORT_POLLING_INTERVAL_MS
-            : false,
-      }
-    );
-  },
-} as const;
-
-export const finalizeAndExportBallots = {
+export const discardDesign = {
   useMutation() {
     const apiClient = useAdminDesignApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.finalizeAndExportBallots, {
+    return useMutation(apiClient.discardDesign, {
+      async onSuccess() {
+        await queryClient.resetQueries(['design']);
+      },
+    });
+  },
+} as const;
+
+export const finalizeBallots = {
+  useMutation() {
+    const apiClient = useAdminDesignApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.finalizeBallots, {
       async onSuccess(_, { electionId }) {
         await queryClient.invalidateQueries(
           getBallotsFinalizedAt.queryKey(electionId)
         );
-        await queryClient.invalidateQueries(
-          getElectionPackage.queryKey(electionId)
-        );
-        await queryClient.invalidateQueries(listElections.queryKey());
+        await queryClient.invalidateQueries(getCurrentDesign.queryKey());
       },
     });
   },
@@ -123,22 +129,7 @@ export const unfinalizeBallots = {
         await queryClient.invalidateQueries(
           getBallotsFinalizedAt.queryKey(electionId)
         );
-        await queryClient.invalidateQueries(
-          getElectionPackage.queryKey(electionId)
-        );
-        await queryClient.invalidateQueries(listElections.queryKey());
-      },
-    });
-  },
-} as const;
-
-export const duplicateElection = {
-  useMutation() {
-    const apiClient = useAdminDesignApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.duplicateElection, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(listElections.queryKey());
+        await queryClient.invalidateQueries(getCurrentDesign.queryKey());
       },
     });
   },

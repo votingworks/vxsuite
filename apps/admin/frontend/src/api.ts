@@ -866,6 +866,7 @@ export const configureFromDesign = {
             getCurrentElectionMetadata.queryKey()
           );
           await queryClient.invalidateQueries(getSystemSettings.queryKey());
+          await queryClient.invalidateQueries(['design']);
         }
       },
     });
