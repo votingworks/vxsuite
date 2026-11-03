@@ -72,13 +72,15 @@ async function applyDesignSchema(db: Db): Promise<void> {
       versionTable: string | null;
       tableCount: number;
     };
+    let appliedHash: string | undefined;
     if (versionTable) {
       const { rows: versionRows } = await client.query(
         'select hash from design_schema_version'
       );
-      const appliedHash = (versionRows[0] as { hash: string } | undefined)
-        ?.hash;
+      appliedHash = (versionRows[0] as { hash: string } | undefined)?.hash;
       if (appliedHash === schema.hash) return;
+    }
+    if (versionTable || tableCount > 0) {
       if (isNodeEnvProduction()) {
         throw new Error(
           'The design database schema does not match this software version.'
@@ -86,10 +88,6 @@ async function applyDesignSchema(db: Db): Promise<void> {
       }
       await client.query('drop schema public cascade');
       await client.query('create schema public');
-    } else if (tableCount > 0) {
-      throw new Error(
-        'The design database is not empty and has no schema version.'
-      );
     }
     await client.withTransaction(async () => {
       await client.query(schema.sql);
