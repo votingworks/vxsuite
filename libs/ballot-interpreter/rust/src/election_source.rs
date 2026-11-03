@@ -2,19 +2,17 @@ use std::collections::HashMap;
 use std::fmt::Debug;
 use std::io::BufRead;
 use std::path::PathBuf;
-use std::time::Duration;
 
 use rusqlite::{Connection, OpenFlags, OptionalExtension};
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
 use types_rs::bubble_ballot::{PARTIAL_BALLOT_HASH_BYTE_LENGTH, PartialBallotHash};
 use types_rs::election::{BallotStyleId, Election, GridLayout, SheetPositions};
+use url::Url;
 
-/// Max wait time if the DB lookup is blocked by a write lock.
-const BUSY_TIMEOUT: Duration = Duration::from_secs(1);
-
-const OPEN_FLAGS: OpenFlags =
-    OpenFlags::SQLITE_OPEN_READ_ONLY.union(OpenFlags::SQLITE_OPEN_NO_MUTEX);
+const OPEN_FLAGS: OpenFlags = OpenFlags::SQLITE_OPEN_READ_ONLY
+    .union(OpenFlags::SQLITE_OPEN_NO_MUTEX)
+    .union(OpenFlags::SQLITE_OPEN_URI);
 
 /// The election and the ballot hash its ballots are encoded with.
 #[derive(Debug, Clone)]
@@ -80,16 +78,25 @@ pub struct SqliteElectionSource {
 }
 
 impl SqliteElectionSource {
+    /// Opens with `immutable=1` so this copy of SQLite takes no file locks,
+    /// whose release would also drop the host process's locks on the file.
     fn connect(&self) -> Result<Connection, String> {
-        let conn = Connection::open_with_flags(&self.db_path, OPEN_FLAGS).map_err(|err| {
+        let mut uri = std::path::absolute(&self.db_path)
+            .ok()
+            .and_then(|path| Url::from_file_path(path).ok())
+            .ok_or_else(|| {
+                format!(
+                    "election DB path cannot be made a URI: {path}",
+                    path = self.db_path.display()
+                )
+            })?;
+        uri.set_query(Some("immutable=1"));
+        Connection::open_with_flags(uri.as_str(), OPEN_FLAGS).map_err(|err| {
             format!(
                 "connecting to election DB at {path}: {err}",
                 path = self.db_path.display()
             )
-        })?;
-        conn.busy_timeout(BUSY_TIMEOUT)
-            .map_err(|err| format!("setting busy timeout: {err}"))?;
-        Ok(conn)
+        })
     }
 }
 
@@ -360,6 +367,21 @@ mod test {
             err.contains("parsing positions for ballot style bs-bad"),
             "{err}"
         );
+    }
+
+    #[test]
+    fn test_sqlite_source_path_needing_uri_escapes() {
+        let dir = tempfile::tempdir().unwrap();
+        let db_path = dir.path().join("a%20b?c#d.db");
+        Connection::open(&db_path)
+            .unwrap()
+            .execute_batch(
+                "create table election (id integer primary key, election_data text not null, ballot_hash text not null)",
+            )
+            .unwrap();
+        let source = SqliteElectionSource { db_path };
+        let err = source.election_definition().unwrap_err();
+        assert!(err.contains("no election is configured"), "{err}");
     }
 
     #[test]
