@@ -445,6 +445,15 @@ export function describeDesignElectionStoreTests(
         ).toEqual(err({ code: 'duplicate-abbrev', partyId: rep.id }));
       });
 
+      test('reports the same error when several fields are duplicates', async () => {
+        const dem = party('Democrat', 'Democratic Party', 'D');
+        await store.updateParties({ electionId, newParties: [dem] });
+        const copy = { ...dem, id: nextId('party') };
+        expect(
+          await store.updateParties({ electionId, newParties: [copy] })
+        ).toEqual(err({ code: 'duplicate-abbrev', partyId: copy.id }));
+      });
+
       test('deleting a party clears contest and candidate references', async () => {
         const [d1] = await addDistricts('District 1');
         const dem = party('Democrat', 'Democratic Party', 'D');

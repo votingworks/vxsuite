@@ -153,6 +153,14 @@
       "path": "libs/db"
     },
     {
+      "name": "libs/design-backend",
+      "path": "libs/design-backend"
+    },
+    {
+      "name": "libs/design-ui",
+      "path": "libs/design-ui"
+    },
+    {
       "name": "libs/dev-dock/backend",
       "path": "libs/dev-dock/backend"
     },
