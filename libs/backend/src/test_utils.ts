@@ -4,7 +4,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   type ElectionDefinition,
 } from '@votingworks/types';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readElectionPackageFromFile } from './election_package/election_package_io.js';
@@ -82,6 +82,7 @@ export async function createElectionPackageDbForTest(
     electionRow.electionData !== undefined ||
     electionRow.ballotHash !== undefined
   ) {
+    chmodSync(dbPath, 0o644);
     const client = Client.fileClient(dbPath, new BaseLogger(LogSource.System));
     client.run(
       `update election set
