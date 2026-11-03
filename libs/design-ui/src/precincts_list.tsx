@@ -1,11 +1,12 @@
 import React from 'react';
+import { useDesignRoutes } from './design_context.js';
 import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { Icons, DesktopPalette, Callout } from '@votingworks/ui';
 import { hasSplits } from '@votingworks/types';
 
-import { type ElectionIdParams, routes } from './routes.js';
+import { type ElectionIdParams } from './routes.js';
 import { Column } from './layout.js';
 import * as api from './api.js';
 import { EntityList } from './entity_list.js';
@@ -21,6 +22,7 @@ const SplitIcon = styled(Icons.Split)<{ selected: boolean }>`
 `;
 
 export function PrecinctList(): React.ReactNode {
+  const routes = useDesignRoutes();
   const { electionId, precinctId } = useParams<
     ElectionIdParams & { precinctId?: string }
   >();

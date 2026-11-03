@@ -1,4 +1,3 @@
-import React from 'react';
 import type {
   AuthErrorCode,
   ElectionDesignApi,
@@ -24,23 +23,15 @@ import type {
   TtsEditKey,
 } from '@votingworks/types';
 import { generateId } from './utils.js';
+import { useDesignContext } from './design_context.js';
 
 export const BACKGROUND_TASK_POLLING_INTERVAL_MS = 1_000;
 export const VXQR_REFETCH_INTERVAL_MS = 1_000;
 
 export type ApiClient = grout.Client<ElectionDesignApi>;
 
-export const ApiClientContext = React.createContext<ApiClient | undefined>(
-  undefined
-);
-
 export function useApiClient(): ApiClient {
-  const apiClient = React.useContext(ApiClientContext);
-  // @coverage-defer
-  if (!apiClient) {
-    throw new Error('ApiClientContext.Provider not found');
-  }
-  return apiClient;
+  return useDesignContext().apiClient;
 }
 
 export function isApiError(error: unknown): error is { message: string } {
@@ -89,7 +80,7 @@ export function createQueryClient(): QueryClient {
 
 export const listElections = {
   queryKey(): QueryKey {
-    return ['listElections'];
+    return ['design', 'listElections'];
   },
   useQuery() {
     const apiClient = useApiClient();
@@ -99,7 +90,7 @@ export const listElections = {
 
 export const getElectionInfo = {
   queryKey(id: ElectionId): QueryKey {
-    return ['getElectionInfo', id];
+    return ['design', 'getElectionInfo', id];
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
@@ -111,7 +102,7 @@ export const getElectionInfo = {
 
 export const listDistricts = {
   queryKey(id: ElectionId): QueryKey {
-    return ['listDistricts', id];
+    return ['design', 'listDistricts', id];
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
@@ -123,7 +114,7 @@ export const listDistricts = {
 
 export const listPrecincts = {
   queryKey(id: ElectionId): QueryKey {
-    return ['listPrecincts', id];
+    return ['design', 'listPrecincts', id];
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
@@ -135,7 +126,7 @@ export const listPrecincts = {
 
 export const listPollingPlaces = {
   queryKey(electionId: string): QueryKey {
-    return ['listPollingPlaces', electionId];
+    return ['design', 'listPollingPlaces', electionId];
   },
   useQuery(electionId: string) {
     const apiClient = useApiClient();
@@ -147,7 +138,7 @@ export const listPollingPlaces = {
 
 export const getRegisteredVoterCounts = {
   queryKey(id: ElectionId): QueryKey {
-    return ['getRegisteredVoterCounts', id];
+    return ['design', 'getRegisteredVoterCounts', id];
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
@@ -159,7 +150,7 @@ export const getRegisteredVoterCounts = {
 
 export const listBallotStyles = {
   queryKey(id: ElectionId): QueryKey {
-    return ['listBallotStyles', id];
+    return ['design', 'listBallotStyles', id];
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
@@ -171,7 +162,7 @@ export const listBallotStyles = {
 
 export const listParties = {
   queryKey(id: ElectionId): QueryKey {
-    return ['listParties', id];
+    return ['design', 'listParties', id];
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
@@ -183,7 +174,7 @@ export const listParties = {
 
 export const listContests = {
   queryKey(id: ElectionId): QueryKey {
-    return ['listContests', id];
+    return ['design', 'listContests', id];
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
@@ -195,7 +186,7 @@ export const listContests = {
 
 export const getBallotLayoutSettings = {
   queryKey(id: ElectionId): QueryKey {
-    return ['getBallotLayoutSettings', id];
+    return ['design', 'getBallotLayoutSettings', id];
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
@@ -207,7 +198,7 @@ export const getBallotLayoutSettings = {
 
 export const getSystemSettings = {
   queryKey(id: ElectionId): QueryKey {
-    return ['getSystemSettings', id];
+    return ['design', 'getSystemSettings', id];
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
@@ -219,7 +210,7 @@ export const getSystemSettings = {
 
 export const getBallotTemplate = {
   queryKey(id: ElectionId): QueryKey {
-    return ['getBallotTemplate', id];
+    return ['design', 'getBallotTemplate', id];
   },
   useQuery(id: ElectionId) {
     const apiClient = useApiClient();
@@ -232,6 +223,7 @@ export const getBallotTemplate = {
 export const ttsEditsGet = {
   queryKey(params: TtsEditKey): QueryKey {
     return [
+      'design',
       'ttsEditsGet',
       params.jurisdictionId,
       params.languageCode,
@@ -262,7 +254,7 @@ export const ttsEditsSet = {
 
 export const ttsStringDefaults = {
   queryKey(electionId: string): QueryKey {
-    return ['ttsStringDefaults', electionId];
+    return ['design', 'ttsStringDefaults', electionId];
   },
 
   useQuery(electionId: string) {
@@ -275,7 +267,7 @@ export const ttsStringDefaults = {
 
 export const ttsSynthesizeFromText = {
   queryKey(input: { languageCode: string; text: string }): QueryKey {
-    return ['ttsSynthesizeFromText', input.languageCode, input.text];
+    return ['design', 'ttsSynthesizeFromText', input.languageCode, input.text];
   },
   useQuery(input: { languageCode: string; text: string }) {
     const apiClient = useApiClient();
@@ -551,7 +543,7 @@ export const deleteElection = {
 
 export const getBallotsFinalizedAt = {
   queryKey(electionId: ElectionId): QueryKey {
-    return ['getBallotsFinalizedAt', electionId];
+    return ['design', 'getBallotsFinalizedAt', electionId];
   },
   useQuery(electionId: ElectionId) {
     const apiClient = useApiClient();
@@ -572,7 +564,7 @@ interface GetBallotPreviewInput {
 
 export const getBallotPreviewPdf = {
   queryKey(input: GetBallotPreviewInput): QueryKey {
-    return ['getBallotPreviewPdf', input];
+    return ['design', 'getBallotPreviewPdf', input];
   },
   useQuery(input: GetBallotPreviewInput) {
     const apiClient = useApiClient();
@@ -601,7 +593,7 @@ export const setBallotTemplate = {
 
 export const getStateFeatures = {
   queryKey(electionId: ElectionId): QueryKey {
-    return ['getStateFeatures', electionId];
+    return ['design', 'getStateFeatures', electionId];
   },
   useQuery(electionId: ElectionId) {
     const apiClient = useApiClient();

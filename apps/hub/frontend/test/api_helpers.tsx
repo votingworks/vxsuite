@@ -1,8 +1,4 @@
-import {
-  DesignShellContext,
-  ApiClientContext,
-  createQueryClient,
-} from '@votingworks/design-ui';
+import { DesignContext, createQueryClient } from '@votingworks/design-ui';
 import type React from 'react';
 import { type QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type {
@@ -84,13 +80,13 @@ export function provideApi(
 ): JSX.Element {
   return (
     <TestErrorBoundary>
-      <ApiClientContext.Provider value={apiMock}>
-        <DesignShellContext.Provider value={{ ElectionNavScreen, Header }}>
-          <QueryClientProvider client={queryClient}>
-            {children}
-          </QueryClientProvider>
-        </DesignShellContext.Provider>
-      </ApiClientContext.Provider>
+      <DesignContext.Provider
+        value={{ apiClient: apiMock, basePath: '', ElectionNavScreen, Header }}
+      >
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      </DesignContext.Provider>
     </TestErrorBoundary>
   );
 }

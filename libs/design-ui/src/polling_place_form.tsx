@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDesignRoutes } from './design_context.js';
 import styled from 'styled-components';
 
 import {
@@ -17,7 +18,6 @@ import {
 } from '@votingworks/types';
 import { assertDefined, find, throwIllegalValue } from '@votingworks/basics';
 
-import { routes } from './routes.js';
 import { Row, InputGroup, FieldName } from './layout.js';
 import * as api from './api.js';
 import { generateId } from './utils.js';
@@ -54,6 +54,7 @@ const TYPE_OPTIONS = [
 export function PollingPlaceForm(
   props: PollingPlaceFormProps
 ): React.ReactNode {
+  const routes = useDesignRoutes();
   const { editing, electionId, exit, savedPlace, switchToEdit, switchToView } =
     props;
 

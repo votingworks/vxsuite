@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDesignRoutes } from './design_context.js';
 import {
   H1,
   Button,
@@ -12,11 +13,7 @@ import { ElectionStringKey, type Party } from '@votingworks/types';
 import type { DuplicatePartyError } from '@votingworks/design-backend';
 import styled from 'styled-components';
 import { ElectionNavScreen, Header } from './nav_screen.js';
-import {
-  type ElectionIdParams,
-  electionParamRoutes,
-  routes,
-} from './routes.js';
+import { type ElectionIdParams } from './routes.js';
 import { getBallotsFinalizedAt, getElectionInfo, listParties } from './api.js';
 import { useTitle } from './hooks/use_title.js';
 import { generateId } from './utils.js';
@@ -28,6 +25,8 @@ import { PartyAudioPanel } from './party_audio_panel.js';
 import { TooltipContainer, Tooltip } from './tooltip.js';
 
 export function PartiesScreen(): JSX.Element {
+  const routes = useDesignRoutes();
+  const electionParamRoutes = routes.election(':electionId');
   const { electionId } = useParams<ElectionIdParams>();
   const partiesParamRoutes = electionParamRoutes.parties;
 
@@ -98,6 +97,7 @@ const PartyList = styled.div`
 `;
 
 function Contents(props: { editing: boolean }): React.ReactNode {
+  const routes = useDesignRoutes();
   const { editing } = props;
   const { electionId } = useParams<ElectionIdParams>();
 
@@ -328,6 +328,7 @@ function PartyRow(props: {
   // eslint-disable-next-line vx/gts-use-optionals -- require explicit prop
   updateError: DuplicatePartyError | undefined;
 }) {
+  const routes = useDesignRoutes();
   const { disabled, editing, updateError, onChange, onDelete, party } = props;
   const { electionId } = useParams<ElectionIdParams>();
   const partiesRoutes = routes.election(electionId).parties;

@@ -19,198 +19,188 @@ export const resultsRoutes = {
   },
 } as const;
 
-let routesBasePath = '';
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function buildDesignRoutes(basePath: string) {
+  return {
+    root: {
+      title: 'Elections',
+      path: basePath || '/',
+    },
+    election: (id: string) => {
+      const root = `${basePath}/elections/${id}`;
+      return {
+        root: {
+          title: 'Election',
+          path: root,
+        },
+        electionInfo: {
+          root: {
+            title: 'Election Info',
+            path: `${root}/info`,
+          },
+          audio: (p: { stringKey: ':stringKey' | ElectionStringKey }) =>
+            `${root}/info/audio/${p.stringKey}`,
+        },
+        districts: {
+          root: {
+            title: 'Districts',
+            path: `${root}/districts`,
+          },
+          audio: (p: {
+            stringKey: ':stringKey' | ElectionStringKey;
+            subkey: ':subkey' | (string & {});
+          }) => `${root}/districts/audio/${p.stringKey}/${p.subkey}`,
+          edit: {
+            title: 'Edit District',
+            path: `${root}/districts/edit`,
+          },
+        },
+        precincts: {
+          root: {
+            title: 'Precincts',
+            path: `${root}/precincts`,
+          },
+          add: {
+            title: 'Add Precinct',
+            path: `${root}/precincts/add`,
+          },
+          audio: (p: {
+            precinctId: ':precinctId' | (string & {});
+            stringKey: ':stringKey' | ElectionStringKey;
+            subkey: ':subkey' | (string & {});
+          }) =>
+            `${root}/precincts/${p.precinctId}/audio/${p.stringKey}/${p.subkey}`,
+          edit: (precinctId: string) => ({
+            title: 'Edit Precinct',
+            path: `${root}/precincts/${precinctId}/edit`,
+          }),
+          view: (precinctId: string) => ({
+            title: 'Precinct Info',
+            path: `${root}/precincts/${precinctId}`,
+          }),
+        },
+        pollingPlaces: {
+          root: {
+            title: 'Polling Places',
+            path: `${root}/polling-places`,
+          },
 
-export function setRoutesBasePath(basePath: string): void {
-  routesBasePath = basePath;
+          add: `${root}/polling-places/add`,
+
+          audio: (p: {
+            placeId: ':placeId' | (string & {});
+            stringKey: ':stringKey' | ElectionStringKey;
+          }) => `${root}/polling-places/${p.placeId}/audio/${p.stringKey}`,
+
+          edit: (placeId: ':placeId' | (string & {})) =>
+            `${root}/polling-places/${placeId}/edit`,
+
+          view: (placeId: ':placeId' | (string & {})) =>
+            `${root}/polling-places/${placeId}`,
+        },
+        parties: {
+          root: {
+            title: 'Parties',
+            path: `${root}/parties`,
+          },
+          audio: (p: {
+            stringKey: ':stringKey' | ElectionStringKey;
+            subkey: ':subkey' | (string & {});
+          }) => `${root}/parties/audio/${p.stringKey}/${p.subkey}`,
+          edit: {
+            title: 'Parties',
+            path: `${root}/parties/edit`,
+          },
+        },
+        contests: {
+          root: {
+            title: 'Contests',
+            path: `${root}/contests`,
+          },
+          add: {
+            title: 'Add Contest',
+            path: `${root}/contests/add`,
+          },
+          audio: (p: {
+            contestId: ':contestId' | (string & {});
+            stringKey: ':stringKey' | ElectionStringKey;
+            subkey: ':subkey' | (string & {});
+          }) =>
+            `${root}/contests/${p.contestId}/audio/${p.stringKey}/${p.subkey}`,
+          edit: (contestId: string) => ({
+            title: 'Edit Contest',
+            path: `${root}/contests/${contestId}/edit`,
+          }),
+          view: (contestId: string) => ({
+            title: 'Edit Contest',
+            path: `${root}/contests/${contestId}`,
+          }),
+        },
+        ballots: {
+          root: {
+            title: 'Proof Ballots',
+            path: `${root}/ballots`,
+          },
+          ballotStyles: {
+            title: 'Ballot Styles',
+            path: `${root}/ballots/ballot-styles`,
+          },
+          ballotLayout: {
+            title: 'Ballot Layout',
+            path: `${root}/ballots/layout`,
+          },
+          viewBallot: (ballotStyleId: string, precinctId: string) => ({
+            title: 'View Ballot',
+            path: `${root}/ballots/${ballotStyleId}/${precinctId}`,
+          }),
+        },
+        systemSettings: {
+          title: 'System Settings',
+          path: `${root}/system-settings`,
+        },
+        export: {
+          title: 'Export',
+          path: `${root}/export`,
+        },
+        downloads: {
+          title: 'Downloads',
+          path: `${root}/downloads`,
+        },
+        reports: {
+          root: {
+            title: 'Live Reports',
+            path: `${root}/reports`,
+          },
+          votingGroup: (votingGroup: string) => ({
+            title: 'Voting Group',
+            path: `${root}/reports/group/${votingGroup}`,
+          }),
+          allPrecinctResults: {
+            title: 'All Precincts Tally Report',
+            path: `${root}/reports/tally-all-precincts`,
+          },
+          byPrecinctResults: (precinctId: string) => ({
+            title: 'Tally Report by Precinct',
+            path: `${root}/reports/tally-by-precinct/${precinctId}`,
+          }),
+        },
+        convertResults: {
+          title: 'Convert Results',
+          path: `${root}/convert-results`,
+        },
+      };
+    },
+  } as const;
 }
 
-export const routes = {
-  root: {
-    title: 'Elections',
-    get path(): string {
-      return routesBasePath || '/';
-    },
-  },
-  election: (id: string) => {
-    const root = `${routesBasePath}/elections/${id}`;
-    return {
-      root: {
-        title: 'Election',
-        path: root,
-      },
-      electionInfo: {
-        root: {
-          title: 'Election Info',
-          path: `${root}/info`,
-        },
-        audio: (p: { stringKey: ':stringKey' | ElectionStringKey }) =>
-          `${root}/info/audio/${p.stringKey}`,
-      },
-      districts: {
-        root: {
-          title: 'Districts',
-          path: `${root}/districts`,
-        },
-        audio: (p: {
-          stringKey: ':stringKey' | ElectionStringKey;
-          subkey: ':subkey' | (string & {});
-        }) => `${root}/districts/audio/${p.stringKey}/${p.subkey}`,
-        edit: {
-          title: 'Edit District',
-          path: `${root}/districts/edit`,
-        },
-      },
-      precincts: {
-        root: {
-          title: 'Precincts',
-          path: `${root}/precincts`,
-        },
-        add: {
-          title: 'Add Precinct',
-          path: `${root}/precincts/add`,
-        },
-        audio: (p: {
-          precinctId: ':precinctId' | (string & {});
-          stringKey: ':stringKey' | ElectionStringKey;
-          subkey: ':subkey' | (string & {});
-        }) =>
-          `${root}/precincts/${p.precinctId}/audio/${p.stringKey}/${p.subkey}`,
-        edit: (precinctId: string) => ({
-          title: 'Edit Precinct',
-          path: `${root}/precincts/${precinctId}/edit`,
-        }),
-        view: (precinctId: string) => ({
-          title: 'Precinct Info',
-          path: `${root}/precincts/${precinctId}`,
-        }),
-      },
-      pollingPlaces: {
-        root: {
-          title: 'Polling Places',
-          path: `${root}/polling-places`,
-        },
+export type DesignRoutes = ReturnType<typeof buildDesignRoutes>;
 
-        add: `${root}/polling-places/add`,
-
-        audio: (p: {
-          placeId: ':placeId' | (string & {});
-          stringKey: ':stringKey' | ElectionStringKey;
-        }) => `${root}/polling-places/${p.placeId}/audio/${p.stringKey}`,
-
-        edit: (placeId: ':placeId' | (string & {})) =>
-          `${root}/polling-places/${placeId}/edit`,
-
-        view: (placeId: ':placeId' | (string & {})) =>
-          `${root}/polling-places/${placeId}`,
-      },
-      parties: {
-        root: {
-          title: 'Parties',
-          path: `${root}/parties`,
-        },
-        audio: (p: {
-          stringKey: ':stringKey' | ElectionStringKey;
-          subkey: ':subkey' | (string & {});
-        }) => `${root}/parties/audio/${p.stringKey}/${p.subkey}`,
-        edit: {
-          title: 'Parties',
-          path: `${root}/parties/edit`,
-        },
-      },
-      contests: {
-        root: {
-          title: 'Contests',
-          path: `${root}/contests`,
-        },
-        add: {
-          title: 'Add Contest',
-          path: `${root}/contests/add`,
-        },
-        audio: (p: {
-          contestId: ':contestId' | (string & {});
-          stringKey: ':stringKey' | ElectionStringKey;
-          subkey: ':subkey' | (string & {});
-        }) =>
-          `${root}/contests/${p.contestId}/audio/${p.stringKey}/${p.subkey}`,
-        edit: (contestId: string) => ({
-          title: 'Edit Contest',
-          path: `${root}/contests/${contestId}/edit`,
-        }),
-        view: (contestId: string) => ({
-          title: 'Edit Contest',
-          path: `${root}/contests/${contestId}`,
-        }),
-      },
-      ballots: {
-        root: {
-          title: 'Proof Ballots',
-          path: `${root}/ballots`,
-        },
-        ballotStyles: {
-          title: 'Ballot Styles',
-          path: `${root}/ballots/ballot-styles`,
-        },
-        ballotLayout: {
-          title: 'Ballot Layout',
-          path: `${root}/ballots/layout`,
-        },
-        viewBallot: (ballotStyleId: string, precinctId: string) => ({
-          title: 'View Ballot',
-          path: `${root}/ballots/${ballotStyleId}/${precinctId}`,
-        }),
-      },
-      systemSettings: {
-        title: 'System Settings',
-        path: `${root}/system-settings`,
-      },
-      export: {
-        title: 'Export',
-        path: `${root}/export`,
-      },
-      downloads: {
-        title: 'Downloads',
-        path: `${root}/downloads`,
-      },
-      reports: {
-        root: {
-          title: 'Live Reports',
-          path: `${root}/reports`,
-        },
-        votingGroup: (votingGroup: string) => ({
-          title: 'Voting Group',
-          path: `${root}/reports/group/${votingGroup}`,
-        }),
-        allPrecinctResults: {
-          title: 'All Precincts Tally Report',
-          path: `${root}/reports/tally-all-precincts`,
-        },
-        byPrecinctResults: (precinctId: string) => ({
-          title: 'Tally Report by Precinct',
-          path: `${root}/reports/tally-by-precinct/${precinctId}`,
-        }),
-      },
-      convertResults: {
-        title: 'Convert Results',
-        path: `${root}/convert-results`,
-      },
-    };
-  },
-} as const;
+export const routes: DesignRoutes = buildDesignRoutes('');
 
 export interface ElectionIdParams {
   electionId: ElectionId;
 }
-type ElectionRoutes = ReturnType<typeof routes.election>;
-
-export const electionParamRoutes: ElectionRoutes = new Proxy(
-  {} as ElectionRoutes,
-  {
-    get(_target, property: keyof ElectionRoutes) {
-      return routes.election(':electionId')[property];
-    },
-  }
-);
+export const electionParamRoutes = routes.election(':electionId');
 
 export const rootNavRoutes: Route[] = [];
 

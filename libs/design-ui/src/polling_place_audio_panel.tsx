@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDesignRoutes } from './design_context.js';
 import { useParams, Redirect } from 'react-router-dom';
 
 import { ElectionStringKey, LanguageCode } from '@votingworks/types';
@@ -9,12 +10,12 @@ import {
   AudioEditorPanel,
 } from './ballot_audio/audio_editor_panel.js';
 import type { BallotAudioPathParams } from './ballot_audio/routes.js';
-import { routes } from './routes.js';
 import * as api from './api.js';
 
 type PathParams = BallotAudioPathParams & { placeId: string };
 
 export function PollingPlaceAudioPanel(): React.ReactNode {
+  const routes = useDesignRoutes();
   const { placeId, electionId, stringKey } = useParams<PathParams>();
   const exitUrl = routes.election(electionId).pollingPlaces.view(placeId);
 

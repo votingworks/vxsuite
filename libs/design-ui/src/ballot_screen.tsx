@@ -1,4 +1,5 @@
 import fileDownload from 'js-file-download';
+import { useDesignContext, useDesignRoutes } from './design_context.js';
 import { Link, useParams } from 'react-router-dom';
 import { find, range, throwIllegalValue } from '@votingworks/basics';
 import {
@@ -39,7 +40,6 @@ import {
   listBallotStyles,
   listParties,
 } from './api.js';
-import { routes } from './routes.js';
 import { FieldName as BaseFieldName, Row } from './layout.js';
 
 // The worker is bundled from the same pdfjs-dist version react-pdf uses
@@ -264,6 +264,8 @@ function ErrorMessage({ children }: { children: ReactNode }): JSX.Element {
 }
 
 export function BallotScreen(): JSX.Element | null {
+  const routes = useDesignRoutes();
+  const { saveFile } = useDesignContext();
   const params = useParams<{
     electionId: string;
     ballotStyleId: string;
@@ -310,6 +312,10 @@ export function BallotScreen(): JSX.Element | null {
   // @coverage-defer
   function onDownloadPdfPressed() {
     if (!ballotPreview) return;
+    if (saveFile) {
+      void saveFile(ballotPreview.pdfData, ballotPreview.fileName);
+      return;
+    }
     fileDownload(
       ballotPreview.pdfData,
       ballotPreview.fileName,

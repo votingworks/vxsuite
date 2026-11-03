@@ -1,4 +1,5 @@
 import type React from 'react';
+import { useDesignRoutes } from './design_context.js';
 import styled from 'styled-components';
 import {
   Switch,
@@ -12,11 +13,7 @@ import { H1, LinkButton } from '@votingworks/ui';
 
 import * as api from './api.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
-import {
-  type ElectionIdParams,
-  electionParamRoutes,
-  routes,
-} from './routes.js';
+import { type ElectionIdParams } from './routes.js';
 import { useTitle } from './hooks/use_title.js';
 import { PollingPlaceForm } from './polling_place_form.js';
 import { PollingPlaceList } from './polling_place_list.js';
@@ -24,6 +21,8 @@ import { FixedViewport, ListActionsRow } from './layout.js';
 import { PollingPlaceAudioPanel } from './polling_place_audio_panel.js';
 
 export function PollingPlacesScreen(): JSX.Element {
+  const routes = useDesignRoutes();
+  const electionParamRoutes = routes.election(':electionId');
   const { electionId } = useParams<ElectionIdParams>();
   const pollingPlaceParamRoutes = electionParamRoutes.pollingPlaces;
   useTitle(routes.election(electionId).pollingPlaces.root.title);
@@ -74,6 +73,8 @@ const Body = styled.div`
 `;
 
 function Content(): React.ReactNode {
+  const routes = useDesignRoutes();
+  const electionParamRoutes = routes.election(':electionId');
   type RouteParams = ElectionIdParams & { placeId?: string };
   const { electionId, placeId } = useParams<RouteParams>();
 
@@ -146,6 +147,8 @@ function AddForm(): JSX.Element | null {
 }
 
 function EditForm(): JSX.Element | null {
+  const routes = useDesignRoutes();
+  const electionParamRoutes = routes.election(':electionId');
   type RouteParams = ElectionIdParams & { placeId: string };
   const { electionId, placeId } = useParams<RouteParams>();
 
@@ -209,6 +212,7 @@ function EditForm(): JSX.Element | null {
 }
 
 function useNav(electionId: string) {
+  const routes = useDesignRoutes();
   const history = useHistory();
   const placeRoutes = routes.election(electionId).pollingPlaces;
 

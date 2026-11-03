@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDesignRoutes } from './design_context.js';
 import {
   ElectionIdSchema,
   ElectionStringKey,
@@ -30,7 +31,7 @@ import {
 } from './api.js';
 import { FieldName, FixedViewport, InputGroup, Row } from './layout.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
-import { type ElectionIdParams, routes } from './routes.js';
+import { type ElectionIdParams } from './routes.js';
 import { SealImageInput } from './seal_image_input.js';
 import { useTitle } from './hooks/use_title.js';
 import { SignatureImageInput } from './signature_image_input.js';
@@ -61,6 +62,7 @@ function ElectionInfoForm({
   savedElectionInfo: ElectionInfo;
   ballotsFinalizedAt: Date | null;
 }): JSX.Element | null {
+  const routes = useDesignRoutes();
   const [isEditing, setIsEditing] = useState(
     // Default to editing for newly created elections
     hasBlankElectionInfo(savedElectionInfo)
@@ -439,6 +441,7 @@ const Viewport = styled(FixedViewport)`
 `;
 
 export function ElectionInfoScreen(): JSX.Element | null {
+  const routes = useDesignRoutes();
   const params = useParams<{ electionId: string }>();
   const { electionId } = unsafeParse(
     z.object({ electionId: ElectionIdSchema }),

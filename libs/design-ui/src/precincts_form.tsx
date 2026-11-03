@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDesignRoutes } from './design_context.js';
 import { useHistory } from 'react-router-dom';
 
 import {
@@ -24,7 +25,6 @@ import {
 
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 
-import { routes } from './routes.js';
 import { Row, Column, InputGroup, FieldName } from './layout.js';
 import {
   listDistricts,
@@ -64,6 +64,7 @@ export interface PrecinctFormProps {
 }
 
 export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
+  const routes = useDesignRoutes();
   const { editing, electionId, savedPrecinct, title } = props;
 
   const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);

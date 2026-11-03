@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDesignRoutes } from './design_context.js';
 import {
   Button,
   Callout,
@@ -16,11 +17,7 @@ import { type District, ElectionStringKey } from '@votingworks/types';
 import type { DuplicateDistrictError } from '@votingworks/design-backend';
 import { assertDefined } from '@votingworks/basics';
 import { ElectionNavScreen, Header } from './nav_screen.js';
-import {
-  type ElectionIdParams,
-  electionParamRoutes,
-  routes,
-} from './routes.js';
+import { type ElectionIdParams } from './routes.js';
 import { FixedViewport, ListActionsRow } from './layout.js';
 import {
   getBallotsFinalizedAt,
@@ -36,6 +33,8 @@ import { FormFixed, FormBody, FormFooter } from './form_fixed.js';
 import { TooltipContainer, Tooltip } from './tooltip.js';
 
 export function DistrictsScreen(): JSX.Element {
+  const routes = useDesignRoutes();
+  const electionParamRoutes = routes.election(':electionId');
   const { electionId } = useParams<ElectionIdParams>();
   const districtParamRoutes = electionParamRoutes.districts;
 
@@ -110,6 +109,8 @@ function createBlankDistrict(): District {
 }
 
 function Contents(props: { editing: boolean }): React.ReactNode {
+  const routes = useDesignRoutes();
+  const electionParamRoutes = routes.election(':electionId');
   const { editing } = props;
   const { electionId } = useParams<ElectionIdParams>();
 
@@ -427,6 +428,7 @@ function DistrictRow(props: {
   onChange: (district: District) => void;
   onDelete: (districtId: string) => void;
 }) {
+  const routes = useDesignRoutes();
   const {
     disabled,
     district,

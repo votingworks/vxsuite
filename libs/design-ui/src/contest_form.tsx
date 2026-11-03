@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDesignRoutes } from './design_context.js';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import type { z } from 'zod/v4';
@@ -54,7 +55,6 @@ import {
   FormTitle,
 } from './form_fixed.js';
 import { InputGroup, Row, FieldName, Column } from './layout.js';
-import { routes } from './routes.js';
 import { TooltipContainer, Tooltip } from './tooltip.js';
 import { generateId, replaceAtIndex } from './utils.js';
 import { InputWithAudio } from './ballot_audio/input_with_audio.js';
@@ -127,6 +127,7 @@ export interface ContestFormProps {
 }
 
 export function ContestForm(props: ContestFormProps): React.ReactNode {
+  const routes = useDesignRoutes();
   const { editing, electionId, savedContest, title } = props;
   const [contest, setContest] = useState<DraftContest>(
     savedContest

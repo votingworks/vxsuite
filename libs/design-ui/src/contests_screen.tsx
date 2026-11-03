@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
+import { useDesignRoutes } from './design_context.js';
 import { Button, LinkButton, SearchSelect, H1, Callout } from '@votingworks/ui';
 import { Redirect, Route, Switch, useParams } from 'react-router-dom';
 import type { ContestId, Contest } from '@votingworks/types';
 import styled from 'styled-components';
 import { FixedViewport, ListActionsRow, Row } from './layout.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
-import {
-  type ElectionIdParams,
-  electionParamRoutes,
-  routes,
-} from './routes.js';
+import { type ElectionIdParams } from './routes.js';
 import {
   getBallotsFinalizedAt,
   getElectionInfo,
@@ -25,6 +22,8 @@ import { ContestList } from './contest_list.js';
 import { ContestAudioPanel } from './contest_audio_panel.js';
 
 export function ContestsScreen(): JSX.Element {
+  const routes = useDesignRoutes();
+  const electionParamRoutes = routes.election(':electionId');
   const { electionId } = useParams<ElectionIdParams>();
   const contestParamRoutes = electionParamRoutes.contests;
 
@@ -86,6 +85,8 @@ const NoContests = styled.div`
 `;
 
 function Content(): JSX.Element | null {
+  const routes = useDesignRoutes();
+  const electionParamRoutes = routes.election(':electionId');
   const { contestId, electionId } = useParams<
     ElectionIdParams & { contestId?: string }
   >();
@@ -332,6 +333,8 @@ function AddContestForm(): JSX.Element | null {
 }
 
 function EditContestForm(): JSX.Element | null {
+  const routes = useDesignRoutes();
+  const electionParamRoutes = routes.election(':electionId');
   const { electionId, contestId } = useParams<
     ElectionIdParams & { contestId: ContestId }
   >();

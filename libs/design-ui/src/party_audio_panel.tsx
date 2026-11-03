@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDesignRoutes } from './design_context.js';
 import { useParams, Redirect } from 'react-router-dom';
 
 import type { TtsStringDefault } from '@votingworks/design-backend';
@@ -10,7 +11,6 @@ import {
   AudioEditorPanel,
 } from './ballot_audio/audio_editor_panel.js';
 import type { BallotAudioPathParams } from './ballot_audio/routes.js';
-import { routes } from './routes.js';
 import * as api from './api.js';
 
 const ENTITY_NAME: Partial<Record<ElectionStringKey, string>> = {
@@ -19,6 +19,7 @@ const ENTITY_NAME: Partial<Record<ElectionStringKey, string>> = {
 };
 
 export function PartyAudioPanel(): React.ReactNode {
+  const routes = useDesignRoutes();
   const { electionId, stringKey, subkey } = useParams<BallotAudioPathParams>();
   const partyRoutes = routes.election(electionId).parties;
 

@@ -11,11 +11,10 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import * as Sentry from '@sentry/browser';
 import {
-  ApiClientContext,
   ContestsScreen,
   createQueryClient,
-  type DesignShell,
-  DesignShellContext,
+  DesignContext,
+  type DesignContextValue,
   DistrictsScreen,
   ElectionInfoScreen,
   electionParamRoutes,
@@ -116,7 +115,8 @@ function WaitForUserInfo(props: { children: React.ReactNode }) {
   return children;
 }
 
-const HUB_DESIGN_SHELL: DesignShell = {
+const HUB_DESIGN_SHELL: Omit<DesignContextValue, 'apiClient'> = {
+  basePath: '',
   ElectionNavScreen,
   Header,
   reportError: (error, context) => {
@@ -150,22 +150,22 @@ export function App({
                   <ReportingResultsConfirmationScreen />
                 </UnauthenticatedApiClientContext.Provider>
               </Route>
-              <ApiClientContext.Provider value={apiClient}>
-                <DesignShellContext.Provider value={HUB_DESIGN_SHELL}>
-                  <WaitForUserInfo>
-                    <Route path={routes.root.path} exact>
-                      <HomeScreen
-                        electionsFilterText={electionsFilterText}
-                        setElectionsFilterText={setElectionsFilterText}
-                      />
-                    </Route>
-                    <Route
-                      path={electionParamRoutes.root.path}
-                      component={ElectionScreens}
+              <DesignContext.Provider
+                value={{ ...HUB_DESIGN_SHELL, apiClient }}
+              >
+                <WaitForUserInfo>
+                  <Route path={routes.root.path} exact>
+                    <HomeScreen
+                      electionsFilterText={electionsFilterText}
+                      setElectionsFilterText={setElectionsFilterText}
                     />
-                  </WaitForUserInfo>
-                </DesignShellContext.Provider>
-              </ApiClientContext.Provider>
+                  </Route>
+                  <Route
+                    path={electionParamRoutes.root.path}
+                    component={ElectionScreens}
+                  />
+                </WaitForUserInfo>
+              </DesignContext.Provider>
             </Switch>
           </BrowserRouter>
         </QueryClientProvider>

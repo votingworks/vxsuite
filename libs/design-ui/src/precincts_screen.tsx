@@ -1,15 +1,12 @@
 import type React from 'react';
+import { useDesignRoutes } from './design_context.js';
 import styled from 'styled-components';
 import { Switch, Route, Redirect, useParams } from 'react-router-dom';
 
 import { H1, LinkButton } from '@votingworks/ui';
 
 import { ElectionNavScreen, Header } from './nav_screen.js';
-import {
-  type ElectionIdParams,
-  electionParamRoutes,
-  routes,
-} from './routes.js';
+import { type ElectionIdParams } from './routes.js';
 import {
   getBallotsFinalizedAt,
   getElectionInfo,
@@ -22,6 +19,8 @@ import { FixedViewport, ListActionsRow } from './layout.js';
 import { PrecinctAudioPanel } from './precinct_audio_panel.js';
 
 export function PrecinctsScreen(): JSX.Element {
+  const routes = useDesignRoutes();
+  const electionParamRoutes = routes.election(':electionId');
   const { electionId } = useParams<ElectionIdParams>();
   const precinctParamRoutes = electionParamRoutes.precincts;
   useTitle(routes.election(electionId).precincts.root.title);
@@ -72,6 +71,8 @@ const Body = styled.div`
 `;
 
 function Content(): React.ReactNode {
+  const routes = useDesignRoutes();
+  const electionParamRoutes = routes.election(':electionId');
   const { electionId, precinctId } = useParams<
     ElectionIdParams & { precinctId?: string }
   >();
@@ -152,6 +153,7 @@ function Content(): React.ReactNode {
 }
 
 function AddPrecinctForm(): JSX.Element | null {
+  const routes = useDesignRoutes();
   const { electionId } = useParams<ElectionIdParams>();
   const precinctRoutes = routes.election(electionId).precincts;
   const { title } = precinctRoutes.add;
@@ -164,6 +166,8 @@ function AddPrecinctForm(): JSX.Element | null {
 }
 
 function EditPrecinctForm(): JSX.Element | null {
+  const routes = useDesignRoutes();
+  const electionParamRoutes = routes.election(':electionId');
   type RouteParams = ElectionIdParams & { precinctId: string };
   const { electionId, precinctId } = useParams<RouteParams>();
 

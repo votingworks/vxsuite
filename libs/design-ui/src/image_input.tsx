@@ -12,7 +12,7 @@ import {
   type NormalizeParams,
   normalizeImageToSvg,
 } from './image_normalization.js';
-import { useDesignShell } from './design_shell.js';
+import { useDesignContext } from './design_context.js';
 
 const MAX_IMAGE_UPLOAD_BYTES = 5 * 1_000 * 1_000; // 5 MB
 
@@ -94,7 +94,7 @@ export function ImageInputButton({
   ...props
 }: ImageInputButtonProps): JSX.Element {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { reportError } = useDesignShell();
+  const { reportError } = useDesignContext();
 
   function handleError(msg: string) {
     onError(new Error(msg));

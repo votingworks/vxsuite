@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDesignRoutes } from './design_context.js';
 import styled from 'styled-components';
 import { Button } from '@votingworks/ui';
 import type { Contest, Party } from '@votingworks/types';
@@ -6,7 +7,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import { groupBy } from '@votingworks/basics';
 import { Column, Row } from './layout.js';
 import * as api from './api.js';
-import { type ElectionIdParams, routes } from './routes.js';
+import { type ElectionIdParams } from './routes.js';
 import { EntityList } from './entity_list.js';
 
 const CLASS_REORDER_BUTTON = 'contestReorderButton';
@@ -41,6 +42,7 @@ export interface ContestListProps {
 // footer. With recent changes the "reorder" button is a bit too far off now and
 // there may be plans to add support for custom contest grouping down the line.
 export function ContestList(props: ContestListProps): React.ReactNode {
+  const routes = useDesignRoutes();
   const { contests, reorder, reordering } = props;
   const { contestId = null, electionId } = useParams<
     ElectionIdParams & { contestId?: string }
