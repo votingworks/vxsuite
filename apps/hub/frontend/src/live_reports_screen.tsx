@@ -49,7 +49,8 @@ import type {
 } from '@votingworks/hub-backend';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import { type ElectionIdParams, routes } from '@votingworks/design-ui';
-import { getStateFeatures, getSystemSettings } from '@votingworks/design-ui';
+import { getStateFeatures } from '@votingworks/design-ui';
+import { getSystemSettings } from './api.js';
 import {
   deleteQuickReportingResults,
   getLiveReportsActivityLog,

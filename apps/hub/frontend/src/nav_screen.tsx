@@ -20,11 +20,8 @@ import {
   adminElectionNavRoutes,
   electionNavRoutes,
 } from '@votingworks/design-ui';
-import {
-  getElectionInfo,
-  getStateFeatures,
-  getSystemSettings,
-} from '@votingworks/design-ui';
+import { getElectionInfo, getStateFeatures } from '@votingworks/design-ui';
+import { getSystemSettings } from './api.js';
 import { getUser, getUserFeatures } from './api.js';
 import { Row } from '@votingworks/design-ui';
 

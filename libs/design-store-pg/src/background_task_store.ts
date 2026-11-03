@@ -86,13 +86,15 @@ import type {
   UserType,
   ElectionStatus,
   ElectionInfoUpdate,
-} from './types.js';
+} from '@votingworks/design-backend';
 import { Db } from './db/db.js';
 import type { Bindable, Client } from './db/client.js';
-import { generateId } from './utils.js';
-import { getStateFeaturesConfig } from './features.js';
-import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from './globals.js';
-import { CandidateOrderingsMap } from './candidate_orderings.js';
+import {
+  CandidateOrderingsMap,
+  generateId,
+  getStateFeaturesConfig,
+  MAX_LIVE_REPORT_ACTIVITY_ITEMS,
+} from '@votingworks/design-backend';
 
 export type TaskName = 'generate_election_package' | 'generate_test_decks';
 

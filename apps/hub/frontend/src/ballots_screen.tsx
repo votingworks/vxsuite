@@ -27,13 +27,13 @@ import {
   getBallotsFinalizedAt,
   getBallotLayoutSettings,
   getBallotTemplate,
-  updateBallotLayoutSettings,
   listBallotStyles,
   listPrecincts,
   getElectionInfo,
   listParties,
   getStateFeatures,
 } from '@votingworks/design-ui';
+import { updateBallotLayoutSettings } from './api.js';
 import { Column, Form, FormActionsRow, NestedTr } from '@votingworks/design-ui';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import {

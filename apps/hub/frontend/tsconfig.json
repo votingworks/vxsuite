@@ -8,6 +8,7 @@
   "references": [
     { "path": "../../../libs/coverage-check/tsconfig.build.json" },
     { "path": "../backend/tsconfig.build.json" },
+    { "path": "../../../libs/design-backend/tsconfig.build.json" },
     { "path": "../../../libs/design-ui/tsconfig.build.json" },
     { "path": "../../../libs/basics/tsconfig.build.json" },
     { "path": "../../../libs/fixtures/tsconfig.build.json" },

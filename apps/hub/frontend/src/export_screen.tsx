@@ -18,10 +18,10 @@ import type { BallotTemplateId } from '@votingworks/hub-backend';
 import {
   getBallotsFinalizedAt,
   getElectionInfo,
-  setBallotTemplate,
   getBallotTemplate,
   getStateFeatures,
 } from '@votingworks/design-ui';
+import { setBallotTemplate } from './api.js';
 import {
   exportElectionPackage,
   exportTestDecks,

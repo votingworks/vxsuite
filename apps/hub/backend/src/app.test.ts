@@ -123,7 +123,6 @@ import {
   type ElectionStatus,
   type Jurisdiction,
   type JurisdictionUser,
-  type MainExportTaskMetadata,
   type DuplicateDistrictError,
   type DuplicatePartyError,
   getStateFeaturesConfig,
@@ -134,6 +133,7 @@ import {
   type GenerateElectionPackageAndBallotsPayload,
   GenerateElectionPackageAndBallotsPayloadSchema,
 } from '@votingworks/design-backend';
+import { type MainExportTaskMetadata } from '@votingworks/design-store-pg';
 import { buildApi } from './app.js';
 import {
   organizations,

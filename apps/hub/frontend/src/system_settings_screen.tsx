@@ -50,10 +50,7 @@ import {
 } from '@votingworks/design-ui';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import { type ElectionIdParams, routes } from '@votingworks/design-ui';
-import {
-  updateSystemSettings,
-  getSystemSettings,
-} from '@votingworks/design-ui';
+import { updateSystemSettings, getSystemSettings } from './api.js';
 import { getUserFeatures, getResultsReportingUrl } from './api.js';
 import { useTitle } from '@votingworks/design-ui';
 

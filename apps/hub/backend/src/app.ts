@@ -45,7 +45,6 @@ import {
   decodeQuickResultsMessage,
 } from '@votingworks/auth';
 import {
-  type MainExportTaskMetadata,
   type AggregatedLiveReportActivityLog,
   type AggregatedReportedPollsStatus,
   type AggregatedReportedResults,
@@ -61,12 +60,16 @@ import {
   getStateFeaturesConfig,
   getUserFeaturesConfig,
   type UserFeaturesConfig,
+  type ElectionDesignMethods,
+} from '@votingworks/design-backend';
+import {
+  type MainExportTaskMetadata,
   buildBallotPreviewMethods,
   buildTtsMethods,
   ttsMethodsThatHandleAuthThemselves,
   buildElectionDefinitionMethods,
   cloneElection,
-} from '@votingworks/design-backend';
+} from '@votingworks/design-store-pg';
 import { type TestDecksTaskMetadata, type Store } from './store.js';
 import type { AppContext } from './context.js';
 import {
@@ -699,7 +702,7 @@ export function buildApi(ctx: AppContext) {
     }),
   } as const;
 
-  return grout.createApi(methods, middlewares);
+  return grout.createApi(methods satisfies ElectionDesignMethods, middlewares);
 }
 
 // Set up API endpoint that should NOT be behind oauth integration

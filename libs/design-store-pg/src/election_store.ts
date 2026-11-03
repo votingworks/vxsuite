@@ -72,41 +72,36 @@ import { randomUUID as uuid } from 'node:crypto';
 import type { BaseLogger } from '@votingworks/logging';
 import { type BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
 import pg, { type DatabaseError } from 'pg';
-import type {
-  ExternalElectionSource,
-  ElectionListingWithoutJurisdictionName,
-  ExportQaRun,
-  GetExportedElectionError,
-  Jurisdiction,
-  Organization,
-  QuickReportedPollStatus,
-  StateCode,
-  UpdateQaRunStatusParams,
-  User,
-  UserType,
-  ElectionStatus,
-  ElectionInfoUpdate,
-} from './types.js';
-import { Db } from './db/db.js';
+import {
+  buildElectionRecord,
+  contestOrderPlacingNewCandidateContest,
+  contestsFromRows,
+  type DuplicateContestError,
+  type DuplicateDistrictError,
+  type DuplicateElectionError,
+  type DuplicatePartyError,
+  type DuplicatePrecinctError,
+  type ElectionListingWithoutJurisdictionName,
+  type ElectionInfoUpdate,
+  type ElectionRecord,
+  type ElectionStatus,
+  type ExternalElectionSource,
+  generateId,
+  hasDuplicateOptionLabels,
+  hasDuplicateSplitDistricts,
+  pollingPlacesFromRows,
+  precinctsFromRows,
+  registeredVoterCountsFromRows,
+  type SetPollingPlaceError,
+  type StateFeaturesConfig,
+  straightPartyContestId,
+  type CandidateRow,
+  type ContestRow,
+  type PrecinctRow,
+  type PrecinctSplitRow,
+} from '@votingworks/design-backend';
+import type { Db } from './db/db.js';
 import type { Bindable, Client } from './db/client.js';
-import { generateId } from './utils.js';
-import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from './globals.js';
-import { CandidateOrderingsMap } from './candidate_orderings.js';
-import type { StateFeaturesConfig } from './features.js';
-
-export interface ElectionRecord {
-  jurisdictionId: string;
-  election: Election;
-  candidateOrderings: CandidateOrderingsMap;
-  isMiCombinedBallotPrimary: boolean;
-  systemSettings: SystemSettings;
-  createdAt: Iso8601Timestamp;
-  ballotLanguageConfigs: BallotLanguageConfigs;
-  ballotTemplateId: BallotTemplateId;
-  ballotsFinalizedAt: Date | null;
-  lastExportedBallotHash?: string;
-  externalSource?: ExternalElectionSource;
-}
 
 const DEFAULT_LANGUAGE_CODES = [LanguageCode.ENGLISH];
 
@@ -153,41 +148,6 @@ function isForeignKeyError(
     error.code === '23503' &&
     error.constraint === constraint
   );
-}
-
-export type DuplicateElectionError = 'duplicate-title-and-date';
-
-export type DuplicateDistrictErrorCode = 'duplicate-name';
-
-export interface DuplicateDistrictError {
-  code: DuplicateDistrictErrorCode;
-  districtId: string;
-}
-
-export type DuplicatePrecinctError =
-  | 'duplicate-precinct-name'
-  | 'duplicate-split-name'
-  | 'duplicate-split-districts';
-
-export type DuplicatePartyErrorCode =
-  | 'duplicate-name'
-  | 'duplicate-full-name'
-  | 'duplicate-abbrev';
-
-export interface DuplicatePartyError {
-  code: DuplicatePartyErrorCode;
-  partyId: string;
-}
-
-export type DuplicateContestError =
-  | 'duplicate-contest'
-  | 'duplicate-candidate'
-  | 'duplicate-option';
-
-export type SetPollingPlaceError = 'duplicate-name' | 'invalid-precinct';
-
-function straightPartyContestId(electionId: ElectionId): ContestId {
-  return `${electionId}-straight-party-contest`;
 }
 
 async function insertDistrict(
@@ -240,10 +200,7 @@ async function insertPrecinctDistrictsOrSplits(
   await assertWithinTransaction(client);
 
   if (hasSplits(precinct)) {
-    if (
-      uniqueDeep(precinct.splits, (split) => split.districtIds.toSorted())
-        .length !== precinct.splits.length
-    ) {
+    if (hasDuplicateSplitDistricts(precinct)) {
       throw new Error('duplicate-split-districts');
     }
 
@@ -317,11 +274,6 @@ async function insertParty(
     party.fullName,
     party.abbrev
   );
-}
-
-function hasDuplicateOptionLabels(contest: YesNoContest): boolean {
-  const labels = contest.options.map((option) => option.label);
-  return new Set(labels).size !== labels.length;
 }
 
 async function insertContest(
@@ -410,18 +362,11 @@ async function insertContest(
            order by ballot_order`,
           electionId
         );
-        const contestIds = allContests.map((row) => row.id);
-        const firstBallotMeasureIndex = allContests.findIndex(
-          (row) => row.type === 'yesno'
+        const contestIds = contestOrderPlacingNewCandidateContest(
+          allContests as Array<{ id: string; type: string }>,
+          contest.id
         );
-        if (firstBallotMeasureIndex !== -1) {
-          // Remove the newly inserted contest from its current position (should be last)
-          const newContestIndex = contestIds.indexOf(contest.id);
-          assert(newContestIndex === contestIds.length - 1);
-          contestIds.splice(newContestIndex, 1);
-          contestIds.splice(firstBallotMeasureIndex, 0, contest.id);
-
-          // Apply the new order using reorderContests logic
+        if (contestIds) {
           for (const contestId of contestIds) {
             await client.query(
               `update contests set ballot_order = DEFAULT where id = $1 and election_id = $2`,
@@ -636,11 +581,7 @@ export class ElectionStore {
           `,
           electionId
         )
-      ).rows as Array<{
-        id: PrecinctId;
-        name: string;
-        districtIds: DistrictId[];
-      }>;
+      ).rows as PrecinctRow[];
       const precinctSplitRows = (
         await client.query(
           `
@@ -659,26 +600,8 @@ export class ElectionStore {
           `,
           electionId
         )
-      ).rows as Array<{
-        id: string;
-        precinctId: PrecinctId;
-        name: string;
-        nhOptions: NhPrecinctSplitOptions;
-        districtIds: DistrictId[];
-      }>;
-      const precincts: Precinct[] = precinctRows.map((row) => {
-        const splits = precinctSplitRows
-          .filter((split) => split.precinctId === row.id)
-          .map((split) => ({
-            id: split.id,
-            name: split.name,
-            districtIds: split.districtIds,
-            ...split.nhOptions,
-          }));
-        return splits.length > 0
-          ? { id: row.id, name: row.name, splits }
-          : { id: row.id, name: row.name, districtIds: row.districtIds };
-      });
+      ).rows as PrecinctSplitRow[];
+      const precincts = precinctsFromRows(precinctRows, precinctSplitRows);
 
       const parties = (
         await client.query(
@@ -720,22 +643,7 @@ export class ElectionStore {
           `,
           electionId
         )
-      ).rows as Array<{
-        id: string;
-        title: string;
-        type: Contest['type'];
-        districtId: DistrictId;
-        seats: number | null;
-        allowWriteIns: boolean | null;
-        partyId: PartyId | null;
-        termDescription: string | null;
-        description: string | null;
-        yesOptionId: string | null;
-        yesOptionLabel: string | null;
-        noOptionId: string | null;
-        noOptionLabel: string | null;
-        additionalOptions: YesNoOption[] | null;
-      }>;
+      ).rows as ContestRow[];
       const candidateRows = (
         await client.query(
           `
@@ -759,173 +667,33 @@ export class ElectionStore {
           `,
           electionId
         )
-      ).rows as Array<{
-        id: CandidateId;
-        contestId: string;
-        firstName: string | null;
-        middleName: string | null;
-        lastName: string | null;
-        designation: string | null;
-        partyIds: PartyId[];
-      }>;
-      const contests: Contest[] = contestRows.map((row) => {
-        assert(
-          row.type !== 'straight-party',
-          'Straight party contests are generated on read'
-        );
-        switch (row.type) {
-          case 'candidate': {
-            const candidates: Candidate[] = candidateRows
-              .filter((candidate) => candidate.contestId === row.id)
-              .map((candidate) => ({
-                id: candidate.id,
-                // @coverage-defer
-                firstName: candidate.firstName || undefined,
-                middleName: candidate.middleName || undefined,
-                lastName: candidate.lastName || undefined,
-                designation: candidate.designation || undefined,
-                name: [
-                  candidate.firstName,
-                  candidate.middleName,
-                  candidate.lastName,
-                ]
-                  .filter(Boolean)
-                  .join(' '),
-                partyIds:
-                  candidate.partyIds.length > 0
-                    ? candidate.partyIds
-                    : undefined,
-              }));
-            return typedAs<CandidateContest>({
-              id: row.id,
-              title: row.title,
-              type: row.type,
-              districtId: row.districtId,
-              seats: assertDefined(row.seats),
-              allowWriteIns: assertDefined(row.allowWriteIns),
-              partyId: row.partyId ?? undefined,
-              termDescription: row.termDescription ?? undefined,
-              candidates,
-            });
-          }
-          case 'yesno': {
-            return typedAs<YesNoContest>({
-              id: row.id,
-              title: row.title,
-              type: row.type,
-              districtId: row.districtId,
-              description: assertDefined(row.description),
-              options: [
-                {
-                  id: assertDefined(row.yesOptionId),
-                  label: assertDefined(row.yesOptionLabel),
-                },
-                {
-                  id: assertDefined(row.noOptionId),
-                  label: assertDefined(row.noOptionLabel),
-                },
-                // @coverage-defer
-                ...(row.additionalOptions ?? []),
-              ],
-            });
-          }
-          default: {
-            return throwIllegalValue(row.type);
-          }
-        }
-      });
-
-      const ballotLanguageConfigs = electionRow.ballotLanguageCodes.map(
-        (l): BallotLanguageConfig => ({ languages: [l] })
-      );
-
-      const { ballotStyles, candidateOrderings } = generateBallotStyles({
-        ballotLanguageConfigs,
-        contests,
-        electionType: electionRow.type,
-        isMiCombinedBallotPrimary: electionRow.isMiCombinedBallotPrimary,
-        parties,
-        precincts,
-        ballotTemplateId: electionRow.ballotTemplateId,
-        electionId,
-      });
+      ).rows as CandidateRow[];
+      const contests = contestsFromRows(contestRows, candidateRows);
 
       const pollingPlaces = await this.listPollingPlaces(electionId);
+      const stateFeatures = await this.options.getStateFeatures(electionId);
 
-      const stateFeaturesConfig =
-        await this.options.getStateFeatures(electionId);
-      if (
-        stateFeaturesConfig.STRAIGHT_PARTY_VOTING &&
-        electionRow.type === 'general'
-      ) {
-        // The straight party contest's district must be on every ballot style
-        // so the contest appears on every ballot.
-        const district = districts.find((d) =>
-          ballotStyles.every((ballotStyle) =>
-            ballotStyle.districts.includes(d.id)
-          )
-        );
-        if (district) {
-          const straightPartyContest: StraightPartyContest = {
-            id: straightPartyContestId(electionId),
-            type: 'straight-party',
-            title: 'Straight Party Ticket',
-            districtId: district.id,
-            optionIds: parties.map((party) => party.id),
-          };
-          contests.unshift(straightPartyContest);
-        }
-      }
-
-      const election: Election = {
-        id: electionId,
-        type: electionRow.type,
-        title: electionRow.title,
-        date: new DateWithoutTime(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          electionRow.date.toISOString().split('T')[0]!
-        ),
-        jurisdiction: {
-          id: electionRow.jurisdictionExternalId,
-          name: electionRow.jurisdictionName,
+      return buildElectionRecord({
+        electionId,
+        row: {
+          ...electionRow,
+          date: new DateWithoutTime(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            electionRow.date.toISOString().split('T')[0]!
+          ),
+          signature: electionRow.signature || undefined,
+          createdAt: electionRow.createdAt.toISOString(),
+          lastExportedBallotHash:
+            electionRow.lastExportedBallotHash || undefined,
+          externalSource: electionRow.externalSource || undefined,
         },
-        state: electionRow.state,
-        seal: electionRow.seal,
-        signature:
-          electionRow.ballotTemplateId === 'NhBallot' ||
-          electionRow.ballotTemplateId === 'NhStateBallot'
-            ? electionRow.signature || undefined
-            : undefined,
         districts,
         precincts,
-        pollingPlaces,
-        ballotStyles,
         parties,
         contests,
-        ballotLayout: {
-          paperSize: electionRow.ballotPaperSize,
-          metadataEncoding: 'qr-code',
-        },
-        ballotStrings: {},
-      };
-
-      const systemSettings = safeParseSystemSettings(
-        electionRow.systemSettingsData
-      ).unsafeUnwrap();
-
-      return {
-        election,
-        candidateOrderings: new CandidateOrderingsMap(candidateOrderings),
-        isMiCombinedBallotPrimary: electionRow.isMiCombinedBallotPrimary,
-        systemSettings,
-        ballotTemplateId: electionRow.ballotTemplateId,
-        createdAt: electionRow.createdAt.toISOString(),
-        ballotLanguageConfigs,
-        ballotsFinalizedAt: electionRow.ballotsFinalizedAt,
-        jurisdictionId: electionRow.jurisdictionId,
-        lastExportedBallotHash: electionRow.lastExportedBallotHash || undefined,
-        externalSource: electionRow.externalSource || undefined,
-      };
+        pollingPlaces,
+        stateFeatures,
+      });
     });
   }
 
@@ -1504,37 +1272,7 @@ export class ElectionStore {
         count: number | null;
       }>;
 
-      const splitsByPrecinctId = new Map<
-        PrecinctId,
-        Array<{ id: string; count: number | null }>
-      >();
-      for (const split of splitRows) {
-        const group = splitsByPrecinctId.get(split.precinctId);
-        if (group) {
-          group.push(split);
-        } else {
-          splitsByPrecinctId.set(split.precinctId, [split]);
-        }
-      }
-
-      const counts: ElectionRegisteredVoterCounts = {};
-      for (const row of precinctRows) {
-        const splits = splitsByPrecinctId.get(row.id) ?? [];
-        if (splits.length > 0) {
-          const splitCounts: Record<string, number> = {};
-          for (const split of splits) {
-            if (split.count !== null) {
-              splitCounts[split.id] = split.count;
-            }
-          }
-          if (Object.keys(splitCounts).length > 0) {
-            counts[row.id] = { splits: splitCounts };
-          }
-        } else if (row.count !== null) {
-          counts[row.id] = row.count;
-        }
-      }
-      return counts;
+      return registeredVoterCountsFromRows(precinctRows, splitRows);
     });
   }
 
@@ -1967,26 +1705,14 @@ export class ElectionStore {
         }>;
       };
 
-      const places: PollingPlace[] = [];
-
-      for (const row of res.rows) {
-        const place: PollingPlace = {
+      return pollingPlacesFromRows(
+        res.rows.map((row) => ({
           id: row.id,
           name: row.name,
-          precincts: {},
+          precinctIds: row.precinct_ids,
           type: row.type,
-        };
-
-        for (const precinctId of row.precinct_ids) {
-          // [TODO] Support partial precincts for polling places
-          // covering only a subset of a precinct's splits.
-          place.precincts[precinctId] = { type: 'whole' };
-        }
-
-        places.push(place);
-      }
-
-      return places;
+        }))
+      );
     });
   }
 

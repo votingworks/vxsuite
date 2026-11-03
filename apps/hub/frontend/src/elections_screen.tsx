@@ -5,11 +5,7 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
 import type { ElectionListing } from '@votingworks/hub-backend';
-import {
-  listElections,
-  createElection,
-  loadElection,
-} from '@votingworks/design-ui';
+import { listElections, createElection, loadElection } from './api.js';
 import { cloneElection } from './api.js';
 import { Column, Row } from '@votingworks/design-ui';
 import { Header, NavScreen } from './nav_screen.js';

@@ -1,6 +1,6 @@
 import type { BaseLogger } from '@votingworks/logging';
 import { randomUUID as uuid } from 'node:crypto';
-import { Db } from '@votingworks/design-backend';
+import { Db } from '@votingworks/design-store-pg';
 import { Store } from '../src/store.js';
 import { runMigrations } from '../src/migrations.js';
 

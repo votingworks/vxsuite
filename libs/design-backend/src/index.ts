@@ -1,11 +1,3 @@
-export { BackgroundTaskStore } from './background_task_store.js';
-export type {
-  TaskName,
-  BackgroundTask,
-  BackgroundTaskProgress,
-  MainExportTaskMetadata,
-} from './background_task_store.js';
-export { buildBallotPreviewMethods } from './ballot_preview_api.js';
 export {
   defaultBallotTemplate,
   addPollingPlacesForExport,
@@ -13,28 +5,48 @@ export {
   createBallotPropsForTemplate,
 } from './ballots.js';
 export { CandidateOrderingsMap } from './candidate_orderings.js';
-export {
-  DESIGN_MIGRATIONS_DIR,
-  DESIGN_MIGRATIONS_TABLE,
-  Client,
-} from './db/client.js';
-export type { Bindable } from './db/client.js';
-export { Db } from './db/db.js';
 export type {
   DesignFeaturesProvider,
   TtsEditsStore,
 } from './design_providers.js';
-export {
-  createBlankElection,
-  cloneElection,
-  buildElectionDefinitionMethods,
-} from './election_definition_api.js';
-export type { ConvertMsElection } from './election_definition_api.js';
+export { renderBallotPreview } from './ballot_preview.js';
+export type {
+  BallotPreviewInput,
+  BallotPreviewResult,
+} from './ballot_preview.js';
 export type {
   ElectionDesignMethods,
   ElectionDesignApi,
-} from './election_design_api_type.js';
-export { ElectionStore } from './election_store.js';
+  ElectionInput,
+} from './election_design_api.js';
+export type { BallotTemplateId } from '@votingworks/hmpb';
+export { createBlankElection, prepareLoadedElection } from './election_load.js';
+export type { ConvertMsElection } from './election_load.js';
+export {
+  buildElectionRecord,
+  contestOrderPlacingNewCandidateContest,
+  contestsFromRows,
+  hasDuplicateOptionLabels,
+  hasDuplicateSplitDistricts,
+  NATURAL_SORT_COLLATOR,
+  naturalSortBy,
+  pollingPlacesFromRows,
+  precinctsFromRows,
+  registeredVoterCountsFromRows,
+  straightPartyContestId,
+} from './election_record.js';
+export type {
+  CandidateRow,
+  ContestRow,
+  ElectionRow,
+  PollingPlaceRow,
+  PrecinctRow,
+  PrecinctSplitRow,
+  RegisteredVoterCountRow,
+  SplitRegisteredVoterCountRow,
+} from './election_record.js';
+export { ttsStringDefaultsForElection } from './tts_strings.js';
+export type { DataUrl, TtsStringDefault } from './tts_strings.js';
 export type {
   ElectionRecord,
   DuplicateElectionError,
@@ -45,8 +57,7 @@ export type {
   DuplicatePartyError,
   DuplicateContestError,
   SetPollingPlaceError,
-  ElectionStoreOptions,
-} from './election_store.js';
+} from './election_record.js';
 export {
   needsColorNormalization,
   normalizeBallotColorModeForPrinting,
@@ -54,12 +65,13 @@ export {
 } from './export/ballot_pdfs.js';
 export type {
   EmitProgressFunction,
-  ElectionPackageExportedEvent,
-  ElectionPackageExportContext,
+  ElectionPackageRenderContext,
+  ElectionPackageExportInput,
+  ElectionPackageExportResult,
 } from './export/context.js';
 export {
   GenerateElectionPackageAndBallotsPayloadSchema,
-  generateElectionPackageAndBallots,
+  renderElectionPackageAndBallots,
 } from './export/generate_election_package_and_ballots.js';
 export type { GenerateElectionPackageAndBallotsPayload } from './export/generate_election_package_and_ballots.js';
 export { FIXED_ZIP_DATE, FIXED_ZIP_FILE_MODE, Archiver } from './export/zip.js';
@@ -93,18 +105,11 @@ export {
   MAX_POSTGRES_INDEX_KEY_BYTES,
   MAX_LIVE_REPORT_ACTIVITY_ITEMS,
 } from './globals.js';
-export { DESIGN_SCHEMA_PATH, readDesignSchema } from './schema.js';
-export type { DesignSchema } from './schema.js';
 export {
   stateDefaultSystemSettings,
   SLI_DEFAULT_SYSTEM_SETTINGS,
   defaultSystemSettings,
 } from './system_settings.js';
-export {
-  buildTtsMethods,
-  ttsMethodsThatHandleAuthThemselves,
-} from './tts_api.js';
-export type { DataUrl, TtsApiContext, TtsStringDefault } from './tts_api.js';
 export {
   ElectionInfoUpdateSchema,
   RESULTS_REPORTING_PATH,

@@ -16,12 +16,14 @@ import {
 
 export type { TtsStringDefault } from '@votingworks/design-backend';
 export type {
-  BackgroundTask,
   DuplicateDistrictError,
   DuplicatePartyError,
-  MainExportTaskMetadata,
   SetPollingPlaceError,
 } from '@votingworks/design-backend';
+export type {
+  BackgroundTask,
+  MainExportTaskMetadata,
+} from '@votingworks/design-store-pg';
 export type { TestDecksTaskMetadata } from './store.js';
 export type {
   User,

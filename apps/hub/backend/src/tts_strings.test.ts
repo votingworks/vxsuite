@@ -10,14 +10,14 @@ import {
 } from '@votingworks/types';
 import type {
   ElectionRecord,
-  ElectionStore,
   TtsEditsStore,
 } from '@votingworks/design-backend';
+import type { ElectionStore } from '@votingworks/design-store-pg';
+import { type TtsStringDefault } from '@votingworks/design-backend';
 import {
   buildTtsMethods,
   type TtsApiContext,
-  type TtsStringDefault,
-} from '@votingworks/design-backend';
+} from '@votingworks/design-store-pg';
 
 test('ttsSynthesizeFromText', async () => {
   const mockSynthesizer: Mocked<SpeechSynthesizer> = {

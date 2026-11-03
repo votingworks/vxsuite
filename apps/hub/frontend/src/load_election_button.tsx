@@ -17,7 +17,7 @@ import {
 } from '@votingworks/basics';
 import type { ElectionUpload, Jurisdiction } from '@votingworks/hub-backend';
 import styled from 'styled-components';
-import { loadElection } from '@votingworks/design-ui';
+import { loadElection } from './api.js';
 import { listJurisdictions } from './api.js';
 import { Column, InputGroup, Row } from '@votingworks/design-ui';
 

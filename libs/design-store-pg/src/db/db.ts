@@ -1,5 +1,3 @@
-// [TODO] Move to separate libs/ package once it's stable/cleaned up.
-
 import {
   type BaseLogger,
   LogDispositionStandardTypes,
@@ -11,7 +9,7 @@ import makeDebug from 'debug';
 // types still come from `pg` by name.
 import pg, { type Pool } from 'pg';
 import { Client } from './client.js';
-import { databaseUrl, NODE_ENV } from '../globals.js';
+import { databaseUrl, NODE_ENV } from '@votingworks/design-backend';
 
 const debug = makeDebug('pg-client');
 

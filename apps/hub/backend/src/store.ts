@@ -87,17 +87,17 @@ import type {
   ElectionStatus,
   ElectionInfoUpdate,
 } from '@votingworks/design-backend';
-import { Db } from '@votingworks/design-backend';
-import type { Bindable, Client } from '@votingworks/design-backend';
+import { Db } from '@votingworks/design-store-pg';
+import type { Bindable, Client } from '@votingworks/design-store-pg';
 import { generateId } from '@votingworks/design-backend';
 import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from '@votingworks/design-backend';
 import { CandidateOrderingsMap } from '@votingworks/design-backend';
+import { getStateFeaturesConfig } from '@votingworks/design-backend';
 import {
   type BackgroundTask,
   BackgroundTaskStore,
   ElectionStore,
-  getStateFeaturesConfig,
-} from '@votingworks/design-backend';
+} from '@votingworks/design-store-pg';
 
 export interface TestDecksTaskMetadata {
   task?: BackgroundTask;

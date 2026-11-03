@@ -1,5 +1,6 @@
 import * as grout from '@votingworks/grout';
 import type { Api } from '@votingworks/hub-backend';
+import type { ElectionUpload } from '@votingworks/design-backend';
 import type { NhStateBallotVariant } from '@votingworks/hmpb';
 import {
   type QueryKey,
@@ -21,9 +22,10 @@ import {
   type ApiClient as DesignApiClient,
   BACKGROUND_TASK_POLLING_INTERVAL_MS,
   generateId,
+  getBallotLayoutSettings,
   getBallotsFinalizedAt,
+  getBallotTemplate,
   getElectionInfo,
-  listElections,
   useApiClient as useDesignApiClient,
   VXQR_REFETCH_INTERVAL_MS,
 } from '@votingworks/design-ui';
@@ -38,12 +40,113 @@ export function createApiClient(): ApiClient {
 }
 
 export function asDesignApiClient(apiClient: ApiClient): DesignApiClient {
-  return apiClient as unknown as DesignApiClient;
+  return apiClient;
 }
 
 function useApiClient(): ApiClient {
   return useDesignApiClient() as unknown as ApiClient;
 }
+
+export const listElections = {
+  queryKey(): QueryKey {
+    return ['design', 'listElections'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.listElections());
+  },
+} as const;
+
+export const loadElection = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(
+      (input: { upload: ElectionUpload; jurisdictionId: string }) =>
+        apiClient.loadElection({
+          ...input,
+          newId: generateId(),
+        }),
+      {
+        async onSuccess(result) {
+          if (result.isOk()) {
+            await queryClient.invalidateQueries(listElections.queryKey());
+          }
+        },
+      }
+    );
+  },
+} as const;
+
+export const createElection = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(
+      (input: { id: ElectionId; jurisdictionId: string }) =>
+        apiClient.createElection(input),
+      {
+        async onSuccess() {
+          await queryClient.invalidateQueries(listElections.queryKey());
+        },
+      }
+    );
+  },
+} as const;
+
+export const updateBallotLayoutSettings = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateBallotLayoutSettings, {
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries(
+          getBallotLayoutSettings.queryKey(electionId)
+        );
+      },
+    });
+  },
+} as const;
+
+export const getSystemSettings = {
+  queryKey(id: ElectionId): QueryKey {
+    return ['design', 'getSystemSettings', id];
+  },
+  useQuery(id: ElectionId) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(id), () =>
+      apiClient.getSystemSettings({ electionId: id })
+    );
+  },
+} as const;
+
+export const updateSystemSettings = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.updateSystemSettings, {
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries(
+          getSystemSettings.queryKey(electionId)
+        );
+      },
+    });
+  },
+} as const;
+
+export const setBallotTemplate = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setBallotTemplate, {
+      async onSuccess(_, { electionId }) {
+        await queryClient.invalidateQueries(
+          getBallotTemplate.queryKey(electionId)
+        );
+      },
+    });
+  },
+} as const;
 
 export const getUser = {
   queryKey(): QueryKey {

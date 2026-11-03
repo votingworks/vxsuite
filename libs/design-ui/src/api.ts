@@ -1,7 +1,6 @@
 import type {
   AuthErrorCode,
   ElectionDesignApi,
-  ElectionUpload,
 } from '@votingworks/design-backend';
 import type { NhStateBallotVariant } from '@votingworks/hmpb';
 import * as grout from '@votingworks/grout';
@@ -77,16 +76,6 @@ export function createQueryClient(): QueryClient {
     },
   });
 }
-
-export const listElections = {
-  queryKey(): QueryKey {
-    return ['design', 'listElections'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.listElections());
-  },
-} as const;
 
 export const getElectionInfo = {
   queryKey(id: ElectionId): QueryKey {
@@ -196,18 +185,6 @@ export const getBallotLayoutSettings = {
   },
 } as const;
 
-export const getSystemSettings = {
-  queryKey(id: ElectionId): QueryKey {
-    return ['design', 'getSystemSettings', id];
-  },
-  useQuery(id: ElectionId) {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(id), () =>
-      apiClient.getSystemSettings({ electionId: id })
-    );
-  },
-} as const;
-
 export const getBallotTemplate = {
   queryKey(id: ElectionId): QueryKey {
     return ['design', 'getBallotTemplate', id];
@@ -282,7 +259,7 @@ async function invalidateElectionQueries(
   electionId: ElectionId
 ) {
   await Promise.all([
-    queryClient.invalidateQueries(listElections.queryKey()),
+    queryClient.invalidateQueries(['design', 'listElections']),
     queryClient.invalidateQueries(getElectionInfo.queryKey(electionId)),
     queryClient.invalidateQueries(listDistricts.queryKey(electionId)),
     queryClient.invalidateQueries(listPrecincts.queryKey(electionId)),
@@ -296,43 +273,6 @@ async function invalidateElectionQueries(
     queryClient.invalidateQueries(ttsStringDefaults.queryKey(electionId)),
   ]);
 }
-
-export const loadElection = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(
-      (input: { upload: ElectionUpload; jurisdictionId: string }) =>
-        apiClient.loadElection({
-          ...input,
-          newId: generateId(),
-        }),
-      {
-        async onSuccess(result) {
-          if (result.isOk()) {
-            await queryClient.invalidateQueries(listElections.queryKey());
-          }
-        },
-      }
-    );
-  },
-} as const;
-
-export const createElection = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(
-      (input: { id: ElectionId; jurisdictionId: string }) =>
-        apiClient.createElection(input),
-      {
-        async onSuccess() {
-          await queryClient.invalidateQueries(listElections.queryKey());
-        },
-      }
-    );
-  },
-} as const;
 
 export const updateElectionInfo = {
   useMutation() {
@@ -497,41 +437,13 @@ export const deleteContest = {
   },
 } as const;
 
-export const updateBallotLayoutSettings = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.updateBallotLayoutSettings, {
-      async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(
-          getBallotLayoutSettings.queryKey(electionId)
-        );
-      },
-    });
-  },
-} as const;
-
-export const updateSystemSettings = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.updateSystemSettings, {
-      async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(
-          getSystemSettings.queryKey(electionId)
-        );
-      },
-    });
-  },
-} as const;
-
 export const deleteElection = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.deleteElection, {
       async onSuccess() {
-        await queryClient.invalidateQueries(listElections.queryKey(), {
+        await queryClient.invalidateQueries(['design', 'listElections'], {
           // Ensure list of elections is refetched in the background so it's
           // fresh when we redirect to elections list
           refetchType: 'all',
@@ -574,20 +486,6 @@ export const getBallotPreviewPdf = {
       // Never cache PDFs, that way we don't have to worry about invalidating them
       { staleTime: 0, cacheTime: 0 }
     );
-  },
-} as const;
-
-export const setBallotTemplate = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.setBallotTemplate, {
-      async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(
-          getBallotTemplate.queryKey(electionId)
-        );
-      },
-    });
   },
 } as const;
 

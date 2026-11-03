@@ -4,11 +4,11 @@ import { throwIllegalValue } from '@votingworks/basics';
 import { safeParseJson } from '@votingworks/types';
 import type { ScratchDir } from '@votingworks/hmpb';
 
+import { GenerateElectionPackageAndBallotsPayloadSchema } from '@votingworks/design-backend';
 import {
   type BackgroundTask,
   generateElectionPackageAndBallots,
-  GenerateElectionPackageAndBallotsPayloadSchema,
-} from '@votingworks/design-backend';
+} from '@votingworks/design-store-pg';
 import type { WorkerContext } from './context.js';
 import { triggerCircleCiQaBuild } from './export_qa.js';
 import { createHubDesignFeatures } from '../design_features.js';

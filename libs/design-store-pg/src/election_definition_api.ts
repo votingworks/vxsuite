@@ -31,59 +31,29 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import type { BallotTemplateId } from '@votingworks/hmpb';
-import { defaultBallotTemplate } from './ballots.js';
 import {
-  getStateFeaturesConfig,
-  type StateFeaturesConfig,
-} from './features.js';
-import type {
-  DuplicateContestError,
-  DuplicateDistrictError,
-  DuplicateElectionError,
-  DuplicatePartyError,
-  DuplicatePrecinctError,
-  SetPollingPlaceError,
-  ElectionStore,
-} from './election_store.js';
-import type { DesignFeaturesProvider } from './design_providers.js';
-import { defaultSystemSettings } from './system_settings.js';
-import {
+  type ConvertMsElection,
+  createBlankElection,
+  defaultBallotTemplate,
+  defaultSystemSettings,
+  type DesignFeaturesProvider,
+  type DuplicateContestError,
+  type DuplicateDistrictError,
+  type DuplicateElectionError,
+  type DuplicatePartyError,
+  type DuplicatePrecinctError,
   type ElectionInfo,
   type ElectionInfoUpdate,
   ElectionInfoUpdateSchema,
   type ElectionUpload,
+  getStateFeaturesConfig,
   type Jurisdiction,
-} from './types.js';
-import { regenerateElectionIds, splitCandidateName } from './utils.js';
-
-export function createBlankElection(
-  id: ElectionId,
-  jurisdiction: Jurisdiction
-): Election {
-  return {
-    id,
-    type: 'general',
-    title: '',
-    date: DateWithoutTime.today(),
-    state: jurisdiction.stateCode,
-    jurisdiction: {
-      id: 'county-id',
-      name: jurisdiction.name,
-    },
-    seal: '',
-    districts: [],
-    precincts: [],
-    pollingPlaces: [],
-    contests: [],
-    parties: [],
-    ballotStyles: [],
-    ballotLayout: {
-      paperSize: HmpbBallotPaperSize.Letter,
-      metadataEncoding: 'qr-code',
-    },
-    ballotStrings: {},
-  };
-}
+  prepareLoadedElection,
+  regenerateElectionIds,
+  type SetPollingPlaceError,
+  type StateFeaturesConfig,
+} from '@votingworks/design-backend';
+import type { ElectionStore } from './election_store.js';
 
 export async function cloneElection(
   store: ElectionStore,
@@ -124,12 +94,6 @@ export async function cloneElection(
   });
 }
 
-export type ConvertMsElection = (
-  newId: ElectionId,
-  electionFileContents: string,
-  candidateFileContents: string
-) => Election;
-
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildElectionDefinitionMethods({
   store,
@@ -150,91 +114,12 @@ export function buildElectionDefinitionMethods({
       const stateFeatures = getStateFeaturesConfig(jurisdiction);
 
       try {
-        const { election, isMiCombinedBallotPrimary } = ((): {
-          election: Election;
-          isMiCombinedBallotPrimary: boolean;
-        } => {
-          switch (input.upload.format) {
-            case 'vxf': {
-              const sourceElection = safeParseElectionAnyVersion(
-                input.upload.electionFileContents
-              ).unsafeUnwrap();
-
-              const { districts, precincts, parties, contests, pollingPlaces } =
-                regenerateElectionIds(sourceElection, stateFeatures);
-
-              // Split candidate names into first, middle, and last names, if they are
-              // not already split
-              const contestsWithSplitCandidateNames = contests.map(
-                (contest) => {
-                  if (contest.type !== 'candidate') return contest;
-                  return {
-                    ...contest,
-                    candidates: contest.candidates.map((candidate) => {
-                      // @coverage-defer
-                      if (
-                        candidate.firstName !== undefined &&
-                        candidate.middleName !== undefined &&
-                        candidate.lastName !== undefined
-                      ) {
-                        return candidate;
-                      }
-                      return {
-                        ...candidate,
-                        ...splitCandidateName(candidate.name),
-                      };
-                    }),
-                  };
-                }
-              );
-
-              return {
-                isMiCombinedBallotPrimary:
-                  isCombinedBallotPrimary(sourceElection),
-                election: {
-                  ...sourceElection,
-                  id: input.newId,
-                  jurisdiction: {
-                    ...sourceElection.jurisdiction,
-                    // County ID needs to be deterministic
-                    id: `${input.newId}-county`,
-                  },
-                  districts,
-                  pollingPlaces,
-                  precincts,
-                  parties,
-                  contests: contestsWithSplitCandidateNames,
-                  // Remove any existing ballot styles (and their ballot
-                  // positions) so we can generate our own
-                  ballotStyles: [],
-                  // @coverage-defer
-                  // Fill in a blank seal if none is provided
-                  seal: sourceElection.seal ?? '',
-                  signature: sourceElection.signature,
-                },
-              };
-            }
-
-            case 'ms-sems': {
-              if (!convertMsElection) {
-                throw new Error('MS SEMS import is not supported here');
-              }
-              const msElection = convertMsElection(
-                input.newId,
-                input.upload.electionFileContents,
-                input.upload.candidateFileContents
-              );
-              return {
-                election: msElection,
-                isMiCombinedBallotPrimary: false,
-              };
-            }
-
-            default: {
-              return throwIllegalValue(input.upload);
-            }
-          }
-        })();
+        const { election, isMiCombinedBallotPrimary } = prepareLoadedElection({
+          upload: input.upload,
+          newId: input.newId,
+          stateFeatures,
+          convertMsElection,
+        });
 
         await store.createElection({
           jurisdictionId: jurisdiction.id,
