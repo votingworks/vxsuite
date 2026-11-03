@@ -1,11 +1,11 @@
 import type {
-  BallotStyle,
   BallotStyleId,
   CandidateContest,
   CandidateVote,
   ContestId,
   Election,
   ElectionDefinition,
+  OptionalCandidateOrderings,
   OptionalVote,
   OptionalYesNoVote,
   PartyId,
@@ -46,7 +46,7 @@ export interface BallotContextInterface {
 export interface CandidateContestResultInterface {
   contest: CandidateContest;
   election: Election;
-  ballotStyle: BallotStyle;
+  orderings: OptionalCandidateOrderings;
   precinctId: PrecinctId;
   selectionsAreEditable?: boolean;
   vote?: CandidateVote;

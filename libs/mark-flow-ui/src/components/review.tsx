@@ -9,9 +9,9 @@ import {
   type PrecinctId,
   getContestDistrict,
   type ContestId,
-  type BallotStyle,
-  getCandidateVoteSortedForBallotStyleRotation,
+  getSortedCandidateVote,
   type StraightPartyVote,
+  type OptionalCandidateOrderings,
 } from '@votingworks/types';
 import {
   Caption,
@@ -68,7 +68,7 @@ function CandidateContestResult({
   vote = [],
   election,
   selectionsAreEditable,
-  ballotStyle,
+  orderings,
   // eslint-disable-next-line @typescript-eslint/no-shadow
   selectedStraightPartyId,
   shouldTransliterateCandidateNames,
@@ -79,16 +79,16 @@ function CandidateContestResult({
     deriveStraightPartyVotesFromOrderedCandidates({
       contest,
       vote,
-      orderings: ballotStyle.orderedCandidatesByContest,
+      orderings,
       selectedStraightPartyId,
     });
   const remainingChoices =
     numVotesRemaining(contest, vote) - derivedStraightPartyVotes.length;
 
-  const orderedVotes = getCandidateVoteSortedForBallotStyleRotation({
+  const orderedVotes = getSortedCandidateVote({
     inputVote: [...vote, ...derivedStraightPartyVotes],
     contest,
-    ballotStyle,
+    orderings,
   });
 
   const noVotesString = selectionsAreEditable
@@ -274,7 +274,7 @@ function MsEitherNeitherContestResult({
 export interface ReviewProps {
   election: Election;
   precinctId: PrecinctId;
-  ballotStyle: BallotStyle;
+  candidateOrderings: OptionalCandidateOrderings;
   contests: ContestsWithMsEitherNeither;
   votes: VotesDict;
   returnToContest?: (contestId: string) => void;
@@ -285,7 +285,7 @@ export interface ReviewProps {
 export function Review({
   election,
   precinctId,
-  ballotStyle,
+  candidateOrderings,
   contests,
   votes,
   returnToContest,
@@ -354,7 +354,7 @@ export function Review({
                 selectionsAreEditable={selectionsAreEditable}
                 precinctId={precinctId}
                 vote={votes[contest.id] as CandidateVote}
-                ballotStyle={ballotStyle}
+                orderings={candidateOrderings}
                 selectedStraightPartyId={selectedStraightPartyId(
                   election,
                   votes

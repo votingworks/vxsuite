@@ -11,10 +11,10 @@ export function ReviewScreen(): JSX.Element {
   const history = useHistory();
   const location = useLocation();
   const {
+    candidateOrderings,
     contests,
     electionDefinition,
     precinctId,
-    ballotStyleId,
     selectedPartyId,
     votes,
   } = useContext(BallotContext);
@@ -34,7 +34,7 @@ export function ReviewScreen(): JSX.Element {
   return (
     <ReviewPage
       backUrl={backUrl}
-      ballotStyleId={ballotStyleId}
+      candidateOrderings={candidateOrderings}
       contests={contests}
       electionDefinition={assertDefined(electionDefinition)}
       precinctId={precinctId}

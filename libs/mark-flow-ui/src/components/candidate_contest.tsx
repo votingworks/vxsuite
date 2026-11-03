@@ -3,16 +3,15 @@ import React, { type ReactNode, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import {
-  type BallotStyleId,
   type Candidate,
   type CandidateId,
   type CandidateVote,
   type CandidateContest as CandidateContestInterface,
   type Election,
-  getBallotStyle,
   getContestDistrict,
-  getOrderedCandidatesForContestInBallotStyle,
+  getOrderedCandidates,
   type PartyId,
+  type OptionalCandidateOrderings,
 } from '@votingworks/types';
 import {
   Button,
@@ -58,7 +57,7 @@ export interface WriteInCharacterLimitAcrossContests {
 }
 
 interface Props {
-  ballotStyleId: BallotStyleId;
+  orderings: OptionalCandidateOrderings;
   election: Election;
   contest: CandidateContestInterface;
   vote: CandidateVote;
@@ -114,7 +113,7 @@ function normalizeCandidateName(name: string) {
 }
 
 export function CandidateContest({
-  ballotStyleId,
+  orderings,
   election,
   contest,
   vote,
@@ -128,12 +127,7 @@ export function CandidateContest({
   shouldTransliterateCandidateNames,
 }: Props): JSX.Element {
   const district = getContestDistrict(election, contest);
-  const ballotStyle = getBallotStyle({ ballotStyleId, election });
-  assert(ballotStyle);
-  const orderedCandidates = getOrderedCandidatesForContestInBallotStyle({
-    contest,
-    ballotStyle,
-  });
+  const orderedCandidates = getOrderedCandidates({ contest, orderings });
 
   const [attemptedOvervoteCandidate, setAttemptedOvervoteCandidate] =
     useState<Candidate>();
@@ -165,7 +159,7 @@ export function CandidateContest({
     deriveStraightPartyVotesFromOrderedCandidates({
       contest,
       vote,
-      orderings: ballotStyle.orderedCandidatesByContest,
+      orderings,
       selectedStraightPartyId,
     });
   const votesRemaining = numVotesRemaining(contest, vote);

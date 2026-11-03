@@ -7,6 +7,9 @@ import {
   type Candidate,
   type CandidateContest as CandidateContestData,
   type Election,
+  type CandidateOrderings,
+  getBallotStyle,
+  type BallotStyleId,
 } from '@votingworks/types';
 import {
   readElectionGeneralDefinition,
@@ -24,7 +27,7 @@ import {
   type virtualKeyboardCommon,
   type VirtualKeyboardProps,
 } from '@votingworks/ui';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import {
   screen,
   within,
@@ -106,7 +109,7 @@ test('shows up-to-date vote counter - single-seat contest', () => {
   const updateVote = vi.fn();
   const { rerender } = render(
     <CandidateContest
-      ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+      orderings={null}
       election={electionDefinition.election}
       contest={candidateContest}
       vote={[]}
@@ -120,7 +123,7 @@ test('shows up-to-date vote counter - single-seat contest', () => {
 
   rerender(
     <CandidateContest
-      ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+      orderings={null}
       election={electionDefinition.election}
       contest={candidateContest}
       vote={[candidateContest.candidates[0]!]}
@@ -137,7 +140,7 @@ test('shows up-to-date vote counter - multi-seat contest', () => {
   const updateVote = vi.fn();
   const { rerender } = render(
     <CandidateContest
-      ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+      orderings={null}
       election={electionDefinition.election}
       contest={candidateContestWithMultipleSeats}
       vote={[]}
@@ -151,7 +154,7 @@ test('shows up-to-date vote counter - multi-seat contest', () => {
 
   rerender(
     <CandidateContest
-      ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+      orderings={null}
       election={electionDefinition.election}
       contest={candidateContestWithMultipleSeats}
       vote={[
@@ -172,7 +175,7 @@ describe('supports single-seat contest', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+        orderings={null}
         election={electionDefinition.election}
         contest={candidateContest}
         vote={[]}
@@ -200,7 +203,7 @@ describe('supports single-seat contest', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+        orderings={null}
         election={electionDefinition.election}
         contest={candidateContest}
         vote={[]}
@@ -228,7 +231,7 @@ describe('supports single-seat contest', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+        orderings={null}
         election={electionDefinition.election}
         contest={candidateContest}
         vote={[candidateContest.candidates[0]!]}
@@ -263,7 +266,7 @@ describe('supports multi-seat contests', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+        orderings={null}
         election={electionDefinition.election}
         contest={candidateContestWithMultipleSeats}
         vote={[candidateContestWithMultipleSeats.candidates[0]!]}
@@ -317,7 +320,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+        orderings={null}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -370,7 +373,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+        orderings={null}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -418,7 +421,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+        orderings={null}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -445,7 +448,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+        orderings={null}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[
@@ -476,7 +479,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+        orderings={null}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -502,7 +505,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+        orderings={null}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={Array.from({ length: candidateContestWithWriteIns.seats }).map(
@@ -556,7 +559,7 @@ describe('supports write-in candidates', () => {
       const updateVote = vi.fn();
       render(
         <CandidateContest
-          ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+          orderings={null}
           election={electionDefinition.election}
           contest={candidateContestWithWriteIns}
           vote={[]}
@@ -608,7 +611,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+        orderings={null}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -658,7 +661,7 @@ describe('supports write-in candidates', () => {
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+        orderings={null}
         election={electionDefinition.election}
         contest={candidateContestWithWriteIns}
         vote={[]}
@@ -703,7 +706,7 @@ describe('supports write-in candidates', () => {
 
     const { rerender } = render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+        orderings={null}
         election={electionDefinition.election}
         contest={contest}
         vote={[]}
@@ -716,7 +719,7 @@ describe('supports write-in candidates', () => {
     updateVote.mockImplementation((_, votes) => {
       rerender(
         <CandidateContest
-          ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+          orderings={null}
           election={electionDefinition.election}
           contest={contest}
           vote={votes as CandidateVote}
@@ -756,7 +759,7 @@ describe('supports write-in candidates', () => {
 
     render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+        orderings={null}
         election={electionDefinition.election}
         contest={contest}
         vote={votes}
@@ -807,7 +810,7 @@ describe('audio cues', () => {
 
     const { rerender } = render(
       <CandidateContest
-        ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+        orderings={null}
         election={electionDefinition.election}
         contest={twoSeatContest}
         vote={[]}
@@ -818,7 +821,7 @@ describe('audio cues', () => {
     updateVote.mockImplementation((_, votes) => {
       rerender(
         <CandidateContest
-          ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+          orderings={null}
           election={electionDefinition.election}
           contest={twoSeatContest}
           vote={votes as CandidateVote}
@@ -917,7 +920,7 @@ describe('audio cues', () => {
 test('shows review mode navigation instructions when isReviewMode is true', () => {
   render(
     <CandidateContest
-      ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+      orderings={null}
       election={electionDefinition.election}
       contest={candidateContest}
       vote={[]}
@@ -948,7 +951,7 @@ test('shows term description, if available', () => {
 
   render(
     <CandidateContest
-      ballotStyleId={electionDefinition.election.ballotStyles[0]!.id}
+      orderings={null}
       election={election}
       contest={contest}
       vote={[]}
@@ -960,10 +963,17 @@ test('shows term description, if available', () => {
 });
 
 describe('candidate ordering', () => {
-  test('renders candidates in order specified by ballot style using electionFamousNames fixture', () => {
-    const famousNamesElection =
-      electionFamousNames2021Fixtures.baseElection_DEPRECATED.readElection();
+  const famousNamesElection =
+    electionFamousNames2021Fixtures.baseElection_DEPRECATED.readElection();
 
+  function getCandidateOrderings(id: BallotStyleId) {
+    return assertDefined(
+      getBallotStyle({ ballotStyleId: id, election: famousNamesElection })
+        ?.orderedCandidatesByContest
+    );
+  }
+
+  test('renders candidates in order specified by ballot style using electionFamousNames fixture', () => {
     // Get the mayor contest and disable write-ins for cleaner test
     const mayorContest: CandidateContestInterface = {
       ...(famousNamesElection.contests.find(
@@ -975,7 +985,7 @@ describe('candidate ordering', () => {
     // Ballot style 1-1 has order: sherlock-holmes, thomas-edison
     render(
       <CandidateContest
-        ballotStyleId="1-1"
+        orderings={getCandidateOrderings('1-1')}
         election={famousNamesElection}
         contest={mayorContest}
         vote={[]}
@@ -993,9 +1003,6 @@ describe('candidate ordering', () => {
   });
 
   test('renders candidates in different order for different ballot style', () => {
-    const famousNamesElection =
-      electionFamousNames2021Fixtures.baseElection_DEPRECATED.readElection();
-
     // Get the mayor contest and disable write-ins for cleaner test
     const mayorContest: CandidateContestInterface = {
       ...(famousNamesElection.contests.find(
@@ -1007,7 +1014,7 @@ describe('candidate ordering', () => {
     // Ballot style 1-2 has order: sherlock-homes-liberty, thomas-edison, sherlock-holmes-dem (reversed)
     render(
       <CandidateContest
-        ballotStyleId="1-2"
+        orderings={getCandidateOrderings('1-2')}
         election={famousNamesElection}
         contest={mayorContest}
         vote={[]}
@@ -1025,9 +1032,6 @@ describe('candidate ordering', () => {
   });
 
   test('renders candidates in rotated order for multi-candidate contest', () => {
-    const famousNamesElection =
-      electionFamousNames2021Fixtures.baseElection_DEPRECATED.readElection();
-
     // Get the controller contest (has 3 candidates) and disable write-ins
     const controllerContest: CandidateContestInterface = {
       ...(famousNamesElection.contests.find(
@@ -1039,7 +1043,7 @@ describe('candidate ordering', () => {
     // Ballot style 1-1 has order: winston-churchill, oprah-winfrey, louis-armstrong
     render(
       <CandidateContest
-        ballotStyleId="1-1"
+        orderings={getCandidateOrderings('1-1')}
         election={famousNamesElection}
         contest={controllerContest}
         vote={[]}
@@ -1069,25 +1073,10 @@ describe('candidate ordering', () => {
       ],
     };
 
-    const election: Election = {
-      ...electionDefinition.election,
-      contests: [contest],
-      ballotStyles: [
-        {
-          languages: ['en'],
-          id: 'ballot-style-1',
-          groupId: 'ballot-style-1',
-          precincts: ['precinct-1'],
-          districts: ['district-1'],
-          // No candidatesOrderedByContest specified
-        },
-      ],
-    };
-
     render(
       <CandidateContest
-        ballotStyleId="ballot-style-1"
-        election={election}
+        orderings={null}
+        election={electionDefinition.election}
         contest={contest}
         vote={[]}
         updateVote={vi.fn()}
@@ -1126,27 +1115,17 @@ describe('cross-endorsed candidates', () => {
     const election: Election = {
       ...electionDefinition.election,
       contests: [contest],
-      ballotStyles: [
-        {
-          id: 'ballot-style-1',
-          languages: ['en'],
-          groupId: 'ballot-style-1',
-          precincts: ['precinct-1'],
-          districts: ['district-1'],
-          orderedCandidatesByContest: {
-            governor: [
-              { id: 'alice', partyIds: ['0'] }, // Alice as Democrat
-              { id: 'bob', partyIds: ['2'] },
-              { id: 'alice', partyIds: ['1'] }, // Alice as Republican
-            ],
-          },
-        },
-      ],
     };
 
     render(
       <CandidateContest
-        ballotStyleId="ballot-style-1"
+        orderings={{
+          governor: [
+            { id: 'alice', partyIds: ['0'] }, // Alice as Democrat
+            { id: 'bob', partyIds: ['2'] },
+            { id: 'alice', partyIds: ['1'] }, // Alice as Republican
+          ],
+        }}
         election={election}
         contest={contest}
         vote={[]}
@@ -1200,19 +1179,19 @@ describe('cross-endorsed candidates', () => {
           groupId: 'ballot-style-1',
           precincts: ['precinct-1'],
           districts: ['district-1'],
-          orderedCandidatesByContest: {
-            governor: [
-              { id: 'alice', partyIds: ['0', '1'] }, // Alice with both parties
-              { id: 'bob', partyIds: ['2'] },
-            ],
-          },
+          orderedCandidatesByContest: undefined,
         },
       ],
     };
 
     render(
       <CandidateContest
-        ballotStyleId="ballot-style-1"
+        orderings={{
+          governor: [
+            { id: 'alice', partyIds: ['0', '1'] }, // Alice with both parties
+            { id: 'bob', partyIds: ['2'] },
+          ],
+        }}
         election={election}
         contest={contest}
         vote={[]}
@@ -1253,28 +1232,18 @@ describe('cross-endorsed candidates', () => {
     const election: Election = {
       ...electionDefinition.election,
       contests: [contest],
-      ballotStyles: [
-        {
-          id: 'ballot-style-1',
-          languages: ['en'],
-          groupId: 'ballot-style-1',
-          precincts: ['precinct-1'],
-          districts: ['district-1'],
-          orderedCandidatesByContest: {
-            governor: [
-              { id: 'alice', partyIds: ['0'] },
-              { id: 'bob', partyIds: ['2'] },
-              { id: 'alice', partyIds: ['1'] },
-            ],
-          },
-        },
-      ],
     };
 
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId="ballot-style-1"
+        orderings={{
+          governor: [
+            { id: 'alice', partyIds: ['0'] },
+            { id: 'bob', partyIds: ['2'] },
+            { id: 'alice', partyIds: ['1'] },
+          ],
+        }}
         election={election}
         contest={contest}
         vote={[]}
@@ -1317,28 +1286,18 @@ describe('cross-endorsed candidates', () => {
     const election: Election = {
       ...electionDefinition.election,
       contests: [contest],
-      ballotStyles: [
-        {
-          id: 'ballot-style-1',
-          languages: ['en'],
-          groupId: 'ballot-style-1',
-          precincts: ['precinct-1'],
-          districts: ['district-1'],
-          orderedCandidatesByContest: {
-            governor: [
-              { id: 'alice', partyIds: ['0'] },
-              { id: 'bob', partyIds: ['2'] },
-              { id: 'alice', partyIds: ['1'] },
-            ],
-          },
-        },
-      ],
     };
 
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId="ballot-style-1"
+        orderings={{
+          governor: [
+            { id: 'alice', partyIds: ['0'] },
+            { id: 'bob', partyIds: ['2'] },
+            { id: 'alice', partyIds: ['1'] },
+          ],
+        }}
         election={election}
         contest={contest}
         vote={[]}
@@ -1381,28 +1340,18 @@ describe('cross-endorsed candidates', () => {
     const election: Election = {
       ...electionDefinition.election,
       contests: [contest],
-      ballotStyles: [
-        {
-          id: 'ballot-style-1',
-          languages: ['en'],
-          groupId: 'ballot-style-1',
-          precincts: ['precinct-1'],
-          districts: ['district-1'],
-          orderedCandidatesByContest: {
-            governor: [
-              { id: 'alice', partyIds: ['0'] },
-              { id: 'bob', partyIds: ['2'] },
-              { id: 'alice', partyIds: ['1'] },
-            ],
-          },
-        },
-      ],
     };
 
     const updateVote = vi.fn();
     render(
       <CandidateContest
-        ballotStyleId="ballot-style-1"
+        orderings={{
+          governor: [
+            { id: 'alice', partyIds: ['0'] },
+            { id: 'bob', partyIds: ['2'] },
+            { id: 'alice', partyIds: ['1'] },
+          ],
+        }}
         election={election}
         contest={contest}
         vote={[{ id: 'alice', name: 'Alice Anderson', partyIds: ['0'] }]}
@@ -1445,28 +1394,20 @@ describe('cross-endorsed candidates', () => {
     const election: Election = {
       ...electionDefinition.election,
       contests: [contest],
-      ballotStyles: [
-        {
-          id: 'ballot-style-1',
-          languages: ['en'],
-          groupId: 'ballot-style-1',
-          precincts: ['precinct-1'],
-          districts: ['district-1'],
-          orderedCandidatesByContest: {
-            council: [
-              { id: 'alice', partyIds: ['0'] },
-              { id: 'bob', partyIds: ['2'] },
-              { id: 'alice', partyIds: ['1'] },
-            ],
-          },
-        },
+    };
+
+    const orderings: CandidateOrderings = {
+      council: [
+        { id: 'alice', partyIds: ['0'] },
+        { id: 'bob', partyIds: ['2'] },
+        { id: 'alice', partyIds: ['1'] },
       ],
     };
 
     const updateVote = vi.fn();
     const { rerender } = render(
       <CandidateContest
-        ballotStyleId="ballot-style-1"
+        orderings={orderings}
         election={election}
         contest={contest}
         vote={[]}
@@ -1485,7 +1426,7 @@ describe('cross-endorsed candidates', () => {
     // Update the component with the vote
     rerender(
       <CandidateContest
-        ballotStyleId="ballot-style-1"
+        orderings={orderings}
         election={election}
         contest={contest}
         vote={[{ id: 'alice', name: 'Alice Anderson', partyIds: ['0'] }]}
@@ -1534,7 +1475,7 @@ describe('straight party derived votes', () => {
   }) {
     render(
       <CandidateContest
-        ballotStyleId={ballotStyle!.id}
+        orderings={ballotStyle?.orderedCandidatesByContest}
         election={straightPartyElection}
         contest={contest}
         vote={vote}
@@ -1685,30 +1626,18 @@ describe('straight party derived votes', () => {
       seats: 1,
       candidates: [{ ...argent!, partyIds: ['0', '2'] }],
     };
+
     // Rotate so the cross-endorsed candidate appears once under each endorsing
     // party (Federalist and Liberty).
-    const [firstBallotStyle, ...restBallotStyles] =
-      straightPartyElection.ballotStyles;
-    const election: Election = {
-      ...straightPartyElection,
-      ballotStyles: [
-        {
-          ...firstBallotStyle!,
-          orderedCandidatesByContest: {
-            [contest.id]: [
-              { id: argent!.id, partyIds: ['0'] },
-              { id: argent!.id, partyIds: ['2'] },
-            ],
-          },
-        },
-        ...restBallotStyles,
-      ],
-    };
-
     render(
       <CandidateContest
-        ballotStyleId={firstBallotStyle!.id}
-        election={election}
+        orderings={{
+          [contest.id]: [
+            { id: argent!.id, partyIds: ['0'] },
+            { id: argent!.id, partyIds: ['2'] },
+          ],
+        }}
+        election={straightPartyElection}
         contest={contest}
         vote={[]}
         updateVote={vi.fn()}

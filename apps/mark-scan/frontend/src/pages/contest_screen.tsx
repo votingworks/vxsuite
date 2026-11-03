@@ -27,7 +27,7 @@ function getReviewPageUrl(contestId?: ContestId) {
 
 export function ContestScreen(): JSX.Element {
   const {
-    ballotStyleId,
+    candidateOrderings,
     contests,
     electionDefinition,
     precinctId,
@@ -57,7 +57,7 @@ export function ContestScreen(): JSX.Element {
 
   return (
     <ContestPage
-      ballotStyleId={ballotStyleId}
+      candidateOrderings={candidateOrderings}
       contests={contests}
       electionDefinition={electionDefinition}
       getContestUrl={getContestUrl}

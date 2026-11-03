@@ -18,13 +18,12 @@ import {
 
 import { assert, assertDefined, find } from '@votingworks/basics';
 
-import {
-  type BallotStyleId,
-  type ElectionDefinition,
-  type PartyId,
-  type PrecinctId,
-  type VotesDict,
-  getBallotStyle,
+import type {
+  ElectionDefinition,
+  OptionalCandidateOrderings,
+  PartyId,
+  PrecinctId,
+  VotesDict,
 } from '@votingworks/types';
 import { Review, type ReviewProps } from '../components/review.js';
 import type { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests.js';
@@ -50,7 +49,7 @@ export interface ReviewPageProps {
   contests: ContestsWithMsEitherNeither;
   electionDefinition: ElectionDefinition;
   precinctId?: PrecinctId;
-  ballotStyleId?: BallotStyleId;
+  candidateOrderings: OptionalCandidateOrderings;
   printScreenUrl: string;
   returnToContest?: ReviewProps['returnToContest'];
   votes: VotesDict;
@@ -66,7 +65,7 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     contests,
     electionDefinition,
     precinctId,
-    ballotStyleId,
+    candidateOrderings,
     printScreenUrl,
     returnToContest,
     votes,
@@ -80,16 +79,7 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     typeof precinctId !== 'undefined',
     'precinctId is required to render ReviewPage'
   );
-  assert(
-    typeof ballotStyleId !== 'undefined',
-    'ballotStyleId is required to render ReviewPage'
-  );
   const { election } = electionDefinition;
-  const ballotStyle = getBallotStyle({
-    election,
-    ballotStyleId,
-  });
-  assert(ballotStyle, `Ballot style with id ${ballotStyleId} not found`);
 
   const printMyBallotButton = (
     <LinkButton
@@ -180,7 +170,7 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
           precinctId={precinctId}
           votes={votes}
           returnToContest={returnToContest}
-          ballotStyle={ballotStyle}
+          candidateOrderings={candidateOrderings}
           shouldTransliterateCandidateNames={shouldTransliterateCandidateNames}
         />
       </WithScrollButtons>

@@ -16,9 +16,7 @@ import {
 
 import { assert, assertDefined } from '@votingworks/basics';
 import { VoterScreen, Review } from '@votingworks/mark-flow-ui';
-import { getBallotStyle } from '@votingworks/types';
 import {
-  getElectionRecord,
   getInterpretation,
   getSystemSettings,
   invalidateBallot,
@@ -34,23 +32,23 @@ const ContentHeader = styled(ReadOnLoad)`
 
 export function ValidateBallotPage(): JSX.Element | null {
   const getInterpretationQuery = getInterpretation.useQuery();
-  const getElectionRecordQuery = getElectionRecord.useQuery();
   const systemSettingsQuery = getSystemSettings.useQuery();
   const shouldTransliterateCandidateNames = Boolean(
     systemSettingsQuery.data?.shouldTransliterateCandidateNames
   );
   // We use the contest data stored in BallotContext but vote data from the interpreted ballot
-  const { contests, precinctId, ballotStyleId, resetBallot } =
-    React.useContext(BallotContext);
+  const {
+    contests,
+    electionDefinition,
+    precinctId,
+    candidateOrderings,
+    resetBallot,
+  } = React.useContext(BallotContext);
   const VoterHelpScreen = useVoterHelpScreen('PostPrintReviewScreen');
 
   assert(
     typeof precinctId !== 'undefined',
     'precinctId is required to render ValidateBallotPage'
-  );
-  assert(
-    typeof ballotStyleId !== 'undefined',
-    'ballotStyleId is required to render ValidateBallotPage'
   );
 
   const invalidateBallotMutation = invalidateBallot.useMutation();
@@ -66,15 +64,14 @@ export function ValidateBallotPage(): JSX.Element | null {
     });
   }
 
-  if (!getInterpretationQuery.isSuccess || !getElectionRecordQuery.isSuccess) {
+  if (!getInterpretationQuery.isSuccess) {
     return null;
   }
-  const { electionDefinition } = assertDefined(getElectionRecordQuery.data);
-  const ballotStyle = getBallotStyle({
-    election: electionDefinition.election,
-    ballotStyleId,
-  });
-  assert(ballotStyle, `Ballot style with id ${ballotStyleId} not found`);
+
+  const { election } = assertDefined(
+    electionDefinition,
+    'election required for ValidateBallotPage'
+  );
 
   // Interpretation may be null on first redirect to this page
   const interpretation = getInterpretationQuery.data;
@@ -124,12 +121,12 @@ export function ValidateBallotPage(): JSX.Element | null {
       </ContentHeader>
       <WithScrollButtons>
         <Review
-          election={electionDefinition.election}
+          election={election}
           contests={contests}
           precinctId={precinctId}
           votes={votes}
           selectionsAreEditable={false}
-          ballotStyle={ballotStyle}
+          candidateOrderings={candidateOrderings}
           shouldTransliterateCandidateNames={shouldTransliterateCandidateNames}
         />
       </WithScrollButtons>

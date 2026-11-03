@@ -12,9 +12,9 @@ export function ReviewScreen(): JSX.Element {
   const history = useHistory();
   const location = useLocation();
   const {
+    candidateOrderings,
     contests,
     electionDefinition,
-    ballotStyleId,
     precinctId,
     selectedPartyId,
     votes,
@@ -39,7 +39,7 @@ export function ReviewScreen(): JSX.Element {
       contests={contests}
       electionDefinition={assertDefined(electionDefinition)}
       precinctId={precinctId}
-      ballotStyleId={ballotStyleId}
+      candidateOrderings={candidateOrderings}
       printScreenUrl="/print"
       returnToContest={(contestId) => {
         const contestIndex = contests.findIndex(({ id }) => id === contestId);

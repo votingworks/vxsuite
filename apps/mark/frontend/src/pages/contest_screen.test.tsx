@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { Route } from 'react-router-dom';
 import {
   electionCombinedBallotPrimaryFixtures,
@@ -7,6 +7,12 @@ import {
 import { createMemoryHistory } from 'history';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
 import { userEvent } from '@testing-library/user-event';
+import {
+  getContests,
+  type CandidateContest,
+  type CandidateOrderings,
+} from '@votingworks/types';
+import { assertDefined } from '@votingworks/basics';
 import { screen } from '../../test/react_testing_library.js';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config.js';
 
@@ -163,4 +169,56 @@ test('Back from first contest goes to party selection when a party is selected',
 
   await userEvent.click(screen.getButton(/back/i));
   expect(history.location.pathname).toEqual('/party-selection');
+});
+
+describe('propagates candidate orderings', () => {
+  const ballotStyle = electionGeneral.ballotStyles[0]!;
+
+  const contests = getContests({
+    ballotStyle,
+    election: electionGeneral,
+  }).filter((c): c is CandidateContest => c.type === 'candidate');
+
+  const contest = assertDefined(contests[0]);
+
+  function renderWithOrderings(orderings: CandidateOrderings | null) {
+    renderWithBallotContext(
+      <Route path="/contests/:contestNumber" component={ContestScreen} />,
+      {
+        ballotStyleId: ballotStyle.id,
+        candidateOrderings: orderings,
+        contests: [contest],
+        electionDefinition: {
+          ballotHash: 'unused',
+          election: electionGeneral,
+          electionData: 'unused',
+        },
+        precinctId: ballotStyle.precincts[0]!,
+        route: `/contests/0`,
+      }
+    );
+  }
+
+  test('explicit', () => {
+    const reversedCandidates = contest.candidates.toReversed();
+    renderWithOrderings({ [contest.id]: reversedCandidates });
+
+    const contestOptions = screen.getAllByRole('option');
+    expect(contestOptions).toHaveLength(reversedCandidates.length);
+
+    for (let i = 0; i < reversedCandidates.length; i += 1) {
+      expect(contestOptions[i]).toHaveTextContent(reversedCandidates[i]!.name);
+    }
+  });
+
+  test('null', () => {
+    renderWithOrderings(null);
+
+    const contestOptions = screen.getAllByRole('option');
+    expect(contestOptions).toHaveLength(contest.candidates.length);
+
+    for (let i = 0; i < contest.candidates.length; i += 1) {
+      expect(contestOptions[i]).toHaveTextContent(contest.candidates[i]!.name);
+    }
+  });
 });

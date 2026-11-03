@@ -99,26 +99,6 @@ export function getOrderedCandidates(p: {
   });
 }
 
-/**
- * @deprecated Use {@link getSortedCandidateVote}
- */
-// @coverage-defer: removing soon.
-export function getCandidateVoteSortedForBallotStyleRotation({
-  inputVote,
-  contest,
-  ballotStyle,
-}: {
-  inputVote: CandidateVote;
-  contest: CandidateContest;
-  ballotStyle: BallotStyle;
-}): CandidateVote {
-  return getSortedCandidateVote({
-    orderings: ballotStyle.orderedCandidatesByContest,
-    contest,
-    inputVote,
-  });
-}
-
 export function getSortedCandidateVote(p: {
   contest: CandidateContest;
   inputVote: CandidateVote;
