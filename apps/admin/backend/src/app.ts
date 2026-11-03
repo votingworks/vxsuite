@@ -121,6 +121,9 @@ import { rootDebug } from './util/debug.js';
 import { tabulateTallyReportResults } from './tabulation/tally_reports.js';
 import { buildExporter } from './util/exporter.js';
 import { configureFromElectionPackageFile } from './configure.js';
+import type { ElectionDesignService } from './design/election_design_service.js';
+
+const DESIGN_BALLOT_ZIP_PATTERN = /^(official|sample|test)-ballots-/;
 import {
   getCastVoteRecordsPath,
   importCastVoteRecords,
@@ -215,6 +218,7 @@ function buildApi({
   logger,
   multiUsbDrive,
   printer,
+  electionDesign,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
@@ -222,6 +226,10 @@ function buildApi({
   logger: Logger;
   multiUsbDrive: MultiUsbDrive;
   printer: Printer;
+  electionDesign?: Pick<
+    ElectionDesignService,
+    'getExportedElectionPackagePath'
+  >;
 }) {
   const { store } = workspace;
 
@@ -623,7 +631,8 @@ function buildApi({
 
         if (
           entry.type === FileSystemEntryType.File &&
-          entry.name.endsWith('.zip')
+          entry.name.endsWith('.zip') &&
+          !DESIGN_BALLOT_ZIP_PATTERN.test(entry.name)
         ) {
           potentialElectionPackages.push(entry);
         }
@@ -728,6 +737,31 @@ function buildApi({
           await rm(electionPackageFilePath, { force: true });
         }
       }
+    },
+
+    async configureFromDesign(input: {
+      designElectionId: string;
+    }): Promise<Result<{ electionId: Id }, ElectionPackageError | Error>> {
+      if (store.getCurrentElectionId()) {
+        return err(
+          new Error(
+            'VxAdmin is already configured. Unconfigure it before configuring from a design.'
+          )
+        );
+      }
+      if (!electionDesign) {
+        return err(new Error('Election design is not enabled.'));
+      }
+      const packagePathResult =
+        await electionDesign.getExportedElectionPackagePath(
+          input.designElectionId
+        );
+      if (packagePathResult.isErr()) return packagePathResult;
+      return configureFromElectionPackageFile({
+        store,
+        logger,
+        electionPackageFilePath: packagePathResult.ok(),
+      });
     },
 
     async unconfigure(): Promise<void> {
@@ -1741,6 +1775,7 @@ export function buildApp({
   logger,
   multiUsbDrive,
   printer,
+  electionDesign,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
@@ -1748,6 +1783,10 @@ export function buildApp({
   logger: Logger;
   multiUsbDrive: MultiUsbDrive;
   printer: Printer;
+  electionDesign?: Pick<
+    ElectionDesignService,
+    'getExportedElectionPackagePath'
+  >;
 }): Application {
   const app: Application = express();
   const api = buildApi({
@@ -1757,6 +1796,7 @@ export function buildApp({
     logger,
     multiUsbDrive,
     printer,
+    electionDesign,
   });
   app.use('/api', grout.buildRouter(api, express));
   return app;

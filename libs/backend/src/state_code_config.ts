@@ -1,38 +1,18 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { type StateCode, StateCodeSchema, safeParse } from '@votingworks/types';
-import {
-  getMockStateRootDir,
-  getRequiredEnvVar,
-  isIntegrationTest,
-  isNodeEnvProduction,
-} from '@votingworks/utils';
+import { getMockStateRootDir } from '@votingworks/utils';
 
-const STATE_CODE_FILENAME = 'state-code';
+const STATE_CODE_OVERRIDE_FILENAME = 'state-code';
 
-export function getDevVxConfigRoot(repoRoot: string): string {
+export function getDevStateCodeOverrideDir(repoRoot: string): string {
   return path.join(getMockStateRootDir(repoRoot), 'vx-config');
 }
 
-export function getStateCodeConfigFilePath({
-  devRoot,
-}: {
-  devRoot: string;
-}): string {
-  return path.join(
-    isNodeEnvProduction() && !isIntegrationTest()
-      ? getRequiredEnvVar('VX_CONFIG_ROOT')
-      : devRoot,
-    STATE_CODE_FILENAME
-  );
-}
-
-export function readStateCodeConfig({
-  devRoot,
-}: {
-  devRoot: string;
-}): StateCode | undefined {
-  const filePath = getStateCodeConfigFilePath({ devRoot });
+export function readDevStateCodeOverride(
+  devRoot: string
+): StateCode | undefined {
+  const filePath = path.join(devRoot, STATE_CODE_OVERRIDE_FILENAME);
   if (!existsSync(filePath)) return undefined;
   return safeParse(
     StateCodeSchema,
@@ -40,13 +20,13 @@ export function readStateCodeConfig({
   ).ok();
 }
 
-export function writeStateCodeConfig({
-  devRoot,
-  stateCode,
-}: {
-  devRoot: string;
-  stateCode: StateCode;
-}): void {
+export function writeDevStateCodeOverride(
+  devRoot: string,
+  stateCode: StateCode
+): void {
   mkdirSync(devRoot, { recursive: true });
-  writeFileSync(getStateCodeConfigFilePath({ devRoot }), `${stateCode}\n`);
+  writeFileSync(
+    path.join(devRoot, STATE_CODE_OVERRIDE_FILENAME),
+    `${stateCode}\n`
+  );
 }

@@ -1,109 +1,100 @@
-import { mkdtemp, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { fork } from 'node:child_process';
 import { join } from 'node:path';
-import {
-  GoogleCloudSpeechSynthesizer,
-  GoogleCloudTranslator,
-} from '@votingworks/backend';
-import { assertDefined, extractErrorMessage } from '@votingworks/basics';
-import {
-  type ElectionPackageExportContext,
-  generateElectionPackageAndBallots,
-  GenerateElectionPackageAndBallotsPayloadSchema,
-  getStateFeaturesConfig,
-  LocalDirectoryFileStorageClient,
-  type Store as DesignStore,
-} from '@votingworks/design-backend';
-import { type ElectionId, safeParseJson } from '@votingworks/types';
-import {
-  OFFLINE_TEXT_TO_SPEECH_CLIENT,
-  OFFLINE_TRANSLATION_CLIENT,
-} from './offline_clients.js';
+import type { BackgroundTaskStore } from '@votingworks/design-backend';
+import { getStateFeaturesConfig } from '@votingworks/design-backend';
+import { LogEventId, type BaseLogger } from '@votingworks/logging';
+import type { ElectionId, StateCode } from '@votingworks/types';
+import { assertDefined } from '@votingworks/basics';
+import { type ExportChildArgs, resolveDesignFileUrl } from './export_child.js';
 
-const RENDER_POOL_SIZE = 4;
+const RENDERER_POOL_SIZE = 4;
+const EXPORT_CHILD_MAX_HEAP_MB = 3072;
+const WATCHDOG_TIMEOUT_MS = 5 * 60 * 1000;
+const WATCHDOG_INTERVAL_MS = 10 * 1000;
 
 export interface DesignExporter {
-  readonly fileStorageClient: LocalDirectoryFileStorageClient;
-  readonly translator: GoogleCloudTranslator;
-  readonly speechSynthesizer: GoogleCloudSpeechSynthesizer;
-  startExport(electionId: ElectionId): Promise<void>;
+  readonly filesRoot: string;
+  isExporting(): boolean;
+  startExport(electionId: ElectionId, stateCode: StateCode): Promise<void>;
   resolveFileUrl(url: string): string;
 }
 
 export function createDesignExporter({
-  designStore,
+  tasks,
   filesRoot,
+  logger,
 }: {
-  designStore: DesignStore;
+  tasks: BackgroundTaskStore;
   filesRoot: string;
+  logger: BaseLogger;
 }): DesignExporter {
-  const fileStorageClient = new LocalDirectoryFileStorageClient(filesRoot);
-  const context: ElectionPackageExportContext = {
-    fileStorageClient,
-    translator: new GoogleCloudTranslator({
-      translationClient: OFFLINE_TRANSLATION_CLIENT,
-    }),
-    speechSynthesizer: new GoogleCloudSpeechSynthesizer({
-      textToSpeechClient: OFFLINE_TEXT_TO_SPEECH_CLIENT,
-    }),
-    workspace: { store: designStore },
-    rendererPoolSize: RENDER_POOL_SIZE,
-  };
+  let running = false;
 
-  async function runExportTask(electionId: ElectionId): Promise<void> {
-    const { task } = await designStore.getElectionPackage(electionId);
-    const taskId = assertDefined(task).id;
-    const payload = safeParseJson(
-      assertDefined(task).payload,
-      GenerateElectionPackageAndBallotsPayloadSchema
-    ).unsafeUnwrap();
-    const scratchPath = await mkdtemp(join(tmpdir(), 'vxadmin-design-'));
-    await designStore.startBackgroundTask(taskId);
-    try {
-      await generateElectionPackageAndBallots(
-        context,
-        payload,
-        (label, progress, total) => {
-          void designStore.updateBackgroundTaskProgress(taskId, {
-            label,
-            progress,
-            total,
-          });
-        },
-        { path: scratchPath }
-      );
-      await designStore.completeBackgroundTask(taskId);
-    } catch (error) {
-      await designStore.completeBackgroundTask(
-        taskId,
-        extractErrorMessage(error)
-      );
-    } finally {
-      await rm(scratchPath, { recursive: true, force: true });
+  async function failTask(taskId: string, message: string): Promise<void> {
+    const task = await tasks.getBackgroundTask(taskId);
+    if (task && !task.completedAt) {
+      await tasks.completeBackgroundTask(taskId, message);
     }
   }
 
   return {
-    fileStorageClient,
-    translator: context.translator,
-    speechSynthesizer: context.speechSynthesizer,
+    filesRoot,
 
-    async startExport(electionId) {
-      const jurisdiction =
-        await designStore.getElectionJurisdiction(electionId);
-      const features = getStateFeaturesConfig(jurisdiction);
-      await designStore.createElectionPackageBackgroundTask({
+    isExporting: () => running,
+
+    async startExport(electionId, stateCode) {
+      if (running) {
+        throw new Error('An election design export is already running.');
+      }
+      const features = getStateFeaturesConfig({ stateCode });
+      await tasks.createElectionPackageBackgroundTask({
         electionId,
         electionSerializationFormat: 'vxf',
         shouldExportAudio: false,
         shouldExportSampleBallots: !!features.EXPORT_SAMPLE_BALLOTS,
         shouldExportTestBallots: !!features.EXPORT_TEST_BALLOTS,
       });
-      void runExportTask(electionId);
+      const taskId = assertDefined(
+        (await tasks.getElectionPackage(electionId)).task
+      ).id;
+      const args: ExportChildArgs = {
+        electionId,
+        stateCode,
+        filesRoot,
+        rendererPoolSize: RENDERER_POOL_SIZE,
+      };
+      running = true;
+      const child = fork(
+        join(import.meta.dirname, 'export_child.js'),
+        [JSON.stringify(args)],
+        { execArgv: [`--max-old-space-size=${EXPORT_CHILD_MAX_HEAP_MB}`] }
+      );
+      let lastProgressAt = Date.now();
+      child.on('message', () => {
+        lastProgressAt = Date.now();
+      });
+      const watchdog = setInterval(() => {
+        if (Date.now() - lastProgressAt > WATCHDOG_TIMEOUT_MS) {
+          child.kill('SIGKILL');
+          void failTask(
+            taskId,
+            'Export stopped making progress and was stopped.'
+          );
+        }
+      }, WATCHDOG_INTERVAL_MS);
+      child.on('exit', (code, signal) => {
+        clearInterval(watchdog);
+        running = false;
+        if (code !== 0) {
+          logger.log(LogEventId.UnknownError, 'system', {
+            message: `Election design export exited (code ${code}, signal ${signal}).`,
+            disposition: 'failure',
+          });
+          void failTask(taskId, 'Export process exited unexpectedly.');
+        }
+      });
     },
 
-    resolveFileUrl(url) {
-      return fileStorageClient.resolvePath(url.replace(/^\/files\//, ''));
-    },
+    resolveFileUrl: (url) => resolveDesignFileUrl(filesRoot, url),
   };
 }

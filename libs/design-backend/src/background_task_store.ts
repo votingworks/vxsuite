@@ -452,4 +452,22 @@ export class BackgroundTaskStore {
       `)
     );
   }
+
+  async clearElectionPackageExport(electionId: ElectionId): Promise<void> {
+    await this.db.withClient((client) =>
+      client.query(
+        `
+          update elections
+          set
+            election_package_task_id = null,
+            election_package_url = null,
+            official_ballots_url = null,
+            sample_ballots_url = null,
+            test_ballots_url = null
+          where id = $1
+        `,
+        electionId
+      )
+    );
+  }
 }

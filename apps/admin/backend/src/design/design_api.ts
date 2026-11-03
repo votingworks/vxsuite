@@ -1,131 +1,144 @@
+import type { Buffer } from 'node:buffer';
+import { createReadStream, existsSync } from 'node:fs';
+import { readFile, stat } from 'node:fs/promises';
+import { basename, join } from 'node:path';
 import type { DippedSmartCardAuthApi } from '@votingworks/auth';
 import {
-  buildBallotPreviewMethods,
-  buildTtsMethods,
-  buildElectionDefinitionMethods,
-  cloneElection,
-  generateId,
-  type ElectionListing,
-  type MainExportTaskMetadata,
-  getStateFeaturesConfig,
-  type StateCode,
-  type StateFeaturesConfig,
-  type Store as DesignStore,
-} from '@votingworks/design-backend';
-import * as grout from '@votingworks/grout';
-import {
-  type ElectionId,
-  type SystemSettings,
-  unsafeParse,
-} from '@votingworks/types';
-import { err, ok, type Result } from '@votingworks/basics';
-import {
-  type ElectionPackageError,
   type ExportDataError,
-  getDevVxConfigRoot,
-  readStateCodeConfig,
+  GoogleCloudSpeechSynthesizer,
+  GoogleCloudTranslator,
   readElectionPackageFromFile,
 } from '@votingworks/backend';
+import { err, ok, type Result } from '@votingworks/basics';
+import {
+  buildBallotPreviewMethods,
+  buildElectionDefinitionMethods,
+  buildTtsMethods,
+  cloneElection,
+  type ElectionListing,
+  generateId,
+  type MainExportTaskMetadata,
+  type StateFeaturesConfig,
+  type TtsEditsStore,
+} from '@votingworks/design-backend';
+import * as grout from '@votingworks/grout';
+import { LogEventId, type Logger } from '@votingworks/logging';
+import type { ElectionId, StateCode, SystemSettings } from '@votingworks/types';
 import {
   createUsbDriveAdapter,
   findDriveByPurpose,
   type MultiUsbDrive,
 } from '@votingworks/usb-drive';
-import { createReadStream } from 'node:fs';
-import { stat } from 'node:fs/promises';
-import { basename, join } from 'node:path';
-import { buildExporter } from '../util/exporter.js';
-import { configureFromElectionPackageFile } from '../configure.js';
-import type { DesignExporter } from './design_export.js';
-import { LogEventId, type Logger } from '@votingworks/logging';
-import { readFile } from 'node:fs/promises';
-import type { Workspace } from '../util/workspace.js';
 import { constructAuthMachineState } from '../util/auth.js';
-import { getLocalJurisdiction, LOCAL_JURISDICTION_ID } from './design_store.js';
+import { buildExporter } from '../util/exporter.js';
+import type { Workspace } from '../util/workspace.js';
+import {
+  type AdminDesignStores,
+  LOCAL_JURISDICTION_ID,
+  LOCAL_JURISDICTION_NAME,
+  syncLocalJurisdiction,
+} from './design_db.js';
+import type { DesignExporter } from './design_export.js';
+import {
+  englishOnlyStateFeatures,
+  localJurisdiction,
+} from './design_features.js';
+import { getMachineDesignState } from './design_state.js';
+import {
+  OFFLINE_TEXT_TO_SPEECH_CLIENT,
+  OFFLINE_TRANSLATION_CLIENT,
+} from './offline_clients.js';
 
-const DEV_VX_CONFIG_ROOT = getDevVxConfigRoot(
-  join(import.meta.dirname, '../../../../..')
-);
-
-const DEFAULT_STATE_CODE: StateCode = 'DEMO';
+export type DesignStatus =
+  | { status: 'ready'; stateCode: StateCode }
+  | { status: 'unsupported-state'; jurisdiction: string };
 
 class DesignAuthError extends grout.UserError {}
 
-function withEnglishOnlyFeatures(
-  features: StateFeaturesConfig
-): StateFeaturesConfig {
-  return { ...features, AUDIO_ENABLED: false, BALLOT_LANGUAGE_CONFIG: false };
+const UNSUPPORTED_TTS_EDITS: TtsEditsStore = {
+  ttsEditsAll: () => Promise.resolve([]),
+  ttsEditsGet: () => Promise.resolve(null),
+  ttsEditsSet: () =>
+    Promise.reject(new Error('Audio editing is not available in VxAdmin.')),
+};
+
+function supportedStateCode(): StateCode {
+  const state = getMachineDesignState();
+  if (state.status !== 'supported') {
+    throw new DesignAuthError('design:unsupported-state');
+  }
+  return state.stateCode;
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildDesignApi({
   auth,
   workspace,
-  designStore,
+  stores,
   logger,
   multiUsbDrive,
   designExporter,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
-  designStore: DesignStore;
+  stores: AdminDesignStores;
   logger: Logger;
   multiUsbDrive: MultiUsbDrive;
   designExporter: DesignExporter;
 }) {
+  const { elections, tasks } = stores;
   const usbDriveAdapter = createUsbDriveAdapter(multiUsbDrive, (drives) =>
     findDriveByPurpose(drives, 'data')
   );
-
-  async function requireSystemAdministrator(): Promise<void> {
-    const authStatus = await auth.getAuthStatus(
-      constructAuthMachineState(workspace.store)
-    );
-    if (
-      authStatus.status !== 'logged_in' ||
-      authStatus.user.role !== 'system_administrator'
-    ) {
-      throw new DesignAuthError('auth:forbidden');
-    }
-  }
-
-  const electionDefinitionMethods = buildElectionDefinitionMethods({
-    store: designStore,
+  const features = {
+    getJurisdiction: () =>
+      Promise.resolve(localJurisdiction(supportedStateCode())),
+    getStateFeatures: () =>
+      Promise.resolve(englishOnlyStateFeatures(supportedStateCode())),
+  };
+  const translator = new GoogleCloudTranslator({
+    translationClient: OFFLINE_TRANSLATION_CLIENT,
   });
 
-  const ballotPreviewMethods = buildBallotPreviewMethods({
-    store: designStore,
-    translator: designExporter.translator,
+  const electionDefinitionMethods = buildElectionDefinitionMethods({
+    store: elections,
+    features,
   });
 
   const methods = {
     ...electionDefinitionMethods,
-    ...ballotPreviewMethods,
+    ...buildBallotPreviewMethods({ store: elections, translator }),
     ...buildTtsMethods({
-      speechSynthesizer: designExporter.speechSynthesizer,
-      workspace: { store: designStore },
+      elections,
+      ttsEdits: UNSUPPORTED_TTS_EDITS,
+      speechSynthesizer: new GoogleCloudSpeechSynthesizer({
+        textToSpeechClient: OFFLINE_TEXT_TO_SPEECH_CLIENT,
+      }),
     }),
 
-    async getStateFeatures(input: {
-      electionId: ElectionId;
-    }): Promise<StateFeaturesConfig> {
-      return withEnglishOnlyFeatures(
-        await electionDefinitionMethods.getStateFeatures(input)
-      );
+    getDesignStatus(): DesignStatus {
+      const state = getMachineDesignState();
+      return state.status === 'supported'
+        ? { status: 'ready', stateCode: state.stateCode }
+        : { status: 'unsupported-state', jurisdiction: state.jurisdiction };
     },
 
-    async getLocalJurisdictionId(): Promise<string> {
+    getLocalJurisdictionId(): string {
       return LOCAL_JURISDICTION_ID;
     },
 
-    async getDesignStateCode(): Promise<StateCode> {
-      return (await getLocalJurisdiction(designStore)).stateCode;
+    getLocalStateFeatures(): StateFeaturesConfig {
+      return englishOnlyStateFeatures(supportedStateCode());
     },
 
-    async getLocalStateFeatures(): Promise<StateFeaturesConfig> {
-      return withEnglishOnlyFeatures(
-        getStateFeaturesConfig(await getLocalJurisdiction(designStore))
-      );
+    async listElections(): Promise<ElectionListing[]> {
+      const listings = await elections.listElections({
+        jurisdictionIds: [LOCAL_JURISDICTION_ID],
+      });
+      return listings.map((listing) => ({
+        ...listing,
+        jurisdictionName: LOCAL_JURISDICTION_NAME,
+      }));
     },
 
     async loadElectionPackage(input: {
@@ -156,58 +169,91 @@ export function buildDesignApi({
         jurisdictionId: LOCAL_JURISDICTION_ID,
       });
       if (loadResult.isOk() && systemSettings) {
-        await designStore.updateSystemSettings(loadResult.ok(), systemSettings);
+        await elections.updateSystemSettings(loadResult.ok(), systemSettings);
       }
       return loadResult;
+    },
+
+    async duplicateElection(input: {
+      electionId: ElectionId;
+    }): Promise<ElectionId> {
+      const destElectionId = generateId();
+      await cloneElection(elections, {
+        sourceElectionId: input.electionId,
+        destElectionId,
+        destJurisdiction: localJurisdiction(supportedStateCode()),
+      });
+      return destElectionId;
     },
 
     getElectionPackage(input: {
       electionId: ElectionId;
     }): Promise<MainExportTaskMetadata> {
-      return designStore.getElectionPackage(input.electionId);
+      return tasks.getElectionPackage(input.electionId);
     },
 
     async finalizeAndExportBallots(input: {
       electionId: ElectionId;
     }): Promise<void> {
-      await designStore.setBallotsFinalizedAt({
+      await elections.setBallotsFinalizedAt({
         electionId: input.electionId,
         finalizedAt: new Date(),
       });
-      await designExporter.startExport(input.electionId);
+      await designExporter.startExport(input.electionId, supportedStateCode());
     },
 
     async unfinalizeBallots(input: { electionId: ElectionId }): Promise<void> {
-      await designStore.setBallotsFinalizedAt({
+      await elections.setBallotsFinalizedAt({
         electionId: input.electionId,
         finalizedAt: null,
       });
+      await tasks.clearElectionPackageExport(input.electionId);
+    },
+
+    async saveProofToUsb(input: {
+      fileName: string;
+      data: Buffer;
+    }): Promise<Result<string, ExportDataError>> {
+      const fileName = basename(input.fileName);
+      const directory = join('election-design', 'proofs');
+      const result = await buildExporter(usbDriveAdapter).exportDataToUsbDrive(
+        directory,
+        fileName,
+        input.data
+      );
+      return result.isOk() ? ok(join(directory, fileName)) : result;
     },
 
     async saveDesignExportToUsb(input: {
       electionId: ElectionId;
     }): Promise<Result<string[], ExportDataError | Error>> {
-      const exported = await designStore.getElectionPackage(input.electionId);
-      const urls = [
-        exported.electionPackageUrl,
-        exported.officialBallotsUrl,
-        exported.sampleBallotsUrl,
-        exported.testBallotsUrl,
-      ].filter((url): url is string => !!url);
+      const exported = await tasks.getElectionPackage(input.electionId);
       if (!exported.electionPackageUrl) {
         return err(new Error('Ballots have not been exported yet.'));
       }
-      const { title } = await designStore
-        .getElection(input.electionId)
-        .then((record) => record.election);
+      const packagePath = designExporter.resolveFileUrl(
+        exported.electionPackageUrl
+      );
+      const filePaths = [
+        packagePath,
+        `${packagePath}.vxsig`,
+        ...[
+          exported.officialBallotsUrl,
+          exported.sampleBallotsUrl,
+          exported.testBallotsUrl,
+        ]
+          .filter((url): url is string => !!url)
+          .map((url) => designExporter.resolveFileUrl(url)),
+      ].filter((filePath) => existsSync(filePath));
+      const { title } = (await elections.getElection(input.electionId))
+        .election;
       const directory = join(
         'election-design',
         `${title.replace(/[^\w-]+/g, '-') || 'election'}-${input.electionId}`
       );
       const exporter = buildExporter(usbDriveAdapter);
       const savedFiles: string[] = [];
-      for (const url of urls) {
-        const filePath = designExporter.resolveFileUrl(url);
+      for (const filePath of filePaths) {
         const fileName = basename(filePath);
         const result = await exporter.exportDataToUsbDrive(
           directory,
@@ -220,74 +266,31 @@ export function buildDesignApi({
       }
       return ok(savedFiles);
     },
-
-    async configureFromDesign(input: {
-      electionId: ElectionId;
-    }): Promise<Result<{ electionId: string }, ElectionPackageError | Error>> {
-      if (workspace.store.getCurrentElectionId()) {
-        return err(
-          new Error(
-            'VxAdmin is already configured. Unconfigure it before configuring from a design.'
-          )
-        );
-      }
-      const finalizedAt = await designStore.getBallotsFinalizedAt(
-        input.electionId
-      );
-      const { task, electionPackageUrl } = await designStore.getElectionPackage(
-        input.electionId
-      );
-      if (
-        !finalizedAt ||
-        !electionPackageUrl ||
-        !task?.completedAt ||
-        task.error ||
-        task.createdAt < finalizedAt
-      ) {
-        return err(new Error('Finalize and export ballots first.'));
-      }
-      return configureFromElectionPackageFile({
-        store: workspace.store,
-        logger,
-        electionPackageFilePath:
-          designExporter.resolveFileUrl(electionPackageUrl),
-      });
-    },
-
-    async duplicateElection(input: {
-      electionId: ElectionId;
-    }): Promise<ElectionId> {
-      const destElectionId = generateId();
-      await cloneElection(designStore, {
-        sourceElectionId: input.electionId,
-        destElectionId,
-        destJurisdiction: await getLocalJurisdiction(designStore),
-      });
-      return destElectionId;
-    },
-
-    listElections(): Promise<ElectionListing[]> {
-      return designStore.listElections({
-        jurisdictionIds: [LOCAL_JURISDICTION_ID],
-      });
-    },
   } as const;
 
-  async function syncStateCodeFromConfig(): Promise<void> {
-    const stateCode =
-      readStateCodeConfig({ devRoot: DEV_VX_CONFIG_ROOT }) ??
-      DEFAULT_STATE_CODE;
-    const jurisdiction = await getLocalJurisdiction(designStore);
-    if (jurisdiction.stateCode !== stateCode) {
-      await designStore.updateJurisdictionStateCode(
-        LOCAL_JURISDICTION_ID,
-        stateCode
-      );
+  async function requireSystemAdministrator(): Promise<void> {
+    const authStatus = await auth.getAuthStatus(
+      constructAuthMachineState(workspace.store)
+    );
+    if (
+      authStatus.status !== 'logged_in' ||
+      authStatus.user.role !== 'system_administrator'
+    ) {
+      throw new DesignAuthError('auth:forbidden');
     }
   }
 
+  async function requireSupportedState({
+    methodName,
+  }: {
+    methodName: string;
+  }): Promise<void> {
+    if (methodName === 'getDesignStatus') return;
+    await syncLocalJurisdiction(stores.db, supportedStateCode());
+  }
+
   return grout.createApi(methods, {
-    before: [requireSystemAdministrator, syncStateCodeFromConfig],
+    before: [requireSystemAdministrator, requireSupportedState],
     after: [
       async ({ methodName, input }, result) => {
         if (/^(list|get)/.test(methodName)) return;

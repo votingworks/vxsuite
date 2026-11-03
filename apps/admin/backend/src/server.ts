@@ -40,7 +40,7 @@ import {
   resolveWorkspacePath,
 } from './util/workspace.js';
 import { buildApp } from './app.js';
-import { mountElectionDesign } from './design/mount_election_design.js';
+import { startElectionDesignService } from './design/election_design_service.js';
 import { buildClientApp } from './client_app.js';
 import { buildPeerApp } from './peer_app.js';
 import { buildRestoreApp, RESTORE_MODE_STORE } from './restore_app.js';
@@ -189,6 +189,18 @@ export async function start(options: StartOptions = {}): Promise<Server> {
         });
       }
 
+      const electionDesign = isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.ENABLE_ADMIN_ELECTION_DESIGN
+      )
+        ? startElectionDesignService({
+            auth,
+            workspace,
+            logger,
+            baseLogger,
+            multiUsbDrive,
+          })
+        : undefined;
+
       app = buildApp({
         auth,
         logger,
@@ -196,21 +208,11 @@ export async function start(options: StartOptions = {}): Promise<Server> {
         printer,
         workspace,
         machineMode,
+        electionDesign,
       });
 
-      if (
-        isFeatureFlagEnabled(
-          BooleanEnvironmentVariableName.ENABLE_ADMIN_ELECTION_DESIGN
-        )
-      ) {
-        mountElectionDesign({
-          app,
-          auth,
-          workspace,
-          logger,
-          baseLogger,
-          multiUsbDrive,
-        });
+      if (electionDesign) {
+        app.use('/design-api', electionDesign.router);
       }
 
       // Log election results data check at startup

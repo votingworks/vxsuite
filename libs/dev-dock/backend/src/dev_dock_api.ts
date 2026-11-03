@@ -46,10 +46,10 @@ import {
   readTextEntry,
 } from '@votingworks/utils';
 import {
-  getDevVxConfigRoot,
+  getDevStateCodeOverrideDir,
   getMostRecentElectionPackageFilepath,
-  readStateCodeConfig,
-  writeStateCodeConfig,
+  readDevStateCodeOverride,
+  writeDevStateCodeOverride,
 } from '@votingworks/backend';
 import { type StateCode, StateCodes } from '@votingworks/types';
 import {
@@ -439,7 +439,7 @@ function buildApi(
 
     getStateCode(): StateCode | null {
       return (
-        readStateCodeConfig({ devRoot: getDevVxConfigRoot(REPO_ROOT) }) ?? null
+        readDevStateCodeOverride(getDevStateCodeOverrideDir(REPO_ROOT)) ?? null
       );
     },
 
@@ -449,10 +449,10 @@ function buildApi(
 
     setStateCode(input: { stateCode: StateCode }): void {
       assert(StateCodes.includes(input.stateCode));
-      writeStateCodeConfig({
-        devRoot: getDevVxConfigRoot(REPO_ROOT),
-        stateCode: input.stateCode,
-      });
+      writeDevStateCodeOverride(
+        getDevStateCodeOverrideDir(REPO_ROOT),
+        input.stateCode
+      );
     },
 
     async getAvailableElections(): Promise<DevDockElectionOption[]> {
