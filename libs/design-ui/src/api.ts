@@ -442,12 +442,8 @@ export const deleteElection = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.deleteElection, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(['design', 'listElections'], {
-          // Ensure list of elections is refetched in the background so it's
-          // fresh when we redirect to elections list
-          refetchType: 'all',
-        });
+      onSuccess() {
+        queryClient.removeQueries(['design']);
       },
     });
   },
