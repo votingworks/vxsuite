@@ -1,38 +1,33 @@
-import React, { useState } from 'react';
-import { Button, P } from '@votingworks/ui';
-import { NavigationScreen } from '../components/navigation_screen.js';
-import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
+import React, { useMemo } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
+import { Button, P } from '@votingworks/ui';
 import {
-  ApiClientContext,
   BallotScreen,
   ContestsScreen,
-  createQueryClient,
-  DesignShellContext,
+  DesignContext,
+  type DesignContextValue,
   DistrictsScreen,
   ElectionInfoScreen,
-  electionParamRoutes,
   PartiesScreen,
   PollingPlacesScreen,
   PrecinctsScreen,
-  routes,
-  setRoutesBasePath,
+  useDesignRoutes,
 } from '@votingworks/design-ui';
+import { NavigationScreen } from '../components/navigation_screen.js';
 import { ADMIN_DESIGN_SHELL } from './admin_design_shell.js';
 import {
-  AdminQueryClientContext,
   asDesignUiApiClient,
   createAdminDesignApiClient,
-  getDesignAvailability,
+  getDesignStatus,
+  saveProofToUsb,
 } from './design_api.js';
 import { DesignBallotsScreen } from './design_ballots_screen.js';
 import { DesignElectionsScreen } from './design_elections_screen.js';
 
 export const DESIGN_BASE_PATH = '/design';
 
-setRoutesBasePath(DESIGN_BASE_PATH);
-
 function DesignElectionScreens(): JSX.Element {
+  const electionParamRoutes = useDesignRoutes().election(':electionId');
   return (
     <Switch>
       <Route
@@ -80,14 +75,14 @@ function DesignElectionScreens(): JSX.Element {
   );
 }
 
-function DesignAvailabilityGate({
+function DesignStatusGate({
   children,
 }: {
   children: React.ReactNode;
 }): JSX.Element | null {
-  const availabilityQuery = getDesignAvailability.useQuery();
-  if (availabilityQuery.isLoading) return null;
-  if (availabilityQuery.isError) {
+  const statusQuery = getDesignStatus.useQuery();
+  if (statusQuery.isLoading) return null;
+  if (statusQuery.isError) {
     return (
       <NavigationScreen title="Election Design">
         <P>
@@ -95,40 +90,59 @@ function DesignAvailabilityGate({
           reached. The rest of VxAdmin is unaffected.
         </P>
         <Button
-          onPress={() => availabilityQuery.refetch()}
-          disabled={availabilityQuery.isFetching}
+          onPress={() => statusQuery.refetch()}
+          disabled={statusQuery.isFetching}
         >
           Try Again
         </Button>
       </NavigationScreen>
     );
   }
+  if (statusQuery.data?.status === 'unsupported-state') {
+    return (
+      <NavigationScreen title="Election Design">
+        <P>
+          Election design is not available for this machine&apos;s jurisdiction
+          ({statusQuery.data.jurisdiction}). No state profile is configured for
+          it.
+        </P>
+      </NavigationScreen>
+    );
+  }
   return <React.Fragment>{children}</React.Fragment>;
 }
 
-export function DesignArea(): JSX.Element {
-  const adminQueryClient = useQueryClient();
-  const [queryClient] = useState(createQueryClient);
-  const [apiClient] = useState(() =>
-    asDesignUiApiClient(createAdminDesignApiClient())
-  );
+function DesignRoutes(): JSX.Element {
+  const routes = useDesignRoutes();
   return (
-    <AdminQueryClientContext.Provider value={adminQueryClient}>
-      <QueryClientProvider client={queryClient}>
-        <ApiClientContext.Provider value={apiClient}>
-          <DesignShellContext.Provider value={ADMIN_DESIGN_SHELL}>
-            <Switch>
-              <Route exact path={routes.root.path}>
-                <DesignElectionsScreen />
-              </Route>
-              <Route
-                path={electionParamRoutes.root.path}
-                component={DesignElectionScreens}
-              />
-            </Switch>
-          </DesignShellContext.Provider>
-        </ApiClientContext.Provider>
-      </QueryClientProvider>
-    </AdminQueryClientContext.Provider>
+    <Switch>
+      <Route exact path={routes.root.path}>
+        <DesignElectionsScreen />
+      </Route>
+      <Route
+        path={routes.election(':electionId').root.path}
+        component={DesignElectionScreens}
+      />
+    </Switch>
+  );
+}
+
+export function DesignArea(): JSX.Element {
+  const designContext = useMemo((): DesignContextValue => {
+    const adminDesignApiClient = createAdminDesignApiClient();
+    return {
+      ...ADMIN_DESIGN_SHELL,
+      apiClient: asDesignUiApiClient(adminDesignApiClient),
+      basePath: DESIGN_BASE_PATH,
+      saveFile: (data, fileName) =>
+        saveProofToUsb(adminDesignApiClient, data, fileName),
+    };
+  }, []);
+  return (
+    <DesignContext.Provider value={designContext}>
+      <DesignStatusGate>
+        <DesignRoutes />
+      </DesignStatusGate>
+    </DesignContext.Provider>
   );
 }

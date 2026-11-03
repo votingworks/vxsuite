@@ -1,15 +1,14 @@
 import type { DesignApi } from '@votingworks/admin-backend';
-import React from 'react';
 import {
   type ApiClient,
   getBallotsFinalizedAt,
   listElections,
   useApiClient,
 } from '@votingworks/design-ui';
-import type { ElectionId } from '@votingworks/types';
 import * as grout from '@votingworks/grout';
+import type { ElectionId } from '@votingworks/types';
+import { Buffer } from 'node:buffer';
 import {
-  type QueryClient,
   type QueryKey,
   useMutation,
   useQuery,
@@ -30,23 +29,36 @@ function useAdminDesignApiClient(): AdminDesignApiClient {
   return useApiClient() as unknown as AdminDesignApiClient;
 }
 
+export async function saveProofToUsb(
+  client: AdminDesignApiClient,
+  data: Uint8Array,
+  fileName: string
+): Promise<void> {
+  (
+    await client.saveProofToUsb({ fileName, data: Buffer.from(data) })
+  ).unsafeUnwrap();
+}
+
+export const getDesignStatus = {
+  queryKey(): QueryKey {
+    return ['design', 'getDesignStatus'];
+  },
+  useQuery() {
+    const apiClient = useAdminDesignApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getDesignStatus(), {
+      retry: false,
+      useErrorBoundary: false,
+    });
+  },
+} as const;
+
 export const getLocalJurisdictionId = {
   queryKey(): QueryKey {
-    return ['getLocalJurisdictionId'];
+    return ['design', 'getLocalJurisdictionId'];
   },
   useQuery() {
     const apiClient = useAdminDesignApiClient();
     return useQuery(this.queryKey(), () => apiClient.getLocalJurisdictionId());
-  },
-} as const;
-
-export const getDesignStateCode = {
-  queryKey(): QueryKey {
-    return ['getDesignStateCode'];
-  },
-  useQuery() {
-    const apiClient = useAdminDesignApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getDesignStateCode());
   },
 } as const;
 
@@ -66,15 +78,11 @@ export const loadElectionPackage = {
   },
 } as const;
 
-export const AdminQueryClientContext = React.createContext<
-  QueryClient | undefined
->(undefined);
-
 const EXPORT_POLLING_INTERVAL_MS = 1000;
 
 export const getElectionPackage = {
   queryKey(electionId: ElectionId): QueryKey {
-    return ['getElectionPackage', electionId];
+    return ['design', 'getElectionPackage', electionId];
   },
   useQuery(electionId: ElectionId) {
     const apiClient = useAdminDesignApiClient();
@@ -118,6 +126,9 @@ export const unfinalizeBallots = {
         await queryClient.invalidateQueries(
           getBallotsFinalizedAt.queryKey(electionId)
         );
+        await queryClient.invalidateQueries(
+          getElectionPackage.queryKey(electionId)
+        );
         await queryClient.invalidateQueries(listElections.queryKey());
       },
     });
@@ -131,20 +142,6 @@ export const saveDesignExportToUsb = {
   },
 } as const;
 
-export const configureFromDesign = {
-  useMutation() {
-    const apiClient = useAdminDesignApiClient();
-    const adminQueryClient = React.useContext(AdminQueryClientContext);
-    return useMutation(apiClient.configureFromDesign, {
-      async onSuccess(result) {
-        if (result.isOk()) {
-          await adminQueryClient?.invalidateQueries();
-        }
-      },
-    });
-  },
-} as const;
-
 export const duplicateElection = {
   useMutation() {
     const apiClient = useAdminDesignApiClient();
@@ -154,22 +151,5 @@ export const duplicateElection = {
         await queryClient.invalidateQueries(listElections.queryKey());
       },
     });
-  },
-} as const;
-
-export const getDesignAvailability = {
-  queryKey(): QueryKey {
-    return ['getDesignAvailability'];
-  },
-  useQuery() {
-    const apiClient = useAdminDesignApiClient();
-    return useQuery(
-      this.queryKey(),
-      async () => {
-        await apiClient.getLocalJurisdictionId();
-        return true;
-      },
-      { retry: false, useErrorBoundary: false }
-    );
   },
 } as const;

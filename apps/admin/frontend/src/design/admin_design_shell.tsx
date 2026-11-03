@@ -12,10 +12,10 @@ import {
   Screen,
 } from '@votingworks/ui';
 import {
-  type DesignShell,
+  type DesignContextValue,
   getElectionInfo,
   getStateFeatures,
-  routes,
+  useDesignRoutes,
 } from '@votingworks/design-ui';
 import { useRouteMatch } from 'react-router-dom';
 
@@ -27,6 +27,7 @@ function DesignElectionNavScreen({
   children: React.ReactNode;
 }): JSX.Element | null {
   const currentRoute = useRouteMatch();
+  const routes = useDesignRoutes();
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
   const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
   if (!getElectionInfoQuery.isSuccess || !getStateFeaturesQuery.isSuccess) {
@@ -82,7 +83,10 @@ function DesignHeader({
   );
 }
 
-export const ADMIN_DESIGN_SHELL: DesignShell = {
+export const ADMIN_DESIGN_SHELL: Pick<
+  DesignContextValue,
+  'ElectionNavScreen' | 'Header'
+> = {
   ElectionNavScreen: DesignElectionNavScreen,
   Header: DesignHeader,
 };

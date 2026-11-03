@@ -6,14 +6,14 @@ import {
   createElection,
   generateId,
   listElections,
-  routes,
+  useDesignRoutes,
 } from '@votingworks/design-ui';
 import { Button, H2, LinkButton, P, Table, TD, TH } from '@votingworks/ui';
 import { NavigationScreen } from '../components/navigation_screen.js';
 import { LoadElectionPackageModal } from './load_election_package_modal.js';
 import {
   duplicateElection,
-  getDesignStateCode,
+  getDesignStatus,
   getLocalJurisdictionId,
 } from './design_api.js';
 
@@ -33,17 +33,18 @@ function electionStatusLabel(status: ElectionStatus): string {
 
 export function DesignElectionsScreen(): JSX.Element | null {
   const history = useHistory();
+  const routes = useDesignRoutes();
   const listElectionsQuery = listElections.useQuery();
   const jurisdictionIdQuery = getLocalJurisdictionId.useQuery();
   const createElectionMutation = createElection.useMutation();
-  const stateCodeQuery = getDesignStateCode.useQuery();
+  const designStatusQuery = getDesignStatus.useQuery();
   const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
   const duplicateElectionMutation = duplicateElection.useMutation();
 
   if (
     !listElectionsQuery.isSuccess ||
     !jurisdictionIdQuery.isSuccess ||
-    !stateCodeQuery.isSuccess
+    !designStatusQuery.isSuccess
   ) {
     return null;
   }
@@ -66,7 +67,9 @@ export function DesignElectionsScreen(): JSX.Element | null {
 
   return (
     <NavigationScreen title="Election Design">
-      <P>State: {stateCodeQuery.data}</P>
+      {designStatusQuery.data.status === 'ready' && (
+        <P>State: {designStatusQuery.data.stateCode}</P>
+      )}
       <H2>Elections</H2>
       <P>
         <Button

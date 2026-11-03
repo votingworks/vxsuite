@@ -7,7 +7,7 @@ import {
   Header,
   listBallotStyles,
   listPrecincts,
-  routes,
+  useDesignRoutes,
 } from '@votingworks/design-ui';
 import {
   Button,
@@ -25,16 +25,17 @@ import {
 import { AppContext } from '../contexts/app_context.js';
 import { routerPaths } from '../router_paths.js';
 import {
-  configureFromDesign,
   finalizeAndExportBallots,
   getElectionPackage,
   saveDesignExportToUsb,
   unfinalizeBallots,
 } from './design_api.js';
+import { configureFromDesign } from '../api.js';
 
 export function DesignBallotsScreen(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const history = useHistory();
+  const routes = useDesignRoutes();
   const { electionDefinition } = useContext(AppContext);
   const ballotStylesQuery = listBallotStyles.useQuery(electionId);
   const precinctsQuery = listPrecincts.useQuery(electionId);
@@ -193,7 +194,7 @@ export function DesignBallotsScreen(): JSX.Element | null {
                   variant="primary"
                   onPress={() =>
                     configureMutation.mutate(
-                      { electionId },
+                      { designElectionId: electionId },
                       {
                         onSuccess: (result) => {
                           if (result.isOk()) {

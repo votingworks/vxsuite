@@ -855,6 +855,23 @@ export const configure = {
   },
 } as const;
 
+export const configureFromDesign = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.configureFromDesign, {
+      async onSuccess(result) {
+        if (result.isOk()) {
+          await queryClient.invalidateQueries(
+            getCurrentElectionMetadata.queryKey()
+          );
+          await queryClient.invalidateQueries(getSystemSettings.queryKey());
+        }
+      },
+    });
+  },
+} as const;
+
 export const unconfigure = {
   useMutation() {
     const apiClient = useApiClient();

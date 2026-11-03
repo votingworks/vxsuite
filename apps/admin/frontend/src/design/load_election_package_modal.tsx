@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
-import { routes } from '@votingworks/design-ui';
+import { useDesignRoutes } from '@votingworks/design-ui';
 import { Button, Callout, Modal, P, Table, TD, TH } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context.js';
 import { listPotentialElectionPackagesOnUsbDrive } from '../api.js';
@@ -12,6 +12,7 @@ export function LoadElectionPackageModal({
   onClose: () => void;
 }): JSX.Element {
   const history = useHistory();
+  const routes = useDesignRoutes();
   const { usbDriveStatus } = useContext(AppContext);
   const filesQuery =
     listPotentialElectionPackagesOnUsbDrive.useQuery(usbDriveStatus);
