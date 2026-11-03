@@ -18,7 +18,7 @@ import {
   type ElectionDefinition,
   type SystemSettings,
 } from '@votingworks/types';
-import { existsSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, test, vi } from 'vitest';
 import { readElectionPackageFromFile } from './election_package_io.js';
@@ -262,6 +262,23 @@ test('fileStore builds the import beside the live database', async () => {
   });
   expect(store.getJurisdiction()).toEqual('jurisdiction-2');
   expect(existsSync(`${dbPath}.importing`)).toEqual(false);
+});
+
+test('fileStore leaves the live database read-only', async () => {
+  const dbPath = join(makeTemporaryDirectory(), 'election-package.db');
+  const store = ElectionPackageStore.fileStore(
+    dbPath,
+    mockBaseLogger({ fn: vi.fn })
+  );
+  await store.importElectionPackage(await packageImport());
+
+  // eslint-disable-next-line no-bitwise
+  expect(statSync(dbPath).mode & 0o777).toEqual(0o444);
+  expect(() =>
+    store
+      .getUiStringsStore()
+      .setUiStrings({ languageCode: 'en', data: { hello: 'Hi' } })
+  ).toThrow(/readonly/);
 });
 
 test('fileStore persists and reset empties it', async () => {

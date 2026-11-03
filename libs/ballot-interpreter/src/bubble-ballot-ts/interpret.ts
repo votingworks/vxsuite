@@ -1,8 +1,6 @@
 import { assert, err, ok } from '@votingworks/basics';
-import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import {
   type BallotImageBitDepth,
-  type ElectionDefinition,
   type ImageData,
   type SheetOf,
   DEFAULT_BALLOT_IMAGE_BIT_DEPTH,
@@ -18,7 +16,6 @@ import type { BridgeInterpretResult, HmpbInterpretResult } from './types.js';
  * Some fields are computed from higher-level options.
  */
 export interface InterpretOptions {
-  electionDefinition: ElectionDefinition;
   ballotImages: SheetOf<string> | SheetOf<ImageData>;
   scoreWriteIns?: boolean;
   disableVerticalStreakDetection?: boolean;
@@ -29,6 +26,7 @@ export interface InterpretOptions {
   debug?: boolean;
   frontNormalizedImageOutputPath?: string;
   backNormalizedImageOutputPath?: string;
+  dbPath: string;
 }
 
 function assertImageData(imageData: unknown): asserts imageData is ImageData {
@@ -57,7 +55,6 @@ function checkImageSource(imageSource: string | ImageData): void {
 }
 
 function buildBridgeOptions(options: InterpretOptions): BridgeInterpretOptions {
-  assert(typeof options.electionDefinition.electionData === 'string');
   assert(options.ballotImages.length === 2);
   checkImageSource(options.ballotImages[0]);
   checkImageSource(options.ballotImages[1]);
@@ -75,9 +72,6 @@ function buildBridgeOptions(options: InterpretOptions): BridgeInterpretOptions {
   }
 
   return {
-    expectedBallotHash: sliceBallotHashForEncoding(
-      options.electionDefinition.ballotHash
-    ),
     debugBasePathSideA,
     debugBasePathSideB,
     scoreWriteIns: options.scoreWriteIns,
@@ -91,6 +85,7 @@ function buildBridgeOptions(options: InterpretOptions): BridgeInterpretOptions {
       options.ballotImageBitDepth ?? DEFAULT_BALLOT_IMAGE_BIT_DEPTH,
     frontNormalizedImageOutputPath: options.frontNormalizedImageOutputPath,
     backNormalizedImageOutputPath: options.backNormalizedImageOutputPath,
+    dbPath: options.dbPath,
   };
 }
 
@@ -102,16 +97,14 @@ export async function interpret(
 ): Promise<HmpbInterpretResult> {
   const bridgeOptions = buildBridgeOptions(options);
   const [sideA, sideB] = options.ballotImages;
-  const { election } = options.electionDefinition;
   let result: BridgeInterpretResult;
 
   if (typeof sideA === 'string' && typeof sideB === 'string') {
-    result = await napi.interpretPaths(election, sideA, sideB, bridgeOptions);
+    result = await napi.interpretPaths(sideA, sideB, bridgeOptions);
   } else {
     const imageSideA = sideA as ImageData;
     const imageSideB = sideB as ImageData;
     result = await napi.interpretImages(
-      election,
       imageSideA.width,
       imageSideA.height,
       imageSideA.data,

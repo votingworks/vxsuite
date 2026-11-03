@@ -7,6 +7,7 @@ pub mod ballot_card;
 pub mod debug;
 mod diagnostic;
 mod draw_utils;
+pub mod election_source;
 mod image_utils;
 pub mod interpret;
 mod js;

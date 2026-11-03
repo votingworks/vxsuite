@@ -1,9 +1,14 @@
+import { Client } from '@votingworks/db';
 import { BaseLogger, LogSource } from '@votingworks/logging';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  type ElectionDefinition,
+} from '@votingworks/types';
+import { chmodSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readElectionPackageFromFile } from './election_package/election_package_io.js';
-import type { ElectionPackageStore } from './election_package/store.js';
+import { ElectionPackageStore } from './election_package/store.js';
 import {
   createElectionPackageZipArchive,
   type PartialElectionPackage,
@@ -46,4 +51,47 @@ export async function importElectionPackageForTest(
     uiStrings,
   });
   return hash;
+}
+
+/**
+ * Imports a single-file election into a new election package DB and returns
+ * its path. `electionRow` overrides the stored election data or ballot hash
+ * for tests that need values the package reader would reject or recompute.
+ */
+export async function createElectionPackageDbForTest(
+  electionDefinition: ElectionDefinition,
+  electionRow: Partial<
+    Pick<ElectionDefinition, 'electionData' | 'ballotHash'>
+  > = {}
+): Promise<string> {
+  const dbPath = join(
+    mkdtempSync(join(tmpdir(), 'election-package-db-')),
+    'election-package.db'
+  );
+  const store = ElectionPackageStore.fileStore(dbPath);
+  await importElectionPackageForTest(store, {
+    electionDefinition,
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      disableSystemLimitChecks: true,
+    },
+  });
+  store.close();
+
+  if (
+    electionRow.electionData !== undefined ||
+    electionRow.ballotHash !== undefined
+  ) {
+    chmodSync(dbPath, 0o644);
+    const client = Client.fileClient(dbPath, new BaseLogger(LogSource.System));
+    client.run(
+      `update election set
+        election_data = coalesce(?, election_data),
+        ballot_hash = coalesce(?, ballot_hash)`,
+      electionRow.electionData ?? null,
+      electionRow.ballotHash ?? null
+    );
+    client.close();
+  }
+  return dbPath;
 }

@@ -4,10 +4,12 @@ import {
   iter,
   unique,
 } from '@votingworks/basics';
+import { createElectionPackageDbForTest } from '@votingworks/backend/test-utils';
 import { voteToOptionId } from '@votingworks/hmpb';
 import { pdfToImages } from '@votingworks/image-utils/pdf';
 import type {
   ContestId,
+  ElectionDefinition,
   GridPosition,
   RgbaImageData,
   UnmarkedWriteIn,
@@ -15,6 +17,14 @@ import type {
   VotesDict,
 } from '@votingworks/types';
 import { readFileSync } from 'node:fs';
+
+/** Imports `electionDefinition` into a temporary election package DB and returns its path. */
+export function makeInterpreterDb(
+  electionDefinition: ElectionDefinition,
+  electionRow?: Partial<Pick<ElectionDefinition, 'electionData' | 'ballotHash'>>
+): Promise<string> {
+  return createElectionPackageDbForTest(electionDefinition, electionRow);
+}
 
 export function pdfToPageImages(
   pdf: Uint8Array | string

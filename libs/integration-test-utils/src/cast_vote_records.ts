@@ -8,6 +8,7 @@ import {
   buildCastVoteRecord,
   buildCastVoteRecordReportMetadata,
 } from '@votingworks/backend';
+import { createElectionPackageDbForTest } from '@votingworks/backend/test-utils';
 import { interpretSheetAndSaveImages } from '@votingworks/ballot-interpreter';
 import type { MarginalMark } from '@votingworks/hmpb';
 import { pdfToImages } from '@votingworks/image-utils/pdf';
@@ -89,6 +90,7 @@ async function renderInterpretAndWriteCvr({
   pdfPath,
   castVoteRecordId,
   castVoteRecordDirectory,
+  dbPath,
 }: {
   electionDefinition: ElectionDefinition;
   spec: CastVoteRecordSpec;
@@ -98,6 +100,7 @@ async function renderInterpretAndWriteCvr({
   pdfPath: string;
   castVoteRecordId: BallotId;
   castVoteRecordDirectory: string;
+  dbPath: string;
 }): Promise<CVR.CVR> {
   const pdfBytes = new Uint8Array(await fs.readFile(pdfPath));
   const pageImages: RgbaImageData[] = [];
@@ -133,6 +136,7 @@ async function renderInterpretAndWriteCvr({
       ],
       markThresholds:
         DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED,
+      dbPath,
     },
     sheet,
     castVoteRecordId,
@@ -215,6 +219,8 @@ export async function generateCastVoteRecordExport(
   );
   await fs.mkdir(exportDirectory, { recursive: true });
 
+  const dbPath = await createElectionPackageDbForTest(electionDefinition);
+
   // `renderMarkedBallots` shares a single layout pass per call, so all ballots
   // in a call must share ballot style and precinct. Group accordingly while
   // keeping a stable scanner-wide ballot order.
@@ -279,6 +285,7 @@ export async function generateCastVoteRecordExport(
         pdfPath,
         castVoteRecordId,
         castVoteRecordDirectory,
+        dbPath,
       });
 
       await fs.writeFile(

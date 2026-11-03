@@ -7,35 +7,57 @@ import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { writeImageData } from '@votingworks/image-utils';
 import {
   asSheet,
-  type Election,
-  type ElectionDefinition,
   gridPositionsFromBallotPositions,
   mapSheet,
 } from '@votingworks/types';
 import { expect, test } from 'vitest';
-import { pdfToPageImages } from '../../test/helpers/interpretation.js';
+import {
+  makeInterpreterDb,
+  pdfToPageImages,
+} from '../../test/helpers/interpretation.js';
 import { interpret } from './interpret.js';
 
 const electionGridLayoutNewHampshireTestBallotDefinition =
   electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
-test('interpret with bad election data', async () => {
-  const electionDefinition: ElectionDefinition = {
-    ...electionGridLayoutNewHampshireTestBallotDefinition,
-    election: { bad: 'election' } as unknown as Election,
-  };
+test('interpret with bad election data in the DB', async () => {
+  const ballotImages = asSheet(
+    await pdfToPageImages(vxFamousNamesFixtures.markedBallotPath).toArray()
+  );
 
   await expect(
-    interpret({ electionDefinition, ballotImages: ['a', 'b'] })
-  ).rejects.toThrow('missing field `title`');
+    interpret({
+      ballotImages,
+      dbPath: await makeInterpreterDb(
+        electionGridLayoutNewHampshireTestBallotDefinition,
+        { electionData: '{"bad":"election"}' }
+      ),
+    })
+  ).rejects.toThrow('parsing election: missing field `title`');
 });
 
 test('interpret with bad ballot image paths', async () => {
-  const electionDefinition = electionGridLayoutNewHampshireTestBallotDefinition;
+  const { electionDefinition } = vxFamousNamesFixtures;
 
   await expect(
-    interpret({ electionDefinition, ballotImages: ['a', 'b'] })
+    interpret({
+      ballotImages: ['a', 'b'],
+      dbPath: await makeInterpreterDb(electionDefinition),
+    })
   ).rejects.toThrow(/No such file or directory/);
+});
+
+test('interpret with unreadable DB', async () => {
+  const ballotImages = asSheet(
+    await pdfToPageImages(vxFamousNamesFixtures.markedBallotPath).toArray()
+  );
+
+  await expect(
+    interpret({
+      ballotImages,
+      dbPath: '/nonexistent/ballots.db',
+    })
+  ).rejects.toThrow(/connecting to election DB/);
 });
 
 test('interpret `ImageData` objects', async () => {
@@ -43,7 +65,10 @@ test('interpret `ImageData` objects', async () => {
   const ballotImages = asSheet(
     await pdfToPageImages(vxFamousNamesFixtures.markedBallotPath).toArray()
   );
-  const result = await interpret({ electionDefinition, ballotImages });
+  const result = await interpret({
+    ballotImages,
+    dbPath: await makeInterpreterDb(electionDefinition),
+  });
   expect(result).toEqual(ok(expect.anything()));
 
   const { front, back } = result.unsafeUnwrap();
@@ -345,8 +370,8 @@ test('interpret images from paths', async () => {
   });
 
   const result = await interpret({
-    electionDefinition,
     ballotImages: ballotImagePaths,
+    dbPath: await makeInterpreterDb(electionDefinition),
   });
   expect(result).toEqual(ok(expect.anything()));
 
@@ -648,9 +673,9 @@ test('score write in areas', async () => {
   );
 
   const result = await interpret({
-    electionDefinition,
     ballotImages,
     scoreWriteIns: true,
+    dbPath: await makeInterpreterDb(electionDefinition),
   });
   expect(result).toEqual(ok(expect.anything()));
 

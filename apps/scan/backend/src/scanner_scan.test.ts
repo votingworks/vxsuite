@@ -1,7 +1,10 @@
 import { writeFileSync } from 'node:fs';
 import { getLifetimeSheetCountFilePath } from '@votingworks/backend';
 import { err, ok, typedAs } from '@votingworks/basics';
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
+import {
+  electionGeneralFixtures,
+  electionGridLayoutNewHampshireTestBallotFixtures,
+} from '@votingworks/fixtures';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { mockScannerStatus } from '@votingworks/pdi-scanner';
 import {
@@ -175,6 +178,31 @@ test('configure and scan bmd ballot', async () => {
         state: 'accepted',
         interpretation,
         ballotsCounted: 1,
+      });
+    }
+  );
+});
+
+test('scan bmd ballot for an election without bubble ballot positions', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        electionPackage: electionGeneralFixtures.toElectionPackage(),
+        testMode: true,
+      });
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'waiting_for_ballot' });
+
+      await simulateScan(
+        apiClient,
+        mockScanner,
+        await ballotImages.wrongElectionBmd()
+      );
+
+      await waitForStatus(apiClient, {
+        state: 'accepting',
+        interpretation: { type: 'ValidSheet' },
       });
     }
   );

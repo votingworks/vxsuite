@@ -44,7 +44,6 @@ import {
 } from '@votingworks/types';
 import {
   convertMarksToVotesDict,
-  electionHasBallotPositions,
   time,
   uniqueContestOptions,
 } from '@votingworks/utils';
@@ -582,7 +581,6 @@ async function interpretHmpb(
   interpretation: SheetOf<PageInterpretation>;
 }> {
   const rawResult = await interpretHmpbBallotSheetRust({
-    electionDefinition: options.electionDefinition,
     ballotImages: sheet,
     scoreWriteIns: shouldScoreWriteIns(options),
     disableVerticalStreakDetection: options.disableVerticalStreakDetection,
@@ -592,6 +590,7 @@ async function interpretHmpb(
     ballotImageBitDepth: options.ballotImageBitDepth,
     frontNormalizedImageOutputPath: options.frontNormalizedImageOutputPath,
     backNormalizedImageOutputPath: options.backNormalizedImageOutputPath,
+    dbPath: assertDefined(options.dbPath),
   });
 
   return {
@@ -815,7 +814,7 @@ export async function interpretSheet(
   const timer = time(debug, 'interpretSheet');
 
   try {
-    const hmpb = electionHasBallotPositions(options.electionDefinition.election)
+    const hmpb = options.dbPath
       ? await interpretHmpb(sheet, options)
       : undefined;
 

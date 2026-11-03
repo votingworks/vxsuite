@@ -193,6 +193,30 @@ test('file database client with regex enabled in connectionOptions', () => {
   );
 });
 
+test('queryOnly rejects writes but still creates the schema', () => {
+  const dbFile = makeTemporaryFile();
+  const schemaFile = makeTemporaryFile({
+    content: 'create table muppets (name text not null);',
+  });
+  fs.rmSync(dbFile);
+  const client = Client.fileClient(
+    dbFile,
+    mockBaseLogger({ fn: vi.fn }),
+    schemaFile,
+    { queryOnly: true }
+  );
+
+  expect(client.all('select * from muppets')).toEqual([]);
+  expect(() =>
+    client.run('insert into muppets (name) values (?)', 'Kermit')
+  ).toThrow(/readonly/);
+
+  client.reset();
+  expect(() =>
+    client.run('insert into muppets (name) values (?)', 'Kermit')
+  ).toThrow(/readonly/);
+});
+
 test('closing a client is terminal', () => {
   const dbFile = makeTemporaryFile();
   const client = Client.fileClient(dbFile, mockBaseLogger({ fn: vi.fn }));

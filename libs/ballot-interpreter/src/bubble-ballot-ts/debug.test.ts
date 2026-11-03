@@ -1,9 +1,6 @@
-import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { expect, test, vi } from 'vitest';
 import { napi } from './napi.js';
 import { interpret } from './interpret.js';
-
-const { electionDefinition } = vxFamousNamesFixtures;
 
 vi.mock('./napi');
 
@@ -21,13 +18,12 @@ test('no debug', async () => {
   });
 
   void (await interpret({
-    electionDefinition,
     ballotImages: ['a.jpeg', 'b.jpeg'],
     debug: false,
+    dbPath: 'ballots.db',
   }));
 
   expect(interpretPathsMock).toHaveBeenCalledWith(
-    electionDefinition.election,
     'a.jpeg',
     'b.jpeg',
     expect.any(Object)
@@ -46,13 +42,12 @@ test('debug with image paths', async () => {
   });
 
   void (await interpret({
-    electionDefinition,
     ballotImages: ['a.jpeg', 'b.jpeg'],
     debug: true,
+    dbPath: 'ballots.db',
   }));
 
   expect(interpretPathsMock).toHaveBeenCalledWith(
-    electionDefinition.election,
     'a.jpeg',
     'b.jpeg',
     expect.any(Object)

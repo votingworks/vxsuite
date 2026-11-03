@@ -22,4 +22,10 @@ export interface InterpreterOptions {
   ballotImageBitDepth?: BallotImageBitDepth;
   frontNormalizedImageOutputPath?: string;
   backNormalizedImageOutputPath?: string;
+  /**
+   * Path to the election package SQLite database holding the configured
+   * election and its ballot positions (see `ElectionPackageStore`). Bubble
+   * ballot interpretation is skipped when omitted.
+   */
+  dbPath?: string;
 }

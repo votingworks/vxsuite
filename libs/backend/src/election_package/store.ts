@@ -1,4 +1,4 @@
-import { rmSync } from 'node:fs';
+import { chmodSync, rmSync } from 'node:fs';
 import { Client } from '@votingworks/db';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { assertDefined, DateWithoutTime } from '@votingworks/basics';
@@ -70,7 +70,9 @@ export class ElectionPackageStore {
     logger: BaseLogger = new BaseLogger(LogSource.System)
   ): ElectionPackageStore {
     return new ElectionPackageStore(
-      Client.fileClient(dbPath, logger, ELECTION_PACKAGE_SCHEMA_PATH)
+      Client.fileClient(dbPath, logger, ELECTION_PACKAGE_SCHEMA_PATH, {
+        queryOnly: true,
+      })
     );
   }
 
@@ -185,9 +187,9 @@ export class ElectionPackageStore {
 
   /**
    * Imports a whole election package, replacing whatever was imported before.
-   * A file store builds the new database beside the live one and swaps it in
-   * with one rename, so the live file is never written in place and a failed
-   * import leaves it untouched.
+   * A file store builds the new database beside the live one, makes it
+   * read-only, and swaps it in with one rename, so the live file is never
+   * written in place and a failed import leaves it untouched.
    */
   async importElectionPackage(input: ElectionPackageImport): Promise<void> {
     if (this.client.isMemoryDatabase()) {
@@ -208,6 +210,7 @@ export class ElectionPackageStore {
         throw error;
       }
       tempClient.close();
+      chmodSync(tempDbPath, 0o444);
       this.client.replaceDatabaseFile(tempDbPath);
     }
     this.cachedElectionRecord = undefined;

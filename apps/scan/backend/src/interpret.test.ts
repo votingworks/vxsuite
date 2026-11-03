@@ -19,6 +19,7 @@ import {
 } from '@votingworks/types';
 import { assert } from 'node:console';
 import * as fs from 'node:fs/promises';
+import { createElectionPackageDbForTest } from '@votingworks/backend/test-utils';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import { interpret } from './interpret.js';
@@ -36,6 +37,7 @@ let ballotImages: {
   undervoteBmdBallot: SheetOf<RgbaImageData>;
 };
 let ballotImagesPath!: string;
+let dbPath!: string;
 
 async function ballotAsSheet(ballotPdf: Uint8Array) {
   return asSheet(
@@ -46,6 +48,8 @@ async function ballotAsSheet(ballotPdf: Uint8Array) {
 }
 
 beforeAll(async () => {
+  dbPath = await createElectionPackageDbForTest(electionDefinition);
+
   ballotImages = {
     overvoteBallot: await ballotAsSheet(
       Uint8Array.from(await fs.readFile(vxFamousNamesFixtures.markedBallotPath))
@@ -89,6 +93,7 @@ test('treats BMD ballot with one blank side as valid', async () => {
     testMode: true,
     markThresholds: DEFAULT_MARK_THRESHOLDS,
     adjudicationReasons: [],
+    dbPath,
   });
   expect(result.ok()?.type).toEqual('ValidSheet');
 });
@@ -104,6 +109,7 @@ test('respects adjudication reasons for a BMD ballot on the front side', async (
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [AdjudicationReason.Undervote],
+      dbPath,
     }
   );
   const interpretation = assertDefined(result.ok());
@@ -130,6 +136,7 @@ test('NH interpreter of overvote yields a sheet that needs to be reviewed', asyn
     testMode: true,
     markThresholds: DEFAULT_MARK_THRESHOLDS,
     adjudicationReasons: [AdjudicationReason.Overvote],
+    dbPath,
   });
   expect(result.ok()?.type).toEqual('NeedsReviewSheet');
 });
@@ -143,6 +150,7 @@ test('NH interpreter with testMode=true', async () => {
       testMode: true,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [AdjudicationReason.Overvote],
+      dbPath,
     })
   ).unsafeUnwrap();
   expect(sheet.type).toEqual('ValidSheet');

@@ -3,7 +3,7 @@
 
 use std::borrow::Cow;
 use std::ffi::OsStr;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use image::{DynamicImage, GrayImage, ImageEncoder, RgbaImage};
 use napi::bindgen_prelude::Buffer;
@@ -11,13 +11,13 @@ use napi_derive::napi;
 use serde::{Deserialize, Serialize};
 use std::io::Cursor;
 use types_rs::bmd::cvr::CastVoteRecord;
-use types_rs::bubble_ballot::{
-    Metadata, PARTIAL_BALLOT_HASH_BYTE_LENGTH, PartialBallotHash, SoftwareVersion,
-};
+use types_rs::bubble_ballot::{Metadata, SoftwareVersion};
 use types_rs::coding;
-use types_rs::election::Election;
 
 use crate::ballot_card::{BallotPage, PaperInfo, ballot_scan_bubble_image};
+use crate::election_source::{
+    ElectionDefinition, ElectionSource, SqliteElectionSource, partial_ballot_hash_from_hex,
+};
 use crate::interpret::{
     self, BallotImageBitDepth, InterpretedBallotCard, MetadataSource, Options,
     VerticalStreakDetection, WriteInScoring, ballot_card,
@@ -28,10 +28,6 @@ use crate::timing_marks::{self, DefaultForGeometry, TimingMarks};
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct JsInterpretOptions {
-    /// Expected ballot hash as a hex string. Production callers always have
-    /// the election definition's `ballotHash` available and pass it through.
-    /// Decoded into a `PartialBallotHash` at the bridge boundary.
-    expected_ballot_hash: String,
     front_normalized_image_output_path: Option<String>,
     back_normalized_image_output_path: Option<String>,
     debug_base_path_side_a: Option<String>,
@@ -42,25 +38,7 @@ struct JsInterpretOptions {
     max_cumulative_streak_width: u32,
     retry_streak_width_threshold: u32,
     ballot_image_bit_depth: BallotImageBitDepth,
-}
-
-/// Decodes a hex ballot hash string into a [`PartialBallotHash`]. Accepts
-/// strings of any length and slices them to the partial-hash length, matching
-/// the TS `sliceBallotHashForEncoding` convention.
-fn decode_partial_ballot_hash(hex: &str) -> Result<PartialBallotHash, napi::Error> {
-    let bytes = hex::decode(hex).map_err(|err| {
-        napi::Error::from_reason(format!("expectedBallotHash is not valid hex: {err}"))
-    })?;
-    if bytes.len() < PARTIAL_BALLOT_HASH_BYTE_LENGTH {
-        return Err(napi::Error::from_reason(format!(
-            "expectedBallotHash must be at least {} hex characters",
-            PARTIAL_BALLOT_HASH_BYTE_LENGTH * 2
-        )));
-    }
-    let mut hash = PartialBallotHash::default();
-    let len = hash.len();
-    hash.copy_from_slice(&bytes[..len]);
-    Ok(hash)
+    db_path: String,
 }
 
 /// Wraps an interpret error with a pre-computed `is_bubble_ballot` flag so
@@ -82,8 +60,30 @@ enum JsInterpretResult {
     Err(Box<JsInterpretErr>),
 }
 
+fn maybe_save_encoded_image(
+    path: Option<&Path>,
+    encoded: image::ImageResult<Vec<u8>>,
+) -> Result<(), String> {
+    match path {
+        None => Ok(()),
+        Some(path) => {
+            let bytes = encoded.map_err(|err| {
+                format!(
+                    "unable to encode image for {path}: {err}",
+                    path = path.display()
+                )
+            })?;
+            std::fs::write(path, bytes).map_err(|err| {
+                format!(
+                    "unable to save image to {path}: {err}",
+                    path = path.display()
+                )
+            })
+        }
+    }
+}
+
 fn interpret(
-    election: Election,
     side_a_image: GrayImage,
     side_b_image: GrayImage,
     options: JsInterpretOptions,
@@ -99,7 +99,15 @@ fn interpret(
         None => None,
     };
 
-    let expected_ballot_hash = decode_partial_ballot_hash(&options.expected_ballot_hash)?;
+    let election_source = SqliteElectionSource {
+        db_path: options.db_path.into(),
+    };
+    let ElectionDefinition {
+        election,
+        ballot_hash: expected_ballot_hash,
+    } = election_source
+        .election_definition()
+        .map_err(napi::Error::from_reason)?;
 
     let bubble_template = ballot_scan_bubble_image();
     let interpret_result = ballot_card(
@@ -127,11 +135,15 @@ fn interpret(
             retry_streak_width_threshold: options.retry_streak_width_threshold,
             ballot_image_bit_depth: options.ballot_image_bit_depth,
             metadata_source: MetadataSource::QrCode,
+            election_source,
         },
     );
 
     let mut card = match interpret_result {
         Ok(card) => card,
+        Err(interpret::Error::FailedGridLayoutLookup { message, .. }) => {
+            return Err(napi::Error::from_reason(message));
+        }
         Err(err) => {
             // Don't throw `interpret::Error`, for better structured & typed handling.
             let is_bubble_ballot = err.is_bubble_ballot();
@@ -147,40 +159,23 @@ fn interpret(
     let front_encoded = std::mem::replace(&mut card.front.encoded_normalized_image, Ok(Vec::new()));
     let back_encoded = std::mem::replace(&mut card.back.encoded_normalized_image, Ok(Vec::new()));
 
-    let maybe_save_encoded_image =
-        |path: Option<PathBuf>, encoded: image::ImageResult<Vec<u8>>| -> Result<(), String> {
-            match path {
-                None => Ok(()),
-                Some(ref path) => {
-                    let bytes = encoded.map_err(|err| {
-                        format!(
-                            "unable to encode image for {path}: {err}",
-                            path = path.display()
-                        )
-                    })?;
-                    std::fs::write(path, bytes).map_err(|err| {
-                        format!(
-                            "unable to save image to {path}: {err}",
-                            path = path.display()
-                        )
-                    })
-                }
-            }
-        };
-
     // Write the pre-encoded PNG bytes to disk.
     match rayon::join(
         || {
             maybe_save_encoded_image(
                 options
                     .front_normalized_image_output_path
-                    .map(PathBuf::from),
+                    .as_deref()
+                    .map(Path::new),
                 front_encoded,
             )
         },
         || {
             maybe_save_encoded_image(
-                options.back_normalized_image_output_path.map(PathBuf::from),
+                options
+                    .back_normalized_image_output_path
+                    .as_deref()
+                    .map(Path::new),
                 back_encoded,
             )
         },
@@ -203,16 +198,14 @@ fn to_json<T: Serialize>(value: &T) -> napi::Result<serde_json::Value> {
 }
 
 #[napi(
-    ts_args_type = "election: Election, sideAImagePath: string, sideBImagePath: string, options: BridgeInterpretOptions",
+    ts_args_type = "sideAImagePath: string, sideBImagePath: string, options: BridgeInterpretOptions",
     ts_return_type = "Promise<BridgeInterpretResult>"
 )]
 pub async fn interpret_paths(
-    election: serde_json::Value,
     side_a_image_path: String,
     side_b_image_path: String,
     options: serde_json::Value,
 ) -> napi::Result<serde_json::Value> {
-    let election: Election = from_json(election)?;
     let options: JsInterpretOptions = from_json(options)?;
 
     let (side_a_bytes, side_b_bytes) = tokio::try_join!(
@@ -232,18 +225,17 @@ pub async fn interpret_paths(
         (Ok(side_a_image), Ok(side_b_image)) => (side_a_image, side_b_image),
     };
 
-    let result = interpret(election, side_a_image, side_b_image, options)?;
+    let result = interpret(side_a_image, side_b_image, options)?;
     to_json(&result)
 }
 
 // unused_async: napi-rs requires `async fn` to return a Promise in JS.
 #[allow(clippy::too_many_arguments, clippy::unused_async)]
 #[napi(
-    ts_args_type = "election: Election, sideAImageWidth: number, sideAImageHeight: number, sideAImageData: Buffer | Uint8ClampedArray, sideBImageWidth: number, sideBImageHeight: number, sideBImageData: Buffer | Uint8ClampedArray, options: BridgeInterpretOptions",
+    ts_args_type = "sideAImageWidth: number, sideAImageHeight: number, sideAImageData: Buffer | Uint8ClampedArray, sideBImageWidth: number, sideBImageHeight: number, sideBImageData: Buffer | Uint8ClampedArray, options: BridgeInterpretOptions",
     ts_return_type = "Promise<BridgeInterpretResult>"
 )]
 pub async fn interpret_images(
-    election: serde_json::Value,
     side_a_image_width: f64,
     side_a_image_height: f64,
     side_a_image_data: Buffer,
@@ -252,7 +244,6 @@ pub async fn interpret_images(
     side_b_image_data: Buffer,
     options: serde_json::Value,
 ) -> napi::Result<serde_json::Value> {
-    let election: Election = from_json(election)?;
     let options: JsInterpretOptions = from_json(options)?;
 
     let side_a_w = as_u32(side_a_image_width)?;
@@ -268,7 +259,7 @@ pub async fn interpret_images(
         (Ok(side_a_image), Ok(side_b_image)) => (side_a_image, side_b_image),
     };
 
-    let result = interpret(election, side_a_image, side_b_image, options)?;
+    let result = interpret(side_a_image, side_b_image, options)?;
     to_json(&result)
 }
 
@@ -476,7 +467,8 @@ pub async fn decode_bubble_ballot_metadata(
     expected_ballot_hash: String,
 ) -> napi::Result<serde_json::Value> {
     let election: types_rs::election::Election = from_json(election)?;
-    let expected_ballot_hash = decode_partial_ballot_hash(&expected_ballot_hash)?;
+    let expected_ballot_hash =
+        partial_ballot_hash_from_hex(&expected_ballot_hash).map_err(napi::Error::from_reason)?;
     let bytes = data.to_vec();
 
     let metadata = coding::decode_with::<Metadata>(&bytes, &(&election, expected_ballot_hash))
