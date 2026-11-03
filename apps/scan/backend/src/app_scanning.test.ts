@@ -63,26 +63,17 @@ test('scanBatch with streaked page', async () => {
 
   // try with vertical streak detection enabled
   await withApp(
-    async ({
-      apiClient,
-      clock,
-      mockAuth,
-      mockScanner,
-      mockUsbDrive,
-      workspace,
-    }) => {
+    async ({ apiClient, clock, mockAuth, mockScanner, mockUsbDrive }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         electionPackage: {
           electionDefinition: vxFamousNamesFixtures.electionDefinition,
+          systemSettings: {
+            ...DEFAULT_SYSTEM_SETTINGS,
+            disableVerticalStreakDetection: false,
+          },
         },
         pollingPlaceId: POLLING_PLACE_ID_COMPLETE_HMPB,
         testMode: true,
-      });
-
-      workspace.store.setSystemSettings({
-        ...DEFAULT_SYSTEM_SETTINGS,
-        // enable vertical streak detection
-        disableVerticalStreakDetection: false,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -109,26 +100,17 @@ test('scanBatch with streaked page', async () => {
 
   // try again with vertical streak detection disabled
   await withApp(
-    async ({
-      apiClient,
-      clock,
-      mockAuth,
-      mockScanner,
-      mockUsbDrive,
-      workspace,
-    }) => {
+    async ({ apiClient, clock, mockAuth, mockScanner, mockUsbDrive }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         electionPackage: {
           electionDefinition: vxFamousNamesFixtures.electionDefinition,
+          systemSettings: {
+            ...DEFAULT_SYSTEM_SETTINGS,
+            disableVerticalStreakDetection: true,
+          },
         },
         pollingPlaceId: POLLING_PLACE_ID_COMPLETE_HMPB,
         testMode: true,
-      });
-
-      workspace.store.setSystemSettings({
-        ...DEFAULT_SYSTEM_SETTINGS,
-        // disable vertical streak detection
-        disableVerticalStreakDetection: true,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);

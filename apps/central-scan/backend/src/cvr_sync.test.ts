@@ -34,6 +34,7 @@ import { generateHmpbFixture } from '../test/helpers/ballots.js';
 import { startCvrSync } from './cvr_sync.js';
 import { Store } from './store.js';
 import type { NetworkConnectionInfo } from './types.js';
+import { configureStore } from '../test/helpers/setup_app.js';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -130,16 +131,15 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-function buildStore(): Store {
+async function buildStore(): Promise<Store> {
   const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData: vxFamousNamesFixtures.electionDefinition.electionData,
+  await configureStore(store, {
+    electionDefinition: vxFamousNamesFixtures.electionDefinition,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash: 'test-election-package-hash',
-    ballotHash: vxFamousNamesFixtures.electionDefinition.ballotHash,
+    systemSettings: DEFAULT_SYSTEM_SETTINGS,
+    pollingPlaceId: POLLING_PLACE_ID,
   });
-  store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
-  store.setPollingPlaceId(POLLING_PLACE_ID);
   return store;
 }
 
@@ -221,7 +221,7 @@ async function advancePollingInterval(): Promise<void> {
 }
 
 test('does nothing until the scanner is registered with a host', async () => {
-  const store = buildStore();
+  const store = await buildStore();
   addFinishedBatch(store);
   const mockClient = createMockHostApiClient();
   const fetchMock = mockUploadResponses();
@@ -235,7 +235,7 @@ test('does nothing until the scanner is registered with a host', async () => {
 });
 
 test('sends a completed batch and marks it sent', async () => {
-  const store = buildStore();
+  const store = await buildStore();
   const batchId = addFinishedBatch(store, 2);
   setRegistered(store);
   const mockClient = createMockHostApiClient();
@@ -282,7 +282,7 @@ test('sends a completed batch and marks it sent', async () => {
 });
 
 test('sends batches oldest first, one per pass', async () => {
-  const store = buildStore();
+  const store = await buildStore();
   const olderBatchId = addFinishedBatch(store);
   const newerBatchId = addFinishedBatch(store);
   setRegistered(store);
@@ -313,7 +313,7 @@ test('sends batches oldest first, one per pass', async () => {
 });
 
 test('marks a batch sent without uploading when the host already has it', async () => {
-  const store = buildStore();
+  const store = await buildStore();
   addFinishedBatch(store);
   setRegistered(store);
   const mockClient = createMockHostApiClient();
@@ -329,7 +329,7 @@ test('marks a batch sent without uploading when the host already has it', async 
 });
 
 test('a refusal at start is retried rather than failing the batch', async () => {
-  const store = buildStore();
+  const store = await buildStore();
   const batchId = addFinishedBatch(store);
   setRegistered(store);
   const mockClient = createMockHostApiClient();
@@ -349,7 +349,7 @@ test('a refusal at start is retried rather than failing the batch', async () => 
 });
 
 test('repeated transient failures back off, then mark the batch failed and move on', async () => {
-  const store = buildStore();
+  const store = await buildStore();
   const batchId = addFinishedBatch(store);
   const nextBatchId = addFinishedBatch(store);
   setRegistered(store);
@@ -380,7 +380,7 @@ test('repeated transient failures back off, then mark the batch failed and move 
 });
 
 test('a batch waiting to retry stays sending until it succeeds', async () => {
-  const store = buildStore();
+  const store = await buildStore();
   const batchId = addFinishedBatch(store);
   setRegistered(store);
   const mockClient = createMockHostApiClient();
@@ -401,7 +401,7 @@ test('a batch waiting to retry stays sending until it succeeds', async () => {
 });
 
 test('does not attempt sends while disconnected and forgets pending retries', async () => {
-  const store = buildStore();
+  const store = await buildStore();
   const batchId = addFinishedBatch(store);
   setRegistered(store);
   const mockClient = createMockHostApiClient();
@@ -423,7 +423,7 @@ test('does not attempt sends while disconnected and forgets pending retries', as
 });
 
 test('a batch waiting to retry holds the batches behind it until it sends', async () => {
-  const store = buildStore();
+  const store = await buildStore();
   const flakyBatchId = addFinishedBatch(store);
   const nextBatchId = addFinishedBatch(store);
   setRegistered(store);
@@ -464,7 +464,7 @@ test('a batch waiting to retry holds the batches behind it until it sends', asyn
 });
 
 test('an unexpected error while sending is retried like a transient failure', async () => {
-  const store = buildStore();
+  const store = await buildStore();
   const batchId = addFinishedBatch(store);
   setRegistered(store);
   const mockClient = createMockHostApiClient();
@@ -502,7 +502,7 @@ test('an unexpected error while sending is retried like a transient failure', as
 });
 
 test('retries on the next pass when an upload fails', async () => {
-  const store = buildStore();
+  const store = await buildStore();
   addFinishedBatch(store);
   setRegistered(store);
   const mockClient = createMockHostApiClient();
@@ -518,7 +518,7 @@ test('retries on the next pass when an upload fails', async () => {
 });
 
 test('retries on the next pass when the host is unreachable', async () => {
-  const store = buildStore();
+  const store = await buildStore();
   addFinishedBatch(store);
   setRegistered(store);
   const mockClient = createMockHostApiClient();
@@ -542,7 +542,7 @@ test.each<FinishCvrTransferError>([
 ])(
   'does not mark a batch sent or failed when finish fails with $type',
   async (error) => {
-    const store = buildStore();
+    const store = await buildStore();
     addFinishedBatch(store);
     setRegistered(store);
     const mockClient = createMockHostApiClient();
@@ -559,7 +559,7 @@ test.each<FinishCvrTransferError>([
 );
 
 test('a failed import marks the batch failed and skips it, sending the next batch', async () => {
-  const store = buildStore();
+  const store = await buildStore();
   const failingBatchId = addFinishedBatch(store);
   const nextBatchId = addFinishedBatch(store);
   setRegistered(store);
@@ -607,7 +607,7 @@ test('a failed import marks the batch failed and skips it, sending the next batc
 });
 
 test('does not mark a batch sent when finish is unreachable', async () => {
-  const store = buildStore();
+  const store = await buildStore();
   addFinishedBatch(store);
   setRegistered(store);
   const mockClient = createMockHostApiClient();
@@ -623,7 +623,7 @@ test('does not mark a batch sent when finish is unreachable', async () => {
 });
 
 test('retries on the next pass when an upload cannot reach the host', async () => {
-  const store = buildStore();
+  const store = await buildStore();
   addFinishedBatch(store);
   setRegistered(store);
   const mockClient = createMockHostApiClient();
@@ -639,7 +639,7 @@ test('retries on the next pass when an upload cannot reach the host', async () =
 });
 
 test('marks the batch failed when a cast vote record cannot be built', async () => {
-  const store = buildStore();
+  const store = await buildStore();
   const batchId = addFinishedBatch(store);
   setRegistered(store);
   const mockClient = createMockHostApiClient();
@@ -659,7 +659,7 @@ test('marks the batch failed when a cast vote record cannot be built', async () 
 });
 
 test('does nothing when registered with no batches to send', async () => {
-  const store = buildStore();
+  const store = await buildStore();
   setRegistered(store);
   const mockClient = createMockHostApiClient();
 

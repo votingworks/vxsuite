@@ -163,42 +163,6 @@ export class ElectionPackageStore {
     return row?.jurisdiction;
   }
 
-  /** Replaces the election, or clears it when `input` is omitted. */
-  setElection(input?: {
-    electionData: string;
-    jurisdiction: string;
-    electionPackageHash: string;
-    ballotHash: string;
-  }): void {
-    this.cachedElectionRecord = undefined;
-    this.client.run('delete from election');
-    if (input) {
-      this.client.run(
-        `
-        insert into election (
-          election_data,
-          jurisdiction,
-          ballot_hash,
-          election_package_hash
-        ) values (?, ?, ?, ?)
-        `,
-        input.electionData,
-        input.jurisdiction,
-        input.ballotHash,
-        input.electionPackageHash
-      );
-    }
-  }
-
-  setSystemSettings(systemSettings: SystemSettings): void {
-    this.cachedSystemSettings = undefined;
-    this.client.run('delete from system_settings');
-    this.client.run(
-      'insert into system_settings (data) values (?)',
-      JSON.stringify(systemSettings)
-    );
-  }
-
   getSystemSettings(): SystemSettings | undefined {
     if (this.cachedSystemSettings === undefined) {
       const result = this.client.one('select data from system_settings') as

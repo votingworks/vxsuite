@@ -249,25 +249,6 @@ export class Store {
   }
 
   /**
-   * Sets the election and jurisdiction directly and starts a session for
-   * them, or clears both. Configuration goes through
-   * {@link ElectionPackageStore.importElectionPackage} instead.
-   */
-  setElectionAndJurisdiction(input?: {
-    electionData: string;
-    jurisdiction: string;
-    electionPackageHash: string;
-    ballotHash: string;
-  }): void {
-    this.electionPackageStore.setElection(input);
-    if (input) {
-      this.startElectionSession();
-    } else {
-      this.client.run('delete from election');
-    }
-  }
-
-  /**
    * Gets the current test mode setting value.
    */
   getTestMode(): boolean {
@@ -880,13 +861,6 @@ export class Store {
     const sql = `${getSheetsBaseQuery} where sheets.id = ?`;
     const row = this.client.one(sql, sheetId) as SheetRow | undefined;
     return row ? sheetRowToSheet(row) : undefined;
-  }
-
-  /**
-   * Stores the system settings.
-   */
-  setSystemSettings(systemSettings: SystemSettings): void {
-    this.electionPackageStore.setSystemSettings(systemSettings);
   }
 
   /**

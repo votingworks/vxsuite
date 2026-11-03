@@ -23,6 +23,7 @@ import { join } from 'node:path';
 import { expect, test, vi } from 'vitest';
 import { readElectionPackageFromFile } from './election_package_io.js';
 import { ElectionPackageStore, type ElectionPackageImport } from './store.js';
+import { importElectionPackageForTest } from '../test_utils.js';
 import { createElectionPackageZipArchive } from './test_utils.js';
 
 const baseElection = electionGeneralFixtures.readElection();
@@ -109,16 +110,15 @@ test('empty store', () => {
   expect(store.getSystemSettings()).toBeUndefined();
 });
 
-test('election and system settings', () => {
+test('election key and jurisdiction', async () => {
   const store = ElectionPackageStore.memoryStore();
-  store.setElection({
-    electionData: electionDefinition.electionData,
-    ballotHash: electionDefinition.ballotHash,
-    electionPackageHash: 'package-hash',
-    jurisdiction,
-  });
-  store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+  const electionPackageHash = await importElectionPackageForTest(
+    store,
+    { electionDefinition },
+    { jurisdiction, electionPackageHash: 'package-hash' }
+  );
 
+  expect(electionPackageHash).toEqual('package-hash');
   expect(store.hasElection()).toEqual(true);
   expect(store.getElectionRecord()).toEqual({
     electionDefinition,
@@ -129,19 +129,16 @@ test('election and system settings', () => {
   expect(store.getSystemSettings()).toEqual(DEFAULT_SYSTEM_SETTINGS);
   expect(store.getSystemSettings()).toEqual(DEFAULT_SYSTEM_SETTINGS);
 
-  store.setElection();
+  store.reset();
   expect(store.hasElection()).toEqual(false);
   expect(store.getElectionKey()).toBeUndefined();
 });
 
-test('election key for a CDF election', () => {
+test('election key for a CDF election', async () => {
   const store = ElectionPackageStore.memoryStore();
   const cdfElectionDefinition = createElectionDefinitionCdf(baseElection);
-  store.setElection({
-    electionData: cdfElectionDefinition.electionData,
-    ballotHash: cdfElectionDefinition.ballotHash,
-    electionPackageHash: 'package-hash',
-    jurisdiction,
+  await importElectionPackageForTest(store, {
+    electionDefinition: cdfElectionDefinition,
   });
   expect(store.getElectionKey()).toEqual(
     constructElectionKey(cdfElectionDefinition.election)

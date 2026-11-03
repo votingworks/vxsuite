@@ -255,25 +255,6 @@ export class Store {
   }
 
   /**
-   * Sets the election and jurisdiction directly and starts a session for
-   * them, or clears both. Configuration goes through
-   * {@link ElectionPackageStore.importElectionPackage} instead.
-   */
-  setElectionAndJurisdiction(input?: {
-    electionData: string;
-    jurisdiction: string;
-    electionPackageHash: string;
-    ballotHash: string;
-  }): void {
-    this.electionPackageStore.setElection(input);
-    if (input) {
-      this.startElectionSession();
-    } else {
-      this.client.run('delete from election');
-    }
-  }
-
-  /**
    * Gets the polling place where ballots are being centrally scanned, if one
    * has been selected.
    */
@@ -291,13 +272,6 @@ export class Store {
   setPollingPlaceId(id: string | null): void {
     assert(this.hasElection(), 'Cannot set polling place without an election.');
     this.client.run('update election set polling_place_id = ?', id);
-  }
-
-  /**
-   * Stores the system settings.
-   */
-  setSystemSettings(systemSettings: SystemSettings): void {
-    this.electionPackageStore.setSystemSettings(systemSettings);
   }
 
   /**

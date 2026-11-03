@@ -19,7 +19,10 @@ import {
 } from '@votingworks/types';
 import { deepEqual } from '@votingworks/basics';
 import { Store } from '../store.js';
-import { makeHmpbSheet } from '../../test/helpers/shared_helpers.js';
+import {
+  configureStore,
+  makeHmpbSheet,
+} from '../../test/helpers/shared_helpers.js';
 import { getScannerResultsMemoized, isBmdPage, isHmpbPage } from './results.js';
 
 const jurisdiction = TEST_JURISDICTION;
@@ -27,7 +30,8 @@ const electionPackageHash = 'test-election-package-hash';
 
 test('getScannerResultsMemoized correctly memoizes results based on ballot count', async () => {
   const nhFixtures = electionGridLayoutNewHampshireTestBallotFixtures;
-  const { ballotHash, electionData } = nhFixtures.readElectionDefinition();
+  const electionDefinition = nhFixtures.readElectionDefinition();
+  const { ballotHash } = electionDefinition;
 
   const testMetadata: BallotMetadata = {
     ballotStyleId: 'card-number-3',
@@ -38,11 +42,10 @@ test('getScannerResultsMemoized correctly memoizes results based on ballot count
   };
 
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
-  store.setElectionAndJurisdiction({
-    electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash,
   });
 
   const zeroResultsA = await getScannerResultsMemoized({ store });
@@ -144,11 +147,10 @@ test('getScannerResults groups by inferred party for a combined ballot primary',
   const ballotStyle = election.ballotStyles[0]!;
 
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash: electionDefinition.ballotHash,
   });
 
   const metadata: BallotMetadata = {

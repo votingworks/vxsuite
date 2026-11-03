@@ -20,6 +20,7 @@ import {
   mapSheet,
   type PageInterpretationWithFiles,
   safeParseSystemSettings,
+  type SystemSettings,
   type SheetOf,
   TEST_JURISDICTION,
 } from '@votingworks/types';
@@ -30,6 +31,7 @@ import { expect, test, vi } from 'vitest';
 
 import { assertDefined } from '@votingworks/basics';
 import { Store } from './store.js';
+import { configureStore } from '../test/helpers/shared_helpers.js';
 
 function sha256(data: string): string {
   return createHash('sha256').update(data).digest('hex');
@@ -109,24 +111,24 @@ function sortSheets(sheets: Sheet[]): Sheet[] {
   return [...sheets].sort((s1, s2) => s1.id.localeCompare(s2.id));
 }
 
-test('get/set election', () => {
+test('get/set election', async () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   expect(store.getElectionRecord()).toBeUndefined();
   expect(store.hasElection()).toBeFalsy();
 
-  const { electionDefinition } = configureElectionNh(store);
+  const { electionDefinition } = await configureElectionNh(store);
   expect(store.getElectionRecord()).toEqual({
     electionDefinition,
     electionPackageHash,
   });
   expect(store.hasElection()).toBeTruthy();
 
-  store.setElectionAndJurisdiction(undefined);
+  store.reset();
   expect(store.getElectionRecord()).toBeUndefined();
 });
 
-test('get/set system settings', () => {
+test('get/set system settings', async () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   expect(store.getSystemSettings()).toBeUndefined();
@@ -134,15 +136,15 @@ test('get/set system settings', () => {
     electionTwoPartyPrimaryFixtures.systemSettings.asText()
   ).unsafeUnwrap();
 
-  store.setSystemSettings(systemSettings);
+  await configureElectionNh(store, systemSettings);
   expect(store.getSystemSettings()).toEqual(systemSettings);
 });
 
-test('reset clears cached election record and system settings', () => {
+test('reset clears cached election record and system settings', async () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
-  configureElectionNh(store);
-  store.setSystemSettings(
+  await configureElectionNh(
+    store,
     safeParseSystemSettings(
       electionTwoPartyPrimaryFixtures.systemSettings.asText()
     ).unsafeUnwrap()
@@ -156,14 +158,14 @@ test('reset clears cached election record and system settings', () => {
   expect(store.getSystemSettings()).toBeUndefined();
 });
 
-test('get/set test mode', () => {
+test('get/set test mode', async () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   // Before setting an election
   expect(store.getTestMode()).toEqual(true);
   expect(() => store.setTestMode(false)).toThrowError();
 
-  configureElectionNh(store);
+  await configureElectionNh(store);
 
   // After setting an election
   expect(store.getTestMode()).toEqual(true);
@@ -175,14 +177,14 @@ test('get/set test mode', () => {
   expect(store.getTestMode()).toEqual(true);
 });
 
-test('get/set is sounds muted mode', () => {
+test('get/set is sounds muted mode', async () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   // Before setting an election
   expect(store.getIsSoundMuted()).toEqual(false);
   expect(() => store.setIsSoundMuted(true)).toThrowError();
 
-  configureElectionNh(store);
+  await configureElectionNh(store);
 
   // After setting an election
   expect(store.getIsSoundMuted()).toEqual(false);
@@ -194,14 +196,14 @@ test('get/set is sounds muted mode', () => {
   expect(store.getIsSoundMuted()).toEqual(false);
 });
 
-test('get/set is double feed detection disabled mode', () => {
+test('get/set is double feed detection disabled mode', async () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   // Before setting an election
   expect(store.getIsDoubleFeedDetectionDisabled()).toEqual(false);
   expect(() => store.setIsDoubleFeedDetectionDisabled(true)).toThrowError();
 
-  configureElectionNh(store);
+  await configureElectionNh(store);
 
   // After setting an election
   expect(store.getIsDoubleFeedDetectionDisabled()).toEqual(false);
@@ -213,14 +215,14 @@ test('get/set is double feed detection disabled mode', () => {
   expect(store.getIsDoubleFeedDetectionDisabled()).toEqual(false);
 });
 
-test('get/set isContinuousExportEnabled', () => {
+test('get/set isContinuousExportEnabled', async () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   // Before setting an election
   expect(store.getIsContinuousExportEnabled()).toEqual(true);
   expect(() => store.setIsContinuousExportEnabled(true)).toThrowError();
 
-  configureElectionNh(store);
+  await configureElectionNh(store);
 
   expect(store.getIsContinuousExportEnabled()).toEqual(true);
 
@@ -238,11 +240,11 @@ test('get/set isContinuousExportEnabled', () => {
   expect(store.getIsContinuousExportEnabled()).toEqual(true);
 });
 
-test('get/set polling place', () => {
+test('get/set polling place', async () => {
   const fixtures = electionGridLayoutNewHampshireTestBallotFixtures;
   const electionDefinition = fixtures.readElectionDefinition();
 
-  const { ballotHash, election, electionData } = electionDefinition;
+  const { election } = electionDefinition;
   const pollingPlace = assertDefined(election.pollingPlaces)[0]!;
 
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
@@ -251,11 +253,10 @@ test('get/set polling place', () => {
   // Should throw if machine is unconfigured:
   expect(() => store.setPollingPlaceId(pollingPlace.id)).toThrow();
 
-  store.setElectionAndJurisdiction({
-    electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash,
   });
   expect(store.getPollingPlaceId()).toBeUndefined();
 
@@ -266,7 +267,7 @@ test('get/set polling place', () => {
   expect(store.getPollingPlaceId()).toBeUndefined();
 });
 
-test('get/set polls state', () => {
+test('get/set polls state', async () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 
   // Before setting an election
@@ -276,7 +277,7 @@ test('get/set polls state', () => {
   ).toThrowError();
   expect(() => store.getLastPollsTransition()).toThrowError();
 
-  configureElectionNh(store);
+  await configureElectionNh(store);
 
   // After setting an election
   const openPollsTime = Date.now();
@@ -289,9 +290,9 @@ test('get/set polls state', () => {
   });
 });
 
-test('getBatches', () => {
+test('getBatches', async () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
-  const { pollingPlace } = configureElectionNh(store);
+  const { pollingPlace } = await configureElectionNh(store);
 
   const batchId = store.addBatch();
 
@@ -346,9 +347,9 @@ test('getBatches', () => {
   ]);
 });
 
-test('iterating over sheets', () => {
+test('iterating over sheets', async () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
-  configureElectionNh(store);
+  await configureElectionNh(store);
 
   expect(Array.from(store.forEachAcceptedSheet())).toEqual([]);
   expect(Array.from(store.forEachSheet())).toEqual([]);
@@ -442,9 +443,9 @@ test('iterating over sheets', () => {
   );
 });
 
-test('getSheet', () => {
+test('getSheet', async () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
-  configureElectionNh(store);
+  await configureElectionNh(store);
 
   const batchId = store.addBatch();
 
@@ -492,7 +493,7 @@ test('resetElectionSession', async () => {
     makeTemporaryFile(),
     mockBaseLogger({ fn: vi.fn })
   );
-  configureElectionNh(store);
+  await configureElectionNh(store);
 
   const mockUsbDrive = createMockUsbDrive();
   mockUsbDrive.insertUsbDrive({});
@@ -557,9 +558,9 @@ test('resetElectionSession', async () => {
   ).toEqual(false);
 });
 
-test('getBallotsCounted', () => {
+test('getBallotsCounted', async () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
-  configureElectionNh(store);
+  await configureElectionNh(store);
 
   expect(store.getBallotsCounted()).toEqual(0);
 
@@ -704,9 +705,9 @@ test(
   }
 );
 
-test('forEachSheetPendingContinuousExport', () => {
+test('forEachSheetPendingContinuousExport', async () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
-  configureElectionNh(store);
+  await configureElectionNh(store);
 
   const batchId = store.addBatch();
 
@@ -835,19 +836,23 @@ test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage',
   ]);
 });
 
-function configureElectionNh(store: Store) {
+async function configureElectionNh(
+  store: Store,
+  systemSettings?: SystemSettings
+) {
   const fixtures = electionGridLayoutNewHampshireTestBallotFixtures;
   const electionDefinition = fixtures.readElectionDefinition();
-  const { election, electionData, ballotHash } = electionDefinition;
-  const pollingPlace = assertDefined(election.pollingPlaces)[0]!;
+  const pollingPlace = assertDefined(
+    electionDefinition.election.pollingPlaces
+  )[0]!;
 
-  store.setElectionAndJurisdiction({
-    electionData,
+  await configureStore(store, {
+    electionDefinition,
+    systemSettings,
     jurisdiction,
     electionPackageHash,
-    ballotHash,
+    pollingPlaceId: pollingPlace.id,
   });
-  store.setPollingPlaceId(pollingPlace.id);
 
   return { electionDefinition, pollingPlace };
 }

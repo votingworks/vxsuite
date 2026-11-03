@@ -10,7 +10,10 @@ import {
 import { LogEventId, type Logger, mockBaseLogger } from '@votingworks/logging';
 import { EventEmitter } from 'node:events';
 import type { Application } from 'express';
-import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import {
+  electionFamousNames2021Fixtures,
+  makeTemporaryDirectory,
+} from '@votingworks/fixtures';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import {
   analogAndHdmi,
@@ -24,7 +27,10 @@ import { buildApp } from './app.js';
 import { PORT } from './globals.js';
 import { start } from './server.js';
 import { createWorkspace, type Workspace } from './util/workspace.js';
-import { buildMockLogger } from '../test/helpers/shared_helpers.js';
+import {
+  buildMockLogger,
+  configureStore,
+} from '../test/helpers/shared_helpers.js';
 import type { AudioPlayer } from './audio/audio.js';
 
 vi.mock('./app');
@@ -126,7 +132,11 @@ test.each([
     buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
     if (systemSettings) {
-      workspace.store.setSystemSettings(systemSettings);
+      await configureStore(workspace.store, {
+        electionDefinition:
+          electionFamousNames2021Fixtures.readElectionDefinition(),
+        systemSettings,
+      });
     }
 
     const mockAudioCard = initMockAudioCard(

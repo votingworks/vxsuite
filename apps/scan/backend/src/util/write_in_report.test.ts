@@ -20,6 +20,7 @@ import {
 } from '@votingworks/types';
 import { loadImageData, crop, toDataUrl } from '@votingworks/image-utils';
 import { Store } from '../store.js';
+import { configureStore } from '../../test/helpers/shared_helpers.js';
 
 vi.mock(import('@votingworks/image-utils'), async (importActual) => {
   const original = await importActual();
@@ -40,13 +41,12 @@ const electionDefinition =
   electionFamousNames2021Fixtures.readElectionDefinition();
 const { election } = electionDefinition;
 
-function createStore(): Store {
+async function createStore(): Promise<Store> {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash: electionDefinition.ballotHash,
   });
   return store;
 }
@@ -91,7 +91,7 @@ function addBmdSheet(store: Store, votes: VotesDict): void {
 }
 
 test('returns all write-in-eligible contests even with no ballots', async () => {
-  const store = createStore();
+  const store = await createStore();
   const result = await store.getWriteInReportData();
 
   const writeInContests = election.contests.filter(
@@ -104,7 +104,7 @@ test('returns all write-in-eligible contests even with no ballots', async () => 
 });
 
 test('extracts BMD write-ins as text entries', async () => {
-  const store = createStore();
+  const store = await createStore();
   store.setPollingPlaceId('place-1');
   store.addBatch();
 
@@ -129,7 +129,7 @@ test('extracts BMD write-ins as text entries', async () => {
 });
 
 test('extracts multiple BMD write-ins across contests', async () => {
-  const store = createStore();
+  const store = await createStore();
   store.setPollingPlaceId('place-1');
   store.addBatch();
 
@@ -180,7 +180,7 @@ test('extracts multiple BMD write-ins across contests', async () => {
 });
 
 test('excludes write-ins from overvoted contests', async () => {
-  const store = createStore();
+  const store = await createStore();
   store.setPollingPlaceId('place-1');
   store.addBatch();
 
@@ -217,7 +217,7 @@ test('excludes write-ins from overvoted contests', async () => {
 });
 
 test('handles BMD multi-page ballots', async () => {
-  const store = createStore();
+  const store = await createStore();
   store.setPollingPlaceId('place-1');
   const batchId = store.addBatch();
   const sheetId = uuid();
@@ -272,7 +272,7 @@ test('handles BMD multi-page ballots', async () => {
 });
 
 test('skips non-interpreted pages (blank pages)', async () => {
-  const store = createStore();
+  const store = await createStore();
   store.setPollingPlaceId('place-1');
   const batchId = store.addBatch();
   const sheetId = uuid();
@@ -296,7 +296,7 @@ test('skips non-interpreted pages (blank pages)', async () => {
 });
 
 test('preserves contest order from election definition', async () => {
-  const store = createStore();
+  const store = await createStore();
   const result = await store.getWriteInReportData();
 
   const expectedOrder = election.contests
@@ -413,7 +413,7 @@ test('extracts HMPB write-ins as image entries', async () => {
     ok(mockImage as RgbaImageData)
   );
 
-  const store = createStore();
+  const store = await createStore();
   store.setPollingPlaceId('place-1');
   store.addBatch();
   const layout = makeHmpbLayout(['mayor']);
@@ -446,7 +446,7 @@ test('extracts HMPB write-ins as image entries', async () => {
 test('HMPB write-ins gracefully handle failed image load', async () => {
   // Default mock returns error for loadImageData, so write-ins from
   // HMPB pages should be silently dropped when the image cannot be loaded.
-  const store = createStore();
+  const store = await createStore();
   store.setPollingPlaceId('place-1');
   store.addBatch();
   const layout = makeHmpbLayout(['mayor']);
@@ -478,13 +478,12 @@ const primaryElectionDefinition =
   electionTwoPartyPrimaryFixtures.readElectionDefinition();
 const primaryElection = primaryElectionDefinition.election;
 
-function createPrimaryStore(): Store {
+async function createPrimaryStore(): Promise<Store> {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
-  store.setElectionAndJurisdiction({
-    electionData: primaryElectionDefinition.electionData,
+  await configureStore(store, {
+    electionDefinition: primaryElectionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash: primaryElectionDefinition.ballotHash,
   });
   return store;
 }
@@ -529,7 +528,7 @@ function addPrimaryBmdSheet(store: Store, votes: VotesDict): void {
 }
 
 test('excludes non-write-in candidate contests and yes/no contests', async () => {
-  const store = createPrimaryStore();
+  const store = await createPrimaryStore();
   const result = await store.getWriteInReportData();
 
   const contestIds = result.map((c) => c.contestId);
@@ -551,7 +550,7 @@ test('excludes non-write-in candidate contests and yes/no contests', async () =>
 });
 
 test('includes partyId from contest definition', async () => {
-  const store = createPrimaryStore();
+  const store = await createPrimaryStore();
   const result = await store.getWriteInReportData();
 
   const mammalContest = result.find(
@@ -566,7 +565,7 @@ test('includes partyId from contest definition', async () => {
 });
 
 test('uses contest title as contestName', async () => {
-  const store = createPrimaryStore();
+  const store = await createPrimaryStore();
   const result = await store.getWriteInReportData();
 
   for (const contestData of result) {
@@ -578,7 +577,7 @@ test('uses contest title as contestName', async () => {
 });
 
 test('extracts write-ins from primary election ballots', async () => {
-  const store = createPrimaryStore();
+  const store = await createPrimaryStore();
   store.setPollingPlaceId('place-1');
   store.addBatch();
 
