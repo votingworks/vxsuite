@@ -1,0 +1,15 @@
+diff --git a/lib/percent-encoding.js b/lib/percent-encoding.js
+index c4c86ece4e135fe29bafee8848f1f9e262cec15f..baf8a9c51182d628c094938cc50db2700a2e2d8d 100644
+--- a/lib/percent-encoding.js
++++ b/lib/percent-encoding.js
+@@ -113,6 +113,10 @@ function utf8PercentEncodeCodePointInternal(codePoint, percentEncodePredicate) {
+ }
+ 
+ function utf8PercentEncodeCodePoint(codePoint, percentEncodePredicate) {
++  // ASCII encodes to itself in UTF-8, so skip the per-code-point TextEncoder.
++  if (codePoint < 0x80 && !percentEncodePredicate(codePoint)) {
++    return String.fromCharCode(codePoint);
++  }
+   return utf8PercentEncodeCodePointInternal(String.fromCodePoint(codePoint), percentEncodePredicate);
+ }
+ 

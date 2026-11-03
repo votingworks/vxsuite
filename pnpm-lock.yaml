@@ -179,6 +179,7 @@ pnpmfileChecksum: sha256-eJokq7EzJEMySZukx+IFLhIhOHaScrqbyNUKycTI+/k=
 patchedDependencies:
   '@fortawesome/react-fontawesome@3.5.0': 032ae55c6a44387cf033d69474e0a2e1cde9e7cd37dfc5c2a8159e32e1202ef3
   react-modal@3.16.1: c9e0bf6e84052236f08880c80bff6d901297b4b55a7217ff8222c1c99cd8d350
+  whatwg-url@17.3.0: cacd4450d95f78c18ea7b984e0f5c26aa5ddd9dafe10df0488c5d7d956aa60a0
 
 importers:
 
@@ -18477,7 +18478,7 @@ snapshots:
   data-urls@8.0.0(@noble/hashes@1.8.0):
     dependencies:
       whatwg-mimetype: 5.0.0
-      whatwg-url: 17.3.0(@noble/hashes@1.8.0)
+      whatwg-url: 17.3.0(patch_hash=cacd4450d95f78c18ea7b984e0f5c26aa5ddd9dafe10df0488c5d7d956aa60a0)(@noble/hashes@1.8.0)
     transitivePeerDependencies:
       - '@noble/hashes'
 
@@ -20864,7 +20865,7 @@ snapshots:
       w3c-xmlserializer: 6.0.0
       webidl-conversions: 8.0.1
       whatwg-mimetype: 5.0.0
-      whatwg-url: 17.3.0(@noble/hashes@1.8.0)
+      whatwg-url: 17.3.0(patch_hash=cacd4450d95f78c18ea7b984e0f5c26aa5ddd9dafe10df0488c5d7d956aa60a0)(@noble/hashes@1.8.0)
       xml-name-validator: 5.0.0
     optionalDependencies:
       canvas: 3.2.3
@@ -23572,7 +23573,7 @@ snapshots:
 
   whatwg-mimetype@5.0.0: {}
 
-  whatwg-url@17.3.0(@noble/hashes@1.8.0):
+  whatwg-url@17.3.0(patch_hash=cacd4450d95f78c18ea7b984e0f5c26aa5ddd9dafe10df0488c5d7d956aa60a0)(@noble/hashes@1.8.0):
     dependencies:
       '@exodus/bytes': 1.16.0(@noble/hashes@1.8.0)
       tr46: 7.0.0
