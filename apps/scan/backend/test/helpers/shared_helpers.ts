@@ -1,4 +1,3 @@
-import { createRequire } from 'node:module';
 import { type Mocked, expect, vi } from 'vitest';
 import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { iter, ok } from '@votingworks/basics';
@@ -41,11 +40,6 @@ import type {
 import type { Store } from '../../src/store.js';
 import { getUserRole } from '../../src/util/auth.js';
 import type { Workspace } from '../../src/util/workspace.js';
-// `wait-for-expect` is CJS with an ESM `export default` in its types, which node16
-// can't bind to the callable; load it via require.
-const waitForExpect = createRequire(import.meta.url)(
-  'wait-for-expect'
-) as typeof import('wait-for-expect').default;
 
 export interface ExpectedScannerStatus extends Partial<PrecinctScannerStatus> {
   state: PrecinctScannerState;
@@ -72,9 +66,12 @@ export async function waitForStatus(
   apiClient: grout.Client<Api>,
   status: ExpectedScannerStatus
 ): Promise<void> {
-  await waitForExpect(async () => {
-    await expectStatus(apiClient, status);
-  }, 2_000);
+  await vi.waitFor(
+    async () => {
+      await expectStatus(apiClient, status);
+    },
+    { timeout: 2_000 }
+  );
 }
 
 /**
@@ -147,10 +144,9 @@ export async function configureApp(
 export async function waitForContinuousExportToUsbDrive(
   store: Store
 ): Promise<void> {
-  await waitForExpect(
+  await vi.waitFor(
     () => expect(store.getPendingContinuousExportOperations()).toEqual([]),
-    10000,
-    250
+    { timeout: 10_000, interval: 250 }
   );
 }
 

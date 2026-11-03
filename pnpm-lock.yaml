@@ -2796,9 +2796,6 @@ importers:
       vitest:
         specifier: 5.0.2
         version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(@vitest/coverage-istanbul@5.0.2)(jsdom@30.1.3(@noble/hashes@1.8.0)(canvas@3.2.3))(vite@8.1.6(@types/node@24.19.2)(esbuild@0.28.1)(yaml@2.8.2))
-      wait-for-expect:
-        specifier: ^3.0.2
-        version: 3.0.2
 
   apps/scan/frontend:
     dependencies:
@@ -3533,9 +3530,6 @@ importers:
       usb:
         specifier: 2.15.0
         version: 2.15.0
-      wait-for-expect:
-        specifier: ^3.0.2
-        version: 3.0.2
     devDependencies:
       '@types/debug':
         specifier: 4.1.12
@@ -13718,9 +13712,6 @@ packages:
     resolution: {integrity: sha512-4Nsy8K5Tr6SPDH9jhKJOHf7ChDrc1zufZTVSF7x72hwuEXBqxqk9G6cK+K2NRUtB3iELRJqjXb4JPDMBjMTl2Q==}
     engines: {node: ^22.22.2 || ^24.15.0 || >=26.0.0}
 
-  wait-for-expect@3.0.2:
-    resolution: {integrity: sha512-cfS1+DZxuav1aBYbaO/kE06EOS8yRw7qOFoD3XtjTkYvCvh3zUvNST8DXK/nPaeqIzIv3P3kL3lRJn8iwOiSag==}
-
   walk-sync@2.2.0:
     resolution: {integrity: sha512-IC8sL7aB4/ZgFcGI2T1LczZeFWZ06b3zoHH7jBPyHxOtIIz1jppWHjjEXkOFvFojBVAK9pV7g47xOZ4LW3QLfg==}
     engines: {node: 8.* || >= 10.*}
@@ -23187,8 +23178,6 @@ snapshots:
   w3c-xmlserializer@6.0.0:
     dependencies:
       xml-name-validator: 5.0.0
-
-  wait-for-expect@3.0.2: {}
 
   walk-sync@2.2.0:
     dependencies:

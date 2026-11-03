@@ -33,8 +33,7 @@
     "@votingworks/utils": "workspace:*",
     "buffer": "^6.0.3",
     "debug": "4.3.4",
-    "usb": "2.15.0",
-    "wait-for-expect": "^3.0.2"
+    "usb": "2.15.0"
   },
   "devDependencies": {
     "@types/debug": "4.1.12",
