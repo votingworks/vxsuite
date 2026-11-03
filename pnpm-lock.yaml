@@ -449,9 +449,6 @@ importers:
       react-router-dom:
         specifier: ^5.3.4
         version: 5.3.4(react@18.3.1)
-      resolve:
-        specifier: 1.18.1
-        version: 1.18.1
       setimmediate:
         specifier: ^1.0.5
         version: 1.0.5
@@ -897,9 +894,6 @@ importers:
       jsdom:
         specifier: 30.1.3
         version: 30.1.3(@noble/hashes@1.8.0)(canvas@3.2.3)
-      react-app-polyfill:
-        specifier: 3.0.0
-        version: 3.0.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -1314,9 +1308,6 @@ importers:
       jsdom:
         specifier: 30.1.3
         version: 30.1.3(@noble/hashes@1.8.0)(canvas@3.2.3)
-      react-app-polyfill:
-        specifier: 3.0.0
-        version: 3.0.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -1468,9 +1459,6 @@ importers:
 
   apps/mark-scan/frontend:
     dependencies:
-      '@rooks/use-interval':
-        specifier: ^4.5.0
-        version: 4.5.0(react@18.3.1)
       '@tanstack/react-query':
         specifier: 4.32.1
         version: 4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1525,9 +1513,6 @@ importers:
       react:
         specifier: 18.3.1
         version: 18.3.1
-      react-app-polyfill:
-        specifier: 3.0.0
-        version: 3.0.0
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
@@ -1537,9 +1522,6 @@ importers:
       react-router-dom:
         specifier: ^5.3.4
         version: 5.3.4(react@18.3.1)
-      resolve:
-        specifier: 1.18.1
-        version: 1.18.1
       setimmediate:
         specifier: ^1.0.5
         version: 1.0.5
@@ -1822,9 +1804,6 @@ importers:
 
   apps/mark/frontend:
     dependencies:
-      '@rooks/use-interval':
-        specifier: ^4.5.0
-        version: 4.5.0(react@18.3.1)
       '@tanstack/react-query':
         specifier: 4.32.1
         version: 4.32.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1879,9 +1858,6 @@ importers:
       react:
         specifier: 18.3.1
         version: 18.3.1
-      react-app-polyfill:
-        specifier: 3.0.0
-        version: 3.0.0
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
@@ -1891,9 +1867,6 @@ importers:
       react-router-dom:
         specifier: ^5.3.4
         version: 5.3.4(react@18.3.1)
-      resolve:
-        specifier: 1.18.1
-        version: 1.18.1
       setimmediate:
         specifier: ^1.0.5
         version: 1.0.5
@@ -2275,9 +2248,6 @@ importers:
       react-router-dom:
         specifier: ^5.3.4
         version: 5.3.4(react@18.3.1)
-      resolve:
-        specifier: 1.18.1
-        version: 1.18.1
       styled-components:
         specifier: ^5.3.11
         version: 5.3.11(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
@@ -2357,9 +2327,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
-      react-app-polyfill:
-        specifier: 3.0.0
-        version: 3.0.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -2626,9 +2593,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
-      react-app-polyfill:
-        specifier: 3.0.0
-        version: 3.0.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -2995,9 +2959,6 @@ importers:
       jsdom:
         specifier: 30.1.3
         version: 30.1.3(@noble/hashes@1.8.0)(canvas@3.2.3)
-      react-app-polyfill:
-        specifier: 3.0.0
-        version: 3.0.0
       sort-package-json:
         specifier: ^1.50.0
         version: 1.53.1
@@ -3276,9 +3237,6 @@ importers:
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
-      '@types/text-encoding':
-        specifier: ^0.0.35
-        version: 0.0.35
       '@vitest/coverage-istanbul':
         specifier: 5.0.2
         version: 5.0.2(vitest@5.0.2)
@@ -4016,9 +3974,6 @@ importers:
       canvas:
         specifier: 3.2.3
         version: 3.2.3
-      csv-writer:
-        specifier: ^1.6.0
-        version: 1.6.0
     devDependencies:
       '@types/node':
         specifier: 24.19.2
@@ -7952,11 +7907,6 @@ packages:
       rollup:
         optional: true
 
-  '@rooks/use-interval@4.5.0':
-    resolution: {integrity: sha512-As0DueIAGLJLYATKPPOCDGqoIlwbhPAcYP14TNTHaAj9/ODdvUYFXAP3jFCRzDNpjXCIgSe4oBuzVVmM526n+Q==}
-    peerDependencies:
-      react: '>=16.8.0'
-
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
 
@@ -8604,9 +8554,6 @@ packages:
   '@types/symlink-or-copy@1.2.1':
     resolution: {integrity: sha512-8LQKxlJ8zXQ5U0wFXTSBXLHg8+oBbLMJXEC6vOqhL+iz8EfVvSxfdwtvq8ufkT9pumab0ntnvYXQBF/+cxzl9w==}
 
-  '@types/text-encoding@0.0.35':
-    resolution: {integrity: sha512-jfo/A88XIiAweUa8np+1mPbm3h2w0s425YrI8t3wk5QxhH6UI7w517MboNVnGDeMSuoFwA8Rwmklno+FicvV4g==}
-
   '@types/tmp@0.2.4':
     resolution: {integrity: sha512-Vq3rwM+2KgiLacq68EjTJD9cuJ/ne5pXntWn8B8Rxj25SLkGAhCgooCZ1lhcIcV5OFveJ+s5Cqpi+XKfFM/xZA==}
 
@@ -9173,9 +9120,6 @@ packages:
     resolution: {integrity: sha512-3duEwti880xqi4eAMN8AyR4a0ByT90zoYdLlevfrvU43vb0YZwZVfxOgxWrLXXXpyugL0hNZc9G6BiB5B3nUug==}
     engines: {node: '>=8'}
 
-  asap@2.0.6:
-    resolution: {integrity: sha512-BSHWgDSAiKs50o2Re8ppvp3seVHXSRM44cdSsT9FfNEUUZLOGWVCsiWaRPWM1Znn+mqZ1OfVZ3z3DWEzSp7hRA==}
-
   assert@2.0.0:
     resolution: {integrity: sha512-se5Cd+js9dXJnu6Ag2JFc00t+HmHOen+8Q+L7O9zI0PqQXr20uk2J0XQqMxZEeo5U50o8Nvmmx7dZrl+Ufr35A==}
 
@@ -9679,9 +9623,6 @@ packages:
     resolution: {integrity: sha512-fereAvAvxDrQDOXybk3Qu3dPbOoKoysFMWtkY3mv5BsL8//OSZVL5DCLYqgRfY5cWirgRzlC+WSrxp6Bo3eNZg==}
     hasBin: true
 
-  core-js@3.23.3:
-    resolution: {integrity: sha512-oAKwkj9xcWNBAvGbT//WiCdOMpb9XQG92/Fe3ABFM/R16BsHgePG00mFOgKf7IsCtfj8tA1kHtf/VwErhriz5Q==}
-
   core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
 
@@ -9771,9 +9712,6 @@ packages:
 
   csv-stringify@6.4.0:
     resolution: {integrity: sha512-HQsw0QXiN5fdlO+R8/JzCZnR3Fqp8E87YVnhHlaPtNGJjt6ffbV0LpOkieIb1x6V1+xt878IYq77SpXHWAqKkA==}
-
-  csv-writer@1.6.0:
-    resolution: {integrity: sha512-NOx7YDFWEsM/fTRAJjRpPp8t+MKRVvniAg9wQlUKx20MFrPs73WLJhFf5iteqrxNYnsy924K3Iroh3yNHeYd2g==}
 
   damerau-levenshtein@1.0.8:
     resolution: {integrity: sha512-sdQSFB7+llfUcQHUQO3+B8ERRj0Oa4w9POWMI/puGtuf7gFywGmkaLCElnudfTiKZV+NvHqL0ifzdrI8Ro7ESA==}
@@ -12309,9 +12247,6 @@ packages:
   pend@1.2.0:
     resolution: {integrity: sha512-F3asv42UuXchdzt+xXqfW1OGlVBe+mxa2mqI0pg5yAHZPvFmY3Y6drSf/GQ1A86WgWEN9Kzh/WrgKa6iGcHXLg==}
 
-  performance-now@2.1.0:
-    resolution: {integrity: sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==}
-
   pg-cloudflare@1.1.1:
     resolution: {integrity: sha512-xWPagP/4B6BgFO+EKz3JONXv3YDgvkbVrGw2mTo3D6tVDQRh1e7cqVGvyR3BE+eQgAvx1XhW/iEASj4/jCWl3Q==}
 
@@ -12511,9 +12446,6 @@ packages:
     resolution: {integrity: sha512-3npG2NGhTc8BWBolLLf8l/92OxMGaRLbqvIh9wjCHhDXNvk4zsxaTaCpiCunW09qWPrN2zeNSNwRLVBrQQtutA==}
     engines: {node: 10.* || >= 12.*}
 
-  promise@8.1.0:
-    resolution: {integrity: sha512-W04AqnILOL/sPRXziNicCjSNRruLAuIHEOVBazepu0545DDNGYHz7ar9ZgZ1fMU8/MA4mVxp5rkBWRi6OXIy3Q==}
-
   prompts@2.4.2:
     resolution: {integrity: sha512-NxNv/kLguCA7p3jE8oL2aEBsrJWgAakBpgmgK6lpPWV+WuOmY6r2/zbAVnP+T8bQlA0nzHXSJSJW0Hq7ylaD2Q==}
     engines: {node: '>= 6'}
@@ -12622,9 +12554,6 @@ packages:
   quick-temp@0.1.8:
     resolution: {integrity: sha512-YsmIFfD9j2zaFwJkzI6eMG7y0lQP7YeWzgtFgNl38pGWZBSXJooZbOWwkcRot7Vt0Fg9L23pX0tqWU3VvLDsiA==}
 
-  raf@3.4.1:
-    resolution: {integrity: sha512-Sq4CW4QhwOHE8ucn6J34MqtZCeWFP2aQSmrlroYgqAV1PjStIhJXxYuTgUIfkEk7zTLjmIjLmU5q+fbD1NnOJA==}
-
   range-parser@1.2.1:
     resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
     engines: {node: '>= 0.6'}
@@ -12636,10 +12565,6 @@ packages:
   rc@1.2.8:
     resolution: {integrity: sha512-y3bGgqKj3QBdxLbLkomlohkvsA8gdAiUQlSBJnBhfn+BPxg4bc62d8TcBW15wavDfgexCgccckhcZvywyQYPOw==}
     hasBin: true
-
-  react-app-polyfill@3.0.0:
-    resolution: {integrity: sha512-sZ41cxiU5llIB003yxxQBYrARBqe0repqPTTYBTmMqTz9szeBbE37BehCE891NZsmdZqqP+xWKdT3eo3vOzN8w==}
-    engines: {node: '>=14'}
 
   react-chartjs-2@5.3.0:
     resolution: {integrity: sha512-UfZZFnDsERI3c3CZGxzvNJd02SHjaSJ8kgW1djn65H1KK8rehwTjyrRKOG3VTMG8wtHZ5rgAO5oTHtHi9GCCmw==}
@@ -12776,9 +12701,6 @@ packages:
     resolution: {integrity: sha512-00o4I+DVrefhv+nX0ulyi3biSHCPDe+yLv5o/p6d/UVlirijB8E16FtfwSAi4g3tcqrQ4lRAqQSoFEZJehYEcw==}
     engines: {node: '>= 0.4'}
 
-  regenerator-runtime@0.13.11:
-    resolution: {integrity: sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==}
-
   regexp.prototype.flags@1.5.4:
     resolution: {integrity: sha512-dYqgNSZbDwkaJ2ceRd9ojCGjBq+mOm9LmtXnAnEGyHhN/5R7iDW2TRw3h+o/jCFxus3P2LfWIIiwowAjANm7IA==}
     engines: {node: '>= 0.4'}
@@ -12838,9 +12760,6 @@ packages:
   resolve.exports@2.0.3:
     resolution: {integrity: sha512-OcXjMsGdhL4XnbShKpAcSqPMzQoYkYyhbEaeSko47MjRP9NfEQMhZkXL1DoFlt9LWQn4YttrdnV6X2OiyzBi+A==}
     engines: {node: '>=10'}
-
-  resolve@1.18.1:
-    resolution: {integrity: sha512-lDfCPaMKfOJXjy0dPayzPdF1phampNWr3qFCjAu+rw/qbQmr5jWH5xN2hwh9QKfw9E5v4hwV7A+jrCmL8yjjqA==}
 
   resolve@1.22.12:
     resolution: {integrity: sha512-TyeJ1zif53BPfHootBGwPRYT1RUt6oGWsaQr8UyZW/eAm9bKoijtvruSDEmZHm92CwS9nj7/fWttqPCgzep8CA==}
@@ -13838,9 +13757,6 @@ packages:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
     engines: {node: '>=18'}
     deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
-
-  whatwg-fetch@3.6.2:
-    resolution: {integrity: sha512-bJlen0FcuU/0EMLrdbJ7zOnW6ITZLrZMIarMUVmdKtsGvZna8vxKYaexICWPfZ8qwf9fzNq+UEIZrnSaApt6RA==}
 
   whatwg-mimetype@4.0.0:
     resolution: {integrity: sha512-QaKxh0eNIi2mE9p2vEdzfagOKHCcj1pJ56EEHGQOVxp8r9/iszLUUV7v89x9O1p/T+NlTM5W7jW6+cz4Fq1YVg==}
@@ -16289,10 +16205,6 @@ snapshots:
     optionalDependencies:
       rollup: 3.29.5
 
-  '@rooks/use-interval@4.5.0(react@18.3.1)':
-    dependencies:
-      react: 18.3.1
-
   '@rtsao/scc@1.1.0': {}
 
   '@sentry-internal/browser-utils@8.51.0':
@@ -17018,8 +16930,6 @@ snapshots:
 
   '@types/symlink-or-copy@1.2.1': {}
 
-  '@types/text-encoding@0.0.35': {}
-
   '@types/tmp@0.2.4': {}
 
   '@types/tough-cookie@4.0.2': {}
@@ -17611,8 +17521,6 @@ snapshots:
 
   arrify@2.0.1: {}
 
-  asap@2.0.6: {}
-
   assert@2.0.0:
     dependencies:
       es6-object-assign: 1.1.0
@@ -18193,8 +18101,6 @@ snapshots:
       untildify: 4.0.0
       yargs: 16.2.0
 
-  core-js@3.23.3: {}
-
   core-util-is@1.0.3: {}
 
   cosmiconfig@7.0.1:
@@ -18295,8 +18201,6 @@ snapshots:
   csv-parse@7.0.2: {}
 
   csv-stringify@6.4.0: {}
-
-  csv-writer@1.6.0: {}
 
   damerau-levenshtein@1.0.8: {}
 
@@ -21535,8 +21439,6 @@ snapshots:
 
   pend@1.2.0: {}
 
-  performance-now@2.1.0: {}
-
   pg-cloudflare@1.1.1:
     optional: true
 
@@ -21712,10 +21614,6 @@ snapshots:
 
   promise-map-series@0.3.0: {}
 
-  promise@8.1.0:
-    dependencies:
-      asap: 2.0.6
-
   prompts@2.4.2:
     dependencies:
       kleur: 3.0.3
@@ -21870,10 +21768,6 @@ snapshots:
       rimraf: 2.7.1
       underscore.string: 3.3.6
 
-  raf@3.4.1:
-    dependencies:
-      performance-now: 2.1.0
-
   range-parser@1.2.1: {}
 
   raw-body@2.5.3:
@@ -21889,15 +21783,6 @@ snapshots:
       ini: 1.3.8
       minimist: 1.2.8
       strip-json-comments: 2.0.1
-
-  react-app-polyfill@3.0.0:
-    dependencies:
-      core-js: 3.23.3
-      object-assign: 4.1.1
-      promise: 8.1.0
-      raf: 3.4.1
-      regenerator-runtime: 0.13.11
-      whatwg-fetch: 3.6.2
 
   react-chartjs-2@5.3.0(chart.js@4.4.7)(react@18.3.1):
     dependencies:
@@ -22101,8 +21986,6 @@ snapshots:
       get-proto: 1.0.1
       which-builtin-type: 1.2.1
 
-  regenerator-runtime@0.13.11: {}
-
   regexp.prototype.flags@1.5.4:
     dependencies:
       call-bind: 1.0.9
@@ -22152,11 +22035,6 @@ snapshots:
 
   resolve.exports@2.0.3:
     optional: true
-
-  resolve@1.18.1:
-    dependencies:
-      is-core-module: 2.16.2
-      path-parse: 1.0.7
 
   resolve@1.22.12:
     dependencies:
@@ -23352,8 +23230,6 @@ snapshots:
   whatwg-encoding@3.1.1:
     dependencies:
       iconv-lite: 0.6.3
-
-  whatwg-fetch@3.6.2: {}
 
   whatwg-mimetype@4.0.0: {}
 

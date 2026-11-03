@@ -40,7 +40,6 @@
     ]
   },
   "dependencies": {
-    "@rooks/use-interval": "^4.5.0",
     "@tanstack/react-query": "4.32.1",
     "@votingworks/basics": "workspace:*",
     "@votingworks/dev-dock-frontend": "workspace:*",
@@ -59,11 +58,9 @@
     "http-proxy-middleware": "3.0.7",
     "path": "^0.12.7",
     "react": "18.3.1",
-    "react-app-polyfill": "3.0.0",
     "react-dom": "18.3.1",
     "react-idle-timer": "^5.7.2",
     "react-router-dom": "^5.3.4",
-    "resolve": "1.18.1",
     "setimmediate": "^1.0.5",
     "styled-components": "^5.3.11",
     "use-interval": "1.4.0",
