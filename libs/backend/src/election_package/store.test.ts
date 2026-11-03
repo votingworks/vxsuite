@@ -127,11 +127,23 @@ test('election key and jurisdiction', async () => {
   expect(store.getElectionKey()).toEqual(constructElectionKey(election));
   expect(store.getJurisdiction()).toEqual(jurisdiction);
   expect(store.getSystemSettings()).toEqual(DEFAULT_SYSTEM_SETTINGS);
-  expect(store.getSystemSettings()).toEqual(DEFAULT_SYSTEM_SETTINGS);
 
   store.reset();
   expect(store.hasElection()).toEqual(false);
   expect(store.getElectionKey()).toBeUndefined();
+});
+
+test('system settings are cached until reset', async () => {
+  const dbPath = join(makeTemporaryDirectory(), 'election-package.db');
+  const store = ElectionPackageStore.fileStore(dbPath);
+  await importElectionPackageForTest(store, { electionDefinition });
+  expect(store.getSystemSettings()).toEqual(DEFAULT_SYSTEM_SETTINGS);
+
+  ElectionPackageStore.fileStore(dbPath).reset();
+  expect(store.getSystemSettings()).toEqual(DEFAULT_SYSTEM_SETTINGS);
+
+  store.reset();
+  expect(store.getSystemSettings()).toBeUndefined();
 });
 
 test('election key for a CDF election', async () => {
