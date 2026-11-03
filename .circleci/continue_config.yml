@@ -30,7 +30,7 @@ executors:
 jobs:
   # @votingworks/admin-backend
   test-apps-admin-backend:
-    executor: nodejs
+    executor: nodejs_postgres
     resource_class: xlarge
     steps:
       - checkout-and-install:
@@ -1433,6 +1433,126 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/db/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/design-backend
+  test-libs-design-backend:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/design-backend build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/design-backend lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/design-backend test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/design-backend/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/design-store-pg
+  test-libs-design-store-pg:
+    executor: nodejs_postgres
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/design-store-pg build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/design-store-pg lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/design-store-pg test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/design-store-pg/reports/
+      - when:
+          condition:
+            or:
+              - equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Prune Turbo Cache
+                when: always
+                command: |
+                  ./script/prune-turbo-cache
+            - save_cache:
+                name: Save Turbo Cache
+                when: always
+                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
+                paths:
+                  - .turbo/cache
+
+  # @votingworks/design-ui
+  test-libs-design-ui:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install:
+          is_node_package: true
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/design-ui build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/design-ui lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/design-ui test:run
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/design-ui/reports/
       - when:
           condition:
             or:

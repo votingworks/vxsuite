@@ -5,5 +5,8 @@ export default defineConfig({
     coverage: {
       exclude: ['src/index.ts'],
     },
+    env: {
+      BASE_URL: process.env.BASE_URL ?? '',
+    },
   },
 });

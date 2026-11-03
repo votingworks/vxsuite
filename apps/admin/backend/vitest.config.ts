@@ -4,6 +4,9 @@ import { defineConfig } from '../../../vitest.config.shared.mjs';
 export default defineConfig({
   test: {
     setupFiles: ['test/set_env_vars.ts', 'test/setup.ts'],
+    env: {
+      BASE_URL: process.env.BASE_URL ?? '',
+    },
     coverage: {
       exclude: [
         '**/*.d.ts',
