@@ -8,13 +8,14 @@ import {
   mockLogger,
 } from '@votingworks/logging';
 import type { Server } from 'node:http';
+import type { AddressInfo } from 'node:net';
+import { once } from 'node:events';
 import * as grout from '@votingworks/grout';
 import {
   type DippedSmartCardAuthApi,
   buildMockDippedSmartCardAuth,
 } from '@votingworks/auth';
 import { dirSync } from 'tmp';
-import getPort from 'get-port';
 import { type MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { importElectionPackageForTest } from '@votingworks/backend/test-utils';
 import {
@@ -59,6 +60,14 @@ export interface TestAppContext {
   store: Store;
 }
 
+/** Resolves to the port `server` is listening on. */
+export async function getListeningPort(server: Server): Promise<number> {
+  if (!server.listening) {
+    await once(server, 'listening');
+  }
+  return (server.address() as AddressInfo).port;
+}
+
 export function testWithApp(
   name: string,
   fn: (ctx: TestAppContext) => Promise<void>
@@ -69,7 +78,6 @@ export function testWithApp(
 export async function withApp(
   fn: (ctx: TestAppContext) => Promise<void>
 ): Promise<void> {
-  const port = await getPort();
   const auth = buildMockDippedSmartCardAuth(vi.fn);
   const workspace = createWorkspace(
     dirSync().name,
@@ -92,15 +100,15 @@ export async function withApp(
     workspace,
     logger,
   });
-  const baseUrl = `http://localhost:${port}/api`;
-  const apiClient = grout.createClient({
-    baseUrl,
-  });
   const server = start({
     app,
     logger,
     workspace,
-    port,
+    port: 0,
+  });
+  const port = await getListeningPort(server);
+  const apiClient = grout.createClient<Api>({
+    baseUrl: `http://localhost:${port}/api`,
   });
 
   try {

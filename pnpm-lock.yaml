@@ -746,9 +746,6 @@ importers:
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
-      get-port:
-        specifier: '5'
-        version: 5.1.1
       jest-image-snapshot:
         specifier: ^6.4.0
         version: 6.4.0(jest@29.6.2(@types/node@24.19.2)(babel-plugin-macros@3.1.0)(supports-color@5.5.0))
@@ -10553,10 +10550,6 @@ packages:
     resolution: {integrity: sha512-pjzuKtY64GYfWizNAJ0fr9VqttZkNiK2iS430LtIHzjBEr6bX8Am2zm4sW4Ro5wjWW5cAlRL1qAMTcXbjNAO2Q==}
     engines: {node: '>=8.0.0'}
 
-  get-port@5.1.1:
-    resolution: {integrity: sha512-g/Q1aTSDOxFpchXC4i8ZWvxA1lnPqx/JHqcpIw0/LX9T8x/GBbi6YnlN5nhaKIFkT8oFsscUKgDJYxfwfS6QsQ==}
-    engines: {node: '>=8'}
-
   get-proto@1.0.1:
     resolution: {integrity: sha512-sTSfBjoXBp89JvIKIefqw7U2CCebsc74kiY6awiGogKtoSGbgjYE/G/+l9sF3MWFPNc9IcoOC4ODfKHfxFmp0g==}
     engines: {node: '>= 0.4'}
@@ -19383,8 +19376,6 @@ snapshots:
 
   get-package-type@0.1.0:
     optional: true
-
-  get-port@5.1.1: {}
 
   get-proto@1.0.1:
     dependencies:
