@@ -53,6 +53,13 @@ test('get/set election', async () => {
   expect(store.getElectionRecord()).toBeUndefined();
 });
 
+test('close', () => {
+  const store = Store.memoryStore();
+  store.close();
+  expect(() => store.hasElection()).toThrow(/is closed/);
+  expect(() => store.getElectionRecord()).toThrow(/is closed/);
+});
+
 test('get/set polling place id', async () => {
   const store = Store.memoryStore();
 

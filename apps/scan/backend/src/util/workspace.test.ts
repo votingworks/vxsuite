@@ -27,6 +27,15 @@ test('createWorkspace', () => {
   );
 });
 
+test('dispose closes the store', () => {
+  const workspace = createWorkspace(
+    makeTemporaryDirectory(),
+    mockBaseLogger({ fn: vi.fn })
+  );
+  workspace[Symbol.dispose]();
+  expect(() => workspace.store.hasElection()).toThrow(/is closed/);
+});
+
 test('SCAN_WORKSPACE takes precedence over the environment default', () => {
   vi.stubEnv('SCAN_WORKSPACE', '/media/vx/workspace');
   vi.stubEnv('NODE_ENV', 'development');

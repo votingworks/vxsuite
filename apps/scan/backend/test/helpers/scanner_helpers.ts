@@ -228,6 +228,7 @@ export async function withApp(
     });
     precinctScannerMachine.stop();
     workspace.unconfigure();
+    workspace[Symbol.dispose]();
   }
 }
 

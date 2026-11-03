@@ -199,6 +199,11 @@ export class Store {
     this.electionPackageStore.reset();
   }
 
+  close(): void {
+    this.client.close();
+    this.electionPackageStore.close();
+  }
+
   /**
    * Runs the given function in a transaction. If the function throws an error,
    * the transaction is rolled back. Otherwise, the transaction is committed.

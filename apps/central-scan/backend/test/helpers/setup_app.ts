@@ -122,6 +122,7 @@ export async function withApp(
       server.close((error) => (error ? reject(error) : resolve()));
     });
     workspace.unconfigure();
+    workspace[Symbol.dispose]();
   }
 }
 

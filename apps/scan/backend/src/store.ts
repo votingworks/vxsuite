@@ -203,6 +203,11 @@ export class Store {
     clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
   }
 
+  close(): void {
+    this.client.close();
+    this.electionPackageStore.close();
+  }
+
   getElectionPackageStore(): ElectionPackageStore {
     return this.electionPackageStore;
   }

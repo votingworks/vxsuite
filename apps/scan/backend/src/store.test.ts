@@ -128,6 +128,13 @@ test('get/set election', async () => {
   expect(store.getElectionRecord()).toBeUndefined();
 });
 
+test('close', () => {
+  const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
+  store.close();
+  expect(() => store.hasElection()).toThrow(/is closed/);
+  expect(() => store.getElectionRecord()).toThrow(/is closed/);
+});
+
 test('get/set system settings', async () => {
   const store = Store.memoryStore(mockBaseLogger({ fn: vi.fn }));
 

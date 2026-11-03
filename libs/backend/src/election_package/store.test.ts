@@ -271,4 +271,7 @@ test('fileStore persists and reset empties it', async () => {
   expect(reopened.hasElection()).toEqual(false);
   expect(reopened.getSystemSettings()).toBeUndefined();
   expect(reopened.getBallotMetaStore().hasPositions()).toEqual(false);
+
+  reopened.close();
+  expect(() => reopened.hasElection()).toThrow(/is closed/);
 });

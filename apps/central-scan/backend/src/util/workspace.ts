@@ -10,7 +10,7 @@ import type { Id } from '@votingworks/types';
 import type { BaseLogger } from '@votingworks/logging';
 import { Store } from '../store.js';
 
-export interface Workspace {
+export interface Workspace extends Disposable {
   /**
    * The path to the workspace root.
    */
@@ -135,6 +135,9 @@ export function createWorkspace(root: string, logger: BaseLogger): Workspace {
     getDiskSpaceSummary: async () => {
       const [summary] = await getDiskSpaceSummaries([resolvedRoot]);
       return summary;
+    },
+    [Symbol.dispose]: () => {
+      store.close();
     },
   };
 }

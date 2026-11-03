@@ -85,6 +85,12 @@ export class ElectionPackageStore {
     this.client.reset();
   }
 
+  close(): void {
+    this.cachedElectionRecord = undefined;
+    this.cachedSystemSettings = undefined;
+    this.client.close();
+  }
+
   getBallotMetaStore(): BallotMetaStore {
     return this.ballotMetaStore;
   }
