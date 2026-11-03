@@ -227,7 +227,7 @@ export async function withApp(
       server.close((error) => (error ? reject(error) : resolve()));
     });
     precinctScannerMachine.stop();
-    workspace.reset();
+    workspace.unconfigure();
   }
 }
 

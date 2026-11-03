@@ -52,10 +52,11 @@ export interface Workspace {
   resetElectionSession(): void;
 
   /**
-   * Reset the workspace, including the election configuration. This is the same
-   * as deleting the workspace and recreating it.
+   * Unconfigures the machine: removes the election package, every session
+   * record (ballots, polls, diagnostics) and every image. The same as deleting
+   * the workspace and recreating it.
    */
-  reset(): void;
+  unconfigure(): void;
 
   /**
    * Clears the uploads directory.
@@ -107,7 +108,7 @@ export function createWorkspace(root: string, logger: BaseLogger): Workspace {
       rmSync(ballotImagesPath, { recursive: true, force: true });
       mkdirSync(ballotImagesPath, { recursive: true });
     },
-    reset() {
+    unconfigure() {
       store.reset();
       rmSync(ballotImagesPath, { recursive: true, force: true });
       mkdirSync(ballotImagesPath, { recursive: true });

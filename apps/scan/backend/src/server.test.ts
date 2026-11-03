@@ -48,7 +48,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  workspace.reset();
+  workspace.unconfigure();
   vi.unstubAllEnvs();
 });
 

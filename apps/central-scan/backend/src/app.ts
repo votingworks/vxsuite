@@ -403,7 +403,7 @@ function buildApi({
       assert(store.getCanUnconfigure() || input.ignoreBackupRequirement);
 
       await clearAllBallotData();
-      store.reset(); // destroy all data
+      workspace.unconfigure();
       await logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
         disposition: 'success',
         message:

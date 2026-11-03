@@ -121,7 +121,7 @@ export async function withApp(
     await new Promise<void>((resolve, reject) => {
       server.close((error) => (error ? reject(error) : resolve()));
     });
-    workspace.reset();
+    workspace.unconfigure();
   }
 }
 

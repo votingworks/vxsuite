@@ -223,7 +223,7 @@ export function buildApi({
           }
         });
       } catch (error) {
-        workspace.reset();
+        workspace.unconfigure();
         throw error;
       }
 
@@ -269,7 +269,7 @@ export function buildApi({
     },
 
     async unconfigureElection(): Promise<void> {
-      workspace.reset();
+      workspace.unconfigure();
       await audioPlayer.setIsScreenReaderEnabled(false);
       await logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
         disposition: 'success',
