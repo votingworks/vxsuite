@@ -17,6 +17,7 @@ import {
 } from '@votingworks/types';
 import { startScannerNetworking } from './networking.js';
 import { Store } from './store.js';
+import { configureStore } from '../test/helpers/setup_app.js';
 
 vi.mock(import('@votingworks/networking'), async (importActual) => ({
   ...(await importActual()),
@@ -57,15 +58,14 @@ function createMockHostApiClient(): MockHostApiClient {
   return mockClient;
 }
 
-function configureStore(
+async function configureElection(
   store: Store,
   electionDefinition: ElectionDefinition
-): void {
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
+): Promise<void> {
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash: 'test-election-package-hash',
-    ballotHash: electionDefinition.ballotHash,
   });
 }
 
@@ -143,7 +143,7 @@ test('ignores a stale advertisement and connects to the single reachable host', 
     baseUrl.startsWith(HOST_MACHINE.address) ? reachableClient : staleClient
   );
   const store = Store.memoryStore();
-  configureStore(store, readElectionGeneralDefinition());
+  await configureElection(store, readElectionGeneralDefinition());
   startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
   await advancePollingInterval();
   expect(store.getNetworkConnectionInfo()).toEqual({
@@ -190,7 +190,7 @@ test('reports code-version-mismatch when the host runs a different software vers
     err({ type: 'code-version-mismatch' })
   );
   const store = Store.memoryStore();
-  configureStore(store, readElectionGeneralDefinition());
+  await configureElection(store, readElectionGeneralDefinition());
   startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
   await advancePollingInterval();
   expect(store.getNetworkConnectionInfo()).toEqual({
@@ -227,7 +227,7 @@ test('reports host-unconfigured when the host has no election', async () => {
     err({ type: 'host-unconfigured' })
   );
   const store = Store.memoryStore();
-  configureStore(store, readElectionGeneralDefinition());
+  await configureElection(store, readElectionGeneralDefinition());
   startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
   await advancePollingInterval();
   expect(store.getNetworkConnectionInfo()).toEqual({
@@ -243,7 +243,7 @@ test('reports ballot-hash-mismatch when the host is configured for a different e
     err({ type: 'ballot-hash-mismatch' })
   );
   const store = Store.memoryStore();
-  configureStore(store, readElectionGeneralDefinition());
+  await configureElection(store, readElectionGeneralDefinition());
   startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
   await advancePollingInterval();
   expect(store.getNetworkConnectionInfo()).toEqual({
@@ -256,7 +256,7 @@ test('reports host-detected when everything matches', async () => {
   vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([HOST_MACHINE]);
   const mockClient = createMockHostApiClient();
   const store = Store.memoryStore();
-  configureStore(store, readElectionGeneralDefinition());
+  await configureElection(store, readElectionGeneralDefinition());
   startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
   await advancePollingInterval();
   expect(store.getNetworkConnectionInfo()).toEqual({
@@ -279,7 +279,7 @@ test('reports results-official when the host has marked its results official', a
     err({ type: 'results-official' })
   );
   const store = Store.memoryStore();
-  configureStore(store, readElectionGeneralDefinition());
+  await configureElection(store, readElectionGeneralDefinition());
   startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
   await advancePollingInterval();
   expect(store.getNetworkConnectionInfo()).toEqual({
@@ -295,7 +295,7 @@ test('reports invalid-mode, with the host mode, when the host is locked to the o
     err({ type: 'invalid-mode', currentMode: 'official' })
   );
   const store = Store.memoryStore();
-  configureStore(store, readElectionGeneralDefinition());
+  await configureElection(store, readElectionGeneralDefinition());
   store.setTestMode(true);
   startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
   await advancePollingInterval();
@@ -318,7 +318,7 @@ test('tracks the batches the host holds without logging a status change', async 
   );
   const store = Store.memoryStore();
   const electionDefinition = readElectionGeneralDefinition();
-  configureStore(store, electionDefinition);
+  await configureElection(store, electionDefinition);
   store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
   const batchId = store.addBatch();
   store.setBatchSentToAdmin(batchId);
@@ -358,7 +358,7 @@ test('logs status transitions and returns to offline when the interface goes dow
   vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([HOST_MACHINE]);
   createMockHostApiClient();
   const store = Store.memoryStore();
-  configureStore(store, readElectionGeneralDefinition());
+  await configureElection(store, readElectionGeneralDefinition());
   startScannerNetworking({ logger, store });
   await advancePollingInterval();
   expect(store.getNetworkConnectionInfo()).toEqual({

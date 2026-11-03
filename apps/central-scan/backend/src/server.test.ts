@@ -14,7 +14,7 @@ import { EventEmitter } from 'node:events';
 import type { Server } from 'node:http';
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { createWorkspace } from './util/workspace.js';
-import { buildMockLogger } from '../test/helpers/setup_app.js';
+import { buildMockLogger, configureStore } from '../test/helpers/setup_app.js';
 import { makeMockScanner } from '../test/util/mocks.js';
 import { createBatchScannerStateMachine } from './scanner.js';
 import { buildCentralScannerApp } from './app.js';
@@ -57,7 +57,7 @@ test('logs device attach/un-attach events', () => {
   testDetectDevices(logger, expect);
 });
 
-test('logs when sheet counts are present at startup', () => {
+test('logs when sheet counts are present at startup', async () => {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
   const workspace = createWorkspace(
     makeTemporaryDirectory(),
@@ -67,13 +67,12 @@ test('logs when sheet counts are present at startup', () => {
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
   const { election } = electionDefinition;
-  workspace.store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
+  await configureStore(workspace.store, {
+    electionDefinition,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash: 'test-election-package-hash',
-    ballotHash: electionDefinition.ballotHash,
+    pollingPlaceId: anyPollingPlace(election).id,
   });
-  workspace.store.setPollingPlaceId(anyPollingPlace(election).id);
 
   expect(workspace.store.getBallotsCounted()).toEqual(0);
   // Create a batch and add a sheet to it
@@ -178,7 +177,7 @@ test('logs when sheet counts are not present at startup', () => {
   );
 });
 
-test('removes unfinished batches and orphaned batch image directories at startup', () => {
+test('removes unfinished batches and orphaned batch image directories at startup', async () => {
   const auth = buildMockDippedSmartCardAuth(vi.fn);
   const workspace = createWorkspace(
     makeTemporaryDirectory(),
@@ -187,15 +186,12 @@ test('removes unfinished batches and orphaned batch image directories at startup
 
   const electionDefinition =
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
-  workspace.store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
+  await configureStore(workspace.store, {
+    electionDefinition,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash: 'test-election-package-hash',
-    ballotHash: electionDefinition.ballotHash,
+    pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
   });
-  workspace.store.setPollingPlaceId(
-    anyPollingPlace(electionDefinition.election).id
-  );
 
   const finishedBatchId = workspace.store.addBatch();
   workspace.store.finishBatch(finishedBatchId);

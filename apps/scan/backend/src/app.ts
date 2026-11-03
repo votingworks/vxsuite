@@ -17,11 +17,8 @@ import {
   createSystemCallApi,
   readSignedElectionPackageFromDirectory,
   doesUsbDriveRequireCastVoteRecordSync as doesUsbDriveRequireCastVoteRecordSyncFn,
-  configureUiStrings,
-  configureUiStringAudioClipsStreaming,
   Exporter,
   type ExportDataResult,
-  withElectionPackageZip,
   getScanAllowedExportPatterns,
 } from '@votingworks/backend';
 import {
@@ -197,51 +194,36 @@ export function buildApi({
       assert(systemSettings);
 
       try {
-        // [TODO] Cancel the transaction if the user logs out while configuring,
+        // [TODO] Cancel the import if the user logs out while configuring,
         // since large packages can take a while to import.
-        await store.withTransaction(async () => {
-          store.setElectionAndJurisdiction({
-            electionData: electionDefinition.electionData,
-            jurisdiction: authStatus.user.jurisdiction,
-            electionPackageHash,
-            ballotHash: electionDefinition.ballotHash,
-          });
+        await store.getElectionPackageStore().importElectionPackage({
+          electionPackage,
+          electionPackageHash,
+          filePath,
+          jurisdiction: authStatus.user.jurisdiction,
+          logger,
+        });
+        const ballotAuditIdSecretKey =
+          systemSettings.precinctScanEnableBallotAuditIds
+            ? await generateRandomAes256Key()
+            : undefined;
+
+        store.withTransaction(() => {
+          store.startElectionSession();
 
           if (election.pollingPlaces?.length === 1) {
-            workspace.store.setPollingPlaceId(
+            store.setPollingPlaceId(
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               election.pollingPlaces[0]!.id
             );
           }
 
-          store.setSystemSettings(systemSettings);
-          if (systemSettings.precinctScanEnableBallotAuditIds) {
-            store.setBallotAuditIdSecretKey(await generateRandomAes256Key());
+          if (ballotAuditIdSecretKey) {
+            store.setBallotAuditIdSecretKey(ballotAuditIdSecretKey);
           }
-
-          configureUiStrings({
-            electionPackage,
-            logger,
-            store: workspace.store.getUiStringsStore(),
-          });
-
-          await withElectionPackageZip(filePath, async (zip) => {
-            await store
-              .getBallotMetaStore()
-              .importPositions(zip, election, systemSettings);
-
-            await store
-              .getBallotMetaStore()
-              .importCandidateOrderings(zip, election, systemSettings);
-
-            await configureUiStringAudioClipsStreaming({
-              zip,
-              store: store.getUiStringsStore(),
-            });
-          });
         });
       } catch (error) {
-        workspace.reset();
+        workspace.unconfigure();
         throw error;
       }
 
@@ -287,7 +269,7 @@ export function buildApi({
     },
 
     async unconfigureElection(): Promise<void> {
-      workspace.reset();
+      workspace.unconfigure();
       await audioPlayer.setIsScreenReaderEnabled(false);
       await logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
         disposition: 'success',

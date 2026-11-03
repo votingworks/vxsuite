@@ -10,11 +10,16 @@
       "types": "./build/index.d.ts",
       "default": "./build/index.js"
     },
+    "./test-utils": {
+      "types": "./build/test_utils.d.ts",
+      "default": "./build/test_utils.js"
+    },
     "./package.json": "./package.json"
   },
   "files": [
     "build",
-    "intermediate-scripts"
+    "intermediate-scripts",
+    "schema"
   ],
   "scripts": {
     "build": "pnpm -w vx-task build $npm_package_name",

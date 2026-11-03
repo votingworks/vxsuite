@@ -10,7 +10,7 @@ import { join } from 'node:path';
 import { type DiagnosticRecord, TEST_JURISDICTION } from '@votingworks/types';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { mockSystemAdministratorAuth } from '../test/helpers/auth.js';
-import { withApp } from '../test/helpers/setup_app.js';
+import { configureStore, withApp } from '../test/helpers/setup_app.js';
 
 vi.setConfig({
   testTimeout: 60_000,
@@ -84,11 +84,10 @@ test('save readiness report', async () => {
   await withApp(
     async ({ apiClient, mockUsbDrive, scanner, auth, logger, workspace }) => {
       mockSystemAdministratorAuth(auth);
-      workspace.store.setElectionAndJurisdiction({
-        electionData: electionDefinition.electionData,
+      await configureStore(workspace.store, {
+        electionDefinition,
         jurisdiction,
         electionPackageHash: 'test-election-package-hash',
-        ballotHash: electionDefinition.ballotHash,
       });
 
       // mock a successful scan diagnostic

@@ -11,7 +11,7 @@ import { type BaseLogger, LogEventId } from '@votingworks/logging';
 import { type DiskSpaceSummary, Mutex } from '@votingworks/utils';
 import { Store } from '../store.js';
 
-export interface Workspace {
+export interface Workspace extends Disposable {
   /**
    * The path to the workspace root.
    */
@@ -38,6 +38,11 @@ export interface Workspace {
   readonly store: Store;
 
   /**
+   * The database holding the imported election package.
+   */
+  readonly electionPackageDbPath: string;
+
+  /**
    * The persistent count of sheets accepted by this machine.
    */
   readonly lifetimeSheetCounter: LifetimeSheetCounter;
@@ -53,10 +58,11 @@ export interface Workspace {
   resetElectionSession(): void;
 
   /**
-   * Reset the workspace, including the election configuration. This is the same
-   * as deleting the workspace and recreating it.
+   * Unconfigures the machine: removes the election package, every session
+   * record (ballots, polls, diagnostics) and every image. The same as deleting
+   * the workspace and recreating it.
    */
-  reset(): void;
+  unconfigure(): void;
 
   /**
    * Clears the uploads directory.
@@ -81,8 +87,11 @@ export function createWorkspace(
   mkdirSync(ballotImagesPath, { recursive: true });
   mkdirSync(scannedImagesPath, { recursive: true });
 
-  const dbPath = join(resolvedRoot, 'ballots.db');
-  const store = options.store || Store.fileStore(dbPath, logger);
+  const sessionDbPath = join(resolvedRoot, 'session.db');
+  const electionPackageDbPath = join(resolvedRoot, 'election-package.db');
+  const store =
+    options.store ||
+    Store.fileStore(sessionDbPath, electionPackageDbPath, logger);
 
   const lifetimeSheetCounter = createLifetimeSheetCounter({
     devRoot: resolvedRoot,
@@ -95,6 +104,7 @@ export function createWorkspace(
     scannedImagesPath,
     uploadsPath,
     store,
+    electionPackageDbPath,
     lifetimeSheetCounter,
     continuousExportMutex: new Mutex(),
     resetElectionSession() {
@@ -104,7 +114,7 @@ export function createWorkspace(
       mkdirSync(ballotImagesPath, { recursive: true });
       mkdirSync(scannedImagesPath, { recursive: true });
     },
-    reset() {
+    unconfigure() {
       store.reset();
       rmSync(ballotImagesPath, { recursive: true, force: true });
       rmSync(scannedImagesPath, { recursive: true, force: true });
@@ -118,6 +128,9 @@ export function createWorkspace(
     getDiskSpaceSummary: async () => {
       const [summary] = await getDiskSpaceSummaries([resolvedRoot]);
       return summary;
+    },
+    [Symbol.dispose]: () => {
+      store.close();
     },
   };
 }

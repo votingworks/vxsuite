@@ -11,22 +11,18 @@ import {
   type PageInterpretation,
   PageInterpretationSchema,
   type PageInterpretationWithFiles,
-  safeParseElection,
   safeParseJson,
   type SheetOf,
   type Side,
   type SystemSettings,
-  safeParseSystemSettings,
   type AdjudicationReason,
   type DiagnosticRecord,
   type DiagnosticType,
   type ElectionKey,
-  constructElectionKey,
 } from '@votingworks/types';
 import {
   assert,
   assertDefined,
-  DateWithoutTime,
   find,
   type Optional,
 } from '@votingworks/basics';
@@ -35,8 +31,9 @@ import { dirname, join } from 'node:path';
 import { randomUUID as uuid } from 'node:crypto';
 import {
   type AcceptedSheet,
-  BallotMetaStore,
+  type BallotMetaStore,
   type ElectionRecord,
+  ElectionPackageStore,
   type RejectedSheet,
   type Sheet,
   addDiagnosticRecord,
@@ -120,11 +117,14 @@ function sheetRowToSheet(row: SheetRow): Sheet {
  */
 export class Store {
   private readonly client: DbClient;
-  private readonly ballotMetaStore: BallotMetaStore;
+  private readonly electionPackageStore: ElectionPackageStore;
 
-  private constructor(client: DbClient) {
+  private constructor(
+    client: DbClient,
+    electionPackageStore: ElectionPackageStore
+  ) {
     this.client = client;
-    this.ballotMetaStore = new BallotMetaStore(this.client);
+    this.electionPackageStore = electionPackageStore;
   }
 
   // Used by shared CVR export logic in libs/backend
@@ -161,14 +161,25 @@ export class Store {
    * Builds and returns a new store whose data is kept in memory.
    */
   static memoryStore(): Store {
-    return new Store(DbClient.memoryClient(SchemaPath));
+    return new Store(
+      DbClient.memoryClient(SchemaPath),
+      ElectionPackageStore.memoryStore()
+    );
   }
 
   /**
-   * Builds and returns a new store at `dbPath`.
+   * Builds and returns a new store whose session is at `sessionDbPath` and
+   * whose election package is at `electionPackageDbPath`.
    */
-  static fileStore(dbPath: string, logger: BaseLogger): Store {
-    return new Store(DbClient.fileClient(dbPath, logger, SchemaPath));
+  static fileStore(
+    sessionDbPath: string,
+    electionPackageDbPath: string,
+    logger: BaseLogger
+  ): Store {
+    return new Store(
+      DbClient.fileClient(sessionDbPath, logger, SchemaPath),
+      ElectionPackageStore.fileStore(electionPackageDbPath, logger)
+    );
   }
 
   /**
@@ -185,29 +196,30 @@ export class Store {
   reset(): void {
     this.sendingToAdminBatchId = undefined;
     this.client.reset();
+    this.electionPackageStore.reset();
+  }
+
+  close(): void {
+    this.client.close();
+    this.electionPackageStore.close();
   }
 
   /**
    * Runs the given function in a transaction. If the function throws an error,
-   * or the optional {@link shouldCommit} returns `false`, the transaction is
-   * rolled back. Otherwise, the transaction is committed.
-   *
-   * NOTE: Intended only for use during machine configuration. Yielding the main
-   * thread while a transaction is open allows other interleaved queries to be
-   * included in the transaction or, at best, may result in an error if another
-   * operation attempts to start a transaction.
+   * the transaction is rolled back. Otherwise, the transaction is committed.
    *
    * Returns the result of {@link fn}.
    */
-  unsafeWithTransactionAsync<T>(
-    fn: () => Promise<T>,
-    shouldCommit?: (res: T) => boolean
-  ): Promise<T> {
-    return this.client.transaction(() => fn(), shouldCommit);
+  withTransaction<T>(fn: () => T): T {
+    return this.client.transaction(() => fn());
+  }
+
+  getElectionPackageStore(): ElectionPackageStore {
+    return this.electionPackageStore;
   }
 
   getBallotMetaStore(): BallotMetaStore {
-    return this.ballotMetaStore;
+    return this.electionPackageStore.getBallotMetaStore();
   }
 
   /**
@@ -218,105 +230,33 @@ export class Store {
   }
 
   /**
-   * Gets the current election definition and election package hash.
+   * Starts the session for the imported election package, which is what makes
+   * the machine configured, so it comes after the package is imported.
    */
-  getElectionRecord(): ElectionRecord | undefined {
-    const row = this.client.one(
-      `
-      select
-        ballot_hash as ballotHash,
-        election_data as electionData,
-        election_package_hash as electionPackageHash
-      from election
-      `
-    ) as
-      | {
-          ballotHash: string;
-          electionData: string;
-          electionPackageHash: string;
-        }
-      | undefined;
-
-    return (
-      row && {
-        electionDefinition: {
-          ballotHash: row.ballotHash,
-          election: safeParseElection(row.electionData).unsafeUnwrap(),
-          electionData: row.electionData,
-        },
-        electionPackageHash: row.electionPackageHash,
-      }
-    );
+  startElectionSession(): void {
+    this.client.run('delete from election');
+    this.client.run('insert into election (id) values (1)');
   }
 
   /**
-   * Retrieves the election key (used for auth) for the current election. This
-   * method is faster than than {@link getElectionRecord} and thus more appropriate
-   * for use during auth polling.
+   * Gets the current election definition and election package hash.
+   */
+  getElectionRecord(): ElectionRecord | undefined {
+    return this.electionPackageStore.getElectionRecord();
+  }
+
+  /**
+   * Retrieves the election key (used for auth) for the current election.
    */
   getElectionKey(): ElectionKey | undefined {
-    const result = this.client.one(
-      `
-      select
-        election_data ->> 'id' as id,
-        election_data ->> 'date' as date
-      from election
-      `
-    ) as { id?: string; date?: string } | undefined;
-
-    if (!result) return undefined;
-
-    // The election might be in CDF, in which case, we won't get `id` and `date`
-    // fields, so just load and parse it to construct the key. We don't need to
-    // optimize speed for CDF.
-    if (!(result.id && result.date)) {
-      return constructElectionKey(
-        assertDefined(this.getElectionRecord()).electionDefinition.election
-      );
-    }
-
-    return {
-      id: result.id,
-      date: new DateWithoutTime(result.date),
-    };
+    return this.electionPackageStore.getElectionKey();
   }
 
   /**
    * Gets the current jurisdiction.
    */
   getJurisdiction(): string | undefined {
-    const electionRow = this.client.one('select jurisdiction from election') as
-      | { jurisdiction: string }
-      | undefined;
-    return electionRow?.jurisdiction;
-  }
-
-  /**
-   * Sets the current election definition and jurisdiction.
-   */
-  setElectionAndJurisdiction(input?: {
-    electionData: string;
-    jurisdiction: string;
-    electionPackageHash: string;
-    ballotHash: string;
-  }): void {
-    this.client.run('delete from election');
-    if (input) {
-      this.client.run(
-        `
-        insert into election (
-          election_data,
-          jurisdiction,
-          ballot_hash,
-          election_package_hash
-        ) values (?, ?, ?, ?)
-        `,
-        input.electionData,
-        input.jurisdiction,
-        input.ballotHash,
-        input.electionPackageHash
-      );
-    }
+    return this.electionPackageStore.getJurisdiction();
   }
 
   /**
@@ -340,28 +280,10 @@ export class Store {
   }
 
   /**
-   * Stores the system settings.
-   */
-  setSystemSettings(systemSettings: SystemSettings): void {
-    this.client.run('delete from system_settings');
-    this.client.run(
-      `
-      insert into system_settings (data) values (?)
-      `,
-      JSON.stringify(systemSettings)
-    );
-  }
-
-  /**
    * Gets system settings or undefined if they aren't loaded yet
    */
   getSystemSettings(): SystemSettings | undefined {
-    const result = this.client.one(`select data from system_settings`) as
-      | { data: string }
-      | undefined;
-
-    if (!result) return undefined;
-    return safeParseSystemSettings(result.data).unsafeUnwrap();
+    return this.electionPackageStore.getSystemSettings();
   }
 
   /**

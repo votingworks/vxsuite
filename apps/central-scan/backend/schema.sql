@@ -1,26 +1,15 @@
+-- The election itself lives in the election package DB (see
+-- `ElectionPackageStore`); this row is the session state for it, and its
+-- presence is what makes the machine configured.
 create table election (
   -- enforce singleton table
   id integer primary key check (id = 1),
-  election_data text not null,
-  ballot_hash text not null,
-  election_package_hash text not null,
-  jurisdiction text not null,
   is_test_mode integer not null default true,
   is_imprinting_enabled integer not null default true,
   polling_place_id text,
   cvr_revision integer not null default 0,
   scanner_backed_up_cvr_revision integer,
   created_at text not null default current_timestamp
-) strict;
-
-create table ballot_positions (
-  style_id text primary key,
-  positions text not null -- JSON string of SheetPositions[]
-) strict;
-
-create table candidate_orderings (
-  style_id text primary key,
-  orderings text not null -- JSON string of CandidateOrderings
 ) strict;
 
 
@@ -72,12 +61,6 @@ create table sheets (
   references batches (id)
     on update cascade
     on delete cascade
-) strict;
-
-create table system_settings (
-  -- enforce singleton table
-  id integer primary key check (id = 1),
-  data text not null -- JSON blob
 ) strict;
 
 create table cvr_hashes (

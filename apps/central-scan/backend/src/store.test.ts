@@ -20,6 +20,7 @@ import {
 import { mockBaseLogger } from '@votingworks/logging';
 import { zeroRect } from '../test/fixtures/zero_rect.js';
 import { Store } from './store.js';
+import { configureStore } from '../test/helpers/setup_app.js';
 
 function sha256(data: string): string {
   return createHash('sha256').update(data).digest('hex');
@@ -28,20 +29,19 @@ function sha256(data: string): string {
 const jurisdiction = TEST_JURISDICTION;
 const electionDefinition =
   electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
-const { election, electionData, ballotHash } = electionDefinition;
+const { election, ballotHash } = electionDefinition;
 const electionPackageHash = 'test-election-package-hash';
 
-test('get/set election', () => {
+test('get/set election', async () => {
   const store = Store.memoryStore();
 
   expect(store.getElectionRecord()).toBeUndefined();
   expect(store.hasElection()).toBeFalsy();
 
-  store.setElectionAndJurisdiction({
-    electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash,
   });
   expect(store.getElectionRecord()).toEqual({
     electionDefinition,
@@ -49,21 +49,27 @@ test('get/set election', () => {
   });
   expect(store.hasElection()).toBeTruthy();
 
-  store.setElectionAndJurisdiction(undefined);
+  store.reset();
   expect(store.getElectionRecord()).toBeUndefined();
 });
 
-test('get/set polling place id', () => {
+test('close', () => {
+  const store = Store.memoryStore();
+  store.close();
+  expect(() => store.hasElection()).toThrow(/is closed/);
+  expect(() => store.getElectionRecord()).toThrow(/is closed/);
+});
+
+test('get/set polling place id', async () => {
   const store = Store.memoryStore();
 
   // Cannot set a polling place without an election
   expect(() => store.setPollingPlaceId('pp-1')).toThrowError();
 
-  store.setElectionAndJurisdiction({
-    electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash,
   });
   expect(store.getPollingPlaceId()).toBeUndefined();
 
@@ -74,13 +80,12 @@ test('get/set polling place id', () => {
   expect(store.getPollingPlaceId()).toBeUndefined();
 });
 
-test('addBatch stamps the selected polling place id', () => {
+test('addBatch stamps the selected polling place id', async () => {
   const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash,
   });
 
   // Once a polling place is selected, subsequent batches are tagged with it
@@ -93,18 +98,17 @@ test('addBatch stamps the selected polling place id', () => {
   ).toEqual('pp-1');
 });
 
-test('get/set test mode', () => {
+test('get/set test mode', async () => {
   const store = Store.memoryStore();
 
   // Before setting an election
   expect(store.getTestMode()).toEqual(true);
   expect(() => store.setTestMode(false)).toThrowError();
 
-  store.setElectionAndJurisdiction({
-    electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash,
   });
 
   // After setting an election
@@ -117,7 +121,7 @@ test('get/set test mode', () => {
   expect(store.getTestMode()).toEqual(true);
 });
 
-test('get/set imprinting status', () => {
+test('get/set imprinting status', async () => {
   const store = Store.memoryStore();
 
   expect(store.getIsImprintingEnabled()).toEqual(true);
@@ -125,11 +129,10 @@ test('get/set imprinting status', () => {
     'Cannot set imprinting status without an election'
   );
 
-  store.setElectionAndJurisdiction({
-    electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash,
   });
   expect(store.getIsImprintingEnabled()).toEqual(true);
 
@@ -140,32 +143,31 @@ test('get/set imprinting status', () => {
   expect(store.getIsImprintingEnabled()).toEqual(true);
 });
 
-test('get/set scanner as backed up', () => {
+test('get/set scanner as backed up', async () => {
   const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash,
   });
   expect(store.getScannerBackedUpCvrRevision()).toBeUndefined();
   store.setScannerBackedUp();
   expect(store.getScannerBackedUpCvrRevision()).toEqual(store.getCvrRevision());
 });
 
-test('getAllBatchIds includes unfinished and deleted batches', () => {
+test('getAllBatchIds includes unfinished and deleted batches', async () => {
   const store = Store.fileStore(
+    makeTemporaryFile(),
     makeTemporaryFile(),
     mockBaseLogger({ fn: vi.fn })
   );
   store.reset();
-  store.setElectionAndJurisdiction({
-    electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash,
+    pollingPlaceId: anyPollingPlace(election).id,
   });
-  store.setPollingPlaceId(anyPollingPlace(election).id);
   expect(store.getAllBatchIds()).toEqual([]);
 
   const finishedBatchId = store.addBatch();
@@ -180,19 +182,22 @@ test('getAllBatchIds includes unfinished and deleted batches', () => {
   );
 });
 
-test('batch cleanup works correctly', () => {
+test('batch cleanup works correctly', async () => {
   const dbFile = makeTemporaryFile();
-  const store = Store.fileStore(dbFile, mockBaseLogger({ fn: vi.fn }));
+  const store = Store.fileStore(
+    dbFile,
+    makeTemporaryFile(),
+    mockBaseLogger({ fn: vi.fn })
+  );
 
   store.reset();
 
-  store.setElectionAndJurisdiction({
-    electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash,
+    pollingPlaceId: anyPollingPlace(election).id,
   });
-  store.setPollingPlaceId(anyPollingPlace(election).id);
   const firstBatchId = store.addBatch();
   store.addBatch();
   store.finishBatch(firstBatchId);
@@ -225,15 +230,14 @@ test('batch cleanup works correctly', () => {
   ]);
 });
 
-test('discardBatch hard-deletes the batch and its sheets', () => {
+test('discardBatch hard-deletes the batch and its sheets', async () => {
   const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash,
+    pollingPlaceId: anyPollingPlace(election).id,
   });
-  store.setPollingPlaceId(anyPollingPlace(election).id);
   store.setTestMode(false);
 
   const savedBatchId = store.addBatch();
@@ -284,15 +288,14 @@ test('discardBatch hard-deletes the batch and its sheets', () => {
   expect(store.getBatch(store.addBatch()).batchNumber).toEqual(3);
 });
 
-test('getBatches', () => {
+test('getBatches', async () => {
   const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash,
+    pollingPlaceId: anyPollingPlace(election).id,
   });
-  store.setPollingPlaceId(anyPollingPlace(election).id);
 
   // Create a batch and add a sheet to it
   const batchId = store.addBatch();
@@ -350,15 +353,14 @@ test('getBatches', () => {
   expect(batches).toHaveLength(0);
 });
 
-test('markBatchesRemovedFromAdmin', () => {
+test('markBatchesRemovedFromAdmin', async () => {
   const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash,
+    pollingPlaceId: anyPollingPlace(election).id,
   });
-  store.setPollingPlaceId(anyPollingPlace(election).id);
   const sentBatchId = store.addBatch();
   store.setBatchSentToAdmin(sentBatchId);
   const unsentBatchId = store.addBatch();
@@ -389,15 +391,14 @@ test('markBatchesRemovedFromAdmin', () => {
   expect(store.getBatch(sentBatchId).removedFromAdminAt).toBeUndefined();
 });
 
-test('canUnconfigure in test mode', () => {
+test('canUnconfigure in test mode', async () => {
   const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash,
+    pollingPlaceId: anyPollingPlace(election).id,
   });
-  store.setPollingPlaceId(anyPollingPlace(election).id);
   store.setTestMode(true);
 
   // With an unexported batch, we should be able to unconfigure the machine in test mode
@@ -405,15 +406,14 @@ test('canUnconfigure in test mode', () => {
   expect(store.getCanUnconfigure()).toEqual(true);
 });
 
-test('canUnconfigure not in test mode', () => {
+test('canUnconfigure not in test mode', async () => {
   const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash,
+    pollingPlaceId: anyPollingPlace(election).id,
   });
-  store.setPollingPlaceId(anyPollingPlace(election).id);
   store.setTestMode(false);
 
   // Can unconfigure if no batches added
@@ -588,16 +588,15 @@ const sheetWithFiles: SheetOf<PageInterpretationWithFiles> = [
     },
   },
 ];
-test('iterating over sheets', () => {
+test('iterating over sheets', async () => {
   const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asText(),
+  await configureStore(store, {
+    electionDefinition:
+      electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition(),
     jurisdiction,
     electionPackageHash,
-    ballotHash,
+    pollingPlaceId: anyPollingPlace(election).id,
   });
-  store.setPollingPlaceId(anyPollingPlace(election).id);
 
   expect(Array.from(store.forEachAcceptedSheet())).toEqual([]);
   expect(Array.from(store.forEachSheet())).toEqual([]);
@@ -697,15 +696,14 @@ test('iterating over sheets', () => {
   expect(Array.from(store.forEachSheet())).toEqual([]);
 });
 
-test('iterating over each accepted sheet includes correct batch sequence id', () => {
+test('iterating over each accepted sheet includes correct batch sequence id', async () => {
   const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash,
+    pollingPlaceId: anyPollingPlace(election).id,
   });
-  store.setPollingPlaceId(anyPollingPlace(election).id);
 
   // the filenames must be unique in the database so, to insert multiple sheets
   // for this test we must include random filenames with the fixture
@@ -768,16 +766,19 @@ test('iterating over each accepted sheet includes correct batch sequence id', ()
   }
 });
 
-test('resetElectionSession', () => {
+test('resetElectionSession', async () => {
   const dbFile = makeTemporaryFile();
-  const store = Store.fileStore(dbFile, mockBaseLogger({ fn: vi.fn }));
-  store.setElectionAndJurisdiction({
-    electionData,
+  const store = Store.fileStore(
+    dbFile,
+    makeTemporaryFile(),
+    mockBaseLogger({ fn: vi.fn })
+  );
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash,
+    pollingPlaceId: anyPollingPlace(election).id,
   });
-  store.setPollingPlaceId(anyPollingPlace(election).id);
 
   store.addBatch();
   store.addBatch();
@@ -810,15 +811,14 @@ test('resetElectionSession', () => {
   ).toEqual(['Batch 1', 'Batch 2']);
 });
 
-test('getBallotsCounted', () => {
+test('getBallotsCounted', async () => {
   const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash,
+    pollingPlaceId: anyPollingPlace(election).id,
   });
-  store.setPollingPlaceId(anyPollingPlace(election).id);
 
   expect(store.getBallotsCounted()).toEqual(0);
 
@@ -891,11 +891,11 @@ test('getBallotsCounted', () => {
   expect(store.getBallotsCounted()).toEqual(1);
 });
 
-test('systemSettings can set/get', () => {
+test('systemSettings can set/get', async () => {
   const store = Store.memoryStore();
   expect(store.getSystemSettings()).toBeUndefined();
   const systemSettings = DEFAULT_SYSTEM_SETTINGS;
-  store.setSystemSettings(systemSettings);
+  await configureStore(store, { electionDefinition, systemSettings });
   const systemSettingsInStore = store.getSystemSettings();
   expect(systemSettingsInStore).toEqual(DEFAULT_SYSTEM_SETTINGS);
 });
@@ -917,15 +917,14 @@ test('getCastVoteRecordRootHash, updateCastVoteRecordHashes, and clearCastVoteRe
   expect(store.getCastVoteRecordRootHash()).toEqual('');
 });
 
-test('canUnconfigure requires backing up sheets added during a backup', () => {
+test('canUnconfigure requires backing up sheets added during a backup', async () => {
   const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash,
-    ballotHash,
+    pollingPlaceId: anyPollingPlace(election).id,
   });
-  store.setPollingPlaceId(anyPollingPlace(election).id);
   store.setTestMode(false);
   const batchId = store.addBatch();
   store.addSheet(uuid(), batchId, [

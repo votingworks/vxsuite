@@ -64,14 +64,7 @@ import {
   updateCreationTimestampOfDirectoryAndChildrenFiles,
 } from './file_system_utils.js';
 import { readCastVoteRecordExportMetadata } from './import.js';
-
-/**
- * An election definition and the election package hash.
- */
-export interface ElectionRecord {
-  electionDefinition: ElectionDefinition;
-  electionPackageHash: string;
-}
+import type { ElectionRecord } from '../election_package/store.js';
 
 /**
  * Methods shared by both {@link CentralScannerStore} and {@link PrecinctScannerStore}

@@ -28,7 +28,7 @@ import {
 } from './scanner.js';
 import { start } from './server.js';
 import { createWorkspace, type Workspace } from './util/workspace.js';
-import { buildMockLogger } from '../test/helpers/setup_app.js';
+import { buildMockLogger, configureStore } from '../test/helpers/setup_app.js';
 
 let apiClient: grout.Client<Api>;
 let auth: DippedSmartCardAuthApi;
@@ -76,7 +76,7 @@ const machineType = 'central-scan';
 const allowedUserRoles = ['vendor', 'system_administrator', 'election_manager'];
 const electionDefinition =
   electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
-const { electionData, election, ballotHash } = electionDefinition;
+const { election } = electionDefinition;
 const electionKey = constructElectionKey(election);
 const pollingPlaceId = 'town-id-00701-precinct-id-default-polling-place';
 const systemSettings: SystemSettings = {
@@ -95,19 +95,18 @@ beforeAll(() => {
 });
 
 // eslint-disable-next-line @typescript-eslint/no-shadow
-function configureMachine(systemSettings: SystemSettings): void {
-  workspace.store.setElectionAndJurisdiction({
-    electionData,
+async function configureMachine(systemSettings: SystemSettings): Promise<void> {
+  await configureStore(workspace.store, {
+    electionDefinition,
     jurisdiction,
     electionPackageHash: 'test-election-package-hash',
-    ballotHash,
+    systemSettings,
+    pollingPlaceId,
   });
-  workspace.store.setSystemSettings(systemSettings);
-  workspace.store.setPollingPlaceId(pollingPlaceId);
 }
 
 test('getAuthStatus', async () => {
-  configureMachine(systemSettings);
+  await configureMachine(systemSettings);
 
   await apiClient.getAuthStatus();
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
@@ -122,7 +121,7 @@ test('getAuthStatus', async () => {
 });
 
 test('getAuthStatus with the poll worker role enabled', async () => {
-  configureMachine({
+  await configureMachine({
     ...systemSettings,
     centralScanEnablePollWorkerRole: true,
   });
@@ -145,7 +144,7 @@ test('getAuthStatus with the poll worker role enabled', async () => {
 });
 
 test('checkPin', async () => {
-  configureMachine(systemSettings);
+  await configureMachine(systemSettings);
 
   await apiClient.checkPin({ pin: '123456' });
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
@@ -164,7 +163,7 @@ test('checkPin', async () => {
 });
 
 test('logOut', async () => {
-  configureMachine(systemSettings);
+  await configureMachine(systemSettings);
 
   await apiClient.logOut();
   expect(auth.logOut).toHaveBeenCalledTimes(1);
@@ -179,7 +178,7 @@ test('logOut', async () => {
 });
 
 test('updateSessionExpiry', async () => {
-  configureMachine(systemSettings);
+  await configureMachine(systemSettings);
 
   await apiClient.updateSessionExpiry({
     sessionExpiresAt: DateTime.now().plus({ seconds: 60 }).toJSDate(),
@@ -200,7 +199,7 @@ test('updateSessionExpiry', async () => {
 });
 
 test('getAuthStatus before a polling place has been selected', async () => {
-  configureMachine(systemSettings);
+  await configureMachine(systemSettings);
   workspace.store.setPollingPlaceId(null);
 
   await apiClient.getAuthStatus();

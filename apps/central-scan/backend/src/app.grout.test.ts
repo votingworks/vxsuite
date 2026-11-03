@@ -32,7 +32,7 @@ import {
 import { randomUUID as uuid } from 'node:crypto';
 import { beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth.js';
-import { withApp } from '../test/helpers/setup_app.js';
+import { configureStore, withApp } from '../test/helpers/setup_app.js';
 import { generateHmpbFixture } from '../test/helpers/ballots.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
@@ -143,13 +143,12 @@ test('getElectionDefinition', async () => {
   await withApp(async ({ apiClient, store }) => {
     expect(await apiClient.getElectionRecord()).toEqual(null);
 
-    store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash,
-      ballotHash: electionDefinition.ballotHash,
+      pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
     });
-    store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
 
     expect(await apiClient.getElectionRecord()).toEqual({
       electionDefinition,
@@ -166,13 +165,12 @@ test('unconfigure', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
   await withApp(async ({ apiClient, store, logger }) => {
-    store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
+      pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
     });
-    store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
     await apiClient.setTestMode({ testMode: false });
 
     const batchId = store.addBatch();
@@ -206,13 +204,12 @@ test('a failed CVR export does not count as a backup', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
   await withApp(async ({ apiClient, store, mockUsbDrive }) => {
-    store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
+      pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
     });
-    store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
     await apiClient.setTestMode({ testMode: false });
     const batchId = store.addBatch();
     store.addSheet(uuid(), batchId, sheet);
@@ -231,13 +228,12 @@ test('unconfigure w/ ignoreBackupRequirement', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
   await withApp(async ({ apiClient, store }) => {
-    store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
+      pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
     });
-    store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
     await apiClient.setTestMode({ testMode: false });
 
     const batchId = store.addBatch();
@@ -257,13 +253,12 @@ test('retrySendBatchToAdmin clears a batch send failure', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
   await withApp(async ({ apiClient, store }) => {
-    store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
+      pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
     });
-    store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
 
     const batchId = store.addBatch();
     store.addSheet(uuid(), batchId, sheet);
@@ -284,13 +279,12 @@ test('resendBatchToAdmin queues a sent batch to be sent again', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
   await withApp(async ({ apiClient, store }) => {
-    store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
+      pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
     });
-    store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
 
     const batchId = store.addBatch();
     store.addSheet(uuid(), batchId, sheet);
@@ -315,13 +309,12 @@ test('clearing scanning data', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
   await withApp(async ({ apiClient, store, logger }) => {
-    store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
+      pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
     });
-    store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
     await apiClient.setTestMode({ testMode: false });
 
     const batchId = store.addBatch();
@@ -381,13 +374,12 @@ test('getting / setting test mode', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
   await withApp(async ({ apiClient, store }) => {
-    store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
+      pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
     });
-    store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
 
     expect(await apiClient.getTestMode()).toEqual(true);
 
@@ -517,14 +509,13 @@ test('configure with CDF election', async () => {
 test('get/set polling place id', async () => {
   await withApp(async ({ apiClient, auth, store, logger }) => {
     mockElectionManagerAuth(auth, famousNamesDefinition);
-    store.setElectionAndJurisdiction({
-      electionData: famousNamesDefinition.electionData,
+    await configureStore(store, {
+      electionDefinition: famousNamesDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: famousNamesDefinition.ballotHash,
     });
 
-    // No polling place selected initially (setElectionAndJurisdiction does not
+    // No polling place selected initially (configureStore does not
     // auto-select; only the configure-from-USB API does).
     expect(await apiClient.getPollingPlaceId()).toEqual(null);
 
@@ -658,13 +649,12 @@ test('getSheetForReview returns interpretation and image data for uninterpretabl
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
   await withApp(async ({ apiClient, store, workspace }) => {
-    store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
+      pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
     });
-    store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
 
     const batchId = workspace.store.addBatch();
     const sheetId = uuid();
@@ -702,13 +692,12 @@ test('getSheetForReview returns interpretation, image data, and layouts for inte
     electionGridLayoutNewHampshireTestBallotFixtures.readElectionDefinition();
 
   await withApp(async ({ apiClient, store, workspace }) => {
-    store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
+      pollingPlaceId: anyPollingPlace(electionDefinition.election).id,
     });
-    store.setPollingPlaceId(anyPollingPlace(electionDefinition.election).id);
 
     const batchId = workspace.store.addBatch();
 

@@ -13,6 +13,7 @@ import { doesUsbDriveRequireCastVoteRecordSync } from '@votingworks/backend';
 import { assertDefined } from '@votingworks/basics';
 import { isReadyToScan } from './app_flow.js';
 import { Store } from './store.js';
+import { configureStore } from '../test/helpers/shared_helpers.js';
 
 const electionDefinition = readElectionGeneralDefinition();
 const electionKey = constructElectionKey(electionDefinition.election);
@@ -128,11 +129,10 @@ test('unlock_machine (election_manager)', async () => {
 
   const electionManagerUser = mockElectionManagerUser({ electionKey });
 
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash,
-    ballotHash: electionDefinition.ballotHash,
   });
 
   auth.getAuthStatus.mockResolvedValue({
@@ -156,11 +156,10 @@ test('unlock_machine (poll_worker)', async () => {
 
   const pollWorkerUser = mockPollWorkerUser({ electionKey });
 
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash,
-    ballotHash: electionDefinition.ballotHash,
   });
 
   auth.getAuthStatus.mockResolvedValue({
@@ -227,11 +226,10 @@ test('logged_in:election_manager', async () => {
   const mockUsbDrive = createMockUsbDrive();
   const electionManagerUser = mockElectionManagerUser({ electionKey });
 
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash,
-    ballotHash: electionDefinition.ballotHash,
   });
 
   auth.getAuthStatus.mockResolvedValue({
@@ -255,11 +253,10 @@ test('unconfigured:polling_place', async () => {
   const mockUsbDrive = createMockUsbDrive();
   const pollWorkerUser = mockPollWorkerUser({ electionKey });
 
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash,
-    ballotHash: electionDefinition.ballotHash,
   });
 
   auth.getAuthStatus.mockResolvedValue({
@@ -283,13 +280,12 @@ test('USB drive removed', async () => {
   const mockUsbDrive = createMockUsbDrive();
 
   mockUsbDrive.insertUsbDrive({});
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash,
-    ballotHash: electionDefinition.ballotHash,
+    pollingPlaceId: pollingPlace1!.id,
   });
-  store.setPollingPlaceId(pollingPlace1!.id);
   store.transitionPolls({ type: 'open_polls', time: Date.now() });
 
   expect(
@@ -327,11 +323,10 @@ test('logged_in:poll_worker', async () => {
   const mockUsbDrive = createMockUsbDrive();
   const pollWorkerUser = mockPollWorkerUser({ electionKey });
 
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash,
-    ballotHash: electionDefinition.ballotHash,
   });
 
   auth.getAuthStatus.mockResolvedValue({
@@ -357,14 +352,12 @@ test('polls_not_open', async () => {
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
 
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash,
-    ballotHash: electionDefinition.ballotHash,
+    pollingPlaceId: pollingPlace1!.id,
   });
-
-  store.setPollingPlaceId(pollingPlace1!.id);
   mockUsbDrive.insertUsbDrive({});
 
   expect(
@@ -381,14 +374,12 @@ test('cast_vote_record_sync_required', async () => {
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
 
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash,
-    ballotHash: electionDefinition.ballotHash,
+    pollingPlaceId: pollingPlace1!.id,
   });
-
-  store.setPollingPlaceId(pollingPlace1!.id);
   mockUsbDrive.insertUsbDrive({});
   store.transitionPolls({ type: 'open_polls', time: Date.now() });
 
@@ -408,14 +399,12 @@ test('ballot:waiting_to_scan', async () => {
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
 
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
+  await configureStore(store, {
+    electionDefinition,
     jurisdiction: TEST_JURISDICTION,
     electionPackageHash,
-    ballotHash: electionDefinition.ballotHash,
+    pollingPlaceId: pollingPlace1!.id,
   });
-
-  store.setPollingPlaceId(pollingPlace1!.id);
   mockUsbDrive.insertUsbDrive({});
   store.transitionPolls({ type: 'open_polls', time: Date.now() });
 

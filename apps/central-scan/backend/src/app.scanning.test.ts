@@ -25,7 +25,11 @@ import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { mockElectionManagerAuth } from '../test/helpers/auth.js';
 import { generateBmdBallotFixture } from '../test/helpers/ballots.js';
-import { waitForStatus, withApp } from '../test/helpers/setup_app.js';
+import {
+  configureStore,
+  waitForStatus,
+  withApp,
+} from '../test/helpers/setup_app.js';
 import type { ScannedSheetInfo } from './fujitsu_scanner.js';
 
 const jurisdiction = TEST_JURISDICTION;
@@ -97,13 +101,12 @@ test('scanBatch with multiple sheets', async () => {
       .spyOn(workspace.lifetimeSheetCounter, 'increment')
       .mockResolvedValue();
     mockElectionManagerAuth(auth, electionDefinition);
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(workspace.store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
+      systemSettings: DEFAULT_SYSTEM_SETTINGS,
     });
-    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setTestMode({ testMode: true });
     // The scanned ballot is for precinct '23', which is covered by
     // '23-polling-place', so all sheets are accepted.
@@ -159,13 +162,12 @@ test('pausing while a sheet is staged scans it first; resuming continues the bat
   };
   await withApp(async ({ auth, apiClient, scanner, workspace, logger }) => {
     mockElectionManagerAuth(auth, electionDefinition);
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(workspace.store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
+      systemSettings: DEFAULT_SYSTEM_SETTINGS,
     });
-    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setTestMode({ testMode: true });
     await apiClient.setPollingPlaceId({ id: '23-polling-place' });
 
@@ -239,13 +241,12 @@ test('pausing while the batch is starting pauses after the first sheet', async (
   };
   await withApp(async ({ auth, apiClient, scanner, workspace, logger }) => {
     mockElectionManagerAuth(auth, electionDefinition);
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(workspace.store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
+      systemSettings: DEFAULT_SYSTEM_SETTINGS,
     });
-    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setTestMode({ testMode: true });
     await apiClient.setPollingPlaceId({ id: '23-polling-place' });
 
@@ -290,13 +291,12 @@ test('pausing while a sheet is being interpreted pauses after it', async () => {
       .spyOn(workspace.lifetimeSheetCounter, 'increment')
       .mockResolvedValue();
     mockElectionManagerAuth(auth, electionDefinition);
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(workspace.store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
+      systemSettings: DEFAULT_SYSTEM_SETTINGS,
     });
-    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setTestMode({ testMode: true });
     await apiClient.setPollingPlaceId({ id: '23-polling-place' });
 
@@ -330,13 +330,12 @@ test('pausing while a sheet that needs review is being interpreted stops for rev
   const bmdFixture = await generateBmdBallotFixture();
   await withApp(async ({ auth, apiClient, scanner, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(workspace.store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
+      systemSettings: DEFAULT_SYSTEM_SETTINGS,
     });
-    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setTestMode({ testMode: true });
     await apiClient.setPollingPlaceId({ id: 'central-scanning' });
 
@@ -378,13 +377,12 @@ test('discardBatch deletes the paused batch', async () => {
   };
   await withApp(async ({ auth, apiClient, scanner, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(workspace.store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
+      systemSettings: DEFAULT_SYSTEM_SETTINGS,
     });
-    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setTestMode({ testMode: true });
     await apiClient.setPollingPlaceId({ id: '23-polling-place' });
 
@@ -431,13 +429,12 @@ test('rejectSheet after invalid ballot', async () => {
       .spyOn(workspace.lifetimeSheetCounter, 'increment')
       .mockResolvedValue();
     mockElectionManagerAuth(auth, electionDefinition);
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(workspace.store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
+      systemSettings: DEFAULT_SYSTEM_SETTINGS,
     });
-    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setTestMode({ testMode: true });
     await apiClient.setPollingPlaceId({ id: 'central-scanning' });
 
@@ -548,16 +545,14 @@ test('scanBatch with streaked page', async () => {
   // try with vertical streak detection enabled
   await withApp(async ({ auth, apiClient, scanner, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(workspace.store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
-    });
-    workspace.store.setSystemSettings({
-      ...DEFAULT_SYSTEM_SETTINGS,
-      // enable vertical streak detection
-      disableVerticalStreakDetection: false,
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        disableVerticalStreakDetection: false,
+      },
     });
     await apiClient.setTestMode({ testMode: true });
     await apiClient.setPollingPlaceId({ id: 'central-scanning' });
@@ -586,16 +581,14 @@ test('scanBatch with streaked page', async () => {
   // try again with vertical streak detection disabled
   await withApp(async ({ auth, apiClient, scanner, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(workspace.store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
-    });
-    workspace.store.setSystemSettings({
-      ...DEFAULT_SYSTEM_SETTINGS,
-      // disable vertical streak detection
-      disableVerticalStreakDetection: true,
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        disableVerticalStreakDetection: true,
+      },
     });
     await apiClient.setTestMode({ testMode: true });
     await apiClient.setPollingPlaceId({ id: 'central-scanning' });
@@ -635,15 +628,14 @@ test('accepting a sheet that needs review keeps it and continues scanning', asyn
       .spyOn(workspace.lifetimeSheetCounter, 'increment')
       .mockResolvedValue();
     mockElectionManagerAuth(auth, electionDefinition);
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(workspace.store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
-    });
-    workspace.store.setSystemSettings({
-      ...DEFAULT_SYSTEM_SETTINGS,
-      centralScanAdjudicationReasons: [AdjudicationReason.BlankBallot],
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        centralScanAdjudicationReasons: [AdjudicationReason.BlankBallot],
+      },
     });
     await apiClient.setTestMode({ testMode: true });
     await apiClient.setPollingPlaceId({ id: 'central-scanning' });
@@ -739,22 +731,21 @@ test('sends a sheet with marginal marks for review when enabled', async () => {
 
   await withApp(async ({ auth, apiClient, scanner, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(workspace.store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
-    });
-    workspace.store.setSystemSettings({
-      ...DEFAULT_SYSTEM_SETTINGS,
-      // Wide enough gap between the marginal and definite thresholds that
-      // every partially filled bubble on the fixture scores as marginal.
-      markThresholds: {
-        ...DEFAULT_SYSTEM_SETTINGS.markThresholds,
-        marginal: 0.03,
-        definite: 0.15,
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        // Wide enough gap between the marginal and definite thresholds that
+        // every partially filled bubble on the fixture scores as marginal.
+        markThresholds: {
+          ...DEFAULT_SYSTEM_SETTINGS.markThresholds,
+          marginal: 0.03,
+          definite: 0.15,
+        },
+        centralScanAdjudicationReasons: [AdjudicationReason.MarginalMark],
       },
-      centralScanAdjudicationReasons: [AdjudicationReason.MarginalMark],
     });
     await apiClient.setTestMode({ testMode: true });
     await apiClient.setPollingPlaceId({ id: 'central-scanning' });
@@ -805,13 +796,12 @@ test('rejects ballots whose precinct is not in the selected polling place', asyn
       .spyOn(workspace.lifetimeSheetCounter, 'increment')
       .mockResolvedValue();
     mockElectionManagerAuth(auth, bmdFixture.electionDefinition);
-    workspace.store.setElectionAndJurisdiction({
-      electionData: bmdFixture.electionDefinition.electionData,
+    await configureStore(workspace.store, {
+      electionDefinition: bmdFixture.electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: bmdFixture.electionDefinition.ballotHash,
+      systemSettings: DEFAULT_SYSTEM_SETTINGS,
     });
-    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setTestMode({ testMode: true });
     await apiClient.setPollingPlaceId({ id: '20-polling-place' });
 
@@ -858,13 +848,12 @@ test('setIsImprintingEnabled', async () => {
     electionFamousNames2021Fixtures.readElectionDefinition();
   await withApp(async ({ auth, apiClient, scanner, workspace, logger }) => {
     mockElectionManagerAuth(auth, electionDefinition);
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
+    await configureStore(workspace.store, {
+      electionDefinition,
       jurisdiction,
       electionPackageHash: 'test-election-package-hash',
-      ballotHash: electionDefinition.ballotHash,
+      systemSettings: DEFAULT_SYSTEM_SETTINGS,
     });
-    workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setPollingPlaceId({ id: '23-polling-place' });
 
     expect(await apiClient.getImprintingStatus()).toEqual({

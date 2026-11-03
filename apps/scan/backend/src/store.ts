@@ -13,23 +13,19 @@ import {
   type PollsState as PollsStateType,
   PollsStateSchema,
   safeParse,
-  safeParseElection,
   safeParseJson,
   type SheetOf,
   type SystemSettings,
-  safeParseSystemSettings,
   type AdjudicationReason,
   type PollsTransitionType,
   type DiagnosticRecord,
   type DiagnosticType,
   type ElectionKey,
-  constructElectionKey,
   type BallotCastingMode,
 } from '@votingworks/types';
 import {
   assert,
   assertDefined,
-  DateWithoutTime,
   type Optional,
   typedAs,
 } from '@votingworks/basics';
@@ -38,14 +34,14 @@ import { join } from 'node:path';
 import { randomUUID as uuid } from 'node:crypto';
 import {
   type AcceptedSheet,
-  BallotMetaStore,
+  type BallotMetaStore,
   type ElectionRecord,
+  ElectionPackageStore,
   type RejectedSheet,
   type Sheet,
   type UiStringsStore,
   addDiagnosticRecord,
   clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult,
-  createUiStringStore,
   getMostRecentDiagnosticRecord,
 } from '@votingworks/backend';
 import {
@@ -136,22 +132,17 @@ export type ElectricalTestingComponent =
  * interpreted by reading the sheets.
  */
 export class Store {
-  private cachedElectionRecord?: ElectionRecord | null;
-  private cachedSystemSettings?: SystemSettings | null;
-
   private readonly client: DbClient;
-  private readonly ballotMetaStore: BallotMetaStore;
-  private readonly uiStringsStore: UiStringsStore;
+  private readonly electionPackageStore: ElectionPackageStore;
   private readonly logger: BaseLogger;
 
   private constructor(
     client: DbClient,
-    uiStringsStore: UiStringsStore,
+    electionPackageStore: ElectionPackageStore,
     logger: BaseLogger
   ) {
     this.client = client;
-    this.ballotMetaStore = new BallotMetaStore(this.client);
-    this.uiStringsStore = uiStringsStore;
+    this.electionPackageStore = electionPackageStore;
     this.logger = logger;
   }
 
@@ -168,18 +159,27 @@ export class Store {
    * Builds and returns a new store whose data is kept in memory.
    */
   static memoryStore(logger = new BaseLogger(LogSource.System)): Store {
-    const client = DbClient.memoryClient(SchemaPath);
-    const uiStringsStore = createUiStringStore(client);
-    return new Store(client, uiStringsStore, logger);
+    return new Store(
+      DbClient.memoryClient(SchemaPath),
+      ElectionPackageStore.memoryStore(),
+      logger
+    );
   }
 
   /**
-   * Builds and returns a new store at `dbPath`.
+   * Builds and returns a new store whose session is at `sessionDbPath` and
+   * whose election package is at `electionPackageDbPath`.
    */
-  static fileStore(dbPath: string, logger: BaseLogger): Store {
-    const client = DbClient.fileClient(dbPath, logger, SchemaPath);
-    const uiStringsStore = createUiStringStore(client);
-    return new Store(client, uiStringsStore, logger);
+  static fileStore(
+    sessionDbPath: string,
+    electionPackageDbPath: string,
+    logger: BaseLogger
+  ): Store {
+    return new Store(
+      DbClient.fileClient(sessionDbPath, logger, SchemaPath),
+      ElectionPackageStore.fileStore(electionPackageDbPath, logger),
+      logger
+    );
   }
 
   // TODO(jonah): Make this the only way to access the store so that we always
@@ -190,140 +190,67 @@ export class Store {
    *
    * Returns the result of the function.
    */
-  withTransaction<T>(fn: () => Promise<T>): Promise<T>;
-  withTransaction<T>(fn: () => T): T;
   withTransaction<T>(fn: () => T): T {
     return this.client.transaction(() => fn());
   }
 
   /**
-   * Resets the database and any cached data in the store.
+   * Resets both databases and any cached data in the store.
    */
   reset(): void {
-    this.cachedElectionRecord = undefined;
-    this.cachedSystemSettings = undefined;
     this.client.reset();
+    this.electionPackageStore.reset();
     clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
   }
 
+  close(): void {
+    this.client.close();
+    this.electionPackageStore.close();
+  }
+
+  getElectionPackageStore(): ElectionPackageStore {
+    return this.electionPackageStore;
+  }
+
   getBallotMetaStore(): BallotMetaStore {
-    return this.ballotMetaStore;
+    return this.electionPackageStore.getBallotMetaStore();
   }
 
   /**
    * Gets whether an election is currently configured.
    */
   hasElection(): boolean {
-    return this.getElectionRecord() !== undefined;
+    return Boolean(this.client.one('select id from election'));
+  }
+
+  /**
+   * Starts the session for the imported election package, which is what makes
+   * the machine configured, so it comes after the package is imported.
+   */
+  startElectionSession(): void {
+    this.client.run('delete from election');
+    this.client.run('insert into election (id) values (1)');
   }
 
   /**
    * Gets the current election definition and election package hash.
    */
   getElectionRecord(): ElectionRecord | undefined {
-    if (this.cachedElectionRecord === undefined) {
-      const row = this.client.one(
-        `
-        select
-          ballot_hash as ballotHash,
-          election_data as electionData,
-          election_package_hash as electionPackageHash
-        from election
-        `
-      ) as
-        | {
-            ballotHash: string;
-            electionData: string;
-            electionPackageHash: string;
-          }
-        | undefined;
-
-      this.cachedElectionRecord = row
-        ? {
-            electionDefinition: {
-              ballotHash: row.ballotHash,
-              election: safeParseElection(row.electionData).unsafeUnwrap(),
-              electionData: row.electionData,
-            },
-            electionPackageHash: row.electionPackageHash,
-          }
-        : null;
-    }
-
-    return this.cachedElectionRecord ?? undefined;
+    return this.electionPackageStore.getElectionRecord();
   }
 
   /**
-   * Retrieves the election key (used for auth) for the current election. This
-   * method is faster than than {@link getElectionRecord} and thus more appropriate
-   * for use during auth polling.
+   * Retrieves the election key (used for auth) for the current election.
    */
   getElectionKey(): ElectionKey | undefined {
-    const result = this.client.one(
-      `
-      select
-        election_data ->> 'id' as id,
-        election_data ->> 'date' as date
-      from election
-      `
-    ) as { id?: string; date?: string } | undefined;
-
-    if (!result) return undefined;
-
-    // The election might be in CDF, in which case, we won't get `id` and `date`
-    // fields, so just load and parse it to construct the key. We don't need to
-    // optimize speed for CDF.
-    if (!(result.id && result.date)) {
-      return constructElectionKey(
-        assertDefined(this.getElectionRecord()).electionDefinition.election
-      );
-    }
-
-    return (
-      result && {
-        id: result.id,
-        date: new DateWithoutTime(result.date),
-      }
-    );
+    return this.electionPackageStore.getElectionKey();
   }
 
   /**
    * Gets the current jurisdiction.
    */
   getJurisdiction(): string | undefined {
-    const electionRow = this.client.one('select jurisdiction from election') as
-      | { jurisdiction: string }
-      | undefined;
-    return electionRow?.jurisdiction;
-  }
-
-  /**
-   * Sets the current election definition and jurisdiction.
-   */
-  setElectionAndJurisdiction(input?: {
-    electionData: string;
-    jurisdiction: string;
-    electionPackageHash: string;
-    ballotHash: string;
-  }): void {
-    this.cachedElectionRecord = undefined;
-    this.client.run('delete from election');
-    if (input) {
-      this.client.run(
-        `
-        insert into election (
-          election_data,
-          jurisdiction,
-          ballot_hash,
-          election_package_hash
-        ) values (?, ?, ?, ?)
-        `,
-        input.electionData,
-        input.jurisdiction,
-        input.ballotHash,
-        input.electionPackageHash
-      );
-    }
+    return this.electionPackageStore.getJurisdiction();
   }
 
   /**
@@ -942,34 +869,10 @@ export class Store {
   }
 
   /**
-   * Stores the system settings.
-   */
-  setSystemSettings(systemSettings: SystemSettings): void {
-    this.cachedSystemSettings = undefined;
-    this.client.run('delete from system_settings');
-    this.client.run(
-      `
-      insert into system_settings (data) values (?)
-      `,
-      JSON.stringify(systemSettings)
-    );
-  }
-
-  /**
    * Retrieves the system settings.
    */
   getSystemSettings(): SystemSettings | undefined {
-    if (this.cachedSystemSettings === undefined) {
-      const result = this.client.one(`select data from system_settings`) as
-        | { data: string }
-        | undefined;
-
-      this.cachedSystemSettings = result
-        ? safeParseSystemSettings(result.data).unsafeUnwrap()
-        : null;
-    }
-
-    return this.cachedSystemSettings ?? undefined;
+    return this.electionPackageStore.getSystemSettings();
   }
 
   /**
@@ -1053,7 +956,7 @@ export class Store {
   }
 
   getUiStringsStore(): UiStringsStore {
-    return this.uiStringsStore;
+    return this.electionPackageStore.getUiStringsStore();
   }
 
   addDiagnosticRecord(record: Omit<DiagnosticRecord, 'timestamp'>): void {

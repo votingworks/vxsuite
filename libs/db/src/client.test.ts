@@ -279,6 +279,30 @@ test('reset file database client that has not connected yet', () => {
   expect(client.all('select * from muppets')).toEqual([{ name: 'Kermit' }]);
 });
 
+test('replaceDatabaseFile swaps in another database file', () => {
+  const schemaFile = join(import.meta.dirname, '../test/fixtures/schema.sql');
+  const logger = mockBaseLogger({ fn: vi.fn });
+  const client = Client.fileClient(makeTemporaryFile(), logger, schemaFile);
+  client.run(
+    "insert into users (id, name, email, password_hash) values ('u1', 'Alice', 'alice@example.com', 'h')"
+  );
+
+  const sourcePath = makeTemporaryFile();
+  const source = Client.fileClient(sourcePath, logger, schemaFile);
+  source.run(
+    "insert into users (id, name, email, password_hash) values ('u2', 'Bob', 'bob@example.com', 'h')"
+  );
+  source.close();
+
+  client.replaceDatabaseFile(sourcePath);
+  expect(client.all('select name from users')).toEqual([{ name: 'Bob' }]);
+  expect(fs.existsSync(sourcePath)).toEqual(false);
+
+  expect(() =>
+    Client.memoryClient(schemaFile).replaceDatabaseFile(sourcePath)
+  ).toThrow('cannot replace the file of an in-memory database');
+});
+
 test('memory database client, reset', () => {
   const schemaFile = join(import.meta.dirname, '../test/fixtures/schema.sql');
   const client = Client.memoryClient(schemaFile);

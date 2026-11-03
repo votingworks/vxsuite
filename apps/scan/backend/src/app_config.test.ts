@@ -132,7 +132,7 @@ test("fails to configure if there's no election package on the usb drive", async
 
 test('cleans up when audio clip streaming fails during configure', async () => {
   await withApp(async ({ apiClient, mockAuth, mockUsbDrive, workspace }) => {
-    const workspaceResetSpy = vi.spyOn(workspace, 'reset');
+    const workspaceUnconfigureSpy = vi.spyOn(workspace, 'unconfigure');
 
     mockElectionManager(mockAuth, electionGeneralDefinition);
     mockUsbDrive.insertUsbDrive({
@@ -156,13 +156,13 @@ test('cleans up when audio clip streaming fails during configure', async () => {
       },
     });
 
-    expect(workspaceResetSpy).not.toHaveBeenCalled();
+    expect(workspaceUnconfigureSpy).not.toHaveBeenCalled();
 
     await expect(
       apiClient.configureFromElectionPackageOnUsbDrive()
     ).rejects.toThrow();
     expect((await apiClient.getConfig()).electionDefinition).toBeUndefined();
-    expect(workspaceResetSpy).toHaveBeenCalledOnce();
+    expect(workspaceUnconfigureSpy).toHaveBeenCalledOnce();
   });
 });
 
@@ -369,12 +369,19 @@ test('unconfiguring machine', async () => {
   await withApp(
     async ({ apiClient, mockUsbDrive, workspace, mockAuth, logger }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
+      expect(workspace.store.getElectionPackageStore().hasElection()).toEqual(
+        true
+      );
 
-      vi.spyOn(workspace, 'reset');
+      vi.spyOn(workspace, 'unconfigure');
 
       await apiClient.unconfigureElection();
 
-      expect(workspace.reset).toHaveBeenCalledTimes(1);
+      expect(workspace.unconfigure).toHaveBeenCalledTimes(1);
+      expect(workspace.store.hasElection()).toEqual(false);
+      expect(workspace.store.getElectionPackageStore().hasElection()).toEqual(
+        false
+      );
       expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
         LogEventId.ElectionUnconfigured,
         expect.objectContaining({

@@ -19,10 +19,10 @@ import {
 } from '@votingworks/types';
 import type {
   CentralScannerStore,
-  ElectionRecord,
   PrecinctScannerStore,
   ScannerStoreBase,
 } from '../src/cast_vote_records/export.js';
+import type { ElectionRecord } from '../src/election_package/store.js';
 
 class MockScannerStoreBase implements ScannerStoreBase {
   private batches: BatchInfo[];

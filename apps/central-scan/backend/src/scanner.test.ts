@@ -26,6 +26,7 @@ import {
   createBatchScannerStateMachine,
 } from './scanner.js';
 import type { BatchScannerMachineStatus } from './types.js';
+import { configureStore } from '../test/helpers/setup_app.js';
 
 const electionDefinition = readElectionGeneralDefinition();
 const { election } = electionDefinition;
@@ -59,14 +60,13 @@ async function setup(scanner: BatchScanner = makeMockScanner()): Promise<{
   return { machine, workspace, logger };
 }
 
-function configureElection(workspace: Workspace): void {
-  workspace.store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
+async function configureElection(workspace: Workspace): Promise<void> {
+  await configureStore(workspace.store, {
+    electionDefinition,
     jurisdiction: 'test-jurisdiction',
     electionPackageHash: 'test-hash',
-    ballotHash: electionDefinition.ballotHash,
+    pollingPlaceId: anyPollingPlace(election).id,
   });
-  workspace.store.setPollingPlaceId(anyPollingPlace(election).id);
 }
 
 function expectErrorEventLogged(logger: MockLogger, message: string): void {
@@ -115,7 +115,7 @@ function failNextEndBatchOnce(
 test('save batch after pause from empty input tray', async () => {
   const scanner = makeMockScanner();
   const { machine, workspace, logger } = await setup(scanner);
-  configureElection(workspace);
+  await configureElection(workspace);
 
   scanner.withNextScannerSession().end();
   await machine.startBatch();
@@ -173,7 +173,7 @@ test('save batch after pause from empty input tray', async () => {
 test('resuming a paused batch restarts the scanner session', async () => {
   const scanner = makeMockScanner();
   const { machine, workspace, logger } = await setup(scanner);
-  configureElection(workspace);
+  await configureElection(workspace);
 
   scanner.withNextScannerSession().end();
   await machine.startBatch();
@@ -204,7 +204,7 @@ test('resuming a paused batch restarts the scanner session', async () => {
 test('imprint prefix is unique across pauses within a batch', async () => {
   const scanner = makeMockScanner();
   const { machine, workspace } = await setup(scanner);
-  configureElection(workspace);
+  await configureElection(workspace);
   vi.spyOn(scanner, 'isImprinterDetected').mockResolvedValue(true);
   const scanSheets = vi.spyOn(scanner, 'scanSheets');
 
@@ -254,7 +254,7 @@ test('imprint prefix is unique across pauses within a batch', async () => {
 test('does not imprint when imprinting is disabled, even when an imprinter is attached', async () => {
   const scanner = makeMockScanner();
   const { machine, workspace, logger } = await setup(scanner);
-  configureElection(workspace);
+  await configureElection(workspace);
   workspace.store.setIsImprintingEnabled(false);
   vi.spyOn(scanner, 'isImprinterDetected').mockResolvedValue(true);
   const scanSheets = vi.spyOn(scanner, 'scanSheets');
@@ -296,7 +296,7 @@ test('does not imprint when imprinting is disabled, even when an imprinter is at
 test('discarding a paused batch deletes it', async () => {
   const scanner = makeMockScanner();
   const { machine, workspace, logger } = await setup(scanner);
-  configureElection(workspace);
+  await configureElection(workspace);
 
   scanner.withNextScannerSession().end();
   await machine.startBatch();
@@ -321,7 +321,7 @@ test('discarding a paused batch deletes it', async () => {
 test('error when starting a batch', async () => {
   const scanner = makeMockScanner();
   const { machine, workspace, logger } = await setup(scanner);
-  configureElection(workspace);
+  await configureElection(workspace);
 
   vi.spyOn(scanner, 'scanSheets').mockImplementation(() => {
     throw new Error('scanner unavailable');
@@ -347,7 +347,7 @@ test('error when starting a batch', async () => {
 test('error in scanning', async () => {
   const scanner = makeMockScanner();
   const { machine, workspace, logger } = await setup(scanner);
-  configureElection(workspace);
+  await configureElection(workspace);
 
   scanner.withNextScannerSession().error(new Error('paper jam')).end();
   const finishBatchSpy = vi.spyOn(workspace.store, 'finishBatch');
@@ -380,7 +380,7 @@ test('error in scanning', async () => {
 test('error in interpreting', async () => {
   const scanner = makeMockScanner();
   const { machine, workspace, logger } = await setup(scanner);
-  configureElection(workspace);
+  await configureElection(workspace);
 
   scanner
     .withNextScannerSession()
@@ -409,7 +409,7 @@ test('error in interpreting', async () => {
 test('error in saving', async () => {
   const scanner = makeMockScanner();
   const { machine, workspace, logger } = await setup(scanner);
-  configureElection(workspace);
+  await configureElection(workspace);
   vi.spyOn(workspace.store, 'finishBatch').mockImplementation(() => {
     throw new Error('database locked');
   });
@@ -466,7 +466,7 @@ test('cleanLogData keeps only adjudication reason types and hides large values',
 test('error: discard failure and success paths', async () => {
   const scanner = makeMockScanner();
   const { machine, workspace, logger } = await setup(scanner);
-  configureElection(workspace);
+  await configureElection(workspace);
 
   const endBatch = failNextEndBatchOnce(
     scanner,
@@ -492,7 +492,7 @@ test('error: discard failure and success paths', async () => {
 test('paused: discard failure and success paths', async () => {
   const scanner = makeMockScanner();
   const { machine, workspace, logger } = await setup(scanner);
-  configureElection(workspace);
+  await configureElection(workspace);
 
   const endBatch = failNextEndBatchOnce(
     scanner,
@@ -522,7 +522,7 @@ test('paused: discard failure and success paths', async () => {
 test('resume: error in starting new scan session', async () => {
   const scanner = makeMockScanner();
   const { machine, workspace, logger } = await setup(scanner);
-  configureElection(workspace);
+  await configureElection(workspace);
 
   scanner.withNextScannerSession().end();
   await machine.startBatch();
@@ -551,7 +551,7 @@ test('resume: error in starting new scan session', async () => {
 test('tray empty pause reason takes precedence over manual pausing', async () => {
   const scanner = makeMockScanner();
   const { machine, workspace } = await setup(scanner);
-  configureElection(workspace);
+  await configureElection(workspace);
 
   const trayChecked = deferred<void>();
   const scannerWaiting = deferred<void>();
