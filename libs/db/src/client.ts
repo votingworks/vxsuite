@@ -69,6 +69,8 @@ export interface Statement<P extends Bindable[] = []> {
  */
 export interface DbConnectionOptions {
   registerRegexpFn?: boolean;
+  /** Rejects writes, except the client's own schema setup. */
+  queryOnly?: boolean;
 }
 
 /**
@@ -288,10 +290,22 @@ export class Client {
 
     debug('adopting legacy schema digest sidecar at %s', sidecarPath);
     if (sidecarDigest === currentSchemaDigest) {
-      this.writeSchemaDigest();
+      this.withSchemaWritesAllowed(() => this.writeSchemaDigest());
     }
     fs.rmSync(sidecarPath, { force: true });
     return sidecarDigest;
+  }
+
+  private withSchemaWritesAllowed<T>(fn: () => T): T {
+    if (!this.connectionOptions?.queryOnly) {
+      return fn();
+    }
+    this.run('pragma query_only = 0');
+    try {
+      return fn();
+    } finally {
+      this.run('pragma query_only = 1');
+    }
   }
 
   /**
@@ -553,6 +567,10 @@ export class Client {
     // only runs on db creation.
     this.run('pragma foreign_keys = 1');
 
+    if (this.connectionOptions?.queryOnly) {
+      this.run('pragma query_only = 1');
+    }
+
     if (this.connectionOptions?.registerRegexpFn) {
       // sqlite3 has no built-in regexp function
       // This is o(n) and should be used with caution on large tables (>20,000 rows)
@@ -593,10 +611,12 @@ export class Client {
     const db = this.connect();
     if (this.schemaPath) {
       const schema = fs.readFileSync(this.schemaPath, 'utf-8');
-      this.transaction(() => {
-        this.exec(schema);
-        this.writeSchemaDigest();
-      });
+      this.withSchemaWritesAllowed(() =>
+        this.transaction(() => {
+          this.exec(schema);
+          this.writeSchemaDigest();
+        })
+      );
     }
     this.logger.log(
       LogEventId.DatabaseCreateComplete,
