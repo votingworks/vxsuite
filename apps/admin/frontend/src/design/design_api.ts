@@ -45,10 +45,7 @@ export const getDesignStatus = {
   },
   useQuery() {
     const apiClient = useAdminDesignApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getDesignStatus(), {
-      retry: false,
-      useErrorBoundary: false,
-    });
+    return useQuery(this.queryKey(), () => apiClient.getDesignStatus());
   },
 } as const;
 
@@ -132,13 +129,6 @@ export const unfinalizeBallots = {
         await queryClient.invalidateQueries(listElections.queryKey());
       },
     });
-  },
-} as const;
-
-export const saveDesignExportToUsb = {
-  useMutation() {
-    const apiClient = useAdminDesignApiClient();
-    return useMutation(apiClient.saveDesignExportToUsb);
   },
 } as const;
 

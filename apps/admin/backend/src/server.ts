@@ -192,7 +192,7 @@ export async function start(options: StartOptions = {}): Promise<Server> {
       const electionDesign = isFeatureFlagEnabled(
         BooleanEnvironmentVariableName.ENABLE_ADMIN_ELECTION_DESIGN
       )
-        ? startElectionDesignService({
+        ? await startElectionDesignService({
             auth,
             workspace,
             logger,

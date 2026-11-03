@@ -27,7 +27,6 @@ import { routerPaths } from '../router_paths.js';
 import {
   finalizeAndExportBallots,
   getElectionPackage,
-  saveDesignExportToUsb,
   unfinalizeBallots,
 } from './design_api.js';
 import { configureFromDesign } from '../api.js';
@@ -43,7 +42,6 @@ export function DesignBallotsScreen(): JSX.Element | null {
   const electionPackageQuery = getElectionPackage.useQuery(electionId);
   const finalizeMutation = finalizeAndExportBallots.useMutation();
   const unfinalizeMutation = unfinalizeBallots.useMutation();
-  const saveToUsbMutation = saveDesignExportToUsb.useMutation();
   const configureMutation = configureFromDesign.useMutation();
 
   if (
@@ -56,8 +54,7 @@ export function DesignBallotsScreen(): JSX.Element | null {
   }
 
   const finalizedAt = finalizedAtQuery.data;
-  const { task, electionPackageUrl, officialBallotsUrl } =
-    electionPackageQuery.data;
+  const { task, electionPackageUrl } = electionPackageQuery.data;
   const isExporting = !!task && !task.completedAt;
   const isExported =
     !!finalizedAt &&
@@ -65,7 +62,6 @@ export function DesignBallotsScreen(): JSX.Element | null {
     !task.error &&
     !!electionPackageUrl &&
     task.createdAt >= finalizedAt;
-  const saveResult = saveToUsbMutation.data;
   const configureResult = configureMutation.data;
 
   return (
@@ -155,32 +151,11 @@ export function DesignBallotsScreen(): JSX.Element | null {
 
         {isExported && (
           <div>
-            <H2>Exported Files</H2>
             <P>
-              {[electionPackageUrl, officialBallotsUrl]
-                .filter(Boolean)
-                .map((url) => url?.split('/').pop())
-                .join(', ')}
+              Ballots are rendered. Configure VxAdmin for this election, then
+              use Save Election Package on the Election screen to save the
+              signed package.
             </P>
-            <P>
-              <Button
-                icon="Export"
-                onPress={() => saveToUsbMutation.mutate({ electionId })}
-                disabled={saveToUsbMutation.isLoading}
-              >
-                Save Election Package and Ballots to USB
-              </Button>
-            </P>
-            {saveResult?.isOk() && (
-              <Callout color="primary" icon="Info">
-                Saved {saveResult.ok().length} files to USB.
-              </Callout>
-            )}
-            {saveResult?.isErr() && (
-              <Callout color="danger" icon="Danger">
-                {saveResult.err().message}
-              </Callout>
-            )}
 
             <H2>Configure VxAdmin</H2>
             {electionDefinition ? (

@@ -1,6 +1,5 @@
 import type { Buffer } from 'node:buffer';
-import { createReadStream, existsSync } from 'node:fs';
-import { readFile, stat } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import type { DippedSmartCardAuthApi } from '@votingworks/auth';
 import {
@@ -222,49 +221,6 @@ export function buildDesignApi({
         input.data
       );
       return result.isOk() ? ok(join(directory, fileName)) : result;
-    },
-
-    async saveDesignExportToUsb(input: {
-      electionId: ElectionId;
-    }): Promise<Result<string[], ExportDataError | Error>> {
-      const exported = await tasks.getElectionPackage(input.electionId);
-      if (!exported.electionPackageUrl) {
-        return err(new Error('Ballots have not been exported yet.'));
-      }
-      const packagePath = designExporter.resolveFileUrl(
-        exported.electionPackageUrl
-      );
-      const filePaths = [
-        packagePath,
-        `${packagePath}.vxsig`,
-        ...[
-          exported.officialBallotsUrl,
-          exported.sampleBallotsUrl,
-          exported.testBallotsUrl,
-        ]
-          .filter((url): url is string => !!url)
-          .map((url) => designExporter.resolveFileUrl(url)),
-      ].filter((filePath) => existsSync(filePath));
-      const { title } = (await elections.getElection(input.electionId))
-        .election;
-      const directory = join(
-        'election-design',
-        `${title.replace(/[^\w-]+/g, '-') || 'election'}-${input.electionId}`
-      );
-      const exporter = buildExporter(usbDriveAdapter);
-      const savedFiles: string[] = [];
-      for (const filePath of filePaths) {
-        const fileName = basename(filePath);
-        const result = await exporter.exportDataToUsbDrive(
-          directory,
-          fileName,
-          createReadStream(filePath),
-          { size: (await stat(filePath)).size }
-        );
-        if (result.isErr()) return result;
-        savedFiles.push(join(directory, fileName));
-      }
-      return ok(savedFiles);
     },
   } as const;
 

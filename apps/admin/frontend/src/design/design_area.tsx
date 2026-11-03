@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import { Button, P } from '@votingworks/ui';
+import { P } from '@votingworks/ui';
 import {
   BallotScreen,
   ContestsScreen,
@@ -82,22 +82,6 @@ function DesignStatusGate({
 }): JSX.Element | null {
   const statusQuery = getDesignStatus.useQuery();
   if (statusQuery.isLoading) return null;
-  if (statusQuery.isError) {
-    return (
-      <NavigationScreen title="Election Design">
-        <P>
-          Election design is unavailable because its database could not be
-          reached. The rest of VxAdmin is unaffected.
-        </P>
-        <Button
-          onPress={() => statusQuery.refetch()}
-          disabled={statusQuery.isFetching}
-        >
-          Try Again
-        </Button>
-      </NavigationScreen>
-    );
-  }
   if (statusQuery.data?.status === 'unsupported-state') {
     return (
       <NavigationScreen title="Election Design">

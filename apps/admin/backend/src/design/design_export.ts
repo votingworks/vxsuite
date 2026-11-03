@@ -1,47 +1,92 @@
-import { fork } from 'node:child_process';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { BackgroundTaskStore } from '@votingworks/design-backend';
-import { getStateFeaturesConfig } from '@votingworks/design-backend';
-import { LogEventId, type BaseLogger } from '@votingworks/logging';
-import type { ElectionId, StateCode } from '@votingworks/types';
-import { assertDefined } from '@votingworks/basics';
-import { type ExportChildArgs, resolveDesignFileUrl } from './export_child.js';
+import {
+  GoogleCloudSpeechSynthesizer,
+  GoogleCloudTranslator,
+} from '@votingworks/backend';
+import { assertDefined, extractErrorMessage } from '@votingworks/basics';
+import {
+  generateElectionPackageAndBallots,
+  GenerateElectionPackageAndBallotsPayloadSchema,
+  getStateFeaturesConfig,
+  LocalDirectoryFileStorageClient,
+} from '@votingworks/design-backend';
+import {
+  type ElectionId,
+  safeParseJson,
+  type StateCode,
+} from '@votingworks/types';
+import type { AdminDesignStores } from './design_db.js';
+import { createAdminDesignFeatures } from './design_features.js';
+import {
+  OFFLINE_TEXT_TO_SPEECH_CLIENT,
+  OFFLINE_TRANSLATION_CLIENT,
+} from './offline_clients.js';
 
 const RENDERER_POOL_SIZE = 4;
-const EXPORT_CHILD_MAX_HEAP_MB = 3072;
-const WATCHDOG_TIMEOUT_MS = 5 * 60 * 1000;
-const WATCHDOG_INTERVAL_MS = 10 * 1000;
 
 export interface DesignExporter {
-  readonly filesRoot: string;
-  isExporting(): boolean;
   startExport(electionId: ElectionId, stateCode: StateCode): Promise<void>;
   resolveFileUrl(url: string): string;
 }
 
 export function createDesignExporter({
-  tasks,
+  stores,
   filesRoot,
-  logger,
 }: {
-  tasks: BackgroundTaskStore;
+  stores: AdminDesignStores;
   filesRoot: string;
-  logger: BaseLogger;
 }): DesignExporter {
+  const { elections, tasks } = stores;
   let running = false;
 
-  async function failTask(taskId: string, message: string): Promise<void> {
-    const task = await tasks.getBackgroundTask(taskId);
-    if (task && !task.completedAt) {
-      await tasks.completeBackgroundTask(taskId, message);
+  async function runExport(
+    electionId: ElectionId,
+    stateCode: StateCode
+  ): Promise<void> {
+    const task = assertDefined(
+      (await tasks.getElectionPackage(electionId)).task
+    );
+    const scratchPath = await mkdtemp(join(tmpdir(), 'vxadmin-design-'));
+    await tasks.startBackgroundTask(task.id);
+    try {
+      await generateElectionPackageAndBallots(
+        {
+          elections,
+          tasks,
+          features: createAdminDesignFeatures(stateCode),
+          fileStorageClient: new LocalDirectoryFileStorageClient(filesRoot),
+          translator: new GoogleCloudTranslator({
+            translationClient: OFFLINE_TRANSLATION_CLIENT,
+          }),
+          speechSynthesizer: new GoogleCloudSpeechSynthesizer({
+            textToSpeechClient: OFFLINE_TEXT_TO_SPEECH_CLIENT,
+          }),
+          rendererPoolSize: RENDERER_POOL_SIZE,
+        },
+        safeParseJson(
+          task.payload,
+          GenerateElectionPackageAndBallotsPayloadSchema
+        ).unsafeUnwrap(),
+        (label, progress, total) => {
+          void tasks.updateBackgroundTaskProgress(task.id, {
+            label,
+            progress,
+            total,
+          });
+        },
+        { path: scratchPath }
+      );
+      await tasks.completeBackgroundTask(task.id);
+    } catch (error) {
+      await tasks.completeBackgroundTask(task.id, extractErrorMessage(error));
+    } finally {
+      await rm(scratchPath, { recursive: true, force: true });
     }
   }
 
   return {
-    filesRoot,
-
-    isExporting: () => running,
-
     async startExport(electionId, stateCode) {
       if (running) {
         throw new Error('An election design export is already running.');
@@ -54,47 +99,12 @@ export function createDesignExporter({
         shouldExportSampleBallots: !!features.EXPORT_SAMPLE_BALLOTS,
         shouldExportTestBallots: !!features.EXPORT_TEST_BALLOTS,
       });
-      const taskId = assertDefined(
-        (await tasks.getElectionPackage(electionId)).task
-      ).id;
-      const args: ExportChildArgs = {
-        electionId,
-        stateCode,
-        filesRoot,
-        rendererPoolSize: RENDERER_POOL_SIZE,
-      };
       running = true;
-      const child = fork(
-        join(import.meta.dirname, 'export_child.js'),
-        [JSON.stringify(args)],
-        { execArgv: [`--max-old-space-size=${EXPORT_CHILD_MAX_HEAP_MB}`] }
-      );
-      let lastProgressAt = Date.now();
-      child.on('message', () => {
-        lastProgressAt = Date.now();
-      });
-      const watchdog = setInterval(() => {
-        if (Date.now() - lastProgressAt > WATCHDOG_TIMEOUT_MS) {
-          child.kill('SIGKILL');
-          void failTask(
-            taskId,
-            'Export stopped making progress and was stopped.'
-          );
-        }
-      }, WATCHDOG_INTERVAL_MS);
-      child.on('exit', (code, signal) => {
-        clearInterval(watchdog);
+      void runExport(electionId, stateCode).finally(() => {
         running = false;
-        if (code !== 0) {
-          logger.log(LogEventId.UnknownError, 'system', {
-            message: `Election design export exited (code ${code}, signal ${signal}).`,
-            disposition: 'failure',
-          });
-          void failTask(taskId, 'Export process exited unexpectedly.');
-        }
       });
     },
 
-    resolveFileUrl: (url) => resolveDesignFileUrl(filesRoot, url),
+    resolveFileUrl: (url) => join(filesRoot, url.replace(/^\/files\//, '')),
   };
 }
