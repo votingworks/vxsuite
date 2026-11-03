@@ -117,8 +117,24 @@ Found:
   `Missing required VX_MACHINE_TYPE env var`. That's dev setup, but the child
   should fail fast with a clear error.
 - In that failed run the backend process exited about 5 minutes after the
-  export, which matches the watchdog timing. I couldn't capture its stderr (the
-  launcher swallowed it). It didn't recur on the clean run; result below.
+  export, which matches the watchdog timing, and I couldn't capture its stderr.
+  It **didn't recur**: the backend stayed up 6 minutes after a clean signed
+  export, and 6 minutes after a deliberately failed one (signing error, reported
+  in the UI as "Export failed: …"). It's most likely the old bash launcher, not
+  the runner. Unexplained, so worth a watchdog test in 10b.
+- **Database unavailable** (bad `ADMIN_DESIGN_DATABASE_URL`): the Design area
+  shows the unavailable screen with **Try Again**, retries are logged (5 s, 10
+  s, …), and admin's main API keeps serving (`v2-09`).
+- **Unsupported state:** with `VX_MACHINE_JURISDICTION=ks.shawnee` the dev SA
+  card (`vx.test`) is rejected at login, as it should be, so the "no state
+  profile" screen can't be reached in dev without a card for that jurisdiction.
+  The mapping is covered by `stateCodeForJurisdiction`; the screen itself is
+  untested. The EAC lab needs a supported jurisdiction (Q12).
+- Screenshots kept: `v2-01` (state from the jurisdiction, readable status),
+  `v2-03` (four files saved, including `.vxsig`), `v2-09` (DB unavailable).
+  Other screens look the same as v1.
+- Hub backend tests after v2: 110 pass (store, app, worker, TTS, MS SEMS,
+  polling places).
 
 ### Code layout
 
