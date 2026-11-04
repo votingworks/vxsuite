@@ -136,15 +136,18 @@ export function start({
     });
   }
 
+  const stopNetworkingLoops: Array<() => void> = [];
   if (isCentralScanNetworkingEnabled()) {
-    startScannerNetworking({
-      logger: baseLogger,
-      store: resolvedWorkspace.store,
-    });
-    startCvrSync({
-      logger: baseLogger,
-      store: resolvedWorkspace.store,
-    });
+    stopNetworkingLoops.push(
+      startScannerNetworking({
+        logger: baseLogger,
+        store: resolvedWorkspace.store,
+      }),
+      startCvrSync({
+        logger: baseLogger,
+        store: resolvedWorkspace.store,
+      })
+    );
   }
 
   useDevDockRouter(resolvedApp, express, {
@@ -164,6 +167,9 @@ export function start({
       message: `Scanning ballots into ${resolvedWorkspace.ballotImagesPath}`,
     });
   });
-  server.on('close', stopDetectingDevices);
+  server.on('close', () => {
+    stopDetectingDevices();
+    for (const stop of stopNetworkingLoops) stop();
+  });
   return server;
 }

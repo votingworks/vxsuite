@@ -668,3 +668,24 @@ test('does nothing when registered with no batches to send', async () => {
 
   expect(mockClient.startCvrTransfer).not.toHaveBeenCalled();
 });
+
+test('stops sending once stopped', async () => {
+  const store = await buildStore();
+  const getConnectionInfo = vi.spyOn(store, 'getNetworkConnectionInfo');
+  const stop = startCvrSync({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  await advancePollingInterval();
+  expect(getConnectionInfo).toHaveBeenCalledTimes(1);
+
+  stop();
+  await advancePollingInterval();
+  expect(getConnectionInfo).toHaveBeenCalledTimes(1);
+});
+
+test('never sends when stopped before the first pass', async () => {
+  const store = await buildStore();
+  const getConnectionInfo = vi.spyOn(store, 'getNetworkConnectionInfo');
+  const stop = startCvrSync({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  stop();
+  await advancePollingInterval();
+  expect(getConnectionInfo).not.toHaveBeenCalled();
+});
