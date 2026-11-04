@@ -161,6 +161,14 @@
       "path": "libs/dev-dock/frontend"
     },
     {
+      "name": "libs/election-definition-backend",
+      "path": "libs/election-definition-backend"
+    },
+    {
+      "name": "libs/election-definition-ui",
+      "path": "libs/election-definition-ui"
+    },
+    {
       "name": "libs/eslint-plugin-vx",
       "path": "libs/eslint-plugin-vx"
     },

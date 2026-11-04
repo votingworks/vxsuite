@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "composite": true
+  },
+  "include": ["src", "test"],
+  "exclude": [],
+  "references": [{ "path": "../coverage-check/tsconfig.build.json" }]
+}
