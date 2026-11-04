@@ -9,7 +9,10 @@ import {
   useSessionSettingsManager,
 } from '@votingworks/mark-flow-ui';
 import { userEvent } from '@testing-library/user-event';
-import type { BallotStyleId, CandidateOrderings } from '@votingworks/types';
+import type {
+  BallotStyleGroupId,
+  CandidateOrderings,
+} from '@votingworks/types';
 import { AUTH_STATUS_POLLING_INTERVAL_MS } from '@votingworks/ui';
 import { assertDefined } from '@votingworks/basics';
 import { screen, waitFor } from '../test/react_testing_library.js';
@@ -273,13 +276,13 @@ test('sets/updates ballot style candidate orderings in BallotContext', async () 
     return <div data-testid={`MockBallot-${ctx.ballotStyleId}`} />;
   });
 
-  const mockOrderings: Record<BallotStyleId, CandidateOrderings> = {
-    [bs1.id]: { contest1: [{ id: 'candidate2' }, { id: 'candidate1' }] },
-    [bs2.id]: { contest1: [{ id: 'candidate1' }, { id: 'candidate2' }] },
+  const mockOrderings: Record<BallotStyleGroupId, CandidateOrderings> = {
+    [bs1.groupId]: { contest1: [{ id: 'candidate2' }, { id: 'candidate1' }] },
+    [bs2.groupId]: { contest1: [{ id: 'candidate1' }, { id: 'candidate2' }] },
   };
 
   apiMock.mockApiClient.getCandidateOrderings.mockImplementation((p) =>
-    Promise.resolve(mockOrderings[p.ballotStyleId] ?? null)
+    Promise.resolve(mockOrderings[p.ballotStyleGroupId] ?? null)
   );
 
   async function selectBallotStyle(ballotStyleId: string) {
@@ -292,11 +295,11 @@ test('sets/updates ballot style candidate orderings in BallotContext', async () 
   }
 
   await selectBallotStyle(bs1.id);
-  expect(lastOrderings).toEqual(mockOrderings[bs1.id]!);
+  expect(lastOrderings).toEqual(mockOrderings[bs1.groupId]!);
 
   await selectBallotStyle(bs2.id);
-  expect(lastOrderings).toEqual(mockOrderings[bs2.id]!);
+  expect(lastOrderings).toEqual(mockOrderings[bs2.groupId]!);
 
   await selectBallotStyle(bs1.id);
-  expect(lastOrderings).toEqual(mockOrderings[bs1.id]!);
+  expect(lastOrderings).toEqual(mockOrderings[bs1.groupId]!);
 });

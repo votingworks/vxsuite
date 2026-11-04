@@ -557,7 +557,7 @@ function ContestForm({
   );
 
   const candidateOrderingsQuery = getCandidateOrderings.useQuery({
-    ballotStyleId: ballotStyleGroup.defaultLanguageBallotStyle.id,
+    ballotStyleGroupId: ballotStyleGroup.id,
   });
 
   const contests = getContests({

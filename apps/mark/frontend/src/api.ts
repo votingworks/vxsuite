@@ -558,15 +558,13 @@ export const systemCallApi = createSystemCallApi(useApiClient);
 
 export const getCandidateOrderings = {
   queryKey(bs: BallotStyle): QueryKey {
-    // Cache key is based on group ID, since candidate orderings are consistent
-    // across a ballot style group.
     return ['getCandidateOrderings', bs.groupId];
   },
 
   useQuery(bs: BallotStyle) {
     const client = useApiClient();
     return useQuery(this.queryKey(bs), () =>
-      client.getCandidateOrderings({ ballotStyleId: bs.id })
+      client.getCandidateOrderings({ ballotStyleGroupId: bs.groupId })
     );
   },
 } as const;

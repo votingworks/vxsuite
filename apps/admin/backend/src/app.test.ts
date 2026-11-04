@@ -931,7 +931,7 @@ describe('getCandidateOrderings', () => {
 
     const expected = assertDefined(splitElection.candidateOrderings[0]);
     const actual = await env.apiClient.getCandidateOrderings({
-      ballotStyleId: expected.ballotStyleId,
+      ballotStyleGroupId: expected.ballotStyleGroupId,
     });
 
     expect(actual).toEqual(expected.orderings);
@@ -940,7 +940,7 @@ describe('getCandidateOrderings', () => {
   test('throws if machine not configured', async () => {
     await suppressingConsoleOutput(async () => {
       const res = buildTestEnvironment().apiClient.getCandidateOrderings({
-        ballotStyleId: 'irrelevant',
+        ballotStyleGroupId: 'irrelevant',
       });
 
       await expect(res).rejects.toThrow(/not configured/);

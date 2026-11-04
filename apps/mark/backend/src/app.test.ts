@@ -270,7 +270,7 @@ describe('configure populates ballot meta store', () => {
       expect(ballotMetaStore.getPositions(bs.id)).toEqual(bs.ballotPositions);
 
       const orderings = await apiClient.getCandidateOrderings({
-        ballotStyleId: bs.id,
+        ballotStyleGroupId: bs.groupId,
       });
       expect(orderings).toEqual(bs.orderedCandidatesByContest);
     }
@@ -305,7 +305,7 @@ describe('configure populates ballot meta store', () => {
       expect(metaStore.getPositions(bs.id)).toEqual(bs.ballotPositions);
 
       const orderings = await apiClient.getCandidateOrderings({
-        ballotStyleId: bs.id,
+        ballotStyleGroupId: bs.groupId,
       });
       expect(orderings).toEqual(bs.orderedCandidatesByContest);
     }
