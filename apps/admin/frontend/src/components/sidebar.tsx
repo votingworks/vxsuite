@@ -14,6 +14,7 @@ import { AppContext } from '../contexts/app_context.js';
 
 export interface SidebarProps {
   navItems: readonly NavItem[];
+  backRouterPath?: string;
 }
 
 export interface NavItem {
@@ -34,7 +35,7 @@ const ClientLogoSubtitle = styled.span`
 `;
 
 export function Sidebar(props: SidebarProps): JSX.Element {
-  const { navItems } = props;
+  const { navItems, backRouterPath } = props;
   const currentRoute = useRouteMatch();
 
   const {
@@ -64,6 +65,13 @@ export function Sidebar(props: SidebarProps): JSX.Element {
         <AppLogo appName={appName} />
       </Link>
       <NavList>
+        {backRouterPath && (
+          <NavListItem>
+            <NavLink to={backRouterPath} icon="ChevronLeft">
+              Back
+            </NavLink>
+          </NavListItem>
+        )}
         {navItems.map(({ label, routerPath }) => (
           <NavListItem key={routerPath}>
             <NavLink to={routerPath} isActive={isActivePath(routerPath)}>
