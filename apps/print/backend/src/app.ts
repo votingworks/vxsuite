@@ -69,10 +69,7 @@ import type { BallotPrintEntry, DeviceStatuses } from './types.js';
 import { getMachineConfig } from './machine_config.js';
 import { findBallotStyleId } from './util/ballot_styles.js';
 import { getCurrentTime } from './util/get_current_time.js';
-import {
-  ELECTION_PACKAGE_INCLUDE,
-  type IncrementBallotPrintCountParams,
-} from './store.js';
+import type { IncrementBallotPrintCountParams } from './store.js';
 
 interface TestDeckBallotToPrint {
   spec: TestDeckBallot;
@@ -276,7 +273,6 @@ export function buildApi(ctx: AppContext) {
           filePath,
           jurisdiction: authStatus.user.jurisdiction,
           logger,
-          include: ELECTION_PACKAGE_INCLUDE,
         });
 
         if (
@@ -716,7 +712,7 @@ export function buildApi(ctx: AppContext) {
         return 0;
       }
       const { election } = electionRecord.electionDefinition;
-      if (!store.getBallotMetaStore().hasPositions()) {
+      if (!store.getBallotPositionsStore().hasPositions()) {
         return 0;
       }
 
@@ -755,8 +751,6 @@ export function buildApi(ctx: AppContext) {
         ? []
         : getTestDeckBallotsToPrint(election, precinctIds);
 
-      const ballotMetaStore = store.getBallotMetaStore();
-
       for (const { spec, ballot } of ballotsToPrint) {
         const basePdf = bufferAsU8Array(
           Buffer.from(ballot.encodedBallot, 'base64')
@@ -769,7 +763,9 @@ export function buildApi(ctx: AppContext) {
               calibration: NO_PRINT_CALIBRATION,
               contests: election.contests,
               positions: assertDefined(
-                ballotMetaStore.getPositions(spec.ballotStyle.id),
+                store
+                  .getBallotPositionsStore()
+                  .getPositions(spec.ballotStyle.id),
                 `no ballot positions for style ${spec.ballotStyle.id}`
               ),
               size: election.ballotLayout.paperSize,
@@ -786,7 +782,8 @@ export function buildApi(ctx: AppContext) {
       const allCvrs = generateTestDeckCastVoteRecords(election, {
         includeSummaryBallots: false,
         includeBubbleBallots: true,
-        getBallotPositions: (style) => ballotMetaStore.getPositions(style.id),
+        getBallotPositions: (style) =>
+          store.getBallotPositionsStore().getPositions(style.id),
       });
 
       const reportPrecinctIds: Array<PrecinctId | undefined> = (() => {

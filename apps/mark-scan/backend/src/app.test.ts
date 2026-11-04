@@ -311,8 +311,6 @@ describe('configure populates ballot meta store', () => {
     const storedElection = electionRecord?.electionDefinition.election;
     expect(storedElection).toEqual(splitElection.election);
 
-    const metaStore = workspace.store.getBallotMetaStore();
-
     for (const bs of election.ballotStyles) {
       const orderings = await apiClient.getCandidateOrderings({
         ballotStyleGroupId: bs.groupId,
@@ -320,7 +318,17 @@ describe('configure populates ballot meta store', () => {
       expect(orderings).toEqual(bs.orderedCandidatesByContest);
     }
 
-    expect(metaStore.hasPositions()).toEqual(false);
+    const everything = backendLib.ElectionPackageStore.fileStore(
+      workspace.electionPackageDbPath,
+      {
+        uiStrings: true,
+        ballots: true,
+        ballotPositions: true,
+        candidateOrderings: true,
+      }
+    );
+    expect(everything.getBallotPositionsStore().hasPositions()).toEqual(false);
+    everything.close();
   });
 });
 

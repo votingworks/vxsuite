@@ -43,7 +43,7 @@ import { join, resolve } from 'node:path';
 import { getUserRole } from '../src/util/auth.js';
 import { createWorkspace, type Workspace } from '../src/util/workspace.js';
 import { buildApp } from '../src/app.js';
-import { ELECTION_PACKAGE_INCLUDE, type Store } from '../src/store.js';
+import type { Store } from '../src/store.js';
 import type { Api } from '../src/index.js';
 
 async function getFamousNamesBallotPdfBase64s(): Promise<
@@ -133,7 +133,7 @@ export async function configureStore(
   await importElectionPackageForTest(
     store.getElectionPackageStore(),
     electionPackage,
-    { jurisdiction, include: ELECTION_PACKAGE_INCLUDE }
+    { jurisdiction }
   );
   if (fakeTimers) vi.useFakeTimers();
   store.startElectionSession();

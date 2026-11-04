@@ -5,7 +5,7 @@ import {
   type SystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-import { ELECTION_PACKAGE_INCLUDE, type Store } from '../src/store.js';
+import type { Store } from '../src/store.js';
 
 /**
  * Configures `store` from a package built from `electionPackage`, the way the
@@ -36,7 +36,6 @@ export async function configureStore(
     {
       jurisdiction,
       electionPackageHash,
-      include: ELECTION_PACKAGE_INCLUDE,
     }
   );
   if (fakeTimers) vi.useFakeTimers();

@@ -37,7 +37,7 @@ import type {
   PrecinctScannerStateMachine,
   PrecinctScannerStatus,
 } from '../../src/types.js';
-import { ELECTION_PACKAGE_INCLUDE, type Store } from '../../src/store.js';
+import type { Store } from '../../src/store.js';
 import { getUserRole } from '../../src/util/auth.js';
 import type { Workspace } from '../../src/util/workspace.js';
 
@@ -262,7 +262,6 @@ export async function configureStore(
     {
       jurisdiction,
       electionPackageHash,
-      include: ELECTION_PACKAGE_INCLUDE,
     }
   );
   if (fakeTimers) vi.useFakeTimers();

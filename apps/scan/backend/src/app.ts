@@ -74,7 +74,6 @@ import {
 import { saveReadinessReport } from './printing/readiness_report.js';
 import type { AudioPlayerInterface, SoundName } from './audio/audio.js';
 import { getScannerResultsByPrecinctMemoized } from './util/results.js';
-import { ELECTION_PACKAGE_INCLUDE } from './store.js';
 
 export const BALLOT_AUDIT_ID_FILE_NAME = 'ballot-audit-id-secret-key.txt';
 
@@ -203,7 +202,6 @@ export function buildApi({
           filePath,
           jurisdiction: authStatus.user.jurisdiction,
           logger,
-          include: ELECTION_PACKAGE_INCLUDE,
         });
         const ballotAuditIdSecretKey =
           systemSettings.precinctScanEnableBallotAuditIds

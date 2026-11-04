@@ -22,7 +22,7 @@ import {
 } from '@votingworks/ui';
 import { assert, err, find, ok } from '@votingworks/basics';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
-import type { BallotMetaStore } from '@votingworks/backend';
+import type { CandidateOrderingsStore } from '@votingworks/backend';
 import { makeDerivedStraightPartyVotesExplicit } from '@votingworks/utils';
 import { renderBallot } from './render_ballot.js';
 import { createWorkspace, type Workspace } from './workspace.js';
@@ -192,8 +192,8 @@ test('includes votes derived from a straight party selection', async () => {
     [president.id]: [otherCandidate, candidate],
   };
 
-  vi.spyOn(workspace.store, 'getBallotMetaStore').mockReturnValue(
-    mockBallotMetaStore({
+  vi.spyOn(workspace.store, 'getCandidateOrderingsStore').mockReturnValue(
+    mockCandidateOrderingsStore({
       getCandidateOrderings: (bs) => {
         expect(bs.groupId).toEqual(straightPartyBallotStyle.groupId);
         return mockCandidateOrderings;
@@ -229,15 +229,15 @@ test('renders with stored candidate orderings', async () => {
     contest1: [{ id: 'orderedCandidate2' }, { id: 'orderedCandidate1' }],
   };
 
-  const mockMetaStore: Partial<BallotMetaStore> = {
+  const mockOrderingsStore: Partial<CandidateOrderingsStore> = {
     getCandidateOrderings: ({ groupId }) => {
       expect(groupId).toEqual(ballotStyle!.groupId);
       return mockOrderings;
     },
   };
 
-  vi.spyOn(workspace.store, 'getBallotMetaStore').mockReturnValue(
-    mockMetaStore as BallotMetaStore
+  vi.spyOn(workspace.store, 'getCandidateOrderingsStore').mockReturnValue(
+    mockOrderingsStore as CandidateOrderingsStore
   );
 
   await renderBallot({
@@ -252,6 +252,6 @@ test('renders with stored candidate orderings', async () => {
   expect(ballotProps?.candidateOrderings).toEqual(mockOrderings);
 });
 
-function mockBallotMetaStore(mocks: Partial<BallotMetaStore>) {
-  return mocks as unknown as BallotMetaStore;
+function mockCandidateOrderingsStore(mocks: Partial<CandidateOrderingsStore>) {
+  return mocks as unknown as CandidateOrderingsStore;
 }

@@ -10,7 +10,10 @@ import {
   type ElectionKey,
   type SystemSettings,
 } from '@votingworks/types';
-import { BallotMetaStore } from '../ballot_meta/store.js';
+import {
+  BallotPositionsStore,
+  CandidateOrderingsStore,
+} from '../ballot_meta/store.js';
 import { EncodedBallotStore } from './encoded_ballot_store.js';
 import {
   createUiStringStore,
@@ -36,7 +39,6 @@ export interface ElectionRecord {
 export interface ElectionPackageImport extends ParsedElectionPackageWithFilePath {
   jurisdiction: string;
   logger: BaseLogger;
-  include: ElectionPackageInclude;
 }
 
 /** Which optional parts of an election package an app imports. */
@@ -50,42 +52,59 @@ export interface ElectionPackageInclude {
   readonly candidateOrderings: boolean;
 }
 
+/** An {@link ElectionPackageInclude} that includes every part in `K`. */
+export type ElectionPackageIncluding<K extends keyof ElectionPackageInclude> =
+  ElectionPackageInclude & { readonly [P in K]: true };
+
 /**
  * Holds everything imported from an election package, in a database of its
  * own that is written when a machine is configured and read-only after.
+ * `include` fixes which optional parts are imported, and only their stores
+ * can be retrieved.
  */
-export class ElectionPackageStore {
+export class ElectionPackageStore<
+  I extends ElectionPackageInclude = ElectionPackageInclude,
+> {
   private cachedElectionRecord?: ElectionRecord | null;
   private cachedSystemSettings?: SystemSettings | null;
 
   private readonly client: Client;
-  private readonly ballotMetaStore: BallotMetaStore;
+  private readonly include: I;
+  private readonly ballotPositionsStore: BallotPositionsStore;
+  private readonly candidateOrderingsStore: CandidateOrderingsStore;
   private readonly encodedBallotStore: EncodedBallotStore;
   private readonly uiStringsStore: UiStringsStore;
 
-  private constructor(client: Client) {
+  private constructor(client: Client, include: I) {
     this.client = client;
-    this.ballotMetaStore = new BallotMetaStore(client);
+    this.include = include;
+    this.ballotPositionsStore = new BallotPositionsStore(client);
+    this.candidateOrderingsStore = new CandidateOrderingsStore(client);
     this.encodedBallotStore = new EncodedBallotStore(client);
     this.uiStringsStore = createUiStringStore(client);
   }
 
   /** Builds a store whose data is kept in memory. */
-  static memoryStore(): ElectionPackageStore {
+  static memoryStore<const I extends ElectionPackageInclude>(
+    include: I
+  ): ElectionPackageStore<I> {
     return new ElectionPackageStore(
-      Client.memoryClient(ELECTION_PACKAGE_SCHEMA_PATH)
+      Client.memoryClient(ELECTION_PACKAGE_SCHEMA_PATH),
+      include
     );
   }
 
   /** Builds a store at `dbPath`. */
-  static fileStore(
+  static fileStore<const I extends ElectionPackageInclude>(
     dbPath: string,
+    include: I,
     logger: BaseLogger = new BaseLogger(LogSource.System)
-  ): ElectionPackageStore {
+  ): ElectionPackageStore<I> {
     return new ElectionPackageStore(
       Client.fileClient(dbPath, logger, ELECTION_PACKAGE_SCHEMA_PATH, {
         queryOnly: true,
-      })
+      }),
+      include
     );
   }
 
@@ -106,15 +125,27 @@ export class ElectionPackageStore {
     this.client.close();
   }
 
-  getBallotMetaStore(): BallotMetaStore {
-    return this.ballotMetaStore;
+  getBallotPositionsStore(
+    this: ElectionPackageStore<ElectionPackageIncluding<'ballotPositions'>>
+  ): BallotPositionsStore {
+    return this.ballotPositionsStore;
   }
 
-  getEncodedBallotStore(): EncodedBallotStore {
+  getCandidateOrderingsStore(
+    this: ElectionPackageStore<ElectionPackageIncluding<'candidateOrderings'>>
+  ): CandidateOrderingsStore {
+    return this.candidateOrderingsStore;
+  }
+
+  getEncodedBallotStore(
+    this: ElectionPackageStore<ElectionPackageIncluding<'ballots'>>
+  ): EncodedBallotStore {
     return this.encodedBallotStore;
   }
 
-  getUiStringsStore(): UiStringsStore {
+  getUiStringsStore(
+    this: ElectionPackageStore<ElectionPackageIncluding<'uiStrings'>>
+  ): UiStringsStore {
     return this.uiStringsStore;
   }
 
@@ -210,7 +241,7 @@ export class ElectionPackageStore {
    */
   async importElectionPackage(input: ElectionPackageImport): Promise<void> {
     if (this.client.isMemoryDatabase()) {
-      await importInto(this.client, input);
+      await importInto(this.client, input, this.include);
     } else {
       const tempDbPath = `${this.getDbPath()}.importing`;
       rmSync(tempDbPath, { force: true });
@@ -220,7 +251,7 @@ export class ElectionPackageStore {
         ELECTION_PACKAGE_SCHEMA_PATH
       );
       try {
-        await importInto(tempClient, input);
+        await importInto(tempClient, input, this.include);
       } catch (error) {
         tempClient.close();
         rmSync(tempDbPath, { force: true });
@@ -247,12 +278,13 @@ async function importInto(
     filePath,
     jurisdiction,
     logger,
-    include,
-  }: ElectionPackageImport
+  }: ElectionPackageImport,
+  include: ElectionPackageInclude
 ): Promise<void> {
   const { electionDefinition, systemSettings } = electionPackage;
   const { election } = electionDefinition;
-  const ballotMetaStore = new BallotMetaStore(client);
+  const ballotPositionsStore = new BallotPositionsStore(client);
+  const candidateOrderingsStore = new CandidateOrderingsStore(client);
   const encodedBallotStore = new EncodedBallotStore(client);
   const uiStringsStore = createUiStringStore(client);
 
@@ -287,10 +319,14 @@ async function importInto(
         await encodedBallotStore.importBallots(zip);
       }
       if (include.ballotPositions) {
-        await ballotMetaStore.importPositions(zip, election, systemSettings);
+        await ballotPositionsStore.importPositions(
+          zip,
+          election,
+          systemSettings
+        );
       }
       if (include.candidateOrderings) {
-        await ballotMetaStore.importCandidateOrderings(
+        await candidateOrderingsStore.importCandidateOrderings(
           zip,
           election,
           systemSettings

@@ -3,7 +3,7 @@
 //
 
 import {
-  type BallotMetaStore,
+  type CandidateOrderingsStore,
   type ElectionRecord,
   ElectionPackageStore,
   type UiStringsStore,
@@ -29,12 +29,12 @@ import { join } from 'node:path';
 const SchemaPath = join(import.meta.dirname, '../schema.sql');
 
 /** The parts of an election package this app imports. */
-export const ELECTION_PACKAGE_INCLUDE: ElectionPackageInclude = {
+export const ELECTION_PACKAGE_INCLUDE = {
   uiStrings: true,
   ballots: false,
   ballotPositions: false,
   candidateOrderings: true,
-};
+} as const satisfies ElectionPackageInclude;
 
 export type ElectricalTestingComponent = 'card' | 'paperHandler' | 'usbDrive';
 
@@ -43,11 +43,13 @@ export type ElectricalTestingComponent = 'card' | 'paperHandler' | 'usbDrive';
  */
 export class Store {
   private readonly client: DbClient;
-  private readonly electionPackageStore: ElectionPackageStore;
+  private readonly electionPackageStore: ElectionPackageStore<
+    typeof ELECTION_PACKAGE_INCLUDE
+  >;
 
   private constructor(
     client: DbClient,
-    electionPackageStore: ElectionPackageStore
+    electionPackageStore: ElectionPackageStore<typeof ELECTION_PACKAGE_INCLUDE>
   ) {
     this.client = client;
     this.electionPackageStore = electionPackageStore;
@@ -63,7 +65,7 @@ export class Store {
   static memoryStore(): Store {
     return new Store(
       DbClient.memoryClient(SchemaPath),
-      ElectionPackageStore.memoryStore()
+      ElectionPackageStore.memoryStore(ELECTION_PACKAGE_INCLUDE)
     );
   }
 
@@ -78,7 +80,11 @@ export class Store {
   ): Store {
     return new Store(
       DbClient.fileClient(sessionDbPath, logger, SchemaPath),
-      ElectionPackageStore.fileStore(electionPackageDbPath, logger)
+      ElectionPackageStore.fileStore(
+        electionPackageDbPath,
+        ELECTION_PACKAGE_INCLUDE,
+        logger
+      )
     );
   }
 
@@ -105,12 +111,14 @@ export class Store {
     this.electionPackageStore.close();
   }
 
-  getElectionPackageStore(): ElectionPackageStore {
+  getElectionPackageStore(): ElectionPackageStore<
+    typeof ELECTION_PACKAGE_INCLUDE
+  > {
     return this.electionPackageStore;
   }
 
-  getBallotMetaStore(): BallotMetaStore {
-    return this.electionPackageStore.getBallotMetaStore();
+  getCandidateOrderingsStore(): CandidateOrderingsStore {
+    return this.electionPackageStore.getCandidateOrderingsStore();
   }
 
   /**

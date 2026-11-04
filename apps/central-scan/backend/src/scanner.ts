@@ -216,7 +216,7 @@ function buildMachine({
           maxCumulativeStreakWidth,
           retryStreakWidthThreshold,
           ballotImageBitDepth,
-          dbPath: store.getBallotMetaStore().hasPositions()
+          dbPath: store.getBallotPositionsStore().hasPositions()
             ? store.getElectionPackageStore().getDbPath()
             : undefined,
         },

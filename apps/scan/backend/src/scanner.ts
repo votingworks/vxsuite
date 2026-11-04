@@ -246,7 +246,7 @@ async function interpretSheet(
       maxCumulativeStreakWidth,
       retryStreakWidthThreshold,
       ballotImageBitDepth,
-      dbPath: store.getBallotMetaStore().hasPositions()
+      dbPath: store.getBallotPositionsStore().hasPositions()
         ? store.getElectionPackageStore().getDbPath()
         : undefined,
     })

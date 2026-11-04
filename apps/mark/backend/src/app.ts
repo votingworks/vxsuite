@@ -74,7 +74,7 @@ import {
   isPatInputAttached,
 } from './util/accessible_controller.js';
 import { constructAuthMachineState } from './util/auth.js';
-import { ELECTION_PACKAGE_INCLUDE, type Store } from './store.js';
+import type { Store } from './store.js';
 import type * as barcodes from './barcodes/index.js';
 import { setUpBarcodeActivation } from './barcodes/activation.js';
 import {
@@ -190,7 +190,7 @@ export function buildApi(ctx: Context) {
   }
 
   function getCandidateOrderings(bs: BallotStyle) {
-    return store.getBallotMetaStore().getCandidateOrderings(bs);
+    return store.getCandidateOrderingsStore().getCandidateOrderings(bs);
   }
 
   setUpBarcodeActivation({
@@ -459,7 +459,6 @@ export function buildApi(ctx: Context) {
           filePath,
           jurisdiction: authStatus.user.jurisdiction,
           logger,
-          include: ELECTION_PACKAGE_INCLUDE,
         });
 
         store.withTransaction(() => {
@@ -834,7 +833,7 @@ export function buildApi(ctx: Context) {
 
     getCandidateOrderings(p: { ballotStyleGroupId: string }) {
       return store
-        .getBallotMetaStore()
+        .getCandidateOrderingsStore()
         .getCandidateOrderings({ groupId: p.ballotStyleGroupId });
     },
   });

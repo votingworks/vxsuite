@@ -18,7 +18,7 @@ import {
 import { assertDefined } from '@votingworks/basics';
 import { zipFile } from '@votingworks/test-utils';
 import { withElectionPackageZip } from '../election_package/election_package_io.js';
-import { BallotMetaStore } from './store.js';
+import { BallotPositionsStore, CandidateOrderingsStore } from './store.js';
 
 const baseElection = electionGeneralFixtures.readElection();
 
@@ -86,7 +86,7 @@ test('non-split election definition - imports positions from parsed election', a
   };
 
   const client = Client.memoryClient(`${import.meta.dirname}/schema.sql`);
-  const store = new BallotMetaStore(client);
+  const store = new BallotPositionsStore(client);
 
   expect(store.hasPositions()).toBeFalsy();
 
@@ -111,7 +111,7 @@ test('split election definition - imports positions from ballotPositions.jsonl',
   const election: Election = { ...baseElection, ballotStyles: [] };
 
   const client = Client.memoryClient(`${import.meta.dirname}/schema.sql`);
-  const store = new BallotMetaStore(client);
+  const store = new BallotPositionsStore(client);
 
   expect(store.hasPositions()).toBeFalsy();
 
@@ -155,7 +155,7 @@ test('single-file election - imports candidate orderings from parsed election', 
   };
 
   const client = Client.memoryClient(`${import.meta.dirname}/schema.sql`);
-  const store = new BallotMetaStore(client);
+  const store = new CandidateOrderingsStore(client);
 
   const pkgFile = makeTemporaryFile({ content: await zipFile({}) });
   await withElectionPackageZip(pkgFile, async (zip) => {
@@ -184,7 +184,7 @@ test('split-file election - imports orderings from candidateOrderings.jsonl', as
   const election: Election = { ...baseElection, ballotStyles: [] };
 
   const client = Client.memoryClient(`${import.meta.dirname}/schema.sql`);
-  const store = new BallotMetaStore(client);
+  const store = new CandidateOrderingsStore(client);
 
   const pkgData = await zipFile({
     [ElectionPackageFileName.CANDIDATE_ORDERINGS]: [

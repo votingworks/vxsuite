@@ -59,7 +59,7 @@ import {
 } from './util/hardware.js';
 import { saveReadinessReport } from './readiness_report.js';
 import { renderBallot } from './util/render_ballot.js';
-import { ELECTION_PACKAGE_INCLUDE, type Store } from './store.js';
+import type { Store } from './store.js';
 import { constructAuthMachineState } from './util/auth.js';
 
 function addDiagnosticRecordAndLog(
@@ -204,7 +204,6 @@ export function buildApi(
           filePath,
           jurisdiction: authStatus.user.jurisdiction,
           logger,
-          include: ELECTION_PACKAGE_INCLUDE,
         });
 
         workspace.store.withTransaction(() => {
@@ -514,7 +513,7 @@ export function buildApi(
 
     getCandidateOrderings(p: { ballotStyleGroupId: string }) {
       return store
-        .getBallotMetaStore()
+        .getCandidateOrderingsStore()
         .getCandidateOrderings({ groupId: p.ballotStyleGroupId });
     },
 

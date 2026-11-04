@@ -8,10 +8,7 @@ import { chmodSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readElectionPackageFromFile } from './election_package/election_package_io.js';
-import {
-  ElectionPackageStore,
-  type ElectionPackageInclude,
-} from './election_package/store.js';
+import { ElectionPackageStore } from './election_package/store.js';
 import {
   createElectionPackageZipArchive,
   type PartialElectionPackage,
@@ -20,8 +17,7 @@ import {
 /**
  * Imports `electionPackage` into `store` the way configuring a machine does,
  * and returns the election package hash. `electionPackageHash` overrides the
- * hash of the zip for tests that assert on a known value; `include` defaults
- * every part to `true`.
+ * hash of the zip for tests that assert on a known value.
  */
 export async function importElectionPackageForTest(
   store: ElectionPackageStore,
@@ -29,11 +25,9 @@ export async function importElectionPackageForTest(
   {
     jurisdiction = 'test-jurisdiction',
     electionPackageHash,
-    include = {},
   }: {
     jurisdiction?: string;
     electionPackageHash?: string;
-    include?: Partial<ElectionPackageInclude>;
   } = {}
 ): Promise<string> {
   const filePath = join(
@@ -52,13 +46,6 @@ export async function importElectionPackageForTest(
     filePath,
     jurisdiction,
     logger: new BaseLogger(LogSource.System),
-    include: {
-      uiStrings: true,
-      ballots: true,
-      ballotPositions: true,
-      candidateOrderings: true,
-      ...include,
-    },
   });
   return hash;
 }
@@ -78,7 +65,12 @@ export async function createElectionPackageDbForTest(
     mkdtempSync(join(tmpdir(), 'election-package-db-')),
     'election-package.db'
   );
-  const store = ElectionPackageStore.fileStore(dbPath);
+  const store = ElectionPackageStore.fileStore(dbPath, {
+    uiStrings: true,
+    ballots: true,
+    ballotPositions: true,
+    candidateOrderings: true,
+  });
   await importElectionPackageForTest(store, {
     electionDefinition,
     systemSettings: {

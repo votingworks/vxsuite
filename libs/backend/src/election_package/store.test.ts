@@ -60,12 +60,29 @@ const election: Election = {
 const electionDefinition: ElectionDefinition =
   createElectionDefinition(election);
 const jurisdiction = 'jurisdiction-1';
-const INCLUDE_ALL: ElectionPackageInclude = {
+const INCLUDE_ALL = {
   uiStrings: true,
   ballots: true,
   ballotPositions: true,
   candidateOrderings: true,
-};
+} as const satisfies ElectionPackageInclude;
+
+/** Builds a file store that imports only `include`. */
+function partialFileStore(
+  include: ElectionPackageInclude
+): ElectionPackageStore {
+  return ElectionPackageStore.fileStore(
+    join(makeTemporaryDirectory(), 'election-package.db'),
+    include
+  );
+}
+
+/** Opens `store`'s database to inspect every part of it. */
+function reopenWithEverything(
+  store: ElectionPackageStore
+): ElectionPackageStore<typeof INCLUDE_ALL> {
+  return ElectionPackageStore.fileStore(store.getDbPath(), INCLUDE_ALL);
+}
 
 async function packageImport(
   systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS,
@@ -108,13 +125,12 @@ async function packageImport(
     filePath,
     jurisdiction,
     logger: mockBaseLogger({ fn: vi.fn }),
-    include: INCLUDE_ALL,
     ...options,
   };
 }
 
 test('empty store', () => {
-  const store = ElectionPackageStore.memoryStore();
+  const store = ElectionPackageStore.memoryStore(INCLUDE_ALL);
   expect(store.hasElection()).toEqual(false);
   expect(store.getElectionRecord()).toBeUndefined();
   expect(store.getElectionKey()).toBeUndefined();
@@ -123,7 +139,7 @@ test('empty store', () => {
 });
 
 test('election key and jurisdiction', async () => {
-  const store = ElectionPackageStore.memoryStore();
+  const store = ElectionPackageStore.memoryStore(INCLUDE_ALL);
   const electionPackageHash = await importElectionPackageForTest(
     store,
     { electionDefinition },
@@ -147,11 +163,11 @@ test('election key and jurisdiction', async () => {
 
 test('system settings are cached until reset', async () => {
   const dbPath = join(makeTemporaryDirectory(), 'election-package.db');
-  const store = ElectionPackageStore.fileStore(dbPath);
+  const store = ElectionPackageStore.fileStore(dbPath, INCLUDE_ALL);
   await importElectionPackageForTest(store, { electionDefinition });
   expect(store.getSystemSettings()).toEqual(DEFAULT_SYSTEM_SETTINGS);
 
-  ElectionPackageStore.fileStore(dbPath).reset();
+  ElectionPackageStore.fileStore(dbPath, INCLUDE_ALL).reset();
   expect(store.getSystemSettings()).toEqual(DEFAULT_SYSTEM_SETTINGS);
 
   store.reset();
@@ -159,7 +175,7 @@ test('system settings are cached until reset', async () => {
 });
 
 test('election key for a CDF election', async () => {
-  const store = ElectionPackageStore.memoryStore();
+  const store = ElectionPackageStore.memoryStore(INCLUDE_ALL);
   const cdfElectionDefinition = createElectionDefinitionCdf(baseElection);
   await importElectionPackageForTest(store, {
     electionDefinition: cdfElectionDefinition,
@@ -169,8 +185,25 @@ test('election key for a CDF election', async () => {
   );
 });
 
+test('only included parts have store getters', () => {
+  const store = ElectionPackageStore.memoryStore({
+    uiStrings: false,
+    ballots: false,
+    ballotPositions: false,
+    candidateOrderings: false,
+  });
+  // @ts-expect-error UI strings aren't included
+  store.getUiStringsStore();
+  // @ts-expect-error ballot PDFs aren't included
+  store.getEncodedBallotStore();
+  // @ts-expect-error ballot positions aren't included
+  store.getBallotPositionsStore();
+  // @ts-expect-error candidate orderings aren't included
+  store.getCandidateOrderingsStore();
+});
+
 test('importElectionPackage from a single-file election', async () => {
-  const store = ElectionPackageStore.memoryStore();
+  const store = ElectionPackageStore.memoryStore(INCLUDE_ALL);
   const { electionPackage, electionPackageHash, ...rest } =
     await packageImport();
   await store.importElectionPackage({
@@ -186,12 +219,12 @@ test('importElectionPackage from a single-file election', async () => {
   expect(store.getJurisdiction()).toEqual(jurisdiction);
   expect(store.getSystemSettings()).toEqual(DEFAULT_SYSTEM_SETTINGS);
 
-  const ballotMeta = store.getBallotMetaStore();
-  expect(ballotMeta.getPositions(style1.id)).toEqual(style1.ballotPositions);
-  expect(ballotMeta.getPositions(style2.id)).toBeNull();
-  expect(ballotMeta.getCandidateOrderings(style1)).toEqual(
-    style1.orderedCandidatesByContest
-  );
+  const positions = store.getBallotPositionsStore();
+  expect(positions.getPositions(style1.id)).toEqual(style1.ballotPositions);
+  expect(positions.getPositions(style2.id)).toBeNull();
+  expect(
+    store.getCandidateOrderingsStore().getCandidateOrderings(style1)
+  ).toEqual(style1.orderedCandidatesByContest);
 
   const uiStrings = store.getUiStringsStore();
   expect(uiStrings.getLanguages()).toContain('en');
@@ -212,7 +245,7 @@ test('importElectionPackage from a single-file election', async () => {
 });
 
 test('importElectionPackage from a split-file election', async () => {
-  const store = ElectionPackageStore.memoryStore();
+  const store = ElectionPackageStore.memoryStore(INCLUDE_ALL);
   await store.importElectionPackage(
     await packageImport({
       ...DEFAULT_SYSTEM_SETTINGS,
@@ -220,46 +253,44 @@ test('importElectionPackage from a split-file election', async () => {
     })
   );
 
-  const ballotMeta = store.getBallotMetaStore();
-  expect(ballotMeta.getPositions(style1.id)).toBeNull();
-  expect(ballotMeta.getPositions(style2.id)).toEqual([[[], [contestPosition]]]);
-  expect(ballotMeta.getCandidateOrderings(style2)).toEqual({
+  const positions = store.getBallotPositionsStore();
+  expect(positions.getPositions(style1.id)).toBeNull();
+  expect(positions.getPositions(style2.id)).toEqual([[[], [contestPosition]]]);
+  expect(
+    store.getCandidateOrderingsStore().getCandidateOrderings(style2)
+  ).toEqual({
     'contest-2': [{ id: 'candidate-2' }],
   });
 });
 
 test('importElectionPackage without UI strings', async () => {
-  const store = ElectionPackageStore.memoryStore();
-  await store.importElectionPackage(
-    await packageImport(DEFAULT_SYSTEM_SETTINGS, {
-      include: { ...INCLUDE_ALL, uiStrings: false },
-    })
-  );
+  const store = partialFileStore({ ...INCLUDE_ALL, uiStrings: false });
+  await store.importElectionPackage(await packageImport());
 
   expect(store.hasElection()).toEqual(true);
-  expect(store.getUiStringsStore().getLanguages()).toEqual([]);
+  expect(
+    reopenWithEverything(store).getUiStringsStore().getLanguages()
+  ).toEqual([]);
 });
 
 test('importElectionPackage without ballot positions or candidate orderings', async () => {
-  const store = ElectionPackageStore.memoryStore();
-  await store.importElectionPackage(
-    await packageImport(DEFAULT_SYSTEM_SETTINGS, {
-      include: {
-        ...INCLUDE_ALL,
-        ballotPositions: false,
-        candidateOrderings: false,
-      },
-    })
-  );
+  const store = partialFileStore({
+    ...INCLUDE_ALL,
+    ballotPositions: false,
+    candidateOrderings: false,
+  });
+  await store.importElectionPackage(await packageImport());
 
-  const ballotMeta = store.getBallotMetaStore();
+  const reopened = reopenWithEverything(store);
   expect(store.hasElection()).toEqual(true);
-  expect(ballotMeta.hasPositions()).toEqual(false);
-  expect(ballotMeta.getCandidateOrderings(style1.id)).toBeNull();
+  expect(reopened.getBallotPositionsStore().hasPositions()).toEqual(false);
+  expect(
+    reopened.getCandidateOrderingsStore().getCandidateOrderings(style1)
+  ).toBeNull();
 });
 
 test('importElectionPackage with ballots', async () => {
-  const store = ElectionPackageStore.memoryStore();
+  const store = ElectionPackageStore.memoryStore(INCLUDE_ALL);
   const precinctId = assertDefined(election.precincts[0]).id;
   const officialPrecinct: EncodedBallotEntry = {
     ballotStyleId: style1.id,
@@ -326,28 +357,26 @@ test('importElectionPackage with ballots', async () => {
 });
 
 test('importElectionPackage without ballots', async () => {
-  const store = ElectionPackageStore.memoryStore();
-  await importElectionPackageForTest(
-    store,
-    {
-      electionDefinition,
-      ballots: [
-        {
-          ballotStyleId: style1.id,
-          precinctId: assertDefined(election.precincts[0]).id,
-          ballotType: 'precinct',
-          ballotMode: 'official',
-          encodedBallot: 'pdf',
-        },
-      ],
-    },
-    { include: { ballots: false } }
-  );
-  expect(store.getEncodedBallotStore().hasBallots()).toEqual(false);
+  const store = partialFileStore({ ...INCLUDE_ALL, ballots: false });
+  await importElectionPackageForTest(store, {
+    electionDefinition,
+    ballots: [
+      {
+        ballotStyleId: style1.id,
+        precinctId: assertDefined(election.precincts[0]).id,
+        ballotType: 'precinct',
+        ballotMode: 'official',
+        encodedBallot: 'pdf',
+      },
+    ],
+  });
+  expect(
+    reopenWithEverything(store).getEncodedBallotStore().hasBallots()
+  ).toEqual(false);
 });
 
 test('importElectionPackage rolls back on failure', async () => {
-  const store = ElectionPackageStore.memoryStore();
+  const store = ElectionPackageStore.memoryStore(INCLUDE_ALL);
   const packageToImport = await packageImport();
   await expect(
     store.importElectionPackage({
@@ -362,6 +391,7 @@ test('fileStore builds the import beside the live database', async () => {
   const dbPath = join(makeTemporaryDirectory(), 'election-package.db');
   const store = ElectionPackageStore.fileStore(
     dbPath,
+    INCLUDE_ALL,
     mockBaseLogger({ fn: vi.fn })
   );
   const packageToImport = await packageImport();
@@ -388,6 +418,7 @@ test('fileStore leaves the live database read-only', async () => {
   const dbPath = join(makeTemporaryDirectory(), 'election-package.db');
   const store = ElectionPackageStore.fileStore(
     dbPath,
+    INCLUDE_ALL,
     mockBaseLogger({ fn: vi.fn })
   );
   await store.importElectionPackage(await packageImport());
@@ -405,21 +436,22 @@ test('fileStore persists and reset empties it', async () => {
   const dbPath = join(makeTemporaryDirectory(), 'election-package.db');
   const store = ElectionPackageStore.fileStore(
     dbPath,
+    INCLUDE_ALL,
     mockBaseLogger({ fn: vi.fn })
   );
   expect(store.getDbPath()).toEqual(dbPath);
   await store.importElectionPackage(await packageImport());
 
-  const reopened = ElectionPackageStore.fileStore(dbPath);
+  const reopened = ElectionPackageStore.fileStore(dbPath, INCLUDE_ALL);
   expect(reopened.getElectionRecord()?.electionDefinition).toEqual(
     electionDefinition
   );
-  expect(reopened.getBallotMetaStore().hasPositions()).toEqual(true);
+  expect(reopened.getBallotPositionsStore().hasPositions()).toEqual(true);
 
   reopened.reset();
   expect(reopened.hasElection()).toEqual(false);
   expect(reopened.getSystemSettings()).toBeUndefined();
-  expect(reopened.getBallotMetaStore().hasPositions()).toEqual(false);
+  expect(reopened.getBallotPositionsStore().hasPositions()).toEqual(false);
 
   reopened.close();
   expect(() => reopened.hasElection()).toThrow(/is closed/);
