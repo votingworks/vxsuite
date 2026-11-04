@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "include": ["src", "test"],
+  "exclude": [],
+  "compilerOptions": {
+    "composite": true
+  },
+  "references": [{ "path": "../coverage-check/tsconfig.build.json" }]
+}
