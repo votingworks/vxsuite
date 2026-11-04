@@ -24,7 +24,6 @@ import styled from 'styled-components';
 import { ballotStyleHasPrecinctOrSplit } from '@votingworks/utils';
 import type { BallotTemplateId } from '@votingworks/hub-backend';
 import {
-  getBallotsFinalizedAt,
   getBallotLayoutSettings,
   getBallotTemplate,
   listBallotStyles,
@@ -33,6 +32,7 @@ import {
   listParties,
   getStateFeatures,
 } from '@votingworks/design-ui';
+import { getBallotsFinalizedAt } from './api.js';
 import { updateBallotLayoutSettings } from './api.js';
 import { Column, Form, FormActionsRow, NestedTr } from '@votingworks/design-ui';
 import { ElectionNavScreen, Header } from './nav_screen.js';

@@ -14,7 +14,7 @@ import type { DuplicatePartyError } from '@votingworks/design-backend';
 import styled from 'styled-components';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import { type ElectionIdParams } from './routes.js';
-import { getBallotsFinalizedAt, getElectionInfo, listParties } from './api.js';
+import { isElectionEditable, getElectionInfo, listParties } from './api.js';
 import { useTitle } from './hooks/use_title.js';
 import { generateId } from './utils.js';
 import * as api from './api.js';
@@ -110,7 +110,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
   const partyParamRoutes = routes.election(':electionId').parties;
 
   const savedPartiesQuery = listParties.useQuery(electionId);
-  const ballotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  const editableQuery = isElectionEditable.useQuery(electionId);
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
 
   // Reset form on initial and post-save fetches:
@@ -128,7 +128,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
   if (
     !(
       savedPartiesQuery.isSuccess &&
-      ballotsFinalizedAtQuery.isSuccess &&
+      editableQuery.isSuccess &&
       getElectionInfoQuery.isSuccess
     )
   ) {
@@ -173,11 +173,11 @@ function Contents(props: { editing: boolean }): React.ReactNode {
     updateList(copy);
   }
 
-  const ballotsFinalized = !!ballotsFinalizedAtQuery.data;
+  const locked = !editableQuery.data;
   const hasExternalSource = Boolean(getElectionInfoQuery.data.externalSource);
   const savedParties = savedPartiesQuery.data;
   const updating = updatePartiesMutation.isLoading;
-  const disabled = ballotsFinalized || !editing || updating;
+  const disabled = locked || !editing || updating;
 
   function reset() {
     setNewParties([]);
@@ -191,7 +191,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
       {!hasExternalSource && (
         <ListActionsRow>
           <Button
-            disabled={updating || ballotsFinalized}
+            disabled={updating || locked}
             icon="Add"
             onPress={() => {
               setNewParties([...newParties, createBlankParty()]);
@@ -268,7 +268,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
             )}
           </FormBody>
 
-          {!ballotsFinalized && !hasExternalSource && (
+          {!locked && !hasExternalSource && (
             <FormFooter>
               {editing ? (
                 <React.Fragment>

@@ -5,7 +5,6 @@ import type { Contest, District } from '@votingworks/types';
 import { Button, Modal } from '@votingworks/ui';
 
 import {
-  getBallotsFinalizedAt,
   getElectionInfo,
   listContests,
   listDistricts,
@@ -13,6 +12,7 @@ import {
 } from '@votingworks/design-ui';
 import { Column, Row } from '@votingworks/design-ui';
 import { reorderElement } from '@votingworks/design-ui';
+import { getBallotsFinalizedAt } from './api.js';
 
 function serializeContestIds(contests: readonly Contest[]): string {
   return contests

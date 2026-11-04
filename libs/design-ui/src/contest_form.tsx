@@ -38,7 +38,7 @@ import {
 } from '@votingworks/ui';
 
 import {
-  getBallotsFinalizedAt,
+  isElectionEditable,
   getElectionInfo,
   listDistricts,
   listParties,
@@ -136,7 +136,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
         // so it will only be called on initial render.
         createBlankCandidateContest
   );
-  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  const editableQuery = isElectionEditable.useQuery(electionId);
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
   const listDistrictsQuery = listDistricts.useQuery(electionId);
   const listPartiesQuery = listParties.useQuery(electionId);
@@ -155,7 +155,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
   if (
     !getElectionInfoQuery.isSuccess ||
     !listDistrictsQuery.isSuccess ||
-    !getBallotsFinalizedAtQuery.isSuccess ||
+    !editableQuery.isSuccess ||
     !listPartiesQuery.isSuccess ||
     !getStateFeaturesQuery.isSuccess
   ) {
@@ -164,7 +164,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
   const electionInfo = getElectionInfoQuery.data;
   const districts = listDistrictsQuery.data;
   const parties = listPartiesQuery.data;
-  const isFinalized = !!getBallotsFinalizedAtQuery.data;
+  const locked = !editableQuery.data;
   const hasExternalSource = Boolean(electionInfo.externalSource);
   const features = getStateFeaturesQuery.data;
 
@@ -898,7 +898,7 @@ export function ContestForm(props: ContestFormProps): React.ReactNode {
 
       <FormErrorContainer>{errorMessage}</FormErrorContainer>
 
-      {!isFinalized && contest.type !== 'straight-party' && (
+      {!locked && contest.type !== 'straight-party' && (
         <FormFooter style={{ justifyContent: 'space-between' }}>
           <PrimaryFormActions disabled={disabled} editing={editing} />
 

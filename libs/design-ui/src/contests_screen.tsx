@@ -8,7 +8,7 @@ import { FixedViewport, ListActionsRow, Row } from './layout.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import { type ElectionIdParams } from './routes.js';
 import {
-  getBallotsFinalizedAt,
+  isElectionEditable,
   getElectionInfo,
   listContests,
   listDistricts,
@@ -95,7 +95,7 @@ function Content(): JSX.Element | null {
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
   const listDistrictsQuery = listDistricts.useQuery(electionId);
   const listPartiesQuery = listParties.useQuery(electionId);
-  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  const editableQuery = isElectionEditable.useQuery(electionId);
   const reorderContestsMutation = reorderContests.useMutation();
 
   const [filterDistrictId, setFilterDistrictId] = useState(FILTER_ALL);
@@ -109,7 +109,7 @@ function Content(): JSX.Element | null {
       getElectionInfoQuery.isSuccess &&
       listDistrictsQuery.isSuccess &&
       listPartiesQuery.isSuccess &&
-      getBallotsFinalizedAtQuery.isSuccess
+      editableQuery.isSuccess
     )
   ) {
     return null;
@@ -119,7 +119,7 @@ function Content(): JSX.Element | null {
   const electionInfo = getElectionInfoQuery.data;
   const districts = listDistrictsQuery.data;
   const parties = listPartiesQuery.data;
-  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
+  const locked = !editableQuery.data;
   const hasExternalSource = Boolean(electionInfo.externalSource);
 
   const contestRoutes = routes.election(electionId).contests;
@@ -143,7 +143,7 @@ function Content(): JSX.Element | null {
     filterDistrictId === FILTER_ALL &&
     filterPartyId === FILTER_ALL &&
     contests.length > 0 &&
-    !ballotsFinalizedAt &&
+    !locked &&
     !hasExternalSource;
   const isReordering = reorderedContests !== undefined;
 
@@ -181,7 +181,7 @@ function Content(): JSX.Element | null {
             variant="primary"
             icon="Add"
             to={contestRoutes.add.path}
-            disabled={isReordering || !!ballotsFinalizedAt}
+            disabled={isReordering || locked}
           >
             Add Contest
           </LinkButton>
@@ -339,19 +339,19 @@ function EditContestForm(): JSX.Element | null {
     ElectionIdParams & { contestId: ContestId }
   >();
   const listContestsQuery = listContests.useQuery(electionId);
-  const finalizedAt = getBallotsFinalizedAt.useQuery(electionId);
+  const editableQuery = isElectionEditable.useQuery(electionId);
 
   const contestParamRoutes = electionParamRoutes.contests;
   const contestRoutes = routes.election(electionId).contests;
 
   // @coverage-exclude
-  if (!listContestsQuery.isSuccess || !finalizedAt.isSuccess) {
+  if (!listContestsQuery.isSuccess || !editableQuery.isSuccess) {
     return null;
   }
 
   const contests = listContestsQuery.data;
   const savedContest = contests.find((c) => c.id === contestId);
-  const canEdit = !finalizedAt.data && !!savedContest;
+  const canEdit = !!editableQuery.data && !!savedContest;
 
   return (
     <EditPanel>

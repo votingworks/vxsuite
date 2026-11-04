@@ -16,11 +16,11 @@ import type { ElectionSerializationFormat } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import type { BallotTemplateId } from '@votingworks/hub-backend';
 import {
-  getBallotsFinalizedAt,
   getElectionInfo,
   getBallotTemplate,
   getStateFeatures,
 } from '@votingworks/design-ui';
+import { getBallotsFinalizedAt } from './api.js';
 import { setBallotTemplate } from './api.js';
 import {
   exportElectionPackage,

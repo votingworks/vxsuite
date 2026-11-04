@@ -83,11 +83,11 @@ function Content(): React.ReactNode {
   const nav = useNav(electionId);
 
   const places = api.listPollingPlaces.useQuery(electionId);
-  const finalizedAt = api.getBallotsFinalizedAt.useQuery(electionId);
+  const editableQuery = api.isElectionEditable.useQuery(electionId);
 
-  if (!places.isSuccess || !finalizedAt.isSuccess) return null;
+  if (!places.isSuccess || !editableQuery.isSuccess) return null;
 
-  const finalized = !!finalizedAt.data;
+  const locked = !editableQuery.data;
 
   return (
     <Viewport>
@@ -96,7 +96,7 @@ function Content(): React.ReactNode {
           variant="primary"
           icon="Add"
           to={placeRoutes.add}
-          disabled={finalized}
+          disabled={locked}
         >
           Add Polling Place
         </LinkButton>
@@ -153,19 +153,19 @@ function EditForm(): JSX.Element | null {
   const { electionId, placeId } = useParams<RouteParams>();
 
   const placesQuery = api.listPollingPlaces.useQuery(electionId);
-  const finalizedAtQuery = api.getBallotsFinalizedAt.useQuery(electionId);
+  const editableQuery = api.isElectionEditable.useQuery(electionId);
 
   const paramRoutes = electionParamRoutes.pollingPlaces;
   const placeRoutes = routes.election(electionId).pollingPlaces;
   const nav = useNav(electionId);
 
   // @coverage-defer
-  if (!placesQuery.isSuccess || !finalizedAtQuery.isSuccess) return null;
+  if (!placesQuery.isSuccess || !editableQuery.isSuccess) return null;
 
   const pollingPlaces = placesQuery.data;
   const savedPollingPlace = pollingPlaces.find((p) => p.id === placeId);
-  const finalized = !!finalizedAtQuery.data;
-  const canEdit = !finalized && !!savedPollingPlace;
+  const locked = !editableQuery.data;
+  const canEdit = !locked && !!savedPollingPlace;
 
   return (
     <EditPanel>

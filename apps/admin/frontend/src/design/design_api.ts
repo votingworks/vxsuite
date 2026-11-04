@@ -1,7 +1,7 @@
 import type { DesignApi } from '@votingworks/admin-backend';
 import {
   type ApiClient,
-  getBallotsFinalizedAt,
+  isElectionEditable,
   useApiClient,
 } from '@votingworks/design-ui';
 import * as grout from '@votingworks/grout';
@@ -112,7 +112,7 @@ export const finalizeBallots = {
     return useMutation(apiClient.finalizeBallots, {
       async onSuccess(_, { electionId }) {
         await queryClient.invalidateQueries(
-          getBallotsFinalizedAt.queryKey(electionId)
+          isElectionEditable.queryKey(electionId)
         );
         await queryClient.invalidateQueries(getCurrentDesign.queryKey());
       },
@@ -127,7 +127,7 @@ export const unfinalizeBallots = {
     return useMutation(apiClient.unfinalizeBallots, {
       async onSuccess(_, { electionId }) {
         await queryClient.invalidateQueries(
-          getBallotsFinalizedAt.queryKey(electionId)
+          isElectionEditable.queryKey(electionId)
         );
         await queryClient.invalidateQueries(getCurrentDesign.queryKey());
       },

@@ -20,7 +20,7 @@ import { ElectionNavScreen, Header } from './nav_screen.js';
 import { type ElectionIdParams } from './routes.js';
 import { FixedViewport, ListActionsRow } from './layout.js';
 import {
-  getBallotsFinalizedAt,
+  isElectionEditable,
   getElectionInfo,
   listDistricts,
   updateDistricts,
@@ -125,7 +125,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
   const districtsRoutes = routes.election(electionId).districts;
   const districtsParamRoutes = electionParamRoutes.districts;
 
-  const ballotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  const editableQuery = isElectionEditable.useQuery(electionId);
   const electionInfoQuery = getElectionInfo.useQuery(electionId);
   const savedDistrictsQuery = listDistricts.useQuery(electionId);
 
@@ -143,7 +143,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
 
   if (
     !savedDistrictsQuery.isSuccess ||
-    !ballotsFinalizedAtQuery.isSuccess ||
+    !editableQuery.isSuccess ||
     !electionInfoQuery.isSuccess
   ) {
     return null;
@@ -200,9 +200,9 @@ function Contents(props: { editing: boolean }): React.ReactNode {
     }),
     {}
   );
-  const ballotsFinalized = !!ballotsFinalizedAtQuery.data;
+  const locked = !editableQuery.data;
   const updating = updateDistrictsMutation.isLoading;
-  const disabled = ballotsFinalized || !editing || updating;
+  const disabled = locked || !editing || updating;
   const hasExternalSource = Boolean(electionInfoQuery.data.externalSource);
 
   function reset() {
@@ -276,7 +276,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
       {!hasExternalSource && (
         <ListActionsRow>
           <Button
-            disabled={updating || ballotsFinalized}
+            disabled={updating || locked}
             icon="Add"
             onPress={() => {
               setNewDistricts([...newDistricts, createBlankDistrict()]);
@@ -359,7 +359,7 @@ function Contents(props: { editing: boolean }): React.ReactNode {
             </DistrictList>
           </FormBody>
 
-          {!ballotsFinalized && (
+          {!locked && (
             <FormFooter>
               {editing ? (
                 <React.Fragment>

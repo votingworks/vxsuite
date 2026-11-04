@@ -7,11 +7,7 @@ import { H1, LinkButton } from '@votingworks/ui';
 
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import { type ElectionIdParams } from './routes.js';
-import {
-  getBallotsFinalizedAt,
-  getElectionInfo,
-  listPrecincts,
-} from './api.js';
+import { isElectionEditable, getElectionInfo, listPrecincts } from './api.js';
 import { useTitle } from './hooks/use_title.js';
 import { PrecinctForm } from './precincts_form.js';
 import { PrecinctList } from './precincts_list.js';
@@ -78,12 +74,12 @@ function Content(): React.ReactNode {
   >();
 
   const precincts = listPrecincts.useQuery(electionId);
-  const ballotsFinalizedAt = getBallotsFinalizedAt.useQuery(electionId);
+  const editableQuery = isElectionEditable.useQuery(electionId);
   const electionInfoQuery = getElectionInfo.useQuery(electionId);
 
   if (
     !precincts.isSuccess ||
-    !ballotsFinalizedAt.isSuccess ||
+    !editableQuery.isSuccess ||
     !electionInfoQuery.isSuccess
   ) {
     return null;
@@ -102,7 +98,7 @@ function Content(): React.ReactNode {
         precinctRoutes.view(precincts.data[0]!.id).path
       : null;
 
-  const ballotsFinalized = !!ballotsFinalizedAt.data;
+  const locked = !editableQuery.data;
   const hasExternalSource = Boolean(electionInfoQuery.data.externalSource);
 
   return (
@@ -113,7 +109,7 @@ function Content(): React.ReactNode {
             variant="primary"
             icon="Add"
             to={precinctRoutes.add.path}
-            disabled={ballotsFinalized}
+            disabled={locked}
           >
             Add Precinct
           </LinkButton>
@@ -172,7 +168,7 @@ function EditPrecinctForm(): JSX.Element | null {
   const { electionId, precinctId } = useParams<RouteParams>();
 
   const listPrecinctsQuery = listPrecincts.useQuery(electionId);
-  const finalizedAt = getBallotsFinalizedAt.useQuery(electionId);
+  const editableQuery = isElectionEditable.useQuery(electionId);
 
   const precinctParamRoutes = electionParamRoutes.precincts;
   const precinctRoutes = routes.election(electionId).precincts;
@@ -184,7 +180,7 @@ function EditPrecinctForm(): JSX.Element | null {
 
   const precincts = listPrecinctsQuery.data;
   const savedPrecinct = precincts.find((p) => p.id === precinctId);
-  const canEdit = !finalizedAt.data && !!savedPrecinct;
+  const canEdit = !!editableQuery.data && !!savedPrecinct;
 
   return (
     <EditPanel>

@@ -449,14 +449,14 @@ export const deleteElection = {
   },
 } as const;
 
-export const getBallotsFinalizedAt = {
+export const isElectionEditable = {
   queryKey(electionId: ElectionId): QueryKey {
-    return ['design', 'getBallotsFinalizedAt', electionId];
+    return ['design', 'isElectionEditable', electionId];
   },
   useQuery(electionId: ElectionId) {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(electionId), () =>
-      apiClient.getBallotsFinalizedAt({ electionId })
+      apiClient.isElectionEditable({ electionId })
     );
   },
 } as const;

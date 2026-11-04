@@ -23,7 +23,7 @@ import {
   BACKGROUND_TASK_POLLING_INTERVAL_MS,
   generateId,
   getBallotLayoutSettings,
-  getBallotsFinalizedAt,
+  isElectionEditable,
   getBallotTemplate,
   getElectionInfo,
   useApiClient as useDesignApiClient,
@@ -145,6 +145,18 @@ export const setBallotTemplate = {
         );
       },
     });
+  },
+} as const;
+
+export const getBallotsFinalizedAt = {
+  queryKey(electionId: ElectionId): QueryKey {
+    return ['getBallotsFinalizedAt', electionId];
+  },
+  useQuery(electionId: ElectionId) {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(electionId), () =>
+      apiClient.getBallotsFinalizedAt({ electionId })
+    );
   },
 } as const;
 
@@ -332,6 +344,9 @@ export const finalizeBallots = {
             getBallotsFinalizedAt.queryKey(electionId)
           ),
           queryClient.invalidateQueries(
+            isElectionEditable.queryKey(electionId)
+          ),
+          queryClient.invalidateQueries(
             getLatestExportQaRun.queryKey(electionId)
           ),
         ]);
@@ -352,6 +367,9 @@ export const unfinalizeBallots = {
           ),
           queryClient.invalidateQueries(
             getBallotsFinalizedAt.queryKey(electionId)
+          ),
+          queryClient.invalidateQueries(
+            isElectionEditable.queryKey(electionId)
           ),
           queryClient.invalidateQueries(
             getLatestExportQaRun.queryKey(electionId)

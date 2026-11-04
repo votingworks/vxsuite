@@ -32,7 +32,7 @@ export {
   reorderContests,
   deleteContest,
   deleteElection,
-  getBallotsFinalizedAt,
+  isElectionEditable,
   getBallotPreviewPdf,
   getStateFeatures,
 } from './api.js';

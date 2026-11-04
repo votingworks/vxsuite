@@ -63,15 +63,15 @@ export function PollingPlaceForm(
   );
 
   const precinctsQuery = api.listPrecincts.useQuery(electionId);
-  const finalizedAtQuery = api.getBallotsFinalizedAt.useQuery(electionId);
+  const editableQuery = api.isElectionEditable.useQuery(electionId);
 
   const setPlaceMutation = api.setPollingPlace.useMutation();
   const deletePlaceMutation = api.deletePollingPlace.useMutation();
 
-  if (!precinctsQuery.isSuccess || !finalizedAtQuery.isSuccess) return null;
+  if (!precinctsQuery.isSuccess || !editableQuery.isSuccess) return null;
 
   const precincts = precinctsQuery.data;
-  const finalized = !!finalizedAtQuery.data;
+  const locked = !editableQuery.data;
 
   function onSubmit() {
     setPlaceMutation.mutate(
@@ -272,7 +272,7 @@ export function PollingPlaceForm(
 
       <FormErrorContainer>{errorMessage}</FormErrorContainer>
 
-      {!finalized && (
+      {!locked && (
         <FormFooter style={{ justifyContent: 'space-between' }}>
           {editing ? (
             <Row style={{ flexWrap: 'wrap-reverse', gap: '0.5rem' }}>

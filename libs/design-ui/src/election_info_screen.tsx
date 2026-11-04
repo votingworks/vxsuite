@@ -23,7 +23,7 @@ import { DateWithoutTime, throwIllegalValue } from '@votingworks/basics';
 import styled from 'styled-components';
 import {
   deleteElection,
-  getBallotsFinalizedAt,
+  isElectionEditable,
   getBallotTemplate,
   getStateFeatures,
   getElectionInfo,
@@ -57,10 +57,10 @@ const Form = styled(FormFixed)`
 
 function ElectionInfoForm({
   savedElectionInfo,
-  ballotsFinalizedAt,
+  locked,
 }: {
   savedElectionInfo: ElectionInfo;
-  ballotsFinalizedAt: Date | null;
+  locked: boolean;
 }): JSX.Element | null {
   const routes = useDesignRoutes();
   const [isEditing, setIsEditing] = useState(
@@ -367,25 +367,24 @@ function ElectionInfoForm({
             </Button>
           </Row>
         ) : (
-          <Button
-            type="reset"
-            variant="primary"
-            icon="Edit"
-            disabled={!!ballotsFinalizedAt}
-          >
-            Edit
-          </Button>
+          !locked && (
+            <Button type="reset" variant="primary" icon="Edit">
+              Edit
+            </Button>
+          )
         )}
 
-        <Button
-          disabled={deleteElectionMutation.isLoading}
-          icon="Delete"
-          fill="outlined"
-          onPress={onDeletePress}
-          variant="danger"
-        >
-          Delete Election
-        </Button>
+        {!locked && (
+          <Button
+            disabled={deleteElectionMutation.isLoading}
+            icon="Delete"
+            fill="outlined"
+            onPress={onDeletePress}
+            variant="danger"
+          >
+            Delete Election
+          </Button>
+        )}
         {electionInfo.electionId && isConfirmingDelete && (
           <Modal
             title="Delete Election"
@@ -448,17 +447,14 @@ export function ElectionInfoScreen(): JSX.Element | null {
     params
   );
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
-  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  const editableQuery = isElectionEditable.useQuery(electionId);
   useTitle(routes.election(electionId).electionInfo.root.title);
   const infoParamRoutes = routes.election(':electionId').electionInfo;
 
-  if (
-    !getElectionInfoQuery.isSuccess ||
-    !getBallotsFinalizedAtQuery.isSuccess
-  ) {
+  if (!getElectionInfoQuery.isSuccess || !editableQuery.isSuccess) {
     return null;
   }
-  const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
+  const locked = !editableQuery.data;
 
   return (
     <ElectionNavScreen electionId={electionId}>
@@ -468,7 +464,7 @@ export function ElectionInfoScreen(): JSX.Element | null {
       <Viewport>
         <ElectionInfoForm
           savedElectionInfo={getElectionInfoQuery.data}
-          ballotsFinalizedAt={ballotsFinalizedAt}
+          locked={locked}
         />
         <Switch>
           <Route path={infoParamRoutes.audio({ stringKey: ':stringKey' })}>

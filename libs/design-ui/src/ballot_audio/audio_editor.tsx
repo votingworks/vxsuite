@@ -56,18 +56,18 @@ export function AudioEditor(props: AudioEditorProps): React.ReactNode {
   } = props;
   const [mode, setMode] = React.useState<TtsExportSource | null>(null);
 
-  const ballotsFinalizedAt = api.getBallotsFinalizedAt.useQuery(electionId);
+  const editableQuery = api.isElectionEditable.useQuery(electionId);
   const savedEdit = api.ttsEditsGet.useQuery({
     jurisdictionId,
     languageCode,
     original: ttsDefault.text,
   });
 
-  if (!savedEdit.isSuccess || !ballotsFinalizedAt.isSuccess) return null;
+  if (!savedEdit.isSuccess || !editableQuery.isSuccess) return null;
 
   const defaultMode = savedEdit.data?.exportSource || 'text';
   const currentMode = mode || defaultMode;
-  const editable = !ballotsFinalizedAt.data;
+  const editable = editableQuery.data;
 
   // Phonetic editing isn't supported for ballot measures at the moment, given
   // how long/complex they can get.

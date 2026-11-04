@@ -33,7 +33,7 @@ import {
   updatePrecinct,
   createPrecinct,
   deletePrecinct,
-  getBallotsFinalizedAt,
+  isElectionEditable,
   getElectionInfo,
 } from './api.js';
 import { generateId, replaceAtIndex } from './utils.js';
@@ -69,7 +69,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
 
   const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
   const listDistrictsQuery = listDistricts.useQuery(electionId);
-  const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  const editableQuery = isElectionEditable.useQuery(electionId);
   const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
   const getRegisteredVoterCountsQuery =
     getRegisteredVoterCounts.useQuery(electionId);
@@ -100,7 +100,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
     !(
       getStateFeaturesQuery.isSuccess &&
       listDistrictsQuery.isSuccess &&
-      getBallotsFinalizedAtQuery.isSuccess &&
+      editableQuery.isSuccess &&
       getElectionInfoQuery.isSuccess
     )
   ) {
@@ -109,7 +109,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
 
   const features = getStateFeaturesQuery.data;
   const districts = listDistrictsQuery.data;
-  const finalized = !!getBallotsFinalizedAtQuery.data;
+  const locked = !editableQuery.data;
   const hasExternalSource = Boolean(getElectionInfoQuery.data.externalSource);
 
   function goBackToPrecinctsList() {
@@ -489,7 +489,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                     </Column>
                   </Card>
                 ))}
-                {!finalized && !hasExternalSource && (
+                {!locked && !hasExternalSource && (
                   <div>
                     <Button icon="Add" onPress={onAddSplitPress}>
                       Add Split
@@ -546,7 +546,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
                       value={[...precinct.districtIds]}
                     />
                   </div>
-                  {!finalized && !hasExternalSource && (
+                  {!locked && !hasExternalSource && (
                     <div style={{ marginTop: '1.5rem' }}>
                       <Button icon="Add" onPress={onAddSplitPress}>
                         Add Split
@@ -562,7 +562,7 @@ export function PrecinctForm(props: PrecinctFormProps): React.ReactNode {
 
       <FormErrorContainer>{errorMessage}</FormErrorContainer>
 
-      {!finalized && (
+      {!locked && (
         <FormFooter style={{ justifyContent: 'space-between' }}>
           <PrimaryFormActions disabled={disabled} editing={editing} />
 
