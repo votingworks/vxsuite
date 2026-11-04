@@ -1,4 +1,4 @@
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { mkdirSync, writeFileSync, cpSync } from 'node:fs';
 import { Buffer } from 'node:buffer';
@@ -22,7 +22,7 @@ export function writeMockFileTree(
     mkdirSync(destinationPath, { recursive: true });
     for (const [name, child] of Object.entries(tree)) {
       // Sleep 1ms to ensure that each file is created with a distinct timestamp
-      execSync('sleep 0.01');
+      execFileSync('sleep', ['0.01']);
       writeMockFileTree(join(destinationPath, name), child);
     }
   }
