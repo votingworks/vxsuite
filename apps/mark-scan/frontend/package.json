@@ -40,7 +40,6 @@
     ]
   },
   "dependencies": {
-    "@rooks/use-interval": "^4.5.0",
     "@tanstack/react-query": "4.32.1",
     "@votingworks/basics": "workspace:*",
     "@votingworks/dev-dock-frontend": "workspace:*",
@@ -51,7 +50,6 @@
     "@votingworks/ui": "workspace:*",
     "@votingworks/usb-drive": "workspace:*",
     "@votingworks/utils": "workspace:*",
-    "abortcontroller-polyfill": "^1.4.0",
     "buffer": "^6.0.3",
     "debug": "4.3.4",
     "history": "4.10.1",
@@ -59,11 +57,9 @@
     "luxon": "^3.0.0",
     "path": "^0.12.7",
     "react": "18.3.1",
-    "react-app-polyfill": "3.0.0",
     "react-dom": "18.3.1",
     "react-idle-timer": "^5.7.2",
     "react-router-dom": "^5.3.4",
-    "resolve": "1.18.1",
     "setimmediate": "^1.0.5",
     "styled-components": "^5.3.11",
     "use-interval": "1.4.0",
@@ -76,7 +72,6 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/connect": "^3.4.35",
     "@types/debug": "4.1.12",
-    "@types/fetch-mock": "^7.3.2",
     "@types/history": "4.7.11",
     "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^3.0.0",
@@ -95,7 +90,6 @@
     "@votingworks/monorepo-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
-    "fetch-mock": "9.11.0",
     "sort-package-json": "^1.50.0",
     "vite": "8.1.6",
     "vitest": "5.0.2"

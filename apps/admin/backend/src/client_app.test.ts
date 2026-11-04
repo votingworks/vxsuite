@@ -89,6 +89,7 @@ beforeEach(() => {
   env = buildClientTestEnvironment();
   return () => {
     env.server.close();
+    vi.unstubAllGlobals();
   };
 });
 
@@ -509,22 +510,29 @@ test('getBallotImages fetches metadata via grout and binary images via fetch', a
   mockPeerApi.getBallotImageMetadata.mockResolvedValue(mockMetadata);
 
   const pngBytes = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
-  const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(() =>
-    Promise.resolve(
-      new Response(pngBytes, {
-        headers: { 'content-type': 'image/png' },
-      })
-    )
+  const realFetch = globalThis.fetch;
+  const fetchMock = vi.fn<typeof fetch>((input, init) =>
+    typeof input === 'string' && input.includes('/api/ballot-image/')
+      ? Promise.resolve(
+          new Response(pngBytes, {
+            headers: { 'content-type': 'image/png' },
+          })
+        )
+      : realFetch(input, init)
   );
+  vi.stubGlobal('fetch', fetchMock);
 
   const imagesResult = await env.apiClient.getBallotImages({ cvrId: 'cvr-1' });
   const images = imagesResult.unsafeUnwrap();
   expect(images.cvrId).toEqual('cvr-1');
   expect(images.front.imageUrl).toMatch(/^data:image\/png;base64,/);
   expect(images.back.imageUrl).toMatch(/^data:image\/png;base64,/);
-  expect(fetchSpy).toHaveBeenCalledTimes(2);
-
-  fetchSpy.mockRestore();
+  expect(fetchMock).toHaveBeenCalledWith(
+    expect.stringMatching(/\/api\/ballot-image\/cvr-1\/front$/)
+  );
+  expect(fetchMock).toHaveBeenCalledWith(
+    expect.stringMatching(/\/api\/ballot-image\/cvr-1\/back$/)
+  );
 });
 
 test('getWriteInCandidates proxies to host peer API', async () => {

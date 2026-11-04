@@ -2,7 +2,6 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import React from 'react';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 
-import fetchMock from 'fetch-mock';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   useBallotStyleManager,
@@ -57,13 +56,6 @@ afterEach(() => {
 });
 
 test('will throw an error when using default api', async () => {
-  fetchMock.get('/api', {
-    body: {
-      machineId: '0002',
-      codeVersion: '3.14',
-    },
-  });
-
   await suppressingConsoleOutput(async () => {
     render(<App />);
     await screen.findByText('Something went wrong');

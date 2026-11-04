@@ -28,15 +28,6 @@ module.exports = {
  * @returns {Package}
  */
 function readPackage(pkg, context) {
-  if (pkg.name === 'fetch-mock') {
-    // Cannot find module 'node-fetch' from 'server.js'
-    pkg.dependencies = {
-      ...pkg.dependencies,
-      'node-fetch': '*',
-    };
-    context.log('fetch-mock implicitly depends on node-fetch');
-  }
-
   if (pkg.name === 'react-idle-timer') {
     // Cannot find module 'prop-types' from 'index.min.js'
     pkg.dependencies = {

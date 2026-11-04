@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, test } from 'vitest';
-import fetchMock from 'fetch-mock';
 import { BrowserRouter, Route } from 'react-router-dom';
 import { readElectionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { screen } from '../test/react_testing_library.js';
@@ -14,7 +13,6 @@ let apiMock: ApiMock;
 
 beforeEach(() => {
   apiMock = createApiMock();
-  fetchMock.get(/^\/convert/, {});
 });
 
 afterEach(() => {

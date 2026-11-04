@@ -1,15 +1,7 @@
 /**
  * Identity function useful for asserting the type of the argument/return value.
  * Mainly useful with an object literal argument used in a context where a
- * variable declaration with an explicit type annotation is inelegant, such as
- * when providing a response to `fetch-mock`.
- *
- * @example
- *
- * fetchMock.get('/api', typedAs<MyResponseType>({
- *   status: 'ok',
- *   value: 42,
- * }))
+ * variable declaration with an explicit type annotation is inelegant.
  *
  * @example
  *

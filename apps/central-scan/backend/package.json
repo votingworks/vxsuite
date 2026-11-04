@@ -71,7 +71,6 @@
     "@votingworks/fixtures": "workspace:*",
     "esbuild": "0.28.1",
     "eslint-plugin-vx": "workspace:*",
-    "get-port": "5",
     "jest-image-snapshot": "^6.4.0",
     "sort-package-json": "^1.50.0",
     "vitest": "5.0.2"

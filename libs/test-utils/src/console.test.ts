@@ -42,3 +42,29 @@ test('suppressingConsoleOutput rejects with the error thrown by the callback', a
   ).rejects.toThrowError('test');
   expect(console.log).toStrictEqual(originalLog);
 });
+
+test('suppressingConsoleOutput cancels window error events', () => {
+  const mockWindow = new EventTarget();
+  vi.stubGlobal(
+    'addEventListener',
+    mockWindow.addEventListener.bind(mockWindow)
+  );
+  vi.stubGlobal(
+    'removeEventListener',
+    mockWindow.removeEventListener.bind(mockWindow)
+  );
+  function dispatchError(): Event {
+    const event = new Event('error', { cancelable: true });
+    mockWindow.dispatchEvent(event);
+    return event;
+  }
+
+  try {
+    suppressingConsoleOutput(() => {
+      expect(dispatchError().defaultPrevented).toEqual(true);
+    });
+    expect(dispatchError().defaultPrevented).toEqual(false);
+  } finally {
+    vi.unstubAllGlobals();
+  }
+});

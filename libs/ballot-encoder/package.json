@@ -32,7 +32,6 @@
   },
   "devDependencies": {
     "@types/node": "24.19.2",
-    "@types/text-encoding": "^0.0.35",
     "@vitest/coverage-istanbul": "5.0.2",
     "@votingworks/coverage-check": "workspace:*",
     "@votingworks/fixtures": "workspace:*",

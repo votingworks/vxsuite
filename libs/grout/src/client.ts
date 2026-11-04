@@ -1,4 +1,3 @@
-import fetch from 'cross-fetch';
 import { extractErrorMessage } from '@votingworks/basics';
 import { deserialize, serialize } from './serialization.js';
 import {

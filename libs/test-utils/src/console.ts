@@ -1,6 +1,10 @@
 /* eslint-disable no-console */
 import type { MaybePromise, Optional } from '@votingworks/basics';
 
+function preventDefault(event: Event): void {
+  event.preventDefault();
+}
+
 /**
  * Suppresses console output during the execution of a function. Resolves to the
  * return value of the function.
@@ -31,7 +35,15 @@ export function suppressingConsoleOutput<T>(
     error: () => {},
   });
 
+  // jsdom reports uncaught errors to the Node console unless the `error` event is cancelled
+  const errorEventTarget =
+    'addEventListener' in globalThis
+      ? (globalThis as unknown as EventTarget)
+      : undefined;
+  errorEventTarget?.addEventListener('error', preventDefault);
+
   function cleanup() {
+    errorEventTarget?.removeEventListener('error', preventDefault);
     Object.assign(console, {
       log: originalLog,
       warn: originalWarn,
