@@ -43,6 +43,7 @@ rust-analyzer only loads the crates relevant to what you're working on:
 | Root (daemons/logging) | `/`                             | `vx-logging`, `logging-utils`, `daemon-utils`, `controllerd`, `fai100-controllerd`, `patinputd`, `barcode-scanner-daemon` |
 | ballot-interpreter     | `libs/ballot-interpreter/rust/` | `ballot-interpreter` (+ `types-rs` as a path dep)                                                                         |
 | pdi-scanner            | `libs/pdi-scanner/rust/`        | `pdi-scanner`                                                                                                             |
+| deskpro-scanner        | `libs/deskpro-scanner/rust/`    | `deskpro-scanner`                                                                                                         |
 | types-rs               | `libs/types-rs/`                | `types-rs`                                                                                                                |
 
 In a package that also has a `package.json`, the crate lives in a `rust/`
@@ -77,9 +78,9 @@ For **daemon/logging crates** (root workspace): add to
 `[workspace.dependencies]` in the root `Cargo.toml` and reference with
 `workspace = true` in the crate's `Cargo.toml`.
 
-For **ballot-interpreter, pdi-scanner, or types-rs**: add dependencies with
-explicit versions directly in that crate's `Cargo.toml` (these workspaces don't
-share a `[workspace.dependencies]` section).
+For **ballot-interpreter, pdi-scanner, deskpro-scanner, or types-rs**: add
+dependencies with explicit versions directly in that crate's `Cargo.toml` (these
+workspaces don't share a `[workspace.dependencies]` section).
 
 ### IDE Setup
 

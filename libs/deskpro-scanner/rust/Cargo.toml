@@ -1,0 +1,46 @@
+[workspace]
+resolver = "3"
+
+[workspace.package]
+license = "GPL-3.0-only"
+
+[workspace.lints.rust]
+dead_code = "deny"
+unused_assignments = "deny"
+unused_imports = "deny"
+unused_variables = "deny"
+
+[workspace.lints.clippy]
+pedantic = { level = "deny", priority = -1 }
+unwrap_used = "deny"
+
+[profile.release.package.deskpro-scanner]
+debug = "line-tables-only" # Enable stack traces
+
+[package]
+name = "deskpro-scanner"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "deskpro_scanner"
+path = "src/lib.rs"
+
+[[bin]]
+name = "deskproctl"
+path = "src/main.rs"
+
+[[example]]
+name = "deskpro-diag"
+path = "examples/diag.rs"
+
+[dependencies]
+clap = { version = "4.0.29", features = ["derive", "env"] }
+color-eyre = "0.6.2"
+libloading = "0.9.0"
+thiserror = "1.0.50"
+tracing = "0.1.40"
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+
+[lints]
+workspace = true

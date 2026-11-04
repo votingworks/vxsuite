@@ -221,6 +221,14 @@
       "path": "libs/pdi-scanner/rust"
     },
     {
+      "name": "libs/deskpro-scanner",
+      "path": "libs/deskpro-scanner"
+    },
+    {
+      "name": "libs/deskpro-scanner/rust",
+      "path": "libs/deskpro-scanner/rust"
+    },
+    {
       "name": "libs/custom-paper-handler",
       "path": "libs/custom-paper-handler"
     },

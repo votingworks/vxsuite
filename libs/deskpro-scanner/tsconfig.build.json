@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/ts"],
+  "exclude": ["**/*.test.ts", "**/*.test.tsx"],
+  "compilerOptions": {
+    "tsBuildInfoFile": "build/tsconfig.build.tsbuildinfo",
+    "noEmit": false,
+    "rootDir": "src/ts",
+    "outDir": "build",
+    "declaration": true
+  },
+  "references": [
+    { "path": "../coverage-check/tsconfig.build.json" },
+    { "path": "../basics/tsconfig.build.json" },
+    { "path": "../test-utils/tsconfig.build.json" }
+  ]
+}

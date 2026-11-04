@@ -1,0 +1,50 @@
+{
+  "name": "@votingworks/deskpro-scanner",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Scanner interface for the InoTec SCAMAX DeskPro",
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "default": "./build/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "build": "pnpm -w vx-task build $npm_package_name",
+    "build:rust-addon": "cargo build --manifest-path rust/Cargo.toml --release --offline",
+    "build:self": "pnpm build:rust-addon && pnpm build:ts",
+    "build:ts": "tsc --build tsconfig.build.json",
+    "clean": "pnpm -w vx-task clean $npm_package_name",
+    "clean:self": "cargo clean --manifest-path rust/Cargo.toml --release --package deskpro-scanner && rm -rf build",
+    "diag": "cargo run --manifest-path rust/Cargo.toml --release --offline --example deskpro-diag --",
+    "install:rust-addon": "cargo fetch --manifest-path rust/Cargo.toml",
+    "lint": "pnpm -w vx-task lint $npm_package_name",
+    "lint:fix": "pnpm type-check && eslint --cache . --fix",
+    "lint:self": "pnpm type-check && eslint --cache .",
+    "test": "pnpm -w vx-task build $npm_package_name && vitest",
+    "test:run": "pnpm -w vx-task test:run $npm_package_name",
+    "test:run:self": "pnpm test:rust-addon && vitest run",
+    "test:rust-addon": "cargo test --manifest-path rust/Cargo.toml",
+    "type-check": "tsc --build"
+  },
+  "dependencies": {
+    "@votingworks/basics": "workspace:*",
+    "debug": "4.3.4"
+  },
+  "devDependencies": {
+    "@types/debug": "4.1.12",
+    "@types/node": "24.19.2",
+    "@vitest/coverage-istanbul": "5.0.2",
+    "@votingworks/coverage-check": "workspace:*",
+    "@votingworks/test-utils": "workspace:*",
+    "eslint-plugin-vx": "workspace:*",
+    "vitest": "5.0.2"
+  },
+  "packageManager": "pnpm@12.16.1"
+}
