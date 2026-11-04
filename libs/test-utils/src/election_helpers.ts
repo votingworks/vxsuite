@@ -17,6 +17,7 @@ import {
   hashElectionData,
   type BallotPositions,
   type BallotCandidateOrderings,
+  type BallotStyleGroupId,
 } from '@votingworks/types';
 
 /**
@@ -240,6 +241,7 @@ export function toSplitFileElection(e: Election): {
 } {
   const ballotPositions: BallotPositions[] = [];
   const candidateOrderings: BallotCandidateOrderings[] = [];
+  const seenGroupIds = new Set<BallotStyleGroupId>();
 
   for (const bs of e.ballotStyles) {
     if (bs.ballotPositions) {
@@ -249,12 +251,14 @@ export function toSplitFileElection(e: Election): {
       });
     }
 
-    if (bs.orderedCandidatesByContest) {
+    if (bs.orderedCandidatesByContest && !seenGroupIds.has(bs.groupId)) {
       candidateOrderings.push({
-        ballotStyleId: bs.id,
+        ballotStyleGroupId: bs.groupId,
         orderings: bs.orderedCandidatesByContest,
       });
     }
+
+    seenGroupIds.add(bs.groupId);
   }
 
   return {

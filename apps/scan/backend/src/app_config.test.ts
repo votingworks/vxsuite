@@ -431,7 +431,7 @@ describe('populates ballot meta store', () => {
     const ballotMetaStore = ctx.workspace.store.getBallotMetaStore();
     for (const bs of election.ballotStyles) {
       expect(ballotMetaStore.getPositions(bs.id)).toEqual(bs.ballotPositions);
-      expect(ballotMetaStore.getCandidateOrderings(bs.id)).toEqual(
+      expect(ballotMetaStore.getCandidateOrderings(bs)).toEqual(
         bs.orderedCandidatesByContest
       );
     }
@@ -464,7 +464,7 @@ describe('populates ballot meta store', () => {
 
     for (const bs of election.ballotStyles) {
       expect(metaStore.getPositions(bs.id)).toEqual(bs.ballotPositions);
-      expect(metaStore.getCandidateOrderings(bs.id)).toEqual(
+      expect(metaStore.getCandidateOrderings(bs)).toEqual(
         bs.orderedCandidatesByContest
       );
     }

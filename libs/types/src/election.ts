@@ -608,12 +608,12 @@ export const BallotPositionsSchema: z.ZodSchema<BallotPositions> = z.object({
 });
 
 export interface BallotCandidateOrderings {
-  ballotStyleId: BallotStyleId;
+  ballotStyleGroupId: BallotStyleGroupId;
   orderings: CandidateOrderings;
 }
 export const BallotCandidateOrderingsSchema: z.ZodSchema<BallotCandidateOrderings> =
   z.object({
-    ballotStyleId: IdSchema,
+    ballotStyleGroupId: IdSchema,
     orderings: CandidateOrderingsSchema,
   });
 

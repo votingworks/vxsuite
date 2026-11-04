@@ -1287,11 +1287,9 @@ test('export - with `splitElectionDefinition` setting on', async () => {
     .split('\n')
     .map((l) => unsafeParseJson(l, BallotCandidateOrderingsSchema));
 
-  expect(parsedOrderings).toHaveLength(ballotStyles.length);
-
-  for (let i = 0; i < parsedOrderings.length; i += 1) {
-    expect(parsedOrderings[i]?.ballotStyleId).toEqual(ballotStyles[i]?.id);
-  }
+  expect(parsedOrderings.map((o) => o.ballotStyleGroupId)).toEqual([
+    ...new Set(ballotStyles.map((bs) => bs.groupId)),
+  ]);
 
   // Expect a compact election.json, to reduce bloat from candidate orderings.
   const electionJson = await zip.readEntryText(Entry.ELECTION);

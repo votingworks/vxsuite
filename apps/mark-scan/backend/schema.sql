@@ -14,7 +14,7 @@ create table election (
 ) strict;
 
 create table candidate_orderings (
-  style_id text primary key,
+  style_group_id text primary key,
   orderings text not null -- JSON string of CandidateOrderings
 ) strict;
 
