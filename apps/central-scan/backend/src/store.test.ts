@@ -18,6 +18,7 @@ import {
   makeTemporaryFile,
 } from '@votingworks/fixtures';
 import { mockBaseLogger } from '@votingworks/logging';
+import { importElectionPackageForTest } from '@votingworks/backend/test-utils';
 import { zeroRect } from '../test/fixtures/zero_rect.js';
 import { Store } from './store.js';
 import { configureStore } from '../test/helpers/setup_app.js';
@@ -954,4 +955,15 @@ test('canUnconfigure requires backing up sheets added during a backup', async ()
 
   store.setScannerBackedUp();
   expect(store.getCanUnconfigure()).toEqual(true);
+});
+
+test('an imported package without an election session is not configured', async () => {
+  const store = Store.memoryStore();
+  await importElectionPackageForTest(store.getElectionPackageStore(), {
+    electionDefinition,
+  });
+
+  expect(store.hasElection()).toEqual(false);
+  expect(store.getElectionRecord()).toBeUndefined();
+  expect(store.getElectionKey()).toBeUndefined();
 });

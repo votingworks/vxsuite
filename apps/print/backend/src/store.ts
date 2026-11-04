@@ -157,14 +157,18 @@ export class Store {
    * Gets the current election definition and election package hash.
    */
   getElectionRecord(): ElectionRecord | undefined {
-    return this.electionPackageStore.getElectionRecord();
+    return this.hasElection()
+      ? this.electionPackageStore.getElectionRecord()
+      : undefined;
   }
 
   /**
    * Retrieves the election key (used for auth) for the current election.
    */
   getElectionKey(): ElectionKey | undefined {
-    return this.electionPackageStore.getElectionKey();
+    return this.hasElection()
+      ? this.electionPackageStore.getElectionKey()
+      : undefined;
   }
 
   /**

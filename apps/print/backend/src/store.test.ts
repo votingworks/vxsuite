@@ -2,6 +2,7 @@ import { test, expect } from 'vitest';
 import { Buffer } from 'node:buffer';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { BallotType, LanguageCode } from '@votingworks/types';
+import { importElectionPackageForTest } from '@votingworks/backend/test-utils';
 import { Store } from './store.js';
 import { configureStore } from '../test/app.js';
 
@@ -155,4 +156,15 @@ test('ballot print counts', async () => {
   expect(store.getBallotPrintCounts({ ballotMode: 'official' })).toEqual([
     expect.objectContaining({ totalCount: 0 }),
   ]);
+});
+
+test('an imported package without an election session is not configured', async () => {
+  const store = Store.memoryStore();
+  await importElectionPackageForTest(store.getElectionPackageStore(), {
+    electionDefinition,
+  });
+
+  expect(store.hasElection()).toEqual(false);
+  expect(store.getElectionRecord()).toBeUndefined();
+  expect(store.getElectionKey()).toBeUndefined();
 });

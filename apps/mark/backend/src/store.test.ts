@@ -9,6 +9,7 @@ import {
   type EncodedBallotEntry,
 } from '@votingworks/types';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
+import { importElectionPackageForTest } from '@votingworks/backend/test-utils';
 import { Store } from './store.js';
 import { configureStore } from '../test/store_helpers.js';
 
@@ -275,4 +276,16 @@ test('get/set barcode activation mode', async () => {
 
   store.setBarcodeActivationMode('voter_session');
   expect(store.getBarcodeActivationMode()).toEqual('voter_session');
+});
+
+test('an imported package without an election session is not configured', async () => {
+  const store = Store.memoryStore();
+  await importElectionPackageForTest(store.getElectionPackageStore(), {
+    electionDefinition:
+      electionTwoPartyPrimaryFixtures.readElectionDefinition(),
+  });
+
+  expect(store.hasElection()).toEqual(false);
+  expect(store.getElectionRecord()).toBeUndefined();
+  expect(store.getElectionKey()).toBeUndefined();
 });
