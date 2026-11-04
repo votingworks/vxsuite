@@ -60,8 +60,8 @@ serde_with = { version = "3.14.0", features = ["macros"] }
 sha2 = "0.11.1"
 hex = "0.4.3"
 itertools = "0.15.0"
-rqrr = "0.7.1"
-zedbar = { version = "0.5.1", default-features = false, features = ["qrcode"] }
+rqrr = "0.11.0"
+zedbar = { version = "0.7.0", default-features = false, features = ["qrcode"] }
 base64 = "0.23.1"
 thiserror = "2.0.21"
 tokio = { version = "1.44.2", features = ["fs", "macros"] }
