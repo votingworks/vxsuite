@@ -1,8 +1,10 @@
+import { vi } from 'vitest';
 import { Client } from '@votingworks/db';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   type ElectionDefinition,
+  TEST_JURISDICTION,
 } from '@votingworks/types';
 import { chmodSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -30,24 +32,63 @@ export async function importElectionPackageForTest(
     electionPackageHash?: string;
   } = {}
 ): Promise<string> {
-  const filePath = join(
-    mkdtempSync(join(tmpdir(), 'election-package-')),
-    'election-package.zip'
+  // Building and streaming the package zip stalls under fake timers.
+  const fakeTimers = vi.isFakeTimers();
+  if (fakeTimers) vi.useRealTimers();
+  try {
+    const filePath = join(
+      mkdtempSync(join(tmpdir(), 'election-package-')),
+      'election-package.zip'
+    );
+    writeFileSync(
+      filePath,
+      await createElectionPackageZipArchive(electionPackage)
+    );
+    const parsed = (await readElectionPackageFromFile(filePath)).unsafeUnwrap();
+    const hash = electionPackageHash ?? parsed.electionPackageHash;
+    await store.importElectionPackage({
+      electionPackage: parsed.electionPackage,
+      electionPackageHash: hash,
+      filePath,
+      jurisdiction,
+      logger: new BaseLogger(LogSource.System),
+    });
+    return hash;
+  } finally {
+    if (fakeTimers) vi.useFakeTimers();
+  }
+}
+
+/** A machine store configured by importing an election package. */
+export interface ElectionSessionStore {
+  getElectionPackageStore(): ElectionPackageStore;
+  startElectionSession(): void;
+  setPollingPlaceId(id: string): void;
+}
+
+/** Configures `store` from a package built from the given parts, as the app does. */
+export async function configureStoreForTest(
+  store: ElectionSessionStore,
+  {
+    jurisdiction = TEST_JURISDICTION,
+    electionPackageHash = 'test-election-package-hash',
+    pollingPlaceId,
+    ...electionPackage
+  }: PartialElectionPackage & {
+    jurisdiction?: string;
+    electionPackageHash?: string;
+    pollingPlaceId?: string;
+  }
+): Promise<void> {
+  await importElectionPackageForTest(
+    store.getElectionPackageStore(),
+    electionPackage,
+    { jurisdiction, electionPackageHash }
   );
-  writeFileSync(
-    filePath,
-    await createElectionPackageZipArchive(electionPackage)
-  );
-  const parsed = (await readElectionPackageFromFile(filePath)).unsafeUnwrap();
-  const hash = electionPackageHash ?? parsed.electionPackageHash;
-  await store.importElectionPackage({
-    electionPackage: parsed.electionPackage,
-    electionPackageHash: hash,
-    filePath,
-    jurisdiction,
-    logger: new BaseLogger(LogSource.System),
-  });
-  return hash;
+  store.startElectionSession();
+  if (pollingPlaceId) {
+    store.setPollingPlaceId(pollingPlaceId);
+  }
 }
 
 /**

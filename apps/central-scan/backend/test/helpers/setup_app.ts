@@ -17,12 +17,6 @@ import {
 } from '@votingworks/auth';
 import { dirSync } from 'tmp';
 import { type MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
-import { importElectionPackageForTest } from '@votingworks/backend/test-utils';
-import {
-  type ElectionDefinition,
-  type SystemSettings,
-  TEST_JURISDICTION,
-} from '@votingworks/types';
 import { type Workspace, createWorkspace } from '../../src/util/workspace.js';
 import { type MockScanner, makeMockScanner } from '../util/mocks.js';
 import {
@@ -148,40 +142,4 @@ export function waitForStatus<State extends ScanStatus['state']>(
   );
 }
 
-/**
- * Configures `store` from a package built from `electionPackage`, the way the
- * app does, and starts the election session.
- */
-export async function configureStore(
-  store: Store,
-  {
-    electionDefinition,
-    systemSettings,
-    jurisdiction = TEST_JURISDICTION,
-    electionPackageHash = 'test-election-package-hash',
-    pollingPlaceId,
-  }: {
-    electionDefinition: ElectionDefinition;
-    systemSettings?: SystemSettings;
-    jurisdiction?: string;
-    electionPackageHash?: string;
-    pollingPlaceId?: string;
-  }
-): Promise<void> {
-  // Importing streams the package zip, which stalls under fake timers.
-  const fakeTimers = vi.isFakeTimers();
-  if (fakeTimers) vi.useRealTimers();
-  await importElectionPackageForTest(
-    store.getElectionPackageStore(),
-    { electionDefinition, systemSettings },
-    {
-      jurisdiction,
-      electionPackageHash,
-    }
-  );
-  if (fakeTimers) vi.useFakeTimers();
-  store.startElectionSession();
-  if (pollingPlaceId) {
-    store.setPollingPlaceId(pollingPlaceId);
-  }
-}
+export { configureStoreForTest as configureStore } from '@votingworks/backend/test-utils';
