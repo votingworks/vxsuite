@@ -5,7 +5,6 @@ import {
   mockElectionPackageFileTree,
   type PartialElectionPackage,
 } from '@votingworks/backend';
-import { importElectionPackageForTest } from '@votingworks/backend/test-utils';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import type * as grout from '@votingworks/grout';
 import {
@@ -22,11 +21,8 @@ import {
   type VotesDict,
   asSheet,
   constructElectionKey,
-  type ElectionDefinition,
   pollingPlaceFromElection,
   type RgbaImageData,
-  type SystemSettings,
-  TEST_JURISDICTION,
 } from '@votingworks/types';
 import type { MockUsbDrive } from '@votingworks/usb-drive';
 import { mockLogger, LogSource, type MockLogger } from '@votingworks/logging';
@@ -233,37 +229,4 @@ export function makeHmpbSheet({
   return [makePage(1, frontVotes), makePage(2, backVotes)];
 }
 
-/**
- * Configures `store` from a package built from `electionPackage`, the way the
- * app does, and starts the election session.
- */
-export async function configureStore(
-  store: Store,
-  {
-    electionDefinition,
-    systemSettings,
-    jurisdiction = TEST_JURISDICTION,
-    electionPackageHash = 'test-election-package-hash',
-    pollingPlaceId,
-  }: {
-    electionDefinition: ElectionDefinition;
-    systemSettings?: SystemSettings;
-    jurisdiction?: string;
-    electionPackageHash?: string;
-    pollingPlaceId?: string;
-  }
-): Promise<void> {
-  // Importing streams the package zip, which stalls under fake timers.
-  const fakeTimers = vi.isFakeTimers();
-  if (fakeTimers) vi.useRealTimers();
-  await importElectionPackageForTest(
-    store.getElectionPackageStore(),
-    { electionDefinition, systemSettings },
-    { jurisdiction, electionPackageHash }
-  );
-  if (fakeTimers) vi.useFakeTimers();
-  store.startElectionSession();
-  if (pollingPlaceId) {
-    store.setPollingPlaceId(pollingPlaceId);
-  }
-}
+export { configureStoreForTest as configureStore } from '@votingworks/backend/vitest-utils';

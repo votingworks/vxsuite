@@ -69,7 +69,7 @@ export async function printBallot(p: PrintBallotProps): Promise<PrintJobId> {
   );
 
   const candidateOrderings = p.store
-    .getBallotMetaStore()
+    .getCandidateOrderingsStore()
     .getCandidateOrderings(ballotStyle);
 
   const pWithDerivedVotes: PrintBallotProps = {
@@ -336,7 +336,7 @@ async function printMarkOverlay(p: PrintBallotProps): Promise<PrintJobId> {
 
 function requirePositions(p: PrintBallotProps): SheetPositions[] {
   return assertDefined(
-    p.store.getBallotMetaStore().getPositions(p.ballotStyleId),
+    p.store.getBallotPositionsStore().getPositions(p.ballotStyleId),
     `no ballot positions for ballot style ${p.ballotStyleId}`
   );
 }

@@ -164,6 +164,7 @@ afterEach(async () => {
   featureFlagMock.resetFeatureFlags();
   await stateMachine.cleanUp();
   server.close();
+  workspace[Symbol.dispose]();
 });
 
 async function waitForStatus(status: SimpleServerStatus): Promise<void> {
@@ -310,8 +311,6 @@ describe('configure populates ballot meta store', () => {
     const storedElection = electionRecord?.electionDefinition.election;
     expect(storedElection).toEqual(splitElection.election);
 
-    const metaStore = workspace.store.getBallotMetaStore();
-
     for (const bs of election.ballotStyles) {
       const orderings = await apiClient.getCandidateOrderings({
         ballotStyleGroupId: bs.groupId,
@@ -319,8 +318,17 @@ describe('configure populates ballot meta store', () => {
       expect(orderings).toEqual(bs.orderedCandidatesByContest);
     }
 
-    // Ballot positions are unused in MarkScan:
-    expect(() => metaStore.getPositions('irrelevant')).toThrow(/no such table/);
+    const everything = backendLib.ElectionPackageStore.fileStore(
+      workspace.electionPackageDbPath,
+      {
+        uiStrings: true,
+        ballots: true,
+        ballotPositions: true,
+        candidateOrderings: true,
+      }
+    );
+    expect(everything.getBallotPositionsStore().hasPositions()).toEqual(false);
+    everything.close();
   });
 });
 
@@ -845,7 +853,7 @@ test('addDiagnosticRecord', async () => {
 });
 
 test('startPaperHandlerDiagnostic fails test if no state machine', async () => {
-  const ws = createWorkspace(
+  using ws = createWorkspace(
     makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn })
   );

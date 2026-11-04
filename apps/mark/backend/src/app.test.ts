@@ -28,7 +28,6 @@ import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   safeParseSystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
-  TEST_JURISDICTION,
   safeParseJson,
   type SystemSettings,
   SystemSettingsSchema,
@@ -70,6 +69,7 @@ import {
   type MemoryPrinterHandler,
 } from '@votingworks/printing';
 import { createApp } from '../test/app_helpers.js';
+import { configureStore } from '../test/store_helpers.js';
 import type { Api } from './app.js';
 import type { ElectionState, PrintCalibration } from './index.js';
 import {
@@ -265,9 +265,10 @@ describe('configure populates ballot meta store', () => {
       },
     });
 
-    const ballotMetaStore = workspace.store.getBallotMetaStore();
     for (const bs of election.ballotStyles) {
-      expect(ballotMetaStore.getPositions(bs.id)).toEqual(bs.ballotPositions);
+      expect(
+        workspace.store.getBallotPositionsStore().getPositions(bs.id)
+      ).toEqual(bs.ballotPositions);
 
       const orderings = await apiClient.getCandidateOrderings({
         ballotStyleGroupId: bs.groupId,
@@ -299,10 +300,10 @@ describe('configure populates ballot meta store', () => {
     const storedElection = electionRecord?.electionDefinition.election;
     expect(storedElection).toEqual(splitElection.election);
 
-    const metaStore = workspace.store.getBallotMetaStore();
-
     for (const bs of election.ballotStyles) {
-      expect(metaStore.getPositions(bs.id)).toEqual(bs.ballotPositions);
+      expect(
+        workspace.store.getBallotPositionsStore().getPositions(bs.id)
+      ).toEqual(bs.ballotPositions);
 
       const orderings = await apiClient.getCandidateOrderings({
         ballotStyleGroupId: bs.groupId,
@@ -406,12 +407,13 @@ test('configureElectionPackageFromUsb stores ballots when present in election pa
 
   // Verify that the ballots were stored in the database
   const { store } = workspace;
-  const retrievedBallot = store.getBallot({
-    ballotStyleId: '1',
-    precinctId: '23',
-    isLiveMode: true,
-  });
-  expect(retrievedBallot).toBeDefined();
+  const retrievedBallot = assertDefined(
+    store.getBallot({
+      ballotStyleId: '1',
+      precinctId: '23',
+      isLiveMode: true,
+    })
+  );
   expect(retrievedBallot.encodedBallot).toEqual(mockBallotPdfBase64);
   expect(retrievedBallot.ballotType).toEqual(BallotType.Precinct);
   expect(retrievedBallot.ballotMode).toEqual('official');
@@ -1293,20 +1295,15 @@ test('a blank ballot that fails to print is logged as a failure', async () => {
     },
   ];
 
-  const { store } = workspace;
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
-    jurisdiction: TEST_JURISDICTION,
+  await configureStore(workspace.store, {
+    electionDefinition,
+    systemSettings: {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      allowPrintingBlankBallotsFromVxMark: true,
+    },
+    ballots,
     electionPackageHash: 'test-hash',
-    ballotHash: electionDefinition.ballotHash,
   });
-  store.setSystemSettings({
-    ...DEFAULT_SYSTEM_SETTINGS,
-    allowPrintingBlankBallotsFromVxMark: true,
-  });
-  for (const ballot of ballots) {
-    store.addBallot(ballot);
-  }
   mockNoCard();
 
   mockPrinterHandler.connectPrinter(HP_4001_PRINTER_CONFIG);

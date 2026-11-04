@@ -1,50 +1,61 @@
 import { expect, test, vi } from 'vitest';
 import { Buffer } from 'node:buffer';
+import { assertDefined } from '@votingworks/basics';
 import {
   safeParseSystemSettings,
   TEST_JURISDICTION,
   BallotType,
+  constructElectionKey,
+  type EncodedBallotEntry,
 } from '@votingworks/types';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
+import { importElectionPackageForTest } from '@votingworks/backend/test-utils';
 import { Store } from './store.js';
+import { configureStore } from '../test/store_helpers.js';
 
 // We pause in some of these tests so we need to increase the timeout
 vi.setConfig({
   testTimeout: 20_000,
 });
 
-const jurisdiction = TEST_JURISDICTION;
-
 test('getDbPath', () => {
   const store = Store.memoryStore();
   expect(store.getDbPath()).toEqual(':memory:');
 });
 
-test('get/set/has election', () => {
+test('get/set/has election', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const store = Store.memoryStore();
 
   expect(store.getElectionRecord()).toBeUndefined();
+  expect(store.getElectionKey()).toBeUndefined();
+  expect(store.getJurisdiction()).toBeUndefined();
   expect(store.hasElection()).toBeFalsy();
 
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
-    jurisdiction,
-    electionPackageHash: 'test-election-package-hash',
-    ballotHash: electionDefinition.ballotHash,
-  });
+  await configureStore(store, { electionDefinition });
   expect(store.getElectionRecord()).toEqual({
     electionDefinition,
     electionPackageHash: 'test-election-package-hash',
   });
+  expect(store.getElectionKey()).toEqual(
+    constructElectionKey(electionDefinition.election)
+  );
+  expect(store.getJurisdiction()).toEqual(TEST_JURISDICTION);
   expect(store.hasElection()).toBeTruthy();
 
-  store.setElectionAndJurisdiction(undefined);
+  store.reset();
   expect(store.getElectionRecord()).toBeUndefined();
 });
 
-test('get/set/delete system settings', () => {
+test('close', () => {
+  const store = Store.memoryStore();
+  store.close();
+  expect(() => store.hasElection()).toThrow(/is closed/);
+  expect(() => store.getElectionRecord()).toThrow(/is closed/);
+});
+
+test('get system settings', async () => {
   const store = Store.memoryStore();
 
   expect(store.getSystemSettings()).toBeUndefined();
@@ -52,41 +63,30 @@ test('get/set/delete system settings', () => {
     electionTwoPartyPrimaryFixtures.systemSettings.asText()
   ).unsafeUnwrap();
 
-  store.setSystemSettings(systemSettings);
+  await configureStore(store, {
+    electionDefinition:
+      electionTwoPartyPrimaryFixtures.readElectionDefinition(),
+    systemSettings,
+  });
   expect(store.getSystemSettings()).toEqual(systemSettings);
 
-  store.deleteSystemSettings();
+  store.reset();
   expect(store.getSystemSettings()).toBeUndefined();
 });
 
-test('errors when election definition cannot be parsed', () => {
-  const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData: '{malformed json',
-    jurisdiction,
-    electionPackageHash: 'test-election-package-hash',
-    ballotHash: 'test-ballot-hash',
-  });
-  expect(() => store.getElectionRecord()).toThrow(SyntaxError);
-});
-
-test('reset clears the database', () => {
-  const electionDefinition =
-    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+test('reset clears the database', async () => {
   const store = Store.memoryStore();
 
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
-    jurisdiction,
-    electionPackageHash: 'test-election-package-hash',
-    ballotHash: electionDefinition.ballotHash,
+  await configureStore(store, {
+    electionDefinition:
+      electionTwoPartyPrimaryFixtures.readElectionDefinition(),
   });
   expect(store.hasElection()).toBeTruthy();
   store.reset();
   expect(store.hasElection()).toBeFalsy();
 });
 
-test('get/set/delete ballots', () => {
+test('get ballots', async () => {
   const store = Store.memoryStore();
 
   const mockBallotPdfData1 = 'mock-pdf-data-1';
@@ -100,43 +100,52 @@ test('get/set/delete ballots', () => {
   const mockBallotPdf3Base64 =
     Buffer.from(mockBallotPdfData3).toString('base64');
 
-  store.addBallot({
-    ballotStyleId: '1M',
-    precinctId: 'precinct-1',
-    ballotType: BallotType.Precinct,
-    ballotMode: 'official',
-    encodedBallot: mockBallotPdf1Base64,
-  });
-  store.addBallot({
-    ballotStyleId: '2F',
-    precinctId: 'precinct-2',
-    ballotType: BallotType.Precinct,
-    ballotMode: 'test',
-    encodedBallot: mockBallotPdf2Base64,
-  });
-  store.addBallot({
-    ballotStyleId: '2F',
-    precinctId: 'precinct-2',
-    ballotType: BallotType.Absentee,
-    ballotMode: 'test',
-    encodedBallot: mockBallotPdf3Base64,
+  await configureStore(store, {
+    electionDefinition:
+      electionTwoPartyPrimaryFixtures.readElectionDefinition(),
+    ballots: [
+      {
+        ballotStyleId: '1M',
+        precinctId: 'precinct-1',
+        ballotType: BallotType.Precinct,
+        ballotMode: 'official',
+        encodedBallot: mockBallotPdf1Base64,
+      },
+      {
+        ballotStyleId: '2F',
+        precinctId: 'precinct-2',
+        ballotType: BallotType.Precinct,
+        ballotMode: 'test',
+        encodedBallot: mockBallotPdf2Base64,
+      },
+      {
+        ballotStyleId: '2F',
+        precinctId: 'precinct-2',
+        ballotType: BallotType.Absentee,
+        ballotMode: 'test',
+        encodedBallot: mockBallotPdf3Base64,
+      },
+    ],
   });
 
-  // Retrieve and verify ballots
-  const retrievedBallot1 = store.getBallot({
-    ballotStyleId: '1M',
-    precinctId: 'precinct-1',
-    isLiveMode: true, // should match 'official' mode
-  });
+  const retrievedBallot1 = assertDefined(
+    store.getBallot({
+      ballotStyleId: '1M',
+      precinctId: 'precinct-1',
+      isLiveMode: true, // should match 'official' mode
+    })
+  );
   expect(retrievedBallot1.encodedBallot).toEqual(mockBallotPdf1Base64);
   expect(retrievedBallot1.ballotType).toEqual(BallotType.Precinct);
   expect(retrievedBallot1.ballotMode).toEqual('official');
 
-  const retrievedBallot2 = store.getBallot({
-    ballotStyleId: '2F',
-    precinctId: 'precinct-2',
-    isLiveMode: false, // should match 'test' mode
-  });
+  const retrievedBallot2 = assertDefined(
+    store.getBallot({
+      ballotStyleId: '2F',
+      precinctId: 'precinct-2',
+      isLiveMode: false, // should match 'test' mode
+    })
+  );
   expect(retrievedBallot2.encodedBallot).toEqual(mockBallotPdf2Base64);
   expect(retrievedBallot2.ballotType).toEqual(BallotType.Precinct); // There is an absentee ballot with this style/precinct that should NOT be returned.
   expect(retrievedBallot2.ballotMode).toEqual('test');
@@ -173,29 +182,39 @@ test('get/set/delete ballots', () => {
   expect(wrongMode2).toBeUndefined();
 });
 
-test('hasTestBallots', () => {
+test('hasTestBallots', async () => {
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  const officialBallot: EncodedBallotEntry = {
+    ballotStyleId: '1M',
+    precinctId: 'precinct-1',
+    ballotType: BallotType.Precinct,
+    ballotMode: 'official',
+    encodedBallot: Buffer.from('official-pdf').toString('base64'),
+  };
   const store = Store.memoryStore();
 
   // No ballots at all.
   expect(store.hasTestBallots()).toEqual(false);
 
   // Only official ballots.
-  store.addBallot({
-    ballotStyleId: '1M',
-    precinctId: 'precinct-1',
-    ballotType: BallotType.Precinct,
-    ballotMode: 'official',
-    encodedBallot: Buffer.from('official-pdf').toString('base64'),
+  await configureStore(store, {
+    electionDefinition,
+    ballots: [officialBallot],
   });
   expect(store.hasTestBallots()).toEqual(false);
 
   // Test ballots present.
-  store.addBallot({
-    ballotStyleId: '1M',
-    precinctId: 'precinct-1',
-    ballotType: BallotType.Precinct,
-    ballotMode: 'test',
-    encodedBallot: Buffer.from('test-pdf').toString('base64'),
+  await configureStore(store, {
+    electionDefinition,
+    ballots: [
+      officialBallot,
+      {
+        ...officialBallot,
+        ballotMode: 'test',
+        encodedBallot: Buffer.from('test-pdf').toString('base64'),
+      },
+    ],
   });
   expect(store.hasTestBallots()).toEqual(true);
 });
@@ -239,7 +258,7 @@ test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage',
   ]);
 });
 
-test('get/set barcode activation mode', () => {
+test('get/set barcode activation mode', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const store = Store.memoryStore();
@@ -249,12 +268,7 @@ test('get/set barcode activation mode', () => {
     'Cannot set barcode activation mode without an election.'
   );
 
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
-    jurisdiction,
-    electionPackageHash: 'test-election-package-hash',
-    ballotHash: electionDefinition.ballotHash,
-  });
+  await configureStore(store, { electionDefinition });
   expect(store.getBarcodeActivationMode()).toEqual('voter_session');
 
   store.setBarcodeActivationMode('ballot_printing');
@@ -262,4 +276,16 @@ test('get/set barcode activation mode', () => {
 
   store.setBarcodeActivationMode('voter_session');
   expect(store.getBarcodeActivationMode()).toEqual('voter_session');
+});
+
+test('an imported package without an election session is not configured', async () => {
+  const store = Store.memoryStore();
+  await importElectionPackageForTest(store.getElectionPackageStore(), {
+    electionDefinition:
+      electionTwoPartyPrimaryFixtures.readElectionDefinition(),
+  });
+
+  expect(store.hasElection()).toEqual(false);
+  expect(store.getElectionRecord()).toBeUndefined();
+  expect(store.getElectionKey()).toBeUndefined();
 });

@@ -22,6 +22,7 @@ import {
 
 import type { MockUsbDrive } from '@votingworks/usb-drive';
 import { configureApp, createApp } from '../test/app_helpers.js';
+import type { Workspace } from './util/workspace.js';
 import type { Api } from './app.js';
 import type { PaperHandlerStateMachine } from './custom-paper-handler/index.js';
 
@@ -52,6 +53,7 @@ let mockAuth: InsertedSmartCardAuthApi;
 let mockUsbDrive: MockUsbDrive;
 let server: Server;
 let stateMachine: PaperHandlerStateMachine;
+let workspace: Workspace;
 
 beforeAll(() => {
   expect(systemSettings.auth).not.toEqual(DEFAULT_SYSTEM_SETTINGS.auth);
@@ -68,11 +70,13 @@ beforeEach(async () => {
   mockUsbDrive = result.mockUsbDrive;
   server = result.server;
   stateMachine = result.stateMachine;
+  workspace = result.workspace;
 });
 
 afterEach(async () => {
   await stateMachine.cleanUp();
   server?.close();
+  workspace[Symbol.dispose]();
 });
 
 test('getAuthStatus', async () => {

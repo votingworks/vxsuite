@@ -1,4 +1,5 @@
 import {
+  afterEach,
   beforeEach,
   describe,
   expect,
@@ -28,7 +29,6 @@ import {
   pollingPlaceBallotStyles,
   pollingPlacePrecinctIds,
   type SystemSettings,
-  TEST_JURISDICTION,
 } from '@votingworks/types';
 import {
   type BooleanEnvironmentVariableName as Feature,
@@ -49,6 +49,7 @@ import type { BallotStyleQrCode } from './ballot_style_qr_code.js';
 import type { BarcodePrintRequest } from './activation_mode.js';
 import { getMockAudioPlayer, type Player } from '../audio/player.js';
 import { encodeBallotStyleQrCode } from '../../test/barcode_helpers.js';
+import { configureStore } from '../../test/store_helpers.js';
 
 const featureFlagMock = getFeatureFlagMock();
 vi.mock('@votingworks/utils', async (importActual) => ({
@@ -139,6 +140,10 @@ describe('setUpBarcodeActivation', () => {
     mockRequestBallotPrint = vi.fn(() => true);
   });
 
+  afterEach(() => {
+    workspace[Symbol.dispose]();
+  });
+
   test('does nothing when barcodeClient is not provided', () => {
     const ctx: Context = {
       auth: mockAuth,
@@ -214,11 +219,9 @@ describe('setUpBarcodeActivation', () => {
 
   test('ignores scans when QR ballot activation is disabled', async () => {
     // Configure election but leave system setting disabled
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
-      jurisdiction: TEST_JURISDICTION,
+    await configureStore(workspace.store, {
+      electionDefinition,
       electionPackageHash: 'test-hash',
-      ballotHash: electionDefinition.ballotHash,
     });
     workspace.store.setPollingPlaceId(pollingPlace!.id);
     workspace.store.setPollsState('polls_open');
@@ -263,13 +266,11 @@ describe('setUpBarcodeActivation', () => {
       bmdEnableQrBallotActivation: true,
     };
 
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
-      jurisdiction: TEST_JURISDICTION,
+    await configureStore(workspace.store, {
+      electionDefinition,
+      systemSettings,
       electionPackageHash: 'test-hash',
-      ballotHash: electionDefinition.ballotHash,
     });
-    workspace.store.setSystemSettings(systemSettings);
     workspace.store.setPollingPlaceId(pollingPlace!.id);
     workspace.store.setPollsState('polls_closed_initial');
 
@@ -304,13 +305,11 @@ describe('setUpBarcodeActivation', () => {
       bmdEnableQrBallotActivation: true,
     };
 
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
-      jurisdiction: TEST_JURISDICTION,
+    await configureStore(workspace.store, {
+      electionDefinition,
+      systemSettings,
       electionPackageHash: 'test-hash',
-      ballotHash: electionDefinition.ballotHash,
     });
-    workspace.store.setSystemSettings(systemSettings);
     workspace.store.setPollingPlaceId(pollingPlace!.id);
     workspace.store.setPollsState('polls_open');
 
@@ -350,13 +349,11 @@ describe('setUpBarcodeActivation', () => {
       bmdEnableQrBallotActivation: true,
     };
 
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
-      jurisdiction: TEST_JURISDICTION,
+    await configureStore(workspace.store, {
+      electionDefinition,
+      systemSettings,
       electionPackageHash: 'test-hash',
-      ballotHash: electionDefinition.ballotHash,
     });
-    workspace.store.setSystemSettings(systemSettings);
     workspace.store.setPollingPlaceId(pollingPlace!.id);
     workspace.store.setPollsState('polls_open');
 
@@ -422,13 +419,11 @@ describe('setUpBarcodeActivation', () => {
       bmdEnableQrBallotActivation: true,
     };
 
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
-      jurisdiction: TEST_JURISDICTION,
+    await configureStore(workspace.store, {
+      electionDefinition,
+      systemSettings,
       electionPackageHash: 'test-hash',
-      ballotHash: electionDefinition.ballotHash,
     });
-    workspace.store.setSystemSettings(systemSettings);
     workspace.store.setPollingPlaceId(pollingPlace!.id);
     workspace.store.setPollsState('polls_open');
 
@@ -462,19 +457,17 @@ describe('setUpBarcodeActivation', () => {
     });
   });
 
-  function setUpActivePollingPlace(
+  async function setUpActivePollingPlace(
     systemSettingsOverrides: Partial<SystemSettings> = {}
-  ): void {
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
-      jurisdiction: TEST_JURISDICTION,
+  ): Promise<void> {
+    await configureStore(workspace.store, {
+      electionDefinition,
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        bmdEnableQrBallotActivation: true,
+        ...systemSettingsOverrides,
+      },
       electionPackageHash: 'test-hash',
-      ballotHash: electionDefinition.ballotHash,
-    });
-    workspace.store.setSystemSettings({
-      ...DEFAULT_SYSTEM_SETTINGS,
-      bmdEnableQrBallotActivation: true,
-      ...systemSettingsOverrides,
     });
     workspace.store.setPollingPlaceId(pollingPlace!.id);
     workspace.store.setPollsState('polls_open');
@@ -502,7 +495,7 @@ describe('setUpBarcodeActivation', () => {
       },
     },
   ])('ignores scans when $description', async ({ authStatus }) => {
-    setUpActivePollingPlace();
+    await setUpActivePollingPlace();
     vi.mocked(mockAuth.getAuthStatus).mockResolvedValue(authStatus);
 
     mockBarcodeClient.emit('scan', encodeQrCode({ ballotStyleId }));
@@ -520,7 +513,7 @@ describe('setUpBarcodeActivation', () => {
   });
 
   test('ignores scans that are not ballot style QR codes', async () => {
-    setUpActivePollingPlace();
+    await setUpActivePollingPlace();
 
     mockBarcodeClient.emit('scan', new TextEncoder().encode('test-barcode'));
 
@@ -555,7 +548,7 @@ describe('setUpBarcodeActivation', () => {
       },
     },
   ])('ignores scans for $description', async ({ qrCode }) => {
-    setUpActivePollingPlace();
+    await setUpActivePollingPlace();
 
     mockBarcodeClient.emit('scan', encodeQrCode(qrCode));
 
@@ -573,7 +566,7 @@ describe('setUpBarcodeActivation', () => {
   });
 
   test('starts voter session with the scanned precinct', async () => {
-    setUpActivePollingPlace();
+    await setUpActivePollingPlace();
     const [precinctId] = pollingPlacePrecinctIds(pollingPlace!);
 
     mockBarcodeClient.emit('scan', encodeQrCode({ ballotStyleId, precinctId }));
@@ -589,16 +582,14 @@ describe('setUpBarcodeActivation', () => {
   test('requests a ballot print in ballot printing mode', async () => {
     const mockAudioPlayer = getMockAudioPlayer() as Mocked<Player>;
     const mockPlay = vi.spyOn(mockAudioPlayer, 'play');
-    workspace.store.setElectionAndJurisdiction({
-      electionData: electionDefinition.electionData,
-      jurisdiction: TEST_JURISDICTION,
+    await configureStore(workspace.store, {
+      electionDefinition,
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        bmdEnableQrBallotActivation: true,
+        allowPrintingBlankBallotsFromVxMark: true,
+      },
       electionPackageHash: 'test-hash',
-      ballotHash: electionDefinition.ballotHash,
-    });
-    workspace.store.setSystemSettings({
-      ...DEFAULT_SYSTEM_SETTINGS,
-      bmdEnableQrBallotActivation: true,
-      allowPrintingBlankBallotsFromVxMark: true,
     });
     workspace.store.setPollingPlaceId(pollingPlace!.id);
     workspace.store.setPollsState('polls_open');
@@ -634,7 +625,9 @@ describe('setUpBarcodeActivation', () => {
   });
 
   test('ignores a ballot print scan that is not accepted', async () => {
-    setUpActivePollingPlace({ allowPrintingBlankBallotsFromVxMark: true });
+    await setUpActivePollingPlace({
+      allowPrintingBlankBallotsFromVxMark: true,
+    });
     workspace.store.setBarcodeActivationMode('ballot_printing');
     mockRequestBallotPrint.mockReturnValue(false);
     const [precinctId] = pollingPlacePrecinctIds(pollingPlace!);

@@ -428,12 +428,15 @@ describe('populates ballot meta store', () => {
       },
     });
 
-    const ballotMetaStore = ctx.workspace.store.getBallotMetaStore();
     for (const bs of election.ballotStyles) {
-      expect(ballotMetaStore.getPositions(bs.id)).toEqual(bs.ballotPositions);
-      expect(ballotMetaStore.getCandidateOrderings(bs)).toEqual(
-        bs.orderedCandidatesByContest
-      );
+      expect(
+        ctx.workspace.store.getBallotPositionsStore().getPositions(bs.id)
+      ).toEqual(bs.ballotPositions);
+      expect(
+        ctx.workspace.store
+          .getCandidateOrderingsStore()
+          .getCandidateOrderings(bs)
+      ).toEqual(bs.orderedCandidatesByContest);
     }
   });
 
@@ -460,13 +463,15 @@ describe('populates ballot meta store', () => {
     const storedElection = electionRecord?.electionDefinition.election;
     expect(storedElection).toEqual(splitElection.election);
 
-    const metaStore = ctx.workspace.store.getBallotMetaStore();
-
     for (const bs of election.ballotStyles) {
-      expect(metaStore.getPositions(bs.id)).toEqual(bs.ballotPositions);
-      expect(metaStore.getCandidateOrderings(bs)).toEqual(
-        bs.orderedCandidatesByContest
-      );
+      expect(
+        ctx.workspace.store.getBallotPositionsStore().getPositions(bs.id)
+      ).toEqual(bs.ballotPositions);
+      expect(
+        ctx.workspace.store
+          .getCandidateOrderingsStore()
+          .getCandidateOrderings(bs)
+      ).toEqual(bs.orderedCandidatesByContest);
     }
   });
 });

@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, onTestFinished, vi } from 'vitest';
 import {
   buildMockDippedSmartCardAuth,
   type DippedSmartCardAuthApi,
@@ -204,6 +204,7 @@ export function buildTestEnvironment(): {
     makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn })
   );
+  onTestFinished(() => workspace[Symbol.dispose]());
   const logger = buildMockLogger(auth, workspace);
   const mockUsbDrive = createMockUsbDrive();
   const mockPrinterHandler = createMockPrinterHandler();
@@ -249,3 +250,5 @@ export async function waitForTotalBallotPrintCount(
     { timeout: JOB_SETTLEMENT_POLL_INTERVAL_MS * 10 }
   );
 }
+
+export { configureStoreForTest as configureStore } from '@votingworks/backend/vitest-utils';

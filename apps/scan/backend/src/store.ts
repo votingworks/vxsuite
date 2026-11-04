@@ -34,7 +34,8 @@ import { join } from 'node:path';
 import { randomUUID as uuid } from 'node:crypto';
 import {
   type AcceptedSheet,
-  type BallotMetaStore,
+  type BallotPositionsStore,
+  type CandidateOrderingsStore,
   type ElectionRecord,
   ElectionPackageStore,
   type RejectedSheet,
@@ -43,6 +44,7 @@ import {
   addDiagnosticRecord,
   clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult,
   getMostRecentDiagnosticRecord,
+  type ElectionPackageInclude,
 } from '@votingworks/backend';
 import {
   clearCastVoteRecordHashes,
@@ -66,6 +68,14 @@ import type { PollsTransition } from './types.js';
 const debug = rootDebug.extend('store');
 
 const SchemaPath = join(import.meta.dirname, '../schema.sql');
+
+/** The parts of an election package this app imports. */
+export const ELECTION_PACKAGE_INCLUDE = {
+  uiStrings: true,
+  ballots: false,
+  ballotPositions: true,
+  candidateOrderings: true,
+} as const satisfies ElectionPackageInclude;
 
 const getSheetsBaseQuery = `
   select
@@ -133,12 +143,14 @@ export type ElectricalTestingComponent =
  */
 export class Store {
   private readonly client: DbClient;
-  private readonly electionPackageStore: ElectionPackageStore;
+  private readonly electionPackageStore: ElectionPackageStore<
+    typeof ELECTION_PACKAGE_INCLUDE
+  >;
   private readonly logger: BaseLogger;
 
   private constructor(
     client: DbClient,
-    electionPackageStore: ElectionPackageStore,
+    electionPackageStore: ElectionPackageStore<typeof ELECTION_PACKAGE_INCLUDE>,
     logger: BaseLogger
   ) {
     this.client = client;
@@ -161,7 +173,7 @@ export class Store {
   static memoryStore(logger = new BaseLogger(LogSource.System)): Store {
     return new Store(
       DbClient.memoryClient(SchemaPath),
-      ElectionPackageStore.memoryStore(),
+      ElectionPackageStore.memoryStore(ELECTION_PACKAGE_INCLUDE),
       logger
     );
   }
@@ -177,7 +189,11 @@ export class Store {
   ): Store {
     return new Store(
       DbClient.fileClient(sessionDbPath, logger, SchemaPath),
-      ElectionPackageStore.fileStore(electionPackageDbPath, logger),
+      ElectionPackageStore.fileStore(
+        electionPackageDbPath,
+        ELECTION_PACKAGE_INCLUDE,
+        logger
+      ),
       logger
     );
   }
@@ -208,12 +224,18 @@ export class Store {
     this.electionPackageStore.close();
   }
 
-  getElectionPackageStore(): ElectionPackageStore {
+  getElectionPackageStore(): ElectionPackageStore<
+    typeof ELECTION_PACKAGE_INCLUDE
+  > {
     return this.electionPackageStore;
   }
 
-  getBallotMetaStore(): BallotMetaStore {
-    return this.electionPackageStore.getBallotMetaStore();
+  getBallotPositionsStore(): BallotPositionsStore {
+    return this.electionPackageStore.getBallotPositionsStore();
+  }
+
+  getCandidateOrderingsStore(): CandidateOrderingsStore {
+    return this.electionPackageStore.getCandidateOrderingsStore();
   }
 
   /**
@@ -236,14 +258,18 @@ export class Store {
    * Gets the current election definition and election package hash.
    */
   getElectionRecord(): ElectionRecord | undefined {
-    return this.electionPackageStore.getElectionRecord();
+    return this.hasElection()
+      ? this.electionPackageStore.getElectionRecord()
+      : undefined;
   }
 
   /**
    * Retrieves the election key (used for auth) for the current election.
    */
   getElectionKey(): ElectionKey | undefined {
-    return this.electionPackageStore.getElectionKey();
+    return this.hasElection()
+      ? this.electionPackageStore.getElectionKey()
+      : undefined;
   }
 
   /**

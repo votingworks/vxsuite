@@ -41,12 +41,9 @@ import {
 import {
   createUiStringsApi,
   readSignedElectionPackageFromDirectory,
-  configureUiStrings,
   createSystemCallApi,
+  type ElectionRecord,
   type ExportDataResult,
-  configureUiStringAudioClipsStreaming,
-  streamElectionPackageBallots,
-  withElectionPackageZip,
 } from '@votingworks/backend';
 import { LogEventId, type Logger } from '@votingworks/logging';
 import type { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
@@ -77,7 +74,7 @@ import {
   isPatInputAttached,
 } from './util/accessible_controller.js';
 import { constructAuthMachineState } from './util/auth.js';
-import type { ElectionRecord, Store } from './store.js';
+import type { Store } from './store.js';
 import type * as barcodes from './barcodes/index.js';
 import { setUpBarcodeActivation } from './barcodes/activation.js';
 import {
@@ -193,7 +190,7 @@ export function buildApi(ctx: Context) {
   }
 
   function getCandidateOrderings(bs: BallotStyle) {
-    return store.getBallotMetaStore().getCandidateOrderings(bs);
+    return store.getCandidateOrderingsStore().getCandidateOrderings(bs);
   }
 
   setUpBarcodeActivation({
@@ -407,7 +404,7 @@ export function buildApi(ctx: Context) {
     async unconfigureMachine() {
       endCardlessVoterSessionIfAny();
       clearPendingBarcodePrint();
-      workspace.store.reset();
+      workspace.unconfigure();
       // Re-enable USB ports in case they were auto-disabled while an alarm was
       // active (see setup_printer_page). Otherwise they remain silently
       // disabled, preventing the machine from recognizing a new election
@@ -453,61 +450,39 @@ export function buildApi(ctx: Context) {
       const { electionDefinition, systemSettings } = electionPackage;
       assert(systemSettings);
 
-      const { election } = electionDefinition;
-
-      // Ballots and audio clips are both streamed from the package, so open it
-      // once and stream both entries over the same open file.
-      await withElectionPackageZip(filePath, async (zip) => {
-        // [TODO] Cancel the transaction if the user logs out while configuring,
+      try {
+        // [TODO] Cancel the import if the user logs out while configuring,
         // since large packages can take a while to import.
-        await workspace.store.withTransaction(async () => {
-          workspace.store.setElectionAndJurisdiction({
-            electionData: electionDefinition.electionData,
-            jurisdiction: authStatus.user.jurisdiction,
-            electionPackageHash,
-            ballotHash: electionDefinition.ballotHash,
-          });
-          workspace.store.setSystemSettings(systemSettings);
+        await store.getElectionPackageStore().importElectionPackage({
+          electionPackage,
+          electionPackageHash,
+          filePath,
+          jurisdiction: authStatus.user.jurisdiction,
+          logger,
+        });
 
-          for await (const ballot of streamElectionPackageBallots(zip)) {
-            store.addBallot(ballot);
-          }
-
-          await store
-            .getBallotMetaStore()
-            .importPositions(zip, election, systemSettings);
-
-          await store
-            .getBallotMetaStore()
-            .importCandidateOrderings(zip, election, systemSettings);
+        store.withTransaction(() => {
+          store.startElectionSession();
 
           // The machine defaults to test mode, but if test mode isn't available
           // for this election package (no test ballots for a print flow that
           // needs them), start in official mode to avoid footgun of allowing
           // users to try to print test mode ballots that don't exist.
-          if (!isTestModeAvailable(workspace.store)) {
-            workspace.store.setTestMode(false);
+          if (!isTestModeAvailable(store)) {
+            store.setTestMode(false);
           }
 
           if (electionDefinition.election.pollingPlaces?.length === 1) {
-            workspace.store.setPollingPlaceId(
+            store.setPollingPlaceId(
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               electionDefinition.election.pollingPlaces[0]!.id
             );
           }
-
-          configureUiStrings({
-            electionPackage,
-            logger,
-            store: workspace.store.getUiStringsStore(),
-          });
-
-          await configureUiStringAudioClipsStreaming({
-            zip,
-            store: store.getUiStringsStore(),
-          });
         });
-      });
+      } catch (error) {
+        workspace.unconfigure();
+        throw error;
+      }
 
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
         message: `Machine configured for election with hash: ${electionDefinition.ballotHash}`,
@@ -858,7 +833,7 @@ export function buildApi(ctx: Context) {
 
     getCandidateOrderings(p: { ballotStyleGroupId: string }) {
       return store
-        .getBallotMetaStore()
+        .getCandidateOrderingsStore()
         .getCandidateOrderings({ groupId: p.ballotStyleGroupId });
     },
   });

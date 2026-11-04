@@ -30,11 +30,9 @@ import { isElectionManagerAuth, isPollWorkerAuth } from '@votingworks/utils';
 import {
   createUiStringsApi,
   readSignedElectionPackageFromDirectory,
-  configureUiStrings,
   createSystemCallApi,
+  type ElectionRecord,
   type ExportDataResult,
-  configureUiStringAudioClipsStreaming,
-  withElectionPackageZip,
 } from '@votingworks/backend';
 import { LogEventId, type Logger } from '@votingworks/logging';
 import type { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
@@ -61,7 +59,7 @@ import {
 } from './util/hardware.js';
 import { saveReadinessReport } from './readiness_report.js';
 import { renderBallot } from './util/render_ballot.js';
-import type { ElectionRecord, Store } from './store.js';
+import type { Store } from './store.js';
 import { constructAuthMachineState } from './util/auth.js';
 
 function addDiagnosticRecordAndLog(
@@ -157,7 +155,7 @@ export function buildApi(
 
     async unconfigureMachine() {
       endCardlessVoterSessionIfAny();
-      workspace.store.reset();
+      workspace.unconfigure();
       await logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
         disposition: 'success',
         message:
@@ -197,41 +195,31 @@ export function buildApi(
 
       const { election } = electionDefinition;
 
-      // [TODO] Cancel the transaction if the user logs out while configuring,
-      // since large packages can take a while to import.
-      await workspace.store.withTransaction(async () => {
-        workspace.store.setElectionAndJurisdiction({
-          electionData: electionDefinition.electionData,
-          jurisdiction: authStatus.user.jurisdiction,
-          electionPackageHash,
-          ballotHash: electionDefinition.ballotHash,
-        });
-        workspace.store.setSystemSettings(systemSettings);
-
-        if (electionDefinition.election.pollingPlaces?.length === 1) {
-          workspace.store.setPollingPlaceId(
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            electionDefinition.election.pollingPlaces[0]!.id
-          );
-        }
-
-        configureUiStrings({
+      try {
+        // [TODO] Cancel the import if the user logs out while configuring,
+        // since large packages can take a while to import.
+        await workspace.store.getElectionPackageStore().importElectionPackage({
           electionPackage,
+          electionPackageHash,
+          filePath,
+          jurisdiction: authStatus.user.jurisdiction,
           logger,
-          store: workspace.store.getUiStringsStore(),
         });
 
-        await withElectionPackageZip(filePath, async (zip) => {
-          await store
-            .getBallotMetaStore()
-            .importCandidateOrderings(zip, election, systemSettings);
+        workspace.store.withTransaction(() => {
+          workspace.store.startElectionSession();
 
-          await configureUiStringAudioClipsStreaming({
-            zip,
-            store: workspace.store.getUiStringsStore(),
-          });
+          if (election.pollingPlaces?.length === 1) {
+            workspace.store.setPollingPlaceId(
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              election.pollingPlaces[0]!.id
+            );
+          }
         });
-      });
+      } catch (error) {
+        workspace.unconfigure();
+        throw error;
+      }
 
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
         message: `Machine configured for election with hash: ${electionDefinition.ballotHash}`,
@@ -525,7 +513,7 @@ export function buildApi(
 
     getCandidateOrderings(p: { ballotStyleGroupId: string }) {
       return store
-        .getBallotMetaStore()
+        .getCandidateOrderingsStore()
         .getCandidateOrderings({ groupId: p.ballotStyleGroupId });
     },
 

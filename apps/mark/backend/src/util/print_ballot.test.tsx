@@ -39,7 +39,11 @@ import {
   BmdPaperBallot,
   filterVotesForContests,
 } from '@votingworks/ui';
-import type { BallotMetaStore, UiStringsStore } from '@votingworks/backend';
+import type {
+  BallotPositionsStore,
+  CandidateOrderingsStore,
+  UiStringsStore,
+} from '@votingworks/backend';
 import { assertDefined, find, ok } from '@votingworks/basics';
 import { mockConstructor } from '@votingworks/test-utils';
 import { encodeSummaryBallotPage } from '@votingworks/ballot-encoder';
@@ -128,12 +132,15 @@ describe(`printMode === "marks_on_preprinted_ballot"`, () => {
       precinctId: 'unused',
       printer: mockPrinter({ print: mockPrint }),
       store: mockStore({
-        getBallotMetaStore: () =>
-          mockBallotMetaStore({
+        getBallotPositionsStore: () =>
+          mockBallotPositionsStore({
             getPositions: (styleId) => {
               expect(styleId).toEqual(ballotStyle.id);
               return mockPositions;
             },
+          }),
+        getCandidateOrderingsStore: () =>
+          mockCandidateOrderingsStore({
             getCandidateOrderings: (bs) => {
               expect(bs.groupId).toEqual(ballotStyle.groupId);
               return ballotStyle.orderedCandidatesByContest ?? null;
@@ -227,8 +234,8 @@ describe(`printMode === "summary"`, () => {
       precinctId: mockPrecinctId,
       printer: mockPrinter({ print: mockPrint }),
       store: mockStore({
-        getBallotMetaStore: () =>
-          mockBallotMetaStore({
+        getCandidateOrderingsStore: () =>
+          mockCandidateOrderingsStore({
             getCandidateOrderings: (bs) => {
               expect(bs.groupId).toEqual(ballotStyle.groupId);
               return mockStoreOrderings;
@@ -370,8 +377,8 @@ describe(`printMode === "summary"`, () => {
       precinctId,
       printer: mockPrinter({ print: mockPrint }),
       store: mockStore({
-        getBallotMetaStore: () =>
-          mockBallotMetaStore({
+        getCandidateOrderingsStore: () =>
+          mockCandidateOrderingsStore({
             getCandidateOrderings: (bs) => {
               expect(bs.groupId).toEqual(ballotStyle.groupId);
               return ballotStyle.orderedCandidatesByContest ?? null;
@@ -500,8 +507,8 @@ describe(`printMode === "summary"`, () => {
       precinctId,
       printer: mockPrinter({ print: mockPrint }),
       store: mockStore({
-        getBallotMetaStore: () =>
-          mockBallotMetaStore({
+        getCandidateOrderingsStore: () =>
+          mockCandidateOrderingsStore({
             getCandidateOrderings: (bs) => {
               expect(bs.groupId).toEqual(ballotStyle.groupId);
               return ballotStyle.orderedCandidatesByContest ?? null;
@@ -588,12 +595,15 @@ describe(`printMode === "bubble_ballot"`, () => {
             encodedBallot: Buffer.from(mockBallotPdf).toString('base64'),
           };
         },
-        getBallotMetaStore: () =>
-          mockBallotMetaStore({
+        getBallotPositionsStore: () =>
+          mockBallotPositionsStore({
             getPositions: (styleId) => {
               expect(styleId).toEqual(ballotStyle.id);
               return mockPositions;
             },
+          }),
+        getCandidateOrderingsStore: () =>
+          mockCandidateOrderingsStore({
             getCandidateOrderings: (bs) => {
               expect(bs.groupId).toEqual(ballotStyle.groupId);
               return ballotStyle.orderedCandidatesByContest ?? null;
@@ -664,9 +674,12 @@ describe('straight party votes', () => {
           ballotMode: 'official' as const,
           encodedBallot: '',
         }),
-        getBallotMetaStore: () =>
-          mockBallotMetaStore({
+        getBallotPositionsStore: () =>
+          mockBallotPositionsStore({
             getPositions: () => mockPositions,
+          }),
+        getCandidateOrderingsStore: () =>
+          mockCandidateOrderingsStore({
             getCandidateOrderings: (bs) => {
               expect(bs.groupId).toEqual(ballotStyle.groupId);
               return mockCandidateOrderings;
@@ -757,8 +770,12 @@ function mockStore(mocks: Partial<Store>) {
   return mocks as unknown as Store;
 }
 
-function mockBallotMetaStore(mocks: Partial<BallotMetaStore>) {
-  return mocks as unknown as BallotMetaStore;
+function mockBallotPositionsStore(mocks: Partial<BallotPositionsStore>) {
+  return mocks as unknown as BallotPositionsStore;
+}
+
+function mockCandidateOrderingsStore(mocks: Partial<CandidateOrderingsStore>) {
+  return mocks as unknown as CandidateOrderingsStore;
 }
 
 function mockUiStringsStore(mocks: Partial<UiStringsStore>) {

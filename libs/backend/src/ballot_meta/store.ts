@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 import {
   CandidateOrderingsSchema,
   unsafeParseJson,
@@ -19,28 +20,12 @@ import {
   type ElectionPackageZip,
 } from '../election_package/election_package_io.js';
 
-/** Store interface for ballot metadata. */
-export class BallotMetaStore {
+/** Store interface for bubble ballot positions. */
+export class BallotPositionsStore {
   private readonly client: Client;
 
   constructor(client: Client) {
     this.client = client;
-  }
-
-  /**
-   * Retrieves candidate orderings, or `null` if not found.
-   */
-  getCandidateOrderings(
-    ballotStyle: Pick<BallotStyle, 'groupId'>
-  ): CandidateOrderings | null {
-    const row = this.client.one(
-      `select orderings from candidate_orderings where style_group_id = ?`,
-      ballotStyle.groupId
-    ) as { orderings: string } | undefined;
-
-    if (!row) return null;
-
-    return unsafeParseJson(row.orderings, CandidateOrderingsSchema);
   }
 
   /**
@@ -62,6 +47,57 @@ export class BallotMetaStore {
    */
   hasPositions(): boolean {
     return Boolean(this.client.one(`select 1 from ballot_positions limit 1`));
+  }
+
+  /**
+   * Imports ballot positions from an election package into the store.
+   */
+  async importPositions(
+    zip: ElectionPackageZip,
+    election: Election,
+    settings: SystemSettings
+  ): Promise<void> {
+    if (!settings.splitElectionDefinition) {
+      for (const bs of election.ballotStyles) {
+        if (!bs.ballotPositions) continue; // Not a scannable ballot.
+
+        addPositions(this.client, {
+          ballotStyleId: bs.id,
+          positions: bs.ballotPositions,
+        });
+      }
+
+      return;
+    }
+
+    for await (const bp of streamBallotPositions(zip)) {
+      addPositions(this.client, bp);
+    }
+  }
+}
+
+/** Store interface for candidate orderings. */
+export class CandidateOrderingsStore {
+  private readonly client: Client;
+
+  constructor(client: Client) {
+    this.client = client;
+  }
+
+  /**
+   * Retrieves candidate orderings, or `null` if not found.
+   */
+  getCandidateOrderings(
+    ballotStyle: Pick<BallotStyle, 'groupId'>
+  ): CandidateOrderings | null {
+    const row = this.client.one(
+      `select orderings from candidate_orderings where style_group_id = ?`,
+      ballotStyle.groupId
+    ) as { orderings: string } | undefined;
+
+    if (!row) return null;
+
+    return unsafeParseJson(row.orderings, CandidateOrderingsSchema);
   }
 
   /**
@@ -92,32 +128,6 @@ export class BallotMetaStore {
 
     for await (const co of streamCandidateOrderings(zip)) {
       addCandidateOrderings(this.client, co);
-    }
-  }
-
-  /**
-   * Imports ballot positions from an election package into the store.
-   */
-  async importPositions(
-    zip: ElectionPackageZip,
-    election: Election,
-    settings: SystemSettings
-  ): Promise<void> {
-    if (!settings.splitElectionDefinition) {
-      for (const bs of election.ballotStyles) {
-        if (!bs.ballotPositions) continue; // Not a scannable ballot.
-
-        addPositions(this.client, {
-          ballotStyleId: bs.id,
-          positions: bs.ballotPositions,
-        });
-      }
-
-      return;
-    }
-
-    for await (const bp of streamBallotPositions(zip)) {
-      addPositions(this.client, bp);
     }
   }
 }

@@ -5,7 +5,7 @@ import type { DiskSpaceSummary } from '@votingworks/utils';
 import type { BaseLogger } from '@votingworks/logging';
 import { Store } from '../store.js';
 
-export interface Workspace {
+export interface Workspace extends Disposable {
   /**
    * The path to the workspace root.
    */
@@ -17,10 +17,15 @@ export interface Workspace {
   readonly store: Store;
 
   /**
-   * Reset the workspace, including the election configuration. This is the same
-   * as deleting the workspace and recreating it.
+   * The database holding the imported election package.
    */
-  reset(): void;
+  readonly electionPackageDbPath: string;
+
+  /**
+   * Unconfigures the machine: removes the election package and every session
+   * record. The same as deleting the workspace and recreating it.
+   */
+  unconfigure(): void;
 
   /**
    * Get the disk space summary for the workspace.
@@ -36,18 +41,25 @@ export function createWorkspace(
   const resolvedRoot = resolve(root);
   mkdirSync(resolvedRoot, { recursive: true });
 
-  const dbPath = join(resolvedRoot, 'mark.db');
-  const store = options.store || Store.fileStore(dbPath, logger);
+  const sessionDbPath = join(resolvedRoot, 'session.db');
+  const electionPackageDbPath = join(resolvedRoot, 'election-package.db');
+  const store =
+    options.store ||
+    Store.fileStore(sessionDbPath, electionPackageDbPath, logger);
 
   return {
     path: resolvedRoot,
     store,
-    reset() {
+    electionPackageDbPath,
+    unconfigure() {
       store.reset();
     },
     getDiskSpaceSummary: async () => {
       const [summary] = await getDiskSpaceSummaries([resolvedRoot]);
       return summary;
+    },
+    [Symbol.dispose]: () => {
+      store.close();
     },
   };
 }
