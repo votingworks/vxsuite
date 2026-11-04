@@ -66,8 +66,6 @@ import { type MainExportTaskMetadata } from './design_store/background_task_stor
 import {
   ttsMethodsThatHandleAuthThemselves,
   buildElectionDesignMethods,
-  buildElectionSetupMethods,
-  cloneElection,
 } from '@votingworks/design-backend';
 import { type TestDecksTaskMetadata, type Store } from './store.js';
 import type { AppContext } from './context.js';
@@ -81,6 +79,10 @@ import {
   authEnabled,
 } from './globals.js';
 import { convertMsElection } from './convert_ms_election.js';
+import {
+  buildHubElectionMethods,
+  cloneElection,
+} from './hub_election_methods.js';
 import { createHubDesignFeatures } from './design_features.js';
 import { QaConfig } from './qa_config.js';
 import { rootDebug } from './debug.js';
@@ -137,7 +139,7 @@ export function buildApi(ctx: AppContext) {
     speechSynthesizer: ctx.speechSynthesizer,
     ttsEdits: store,
   });
-  const setupMethods = buildElectionSetupMethods({
+  const hubElectionMethods = buildHubElectionMethods({
     store: store.elections,
     features: designFeatures,
     convertMsElection,
@@ -243,7 +245,7 @@ export function buildApi(ctx: AppContext) {
 
   const methods = {
     ...designMethods,
-    ...setupMethods,
+    ...hubElectionMethods,
 
     async listJurisdictions(
       _input: undefined,

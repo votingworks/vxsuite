@@ -17,18 +17,25 @@ export type {
 } from './design_election_store.js';
 export {
   buildElectionDesignMethods,
-  buildElectionSetupMethods,
-  cloneElection,
   ttsMethodsThatHandleAuthThemselves,
 } from './election_design_methods.js';
+export {
+  validateContest,
+  validateDistrictChanges,
+  validatePartyChanges,
+  validatePollingPlace,
+  validatePrecinct,
+} from './validation.js';
 export type {
   BallotPreviewInput,
   BallotPreviewResult,
 } from './ballot_preview.js';
 export type {
+  AppElectionDesignMethods,
   ElectionDesignMethods,
   ElectionDesignApi,
   ElectionInput,
+  SharedElectionDesignMethods,
 } from './election_design_api.js';
 export type { BallotTemplateId } from '@votingworks/hmpb';
 export { createBlankElection, prepareLoadedElection } from './election_load.js';

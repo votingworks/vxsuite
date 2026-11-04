@@ -27,7 +27,10 @@ import type {
   DesignFeaturesProvider,
   TtsEditsStore,
 } from './design_providers.js';
-import type { ElectionDesignMethods } from './election_design_api.js';
+import type {
+  ElectionDesignMethods,
+  SharedElectionDesignMethods,
+} from './election_design_api.js';
 import {
   type ConvertMsElection,
   createBlankElection,
@@ -41,7 +44,13 @@ import {
   type ElectionUpload,
   type Jurisdiction,
 } from './types.js';
-import { regenerateElectionIds } from './utils.js';
+import {
+  validateContest,
+  validateDistrictChanges,
+  validatePartyChanges,
+  validatePollingPlace,
+  validatePrecinct,
+} from './validation.js';
 
 function parseRegisteredVoterCounts(
   counts?: PrecinctRegisteredVoterCountEntry
@@ -63,7 +72,7 @@ export function buildElectionDesignMethods({
   translator: GoogleCloudTranslator;
   speechSynthesizer: SpeechSynthesizer;
   ttsEdits: TtsEditsStore;
-}): ElectionDesignMethods {
+}): SharedElectionDesignMethods {
   return {
     async getElectionInfo({ electionId }) {
       const {
@@ -96,12 +105,20 @@ export function buildElectionDesignMethods({
       );
     },
 
-    async deleteElection({ electionId }) {
-      await store.deleteElection(electionId);
-    },
-
     listDistricts: ({ electionId }) => store.listDistricts(electionId),
-    updateDistricts: (input) => store.updateDistricts(input),
+
+    async updateDistricts(input) {
+      const validation = validateDistrictChanges(
+        await store.listDistricts(input.electionId),
+        {
+          deletedIds: input.deletedDistrictIds,
+          updated: input.updatedDistricts,
+          added: input.newDistricts,
+        }
+      );
+      if (validation.isErr()) return validation;
+      return store.updateDistricts(input);
+    },
 
     listPrecincts: ({ electionId }) => store.listPrecincts(electionId),
 
@@ -110,6 +127,11 @@ export function buildElectionDesignMethods({
       const registeredVoterCounts = parseRegisteredVoterCounts(
         input.registeredVoterCounts
       );
+      const validation = validatePrecinct(
+        await store.listPrecincts(input.electionId),
+        precinct
+      );
+      if (validation.isErr()) return validation;
       const result = await store.createPrecinct(input.electionId, precinct);
       if (result.isErr()) return result;
       await store.setPrecinctRegisteredVoterCounts(
@@ -124,6 +146,11 @@ export function buildElectionDesignMethods({
       const registeredVoterCounts = parseRegisteredVoterCounts(
         input.registeredVoterCounts
       );
+      const validation = validatePrecinct(
+        await store.listPrecincts(input.electionId),
+        precinct
+      );
+      if (validation.isErr()) return validation;
       const result = await store.updatePrecinct(input.electionId, precinct);
       if (result.isErr()) return result;
       await store.setPrecinctRegisteredVoterCounts(
@@ -141,23 +168,53 @@ export function buildElectionDesignMethods({
       store.getRegisteredVoterCounts(electionId),
 
     listPollingPlaces: ({ electionId }) => store.listPollingPlaces(electionId),
-    setPollingPlace: ({ electionId, place }) =>
-      store.setPollingPlace(electionId, unsafeParse(PollingPlaceSchema, place)),
+    async setPollingPlace({ electionId, place }) {
+      const parsedPlace = unsafeParse(PollingPlaceSchema, place);
+      const validation = validatePollingPlace(
+        await store.listPollingPlaces(electionId),
+        await store.listPrecincts(electionId),
+        parsedPlace
+      );
+      if (validation.isErr()) return validation;
+      return store.setPollingPlace(electionId, parsedPlace);
+    },
     async deletePollingPlace(input) {
       await store.deletePollingPlace(input);
     },
 
     listParties: ({ electionId }) => store.listParties(electionId),
-    updateParties: (input) => store.updateParties(input),
+    async updateParties(input) {
+      const validation = validatePartyChanges(
+        await store.listParties(input.electionId),
+        {
+          deletedIds: input.deletedPartyIds,
+          updated: input.updatedParties,
+          added: input.newParties,
+        }
+      );
+      if (validation.isErr()) return validation;
+      return store.updateParties(input);
+    },
 
     listContests: ({ electionId }) => store.listContests(electionId),
-    createContest: ({ electionId, newContest }) =>
-      store.createContest(electionId, unsafeParse(ContestSchema, newContest)),
-    updateContest: ({ electionId, updatedContest }) =>
-      store.updateContest(
-        electionId,
-        unsafeParse(ContestSchema, updatedContest)
-      ),
+    async createContest({ electionId, newContest }) {
+      const contest = unsafeParse(ContestSchema, newContest);
+      const validation = validateContest(
+        await store.listContests(electionId),
+        contest
+      );
+      if (validation.isErr()) return validation;
+      return store.createContest(electionId, contest);
+    },
+    async updateContest({ electionId, updatedContest }) {
+      const contest = unsafeParse(ContestSchema, updatedContest);
+      const validation = validateContest(
+        await store.listContests(electionId),
+        contest
+      );
+      if (validation.isErr()) return validation;
+      return store.updateContest(electionId, contest);
+    },
     async reorderContests({ electionId, contestIds }) {
       await store.reorderContests(electionId, contestIds);
     },
@@ -169,8 +226,6 @@ export function buildElectionDesignMethods({
     getBallotLayoutSettings: ({ electionId }) =>
       store.getBallotLayoutSettings(electionId),
     getBallotTemplate: ({ electionId }) => store.getBallotTemplate(electionId),
-    getBallotsFinalizedAt: ({ electionId }) =>
-      store.getBallotsFinalizedAt(electionId),
 
     async getBallotPreviewPdf(input) {
       return renderBallotPreview({
@@ -204,137 +259,3 @@ export function buildElectionDesignMethods({
 export const ttsMethodsThatHandleAuthThemselves = [
   'ttsSynthesizeFromText',
 ] as const satisfies Array<keyof ElectionDesignMethods>;
-
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function buildElectionSetupMethods({
-  store,
-  features,
-  convertMsElection,
-}: {
-  store: DesignElectionStore;
-  features: DesignFeaturesProvider;
-  convertMsElection?: ConvertMsElection;
-}) {
-  return {
-    async loadElection(input: {
-      upload: ElectionUpload;
-      newId: ElectionId;
-      jurisdictionId: string;
-    }): Promise<Result<ElectionId, Error>> {
-      const jurisdiction = await features.getJurisdiction(input.jurisdictionId);
-      const stateFeatures = getStateFeaturesConfig(jurisdiction);
-      try {
-        const { election, isMiCombinedBallotPrimary } = prepareLoadedElection({
-          upload: input.upload,
-          newId: input.newId,
-          stateFeatures,
-          convertMsElection,
-        });
-        await store.createElection({
-          jurisdictionId: jurisdiction.id,
-          stateFeatures,
-          election,
-          isMiCombinedBallotPrimary,
-          ballotTemplateId: defaultBallotTemplate(jurisdiction),
-          externalSource:
-            input.upload.format === 'ms-sems' ? 'ms-sems' : undefined,
-          systemSettings: defaultSystemSettings(jurisdiction),
-        });
-        return ok(election.id);
-      } catch (error) {
-        return wrapException(error);
-      }
-    },
-
-    async createElection(input: {
-      id: ElectionId;
-      jurisdictionId: string;
-    }): Promise<Result<ElectionId, Error>> {
-      const jurisdiction = await features.getJurisdiction(input.jurisdictionId);
-      const election = createBlankElection(input.id, jurisdiction);
-      await store.createElection({
-        jurisdictionId: jurisdiction.id,
-        stateFeatures: getStateFeaturesConfig(jurisdiction),
-        election,
-        isMiCombinedBallotPrimary: false,
-        ballotTemplateId: defaultBallotTemplate(jurisdiction),
-        systemSettings: defaultSystemSettings(jurisdiction),
-      });
-      return ok(election.id);
-    },
-
-    async updateBallotLayoutSettings(input: {
-      electionId: ElectionId;
-      paperSize: HmpbBallotPaperSize;
-      compact: boolean;
-    }): Promise<void> {
-      await store.updateBallotLayoutSettings(
-        input.electionId,
-        unsafeParse(HmpbBallotPaperSizeSchema, input.paperSize),
-        input.compact
-      );
-    },
-
-    async getSystemSettings(input: {
-      electionId: ElectionId;
-    }): Promise<SystemSettings> {
-      return store.getSystemSettings(input.electionId);
-    },
-
-    async updateSystemSettings(input: {
-      electionId: ElectionId;
-      systemSettings: SystemSettings;
-    }): Promise<void> {
-      await store.updateSystemSettings(
-        input.electionId,
-        unsafeParse(SystemSettingsSchema, input.systemSettings)
-      );
-    },
-
-    async setBallotTemplate(input: {
-      electionId: ElectionId;
-      ballotTemplateId: BallotTemplateId;
-    }): Promise<void> {
-      await store.setBallotTemplate(input.electionId, input.ballotTemplateId);
-    },
-  } as const;
-}
-
-export async function cloneElection(
-  store: DesignElectionStore,
-  {
-    sourceElectionId,
-    destElectionId,
-    destJurisdiction,
-  }: {
-    sourceElectionId: ElectionId;
-    destElectionId: ElectionId;
-    destJurisdiction: Jurisdiction;
-  }
-): Promise<void> {
-  const {
-    election: sourceElection,
-    isMiCombinedBallotPrimary,
-    ballotTemplateId,
-  } = await store.getElection(sourceElectionId);
-  const stateFeatures = getStateFeaturesConfig(destJurisdiction);
-  const { districts, precincts, parties, contests, pollingPlaces } =
-    regenerateElectionIds(sourceElection, stateFeatures);
-  const election: Election = {
-    ...sourceElection,
-    id: destElectionId,
-    districts,
-    precincts,
-    parties,
-    contests,
-    pollingPlaces,
-  };
-  await store.createElection({
-    jurisdictionId: destJurisdiction.id,
-    stateFeatures,
-    election,
-    isMiCombinedBallotPrimary,
-    ballotTemplateId,
-    systemSettings: defaultSystemSettings(destJurisdiction),
-  });
-}

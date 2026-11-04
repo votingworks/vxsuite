@@ -42,34 +42,14 @@ export interface CreateElectionParams {
 export interface DesignElectionStore {
   createElection(params: CreateElectionParams): MaybePromise<void>;
   getElection(electionId: ElectionId): MaybePromise<ElectionRecord>;
-  deleteElection(electionId: ElectionId): MaybePromise<void>;
   updateElectionInfo(
     update: ElectionInfoUpdate
   ): MaybePromise<Result<void, DuplicateElectionError>>;
 
-  getSystemSettings(electionId: ElectionId): MaybePromise<SystemSettings>;
-  updateSystemSettings(
-    electionId: ElectionId,
-    systemSettings: SystemSettings
-  ): MaybePromise<void>;
   getBallotLayoutSettings(
     electionId: ElectionId
   ): MaybePromise<{ paperSize: HmpbBallotPaperSize; compact: boolean }>;
-  updateBallotLayoutSettings(
-    electionId: ElectionId,
-    paperSize: HmpbBallotPaperSize,
-    compact: boolean
-  ): MaybePromise<void>;
   getBallotTemplate(electionId: ElectionId): MaybePromise<BallotTemplateId>;
-  setBallotTemplate(
-    electionId: ElectionId,
-    ballotTemplateId: BallotTemplateId
-  ): MaybePromise<void>;
-  getBallotsFinalizedAt(electionId: ElectionId): MaybePromise<Date | null>;
-  setBallotsFinalizedAt(p: {
-    electionId: ElectionId;
-    finalizedAt: Date | null;
-  }): MaybePromise<void>;
 
   listDistricts(electionId: ElectionId): MaybePromise<readonly District[]>;
   updateDistricts(input: {

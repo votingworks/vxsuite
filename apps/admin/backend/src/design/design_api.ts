@@ -61,7 +61,7 @@ export interface CurrentDesign {
 
 class DesignAuthError extends grout.UserError {}
 
-const READ_ONLY_METHOD_PATTERN = /^(get|list|tts)/;
+const READ_ONLY_METHOD_PATTERN = /^(get|list|tts|is)[A-Z]/;
 
 const METHODS_ALLOWED_WHEN_FINALIZED = ['unfinalizeBallots', 'discardDesign'];
 
@@ -151,8 +151,12 @@ export function buildDesignApi({
     ...sharedMethods,
 
     async deleteElection(input: { electionId: ElectionId }): Promise<void> {
-      await sharedMethods.deleteElection(input);
+      store.deleteElection(input.electionId);
       await designExporter.clearFiles();
+    },
+
+    isElectionEditable(input: { electionId: ElectionId }): boolean {
+      return !isActivated() && !store.getBallotsFinalizedAt(input.electionId);
     },
 
     getDesignStatus(): DesignStatus {

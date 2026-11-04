@@ -276,6 +276,6 @@
   },
   "layout": {
     "paperSize": "legal",
-    "compact": true
+    "compact": false
   }
 }

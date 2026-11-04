@@ -2,7 +2,6 @@ import {
   assert,
   assertDefined,
   DateWithoutTime,
-  err,
   ok,
   type Result,
   throwIllegalValue,
@@ -26,8 +25,6 @@ import {
   type ElectionRecord,
   type ExternalElectionSource,
   generateId,
-  hasDuplicateOptionLabels,
-  hasDuplicateSplitDistricts,
   naturalSortBy,
   pollingPlacesFromRows,
   precinctsFromRows,
@@ -45,7 +42,6 @@ import {
   type District,
   DistrictSchema,
   type DistrictId,
-  type Election,
   type ElectionId,
   type ElectionRegisteredVoterCounts,
   type ElectionType,
@@ -73,55 +69,6 @@ const DEFAULT_LANGUAGE_CODES = [LanguageCode.ENGLISH];
 const PARTY_NAME_COLLATOR = new Intl.Collator('en');
 
 export const LOCAL_JURISDICTION_ID = 'vxadmin-local';
-
-class DuplicateKeyError extends Error {
-  readonly index: string;
-
-  constructor(index: string) {
-    super(`duplicate key value violates unique index ${index}`);
-    this.index = index;
-  }
-}
-
-const UNIQUE_INDEX_COLUMNS: Record<string, string> = {
-  design_districts_election_id_name_unique_index:
-    'design_districts.election_id, design_districts.name',
-  design_precincts_election_id_name_unique_index:
-    'design_precincts.election_id, design_precincts.name',
-  design_precinct_splits_precinct_id_name_unique_index:
-    'design_precinct_splits.precinct_id, design_precinct_splits.name',
-  design_parties_election_id_name_unique_index:
-    'design_parties.election_id, design_parties.name',
-  design_parties_election_id_full_name_unique_index:
-    'design_parties.election_id, design_parties.full_name',
-  design_parties_election_id_abbrev_unique_index:
-    'design_parties.election_id, design_parties.abbrev',
-  design_contests_unique_index:
-    'design_contests.district_id, design_contests.title, design_contests.seats, design_contests.term_description, design_contests.party_id',
-  design_candidates_unique_index:
-    'design_candidates.contest_id, design_candidates.first_name, design_candidates.middle_name, design_candidates.last_name',
-  design_polling_places_uniq_election_id_name_type:
-    'design_polling_places.election_id, design_polling_places.name, design_polling_places.type',
-};
-
-function isSqliteError(
-  error: unknown
-): error is Error & { code: string; message: string } {
-  return error instanceof Error && 'code' in error;
-}
-
-function isDuplicateKeyError(error: unknown, index: string): boolean {
-  if (error instanceof DuplicateKeyError) return error.index === index;
-  return (
-    isSqliteError(error) &&
-    error.code === 'SQLITE_CONSTRAINT_UNIQUE' &&
-    error.message === `UNIQUE constraint failed: ${UNIQUE_INDEX_COLUMNS[index]}`
-  );
-}
-
-function isForeignKeyError(error: unknown): boolean {
-  return isSqliteError(error) && error.code === 'SQLITE_CONSTRAINT_FOREIGNKEY';
-}
 
 function toSqliteBoolean(value: boolean | undefined | null): number | null {
   if (value === undefined || value === null) return null;
@@ -269,7 +216,7 @@ export class DesignStore implements DesignElectionStore {
       }
       // @coverage-defer
       for (const place of election.pollingPlaces || []) {
-        this.insertPollingPlace(election.id, place).unsafeUnwrap();
+        this.insertPollingPlace(election.id, place);
       }
       for (const party of election.parties) {
         this.insertParty(election.id, party);
@@ -419,57 +366,29 @@ export class DesignStore implements DesignElectionStore {
     updatedDistricts?: District[];
   }): Result<void, DuplicateDistrictError> {
     const { electionId } = input;
-    return this.client.transaction(
-      (): Result<void, DuplicateDistrictError> => {
-        for (const id of input.deletedDistrictIds || []) {
-          this.client.run(
-            'delete from design_districts where id = ? and election_id = ?',
-            id,
-            electionId
-          );
-        }
-        for (const d of input.updatedDistricts || []) {
-          const district = unsafeParse(DistrictSchema, d);
-          try {
-            const changes = this.runChanges(
-              'update design_districts set name = ? where id = ? and election_id = ?',
-              district.name,
-              district.id,
-              electionId
-            );
-            assert(changes === 1, 'District not found');
-          } catch (error) {
-            if (
-              isDuplicateKeyError(
-                error,
-                'design_districts_election_id_name_unique_index'
-              )
-            ) {
-              return err({ code: 'duplicate-name', districtId: district.id });
-            }
-            throw error;
-          }
-        }
-        for (const d of input.newDistricts || []) {
-          const district = unsafeParse(DistrictSchema, d);
-          try {
-            this.insertDistrict(electionId, district);
-          } catch (error) {
-            if (
-              isDuplicateKeyError(
-                error,
-                'design_districts_election_id_name_unique_index'
-              )
-            ) {
-              return err({ code: 'duplicate-name', districtId: district.id });
-            }
-            throw error;
-          }
-        }
-        return ok();
-      },
-      (result) => result.isOk()
-    );
+    this.client.transaction(() => {
+      for (const id of input.deletedDistrictIds || []) {
+        this.client.run(
+          'delete from design_districts where id = ? and election_id = ?',
+          id,
+          electionId
+        );
+      }
+      for (const d of input.updatedDistricts || []) {
+        const district = unsafeParse(DistrictSchema, d);
+        const changes = this.runChanges(
+          'update design_districts set name = ? where id = ? and election_id = ?',
+          district.name,
+          district.id,
+          electionId
+        );
+        assert(changes === 1, 'District not found');
+      }
+      for (const d of input.newDistricts || []) {
+        this.insertDistrict(electionId, unsafeParse(DistrictSchema, d));
+      }
+    });
+    return ok();
   }
 
   listPrecincts(electionId: ElectionId): Precinct[] {
@@ -540,65 +459,50 @@ export class DesignStore implements DesignElectionStore {
     precinct: Precinct
   ): Result<void, DuplicatePrecinctError> {
     const stateFeatures = this.options.getStateFeatures(electionId);
-    try {
-      this.client.transaction(() => {
-        this.insertPrecinct(electionId, precinct);
-        if (stateFeatures.EDIT_POLLING_PLACES) {
-          const generatedPlace = pollingPlaceGenerateFromPrecinct({
-            id: generateId(),
-            precinct,
-            type: 'election_day',
-          });
-          const res = this.insertPollingPlace(electionId, generatedPlace);
-          if (res.isErr()) {
-            const error = res.err();
-            switch (error) {
-              case 'duplicate-name':
-                break;
-              // @coverage-exclude: shouldn't be possible
-              case 'invalid-precinct':
-                throw new Error(
-                  `unexpected polling place generation error: ${error}`
-                );
-              default:
-                throwIllegalValue(error);
-            }
-          }
-        }
+    this.client.transaction(() => {
+      this.insertPrecinct(electionId, precinct);
+      if (!stateFeatures.EDIT_POLLING_PLACES) return;
+      const generatedPlace = pollingPlaceGenerateFromPrecinct({
+        id: generateId(),
+        precinct,
+        type: 'election_day',
       });
-      return ok();
-    } catch (error) {
-      return this.handlePrecinctError(error);
-    }
+      const nameTaken = this.client.one(
+        'select 1 from design_polling_places where election_id = ? and name = ? and type = ?',
+        electionId,
+        generatedPlace.name,
+        generatedPlace.type
+      );
+      if (!nameTaken) {
+        this.insertPollingPlace(electionId, generatedPlace);
+      }
+    });
+    return ok();
   }
 
   updatePrecinct(
     electionId: ElectionId,
     precinct: Precinct
   ): Result<void, DuplicatePrecinctError> {
-    try {
-      this.client.transaction(() => {
-        const changes = this.runChanges(
-          'update design_precincts set name = ? where id = ? and election_id = ?',
-          precinct.name,
-          precinct.id,
-          electionId
-        );
-        assert(changes === 1, 'Precinct not found');
-        this.client.run(
-          'delete from design_districts_precincts where precinct_id = ?',
-          precinct.id
-        );
-        this.client.run(
-          'delete from design_precinct_splits where precinct_id = ?',
-          precinct.id
-        );
-        this.insertPrecinctDistrictsOrSplits(precinct);
-      });
-      return ok();
-    } catch (error) {
-      return this.handlePrecinctError(error);
-    }
+    this.client.transaction(() => {
+      const changes = this.runChanges(
+        'update design_precincts set name = ? where id = ? and election_id = ?',
+        precinct.name,
+        precinct.id,
+        electionId
+      );
+      assert(changes === 1, 'Precinct not found');
+      this.client.run(
+        'delete from design_districts_precincts where precinct_id = ?',
+        precinct.id
+      );
+      this.client.run(
+        'delete from design_precinct_splits where precinct_id = ?',
+        precinct.id
+      );
+      this.insertPrecinctDistrictsOrSplits(precinct);
+    });
+    return ok();
   }
 
   setPrecinctRegisteredVoterCounts(
@@ -707,47 +611,35 @@ export class DesignStore implements DesignElectionStore {
     updatedParties?: Party[];
   }): Result<void, DuplicatePartyError> {
     const { electionId } = input;
-    return this.client.transaction(
-      (): Result<void, DuplicatePartyError> => {
-        for (const id of input.deletedPartyIds || []) {
-          this.client.run(
-            'delete from design_parties where id = ? and election_id = ?',
-            id,
-            electionId
-          );
-        }
-        for (const p of input.updatedParties || []) {
-          const party = unsafeParse(PartySchema, p);
-          try {
-            const changes = this.runChanges(
-              `
-                update design_parties
-                set name = ?, full_name = ?, abbrev = ?
-                where id = ? and election_id = ?
-              `,
-              party.name,
-              party.fullName,
-              party.abbrev,
-              party.id,
-              electionId
-            );
-            assert(changes === 1, 'Party not found');
-          } catch (error) {
-            return this.handlePartyError(party.id, error);
-          }
-        }
-        for (const p of input.newParties || []) {
-          const party = unsafeParse(PartySchema, p);
-          try {
-            this.insertParty(electionId, party);
-          } catch (error) {
-            return this.handlePartyError(party.id, error);
-          }
-        }
-        return ok();
-      },
-      (result) => result.isOk()
-    );
+    this.client.transaction(() => {
+      for (const id of input.deletedPartyIds || []) {
+        this.client.run(
+          'delete from design_parties where id = ? and election_id = ?',
+          id,
+          electionId
+        );
+      }
+      for (const p of input.updatedParties || []) {
+        const party = unsafeParse(PartySchema, p);
+        const changes = this.runChanges(
+          `
+            update design_parties
+            set name = ?, full_name = ?, abbrev = ?
+            where id = ? and election_id = ?
+          `,
+          party.name,
+          party.fullName,
+          party.abbrev,
+          party.id,
+          electionId
+        );
+        assert(changes === 1, 'Party not found');
+      }
+      for (const p of input.newParties || []) {
+        this.insertParty(electionId, unsafeParse(PartySchema, p));
+      }
+    });
+    return ok();
   }
 
   listContests(electionId: ElectionId): readonly Contest[] {
@@ -758,43 +650,29 @@ export class DesignStore implements DesignElectionStore {
     electionId: ElectionId,
     contest: Contest
   ): Result<void, DuplicateContestError> {
-    if (contest.type === 'yesno' && hasDuplicateOptionLabels(contest)) {
-      return err('duplicate-option');
-    }
-    try {
-      this.client.transaction(() => this.insertContest(electionId, contest));
-      return ok();
-    } catch (error) {
-      return this.handleContestError(error);
-    }
+    this.client.transaction(() => this.insertContest(electionId, contest));
+    return ok();
   }
 
   updateContest(
     electionId: ElectionId,
     contest: Contest
   ): Result<void, DuplicateContestError> {
-    if (contest.type === 'yesno' && hasDuplicateOptionLabels(contest)) {
-      return err('duplicate-option');
-    }
-    try {
-      this.client.transaction(() => {
-        const row = this.client.one(
-          'select ballot_order as ballotOrder from design_contests where id = ? and election_id = ?',
-          contest.id,
-          electionId
-        ) as { ballotOrder: number } | undefined;
-        assert(row, 'Contest not found');
-        this.client.run(
-          'delete from design_contests where id = ? and election_id = ?',
-          contest.id,
-          electionId
-        );
-        this.insertContest(electionId, contest, row.ballotOrder);
-      });
-      return ok();
-    } catch (error) {
-      return this.handleContestError(error);
-    }
+    this.client.transaction(() => {
+      const row = this.client.one(
+        'select ballot_order as ballotOrder from design_contests where id = ? and election_id = ?',
+        contest.id,
+        electionId
+      ) as { ballotOrder: number } | undefined;
+      assert(row, 'Contest not found');
+      this.client.run(
+        'delete from design_contests where id = ? and election_id = ?',
+        contest.id,
+        electionId
+      );
+      this.insertContest(electionId, contest, row.ballotOrder);
+    });
+    return ok();
   }
 
   reorderContests(electionId: ElectionId, contestIds: string[]): void {
@@ -940,17 +818,15 @@ export class DesignStore implements DesignElectionStore {
     electionId: ElectionId,
     place: PollingPlace
   ): Result<void, SetPollingPlaceError> {
-    return this.client.transaction(
-      () => {
-        this.client.run(
-          'delete from design_polling_places where id = ? and election_id = ?',
-          place.id,
-          electionId
-        );
-        return this.insertPollingPlace(electionId, place);
-      },
-      (result) => result.isOk()
-    );
+    this.client.transaction(() => {
+      this.client.run(
+        'delete from design_polling_places where id = ? and election_id = ?',
+        place.id,
+        electionId
+      );
+      this.insertPollingPlace(electionId, place);
+    });
+    return ok();
   }
 
   deletePollingPlace(p: { electionId: string; id: string }): void {
@@ -1199,9 +1075,6 @@ export class DesignStore implements DesignElectionStore {
       'Expected to be within a transaction'
     );
     if (hasSplits(precinct)) {
-      if (hasDuplicateSplitDistricts(precinct)) {
-        throw new Error('duplicate-split-districts');
-      }
       for (const split of precinct.splits) {
         const { id: splitId, name, districtIds, ...nhOptions } = split;
         this.client.run(
@@ -1241,50 +1114,6 @@ export class DesignStore implements DesignElectionStore {
     );
   }
 
-  private assertNoDuplicateContest(contest: Contest): void {
-    if (contest.type !== 'candidate' && contest.type !== 'yesno') return;
-    const duplicate = this.client.one(
-      `
-        select 1 from design_contests
-        where district_id = ?
-          and title = ?
-          and seats is ?
-          and term_description is ?
-          and party_id is ?
-      `,
-      contest.districtId,
-      contest.title,
-      contest.type === 'candidate' ? contest.seats : null,
-      contest.type === 'candidate' ? (contest.termDescription ?? null) : null,
-      contest.type === 'candidate' ? (contest.partyId ?? null) : null
-    );
-    if (duplicate) {
-      throw new DuplicateKeyError('design_contests_unique_index');
-    }
-  }
-
-  private assertNoDuplicateCandidate(
-    contestId: string,
-    candidate: { firstName?: string; middleName?: string; lastName?: string }
-  ): void {
-    const duplicate = this.client.one(
-      `
-        select 1 from design_candidates
-        where contest_id = ?
-          and first_name is ?
-          and middle_name is ?
-          and last_name is ?
-      `,
-      contestId,
-      candidate.firstName ?? null,
-      candidate.middleName ?? null,
-      candidate.lastName ?? null
-    );
-    if (duplicate) {
-      throw new DuplicateKeyError('design_candidates_unique_index');
-    }
-  }
-
   private insertContest(
     electionId: ElectionId,
     contest: Contest,
@@ -1298,7 +1127,6 @@ export class DesignStore implements DesignElectionStore {
       contest.type !== 'straight-party',
       'Straight party contests are generated on read'
     );
-    this.assertNoDuplicateContest(contest);
     const nextBallotOrder =
       '(select coalesce(max(ballot_order), 0) + 1 from design_contests)';
     switch (contest.type) {
@@ -1323,7 +1151,6 @@ export class DesignStore implements DesignElectionStore {
           ...(ballotOrder ? [ballotOrder] : [])
         );
         for (const candidate of contest.candidates) {
-          this.assertNoDuplicateCandidate(contest.id, candidate);
           this.client.run(
             `
               insert into design_candidates (
@@ -1405,7 +1232,7 @@ export class DesignStore implements DesignElectionStore {
   private insertPollingPlace(
     electionId: ElectionId,
     place: PollingPlace
-  ): Result<void, SetPollingPlaceError> {
+  ): void {
     assert(
       Object.values(place.precincts).every((p) => p.type === 'whole'),
       'partial precinct coverage not yet supported for polling places'
@@ -1414,104 +1241,19 @@ export class DesignStore implements DesignElectionStore {
       this.client.isInTransaction(),
       'Expected to be within a transaction'
     );
-    try {
+    this.client.run(
+      'insert into design_polling_places (election_id, id, name, type) values (?, ?, ?, ?)',
+      electionId,
+      place.id,
+      place.name,
+      place.type
+    );
+    for (const precinctId of Object.keys(place.precincts)) {
       this.client.run(
-        'insert into design_polling_places (election_id, id, name, type) values (?, ?, ?, ?)',
-        electionId,
+        'insert into design_polling_places_precincts (polling_place_id, precinct_id) values (?, ?)',
         place.id,
-        place.name,
-        place.type
+        precinctId
       );
-      for (const precinctId of Object.keys(place.precincts)) {
-        this.client.run(
-          'insert into design_polling_places_precincts (polling_place_id, precinct_id) values (?, ?)',
-          place.id,
-          precinctId
-        );
-      }
-    } catch (error) {
-      if (
-        isDuplicateKeyError(
-          error,
-          'design_polling_places_uniq_election_id_name_type'
-        )
-      ) {
-        return err('duplicate-name');
-      }
-      if (isForeignKeyError(error)) {
-        return err('invalid-precinct');
-      }
-      // @coverage-defer
-      throw error;
     }
-    return ok();
-  }
-
-  private handlePrecinctError(
-    error: unknown
-  ): Result<void, DuplicatePrecinctError> {
-    if (
-      error instanceof Error &&
-      error.message === 'duplicate-split-districts'
-    ) {
-      return err('duplicate-split-districts');
-    }
-    if (
-      isDuplicateKeyError(
-        error,
-        'design_precincts_election_id_name_unique_index'
-      )
-    ) {
-      return err('duplicate-precinct-name');
-    }
-    if (
-      isDuplicateKeyError(
-        error,
-        'design_precinct_splits_precinct_id_name_unique_index'
-      )
-    ) {
-      return err('duplicate-split-name');
-    }
-    throw error;
-  }
-
-  private handlePartyError(
-    partyId: string,
-    error: unknown
-  ): Result<void, DuplicatePartyError> {
-    if (
-      isDuplicateKeyError(error, 'design_parties_election_id_name_unique_index')
-    ) {
-      return err({ code: 'duplicate-name', partyId });
-    }
-    if (
-      isDuplicateKeyError(
-        error,
-        'design_parties_election_id_full_name_unique_index'
-      )
-    ) {
-      return err({ code: 'duplicate-full-name', partyId });
-    }
-    if (
-      isDuplicateKeyError(
-        error,
-        'design_parties_election_id_abbrev_unique_index'
-      )
-    ) {
-      return err({ code: 'duplicate-abbrev', partyId });
-    }
-    throw error;
-  }
-
-  private handleContestError(
-    error: unknown
-  ): Result<void, DuplicateContestError> {
-    if (isDuplicateKeyError(error, 'design_contests_unique_index')) {
-      return err('duplicate-contest');
-    }
-    if (isDuplicateKeyError(error, 'design_candidates_unique_index')) {
-      return err('duplicate-candidate');
-    }
-    throw error;
   }
 }

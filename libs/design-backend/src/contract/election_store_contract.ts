@@ -17,7 +17,14 @@ import {
   HmpbBallotPaperSize,
 } from '@votingworks/types';
 import type { BallotTemplateId } from '@votingworks/hmpb';
+import type {
+  GoogleCloudTranslator,
+  SpeechSynthesizer,
+} from '@votingworks/backend';
 import type { DesignElectionStore } from '../design_election_store.js';
+import type { TtsEditsStore } from '../design_providers.js';
+import type { SharedElectionDesignMethods } from '../election_design_api.js';
+import { buildElectionDesignMethods } from '../election_design_methods.js';
 import { createBlankElection } from '../election_load.js';
 import {
   getStateFeaturesConfig,
@@ -135,6 +142,7 @@ export function describeDesignElectionStoreTests(
   describe(`DesignElectionStore: ${implementationName}`, () => {
     let harness: DesignElectionStoreHarness;
     let store: DesignElectionStore;
+    let methods: SharedElectionDesignMethods;
     let features: StateFeaturesConfig;
     let electionId: ElectionId;
 
@@ -160,6 +168,17 @@ export function describeDesignElectionStoreTests(
       features = stateFeatures;
       harness = await setup(stateFeatures);
       store = harness.store;
+      methods = buildElectionDesignMethods({
+        store,
+        features: {
+          getJurisdiction: () =>
+            Promise.reject(new Error('not used by these tests')),
+          getStateFeatures: () => Promise.resolve(stateFeatures),
+        },
+        translator: {} as GoogleCloudTranslator,
+        speechSynthesizer: {} as SpeechSynthesizer,
+        ttsEdits: {} as TtsEditsStore,
+      });
       electionId = nextId('election');
       await createElection(
         createBlankElection(electionId, { name: 'County', stateCode: 'DEMO' })
@@ -173,7 +192,7 @@ export function describeDesignElectionStoreTests(
     async function addDistricts(...names: string[]): Promise<District[]> {
       const districts = names.map(district);
       expect(
-        await store.updateDistricts({ electionId, newDistricts: districts })
+        await methods.updateDistricts({ electionId, newDistricts: districts })
       ).toEqual(ok());
       return districts;
     }
@@ -192,10 +211,13 @@ export function describeDesignElectionStoreTests(
         const [d1, d2] = await addDistricts('District 1', 'District 2');
         const duplicate = district('District 1');
         expect(
-          await store.updateDistricts({ electionId, newDistricts: [duplicate] })
+          await methods.updateDistricts({
+            electionId,
+            newDistricts: [duplicate],
+          })
         ).toEqual(err({ code: 'duplicate-name', districtId: duplicate.id }));
         expect(
-          await store.updateDistricts({
+          await methods.updateDistricts({
             electionId,
             updatedDistricts: [{ ...d2!, name: 'District 1' }],
           })
@@ -203,7 +225,7 @@ export function describeDesignElectionStoreTests(
 
         const extra = district('District 3');
         expect(
-          await store.updateDistricts({
+          await methods.updateDistricts({
             electionId,
             deletedDistrictIds: [d1!.id],
             newDistricts: [extra, district('District 2')],
@@ -225,7 +247,7 @@ export function describeDesignElectionStoreTests(
           })
         );
         expect(
-          await store.updateDistricts({
+          await methods.updateDistricts({
             electionId: otherElectionId,
             newDistricts: [district('District 1')],
           })
@@ -246,14 +268,30 @@ export function describeDesignElectionStoreTests(
       test('rejects duplicate precinct names', async () => {
         const [d1] = await addDistricts('District 1');
         const p1 = precinct('Precinct 1', [d1!.id]);
-        expect(await store.createPrecinct(electionId, p1)).toEqual(ok());
         expect(
-          await store.createPrecinct(electionId, precinct('Precinct 1', []))
+          await methods.createPrecinct({
+            electionId: electionId,
+            newPrecinct: p1,
+          })
+        ).toEqual(ok());
+        expect(
+          await methods.createPrecinct({
+            electionId: electionId,
+            newPrecinct: precinct('Precinct 1', []),
+          })
         ).toEqual(err('duplicate-precinct-name'));
         const p2 = precinct('Precinct 2', []);
-        expect(await store.createPrecinct(electionId, p2)).toEqual(ok());
         expect(
-          await store.updatePrecinct(electionId, { ...p2, name: 'Precinct 1' })
+          await methods.createPrecinct({
+            electionId: electionId,
+            newPrecinct: p2,
+          })
+        ).toEqual(ok());
+        expect(
+          await methods.updatePrecinct({
+            electionId: electionId,
+            updatedPrecinct: { ...p2, name: 'Precinct 1' },
+          })
         ).toEqual(err('duplicate-precinct-name'));
       });
 
@@ -261,31 +299,37 @@ export function describeDesignElectionStoreTests(
         const [d1, d2] = await addDistricts('District 1', 'District 2');
         const precinctId = nextId('precinct');
         expect(
-          await store.createPrecinct(electionId, {
-            id: precinctId,
-            name: 'Precinct 1',
-            splits: [
-              { id: nextId('split'), name: 'Split', districtIds: [d1!.id] },
-              { id: nextId('split'), name: 'Split', districtIds: [d2!.id] },
-            ],
+          await methods.createPrecinct({
+            electionId: electionId,
+            newPrecinct: {
+              id: precinctId,
+              name: 'Precinct 1',
+              splits: [
+                { id: nextId('split'), name: 'Split', districtIds: [d1!.id] },
+                { id: nextId('split'), name: 'Split', districtIds: [d2!.id] },
+              ],
+            },
           })
         ).toEqual(err('duplicate-split-name'));
         expect(
-          await store.createPrecinct(electionId, {
-            id: precinctId,
-            name: 'Precinct 1',
-            splits: [
-              {
-                id: nextId('split'),
-                name: 'Split A',
-                districtIds: [d1!.id, d2!.id],
-              },
-              {
-                id: nextId('split'),
-                name: 'Split B',
-                districtIds: [d2!.id, d1!.id],
-              },
-            ],
+          await methods.createPrecinct({
+            electionId: electionId,
+            newPrecinct: {
+              id: precinctId,
+              name: 'Precinct 1',
+              splits: [
+                {
+                  id: nextId('split'),
+                  name: 'Split A',
+                  districtIds: [d1!.id, d2!.id],
+                },
+                {
+                  id: nextId('split'),
+                  name: 'Split B',
+                  districtIds: [d2!.id, d1!.id],
+                },
+              ],
+            },
           })
         ).toEqual(err('duplicate-split-districts'));
         expect((await election()).precincts).toEqual([]);
@@ -294,7 +338,12 @@ export function describeDesignElectionStoreTests(
       test('round-trips districts, splits and voter counts', async () => {
         const [d1, d2] = await addDistricts('District 1', 'District 2');
         const p1 = precinct('Precinct 1', [d2!.id, d1!.id]);
-        expect(await store.createPrecinct(electionId, p1)).toEqual(ok());
+        expect(
+          await methods.createPrecinct({
+            electionId: electionId,
+            newPrecinct: p1,
+          })
+        ).toEqual(ok());
         await store.setPrecinctRegisteredVoterCounts(p1, 100);
         expect(await store.getRegisteredVoterCounts(electionId)).toEqual({
           [p1.id]: 100,
@@ -315,7 +364,12 @@ export function describeDesignElectionStoreTests(
           name: 'Precinct 1',
           splits: [splitB, splitA],
         };
-        expect(await store.updatePrecinct(electionId, split)).toEqual(ok());
+        expect(
+          await methods.updatePrecinct({
+            electionId: electionId,
+            updatedPrecinct: split,
+          })
+        ).toEqual(ok());
         await store.setPrecinctRegisteredVoterCounts(split, {
           splits: { [splitA.id]: 5, [splitB.id]: 7 },
         });
@@ -333,10 +387,10 @@ export function describeDesignElectionStoreTests(
         const ids = districts.map((d) => d.id).toSorted();
         for (const name of ['Precinct 10', 'Precinct 9', 'Precinct 1']) {
           expect(
-            await store.createPrecinct(
-              electionId,
-              precinct(name, ids.toReversed())
-            )
+            await methods.createPrecinct({
+              electionId: electionId,
+              newPrecinct: precinct(name, ids.toReversed()),
+            })
           ).toEqual(ok());
         }
         const stored = (await election()).precincts;
@@ -363,16 +417,25 @@ export function describeDesignElectionStoreTests(
             { id: nextId('split'), name: 'B', districtIds: [d2!.id] },
           ],
         };
-        await store.createPrecinct(electionId, p1);
-        await store.createPrecinct(electionId, p2);
-        await store.createContest(
-          electionId,
-          candidateContest(d1!.id, 'Mayor')
-        );
+        await methods.createPrecinct({
+          electionId: electionId,
+          newPrecinct: p1,
+        });
+        await methods.createPrecinct({
+          electionId: electionId,
+          newPrecinct: p2,
+        });
+        await methods.createContest({
+          electionId: electionId,
+          newContest: candidateContest(d1!.id, 'Mayor'),
+        });
         const kept = candidateContest(d2!.id, 'Clerk');
-        await store.createContest(electionId, kept);
+        await methods.createContest({
+          electionId: electionId,
+          newContest: kept,
+        });
 
-        await store.updateDistricts({
+        await methods.updateDistricts({
           electionId,
           deletedDistrictIds: [d1!.id],
         });
@@ -387,11 +450,22 @@ export function describeDesignElectionStoreTests(
       test('deleting a precinct removes splits, counts and polling place links', async () => {
         const p1 = precinct('Precinct 1', []);
         const p2 = precinct('Precinct 2', []);
-        await store.createPrecinct(electionId, p1);
-        await store.createPrecinct(electionId, p2);
+        await methods.createPrecinct({
+          electionId: electionId,
+          newPrecinct: p1,
+        });
+        await methods.createPrecinct({
+          electionId: electionId,
+          newPrecinct: p2,
+        });
         await store.setPrecinctRegisteredVoterCounts(p1, 10);
         const place = pollingPlace('Town Hall', [p1.id, p2.id]);
-        expect(await store.setPollingPlace(electionId, place)).toEqual(ok());
+        expect(
+          await methods.setPollingPlace({
+            electionId: electionId,
+            place: place,
+          })
+        ).toEqual(ok());
 
         await store.deletePrecinct(electionId, p1.id);
         expect(await store.getRegisteredVoterCounts(electionId)).toEqual({});
@@ -403,7 +477,12 @@ export function describeDesignElectionStoreTests(
       test('creating a precinct generates a polling place when the state edits them', async () => {
         await useHarness({ ...BASE_FEATURES, EDIT_POLLING_PLACES: true });
         const p1 = precinct('Precinct 1', []);
-        expect(await store.createPrecinct(electionId, p1)).toEqual(ok());
+        expect(
+          await methods.createPrecinct({
+            electionId: electionId,
+            newPrecinct: p1,
+          })
+        ).toEqual(ok());
         const places = await store.listPollingPlaces(electionId);
         expect(places).toHaveLength(1);
         expect(places[0]).toMatchObject({
@@ -412,7 +491,12 @@ export function describeDesignElectionStoreTests(
         });
         await store.deletePrecinct(electionId, p1.id);
         const p1Again = precinct(p1.name, []);
-        expect(await store.createPrecinct(electionId, p1Again)).toEqual(ok());
+        expect(
+          await methods.createPrecinct({
+            electionId: electionId,
+            newPrecinct: p1Again,
+          })
+        ).toEqual(ok());
         expect(await store.listPollingPlaces(electionId)).toHaveLength(1);
       });
     });
@@ -421,7 +505,7 @@ export function describeDesignElectionStoreTests(
       test('rejects duplicate name, full name and abbreviation', async () => {
         const dem = party('Democrat', 'Democratic Party', 'D');
         expect(
-          await store.updateParties({ electionId, newParties: [dem] })
+          await methods.updateParties({ electionId, newParties: [dem] })
         ).toEqual(ok());
         for (const [candidateParty, code] of [
           [party('Democrat', 'Other', 'O'), 'duplicate-name'],
@@ -429,16 +513,16 @@ export function describeDesignElectionStoreTests(
           [party('Other', 'Other Party', 'D'), 'duplicate-abbrev'],
         ] as const) {
           expect(
-            await store.updateParties({
+            await methods.updateParties({
               electionId,
               newParties: [candidateParty],
             })
           ).toEqual(err({ code, partyId: candidateParty.id }));
         }
         const rep = party('Republican', 'Republican Party', 'R');
-        await store.updateParties({ electionId, newParties: [rep] });
+        await methods.updateParties({ electionId, newParties: [rep] });
         expect(
-          await store.updateParties({
+          await methods.updateParties({
             electionId,
             updatedParties: [{ ...rep, abbrev: 'D' }],
           })
@@ -447,29 +531,34 @@ export function describeDesignElectionStoreTests(
 
       test('reports the same error when several fields are duplicates', async () => {
         const dem = party('Democrat', 'Democratic Party', 'D');
-        await store.updateParties({ electionId, newParties: [dem] });
+        await methods.updateParties({ electionId, newParties: [dem] });
         const copy = { ...dem, id: nextId('party') };
         expect(
-          await store.updateParties({ electionId, newParties: [copy] })
-        ).toEqual(err({ code: 'duplicate-abbrev', partyId: copy.id }));
+          await methods.updateParties({ electionId, newParties: [copy] })
+        ).toEqual(err({ code: 'duplicate-name', partyId: copy.id }));
       });
 
       test('deleting a party clears contest and candidate references', async () => {
         const [d1] = await addDistricts('District 1');
         const dem = party('Democrat', 'Democratic Party', 'D');
         const rep = party('Republican', 'Republican Party', 'R');
-        await store.updateParties({ electionId, newParties: [rep, dem] });
+        await methods.updateParties({ electionId, newParties: [rep, dem] });
         const contest = candidateContest(d1!.id, 'Mayor', {
           partyId: dem.id,
           candidates: [
             candidate('Ann', 'Alpha', { partyIds: [rep.id, dem.id] }),
           ],
         });
-        expect(await store.createContest(electionId, contest)).toEqual(ok());
+        expect(
+          await methods.createContest({
+            electionId: electionId,
+            newContest: contest,
+          })
+        ).toEqual(ok());
         let stored = (await election()).contests[0] as CandidateContest;
         expect(stored.candidates[0]!.partyIds).toEqual([dem.id, rep.id]);
 
-        await store.updateParties({ electionId, deletedPartyIds: [dem.id] });
+        await methods.updateParties({ electionId, deletedPartyIds: [dem.id] });
         stored = (await election()).contests[0] as CandidateContest;
         expect(stored.partyId).toBeUndefined();
         expect(stored.candidates[0]!.partyIds).toEqual([rep.id]);
@@ -483,77 +572,96 @@ export function describeDesignElectionStoreTests(
       test('rejects duplicate contests, treating missing fields as equal', async () => {
         const [d1] = await addDistricts('District 1');
         const mayor = candidateContest(d1!.id, 'Mayor');
-        expect(await store.createContest(electionId, mayor)).toEqual(ok());
         expect(
-          await store.createContest(
-            electionId,
-            candidateContest(d1!.id, 'Mayor')
-          )
-        ).toEqual(err('duplicate-contest'));
-        expect(
-          await store.createContest(
-            electionId,
-            candidateContest(d1!.id, 'Mayor', { termDescription: '4 years' })
-          )
+          await methods.createContest({
+            electionId: electionId,
+            newContest: mayor,
+          })
         ).toEqual(ok());
         expect(
-          await store.createContest(
-            electionId,
-            candidateContest(d1!.id, 'Mayor', { seats: 2 })
-          )
+          await methods.createContest({
+            electionId: electionId,
+            newContest: candidateContest(d1!.id, 'Mayor'),
+          })
+        ).toEqual(err('duplicate-contest'));
+        expect(
+          await methods.createContest({
+            electionId: electionId,
+            newContest: candidateContest(d1!.id, 'Mayor', {
+              termDescription: '4 years',
+            }),
+          })
+        ).toEqual(ok());
+        expect(
+          await methods.createContest({
+            electionId: electionId,
+            newContest: candidateContest(d1!.id, 'Mayor', { seats: 2 }),
+          })
         ).toEqual(ok());
 
         expect(
-          await store.createContest(electionId, yesNoContest(d1!.id, 'Prop 1'))
+          await methods.createContest({
+            electionId: electionId,
+            newContest: yesNoContest(d1!.id, 'Prop 1'),
+          })
         ).toEqual(ok());
         expect(
-          await store.createContest(electionId, yesNoContest(d1!.id, 'Prop 1'))
+          await methods.createContest({
+            electionId: electionId,
+            newContest: yesNoContest(d1!.id, 'Prop 1'),
+          })
         ).toEqual(err('duplicate-contest'));
         expect(
-          await store.createContest(
-            electionId,
-            yesNoContest(d1!.id, 'Prop 2', ['Yes', 'Yes'])
-          )
+          await methods.createContest({
+            electionId: electionId,
+            newContest: yesNoContest(d1!.id, 'Prop 2', ['Yes', 'Yes']),
+          })
         ).toEqual(err('duplicate-option'));
 
         const clerk = candidateContest(d1!.id, 'Clerk');
-        await store.createContest(electionId, clerk);
+        await methods.createContest({
+          electionId: electionId,
+          newContest: clerk,
+        });
         expect(
-          await store.updateContest(electionId, { ...clerk, title: 'Mayor' })
+          await methods.updateContest({
+            electionId: electionId,
+            updatedContest: { ...clerk, title: 'Mayor' },
+          })
         ).toEqual(err('duplicate-contest'));
       });
 
       test('rejects duplicate candidates within a contest, treating missing names as equal', async () => {
         const [d1] = await addDistricts('District 1');
         expect(
-          await store.createContest(
-            electionId,
-            candidateContest(d1!.id, 'Mayor', {
+          await methods.createContest({
+            electionId: electionId,
+            newContest: candidateContest(d1!.id, 'Mayor', {
               candidates: [
                 candidate('Ann', 'Alpha'),
                 candidate('Ann', 'Alpha'),
               ],
-            })
-          )
+            }),
+          })
         ).toEqual(err('duplicate-candidate'));
         expect(
-          await store.createContest(
-            electionId,
-            candidateContest(d1!.id, 'Mayor', {
+          await methods.createContest({
+            electionId: electionId,
+            newContest: candidateContest(d1!.id, 'Mayor', {
               candidates: [
                 candidate('Ann', 'Alpha'),
                 candidate('Ann', 'Alpha', { middleName: 'B' }),
               ],
-            })
-          )
+            }),
+          })
         ).toEqual(ok());
         expect(
-          await store.createContest(
-            electionId,
-            candidateContest(d1!.id, 'Clerk', {
+          await methods.createContest({
+            electionId: electionId,
+            newContest: candidateContest(d1!.id, 'Clerk', {
               candidates: [candidate('Ann', 'Alpha')],
-            })
-          )
+            }),
+          })
         ).toEqual(ok());
         expect((await election()).contests).toHaveLength(2);
       });
@@ -569,9 +677,18 @@ export function describeDesignElectionStoreTests(
           ],
         });
         const clerk = candidateContest(d1!.id, 'Clerk');
-        await store.createContest(electionId, prop);
-        await store.createContest(electionId, mayor);
-        await store.createContest(electionId, clerk);
+        await methods.createContest({
+          electionId: electionId,
+          newContest: prop,
+        });
+        await methods.createContest({
+          electionId: electionId,
+          newContest: mayor,
+        });
+        await methods.createContest({
+          electionId: electionId,
+          newContest: clerk,
+        });
         expect((await election()).contests.map((c) => c.id)).toEqual([
           mayor.id,
           clerk.id,
@@ -594,7 +711,12 @@ export function describeDesignElectionStoreTests(
           ...mayor,
           candidates: mayor.candidates.toReversed(),
         };
-        expect(await store.updateContest(electionId, reordered)).toEqual(ok());
+        expect(
+          await methods.updateContest({
+            electionId: electionId,
+            updatedContest: reordered,
+          })
+        ).toEqual(ok());
         const e = await election();
         expect(e.contests.map((c) => c.id)).toEqual([
           prop.id,
@@ -615,11 +737,14 @@ export function describeDesignElectionStoreTests(
       test('rejects a reorder that does not list every contest', async () => {
         const [d1] = await addDistricts('District 1');
         const mayor = candidateContest(d1!.id, 'Mayor');
-        await store.createContest(electionId, mayor);
-        await store.createContest(
-          electionId,
-          candidateContest(d1!.id, 'Clerk')
-        );
+        await methods.createContest({
+          electionId: electionId,
+          newContest: mayor,
+        });
+        await methods.createContest({
+          electionId: electionId,
+          newContest: candidateContest(d1!.id, 'Clerk'),
+        });
         await expect(
           (async () => store.reorderContests(electionId, [mayor.id]))()
         ).rejects.toThrow('Contest list is out of date');
@@ -628,14 +753,17 @@ export function describeDesignElectionStoreTests(
       test('generates the straight party contest on read', async () => {
         await useHarness({ ...BASE_FEATURES, STRAIGHT_PARTY_VOTING: true });
         const [d1] = await addDistricts('District 1');
-        await store.createPrecinct(
-          electionId,
-          precinct('Precinct 1', [d1!.id])
-        );
+        await methods.createPrecinct({
+          electionId: electionId,
+          newPrecinct: precinct('Precinct 1', [d1!.id]),
+        });
         const dem = party('Democrat', 'Democratic Party', 'D');
-        await store.updateParties({ electionId, newParties: [dem] });
+        await methods.updateParties({ electionId, newParties: [dem] });
         const mayor = candidateContest(d1!.id, 'Mayor');
-        await store.createContest(electionId, mayor);
+        await methods.createContest({
+          electionId: electionId,
+          newContest: mayor,
+        });
         const contests = (await election()).contests;
         expect(contests.map((c) => c.type)).toEqual([
           'straight-party',
@@ -651,24 +779,33 @@ export function describeDesignElectionStoreTests(
     describe('polling places', () => {
       test('rejects duplicate name and type, and unknown precincts', async () => {
         const p1 = precinct('Precinct 1', []);
-        await store.createPrecinct(electionId, p1);
+        await methods.createPrecinct({
+          electionId: electionId,
+          newPrecinct: p1,
+        });
         expect(
-          await store.setPollingPlace(electionId, pollingPlace('Hall', [p1.id]))
+          await methods.setPollingPlace({
+            electionId: electionId,
+            place: pollingPlace('Hall', [p1.id]),
+          })
         ).toEqual(ok());
         expect(
-          await store.setPollingPlace(electionId, pollingPlace('Hall', []))
+          await methods.setPollingPlace({
+            electionId: electionId,
+            place: pollingPlace('Hall', []),
+          })
         ).toEqual(err('duplicate-name'));
         expect(
-          await store.setPollingPlace(
-            electionId,
-            pollingPlace('Hall', [], 'absentee')
-          )
+          await methods.setPollingPlace({
+            electionId: electionId,
+            place: pollingPlace('Hall', [], 'absentee'),
+          })
         ).toEqual(ok());
         expect(
-          await store.setPollingPlace(
-            electionId,
-            pollingPlace('Library', ['no-such-precinct'])
-          )
+          await methods.setPollingPlace({
+            electionId: electionId,
+            place: pollingPlace('Library', ['no-such-precinct']),
+          })
         ).toEqual(err('invalid-precinct'));
         expect(
           (await store.listPollingPlaces(electionId)).map((p) => p.name)
@@ -683,15 +820,23 @@ export function describeDesignElectionStoreTests(
           pollingPlace('Early', [], 'early_voting'),
         ];
         for (const place of places) {
-          expect(await store.setPollingPlace(electionId, place)).toEqual(ok());
+          expect(
+            await methods.setPollingPlace({
+              electionId: electionId,
+              place: place,
+            })
+          ).toEqual(ok());
         }
         expect(
           (await store.listPollingPlaces(electionId)).map((p) => p.name)
         ).toEqual(['Mail', 'Early', 'Station 2', 'Station 10']);
 
-        await store.setPollingPlace(electionId, {
-          ...places[0]!,
-          name: 'Station 1',
+        await methods.setPollingPlace({
+          electionId: electionId,
+          place: {
+            ...places[0]!,
+            name: 'Station 1',
+          },
         });
         await store.deletePollingPlace({ electionId, id: places[2]!.id });
         expect(
@@ -700,16 +845,46 @@ export function describeDesignElectionStoreTests(
       });
     });
 
-    test('deleting the election removes everything', async () => {
-      const [d1] = await addDistricts('District 1');
-      const p1 = precinct('Precinct 1', [d1!.id]);
-      await store.createPrecinct(electionId, p1);
-      await store.createContest(electionId, candidateContest(d1!.id, 'Mayor'));
-      await store.setPollingPlace(electionId, pollingPlace('Hall', [p1.id]));
-      await store.deleteElection(electionId);
-      await expect(
-        (async () => store.getElection(electionId))()
-      ).rejects.toThrow();
+    describe('unique indexes as a backstop', () => {
+      async function rejects(write: () => unknown): Promise<boolean> {
+        try {
+          const result = (await write()) as { isOk?: () => boolean };
+          return !result?.isOk?.();
+        } catch {
+          return true;
+        }
+      }
+
+      test('the store rejects duplicate names even without validation', async () => {
+        await addDistricts('District 1');
+        expect(
+          await rejects(() =>
+            store.updateDistricts({
+              electionId,
+              newDistricts: [district('District 1')],
+            })
+          )
+        ).toEqual(true);
+
+        const dem = party('Democrat', 'Democratic Party', 'D');
+        await methods.updateParties({ electionId, newParties: [dem] });
+        expect(
+          await rejects(() =>
+            store.updateParties({
+              electionId,
+              newParties: [party('Democrat', 'Other Party', 'O')],
+            })
+          )
+        ).toEqual(true);
+
+        const p1 = precinct('Precinct 1', []);
+        await methods.createPrecinct({ electionId, newPrecinct: p1 });
+        expect(
+          await rejects(() =>
+            store.createPrecinct(electionId, precinct('Precinct 1', []))
+          )
+        ).toEqual(true);
+      });
     });
 
     describe('round trip', () => {
@@ -737,6 +912,10 @@ export function describeDesignElectionStoreTests(
             stateCode: 'DEMO',
           }),
           title: 'Round Trip General Election',
+          ballotLayout: {
+            paperSize: HmpbBallotPaperSize.Legal,
+            metadataEncoding: 'qr-code',
+          },
           date: new DateWithoutTime('2026-11-03'),
           seal: '<svg>seal</svg>',
           signature: { image: '<svg>signature</svg>', caption: 'Town Clerk' },
@@ -863,11 +1042,6 @@ export function describeDesignElectionStoreTests(
         await store.setPrecinctRegisteredVoterCounts(p2!, {
           splits: { 'rt-split-1': 300, 'rt-split-2': 450 },
         });
-        await store.updateBallotLayoutSettings(
-          roundTripElectionId,
-          HmpbBallotPaperSize.Legal,
-          true
-        );
         return election;
       }
 
@@ -894,7 +1068,7 @@ export function describeDesignElectionStoreTests(
         expect(record.ballotsFinalizedAt).toBeNull();
         expect(
           await store.getBallotLayoutSettings(roundTripElectionId)
-        ).toEqual({ paperSize: HmpbBallotPaperSize.Legal, compact: true });
+        ).toEqual({ paperSize: HmpbBallotPaperSize.Legal, compact: false });
         expect(election.ballotLayout.paperSize).toEqual(
           HmpbBallotPaperSize.Legal
         );
@@ -906,25 +1080,6 @@ export function describeDesignElectionStoreTests(
             splits: { 'rt-split-1': 300, 'rt-split-2': 450 },
           },
         });
-
-        const finalizedAt = new Date('2026-11-03T12:34:56.789Z');
-        await store.setBallotsFinalizedAt({
-          electionId: roundTripElectionId,
-          finalizedAt,
-        });
-        expect(await store.getBallotsFinalizedAt(roundTripElectionId)).toEqual(
-          finalizedAt
-        );
-        expect(
-          (await store.getElection(roundTripElectionId)).ballotsFinalizedAt
-        ).toEqual(finalizedAt);
-        await store.setBallotsFinalizedAt({
-          electionId: roundTripElectionId,
-          finalizedAt: null,
-        });
-        expect(
-          await store.getBallotsFinalizedAt(roundTripElectionId)
-        ).toBeNull();
       });
 
       test('the stored election matches the snapshot shared by every implementation', async () => {

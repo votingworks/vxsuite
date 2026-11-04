@@ -116,7 +116,7 @@ export type ElectionDesignMethods = {
     input: ElectionInput
   ): MaybePromise<{ paperSize: HmpbBallotPaperSize; compact: boolean }>;
   getBallotTemplate(input: ElectionInput): MaybePromise<BallotTemplateId>;
-  getBallotsFinalizedAt(input: ElectionInput): MaybePromise<Date | null>;
+  isElectionEditable(input: ElectionInput): MaybePromise<boolean>;
   getBallotPreviewPdf(
     input: BallotPreviewInput
   ): MaybePromise<BallotPreviewResult>;
@@ -133,6 +133,13 @@ export type ElectionDesignMethods = {
     languageCode: string;
   }): MaybePromise<DataUrl>;
 };
+
+export type AppElectionDesignMethods = 'deleteElection' | 'isElectionEditable';
+
+export type SharedElectionDesignMethods = Omit<
+  ElectionDesignMethods,
+  AppElectionDesignMethods
+>;
 
 export type ElectionDesignApi = grout.Api<
   ElectionDesignMethods,
