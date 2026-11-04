@@ -4,18 +4,6 @@ A driver for the InoTec SCAMAX DeskPro scanner. `deskproctl` (Rust) wraps the
 vendor's `libinoapi.so`; the TypeScript client runs it as a child process and
 talks to it over stdin/stdout, as `pdi-scanner` does with `pdictl`.
 
-Differences from `pdi-scanner`:
-
-- The wire protocol is little-endian binary in both directions, so images cross
-  the pipe without base64 or JSON. `rust/src/protocol.rs` and
-  `src/ts/protocol.ts` must change together; the daemon's hello frame carries a
-  protocol version so a mismatch fails at startup.
-- The vendor library is `dlopen`ed, not linked, so `deskproctl` builds and runs
-  without the driver installed (including in CI). A missing driver surfaces as a
-  `driverUnavailable` error from `connect`.
-- `createMockDaemon()` speaks the wire protocol over in-memory streams, for
-  testing against a scanner you don't have.
-
 ## Usage
 
 ```ts
@@ -109,6 +97,6 @@ pnpm test:run
 
 `pnpm test:run` runs the Rust tests, then the TypeScript tests. Some TypeScript
 tests spawn the real `deskproctl` to check the two protocol halves against each
-other, so they need `pnpm build` first.
+other.
 
 Rust logging is `RUST_LOG`; TypeScript logging is `DEBUG=deskpro-scanner`.
