@@ -9,6 +9,178 @@ Branch `caro/admin-design-sqlite-scratch-a9ac04`, cut from the prototype at
 stays on Postgres. Everything below this section describes the Postgres
 prototype.
 
+### Share vs duplicate boundary
+
+Analysis only; no code changed for this section. Line counts are from this
+branch; for store methods they're "hub PG / admin SQLite" and include each
+method's private helpers.
+
+Criteria (from the scoping session):
+
+- **Share** when the shared UI depends on exact behavior (errors, ordering,
+  shapes), when it affects the ballot or its hash, or when it's real business
+  logic.
+- **Duplicate** when it's environment-specific, a lifecycle step likely to
+  diverge, or storage plumbing.
+
+#### 1. Method by method
+
+`DesignElectionStore` methods (the interface is 135 lines):
+
+| Method                                                                               | Lines (PG / SQLite)                                         | Call                                                | Why                                                                                                       |
+| ------------------------------------------------------------------------------------ | ----------------------------------------------------------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `getElection`                                                                        | 196 / 63 + 84 contest read + 63 precinct read               | Share the interface and assembly, duplicate the SQL | Assembly already shared (`buildElectionRecord`, 470-line `election_record.ts`); ballot hash depends on it |
+| `createElection` (insert a whole `Election`)                                         | 110 + ~300 module insert helpers / 71 + ~230 insert helpers | Share the interface, duplicate the SQL              | Storage primitive under load, create and clone; the round-trip tests need it                              |
+| `updateElectionInfo`                                                                 | 53 / 38                                                     | Share                                               | Content edit from the shared Info screen. Its one rule (title+date unique per jurisdiction) is hub-only   |
+| `deleteElection`                                                                     | 6 / 4                                                       | Duplicate                                           | Lifecycle: hub deletes one of many, admin discards the only one and its files                             |
+| `get/updateSystemSettings`                                                           | 33 / 21                                                     | Duplicate (hub-only update)                         | No admin editor (Q5); admin reads settings only via `getElection`                                         |
+| `get/updateBallotLayoutSettings`                                                     | 43 / 29                                                     | Share the read, duplicate the update                | `ballot_screen` reads it; only hub edits it                                                               |
+| `get/setBallotTemplate`                                                              | 37 / 19                                                     | Share the read, duplicate the set                   | Same as layout                                                                                            |
+| `get/setBallotsFinalizedAt`                                                          | 36 / 22                                                     | Share the read, duplicate the set                   | Precincts screen reads it; finalize is a lifecycle step (hub also approves)                               |
+| `listDistricts`, `updateDistricts`                                                   | 5+108 / 10+60                                               | Share                                               | Content CRUD; the UI relies on `duplicate-name`                                                           |
+| `listPrecincts`, `createPrecinct`, `updatePrecinct`, `deletePrecinct`                | 5+55+46+17 / 63+37+29+9                                     | Share                                               | Content CRUD; three precinct error codes                                                                  |
+| `setPrecinctRegisteredVoterCounts`, `getRegisteredVoterCounts`                       | 57+40 / 48+25                                               | Share                                               | Goes into the election package                                                                            |
+| `listParties`, `updateParties`                                                       | 5+113 / 13+78                                               | Share                                               | Three party error codes                                                                                   |
+| `listContests`, `createContest`, `updateContest`, `reorderContests`, `deleteContest` | 5+20+36+37+19 / 4+15+28+28+9                                | Share                                               | Ordering and duplicates are on the ballot                                                                 |
+| `listPollingPlaces`, `setPollingPlace`, `deletePollingPlace`                         | 38+22+24 / 28+17+8                                          | Share                                               | Content CRUD; goes into the package                                                                       |
+| `listBallotStyles`                                                                   | 7 / 4                                                       | Share                                               | Derived from `getElection`                                                                                |
+
+`buildElectionDesignMethods` (150 lines, the contract design-ui calls): share.
+It's thin, but it's where input parsing, "set voter counts after precinct
+create/update", the `getElectionInfo` shape and the TTS defaults live. Each app
+can still override a method, as admin does for `deleteElection`.
+
+`buildElectionSetupMethods` (94 lines: `loadElection`, `createElection`,
+layout/settings/template updates): duplicate, i.e. make it hub-owned. Only hub
+uses it. Admin has its own `createDesign`/`loadElectionPackage` on the shared
+`prepareLoadedElection` and `createBlankElection`.
+
+`cloneElection` (37): hub-owned. Admin has no copy.
+
+Shared modules (all share):
+
+| Module                                                   | Lines | Why                                                                        |
+| -------------------------------------------------------- | ----- | -------------------------------------------------------------------------- |
+| `election_record.ts`                                     | 470   | Record assembly, ballot styles, straight party, NH key order (ballot hash) |
+| `election_load.ts`                                       | 129   | ID regeneration, name split, blank election                                |
+| Export pipeline (`export/`)                              | 633   | Rendering and package bytes                                                |
+| `ballot_preview.ts`                                      | 106   | Proofs must match the export                                               |
+| `tts_strings.ts`                                         | 152   | Business logic; masked off in admin today                                  |
+| State profile (`features`, `ballots`, `system_settings`) | 689   | Per-state rules                                                            |
+| `utils.ts`, `types.ts`, `election_design_api.ts`         | 654   | Shared types and the UI contract                                           |
+| Store tests (`contract/`)                                | 952   | Run against both stores                                                    |
+
+Duplicated on purpose: auth middleware, logging, file storage, the task runner
+(hub `background_tasks` vs admin `design_exports`), USB vs browser I/O, and the
+lifecycle methods.
+
+#### 2. Where I disagree with the first guess
+
+- **"Narrow the interface to content CRUD":** mostly agree. But it still needs
+  `getElection`, the whole-election `createElection` insert, and the _reads_ of
+  layout, template and finalizedAt, because shared screens call them. Moving the
+  lifecycle methods out leaves an interface of about 30 methods instead of 36.
+- **"Duplicate template/layout/system settings":** agree for the writes only.
+  The reads stay shared.
+- **"Election lifecycle methods are duplicated":** `updateElectionInfo` is
+  content, not lifecycle. The shared Election Info screen edits it, so it
+  belongs in the shared set.
+- **"Duplicate API boilerplate":** I'd keep `buildElectionDesignMethods` shared.
+  It's only 150 lines, but once validation moves into it (below) it holds real
+  rules. Duplicating it would bring back the untested API-layer drift the
+  restructure removed. It's also the most reversible piece: overriding one
+  method per app costs nothing.
+- **"Validation as shared pure functions instead of DB constraints":** agree
+  that pure functions should produce the _error codes_. But keep the unique
+  indexes on both sides as a backstop. Hub has concurrent users, and a
+  read-then-check in the API isn't atomic. The index turns a race into a thrown
+  error instead of duplicate data.
+- **Business logic currently inside the stores:** neither list mentions it.
+  `createPrecinct` auto-generates a polling place when `EDIT_POLLING_PLACES` is
+  on, and the insert puts a new candidate contest before the first ballot
+  measure. These are business rules sitting in store CRUD. The ordering rule is
+  already a shared pure function the stores call. The polling-place rule could
+  move up into the shared builder (see Q2).
+
+#### 3. Validation that relies on the database today
+
+| Rule                                                              | Hub PG                                             | Admin SQLite                                  |
+| ----------------------------------------------------------------- | -------------------------------------------------- | --------------------------------------------- |
+| District name unique per election                                 | unique index → constraint name                     | unique index → message match                  |
+| Precinct name unique per election                                 | index                                              | index → message                               |
+| Split name unique per precinct                                    | index                                              | index → message                               |
+| Split district sets unique                                        | shared pure `hasDuplicateSplitDistricts`           | same                                          |
+| Party name / full name / abbrev unique                            | 3 indexes; error picks whichever index fails first | same; agrees only by index creation order     |
+| Contest unique (district, title, seats, term, party), NULLs equal | `NULLS NOT DISTINCT` index                         | code check `assertNoDuplicateContest` + index |
+| Candidate unique per contest, NULLs equal                         | `NULLS NOT DISTINCT` index                         | code check + index                            |
+| Yes/no option labels unique                                       | shared pure `hasDuplicateOptionLabels`             | same                                          |
+| Polling place name unique per (election, type)                    | constraint                                         | index → message                               |
+| Polling place precincts exist (`invalid-precinct`)                | FK constraint name                                 | any FK error on that insert                   |
+| Election title+date unique per jurisdiction                       | partial index                                      | none (one election)                           |
+| Contest district and candidate parties exist                      | FK, unmapped (throws)                              | same                                          |
+
+To move these into shared pure functions:
+
+- **Functions** in `design-backend`, each returning the existing error types:
+  - `validateDistrictChanges(existing, { deleted, updated, new })`
+  - `validatePrecinct(existingPrecincts, precinct)`
+  - `validatePartyChanges(existing, change)`
+  - `validateContest(existingContests, contest)`
+  - `validatePollingPlace(existingPlaces, precinctIds, place)`
+
+  They validate the _final_ state of a batch. That also fixes today's "whichever
+  index fails first" ambiguity, with an explicit precedence: name, then full
+  name, then abbreviation.
+
+- **Callers:** `buildElectionDesignMethods` reads the current list from the
+  store, validates, then writes. The store methods drop their `Result` returns
+  and error mapping and become plain writes.
+- **What it removes:** `isDuplicateKeyError`/`isForeignKeyError` and three
+  `handle*Error` functions in hub (about 80 lines). In admin it removes
+  `UNIQUE_INDEX_COLUMNS`, the message matching, `assertNoDuplicate*` and three
+  `handle*Error` functions (about 160 lines).
+- **What it adds:** about 150 lines of shared validators. They can be
+  unit-tested without a database, and the store tests stay as they are.
+- **Batch catch:** a batch that swaps two names validates fine in its final
+  state, but still trips the index partway through the batch. Today that returns
+  `duplicate-name`; afterwards it would throw. Either order writes to avoid it,
+  or accept the throw.
+
+#### 4. Net effect (approximate)
+
+|          | Shared                                                                                | Duplicated or app-owned                                                                                                              |
+| -------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Today    | ≈ 2,970 production + 952 tests                                                        | Hub store 1,833; admin store 1,517 + schema 204; admin lifecycle API 329                                                             |
+| Proposed | ≈ 2,990 production + about 1,100 tests: −94 setup builder, −37 clone, +150 validators | Hub store ≈ 1,750 (+131 setup and clone moved in, −80 mapping, −25 polling-place rule); admin store ≈ 1,330 (−160 mapping, −25 rule) |
+
+The real gain isn't line count. It removes the two most drift-prone pieces:
+error mapping from database messages, and the "which index fails first" order.
+It also makes the error codes the UI depends on testable without a database.
+
+#### 5. Open questions for Caroline
+
+1. **Concurrency in hub.** With validation in the shared layer, two hub users
+   adding the same district at once would hit the index backstop and get an
+   error screen instead of `duplicate-name`. OK, or should hub keep mapping that
+   one case?
+2. **Polling place auto-generation** on `createPrecinct`. Move it up into the
+   shared builder (simpler stores, but no longer in the same transaction as the
+   precinct insert)? Or keep it in both stores, with the store tests as the
+   guard?
+3. **`createElection` (whole-graph insert) in the shared interface.** It's the
+   biggest duplicated SQL (about 300 lines each side), and only load, create and
+   clone use it. Fine to keep as a storage primitive? Or should load and create
+   be built from content CRUD calls, which is slower but means one less insert
+   path to keep in sync?
+4. **`updateElectionInfo`:** treat as shared content (my call) or hub/admin
+   workflow? It carries the hub-only title+date rule and the language codes,
+   which are hub-only for now.
+5. **Approve vs finalize.** Should `getBallotsFinalizedAt` stay in the shared
+   contract as "the design is locked", or should each app expose its own "is
+   editable" read? That would also cover admin's activated state and hub's
+   approved state, which the shared tabs don't know about today (the Edit-button
+   gap).
+
 ### Current shape (after review with Caroline)
 
 Two commits on top of the ones listed under "Commits" below:
