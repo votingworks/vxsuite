@@ -70,11 +70,11 @@ enum DiagCommand {
         save_images: Option<String>,
     },
 
-    /// `SetReady(1)`, `ScanStart`, then stream like `watch`; `ScanStop` at the end.
+    /// `SetReady(1)`, `ScanStart`, then stream like `watch` until the batch ends; `ScanStop` at the end.
     Scan {
-        /// Stop after this many seconds.
+        /// Stop after this many seconds even if the batch hasn't ended.
         #[clap(long, default_value = "60")]
-        seconds: u64,
+        timeout: u64,
 
         /// Write each image's bytes to this directory as `<seqId>-<side>.bin`.
         #[clap(long)]
@@ -134,7 +134,7 @@ enum DiagCommand {
 
         /// Give up after this many seconds.
         #[clap(long, default_value = "120")]
-        seconds: u64,
+        timeout: u64,
     },
 }
 
@@ -151,7 +151,7 @@ fn main() -> color_eyre::Result<()> {
             save_images,
         } => watch(&args, *seconds, save_images.as_deref(), None),
         DiagCommand::Scan {
-            seconds,
+            timeout,
             save_images,
             profile_file,
             select,
@@ -161,7 +161,7 @@ fn main() -> color_eyre::Result<()> {
             no_start,
         } => watch(
             &args,
-            *seconds,
+            *timeout,
             save_images.as_deref(),
             Some(&ScanSetup {
                 profile_file: profile_file.as_deref(),
@@ -193,7 +193,7 @@ fn main() -> color_eyre::Result<()> {
             println!("SetScannerSetup({file}) ok");
             Ok(())
         }
-        DiagCommand::Logs { out, all, seconds } => logs(&args, out, *all, *seconds),
+        DiagCommand::Logs { out, all, timeout } => logs(&args, out, *all, *timeout),
     }
 }
 
@@ -397,14 +397,12 @@ fn watch(
     }
 
     let deadline = Instant::now() + Duration::from_secs(seconds);
-    println!("watching for {seconds}s; feed sheets now");
-
-    while let Some(remaining) = deadline.checked_duration_since(Instant::now()) {
-        let Ok(event) = events.recv_timeout(remaining) else {
-            break;
-        };
-        print_event(&event, save_images)?;
+    if scan.is_some() {
+        println!("watching for up to {seconds}s or until the batch ends; feed sheets now");
+    } else {
+        println!("watching for {seconds}s; feed sheets now");
     }
+    stream(&events, deadline, save_images, scan.is_some())?;
 
     if scan.is_some() {
         match driver.scan_stop() {
@@ -449,6 +447,68 @@ fn logs(args: &Args, out: &str, all: bool, seconds: u64) -> color_eyre::Result<(
 }
 
 /// Prints one event the way `watch` does, saving the image when `save_images` is set.
+fn stream(
+    events: &std::sync::mpsc::Receiver<Event>,
+    deadline: Instant,
+    save_images: Option<&str>,
+    stop_at_batch_end: bool,
+) -> color_eyre::Result<()> {
+    let mut batch = BatchTracker::default();
+    while let Some(remaining) = deadline.checked_duration_since(Instant::now()) {
+        let timeout = if batch.finished() {
+            remaining.min(BATCH_END_GRACE)
+        } else {
+            remaining
+        };
+        let Ok(event) = events.recv_timeout(timeout) else {
+            break;
+        };
+        print_event(&event, save_images)?;
+        if stop_at_batch_end {
+            batch.observe(&event);
+        }
+    }
+    if batch.finished() {
+        println!("feeder empty and scanner ready; batch finished");
+    }
+    Ok(())
+}
+
+/// `CTYPE_STATUS` values the scanner sends with "Ready for Scan" and "Scanning".
+const STATUS_READY: u32 = 1;
+const STATUS_SCANNING: u32 = 4;
+
+/// How long to keep listening for trailing images once a batch looks finished.
+const BATCH_END_GRACE: Duration = Duration::from_secs(1);
+
+/// Recognizes the end of a batch: it was scanning, the feeder is empty and the scanner is ready.
+#[derive(Default)]
+struct BatchTracker {
+    scanned: bool,
+    feeder_empty: bool,
+    ready: bool,
+}
+
+impl BatchTracker {
+    fn observe(&mut self, event: &Event) {
+        let Event::Control(control) = event else {
+            return;
+        };
+        match control.ctype {
+            ffi::CTYPE_STATUS => {
+                self.scanned |= control.num_data == STATUS_SCANNING;
+                self.ready = control.num_data == STATUS_READY;
+            }
+            ffi::CTYPE_FEEDER => self.feeder_empty = control.num_data == 0,
+            _ => {}
+        }
+    }
+
+    fn finished(&self) -> bool {
+        self.scanned && self.feeder_empty && self.ready
+    }
+}
+
 fn print_event(event: &Event, save_images: Option<&str>) -> color_eyre::Result<()> {
     match event {
         Event::Log(message) => println!("log      {message}"),
