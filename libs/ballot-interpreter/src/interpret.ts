@@ -15,7 +15,7 @@ import {
   type Contest,
   type BallotPageContestLayout,
   type BallotPageContestOptionLayout,
-  type BallotStyle,
+  type GetCandidateOrderingsFn,
   type BallotStyleId,
   type BallotTargetMark,
   type ContestId,
@@ -41,8 +41,10 @@ import {
   type WriteInId,
   type ImageData,
   type RgbaImageData,
+  type OptionalCandidateOrderings,
 } from '@votingworks/types';
 import {
+  CachedElectionLookups,
   convertMarksToVotesDict,
   time,
   uniqueContestOptions,
@@ -93,7 +95,7 @@ interface ScoredContestOption {
 
 function createContestOptionLookup(
   contests: readonly Contest[],
-  ballotStyle: BallotStyle
+  candidateOrderings: OptionalCandidateOrderings
 ): (gridPosition: GridPosition) => ContestOption {
   const optionsByContestId = new Map<ContestId, ContestOption[]>();
 
@@ -101,12 +103,7 @@ function createContestOptionLookup(
     let options = optionsByContestId.get(gridPosition.contestId);
     if (!options) {
       const contest = find(contests, (c) => c.id === gridPosition.contestId);
-      options = [
-        ...uniqueContestOptions(
-          contest,
-          ballotStyle.orderedCandidatesByContest
-        ),
-      ];
+      options = [...uniqueContestOptions(contest, candidateOrderings)];
       optionsByContestId.set(contest.id, options);
     }
     const option = options.find((o) =>
@@ -160,15 +157,18 @@ function aggregateContestOptionScores({
   writeIns,
   contests,
   options,
-  ballotStyle,
+  candidateOrderings,
 }: {
   marks: ScoredBubbleMarks;
   writeIns: ScoredPositionArea[];
   contests: readonly Contest[];
   options: InterpreterOptions;
-  ballotStyle: BallotStyle;
+  candidateOrderings: OptionalCandidateOrderings;
 }): ScoredContestOption[] {
-  const getContestOption = createContestOptionLookup(contests, ballotStyle);
+  const getContestOption = createContestOptionLookup(
+    contests,
+    candidateOrderings
+  );
   return marks.map(([gridPosition, scoredMark]) => {
     const option = getContestOption(gridPosition);
 
@@ -325,7 +325,7 @@ export function determineAdjudicationInfoFromScoredContestOptions(
   electionDefinition: ElectionDefinition,
   options: InterpreterOptions,
   contestOptionScores: ScoredContestOption[],
-  ballotStyle: BallotStyle
+  candidateOrderings: OptionalCandidateOrderings
 ): AdjudicationInfo {
   const enabledReasons = options.adjudicationReasons;
 
@@ -337,7 +337,7 @@ export function determineAdjudicationInfoFromScoredContestOptions(
   const adjudicationReasonInfos = getAllPossibleAdjudicationReasons(
     contests,
     contestOptionScores,
-    ballotStyle
+    candidateOrderings
   );
 
   const [enabledReasonInfos, ignoredReasonInfos] = iter(
@@ -355,7 +355,7 @@ export function determineAdjudicationInfoFromScoredContestOptions(
 function convertContestLayouts(
   contests: readonly Contest[],
   contestLayouts: InterpretedContestLayout[],
-  ballotStyle: BallotStyle
+  candidateOrderings: OptionalCandidateOrderings
 ): BallotPageContestLayout[] {
   function convertRect(rect: NextRect): Rect {
     return {
@@ -378,8 +378,6 @@ function convertContestLayouts(
       { x: rect.left + rect.width, y: rect.top + rect.height },
     ];
   }
-
-  const candidateOrderings = ballotStyle.orderedCandidatesByContest;
 
   function convertContestOptionLayout(
     contestOptions: readonly ContestOption[],
@@ -417,17 +415,12 @@ function convertContestLayouts(
 function convertInterpretedBallotPage(
   electionDefinition: ElectionDefinition,
   options: InterpreterOptions,
+  candidateOrderings: OptionalCandidateOrderings,
   interpretedBallotCard: InterpretedBallotCard,
   side: 'front' | 'back'
 ): PageInterpretation {
   const { metadata } = interpretedBallotCard[side];
 
-  const ballotStyle = assertDefined(
-    getBallotStyle({
-      ballotStyleId: metadata.ballotStyleId,
-      election: electionDefinition.election,
-    })
-  );
   const interpretation = interpretedBallotCard[side];
   const contestOptionScores: ScoredContestOption[] =
     aggregateContestOptionScores({
@@ -435,7 +428,7 @@ function convertInterpretedBallotPage(
       writeIns: interpretation.writeIns,
       contests: electionDefinition.election.contests,
       options,
-      ballotStyle,
+      candidateOrderings,
     });
   const markInfo = convertScoredContestOptionsToMarkInfo(
     interpretation.timingMarks.geometry,
@@ -449,7 +442,7 @@ function convertInterpretedBallotPage(
       electionDefinition,
       options,
       contestOptionScores,
-      ballotStyle
+      candidateOrderings
     ),
     votes: convertMarksToVotesDict(
       electionDefinition.election.contests,
@@ -465,7 +458,7 @@ function convertInterpretedBallotPage(
       contests: convertContestLayouts(
         electionDefinition.election.contests,
         interpretation.contestLayouts,
-        ballotStyle
+        candidateOrderings
       ),
     },
   };
@@ -477,6 +470,7 @@ function convertInterpretedBallotPage(
  */
 export function convertRustInterpretResult(
   options: InterpreterOptions,
+  getCandidateOrderings: GetCandidateOrderingsFn,
   result: HmpbInterpretResult,
   sheet: SheetOf<ImageData>
 ): InterpretResult {
@@ -508,16 +502,25 @@ export function convertRustInterpretResult(
   }
 
   const ballotCard = result.ok();
+
+  const ballotStyle = CachedElectionLookups.getBallotStyleById(
+    options.electionDefinition,
+    ballotCard.front.metadata.ballotStyleId
+  );
+  const candidateOrderings = getCandidateOrderings(ballotStyle);
+
   return ok([
     convertInterpretedBallotPage(
       options.electionDefinition,
       options,
+      candidateOrderings,
       ballotCard,
       'front'
     ),
     convertInterpretedBallotPage(
       options.electionDefinition,
       options,
+      candidateOrderings,
       ballotCard,
       'back'
     ),
@@ -575,7 +578,8 @@ function validateInterpretResults(
  */
 async function interpretHmpb(
   sheet: SheetOf<ImageData>,
-  options: InterpreterOptions
+  options: InterpreterOptions,
+  getCandidateOrderings: GetCandidateOrderingsFn
 ): Promise<{
   rawResult: HmpbInterpretResult;
   interpretation: SheetOf<PageInterpretation>;
@@ -593,12 +597,16 @@ async function interpretHmpb(
     dbPath: assertDefined(options.dbPath),
   });
 
+  const converted = convertRustInterpretResult(
+    options,
+    getCandidateOrderings,
+    rawResult,
+    sheet
+  ).unsafeUnwrap();
+
   return {
     rawResult,
-    interpretation: validateInterpretResults(
-      convertRustInterpretResult(options, rawResult, sheet).unsafeUnwrap(),
-      options
-    ),
+    interpretation: validateInterpretResults(converted, options),
   };
 }
 
@@ -809,13 +817,14 @@ function chooseInterpretationToUse(
  */
 export async function interpretSheet(
   options: InterpreterOptions,
+  getCandidateOrderings: GetCandidateOrderingsFn,
   sheet: SheetOf<ImageData>
 ): Promise<SheetOf<PageInterpretation>> {
   const timer = time(debug, 'interpretSheet');
 
   try {
     const hmpb = options.dbPath
-      ? await interpretHmpb(sheet, options)
+      ? await interpretHmpb(sheet, options, getCandidateOrderings)
       : undefined;
 
     const hmpbInterpretation = hmpb?.interpretation;
@@ -869,6 +878,7 @@ export async function interpretSheet(
  */
 export async function interpretSheetAndSaveImages(
   interpreterOptions: InterpreterOptions,
+  getCandidateOrderings: GetCandidateOrderingsFn,
   sheet: SheetOf<ImageData>,
   sheetId: Id,
   ballotImagesPath: string
@@ -885,6 +895,7 @@ export async function interpretSheetAndSaveImages(
       frontNormalizedImageOutputPath,
       backNormalizedImageOutputPath,
     },
+    getCandidateOrderings,
     sheet
   );
 

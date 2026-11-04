@@ -31,10 +31,12 @@ import {
   type RgbaImageData,
   type BaseBallotProps,
   type ElectionDefinition,
+  type CandidateContest,
   getBallotStyle,
   gridPositionsFromBallotPositions,
   LATEST_SOFTWARE_VERSION,
   DEFAULT_SYSTEM_SETTINGS,
+  type CandidateOrderings,
 } from '@votingworks/types';
 import { createCanvas } from 'canvas';
 import {
@@ -53,16 +55,33 @@ import {
 import { interpretSheet } from './interpret.js';
 import type { InterpreterOptions } from './types.js';
 import { normalizeBallotMode } from './validation.js';
+import { getAllPossibleAdjudicationReasons } from './adjudication_reasons.js';
 
 vi.mock('./validation');
 
+vi.mock(import('./adjudication_reasons.js'), async (importActual) => {
+  const actual = await importActual();
+  return {
+    ...actual,
+    getAllPossibleAdjudicationReasons: vi.fn(
+      actual.getAllPossibleAdjudicationReasons
+    ),
+  };
+});
+
 beforeEach(() => {
+  vi.resetAllMocks();
   vi.mocked(normalizeBallotMode).mockImplementation((input) => input);
 });
 
 describe('HMPB - VX Famous Names', () => {
-  const { electionDefinition, votes, blankBallotPath, markedBallotPath } =
-    vxFamousNamesFixtures;
+  const {
+    ballotStyle,
+    electionDefinition,
+    votes,
+    blankBallotPath,
+    markedBallotPath,
+  } = vxFamousNamesFixtures;
   const precinctId = assertDefined(vxFamousNamesFixtures.precinctId);
 
   test('Blank ballot interpretation', async () => {
@@ -79,6 +98,7 @@ describe('HMPB - VX Famous Names', () => {
         adjudicationReasons: [],
         dbPath: await makeInterpreterDb(electionDefinition),
       },
+      (bs) => bs.orderedCandidatesByContest,
       images
     );
 
@@ -130,6 +150,7 @@ describe('HMPB - VX Famous Names', () => {
         adjudicationReasons: [],
         dbPath: await makeInterpreterDb(electionDefinition),
       },
+      (bs) => bs.orderedCandidatesByContest,
       images
     );
 
@@ -162,6 +183,7 @@ describe('HMPB - VX Famous Names', () => {
           ballotHash: wrongElectionDefinition.ballotHash,
         }),
       },
+      (bs) => bs.orderedCandidatesByContest,
       images
     );
 
@@ -183,6 +205,7 @@ describe('HMPB - VX Famous Names', () => {
         adjudicationReasons: [],
         dbPath: await makeInterpreterDb(electionDefinition),
       },
+      (bs) => bs.orderedCandidatesByContest,
       images
     );
 
@@ -202,6 +225,7 @@ describe('HMPB - VX Famous Names', () => {
         adjudicationReasons: [],
         dbPath: await makeInterpreterDb(electionDefinition),
       },
+      (bs) => bs.orderedCandidatesByContest,
       images
     );
 
@@ -230,7 +254,11 @@ describe('HMPB - VX Famous Names', () => {
       }
     );
 
-    const interpretationResult = await interpretSheet(options, images);
+    const interpretationResult = await interpretSheet(
+      options,
+      (bs) => bs.orderedCandidatesByContest,
+      images
+    );
     expect(interpretationResult[0]).toEqual(blankPageInterpretation);
     expect(interpretationResult[1]).toEqual(blankPageInterpretation);
   });
@@ -261,6 +289,7 @@ describe('HMPB - VX Famous Names', () => {
         adjudicationReasons: [],
         dbPath: await makeInterpreterDb(electionDefinition),
       },
+      (bs) => bs.orderedCandidatesByContest,
       [streakImage, backImage]
     );
 
@@ -270,6 +299,41 @@ describe('HMPB - VX Famous Names', () => {
     };
     expect(frontResult).toEqual(streaksInterpretation);
     expect(backResult).toEqual(streaksInterpretation);
+  });
+
+  test('uses injected candidate orderings', async () => {
+    const aldermanContest = find(
+      electionDefinition.election.contests,
+      (c): c is CandidateContest => c.id === 'board-of-alderman'
+    );
+
+    const reversedCandidates = aldermanContest.candidates.toReversed();
+    const mockOrderings: CandidateOrderings = {
+      [aldermanContest.id]: reversedCandidates,
+    };
+
+    vi.mocked(getAllPossibleAdjudicationReasons).mockImplementation(
+      (_contests, _scores, orderings) => {
+        expect(orderings).toEqual<CandidateOrderings>(mockOrderings);
+        return [];
+      }
+    );
+
+    const images = asSheet(await pdfToPageImages(markedBallotPath).toArray());
+    await interpretSheet(
+      {
+        electionDefinition,
+        validPrecinctIds: new Set([precinctId]),
+        testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
+        dbPath: await makeInterpreterDb(electionDefinition),
+      },
+      (bs) => (bs.groupId === ballotStyle.groupId ? mockOrderings : null),
+      images
+    );
+
+    expect(getAllPossibleAdjudicationReasons).toHaveBeenCalled();
   });
 });
 
@@ -424,6 +488,7 @@ for (const spec of vxGeneralElectionFixtures.fixtureSpecs) {
             adjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
             dbPath: await makeInterpreterDb(electionDefinition),
           },
+          (bs) => bs.orderedCandidatesByContest,
           sheetImages
         );
 
@@ -519,6 +584,7 @@ describe('HMPB - VX primary election', () => {
           adjudicationReasons: [],
           dbPath: await makeInterpreterDb(electionDefinition),
         },
+        (bs) => bs.orderedCandidatesByContest,
         images
       );
 
@@ -568,6 +634,7 @@ describe('HMPB - VX primary election', () => {
           adjudicationReasons: [],
           dbPath: await makeInterpreterDb(electionDefinition),
         },
+        (bs) => bs.orderedCandidatesByContest,
         images
       );
 
@@ -601,6 +668,7 @@ describe('HMPB - VX primary election', () => {
         adjudicationReasons: [],
         dbPath: await makeInterpreterDb(electionDefinition),
       },
+      (bs) => bs.orderedCandidatesByContest,
       [frontImage, backImage]
     );
 
@@ -633,6 +701,7 @@ describe('HMPB - VX primary election', () => {
         adjudicationReasons: [],
         dbPath: await makeInterpreterDb(electionDefinition),
       },
+      (bs) => bs.orderedCandidatesByContest,
       [frontImage, backImage]
     );
 
@@ -672,6 +741,7 @@ for (const spec of nhGeneralElectionFixtures.fixtureSpecs) {
             adjudicationReasons: [AdjudicationReason.UnmarkedWriteIn],
             dbPath: await makeInterpreterDb(electionDefinition),
           },
+          (bs) => bs.orderedCandidatesByContest,
           sheetImages
         );
 
@@ -761,6 +831,7 @@ describe('HMPB - MI general election (straight party contest)', () => {
           adjudicationReasons: [],
           dbPath: await makeInterpreterDb(electionDefinition),
         },
+        (bs) => bs.orderedCandidatesByContest,
         sheetImages
       );
 
@@ -801,6 +872,7 @@ test('Non-consecutive page numbers', async () => {
       adjudicationReasons: [],
       dbPath: await makeInterpreterDb(electionDefinition),
     },
+    (bs) => bs.orderedCandidatesByContest,
     [frontImage!, backImage!]
   );
 
@@ -864,6 +936,7 @@ test('Spoofed-hash ballot whose grid exceeds detected timing-mark grid is reject
         ballotHash: spoofed.ballotHash,
       }),
     },
+    (bs) => bs.orderedCandidatesByContest,
     letterImages
   );
 
@@ -912,6 +985,7 @@ test('Ballot audit IDs', async () => {
       adjudicationReasons: [],
       dbPath: await makeInterpreterDb(electionDefinitionModified),
     },
+    (bs) => bs.orderedCandidatesByContest,
     images
   );
 
@@ -971,6 +1045,7 @@ describe('Contest option bounds', () => {
         adjudicationReasons: [],
         dbPath: await makeInterpreterDb(electionDefinition),
       },
+      (bs) => bs.orderedCandidatesByContest,
       images
     );
 
@@ -1035,6 +1110,7 @@ describe('Contest option bounds', () => {
         adjudicationReasons: [],
         dbPath: await makeInterpreterDb(electionDefinition),
       },
+      (bs) => bs.orderedCandidatesByContest,
       images
     );
 

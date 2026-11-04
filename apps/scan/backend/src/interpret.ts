@@ -6,6 +6,7 @@ import {
 import { ok, type Result } from '@votingworks/basics';
 import {
   mapSheet,
+  type GetCandidateOrderingsFn,
   type ImageData,
   type SheetInterpretationWithPages,
   type SheetOf,
@@ -16,12 +17,16 @@ import { rootDebug } from './util/debug.js';
 export async function interpret(
   sheetId: string,
   sheet: SheetOf<ImageData>,
-  options: InterpreterOptions & { ballotImagesPath: string }
+  options: InterpreterOptions & {
+    ballotImagesPath: string;
+    getCandidateOrderings: GetCandidateOrderingsFn;
+  }
 ): Promise<Result<SheetInterpretationWithPages, Error>> {
   const timer = time(rootDebug, `vxInterpret: ${sheetId}`);
 
   const pageInterpretations = await interpretSheetAndSaveImages(
     options,
+    options.getCandidateOrderings,
     sheet,
     sheetId,
     options.ballotImagesPath
