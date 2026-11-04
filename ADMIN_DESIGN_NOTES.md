@@ -9,6 +9,126 @@ Branch `caro/admin-design-sqlite-scratch-a9ac04`, cut from the prototype at
 stays on Postgres. Everything below this section describes the Postgres
 prototype.
 
+### Boundary applied (2026-11-03)
+
+Commits `a3a4764228` (backend and libs) and `29788aae38` (design-ui and
+frontends). The rule: share only when it's easy and clear.
+
+**Shared, in `libs/design-backend`:**
+
+- **`DesignElectionStore` (115 lines)**, narrowed to the content methods plus
+  the reads the shared screens need:
+  - `getElection`, the whole-election `createElection` insert (Q3: a store
+    method on each side), `updateElectionInfo` (Q4: shared content);
+  - districts, precincts and splits, voter counts, parties, contests, polling
+    places, ballot styles;
+  - the `getBallotLayoutSettings` and `getBallotTemplate` reads.
+
+  Removed from the interface: `deleteElection`, system settings, layout/template
+  writes, and get/set finalizedAt.
+
+- **`buildElectionDesignMethods` (261 lines)** now returns
+  `SharedElectionDesignMethods`. That's the design-ui contract minus
+  `deleteElection` and `isElectionEditable`, which each app provides.
+  `createApi(methods satisfies ElectionDesignMethods)` in both apps checks that
+  nothing is missing.
+- **Validators (`validation.ts`, 164 lines, with 228 lines of unit tests that
+  need no database):**
+  - `validateDistrictChanges` and `validatePartyChanges` check the batch's final
+    state.
+  - `validatePrecinct` checks name, then split districts, then split names.
+  - `validateContest` checks options, then contest, then candidates, with
+    missing fields counting as equal.
+  - `validatePollingPlace` checks name per type and unknown precincts.
+
+  The builder reads the current list, validates, then writes. Two details match
+  hub's existing tests:
+  - in a batch, the _later_ item of a conflicting pair is reported;
+  - updates to unknown ids skip validation, so the store still throws "not
+    found".
+
+  Parties now report name → full name → abbreviation in that order, so the
+  multi-duplicate test expects `duplicate-name`. Hub's old answer was
+  `duplicate-abbrev`, which came from index creation order.
+
+- **Contract change:** `getBallotsFinalizedAt` is replaced by
+  `isElectionEditable` (Q5).
+  - Hub: not finalized (approve implies finalize).
+  - Admin: not finalized and not activated.
+  - design-ui's screens all read it. Their variables are renamed to
+    `editableQuery`/`locked`.
+  - Election Info now hides Edit and Delete when locked; it used to disable Edit
+    and always show Delete. The other tabs already hid their Edit controls.
+    Their Add/Reorder buttons stay disabled rather than hidden, as before.
+
+**Moved to hub (`hub_election_methods.ts`, 174 lines):** the old setup methods
+(load, create, layout/settings/template updates), `cloneElection`, and hub's
+`deleteElection`, `isElectionEditable` and `getBallotsFinalizedAt`. Hub's
+frontend now owns its `getBallotsFinalizedAt` hook, used by its export and
+ballots screens and the reorder button.
+
+**Admin:** `DesignStore` dropped all error mapping and code-side duplicate
+checks: `UNIQUE_INDEX_COLUMNS`, message matching, `assertNoDuplicate*`, three
+`handle*Error` functions, and the split-district throw. It went from 1,517 to
+1,259 lines. Its write methods now always return `ok()`; a violated unique index
+throws as a backstop.
+
+**Deviations, all choosing duplication or leaving code alone:**
+
+- **Hub's store is unchanged** (Q1). Its full constraint-name mapping and its
+  own option-label and split-district checks are kept. They now act as the race
+  fallback, so they're redundant with the validators in the normal case.
+  Trimming them would mean reworking a lot of hub store tests for no behavioral
+  gain. This is more than the "small fallback" we discussed.
+- **Polling-place auto-generation stays in each store** (Q2). Moving it up would
+  need a new combined store method to stay atomic. Admin's version now checks
+  for an existing name before inserting, since its insert no longer maps the
+  duplicate.
+- **`deleteElection` is per-app,** even though design-ui calls it from the
+  shared Election Info screen.
+- **`createElection` stays in the shared interface.** The store tests need it to
+  set up elections, and it's the one non-CRUD write there.
+
+Store tests: 23 cases, run through the shared builder on each store.
+
+- **Changes:** the "delete election" test was removed (lifecycle). The round
+  trip no longer sets compact layout or finalizes; paper size now comes from the
+  election itself. A backstop test checks that each store rejects duplicate
+  district, party and precinct names even without validation, by either
+  returning an error or throwing.
+- **Snapshot:** regenerated; both stores match it.
+- **Runs:**
+  - Hub backend: 245/245.
+  - Admin backend: 781/782 (the known `app.test.ts` failure).
+  - design-backend validators: 6/6.
+  - Type-checks: design-backend, design-ui, hub backend and frontend, admin
+    backend and frontend.
+
+Click-through (`sqlite-18`…`22`):
+
+- Activated design: Election Info has no Edit or Delete; Districts hides Edit
+  Districts, with Add disabled.
+- Fresh editable design: Edit and Delete show.
+- After finalize: Info, Parties and Contests hide edit, and the API refuses with
+  `design:finalized`.
+
+Dev note: Vite hit the system file-watcher limit (`ENOSPC`), so this ran from
+`admin-sqlite-3010-poll` (`CHOKIDAR_USEPOLLING=1`).
+
+**Line counts now:**
+
+- Shared production code in design-backend: about 3,380 lines, including the
+  interface (115), builder (261) and validators (164).
+- Shared tests: 1,107 store tests and 228 validator tests.
+- Hub-owned: `ElectionStore` 1,833 and `hub_election_methods` 174.
+- Admin-owned: `DesignStore` 1,259, schema 204 and the lifecycle API 333.
+
+Before this change: shared production code about 2,970 lines, hub store 1,833,
+admin store 1,517.
+
+Not done: coverage for `libs/design-backend` as a whole (its new unit tests
+would make CI enforce 100% on the lib), and a lint pass.
+
 ### Share vs duplicate boundary
 
 Analysis only; no code changed for this section. Line counts are from this
