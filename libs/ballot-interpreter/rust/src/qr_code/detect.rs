@@ -119,9 +119,8 @@ pub fn get_hmpb_detection_areas(img: &GrayImage) -> Vec<DetectionArea<'_>> {
 }
 
 /// Gets the broad detection areas for summary (BMD) ballots: bottom 60% then
-/// top 50% of the image at full width. Uses `Portrait` for the bottom area
-/// (QR at bottom = right-side up) and `PortraitReversed` for the top area
-/// (QR at top = upside down).
+/// top 50% of the image at full width. A summary ballot's QR code is printed at
+/// the top, so finding it in the bottom area means the page is upside down.
 pub fn get_broad_detection_areas(img: &GrayImage) -> Vec<DetectionArea<'_>> {
     let (width, height) = img.dimensions();
     let height_midpoint = height / 2;
@@ -143,8 +142,13 @@ pub fn get_broad_detection_areas(img: &GrayImage) -> Vec<DetectionArea<'_>> {
     };
 
     vec![
-        DetectionArea::new(img, bottom_origin, bottom_size, Orientation::Portrait),
-        DetectionArea::new(img, top_origin, top_size, Orientation::PortraitReversed),
+        DetectionArea::new(
+            img,
+            bottom_origin,
+            bottom_size,
+            Orientation::PortraitReversed,
+        ),
+        DetectionArea::new(img, top_origin, top_size, Orientation::Portrait),
     ]
 }
 
@@ -538,11 +542,11 @@ mod test {
 
         // Bottom 60%: from 40% to 100% of height, full width
         assert_eq!(areas[0].bounds(), Rect::new(0, 800, 1000, 1200));
-        assert_eq!(areas[0].orientation(), Orientation::Portrait);
+        assert_eq!(areas[0].orientation(), Orientation::PortraitReversed);
 
         // Top 50%: from 0% to 50% of height, full width
         assert_eq!(areas[1].bounds(), Rect::new(0, 0, 1000, 1000));
-        assert_eq!(areas[1].orientation(), Orientation::PortraitReversed);
+        assert_eq!(areas[1].orientation(), Orientation::Portrait);
     }
 
     #[test]
@@ -585,5 +589,53 @@ mod test {
             &ImageDebugWriter::disabled(),
         )
         .expect("bottom QR code should be detected");
+    }
+
+    fn load_summary_ballot_fixture(name: &str) -> GrayImage {
+        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../test/fixtures/famous-names-summary-ballot")
+            .join(name);
+        image::open(path).unwrap().into_luma8()
+    }
+
+    #[test]
+    fn test_detect_summary_ballot_qr_code() {
+        let image = load_summary_ballot_fixture("summary-page.png");
+        let qr_code =
+            detect_with_strategy(&image, SearchStrategy::Broad, &ImageDebugWriter::disabled())
+                .unwrap();
+        assert_eq!(qr_code.kind(), QrCodeKind::SummaryBallot);
+        assert_eq!(qr_code.orientation(), Orientation::Portrait);
+    }
+
+    #[test]
+    fn test_detect_upside_down_summary_ballot_qr_code() {
+        let mut image = load_summary_ballot_fixture("summary-page.png");
+        image::imageops::rotate180_in_place(&mut image);
+        let qr_code =
+            detect_with_strategy(&image, SearchStrategy::Broad, &ImageDebugWriter::disabled())
+                .unwrap();
+        assert_eq!(qr_code.kind(), QrCodeKind::SummaryBallot);
+        assert_eq!(qr_code.orientation(), Orientation::PortraitReversed);
+    }
+
+    /// rqrr stands in for the TypeScript interpreter's quirc fallback, so it
+    /// must be able to read a summary ballot QR code on its own.
+    #[test]
+    fn test_rqrr_detects_summary_ballot_qr_code() {
+        let image = load_summary_ballot_fixture("summary-page.png");
+        let areas = get_broad_detection_areas(&image);
+        let qr_code = unwrap_qr_payload(&rqrr::detect_in_areas(&areas).unwrap());
+        assert_eq!(qr_code.kind(), QrCodeKind::SummaryBallot);
+        assert_eq!(qr_code.orientation(), Orientation::Portrait);
+    }
+
+    #[test]
+    fn test_detect_no_qr_code_on_blank_page() {
+        let image = load_summary_ballot_fixture("blank-page.png");
+        assert!(matches!(
+            detect_with_strategy(&image, SearchStrategy::Broad, &ImageDebugWriter::disabled()),
+            Err(Error::NoQrCodeDetected { .. })
+        ));
     }
 }
