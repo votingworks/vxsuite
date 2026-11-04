@@ -67,14 +67,7 @@ sed 's/^/  /' <<<"${jobs}" >&2
 {
   cat "${circleci_dir}/continue_config.yml"
   printf '\n\nworkflows:\n  test:\n    jobs:\n'
-  while read -r job; do
-    printf '      - %s:\n          context:\n            - screenshots-publishing\n' "${job}"
-  done <<<"${jobs}"
+  sed 's/^/      - /' <<<"${jobs}"
   printf '      - %s:\n          requires:\n' "$(jq -r .passedJob "${selection}")"
   sed 's/^/            - /' <<<"${jobs}"
-  if [[ "${CIRCLE_BRANCH:-}" == main ]]; then
-    printf '      - %s:\n          context:\n            - screenshots-publishing\n          requires:\n' \
-      "$(jq -r .galleryJob "${selection}")"
-    jq -r '.galleryRequires[] | "            - \(.)"' "${selection}"
-  fi
 } >"${out}"

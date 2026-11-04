@@ -39,18 +39,13 @@ test('continue config defines every job but no workflows', () => {
   expect(continueConfig).toContain('ci-passed:');
   expect(jobSelection.passedJob).toEqual('ci-passed');
 
-  // Screenshot publishing: per-app upload step is emitted for each
-  // integration-testing job, and the notify-gallery job (which triggers the
-  // GitHub Actions gallery build) is wired into the workflow on `main` only.
-  expect(continueConfig).toContain('aws-cli: circleci/aws-cli@5');
-  expect(continueConfig).toContain('notify-gallery:');
-  expect(continueConfig).toContain('build-screenshot-gallery');
-  expect(continueConfig).toContain(
-    '"s3://$SCREENSHOT_BUCKET/screenshots/admin/"'
-  );
-  expect(continueConfig).toContain(
-    '"s3://$SCREENSHOT_BUCKET/screenshots/mark-scan/"'
-  );
+  // Screenshot generation and gallery publishing live in the
+  // vxsuite-screenshots repo, so nothing here uploads to S3 or triggers a
+  // gallery build; the Playwright suites still run as tests.
+  expect(continueConfig).toContain('test-apps-mark-integration-testing:');
+  expect(continueConfig).not.toContain('SCREENSHOT_BUCKET');
+  expect(continueConfig).not.toContain('notify-gallery');
+  expect(continueConfig).not.toContain('screenshots-publishing');
 });
 
 test('job selection maps package directories to their test jobs', () => {
@@ -71,12 +66,5 @@ test('job selection maps package directories to their test jobs', () => {
   expect('Cargo.lock').toMatch(new RegExp(jobSelection.rustPattern));
   expect('libs/types/src/election.ts').not.toMatch(
     new RegExp(jobSelection.rustPattern)
-  );
-
-  expect(jobSelection.galleryRequires).toContain(
-    'test-apps-admin-integration-testing'
-  );
-  expect(jobSelection.galleryRequires).not.toContain(
-    'test-apps-admin-frontend'
   );
 });

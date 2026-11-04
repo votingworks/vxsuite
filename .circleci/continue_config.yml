@@ -5,9 +5,6 @@
 
 version: 2.1
 
-orbs:
-  aws-cli: circleci/aws-cli@5
-
 executors:
   nodejs:
     docker:
@@ -142,19 +139,6 @@ jobs:
           path: apps/admin/integration-testing/test-results/
       - when:
           condition:
-            equal: [ main, << pipeline.git.branch >> ]
-          steps:
-            - aws-cli/setup
-            - run:
-                name: Upload screenshots to S3
-                command: |
-                  if [ -d "apps/admin/integration-testing/test-results/screenshots" ]; then
-                    aws s3 sync apps/admin/integration-testing/test-results/screenshots/ \
-                      "s3://$SCREENSHOT_BUCKET/screenshots/admin/" \
-                      --exclude "*" --include "*.png" --delete
-                  fi
-      - when:
-          condition:
             or:
               - equal: [ main, << pipeline.git.branch >> ]
           steps:
@@ -282,19 +266,6 @@ jobs:
           path: apps/central-scan/integration-testing/test-results/
       - store_artifacts:
           path: apps/central-scan/integration-testing/test-results/
-      - when:
-          condition:
-            equal: [ main, << pipeline.git.branch >> ]
-          steps:
-            - aws-cli/setup
-            - run:
-                name: Upload screenshots to S3
-                command: |
-                  if [ -d "apps/central-scan/integration-testing/test-results/screenshots" ]; then
-                    aws s3 sync apps/central-scan/integration-testing/test-results/screenshots/ \
-                      "s3://$SCREENSHOT_BUCKET/screenshots/central-scan/" \
-                      --exclude "*" --include "*.png" --delete
-                  fi
       - when:
           condition:
             or:
@@ -508,19 +479,6 @@ jobs:
           path: apps/mark-scan/integration-testing/test-results/
       - when:
           condition:
-            equal: [ main, << pipeline.git.branch >> ]
-          steps:
-            - aws-cli/setup
-            - run:
-                name: Upload screenshots to S3
-                command: |
-                  if [ -d "apps/mark-scan/integration-testing/test-results/screenshots" ]; then
-                    aws s3 sync apps/mark-scan/integration-testing/test-results/screenshots/ \
-                      "s3://$SCREENSHOT_BUCKET/screenshots/mark-scan/" \
-                      --exclude "*" --include "*.png" --delete
-                  fi
-      - when:
-          condition:
             or:
               - equal: [ main, << pipeline.git.branch >> ]
           steps:
@@ -648,19 +606,6 @@ jobs:
           path: apps/mark/integration-testing/test-results/
       - store_artifacts:
           path: apps/mark/integration-testing/test-results/
-      - when:
-          condition:
-            equal: [ main, << pipeline.git.branch >> ]
-          steps:
-            - aws-cli/setup
-            - run:
-                name: Upload screenshots to S3
-                command: |
-                  if [ -d "apps/mark/integration-testing/test-results/screenshots" ]; then
-                    aws s3 sync apps/mark/integration-testing/test-results/screenshots/ \
-                      "s3://$SCREENSHOT_BUCKET/screenshots/mark/" \
-                      --exclude "*" --include "*.png" --delete
-                  fi
       - when:
           condition:
             or:
@@ -842,66 +787,6 @@ jobs:
                 paths:
                   - .turbo/cache
 
-  # @votingworks/print-integration-testing
-  test-apps-print-integration-testing:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install:
-          is_node_package: true
-      - run:
-          name: Install Browser
-          command: |
-            pnpm --dir apps/print/integration-testing exec playwright install-deps
-            pnpm --dir apps/print/integration-testing exec playwright install chromium
-      - run:
-          name: Build
-          command: |
-            pnpm --dir apps/print/integration-testing build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir apps/print/integration-testing lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir apps/print/integration-testing test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: apps/print/integration-testing/test-results/
-      - store_artifacts:
-          path: apps/print/integration-testing/test-results/
-      - when:
-          condition:
-            equal: [ main, << pipeline.git.branch >> ]
-          steps:
-            - aws-cli/setup
-            - run:
-                name: Upload screenshots to S3
-                command: |
-                  if [ -d "apps/print/integration-testing/test-results/screenshots" ]; then
-                    aws s3 sync apps/print/integration-testing/test-results/screenshots/ \
-                      "s3://$SCREENSHOT_BUCKET/screenshots/print/" \
-                      --exclude "*" --include "*.png" --delete
-                  fi
-      - when:
-          condition:
-            or:
-              - equal: [ main, << pipeline.git.branch >> ]
-          steps:
-            - run:
-                name: Prune Turbo Cache
-                when: always
-                command: |
-                  ./script/prune-turbo-cache
-            - save_cache:
-                name: Save Turbo Cache
-                when: always
-                key: turbo-cache-{{ .Environment.CIRCLE_JOB }}-{{ checksum ".circleci/continue_config.yml" }}-main-{{ .Revision }}
-                paths:
-                  - .turbo/cache
-
   # @votingworks/scan-backend
   test-apps-scan-backend:
     executor: nodejs
@@ -1014,19 +899,6 @@ jobs:
           path: apps/scan/integration-testing/test-results/
       - store_artifacts:
           path: apps/scan/integration-testing/test-results/
-      - when:
-          condition:
-            equal: [ main, << pipeline.git.branch >> ]
-          steps:
-            - aws-cli/setup
-            - run:
-                name: Upload screenshots to S3
-                command: |
-                  if [ -d "apps/scan/integration-testing/test-results/screenshots" ]; then
-                    aws s3 sync apps/scan/integration-testing/test-results/screenshots/ \
-                      "s3://$SCREENSHOT_BUCKET/screenshots/scan/" \
-                      --exclude "*" --include "*.png" --delete
-                  fi
       - when:
           condition:
             or:
@@ -2590,20 +2462,6 @@ jobs:
           name: All selected jobs passed
           command: |
             true
-
-  notify-gallery:
-    executor: nodejs
-    resource_class: small
-    steps:
-      - run:
-          name: Trigger screenshot gallery build on GitHub Actions
-          command: |
-            curl --fail --silent --show-error -X POST \
-              -H "Authorization: Bearer $GALLERY_DISPATCH_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              "https://api.github.com/repos/votingworks/vxsuite/dispatches" \
-              -d '{"event_type":"build-screenshot-gallery","client_payload":{"ref":"<< pipeline.git.branch >>","tag":"<< pipeline.git.tag >>","sha":"<< pipeline.git.revision >>"}}'
 
 commands:
   checkout-and-install:
