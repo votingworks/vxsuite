@@ -431,8 +431,8 @@ export function buildApi(ctx: AppContext) {
       const ballotMode = isTestMode ? 'test' : 'official';
 
       return store.getBallots({
-        ballotMode,
         ...input,
+        ballotMode,
       });
     },
 
@@ -449,7 +449,7 @@ export function buildApi(ctx: AppContext) {
       const isTestMode = store.getTestMode();
       const ballotMode = isTestMode ? 'test' : 'official';
 
-      return store.getDistinctBallotStylesCount({ ballotMode, ...input });
+      return store.getDistinctBallotStylesCount({ ...input, ballotMode });
     },
 
     async printBallot(input: {
