@@ -255,11 +255,6 @@ export class Store {
     ).electionDefinition;
 
     return [...rowsByKey.values()]
-      .sort(
-        (a, b) =>
-          b.totalCount - a.totalCount ||
-          a.precinctId.localeCompare(b.precinctId)
-      )
       .map((row) => addBallotsPropsToPrintCountRow(election, row))
       .sort(sortBallotPrintCounts);
   }
