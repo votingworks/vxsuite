@@ -44,7 +44,6 @@ import {
   type OptionalCandidateOrderings,
 } from '@votingworks/types';
 import {
-  CachedElectionLookups,
   convertMarksToVotesDict,
   time,
   uniqueContestOptions,
@@ -503,9 +502,12 @@ export function convertRustInterpretResult(
 
   const ballotCard = result.ok();
 
-  const ballotStyle = CachedElectionLookups.getBallotStyleById(
-    options.electionDefinition,
-    ballotCard.front.metadata.ballotStyleId
+  const ballotStyle = assertDefined(
+    getBallotStyle({
+      election: options.electionDefinition.election,
+      ballotStyleId: ballotCard.front.metadata.ballotStyleId,
+    }),
+    `ballot style ${ballotCard.front.metadata.ballotStyleId} not found`
   );
   const candidateOrderings = getCandidateOrderings(ballotStyle);
 
