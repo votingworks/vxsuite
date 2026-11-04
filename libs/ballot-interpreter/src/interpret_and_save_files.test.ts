@@ -49,6 +49,7 @@ test('interprets ballot images and saves images for storage', async () => {
       adjudicationReasons: [],
       dbPath: await makeInterpreterDb(electionDefinition),
     },
+    (bs) => bs.orderedCandidatesByContest,
     testBallot,
     'sheet-id',
     ballotImagesPath
@@ -77,6 +78,7 @@ test('saves images even when interpretation fails', async () => {
       adjudicationReasons: [],
       dbPath: await makeInterpreterDb(electionDefinition),
     },
+    (bs) => bs.orderedCandidatesByContest,
     [BLANK_PAGE_IMAGE_DATA, BLANK_PAGE_IMAGE_DATA],
     'sheet-id',
     ballotImagesPath
@@ -118,6 +120,7 @@ test.each<{ ballotImageBitDepth?: BallotImageBitDepth; expected: number }>([
         dbPath: await makeInterpreterDb(electionDefinition),
         ballotImageBitDepth,
       },
+      (bs) => bs.orderedCandidatesByContest,
       images,
       'sheet-id',
       makeTemporaryDirectory()

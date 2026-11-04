@@ -220,6 +220,7 @@ function buildMachine({
             ? store.getElectionPackageStore().getDbPath()
             : undefined,
         },
+        (bs) => store.getCandidateOrderingsStore().getCandidateOrderings(bs),
         [frontImageData.unsafeUnwrap(), backImageData.unsafeUnwrap()],
         sheetId,
         workspace.batchImagesPath(batchId)

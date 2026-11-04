@@ -44,6 +44,7 @@ describe.each(Object.values(HmpbBallotPaperSize))(
           adjudicationReasons: [AdjudicationReason.Overvote],
           dbPath: await makeInterpreterDb(electionDefinition),
         },
+        (bs) => bs.orderedCandidatesByContest,
         images
       );
 
@@ -80,6 +81,7 @@ describe.each(Object.values(HmpbBallotPaperSize))(
           adjudicationReasons: [AdjudicationReason.Overvote],
           dbPath: await makeInterpreterDb(electionDefinition),
         },
+        (bs) => bs.orderedCandidatesByContest,
         images
       );
 
@@ -115,6 +117,7 @@ describe.each(Object.values(HmpbBallotPaperSize))(
             adjudicationReasons: [AdjudicationReason.Overvote],
             dbPath: await makeInterpreterDb(electionDefinition),
           },
+          (bs) => bs.orderedCandidatesByContest,
           sheetImages
         );
 

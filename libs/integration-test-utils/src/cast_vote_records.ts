@@ -7,6 +7,7 @@ import {
   buildBatchManifest,
   buildCastVoteRecord,
   buildCastVoteRecordReportMetadata,
+  ElectionPackageStore,
 } from '@votingworks/backend';
 import { createElectionPackageDbForTest } from '@votingworks/backend/test-utils';
 import { interpretSheetAndSaveImages } from '@votingworks/ballot-interpreter';
@@ -33,6 +34,7 @@ import {
   unsafeParse,
   type VotesDict,
   type RgbaImageData,
+  type GetCandidateOrderingsFn,
 } from '@votingworks/types';
 import { createHash, randomUUID } from 'node:crypto';
 import type { Buffer } from 'node:buffer';
@@ -91,6 +93,7 @@ async function renderInterpretAndWriteCvr({
   castVoteRecordId,
   castVoteRecordDirectory,
   dbPath,
+  getCandidateOrderings,
 }: {
   electionDefinition: ElectionDefinition;
   spec: CastVoteRecordSpec;
@@ -99,6 +102,7 @@ async function renderInterpretAndWriteCvr({
   testMode: boolean;
   pdfPath: string;
   castVoteRecordId: BallotId;
+  getCandidateOrderings: GetCandidateOrderingsFn;
   castVoteRecordDirectory: string;
   dbPath: string;
 }): Promise<CVR.CVR> {
@@ -138,6 +142,7 @@ async function renderInterpretAndWriteCvr({
         DEFAULT_MARK_THRESHOLDS_MARGINAL_MARK_ADJUDICATION_ENABLED,
       dbPath,
     },
+    getCandidateOrderings,
     sheet,
     castVoteRecordId,
     castVoteRecordDirectory
@@ -221,6 +226,15 @@ export async function generateCastVoteRecordExport(
 
   const dbPath = await createElectionPackageDbForTest(electionDefinition);
 
+  const store = ElectionPackageStore.fileStore(dbPath, {
+    ballotPositions: false,
+    candidateOrderings: true,
+    ballots: false,
+    uiStrings: false,
+  });
+  const getCandidateOrderings: GetCandidateOrderingsFn = (bs) =>
+    store.getCandidateOrderingsStore().getCandidateOrderings(bs);
+
   // `renderMarkedBallots` shares a single layout pass per call, so all ballots
   // in a call must share ballot style and precinct. Group accordingly while
   // keeping a stable scanner-wide ballot order.
@@ -278,6 +292,7 @@ export async function generateCastVoteRecordExport(
       const castVoteRecordDirectory = join(exportDirectory, castVoteRecordId);
       const castVoteRecord = await renderInterpretAndWriteCvr({
         electionDefinition,
+        getCandidateOrderings,
         spec,
         scannerId,
         batchId,
@@ -297,6 +312,9 @@ export async function generateCastVoteRecordExport(
       );
     }
   }
+
+  store.close();
+
   const metadata: CastVoteRecordExportMetadata = {
     arePollsClosed: true,
     castVoteRecordReportMetadata: reportMetadata,

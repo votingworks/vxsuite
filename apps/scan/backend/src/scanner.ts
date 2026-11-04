@@ -249,6 +249,8 @@ async function interpretSheet(
       dbPath: store.getBallotPositionsStore().hasPositions()
         ? store.getElectionPackageStore().getDbPath()
         : undefined,
+      getCandidateOrderings: (bs) =>
+        store.getCandidateOrderingsStore().getCandidateOrderings(bs),
     })
   ).unsafeUnwrap();
   interpretTimer.end();
