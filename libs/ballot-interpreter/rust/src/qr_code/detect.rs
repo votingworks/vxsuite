@@ -97,15 +97,16 @@ pub enum SearchStrategy {
 /// Gets the HMPB-specific detection areas: bottom-left and top-right corners.
 pub fn get_hmpb_detection_areas(img: &GrayImage) -> Vec<DetectionArea<'_>> {
     let (width, height) = img.dimensions();
+    // Yes, the detection area height is based on the ballot width.
+    // We don't want to search more of the image in a taller ballot
+    // because the QR code is anchored to the bottom anyway.
+    let side = (width / 4).min(height);
     let crop_size = Size {
-        width: width / 4,
-        // Yes, the detection area height is based on the ballot width.
-        // We don't want to search more of the image in a taller ballot
-        // because the QR code is anchored to the bottom anyway.
-        height: width / 4,
+        width: side,
+        height: side,
     };
-    let bottom_left_origin = Point::new(0, height - crop_size.height);
-    let top_right_origin = Point::new(width - crop_size.width, 0);
+    let bottom_left_origin = Point::new(0, height - side);
+    let top_right_origin = Point::new(width - side, 0);
 
     vec![
         DetectionArea::new(img, bottom_left_origin, crop_size, Orientation::Portrait),
@@ -411,6 +412,19 @@ mod test {
             classify_qr_payload(&[0x00, 0x00, 0x00]),
             QrCodeKind::Unknown
         );
+    }
+
+    #[test]
+    fn test_bubble_corners_on_image_wider_than_four_times_its_height() {
+        let img = GrayImage::from_pixel(904, 210, image::Luma([255]));
+        assert!(matches!(
+            detect_with_strategy(
+                &img,
+                SearchStrategy::BubbleCorners,
+                &ImageDebugWriter::disabled()
+            ),
+            Err(Error::NoQrCodeDetected { .. })
+        ));
     }
 
     proptest! {
