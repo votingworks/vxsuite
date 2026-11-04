@@ -70,7 +70,7 @@ export async function printBallot(p: PrintBallotProps): Promise<PrintJobId> {
 
   const candidateOrderings = p.store
     .getBallotMetaStore()
-    .getCandidateOrderings(p.ballotStyleId);
+    .getCandidateOrderings(ballotStyle);
 
   const pWithDerivedVotes: PrintBallotProps = {
     ...p,

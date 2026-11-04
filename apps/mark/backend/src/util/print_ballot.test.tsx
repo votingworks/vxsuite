@@ -134,8 +134,8 @@ describe(`printMode === "marks_on_preprinted_ballot"`, () => {
               expect(styleId).toEqual(ballotStyle.id);
               return mockPositions;
             },
-            getCandidateOrderings: (styleId) => {
-              expect(styleId).toEqual(ballotStyle.id);
+            getCandidateOrderings: (bs) => {
+              expect(bs.groupId).toEqual(ballotStyle.groupId);
               return ballotStyle.orderedCandidatesByContest ?? null;
             },
           }),
@@ -229,8 +229,8 @@ describe(`printMode === "summary"`, () => {
       store: mockStore({
         getBallotMetaStore: () =>
           mockBallotMetaStore({
-            getCandidateOrderings: (styleId) => {
-              expect(styleId).toEqual(ballotStyle.id);
+            getCandidateOrderings: (bs) => {
+              expect(bs.groupId).toEqual(ballotStyle.groupId);
               return mockStoreOrderings;
             },
           }),
@@ -372,8 +372,8 @@ describe(`printMode === "summary"`, () => {
       store: mockStore({
         getBallotMetaStore: () =>
           mockBallotMetaStore({
-            getCandidateOrderings: (styleId) => {
-              expect(styleId).toEqual(ballotStyle.id);
+            getCandidateOrderings: (bs) => {
+              expect(bs.groupId).toEqual(ballotStyle.groupId);
               return ballotStyle.orderedCandidatesByContest ?? null;
             },
           }),
@@ -502,8 +502,8 @@ describe(`printMode === "summary"`, () => {
       store: mockStore({
         getBallotMetaStore: () =>
           mockBallotMetaStore({
-            getCandidateOrderings: (styleId) => {
-              expect(styleId).toEqual(ballotStyle.id);
+            getCandidateOrderings: (bs) => {
+              expect(bs.groupId).toEqual(ballotStyle.groupId);
               return ballotStyle.orderedCandidatesByContest ?? null;
             },
           }),
@@ -594,8 +594,8 @@ describe(`printMode === "bubble_ballot"`, () => {
               expect(styleId).toEqual(ballotStyle.id);
               return mockPositions;
             },
-            getCandidateOrderings: (styleId) => {
-              expect(styleId).toEqual(ballotStyle.id);
+            getCandidateOrderings: (bs) => {
+              expect(bs.groupId).toEqual(ballotStyle.groupId);
               return ballotStyle.orderedCandidatesByContest ?? null;
             },
           }),
@@ -667,8 +667,8 @@ describe('straight party votes', () => {
         getBallotMetaStore: () =>
           mockBallotMetaStore({
             getPositions: () => mockPositions,
-            getCandidateOrderings: (styleId) => {
-              expect(styleId).toEqual(ballotStyle.id);
+            getCandidateOrderings: (bs) => {
+              expect(bs.groupId).toEqual(ballotStyle.groupId);
               return mockCandidateOrderings;
             },
           }),

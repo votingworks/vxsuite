@@ -722,21 +722,19 @@ test('candidates are ordered according to ballot style rotation', async () => {
   const mammalContestId = 'best-animal-mammal';
 
   // Set up mock candidate orderings with non-default rotation:
-  apiMock.apiClient.getCandidateOrderings.mockImplementation(
-    ({ ballotStyleId }) => {
-      if (!ballotStyleId.startsWith(testBallotStyleGroupId)) {
-        return Promise.resolve(null);
-      }
-
-      return Promise.resolve({
-        [mammalContestId]: [
-          { id: 'fox' }, // original: horse, otter, fox
-          { id: 'otter' },
-          { id: 'horse' },
-        ],
-      });
+  apiMock.apiClient.getCandidateOrderings.mockImplementation((input) => {
+    if (input.ballotStyleGroupId !== testBallotStyleGroupId) {
+      return Promise.resolve(null);
     }
-  );
+
+    return Promise.resolve({
+      [mammalContestId]: [
+        { id: 'fox' }, // original: horse, otter, fox
+        { id: 'otter' },
+        { id: 'horse' },
+      ],
+    });
+  });
 
   const testIdentifier: ManualResultsIdentifier = {
     ballotStyleGroupId: testBallotStyleGroupId,
@@ -805,22 +803,20 @@ test('cross-endorsed candidates appear only once in manual tallies form', async 
 
   // Set up mock candidate orderings with cross-endorsed candidates
   // (a candidate appearing multiple times with different partyIds)
-  apiMock.apiClient.getCandidateOrderings.mockImplementation(
-    ({ ballotStyleId }) => {
-      if (!ballotStyleId.startsWith(testBallotStyleGroupId)) {
-        return Promise.resolve(null);
-      }
-
-      return Promise.resolve({
-        [mammalContestId]: [
-          { id: 'otter' },
-          { id: 'fox', partyIds: ['0'] },
-          { id: 'horse' },
-          { id: 'fox', partyIds: ['1'] }, // fox appears twice with different parties
-        ],
-      });
+  apiMock.apiClient.getCandidateOrderings.mockImplementation((input) => {
+    if (input.ballotStyleGroupId !== testBallotStyleGroupId) {
+      return Promise.resolve(null);
     }
-  );
+
+    return Promise.resolve({
+      [mammalContestId]: [
+        { id: 'otter' },
+        { id: 'fox', partyIds: ['0'] },
+        { id: 'horse' },
+        { id: 'fox', partyIds: ['1'] }, // fox appears twice with different parties
+      ],
+    });
+  });
 
   const testIdentifier: ManualResultsIdentifier = {
     ballotStyleGroupId: testBallotStyleGroupId,

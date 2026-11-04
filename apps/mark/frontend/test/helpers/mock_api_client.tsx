@@ -96,7 +96,7 @@ type MockApiClient = Omit<
   getPendingBarcodePrintRequest: Mock;
   clearPendingBarcodePrintRequest: Mock;
   getCandidateOrderings: Mock<
-    (p: { ballotStyleId: string }) => Promise<CandidateOrderings | null>
+    (p: { ballotStyleGroupId: string }) => Promise<CandidateOrderings | null>
   >;
 };
 

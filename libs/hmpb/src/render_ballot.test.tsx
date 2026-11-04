@@ -23,6 +23,7 @@ import {
   type BallotPositions,
   BallotCandidateOrderingsSchema,
   unsafeParseJson,
+  type BallotCandidateOrderings,
 } from '@votingworks/types';
 import {
   assert,
@@ -548,7 +549,7 @@ test('writes separate ballot meta files when `splitElectionDefinition` setting i
   const props1 = assertDefined(allProps[0]);
   const props2 = find(
     allProps,
-    (p) => p.ballotStyle.id !== props1.ballotStyle.id
+    (p) => p.ballotStyle.groupId !== props1.ballotStyle.groupId
   );
 
   const settings: SystemSettings = {
@@ -581,13 +582,15 @@ test('writes separate ballot meta files when `splitElectionDefinition` setting i
     assertDefined(res.candidateOrderingsPath, 'no candidate orderings path'),
     'utf8'
   );
-  const candidateOrderings = candidateOrderingsJsonl
+  const orderings = candidateOrderingsJsonl
     .trim()
     .split('\n')
     .map((l) => unsafeParseJson(l, BallotCandidateOrderingsSchema));
 
-  expect(candidateOrderings[0]?.ballotStyleId).toEqual(props1.ballotStyle.id);
-  expect(candidateOrderings[1]?.ballotStyleId).toEqual(props2.ballotStyle.id);
+  expect(orderings.map((o) => o.ballotStyleGroupId)).toEqual([
+    props1.ballotStyle.groupId,
+    props2.ballotStyle.groupId,
+  ]);
 
   // Make sure ballot hashes match after round trip through ZIP package:
 
@@ -608,6 +611,49 @@ test('writes separate ballot meta files when `splitElectionDefinition` setting i
 
   // Expect an unindented election.json when the `compact` option is enabled.
   expect(res.electionDefinition.electionData).not.toContain('\n');
+});
+
+test('writes one set of split-file candidate orderings for each ballot style group', async () => {
+  const fixtures = nhGeneralElectionFixtures;
+  const props1 = assertDefined(fixtures.fixtureSpecs[0]?.allBallotProps[0]);
+  const baseBallotStyle = props1.ballotStyle;
+
+  const election: Election = {
+    ...props1.election,
+    ballotStyles: [
+      { ...baseBallotStyle, id: `${baseBallotStyle.groupId}_lang1` },
+      { ...baseBallotStyle, id: `${baseBallotStyle.groupId}_lang2` },
+      { ...baseBallotStyle, id: `${baseBallotStyle.groupId}_lang3` },
+    ],
+  };
+  const singleGroupProps = election.ballotStyles.map<BaseBallotProps>(
+    (ballotStyle) => ({ ...props1, ballotStyle, election })
+  );
+
+  const res = await renderAllBallotPdfsAndCreateElectionDefinition(
+    rendererPool,
+    vxDefaultBallotTemplate,
+    singleGroupProps,
+    (bs) => bs.orderedCandidatesByContest,
+    { compact: true, format: 'vxf', version: LATEST_SOFTWARE_VERSION },
+    { ...DEFAULT_SYSTEM_SETTINGS, splitElectionDefinition: true },
+    makeScratchDir()
+  );
+
+  const orderings = readFileSync(
+    assertDefined(res.candidateOrderingsPath, 'no candidate orderings path'),
+    'utf8'
+  )
+    .trim()
+    .split('\n')
+    .map((l) => unsafeParseJson(l, BallotCandidateOrderingsSchema));
+
+  expect(orderings).toEqual<BallotCandidateOrderings[]>([
+    {
+      ballotStyleGroupId: baseBallotStyle.groupId,
+      orderings: assertDefined(baseBallotStyle.orderedCandidatesByContest),
+    },
+  ]);
 });
 
 test('writes single-file election when `splitElectionDefinition` setting is off', async () => {

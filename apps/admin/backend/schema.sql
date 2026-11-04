@@ -47,9 +47,9 @@ create table ballot_styles (
 
 create table candidate_orderings (
   election_id text not null,
-  ballot_style_id text not null,
+  ballot_style_group_id text not null,
   orderings text not null, -- JSON string of CandidateOrderings
-  primary key (election_id, ballot_style_id),
+  primary key (election_id, ballot_style_group_id),
   foreign key (election_id) references elections(id) on delete cascade
 ) strict;
 
@@ -64,7 +64,7 @@ create table ballot_styles_to_precincts(
     on delete cascade
 ) strict;
 
-create index idx_ballot_styles_to_precincts_precinct_id on 
+create index idx_ballot_styles_to_precincts_precinct_id on
   ballot_styles_to_precincts(election_id, precinct_id);
 
 create table ballot_styles_to_districts(
@@ -76,7 +76,7 @@ create table ballot_styles_to_districts(
     on delete cascade
 ) strict;
 
-create index idx_ballot_styles_to_districts_district_id on 
+create index idx_ballot_styles_to_districts_district_id on
   ballot_styles_to_districts(election_id, district_id);
 
 create table contests(
@@ -144,7 +144,7 @@ create table cvrs (
   election_id text not null,
   ballot_id text not null,
   ballot_style_group_id text not null,
-  ballot_type text not null 
+  ballot_type text not null
     check (ballot_type = 'absentee' or ballot_type = 'precinct' or ballot_type = 'provisional'),
   batch_id text not null,
   precinct_id text not null,
@@ -353,7 +353,7 @@ create trigger cvr_file_added after insert on cvr_files
 begin
   insert into data_versions (election_id, cvrs_data_version)
     values (new.election_id, 1)
-  on conflict (election_id) do update set 
+  on conflict (election_id) do update set
     cvrs_data_version = data_versions.cvrs_data_version + 1;
 end;
 

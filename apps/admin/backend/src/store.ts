@@ -1057,16 +1057,16 @@ export class Store implements BaseStore {
    * Ballot style candidate orderings, or `null` if not found.
    */
   getCandidateOrderings(p: {
-    ballotStyleId: string;
+    ballotStyleGroupId: string;
     electionId: string;
   }): CandidateOrderings | null {
     const row = this.client.one(
       `
         select orderings from candidate_orderings
-        where election_id = ? and ballot_style_id = ?
+        where election_id = ? and ballot_style_group_id = ?
       `,
       p.electionId,
-      p.ballotStyleId
+      p.ballotStyleGroupId
     ) as { orderings: string } | undefined;
 
     if (!row) return null;
@@ -1085,13 +1085,17 @@ export class Store implements BaseStore {
 
     if (!p.settings.splitElectionDefinition) {
       return this.withTransaction(() => {
+        const seenGroupIds = new Set<BallotStyleGroupId>();
         for (const b of p.election.ballotStyles) {
+          if (seenGroupIds.has(b.groupId)) continue;
+          seenGroupIds.add(b.groupId);
+
           if (!b.orderedCandidatesByContest) continue;
 
           this.addCandidateOrderings({
             electionId,
             ballotOrderings: {
-              ballotStyleId: b.id,
+              ballotStyleGroupId: b.groupId,
               orderings: b.orderedCandidatesByContest,
             },
           });
@@ -1140,12 +1144,12 @@ export class Store implements BaseStore {
     this.client.run(
       `
         insert into candidate_orderings
-          (election_id, ballot_style_id, orderings)
+          (election_id, ballot_style_group_id, orderings)
         values
           (?, ?, ?)
       `,
       p.electionId,
-      p.ballotOrderings.ballotStyleId,
+      p.ballotOrderings.ballotStyleGroupId,
       JSON.stringify(p.ballotOrderings.orderings)
     );
   }
@@ -3192,7 +3196,7 @@ export class Store implements BaseStore {
     );
 
     const candidateOrderings = this.getCandidateOrderings({
-      ballotStyleId: ballotStyleGroup.defaultLanguageBallotStyle.id,
+      ballotStyleGroupId: ballotStyleGroup.id,
       electionId,
     });
 

@@ -523,8 +523,10 @@ export function buildApi(
       assertDefined(stateMachine).stopPaperHandlerDiagnostic();
     },
 
-    getCandidateOrderings(p: { ballotStyleId: string }) {
-      return store.getBallotMetaStore().getCandidateOrderings(p.ballotStyleId);
+    getCandidateOrderings(p: { ballotStyleGroupId: string }) {
+      return store
+        .getBallotMetaStore()
+        .getCandidateOrderings({ groupId: p.ballotStyleGroupId });
     },
 
     ...buildMockPaperHandlerApi({ paperHandler }),

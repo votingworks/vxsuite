@@ -67,7 +67,7 @@ type MockApiClient = Omit<
   getIsPatDeviceConnected: Mock;
   getDiskSpaceSummary: Mock;
   getCandidateOrderings: Mock<
-    (p: { ballotStyleId: string }) => Promise<CandidateOrderings | null>
+    (p: { ballotStyleGroupId: string }) => Promise<CandidateOrderings | null>
   >;
 };
 

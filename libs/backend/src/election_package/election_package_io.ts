@@ -490,8 +490,8 @@ export function streamBallotPositions(
 }
 
 /**
- * Streams candidate orderings from the election package, one ballot style at a
- * time.
+ * Streams candidate orderings from the election package, one ballot style group
+ * at a time.
  */
 export function streamCandidateOrderings(
   zip: ElectionPackageZip

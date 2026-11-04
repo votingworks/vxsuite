@@ -81,7 +81,7 @@ async function packageImport(
       candidateOrderings: systemSettings.splitElectionDefinition
         ? [
             {
-              ballotStyleId: style2.id,
+              ballotStyleGroupId: style2.groupId,
               orderings: { 'contest-2': [{ id: 'candidate-2' }] },
             },
           ]
@@ -177,7 +177,7 @@ test('importElectionPackage from a single-file election', async () => {
   const ballotMeta = store.getBallotMetaStore();
   expect(ballotMeta.getPositions(style1.id)).toEqual(style1.ballotPositions);
   expect(ballotMeta.getPositions(style2.id)).toBeNull();
-  expect(ballotMeta.getCandidateOrderings(style1.id)).toEqual(
+  expect(ballotMeta.getCandidateOrderings(style1)).toEqual(
     style1.orderedCandidatesByContest
   );
 
@@ -211,7 +211,7 @@ test('importElectionPackage from a split-file election', async () => {
   const ballotMeta = store.getBallotMetaStore();
   expect(ballotMeta.getPositions(style1.id)).toBeNull();
   expect(ballotMeta.getPositions(style2.id)).toEqual([[[], [contestPosition]]]);
-  expect(ballotMeta.getCandidateOrderings(style2.id)).toEqual({
+  expect(ballotMeta.getCandidateOrderings(style2)).toEqual({
     'contest-2': [{ id: 'candidate-2' }],
   });
 });

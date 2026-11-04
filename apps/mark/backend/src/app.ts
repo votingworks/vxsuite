@@ -193,7 +193,7 @@ export function buildApi(ctx: Context) {
   }
 
   function getCandidateOrderings(bs: BallotStyle) {
-    return store.getBallotMetaStore().getCandidateOrderings(bs.id);
+    return store.getBallotMetaStore().getCandidateOrderings(bs);
   }
 
   setUpBarcodeActivation({
@@ -856,8 +856,10 @@ export function buildApi(ctx: Context) {
       return audioPlayer.play(input.name);
     },
 
-    getCandidateOrderings(p: { ballotStyleId: string }) {
-      return store.getBallotMetaStore().getCandidateOrderings(p.ballotStyleId);
+    getCandidateOrderings(p: { ballotStyleGroupId: string }) {
+      return store
+        .getBallotMetaStore()
+        .getCandidateOrderings({ groupId: p.ballotStyleGroupId });
     },
   });
 }

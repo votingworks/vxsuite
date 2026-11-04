@@ -8,6 +8,8 @@ import {
   type Election,
   type SheetPositions,
   type SystemSettings,
+  type BallotStyle,
+  type BallotStyleGroupId,
 } from '@votingworks/types';
 import type { Client } from '@votingworks/db';
 import z from 'zod';
@@ -28,10 +30,12 @@ export class BallotMetaStore {
   /**
    * Retrieves candidate orderings, or `null` if not found.
    */
-  getCandidateOrderings(styleId: string): CandidateOrderings | null {
+  getCandidateOrderings(
+    ballotStyle: Pick<BallotStyle, 'groupId'>
+  ): CandidateOrderings | null {
     const row = this.client.one(
-      `select orderings from candidate_orderings where style_id = ?`,
-      styleId
+      `select orderings from candidate_orderings where style_group_id = ?`,
+      ballotStyle.groupId
     ) as { orderings: string } | undefined;
 
     if (!row) return null;
@@ -69,11 +73,16 @@ export class BallotMetaStore {
     settings: SystemSettings
   ): Promise<void> {
     if (!settings.splitElectionDefinition) {
+      const seenGroupIds = new Set<BallotStyleGroupId>();
+
       for (const bs of election.ballotStyles) {
+        if (seenGroupIds.has(bs.groupId)) continue;
+        seenGroupIds.add(bs.groupId);
+
         if (!bs.orderedCandidatesByContest) continue;
 
         addCandidateOrderings(this.client, {
-          ballotStyleId: bs.id,
+          ballotStyleGroupId: bs.groupId,
           orderings: bs.orderedCandidatesByContest,
         });
       }
@@ -115,8 +124,8 @@ export class BallotMetaStore {
 
 function addCandidateOrderings(c: Client, b: BallotCandidateOrderings): void {
   c.run(
-    `insert into candidate_orderings ( style_id, orderings ) values (?, ?)`,
-    b.ballotStyleId,
+    `insert into candidate_orderings (style_group_id, orderings) values (?, ?)`,
+    b.ballotStyleGroupId,
     JSON.stringify(b.orderings)
   );
 }

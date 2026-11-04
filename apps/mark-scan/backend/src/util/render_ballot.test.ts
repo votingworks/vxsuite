@@ -198,8 +198,8 @@ test('includes votes derived from a straight party selection', async () => {
 
   vi.spyOn(workspace.store, 'getBallotMetaStore').mockReturnValue(
     mockBallotMetaStore({
-      getCandidateOrderings: (styleId) => {
-        expect(styleId).toEqual(straightPartyBallotStyle.id);
+      getCandidateOrderings: (bs) => {
+        expect(bs.groupId).toEqual(straightPartyBallotStyle.groupId);
         return mockCandidateOrderings;
       },
     })
@@ -234,8 +234,8 @@ test('renders with stored candidate orderings', async () => {
   };
 
   const mockMetaStore: Partial<BallotMetaStore> = {
-    getCandidateOrderings: (styleId) => {
-      expect(styleId).toEqual(ballotStyleId);
+    getCandidateOrderings: ({ groupId }) => {
+      expect(groupId).toEqual(ballotStyle!.groupId);
       return mockOrderings;
     },
   };
