@@ -391,3 +391,28 @@ test('logs status transitions and returns to offline when the interface goes dow
     })
   );
 });
+
+test('stops polling once stopped', async () => {
+  const store = Store.memoryStore();
+  const stop = startScannerNetworking({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+  });
+  await advancePollingInterval();
+  expect(hasOnlineInterface).toHaveBeenCalledTimes(1);
+
+  stop();
+  await advancePollingInterval();
+  expect(hasOnlineInterface).toHaveBeenCalledTimes(1);
+});
+
+test('never polls when stopped before the first poll', async () => {
+  const store = Store.memoryStore();
+  const stop = startScannerNetworking({
+    logger: mockBaseLogger({ fn: vi.fn }),
+    store,
+  });
+  stop();
+  await advancePollingInterval();
+  expect(hasOnlineInterface).not.toHaveBeenCalled();
+});

@@ -257,7 +257,7 @@ export function startCvrSync({
 }: {
   store: Store;
   logger: BaseLogger;
-}): void {
+}): () => void {
   debug('Starting CVR sync loop');
   let isSending = false;
 
@@ -287,8 +287,11 @@ export function startCvrSync({
     store.setSendingToAdminBatchId(undefined);
   }
 
+  let stopped = false;
+  let interval: Optional<NodeJS.Timeout>;
   process.nextTick(() => {
-    setInterval(async () => {
+    if (stopped) return;
+    interval = setInterval(async () => {
       // @coverage-exclude: re-entrancy guard
       if (isSending) return;
       isSending = true;
@@ -373,4 +376,9 @@ export function startCvrSync({
       }
     }, NETWORK_POLLING_INTERVAL_MS);
   });
+
+  return () => {
+    stopped = true;
+    clearInterval(interval);
+  };
 }
