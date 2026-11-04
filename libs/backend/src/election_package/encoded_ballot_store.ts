@@ -101,13 +101,20 @@ export class EncodedBallotStore {
   }
 
   getBallot(key: EncodedBallotKey): EncodedBallotEntry | undefined {
-    const where = whereClause(key);
     return this.client.one(
       `
       select ${KEY_SELECT}, encoded_ballot as encodedBallot
-      from ballots ${where.sql}
+      from ballots
+      where
+        ballot_style_id = ? and
+        precinct_id = ? and
+        ballot_type = ? and
+        ballot_mode = ?
       `,
-      ...where.params
+      key.ballotStyleId,
+      key.precinctId,
+      key.ballotType,
+      key.ballotMode
     ) as EncodedBallotEntry | undefined;
   }
 

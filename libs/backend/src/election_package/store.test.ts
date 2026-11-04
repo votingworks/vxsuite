@@ -28,6 +28,7 @@ import {
   type ElectionPackageImport,
   type ElectionPackageInclude,
 } from './store.js';
+import type { EncodedBallotKey } from './encoded_ballot_store.js';
 import { importElectionPackageForTest } from '../test_utils.js';
 import { createElectionPackageZipArchive } from './test_utils.js';
 
@@ -332,6 +333,14 @@ test('importElectionPackage with ballots', async () => {
       ballotType: 'absentee',
       ballotMode: 'official',
     })
+  ).toBeUndefined();
+  const keyWithoutBallotType: Partial<EncodedBallotKey> = {
+    ballotStyleId: style1.id,
+    precinctId,
+    ballotMode: 'official',
+  };
+  expect(
+    ballotStore.getBallot(keyWithoutBallotType as EncodedBallotKey)
   ).toBeUndefined();
   expect(ballotStore.getBallots()).toEqual(
     ballots.map((ballot) => ({ ...ballot, id: expect.any(Number) }))
