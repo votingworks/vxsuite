@@ -241,6 +241,7 @@ export class ElectionPackageStore<
    */
   async importElectionPackage(input: ElectionPackageImport): Promise<void> {
     if (this.client.isMemoryDatabase()) {
+      this.client.reset();
       await importInto(this.client, input, this.include);
     } else {
       const tempDbPath = `${this.getDbPath()}.importing`;

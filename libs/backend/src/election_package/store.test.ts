@@ -356,6 +356,33 @@ test('importElectionPackage with ballots', async () => {
   ]);
 });
 
+test('importElectionPackage into a memory store replaces the previous import', async () => {
+  const store = ElectionPackageStore.memoryStore(INCLUDE_ALL);
+  const ballot: EncodedBallotEntry = {
+    ballotStyleId: style1.id,
+    precinctId: assertDefined(election.precincts[0]).id,
+    ballotType: 'precinct',
+    ballotMode: 'official',
+    encodedBallot: 'first',
+  };
+  await importElectionPackageForTest(store, {
+    electionDefinition,
+    ballots: [ballot],
+  });
+  const replacement: EncodedBallotEntry = {
+    ...ballot,
+    encodedBallot: 'second',
+  };
+  await importElectionPackageForTest(store, {
+    electionDefinition,
+    ballots: [replacement],
+  });
+
+  expect(store.getEncodedBallotStore().getBallots()).toEqual([
+    { ...replacement, id: expect.any(Number) },
+  ]);
+});
+
 test('importElectionPackage without ballots', async () => {
   const store = partialFileStore({ ...INCLUDE_ALL, ballots: false });
   await importElectionPackageForTest(store, {
