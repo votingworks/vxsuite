@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { userEvent } from '@testing-library/user-event';
+import { createMemoryHistory } from 'history';
 import { mockKiosk } from '@votingworks/test-utils';
 import { deferred, err, ok } from '@votingworks/basics';
 import { BooleanEnvironmentVariableName } from '@votingworks/utils';
@@ -294,4 +295,47 @@ test('hides Restore from Backup when backup and restore are disabled', async () 
   expect(
     screen.queryByRole('button', { name: 'Restore from Backup...' })
   ).not.toBeInTheDocument();
+});
+
+test('Create New Election button is hidden when election design is disabled', async () => {
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
+  renderInAppContext(<UnconfiguredScreen />, {
+    apiMock,
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
+  });
+  await screen.findButton('Select Other File...');
+  expect(
+    screen.queryByRole('button', { name: 'Create New Election' })
+  ).not.toBeInTheDocument();
+});
+
+test('Create New Election button opens election definition', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.ENABLE_ADMIN_ELECTION_DESIGN
+  );
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive([]);
+  const history = createMemoryHistory({ initialEntries: ['/election'] });
+  renderInAppContext(<UnconfiguredScreen />, {
+    apiMock,
+    history,
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
+  });
+
+  await userEvent.click(await screen.findButton('Create New Election'));
+  expect(history.location.pathname).toEqual('/election-definition');
+});
+
+test('Create New Election button is offered when no USB drive is inserted', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.ENABLE_ADMIN_ELECTION_DESIGN
+  );
+  apiMock.apiClient.listPotentialElectionPackagesOnUsbDrive
+    .expectCallWith()
+    .resolves(err({ type: 'no-entity', message: 'No USB drive found' }));
+  renderInAppContext(<UnconfiguredScreen />, {
+    apiMock,
+    usbDriveStatus: mockUsbDriveStatus('no_drive'),
+  });
+
+  await screen.findButton('Create New Election');
 });

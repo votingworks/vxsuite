@@ -9,7 +9,9 @@ import {
 } from '@votingworks/ui';
 
 import {
+  BooleanEnvironmentVariableName,
   isElectionManagerAuth,
+  isFeatureFlagEnabled,
   isSystemAdministratorAuth,
   isVendorAuth,
 } from '@votingworks/utils';
@@ -41,6 +43,7 @@ import { DiagnosticsScreen } from '../screens/diagnostics_screen.js';
 import { AdjudicationStartScreen } from '../screens/adjudication_start_screen.js';
 import { BallotAdjudicationScreenWrapper as BallotAdjudicationScreen } from '../screens/ballot_adjudication_screen.js';
 import { WriteInCandidatesScreen } from '../screens/write_in_candidates_screen.js';
+import { ElectionDefinitionScreen } from '../election_definition/election_definition_screen.js';
 import { CvrDataRefresher } from './cvr_data_refresher.js';
 
 export function AppRoutes(): JSX.Element | null {
@@ -123,6 +126,13 @@ export function AppRoutes(): JSX.Element | null {
         <Route exact path={routerPaths.election}>
           {election ? <ElectionScreen /> : <UnconfiguredScreen />}
         </Route>
+        {isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.ENABLE_ADMIN_ELECTION_DESIGN
+        ) && (
+          <Route exact path={routerPaths.electionDefinition}>
+            <ElectionDefinitionScreen />
+          </Route>
+        )}
         <Route exact path={routerPaths.smartcards}>
           <SmartCardsScreen />
         </Route>

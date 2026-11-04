@@ -7,6 +7,7 @@ export const routerPaths = {
   root: '/',
   advanced: '/advanced',
   election: '/election',
+  electionDefinition: '/election-definition',
   smartcards: '/smartcards',
   tally: '/tally',
   tallyCvrs: '/tally/cvrs',

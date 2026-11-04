@@ -28,6 +28,7 @@ import {
 } from '../api.js';
 import { AppContext } from '../contexts/app_context.js';
 import { TIME_FORMAT } from '../config/globals.js';
+import { CreateNewElectionButton } from '../election_definition/create_new_election_button.js';
 
 const Heading = styled(H2)`
   margin-bottom: 1rem;
@@ -182,6 +183,7 @@ function SelectElectionPackage({
             </Button>
           )}
           <RebootInRestoreModeButton disabled={configureMutation.isLoading} />
+          <CreateNewElectionButton disabled={configureMutation.isLoading} />
         </div>
       </div>
     </React.Fragment>
@@ -264,8 +266,17 @@ export function UnconfiguredScreen(): JSX.Element {
           title="Insert a USB drive containing an election package"
           image={<UsbDriveImage />}
         >
-          <div style={{ position: 'fixed', bottom: '1rem', right: '1rem' }}>
+          <div
+            style={{
+              position: 'fixed',
+              bottom: '1rem',
+              right: '1rem',
+              display: 'flex',
+              gap: '0.5rem',
+            }}
+          >
             <RebootInRestoreModeButton />
+            <CreateNewElectionButton />
           </div>
         </FullScreenMessage>
       ) : (
