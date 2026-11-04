@@ -229,4 +229,4 @@ export function makeHmpbSheet({
   return [makePage(1, frontVotes), makePage(2, backVotes)];
 }
 
-export { configureStoreForTest as configureStore } from '@votingworks/backend/test-utils';
+export { configureStoreForTest as configureStore } from '@votingworks/backend/vitest-utils';

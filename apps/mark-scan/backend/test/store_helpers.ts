@@ -1,1 +1,1 @@
-export { configureStoreForTest as configureStore } from '@votingworks/backend/test-utils';
+export { configureStoreForTest as configureStore } from '@votingworks/backend/vitest-utils';

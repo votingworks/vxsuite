@@ -142,4 +142,4 @@ export function waitForStatus<State extends ScanStatus['state']>(
   );
 }
 
-export { configureStoreForTest as configureStore } from '@votingworks/backend/test-utils';
+export { configureStoreForTest as configureStore } from '@votingworks/backend/vitest-utils';

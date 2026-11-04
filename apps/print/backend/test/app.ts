@@ -251,4 +251,4 @@ export async function waitForTotalBallotPrintCount(
   );
 }
 
-export { configureStoreForTest as configureStore } from '@votingworks/backend/test-utils';
+export { configureStoreForTest as configureStore } from '@votingworks/backend/vitest-utils';

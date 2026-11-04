@@ -28,6 +28,13 @@ export default defineConfig({
         replacement: join(__dirname, '../../../libs/backend/src/test_utils.ts'),
       },
       {
+        find: '@votingworks/backend/vitest-utils',
+        replacement: join(
+          __dirname,
+          '../../../libs/backend/src/vitest/test_utils.ts'
+        ),
+      },
+      {
         find: '@votingworks/backend',
         replacement: join(__dirname, '../../../libs/backend/src/index.ts'),
       },
