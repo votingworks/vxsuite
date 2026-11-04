@@ -27,9 +27,9 @@ elections in VxAdmin is a later project.
 ### Packages
 
 ```
-apps/hub/{backend,frontend}    apps/admin/{backend,frontend}
-              \                    /
-         libs/design-backend, libs/design-ui
+apps/hub/{backend,frontend}           apps/admin/{backend,frontend}
+                  \                       /
+libs/election-definition-backend, libs/election-definition-ui
 ```
 
 Both apps depend on both libs. Neither lib depends on an app.
@@ -40,17 +40,17 @@ In general I'm trying to share where its easy but not hesitate too much to just
 duplicate when it starts to feel forced to share. As implementation progresses
 the exact line here may shift.
 
-**Shared, in `libs/design-backend`:**
+**Shared, in `libs/election-definition-backend`:**
 
-- `ElectionDesignMethods`, the API type `libs/design-ui` calls. Each app's
-  design API must satisfy it;
+- `ElectionDesignMethods`, the API type `libs/election-definition-ui` calls.
+  Each app's design API must satisfy it;
 - input parsing and validation helpers, one per write (e.g.
   `prepareCreatePrecinct`). They parse the input and run the shared validators,
   which produce the error codes the UI shows. They do no I/O.
 - rendering and export, other main chunks of business logic
 
-**Shared, in `libs/design-ui`:** the design screens, hooks and routes. Each app
-wraps them in a `DesignProvider` with explicit props:
+**Shared, in `libs/election-definition-ui`:** the design screens, hooks and
+routes. Each app wraps them in a `DesignProvider` with explicit props:
 
 ```tsx
 <DesignProvider
