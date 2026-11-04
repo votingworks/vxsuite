@@ -9,9 +9,7 @@ name = "barcodescannerd"
 path = "src/cino_s680_daemon.rs"
 
 [dependencies]
-chrono = { workspace = true, features = ["serde"] }
 color-eyre = { workspace = true }
-nix = { workspace = true }
 nusb = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
