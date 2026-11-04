@@ -183,6 +183,7 @@ export default function buildRecommended(
         'vx/no-floating-results': ['error', { ignoreVoid: true }],
         'vx/no-import-workspace-subfolders': 'error',
         'vx/no-manual-sleep': 'error',
+        'vx/no-shell-child-process': 'error',
 
         // ── @typescript-eslint ──────────────────────────────────
         '@typescript-eslint/await-thenable': 'error',

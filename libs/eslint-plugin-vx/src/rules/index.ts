@@ -34,6 +34,7 @@ import noExpectToBe from './no_expect_to_be.ts';
 import noManualSleep from './no_manual_sleep.ts';
 import noReactHookMutationDependency from './no_react_hook_mutation_dependency.ts';
 import noRefetchInterval from './no_refetch_interval.ts';
+import noShellChildProcess from './no_shell_child_process.ts';
 
 const rules: Record<string, Rule.RuleModule> = {
   'gts-array-type-style': gtsArrayTypeStyle,
@@ -72,6 +73,7 @@ const rules: Record<string, Rule.RuleModule> = {
   'no-manual-sleep': noManualSleep,
   'no-react-hook-mutation-dependency': noReactHookMutationDependency,
   'no-refetch-interval': noRefetchInterval,
+  'no-shell-child-process': noShellChildProcess,
 } as unknown as Record<string, Rule.RuleModule>;
 
 export default rules;

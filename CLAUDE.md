@@ -415,11 +415,12 @@ fn.assertComplete(); // verify all expected calls were made (usually in afterEac
 - **React** — functional components only, with hooks; components return
   `JSX.Element`
 - **Styled-components** — for all CSS-in-JS styling
-- **No shell-interpreted child processes** — never use `exec`, `execSync`,
-  `spawn`, or `spawnSync` from `node:child_process`. Always use `execFile`,
-  `execFileSync`, `fork`, or the `exec` helper in `libs/usb-drive/src/exec.ts`
-  (which wraps `execFile`). Shell-interpreted variants pass arguments through a
-  shell, which invites command injection.
+- **No shell-interpreted child processes** — never use `exec` or `execSync` from
+  `node:child_process`, and never pass a `shell` option to any `child_process`
+  function; both run the command through `/bin/sh`, which invites command
+  injection. Pass the program and an argument array to `spawn`, `execFile`, or
+  the `exec` helper in `libs/usb-drive/src/exec.ts`. Enforced by
+  `vx/no-shell-child-process`.
 - **Do not add comments** where the code is self-evident or self-documenting.
   Only add comments where the logic is non-obvious or requires context that
   isn't clear from the code itself.
