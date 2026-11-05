@@ -392,6 +392,9 @@ importers:
       '@votingworks/dev-dock-frontend':
         specifier: workspace:*
         version: link:../../../libs/dev-dock/frontend
+      '@votingworks/election-definition-ui':
+        specifier: workspace:*
+        version: link:../../../libs/election-definition-ui
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
@@ -528,6 +531,9 @@ importers:
       '@votingworks/coverage-check':
         specifier: workspace:*
         version: link:../../../libs/coverage-check
+      '@votingworks/election-definition-backend':
+        specifier: workspace:*
+        version: link:../../../libs/election-definition-backend
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures

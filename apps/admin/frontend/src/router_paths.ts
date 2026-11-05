@@ -1,3 +1,4 @@
+import type { ElectionId } from '@votingworks/types';
 import type {
   ManualTallyFormContestParams,
   ManualTallyFormParams,
@@ -8,6 +9,8 @@ export const routerPaths = {
   advanced: '/advanced',
   election: '/election',
   electionDefinition: '/election-definition',
+  electionDefinitionInfo: (electionId: ElectionId): string =>
+    `/election-definition/${electionId}/info`,
   smartcards: '/smartcards',
   tally: '/tally',
   tallyCvrs: '/tally/cvrs',
