@@ -9,10 +9,13 @@ import type {
   Tabulation,
 } from '@votingworks/types';
 import type { DateWithoutTime } from '@votingworks/basics';
-import type {
-  ExternalElectionSource,
-  StateCode,
+import {
+  type ElectionInfo as SharedElectionInfo,
+  ElectionInfoUpdateSchema as SharedElectionInfoUpdateSchema,
+  type ExternalElectionSource,
+  type StateCode,
 } from '@votingworks/election-definition-backend';
+import { z } from 'zod/v4';
 import { baseUrl } from './globals.js';
 
 export interface Organization {
@@ -72,6 +75,21 @@ export interface ElectionListing {
   status: ElectionStatus;
   externalSource?: ExternalElectionSource;
 }
+
+export interface ElectionInfo extends SharedElectionInfo {
+  jurisdictionId: string;
+  isMiCombinedBallotPrimary: boolean;
+}
+
+export type ElectionInfoUpdate = Omit<
+  ElectionInfo,
+  'jurisdictionId' | 'externalSource'
+>;
+
+export const ElectionInfoUpdateSchema: z.ZodType<ElectionInfoUpdate> =
+  SharedElectionInfoUpdateSchema.extend({
+    isMiCombinedBallotPrimary: z.boolean(),
+  });
 
 export type ElectionUpload =
   | {

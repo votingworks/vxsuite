@@ -6,7 +6,6 @@ import { type ElectionInfoUpdate, ElectionInfoUpdateSchema } from './types.js';
 const electionInfoUpdate: ElectionInfoUpdate = {
   electionId: 'election-1',
   type: 'general',
-  isMiCombinedBallotPrimary: false,
   date: new DateWithoutTime('2026-11-03'),
   title: 'General Election',
   state: 'Demo State',

@@ -82,9 +82,7 @@ import {
 } from '@votingworks/auth';
 import {
   type DuplicateElectionError,
-  type ElectionInfo,
-  type ElectionInfoUpdate,
-  ElectionInfoUpdateSchema,
+  type ElectionDefinitionMethods,
   getStateFeaturesConfig,
   type StateFeaturesConfig,
 } from '@votingworks/election-definition-backend';
@@ -102,6 +100,9 @@ import {
   type AggregatedLiveReportActivityLog,
   type AggregatedReportedPollsStatus,
   type AggregatedReportedResults,
+  type ElectionInfo,
+  type ElectionInfoUpdate,
+  ElectionInfoUpdateSchema,
   type ElectionListing,
   type ElectionUpload,
   type ExportQaRun,
@@ -1251,7 +1252,10 @@ export function buildApi(ctx: AppContext) {
     ...ttsStrings.apiMethods(ctx),
   } as const;
 
-  return grout.createApi(methods, middlewares);
+  return grout.createApi(
+    methods satisfies ElectionDefinitionMethods,
+    middlewares
+  );
 }
 
 // Set up API endpoint that should NOT be behind oauth integration

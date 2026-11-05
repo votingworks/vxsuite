@@ -74,12 +74,12 @@ import { type BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
 import pg, { type DatabaseError } from 'pg';
 import {
   type DuplicateElectionError,
-  type ElectionInfoUpdate,
   type ExternalElectionSource,
   getStateFeaturesConfig,
   type StateCode,
 } from '@votingworks/election-definition-backend';
 import type {
+  ElectionInfoUpdate,
   ElectionListing,
   ExportQaRun,
   GetExportedElectionError,
