@@ -1,3 +1,15 @@
+import type { DateWithoutTime } from '@votingworks/basics';
+import {
+  DateWithoutTimeSchema,
+  type ElectionId,
+  ElectionIdSchema,
+  type ElectionType,
+  ElectionTypeSchema,
+  type LanguageCode,
+  LanguageCodeSchema,
+} from '@votingworks/types';
+import { z } from 'zod/v4';
+
 export type ExternalElectionSource = 'ms-sems';
 
 export interface ElectionInfo {

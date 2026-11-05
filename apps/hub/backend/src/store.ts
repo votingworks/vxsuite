@@ -73,11 +73,13 @@ import type { BaseLogger } from '@votingworks/logging';
 import { type BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
 import pg, { type DatabaseError } from 'pg';
 import {
+  type DuplicateElectionError,
+  type ElectionInfoUpdate,
+  type ExternalElectionSource,
   getStateFeaturesConfig,
   type StateCode,
 } from '@votingworks/election-definition-backend';
 import type {
-  ExternalElectionSource,
   ElectionListing,
   ExportQaRun,
   GetExportedElectionError,
@@ -88,7 +90,6 @@ import type {
   User,
   UserType,
   ElectionStatus,
-  ElectionInfoUpdate,
 } from './types.js';
 import { Db } from './db/db.js';
 import type { Bindable, Client } from './db/client.js';

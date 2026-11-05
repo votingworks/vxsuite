@@ -81,6 +81,10 @@ import {
   decodeQuickResultsMessage,
 } from '@votingworks/auth';
 import {
+  type DuplicateElectionError,
+  type ElectionInfo,
+  type ElectionInfoUpdate,
+  ElectionInfoUpdateSchema,
   getStateFeaturesConfig,
   type StateFeaturesConfig,
 } from '@votingworks/election-definition-backend';
@@ -88,7 +92,6 @@ import type {
   MainExportTaskMetadata,
   DuplicateContestError,
   DuplicateDistrictError,
-  DuplicateElectionError,
   DuplicatePartyError,
   DuplicatePrecinctError,
   TestDecksTaskMetadata,
@@ -99,9 +102,6 @@ import {
   type AggregatedLiveReportActivityLog,
   type AggregatedReportedPollsStatus,
   type AggregatedReportedResults,
-  type ElectionInfo,
-  type ElectionInfoUpdate,
-  ElectionInfoUpdateSchema,
   type ElectionListing,
   type ElectionUpload,
   type ExportQaRun,

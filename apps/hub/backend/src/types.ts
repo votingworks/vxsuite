@@ -1,21 +1,18 @@
-import {
-  type LanguageCode,
-  type ElectionId,
-  type Election,
-  type ContestId,
-  type PrecinctId,
-  type PollsTransitionType,
-  type SoftwareVersion,
-  type ElectionType,
-  ElectionIdSchema,
-  ElectionTypeSchema,
-  DateWithoutTimeSchema,
-  LanguageCodeSchema,
-  type Tabulation,
+import type {
+  ElectionId,
+  Election,
+  ContestId,
+  PrecinctId,
+  PollsTransitionType,
+  SoftwareVersion,
+  ElectionType,
+  Tabulation,
 } from '@votingworks/types';
 import type { DateWithoutTime } from '@votingworks/basics';
-import type { StateCode } from '@votingworks/election-definition-backend';
-import { z } from 'zod/v4';
+import type {
+  ExternalElectionSource,
+  StateCode,
+} from '@votingworks/election-definition-backend';
 import { baseUrl } from './globals.js';
 
 export interface Organization {

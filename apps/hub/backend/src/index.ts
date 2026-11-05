@@ -32,7 +32,6 @@ export type {
   Organization,
   ElectionStatus,
   ElectionListing,
-  ElectionInfo,
   ElectionUpload,
   AggregatedReportedResults,
   ReceivedReportInfo,
@@ -43,6 +42,7 @@ export type {
   ExportQaStatus,
 } from './types.js';
 export type {
+  ElectionInfo,
   StateFeature,
   StateFeaturesConfig,
 } from '@votingworks/election-definition-backend';
