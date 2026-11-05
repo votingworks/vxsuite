@@ -1,3 +1,32 @@
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import { DateWithoutTime, throwIllegalValue } from '@votingworks/basics';
+import type {
+  ElectionInfo,
+  StateFeaturesConfig,
+} from '@votingworks/election-definition-backend';
+import {
+  type ElectionId,
+  ElectionStringKey,
+  LanguageCode,
+} from '@votingworks/types';
+import {
+  Button,
+  Callout,
+  CheckboxGroup,
+  DesktopPalette,
+  SegmentedButton,
+} from '@votingworks/ui';
+import { InputWithAudio } from './ballot_audio/input_with_audio.js';
+import { useElectionDefinitionApi } from './election_definition_context.js';
+import {
+  FormBody,
+  FormErrorContainer,
+  FormFixed,
+  FormFooter,
+} from './form_fixed.js';
+import { FieldName, FixedViewport, InputGroup, Row } from './layout.js';
+
 export interface ElectionImageInputProps {
   value?: string;
   onChange: (value?: string) => void;
@@ -49,13 +78,14 @@ function ElectionInfoForm({
   onEditingChange,
   footerActions,
 }: ElectionInfoFormProps): JSX.Element {
+  const api = useElectionDefinitionApi();
   const [isEditing, setIsEditing] = useState(
     // Default to editing for newly created elections
     hasBlankElectionInfo(savedElectionInfo)
   );
   const [electionInfo, setElectionInfo] = useState(savedElectionInfo);
   const [draftDate, setDraftDate] = useState<string>();
-  const updateElectionInfoMutation = updateElectionInfo.useMutation();
+  const updateElectionInfoMutation = api.updateElectionInfo.useMutation();
 
   function onSubmit() {
     updateElectionInfoMutation.mutate(electionInfo, {
@@ -357,8 +387,9 @@ export function ElectionInfoEditor({
   children,
   ...formProps
 }: ElectionInfoEditorProps): JSX.Element | null {
-  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
-  const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
+  const api = useElectionDefinitionApi();
+  const getElectionInfoQuery = api.getElectionInfo.useQuery(electionId);
+  const getStateFeaturesQuery = api.getStateFeatures.useQuery(electionId);
 
   if (!getElectionInfoQuery.isSuccess || !getStateFeaturesQuery.isSuccess) {
     return null;

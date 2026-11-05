@@ -1,48 +1,18 @@
 import React, { useState } from 'react';
-import { Route, Switch, useHistory, useParams } from 'react-router-dom';
-import styled from 'styled-components';
-import { z } from 'zod/v4';
-import { DateWithoutTime, throwIllegalValue } from '@votingworks/basics';
-import type {
-  ElectionInfo,
-  StateFeaturesConfig,
-} from '@votingworks/hub-backend';
 import {
-  type ElectionId,
   ElectionIdSchema,
-  ElectionStringKey,
-  LanguageCode,
+  type ElectionId,
   unsafeParse,
 } from '@votingworks/types';
-import {
-  Button,
-  Callout,
-  CheckboxGroup,
-  DesktopPalette,
-  H1,
-  Modal,
-  P,
-  SegmentedButton,
-} from '@votingworks/ui';
-import {
-  FieldName,
-  FixedViewport,
-  FormBody,
-  FormErrorContainer,
-  FormFooter,
-  InputGroup,
-  InputWithAudio,
-  Row,
-} from '@votingworks/election-definition-ui';
+import { Button, H1, Modal, P } from '@votingworks/ui';
+import { ElectionInfoEditor } from '@votingworks/election-definition-ui';
+import { Route, Switch, useHistory, useParams } from 'react-router-dom';
+import { z } from 'zod/v4';
 import {
   deleteElection,
   getBallotsFinalizedAt,
   getBallotTemplate,
-  getElectionInfo,
-  getStateFeatures,
-  updateElectionInfo,
 } from './api.js';
-import { FormFixed } from './form_fixed.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import { routes } from './routes.js';
 import { SealImageInput } from './seal_image_input.js';
