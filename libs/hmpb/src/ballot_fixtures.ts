@@ -30,6 +30,12 @@ import {
   type VotesDict,
   type RgbaImageData,
   DEFAULT_SYSTEM_SETTINGS,
+  type BallotLanguageConfigs,
+  type Contest,
+  type ElectionId,
+  type ElectionType,
+  type Parties,
+  type Precinct,
 } from '@votingworks/types';
 import { join } from 'node:path';
 import makeDebug from 'debug';
@@ -56,11 +62,12 @@ import {
   nhBallotTemplate,
 } from './ballot_templates/nh_ballot_template.js';
 import { convertPdfToCmyk } from './pdf_conversion.js';
-import { generateBallotStylesDeprecated } from './ballot_styles.js';
+import { generateBallotStyles } from './ballot_styles.js';
 import { miBallotTemplate } from './ballot_templates/mi_ballot_template.js';
 import { msBallotTemplate } from './ballot_templates/ms_ballot_template.js';
 import { nhStateBallotTemplate } from './ballot_templates/nh_state_ballot_template.js';
 import type { NhStateBallotProps } from './ballot_templates/nh_state_ballot_components.js';
+import type { BallotTemplateId } from './ballot_templates/index.js';
 
 const debug = makeDebug('hmpb:ballot_fixtures');
 
@@ -733,7 +740,7 @@ export const nhGeneralElectionFixtures = lazyFixtures(() => {
         paperSize,
       },
       // Regenerate ballot styles to apply rotation logic
-      ballotStyles: generateBallotStylesDeprecated({
+      ballotStyles: generateBallotStylesWithOrderings({
         ballotTemplateId: 'NhBallot',
         electionType: 'general',
         isMiCombinedBallotPrimary: false,
@@ -967,7 +974,7 @@ export const nhStateGeneralElectionFixtures = lazyFixtures(() => {
       ...baseElection.ballotLayout,
       paperSize: HmpbBallotPaperSize.Letter,
     },
-    ballotStyles: generateBallotStylesDeprecated({
+    ballotStyles: generateBallotStylesWithOrderings({
       ballotTemplateId: 'NhStateBallot',
       electionType: 'general',
       isMiCombinedBallotPrimary: false,
@@ -1917,4 +1924,27 @@ function resolveScratchDir(optDir?: ScratchDir): ScratchDir {
   // Default to test-compatible temp directory, since the majority of consumers
   // are tests.
   return optDir ?? { path: makeTemporaryDirectory() };
+}
+
+/**
+ * Temporary stop-gap util for producing ballot styles with embedded candidate
+ * orderings. To be removed if/when we move to split-file election packages as
+ * the default.
+ */
+export function generateBallotStylesWithOrderings(params: {
+  contests: readonly Contest[];
+  ballotLanguageConfigs: BallotLanguageConfigs;
+  electionType: ElectionType;
+  isMiCombinedBallotPrimary: boolean;
+  parties: Parties;
+  precincts: Precinct[];
+  ballotTemplateId: BallotTemplateId;
+  electionId: ElectionId;
+}): BallotStyle[] {
+  const res = generateBallotStyles(params);
+
+  return res.ballotStyles.map((bs) => ({
+    ...bs,
+    orderedCandidatesByContest: res.candidateOrderings.get(bs.groupId),
+  }));
 }
