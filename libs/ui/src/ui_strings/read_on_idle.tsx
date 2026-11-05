@@ -20,13 +20,13 @@ export interface ReadOnIdleProps {
 export function ReadOnIdle(props: ReadOnIdleProps): JSX.Element {
   const { children, delayMs } = props;
 
-  const isAudioEnabled = Boolean(useAudioContext()?.isEnabled);
+  const isPlaybackActive = Boolean(useAudioContext()?.isPlaybackActive);
   const isScreenReaderActive = useScreenReaderActive();
 
   const containerRef = React.useRef<HTMLSpanElement>(null);
 
   React.useEffect(() => {
-    if (!isAudioEnabled || isScreenReaderActive) {
+    if (!isPlaybackActive || isScreenReaderActive) {
       return;
     }
 
@@ -35,7 +35,7 @@ export function ReadOnIdle(props: ReadOnIdleProps): JSX.Element {
     }, delayMs);
 
     return () => window.clearInterval(intervalId);
-  }, [delayMs, isAudioEnabled, isScreenReaderActive]);
+  }, [delayMs, isPlaybackActive, isScreenReaderActive]);
 
   return (
     <span ref={containerRef}>

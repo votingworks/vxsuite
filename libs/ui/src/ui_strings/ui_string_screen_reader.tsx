@@ -167,7 +167,7 @@ export function UiStringScreenReader(
       playRateChangeFeedback: setAudioFeedbackQueue,
     });
 
-  const { api, isEnabled, setIsPaused } = assertDefined(
+  const { api, isPlaybackActive, setIsPaused } = assertDefined(
     useAudioContext(),
     'Audio context not defined'
   );
@@ -180,13 +180,13 @@ export function UiStringScreenReader(
   );
   const audioIdQueries = api.getAudioIds.useQueries([...activeLanguages]);
 
-  // Wrap `isEnabled` and `setIsPaused` in refs, so we can use it in the event
-  // listener effect without needing to unload and re-load the effect when the
-  // values change:
-  const isEnabledRef = React.useRef(isEnabled);
+  // Wrap `isPlaybackActive` and `setIsPaused` in refs, so we can use it in the
+  // event listener effect without needing to unload and re-load the effect when
+  // the values change:
+  const isPlaybackActiveRef = React.useRef(isPlaybackActive);
   React.useEffect(() => {
-    isEnabledRef.current = isEnabled;
-  }, [isEnabled]);
+    isPlaybackActiveRef.current = isPlaybackActive;
+  }, [isPlaybackActive]);
 
   const setIsPausedRef = React.useRef(setIsPaused);
   React.useEffect(() => {
@@ -207,7 +207,7 @@ export function UiStringScreenReader(
 
         // In case playback was paused for a previous event, unpause to ensure
         // that the user receives audio feedback for this next event.
-        if (isEnabledRef.current) {
+        if (isPlaybackActiveRef.current) {
           setIsPausedRef.current(false);
         }
       });
@@ -337,7 +337,7 @@ export function UiStringScreenReader(
     setAudioFeedbackQueue(undefined);
   }, []);
 
-  const isAudioActive = isEnabled && clipQueue.length > 0;
+  const isAudioActive = isPlaybackActive && clipQueue.length > 0;
 
   return (
     <UiStringScreenReaderContext.Provider
@@ -351,7 +351,7 @@ export function UiStringScreenReader(
         replay,
       }}
     >
-      {isEnabled && (
+      {isPlaybackActive && (
         <PlayAudioClips clips={memoizedClipQueue} onDone={onDone} />
       )}
       {children}

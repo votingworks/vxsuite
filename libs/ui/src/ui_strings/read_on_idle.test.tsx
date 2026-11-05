@@ -46,6 +46,7 @@ function newRenderer(params: {
           decreasePlaybackRate: vi.fn(),
           increasePlaybackRate: vi.fn(),
           isEnabled: isAudioEnabled,
+          isPlaybackActive: isAudioEnabled,
           isPaused: false,
           playbackRate: PlaybackRate.PERCENT_100,
           reset: vi.fn(),

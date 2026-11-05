@@ -45,6 +45,7 @@ test('returns external-facing audio context API', () => {
         value={{
           api: mockUiStringsApi,
           isEnabled: true,
+          isPlaybackActive: true,
           isPaused: false,
           playbackRate: PlaybackRate.PERCENT_100,
           setIsPaused: vi.fn(),
