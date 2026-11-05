@@ -1,11 +1,11 @@
 import type React from 'react';
 import styled from 'styled-components';
 
-import type { TooltipProps } from '@votingworks/election-definition-ui';
+import type { TooltipProps } from '../tooltip.js';
 import { AudioLinkButton } from './audio_link_button.js';
 
 export type InputWithAudioProps = {
-  audioScreenUrl: string;
+  audioScreenUrl?: string;
   editing: boolean;
   tooltipPlacement?: TooltipProps['attachTo'];
 } & React.InputHTMLAttributes<HTMLInputElement>;
@@ -61,7 +61,7 @@ export function InputWithAudio(props: InputWithAudioProps): React.ReactNode {
     <InputWithAudioContainer>
       <input {...rest} />
 
-      {audioEnabled && (
+      {audioScreenUrl && audioEnabled && (
         <AudioButton
           aria-label="Preview or Edit Audio"
           to={audioScreenUrl}

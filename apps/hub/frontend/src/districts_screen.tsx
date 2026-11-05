@@ -21,6 +21,7 @@ import {
   FixedViewport,
   FormBody,
   FormFooter,
+  InputWithAudio,
 } from '@votingworks/election-definition-ui';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import {
@@ -37,7 +38,6 @@ import {
 } from './api.js';
 import { generateId } from './utils.js';
 import { useTitle } from './hooks/use_title.js';
-import { InputWithAudio } from './ballot_audio/input_with_audio.js';
 import { DistrictAudioPanel } from './district_audio_panel.js';
 import { FormFixed } from './form_fixed.js';
 

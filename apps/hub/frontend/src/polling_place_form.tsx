@@ -24,12 +24,12 @@ import {
   FormBody,
   FormErrorContainer,
   FormFooter,
+  InputWithAudio,
 } from '@votingworks/election-definition-ui';
 import { routes } from './routes.js';
 import * as api from './api.js';
 import { generateId } from './utils.js';
 import { FormFixed, FormTitle } from './form_fixed.js';
-import { InputWithAudio } from './ballot_audio/input_with_audio.js';
 
 export interface PollingPlaceFormProps {
   editing: boolean;

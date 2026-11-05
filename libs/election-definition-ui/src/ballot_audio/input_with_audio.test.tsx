@@ -57,6 +57,13 @@ test('omits button when editing', () => {
   expect(screen.queryButton('Preview or Edit Audio')).not.toBeInTheDocument();
 });
 
+test('omits button without an audio screen', () => {
+  render(<InputWithAudio editing={false} defaultValue="General Election" />);
+
+  screen.getByRole('textbox');
+  expect(screen.queryButton('Preview or Edit Audio')).not.toBeInTheDocument();
+});
+
 test('omits button when empty', () => {
   render(
     <InputWithAudio
