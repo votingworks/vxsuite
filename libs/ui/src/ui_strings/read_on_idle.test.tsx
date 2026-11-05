@@ -45,7 +45,7 @@ function newRenderer(params: {
           api: mockUiStringsApi,
           decreasePlaybackRate: vi.fn(),
           increasePlaybackRate: vi.fn(),
-          isEnabled: isAudioEnabled,
+          isEnabledSetting: isAudioEnabled,
           isPlaybackActive: isAudioEnabled,
           isPaused: false,
           playbackRate: PlaybackRate.PERCENT_100,
