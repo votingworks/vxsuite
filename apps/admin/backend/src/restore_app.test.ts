@@ -51,6 +51,10 @@ vi.mock(
   })
 );
 
+vi.mock(import('@votingworks/fs'), async () =>
+  (await import('../test/mock_fs.js')).mockFs()
+);
+
 vi.mock(
   import('./backup/restore/copy_step.js'),
   async (
