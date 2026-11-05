@@ -1,37 +1,19 @@
 import { H2 } from '@votingworks/ui';
+import {
+  cssFormViewMode,
+  FormFixed as BaseFormFixed,
+} from '@votingworks/election-definition-ui';
 import styled, { css } from 'styled-components';
 import { StyledRichTextEditor } from './rich_text_editor.js';
 
-export interface FormFixedProps {
-  editing: boolean;
-}
-
-/**
- * Removes the default "disabled" state's low-contrast styling to optimize for
- * readability when not editing.
- */
-const cssFormViewMode = css`
-  input,
-  .search-select > div,
-  ${StyledRichTextEditor} {
-    background-color: ${(p) => p.theme.colors.background} !important;
-    color: ${(p) => p.theme.colors.onBackground} !important;
-  }
-`;
-
-export const FormFixed = styled.form<FormFixedProps>`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  position: relative;
-  width: 100%;
-
-  input:disabled {
-    cursor: not-allowed;
-  }
-
-  ${(p) => !p.editing && cssFormViewMode}
+export const FormFixed = styled(BaseFormFixed)`
+  ${(p) =>
+    !p.editing &&
+    css`
+      ${StyledRichTextEditor} {
+        ${cssFormViewMode}
+      }
+    `}
 `;
 
 export const FormTitle = styled(H2)`

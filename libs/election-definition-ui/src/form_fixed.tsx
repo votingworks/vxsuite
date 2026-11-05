@@ -1,5 +1,5 @@
 import { cssThemedScrollbars, DesktopPalette } from '@votingworks/ui';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 export const FormBody = styled.div`
   display: flex;
@@ -42,4 +42,39 @@ export const FormFooter = styled.div`
   gap: 0.5rem;
   margin: 0 1rem;
   padding: 1rem 0;
+`;
+
+export interface FormFixedProps {
+  editing: boolean;
+}
+
+/**
+ * Removes the default "disabled" state's low-contrast styling to optimize for
+ * readability when not editing.
+ */
+export const cssFormViewMode = css`
+  background-color: ${(p) => p.theme.colors.background} !important;
+  color: ${(p) => p.theme.colors.onBackground} !important;
+`;
+
+export const FormFixed = styled.form<FormFixedProps>`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+
+  input:disabled {
+    cursor: not-allowed;
+  }
+
+  ${(p) =>
+    !p.editing &&
+    css`
+      input,
+      .search-select > div {
+        ${cssFormViewMode}
+      }
+    `}
 `;
