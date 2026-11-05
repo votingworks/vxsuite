@@ -1,5 +1,4 @@
 import { useContext } from 'react';
-import styled from 'styled-components';
 import {
   BooleanEnvironmentVariableName,
   format,
@@ -8,15 +7,7 @@ import {
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-import {
-  Card,
-  H2,
-  H3,
-  Icons,
-  P,
-  Seal,
-  UnconfigureMachineButton,
-} from '@votingworks/ui';
+import { H3, Icons, P, UnconfigureMachineButton } from '@votingworks/ui';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '../contexts/app_context.js';
 import { NavigationScreen } from '../components/navigation_screen.js';
@@ -26,6 +17,7 @@ import { routerPaths } from '../router_paths.js';
 import { OfficialResultsCard } from '../components/official_results_card.js';
 import { RevertResultsToUnofficialButton } from '../components/mark_official_button.js';
 import { SaveBackupButton } from '../components/save_backup_button.js';
+import { ElectionCard } from '../components/election_card.js';
 
 export function ElectionScreen(): JSX.Element {
   const { electionDefinition, configuredAt, auth, isOfficialResults } =
@@ -61,6 +53,13 @@ export function ElectionScreen(): JSX.Element {
         Configured with the current election at{' '}
         {format.localeLongDateAndTime(new Date(configuredAt))}.
       </P>
+      <ElectionCard
+        seal={election.seal}
+        title={election.title}
+        jurisdictionName={election.jurisdiction.name}
+        state={election.state}
+        date={election.date}
+      />
       <div style={{ display: 'flex', gap: '0.5rem' }}>
         <ExportElectionPackageModalButton />
         {isSystemAdministratorAuth(auth) && (
