@@ -41,7 +41,8 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import { z } from 'zod/v4';
-import { Form, Column, Row, FormActionsRow, InputGroup } from './layout.js';
+import { Row, InputGroup } from '@votingworks/election-definition-ui';
+import { Form, Column, FormActionsRow } from './layout.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import { type ElectionIdParams, routes } from './routes.js';
 import {

@@ -4,6 +4,7 @@ import { Switch, Route, Redirect, useParams } from 'react-router-dom';
 
 import { H1, LinkButton } from '@votingworks/ui';
 
+import { FixedViewport } from '@votingworks/election-definition-ui';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import {
   type ElectionIdParams,
@@ -18,7 +19,7 @@ import {
 import { useTitle } from './hooks/use_title.js';
 import { PrecinctForm } from './precincts_form.js';
 import { PrecinctList } from './precincts_list.js';
-import { FixedViewport, ListActionsRow } from './layout.js';
+import { ListActionsRow } from './layout.js';
 import { PrecinctAudioPanel } from './precinct_audio_panel.js';
 
 export function PrecinctsScreen(): JSX.Element {

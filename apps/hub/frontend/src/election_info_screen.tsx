@@ -21,6 +21,15 @@ import { z } from 'zod/v4';
 import { DateWithoutTime, throwIllegalValue } from '@votingworks/basics';
 import styled from 'styled-components';
 import {
+  FieldName,
+  FixedViewport,
+  InputGroup,
+  Row,
+  FormBody,
+  FormErrorContainer,
+  FormFooter,
+} from '@votingworks/election-definition-ui';
+import {
   deleteElection,
   getBallotsFinalizedAt,
   getBallotTemplate,
@@ -28,19 +37,13 @@ import {
   getElectionInfo,
   updateElectionInfo,
 } from './api.js';
-import { FieldName, FixedViewport, InputGroup, Row } from './layout.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import { type ElectionIdParams, routes } from './routes.js';
 import { SealImageInput } from './seal_image_input.js';
 import { useTitle } from './hooks/use_title.js';
 import { SignatureImageInput } from './signature_image_input.js';
 import { InputWithAudio } from './ballot_audio/input_with_audio.js';
-import {
-  FormBody,
-  FormErrorContainer,
-  FormFixed,
-  FormFooter,
-} from './form_fixed.js';
+import { FormFixed } from './form_fixed.js';
 import { ElectionInfoAudioPanel } from './election_info_audio_panel.js';
 
 function hasBlankElectionInfo(electionInfo: ElectionInfo): boolean {

@@ -47,6 +47,7 @@ import type {
   GetExportedElectionError,
   QuickReportedPollStatus,
 } from '@votingworks/hub-backend';
+import { Row } from '@votingworks/election-definition-ui';
 import { ElectionNavScreen, Header } from './nav_screen.js';
 import { type ElectionIdParams, routes } from './routes.js';
 import {
@@ -58,7 +59,6 @@ import {
   getSystemSettings,
 } from './api.js';
 import { useTitle } from './hooks/use_title.js';
-import { Row } from './layout.js';
 import { useSound } from './utils.js';
 
 // --- Status types and helpers ---

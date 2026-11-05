@@ -16,6 +16,7 @@ import {
 } from '@votingworks/ui';
 import { Link, useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
+import { Row } from '@votingworks/election-definition-ui';
 import { adminElectionNavRoutes, electionNavRoutes } from './routes.js';
 import {
   getElectionInfo,
@@ -24,7 +25,6 @@ import {
   getUser,
   getUserFeatures,
 } from './api.js';
-import { Row } from './layout.js';
 
 const UserInfo = styled.div`
   display: flex;
