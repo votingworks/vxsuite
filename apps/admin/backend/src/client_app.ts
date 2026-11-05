@@ -58,7 +58,8 @@ export type NetworkConnectionStatus =
   | { status: 'online-waiting-for-host' }
   | { status: 'online-connected-to-host'; hostMachineId: string }
   | { status: 'online-multiple-hosts-detected' }
-  | { status: 'online-incompatible-host-version' };
+  | { status: 'online-incompatible-host-version' }
+  | { status: 'online-machine-id-conflict' };
 
 /**
  * Wraps a proxy call to the host, catching connection and network errors
@@ -212,6 +213,8 @@ function buildClientApi({
           return { status: 'online-multiple-hosts-detected' };
         case ClientConnectionStatus.OnlineIncompatibleHostVersion:
           return { status: 'online-incompatible-host-version' };
+        case ClientConnectionStatus.OnlineMachineIdConflict:
+          return { status: 'online-machine-id-conflict' };
         default:
           throwIllegalValue(status);
       }

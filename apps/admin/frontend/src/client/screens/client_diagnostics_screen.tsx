@@ -48,6 +48,13 @@ function NetworkSection(): JSX.Element {
             </span>
           )}
         {networkStatusQuery.isSuccess &&
+          networkStatusQuery.data.status === 'online-machine-id-conflict' && (
+            <span>
+              <Icons.Danger color="danger" /> Machine ID Conflict: a VxAdmin on
+              the network has the same machine ID as this machine
+            </span>
+          )}
+        {networkStatusQuery.isSuccess &&
           networkStatusQuery.data.status === 'offline' && (
             <span>
               <Icons.Info /> Offline

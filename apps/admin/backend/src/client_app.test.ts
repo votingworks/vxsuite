@@ -249,6 +249,13 @@ test('getNetworkConnectionStatus returns current status from client store', asyn
   expect(await env.apiClient.getNetworkConnectionStatus()).toEqual({
     status: 'online-incompatible-host-version',
   });
+
+  env.workspace.clientStore.setConnection(
+    ClientConnectionStatus.OnlineMachineIdConflict
+  );
+  expect(await env.apiClient.getNetworkConnectionStatus()).toEqual({
+    status: 'online-machine-id-conflict',
+  });
 });
 
 test('getCurrentElectionMetadata returns null when no cached data', async () => {

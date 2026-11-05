@@ -199,6 +199,22 @@ test('reports code-version-mismatch when the host runs a different software vers
   });
 });
 
+test('reports machine-id-conflict when the host has the same machine ID', async () => {
+  vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([HOST_MACHINE]);
+  const mockClient = createMockHostApiClient();
+  mockClient.registerScanner.mockResolvedValue(
+    err({ type: 'machine-id-conflict' })
+  );
+  const store = Store.memoryStore();
+  await configureElection(store, readElectionGeneralDefinition());
+  startScannerNetworking({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  await advancePollingInterval();
+  expect(store.getNetworkConnectionInfo()).toEqual({
+    status: 'online-machine-id-conflict',
+    hostMachineId: '0002',
+  });
+});
+
 test('reports machine-unconfigured when this scanner has no election', async () => {
   vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([HOST_MACHINE]);
   const mockClient = createMockHostApiClient();

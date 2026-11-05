@@ -24,6 +24,8 @@ function connectionInfoForRegistrationError(
   switch (error.type) {
     case 'code-version-mismatch':
       return { status: 'online-code-version-mismatch', hostMachineId };
+    case 'machine-id-conflict':
+      return { status: 'online-machine-id-conflict', hostMachineId };
     case 'scanner-unconfigured':
       return { status: 'online-machine-unconfigured', hostMachineId };
     case 'host-unconfigured':

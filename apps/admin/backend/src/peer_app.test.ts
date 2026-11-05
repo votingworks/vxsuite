@@ -101,6 +101,41 @@ test('registerAdjudicationStation rejects a client running an incompatible code 
   ]);
 });
 
+test("registerAdjudicationStation refuses a station with the host's machine ID without overwriting the host's record", async () => {
+  const { peerApiClient, workspace, peerLogger } = buildTestEnvironment();
+  workspace.store.setNetworkedMachineStatus(
+    DEV_MACHINE_ID,
+    'admin-host',
+    Admin.ClientMachineStatus.Active
+  );
+
+  expect(
+    await peerApiClient.registerAdjudicationStation({
+      machineId: DEV_MACHINE_ID,
+      codeVersion: 'dev',
+      status: Admin.ClientMachineStatus.OnlineLocked,
+      authType: null,
+    })
+  ).toEqual(err({ type: 'machine-id-conflict' }));
+
+  expect(workspace.store.getMachines()).toEqual([
+    expect.objectContaining({
+      machineId: DEV_MACHINE_ID,
+      machineRole: 'admin-host',
+      status: Admin.ClientMachineStatus.Active,
+    }),
+  ]);
+  expect(peerLogger.log).toHaveBeenCalledWith(
+    LogEventId.AdminNetworkStatus,
+    'system',
+    expect.objectContaining({
+      disposition: 'failure',
+      clientMachineId: DEV_MACHINE_ID,
+      message: expect.stringContaining('same machine ID as this host'),
+    })
+  );
+});
+
 test('registerAdjudicationStation persists status and authType and returns adjudication enabled', async () => {
   const { peerApiClient, workspace } = buildTestEnvironment();
 
@@ -271,6 +306,46 @@ test('registerScanner records the scanner and returns the host machine config', 
       status: Admin.ClientMachineStatus.Active,
     }),
   ]);
+});
+
+test("registerScanner refuses a scanner with the host's machine ID without overwriting the host's record", async () => {
+  const { peerApiClient, apiClient, auth, workspace, peerLogger } =
+    buildTestEnvironment();
+  const electionDefinition = readElectionGeneralDefinition();
+  await configureMachine(apiClient, auth, electionDefinition);
+  workspace.store.setNetworkedMachineStatus(
+    DEV_MACHINE_ID,
+    'admin-host',
+    Admin.ClientMachineStatus.Active
+  );
+
+  expect(
+    await peerApiClient.registerScanner({
+      machineId: DEV_MACHINE_ID,
+      codeVersion: 'dev',
+      ballotHash: electionDefinition.ballotHash,
+      isTestMode: true,
+    })
+  ).toEqual(err({ type: 'machine-id-conflict' }));
+
+  expect(workspace.store.getMachines()).toEqual([
+    expect.objectContaining({
+      machineId: DEV_MACHINE_ID,
+      machineRole: 'admin-host',
+      status: Admin.ClientMachineStatus.Active,
+      registrationError: null,
+    }),
+  ]);
+  expect(peerLogger.log).toHaveBeenCalledWith(
+    LogEventId.AdminNetworkStatus,
+    'system',
+    expect.objectContaining({
+      disposition: 'failure',
+      scannerMachineId: DEV_MACHINE_ID,
+      error: 'machine-id-conflict',
+      message: expect.stringContaining('same machine ID as this host'),
+    })
+  );
 });
 
 test('registerScanner refuses a scanner once results are marked official', async () => {

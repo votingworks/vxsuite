@@ -15,6 +15,7 @@ import {
 } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import { getCvrTransferUploadPath } from '@votingworks/networking';
+import { DEV_MACHINE_ID } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   getEntries,
@@ -374,6 +375,12 @@ test('startCvrTransfer rejects incompatible scanners', async () => {
       startInput(batch, { codeVersion: 'some-other-version' })
     )
   ).toEqual(err({ type: 'code-version-mismatch' }));
+
+  expect(
+    await peerApiClient.startCvrTransfer(
+      startInput(batch, { machineId: DEV_MACHINE_ID })
+    )
+  ).toEqual(err({ type: 'machine-id-conflict' }));
 
   expect(
     await peerApiClient.startCvrTransfer(

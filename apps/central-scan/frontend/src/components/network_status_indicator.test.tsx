@@ -86,6 +86,14 @@ const testCases: Array<{
   },
   {
     connection: {
+      status: 'online-machine-id-conflict',
+      hostMachineId: '0002',
+    },
+    expectedLabel: 'Network Error',
+    expectedTreatment: 'error',
+  },
+  {
+    connection: {
       status: 'online-host-detected',
       hostMachineId: '0002',
       hostAddress: 'http://169.254.10.20:3002',

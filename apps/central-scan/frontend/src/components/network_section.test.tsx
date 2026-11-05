@@ -34,6 +34,15 @@ const testCases: Array<{
   },
   {
     connection: {
+      status: 'online-machine-id-conflict',
+      hostMachineId: '0002',
+    },
+    expectedText:
+      'Machine ID Conflict: VxAdmin (0002) has the same machine ID as this machine',
+    expectedIcon: 'circle-exclamation',
+  },
+  {
+    connection: {
       status: 'online-machine-unconfigured',
       hostMachineId: '0002',
     },

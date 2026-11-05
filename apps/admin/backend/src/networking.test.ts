@@ -787,6 +787,42 @@ describe('startClientNetworking', () => {
     );
   });
 
+  test('does not connect to a host with the same machine ID', async () => {
+    vi.mocked(hasOnlineInterface).mockResolvedValue(true);
+    vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
+      { machineId: '0002', address: 'http://192.168.1.10:3002' },
+    ]);
+    const mockClient = createMockPeerClient({
+      registerAdjudicationStation: vi
+        .fn()
+        .mockResolvedValue(err({ type: 'machine-id-conflict' })),
+    });
+    vi.mocked(grout.createClient).mockReturnValue(mockClient);
+
+    const clientStore = createClientStore();
+    const testLogger = mockBaseLogger({ fn: vi.fn });
+    startClientNetworking({
+      machineId: '0002',
+      clientStore,
+      auth: createMockAuth(),
+      logger: testLogger,
+    });
+    await advancePollingInterval();
+
+    expect(clientStore.getConnectionStatus()).toEqual(
+      ClientConnectionStatus.OnlineMachineIdConflict
+    );
+    expect(clientStore.getHostConnection()).toBeUndefined();
+    expect(clientStore.getIsClientAdjudicationEnabled()).toEqual(false);
+    expect(testLogger.log).toHaveBeenCalledWith(
+      expect.anything(),
+      'system',
+      expect.objectContaining({
+        newStatus: ClientConnectionStatus.OnlineMachineIdConflict,
+      })
+    );
+  });
+
   test('sends active status and auth type when logged in', async () => {
     vi.mocked(hasOnlineInterface).mockResolvedValue(true);
     vi.mocked(findAllVxAdminHostMachines).mockResolvedValue([
