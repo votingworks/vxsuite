@@ -1,12 +1,19 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { promises as fs } from 'node:fs';
-import { mockChildProcess } from '@votingworks/test-utils';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import {
+  type FSWatcher,
+  promises as fs,
+  mkdirSync,
+  watch,
+  writeFileSync,
+} from 'node:fs';
+import { join } from 'node:path';
+import { makeTemporaryDirectory } from '@votingworks/fixtures';
 import {
   createBlockDeviceChangeWatcher,
   getAllDiskDevices,
   type UsbDiskDeviceInfo,
 } from './block_devices.js';
-import { exec, spawn } from './exec.js';
+import { exec } from './exec.js';
 import {
   UsbDiskDevPathSchema,
   UsbPartitionDevPathSchema,
@@ -14,6 +21,7 @@ import {
 } from './types.js';
 
 const readFileMock = vi.mocked(fs.readFile);
+const watchMock = vi.mocked(watch);
 const execMock = vi.mocked(exec);
 
 vi.mock(
@@ -22,6 +30,7 @@ vi.mock(
     const actual = await importActual();
     return {
       ...actual,
+      watch: vi.fn(actual.watch) as unknown as typeof actual.watch,
       promises: {
         ...actual.promises,
         readFile: vi.fn().mockRejectedValue(new Error('readFile not mocked')),
@@ -43,15 +52,11 @@ vi.mock(
   async (importActual): Promise<typeof import('./exec.js')> => ({
     ...(await importActual()),
     exec: vi.fn().mockRejectedValue(new Error('exec not mocked')),
-    spawn: vi.fn().mockRejectedValue(new Error('spawn not mocked')),
   })
 );
 
-const spawnMock = vi.mocked(spawn);
-
 beforeEach(() => {
   vi.clearAllMocks();
-  spawnMock.mockImplementation(mockChildProcess);
 });
 
 function exportDbEntry(info: {
@@ -538,143 +543,152 @@ describe('getAllUsbDrives', () => {
 });
 
 describe('createBlockDeviceChangeWatcher', () => {
-  test('calls onDeviceChange when udevadm stdout fires (debounced)', async () => {
-    vi.useFakeTimers();
+  let udevDataDir: string;
 
-    const proc = mockChildProcess();
-    spawnMock.mockReturnValue(proc);
+  beforeEach(() => {
+    udevDataDir = makeTemporaryDirectory();
+  });
 
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  function capturedListener(): (
+    event: string,
+    filename: string | null
+  ) => void {
+    return watchMock.mock.calls[0]?.[1] as (
+      event: string,
+      filename: string | null
+    ) => void;
+  }
+
+  test('watches the udev database by default', () => {
+    const watcher = createBlockDeviceChangeWatcher(vi.fn());
+    expect(watchMock).toHaveBeenCalledWith(
+      '/run/udev/data',
+      expect.any(Function)
+    );
+    watcher.stop();
+  });
+
+  test('reports block device entry changes', async () => {
     const onDeviceChange = vi.fn();
-    const watcher = createBlockDeviceChangeWatcher(onDeviceChange);
+    const watcher = createBlockDeviceChangeWatcher(onDeviceChange, udevDataDir);
 
-    proc.stdout.append('UDEV event 1');
-    proc.stdout.append('UDEV event 2');
-    proc.stdout.append('UDEV event 3');
+    writeFileSync(join(udevDataDir, 'b8:0'), 'E:ID_BUS=usb');
 
-    // No callback yet — debounce timer hasn't fired
+    await vi.waitFor(() => expect(onDeviceChange).toHaveBeenCalledTimes(1));
+
+    watcher.stop();
+  });
+
+  test('debounces bursts of changes into one call', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const onDeviceChange = vi.fn();
+    const watcher = createBlockDeviceChangeWatcher(onDeviceChange, udevDataDir);
+    const listener = capturedListener();
+
+    listener('rename', 'b8:0');
+    listener('rename', 'b8:1');
+    listener('rename', 'b8:0');
+
+    await vi.advanceTimersByTimeAsync(49);
     expect(onDeviceChange).not.toHaveBeenCalled();
-
-    await vi.advanceTimersByTimeAsync(50);
-
-    // Exactly one callback (debounced)
+    await vi.advanceTimersByTimeAsync(1);
     expect(onDeviceChange).toHaveBeenCalledTimes(1);
 
-    vi.useRealTimers();
     watcher.stop();
   });
 
-  test('stop() kills the subprocess and prevents restart', async () => {
-    vi.useFakeTimers();
+  test('ignores entries for other subsystems and temp files', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const onDeviceChange = vi.fn();
+    const watcher = createBlockDeviceChangeWatcher(onDeviceChange, udevDataDir);
+    const listener = capturedListener();
 
-    const proc = mockChildProcess();
-    const killSpy = vi.spyOn(proc, 'kill');
-    spawnMock.mockReturnValue(proc);
+    for (const name of ['+acpi:LNXCPU:00', 'c189:1', 'n3', '.#b8:0XXXXXX']) {
+      listener('rename', name);
+    }
 
-    const watcher = createBlockDeviceChangeWatcher(vi.fn());
-    watcher.stop();
-
-    expect(killSpy).toHaveBeenCalled();
-
-    proc.emit('exit');
-    await vi.advanceTimersByTimeAsync(1_000);
-    expect(spawnMock).toHaveBeenCalledTimes(1);
-
-    vi.useRealTimers();
-  });
-
-  test('restarts subprocess after exit', async () => {
-    vi.useFakeTimers();
-
-    const firstProc = mockChildProcess();
-    const secondProc = mockChildProcess();
-    spawnMock.mockReturnValueOnce(firstProc).mockReturnValueOnce(secondProc);
-
-    const watcher = createBlockDeviceChangeWatcher(vi.fn());
-    expect(spawnMock).toHaveBeenCalledTimes(1);
-
-    firstProc.emit('exit');
-
-    await vi.advanceTimersByTimeAsync(1_000);
-    expect(spawnMock).toHaveBeenCalledTimes(2);
-
-    vi.useRealTimers();
-    watcher.stop();
-  });
-
-  test('handles subprocess spawn error without crashing', () => {
-    const proc = mockChildProcess();
-    spawnMock.mockReturnValue(proc);
-
-    const watcher = createBlockDeviceChangeWatcher(vi.fn());
-
-    expect(() => proc.emit('error', new Error('spawn ENOENT'))).not.toThrow();
+    await vi.advanceTimersByTimeAsync(50);
+    expect(onDeviceChange).not.toHaveBeenCalled();
 
     watcher.stop();
   });
 
-  test('stop() prevents scheduled restart from spawning', async () => {
-    vi.useFakeTimers();
+  test('treats an event without a filename as a change', async () => {
+    const onDeviceChange = vi.fn();
+    const watcher = createBlockDeviceChangeWatcher(onDeviceChange, udevDataDir);
 
-    const firstProc = mockChildProcess();
-    spawnMock.mockReturnValueOnce(firstProc);
+    const listener = capturedListener();
+    listener('rename', null);
 
-    const watcher = createBlockDeviceChangeWatcher(vi.fn());
-    firstProc.emit('exit');
+    await vi.waitFor(() => expect(onDeviceChange).toHaveBeenCalledTimes(1));
+
     watcher.stop();
+  });
+
+  test('stop() discards a pending change', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const onDeviceChange = vi.fn();
+    const watcher = createBlockDeviceChangeWatcher(onDeviceChange, udevDataDir);
+
+    capturedListener()('rename', 'b8:0');
+    watcher.stop();
+
+    await vi.advanceTimersByTimeAsync(50);
+    expect(onDeviceChange).not.toHaveBeenCalled();
+  });
+
+  test('retries until the directory exists, then reports a change', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const missingDir = join(udevDataDir, 'missing');
+    const onDeviceChange = vi.fn();
+    const watcher = createBlockDeviceChangeWatcher(onDeviceChange, missingDir);
 
     await vi.advanceTimersByTimeAsync(1_000);
-    expect(spawnMock).toHaveBeenCalledTimes(1);
+    expect(watchMock).toHaveBeenCalledTimes(2);
+    expect(onDeviceChange).not.toHaveBeenCalled();
 
-    vi.useRealTimers();
-  });
-
-  test('stop() clears pending restart timer', () => {
-    vi.useFakeTimers();
-
-    const firstProc = mockChildProcess();
-    spawnMock.mockReturnValueOnce(firstProc);
-
-    const watcher = createBlockDeviceChangeWatcher(vi.fn());
-
-    // Simulate process exit, which schedules a restart timer
-    firstProc.emit('exit');
-
-    // stop() should clear the restart timer
-    watcher.stop();
-
-    // Verify no pending timers remain
-    expect(vi.getTimerCount()).toEqual(0);
-
-    vi.useRealTimers();
-  });
-
-  test('kills subprocess on Node.js process exit', () => {
-    const proc = mockChildProcess();
-    const killSpy = vi.spyOn(proc, 'kill');
-    spawnMock.mockReturnValue(proc);
-
-    const watcher = createBlockDeviceChangeWatcher(vi.fn());
-    expect(killSpy).not.toHaveBeenCalled();
-
-    // Simulate Node.js process exit — should kill the subprocess
-    process.emit('exit', 0);
-    expect(killSpy).toHaveBeenCalledTimes(1);
+    mkdirSync(missingDir);
+    await vi.advanceTimersByTimeAsync(1_000 + 50);
+    expect(watchMock).toHaveBeenCalledTimes(3);
+    expect(onDeviceChange).toHaveBeenCalledTimes(1);
 
     watcher.stop();
   });
 
-  test('stop() deregisters the process exit handler', () => {
-    const proc = mockChildProcess();
-    const killSpy = vi.spyOn(proc, 'kill');
-    spawnMock.mockReturnValue(proc);
+  test('restarts the watch after a watcher error', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const onDeviceChange = vi.fn();
+    const watcher = createBlockDeviceChangeWatcher(onDeviceChange, udevDataDir);
 
-    const watcher = createBlockDeviceChangeWatcher(vi.fn());
+    const failedWatcher = watchMock.mock.results[0]?.value as FSWatcher;
+    failedWatcher.emit('error', new Error('watch failed'));
+
+    await vi.advanceTimersByTimeAsync(1_000 + 50);
+    expect(watchMock).toHaveBeenCalledTimes(2);
+    expect(onDeviceChange).toHaveBeenCalledTimes(1);
+
     watcher.stop();
-    expect(killSpy).toHaveBeenCalledTimes(1);
+  });
 
-    // After stop(), the exit handler should be deregistered
-    killSpy.mockClear();
-    process.emit('exit', 0);
-    expect(killSpy).not.toHaveBeenCalled();
+  test('does not restart after stop()', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const missingDir = join(udevDataDir, 'missing');
+    const watcher = createBlockDeviceChangeWatcher(vi.fn(), missingDir);
+    watcher.stop();
+    mkdirSync(missingDir);
+
+    const lateWatcher = createBlockDeviceChangeWatcher(vi.fn(), missingDir);
+    lateWatcher.stop();
+    (watchMock.mock.results[1]?.value as FSWatcher).emit(
+      'error',
+      new Error('watch failed')
+    );
+
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(watchMock).toHaveBeenCalledTimes(2);
   });
 });
