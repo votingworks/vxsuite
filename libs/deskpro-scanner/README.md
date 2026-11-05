@@ -89,7 +89,12 @@ reports itself as not idle to `ScannerConnect` while `service` is logged in.
   the driver in a lite mode that refuses `SetScannerSetup`; the scanner speaks
   schema 210 and the driver accepts 69–210.
 - With `local=off` the driver calls a null UI callback on operational-state
-  messages. `ffi::ui_shim` installs a no-op before connecting.
+  messages. `ffi::ui_shim` fills that slot before connecting, and the daemon
+  reports each change as an `operationalState` event (0 while an error is
+  active).
+- While the profile's Interfacing `ifError` flag is set (as in every stock
+  profile), the scanner handles errors (jams, paper left inside) on its own
+  display and reports them to the host only as operational state 0.
 - A process that loaded the driver may abort at exit with
   `terminate called without an active exception`, from a joinable `std::thread`
   in the driver's static destructors.

@@ -205,6 +205,7 @@ const EVERY_EVENT: Array<[Buffer, DaemonEvent]> = [
     new Writer().u8(3).i32(30_000).finish(),
     { kind: 'incompatibleImage', size: 30_000 },
   ],
+  [new Writer().u8(4).i32(0).finish(), { kind: 'operationalState', state: 0 }],
 ];
 
 test.each(EVERY_EVENT)('decodes event %#', (payload, expected) => {

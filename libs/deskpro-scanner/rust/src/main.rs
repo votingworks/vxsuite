@@ -325,6 +325,9 @@ impl Session {
                     size: incompatible.size,
                 });
             }
+            driver::Event::OperationalState(state) => {
+                self.output.event(&Event::OperationalState { state });
+            }
         }
     }
 }

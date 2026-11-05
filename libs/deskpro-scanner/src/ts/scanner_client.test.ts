@@ -172,10 +172,12 @@ test('events reach listeners', async () => {
   });
   daemon.sendEvent({ kind: 'disconnected', message: 'gone' });
   daemon.sendEvent({ kind: 'incompatibleImage', size: 30_000 });
+  daemon.sendEvent({ kind: 'operationalState', state: 0 });
 
-  await vi.waitFor(() => expect(events).toHaveLength(4));
+  await vi.waitFor(() => expect(events).toHaveLength(5));
   expect(events[0]).toEqual({ kind: 'log', message: 'state scanning' });
   expect(events[3]).toEqual({ kind: 'incompatibleImage', size: 30_000 });
+  expect(events[4]).toEqual({ kind: 'operationalState', state: 0 });
 });
 
 test('an image arrives with its pixels intact', async () => {

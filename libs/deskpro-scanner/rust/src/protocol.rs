@@ -480,6 +480,8 @@ pub enum Event {
     Disconnected { message: String },
     /// An image's `ImageInfo_t` was smaller than ours, so it was dropped unread.
     IncompatibleImage { size: i32 },
+    /// The scanner's operational state changed; 0 while an error is active.
+    OperationalState { state: i32 },
 }
 
 mod event_kind {
@@ -487,6 +489,7 @@ mod event_kind {
     pub const CONTROL: u8 = 1;
     pub const DISCONNECTED: u8 = 2;
     pub const INCOMPATIBLE_IMAGE: u8 = 3;
+    pub const OPERATIONAL_STATE: u8 = 4;
 }
 
 impl Event {
@@ -507,6 +510,7 @@ impl Event {
                 .str(str_data),
             E::Disconnected { message } => w.u8(event_kind::DISCONNECTED).str(message),
             E::IncompatibleImage { size } => w.u8(event_kind::INCOMPATIBLE_IMAGE).i32(*size),
+            E::OperationalState { state } => w.u8(event_kind::OPERATIONAL_STATE).i32(*state),
         };
         w.finish()
     }
@@ -523,6 +527,7 @@ impl Event {
             },
             event_kind::DISCONNECTED => E::Disconnected { message: r.str()? },
             event_kind::INCOMPATIBLE_IMAGE => E::IncompatibleImage { size: r.i32()? },
+            event_kind::OPERATIONAL_STATE => E::OperationalState { state: r.i32()? },
             value => {
                 return Err(DecodeError::UnknownDiscriminant {
                     kind: "event",
@@ -740,6 +745,7 @@ mod tests {
                 message: "ERR_SCANNER_NOTCONNECTED".to_owned(),
             },
             Event::IncompatibleImage { size: 30_000 },
+            Event::OperationalState { state: 0 },
         ]
     }
 

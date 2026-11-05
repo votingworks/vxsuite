@@ -156,6 +156,9 @@ export function createMockDaemon(): MockScannerDaemon {
         case 'incompatibleImage':
           w.u8(EventKind.IncompatibleImage).i32(event.size);
           break;
+        case 'operationalState':
+          w.u8(EventKind.OperationalState).i32(event.state);
+          break;
         default:
           throwIllegalValue(event);
       }

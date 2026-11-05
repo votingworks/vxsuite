@@ -7,7 +7,7 @@
 #![allow(clippy::missing_errors_doc)]
 
 use std::borrow::Cow;
-use std::ffi::{CStr, CString, c_char, c_void};
+use std::ffi::{CStr, CString, c_char, c_int, c_void};
 use std::fmt;
 use std::marker::PhantomData;
 use std::panic::{AssertUnwindSafe, catch_unwind};
@@ -562,6 +562,8 @@ pub enum Event {
     Control(ScannerControl),
     Log(String),
     IncompatibleImage(IncompatibleImageInfo),
+    /// The scanner's operational state changed; 0 while an error is active.
+    OperationalState(i32),
 }
 
 static EVENTS: Mutex<Option<Sender<Event>>> = Mutex::new(None);
@@ -606,6 +608,10 @@ unsafe extern "C" fn control_trampoline(p: *mut ffi::ScannerControl_t) {
             emit(Event::Control(control));
         });
     }
+}
+
+unsafe extern "C" fn operational_state_trampoline(state: c_int) {
+    guarded(|| emit(Event::OperationalState(state)));
 }
 
 unsafe extern "C" fn image_trampoline(info: *mut ffi::ImageInfo_t, data: *mut u8) {
@@ -686,11 +692,19 @@ impl Driver {
         let symbols = unsafe { Symbols::load(library_path) }.map_err(Error::Load)?;
 
         // SAFETY: `ScannerConnect` is an export of the library just loaded, not yet called.
-        match unsafe { ffi::ui_shim::install(symbols.ScannerConnect as *const c_void) } {
+        match unsafe {
+            ffi::ui_shim::install(
+                symbols.ScannerConnect as *const c_void,
+                operational_state_trampoline,
+            )
+        } {
             Ok(ffi::ui_shim::Outcome::Patched) => {
-                tracing::warn!("patched the driver's null `currentOperationalState` callback");
+                tracing::debug!("installed the `currentOperationalState` callback");
             }
-            Ok(ffi::ui_shim::Outcome::AlreadySet) => {}
+            Ok(ffi::ui_shim::Outcome::AlreadySet) => tracing::warn!(
+                "the driver's `currentOperationalState` callback is already set; \
+                 operational-state changes will not be reported"
+            ),
             Err(reason) => tracing::warn!(
                 "could not patch the driver's `currentOperationalState` callback ({reason}); \
                  with `[GUI] local=off` the first operational-state message will crash"

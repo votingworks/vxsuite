@@ -458,6 +458,7 @@ fn print_event(event: &Event, save_images: Option<&str>) -> color_eyre::Result<(
             control.num_data,
             control.str_data_lossy()
         ),
+        Event::OperationalState(state) => println!("opstate  {state}"),
         Event::IncompatibleImage(incompatible) => println!(
             "image    INCOMPATIBLE: driver sent {} bytes of ImageInfo_t, we expect {}",
             incompatible.size,

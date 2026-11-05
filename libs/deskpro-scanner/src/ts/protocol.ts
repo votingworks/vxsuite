@@ -257,6 +257,7 @@ export const EventKind = {
   Control: 1,
   Disconnected: 2,
   IncompatibleImage: 3,
+  OperationalState: 4,
 } as const;
 
 /** Something the driver reported that no command asked for. */
@@ -270,7 +271,9 @@ export type DaemonEvent =
       readonly strData: string;
     }
   | { readonly kind: 'disconnected'; readonly message: string }
-  | { readonly kind: 'incompatibleImage'; readonly size: number };
+  | { readonly kind: 'incompatibleImage'; readonly size: number }
+  /** The scanner's operational state changed; 0 while an error is active. */
+  | { readonly kind: 'operationalState'; readonly state: number };
 
 /** Decodes an event frame payload. */
 export function decodeEvent(payload: Buffer): DaemonEvent {
@@ -294,6 +297,9 @@ export function decodeEvent(payload: Buffer): DaemonEvent {
       break;
     case EventKind.IncompatibleImage:
       event = { kind: 'incompatibleImage', size: r.i32() };
+      break;
+    case EventKind.OperationalState:
+      event = { kind: 'operationalState', state: r.i32() };
       break;
     default:
       throw new ProtocolError(`unknown event discriminant ${kind}`);

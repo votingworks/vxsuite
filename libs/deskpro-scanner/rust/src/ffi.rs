@@ -543,8 +543,8 @@ pub mod vendor_heap {
 }
 
 /// With `[GUI] local=off` the driver calls its `lpfn_currentOperationalState` slot without a null
-/// check, crashing on the first operational-state message. This points the slot at a no-op,
-/// locating it through the library's `.symtab` and the mapping base from `dladdr`.
+/// check, crashing on the first operational-state message. This points the slot at our own
+/// handler, locating it through the library's `.symtab` and the mapping base from `dladdr`.
 pub mod ui_shim {
     use std::ffi::{CStr, c_char, c_int, c_void};
 
@@ -563,20 +563,19 @@ pub mod ui_shim {
         fn dladdr(addr: *const c_void, info: *mut DlInfo) -> c_int;
     }
 
-    type OperationalStateFn = unsafe extern "C" fn(c_int);
-
-    unsafe extern "C" fn ignore_operational_state(_state: c_int) {}
+    /// The driver's operational-state callback.
+    pub type OperationalStateFn = unsafe extern "C" fn(c_int);
 
     /// What [`install`] did.
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     pub enum Outcome {
-        /// The slot was null and now points at a no-op.
+        /// The slot was null and now points at the given handler.
         Patched,
         /// The slot was already set — the GUI module is loaded, or the driver has been fixed.
         AlreadySet,
     }
 
-    /// Patches the slot in the library that `exported_fn` belongs to.
+    /// Points the slot in the library that `exported_fn` belongs to at `handler`.
     ///
     /// # Safety
     /// `exported_fn` must be resolved from the `InoTec` driver, and nothing may use the slot
@@ -584,7 +583,10 @@ pub mod ui_shim {
     ///
     /// # Errors
     /// If the library's path, mapping base or symbol table cannot be found, with the reason.
-    pub unsafe fn install(exported_fn: *const c_void) -> Result<Outcome, String> {
+    pub unsafe fn install(
+        exported_fn: *const c_void,
+        handler: OperationalStateFn,
+    ) -> Result<Outcome, String> {
         let mut info = DlInfo {
             dli_fname: std::ptr::null(),
             dli_fbase: std::ptr::null_mut(),
@@ -617,7 +619,7 @@ pub mod ui_shim {
             if slot.read().is_some() {
                 return Ok(Outcome::AlreadySet);
             }
-            slot.write(Some(ignore_operational_state));
+            slot.write(Some(handler));
         }
         Ok(Outcome::Patched)
     }
