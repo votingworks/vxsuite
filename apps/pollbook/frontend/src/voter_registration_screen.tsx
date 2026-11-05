@@ -1,5 +1,5 @@
 import type { DuplicateVoterError } from '@votingworks/pollbook-backend';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Button,
   ButtonBar,
@@ -145,12 +145,17 @@ export function VoterRegistrationScreen(): JSX.Element | null {
   const [flowState, setFlowState] = useState<RegistrationFlowState>({
     step: 'register',
   });
-  const [timeoutIdForFlowStateReset, setTimeoutIdForFlowStateReset] =
-    useState<ReturnType<typeof setTimeout>>();
-  const resetFlowState = useCallback(() => {
-    clearTimeout(timeoutIdForFlowStateReset);
+  function resetFlowState() {
     setFlowState({ step: 'register' });
-  }, [timeoutIdForFlowStateReset]);
+  }
+  useEffect(() => {
+    if (flowState.step !== 'success') return;
+    const timeoutId = setTimeout(
+      resetFlowState,
+      AUTOMATIC_FLOW_STATE_RESET_DELAY_MS
+    );
+    return () => clearTimeout(timeoutId);
+  }, [flowState.step]);
   const [voter, setVoter] =
     useState<VoterRegistrationRequest>(createBlankVoter());
 
@@ -329,12 +334,6 @@ export function VoterRegistrationScreen(): JSX.Element | null {
                       if (result.isOk()) {
                         setFlowState({ step: 'success', voter: result.ok() });
                         setVoter(createBlankVoter());
-                        setTimeoutIdForFlowStateReset(
-                          setTimeout(
-                            resetFlowState,
-                            AUTOMATIC_FLOW_STATE_RESET_DELAY_MS
-                          )
-                        );
                       } else {
                         setFlowState({
                           step: 'has-name-match',
@@ -385,12 +384,6 @@ export function VoterRegistrationScreen(): JSX.Element | null {
                               voter: result.unsafeUnwrap(),
                             });
                             setVoter(createBlankVoter());
-                            setTimeoutIdForFlowStateReset(
-                              setTimeout(
-                                resetFlowState,
-                                AUTOMATIC_FLOW_STATE_RESET_DELAY_MS
-                              )
-                            );
                           },
                         }
                       );
