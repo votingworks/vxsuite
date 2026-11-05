@@ -24,6 +24,7 @@ import {
   testCdfBallotDefinition,
   DEFAULT_SYSTEM_SETTINGS,
   anyPollingPlace,
+  type BallotMode,
 } from '@votingworks/types';
 import {
   electionFamousNames2021Fixtures,
@@ -1252,6 +1253,33 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
     expect(c.precinctCount).toEqual(1);
     expect(c.absenteeCount).toEqual(2);
     expect(c.totalCount).toEqual(3);
+  }
+});
+
+test('getBallots uses the machine ballot mode even if the request names one', async () => {
+  const {
+    famousNamesMultiLangElectionDefinition,
+    famousNamesMultiLangOfficialAndTestBallots,
+  } = sharedFixtures;
+  await configureMachine({
+    electionDefinition: famousNamesMultiLangElectionDefinition,
+    ballots: famousNamesMultiLangOfficialAndTestBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+  await apiClient.setTestMode({ testMode: true });
+
+  const requestWithBallotMode: { ballotMode: BallotMode } = {
+    ballotMode: 'official',
+  };
+  const ballots = await apiClient.getBallots(
+    requestWithBallotMode as Parameters<typeof apiClient.getBallots>[0]
+  );
+
+  expect(ballots).not.toHaveLength(0);
+  for (const ballot of ballots) {
+    expect(ballot.ballotMode).toEqual('test');
   }
 });
 
