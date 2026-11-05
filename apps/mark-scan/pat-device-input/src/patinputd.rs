@@ -9,6 +9,7 @@
 //! device connection status.
 use clap::Parser;
 use daemon_utils::run_no_op_event_loop;
+use evdev::{AttributeSet, BusType, InputId, KeyCode, KeyEvent, uinput::VirtualDevice};
 use pat_input_reader::PatInputReader;
 use std::{
     process::exit,
@@ -19,10 +20,6 @@ use std::{
     thread,
     time::Duration,
 };
-use uinput::{
-    Device,
-    event::{Keyboard, keyboard},
-};
 
 use vx_logging::{Disposition, EventId, EventType, Source, log, set_source};
 
@@ -31,7 +28,6 @@ use crate::pin::GpioPin;
 mod pat_input_reader;
 mod pin;
 
-const UINPUT_PATH: &str = "/dev/uinput";
 const POLL_INTERVAL: Duration = Duration::from_millis(50);
 const SOURCE: Source = Source::VxMarkScanPatDaemon;
 
@@ -43,21 +39,22 @@ struct Args {
     skip_hardware_check: bool,
 }
 
-fn send_key(device: &mut Device, key: keyboard::Key) -> Result<(), uinput::Error> {
-    device.click(&key)?;
-    device.synchronize()?;
-    Ok(())
+fn send_key(device: &mut VirtualDevice, key: KeyCode) -> std::io::Result<()> {
+    device.emit(&[*KeyEvent::new(key, 1), *KeyEvent::new(key, 0)])
 }
 
 #[allow(clippy::unwrap_used)]
-fn create_virtual_device() -> Device {
-    uinput::open(UINPUT_PATH)
+fn create_virtual_device() -> VirtualDevice {
+    let keys: AttributeSet<KeyCode> = (KeyCode::KEY_ESC.0..=KeyCode::KEY_MICMUTE.0)
+        .map(KeyCode)
+        .collect();
+    VirtualDevice::builder()
         .unwrap()
         .name("PAT Input Daemon Virtual Device")
+        .input_id(InputId::new(BusType(0), 0, 0, 0))
+        .with_keys(&keys)
         .unwrap()
-        .event(Keyboard::All)
-        .unwrap()
-        .create()
+        .build()
         .unwrap()
 }
 
@@ -122,7 +119,7 @@ fn main() {
 
                 if new_signal_a
                     && !signal_a
-                    && let Err(err) = send_key(&mut device, keyboard::Key::_1)
+                    && let Err(err) = send_key(&mut device, KeyCode::KEY_1)
                 {
                     log!(
                         event_id: EventId::PatDeviceError,
@@ -132,7 +129,7 @@ fn main() {
                 }
                 if new_signal_b
                     && !signal_b
-                    && let Err(err) = send_key(&mut device, keyboard::Key::_2)
+                    && let Err(err) = send_key(&mut device, KeyCode::KEY_2)
                 {
                     log!(
                         event_id: EventId::PatDeviceError,

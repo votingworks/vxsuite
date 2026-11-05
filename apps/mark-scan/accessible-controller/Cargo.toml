@@ -13,11 +13,11 @@ color-eyre = { workspace = true }
 crc = { workspace = true }
 ctrlc = { workspace = true }
 daemon-utils = { workspace = true }
+evdev = { workspace = true }
 num_enum = { workspace = true }
 serialport = { workspace = true }
 thiserror = { workspace = true }
 vx-logging = { workspace = true }
-uinput = { workspace = true }
 
 [lints]
 workspace = true

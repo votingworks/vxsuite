@@ -1,5 +1,5 @@
 use crc::{CRC_16_XMODEM, Crc};
-use uinput::event::keyboard;
+use evdev::KeyCode;
 
 use crate::device::{Action, Button};
 
@@ -15,8 +15,6 @@ pub enum CommandError {
     InvalidCommand(u8),
     #[error("Invalid action received: {0}")]
     InvalidAction(u8),
-    #[error("Error occurred when sending keypress event")]
-    KeypressError(#[from] uinput::Error),
     #[error("Button value invalid: {0}")]
     InvalidButton(u8),
     #[error("Invalid CRC16 value: expected {expected:x}, actual {actual:x}")]
@@ -162,47 +160,47 @@ impl TryFrom<&[u8]> for ButtonStatusCommand {
     }
 }
 
-pub fn handle_command(data: &[u8]) -> Result<Option<(keyboard::Key, bool)>, CommandError> {
+pub fn handle_command(data: &[u8]) -> Result<Option<(KeyCode, bool)>, CommandError> {
     let ButtonStatusCommand { button, action } = data.try_into()?;
 
-    let key: keyboard::Key;
+    let key: KeyCode;
     let mut send_shift: bool = false;
     match action {
         Action::Pressed => match button {
             Button::Select => {
-                key = keyboard::Key::Enter;
+                key = KeyCode::KEY_ENTER;
             }
             Button::Left => {
-                key = keyboard::Key::Left;
+                key = KeyCode::KEY_LEFT;
             }
             Button::Right => {
-                key = keyboard::Key::Right;
+                key = KeyCode::KEY_RIGHT;
             }
             Button::Up => {
-                key = keyboard::Key::Up;
+                key = KeyCode::KEY_UP;
             }
             Button::Down => {
-                key = keyboard::Key::Down;
+                key = KeyCode::KEY_DOWN;
             }
             Button::Help => {
                 send_shift = true;
-                key = keyboard::Key::R;
+                key = KeyCode::KEY_R;
             }
             Button::RateDown => {
-                key = keyboard::Key::Comma;
+                key = KeyCode::KEY_COMMA;
             }
             Button::RateUp => {
-                key = keyboard::Key::Dot;
+                key = KeyCode::KEY_DOT;
             }
             Button::VolumeDown => {
-                key = keyboard::Key::Minus;
+                key = KeyCode::KEY_MINUS;
             }
             Button::VolumeUp => {
-                key = keyboard::Key::Equal;
+                key = KeyCode::KEY_EQUAL;
             }
             Button::Pause => {
                 send_shift = true;
-                key = keyboard::Key::P;
+                key = KeyCode::KEY_P;
             }
         },
         Action::Released => {
@@ -254,7 +252,7 @@ mod tests {
         ];
         assert_eq!(
             handle_command(&data).unwrap().unwrap(),
-            (keyboard::Key::R, true)
+            (KeyCode::KEY_R, true)
         );
     }
 
@@ -271,7 +269,7 @@ mod tests {
         ];
         assert_eq!(
             handle_command(&data).unwrap().unwrap(),
-            (keyboard::Key::Left, false)
+            (KeyCode::KEY_LEFT, false)
         );
     }
 }

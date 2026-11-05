@@ -26,6 +26,7 @@ clap = { version = "4.0.29", features = ["derive", "env"] }
 color-eyre = "0.6.2"
 crc = "3.4.0"
 ctrlc = "3.4.2"
+evdev = "0.13.2"
 flate2 = "1.1.1"
 vx-logging = { path = "libs/logging/rust" }
 daemon-utils = { path = "apps/mark-scan/daemon-utils" }
@@ -48,7 +49,6 @@ thiserror = "2.0.21"
 tokio = { version = "1.44.2", features = ["fs", "signal", "io-std", "io-util"] }
 tokio-serial = { version = "5.4.1" }
 tokio-test = { version = "0.4.4" }
-uinput = "0.1.3"
 
 [workspace.lints.rust]
 dead_code = "deny"

@@ -11,7 +11,7 @@ path = "src/patinputd.rs"
 clap = { workspace = true }
 ctrlc = { workspace = true }
 daemon-utils = { workspace = true }
-uinput = { workspace = true }
+evdev = { workspace = true }
 vx-logging = { workspace = true }
 
 [lints]
