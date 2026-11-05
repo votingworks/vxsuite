@@ -482,9 +482,6 @@ export function createApiMock(
       afterCvrId?: Id,
       options: { escalatedOnly?: boolean } = {}
     ) {
-      const pollingInput = options.escalatedOnly
-        ? { escalatedOnly: true }
-        : undefined;
       if (afterCvrId !== undefined) {
         apiClient.getNextCvrIdForBallotAdjudication.reset();
         apiClient.getNextCvrIdForBallotAdjudication
@@ -494,14 +491,16 @@ export function createApiMock(
               : { afterCvrId }
           )
           .resolves(cvrId);
+        return;
       }
-      if (pollingInput) {
+      const input = options.escalatedOnly ? { escalatedOnly: true } : undefined;
+      if (input) {
         apiClient.getNextCvrIdForBallotAdjudication
-          .expectOptionalRepeatedCallsWith(pollingInput)
+          .expectCallWith(input)
           .resolves(cvrId);
       } else {
         apiClient.getNextCvrIdForBallotAdjudication
-          .expectOptionalRepeatedCallsWith()
+          .expectCallWith()
           .resolves(cvrId);
       }
     },

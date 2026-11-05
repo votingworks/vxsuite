@@ -461,15 +461,14 @@ export const getNextCvrIdForBallotAdjudication = {
       ? ['getNextCvrIdForBallotAdjudication', input]
       : ['getNextCvrIdForBallotAdjudication'];
   },
-  usePollingQuery(input: BallotAdjudicationQueueInput) {
+  useQuery(input: BallotAdjudicationQueueInput) {
     const apiClient = useApiClient();
-    return usePollingQuery(
+    return useQuery(
       this.queryKey(input),
       () =>
         input.escalatedOnly
           ? apiClient.getNextCvrIdForBallotAdjudication(input)
           : apiClient.getNextCvrIdForBallotAdjudication(),
-      DEFAULT_QUERY_REFETCH_INTERVAL,
       {
         cacheTime: 0,
         staleTime: 0,
