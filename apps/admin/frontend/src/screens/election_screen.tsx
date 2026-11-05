@@ -27,17 +27,6 @@ import { OfficialResultsCard } from '../components/official_results_card.js';
 import { RevertResultsToUnofficialButton } from '../components/mark_official_button.js';
 import { SaveBackupButton } from '../components/save_backup_button.js';
 
-const ElectionCard = styled(Card).attrs({ color: 'neutral' })`
-  margin: 1rem 0;
-
-  > div {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-    padding: 1rem;
-  }
-`;
-
 export function ElectionScreen(): JSX.Element {
   const { electionDefinition, configuredAt, auth, isOfficialResults } =
     useContext(AppContext);
@@ -72,19 +61,6 @@ export function ElectionScreen(): JSX.Element {
         Configured with the current election at{' '}
         {format.localeLongDateAndTime(new Date(configuredAt))}.
       </P>
-      <ElectionCard>
-        <Seal seal={election.seal} maxWidth="7rem" />
-        <div>
-          <H2 as="h3">{election.title}</H2>
-          <P>
-            {election.jurisdiction.name}, {election.state}
-            <br />
-            {format.localeLongDate(
-              election.date.toMidnightDatetimeWithSystemTimezone()
-            )}
-          </P>
-        </div>
-      </ElectionCard>
       <div style={{ display: 'flex', gap: '0.5rem' }}>
         <ExportElectionPackageModalButton />
         {isSystemAdministratorAuth(auth) && (
