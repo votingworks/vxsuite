@@ -19,7 +19,7 @@ export interface UiStringsAudioContextInterface {
   api: UiStringsReactQueryApi;
   decreasePlaybackRate: () => void;
   increasePlaybackRate: () => void;
-  isEnabled: boolean;
+  isEnabledSetting: boolean;
   isPaused: boolean;
   isPlaybackActive: boolean;
   output?: AudioNode;
@@ -82,7 +82,7 @@ export function UiStringsAudioContextProvider(
   props: UiStringsAudioContextProviderProps
 ): JSX.Element {
   const { api, children } = props;
-  const [isEnabled, setIsEnabledInternal] = React.useState(
+  const [isEnabledSetting, setIsEnabledInternal] = React.useState(
     DEFAULT_AUDIO_ENABLED_STATE
   );
   const [controlsEnabled, setControlsEnabled] = React.useState(true);
@@ -126,7 +126,7 @@ export function UiStringsAudioContextProvider(
     [headphonesPluggedIn]
   );
 
-  const isPlaybackActive = isEnabled;
+  const isPlaybackActive = isEnabledSetting;
 
   React.useEffect(() => {
     if (isPlaybackActive) {
@@ -168,8 +168,8 @@ export function UiStringsAudioContextProvider(
   );
 
   const toggleEnabled = React.useCallback(
-    () => setIsEnabled(!isEnabled),
-    [isEnabled, setIsEnabled]
+    () => setIsEnabled(!isEnabledSetting),
+    [isEnabledSetting, setIsEnabled]
   );
 
   return (
@@ -178,7 +178,7 @@ export function UiStringsAudioContextProvider(
         api,
         decreasePlaybackRate: controlsEnabled ? decreasePlaybackRate : noOp,
         increasePlaybackRate: controlsEnabled ? increasePlaybackRate : noOp,
-        isEnabled,
+        isEnabledSetting,
         isPaused,
         isPlaybackActive,
         output: gainNodeRef.current,

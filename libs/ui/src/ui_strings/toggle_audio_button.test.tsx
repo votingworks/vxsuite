@@ -17,17 +17,17 @@ test('status text corresponds to audio state', async () => {
   render(<ToggleAudioButton />);
 
   await screen.findAllByText('Audio is on');
-  expect(getAudioContext()!.isEnabled).toEqual(true);
+  expect(getAudioContext()!.isEnabledSetting).toEqual(true);
 
   await userEvent.click(screen.getButton(/mute audio/i));
 
   await screen.findAllByText('Audio is muted');
-  expect(getAudioContext()!.isEnabled).toEqual(false);
+  expect(getAudioContext()!.isEnabledSetting).toEqual(false);
 
   await userEvent.click(screen.getButton(/unmute audio/i));
 
   await screen.findAllByText('Audio is on');
-  expect(getAudioContext()!.isEnabled).toEqual(true);
+  expect(getAudioContext()!.isEnabledSetting).toEqual(true);
 });
 
 test('is disabled when headphones not detected', async () => {
