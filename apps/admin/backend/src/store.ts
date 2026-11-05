@@ -92,6 +92,7 @@ import {
   addDiagnosticRecord,
   getMostRecentDiagnosticRecord,
   readElectionPackageFromFile,
+  streamBallotPositions,
   streamCandidateOrderings,
   withElectionPackageZip,
   type ElectionPackageError,
@@ -427,28 +428,39 @@ export class Store implements BaseStore {
 
       const { electionPackage, electionPackageHash } = packageResult.ok();
 
-      this.withTransaction(() => {
-        this.client.run(
-          `
+      await withElectionPackageZip(packageLocalPath, async (zip) => {
+        const maxSheetsPerBallot = await this.calculateMaxSheetsPerBallot(
+          zip,
+          electionPackage.electionDefinition.election,
+          electionPackage.systemSettings
+        );
+
+        this.withTransaction(() => {
+          this.client.run(
+            `
           insert into elections (
             id,
             election_data,
             ballot_hash,
             system_settings_data,
+            max_sheets_per_ballot,
             election_package_hash
-          ) values (?, ?, ?, ?, ?)
+          ) values (?, ?, ?, ?, ?, ?)
           `,
-          id,
-          electionPackage.electionDefinition.electionData,
-          electionPackage.electionDefinition.ballotHash,
-          JSON.stringify(electionPackage.systemSettings),
-          electionPackageHash
-        );
+            id,
+            electionPackage.electionDefinition.electionData,
+            electionPackage.electionDefinition.ballotHash,
+            JSON.stringify(electionPackage.systemSettings),
+            maxSheetsPerBallot,
+            electionPackageHash
+          );
 
-        this.createElectionMetadataRecords({ electionId: id, electionPackage });
-      });
+          this.createElectionMetadataRecords({
+            electionId: id,
+            electionPackage,
+          });
+        });
 
-      await withElectionPackageZip(packageLocalPath, async (zip) => {
         await this.importCandidateOrderings({
           batchSize: p.candidateOrderingsBatchSize,
           election: electionPackage.electionDefinition.election,
@@ -627,6 +639,15 @@ export class Store implements BaseStore {
       jurisdictionName: row.jurisdictionName,
       state: row.state,
     };
+  }
+
+  getMaxSheetsPerBallot(p: { electionId: string }): number {
+    const row = this.client.one(
+      `select max_sheets_per_ballot as max from elections where id = ?`,
+      p.electionId
+    ) as { max: number } | undefined;
+
+    return assertDefined(row?.max, `election ${p.electionId} not found`);
   }
 
   /**
@@ -1120,6 +1141,27 @@ export class Store implements BaseStore {
     }
 
     this.addCandidateOrderingsBatch({ electionId, batch });
+  }
+
+  private async calculateMaxSheetsPerBallot(
+    zip: ElectionPackageZip,
+    election: Election,
+    settings: SystemSettings
+  ): Promise<number> {
+    if (!settings.splitElectionDefinition) {
+      let max = 0;
+      for (const b of election.ballotStyles) {
+        if (!b.ballotPositions) continue;
+        max = Math.max(max, b.ballotPositions.length);
+      }
+      return max;
+    }
+
+    let max = 0;
+    for await (const pos of streamBallotPositions(zip)) {
+      max = Math.max(max, pos.positions.length);
+    }
+    return max;
   }
 
   private addCandidateOrderingsBatch(p: {

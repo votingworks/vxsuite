@@ -1,11 +1,7 @@
 import { P } from '@votingworks/ui';
 import { useContext, useState } from 'react';
 import { assert } from '@votingworks/basics';
-import {
-  getMaxSheetsPerBallot,
-  isElectionManagerAuth,
-  isGroupByEmpty,
-} from '@votingworks/utils';
+import { isElectionManagerAuth, isGroupByEmpty } from '@votingworks/utils';
 import type { Admin, Tabulation } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context.js';
 import { NavigationScreen } from '../../components/navigation_screen.js';
@@ -23,7 +19,7 @@ import {
   isFilterEmpty,
 } from '../../utils/reporting.js';
 import { BallotCountReportViewer } from '../../components/reporting/ballot_count_report_viewer.js';
-import { getSystemSettings } from '../../api.js';
+import { getMaxSheetsPerBallot, getSystemSettings } from '../../api.js';
 import {
   ControlLabel,
   ReportBuilderControls,
@@ -33,16 +29,22 @@ import {
 
 export const TITLE = 'Ballot Count Report Builder';
 
-export function BallotCountReportBuilder(): JSX.Element {
+export function BallotCountReportBuilder(): React.ReactNode {
   const { electionDefinition, auth } = useContext(AppContext);
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth));
   const { election } = electionDefinition;
 
   const systemSettingsQuery = getSystemSettings.useQuery();
+  const maxSheetsPerBallotQuery = getMaxSheetsPerBallot.useQuery();
+
   const [filter, setFilter] = useState<Admin.FrontendReportingFilter>({});
   const [groupBy, setGroupBy] = useState<Tabulation.GroupBy>({});
   const [includeSheetCounts, setIncludeSheetCounts] = useState<boolean>(false);
+
+  if (!maxSheetsPerBallotQuery.isSuccess) {
+    return null;
+  }
 
   function updateFilter(newFilter: Admin.FrontendReportingFilter) {
     setFilter(canonicalizeFilter(newFilter));
@@ -78,7 +80,7 @@ export function BallotCountReportBuilder(): JSX.Element {
     allowedFilters.push('party');
     allowedGroupBys.push('groupByParty');
   }
-  const maxSheetsPerBallot = getMaxSheetsPerBallot(election);
+  const maxSheetsPerBallot = maxSheetsPerBallotQuery.data;
   if (maxSheetsPerBallot && maxSheetsPerBallot > 1) {
     allowedGroupBys.push('includeSheetCounts');
   }

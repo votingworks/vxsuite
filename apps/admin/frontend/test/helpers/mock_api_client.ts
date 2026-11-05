@@ -80,6 +80,7 @@ type MockApiClient = Omit<
   | 'getBackupStatus'
   | 'waitForUsbDriveChange'
   | 'getCandidateOrderings'
+  | 'getMaxSheetsPerBallot'
 > & {
   // Because these are polled so frequently, we opt for a standard vitest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
@@ -96,6 +97,7 @@ type MockApiClient = Omit<
   getCandidateOrderings: Mock<
     (p: { ballotStyleGroupId: string }) => Promise<CandidateOrderings | null>
   >;
+  getMaxSheetsPerBallot: Mock<() => Promise<number>>;
 };
 
 export function createMockApiClient(): MockApiClient {
@@ -121,6 +123,8 @@ export function createMockApiClient(): MockApiClient {
   );
 
   mockApiClient.getCandidateOrderings = vi.fn(() => Promise.resolve(null));
+
+  mockApiClient.getMaxSheetsPerBallot = vi.fn(() => Promise.resolve(1));
 
   return mockApiClient;
 }

@@ -1727,6 +1727,12 @@ function buildApi({
       });
     },
 
+    getMaxSheetsPerBallot(): number {
+      return store.getMaxSheetsPerBallot({
+        electionId: loadCurrentElectionIdOrThrow(workspace),
+      });
+    },
+
     ...createSystemCallApi({
       usbDrive: usbDriveAdapter,
       logger,

@@ -5,6 +5,7 @@ create table elections (
   system_settings_data text not null,
   election_package_hash text not null,
   is_official_results integer not null default false,
+  max_sheets_per_ballot integer not null,
   created_at text not null default current_timestamp
 ) strict;
 

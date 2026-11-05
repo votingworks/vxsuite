@@ -1262,3 +1262,13 @@ export const getCandidateOrderings = {
     return useQuery(this.queryKey(p), () => apiClient.getCandidateOrderings(p));
   },
 } as const;
+
+export const getMaxSheetsPerBallot = {
+  queryKey(): QueryKey {
+    return ['getMaxSheetsPerBallot'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getMaxSheetsPerBallot());
+  },
+} as const;

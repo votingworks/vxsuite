@@ -9,7 +9,6 @@ import { assert, assertDefined } from '@votingworks/basics';
 import {
   combineGroupSpecifierAndFilter,
   getBallotCount,
-  getMaxSheetsPerBallot,
   getScannedBallotCount,
   getScannedBallotCountForSheet,
   groupMapToGroupList,
@@ -175,7 +174,7 @@ export function* generateBallotCountReportCsv({
     store.getManualResultsMetadata({ election, electionId }).length > 0;
 
   const maxSheetsPerBallot = includeSheetCounts
-    ? getMaxSheetsPerBallot(election)
+    ? store.getMaxSheetsPerBallot({ electionId })
     : undefined;
 
   yield stringify([
