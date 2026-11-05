@@ -3,13 +3,9 @@ import { useParams } from 'react-router-dom';
 
 import { LinkButton } from '@votingworks/ui';
 
-import {
-  Tooltip,
-  TooltipContainer,
-  type TooltipProps,
-} from '@votingworks/election-definition-ui';
-import * as api from '../api.js';
-import type { ElectionIdParams } from '../routes.js';
+import type { ElectionId } from '@votingworks/types';
+import { useElectionDefinitionApi } from '../election_definition_context.js';
+import { Tooltip, TooltipContainer, type TooltipProps } from '../tooltip.js';
 
 export interface AudioLinkButtonProps {
   buttonClassName?: string;
@@ -23,8 +19,9 @@ export function AudioLinkButton(props: AudioLinkButtonProps): ReactNode {
   const { buttonClassName, className, to, tooltip, tooltipPlacement, ...rest } =
     props;
 
-  const { electionId } = useParams<ElectionIdParams>();
+  const { electionId } = useParams<{ electionId: ElectionId }>();
 
+  const api = useElectionDefinitionApi();
   const features = api.getStateFeatures.useQuery(electionId).data;
   if (!features?.AUDIO_ENABLED) return null;
 

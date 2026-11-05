@@ -28,6 +28,7 @@ import {
   FormBody,
   FormErrorContainer,
   FormFooter,
+  InputWithAudio,
 } from '@votingworks/election-definition-ui';
 import {
   deleteElection,
@@ -42,7 +43,6 @@ import { type ElectionIdParams, routes } from './routes.js';
 import { SealImageInput } from './seal_image_input.js';
 import { useTitle } from './hooks/use_title.js';
 import { SignatureImageInput } from './signature_image_input.js';
-import { InputWithAudio } from './ballot_audio/input_with_audio.js';
 import { FormFixed } from './form_fixed.js';
 import { ElectionInfoAudioPanel } from './election_info_audio_panel.js';
 
