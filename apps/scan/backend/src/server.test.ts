@@ -33,6 +33,21 @@ import {
 } from '../test/helpers/shared_helpers.js';
 import type { AudioPlayer } from './audio/audio.js';
 
+vi.mock(import('@votingworks/usb-drive'), async (importActual) => {
+  const actual = await importActual();
+  const fixtures = await import('@votingworks/fixtures');
+  return {
+    ...actual,
+    detectUsbDriveFromEnv: ({ logger }) =>
+      actual.detectUsbDrive({
+        logger,
+        platform: new actual.SimulatedUsbPlatform(
+          fixtures.makeTemporaryDirectory()
+        ),
+      }),
+  };
+});
+
 vi.mock('./app');
 
 const buildAppMock = buildApp as MockedFunction<typeof buildApp>;

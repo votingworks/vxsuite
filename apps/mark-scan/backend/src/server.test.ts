@@ -12,6 +12,21 @@ import { resolveDriver, start } from './server.js';
 import { createWorkspace } from './util/workspace.js';
 
 const featureFlagMock = getFeatureFlagMock();
+vi.mock(import('@votingworks/usb-drive'), async (importActual) => {
+  const actual = await importActual();
+  const fixtures = await import('@votingworks/fixtures');
+  return {
+    ...actual,
+    detectUsbDriveFromEnv: ({ logger }) =>
+      actual.detectUsbDrive({
+        logger,
+        platform: new actual.SimulatedUsbPlatform(
+          fixtures.makeTemporaryDirectory()
+        ),
+      }),
+  };
+});
+
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>

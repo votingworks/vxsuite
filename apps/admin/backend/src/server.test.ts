@@ -39,6 +39,21 @@ import { writeTempElectionZip } from '../test/app.js';
 
 // Mock modules that start() creates or calls internally
 const featureFlagMock = getFeatureFlagMock();
+vi.mock(import('@votingworks/usb-drive'), async (importActual) => {
+  const actual = await importActual();
+  const fixtures = await import('@votingworks/fixtures');
+  return {
+    ...actual,
+    detectMultiUsbDriveFromEnv: ({ logger }) =>
+      actual.detectMultiUsbDrive({
+        logger,
+        platform: new actual.SimulatedUsbPlatform(
+          fixtures.makeTemporaryDirectory()
+        ),
+      }),
+  };
+});
+
 vi.mock(import('@votingworks/utils'), async (importActual) => ({
   ...(await importActual()),
   isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
