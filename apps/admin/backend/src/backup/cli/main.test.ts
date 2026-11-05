@@ -16,7 +16,6 @@ import { Client } from '@votingworks/db';
 import { BaseLogger, LogSource, mockLogger } from '@votingworks/logging';
 import { DateWithoutTime } from '@votingworks/basics';
 import {
-  DEFAULT_SYSTEM_SETTINGS,
   DEV_MACHINE_ID,
   LATEST_SOFTWARE_VERSION,
   safeParseJson,
@@ -72,21 +71,10 @@ async function run(
 
 async function makeWorkspace(logger: BaseLogger): Promise<Workspace> {
   const workspace = createWorkspace(makeTemporaryDirectory(), logger);
-  const { electionPackage, readElectionDefinition } =
-    electionFamousNames2021Fixtures;
-  const electionPackageSourceFilePath = electionPackage.asFilePath();
-  const electionPackageHash = createHash('sha256')
-    .update(electionPackage.asBuffer())
-    .digest('hex');
-
-  const { ballotHash, electionData } = readElectionDefinition();
-  const electionId = await workspace.store.addElection({
-    electionData,
-    ballotHash,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath,
-    electionPackageHash,
+  const importResult = await workspace.store.importElectionPackage({
+    packagePath: electionFamousNames2021Fixtures.electionPackage.asFilePath(),
   });
+  const { electionId } = importResult.unsafeUnwrap();
   workspace.store.setCurrentElectionId(electionId);
 
   return workspace;

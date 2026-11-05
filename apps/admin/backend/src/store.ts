@@ -64,7 +64,6 @@ import {
   type CandidateOrderings,
   unsafeParseJson,
   CandidateOrderingsSchema,
-  SystemSettingsSchema,
 } from '@votingworks/types';
 import {
   mkdirSync,
@@ -92,9 +91,12 @@ import {
 import {
   addDiagnosticRecord,
   getMostRecentDiagnosticRecord,
+  readElectionPackageFromFile,
   streamCandidateOrderings,
   withElectionPackageZip,
+  type ElectionPackageError,
   type ElectionPackageZip,
+  type ParsedElectionPackage,
 } from '@votingworks/backend';
 import type { BaseLogger } from '@votingworks/logging';
 import {
@@ -394,37 +396,38 @@ export class Store implements BaseStore {
   }
 
   /**
-   * Creates an election record and returns its ID. The raw election package
-   * is archived to the file system with a copy of
-   * `electionPackageSourceFilePath`, so that the whole zip is never held in
-   * memory.
+   * Imports an election package from the given path and copies it to disk for
+   * archiving and re-export.
+   *
+   * NOTE: Does not set the imported election as the current election. Callers
+   * can follow up with a call to {@link setCurrentElectionId}.
    */
-  async addElection({
-    ballotHash,
-    candidateOrderingsBatchSize,
-    electionData,
-    systemSettingsData,
-    electionPackageSourceFilePath,
-    electionPackageHash,
-  }: {
-    ballotHash: string;
+  async importElectionPackage(p: {
     candidateOrderingsBatchSize?: number;
-    electionData: string;
-    systemSettingsData: string;
-    electionPackageSourceFilePath: string;
-    electionPackageHash: string;
-  }): Promise<Id> {
+    packagePath: string;
+  }): Promise<
+    Result<
+      { electionId: Id; electionPackage: ParsedElectionPackage },
+      ElectionPackageError
+    >
+  > {
     const id = uuid();
 
-    const electionPackageFilePath = constructElectionPackageFilePath(
+    const packageLocalPath = constructElectionPackageFilePath(
       this.electionPackagesPath,
       id
     );
-    await mkdir(dirname(electionPackageFilePath), { recursive: true });
+    await mkdir(dirname(packageLocalPath), { recursive: true });
 
     try {
-      await copyFile(electionPackageSourceFilePath, electionPackageFilePath);
-      const election = this.withTransaction(() => {
+      await copyFile(p.packagePath, packageLocalPath);
+
+      const packageResult = await readElectionPackageFromFile(packageLocalPath);
+      if (packageResult.isErr()) return packageResult;
+
+      const { electionPackage, electionPackageHash } = packageResult.ok();
+
+      this.withTransaction(() => {
         this.client.run(
           `
           insert into elections (
@@ -436,36 +439,26 @@ export class Store implements BaseStore {
           ) values (?, ?, ?, ?, ?)
           `,
           id,
-          electionData,
-          ballotHash,
-          systemSettingsData,
+          electionPackage.electionDefinition.electionData,
+          electionPackage.electionDefinition.ballotHash,
+          JSON.stringify(electionPackage.systemSettings),
           electionPackageHash
         );
 
-        const storedElection = assertDefined(
-          this.getElection(id)?.electionDefinition.election
-        );
-
-        this.createElectionMetadataRecords({
-          electionId: id,
-          election: storedElection,
-        });
-
-        return storedElection;
+        this.createElectionMetadataRecords({ electionId: id, electionPackage });
       });
 
-      await withElectionPackageZip(
-        electionPackageSourceFilePath,
-        async (zip) => {
-          await this.importCandidateOrderings({
-            batchSize: candidateOrderingsBatchSize,
-            election,
-            electionId: id,
-            settings: unsafeParseJson(systemSettingsData, SystemSettingsSchema),
-            zip,
-          });
-        }
-      );
+      await withElectionPackageZip(packageLocalPath, async (zip) => {
+        await this.importCandidateOrderings({
+          batchSize: p.candidateOrderingsBatchSize,
+          election: electionPackage.electionDefinition.election,
+          electionId: id,
+          settings: electionPackage.systemSettings,
+          zip,
+        });
+      });
+
+      return ok({ electionId: id, electionPackage });
     } catch (error) {
       this.client.run(`delete from elections where id = ?`, id);
       this.cachedElection = undefined;
@@ -474,11 +467,9 @@ export class Store implements BaseStore {
       // The file may not exist if the copy itself failed (e.g. the source
       // was missing), so ignore missing-file errors rather than masking the
       // original error.
-      await rm(electionPackageFilePath, { force: true });
+      await rm(packageLocalPath, { force: true });
       throw error;
     }
-
-    return id;
   }
 
   /**
@@ -694,38 +685,36 @@ export class Store implements BaseStore {
       : undefined;
   }
 
-  setRegisteredVoterCounts(
+  private setRegisteredVoterCounts(
     electionId: Id,
     counts: ElectionRegisteredVoterCounts
   ): void {
-    this.withTransaction(() => {
-      for (const [precinctId, entry] of Object.entries(counts)) {
-        if (typeof entry === 'number') {
-          this.client.run(
-            `
+    for (const [precinctId, entry] of Object.entries(counts)) {
+      if (typeof entry === 'number') {
+        this.client.run(
+          `
             insert into precinct_registered_voter_counts (election_id, precinct_id, count)
             values (?, ?, ?)
             `,
-            electionId,
-            precinctId,
-            entry
-          );
-        } else {
-          for (const [splitId, count] of Object.entries(entry.splits)) {
-            this.client.run(
-              `
+          electionId,
+          precinctId,
+          entry
+        );
+      } else {
+        for (const [splitId, count] of Object.entries(entry.splits)) {
+          this.client.run(
+            `
               insert into precinct_split_registered_voter_counts (election_id, precinct_id, split_id, count)
               values (?, ?, ?, ?)
               `,
-              electionId,
-              precinctId,
-              splitId,
-              count
-            );
-          }
+            electionId,
+            precinctId,
+            splitId,
+            count
+          );
         }
       }
-    });
+    }
   }
 
   getRegisteredVoterCounts(
@@ -874,10 +863,11 @@ export class Store implements BaseStore {
    * and query the data.
    */
   private createElectionMetadataRecords(p: {
-    election: Election;
     electionId: Id;
+    electionPackage: ParsedElectionPackage;
   }): void {
-    const { election, electionId } = p;
+    const { electionId, electionPackage } = p;
+    const { election } = electionPackage.electionDefinition;
 
     this.addVotingMethodRecords({ electionId });
 
@@ -907,6 +897,13 @@ export class Store implements BaseStore {
           districtId,
         });
       }
+    }
+
+    if (electionPackage.registeredVoterCounts) {
+      this.setRegisteredVoterCounts(
+        electionId,
+        electionPackage.registeredVoterCounts
+      );
     }
   }
 

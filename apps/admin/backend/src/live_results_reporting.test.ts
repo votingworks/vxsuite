@@ -91,15 +91,13 @@ async function setupStore(
   const electionDefinition =
     makeElectionDefinitionWithPollingPlaces(pollingPlaces);
   const store = Store.memoryStore(makeTemporaryDirectory());
-  const electionId = await store.addElection({
-    electionData: electionDefinition.electionData,
-    ballotHash: electionDefinition.ballotHash,
-    systemSettingsData: JSON.stringify(systemSettings),
-    electionPackageSourceFilePath: await writeTempElectionZip({
+  const importResult = await store.importElectionPackage({
+    packagePath: await writeTempElectionZip({
       electionDefinition,
+      systemSettings,
     }),
-    electionPackageHash: 'test-election-package-hash',
   });
+  const { electionId } = importResult.unsafeUnwrap();
   store.setCurrentElectionId(electionId);
   if (cvrs.length > 0) {
     addMockCvrFileToStore({

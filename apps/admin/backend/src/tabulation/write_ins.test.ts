@@ -158,16 +158,11 @@ test('tabulateWriteInTallies', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { ballotHash, election, electionData } = electionDefinition;
-  const electionId = await store.addElection({
-    electionData,
-    ballotHash,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: await writeTempElectionZip({
-      electionDefinition,
-    }),
-    electionPackageHash: 'test-election-package-hash',
+  const { election } = electionDefinition;
+  const importResult = await store.importElectionPackage({
+    packagePath: await writeTempElectionZip({ electionDefinition }),
   });
+  const { electionId } = importResult.unsafeUnwrap();
   store.setCurrentElectionId(electionId);
 
   // add some mock cast vote records with write-ins to store
@@ -477,19 +472,16 @@ test('tabulateWriteInTallies in qualified mode - unadjudicated qualified candida
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { ballotHash, electionData } = electionDefinition;
-  const electionId = await store.addElection({
-    electionData,
-    ballotHash,
-    systemSettingsData: JSON.stringify({
-      ...DEFAULT_SYSTEM_SETTINGS,
-      areWriteInCandidatesQualified: true,
-    }),
-    electionPackageSourceFilePath: await writeTempElectionZip({
+  const importResult = await store.importElectionPackage({
+    packagePath: await writeTempElectionZip({
       electionDefinition,
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        areWriteInCandidatesQualified: true,
+      },
     }),
-    electionPackageHash: 'test-election-package-hash',
   });
+  const { electionId } = importResult.unsafeUnwrap();
   store.setCurrentElectionId(electionId);
 
   const contestId = 'zoo-council-mammal';
@@ -556,19 +548,16 @@ test('tabulateWriteInTallies in qualified mode - preserves adjudicated tallies w
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { ballotHash, electionData } = electionDefinition;
-  const electionId = await store.addElection({
-    electionData,
-    ballotHash,
-    systemSettingsData: JSON.stringify({
-      ...DEFAULT_SYSTEM_SETTINGS,
-      areWriteInCandidatesQualified: true,
-    }),
-    electionPackageSourceFilePath: await writeTempElectionZip({
+  const importResult = await store.importElectionPackage({
+    packagePath: await writeTempElectionZip({
       electionDefinition,
+      systemSettings: {
+        ...DEFAULT_SYSTEM_SETTINGS,
+        areWriteInCandidatesQualified: true,
+      },
     }),
-    electionPackageHash: 'test-election-package-hash',
   });
+  const { electionId } = importResult.unsafeUnwrap();
   store.setCurrentElectionId(electionId);
 
   const contestId = 'zoo-council-mammal';

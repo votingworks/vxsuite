@@ -310,15 +310,10 @@ test('client receives and caches election data from configured host', async () =
 
   // Configure an election on the host
   const electionDefinition = readElectionGeneralDefinition();
-  const electionId = await store.addElection({
-    electionData: electionDefinition.electionData,
-    ballotHash: electionDefinition.ballotHash,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: await writeTempElectionZip({
-      electionDefinition,
-    }),
-    electionPackageHash: 'test-hash',
+  const importResult = await store.importElectionPackage({
+    packagePath: await writeTempElectionZip({ electionDefinition }),
   });
+  const { electionId } = importResult.unsafeUnwrap();
   store.setCurrentElectionId(electionId);
 
   // Wait for client to connect and cache election data
@@ -353,15 +348,10 @@ test('client logs out when host election is unconfigured', async () => {
 
   // Configure an election on the host
   const electionDefinition = readElectionGeneralDefinition();
-  const electionId = await store.addElection({
-    electionData: electionDefinition.electionData,
-    ballotHash: electionDefinition.ballotHash,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: await writeTempElectionZip({
-      electionDefinition,
-    }),
-    electionPackageHash: 'test-hash',
+  const importResult = await store.importElectionPackage({
+    packagePath: await writeTempElectionZip({ electionDefinition }),
   });
+  const { electionId } = importResult.unsafeUnwrap();
   store.setCurrentElectionId(electionId);
 
   // Wait for client to connect and cache election data
@@ -391,15 +381,10 @@ async function addElectionWithAdjudicableCvrs(
 }> {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const electionId = await store.addElection({
-    electionData: electionDefinition.electionData,
-    ballotHash: electionDefinition.ballotHash,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: await writeTempElectionZip({
-      electionDefinition,
-    }),
-    electionPackageHash: 'test-hash',
+  const importResult = await store.importElectionPackage({
+    packagePath: await writeTempElectionZip({ electionDefinition }),
   });
+  const { electionId } = importResult.unsafeUnwrap();
   store.setCurrentElectionId(electionId);
   store.setIsClientAdjudicationEnabled(true);
   const cvrIds = addMockCvrFileToStore({

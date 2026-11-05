@@ -60,7 +60,6 @@ import {
   type ExportDataError,
   createSystemCallApi,
   getNodeEnv,
-  readElectionPackageFromFile,
   reboot,
 } from '@votingworks/backend';
 import {
@@ -654,7 +653,7 @@ function buildApi({
       // For the dev flow of configuring with a bare election.json, wrap it
       // in a minimal election package zip on disk, so that the rest of
       // configuration has a single file-path-based flow.
-      let electionPackageFilePath = input.electionFilePath;
+      let packagePath = input.electionFilePath;
       if (input.electionFilePath.endsWith('.json')) {
         const electionDefinitionResult = await readElection(
           input.electionFilePath
@@ -678,14 +677,14 @@ function buildApi({
         // clobber each other's files. (A zip can't be piped through memory
         // instead: reading one requires random access to seek the central
         // directory at the end of the file.)
-        electionPackageFilePath = join(
+        packagePath = join(
           workspace.path,
           `imported-election-package-${randomUUID()}.zip`
         );
         const zipStream = new ZipStream();
         const writePromise = pipeline(
           zipStream,
-          createWriteStream(electionPackageFilePath)
+          createWriteStream(packagePath)
         );
         await addFileToZipStream(zipStream, {
           path: ElectionPackageFileName.ELECTION,
@@ -711,12 +710,9 @@ function buildApi({
       }
 
       try {
-        const electionPackageResult = await readElectionPackageFromFile(
-          electionPackageFilePath
-        );
-
-        if (electionPackageResult.isErr()) {
-          const errorDetails = electionPackageResult.err();
+        const res = await store.importElectionPackage({ packagePath });
+        if (res.isErr()) {
+          const errorDetails = res.err();
           await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
             message: `Error configuring machine.`,
             disposition: 'failure',
@@ -726,34 +722,24 @@ function buildApi({
                 ? systemLimitViolationToString(errorDetails.violation)
                 : JSON.stringify(errorDetails),
           });
-          return electionPackageResult;
-        }
-        const { electionPackage, electionPackageHash } =
-          electionPackageResult.ok();
 
-        const { electionDefinition, systemSettings, registeredVoterCounts } =
-          electionPackage;
-        const electionId = await store.addElection({
-          electionData: electionDefinition.electionData,
-          ballotHash: electionDefinition.ballotHash,
-          systemSettingsData: JSON.stringify(systemSettings),
-          electionPackageSourceFilePath: electionPackageFilePath,
-          electionPackageHash,
-        });
-        if (registeredVoterCounts) {
-          store.setRegisteredVoterCounts(electionId, registeredVoterCounts);
+          return res;
         }
+
+        const { electionId, electionPackage } = res.ok();
         store.setCurrentElectionId(electionId);
+
         await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
           disposition: 'success',
-          newBallotHash: electionDefinition.ballotHash,
+          newBallotHash: electionPackage.electionDefinition.ballotHash,
         });
+
         return ok({ electionId });
       } finally {
         // Clean up the temporary package built from a bare election.json,
         // even when configuration fails partway
-        if (electionPackageFilePath !== input.electionFilePath) {
-          await rm(electionPackageFilePath, { force: true });
+        if (packagePath !== input.electionFilePath) {
+          await rm(packagePath, { force: true });
         }
       }
     },
