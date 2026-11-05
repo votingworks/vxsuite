@@ -988,6 +988,9 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
+      '@votingworks/election-definition-backend':
+        specifier: workspace:*
+        version: link:../../../libs/election-definition-backend
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
@@ -3730,6 +3733,16 @@ importers:
         version: 5.0.2(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(@vitest/coverage-istanbul@5.0.2)(jsdom@30.1.3(@noble/hashes@1.8.0)(canvas@3.2.3))(vite@8.1.6(@types/node@24.19.2)(esbuild@0.28.1)(yaml@2.8.2))
 
   libs/election-definition-backend:
+    dependencies:
+      '@votingworks/basics':
+        specifier: workspace:*
+        version: link:../basics
+      '@votingworks/types':
+        specifier: workspace:*
+        version: link:../types
+      zod:
+        specifier: 4.6.6
+        version: 4.6.6
     devDependencies:
       '@types/node':
         specifier: 24.19.2

@@ -81,6 +81,7 @@ import {
 } from '@votingworks/hmpb';
 import path from 'node:path';
 import { createSummaryBallotTestDeck } from '@votingworks/test-decks';
+import { getStateFeaturesConfig } from '@votingworks/election-definition-backend';
 import {
   ELECTION_PACKAGE_FILE_NAME_REGEX,
   exportElectionPackage,
@@ -94,7 +95,6 @@ import {
 } from './test_decks.js';
 import type { Jurisdiction, JurisdictionUser } from './types.js';
 import type { MainExportTaskMetadata } from './store.js';
-import { getStateFeaturesConfig } from './features.js';
 import {
   organizations,
   jurisdictions,
