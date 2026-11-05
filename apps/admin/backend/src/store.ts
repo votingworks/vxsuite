@@ -411,20 +411,22 @@ export class Store implements BaseStore {
       ElectionPackageError
     >
   > {
-    const packageResult = await readElectionPackageFromFile(p.packagePath);
-    if (packageResult.isErr()) return packageResult;
-
-    const { electionPackage, electionPackageHash } = packageResult.ok();
     const id = uuid();
 
-    const packageCopyPath = constructElectionPackageFilePath(
+    const packageLocalPath = constructElectionPackageFilePath(
       this.electionPackagesPath,
       id
     );
-    await mkdir(dirname(packageCopyPath), { recursive: true });
+    await mkdir(dirname(packageLocalPath), { recursive: true });
 
     try {
-      await copyFile(p.packagePath, packageCopyPath);
+      await copyFile(p.packagePath, packageLocalPath);
+
+      const packageResult = await readElectionPackageFromFile(packageLocalPath);
+      if (packageResult.isErr()) return packageResult;
+
+      const { electionPackage, electionPackageHash } = packageResult.ok();
+
       this.withTransaction(() => {
         this.client.run(
           `
@@ -446,7 +448,7 @@ export class Store implements BaseStore {
         this.createElectionMetadataRecords({ electionId: id, electionPackage });
       });
 
-      await withElectionPackageZip(p.packagePath, async (zip) => {
+      await withElectionPackageZip(packageLocalPath, async (zip) => {
         await this.importCandidateOrderings({
           batchSize: p.candidateOrderingsBatchSize,
           election: electionPackage.electionDefinition.election,
@@ -455,6 +457,8 @@ export class Store implements BaseStore {
           zip,
         });
       });
+
+      return ok({ electionId: id, electionPackage });
     } catch (error) {
       this.client.run(`delete from elections where id = ?`, id);
       this.cachedElection = undefined;
@@ -463,11 +467,9 @@ export class Store implements BaseStore {
       // The file may not exist if the copy itself failed (e.g. the source
       // was missing), so ignore missing-file errors rather than masking the
       // original error.
-      await rm(packageCopyPath, { force: true });
+      await rm(packageLocalPath, { force: true });
       throw error;
     }
-
-    return ok({ electionId: id, electionPackage });
   }
 
   /**

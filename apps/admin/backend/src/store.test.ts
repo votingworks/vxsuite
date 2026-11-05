@@ -392,15 +392,16 @@ test('reads election metadata from a CDF election definition', async () => {
   );
 });
 
-test('importElectionPackage returns an error when the package is missing', async () => {
+test('addElection surfaces the copy error when the package source is missing', async () => {
   const tempDirectory = makeTemporaryDirectory();
   const store = Store.memoryStore(tempDirectory);
-  const importResult = await store.importElectionPackage({
-    packagePath: join(tempDirectory, 'does-not-exist.zip'),
-  });
+  await expect(
+    store.importElectionPackage({
+      packagePath: join(tempDirectory, 'does-not-exist.zip'),
+    })
+  ).rejects.toThrow(/ENOENT/);
 
-  expect(importResult.err()).toMatchObject({ type: 'invalid-zip' });
-  expect(store.getElections()).toHaveLength(0);
+  expect(readdirSync(join(tempDirectory, 'election-packages'))).toEqual([]);
 });
 
 test('importElectionPackage returns an error for an invalid election', async () => {
