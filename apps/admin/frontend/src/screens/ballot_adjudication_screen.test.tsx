@@ -1307,7 +1307,7 @@ test('accept on the last ballot wraps back to an earlier unresolved ballot', asy
   apiMock.expectGetBallotAdjudicationQueue([CVR_ID_1, CVR_ID_2]);
   // The bare "next ballot" query positions the host on the last ballot.
   apiMock.apiClient.getNextCvrIdForBallotAdjudication
-    .expectOptionalRepeatedCallsWith()
+    .expectCallWith()
     .resolves(CVR_ID_2);
   apiMock.expectInitialClaimAndLoadBallot({ cvrId: CVR_ID_2 }, adjData2);
   apiMock.apiClient.getBallotImages

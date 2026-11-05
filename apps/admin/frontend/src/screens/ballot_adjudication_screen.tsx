@@ -196,8 +196,7 @@ export function BallotAdjudicationScreenWrapper({
 }): JSX.Element {
   const queueInput = escalatedOnly ? { escalatedOnly } : {};
   const ballotQueueQuery = getBallotAdjudicationQueue.useQuery(queueInput);
-  const nextCvrIdQuery =
-    getNextCvrIdForBallotAdjudication.usePollingQuery(queueInput);
+  const nextCvrIdQuery = getNextCvrIdForBallotAdjudication.useQuery(queueInput);
 
   if (!ballotQueueQuery.isSuccess || !nextCvrIdQuery.isSuccess) {
     return (
