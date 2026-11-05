@@ -323,3 +323,85 @@ test('disables audio when headphones are unplugged', () => {
   act(() => setMockHeadphonesPluggedIn(true));
   expect(result.current?.isEnabledSetting).toEqual(true);
 });
+
+test('setIsMuted suspends playback without changing the setting', () => {
+  const { result } = renderHook(useAudioContext, {
+    wrapper: TestContextWrapper,
+  });
+
+  act(() => result.current?.setIsEnabled(true));
+  expect(result.current?.isPlaybackActive).toEqual(true);
+
+  vi.resetAllMocks();
+
+  act(() => result.current?.setIsMuted(true));
+  expect(result.current?.isMuted).toEqual(true);
+  expect(result.current?.isEnabledSetting).toEqual(true);
+  expect(result.current?.isPlaybackActive).toEqual(false);
+  expect(result.current?.isPaused).toEqual(true);
+  expect(mockWebAudioContext.suspend).toHaveBeenCalled();
+
+  vi.resetAllMocks();
+
+  act(() => result.current?.setIsMuted(false));
+  expect(result.current?.isMuted).toEqual(false);
+  expect(result.current?.isPlaybackActive).toEqual(true);
+  expect(result.current?.isPaused).toEqual(false);
+  expect(mockWebAudioContext.resume).toHaveBeenCalled();
+});
+
+test('unmuting keeps playback off when the setting is off', () => {
+  const { result } = renderHook(useAudioContext, {
+    wrapper: TestContextWrapper,
+  });
+
+  act(() => result.current?.setIsMuted(true));
+  act(() => result.current?.setIsEnabled(false));
+  act(() => result.current?.setIsMuted(false));
+
+  expect(result.current?.isEnabledSetting).toEqual(false);
+  expect(result.current?.isPlaybackActive).toEqual(false);
+  expect(result.current?.isPaused).toEqual(true);
+});
+
+test('setting changes while muted take effect on unmute', () => {
+  const { result } = renderHook(useAudioContext, {
+    wrapper: TestContextWrapper,
+  });
+
+  act(() => result.current?.setIsEnabled(false));
+  act(() => result.current?.setIsMuted(true));
+  act(() => result.current?.setIsEnabled(true));
+
+  expect(result.current?.isEnabledSetting).toEqual(true);
+  expect(result.current?.isPlaybackActive).toEqual(false);
+
+  act(() => result.current?.setIsMuted(false));
+  expect(result.current?.isPlaybackActive).toEqual(true);
+});
+
+test('setIsMuted works when controls are disabled', () => {
+  const { result } = renderHook(useAudioContext, {
+    wrapper: TestContextWrapper,
+  });
+
+  act(() => result.current?.setControlsEnabled(false));
+  act(() => result.current?.setIsMuted(true));
+  expect(result.current?.isMuted).toEqual(true);
+  expect(result.current?.isPlaybackActive).toEqual(false);
+
+  act(() => result.current?.setIsMuted(false));
+  expect(result.current?.isMuted).toEqual(false);
+});
+
+test('reset does not clear the mute', () => {
+  const { result } = renderHook(useAudioContext, {
+    wrapper: TestContextWrapper,
+  });
+
+  act(() => result.current?.setIsMuted(true));
+  act(() => result.current?.reset());
+
+  expect(result.current?.isMuted).toEqual(true);
+  expect(result.current?.isPlaybackActive).toEqual(false);
+});
