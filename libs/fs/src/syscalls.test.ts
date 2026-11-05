@@ -1,12 +1,5 @@
 import { afterEach, expect, test, vi } from 'vitest';
-import {
-  existsSync,
-  fstatSync,
-  mkdirSync,
-  readFileSync,
-  statSync,
-  writeFileSync,
-} from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { err, ok } from '@votingworks/basics';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
@@ -83,25 +76,25 @@ test('renameNoReplace refuses to replace an existing name', () => {
   expect(readFileSync(join(root, 'b'), 'utf-8')).toEqual('from b');
 });
 
-test('dropPageCache succeeds on a readable file', async () => {
+test('dropPageCache succeeds on a readable file', () => {
   const root = makeTemporaryDirectory();
   writeFileSync(join(root, 'file'), 'contents');
 
-  expect(await dropPageCache(join(root, 'file'))).toEqual(ok());
+  expect(dropPageCache(join(root, 'file'))).toEqual(ok());
 
   // Advisory, not destructive: the file still reads back.
   expect(readFileSync(join(root, 'file'), 'utf-8')).toEqual('contents');
 });
 
-test('dropPageCache fails on a file that cannot be opened', async () => {
+test('dropPageCache fails on a file that cannot be opened', () => {
   const root = makeTemporaryDirectory();
 
-  expect(await dropPageCache(join(root, 'missing'))).toEqual(
+  expect(dropPageCache(join(root, 'missing'))).toEqual(
     err({ code: 'ENOENT', message: expect.stringContaining('ENOENT') })
   );
 });
 
-test('dropPageCache reports a failed fadvise', async () => {
+test('dropPageCache reports a failed fadvise', () => {
   const root = makeTemporaryDirectory();
   writeFileSync(join(root, 'file'), 'contents');
 
@@ -111,7 +104,7 @@ test('dropPageCache reports a failed fadvise', async () => {
     throw new Error('EIO: I/O error');
   });
 
-  expect(await dropPageCache(join(root, 'file'))).toEqual(
+  expect(dropPageCache(join(root, 'file'))).toEqual(
     err({ code: 'EIO', message: 'EIO: I/O error' })
   );
 });
@@ -119,14 +112,11 @@ test('dropPageCache reports a failed fadvise', async () => {
 test('syncFilesystem flushes the filesystem containing a directory', async () => {
   const root = makeTemporaryDirectory();
   // Mock syncfs to avoid slowdown on CI
-  let syncedInode: number | undefined;
-  vi.spyOn(napi, 'syncfs').mockImplementation((fd) => {
-    syncedInode = fstatSync(fd).ino;
-  });
+  const syncfs = vi.spyOn(napi, 'syncfs').mockResolvedValue();
 
   expect(await syncFilesystem(root)).toEqual(ok());
 
-  expect(syncedInode).toEqual(statSync(root).ino);
+  expect(syncfs).toHaveBeenCalledWith(root);
 });
 
 test('syncFilesystem fails on a path that cannot be opened', async () => {
@@ -142,84 +132,78 @@ test('syncFilesystem reports a failed syncfs', async () => {
 
   // A writeback failure is the case that matters and can't be provoked on a
   // temporary directory, so make the addon fail the way it would.
-  vi.spyOn(napi, 'syncfs').mockImplementation(() => {
-    throw new Error('EIO: I/O error');
-  });
+  vi.spyOn(napi, 'syncfs').mockRejectedValue(new Error('EIO: I/O error'));
 
   expect(await syncFilesystem(root)).toEqual(
     err({ code: 'EIO', message: 'EIO: I/O error' })
   );
 });
 
-test('tryLockFileExclusive locks a path, creating the file', async () => {
+test('tryLockFileExclusive locks a path, creating the file', () => {
   const root = makeTemporaryDirectory();
   const lockPath = join(root, 'lock');
 
-  const lock = (await tryLockFileExclusive(lockPath)).unsafeUnwrap();
+  const lock = tryLockFileExclusive(lockPath).unsafeUnwrap();
 
   expect(existsSync(lockPath)).toEqual(true);
-  await lock.release();
+  lock.release();
 });
 
-test('tryLockFileExclusive refuses a lock someone else holds', async () => {
+test('tryLockFileExclusive refuses a lock someone else holds', () => {
   const root = makeTemporaryDirectory();
   const lockPath = join(root, 'lock');
 
-  const held = (await tryLockFileExclusive(lockPath)).unsafeUnwrap();
+  const held = tryLockFileExclusive(lockPath).unsafeUnwrap();
 
   // `flock` locks an open file description, not a process, so a second open of
   // the same path conflicts even from here.
-  const blocked = await tryLockFileExclusive(lockPath);
+  const blocked = tryLockFileExclusive(lockPath);
   expect(isLockHeldElsewhereError(blocked.unsafeUnwrapErr())).toEqual(true);
 
   // Releasing hands it to the next arrival; `unsafeUnwrap` is the assertion.
-  await held.release();
-  await (await tryLockFileExclusive(lockPath)).unsafeUnwrap().release();
+  held.release();
+  tryLockFileExclusive(lockPath).unsafeUnwrap().release();
 });
 
-test('releasing a lock twice is harmless', async () => {
+test('releasing a lock twice is harmless', () => {
   const root = makeTemporaryDirectory();
-  const lock = (await tryLockFileExclusive(join(root, 'lock'))).unsafeUnwrap();
+  const lock = tryLockFileExclusive(join(root, 'lock')).unsafeUnwrap();
 
-  await lock.release();
-  await lock.release();
+  lock.release();
+  lock.release();
 });
 
-test('`await using` releases a lock at the end of the scope', async () => {
+test('`using` releases a lock at the end of the scope', () => {
   const root = makeTemporaryDirectory();
   const lockPath = join(root, 'lock');
 
   {
-    await using lock = (await tryLockFileExclusive(lockPath)).unsafeUnwrap();
+    using lock = tryLockFileExclusive(lockPath).unsafeUnwrap();
     expect(lock).toBeDefined();
     expect(
-      isLockHeldElsewhereError(
-        (await tryLockFileExclusive(lockPath)).unsafeUnwrapErr()
-      )
+      isLockHeldElsewhereError(tryLockFileExclusive(lockPath).unsafeUnwrapErr())
     ).toEqual(true);
   }
 
-  await (await tryLockFileExclusive(lockPath)).unsafeUnwrap().release();
+  tryLockFileExclusive(lockPath).unsafeUnwrap().release();
 });
 
-test('tryLockFileExclusive reports a path it cannot open', async () => {
+test('tryLockFileExclusive reports a path it cannot open', () => {
   const root = makeTemporaryDirectory();
 
-  expect(
-    await tryLockFileExclusive(join(root, 'no-such-directory', 'lock'))
-  ).toEqual(
+  expect(tryLockFileExclusive(join(root, 'no-such-directory', 'lock'))).toEqual(
     err({ code: 'ENOENT', message: expect.stringContaining('ENOENT') })
   );
 });
 
-test('tryLockFileExclusive reports a failed flock', async () => {
+test('tryLockFileExclusive reports a failed flock', () => {
   const root = makeTemporaryDirectory();
 
-  vi.spyOn(napi, 'flockExclusiveNonblocking').mockImplementation(() => {
+  vi.spyOn(napi, 'lockFileExclusiveNonblocking').mockImplementation(() => {
     throw new Error('EIO: I/O error');
   });
 
-  expect(await tryLockFileExclusive(join(root, 'lock'))).toEqual(
+  expect(tryLockFileExclusive(join(root, 'lock'))).toEqual(
     err({ code: 'EIO', message: 'EIO: I/O error' })
   );
   expect(isLockHeldElsewhereError({ code: 'EIO', message: '' })).toEqual(false);

@@ -104,10 +104,9 @@ test('a staging area that cannot be cleaned up releases its lock', async () => {
 
   await expect(stagingArea.cleanup()).rejects.toThrow('input/output error');
 
-  const lock = await tryLockFileExclusive(
-    BackupStagingArea.lockPathIn(workspacePath)
-  );
-  await lock.unsafeUnwrap().release();
+  tryLockFileExclusive(BackupStagingArea.lockPathIn(workspacePath))
+    .unsafeUnwrap()
+    .release();
 });
 
 test('a staging area that cannot be created releases its lock', async () => {
@@ -122,8 +121,7 @@ test('a staging area that cannot be created releases its lock', async () => {
 
   // A lock kept here would block every later backup for the life of the
   // process.
-  const lock = await tryLockFileExclusive(
-    BackupStagingArea.lockPathIn(workspacePath)
-  );
-  await lock.unsafeUnwrap().release();
+  tryLockFileExclusive(BackupStagingArea.lockPathIn(workspacePath))
+    .unsafeUnwrap()
+    .release();
 });

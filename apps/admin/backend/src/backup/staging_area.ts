@@ -86,7 +86,7 @@ export class BackupStagingArea {
   static async inWorkspace(
     workspacePath: string
   ): Promise<Result<BackupStagingArea, StagingAreaBusyError>> {
-    const lockResult = await tryLockFileExclusive(
+    const lockResult = tryLockFileExclusive(
       BackupStagingArea.lockPathIn(workspacePath)
     );
 
@@ -110,7 +110,7 @@ export class BackupStagingArea {
       await rm(stagingAreaPath, { recursive: true, force: true });
       await mkdir(stagingAreaPath, { recursive: true });
     } catch (error) {
-      await lock.release();
+      lock.release();
       throw error;
     }
 
@@ -228,7 +228,7 @@ export class BackupStagingArea {
       this.preparedPaths.clear();
       this.readyFiles.clear();
     } finally {
-      await this.lock.release();
+      this.lock.release();
     }
   }
 }

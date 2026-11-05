@@ -579,9 +579,10 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { fadviseDontNeed, flockExclusiveNonblocking, renameExchange, renameNoReplace, syncfs } = nativeBinding
+const { ExclusiveLock, fadviseDontNeed, lockFileExclusiveNonblocking, renameExchange, renameNoReplace, syncfs } = nativeBinding
+export { ExclusiveLock }
 export { fadviseDontNeed }
-export { flockExclusiveNonblocking }
+export { lockFileExclusiveNonblocking }
 export { renameExchange }
 export { renameNoReplace }
 export { syncfs }
