@@ -20,6 +20,7 @@ export interface UiStringsAudioContextInterface {
   decreasePlaybackRate: () => void;
   increasePlaybackRate: () => void;
   isEnabledSetting: boolean;
+  isMuted: boolean;
   isPaused: boolean;
   isPlaybackActive: boolean;
   output?: AudioNode;
@@ -27,6 +28,7 @@ export interface UiStringsAudioContextInterface {
   reset: () => void;
   setControlsEnabled: (enabled: boolean) => void;
   setIsEnabled: (enabled: boolean) => void;
+  setIsMuted: (muted: boolean) => void;
   setIsPaused: (paused: boolean) => void;
   setVolume: (volume: AudioVolume) => void;
   toggleEnabled: () => void;
@@ -85,6 +87,7 @@ export function UiStringsAudioContextProvider(
   const [isEnabledSetting, setIsEnabledInternal] = React.useState(
     DEFAULT_AUDIO_ENABLED_STATE
   );
+  const [isMuted, setIsMuted] = React.useState(false);
   const [controlsEnabled, setControlsEnabled] = React.useState(true);
   const [isPaused, setIsPaused] = React.useState(true);
   const [playbackRateIdx, setPlaybackRateIdx] = React.useState<number>(
@@ -126,7 +129,7 @@ export function UiStringsAudioContextProvider(
     [headphonesPluggedIn]
   );
 
-  const isPlaybackActive = isEnabledSetting;
+  const isPlaybackActive = isEnabledSetting && !isMuted;
 
   React.useEffect(() => {
     if (isPlaybackActive) {
@@ -179,6 +182,7 @@ export function UiStringsAudioContextProvider(
         decreasePlaybackRate: controlsEnabled ? decreasePlaybackRate : noOp,
         increasePlaybackRate: controlsEnabled ? increasePlaybackRate : noOp,
         isEnabledSetting,
+        isMuted,
         isPaused,
         isPlaybackActive,
         output: gainNodeRef.current,
@@ -187,6 +191,7 @@ export function UiStringsAudioContextProvider(
         reset,
         setControlsEnabled,
         setIsEnabled: controlsEnabled ? setIsEnabled : noOp,
+        setIsMuted,
         setIsPaused: controlsEnabled ? setIsPaused : noOp,
         setVolume: controlsEnabled ? setVolume : noOp,
         toggleEnabled: controlsEnabled ? toggleEnabled : noOp,
