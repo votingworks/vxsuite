@@ -45,7 +45,7 @@ test('offers reporting status filter and grouping when withholding is enabled', 
     apiMock,
   });
 
-  expect(screen.getButton('Generate Report')).toBeDisabled();
+  expect(await screen.findButton('Generate Report')).toBeDisabled();
   await userEvent.click(
     await screen.findByRole('checkbox', { name: 'Reporting Status' })
   );
@@ -86,7 +86,7 @@ test('happy path', async () => {
     apiMock,
   });
 
-  screen.getByRole('heading', { name: TITLE });
+  await screen.findByRole('heading', { name: TITLE });
   expect(screen.getByRole('link', { name: 'Reports' })).toHaveAttribute(
     'href',
     '/reports'
@@ -194,24 +194,25 @@ test('does not show party options for non-primary elections', async () => {
   expect(screen.queryByLabelText('Party')).not.toBeInTheDocument();
 
   // no filter
-  await userEvent.click(screen.getByText('Add Filter'));
+  await userEvent.click(await screen.findByText('Add Filter'));
   await userEvent.click(screen.getByLabelText('Select New Filter Type'));
   expect(
     within(screen.getByTestId('filter-editor')).queryByText('Party')
   ).not.toBeInTheDocument();
 });
 
-test('shows sheet option for multi-sheet elections', () => {
+test('shows sheet option for multi-sheet elections', async () => {
   const electionDefinition =
     electionFamousNames2021Fixtures.makeMultiSheetElectionDefinition();
 
   apiMock.expectGetCastVoteRecordFileMode('test');
   apiMock.expectGetScannerBatches([]);
   apiMock.expectGetSystemSettings();
+  apiMock.apiClient.getMaxSheetsPerBallot.mockResolvedValue(2);
   renderInAppContext(<BallotCountReportBuilder />, {
     electionDefinition,
     apiMock,
   });
 
-  screen.getByRole('checkbox', { name: 'Sheet', checked: false });
+  await screen.findByRole('checkbox', { name: 'Sheet', checked: false });
 });

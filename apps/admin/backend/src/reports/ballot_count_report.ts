@@ -71,6 +71,7 @@ function buildBallotCountReport({
     generatedAtTime: new Date(getCurrentTime()),
     groupBy,
     includeSheetCounts,
+    maxSheetsPerBallot: store.getMaxSheetsPerBallot({ electionId }),
     cardCountsList: allCardCounts,
   });
 }

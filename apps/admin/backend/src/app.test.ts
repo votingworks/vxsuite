@@ -947,3 +947,15 @@ describe('getCandidateOrderings', () => {
     });
   });
 });
+
+test('getMaxSheetsPerBallot returns count from store', async () => {
+  const fixtures = electionFamousNames2021Fixtures;
+  const electionDef = fixtures.readElectionDefinition();
+  const env = buildTestEnvironment();
+
+  vi.spyOn(env.workspace.store, 'getMaxSheetsPerBallot').mockReturnValue(42);
+  await configureMachine(env.apiClient, env.auth, electionDef);
+
+  const count = await env.apiClient.getMaxSheetsPerBallot();
+  expect(count).toEqual(42);
+});

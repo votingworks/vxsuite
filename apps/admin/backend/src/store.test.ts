@@ -23,6 +23,8 @@ import {
   type BallotPositions,
   type CandidateOrderings,
   getContests,
+  type SheetPositions,
+  type ContestPosition,
 } from '@votingworks/types';
 import { assert, assertDefined, find, typedAs } from '@votingworks/basics';
 import { join } from 'node:path';
@@ -310,6 +312,115 @@ describe('importElectionPackage populates candidate_orderings', () => {
 
     return { election, electionId };
   }
+});
+
+describe('max sheets per ballot', () => {
+  const fixtures = electionFamousNames2021Fixtures;
+
+  const mockContestPosition: ContestPosition = {
+    contestId: 'mayor',
+    bounds: { row: 0, column: 0, width: 0, height: 0 },
+    options: [
+      {
+        type: 'option',
+        bubbleCenter: { row: 0, column: 0 },
+        bounds: { row: 0, column: 0, width: 0, height: 0 },
+        optionId: 'sherlock-holmes',
+      },
+    ],
+  };
+
+  const singleSheetPositions: SheetPositions = [[mockContestPosition], []];
+
+  function makePositions(p: { count: number }): SheetPositions[] {
+    return Array.from({ length: p.count }, () => singleSheetPositions);
+  }
+
+  test('is set correctly for single-file elections', async () => {
+    const baseElection = fixtures.readElection();
+    const [bs1, bs2, bs3] = baseElection.ballotStyles;
+
+    const election: Election = {
+      ...baseElection,
+      ballotStyles: [
+        { ...bs1!, ballotPositions: makePositions({ count: 1 }) },
+        { ...bs2!, ballotPositions: makePositions({ count: 5 }) },
+        { ...bs3!, ballotPositions: makePositions({ count: 4 }) },
+      ],
+    };
+
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    const importResult = await store.importElectionPackage({
+      packagePath: await writeTempElectionZip({
+        electionDefinition: {
+          ballotHash: 'unused',
+          election,
+          electionData: JSON.stringify(election),
+        },
+      }),
+    });
+
+    const { electionId } = importResult.unsafeUnwrap();
+    expect(store.getMaxSheetsPerBallot({ electionId })).toEqual(5);
+  });
+
+  test('is set correctly for split-file elections', async () => {
+    const splitElection = toSplitFileElection(fixtures.readElection());
+    const { candidateOrderings, election } = splitElection;
+    const [bs1, bs2, bs3] = election.ballotStyles;
+
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    const importResult = await store.importElectionPackage({
+      packagePath: await writeTempElectionZip({
+        ballotPositions: [
+          { ballotStyleId: bs1!.id, positions: makePositions({ count: 1 }) },
+          { ballotStyleId: bs2!.id, positions: makePositions({ count: 5 }) },
+          { ballotStyleId: bs3!.id, positions: makePositions({ count: 4 }) },
+        ],
+        candidateOrderings,
+        electionDefinition: {
+          ballotHash: 'unused',
+          election,
+          electionData: JSON.stringify(election),
+        },
+        systemSettings: {
+          ...DEFAULT_SYSTEM_SETTINGS,
+          splitElectionDefinition: true,
+        },
+      }),
+    });
+
+    const { electionId } = importResult.unsafeUnwrap();
+    expect(store.getMaxSheetsPerBallot({ electionId })).toEqual(5);
+  });
+
+  test('getMaxSheetsPerBallot returns 0 if no positions exist', async () => {
+    const baseElection = fixtures.readElection();
+    const [bs1, bs2, bs3] = baseElection.ballotStyles;
+
+    const election: Election = {
+      ...baseElection,
+      ballotStyles: [
+        { ...bs1!, ballotPositions: undefined },
+        { ...bs2!, ballotPositions: undefined },
+        { ...bs3!, ballotPositions: undefined },
+      ],
+    };
+
+    const store = Store.memoryStore(makeTemporaryDirectory());
+    const importResult = await store.importElectionPackage({
+      packagePath: await writeTempElectionZip({
+        electionDefinition: {
+          ballotHash: 'unused',
+          election,
+          electionData: JSON.stringify(election),
+        },
+      }),
+    });
+
+    const { electionId } = importResult.unsafeUnwrap();
+    expect(store.getMaxSheetsPerBallot({ electionId })).toEqual(0);
+  });
 });
 
 test('getElectionPackageHash()', async () => {
