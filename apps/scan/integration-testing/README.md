@@ -2,8 +2,7 @@
 
 Integration tests for VxScan using the backend (`apps/scan/backend`), frontend
 (`apps/scan/frontend`), and dependent services. These tests drive the real app
-with Playwright and capture documentation screenshots under
-`test-results/screenshots`.
+with Playwright.
 
 ## Development
 

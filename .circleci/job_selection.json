@@ -18,7 +18,6 @@
     "apps/pollbook/frontend": "test-apps-pollbook-frontend",
     "apps/print/backend": "test-apps-print-backend",
     "apps/print/frontend": "test-apps-print-frontend",
-    "apps/print/integration-testing": "test-apps-print-integration-testing",
     "apps/scan/backend": "test-apps-scan-backend",
     "apps/scan/frontend": "test-apps-scan-frontend",
     "apps/scan/integration-testing": "test-apps-scan-integration-testing",
@@ -75,14 +74,5 @@
     "@votingworks/fs",
     "@votingworks/logging-utils"
   ],
-  "passedJob": "ci-passed",
-  "galleryJob": "notify-gallery",
-  "galleryRequires": [
-    "test-apps-admin-integration-testing",
-    "test-apps-central-scan-integration-testing",
-    "test-apps-mark-scan-integration-testing",
-    "test-apps-mark-integration-testing",
-    "test-apps-print-integration-testing",
-    "test-apps-scan-integration-testing"
-  ]
+  "passedJob": "ci-passed"
 }
