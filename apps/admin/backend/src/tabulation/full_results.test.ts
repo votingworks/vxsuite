@@ -1042,6 +1042,7 @@ test('tabulateElectionResults - imports and derives straight-party votes', async
         electionId: ballotHash,
         scannerId: 'VX-00-000',
         castVoteRecordId: ballotId,
+        getCandidateOrderings: (bs) => bs.orderedCandidatesByContest,
         batchId: 'batch-1',
         ballotMarkingMode: 'machine',
         interpretation,

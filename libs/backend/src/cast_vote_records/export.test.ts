@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import * as fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID as uuid } from 'node:crypto';
@@ -10,6 +10,7 @@ import {
 import {
   anyPollingPlace,
   type BatchInfo,
+  type CandidateOrderings,
   CastVoteRecordExportFileName,
   CVR,
   DEFAULT_SYSTEM_SETTINGS,
@@ -50,6 +51,12 @@ import {
   getCastVoteRecordExportDirectoryPaths,
   readCastVoteRecord,
 } from './test_utils.js';
+import { buildCastVoteRecord } from './build_cast_vote_record.js';
+
+vi.mock(import('./build_cast_vote_record.js'), async (importActual) => {
+  const actual = await importActual();
+  return { ...actual, buildCastVoteRecord: vi.fn(actual.buildCastVoteRecord) };
+});
 
 vi.setConfig({ testTimeout: 30_000 });
 
@@ -94,6 +101,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers();
+  vi.resetAllMocks();
   fs.rmSync(tempDirectoryPath, { recursive: true });
   clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult();
   mockUsbDrive.assertComplete();
@@ -439,6 +447,49 @@ test.each<{
     }
   }
 );
+
+describe(`builds CVRs with stored candidate orderings`, () => {
+  test('precinct scanner', async () => {
+    await testWithStore(mockPrecinctScannerStore);
+  });
+
+  test('central scanner', async () => {
+    await testWithStore(mockCentralScannerStore);
+  });
+
+  async function testWithStore(
+    store: MockCentralScannerStore | MockPrecinctScannerStore
+  ) {
+    const { election } = electionDefinition;
+    const ballotStyle1 = election.ballotStyles[0]!;
+    const ballotStyle2 = election.ballotStyles[1]!;
+
+    const orderingsStyle1: CandidateOrderings = {
+      contest1: [{ id: 'candidate1' }, { id: 'candidate2' }],
+    };
+
+    store.setCandidateOrderings({
+      ballotStyleGroupId: ballotStyle1.groupId,
+      orderings: orderingsStyle1,
+    });
+
+    const res = await exportCastVoteRecordsToUsbDrive(
+      store,
+      mockUsbDrive.usbDrive,
+      [newAcceptedSheet(interpretedHmpb, sheet1Id)],
+      { scannerType: store.scannerType }
+    );
+    expect(res).toEqual(ok());
+
+    expect(buildCastVoteRecord).toHaveBeenCalled();
+    const { getCandidateOrderings } = assertDefined(
+      vi.mocked(buildCastVoteRecord).mock.lastCall?.[0]
+    );
+
+    expect(getCandidateOrderings(ballotStyle1)).toEqual(orderingsStyle1);
+    expect(getCandidateOrderings(ballotStyle2)).toBeNull();
+  }
+});
 
 test('precinct scanner continuous export', async () => {
   for (const sheet of [

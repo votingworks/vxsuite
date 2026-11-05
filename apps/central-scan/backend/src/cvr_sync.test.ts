@@ -8,7 +8,7 @@ import {
   vi,
 } from 'vitest';
 import { randomUUID as uuid } from 'node:crypto';
-import { err, ok } from '@votingworks/basics';
+import { assertDefined, err, find, ok } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
   type FinishCvrTransferError,
@@ -20,6 +20,7 @@ import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import {
   type BallotMetadata,
   BallotType,
+  type CandidateOrderings,
   DEFAULT_SYSTEM_SETTINGS,
   DEV_MACHINE_ID,
   getBallotStyle,
@@ -30,6 +31,8 @@ import {
 import * as fsSync from 'node:fs';
 import path from 'node:path';
 import { makeTemporaryDirectory } from '@votingworks/fixtures';
+import { buildCastVoteRecordFiles } from '@votingworks/backend';
+import { toSplitFileElection } from '@votingworks/test-utils';
 import { generateHmpbFixture } from '../test/helpers/ballots.js';
 import { startCvrSync } from './cvr_sync.js';
 import { Store } from './store.js';
@@ -42,23 +45,12 @@ vi.setConfig({
 
 vi.mock('@votingworks/grout');
 
-const buildOverride = vi.hoisted((): { result: unknown } => ({
-  result: undefined,
-}));
 vi.mock(import('@votingworks/backend'), async (importActual) => {
   const actual = await importActual();
-  const mocked: typeof actual = {
+  return {
     ...actual,
-    buildCastVoteRecordFiles: (...args) =>
-      buildOverride.result
-        ? Promise.resolve(
-            buildOverride.result as Awaited<
-              ReturnType<typeof actual.buildCastVoteRecordFiles>
-            >
-          )
-        : actual.buildCastVoteRecordFiles(...args),
+    buildCastVoteRecordFiles: vi.fn(actual.buildCastVoteRecordFiles),
   };
-  return mocked;
 });
 
 const HOST_ADDRESS = 'http://192.168.1.10:3002';
@@ -125,7 +117,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  buildOverride.result = undefined;
   vi.useRealTimers();
   vi.resetAllMocks();
   vi.unstubAllGlobals();
@@ -279,6 +270,43 @@ test('sends a completed batch and marks it sent', async () => {
     machineId: DEV_MACHINE_ID,
     batchId,
   });
+});
+
+test('builds CVRs with stored candidate orderings', async () => {
+  const splitElection = toSplitFileElection(vxFamousNamesFixtures.election);
+  const ballotStyle1 = splitElection.election.ballotStyles[0]!;
+  const ballotStyle2 = splitElection.election.ballotStyles[1]!;
+
+  const orderingsStyle1: CandidateOrderings = find(
+    splitElection.candidateOrderings,
+    (o) => o.ballotStyleGroupId === ballotStyle1.groupId
+  ).orderings;
+
+  const store = await buildStore();
+  const orderingsStore = store.getCandidateOrderingsStore();
+  vi.spyOn(orderingsStore, 'getCandidateOrderings').mockImplementation((bs) =>
+    bs.groupId === ballotStyle1.groupId ? orderingsStyle1 : null
+  );
+
+  addFinishedBatch(store);
+  setRegistered(store);
+  createMockHostApiClient();
+  mockUploadResponses();
+
+  startCvrSync({ logger: mockBaseLogger({ fn: vi.fn }), store });
+  await advancePollingInterval();
+  await vi.waitFor(
+    () => expect(store.getNextBatchToSendToAdmin()).toBeUndefined(),
+    { timeout: 30_000 }
+  );
+
+  expect(buildCastVoteRecordFiles).toHaveBeenCalled();
+  const { getCandidateOrderings } = assertDefined(
+    vi.mocked(buildCastVoteRecordFiles).mock.lastCall?.[0]
+  );
+
+  expect(getCandidateOrderings(ballotStyle1)).toEqual(orderingsStyle1);
+  expect(getCandidateOrderings(ballotStyle2)).toBeNull();
 });
 
 test('sends batches oldest first, one per pass', async () => {
@@ -644,7 +672,9 @@ test('marks the batch failed when a cast vote record cannot be built', async () 
   setRegistered(store);
   const mockClient = createMockHostApiClient();
   const fetchMock = mockUploadResponses();
-  buildOverride.result = err({ type: 'missing-usb-drive' });
+  vi.mocked(buildCastVoteRecordFiles).mockResolvedValue(
+    err({ type: 'missing-usb-drive' })
+  );
 
   const logger = mockBaseLogger({ fn: vi.fn });
   startCvrSync({ logger, store });

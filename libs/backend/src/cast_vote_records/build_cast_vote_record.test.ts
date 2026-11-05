@@ -10,11 +10,14 @@ import {
   BallotType,
   type CandidateContest,
   CVR,
+  type ElectionDefinition,
   getBallotStyle,
+  type InterpretedBmdPage,
   type MarkThresholds,
   unsafeParse,
 } from '@votingworks/types';
 import { getCastVoteRecordBallotType } from '@votingworks/utils';
+import { toSplitFileElection } from '@votingworks/test-utils';
 import {
   fishCouncilContest,
   fishingContest,
@@ -465,6 +468,7 @@ test('buildCastVoteRecord - BMD ballot', () => {
     ballotAuditId,
     ballotMarkingMode: 'machine',
     interpretation: interpretedBmdPage,
+    getCandidateOrderings: (bs) => bs.orderedCandidatesByContest,
   });
 
   // check metadata
@@ -503,6 +507,7 @@ test('buildCastVoteRecord - multi-page BMD ballot page 1', () => {
     ballotAuditId,
     ballotMarkingMode: 'machine',
     interpretation: interpretedBmdPage1,
+    getCandidateOrderings: (bs) => bs.orderedCandidatesByContest,
   });
 
   // Check metadata
@@ -545,6 +550,7 @@ test('buildCastVoteRecord - multi-page BMD ballot page 2', () => {
     ballotAuditId,
     ballotMarkingMode: 'machine',
     interpretation: interpretedBmdPage2,
+    getCandidateOrderings: (bs) => bs.orderedCandidatesByContest,
   });
 
   // Check metadata
@@ -567,15 +573,16 @@ test('buildCastVoteRecord - multi-page BMD ballot page 2', () => {
 });
 
 test('buildCastVoteRecord - BMD ballot images', () => {
-  const buildCastVoteRecordInput = {
+  const buildCastVoteRecordInput: Parameters<typeof buildCastVoteRecord>[0] = {
     ballotMarkingMode: 'machine',
     batchId,
     castVoteRecordId,
     electionDefinition,
     electionId,
     interpretation: interpretedBmdPage,
+    getCandidateOrderings: (bs) => bs.orderedCandidatesByContest,
     scannerId,
-  } as const;
+  };
 
   const castVoteRecordWithoutImageReferences = buildCastVoteRecord(
     buildCastVoteRecordInput
@@ -632,6 +639,7 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
     ballotAuditId,
     indexInBatch,
     ballotMarkingMode: 'hand',
+    getCandidateOrderings: (bs) => bs.orderedCandidatesByContest,
     interpretations: [interpretedHmpbPage1, interpretedHmpbPage2],
     markThresholds,
   });
@@ -721,6 +729,7 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
       scannerId,
       batchId,
       ballotMarkingMode: 'hand',
+      getCandidateOrderings: (bs) => bs.orderedCandidatesByContest,
       interpretations: [
         interpretedHmpbPage1,
         interpretedHmpbPage2WithMarginalMark,
@@ -759,6 +768,7 @@ test('buildCastVoteRecord - HMPB ballot with write-in', () => {
     scannerId,
     batchId,
     ballotMarkingMode: 'hand',
+    getCandidateOrderings: (bs) => bs.orderedCandidatesByContest,
     interpretations: [interpretedHmpbPage1WithWriteIn, interpretedHmpbPage2],
     images: [
       {
@@ -805,6 +815,7 @@ test('buildCastVoteRecord - HMPB ballot with unmarked write-in', () => {
     scannerId,
     batchId,
     ballotMarkingMode: 'hand',
+    getCandidateOrderings: (bs) => bs.orderedCandidatesByContest,
     interpretations: [
       interpretedHmpbPage1WithUnmarkedWriteIn,
       interpretedHmpbPage2,
@@ -891,16 +902,22 @@ test('buildCastVoteRecord - HMPB ballot with unmarked write-in', () => {
 });
 
 describe('buildCVRContestsFromVotes with candidate rotation', () => {
-  const famousNamesElectionDefinition =
-    electionFamousNames2021Fixtures.readElectionDefinition();
-  const { election: famousNamesElection } = famousNamesElectionDefinition;
+  const fixtures = electionFamousNames2021Fixtures;
+  const baseElectionDef = fixtures.readElectionDefinition();
+  const baseElection = baseElectionDef.election;
+
+  const famousNamesElection = toSplitFileElection(baseElection).election;
+  const famousNamesElectionDefinition: ElectionDefinition = {
+    ...baseElectionDef,
+    election: famousNamesElection,
+  };
 
   const rotation1 = assertDefined(
-    getBallotStyle({ ballotStyleId: '1-1', election: famousNamesElection })
+    getBallotStyle({ ballotStyleId: '1-1', election: baseElection })
   ).orderedCandidatesByContest;
 
   const rotation4 = assertDefined(
-    getBallotStyle({ ballotStyleId: '1-4', election: famousNamesElection })
+    getBallotStyle({ ballotStyleId: '1-4', election: baseElection })
   ).orderedCandidatesByContest;
 
   const mayorContest = find(
@@ -1023,6 +1040,84 @@ describe('buildCVRContestsFromVotes with candidate rotation', () => {
         }),
       ],
     });
+  });
+
+  test('buildCastVoteRecord uses orderings from getCandidateOrderings', () => {
+    const ballotStyle = assertDefined(
+      getBallotStyle({ ballotStyleId: '1-4', election: famousNamesElection })
+    );
+    expect(ballotStyle.orderedCandidatesByContest).toBeUndefined();
+
+    const interpretation: InterpretedBmdPage = {
+      type: 'InterpretedBmdPage',
+      metadata: {
+        ballotHash: famousNamesElectionDefinition.ballotHash,
+        ballotStyleId: ballotStyle.id,
+        ballotType: BallotType.Precinct,
+        isTestMode: true,
+        precinctId: ballotStyle.precincts[0]!,
+        pageNumber: 1,
+        totalPages: 1,
+        ballotAuditId: 'audit-1',
+        contestIds: [mayorContest.id, boardOfAldermenContest.id],
+      },
+      votes: {
+        [mayorContest.id]: [
+          find(mayorContest.candidates, (c) => c.id === 'sherlock-holmes'),
+        ],
+        [boardOfAldermenContest.id]: [
+          find(
+            boardOfAldermenContest.candidates,
+            (c) => c.id === 'pablo-picasso'
+          ),
+          find(
+            boardOfAldermenContest.candidates,
+            (c) => c.id === 'vincent-van-gogh'
+          ),
+        ],
+      },
+      adjudicationInfo: {
+        requiresAdjudication: false,
+        ignoredReasonInfos: [],
+        enabledReasonInfos: [],
+        enabledReasons: [],
+      },
+    };
+
+    const castVoteRecord = buildCastVoteRecord({
+      electionDefinition: famousNamesElectionDefinition,
+      electionId,
+      scannerId,
+      castVoteRecordId,
+      batchId,
+      ballotMarkingMode: 'machine',
+      interpretation,
+      getCandidateOrderings: (bs) =>
+        bs.id === ballotStyle.id ? rotation4 : undefined,
+    });
+
+    expect(castVoteRecord.CVRSnapshot[0]?.CVRContest).toEqual([
+      expect.objectContaining({
+        CVRContestSelection: [
+          expect.objectContaining({
+            ContestSelectionId: 'sherlock-holmes',
+            OptionPosition: 1,
+          }),
+        ],
+      }),
+      expect.objectContaining({
+        CVRContestSelection: [
+          expect.objectContaining({
+            ContestSelectionId: 'pablo-picasso',
+            OptionPosition: 1,
+          }),
+          expect.objectContaining({
+            ContestSelectionId: 'vincent-van-gogh',
+            OptionPosition: 0,
+          }),
+        ],
+      }),
+    ]);
   });
 });
 

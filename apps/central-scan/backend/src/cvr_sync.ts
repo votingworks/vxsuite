@@ -87,6 +87,8 @@ async function sendBatchToAdmin({
     systemSettings,
     inTestMode: store.getTestMode(),
     markThresholds: systemSettings.markThresholds,
+    getCandidateOrderings: (bs) =>
+      store.getCandidateOrderingsStore().getCandidateOrderings(bs),
   };
 
   const sheets: AcceptedSheet[] = iter(store.forEachAcceptedSheet())

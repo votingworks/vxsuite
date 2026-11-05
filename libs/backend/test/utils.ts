@@ -9,8 +9,11 @@ import {
 } from '@votingworks/auth';
 import { Client } from '@votingworks/db';
 import {
+  type BallotCandidateOrderings,
   type BallotCastingMode,
+  type BallotStyleGroupId,
   type BatchInfo,
+  type CandidateOrderings,
   DEFAULT_MARK_THRESHOLDS,
   type ElectionDefinition,
   type MarkThresholds,
@@ -18,6 +21,7 @@ import {
   type SystemSettings,
 } from '@votingworks/types';
 import type {
+  CvrCandidateOrderingsStore,
   CentralScannerStore,
   PrecinctScannerStore,
   ScannerStoreBase,
@@ -28,6 +32,10 @@ class MockScannerStoreBase implements ScannerStoreBase {
   private batches: BatchInfo[];
   private readonly client: Client;
   private electionDefinition?: ElectionDefinition;
+  private readonly orderings = new Map<
+    BallotStyleGroupId,
+    CandidateOrderings
+  >();
   private systemSettings?: SystemSettings;
   private testMode: boolean;
 
@@ -42,6 +50,12 @@ class MockScannerStoreBase implements ScannerStoreBase {
 
   clearCastVoteRecordHashes(): void {
     return clearCastVoteRecordHashes(this.client);
+  }
+
+  getCandidateOrderingsStore(): CvrCandidateOrderingsStore {
+    return {
+      getCandidateOrderings: (bs) => this.orderings.get(bs.groupId) ?? null,
+    };
   }
 
   getBatches(): BatchInfo[] {
@@ -90,6 +104,10 @@ class MockScannerStoreBase implements ScannerStoreBase {
 
   setBatches(batches: BatchInfo[]): void {
     this.batches = batches;
+  }
+
+  setCandidateOrderings(o: BallotCandidateOrderings): void {
+    this.orderings.set(o.ballotStyleGroupId, o.orderings);
   }
 
   setElectionDefinition(electionDefinition?: ElectionDefinition): void {
