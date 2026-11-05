@@ -9,14 +9,13 @@ use super::{
     },
 };
 use nom::{
-    IResult,
+    IResult, Parser,
     branch::alt,
     bytes::complete::{tag, take, take_until, take_while_m_n},
-    character::is_digit,
     combinator::{map, map_res, value},
     multi::many1,
     number::complete::{le_u8, le_u16},
-    sequence::{Tuple, delimited, tuple},
+    sequence::delimited,
 };
 
 /// Creates a simple request parser with no payload.
@@ -29,7 +28,7 @@ macro_rules! simple_request {
         /// Returns an error if the data does not follow the packet format with
         /// the given tag or if the CRC byte is incorrect.
         pub fn $name(input: &[u8]) -> IResult<&[u8], ()> {
-            map(packet_with_crc((tag($tag),)), |_| ())(input)
+            map(packet_with_crc((tag($tag.as_slice()),)), |_| ()).parse(input)
         }
     };
 }
@@ -44,7 +43,7 @@ macro_rules! simple_response {
         /// Returns an error if the data does not follow the packet format with
         /// the given tag.
         pub fn $name(input: &[u8]) -> IResult<&[u8], ()> {
-            value((), packet((tag($tag),)))(input)
+            value((), packet((tag($tag.as_slice()),))).parse(input)
         }
     };
 }
@@ -58,7 +57,8 @@ pub fn any_packet(input: &[u8]) -> IResult<&[u8], Packet> {
     alt((
         map(any_outgoing, Packet::Outgoing),
         map(any_incoming, Packet::Incoming),
-    ))(input)
+    ))
+    .parse(input)
 }
 
 /// Parses any outgoing packet.
@@ -117,7 +117,8 @@ pub fn any_outgoing(input: &[u8]) -> IResult<&[u8], Outgoing> {
                 Outgoing::WriteRegisterDataRequest(r.index(), r.value())
             }),
         )),
-    ))(input)
+    ))
+    .parse(input)
 }
 
 /// Parses any request for status information.
@@ -152,7 +153,8 @@ fn any_status_request(input: &[u8]) -> IResult<&[u8], Outgoing> {
         map(get_calibration_information_request, |resolution| {
             Outgoing::GetCalibrationInformationRequest { resolution }
         }),
-    ))(input)
+    ))
+    .parse(input)
 }
 
 /// Parses any request to configure the scanner.
@@ -235,7 +237,8 @@ fn any_configuration_request(input: &[u8]) -> IResult<&[u8], Outgoing> {
                 delay_interval,
             },
         ),
-    ))(input)
+    ))
+    .parse(input)
 }
 
 /// Parses any requests to adjust the bitonal threshold.
@@ -255,7 +258,8 @@ fn any_threshold_configuration_request(input: &[u8]) -> IResult<&[u8], Outgoing>
                 new_threshold,
             }
         }),
-    ))(input)
+    ))
+    .parse(input)
 }
 
 /// Parses any requests to configure double feed detection (DFD/MSD).
@@ -306,7 +310,8 @@ fn any_double_feed_detection_configuration_request(input: &[u8]) -> IResult<&[u8
                 }
             },
         ),
-    ))(input)
+    ))
+    .parse(input)
 }
 
 /// Parses any incoming packet.
@@ -315,7 +320,7 @@ fn any_double_feed_detection_configuration_request(input: &[u8]) -> IResult<&[u8
 ///
 /// Returns an error if the input does not match any known incoming packet.
 pub fn any_incoming(input: &[u8]) -> IResult<&[u8], Incoming> {
-    alt((any_event, any_response))(input)
+    alt((any_event, any_response)).parse(input)
 }
 
 /// Parses any incoming response to a request.
@@ -397,7 +402,8 @@ fn any_response(input: &[u8]) -> IResult<&[u8], Incoming> {
             write_register_data_response,
             Incoming::WriteRegisterDataResponse,
         ),
-    ))(input)
+    ))
+    .parse(input)
 }
 
 /// Parses any event, aka an "unsolicited message".
@@ -550,7 +556,8 @@ fn any_event(input: &[u8]) -> IResult<&[u8], Incoming> {
                 double_feed_calibration_timed_out_event,
             ),
         )),
-    ))(input)
+    ))
+    .parse(input)
 }
 
 /// Parses the start marker of a packet.
@@ -559,7 +566,7 @@ fn any_event(input: &[u8]) -> IResult<&[u8], Incoming> {
 ///
 /// Returns an error if the input does not start with the packet start marker.
 fn packet_start(input: &[u8]) -> IResult<&[u8], &[u8]> {
-    tag(PACKET_DATA_START)(input)
+    tag(PACKET_DATA_START).parse(input)
 }
 
 /// Parses until the end marker of a packet.
@@ -568,7 +575,7 @@ fn packet_start(input: &[u8]) -> IResult<&[u8], &[u8]> {
 ///
 /// Returns an error if the input does not contain the end marker of a packet.
 fn packet_body(input: &[u8]) -> IResult<&[u8], &[u8]> {
-    take_until(PACKET_DATA_END)(input)
+    take_until(PACKET_DATA_END).parse(input)
 }
 
 /// Parses the end marker of a packet.
@@ -577,13 +584,13 @@ fn packet_body(input: &[u8]) -> IResult<&[u8], &[u8]> {
 ///
 /// Returns an error if the input does not end with the packet end marker.
 fn packet_end(input: &[u8]) -> IResult<&[u8], &[u8]> {
-    tag(PACKET_DATA_END)(input)
+    tag(PACKET_DATA_END).parse(input)
 }
 
-fn packet<'a, O, List: Tuple<&'a [u8], O, nom::error::Error<&'a [u8]>>>(
+fn packet<'a, O, List: Parser<&'a [u8], Output = O, Error = nom::error::Error<&'a [u8]>>>(
     mut list: List,
 ) -> impl FnMut(&'a [u8]) -> IResult<&'a [u8], O> {
-    move |input: &[u8]| delimited(packet_start, |input| list.parse(input), packet_end)(input)
+    move |input: &[u8]| delimited(packet_start, |input| list.parse(input), packet_end).parse(input)
 }
 
 /// Extracts the body of a packet, i.e. the data between the start and end
@@ -603,7 +610,11 @@ fn extract_packet_body(input: &[u8]) -> Option<&[u8]> {
 /// ```plaintext
 /// <STX>...<ETX><CRC>
 /// ```
-fn packet_with_crc<'a, O, List: Tuple<&'a [u8], O, nom::error::Error<&'a [u8]>>>(
+fn packet_with_crc<
+    'a,
+    O,
+    List: Parser<&'a [u8], Output = O, Error = nom::error::Error<&'a [u8]>>,
+>(
     list: List,
 ) -> impl FnMut(&'a [u8]) -> IResult<&'a [u8], O> {
     let mut parse_packet = packet(list);
@@ -646,16 +657,14 @@ fn packet_with_crc<'a, O, List: Tuple<&'a [u8], O, nom::error::Error<&'a [u8]>>>
 pub fn decimal_digit(input: &[u8]) -> IResult<&[u8], u8> {
     map_res(take(1usize), |bytes: &[u8]| {
         if let [byte, ..] = bytes
-            && is_digit(*byte)
+            && byte.is_ascii_digit()
         {
             return Ok(*byte - b'0');
         }
 
-        Err(nom::Err::Failure(nom::error::Error::new(
-            bytes,
-            nom::error::ErrorKind::Digit,
-        )))
-    })(input)
+        Err(())
+    })
+    .parse(input)
 }
 
 /// Parses a sequence of decimal digits as a single number.
@@ -673,7 +682,7 @@ pub fn decimal_digit(input: &[u8]) -> IResult<&[u8], u8> {
 ///
 /// Returns an error if the input does not start with a decimal digit.
 pub fn decimal_number(input: &[u8]) -> IResult<&[u8], u16> {
-    let (input, digits) = many1(decimal_digit)(input)?;
+    let (input, digits) = many1(decimal_digit).parse(input)?;
 
     let mut number = 0;
     for digit in digits {
@@ -712,11 +721,9 @@ pub fn decimal_percentage(input: &[u8]) -> IResult<&[u8], ClampedPercentage> {
             return Ok(percentage);
         }
 
-        Err(nom::Err::Failure(nom::error::Error::new(
-            input,
-            nom::error::ErrorKind::Verify,
-        )))
-    })(input)
+        Err(())
+    })
+    .parse(input)
 }
 
 /// Parses a single byte of input as a single digit in hexadecimal notation.
@@ -737,25 +744,20 @@ pub fn decimal_percentage(input: &[u8]) -> IResult<&[u8], ClampedPercentage> {
 pub fn hex_digit(input: &[u8]) -> IResult<&[u8], u8> {
     map_res(take(1usize), |bytes: &[u8]| {
         if let [byte, ..] = bytes {
-            if is_digit(*byte) {
+            if byte.is_ascii_digit() {
                 Ok(*byte - b'0')
             } else if b'a' <= *byte && *byte <= b'f' {
                 Ok(*byte - b'a' + 10)
             } else if b'A' <= *byte && *byte <= b'F' {
                 Ok(*byte - b'A' + 10)
             } else {
-                Err(nom::Err::Failure(nom::error::Error::new(
-                    bytes,
-                    nom::error::ErrorKind::Digit,
-                )))
+                Err(())
             }
         } else {
-            Err(nom::Err::Failure(nom::error::Error::new(
-                bytes,
-                nom::error::ErrorKind::Digit,
-            )))
+            Err(())
         }
-    })(input)
+    })
+    .parse(input)
 }
 
 /// Parses two bytes of input as a single byte in hexadecimal notation.
@@ -774,7 +776,7 @@ pub fn hex_digit(input: &[u8]) -> IResult<&[u8], u8> {
 ///
 /// Returns an error if the input does not start with two hexadecimal digits.
 pub fn hex_byte(input: &[u8]) -> IResult<&[u8], u8> {
-    map(tuple((hex_digit, hex_digit)), |(hi, lo)| (hi << 4) | lo)(input)
+    map((hex_digit, hex_digit), |(hi, lo)| (hi << 4) | lo).parse(input)
 }
 
 /// Parses eight bytes of input as a single u32 in hexadecimal notation in big
@@ -795,9 +797,10 @@ pub fn hex_byte(input: &[u8]) -> IResult<&[u8], u8> {
 /// Returns an error if the input does not have 8 hexadecimal characters.
 pub fn hex_u32_be(input: &[u8]) -> IResult<&[u8], u32> {
     map(
-        tuple((hex_byte, hex_byte, hex_byte, hex_byte)),
+        (hex_byte, hex_byte, hex_byte, hex_byte),
         |(b0, b1, b2, b3)| u32::from_be_bytes([b0, b1, b2, b3]),
-    )(input)
+    )
+    .parse(input)
 }
 
 simple_request!(enable_crc_checking_request, b"\x1BK");
@@ -820,9 +823,11 @@ simple_request!(get_test_string_request, b"D");
 ///
 /// Returns an error if the input does not match the expected format.
 pub fn get_test_string_response(input: &[u8]) -> IResult<&[u8], &str> {
-    map_res(packet((tag(b"D"), packet_body)), |(_, test_string)| {
-        from_utf8(test_string)
-    })(input)
+    map_res(
+        packet((tag(b"D".as_slice()), packet_body)),
+        |(_, test_string)| from_utf8(test_string),
+    )
+    .parse(input)
 }
 
 simple_request!(get_firmware_version_request, b"V");
@@ -835,7 +840,7 @@ simple_request!(get_firmware_version_request, b"V");
 pub fn get_firmware_version_response(input: &[u8]) -> IResult<&[u8], Version> {
     map(
         packet((
-            tag(b"V"),
+            tag(b"V".as_slice()),
             map_res(take(4usize), |bytes| from_utf8(bytes)),
             map_res(take(2usize), |bytes| from_utf8(bytes)),
             map_res(take(2usize), |bytes| from_utf8(bytes)),
@@ -849,7 +854,8 @@ pub fn get_firmware_version_response(input: &[u8]) -> IResult<&[u8], Version> {
                 cpld_version.to_owned(),
             )
         },
-    )(input)
+    )
+    .parse(input)
 }
 
 simple_request!(get_current_firmware_build_version_string_request, b"\x1bV");
@@ -861,19 +867,20 @@ simple_request!(get_current_firmware_build_version_string_request, b"\x1bV");
 /// Returns an error if the input does not match the expected format.
 pub fn get_current_firmware_build_version_string_response(input: &[u8]) -> IResult<&[u8], &str> {
     if let Ok(([], _)) = packet((
-        tag(b"X"),
+        tag(b"X".as_slice()),
         take(3usize),
-        tag(b" "),
+        tag(b" ".as_slice()),
         take(2usize),
-        tag(b" "),
+        tag(b" ".as_slice()),
         take(4usize),
-        tag(b"/"),
+        tag(b"/".as_slice()),
         take(2usize),
-        tag(b":"),
+        tag(b":".as_slice()),
         take(2usize),
-        tag(b":"),
+        tag(b":".as_slice()),
         take(2usize),
-    ))(input)
+    ))
+    .parse(input)
         && let Some(body) = extract_packet_body(input)
     {
         return from_utf8(&input[b"X".len()..])
@@ -898,7 +905,7 @@ simple_request!(get_scanner_status_request, b"Q");
 /// Returns an error if the input does not match the expected format.
 pub fn get_scanner_status_response(input: &[u8]) -> IResult<&[u8], Status> {
     map(
-        packet((tag(b"Q"), le_u8, le_u8, le_u8)),
+        packet((tag(b"Q".as_slice()), le_u8, le_u8, le_u8)),
         |(_, byte0, byte1, byte2)| {
             Status::new(
                 byte0 & 0b0000_0001 != 0,
@@ -924,7 +931,8 @@ pub fn get_scanner_status_response(input: &[u8]) -> IResult<&[u8], Status> {
                 byte2 & 0b0100_0000 != 0,
             )
         },
-    )(input)
+    )
+    .parse(input)
 }
 
 simple_request!(get_scanner_settings_request, b"I");
@@ -937,7 +945,7 @@ simple_request!(get_scanner_settings_request, b"I");
 pub fn get_scanner_settings_response(input: &[u8]) -> IResult<&[u8], Settings> {
     map(
         packet((
-            tag(b"I"),
+            tag(b"I".as_slice()),
             le_u16,
             le_u16,
             le_u16,
@@ -963,7 +971,8 @@ pub fn get_scanner_settings_response(input: &[u8]) -> IResult<&[u8], Settings> {
                 number_of_calibration_tables,
             )
         },
-    )(input)
+    )
+    .parse(input)
 }
 
 simple_request!(enable_double_feed_detection_request, b"n");
@@ -978,9 +987,10 @@ pub fn calibrate_double_feed_detection_request(
     input: &[u8],
 ) -> IResult<&[u8], DoubleFeedDetectionCalibrationType> {
     map_res(
-        packet_with_crc((tag(b"n1"), decimal_digit)),
+        packet_with_crc((tag(b"n1".as_slice()), decimal_digit)),
         |(_, calibration_type)| calibration_type.try_into(),
-    )(input)
+    )
+    .parse(input)
 }
 
 /// Parses a request to set the double feed detection calibration.
@@ -992,9 +1002,10 @@ pub fn set_double_feed_detection_sensitivity_request(
     input: &[u8],
 ) -> IResult<&[u8], ClampedPercentage> {
     map(
-        packet_with_crc((tag(b"n3A"), decimal_percentage)),
+        packet_with_crc((tag(b"n3A".as_slice()), decimal_percentage)),
         |(_, sensitivity)| sensitivity,
-    )(input)
+    )
+    .parse(input)
 }
 
 simple_request!(get_double_feed_detection_led_intensity_request, b"n3a30");
@@ -1006,9 +1017,10 @@ simple_request!(get_double_feed_detection_led_intensity_request, b"n3a30");
 /// Returns an error if the input does not match the expected format.
 pub fn get_double_feed_detection_led_intensity_response(input: &[u8]) -> IResult<&[u8], u16> {
     map(
-        packet((tag(b"n3a30="), decimal_number)),
+        packet((tag(b"n3a30=".as_slice()), decimal_number)),
         |(_, intensity)| intensity,
-    )(input)
+    )
+    .parse(input)
 }
 
 simple_request!(
@@ -1024,7 +1036,11 @@ simple_request!(
 pub fn get_double_feed_detection_single_sheet_calibration_value_response(
     input: &[u8],
 ) -> IResult<&[u8], u16> {
-    map(packet((tag(b"n3a10="), decimal_number)), |(_, value)| value)(input)
+    map(
+        packet((tag(b"n3a10=".as_slice()), decimal_number)),
+        |(_, value)| value,
+    )
+    .parse(input)
 }
 
 simple_request!(
@@ -1041,7 +1057,11 @@ simple_request!(
 pub fn get_double_feed_detection_double_sheet_calibration_value_response(
     input: &[u8],
 ) -> IResult<&[u8], u16> {
-    map(packet((tag(b"n3a20="), decimal_number)), |(_, value)| value)(input)
+    map(
+        packet((tag(b"n3a20=".as_slice()), decimal_number)),
+        |(_, value)| value,
+    )
+    .parse(input)
 }
 
 simple_request!(
@@ -1056,7 +1076,11 @@ simple_request!(
 ///
 /// Returns an error if the input does not match the expected format.
 pub fn get_double_feed_detection_threshold_value_response(input: &[u8]) -> IResult<&[u8], u16> {
-    map(packet((tag(b"n3a90="), decimal_number)), |(_, value)| value)(input)
+    map(
+        packet((tag(b"n3a90=".as_slice()), decimal_number)),
+        |(_, value)| value,
+    )
+    .parse(input)
 }
 
 simple_request!(get_double_feed_detection_sensors_count_request, b"n3a40");
@@ -1067,7 +1091,11 @@ simple_request!(get_double_feed_detection_sensors_count_request, b"n3a40");
 ///
 /// Returns an error if the input does not match the expected format.
 pub fn get_double_feed_detection_sensors_count_response(input: &[u8]) -> IResult<&[u8], u8> {
-    map(packet((tag(b"n3a40="), decimal_digit)), |(_, count)| count)(input)
+    map(
+        packet((tag(b"n3a40=".as_slice()), decimal_digit)),
+        |(_, count)| count,
+    )
+    .parse(input)
 }
 
 /// Parses a request to set the double feed detection minimum document length.
@@ -1080,21 +1108,19 @@ pub fn set_double_feed_detection_minimum_document_length_request(
 ) -> IResult<&[u8], u8> {
     map(
         packet_with_crc((
-            tag(b"n3B"),
+            tag(b"n3B".as_slice()),
             map_res(decimal_number, |number| {
                 if (10..=250).contains(&number) {
                     #[allow(clippy::cast_possible_truncation)]
                     Ok(number as u8)
                 } else {
-                    Err(nom::Err::Failure(nom::error::Error::new(
-                        input,
-                        nom::error::ErrorKind::Verify,
-                    )))
+                    Err(())
                 }
             }),
         )),
         |(_, length_in_hundredths_of_an_inch)| length_in_hundredths_of_an_inch,
-    )(input)
+    )
+    .parse(input)
 }
 
 simple_request!(reset_request, b"0");
@@ -1110,9 +1136,13 @@ simple_request!(get_serial_number_request, b"*");
 /// Returns an error if the input does not match the expected format.
 pub fn set_serial_number_request(input: &[u8]) -> IResult<&[u8], &[u8; 8]> {
     map(
-        packet_with_crc((tag(b"*"), map_res(take(8usize), TryInto::try_into))),
+        packet_with_crc((
+            tag(b"*".as_slice()),
+            map_res(take(8usize), TryInto::try_into),
+        )),
         |(_, serial_number)| serial_number,
-    )(input)
+    )
+    .parse(input)
 }
 
 /// Parses a response to a request to get or set the serial number.
@@ -1121,9 +1151,11 @@ pub fn set_serial_number_request(input: &[u8]) -> IResult<&[u8], &[u8; 8]> {
 ///
 /// Returns an error if the input does not match the expected format.
 pub fn get_set_serial_number_response(input: &[u8]) -> IResult<&[u8], [u8; 8]> {
-    map_res(packet((tag(b"*"), take(8usize))), |(_, serial_number)| {
-        serial_number.try_into()
-    })(input)
+    map_res(
+        packet((tag(b"*".as_slice()), take(8usize))),
+        |(_, serial_number)| serial_number.try_into(),
+    )
+    .parse(input)
 }
 
 simple_request!(get_input_sensors_required_request, b"\x1bs");
@@ -1135,9 +1167,10 @@ simple_request!(get_input_sensors_required_request, b"\x1bs");
 /// Returns an error if the input does not match the expected format.
 pub fn set_input_sensors_required_request(input: &[u8]) -> IResult<&[u8], u8> {
     map(
-        packet_with_crc((tag(b"\x1bs"), decimal_digit)),
+        packet_with_crc((tag(b"\x1bs".as_slice()), decimal_digit)),
         |(_, sensors)| sensors,
-    )(input)
+    )
+    .parse(input)
 }
 
 /// Parses a response to a request to get or set the input sensors required to
@@ -1148,9 +1181,10 @@ pub fn set_input_sensors_required_request(input: &[u8]) -> IResult<&[u8], u8> {
 /// Returns an error if the input does not match the expected format.
 pub fn get_set_input_sensors_required_response(input: &[u8]) -> IResult<&[u8], (u8, u8)> {
     map(
-        packet((tag(b"s"), decimal_digit, decimal_digit)),
+        packet((tag(b"s".as_slice()), decimal_digit, decimal_digit)),
         |(_, current, total)| (current, total),
-    )(input)
+    )
+    .parse(input)
 }
 
 /// Parses a request to adjust the bitonal threshold by 1.
@@ -1161,16 +1195,17 @@ pub fn get_set_input_sensors_required_response(input: &[u8]) -> IResult<&[u8], (
 pub fn adjust_bitonal_threshold_by_1_request(input: &[u8]) -> IResult<&[u8], BitonalAdjustment> {
     map(
         packet_with_crc((
-            tag(b"\x1b"),
+            tag(b"\x1b".as_slice()),
             alt((
-                value((Side::Top, Direction::Increase), tag(b"+")),
-                value((Side::Top, Direction::Decrease), tag(b"-")),
-                value((Side::Bottom, Direction::Increase), tag(b">")),
-                value((Side::Bottom, Direction::Decrease), tag(b"<")),
+                value((Side::Top, Direction::Increase), tag(b"+".as_slice())),
+                value((Side::Top, Direction::Decrease), tag(b"-".as_slice())),
+                value((Side::Bottom, Direction::Increase), tag(b">".as_slice())),
+                value((Side::Bottom, Direction::Decrease), tag(b"<".as_slice())),
             )),
         )),
         |(_, (side, direction))| BitonalAdjustment::new(side, direction),
-    )(input)
+    )
+    .parse(input)
 }
 
 /// Parses a response to a request to adjust the bitonal threshold by 1.
@@ -1181,13 +1216,17 @@ pub fn adjust_bitonal_threshold_by_1_request(input: &[u8]) -> IResult<&[u8], Bit
 pub fn adjust_bitonal_threshold_response(input: &[u8]) -> IResult<&[u8], (Side, u8)> {
     map(
         packet((
-            tag(b"X"),
-            alt((value(Side::Top, tag(b"T")), value(Side::Bottom, tag(b"B")))),
-            tag(b" "),
+            tag(b"X".as_slice()),
+            alt((
+                value(Side::Top, tag(b"T".as_slice())),
+                value(Side::Bottom, tag(b"B".as_slice())),
+            )),
+            tag(b" ".as_slice()),
             hex_byte,
         )),
         |(_, side, _, percent_white_threshold)| (side, percent_white_threshold),
-    )(input)
+    )
+    .parse(input)
 }
 
 /// Parses a request to get the calibration information.
@@ -1197,10 +1236,17 @@ pub fn adjust_bitonal_threshold_response(input: &[u8]) -> IResult<&[u8], (Side, 
 /// Returns an error if the input does not match the expected format.
 pub fn get_calibration_information_request(input: &[u8]) -> IResult<&[u8], Option<Resolution>> {
     alt((
-        value(None, packet_with_crc((tag(b"W"),))),
-        value(Some(Resolution::Native), packet_with_crc((tag(b"W0"),))),
-        value(Some(Resolution::Half), packet_with_crc((tag(b"W1"),))),
-    ))(input)
+        value(None, packet_with_crc((tag(b"W".as_slice()),))),
+        value(
+            Some(Resolution::Native),
+            packet_with_crc((tag(b"W0".as_slice()),)),
+        ),
+        value(
+            Some(Resolution::Half),
+            packet_with_crc((tag(b"W1".as_slice()),)),
+        ),
+    ))
+    .parse(input)
 }
 
 /// Parses a response to a request to get the calibration information.
@@ -1210,14 +1256,14 @@ pub fn get_calibration_information_request(input: &[u8]) -> IResult<&[u8], Optio
 /// Returns an error if the input does not match the expected format.
 pub fn get_calibration_information_response(input: &[u8]) -> IResult<&[u8], (Vec<u8>, Vec<u8>)> {
     let (input, _) = packet_start(input)?;
-    let (input, _) = tag(b"W")(input)?;
+    let (input, _) = tag(b"W".as_slice()).parse(input)?;
     let (input, pixel_count) = le_u16(input)?;
     // The first nibble is side (0 for top, 1 for bottom)
     // The second nibble is bits per pixel (e.g. 1 or 8)
-    let (input, _side_and_bits_per_pixel_metadata) = take(1usize)(input)?;
-    let (input, white_calibration_table) = take(pixel_count)(input)?;
+    let (input, _side_and_bits_per_pixel_metadata) = take(1usize).parse(input)?;
+    let (input, white_calibration_table) = take(pixel_count).parse(input)?;
     let (input, _white_calibration_table_checksum) = le_u16(input)?;
-    let (input, black_calibration_table) = take(pixel_count)(input)?;
+    let (input, black_calibration_table) = take(pixel_count).parse(input)?;
     let (input, _black_calibration_table_checksum) = le_u16(input)?;
     let (input, _) = packet_end(input)?;
 
@@ -1259,12 +1305,13 @@ simple_request!(calibrate_image_sensors_request, b"C");
 pub fn set_bitonal_threshold_request(input: &[u8]) -> IResult<&[u8], (Side, ClampedPercentage)> {
     map(
         packet_with_crc((
-            tag(b"\x1b%"),
+            tag(b"\x1b%".as_slice()),
             map_res(le_u8, TryInto::try_into),
             map_res(le_u8, TryInto::try_into),
         )),
         |(_, side, new_threshold)| (side, new_threshold),
-    )(input)
+    )
+    .parse(input)
 }
 
 /// Parses a request to set the length of the document to scan.
@@ -1275,7 +1322,7 @@ pub fn set_bitonal_threshold_request(input: &[u8]) -> IResult<&[u8], (Side, Clam
 pub fn set_length_of_document_to_scan_request(input: &[u8]) -> IResult<&[u8], (u8, Option<u8>)> {
     map(
         packet_with_crc((
-            tag(b"\x1bD"),
+            tag(b"\x1bD".as_slice()),
             le_u8,
             map(
                 take_while_m_n(0, 1, |byte| byte != PACKET_DATA_END[0]),
@@ -1287,7 +1334,8 @@ pub fn set_length_of_document_to_scan_request(input: &[u8]) -> IResult<&[u8], (u
             ),
         )),
         |(_, length_byte, unit_byte)| (length_byte, unit_byte),
-    )(input)
+    )
+    .parse(input)
 }
 
 /// Parses a request to set the scan delay interval for document feed.
@@ -1297,19 +1345,17 @@ pub fn set_length_of_document_to_scan_request(input: &[u8]) -> IResult<&[u8], (u
 /// Returns an error if the input does not match the expected format.
 pub fn set_scan_delay_interval_for_document_feed_request(input: &[u8]) -> IResult<&[u8], Duration> {
     map_res(
-        packet_with_crc((tag(b"\x1bj"), le_u8)),
+        packet_with_crc((tag(b"\x1bj".as_slice()), le_u8)),
         |(_, delay_interval)| {
             if !(0x20..=0xe8).contains(&delay_interval) {
-                return Err(nom::Err::Failure(nom::error::Error::new(
-                    input,
-                    nom::error::ErrorKind::Verify,
-                )));
+                return Err(());
             }
 
             let delay_interval = delay_interval - 0x20;
             Ok(Duration::from_millis(16) * delay_interval.into())
         },
-    )(input)
+    )
+    .parse(input)
 }
 
 simple_request!(
@@ -1324,15 +1370,13 @@ simple_request!(eject_escrow_document_request, b"7");
 simple_request!(rescan_document_held_in_escrow_position_request, b"[");
 
 fn register_index(input: &[u8]) -> IResult<&[u8], RegisterIndex> {
-    map_res(tuple((hex_digit, hex_byte)), |(r0, r1_and_2)| {
+    map_res((hex_digit, hex_byte), |(r0, r1_and_2)| {
         match (r0, RegisterIndex::new(r1_and_2)) {
             (0, Some(index)) => Ok(index),
-            _ => Err(nom::Err::Failure(nom::error::Error::new(
-                input,
-                nom::error::ErrorKind::Verify,
-            ))),
+            _ => Err(()),
         }
-    })(input)
+    })
+    .parse(input)
 }
 
 simple_request!(save_registers_to_flash_request, b"}");
@@ -1346,9 +1390,10 @@ simple_request!(reboot_request, b"0");
 /// value is out of bounds.
 pub fn get_register_data_request(input: &[u8]) -> IResult<&[u8], RegisterIndex> {
     map(
-        packet_with_crc((tag(b"<"), register_index)),
+        packet_with_crc((tag(b"<".as_slice()), register_index)),
         |(_, index)| index,
-    )(input)
+    )
+    .parse(input)
 }
 
 /// Parses a response to a request for register data by index.
@@ -1359,9 +1404,10 @@ pub fn get_register_data_request(input: &[u8]) -> IResult<&[u8], RegisterIndex> 
 /// register value is out of bounds.
 pub fn read_register_data_response(input: &[u8]) -> IResult<&[u8], Register> {
     map(
-        packet((tag(b"<"), register_index, hex_u32_be)),
+        packet((tag(b"<".as_slice()), register_index, hex_u32_be)),
         |(_, index, value)| Register::new(index, value),
-    )(input)
+    )
+    .parse(input)
 }
 
 /// Parses a response to a request to write register data by index.
@@ -1372,9 +1418,10 @@ pub fn read_register_data_response(input: &[u8]) -> IResult<&[u8], Register> {
 /// register value is out of bounds.
 pub fn write_register_data_response(input: &[u8]) -> IResult<&[u8], Register> {
     map(
-        packet((tag(b">"), register_index, hex_u32_be)),
+        packet((tag(b">".as_slice()), register_index, hex_u32_be)),
         |(_, index, value)| Register::new(index, value),
-    )(input)
+    )
+    .parse(input)
 }
 
 /// Parses a request to write data to a register at a given index.
@@ -1385,9 +1432,10 @@ pub fn write_register_data_response(input: &[u8]) -> IResult<&[u8], Register> {
 /// register value is out of bounds.
 pub fn write_data_to_register_request(input: &[u8]) -> IResult<&[u8], Register> {
     map(
-        packet_with_crc((tag(b">"), register_index, hex_u32_be)),
+        packet_with_crc((tag(b">".as_slice()), register_index, hex_u32_be)),
         |(_, index, value)| Register::new(index, value),
-    )(input)
+    )
+    .parse(input)
 }
 
 /// Parses any outgoing message of one byte or more.
@@ -1467,9 +1515,11 @@ simple_response!(cover_closed_event_alternate, b"#35");
 ///
 /// Fails if the input is not the looked-for response.
 pub fn image_sensor_calibration_unexpected_output(input: &[u8]) -> IResult<&[u8], &str> {
-    map_res(packet((tag(b"#L0"), packet_body)), |(_, test_string)| {
-        from_utf8(test_string)
-    })(input)
+    map_res(
+        packet((tag(b"#L0".as_slice()), packet_body)),
+        |(_, test_string)| from_utf8(test_string),
+    )
+    .parse(input)
 }
 
 #[cfg(test)]
@@ -1491,7 +1541,9 @@ mod tests {
     #[test]
     fn test_packet_with_crc() {
         let input = b"\x02D\x03\xb4";
-        let (remainder, (tag,)) = packet_with_crc((tag(b"D"),))(input).unwrap();
+        let (remainder, (tag,)) = packet_with_crc((tag(b"D".as_slice()),))
+            .parse(input)
+            .unwrap();
         assert_eq!(remainder, b"");
         assert_eq!(tag, b"D");
     }
@@ -1499,7 +1551,9 @@ mod tests {
     #[test]
     fn test_packet_with_crc_mismatch() {
         let input = b"\x02D\x03\xb5";
-        packet_with_crc((tag(b"D"),))(input).unwrap_err();
+        packet_with_crc((tag(b"D".as_slice()),))
+            .parse(input)
+            .unwrap_err();
     }
 
     #[test]
