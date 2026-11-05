@@ -10,7 +10,7 @@ path = "src/cino_s680_daemon.rs"
 
 [dependencies]
 color-eyre = { workspace = true }
-nusb = { workspace = true }
+nusb = { workspace = true, features = ["tokio"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true, features = ["full"] }

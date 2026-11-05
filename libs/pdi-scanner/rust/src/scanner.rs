@@ -2,11 +2,13 @@ use std::{
     fs::{File, TryLockError},
     future::Future,
     path::Path,
-    sync::Arc,
     time::Duration,
 };
 
-use nusb::transfer::{Completion, RequestBuffer, TransferError};
+use nusb::{
+    MaybeFuture,
+    transfer::{Buffer, Bulk, Completion, In, Out, TransferError},
+};
 
 #[cfg(feature = "recording")]
 use crate::recording;
@@ -22,40 +24,57 @@ use super::protocol::packets::{self, Incoming, IncomingType};
 /// dropped receiver is harmless: no state is shared with later commands.
 pub type OutgoingCommand = (packets::Outgoing, tokio::sync::oneshot::Sender<()>);
 
-pub(crate) trait BulkInQueue: Send + 'static {
-    fn submit(&mut self, buf: RequestBuffer);
-    fn next_complete(&mut self) -> impl Future<Output = Completion<Vec<u8>>> + Send + '_;
+pub(crate) trait BulkIn: Send + 'static {
+    fn allocate(&self, len: usize) -> Buffer;
+    fn submit(&mut self, buf: Buffer);
+    fn next_complete(&mut self) -> impl Future<Output = Completion> + Send + '_;
 }
 
-pub(crate) trait UsbInterface: Send + Sync + 'static {
-    type BulkInQueue: BulkInQueue;
-    fn bulk_in_queue(&self, endpoint: u8) -> Self::BulkInQueue;
-    fn bulk_out(
-        &self,
-        endpoint: u8,
+pub(crate) trait BulkOut: Send + 'static {
+    fn write(
+        &mut self,
         data: Vec<u8>,
     ) -> impl Future<Output = Result<(), TransferError>> + Send + '_;
 }
 
-impl BulkInQueue for nusb::transfer::Queue<RequestBuffer> {
-    fn submit(&mut self, buf: RequestBuffer) {
-        self.submit(buf);
+pub(crate) trait UsbInterface {
+    type BulkIn: BulkIn;
+    type BulkOut: BulkOut;
+    fn bulk_in(&self, endpoint: u8) -> Result<Self::BulkIn>;
+    fn bulk_out(&self, endpoint: u8) -> Result<Self::BulkOut>;
+}
+
+impl BulkIn for nusb::Endpoint<Bulk, In> {
+    fn allocate(&self, len: usize) -> Buffer {
+        nusb::Endpoint::allocate(self, len)
     }
 
-    fn next_complete(&mut self) -> impl Future<Output = Completion<Vec<u8>>> + Send + '_ {
-        nusb::transfer::Queue::<RequestBuffer>::next_complete(self)
+    fn submit(&mut self, buf: Buffer) {
+        nusb::Endpoint::submit(self, buf);
+    }
+
+    fn next_complete(&mut self) -> impl Future<Output = Completion> + Send + '_ {
+        nusb::Endpoint::next_complete(self)
+    }
+}
+
+impl BulkOut for nusb::Endpoint<Bulk, Out> {
+    async fn write(&mut self, data: Vec<u8>) -> Result<(), TransferError> {
+        self.submit(data.into());
+        self.next_complete().await.status
     }
 }
 
 impl UsbInterface for nusb::Interface {
-    type BulkInQueue = nusb::transfer::Queue<RequestBuffer>;
+    type BulkIn = nusb::Endpoint<Bulk, In>;
+    type BulkOut = nusb::Endpoint<Bulk, Out>;
 
-    fn bulk_in_queue(&self, endpoint: u8) -> Self::BulkInQueue {
-        nusb::Interface::bulk_in_queue(self, endpoint)
+    fn bulk_in(&self, endpoint: u8) -> Result<Self::BulkIn> {
+        Ok(self.endpoint::<Bulk, In>(endpoint)?)
     }
 
-    async fn bulk_out(&self, endpoint: u8, data: Vec<u8>) -> Result<(), TransferError> {
-        nusb::Interface::bulk_out(self, endpoint, data).await.status
+    fn bulk_out(&self, endpoint: u8) -> Result<Self::BulkOut> {
+        Ok(self.endpoint::<Bulk, Out>(endpoint)?)
     }
 }
 
@@ -104,8 +123,8 @@ impl Scanner {
     /// the connection cannot be opened, or the interface cannot be claimed.
     pub fn connect() -> Result<Self> {
         let lock_file = acquire_scanner_lock(Path::new(SCANNER_LOCK_PATH))?;
-        let interface = Arc::new(open_usb_interface()?);
-        let mut scanner = poll_scanner(&interface, Duration::from_secs(1));
+        let interface = open_usb_interface()?;
+        let mut scanner = poll_scanner(&interface, Duration::from_secs(1))?;
         scanner.lock_file = Some(lock_file);
         Ok(scanner)
     }
@@ -170,7 +189,7 @@ fn acquire_scanner_lock(path: &Path) -> Result<File> {
 /// Maps an interface claim failure to [`Error::ScannerInUse`] when the kernel
 /// reports the interface as already claimed (`EBUSY`).
 fn claim_error(error: nusb::Error) -> Error {
-    if error.kind() == std::io::ErrorKind::ResourceBusy {
+    if error.kind() == nusb::ErrorKind::Busy {
         Error::ScannerInUse
     } else {
         UsbError::Nusb(error).into()
@@ -196,6 +215,7 @@ fn open_usb_interface() -> Result<nusb::Interface> {
     drop(
         device
             .detach_and_claim_interface(INTERFACE)
+            .wait()
             .map_err(claim_error)?,
     );
 
@@ -204,13 +224,14 @@ fn open_usb_interface() -> Result<nusb::Interface> {
     // with a horizontal pixel offset and dark bands at the top — we hypothesize
     // this is due to stale data in the scanner's internal buffer. The reset
     // triggers a USB bus reset and forces the device to re-enumerate.
-    device.reset()?;
+    device.reset().wait()?;
 
     // reset() invalidates the device handle, so re-find the device.
     let device = find_pdi_device()?;
-    device.set_configuration(1)?;
+    device.set_configuration(1).wait()?;
     let scanner_interface = device
         .detach_and_claim_interface(INTERFACE)
+        .wait()
         .map_err(claim_error)?;
     tracing::debug!("Connected to PDI scanner and claimed interface {INTERFACE}");
 
@@ -224,10 +245,12 @@ fn find_pdi_device() -> Result<nusb::Device> {
     /// Product ID for the PDI scanner.
     const PRODUCT_ID: u16 = 0xa002;
 
-    nusb::list_devices()?
+    nusb::list_devices()
+        .wait()?
         .find(|d| d.vendor_id() == VENDOR_ID && d.product_id() == PRODUCT_ID)
         .ok_or(UsbError::DeviceNotFound)?
         .open()
+        .wait()
         .map_err(Into::into)
 }
 
@@ -240,28 +263,31 @@ fn find_pdi_device() -> Result<nusb::Device> {
 ///
 /// If the client side of the channels is dropped, the task logs and stops.
 #[allow(clippy::too_many_lines)]
-fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Duration) -> Scanner {
+fn poll_scanner<U: UsbInterface>(usb_interface: &U, default_timeout: Duration) -> Result<Scanner> {
     let (host_to_scanner_tx, mut host_to_scanner_rx) =
         tokio::sync::mpsc::unbounded_channel::<OutgoingCommand>();
     let (responses_tx, responses_rx) = tokio::sync::mpsc::unbounded_channel();
     let (events_tx, events_rx) = tokio::sync::mpsc::unbounded_channel();
     let (stop_tx, mut stop_rx) = tokio::sync::oneshot::channel();
 
-    let mut in_primary_queue = usb_interface.bulk_in_queue(ENDPOINT_IN_PRIMARY);
-    let mut in_image_data_queue = usb_interface.bulk_in_queue(ENDPOINT_IN_IMAGE_DATA);
-    let device_handle = usb_interface.clone();
+    let mut in_primary_queue = usb_interface.bulk_in(ENDPOINT_IN_PRIMARY)?;
+    let mut in_image_data_queue = usb_interface.bulk_in(ENDPOINT_IN_IMAGE_DATA)?;
+    let mut out_endpoint = usb_interface.bulk_out(ENDPOINT_OUT)?;
 
     let task_handle = tokio::spawn(async move {
         tracing::debug!("Scanner thread started; submitting initial IN endpoint transfers");
 
-        in_primary_queue.submit(RequestBuffer::new(DEFAULT_BUFFER_SIZE));
+        in_primary_queue.submit(in_primary_queue.allocate(DEFAULT_BUFFER_SIZE));
 
         // Submit two initial transfers to the image data transfer queue so
         // that we always have one ready to go while we process the other.
         // We want image data transfer to be as fast as possible so the
         // scanner doesn't overflow its internal buffer.
-        in_image_data_queue.submit(RequestBuffer::new(IMAGE_BUFFER_SIZE));
-        in_image_data_queue.submit(RequestBuffer::new(IMAGE_BUFFER_SIZE));
+        for _ in 0..2 {
+            let buffer = in_image_data_queue.allocate(IMAGE_BUFFER_SIZE);
+            tracing::debug!("Image data buffer zero-copy: {}", buffer.is_zero_copy());
+            in_image_data_queue.submit(buffer);
+        }
 
         loop {
             tokio::select! {
@@ -283,7 +309,7 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                         let _ = events_tx.send(Err(err));
                         break;
                     }
-                    let data = completion.data;
+                    let mut data = completion.buffer;
                     tracing::debug!("Received image data: {len} bytes", len = data.len());
                     #[cfg(feature = "recording")]
                     if recording::is_enabled() {
@@ -293,14 +319,15 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                         ));
                     }
                     if events_tx
-                        .send(Ok(packets::Incoming::ImageData(packets::ImageData(data))))
+                        .send(Ok(packets::Incoming::ImageData(packets::ImageData(data.to_vec()))))
                         .is_err()
                     {
                         tracing::debug!("client dropped; stopping USB task");
                         break;
                     }
 
-                    in_image_data_queue.submit(RequestBuffer::new(IMAGE_BUFFER_SIZE));
+                    data.clear();
+                    in_image_data_queue.submit(data);
                 }
 
                 completion = in_primary_queue.next_complete() => {
@@ -314,7 +341,7 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                         let _ = events_tx.send(Err(err));
                         break;
                     }
-                    let data = completion.data;
+                    let mut data = completion.buffer;
                     tracing::debug!(
                         "Received data on primary endpoint: {len} bytes",
                         len = data.len()
@@ -348,19 +375,20 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                                     len = remaining.len(),
                                     remaining = String::from_utf8_lossy(remaining)
                                 );
-                            let _ = events_tx.send(Ok(Incoming::Unknown(data.clone())));
+                            let _ = events_tx.send(Ok(Incoming::Unknown(data.to_vec())));
                         }
                         Err(err) => {
                             tracing::error!(
                                 "Error parsing packet: {data:?} (err={err})",
                                 data = String::from_utf8_lossy(&data)
                             );
-                            let _ = events_tx.send(Ok(Incoming::Unknown(data.clone())));
+                            let _ = events_tx.send(Ok(Incoming::Unknown(data.to_vec())));
                         }
                     }
 
                     // resubmit the transfer to receive more data
-                    in_primary_queue.submit(RequestBuffer::reuse(data, DEFAULT_BUFFER_SIZE));
+                    data.clear();
+                    in_primary_queue.submit(data);
                 }
 
                 Some((packet, ack)) = host_to_scanner_rx.recv() => {
@@ -374,7 +402,7 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
 
                     match tokio::time::timeout(
                         default_timeout,
-                        device_handle.bulk_out(ENDPOINT_OUT, bytes),
+                        out_endpoint.write(bytes),
                     )
                     .await
                     {
@@ -402,11 +430,7 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
                         }
                         Err(_) => {
                             tracing::error!("Timeout sending outgoing packet");
-                            let err = nusb::Error::new(
-                                std::io::ErrorKind::TimedOut,
-                                "timed out sending outgoing packet",
-                            );
-                            let err: crate::Error = err.into();
+                            let err: crate::Error = UsbError::WriteTimeout.into();
                             #[cfg(feature = "recording")]
                             if recording::is_enabled() {
                                 recording::record(&recording::Entry::scanner_to_host_error(&err));
@@ -425,14 +449,14 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &Arc<U>, default_timeout: Durati
         }
     });
 
-    Scanner {
+    Ok(Scanner {
         host_to_scanner_tx,
         responses_rx,
         events_rx,
         stop_tx: Some(stop_tx),
         task_handle: Some(task_handle),
         lock_file: None,
-    }
+    })
 }
 
 #[cfg(test)]
@@ -443,7 +467,7 @@ mod tests {
         time::Duration,
     };
 
-    use nusb::transfer::{Completion, RequestBuffer, TransferError};
+    use nusb::transfer::{Buffer, Completion, TransferError};
     use tokio::{sync::mpsc, time::timeout};
 
     use crate::{Error, UsbError};
@@ -453,8 +477,8 @@ mod tests {
     };
 
     use super::{
-        BulkInQueue, ENDPOINT_IN_IMAGE_DATA, ENDPOINT_IN_PRIMARY, ENDPOINT_OUT, Scanner,
-        UsbInterface, acquire_scanner_lock, claim_error, poll_scanner,
+        BulkIn, BulkOut, ENDPOINT_IN_IMAGE_DATA, ENDPOINT_IN_PRIMARY, ENDPOINT_OUT, Scanner,
+        UsbInterface, acquire_scanner_lock, poll_scanner,
     };
 
     const TEST_TIMEOUT: Duration = Duration::from_millis(100);
@@ -472,67 +496,100 @@ mod tests {
     /// Raw body bytes for known incoming events (from parsers module).
     const COVER_OPEN_EVENT_BODY: &[u8] = b"#0C";
 
+    fn completion(data: Vec<u8>, status: Result<(), TransferError>) -> Completion {
+        Completion {
+            actual_len: data.len(),
+            buffer: Buffer::from(data),
+            status,
+        }
+    }
+
     // --- MockInterface ---
 
-    type Submissions = Arc<Mutex<Vec<RequestBuffer>>>;
+    type Submissions = Arc<Mutex<Vec<Buffer>>>;
 
-    struct MockBulkInQueue {
-        rx: mpsc::UnboundedReceiver<Completion<Vec<u8>>>,
+    struct MockBulkIn {
+        rx: mpsc::UnboundedReceiver<Completion>,
         submissions: Submissions,
     }
 
-    impl BulkInQueue for MockBulkInQueue {
-        fn submit(&mut self, buf: RequestBuffer) {
+    impl BulkIn for MockBulkIn {
+        fn allocate(&self, len: usize) -> Buffer {
+            Buffer::new(len)
+        }
+
+        fn submit(&mut self, buf: Buffer) {
             self.submissions.lock().unwrap().push(buf);
         }
 
-        async fn next_complete(&mut self) -> Completion<Vec<u8>> {
-            self.rx.recv().await.unwrap_or(Completion {
-                data: Vec::new(),
-                status: Err(TransferError::Cancelled),
-            })
-        }
-    }
-
-    type MockQueues =
-        Arc<Mutex<HashMap<u8, (mpsc::UnboundedReceiver<Completion<Vec<u8>>>, Submissions)>>>;
-
-    struct MockInterface {
-        bulk_out_data_tx: mpsc::UnboundedSender<(u8, Vec<u8>)>,
-        bulk_out_response_rx:
-            tokio::sync::Mutex<mpsc::UnboundedReceiver<Result<(), TransferError>>>,
-        queues: MockQueues,
-    }
-
-    impl UsbInterface for MockInterface {
-        type BulkInQueue = MockBulkInQueue;
-
-        fn bulk_in_queue(&self, endpoint: u8) -> MockBulkInQueue {
-            let (rx, submissions) = self
-                .queues
-                .lock()
-                .unwrap()
-                .remove(&endpoint)
-                .unwrap_or_else(|| panic!("no mock queue for endpoint 0x{endpoint:02x}"));
-            MockBulkInQueue { rx, submissions }
-        }
-
-        async fn bulk_out(&self, endpoint: u8, data: Vec<u8>) -> Result<(), TransferError> {
-            self.bulk_out_data_tx
-                .send((endpoint, data))
-                .map_err(|_| TransferError::Cancelled)?;
-            self.bulk_out_response_rx
-                .lock()
+        async fn next_complete(&mut self) -> Completion {
+            self.rx
+                .recv()
                 .await
+                .unwrap_or_else(|| completion(Vec::new(), Err(TransferError::Cancelled)))
+        }
+    }
+
+    struct MockBulkOut {
+        endpoint: u8,
+        data_tx: mpsc::UnboundedSender<(u8, Vec<u8>)>,
+        response_rx: mpsc::UnboundedReceiver<Result<(), TransferError>>,
+    }
+
+    impl BulkOut for MockBulkOut {
+        async fn write(&mut self, data: Vec<u8>) -> Result<(), TransferError> {
+            self.data_tx
+                .send((self.endpoint, data))
+                .map_err(|_| TransferError::Cancelled)?;
+            self.response_rx
                 .recv()
                 .await
                 .unwrap_or(Err(TransferError::Cancelled))
         }
     }
 
+    type MockBulkOutChannels = (
+        mpsc::UnboundedSender<(u8, Vec<u8>)>,
+        mpsc::UnboundedReceiver<Result<(), TransferError>>,
+    );
+
+    struct MockInterface {
+        bulk_out_channels: Mutex<Option<MockBulkOutChannels>>,
+        queues: Mutex<HashMap<u8, (mpsc::UnboundedReceiver<Completion>, Submissions)>>,
+    }
+
+    impl UsbInterface for MockInterface {
+        type BulkIn = MockBulkIn;
+        type BulkOut = MockBulkOut;
+
+        fn bulk_in(&self, endpoint: u8) -> crate::Result<MockBulkIn> {
+            let (rx, submissions) = self
+                .queues
+                .lock()
+                .unwrap()
+                .remove(&endpoint)
+                .unwrap_or_else(|| panic!("no mock queue for endpoint 0x{endpoint:02x}"));
+            Ok(MockBulkIn { rx, submissions })
+        }
+
+        fn bulk_out(&self, endpoint: u8) -> crate::Result<MockBulkOut> {
+            let (data_tx, response_rx) = self
+                .bulk_out_channels
+                .lock()
+                .unwrap()
+                .take()
+                .expect("bulk out endpoint opened twice");
+            Ok(MockBulkOut {
+                endpoint,
+                data_tx,
+                response_rx,
+            })
+        }
+    }
+
     struct MockHandles {
-        primary_tx: mpsc::UnboundedSender<Completion<Vec<u8>>>,
-        image_data_tx: mpsc::UnboundedSender<Completion<Vec<u8>>>,
+        primary_tx: mpsc::UnboundedSender<Completion>,
+        image_data_tx: mpsc::UnboundedSender<Completion>,
         bulk_out_data_rx: mpsc::UnboundedReceiver<(u8, Vec<u8>)>,
         bulk_out_response_tx: mpsc::UnboundedSender<Result<(), TransferError>>,
         primary_submissions: Submissions,
@@ -561,9 +618,8 @@ mod tests {
 
         (
             MockInterface {
-                bulk_out_data_tx,
-                bulk_out_response_rx: tokio::sync::Mutex::new(bulk_out_response_rx),
-                queues: Arc::new(Mutex::new(queues)),
+                bulk_out_channels: Mutex::new(Some((bulk_out_data_tx, bulk_out_response_rx))),
+                queues: Mutex::new(queues),
             },
             MockHandles {
                 primary_tx,
@@ -582,7 +638,7 @@ mod tests {
 
     fn start_mock_scanner_with_timeout(default_timeout: Duration) -> (MockHandles, Scanner) {
         let (interface, handles) = mock_interface_and_handles();
-        let scanner = poll_scanner(&Arc::new(interface), default_timeout);
+        let scanner = poll_scanner(&interface, default_timeout).unwrap();
         (handles, scanner)
     }
 
@@ -594,10 +650,7 @@ mod tests {
 
         handles
             .primary_tx
-            .send(Completion {
-                data: encode_packet(COVER_OPEN_EVENT_BODY),
-                status: Ok(()),
-            })
+            .send(completion(encode_packet(COVER_OPEN_EVENT_BODY), Ok(())))
             .unwrap();
 
         let packet = timeout(TEST_TIMEOUT, scanner.events_rx.recv())
@@ -616,10 +669,7 @@ mod tests {
         // on the responses channel, not the events channel.
         handles
             .primary_tx
-            .send(Completion {
-                data: encode_packet(b"D"),
-                status: Ok(()),
-            })
+            .send(completion(encode_packet(b"D"), Ok(())))
             .unwrap();
 
         let packet = timeout(TEST_TIMEOUT, scanner.responses_rx.recv())
@@ -636,10 +686,7 @@ mod tests {
         let garbage = b"not a valid packet".to_vec();
         handles
             .primary_tx
-            .send(Completion {
-                data: garbage.clone(),
-                status: Ok(()),
-            })
+            .send(completion(garbage.clone(), Ok(())))
             .unwrap();
 
         let packet = timeout(TEST_TIMEOUT, scanner.events_rx.recv())
@@ -659,10 +706,7 @@ mod tests {
         data.extend_from_slice(b"trailing");
         handles
             .primary_tx
-            .send(Completion {
-                data: data.clone(),
-                status: Ok(()),
-            })
+            .send(completion(data.clone(), Ok(())))
             .unwrap();
 
         let packet = timeout(TEST_TIMEOUT, scanner.events_rx.recv())
@@ -682,10 +726,7 @@ mod tests {
         let image_bytes = vec![0xAA, 0xBB, 0xCC];
         handles
             .image_data_tx
-            .send(Completion {
-                data: image_bytes.clone(),
-                status: Ok(()),
-            })
+            .send(completion(image_bytes.clone(), Ok(())))
             .unwrap();
 
         let packet = timeout(TEST_TIMEOUT, scanner.events_rx.recv())
@@ -730,10 +771,7 @@ mod tests {
 
         handles
             .primary_tx
-            .send(Completion {
-                data: Vec::new(),
-                status: Err(TransferError::Disconnected),
-            })
+            .send(completion(Vec::new(), Err(TransferError::Disconnected)))
             .unwrap();
 
         let result = timeout(TEST_TIMEOUT, scanner.events_rx.recv())
@@ -752,10 +790,7 @@ mod tests {
 
         handles
             .image_data_tx
-            .send(Completion {
-                data: Vec::new(),
-                status: Err(TransferError::Fault),
-            })
+            .send(completion(Vec::new(), Err(TransferError::Fault)))
             .unwrap();
 
         let result = timeout(TEST_TIMEOUT, scanner.events_rx.recv())
@@ -833,9 +868,9 @@ mod tests {
         assert!(matches!(
             &err,
             Error::Usb {
-                source: UsbError::Nusb(e),
+                source: UsbError::WriteTimeout,
                 ..
-            } if e.kind() == std::io::ErrorKind::TimedOut
+            }
         ));
 
         // Task should have exited — channel closes, and the timed-out write
@@ -878,10 +913,7 @@ mod tests {
         // Send a primary endpoint completion — should trigger a resubmit
         handles
             .primary_tx
-            .send(Completion {
-                data: encode_packet(COVER_OPEN_EVENT_BODY),
-                status: Ok(()),
-            })
+            .send(completion(encode_packet(COVER_OPEN_EVENT_BODY), Ok(())))
             .unwrap();
         let _ = timeout(TEST_TIMEOUT, scanner.events_rx.recv()).await;
         assert_eq!(handles.primary_submissions.lock().unwrap().len(), 2);
@@ -889,10 +921,7 @@ mod tests {
         // Send an image data completion — should trigger a resubmit
         handles
             .image_data_tx
-            .send(Completion {
-                data: vec![0xAA],
-                status: Ok(()),
-            })
+            .send(completion(vec![0xAA], Ok(())))
             .unwrap();
         let _ = timeout(TEST_TIMEOUT, scanner.events_rx.recv()).await;
         assert_eq!(handles.image_data_submissions.lock().unwrap().len(), 3);
@@ -912,20 +941,5 @@ mod tests {
         assert!(reacquired.is_ok());
         drop(reacquired);
         std::fs::remove_file(&path).unwrap();
-    }
-
-    #[test]
-    fn claim_error_maps_busy_to_scanner_in_use() {
-        assert!(matches!(
-            claim_error(std::io::ErrorKind::ResourceBusy.into()),
-            Error::ScannerInUse
-        ));
-        assert!(matches!(
-            claim_error(std::io::ErrorKind::PermissionDenied.into()),
-            Error::Usb {
-                source: UsbError::Nusb(_),
-                ..
-            }
-        ));
     }
 }

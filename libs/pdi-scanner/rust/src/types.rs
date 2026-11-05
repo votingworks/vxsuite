@@ -11,6 +11,12 @@ pub enum UsbError {
 
     #[error("device not found")]
     DeviceNotFound,
+
+    #[error("timed out sending outgoing packet")]
+    WriteTimeout,
+
+    #[error("{0}")]
+    ChannelClosed(&'static str),
 }
 
 #[derive(Debug, thiserror::Error)]

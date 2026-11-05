@@ -75,14 +75,14 @@ const MAX_AAMVA_DOCUMENT_SIZE: usize = {
 
 // Resets the S680 barcode scanner
 async fn reset_scanner(device: DeviceInfo) -> Result<(), nusb::Error> {
-    device.open()?.reset()?;
+    device.open().await?.reset().await?;
     sleep(std::time::Duration::from_millis(500)).await;
     Ok(())
 }
 
 // Connects to S680 barcode scanner
 async fn init_port(port_name: &str, baud_rate: u32) -> color_eyre::Result<SerialStream> {
-    match nusb::list_devices()?.find(|dev| {
+    match nusb::list_devices().await?.find(|dev| {
         dev.vendor_id() == CINO_VENDOR_ID && dev.product_id() == FUZZYSCAN_S680_PRODUCT_ID
     }) {
         Some(device) => {

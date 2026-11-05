@@ -1,12 +1,12 @@
 use serde::{Deserialize, Serialize};
-use std::{io, time::Duration};
+use std::time::Duration;
 use tokio::{
     sync::mpsc::error::TryRecvError,
     time::{sleep, timeout},
 };
 
 use crate::{
-    Error, Result,
+    Error, Result, UsbError,
     protocol::types::{
         AutoRunOutAtEndOfScanBehavior, BootEjectMotion, Direction, DoubleFeedDetectionMode,
         EjectPauseMode, FeederMode, PickOnCommandMode, RegisterIndex, Side,
@@ -71,14 +71,12 @@ impl Client {
             .host_to_scanner_tx
             .send((packet, ack_tx))
             .map_err(|_| {
-                Error::from(nusb::Error::new(
-                    io::ErrorKind::ConnectionAborted,
+                Error::from(UsbError::ChannelClosed(
                     "failed to send packet to scanner (host to scanner channel closed)",
                 ))
             })?;
         ack_rx.await.map_err(|_| {
-            Error::from(nusb::Error::new(
-                io::ErrorKind::ConnectionAborted,
+            Error::from(UsbError::ChannelClosed(
                 "failed to receive ack from scanner (host to scanner ack channel closed)",
             ))
         })
