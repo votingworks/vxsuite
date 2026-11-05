@@ -581,7 +581,6 @@ export function VoterDetailsScreen(): JSX.Element | null {
         </Column>
         <Column style={{ flex: 1, flexBasis: 1, gap: '1rem' }}>
           <Card color="neutral">
-            {/* @coverage-defer */}
             {voter.isInactive && !voter.checkIn && (
               <H2 style={{ marginTop: 0, marginBottom: 0 }}>
                 <VoterInactive />
