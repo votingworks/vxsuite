@@ -250,6 +250,9 @@ importers:
       '@votingworks/dev-dock-backend':
         specifier: workspace:*
         version: link:../../../libs/dev-dock/backend
+      '@votingworks/election-definition-backend':
+        specifier: workspace:*
+        version: link:../../../libs/election-definition-backend
       '@votingworks/fs':
         specifier: workspace:*
         version: link:../../../libs/fs
