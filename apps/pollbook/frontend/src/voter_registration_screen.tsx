@@ -1,5 +1,5 @@
 import type { DuplicateVoterError } from '@votingworks/pollbook-backend';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Button,
   ButtonBar,
@@ -27,7 +27,7 @@ import {
   getPollbookConfigurationInformation,
   registerVoter,
 } from './api.js';
-import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals.js';
+import { useAutomaticFlowReset } from './use_automatic_flow_reset.js';
 import { ElectionManagerNavScreen, NoNavScreen } from './nav_screen.js';
 import { Column, FieldName, Row } from './layout.js';
 import { RequiredStaticInput, VoterName } from './shared_components.js';
@@ -148,14 +148,7 @@ export function VoterRegistrationScreen(): JSX.Element | null {
   function resetFlowState() {
     setFlowState({ step: 'register' });
   }
-  useEffect(() => {
-    if (flowState.step !== 'success') return;
-    const timeoutId = setTimeout(
-      resetFlowState,
-      AUTOMATIC_FLOW_STATE_RESET_DELAY_MS
-    );
-    return () => clearTimeout(timeoutId);
-  }, [flowState.step]);
+  useAutomaticFlowReset(flowState.step === 'success', resetFlowState);
   const [voter, setVoter] =
     useState<VoterRegistrationRequest>(createBlankVoter());
 

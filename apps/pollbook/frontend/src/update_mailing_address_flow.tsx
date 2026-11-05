@@ -17,7 +17,7 @@ import { NoNavScreen } from './nav_screen.js';
 import { TitledCard, VoterName } from './shared_components.js';
 import { MailingAddressInputGroup } from './mailing_address_input_group.js';
 import { changeVoterMailingAddress } from './api.js';
-import { AUTOMATIC_FLOW_STATE_RESET_DELAY_MS } from './globals.js';
+import { useAutomaticFlowReset } from './use_automatic_flow_reset.js';
 
 type UpdateMailingAddressFlowState =
   | { step: 'update' }
@@ -128,10 +128,9 @@ export function UpdateMailingAddressFlow({
   const [flowState, setFlowState] = useState<UpdateMailingAddressFlowState>({
     step: 'update',
   });
-  const [timeoutIdForReset, setTimeoutIdForReset] =
-    useState<ReturnType<typeof setTimeout>>();
   const changeVoterMailingAddressMutation =
     changeVoterMailingAddress.useMutation();
+  useAutomaticFlowReset(flowState.step === 'success', returnToPreviousScreen);
 
   switch (flowState.step) {
     case 'update':
@@ -144,12 +143,6 @@ export function UpdateMailingAddressFlow({
               voterId: voter.voterId,
               mailingAddressChangeData,
             });
-            setTimeoutIdForReset(
-              setTimeout(
-                returnToPreviousScreen,
-                AUTOMATIC_FLOW_STATE_RESET_DELAY_MS
-              )
-            );
             setFlowState({ step: 'success' });
           }}
           onCancel={returnToPreviousScreen}
@@ -201,10 +194,7 @@ export function UpdateMailingAddressFlow({
             <Button
               icon="Next"
               variant="primary"
-              onPress={() => {
-                clearTimeout(timeoutIdForReset);
-                returnToPreviousScreen();
-              }}
+              onPress={returnToPreviousScreen}
             >
               {returnToPreviousScreenLabelText}
             </Button>
