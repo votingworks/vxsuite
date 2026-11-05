@@ -1,4 +1,4 @@
-import { cssThemedScrollbars, DesktopPalette, H2 } from '@votingworks/ui';
+import { H2 } from '@votingworks/ui';
 import styled, { css } from 'styled-components';
 import { StyledRichTextEditor } from './rich_text_editor.js';
 

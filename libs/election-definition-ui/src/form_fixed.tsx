@@ -1,3 +1,6 @@
+import { cssThemedScrollbars, DesktopPalette } from '@votingworks/ui';
+import styled from 'styled-components';
+
 export const FormBody = styled.div`
   display: flex;
   flex-direction: column;

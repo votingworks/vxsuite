@@ -31,6 +31,10 @@ import { format } from '@votingworks/utils';
 import type { BallotTemplateId } from '@votingworks/hub-backend';
 import type { NhStateBallotVariant } from '@votingworks/hmpb';
 import {
+  FieldName as BaseFieldName,
+  Row,
+} from '@votingworks/election-definition-ui';
+import {
   getBallotPreviewPdf,
   getBallotTemplate,
   getElectionInfo,
@@ -40,7 +44,6 @@ import {
   listParties,
 } from './api.js';
 import { routes } from './routes.js';
-import { FieldName as BaseFieldName, Row } from './layout.js';
 
 // The worker is bundled from the same pdfjs-dist version react-pdf uses
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(

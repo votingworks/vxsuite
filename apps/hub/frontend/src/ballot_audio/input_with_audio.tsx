@@ -1,7 +1,7 @@
 import type React from 'react';
 import styled from 'styled-components';
 
-import type { TooltipProps } from '../tooltip.js';
+import type { TooltipProps } from '@votingworks/election-definition-ui';
 import { AudioLinkButton } from './audio_link_button.js';
 
 export type InputWithAudioProps = {

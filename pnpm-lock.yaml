@@ -1172,6 +1172,9 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
+      '@votingworks/election-definition-ui':
+        specifier: workspace:*
+        version: link:../../../libs/election-definition-ui
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout

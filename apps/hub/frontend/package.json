@@ -57,6 +57,7 @@
     "@tiptap/pm": "^3.32.0",
     "@tiptap/react": "^3.32.0",
     "@votingworks/basics": "workspace:*",
+    "@votingworks/election-definition-ui": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/hub-backend": "workspace:*",
     "@votingworks/types": "workspace:*",

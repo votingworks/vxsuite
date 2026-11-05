@@ -3,8 +3,12 @@ import { useParams } from 'react-router-dom';
 
 import { LinkButton } from '@votingworks/ui';
 
+import {
+  Tooltip,
+  TooltipContainer,
+  type TooltipProps,
+} from '@votingworks/election-definition-ui';
 import * as api from '../api.js';
-import { Tooltip, TooltipContainer, type TooltipProps } from '../tooltip.js';
 import type { ElectionIdParams } from '../routes.js';
 
 export interface AudioLinkButtonProps {
