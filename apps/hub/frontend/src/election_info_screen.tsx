@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
+import { Route, Switch, useHistory, useParams } from 'react-router-dom';
+import styled from 'styled-components';
+import { z } from 'zod/v4';
+import { DateWithoutTime, throwIllegalValue } from '@votingworks/basics';
+import type {
+  ElectionInfo,
+  StateFeaturesConfig,
+} from '@votingworks/hub-backend';
 import {
+  type ElectionId,
   ElectionIdSchema,
   ElectionStringKey,
   LanguageCode,
@@ -15,36 +24,53 @@ import {
   P,
   SegmentedButton,
 } from '@votingworks/ui';
-import type { ElectionInfo } from '@votingworks/hub-backend';
-import { Route, Switch, useHistory, useParams } from 'react-router-dom';
-import { z } from 'zod/v4';
-import { DateWithoutTime, throwIllegalValue } from '@votingworks/basics';
-import styled from 'styled-components';
 import {
   FieldName,
   FixedViewport,
-  InputGroup,
-  Row,
   FormBody,
   FormErrorContainer,
   FormFooter,
+  InputGroup,
   InputWithAudio,
+  Row,
 } from '@votingworks/election-definition-ui';
 import {
   deleteElection,
   getBallotsFinalizedAt,
   getBallotTemplate,
-  getStateFeatures,
   getElectionInfo,
+  getStateFeatures,
   updateElectionInfo,
 } from './api.js';
+import { FormFixed } from './form_fixed.js';
 import { ElectionNavScreen, Header } from './nav_screen.js';
-import { type ElectionIdParams, routes } from './routes.js';
+import { routes } from './routes.js';
 import { SealImageInput } from './seal_image_input.js';
 import { useTitle } from './hooks/use_title.js';
 import { SignatureImageInput } from './signature_image_input.js';
-import { FormFixed } from './form_fixed.js';
 import { ElectionInfoAudioPanel } from './election_info_audio_panel.js';
+
+export interface ElectionImageInputProps {
+  value?: string;
+  onChange: (value?: string) => void;
+  disabled?: boolean;
+  required?: boolean;
+}
+
+export interface ElectionInfoAudioRoutes {
+  audioScreenUrl: (stringKey: ElectionStringKey) => string;
+}
+
+export interface ElectionInfoEditorProps {
+  electionId: ElectionId;
+  isLocked?: boolean;
+  SealInput?: (props: ElectionImageInputProps) => JSX.Element;
+  SignatureInput?: (props: ElectionImageInputProps) => JSX.Element;
+  audioRoutes?: ElectionInfoAudioRoutes;
+  onEditingChange?: (isEditing: boolean) => void;
+  footerActions?: React.ReactNode;
+  children?: React.ReactNode;
+}
 
 function hasBlankElectionInfo(electionInfo: ElectionInfo): boolean {
   return !electionInfo.title && !electionInfo.seal;
@@ -57,46 +83,38 @@ const Form = styled(FormFixed)`
   }
 `;
 
+type ElectionInfoFormProps = Omit<
+  ElectionInfoEditorProps,
+  'electionId' | 'children'
+> & {
+  savedElectionInfo: ElectionInfo;
+  features: StateFeaturesConfig;
+};
+
 function ElectionInfoForm({
   savedElectionInfo,
-  ballotsFinalizedAt,
-}: {
-  savedElectionInfo: ElectionInfo;
-  ballotsFinalizedAt: Date | null;
-}): JSX.Element | null {
+  features,
+  isLocked,
+  SealInput,
+  SignatureInput,
+  audioRoutes,
+  onEditingChange,
+  footerActions,
+}: ElectionInfoFormProps): JSX.Element {
   const [isEditing, setIsEditing] = useState(
     // Default to editing for newly created elections
     hasBlankElectionInfo(savedElectionInfo)
   );
   const [electionInfo, setElectionInfo] = useState(savedElectionInfo);
-  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [draftDate, setDraftDate] = useState<string>();
   const updateElectionInfoMutation = updateElectionInfo.useMutation();
-  const deleteElectionMutation = deleteElection.useMutation();
-  const history = useHistory();
-  const getStateFeaturesQuery = getStateFeatures.useQuery(
-    savedElectionInfo.electionId
-  );
-  const ballotTemplateIdQuery = getBallotTemplate.useQuery(
-    savedElectionInfo.electionId
-  );
-
-  const { electionId } = useParams<ElectionIdParams>();
-  const infoRoutes = routes.election(electionId).electionInfo;
-
-  if (!getStateFeaturesQuery.isSuccess || !ballotTemplateIdQuery.isSuccess) {
-    return null;
-  }
-  const features = getStateFeaturesQuery.data;
-  const ballotTemplateId = ballotTemplateIdQuery.data;
-  const showSignatureInput =
-    ballotTemplateId === 'NhBallot' || ballotTemplateId === 'NhStateBallot';
 
   function onSubmit() {
     updateElectionInfoMutation.mutate(electionInfo, {
       onSuccess: (result) => {
         if (result.isOk()) {
           setIsEditing(false);
+          onEditingChange?.(false);
         }
       },
     });
@@ -104,11 +122,9 @@ function ElectionInfoForm({
 
   function onReset() {
     setElectionInfo(savedElectionInfo);
-    setIsEditing((prev) => !prev);
+    setIsEditing(!isEditing);
     updateElectionInfoMutation.reset();
-
-    // Make sure audio panel is closed when editing:
-    history.push(infoRoutes.root.path);
+    onEditingChange?.(!isEditing);
   }
 
   type TextProperties = Exclude<keyof ElectionInfo, 'date' | 'electionId'>;
@@ -132,26 +148,6 @@ function ElectionInfoForm({
           typeof prev[field] === 'string' ? prev[field]?.trim() : prev[field],
       }));
     };
-  }
-
-  function onDeletePress() {
-    setIsConfirmingDelete(true);
-  }
-
-  // @coverage-defer
-  function onCancelDelete() {
-    setIsConfirmingDelete(false);
-  }
-
-  function onConfirmDeletePress() {
-    deleteElectionMutation.mutate(
-      { electionId: electionInfo.electionId },
-      {
-        onSuccess: () => {
-          history.push(routes.root.path);
-        },
-      }
-    );
   }
 
   let errorMessage;
@@ -185,9 +181,9 @@ function ElectionInfoForm({
       <FormBody>
         <InputGroup label="Title">
           <InputWithAudio
-            audioScreenUrl={infoRoutes.audio({
-              stringKey: ElectionStringKey.ELECTION_TITLE,
-            })}
+            audioScreenUrl={audioRoutes?.audioScreenUrl(
+              ElectionStringKey.ELECTION_TITLE
+            )}
             editing={isEditing}
             tooltipPlacement="bottom"
             type="text"
@@ -252,9 +248,9 @@ function ElectionInfoForm({
         />
         <InputGroup label="State">
           <InputWithAudio
-            audioScreenUrl={infoRoutes.audio({
-              stringKey: ElectionStringKey.STATE_NAME,
-            })}
+            audioScreenUrl={audioRoutes?.audioScreenUrl(
+              ElectionStringKey.STATE_NAME
+            )}
             editing={isEditing}
             type="text"
             value={electionInfo.state}
@@ -267,9 +263,9 @@ function ElectionInfoForm({
         </InputGroup>
         <InputGroup label="Jurisdiction">
           <InputWithAudio
-            audioScreenUrl={infoRoutes.audio({
-              stringKey: ElectionStringKey.JURISDICTION_NAME,
-            })}
+            audioScreenUrl={audioRoutes?.audioScreenUrl(
+              ElectionStringKey.JURISDICTION_NAME
+            )}
             editing={isEditing}
             type="text"
             value={electionInfo.jurisdictionName}
@@ -280,25 +276,27 @@ function ElectionInfoForm({
             required
           />
         </InputGroup>
-        <div>
-          <FieldName>Seal</FieldName>
-          <div style={{ display: 'inline-flex' }}>
-            <SealImageInput
-              value={electionInfo.seal}
-              // @coverage-defer
-              onChange={(seal = '') =>
-                setElectionInfo({ ...electionInfo, seal })
-              }
-              disabled={disabled || hasExternalSource}
-              required
-            />
+        {SealInput && (
+          <div>
+            <FieldName>Seal</FieldName>
+            <div style={{ display: 'inline-flex' }}>
+              <SealInput
+                value={electionInfo.seal}
+                // @coverage-defer
+                onChange={(seal = '') =>
+                  setElectionInfo({ ...electionInfo, seal })
+                }
+                disabled={disabled || hasExternalSource}
+                required
+              />
+            </div>
           </div>
-        </div>
-        {showSignatureInput && (
+        )}
+        {SignatureInput && (
           <React.Fragment>
             <div>
               <FieldName>Signature</FieldName>
-              <SignatureImageInput
+              <SignatureInput
                 value={electionInfo.signatureImage ?? ''}
                 // @coverage-defer
                 onChange={(signatureImage = '') =>
@@ -372,47 +370,12 @@ function ElectionInfoForm({
             type="reset"
             variant="primary"
             icon="Edit"
-            disabled={!!ballotsFinalizedAt}
+            disabled={isLocked}
           >
             Edit
           </Button>
         )}
-
-        <Button
-          disabled={deleteElectionMutation.isLoading}
-          icon="Delete"
-          fill="outlined"
-          onPress={onDeletePress}
-          variant="danger"
-        >
-          Delete Election
-        </Button>
-        {electionInfo.electionId && isConfirmingDelete && (
-          <Modal
-            title="Delete Election"
-            onOverlayClick={onCancelDelete}
-            content={
-              <div>
-                <P>
-                  Are you sure you want to delete this election? This action
-                  cannot be undone.
-                </P>
-              </div>
-            }
-            actions={
-              <React.Fragment>
-                <Button
-                  onPress={() => onConfirmDeletePress()}
-                  variant="danger"
-                  autoFocus
-                >
-                  Delete
-                </Button>
-                <Button onPress={onCancelDelete}>Cancel</Button>
-              </React.Fragment>
-            }
-          />
-        )}
+        {footerActions}
       </FormFooter>
     </Form>
   );
@@ -441,41 +404,146 @@ const Viewport = styled(FixedViewport)`
   }
 `;
 
+export function ElectionInfoEditor({
+  electionId,
+  children,
+  ...formProps
+}: ElectionInfoEditorProps): JSX.Element | null {
+  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
+  const getStateFeaturesQuery = getStateFeatures.useQuery(electionId);
+
+  if (!getElectionInfoQuery.isSuccess || !getStateFeaturesQuery.isSuccess) {
+    return null;
+  }
+
+  return (
+    <Viewport>
+      <ElectionInfoForm
+        {...formProps}
+        savedElectionInfo={getElectionInfoQuery.data}
+        features={getStateFeaturesQuery.data}
+      />
+      {children}
+    </Viewport>
+  );
+}
+
+function DeleteElectionButton({
+  electionId,
+}: {
+  electionId: ElectionId;
+}): JSX.Element {
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const deleteElectionMutation = deleteElection.useMutation();
+  const history = useHistory();
+
+  function onDeletePress() {
+    setIsConfirmingDelete(true);
+  }
+
+  // @coverage-defer
+  function onCancelDelete() {
+    setIsConfirmingDelete(false);
+  }
+
+  function onConfirmDeletePress() {
+    deleteElectionMutation.mutate(
+      { electionId },
+      {
+        onSuccess: () => {
+          history.push(routes.root.path);
+        },
+      }
+    );
+  }
+
+  return (
+    <React.Fragment>
+      <Button
+        disabled={deleteElectionMutation.isLoading}
+        icon="Delete"
+        fill="outlined"
+        onPress={onDeletePress}
+        variant="danger"
+      >
+        Delete Election
+      </Button>
+      {isConfirmingDelete && (
+        <Modal
+          title="Delete Election"
+          onOverlayClick={onCancelDelete}
+          content={
+            <div>
+              <P>
+                Are you sure you want to delete this election? This action
+                cannot be undone.
+              </P>
+            </div>
+          }
+          actions={
+            <React.Fragment>
+              <Button
+                onPress={() => onConfirmDeletePress()}
+                variant="danger"
+                autoFocus
+              >
+                Delete
+              </Button>
+              <Button onPress={onCancelDelete}>Cancel</Button>
+            </React.Fragment>
+          }
+        />
+      )}
+    </React.Fragment>
+  );
+}
+
 export function ElectionInfoScreen(): JSX.Element | null {
   const params = useParams<{ electionId: string }>();
   const { electionId } = unsafeParse(
     z.object({ electionId: ElectionIdSchema }),
     params
   );
-  const getElectionInfoQuery = getElectionInfo.useQuery(electionId);
   const getBallotsFinalizedAtQuery = getBallotsFinalizedAt.useQuery(electionId);
+  const ballotTemplateIdQuery = getBallotTemplate.useQuery(electionId);
+  const history = useHistory();
   useTitle(routes.election(electionId).electionInfo.root.title);
+  const infoRoutes = routes.election(electionId).electionInfo;
   const infoParamRoutes = routes.election(':electionId').electionInfo;
 
   if (
-    !getElectionInfoQuery.isSuccess ||
-    !getBallotsFinalizedAtQuery.isSuccess
+    !getBallotsFinalizedAtQuery.isSuccess ||
+    !ballotTemplateIdQuery.isSuccess
   ) {
     return null;
   }
   const ballotsFinalizedAt = getBallotsFinalizedAtQuery.data;
+  const ballotTemplateId = ballotTemplateIdQuery.data;
+  const showSignatureInput =
+    ballotTemplateId === 'NhBallot' || ballotTemplateId === 'NhStateBallot';
 
   return (
     <ElectionNavScreen electionId={electionId}>
       <Header>
         <H1>Election Info</H1>
       </Header>
-      <Viewport>
-        <ElectionInfoForm
-          savedElectionInfo={getElectionInfoQuery.data}
-          ballotsFinalizedAt={ballotsFinalizedAt}
-        />
+      <ElectionInfoEditor
+        electionId={electionId}
+        isLocked={!!ballotsFinalizedAt}
+        SealInput={SealImageInput}
+        SignatureInput={showSignatureInput ? SignatureImageInput : undefined}
+        audioRoutes={{
+          audioScreenUrl: (stringKey) => infoRoutes.audio({ stringKey }),
+        }}
+        onEditingChange={() => history.push(infoRoutes.root.path)}
+        footerActions={<DeleteElectionButton electionId={electionId} />}
+      >
         <Switch>
           <Route path={infoParamRoutes.audio({ stringKey: ':stringKey' })}>
             <ElectionInfoAudioPanel />
           </Route>
         </Switch>
-      </Viewport>
+      </ElectionInfoEditor>
     </ElectionNavScreen>
   );
 }
