@@ -1,9 +1,10 @@
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { DateWithoutTime, ok } from '@votingworks/basics';
 import {
   type ElectionInfoUpdate,
   stateFeatureConfigs,
 } from '@votingworks/election-definition-backend';
+import { describeElectionDefinitionMethods } from '@votingworks/election-definition-backend/test-utils';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import { LogEventId } from '@votingworks/logging';
 import { LanguageCode } from '@votingworks/types';
@@ -40,6 +41,22 @@ afterEach(() => {
   featureFlagMock.resetFeatureFlags();
   vi.unstubAllEnvs();
   vi.useRealTimers();
+});
+
+describe('election definition methods', () => {
+  describeElectionDefinitionMethods(() => {
+    const { apiClient, auth } = buildTestEnvironment();
+    mockSystemAdministratorAuth(auth);
+    return {
+      methods: apiClient,
+      createElection: () => apiClient.createInProgressElection(),
+      expectedStateFeatures: {
+        ...stateFeatureConfigs.DEMO,
+        AUDIO_ENABLED: false,
+        BALLOT_LANGUAGE_CONFIG: false,
+      },
+    };
+  });
 });
 
 test('is disabled when the feature flag is off', async () => {
