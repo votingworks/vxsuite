@@ -55,6 +55,8 @@ import {
   getContests,
   type SheetOf,
   type ElectionId,
+  type ElectionType,
+  LanguageCodeSchema,
   type ElectionRegisteredVoterCounts,
   ElectionRegisteredVoterCountsSchema,
   type UserRole,
@@ -100,6 +102,11 @@ import {
   type ParsedElectionPackage,
 } from '@votingworks/backend';
 import type { BaseLogger } from '@votingworks/logging';
+import type {
+  ElectionInfo,
+  ElectionInfoUpdate,
+} from '@votingworks/election-definition-backend';
+import { z } from 'zod/v4';
 import {
   type CastVoteRecordFileRecord,
   CastVoteRecordFileRecordSchema,
@@ -4527,5 +4534,118 @@ export class Store implements BaseStore {
       `,
       electionId
     );
+  }
+
+  getInProgressElection(): ElectionInfo | undefined {
+    const row = this.client.one(
+      `
+      select
+        id as electionId,
+        type,
+        title,
+        date,
+        state,
+        jurisdiction_name as jurisdictionName,
+        seal,
+        signature_image as signatureImage,
+        signature_caption as signatureCaption,
+        language_codes as languageCodes
+      from design_elections
+    `
+    ) as
+      | {
+          electionId: ElectionId;
+          type: ElectionType;
+          title: string;
+          date: string;
+          state: string;
+          jurisdictionName: string;
+          seal: string;
+          signatureImage: string | null;
+          signatureCaption: string | null;
+          languageCodes: string;
+        }
+      | undefined;
+    if (!row) {
+      return undefined;
+    }
+    return {
+      electionId: row.electionId,
+      type: row.type,
+      title: row.title,
+      date: new DateWithoutTime(row.date),
+      state: row.state,
+      jurisdictionName: row.jurisdictionName,
+      seal: row.seal,
+      signatureImage: row.signatureImage ?? undefined,
+      signatureCaption: row.signatureCaption ?? undefined,
+      languageCodes: unsafeParseJson(
+        row.languageCodes,
+        z.array(LanguageCodeSchema)
+      ),
+    };
+  }
+
+  createInProgressElection(electionInfo: ElectionInfoUpdate): void {
+    this.client.run(
+      `
+      insert into design_elections (
+        id,
+        type,
+        title,
+        date,
+        state,
+        jurisdiction_name,
+        seal,
+        signature_image,
+        signature_caption,
+        language_codes
+      ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `,
+      electionInfo.electionId,
+      electionInfo.type,
+      electionInfo.title,
+      electionInfo.date.toISOString(),
+      electionInfo.state,
+      electionInfo.jurisdictionName,
+      electionInfo.seal,
+      electionInfo.signatureImage ?? null,
+      electionInfo.signatureCaption ?? null,
+      JSON.stringify(electionInfo.languageCodes)
+    );
+  }
+
+  updateInProgressElectionInfo(electionInfo: ElectionInfoUpdate): void {
+    this.client.run(
+      `
+      update design_elections
+      set
+        type = ?,
+        title = ?,
+        date = ?,
+        state = ?,
+        jurisdiction_name = ?,
+        seal = ?,
+        signature_image = ?,
+        signature_caption = ?,
+        language_codes = ?,
+        updated_at = current_timestamp
+      where id = ?
+    `,
+      electionInfo.type,
+      electionInfo.title,
+      electionInfo.date.toISOString(),
+      electionInfo.state,
+      electionInfo.jurisdictionName,
+      electionInfo.seal,
+      electionInfo.signatureImage ?? null,
+      electionInfo.signatureCaption ?? null,
+      JSON.stringify(electionInfo.languageCodes),
+      electionInfo.electionId
+    );
+  }
+
+  deleteInProgressElection(): void {
+    this.client.run('delete from design_elections');
   }
 }
