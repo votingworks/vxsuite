@@ -4,11 +4,7 @@ import {
   makeTemporaryDirectory,
   readElectionGeneralDefinition,
 } from '@votingworks/fixtures';
-import {
-  type BallotStyleGroupId,
-  DEFAULT_SYSTEM_SETTINGS,
-  formatBallotHash,
-} from '@votingworks/types';
+import { type BallotStyleGroupId, formatBallotHash } from '@votingworks/types';
 import { find } from '@votingworks/basics';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import {
@@ -29,16 +25,11 @@ test('uses appropriate headers', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { electionData, ballotHash } = electionDefinition;
-  const electionId = await store.addElection({
-    electionData,
-    ballotHash,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: await writeTempElectionZip({
-      electionDefinition,
-    }),
-    electionPackageHash: 'test-election-package-hash',
+  const { ballotHash } = electionDefinition;
+  const importResult = await store.importElectionPackage({
+    packagePath: await writeTempElectionZip({ electionDefinition }),
   });
+  const { electionId } = importResult.unsafeUnwrap();
   store.setCurrentElectionId(electionId);
 
   // add some mock cast vote records with one vote each
@@ -241,16 +232,10 @@ test('includes rows for empty but known result groups', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { ballotHash, electionData } = electionDefinition;
-  const electionId = await store.addElection({
-    electionData,
-    ballotHash,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: await writeTempElectionZip({
-      electionDefinition,
-    }),
-    electionPackageHash: 'test-election-package-hash',
+  const importResult = await store.importElectionPackage({
+    packagePath: await writeTempElectionZip({ electionDefinition }),
   });
+  const { electionId } = importResult.unsafeUnwrap();
   store.setCurrentElectionId(electionId);
 
   // no CVRs, so all groups should be empty
@@ -271,16 +256,10 @@ test('included contests are specific to each results group', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { ballotHash, electionData } = electionDefinition;
-  const electionId = await store.addElection({
-    electionData,
-    ballotHash,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: await writeTempElectionZip({
-      electionDefinition,
-    }),
-    electionPackageHash: 'test-election-package-hash',
+  const importResult = await store.importElectionPackage({
+    packagePath: await writeTempElectionZip({ electionDefinition }),
   });
+  const { electionId } = importResult.unsafeUnwrap();
   store.setCurrentElectionId(electionId);
 
   const iterable = generateTallyReportCsv({
@@ -315,16 +294,10 @@ test('included contests are restricted by the overall export filter', async () =
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { ballotHash, electionData } = electionDefinition;
-  const electionId = await store.addElection({
-    electionData,
-    ballotHash,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: await writeTempElectionZip({
-      electionDefinition,
-    }),
-    electionPackageHash: 'test-election-package-hash',
+  const importResult = await store.importElectionPackage({
+    packagePath: await writeTempElectionZip({ electionDefinition }),
   });
+  const { electionId } = importResult.unsafeUnwrap();
   store.setCurrentElectionId(electionId);
 
   const iterable = generateTallyReportCsv({
@@ -349,16 +322,10 @@ test('does not include results groups when they are excluded by the filter', asy
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { ballotHash, electionData } = electionDefinition;
-  const electionId = await store.addElection({
-    electionData,
-    ballotHash,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: await writeTempElectionZip({
-      electionDefinition,
-    }),
-    electionPackageHash: 'test-election-package-hash',
+  const importResult = await store.importElectionPackage({
+    packagePath: await writeTempElectionZip({ electionDefinition }),
   });
+  const { electionId } = importResult.unsafeUnwrap();
   store.setCurrentElectionId(electionId);
 
   // grouping on voting method should include both precinct and absentee rows
@@ -399,16 +366,11 @@ test('incorporates manual data', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { ballotHash, election, electionData } = electionDefinition;
-  const electionId = await store.addElection({
-    electionData,
-    ballotHash,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: await writeTempElectionZip({
-      electionDefinition,
-    }),
-    electionPackageHash: 'test-election-package-hash',
+  const { election } = electionDefinition;
+  const importResult = await store.importElectionPackage({
+    packagePath: await writeTempElectionZip({ electionDefinition }),
   });
+  const { electionId } = importResult.unsafeUnwrap();
   store.setCurrentElectionId(electionId);
 
   // add some mock cast vote records with one vote each
@@ -513,16 +475,10 @@ test('includes regulate-fishing row when votes include the third yesno option', 
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { ballotHash, electionData } = electionDefinition;
-  const electionId = await store.addElection({
-    electionData,
-    ballotHash,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: await writeTempElectionZip({
-      electionDefinition,
-    }),
-    electionPackageHash: 'test-election-package-hash',
+  const importResult = await store.importElectionPackage({
+    packagePath: await writeTempElectionZip({ electionDefinition }),
   });
+  const { electionId } = importResult.unsafeUnwrap();
   store.setCurrentElectionId(electionId);
 
   const mockCastVoteRecordFile: MockCastVoteRecordFile = [
@@ -568,16 +524,11 @@ test('includes regulate-fishing in manual results when manual tallies set for th
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { ballotHash, election, electionData } = electionDefinition;
-  const electionId = await store.addElection({
-    electionData,
-    ballotHash,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: await writeTempElectionZip({
-      electionDefinition,
-    }),
-    electionPackageHash: 'test-election-package-hash',
+  const { election } = electionDefinition;
+  const importResult = await store.importElectionPackage({
+    packagePath: await writeTempElectionZip({ electionDefinition }),
   });
+  const { electionId } = importResult.unsafeUnwrap();
   store.setCurrentElectionId(electionId);
 
   store.setManualResults({
@@ -630,16 +581,11 @@ test('separate rows for manual data when grouping by an incompatible dimension',
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { ballotHash, election, electionData } = electionDefinition;
-  const electionId = await store.addElection({
-    electionData,
-    ballotHash,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: await writeTempElectionZip({
-      electionDefinition,
-    }),
-    electionPackageHash: 'test-election-package-hash',
+  const { election } = electionDefinition;
+  const importResult = await store.importElectionPackage({
+    packagePath: await writeTempElectionZip({ electionDefinition }),
   });
+  const { electionId } = importResult.unsafeUnwrap();
   store.setCurrentElectionId(electionId);
 
   // add some mock cast vote records with one vote each
@@ -820,16 +766,10 @@ test('ballots cast rows reflect per-contest ballot counts across ballot styles',
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const { ballotHash, electionData } = electionDefinition;
-  const electionId = await store.addElection({
-    electionData,
-    ballotHash,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: await writeTempElectionZip({
-      electionDefinition,
-    }),
-    electionPackageHash: 'test-election-package-hash',
+  const importResult = await store.importElectionPackage({
+    packagePath: await writeTempElectionZip({ electionDefinition }),
   });
+  const { electionId } = importResult.unsafeUnwrap();
   store.setCurrentElectionId(electionId);
 
   // 3 CVRs on mammal ballot style, 1 CVR on fish ballot style
@@ -887,16 +827,11 @@ test('ballots cast rows reflect per-contest ballot counts across ballot styles',
 test('filter reduced to no values exports a CSV with no rows', async () => {
   const store = Store.memoryStore(makeTemporaryDirectory());
   const electionDefinition = readElectionGeneralDefinition();
-  const { ballotHash, electionData, election } = electionDefinition;
-  const electionId = await store.addElection({
-    electionData,
-    ballotHash,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: await writeTempElectionZip({
-      electionDefinition,
-    }),
-    electionPackageHash: 'test-election-package-hash',
+  const { election } = electionDefinition;
+  const importResult = await store.importElectionPackage({
+    packagePath: await writeTempElectionZip({ electionDefinition }),
   });
+  const { electionId } = importResult.unsafeUnwrap();
   store.setCurrentElectionId(electionId);
 
   addMockCvrFileToStore({

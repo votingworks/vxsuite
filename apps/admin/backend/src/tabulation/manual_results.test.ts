@@ -4,11 +4,7 @@ import {
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import { buildManualResultsFixture } from '@votingworks/utils';
-import {
-  type BallotStyleGroupId,
-  DEFAULT_SYSTEM_SETTINGS,
-  Tabulation,
-} from '@votingworks/types';
+import { type BallotStyleGroupId, Tabulation } from '@votingworks/types';
 import { Store } from '../store.js';
 import {
   extractWriteInSummary,
@@ -58,16 +54,10 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
 
     const electionDefinition =
       electionTwoPartyPrimaryFixtures.readElectionDefinition();
-    const { ballotHash, electionData } = electionDefinition;
-    const electionId = await store.addElection({
-      electionData,
-      ballotHash,
-      systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-      electionPackageSourceFilePath: await writeTempElectionZip({
-        electionDefinition,
-      }),
-      electionPackageHash: 'test-election-package-hash',
+    const importResult = await store.importElectionPackage({
+      packagePath: await writeTempElectionZip({ electionDefinition }),
     });
+    const { electionId } = importResult.unsafeUnwrap();
     store.setCurrentElectionId(electionId);
 
     expect(
@@ -90,16 +80,11 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
     const store = Store.memoryStore(makeTemporaryDirectory());
     const electionDefinition =
       electionTwoPartyPrimaryFixtures.readElectionDefinition();
-    const { ballotHash, election, electionData } = electionDefinition;
-    const electionId = await store.addElection({
-      electionData,
-      ballotHash,
-      systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-      electionPackageSourceFilePath: await writeTempElectionZip({
-        electionDefinition,
-      }),
-      electionPackageHash: 'test-election-package-hash',
+    const { election } = electionDefinition;
+    const importResult = await store.importElectionPackage({
+      packagePath: await writeTempElectionZip({ electionDefinition }),
     });
+    const { electionId } = importResult.unsafeUnwrap();
     store.setCurrentElectionId(electionId);
 
     // since we're only interested in how results are combined, we can use

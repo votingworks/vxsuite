@@ -1,13 +1,12 @@
 import { execFileSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { BaseLogger, LogSource } from '@votingworks/logging';
+import { createElectionPackageZipArchive } from '@votingworks/backend';
 import {
   type BallotStyle,
-  DEFAULT_SYSTEM_SETTINGS,
   type Election,
   type Id,
   type Tabulation,
@@ -123,7 +122,10 @@ async function seed(
   const { election } = electionDefinition;
 
   const electionPackagePath = join(dir, 'election-package.zip');
-  writeFileSync(electionPackagePath, electionDefinition.electionData);
+  writeFileSync(
+    electionPackagePath,
+    await createElectionPackageZipArchive({ electionDefinition })
+  );
 
   const store = Store.fileStore(
     dbPath,
@@ -131,15 +133,10 @@ async function seed(
     join(dir, 'election-packages'),
     new BaseLogger(LogSource.System)
   );
-  const electionId = await store.addElection({
-    electionData: electionDefinition.electionData,
-    ballotHash: electionDefinition.ballotHash,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: electionPackagePath,
-    electionPackageHash: createHash('sha256')
-      .update(electionDefinition.electionData)
-      .digest('hex'),
+  const importResult = await store.importElectionPackage({
+    packagePath: electionPackagePath,
   });
+  const { electionId } = importResult.unsafeUnwrap();
   store.setCurrentElectionId(electionId);
 
   const styles = ['1M', '2F'].map((id) =>

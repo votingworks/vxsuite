@@ -10,7 +10,6 @@ import {
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import { testDetectDevices } from '@votingworks/backend';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   buildManualResultsFixture,
@@ -237,15 +236,10 @@ test('logs when there is stored election results data present at startup', async
   // Add CVRs to db
   const { castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
-  const electionId = await workspace.store.addElection({
-    electionData: electionDefinition.electionData,
-    ballotHash: electionDefinition.ballotHash,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: await writeTempElectionZip({
-      electionDefinition,
-    }),
-    electionPackageHash: 'test-election-package-hash',
+  const packageResult = await workspace.store.importElectionPackage({
+    packagePath: await writeTempElectionZip({ electionDefinition }),
   });
+  const { electionId } = packageResult.unsafeUnwrap();
   workspace.store.setCurrentElectionId(electionId);
   const importResult = await importCastVoteRecords(
     workspace.store,

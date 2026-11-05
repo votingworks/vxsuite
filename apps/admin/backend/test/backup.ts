@@ -1,13 +1,12 @@
 import { vi } from 'vitest';
 import { Buffer } from 'node:buffer';
-import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import {
   electionFamousNames2021Fixtures,
   makeTemporaryDirectory,
 } from '@votingworks/fixtures';
 import { assertDefined } from '@votingworks/basics';
-import { DEFAULT_SYSTEM_SETTINGS, type Id } from '@votingworks/types';
+import type { Id } from '@votingworks/types';
 import { BaseLogger, LogSource, mockLogger } from '@votingworks/logging';
 import { getDiskSpaceSummaries } from '@votingworks/backend';
 import { createWorkspace, type Workspace } from '../src/util/workspace.js';
@@ -48,19 +47,11 @@ export function mockDiskSpace(
 export async function makeConfiguredWorkspace(): Promise<Workspace> {
   const logger = new BaseLogger(LogSource.VxAdminService);
   const workspace = createWorkspace(makeTemporaryDirectory(), logger);
-  const { electionPackage, readElectionDefinition } =
-    electionFamousNames2021Fixtures;
 
-  const { ballotHash, electionData } = readElectionDefinition();
-  const electionId = await workspace.store.addElection({
-    electionData,
-    ballotHash,
-    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-    electionPackageSourceFilePath: electionPackage.asFilePath(),
-    electionPackageHash: createHash('sha256')
-      .update(electionPackage.asBuffer())
-      .digest('hex'),
+  const importResult = await workspace.store.importElectionPackage({
+    packagePath: electionFamousNames2021Fixtures.electionPackage.asFilePath(),
   });
+  const { electionId } = importResult.unsafeUnwrap();
   workspace.store.setCurrentElectionId(electionId);
   return workspace;
 }
