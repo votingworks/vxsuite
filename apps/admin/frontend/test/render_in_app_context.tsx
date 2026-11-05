@@ -49,6 +49,7 @@ export interface RenderInAppContextParams {
   auth?: DippedSmartCardAuth.AuthStatus;
   machineConfig?: MachineConfig;
   hasPrinterAttached?: boolean;
+  isElectionDefinitionEnabled?: boolean;
   apiMock?: ApiMock;
   queryClient?: QueryClient;
 }
@@ -108,6 +109,7 @@ export function renderInAppContext(
       machineId: DEV_MACHINE_ID,
       codeVersion: 'dev',
     },
+    isElectionDefinitionEnabled = false,
     apiMock,
     queryClient,
   }: RenderInAppContextParams = {}
@@ -124,6 +126,7 @@ export function renderInAppContext(
         machineConfig,
         electionPackageHash: 'test-election-package-hash',
         machineMode: 'host',
+        isElectionDefinitionEnabled,
       }}
     >
       <Router history={history}>{component}</Router>

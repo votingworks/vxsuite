@@ -26,6 +26,13 @@ export default defineConfig({
         replacement: join(__dirname, '../../../libs/ui/src/test_utils.ts'),
       },
       {
+        find: '@votingworks/election-definition-ui',
+        replacement: join(
+          __dirname,
+          '../../../libs/election-definition-ui/src/index.ts'
+        ),
+      },
+      {
         find: '@votingworks/ui',
         replacement: join(__dirname, '../../../libs/ui/src/index.ts'),
       },

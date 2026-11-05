@@ -25,10 +25,12 @@ import {
   configure,
   listPotentialElectionPackagesOnUsbDrive,
   rebootInRestoreMode,
+  getCurrentInProgressElection,
 } from '../api.js';
 import { AppContext } from '../contexts/app_context.js';
 import { TIME_FORMAT } from '../config/globals.js';
 import { CreateNewElectionButton } from '../election_definition/create_new_election_button.js';
+import { InProgressElectionCard } from '../election_definition/in_progress_election_card.js';
 
 const Heading = styled(H2)`
   margin-bottom: 1rem;
@@ -64,8 +66,10 @@ type Source = { type: 'menu'; filePath: string } | { type: 'file-picker' };
 
 function SelectElectionPackage({
   potentialElectionPackageFiles,
+  canCreateNewElection,
 }: {
   potentialElectionPackageFiles: FileSystemEntry[];
+  canCreateNewElection: boolean;
 }): JSX.Element {
   const configureMutation = configure.useMutation();
   const [source, setSource] = React.useState<Source>();
@@ -183,7 +187,9 @@ function SelectElectionPackage({
             </Button>
           )}
           <RebootInRestoreModeButton disabled={configureMutation.isLoading} />
-          <CreateNewElectionButton disabled={configureMutation.isLoading} />
+          {canCreateNewElection && (
+            <CreateNewElectionButton disabled={configureMutation.isLoading} />
+          )}
         </div>
       </div>
     </React.Fragment>
@@ -245,13 +251,33 @@ function RebootInRestoreModeButton({
 }
 
 export function UnconfiguredScreen(): JSX.Element {
-  const { usbDriveStatus } = useContext(AppContext);
+  const { usbDriveStatus, isElectionDefinitionEnabled } =
+    useContext(AppContext);
   const listPotentialElectionPackagesOnUsbDriveQuery =
     listPotentialElectionPackagesOnUsbDrive.useQuery(usbDriveStatus);
-  if (!listPotentialElectionPackagesOnUsbDriveQuery.isSuccess) {
+  const getCurrentInProgressElectionQuery =
+    getCurrentInProgressElection.useQuery({
+      enabled: isElectionDefinitionEnabled,
+    });
+  if (
+    !listPotentialElectionPackagesOnUsbDriveQuery.isSuccess ||
+    (isElectionDefinitionEnabled &&
+      !getCurrentInProgressElectionQuery.isSuccess)
+  ) {
     return (
       <NavigationScreen>
         <Loading isFullscreen />
+      </NavigationScreen>
+    );
+  }
+
+  const currentElectionDefinition = isElectionDefinitionEnabled
+    ? getCurrentInProgressElectionQuery.data
+    : null;
+  if (currentElectionDefinition) {
+    return (
+      <NavigationScreen title="Election">
+        <InProgressElectionCard electionInfo={currentElectionDefinition} />
       </NavigationScreen>
     );
   }
@@ -276,12 +302,13 @@ export function UnconfiguredScreen(): JSX.Element {
             }}
           >
             <RebootInRestoreModeButton />
-            <CreateNewElectionButton />
+            {isElectionDefinitionEnabled && <CreateNewElectionButton />}
           </div>
         </FullScreenMessage>
       ) : (
         <SelectElectionPackage
           potentialElectionPackageFiles={potentialElectionPackagesResult.ok()}
+          canCreateNewElection={isElectionDefinitionEnabled}
         />
       )}
     </NavigationScreen>

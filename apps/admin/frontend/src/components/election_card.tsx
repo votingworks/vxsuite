@@ -38,7 +38,7 @@ export function ElectionCard({
       <div>
         <H2 as="h3">{title}</H2>
         <P>
-          {jurisdictionName}, {state}
+          {[jurisdictionName, state].filter(Boolean).join(', ')}
           <br />
           {format.localeLongDate(date.toMidnightDatetimeWithSystemTimezone())}
         </P>

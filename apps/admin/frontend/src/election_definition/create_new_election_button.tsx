@@ -1,9 +1,7 @@
-import { LinkButton } from '@votingworks/ui';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
+import { useHistory } from 'react-router-dom';
+import { Button } from '@votingworks/ui';
 import { routerPaths } from '../router_paths.js';
+import { createInProgressElection } from '../api.js';
 
 interface CreateNewElectionButtonProps {
   readonly disabled?: boolean;
@@ -11,18 +9,22 @@ interface CreateNewElectionButtonProps {
 
 export function CreateNewElectionButton({
   disabled,
-}: CreateNewElectionButtonProps): JSX.Element | null {
-  if (
-    !isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.ENABLE_ADMIN_ELECTION_DESIGN
-    )
-  ) {
-    return null;
-  }
+}: CreateNewElectionButtonProps): JSX.Element {
+  const history = useHistory();
+  const createInProgressElectionMutation =
+    createInProgressElection.useMutation();
 
   return (
-    <LinkButton to={routerPaths.electionDefinition} disabled={disabled}>
+    <Button
+      disabled={disabled || createInProgressElectionMutation.isLoading}
+      onPress={() =>
+        createInProgressElectionMutation.mutate(undefined, {
+          onSuccess: (electionId) =>
+            history.push(routerPaths.electionDefinitionInfo(electionId)),
+        })
+      }
+    >
       Create New Election
-    </LinkButton>
+    </Button>
   );
 }
