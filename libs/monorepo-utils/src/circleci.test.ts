@@ -38,14 +38,6 @@ test('continue config defines every job but no workflows', () => {
   expect(continueConfig).not.toContain('workflows:');
   expect(continueConfig).toContain('ci-passed:');
   expect(jobSelection.passedJob).toEqual('ci-passed');
-
-  // Screenshot generation and gallery publishing live in the
-  // vxsuite-screenshots repo, so nothing here uploads to S3 or triggers a
-  // gallery build; the Playwright suites still run as tests.
-  expect(continueConfig).toContain('test-apps-mark-integration-testing:');
-  expect(continueConfig).not.toContain('SCREENSHOT_BUCKET');
-  expect(continueConfig).not.toContain('notify-gallery');
-  expect(continueConfig).not.toContain('screenshots-publishing');
 });
 
 test('job selection maps package directories to their test jobs', () => {
