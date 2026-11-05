@@ -21,6 +21,7 @@ export interface UiStringsAudioContextInterface {
   increasePlaybackRate: () => void;
   isEnabled: boolean;
   isPaused: boolean;
+  isPlaybackActive: boolean;
   output?: AudioNode;
   playbackRate: PlaybackRate;
   reset: () => void;
@@ -125,8 +126,10 @@ export function UiStringsAudioContextProvider(
     [headphonesPluggedIn]
   );
 
+  const isPlaybackActive = isEnabled;
+
   React.useEffect(() => {
-    if (isEnabled) {
+    if (isPlaybackActive) {
       setIsPaused(false);
     } else {
       // Pausing here isn't strictly necessary, since we're disconnecting the
@@ -135,7 +138,7 @@ export function UiStringsAudioContextProvider(
       setIsPaused(true);
       webAudioContextRef.current?.destination.disconnect();
     }
-  }, [isEnabled]);
+  }, [isPlaybackActive]);
 
   React.useEffect(() => {
     if (!webAudioContextRef.current) {
@@ -177,6 +180,7 @@ export function UiStringsAudioContextProvider(
         increasePlaybackRate: controlsEnabled ? increasePlaybackRate : noOp,
         isEnabled,
         isPaused,
+        isPlaybackActive,
         output: gainNodeRef.current,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         playbackRate: PLAYBACK_RATES[playbackRateIdx]!,
