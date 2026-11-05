@@ -25,6 +25,7 @@ use super::protocol::packets::{self, Incoming, IncomingType};
 pub type OutgoingCommand = (packets::Outgoing, tokio::sync::oneshot::Sender<()>);
 
 pub(crate) trait BulkIn: Send + 'static {
+    fn allocate(&self, len: usize) -> Buffer;
     fn submit(&mut self, buf: Buffer);
     fn next_complete(&mut self) -> impl Future<Output = Completion> + Send + '_;
 }
@@ -44,6 +45,10 @@ pub(crate) trait UsbInterface {
 }
 
 impl BulkIn for nusb::Endpoint<Bulk, In> {
+    fn allocate(&self, len: usize) -> Buffer {
+        nusb::Endpoint::allocate(self, len)
+    }
+
     fn submit(&mut self, buf: Buffer) {
         nusb::Endpoint::submit(self, buf);
     }
@@ -272,14 +277,17 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &U, default_timeout: Duration) -
     let task_handle = tokio::spawn(async move {
         tracing::debug!("Scanner thread started; submitting initial IN endpoint transfers");
 
-        in_primary_queue.submit(Buffer::new(DEFAULT_BUFFER_SIZE));
+        in_primary_queue.submit(in_primary_queue.allocate(DEFAULT_BUFFER_SIZE));
 
         // Submit two initial transfers to the image data transfer queue so
         // that we always have one ready to go while we process the other.
         // We want image data transfer to be as fast as possible so the
         // scanner doesn't overflow its internal buffer.
-        in_image_data_queue.submit(Buffer::new(IMAGE_BUFFER_SIZE));
-        in_image_data_queue.submit(Buffer::new(IMAGE_BUFFER_SIZE));
+        for _ in 0..2 {
+            let buffer = in_image_data_queue.allocate(IMAGE_BUFFER_SIZE);
+            tracing::debug!("Image data buffer zero-copy: {}", buffer.is_zero_copy());
+            in_image_data_queue.submit(buffer);
+        }
 
         loop {
             tokio::select! {
@@ -301,7 +309,7 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &U, default_timeout: Duration) -
                         let _ = events_tx.send(Err(err));
                         break;
                     }
-                    let data = completion.buffer.into_vec();
+                    let mut data = completion.buffer;
                     tracing::debug!("Received image data: {len} bytes", len = data.len());
                     #[cfg(feature = "recording")]
                     if recording::is_enabled() {
@@ -311,14 +319,15 @@ fn poll_scanner<U: UsbInterface>(usb_interface: &U, default_timeout: Duration) -
                         ));
                     }
                     if events_tx
-                        .send(Ok(packets::Incoming::ImageData(packets::ImageData(data))))
+                        .send(Ok(packets::Incoming::ImageData(packets::ImageData(data.to_vec()))))
                         .is_err()
                     {
                         tracing::debug!("client dropped; stopping USB task");
                         break;
                     }
 
-                    in_image_data_queue.submit(Buffer::new(IMAGE_BUFFER_SIZE));
+                    data.clear();
+                    in_image_data_queue.submit(data);
                 }
 
                 completion = in_primary_queue.next_complete() => {
@@ -505,6 +514,10 @@ mod tests {
     }
 
     impl BulkIn for MockBulkIn {
+        fn allocate(&self, len: usize) -> Buffer {
+            Buffer::new(len)
+        }
+
         fn submit(&mut self, buf: Buffer) {
             self.submissions.lock().unwrap().push(buf);
         }
