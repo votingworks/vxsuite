@@ -10,7 +10,7 @@ path = "src/controllerd.rs"
 [dependencies]
 clap = { workspace = true }
 color-eyre = { workspace = true }
-crc16 = { workspace = true }
+crc = { workspace = true }
 ctrlc = { workspace = true }
 daemon-utils = { workspace = true }
 num_enum = { workspace = true }

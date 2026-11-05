@@ -1,6 +1,9 @@
+use crc::{CRC_16_XMODEM, Crc};
 use uinput::event::keyboard;
 
 use crate::device::{Action, Button};
+
+const CRC: Crc<u16> = Crc::<u16>::new(&CRC_16_XMODEM);
 
 #[derive(Debug, thiserror::Error)]
 pub enum CommandError {
@@ -45,7 +48,7 @@ impl From<EchoCommand<'_>> for Vec<u8> {
         bytes.push(CommandId::Echo as u8);
         bytes.extend_from_slice(&payload_length.to_be_bytes());
         bytes.extend(command.payload);
-        bytes.extend_from_slice(&crc16::State::<crc16::XMODEM>::calculate(&bytes).to_be_bytes());
+        bytes.extend_from_slice(&CRC.checksum(&bytes).to_be_bytes());
         bytes
     }
 }
@@ -82,9 +85,7 @@ impl<'a> TryFrom<&'a [u8]> for EchoCommand<'a> {
         validate_payload_length(payload_length, bytes, NON_PAYLOAD_BYTES)?;
 
         let expected_crc = u16::from_be_bytes([bytes[5], bytes[6]]);
-        let actual_crc = crc16::State::<crc16::XMODEM>::calculate(
-            &bytes[..PAYLOAD_OFFSET + payload_length as usize],
-        );
+        let actual_crc = CRC.checksum(&bytes[..PAYLOAD_OFFSET + payload_length as usize]);
 
         if expected_crc != actual_crc {
             return Err(CommandError::InvalidCrc {
@@ -112,7 +113,7 @@ impl From<ButtonStatusCommand> for Vec<u8> {
         bytes.extend_from_slice(&2u16.to_be_bytes());
         bytes.push(command.button as u8);
         bytes.push(command.action as u8);
-        bytes.extend_from_slice(&crc16::State::<crc16::XMODEM>::calculate(&bytes).to_be_bytes());
+        bytes.extend_from_slice(&CRC.checksum(&bytes).to_be_bytes());
         bytes
     }
 }
@@ -143,9 +144,7 @@ impl TryFrom<&[u8]> for ButtonStatusCommand {
         validate_payload_length(payload_length, bytes, NON_PAYLOAD_BYTES)?;
 
         let expected_crc = u16::from_be_bytes([bytes[5], bytes[6]]);
-        let actual_crc = crc16::State::<crc16::XMODEM>::calculate(
-            &bytes[..PAYLOAD_OFFSET + payload_length as usize],
-        );
+        let actual_crc = CRC.checksum(&bytes[..PAYLOAD_OFFSET + payload_length as usize]);
 
         if expected_crc != actual_crc {
             return Err(CommandError::InvalidCrc {
