@@ -29,6 +29,7 @@ import {
   CVR,
   type ElectionDefinition,
   type ExportCastVoteRecordsToUsbDriveError,
+  type GetCandidateOrderingsFn,
   type Id,
   mapSheet,
   type MarkThresholds,
@@ -64,13 +65,21 @@ import {
   updateCreationTimestampOfDirectoryAndChildrenFiles,
 } from './file_system_utils.js';
 import { readCastVoteRecordExportMetadata } from './import.js';
+import type { CandidateOrderingsStore } from '../ballot_meta/index.js';
 import type { ElectionRecord } from '../election_package/store.js';
+
+/** {@link CandidateOrderingsStore} subset */
+export type CvrCandidateOrderingsStore = Pick<
+  CandidateOrderingsStore,
+  'getCandidateOrderings'
+>;
 
 /**
  * Methods shared by both {@link CentralScannerStore} and {@link PrecinctScannerStore}
  */
 export interface ScannerStoreBase {
   clearCastVoteRecordHashes(): void;
+  getCandidateOrderingsStore(): CvrCandidateOrderingsStore;
   getBatches(): BatchInfo[];
   getCastVoteRecordRootHash(): string;
   getElectionRecord(): ElectionRecord | undefined;
@@ -118,6 +127,7 @@ export type ScannerStore = CentralScannerStore | PrecinctScannerStore;
 export interface ScannerStateUnchangedByExport {
   batches: BatchInfo[];
   electionDefinition: ElectionDefinition;
+  getCandidateOrderings: GetCandidateOrderingsFn;
   systemSettings: SystemSettings;
   inTestMode: boolean;
   markThresholds: MarkThresholds;
@@ -336,6 +346,7 @@ async function buildCastVoteRecord(
       castVoteRecordId,
       electionDefinition,
       electionId,
+      getCandidateOrderings: scannerState.getCandidateOrderings,
       images,
       interpretation,
       scannerId,
@@ -353,6 +364,7 @@ async function buildCastVoteRecord(
     markThresholds,
     electionDefinition,
     electionId,
+    getCandidateOrderings: scannerState.getCandidateOrderings,
     images,
     indexInBatch,
     interpretations: [frontInterpretation, backInterpretation],
@@ -696,6 +708,8 @@ export async function exportCastVoteRecordsToUsbDrive(
         scannerStore.scannerType === 'precinct'
           ? scannerStore.getPollsState()
           : undefined,
+      getCandidateOrderings: (bs) =>
+        scannerStore.getCandidateOrderingsStore().getCandidateOrderings(bs),
     },
     scannerStore,
     usbMountPoint,

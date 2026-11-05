@@ -15,6 +15,7 @@ import {
   CVR,
   type ElectionDefinition,
   getBallotStyle,
+  type GetCandidateOrderingsFn,
   type InterpretedBmdPage,
   type InterpretedHmpbPage,
   MarkStatus,
@@ -552,6 +553,7 @@ type BuildCastVoteRecordParams = {
   batchId: string;
   indexInBatch?: number;
   ballotAuditId?: string;
+  getCandidateOrderings: GetCandidateOrderingsFn;
 } & (
   | {
       ballotMarkingMode: 'machine';
@@ -577,6 +579,7 @@ export function buildCastVoteRecord({
   batchId,
   indexInBatch,
   ballotAuditId,
+  getCandidateOrderings,
   ...rest
 }: BuildCastVoteRecordParams): CVR.CVR {
   const { election } = electionDefinition;
@@ -590,13 +593,12 @@ export function buildCastVoteRecord({
     `ballot style ${ballotMetadata.ballotStyleId} not found`
   );
   const ballotParty = ballotStyle.partyId;
-  const candidateOrderings = ballotStyle.orderedCandidatesByContest;
+  const candidateOrderings = getCandidateOrderings(ballotStyle);
 
   const cvrMetadata: Omit<CVR.CVR, 'CVRSnapshot' | 'CurrentSnapshotId'> = {
     '@type': 'CVR.CVR',
     BallotStyleId: ballotMetadata.ballotStyleId,
     BallotStyleUnitId: ballotMetadata.precinctId, // VVSG 2.0 1.1.5-G.3
-    // @coverage-defer
     PartyIds: ballotParty ? [ballotParty] : undefined, // VVSG 2.0 1.1.5-E.4
     CreatingDeviceId: scannerId,
     ElectionId: electionId,
