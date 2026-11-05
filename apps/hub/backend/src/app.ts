@@ -80,6 +80,10 @@ import {
   decryptAes256,
   decodeQuickResultsMessage,
 } from '@votingworks/auth';
+import {
+  getStateFeaturesConfig,
+  type StateFeaturesConfig,
+} from '@votingworks/election-definition-backend';
 import type {
   MainExportTaskMetadata,
   DuplicateContestError,
@@ -128,12 +132,7 @@ import {
   splitCandidateName,
   userCanAccessJurisdiction,
 } from './utils.js';
-import {
-  type StateFeaturesConfig,
-  getStateFeaturesConfig,
-  getUserFeaturesConfig,
-  type UserFeaturesConfig,
-} from './features.js';
+import { getUserFeaturesConfig, type UserFeaturesConfig } from './features.js';
 import { QaConfig } from './qa_config.js';
 import { rootDebug } from './debug.js';
 import * as ttsStrings from './tts_strings.js';

@@ -67,6 +67,7 @@ import { join } from 'node:path';
 import { LogEventId } from '@votingworks/logging';
 import { readdir, readFile } from 'node:fs/promises';
 import { createSummaryBallotTestDeck } from '@votingworks/test-decks';
+import { stateFeatureConfigs } from '@votingworks/election-definition-backend';
 import {
   type ApiClient,
   exportElectionPackage,
@@ -83,7 +84,7 @@ import type {
   ElectionStatus,
 } from './types.js';
 import type { DuplicateDistrictError, DuplicatePartyError } from './store.js';
-import { stateFeatureConfigs, userFeatureConfigs } from './features.js';
+import { userFeatureConfigs } from './features.js';
 import { buildApi } from './app.js';
 import {
   organizations,

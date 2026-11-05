@@ -28,6 +28,11 @@
     "test:run:self": "vitest run --passWithNoTests",
     "type-check": "tsc --build"
   },
+  "dependencies": {
+    "@votingworks/basics": "workspace:*",
+    "@votingworks/types": "workspace:*",
+    "zod": "4.6.6"
+  },
   "devDependencies": {
     "@types/node": "24.19.2",
     "@vitest/coverage-istanbul": "5.0.2",

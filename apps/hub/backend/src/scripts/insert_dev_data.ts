@@ -4,9 +4,10 @@ import { assertDefined } from '@votingworks/basics';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 
 import { LATEST_SOFTWARE_VERSION } from '@votingworks/types';
+import { StateCodes } from '@votingworks/election-definition-backend';
 import { DEV_USER_ID } from '../auth0_client.js';
 import { NODE_ENV, votingWorksOrganizationId, WORKSPACE } from '../globals.js';
-import { type Organization, StateCodes } from '../types.js';
+import type { Organization } from '../types.js';
 import { createWorkspace } from '../workspace.js';
 
 /**

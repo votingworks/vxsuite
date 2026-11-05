@@ -72,6 +72,10 @@ import { randomUUID as uuid } from 'node:crypto';
 import type { BaseLogger } from '@votingworks/logging';
 import { type BallotTemplateId, generateBallotStyles } from '@votingworks/hmpb';
 import pg, { type DatabaseError } from 'pg';
+import {
+  getStateFeaturesConfig,
+  type StateCode,
+} from '@votingworks/election-definition-backend';
 import type {
   ExternalElectionSource,
   ElectionListing,
@@ -80,7 +84,6 @@ import type {
   Jurisdiction,
   Organization,
   QuickReportedPollStatus,
-  StateCode,
   UpdateQaRunStatusParams,
   User,
   UserType,
@@ -90,7 +93,6 @@ import type {
 import { Db } from './db/db.js';
 import type { Bindable, Client } from './db/client.js';
 import { generateId } from './utils.js';
-import { getStateFeaturesConfig } from './features.js';
 import { MAX_LIVE_REPORT_ACTIVITY_ITEMS } from './globals.js';
 import { CandidateOrderingsMap } from './candidate_orderings.js';
 

@@ -14,6 +14,7 @@ import {
   type Tabulation,
 } from '@votingworks/types';
 import type { DateWithoutTime } from '@votingworks/basics';
+import type { StateCode } from '@votingworks/election-definition-backend';
 import { z } from 'zod/v4';
 import { baseUrl } from './globals.js';
 
