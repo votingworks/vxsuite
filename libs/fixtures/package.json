@@ -41,8 +41,7 @@
   "dependencies": {
     "@votingworks/types": "workspace:*",
     "buffer": "^6.0.3",
-    "canvas": "3.2.3",
-    "csv-writer": "^1.6.0"
+    "canvas": "3.2.3"
   },
   "devDependencies": {
     "@types/node": "24.19.2",

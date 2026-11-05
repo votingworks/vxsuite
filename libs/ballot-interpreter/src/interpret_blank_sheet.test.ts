@@ -37,6 +37,7 @@ test('blank sheet of paper', async () => {
       adjudicationReasons: [],
       dbPath: await makeInterpreterDb(electionDefinition),
     },
+    (bs) => bs.orderedCandidatesByContest,
     sheet
   );
 

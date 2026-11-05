@@ -181,7 +181,10 @@ pub(crate) fn crop_to_image(
     height: u32,
 ) -> GrayImage {
     assert!(
-        x + width <= image.width() && y + height <= image.height(),
+        x.checked_add(width)
+            .is_some_and(|right| right <= image.width())
+            && y.checked_add(height)
+                .is_some_and(|bottom| bottom <= image.height()),
         "crop region must be within the image bounds"
     );
     let src_stride = image.width() as usize;
@@ -951,6 +954,13 @@ mod test {
                 }
             }
         }
+    }
+
+    #[test]
+    #[should_panic(expected = "crop region must be within the image bounds")]
+    fn crop_to_image_rejects_region_whose_bottom_overflows() {
+        let image = GrayImage::new(904, 210);
+        crop_to_image(&image, 0, 210u32.wrapping_sub(226), 226, 226);
     }
 
     proptest::proptest! {

@@ -8,20 +8,15 @@ import {
   mockLogger,
 } from '@votingworks/logging';
 import type { Server } from 'node:http';
+import type { AddressInfo } from 'node:net';
+import { once } from 'node:events';
 import * as grout from '@votingworks/grout';
 import {
   type DippedSmartCardAuthApi,
   buildMockDippedSmartCardAuth,
 } from '@votingworks/auth';
 import { dirSync } from 'tmp';
-import getPort from 'get-port';
 import { type MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
-import { importElectionPackageForTest } from '@votingworks/backend/test-utils';
-import {
-  type ElectionDefinition,
-  type SystemSettings,
-  TEST_JURISDICTION,
-} from '@votingworks/types';
 import { type Workspace, createWorkspace } from '../../src/util/workspace.js';
 import { type MockScanner, makeMockScanner } from '../util/mocks.js';
 import {
@@ -59,6 +54,14 @@ export interface TestAppContext {
   store: Store;
 }
 
+/** Resolves to the port `server` is listening on. */
+export async function getListeningPort(server: Server): Promise<number> {
+  if (!server.listening) {
+    await once(server, 'listening');
+  }
+  return (server.address() as AddressInfo).port;
+}
+
 export function testWithApp(
   name: string,
   fn: (ctx: TestAppContext) => Promise<void>
@@ -69,7 +72,6 @@ export function testWithApp(
 export async function withApp(
   fn: (ctx: TestAppContext) => Promise<void>
 ): Promise<void> {
-  const port = await getPort();
   const auth = buildMockDippedSmartCardAuth(vi.fn);
   const workspace = createWorkspace(
     dirSync().name,
@@ -92,15 +94,15 @@ export async function withApp(
     workspace,
     logger,
   });
-  const baseUrl = `http://localhost:${port}/api`;
-  const apiClient = grout.createClient({
-    baseUrl,
-  });
   const server = start({
     app,
     logger,
     workspace,
-    port,
+    port: 0,
+  });
+  const port = await getListeningPort(server);
+  const apiClient = grout.createClient<Api>({
+    baseUrl: `http://localhost:${port}/api`,
   });
 
   try {
@@ -140,37 +142,4 @@ export function waitForStatus<State extends ScanStatus['state']>(
   );
 }
 
-/**
- * Configures `store` from a package built from `electionPackage`, the way the
- * app does, and starts the election session.
- */
-export async function configureStore(
-  store: Store,
-  {
-    electionDefinition,
-    systemSettings,
-    jurisdiction = TEST_JURISDICTION,
-    electionPackageHash = 'test-election-package-hash',
-    pollingPlaceId,
-  }: {
-    electionDefinition: ElectionDefinition;
-    systemSettings?: SystemSettings;
-    jurisdiction?: string;
-    electionPackageHash?: string;
-    pollingPlaceId?: string;
-  }
-): Promise<void> {
-  // Importing streams the package zip, which stalls under fake timers.
-  const fakeTimers = vi.isFakeTimers();
-  if (fakeTimers) vi.useRealTimers();
-  await importElectionPackageForTest(
-    store.getElectionPackageStore(),
-    { electionDefinition, systemSettings },
-    { jurisdiction, electionPackageHash, uiStrings: false }
-  );
-  if (fakeTimers) vi.useFakeTimers();
-  store.startElectionSession();
-  if (pollingPlaceId) {
-    store.setPollingPlaceId(pollingPlaceId);
-  }
-}
+export { configureStoreForTest as configureStore } from '@votingworks/backend/vitest-utils';

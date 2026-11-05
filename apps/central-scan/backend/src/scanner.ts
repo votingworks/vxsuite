@@ -216,10 +216,11 @@ function buildMachine({
           maxCumulativeStreakWidth,
           retryStreakWidthThreshold,
           ballotImageBitDepth,
-          dbPath: store.getBallotMetaStore().hasPositions()
+          dbPath: store.getBallotPositionsStore().hasPositions()
             ? store.getElectionPackageStore().getDbPath()
             : undefined,
         },
+        (bs) => store.getCandidateOrderingsStore().getCandidateOrderings(bs),
         [frontImageData.unsafeUnwrap(), backImageData.unsafeUnwrap()],
         sheetId,
         workspace.batchImagesPath(batchId)

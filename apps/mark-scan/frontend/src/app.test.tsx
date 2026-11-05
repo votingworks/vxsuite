@@ -2,7 +2,6 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import React from 'react';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 
-import fetchMock from 'fetch-mock';
 import { readElectionGeneralDefinition } from '@votingworks/fixtures';
 import {
   useBallotStyleManager,
@@ -10,7 +9,7 @@ import {
 } from '@votingworks/mark-flow-ui';
 import {
   anyPollingPlace,
-  type BallotStyleId,
+  type BallotStyleGroupId,
   type CandidateOrderings,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
@@ -60,13 +59,6 @@ afterEach(() => {
 });
 
 test('will throw an error when using default api', async () => {
-  fetchMock.get('/api', {
-    body: {
-      machineId: '0002',
-      codeVersion: '3.14',
-    },
-  });
-
   await suppressingConsoleOutput(async () => {
     render(<App />);
     await screen.findByText('Something went wrong');
@@ -183,13 +175,13 @@ test('sets/updates ballot style candidate orderings in BallotContext', async () 
     return <div data-testid={`MockBallot-${ctx.ballotStyleId}`} />;
   });
 
-  const mockOrderings: Record<BallotStyleId, CandidateOrderings> = {
-    [bs1.id]: { contest1: [{ id: 'candidate2' }, { id: 'candidate1' }] },
-    [bs2.id]: { contest1: [{ id: 'candidate1' }, { id: 'candidate2' }] },
+  const mockOrderings: Record<BallotStyleGroupId, CandidateOrderings> = {
+    [bs1.groupId]: { contest1: [{ id: 'candidate2' }, { id: 'candidate1' }] },
+    [bs2.groupId]: { contest1: [{ id: 'candidate1' }, { id: 'candidate2' }] },
   };
 
   apiMock.mockApiClient.getCandidateOrderings.mockImplementation((p) =>
-    Promise.resolve(mockOrderings[p.ballotStyleId] ?? null)
+    Promise.resolve(mockOrderings[p.ballotStyleGroupId] ?? null)
   );
 
   async function selectBallotStyle(ballotStyleId: string) {
@@ -202,11 +194,11 @@ test('sets/updates ballot style candidate orderings in BallotContext', async () 
   }
 
   await selectBallotStyle(bs1.id);
-  expect(lastOrderings).toEqual(mockOrderings[bs1.id]!);
+  expect(lastOrderings).toEqual(mockOrderings[bs1.groupId]!);
 
   await selectBallotStyle(bs2.id);
-  expect(lastOrderings).toEqual(mockOrderings[bs2.id]!);
+  expect(lastOrderings).toEqual(mockOrderings[bs2.groupId]!);
 
   await selectBallotStyle(bs1.id);
-  expect(lastOrderings).toEqual(mockOrderings[bs1.id]!);
+  expect(lastOrderings).toEqual(mockOrderings[bs1.groupId]!);
 });

@@ -167,9 +167,12 @@ export function checkCvrImportAllowed(
 
 function checkScannerCompatibility(
   store: Store,
-  input: { codeVersion: string; ballotHash: string }
+  input: { machineId: string; codeVersion: string; ballotHash: string }
 ): Result<{ electionId: string }, StartCvrTransferError> {
   const machineConfig = getMachineConfig();
+  if (input.machineId === machineConfig.machineId) {
+    return err({ type: 'machine-id-conflict' });
+  }
   if (input.codeVersion !== machineConfig.codeVersion) {
     return err({ type: 'code-version-mismatch' });
   }

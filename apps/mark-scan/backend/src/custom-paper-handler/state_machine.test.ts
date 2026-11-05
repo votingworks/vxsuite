@@ -44,7 +44,6 @@ import {
   type PageInterpretation,
   type PageInterpretationType,
   type SheetOf,
-  TEST_JURISDICTION,
   safeParseSystemSettings,
 } from '@votingworks/types';
 import {
@@ -99,9 +98,13 @@ import {
   BLANK_PAGE_MOCK,
 } from '../../test/ballot_helpers.js';
 import type { BmdModelNumber } from '../types.js';
+import { configureStore } from '../../test/store_helpers.js';
 
 const electionGeneralDefinition = readElectionGeneralDefinition();
 const { election } = electionGeneralDefinition;
+const parsedSystemSettings = safeParseSystemSettings(
+  systemSettings.asText()
+).unsafeUnwrap();
 
 const [pollingPlace] = assertDefined(election.pollingPlaces);
 const precinctId = electionGeneralDefinition.election.precincts[0]!.id;
@@ -230,16 +233,11 @@ beforeEach(async () => {
     makeTemporaryDirectory(),
     mockBaseLogger({ fn: vi.fn })
   );
-  workspace.store.setElectionAndJurisdiction({
-    electionData: electionGeneralDefinition.electionData,
-    jurisdiction: TEST_JURISDICTION,
-    electionPackageHash: 'test-election-package-hash',
-    ballotHash: electionGeneralDefinition.ballotHash,
+  await configureStore(workspace.store, {
+    electionDefinition: electionGeneralDefinition,
+    systemSettings: parsedSystemSettings,
+    pollingPlaceId: pollingPlace!.id,
   });
-  workspace.store.setPollingPlaceId(pollingPlace!.id);
-  workspace.store.setSystemSettings(
-    safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
-  );
   driver = new MockPaperHandlerDriver();
   clock = new SimulatedClock();
 
@@ -267,6 +265,7 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await machine.cleanUp();
+  workspace[Symbol.dispose]();
   vi.resetAllMocks();
   vi.unstubAllEnvs();
 });
@@ -615,15 +614,12 @@ test('elections with grid layouts still try to interpret BMD ballots', async () 
   const electionDefinition =
     electionGridLayoutNewHampshireHudsonFixtures.readElectionDefinition();
 
-  workspace.store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
-    jurisdiction: TEST_JURISDICTION,
-    electionPackageHash: 'test-election-package-hash',
-    ballotHash: electionDefinition.ballotHash,
+  await configureStore(workspace.store, {
+    electionDefinition,
+    systemSettings: parsedSystemSettings,
+    pollingPlaceId: assertDefined(electionDefinition.election.pollingPlaces)[0]!
+      .id,
   });
-  workspace.store.setPollingPlaceId(
-    assertDefined(electionDefinition.election.pollingPlaces)[0]!.id
-  );
 
   await executePrintBallotAndAssert(
     ballotPdfData,

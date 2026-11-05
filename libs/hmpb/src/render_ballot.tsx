@@ -41,6 +41,7 @@ import {
   type OptionalCandidateOrderings,
   type CandidateId,
   type Candidate,
+  type BallotStyleGroupId,
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
@@ -680,11 +681,19 @@ export async function createElectionDefinition<P extends BaseBallotProps>(p: {
   }
 
   function* candidateOrderingLines() {
+    const seenGroupIds = new Set<BallotStyleGroupId>();
+
     for (const b of p.baseElection.ballotStyles) {
+      if (seenGroupIds.has(b.groupId)) continue;
+      seenGroupIds.add(b.groupId);
+
       const orderings = p.getCandidateOrderings(b);
       if (!orderings) continue;
 
-      const data: BallotCandidateOrderings = { ballotStyleId: b.id, orderings };
+      const data: BallotCandidateOrderings = {
+        ballotStyleGroupId: b.groupId,
+        orderings,
+      };
       yield `${JSON.stringify(data)}\n`;
     }
   }

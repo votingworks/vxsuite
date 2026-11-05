@@ -231,7 +231,6 @@ function buildApi({
         filePath,
         jurisdiction: authStatus.user.jurisdiction,
         logger,
-        uiStrings: false,
       });
 
       store.withTransaction(() => {

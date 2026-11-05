@@ -82,3 +82,15 @@ test('shows incompatible host version warning', async () => {
   });
   await screen.findByText(/running a different software version/);
 });
+
+test('shows machine ID conflict warning', async () => {
+  apiMock.expectGetNetworkConnectionStatus('online-machine-id-conflict');
+  renderInClientContext(<ClientDiagnosticsScreen />, {
+    auth: sysAdminAuth,
+    apiMock,
+  });
+  await screen.findByText(
+    /Machine ID Conflict: a VxAdmin on the network has the same machine ID as this machine/
+  );
+  screen.getByText('Network Error');
+});

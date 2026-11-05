@@ -5,7 +5,6 @@ import {
   ok,
   type Result,
 } from '@votingworks/basics';
-import { open } from './open_file.js';
 import { napi } from './napi.js';
 
 /**
@@ -77,21 +76,12 @@ export function renameNoReplace(
  * use elsewhere. `ok()` means the advice was accepted, not that every page
  * is gone.
  */
-export async function dropPageCache(
-  path: string
-): Promise<Result<void, SyscallError>> {
-  const openResult = await open(path);
-  if (openResult.isErr()) {
-    return err(syscallError(openResult.err()));
-  }
-  const file = openResult.ok();
+export function dropPageCache(path: string): Result<void, SyscallError> {
   try {
-    napi.fadviseDontNeed(file.fd);
+    napi.fadviseDontNeed(path);
     return ok();
   } catch (error) {
     return err(syscallError(error));
-  } finally {
-    await file.close();
   }
 }
 
@@ -112,18 +102,11 @@ export async function dropPageCache(
 export async function syncFilesystem(
   path: string
 ): Promise<Result<void, SyscallError>> {
-  const openResult = await open(path);
-  if (openResult.isErr()) {
-    return err(syscallError(openResult.err()));
-  }
-  const file = openResult.ok();
   try {
-    napi.syncfs(file.fd);
+    await napi.syncfs(path);
     return ok();
   } catch (error) {
     return err(syscallError(error));
-  } finally {
-    await file.close();
   }
 }
 
@@ -132,8 +115,8 @@ export async function syncFilesystem(
  * closes, so dropping this on the floor — or dying — releases the lock; the
  * only reason to release it explicitly is to do so before the process exits.
  */
-export interface FileLock extends AsyncDisposable {
-  release: () => Promise<void>;
+export interface FileLock extends Disposable {
+  release: () => void;
 }
 
 /**
@@ -156,29 +139,19 @@ export function isLockHeldElsewhereError(error: SyscallError): boolean {
  * place when the lock is released, rather than unlinked — deleting it would
  * let a waiter lock a path the next arrival no longer shares.
  */
-export async function tryLockFileExclusive(
+export function tryLockFileExclusive(
   path: string
-): Promise<Result<FileLock, SyscallError>> {
-  const openResult = await open(path, 'a');
-  if (openResult.isErr()) {
-    return err(syscallError(openResult.err()));
-  }
-  const file = openResult.ok();
-
+): Result<FileLock, SyscallError> {
+  let lock: napi.ExclusiveLock;
   try {
-    napi.flockExclusiveNonblocking(file.fd);
+    lock = napi.lockFileExclusiveNonblocking(path);
   } catch (error) {
-    await file.close();
     return err(syscallError(error));
   }
 
-  let released = false;
-  async function release(): Promise<void> {
-    if (!released) {
-      released = true;
-      await file.close();
-    }
+  function release(): void {
+    lock.release();
   }
 
-  return ok({ release, [Symbol.asyncDispose]: release });
+  return ok({ release, [Symbol.dispose]: release });
 }

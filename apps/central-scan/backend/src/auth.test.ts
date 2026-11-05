@@ -1,5 +1,4 @@
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
-import getPort from 'get-port';
 import type { Server } from 'node:http';
 import { DateTime } from 'luxon';
 import {
@@ -28,7 +27,11 @@ import {
 } from './scanner.js';
 import { start } from './server.js';
 import { createWorkspace, type Workspace } from './util/workspace.js';
-import { buildMockLogger, configureStore } from '../test/helpers/setup_app.js';
+import {
+  buildMockLogger,
+  configureStore,
+  getListeningPort,
+} from '../test/helpers/setup_app.js';
 
 let apiClient: grout.Client<Api>;
 let auth: DippedSmartCardAuthApi;
@@ -38,7 +41,6 @@ let logger: Logger;
 let machine: BatchScannerStateMachine;
 
 beforeEach(async () => {
-  const port = await getPort();
   auth = buildMockDippedSmartCardAuth(vi.fn);
   workspace = createWorkspace(
     makeTemporaryDirectory(),
@@ -48,9 +50,6 @@ beforeEach(async () => {
   const scanner = makeMockScanner();
   machine = createBatchScannerStateMachine({ workspace, scanner, logger });
 
-  apiClient = grout.createClient({
-    baseUrl: `http://localhost:${port}/api`,
-  });
   server = start({
     app: buildCentralScannerApp({
       auth,
@@ -62,7 +61,11 @@ beforeEach(async () => {
     }),
     logger,
     workspace,
-    port,
+    port: 0,
+  });
+  const port = await getListeningPort(server);
+  apiClient = grout.createClient({
+    baseUrl: `http://localhost:${port}/api`,
   });
 });
 

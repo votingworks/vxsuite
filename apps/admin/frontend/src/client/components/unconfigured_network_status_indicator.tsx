@@ -52,6 +52,14 @@ export function UnconfiguredNetworkStatusIndicator({
           software version of the host
         </Row>
       );
+    case 'online-machine-id-conflict':
+      return (
+        <Row>
+          <Icons.Danger color="danger" />
+          Machine ID Conflict: this adjudication station has the same machine ID
+          as the host
+        </Row>
+      );
     case 'offline':
       return (
         <Row>

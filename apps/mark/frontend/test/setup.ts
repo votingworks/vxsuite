@@ -1,7 +1,6 @@
-import { afterAll, afterEach, beforeEach, vi } from 'vitest';
+import { afterAll, beforeEach, vi } from 'vitest';
 import '@votingworks/test-utils/vitest-setup';
 import '@votingworks/fixtures/vitest-setup';
-import fetchMock from 'fetch-mock';
 import { TextDecoder, TextEncoder } from 'node:util';
 import { cleanup, configure } from './react_testing_library.js';
 import '../src/polyfills.js';
@@ -16,11 +15,12 @@ beforeEach(() => {
 });
 
 beforeEach(() => {
-  fetchMock.mock();
-});
-
-afterEach(() => {
-  fetchMock.restore();
+  vi.stubGlobal(
+    'fetch',
+    vi.fn((input: RequestInfo | URL) =>
+      Promise.reject(new Error(`unexpected fetch: ${String(input)}`))
+    )
+  );
 });
 
 globalThis.TextDecoder = TextDecoder as typeof globalThis.TextDecoder;

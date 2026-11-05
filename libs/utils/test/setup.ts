@@ -1,12 +1,15 @@
-import { beforeEach } from 'vitest';
-import fetchMock from 'fetch-mock';
+import { beforeEach, vi } from 'vitest';
 import { clearImmediate, setImmediate } from 'node:timers';
 import { TextDecoder, TextEncoder } from 'node:util';
 import '@votingworks/fixtures/vitest-setup';
 
 beforeEach(() => {
-  fetchMock.reset();
-  fetchMock.mock();
+  vi.stubGlobal(
+    'fetch',
+    vi.fn((input: RequestInfo | URL) =>
+      Promise.reject(new Error(`unexpected fetch: ${String(input)}`))
+    )
+  );
 });
 
 globalThis.clearImmediate = clearImmediate;

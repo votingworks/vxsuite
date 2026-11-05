@@ -30,6 +30,7 @@ import { DateTime } from 'luxon';
 import { expect, test, vi } from 'vitest';
 
 import { assertDefined } from '@votingworks/basics';
+import { importElectionPackageForTest } from '@votingworks/backend/test-utils';
 import { Store } from './store.js';
 import { configureStore } from '../test/helpers/shared_helpers.js';
 
@@ -863,3 +864,15 @@ async function configureElectionNh(
 
   return { electionDefinition, pollingPlace };
 }
+
+test('an imported package without an election session is not configured', async () => {
+  const store = Store.memoryStore();
+  await importElectionPackageForTest(store.getElectionPackageStore(), {
+    electionDefinition:
+      electionTwoPartyPrimaryFixtures.readElectionDefinition(),
+  });
+
+  expect(store.hasElection()).toEqual(false);
+  expect(store.getElectionRecord()).toBeUndefined();
+  expect(store.getElectionKey()).toBeUndefined();
+});

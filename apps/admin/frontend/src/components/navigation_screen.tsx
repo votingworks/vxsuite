@@ -63,6 +63,8 @@ function HostNetworkStatusIndicator(): JSX.Element | null {
 
 interface Props {
   children: React.ReactNode;
+  navItems?: readonly NavItem[];
+  backRouterPath?: string;
   title?: string;
   parentRoutes?: Route[];
   noPadding?: boolean;
@@ -153,9 +155,15 @@ export const Header = styled(MainHeader)`
 
 export interface NavScreenLiteProps {
   children: React.ReactNode;
+  navItems?: readonly NavItem[];
+  backRouterPath?: string;
 }
 
-export function NavScreenLite({ children }: NavScreenLiteProps): JSX.Element {
+export function NavScreenLite({
+  children,
+  navItems,
+  backRouterPath,
+}: NavScreenLiteProps): JSX.Element {
   const { usbDriveStatus, auth, machineMode } = useContext(AppContext);
   const logOutMutation = sharedLogOut.useMutation();
   const ejectUsbDriveMutation = sharedEjectUsbDrive.useMutation();
@@ -163,7 +171,10 @@ export function NavScreenLite({ children }: NavScreenLiteProps): JSX.Element {
 
   return (
     <Screen flexDirection="row">
-      <Sidebar navItems={getNavItems(machineMode, auth)} />
+      <Sidebar
+        navItems={navItems ?? getNavItems(machineMode, auth)}
+        backRouterPath={backRouterPath}
+      />
       <Main flexColumn>
         {shouldShowToolbar(machineMode, auth) && (
           <Toolbar>
@@ -193,13 +204,15 @@ export function NavScreenLite({ children }: NavScreenLiteProps): JSX.Element {
 
 export function NavigationScreen({
   children,
+  navItems,
+  backRouterPath,
   title,
   parentRoutes,
   noPadding,
   style,
 }: Props): JSX.Element {
   return (
-    <NavScreenLite>
+    <NavScreenLite navItems={navItems} backRouterPath={backRouterPath}>
       <Header>
         <div>
           {title && (

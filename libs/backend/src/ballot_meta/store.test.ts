@@ -18,7 +18,7 @@ import {
 import { assertDefined } from '@votingworks/basics';
 import { zipFile } from '@votingworks/test-utils';
 import { withElectionPackageZip } from '../election_package/election_package_io.js';
-import { BallotMetaStore } from './store.js';
+import { BallotPositionsStore, CandidateOrderingsStore } from './store.js';
 
 const baseElection = electionGeneralFixtures.readElection();
 
@@ -48,6 +48,8 @@ const candidateOrderings2: CandidateOrderings = {
 
 const style1: BallotStyle = {
   ...assertDefined(baseElection.ballotStyles[0]),
+  id: 'style-1',
+  groupId: 'group-1',
   ballotPositions: [
     [[contestPos1], []],
     [[contestPos2], []],
@@ -57,6 +59,8 @@ const style1: BallotStyle = {
 
 const style2: BallotStyle = {
   ...assertDefined(baseElection.ballotStyles[1]),
+  id: 'style-2',
+  groupId: 'group-2',
   ballotPositions: [
     [[contestPos2], []],
     [[contestPos1], []],
@@ -82,7 +86,7 @@ test('non-split election definition - imports positions from parsed election', a
   };
 
   const client = Client.memoryClient(`${import.meta.dirname}/schema.sql`);
-  const store = new BallotMetaStore(client);
+  const store = new BallotPositionsStore(client);
 
   expect(store.hasPositions()).toBeFalsy();
 
@@ -107,7 +111,7 @@ test('split election definition - imports positions from ballotPositions.jsonl',
   const election: Election = { ...baseElection, ballotStyles: [] };
 
   const client = Client.memoryClient(`${import.meta.dirname}/schema.sql`);
-  const store = new BallotMetaStore(client);
+  const store = new BallotPositionsStore(client);
 
   expect(store.hasPositions()).toBeFalsy();
 
@@ -136,33 +140,39 @@ test('single-file election - imports candidate orderings from parsed election', 
     splitElectionDefinition: false,
   };
 
+  const style1a: BallotStyle = { ...style1, id: 'style-1a' };
+
   const style3NoOrderings: BallotStyle = {
     ...style2,
     id: 'style 3 - no orderings',
+    groupId: 'group 3 - no orderings',
     orderedCandidatesByContest: undefined,
   };
 
   const election: Election = {
     ...baseElection,
-    ballotStyles: [style1, style2, style3NoOrderings],
+    ballotStyles: [style1, style1a, style2, style3NoOrderings],
   };
 
   const client = Client.memoryClient(`${import.meta.dirname}/schema.sql`);
-  const store = new BallotMetaStore(client);
+  const store = new CandidateOrderingsStore(client);
 
   const pkgFile = makeTemporaryFile({ content: await zipFile({}) });
   await withElectionPackageZip(pkgFile, async (zip) => {
     await store.importCandidateOrderings(zip, election, settings);
   });
 
-  expect(store.getCandidateOrderings(style1.id)).toEqual(
+  expect(store.getCandidateOrderings(style1)).toEqual(
     style1.orderedCandidatesByContest
   );
-  expect(store.getCandidateOrderings(style2.id)).toEqual(
+  expect(store.getCandidateOrderings(style1a)).toEqual(
+    style1.orderedCandidatesByContest
+  );
+  expect(store.getCandidateOrderings(style2)).toEqual(
     style2.orderedCandidatesByContest
   );
-  expect(store.getCandidateOrderings(style3NoOrderings.id)).toBeNull();
-  expect(store.getCandidateOrderings('invalid')).toBeNull();
+  expect(store.getCandidateOrderings(style3NoOrderings)).toBeNull();
+  expect(store.getCandidateOrderings({ groupId: 'invalid' })).toBeNull();
 });
 
 test('split-file election - imports orderings from candidateOrderings.jsonl', async () => {
@@ -174,7 +184,7 @@ test('split-file election - imports orderings from candidateOrderings.jsonl', as
   const election: Election = { ...baseElection, ballotStyles: [] };
 
   const client = Client.memoryClient(`${import.meta.dirname}/schema.sql`);
-  const store = new BallotMetaStore(client);
+  const store = new CandidateOrderingsStore(client);
 
   const pkgData = await zipFile({
     [ElectionPackageFileName.CANDIDATE_ORDERINGS]: [
@@ -189,20 +199,20 @@ test('split-file election - imports orderings from candidateOrderings.jsonl', as
     await store.importCandidateOrderings(zip, election, settings);
   });
 
-  expect(store.getCandidateOrderings(style1.id)).toEqual(
+  expect(store.getCandidateOrderings(style1)).toEqual(
     style1.orderedCandidatesByContest
   );
-  expect(store.getCandidateOrderings(style2.id)).toEqual(
+  expect(store.getCandidateOrderings(style2)).toEqual(
     style2.orderedCandidatesByContest
   );
-  expect(store.getCandidateOrderings('invalid')).toBeNull();
+  expect(store.getCandidateOrderings({ groupId: 'invalid' })).toBeNull();
 });
 
 function candidateOrderingsFromBallotStyle(
   bs: BallotStyle
 ): BallotCandidateOrderings {
   return {
-    ballotStyleId: bs.id,
+    ballotStyleGroupId: bs.groupId,
     orderings: assertDefined(bs.orderedCandidatesByContest),
   };
 }

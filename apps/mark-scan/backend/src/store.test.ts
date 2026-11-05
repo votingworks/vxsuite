@@ -1,44 +1,80 @@
 import { expect, test, vi } from 'vitest';
 import { safeParseSystemSettings, TEST_JURISDICTION } from '@votingworks/types';
-import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
+import { mockBaseLogger } from '@votingworks/logging';
+import {
+  electionTwoPartyPrimaryFixtures,
+  makeTemporaryFile,
+} from '@votingworks/fixtures';
 import { DateTime } from 'luxon';
+import { importElectionPackageForTest } from '@votingworks/backend/test-utils';
 import { Store } from './store.js';
+import { configureStore } from '../test/store_helpers.js';
 
 // We pause in some of these tests so we need to increase the timeout
 vi.setConfig({ testTimeout: 20000 });
-
-const jurisdiction = TEST_JURISDICTION;
 
 test('getDbPath', () => {
   const store = Store.memoryStore();
   expect(store.getDbPath()).toEqual(':memory:');
 });
 
-test('get/set/has election', () => {
+test('get/set/has election', async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
   const store = Store.memoryStore();
 
   expect(store.getElectionRecord()).toBeUndefined();
+  expect(store.getElectionKey()).toBeUndefined();
+  expect(store.getJurisdiction()).toBeUndefined();
   expect(store.hasElection()).toBeFalsy();
 
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
-    jurisdiction,
-    electionPackageHash: 'test-election-package-hash',
-    ballotHash: electionDefinition.ballotHash,
-  });
+  await configureStore(store, { electionDefinition });
   expect(store.getElectionRecord()).toEqual({
     electionDefinition,
     electionPackageHash: 'test-election-package-hash',
   });
+  expect(store.getElectionKey()).toEqual({
+    id: electionDefinition.election.id,
+    date: electionDefinition.election.date,
+  });
+  expect(store.getJurisdiction()).toEqual(TEST_JURISDICTION);
   expect(store.hasElection()).toBeTruthy();
 
-  store.setElectionAndJurisdiction(undefined);
+  store.reset();
   expect(store.getElectionRecord()).toBeUndefined();
+  expect(store.hasElection()).toBeFalsy();
 });
 
-test('get/set/delete system settings', () => {
+test('fileStore', async () => {
+  const sessionDbPath = makeTemporaryFile();
+  const electionPackageDbPath = makeTemporaryFile();
+  const store = Store.fileStore(
+    sessionDbPath,
+    electionPackageDbPath,
+    mockBaseLogger({ fn: vi.fn })
+  );
+  expect(store.getDbPath()).toEqual(sessionDbPath);
+  expect(store.getElectionPackageStore().getDbPath()).toEqual(
+    electionPackageDbPath
+  );
+
+  const electionDefinition =
+    electionTwoPartyPrimaryFixtures.readElectionDefinition();
+  await configureStore(store, { electionDefinition });
+  expect(store.getElectionRecord()?.electionDefinition).toEqual(
+    electionDefinition
+  );
+  store.close();
+});
+
+test('close', () => {
+  const store = Store.memoryStore();
+  store.close();
+  expect(() => store.hasElection()).toThrow(/is closed/);
+  expect(() => store.getElectionRecord()).toThrow(/is closed/);
+});
+
+test('get system settings', async () => {
   const store = Store.memoryStore();
 
   expect(store.getSystemSettings()).toBeUndefined();
@@ -46,14 +82,18 @@ test('get/set/delete system settings', () => {
     electionTwoPartyPrimaryFixtures.systemSettings.asText()
   ).unsafeUnwrap();
 
-  store.setSystemSettings(systemSettings);
+  await configureStore(store, {
+    electionDefinition:
+      electionTwoPartyPrimaryFixtures.readElectionDefinition(),
+    systemSettings,
+  });
   expect(store.getSystemSettings()).toEqual(systemSettings);
 
-  store.deleteSystemSettings();
+  store.reset();
   expect(store.getSystemSettings()).toBeUndefined();
 });
 
-test('get/set ballots cast since last box change', () => {
+test('get/set ballots cast since last box change', async () => {
   const store = Store.memoryStore();
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.readElectionDefinition();
@@ -61,45 +101,13 @@ test('get/set ballots cast since last box change', () => {
   // 0 if no election is defined
   expect(store.getBallotsCastSinceLastBoxChange()).toEqual(0);
 
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
-    jurisdiction,
-    electionPackageHash: 'test-election-package-hash',
-    ballotHash: electionDefinition.ballotHash,
-  });
+  await configureStore(store, { electionDefinition });
 
   // Initialized to 0 when election is defined
   expect(store.getBallotsCastSinceLastBoxChange()).toEqual(0);
 
   store.setBallotsCastSinceLastBoxChange(1);
   expect(store.getBallotsCastSinceLastBoxChange()).toEqual(1);
-});
-
-test('errors when election definition cannot be parsed', () => {
-  const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({
-    electionData: '{malformed json',
-    jurisdiction,
-    electionPackageHash: 'test-election-package-hash',
-    ballotHash: 'test-ballot-hash',
-  });
-  expect(() => store.getElectionRecord()).toThrow(SyntaxError);
-});
-
-test('reset clears the database', () => {
-  const electionDefinition =
-    electionTwoPartyPrimaryFixtures.readElectionDefinition();
-  const store = Store.memoryStore();
-
-  store.setElectionAndJurisdiction({
-    electionData: electionDefinition.electionData,
-    jurisdiction,
-    electionPackageHash: 'test-election-package-hash',
-    ballotHash: electionDefinition.ballotHash,
-  });
-  expect(store.hasElection()).toBeTruthy();
-  store.reset();
-  expect(store.hasElection()).toBeFalsy();
 });
 
 test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage', () => {
@@ -143,4 +151,16 @@ test('getElectricalTestingStatusMessages and setElectricalTestingStatusMessage',
       updatedAt: expect.any(DateTime),
     },
   ]);
+});
+
+test('an imported package without an election session is not configured', async () => {
+  const store = Store.memoryStore();
+  await importElectionPackageForTest(store.getElectionPackageStore(), {
+    electionDefinition:
+      electionTwoPartyPrimaryFixtures.readElectionDefinition(),
+  });
+
+  expect(store.hasElection()).toEqual(false);
+  expect(store.getElectionRecord()).toBeUndefined();
+  expect(store.getElectionKey()).toBeUndefined();
 });

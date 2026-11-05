@@ -24,6 +24,8 @@ function connectionInfoForRegistrationError(
   switch (error.type) {
     case 'code-version-mismatch':
       return { status: 'online-code-version-mismatch', hostMachineId };
+    case 'machine-id-conflict':
+      return { status: 'online-machine-id-conflict', hostMachineId };
     case 'scanner-unconfigured':
       return { status: 'online-machine-unconfigured', hostMachineId };
     case 'host-unconfigured':
@@ -55,7 +57,7 @@ export function startScannerNetworking({
 }: {
   logger: BaseLogger;
   store: Store;
-}): void {
+}): () => void {
   debug('Starting scanner networking');
   logger.log(LogEventId.CentralScanNetworkStatus, 'system', {
     message: 'Starting VxAdmin host discovery.',
@@ -92,8 +94,11 @@ export function startScannerNetworking({
 
   let isPolling = false;
 
+  let stopped = false;
+  let interval: Optional<NodeJS.Timeout>;
   process.nextTick(() => {
-    setInterval(async () => {
+    if (stopped) return;
+    interval = setInterval(async () => {
       // @coverage-exclude: re-entrancy guard
       if (isPolling) return;
       isPolling = true;
@@ -205,4 +210,9 @@ export function startScannerNetworking({
       }
     }, NETWORK_POLLING_INTERVAL_MS);
   });
+
+  return () => {
+    stopped = true;
+    clearInterval(interval);
+  };
 }

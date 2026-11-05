@@ -16,6 +16,7 @@ export interface VxAdminHostMachineConfig {
  */
 export type RegisterScannerError =
   | { type: 'code-version-mismatch' }
+  | { type: 'machine-id-conflict' }
   | { type: 'scanner-unconfigured' }
   | { type: 'host-unconfigured' }
   | { type: 'ballot-hash-mismatch' }

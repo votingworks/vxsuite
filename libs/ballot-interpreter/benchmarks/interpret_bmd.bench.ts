@@ -1,4 +1,4 @@
-import { beforeAll, test } from 'vitest';
+import { afterAll, beforeAll, test } from 'vitest';
 import { assertDefined } from '@votingworks/basics';
 import { vxFamousNamesFixtures } from '@votingworks/hmpb';
 import { asSheet, DEFAULT_MARK_THRESHOLDS } from '@votingworks/types';
@@ -9,6 +9,10 @@ import {
   renderBmdBallotFixture,
 } from '@votingworks/bmd-ballot-fixtures';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import {
+  type ElectionPackageIncluding,
+  ElectionPackageStore,
+} from '@votingworks/backend';
 import { interpretSheet } from '../src/index.js';
 import {
   makeInterpreterDb,
@@ -18,9 +22,20 @@ import { benchmarkRegressionTest } from './benchmarking.js';
 
 const { electionDefinition, precinctId } = vxFamousNamesFixtures;
 let dbPath: string;
+let db: ElectionPackageStore<ElectionPackageIncluding<'candidateOrderings'>>;
 
 beforeAll(async () => {
   dbPath = await makeInterpreterDb(electionDefinition);
+  db = ElectionPackageStore.fileStore(dbPath, {
+    ballotPositions: false,
+    ballots: false,
+    candidateOrderings: true,
+    uiStrings: false,
+  });
+});
+
+afterAll(() => {
+  db.close();
 });
 
 test('Blank BMD', async () => {
@@ -48,6 +63,7 @@ test('Blank BMD', async () => {
           adjudicationReasons: [],
           dbPath,
         },
+        (bs) => db.getCandidateOrderingsStore().getCandidateOrderings(bs),
         famousNamesBmdBallot
       );
     },

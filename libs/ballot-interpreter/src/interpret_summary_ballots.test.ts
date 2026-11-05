@@ -372,6 +372,7 @@ describe('VX BMD interpretation', () => {
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
       },
+      (bs) => bs.orderedCandidatesByContest,
       validBmdSheet
     );
     expect(interpretation).toMatchSnapshot();
@@ -386,6 +387,7 @@ describe('VX BMD interpretation', () => {
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
       },
+      (bs) => bs.orderedCandidatesByContest,
       validBmdSheet
     );
 
@@ -401,6 +403,7 @@ describe('VX BMD interpretation', () => {
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
       },
+      (bs) => bs.orderedCandidatesByContest,
       validBmdSheet
     );
 
@@ -416,6 +419,7 @@ describe('VX BMD interpretation', () => {
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
       },
+      (bs) => bs.orderedCandidatesByContest,
       validBmdSheet
     );
 
@@ -434,6 +438,7 @@ describe('VX BMD interpretation', () => {
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
       },
+      (bs) => bs.orderedCandidatesByContest,
       validBmdSheet
     );
 
@@ -479,6 +484,7 @@ describe('VX BMD interpretation', () => {
         adjudicationReasons: [],
         frontNormalizedImageOutputPath: outputPath,
       },
+      (bs) => bs.orderedCandidatesByContest,
       extendedSheet
     );
 
@@ -509,6 +515,7 @@ describe('VX BMD interpretation', () => {
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
       },
+      (bs) => bs.orderedCandidatesByContest,
       [bmdBlankPage, bmdBlankPage]
     );
 
@@ -525,6 +532,7 @@ describe('VX BMD interpretation', () => {
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
       },
+      (bs) => bs.orderedCandidatesByContest,
       [bmdSummaryBallotPage, bmdSummaryBallotPage]
     );
 
@@ -565,7 +573,11 @@ describe('VX BMD interpretation', () => {
       }
     );
 
-    const interpretationResult = await interpretSheet(options, validBmdSheet);
+    const interpretationResult = await interpretSheet(
+      options,
+      (bs) => bs.orderedCandidatesByContest,
+      validBmdSheet
+    );
     expect(interpretationResult[0]).toEqual(blankPageInterpretation);
   });
 

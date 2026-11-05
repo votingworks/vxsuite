@@ -2,11 +2,11 @@ import {
   AdjudicationReason,
   type AdjudicationReasonInfo,
   type Contest,
-  type BallotStyle,
   type ContestOption,
   MarkStatus,
   type VotesDict,
   WriteInAreaStatus,
+  type OptionalCandidateOrderings,
 } from '@votingworks/types';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { uniqueContestOptions } from '@votingworks/utils';
@@ -99,11 +99,10 @@ export function getAllPossibleAdjudicationReasons(
     markStatus: MarkStatus;
     writeInAreaStatus: WriteInAreaStatus;
   }>,
-  ballotStyle: BallotStyle
+  candidateOrderings: OptionalCandidateOrderings
 ): AdjudicationReasonInfo[] {
   if (contests.length === 0) return [];
 
-  const candidateOrderings = ballotStyle.orderedCandidatesByContest;
   const reasons: AdjudicationReasonInfo[] = [];
 
   let isBlankBallot = true;

@@ -1733,10 +1733,10 @@ function buildApi({
     },
 
     getCandidateOrderings(input: {
-      ballotStyleId: string;
+      ballotStyleGroupId: string;
     }): CandidateOrderings | null {
       return store.getCandidateOrderings({
-        ballotStyleId: input.ballotStyleId,
+        ballotStyleGroupId: input.ballotStyleGroupId,
         electionId: loadCurrentElectionIdOrThrow(workspace),
       });
     },

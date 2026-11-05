@@ -132,8 +132,8 @@ export async function renderBallot({
   );
 
   const candidateOrderings = store
-    .getBallotMetaStore()
-    .getCandidateOrderings(ballotStyleId);
+    .getCandidateOrderingsStore()
+    .getCandidateOrderings(ballotStyle);
 
   const votes = makeDerivedStraightPartyVotesExplicit({
     election: electionDefinition.election,

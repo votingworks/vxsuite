@@ -1,0 +1,39 @@
+{
+  "name": "@votingworks/election-definition-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Election definition logic and design API contract shared by VxHub and VxAdmin",
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "default": "./build/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "build": "pnpm -w vx-task build $npm_package_name",
+    "build:self": "tsc --build tsconfig.build.json",
+    "clean": "pnpm -w vx-task clean $npm_package_name",
+    "clean:self": "rm -rf build",
+    "lint": "pnpm -w vx-task lint $npm_package_name",
+    "lint:fix": "pnpm type-check && eslint --cache . --fix",
+    "lint:self": "pnpm type-check && eslint --cache .",
+    "test": "pnpm -w vx-task build $npm_package_name && vitest",
+    "test:run": "pnpm -w vx-task test:run $npm_package_name",
+    "test:run:self": "vitest run --passWithNoTests",
+    "type-check": "tsc --build"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "@vitest/coverage-istanbul": "5.0.2",
+    "@votingworks/coverage-check": "workspace:*",
+    "eslint-plugin-vx": "workspace:*",
+    "vitest": "5.0.2"
+  },
+  "packageManager": "pnpm@12.16.1"
+}

@@ -24,6 +24,7 @@ import {
   testCdfBallotDefinition,
   DEFAULT_SYSTEM_SETTINGS,
   anyPollingPlace,
+  type BallotMode,
 } from '@votingworks/types';
 import {
   electionFamousNames2021Fixtures,
@@ -302,11 +303,11 @@ test('configureElectionPackageFromUsb reads to and writes from store', async () 
   });
 
   const { election } = electionDefinition;
-  const ballotMetaStore = workspace.store.getBallotMetaStore();
-
   // [TODO] Add test for split-file elections (pending shared fixtures).
   for (const bs of election.ballotStyles) {
-    expect(ballotMetaStore.getPositions(bs.id)).toEqual(bs.ballotPositions);
+    expect(
+      workspace.store.getBallotPositionsStore().getPositions(bs.id)
+    ).toEqual(bs.ballotPositions);
   }
 });
 
@@ -1255,6 +1256,33 @@ test('printAllBallotStyles prints every style and updates counts in a stable ord
   }
 });
 
+test('getBallots uses the machine ballot mode even if the request names one', async () => {
+  const {
+    famousNamesMultiLangElectionDefinition,
+    famousNamesMultiLangOfficialAndTestBallots,
+  } = sharedFixtures;
+  await configureMachine({
+    electionDefinition: famousNamesMultiLangElectionDefinition,
+    ballots: famousNamesMultiLangOfficialAndTestBallots,
+    apiClient,
+    auth,
+    mockUsbDrive,
+  });
+  await apiClient.setTestMode({ testMode: true });
+
+  const requestWithBallotMode: { ballotMode: BallotMode } = {
+    ballotMode: 'official',
+  };
+  const ballots = await apiClient.getBallots(
+    requestWithBallotMode as Parameters<typeof apiClient.getBallots>[0]
+  );
+
+  expect(ballots).not.toHaveLength(0);
+  for (const ballot of ballots) {
+    expect(ballot.ballotMode).toEqual('test');
+  }
+});
+
 test('getDistinctBallotStylesCount returns correct counts in official and test modes', async () => {
   const {
     famousNamesMultiLangElectionDefinition,
@@ -1366,7 +1394,7 @@ test('getTestDeckBallotCount returns 0 when election has no gridLayouts', async 
     mockUsbDrive,
 
     // Use split-file configuration with no ballot positions, to assert that the
-    // result is based on `BallotMetaStore`.
+    // result is based on `BallotPositionsStore`.
     ballotPositions: [],
     candidateOrderings: [],
     systemSettings: {

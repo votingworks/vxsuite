@@ -1254,10 +1254,10 @@ export const saveReadinessReport = {
 } as const;
 
 export const getCandidateOrderings = {
-  queryKey(p: { ballotStyleId: string }): QueryKey {
-    return ['getCandidateOrderings', p.ballotStyleId];
+  queryKey(p: { ballotStyleGroupId: string }): QueryKey {
+    return ['getCandidateOrderings', p.ballotStyleGroupId];
   },
-  useQuery(p: { ballotStyleId: string }) {
+  useQuery(p: { ballotStyleGroupId: string }) {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(p), () => apiClient.getCandidateOrderings(p));
   },

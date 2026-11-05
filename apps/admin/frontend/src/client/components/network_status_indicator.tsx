@@ -19,6 +19,7 @@ function indicatorStatus(
       return 'no-host-connected';
     case 'online-multiple-hosts-detected':
     case 'online-incompatible-host-version':
+    case 'online-machine-id-conflict':
       return 'error';
     default:
       return throwIllegalValue(status);

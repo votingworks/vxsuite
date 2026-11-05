@@ -56,7 +56,7 @@ const electionDefinition = parseElectionDefinition(
 );
 
 afterEach(() => {
-  workspace.reset();
+  workspace.unconfigure();
 });
 
 runUiStringApiTests({

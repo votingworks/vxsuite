@@ -55,6 +55,7 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
       adjudicationReasons: [],
       dbPath: await makeInterpreterDb(electionDefinition),
     },
+    (bs) => bs.orderedCandidatesByContest,
     bmdBallot
   );
 
@@ -79,6 +80,7 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
       adjudicationReasons: [],
       dbPath: await makeInterpreterDb(electionDefinition),
     },
+    (bs) => bs.orderedCandidatesByContest,
     hmpbBallot
   );
 
@@ -121,6 +123,7 @@ test('interpret BMD ballot with test/official ballot mode mismatch error', async
       adjudicationReasons: [],
       dbPath: await makeInterpreterDb(electionDefinition),
     },
+    (bs) => bs.orderedCandidatesByContest,
     bmdBallot
   );
 

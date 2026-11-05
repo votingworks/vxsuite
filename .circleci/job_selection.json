@@ -33,6 +33,8 @@
     "libs/db": "test-libs-db",
     "libs/dev-dock/backend": "test-libs-dev-dock-backend",
     "libs/dev-dock/frontend": "test-libs-dev-dock-frontend",
+    "libs/election-definition-backend": "test-libs-election-definition-backend",
+    "libs/election-definition-ui": "test-libs-election-definition-ui",
     "libs/eslint-plugin-vx": "test-libs-eslint-plugin-vx",
     "libs/fixture-generators": "test-libs-fixture-generators",
     "libs/fixtures": "test-libs-fixtures",

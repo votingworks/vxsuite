@@ -445,7 +445,8 @@ export interface BallotStyle {
   /**
    * @deprecated Candidate orderings will be exported in a separate
    * election package file and imported into a dedicated DB table (see
-   * `BallotMetaStore`). Safe to use with test fixtures for now.
+   * `libs/backend:CandidateOrderingsStore`). Safe to use with test fixtures
+   * for now.
    */
   readonly orderedCandidatesByContest?: CandidateOrderings;
   /**
@@ -454,7 +455,7 @@ export interface BallotStyle {
    * styles that have not been laid out (e.g. BMD-only or draft elections).
    *
    * @deprecated Ballot positions are moving to a separate DB table/election
-   * package file. See `libs/backend:BallotMetaStore`.
+   * package file. See `libs/backend:BallotPositionsStore`.
    */
   readonly ballotPositions?: readonly SheetPositions[];
 }
@@ -608,12 +609,12 @@ export const BallotPositionsSchema: z.ZodSchema<BallotPositions> = z.object({
 });
 
 export interface BallotCandidateOrderings {
-  ballotStyleId: BallotStyleId;
+  ballotStyleGroupId: BallotStyleGroupId;
   orderings: CandidateOrderings;
 }
 export const BallotCandidateOrderingsSchema: z.ZodSchema<BallotCandidateOrderings> =
   z.object({
-    ballotStyleId: IdSchema,
+    ballotStyleGroupId: IdSchema,
     orderings: CandidateOrderingsSchema,
   });
 

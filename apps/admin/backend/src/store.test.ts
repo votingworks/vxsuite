@@ -180,9 +180,28 @@ describe('addElection populates candidate_orderings', () => {
 
   test('for single-file elections', async () => {
     const store = Store.memoryStore(makeTemporaryDirectory());
+    const fixtureElection = fixtures.readElection();
+
+    const inputElection: Election = {
+      ...fixtureElection,
+      ballotStyles: [
+        ...fixtureElection.ballotStyles,
+        // Coverage for ballot style group de-duplication:
+        {
+          ...fixtureElection.ballotStyles[0]!,
+          id: 'group1_lang1',
+          groupId: 'group1',
+        },
+        {
+          ...fixtureElection.ballotStyles[0]!,
+          id: 'group1_lang2',
+          groupId: 'group1',
+        },
+      ],
+    };
 
     const { election, electionId } = await configure(store, {
-      electionData: fixtures.electionJson.asText(),
+      electionData: JSON.stringify(inputElection),
       settings: { ...DEFAULT_SYSTEM_SETTINGS, splitElectionDefinition: false },
     });
 
@@ -190,19 +209,25 @@ describe('addElection populates candidate_orderings', () => {
 
     for (const bs of election.ballotStyles) {
       expect(
-        store.getCandidateOrderings({ ballotStyleId: bs.id, electionId })
+        store.getCandidateOrderings({
+          ballotStyleGroupId: bs.groupId,
+          electionId,
+        })
       ).toEqual(bs.orderedCandidatesByContest ?? null);
 
       expect(
         store.getCandidateOrderings({
-          ballotStyleId: bs.id,
+          ballotStyleGroupId: bs.groupId,
           electionId: 'invalid',
         })
       ).toBeNull();
     }
 
     expect(
-      store.getCandidateOrderings({ ballotStyleId: 'no-orderings', electionId })
+      store.getCandidateOrderings({
+        ballotStyleGroupId: 'no-orderings',
+        electionId,
+      })
     ).toBeNull();
   });
 
@@ -222,18 +247,24 @@ describe('addElection populates candidate_orderings', () => {
       settings: { ...DEFAULT_SYSTEM_SETTINGS, splitElectionDefinition: true },
     });
 
-    for (const { ballotStyleId, orderings } of candidateOrderings) {
+    for (const { ballotStyleGroupId, orderings } of candidateOrderings) {
       expect(
-        store.getCandidateOrderings({ ballotStyleId, electionId })
+        store.getCandidateOrderings({ ballotStyleGroupId, electionId })
       ).toEqual(orderings);
 
       expect(
-        store.getCandidateOrderings({ ballotStyleId, electionId: 'invalid' })
+        store.getCandidateOrderings({
+          ballotStyleGroupId,
+          electionId: 'invalid',
+        })
       ).toBeNull();
     }
 
     expect(
-      store.getCandidateOrderings({ ballotStyleId: 'no-orderings', electionId })
+      store.getCandidateOrderings({
+        ballotStyleGroupId: 'no-orderings',
+        electionId,
+      })
     ).toBeNull();
   });
 
@@ -1849,7 +1880,9 @@ test('getBallotAdjudicationData uses DB candidate orderings', async () => {
     electionData,
     electionPackageHash: 'pkg-hash',
     electionPackageSourceFilePath: await writeTempElectionZip({
-      candidateOrderings: [{ ballotStyleId: ballotStyle.id, orderings }],
+      candidateOrderings: [
+        { ballotStyleGroupId: ballotStyle.groupId, orderings },
+      ],
       electionDefinition: {
         ballotHash: 'unused',
         election: 'unused' as unknown as Election,

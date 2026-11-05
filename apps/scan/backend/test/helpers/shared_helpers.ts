@@ -1,4 +1,3 @@
-import { createRequire } from 'node:module';
 import { type Mocked, expect, vi } from 'vitest';
 import type { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { iter, ok } from '@votingworks/basics';
@@ -6,7 +5,6 @@ import {
   mockElectionPackageFileTree,
   type PartialElectionPackage,
 } from '@votingworks/backend';
-import { importElectionPackageForTest } from '@votingworks/backend/test-utils';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import type * as grout from '@votingworks/grout';
 import {
@@ -23,11 +21,8 @@ import {
   type VotesDict,
   asSheet,
   constructElectionKey,
-  type ElectionDefinition,
   pollingPlaceFromElection,
   type RgbaImageData,
-  type SystemSettings,
-  TEST_JURISDICTION,
 } from '@votingworks/types';
 import type { MockUsbDrive } from '@votingworks/usb-drive';
 import { mockLogger, LogSource, type MockLogger } from '@votingworks/logging';
@@ -41,11 +36,6 @@ import type {
 import type { Store } from '../../src/store.js';
 import { getUserRole } from '../../src/util/auth.js';
 import type { Workspace } from '../../src/util/workspace.js';
-// `wait-for-expect` is CJS with an ESM `export default` in its types, which node16
-// can't bind to the callable; load it via require.
-const waitForExpect = createRequire(import.meta.url)(
-  'wait-for-expect'
-) as typeof import('wait-for-expect').default;
 
 export interface ExpectedScannerStatus extends Partial<PrecinctScannerStatus> {
   state: PrecinctScannerState;
@@ -72,9 +62,12 @@ export async function waitForStatus(
   apiClient: grout.Client<Api>,
   status: ExpectedScannerStatus
 ): Promise<void> {
-  await waitForExpect(async () => {
-    await expectStatus(apiClient, status);
-  }, 2_000);
+  await vi.waitFor(
+    async () => {
+      await expectStatus(apiClient, status);
+    },
+    { timeout: 2_000 }
+  );
 }
 
 /**
@@ -147,10 +140,9 @@ export async function configureApp(
 export async function waitForContinuousExportToUsbDrive(
   store: Store
 ): Promise<void> {
-  await waitForExpect(
+  await vi.waitFor(
     () => expect(store.getPendingContinuousExportOperations()).toEqual([]),
-    10000,
-    250
+    { timeout: 10_000, interval: 250 }
   );
 }
 
@@ -237,37 +229,4 @@ export function makeHmpbSheet({
   return [makePage(1, frontVotes), makePage(2, backVotes)];
 }
 
-/**
- * Configures `store` from a package built from `electionPackage`, the way the
- * app does, and starts the election session.
- */
-export async function configureStore(
-  store: Store,
-  {
-    electionDefinition,
-    systemSettings,
-    jurisdiction = TEST_JURISDICTION,
-    electionPackageHash = 'test-election-package-hash',
-    pollingPlaceId,
-  }: {
-    electionDefinition: ElectionDefinition;
-    systemSettings?: SystemSettings;
-    jurisdiction?: string;
-    electionPackageHash?: string;
-    pollingPlaceId?: string;
-  }
-): Promise<void> {
-  // Importing streams the package zip, which stalls under fake timers.
-  const fakeTimers = vi.isFakeTimers();
-  if (fakeTimers) vi.useRealTimers();
-  await importElectionPackageForTest(
-    store.getElectionPackageStore(),
-    { electionDefinition, systemSettings },
-    { jurisdiction, electionPackageHash }
-  );
-  if (fakeTimers) vi.useFakeTimers();
-  store.startElectionSession();
-  if (pollingPlaceId) {
-    store.setPollingPlaceId(pollingPlaceId);
-  }
-}
+export { configureStoreForTest as configureStore } from '@votingworks/backend/vitest-utils';

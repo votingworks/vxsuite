@@ -25,11 +25,9 @@ export async function importElectionPackageForTest(
   {
     jurisdiction = 'test-jurisdiction',
     electionPackageHash,
-    uiStrings,
   }: {
     jurisdiction?: string;
     electionPackageHash?: string;
-    uiStrings?: boolean;
   } = {}
 ): Promise<string> {
   const filePath = join(
@@ -48,7 +46,6 @@ export async function importElectionPackageForTest(
     filePath,
     jurisdiction,
     logger: new BaseLogger(LogSource.System),
-    uiStrings,
   });
   return hash;
 }
@@ -68,7 +65,12 @@ export async function createElectionPackageDbForTest(
     mkdtempSync(join(tmpdir(), 'election-package-db-')),
     'election-package.db'
   );
-  const store = ElectionPackageStore.fileStore(dbPath);
+  const store = ElectionPackageStore.fileStore(dbPath, {
+    uiStrings: true,
+    ballots: true,
+    ballotPositions: true,
+    candidateOrderings: true,
+  });
   await importElectionPackageForTest(store, {
     electionDefinition,
     systemSettings: {

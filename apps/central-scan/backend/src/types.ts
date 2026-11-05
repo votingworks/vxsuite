@@ -39,6 +39,7 @@ export type NetworkConnectionStatus =
   | 'online-waiting-for-host'
   | 'online-multiple-hosts-detected'
   | 'online-code-version-mismatch'
+  | 'online-machine-id-conflict'
   | 'online-machine-unconfigured'
   | 'online-host-unconfigured'
   | 'online-ballot-hash-mismatch'
@@ -63,6 +64,7 @@ export type NetworkConnectionInfo =
   | {
       status:
         | 'online-code-version-mismatch'
+        | 'online-machine-id-conflict'
         | 'online-machine-unconfigured'
         | 'online-host-unconfigured'
         | 'online-ballot-hash-mismatch'
